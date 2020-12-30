@@ -23,8 +23,8 @@ import cn.taketoday.context.utils.ClassUtils;
 
 public abstract class ProxyFactory {
 
-    public static final <T> T getProxy(Class<T> type, InvocationHandler handler) {
-        return type.cast(Proxy.newProxyInstance(ClassUtils.getClassLoader(), new Class<?>[] { type }, handler));
-    }
+  public static final <T> T getProxy(Class<T> type, InvocationHandler handler) {
+    return type.cast(Proxy.newProxyInstance(ClassUtils.getClassLoader(), new Class<?>[] { type }, handler));
+  }
 
 }

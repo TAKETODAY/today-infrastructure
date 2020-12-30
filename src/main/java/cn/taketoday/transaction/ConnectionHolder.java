@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -30,115 +30,115 @@ import java.util.Objects;
  */
 public class ConnectionHolder extends AbstractResourceHolder {
 
-    /**
-     * Prefix for savepoint names.
-     */
-    public static final String SAVEPOINT_NAME_PREFIX = "SAVEPOINT_";
+  /**
+   * Prefix for savepoint names.
+   */
+  public static final String SAVEPOINT_NAME_PREFIX = "SAVEPOINT_";
 
-    private Connection connection;
+  private Connection connection;
 
-    private boolean transactionActive = false;
+  private boolean transactionActive = false;
 
-    private Boolean savepointsSupported;
+  private Boolean savepointsSupported;
 
-    private int savepointCounter = 0;
+  private int savepointCounter = 0;
 
-    public ConnectionHolder(Connection connection) {
-        this.connection = connection;
+  public ConnectionHolder(Connection connection) {
+    this.connection = connection;
+  }
+
+  public ConnectionHolder(Connection connection, boolean transactionActive) {
+    this(connection);
+    this.transactionActive = transactionActive;
+  }
+
+  /**
+   * Return whether this holder currently has a Connection.
+   */
+  public boolean hasConnection() {
+    return this.connection != null;
+  }
+
+  /**
+   * Return whether JDBC 3.0 Savepoints are supported. Caches the flag for the
+   * lifetime of this ConnectionHolder.
+   *
+   * @throws SQLException
+   *             if thrown by the JDBC driver
+   */
+  public boolean supportsSavepoints() throws SQLException {
+    if (this.savepointsSupported == null) {
+      this.savepointsSupported = connection.getMetaData().supportsSavepoints();
     }
+    return this.savepointsSupported;
+  }
 
-    public ConnectionHolder(Connection connection, boolean transactionActive) {
-        this(connection);
-        this.transactionActive = transactionActive;
+  /**
+   * Create a new JDBC 3.0 Savepoint for the current Connection, using generated
+   * savepoint names that are unique for the Connection.
+   *
+   * @return the new Savepoint
+   * @throws SQLException
+   *             if thrown by the JDBC driver
+   */
+  public Savepoint createSavepoint() throws SQLException {
+    this.savepointCounter++;
+    return connection.setSavepoint(SAVEPOINT_NAME_PREFIX + this.savepointCounter);
+  }
+
+  /**
+   * Releases the current Connection held by this ConnectionHolder.
+   */
+  @Override
+  public void released() {
+
+    super.released();
+    if (!isOpen()) {
+      releaseInternal(connection);
     }
+  }
 
-    /**
-     * Return whether this holder currently has a Connection.
-     */
-    public boolean hasConnection() {
-        return this.connection != null;
-    }
+  protected void releaseInternal(Connection connection) {}
 
-    /**
-     * Return whether JDBC 3.0 Savepoints are supported. Caches the flag for the
-     * lifetime of this ConnectionHolder.
-     * 
-     * @throws SQLException
-     *             if thrown by the JDBC driver
-     */
-    public boolean supportsSavepoints() throws SQLException {
-        if (this.savepointsSupported == null) {
-            this.savepointsSupported = connection.getMetaData().supportsSavepoints();
-        }
-        return this.savepointsSupported;
-    }
+  @Override
+  public void clear() {
+    super.clear();
+    this.transactionActive = false;
+    this.savepointsSupported = null;
+    this.savepointCounter = 0;
+  }
 
-    /**
-     * Create a new JDBC 3.0 Savepoint for the current Connection, using generated
-     * savepoint names that are unique for the Connection.
-     * 
-     * @return the new Savepoint
-     * @throws SQLException
-     *             if thrown by the JDBC driver
-     */
-    public Savepoint createSavepoint() throws SQLException {
-        this.savepointCounter++;
-        return connection.setSavepoint(SAVEPOINT_NAME_PREFIX + this.savepointCounter);
-    }
+  /**
+   * Return the current Connection held by this ConnectionHolder.
+   * <p>
+   * This will be the same Connection until {@code released} gets called on the
+   * ConnectionHolder, which will reset the held Connection, fetching a new
+   * Connection on demand.
+   *
+   * @see #released()
+   */
+  public Connection getConnection() {
+    return Objects.requireNonNull(connection, "Active Connection is required");
+  }
 
-    /**
-     * Releases the current Connection held by this ConnectionHolder.
-     */
-    @Override
-    public void released() {
+  public void setConnection(Connection connection) {
+    this.connection = connection;
+  }
 
-        super.released();
-        if (!isOpen()) {
-            releaseInternal(connection);
-        }
-    }
+  /**
+   * Set whether this holder represents an active, JDBC-managed transaction.
+   *
+   * @see DataSourceTransactionManager
+   */
+  public void setTransactionActive(boolean transactionActive) {
+    this.transactionActive = transactionActive;
+  }
 
-    protected void releaseInternal(Connection connection) {}
-
-    @Override
-    public void clear() {
-        super.clear();
-        this.transactionActive = false;
-        this.savepointsSupported = null;
-        this.savepointCounter = 0;
-    }
-
-    /**
-     * Return the current Connection held by this ConnectionHolder.
-     * <p>
-     * This will be the same Connection until {@code released} gets called on the
-     * ConnectionHolder, which will reset the held Connection, fetching a new
-     * Connection on demand.
-     * 
-     * @see #released()
-     */
-    public Connection getConnection() {
-        return Objects.requireNonNull(connection, "Active Connection is required");
-    }
-
-    public void setConnection(Connection connection) {
-        this.connection = connection;
-    }
-
-    /**
-     * Set whether this holder represents an active, JDBC-managed transaction.
-     * 
-     * @see DataSourceTransactionManager
-     */
-    public void setTransactionActive(boolean transactionActive) {
-        this.transactionActive = transactionActive;
-    }
-
-    /**
-     * Return whether this holder represents an active, JDBC-managed transaction.
-     */
-    public boolean isTransactionActive() {
-        return this.transactionActive;
-    }
+  /**
+   * Return whether this holder represents an active, JDBC-managed transaction.
+   */
+  public boolean isTransactionActive() {
+    return this.transactionActive;
+  }
 
 }

@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © Today & 2017 - 2018 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,29 +22,29 @@ package cn.taketoday.jdbc.transaction;
 import java.sql.Connection;
 
 /**
- * 
+ *
  * @author Today <br>
  *         2018-08-31 20:04
  */
 public enum IsolationLevel {
 
-    NONE(Connection.TRANSACTION_NONE), //
+  NONE(Connection.TRANSACTION_NONE), //
 
-    READ_COMMITTED(Connection.TRANSACTION_READ_COMMITTED), //
+  READ_COMMITTED(Connection.TRANSACTION_READ_COMMITTED), //
 
-    READ_UNCOMMITTED(Connection.TRANSACTION_READ_UNCOMMITTED), //
+  READ_UNCOMMITTED(Connection.TRANSACTION_READ_UNCOMMITTED), //
 
-    REPEATABLE_READ(Connection.TRANSACTION_REPEATABLE_READ), //
+  REPEATABLE_READ(Connection.TRANSACTION_REPEATABLE_READ), //
 
-    SERIALIZABLE(Connection.TRANSACTION_SERIALIZABLE);
+  SERIALIZABLE(Connection.TRANSACTION_SERIALIZABLE);
 
-    private final int level;
+  private final int level;
 
-    private IsolationLevel(int level) {
-        this.level = level;
-    }
+  private IsolationLevel(int level) {
+    this.level = level;
+  }
 
-    public int getLevel() {
-        return level;
-    }
+  public int getLevel() {
+    return level;
+  }
 }

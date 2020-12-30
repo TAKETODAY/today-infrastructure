@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © Today & 2017 - 2018 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,30 +21,30 @@ package cn.taketoday.jdbc.transaction;
 
 /**
  * @author Today <br>
- * 
+ *
  *         2018-08-30 22:08
  */
 public class TransactionException extends Exception {
 
-    public TransactionException() {
-        super();
-    }
+  public TransactionException() {
+    super();
+  }
 
-    public TransactionException(String message) {
-        super(message);
-    }
+  public TransactionException(String message) {
+    super(message);
+  }
 
-    public TransactionException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public TransactionException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    public TransactionException(Throwable cause) {
-        super(cause);
-    }
+  public TransactionException(Throwable cause) {
+    super(cause);
+  }
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 6281985511654330575L;
+  /**
+   *
+   */
+  private static final long serialVersionUID = 6281985511654330575L;
 
 }

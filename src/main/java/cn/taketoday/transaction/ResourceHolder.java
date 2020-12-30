@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,19 +25,19 @@ package cn.taketoday.transaction;
  */
 public interface ResourceHolder {
 
-    /**
-     * Reset the transactional state of this holder.
-     */
-    void reset();
+  /**
+   * Reset the transactional state of this holder.
+   */
+  void reset();
 
-    /**
-     * Notify this holder that it has been unbound from transaction synchronization.
-     */
-    void unbound();
+  /**
+   * Notify this holder that it has been unbound from transaction synchronization.
+   */
+  void unbound();
 
-    /**
-     * Determine whether this holder is considered as 'void', i.e. as a leftover
-     * from a previous thread.
-     */
-    boolean isVoid();
+  /**
+   * Determine whether this holder is considered as 'void', i.e. as a leftover
+   * from a previous thread.
+   */
+  boolean isVoid();
 }

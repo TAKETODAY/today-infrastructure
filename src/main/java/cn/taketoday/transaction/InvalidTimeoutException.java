@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,20 +25,20 @@ package cn.taketoday.transaction;
  */
 public class InvalidTimeoutException extends TransactionException {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private final int timeout;
+  private final int timeout;
 
-    public InvalidTimeoutException(String msg, int timeout) {
-        super(msg);
-        this.timeout = timeout;
-    }
+  public InvalidTimeoutException(String msg, int timeout) {
+    super(msg);
+    this.timeout = timeout;
+  }
 
-    /**
-     * Return the invalid timeout value.
-     */
-    public int getTimeout() {
-        return this.timeout;
-    }
+  /**
+   * Return the invalid timeout value.
+   */
+  public int getTimeout() {
+    return this.timeout;
+  }
 
 }

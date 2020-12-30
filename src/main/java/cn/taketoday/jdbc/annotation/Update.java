@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © Today & 2017 - 2018 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.jdbc.SqlType;
 
 /**
- * 
+ *
  * @author Today <br>
  *         2018-08-31 20:08
  */
@@ -38,5 +38,5 @@ import cn.taketoday.jdbc.SqlType;
 @Query(sqlType = SqlType.UPDATE)
 public @interface Update {
 
-    String value() default "";
+  String value() default "";
 }

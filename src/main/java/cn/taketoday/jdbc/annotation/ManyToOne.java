@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © Today & 2017 - 2018 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,40 +19,40 @@
  */
 package cn.taketoday.jdbc.annotation;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import cn.taketoday.jdbc.Constant;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 @Documented
 @Retention(RUNTIME)
 @Target(FIELD)
 /**
  * @author Today <br>
- * 
+ *
  *         2018-08-28 21:53
  */
 public @interface ManyToOne {
 
-    /**
-     * default return RESTRICT
-     * 
-     * @return {@link Constant#CASCADE}, {@link Constant#NO_ACTION},
-     *         {@link Constant#SET_NULL}, {@link Constant#RESTRICT}
-     */
-    String onDelete() default Constant.SET_NULL;
+  /**
+   * default return RESTRICT
+   *
+   * @return {@link Constant#CASCADE}, {@link Constant#NO_ACTION},
+   *         {@link Constant#SET_NULL}, {@link Constant#RESTRICT}
+   */
+  String onDelete() default Constant.SET_NULL;
 
-    /**
-     * 
-     * default return RESTRICT
-     * 
-     * @return {@link Constant#CASCADE}, {@link Constant#NO_ACTION},
-     *         {@link Constant#SET_NULL}, {@link Constant#RESTRICT}
-     */
-    String onUpdate() default Constant.CASCADE;
+  /**
+   *
+   * default return RESTRICT
+   *
+   * @return {@link Constant#CASCADE}, {@link Constant#NO_ACTION},
+   *         {@link Constant#SET_NULL}, {@link Constant#RESTRICT}
+   */
+  String onUpdate() default Constant.CASCADE;
 
 }

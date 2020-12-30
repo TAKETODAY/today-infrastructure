@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -42,166 +42,166 @@ import cn.taketoday.jdbc.utils.JdbcUtils;
  */
 public class QueryExecutor extends Executor implements QueryOperation, QueryOptionalOperation {
 
-    public QueryExecutor() {
+  public QueryExecutor() {
 
-    }
+  }
 
-    public QueryExecutor(final DataSource dataSource) {
-        setDataSource(dataSource);
-    }
+  public QueryExecutor(final DataSource dataSource) {
+    setDataSource(dataSource);
+  }
 
-    @Override
-    public <T> List<T> queryList(final String sql, final Object[] args, final RowMapper<T> rowMapper) throws SQLException {
+  @Override
+  public <T> List<T> queryList(final String sql, final Object[] args, final RowMapper<T> rowMapper) throws SQLException {
 
-        return query(sql, args, (ResultSet result) -> {
+    return query(sql, args, (ResultSet result) -> {
 
-            final ArrayList<T> ret = new ArrayList<>();
-            int i = 1;
-            while (result.next()) {
-                ret.add(rowMapper.mapRow(result, i++));
+      final ArrayList<T> ret = new ArrayList<>();
+      int i = 1;
+      while (result.next()) {
+        ret.add(rowMapper.mapRow(result, i++));
+      }
+      return ret;
+    });
+  }
+
+  @Override
+  public <T> T query(final String sql, final Object[] args, final ResultSetExtractor<T> rse) throws SQLException {
+
+    return execute((ConnectionCallback<T>) (con) -> {
+
+      try (final PreparedStatement statement = con.prepareStatement(sql)) {
+        applyStatementSettings(statement, args);
+
+        try (final ResultSet result = statement.executeQuery()) {
+          return rse.extractData(result);
+        }
+      }
+    });
+  }
+
+  @Override
+  public void query(final String sql, final Object[] args, final ResultSetHandler rch) throws SQLException {
+    execute((ConnectionCallback<Void>) (Connection con) -> {
+
+      try (final PreparedStatement statement = con.prepareStatement(sql)) {
+        applyStatementSettings(statement, args);
+        try (final ResultSet result = statement.executeQuery()) {
+          if (result.next()) {
+            rch.handleResult(result);
+          }
+        }
+      }
+      return null;
+    });
+  }
+
+  private static final Map<Class<?>, TableMapping> TABLE_MAPPINGS = new HashMap<>();
+
+  @Override
+  public <T> T query(final String sql, final Object[] args, final Class<T> requiredType) throws SQLException {
+
+    final class ResultSetExtractor0 implements ResultSetExtractor<T> {
+
+      @Override
+      public T extractData(ResultSet rs) throws SQLException {
+
+        if (rs.next()) {
+          final T ret = ClassUtils.newInstance(requiredType);
+          final ResultSetMetaData metaData = rs.getMetaData();
+          final int columnCount = metaData.getColumnCount() + 1;
+
+          final TableMapping table = TABLE_MAPPINGS.computeIfAbsent(requiredType, TableMapping::new);
+
+          for (int i = 1; i < columnCount; i++) {
+            final ColumnMapping propertyMapping = table.get(JdbcUtils.getColumnName(metaData, i));
+            if (propertyMapping != null) {
+              propertyMapping.resolveResult(ret, rs);
             }
-            return ret;
-        });
+          }
+          return ret;
+        }
+        return null;
+      }
     }
 
-    @Override
-    public <T> T query(final String sql, final Object[] args, final ResultSetExtractor<T> rse) throws SQLException {
+    return query(sql, args, new ResultSetExtractor0());
+  }
 
-        return execute((ConnectionCallback<T>) (con) -> {
+  @Override
+  public <T> List<T> queryList(final String sql, final Object[] args, final Class<T> elementType) throws SQLException {
+    return query(sql, args, (ResultSet result) -> {
+      final ArrayList<T> ret = new ArrayList<>();
 
-            try (final PreparedStatement statement = con.prepareStatement(sql)) {
-                applyStatementSettings(statement, args);
+      final ResultSetMetaData metaData = result.getMetaData();
+      final int columnCount = metaData.getColumnCount() + 1;
 
-                try (final ResultSet result = statement.executeQuery()) {
-                    return rse.extractData(result);
-                }
+      final class ResultSetExtractor0 implements ResultSetExtractor<T> {
+
+        final TableMapping table = TABLE_MAPPINGS.computeIfAbsent(elementType, TableMapping::new);
+
+        @Override
+        public T extractData(ResultSet rs) throws SQLException {
+
+          final T ret = ClassUtils.newInstance(elementType);
+
+          for (int i = 1; i < columnCount; i++) {
+
+            final ColumnMapping propertyMapping = table.get(JdbcUtils.getColumnName(metaData, i));
+            if (propertyMapping != null) {
+              propertyMapping.resolveResult(ret, rs);
             }
-        });
-    }
+          }
+          return ret;
+        }
+      }
 
-    @Override
-    public void query(final String sql, final Object[] args, final ResultSetHandler rch) throws SQLException {
-        execute((ConnectionCallback<Void>) (Connection con) -> {
+      final ResultSetExtractor0 extractor0 = new ResultSetExtractor0();
+      while (result.next()) {
+        ret.add(extractor0.extractData(result));
+      }
+      return ret;
+    });
+  }
 
-            try (final PreparedStatement statement = con.prepareStatement(sql)) {
-                applyStatementSettings(statement, args);
-                try (final ResultSet result = statement.executeQuery()) {
-                    if (result.next()) {
-                        rch.handleResult(result);
-                    }
-                }
-            }
-            return null;
-        });
-    }
+  @Override
+  public List<Map<String, Object>> queryList(final String sql, final Object[] args) throws SQLException {
 
-    private static final Map<Class<?>, TableMapping> TABLE_MAPPINGS = new HashMap<>();
+    return query(sql, args, (ResultSet result) -> {
 
-    @Override
-    public <T> T query(final String sql, final Object[] args, final Class<T> requiredType) throws SQLException {
+      final List<Map<String, Object>> ret = new ArrayList<>();
+      final ResultSetMetaData metaData = result.getMetaData();
+      int columnCount = metaData.getColumnCount();
 
-        final class ResultSetExtractor0 implements ResultSetExtractor<T> {
+      while (result.next()) {
+        final Map<String, Object> map = new HashMap<>(columnCount);
 
-            @Override
-            public T extractData(ResultSet rs) throws SQLException {
-
-                if (rs.next()) {
-                    final T ret = ClassUtils.newInstance(requiredType);
-                    final ResultSetMetaData metaData = rs.getMetaData();
-                    final int columnCount = metaData.getColumnCount() + 1;
-
-                    final TableMapping table = TABLE_MAPPINGS.computeIfAbsent(requiredType, TableMapping::new);
-
-                    for (int i = 1; i < columnCount; i++) {
-                        final ColumnMapping propertyMapping = table.get(JdbcUtils.getColumnName(metaData, i));
-                        if (propertyMapping != null) {
-                            propertyMapping.resolveResult(ret, rs);
-                        }
-                    }
-                    return ret;
-                }
-                return null;
-            }
+        for (int i = 1; i <= columnCount; i++) {
+          map.put(JdbcUtils.getColumnName(metaData, i), JdbcUtils.getResultSetValue(result, i));
         }
 
-        return query(sql, args, new ResultSetExtractor0());
-    }
+        ret.add(map);
+      }
+      return ret;
+    });
 
-    @Override
-    public <T> List<T> queryList(final String sql, final Object[] args, final Class<T> elementType) throws SQLException {
-        return query(sql, args, (ResultSet result) -> {
-            final ArrayList<T> ret = new ArrayList<>();
+  }
 
-            final ResultSetMetaData metaData = result.getMetaData();
-            final int columnCount = metaData.getColumnCount() + 1;
+  @Override
+  public Map<String, Object> queryMap(final String sql, final Object[] args) throws SQLException {
 
-            final class ResultSetExtractor0 implements ResultSetExtractor<T> {
+    return query(sql, args, (ResultSet result) -> {
 
-                final TableMapping table = TABLE_MAPPINGS.computeIfAbsent(elementType, TableMapping::new);
+      final ResultSetMetaData metaData = result.getMetaData();
+      final int all = metaData.getColumnCount();
 
-                @Override
-                public T extractData(ResultSet rs) throws SQLException {
+      final Map<String, Object> ret = new HashMap<>(all);
 
-                    final T ret = ClassUtils.newInstance(elementType);
+      for (int i = 1; i <= all; i++) {
+        ret.put(JdbcUtils.getColumnName(metaData, i), JdbcUtils.getResultSetValue(result, i));
+      }
+      return ret;
 
-                    for (int i = 1; i < columnCount; i++) {
-
-                        final ColumnMapping propertyMapping = table.get(JdbcUtils.getColumnName(metaData, i));
-                        if (propertyMapping != null) {
-                            propertyMapping.resolveResult(ret, rs);
-                        }
-                    }
-                    return ret;
-                }
-            }
-
-            final ResultSetExtractor0 extractor0 = new ResultSetExtractor0();
-            while (result.next()) {
-                ret.add(extractor0.extractData(result));
-            }
-            return ret;
-        });
-    }
-
-    @Override
-    public List<Map<String, Object>> queryList(final String sql, final Object[] args) throws SQLException {
-
-        return query(sql, args, (ResultSet result) -> {
-
-            final List<Map<String, Object>> ret = new ArrayList<>();
-            final ResultSetMetaData metaData = result.getMetaData();
-            int columnCount = metaData.getColumnCount();
-
-            while (result.next()) {
-                final Map<String, Object> map = new HashMap<>(columnCount);
-
-                for (int i = 1; i <= columnCount; i++) {
-                    map.put(JdbcUtils.getColumnName(metaData, i), JdbcUtils.getResultSetValue(result, i));
-                }
-
-                ret.add(map);
-            }
-            return ret;
-        });
-
-    }
-
-    @Override
-    public Map<String, Object> queryMap(final String sql, final Object[] args) throws SQLException {
-
-        return query(sql, args, (ResultSet result) -> {
-
-            final ResultSetMetaData metaData = result.getMetaData();
-            final int all = metaData.getColumnCount();
-
-            final Map<String, Object> ret = new HashMap<>(all);
-
-            for (int i = 1; i <= all; i++) {
-                ret.put(JdbcUtils.getColumnName(metaData, i), JdbcUtils.getResultSetValue(result, i));
-            }
-            return ret;
-
-        });
-    }
+    });
+  }
 
 }

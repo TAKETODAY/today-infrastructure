@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © Today & 2017 - 2018 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * 
+ *
  * @author Today <br>
  *         2018-08-27 14:24
  */
@@ -34,23 +34,23 @@ import lombok.Setter;
 @SuppressWarnings("all")
 public final class TableImpl implements Table {
 
-    private String value;
+  private String value;
 
-    private boolean cache;
+  private boolean cache;
 
-    @Override
-    public Class<? extends Annotation> annotationType() {
-        return Table.class;
-    }
+  @Override
+  public Class<? extends Annotation> annotationType() {
+    return Table.class;
+  }
 
-    @Override
-    public String value() {
-        return value;
-    }
+  @Override
+  public String value() {
+    return value;
+  }
 
-    @Override
-    public boolean cache() {
-        return cache;
-    }
+  @Override
+  public boolean cache() {
+    return cache;
+  }
 
 }

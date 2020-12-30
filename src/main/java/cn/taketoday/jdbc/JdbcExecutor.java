@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -31,127 +31,127 @@ import javax.sql.DataSource;
  */
 public class JdbcExecutor implements JdbcOperations {
 
-    private final BasicOperation basicOperation;
-    private final UpdateOperation updateOperation;
-    private final QueryOptionalOperation queryOperation;
+  private final BasicOperation basicOperation;
+  private final UpdateOperation updateOperation;
+  private final QueryOptionalOperation queryOperation;
 
-    public JdbcExecutor(DataSource dataSource) {
-        final QueryExecutor queryExecutor = new QueryExecutor(dataSource);
+  public JdbcExecutor(DataSource dataSource) {
+    final QueryExecutor queryExecutor = new QueryExecutor(dataSource);
 
-        this.queryOperation = queryExecutor;
-        this.basicOperation = queryExecutor;
+    this.queryOperation = queryExecutor;
+    this.basicOperation = queryExecutor;
 
-        this.updateOperation = new UpdateExecutor(dataSource);
-    }
+    this.updateOperation = new UpdateExecutor(dataSource);
+  }
 
-    public JdbcExecutor(BasicOperation basicOperation, 
-                        UpdateOperation updateOperation, 
-                        QueryOptionalOperation queryOperation) {
-        
-        this.queryOperation = queryOperation;
-        this.basicOperation = basicOperation;
-        this.updateOperation = updateOperation;
-    }
+  public JdbcExecutor(BasicOperation basicOperation,
+                      UpdateOperation updateOperation,
+                      QueryOptionalOperation queryOperation) {
 
-    public BasicOperation getBasicOperation() {
-        return basicOperation;
-    }
+    this.queryOperation = queryOperation;
+    this.basicOperation = basicOperation;
+    this.updateOperation = updateOperation;
+  }
 
-    public UpdateOperation getUpdateOperation() {
-        return updateOperation;
-    }
+  public BasicOperation getBasicOperation() {
+    return basicOperation;
+  }
 
-    public QueryOptionalOperation getQueryOperation() {
-        return queryOperation;
-    }
+  public UpdateOperation getUpdateOperation() {
+    return updateOperation;
+  }
 
-    // Basic
-    //-----------------------------
+  public QueryOptionalOperation getQueryOperation() {
+    return queryOperation;
+  }
 
-    @Override
-    public <T> T execute(ConnectionCallback<T> action) throws SQLException {
-        return getBasicOperation().execute(action);
-    }
+  // Basic
+  //-----------------------------
 
-    @Override
-    public <T> T execute(StatementCallback<T> action) throws SQLException {
-        return getBasicOperation().execute(action);
-    }
+  @Override
+  public <T> T execute(ConnectionCallback<T> action) throws SQLException {
+    return getBasicOperation().execute(action);
+  }
 
-    @Override
-    public void execute(String sql) throws SQLException {
-        getBasicOperation().execute(sql);
-    }
+  @Override
+  public <T> T execute(StatementCallback<T> action) throws SQLException {
+    return getBasicOperation().execute(action);
+  }
 
-    @Override
-    public <T> T execute(String sql, PreparedStatementCallback<T> action) throws SQLException {
-        return getBasicOperation().execute(sql, action);
-    }
+  @Override
+  public void execute(String sql) throws SQLException {
+    getBasicOperation().execute(sql);
+  }
 
-    @Override
-    public <T> T execute(String sql, CallableStatementCallback<T> action) throws SQLException {
-        return getBasicOperation().execute(sql, action);
-    }
+  @Override
+  public <T> T execute(String sql, PreparedStatementCallback<T> action) throws SQLException {
+    return getBasicOperation().execute(sql, action);
+  }
 
-    // update
-    // ----------------------------------------------------
+  @Override
+  public <T> T execute(String sql, CallableStatementCallback<T> action) throws SQLException {
+    return getBasicOperation().execute(sql, action);
+  }
 
-    @Override
-    public int update(String sql) throws SQLException {
-        return getUpdateOperation().update(sql);
-    }
+  // update
+  // ----------------------------------------------------
 
-    @Override
-    public int update(String sql, Object[] args) throws SQLException {
-        return getUpdateOperation().update(sql, args);
-    }
+  @Override
+  public int update(String sql) throws SQLException {
+    return getUpdateOperation().update(sql);
+  }
 
-    @Override
-    public int[] batchUpdate(String... sql) throws SQLException {
-        return getUpdateOperation().batchUpdate(sql);
-    }
+  @Override
+  public int update(String sql, Object[] args) throws SQLException {
+    return getUpdateOperation().update(sql, args);
+  }
 
-    @Override
-    public int[] batchUpdate(String sql, List<Object[]> batchArgs) throws SQLException {
-        return getUpdateOperation().batchUpdate(sql, batchArgs);
-    }
+  @Override
+  public int[] batchUpdate(String... sql) throws SQLException {
+    return getUpdateOperation().batchUpdate(sql);
+  }
 
-    // query
-    // ----------------------------------------
+  @Override
+  public int[] batchUpdate(String sql, List<Object[]> batchArgs) throws SQLException {
+    return getUpdateOperation().batchUpdate(sql, batchArgs);
+  }
 
-    @Override
-    public <T> T query(String sql, Object[] args, ResultSetExtractor<T> rse) throws SQLException {
-        return getQueryOperation().query(sql, args, rse);
-    }
+  // query
+  // ----------------------------------------
 
-    @Override
-    public void query(String sql, Object[] args, ResultSetHandler rch) throws SQLException {
-        getQueryOperation().query(sql, args, rch);
-    }
+  @Override
+  public <T> T query(String sql, Object[] args, ResultSetExtractor<T> rse) throws SQLException {
+    return getQueryOperation().query(sql, args, rse);
+  }
 
-    @Override
-    public <T> T query(String sql, Object[] args, Class<T> requiredType) throws SQLException {
-        return getQueryOperation().query(sql, args, requiredType);
-    }
+  @Override
+  public void query(String sql, Object[] args, ResultSetHandler rch) throws SQLException {
+    getQueryOperation().query(sql, args, rch);
+  }
 
-    @Override
-    public <T> List<T> queryList(String sql, Object[] args, RowMapper<T> rowMapper) throws SQLException {
-        return getQueryOperation().queryList(sql, args, rowMapper);
-    }
+  @Override
+  public <T> T query(String sql, Object[] args, Class<T> requiredType) throws SQLException {
+    return getQueryOperation().query(sql, args, requiredType);
+  }
 
-    @Override
-    public <T> List<T> queryList(String sql, Object[] args, Class<T> elementType) throws SQLException {
-        return getQueryOperation().queryList(sql, args, elementType);
-    }
+  @Override
+  public <T> List<T> queryList(String sql, Object[] args, RowMapper<T> rowMapper) throws SQLException {
+    return getQueryOperation().queryList(sql, args, rowMapper);
+  }
 
-    @Override
-    public List<Map<String, Object>> queryList(String sql, Object[] args) throws SQLException {
-        return getQueryOperation().queryList(sql, args);
-    }
+  @Override
+  public <T> List<T> queryList(String sql, Object[] args, Class<T> elementType) throws SQLException {
+    return getQueryOperation().queryList(sql, args, elementType);
+  }
 
-    @Override
-    public Map<String, Object> queryMap(String sql, Object[] args) throws SQLException {
-        return getQueryOperation().queryMap(sql, args);
-    }
+  @Override
+  public List<Map<String, Object>> queryList(String sql, Object[] args) throws SQLException {
+    return getQueryOperation().queryList(sql, args);
+  }
+
+  @Override
+  public Map<String, Object> queryMap(String sql, Object[] args) throws SQLException {
+    return getQueryOperation().queryMap(sql, args);
+  }
 
 }

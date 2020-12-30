@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,11 +19,11 @@
  */
 package cn.taketoday.orm.mybatis;
 
+import org.apache.ibatis.annotations.Param;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
-
-import org.apache.ibatis.annotations.Param;
 
 /**
  * @author TODAY <br>
@@ -31,65 +31,65 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface DefaultRepository<M, ID extends Serializable> {
 
-    /**
-     * Save entity to database
-     * 
-     * @param model
-     *            entity bean
-     * @return
-     */
-    void save(M model);
+  /**
+   * Save entity to database
+   *
+   * @param model
+   *            entity bean
+   * @return
+   */
+  void save(M model);
 
-    /**
-     * Save entities to database
-     * 
-     * @param models
-     *            entity beans
-     */
-    void saveAll(@Param("models") Collection<M> models);
+  /**
+   * Save entities to database
+   *
+   * @param models
+   *            entity beans
+   */
+  void saveAll(@Param("models") Collection<M> models);
 
-    /**
-     * Save entities to database
-     * 
-     * @param model
-     */
-    void saveSelective(M model);
+  /**
+   * Save entities to database
+   *
+   * @param model
+   */
+  void saveSelective(M model);
 
-    /**
-     * @param model
-     */
-    void delete(M model);
+  /**
+   * @param model
+   */
+  void delete(M model);
 
-    /**
-     * 
-     * @param model
-     */
-    void deleteAll(@Param("models") Collection<M> models);
+  /**
+   *
+   * @param model
+   */
+  void deleteAll(@Param("models") Collection<M> models);
 
-    void deleteAll();
+  void deleteAll();
 
-    /**
-     * @param id
-     */
-    void deleteById(ID id);
+  /**
+   * @param id
+   */
+  void deleteById(ID id);
 
-    /**
-     * @param model
-     */
-    void update(M model);
+  /**
+   * @param model
+   */
+  void update(M model);
 
-    /**
-     * @param models
-     */
-    void updateAll(@Param("models") Collection<M> models);
+  /**
+   * @param models
+   */
+  void updateAll(@Param("models") Collection<M> models);
 
-    int getTotalRecord();
+  int getTotalRecord();
 
-    M findById(ID id);
+  M findById(ID id);
 
-    List<M> findAll();
+  List<M> findAll();
 
-    List<M> find(@Param("pageNow") int pageNow, @Param("pageSize") int pageSize);
+  List<M> find(@Param("pageNow") int pageNow, @Param("pageSize") int pageSize);
 
-    List<M> findLatest();
+  List<M> findLatest();
 }

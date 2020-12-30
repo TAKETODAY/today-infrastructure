@@ -1,7 +1,7 @@
 /**
- * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn 
+ * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © Today & 2017 - 2018 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify it under
@@ -25,5 +25,5 @@ package cn.taketoday.jdbc;
  */
 public enum SqlType {
 
-    UNKNOWN, INSERT, UPDATE, DELETE, SELECT, FLUSH;
+  UNKNOWN, INSERT, UPDATE, DELETE, SELECT, FLUSH;
 }

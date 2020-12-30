@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,12 +19,12 @@
  */
 package cn.taketoday.orm.mybatis;
 
+import org.apache.ibatis.transaction.Transaction;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 
 import javax.sql.DataSource;
-
-import org.apache.ibatis.transaction.Transaction;
 
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
@@ -40,66 +40,66 @@ import lombok.Setter;
 @Setter
 public class DefaultTransaction implements Transaction {
 
-    private static final Logger log = LoggerFactory.getLogger(DefaultTransaction.class);
-    public static boolean debugEnabled = log.isDebugEnabled();
+  private static final Logger log = LoggerFactory.getLogger(DefaultTransaction.class);
+  public static boolean debugEnabled = log.isDebugEnabled();
 
-    private boolean autoCommit;
-    private Connection connection;
-    private final DataSource dataSource;
+  private boolean autoCommit;
+  private Connection connection;
+  private final DataSource dataSource;
 
-    public DefaultTransaction(DataSource dataSource) {
-        this.dataSource = dataSource;
+  public DefaultTransaction(DataSource dataSource) {
+    this.dataSource = dataSource;
+  }
+
+  @Override
+  public Connection getConnection() throws SQLException {
+    if (this.connection == null) {
+      openConnection();
     }
+    return this.connection;
+  }
 
-    @Override
-    public Connection getConnection() throws SQLException {
-        if (this.connection == null) {
-            openConnection();
-        }
-        return this.connection;
+  private void openConnection() throws SQLException {
+    this.connection = DataSourceUtils.getConnection(this.dataSource);
+    this.autoCommit = this.connection.getAutoCommit();
+    if (debugEnabled) {
+      log.debug("JDBC Connection [{}] will be managed by Today Context", this.connection);
     }
+  }
 
-    private void openConnection() throws SQLException {
-        this.connection = DataSourceUtils.getConnection(this.dataSource);
-        this.autoCommit = this.connection.getAutoCommit();
-        if (debugEnabled) {
-            log.debug("JDBC Connection [{}] will be managed by Today Context", this.connection);
-        }
+  @Override
+  public void commit() throws SQLException {
+    if (this.connection != null && !this.autoCommit) {
+      if (debugEnabled) {
+        log.debug("Committing JDBC Connection [{}]", connection);
+      }
+      this.connection.commit();
     }
+  }
 
-    @Override
-    public void commit() throws SQLException {
-        if (this.connection != null && !this.autoCommit) {
-            if (debugEnabled) {
-                log.debug("Committing JDBC Connection [{}]", connection);
-            }
-            this.connection.commit();
-        }
+  @Override
+  public void rollback() throws SQLException {
+    if (this.connection != null && !this.autoCommit) {
+      if (debugEnabled) {
+        log.debug("Rolling back JDBC Connection [{}]", connection);
+      }
+      this.connection.rollback();
     }
+  }
 
-    @Override
-    public void rollback() throws SQLException {
-        if (this.connection != null && !this.autoCommit) {
-            if (debugEnabled) {
-                log.debug("Rolling back JDBC Connection [{}]", connection);
-            }
-            this.connection.rollback();
-        }
+  @Override
+  public void close() throws SQLException {
+    DataSourceUtils.releaseConnection(this.connection, this.dataSource);
+  }
+
+  @Override
+  public Integer getTimeout() throws SQLException {
+
+    ConnectionHolder holder = (ConnectionHolder) SynchronizationManager.getResource(dataSource);
+    if (holder != null && holder.hasTimeout()) {
+      return holder.getTimeToLiveInSeconds();
     }
-
-    @Override
-    public void close() throws SQLException {
-        DataSourceUtils.releaseConnection(this.connection, this.dataSource);
-    }
-
-    @Override
-    public Integer getTimeout() throws SQLException {
-
-        ConnectionHolder holder = (ConnectionHolder) SynchronizationManager.getResource(dataSource);
-        if (holder != null && holder.hasTimeout()) {
-            return holder.getTimeToLiveInSeconds();
-        }
-        return null;
-    }
+    return null;
+  }
 
 }

@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © Today & 2017 - 2018 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,40 +23,40 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * 
+ *
  * @author Today <br>
  *         2018-08-30 22:05
  */
 public interface Transaction {
 
-    /**
-     * Retrieve inner database connection
-     * 
-     * @return DataBase connection
-     * @throws SQLException
-     * @throws TransactionException
-     */
-    Connection getConnection() throws SQLException, TransactionException;
+  /**
+   * Retrieve inner database connection
+   *
+   * @return DataBase connection
+   * @throws SQLException
+   * @throws TransactionException
+   */
+  Connection getConnection() throws SQLException, TransactionException;
 
-    /**
-     * Commit inner database connection.
-     * 
-     * @throws SQLException
-     */
-    void commit() throws SQLException;
+  /**
+   * Commit inner database connection.
+   *
+   * @throws SQLException
+   */
+  void commit() throws SQLException;
 
-    /**
-     * Rollback inner database connection.
-     * 
-     * @throws SQLException
-     */
-    void rollback() throws SQLException;
+  /**
+   * Rollback inner database connection.
+   *
+   * @throws SQLException
+   */
+  void rollback() throws SQLException;
 
-    /**
-     * Close inner database connection.
-     * 
-     * @throws SQLException
-     */
-    void close() throws SQLException;
+  /**
+   * Close inner database connection.
+   *
+   * @throws SQLException
+   */
+  void close() throws SQLException;
 
 }

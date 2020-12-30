@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -36,69 +36,69 @@ import cn.taketoday.context.logger.LoggerFactory;
  */
 public class MapperFactoryBean<T> implements FactoryBean<T>, InitializingBean {
 
-    @Autowired
-    private SqlSession sqlSession;
+  @Autowired
+  private SqlSession sqlSession;
 
-    private Class<T> mapperInterface;
+  private Class<T> mapperInterface;
 
-    public MapperFactoryBean() {}
+  public MapperFactoryBean() {}
 
-    public MapperFactoryBean(Class<T> mapperInterface) {
-        this.setMapperInterface(mapperInterface);
+  public MapperFactoryBean(Class<T> mapperInterface) {
+    this.setMapperInterface(mapperInterface);
+  }
+
+  @Override
+  public T getBean() {
+    return getSqlSession().getMapper(getBeanClass());
+  }
+
+  @Override
+  public void afterPropertiesSet() {
+
+    final Class<T> mapperInterface = this.getBeanClass();
+
+    final Configuration configuration = getSqlSession().getConfiguration();
+
+    if (configuration.hasMapper(mapperInterface)) {
+      return;
     }
 
-    @Override
-    public T getBean() {
-        return getSqlSession().getMapper(getBeanClass());
+    final Logger log = LoggerFactory.getLogger(mapperInterface);
+    log.debug("Add Mapper: [{}] To [{}]", mapperInterface.getSimpleName(), configuration.getMapperRegistry());
+    try {
+      configuration.addMapper(mapperInterface);
     }
-
-    @Override
-    public void afterPropertiesSet() {
-
-        final Class<T> mapperInterface = this.getBeanClass();
-
-        final Configuration configuration = getSqlSession().getConfiguration();
-
-        if (configuration.hasMapper(mapperInterface)) {
-            return;
-        }
-
-        final Logger log = LoggerFactory.getLogger(mapperInterface);
-        log.debug("Add Mapper: [{}] To [{}]", mapperInterface.getSimpleName(), configuration.getMapperRegistry());
-        try {
-            configuration.addMapper(mapperInterface);
-        }
-        catch (Exception e) {
-            log.error("Error while adding the mapper '" + mapperInterface + "' to configuration.", e);
-            throw e;
-        }
-        finally {
-            ErrorContext.instance().reset();
-        }
+    catch (Exception e) {
+      log.error("Error while adding the mapper '" + mapperInterface + "' to configuration.", e);
+      throw e;
     }
-
-    @Override
-    public final Class<T> getBeanClass() {
-        if (mapperInterface == null) {
-            throw new ConfigurationException("Mapper interface must not be null");
-        }
-        return mapperInterface;
+    finally {
+      ErrorContext.instance().reset();
     }
+  }
 
-    public MapperFactoryBean<T> setMapperInterface(Class<T> mapperInterface) {
-        this.mapperInterface = mapperInterface;
-        return this;
+  @Override
+  public final Class<T> getBeanClass() {
+    if (mapperInterface == null) {
+      throw new ConfigurationException("Mapper interface must not be null");
     }
+    return mapperInterface;
+  }
 
-    public SqlSession getSqlSession() {
-        if (sqlSession == null) {
-            throw new ConfigurationException("Sql Session must not be null");
-        }
-        return sqlSession;
-    }
+  public MapperFactoryBean<T> setMapperInterface(Class<T> mapperInterface) {
+    this.mapperInterface = mapperInterface;
+    return this;
+  }
 
-    public MapperFactoryBean<T> setSqlSession(SqlSession sqlSession) {
-        this.sqlSession = sqlSession;
-        return this;
+  public SqlSession getSqlSession() {
+    if (sqlSession == null) {
+      throw new ConfigurationException("Sql Session must not be null");
     }
+    return sqlSession;
+  }
+
+  public MapperFactoryBean<T> setSqlSession(SqlSession sqlSession) {
+    this.sqlSession = sqlSession;
+    return this;
+  }
 }

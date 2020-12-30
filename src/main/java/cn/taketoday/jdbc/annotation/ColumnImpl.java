@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © Today & 2017 - 2018 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * 
+ *
  * @author Today <br>
  *         2018-08-30 09:41
  */
@@ -34,105 +34,105 @@ import lombok.Setter;
 @SuppressWarnings("all")
 public final class ColumnImpl implements Column {
 
-    private String value;
+  private String value;
 
-    /**
-     * foreign key name
-     */
-    private String foreignKey;
+  /**
+   * foreign key name
+   */
+  private String foreignKey;
 
-    /**
-     * the comment in database
-     */
-    private String comment;
-    /**
-     * the column type
-     */
-    private String type;
+  /**
+   * the comment in database
+   */
+  private String comment;
+  /**
+   * the column type
+   */
+  private String type;
 
-    private String defaultValue;
+  private String defaultValue;
 
-    private int length;
+  private int length;
 
-    private int decimal;
+  private int decimal;
 
-    private boolean notNull;
+  private boolean notNull;
 
-    private boolean zerofill;
+  private boolean zerofill;
 
-    private boolean unsigned;
+  private boolean unsigned;
 
-    private boolean increment;
+  private boolean increment;
 
-    @Override
-    public Class<? extends Annotation> annotationType() {
-        return Column.class;
-    }
+  @Override
+  public Class<? extends Annotation> annotationType() {
+    return Column.class;
+  }
 
-    @Override
-    public String value() {
-        return value;
-    }
+  @Override
+  public String value() {
+    return value;
+  }
 
-    @Override
-    public String foreignKey() {
-        return foreignKey;
-    }
+  @Override
+  public String foreignKey() {
+    return foreignKey;
+  }
 
-    @Override
-    public boolean notNull() {
-        return notNull;
-    }
+  @Override
+  public boolean notNull() {
+    return notNull;
+  }
 
-    @Override
-    public int length() {
-        return length;
-    }
+  @Override
+  public int length() {
+    return length;
+  }
 
-    @Override
-    public int decimal() {
-        return decimal;
-    }
+  @Override
+  public int decimal() {
+    return decimal;
+  }
 
-    @Override
-    public String comment() {
-        return comment;
-    }
+  @Override
+  public String comment() {
+    return comment;
+  }
 
-    @Override
-    public String type() {
-        return type;
-    }
+  @Override
+  public String type() {
+    return type;
+  }
 
-    @Override
-    public String defaultValue() {
-        return defaultValue;
-    }
+  @Override
+  public String defaultValue() {
+    return defaultValue;
+  }
 
-    @Override
-    public boolean zerofill() {
-        return zerofill;
-    }
+  @Override
+  public boolean zerofill() {
+    return zerofill;
+  }
 
-    @Override
-    public boolean unsigned() {
-        return unsigned;
-    }
+  @Override
+  public boolean unsigned() {
+    return unsigned;
+  }
 
-    @Override
-    public boolean increment() {
-        return increment;
-    }
+  @Override
+  public boolean increment() {
+    return increment;
+  }
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("{\"value\":\"").append(value).append("\",\"foreignKey\":\"").append(foreignKey).append("\",\"comment\":\"").append(
-                comment).append("\",\"type\":\"").append(type).append("\",\"defaultValue\":\"").append(defaultValue).append(
-                        "\",\"length\":\"").append(length).append("\",\"decimal\":\"").append(decimal).append("\",\"notNull\":\"").append(
-                                notNull).append("\",\"zerofill\":\"").append(zerofill).append("\",\"unsigned\":\"").append(unsigned).append(
-                                        "\",\"increment\":\"").append(increment).append("\"}");
-        return builder.toString();
-    }
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("{\"value\":\"").append(value).append("\",\"foreignKey\":\"").append(foreignKey).append("\",\"comment\":\"").append(
+            comment).append("\",\"type\":\"").append(type).append("\",\"defaultValue\":\"").append(defaultValue).append(
+            "\",\"length\":\"").append(length).append("\",\"decimal\":\"").append(decimal).append("\",\"notNull\":\"").append(
+            notNull).append("\",\"zerofill\":\"").append(zerofill).append("\",\"unsigned\":\"").append(unsigned).append(
+            "\",\"increment\":\"").append(increment).append("\"}");
+    return builder.toString();
+  }
 
 }

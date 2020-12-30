@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © Today & 2017 - 2018 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -32,35 +32,35 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.TYPE })
 public @interface Column {
 
-    /** column name */
-    String value() default "";
+  /** column name */
+  String value() default "";
 
-    /** foreignKey */
-    String foreignKey() default "";
+  /** foreignKey */
+  String foreignKey() default "";
 
-    /** not null */
-    boolean notNull() default false;
+  /** not null */
+  boolean notNull() default false;
 
-    /** the length of column */
-    int length() default 32;
+  /** the length of column */
+  int length() default 32;
 
-    /** decimal point */
-    int decimal() default 0;
+  /** decimal point */
+  int decimal() default 0;
 
-    String comment() default "";
+  String comment() default "";
 
-    /**
-     * The type of database. <b> varchar(6), float(6,5) in Mysql<b>
-     */
-    String type() default "";
+  /**
+   * The type of database. <b> varchar(6), float(6,5) in Mysql<b>
+   */
+  String type() default "";
 
-    /** default */
-    String defaultValue() default "";
+  /** default */
+  String defaultValue() default "";
 
-    boolean zerofill() default false;
+  boolean zerofill() default false;
 
-    boolean unsigned() default false;
+  boolean unsigned() default false;
 
-    boolean increment() default false;
+  boolean increment() default false;
 
 }

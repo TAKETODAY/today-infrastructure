@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,11 +19,11 @@
  */
 package cn.taketoday.orm.hibernate5;
 
+import org.hibernate.Filter;
+
 import java.util.Iterator;
 
 import javax.persistence.PersistenceException;
-
-import org.hibernate.Filter;
 
 /**
  * @author TODAY <br>
@@ -31,14 +31,14 @@ import org.hibernate.Filter;
  */
 public interface JdbcOperations<T> extends UpdateOperation<T>, QueryOperation<T> {
 
-    void flush() throws PersistenceException;
+  void flush() throws PersistenceException;
 
-    void clear() throws PersistenceException;
+  void clear() throws PersistenceException;
 
-    void closeIterator(Iterator<?> it) throws PersistenceException;
+  void closeIterator(Iterator<?> it) throws PersistenceException;
 
-    Filter enableFilter(String filterName) throws IllegalStateException;
+  Filter enableFilter(String filterName) throws IllegalStateException;
 
-    <R> R execute(HibernateCallback<R> session) throws PersistenceException;
+  <R> R execute(HibernateCallback<R> session) throws PersistenceException;
 
 }

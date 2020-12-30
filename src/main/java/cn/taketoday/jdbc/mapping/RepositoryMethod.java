@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © Today & 2017 - 2018 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -28,31 +28,31 @@ import lombok.Setter;
 
 /**
  * @author Today <br>
- * 
+ *
  *         2018-09-11 11:47
  */
 @Getter
 @Setter
 public final class RepositoryMethod {
 
-    private String sql;
+  private String sql;
 
-    private Method method;
+  private Method method;
 
-    private SqlType sqlType;
+  private SqlType sqlType;
 
-    private Class<?> returnType;
+  private Class<?> returnType;
 
-    private Class<?> genericClass;
+  private Class<?> genericClass;
 
-    private ParameterMapping[] parameterMapping;
+  private ParameterMapping[] parameterMapping;
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("{\n\t\"sql\":\"").append(sql).append("\",\n\t\"method\":\"").append(method).append("\",\n\t\"sqlType\":\"").append(
-                sqlType).append("\",\n\t\"returnType\":\"").append(returnType).append("\",\n\t\"genericClass\":\"").append(
-                        genericClass).append("\",\n\t\"parameterMapping\":\"").append(Arrays.toString(parameterMapping)).append("\"\n}");
-        return builder.toString();
-    }
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("{\n\t\"sql\":\"").append(sql).append("\",\n\t\"method\":\"").append(method).append("\",\n\t\"sqlType\":\"").append(
+            sqlType).append("\",\n\t\"returnType\":\"").append(returnType).append("\",\n\t\"genericClass\":\"").append(
+            genericClass).append("\",\n\t\"parameterMapping\":\"").append(Arrays.toString(parameterMapping)).append("\"\n}");
+    return builder.toString();
+  }
 }

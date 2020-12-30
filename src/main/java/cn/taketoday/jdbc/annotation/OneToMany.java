@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © Today & 2017 - 2018 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,47 +19,47 @@
  */
 package cn.taketoday.jdbc.annotation;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import cn.taketoday.jdbc.Constant;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 @Documented
 @Retention(RUNTIME)
 @Target(FIELD)
 /**
  * @author Today <br>
- * 
+ *
  *         2018-08-28 21:53
  */
 public @interface OneToMany {
 
-    /**
-     * 
-     * @return
-     */
-    Class<?> value() default void.class;
+  /**
+   *
+   * @return
+   */
+  Class<?> value() default void.class;
 
-    /**
-     * the field
-     * 
-     * @return
-     */
-    String orderBy() default "";
+  /**
+   * the field
+   *
+   * @return
+   */
+  String orderBy() default "";
 
-    /**
-     * 
-     * @return
-     */
-    int batchSize() default 20;
+  /**
+   *
+   * @return
+   */
+  int batchSize() default 20;
 
-    /**
-     * @return {@link Constant#FETCH_JOIN}, {@link Constant#FETCH_SELECT},
-     *         {@link Constant#FETCH_SUB_SELECT}
-     */
-    String fetch() default Constant.FETCH_JOIN;
+  /**
+   * @return {@link Constant#FETCH_JOIN}, {@link Constant#FETCH_SELECT},
+   *         {@link Constant#FETCH_SUB_SELECT}
+   */
+  String fetch() default Constant.FETCH_JOIN;
 }

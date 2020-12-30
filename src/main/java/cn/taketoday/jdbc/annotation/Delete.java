@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © Today & 2017 - 2018 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -31,13 +31,13 @@ import cn.taketoday.jdbc.SqlType;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD })
 /**
- * 
+ *
  * @author Today <br>
  *         2018-08-27 14:27
  */
 @Query(sqlType = SqlType.DELETE)
 public @interface Delete {
 
-    String value() default "";
+  String value() default "";
 
 }

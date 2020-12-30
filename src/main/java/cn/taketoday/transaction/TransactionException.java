@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,21 +25,21 @@ package cn.taketoday.transaction;
  */
 public class TransactionException extends RuntimeException {
 
-    private static final long serialVersionUID = 1035812189386467319L;
+  private static final long serialVersionUID = 1035812189386467319L;
 
-    public TransactionException() {
-        super();
-    }
+  public TransactionException() {
+    super();
+  }
 
-    public TransactionException(String message) {
-        super(message);
-    }
+  public TransactionException(String message) {
+    super(message);
+  }
 
-    public TransactionException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public TransactionException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    public TransactionException(Throwable cause) {
-        super(cause);
-    }
+  public TransactionException(Throwable cause) {
+    super(cause);
+  }
 }

@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © Today & 2017 - 2018 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,30 +25,30 @@ package cn.taketoday.jdbc;
  */
 public interface Constant extends cn.taketoday.context.Constant {
 
-    String VERSION = "1.0.0.RELEASE";
+  String VERSION = "1.0.0.RELEASE";
 
-    /**
-     ********************************************
-     * ON DELETE or ON UPDATE value
-     */
-    String CASCADE = "CASCADE";
-    String RESTRICT = "RESTRICT";
-    String SET_NULL = "SET NULL";
-    String NO_ACTION = "NO ACTION";
+  /**
+   ********************************************
+   * ON DELETE or ON UPDATE value
+   */
+  String CASCADE = "CASCADE";
+  String RESTRICT = "RESTRICT";
+  String SET_NULL = "SET NULL";
+  String NO_ACTION = "NO ACTION";
 
-    /**
-     ********************************************
-     * timestamp
-     */
-    String CURRENT_TIMESTAMP = "CURRENT_TIMESTAMP";
+  /**
+   ********************************************
+   * timestamp
+   */
+  String CURRENT_TIMESTAMP = "CURRENT_TIMESTAMP";
 
-    /**
-     ********************************************
-     * FETCH
-     * 
-     */
-    String FETCH_JOIN = "join";
-    String FETCH_SELECT = "select";
-    String FETCH_SUB_SELECT = "subselect";
+  /**
+   ********************************************
+   * FETCH
+   *
+   */
+  String FETCH_JOIN = "join";
+  String FETCH_SELECT = "select";
+  String FETCH_SUB_SELECT = "subselect";
 
 }

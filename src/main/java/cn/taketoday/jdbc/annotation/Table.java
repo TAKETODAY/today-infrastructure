@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © Today & 2017 - 2018 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -32,10 +32,10 @@ import java.lang.annotation.Target;
 @Target({ ElementType.TYPE, ElementType.FIELD })
 public @interface Table {
 
-    /** table name */
-    String value() default "";
+  /** table name */
+  String value() default "";
 
-    /** cache? */
-    boolean cache() default false;
+  /** cache? */
+  boolean cache() default false;
 
 }

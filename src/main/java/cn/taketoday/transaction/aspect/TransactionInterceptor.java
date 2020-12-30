@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,12 +19,12 @@
  */
 package cn.taketoday.transaction.aspect;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
 
 import cn.taketoday.aop.annotation.Advice;
 import cn.taketoday.aop.annotation.Aspect;
@@ -56,177 +56,177 @@ import cn.taketoday.transaction.Transactional;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class TransactionInterceptor implements MethodInterceptor {
 
-    private static final Logger log = LoggerFactory.getLogger(TransactionInterceptor.class);
+  private static final Logger log = LoggerFactory.getLogger(TransactionInterceptor.class);
 
-    private final BeanFactory beanFactory;
-    private final TransactionManager transactionManager;
+  private final BeanFactory beanFactory;
+  private final TransactionManager transactionManager;
 
-    private static final ThreadLocal<TransactionStatus> TRANSACTION = new ThreadLocal<>();
-    private static final Map<Object, TransactionDefinition> DEF_CACHE = new HashMap<>(1024);
+  private static final ThreadLocal<TransactionStatus> TRANSACTION = new ThreadLocal<>();
+  private static final Map<Object, TransactionDefinition> DEF_CACHE = new HashMap<>(1024);
 
-    @Autowired
-    public TransactionInterceptor(TransactionManager transactionManager, BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
-        this.transactionManager = transactionManager;
+  @Autowired
+  public TransactionInterceptor(TransactionManager transactionManager, BeanFactory beanFactory) {
+    this.beanFactory = beanFactory;
+    this.transactionManager = transactionManager;
+  }
+
+  /**
+   * Return the transaction status of the current method invocation. Mainly
+   * intended for code that wants to set the current transaction rollback-only but
+   * not throw an application exception.
+   *
+   * @throws NoTransactionException
+   *             if the transaction info cannot be found, because the method was
+   *             invoked outside an AOP invocation context
+   */
+  public static TransactionStatus currentTransactionStatus() throws NoTransactionException {
+    TransactionStatus metaData = TRANSACTION.get();
+    if (metaData == null) {
+      throw new NoTransactionException("No transaction aspect-managed TransactionStatus in scope");
     }
+    return metaData;
+  }
 
-    /**
-     * Return the transaction status of the current method invocation. Mainly
-     * intended for code that wants to set the current transaction rollback-only but
-     * not throw an application exception.
-     * 
-     * @throws NoTransactionException
-     *             if the transaction info cannot be found, because the method was
-     *             invoked outside an AOP invocation context
-     */
-    public static TransactionStatus currentTransactionStatus() throws NoTransactionException {
-        TransactionStatus metaData = TRANSACTION.get();
-        if (metaData == null) {
-            throw new NoTransactionException("No transaction aspect-managed TransactionStatus in scope");
-        }
-        return metaData;
+  @Override
+  public Object invoke(final MethodInvocation invocation) throws Throwable {
+
+    final TransactionDefinition def = obtainDefinition(invocation.getMethod());
+    final TransactionManager tm = obtainTransactionManager(beanFactory, transactionManager, def);
+    final TransactionStatus status = tm.getTransaction(def);
+    final TransactionStatus old = bindToThread(status);
+
+    try {
+      final Object ret = invocation.proceed();
+      if (status != null) {
+        tm.commit(status);
+      }
+      return ret;
     }
+    catch (final Throwable e) {
+      completeTransactionAfterThrowing(def, status, tm, e);
+      throw e;
+    }
+    finally {
+      restoreThreadLocalStatus(old);
+    }
+  }
 
-    @Override
-    public Object invoke(final MethodInvocation invocation) throws Throwable {
+  protected static TransactionStatus bindToThread(TransactionStatus status) {
 
-        final TransactionDefinition def = obtainDefinition(invocation.getMethod());
-        final TransactionManager tm = obtainTransactionManager(beanFactory, transactionManager, def);
-        final TransactionStatus status = tm.getTransaction(def);
-        final TransactionStatus old = bindToThread(status);
+    final ThreadLocal<TransactionStatus> local = TRANSACTION;
+    TransactionStatus old = local.get();
+    local.set(status);
+    return old;
+  }
 
+  protected static void restoreThreadLocalStatus(TransactionStatus old) {
+    TRANSACTION.set(old);
+  }
+
+  /**
+   * Handle a throwable, completing the transaction. We may commit or roll back,
+   * depending on the configuration.
+   *
+   * @param ex
+   *            throwable encountered
+   */
+  protected static void completeTransactionAfterThrowing(final TransactionDefinition def,
+                                                         final TransactionStatus transactionStatus,
+                                                         final TransactionManager tm, final Throwable ex) {
+    if (transactionStatus != null) {
+      if (log.isTraceEnabled()) {
+        log.trace("Completing transaction for [{}] after exception: [{}] ", def.getName(), ex, ex);
+      }
+      if (def.rollbackOn(ex)) {
         try {
-            final Object ret = invocation.proceed();
-            if (status != null) {
-                tm.commit(status);
-            }
-            return ret;
+          tm.rollback(transactionStatus);
         }
-        catch (final Throwable e) {
-            completeTransactionAfterThrowing(def, status, tm, e);
-            throw e;
+        catch (TransactionSystemException ex2) {
+          log.error("Application exception overridden by rollback exception", ex);
+          ex2.initApplicationException(ex);
+          throw ex2;
         }
-        finally {
-            restoreThreadLocalStatus(old);
+        catch (RuntimeException | Error ex2) {
+          log.error("Application exception overridden by rollback exception", ex);
+          throw ex2;
         }
-    }
-
-    protected static TransactionStatus bindToThread(TransactionStatus status) {
-
-        final ThreadLocal<TransactionStatus> local = TRANSACTION;
-        TransactionStatus old = local.get();
-        local.set(status);
-        return old;
-    }
-
-    protected static void restoreThreadLocalStatus(TransactionStatus old) {
-        TRANSACTION.set(old);
-    }
-
-    /**
-     * Handle a throwable, completing the transaction. We may commit or roll back,
-     * depending on the configuration.
-     * 
-     * @param ex
-     *            throwable encountered
-     */
-    protected static void completeTransactionAfterThrowing(final TransactionDefinition def,
-                                                           final TransactionStatus transactionStatus,
-                                                           final TransactionManager tm, final Throwable ex) {
-        if (transactionStatus != null) {
-            if (log.isTraceEnabled()) {
-                log.trace("Completing transaction for [{}] after exception: [{}] ", def.getName(), ex, ex);
-            }
-            if (def.rollbackOn(ex)) {
-                try {
-                    tm.rollback(transactionStatus);
-                }
-                catch (TransactionSystemException ex2) {
-                    log.error("Application exception overridden by rollback exception", ex);
-                    ex2.initApplicationException(ex);
-                    throw ex2;
-                }
-                catch (RuntimeException | Error ex2) {
-                    log.error("Application exception overridden by rollback exception", ex);
-                    throw ex2;
-                }
-            }
-            else {
-                try {
-                    // We don't roll back on this exception.
-                    // Will still roll back if TransactionStatus.isRollbackOnly() is true.
-                    tm.commit(transactionStatus);
-                }
-                catch (TransactionSystemException ex2) {
-                    log.error("Application exception overridden by commit exception", ex);
-                    ex2.initApplicationException(ex);
-                    throw ex2;
-                }
-                catch (RuntimeException | Error ex2) {
-                    log.error("Application exception overridden by commit exception", ex);
-                    throw ex2;
-                }
-            }
+      }
+      else {
+        try {
+          // We don't roll back on this exception.
+          // Will still roll back if TransactionStatus.isRollbackOnly() is true.
+          tm.commit(transactionStatus);
         }
-    }
-
-    protected static TransactionDefinition obtainDefinition(final Method method) {
-
-        TransactionDefinition ret = DEF_CACHE.get(method);
-        if (ret == null) {
-            ret = getTransaction(method);
-            DEF_CACHE.put(method, ret);
-            if (log.isTraceEnabled()) {
-                log.trace("Adding transactional method '{}' with attribute: {}", ret.getName(), ret);
-            }
+        catch (TransactionSystemException ex2) {
+          log.error("Application exception overridden by commit exception", ex);
+          ex2.initApplicationException(ex);
+          throw ex2;
         }
-        return ret;
-    }
-
-    private static final TransactionDefinition getTransaction(Method method) {
-
-        AnnotationAttributes attributes = ClassUtils.getAnnotationAttributes(Transactional.class, method);
-
-        if (attributes == null) {
-            attributes = ClassUtils.getAnnotationAttributes(Transactional.class, method.getDeclaringClass());
+        catch (RuntimeException | Error ex2) {
+          log.error("Application exception overridden by commit exception", ex);
+          throw ex2;
         }
+      }
+    }
+  }
 
-        if (attributes == null) {
-            throw new ConfigurationException("'cn.taketoday.transaction.Transactional' must present on: ["
-                    + method + "] or on its class");
-        }
+  protected static TransactionDefinition obtainDefinition(final Method method) {
 
-        return new DefaultTransactionDefinition(attributes).setName(ClassUtils.getQualifiedMethodName(method));
+    TransactionDefinition ret = DEF_CACHE.get(method);
+    if (ret == null) {
+      ret = getTransaction(method);
+      DEF_CACHE.put(method, ret);
+      if (log.isTraceEnabled()) {
+        log.trace("Adding transactional method '{}' with attribute: {}", ret.getName(), ret);
+      }
+    }
+    return ret;
+  }
+
+  private static final TransactionDefinition getTransaction(Method method) {
+
+    AnnotationAttributes attributes = ClassUtils.getAnnotationAttributes(Transactional.class, method);
+
+    if (attributes == null) {
+      attributes = ClassUtils.getAnnotationAttributes(Transactional.class, method.getDeclaringClass());
     }
 
-    protected static TransactionManager obtainTransactionManager(BeanFactory beanFactory,
-                                                                 TransactionManager transactionManager,
-                                                                 TransactionDefinition definition) {
-
-        if (definition != null && beanFactory != null) {
-            final String qualifier = definition.getQualifier();
-            if (StringUtils.isNotEmpty(qualifier)) {
-                return obtainQualifiedTransactionManager(beanFactory, qualifier);
-            }
-        }
-        return transactionManager;
+    if (attributes == null) {
+      throw new ConfigurationException("'cn.taketoday.transaction.Transactional' must present on: ["
+                                               + method + "] or on its class");
     }
 
-    private static final TransactionManager obtainQualifiedTransactionManager(BeanFactory beanFactory, String qualifier) {
-        final TransactionManager ret = beanFactory.getBean(qualifier, TransactionManager.class);
-        if (ret == null) {
-            throw new NoSuchBeanDefinitionException(qualifier, TransactionManager.class);
-        }
-        return ret;
-    }
+    return new DefaultTransactionDefinition(attributes).setName(ClassUtils.getQualifiedMethodName(method));
+  }
 
-    // -----------------------
+  protected static TransactionManager obtainTransactionManager(BeanFactory beanFactory,
+                                                               TransactionManager transactionManager,
+                                                               TransactionDefinition definition) {
 
-    public final BeanFactory getBeanFactory() {
-        return beanFactory;
+    if (definition != null && beanFactory != null) {
+      final String qualifier = definition.getQualifier();
+      if (StringUtils.isNotEmpty(qualifier)) {
+        return obtainQualifiedTransactionManager(beanFactory, qualifier);
+      }
     }
+    return transactionManager;
+  }
 
-    public final TransactionManager getTransactionManager() {
-        return transactionManager;
+  private static final TransactionManager obtainQualifiedTransactionManager(BeanFactory beanFactory, String qualifier) {
+    final TransactionManager ret = beanFactory.getBean(qualifier, TransactionManager.class);
+    if (ret == null) {
+      throw new NoSuchBeanDefinitionException(qualifier, TransactionManager.class);
     }
+    return ret;
+  }
+
+  // -----------------------
+
+  public final BeanFactory getBeanFactory() {
+    return beanFactory;
+  }
+
+  public final TransactionManager getTransactionManager() {
+    return transactionManager;
+  }
 }

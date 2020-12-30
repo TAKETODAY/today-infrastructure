@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,10 +25,10 @@ package cn.taketoday.transaction;
  */
 public interface SavepointManager {
 
-    Object createSavepoint() throws TransactionException;
+  Object createSavepoint() throws TransactionException;
 
-    void rollbackToSavepoint(Object savepoint) throws TransactionException;
+  void rollbackToSavepoint(Object savepoint) throws TransactionException;
 
-    void releaseSavepoint(Object savepoint) throws TransactionException;
+  void releaseSavepoint(Object savepoint) throws TransactionException;
 
 }

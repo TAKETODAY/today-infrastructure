@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © Today & 2017 - 2018 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -32,23 +32,23 @@ import lombok.Setter;
 @Getter
 public final class ParameterMapping {
 
-    private Integer genericClass;
+  private Integer genericClass;
 
-    private Integer parameterClass;
+  private Integer parameterClass;
 
-    private String name;
+  private String name;
 
-    private int index = 1;
+  private int index = 1;
 
-    private Field field;
+  private Field field;
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("{\n\t\"genericClass\":\"").append(genericClass).append("\",\n\t\"parameterClass\":\"").append(
-                parameterClass).append("\",\n\t\"name\":\"").append(name).append("\",\n\t\"index\":\"").append(index).append(
-                        "\",\n\t\"field\":\"").append(field).append("\"\n}");
-        return builder.toString();
-    }
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("{\n\t\"genericClass\":\"").append(genericClass).append("\",\n\t\"parameterClass\":\"").append(
+            parameterClass).append("\",\n\t\"name\":\"").append(name).append("\",\n\t\"index\":\"").append(index).append(
+            "\",\n\t\"field\":\"").append(field).append("\"\n}");
+    return builder.toString();
+  }
 
 }

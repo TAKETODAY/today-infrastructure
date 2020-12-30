@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,19 +25,19 @@ package cn.taketoday.transaction;
  */
 public interface TransactionStatus extends SavepointManager {
 
-    /**
-     * Return whether the present transaction is new (else participating in an
-     * existing transaction, or potentially not running in an actual transaction in
-     * the first place).
-     */
-    boolean isNewTransaction();
+  /**
+   * Return whether the present transaction is new (else participating in an
+   * existing transaction, or potentially not running in an actual transaction in
+   * the first place).
+   */
+  boolean isNewTransaction();
 
-    boolean hasSavepoint();
+  boolean hasSavepoint();
 
-    void setRollbackOnly();
+  void setRollbackOnly();
 
-    boolean isRollbackOnly();
+  boolean isRollbackOnly();
 
-    boolean isCompleted();
+  boolean isCompleted();
 
 }

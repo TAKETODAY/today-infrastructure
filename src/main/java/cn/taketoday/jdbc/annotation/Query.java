@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © Today & 2017 - 2018 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -32,12 +32,12 @@ import cn.taketoday.jdbc.SqlType;
 @Target({ ElementType.METHOD, ElementType.TYPE })
 /**
  * @author Today <br>
- * 
+ *
  *         2018-09-05 22:30
  */
 public @interface Query {
 
-    String value() default "";
+  String value() default "";
 
-    SqlType sqlType() default SqlType.SELECT;
+  SqlType sqlType() default SqlType.SELECT;
 }

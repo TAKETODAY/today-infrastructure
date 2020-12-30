@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -27,20 +27,20 @@ import java.io.Flushable;
  */
 public interface TransactionObject extends Flushable {
 
-    /**
-     * Return whether the transaction is internally marked as rollback-only. Can,
-     * for example, check the JTA UserTransaction.
-     * 
-     * @see javax.transaction.UserTransaction#getStatus
-     * @see javax.transaction.Status#STATUS_MARKED_ROLLBACK
-     */
-    boolean isRollbackOnly();
+  /**
+   * Return whether the transaction is internally marked as rollback-only. Can,
+   * for example, check the JTA UserTransaction.
+   *
+   * @see javax.transaction.UserTransaction#getStatus
+   * @see javax.transaction.Status#STATUS_MARKED_ROLLBACK
+   */
+  boolean isRollbackOnly();
 
-    /**
-     * Flush the underlying sessions to the datastore, if applicable: for example,
-     * all affected Hibernate/JPA sessions.
-     */
-    @Override
-    void flush();
+  /**
+   * Flush the underlying sessions to the datastore, if applicable: for example,
+   * all affected Hibernate/JPA sessions.
+   */
+  @Override
+  void flush();
 
 }

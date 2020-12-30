@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,26 +29,26 @@ package cn.taketoday.transaction;
 @SuppressWarnings("serial")
 public class UnexpectedRollbackException extends TransactionException {
 
-    /**
-     * Constructor for UnexpectedRollbackException.
-     * 
-     * @param msg
-     *            the detail message
-     */
-    public UnexpectedRollbackException(String msg) {
-        super(msg);
-    }
+  /**
+   * Constructor for UnexpectedRollbackException.
+   *
+   * @param msg
+   *            the detail message
+   */
+  public UnexpectedRollbackException(String msg) {
+    super(msg);
+  }
 
-    /**
-     * Constructor for UnexpectedRollbackException.
-     * 
-     * @param msg
-     *            the detail message
-     * @param cause
-     *            the root cause from the transaction API in use
-     */
-    public UnexpectedRollbackException(String msg, Throwable cause) {
-        super(msg, cause);
-    }
+  /**
+   * Constructor for UnexpectedRollbackException.
+   *
+   * @param msg
+   *            the detail message
+   * @param cause
+   *            the root cause from the transaction API in use
+   */
+  public UnexpectedRollbackException(String msg, Throwable cause) {
+    super(msg, cause);
+  }
 
 }

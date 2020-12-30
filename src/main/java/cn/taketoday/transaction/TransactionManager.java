@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,10 +25,10 @@ package cn.taketoday.transaction;
  */
 public interface TransactionManager {
 
-    TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException;
+  TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException;
 
-    void commit(TransactionStatus status) throws TransactionException;
+  void commit(TransactionStatus status) throws TransactionException;
 
-    void rollback(TransactionStatus status) throws TransactionException;
+  void rollback(TransactionStatus status) throws TransactionException;
 
 }
