@@ -34,22 +34,18 @@ import cn.taketoday.context.factory.InitializingBean;
 
 /**
  * @author TODAY <br>
- *         2018-10-13 20:33
+ * 2018-10-13 20:33
  */
 public class MybatisSessionFactoryBean implements FactoryBean<SqlSessionFactory>, InitializingBean {
 
-  @Autowired
   private DataSource dataSource;
 
-  @Autowired
   private Configuration configuration;
 
   private SqlSessionFactory sessionFactory;
   private TransactionFactory transactionFactory;
 
-  public MybatisSessionFactoryBean() {
-
-  }
+  public MybatisSessionFactoryBean() { }
 
   public MybatisSessionFactoryBean(DataSource dataSource) {
     this.setDataSource(dataSource);
@@ -91,6 +87,16 @@ public class MybatisSessionFactoryBean implements FactoryBean<SqlSessionFactory>
     return this;
   }
 
+  public Configuration getConfiguration() {
+    return configuration;
+  }
+
+  @Autowired
+  public void setConfiguration(final Configuration configuration) {
+    this.configuration = configuration;
+  }
+
+  @Autowired
   public MybatisSessionFactoryBean setDataSource(DataSource dataSource) {
     this.dataSource = dataSource;
     return this;

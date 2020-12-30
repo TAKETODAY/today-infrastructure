@@ -36,7 +36,6 @@ import cn.taketoday.context.logger.LoggerFactory;
  */
 public class MapperFactoryBean<T> implements FactoryBean<T>, InitializingBean {
 
-  @Autowired
   private SqlSession sqlSession;
 
   private Class<T> mapperInterface;
@@ -97,6 +96,7 @@ public class MapperFactoryBean<T> implements FactoryBean<T>, InitializingBean {
     return sqlSession;
   }
 
+  @Autowired
   public MapperFactoryBean<T> setSqlSession(SqlSession sqlSession) {
     this.sqlSession = sqlSession;
     return this;

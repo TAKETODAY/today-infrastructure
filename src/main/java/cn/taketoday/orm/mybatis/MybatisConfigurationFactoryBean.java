@@ -47,7 +47,7 @@ public class MybatisConfigurationFactoryBean implements FactoryBean<Configuratio
 
   @Override
   public void afterPropertiesSet() throws Exception {
-    if (getConfiguration() == null) {
+    if (configuration == null) {
       setConfiguration(new XMLConfigBuilder(ContextUtils.getResourceAsStream(getConfigLocation()), "TODAY-MYBATIS", getProperties())//
                                .parse());
     }

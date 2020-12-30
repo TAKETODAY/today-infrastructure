@@ -52,36 +52,36 @@ import static cn.taketoday.context.utils.ContextUtils.getResourceAsStream;
 
 /**
  * @author TODAY <br>
- *         2018-10-05 19:03
+ * 2018-10-05 19:03
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class DefaultMybatisConfiguration implements ApplicationListener<LoadingMissingBeanEvent> {
+
+  public static final String DEFAULT_CONFIG_LOCATION = "classpath:mybatis.xml";
 
   @Override
   public void onApplicationEvent(LoadingMissingBeanEvent event) {
 
     final Logger log = LoggerFactory.getLogger(getClass());
-    log.debug("Loading Mybatis Mapper Bean Definitions");
+    log.info("Loading Mybatis Mapper Bean Definitions");
 
     final ApplicationContext context = event.getApplicationContext();
     final BeanNameCreator beanNameCreator = context.getEnvironment().getBeanNameCreator();
 
     for (final Class<?> beanClass : event.getCandidates()) {
+      if (beanClass.isInterface()) {
+        Repository repository = beanClass.getAnnotation(Repository.class);
+        if (repository == null) {
+          continue;
+        }
 
-      if (!beanClass.isInterface()) {
-        continue;
+        log.debug("Found Mapper: [{}]", beanClass.getName());
+
+        final String[] names = repository.value();
+        final String name = ObjectUtils.isNotEmpty(names) ? names[0] : beanNameCreator.create(beanClass);
+        // context.registerSingleton(BeanFactory.FACTORY_BEAN_PREFIX.concat(name), new MapperFactoryBean<>(beanClass));
+        context.registerBeanDefinition(name, createBeanDefinition(beanClass, name));
       }
-      Repository repository = beanClass.getAnnotation(Repository.class);
-      if (repository == null) {
-        continue;
-      }
-
-      log.debug("Found Mapper: [{}]", beanClass.getName());
-
-      final String[] names = repository.value();
-      final String name = ObjectUtils.isNotEmpty(names) ? names[0] : beanNameCreator.create(beanClass);
-//            context.registerSingleton(BeanFactory.FACTORY_BEAN_PREFIX.concat(name), new MapperFactoryBean<>(beanClass));
-      context.registerBeanDefinition(name, createBeanDefinition(beanClass, name));
     }
   }
 
@@ -92,13 +92,17 @@ public class DefaultMybatisConfiguration implements ApplicationListener<LoadingM
   @MissingBean
   public SqlSession sqlSession(@Env("mybatis.env") String envId,
                                @Env("mybatis.config") String configLocation,
-                               @Autowired(required = true) DataSource dataSource,
+                               @Autowired DataSource dataSource,
                                @Autowired(required = false) TransactionFactory transactionFactory,
                                @Props(prefix = "mybatis.", replace = true) Properties properties) throws IOException //
   {
 
     if (StringUtils.isEmpty(envId)) {
       envId = "TODAY-MYBATIS";
+    }
+
+    if (StringUtils.isEmpty(configLocation)) {
+      configLocation = DEFAULT_CONFIG_LOCATION;
     }
 
     final Configuration configuration = new XMLConfigBuilder(getResourceAsStream(configLocation),
