@@ -104,7 +104,7 @@ abstract class GeneratorSupport<T> {
 
   ClassLoader getClassLoader() {
     if (classLoader == null) {
-      return targetClass.getClassLoader();
+      return classLoader = targetClass.getClassLoader();
     }
     return classLoader;
   }
