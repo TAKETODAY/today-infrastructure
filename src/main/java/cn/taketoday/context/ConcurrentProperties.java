@@ -39,8 +39,8 @@ import java.util.function.Function;
  * @author TODAY <br>
  *         2019-03-15 23:24
  */
-@SuppressWarnings("serial")
-public class ConcurrentProperties extends Properties implements ConcurrentMap<Object, Object> {
+public class ConcurrentProperties
+        extends Properties implements ConcurrentMap<Object, Object> {
 
   private final ConcurrentHashMap<Object, Object> map = new ConcurrentHashMap<>();
 
