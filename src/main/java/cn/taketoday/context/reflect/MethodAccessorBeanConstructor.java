@@ -25,7 +25,8 @@ import java.util.function.Supplier;
  * @author TODAY
  * @date 2020/9/20 20:41
  */
-public class MethodAccessorBeanConstructor<T> extends StaticMethodAccessorBeanConstructor<T> {
+public class MethodAccessorBeanConstructor<T>
+        extends StaticMethodAccessorBeanConstructor<T> {
 
   private final Supplier<Object> obj;
 

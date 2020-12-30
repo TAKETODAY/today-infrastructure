@@ -52,7 +52,6 @@ import cn.taketoday.context.reflect.ReflectionException;
 import cn.taketoday.context.reflect.SetterMethod;
 import sun.misc.Unsafe;
 
-
 /**
  * Fast reflection operation
  *
@@ -1055,6 +1054,16 @@ public abstract class ReflectionUtils {
    */
   public static MethodInvoker newMethodAccessor(final Method method) {
     return MethodInvoker.create(method);
+  }
+
+  public static ConstructorAccessor newConstructorAccessor(final Class<?> target) {
+    try {
+      final Constructor<?> constructor = target.getConstructor();
+      return newConstructorAccessor(constructor);
+    }
+    catch (NoSuchMethodException e) {
+      throw new ReflectionException("target class: '" + target + "‘ has no default constructor");
+    }
   }
 
   public static ConstructorAccessor newConstructorAccessor(final Constructor<?> constructor) {

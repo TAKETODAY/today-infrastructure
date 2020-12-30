@@ -23,6 +23,7 @@ package cn.taketoday.context.reflect;
  * @author TODAY
  * 2020.08.26
  */
+@FunctionalInterface
 public interface ConstructorAccessor {
 
   Object newInstance(Object[] args);
