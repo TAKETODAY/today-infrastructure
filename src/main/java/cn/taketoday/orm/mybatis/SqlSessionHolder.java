@@ -23,13 +23,11 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 
 import cn.taketoday.transaction.AbstractResourceHolder;
-import lombok.Getter;
 
 /**
  * @author TODAY <br>
- *         2018-10-09 11:24
+ * 2018-10-09 11:24
  */
-@Getter
 public class SqlSessionHolder extends AbstractResourceHolder {
 
   private final SqlSession sqlSession;
@@ -40,4 +38,11 @@ public class SqlSessionHolder extends AbstractResourceHolder {
     this.executorType = executorType;
   }
 
+  public SqlSession getSqlSession() {
+    return sqlSession;
+  }
+
+  public ExecutorType getExecutorType() {
+    return executorType;
+  }
 }

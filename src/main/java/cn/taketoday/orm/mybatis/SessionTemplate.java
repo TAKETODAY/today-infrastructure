@@ -64,27 +64,27 @@ public class SessionTemplate implements SqlSession, DisposableBean {
 
   @Override
   public <T> T selectOne(String statement) {
-    return this.proxy.<T>selectOne(statement);
+    return this.proxy.selectOne(statement);
   }
 
   @Override
   public <T> T selectOne(String statement, Object parameter) {
-    return this.proxy.<T>selectOne(statement, parameter);
+    return this.proxy.selectOne(statement, parameter);
   }
 
   @Override
   public <K, V> Map<K, V> selectMap(String statement, String mapKey) {
-    return this.proxy.<K, V>selectMap(statement, mapKey);
+    return this.proxy.selectMap(statement, mapKey);
   }
 
   @Override
   public <K, V> Map<K, V> selectMap(String statement, Object parameter, String mapKey) {
-    return this.proxy.<K, V>selectMap(statement, parameter, mapKey);
+    return this.proxy.selectMap(statement, parameter, mapKey);
   }
 
   @Override
   public <K, V> Map<K, V> selectMap(String statement, Object parameter, String mapKey, RowBounds rowBounds) {
-    return this.proxy.<K, V>selectMap(statement, parameter, mapKey, rowBounds);
+    return this.proxy.selectMap(statement, parameter, mapKey, rowBounds);
   }
 
   @Override
@@ -104,12 +104,12 @@ public class SessionTemplate implements SqlSession, DisposableBean {
 
   @Override
   public <E> List<E> selectList(String statement) {
-    return this.proxy.<E>selectList(statement);
+    return this.proxy.selectList(statement);
   }
 
   @Override
   public <E> List<E> selectList(String statement, Object parameter) {
-    return this.proxy.<E>selectList(statement, parameter);
+    return this.proxy.selectList(statement, parameter);
   }
 
   @Override
