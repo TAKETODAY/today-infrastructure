@@ -1067,6 +1067,24 @@ public abstract class ContextUtils {
    * @since 2.1.2
    */
   public static Object[] resolveParameter(final Executable executable, final BeanFactory beanFactory) {
+    return resolveParameter(executable, beanFactory, null);
+  }
+
+  /**
+   * Resolve parameters list
+   *
+   * @param executable
+   *         Target executable instance {@link Method} or a {@link Constructor}
+   * @param beanFactory
+   *         Bean factory
+   * @param providedArgs
+   *         provided args
+   *
+   * @return Parameter list objects
+   *
+   * @since 3.0
+   */
+  public static Object[] resolveParameter(final Executable executable, final BeanFactory beanFactory, Object[] providedArgs) {
     Assert.notNull(executable, "Executable must not be null");
 
     final int parameterLength = executable.getParameterCount();
@@ -1076,12 +1094,25 @@ public abstract class ContextUtils {
     Assert.notNull(beanFactory, "BeanFactory must not be null");
     // parameter list
     final Object[] args = new Object[parameterLength];
-
     int i = 0;
     for (final Parameter parameter : executable.getParameters()) {
-      args[i++] = getParameterResolver(parameter).resolve(parameter, beanFactory);
+      final Object argument = findProvidedArgument(parameter, providedArgs);
+      args[i++] = argument != null ? argument : getParameterResolver(parameter).resolve(parameter, beanFactory);
     }
     return args;
+  }
+
+  protected static Object findProvidedArgument(Parameter parameter, Object[] providedArgs) {
+    if (ObjectUtils.isNotEmpty(providedArgs)) {
+      final Class<?> parameterType = parameter.getType();
+      for (final Object providedArg : providedArgs) {
+        if (parameterType.isInstance(providedArg)) {
+          return providedArg;
+        }
+      }
+    }
+
+    return null;
   }
 
   public static ExecutableParameterResolver getParameterResolver(final Parameter parameter) {
