@@ -31,6 +31,7 @@ import java.util.List;
 
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Order;
+import cn.taketoday.context.conversion.ConverterTypeConverter;
 import cn.taketoday.context.conversion.StringTypeConverter;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.exception.ConversionException;
@@ -53,6 +54,7 @@ public abstract class ConvertUtils {
     setConverters(new StringEnumConverter(),
                   new StringNumberConverter(),
                   new StringResourceConverter(),
+                  new ConverterTypeConverter(),
                   new PrimitiveClassConverter(),
                   delegate((c) -> c == MimeType.class, MimeType::valueOf),
                   delegate((c) -> c == MediaType.class, MediaType::valueOf),

@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
@@ -17,28 +17,41 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.context.conversion;
 
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
+
 /**
- * @author TODAY <br>
- * 2019-06-06 15:31
- * @since 2.1.6
+ * @author TODAY
+ * @date 2021/1/6 23:34
  */
-public abstract class StringTypeConverter implements TypeConverter {
+public class FunctionNumberConverter extends NumberConverter {
+
+  final UnaryOperator<Number> convertFunction;
+  final Function<String, Number> stringFunction;
+
+  public FunctionNumberConverter(Class<?> type,
+                                 Function<String, Number> stringFunction,
+                                 UnaryOperator<Number> convertFunction) {
+    super(type);
+    this.stringFunction = stringFunction;
+    this.convertFunction = convertFunction;
+  }
 
   @Override
-  public final boolean supports(Class<?> targetClass, Object source) {
-    return source instanceof String && supports(targetClass);
-  }
-
-  public boolean supports(Class<?> targetClass) {
-    return true;
+  protected Number convertNumber(Number source) {
+    return convertFunction.apply(source);
   }
 
   @Override
-  public final Object convert(Class<?> targetClass, Object source) {
-    return convertInternal(targetClass, (String) source);
+  protected Number convertString(String source) {
+    final String stringVal = source.trim();
+    if (stringVal.isEmpty()) {
+      return convertNull();
+    }
+    return stringFunction.apply(stringVal);
   }
 
-  protected abstract Object convertInternal(Class<?> targetClass, String source);
 }

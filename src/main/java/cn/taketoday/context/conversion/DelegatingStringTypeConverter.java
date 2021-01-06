@@ -22,7 +22,6 @@ package cn.taketoday.context.conversion;
 import java.util.function.Function;
 
 import cn.taketoday.context.Ordered;
-import cn.taketoday.context.exception.ConversionException;
 
 /**
  * @author TODAY <br>
@@ -58,7 +57,7 @@ public class DelegatingStringTypeConverter<T> extends StringTypeConverter implem
   }
 
   @Override
-  protected Object convertInternal(Class<?> targetClass, String source) throws ConversionException {
+  protected Object convertInternal(Class<?> targetClass, String source) {
     return converter.convert(source);
   }
 

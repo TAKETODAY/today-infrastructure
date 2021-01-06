@@ -25,7 +25,7 @@ import cn.taketoday.context.exception.ConversionException;
  * A {@link Converter}
  *
  * @author Today <br>
- *         2018-07-07 21:33:52
+ * 2018-07-07 21:33:52
  */
 @FunctionalInterface
 public interface Converter<S, T> {
@@ -34,10 +34,13 @@ public interface Converter<S, T> {
    * Convert source object to target class {@link T}
    *
    * @param source
-   *            source instance
+   *         source instance
+   *
    * @return A converted instance
+   *
    * @throws ConversionException
+   *         can't convert source to T
    */
-  T convert(S source) throws ConversionException;
+  T convert(S source);
 
 }

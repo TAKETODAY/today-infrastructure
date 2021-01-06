@@ -67,8 +67,6 @@ public abstract class NumberUtils {
    *
    * @param targetClass
    *         the target class
-   *
-   * @return
    */
   public static boolean isNumber(Class<?> targetClass) {
     return Number.class.isAssignableFrom(targetClass) //

@@ -25,7 +25,7 @@ import cn.taketoday.context.exception.ConversionException;
  * Type converter
  *
  * @author TODAY <br>
- *         2019-06-06 14:17
+ * 2019-06-06 14:17
  * @since 2.1.6
  */
 @FunctionalInterface
@@ -36,11 +36,12 @@ public interface TypeConverter {
    * target class object
    *
    * @param targetClass
-   *            target class
+   *         target class
    * @param source
-   *            source object never be null
+   *         source object never be null
+   *
    * @return whether this {@link TypeConverter} supports to convert source object
-   *         to target class object
+   * to target class object
    */
   default boolean supports(Class<?> targetClass, Object source) {
     return true;
@@ -50,12 +51,14 @@ public interface TypeConverter {
    * Convert source object to target object
    *
    * @param targetClass
-   *            target type
+   *         target type
    * @param source
-   *            source object never be null
+   *         source object never be null
+   *
    * @return a converted object
+   *
    * @throws ConversionException
-   *             if can't convert to target object
+   *         if can't convert to target object
    */
-  Object convert(Class<?> targetClass, Object source) throws ConversionException;
+  Object convert(Class<?> targetClass, Object source);
 }
