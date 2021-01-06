@@ -1249,7 +1249,17 @@ public abstract class ClassUtils {
    * @since 2.1.7
    */
   public static java.lang.reflect.Type[] getGenericityClass(final Class<?> type) {
-    return getActualTypeArguments(type != null ? type.getGenericSuperclass() : null);
+    if (type != null) {
+      final java.lang.reflect.Type genericSuperclass = type.getGenericSuperclass();
+      if (genericSuperclass != Object.class) {
+        return getActualTypeArguments(genericSuperclass);
+      }
+      final java.lang.reflect.Type[] genericInterfaces = type.getGenericInterfaces();
+      if (ObjectUtils.isNotEmpty(genericInterfaces)) {
+        return getActualTypeArguments(genericInterfaces[0]);
+      }
+    }
+    return null;
   }
 
   public static java.lang.reflect.Type[] getGenericityClass(final Field property) {
