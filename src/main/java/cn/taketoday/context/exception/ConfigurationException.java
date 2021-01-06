@@ -21,32 +21,32 @@ package cn.taketoday.context.exception;
 
 import java.util.function.Supplier;
 
+import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 
 /**
- *
  * Configuration exception
  *
  * @author TODAY <br>
- *         2018-08-08 09:55
+ * 2018-08-08 09:55
  */
 public class ConfigurationException extends ContextException {
   private static final long serialVersionUID = 1L;
+  private static final Logger log = LoggerFactory.getLogger(ConfigurationException.class);
 
   public ConfigurationException() {}
 
+  public ConfigurationException(String message) {
+    this(message, null);
+  }
+
   public ConfigurationException(Throwable cause) {
-    super(cause);
+    this(null, cause);
   }
 
   public ConfigurationException(String message, Throwable cause) {
     super(message, cause);
-    LoggerFactory.getLogger(ConfigurationException.class)//
-            .error("Configuration Exception Message: [" + message + "]");
-  }
-
-  public ConfigurationException(String message) {
-    this(message, null);
+    log.error("Configuration Exception Message: [" + message + "]", this);
   }
 
   public static <T> T nonNull(final T obj) {
