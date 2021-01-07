@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.UUID;
 
 import cn.taketoday.jdbc.DefaultSession;
+import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.Query;
-import cn.taketoday.jdbc.Sql2oException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -88,7 +88,7 @@ public class BidirectionalConverterTest {
     try {
       sql2o.createQuery("drop table uuid_wrapper").executeUpdate();
     }
-    catch (Sql2oException e) {
+    catch (PersistenceException e) {
       // if it fails, its because the User table doesn't exists. Just ignore this.
     }
   }

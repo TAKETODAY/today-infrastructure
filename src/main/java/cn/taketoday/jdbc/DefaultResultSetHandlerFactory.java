@@ -4,10 +4,13 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-import cn.taketoday.context.reflect.PropertyAccessor;
 import cn.taketoday.jdbc.reflection.BeanMetadata;
 import cn.taketoday.jdbc.reflection.BeanProperty;
 import cn.taketoday.jdbc.reflection.Pojo;
+import cn.taketoday.jdbc.result.JdbcPropertyAccessor;
+import cn.taketoday.jdbc.result.ObjectResultHandler;
+import cn.taketoday.jdbc.result.TypeHandlerPropertyAccessor;
+import cn.taketoday.jdbc.result.TypeHandlerResultSetHandler;
 import cn.taketoday.jdbc.type.SimpleTypeRegistry;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
@@ -48,14 +51,8 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
     final boolean useExecuteScalar = SimpleTypeRegistry.isSimpleType(metadata.getType()) && columnCount == 1;
 
     if (useExecuteScalar) {
-      final TypeHandler<?> typeHandler = registry.getTypeHandler(metadata.getType());
-      return new ResultSetHandler<T>() {
-
-        @Override
-        public T handle(final ResultSet resultSet) throws SQLException {
-          return (T) typeHandler.getResult(resultSet, 1);
-        }
-      };
+      final TypeHandler typeHandler = registry.getTypeHandler(metadata.getType());
+      return new TypeHandlerResultSetHandler<>(typeHandler);
     }
 
     final JdbcPropertyAccessor[] propertyAccessors = new JdbcPropertyAccessor[columnCount];
@@ -68,28 +65,11 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
       // If more than 1 column is fetched (we cannot fall back to executeScalar),
       // and the setter doesn't exist, throw exception.
       if (this.metadata.throwOnMappingFailure && propertyAccessors[i - 1] == null && columnCount > 1) {
-        throw new Sql2oException("Could not map " + colName + " to any property.");
+        throw new PersistenceException("Could not map " + colName + " to any property.");
       }
     }
 
-    // TODO 数组
-
-    return new ResultSetHandler<T>() {
-
-      @SuppressWarnings("unchecked")
-      public T handle(final ResultSet resultSet) throws SQLException {
-        // otherwise we want executeAndFetch with object mapping
-        Object pojo = metadata.newInstance();
-        final JdbcPropertyAccessor[] accessors = propertyAccessors;
-        for (int colIdx = 1; colIdx <= columnCount; colIdx++) {
-          final JdbcPropertyAccessor setter = accessors[colIdx - 1];
-          if (setter != null) {
-            setter.set(pojo, resultSet, colIdx);
-          }
-        }
-        return (T) pojo;
-      }
-    };
+    return new ObjectResultHandler<>(metadata, propertyAccessors, columnCount);
   }
 
   private JdbcPropertyAccessor getPropertyAccessor(final String propertyPath, final BeanMetadata metadata) {
@@ -171,10 +151,10 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
 
   }
 
-  static final AbstractCache<Key, ResultSetHandler<?>, ResultSetMetaData> CACHE
-          = new AbstractCache<Key, ResultSetHandler<?>, ResultSetMetaData>() {
+  static final AbstractCache<Key, ResultSetHandler, ResultSetMetaData> CACHE
+          = new AbstractCache<Key, ResultSetHandler, ResultSetMetaData>() {
     @Override
-    protected ResultSetHandler<?> evaluate(Key key, ResultSetMetaData param) {
+    protected ResultSetHandler evaluate(Key key, ResultSetMetaData param) {
       try {
         return key.factory().newResultSetHandler0(param);
       }
@@ -183,34 +163,5 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
       }
     }
   };
-
-  interface JdbcPropertyAccessor {
-
-    Object get(Object obj);
-
-    void set(Object obj, ResultSet resultSet, int columnIndex) throws SQLException;
-  }
-
-  static class TypeHandlerPropertyAccessor implements JdbcPropertyAccessor {
-
-    final TypeHandler<?> typeHandler;
-    final PropertyAccessor accessor;
-
-    TypeHandlerPropertyAccessor(TypeHandler<?> typeHandler, PropertyAccessor accessor) {
-      this.typeHandler = typeHandler;
-      this.accessor = accessor;
-    }
-
-    @Override
-    public Object get(Object obj) {
-      return accessor.get(obj);
-    }
-
-    @Override
-    public void set(Object obj, ResultSet resultSet, int columnIndex) throws SQLException {
-      final Object result = typeHandler.getResult(resultSet, columnIndex);
-      accessor.set(obj, result);
-    }
-  }
 
 }

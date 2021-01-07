@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.jdbc.AbstractResultSetIterator;
-import cn.taketoday.jdbc.Sql2oException;
+import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.utils.JdbcUtils;
 
 /**
@@ -31,7 +31,7 @@ public class TableResultSetIterator extends AbstractResultSetIterator<Row> {
       meta = rs.getMetaData();
     }
     catch (SQLException ex) {
-      throw new Sql2oException("Database error: " + ex.getMessage(), ex);
+      throw new PersistenceException("Database error: " + ex.getMessage(), ex);
     }
     try {
       lt.setName(meta.getTableName(1));
@@ -47,7 +47,7 @@ public class TableResultSetIterator extends AbstractResultSetIterator<Row> {
       }
     }
     catch (SQLException e) {
-      throw new Sql2oException("Error while reading metadata from database", e);
+      throw new PersistenceException("Error while reading metadata from database", e);
     }
     lt.setColumns(columns);
   }

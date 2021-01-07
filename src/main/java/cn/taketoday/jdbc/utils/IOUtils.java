@@ -23,14 +23,4 @@ public class IOUtils {
     return output.toByteArray();
   }
 
-  public static String toString(Reader input) throws IOException {
-    StringBuilder output = new StringBuilder();
-    char[] buffer = new char[DEFAULT_BUFFER_SIZE];
-    int n;
-    while (EOF != (n = input.read(buffer))) {
-      output.append(buffer, 0, n);
-    }
-    return output.toString();
-  }
-
 }

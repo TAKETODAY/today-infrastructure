@@ -110,7 +110,7 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
       transaction = session.beginTransaction();
       return action.doInHibernate(session);
     }
-    catch (PersistenceException ex) {
+    catch (HibernateException ex) {
       log.error("Could not execute sql", ex);
       try {
         if (transaction != null) {

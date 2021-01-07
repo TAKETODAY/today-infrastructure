@@ -6,9 +6,6 @@ import java.sql.Connection;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.jdbc.DefaultSession;
-import cn.taketoday.jdbc.JdbcConnection;
-
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;

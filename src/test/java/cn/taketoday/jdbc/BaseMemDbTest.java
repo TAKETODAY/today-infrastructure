@@ -15,14 +15,10 @@ import org.junit.runners.Parameterized;
 import java.util.Arrays;
 import java.util.Collection;
 
-import cn.taketoday.jdbc.DefaultSession;
-import cn.taketoday.jdbc.JdbcConnection;
-
 /**
  * Created by lars on 01.11.14.
  */
-
-public class BaseMemDbTest {
+public abstract class BaseMemDbTest {
 
   public enum DbType {
     H2("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", ""),
@@ -46,14 +42,14 @@ public class BaseMemDbTest {
   }
 
   protected final DbType dbType;
-  protected final DefaultSession sql2o;
+  protected final DefaultSession defaultSession;
 
   public BaseMemDbTest(DbType dbType, String testName) {
     this.dbType = dbType;
-    this.sql2o = new DefaultSession(dbType.url, dbType.user, dbType.pass);
+    this.defaultSession = new DefaultSession(dbType.url, dbType.user, dbType.pass);
 
     if (dbType == DbType.HyperSQL) {
-      try (JdbcConnection con = sql2o.open()) {
+      try (JdbcConnection con = defaultSession.open()) {
         con.createQuery("set database sql syntax MSS true").executeUpdate();
       }
     }

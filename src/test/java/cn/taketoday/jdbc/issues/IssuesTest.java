@@ -15,7 +15,7 @@ import java.util.List;
 
 import cn.taketoday.jdbc.DefaultSession;
 import cn.taketoday.jdbc.JdbcConnection;
-import cn.taketoday.jdbc.Sql2oException;
+import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.data.Row;
 import cn.taketoday.jdbc.data.Table;
 import cn.taketoday.jdbc.issues.pojos.Issue1Pojo;
@@ -101,7 +101,7 @@ public class IssuesTest {
       KeyValueEntity pojo = sql2o.createQuery("select 1 id, 'something' foo from (values(0))").executeAndFetchFirst(
               KeyValueEntity.class);
     }
-    catch (Sql2oException ex) {
+    catch (PersistenceException ex) {
       assertTrue(ex.getMessage().contains("Could not map"));
     }
   }
@@ -135,7 +135,7 @@ public class IssuesTest {
     try {
       String row1Value = row1.getString("ahsHashah"); // Should fail with an sql2o exception
     }
-    catch (Sql2oException ex) {
+    catch (PersistenceException ex) {
       failed = true;
 
       assertTrue(ex.getMessage().startsWith("Column with name 'ahsHashah' does not exist"));
@@ -383,7 +383,7 @@ public class IssuesTest {
         Pojo pojo = connection.createQuery(sql).executeAndFetchFirst(Pojo.class);
         fail("Expeced an exception to be thrown");
       }
-      catch (Sql2oException e) {
+      catch (PersistenceException e) {
         assertEquals("Could not map VAL2 to any property.", e.getMessage());
       }
 
@@ -426,11 +426,11 @@ public class IssuesTest {
 
       fail("Expected exception!!");
     }
-    catch (Sql2oException ex) {
+    catch (PersistenceException ex) {
       // awesome!
     }
     catch (Throwable t) {
-      fail("A " + t.getClass().getName() + " was thrown, but An " + Sql2oException.class.getName() + " was expected");
+      fail("A " + t.getClass().getName() + " was thrown, but An " + PersistenceException.class.getName() + " was expected");
     }
   }
 }

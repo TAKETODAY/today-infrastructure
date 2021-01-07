@@ -7,7 +7,7 @@ import java.util.Map;
 
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.utils.ConvertUtils;
-import cn.taketoday.jdbc.Sql2oException;
+import cn.taketoday.jdbc.PersistenceException;
 
 /**
  * Represents a result set row.
@@ -40,7 +40,7 @@ public class Row {
     if (index != null){
       return getObject(index);
     }
-    throw new Sql2oException(String.format("Column with name '%s' does not exist", columnName));
+    throw new PersistenceException(String.format("Column with name '%s' does not exist", columnName));
   }
 
   public <V> V getObject(int columnIndex, Class<V> clazz) {
@@ -48,7 +48,7 @@ public class Row {
       return ConvertUtils.convert(clazz, getObject(columnIndex));
     }
     catch (ConversionException ex) {
-      throw new Sql2oException("Error converting value", ex);
+      throw new PersistenceException("Error converting value", ex);
     }
   }
 
@@ -57,7 +57,7 @@ public class Row {
       return ConvertUtils.convert(clazz, getObject(columnName));
     }
     catch (ConversionException ex) {
-      throw new Sql2oException("Error converting value", ex);
+      throw new PersistenceException("Error converting value", ex);
     }
   }
 

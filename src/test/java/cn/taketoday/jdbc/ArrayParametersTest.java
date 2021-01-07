@@ -9,8 +9,6 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.jdbc.ArrayParameters;
-
 import static junit.framework.TestCase.assertEquals;
 
 public class ArrayParametersTest {

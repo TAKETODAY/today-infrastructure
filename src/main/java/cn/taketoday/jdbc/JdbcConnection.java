@@ -69,7 +69,7 @@ public class JdbcConnection implements AutoCloseable, Closeable {
       }
     }
     catch (SQLException e) {
-      throw new Sql2oException("Error creating connection", e);
+      throw new PersistenceException("Error creating connection", e);
     }
 
     return new Query(this, queryText, returnGeneratedKeys);
@@ -82,7 +82,7 @@ public class JdbcConnection implements AutoCloseable, Closeable {
       }
     }
     catch (SQLException e) {
-      throw new Sql2oException("Error creating connection", e);
+      throw new PersistenceException("Error creating connection", e);
     }
 
     return new Query(this, queryText, columnNames);
@@ -124,7 +124,7 @@ public class JdbcConnection implements AutoCloseable, Closeable {
       jdbcConnection.commit();
     }
     catch (SQLException e) {
-      throw new Sql2oException(e);
+      throw new PersistenceException(e);
     }
     finally {
       if (closeConnection) {
@@ -136,7 +136,7 @@ public class JdbcConnection implements AutoCloseable, Closeable {
 
   public int getResult() {
     if (this.result == null) {
-      throw new Sql2oException("It is required to call executeUpdate() method before calling getResult().");
+      throw new PersistenceException("It is required to call executeUpdate() method before calling getResult().");
     }
     return this.result;
   }
@@ -147,7 +147,7 @@ public class JdbcConnection implements AutoCloseable, Closeable {
 
   public int[] getBatchResult() {
     if (this.batchResult == null) {
-      throw new Sql2oException("It is required to call executeBatch() method before calling getBatchResult().");
+      throw new PersistenceException("It is required to call executeBatch() method before calling getBatchResult().");
     }
     return this.batchResult;
   }
@@ -169,7 +169,7 @@ public class JdbcConnection implements AutoCloseable, Closeable {
 
   public Object getKey() {
     if (!this.canGetKeys) {
-      throw new Sql2oException(
+      throw new PersistenceException(
               "Keys were not fetched from database. Please set the returnGeneratedKeys parameter in the createQuery() method to enable fetching of generated keys.");
     }
     if (!CollectionUtils.isEmpty(keys)) {
@@ -185,13 +185,13 @@ public class JdbcConnection implements AutoCloseable, Closeable {
       return (V) ConvertUtils.convert(returnType, key);
     }
     catch (ConversionException e) {
-      throw new Sql2oException("Exception occurred while converting value from database to type " + returnType.toString(), e);
+      throw new PersistenceException("Exception occurred while converting value from database to type " + returnType.toString(), e);
     }
   }
 
   public Object[] getKeys() {
     if (!this.canGetKeys) {
-      throw new Sql2oException(
+      throw new PersistenceException(
               "Keys where not fetched from database. Please set the returnGeneratedKeys parameter in the createQuery() method to enable fetching of generated keys.");
     }
     if (this.keys != null) {
@@ -203,7 +203,7 @@ public class JdbcConnection implements AutoCloseable, Closeable {
   // need to change Convert
   public <V> List<V> getKeys(Class<V> returnType) {
     if (!this.canGetKeys) {
-      throw new Sql2oException(
+      throw new PersistenceException(
               "Keys where not fetched from database. Please set the returnGeneratedKeys parameter in the createQuery() method to enable fetching of generated keys.");
     }
 
@@ -216,7 +216,7 @@ public class JdbcConnection implements AutoCloseable, Closeable {
         return convertedKeys;
       }
       catch (ConversionException e) {
-        throw new Sql2oException("Exception occurred while converting value from database to type " + returnType.toString(), e);
+        throw new PersistenceException("Exception occurred while converting value from database to type " + returnType.toString(), e);
       }
     }
     return null;
@@ -243,7 +243,7 @@ public class JdbcConnection implements AutoCloseable, Closeable {
       connectionIsClosed = jdbcConnection.isClosed();
     }
     catch (SQLException e) {
-      throw new Sql2oException("Sql2o encountered a problem while trying to determine whether the connection is closed.", e);
+      throw new PersistenceException("Sql2o encountered a problem while trying to determine whether the connection is closed.", e);
     }
 
     if (!connectionIsClosed) {
@@ -283,7 +283,7 @@ public class JdbcConnection implements AutoCloseable, Closeable {
       this.originalAutoCommit = jdbcConnection.getAutoCommit();
     }
     catch (Exception ex) {
-      throw new Sql2oException("Could not acquire a connection from DataSource - " + ex.getMessage(), ex);
+      throw new PersistenceException("Could not acquire a connection from DataSource - " + ex.getMessage(), ex);
     }
   }
 

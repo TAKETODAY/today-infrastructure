@@ -195,14 +195,14 @@ public class DefaultSession {
    *
    * @return the {@link Query} instance
    *
-   * @deprecated create queries with {@link JdbcConnection} class instead,
+   * better to use :
+   * create queries with {@link JdbcConnection} class instead,
    * using try-with-resource blocks <code>
    * try (Connection con = sql2o.open()) {
    * return sql2o.createQuery(query, name, returnGeneratedKeys).executeAndFetch(Pojo.class);
    * }
    * </code>
    */
-  @Deprecated
   public Query createQuery(String query, boolean returnGeneratedKeys) {
     return new JdbcConnection(this, true).createQuery(query, returnGeneratedKeys);
   }
@@ -215,7 +215,8 @@ public class DefaultSession {
    *
    * @return the {@link Query} instance
    *
-   * @deprecated create queries with {@link JdbcConnection} class instead,
+   * better to use :
+   * create queries with {@link JdbcConnection} class instead,
    * using try-with-resource blocks
    * <pre>
    *     try (Connection con = sql2o.open()) {
@@ -223,7 +224,6 @@ public class DefaultSession {
    *     }
    *  </pre>
    */
-  @Deprecated
   public Query createQuery(String query) {
 
     JdbcConnection connection = new JdbcConnection(this, true);
@@ -266,7 +266,7 @@ public class DefaultSession {
       return runnable.run(connection, argument);
     }
     catch (Throwable t) {
-      throw new Sql2oException("An error occurred while executing StatementRunnable", t);
+      throw new PersistenceException("An error occurred while executing StatementRunnable", t);
     }
   }
 
@@ -308,7 +308,7 @@ public class DefaultSession {
       runnable.run(connection, argument);
     }
     catch (Throwable t) {
-      throw new Sql2oException("An error occurred while executing StatementRunnable", t);
+      throw new PersistenceException("An error occurred while executing StatementRunnable", t);
     }
   }
 
@@ -358,7 +358,7 @@ public class DefaultSession {
       success = true;
     }
     catch (SQLException e) {
-      throw new Sql2oException("Could not start the transaction - " + e.getMessage(), e);
+      throw new PersistenceException("Could not start the transaction - " + e.getMessage(), e);
     }
     finally {
       if (!success) {
@@ -479,7 +479,7 @@ public class DefaultSession {
     }
     catch (Throwable throwable) {
       connection.rollback();
-      throw new Sql2oException("An error occurred while executing StatementRunnable. Transaction is rolled back.", throwable);
+      throw new PersistenceException("An error occurred while executing StatementRunnable. Transaction is rolled back.", throwable);
     }
     connection.commit();
   }
@@ -501,7 +501,7 @@ public class DefaultSession {
     }
     catch (Throwable throwable) {
       connection.rollback();
-      throw new Sql2oException("An error occurred while executing StatementRunnableWithResult. Transaction rolled back.", throwable);
+      throw new PersistenceException("An error occurred while executing StatementRunnableWithResult. Transaction rolled back.", throwable);
     }
 
     connection.commit();

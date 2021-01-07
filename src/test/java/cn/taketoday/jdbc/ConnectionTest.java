@@ -7,9 +7,6 @@ import java.sql.PreparedStatement;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.jdbc.DefaultSession;
-import cn.taketoday.jdbc.JdbcConnection;
-
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;

@@ -9,9 +9,9 @@ import java.sql.SQLException;
  * without calling {@link #next()}.
  *
  * @author aldenquimby@gmail.com
+ * @author TODAY
  */
 public class ResultSetHandlerIterator<T> extends AbstractResultSetIterator<T> {
-
   private final ResultSetHandler<T> handler;
 
   public ResultSetHandlerIterator(ResultSet rs, ResultSetHandler<T> handler) {
@@ -25,7 +25,7 @@ public class ResultSetHandlerIterator<T> extends AbstractResultSetIterator<T> {
       this.handler = factory.newResultSetHandler(rs.getMetaData());
     }
     catch (SQLException e) {
-      throw new Sql2oException("Database error: " + e.getMessage(), e);
+      throw new PersistenceException("Database error: " + e.getMessage(), e);
     }
   }
 

@@ -6,10 +6,6 @@ import org.zapodot.junit.db.EmbeddedDatabaseRule;
 
 import java.util.List;
 
-import cn.taketoday.jdbc.DefaultSession;
-import cn.taketoday.jdbc.JdbcConnection;
-import cn.taketoday.jdbc.Query;
-
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.zapodot.junit.db.EmbeddedDatabaseRule.CompatibilityMode.Oracle;

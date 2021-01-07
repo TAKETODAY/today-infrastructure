@@ -1,47 +1,40 @@
 package cn.taketoday.jdbc.result;
 
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-import cn.taketoday.context.reflect.PropertyAccessor;
+import cn.taketoday.jdbc.ResultSetHandler;
 import cn.taketoday.jdbc.reflection.BeanMetadata;
 
 /**
  * @author TODAY
  * @date 2021/1/2 18:28
  */
-public class ObjectResultHandler implements ResultHandler<Object> {
+public class ObjectResultHandler<T> implements ResultSetHandler<T> {
 
+  final int columnCount;
   final BeanMetadata metadata;
-  final PropertyAccessor[] propertyAccessors;
-  /*final */int columnCount;
+  final JdbcPropertyAccessor[] propertyAccessors;
 
-  public ObjectResultHandler(final BeanMetadata metadata, final PropertyAccessor[] propertyAccessors) {
+  public ObjectResultHandler(final BeanMetadata metadata, final JdbcPropertyAccessor[] accessors, int columnCount) {
     this.metadata = metadata;
-    this.propertyAccessors = propertyAccessors;
-  }
-
-  public ObjectResultHandler(final BeanMetadata metadata, final ResultSetMetaData meta,
-                             PropertyAccessor[] propertyAccessors) {
-    this.metadata = metadata;
-    this.propertyAccessors = propertyAccessors;
+    this.propertyAccessors = accessors;
+    this.columnCount = columnCount;
   }
 
   @Override
-  public Object handle(final ResultSet resultSet) throws SQLException {
-
+  @SuppressWarnings("unchecked")
+  public T handle(final ResultSet resultSet) throws SQLException {
     // otherwise we want executeAndFetch with object mapping
-    Object ret = metadata.newInstance();
-    final PropertyAccessor[] accessors = propertyAccessors;
+    Object pojo = metadata.newInstance();
+    final JdbcPropertyAccessor[] accessors = propertyAccessors;
     for (int colIdx = 1; colIdx <= columnCount; colIdx++) {
-      PropertyAccessor setter = accessors[colIdx - 1];
+      final JdbcPropertyAccessor setter = accessors[colIdx - 1];
       if (setter != null) {
-        setter.set(ret, resultSet.getObject(colIdx));
+        setter.set(pojo, resultSet, colIdx);
       }
     }
-
-    return ret;
+    return (T) pojo;
   }
 
 }

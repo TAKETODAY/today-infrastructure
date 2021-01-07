@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,20 +13,20 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package test.jdbc;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.List;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
@@ -39,75 +39,73 @@ import test.jdbc.model.User;
  * @author TODAY <br>
  *         2019-08-19 21:33
  */
+@Ignore
 public class JdbcMySQLTest {
 
-    private static JdbcExecutor executer;
-    private static ApplicationContext applicationContext = new StandardApplicationContext("info.properties", "test.jdbc");
+  private static JdbcExecutor executer;
+  private static ApplicationContext applicationContext = new StandardApplicationContext("info.properties", "test.jdbc");
 
-    static {
-        executer = applicationContext.getBean("mySQLExecutor", JdbcExecutor.class);
-    }
+  static {
+    executer = applicationContext.getBean("mySQLExecutor", JdbcExecutor.class);
+  }
 
-    @AfterClass
-    public static void destory() {
-        applicationContext.close();
-    }
+  @AfterClass
+  public static void destory() {
+    applicationContext.close();
+  }
 
-    @BeforeClass
-    public static void setUp() throws SQLException {
+  @BeforeClass
+  public static void setUp() throws SQLException {
 
 //        int update = executer.update("insert into `t_user` (`name`,`age`) values ('Jerry', 12);");
 //        update += executer.update("insert into `t_user` (`name`,`age`) values ('Tom', 12);");
 //        System.err.println(update);
-    }
+  }
 
-    @Test
-    public void testQuery() throws SQLException {
+  //    @Test
+  public void testQuery() throws SQLException {
 
-        long start = System.currentTimeMillis();
-        executer.queryList("select * from t_user", (ResultSet rs, int n) -> {
+    long start = System.currentTimeMillis();
+    executer.queryList("select * from t_user", (ResultSet rs, int n) -> {
 
-            final ResultSetMetaData metaData = rs.getMetaData();
-            final int columnCount = metaData.getColumnCount() + 1;
+      final ResultSetMetaData metaData = rs.getMetaData();
+      final int columnCount = metaData.getColumnCount() + 1;
 
-            for (int i = 1; i < columnCount; i++) {
-                final Object object = rs.getObject(i);
-                System.err.println(JdbcUtils.getColumnName(metaData, i) + " == " + object);
-            }
-            return null;
-        });
+      for (int i = 1; i < columnCount; i++) {
+        final Object object = rs.getObject(i);
+        System.err.println(JdbcUtils.getColumnName(metaData, i) + " == " + object);
+      }
+      return null;
+    });
 
-        final User queryObject = executer.query("select * from t_user", User.class);
+    final User queryObject = executer.query("select * from t_user", User.class);
 
-        System.err.println(queryObject);
-        System.err.println(executer.queryList("select * from t_user", User.class));
-        System.err.println("query " + (System.currentTimeMillis() - start) + " ms");
-    }
+    System.err.println(queryObject);
+    System.err.println(executer.queryList("select * from t_user", User.class));
+    System.err.println("query " + (System.currentTimeMillis() - start) + " ms");
+  }
 
-    public static class TEST {
+  public static class TEST {
 
-    }
+  }
 
-    
-    @Test
-    public void testQueryArticle() throws SQLException {
+  //    @Test
+  public void testQueryArticle() throws SQLException {
 
-        long start = System.currentTimeMillis();
+    long start = System.currentTimeMillis();
 
+    final Article queryObject = executer.query("select * from t_article", Article.class);
 
-        final Article queryObject = executer.query("select * from t_article", Article.class);
-
-       // System.err.println(queryObject);
-        final List<Article> queryList = executer.queryList("select * from t_article", Article.class);
+    // System.err.println(queryObject);
+    final List<Article> queryList = executer.queryList("select * from t_article", Article.class);
 //        System.err.println(queryList);
-        
-        for (Article article : queryList) {
-            System.err.println(article.getStatus());
-            System.err.println(article.getCopyRight());
-        }
-        
-        System.err.println("query " + (System.currentTimeMillis() - start) + " ms");
+
+    for (Article article : queryList) {
+      System.err.println(article.getStatus());
+      System.err.println(article.getCopyRight());
     }
 
-    
+    System.err.println("query " + (System.currentTimeMillis() - start) + " ms");
+  }
+
 }

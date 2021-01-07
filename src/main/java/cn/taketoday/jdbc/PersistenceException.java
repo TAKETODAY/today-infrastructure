@@ -3,15 +3,13 @@ package cn.taketoday.jdbc;
 import cn.taketoday.jdbc.type.DataAccessException;
 
 /**
+ * Represents an exception thrown by today-jdbc.
+ *
  * @author TODAY
- * @date 2021/1/6 15:19
  */
 public class PersistenceException extends DataAccessException {
-  private static final long serialVersionUID = 1L;
 
-  public PersistenceException() {
-    super();
-  }
+  public PersistenceException() {}
 
   public PersistenceException(String message) {
     super(message);

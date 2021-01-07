@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,17 +13,16 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package test.jdbc.model;
 
-import java.io.Serializable;
-
 import com.alibaba.fastjson.annotation.JSONField;
 
-import cn.taketoday.jdbc.annotation.Transient;
+import java.io.Serializable;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -36,45 +35,45 @@ import lombok.Setter;
 @SuppressWarnings("serial")
 public class Post implements Serializable {
 
-    /** release time stamp */
-    private long id;
-    private String url;
-    private String image;
-    private String title;
+  /** release time stamp */
+  private long id;
+  private String url;
+  private String image;
+  private String title;
 
-    private int pv;
+  private int pv;
 
-    private boolean keepNavigation;
+  private boolean keepNavigation;
 
-//    @Transient
-    @JSONField(serialize = false)
-    private PostStatus status;
+  //    @Transient
+  @JSONField(serialize = false)
+  private PostStatus status;
 
-    private String summary;
-    /** html content **/
-    private String content;
+  private String summary;
+  /** html content **/
+  private String content;
 
-    /** markdown Content */
-    private String markdown;
+  /** markdown Content */
+  private String markdown;
 
-    private long lastModify;
+  private long lastModify;
 
-    /** 需要输入密码才能访问该页面 */
-    private String password;
+  /** 需要输入密码才能访问该页面 */
+  private String password;
 
-    public boolean isKeepNavigation() {
-        return keepNavigation;
-    }
+  public boolean isKeepNavigation() {
+    return keepNavigation;
+  }
 
-    public boolean needPassword() {
-        return password != null;
-    }
+  public boolean needPassword() {
+    return password != null;
+  }
 
-    @Override
-    public String toString() {
-        return String.format(
-                             "Post [id=%s, url=%s, image=%s, title=%s, pv=%s, keepNavigation=%s, status=%s, summary=%s, content=%s, markdown=%s, lastModify=%s, password=%s]",
-                             id, url, image, title, pv, keepNavigation, status, summary, content, markdown, lastModify, password);
-    }
+  @Override
+  public String toString() {
+    return String.format(
+            "Post [id=%s, url=%s, image=%s, title=%s, pv=%s, keepNavigation=%s, status=%s, summary=%s, content=%s, markdown=%s, lastModify=%s, password=%s]",
+            id, url, image, title, pv, keepNavigation, status, summary, content, markdown, lastModify, password);
+  }
 
 }

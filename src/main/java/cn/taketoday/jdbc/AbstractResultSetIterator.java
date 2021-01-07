@@ -60,7 +60,7 @@ public abstract class AbstractResultSetIterator<T> implements Iterator<T> {
       return rs.next() ? new ResultSetValue<>(readNext()) : null;
     }
     catch (SQLException ex) {
-      throw new Sql2oException("Database error: " + ex.getMessage(), ex);
+      throw new PersistenceException("Database error: " + ex.getMessage(), ex);
     }
   }
 

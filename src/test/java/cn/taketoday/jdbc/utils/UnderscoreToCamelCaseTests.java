@@ -2,8 +2,6 @@ package cn.taketoday.jdbc.utils;
 
 import junit.framework.TestCase;
 
-import cn.taketoday.jdbc.utils.UnderscoreToCamelCase;
-
 public class UnderscoreToCamelCaseTests extends TestCase {
 
   public void testBasicConversions() {

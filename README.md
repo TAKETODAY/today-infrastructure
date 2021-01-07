@@ -33,7 +33,6 @@ TODAY JDBC                                                          | 59ms (20.4
 * [Today Context](https://github.com/TAKETODAY/today-context): A Java library for dependency injection and aspect oriented programing
 * [Sql2o](https://github.com/aaberg/sql2o): sql2o is a small library, which makes it easy to convert the result of your sql-statements into objects. No resultset hacking required. Kind of like an orm, but without the sql-generation capabilities. Supports named parameters.
 
-
 ## 📄 开源协议
 请查看 [GNU GENERAL PUBLIC LICENSE](https://github.com/TAKETODAY/today-jdbc/blob/master/LICENSE)
 

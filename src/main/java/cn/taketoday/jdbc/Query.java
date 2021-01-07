@@ -46,7 +46,7 @@ public class Query implements AutoCloseable {
   private boolean autoDeriveColumnNames;
   private boolean throwOnMappingFailure = true;
   private String name;
-  private boolean returnGeneratedKeys;
+  private final boolean returnGeneratedKeys;
   private final String[] columnNames;
   private final Map<String, List<Integer>> paramNameToIdxMap;
   private final Map<String, ParameterSetter> parameters;
@@ -144,7 +144,7 @@ public class Query implements AutoCloseable {
 
   public void addParameter(String name, ParameterSetter parameterSetter) {
     if (!this.getParamNameToIdxMap().containsKey(name)) {
-      throw new Sql2oException("Failed to add parameter with name '" + name
+      throw new PersistenceException("Failed to add parameter with name '" + name
                                        + "'. No parameter with that name is declared in the sql.");
     }
     parameters.put(name, parameterSetter);
@@ -315,7 +315,7 @@ public class Query implements AutoCloseable {
         }
       }
       catch (SQLException ex) {
-        throw new Sql2oException(String.format("Error preparing statement - %s", ex.getMessage()), ex);
+        throw new PersistenceException(String.format("Error preparing statement - %s", ex.getMessage()), ex);
       }
       connection.registerStatement(preparedStatement);
     }
@@ -357,7 +357,7 @@ public class Query implements AutoCloseable {
         afterExecQuery = System.currentTimeMillis();
       }
       catch (SQLException ex) {
-        throw new Sql2oException("Database error: " + ex.getMessage(), ex);
+        throw new PersistenceException("Database error: " + ex.getMessage(), ex);
       }
     }
 
@@ -376,7 +376,7 @@ public class Query implements AutoCloseable {
         }
       }
       catch (SQLException ex) {
-        throw new Sql2oException("Error closing ResultSet.", ex);
+        throw new PersistenceException("Error closing ResultSet.", ex);
       }
       finally {
         if (this.isAutoCloseConnection()) {
@@ -541,7 +541,7 @@ public class Query implements AutoCloseable {
     }
     catch (SQLException ex) {
       this.connection.onException();
-      throw new Sql2oException("Error in executeUpdate, " + ex.getMessage(), ex);
+      throw new PersistenceException("Error in executeUpdate, " + ex.getMessage(), ex);
     }
     finally {
       closeConnectionIfNecessary();
@@ -576,7 +576,7 @@ public class Query implements AutoCloseable {
     }
     catch (SQLException e) {
       this.connection.onException();
-      throw new Sql2oException("Database error occurred while running executeScalar: " + e.getMessage(), e);
+      throw new PersistenceException("Database error occurred while running executeScalar: " + e.getMessage(), e);
     }
     finally {
       closeConnectionIfNecessary();
@@ -671,7 +671,7 @@ public class Query implements AutoCloseable {
       }
     }
     catch (SQLException e) {
-      throw new Sql2oException("Error while adding statement to batch", e);
+      throw new PersistenceException("Error while adding statement to batch", e);
     }
 
     return this;
@@ -702,7 +702,7 @@ public class Query implements AutoCloseable {
   /**
    * @return
    *
-   * @throws Sql2oException
+   * @throws PersistenceException
    */
   public JdbcConnection executeBatch() {
     long start = System.currentTimeMillis();
@@ -716,14 +716,14 @@ public class Query implements AutoCloseable {
         connection.setCanGetKeys(this.returnGeneratedKeys);
       }
       catch (SQLException sqlex) {
-        throw new Sql2oException(
+        throw new PersistenceException(
                 "Error while trying to fetch generated keys from database. If you are not expecting any generated keys, fix this error by setting the fetchGeneratedKeys parameter in the createQuery() method to 'false'",
                 sqlex);
       }
     }
     catch (Throwable e) {
       this.connection.onException();
-      throw new Sql2oException("Error while executing batch operation: " + e.getMessage(), e);
+      throw new PersistenceException("Error while executing batch operation: " + e.getMessage(), e);
     }
     finally {
       closeConnectionIfNecessary();
@@ -775,7 +775,7 @@ public class Query implements AutoCloseable {
       }
     }
     catch (Exception ex) {
-      throw new Sql2oException("Error while attempting to close connection", ex);
+      throw new PersistenceException("Error while attempting to close connection", ex);
     }
   }
 

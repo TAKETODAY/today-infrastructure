@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -34,14 +34,13 @@ import lombok.Setter;
 @SuppressWarnings("serial")
 public class Article extends Post {
 
-    /** category name */
-    private String category;
-    private String copyRight;
+  /** category name */
+  private String category;
+  private String copyRight;
 
-    @Override
-    public String getUrl() {
-        return getId() + Constant.BLANK;
-    }
+  @Override
+  public String getUrl() {
+    return getId() + Constant.BLANK;
+  }
 
-    
 }

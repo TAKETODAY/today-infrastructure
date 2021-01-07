@@ -1,7 +1,5 @@
 package cn.taketoday.jdbc;
 
-import cn.taketoday.jdbc.Query;
-
 /**
  * Created by zsoltjanos on 01/08/15.
  */

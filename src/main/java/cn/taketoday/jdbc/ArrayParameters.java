@@ -89,7 +89,7 @@ class ArrayParameters {
       final int parameterCount = parameter.getValue().getParameterCount();
       if (parameterCount > 1) {
         if (!allowArrayParameters) {
-          throw new Sql2oException("Array parameters are not allowed in batch mode");
+          throw new PersistenceException("Array parameters are not allowed in batch mode");
         }
         for (int i : parameterNamesToIndexes.get(parameter.getKey())) {
           arrayParameters.add(new ArrayParameter(i, parameterCount));
