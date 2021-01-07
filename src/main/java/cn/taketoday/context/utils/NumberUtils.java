@@ -57,7 +57,7 @@ public abstract class NumberUtils {
       return Double.valueOf(text);
     }
     else if (BigDecimal.class == targetClass || Number.class == targetClass) {
-      return new BigDecimal(text);
+      return BigDecimal.valueOf(Double.parseDouble(text));
     }
     throw new ConversionException("can't convert[" + text + "] to [" + targetClass.getName() + "]");
   }
