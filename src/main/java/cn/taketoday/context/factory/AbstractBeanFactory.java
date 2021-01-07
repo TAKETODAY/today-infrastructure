@@ -64,7 +64,6 @@ import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 import static cn.taketoday.context.utils.ContextUtils.resolveParameter;
-import static cn.taketoday.context.utils.ExceptionUtils.unwrapThrowable;
 import static cn.taketoday.context.utils.ReflectionUtils.makeAccessible;
 import static java.util.Objects.requireNonNull;
 
@@ -1142,7 +1141,7 @@ public abstract class AbstractBeanFactory
       ContextUtils.destroyBean(beanInstance, def, getPostProcessors());
     }
     catch (Throwable e) {
-      e = unwrapThrowable(e);
+      e = ExceptionUtils.unwrapThrowable(e);
       removeBean(def.getName());
       throw new ContextException("An Exception Occurred When Destroy a bean: [" + def.getName() + "], With Msg: [" + e + "]", e);
     }

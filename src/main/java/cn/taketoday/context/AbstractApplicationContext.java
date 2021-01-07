@@ -45,7 +45,6 @@ import cn.taketoday.context.event.ContextRefreshEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.context.event.DependenciesHandledEvent;
 import cn.taketoday.context.event.ObjectRefreshedEvent;
-import cn.taketoday.context.exception.BeanInitializingException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
