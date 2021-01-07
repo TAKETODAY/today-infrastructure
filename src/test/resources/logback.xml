@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-	<contextName>TODAY IOC</contextName>
+	<contextName>TODAY JDBC</contextName>
 
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
@@ -12,7 +12,7 @@
 <!-- 
 	<root level="INFO">
  -->
-	<root level="TRACE">
+	<root level="INFO">
 		<appender-ref ref="STDOUT"/>
 	</root>
 

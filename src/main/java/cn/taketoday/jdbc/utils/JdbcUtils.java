@@ -36,9 +36,8 @@ import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
- *
  * @author TODAY <br>
- *         2019-08-19 07:42
+ * 2019-08-19 07:42
  */
 public abstract class JdbcUtils {
 
@@ -197,15 +196,18 @@ public abstract class JdbcUtils {
 
   // -------------------
 
+  // -------------------
+
   /**
    * Close a <code>Connection</code>, avoid closing if null.
    *
    * @param conn
-   *            Connection to close.
+   *         Connection to close.
+   *
    * @throws SQLException
-   *             If a database access error occurs
+   *         If a database access error occurs
    */
-  public final static void close(Connection conn) throws SQLException {
+  public static void close(Connection conn) throws SQLException {
     if (conn != null) {
       conn.close();
     }
@@ -215,11 +217,12 @@ public abstract class JdbcUtils {
    * Close a <code>ResultSet</code>, avoid closing if null.
    *
    * @param rs
-   *            ResultSet to close.
+   *         ResultSet to close.
+   *
    * @throws SQLException
-   *             If a database access error occurs
+   *         If a database access error occurs
    */
-  public final static void close(ResultSet rs) throws SQLException {
+  public static void close(ResultSet rs) throws SQLException {
     if (rs != null) {
       rs.close();
     }
@@ -229,11 +232,12 @@ public abstract class JdbcUtils {
    * Close a <code>Statement</code>, avoid closing if null.
    *
    * @param stmt
-   *            Statement to close.
+   *         Statement to close.
+   *
    * @throws SQLException
-   *             If a database access error occurs
+   *         If a database access error occurs
    */
-  public final static void close(Statement stmt) throws SQLException {
+  public static void close(Statement stmt) throws SQLException {
     if (stmt != null) {
       stmt.close();
     }
@@ -244,9 +248,9 @@ public abstract class JdbcUtils {
    * SQLExceptions that occur.
    *
    * @param conn
-   *            Connection to close.
+   *         Connection to close.
    */
-  public final static void closeQuietly(Connection conn) {
+  public static void closeQuietly(Connection conn) {
     try {
       close(conn);
     }
@@ -261,13 +265,13 @@ public abstract class JdbcUtils {
    * occur.
    *
    * @param conn
-   *            Connection to close.
+   *         Connection to close.
    * @param stmt
-   *            Statement to close.
+   *         Statement to close.
    * @param rs
-   *            ResultSet to close.
+   *         ResultSet to close.
    */
-  public final static void closeQuietly(Connection conn, Statement stmt, ResultSet rs) {
+  public static void closeQuietly(Connection conn, Statement stmt, ResultSet rs) {
 
     try {
       closeQuietly(rs);
@@ -288,9 +292,9 @@ public abstract class JdbcUtils {
    * SQLExceptions that occur.
    *
    * @param rs
-   *            ResultSet to close.
+   *         ResultSet to close.
    */
-  public final static void closeQuietly(ResultSet rs) {
+  public static void closeQuietly(ResultSet rs) {
     try {
       close(rs);
     }
@@ -304,9 +308,9 @@ public abstract class JdbcUtils {
    * SQLExceptions that occur.
    *
    * @param stmt
-   *            Statement to close.
+   *         Statement to close.
    */
-  public final static void closeQuietly(Statement stmt) {
+  public static void closeQuietly(Statement stmt) {
     try {
       close(stmt);
     }
@@ -319,11 +323,12 @@ public abstract class JdbcUtils {
    * Commits a <code>Connection</code> then closes it, avoid closing if null.
    *
    * @param conn
-   *            Connection to close.
+   *         Connection to close.
+   *
    * @throws SQLException
-   *             If a database access error occurs
+   *         If a database access error occurs
    */
-  public final static void commitAndClose(Connection conn) throws SQLException {
+  public static void commitAndClose(Connection conn) throws SQLException {
     if (conn != null) {
       try {
         conn.commit();
@@ -339,9 +344,9 @@ public abstract class JdbcUtils {
    * hide any SQLExceptions that occur.
    *
    * @param conn
-   *            Connection to close.
+   *         Connection to close.
    */
-  public final static void commitAndCloseQuietly(Connection conn) {
+  public static void commitAndCloseQuietly(Connection conn) {
     try {
       commitAndClose(conn);
     }
@@ -354,9 +359,9 @@ public abstract class JdbcUtils {
    * Print the stack trace for a SQLException to STDERR.
    *
    * @param e
-   *            SQLException to print stack trace of
+   *         SQLException to print stack trace of
    */
-  public final static void printStackTrace(SQLException e) {
+  public static void printStackTrace(SQLException e) {
     printStackTrace(e, new PrintWriter(System.err));
   }
 
@@ -364,11 +369,11 @@ public abstract class JdbcUtils {
    * Print the stack trace for a SQLException to a specified PrintWriter.
    *
    * @param e
-   *            SQLException to print stack trace of
+   *         SQLException to print stack trace of
    * @param pw
-   *            PrintWriter to print to
+   *         PrintWriter to print to
    */
-  public final static void printStackTrace(SQLException e, PrintWriter pw) {
+  public static void printStackTrace(SQLException e, PrintWriter pw) {
 
     SQLException next = e;
     while (next != null) {
@@ -384,9 +389,9 @@ public abstract class JdbcUtils {
    * Print warnings on a Connection to STDERR.
    *
    * @param conn
-   *            Connection to print warnings from
+   *         Connection to print warnings from
    */
-  public final static void printWarnings(Connection conn) {
+  public static void printWarnings(Connection conn) {
     printWarnings(conn, new PrintWriter(System.err));
   }
 
@@ -394,11 +399,11 @@ public abstract class JdbcUtils {
    * Print warnings on a Connection to a specified PrintWriter.
    *
    * @param conn
-   *            Connection to print warnings from
+   *         Connection to print warnings from
    * @param pw
-   *            PrintWriter to print to
+   *         PrintWriter to print to
    */
-  public final static void printWarnings(Connection conn, PrintWriter pw) {
+  public static void printWarnings(Connection conn, PrintWriter pw) {
     if (conn != null) {
       try {
         printStackTrace(conn.getWarnings(), pw);
@@ -413,11 +418,12 @@ public abstract class JdbcUtils {
    * Rollback any changes made on the given connection.
    *
    * @param conn
-   *            Connection to rollback. A null value is legal.
+   *         Connection to rollback. A null value is legal.
+   *
    * @throws SQLException
-   *             If a database access error occurs
+   *         If a database access error occurs
    */
-  public final static void rollback(Connection conn) throws SQLException {
+  public static void rollback(Connection conn) throws SQLException {
     if (conn != null) {
       conn.rollback();
     }
@@ -428,11 +434,12 @@ public abstract class JdbcUtils {
    * closing if null.
    *
    * @param conn
-   *            Connection to rollback. A null value is legal.
+   *         Connection to rollback. A null value is legal.
+   *
    * @throws SQLException
-   *             If a database access error occurs
+   *         If a database access error occurs
    */
-  public final static void rollbackAndClose(Connection conn) throws SQLException {
+  public static void rollbackAndClose(Connection conn) throws SQLException {
     if (conn != null) {
       try {
         conn.rollback();
@@ -448,9 +455,9 @@ public abstract class JdbcUtils {
    * closing if null and hide any SQLExceptions that occur.
    *
    * @param conn
-   *            Connection to rollback. A null value is legal.
+   *         Connection to rollback. A null value is legal.
    */
-  public final static void rollbackAndCloseQuietly(Connection conn) {
+  public static void rollbackAndCloseQuietly(Connection conn) {
     try {
       rollbackAndClose(conn);
     }

@@ -19,16 +19,11 @@
  */
 package cn.taketoday.jdbc.mapping;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.io.InputStream;
 import java.io.Reader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -58,11 +53,9 @@ import java.util.List;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.reflect.FieldPropertyAccessor;
-import cn.taketoday.context.reflect.MethodAccessorPropertyAccessor;
 import cn.taketoday.context.reflect.PropertyAccessor;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.jdbc.FieldColumnConverter;
 import cn.taketoday.jdbc.annotation.Column;
@@ -96,7 +89,7 @@ public class ColumnMapping implements PropertyAccessor {
 
   private static final List<ResultResolver> RESULT_RESOLVERS = new ArrayList<>();
 
-  public ColumnMapping(Field field, final FieldColumnConverter converter) throws ConfigurationException {
+  public ColumnMapping(Field field, final FieldColumnConverter converter) {
 
     this.target = field;
     this.type = field.getType();
@@ -110,7 +103,7 @@ public class ColumnMapping implements PropertyAccessor {
     }
 
     this.column = columnName;
-    this.accessor = obtainAccessor(field);
+    this.accessor = ReflectionUtils.newPropertyAccessor(field);
     this.genericityClass = ClassUtils.getGenericityClass(type);
 
     this.resolver = obtainResolver();
@@ -140,39 +133,6 @@ public class ColumnMapping implements PropertyAccessor {
     return target;
   }
 
-  protected PropertyAccessor obtainAccessor(Field field) {
-
-    final String name = field.getName();
-
-    try {
-      final BeanInfo beanInfo = Introspector.getBeanInfo(field.getDeclaringClass());
-      final PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
-
-      if (ObjectUtils.isEmpty(propertyDescriptors)) {
-        return new FieldPropertyAccessor(field);
-      }
-      for (final PropertyDescriptor propertyDescriptor : propertyDescriptors) {
-
-        if (propertyDescriptor.getName().equals(name) //
-                && propertyDescriptor.getPropertyType() == field.getType()) {
-
-          final Method writeMethod = propertyDescriptor.getWriteMethod();
-          final Method readMethod = propertyDescriptor.getReadMethod();
-
-          if (writeMethod != null && readMethod != null) {
-            return new MethodAccessorPropertyAccessor(writeMethod, readMethod);
-          }
-          return new FieldPropertyAccessor(field);
-        }
-      }
-    }
-    catch (IntrospectionException e) {
-      LoggerFactory.getLogger(getClass()).warn("Use reflect to access this field: [{}]", field, e);
-      return new FieldPropertyAccessor(field);
-    }
-    LoggerFactory.getLogger(getClass()).error("Can't obtain an accessor to access this field: [{}]", field);
-    return null;
-  }
 
   // ResultResolver
   // -------------------------------------------
