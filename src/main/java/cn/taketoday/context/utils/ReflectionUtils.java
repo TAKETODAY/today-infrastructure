@@ -42,6 +42,7 @@ import cn.taketoday.context.reflect.FieldSetterMethod;
 import cn.taketoday.context.reflect.GetterMethod;
 import cn.taketoday.context.reflect.GetterSetterPropertyAccessor;
 import cn.taketoday.context.reflect.MethodAccessor;
+import cn.taketoday.context.reflect.MethodAccessorGetterMethod;
 import cn.taketoday.context.reflect.MethodAccessorPropertyAccessor;
 import cn.taketoday.context.reflect.MethodInvoker;
 import cn.taketoday.context.reflect.PropertyAccessor;
@@ -1031,11 +1032,40 @@ public abstract class ReflectionUtils {
 
     Method setMethod = findMethod(declaringClass, "set".concat(capitalizeProperty), type);
     if (setMethod != null && getMethod != null) {
-      MethodAccessor setMethodAccessor = newMethodAccessor(setMethod);
-      MethodAccessor getMethodAccessor = newMethodAccessor(getMethod);
-      return new MethodAccessorPropertyAccessor(setMethodAccessor, getMethodAccessor);
+      return new MethodAccessorPropertyAccessor(setMethod, getMethod);
     }
 
+    if (setMethod != null) {
+      final MethodInvoker accessor = newMethodAccessor(setMethod);
+      return new PropertyAccessor() {
+        @Override
+        public Object get(Object obj) {
+          return ReflectionUtils.getField(field, obj);
+        }
+
+        @Override
+        public void set(Object obj, Object value) {
+          accessor.invoke(obj, new Object[] { value });
+        }
+      };
+    }
+
+    if (getMethod != null) {
+      final MethodInvoker accessor = newMethodAccessor(getMethod);
+      return new PropertyAccessor() {
+        @Override
+        public Object get(Object obj) {
+          return accessor.invoke(obj, null);
+        }
+
+        @Override
+        public void set(Object obj, Object value) {
+          ReflectionUtils.setField(field, obj, value);
+        }
+      };
+    }
+
+    // getMethod == null && setMethod == null
     if (isUnsafeEnabled()) {
       return isReadOnly
              ? new ReadOnlyGetterMethodPropertyAccessor(newUnsafeGetterMethod(field))
@@ -1108,8 +1138,7 @@ public abstract class ReflectionUtils {
   }
 
   public static GetterMethod newGetterMethod(final Method method) {
-    final MethodInvoker accessor = MethodInvoker.create(method);
-    return obj -> accessor.invoke(obj, null);
+    return new MethodAccessorGetterMethod(MethodInvoker.create(method));
   }
 
   // SetterMethod
@@ -1464,5 +1493,7 @@ public abstract class ReflectionUtils {
      */
     boolean matches(Field field);
   }
+
+  //
 
 }
