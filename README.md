@@ -17,14 +17,14 @@ Code is available [here](/src/test/java/cn/taketoday/jdbc/performance/PojoPerfor
 
 Method                                                              | Duration               |
 ------------------------------------------------------------------- | ---------------------- |
-Hand coded <code>ResultSet</code>                                   | 45ms                   |
-TODAY JDBC                                                          | 53ms (17.78% slower)   |
-[Sql2o](https://github.com/aaberg/sql2o)                           | 70ms (55.56% slower)   |
-[Apache DbUtils](http://commons.apache.org/proper/commons-dbutils/) | 98ms (117.78% slower)  |
-[MyBatis](http://mybatis.github.io/mybatis-3/)                      | 240ms (433.33% slower) |
-[JDBI](http://jdbi.org/)                                            | 319ms (608.89% slower) |
-[Hibernate](http://hibernate.org/)                                  | 494ms (723% slower)    |
-[Spring JdbcTemplate](http://docs.spring.io/spring/docs/current/spring-framework-reference/html/jdbc.html) | 364ms (708.89% slower) |
-[jOOQ](http://www.jooq.org)                                         | 367ms (715.56% slower) |
+Hand coded <code>ResultSet</code>                                   | 49ms                   |
+TODAY JDBC                                                          | 59ms (20.41% slower)   |
+[Sql2o](https://github.com/aaberg/sql2o)                            | 65ms (32.65% slower)   |
+[Apache DbUtils](http://commons.apache.org/proper/commons-dbutils/) | 107ms (118.37% slower) |
+[MyBatis](http://mybatis.github.io/mybatis-3/)                      | 245ms (400.00% slower) |
+[JDBI](http://jdbi.org/)                                            | 273ms (457.14% slower) |
+[Hibernate](http://hibernate.org/)                                  | 280ms (471.43% slower) |
+[Spring JdbcTemplate](http://docs.spring.io/spring/docs/current/spring-framework-reference/html/jdbc.html) | 342ms (597.96% slower) |
+[jOOQ](http://www.jooq.org)                                         | 374ms (663.27% slower) |
 
 

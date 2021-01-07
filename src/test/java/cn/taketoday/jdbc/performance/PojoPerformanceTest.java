@@ -1,5 +1,7 @@
 package cn.taketoday.jdbc.performance;
 
+import com.zaxxer.hikari.HikariDataSource;
+
 import org.apache.commons.dbutils.BasicRowProcessor;
 import org.apache.commons.dbutils.BeanProcessor;
 import org.apache.commons.dbutils.DbUtils;
@@ -16,9 +18,6 @@ import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.service.ServiceRegistry;
 import org.joda.time.DateTime;
 import org.jooq.DSLContext;
 import org.jooq.Record;
@@ -48,10 +47,18 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.sql.DataSource;
+
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Primary;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.jdbc.DefaultSession;
 import cn.taketoday.jdbc.JdbcConnection;
 import cn.taketoday.jdbc.Query;
 import cn.taketoday.jdbc.utils.FeatureDetector;
+import cn.taketoday.orm.hibernate5.EnableDefaultHibernate;
 
 /**
  * @author aldenquimby@gmail.com
@@ -86,22 +93,22 @@ public class PojoPerformanceTest {
     session.createQuery("DROP TABLE IF EXISTS post").executeUpdate();
 
     session.createQuery("\n CREATE TABLE post" +
-                              "\n (" +
-                              "\n     id INT NOT NULL IDENTITY PRIMARY KEY" +
-                              "\n   , text VARCHAR(255)" +
-                              "\n   , creation_date DATETIME" +
-                              "\n   , last_change_date DATETIME" +
-                              "\n   , counter1 INT" +
-                              "\n   , counter2 INT" +
-                              "\n   , counter3 INT" +
-                              "\n   , counter4 INT" +
-                              "\n   , counter5 INT" +
-                              "\n   , counter6 INT" +
-                              "\n   , counter7 INT" +
-                              "\n   , counter8 INT" +
-                              "\n   , counter9 INT" +
-                              "\n )" +
-                              "\n;").executeUpdate();
+                                "\n (" +
+                                "\n     id INT NOT NULL IDENTITY PRIMARY KEY" +
+                                "\n   , text VARCHAR(255)" +
+                                "\n   , creation_date DATETIME" +
+                                "\n   , last_change_date DATETIME" +
+                                "\n   , counter1 INT" +
+                                "\n   , counter2 INT" +
+                                "\n   , counter3 INT" +
+                                "\n   , counter4 INT" +
+                                "\n   , counter5 INT" +
+                                "\n   , counter6 INT" +
+                                "\n   , counter7 INT" +
+                                "\n   , counter8 INT" +
+                                "\n   , counter9 INT" +
+                                "\n )" +
+                                "\n;").executeUpdate();
 
     Random r = new Random();
 
@@ -146,7 +153,7 @@ public class PojoPerformanceTest {
 
     PerformanceTestList tests = new PerformanceTestList();
 
-//    tests.add(new HibernateTypicalSelect());
+    tests.add(new HibernateTypicalSelect());
 
     tests.add(new TODAYTypicalSelect());
     tests.add(new TODAYOptimizedSelect());
@@ -255,11 +262,12 @@ public class PojoPerformanceTest {
       conn.close();
     }
   }
+
   /**
    * Considered "optimized" because it uses {@link #SELECT_OPTIMAL} rather than
    * auto-mapping underscore case to camel case.
    */
-  class Sql2oOptimizedSelect extends PerformanceTestBase {
+  static class Sql2oOptimizedSelect extends PerformanceTestBase {
     private org.sql2o.Connection conn;
     private org.sql2o.Query query;
     Sql2o sql2o = new Sql2o(DB_URL, DB_USER, DB_PASSWORD, new NoQuirks());
@@ -285,7 +293,7 @@ public class PojoPerformanceTest {
   /**
    * It appears JDBI does not support mapping underscore to camel case.
    */
-  class JDBISelect extends PerformanceTestBase {
+  static class JDBISelect extends PerformanceTestBase {
     Handle h;
     org.skife.jdbi.v2.Query<Post> q;
 
@@ -310,7 +318,7 @@ public class PojoPerformanceTest {
   /**
    * TODO can this be optimized?
    */
-  class JOOQSelect extends PerformanceTestBase {
+  static class JOOQSelect extends PerformanceTestBase {
     ResultQuery q;
 
     public void init() {
@@ -421,27 +429,31 @@ public class PojoPerformanceTest {
     }
   }
 
-  class HibernateTypicalSelect extends PerformanceTestBase {
+  @EnableDefaultHibernate
+  @Configuration
+  static class HibernateConfig {
+
+    @Primary
+    @Singleton(destroyMethods = "close")
+    public DataSource h2DataSource() {
+      final HikariDataSource hikariDataSource = new HikariDataSource();
+      hikariDataSource.setPassword(DB_PASSWORD);
+      hikariDataSource.setUsername(DB_USER);
+      hikariDataSource.setDriverClassName(DRIVER_CLASS);
+      hikariDataSource.setJdbcUrl(DB_URL);
+      return hikariDataSource;
+    }
+  }
+
+  static class HibernateTypicalSelect extends PerformanceTestBase {
     private Session session;
 
     @Override
     public void init() {
+      ApplicationContext context = new StandardApplicationContext("", "cn.taketoday.jdbc.performance");
       Logger.getLogger("org.hibernate").setLevel(Level.OFF);
 
-      Configuration cfg = new Configuration()
-              .setProperty("hibernate.connection.driver_class", DRIVER_CLASS)
-              .setProperty("hibernate.connection.url", DB_URL)
-              .setProperty("hibernate.connection.username", DB_USER)
-              .setProperty("hibernate.connection.password", DB_PASSWORD)
-              .setProperty("hibernate.dialect", HIBERNATE_DIALECT)
-              .setProperty("hbm2ddl.auto", "update")
-              .addAnnotatedClass(Post.class);
-
-      ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
-              .applySettings(cfg.getProperties())
-              .build();
-
-      SessionFactory sessionFactory = cfg.buildSessionFactory(serviceRegistry);
+      SessionFactory sessionFactory = context.getBean(SessionFactory.class);
       session = sessionFactory.openSession();
     }
 
