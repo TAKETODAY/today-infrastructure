@@ -70,6 +70,7 @@ public class DefaultHibernateConfiguration extends Configuration
   public void onApplicationEvent(ApplicationContextEvent event) {
 
     if (event instanceof ContextRefreshEvent) {
+      // TODO 修复懒加载模式下错误
       refreshSessionFactory(event.getApplicationContext());
     }
     else if (event instanceof LoadingMissingBeanEvent) {
@@ -99,7 +100,7 @@ public class DefaultHibernateConfiguration extends Configuration
 
     for (Class<?> entityClass : candidates) {
       if (entityClass.isAnnotationPresent(Entity.class)) {
-        addClass(entityClass);
+        addAnnotatedClass(entityClass);
       }
     }
 
