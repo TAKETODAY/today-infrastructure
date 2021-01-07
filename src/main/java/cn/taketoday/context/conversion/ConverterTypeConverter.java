@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
@@ -33,12 +34,15 @@ import cn.taketoday.context.utils.ObjectUtils;
 /**
  * @author TODAY
  * @date 2021/1/6 21:44
+ * @since 3.0
  */
-public class ConverterTypeConverter implements TypeConverter {
+public class ConverterTypeConverter
+        extends OrderedSupport implements TypeConverter {
 
-  private final Map<Class<?>, Converter<Object, ?>> converterMap = new HashMap<>();
+  private final HashMap<Class<?>, Converter<Object, ?>> converterMap = new HashMap<>();
 
   public ConverterTypeConverter() {
+
     addConverters(new IntegerConverter(int.class),
                   new IntegerConverter(Integer.class),
                   new LongConverter(Long.class),
@@ -53,6 +57,8 @@ public class ConverterTypeConverter implements TypeConverter {
                   new ShortConverter(Short.class),
 
                   new BigDecimalConverter(BigDecimal.class));
+
+    setOrder(HIGHEST_PRECEDENCE);
   }
 
   @Override
