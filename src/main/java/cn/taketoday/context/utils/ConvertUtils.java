@@ -52,9 +52,8 @@ public abstract class ConvertUtils {
 
   static {
     setConverters(new StringEnumConverter(),
-                  new StringNumberConverter(),
-                  new StringResourceConverter(),
                   new ConverterTypeConverter(),
+                  new StringResourceConverter(),
                   new PrimitiveClassConverter(),
                   delegate((c) -> c == MimeType.class, MimeType::valueOf),
                   delegate((c) -> c == MediaType.class, MediaType::valueOf),
@@ -84,9 +83,11 @@ public abstract class ConvertUtils {
    * Get Target {@link TypeConverter}
    *
    * @param source
+   *         input source
    * @param targetClass
+   *         convert to target class
    *
-   * @return
+   * @return TypeConverter
    */
   public static TypeConverter getConverter(Object source, Class<?> targetClass) {
     for (TypeConverter converter : getConverters()) {
@@ -226,8 +227,9 @@ public abstract class ConvertUtils {
    * 2019-06-06 15:51
    * @since 2.1.6
    */
+  @Deprecated
   @Order(Ordered.HIGHEST_PRECEDENCE)
-  public static class StringNumberConverter extends StringTypeConverter {
+  static class StringNumberConverter extends StringTypeConverter {
 
     @Override
     public boolean supports(Class<?> targetClass) {
@@ -246,7 +248,7 @@ public abstract class ConvertUtils {
    * @since 2.1.6
    */
   @Order(Ordered.HIGHEST_PRECEDENCE)
-  public static class StringResourceConverter extends StringTypeConverter {
+  static class StringResourceConverter extends StringTypeConverter {
 
     @Override
     public boolean supports(Class<?> targetClass) {
@@ -288,7 +290,7 @@ public abstract class ConvertUtils {
    * @since 2.1.6
    */
   @Order(Ordered.HIGHEST_PRECEDENCE)
-  public static class StringEnumConverter extends StringTypeConverter {
+  static class StringEnumConverter extends StringTypeConverter {
 
     @Override
     public boolean supports(Class<?> targetClass) {
@@ -308,7 +310,7 @@ public abstract class ConvertUtils {
    * @since 2.1.6
    */
   @Order(Ordered.HIGHEST_PRECEDENCE)
-  public static class StringArrayConverter extends StringTypeConverter {
+  static class StringArrayConverter extends StringTypeConverter {
 
     @Override
     public boolean supports(Class<?> targetClass) {
@@ -335,7 +337,7 @@ public abstract class ConvertUtils {
    * @since 2.1.6
    */
   @Order(Ordered.HIGHEST_PRECEDENCE)
-  public static class ArrayStringArrayConverter implements TypeConverter {
+  static class ArrayStringArrayConverter implements TypeConverter {
 
     @Override
     public boolean supports(Class<?> targetClass, Object source) {
@@ -360,7 +362,7 @@ public abstract class ConvertUtils {
    * 2019-06-06 16:12
    */
   @Order(Ordered.LOWEST_PRECEDENCE)
-  public static class StringConstructorConverter extends StringTypeConverter {
+  static class StringConstructorConverter extends StringTypeConverter {
 
     @Override
     public boolean supports(Class<?> targetClass) {
@@ -389,7 +391,7 @@ public abstract class ConvertUtils {
    * 2019-06-19 12:28
    */
   @Order(Ordered.LOWEST_PRECEDENCE)
-  public static class PrimitiveClassConverter implements TypeConverter {
+  static class PrimitiveClassConverter implements TypeConverter {
 
     @Override
     public boolean supports(Class<?> targetClass, Object source) {
