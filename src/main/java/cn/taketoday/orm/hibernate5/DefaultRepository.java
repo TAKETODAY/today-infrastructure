@@ -37,7 +37,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.persistence.PersistenceException;
 
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.exception.ConfigurationException;
@@ -46,6 +45,7 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.jdbc.PersistenceException;
 
 /**
  * @author TODAY <br>

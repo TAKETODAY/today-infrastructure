@@ -15,6 +15,8 @@
  */
 package cn.taketoday.jdbc.type;
 
+import cn.taketoday.jdbc.PersistenceException;
+
 /**
  * @author Clinton Begin
  * @author TODAY

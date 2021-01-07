@@ -1,4 +1,6 @@
-package cn.taketoday.jdbc.type;
+package cn.taketoday.jdbc;
+
+import cn.taketoday.jdbc.type.DataAccessException;
 
 /**
  * @author TODAY
