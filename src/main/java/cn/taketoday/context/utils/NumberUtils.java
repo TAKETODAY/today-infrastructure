@@ -30,7 +30,20 @@ import cn.taketoday.context.exception.ConversionException;
  */
 public abstract class NumberUtils {
 
-  public static Object parseDigit(String text, Class<?> targetClass) throws ConversionException {
+  /**
+   * parse text to target number
+   *
+   * @param text
+   *         source text
+   * @param targetClass
+   *         target number class
+   *
+   * @return Number object
+   *
+   * @throws ConversionException
+   *         Can't convert text to targetClass
+   */
+  public static Object parseDigit(String text, Class<?> targetClass) {
 
     if (StringUtils.isEmpty(text)) {
       return 0;
