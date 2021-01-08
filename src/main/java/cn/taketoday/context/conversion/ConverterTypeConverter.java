@@ -38,28 +38,29 @@ import cn.taketoday.context.utils.ObjectUtils;
  */
 public class ConverterTypeConverter
         extends OrderedSupport implements TypeConverter {
+  private static final ConverterTypeConverter sharedInstance = new ConverterTypeConverter();
+
+  static {
+    sharedInstance.addConverters(
+            new IntegerConverter(int.class),
+            new IntegerConverter(Integer.class),
+            new LongConverter(Long.class),
+            new LongConverter(long.class),
+            new DoubleConverter(Double.class),
+            new DoubleConverter(double.class),
+            new FloatConverter(float.class),
+            new FloatConverter(Float.class),
+            new ByteConverter(Byte.class),
+            new ByteConverter(byte.class),
+            new ShortConverter(short.class),
+            new ShortConverter(Short.class),
+
+            new BigDecimalConverter(BigDecimal.class)
+    );
+    sharedInstance.setOrder(HIGHEST_PRECEDENCE + 1);
+  }
 
   private final HashMap<Class<?>, Converter<Object, ?>> converterMap = new HashMap<>();
-
-  public ConverterTypeConverter() {
-
-    addConverters(new IntegerConverter(int.class),
-                  new IntegerConverter(Integer.class),
-                  new LongConverter(Long.class),
-                  new LongConverter(long.class),
-                  new DoubleConverter(Double.class),
-                  new DoubleConverter(double.class),
-                  new FloatConverter(float.class),
-                  new FloatConverter(Float.class),
-                  new ByteConverter(Byte.class),
-                  new ByteConverter(byte.class),
-                  new ShortConverter(short.class),
-                  new ShortConverter(Short.class),
-
-                  new BigDecimalConverter(BigDecimal.class));
-
-    setOrder(HIGHEST_PRECEDENCE);
-  }
 
   @Override
   public boolean supports(final Class<?> targetClass, final Object source) {
@@ -104,6 +105,10 @@ public class ConverterTypeConverter
 
   public Map<Class<?>, Converter<Object, ?>> getConverterMap() {
     return converterMap;
+  }
+
+  public static ConverterTypeConverter getSharedInstance() {
+    return sharedInstance;
   }
 
   static class IntegerConverter extends NumberConverter {

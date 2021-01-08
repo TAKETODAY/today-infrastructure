@@ -52,9 +52,9 @@ public abstract class ConvertUtils {
 
   static {
     setConverters(new StringEnumConverter(),
-                  new ConverterTypeConverter(),
                   new StringResourceConverter(),
                   new PrimitiveClassConverter(),
+                  ConverterTypeConverter.getSharedInstance(),
                   delegate((c) -> c == MimeType.class, MimeType::valueOf),
                   delegate((c) -> c == MediaType.class, MediaType::valueOf),
                   new StringConstructorConverter(),
@@ -126,8 +126,9 @@ public abstract class ConvertUtils {
     }
     final TypeConverter typeConverter = getConverter(source, targetClass);
     if (typeConverter == null) {
-      throw new ConversionException("There isn't a 'cn.taketoday.context.conversion.TypeConverter' to convert: ["
-                                            + source + "] to target class: [" + targetClass + "]");
+      throw new ConversionException(
+              "There isn't a 'cn.taketoday.context.conversion.TypeConverter' to convert: ["
+                      + source + "] '" + source.getClass() + "' to target class: [" + targetClass + "]");
     }
     return typeConverter.convert(targetClass, source);
   }
