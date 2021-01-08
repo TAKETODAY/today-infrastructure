@@ -19,8 +19,7 @@
  */
 package cn.taketoday.jdbc;
 
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.jdbc.utils.CamelCaseToUnderscore;
 
 /**
  * @author TODAY <br>
@@ -30,36 +29,7 @@ public class DefaultFieldColumnConverter implements FieldColumnConverter {
 
   @Override
   public String convert(String field) {
-    return camelCaseName(field);
-  }
-
-  /**
-   * Convert a name in camelCase to an underscored name in lower case. Any upper
-   * case letters are converted to lower case with a preceding underscore.
-   *
-   * @param name
-   *         the original name
-   *
-   * @return the converted name
-   */
-  protected String camelCaseName(String name) {
-
-    if (StringUtils.isEmpty(name)) {
-      return Constant.BLANK;
-    }
-
-    final int length = name.length();
-    final StringBuilder ret = new StringBuilder();
-    for (int i = 0; i < length; i++) {
-      final char c = name.charAt(i);
-      if (c > 0x40 && c < 0x5b) {
-        ret.append('_').append((char) (c | 0x20));
-      }
-      else {
-        ret.append(c);
-      }
-    }
-    return ret.toString();
+    return CamelCaseToUnderscore.convert(field);
   }
 
 }

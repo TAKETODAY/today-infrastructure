@@ -1,7 +1,6 @@
 package cn.taketoday.jdbc;
 
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -24,7 +23,7 @@ import cn.taketoday.jdbc.data.LazyTable;
 import cn.taketoday.jdbc.data.Row;
 import cn.taketoday.jdbc.data.Table;
 import cn.taketoday.jdbc.data.TableResultSetIterator;
-import cn.taketoday.jdbc.reflection.PojoIntrospector;
+import cn.taketoday.jdbc.reflection.ReadableProperty;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.JdbcUtils;
@@ -258,8 +257,7 @@ public class Query implements AutoCloseable {
   public Query bind(final Object pojo) {
     Class<?> clazz = pojo.getClass();
     final Map<String, List<Integer>> paramNameToIdxMap = this.getParamNameToIdxMap();
-    for (PojoIntrospector.ReadableProperty property
-            : PojoIntrospector.readableProperties(clazz).values()) {
+    for (ReadableProperty property : ReadableProperty.readableProperties(clazz).values()) {
       try {
         if (paramNameToIdxMap.containsKey(property.name)) {
           this.addParameter(property.name, (Class<Object>) property.type, property.get(pojo));
@@ -267,9 +265,6 @@ public class Query implements AutoCloseable {
       }
       catch (IllegalArgumentException ex) {
         logger.debug("Ignoring Illegal Arguments", ex);
-      }
-      catch (IllegalAccessException | InvocationTargetException ex) {
-        throw new RuntimeException(ex);
       }
     }
     return this;

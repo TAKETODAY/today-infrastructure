@@ -1,5 +1,7 @@
 package cn.taketoday.jdbc.utils;
 
+import cn.taketoday.context.utils.StringUtils;
+
 /**
  * Takes a string formatted like: 'my_string_variable' and returns it as:
  * 'myStringVariable'
@@ -8,17 +10,16 @@ package cn.taketoday.jdbc.utils;
  * @author dimzon - complete rewrite
  */
 public class UnderscoreToCamelCase {
-  public static String convert(String underscore) {
-    if (underscore == null || underscore.isEmpty()) return underscore;
-    return convert00(underscore);
-  }
 
-  private static String convert00(String underscore) {
-    char[] chars = underscore.toCharArray();
-    int write = -1, len = chars.length;
+  public static String convert(String underscore) {
+    if (StringUtils.isEmpty(underscore)) {
+      return underscore;
+    }
+
+    final char[] chars = underscore.toCharArray();
+    int write = -1;
     boolean upper = false;
-    for (int read = 0; read < len; ++read) {
-      char c = chars[read];
+    for (final char c : chars) {
       if ('_' == c) {
         upper = true;
         continue;

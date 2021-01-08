@@ -36,7 +36,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
       builder.append(JdbcUtils.getColumnName(meta, i))
               .append('\n');
     }
-    return (ResultSetHandler<T>) CACHE.get(new Key(builder.toString(), this), meta);
+    return CACHE.get(new Key(builder.toString(), this), meta);
   }
 
   @SuppressWarnings("unchecked")
@@ -55,21 +55,21 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
       return new TypeHandlerResultSetHandler<>(typeHandler);
     }
 
-    final JdbcPropertyAccessor[] propertyAccessors = new JdbcPropertyAccessor[columnCount];
+    final JdbcPropertyAccessor[] accessors = new JdbcPropertyAccessor[columnCount];
 
     for (int i = 1; i <= columnCount; i++) {
       final String colName = JdbcUtils.getColumnName(meta, i);
 
-      propertyAccessors[i - 1] = getPropertyAccessor(colName, metadata);
+      accessors[i - 1] = getPropertyAccessor(colName, metadata);
 
       // If more than 1 column is fetched (we cannot fall back to executeScalar),
       // and the setter doesn't exist, throw exception.
-      if (this.metadata.throwOnMappingFailure && propertyAccessors[i - 1] == null && columnCount > 1) {
+      if (this.metadata.throwOnMappingFailure && accessors[i - 1] == null && columnCount > 1) {
         throw new PersistenceException("Could not map " + colName + " to any property.");
       }
     }
 
-    return new ObjectResultHandler<>(metadata, propertyAccessors, columnCount);
+    return new ObjectResultHandler<>(metadata, accessors, columnCount);
   }
 
   private JdbcPropertyAccessor getPropertyAccessor(final String propertyPath, final BeanMetadata metadata) {
@@ -114,14 +114,6 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
     final String stringKey;
     final DefaultResultSetHandlerFactory factory;
 
-    DefaultResultSetHandlerFactory factory() {
-      return factory;
-    }
-
-    private BeanMetadata getMetadata() {
-      return factory.metadata;
-    }
-
     private Key(String stringKey, DefaultResultSetHandlerFactory f) {
       this.stringKey = stringKey;
       this.factory = f;
@@ -139,7 +131,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
       Key key = (Key) o;
 
       return stringKey.equals(key.stringKey)
-              && factory.metadata.equals(key.getMetadata());
+              && factory.metadata.equals(key.factory.metadata);
     }
 
     @Override
@@ -156,7 +148,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
     @Override
     protected ResultSetHandler evaluate(Key key, ResultSetMetaData param) {
       try {
-        return key.factory().newResultSetHandler0(param);
+        return key.factory.newResultSetHandler0(param);
       }
       catch (SQLException e) {
         throw new RuntimeException(e);

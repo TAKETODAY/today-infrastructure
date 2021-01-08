@@ -308,9 +308,6 @@ public interface QueryOperation {
    *            SQL query to execute
    * @param elementType
    *            the required type of element in the result list
-   * @param args
-   *            arguments to bind to the query (leaving it to the
-   *            PreparedStatement to guess the corresponding SQL type);
    * @return a List of objects that match the specified element type
    * @throws SQLException
    *             if the query fails

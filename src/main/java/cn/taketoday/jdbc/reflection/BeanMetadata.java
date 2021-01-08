@@ -19,6 +19,7 @@ import cn.taketoday.jdbc.utils.UnderscoreToCamelCase;
 
 /**
  * Stores metadata for a POJO.
+ * @author TODAY
  */
 public class BeanMetadata {
 
@@ -81,7 +82,7 @@ public class BeanMetadata {
     return getBeanProperty(propertyName).getPropertyAccessor();
   }
 
-  public BeanProperty getBeanProperty(String propertyName) {
+  public BeanProperty getBeanProperty(final String propertyName) {
     String name = this.caseSensitive ? propertyName : propertyName.toLowerCase();
 
     if (this.columnMappings.containsKey(name)) {
@@ -90,7 +91,9 @@ public class BeanMetadata {
 
     if (autoDeriveColumnNames) {
       name = UnderscoreToCamelCase.convert(name);
-      if (!this.caseSensitive) name = name.toLowerCase();
+      if (!this.caseSensitive) {
+        name = name.toLowerCase();
+      }
     }
 
     return beanProperties.get(name);
