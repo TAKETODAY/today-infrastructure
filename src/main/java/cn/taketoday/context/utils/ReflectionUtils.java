@@ -1037,6 +1037,7 @@ public abstract class ReflectionUtils {
 
     if (setMethod != null) {
       final MethodInvoker accessor = newMethodAccessor(setMethod);
+      makeAccessible(field);
       return new PropertyAccessor() {
         @Override
         public Object get(Object obj) {
@@ -1051,6 +1052,7 @@ public abstract class ReflectionUtils {
     }
 
     if (getMethod != null) {
+      makeAccessible(field);
       final MethodInvoker accessor = newMethodAccessor(getMethod);
       return new PropertyAccessor() {
         @Override
