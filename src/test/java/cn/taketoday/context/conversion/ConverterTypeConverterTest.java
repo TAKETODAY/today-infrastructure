@@ -43,6 +43,7 @@ public class ConverterTypeConverterTest {
   @Test
   public void testConverterTypeConverter() {
     final ConverterTypeConverter converter = new ConverterTypeConverter();
+    converter.registerDefaultConverters();
     converter.addConverter(integerConverter);
     try {
       converter.addConverter(lambdaConverter);
@@ -60,7 +61,6 @@ public class ConverterTypeConverterTest {
 
     Assertions.assertThat(converter.convert(Long.class,"1234234"))
             .isEqualTo(1234234L);
-
 
     Assertions.assertThat(converter.getConverterMap())
             .hasSize(13);
