@@ -39,7 +39,8 @@ import static cn.taketoday.context.utils.ClassUtils.isAnnotationPresent;
  * @author TODAY <br>
  * 2018-08-04 15:58
  */
-public class ValuePropertyResolver extends OrderedApplicationContextSupport implements PropertyValueResolver {
+public class ValuePropertyResolver
+        extends OrderedApplicationContextSupport implements PropertyValueResolver {
 
   public ValuePropertyResolver(ApplicationContext context) {
     this(context, Ordered.HIGHEST_PRECEDENCE - 1);
@@ -96,17 +97,18 @@ public class ValuePropertyResolver extends OrderedApplicationContextSupport impl
       resolved = ContextUtils.resolveValue(expression, field.getType(), obtainApplicationContext().getEnvironment().getProperties());
     }
     catch (ConfigurationException e) {
-      return required(field, required, expression);
+      return required(field, required, expression, e);
     }
     if (resolved == null) {
-      return required(field, required, expression);
+      return required(field, required, expression, null);
     }
     return new PropertyValue(resolved, field);
   }
 
-  private PropertyValue required(final Field field, final boolean required, final String expression) {
+  private PropertyValue required(final Field field, final boolean required, final String expression,
+                                 ConfigurationException e) {
     if (required) {
-      throw new ConfigurationException("Can't resolve field: [" + field + "] -> [" + expression + "].");
+      throw new ConfigurationException("Can't resolve field: [" + field + "] -> [" + expression + "].", e);
     }
     return null;
   }
