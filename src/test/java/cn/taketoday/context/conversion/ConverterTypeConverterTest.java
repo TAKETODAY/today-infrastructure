@@ -24,7 +24,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.exception.ContextException;
 
 /**
  * @author TODAY
@@ -32,10 +31,10 @@ import cn.taketoday.context.exception.ContextException;
  */
 public class ConverterTypeConverterTest {
 
-  Converter<Object, Integer> integerConverter = new Converter<Object, Integer>() {
+  Converter<String, Integer> integerConverter = new Converter<String, Integer>() {
     @Override
-    public Integer convert(Object source) {
-      return Integer.valueOf((String) source);
+    public Integer convert(String source) {
+      return Integer.valueOf(source);
     }
   };
   Converter<Object, Long> lambdaConverter = source -> Long.valueOf((String) source);
@@ -52,14 +51,13 @@ public class ConverterTypeConverterTest {
       assert true;
     }
 
-    converter.addConverter(Long.class, lambdaConverter);
-
+    converter.addConverter(Long.class, String.class, lambdaConverter);
 
     final Object convert = converter.convert(Integer.class, "1234234");
     Assertions.assertThat(convert)
             .isEqualTo(1234234);
 
-    Assertions.assertThat(converter.convert(Long.class,"1234234"))
+    Assertions.assertThat(converter.convert(Long.class, "1234234"))
             .isEqualTo(1234234L);
 
     Assertions.assertThat(converter.getConverterMap())

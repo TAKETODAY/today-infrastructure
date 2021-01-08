@@ -22,13 +22,17 @@ package cn.taketoday.context.conversion;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 
 /**
@@ -45,28 +49,49 @@ public class ConverterTypeConverter
     sharedInstance.setOrder(HIGHEST_PRECEDENCE + 1);
   }
 
-  private final HashMap<Class<?>, Converter<Object, ?>> converterMap = new HashMap<>();
+  private final HashMap<Class<?>, List<GenericConverter>> converterMap = new HashMap<>();
 
   @Override
   public boolean supports(final Class<?> targetClass, final Object source) {
-    return converterMap.containsKey(targetClass);
+    final List<GenericConverter> converters = converterMap.get(targetClass);
+    if (!CollectionUtils.isEmpty(converters)) {
+      for (final GenericConverter converter : converters) {
+        if (converter.supports(source)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   @Override
   public Object convert(final Class<?> targetClass, final Object source) {
-    return converterMap.get(targetClass).convert(source);
+    final List<GenericConverter> converters = converterMap.get(targetClass);
+    if (!CollectionUtils.isEmpty(converters)) {
+      for (final GenericConverter converter : converters) {
+        if (converter.supports(source)) {
+          return converter.convert(source);
+        }
+      }
+    }
+    throw new ConversionException(
+            "There isn't a 'cn.taketoday.context.conversion.Converter' to convert: ["
+                    + source + "] '" + source.getClass() + "' to target class: [" + targetClass + "]");
   }
 
-  public <T> void addConverter(Converter<Object, T> converter) {
+  public void addConverter(Converter<?, ?> converter) {
     if (converter instanceof TypeCapable) {
       addConverter(((TypeCapable) converter).getType(), converter);
     }
     else {
+      Assert.notNull(converter, "converter must not be null");
       final Type[] genericityClass = ClassUtils.getGenericityClass(converter.getClass());
       if (ObjectUtils.isNotEmpty(genericityClass)) {
-        final Type rawType = genericityClass[1];
-        if (rawType instanceof Class) {
-          addConverter((Class<?>) rawType, converter);
+        final Type targetClass = genericityClass[1];
+        final Type sourceClass = genericityClass[0];
+
+        if (targetClass instanceof Class && sourceClass instanceof Class) {
+          addConverter((Class<?>) targetClass, (Class<?>) sourceClass, converter);
           return;
         }
       }
@@ -74,21 +99,48 @@ public class ConverterTypeConverter
     }
   }
 
-  public <T> void addConverters(Converter<Object, T>... converters) {
+//  @SafeVarargs
+//  public final <S, T> void addConverters(Converter<S, T>... converters) {
+//    if (ObjectUtils.isNotEmpty(converters)) {
+//      for (final Converter<S, T> converter : converters) {
+//        addConverter(converter);
+//      }
+//    }
+//  }
+
+  public void addConverters(Converter<?, ?>... converters) {
     if (ObjectUtils.isNotEmpty(converters)) {
-      for (final Converter<Object, T> converter : converters) {
+      for (final Converter<?, ?> converter : converters) {
         addConverter(converter);
       }
     }
   }
 
-  public <T> void addConverter(Class<?> targetClass, Converter<Object, T> converter) {
+  public  void addConverter(Class<?> targetClass, Converter<?, ?> converter) {
     Assert.notNull(converter, "converter must not be null");
-    Assert.notNull(targetClass, "targetClass must not be null");
-    converterMap.put(targetClass, converter);
+
+    final Type[] genericityClass = ClassUtils.getGenericityClass(converter.getClass());
+    if (ObjectUtils.isNotEmpty(genericityClass)) {
+      final Type sourceClass = genericityClass[0];
+      if (sourceClass instanceof Class) {
+        addConverter(targetClass, (Class<?>) sourceClass, converter);
+        return;
+      }
+    }
+    throw new ConfigurationException("can't register get converter's source class");
   }
 
-  public Map<Class<?>, Converter<Object, ?>> getConverterMap() {
+  public void addConverter(Class<?> targetClass, Class<?> sourceClass, Converter<?, ?> converter) {
+    Assert.notNull(converter, "converter must not be null");
+    Assert.notNull(targetClass, "targetClass must not be null");
+    Assert.notNull(sourceClass, "sourceClass must not be null");
+
+    List<GenericConverter> converters =
+            converterMap.computeIfAbsent(targetClass, s -> new ArrayList<>());
+    converters.add(new GenericConverter(sourceClass, converter));
+  }
+
+  public Map<Class<?>, List<GenericConverter>> getConverterMap() {
     return converterMap;
   }
 
