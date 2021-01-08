@@ -1251,7 +1251,12 @@ public abstract class ClassUtils {
   public static java.lang.reflect.Type[] getGenericityClass(final Class<?> type) {
     if (type != null) {
       final java.lang.reflect.Type genericSuperclass = type.getGenericSuperclass();
-      if (genericSuperclass != Object.class) {
+
+      final Class<?> superclass = type.getSuperclass();
+      if (genericSuperclass == superclass && genericSuperclass != Object.class) {
+        return getGenericityClass(superclass);
+      }
+      if (genericSuperclass instanceof ParameterizedType) {
         return getActualTypeArguments(genericSuperclass);
       }
       final java.lang.reflect.Type[] genericInterfaces = type.getGenericInterfaces();
