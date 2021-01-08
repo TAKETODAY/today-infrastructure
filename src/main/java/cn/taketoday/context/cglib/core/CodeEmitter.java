@@ -890,13 +890,14 @@ public class CodeEmitter extends LocalVariablesSorter {
   public void create_arg_array() {
     /* generates: Object[] args = new Object[]{ arg1, new Integer(arg2) }; */
 
-    push(state.argumentTypes.length);
+    final Type[] argumentTypes = state.argumentTypes;
+    push(argumentTypes.length);
     newArray();
-    for (int i = 0; i < state.argumentTypes.length; i++) {
+    for (int i = 0; i < argumentTypes.length; i++) {
       dup();
       push(i);
       load_arg(i);
-      box(state.argumentTypes[i]);
+      box(argumentTypes[i]);
       aastore();
     }
   }
