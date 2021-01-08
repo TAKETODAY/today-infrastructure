@@ -25,67 +25,70 @@ import java.lang.reflect.Method;
 
 /**
  * @author TODAY <br>
- *         2019-10-18 23:34
+ * 2019-10-18 23:34
  */
 public class TestHandlerInvoker {
 
-    @Test
-    public void testAll() throws Exception {
-        main();
+  @Test
+  public void testAll() throws Exception {
+    main();
+  }
+
+  public static void main(String... args) throws Exception {
+
+//    System.setProperty("cglib.debugLocation", "D:/dev/temp/debug");
+    {
+      final Method main = Bean.class.getDeclaredMethod("main");
+      final MethodInvoker mainInvoker = MethodInvoker.create(main);
+      mainInvoker.invoke(null, null);
+    }
+    {
+      final Method test = Bean.class.getDeclaredMethod("test", short.class);
+      final MethodInvoker mainInvoker = MethodInvoker.create(test);
+      mainInvoker.invoke(null, new Object[] { (short) 1 });
+      mainInvoker.invoke(null, new Object[] { null });
     }
 
-    public static void main(String... args) throws Exception {
+    final MethodInvoker create = MethodInvoker.create(Bean.class, "test");
+    create.invoke(new Bean(), null);
 
-        System.setProperty("cglib.debugLocation", "D:/dev/temp/debug");
-        {
-            final Method main = Bean.class.getDeclaredMethod("main");
-            final MethodInvoker mainInvoker = MethodInvoker.create(main);
-            mainInvoker.invoke(null, null);
-        }
-        {
-            final Method test = Bean.class.getDeclaredMethod("test", short.class);
-            final MethodInvoker mainInvoker = MethodInvoker.create(test);
-            mainInvoker.invoke(null, new Object[] { (short) 1 });
-        }
+    final MethodInvoker itself = MethodInvoker.create(Bean.class, "test", Bean.class);
+    itself.invoke(new Bean(), new Object[] { new Bean() });
 
-        final MethodInvoker create = MethodInvoker.create(Bean.class, "test");
-        create.invoke(new Bean(), null);
+    final MethodInvoker returnString = MethodInvoker.create(Bean.class, "returnString", String.class);
+    final Object invoke1 = returnString.invoke(new Bean(), new Object[] { "TODAY" });
+    System.out.println(invoke1);
+  }
 
-        final MethodInvoker itself = MethodInvoker.create(Bean.class, "test", Bean.class);
-        itself.invoke(new Bean(), new Object[] { new Bean() });
+  private static class Bean1 {
 
-        final MethodInvoker returnString = MethodInvoker.create(Bean.class, "returnString", String.class);
-        final Object invoke1 = returnString.invoke(new Bean(), new Object[] { "TODAY" });
-        System.out.println(invoke1);
+    public Bean1(String name) {
+      System.out.println("构造参数: " + name);
+    }
+  }
+
+  public static class Bean {
+
+    public String returnString(String input) {
+      return "input->" + input;
     }
 
-    private static class Bean1 {
-
-        public Bean1(String name) {
-            System.out.println("构造参数: " + name);
-        }
+    public static void test(short i) throws Throwable {
+      System.err.println("static main " + i);
     }
 
-    public static class Bean {
-
-        public String returnString(String input) {
-            return "input->" + input;
-        }
-
-        public static void test(short i) throws Throwable {
-            System.err.println("static main " + i);
-        }
-
-        protected static void main() throws Throwable {
-            System.err.println("static main");
-        }
-
-        public void test() throws Throwable {
-            System.err.println("instance test");
-        }
-
-        void test(Bean itself) {
-            System.err.println("instance test :" + itself);
-        }
+    protected static void main() throws Throwable {
+      System.err.println("static main");
     }
+
+    public void test() throws Throwable {
+      System.err.println("instance test");
+    }
+
+    void test(Bean itself) {
+      System.err.println("instance test :" + itself);
+    }
+
+  }
+
 }

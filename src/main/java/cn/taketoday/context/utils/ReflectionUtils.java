@@ -1088,7 +1088,7 @@ public abstract class ReflectionUtils {
 
   public static ConstructorAccessor newConstructorAccessor(final Class<?> target) {
     try {
-      final Constructor<?> constructor = target.getConstructor();
+      final Constructor<?> constructor = target.getDeclaredConstructor();
       return newConstructorAccessor(constructor);
     }
     catch (NoSuchMethodException e) {

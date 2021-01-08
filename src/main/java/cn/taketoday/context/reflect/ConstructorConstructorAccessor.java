@@ -22,6 +22,7 @@ package cn.taketoday.context.reflect;
 
 import java.lang.reflect.Constructor;
 
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
@@ -33,6 +34,8 @@ public class ConstructorConstructorAccessor implements ConstructorAccessor {
   private final Constructor<?> constructor;
 
   public ConstructorConstructorAccessor(Constructor<?> constructor) {
+    Assert.notNull(constructor, "constructor must not be null");
+    ReflectionUtils.makeAccessible(constructor);
     this.constructor = constructor;
   }
 

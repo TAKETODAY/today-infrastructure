@@ -34,6 +34,7 @@ public class MethodMethodAccessor extends MethodInvoker implements MethodAccesso
 
   public MethodMethodAccessor(final Method method) {
     Assert.notNull(method, "method must not be null");
+    ReflectionUtils.makeAccessible(method);
     this.method = method;
   }
 

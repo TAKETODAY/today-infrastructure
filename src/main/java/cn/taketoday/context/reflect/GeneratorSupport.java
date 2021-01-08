@@ -39,13 +39,15 @@ import cn.taketoday.context.utils.ClassUtils;
 import static cn.taketoday.context.asm.Opcodes.ACC_FINAL;
 import static cn.taketoday.context.asm.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.context.asm.Opcodes.ALOAD;
-import static cn.taketoday.context.asm.Opcodes.INVOKEVIRTUAL;
+import static cn.taketoday.context.asm.Opcodes.INVOKESTATIC;
 
 /**
  * @author TODAY
  * @date 2020/9/11 16:32
  */
-abstract class GeneratorSupport<T> {
+public abstract class GeneratorSupport<T> {
+  static final Type GENERATOR_SUPPORT_TYPE = Type.getType(GeneratorSupport.class);
+
   static final String DEFAULT_SUPER = "Ljava/lang/Object;";
   static final LinkedList<GeneratorNode> created = new LinkedList<>();
 
@@ -156,12 +158,12 @@ abstract class GeneratorSupport<T> {
       final Type parameterType = Type.getType(parameterClass);
       if (parameterClass.isPrimitive()) {
         final Type boxedType = TypeUtils.getBoxedType(parameterType); // java.lang.Long ...
-
         codeEmitter.checkcast(boxedType);
-        final String name = parameterClass.getName() + "Value";
-        final String descriptor = "()" + parameterType.getDescriptor();
 
-        codeEmitter.visitMethodInsn(INVOKEVIRTUAL, boxedType.getInternalName(), name, descriptor, false);
+        final String descriptor = boxedType.getDescriptor();
+        codeEmitter.visitMethodInsn(INVOKESTATIC,
+                                    GENERATOR_SUPPORT_TYPE.getInternalName(),
+                                    "convert", '(' + descriptor + ')' + parameterType.getDescriptor(), false);
       }
       else {
         codeEmitter.checkcast(parameterType);
@@ -187,6 +189,41 @@ abstract class GeneratorSupport<T> {
   public void setClassLoader(final ClassLoader classLoader) {
     this.classLoader = classLoader;
   }
+
+  // converter
+
+  public static long convert(Long value) {
+    return value == null ? 0 : value;
+  }
+
+  public static int convert(Integer value) {
+    return value == null ? 0 : value;
+  }
+
+  public static short convert(Short value) {
+    return value == null ? 0 : value;
+  }
+
+  public static byte convert(Byte value) {
+    return value == null ? 0 : value;
+  }
+
+  public static float convert(Float value) {
+    return value == null ? 0 : value;
+  }
+
+  public static double convert(Double value) {
+    return value == null ? 0 : value;
+  }
+
+  public static boolean convert(Boolean value) {
+    return value != null && value;
+  }
+
+  public static char convert(Character value) {
+    return value == null ? 0 : value;
+  }
+
 }
 
 class GeneratorNode {
