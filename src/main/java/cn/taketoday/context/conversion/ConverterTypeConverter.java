@@ -99,15 +99,6 @@ public class ConverterTypeConverter
     }
   }
 
-//  @SafeVarargs
-//  public final <S, T> void addConverters(Converter<S, T>... converters) {
-//    if (ObjectUtils.isNotEmpty(converters)) {
-//      for (final Converter<S, T> converter : converters) {
-//        addConverter(converter);
-//      }
-//    }
-//  }
-
   public void addConverters(Converter<?, ?>... converters) {
     if (ObjectUtils.isNotEmpty(converters)) {
       for (final Converter<?, ?> converter : converters) {
@@ -136,7 +127,7 @@ public class ConverterTypeConverter
     Assert.notNull(sourceClass, "sourceClass must not be null");
 
     List<GenericConverter> converters =
-            converterMap.computeIfAbsent(targetClass, s -> new ArrayList<>());
+            converterMap.computeIfAbsent(targetClass, s -> new ArrayList<>(2));
     converters.add(new GenericConverter(sourceClass, converter));
   }
 
