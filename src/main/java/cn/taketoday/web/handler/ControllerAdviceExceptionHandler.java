@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.handler;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -116,7 +115,7 @@ public class ControllerAdviceExceptionHandler
     }
 
     @Override
-    protected void applyResponseStatus(final RequestContext context) throws IOException {
+    protected void applyResponseStatus(final RequestContext context) {
       final ResponseStatus status = getResponseStatus();
       if (status == null) {
         final Object attribute = context.attribute(Constant.KEY_THROWABLE);

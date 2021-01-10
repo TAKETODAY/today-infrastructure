@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.handler;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -183,16 +182,16 @@ public class HandlerMethod
   /**
    * Set the response status according to the {@link ResponseStatus} annotation.
    */
-  protected void applyResponseStatus(RequestContext context) throws IOException {
+  protected void applyResponseStatus(RequestContext context) {
     applyResponseStatus(context, getResponseStatus());
   }
 
-  protected void applyResponseStatus(RequestContext context, ResponseStatus status) throws IOException {
+  protected void applyResponseStatus(RequestContext context, ResponseStatus status) {
     if (status != null) {
       final String reason = status.reason();
       final HttpStatus httpStatus = status.value();
       if (StringUtils.hasText(reason)) {
-        context.sendError(httpStatus.value(), reason);
+        context.status(httpStatus.value(), reason);
       }
       else {
         context.status(httpStatus);
