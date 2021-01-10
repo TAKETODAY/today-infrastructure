@@ -221,7 +221,7 @@ public abstract class WebUtils {
     }
     final ResponseStatus status = ClassUtils.getAnnotation(ResponseStatus.class, exceptionClass);
     if (status != null) {
-      return status;
+      return new DefaultResponseStatus(status);
     }
     return new DefaultResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR);
   }
@@ -232,7 +232,11 @@ public abstract class WebUtils {
     if (status == null) {
       status = handler.getDeclaringClassAnnotation(ResponseStatus.class);
     }
-    return status;
+    return wrapStatus(status);
+  }
+
+  private static DefaultResponseStatus wrapStatus(ResponseStatus status) {
+    return status != null ? new DefaultResponseStatus(status) : null;
   }
 
   public static ResponseStatus getResponseStatus(final AnnotatedElement handler) {
@@ -242,7 +246,7 @@ public abstract class WebUtils {
       final Class<?> declaringClass = ((Method) handler).getDeclaringClass();
       status = declaringClass.getDeclaredAnnotation(ResponseStatus.class);
     }
-    return status;
+    return wrapStatus(status);
   }
 
   // Utility class for CORS request handling based on the

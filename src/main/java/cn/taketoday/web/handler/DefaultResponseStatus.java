@@ -3,6 +3,7 @@ package cn.taketoday.web.handler;
 import java.lang.annotation.Annotation;
 import java.util.Objects;
 
+import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.http.HttpStatus;
 
@@ -24,6 +25,14 @@ public class DefaultResponseStatus implements ResponseStatus {
   public DefaultResponseStatus(HttpStatus value, String reason) {
     this.value = value;
     this.reason = reason;
+  }
+
+  public DefaultResponseStatus(ResponseStatus status) {
+    this.value = status.value();
+    this.reason = status.reason();
+    if (StringUtils.isEmpty(this.reason)) {
+      this.reason = status.value().getReasonPhrase();
+    }
   }
 
   @Override
