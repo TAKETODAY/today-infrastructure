@@ -648,7 +648,8 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
   @Test
   public void testSuperPojo() {
-    SuperPojo pojo = defaultSession.createQuery("select 1 id, 'something' value from (values(0))").executeAndFetchFirst(SuperPojo.class);
+    SuperPojo pojo = defaultSession.createQuery("select 1 id, 'something' value from (values(0))")
+            .executeAndFetchFirst(SuperPojo.class);
 
     assertEquals(1, pojo.getId());
     assertEquals("something1", pojo.getValue());

@@ -447,12 +447,12 @@ public class PojoPerformanceTest {
 
   static class HibernateTypicalSelect extends PerformanceTestBase {
     private Session session;
+    private ApplicationContext context;
 
     @Override
     public void init() {
-      ApplicationContext context = new StandardApplicationContext("", "cn.taketoday.jdbc.performance");
       Logger.getLogger("org.hibernate").setLevel(Level.OFF);
-
+      context = new StandardApplicationContext("", "cn.taketoday.jdbc.performance");
       SessionFactory sessionFactory = context.getBean(SessionFactory.class);
       session = sessionFactory.openSession();
     }
@@ -465,6 +465,9 @@ public class PojoPerformanceTest {
     @Override
     public void close() {
       session.close();
+      if (context != null) {
+        context.close();
+      }
     }
   }
 

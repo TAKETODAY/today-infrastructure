@@ -16,7 +16,7 @@ import static org.zapodot.junit.db.EmbeddedDatabaseRule.CompatibilityMode.Oracle
 public class QueryArrayTest {
 
   private static class Foo {
-    public int bar;
+    private int bar;
   }
 
   @Rule
@@ -30,9 +30,11 @@ public class QueryArrayTest {
     final DefaultSession database = new DefaultSession(databaseRule.getDataSource());
     try (final JdbcConnection connection = database.open();
             final Query query = connection.createQuery("SELECT * FROM FOO WHERE BAR IN (:bars)")) {
-      final List<Foo> foos = query.addParameters("bars", 1, 2).executeAndFetch(Foo.class);
-      assertThat(foos.size(), equalTo(2));
 
+      final List<Foo> foos = query.addParameters("bars", 1, 2)
+              .executeAndFetch(Foo.class);
+
+      assertThat(foos.size(), equalTo(2));
     }
   }
 
@@ -43,7 +45,8 @@ public class QueryArrayTest {
     try (final JdbcConnection connection = database.open();
             final Query query = connection.createQuery("SELECT * FROM FOO WHERE BAR IN (:bars)")) {
 
-      final List<Foo> noFoos = query.addParameters("bars", new Integer[] {}).executeAndFetch(Foo.class);
+      final List<Foo> noFoos = query.addParameters("bars", new Integer[] {})
+              .executeAndFetch(Foo.class);
       assertThat(noFoos.size(), equalTo(0));
     }
   }

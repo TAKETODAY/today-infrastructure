@@ -7,8 +7,10 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.context.conversion.ConverterTypeConverter;
 import cn.taketoday.jdbc.connectionsources.ConnectionSource;
 import cn.taketoday.jdbc.connectionsources.DataSourceConnectionSource;
+import cn.taketoday.jdbc.conversion.ClobToStringConverter;
 import cn.taketoday.jdbc.parsing.SqlParameterParsingStrategy;
 import cn.taketoday.jdbc.parsing.impl.DefaultSqlParameterParsingStrategy;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
@@ -42,6 +44,11 @@ public class DefaultSession {
   private ConnectionSource connectionSource;
   private boolean generatedKeys = true;
   private SqlParameterParsingStrategy parsingStrategy = new DefaultSqlParameterParsingStrategy();
+
+  static {
+    final ClobToStringConverter stringConverter = new ClobToStringConverter();
+    ConverterTypeConverter.getSharedInstance().addConverter(stringConverter);
+  }
 
   public DefaultSession(String jndiLookup) {
     this(JndiDataSource.getJndiDatasource(jndiLookup));
