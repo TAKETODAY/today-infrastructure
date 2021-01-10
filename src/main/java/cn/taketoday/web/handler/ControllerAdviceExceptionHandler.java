@@ -102,11 +102,7 @@ public class ControllerAdviceExceptionHandler
         if (method.isAnnotationPresent(ExceptionHandler.class)) {
 
           for (Class<? extends Throwable> exceptionClass : method.getAnnotation(ExceptionHandler.class).value()) {
-            final ThrowableHandlerMethod handler = new ThrowableHandlerMethod(errorHandler, method);
-            if (handler.getResponseStatus() == null) {
-              handler.setResponseStatus(WebUtils.getResponseStatus(exceptionClass));
-            }
-            exceptionHandlers.put(exceptionClass, handler);
+            exceptionHandlers.put(exceptionClass, new ThrowableHandlerMethod(errorHandler, method));
           }
         }
       }

@@ -1,6 +1,7 @@
 package cn.taketoday.web.handler;
 
 import java.lang.annotation.Annotation;
+import java.util.Objects;
 
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.http.HttpStatus;
@@ -17,7 +18,7 @@ public class DefaultResponseStatus implements ResponseStatus {
   public DefaultResponseStatus() {}
 
   public DefaultResponseStatus(HttpStatus value) {
-    this(value, null);
+    this(value, value.getReasonPhrase());
   }
 
   public DefaultResponseStatus(HttpStatus value, String reason) {
@@ -46,5 +47,18 @@ public class DefaultResponseStatus implements ResponseStatus {
 
   public void setReason(final String reason) {
     this.reason = reason;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof DefaultResponseStatus)) return false;
+    final DefaultResponseStatus that = (DefaultResponseStatus) o;
+    return Objects.equals(reason, that.reason) && value == that.value;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(reason, value);
   }
 }
