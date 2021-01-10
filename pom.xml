@@ -199,9 +199,6 @@
               <execution>
                 <id>sign-artifacts</id>
                 <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
               </execution>
             </executions>
           </plugin>
@@ -265,7 +262,6 @@
         <configuration>
           <charset>UTF-8</charset>
           <encoding>UTF-8</encoding>
-          <aggregate>true</aggregate>
           <docencoding>UTF-8</docencoding>
           <failOnError>false</failOnError>
         </configuration>
