@@ -19,15 +19,14 @@
  */
 package cn.taketoday.web.view.template;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.HashMap;
 
-import cn.taketoday.context.EmptyObject;
+import cn.taketoday.context.io.PathMatchingResourcePatternResolver;
 import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.io.ResourceResolver;
 import cn.taketoday.context.utils.ConcurrentCache;
-import cn.taketoday.context.utils.ResourceUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import freemarker.cache.TemplateLoader;
@@ -42,9 +41,9 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
 
   private String prefix;
   private String suffix;
+  private ResourceResolver pathMatchingResolver = new PathMatchingResourcePatternResolver();
 
   public final ConcurrentCache<String, TemplateSource> cache;
-  private HashMap<String, Object> noneExist = new HashMap<>();
 
   public DefaultResourceTemplateLoader() {
     this(Constant.DEFAULT_TEMPLATE_PATH, Constant.BLANK, 1024);
@@ -68,24 +67,27 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
   }
 
   @Override
-  public Object findTemplateSource(String name) throws IOException {
-
-    if (noneExist.containsKey(name)) {
-      return null;
-    }
+  public Object findTemplateSource(String name) {
 
     TemplateSource ret = cache.get(name);
     if (ret == null) {
       try {
-        final Resource res = ResourceUtils.getResource(getTemplate(name));
-        if (res.exists()) {
-          cache.put(name, ret = TemplateSource.create(res));
-          return ret;
+        final String template = getTemplate(name);
+        final Resource[] resources = pathMatchingResolver.getResources(template);
+        if (ObjectUtils.isNotEmpty(resources)) {
+          for (final Resource resource : resources) {
+            if (resource.exists()) {
+              cache.put(name, ret = TemplateSource.create(resource));
+              return ret;
+            }
+          }
         }
       }
-      catch (FileNotFoundException ignored) {}
-
-      noneExist.put(name, EmptyObject.INSTANCE);
+      catch (IOException ignored) {}
+      cache.put(name, TemplateSource.EMPTY);
+    }
+    else if (ret == TemplateSource.EMPTY) {
+      return null;
     }
     return ret;
   }
@@ -109,6 +111,14 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
 
   @Override
   public void closeTemplateSource(final Object source) throws IOException {}
+
+  public void setPathMatchingResolver(ResourceResolver pathMatchingResolver) {
+    this.pathMatchingResolver = pathMatchingResolver;
+  }
+
+  public ResourceResolver getPathMatchingResolver() {
+    return pathMatchingResolver;
+  }
 
   /**
    * Put a Template With from a {@link Resource}
@@ -174,6 +184,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
   }
 
   public static final class TemplateSource {
+    static final TemplateSource EMPTY = new TemplateSource(0, null);
 
     private final long lastModified;
     private final ReaderSupplier reader;
