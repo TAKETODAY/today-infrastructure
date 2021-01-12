@@ -27,7 +27,6 @@ import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.io.ResourceResolver;
 import cn.taketoday.context.utils.ConcurrentCache;
 import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import freemarker.cache.TemplateLoader;
 
@@ -61,7 +60,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
 
   protected String getTemplate(final String name) {
     return new StringBuilder(getPrefix())
-            .append(StringUtils.checkUrl(name))
+            .append(name)
             .append(getSuffix())
             .toString();
   }
@@ -70,6 +69,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
   public Object findTemplateSource(String name) {
 
     TemplateSource ret = cache.get(name);
+    // TODO 过期
     if (ret == null) {
       try {
         final String template = getTemplate(name);

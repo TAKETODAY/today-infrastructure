@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.handler;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 
 import cn.taketoday.context.OrderedSupport;
@@ -30,8 +29,7 @@ import cn.taketoday.context.OrderedSupport;
  * @author TODAY <br>
  *         2018-06-25 19:58:07
  */
-@SuppressWarnings("serial")
-public class ViewController extends OrderedSupport implements Serializable {
+public class ViewController extends OrderedSupport {
 
   /** 资源路径 */
   private Object resource;

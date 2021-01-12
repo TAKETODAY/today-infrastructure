@@ -184,4 +184,8 @@ public abstract class AbstractRequestContext implements RequestContext {
 
   protected abstract Map<String, List<MultipartFile>> parseMultipartFiles() throws IOException;
 
+  @Override
+  public String toString() {
+    return method() + " " + requestURL();
+  }
 }
