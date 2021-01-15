@@ -29,15 +29,17 @@ import java.util.Set;
  *         2019-09-27 19:40
  */
 public class DefaultSession implements WebSession, Serializable {
-
   private static final long serialVersionUID = 1L;
 
+  private final String id;
   private final long creationTime;
-  private final Serializable id;
-  private final Map<Serializable, Object> attributes = new HashMap<>();
+  private final Map<String, Object> attributes = new HashMap<>();
 
-  public DefaultSession(String id) {
+  private final WebSessionStorage storage;
+
+  public DefaultSession(String id, WebSessionStorage storage) {
     this.id = id;
+    this.storage = storage;
     this.creationTime = System.currentTimeMillis();
   }
 
@@ -47,7 +49,7 @@ public class DefaultSession implements WebSession, Serializable {
   }
 
   @Override
-  public Serializable getId() {
+  public String getId() {
     return id;
   }
 
@@ -58,12 +60,12 @@ public class DefaultSession implements WebSession, Serializable {
 
   @Override
   public String[] getNames() {
-    final Map<Serializable, Object> attributes = this.attributes;
+    final Map<String, Object> attributes = this.attributes;
     return attributes.keySet().toArray(new String[attributes.size()]);
   }
 
   @Override
-  public Set<Serializable> getKeys() {
+  public Set<String> getKeys() {
     return attributes.keySet();
   }
 
@@ -80,6 +82,7 @@ public class DefaultSession implements WebSession, Serializable {
   @Override
   public void invalidate() {
     attributes.clear();
+    storage.remove(this);
   }
 
 }

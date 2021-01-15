@@ -68,7 +68,7 @@ public class DefaultWebSessionManager implements WebSessionManager {
       token = StringUtils.getUUIDString();
     }
 
-    final DefaultSession ret = new DefaultSession(token);
+    final DefaultSession ret = new DefaultSession(token, sessionStorage);
     sessionStorage.store(token, ret);
     return ret;
   }
@@ -88,7 +88,7 @@ public class DefaultWebSessionManager implements WebSessionManager {
     WebSession ret = sessionStorage.get(id);
 
     if (ret == null) {
-      sessionStorage.store(id, ret = new DefaultSession(id));
+      sessionStorage.store(id, ret = new DefaultSession(id, sessionStorage));
     }
 
     return ret;

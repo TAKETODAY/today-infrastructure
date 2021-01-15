@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.session;
 
-import java.io.Serializable;
 import java.util.Set;
 
 /**
@@ -38,9 +37,9 @@ public interface WebSession {
 
   void invalidate();
 
-  Serializable getId();
+  String getId();
 
   long getCreationTime();
 
-  Set<Serializable> getKeys();
+  Set<String> getKeys();
 }

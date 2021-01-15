@@ -29,6 +29,10 @@ public interface WebSessionStorage {
 
   WebSession remove(String id);
 
+  default WebSession remove(WebSession session){
+    return remove(session.getId());
+  }
+
   boolean contains(String id);
 
   void store(String id, WebSession session);
