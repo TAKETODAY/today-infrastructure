@@ -46,4 +46,20 @@ public class AccessForbiddenException extends WebRuntimeException {
   public AccessForbiddenException() {
     super(Constant.ACCESS_FORBIDDEN);
   }
+
+  public static NotFoundException failed() {
+    return new NotFoundException();
+  }
+
+  public static NotFoundException failed(String msg) {
+    return new NotFoundException(msg);
+  }
+
+  public static NotFoundException failed(Throwable cause) {
+    return new NotFoundException(cause);
+  }
+
+  public static NotFoundException failed(String msg, Throwable cause) {
+    return new NotFoundException(msg, cause);
+  }
 }

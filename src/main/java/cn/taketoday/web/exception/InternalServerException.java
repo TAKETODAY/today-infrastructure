@@ -26,7 +26,7 @@ import cn.taketoday.web.http.HttpStatus;
 
 /**
  * @author TODAY <br>
- *         2018-12-02 09:14
+ * 2018-12-02 09:14
  */
 @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 public class InternalServerException extends WebRuntimeException {
@@ -47,6 +47,22 @@ public class InternalServerException extends WebRuntimeException {
 
   public InternalServerException() {
     super(Constant.INTERNAL_SERVER_ERROR);
+  }
+
+  public static InternalServerException failed() {
+    return new InternalServerException();
+  }
+
+  public static InternalServerException failed(String msg) {
+    return new InternalServerException(msg);
+  }
+
+  public static InternalServerException failed(Throwable cause) {
+    return new InternalServerException(cause);
+  }
+
+  public static InternalServerException failed(String msg, Throwable cause) {
+    return new InternalServerException(msg, cause);
   }
 
 }

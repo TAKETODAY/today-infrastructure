@@ -46,4 +46,21 @@ public class NotFoundException extends WebRuntimeException {
   public NotFoundException() {
     super(Constant.NOT_FOUND);
   }
+
+  public static NotFoundException notFound() {
+    return new NotFoundException();
+  }
+
+  public static NotFoundException notFound(String msg) {
+    return new NotFoundException(msg);
+  }
+
+  public static NotFoundException notFound(Throwable cause) {
+    return new NotFoundException(cause);
+  }
+
+  public static NotFoundException notFound(String msg, Throwable cause) {
+    return new NotFoundException(msg, cause);
+  }
+
 }

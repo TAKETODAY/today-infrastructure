@@ -25,7 +25,7 @@ import cn.taketoday.web.http.HttpStatus;
 
 /**
  * @author TODAY <br>
- *         2018-10-30 16:51
+ * 2018-10-30 16:51
  */
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class BadRequestException extends WebRuntimeException {
@@ -45,6 +45,22 @@ public class BadRequestException extends WebRuntimeException {
 
   public BadRequestException(String message, Throwable cause) {
     super(message, cause);
+  }
+
+  public static BadRequestException failed() {
+    return new BadRequestException();
+  }
+
+  public static BadRequestException failed(String msg) {
+    return new BadRequestException(msg);
+  }
+
+  public static BadRequestException failed(Throwable cause) {
+    return new BadRequestException(cause);
+  }
+
+  public static BadRequestException failed(String msg, Throwable cause) {
+    return new BadRequestException(msg, cause);
   }
 
 }
