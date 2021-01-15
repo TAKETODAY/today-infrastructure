@@ -1308,7 +1308,7 @@ public abstract class ClassUtils {
   }
 
   static {
-    enableParamNameTypeChecking = Boolean.parseBoolean(System.getProperty("ClassUtils.enableParamNameTypeChecking", "false"));
+    enableParamNameTypeChecking = Boolean.parseBoolean(System.getProperty("ClassUtils.enableParamNameTypeChecking", "true"));
   }
 
   static final class ParameterFunction implements Function<Class<?>, Map<Method, String[]>> {
