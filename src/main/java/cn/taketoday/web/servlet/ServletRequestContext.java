@@ -49,10 +49,10 @@ import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.AbstractRequestContext;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.exception.BadRequestException;
 import cn.taketoday.web.exception.WebRuntimeException;
 import cn.taketoday.web.multipart.DefaultMultipartFile;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.resolver.MultipartFileParsingException;
 import cn.taketoday.web.ui.RedirectModel;
 
 /**
@@ -589,7 +589,7 @@ public class ServletRequestContext
       return multipartFiles;
     }
     catch (ServletException e) { // if this request is not of type multipart/form-data
-      throw new BadRequestException("This is not a multipart request", e);
+      throw new MultipartFileParsingException("This is not a multipart request", e);
     }
   }
 

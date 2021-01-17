@@ -27,22 +27,16 @@ import java.util.Objects;
 
 import javax.servlet.http.Part;
 
-import cn.taketoday.web.exception.BadRequestException;
-
 /**
  * @author TODAY <br>
  *         2018-06-28 22:40:32
  */
-@SuppressWarnings("serial")
 public class DefaultMultipartFile implements MultipartFile {
 
   private final Part part;
   public static final int BUFFER_SIZE = 4096;
 
-  public DefaultMultipartFile(Part part) throws BadRequestException {
-    if (part == null) {
-      throw new BadRequestException("There isn't a file item, bad request.");
-    }
+  public DefaultMultipartFile(Part part) {
     this.part = part;
   }
 

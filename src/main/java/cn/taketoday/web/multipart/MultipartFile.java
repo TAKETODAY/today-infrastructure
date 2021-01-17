@@ -25,7 +25,7 @@ import java.io.Serializable;
 
 /**
  * @author TODAY <br>
- *         2018-07-11 13:02:52
+ * 2018-07-11 13:02:52
  */
 public interface MultipartFile extends Serializable, cn.taketoday.context.io.Readable {
 
@@ -59,30 +59,34 @@ public interface MultipartFile extends Serializable, cn.taketoday.context.io.Rea
    * Save upload file to server.
    *
    * @param dest
-   *            the destination file path
+   *         the destination file path
+   *
    * @throws IOException
-   *  if an error occurs when write to dest.
+   *         if an error occurs when write to dest.
    */
   void save(File dest) throws IOException;
 
   /**
-   * @return
+   * Return whether the uploaded file is empty, that is, either no file has
+   * been chosen in the multipart form or the chosen file has no content.
    */
   boolean isEmpty();
 
   /**
    * Returns the contents of the file item as an array of bytes.
    *
-   * @since 2.3.3
    * @throws IOException
+   *         If any IO exception occurred
+   * @since 2.3.3
    */
   byte[] getBytes() throws IOException;
 
   /**
    * Get original resource
    *
-   * @since 2.3.3
    * @return Original resource
+   *
+   * @since 2.3.3
    */
   Object getOriginalResource();
 
@@ -90,9 +94,9 @@ public interface MultipartFile extends Serializable, cn.taketoday.context.io.Rea
    * Deletes the underlying storage for a file item, including deleting any
    * associated temporary disk file.
    *
-   * @since 2.3.3
    * @throws IOException
-   *             if an error occurs.
+   *         if an error occurs.
+   * @since 2.3.3
    */
   void delete() throws IOException;
 

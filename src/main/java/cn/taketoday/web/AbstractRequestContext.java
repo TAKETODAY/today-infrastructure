@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.resolver.MultipartFileParsingException;
 import cn.taketoday.web.ui.ModelAndView;
 
 import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
@@ -183,6 +184,14 @@ public abstract class AbstractRequestContext implements RequestContext {
     return multipartFiles;
   }
 
+  /**
+   * map list MultipartFile
+   *
+   * @throws IOException
+   *         if an I/O error occurred during the retrieval of the Part components of this request
+   * @throws MultipartFileParsingException
+   *         if this request is not of type multipart/form-data
+   */
   protected abstract Map<String, List<MultipartFile>> parseMultipartFiles() throws IOException;
 
   @Override
