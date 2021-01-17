@@ -23,13 +23,13 @@ import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
  *         2019-07-13 11:21
  */
-public abstract class TypeConverterParameterResolver extends OrderedSupport implements ParameterResolver {
+public abstract class TypeConverterParameterResolver
+        extends OrderedSupport implements ParameterResolver {
 
   protected TypeConverterParameterResolver() {
     this(HIGHEST_PRECEDENCE);
@@ -57,7 +57,7 @@ public abstract class TypeConverterParameterResolver extends OrderedSupport impl
   }
 
   protected void parameterCanNotResolve(final MethodParameter parameter) {
-    throw WebUtils.newBadRequest("Parameter", parameter, null);
+    throw new MissingParameterException(parameter);
   }
 
   protected Object resolveSource(final RequestContext requestContext, final MethodParameter parameter) {

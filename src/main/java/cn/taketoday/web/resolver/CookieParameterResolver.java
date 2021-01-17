@@ -23,7 +23,6 @@ import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.CookieValue;
@@ -32,7 +31,7 @@ import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
- *         2019-07-12 23:39
+ * 2019-07-12 23:39
  */
 public class CookieParameterResolver implements ParameterResolver {
 
@@ -67,16 +66,14 @@ public class CookieParameterResolver implements ParameterResolver {
 
     @Override
     protected void parameterCanNotResolve(MethodParameter parameter) {
-      throw WebUtils.newBadRequest("Cookie", parameter, null);
+      throw new MissingParameterException("Cookie", parameter);
     }
 
     @Override
     protected Object resolveSource(final RequestContext context, final MethodParameter parameter) {
-      final String name = parameter.getName();
-      for (final HttpCookie cookie : context.cookies() /*never be null*/) {
-        if (Objects.equals(name, cookie.getName())) {
-          return cookie.getValue();
-        }
+      final HttpCookie cookie = context.cookie(parameter.getName());
+      if (cookie != null) {
+        return cookie.getValue();
       }
       return null;
     }

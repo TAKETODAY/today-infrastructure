@@ -1,6 +1,5 @@
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.web.exception.WebRuntimeException;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**
@@ -10,23 +9,17 @@ import cn.taketoday.web.handler.MethodParameter;
  * @date 2021/1/17 9:43
  * @since 3.0
  */
-public class ParameterConversionException extends WebRuntimeException {
+public class ParameterConversionException extends MethodParameterException {
   private static final long serialVersionUID = 1L;
 
   private final String value;
-  private final MethodParameter parameter;
 
   public ParameterConversionException(MethodParameter parameter, String value, Throwable cause) {
-    super(cause);
+    super(parameter, "Cant convert '" + value + "' to " + parameter.getParameterClass(), cause);
     this.value = value;
-    this.parameter = parameter;
   }
 
   public String getValue() {
     return value;
-  }
-
-  public MethodParameter getParameter() {
-    return parameter;
   }
 }

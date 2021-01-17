@@ -28,6 +28,7 @@ import java.io.PrintWriter;
 import java.net.HttpCookie;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.ui.ModelAndView;
@@ -158,7 +159,7 @@ public abstract class AbstractRequestContext implements RequestContext {
   @Override
   public HttpCookie cookie(final String name) {
     for (final HttpCookie cookie : cookies()) {
-      if (cookie.getName().equals(name)) {
+      if (Objects.equals(name, cookie.getName())) {
         return cookie;
       }
     }

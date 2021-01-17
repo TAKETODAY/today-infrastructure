@@ -22,11 +22,10 @@ package cn.taketoday.web.resolver;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestHeader;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
- *         2019-07-13 11:11
+ * 2019-07-13 11:11
  */
 public class HeaderParameterResolver extends TypeConverterParameterResolver {
 
@@ -37,7 +36,7 @@ public class HeaderParameterResolver extends TypeConverterParameterResolver {
 
   @Override
   protected void parameterCanNotResolve(MethodParameter parameter) {
-    throw WebUtils.newBadRequest("Header", parameter, null);
+    throw new MissingParameterException("Header", parameter);
   }
 
   @Override
