@@ -49,15 +49,11 @@ public class ControllerAdviceExceptionHandler
   private final Map<Class<? extends Throwable>, ThrowableHandlerMethod> exceptionHandlers = new HashMap<>();
 
   @Override
-  protected Object handleHandlerMethodInternal(final Throwable ex,
-                                               final RequestContext context,
-                                               final HandlerMethod handlerMethod) throws Throwable //
-  {
+  public Object handleException(RequestContext context, Throwable ex, Object handler) throws Throwable {
     final ThrowableHandlerMethod exceptionHandler = lookupExceptionHandler(ex);
     if (exceptionHandler == null) {
-      return super.handleHandlerMethodInternal(ex, context, handlerMethod);
+      return super.handleException(context, ex, handler);
     }
-
     context.attribute(Constant.KEY_THROWABLE, ex);
     try {
       exceptionHandler.handleResult(context,
