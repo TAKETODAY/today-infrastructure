@@ -35,9 +35,11 @@ import static cn.taketoday.context.utils.ConvertUtils.convert;
  *
  * @author TODAY <br>
  * 2019-07-09 22:49
+ * @deprecated use PathVariableMethodParameter
  */
 @Deprecated
-public class PathVariableParameterResolver extends OrderedSupport implements ParameterResolver {
+public class PathVariableParameterResolver
+        extends OrderedSupport implements ParameterResolver {
 
   private PathMatcher pathMatcher;
 

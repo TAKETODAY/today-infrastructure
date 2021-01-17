@@ -22,8 +22,10 @@ package cn.taketoday.web.handler;
 import java.util.Objects;
 
 import cn.taketoday.context.PathMatcher;
+import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.resolver.ParameterConversionException;
 import cn.taketoday.web.utils.WebUtils;
 
 import static cn.taketoday.context.utils.ConvertUtils.convert;
@@ -51,19 +53,20 @@ public class PathVariableMethodParameter extends MethodParameter {
 
   @Override
   protected Object resolveParameter(final RequestContext request) throws Throwable {
-    try {
-      String[] pathVariables = request.pathVariables();
+
+    String[] pathVariables = request.pathVariables();
+    if (pathVariables == null) {
+      String requestURI = StringUtils.decodeUrl(request.requestURI());
+      pathVariables = request.pathVariables(pathMatcher.extractVariables(pathPattern, requestURI));
       if (pathVariables == null) {
-        String requestURI = StringUtils.decodeUrl(request.requestURI());
-        pathVariables = request.pathVariables(pathMatcher.extractVariables(pathPattern, requestURI));
-        if (pathVariables == null) {
-          throw WebUtils.newBadRequest("Path variable", getName(), null);
-        }
+        throw WebUtils.newBadRequest("Path variable", getName(), null);
       }
+    }
+    try {
       return convert(pathVariables[pathIndex], getParameterClass());
     }
-    catch (Throwable e) {
-      throw WebUtils.newBadRequest("Path variable", getName(), e);
+    catch (ConversionException e) {
+      throw new ParameterConversionException(this, pathVariables[pathIndex], e);
     }
   }
 
