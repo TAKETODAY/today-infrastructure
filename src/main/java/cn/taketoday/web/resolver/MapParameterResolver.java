@@ -56,7 +56,7 @@ public class MapParameterResolver
    * Resolve {@link Map} parameter.
    */
   @Override
-`  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
 
     // parameter class
     final Class<?> clazz = (Class<?>) parameter.getGenericityClass(1);
