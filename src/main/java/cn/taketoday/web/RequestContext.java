@@ -49,7 +49,7 @@ import cn.taketoday.web.ui.RedirectModel;
  */
 public interface RequestContext extends Readable, Writable, Model, HttpHeaders, Flushable {
 
-  String KEY_REDIRECT_MODEL = RequestContext.class + "redirect-model";
+  String KEY_REDIRECT_MODEL = RequestContext.class + ".redirect-model";
 
   HttpCookie[] EMPTY_COOKIES = {};
 
@@ -279,39 +279,6 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    */
   @Override
   BufferedReader getReader() throws IOException;
-
-  // ------------------
-
-  /**
-   * Request body object
-   */
-  Object requestBody();
-
-  /**
-   * Apply request body object
-   *
-   * @param body
-   *         Target request body object
-   *
-   * @return Request body object
-   */
-  Object requestBody(Object body);
-
-  String[] pathVariables();
-
-  /**
-   * set current {@link PathVariable}s
-   *
-   * @param variables
-   *         {@link PathVariable}s
-   *
-   * @return input variables
-   */
-  String[] pathVariables(String[] variables);
-
-  RedirectModel redirectModel();
-
-  RedirectModel redirectModel(RedirectModel redirectModel);
 
   /**
    * Get all {@link MultipartFile}s from current request
@@ -566,4 +533,36 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
 
   <T> T nativeResponse(Class<T> responseClass);
 
+  // ------------------
+
+  /**
+   * Request body object
+   */
+  Object requestBody();
+
+  /**
+   * Apply request body object
+   *
+   * @param body
+   *         Target request body object
+   *
+   * @return Request body object
+   */
+  Object requestBody(Object body);
+
+  String[] pathVariables();
+
+  /**
+   * set current {@link PathVariable}s
+   *
+   * @param variables
+   *         {@link PathVariable}s
+   *
+   * @return input variables
+   */
+  String[] pathVariables(String[] variables);
+
+  RedirectModel applyRedirectModel();
+
+  RedirectModel applyRedirectModel(RedirectModel redirectModel);
 }

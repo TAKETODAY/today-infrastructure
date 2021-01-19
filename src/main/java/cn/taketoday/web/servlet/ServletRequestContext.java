@@ -392,7 +392,7 @@ public class ServletRequestContext
   }
 
   @Override
-  public RedirectModel redirectModel() {
+  public RedirectModel applyRedirectModel() {
     final Object attribute = request.getSession().getAttribute(KEY_REDIRECT_MODEL);
 
     if (attribute instanceof RedirectModel) {
@@ -402,7 +402,7 @@ public class ServletRequestContext
   }
 
   @Override
-  public RedirectModel redirectModel(RedirectModel redirectModel) {
+  public RedirectModel applyRedirectModel(RedirectModel redirectModel) {
     request.getSession().setAttribute(KEY_REDIRECT_MODEL, redirectModel);
     return redirectModel;
   }
