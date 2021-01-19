@@ -19,176 +19,113 @@
  */
 package cn.taketoday.web.handler;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URL;
-
-import javax.imageio.ImageIO;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.annotation.ControllerAdvice;
+import cn.taketoday.web.annotation.ExceptionHandler;
+import cn.taketoday.web.annotation.ResponseStatus;
+import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.exception.ExceptionUnhandledException;
-import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.utils.WebUtils;
-import cn.taketoday.web.view.TemplateResultHandler;
 
 /**
+ * Handle {@link ExceptionHandler}
+ *
  * @author TODAY <br>
- * 2020-03-29 21:01
+ * 2019-06-22 19:17
+ * @since 2.3.7
  */
-public class DefaultExceptionHandler implements HandlerExceptionHandler {
+public class DefaultExceptionHandler
+        extends SimpleExceptionHandler implements WebApplicationInitializer {
+
   private static final Logger log = LoggerFactory.getLogger(DefaultExceptionHandler.class);
+  private final Map<Class<? extends Throwable>, ThrowableHandlerMethod> exceptionHandlers = new HashMap<>();
 
   @Override
-  public Object handleException(final RequestContext context,
-                                final Throwable ex, final Object handler) throws Throwable {
+  public Object handleException(RequestContext context, Throwable ex, Object handler) throws Throwable {
+    final ThrowableHandlerMethod exceptionHandler = lookupExceptionHandler(ex);
+    if (exceptionHandler == null) {
+      return super.handleException(context, ex, handler);
+    }
+    context.attribute(Constant.KEY_THROWABLE, ex);
     try {
-      if (handler instanceof HandlerMethod) {
-        return handleHandlerMethodInternal(ex, context, (HandlerMethod) handler);
+      exceptionHandler.handleResult(context,
+                                    exceptionHandler,
+                                    exceptionHandler.invokeHandler(context));
+    }
+    catch (final Throwable target) {
+      if (!(target instanceof ExceptionUnhandledException)) {
+        log.error("Handling of [{}] resulted in Exception: [{}]", //
+                  target.getClass().getName(), target.getClass().getName(), target);
+        throw target;
       }
-      if (handler instanceof ViewController) {
-        return handleViewControllerInternal(ex, context, (ViewController) handler);
-      }
-      if (handler instanceof ResourceRequestHandler) {
-        return handleResourceMappingInternal(ex, context, (ResourceRequestHandler) handler);
-      }
-
-      if (log.isDebugEnabled()) {
-        log.debug("Catch Throwable: [{}]", ex.toString(), ex);
-      }
-      return handleExceptionInternal(ex, context);
     }
-    catch (ExceptionUnhandledException unhandled) {
-      throw unhandled;
-    }
-    catch (Throwable handlerException) {
-      log.error("Handling of [{}] resulted in Exception: [{}]", //
-                ex.getClass().getName(), handlerException.getClass().getName(), handlerException);
-
-      throw handlerException;
-    }
-  }
-
-  /**
-   * Resolve {@link ResourceRequestHandler} exception
-   *
-   * @param ex
-   *         Target {@link Throwable}
-   * @param context
-   *         Current request context
-   * @param handler
-   *         {@link ResourceRequestHandler}
-   *
-   * @throws Throwable
-   *         If any {@link Exception} occurred
-   */
-  protected Object handleResourceMappingInternal(final Throwable ex,
-                                                 final RequestContext context,
-                                                 final ResourceRequestHandler handler) throws Throwable {
-    return handleExceptionInternal(ex, context);
-  }
-
-  /**
-   * Resolve {@link ViewController} exception
-   *
-   * @param ex
-   *         Target {@link Throwable}
-   * @param context
-   *         Current request context
-   * @param viewController
-   *         {@link ViewController}
-   *
-   * @throws Throwable
-   *         If any {@link Exception} occurred
-   */
-  protected Object handleViewControllerInternal(final Throwable ex,
-                                                final RequestContext context,
-                                                final ViewController viewController) throws Throwable {
-    return handleExceptionInternal(ex, context);
-  }
-
-  /**
-   * Resolve {@link HandlerMethod} exception
-   *
-   * @param ex
-   *         Target {@link Throwable}
-   * @param context
-   *         Current request context
-   * @param handlerMethod
-   *         {@link HandlerMethod}
-   *
-   * @throws Throwable
-   *         If any {@link Exception} occurred
-   */
-  protected Object handleHandlerMethodInternal(final Throwable ex,
-                                               final RequestContext context,
-                                               final HandlerMethod handlerMethod) throws Throwable//
-  {
-    context.status(getErrorStatusValue(ex));
-
-    if (handlerMethod.isAssignableFrom(RenderedImage.class)) {
-      return resolveImageException(ex, context);
-    }
-    if (!handlerMethod.is(void.class)
-            && !handlerMethod.is(Object.class)
-            && !handlerMethod.is(ModelAndView.class)
-            && TemplateResultHandler.supportsHandlerMethod(handlerMethod)) {
-
-      return handleExceptionInternal(ex, context);
-    }
-
-    context.contentType(Constant.CONTENT_TYPE_JSON);
-    final PrintWriter writer = context.getWriter();
-    writer.write(buildDefaultErrorMessage(ex));
-    writer.flush();
     return NONE_RETURN_VALUE;
   }
 
-  protected String buildDefaultErrorMessage(final Throwable ex) {
-    return new StringBuilder()
-            .append("{\"message\":\"")
-            .append(ex.getMessage())
-            .append("\"}")
-            .toString();
-  }
-
-  public int getErrorStatusValue(Throwable ex) {
-    return WebUtils.getStatusValue(ex);
-  }
-
   /**
-   * resolve view exception
+   * Looking for exception handler mapping
    *
    * @param ex
    *         Target {@link Exception}
-   * @param context
-   *         Current request context
+   *
+   * @return Mapped {@link Exception} handler mapping
    */
-  public Object handleExceptionInternal(final Throwable ex, final RequestContext context) throws IOException {
-    context.sendError(getErrorStatusValue(ex), ex.getMessage());
-    return NONE_RETURN_VALUE;
+  protected ThrowableHandlerMethod lookupExceptionHandler(final Throwable ex) {
+    final ThrowableHandlerMethod ret = exceptionHandlers.get(ex.getClass());
+    if (ret == null) {
+      return exceptionHandlers.get(Throwable.class); // Global exception handler
+    }
+    return ret;
   }
 
-  /**
-   * resolve image
-   */
-  public BufferedImage resolveImageException(final Throwable ex, final RequestContext context) throws IOException {
-    final URL resource = ClassUtils.getClassLoader()
-            .getResource(new StringBuilder()
-                                 .append("/error/")
-                                 .append(getErrorStatusValue(ex))
-                                 .append(".png").toString());
+  @Override
+  public void onStartup(WebApplicationContext beanFactory) {
+    log.info("Initialize controller advice exception resolver");
+    // get all error handlers
+    final List<Object> errorHandlers = beanFactory.getAnnotatedBeans(ControllerAdvice.class);
+    for (final Object errorHandler : errorHandlers) {
 
-    Assert.state(resource != null, "System Error");
+      for (final Method method : ReflectionUtils.getDeclaredMethods(errorHandler.getClass())) {
+        if (method.isAnnotationPresent(ExceptionHandler.class)) {
 
-    context.contentType(Constant.CONTENT_TYPE_IMAGE);
-    return ImageIO.read(resource);
+          for (Class<? extends Throwable> exceptionClass : method.getAnnotation(ExceptionHandler.class).value()) {
+            exceptionHandlers.put(exceptionClass, new ThrowableHandlerMethod(errorHandler, method));
+          }
+        }
+      }
+    }
+  }
+
+  protected static class ThrowableHandlerMethod extends HandlerMethod {
+
+    public ThrowableHandlerMethod(Object handler, Method method) {
+      super(handler, method, null);
+    }
+
+    @Override
+    protected void applyResponseStatus(final RequestContext context) {
+      final ResponseStatus status = getResponseStatus();
+      if (status == null) {
+        final Object attribute = context.attribute(Constant.KEY_THROWABLE);
+        if (attribute instanceof Throwable) {
+          final ResponseStatus runtimeErrorStatus = WebUtils.getResponseStatus((Throwable) attribute);
+          applyResponseStatus(context, runtimeErrorStatus);
+        }
+      }
+      else {
+        super.applyResponseStatus(context);
+      }
+    }
   }
 
 }
