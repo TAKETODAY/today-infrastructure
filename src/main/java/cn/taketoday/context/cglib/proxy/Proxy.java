@@ -47,7 +47,9 @@ public class Proxy implements Serializable {
   private static final CallbackFilter BAD_OBJECT_METHOD_FILTER = (method) -> {
     if ("java.lang.Object".equals(method.getDeclaringClass().getName())) {
       final String name = method.getName();
-      if (!(name.equals(Constant.HASH_CODE) || name.equals(Constant.EQUALS) || name.equals(Constant.TO_STRING))) {
+      if (!(name.equals(Constant.HASH_CODE)
+              || name.equals(Constant.EQUALS)
+              || name.equals(Constant.TO_STRING))) {
         return 1;
       }
     }
@@ -78,6 +80,7 @@ public class Proxy implements Serializable {
 
   public static Class<?> getProxyClass(final ClassLoader loader, final Class<?>... interfaces) {
     return new Enhancer()
+            .setClassLoader(loader)
             .setInterfaces(interfaces)
             .setSuperclass(ProxyImpl.class)
             .setCallbackTypes(InvocationHandler.class, NoOp.class)
