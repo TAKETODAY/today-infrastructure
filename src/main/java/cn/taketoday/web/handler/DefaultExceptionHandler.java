@@ -21,11 +21,13 @@ package cn.taketoday.web.handler;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
@@ -48,10 +50,15 @@ public class DefaultExceptionHandler
         extends SimpleExceptionHandler implements WebApplicationInitializer {
 
   private static final Logger log = LoggerFactory.getLogger(DefaultExceptionHandler.class);
-  private final Map<Class<? extends Throwable>, ThrowableHandlerMethod> exceptionHandlers = new HashMap<>();
+  private final HashMap<Class<? extends Throwable>, ThrowableHandlerMethod>
+          exceptionHandlers = new HashMap<>();
+
+  /** @since 3.0 */
+  private boolean inheritable;
 
   @Override
   public Object handleException(RequestContext context, Throwable ex, Object handler) throws Throwable {
+    // catch all handlers
     final ThrowableHandlerMethod exceptionHandler = lookupExceptionHandler(ex);
     if (exceptionHandler == null) {
       return super.handleException(context, ex, handler);
@@ -83,28 +90,80 @@ public class DefaultExceptionHandler
   protected ThrowableHandlerMethod lookupExceptionHandler(final Throwable ex) {
     final ThrowableHandlerMethod ret = exceptionHandlers.get(ex.getClass());
     if (ret == null) {
+      if (inheritable) {
+        final Class<? extends Throwable> runtimeEx = ex.getClass();
+        for (final Map.Entry<Class<? extends Throwable>, ThrowableHandlerMethod> entry
+                : exceptionHandlers.entrySet()) {
+          final Class<? extends Throwable> entryKey = entry.getKey();
+
+          if (entryKey.isAssignableFrom(runtimeEx)) {
+            return entry.getValue();
+          }
+        }
+      }
       return exceptionHandlers.get(Throwable.class); // Global exception handler
     }
     return ret;
   }
 
+  //
+
+  /**
+   * Set if handler is inheritable ?
+   *
+   * @param inheritable
+   *         is inheritable
+   */
+  public void setInheritable(boolean inheritable) {
+    this.inheritable = inheritable;
+  }
+
+  // WebApplicationInitializer
+
   @Override
   public void onStartup(WebApplicationContext beanFactory) {
-    log.info("Initialize controller advice exception resolver");
+    log.info("Initialize @ExceptionHandler");
     // get all error handlers
     final List<Object> errorHandlers = beanFactory.getAnnotatedBeans(ControllerAdvice.class);
     for (final Object errorHandler : errorHandlers) {
-
       for (final Method method : ReflectionUtils.getDeclaredMethods(errorHandler.getClass())) {
         if (method.isAnnotationPresent(ExceptionHandler.class)) {
-
-          for (Class<? extends Throwable> exceptionClass : method.getAnnotation(ExceptionHandler.class).value()) {
+          final Class<? extends Throwable>[] catchExClasses = getCatchThrowableClasses(method);
+          for (Class<? extends Throwable> exceptionClass : catchExClasses) {
             exceptionHandlers.put(exceptionClass, new ThrowableHandlerMethod(errorHandler, method));
           }
         }
       }
     }
   }
+
+  /**
+   * @param method
+   *         target handler method
+   *
+   * @return Throwable class array
+   */
+  protected Class<? extends Throwable>[] getCatchThrowableClasses(final Method method) {
+    Class<? extends Throwable>[] catchExClasses = method.getAnnotation(ExceptionHandler.class).value();
+    if (ObjectUtils.isEmpty(catchExClasses)) {
+      final Class<?>[] parameterTypes = method.getParameterTypes();
+      if (ObjectUtils.isEmpty(parameterTypes)) {
+        catchExClasses = new Class[] { Throwable.class };
+      }
+      else {
+        HashSet<Class<?>> classes = new HashSet<>();
+        for (final Class<?> parameterType : parameterTypes) {
+          if (Throwable.class.isAssignableFrom(parameterType)) {
+            classes.add(parameterType);
+          }
+        }
+        catchExClasses = classes.toArray(new Class[classes.size()]);
+      }
+    }
+    return catchExClasses;
+  }
+
+  // exception handler
 
   protected static class ThrowableHandlerMethod extends HandlerMethod {
 
