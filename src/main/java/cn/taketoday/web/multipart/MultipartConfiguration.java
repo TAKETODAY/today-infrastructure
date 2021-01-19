@@ -19,8 +19,6 @@
  */
 package cn.taketoday.web.multipart;
 
-import java.io.Serializable;
-
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.utils.DataSize;
@@ -30,13 +28,13 @@ import lombok.Setter;
 
 /**
  * @author TODAY <br>
- *         2019-07-11 22:47
+ * 2019-07-11 22:47
  */
 @Setter
 @Getter
 @MissingBean
 @Props(prefix = "multipart.")
-public class MultipartConfiguration implements Serializable {
+public class MultipartConfiguration {
 
   private static final long serialVersionUID = 1L;
 

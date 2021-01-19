@@ -40,7 +40,7 @@ import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
- *         2019-07-11 07:59
+ * 2019-07-11 07:59
  */
 public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
@@ -65,7 +65,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
   /**
    * @author TODAY <br>
-   *         2019-07-12 18:18
+   * 2019-07-12 18:18
    */
   public static class CollectionMultipartResolver extends AbstractMultipartResolver {
 
@@ -99,13 +99,13 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
   /**
    * @author TODAY <br>
-   *         2019-07-12 17:43
+   * 2019-07-12 17:43
    */
   public static class ArrayMultipartResolver extends AbstractMultipartResolver {
 
     @Autowired
-    public ArrayMultipartResolver(MultipartConfiguration multipartConfiguration) {
-      super(multipartConfiguration);
+    public ArrayMultipartResolver(MultipartConfiguration configuration) {
+      super(configuration);
     }
 
     @Override
@@ -121,7 +121,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
     @Override
     protected Object resolveInternal(final RequestContext context,
                                      final MethodParameter parameter,
-                                     final List<MultipartFile> multipartFiles) throws Throwable {
+                                     final List<MultipartFile> multipartFiles) {
 
       return multipartFiles.toArray(new MultipartFile[multipartFiles.size()]);
     }
@@ -129,7 +129,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
   /**
    * @author TODAY <br>
-   *         2019-07-11 23:35
+   * 2019-07-11 23:35
    */
   public static class MapMultipartParameterResolver extends MapParameterResolver implements ParameterResolver {
 
@@ -147,7 +147,6 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
         if (parameter.isGenericPresent(List.class, 1)) { // Map<String, List<>>
 
           final Type type = parameter.getGenericityClass()[1];
-
           if (type instanceof ParameterizedType) {
             Type t = ((ParameterizedType) type).getActualTypeArguments()[0];
             return t.equals(MultipartFile.class) || t.equals(DefaultMultipartFile.class);
@@ -165,9 +164,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
     public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
 
       if (WebUtils.isMultipart(context)) {
-
         if (multipartConfiguration.getMaxRequestSize().toBytes() < context.contentLength()) { // exceed max size?
-
           throw new FileSizeExceededException(multipartConfiguration.getMaxRequestSize(), null)//
                   .setActual(DataSize.of(context.contentLength()));
         }
@@ -176,18 +173,16 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
           final Map<String, List<MultipartFile>> multipartFiles = context.multipartFiles();
 
           if (multipartFiles.isEmpty()) {
-            throw WebUtils.newBadRequest("Multipart file must not be empty", parameter.getName(), null);
+            throw new MissingMultipartFileException(parameter);
           }
 
           if (parameter.isGenericPresent(List.class, 1)) {
             return multipartFiles;
           }
-
           final HashMap<String, MultipartFile> files = new HashMap<>();
-
-          multipartFiles.forEach((k, v) -> {
-            files.put(k, v.get(0));
-          });
+          for (final Map.Entry<String, List<MultipartFile>> listEntry : multipartFiles.entrySet()) {
+            files.put(listEntry.getKey(), listEntry.getValue().get(0));
+          }
 
           return files;
         }
@@ -203,8 +198,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
       return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 80;
     }
 
-    //@off
-        protected void cleanupMultipart(final RequestContext request) {} //@on
+    protected void cleanupMultipart(final RequestContext request) {}
   }
 
 }

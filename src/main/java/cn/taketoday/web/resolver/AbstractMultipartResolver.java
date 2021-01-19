@@ -31,7 +31,7 @@ import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
- *         2019-07-11 23:14
+ * 2019-07-11 23:14
  */
 public abstract class AbstractMultipartResolver implements ParameterResolver {
 
@@ -42,26 +42,25 @@ public abstract class AbstractMultipartResolver implements ParameterResolver {
   }
 
   @Override
-  public final Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-
-    if (WebUtils.isMultipart(requestContext)) {
-
-      if (getMultipartConfiguration().getMaxRequestSize().toBytes() < requestContext.contentLength()) { // exceed max size?
+  public final Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+    if (WebUtils.isMultipart(context)) {
+      if (getMultipartConfiguration().getMaxRequestSize().toBytes() < context.contentLength()) { // exceed max size?
 
         throw new FileSizeExceededException(getMultipartConfiguration().getMaxRequestSize(), null)//
-                .setActual(DataSize.of(requestContext.contentLength()));
+                .setActual(DataSize.of(context.contentLength()));
       }
-
       try {
-
-        final List<MultipartFile> multipartFiles = requestContext.multipartFiles().get(parameter.getName());
-        if (multipartFiles != null) {
-          return resolveInternal(requestContext, parameter, multipartFiles);
+        final List<MultipartFile> multipartFiles = context.multipartFiles().get(parameter.getName());
+        if (multipartFiles == null) {
+          if (parameter.isRequired()) {
+            throw new MissingMultipartFileException(parameter);
+          }
+          return null;
         }
-        throw WebUtils.newBadRequest("Target multipart file must not be null", parameter.getName(), null);
+        return resolveInternal(context, parameter, multipartFiles);
       }
       finally {
-        cleanupMultipart(requestContext);
+        cleanupMultipart(context);
       }
     }
     throw WebUtils.newBadRequest("This is not a multipart request", parameter.getName(), null);
@@ -70,15 +69,14 @@ public abstract class AbstractMultipartResolver implements ParameterResolver {
   @Override
   public abstract boolean supports(final MethodParameter parameter);
 
-  //@off
-    protected abstract Object resolveInternal(final RequestContext requestContext, //
-            final MethodParameter parameter, final List<MultipartFile> multipartFiles) throws Throwable;
+  protected abstract Object resolveInternal(final RequestContext context,
+                                            final MethodParameter parameter,
+                                            final List<MultipartFile> multipartFiles) throws Throwable;
 
-    
-    protected void cleanupMultipart(final RequestContext request) {}
+  protected void cleanupMultipart(final RequestContext request) {}
 
-    public MultipartConfiguration getMultipartConfiguration() {
-        return multipartConfiguration;
-    }
+  public MultipartConfiguration getMultipartConfiguration() {
+    return multipartConfiguration;
+  }
 
 }

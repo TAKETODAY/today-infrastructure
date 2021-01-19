@@ -56,13 +56,13 @@ public class MapParameterResolver
    * Resolve {@link Map} parameter.
    */
   @Override
-  public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
+`  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
 
     // parameter class
     final Class<?> clazz = (Class<?>) parameter.getGenericityClass(1);
 
     final String parameterName = parameter.getName();
-    final Enumeration<String> parameterNames = requestContext.parameterNames();// all parameter
+    final Enumeration<String> parameterNames = context.parameterNames();// all parameter
     final Map<String, Object> map = new HashMap<>();
     final String mapParamRegexp = Constant.MAP_PARAM_REGEXP;
     while (parameterNames.hasMoreElements()) {

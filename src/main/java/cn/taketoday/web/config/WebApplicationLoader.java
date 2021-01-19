@@ -45,7 +45,7 @@ import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.annotation.RequestAttribute;
 import cn.taketoday.web.event.WebApplicationStartedEvent;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
-import cn.taketoday.web.handler.ControllerAdviceExceptionHandler;
+import cn.taketoday.web.handler.DefaultExceptionHandler;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.FunctionRequestAdapter;
 import cn.taketoday.web.handler.HandlerAdapter;
@@ -213,10 +213,10 @@ public class WebApplicationLoader
     final WebApplicationContext context = obtainApplicationContext();
 
     // 默认
-    ControllerAdviceExceptionHandler defaultHandler = context.getBean(ControllerAdviceExceptionHandler.class);
+    DefaultExceptionHandler defaultHandler = context.getBean(DefaultExceptionHandler.class);
     if (defaultHandler == null) {
-      context.registerBean(ControllerAdviceExceptionHandler.class);
-      defaultHandler = context.getBean(ControllerAdviceExceptionHandler.class);
+      context.registerBean(DefaultExceptionHandler.class);
+      defaultHandler = context.getBean(DefaultExceptionHandler.class);
     }
 
     handlers.add(defaultHandler);

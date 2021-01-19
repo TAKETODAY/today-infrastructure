@@ -17,7 +17,7 @@ public class MissingParameterException extends MethodParameterException {
   }
 
   public MissingParameterException(String type, MethodParameter parameter) {
-    super(parameter);
+    super(parameter, "Required " + type + " '" + parameter.getName() + "' is not present");
     this.type = type;
   }
 

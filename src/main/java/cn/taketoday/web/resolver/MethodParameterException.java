@@ -35,4 +35,11 @@ public class MethodParameterException extends WebRuntimeException {
     return parameter;
   }
 
+  public String getParameterName() {
+    return parameter.getName();
+  }
+
+  public Class<?> getParameterClass() {
+    return parameter.getParameterClass();
+  }
 }
