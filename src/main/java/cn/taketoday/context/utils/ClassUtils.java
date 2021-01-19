@@ -1314,7 +1314,7 @@ public abstract class ClassUtils {
   static final class ParameterFunction implements Function<Class<?>, Map<Method, String[]>> {
 
     @Override
-    public Map<Method, String[]> apply(final Class<?> declaringClass) {
+    public final Map<Method, String[]> apply(final Class<?> declaringClass) {
 
       final Map<Method, String[]> map = new HashMap<>();
 
