@@ -21,12 +21,8 @@ package cn.taketoday.web.resolver;
 
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import cn.taketoday.web.HttpHeaders;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.ui.Model;
 import cn.taketoday.web.ui.ModelAndView;
@@ -53,10 +49,11 @@ public class ModelParameterResolver implements ParameterResolver {
    * Resolve {@link Model} parameter.
    */
   @Override
-  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+  public Object resolveParameter(final RequestContext context,
+                                 final MethodParameter parameter) throws Throwable {
 
     if (parameter.isAssignableFrom(RedirectModel.class)) { // RedirectModel
-      return context.redirectModel(new RedirectModelAttributes());
+      return context.applyRedirectModel(new RedirectModelAttributes());
     }
     if (parameter.isAssignableFrom(ModelAndView.class)) {
       return context.modelAndView();
