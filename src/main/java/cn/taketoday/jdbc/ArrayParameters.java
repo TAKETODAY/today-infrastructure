@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 class ArrayParameters {
 
@@ -22,6 +23,20 @@ class ArrayParameters {
     @Override
     public int compareTo(ArrayParameter o) {
       return Integer.compare(parameterIndex, o.parameterIndex);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (!(o instanceof ArrayParameter)) return false;
+      final ArrayParameter that = (ArrayParameter) o;
+      return parameterIndex == that.parameterIndex
+              && parameterCount == that.parameterCount;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(parameterIndex, parameterCount);
     }
   }
 
@@ -119,7 +134,7 @@ class ArrayParameters {
     for (char c : parsedQuery.toCharArray()) {
       if (nextParameterToReplace != null && c == '?') {
         if (currentIndex == nextParameterToReplace.parameterIndex) {
-          sb.append("?");
+          sb.append('?');
           for (int i = 1; i < nextParameterToReplace.parameterCount; i++) {
             sb.append(",?");
           }

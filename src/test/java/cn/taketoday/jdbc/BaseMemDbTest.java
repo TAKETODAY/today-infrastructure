@@ -37,7 +37,9 @@ public abstract class BaseMemDbTest {
 
   @Parameterized.Parameters(name = "{index} - {2}")
   public static Collection<Object[]> getData() {
-    return Arrays.asList(new Object[][] { { DbType.H2, "H2 test" }, { DbType.HyperSQL, "HyperSQL Test" }
+    return Arrays.asList(new Object[][] {
+            { DbType.H2, "H2 test" },
+            { DbType.HyperSQL, "HyperSQL Test" }
     });
   }
 

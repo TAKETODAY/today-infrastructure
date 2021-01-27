@@ -222,7 +222,7 @@ public abstract class JdbcUtils {
    * @throws SQLException
    *         If a database access error occurs
    */
-  public static void close(ResultSet rs) throws SQLException {
+  public static void close(final ResultSet rs) throws SQLException {
     if (rs != null) {
       rs.close();
     }

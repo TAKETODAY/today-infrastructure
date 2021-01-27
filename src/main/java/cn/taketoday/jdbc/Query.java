@@ -1,6 +1,7 @@
 package cn.taketoday.jdbc;
 
 import java.io.InputStream;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,6 +20,7 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ConvertUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.jdbc.data.LazyTable;
 import cn.taketoday.jdbc.data.Row;
 import cn.taketoday.jdbc.data.Table;
@@ -35,7 +37,7 @@ import cn.taketoday.jdbc.utils.JdbcUtils;
 @SuppressWarnings("UnusedDeclaration")
 public class Query implements AutoCloseable {
 
-  private static final Logger logger = LoggerFactory.getLogger(Query.class);
+  private static final Logger log = LoggerFactory.getLogger(Query.class);
 
   private final JdbcConnection connection;
   private Map<String, String> caseSensitiveColumnMappings;
@@ -144,7 +146,7 @@ public class Query implements AutoCloseable {
   public void addParameter(String name, ParameterSetter parameterSetter) {
     if (!this.getParamNameToIdxMap().containsKey(name)) {
       throw new PersistenceException("Failed to add parameter with name '" + name
-                                       + "'. No parameter with that name is declared in the sql.");
+                                             + "'. No parameter with that name is declared in the sql.");
     }
     parameters.put(name, parameterSetter);
   }
@@ -264,7 +266,7 @@ public class Query implements AutoCloseable {
         }
       }
       catch (IllegalArgumentException ex) {
-        logger.debug("Ignoring Illegal Arguments", ex);
+        log.debug("Ignoring Illegal Arguments", ex);
       }
     }
     return this;
@@ -277,7 +279,7 @@ public class Query implements AutoCloseable {
         JdbcUtils.close(preparedStatement);
       }
       catch (SQLException ex) {
-        logger.warn("Could not close statement.", ex);
+        log.warn("Could not close statement.", ex);
       }
     }
   }
@@ -294,44 +296,52 @@ public class Query implements AutoCloseable {
   private PreparedStatement buildPreparedStatement(boolean allowArrayParameters) {
     // array parameter handling
     final Map<String, List<Integer>> paramNameToIdxMap = this.paramNameToIdxMap;
-    parsedQuery = ArrayParameters.updateQueryAndParametersIndexes(parsedQuery, paramNameToIdxMap, parameters, allowArrayParameters);
+    parsedQuery = ArrayParameters.updateQueryAndParametersIndexes(parsedQuery,
+                                                                  paramNameToIdxMap,
+                                                                  parameters,
+                                                                  allowArrayParameters);
 
     // prepare statement creation
-    if (preparedStatement == null) {
-      try {
-        if (columnNames != null && columnNames.length > 0) {
-          preparedStatement = connection.getJdbcConnection().prepareStatement(parsedQuery, columnNames);
-        }
-        else if (returnGeneratedKeys) {
-          preparedStatement = connection.getJdbcConnection().prepareStatement(parsedQuery, Statement.RETURN_GENERATED_KEYS);
-        }
-        else {
-          preparedStatement = connection.getJdbcConnection().prepareStatement(parsedQuery);
-        }
-      }
-      catch (SQLException ex) {
-        throw new PersistenceException(String.format("Error preparing statement - %s", ex.getMessage()), ex);
-      }
-      connection.registerStatement(preparedStatement);
+    PreparedStatement statement = this.preparedStatement;
+    if (statement == null) {
+      statement = getPreparedStatement(this.connection.getJdbcConnection());
+      this.preparedStatement = statement; // update
+      connection.registerStatement(statement);
     }
-    final PreparedStatement preparedStatement = this.preparedStatement;
 
     // parameters assignation to query
     for (Map.Entry<String, ParameterSetter> parameter : parameters.entrySet()) {
-      for (int paramIdx : paramNameToIdxMap.get(parameter.getKey())) {
-        try {
-          parameter.getValue().setParameter(preparedStatement, paramIdx);
-        }
-        catch (SQLException e) {
-          throw new RuntimeException(String.format("Error adding parameter '%s' - %s",
-                                                   parameter.getKey(), e.getMessage()), e);
+      final ParameterSetter setter = parameter.getValue();
+      try {
+        for (final int paramIdx : paramNameToIdxMap.get(parameter.getKey())) {
+          setter.setParameter(statement, paramIdx);
         }
       }
+      catch (SQLException e) {
+        throw new PersistenceException(
+                String.format("Error adding parameter '%s' - %s",
+                              parameter.getKey(), e.getMessage()), e);
+      }
     }
-    // the parameters need to be cleared, so in case of batch, only new parameters will be added
+    // the parameters need to be cleared, so in case of batch,
+    // only new parameters will be added
     parameters.clear();
+    return statement;
+  }
 
-    return preparedStatement;
+  private PreparedStatement getPreparedStatement(final Connection connection) {
+    try {
+      if (ObjectUtils.isNotEmpty(columnNames)) {
+        return connection.prepareStatement(parsedQuery, columnNames);
+      }
+      if (returnGeneratedKeys) {
+        return connection.prepareStatement(parsedQuery, Statement.RETURN_GENERATED_KEYS);
+      }
+      return connection.prepareStatement(parsedQuery);
+    }
+    catch (SQLException ex) {
+      throw new PersistenceException(String.format("Error preparing statement - %s", ex.getMessage()), ex);
+    }
   }
 
   /**
@@ -359,15 +369,12 @@ public class Query implements AutoCloseable {
     @Override
     public void close() {
       try {
-        if (rs != null) {
-          rs.close();
-          // log the query
-          if (logger.isDebugEnabled()) {
-            long afterClose = System.currentTimeMillis();
-            logger.debug("total: {} ms, execution: {} ms, reading and parsing: {} ms; executed [{}]",
-                         afterClose - start, afterExecQuery - start, afterClose - afterExecQuery, name);
-          }
-          rs = null;
+        JdbcUtils.close(rs);
+        if (log.isDebugEnabled()) {
+          long afterClose = System.currentTimeMillis();
+          log.debug("total: {} ms, execution: {} ms, reading and parsing: {} ms; executed [{}]",
+                    afterClose - start, afterExecQuery - start,
+                    afterClose - afterExecQuery, name);
         }
       }
       catch (SQLException ex) {
@@ -542,10 +549,10 @@ public class Query implements AutoCloseable {
       closeConnectionIfNecessary();
     }
 
-    if (logger.isDebugEnabled()) {
+    if (log.isDebugEnabled()) {
       long end = System.currentTimeMillis();
-      logger.debug("total: {} ms; executed update [{}]",
-                   end - start, this.getName() == null ? "No name" : this.getName());
+      log.debug("total: {} ms; executed update [{}]",
+                end - start, this.getName() == null ? "No name" : this.getName());
     }
     return this.connection;
   }
@@ -559,9 +566,9 @@ public class Query implements AutoCloseable {
 
       if (rs.next()) {
         Object ret = rs.getObject(1);
-        if (logger.isDebugEnabled()) {
-          logger.debug("total: {} ms; executed scalar [{}]",
-                       System.currentTimeMillis() - start, this.getName() == null ? "No name" : getName());
+        if (log.isDebugEnabled()) {
+          log.debug("total: {} ms; executed scalar [{}]",
+                    System.currentTimeMillis() - start, this.getName() == null ? "No name" : getName());
         }
         return ret;
       }
@@ -723,9 +730,9 @@ public class Query implements AutoCloseable {
     finally {
       closeConnectionIfNecessary();
     }
-    if (logger.isDebugEnabled()) {
-      logger.debug("total: {} ms; executed batch [{}]",
-                   System.currentTimeMillis() - start, this.getName() == null ? "No name" : this.getName());
+    if (log.isDebugEnabled()) {
+      log.debug("total: {} ms; executed batch [{}]",
+                System.currentTimeMillis() - start, this.getName() == null ? "No name" : this.getName());
     }
     return this.connection;
   }
@@ -775,8 +782,8 @@ public class Query implements AutoCloseable {
   }
 
   private void logExecution() {
-    if (logger.isDebugEnabled()) {
-      logger.debug("Executing query:{}{}", System.lineSeparator(), this.parsedQuery);
+    if (log.isDebugEnabled()) {
+      log.debug("Executing query:{}{}", System.lineSeparator(), this.parsedQuery);
     }
   }
 
