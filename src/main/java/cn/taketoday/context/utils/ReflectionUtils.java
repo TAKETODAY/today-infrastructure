@@ -855,8 +855,9 @@ public abstract class ReflectionUtils {
         DECLARED_FIELDS_CACHE.put(clazz, (result.length == 0 ? EMPTY_FIELD_ARRAY : result));
       }
       catch (Throwable ex) {
-        throw new IllegalStateException("Failed to introspect Class [" + clazz.getName() +
-                                                "] from ClassLoader [" + clazz.getClassLoader() + "]", ex);
+        throw new IllegalStateException(
+                "Failed to introspect Class [" + clazz.getName() +
+                        "] from ClassLoader [" + clazz.getClassLoader() + "]", ex);
       }
     }
     return result;
@@ -874,14 +875,31 @@ public abstract class ReflectionUtils {
     Assert.notNull(src, "Source for field copy cannot be null");
     Assert.notNull(dest, "Destination for field copy cannot be null");
     if (!src.getClass().isAssignableFrom(dest.getClass())) {
-      throw new IllegalArgumentException("Destination class [" + dest.getClass().getName() +
-                                                 "] must be same or subclass as source class [" + src.getClass().getName() + "]");
+      throw new IllegalArgumentException(
+              "Destination class [" + dest.getClass().getName() +
+                      "] must be same or subclass as source class [" + src.getClass().getName() + "]");
     }
-    doWithFields(src.getClass(), field -> {
-      makeAccessible(field);
-      Object srcValue = field.get(src);
-      field.set(dest, srcValue);
-    }, COPYABLE_FIELDS);
+
+    final class FieldCallback0 implements FieldCallback {
+
+      @Override
+      public void doWith(final Field field) {
+        copyField(field, src, dest);
+      }
+    }
+
+    doWithFields(src.getClass(), new FieldCallback0(), COPYABLE_FIELDS);
+  }
+
+  /**
+   * Copy a given field from the source object to the destination
+   *
+   * @param field
+   *         target field property
+   */
+  public static void copyField(final Field field, final Object src, final Object dest) {
+    makeAccessible(field);
+    setField(field, dest, getField(field, src));
   }
 
   /**

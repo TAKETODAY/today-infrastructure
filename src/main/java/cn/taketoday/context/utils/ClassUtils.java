@@ -1204,6 +1204,7 @@ public abstract class ClassUtils {
    * @return all {@link Field}
    *
    * @since 2.1.5
+   * @deprecated use {@link ReflectionUtils#getFields(Object)}
    */
   @Deprecated
   public static Collection<Field> getFields(Object target) {
@@ -1219,6 +1220,7 @@ public abstract class ClassUtils {
    * @return get all the {@link Field}
    *
    * @since 2.1.2
+   * @deprecated use {@link ReflectionUtils#getFields(Class)}
    */
   @Deprecated
   public static Collection<Field> getFields(Class<?> targetClass) {
@@ -1234,6 +1236,7 @@ public abstract class ClassUtils {
    * @return get all the {@link Field} array
    *
    * @since 2.1.2
+   * @deprecated use {@link ReflectionUtils#getFieldArray(Class)}
    */
   @Deprecated
   public static Field[] getFieldArray(Class<?> targetClass) {
