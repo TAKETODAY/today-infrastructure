@@ -35,7 +35,8 @@ import cn.taketoday.context.utils.ContextUtils;
  * @author TODAY <br>
  * 2018-08-04 16:01
  */
-public class PropsPropertyResolver extends OrderedApplicationContextSupport implements PropertyValueResolver {
+public class PropsPropertyResolver
+        extends OrderedApplicationContextSupport implements PropertyValueResolver {
 
   public PropsPropertyResolver(ApplicationContext context) {
     this(context, Ordered.HIGHEST_PRECEDENCE - 2);
@@ -59,7 +60,7 @@ public class PropsPropertyResolver extends OrderedApplicationContextSupport impl
 
     Props props = ClassUtils.getAnnotation(Props.class, field);
 
-    Properties properties = //
+    Properties properties =
             ContextUtils.loadProps(props, obtainApplicationContext().getEnvironment().getProperties());
 
     // feat: Enhance `Props`

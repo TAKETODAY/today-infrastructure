@@ -20,6 +20,8 @@
 package cn.taketoday.context.annotation;
 
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
+import java.util.Objects;
 
 import cn.taketoday.context.Constant;
 
@@ -89,4 +91,23 @@ public class DefaultProps implements Props, Annotation {
     return this;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Props)) return false;
+    final Props that = (Props) o;
+    return replace == that.replace()
+            && Arrays.equals(value, that.value())
+            && Arrays.equals(prefix, that.prefix())
+            && Arrays.equals(nested, that.nested());
+  }
+
+  @Override
+  public int hashCode() {
+    int result = Objects.hash(replace);
+    result = 31 * result + Arrays.hashCode(value);
+    result = 31 * result + Arrays.hashCode(prefix);
+    result = 31 * result + Arrays.hashCode(nested);
+    return result;
+  }
 }

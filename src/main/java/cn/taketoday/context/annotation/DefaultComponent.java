@@ -28,7 +28,7 @@ import cn.taketoday.context.Scope;
 
 /**
  * @author TODAY <br>
- *         2018-08-22 17:29
+ * 2018-08-22 17:29
  */
 @SuppressWarnings("all")
 public final class DefaultComponent implements Component {
@@ -69,27 +69,14 @@ public final class DefaultComponent implements Component {
   }
 
   @Override
-  public boolean equals(Object obj) {
-
-    if (obj != this) {
-      if (!(obj instanceof Component)) {
-        return false;
-      }
-      Component component = (Component) obj;
-      if (component.value().length != value.length) {
-        return false;
-      }
-      if (!component.scope().equals(scope)) {
-        return false;
-      }
-
-      for (int i = 0; i < value.length; i++) {
-        if (!component.value()[i].equals(value[i])) {
-          return false;
-        }
-      }
-    }
-    return true;
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Component)) return false;
+    final Component that = (Component) o;
+    return Objects.equals(scope, that.scope())
+            && Arrays.equals(value, that.value())
+            && Arrays.equals(initMethods, that.initMethods())
+            && Arrays.equals(destroyMethods, that.destroyMethods());
   }
 
   @Override

@@ -321,7 +321,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
    * Convert the given URL as returned from the ClassLoader into a
    * {@link Resource}.
    * <p>
-   * The default implementation simply creates a {@link UrlResource} instance.
+   * The default implementation simply creates a {@link UrlBasedResource} instance.
    *
    * @param url
    *         a URL as returned from the ClassLoader
@@ -546,8 +546,6 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
    *
    * @param rootDirResource
    *         the root directory as Resource
-   * @param rootDirURL
-   *         the pre-resolved root directory URL
    * @param subPattern
    *         the sub pattern to match (below the root directory)
    *

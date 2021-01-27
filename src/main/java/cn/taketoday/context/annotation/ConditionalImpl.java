@@ -20,17 +20,19 @@
 package cn.taketoday.context.annotation;
 
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
 
 import cn.taketoday.context.Condition;
+import cn.taketoday.context.Constant;
 
 /**
  * @author TODAY <br>
- *         2018-11-14 22:32
+ * 2018-11-14 22:32
  */
 @SuppressWarnings("all")
 public class ConditionalImpl implements Conditional {
 
-  private Class<? extends Condition>[] value = null;
+  private Class<? extends Condition>[] value;
 
   @Override
   public Class<? extends Annotation> annotationType() {
@@ -39,7 +41,19 @@ public class ConditionalImpl implements Conditional {
 
   @Override
   public Class<? extends Condition>[] value() {
-    return value == null ? new Class[0] : value;
+    return value == null ? (Class<? extends Condition>[]) Constant.EMPTY_CLASS_ARRAY : value;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Conditional)) return false;
+    final Conditional that = (Conditional) o;
+    return Arrays.equals(value, that.value());
+  }
+
+  @Override
+  public int hashCode() {
+    return Arrays.hashCode(value);
+  }
 }

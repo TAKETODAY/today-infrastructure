@@ -345,8 +345,9 @@ public abstract class AbstractBeanFactory
         method.invoke(bean, resolveParameter(makeAccessible(method), this));
       }
       catch (Exception e) {
-        throw new BeanInitializingException("An Exception Occurred When [" +
-                                                    bean + "] invoke init method: [" + method + "], With Msg: [" + e + "]", e);
+        throw new BeanInitializingException(
+                "An Exception Occurred When [" + bean
+                        + "] invoke init method: [" + method + "], With Msg: [" + e + "]", e);
       }
     }
 
@@ -355,8 +356,9 @@ public abstract class AbstractBeanFactory
         ((InitializingBean) bean).afterPropertiesSet();
       }
       catch (Exception e) {
-        throw new BeanInitializingException("An Exception Occurred When [" +
-                                                    bean + "] apply after properties, With Msg: [" + e + "]", e);
+        throw new BeanInitializingException(
+                "An Exception Occurred When [" + bean
+                        + "] apply after properties, With Msg: [" + e + "]", e);
       }
     }
   }
@@ -468,8 +470,7 @@ public abstract class AbstractBeanFactory
    * @throws BeanInstantiationException
    *         When instantiation of a bean failed
    */
-  protected Object getImplementation(
-          final String childName, final BeanDefinition currentDef) {
+  protected Object getImplementation(final String childName, final BeanDefinition currentDef) {
     return getImplementation(getBeanDefinition(childName), currentDef);
   }
 
@@ -590,8 +591,9 @@ public abstract class AbstractBeanFactory
         ret = processor.postProcessBeforeInitialization(ret, def);
       }
       catch (Exception e) {
-        throw new BeanInitializingException("An Exception Occurred When [" +
-                                                    bean + "] before properties set, With Msg: [" + e + "]", e);
+        throw new BeanInitializingException(
+                "An Exception Occurred When [" +
+                        bean + "] before properties set, With Msg: [" + e + "]", e);
       }
     }
     // apply properties
@@ -604,8 +606,9 @@ public abstract class AbstractBeanFactory
         ret = processor.postProcessAfterInitialization(ret, def);
       }
       catch (Exception e) {
-        throw new BeanInitializingException("An Exception Occurred When [" +
-                                                    bean + "] after properties set, With Msg: [" + e + "]", e);
+        throw new BeanInitializingException(
+                "An Exception Occurred When [" +
+                        bean + "] after properties set, With Msg: [" + e + "]", e);
       }
     }
     return ret;
@@ -855,7 +858,6 @@ public abstract class AbstractBeanFactory
    */
   protected BeanDefinition handleDependency(final BeanReference ref) {
     // from objectFactories
-
     final Map<Class<?>, Object> objectFactories = getObjectFactories();
     if (!CollectionUtils.isEmpty(objectFactories)) {
       final Object objectFactory = objectFactories.get(ref.getReferenceClass());
@@ -1149,7 +1151,6 @@ public abstract class AbstractBeanFactory
 
   @Override
   public void destroyBean(String name) {
-
     BeanDefinition beanDefinition = getBeanDefinition(name);
 
     if (beanDefinition == null && name.charAt(0) == FACTORY_BEAN_PREFIX_CHAR) {
@@ -1170,8 +1171,8 @@ public abstract class AbstractBeanFactory
       throw new NoSuchBeanDefinitionException(beanName);
     }
     if (def.isSingleton() || def.isPrototype()) {
-      throw new IllegalArgumentException("Bean name '"
-                                                 + beanName + "' does not correspond to an object in a mutable scope");
+      throw new IllegalArgumentException(
+              "Bean name '" + beanName + "' does not correspond to an object in a mutable scope");
     }
     final Scope scope = scopes.get(def.getScope());
     if (scope == null) {
@@ -1206,10 +1207,9 @@ public abstract class AbstractBeanFactory
 
   @Override
   public BeanDefinition getBeanDefinition(Class<?> beanClass) {
-
-    final BeanDefinition beanDefinition = getBeanDefinition(getBeanNameCreator().create(beanClass));
-    if (beanDefinition != null && beanClass.isAssignableFrom(beanDefinition.getBeanClass())) {
-      return beanDefinition;
+    final BeanDefinition def = getBeanDefinition(getBeanNameCreator().create(beanClass));
+    if (def != null && beanClass.isAssignableFrom(def.getBeanClass())) {
+      return def;
     }
     for (final BeanDefinition definition : getBeanDefinitions().values()) {
       if (beanClass.isAssignableFrom(definition.getBeanClass())) {
@@ -1267,10 +1267,8 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public void initializeSingletons() throws Throwable {
-
+  public void initializeSingletons() {
     log.debug("Initialization of singleton objects.");
-
     for (final BeanDefinition def : getBeanDefinitions().values()) {
       if (def.isSingleton() && !def.isInitialized()) {
         initializeSingleton(def);
@@ -1441,8 +1439,9 @@ public abstract class AbstractBeanFactory
         ret = processor.postProcessBeforeInitialization(ret, prototypeDef);
       }
       catch (Exception e) {
-        throw new BeanInitializingException("An Exception Occurred When [" +
-                                                    existingBean + "] before properties set, With Msg: [" + e + "]", e);
+        throw new BeanInitializingException(
+                "An Exception Occurred When [" +
+                        existingBean + "] before properties set, With Msg: [" + e + "]", e);
       }
     }
     return ret;
@@ -1460,8 +1459,9 @@ public abstract class AbstractBeanFactory
         ret = processor.postProcessAfterInitialization(ret, prototypeDef);
       }
       catch (Exception e) {
-        throw new BeanInitializingException("An Exception Occurred When [" +
-                                                    existingBean + "] after properties set, With Msg: [" + e + "]", e);
+        throw new BeanInitializingException(
+                "An Exception Occurred When [" +
+                        existingBean + "] after properties set, With Msg: [" + e + "]", e);
       }
     }
     return ret;

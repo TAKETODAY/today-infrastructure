@@ -130,7 +130,8 @@ public abstract class AbstractFactoryBean<T>
   private T getEarlySingletonInstance() {
     Class<?>[] ifcs = getEarlySingletonInterfaces();
     if (ifcs == null) {
-      throw new BeanInstantiationException(getClass(), getClass().getName() + " does not support circular references");
+      throw new BeanInstantiationException(
+              getClass(), getClass().getName() + " does not support circular references");
     }
     if (this.earlySingletonInstance == null) {
       this.earlySingletonInstance = (T) Proxy.newProxyInstance(this.beanClassLoader, ifcs, new EarlySingletonInvocationHandler());

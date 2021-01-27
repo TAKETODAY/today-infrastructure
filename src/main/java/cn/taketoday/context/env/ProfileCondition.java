@@ -39,7 +39,6 @@ public class ProfileCondition implements Condition {
 
   @Override
   public boolean matches(final ApplicationContext context, final AnnotatedElement annotated) {
-
     final Environment environment = context.getEnvironment();
 
     for (final AnnotationAttributes attributes : getAnnotationAttributesArray(annotated, Profile.class)) {

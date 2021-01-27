@@ -520,7 +520,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
     catch (Throwable ex) {
       ex = ExceptionUtils.unwrapThrowable(ex);
-      throw new ContextException("An Exception Occurred When Refresh Context: [" + this + "] With Msg: [" + ex + "]", ex);
+      throw new ContextException(
+              "An Exception Occurred When Refresh Context: [" + this + "] With Msg: [" + ex + "]", ex);
     }
   }
 

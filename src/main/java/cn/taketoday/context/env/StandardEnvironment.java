@@ -49,13 +49,10 @@ import cn.taketoday.expression.ExpressionProcessor;
  * 2018-11-14 21:23
  */
 public class StandardEnvironment implements ConfigurableEnvironment {
-
   private static final Logger log = LoggerFactory.getLogger(StandardEnvironment.class);
 
   private final HashSet<String> activeProfiles = new HashSet<>(4);
-
   private final Properties properties = new ConcurrentProperties();
-
   private BeanNameCreator beanNameCreator;
 
   /** resolve beanDefinition which It is marked annotation */
@@ -233,7 +230,6 @@ public class StandardEnvironment implements ConfigurableEnvironment {
    *         if the resource is not available
    */
   public static void doLoad(Properties properties, final Resource resource) throws IOException {
-
     if (log.isInfoEnabled()) {
       log.info("Found Properties Resource: [{}]", resource.getLocation());
     }

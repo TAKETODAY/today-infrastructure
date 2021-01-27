@@ -142,7 +142,6 @@ public class StandardBeanFactory
    * Resolve bean from a class which annotated with @{@link Configuration}
    */
   public void loadConfigurationBeans() {
-
     log.debug("Loading Configuration Beans");
 
     for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
@@ -229,7 +228,6 @@ public class StandardBeanFactory
    *         Class set
    */
   public void loadMissingBean(final Collection<Class<?>> beanClasses) {
-
     log.debug("Loading lost beans");
 
     final ConfigurableApplicationContext context = getApplicationContext();
@@ -277,7 +275,6 @@ public class StandardBeanFactory
    *         Target {@link BeanDefinition}
    */
   protected void registerMissingBean(final MissingBean missingBean, final BeanDefinition beanDefinition) {
-
     final Class<?> beanClass = beanDefinition.getBeanClass();
 
     beanDefinition.setScope(missingBean.scope())
@@ -315,12 +312,10 @@ public class StandardBeanFactory
    * @since 2.1.6
    */
   public Set<Class<?>> loadMetaInfoBeans() {
-
     log.debug("Loading META-INF/beans");
 
     // Load the META-INF/beans @since 2.1.6
     // ---------------------------------------------------
-
     final Set<Class<?>> beans = ContextUtils.loadFromMetaInfo("META-INF/beans");
     final BeanNameCreator beanNameCreator = getBeanNameCreator();
     for (final Class<?> beanClass : beans) {
@@ -425,7 +420,6 @@ public class StandardBeanFactory
 
   @Override
   public void loadBeanDefinition(final Class<?> candidate) {
-
     // don't load abstract class
     if (!Modifier.isAbstract(candidate.getModifiers()) && conditional(candidate, applicationContext)) {
       register(candidate);
@@ -441,7 +435,6 @@ public class StandardBeanFactory
 
   @Override
   public void loadBeanDefinition(final String name, final Class<?> beanClass) {
-
     final AnnotationAttributes[] annotationAttributes = getAnnotationAttributesArray(beanClass, Component.class);
 
     if (ObjectUtils.isEmpty(annotationAttributes)) {
@@ -485,7 +478,6 @@ public class StandardBeanFactory
    */
   @Override
   public void register(final String name, final BeanDefinition def) {
-
     ContextUtils.validateBeanDefinition(def);
 
     String nameToUse = name;
@@ -520,8 +512,9 @@ public class StandardBeanFactory
     }
     catch (Throwable ex) {
       ex = ExceptionUtils.unwrapThrowable(ex);
-      throw new BeanDefinitionStoreException("An Exception Occurred When Register Bean Definition: [" + //
-                                                     name + "], With Msg: [" + ex + "]", ex);
+      throw new BeanDefinitionStoreException(
+              "An Exception Occurred When Register Bean Definition: ["
+                      + name + "], With Msg: [" + ex + "]", ex);
     }
   }
 

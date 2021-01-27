@@ -51,7 +51,8 @@ import cn.taketoday.context.utils.ClassUtils;
  * @see ConfigurableBeanFactory#registerScope
  * @since 2.1.7
  */
-public class CustomScopeConfigurer extends OrderedSupport implements BeanFactoryPostProcessor, BeanClassLoaderAware, Ordered {
+public class CustomScopeConfigurer
+        extends OrderedSupport implements BeanFactoryPostProcessor, BeanClassLoaderAware, Ordered {
 
   private Map<String, Object> scopes;
 
@@ -106,9 +107,10 @@ public class CustomScopeConfigurer extends OrderedSupport implements BeanFactory
           beanFactory.registerScope(name, ClassUtils.newInstance(scopeClass));
         }
         else {
-          throw new IllegalArgumentException("Mapped value [" + scope + "] for scope key [" +
-                                                     name + "] is not an instance of required type [" + Scope.class.getName() +
-                                                     "] or a corresponding Class or String value indicating a Scope implementation");
+          throw new IllegalArgumentException(
+                  "Mapped value [" + scope + "] for scope key [" + name
+                          + "] is not an instance of required type [" + Scope.class.getName()
+                          + "] or a corresponding Class or String value indicating a Scope implementation");
         }
       });
     }
