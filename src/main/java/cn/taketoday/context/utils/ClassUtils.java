@@ -38,9 +38,12 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -98,6 +101,9 @@ public abstract class ClassUtils {
   static final ConcurrentCache<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = ConcurrentCache.create(64);
   static final WeakHashMap<AnnotationKey<?>, AnnotationAttributes[]> ANNOTATION_ATTRIBUTES = new WeakHashMap<>(128);
 
+  /** @since 3.0 */
+  static HashSet<Class<?>> primitiveTypes;
+
   static {
 
     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -111,17 +117,33 @@ public abstract class ClassUtils {
 
     // Map primitive types
     // -------------------------------------------
-    final HashSet<Class<?>> primitiveTypes = new HashSet<>(32);
-    Collections.addAll(primitiveTypes, //
-                       boolean.class, byte.class, char.class, int.class, //
-                       long.class, double.class, float.class, short.class, //
-                       boolean[].class, byte[].class, char[].class, double[].class, //
-                       float[].class, int[].class, long[].class, short[].class//
+    final HashSet<Class<?>> primitiveTypes = new HashSet<>();
+    Collections.addAll(primitiveTypes,
+                       boolean.class, byte.class, char.class, int.class,
+                       long.class, double.class, float.class, short.class,
+                       boolean[].class, byte[].class, char[].class, double[].class,
+                       float[].class, int[].class, long[].class, short[].class
     );
     primitiveTypes.add(void.class);
     for (Class<?> primitiveType : primitiveTypes) {
       PRIMITIVE_CACHE.put(primitiveType.getName(), primitiveType);
     }
+
+    primitiveTypes.add(String.class);
+    primitiveTypes.add(Byte.class);
+    primitiveTypes.add(Short.class);
+    primitiveTypes.add(Character.class);
+    primitiveTypes.add(Integer.class);
+    primitiveTypes.add(Long.class);
+    primitiveTypes.add(Float.class);
+    primitiveTypes.add(Double.class);
+    primitiveTypes.add(Boolean.class);
+    primitiveTypes.add(Date.class);
+    primitiveTypes.add(Class.class);
+    primitiveTypes.add(BigInteger.class);
+    primitiveTypes.add(BigDecimal.class);
+
+    ClassUtils.primitiveTypes = primitiveTypes;
 
     // Add ignore annotation
     addIgnoreAnnotationClass(Target.class);
@@ -1480,6 +1502,17 @@ public abstract class ClassUtils {
   public static String getQualifiedMethodName(Method method, Class<?> clazz) {
     notNull(method, "Method must not be null");
     return (clazz != null ? clazz : method.getDeclaringClass()).getName() + '.' + method.getName();
+  }
+
+  //
+  /*
+   * Tells us if the class passed in is a known common type
+   *
+   * @param clazz The class to check
+   * @return True if the class is known
+   */
+  public static boolean isSimpleType(Class<?> clazz) {
+    return primitiveTypes.contains(clazz);
   }
 
 }
