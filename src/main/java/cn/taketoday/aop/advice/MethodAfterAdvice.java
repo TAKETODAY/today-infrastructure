@@ -24,18 +24,17 @@ import org.aopalliance.intercept.MethodInvocation;
 import java.lang.reflect.Method;
 
 import cn.taketoday.aop.AfterAdvice;
-import cn.taketoday.context.annotation.Order;
 
 /**
  * @author TODAY <br>
  *
  * 2018-10-13 11:03
  */
-@Order(3)
 public class MethodAfterAdvice extends AbstractAdvice implements AfterAdvice {
 
   public MethodAfterAdvice(Method method, Object aspect) {
     super(method, aspect);
+    setOrder(3);
   }
 
   @Override

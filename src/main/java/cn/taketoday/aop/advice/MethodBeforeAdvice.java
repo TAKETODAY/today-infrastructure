@@ -24,17 +24,16 @@ import org.aopalliance.intercept.MethodInvocation;
 import java.lang.reflect.Method;
 
 import cn.taketoday.aop.BeforeAdvice;
-import cn.taketoday.context.annotation.Order;
 
 /**
  * @author TODAY <br>
  * 2018-10-13 11:27
  */
-@Order(2)
 public class MethodBeforeAdvice extends AbstractAdvice implements BeforeAdvice {
 
   public MethodBeforeAdvice(Method method, Object aspect) {
     super(method, aspect);
+    setOrder(2);
   }
 
   @Override

@@ -53,7 +53,7 @@ public class DefaultProxyFactory implements ProxyFactory {
 
   private static final Logger log = LoggerFactory.getLogger(DefaultProxyFactory.class);
 
-//  private static final CglibProxyCreator CGLIB_PROXY_CREATOR = new CglibProxyCreator();
+  //  private static final CglibProxyCreator CGLIB_PROXY_CREATOR = new CglibProxyCreator();
   private static final StandardProxyCreator CGLIB_PROXY_CREATOR = new StandardProxyCreator();
 
   private final TargetSource targetSource;
@@ -122,9 +122,8 @@ public class DefaultProxyFactory implements ProxyFactory {
     }
     catch (Throwable ex) {
       ex = ExceptionUtils.unwrapThrowable(ex);
-      throw new ConfigurationException("An Exception Occurred When Creating A Target Proxy Instance With Msg: ["
-                                               + ex + ']', ex//
-      );
+      throw new ConfigurationException(
+              "An Exception Occurred When Creating A Target Proxy Instance With Msg: [" + ex + ']', ex);
     }
   }
 
@@ -152,10 +151,6 @@ public class DefaultProxyFactory implements ProxyFactory {
    *         target class
    * @param advices
    *         advice instances
-   *
-   * @return
-   *
-   * @throws Throwable
    */
   protected boolean matchMethod(final Object aspect, final Method aspectMethod, //
                                 final Class<?> targetClass, final Advice[] advices) throws Throwable //
@@ -170,8 +165,9 @@ public class DefaultProxyFactory implements ProxyFactory {
       MethodInterceptor methodInterceptor;
       if (aspectMethod == null) { // method interceptor
         if (!(aspect instanceof MethodInterceptor)) {
-          throw new ConfigurationException('[' + aspect.getClass().getName() +
-                                                   "] must be implement: [" + MethodInterceptor.class.getName() + ']');
+          throw new ConfigurationException(
+                  '[' + aspect.getClass().getName() +
+                          "] must be implement: [" + MethodInterceptor.class.getName() + ']');
         }
         methodInterceptor = (MethodInterceptor) aspect;
       }
@@ -314,8 +310,9 @@ public class DefaultProxyFactory implements ProxyFactory {
                                                  final ApplicationContext beanFactory) throws Throwable //
   {
     if (interceptor == AbstractAdvice.class || !MethodInterceptor.class.isAssignableFrom(interceptor)) {
-      throw new ConfigurationException("You must be implement: [" + AbstractAdvice.class.getName() + //
-                                               "] or [" + MethodInterceptor.class.getName() + "]");
+      throw new ConfigurationException(
+              "You must be implement: [" + AbstractAdvice.class.getName() +
+                      "] or [" + MethodInterceptor.class.getName() + "]");
     }
 
     if (AbstractAdvice.class.isAssignableFrom(interceptor)) {

@@ -23,17 +23,15 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.context.annotation.Order;
-
 /**
  * @author TODAY <br>
  * 2018-11-10 13:14
  */
-@Order(1)
 public class AroundMethodAdvice extends AbstractAdvice {
 
   public AroundMethodAdvice(Method method, Object aspect) {
     super(method, aspect);
+    setOrder(1);
   }
 
   @Override

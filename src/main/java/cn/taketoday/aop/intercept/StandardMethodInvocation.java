@@ -110,7 +110,7 @@ public class StandardMethodInvocation
     private final MethodInvoker invoker;
     private final MethodInterceptor[] advices;
 
-    public Target(Object bean, //@off
+    public Target(Object bean,
                   Method method,
                   MethodInterceptor[] advices) {
       this.bean = bean;
@@ -118,7 +118,7 @@ public class StandardMethodInvocation
       this.advices = advices;
       this.adviceLength = advices.length;
       this.invoker = MethodInvoker.create(method);
-    } //@on
+    }
 
     @Override
     public Method getMethod() {

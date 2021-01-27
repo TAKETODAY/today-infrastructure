@@ -40,6 +40,7 @@ import cn.taketoday.aop.annotation.Throwing;
 import cn.taketoday.aop.intercept.StandardMethodInvocation;
 import cn.taketoday.context.AttributeAccessor;
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.reflect.MethodInvoker;
 import cn.taketoday.context.utils.Assert;
@@ -49,7 +50,8 @@ import cn.taketoday.context.utils.ExceptionUtils;
  * @author TODAY <br>
  * 2018-11-10 11:26
  */
-public abstract class AbstractAdvice implements Advice, MethodInterceptor {
+public abstract class AbstractAdvice
+        extends OrderedSupport implements Advice, MethodInterceptor {
 
   private final Object aspect;
   //private final Method adviceMethod;

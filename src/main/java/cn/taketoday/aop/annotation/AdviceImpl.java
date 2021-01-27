@@ -23,6 +23,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.Objects;
 
 import cn.taketoday.aop.advice.AbstractAdvice;
 import cn.taketoday.aop.advice.ClassMatcher;
@@ -96,4 +97,27 @@ public class AdviceImpl implements Advice {
     return methodMatcher;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof AdviceImpl)) return false;
+    final AdviceImpl advice = (AdviceImpl) o;
+    return Arrays.equals(pointcut, advice.pointcut)
+            && Arrays.equals(value, advice.value)
+            && Arrays.equals(method, advice.method)
+            && Arrays.equals(target, advice.target)
+            && Objects.equals(interceptor, advice.interceptor)
+            && Objects.equals(classMatcher, advice.classMatcher)
+            && Objects.equals(methodMatcher, advice.methodMatcher);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = Objects.hash(classMatcher, methodMatcher, interceptor);
+    result = 31 * result + Arrays.hashCode(pointcut);
+    result = 31 * result + Arrays.hashCode(target);
+    result = 31 * result + Arrays.hashCode(method);
+    result = 31 * result + Arrays.hashCode(value);
+    return result;
+  }
 }

@@ -39,7 +39,6 @@ public class AspectsDestroyListener
 
   @Override
   public void onApplicationEvent(ContextCloseEvent event) {
-
     LoggerFactory.getLogger(getClass()).info("Destroying Aspects Objects");
 
     final AspectsRegistry aspectsRegistry = AspectsRegistry.getInstance();

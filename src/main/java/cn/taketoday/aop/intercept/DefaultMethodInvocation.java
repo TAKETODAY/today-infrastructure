@@ -48,18 +48,18 @@ public class DefaultMethodInvocation implements MethodInvocation {
 
   private final int adviceLength;
 
-  public DefaultMethodInvocation(Object target, //@off
-                                   Method method, 
-                                   MethodProxy proxy, 
-                                   Object[] arguments, 
-                                   MethodInterceptor[] advices) {
-        this.proxy = proxy;
-        this.target = target;
-        this.method = method;
-        this.args = arguments;
-        this.advices = advices;
-        this.adviceLength = advices.length;
-    } //@on
+  public DefaultMethodInvocation(Object target,
+                                 Method method,
+                                 MethodProxy proxy,
+                                 Object[] arguments,
+                                 MethodInterceptor[] advices) {
+    this.proxy = proxy;
+    this.target = target;
+    this.method = method;
+    this.args = arguments;
+    this.advices = advices;
+    this.adviceLength = advices.length;
+  }
 
   @Override
   public Method getMethod() {
@@ -73,7 +73,6 @@ public class DefaultMethodInvocation implements MethodInvocation {
 
   @Override
   public Object proceed() throws Throwable {
-
     if (currentAdviceIndex == adviceLength) {
       try {
         return proxy.invoke(target, args);
