@@ -41,8 +41,9 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
     }
     else if (this.applicationContext != context) {
       // Ignore reinitialization if same context passed in.
-      throw new ContextException("Cannot reinitialize with different application context: current one is [" +
-                                         this.applicationContext + "], passed-in one is [" + context + "]");
+      throw new ContextException(
+              "Cannot reinitialize with different application context: current one is [" +
+                      this.applicationContext + "], passed-in one is [" + context + "]");
     }
   }
 
