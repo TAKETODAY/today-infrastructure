@@ -484,8 +484,7 @@ public abstract class ClassUtils {
       final Field field = ReflectionUtils.findField(implClass, name);
       if (field == null) {
         throw new ContextException(
-                "You Must Specify A Field: ["
-                        + name + "] In Class: [" + implClass.getName() + "]");
+                "You Must Specify A Field: [" + name + "] In Class: [" + implClass.getName() + "]");
       }
       ReflectionUtils.setField(ReflectionUtils.makeAccessible(field), instance, source.get(name));
     }

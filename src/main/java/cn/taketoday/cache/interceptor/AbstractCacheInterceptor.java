@@ -119,8 +119,7 @@ public abstract class AbstractCacheInterceptor
    * @throws NoSuchCacheException
    *         If there isn't a {@link Cache}
    */
-  protected final Cache obtainCache(final Method method,
-                                    final CacheConfig cacheConfig) throws NoSuchCacheException {
+  protected final Cache obtainCache(final Method method, final CacheConfig cacheConfig) {
     final String name = prepareCacheName(method, cacheConfig.cacheName());
     final Cache cache = getCache(name, cacheConfig);
     if (cache == null) {
