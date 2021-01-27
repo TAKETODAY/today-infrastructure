@@ -46,7 +46,7 @@ import cn.taketoday.context.Constant;
 public abstract class StringUtils {
 
   private static final int caseDiff = ('a' - 'A');
-  private static BitSet dontNeedEncoding;
+  private static final BitSet dontNeedEncoding;
   private static final Random random = new Random();
 
   static {
@@ -281,7 +281,7 @@ public abstract class StringUtils {
         }
         i++;
       }
-      while (i < length && !dontNeedEncoding.get((c = (int) s.charAt(i))));
+      while (i < length && !dontNeedEncoding.get((c = s.charAt(i))));
 
       charArrayWriter.flush();
       byte[] ba = new String(charArrayWriter.toCharArray()).getBytes(charset);
