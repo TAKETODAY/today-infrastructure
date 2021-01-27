@@ -483,8 +483,9 @@ public abstract class ClassUtils {
       final String name = method.getName();
       final Field field = ReflectionUtils.findField(implClass, name);
       if (field == null) {
-        throw new ContextException("You Must Specify A Field: ["
-                                           + name + "] In Class: [" + implClass.getName() + "]");
+        throw new ContextException(
+                "You Must Specify A Field: ["
+                        + name + "] In Class: [" + implClass.getName() + "]");
       }
       ReflectionUtils.setField(ReflectionUtils.makeAccessible(field), instance, source.get(name));
     }
@@ -1340,8 +1341,9 @@ public abstract class ClassUtils {
 
           final Method method = findMethod(declaringClass, methodNode.name, argTypes);
           if (method == null) {
-            throw new NoSuchMethodException("No such method named: '" + methodNode.name + "' argTypes: '"
-                                                    + Arrays.toString(argTypes) + "' in: " + declaringClass);
+            throw new NoSuchMethodException(
+                    "No such method named: '" + methodNode.name + "' argTypes: '"
+                            + Arrays.toString(argTypes) + "' in: " + declaringClass);
           }
 
           final int parameterCount = method.getParameterCount();
