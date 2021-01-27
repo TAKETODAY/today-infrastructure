@@ -225,26 +225,6 @@ public abstract class ConvertUtils {
 
   /**
    * @author TODAY <br>
-   * 2019-06-06 15:51
-   * @since 2.1.6
-   */
-  @Deprecated
-  @Order(Ordered.HIGHEST_PRECEDENCE)
-  static class StringNumberConverter extends StringTypeConverter {
-
-    @Override
-    public boolean supports(Class<?> targetClass) {
-      return NumberUtils.isNumber(targetClass);
-    }
-
-    @Override
-    protected Object convertInternal(Class<?> targetClass, String source) {
-      return NumberUtils.parseDigit(source, targetClass);
-    }
-  }
-
-  /**
-   * @author TODAY <br>
    * 2019-06-06 15:50
    * @since 2.1.6
    */
