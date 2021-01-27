@@ -116,9 +116,9 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
   @Override
   public Map<K, V> toSingleValueMap() {
     final HashMap<K, V> singleValueMap = new HashMap<>(map.size());
-    for (Entry<K, List<V>> entry : map.entrySet()) {
+    for (final Entry<K, List<V>> entry : map.entrySet()) {
       final List<V> values = entry.getValue();
-      if (values != null && !values.isEmpty()) {
+      if(!CollectionUtils.isEmpty(values)) {
         singleValueMap.put(entry.getKey(), values.get(0));
       }
     }
