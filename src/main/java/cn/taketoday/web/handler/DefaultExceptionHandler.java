@@ -36,7 +36,6 @@ import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.config.WebApplicationInitializer;
-import cn.taketoday.web.exception.ExceptionUnhandledException;
 import cn.taketoday.web.utils.WebUtils;
 
 /**
@@ -57,25 +56,41 @@ public class DefaultExceptionHandler
   private boolean inheritable;
 
   @Override
-  public Object handleException(RequestContext context, Throwable ex, Object handler) throws Throwable {
+  public Object handleException(RequestContext context, Throwable target, Object handler) throws Throwable {
+    // prepare context throwable
+    context.attribute(Constant.KEY_THROWABLE, target);
     // catch all handlers
-    final ThrowableHandlerMethod exceptionHandler = lookupExceptionHandler(ex);
-    if (exceptionHandler == null) {
-      return super.handleException(context, ex, handler);
+    final ThrowableHandlerMethod exHandler = lookupExceptionHandler(target);
+    if (exHandler == null) {
+      return super.handleException(context, target, handler);
     }
-    context.attribute(Constant.KEY_THROWABLE, ex);
+
+    logCatchThrowable(target);
     try {
-      exceptionHandler.handleResult(context,
-                                    exceptionHandler,
-                                    exceptionHandler.invokeHandler(context));
+      return handleException(context, exHandler);
     }
-    catch (final Throwable target) {
-      if (!(target instanceof ExceptionUnhandledException)) {
-        log.error("Handling of [{}] resulted in Exception: [{}]", //
-                  target.getClass().getName(), target.getClass().getName(), target);
-        throw target;
-      }
+    catch (final Throwable handlerEx) {
+      logResultedInException(target, handlerEx);
+      throw target;
     }
+  }
+
+  /**
+   * Handle Exception use {@link ThrowableHandlerMethod}
+   *
+   * @param context
+   *         current request
+   * @param exHandler
+   *         ThrowableHandlerMethod
+   *
+   * @return handler return value
+   *
+   * @throws Throwable
+   *         Throwable occurred in exHandler
+   */
+  protected Object handleException(RequestContext context, ThrowableHandlerMethod exHandler)
+          throws Throwable {
+    exHandler.handleResult(context, exHandler, exHandler.invokeHandler(context));
     return NONE_RETURN_VALUE;
   }
 

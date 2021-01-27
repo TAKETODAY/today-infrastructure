@@ -19,8 +19,10 @@
  */
 package cn.taketoday.web;
 
+import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.ResourceMatchResult;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
+import cn.taketoday.web.resolver.ParameterResolver;
 
 /**
  * @author TODAY <br>
@@ -52,12 +54,13 @@ public interface Constant extends cn.taketoday.context.Constant {
 
   String RESOURCE_MATCH_RESULT = ResourceMatchResult.class.getName();
 
+  /**********************************************************
+   * Framework Attribute Keys
+   */
+  String KEY_THROWABLE = HandlerExceptionHandler.class + "-context-throwable";
+  String VALIDATION_ERRORS = ParameterResolver.class + "-context-validation-errors";
+
   //@off
-	/**********************************************************
-	 * Framework Attribute Keys
-	 */
-	String	KEY_THROWABLE 		                = "THROWABLE";
-	String  VALIDATION_ERRORS                   = "validation-errors";
 	/**
 	 * Framework Attribute Keys End
 	 **********************************************************/

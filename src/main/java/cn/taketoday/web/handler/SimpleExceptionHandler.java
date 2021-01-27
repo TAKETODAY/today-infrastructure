@@ -34,7 +34,6 @@ import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.exception.ExceptionUnhandledException;
 import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.TemplateResultHandler;
@@ -50,32 +49,36 @@ public class SimpleExceptionHandler
 
   @Override
   public Object handleException(final RequestContext context,
-                                final Throwable ex, final Object handler) throws Throwable {
+                                final Throwable target, final Object handler) throws Throwable {
+    logCatchThrowable(target);
     try {
       if (handler instanceof HandlerMethod) {
-        return handleHandlerMethodInternal(ex, context, (HandlerMethod) handler);
+        return handleHandlerMethodInternal(target, context, (HandlerMethod) handler);
       }
       if (handler instanceof ViewController) {
-        return handleViewControllerInternal(ex, context, (ViewController) handler);
+        return handleViewControllerInternal(target, context, (ViewController) handler);
       }
       if (handler instanceof ResourceRequestHandler) {
-        return handleResourceMappingInternal(ex, context, (ResourceRequestHandler) handler);
+        return handleResourceMappingInternal(target, context, (ResourceRequestHandler) handler);
       }
+      return handleExceptionInternal(target, context);
+    }
+    catch (Throwable handlerEx) {
+      logResultedInException(target, handlerEx);
+      throw handlerEx;
+    }
+  }
 
-      if (log.isDebugEnabled()) {
-        log.debug("Catch Throwable: [{}]", ex.toString(), ex);
-      }
-      return handleExceptionInternal(ex, context);
+  void logCatchThrowable(final Throwable target) {
+    if (log.isDebugEnabled()) {
+      log.debug("Catch Throwable: [{}]", target.toString(), target);
     }
-    catch (ExceptionUnhandledException unhandled) {
-      throw unhandled;
-    }
-    catch (Throwable handlerException) {
-      log.error("Handling of [{}] resulted in Exception: [{}]", //
-                ex.getClass().getName(), handlerException.getClass().getName(), handlerException);
+  }
 
-      throw handlerException;
-    }
+  void logResultedInException(Throwable target, Throwable handlerException) {
+    log.error("Handling of [{}] resulted in Exception: [{}]",
+              target.getClass().getName(),
+              handlerException.getClass().getName(), handlerException);
   }
 
   /**
