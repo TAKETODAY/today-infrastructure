@@ -213,4 +213,45 @@ public class BeanPropertyAccessorTest {
     System.out.println(object);
   }
 
+  @Setter
+  @Getter
+  static class NestedArrayDot {
+
+    String name;
+    NestedArrayDot[] nested;
+
+    @Override
+    public String toString() {
+      return "NestedArrayDot{" +
+              "name='" + name + '\'' +
+              ", nested=" + Arrays.toString(nested) +
+              '}';
+    }
+  }
+
+  @Test
+  public void testArrayDotProperty() {
+    final BeanPropertyAccessor nestedBean = BeanPropertyAccessor.ofClass(NestedArrayDot.class);
+    nestedBean.setProperty("name", "TODAY");
+
+    final NestedArrayDot nestedArrayDot = new NestedArrayDot();
+    nestedArrayDot.name = "TODAY-array-nested";
+    final NestedArrayDot[] arrayDots = { nestedArrayDot };
+
+    nestedBean.setProperty("nested", arrayDots);
+
+    final Object object = nestedBean.getObject();
+
+    assertThat(object).isInstanceOf(NestedArrayDot.class);
+    NestedArrayDot base = (NestedArrayDot) object;
+
+    assertThat(base.nested[0].name)
+            .isEqualTo("TODAY-array-nested")
+            .isEqualTo(nestedBean.getProperty("nested[0].name"));
+
+    // required type
+
+    System.out.println(object);
+  }
+
 }

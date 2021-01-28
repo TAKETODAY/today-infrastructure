@@ -145,24 +145,32 @@ public class BeanPropertyAccessor {
   public static Object getProperty(final Object root, final BeanMetadata metadata, final String propertyPath) {
     int signIndex = propertyPath.indexOf('.');
 
-    final BeanProperty beanProperty;
     if (signIndex != -1) {
-      final String property = propertyPath.substring(0, signIndex);
-
-      beanProperty = metadata.getBeanProperty(property);
-      String newPath = propertyPath.substring(signIndex + 1);
-      Object propertyValue = beanProperty.getValue(root);
-
+      String property = propertyPath.substring(0, signIndex);
+      // get property value and get value in the next call // root[1].name
+      Object propertyValue = getPropertyValue(root, metadata, property);
       if (propertyValue == null) {
-        // 上一级为空,下一级自然为空
-        return null;
+        return null; // 上一级为空,下一级自然为空
       }
 
-      BeanMetadata subMetadata = BeanMetadata.ofClass(beanProperty.getType());
+      final BeanMetadata subMetadata = getSubBeanMetadata(metadata, property, propertyValue);
+      final String newPath = propertyPath.substring(signIndex + 1);
       return getProperty(propertyValue, subMetadata, newPath);
     }
 
-    signIndex = propertyPath.indexOf('['); // array,list: [0]; map: [key]
+    return getPropertyValue(root, metadata, propertyPath);
+  }
+
+  private static BeanMetadata getSubBeanMetadata(BeanMetadata root, String property, Object propertyValue) {
+    if (property.indexOf('[') != -1) {
+      return BeanMetadata.ofObject(propertyValue);
+    }
+    return BeanMetadata.ofClass(root.getBeanProperty(property).getType());
+  }
+
+  static Object getPropertyValue(Object root, BeanMetadata metadata, String propertyPath) {
+    int signIndex = propertyPath.indexOf('['); // array,list: [0]; map: [key]
+    final BeanProperty beanProperty;
     if (signIndex != -1) {
       // exist
       final String property = propertyPath.substring(0, signIndex);
@@ -189,6 +197,10 @@ public class BeanPropertyAccessor {
     final String key = propertyPath.substring(signIndex + 1, endIndex);
     final Class<?> type = beanProperty.getType();
 
+    return getPropertyValue(propertyPath, value, key, type);
+  }
+
+  static Object getPropertyValue(String propertyPath, Object value, String key, Class<?> type) {
     if (Map.class.isAssignableFrom(type)) {
       final Map map = (Map) value;
       return map.get(key);
