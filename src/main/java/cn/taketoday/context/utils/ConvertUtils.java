@@ -327,14 +327,14 @@ public abstract class ConvertUtils {
 
     @Override
     public Object convert(Class<?> targetClass, Object source) {
-
-      final Object[] sources = (Object[]) source;
-
+      final int length = Array.getLength(source);
       final Class<?> componentType = targetClass.getComponentType();
-      for (int i = 0; i < sources.length; i++) {
-        sources[i] = ConvertUtils.convert(sources[i], componentType);
+      final Object instance = Array.newInstance(componentType, length);
+      for (int i = 0; i < length; i++) {
+        final Object value = ConvertUtils.convert(Array.get(source, i), componentType);
+        Array.set(instance, i, value);
       }
-      return sources;
+      return instance;
     }
   }
 

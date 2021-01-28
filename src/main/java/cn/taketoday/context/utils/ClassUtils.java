@@ -1505,10 +1505,13 @@ public abstract class ClassUtils {
   }
 
   //
-  /*
+
+  /**
    * Tells us if the class passed in is a known common type
    *
-   * @param clazz The class to check
+   * @param clazz
+   *         The class to check
+   *
    * @return True if the class is known
    */
   public static boolean isSimpleType(Class<?> clazz) {
