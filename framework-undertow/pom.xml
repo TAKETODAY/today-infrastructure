@@ -7,7 +7,8 @@
     <version>latest</version>
   </parent>
   <artifactId>today-framework-undertow</artifactId>
-  <name>undertow plugin</name>
+
+  <name>Undertow Plugin</name>
 
   <description>Undertow Web Server Plugin</description>
 

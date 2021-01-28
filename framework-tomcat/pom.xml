@@ -8,7 +8,7 @@
   </parent>
   <artifactId>today-framework-tomcat</artifactId>
 
-  <name>tomcat plugin</name>
+  <name>Tomcat Plugin</name>
 
   <description>Tomcat Web Server Plugin</description>
 

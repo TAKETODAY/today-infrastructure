@@ -8,7 +8,7 @@
   </parent>
   <artifactId>today-framework-jetty</artifactId>
 
-  <name>jetty plugin</name>
+  <name>Jetty Plugin</name>
 
   <description>Jetty Web Server Plugin</description>
 
