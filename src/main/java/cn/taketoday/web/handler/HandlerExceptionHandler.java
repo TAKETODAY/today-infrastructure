@@ -47,7 +47,7 @@ public interface HandlerExceptionHandler {
    * @throws Throwable
    *         If any {@link Exception} occurred
    */
-  Object handleException(RequestContext context,
-                         Throwable exception, Object handler) throws Throwable;
+  Object handleException(RequestContext context, Throwable exception, Object handler)
+          throws Throwable;
 
 }

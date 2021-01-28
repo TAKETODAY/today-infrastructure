@@ -19,11 +19,11 @@
  */
 package cn.taketoday.web;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import org.junit.Ignore;
 import org.junit.Test;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import cn.taketoday.web.annotation.EnableViewController;
 import cn.taketoday.web.annotation.GET;
@@ -33,64 +33,66 @@ import cn.taketoday.web.handler.ViewController;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.utils.HttpUtils;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author TODAY <br>
- *         2020-04-28 15:39
+ * 2020-04-28 15:39
  */
 @Ignore
 @RestController
 @EnableViewController
 public class HandlerMethodTest extends Base implements WebMvcConfiguration {
 
-    @GET("/index/{q}")
-    public String index(String q) {
-        return q;
-    }
+  @GET("/index/{q}")
+  public String index(String q) {
+    return q;
+  }
 
-    @GET("/index/query")
-    public String query(String q) {
-        return q;
-    }
+  @GET("/index/query")
+  public String query(String q) {
+    return q;
+  }
 
-    @Override
-    public void configureViewController(ViewControllerHandlerRegistry registry) {
-        registry.addViewController("/view/controller/text").setResource("body:text");
-        registry.addViewController("/view/controller/buffer", new StringBuilder("text"));
-        registry.addViewController("/view/controller/null");
+  @Override
+  public void configureViewController(ViewControllerHandlerRegistry registry) {
+    registry.addViewController("/view/controller/text").setResource("body:text");
+    registry.addViewController("/view/controller/buffer", new StringBuilder("text"));
+    registry.addViewController("/view/controller/null");
 //        registry.addViewController("/view/controller/text").setResource("text");
-    }
+  }
 
-    public void testViewController(ViewControllerHandlerRegistry registry) {
-        final Object defaultHandler = registry.getDefaultHandler();
-        assertNull(defaultHandler);
-        final ViewController viewController = registry.getViewController("/view/controller/null");
-        assertNotNull(viewController);
-        assertNull(viewController.getStatus());
-        assertNull(viewController.getResource());
-        assertNull(viewController.getContentType());
-        assertNull(viewController.getHandlerMethod());
+  public void testViewController(ViewControllerHandlerRegistry registry) {
+    final Object defaultHandler = registry.getDefaultHandler();
+    assertNull(defaultHandler);
+    final ViewController viewController = registry.getViewController("/view/controller/null");
+    assertNotNull(viewController);
+    assertNull(viewController.getStatus());
+    assertNull(viewController.getResource());
+    assertNull(viewController.getContentType());
+    assertNull(viewController.getHandlerMethod());
 
-        assertNotNull(registry.getViewController("/view/controller/text"));
-        assertEquals(registry.getViewController("/view/controller/text").getResource(), "body:text");
-        assertNull(registry.getViewController("/view/controller/text/123"));
-    }
+    assertNotNull(registry.getViewController("/view/controller/text"));
+    assertEquals(registry.getViewController("/view/controller/text").getResource(), "body:text");
+    assertNull(registry.getViewController("/view/controller/text/123"));
+  }
 
-    @Test
-    public void testRestController() throws IOException {
-        assertEquals(HttpUtils.get("http://localhost:8080/index/123"), "123");
-        assertEquals(HttpUtils.get("http://localhost:8080/index/query?q=123"), "123");
-        assertEquals(HttpUtils.get("http://localhost:8080/view/controller/text"), "text");
-        assertEquals(HttpUtils.get("http://localhost:8080/view/controller/buffer"), "text");
-        assertEquals(HttpUtils.get("http://localhost:8080/view/controller/null"), "");
-        try {
-            HttpUtils.get("http://localhost:8080/index");
-        }
-        catch (FileNotFoundException e) {
-            assert true;
-        }
-        testViewController(context.getBean(ViewControllerHandlerRegistry.class));
+  @Test
+  public void testRestController() throws IOException {
+    assertEquals(HttpUtils.get("http://localhost:8080/index/123"), "123");
+    assertEquals(HttpUtils.get("http://localhost:8080/index/query?q=123"), "123");
+    assertEquals(HttpUtils.get("http://localhost:8080/view/controller/text"), "text");
+    assertEquals(HttpUtils.get("http://localhost:8080/view/controller/buffer"), "text");
+    assertEquals(HttpUtils.get("http://localhost:8080/view/controller/null"), "");
+    try {
+      HttpUtils.get("http://localhost:8080/index");
     }
+    catch (FileNotFoundException e) {
+      assert true;
+    }
+    testViewController(context.getBean(ViewControllerHandlerRegistry.class));
+  }
 
 }

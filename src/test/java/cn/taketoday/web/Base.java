@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,10 +19,10 @@
  */
 package cn.taketoday.web;
 
-import javax.servlet.ServletContext;
-
 import org.junit.After;
 import org.junit.Before;
+
+import javax.servlet.ServletContext;
 
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import lombok.Getter;
@@ -36,36 +36,36 @@ import lombok.Setter;
 @Setter
 public class Base {
 
-    protected Jetty jetty;
-    protected ServletContext servletContext;
-    protected long start = System.currentTimeMillis();
-    protected StandardWebServletApplicationContext context;
+  protected Jetty jetty;
+  protected ServletContext servletContext;
+  protected long start = System.currentTimeMillis();
+  protected StandardWebServletApplicationContext context;
 
-    @Before
-    public void before() {
-        final Jetty jetty = getJetty();
-        jetty.start();
-        context = jetty.getApplicationContext();
-        servletContext = context.getServletContext();
-    }
+  @Before
+  public void before() {
+    final Jetty jetty = getJetty();
+    jetty.start();
+    context = jetty.getApplicationContext();
+    servletContext = context.getServletContext();
+  }
 
-    @After
-    public void after() {
-        if (context != null) {
-            context.close();
-            getJetty().stop();
-        }
+  @After
+  public void after() {
+    if (context != null) {
+      context.close();
+      getJetty().stop();
     }
+  }
 
-    public Jetty getJetty() {
-        if (jetty == null) {
-            jetty = createJetty();
-        }
-        return jetty;
+  public Jetty getJetty() {
+    if (jetty == null) {
+      jetty = createJetty();
     }
+    return jetty;
+  }
 
-    protected Jetty createJetty() {
-        return new Jetty();
-    }
+  protected Jetty createJetty() {
+    return new Jetty();
+  }
 
 }

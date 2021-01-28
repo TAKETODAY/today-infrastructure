@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,21 +13,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.web;
-
-import java.io.IOException;
-import java.net.BindException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
-
-import javax.annotation.PreDestroy;
 
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
@@ -43,6 +33,16 @@ import org.eclipse.jetty.util.thread.ThreadPool;
 import org.eclipse.jetty.webapp.AbstractConfiguration;
 import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
+
+import java.io.IOException;
+import java.net.BindException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
+
+import javax.annotation.PreDestroy;
 
 import cn.taketoday.context.io.ClassPathResource;
 import cn.taketoday.context.io.FileBasedResource;
@@ -65,73 +65,73 @@ import lombok.Setter;
 @Getter
 public class Jetty {
 
-    private static final Logger log = LoggerFactory.getLogger(Jetty.class);
+  private static final Logger log = LoggerFactory.getLogger(Jetty.class);
 
-    private Server server;
-    private int port = 8080;
-    private String host = "localhost";
-    private String contextPath = Constant.BLANK;
-    private boolean autoStart = true;
-    private AtomicBoolean started = new AtomicBoolean(false);
+  private Server server;
+  private int port = 8080;
+  private String host = "localhost";
+  private String contextPath = Constant.BLANK;
+  private boolean autoStart = true;
+  private AtomicBoolean started = new AtomicBoolean(false);
 
-    private Connector[] connectors;
+  private Connector[] connectors;
 
-    private List<Configuration> configurations = new ArrayList<>();
+  private List<Configuration> configurations = new ArrayList<>();
 
-    /** The number of acceptor threads to use. default value */
-    private int acceptors = -1;
+  /** The number of acceptor threads to use. default value */
+  private int acceptors = -1;
 
-    /** The number of selector threads to use. default value */
-    private int selectors = -1;
+  /** The number of selector threads to use. default value */
+  private int selectors = -1;
 
-    private ThreadPool threadPool;
+  private ThreadPool threadPool;
 
-    private StandardWebServletApplicationContext applicationContext;
+  private StandardWebServletApplicationContext applicationContext;
 
-    protected StandardWebServletApplicationContext getApplicationContext() {
-        return applicationContext;
-    }
+  protected StandardWebServletApplicationContext getApplicationContext() {
+    return applicationContext;
+  }
 
-    protected synchronized void contextInitialized() {
+  protected synchronized void contextInitialized() {
 
-        try {
+    try {
 
-            // Cache the connectors and then remove them to prevent requests being
-            // handled before the application context is ready.
-            this.connectors = this.server.getConnectors();
-            this.server.addBean(new AbstractLifeCycle() {
+      // Cache the connectors and then remove them to prevent requests being
+      // handled before the application context is ready.
+      this.connectors = this.server.getConnectors();
+      this.server.addBean(new AbstractLifeCycle() {
 
-                @Override
-                protected void doStart() throws Exception {
-                    for (Connector connector : Jetty.this.connectors) {
-                        state(connector.isStopped(), () -> "Connector " + connector + " has been started prematurely");
-                    }
-                    Jetty.this.server.setConnectors(null);
-                }
-
-            });
-            // Start the server so that the ServletContext is available
-            this.server.start();
-            this.server.setStopAtShutdown(false);
+        @Override
+        protected void doStart() throws Exception {
+          for (Connector connector : Jetty.this.connectors) {
+            state(connector.isStopped(), () -> "Connector " + connector + " has been started prematurely");
+          }
+          Jetty.this.server.setConnectors(null);
         }
-        catch (Throwable ex) {
-            // Ensure process isn't left running
-            stopSilently();
-            throw new WebRuntimeException("Unable to start embedded Jetty web server", ex);
-        }
-    }
 
-    public static void state(boolean expression, Supplier<String> messageSupplier) {
-        if (!expression) {
-            throw new IllegalStateException(nullSafeGet(messageSupplier));
-        }
+      });
+      // Start the server so that the ServletContext is available
+      this.server.start();
+      this.server.setStopAtShutdown(false);
     }
-
-    private static String nullSafeGet(Supplier<String> messageSupplier) {
-        return (messageSupplier != null ? messageSupplier.get() : null);
+    catch (Throwable ex) {
+      // Ensure process isn't left running
+      stopSilently();
+      throw new WebRuntimeException("Unable to start embedded Jetty web server", ex);
     }
+  }
 
-    //@off
+  public static void state(boolean expression, Supplier<String> messageSupplier) {
+    if (!expression) {
+      throw new IllegalStateException(nullSafeGet(messageSupplier));
+    }
+  }
+
+  private static String nullSafeGet(Supplier<String> messageSupplier) {
+    return (messageSupplier != null ? messageSupplier.get() : null);
+  }
+
+  //@off
     private void stopSilently() {
         try {
             this.server.stop();
@@ -140,252 +140,256 @@ public class Jetty {
     }
     // @on
 
-    public synchronized void start() {
+  public synchronized void start() {
+    try {
+      // initialize server context
+      initializeContext();
+      // context initialized
+      contextInitialized();
+
+      if (getStarted().get()) {
+        return;
+      }
+      this.server.setConnectors(this.connectors);
+      if (!this.autoStart) {
+        return;
+      }
+
+      this.server.start();
+
+      Connector[] connectors = this.server.getConnectors();
+      for (Connector connector : connectors) {
         try {
-            // initialize server context
-            initializeContext();
-            // context initialized
-            contextInitialized();
-
-            if (getStarted().get()) {
-                return;
-            }
-            this.server.setConnectors(this.connectors);
-            if (!this.autoStart) {
-                return;
-            }
-
-            this.server.start();
-
-            Connector[] connectors = this.server.getConnectors();
-            for (Connector connector : connectors) {
-                try {
-                    connector.start();
-                }
-                catch (BindException ex) {
-                    if (connector instanceof NetworkConnector) {
-                        log.error("The port: [{}] is already in use", ((NetworkConnector) connector).getPort(), ex);
-                    }
-                    throw ex;
-                }
-            }
-            getStarted().set(true);
-
-            log.info("Jetty started on port(s) '{}' with context path '{}'", //
-                     getActualPortsDescription(), getContextPath());
+          connector.start();
         }
-        catch (Exception ex) {
-            stopSilently();
-            throw new WebRuntimeException("Unable to start embedded Jetty server", ex);
+        catch (BindException ex) {
+          if (connector instanceof NetworkConnector) {
+            log.error("The port: [{}] is already in use", ((NetworkConnector) connector).getPort(), ex);
+          }
+          throw ex;
         }
+      }
+      getStarted().set(true);
+
+      log.info("Jetty started on port(s) '{}' with context path '{}'", //
+               getActualPortsDescription(), getContextPath());
     }
-
-    private String getActualPortsDescription() {
-        StringBuilder ports = new StringBuilder();
-        for (Connector connector : this.server.getConnectors()) {
-            if (ports.length() != 0) {
-                ports.append(", ");
-            }
-            ports.append(getPort()).append(getProtocols(connector));
-        }
-        return ports.toString();
+    catch (Exception ex) {
+      stopSilently();
+      throw new WebRuntimeException("Unable to start embedded Jetty server", ex);
     }
+  }
 
-    private String getProtocols(Connector connector) {
-        List<String> protocols = connector.getProtocols();
-        return " (" + StringUtils.arrayToString(protocols.toArray(new String[protocols.size()])) + ")";
+  private String getActualPortsDescription() {
+    StringBuilder ports = new StringBuilder();
+    for (Connector connector : this.server.getConnectors()) {
+      if (ports.length() != 0) {
+        ports.append(", ");
+      }
+      ports.append(getPort()).append(getProtocols(connector));
     }
+    return ports.toString();
+  }
 
-    @PreDestroy
-    public synchronized void stop() {
+  private String getProtocols(Connector connector) {
+    List<String> protocols = connector.getProtocols();
+    return " (" + StringUtils.arrayToString(protocols.toArray(new String[protocols.size()])) + ")";
+  }
 
-        getStarted().set(false);
+  @PreDestroy
+  public synchronized void stop() {
 
-        try {
-            this.server.stop();
-        }
-        catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-        }
-        catch (Exception ex) {
-            throw new WebRuntimeException("Unable to stop embedded Jetty server", ex);
-        }
+    getStarted().set(false);
+
+    try {
+      this.server.stop();
     }
-
-    public Server getJetty() {
-        return this.server;
+    catch (InterruptedException ex) {
+      Thread.currentThread().interrupt();
     }
-
-    protected void initializeContext() throws IOException {
-
-        log.info("Jetty Server initializing with port: {}", getPort());
-
-        final WebAppContext context = new WebAppContext();
-
-        final Server server = new Server(getThreadPool());
-        this.server = server;
-        server.setConnectors(new Connector[] { getServerConnector(getHost(), getPort(), server) });
-
-        configureWebAppContext(context);
-        server.setHandler(context);
+    catch (Exception ex) {
+      throw new WebRuntimeException("Unable to stop embedded Jetty server", ex);
     }
+  }
 
-    /**
-     * Create a sever {@link Connector}
-     * 
-     * @param host
-     *            server host
-     * @param port
-     *            server port
-     * @param server
-     *            server instance
-     * @return a {@link ServerConnector}
-     */
-    protected ServerConnector getServerConnector(final String host, final int port, final Server server) {
-        final ServerConnector connector = new ServerConnector(server, this.acceptors, this.selectors);
+  public Server getJetty() {
+    return this.server;
+  }
 
-        connector.setHost(host);
-        connector.setPort(port);
-        return connector;
-    }
+  protected void initializeContext() throws IOException {
 
-    protected Handler applyHandler(Handler handler, HandlerWrapper wrapper) {
-        wrapper.setHandler(handler);
-        return wrapper;
-    }
+    log.info("Jetty Server initializing with port: {}", getPort());
 
-    /**
-     * Configure the given Jetty {@link WebAppContext} for use.
-     * 
-     * @param context
-     *            the context to configure
-     * @param initializers
-     *            the set of initializers to apply
-     * @throws IOException
-     * @throws Throwable
-     */
-    protected void configureWebAppContext(final WebAppContext context) throws IOException {
-        Objects.requireNonNull(context, "WebAppContext must not be null");
+    final WebAppContext context = new WebAppContext();
+
+    final Server server = new Server(getThreadPool());
+    this.server = server;
+    server.setConnectors(new Connector[] { getServerConnector(getHost(), getPort(), server) });
+
+    configureWebAppContext(context);
+    server.setHandler(context);
+  }
+
+  /**
+   * Create a sever {@link Connector}
+   *
+   * @param host
+   *         server host
+   * @param port
+   *         server port
+   * @param server
+   *         server instance
+   *
+   * @return a {@link ServerConnector}
+   */
+  protected ServerConnector getServerConnector(final String host, final int port, final Server server) {
+    final ServerConnector connector = new ServerConnector(server, this.acceptors, this.selectors);
+
+    connector.setHost(host);
+    connector.setPort(port);
+    return connector;
+  }
+
+  protected Handler applyHandler(Handler handler, HandlerWrapper wrapper) {
+    wrapper.setHandler(handler);
+    return wrapper;
+  }
+
+  /**
+   * Configure the given Jetty {@link WebAppContext} for use.
+   *
+   * @param context
+   *         the context to configure
+   * @param initializers
+   *         the set of initializers to apply
+   *
+   * @throws IOException
+   * @throws Throwable
+   */
+  protected void configureWebAppContext(final WebAppContext context) throws IOException {
+    Objects.requireNonNull(context, "WebAppContext must not be null");
 //        context.setTempDirectory(getTemporalDirectory()); // base temp dir
 
-        final String contextPath = getContextPath();
+    final String contextPath = getContextPath();
 
-        // D:\Projects\Git\github\today-web\src\test\resources
+    // D:\Projects\Git\github\today-web\src\test\resources
 
-        final cn.taketoday.context.io.Resource resource = ResourceUtils.getResource("classpath:jetty-root/");
+    final cn.taketoday.context.io.Resource resource = ResourceUtils.getResource("classpath:jetty-root/");
 
-        context.setBaseResource(getRootResource(resource));
+    context.setBaseResource(getRootResource(resource));
 
-        context.setContextPath(StringUtils.isNotEmpty(contextPath) ? contextPath : "/");
-        context.setDisplayName(getDisplayName());
+    context.setContextPath(StringUtils.isNotEmpty(contextPath) ? contextPath : "/");
+    context.setDisplayName(getDisplayName());
 
-        final Configuration[] configurations = getWebAppContextConfigurations(context);
+    final Configuration[] configurations = getWebAppContextConfigurations(context);
 
-        context.setConfigurations(configurations);
+    context.setConfigurations(configurations);
 
-        context.setThrowUnavailableOnStartupException(true);
+    context.setThrowUnavailableOnStartupException(true);
+  }
+
+  protected Resource getRootResource(final cn.taketoday.context.io.Resource validDocBase) throws IOException {
+
+    if (validDocBase instanceof cn.taketoday.context.io.JarResource) {
+      return JarResource.newJarResource(Resource.newResource(validDocBase.getFile()));
+    }
+    if (validDocBase instanceof FileBasedResource) {
+      return Resource.newResource(validDocBase.getFile());
+    }
+    if (validDocBase instanceof ClassPathResource) {
+      return getRootResource(((ClassPathResource) validDocBase).getOriginalResource());
+    }
+    throw new IOException();
+  }
+
+  private String getDisplayName() {
+    return "Today Web Test App";
+  }
+
+  /**
+   * Return the Jetty {@link Configuration}s that should be applied to the server.
+   *
+   * @param webAppContext
+   *         the Jetty {@link WebAppContext}
+   * @param initializers
+   *         the {@link ServletContextInitializer}s to apply
+   *
+   * @return configurations to apply
+   */
+  protected Configuration[] getWebAppContextConfigurations(final WebAppContext webAppContext) {
+
+    final List<Configuration> configurations = new ArrayList<>();
+    configurations.add(getJettyServletContextInitializer(webAppContext));
+
+    configurations.addAll(getConfigurations()); // user define
+    return configurations.toArray(new Configuration[configurations.size()]);
+  }
+
+  /**
+   * Return a Jetty {@link Configuration} that will invoke the specified
+   * {@link ServletContextInitializer}s. By default this method will return a
+   * {@link ServletContextInitializerConfiguration}.
+   *
+   * @param webAppContext
+   *         the Jetty {@link WebAppContext}
+   * @param initializers
+   *         the {@link ServletContextInitializer}s to apply
+   *
+   * @return the {@link Configuration} instance
+   */
+  protected Configuration getJettyServletContextInitializer(final WebAppContext webAppContext) {
+    return new ServletContextInitializerConfiguration();
+  }
+
+  /**
+   * Use {@link ServletWebServerApplicationLoader} load application
+   *
+   * @author TODAY <br>
+   * 2019-10-14 01:07
+   */
+  public class ServletContextInitializerConfiguration extends AbstractConfiguration {
+
+    private WebServletApplicationLoader starter;
+
+    public ServletContextInitializerConfiguration() {
+      this.starter = new WebServletApplicationLoader();
     }
 
-    protected Resource getRootResource(final cn.taketoday.context.io.Resource validDocBase) throws IOException {
-
-        if (validDocBase instanceof cn.taketoday.context.io.JarResource) {
-            return JarResource.newJarResource(Resource.newResource(validDocBase.getFile()));
-        }
-        if (validDocBase instanceof FileBasedResource) {
-            return Resource.newResource(validDocBase.getFile());
-        }
-        if (validDocBase instanceof ClassPathResource) {
-            return getRootResource(((ClassPathResource) validDocBase).getOriginalResource());
-        }
-        throw new IOException();
+    @Override
+    public void configure(WebAppContext context) throws Exception {
+      context.addBean(new Initializer(context), true);
     }
 
-    private String getDisplayName() {
-        return "Today Web Test App";
-    }
+    private class Initializer extends AbstractLifeCycle {
 
-    /**
-     * Return the Jetty {@link Configuration}s that should be applied to the server.
-     * 
-     * @param webAppContext
-     *            the Jetty {@link WebAppContext}
-     * @param initializers
-     *            the {@link ServletContextInitializer}s to apply
-     * @return configurations to apply
-     */
-    protected Configuration[] getWebAppContextConfigurations(final WebAppContext webAppContext) {
+      private final WebAppContext context;
 
-        final List<Configuration> configurations = new ArrayList<>();
-        configurations.add(getJettyServletContextInitializer(webAppContext));
+      Initializer(WebAppContext context) {
+        this.context = context;
+      }
 
-        configurations.addAll(getConfigurations()); // user define
-        return configurations.toArray(new Configuration[configurations.size()]);
-    }
+      @Override
+      protected void doStart() throws Exception {
 
-    /**
-     * Return a Jetty {@link Configuration} that will invoke the specified
-     * {@link ServletContextInitializer}s. By default this method will return a
-     * {@link ServletContextInitializerConfiguration}.
-     * 
-     * @param webAppContext
-     *            the Jetty {@link WebAppContext}
-     * @param initializers
-     *            the {@link ServletContextInitializer}s to apply
-     * @return the {@link Configuration} instance
-     */
-    protected Configuration getJettyServletContextInitializer(final WebAppContext webAppContext) {
-        return new ServletContextInitializerConfiguration();
-    }
-
-    /**
-     * Use {@link ServletWebServerApplicationLoader} load application
-     * 
-     * @author TODAY <br>
-     *         2019-10-14 01:07
-     */
-    public class ServletContextInitializerConfiguration extends AbstractConfiguration {
-
-        private WebServletApplicationLoader starter;
-
-        public ServletContextInitializerConfiguration() {
-            this.starter = new WebServletApplicationLoader();
+        final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(this.context.getClassLoader());
+        try {
+          setExtendedListenerTypes(true);
+          final Context servletContext = this.context.getServletContext();
+          starter.onStartup(null, servletContext);
+          applicationContext = (StandardWebServletApplicationContext) starter.getApplicationContext();
         }
-
-        @Override
-        public void configure(WebAppContext context) throws Exception {
-            context.addBean(new Initializer(context), true);
+        finally {
+          setExtendedListenerTypes(false);
+          Thread.currentThread().setContextClassLoader(oldClassLoader);
+          starter = null;
         }
+      }
 
-        private class Initializer extends AbstractLifeCycle {
-
-            private final WebAppContext context;
-
-            Initializer(WebAppContext context) {
-                this.context = context;
-            }
-
-            @Override
-            protected void doStart() throws Exception {
-
-                final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-                Thread.currentThread().setContextClassLoader(this.context.getClassLoader());
-                try {
-                    setExtendedListenerTypes(true);
-                    final Context servletContext = this.context.getServletContext();
-                    starter.onStartup(null, servletContext);
-                    applicationContext = (StandardWebServletApplicationContext) starter.getApplicationContext();
-                }
-                finally {
-                    setExtendedListenerTypes(false);
-                    Thread.currentThread().setContextClassLoader(oldClassLoader);
-                    starter = null;
-                }
-            }
-
-            private final void setExtendedListenerTypes(boolean extended) {
-                this.context.getServletContext().setExtendedListenerTypes(extended);
-            }
-        }
+      private final void setExtendedListenerTypes(boolean extended) {
+        this.context.getServletContext().setExtendedListenerTypes(extended);
+      }
     }
+  }
 
 }

@@ -34,7 +34,7 @@ import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
 
 /**
  * @author TODAY <br>
- * 		   2020-05-05 16:04
+ * 2020-05-05 16:04
  */
 public abstract class HttpUtils {
 
@@ -42,12 +42,14 @@ public abstract class HttpUtils {
    * get a connection with request body
    *
    * @param method
-   *            request method
+   *         request method
    * @param urlStr
-   *            url
+   *         url
    * @param body
-   *            request body
+   *         request body
+   *
    * @return
+   *
    * @throws IOException
    */
   public static HttpURLConnection getConnection(String method, String urlStr, byte[] body) throws IOException {
@@ -62,10 +64,12 @@ public abstract class HttpUtils {
    * get a connection
    *
    * @param method
-   *            request method
+   *         request method
    * @param urlStr
-   *            url
+   *         url
+   *
    * @return
+   *
    * @throws IOException
    */
   public static HttpURLConnection getConnection(String method, String urlStr) throws IOException {
@@ -82,9 +86,10 @@ public abstract class HttpUtils {
   }
 
   /**
-   *
    * @param urlStr
+   *
    * @return
+   *
    * @throws IOException
    */
   public static HttpURLConnection getConnection(String urlStr) throws IOException {
@@ -115,10 +120,12 @@ public abstract class HttpUtils {
    * get response string
    *
    * @param method
-   *            request method
+   *         request method
    * @param urlStr
-   *            url
+   *         url
+   *
    * @return
+   *
    * @throws IOException
    */
   public static String getResponse(String method, String urlStr) throws IOException {
@@ -126,13 +133,14 @@ public abstract class HttpUtils {
   }
 
   /**
-   *
    * @param method
-   *            request method
+   *         request method
    * @param urlStr
-   *            url
+   *         url
    * @param body
+   *
    * @return
+   *
    * @throws IOException
    */
   public static String getResponse(String method, String urlStr, byte[] body) throws IOException {
@@ -144,12 +152,13 @@ public abstract class HttpUtils {
   }
 
   /**
-   *
    * @param method
    * @param urlStr
    * @param body
    * @param targetClass
+   *
    * @return
+   *
    * @throws IOException
    */
   public static <T> T getResponse(String method, String urlStr, byte[] body, Class<T> targetClass) throws IOException {

@@ -20,10 +20,12 @@
 package cn.taketoday.web.resolver;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.context.OrderedSupport;
+import cn.taketoday.context.reflect.BeanConstructor;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ConvertUtils;
@@ -41,6 +43,8 @@ import cn.taketoday.web.handler.MethodParameter;
 public class BeanParameterResolver
         extends OrderedSupport implements ParameterResolver {
 
+  private final Map<Class<?>, BeanParameter> map = new HashMap<>();
+
   public BeanParameterResolver() {
     this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 100);
   }
@@ -52,6 +56,31 @@ public class BeanParameterResolver
   @Override
   public boolean supports(MethodParameter parameter) {
     return true;
+  }
+
+  public Object resolve(final RequestContext context, final MethodParameter parameter) throws Throwable {
+    final Class<?> parameterClass = parameter.getParameterClass();
+    final BeanParameter beanParameter = map.get(parameterClass);
+    final Object bean = beanParameter.newInstance();
+
+    final Map<String, String[]> parameters = context.parameters();
+    if (parameters != null) {
+      final Set<Map.Entry<String, String[]>> entries = parameters.entrySet();
+      if (!CollectionUtils.isEmpty(entries)) {
+        // 遍历参数
+        for (final Map.Entry<String, String[]> entry : entries) {
+          final String[] value = entry.getValue();
+          if (ObjectUtils.isNotEmpty(value)) {
+            final Field field = ReflectionUtils.findField(parameterClass, entry.getKey());
+            if (field != null) {
+              applyParameter(field, bean, value);
+            }
+          }
+        }
+      }
+    }
+
+    return bean;
   }
 
   @Override
@@ -92,6 +121,19 @@ public class BeanParameterResolver
         ReflectionUtils.setField(field, bean, ConvertUtils.convert(parameter, type));
       }
     }
+  }
+
+  static class BeanParameter {
+    MethodParameter parameter;
+    BeanConstructor<?> constructor;
+
+    Object newInstance() {
+      if (constructor == null) {
+        constructor = ReflectionUtils.newConstructor(parameter.getParameterClass());
+      }
+      return constructor.newInstance();
+    }
+
   }
 
   // --
