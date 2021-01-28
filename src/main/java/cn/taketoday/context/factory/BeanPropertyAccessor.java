@@ -272,7 +272,6 @@ public class BeanPropertyAccessor {
       final Object subValue = getSubValue(root, beanProperty);
 
       BeanMetadata subMetadata = BeanMetadata.ofClass(beanProperty.getType());
-//      BeanPropertyAccessor subPojo = new BeanPropertyAccessor(subMetadata, subValue);
       String newPath = propertyPath.substring(index + 1);
       setProperty(subValue, subMetadata, newPath, value);
     }
