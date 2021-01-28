@@ -130,6 +130,20 @@ public class BeanMetadata {
   }
 
   /**
+   * Create a {@link BeanMetadata} with given bean class
+   *
+   * @param object
+   *         target bean cannot be simple object
+   *
+   * @return {@link BeanMetadata}
+   *
+   * @see ClassUtils#isSimpleType(Class)
+   */
+  public static BeanMetadata ofObject(Object object) {
+    return ofClass(object.getClass());
+  }
+
+  /**
    * Mapping cache
    */
   static class BeanPropertiesMappings extends Mappings<Map<String, BeanProperty>, BeanMetadata> {

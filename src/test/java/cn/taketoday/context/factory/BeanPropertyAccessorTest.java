@@ -63,7 +63,7 @@ public class BeanPropertyAccessorTest {
 
   @Test
   public void testSimple() {
-    final BeanPropertyAccessor nestedBean = new BeanPropertyAccessor(NestedType.class);
+    final BeanPropertyAccessor nestedBean = BeanPropertyAccessor.ofClass(NestedType.class);
 
     nestedBean.setProperty("name", "TODAY");
     nestedBean.setProperty("aDouble", 1);
@@ -124,7 +124,7 @@ public class BeanPropertyAccessorTest {
 
   @Test
   public void testArrayListMap() {
-    final BeanPropertyAccessor nestedBean = new BeanPropertyAccessor(Nested.class);
+    final BeanPropertyAccessor nestedBean = BeanPropertyAccessor.ofClass(Nested.class);
     nestedBean.setProperty("name", "TODAY");
     nestedBean.setProperty("doubles", new double[] { 10d, 20d });
 

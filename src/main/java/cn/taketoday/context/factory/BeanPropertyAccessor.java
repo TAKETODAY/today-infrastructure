@@ -98,7 +98,7 @@ public class BeanPropertyAccessor {
    *         if the index is out of list range (<tt>index &lt; 0 || index &gt;= size()</tt>)
    */
   public Object getProperty(final String propertyPath) {
-    return getProperty(object, propertyPath);
+    return getProperty(object, metadata, propertyPath);
   }
 
   /**
@@ -120,8 +120,8 @@ public class BeanPropertyAccessor {
    * @throws IndexOutOfBoundsException
    *         if the index is out of list range (<tt>index &lt; 0 || index &gt;= size()</tt>)
    */
-  public Object getProperty(final Object root, final String propertyPath) {
-    return getProperty(root, metadata, propertyPath);
+  public static Object getProperty(final Object root, final String propertyPath) {
+    return getProperty(root, BeanMetadata.ofObject(root), propertyPath);
   }
 
   /**
@@ -143,7 +143,7 @@ public class BeanPropertyAccessor {
    * @throws IndexOutOfBoundsException
    *         if the index is out of list range (<tt>index &lt; 0 || index &gt;= size()</tt>)
    */
-  public Object getProperty(final Object root, final BeanMetadata metadata, final String propertyPath) {
+  public static Object getProperty(final Object root, final BeanMetadata metadata, final String propertyPath) {
     int signIndex = propertyPath.indexOf('.');
 
     final BeanProperty beanProperty;
@@ -173,7 +173,7 @@ public class BeanPropertyAccessor {
       beanProperty = metadata.getBeanProperty(propertyPath);
     }
     if (beanProperty == null) {
-      throw new NoSuchPropertyException("No such property: " + propertyPath);
+      throw noSuchProperty(propertyPath);
     }
 
     final Object value = beanProperty.getValue(root);
@@ -221,7 +221,7 @@ public class BeanPropertyAccessor {
     }
   }
 
-  private UnsupportedOperationException unsupported(String propertyPath, Object value, NumberFormatException e) {
+  static UnsupportedOperationException unsupported(String propertyPath, Object value, Exception e) {
     return new UnsupportedOperationException("Unsupported Operator: " + propertyPath + ", value: " + value, e);
   }
 
@@ -233,30 +233,64 @@ public class BeanPropertyAccessor {
    * @param value
    *         Property value
    */
-  public void setProperty(String propertyPath, Object value) {
-    // String.split uses RegularExpression
-    // this is overkill for every column for every row
+  public void setProperty(final String propertyPath, final Object value) {
+    setProperty(object, metadata, propertyPath, value);
+  }
+
+  /**
+   * Set value to object's property
+   *
+   * @param root
+   *         Root object that apply to
+   * @param propertyPath
+   *         Property path to set
+   * @param value
+   *         Property value
+   */
+  public static void setProperty(final Object root, final String propertyPath, final Object value) {
+    setProperty(root, BeanMetadata.ofObject(root), propertyPath, value);
+  }
+
+  /**
+   * Set value to object's property
+   *
+   * @param root
+   *         Root object that apply to
+   * @param metadata
+   *         {@link BeanMetadata}
+   * @param propertyPath
+   *         Property path to set
+   * @param value
+   *         Property value
+   */
+  public static void setProperty(final Object root, final BeanMetadata metadata, final String propertyPath, final Object value) {
     int index = propertyPath.indexOf('.');
-    final BeanMetadata metadata = this.metadata;
+
     final BeanProperty beanProperty;
     if (index > 0) {
       final String property = propertyPath.substring(0, index);
       beanProperty = metadata.getBeanProperty(property);
-      final Object subValue = getSubValue(object, beanProperty);
+      final Object subValue = getSubValue(root, beanProperty);
 
       BeanMetadata subMetadata = BeanMetadata.ofClass(beanProperty.getType());
-
-      BeanPropertyAccessor subPojo = new BeanPropertyAccessor(subMetadata, subValue);
+//      BeanPropertyAccessor subPojo = new BeanPropertyAccessor(subMetadata, subValue);
       String newPath = propertyPath.substring(index + 1);
-      subPojo.setProperty(newPath, value);
+      setProperty(subValue, subMetadata, newPath, value);
     }
     else {
       beanProperty = metadata.getBeanProperty(propertyPath);
-      beanProperty.setValue(object, value);
+      if (beanProperty == null) {
+        throw noSuchProperty(propertyPath);
+      }
+      beanProperty.setValue(root, value);
     }
   }
 
-  protected Object getSubValue(final Object object, final BeanProperty beanProperty) {
+  static NoSuchPropertyException noSuchProperty(final String propertyPath) {
+    return new NoSuchPropertyException("No such property: " + propertyPath);
+  }
+
+  protected static Object getSubValue(final Object object, final BeanProperty beanProperty) {
     // check if it has value
     Object subValue = beanProperty.getValue(object);
     if (subValue == null) {
@@ -271,4 +305,17 @@ public class BeanPropertyAccessor {
     return this.object;
   }
 
+  // static
+
+  public static BeanPropertyAccessor ofObject(Object object) {
+    return new BeanPropertyAccessor(object);
+  }
+
+  public static BeanPropertyAccessor ofClass(Class<?> beanClass) {
+    return new BeanPropertyAccessor(beanClass);
+  }
+
+  public static BeanPropertyAccessor of(BeanMetadata metadata, Object object) {
+    return new BeanPropertyAccessor(metadata, object);
+  }
 }
