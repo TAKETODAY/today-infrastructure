@@ -218,13 +218,19 @@ public class BeanPropertyAccessorTest {
   static class NestedArrayDot {
 
     String name;
+
+    List<NestedArrayDot> list;
+    Map<String, NestedArrayDot> map;
+
     NestedArrayDot[] nested;
 
     @Override
     public String toString() {
       return "NestedArrayDot{" +
               "name='" + name + '\'' +
-              ", nested=" + Arrays.toString(nested) +
+              ", list=" + list +
+              ", map=" + map +
+              ", \nnested=" + Arrays.toString(nested) +
               '}';
     }
   }
@@ -235,21 +241,30 @@ public class BeanPropertyAccessorTest {
     nestedBean.setProperty("name", "TODAY");
 
     final NestedArrayDot nestedArrayDot = new NestedArrayDot();
-    nestedArrayDot.name = "TODAY-array-nested";
+    nestedArrayDot.name = "TODAY-array";
     final NestedArrayDot[] arrayDots = { nestedArrayDot };
 
     nestedBean.setProperty("nested", arrayDots);
+
+    final HashMap<String, NestedArrayDot> map = new HashMap<>();
+    map.put("nested", nestedArrayDot);
+    map.put("key", nestedArrayDot);
+    nestedBean.setProperty("map", map);
+
+    final ArrayList<NestedArrayDot> list = new ArrayList<>();
+    list.add(nestedArrayDot);
+    nestedBean.setProperty("list", list);
 
     final Object object = nestedBean.getObject();
 
     assertThat(object).isInstanceOf(NestedArrayDot.class);
     NestedArrayDot base = (NestedArrayDot) object;
 
-    assertThat(base.nested[0].name)
-            .isEqualTo("TODAY-array-nested")
-            .isEqualTo(nestedBean.getProperty("nested[0].name"));
-
-    // required type
+    assertThat(base.nested[0].name).isEqualTo("TODAY-array")
+            .isEqualTo(nestedBean.getProperty("nested[0].name"))
+            .isEqualTo(base.list.get(0).name).isEqualTo(nestedBean.getProperty("list[0].name"))
+            .isEqualTo(base.map.get("key").name).isEqualTo(nestedBean.getProperty("map[key].name"))
+            .isEqualTo(base.map.get("nested").name).isEqualTo(nestedBean.getProperty("map[nested].name"));
 
     System.out.println(object);
   }
