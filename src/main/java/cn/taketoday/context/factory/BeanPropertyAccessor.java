@@ -1,6 +1,6 @@
 /*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,8 +28,7 @@ import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.utils.ConvertUtils;
 
 /**
- * @author TODAY
- * @date 2021/1/27 22:35
+ * @author TODAY 2021/1/27 22:35
  * @since 3.0
  */
 public class BeanPropertyAccessor {

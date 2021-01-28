@@ -1,6 +1,6 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,7 +26,7 @@ import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
  * @author TODAY
- * @date 2020/9/20 21:49
+ * 2020/9/20 21:49
  */
 public class MethodMethodAccessor extends MethodInvoker implements MethodAccessor {
 

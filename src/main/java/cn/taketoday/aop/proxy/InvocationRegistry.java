@@ -1,6 +1,6 @@
 /*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,7 +27,7 @@ import cn.taketoday.aop.intercept.StandardMethodInvocation.Target;
 
 /**
  * @author TODAY
- * @date 2020/10/30 22:32
+ * 2020/10/30 22:32
  */
 public abstract class InvocationRegistry {
 

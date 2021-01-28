@@ -1,6 +1,6 @@
 /*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,7 +31,7 @@ import cn.taketoday.context.Constant;
  * Property alias name
  *
  * @author TODAY
- * @date 2021/1/27 22:32
+ * 2021/1/27 22:32
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD, ElementType.PARAMETER })

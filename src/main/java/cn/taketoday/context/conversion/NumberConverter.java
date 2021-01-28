@@ -1,6 +1,6 @@
 /*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,7 +25,7 @@ import cn.taketoday.context.utils.Assert;
 
 /**
  * @author TODAY
- * @date 2021/1/6 23:18
+ * 2021/1/6 23:18
  */
 public class NumberConverter implements Converter<Object, Number>, TypeCapable {
 

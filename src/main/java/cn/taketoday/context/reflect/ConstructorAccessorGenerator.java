@@ -1,6 +1,6 @@
 /*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -40,7 +40,7 @@ import static cn.taketoday.context.cglib.core.CglibReflectUtils.getMethodInfo;
 
 /**
  * @author TODAY
- * @date 2020/9/11 16:51
+ * 2020/9/11 16:51
  */
 public class ConstructorAccessorGenerator
         extends GeneratorSupport<ConstructorAccessor> implements ClassGenerator {

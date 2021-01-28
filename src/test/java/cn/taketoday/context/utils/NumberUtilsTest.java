@@ -1,6 +1,6 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  * 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,7 +30,7 @@ import cn.taketoday.context.exception.ConversionException;
 
 /**
  * @author Today
- * @date 2018年7月6日 下午1:36:29
+ * 2018年7月6日 下午1:36:29
  */
 public class NumberUtilsTest {
 

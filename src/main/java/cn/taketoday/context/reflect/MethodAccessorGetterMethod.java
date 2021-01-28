@@ -1,6 +1,6 @@
 /*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,7 +22,7 @@ package cn.taketoday.context.reflect;
 
 /**
  * @author TODAY
- * @date 2021/1/7 17:39
+ * 2021/1/7 17:39
  */
 public class MethodAccessorGetterMethod implements GetterMethod {
   private final MethodAccessor accessor;

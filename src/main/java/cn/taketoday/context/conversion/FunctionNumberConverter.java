@@ -1,6 +1,6 @@
 /*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,7 +25,7 @@ import java.util.function.UnaryOperator;
 
 /**
  * @author TODAY
- * @date 2021/1/6 23:34
+ * 2021/1/6 23:34
  */
 public class FunctionNumberConverter extends NumberConverter {
 

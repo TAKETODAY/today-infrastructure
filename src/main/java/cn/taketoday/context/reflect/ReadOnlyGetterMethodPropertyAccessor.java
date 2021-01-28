@@ -1,6 +1,6 @@
 /*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,7 +22,7 @@ package cn.taketoday.context.reflect;
 
 /**
  * @author TODAY
- * @date 2020/9/12 15:20
+ * 2020/9/12 15:20
  */
 public class ReadOnlyGetterMethodPropertyAccessor
         extends ReadOnlyPropertyAccessor implements PropertyAccessor {

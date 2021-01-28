@@ -1,6 +1,6 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -43,7 +43,7 @@ import static cn.taketoday.context.asm.Opcodes.INVOKESTATIC;
 
 /**
  * @author TODAY
- * @date 2020/9/11 16:32
+ * 2020/9/11 16:32
  */
 public abstract class GeneratorSupport<T> {
   static final Type GENERATOR_SUPPORT_TYPE = Type.getType(GeneratorSupport.class);

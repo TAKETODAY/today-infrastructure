@@ -1,6 +1,6 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author TODAY
- * @date 2020/9/17 16:16
+ * 2020/9/17 16:16
  */
 public class AutowireCapableBeanFactoryTest {
 

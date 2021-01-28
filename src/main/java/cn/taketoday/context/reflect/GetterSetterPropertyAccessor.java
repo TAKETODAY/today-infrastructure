@@ -1,6 +1,6 @@
 /*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,7 +24,7 @@ import cn.taketoday.context.utils.Assert;
 
 /**
  * @author TODAY
- * @date 2020/9/11 17:27
+ * 2020/9/11 17:27
  */
 public class GetterSetterPropertyAccessor implements PropertyAccessor {
 

@@ -1,6 +1,6 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,7 +25,7 @@ import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
  * @author TODAY
- * @date 2020/9/19 22:39
+ * 2020/9/19 22:39
  */
 public class FieldGetterMethod implements GetterMethod {
 
