@@ -128,8 +128,15 @@ public abstract class GeneratorSupport<T> {
         builder.append('$');
         if (parameterType.isArray()) {
           builder.append("A$");
-          final String simpleName = parameterType.getSimpleName();
-          builder.append(simpleName, 0, simpleName.length() - 2);
+          // fix Multidimensional Arrays bugs
+          Class<?> componentType = parameterType;
+          do {
+            String simpleName = componentType.getSimpleName();
+            // first char
+            builder.append(simpleName, 0, simpleName.indexOf('['));
+            componentType = componentType.getComponentType();
+          }
+          while (componentType != null && componentType.isArray());
         }
         else {
           builder.append(parameterType.getSimpleName());
