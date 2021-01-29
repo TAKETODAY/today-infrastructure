@@ -30,9 +30,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.reflect.ArrayConstructor;
 import cn.taketoday.context.reflect.BeanConstructor;
+import cn.taketoday.context.reflect.CollectionConstructor;
 import cn.taketoday.context.reflect.ConstructorAccessor;
 import cn.taketoday.context.reflect.ConstructorAccessorBeanConstructor;
 import cn.taketoday.context.reflect.ConstructorAccessorGenerator;
@@ -41,6 +44,7 @@ import cn.taketoday.context.reflect.FieldPropertyAccessor;
 import cn.taketoday.context.reflect.FieldSetterMethod;
 import cn.taketoday.context.reflect.GetterMethod;
 import cn.taketoday.context.reflect.GetterSetterPropertyAccessor;
+import cn.taketoday.context.reflect.MapConstructor;
 import cn.taketoday.context.reflect.MethodAccessor;
 import cn.taketoday.context.reflect.MethodAccessorGetterMethod;
 import cn.taketoday.context.reflect.MethodAccessorPropertyAccessor;
@@ -1110,6 +1114,17 @@ public abstract class ReflectionUtils {
   }
 
   public static ConstructorAccessor newConstructorAccessor(final Class<?> target) {
+    if (target.isArray()) {
+      Class<?> componentType = target.getComponentType();
+      return new ArrayConstructor(componentType);
+    }
+    else if (Collection.class.isAssignableFrom(target)) {
+      return new CollectionConstructor(target);
+    }
+    else if (Map.class.isAssignableFrom(target)) {
+      return new MapConstructor(target);
+    }
+
     try {
       final Constructor<?> constructor = target.getDeclaredConstructor();
       return newConstructorAccessor(constructor);

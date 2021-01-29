@@ -35,71 +35,72 @@ import cn.taketoday.context.io.Resource;
 import static cn.taketoday.context.cglib.core.TypeUtils.parseType;
 
 /**
- *
  * @author TODAY <br>
- *         2018-01-16 10:56
+ * 2018-01-16 10:56
  */
 public interface Constant extends Opcodes, Serializable {
 
-    String CONTEXT_VERSION = "3.0";
+  int DEFAULT_CAPACITY = 16; // @since 3.0
 
-    String KEY_ROOT = "root";
-    String KEY_RESULT = "result";
+  String CONTEXT_VERSION = "3.0";
 
-    Type[] TYPES_EMPTY_ARRAY = {};
-    Field[] EMPTY_FIELD_ARRAY = {};
-    Method[] EMPTY_METHOD_ARRAY = {};
-    Object[] EMPTY_OBJECT_ARRAY = {};
-    Class<?>[] EMPTY_CLASS_ARRAY = {};
-    Resource[] EMPTY_RESOURCE_ARRAY = {};
-    PropertyValue[] EMPTY_PROPERTY_VALUE = {};
-    AnnotationAttributes[] EMPTY_ANNOTATION_ATTRIBUTES = {};
+  String KEY_ROOT = "root";
+  String KEY_RESULT = "result";
 
-    Serializable EMPTY_OBJECT = EmptyObject.INSTANCE;
+  Type[] TYPES_EMPTY_ARRAY = {};
+  Field[] EMPTY_FIELD_ARRAY = {};
+  Method[] EMPTY_METHOD_ARRAY = {};
+  Object[] EMPTY_OBJECT_ARRAY = {};
+  Class<?>[] EMPTY_CLASS_ARRAY = {};
+  Resource[] EMPTY_RESOURCE_ARRAY = {};
+  PropertyValue[] EMPTY_PROPERTY_VALUE = {};
+  AnnotationAttributes[] EMPTY_ANNOTATION_ATTRIBUTES = {};
 
-    //
-    // ----------------------------------------------------------------
+  Serializable EMPTY_OBJECT = EmptyObject.INSTANCE;
 
-    Signature SIG_STATIC = TypeUtils.parseSignature("void <clinit>()");
+  //
+  // ----------------------------------------------------------------
 
-    Type TYPE_OBJECT_ARRAY = parseType("Object[]");
-    Type TYPE_CLASS_ARRAY = parseType("Class[]");
-    Type TYPE_STRING_ARRAY = parseType("String[]");
+  Signature SIG_STATIC = TypeUtils.parseSignature("void <clinit>()");
 
-    Type TYPE_TYPE = Type.getType(Type.class);
-    Type TYPE_ERROR = parseType("Error");
-    Type TYPE_SYSTEM = parseType("System");
-    Type TYPE_LONG = parseType("Long");
-    Type TYPE_BYTE = parseType("Byte");
-    Type TYPE_CLASS = parseType("Class");
-    Type TYPE_FLOAT = parseType("Float");
-    Type TYPE_SHORT = parseType("Short");
-    Type TYPE_OBJECT = parseType("Object");
-    Type TYPE_DOUBLE = parseType("Double");
-    Type TYPE_STRING = parseType("String");
-    Type TYPE_NUMBER = parseType("Number");
-    Type TYPE_BOOLEAN = parseType("Boolean");
-    Type TYPE_INTEGER = parseType("Integer");
-    Type TYPE_CHARACTER = parseType("Character");
-    Type TYPE_THROWABLE = parseType("Throwable");
-    Type TYPE_CLASS_LOADER = parseType("ClassLoader");
-    Type TYPE_STRING_BUFFER = parseType("StringBuffer");
-    Type TYPE_BIG_INTEGER = parseType("java.math.BigInteger");
-    Type TYPE_BIG_DECIMAL = parseType("java.math.BigDecimal");
-    Type TYPE_RUNTIME_EXCEPTION = parseType("RuntimeException");
-    Type TYPE_SIGNATURE = parseType(Signature.class);
+  Type TYPE_OBJECT_ARRAY = parseType("Object[]");
+  Type TYPE_CLASS_ARRAY = parseType("Class[]");
+  Type TYPE_STRING_ARRAY = parseType("String[]");
 
-    String STATIC_NAME = "<clinit>";
-    String SOURCE_FILE = "<cglibGenerated>";
-    String SUID_FIELD_NAME = "serialVersionUID";
+  Type TYPE_TYPE = Type.getType(Type.class);
+  Type TYPE_ERROR = parseType("Error");
+  Type TYPE_SYSTEM = parseType("System");
+  Type TYPE_LONG = parseType("Long");
+  Type TYPE_BYTE = parseType("Byte");
+  Type TYPE_CLASS = parseType("Class");
+  Type TYPE_FLOAT = parseType("Float");
+  Type TYPE_SHORT = parseType("Short");
+  Type TYPE_OBJECT = parseType("Object");
+  Type TYPE_DOUBLE = parseType("Double");
+  Type TYPE_STRING = parseType("String");
+  Type TYPE_NUMBER = parseType("Number");
+  Type TYPE_BOOLEAN = parseType("Boolean");
+  Type TYPE_INTEGER = parseType("Integer");
+  Type TYPE_CHARACTER = parseType("Character");
+  Type TYPE_THROWABLE = parseType("Throwable");
+  Type TYPE_CLASS_LOADER = parseType("ClassLoader");
+  Type TYPE_STRING_BUFFER = parseType("StringBuffer");
+  Type TYPE_BIG_INTEGER = parseType("java.math.BigInteger");
+  Type TYPE_BIG_DECIMAL = parseType("java.math.BigDecimal");
+  Type TYPE_RUNTIME_EXCEPTION = parseType("RuntimeException");
+  Type TYPE_SIGNATURE = parseType(Signature.class);
 
-    int PRIVATE_FINAL_STATIC = ACC_PRIVATE | ACC_FINAL | ACC_STATIC;
+  String STATIC_NAME = "<clinit>";
+  String SOURCE_FILE = "<cglibGenerated>";
+  String SUID_FIELD_NAME = "serialVersionUID";
 
-    int SWITCH_STYLE_TRIE = 0;
-    int SWITCH_STYLE_HASH = 1;
-    int SWITCH_STYLE_HASHONLY = 2;
+  int PRIVATE_FINAL_STATIC = ACC_PRIVATE | ACC_FINAL | ACC_STATIC;
 
-    //@off
+  int SWITCH_STYLE_TRIE = 0;
+  int SWITCH_STYLE_HASH = 1;
+  int SWITCH_STYLE_HASHONLY = 2;
+
+  //@off
     /** Bytes per Kilobyte.*/
     long 	BYTES_PER_KB 			= 1024;
     /** Bytes per Megabyte. */
@@ -177,61 +178,61 @@ public interface Constant extends Opcodes, Serializable {
     /**
      **********************************************/ //@on
 
-    /**
-     * @since 2.1.7
-     */
-    String SINGLETON = "singleton";
+  /**
+   * @since 2.1.7
+   */
+  String SINGLETON = "singleton";
 
-    /**
-     * @since 2.1.7
-     */
-    String PROTOTYPE = "prototype";
+  /**
+   * @since 2.1.7
+   */
+  String PROTOTYPE = "prototype";
 
-    /** URL prefix for loading from the file system: "file:". */
-    String FILE_URL_PREFIX = "file:";
-    /** URL prefix for loading from a jar file: "jar:". */
-    String JAR_URL_PREFIX = "jar:";
-    /** URL prefix for loading from a war file on Tomcat: "war:". */
-    String WAR_URL_PREFIX = "war:";
-    /** URL protocol for a file in the file system: "file". */
-    String URL_PROTOCOL_FILE = PROTOCOL_FILE;
-    /** URL protocol for an entry from a jar file: "jar". */
-    String URL_PROTOCOL_JAR = PROTOCOL_JAR;
-    /** URL protocol for an entry from a war file: "war". */
-    String URL_PROTOCOL_WAR = "war";
-    /** URL protocol for an entry from a zip file: "zip". */
-    String URL_PROTOCOL_ZIP = "zip";
-    /** URL protocol for an entry from a WebSphere jar file: "wsjar". */
-    String URL_PROTOCOL_WSJAR = "wsjar";
-    /** URL protocol for an entry from a JBoss jar file: "vfszip". */
-    String URL_PROTOCOL_VFSZIP = "vfszip";
-    /** URL protocol for a JBoss file system resource: "vfsfile". */
-    String URL_PROTOCOL_VFSFILE = "vfsfile";
-    /** File extension for a regular jar file: ".jar". */
-    String JAR_FILE_EXTENSION = ".jar";
-    /** Separator between JAR URL and file path within the JAR: "!/". */
-    String JAR_URL_SEPARATOR = JAR_SEPARATOR;
-    /** Special separator between WAR URL and jar part on Tomcat. */
-    String WAR_URL_SEPARATOR = "*/";
+  /** URL prefix for loading from the file system: "file:". */
+  String FILE_URL_PREFIX = "file:";
+  /** URL prefix for loading from a jar file: "jar:". */
+  String JAR_URL_PREFIX = "jar:";
+  /** URL prefix for loading from a war file on Tomcat: "war:". */
+  String WAR_URL_PREFIX = "war:";
+  /** URL protocol for a file in the file system: "file". */
+  String URL_PROTOCOL_FILE = PROTOCOL_FILE;
+  /** URL protocol for an entry from a jar file: "jar". */
+  String URL_PROTOCOL_JAR = PROTOCOL_JAR;
+  /** URL protocol for an entry from a war file: "war". */
+  String URL_PROTOCOL_WAR = "war";
+  /** URL protocol for an entry from a zip file: "zip". */
+  String URL_PROTOCOL_ZIP = "zip";
+  /** URL protocol for an entry from a WebSphere jar file: "wsjar". */
+  String URL_PROTOCOL_WSJAR = "wsjar";
+  /** URL protocol for an entry from a JBoss jar file: "vfszip". */
+  String URL_PROTOCOL_VFSZIP = "vfszip";
+  /** URL protocol for a JBoss file system resource: "vfsfile". */
+  String URL_PROTOCOL_VFSFILE = "vfsfile";
+  /** File extension for a regular jar file: ".jar". */
+  String JAR_FILE_EXTENSION = ".jar";
+  /** Separator between JAR URL and file path within the JAR: "!/". */
+  String JAR_URL_SEPARATOR = JAR_SEPARATOR;
+  /** Special separator between WAR URL and jar part on Tomcat. */
+  String WAR_URL_SEPARATOR = "*/";
 
-    String TOP_PATH = "..";
-    String CURRENT_PATH = ".";
-    String FOLDER_SEPARATOR = "/";
-    String WINDOWS_FOLDER_SEPARATOR = "\\";
-    char EXTENSION_SEPARATOR = PACKAGE_SEPARATOR;
+  String TOP_PATH = "..";
+  String CURRENT_PATH = ".";
+  String FOLDER_SEPARATOR = "/";
+  String WINDOWS_FOLDER_SEPARATOR = "\\";
+  char EXTENSION_SEPARATOR = PACKAGE_SEPARATOR;
 
-    /* Indicates the ASM API version that is used throughout cglib */
-    //  int         ASM_API                 = ASM7;
+  /* Indicates the ASM API version that is used throughout cglib */
+  //  int         ASM_API                 = ASM7;
 
-    /*************************************************
-     * Parameter Types
-     */
-    byte TYPE_NULL = 0x00;
-    byte TYPE_THROWING = 0x01;
-    byte TYPE_ARGUMENT = 0x02;
-    byte TYPE_ARGUMENTS = 0x03;
-    byte TYPE_RETURNING = 0x04;
-    byte TYPE_ANNOTATED = 0x05;
-    byte TYPE_JOIN_POINT = 0x06;
-    byte TYPE_ATTRIBUTE = 0x07;
+  /*************************************************
+   * Parameter Types
+   */
+  byte TYPE_NULL = 0x00;
+  byte TYPE_THROWING = 0x01;
+  byte TYPE_ARGUMENT = 0x02;
+  byte TYPE_ARGUMENTS = 0x03;
+  byte TYPE_RETURNING = 0x04;
+  byte TYPE_ANNOTATED = 0x05;
+  byte TYPE_JOIN_POINT = 0x06;
+  byte TYPE_ATTRIBUTE = 0x07;
 }
