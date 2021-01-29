@@ -185,21 +185,17 @@ public class BeanPropertyAccessor {
       throw new UnsupportedOperationException("Unsupported Operator: " + propertyPath);
     }
     // array,list: [0]; map: [key]
-    final Object value;
-    if (signIndex == 0) {
-      value = root;
-    }
-    else {
+    if (signIndex != 0) {
       final String property = propertyPath.substring(0, signIndex);
-      value = metadata.getProperty(root, property);
-      if (value == null) {
+      root = metadata.getProperty(root, property);
+      if (root == null) {
         return null;
       }
     }
 
     try {
       final String key = propertyPath.substring(signIndex + 1, endIndex);
-      root = getKeyedPropertyValue(value, key);
+      root = getKeyedPropertyValue(root, key);
       if (endIndex != propertyPath.length() - 1
               && propertyPath.charAt(endIndex + 1) == '[') {
         // Multidimensional Arrays
@@ -208,7 +204,7 @@ public class BeanPropertyAccessor {
       return root;
     }
     catch (NumberFormatException e) {
-      throw new UnsupportedOperationException("Unsupported Operator: " + propertyPath + ", value: " + value, e);
+      throw new UnsupportedOperationException("Unsupported Operator: " + propertyPath + ", value: " + root, e);
     }
   }
 
