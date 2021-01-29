@@ -562,7 +562,7 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    */
   String[] pathVariables(String[] variables);
 
-  RedirectModel applyRedirectModel();
+  RedirectModel redirectModel();
 
   RedirectModel applyRedirectModel(RedirectModel redirectModel);
 }

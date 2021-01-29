@@ -132,7 +132,7 @@ public abstract class AbstractResultHandler
       getMessageConverter().write(context, resource.substring(5));
     }
     else {
-      final RedirectModel redirectModel = context.applyRedirectModel();
+      final RedirectModel redirectModel = context.redirectModel();
       if (redirectModel != null) {
         for (final Entry<String, Object> entry : redirectModel.asMap().entrySet()) {
           context.attribute(entry.getKey(), entry.getValue());

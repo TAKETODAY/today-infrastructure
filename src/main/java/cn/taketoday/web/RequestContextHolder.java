@@ -307,7 +307,7 @@ public abstract class RequestContextHolder {
     }
 
     @Override
-    public RedirectModel applyRedirectModel() {
+    public RedirectModel redirectModel() {
       return null;
     }
 
