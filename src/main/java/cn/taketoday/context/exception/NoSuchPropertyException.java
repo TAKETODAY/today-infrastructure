@@ -21,7 +21,7 @@ package cn.taketoday.context.exception;
 
 /**
  * @author TODAY <br>
- *         2018-08-05 10:08
+ * 2018-08-05 10:08
  */
 @SuppressWarnings("serial")
 public class NoSuchPropertyException extends ContextException {
@@ -38,6 +38,10 @@ public class NoSuchPropertyException extends ContextException {
 
   public NoSuchPropertyException(String message) {
     super(message);
+  }
+
+  public static NoSuchPropertyException noSuchProperty(final String property) {
+    return new NoSuchPropertyException("No such property: " + property);
   }
 
 }

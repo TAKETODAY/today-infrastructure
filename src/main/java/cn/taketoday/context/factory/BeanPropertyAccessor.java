@@ -50,6 +50,8 @@ public class BeanPropertyAccessor {
     this.metadata = metadata;
   }
 
+  // get
+
   /**
    * Get property object with given requiredType
    *
@@ -146,9 +148,9 @@ public class BeanPropertyAccessor {
     int signIndex = propertyPath.indexOf('.');
 
     if (signIndex != -1) {
-      String property = propertyPath.substring(0, signIndex);
+      final String property = propertyPath.substring(0, signIndex);
       // get property value and get value in the next call // root[1].name
-      Object propertyValue = getPropertyValue(root, metadata, property);
+      final Object propertyValue = getPropertyValue(root, metadata, property);
       if (propertyValue == null) {
         return null; // 上一级为空,下一级自然为空
       }
@@ -157,7 +159,6 @@ public class BeanPropertyAccessor {
       final String newPath = propertyPath.substring(signIndex + 1);
       return getProperty(propertyValue, subMetadata, newPath);
     }
-
     return getPropertyValue(root, metadata, propertyPath);
   }
 
@@ -169,72 +170,70 @@ public class BeanPropertyAccessor {
   }
 
   static Object getPropertyValue(Object root, BeanMetadata metadata, String propertyPath) {
-    int signIndex = propertyPath.indexOf('['); // array,list: [0]; map: [key]
-    final BeanProperty beanProperty;
-    if (signIndex != -1) {
-      // exist
-      final String property = propertyPath.substring(0, signIndex);
-      beanProperty = metadata.getBeanProperty(property);
+    final int signIndex = propertyPath.indexOf('['); // array,list: [0]; map: [key]
+    if (signIndex < 0) {
+      return metadata.getProperty(root, propertyPath);
     }
-    else {
-      beanProperty = metadata.getBeanProperty(propertyPath);
-    }
-    if (beanProperty == null) {
-      throw noSuchProperty(propertyPath);
-    }
+    return getKeyedPropertyValue(root, metadata, signIndex, propertyPath);
+  }
 
-    final Object value = beanProperty.getValue(root);
-    if (value == null || signIndex == -1) {
-      return value;
-    }
-
+  static Object getKeyedPropertyValue(Object root, BeanMetadata metadata, int signIndex, String propertyPath) {
+    // check
     final int endIndex = propertyPath.indexOf(']');
     if (endIndex == -1 || signIndex + 1 == endIndex) {
       // key is illegal
-      throw unsupported(propertyPath, value, null);
+      throw new UnsupportedOperationException("Unsupported Operator: " + propertyPath);
     }
-    // key
-    final String key = propertyPath.substring(signIndex + 1, endIndex);
-    final Class<?> type = beanProperty.getType();
-
-    return getPropertyValue(propertyPath, value, key, type);
-  }
-
-  static Object getPropertyValue(String propertyPath, Object value, String key, Class<?> type) {
-    if (Map.class.isAssignableFrom(type)) {
-      final Map map = (Map) value;
-      return map.get(key);
-    }
-    else if (type.isArray()) {
-      try {
-        final int arrayIndex = Integer.parseInt(key);
-        final int length = Array.getLength(value);
-        if (arrayIndex >= length) {
-          throw new ArrayIndexOutOfBoundsException(length);
-        }
-        return Array.get(value, arrayIndex);
-      }
-      catch (NumberFormatException e) {
-        throw unsupported(propertyPath, value, e);
-      }
-    }
-    else if (List.class.isAssignableFrom(type)) {
-      final List list = (List) value;
-      try {
-        return list.get(Integer.parseInt(key));
-      }
-      catch (NumberFormatException e) {
-        throw unsupported(propertyPath, value, e);
-      }
+    // array,list: [0]; map: [key]
+    final Object value;
+    if (signIndex == 0) {
+      value = root;
     }
     else {
-      throw unsupported(propertyPath, value, null);
+      final String property = propertyPath.substring(0, signIndex);
+      value = metadata.getProperty(root, property);
+      if (value == null) {
+        return null;
+      }
+    }
+
+    try {
+      final String key = propertyPath.substring(signIndex + 1, endIndex);
+      root = getKeyedPropertyValue(value, key);
+      if (endIndex != propertyPath.length() - 1
+              && propertyPath.charAt(endIndex + 1) == '[') {
+        // Multidimensional Arrays
+        return getKeyedPropertyValue(root, metadata, 0, propertyPath.substring(endIndex + 1));
+      }
+      return root;
+    }
+    catch (NumberFormatException e) {
+      throw new UnsupportedOperationException("Unsupported Operator: " + propertyPath + ", value: " + value, e);
     }
   }
 
-  static UnsupportedOperationException unsupported(String propertyPath, Object value, Exception e) {
-    return new UnsupportedOperationException("Unsupported Operator: " + propertyPath + ", value: " + value, e);
+  static Object getKeyedPropertyValue(Object propertyValue, String key) {
+    if (propertyValue instanceof Map) {
+      final Map map = (Map) propertyValue;
+      return map.get(key);
+    }
+    else if (propertyValue instanceof List) {
+      final List list = (List) propertyValue;
+      return list.get(Integer.parseInt(key));
+    }
+    else if (propertyValue.getClass().isArray()) {
+      final int arrayIndex = Integer.parseInt(key);
+      final int length = Array.getLength(propertyValue);
+      if (arrayIndex >= length) {
+        throw new ArrayIndexOutOfBoundsException(length);
+      }
+      return Array.get(propertyValue, arrayIndex);
+    }
+    throw new UnsupportedOperationException(
+            "Unsupported data structure: " + propertyValue.getClass() + ", value: " + propertyValue);
   }
+
+  // set
 
   /**
    * Set value to object's property
@@ -278,7 +277,7 @@ public class BeanPropertyAccessor {
     int index = propertyPath.indexOf('.');
 
     final BeanProperty beanProperty;
-    if (index > 0) {
+    if (index != -1) {
       final String property = propertyPath.substring(0, index);
       beanProperty = metadata.getBeanProperty(property);
       final Object subValue = getSubValue(root, beanProperty);
@@ -288,16 +287,8 @@ public class BeanPropertyAccessor {
       setProperty(subValue, subMetadata, newPath, value);
     }
     else {
-      beanProperty = metadata.getBeanProperty(propertyPath);
-      if (beanProperty == null) {
-        throw noSuchProperty(propertyPath);
-      }
-      beanProperty.setValue(root, value);
+      metadata.obtainBeanProperty(propertyPath).setValue(root, value);
     }
-  }
-
-  static NoSuchPropertyException noSuchProperty(final String propertyPath) {
-    return new NoSuchPropertyException("No such property: " + propertyPath);
   }
 
   protected static Object getSubValue(final Object object, final BeanProperty beanProperty) {
@@ -313,6 +304,10 @@ public class BeanPropertyAccessor {
 
   public Object getObject() {
     return this.object;
+  }
+
+  public BeanMetadata getMetadata() {
+    return metadata;
   }
 
   // static

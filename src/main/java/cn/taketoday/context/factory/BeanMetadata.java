@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.context.annotation.Property;
+import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.reflect.ConstructorAccessor;
 import cn.taketoday.context.reflect.PropertyAccessor;
 import cn.taketoday.context.utils.ClassUtils;
@@ -80,6 +81,42 @@ public class BeanMetadata {
 
   public BeanProperty getBeanProperty(final String propertyName) {
     return beanProperties.get(propertyName);
+  }
+
+  /**
+   * Get {@link BeanProperty} with given name
+   *
+   * @param propertyName
+   *         property name
+   *
+   * @return target {@link BeanProperty}
+   *
+   * @throws NoSuchPropertyException
+   *         If no such property
+   */
+  public BeanProperty obtainBeanProperty(final String propertyName) {
+    final BeanProperty beanProperty = getBeanProperty(propertyName);
+    if (beanProperty == null) {
+      throw NoSuchPropertyException.noSuchProperty(propertyName);
+    }
+    return beanProperty;
+  }
+
+  /**
+   * @param root
+   * @param propertyName
+   * @param value
+   */
+  public void setProperty(final Object root, final String propertyName, final Object value) {
+    obtainBeanProperty(propertyName).setValue(root, value);
+  }
+
+  /**
+   * @param root
+   * @param propertyName
+   */
+  public Object getProperty(final Object root, final String propertyName) {
+    return obtainBeanProperty(propertyName).getValue(root);
   }
 
   public Map<String, BeanProperty> getBeanProperties() {

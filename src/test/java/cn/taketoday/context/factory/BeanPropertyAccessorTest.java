@@ -224,6 +224,11 @@ public class BeanPropertyAccessorTest {
 
     NestedArrayDot[] nested;
 
+    int[][] ints = new int[][] {
+            { 1, 2, 3 },
+            { 4, 5, 6 },
+    };
+
     @Override
     public String toString() {
       return "NestedArrayDot{" +
@@ -266,7 +271,27 @@ public class BeanPropertyAccessorTest {
             .isEqualTo(base.map.get("key").name).isEqualTo(nestedBean.getProperty("map[key].name"))
             .isEqualTo(base.map.get("nested").name).isEqualTo(nestedBean.getProperty("map[nested].name"));
 
+    assertThat(base.ints[0]).isInstanceOf(int[].class).isEqualTo(nestedBean.getProperty("ints[0]"));
+
+    assertThat(base.ints[0][0]).isInstanceOf(Integer.class).isEqualTo(1)
+            .isEqualTo(nestedBean.getProperty("ints[0][0]"))
+            .isEqualTo(nestedBean.getProperty("ints[0][0]xxx"))
+            .isEqualTo(nestedBean.getProperty("ints[0][0].value"));
+
+    try {
+      nestedBean.getProperty("ints[0][xxx");
+    }
+    catch (UnsupportedOperationException e) {}
+
     System.out.println(object);
+  }
+
+  @Test
+  public void testArray() {
+    final NestedArrayDot nested = new NestedArrayDot();
+    nested.name = "TODAY";
+    final NestedArrayDot[] arrayDots = { null, nested };
+    assertThat(BeanPropertyAccessor.getProperty(arrayDots, "[1].name")).isEqualTo("TODAY");
   }
 
 }
