@@ -22,6 +22,7 @@ package cn.taketoday.context.factory;
 
 import org.junit.Test;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -72,7 +73,7 @@ public class BeanPropertyAccessorTest {
 
     nestedBean.setProperty("nested.nested.name", "nested-nested-TODAY");
 
-    final Object object = nestedBean.getObject();
+    final Object object = nestedBean.setNewValue();
 
     assertThat(object).isInstanceOf(NestedType.class);
     NestedType base = (NestedType) object;
@@ -145,7 +146,7 @@ public class BeanPropertyAccessorTest {
     list.add("TODAY2");
     nestedBean.setProperty("nested.list", list);
 
-    final Object object = nestedBean.getObject();
+    final Object object = nestedBean.setNewValue();
 
     assertThat(object).isInstanceOf(Nested.class);
     Nested base = (Nested) object;
@@ -184,7 +185,7 @@ public class BeanPropertyAccessorTest {
     try {
       nestedBean.getProperty("nested.doubles[]");
     }
-    catch (UnsupportedOperationException ignored) { }
+    catch (IllegalArgumentException ignored) { }
     try {
       nestedBean.getProperty("nested.doubles[2]");
     }
@@ -192,23 +193,23 @@ public class BeanPropertyAccessorTest {
     try {
       nestedBean.getProperty("nested.doubles[1");
     }
-    catch (UnsupportedOperationException ignored) { }
+    catch (IllegalArgumentException ignored) { }
 
     //NumberFormatException
 
     try {
       nestedBean.getProperty("nested.doubles[name]");
     }
-    catch (UnsupportedOperationException ignored) { }
+    catch (IllegalArgumentException ignored) { }
     try {
       nestedBean.getProperty("nested.list[name]");
     }
-    catch (UnsupportedOperationException ignored) { }
+    catch (IllegalArgumentException ignored) { }
     // 
     try {
       nestedBean.getProperty("nested.name[name]");
     }
-    catch (UnsupportedOperationException ignored) { }
+    catch (IllegalArgumentException ignored) { }
 
     System.out.println(object);
   }
@@ -260,7 +261,7 @@ public class BeanPropertyAccessorTest {
     list.add(nestedArrayDot);
     nestedBean.setProperty("list", list);
 
-    final Object object = nestedBean.getObject();
+    final Object object = nestedBean.setNewValue();
 
     assertThat(object).isInstanceOf(NestedArrayDot.class);
     NestedArrayDot base = (NestedArrayDot) object;
@@ -281,7 +282,7 @@ public class BeanPropertyAccessorTest {
     try {
       nestedBean.getProperty("ints[0][xxx");
     }
-    catch (UnsupportedOperationException e) {}
+    catch (IllegalArgumentException e) {}
 
     System.out.println(object);
   }
@@ -292,6 +293,112 @@ public class BeanPropertyAccessorTest {
     nested.name = "TODAY";
     final NestedArrayDot[] arrayDots = { null, nested };
     assertThat(BeanPropertyAccessor.getProperty(arrayDots, "[1].name")).isEqualTo("TODAY");
+  }
+
+  @Setter
+  @Getter
+  static class BeanPropertyTest {
+    String name;
+    List<String> list;
+    List<List<String>> listList;
+  }
+
+  @Test
+  public void testBeanProperty() throws NoSuchFieldException {
+    final BeanProperty beanProperty = new BeanProperty(BeanPropertyTest.class.getDeclaredField("listList"));
+    final BeanProperty listBeanProperty = new BeanProperty(BeanPropertyTest.class.getDeclaredField("list"));
+
+    assertThat(beanProperty.getGeneric(0)).isInstanceOf(ParameterizedType.class);
+    final ParameterizedType generic = (ParameterizedType) beanProperty.getGeneric(0);
+    assertThat(listBeanProperty.getGeneric(0)).isInstanceOf(Class.class).isEqualTo(generic.getActualTypeArguments()[0]);
+  }
+
+  // set
+
+  @Setter
+  @Getter
+  static class SetNested {
+    String name;
+
+    List<SetNested> list;
+    Map<String, SetNested> map;
+
+    SetNested[] nested;
+
+    @Override
+    public String toString() {
+      return "SetNested{" +
+              "name='" + name + '\'' +
+              ", \nnested=" + Arrays.toString(nested) +
+              '}';
+    }
+  }
+
+  @Test
+  public void testSetArrayDotProperty() {
+    final BeanPropertyAccessor nestedBean = BeanPropertyAccessor.ofClass(SetNested.class);
+    nestedBean.setProperty("name", "TODAY");
+
+    final SetNested nested = new SetNested();
+    nested.name = "TODAY";
+    final SetNested[] arrayDots = { nested };
+
+    nestedBean.setProperty("nested", arrayDots);
+
+    final HashMap<String, SetNested> map = new HashMap<>();
+    map.put("nested", nested);
+    map.put("key", nested);
+    nestedBean.setProperty("map", map);
+    nestedBean.setProperty("map[newKey]", nested);
+
+    final ArrayList<SetNested> list = new ArrayList<>();
+    list.add(nested);
+    nestedBean.setProperty("list", list);
+    nestedBean.setProperty("list[1]", nested);
+    nestedBean.setProperty("nested[0].list[1]", nested);
+    nestedBean.setProperty("nested[0].list[1].name", "set");
+    nestedBean.setProperty("nested[1].list[1].name", "set2");
+    nestedBean.setProperty("nested[1].name", "set2");
+    nestedBean.setProperty("nested[1].map[new].name", "set2");
+
+    final Object object = nestedBean.setNewValue();
+
+    assertThat(object).isInstanceOf(SetNested.class);
+    SetNested base = (SetNested) object;
+
+    assertThat(base.nested[0].name)
+            .isEqualTo("set")
+            .isEqualTo(nested.name)
+            .isEqualTo(base.list.get(1).name)
+            .isEqualTo(nestedBean.getProperty("list[1].name"))
+            .isEqualTo(nestedBean.getProperty("nested[0].name"))
+            .isEqualTo(nestedBean.getProperty("nested[0].list[1].name"))
+            .isEqualTo(base.map.get("newKey").name).isEqualTo(nestedBean.getProperty("map[key].name"));
+
+    assertThat(base.nested[0])
+            .isEqualTo(nested)
+            .isEqualTo(base.list.get(1))
+            .isEqualTo(nestedBean.getProperty("list[1]"))
+            .isEqualTo(nestedBean.getProperty("nested[0]"))
+            .isEqualTo(nestedBean.getProperty("nested[0].list[1]"))
+            .isEqualTo(base.map.get("newKey")).isEqualTo(nestedBean.getProperty("map[key]"));
+
+    //
+    assertThat(base.nested[1].list.get(1).name)
+            .isEqualTo(base.nested[1].map.get("new").name)
+            .isEqualTo(nestedBean.getProperty("nested[1].list[1].name"))
+            .isEqualTo(nestedBean.getProperty("nested[1].name"));
+
+    try {
+      nestedBean.setProperty("nested[1].map[new].name[m]", "set2"); // type error
+    }
+    catch (InvalidPropertyException invalidPropertyException) {}
+    try {
+      nestedBean.setProperty("nested[1].list[-1]", "set2"); // -1
+    }
+    catch (InvalidPropertyException invalidPropertyException) {}
+
+    System.out.println(object);
   }
 
 }

@@ -21,8 +21,11 @@
 package cn.taketoday.context.factory;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Type;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.utils.ConvertUtils;
@@ -66,8 +69,8 @@ public class BeanPropertyAccessor {
    *         Thrown to indicate that an array has been accessed with an
    *         illegal index. The index is either negative or greater than or
    *         equal to the size of the array.
-   * @throws UnsupportedOperationException
-   *         Unsupported operation
+   * @throws IllegalArgumentException
+   *         Property path is Illegal
    * @throws NoSuchPropertyException
    *         If there is not a property
    * @throws IndexOutOfBoundsException
@@ -91,8 +94,8 @@ public class BeanPropertyAccessor {
    *         Thrown to indicate that an array has been accessed with an
    *         illegal index. The index is either negative or greater than or
    *         equal to the size of the array.
-   * @throws UnsupportedOperationException
-   *         Unsupported operation
+   * @throws IllegalArgumentException
+   *         Property path is Illegal
    * @throws NoSuchPropertyException
    *         If there is not a property
    * @throws IndexOutOfBoundsException
@@ -114,8 +117,8 @@ public class BeanPropertyAccessor {
    *         Thrown to indicate that an array has been accessed with an
    *         illegal index. The index is either negative or greater than or
    *         equal to the size of the array.
-   * @throws UnsupportedOperationException
-   *         Unsupported operation
+   * @throws IllegalArgumentException
+   *         Property path is Illegal
    * @throws NoSuchPropertyException
    *         If there is not a property
    * @throws IndexOutOfBoundsException
@@ -137,8 +140,8 @@ public class BeanPropertyAccessor {
    *         Thrown to indicate that an array has been accessed with an
    *         illegal index. The index is either negative or greater than or
    *         equal to the size of the array.
-   * @throws UnsupportedOperationException
-   *         Unsupported operation
+   * @throws IllegalArgumentException
+   *         Property path is Illegal
    * @throws NoSuchPropertyException
    *         If there is not a property
    * @throws IndexOutOfBoundsException
@@ -182,32 +185,49 @@ public class BeanPropertyAccessor {
     final int endIndex = propertyPath.indexOf(']');
     if (endIndex == -1 || signIndex + 1 == endIndex) {
       // key is illegal
-      throw new UnsupportedOperationException("Unsupported Operator: " + propertyPath);
+      throw new IllegalArgumentException("Unsupported Operator: " + propertyPath);
     }
+    Object propValue = root;
     // array,list: [0]; map: [key]
     if (signIndex != 0) {
       final String property = propertyPath.substring(0, signIndex);
-      root = metadata.getProperty(root, property);
-      if (root == null) {
+      propValue = metadata.getProperty(root, property);
+      if (propValue == null) {
         return null;
       }
     }
 
     try {
       final String key = propertyPath.substring(signIndex + 1, endIndex);
-      root = getKeyedPropertyValue(root, key);
+      propValue = getKeyedPropertyValue(propValue, key);
       if (endIndex != propertyPath.length() - 1
               && propertyPath.charAt(endIndex + 1) == '[') {
         // Multidimensional Arrays
-        return getKeyedPropertyValue(root, metadata, 0, propertyPath.substring(endIndex + 1));
+        return getKeyedPropertyValue(propValue, metadata, 0, propertyPath.substring(endIndex + 1));
       }
-      return root;
+      return propValue;
     }
     catch (NumberFormatException e) {
-      throw new UnsupportedOperationException("Unsupported Operator: " + propertyPath + ", value: " + root, e);
+      throw new IllegalArgumentException("Unsupported Operator: " + propertyPath + ", value: " + root, e);
     }
   }
 
+  /**
+   * Get propertyValue[key]
+   *
+   * @return key-value
+   *
+   * @throws ArrayIndexOutOfBoundsException
+   *         Thrown to indicate that an array has been accessed with an
+   *         illegal index. The index is either negative or greater than or
+   *         equal to the size of the array.
+   * @throws IllegalArgumentException
+   *         Property path is Illegal
+   * @throws NoSuchPropertyException
+   *         If there is not a property
+   * @throws IndexOutOfBoundsException
+   *         if the index is out of list range (<tt>index &lt; 0 || index &gt;= size()</tt>)
+   */
   static Object getKeyedPropertyValue(Object propertyValue, String key) {
     if (propertyValue instanceof Map) {
       final Map map = (Map) propertyValue;
@@ -217,6 +237,21 @@ public class BeanPropertyAccessor {
       final List list = (List) propertyValue;
       return list.get(Integer.parseInt(key));
     }
+    else if (propertyValue instanceof Set) {
+      // Apply index to Iterator in case of a Set.
+      final Set set = (Set) propertyValue;
+      int index = Integer.parseInt(key);
+      if (index < 0 || index >= set.size()) {
+        throw new IndexOutOfBoundsException("Cannot get element with index " + index + " from Set of size " + set.size());
+      }
+      final Iterator it = set.iterator();
+      for (int j = 0; it.hasNext(); j++) {
+        final Object elem = it.next();
+        if (j == index) {
+          return elem;
+        }
+      }
+    }
     else if (propertyValue.getClass().isArray()) {
       final int arrayIndex = Integer.parseInt(key);
       final int length = Array.getLength(propertyValue);
@@ -225,7 +260,7 @@ public class BeanPropertyAccessor {
       }
       return Array.get(propertyValue, arrayIndex);
     }
-    throw new UnsupportedOperationException(
+    throw new IllegalArgumentException(
             "Unsupported data structure: " + propertyValue.getClass() + ", value: " + propertyValue);
   }
 
@@ -272,19 +307,78 @@ public class BeanPropertyAccessor {
   public static void setProperty(final Object root, final BeanMetadata metadata, final String propertyPath, final Object value) {
     int index = propertyPath.indexOf('.');
 
-    final BeanProperty beanProperty;
     if (index != -1) {
-      final String property = propertyPath.substring(0, index);
-      beanProperty = metadata.getBeanProperty(property);
-      final Object subValue = getSubValue(root, beanProperty);
+      String property;
+      Class<?> propertyType;
+      Object subValue;
+      if (propertyPath.charAt(index - 1) == ']') { // xxx[0].list[0]
+        final int signIndex = propertyPath.indexOf('['); // array,list: [0]; map: [key]
+        property = propertyPath.substring(0, signIndex);
+        final BeanProperty beanProperty = metadata.obtainBeanProperty(property);
+        final Class<?> componentType = beanProperty.getComponentClass();
 
-      BeanMetadata subMetadata = BeanMetadata.ofClass(beanProperty.getType());
+        propertyType = componentType != null ? componentType : root.getClass();
+        try { // xxx[0].list[0]
+          subValue = getProperty(root, metadata, propertyPath.substring(0, index));
+        }
+        catch (IndexOutOfBoundsException ignored) {
+          // 值不够，设置新值
+          subValue = getSubValue(root, beanProperty);
+          if (componentType != null) {
+            subValue = getObject(root, propertyPath, subValue, signIndex, beanProperty);
+          }
+        }
+        // 不存在,设置新值
+        if (subValue == null) {
+          // set new value
+          subValue = setNewValue(root, beanProperty);
+          if (componentType != null) {
+            subValue = getObject(root, propertyPath, subValue, signIndex, beanProperty);
+          }
+        }
+      }
+      else {
+        property = propertyPath.substring(0, index);
+        final BeanProperty beanProperty = metadata.obtainBeanProperty(property);
+        propertyType = beanProperty.getType();
+        subValue = getSubValue(root, beanProperty);
+      }
+
+      BeanMetadata subMetadata = BeanMetadata.ofClass(propertyType);
       String newPath = propertyPath.substring(index + 1);
       setProperty(subValue, subMetadata, newPath, value);
     }
     else {
-      metadata.obtainBeanProperty(propertyPath).setValue(root, value);
+      final int signIndex = propertyPath.indexOf('['); // array,list: [0]; map: [key]
+      if (signIndex < 0) {
+        metadata.setProperty(root, propertyPath, value);
+      }
+      else {
+        final String property = propertyPath.substring(0, signIndex);
+        final BeanProperty beanProperty = metadata.obtainBeanProperty(property);
+        final Object subValue = getSubValue(root, beanProperty);
+        final String key = propertyPath.substring(signIndex + 1, propertyPath.indexOf(']'));
+        setKeyedProperty(root, beanProperty, subValue, key, value, propertyPath);
+      }
     }
+  }
+
+  static Object getObject(Object root, String propertyPath, Object subValue, int signIndex, BeanProperty beanProperty) {
+    final Object componentValue = beanProperty.newComponentInstance();
+    final String key = getKey(propertyPath, signIndex);
+    setKeyedProperty(root, beanProperty, subValue, key, componentValue, propertyPath);
+    subValue = componentValue;
+    return subValue;
+  }
+
+  static String getKey(String propertyPath, int signIndex) {
+    return propertyPath.substring(signIndex + 1, propertyPath.indexOf(']'));
+  }
+
+  static Object setNewValue(Object root, BeanProperty beanProperty) {
+    final Object subValue = beanProperty.newInstance();
+    beanProperty.setValue(root, subValue);
+    return subValue;
   }
 
   protected static Object getSubValue(final Object object, final BeanProperty beanProperty) {
@@ -292,13 +386,89 @@ public class BeanPropertyAccessor {
     Object subValue = beanProperty.getValue(object);
     if (subValue == null) {
       // set new value
-      subValue = beanProperty.newInstance();
-      beanProperty.setValue(object, subValue);
+      subValue = setNewValue(object, beanProperty);
     }
     return subValue;
   }
 
-  public Object getObject() {
+  @SuppressWarnings("unchecked")
+  static void setKeyedProperty(
+          final Object root, final BeanProperty beanProperty, Object propValue,
+          final String key, final Object value, final String propertyPath
+  ) {
+    if (propValue instanceof List) {
+      Object convertedValue = value;
+      final Type valueType = beanProperty.getGeneric(0);
+      if (valueType instanceof Class) {
+        convertedValue = ConvertUtils.convert(convertedValue, (Class<?>) valueType);
+      }
+
+      List<Object> list = (List<Object>) propValue;
+      int index = Integer.parseInt(key);
+      int size = list.size();
+      if (index >= size && index < Integer.MAX_VALUE) {
+        for (int i = size; i < index; i++) {
+          try {
+            list.add(null);
+          }
+          catch (NullPointerException ex) {
+            throw new InvalidPropertyException(
+                    "Cannot set element with index " + index + " in List of size " + size +
+                            ", accessed using property path '" + propertyPath +
+                            "': List does not support filling up gaps with null elements");
+          }
+        }
+        list.add(convertedValue);
+      }
+      else {
+        try {
+          list.set(index, convertedValue);
+        }
+        catch (IndexOutOfBoundsException ex) {
+          throw new InvalidPropertyException("Invalid list index in property path '" + propertyPath + "'", ex);
+        }
+      }
+    }
+    else if (propValue instanceof Map) {
+      Object convertedKey = key;
+      Object convertedValue = value;
+      final Type keyType = beanProperty.getGeneric(0);
+      if (keyType instanceof Class) {
+        convertedKey = ConvertUtils.convert(convertedKey, (Class<?>) keyType);
+      }
+      final Type valueType = beanProperty.getGeneric(1);
+      if (valueType instanceof Class) {
+        convertedValue = ConvertUtils.convert(convertedValue, (Class<?>) valueType);
+      }
+      ((Map) propValue).put(convertedKey, convertedValue);
+    }
+    else {
+      // array
+      final Class<?> propValueClass = propValue.getClass();
+      if (propValueClass.isArray()) {
+        Class<?> componentType = propValueClass.getComponentType();
+        int arrayIndex = Integer.parseInt(key);
+        int length = Array.getLength(propValue);
+
+        // grow
+        if (arrayIndex >= length && arrayIndex < Integer.MAX_VALUE) { // Integer.MAX_VALUE
+          Object newArray = Array.newInstance(componentType, arrayIndex + 1);
+          System.arraycopy(propValue, 0, newArray, 0, length);
+          propValue = newArray;
+          beanProperty.setValue(root, propValue);
+        }
+
+        Array.set(propValue, arrayIndex, ConvertUtils.convert(value, componentType));
+      }
+      else {
+        throw new InvalidPropertyException(
+                "Property referenced in indexed property path '" + propertyPath +
+                        "' is neither an array nor a List nor a Map; returned value was [" + propValue + "]");
+      }
+    }
+  }
+
+  public Object setNewValue() {
     return this.object;
   }
 
