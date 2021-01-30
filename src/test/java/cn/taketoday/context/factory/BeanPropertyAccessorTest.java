@@ -392,11 +392,11 @@ public class BeanPropertyAccessorTest {
     try {
       nestedBean.setProperty("nested[1].map[new].name[m]", "set2"); // type error
     }
-    catch (InvalidPropertyException invalidPropertyException) {}
+    catch (InvalidPropertyException ignored) {}
     try {
-      nestedBean.setProperty("nested[1].list[-1]", "set2"); // -1
+      nestedBean.setProperty("nested[1].list[-1].name", "set2"); // -1
     }
-    catch (InvalidPropertyException invalidPropertyException) {}
+    catch (InvalidPropertyException ignored) {}
 
     System.out.println(object);
   }
