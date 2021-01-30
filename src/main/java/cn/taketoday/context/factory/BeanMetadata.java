@@ -97,7 +97,7 @@ public class BeanMetadata {
   public BeanProperty obtainBeanProperty(final String propertyName) {
     final BeanProperty beanProperty = getBeanProperty(propertyName);
     if (beanProperty == null) {
-      throw NoSuchPropertyException.noSuchProperty(propertyName);
+      throw NoSuchPropertyException.noSuchProperty(beanClass, propertyName);
     }
     return beanProperty;
   }
