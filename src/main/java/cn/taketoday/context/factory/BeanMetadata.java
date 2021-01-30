@@ -71,10 +71,32 @@ public class BeanMetadata {
     return constructor;
   }
 
+  /**
+   * Create this bean a new instance with no arguments
+   *
+   * @return a new instance object
+   */
   public Object newInstance() {
-    return getConstructor().newInstance();
+    return newInstance(null);
   }
 
+  /**
+   * Create this bean a new instance with given arguments
+   *
+   * @return a new instance object
+   */
+  public Object newInstance(Object[] args) {
+    return getConstructor().newInstance(args);
+  }
+
+  /**
+   * Get {@link PropertyAccessor}
+   *
+   * @param propertyName
+   *         Property name
+   *
+   * @return {@link PropertyAccessor}
+   */
   public PropertyAccessor getPropertyAccessor(String propertyName) {
     return getBeanProperty(propertyName).getPropertyAccessor();
   }
@@ -103,22 +125,44 @@ public class BeanMetadata {
   }
 
   /**
+   * Set a value to root object
+   *
    * @param root
+   *         Root object
    * @param propertyName
+   *         Property name
    * @param value
+   *         new value to set
+   *
+   * @throws NoSuchPropertyException
+   *         If no such property
+   * @see #obtainBeanProperty(String)
    */
   public void setProperty(final Object root, final String propertyName, final Object value) {
     obtainBeanProperty(propertyName).setValue(root, value);
   }
 
   /**
+   * Get property value
+   *
    * @param root
+   *         Root object
    * @param propertyName
+   *         Property name
+   *
+   * @throws NoSuchPropertyException
+   *         If no such property
+   * @see #obtainBeanProperty(String)
    */
   public Object getProperty(final Object root, final String propertyName) {
     return obtainBeanProperty(propertyName).getValue(root);
   }
 
+  /**
+   * Get properties mapping
+   *
+   * @return map of peoperties
+   */
   public Map<String, BeanProperty> getBeanProperties() {
     return beanProperties;
   }
