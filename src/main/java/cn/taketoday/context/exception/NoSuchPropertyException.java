@@ -40,8 +40,8 @@ public class NoSuchPropertyException extends ContextException {
     super(message);
   }
 
-  public static NoSuchPropertyException noSuchProperty(final String property) {
-    return new NoSuchPropertyException("No such property: " + property);
+  public static NoSuchPropertyException noSuchProperty(Class<?> target, String name) {
+    return new NoSuchPropertyException("No such property: '" + name + "' in class: " + target);
   }
 
 }
