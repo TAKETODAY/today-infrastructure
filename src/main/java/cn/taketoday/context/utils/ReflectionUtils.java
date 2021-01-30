@@ -1114,6 +1114,8 @@ public abstract class ReflectionUtils {
   }
 
   public static ConstructorAccessor newConstructorAccessor(final Class<?> target) {
+    Assert.notNull(target, "target class must not be null");
+
     if (target.isArray()) {
       Class<?> componentType = target.getComponentType();
       return new ArrayConstructor(componentType);
