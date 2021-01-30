@@ -20,12 +20,12 @@
 package cn.taketoday.web.resolver;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.reflect.BeanConstructor;
+import cn.taketoday.context.factory.BeanMetadata;
+import cn.taketoday.context.factory.BeanPropertyAccessor;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ConvertUtils;
@@ -43,8 +43,6 @@ import cn.taketoday.web.handler.MethodParameter;
 public class BeanParameterResolver
         extends OrderedSupport implements ParameterResolver {
 
-  private final Map<Class<?>, BeanParameter> map = new HashMap<>();
-
   public BeanParameterResolver() {
     this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 100);
   }
@@ -58,10 +56,12 @@ public class BeanParameterResolver
     return true;
   }
 
-  public Object resolve(final RequestContext context, final MethodParameter parameter) throws Throwable {
+  @Override
+  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
     final Class<?> parameterClass = parameter.getParameterClass();
-    final BeanParameter beanParameter = map.get(parameterClass);
-    final Object bean = beanParameter.newInstance();
+
+    BeanMetadata metadata = BeanMetadata.ofClass(parameterClass);
+    final Object bean = metadata.newInstance();
 
     final Map<String, String[]> parameters = context.parameters();
     if (parameters != null) {
@@ -71,10 +71,12 @@ public class BeanParameterResolver
         for (final Map.Entry<String, String[]> entry : entries) {
           final String[] value = entry.getValue();
           if (ObjectUtils.isNotEmpty(value)) {
-            final Field field = ReflectionUtils.findField(parameterClass, entry.getKey());
-            if (field != null) {
-              applyParameter(field, bean, value);
+            Object property = value;
+            if (value.length == 1) {
+              property = value[0];
             }
+            final String propertyPath = entry.getKey();
+            BeanPropertyAccessor.setProperty(bean, metadata, propertyPath, property);
           }
         }
       }
@@ -83,8 +85,8 @@ public class BeanParameterResolver
     return bean;
   }
 
-  @Override
-  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+  // @Override
+  public Object resolveParameter0(final RequestContext context, final MethodParameter parameter) throws Throwable {
     final Class<?> parameterClass = parameter.getParameterClass();
     final Object bean = ClassUtils.newInstance(parameterClass);
 
@@ -121,19 +123,6 @@ public class BeanParameterResolver
         ReflectionUtils.setField(field, bean, ConvertUtils.convert(parameter, type));
       }
     }
-  }
-
-  static class BeanParameter {
-    MethodParameter parameter;
-    BeanConstructor<?> constructor;
-
-    Object newInstance() {
-      if (constructor == null) {
-        constructor = ReflectionUtils.newConstructor(parameter.getParameterClass());
-      }
-      return constructor.newInstance();
-    }
-
   }
 
   // --
