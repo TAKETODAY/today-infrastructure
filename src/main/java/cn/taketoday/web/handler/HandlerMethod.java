@@ -53,8 +53,8 @@ public class HandlerMethod
   /** @since 2.3.7 */
   private Class<?> returnType;
   private ResultHandler resultHandler;
-  /** @since 2.3.7 */
-  private Type[] genericityClass;
+  /** return type generic @since 2.3.7 */
+  private Type[] generics;
   private MethodInvoker handlerInvoker;
   /** parameter list **/
   private MethodParameter[] parameters;
@@ -78,7 +78,6 @@ public class HandlerMethod
     if (method != null) {
       this.returnType = method.getReturnType();
       this.handlerInvoker = MethodInvoker.create(method);
-      this.genericityClass = ClassUtils.getGenericityClass(returnType);
       this.parameters = ParameterResolverMethodParameter.ofMethod(method);
       setOrder(OrderUtils.getOrder(method) + OrderUtils.getOrder(bean));
       if (ObjectUtils.isNotEmpty(parameters)) {
@@ -98,11 +97,11 @@ public class HandlerMethod
   public HandlerMethod(HandlerMethod other) {
     this.bean = other.bean;
     this.method = other.method;
+    this.generics = other.generics;
     this.returnType = other.returnType;
     this.resultHandler = other.resultHandler;
     this.handlerInvoker = other.handlerInvoker;
     this.responseStatus = other.responseStatus;
-    this.genericityClass = other.genericityClass;
     setInterceptors(other.getInterceptors());
     this.parameters = other.parameters != null ? other.parameters.clone() : null;
   }
@@ -134,23 +133,29 @@ public class HandlerMethod
     return returnType == this.returnType;
   }
 
-  public Type getGenericityClass(final int index) {
+  public Type[] getGenerics() {
+    if (generics == null) {
+      generics = ClassUtils.getGenericityClass(returnType);
+    }
+    return generics;
+  }
 
-    final Type[] genericityClass = this.genericityClass;
-    if (genericityClass != null && genericityClass.length > index) {
-      return genericityClass[index];
+  public Type getGeneric(final int index) {
+    final Type[] generics = getGenerics();
+    if (generics != null && generics.length > index) {
+      return generics[index];
     }
     return null;
   }
 
   public boolean isGenericPresent(final Type requiredType, final int index) {
-    return requiredType.equals(getGenericityClass(index));
+    return requiredType.equals(getGeneric(index));
   }
 
   public boolean isGenericPresent(final Type requiredType) {
-
-    if (genericityClass != null) {
-      for (final Type type : genericityClass) {
+    final Type[] generics = getGenerics();
+    if (generics != null) {
+      for (final Type type : generics) {
         if (type.equals(requiredType)) {
           return true;
         }
@@ -252,12 +257,8 @@ public class HandlerMethod
     this.handlerInvoker = handlerInvoker;
   }
 
-  public Type[] getGenericityClass() {
-    return genericityClass;
-  }
-
-  public void setGenericityClass(Type[] genericityClass) {
-    this.genericityClass = genericityClass;
+  public void setGenerics(Type[] generics) {
+    this.generics = generics;
   }
 
   public ResultHandler getResultHandler() {
