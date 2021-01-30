@@ -22,11 +22,14 @@ package cn.taketoday.context.factory;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.context.exception.BeanInstantiationException;
+import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.reflect.ConstructorAccessor;
+import cn.taketoday.context.reflect.NullConstructor;
 import cn.taketoday.context.reflect.PropertyAccessor;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
@@ -43,6 +46,12 @@ public class BeanProperty {
   private final Class<?> fieldType;
   private ConstructorAccessor constructor;
   private PropertyAccessor propertyAccessor;
+
+  private Type[] genericClass;
+
+  private Type componentType;
+  private boolean componentResolved;
+  private ConstructorAccessor componentConstructor;
 
   public BeanProperty(Field field) {
     Assert.notNull(field, "field must not be null");
@@ -72,9 +81,6 @@ public class BeanProperty {
       final Class<?> fieldType = this.fieldType;
       if (ClassUtils.isSimpleType(fieldType)) {
         throw new BeanInstantiationException(fieldType, "Cannot be instantiated a simple type");
-      }
-      if (fieldType.isArray()) {
-        return Array.newInstance(fieldType.getComponentType(), 1);
       }
       constructor = ReflectionUtils.newConstructorAccessor(fieldType);
     }
@@ -115,18 +121,86 @@ public class BeanProperty {
     return propertyAccessor;
   }
 
+  public Object newComponentInstance() {
+    return newComponentInstance(null);
+  }
+
+  public Object newComponentInstance(Object[] args) {
+    if (componentConstructor == null) {
+      final Class<?> componentClass = getComponentClass();
+      componentConstructor = componentClass == null
+                             ? NullConstructor.INSTANCE
+                             : ReflectionUtils.newConstructorAccessor(componentClass);
+    }
+    return componentConstructor.newInstance(args);
+  }
+
   //
+
+  public Type[] getGenerics() {
+    if (genericClass == null) {
+      this.genericClass = ClassUtils.getGenericityClass(field);
+    }
+    return genericClass;
+  }
+
+  public Type getGeneric(final int index) {
+    final Type[] generics = getGenerics();
+    if (generics != null && generics.length > index) {
+      return generics[index];
+    }
+    return null;
+  }
+
+  /**
+   * Get componentType
+   *
+   * @return {@link Type}
+   */
+  public Type getComponentType() {
+    if (componentResolved) {
+      return componentType;
+    }
+    final Class<?> fieldType = this.fieldType;
+    if (fieldType.isArray()) {
+      setComponentType(fieldType.getComponentType());
+    }
+    else if (Map.class.isAssignableFrom(fieldType)) {
+      setComponentType(getGeneric(1));
+    }
+    else {
+      setComponentType(getGeneric(0));
+    }
+    return componentType;
+  }
+
+  /**
+   * Get componentClass
+   *
+   * @return {@link Class}
+   */
+  public Class<?> getComponentClass() {
+    final Type componentType = getComponentType();
+    return componentType instanceof Class ? (Class<?>) componentType : null;
+  }
 
   public ConstructorAccessor getConstructor() {
     return constructor;
   }
 
-  public void setConstructor(ConstructorAccessor constructor) {
-    this.constructor = constructor;
-  }
-
   public PropertyAccessor getPropertyAccessor() {
     return propertyAccessor;
+  }
+
+  public void setComponentType(Type componentType) {
+    this.componentType = componentType;
+    if (componentType != null) {
+      this.componentResolved = true;
+    }
+  }
+
+  public void setConstructor(ConstructorAccessor constructor) {
+    this.constructor = constructor;
   }
 
   public void setPropertyAccessor(PropertyAccessor propertyAccessor) {
@@ -152,4 +226,19 @@ public class BeanProperty {
   public Field getField() {
     return field;
   }
+
+  public String getName() {
+    return field.getName();
+  }
+
+  // static
+
+  public static BeanProperty of(Class<?> targetClass, String name) {
+    final Field field = ReflectionUtils.findField(targetClass, name);
+    if (field == null) {
+      throw NoSuchPropertyException.noSuchProperty(targetClass, name);
+    }
+    return new BeanProperty(field);
+  }
+
 }
