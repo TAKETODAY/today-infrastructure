@@ -73,7 +73,7 @@ public class BeanPropertyAccessorTest {
 
     nestedBean.setProperty("nested.nested.name", "nested-nested-TODAY");
 
-    final Object object = nestedBean.setNewValue();
+    final Object object = nestedBean.getBean();
 
     assertThat(object).isInstanceOf(NestedType.class);
     NestedType base = (NestedType) object;
@@ -146,7 +146,7 @@ public class BeanPropertyAccessorTest {
     list.add("TODAY2");
     nestedBean.setProperty("nested.list", list);
 
-    final Object object = nestedBean.setNewValue();
+    final Object object = nestedBean.getBean();
 
     assertThat(object).isInstanceOf(Nested.class);
     Nested base = (Nested) object;
@@ -261,7 +261,7 @@ public class BeanPropertyAccessorTest {
     list.add(nestedArrayDot);
     nestedBean.setProperty("list", list);
 
-    final Object object = nestedBean.setNewValue();
+    final Object object = nestedBean.getBean();
 
     assertThat(object).isInstanceOf(NestedArrayDot.class);
     NestedArrayDot base = (NestedArrayDot) object;
@@ -361,7 +361,7 @@ public class BeanPropertyAccessorTest {
     nestedBean.setProperty("nested[1].name", "set2");
     nestedBean.setProperty("nested[1].map[new].name", "set2");
 
-    final Object object = nestedBean.setNewValue();
+    final Object object = nestedBean.getBean();
 
     assertThat(object).isInstanceOf(SetNested.class);
     SetNested base = (SetNested) object;

@@ -36,12 +36,12 @@ import cn.taketoday.context.utils.ConvertUtils;
  */
 public class BeanPropertyAccessor {
 
-  private final Object object;
+  private final Object bean;
   private final BeanMetadata metadata;
 
   public BeanPropertyAccessor(Class<?> beanClass) {
     this.metadata = BeanMetadata.ofClass(beanClass);
-    this.object = metadata.newInstance();
+    this.bean = metadata.newInstance();
   }
 
   public BeanPropertyAccessor(Object object) {
@@ -49,7 +49,7 @@ public class BeanPropertyAccessor {
   }
 
   public BeanPropertyAccessor(BeanMetadata metadata, Object object) {
-    this.object = object;
+    this.bean = object;
     this.metadata = metadata;
   }
 
@@ -102,7 +102,7 @@ public class BeanPropertyAccessor {
    *         if the index is out of list range (<tt>index &lt; 0 || index &gt;= size()</tt>)
    */
   public Object getProperty(final String propertyPath) {
-    return getProperty(object, metadata, propertyPath);
+    return getProperty(bean, metadata, propertyPath);
   }
 
   /**
@@ -275,7 +275,7 @@ public class BeanPropertyAccessor {
    *         Property value
    */
   public void setProperty(final String propertyPath, final Object value) {
-    setProperty(object, metadata, propertyPath, value);
+    setProperty(bean, metadata, propertyPath, value);
   }
 
   /**
@@ -325,7 +325,7 @@ public class BeanPropertyAccessor {
           // 值不够，设置新值
           subValue = getSubValue(root, beanProperty);
           if (componentType != null) {
-            subValue = getObject(root, propertyPath, subValue, signIndex, beanProperty);
+            subValue = getComponentValue(root, propertyPath, subValue, signIndex, beanProperty);
           }
         }
         // 不存在,设置新值
@@ -333,7 +333,7 @@ public class BeanPropertyAccessor {
           // set new value
           subValue = setNewValue(root, beanProperty);
           if (componentType != null) {
-            subValue = getObject(root, propertyPath, subValue, signIndex, beanProperty);
+            subValue = getComponentValue(root, propertyPath, subValue, signIndex, beanProperty);
           }
         }
       }
@@ -343,7 +343,7 @@ public class BeanPropertyAccessor {
         propertyType = beanProperty.getType();
         subValue = getSubValue(root, beanProperty);
       }
-
+      // next
       BeanMetadata subMetadata = BeanMetadata.ofClass(propertyType);
       String newPath = propertyPath.substring(index + 1);
       setProperty(subValue, subMetadata, newPath, value);
@@ -357,18 +357,17 @@ public class BeanPropertyAccessor {
         final String property = propertyPath.substring(0, signIndex);
         final BeanProperty beanProperty = metadata.obtainBeanProperty(property);
         final Object subValue = getSubValue(root, beanProperty);
-        final String key = propertyPath.substring(signIndex + 1, propertyPath.indexOf(']'));
+        final String key = getKey(propertyPath, signIndex);
         setKeyedProperty(root, beanProperty, subValue, key, value, propertyPath);
       }
     }
   }
 
-  static Object getObject(Object root, String propertyPath, Object subValue, int signIndex, BeanProperty beanProperty) {
+  static Object getComponentValue(Object root, String propertyPath, Object subValue, int signIndex, BeanProperty beanProperty) {
     final Object componentValue = beanProperty.newComponentInstance();
     final String key = getKey(propertyPath, signIndex);
     setKeyedProperty(root, beanProperty, subValue, key, componentValue, propertyPath);
-    subValue = componentValue;
-    return subValue;
+    return componentValue;
   }
 
   static String getKey(String propertyPath, int signIndex) {
@@ -468,8 +467,8 @@ public class BeanPropertyAccessor {
     }
   }
 
-  public Object setNewValue() {
-    return this.object;
+  public Object getBean() {
+    return this.bean;
   }
 
   public BeanMetadata getMetadata() {
