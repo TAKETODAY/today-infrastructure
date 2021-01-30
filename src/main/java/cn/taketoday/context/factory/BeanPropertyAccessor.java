@@ -40,7 +40,7 @@ public class BeanPropertyAccessor {
   private final BeanMetadata metadata;
 
   public BeanPropertyAccessor(Class<?> beanClass) {
-    this.metadata = new BeanMetadata(beanClass);
+    this.metadata = BeanMetadata.ofClass(beanClass);
     this.object = metadata.newInstance();
   }
 
