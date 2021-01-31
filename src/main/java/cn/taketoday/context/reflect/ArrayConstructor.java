@@ -22,6 +22,7 @@ package cn.taketoday.context.reflect;
 
 import java.lang.reflect.Array;
 
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.utils.Assert;
 
 /**
@@ -29,7 +30,7 @@ import cn.taketoday.context.utils.Assert;
  */
 public class ArrayConstructor implements ConstructorAccessor {
 
-  private int capacity;
+  private int capacity = Constant.DEFAULT_CAPACITY;
   private final Class<?> componentType;
 
   public ArrayConstructor(Class<?> componentType) {

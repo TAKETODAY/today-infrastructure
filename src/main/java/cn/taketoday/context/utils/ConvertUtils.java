@@ -359,7 +359,8 @@ public abstract class ConvertUtils {
     @Override
     protected Object convertInternal(Class<?> targetClass, String source) {
       try {
-        return ReflectionUtils.accessibleConstructor(targetClass, String.class).newInstance(source);
+        return ReflectionUtils.accessibleConstructor(targetClass, String.class)
+                .newInstance(source);
       }
       catch (Throwable e) {
         throw new ConversionException(e);
