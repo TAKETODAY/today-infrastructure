@@ -42,6 +42,8 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import cn.taketoday.context.Constant;
+
 /**
  * Factory for collections that is aware of common Java and Spring collection types.
  *
@@ -141,6 +143,8 @@ public abstract class CollectionUtils {
    *         the collection type to check
    *
    * @return {@code true} if the type is <em>approximable</em>
+   *
+   * @since 3.0
    */
   public static boolean isApproximableCollectionType(Class<?> collectionType) {
     return (collectionType != null && approximableCollectionTypes.contains(collectionType));
@@ -170,6 +174,7 @@ public abstract class CollectionUtils {
    * @see java.util.EnumSet
    * @see java.util.TreeSet
    * @see java.util.LinkedHashSet
+   * @since 3.0
    */
   @SuppressWarnings({ "rawtypes", "unchecked", "cast" })
   public static <E> Collection<E> createApproximateCollection(Object collection, int capacity) {
@@ -196,6 +201,25 @@ public abstract class CollectionUtils {
   /**
    * Create the most appropriate collection for the given collection type.
    * <p>Delegates to {@link #createCollection(Class, Class, int)} with a
+   * {@code null} element type, and {@link Constant#DEFAULT_CAPACITY}.
+   *
+   * @param collectionType
+   *         the desired type of the target collection (never {@code null})
+   *
+   * @return a new collection instance
+   *
+   * @throws IllegalArgumentException
+   *         if the supplied {@code collectionType}
+   *         is {@code null} or of type {@link EnumSet}
+   * @since 3.0
+   */
+  public static <E> Collection<E> createCollection(Class<?> collectionType) {
+    return createCollection(collectionType, null, Constant.DEFAULT_CAPACITY);
+  }
+
+  /**
+   * Create the most appropriate collection for the given collection type.
+   * <p>Delegates to {@link #createCollection(Class, Class, int)} with a
    * {@code null} element type.
    *
    * @param collectionType
@@ -208,6 +232,7 @@ public abstract class CollectionUtils {
    * @throws IllegalArgumentException
    *         if the supplied {@code collectionType}
    *         is {@code null} or of type {@link EnumSet}
+   * @since 3.0
    */
   public static <E> Collection<E> createCollection(Class<?> collectionType, int capacity) {
     return createCollection(collectionType, null, capacity);
@@ -241,6 +266,7 @@ public abstract class CollectionUtils {
    * @see java.util.ArrayList
    * @see java.util.TreeSet
    * @see java.util.EnumSet
+   * @since 3.0
    */
   @SuppressWarnings({ "unchecked", "cast" })
   public static <E> Collection<E> createCollection(Class<?> collectionType, Class<?> elementType, int capacity) {
@@ -286,9 +312,38 @@ public abstract class CollectionUtils {
    *         the map type to check
    *
    * @return {@code true} if the type is <em>approximable</em>
+   *
+   * @since 3.0
    */
   public static boolean isApproximableMapType(Class<?> mapType) {
     return (mapType != null && approximableMapTypes.contains(mapType));
+  }
+
+  /**
+   * Create the most approximate map for the given map.
+   * <p><strong>Warning</strong>: Since the parameterized type {@code K} is
+   * not bound to the type of keys contained in the supplied {@code map},
+   * type safety cannot be guaranteed if the supplied {@code map} is an
+   * {@link EnumMap}. In such scenarios, the caller is responsible for
+   * ensuring that the key type in the supplied {@code map} is an enum type
+   * matching type {@code K}. As an alternative, the caller may wish to
+   * treat the return value as a raw map or map keyed by {@link Object}.
+   * <p>
+   * use default capacity {@link Constant#DEFAULT_CAPACITY}.
+   *
+   * @param map
+   *         the original map object, potentially {@code null}
+   *
+   * @return a new, empty map instance
+   *
+   * @see #isApproximableMapType
+   * @see java.util.EnumMap
+   * @see java.util.TreeMap
+   * @see java.util.LinkedHashMap
+   * @since 3.0
+   */
+  public static <K, V> Map<K, V> createApproximateMap(Object map) {
+    return createApproximateMap(map, Constant.DEFAULT_CAPACITY);
   }
 
   /**
@@ -312,6 +367,7 @@ public abstract class CollectionUtils {
    * @see java.util.EnumMap
    * @see java.util.TreeMap
    * @see java.util.LinkedHashMap
+   * @since 3.0
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public static <K, V> Map<K, V> createApproximateMap(Object map, int capacity) {
@@ -331,6 +387,25 @@ public abstract class CollectionUtils {
   /**
    * Create the most appropriate map for the given map type.
    * <p>Delegates to {@link #createMap(Class, Class, int)} with a
+   * {@code null} key type, and default capacity {@link Constant#DEFAULT_CAPACITY}.
+   *
+   * @param mapType
+   *         the desired type of the target map
+   *
+   * @return a new map instance
+   *
+   * @throws IllegalArgumentException
+   *         if the supplied {@code mapType} is
+   *         {@code null} or of type {@link EnumMap}
+   * @since 3.0
+   */
+  public static <K, V> Map<K, V> createMap(Class<?> mapType) {
+    return createMap(mapType, null, Constant.DEFAULT_CAPACITY);
+  }
+
+  /**
+   * Create the most appropriate map for the given map type.
+   * <p>Delegates to {@link #createMap(Class, Class, int)} with a
    * {@code null} key type.
    *
    * @param mapType
@@ -343,6 +418,7 @@ public abstract class CollectionUtils {
    * @throws IllegalArgumentException
    *         if the supplied {@code mapType} is
    *         {@code null} or of type {@link EnumMap}
+   * @since 3.0
    */
   public static <K, V> Map<K, V> createMap(Class<?> mapType, int capacity) {
     return createMap(mapType, null, capacity);
@@ -377,6 +453,7 @@ public abstract class CollectionUtils {
    * @see java.util.TreeMap
    * @see DefaultMultiValueMap
    * @see java.util.EnumMap
+   * @since 3.0
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public static <K, V> Map<K, V> createMap(Class<?> mapType, Class<?> keyType, int capacity) {
@@ -422,6 +499,7 @@ public abstract class CollectionUtils {
    *
    * @see #createSortedProperties(boolean)
    * @see #createSortedProperties(Properties, boolean)
+   * @since 3.0
    */
   public static Properties createStringAdaptingProperties() {
     return new SortedProperties(false) {
@@ -449,6 +527,7 @@ public abstract class CollectionUtils {
    *
    * @see #createStringAdaptingProperties()
    * @see #createSortedProperties(Properties, boolean)
+   * @since 3.0
    */
   public static Properties createSortedProperties(boolean omitComments) {
     return new SortedProperties(omitComments);
@@ -476,6 +555,7 @@ public abstract class CollectionUtils {
    *
    * @see #createStringAdaptingProperties()
    * @see #createSortedProperties(boolean)
+   * @since 3.0
    */
   public static Properties createSortedProperties(Properties properties, boolean omitComments) {
     return new SortedProperties(properties, omitComments);
@@ -491,6 +571,7 @@ public abstract class CollectionUtils {
    *
    * @throws IllegalArgumentException
    *         if the given type is not a subtype of {@link Enum}
+   * @since 3.0
    */
   @SuppressWarnings("rawtypes")
   private static Class<? extends Enum> asEnumType(Class<?> enumType) {
