@@ -40,6 +40,9 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.URL;
+import java.time.temporal.Temporal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,6 +51,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -142,6 +146,14 @@ public abstract class ClassUtils {
     primitiveTypes.add(Class.class);
     primitiveTypes.add(BigInteger.class);
     primitiveTypes.add(BigDecimal.class);
+
+    primitiveTypes.add(URI.class);
+    primitiveTypes.add(URL.class);
+    primitiveTypes.add(Enum.class);
+    primitiveTypes.add(Locale.class);
+    primitiveTypes.add(Number.class);
+    primitiveTypes.add(Temporal.class);
+    primitiveTypes.add(CharSequence.class);
 
     ClassUtils.primitiveTypes = primitiveTypes;
 
@@ -1515,7 +1527,8 @@ public abstract class ClassUtils {
    * @return True if the class is known
    */
   public static boolean isSimpleType(Class<?> clazz) {
-    return primitiveTypes.contains(clazz);
+    return primitiveTypes.contains(clazz)
+            || (clazz.isArray() && isSimpleType(clazz.getComponentType()));
   }
 
 }
