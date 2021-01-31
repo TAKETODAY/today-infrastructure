@@ -26,6 +26,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -70,6 +71,7 @@ public abstract class ConvertUtils {
                   delegate((c) -> c == Charset.class, Charset::forName),
                   delegate((c) -> c == Duration.class, ConvertUtils::parseDuration),
                   delegate((c) -> c == Boolean.class || c == boolean.class, Boolean::parseBoolean),
+                  new ArrayToCollectionConverter(),
                   new ArrayStringArrayConverter(),
                   new StringArrayConverter()//
     );
@@ -309,6 +311,25 @@ public abstract class ConvertUtils {
         Array.set(arrayValue, i, ConvertUtils.convert(split[i], componentType));
       }
       return arrayValue;
+    }
+  }
+
+  @Order(Ordered.HIGHEST_PRECEDENCE)
+  static class ArrayToCollectionConverter implements TypeConverter {
+
+    @Override
+    public boolean supports(Class<?> targetClass, Object source) {
+      return CollectionUtils.isCollection(targetClass) && source.getClass().isArray();
+    }
+
+    @Override
+    public Object convert(Class<?> targetClass, Object source) {
+      final int length = Array.getLength(source);
+      final Collection<Object> ret = CollectionUtils.createCollection(targetClass, length);
+      for (int i = 0; i < length; i++) {
+        ret.add(Array.get(source, i));
+      }
+      return ret;
     }
   }
 
