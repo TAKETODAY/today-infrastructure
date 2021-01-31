@@ -87,8 +87,9 @@ public class MapParameterResolver
 
   protected Map convert(Map map, final Class<?> type) {
     if (type != Map.class) {
-      map = CollectionUtils.createMap(type, map.size());
-      map.putAll(map);
+      Map newMap = CollectionUtils.createMap(type, map.size());
+      newMap.putAll(map);
+      map = newMap;
     }
     return map;
   }
