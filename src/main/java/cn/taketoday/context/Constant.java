@@ -40,7 +40,7 @@ import static cn.taketoday.context.cglib.core.TypeUtils.parseType;
  */
 public interface Constant extends Opcodes, Serializable {
 
-  int DEFAULT_CAPACITY = 16; // @since 3.0
+  int DEFAULT_CAPACITY = 0; // @since 3.0
 
   String CONTEXT_VERSION = "3.0";
 

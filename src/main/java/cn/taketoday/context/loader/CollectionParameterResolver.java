@@ -23,14 +23,13 @@ package cn.taketoday.context.loader;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 
 /**
@@ -64,16 +63,12 @@ public class CollectionParameterResolver
       final Class<?> parameterType = parameter.getType();
 
       if (Collection.class == parameterType || List.class == parameterType) {
-        return beans;
+        return beans; // 直接返回
       }
 
-      // Set<?>
-      if (Set.class == parameterType) {
-        return new HashSet<>(beans);
-      }
-      Collection ret = (Collection) ClassUtils.newInstance(parameterType, beanFactory);
-      ret.addAll(beans);
-      return ret;
+      final Collection<Object> objects = CollectionUtils.createCollection(parameterType, beans.size());
+      objects.addAll(beans);
+      return objects;
     }
     throw new ConfigurationException("Not Support " + parameter);
   }
