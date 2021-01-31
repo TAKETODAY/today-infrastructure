@@ -32,6 +32,7 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 
@@ -69,33 +70,27 @@ public class MapParameterResolver
    *         {@link BeanFactory}
    */
   @Override
-  @SuppressWarnings("unchecked")
   public Object resolve(Parameter parameter, BeanFactory beanFactory) {
-    // 处理 Properties
-    final Props props = getProps(parameter);
-    if (props != null) {
-      final Properties loadProps = ContextUtils.loadProps(props, System.getProperties());
-      final Class<?> type = parameter.getType();
-
-      if (type.isInterface()) { // extends or implements Map
-        return loadProps;
-      }
-
-      final Map<Object, Object> ret = (Map<Object, Object>) ClassUtils.newInstance(type, beanFactory);
-      ret.putAll(loadProps);
-
-      return ret;
-    }
-
-    Class<?> beanClass = getBeanClass(ClassUtils.getGenericityClass(parameter));
     final Class<?> type = parameter.getType();
-    if (type == Map.class) {
-      return beanFactory.getBeansOfType(beanClass);
-    }
+    final Map beansOfType = getBeansOfType(parameter, beanFactory);
+    return convert(beansOfType, type);
+  }
 
-    Map<Object, Object> ret = (Map<Object, Object>) ClassUtils.newInstance(type, beanFactory);
-    ret.putAll(beanFactory.getBeansOfType(beanClass));
-    return ret;
+  protected Map getBeansOfType(Parameter parameter, BeanFactory beanFactory) {
+    final Props props = getProps(parameter);
+    if (props != null) { // 处理 Properties
+      return ContextUtils.loadProps(props, System.getProperties());
+    }
+    Class<?> beanClass = getBeanClass(ClassUtils.getGenericityClass(parameter));
+    return beanFactory.getBeansOfType(beanClass);
+  }
+
+  protected Map convert(Map map, final Class<?> type) {
+    if (type != Map.class) {
+      map = CollectionUtils.createMap(type, map.size());
+      map.putAll(map);
+    }
+    return map;
   }
 
   protected Class<?> getBeanClass(final Type[] genericityClass) {
