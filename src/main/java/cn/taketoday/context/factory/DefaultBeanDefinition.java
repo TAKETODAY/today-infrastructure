@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Objects;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.AttributeAccessorSupport;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.Scope;
@@ -52,7 +53,8 @@ import static cn.taketoday.context.utils.ContextUtils.resolveParameter;
  * @author TODAY <br>
  * 2019-02-01 12:23
  */
-public class DefaultBeanDefinition implements BeanDefinition, Ordered {
+public class DefaultBeanDefinition
+        extends AttributeAccessorSupport implements BeanDefinition, Ordered {
 
   /** bean name. */
   private String name;

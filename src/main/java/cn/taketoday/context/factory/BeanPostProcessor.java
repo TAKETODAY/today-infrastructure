@@ -92,7 +92,7 @@ public interface BeanPostProcessor {
    * The default implementation returns the given {@code bean} as-is.
    *
    * @param bean
-   *         the new bean instance
+   *         the new bean instance, fully initialized
    * @param def
    *         the definition of the bean
    *

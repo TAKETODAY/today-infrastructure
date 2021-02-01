@@ -24,6 +24,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Collection;
 
+import cn.taketoday.context.AttributeAccessor;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Singleton;
@@ -35,7 +36,7 @@ import cn.taketoday.context.exception.NoSuchPropertyException;
  * @author TODAY <br>
  * 2018-06-23 11:23:45
  */
-public interface BeanDefinition extends AnnotatedElement {
+public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
 
   Method[] EMPTY_METHOD = Constant.EMPTY_METHOD_ARRAY;
 
