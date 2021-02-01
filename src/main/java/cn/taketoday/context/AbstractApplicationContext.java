@@ -632,6 +632,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   @Override
+  public void destroyBean(String beanName, Object beanInstance) {
+    getBeanFactory().destroyBean(beanName, beanInstance);
+  }
+
+  @Override
   public void destroyScopedBean(String beanName) {
     getBeanFactory().destroyScopedBean(beanName);
   }

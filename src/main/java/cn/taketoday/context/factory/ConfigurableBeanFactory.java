@@ -141,6 +141,19 @@ public interface ConfigurableBeanFactory
   void destroyBean(String name);
 
   /**
+   * Destroy the given bean instance (usually a prototype instance
+   * obtained from this factory) according to its bean definition.
+   * <p>Any exception that arises during destruction should be caught
+   * and logged instead of propagated to the caller of this method.
+   *
+   * @param beanName
+   *         the name of the bean definition
+   * @param beanInstance
+   *         the bean instance to destroy
+   */
+  void destroyBean(String beanName, Object beanInstance);
+
+  /**
    * Refresh bean with given name, and publish
    * {@link cn.taketoday.context.event.ObjectRefreshedEvent ObjectRefreshedEvent}.
    *

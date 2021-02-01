@@ -256,10 +256,11 @@ public abstract class AbstractBeanFactory
 
   /**
    * Create new bean instance
-   *<p>
+   * <p>
    * Apply before-instantiation post-processors, resolving whether there is a
    * before-instantiation shortcut for the specified bean.
-   *</p>
+   * </p>
+   *
    * @param def
    *         Target {@link BeanDefinition} descriptor
    *
@@ -1183,16 +1184,26 @@ public abstract class AbstractBeanFactory
 
   @Override
   public void destroyBean(String name) {
-    BeanDefinition beanDefinition = getBeanDefinition(name);
+    destroyBean(name, getSingleton(name));
+  }
 
-    if (beanDefinition == null && name.charAt(0) == FACTORY_BEAN_PREFIX_CHAR) {
+  @Override
+  public void destroyBean(String name, Object beanInstance) {
+    BeanDefinition def = getBeanDefinition(name);
+    if (def == null && name.charAt(0) == FACTORY_BEAN_PREFIX_CHAR) {
       // if it is a factory bean
       final String factoryBeanName = name.substring(1);
-      beanDefinition = getBeanDefinition(factoryBeanName);
-      destroyBean(getSingleton(factoryBeanName), beanDefinition);
-      removeBean(factoryBeanName);
+      def = getBeanDefinition(factoryBeanName);
+      if (def != null) {
+        destroyBean(getSingleton(factoryBeanName), def);
+        removeBean(factoryBeanName);
+      }
     }
-    destroyBean(getSingleton(name), beanDefinition);
+
+    if (def == null) {
+      def = getPrototypeBeanDefinition(ClassUtils.getUserClass(beanInstance));
+    }
+    destroyBean(beanInstance, def);
     removeBean(name);
   }
 
