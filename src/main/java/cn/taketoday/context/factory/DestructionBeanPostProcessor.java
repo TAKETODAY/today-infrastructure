@@ -61,7 +61,7 @@ public interface DestructionBeanPostProcessor extends BeanPostProcessor {
    * <p>
    * The default implementation returns {@code true}. If a pre-5 implementation of
    * {@code DestructionAwareBeanPostProcessor} does not provide a concrete
-   * implementation of this method, Spring silently assumes {@code true} as well.
+   * implementation of this method, IOC silently assumes {@code true} as well.
    *
    * @param bean
    *         the bean instance to check

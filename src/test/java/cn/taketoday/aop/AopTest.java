@@ -19,15 +19,18 @@
  */
 package cn.taketoday.aop;
 
-import org.aopalliance.intercept.Joinpoint;
-import org.aopalliance.intercept.MethodInterceptor;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.aopalliance.intercept.Joinpoint;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.junit.Test;
 
 import cn.taketoday.aop.annotation.AfterReturning;
 import cn.taketoday.aop.annotation.AfterThrowing;
@@ -46,9 +49,6 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.factory.StandardBeanFactory;
 import lombok.extern.slf4j.Slf4j;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 
 /**
  * @author TODAY <br>

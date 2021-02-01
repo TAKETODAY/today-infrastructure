@@ -751,7 +751,7 @@ public class CglibAopProxy implements AopProxy, Serializable {
      */
     @Override
     public int accept(Method method) {
-      if (AopUtils.isFinalizeMethod(method)) {
+      if (ReflectionUtils.isFinalizeMethod(method)) {
         log.trace("Found finalize() method - using NO_OVERRIDE");
         return NO_OVERRIDE;
       }
@@ -763,14 +763,14 @@ public class CglibAopProxy implements AopProxy, Serializable {
         return DISPATCH_ADVISED;
       }
       // We must always proxy equals, to direct calls to this.
-      if (AopUtils.isEqualsMethod(method)) {
+      if (ReflectionUtils.isEqualsMethod(method)) {
         if (log.isTraceEnabled()) {
           log.trace("Found 'equals' method: " + method);
         }
         return INVOKE_EQUALS;
       }
       // We must always calculate hashCode based on the proxy.
-      if (AopUtils.isHashCodeMethod(method)) {
+      if (ReflectionUtils.isHashCodeMethod(method)) {
         if (log.isTraceEnabled()) {
           log.trace("Found 'hashCode' method: " + method);
         }

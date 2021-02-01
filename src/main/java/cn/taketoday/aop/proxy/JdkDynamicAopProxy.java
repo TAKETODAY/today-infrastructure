@@ -38,6 +38,7 @@ import cn.taketoday.context.reflect.MethodMethodAccessor;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
  * JDK-based {@link AopProxy} implementation for the AOP framework,
@@ -140,10 +141,10 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
     for (Class<?> proxiedInterface : proxiedInterfaces) {
       Method[] methods = proxiedInterface.getDeclaredMethods();
       for (Method method : methods) {
-        if (AopUtils.isEqualsMethod(method)) {
+        if (ReflectionUtils.isEqualsMethod(method)) {
           this.equalsDefined = true;
         }
-        if (AopUtils.isHashCodeMethod(method)) {
+        if (ReflectionUtils.isHashCodeMethod(method)) {
           this.hashCodeDefined = true;
         }
         if (this.equalsDefined && this.hashCodeDefined) {
@@ -167,11 +168,11 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
     Object target = null;
 
     try {
-      if (!this.equalsDefined && AopUtils.isEqualsMethod(method)) {
+      if (!this.equalsDefined && ReflectionUtils.isEqualsMethod(method)) {
         // The target does not implement the equals(Object) method itself.
         return equals(args[0]);
       }
-      else if (!this.hashCodeDefined && AopUtils.isHashCodeMethod(method)) {
+      else if (!this.hashCodeDefined && ReflectionUtils.isHashCodeMethod(method)) {
         // The target does not implement the hashCode() method itself.
         return hashCode();
       }

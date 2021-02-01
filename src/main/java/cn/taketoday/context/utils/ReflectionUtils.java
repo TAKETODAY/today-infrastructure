@@ -624,6 +624,16 @@ public abstract class ReflectionUtils {
   }
 
   /**
+   * Determine whether the given method is a "finalize" method.
+   *
+   * @see java.lang.Object#finalize()
+   */
+  public static boolean isFinalizeMethod(Method method) {
+    return (method != null && method.getName().equals("finalize") &&
+            method.getParameterCount() == 0);
+  }
+
+  /**
    * Determine whether the given method is a CGLIB 'renamed' method, following the
    * pattern "CGLIB$methodName$0".
    *
