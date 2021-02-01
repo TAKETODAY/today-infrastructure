@@ -20,16 +20,13 @@
 package cn.taketoday.context;
 
 /**
- * @author TODAY <br>
- *         2019-12-27 11:31
+ * @author TODAY 2019-12-27 11:31
  */
 public abstract class OrderedSupport implements Ordered {
 
-  private int order;
+  protected Integer order;
 
-  public OrderedSupport() {
-    this(LOWEST_PRECEDENCE);
-  }
+  public OrderedSupport() {}
 
   public OrderedSupport(int order) {
     this.order = order;
@@ -37,7 +34,7 @@ public abstract class OrderedSupport implements Ordered {
 
   @Override
   public int getOrder() {
-    return order;
+    return order == null ? LOWEST_PRECEDENCE : order;
   }
 
   public void setOrder(int order) {
