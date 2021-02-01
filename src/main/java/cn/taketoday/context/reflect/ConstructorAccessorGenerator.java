@@ -100,7 +100,7 @@ public class ConstructorAccessorGenerator
   @Override
   protected boolean isPrivate() {
     return Modifier.isPrivate(targetClass.getModifiers())
-      || Modifier.isPrivate(targetConstructor.getModifiers());
+            || Modifier.isPrivate(targetConstructor.getModifiers());
   }
 
   @Override

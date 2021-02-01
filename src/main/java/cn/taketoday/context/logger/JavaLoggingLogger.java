@@ -29,7 +29,7 @@ import cn.taketoday.context.io.Resource;
 
 /**
  * @author TODAY <br>
- *         2019-11-03 14:45
+ * 2019-11-03 14:45
  */
 public class JavaLoggingLogger extends AbstractLogger {
 
@@ -111,7 +111,7 @@ public class JavaLoggingLogger extends AbstractLogger {
    * Fill in caller data if possible.
    *
    * @param record
-   *            The record to update
+   *         The record to update
    */
   private static void fillCallerData(LogRecord record, String callerFQCN, String superFQCN) {
     StackTraceElement[] steArray = new Throwable().getStackTrace();

@@ -21,7 +21,7 @@ package cn.taketoday.context.logger;
 
 /**
  * @author TODAY <br>
- *         2019-11-03 20:29
+ * 2019-11-03 20:29
  */
 public enum Level {
   /** for tracing messages that are very verbose */

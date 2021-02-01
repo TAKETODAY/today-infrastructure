@@ -23,7 +23,7 @@ import org.slf4j.spi.LocationAwareLogger;
 
 /**
  * @author TODAY <br>
- *         2019-11-03 13:55
+ * 2019-11-03 13:55
  */
 public class Slf4jLogger extends AbstractLogger {
 

@@ -23,7 +23,7 @@ import java.util.EventListener;
 
 /**
  * @author TODAY <br>
- *         2018-09-09 21:23
+ * 2018-09-09 21:23
  */
 @FunctionalInterface
 public interface ApplicationListener<E> extends EventListener {
@@ -32,7 +32,7 @@ public interface ApplicationListener<E> extends EventListener {
    * On event
    *
    * @param event
-   *            event instance
+   *         event instance
    */
   void onApplicationEvent(E event);
 

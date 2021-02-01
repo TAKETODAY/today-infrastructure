@@ -61,9 +61,9 @@ public class CaffeineCacheManager extends AbstractCacheManager {
    * Build a common {@link CaffeineCache} instance for the specified cache name,
    * using the common Caffeine configuration specified on this cache manager.
    * <p>
-   * Delegates to {@link #adaptCaffeineCache} as the adaptation method to Spring's
-   * cache abstraction (allowing for centralized decoration etc), passing in a
-   * freshly built native Caffeine Cache instance.
+   * Delegates to {@link #adaptCaffeineCache} as the adaptation method to cache
+   * abstraction (allowing for centralized decoration etc), passing in a freshly
+   * built native Caffeine Cache instance.
    *
    * @param name
    *         the name of the cache
@@ -80,8 +80,8 @@ public class CaffeineCacheManager extends AbstractCacheManager {
 
   /**
    * Register the given native Caffeine Cache instance with this cache manager,
-   * adapting it to Spring's cache API for exposure through {@link #getCache}. Any
-   * number of such custom caches may be registered side by side.
+   * adapting it to cache API for exposure through {@link #getCache}. Any number
+   * of such custom caches may be registered side by side.
    * <p>
    * This allows for custom settings per cache (as opposed to all caches sharing
    * the common settings in the cache manager's configuration) and is typically

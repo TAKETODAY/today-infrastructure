@@ -32,7 +32,7 @@ public interface GetterMethod {
    * Get property from <code>obj</code>
    *
    * @param obj
-   *   Target object
+   *         Target object
    *
    * @return Property
    */

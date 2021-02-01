@@ -21,7 +21,7 @@ package cn.taketoday.context.exception;
 
 /**
  * @author TODAY <br>
- *         2020-02-18 19:10
+ * 2020-02-18 19:10
  */
 public class BeanInitializingException extends ContextException {
 

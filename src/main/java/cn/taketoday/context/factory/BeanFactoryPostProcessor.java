@@ -55,10 +55,10 @@ package cn.taketoday.context.factory;
  *
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @since 2.1.7
- * @see BeanPostProcessor
  * @author TODAY <br>
- *         2020-02-27 11:15
+ * 2020-02-27 11:15
+ * @see BeanPostProcessor
+ * @since 2.1.7
  */
 @FunctionalInterface
 public interface BeanFactoryPostProcessor {
@@ -70,9 +70,10 @@ public interface BeanFactoryPostProcessor {
    * even to eager-initializing beans.
    *
    * @param beanFactory
-   *            the bean factory used by the application context
+   *         the bean factory used by the application context
+   *
    * @throws org.springframework.beans.BeansException
-   *             in case of errors
+   *         in case of errors
    */
   void postProcessBeanFactory(ConfigurableBeanFactory beanFactory);
 

@@ -30,7 +30,7 @@ import cn.taketoday.context.factory.BeanDefinition;
  *
  * @author Juergen Hoeller
  * @author TODAY <br>
- *         2020-02-19 21:36
+ * 2020-02-19 21:36
  * @since 2.17
  */
 public class BeanInstantiationException extends ContextException {
@@ -83,7 +83,7 @@ public class BeanInstantiationException extends ContextException {
    * Return the offending constructor, if known.
    *
    * @return the constructor in use, or {@code null} in case of a factory method
-   *         or in case of default instantiation
+   * or in case of default instantiation
    */
   public Constructor<?> getConstructor() {
     return this.constructor;
@@ -93,7 +93,7 @@ public class BeanInstantiationException extends ContextException {
    * Return the delegate for bean construction purposes, if known.
    *
    * @return the method in use (typically a static factory method), or
-   *         {@code null} in case of constructor-based instantiation
+   * {@code null} in case of constructor-based instantiation
    */
   public Method getConstructingMethod() {
     return this.constructingMethod;

@@ -21,7 +21,7 @@ package cn.taketoday.context.listener;
 
 /**
  * @author TODAY <br>
- *         2018-09-09 21:26
+ * 2018-09-09 21:26
  */
 @FunctionalInterface
 public interface ApplicationEventPublisher {
@@ -30,7 +30,7 @@ public interface ApplicationEventPublisher {
    * Publish event
    *
    * @param event
-   *            Any Event object
+   *         Any Event object
    */
   void publishEvent(Object event);
 }

@@ -21,7 +21,7 @@ package cn.taketoday.context.reflect;
 
 /**
  * @author TODAY <br>
- *         2019-10-18 22:35
+ * 2019-10-18 22:35
  */
 @FunctionalInterface
 public interface Invoker {

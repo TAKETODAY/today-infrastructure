@@ -40,7 +40,6 @@
 
 package cn.taketoday.expression.parser;
 
-import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
 
 /**

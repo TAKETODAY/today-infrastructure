@@ -29,10 +29,10 @@ import cn.taketoday.context.exception.ContextException;
  * The typical usage will be to invoke custom destruction callbacks on specific
  * bean types, matching corresponding initialization callbacks.
  *
- * @since 2.1.7
  * @author Juergen Hoeller
  * @author TODAY <br>
- *         2019-12-10 00:05
+ * 2019-12-10 00:05
+ * @since 2.1.7
  */
 public interface DestructionBeanPostProcessor extends BeanPostProcessor {
 
@@ -45,11 +45,12 @@ public interface DestructionBeanPostProcessor extends BeanPostProcessor {
    * lifecycle for. This is usually the case for singletons and scoped beans.
    *
    * @param bean
-   *            the bean instance to be destroyed
+   *         the bean instance to be destroyed
    * @param def
-   *            the BeanDefinition of the bean , BeanDefinition may be null
+   *         the BeanDefinition of the bean , BeanDefinition may be null
+   *
    * @throws ContextException
-   *             in case of errors
+   *         in case of errors
    * @see DisposableBean#destroy()
    */
   void postProcessBeforeDestruction(Object bean, BeanDefinition def) throws ContextException;
@@ -63,10 +64,11 @@ public interface DestructionBeanPostProcessor extends BeanPostProcessor {
    * implementation of this method, Spring silently assumes {@code true} as well.
    *
    * @param bean
-   *            the bean instance to check
+   *         the bean instance to check
+   *
    * @return {@code true} if {@link #postProcessBeforeDestruction} is supposed to
-   *         be called for this bean instance eventually, or {@code false} if not
-   *         needed
+   * be called for this bean instance eventually, or {@code false} if not
+   * needed
    */
   default boolean requiresDestruction(Object bean) {
     return true;

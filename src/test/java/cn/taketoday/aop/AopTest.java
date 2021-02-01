@@ -40,7 +40,7 @@ import cn.taketoday.aop.annotation.Throwing;
 import cn.taketoday.aop.listener.AspectsDestroyListener;
 import cn.taketoday.aop.proxy.AutoProxyCreator;
 import cn.taketoday.aop.proxy.StandardProxyCreator.StandardProxyGenerator;
-import cn.taketoday.aop.proxy.TargetSource;
+import cn.taketoday.aop.proxy.TargetSourceIm;
 import cn.taketoday.context.AttributeAccessor;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
@@ -135,7 +135,7 @@ public class AopTest {
       proxyGenerator.setTarget(target);
       proxyGenerator.setTargetClass(Bean.class);
 
-      final TargetSource targetSource = new TargetSource(target, Bean.class);
+      final TargetSourceIm targetSource = new TargetSourceIm(target, Bean.class);
       proxyGenerator.setTargetSource(targetSource);
 
       final Map<Method, List<MethodInterceptor>> mapping = new LinkedHashMap<>();

@@ -50,7 +50,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    * Create a {@link MethodInvoker}
    *
    * @param executable
-   *   Target Method to invoke
+   *         Target Method to invoke
    *
    * @return {@link MethodInvoker} sub object
    */
@@ -62,16 +62,16 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    * Create a {@link MethodInvoker}
    *
    * @param beanClass
-   *   Bean Class
+   *         Bean Class
    * @param name
-   *   Target method to invoke
+   *         Target method to invoke
    * @param parameters
-   *   Target parameters classes
+   *         Target parameters classes
    *
    * @return {@link MethodInvoker} sub object
    *
    * @throws NoSuchMethodException
-   *   Thrown when a particular method cannot be found.
+   *         Thrown when a particular method cannot be found.
    */
   public static MethodInvoker create(final Class<?> beanClass,
                                      final String name, final Class<?>... parameters) throws NoSuchMethodException {
@@ -153,7 +153,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
     @Override
     protected boolean isPrivate() {
       return Modifier.isPrivate(targetClass.getModifiers())
-        || Modifier.isPrivate(targetMethod.getModifiers());
+              || Modifier.isPrivate(targetMethod.getModifiers());
     }
 
     @Override

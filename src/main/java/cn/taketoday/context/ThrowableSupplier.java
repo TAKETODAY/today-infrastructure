@@ -24,9 +24,9 @@ package cn.taketoday.context;
  * function which is able to throw an exception.
  *
  * @param <T>
- *            type of return value
+ *         type of return value
  * @param <E>
- *            type of exception
+ *         type of exception
  */
 @FunctionalInterface
 public interface ThrowableSupplier<T, E extends Throwable> {

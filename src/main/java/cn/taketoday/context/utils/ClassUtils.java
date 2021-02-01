@@ -1762,4 +1762,38 @@ public abstract class ClassUtils {
     return stringJoiner.toString();
   }
 
+  //
+
+  /**
+   * Determine whether the given class has a public method with the given signature.
+   *
+   * @param clazz
+   *         the clazz to analyze
+   * @param method
+   *         the method to look for
+   *
+   * @return whether the class has a corresponding method
+   *
+   * @since 3.0
+   */
+  public static boolean hasMethod(Class<?> clazz, Method method) {
+    Assert.notNull(clazz, "Class must not be null");
+    Assert.notNull(method, "Method must not be null");
+    if (clazz == method.getDeclaringClass()) {
+      return true;
+    }
+    String methodName = method.getName();
+    Class<?>[] paramTypes = method.getParameterTypes();
+    return getMethodOrNull(clazz, methodName, paramTypes) != null;
+  }
+
+  private static Method getMethodOrNull(Class<?> clazz, String methodName, Class<?>[] paramTypes) {
+    try {
+      return clazz.getMethod(methodName, paramTypes);
+    }
+    catch (NoSuchMethodException ex) {
+      return null;
+    }
+  }
+
 }

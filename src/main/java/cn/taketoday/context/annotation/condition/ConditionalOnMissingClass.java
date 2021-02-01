@@ -32,7 +32,7 @@ import cn.taketoday.context.annotation.Conditional;
  * the classpath.
  *
  * @author TODAY <br>
- *         2019-06-18 15:03
+ * 2019-06-18 15:03
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

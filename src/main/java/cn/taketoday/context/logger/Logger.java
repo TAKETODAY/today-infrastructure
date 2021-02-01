@@ -23,7 +23,7 @@ package cn.taketoday.context.logger;
  * Logger From slf4j
  *
  * @author TODAY <br>
- *         2019-11-03 13:15
+ * 2019-11-03 13:15
  */
 public interface Logger {
 
@@ -45,8 +45,7 @@ public interface Logger {
    * Log a message at the TRACE level.
    *
    * @param msg
-   *            the message string to be logged
-   *
+   *         the message string to be logged
    */
   void trace(String msg);
 
@@ -60,10 +59,9 @@ public interface Logger {
    * </p>
    *
    * @param format
-   *            the format string
+   *         the format string
    * @param arg
-   *            the argument
-   *
+   *         the argument
    */
   void trace(String format, Object arg);
 
@@ -77,12 +75,11 @@ public interface Logger {
    * </p>
    *
    * @param format
-   *            the format string
+   *         the format string
    * @param arg1
-   *            the first argument
+   *         the first argument
    * @param arg2
-   *            the second argument
-   *
+   *         the second argument
    */
   void trace(String format, Object arg1, Object arg2);
 
@@ -100,10 +97,9 @@ public interface Logger {
    * </p>
    *
    * @param format
-   *            the format string
+   *         the format string
    * @param arguments
-   *            a list of 3 or more arguments
-   *
+   *         a list of 3 or more arguments
    */
   void trace(String format, Object... arguments);
 
@@ -111,10 +107,9 @@ public interface Logger {
    * Log an exception (throwable) at the TRACE level with an accompanying message.
    *
    * @param msg
-   *            the message accompanying the exception
+   *         the message accompanying the exception
    * @param t
-   *            the exception (throwable) to log
-   *
+   *         the exception (throwable) to log
    */
   void trace(String msg, Throwable t);
 
@@ -129,7 +124,7 @@ public interface Logger {
    * Log a message at the DEBUG level.
    *
    * @param msg
-   *            the message string to be logged
+   *         the message string to be logged
    */
   void debug(String msg);
 
@@ -143,9 +138,9 @@ public interface Logger {
    * </p>
    *
    * @param format
-   *            the format string
+   *         the format string
    * @param arg
-   *            the argument
+   *         the argument
    */
   void debug(String format, Object arg);
 
@@ -159,11 +154,11 @@ public interface Logger {
    * </p>
    *
    * @param format
-   *            the format string
+   *         the format string
    * @param arg1
-   *            the first argument
+   *         the first argument
    * @param arg2
-   *            the second argument
+   *         the second argument
    */
   void debug(String format, Object arg1, Object arg2);
 
@@ -181,9 +176,9 @@ public interface Logger {
    * </p>
    *
    * @param format
-   *            the format string
+   *         the format string
    * @param arguments
-   *            a list of 3 or more arguments
+   *         a list of 3 or more arguments
    */
   void debug(String format, Object... arguments);
 
@@ -191,9 +186,9 @@ public interface Logger {
    * Log an exception (throwable) at the DEBUG level with an accompanying message.
    *
    * @param msg
-   *            the message accompanying the exception
+   *         the message accompanying the exception
    * @param t
-   *            the exception (throwable) to log
+   *         the exception (throwable) to log
    */
   void debug(String msg, Throwable t);
 
@@ -208,7 +203,7 @@ public interface Logger {
    * Log a message at the INFO level.
    *
    * @param msg
-   *            the message string to be logged
+   *         the message string to be logged
    */
   void info(String msg);
 
@@ -222,9 +217,9 @@ public interface Logger {
    * </p>
    *
    * @param format
-   *            the format string
+   *         the format string
    * @param arg
-   *            the argument
+   *         the argument
    */
   void info(String format, Object arg);
 
@@ -238,11 +233,11 @@ public interface Logger {
    * </p>
    *
    * @param format
-   *            the format string
+   *         the format string
    * @param arg1
-   *            the first argument
+   *         the first argument
    * @param arg2
-   *            the second argument
+   *         the second argument
    */
   void info(String format, Object arg1, Object arg2);
 
@@ -260,9 +255,9 @@ public interface Logger {
    * </p>
    *
    * @param format
-   *            the format string
+   *         the format string
    * @param arguments
-   *            a list of 3 or more arguments
+   *         a list of 3 or more arguments
    */
   void info(String format, Object... arguments);
 
@@ -270,9 +265,9 @@ public interface Logger {
    * Log an exception (throwable) at the INFO level with an accompanying message.
    *
    * @param msg
-   *            the message accompanying the exception
+   *         the message accompanying the exception
    * @param t
-   *            the exception (throwable) to log
+   *         the exception (throwable) to log
    */
   void info(String msg, Throwable t);
 
@@ -287,7 +282,7 @@ public interface Logger {
    * Log a message at the WARN level.
    *
    * @param msg
-   *            the message string to be logged
+   *         the message string to be logged
    */
   void warn(String msg);
 
@@ -301,9 +296,9 @@ public interface Logger {
    * </p>
    *
    * @param format
-   *            the format string
+   *         the format string
    * @param arg
-   *            the argument
+   *         the argument
    */
   void warn(String format, Object arg);
 
@@ -321,9 +316,9 @@ public interface Logger {
    * </p>
    *
    * @param format
-   *            the format string
+   *         the format string
    * @param arguments
-   *            a list of 3 or more arguments
+   *         a list of 3 or more arguments
    */
   void warn(String format, Object... arguments);
 
@@ -337,11 +332,11 @@ public interface Logger {
    * </p>
    *
    * @param format
-   *            the format string
+   *         the format string
    * @param arg1
-   *            the first argument
+   *         the first argument
    * @param arg2
-   *            the second argument
+   *         the second argument
    */
   void warn(String format, Object arg1, Object arg2);
 
@@ -349,9 +344,9 @@ public interface Logger {
    * Log an exception (throwable) at the WARN level with an accompanying message.
    *
    * @param msg
-   *            the message accompanying the exception
+   *         the message accompanying the exception
    * @param t
-   *            the exception (throwable) to log
+   *         the exception (throwable) to log
    */
   void warn(String msg, Throwable t);
 
@@ -366,7 +361,7 @@ public interface Logger {
    * Log a message at the ERROR level.
    *
    * @param msg
-   *            the message string to be logged
+   *         the message string to be logged
    */
   void error(String msg);
 
@@ -380,9 +375,9 @@ public interface Logger {
    * </p>
    *
    * @param format
-   *            the format string
+   *         the format string
    * @param arg
-   *            the argument
+   *         the argument
    */
   void error(String format, Object arg);
 
@@ -396,11 +391,11 @@ public interface Logger {
    * </p>
    *
    * @param format
-   *            the format string
+   *         the format string
    * @param arg1
-   *            the first argument
+   *         the first argument
    * @param arg2
-   *            the second argument
+   *         the second argument
    */
   void error(String format, Object arg1, Object arg2);
 
@@ -418,9 +413,9 @@ public interface Logger {
    * </p>
    *
    * @param format
-   *            the format string
+   *         the format string
    * @param arguments
-   *            a list of 3 or more arguments
+   *         a list of 3 or more arguments
    */
   void error(String format, Object... arguments);
 
@@ -428,9 +423,9 @@ public interface Logger {
    * Log an exception (throwable) at the ERROR level with an accompanying message.
    *
    * @param msg
-   *            the message accompanying the exception
+   *         the message accompanying the exception
    * @param t
-   *            the exception (throwable) to log
+   *         the exception (throwable) to log
    */
   void error(String msg, Throwable t);
 

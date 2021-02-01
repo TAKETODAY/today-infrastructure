@@ -30,7 +30,7 @@ import cn.taketoday.context.env.ProfileCondition;
 /**
  * @author Today <br>
  *
- *         2018-11-14 22:55
+ * 2018-11-14 22:55
  */
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)

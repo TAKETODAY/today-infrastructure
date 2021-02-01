@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
 
 /**
  * @author TODAY <br>
- *         2018-09-10 11:09
+ * 2018-09-10 11:09
  */
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)

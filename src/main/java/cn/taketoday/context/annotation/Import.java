@@ -31,7 +31,7 @@ import cn.taketoday.context.loader.ImportSelector;
  * Import a Configuration,ImportSelector, BeanDefinitionImporter,ApplicationListener or a bean
  *
  * @author TODAY <br>
- *         2019-10-01 17:27
+ * 2019-10-01 17:27
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })

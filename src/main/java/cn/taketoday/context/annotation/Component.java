@@ -31,7 +31,7 @@ import cn.taketoday.context.Scope;
  * your application
  *
  * @author TODAY <br>
- *         2018-07-2 22:46:39
+ * 2018-07-2 22:46:39
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })

@@ -23,7 +23,7 @@ import java.lang.reflect.AnnotatedElement;
 
 /**
  * @author TODAY <br>
- *         2018-11-10 13:44
+ * 2018-11-10 13:44
  */
 @FunctionalInterface
 public interface Condition {
@@ -32,9 +32,10 @@ public interface Condition {
    * Determine if the condition matches.
    *
    * @param annotated
-   *            Annotated element being checked
+   *         Annotated element being checked
+   *
    * @return Return {@code false} to indicate that the bean should not be
-   *         registered
+   * registered
    */
   boolean matches(ApplicationContext context, AnnotatedElement annotated);
 

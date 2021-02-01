@@ -35,7 +35,7 @@ import cn.taketoday.context.utils.ClassUtils;
  * classpath.
  *
  * @author TODAY <br>
- *         2019-06-18 15:00
+ * 2019-06-18 15:00
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })

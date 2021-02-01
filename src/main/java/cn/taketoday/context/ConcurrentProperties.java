@@ -37,7 +37,7 @@ import java.util.function.Function;
 
 /**
  * @author TODAY <br>
- *         2019-03-15 23:24
+ * 2019-03-15 23:24
  */
 public class ConcurrentProperties
         extends Properties implements ConcurrentMap<Object, Object> {
@@ -50,7 +50,7 @@ public class ConcurrentProperties
    * Creates an empty property list with the specified defaults.
    *
    * @param defaults
-   *            the defaults.
+   *         the defaults.
    */
   public ConcurrentProperties(Properties defaults) {
     super(defaults);

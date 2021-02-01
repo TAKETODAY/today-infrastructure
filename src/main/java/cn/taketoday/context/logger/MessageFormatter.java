@@ -94,7 +94,7 @@ import java.util.Map;
  * @author Ceki G&uuml;lc&uuml;
  * @author Joern Huxhorn
  * @author TODAY <br>
- *         2019-11-11 21:40
+ * 2019-11-11 21:40
  */
 public final class MessageFormatter {
 
@@ -117,9 +117,10 @@ public final class MessageFormatter {
    * <p>
    *
    * @param messagePattern
-   *            The message pattern which will be parsed and formatted
+   *         The message pattern which will be parsed and formatted
    * @param arg
-   *            The argument to be substituted in place of the formatting anchor
+   *         The argument to be substituted in place of the formatting anchor
+   *
    * @return The formatted message
    */
   public static String format(String messagePattern, Object arg) {

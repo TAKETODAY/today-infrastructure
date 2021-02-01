@@ -28,7 +28,7 @@ import cn.taketoday.context.Scope;
 
 /**
  * @author TODAY<br>
- *         2018-07-02 20:45:00
+ * 2018-07-02 20:45:00
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Component(scope = Scope.SINGLETON)

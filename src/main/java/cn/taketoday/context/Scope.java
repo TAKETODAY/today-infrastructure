@@ -23,7 +23,7 @@ import cn.taketoday.context.factory.BeanDefinition;
 
 /**
  * @author TODAY <br>
- *         2018-07-02 22:38:57
+ * 2018-07-02 22:38:57
  */
 public interface Scope {
 
@@ -40,13 +40,15 @@ public interface Scope {
    * absolutely required.
    *
    * @param def
-   *            the name of the object to retrieve
+   *         the name of the object to retrieve
    * @param objectFactory
-   *            the {@link ScopeObjectFactory} to use to create the scoped object
-   *            if it is not present in the underlying storage mechanism
+   *         the {@link ScopeObjectFactory} to use to create the scoped object
+   *         if it is not present in the underlying storage mechanism
+   *
    * @return the desired object (never {@code null})
+   *
    * @throws IllegalStateException
-   *             if the underlying scope is not currently active
+   *         if the underlying scope is not currently active
    */
   Object get(BeanDefinition def, ScopeObjectFactory objectFactory);
 

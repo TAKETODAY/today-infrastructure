@@ -31,11 +31,10 @@ import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.utils.ResourceUtils;
 
 /**
- *
  * {@link Conditional} that only matches when the specified resources are exits
  *
  * @author TODAY <br>
- *         2019-06-18 15:07
+ * 2019-06-18 15:07
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Conditional(OnResourceCondition.class)

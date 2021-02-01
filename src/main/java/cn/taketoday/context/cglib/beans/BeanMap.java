@@ -27,8 +27,8 @@ import java.util.Set;
 
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
-import cn.taketoday.context.cglib.core.KeyFactory;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
+import cn.taketoday.context.cglib.core.KeyFactory;
 
 /**
  * A <code>Map</code>-based view of a JavaBean. The default set of keys is the

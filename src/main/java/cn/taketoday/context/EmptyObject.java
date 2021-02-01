@@ -23,7 +23,7 @@ import java.io.Serializable;
 
 /**
  * @author TODAY <br>
- *         2020-04-15 16:52
+ * 2020-04-15 16:52
  */
 public enum EmptyObject implements Serializable {
   INSTANCE

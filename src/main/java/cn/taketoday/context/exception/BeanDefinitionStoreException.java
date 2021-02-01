@@ -21,7 +21,7 @@ package cn.taketoday.context.exception;
 
 /**
  * @author TODAY <br>
- *         2018-07-08 19:54:46
+ * 2018-07-08 19:54:46
  */
 public class BeanDefinitionStoreException extends ConfigurationException {
   private static final long serialVersionUID = 1L;

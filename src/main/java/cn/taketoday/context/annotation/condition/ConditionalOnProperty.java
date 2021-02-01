@@ -37,7 +37,7 @@ import cn.taketoday.context.utils.StringUtils;
  * value. By default the properties must be present in the {@link Environment}
  *
  * @author TODAY <br>
- *         2019-06-18 15:06
+ * 2019-06-18 15:06
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Conditional(OnPropertyCondition.class)

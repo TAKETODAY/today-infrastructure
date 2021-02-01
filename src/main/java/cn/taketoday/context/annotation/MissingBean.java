@@ -31,7 +31,7 @@ import cn.taketoday.context.Scope;
  * Context will create a bean definition when current context were missing
  *
  * @author TODAY <br>
- *         2019-01-31 14:36
+ * 2019-01-31 14:36
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })

@@ -23,7 +23,7 @@ package cn.taketoday.context.logger;
  * Factory that creates {@link Logger} instances.
  *
  * @author TODAY <br>
- *         2019-11-04 19:06
+ * 2019-11-04 19:06
  */
 public abstract class LoggerFactory {
 

@@ -21,7 +21,7 @@ package cn.taketoday.context.exception;
 
 /**
  * @author TODAY <br>
- *         2018-07-3 20:24:18
+ * 2018-07-3 20:24:18
  */
 public class NoSuchBeanDefinitionException extends ContextException {
 

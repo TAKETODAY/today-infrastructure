@@ -23,7 +23,7 @@ import java.lang.reflect.Field;
 
 /**
  * @author TODAY <br>
- *         2020-08-13 19:50
+ * 2020-08-13 19:50
  */
 public interface GetterMethodFactory {
 

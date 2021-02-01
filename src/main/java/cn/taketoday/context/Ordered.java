@@ -29,7 +29,7 @@ package cn.taketoday.context;
  * priority.
  *
  * @author TODAY <br>
- *         2018-11-07 13:08
+ * 2018-11-07 13:08
  */
 public interface Ordered {
 

@@ -21,7 +21,7 @@ package cn.taketoday.context.logger;
 
 /**
  * @author TODAY <br>
- *         2019-11-03 15:12
+ * 2019-11-03 15:12
  */
 public abstract class AbstractLogger implements Logger {
 

@@ -35,7 +35,7 @@ import cn.taketoday.context.utils.ContextUtils;
  * Unified Expression Language
  *
  * @author TODAY <br>
- *         2019-06-18 15:11
+ * 2019-06-18 15:11
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Conditional(OnExpressionCondition.class)

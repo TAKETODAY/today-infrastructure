@@ -28,7 +28,7 @@ import cn.taketoday.context.Constant;
 
 /**
  * @author TODAY <br>
- *         2018-?-? ?:?
+ * 2018-?-? ?:?
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.CONSTRUCTOR, ElementType.METHOD })

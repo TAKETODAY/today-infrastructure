@@ -22,8 +22,8 @@ import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.context.asm.ClassVisitor;
-import cn.taketoday.context.cglib.core.CollectionUtils;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
+import cn.taketoday.context.cglib.core.CollectionUtils;
 import cn.taketoday.context.cglib.core.RejectModifierPredicate;
 
 /**

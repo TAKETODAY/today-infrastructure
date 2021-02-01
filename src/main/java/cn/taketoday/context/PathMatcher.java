@@ -25,7 +25,7 @@ import java.util.Map;
 
 /**
  * @author TODAY <br>
- *         2019-03-26 10:19
+ * 2019-03-26 10:19
  */
 public interface PathMatcher {
 
@@ -38,7 +38,8 @@ public interface PathMatcher {
    * Strings will lead to the same result.
    *
    * @param path
-   *            the path String to check
+   *         the path String to check
+   *
    * @return {@code true} if the given {@code path} represents a pattern
    */
   boolean isPattern(String path);
@@ -48,11 +49,12 @@ public interface PathMatcher {
    * this PathMatcher's matching strategy.
    *
    * @param pattern
-   *            the pattern to match against
+   *         the pattern to match against
    * @param path
-   *            the path String to test
+   *         the path String to test
+   *
    * @return {@code true} if the supplied {@code path} matched, {@code false} if
-   *         it didn't
+   * it didn't
    */
   boolean match(String pattern, String path);
 
@@ -64,11 +66,12 @@ public interface PathMatcher {
    * goes, assuming that a full path may then match as well.
    *
    * @param pattern
-   *            the pattern to match against
+   *         the pattern to match against
    * @param path
-   *            the path String to test
+   *         the path String to test
+   *
    * @return {@code true} if the supplied {@code path} matched, {@code false} if
-   *         it didn't
+   * it didn't
    */
   boolean matchStart(String pattern, String path);
 
@@ -92,11 +95,12 @@ public interface PathMatcher {
    * the dynamic parts of the given path pattern.
    *
    * @param pattern
-   *            the path pattern
+   *         the path pattern
    * @param path
-   *            the full path to introspect
+   *         the full path to introspect
+   *
    * @return the pattern-mapped part of the given {@code path} (never
-   *         {@code null})
+   * {@code null})
    */
   String extractPathWithinPattern(String pattern, String path);
 
@@ -108,9 +112,10 @@ public interface PathMatcher {
    * will return a map containing "hotel"->"1".
    *
    * @param pattern
-   *            the path pattern, possibly containing URI templates
+   *         the path pattern, possibly containing URI templates
    * @param path
-   *            the full path to extract template variables from
+   *         the full path to extract template variables from
+   *
    * @return a map, containing variable names as keys; variables values as values
    */
   Map<String, String> extractUriTemplateVariables(String pattern, String path);
@@ -125,7 +130,8 @@ public interface PathMatcher {
    * more specific patterns come before generic patterns.
    *
    * @param path
-   *            the full path to use for comparison
+   *         the full path to use for comparison
+   *
    * @return a comparator capable of sorting patterns in order of explicitness
    */
   Comparator<String> getPatternComparator(String path);
@@ -137,12 +143,14 @@ public interface PathMatcher {
    * underlying implementation.
    *
    * @param pattern1
-   *            the first pattern
+   *         the first pattern
    * @param pattern2
-   *            the second pattern
+   *         the second pattern
+   *
    * @return the combination of the two patterns
+   *
    * @throws IllegalArgumentException
-   *             when the two patterns cannot be combined
+   *         when the two patterns cannot be combined
    */
   String combine(String pattern1, String pattern2);
 
@@ -150,9 +158,10 @@ public interface PathMatcher {
    * Given a pattern and a full path, extract the URI template variables.
    *
    * @param pattern
-   *            the path pattern, possibly containing URI templates
+   *         the path pattern, possibly containing URI templates
    * @param path
-   *            the full path to extract template variables from
+   *         the full path to extract template variables from
+   *
    * @return a path variable array
    */
   String[] extractVariables(String pattern, String path);

@@ -25,7 +25,7 @@ import cn.taketoday.context.Ordered;
 
 /**
  * @author TODAY <br>
- *         2019-06-06 16:06
+ * 2019-06-06 16:06
  * @since 2.1.6
  */
 public class DelegatingStringTypeConverter<T> extends StringTypeConverter implements Ordered {

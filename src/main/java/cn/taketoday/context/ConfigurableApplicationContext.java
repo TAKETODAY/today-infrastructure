@@ -28,7 +28,7 @@ import cn.taketoday.context.loader.CandidateComponentScanner;
 
 /**
  * @author TODAY <br>
- *         2018-11-14 21:16
+ * 2018-11-14 21:16
  */
 public interface ConfigurableApplicationContext extends ApplicationContext {
 
@@ -36,7 +36,8 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
    * Setting the {@link Environment}
    *
    * @param environment
-   *            {@link Environment} instance
+   *         {@link Environment} instance
+   *
    * @since 2.1.0
    */
   @Deprecated
@@ -45,8 +46,9 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
   /**
    * Get configurable environment
    *
-   * @since 2.1.0
    * @return {@link ConfigurableEnvironment} never be null
+   *
+   * @since 2.1.0
    */
   @Override
   ConfigurableEnvironment getEnvironment();
@@ -64,7 +66,8 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
    * <p>
    *
    * @param listener
-   *            the {@link ApplicationListener}
+   *         the {@link ApplicationListener}
+   *
    * @since 2.1.6
    */
   void addApplicationListener(ApplicationListener<?> listener);
@@ -73,7 +76,8 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
    * Apply {@link CandidateComponentScanner} to scan classes
    *
    * @param scanner
-   *            CandidateComponentScanner
+   *         CandidateComponentScanner
+   *
    * @since 2.1.7
    */
   void setCandidateComponentScanner(CandidateComponentScanner scanner);
@@ -84,7 +88,8 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
    * definitions get evaluated. To be invoked during context configuration.
    *
    * @param postProcessor
-   *            the factory processor to register
+   *         the factory processor to register
+   *
    * @since 2.1.7
    */
   void addBeanFactoryPostProcessor(BeanFactoryPostProcessor postProcessor);

@@ -19,8 +19,8 @@ import java.util.Comparator;
 
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
-import cn.taketoday.context.cglib.core.ClassesKey;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
+import cn.taketoday.context.cglib.core.ClassesKey;
 
 /**
  * For the efficient sorting of multiple arrays in parallel.

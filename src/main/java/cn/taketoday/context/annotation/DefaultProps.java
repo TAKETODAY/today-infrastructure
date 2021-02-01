@@ -27,7 +27,7 @@ import cn.taketoday.context.Constant;
 
 /**
  * @author TODAY <br>
- *         2019-03-15 23:18
+ * 2019-03-15 23:18
  */
 @SuppressWarnings("all")
 public class DefaultProps implements Props, Annotation {

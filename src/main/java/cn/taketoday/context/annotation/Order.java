@@ -36,7 +36,7 @@ import cn.taketoday.context.Ordered;
  * priority (losing to any other specified order value).
  *
  * @author TODAY<br>
- *         2018-11-07 13:15
+ * 2018-11-07 13:15
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER })

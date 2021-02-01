@@ -107,7 +107,7 @@ public class ConverterTypeConverter
     }
   }
 
-  public  void addConverter(Class<?> targetClass, Converter<?, ?> converter) {
+  public void addConverter(Class<?> targetClass, Converter<?, ?> converter) {
     Assert.notNull(converter, "converter must not be null");
 
     final Type[] genericityClass = ClassUtils.getGenericityClass(converter.getClass());

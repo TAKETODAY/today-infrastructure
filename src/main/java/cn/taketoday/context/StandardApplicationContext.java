@@ -30,7 +30,7 @@ import cn.taketoday.context.factory.StandardBeanFactory;
  * Standard {@link ApplicationContext}
  *
  * @author TODAY <br>
- *         2018-09-06 13:47
+ * 2018-09-06 13:47
  */
 public class StandardApplicationContext
         extends AbstractApplicationContext implements ConfigurableApplicationContext {

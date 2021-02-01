@@ -21,7 +21,7 @@ package cn.taketoday.context.exception;
 
 /**
  * @author TODAY <br>
- *         2020-02-18 19:03
+ * 2020-02-18 19:03
  */
 public class PropertyValueException extends ContextException {
 
