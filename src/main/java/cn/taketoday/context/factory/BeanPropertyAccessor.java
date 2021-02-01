@@ -148,7 +148,7 @@ public class BeanPropertyAccessor {
    *         if the index is out of list range (<tt>index &lt; 0 || index &gt;= size()</tt>)
    */
   public static Object getProperty(final Object root, final BeanMetadata metadata, final String propertyPath) {
-    int signIndex = propertyPath.indexOf('.');
+    final int signIndex = getNestedPropertySeparatorIndex(propertyPath);
 
     if (signIndex != -1) {
       final String property = propertyPath.substring(0, signIndex);
@@ -305,16 +305,14 @@ public class BeanPropertyAccessor {
    *         Property value
    */
   public static void setProperty(final Object root, final BeanMetadata metadata, final String propertyPath, final Object value) {
-    int index = propertyPath.indexOf('.');
+    final int index = getNestedPropertySeparatorIndex(propertyPath);
 
     if (index != -1) {
-      String property;
-      Class<?> propertyType;
       Object subValue;
+      Class<?> propertyType;
       if (propertyPath.charAt(index - 1) == ']') { // xxx[0].list[0]
         final int signIndex = propertyPath.indexOf('['); // array,list: [0]; map: [key]
-        property = propertyPath.substring(0, signIndex);
-        final BeanProperty beanProperty = metadata.obtainBeanProperty(property);
+        final BeanProperty beanProperty = getBeanProperty(metadata, propertyPath, signIndex);
         final Class<?> componentType = beanProperty.getComponentClass();
 
         propertyType = componentType != null ? componentType : root.getClass();
@@ -338,8 +336,7 @@ public class BeanPropertyAccessor {
         }
       }
       else {
-        property = propertyPath.substring(0, index);
-        final BeanProperty beanProperty = metadata.obtainBeanProperty(property);
+        final BeanProperty beanProperty = getBeanProperty(metadata, propertyPath, index);
         propertyType = beanProperty.getType();
         subValue = getSubValue(root, beanProperty);
       }
@@ -354,13 +351,17 @@ public class BeanPropertyAccessor {
         metadata.setProperty(root, propertyPath, value);
       }
       else {
-        final String property = propertyPath.substring(0, signIndex);
-        final BeanProperty beanProperty = metadata.obtainBeanProperty(property);
+        final BeanProperty beanProperty = getBeanProperty(metadata, propertyPath, signIndex);
         final Object subValue = getSubValue(root, beanProperty);
         final String key = getKey(propertyPath, signIndex);
         setKeyedProperty(root, beanProperty, subValue, key, value, propertyPath);
       }
     }
+  }
+
+  static BeanProperty getBeanProperty(BeanMetadata metadata, String propertyPath, int index) {
+    final String property = propertyPath.substring(0, index);
+    return metadata.obtainBeanProperty(property);
   }
 
   static Object getComponentValue(Object root, String propertyPath, Object subValue, int signIndex, BeanProperty beanProperty) {
@@ -466,6 +467,32 @@ public class BeanPropertyAccessor {
       }
     }
   }
+
+  /**
+   * Determine the first nested property separator in the
+   * given property path, ignoring dots in keys (like "map[my.key]").
+   *
+   * @param propertyPath
+   *         the property path to check
+   *
+   * @return the index of the nested property separator, or -1 if none
+   */
+  static int getNestedPropertySeparatorIndex(final String propertyPath) {
+    int idx = 0;
+    boolean inKey = false;
+    for (final char value : propertyPath.toCharArray()) {
+      if (value == '[' || value == ']') {
+        inKey = !inKey;
+      }
+      else if (value == '.' && !inKey) {
+        return idx;
+      }
+      idx++;
+    }
+    return -1;
+  }
+
+  //
 
   public Object getBean() {
     return this.bean;

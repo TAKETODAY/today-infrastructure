@@ -159,6 +159,20 @@ public class BeanMetadata {
   }
 
   /**
+   * Get property type
+   *
+   * @param propertyName
+   *         Property name
+   *
+   * @throws NoSuchPropertyException
+   *         If no such property
+   * @see #obtainBeanProperty(String)
+   */
+  public Class<?> getPropertyClass(final String propertyName) {
+    return obtainBeanProperty(propertyName).getType();
+  }
+
+  /**
    * Get properties mapping
    *
    * @return map of peoperties
