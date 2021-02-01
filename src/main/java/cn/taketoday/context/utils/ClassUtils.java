@@ -49,6 +49,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -56,6 +57,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.WeakHashMap;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -1529,6 +1531,235 @@ public abstract class ClassUtils {
   public static boolean isSimpleType(Class<?> clazz) {
     return primitiveTypes.contains(clazz)
             || (clazz.isArray() && isSimpleType(clazz.getComponentType()));
+  }
+
+  // Interfaces from spring
+
+  /**
+   * Return all interfaces that the given instance implements as an array,
+   * including ones implemented by superclasses.
+   *
+   * @param instance
+   *         the instance to analyze for interfaces
+   *
+   * @return all interfaces that the given instance implements as an array
+   *
+   * @since 3.0
+   */
+  public static Class<?>[] getAllInterfaces(Object instance) {
+    Assert.notNull(instance, "Instance must not be null");
+    return getAllInterfacesForClass(instance.getClass());
+  }
+
+  /**
+   * Return all interfaces that the given class implements as an array,
+   * including ones implemented by superclasses.
+   * <p>If the class itself is an interface, it gets returned as sole interface.
+   *
+   * @param clazz
+   *         the class to analyze for interfaces
+   *
+   * @return all interfaces that the given object implements as an array
+   *
+   * @since 3.0
+   */
+  public static Class<?>[] getAllInterfacesForClass(Class<?> clazz) {
+    return getAllInterfacesForClass(clazz, null);
+  }
+
+  /**
+   * Return all interfaces that the given class implements as an array,
+   * including ones implemented by superclasses.
+   * <p>If the class itself is an interface, it gets returned as sole interface.
+   *
+   * @param clazz
+   *         the class to analyze for interfaces
+   * @param classLoader
+   *         the ClassLoader that the interfaces need to be visible in
+   *         (may be {@code null} when accepting all declared interfaces)
+   *
+   * @return all interfaces that the given object implements as an array
+   *
+   * @since 3.0
+   */
+  public static Class<?>[] getAllInterfacesForClass(Class<?> clazz, ClassLoader classLoader) {
+    return toClassArray(getAllInterfacesForClassAsSet(clazz, classLoader));
+  }
+
+  /**
+   * Copy the given {@code Collection} into a {@code Class} array.
+   * <p>The {@code Collection} must contain {@code Class} elements only.
+   *
+   * @param collection
+   *         the {@code Collection} to copy
+   *
+   * @return the {@code Class} array
+   *
+   * @see StringUtils#toStringArray
+   * @since 3.0
+   */
+  public static Class<?>[] toClassArray(Collection<Class<?>> collection) {
+    return CollectionUtils.isEmpty(collection)
+           ? Constant.EMPTY_CLASS_ARRAY
+           : collection.toArray(Constant.EMPTY_CLASS_ARRAY);
+  }
+
+  /**
+   * Return all interfaces that the given instance implements as a Set,
+   * including ones implemented by superclasses.
+   *
+   * @param instance
+   *         the instance to analyze for interfaces
+   *
+   * @return all interfaces that the given instance implements as a Set
+   *
+   * @since 3.0
+   */
+  public static Set<Class<?>> getAllInterfacesAsSet(Object instance) {
+    Assert.notNull(instance, "Instance must not be null");
+    return getAllInterfacesForClassAsSet(instance.getClass());
+  }
+
+  /**
+   * Return all interfaces that the given class implements as a Set,
+   * including ones implemented by superclasses.
+   * <p>If the class itself is an interface, it gets returned as sole interface.
+   *
+   * @param clazz
+   *         the class to analyze for interfaces
+   *
+   * @return all interfaces that the given object implements as a Set
+   *
+   * @since 3.0
+   */
+  public static Set<Class<?>> getAllInterfacesForClassAsSet(Class<?> clazz) {
+    return getAllInterfacesForClassAsSet(clazz, null);
+  }
+
+  /**
+   * Return all interfaces that the given class implements as a Set,
+   * including ones implemented by superclasses.
+   * <p>If the class itself is an interface, it gets returned as sole interface.
+   *
+   * @param clazz
+   *         the class to analyze for interfaces
+   * @param classLoader
+   *         the ClassLoader that the interfaces need to be visible in
+   *         (may be {@code null} when accepting all declared interfaces)
+   *
+   * @return all interfaces that the given object implements as a Set
+   *
+   * @since 3.0
+   */
+  public static Set<Class<?>> getAllInterfacesForClassAsSet(Class<?> clazz, ClassLoader classLoader) {
+    Assert.notNull(clazz, "Class must not be null");
+    if (clazz.isInterface() && isVisible(clazz, classLoader)) {
+      return Collections.singleton(clazz);
+    }
+    LinkedHashSet<Class<?>> interfaces = new LinkedHashSet<>();
+    Class<?> current = clazz;
+    while (current != null) {
+      Class<?>[] ifcs = current.getInterfaces();
+      for (Class<?> ifc : ifcs) {
+        if (isVisible(ifc, classLoader)) {
+          interfaces.add(ifc);
+        }
+      }
+      current = current.getSuperclass();
+    }
+    return interfaces;
+  }
+
+  /**
+   * Check whether the given class is visible in the given ClassLoader.
+   *
+   * @param clazz
+   *         the class to check (typically an interface)
+   * @param classLoader
+   *         the ClassLoader to check against
+   *         (may be {@code null} in which case this method will always return {@code true})
+   *
+   * @since 3.0
+   */
+  public static boolean isVisible(Class<?> clazz, ClassLoader classLoader) {
+    if (classLoader == null) {
+      return true;
+    }
+    try {
+      if (clazz.getClassLoader() == classLoader) {
+        return true;
+      }
+    }
+    catch (SecurityException ex) {
+      // Fall through to loadable check below
+    }
+
+    // Visible if same Class can be loaded from given ClassLoader
+    return isLoadable(clazz, classLoader);
+  }
+
+  /**
+   * Check whether the given class is loadable in the given ClassLoader.
+   *
+   * @param clazz
+   *         the class to check (typically an interface)
+   * @param classLoader
+   *         the ClassLoader to check against
+   *
+   * @since 3.0
+   */
+  private static boolean isLoadable(Class<?> clazz, ClassLoader classLoader) {
+    try {
+      return (clazz == classLoader.loadClass(clazz.getName()));
+      // Else: different class with same name found
+    }
+    catch (ClassNotFoundException ex) {
+      // No corresponding class found at all
+      return false;
+    }
+  }
+
+  /**
+   * Build a String that consists of the names of the classes/interfaces
+   * in the given array.
+   * <p>Basically like {@code AbstractCollection.toString()}, but stripping
+   * the "class "/"interface " prefix before every class name.
+   *
+   * @param classes
+   *         an array of Class objects
+   *
+   * @return a String of form "[com.foo.Bar, com.foo.Baz]"
+   *
+   * @see java.util.AbstractCollection#toString()
+   * @since 3.0
+   */
+  public static String classNamesToString(Class<?>... classes) {
+    return classNamesToString(Arrays.asList(classes));
+  }
+
+  /**
+   * Build a String that consists of the names of the classes/interfaces
+   * in the given collection.
+   * <p>Basically like {@code AbstractCollection.toString()}, but stripping
+   * the "class "/"interface " prefix before every class name.
+   *
+   * @param classes
+   *         a Collection of Class objects (may be {@code null})
+   *
+   * @return a String of form "[com.foo.Bar, com.foo.Baz]"
+   *
+   * @see java.util.AbstractCollection#toString()
+   * @since 3.0
+   */
+  public static String classNamesToString(Collection<Class<?>> classes) {
+    if (CollectionUtils.isEmpty(classes)) {
+      return "[]";
+    }
+    StringJoiner stringJoiner = new StringJoiner(", ", "[", "]");
+    for (Class<?> clazz : classes) {
+      stringJoiner.add(clazz.getName());
+    }
+    return stringJoiner.toString();
   }
 
 }
