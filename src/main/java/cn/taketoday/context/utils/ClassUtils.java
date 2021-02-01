@@ -80,11 +80,9 @@ import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 
 import static cn.taketoday.context.Constant.EMPTY_ANNOTATION_ATTRIBUTES;
-import static cn.taketoday.context.utils.Assert.notNull;
 import static cn.taketoday.context.utils.ContextUtils.resolveParameter;
 import static cn.taketoday.context.utils.ReflectionUtils.findMethod;
 import static cn.taketoday.context.utils.ReflectionUtils.getDeclaredMethods;
-import static java.util.Objects.requireNonNull;
 
 /**
  * @author TODAY <br>
@@ -209,7 +207,7 @@ public abstract class ClassUtils {
    * @return whether given class name present in class path
    */
   public static boolean isPresent(String className) {
-    notNull(className, "class name can't be null");
+    Assert.notNull(className, "class name can't be null");
     try {
       forName(className);
       return true;
@@ -336,7 +334,7 @@ public abstract class ClassUtils {
    */
   @SuppressWarnings("unchecked")
   public static <T> Class<T> loadClass(String name, ClassLoader classLoader) {
-    notNull(classLoader, "ClassLoader can't be null");
+    Assert.notNull(classLoader, "ClassLoader can't be null");
     try {
       return (Class<T>) classLoader.loadClass(name);
     }
@@ -423,7 +421,7 @@ public abstract class ClassUtils {
       }
       else {
         int i = 0;
-        notNull(implClass, "Implementation class can't be null");
+        Assert.notNull(implClass, "Implementation class can't be null");
         ret = Array.newInstance(annotationClass, annAttributes.length);
         for (final AnnotationAttributes attributes : annAttributes) {
           Array.set(ret, i++, injectAttributes(attributes, annotationClass, newInstance(implClass)));
@@ -814,7 +812,7 @@ public abstract class ClassUtils {
     private final AnnotatedElement element;
 
     public AnnotationKey(AnnotatedElement element, Class<T> annotationClass) {
-      notNull(element, "AnnotatedElement can't be null");
+      Assert.notNull(element, "AnnotatedElement can't be null");
       this.element = element;
       this.annotationClass = annotationClass;
       this.hash = Objects.hash(element, annotationClass);
@@ -1188,7 +1186,7 @@ public abstract class ClassUtils {
    */
   @SuppressWarnings("unchecked")
   public static <T> Class<T> getUserClass(T synthetic) {
-    return (Class<T>) getUserClass(requireNonNull(synthetic).getClass());
+    return (Class<T>) getUserClass(Objects.requireNonNull(synthetic).getClass());
   }
 
   /**
@@ -1204,7 +1202,7 @@ public abstract class ClassUtils {
    */
   @SuppressWarnings("unchecked")
   public static <T> Class<T> getUserClass(Class<T> syntheticClass) {
-    if (requireNonNull(syntheticClass).getName().lastIndexOf(Constant.CGLIB_CLASS_SEPARATOR) > -1) {
+    if (Objects.requireNonNull(syntheticClass).getName().lastIndexOf(Constant.CGLIB_CLASS_SEPARATOR) > -1) {
       Class<?> superclass = syntheticClass.getSuperclass();
       if (superclass != null && superclass != Object.class) {
         return (Class<T>) superclass;
@@ -1225,7 +1223,7 @@ public abstract class ClassUtils {
    * @since 2.1.7
    */
   public static <T> Class<T> getUserClass(String name) {
-    final int i = requireNonNull(name).indexOf(Constant.CGLIB_CLASS_SEPARATOR);
+    final int i = Objects.requireNonNull(name).indexOf(Constant.CGLIB_CLASS_SEPARATOR);
     return i > 0 ? loadClass(name.substring(0, i)) : loadClass(name);
   }
 
@@ -1514,7 +1512,7 @@ public abstract class ClassUtils {
    * @return the qualified name of the method
    */
   public static String getQualifiedMethodName(Method method, Class<?> clazz) {
-    notNull(method, "Method must not be null");
+    Assert.notNull(method, "Method must not be null");
     return (clazz != null ? clazz : method.getDeclaringClass()).getName() + '.' + method.getName();
   }
 
