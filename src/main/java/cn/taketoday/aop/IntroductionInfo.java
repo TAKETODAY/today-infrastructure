@@ -20,47 +20,26 @@
 
 package cn.taketoday.aop;
 
-import java.io.Serializable;
-
 /**
- * Canonical Pointcut instance that always matches.
+ * Interface supplying the information necessary to describe an introduction.
+ *
+ * <p>{@link IntroductionAdvisor IntroductionAdvisors} must implement this
+ * interface. If an {@link org.aopalliance.aop.Advice} implements this,
+ * it may be used as an introduction without an {@link IntroductionAdvisor}.
+ * In this case, the advice is self-describing, providing not only the
+ * necessary behavior, but describing the interfaces it introduces.
  *
  * @author Rod Johnson
- * @author TODAY 2021/2/1 18:24
+ * @author TODAY 2021/2/1 18:48
  * @since 3.0
  */
-final class TruePointcut implements Pointcut, Serializable {
-
-  public static final TruePointcut INSTANCE = new TruePointcut();
+public interface IntroductionInfo {
 
   /**
-   * Enforce Singleton pattern.
+   * Return the additional interfaces introduced by this Advisor or Advice.
+   *
+   * @return the introduced interfaces
    */
-  private TruePointcut() {
-  }
-
-  @Override
-  public ClassFilter getClassFilter() {
-    return ClassFilter.TRUE;
-  }
-
-  @Override
-  public MethodMatcher getMethodMatcher() {
-    return MethodMatcher.TRUE;
-  }
-
-  /**
-   * Required to support serialization. Replaces with canonical
-   * instance on deserialization, protecting Singleton pattern.
-   * Alternative to overriding {@code equals()}.
-   */
-  private Object readResolve() {
-    return INSTANCE;
-  }
-
-  @Override
-  public String toString() {
-    return "Pointcut.TRUE";
-  }
+  Class<?>[] getInterfaces();
 
 }

@@ -56,7 +56,7 @@ public class DefaultProxyFactory implements ProxyFactory {
   //  private static final CglibProxyCreator CGLIB_PROXY_CREATOR = new CglibProxyCreator();
   private static final StandardProxyCreator CGLIB_PROXY_CREATOR = new StandardProxyCreator();
 
-  private final TargetSource targetSource;
+  private final TargetSourceIm targetSource;
   private final ApplicationContext applicationContext;
 
   private final Map<Method, List<MethodInterceptor>> aspectMappings = new HashMap<>(16);
@@ -65,7 +65,7 @@ public class DefaultProxyFactory implements ProxyFactory {
     this(null, null);
   }
 
-  public DefaultProxyFactory(TargetSource targetSource, ApplicationContext context) {
+  public DefaultProxyFactory(TargetSourceIm targetSource, ApplicationContext context) {
     this.targetSource = targetSource;
     this.applicationContext = context;
   }

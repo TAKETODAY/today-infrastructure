@@ -20,47 +20,20 @@
 
 package cn.taketoday.aop;
 
-import java.io.Serializable;
+import org.aopalliance.intercept.MethodInterceptor;
 
 /**
- * Canonical Pointcut instance that always matches.
+ * Subinterface of AOP Alliance MethodInterceptor that allows additional interfaces
+ * to be implemented by the interceptor, and available via a proxy using that
+ * interceptor. This is a fundamental AOP concept called <b>introduction</b>.
+ *
+ * <p>Introductions are often <b>mixins</b>, enabling the building of composite
+ * objects that can achieve many of the goals of multiple inheritance in Java.
  *
  * @author Rod Johnson
- * @author TODAY 2021/2/1 18:24
- * @since 3.0
+ * @author TODAY 2021/2/1 18:48
+ * @see DynamicIntroductionAdvice
  */
-final class TruePointcut implements Pointcut, Serializable {
-
-  public static final TruePointcut INSTANCE = new TruePointcut();
-
-  /**
-   * Enforce Singleton pattern.
-   */
-  private TruePointcut() {
-  }
-
-  @Override
-  public ClassFilter getClassFilter() {
-    return ClassFilter.TRUE;
-  }
-
-  @Override
-  public MethodMatcher getMethodMatcher() {
-    return MethodMatcher.TRUE;
-  }
-
-  /**
-   * Required to support serialization. Replaces with canonical
-   * instance on deserialization, protecting Singleton pattern.
-   * Alternative to overriding {@code equals()}.
-   */
-  private Object readResolve() {
-    return INSTANCE;
-  }
-
-  @Override
-  public String toString() {
-    return "Pointcut.TRUE";
-  }
+public interface IntroductionInterceptor extends MethodInterceptor, DynamicIntroductionAdvice {
 
 }

@@ -20,47 +20,37 @@
 
 package cn.taketoday.aop;
 
-import java.io.Serializable;
+import cn.taketoday.context.exception.ContextException;
 
 /**
- * Canonical Pointcut instance that always matches.
+ * Exception that gets thrown when an AOP invocation failed
+ * because of misconfiguration or unexpected runtime issues.
  *
- * @author Rod Johnson
- * @author TODAY 2021/2/1 18:24
+ * @author Juergen Hoeller
+ * @author TODAY 2021/2/1 18:52
  * @since 3.0
  */
-final class TruePointcut implements Pointcut, Serializable {
-
-  public static final TruePointcut INSTANCE = new TruePointcut();
+public class AopInvocationException extends ContextException {
 
   /**
-   * Enforce Singleton pattern.
+   * Constructor for AopInvocationException.
+   *
+   * @param msg
+   *         the detail message
    */
-  private TruePointcut() {
-  }
-
-  @Override
-  public ClassFilter getClassFilter() {
-    return ClassFilter.TRUE;
-  }
-
-  @Override
-  public MethodMatcher getMethodMatcher() {
-    return MethodMatcher.TRUE;
+  public AopInvocationException(String msg) {
+    super(msg);
   }
 
   /**
-   * Required to support serialization. Replaces with canonical
-   * instance on deserialization, protecting Singleton pattern.
-   * Alternative to overriding {@code equals()}.
+   * Constructor for AopInvocationException.
+   *
+   * @param msg
+   *         the detail message
+   * @param cause
+   *         the root cause
    */
-  private Object readResolve() {
-    return INSTANCE;
+  public AopInvocationException(String msg, Throwable cause) {
+    super(msg, cause);
   }
-
-  @Override
-  public String toString() {
-    return "Pointcut.TRUE";
-  }
-
 }

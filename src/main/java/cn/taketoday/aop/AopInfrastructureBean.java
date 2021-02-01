@@ -20,47 +20,16 @@
 
 package cn.taketoday.aop;
 
-import java.io.Serializable;
-
 /**
- * Canonical Pointcut instance that always matches.
+ * Marker interface that indicates a bean that is part of AOP infrastructure. In
+ * particular, this implies that any such bean is not subject to auto-proxying,
+ * even if a pointcut would match.
  *
- * @author Rod Johnson
- * @author TODAY 2021/2/1 18:24
+ * @author Juergen Hoeller
+ * @author TODAY 2021/2/1 21:31
+ * @see cn.taketoday.aop.proxy.AbstractAutoProxyCreator
  * @since 3.0
  */
-final class TruePointcut implements Pointcut, Serializable {
-
-  public static final TruePointcut INSTANCE = new TruePointcut();
-
-  /**
-   * Enforce Singleton pattern.
-   */
-  private TruePointcut() {
-  }
-
-  @Override
-  public ClassFilter getClassFilter() {
-    return ClassFilter.TRUE;
-  }
-
-  @Override
-  public MethodMatcher getMethodMatcher() {
-    return MethodMatcher.TRUE;
-  }
-
-  /**
-   * Required to support serialization. Replaces with canonical
-   * instance on deserialization, protecting Singleton pattern.
-   * Alternative to overriding {@code equals()}.
-   */
-  private Object readResolve() {
-    return INSTANCE;
-  }
-
-  @Override
-  public String toString() {
-    return "Pointcut.TRUE";
-  }
+public interface AopInfrastructureBean {
 
 }

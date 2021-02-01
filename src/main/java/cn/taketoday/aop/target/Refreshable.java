@@ -18,49 +18,32 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop;
-
-import java.io.Serializable;
+package cn.taketoday.aop.target;
 
 /**
- * Canonical Pointcut instance that always matches.
+ * Interface to be implemented by dynamic target objects,
+ * which support reloading and optionally polling for updates.
  *
  * @author Rod Johnson
- * @author TODAY 2021/2/1 18:24
+ * @author Rob Harrop
+ * @author TODAY 2021/2/1 21:19
  * @since 3.0
  */
-final class TruePointcut implements Pointcut, Serializable {
-
-  public static final TruePointcut INSTANCE = new TruePointcut();
+public interface Refreshable {
 
   /**
-   * Enforce Singleton pattern.
+   * Refresh the underlying target object.
    */
-  private TruePointcut() {
-  }
-
-  @Override
-  public ClassFilter getClassFilter() {
-    return ClassFilter.TRUE;
-  }
-
-  @Override
-  public MethodMatcher getMethodMatcher() {
-    return MethodMatcher.TRUE;
-  }
+  void refresh();
 
   /**
-   * Required to support serialization. Replaces with canonical
-   * instance on deserialization, protecting Singleton pattern.
-   * Alternative to overriding {@code equals()}.
+   * Return the number of actual refreshes since startup.
    */
-  private Object readResolve() {
-    return INSTANCE;
-  }
+  long getRefreshCount();
 
-  @Override
-  public String toString() {
-    return "Pointcut.TRUE";
-  }
+  /**
+   * Return the last time an actual refresh happened (as timestamp).
+   */
+  long getLastRefreshTime();
 
 }

@@ -20,47 +20,26 @@
 
 package cn.taketoday.aop;
 
-import java.io.Serializable;
-
 /**
- * Canonical Pointcut instance that always matches.
+ * Minimal interface for exposing the target class behind a proxy.
  *
- * @author Rod Johnson
- * @author TODAY 2021/2/1 18:24
+ * <p>Implemented by AOP proxy objects and proxy factories
+ * (via {@link org.springframework.aop.framework.Advised})
+ * as well as by {@link TargetSource TargetSources}.
+ *
+ * @author Juergen Hoeller
+ * @author TODAY 2021/2/1 18:45
+ * @see cn.taketoday.aop.support.AopUtils#getTargetClass(Object)
  * @since 3.0
  */
-final class TruePointcut implements Pointcut, Serializable {
-
-  public static final TruePointcut INSTANCE = new TruePointcut();
+public interface TargetClassAware {
 
   /**
-   * Enforce Singleton pattern.
+   * Return the target class behind the implementing object
+   * (typically a proxy configuration or an actual proxy).
+   *
+   * @return the target Class, or {@code null} if not known
    */
-  private TruePointcut() {
-  }
-
-  @Override
-  public ClassFilter getClassFilter() {
-    return ClassFilter.TRUE;
-  }
-
-  @Override
-  public MethodMatcher getMethodMatcher() {
-    return MethodMatcher.TRUE;
-  }
-
-  /**
-   * Required to support serialization. Replaces with canonical
-   * instance on deserialization, protecting Singleton pattern.
-   * Alternative to overriding {@code equals()}.
-   */
-  private Object readResolve() {
-    return INSTANCE;
-  }
-
-  @Override
-  public String toString() {
-    return "Pointcut.TRUE";
-  }
+  Class<?> getTargetClass();
 
 }

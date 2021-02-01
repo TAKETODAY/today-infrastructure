@@ -18,43 +18,37 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop;
+package cn.taketoday.aop.target;
+
+import cn.taketoday.aop.TargetSource;
 
 /**
- * Core  pointcut abstraction.
+ * Implementations can create special target sources, such as pooling target
+ * sources, for particular beans. For example, they may base their choice
+ * on attributes, such as a pooling attribute, on the target class.
  *
- * <p>A pointcut is composed of a {@link ClassFilter} and a {@link MethodMatcher}.
- * Both these basic terms and a Pointcut itself can be combined to build up combinations
- * (e.g. through {@link ComposablePointcut}).
+ * <p>AbstractAutoProxyCreator can support a number of TargetSourceCreators,
+ * which will be applied in order.
  *
  * @author Rod Johnson
- * @author TODAY 2021/2/1 18:12
- * @see ClassFilter
- * @see MethodMatcher
- * @see Pointcuts
- * @see ClassFilters
- * @see MethodMatchers
+ * @author Juergen Hoeller
+ * @author TODAY 2021/2/1 21:29
  * @since 3.0
  */
-public interface Pointcut {
+@FunctionalInterface
+public interface TargetSourceCreator {
 
   /**
-   * Return the ClassFilter for this pointcut.
+   * Create a special TargetSource for the given bean, if any.
    *
-   * @return the ClassFilter (never {@code null})
-   */
-  ClassFilter getClassFilter();
-
-  /**
-   * Return the MethodMatcher for this pointcut.
+   * @param beanClass
+   *         the class of the bean to create a TargetSource for
+   * @param beanName
+   *         the name of the bean
    *
-   * @return the MethodMatcher (never {@code null})
+   * @return a special TargetSource or {@code null} if this TargetSourceCreator isn't
+   * interested in the particular bean
    */
-  MethodMatcher getMethodMatcher();
-
-  /**
-   * Canonical Pointcut instance that always matches.
-   */
-  Pointcut TRUE = TruePointcut.INSTANCE;
+  TargetSource getTargetSource(Class<?> beanClass, String beanName);
 
 }

@@ -26,8 +26,6 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import cn.taketoday.aop.advice.AbstractAdvice;
-import cn.taketoday.aop.advice.ClassMatcher;
-import cn.taketoday.aop.MethodMatcher;
 
 /**
  * @author Today <br>
@@ -41,8 +39,6 @@ public class AdviceImpl implements Advice {
   private Class<?>[] target = null;
   private String method[] = { "*" };
   private Class<? extends Annotation>[] value;
-  private Class<? extends ClassMatcher> classMatcher;
-  private Class<? extends MethodMatcher> methodMatcher;
   private Class<? extends MethodInterceptor> interceptor = AbstractAdvice.class;
 
   @Override
@@ -88,16 +84,6 @@ public class AdviceImpl implements Advice {
   }
 
   @Override
-  public Class<? extends ClassMatcher> classMatcher() {
-    return classMatcher;
-  }
-
-  @Override
-  public Class<? extends MethodMatcher> methodMatcher() {
-    return methodMatcher;
-  }
-
-  @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof AdviceImpl)) return false;
@@ -106,14 +92,12 @@ public class AdviceImpl implements Advice {
             && Arrays.equals(value, advice.value)
             && Arrays.equals(method, advice.method)
             && Arrays.equals(target, advice.target)
-            && Objects.equals(interceptor, advice.interceptor)
-            && Objects.equals(classMatcher, advice.classMatcher)
-            && Objects.equals(methodMatcher, advice.methodMatcher);
+            && Objects.equals(interceptor, advice.interceptor);
   }
 
   @Override
   public int hashCode() {
-    int result = Objects.hash(classMatcher, methodMatcher, interceptor);
+    int result = Objects.hashCode(interceptor);
     result = 31 * result + Arrays.hashCode(pointcut);
     result = 31 * result + Arrays.hashCode(target);
     result = 31 * result + Arrays.hashCode(method);

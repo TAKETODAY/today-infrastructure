@@ -44,7 +44,7 @@ import cn.taketoday.context.utils.Assert;
  */
 public class ComposablePointcut implements Pointcut, Serializable {
 
-  /** use serialVersionUID from Spring 1.2 for interoperability. */
+  /** use serialVersionUID from  1.2 for interoperability. */
   private static final long serialVersionUID = 1L;
 
   private ClassFilter classFilter;

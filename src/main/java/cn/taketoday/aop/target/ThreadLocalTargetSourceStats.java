@@ -18,49 +18,30 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop;
-
-import java.io.Serializable;
+package cn.taketoday.aop.target;
 
 /**
- * Canonical Pointcut instance that always matches.
+ * Statistics for a ThreadLocal TargetSource.
  *
  * @author Rod Johnson
- * @author TODAY 2021/2/1 18:24
- * @since 3.0
+ * @author Juergen Hoeller
+ * @author TODAY 2021/2/1 20:42
  */
-final class TruePointcut implements Pointcut, Serializable {
-
-  public static final TruePointcut INSTANCE = new TruePointcut();
+public interface ThreadLocalTargetSourceStats {
 
   /**
-   * Enforce Singleton pattern.
+   * Return the number of client invocations.
    */
-  private TruePointcut() {
-  }
-
-  @Override
-  public ClassFilter getClassFilter() {
-    return ClassFilter.TRUE;
-  }
-
-  @Override
-  public MethodMatcher getMethodMatcher() {
-    return MethodMatcher.TRUE;
-  }
+  int getInvocationCount();
 
   /**
-   * Required to support serialization. Replaces with canonical
-   * instance on deserialization, protecting Singleton pattern.
-   * Alternative to overriding {@code equals()}.
+   * Return the number of hits that were satisfied by a thread-bound object.
    */
-  private Object readResolve() {
-    return INSTANCE;
-  }
+  int getHitCount();
 
-  @Override
-  public String toString() {
-    return "Pointcut.TRUE";
-  }
+  /**
+   * Return the number of thread-bound objects created.
+   */
+  int getObjectCount();
 
 }

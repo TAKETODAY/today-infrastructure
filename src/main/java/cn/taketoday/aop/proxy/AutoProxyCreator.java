@@ -44,7 +44,7 @@ public class AutoProxyCreator extends OrderedSupport implements BeanPostProcesso
 
   @Override
   public Object postProcessAfterInitialization(Object bean, BeanDefinition def) {
-    return new DefaultProxyFactory(new TargetSource(bean, bean.getClass()), context).getProxy();
+    return new DefaultProxyFactory(new TargetSourceIm(bean, bean.getClass()), context).getProxy();
   }
 
 }

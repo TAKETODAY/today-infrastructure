@@ -18,49 +18,25 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop;
-
-import java.io.Serializable;
+package cn.taketoday.aop.target;
 
 /**
- * Canonical Pointcut instance that always matches.
+ * Simple {@link cn.taketoday.aop.TargetSource} implementation,
+ * freshly obtaining the specified target bean from its containing
+ * {@link cn.taketoday.context.factory.BeanFactory}.
  *
- * @author Rod Johnson
- * @author TODAY 2021/2/1 18:24
+ * <p>Can obtain any kind of target bean: singleton, scoped, or prototype.
+ * Typically used for scoped beans.
+ *
+ * @author Juergen Hoeller
+ * @author TODAY 2021/2/1 21:27
  * @since 3.0
  */
-final class TruePointcut implements Pointcut, Serializable {
-
-  public static final TruePointcut INSTANCE = new TruePointcut();
-
-  /**
-   * Enforce Singleton pattern.
-   */
-  private TruePointcut() {
-  }
+public class SimpleBeanTargetSource extends AbstractBeanFactoryTargetSource {
 
   @Override
-  public ClassFilter getClassFilter() {
-    return ClassFilter.TRUE;
-  }
-
-  @Override
-  public MethodMatcher getMethodMatcher() {
-    return MethodMatcher.TRUE;
-  }
-
-  /**
-   * Required to support serialization. Replaces with canonical
-   * instance on deserialization, protecting Singleton pattern.
-   * Alternative to overriding {@code equals()}.
-   */
-  private Object readResolve() {
-    return INSTANCE;
-  }
-
-  @Override
-  public String toString() {
-    return "Pointcut.TRUE";
+  public Object getTarget() throws Exception {
+    return getBeanFactory().getBean(getTargetBeanName());
   }
 
 }

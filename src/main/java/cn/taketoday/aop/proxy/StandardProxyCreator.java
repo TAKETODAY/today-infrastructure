@@ -67,7 +67,7 @@ public class StandardProxyCreator implements ProxyCreator {
   private static final Logger log = LoggerFactory.getLogger(StandardProxyCreator.class);
 
   @Override
-  public Object createProxy(TargetSource targetSource, BeanFactory beanFactory) {
+  public Object createProxy(TargetSourceIm targetSource, BeanFactory beanFactory) {
     if (log.isDebugEnabled()) {
       log.debug("Creating Standard Proxy, target source is: [{}]", targetSource);
     }
@@ -112,7 +112,7 @@ public class StandardProxyCreator implements ProxyCreator {
 
     private Object target;
     private Class<?> targetClass;
-    private TargetSource targetSource;
+    private TargetSourceIm targetSource;
     private Class<?>[] parameterTypes;
     private Constructor<?> targetConstructor;
     private final BeanFactory beanFactory;
@@ -130,11 +130,11 @@ public class StandardProxyCreator implements ProxyCreator {
       this.targetClass = ClassUtils.getUserClass(targetClass);
     }
 
-    public TargetSource getTargetSource() {
+    public TargetSourceIm getTargetSource() {
       return targetSource;
     }
 
-    public void setTargetSource(final TargetSource targetSource) {
+    public void setTargetSource(final TargetSourceIm targetSource) {
       this.targetSource = targetSource;
       setTarget(targetSource.getTarget());
       setTargetClass(targetSource.getTargetClass());

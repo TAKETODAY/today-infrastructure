@@ -18,49 +18,39 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop;
+package cn.taketoday.aop.proxy;
 
-import java.io.Serializable;
+import cn.taketoday.context.exception.ContextException;
 
 /**
- * Canonical Pointcut instance that always matches.
+ * Exception that gets thrown on illegal AOP configuration arguments.
  *
  * @author Rod Johnson
- * @author TODAY 2021/2/1 18:24
- * @since 3.0
+ * @author TODAY 2021/2/1 19:04
+ * @since 13.03.2003
  */
-final class TruePointcut implements Pointcut, Serializable {
-
-  public static final TruePointcut INSTANCE = new TruePointcut();
+public class AopConfigException extends ContextException {
 
   /**
-   * Enforce Singleton pattern.
+   * Constructor for AopConfigException.
+   *
+   * @param msg
+   *         the detail message
    */
-  private TruePointcut() {
-  }
-
-  @Override
-  public ClassFilter getClassFilter() {
-    return ClassFilter.TRUE;
-  }
-
-  @Override
-  public MethodMatcher getMethodMatcher() {
-    return MethodMatcher.TRUE;
+  public AopConfigException(String msg) {
+    super(msg);
   }
 
   /**
-   * Required to support serialization. Replaces with canonical
-   * instance on deserialization, protecting Singleton pattern.
-   * Alternative to overriding {@code equals()}.
+   * Constructor for AopConfigException.
+   *
+   * @param msg
+   *         the detail message
+   * @param cause
+   *         the root cause
    */
-  private Object readResolve() {
-    return INSTANCE;
-  }
-
-  @Override
-  public String toString() {
-    return "Pointcut.TRUE";
+  public AopConfigException(String msg, Throwable cause) {
+    super(msg, cause);
   }
 
 }

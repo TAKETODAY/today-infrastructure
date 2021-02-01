@@ -23,11 +23,11 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import cn.taketoday.context.cglib.proxy.MethodProxy;
+import cn.taketoday.aop.support.RuntimeMethodInterceptor;
+import cn.taketoday.context.reflect.MethodInvoker;
 
 /**
  * @author TODAY <br>
@@ -38,7 +38,7 @@ public class DefaultMethodInvocation implements MethodInvocation {
   private final Object target;
   private final Object[] args;
   private final Method method;
-  private final MethodProxy proxy;
+  private final MethodInvoker invoker;
   private final MethodInterceptor[] advices;
 
   /**
@@ -50,10 +50,10 @@ public class DefaultMethodInvocation implements MethodInvocation {
 
   public DefaultMethodInvocation(Object target,
                                  Method method,
-                                 MethodProxy proxy,
+                                 MethodInvoker invoker,
                                  Object[] arguments,
                                  MethodInterceptor[] advices) {
-    this.proxy = proxy;
+    this.invoker = invoker;
     this.target = target;
     this.method = method;
     this.args = arguments;
@@ -74,14 +74,25 @@ public class DefaultMethodInvocation implements MethodInvocation {
   @Override
   public Object proceed() throws Throwable {
     if (currentAdviceIndex == adviceLength) {
-      try {
-        return proxy.invoke(target, args);
+      // join-point
+      return invoker.invoke(target, args);
+    }
+
+    final MethodInterceptor interceptor = advices[currentAdviceIndex++];
+    if (interceptor instanceof RuntimeMethodInterceptor) {
+      // runtime
+      final RuntimeMethodInterceptor dm = (RuntimeMethodInterceptor) interceptor;
+      if (dm.matches(method, target.getClass(), args)) {
+        return dm.invoke(this);
       }
-      catch (InvocationTargetException e) {
-        throw e.getTargetException();
+      else {
+        // next in the chain.
+        return proceed();
       }
     }
-    return advices[currentAdviceIndex++].invoke(this);
+    // It's an interceptor, so we just invoke it: The pointcut will have
+    // been evaluated statically before this object was constructed.
+    return interceptor.invoke(this);
   }
 
   @Override

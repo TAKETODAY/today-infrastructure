@@ -18,49 +18,48 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop;
-
-import java.io.Serializable;
+package cn.taketoday.aop.target;
 
 /**
- * Canonical Pointcut instance that always matches.
+ * {@link cn.taketoday.aop.TargetSource} implementation that
+ * creates a new instance of the target bean for each request,
+ * destroying each instance on release (after each request).
+ *
+ * <p>Obtains bean instances from its containing
+ * {@link cn.taketoday.context.factory.BeanFactory}.
  *
  * @author Rod Johnson
- * @author TODAY 2021/2/1 18:24
+ * @author Juergen Hoeller
+ * @author TODAY 2021/2/1 20:46
+ * @see #setBeanFactory
+ * @see #setTargetBeanName
  * @since 3.0
  */
-final class TruePointcut implements Pointcut, Serializable {
-
-  public static final TruePointcut INSTANCE = new TruePointcut();
+public class PrototypeTargetSource extends AbstractPrototypeTargetSource {
 
   /**
-   * Enforce Singleton pattern.
+   * Obtain a new prototype instance for every call.
+   *
+   * @see #newPrototypeInstance()
    */
-  private TruePointcut() {
-  }
-
   @Override
-  public ClassFilter getClassFilter() {
-    return ClassFilter.TRUE;
-  }
-
-  @Override
-  public MethodMatcher getMethodMatcher() {
-    return MethodMatcher.TRUE;
+  public Object getTarget() {
+    return newPrototypeInstance();
   }
 
   /**
-   * Required to support serialization. Replaces with canonical
-   * instance on deserialization, protecting Singleton pattern.
-   * Alternative to overriding {@code equals()}.
+   * Destroy the given independent instance.
+   *
+   * @see #destroyPrototypeInstance
    */
-  private Object readResolve() {
-    return INSTANCE;
+  @Override
+  public void releaseTarget(Object target) {
+    destroyPrototypeInstance(target);
   }
 
   @Override
   public String toString() {
-    return "Pointcut.TRUE";
+    return "PrototypeTargetSource for target bean with name '" + getTargetBeanName() + "'";
   }
 
 }
