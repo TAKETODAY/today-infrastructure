@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.aop.advice.AbstractAdvice;
 import cn.taketoday.aop.advice.ClassMatcher;
-import cn.taketoday.aop.advice.MethodMatcher;
+import cn.taketoday.aop.MethodMatcher;
 
 /**
  * @author TODAY <br>

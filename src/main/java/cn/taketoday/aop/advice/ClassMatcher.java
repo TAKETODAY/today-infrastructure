@@ -19,6 +19,8 @@
  */
 package cn.taketoday.aop.advice;
 
+import cn.taketoday.aop.MethodMatcher;
+
 /**
  * Filter that restricts matching of a pointcut or introduction to
  * a given set of target classes.

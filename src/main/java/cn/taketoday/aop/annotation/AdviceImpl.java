@@ -27,7 +27,7 @@ import java.util.Objects;
 
 import cn.taketoday.aop.advice.AbstractAdvice;
 import cn.taketoday.aop.advice.ClassMatcher;
-import cn.taketoday.aop.advice.MethodMatcher;
+import cn.taketoday.aop.MethodMatcher;
 
 /**
  * @author Today <br>
