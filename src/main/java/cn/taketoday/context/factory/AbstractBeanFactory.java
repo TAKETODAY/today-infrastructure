@@ -95,6 +95,9 @@ public abstract class AbstractBeanFactory
   // @since 2.1.6
   private boolean fullLifecycle = false;
 
+  /** Indicates whether any InstantiationAwareBeanPostProcessors have been registered.  @since 3.0 */
+  private boolean hasInstantiationAwareBeanPostProcessors;
+
   @Override
   public Object getBean(final String name) {
     final BeanDefinition def = getBeanDefinition(name);
@@ -253,7 +256,10 @@ public abstract class AbstractBeanFactory
 
   /**
    * Create new bean instance
-   *
+   *<p>
+   * Apply before-instantiation post-processors, resolving whether there is a
+   * before-instantiation shortcut for the specified bean.
+   *</p>
    * @param def
    *         Target {@link BeanDefinition} descriptor
    *
@@ -263,6 +269,16 @@ public abstract class AbstractBeanFactory
    *         When instantiation of a bean failed
    */
   protected Object createBeanInstance(final BeanDefinition def) {
+    if (hasInstantiationAwareBeanPostProcessors) {
+      for (final BeanPostProcessor processor : getPostProcessors()) {
+        if (processor instanceof InstantiationAwareBeanPostProcessor) {
+          final Object bean = ((InstantiationAwareBeanPostProcessor) processor).postProcessBeforeInstantiation(def);
+          if (bean != null) {
+            return bean;
+          }
+        }
+      }
+    }
     return def.newInstance(this);
   }
 
@@ -1025,13 +1041,29 @@ public abstract class AbstractBeanFactory
   @Override
   public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
     Assert.notNull(beanPostProcessor, "BeanPostProcessor must not be null");
-    getPostProcessors().remove(beanPostProcessor);
-    getPostProcessors().add(beanPostProcessor);
+
+    final List<BeanPostProcessor> postProcessors = getPostProcessors();
+    postProcessors.remove(beanPostProcessor);
+    postProcessors.add(beanPostProcessor);
+
+    OrderUtils.reversedSort(postProcessors);
+
+    // Track whether it is instantiation/destruction aware
+    if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
+      this.hasInstantiationAwareBeanPostProcessors = true;
+    }
   }
 
   @Override
   public void removeBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
     getPostProcessors().remove(beanPostProcessor);
+
+    for (final BeanPostProcessor postProcessor : getPostProcessors()) {
+      if (postProcessor instanceof InstantiationAwareBeanPostProcessor) {
+        this.hasInstantiationAwareBeanPostProcessors = true;
+        break;
+      }
+    }
   }
 
   @Override
