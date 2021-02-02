@@ -268,7 +268,7 @@ public abstract class AopUtils {
    * @return sublist of Advisors that can apply to an object of the given class
    * (may be the incoming List as-is)
    */
-  public static List<Advisor> findAdvisorsThatCanApply(List<Advisor> candidateAdvisors, Class<?> clazz) {
+  public static List<Advisor> filterAdvisors(List<Advisor> candidateAdvisors, Class<?> clazz) {
     if (candidateAdvisors.isEmpty()) {
       return candidateAdvisors;
     }

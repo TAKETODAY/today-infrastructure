@@ -53,8 +53,7 @@ public class DefaultPointcutAdvisor
    * <p>Advice must be set before use using setter methods.
    * Pointcut will normally be set also, but defaults to {@code Pointcut.TRUE}.
    */
-  public DefaultPointcutAdvisor() {
-  }
+  public DefaultPointcutAdvisor() { }
 
   /**
    * Create a DefaultPointcutAdvisor that matches all methods.

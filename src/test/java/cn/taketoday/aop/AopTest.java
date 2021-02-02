@@ -19,8 +19,10 @@
  */
 package cn.taketoday.aop;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import org.aopalliance.intercept.Joinpoint;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.junit.Test;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -28,10 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.aopalliance.intercept.Joinpoint;
-import org.aopalliance.intercept.MethodInterceptor;
-import org.junit.Test;
-
+import ch.qos.logback.classic.Logger;
 import cn.taketoday.aop.annotation.AfterReturning;
 import cn.taketoday.aop.annotation.AfterThrowing;
 import cn.taketoday.aop.annotation.Around;
@@ -42,13 +41,21 @@ import cn.taketoday.aop.annotation.JoinPoint;
 import cn.taketoday.aop.annotation.Throwing;
 import cn.taketoday.aop.listener.AspectsDestroyListener;
 import cn.taketoday.aop.proxy.AutoProxyCreator;
+import cn.taketoday.aop.proxy.DefaultAutoProxyCreator;
 import cn.taketoday.aop.proxy.StandardProxyCreator.StandardProxyGenerator;
 import cn.taketoday.aop.proxy.TargetSourceIm;
+import cn.taketoday.aop.support.AnnotationMatchingPointcut;
+import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.context.AttributeAccessor;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.factory.StandardBeanFactory;
+import cn.taketoday.context.logger.LoggerFactory;
 import lombok.extern.slf4j.Slf4j;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 /**
  * @author TODAY <br>
@@ -195,7 +202,7 @@ public class AopTest {
   }
 
   @Timer
-  static class AttributeAccessorBean {
+  static class PrinterBean {
 
     void print() {
       System.out.println("print");
@@ -210,11 +217,61 @@ public class AopTest {
       final StandardBeanFactory beanFactory = context.getBeanFactory();
       context.addBeanPostProcessor(new AutoProxyCreator(context));
 
-      beanFactory.importBeans(TimerAspect.class, AttributeAccessorBean.class);
+      beanFactory.importBeans(TimerAspect.class, PrinterBean.class);
 
-      final AttributeAccessorBean bean = context.getBean(AttributeAccessorBean.class);
+      final PrinterBean bean = context.getBean(PrinterBean.class);
+      bean.print();
+    }
+  }
+
+  //
+
+  static class LoggingInterceptor implements MethodInterceptor {
+
+    @Override
+    public Object invoke(MethodInvocation invocation) throws Throwable {
+      log.debug("LoggingInterceptor @Around Before method");
+      final Object proceed = invocation.proceed();
+      log.debug("LoggingInterceptor @Around After method");
+      return proceed;
+    }
+
+  }
+
+  @Import(LoggingInterceptor.class)
+  static class LoggingConfig {
+
+    @Singleton
+    public DefaultPointcutAdvisor loggingAdvisor(LoggingInterceptor loggingAspect) {
+      AnnotationMatchingPointcut pointcut = new AnnotationMatchingPointcut(Timer.class);
+
+      DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor();
+      advisor.setPointcut(pointcut);
+      advisor.setAdvice(loggingAspect);
+
+      return advisor;
+    }
+
+  }
+
+  @Test
+  public void testNewVersionAop() throws Throwable {
+
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+
+      final StandardBeanFactory beanFactory = context.getBeanFactory();
+      final DefaultAutoProxyCreator autoProxyCreator = new DefaultAutoProxyCreator();
+      context.addBeanPostProcessor(autoProxyCreator);
+      autoProxyCreator.setBeanFactory(beanFactory);
+
+      beanFactory.importBeans(LoggingConfig.class, PrinterBean.class);
+
+      final PrinterBean bean = beanFactory.getBean(PrinterBean.class);
+      final DefaultPointcutAdvisor pointcutAdvisor = beanFactory.getBean(DefaultPointcutAdvisor.class);
+      System.out.println(pointcutAdvisor);
 
       bean.print();
+
     }
   }
 }

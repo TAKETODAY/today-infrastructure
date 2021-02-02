@@ -302,10 +302,14 @@ public class CglibAopProxy implements AopProxy, Serializable {
     // unadvised calls to static targets that cannot return this).
     Callback targetDispatcher = (isStatic ? new StaticDispatcher(this.advised.getTargetSource().getTarget()) : new SerializableNoOp());
 
-    Callback[] mainCallbacks = new Callback[] { aopInterceptor, // for normal advice
+    Callback[] mainCallbacks = new Callback[] {
+            aopInterceptor, // for normal advice
             targetInterceptor, // invoke target without considering advice, if optimized
             new SerializableNoOp(), // no override for methods mapped to this
-            targetDispatcher, this.advisedDispatcher, new EqualsInterceptor(this.advised), new HashCodeInterceptor(this.advised)
+            targetDispatcher,
+            this.advisedDispatcher,
+            new EqualsInterceptor(this.advised),
+            new HashCodeInterceptor(this.advised)
     };
 
     Callback[] callbacks;
@@ -321,8 +325,7 @@ public class CglibAopProxy implements AopProxy, Serializable {
       // TODO: small memory optimization here (can skip creation for methods with no advice)
       for (int x = 0; x < methods.length; x++) {
         Method method = methods[x];
-        org.aopalliance.intercept.MethodInterceptor[] chain = this.advised
-                .getInterceptors(method, rootClass);
+        org.aopalliance.intercept.MethodInterceptor[] chain = this.advised.getInterceptors(method, rootClass);
 
         fixedCallbacks[x] = new FixedChainStaticTargetInterceptor(chain, this.advised.getTargetSource().getTarget());
         this.fixedInterceptorMap.put(method, x);
@@ -755,24 +758,25 @@ public class CglibAopProxy implements AopProxy, Serializable {
         log.trace("Found finalize() method - using NO_OVERRIDE");
         return NO_OVERRIDE;
       }
-      if (!this.advised.isOpaque() && method.getDeclaringClass().isInterface() &&
-              method.getDeclaringClass().isAssignableFrom(Advised.class)) {
+      if (!this.advised.isOpaque()
+              && method.getDeclaringClass().isInterface()
+              && method.getDeclaringClass().isAssignableFrom(Advised.class)) {
         if (log.isTraceEnabled()) {
-          log.trace("Method is declared on Advised interface: " + method);
+          log.trace("Method is declared on Advised interface: {}" , method);
         }
         return DISPATCH_ADVISED;
       }
       // We must always proxy equals, to direct calls to this.
       if (ReflectionUtils.isEqualsMethod(method)) {
         if (log.isTraceEnabled()) {
-          log.trace("Found 'equals' method: " + method);
+          log.trace("Found 'equals' method: {}", method);
         }
         return INVOKE_EQUALS;
       }
       // We must always calculate hashCode based on the proxy.
       if (ReflectionUtils.isHashCodeMethod(method)) {
         if (log.isTraceEnabled()) {
-          log.trace("Found 'hashCode' method: " + method);
+          log.trace("Found 'hashCode' method: {}", method);
         }
         return INVOKE_HASHCODE;
       }
@@ -787,7 +791,7 @@ public class CglibAopProxy implements AopProxy, Serializable {
         // If exposing the proxy, then AOP_PROXY must be used.
         if (exposeProxy) {
           if (log.isTraceEnabled()) {
-            log.trace("Must expose proxy on advised method: " + method);
+            log.trace("Must expose proxy on advised method: {}", method);
           }
           return AOP_PROXY;
         }
@@ -795,7 +799,7 @@ public class CglibAopProxy implements AopProxy, Serializable {
         // Else use the AOP_PROXY.
         if (isStatic && isFrozen && this.fixedInterceptorMap.containsKey(method)) {
           if (log.isTraceEnabled()) {
-            log.trace("Method has advice and optimizations are enabled: " + method);
+            log.trace("Method has advice and optimizations are enabled: {}", method);
           }
           // We know that we are optimizing so we can use the FixedStaticChainInterceptors.
           int index = this.fixedInterceptorMap.get(method);
@@ -803,7 +807,7 @@ public class CglibAopProxy implements AopProxy, Serializable {
         }
         else {
           if (log.isTraceEnabled()) {
-            log.trace("Unable to apply any optimizations to advised method: " + method);
+            log.trace("Unable to apply any optimizations to advised method: {}", method);
           }
           return AOP_PROXY;
         }

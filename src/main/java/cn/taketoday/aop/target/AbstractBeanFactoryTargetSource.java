@@ -55,7 +55,7 @@ public abstract class AbstractBeanFactoryTargetSource
         implements TargetSource, BeanFactoryAware, Serializable {
   private static final long serialVersionUID = 1L;
 
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
+  protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
   /** Name of the target bean we will create on each invocation. */
   private String targetBeanName;
@@ -137,7 +137,7 @@ public abstract class AbstractBeanFactoryTargetSource
         targetClass = this.beanFactory.getType(this.targetBeanName);
         if (targetClass == null) {
           if (logger.isTraceEnabled()) {
-            logger.trace("Getting bean with name '" + this.targetBeanName + "' for type determination");
+            logger.trace("Getting bean with name '{}' for type determination", this.targetBeanName);
           }
           Object beanInstance = this.beanFactory.getBean(this.targetBeanName);
           targetClass = beanInstance.getClass();

@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import cn.taketoday.aop.ProxyFactory;
 import cn.taketoday.aop.advice.AbstractAdvice;
 import cn.taketoday.aop.advice.AspectsRegistry;
 import cn.taketoday.aop.annotation.Advice;
@@ -49,7 +48,7 @@ import cn.taketoday.context.utils.StringUtils;
  * @author TODAY <br>
  * 2018-11-10 13:13
  */
-public class DefaultProxyFactory implements ProxyFactory {
+public class DefaultProxyFactory {
 
   private static final Logger log = LoggerFactory.getLogger(DefaultProxyFactory.class);
 
@@ -70,9 +69,7 @@ public class DefaultProxyFactory implements ProxyFactory {
     this.applicationContext = context;
   }
 
-  @Override
   public Object getProxy() {
-
     List<Object> aspects = getAspects();
 
     try {

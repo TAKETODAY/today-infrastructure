@@ -81,9 +81,9 @@ public class DefaultMethodInvocation implements MethodInvocation {
     final MethodInterceptor interceptor = advices[currentAdviceIndex++];
     if (interceptor instanceof RuntimeMethodInterceptor) {
       // runtime
-      final RuntimeMethodInterceptor dm = (RuntimeMethodInterceptor) interceptor;
-      if (dm.matches(method, target.getClass(), args)) {
-        return dm.invoke(this);
+      final RuntimeMethodInterceptor runtimeInterceptor = (RuntimeMethodInterceptor) interceptor;
+      if (runtimeInterceptor.matches(method, target.getClass(), args)) {
+        return runtimeInterceptor.invoke(this);
       }
       else {
         // next in the chain.

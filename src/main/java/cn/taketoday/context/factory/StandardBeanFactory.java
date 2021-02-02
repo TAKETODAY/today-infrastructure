@@ -369,6 +369,7 @@ public class StandardBeanFactory
 
     BeanDefinition importDef = createBeanDefinition(importClass);
     register(importDef);
+    loadConfigurationBeans(def); // scan config bean
     loadConfigurationBeans(importDef); // scan config bean
     if (ImportSelector.class.isAssignableFrom(importClass)) {
       for (final String select : createImporter(importDef, ImportSelector.class).selectImports(def)) {

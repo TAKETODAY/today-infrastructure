@@ -42,6 +42,16 @@ public class RuntimeMethodInterceptor implements MethodInterceptor, MethodMatche
     this.methodMatcher = methodMatcher;
   }
 
+//  @Override
+//  public final Object invoke(MethodInvocation invocation) throws Throwable {
+//    if (methodMatcher.matches(invocation.getMethod(), target.getClass(), invocation.getArguments())) {
+//      return interceptor.invoke(invocation);
+//    }
+//    // next in the chain.
+//    return invocation.proceed();
+//  }
+//
+
   @Override
   public final Object invoke(MethodInvocation invocation) throws Throwable {
     return interceptor.invoke(invocation);
