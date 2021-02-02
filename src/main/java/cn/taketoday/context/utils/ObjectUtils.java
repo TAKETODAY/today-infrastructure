@@ -232,6 +232,7 @@ public abstract class ObjectUtils {
   //---------------------------------------------------------------------
 
   public static String toHexString(final Object obj) {
+    //        return getClass().getName() + "@" + Integer.toHexString(hashCode());
     return obj == null
            ? "null"
            : new StringBuilder()

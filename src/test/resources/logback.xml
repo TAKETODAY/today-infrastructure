@@ -24,7 +24,7 @@
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
       <pattern>
-        %yellow(%d{yyyy-MM-dd HH:mm:ss.SSS}) %highlight(%-5level) - %blue([%16.16t]) %green(%-40.40logger{40}) %cyan(%4.4L - %m%n)
+        %red(%d{yyyy-MM-dd HH:mm:ss.SSS}) %highlight(%-5level) - %blue([%16.16t]) %cyan(%-40.40logger{40}) %4.4L - %m%n
       </pattern>
       <!-- 	<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %5p %c{1}:%L [%t:%r] - %m%n</pattern> -->
     </encoder>

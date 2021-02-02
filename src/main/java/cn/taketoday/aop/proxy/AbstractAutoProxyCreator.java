@@ -192,7 +192,7 @@ public abstract class AbstractAutoProxyCreator
     }
     // Create proxy if we have advice.
     Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(def, null);
-    if (specificInterceptors != DO_NOT_PROXY) {
+    if (ObjectUtils.isNotEmpty(specificInterceptors)) {
       return createProxy(def, specificInterceptors, new SingletonTargetSource(bean));
     }
     return bean;
@@ -226,7 +226,8 @@ public abstract class AbstractAutoProxyCreator
   }
 
   protected Object[] getAdvicesAndAdvisorsForBean(BeanDefinition def, TargetSource targetSource) {
-    List<Advisor> eligibleAdvisors = filterAdvisors(getCandidateAdvisors(), def, targetSource);
+    final List<Advisor> candidateAdvisors = getCandidateAdvisors();
+    List<Advisor> eligibleAdvisors = filterAdvisors(candidateAdvisors, def, targetSource);
     postEligibleAdvisors(eligibleAdvisors);
 
     eligibleAdvisors = sortAdvisors(eligibleAdvisors);

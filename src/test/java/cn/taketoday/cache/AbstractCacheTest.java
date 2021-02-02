@@ -95,12 +95,10 @@ public abstract class AbstractCacheTest extends TestCase {
 
         // --------------------------Object key, CacheCallback<T> valueLoader
 
-        assertThat(cache.get("key", (CacheCallback<String>) () -> {
+        assertThat(cache.get("key", () -> {
             return "value";
         })).isEqualTo("value");
-        assertThat(cache.get("key---dddddddd", (CacheCallback<String>) () -> {
-            return null;
-        })).isNull();
+        assertThat(cache.get("key---dddddddd", (CacheCallback<String>) () -> null)).isNull();
     }
 
     public void testLookupValue() {

@@ -112,7 +112,35 @@ public abstract class AbstractBeanFactory
       return getSingleton(def.getName());
     }
     final BeanDefinition child = def.getChild();
-    return child == null ? initializeBean(def) : getImplementation(child, def);
+
+    if (child == null) {
+      if (def.isSingleton()) {
+        return createSingleton(def);
+      }
+      else if (def.isPrototype()) {
+        return createPrototype(def);
+      }
+      else {
+        final Scope scope = scopes.get(def.getScope());
+        if (scope == null) {
+          throw new ConfigurationException("No such scope: [" + def.getScope() + "] in this " + this);
+        }
+        return getScopeBean(def, scope);
+      }
+    }
+    else {
+      if (def.isPrototype()) {
+        return createPrototype(child);
+      }
+      // initialize child bean
+      final Object bean = initializeSingleton(getSingleton(def.getName()), child);
+      if (!def.isInitialized()) {
+        // register as parent bean and set initialize flag
+        registerSingleton(def.getName(), bean);
+        def.setInitialized(true);
+      }
+      return bean;
+    }
   }
 
   @Override
@@ -482,80 +510,6 @@ public abstract class AbstractBeanFactory
     return FACTORY_BEAN_PREFIX.concat(def.getName());
   }
 
-  /**
-   * Get current {@link BeanDefinition} implementation invoke this method requires
-   * that input {@link BeanDefinition} is not initialized, Otherwise the bean will
-   * be initialized multiple times
-   *
-   * @param childName
-   *         Child bean name
-   * @param currentDef
-   *         Bean definition
-   *
-   * @return Current {@link BeanDefinition} implementation
-   *
-   * @throws BeanInstantiationException
-   *         When instantiation of a bean failed
-   */
-  protected Object getImplementation(final String childName, final BeanDefinition currentDef) {
-    return getImplementation(getBeanDefinition(childName), currentDef);
-  }
-
-  /**
-   * Get current {@link BeanDefinition} implementation invoke this method requires
-   * that input {@link BeanDefinition} is not initialized, Otherwise the bean will
-   * be initialized multiple times
-   *
-   * @param childDef
-   *         Child bean definition
-   * @param currentDef
-   *         Target bean definition
-   *
-   * @return Current {@link BeanDefinition} implementation
-   *
-   * @throws BeanInstantiationException
-   *         When instantiation of a bean failed
-   */
-  protected Object getImplementation(
-          final BeanDefinition childDef, final BeanDefinition currentDef
-  ) {
-    if (currentDef.isPrototype()) {
-      return createPrototype(childDef);
-    }
-    // initialize child bean
-    final Object bean = initializeSingleton(getSingleton(currentDef.getName()), childDef);
-    if (!currentDef.isInitialized()) {
-      // register as parent bean and set initialize flag
-      registerSingleton(currentDef.getName(), bean);
-      currentDef.setInitialized(true);
-    }
-    return bean;
-  }
-
-  /**
-   * Initialize a bean with given name and it's definition.
-   *
-   * @param def
-   *         Target {@link BeanDefinition}
-   *
-   * @return A initialized bean, should not be null
-   */
-  protected Object initializeBean(final BeanDefinition def) {
-    if (def.isSingleton()) {
-      return initializeSingleton(def);
-    }
-    else if (def.isPrototype()) {
-      return createPrototype(def);
-    }
-    else {
-      final Scope scope = scopes.get(def.getScope());
-      if (scope == null) {
-        throw new ConfigurationException("No such scope: [" + def.getScope() + "] in this " + this);
-      }
-      return getScopeBean(def, scope);
-    }
-  }
-
   @Override
   public Object getScopeBean(final BeanDefinition def, Scope scope) {
     return scope.get(def, this::createPrototype);
@@ -685,7 +639,7 @@ public abstract class AbstractBeanFactory
    * register is bean instance to the singleton pool
    * <p>
    * If the input bean is {@code null} then use
-   * {@link #initializeSingleton(BeanDefinition)} To initialize singleton
+   * {@link #createSingleton(BeanDefinition)} To initialize singleton
    *
    * @param bean
    *         Input old bean
@@ -696,11 +650,11 @@ public abstract class AbstractBeanFactory
    *
    * @throws BeanInstantiationException
    *         When instantiation of a bean failed
-   * @see #initializeSingleton(BeanDefinition)
+   * @see #createSingleton(BeanDefinition)
    */
   protected Object initializeSingleton(final Object bean, final BeanDefinition def) {
     if (bean == null) {
-      return initializeSingleton(def);
+      return createSingleton(def);
     }
     Assert.isTrue(def.isSingleton(), "Bean definition must be a singleton");
     if (def.isInitialized()) { // fix #7
@@ -731,7 +685,7 @@ public abstract class AbstractBeanFactory
    * @throws BeanInstantiationException
    *         When instantiation of a bean failed
    */
-  protected Object initializeSingleton(final BeanDefinition def) {
+  protected Object createSingleton(final BeanDefinition def) {
     Assert.isTrue(def.isSingleton(), "Bean definition must be a singleton");
 
     if (def.isFactoryBean()) {
@@ -1086,11 +1040,11 @@ public abstract class AbstractBeanFactory
       final Object oldBean = singletons.put(name, singleton);
       if (log.isDebugEnabled()) {
         if (oldBean == null) {
-          log.debug("Register Singleton: [{}] = [{}]", name, ObjectUtils.identityToString(singleton));
+          log.debug("Register Singleton: [{}] = [{}]", name, ObjectUtils.toHexString(singleton));
         }
         else if (oldBean != singleton) {
           log.debug("Refresh Singleton: [{}] = [{}] old bean: [{}] ",
-                    name, ObjectUtils.identityToString(singleton), ObjectUtils.identityToString(oldBean));
+                    name, ObjectUtils.toHexString(singleton), ObjectUtils.toHexString(oldBean));
         }
       }
     }
@@ -1317,7 +1271,7 @@ public abstract class AbstractBeanFactory
     log.debug("Initialization of singleton objects.");
     for (final BeanDefinition def : getBeanDefinitions().values()) {
       if (def.isSingleton() && !def.isInitialized()) {
-        initializeSingleton(def);
+        createSingleton(def);
       }
     }
 
@@ -1350,7 +1304,7 @@ public abstract class AbstractBeanFactory
   public void refresh(String name) {
     final BeanDefinition def = obtainBeanDefinition(name);
     if (!def.isInitialized()) {
-      initializeSingleton(def);
+      createSingleton(def);
     }
     else if (log.isWarnEnabled()) {
       log.warn("A bean named: [{}] has already initialized", name);
