@@ -351,24 +351,24 @@ public abstract class AopUtils {
         // Add it conditionally.
         PointcutAdvisor pointcutAdvisor = (PointcutAdvisor) advisor;
         if (config.isPreFiltered() || pointcutAdvisor.getPointcut().getClassFilter().matches(actualClass)) {
-          MethodMatcher mm = pointcutAdvisor.getPointcut().getMethodMatcher();
+          MethodMatcher matcher = pointcutAdvisor.getPointcut().getMethodMatcher();
           boolean match;
-          if (mm instanceof IntroductionAwareMethodMatcher) {
+          if (matcher instanceof IntroductionAwareMethodMatcher) {
             if (hasIntroductions == null) {
               hasIntroductions = hasMatchingIntroductions(advisors, actualClass);
             }
-            match = ((IntroductionAwareMethodMatcher) mm).matches(method, actualClass, hasIntroductions);
+            match = ((IntroductionAwareMethodMatcher) matcher).matches(method, actualClass, hasIntroductions);
           }
           else {
-            match = mm.matches(method, actualClass);
+            match = matcher.matches(method, actualClass);
           }
           if (match) {
             MethodInterceptor[] interceptors = getInterceptors(advisor);
-            if (mm.isRuntime()) {
+            if (matcher.isRuntime()) {
               // Creating a new object instance in the getInterceptors() method
               // isn't a problem as we normally cache created chains.
               for (MethodInterceptor interceptor : interceptors) {
-                ret.add(new RuntimeMethodInterceptor(interceptor, mm));
+                ret.add(new RuntimeMethodInterceptor(interceptor, matcher));
               }
             }
             else {
