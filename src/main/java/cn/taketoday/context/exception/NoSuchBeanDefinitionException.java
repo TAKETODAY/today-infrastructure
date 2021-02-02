@@ -19,11 +19,13 @@
  */
 package cn.taketoday.context.exception;
 
+import cn.taketoday.context.factory.BeansException;
+
 /**
  * @author TODAY <br>
  * 2018-07-3 20:24:18
  */
-public class NoSuchBeanDefinitionException extends ContextException {
+public class NoSuchBeanDefinitionException extends BeansException {
 
   private static final long serialVersionUID = 1L;
 

@@ -19,16 +19,18 @@
  */
 package cn.taketoday.context.exception;
 
+import cn.taketoday.context.NestedRuntimeException;
+
 /**
  * @author TODAY <br>
  * 2018-10-05 21:33
  */
-public class ContextException extends RuntimeException {
+public class ContextException extends NestedRuntimeException {
 
   private static final long serialVersionUID = 1L;
 
   public ContextException() {
-
+    super();
   }
 
   public ContextException(String message) {

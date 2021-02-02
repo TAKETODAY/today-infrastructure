@@ -21,6 +21,7 @@ package cn.taketoday.context.exception;
 
 import java.util.function.Supplier;
 
+import cn.taketoday.context.NestedRuntimeException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 
@@ -30,7 +31,7 @@ import cn.taketoday.context.logger.LoggerFactory;
  * @author TODAY <br>
  * 2018-08-08 09:55
  */
-public class ConfigurationException extends ContextException {
+public class ConfigurationException extends NestedRuntimeException {
   private static final long serialVersionUID = 1L;
   private static final Logger log = LoggerFactory.getLogger(ConfigurationException.class);
 

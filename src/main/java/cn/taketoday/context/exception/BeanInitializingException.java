@@ -19,12 +19,13 @@
  */
 package cn.taketoday.context.exception;
 
+import cn.taketoday.context.factory.BeansException;
+
 /**
  * @author TODAY <br>
  * 2020-02-18 19:10
  */
-public class BeanInitializingException extends ContextException {
-
+public class BeanInitializingException extends BeansException {
   private static final long serialVersionUID = 1L;
 
   public BeanInitializingException() {}

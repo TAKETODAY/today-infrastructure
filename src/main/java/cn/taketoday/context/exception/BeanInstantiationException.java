@@ -23,6 +23,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import cn.taketoday.context.factory.BeanDefinition;
+import cn.taketoday.context.factory.BeansException;
 
 /**
  * Exception thrown when instantiation of a bean failed. Carries the offending
@@ -33,7 +34,7 @@ import cn.taketoday.context.factory.BeanDefinition;
  * 2020-02-19 21:36
  * @since 2.17
  */
-public class BeanInstantiationException extends ContextException {
+public class BeanInstantiationException extends BeansException {
 
   private static final long serialVersionUID = 1L;
 
