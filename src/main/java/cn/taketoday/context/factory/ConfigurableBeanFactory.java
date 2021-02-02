@@ -132,6 +132,8 @@ public interface ConfigurableBeanFactory
 
   /**
    * Destroy bean with given name
+   * <p>Any exception that arises during destruction should be caught
+   * and logged instead of propagated to the caller of this method.
    *
    * @param name
    *         the bean name

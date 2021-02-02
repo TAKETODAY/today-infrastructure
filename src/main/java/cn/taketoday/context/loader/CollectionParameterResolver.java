@@ -23,7 +23,7 @@ package cn.taketoday.context.loader;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.exception.ConfigurationException;
@@ -55,19 +55,13 @@ public class CollectionParameterResolver
 
   @Override
   public Object resolve(final Parameter parameter, final BeanFactory beanFactory) {
-    final Type[] genericityClass = ClassUtils.getGenericityClass(parameter);
-    if (ObjectUtils.isNotEmpty(genericityClass)) {
-      final Type type = genericityClass[0];
-      final List<?> beans = beanFactory.getBeans((Class<?>) type);
-
+    final Type[] generics = ClassUtils.getGenericityClass(parameter);
+    if (ObjectUtils.isNotEmpty(generics)) {
+      final Type type = generics[0];
+      final Map<String, ?> beans = beanFactory.getBeansOfType((Class<?>) type);
       final Class<?> parameterType = parameter.getType();
-
-      if (Collection.class == parameterType || List.class == parameterType) {
-        return beans; // 直接返回
-      }
-
       final Collection<Object> objects = CollectionUtils.createCollection(parameterType, beans.size());
-      objects.addAll(beans);
+      objects.addAll(beans.values());
       return objects;
     }
     throw new ConfigurationException("Not Support " + parameter);

@@ -20,13 +20,13 @@
 package cn.taketoday.context.factory;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Scope;
-import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 
 /**
@@ -52,10 +52,10 @@ public interface BeanFactory {
    *
    * @return Bet bean instance, returns null if it doesn't exist .
    *
-   * @throws ContextException
-   *         Exception Occurred When Getting A Named Bean
+   * @throws BeansException
+   *         Exception occurred when getting a named bean
    */
-  Object getBean(String name) throws ContextException;
+  Object getBean(String name) throws BeansException;
 
   /**
    * Find the bean with the given type,
@@ -151,33 +151,59 @@ public interface BeanFactory {
    *
    * @since 2.1.2
    */
-  <T> List<T> getBeans(Class<T> requiredType);
+  default <T> List<T> getBeans(Class<T> requiredType) {
+    return new ArrayList<>(getBeansOfType(requiredType).values());
+  }
 
   /**
-   * Get a list of annotated beans, this method must invoke after
-   * {@link ApplicationContext#loadContext(String...)}
-   *
-   * @param annotationType
-   *         {@link Annotation} type
-   *
-   * @return List of annotated beans, never be {@code null}
-   *
-   * @since 2.1.5
-   */
-  <A extends Annotation, T> List<T> getAnnotatedBeans(Class<A> annotationType);
-
-  /**
+   * Return the bean instances that match the given object type (including
+   * subclasses), judging from either bean definitions or the value of
+   * {@code getBeanClass} in the case of FactoryBeans.
+   * <p>Note: Does <i>not</i> ignore singleton beans that have been registered
+   * by other means than bean definitions.
+   * <p>
    * Get a map of beans with given type, this method must invoke after
    * {@link ApplicationContext#loadContext(String...)}
+   * </p>
    *
    * @param requiredType
    *         Given bean type
    *
-   * @return A map of beans with given type, never be {@code null}
+   * @return A Map with the matching beans, containing the bean names as
+   * keys and the corresponding bean instances as values, never be {@code null}
    *
    * @since 2.1.6
    */
-  <T> Map<String, T> getBeansOfType(Class<T> requiredType);
+  default <T> Map<String, T> getBeansOfType(Class<T> requiredType) {
+    return getBeansOfType(requiredType, true);
+  }
+
+  /**
+   * Return the bean instances that match the given object type (including
+   * subclasses), judging from either bean definitions or the value of
+   * {@code getBeanClass} in the case of FactoryBeans.
+   * <p>Note: Does <i>not</i> ignore singleton beans that have been registered
+   * by other means than bean definitions.
+   * <p>
+   * Get a map of beans with given type, this method must invoke after
+   * {@link ApplicationContext#loadContext(String...)}
+   * </p>
+   *
+   * @param requiredType
+   *         the class or interface to match, or {@code null} for all concrete beans
+   * @param includeNonSingletons
+   *         whether to include prototype or scoped beans too
+   *         or just singletons (also applies to FactoryBeans)
+   *
+   * @return a Map with the matching beans, containing the bean names as
+   * keys and the corresponding bean instances as values
+   *
+   * @throws BeansException
+   *         if a bean could not be created
+   * @see FactoryBean#getBeanClass
+   * @since 3.0
+   */
+  <T> Map<String, T> getBeansOfType(Class<T> requiredType, boolean includeNonSingletons);
 
   /**
    * Get all {@link BeanDefinition}s
@@ -209,7 +235,88 @@ public interface BeanFactory {
    *         {@link Scope}
    *
    * @return Target {@link Object}
+   *
+   * @since 3.0
    */
   Object getScopeBean(BeanDefinition def, Scope scope);
+
+  /**
+   * Return the names of beans matching the given type (including subclasses),
+   * judging from either bean definitions or the value of {@code getBeanClass}
+   * in the case of FactoryBeans.
+   *
+   * @param requiredType
+   *         the class or interface to match, or {@code null} for all bean names
+   *
+   * @return the names of beans (or objects created by FactoryBeans) matching
+   * the given object type (including subclasses), or an empty array if none
+   *
+   * @see FactoryBean#getBeanClass()
+   * @since 3.0
+   */
+  default String[] getBeanNamesOfType(Class<?> requiredType) {
+    return getBeanNamesOfType(requiredType, true);
+  }
+
+  /**
+   * Return the names of beans matching the given type (including subclasses),
+   * judging from either bean definitions or the value of {@code getBeanClass}
+   * in the case of FactoryBeans.
+   *
+   * @param requiredType
+   *         the class or interface to match, or {@code null} for all bean names
+   * @param includeNonSingletons
+   *         whether to include prototype or scoped beans too
+   *         or just singletons (also applies to FactoryBeans)
+   *
+   * @return the names of beans (or objects created by FactoryBeans) matching
+   * the given object type (including subclasses), or an empty array if none
+   *
+   * @see FactoryBean#getBeanClass()
+   * @since 3.0
+   */
+  String[] getBeanNamesOfType(Class<?> requiredType, boolean includeNonSingletons);
+
+  /**
+   * Find all beans which are annotated with the supplied {@link Annotation} type,
+   * returning a Map of bean names with corresponding bean instances.
+   * <p>Note that this method considers objects created by FactoryBeans, which means
+   * that FactoryBeans will get initialized in order to determine their object type.
+   *
+   * @param annotationType
+   *         the type of annotation to look for
+   *         (at class, interface or factory method level of the specified bean)
+   *
+   * @return a Map with the matching beans, containing the bean names as
+   * keys and the corresponding bean instances as values, never be {@code null}
+   *
+   * @throws BeansException
+   *         if a bean could not be created
+   * @see #getAnnotationOnBean
+   * @since 3.0
+   */
+  Map<String, Object> getAnnotatedBeans(Class<? extends Annotation> annotationType)
+          throws BeansException;
+
+  /**
+   * Find an {@link Annotation} of {@code annotationType} on the specified bean,
+   * traversing its interfaces and super classes if no annotation can be found on
+   * the given class itself, as well as checking the bean's factory method (if any).
+   *
+   * @param beanName
+   *         the name of the bean to look for annotations on
+   * @param annotationType
+   *         the type of annotation to look for
+   *         (at class, interface or factory method level of the specified bean)
+   *
+   * @return the annotation of the given type if found, or {@code null} otherwise
+   *
+   * @throws NoSuchBeanDefinitionException
+   *         if there is no bean with the given name
+   * @see #getAnnotatedBeans
+   * @since 3.0
+   */
+  <A extends Annotation> A getAnnotationOnBean(String beanName, Class<A> annotationType)
+          throws NoSuchBeanDefinitionException;
 
 }

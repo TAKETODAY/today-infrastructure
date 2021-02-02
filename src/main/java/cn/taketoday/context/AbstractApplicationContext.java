@@ -711,8 +711,18 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   @Override
-  public <T extends Annotation, E> List<E> getAnnotatedBeans(Class<T> annotationType) {
+  public <A extends Annotation> A getAnnotationOnBean(String beanName, Class<A> annotationType) {
+    return getBeanFactory().getAnnotationOnBean(beanName, annotationType);
+  }
+
+  @Override
+  public Map<String, Object> getAnnotatedBeans(Class<? extends Annotation> annotationType) {
     return getBeanFactory().getAnnotatedBeans(annotationType);
+  }
+
+  @Override
+  public String[] getBeanNamesOfType(Class<?> requiredType, boolean includeNonSingletons) {
+    return getBeanFactory().getBeanNamesOfType(requiredType, includeNonSingletons);
   }
 
   @Override
@@ -721,13 +731,13 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   @Override
-  public Map<String, BeanDefinition> getBeanDefinitions() {
-    return getBeanFactory().getBeanDefinitions();
+  public <T> Map<String, T> getBeansOfType(Class<T> requiredType, boolean includeNonSingletons) {
+    return getBeanFactory().getBeansOfType(requiredType, includeNonSingletons);
   }
 
   @Override
-  public Map<String, BeanDefinition> getBeanDefinitionsMap() {
-    return getBeanFactory().getBeanDefinitionsMap();
+  public Map<String, BeanDefinition> getBeanDefinitions() {
+    return getBeanFactory().getBeanDefinitions();
   }
 
   @Override
@@ -768,11 +778,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   @Override
   public Map<String, Object> getSingletons() {
     return getBeanFactory().getSingletons();
-  }
-
-  @Override
-  public Map<String, Object> getSingletonsMap() {
-    return getBeanFactory().getSingletonsMap();
   }
 
   @Override

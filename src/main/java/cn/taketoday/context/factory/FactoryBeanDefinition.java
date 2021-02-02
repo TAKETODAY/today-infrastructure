@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.function.Supplier;
 
+import cn.taketoday.context.AttributeAccessorSupport;
 import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.utils.Assert;
 
@@ -37,7 +38,8 @@ import static cn.taketoday.context.utils.ContextUtils.createBeanDefinition;
  * 2019-02-01 12:29
  * @since 2.1.7
  */
-public class FactoryBeanDefinition<T> implements BeanDefinition {
+public class FactoryBeanDefinition<T>
+        extends AttributeAccessorSupport implements BeanDefinition {
 
   private final BeanDefinition factoryDef;
   private Supplier<FactoryBean<T>> factorySupplier;

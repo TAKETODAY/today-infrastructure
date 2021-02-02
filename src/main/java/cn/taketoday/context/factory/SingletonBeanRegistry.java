@@ -58,18 +58,6 @@ public interface SingletonBeanRegistry {
   Map<String, Object> getSingletons();
 
   /**
-   * Get instances Map
-   *
-   * @return the map of singletons
-   *
-   * @see SingletonBeanRegistry#getSingletons()
-   * @deprecated since 2.1.6 use {@link SingletonBeanRegistry#getSingletons()}
-   * instead
-   */
-  @Deprecated
-  Map<String, Object> getSingletonsMap();
-
-  /**
    * get bean instance, one {@link BeanDefinition} can have a lot of names, so
    * can't put instances in BeanDefinition.
    *

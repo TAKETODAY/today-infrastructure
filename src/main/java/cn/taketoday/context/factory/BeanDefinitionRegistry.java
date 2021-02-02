@@ -37,16 +37,6 @@ public interface BeanDefinitionRegistry {
   Map<String, BeanDefinition> getBeanDefinitions();
 
   /**
-   * Get {@link BeanDefinition}s map
-   *
-   * @see BeanDefinitionRegistry#getBeanDefinitions()
-   * @deprecated since 2.1.6 use
-   * {@link BeanDefinitionRegistry#getBeanDefinitions()} instead
-   */
-  @Deprecated
-  Map<String, BeanDefinition> getBeanDefinitionsMap();
-
-  /**
    * register a bean with the given name and type
    *
    * @param def

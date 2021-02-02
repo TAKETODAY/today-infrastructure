@@ -24,6 +24,7 @@ import cn.taketoday.context.factory.BeanDefinition;
 /**
  * @author TODAY <br>
  * 2018-07-02 22:38:57
+ * @since 3.0
  */
 public interface Scope {
 
