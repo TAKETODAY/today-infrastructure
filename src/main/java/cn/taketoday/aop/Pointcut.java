@@ -20,6 +20,11 @@
 
 package cn.taketoday.aop;
 
+import cn.taketoday.aop.support.ClassFilters;
+import cn.taketoday.aop.support.ComposablePointcut;
+import cn.taketoday.aop.support.MethodMatchers;
+import cn.taketoday.aop.support.Pointcuts;
+
 /**
  * Core  pointcut abstraction.
  *

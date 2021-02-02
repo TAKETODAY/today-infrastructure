@@ -18,42 +18,31 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop;
+package cn.taketoday.aop.support;
+
+import java.lang.reflect.Method;
+
+import cn.taketoday.aop.MethodMatcher;
 
 /**
- * Convenient superclass when we want to force subclasses to implement the
- * {@link MethodMatcher} interface but subclasses will want to be pointcuts.
- *
- * <p>The {@link #setClassFilter "classFilter"} property can be set to customize
- * {@link ClassFilter} behavior. The default is {@link ClassFilter#TRUE}.
+ * Convenient abstract superclass for static method matchers, which don't care
+ * about arguments at runtime.
  *
  * @author Rod Johnson
- * @author Juergen Hoeller
- * @author TODAY 2021/2/1 18:34
+ * @author TODAY 2021/2/1 18:33
  * @since 3.0
  */
-public abstract class StaticMethodMatcherPointcut
-        extends StaticMethodMatcher implements Pointcut {
+public abstract class StaticMethodMatcher implements MethodMatcher {
 
-  private ClassFilter classFilter = ClassFilter.TRUE;
-
-  /**
-   * Set the {@link ClassFilter} to use for this pointcut.
-   * Default is {@link ClassFilter#TRUE}.
-   */
-  public void setClassFilter(ClassFilter classFilter) {
-    this.classFilter = classFilter;
+  @Override
+  public final boolean isRuntime() {
+    return false;
   }
 
   @Override
-  public ClassFilter getClassFilter() {
-    return this.classFilter;
-  }
-
-  @Override
-  public final MethodMatcher getMethodMatcher() {
-    return this;
+  public final boolean matches(Method method, Class<?> targetClass, Object[] args) {
+    // should never be invoked because isRuntime() returns false
+    throw new UnsupportedOperationException("Illegal MethodMatcher usage");
   }
 
 }
-

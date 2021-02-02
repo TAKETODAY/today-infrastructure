@@ -18,11 +18,14 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop;
+package cn.taketoday.aop.support;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
+import cn.taketoday.aop.ClassFilter;
+import cn.taketoday.aop.IntroductionAwareMethodMatcher;
+import cn.taketoday.aop.MethodMatcher;
 import cn.taketoday.context.utils.Assert;
 
 /**
@@ -75,7 +78,7 @@ public abstract class MethodMatchers {
    * @return a distinct MethodMatcher that matches all methods that either
    * of the given MethodMatchers matches
    */
-  static MethodMatcher union(MethodMatcher mm1, ClassFilter cf1, MethodMatcher mm2, ClassFilter cf2) {
+  public static MethodMatcher union(MethodMatcher mm1, ClassFilter cf1, MethodMatcher mm2, ClassFilter cf2) {
     return (mm1 instanceof IntroductionAwareMethodMatcher || mm2 instanceof IntroductionAwareMethodMatcher ?
             new ClassFilterAwareUnionIntroductionAwareMethodMatcher(mm1, cf1, mm2, cf2) :
             new ClassFilterAwareUnionMethodMatcher(mm1, cf1, mm2, cf2));
@@ -124,10 +127,8 @@ public abstract class MethodMatchers {
   /**
    * MethodMatcher implementation for a union of two given MethodMatchers.
    */
-  private static class UnionMethodMatcher implements MethodMatcher, Serializable {
-
+  static class UnionMethodMatcher implements MethodMatcher, Serializable {
     protected final MethodMatcher mm1;
-
     protected final MethodMatcher mm2;
 
     public UnionMethodMatcher(MethodMatcher mm1, MethodMatcher mm2) {
@@ -206,10 +207,8 @@ public abstract class MethodMatchers {
    * MethodMatcher implementation for a union of two given MethodMatchers,
    * supporting an associated ClassFilter per MethodMatcher.
    */
-  private static class ClassFilterAwareUnionMethodMatcher extends UnionMethodMatcher {
-
+  static class ClassFilterAwareUnionMethodMatcher extends UnionMethodMatcher {
     private final ClassFilter cf1;
-
     private final ClassFilter cf2;
 
     public ClassFilterAwareUnionMethodMatcher(MethodMatcher mm1, ClassFilter cf1, MethodMatcher mm2, ClassFilter cf2) {
@@ -282,10 +281,8 @@ public abstract class MethodMatchers {
   /**
    * MethodMatcher implementation for an intersection of two given MethodMatchers.
    */
-  private static class IntersectionMethodMatcher implements MethodMatcher, Serializable {
-
+  static class IntersectionMethodMatcher implements MethodMatcher, Serializable {
     protected final MethodMatcher mm1;
-
     protected final MethodMatcher mm2;
 
     public IntersectionMethodMatcher(MethodMatcher mm1, MethodMatcher mm2) {
@@ -306,7 +303,7 @@ public abstract class MethodMatchers {
     }
 
     @Override
-    public boolean matches(Method method, Class<?> targetClass, Object... args) {
+    public boolean matches(Method method, Class<?> targetClass, Object[] args) {
       // Because a dynamic intersection may be composed of a static and dynamic part,
       // we must avoid calling the 3-arg matches method on a dynamic matcher, as
       // it will probably be an unsupported operation.
@@ -344,7 +341,7 @@ public abstract class MethodMatchers {
    * MethodMatcher implementation for an intersection of two given MethodMatchers
    * of which at least one is an IntroductionAwareMethodMatcher.
    */
-  private static class IntersectionIntroductionAwareMethodMatcher
+  static class IntersectionIntroductionAwareMethodMatcher
           extends IntersectionMethodMatcher implements IntroductionAwareMethodMatcher {
 
     public IntersectionIntroductionAwareMethodMatcher(MethodMatcher mm1, MethodMatcher mm2) {

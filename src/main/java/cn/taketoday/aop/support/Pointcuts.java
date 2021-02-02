@@ -18,11 +18,13 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop;
+package cn.taketoday.aop.support;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
+import cn.taketoday.aop.MethodMatcher;
+import cn.taketoday.aop.Pointcut;
 import cn.taketoday.context.utils.Assert;
 
 /**
@@ -110,14 +112,13 @@ public abstract class Pointcuts {
    */
   static class SetterPointcut
           extends StaticMethodMatcherPointcut implements Serializable {
-
     public static final SetterPointcut INSTANCE = new SetterPointcut();
 
     @Override
     public boolean matches(Method method, Class<?> targetClass) {
-      return (method.getName().startsWith("set") &&
-              method.getParameterCount() == 1 &&
-              method.getReturnType() == Void.TYPE);
+      return method.getName().startsWith("set")
+              && method.getParameterCount() == 1
+              && method.getReturnType() == Void.TYPE;
     }
 
     private Object readResolve() {
@@ -135,13 +136,11 @@ public abstract class Pointcuts {
    */
   static class GetterPointcut
           extends StaticMethodMatcherPointcut implements Serializable {
-
     public static final GetterPointcut INSTANCE = new GetterPointcut();
 
     @Override
     public boolean matches(Method method, Class<?> targetClass) {
-      return (method.getName().startsWith("get") &&
-              method.getParameterCount() == 0);
+      return (method.getName().startsWith("get") && method.getParameterCount() == 0);
     }
 
     private Object readResolve() {

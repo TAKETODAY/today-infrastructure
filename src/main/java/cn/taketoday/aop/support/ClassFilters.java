@@ -18,11 +18,12 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop;
+package cn.taketoday.aop.support;
 
 import java.io.Serializable;
 import java.util.Arrays;
 
+import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.context.utils.Assert;
 
 /**
@@ -105,7 +106,6 @@ public abstract class ClassFilters {
    * ClassFilter implementation for a union of the given ClassFilters.
    */
   static class UnionClassFilter implements ClassFilter, Serializable {
-
     private final ClassFilter[] filters;
 
     UnionClassFilter(ClassFilter[] filters) {
@@ -144,7 +144,6 @@ public abstract class ClassFilters {
    * ClassFilter implementation for an intersection of the given ClassFilters.
    */
   static class IntersectionClassFilter implements ClassFilter, Serializable {
-
     private final ClassFilter[] filters;
 
     IntersectionClassFilter(ClassFilter[] filters) {
