@@ -331,6 +331,7 @@ public abstract class AopUtils {
   }
 
   //
+
   public static MethodInterceptor[] getInterceptorsArray(Advised config, Method method, Class<?> targetClass) {
     final List<MethodInterceptor> interceptors = getInterceptors(config, method, targetClass);
     return interceptors.toArray(new MethodInterceptor[interceptors.size()]);
@@ -341,7 +342,7 @@ public abstract class AopUtils {
     // This is somewhat tricky... We have to process introductions first,
     // but we need to preserve order in the ultimate list.
     Advisor[] advisors = config.getAdvisors();
-    List<MethodInterceptor> interceptorList = new ArrayList<>(advisors.length);
+    ArrayList<MethodInterceptor> ret = new ArrayList<>(advisors.length);
     Class<?> actualClass = (targetClass != null ? targetClass : method.getDeclaringClass());
     Boolean hasIntroductions = null;
 
@@ -367,11 +368,11 @@ public abstract class AopUtils {
               // Creating a new object instance in the getInterceptors() method
               // isn't a problem as we normally cache created chains.
               for (MethodInterceptor interceptor : interceptors) {
-                interceptorList.add(new RuntimeMethodInterceptor(interceptor, mm));
+                ret.add(new RuntimeMethodInterceptor(interceptor, mm));
               }
             }
             else {
-              interceptorList.addAll(Arrays.asList(interceptors));
+              ret.addAll(Arrays.asList(interceptors));
             }
           }
         }
@@ -380,16 +381,16 @@ public abstract class AopUtils {
         IntroductionAdvisor ia = (IntroductionAdvisor) advisor;
         if (config.isPreFiltered() || ia.getClassFilter().matches(actualClass)) {
           MethodInterceptor[] interceptors = getInterceptors(advisor);
-          interceptorList.addAll(Arrays.asList(interceptors));
+          ret.addAll(Arrays.asList(interceptors));
         }
       }
       else {
         MethodInterceptor[] interceptors = getInterceptors(advisor);
-        interceptorList.addAll(Arrays.asList(interceptors));
+        ret.addAll(Arrays.asList(interceptors));
       }
     }
 
-    return interceptorList;
+    return ret;
   }
 
   public static Advisor wrap(Object adviceObject) throws UnknownAdviceTypeException {

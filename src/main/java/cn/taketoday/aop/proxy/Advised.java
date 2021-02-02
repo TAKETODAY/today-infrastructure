@@ -40,7 +40,7 @@ import cn.taketoday.aop.support.DefaultPointcutAdvisor;
  * @author Juergen Hoeller
  * @author TODAY 2021/2/1 19:03
  * @see AdvisedSupport
- * @since 13.03.2003
+ * @since 3.0
  */
 public interface Advised extends TargetClassAware {
 

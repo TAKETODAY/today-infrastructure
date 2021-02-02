@@ -267,8 +267,9 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
       throw new AopConfigException("Cannot remove Advisor: Configuration is frozen.");
     }
     if (index < 0 || index > this.advisors.size() - 1) {
-      throw new AopConfigException("Advisor index " + index + " is out of bounds: " +
-                                           "This configuration only has " + this.advisors.size() + " advisors.");
+      throw new AopConfigException(
+              "Advisor index " + index + " is out of bounds: " +
+                      "This configuration only has " + this.advisors.size() + " advisors.");
     }
 
     Advisor advisor = this.advisors.remove(index);
@@ -345,7 +346,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
     }
   }
 
-  private void addAdvisorInternal(int pos, Advisor advisor) throws AopConfigException {
+  void addAdvisorInternal(int pos, Advisor advisor) throws AopConfigException {
     Assert.notNull(advisor, "Advisor must not be null");
     if (isFrozen()) {
       throw new AopConfigException("Cannot add advisor: Configuration is frozen.");
@@ -363,7 +364,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * Bring the array up to date with the list.
    */
   protected final void updateAdvisorArray() {
-    this.advisorArray = this.advisors.toArray(new Advisor[0]);
+    this.advisorArray = this.advisors.toArray(new Advisor[this.advisors.size()]);
   }
 
   /**
@@ -579,10 +580,8 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * Simple wrapper class around a Method. Used as the key when
    * caching methods, for efficient equals and hashCode comparisons.
    */
-  private static final class MethodCacheKey implements Comparable<MethodCacheKey> {
-
+  static final class MethodCacheKey implements Comparable<MethodCacheKey> {
     private final Method method;
-
     private final int hashCode;
 
     public MethodCacheKey(Method method) {
