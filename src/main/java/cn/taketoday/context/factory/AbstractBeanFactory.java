@@ -1086,10 +1086,11 @@ public abstract class AbstractBeanFactory
       final Object oldBean = singletons.put(name, singleton);
       if (log.isDebugEnabled()) {
         if (oldBean == null) {
-          log.debug("Register Singleton: [{}] = [{}]", name, singleton);
+          log.debug("Register Singleton: [{}] = [{}]", name, ObjectUtils.identityToString(singleton));
         }
         else if (oldBean != singleton) {
-          log.debug("Refresh Singleton: [{}] = [{}] old bean: [{}] ", name, singleton, oldBean);
+          log.debug("Refresh Singleton: [{}] = [{}] old bean: [{}] ",
+                    name, ObjectUtils.identityToString(singleton), ObjectUtils.identityToString(oldBean));
         }
       }
     }

@@ -22,6 +22,7 @@ package cn.taketoday.context.utils;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import cn.taketoday.context.Constant;
@@ -267,6 +268,31 @@ public abstract class ObjectUtils {
    */
   public static String getIdentityHexString(Object obj) {
     return Integer.toHexString(System.identityHashCode(obj));
+  }
+
+  /**
+   * Check whether the given array contains the given element.
+   *
+   * @param array
+   *         the array to check (may be {@code null},
+   *         in which case the return value will always be {@code false})
+   * @param element
+   *         the element to check for
+   *
+   * @return whether the element has been found in the given array
+   *
+   * @since 3.0
+   */
+  public static boolean containsElement(Object[] array, Object element) {
+    if (array == null) {
+      return false;
+    }
+    for (Object arrayEle : array) {
+      if (Objects.equals(arrayEle, element)) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }
