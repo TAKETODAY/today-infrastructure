@@ -65,6 +65,7 @@ import java.util.stream.Stream;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.EmptyObject;
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.asm.ClassReader;
 import cn.taketoday.context.asm.ClassVisitor;
@@ -1792,6 +1793,173 @@ public abstract class ClassUtils {
     catch (NoSuchMethodException ex) {
       return null;
     }
+  }
+
+  /**
+   * Determine whether the given class is a candidate for carrying one of the specified
+   * annotations (at type, method or field level).
+   *
+   * @param clazz
+   *         the class to introspect
+   * @param annotationTypes
+   *         the searchable annotation types
+   *
+   * @return {@code false} if the class is known to have no such annotations at any level;
+   * {@code true} otherwise. Callers will usually perform full method/field introspection
+   * if {@code true} is being returned here.
+   *
+   * @see #isCandidateClass(Class, Class)
+   * @see #isCandidateClass(Class, String)
+   * @since 3.0
+   */
+  public static boolean isCandidateClass(Class<?> clazz, Collection<Class<? extends Annotation>> annotationTypes) {
+    for (Class<? extends Annotation> annotationType : annotationTypes) {
+      if (isCandidateClass(clazz, annotationType)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Determine whether the given class is a candidate for carrying the specified annotation
+   * (at type, method or field level).
+   *
+   * @param clazz
+   *         the class to introspect
+   * @param annotationType
+   *         the searchable annotation type
+   *
+   * @return {@code false} if the class is known to have no such annotations at any level;
+   * {@code true} otherwise. Callers will usually perform full method/field introspection
+   * if {@code true} is being returned here.
+   *
+   * @see #isCandidateClass(Class, String)
+   * @since 3.0
+   */
+  public static boolean isCandidateClass(Class<?> clazz, Class<? extends Annotation> annotationType) {
+    return isCandidateClass(clazz, annotationType.getName());
+  }
+
+  /**
+   * Determine whether the given class is a candidate for carrying the specified annotation
+   * (at type, method or field level).
+   *
+   * @param clazz
+   *         the class to introspect
+   * @param annotationName
+   *         the fully-qualified name of the searchable annotation type
+   *
+   * @return {@code false} if the class is known to have no such annotations at any level;
+   * {@code true} otherwise. Callers will usually perform full method/field introspection
+   * if {@code true} is being returned here.
+   *
+   * @see #isCandidateClass(Class, Class)
+   * @since 3.0
+   */
+  public static boolean isCandidateClass(Class<?> clazz, String annotationName) {
+    if (annotationName.startsWith("java.")) {
+      return true;
+    }
+    return !hasPlainJavaAnnotationsOnly(clazz);
+  }
+
+  static boolean hasPlainJavaAnnotationsOnly(Class<?> type) {
+    return (type.getName().startsWith("java.") || type == Ordered.class);
+  }
+
+  /**
+   * Given a method, which may come from an interface, and a target class used
+   * in the current reflective invocation, find the corresponding target method
+   * if there is one. E.g. the method may be {@code IFoo.bar()} and the
+   * target class may be {@code DefaultFoo}. In this case, the method may be
+   * {@code DefaultFoo.bar()}. This enables attributes on that method to be found.
+   *
+   * @param method
+   *         the method to be invoked, which may come from an interface
+   * @param targetClass
+   *         the target class for the current invocation
+   *         (may be {@code null} or may not even implement the method)
+   *
+   * @return the specific target method, or the original method if the
+   * {@code targetClass} does not implement it
+   *
+   * @since 3.0
+   */
+  public static Method getMostSpecificMethod(Method method, Class<?> targetClass) {
+    if (targetClass != null && targetClass != method.getDeclaringClass() && isOverridable(method, targetClass)) {
+      try {
+        if (Modifier.isPublic(method.getModifiers())) {
+          try {
+            return targetClass.getMethod(method.getName(), method.getParameterTypes());
+          }
+          catch (NoSuchMethodException ex) {
+            return method;
+          }
+        }
+        else {
+          Method specificMethod =
+                  ReflectionUtils.findMethod(targetClass, method.getName(), method.getParameterTypes());
+          return (specificMethod != null ? specificMethod : method);
+        }
+      }
+      catch (SecurityException ex) {
+        // Security settings are disallowing reflective access; fall back to 'method' below.
+      }
+    }
+    return method;
+  }
+
+  /**
+   * Determine whether the given method is overridable in the given target class.
+   *
+   * @param method
+   *         the method to check
+   * @param targetClass
+   *         the target class to check against
+   */
+  private static boolean isOverridable(Method method, Class<?> targetClass) {
+    if (Modifier.isPrivate(method.getModifiers())) {
+      return false;
+    }
+    if (Modifier.isPublic(method.getModifiers()) || Modifier.isProtected(method.getModifiers())) {
+      return true;
+    }
+    return (targetClass == null ||
+            getPackageName(method.getDeclaringClass()).equals(getPackageName(targetClass)));
+  }
+
+  /**
+   * Determine the name of the package of the given class,
+   * e.g. "java.lang" for the {@code java.lang.String} class.
+   *
+   * @param clazz
+   *         the class
+   *
+   * @return the package name, or the empty String if the class
+   * is defined in the default package
+   * @since 3.0
+   */
+  public static String getPackageName(Class<?> clazz) {
+    Assert.notNull(clazz, "Class must not be null");
+    return getPackageName(clazz.getName());
+  }
+
+  /**
+   * Determine the name of the package of the given fully-qualified class name,
+   * e.g. "java.lang" for the {@code java.lang.String} class name.
+   *
+   * @param fqClassName
+   *         the fully-qualified class name
+   *
+   * @return the package name, or the empty String if the class
+   * is defined in the default package
+   * @since 3.0
+   */
+  public static String getPackageName(String fqClassName) {
+    Assert.notNull(fqClassName, "Class name must not be null");
+    int lastDotIndex = fqClassName.lastIndexOf(Constant.PACKAGE_SEPARATOR);
+    return (lastDotIndex != -1 ? fqClassName.substring(0, lastDotIndex) : Constant.BLANK);
   }
 
 }
