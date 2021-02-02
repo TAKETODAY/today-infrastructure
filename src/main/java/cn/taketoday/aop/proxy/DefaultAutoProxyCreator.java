@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -15,20 +15,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.aop;
+
+package cn.taketoday.aop.proxy;
 
 /**
- * @author TODAY <br>
- * 2018-11-10 16:45
+ * @author TODAY 2021/2/2 17:54
  */
-public interface ProxyFactory {
+public class DefaultAutoProxyCreator extends AbstractAutoProxyCreator {
 
-  /**
-   * Get proxy instance
-   *
-   * @return proxy instance
-   */
-  Object getProxy();
 }
