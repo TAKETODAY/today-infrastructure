@@ -279,6 +279,28 @@ public interface BeanFactory {
 
   /**
    * Find all beans which are annotated with the supplied {@link Annotation} type,
+   * returning a List of bean instances.
+   * <p>Note that this method considers objects created by FactoryBeans, which means
+   * that FactoryBeans will get initialized in order to determine their object type.
+   *
+   * @param annotationType
+   *         the type of annotation to look for
+   *         (at class, interface or factory method level of the specified bean)
+   *
+   * @return a List with the matching beans, containing the bean names as
+   * keys and the corresponding bean instances as values, never be {@code null}
+   *
+   * @throws BeansException
+   *         if a bean could not be created
+   * @see #getAnnotationOnBean
+   * @since 3.0
+   */
+  default List<Object> getAnnotatedBeans(Class<? extends Annotation> annotationType) throws BeansException {
+    return new ArrayList<>(getBeansOfAnnotation(annotationType).values());
+  }
+
+  /**
+   * Find all beans which are annotated with the supplied {@link Annotation} type,
    * returning a Map of bean names with corresponding bean instances.
    * <p>Note that this method considers objects created by FactoryBeans, which means
    * that FactoryBeans will get initialized in order to determine their object type.
@@ -295,7 +317,32 @@ public interface BeanFactory {
    * @see #getAnnotationOnBean
    * @since 3.0
    */
-  Map<String, Object> getAnnotatedBeans(Class<? extends Annotation> annotationType)
+  default Map<String, Object> getBeansOfAnnotation(Class<? extends Annotation> annotationType) throws BeansException {
+    return getBeansOfAnnotation(annotationType, true);
+  }
+
+  /**
+   * Find all beans which are annotated with the supplied {@link Annotation} type,
+   * returning a Map of bean names with corresponding bean instances.
+   * <p>Note that this method considers objects created by FactoryBeans, which means
+   * that FactoryBeans will get initialized in order to determine their object type.
+   *
+   * @param annotationType
+   *         the type of annotation to look for
+   *         (at class, interface or factory method level of the specified bean)
+   * @param includeNonSingletons
+   *         whether to include prototype or scoped beans too
+   *         or just singletons (also applies to FactoryBeans)
+   *
+   * @return a Map with the matching beans, containing the bean names as
+   * keys and the corresponding bean instances as values, never be {@code null}
+   *
+   * @throws BeansException
+   *         if a bean could not be created
+   * @see #getAnnotationOnBean
+   * @since 3.0
+   */
+  Map<String, Object> getBeansOfAnnotation(Class<? extends Annotation> annotationType, boolean includeNonSingletons)
           throws BeansException;
 
   /**

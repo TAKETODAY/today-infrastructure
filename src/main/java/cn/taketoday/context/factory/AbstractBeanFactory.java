@@ -235,12 +235,13 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public Map<String, Object> getAnnotatedBeans(Class<? extends Annotation> annotationType) throws BeansException {
-    final HashMap<String, Object> beans = new HashMap<>();
+  public Map<String, Object> getBeansOfAnnotation(Class<? extends Annotation> annotationType, boolean includeNonSingletons) {
+    Assert.notNull(annotationType, "annotationType must not be null");
 
+    final HashMap<String, Object> beans = new HashMap<>();
     for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
       final BeanDefinition def = entry.getValue();
-      if (def.isAnnotationPresent(annotationType)) {
+      if ((includeNonSingletons || def.isSingleton()) && def.isAnnotationPresent(annotationType)) {
         final Object bean = getBean(def);
         if (bean != null) {
           beans.put(entry.getKey(), bean);
