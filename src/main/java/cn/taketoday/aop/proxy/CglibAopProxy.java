@@ -84,7 +84,6 @@ import cn.taketoday.context.utils.ReflectionUtils;
  * @since 3.0
  */
 public class CglibAopProxy implements AopProxy, Serializable {
-  /** Logger available to subclasses; static to optimize serialization. */
   protected static final Logger log = LoggerFactory.getLogger(CglibAopProxy.class);
 
   // Constants for CGLIB callback array indices
@@ -607,7 +606,7 @@ public class CglibAopProxy implements AopProxy, Serializable {
           // Note that the final invoker must be an InvokerInterceptor, so we know
           // it does nothing but a reflective operation on the target, and no hot
           // swapping or fancy proxying.
-          Object[] argsToUse = AopProxyUtils.adaptArgumentsIfNecessary(method, args);
+          Object[] argsToUse = ClassUtils.adaptArgumentsIfNecessary(method, args);
           retVal = methodProxy.invoke(target, argsToUse);
         }
         else {
