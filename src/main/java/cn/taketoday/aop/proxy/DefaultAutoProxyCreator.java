@@ -25,4 +25,8 @@ package cn.taketoday.aop.proxy;
  */
 public class DefaultAutoProxyCreator extends AbstractAutoProxyCreator {
 
+  @Override
+  protected boolean advisorsPreFiltered() {
+    return true;
+  }
 }

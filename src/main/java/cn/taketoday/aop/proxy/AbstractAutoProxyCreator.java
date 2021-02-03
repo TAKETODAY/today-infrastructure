@@ -23,6 +23,7 @@ package cn.taketoday.aop.proxy;
 import org.aopalliance.aop.Advice;
 
 import java.io.Closeable;
+import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.aop.Advisor;
@@ -231,6 +232,9 @@ public abstract class AbstractAutoProxyCreator
     postEligibleAdvisors(eligibleAdvisors);
 
     eligibleAdvisors = sortAdvisors(eligibleAdvisors);
+    if (eligibleAdvisors.isEmpty()) {
+      return DO_NOT_PROXY;
+    }
     return eligibleAdvisors.toArray();
   }
 
@@ -239,9 +243,15 @@ public abstract class AbstractAutoProxyCreator
     return AopUtils.filterAdvisors(candidateAdvisors, def.getBeanClass());
   }
 
+  private List<Advisor> candidateAdvisors;
+
   protected List<Advisor> getCandidateAdvisors() {
-    final BeanFactory beanFactory = getBeanFactory();
-    return beanFactory.getBeans(Advisor.class);
+    if (candidateAdvisors == null) {
+      candidateAdvisors = new ArrayList<>();
+      final BeanFactory beanFactory = getBeanFactory();
+      candidateAdvisors.addAll(beanFactory.getBeans(Advisor.class));
+    }
+    return candidateAdvisors;
   }
 
   protected void postEligibleAdvisors(List<Advisor> eligibleAdvisors) { }
