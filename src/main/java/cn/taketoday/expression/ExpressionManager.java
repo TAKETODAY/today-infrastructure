@@ -108,7 +108,7 @@ public class ExpressionManager {
    *         The ELResolver to be added to the list of ELResolvers in
    *         ELContext.
    *
-   * @see StandardExpressionContext#addELResolver
+   * @see StandardExpressionContext#addResolver(ExpressionResolver)
    */
   public void addResolver(ExpressionResolver elr) {
     getContext().addResolver(elr);

@@ -44,7 +44,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.context.utils.ClassUtils;
@@ -62,14 +61,14 @@ public class ImportHandler {
   private final Map<String, String> classNameMap = new HashMap<>();
   private final Map<String, String> staticNameMap = new HashMap<>();
 
-  private final List<String> packages = new ArrayList<>();
   private final HashSet<String> notAClass = new HashSet<>();
+  private final ArrayList<String> packages = new ArrayList<>();
 
   public ImportHandler() {
     importPackage("java.lang");
   }
 
-  public static final ImportHandler getInstance() {
+  public static ImportHandler getInstance() {
     return INSTANCE;
   }
 
@@ -170,23 +169,19 @@ public class ImportHandler {
   public Class<?> resolveStatic(String name) {
     String className = staticNameMap.get(name);
     if (className != null) {
-      Class<?> c = resolveClassFor(className);
-      if (c != null) {
-        return c;
-      }
+      return resolveClassFor(className);
     }
     return null;
   }
 
   private Class<?> resolveClassFor(String className) {
     Class<?> c = classMap.get(className);
-    if (c != null) {
-      return c;
-    }
-    c = getClassFor(className);
-    if (c != null) {
-      checkModifiers(c.getModifiers());
-      classMap.put(className, c);
+    if (c == null) {
+      c = getClassFor(className);
+      if (c != null) {
+        checkModifiers(c.getModifiers());
+        classMap.put(className, c);
+      }
     }
     return c;
   }
