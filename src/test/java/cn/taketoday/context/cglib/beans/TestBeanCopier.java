@@ -15,10 +15,11 @@
  */
 package cn.taketoday.context.cglib.beans;
 
-import cn.taketoday.context.cglib.core.Converter;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import cn.taketoday.context.cglib.core.Converter;
 
 /**
  *

@@ -15,10 +15,10 @@
  */
 package cn.taketoday.context.cglib.beans;
 
-import java.util.HashMap;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
+import java.util.HashMap;
 
 /**
  * @author Chris Nokleberg

@@ -19,9 +19,9 @@
  */
 package cn.taketoday.context.env;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author TODAY <br>

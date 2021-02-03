@@ -19,8 +19,6 @@
  */
 package cn.taketoday.context.env;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,6 +27,8 @@ import org.junit.Test;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import test.demo.config.User;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Today <br>

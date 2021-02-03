@@ -15,9 +15,10 @@
  */
 package cn.taketoday.context.cglib.util;
 
-import cn.taketoday.context.cglib.CodeGenTestCase;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
+import cn.taketoday.context.cglib.CodeGenTestCase;
 
 public class TestXmlParsing extends CodeGenTestCase {
     private static final String ATTRIBUTE_STR = "attribute";

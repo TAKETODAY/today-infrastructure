@@ -15,11 +15,11 @@
  */
 package cn.taketoday.context.cglib.beans;
 
-import java.lang.reflect.Method;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import java.lang.reflect.Method;
 
 /**
  *

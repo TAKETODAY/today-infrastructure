@@ -108,7 +108,7 @@ public class BeanFactoryTest extends BaseTest {
 
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
-    Map<String, Object> annotatedBeans = beanFactory.getAnnotatedBeans(Singleton.class);
+    List<Object> annotatedBeans = beanFactory.getAnnotatedBeans(Singleton.class);
     log.debug("beans: {}", annotatedBeans);
     assert annotatedBeans.size() > 0;
   }

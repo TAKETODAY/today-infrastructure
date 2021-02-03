@@ -19,10 +19,7 @@
  */
 package cn.taketoday.context.utils;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.within;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,9 +27,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
-import org.junit.Test;
-
 import cn.taketoday.context.io.Resource;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.within;
 
 /**
  * @author Arjen Poutsma

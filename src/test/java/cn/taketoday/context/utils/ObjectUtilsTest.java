@@ -19,17 +19,17 @@
  */
 package cn.taketoday.context.utils;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.Arrays;
-import java.util.Collections;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ConversionException;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Today <br>

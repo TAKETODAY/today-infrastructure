@@ -15,11 +15,11 @@
  */
 package cn.taketoday.context.cglib.core;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Chris Nokleberg

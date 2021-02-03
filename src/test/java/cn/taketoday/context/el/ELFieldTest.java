@@ -19,12 +19,12 @@
  */
 package cn.taketoday.context.el;
 
-import java.util.Date;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.Date;
 
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Singleton;

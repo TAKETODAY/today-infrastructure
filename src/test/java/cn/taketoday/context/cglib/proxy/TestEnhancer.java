@@ -15,6 +15,10 @@
  */
 package cn.taketoday.context.cglib.proxy;
 
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -37,13 +41,10 @@ import cn.taketoday.context.asm.MethodVisitor;
 import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.cglib.CodeGenTestCase;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
-import cn.taketoday.context.cglib.core.NamingPolicy;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
+import cn.taketoday.context.cglib.core.NamingPolicy;
 import cn.taketoday.context.cglib.reflect.FastClass;
 import cn.taketoday.context.utils.ResourceUtils;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * @author Juozas Baliuka <a href="mailto:baliuka@mwm.lt"> baliuka@mwm.lt</a>

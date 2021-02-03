@@ -15,11 +15,12 @@
  */
 package cn.taketoday.context.cglib.proxy;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import org.junit.Assert;
 
 import cn.taketoday.context.cglib.CodeGenTestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 public class TestLazyLoader extends CodeGenTestCase {
 

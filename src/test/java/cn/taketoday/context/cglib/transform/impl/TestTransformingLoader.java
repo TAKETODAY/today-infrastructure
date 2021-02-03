@@ -15,6 +15,9 @@
  */
 package cn.taketoday.context.cglib.transform.impl;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import java.lang.reflect.Method;
 
 import cn.taketoday.context.Constant;
@@ -25,8 +28,6 @@ import cn.taketoday.context.cglib.transform.ClassTransformer;
 import cn.taketoday.context.cglib.transform.ClassTransformerChain;
 import cn.taketoday.context.cglib.transform.ClassTransformerFactory;
 import cn.taketoday.context.cglib.transform.TransformingClassLoader;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * @version $Id: TestTransformingLoader.java,v 1.6 2006/03/05 02:43:17

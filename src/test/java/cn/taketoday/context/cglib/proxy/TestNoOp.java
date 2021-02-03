@@ -15,9 +15,10 @@
  */
 package cn.taketoday.context.cglib.proxy;
 
-import cn.taketoday.context.cglib.CodeGenTestCase;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
+import cn.taketoday.context.cglib.CodeGenTestCase;
 
 public class TestNoOp extends CodeGenTestCase {
     private static class Foo {

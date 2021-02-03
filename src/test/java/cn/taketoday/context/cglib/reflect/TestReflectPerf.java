@@ -15,10 +15,10 @@
  */
 package cn.taketoday.context.cglib.reflect;
 
-import java.lang.reflect.Method;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
+import java.lang.reflect.Method;
 
 public class TestReflectPerf extends cn.taketoday.context.cglib.CodeGenTestCase {
     public interface IndexOf {

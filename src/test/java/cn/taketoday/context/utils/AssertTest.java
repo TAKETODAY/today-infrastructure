@@ -19,18 +19,18 @@
  */
 package cn.taketoday.context.utils;
 
+import org.junit.Test;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.function.Supplier;
+
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-
-import java.util.Collection;
-import java.util.Map;
-import java.util.function.Supplier;
-
-import org.junit.Test;
 
 /**
  * Unit tests for the {@link Assert} class.

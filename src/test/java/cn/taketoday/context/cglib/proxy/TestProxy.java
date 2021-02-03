@@ -15,14 +15,15 @@
  */
 package cn.taketoday.context.cglib.proxy;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.context.cglib.CodeGenTestCase;
 import cn.taketoday.context.cglib.proxysample.ProxySampleInterface_ReturnsBasic;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * @author Chris Nokleberg

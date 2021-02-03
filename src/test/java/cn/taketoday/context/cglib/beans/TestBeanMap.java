@@ -15,7 +15,8 @@
  */
 package cn.taketoday.context.cglib.beans;
 
-import static org.junit.Assert.assertNotEquals;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -24,8 +25,8 @@ import cn.taketoday.context.cglib.proxy.Callback;
 import cn.taketoday.context.cglib.proxy.CallbackFilter;
 import cn.taketoday.context.cglib.proxy.Dispatcher;
 import cn.taketoday.context.cglib.proxy.Enhancer;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+
+import static org.junit.Assert.assertNotEquals;
 
 public class TestBeanMap extends cn.taketoday.context.cglib.CodeGenTestCase {
 

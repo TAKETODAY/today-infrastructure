@@ -15,14 +15,14 @@
  */
 package cn.taketoday.context.cglib.reflect;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 public class TestFastClass extends cn.taketoday.context.cglib.CodeGenTestCase {
     public static class Simple {}

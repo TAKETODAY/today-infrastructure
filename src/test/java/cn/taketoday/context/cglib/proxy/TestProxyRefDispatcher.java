@@ -15,11 +15,12 @@
  */
 package cn.taketoday.context.cglib.proxy;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import java.lang.reflect.Method;
 
 import cn.taketoday.context.cglib.CodeGenTestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * @author Chris Nokleberg, Bob Lee

@@ -19,19 +19,19 @@
  */
 package cn.taketoday.context.utils;
 
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.HashSet;
+import java.util.List;
+
+import cn.taketoday.context.Constant;
+
 import static cn.taketoday.context.utils.StringUtils.collectionToString;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-
-import java.util.HashSet;
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import cn.taketoday.context.Constant;
 
 /**
  * @author Today <br>

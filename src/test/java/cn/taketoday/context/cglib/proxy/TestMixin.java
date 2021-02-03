@@ -15,14 +15,15 @@
  */
 package cn.taketoday.context.cglib.proxy;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.util.HashSet;
 import java.util.Set;
 
 import cn.taketoday.context.cglib.CodeGenTestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * @author Chris Nokleberg

@@ -15,12 +15,13 @@
  */
 package cn.taketoday.context.cglib.beans;
 
-import java.beans.PropertyDescriptor;
-
-import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import java.beans.PropertyDescriptor;
+
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 
 /**
  * @author Juozas Baliuka, Chris Nokleberg

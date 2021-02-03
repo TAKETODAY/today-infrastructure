@@ -15,6 +15,9 @@
  */
 package cn.taketoday.context.cglib.util;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,8 +27,6 @@ import java.util.List;
 
 import cn.taketoday.context.cglib.CodeGenTestCase;
 import cn.taketoday.context.utils.ResourceUtils;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * @author Chris Nokleberg

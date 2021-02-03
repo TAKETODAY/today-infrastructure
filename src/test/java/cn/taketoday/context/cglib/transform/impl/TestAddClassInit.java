@@ -16,12 +16,13 @@
 
 package cn.taketoday.context.cglib.transform.impl;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import cn.taketoday.context.cglib.core.CodeGenerationException;
 import cn.taketoday.context.cglib.transform.AbstractTransformTest;
 import cn.taketoday.context.cglib.transform.ClassTransformer;
 import cn.taketoday.context.cglib.transform.ClassTransformerFactory;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  *

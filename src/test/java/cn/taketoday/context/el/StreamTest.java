@@ -40,19 +40,19 @@
 
 package cn.taketoday.context.el;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.ExpressionProcessor;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class StreamTest {
 

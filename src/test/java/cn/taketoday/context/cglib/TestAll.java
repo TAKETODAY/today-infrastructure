@@ -15,6 +15,10 @@
  */
 package cn.taketoday.context.cglib;
 
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import cn.taketoday.context.cglib.beans.TestBeanCopier;
 import cn.taketoday.context.cglib.beans.TestBeanGenerator;
 import cn.taketoday.context.cglib.beans.TestBeanMap;
@@ -39,9 +43,6 @@ import cn.taketoday.context.cglib.transform.impl.TestInterceptFields;
 import cn.taketoday.context.cglib.transform.impl.TestProvideFields;
 import cn.taketoday.context.cglib.transform.impl.TestTransformingLoader;
 import cn.taketoday.context.cglib.util.TestParallelSorter;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * @author Gerhard Froehlich <a href="mailto:g-froehlich@gmx.de">

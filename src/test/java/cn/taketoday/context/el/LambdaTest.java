@@ -40,13 +40,13 @@
 
 package cn.taketoday.context.el;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import cn.taketoday.expression.ExpressionProcessor;
+
+import static org.junit.Assert.assertEquals;
 
 public class LambdaTest {
 
