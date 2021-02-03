@@ -71,69 +71,6 @@ import static java.beans.Introspector.getBeanInfo;
 public abstract class ReflectionUtil {
 
   /**
-   * Converts an array of Class names to Class types
-   *
-   * @param s
-   *
-   * @return The array of Classes
-   *
-   * @throws ClassNotFoundException
-   */
-  @SuppressWarnings("rawtypes")
-  public static Class[] toTypeArray(String[] s) throws ClassNotFoundException {
-    if (s == null) return null;
-    Class[] c = new Class[s.length];
-    for (int i = 0; i < s.length; i++) {
-      c[i] = ClassUtils.forName(s[i]);
-    }
-    return c;
-  }
-
-  /**
-   * Converts an array of Class types to Class names
-   *
-   * @param c
-   *
-   * @return The array of Classes
-   */
-  @SuppressWarnings("rawtypes")
-  public static String[] toClassNameArray(Class[] c) {
-    if (c == null) return null;
-    String[] s = new String[c.length];
-    for (int i = 0; i < c.length; i++) {
-      s[i] = c[i].getName();
-    }
-    return s;
-  }
-
-  /**
-   * @param base
-   *         The base object
-   * @param property
-   *         The property
-   *
-   * @return The PropertyDescriptor for the base with the given property
-   *
-   * @throws ExpressionException
-   * @throws PropertyNotFoundException
-   */
-  public static PropertyDescriptor getPropertyDescriptor(final Object base, final Object property) throws ExpressionException {
-
-    String name = ExpressionUtils.coerceToString(property);
-    try {
-      for (PropertyDescriptor desc : getBeanInfo(base.getClass()).getPropertyDescriptors()) {
-        if (desc.getName().equals(name)) {
-          return desc;
-        }
-      }
-    }
-    catch (IntrospectionException ie) {
-      throw new ExpressionException(ie);
-    }
-    throw new PropertyNotFoundException("Property '" + name + "' not found on " + base + "");
-  }
-
-  /**
    * This method duplicates code in javax.el.ELUtil. When making changes keep the
    * code in sync.
    */
@@ -166,8 +103,8 @@ public abstract class ReflectionUtil {
   public static Constructor<?> findConstructor(Class<?> klass, Class<?>[] paramTypes, Object[] params) {
 
     if (klass == null) {
-      throw new MethodNotFoundException("Method not found: " + klass
-                                                + '.' + Constant.CONSTRUCTOR_NAME + '(' + paramString(paramTypes) + ')');
+      throw new MethodNotFoundException(
+              "Method not found: " + klass + '.' + Constant.CONSTRUCTOR_NAME + '(' + paramString(paramTypes) + ')');
     }
 
     if (paramTypes == null) {
@@ -583,7 +520,7 @@ public abstract class ReflectionUtil {
       return null;
     }
 
-    Class<?> result[] = new Class<?>[values.length];
+    Class<?>[] result = new Class<?>[values.length];
     for (int i = 0; i < values.length; i++) {
       if (values[i] == null) {
         result[i] = null;
@@ -651,9 +588,7 @@ public abstract class ReflectionUtil {
           return cp;
         }
       }
-      catch (NoSuchMethodException e) {
-        // Ignore
-      }
+      catch (NoSuchMethodException ignored) { }
     }
     return null;
   }

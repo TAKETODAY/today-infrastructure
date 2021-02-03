@@ -230,7 +230,7 @@ public class ArrayExpressionResolver extends ExpressionResolver {
   public void setValue(ExpressionContext context, Object base, Object property, Object val) {
 
     if (base != null) {
-      final Class<? extends Object> beanClass = base.getClass();
+      final Class<?> beanClass = base.getClass();
       if (beanClass.isArray()) {
         Objects.requireNonNull(context).setPropertyResolved(base, property);
         if (isReadOnly) {

@@ -17,16 +17,11 @@
 
 package cn.taketoday.expression;
 
-import java.lang.reflect.Field;
-import java.security.PrivilegedAction;
-import java.util.HashMap;
-
-import cn.taketoday.context.utils.ConcurrentCache;
-import cn.taketoday.context.utils.ReflectionUtils;
+import cn.taketoday.context.factory.BeanMetadata;
+import cn.taketoday.context.factory.BeanProperty;
 
 import static cn.taketoday.expression.util.ReflectionUtil.findMethod;
 import static cn.taketoday.expression.util.ReflectionUtil.invokeMethod;
-import static java.security.AccessController.doPrivileged;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -141,13 +136,13 @@ public class BeanExpressionResolver extends ExpressionResolver {
    *         cause property of this exception, if available.
    */
   public Class<?> getType(ExpressionContext context, Object base, Object property) {
-
     if (base == null || property == null) {
       return null;
     }
-    final Field field = getBeanProperty(base, property);
+
+    final BeanProperty beanProperty = getProperty(base, property);
     requireNonNull(context).setPropertyResolved(true);
-    return field.getType();
+    return beanProperty.getType();
   }
 
   /**
@@ -193,19 +188,14 @@ public class BeanExpressionResolver extends ExpressionResolver {
    *         cause property of this exception, if available.
    */
   public Object getValue(ExpressionContext context, Object base, Object property) {
-
     if (base == null || property == null) {
       return null;
     }
-
+    final BeanProperty beanProperty = getProperty(base, property);
     try {
-      final Field field = getBeanProperty(base, property);
-      final Object value = field.get(base);
+      final Object value = beanProperty.getValue(base);
       requireNonNull(context).setPropertyResolved(base, property);
       return value;
-    }
-    catch (ExpressionException e) {
-      throw e;
     }
     catch (Exception ex) {
       throw new ExpressionException(ex);
@@ -262,23 +252,17 @@ public class BeanExpressionResolver extends ExpressionResolver {
    *         cause property of this exception, if available.
    */
   public void setValue(ExpressionContext context, Object base, Object property, Object val) {
-
     if (base == null || property == null) {
       return;
     }
-
     if (isReadOnly) {
       throw new PropertyNotWritableException("The ELResolver for the class '" + base.getClass().getName() + "' is not writable.");
     }
 
+    final BeanProperty beanProperty = getProperty(base, property);
     try {
-
-      final Field field = getBeanProperty(base, property);
-      field.set(base, val);
+      beanProperty.setValue(base, val);
       requireNonNull(context).setPropertyResolved(base, property);
-    }
-    catch (ExpressionException e) {
-      throw e;
     }
     catch (Exception ex) {
       final StringBuilder message = new StringBuilder("Can't set property '")//
@@ -432,53 +416,13 @@ public class BeanExpressionResolver extends ExpressionResolver {
     return isReadOnly;
   }
 
-  private Field getBeanProperty(Object base, Object prop) throws PropertyNotFoundException {
-
-    final Class<?> baseClass = base.getClass();
-    BeanProperties bps = cache.get(baseClass);
-
-    if (bps == null) {
-      cache.put(baseClass, bps = new BeanProperties(baseClass));
-    }
-
-    final Field field = bps.getBeanProperty(prop.toString());
-    if (field == null) {
-      throw new PropertyNotFoundException("The class '" + baseClass.getName() //
+  private BeanProperty getProperty(Object base, Object prop) throws PropertyNotFoundException {
+    final BeanProperty beanProperty = BeanMetadata.ofObject(base).getBeanProperty(prop.toString());
+    if (beanProperty == null) {
+      throw new PropertyNotFoundException("The class '" + base.getClass().getName() //
                                                   + "' does not have the property '" + prop + "'.");
     }
-    return field;
-  }
-
-  /**
-   * Defines the properties for a bean.
-   */
-  private final static class BeanProperties {
-
-    private final HashMap<String, Field> propertyMap = new HashMap<>();
-
-    public BeanProperties(Class<?> baseClass) {
-      for (final Field field : ReflectionUtils.getFields(baseClass)) {
-        // parent class will replace same field
-        propertyMap.put(ReflectionUtils.makeAccessible(field).getName(), field);
-      }
-    }
-
-    public final Field getBeanProperty(final String property) {
-      return propertyMap.get(property);
-    }
-  }
-
-  private static final ConcurrentCache<Class<?>, BeanProperties> cache;
-  private static final String CACHE_SIZE_PROP = "expression.cache.size";
-
-  static {
-
-    String cacheSizeStr = //
-            System.getSecurityManager() == null
-            ? System.getProperty(CACHE_SIZE_PROP, "1024")
-            : doPrivileged((PrivilegedAction<String>) () -> System.getProperty(CACHE_SIZE_PROP, "1024"));
-
-    cache = new ConcurrentCache<>(Integer.parseInt(cacheSizeStr));
+    return beanProperty;
   }
 
 }

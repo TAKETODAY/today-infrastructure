@@ -33,7 +33,7 @@ public class LocalBeanNameResolver extends BeanNameResolver {
   private final Map<String, Object> beans;
 
   public LocalBeanNameResolver() {
-    this(new HashMap<String, Object>(8, 1.0f));
+    this(new HashMap<>());
   }
 
   public LocalBeanNameResolver(Map<String, Object> beans) {

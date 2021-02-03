@@ -55,10 +55,10 @@ import static cn.taketoday.context.Constant.BLANK;
  */
 public abstract class ExpressionArithmetic extends ExpressionUtils {
 
-  public final static LongDelegate LONG = new LongDelegate();
-  public final static DoubleDelegate DOUBLE = new DoubleDelegate();
-  public final static BigDecimalDelegate BIGDECIMAL = new BigDecimalDelegate();
-  public final static BigIntegerDelegate BIGINTEGER = new BigIntegerDelegate();
+  public static final LongDelegate LONG = new LongDelegate();
+  public static final DoubleDelegate DOUBLE = new DoubleDelegate();
+  public static final BigDecimalDelegate BIGDECIMAL = new BigDecimalDelegate();
+  public static final BigIntegerDelegate BIGINTEGER = new BigIntegerDelegate();
 
   private static final ExpressionArithmetic[] EXPRESSION_ARITHMETICS = new ExpressionArithmetic[] { //
           BIGDECIMAL, DOUBLE, BIGINTEGER
@@ -224,7 +224,7 @@ public abstract class ExpressionArithmetic extends ExpressionUtils {
     }
   }
 
-  public final static class LongDelegate extends ExpressionArithmetic {
+  public static final class LongDelegate extends ExpressionArithmetic {
     @Override
     protected Number add(Number num0, Number num1) {
       return num0.longValue() + num1.longValue();
