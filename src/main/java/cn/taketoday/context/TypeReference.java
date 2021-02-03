@@ -42,12 +42,13 @@ public abstract class TypeReference<T> {
   }
 
   Type getTypeParameter(Class<?> clazz) {
-    final Type[] genericityClass = ClassUtils.getGenericityClass(clazz);
-    if (ObjectUtils.isNotEmpty(genericityClass)) {
-      return genericityClass[0];
+    final Type[] generics = ClassUtils.getGenericityClass(clazz);
+    if (ObjectUtils.isNotEmpty(generics)) {
+      return generics[0];
     }
-    throw new ContextException("'" + getClass() + "' extends TypeReference but misses the type parameter. "
-                                       + "Remove the extension or add a type parameter to it.");
+    throw new ContextException(
+            "'" + getClass() + "' extends TypeReference but misses the type parameter. "
+                    + "Remove the extension or add a type parameter to it.");
   }
 
   @Override
