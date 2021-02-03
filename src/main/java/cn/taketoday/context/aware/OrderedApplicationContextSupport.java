@@ -28,7 +28,7 @@ import cn.taketoday.context.Ordered;
 public class OrderedApplicationContextSupport
         extends ApplicationContextSupport implements Ordered {
 
-  private int order;
+  private Integer order;
 
   public OrderedApplicationContextSupport() {
     this(LOWEST_PRECEDENCE);
@@ -40,7 +40,7 @@ public class OrderedApplicationContextSupport
 
   @Override
   public int getOrder() {
-    return order;
+    return order == null ? LOWEST_PRECEDENCE : order;
   }
 
   public void setOrder(int order) {
