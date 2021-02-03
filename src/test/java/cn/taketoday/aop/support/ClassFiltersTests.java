@@ -23,8 +23,8 @@ package cn.taketoday.aop.support;
 import org.junit.Test;
 
 import cn.taketoday.aop.ClassFilter;
-import cn.taketoday.aop.proxy.AopProxyUtilsTests;
-import cn.taketoday.aop.proxy.AopProxyUtilsTests.TestBean;
+import cn.taketoday.aop.ITestBean;
+import cn.taketoday.aop.TestBean;
 import cn.taketoday.context.NestedRuntimeException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,9 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ClassFiltersTests {
 
   private final ClassFilter exceptionFilter = new RootClassFilter(Exception.class);
-
-  private final ClassFilter interfaceFilter = new RootClassFilter(AopProxyUtilsTests.ITestBean.class);
-
+  private final ClassFilter interfaceFilter = new RootClassFilter(ITestBean.class);
   private final ClassFilter hasRootCauseFilter = new RootClassFilter(NestedRuntimeException.class);
 
   @Test
@@ -45,7 +43,7 @@ public class ClassFiltersTests {
     assertThat(exceptionFilter.matches(RuntimeException.class)).isTrue();
     assertThat(exceptionFilter.matches(TestBean.class)).isFalse();
     assertThat(interfaceFilter.matches(Exception.class)).isFalse();
-    assertThat(interfaceFilter.matches(AopProxyUtilsTests.TestBean.class)).isTrue();
+    assertThat(interfaceFilter.matches(TestBean.class)).isTrue();
     ClassFilter union = ClassFilters.union(exceptionFilter, interfaceFilter);
     assertThat(union.matches(RuntimeException.class)).isTrue();
     assertThat(union.matches(TestBean.class)).isTrue();

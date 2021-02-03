@@ -30,7 +30,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import ch.qos.logback.classic.Logger;
 import cn.taketoday.aop.annotation.AfterReturning;
 import cn.taketoday.aop.annotation.AfterThrowing;
 import cn.taketoday.aop.annotation.Around;
@@ -51,7 +50,6 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.factory.StandardBeanFactory;
-import cn.taketoday.context.logger.LoggerFactory;
 import lombok.extern.slf4j.Slf4j;
 
 import static org.junit.Assert.assertEquals;

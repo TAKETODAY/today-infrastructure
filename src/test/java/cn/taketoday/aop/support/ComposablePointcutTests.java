@@ -27,8 +27,7 @@ import java.lang.reflect.Method;
 import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.MethodMatcher;
 import cn.taketoday.aop.Pointcut;
-import cn.taketoday.aop.proxy.AopProxyUtilsTests;
-import cn.taketoday.aop.proxy.AopProxyUtilsTests.TestBean;
+import cn.taketoday.aop.TestBean;
 import cn.taketoday.context.NestedRuntimeException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -121,7 +120,7 @@ public class ComposablePointcutTests {
   @Test
   public void testIntersectionMethodMatcher() {
     ComposablePointcut pc = new ComposablePointcut();
-    assertThat(pc.getMethodMatcher().matches(PointcutsTests.TEST_BEAN_ABSQUATULATE, AopProxyUtilsTests.TestBean.class)).isTrue();
+    assertThat(pc.getMethodMatcher().matches(PointcutsTests.TEST_BEAN_ABSQUATULATE, TestBean.class)).isTrue();
     assertThat(pc.getMethodMatcher().matches(PointcutsTests.TEST_BEAN_GET_AGE, TestBean.class)).isTrue();
     assertThat(pc.getMethodMatcher().matches(PointcutsTests.TEST_BEAN_GET_NAME, TestBean.class)).isTrue();
     pc.intersection(GETTER_METHOD_MATCHER);

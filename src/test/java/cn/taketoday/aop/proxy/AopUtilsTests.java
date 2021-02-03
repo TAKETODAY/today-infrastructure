@@ -30,12 +30,14 @@ import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.MethodMatcher;
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.SerializationTestUtils;
+import cn.taketoday.aop.TestBean;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.ExposeInvocationInterceptor;
 import cn.taketoday.aop.support.Pointcuts;
 import cn.taketoday.aop.support.StaticMethodMatcherPointcut;
 import cn.taketoday.aop.target.EmptyTargetSource;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -60,7 +62,7 @@ public class AopUtilsTests {
   @Test
   public void testPointcutAlwaysApplies() {
     assertThat(AopUtils.canApply(new DefaultPointcutAdvisor(new NopInterceptor()), Object.class)).isTrue();
-    assertThat(AopUtils.canApply(new DefaultPointcutAdvisor(new NopInterceptor()), AopProxyUtilsTests.TestBean.class)).isTrue();
+    assertThat(AopUtils.canApply(new DefaultPointcutAdvisor(new NopInterceptor()), TestBean.class)).isTrue();
   }
 
   @Test

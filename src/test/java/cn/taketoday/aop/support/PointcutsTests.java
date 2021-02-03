@@ -26,8 +26,7 @@ import java.lang.reflect.Method;
 
 import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.Pointcut;
-import cn.taketoday.aop.proxy.AopProxyUtilsTests;
-import cn.taketoday.aop.proxy.AopProxyUtilsTests.TestBean;
+import cn.taketoday.aop.TestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,7 +58,7 @@ public class PointcutsTests {
   public static Pointcut allTestBeanMethodsPointcut = new StaticMethodMatcherPointcut() {
     @Override
     public ClassFilter getClassFilter() {
-      return type -> type.equals(AopProxyUtilsTests.TestBean.class);
+      return type -> type.equals(TestBean.class);
     }
 
     @Override
@@ -71,7 +70,7 @@ public class PointcutsTests {
   public static Pointcut allClassSetterPointcut = Pointcuts.SETTERS;
 
   // Subclass used for matching
-  public static class MyTestBean extends AopProxyUtilsTests.TestBean {
+  public static class MyTestBean extends TestBean {
   }
 
   public static Pointcut myTestBeanSetterPointcut = new StaticMethodMatcherPointcut() {
@@ -124,7 +123,7 @@ public class PointcutsTests {
 
   @Test
   public void testTrue() {
-    assertThat(Pointcuts.matches(Pointcut.TRUE, TEST_BEAN_SET_AGE, AopProxyUtilsTests.TestBean.class, 6)).isTrue();
+    assertThat(Pointcuts.matches(Pointcut.TRUE, TEST_BEAN_SET_AGE, TestBean.class, 6)).isTrue();
     assertThat(Pointcuts.matches(Pointcut.TRUE, TEST_BEAN_GET_AGE, TestBean.class)).isTrue();
     assertThat(Pointcuts.matches(Pointcut.TRUE, TEST_BEAN_ABSQUATULATE, TestBean.class)).isTrue();
     assertThat(Pointcuts.matches(Pointcut.TRUE, TEST_BEAN_SET_AGE, TestBean.class, 6)).isTrue();

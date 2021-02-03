@@ -27,6 +27,9 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.List;
 
+import cn.taketoday.aop.ITestBean;
+import cn.taketoday.aop.TestBean;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
@@ -131,37 +134,7 @@ public class AopProxyUtilsTests {
     assertThatIllegalArgumentException().isThrownBy(() -> AopProxyUtils.proxiedUserInterfaces(proxy));
   }
 
-  public static class TestBean implements ITestBean {
-    private int age;
-    private String name;
 
-    public int absquatulate(){
-      return 0;
-    }
-    public int getAge() {
-      return age;
-    }
 
-    public void setAge(int age) {
-      this.age = age;
-    }
 
-    @Override
-    public String getName() {
-      return name;
-    }
-
-    @Override
-    public void setName(String name) {
-      this.name = name;
-    }
-  }
-
-  public interface ITestBean {
-
-    String getName();
-
-    void setName(String name);
-
-  }
 }
