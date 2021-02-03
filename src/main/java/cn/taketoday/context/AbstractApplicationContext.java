@@ -716,7 +716,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   @Override
-  public List<Object> getAnnotatedBeans(Class<? extends Annotation> annotationType) {
+  public <T> List<T> getAnnotatedBeans(Class<? extends Annotation> annotationType) {
     return getBeanFactory().getAnnotatedBeans(annotationType);
   }
 

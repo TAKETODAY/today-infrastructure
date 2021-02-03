@@ -295,8 +295,9 @@ public interface BeanFactory {
    * @see #getAnnotationOnBean
    * @since 3.0
    */
-  default List<Object> getAnnotatedBeans(Class<? extends Annotation> annotationType) throws BeansException {
-    return new ArrayList<>(getBeansOfAnnotation(annotationType).values());
+  @SuppressWarnings("unchecked")
+  default <T> List<T> getAnnotatedBeans(Class<? extends Annotation> annotationType) throws BeansException {
+    return (List<T>) new ArrayList<>(getBeansOfAnnotation(annotationType).values());
   }
 
   /**
