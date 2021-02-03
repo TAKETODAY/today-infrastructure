@@ -263,6 +263,7 @@ public class AopTest {
       final DefaultAutoProxyCreator autoProxyCreator = new DefaultAutoProxyCreator();
       context.addBeanPostProcessor(autoProxyCreator);
       autoProxyCreator.setBeanFactory(beanFactory);
+      autoProxyCreator.setFrozen(true);
 
       beanFactory.importBeans(LoggingConfig.class, PrinterBean.class);
 
@@ -271,6 +272,7 @@ public class AopTest {
       System.out.println(pointcutAdvisor);
 
       bean.print();
+      System.out.println(bean);
 
     }
   }
