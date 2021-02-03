@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 import cn.taketoday.aop.Advisor;
+import cn.taketoday.aop.AopInvocationException;
 import cn.taketoday.aop.PointcutAdvisor;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.intercept.DefaultMethodInvocation;
@@ -599,7 +600,7 @@ public class CglibAopProxy implements AopProxy, Serializable {
         target = targetSource.getTarget();
         Class<?> targetClass = (target != null ? target.getClass() : null);
         org.aopalliance.intercept.MethodInterceptor[] chain = advised.getInterceptors(method, targetClass);
-
+        final Object retVal;
         // Check whether we only have one InvokerInterceptor: that is,
         // no real advice, but just reflective invocation of the target.
         if (ObjectUtils.isEmpty(chain) && Modifier.isPublic(method.getModifiers())) {
@@ -608,10 +609,20 @@ public class CglibAopProxy implements AopProxy, Serializable {
           // it does nothing but a reflective operation on the target, and no hot
           // swapping or fancy proxying.
           Object[] argsToUse = ClassUtils.adaptArgumentsIfNecessary(method, args);
-          return methodProxy.invoke(target, argsToUse);
+          retVal = methodProxy.invoke(target, argsToUse);
         }
-        // We need to create a method invocation...
-        return new CglibMethodInvocation(target, method, methodProxy, args, chain).proceed();
+        else {
+          // We need to create a method invocation...
+          retVal = new CglibMethodInvocation(target, method, methodProxy, args, chain).proceed();
+        }
+        // Massage return value if necessary.
+        Class<?> returnType = method.getReturnType();
+
+        if (retVal == null && returnType != Void.TYPE && returnType.isPrimitive()) {
+          throw new AopInvocationException(
+                  "Null return value from advice does not match primitive return type for: " + method);
+        }
+        return retVal;
       }
       finally {
         if (target != null && !targetSource.isStatic()) {

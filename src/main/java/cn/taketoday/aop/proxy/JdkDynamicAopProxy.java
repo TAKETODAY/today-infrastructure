@@ -164,7 +164,8 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
     Object oldProxy = null;
     boolean setProxyContext = false;
 
-    TargetSource targetSource = this.advised.targetSource;
+    final AdvisedSupport advised = this.advised;
+    TargetSource targetSource = advised.targetSource;
     Object target = null;
 
     try {
@@ -176,15 +177,13 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
         // The target does not implement the hashCode() method itself.
         return hashCode();
       }
-      else if (!this.advised.opaque && method.getDeclaringClass().isInterface() &&
+      else if (!advised.opaque && method.getDeclaringClass().isInterface() &&
               method.getDeclaringClass().isAssignableFrom(Advised.class)) {
         // Service invocations on ProxyConfig with the proxy config...
-        return AopUtils.invokeJoinpointUsingReflection(this.advised, method, args);
+        return AopUtils.invokeJoinpointUsingReflection(advised, method, args);
       }
 
-      Object retVal;
-
-      if (this.advised.exposeProxy) {
+      if (advised.exposeProxy) {
         // Make invocation available if necessary.
         oldProxy = AopContext.setCurrentProxy(proxy);
         setProxyContext = true;
@@ -196,8 +195,9 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
       Class<?> targetClass = (target != null ? target.getClass() : null);
 
       // Get the interception chain for this method.
-      MethodInterceptor[] chain = this.advised.getInterceptors(method, targetClass);
+      MethodInterceptor[] chain = advised.getInterceptors(method, targetClass);
 
+      Object retVal;
       // Check whether we have any advice. If we don't, we can fallback on direct
       // reflective invocation of the target, and avoid creating a MethodInvocation.
       if (ObjectUtils.isEmpty(chain)) {
