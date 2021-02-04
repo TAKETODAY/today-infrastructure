@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ import cn.taketoday.aop.annotation.Before;
 import cn.taketoday.aop.annotation.JoinPoint;
 import cn.taketoday.aop.annotation.Throwing;
 import cn.taketoday.aop.listener.AspectsDestroyListener;
+import cn.taketoday.aop.proxy.Advised;
 import cn.taketoday.aop.proxy.AutoProxyCreator;
 import cn.taketoday.aop.proxy.DefaultAutoProxyCreator;
 import cn.taketoday.aop.proxy.StandardProxyCreator.StandardProxyGenerator;
@@ -49,7 +51,10 @@ import cn.taketoday.context.AttributeAccessor;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.cglib.beans.BeanMap;
+import cn.taketoday.context.cglib.core.DebuggingClassWriter;
 import cn.taketoday.context.factory.StandardBeanFactory;
+import cn.taketoday.context.utils.ReflectionUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import static org.junit.Assert.assertEquals;
@@ -264,6 +269,7 @@ public class AopTest {
       autoProxyCreator.setFrozen(true);
 
       beanFactory.importBeans(LoggingConfig.class, PrinterBean.class);
+//      DebuggingClassWriter.setDebugLocation("D:\\dev\\temp\\debug");
 
       final PrinterBean bean = beanFactory.getBean(PrinterBean.class);
       final DefaultPointcutAdvisor pointcutAdvisor = beanFactory.getBean(DefaultPointcutAdvisor.class);
@@ -271,6 +277,10 @@ public class AopTest {
 
       bean.print();
       System.out.println(bean);
+
+      Advised advised = (Advised) bean;
+
+      System.out.println(Arrays.toString(advised.getAdvisors()));
 
     }
   }

@@ -88,7 +88,7 @@ class MethodInterceptorGenerator implements CallbackGenerator {
   private static final Signature FIND_PROXY = new Signature(FIND_PROXY_NAME, METHOD_PROXY, array(Constant.TYPE_SIGNATURE));
   private static final Signature TO_STRING = TypeUtils.parseSignature("String toString()");
 
-  private static final Transformer<MethodInfo, ClassInfo> METHOD_TO_CLASS = v -> v.getClassInfo();
+  private static final Transformer<MethodInfo, ClassInfo> METHOD_TO_CLASS = MethodInfo::getClassInfo;
 
   private String getMethodField(Signature impl) {
     return impl.getName() + "$Method";

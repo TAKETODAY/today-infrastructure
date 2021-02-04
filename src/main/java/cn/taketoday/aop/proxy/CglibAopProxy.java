@@ -429,7 +429,6 @@ public class CglibAopProxy implements AopProxy, Serializable {
     }
 
     @Override
-
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
       Object target = this.targetSource.getTarget();
       try {
