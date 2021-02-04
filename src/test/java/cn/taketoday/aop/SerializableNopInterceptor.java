@@ -20,13 +20,33 @@
 
 package cn.taketoday.aop;
 
-public interface ITestBean extends IOther {
+import java.io.Serializable;
 
-  String getName();
+/**
+ * Subclass of NopInterceptor that is serializable and
+ * can be used to test proxy serialization.
+ *
+ * @author Rod Johnson
+ * @author TODAY 2021/2/4 11:57
+ */
+@SuppressWarnings("serial")
+public class SerializableNopInterceptor extends NopInterceptor implements Serializable {
 
-  void setName(String name);
+  /**
+   * We must override this field and the related methods as
+   * otherwise count won't be serialized from the non-serializable
+   * NopInterceptor superclass.
+   */
+  private int count;
 
-  int getAge();
+  @Override
+  public int getCount() {
+    return this.count;
+  }
 
-  void setAge(int age);
+  @Override
+  protected void increment() {
+    ++count;
+  }
+
 }

@@ -20,13 +20,8 @@
 
 package cn.taketoday.aop;
 
-public interface ITestBean extends IOther {
+public interface IOther {
 
-  String getName();
+	void absquatulate();
 
-  void setName(String name);
-
-  int getAge();
-
-  void setAge(int age);
 }

@@ -20,29 +20,47 @@
 
 package cn.taketoday.aop;
 
-public class TestBean implements ITestBean {
-  private int age;
-  private String name;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 
-  public void absquatulate() {
+/**
+ * Trivial interceptor that can be introduced in a chain to display it.
+ *
+ * @author Rod Johnson
+ * @author TODAY 2021/2/4 11:56
+ */
+public class NopInterceptor implements MethodInterceptor {
 
+  private int count;
+
+  @Override
+  public Object invoke(MethodInvocation invocation) throws Throwable {
+    increment();
+    return invocation.proceed();
   }
 
-  public int getAge() {
-    return age;
+  protected void increment() {
+    this.count++;
   }
 
-  public void setAge(int age) {
-    this.age = age;
+  public int getCount() {
+    return this.count;
   }
 
   @Override
-  public String getName() {
-    return name;
+  public boolean equals(Object other) {
+    if (!(other instanceof NopInterceptor)) {
+      return false;
+    }
+    if (this == other) {
+      return true;
+    }
+    return this.count == ((NopInterceptor) other).count;
   }
 
   @Override
-  public void setName(String name) {
-    this.name = name;
+  public int hashCode() {
+    return NopInterceptor.class.hashCode();
   }
+
 }
