@@ -47,7 +47,12 @@ public class NumberConverter implements Converter<Object, Number>, TypeCapable {
       return convertNumber((Number) source);
     }
     else if (source instanceof String) {
-      return convertString((String) source);
+      try {
+        return convertString((String) source);
+      }
+      catch (NumberFormatException e) {
+        throw new ConversionException("Can't convert a string: '" + source + "' to a number", e);
+      }
     }
     return convertObject(source);
   }
