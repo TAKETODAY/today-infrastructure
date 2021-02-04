@@ -23,28 +23,29 @@ package cn.taketoday.aop.support;
 import java.lang.reflect.Method;
 
 import cn.taketoday.aop.MethodMatcher;
-import cn.taketoday.context.OrderedSupport;
 
 /**
- * Convenient abstract superclass for static method matchers, which don't care
- * about arguments at runtime.
+ * Convenient abstract superclass for dynamic method matchers,
+ * which do care about arguments at runtime.
  *
  * @author Rod Johnson
- * @author TODAY 2021/2/1 18:33
+ * @author TODAY 2021/2/4 11:48
  * @since 3.0
  */
-public abstract class StaticMethodMatcher
-        extends OrderedSupport implements MethodMatcher {
+public abstract class DynamicMethodMatcher implements MethodMatcher {
 
   @Override
   public final boolean isRuntime() {
-    return false;
+    return true;
   }
 
+  /**
+   * Can override to add preconditions for dynamic matching. This implementation
+   * always returns true.
+   */
   @Override
-  public final boolean matches(Method method, Class<?> targetClass, Object[] args) {
-    // should never be invoked because isRuntime() returns false
-    throw new UnsupportedOperationException("Illegal MethodMatcher usage");
+  public boolean matches(Method method, Class<?> targetClass) {
+    return true;
   }
 
 }

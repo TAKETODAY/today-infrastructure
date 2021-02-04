@@ -20,31 +20,30 @@
 
 package cn.taketoday.aop.support;
 
-import java.lang.reflect.Method;
-
+import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.MethodMatcher;
-import cn.taketoday.context.OrderedSupport;
+import cn.taketoday.aop.Pointcut;
 
 /**
- * Convenient abstract superclass for static method matchers, which don't care
- * about arguments at runtime.
+ * Convenient superclass when we want to force subclasses to
+ * implement MethodMatcher interface, but subclasses
+ * will want to be pointcuts. The getClassFilter() method can
+ * be overridden to customize ClassFilter behaviour as well.
  *
  * @author Rod Johnson
- * @author TODAY 2021/2/1 18:33
+ * @author TODAY 2021/2/4 12:25
  * @since 3.0
  */
-public abstract class StaticMethodMatcher
-        extends OrderedSupport implements MethodMatcher {
+public abstract class DynamicMethodMatcherPointcut extends DynamicMethodMatcher implements Pointcut {
 
   @Override
-  public final boolean isRuntime() {
-    return false;
+  public ClassFilter getClassFilter() {
+    return ClassFilter.TRUE;
   }
 
   @Override
-  public final boolean matches(Method method, Class<?> targetClass, Object[] args) {
-    // should never be invoked because isRuntime() returns false
-    throw new UnsupportedOperationException("Illegal MethodMatcher usage");
+  public final MethodMatcher getMethodMatcher() {
+    return this;
   }
 
 }
