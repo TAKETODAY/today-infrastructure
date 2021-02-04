@@ -1088,4 +1088,152 @@ else */
         return (char) rand;
     }
   }
+  // 3.0
+
+  /**
+   * Check whether the given {@code CharSequence} contains any whitespace characters.
+   *
+   * @param str
+   *         the {@code CharSequence} to check (may be {@code null})
+   *
+   * @return {@code true} if the {@code CharSequence} is not empty and
+   * contains at least 1 whitespace character
+   *
+   * @see Character#isWhitespace
+   * @since 3.0
+   */
+  public static boolean containsWhitespace(CharSequence str) {
+    if (isEmpty(str)) {
+      return false;
+    }
+
+    int strLen = str.length();
+    for (int i = 0; i < strLen; i++) {
+      if (Character.isWhitespace(str.charAt(i))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Check whether the given {@code String} contains any whitespace characters.
+   *
+   * @param str
+   *         the {@code String} to check (may be {@code null})
+   *
+   * @return {@code true} if the {@code String} is not empty and
+   * contains at least 1 whitespace character
+   *
+   * @see #containsWhitespace(CharSequence)
+   * @since 3.0
+   */
+  public static boolean containsWhitespace(String str) {
+    return containsWhitespace((CharSequence) str);
+  }
+
+  /**
+   * Trim leading and trailing whitespace from the given {@code String}.
+   *
+   * @param str
+   *         the {@code String} to check
+   *
+   * @return the trimmed {@code String}
+   *
+   * @see java.lang.Character#isWhitespace
+   * @since 3.0
+   */
+  public static String trimWhitespace(String str) {
+    if (isEmpty(str)) {
+      return str;
+    }
+
+    int beginIndex = 0;
+    int endIndex = str.length() - 1;
+
+    while (beginIndex <= endIndex && Character.isWhitespace(str.charAt(beginIndex))) {
+      beginIndex++;
+    }
+
+    while (endIndex > beginIndex && Character.isWhitespace(str.charAt(endIndex))) {
+      endIndex--;
+    }
+
+    return str.substring(beginIndex, endIndex + 1);
+  }
+
+  /**
+   * Trim <i>all</i> whitespace from the given {@code String}:
+   * leading, trailing, and in between characters.
+   *
+   * @param str
+   *         the {@code String} to check
+   *
+   * @return the trimmed {@code String}
+   *
+   * @see java.lang.Character#isWhitespace
+   * @since 3.0
+   */
+  public static String trimAllWhitespace(String str) {
+    if (isEmpty(str)) {
+      return str;
+    }
+
+    int len = str.length();
+    StringBuilder sb = new StringBuilder(str.length());
+    for (int i = 0; i < len; i++) {
+      char c = str.charAt(i);
+      if (!Character.isWhitespace(c)) {
+        sb.append(c);
+      }
+    }
+    return sb.toString();
+  }
+
+  /**
+   * Trim leading whitespace from the given {@code String}.
+   *
+   * @param str
+   *         the {@code String} to check
+   *
+   * @return the trimmed {@code String}
+   *
+   * @see java.lang.Character#isWhitespace
+   * @since 3.0
+   */
+  public static String trimLeadingWhitespace(String str) {
+    if (isEmpty(str)) {
+      return str;
+    }
+
+    int beginIdx = 0;
+    while (beginIdx < str.length() && Character.isWhitespace(str.charAt(beginIdx))) {
+      beginIdx++;
+    }
+    return str.substring(beginIdx);
+  }
+
+  /**
+   * Trim trailing whitespace from the given {@code String}.
+   *
+   * @param str
+   *         the {@code String} to check
+   *
+   * @return the trimmed {@code String}
+   *
+   * @see java.lang.Character#isWhitespace
+   * @since 3.0
+   */
+  public static String trimTrailingWhitespace(String str) {
+    if (isEmpty(str)) {
+      return str;
+    }
+
+    int endIdx = str.length() - 1;
+    while (endIdx >= 0 && Character.isWhitespace(str.charAt(endIdx))) {
+      endIdx--;
+    }
+    return str.substring(0, endIdx + 1);
+  }
+
 }
