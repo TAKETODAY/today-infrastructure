@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.web.exception.WebRuntimeException;
+import cn.taketoday.web.exception.WebNestedRuntimeException;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**
@@ -28,7 +28,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * @author TODAY
  * @date 2021/1/17 10:05
  */
-public class MethodParameterException extends WebRuntimeException {
+public class MethodParameterException extends WebNestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
   private final MethodParameter parameter;

@@ -19,13 +19,13 @@
  */
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.web.exception.WebRuntimeException;
+import cn.taketoday.web.exception.WebNestedRuntimeException;
 
 /**
  * @author TODAY
  * @date 2021/1/17 10:41
  */
-public class MultipartFileParsingException extends WebRuntimeException {
+public class MultipartFileParsingException extends WebNestedRuntimeException {
   public MultipartFileParsingException() {
     super();
   }

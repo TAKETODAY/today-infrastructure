@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.context.OrderedSupport;
+import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.factory.BeanMetadata;
 import cn.taketoday.context.factory.BeanPropertyAccessor;
 import cn.taketoday.context.utils.ClassUtils;
@@ -56,8 +57,14 @@ public class BeanParameterResolver
     return true;
   }
 
-  @Override
-  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+  static class PropertyValue {
+    String name;
+    Object value;
+
+  }
+
+//  @Override
+  public Object resolveParameter0(final RequestContext context, final MethodParameter parameter) {
     final Class<?> parameterClass = parameter.getParameterClass();
 
     BeanMetadata metadata = BeanMetadata.ofClass(parameterClass);
@@ -76,7 +83,12 @@ public class BeanParameterResolver
               property = value[0];
             }
             final String propertyPath = entry.getKey();
-            BeanPropertyAccessor.setProperty(bean, metadata, propertyPath, property);
+            try {
+              BeanPropertyAccessor.setProperty(bean, metadata, propertyPath, property);
+            }
+            catch (NoSuchPropertyException ignored) {
+              ignored.printStackTrace();
+            }
           }
         }
       }
@@ -86,7 +98,7 @@ public class BeanParameterResolver
   }
 
   // @Override
-  public Object resolveParameter0(final RequestContext context, final MethodParameter parameter) throws Throwable {
+  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
     final Class<?> parameterClass = parameter.getParameterClass();
     final Object bean = ClassUtils.newInstance(parameterClass);
 
