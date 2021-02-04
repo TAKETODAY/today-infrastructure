@@ -311,13 +311,15 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
 
     AbstractClassGenerator save = CURRENT.get();
     CURRENT.set(this);
+    ClassLoader classLoader = data.getClassLoader();
+    if (classLoader == null) {
+      throw new IllegalStateException(
+              "ClassLoader is null while trying to define class " + getClassName()
+                      + ". It seems that the loader has been expired from a weak reference somehow. "
+                      + "Please file an issue at cglib's issue tracker.");
+    }
+
     try {
-      ClassLoader classLoader = data.getClassLoader();
-      if (classLoader == null) {
-        throw new IllegalStateException("ClassLoader is null while trying to define class " + getClassName()
-                                                + ". It seems that the loader has been expired from a weak reference somehow. "
-                                                + "Please file an issue at cglib's issue tracker.");
-      }
       synchronized (classLoader) {
         String name = generateClassName(data.getUniqueNamePredicate());
         data.reserveName(name);
@@ -327,14 +329,12 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
         try {
           return classLoader.loadClass(getClassName());
         }
-        catch (ClassNotFoundException e) {
-          // ignore
-        }
+        catch (ClassNotFoundException ignored) { }
       }
-      final byte[] b = getStrategy().generate(this);
-      String className = ClassUtils.getClassName(b);
+      final byte[] bytes = getStrategy().generate(this);
+      final String className = getClassName();
       synchronized (classLoader) { // just in case
-        return defineClass(className, b, classLoader, getProtectionDomain());
+        return defineClass(className, bytes, classLoader, getProtectionDomain());
       }
     }
     catch (RuntimeException | Error e) {
