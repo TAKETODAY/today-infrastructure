@@ -37,7 +37,7 @@ import cn.taketoday.aop.annotation.Attribute;
 import cn.taketoday.aop.annotation.JoinPoint;
 import cn.taketoday.aop.annotation.Returning;
 import cn.taketoday.aop.annotation.Throwing;
-import cn.taketoday.aop.intercept.StandardMethodInvocation;
+import cn.taketoday.aop.proxy.StandardMethodInvocation;
 import cn.taketoday.context.AttributeAccessor;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.OrderedSupport;

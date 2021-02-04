@@ -37,7 +37,6 @@ import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.AopInvocationException;
 import cn.taketoday.aop.PointcutAdvisor;
 import cn.taketoday.aop.TargetSource;
-import cn.taketoday.aop.intercept.DefaultMethodInvocation;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.context.cglib.core.CodeGenerationException;
 import cn.taketoday.context.cglib.proxy.Callback;

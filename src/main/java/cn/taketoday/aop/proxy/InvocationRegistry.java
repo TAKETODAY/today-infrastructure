@@ -23,7 +23,7 @@ package cn.taketoday.aop.proxy;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.aop.intercept.StandardMethodInvocation.Target;
+import cn.taketoday.aop.proxy.StandardMethodInvocation.Target;
 
 /**
  * @author TODAY

@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.aop.ProxyCreator;
-import cn.taketoday.aop.intercept.StandardMethodInvocation;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Type;
