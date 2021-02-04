@@ -336,6 +336,7 @@ public class StandardBeanFactory
       final BeanDefinition def = createBeanDefinition(bean);
       importBeans(def);
       register(def);
+      loadConfigurationBeans(def); // scan config bean
     }
   }
 
@@ -369,7 +370,6 @@ public class StandardBeanFactory
 
     BeanDefinition importDef = createBeanDefinition(importClass);
     register(importDef);
-    loadConfigurationBeans(def); // scan config bean
     loadConfigurationBeans(importDef); // scan config bean
     if (ImportSelector.class.isAssignableFrom(importClass)) {
       for (final String select : createImporter(importDef, ImportSelector.class).selectImports(def)) {
@@ -489,7 +489,7 @@ public class StandardBeanFactory
         final BeanDefinition existBeanDefinition = getBeanDefinition(name);
         Class<?> existClass = existBeanDefinition.getBeanClass();
         log.info("=====================|START|=====================");
-        log.info("There is already a bean called: [{}], its bean class: [{}].", name, existClass);
+        log.info("There is already a bean called: [{}], its bean Definition: [{}].", name, existBeanDefinition);
 
         if (beanClass.equals(existClass)) {
           log.warn("They have same bean class: [{}]. We will override it.", beanClass);
