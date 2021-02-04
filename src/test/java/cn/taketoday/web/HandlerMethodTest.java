@@ -24,14 +24,18 @@ import org.junit.Test;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.web.annotation.EnableViewController;
 import cn.taketoday.web.annotation.GET;
+import cn.taketoday.web.annotation.POST;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.handler.ViewController;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.utils.HttpUtils;
+import lombok.Data;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -93,6 +97,46 @@ public class HandlerMethodTest extends Base implements WebMvcConfiguration {
       assert true;
     }
     testViewController(context.getBean(ViewControllerHandlerRegistry.class));
+  }
+
+  //
+
+  @POST("/test-bean")
+  public UserForm testForm(UserForm user) {
+    return user;
+  }
+
+  @Data
+  static class UserForm {
+    int age;
+    String name;
+    String[] array;
+    List<String> listString;
+
+    Map<String, String> map;
+
+    Address address;
+  }
+
+  @Data
+  static class Address {
+    String place;
+  }
+
+  @Test
+  public void testForm() throws Exception {
+//    String params = "name=TODAY&age=23&listString%5B0%5D=list1&listString%5B1%5D=list2" +
+//            "&array=arr&array=aaa&map%5Bkey%5D=value" +
+//            "&address.place=address";
+
+//    String params = "name=TODAY&age=23&listString=list1&listString=list2";
+    String params = "name=TODAY&age=23&listString=list1"+
+            "&array=arr&array=aaa&map%5Bkey%5D=value" +
+            "&address.place=address";
+
+    final UserForm expected = HttpUtils.post("http://localhost:8080/test-bean", params, UserForm.class);
+
+    System.out.println(expected);
   }
 
 }

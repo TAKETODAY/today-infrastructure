@@ -19,31 +19,29 @@
  */
 package cn.taketoday.web.exception;
 
+import cn.taketoday.context.NestedRuntimeException;
+
 /**
  * @author TODAY <br>
  * 2019-06-03 10:27
  */
-public class WebRuntimeException extends RuntimeException {
+public class WebNestedRuntimeException extends NestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
-  public WebRuntimeException() {
+  public WebNestedRuntimeException() {
     super();
   }
 
-  public WebRuntimeException(String message) {
+  public WebNestedRuntimeException(String message) {
     super(message);
   }
 
-  public WebRuntimeException(Throwable cause) {
+  public WebNestedRuntimeException(Throwable cause) {
     super(cause);
   }
 
-  public WebRuntimeException(String message, Throwable cause) {
+  public WebNestedRuntimeException(String message, Throwable cause) {
     super(message, cause);
-  }
-
-  public WebRuntimeException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-    super(message, cause, enableSuppression, writableStackTrace);
   }
 
 }

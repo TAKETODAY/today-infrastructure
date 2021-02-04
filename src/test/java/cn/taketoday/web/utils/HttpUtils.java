@@ -47,16 +47,30 @@ public abstract class HttpUtils {
    *         url
    * @param body
    *         request body
-   *
-   * @return
-   *
-   * @throws IOException
    */
   public static HttpURLConnection getConnection(String method, String urlStr, byte[] body) throws IOException {
+    return getConnection(method, urlStr, Constant.CONTENT_TYPE_JSON, body);
+  }
+
+  /**
+   * get a connection with request body
+   *
+   * @param method
+   *         request method
+   * @param urlStr
+   *         url
+   * @param body
+   *         request body
+   */
+  public static HttpURLConnection getConnection(String method, String urlStr, String contentType, byte[] body) throws IOException {
     HttpURLConnection connection = getConnection(method, urlStr);
-    connection.setRequestProperty(Constant.CONTENT_TYPE, Constant.CONTENT_TYPE_JSON);
-    OutputStream outputStream = connection.getOutputStream();
-    outputStream.write(body);
+    if (contentType != null) {
+      connection.setRequestProperty(Constant.CONTENT_TYPE, contentType);
+    }
+    if (body != null) {
+      OutputStream outputStream = connection.getOutputStream();
+      outputStream.write(body);
+    }
     return connection;
   }
 
@@ -67,10 +81,6 @@ public abstract class HttpUtils {
    *         request method
    * @param urlStr
    *         url
-   *
-   * @return
-   *
-   * @throws IOException
    */
   public static HttpURLConnection getConnection(String method, String urlStr) throws IOException {
     URL url = new URL(urlStr);
@@ -176,25 +186,32 @@ public abstract class HttpUtils {
   // ---------------------------------
 
   public static String post(String urlStr) throws IOException {
-    return getResponse(getConnection("POST", urlStr));
+    return getResponse(getConnection("POST", urlStr, null, null));
   }
 
-  public static String post(String urlStr, byte[] body) throws IOException {
+  public static String post(String urlStr, String params) throws IOException {
+    return getResponse(getConnection("POST", urlStr, null, params.getBytes(DEFAULT_CHARSET)));
+  }
+
+  public static <T> T post(String urlStr, String params, Class<T> targetClass) throws IOException {
+    return JSON.parseObject(post(urlStr, params), targetClass);
+  }
+
+  public static String postJson(String urlStr, byte[] body) throws IOException {
     return getResponse(getConnection("POST", urlStr, body));
   }
 
-  public static String post(String urlStr, String body) throws IOException {
+  public static String postJson(String urlStr, String body) throws IOException {
     return getResponse(getConnection("POST", urlStr, body.getBytes(DEFAULT_CHARSET)));
   }
 
-  public static <T> T post(String urlStr, byte[] body, Class<T> targetClass) throws IOException {
-    return JSON.parseObject(getResponse("POST", urlStr, body), targetClass);
+  public static <T> T postJson(String urlStr, byte[] body, Class<T> targetClass) throws IOException {
+    return JSON.parseObject(postJson(urlStr, body), targetClass);
   }
 
-  public static <T> T post(String urlStr, String body, Class<T> targetClass) throws IOException {
-    return JSON.parseObject(getResponse("POST", urlStr, body), targetClass);
+  public static <T> T postJson(String urlStr, String body, Class<T> targetClass) throws IOException {
+    return JSON.parseObject(postJson(urlStr, body), targetClass);
   }
-
   // PUT
   // ---------------------------------
 

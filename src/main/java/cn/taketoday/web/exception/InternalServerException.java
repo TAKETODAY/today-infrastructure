@@ -29,7 +29,7 @@ import cn.taketoday.web.http.HttpStatus;
  * 2018-12-02 09:14
  */
 @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-public class InternalServerException extends WebRuntimeException {
+public class InternalServerException extends WebNestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
   public InternalServerException(Throwable cause) {

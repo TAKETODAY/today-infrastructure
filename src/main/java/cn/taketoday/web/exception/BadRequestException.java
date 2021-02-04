@@ -28,7 +28,7 @@ import cn.taketoday.web.http.HttpStatus;
  * 2018-10-30 16:51
  */
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class BadRequestException extends WebRuntimeException {
+public class BadRequestException extends WebNestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
   public BadRequestException() {

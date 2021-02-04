@@ -146,7 +146,7 @@ public class CorsConfiguration {
    * "X-Forwarded-Host", "X-Forwarded-Port", and "X-Forwarded-Proto" headers, if
    * present, in order to reflect the client-originated address. Consider using
    * the {@code ForwardedHeaderFilter} in order to choose from a central place
-   * whether to extract and use, or to discard such headers. See the Spring
+   * whether to extract and use, or to discard such headers. See the 
    * Framework reference for more on this filter.
    */
   public void setAllowedMethods(List<String> allowedMethods) {

@@ -28,7 +28,7 @@ import cn.taketoday.web.http.HttpStatus;
  *         2018-11-26 20:06
  */
 @ResponseStatus(HttpStatus.FORBIDDEN)
-public class AccessForbiddenException extends WebRuntimeException {
+public class AccessForbiddenException extends WebNestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
   public AccessForbiddenException(Throwable cause) {

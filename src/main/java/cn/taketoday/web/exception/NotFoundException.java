@@ -28,7 +28,7 @@ import cn.taketoday.web.http.HttpStatus;
  *         2018-11-26 20:04
  */
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class NotFoundException extends WebRuntimeException {
+public class NotFoundException extends WebNestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
   public NotFoundException(Throwable cause) {

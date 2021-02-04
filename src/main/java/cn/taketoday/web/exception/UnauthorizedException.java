@@ -28,7 +28,7 @@ import cn.taketoday.web.http.HttpStatus;
  * 2019-07-20 15:51
  */
 @ResponseStatus(HttpStatus.UNAUTHORIZED)
-public class UnauthorizedException extends WebRuntimeException {
+public class UnauthorizedException extends WebNestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
   public UnauthorizedException() {

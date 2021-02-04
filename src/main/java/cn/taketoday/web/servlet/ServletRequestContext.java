@@ -49,7 +49,7 @@ import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.AbstractRequestContext;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.exception.WebRuntimeException;
+import cn.taketoday.web.exception.WebNestedRuntimeException;
 import cn.taketoday.web.multipart.DefaultMultipartFile;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.resolver.MultipartFileParsingException;
@@ -484,7 +484,7 @@ public class ServletRequestContext
     if (key instanceof String) {
       return request.getAttribute((String) key);
     }
-    throw new WebRuntimeException("Attribute name must be a String");
+    throw new WebNestedRuntimeException("Attribute name must be a String");
   }
 
   @Override
@@ -499,7 +499,7 @@ public class ServletRequestContext
       removeAttribute((String) name);
       return null;
     }
-    throw new WebRuntimeException("Attribute name must be a String");
+    throw new WebNestedRuntimeException("Attribute name must be a String");
   }
 
   @Override

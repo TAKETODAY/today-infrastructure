@@ -28,7 +28,7 @@ import cn.taketoday.web.http.HttpStatus;
  *         2018-7-1 19:38:39
  */
 @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
-public class MethodNotAllowedException extends WebRuntimeException {
+public class MethodNotAllowedException extends WebNestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
   public MethodNotAllowedException(Throwable cause) {

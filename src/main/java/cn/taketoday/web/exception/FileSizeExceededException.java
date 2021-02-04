@@ -28,7 +28,7 @@ import cn.taketoday.web.http.HttpStatus;
  * 2018-07-10 21:42:16
  */
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class FileSizeExceededException extends WebRuntimeException {
+public class FileSizeExceededException extends WebNestedRuntimeException {
 
   private static final long serialVersionUID = 1L;
 

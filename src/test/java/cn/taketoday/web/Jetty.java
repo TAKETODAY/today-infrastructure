@@ -50,7 +50,7 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.exception.WebRuntimeException;
+import cn.taketoday.web.exception.WebNestedRuntimeException;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import cn.taketoday.web.servlet.WebServletApplicationLoader;
 import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
@@ -117,7 +117,7 @@ public class Jetty {
     catch (Throwable ex) {
       // Ensure process isn't left running
       stopSilently();
-      throw new WebRuntimeException("Unable to start embedded Jetty web server", ex);
+      throw new WebNestedRuntimeException("Unable to start embedded Jetty web server", ex);
     }
   }
 
@@ -176,7 +176,7 @@ public class Jetty {
     }
     catch (Exception ex) {
       stopSilently();
-      throw new WebRuntimeException("Unable to start embedded Jetty server", ex);
+      throw new WebNestedRuntimeException("Unable to start embedded Jetty server", ex);
     }
   }
 
@@ -208,7 +208,7 @@ public class Jetty {
       Thread.currentThread().interrupt();
     }
     catch (Exception ex) {
-      throw new WebRuntimeException("Unable to stop embedded Jetty server", ex);
+      throw new WebNestedRuntimeException("Unable to stop embedded Jetty server", ex);
     }
   }
 
