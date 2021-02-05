@@ -64,7 +64,7 @@ public class CorsConfiguration {
   /** Wildcard representing <em>all</em> origins, methods, or headers. */
   public static final String ALL = "*";
   private static final List<String> DEFAULT_METHODS = unmodifiableList(asList("GET", "HEAD"));
-  private static final List<String> DEFAULT_PERMIT_ALL = unmodifiableList(singletonList(ALL));
+  private static final List<String> DEFAULT_PERMIT_ALL = singletonList(ALL);
   private static final List<String> DEFAULT_PERMIT_METHODS = unmodifiableList(asList("GET", "HEAD", "POST"));
 
   private Long maxAge;

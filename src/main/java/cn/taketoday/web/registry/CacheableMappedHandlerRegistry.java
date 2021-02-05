@@ -26,8 +26,7 @@ import cn.taketoday.context.EmptyObject;
 /**
  * Cache MappedHandlerRegistry
  *
- * @author TODAY
- * @date 2020/12/11 23:32
+ * @author TODAY 2020/12/11 23:32
  * @since 3.0
  */
 public class CacheableMappedHandlerRegistry extends MappedHandlerRegistry {

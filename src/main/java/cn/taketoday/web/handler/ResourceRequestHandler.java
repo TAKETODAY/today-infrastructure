@@ -28,6 +28,7 @@ import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.exception.NotFoundException;
+import cn.taketoday.web.exception.ResourceNotFoundException;
 import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resource.CacheControl;
@@ -40,8 +41,7 @@ import static cn.taketoday.web.Constant.RESOURCE_MATCH_RESULT;
 import static cn.taketoday.web.utils.WebUtils.writeToOutputStream;
 
 /**
- * @author TODAY <br>
- *         2019-12-25 16:12
+ * @author TODAY 2019-12-25 16:12
  */
 public class ResourceRequestHandler extends InterceptableRequestHandler {
 
@@ -57,18 +57,27 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
   public Object handleRequest(final RequestContext context) throws Throwable {
     final Object ret = super.handleRequest(context);
     if (ret == null) {
-      throw new NotFoundException("Resource Not Found");
+      final ResourceMatchResult matchResult = getResourceMatchResult(context);
+      throw ResourceNotFoundException.notFound(matchResult);
     }
     else if (ret instanceof WebResource) {
       final WebResource resource = (WebResource) ret;
       if (resource.isDirectory()) {// TODO Directory listing
-        throw new NotFoundException("Resource Not Found");
+        throw ResourceNotFoundException.notFound();
       }
       else {
         handleResult(context, resource);
       }
     }
     return HandlerAdapter.NONE_RETURN_VALUE;
+  }
+
+  ResourceMatchResult getResourceMatchResult(RequestContext context) {
+    final Object attribute = context.attribute(RESOURCE_MATCH_RESULT);
+    if (attribute == null) {
+      throw new NotFoundException("Resource Not Found");
+    }
+    return (ResourceMatchResult) attribute;
   }
 
   @Override
@@ -85,11 +94,12 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
    * Handling resource result to client
    *
    * @param context
-   *            Current request context
+   *         Current request context
    * @param resource
-   *            {@link Resource}
+   *         {@link Resource}
+   *
    * @throws IOException
-   *             If an input or output exception occurs
+   *         If an input or output exception occurs
    */
   protected void handleResult(final RequestContext context, final WebResource resource) throws IOException {
     final String contentType = getContentType(resource);
@@ -141,9 +151,11 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
    * @param resource
    * @param mapping
    * @param contentType
+   *
    * @return whether gZip enable
+   *
    * @throws IOException
-   *             If any IO exception occurred
+   *         If any IO exception occurred
    */
   protected boolean isGZipEnabled(final WebResource resource,
                                   final ResourceMapping mapping,
@@ -164,11 +176,12 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
    * Write compressed {@link Resource} to the client
    *
    * @param resource
-   *            {@link Resource}
+   *         {@link Resource}
    * @param requestContext
-   *            Current request context
+   *         Current request context
+   *
    * @throws IOException
-   *             If any IO exception occurred
+   *         If any IO exception occurred
    */
   protected void writeCompressed(final Resource resource,
                                  final RequestContext requestContext, //
@@ -196,11 +209,12 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
    * Write compressed {@link Resource} to the client
    *
    * @param resource
-   *            {@link Resource}
+   *         {@link Resource}
    * @param context
-   *            Current request context
+   *         Current request context
+   *
    * @throws IOException
-   *             If any IO exception occurred
+   *         If any IO exception occurred
    */
   protected void write(final Resource resource,
                        final RequestContext context,
@@ -224,9 +238,10 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
    * Apply the Content-Type, Last-Modified, ETag, Cache-Control, Expires
    *
    * @param context
-   *            Current request context
+   *         Current request context
+   *
    * @throws IOException
-   *             If last modify read error
+   *         If last modify read error
    */
   protected void applyHeaders(final RequestContext context,
                               final long lastModified,
