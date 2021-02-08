@@ -26,6 +26,7 @@ import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import cn.taketoday.context.annotation.Property;
 import cn.taketoday.context.exception.NoSuchPropertyException;
@@ -208,6 +209,19 @@ public class BeanMetadata {
       }
     }
     return null;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof BeanMetadata)) return false;
+    final BeanMetadata that = (BeanMetadata) o;
+    return Objects.equals(beanClass, that.beanClass);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(beanClass);
   }
 
   /**

@@ -34,7 +34,7 @@ import cn.taketoday.context.Constant;
  * 2021/1/27 22:32
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.FIELD, ElementType.PARAMETER })
+@Target({ ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER })
 public @interface Property {
 
   /** Property name */
