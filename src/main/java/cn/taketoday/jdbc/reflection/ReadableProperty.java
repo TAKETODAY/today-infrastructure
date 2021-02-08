@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.context.reflect.GetterMethod;
+import cn.taketoday.context.utils.Mappings;
 import cn.taketoday.context.utils.ReflectionUtils;
-import cn.taketoday.jdbc.utils.AbstractCache;
 
 import static java.beans.Introspector.decapitalize;
 import static java.lang.reflect.Modifier.isPrivate;
@@ -36,10 +36,11 @@ public class ReadableProperty {
 
   // static
 
-  private static final AbstractCache<Class<?>, Map<String, ReadableProperty>, Void> rpCache = new AbstractCache<Class<?>, Map<String, ReadableProperty>, Void>() {
+  private static final Mappings<Map<String, ReadableProperty>, Void> rpCache
+          = new Mappings<Map<String, ReadableProperty>, Void>() {
     @Override
-    protected Map<String, ReadableProperty> evaluate(Class<?> key, Void param) {
-      return collectReadableProperties(key);
+    protected Map<String, ReadableProperty> createValue(Object key, Void param) {
+      return collectReadableProperties((Class<?>) key);
     }
   };
 
@@ -51,7 +52,7 @@ public class ReadableProperty {
   }
 
   public static Map<String, ReadableProperty> readableProperties(Class<?> ofClass) {
-    return rpCache.get(ofClass, null);
+    return rpCache.get(ofClass, (Void) null);
   }
 
   private static void collectReadableFields(Map<String, ReadableProperty> map, Class<?> cls) {

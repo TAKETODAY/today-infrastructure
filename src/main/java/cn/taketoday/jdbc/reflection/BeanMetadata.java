@@ -11,14 +11,15 @@ import java.util.Map;
 import cn.taketoday.context.reflect.ConstructorAccessor;
 import cn.taketoday.context.reflect.PropertyAccessor;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.Mappings;
 import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.jdbc.annotation.Column;
-import cn.taketoday.jdbc.utils.AbstractCache;
 import cn.taketoday.jdbc.utils.UnderscoreToCamelCase;
 
 /**
  * Stores metadata for a POJO.
+ *
  * @author TODAY
  */
 public class BeanMetadata {
@@ -157,9 +158,10 @@ public class BeanMetadata {
     return result;
   }
 
-  private static class Cache extends AbstractCache<Class<?>, Map<String, BeanProperty>, BeanMetadata> {
+  private static class Cache extends Mappings<Map<String, BeanProperty>, BeanMetadata> {
+
     @Override
-    protected Map<String, BeanProperty> evaluate(Class<?> key, BeanMetadata param) {
+    protected Map<String, BeanProperty> createValue(Object key, BeanMetadata param) {
       return param.getBeanProperties();
     }
   }

@@ -4,6 +4,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
+import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.Mappings;
 import cn.taketoday.jdbc.reflection.BeanMetadata;
 import cn.taketoday.jdbc.reflection.BeanProperty;
 import cn.taketoday.jdbc.reflection.Pojo;
@@ -11,10 +13,8 @@ import cn.taketoday.jdbc.result.JdbcPropertyAccessor;
 import cn.taketoday.jdbc.result.ObjectResultHandler;
 import cn.taketoday.jdbc.result.TypeHandlerPropertyAccessor;
 import cn.taketoday.jdbc.result.TypeHandlerResultSetHandler;
-import cn.taketoday.jdbc.type.SimpleTypeRegistry;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
-import cn.taketoday.jdbc.utils.AbstractCache;
 import cn.taketoday.jdbc.utils.JdbcUtils;
 
 public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactory<T> {
@@ -48,7 +48,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
      * Fallback to executeScalar if converter exists, we're selecting 1 column, and
      * no property setter exists for the column.
      */
-    final boolean useExecuteScalar = SimpleTypeRegistry.isSimpleType(metadata.getType()) && columnCount == 1;
+    final boolean useExecuteScalar = ClassUtils.isSimpleType(metadata.getType()) && columnCount == 1;
 
     if (useExecuteScalar) {
       final TypeHandler typeHandler = registry.getTypeHandler(metadata.getType());
@@ -143,12 +143,13 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
 
   }
 
-  static final AbstractCache<Key, ResultSetHandler, ResultSetMetaData> CACHE
-          = new AbstractCache<Key, ResultSetHandler, ResultSetMetaData>() {
+  static final Mappings<ResultSetHandler, ResultSetMetaData> CACHE
+          = new Mappings<ResultSetHandler, ResultSetMetaData>() {
+
     @Override
-    protected ResultSetHandler evaluate(Key key, ResultSetMetaData param) {
+    protected ResultSetHandler createValue(Object key, ResultSetMetaData param) {
       try {
-        return key.factory.newResultSetHandler0(param);
+        return ((Key)key).factory.newResultSetHandler0(param);
       }
       catch (SQLException e) {
         throw new RuntimeException(e);
