@@ -477,7 +477,7 @@ public class BeanPropertyAccessor {
    *
    * @return the index of the nested property separator, or -1 if none
    */
-  static int getNestedPropertySeparatorIndex(final String propertyPath) {
+  public static int getNestedPropertySeparatorIndex(final String propertyPath) {
     int idx = 0;
     boolean inKey = false;
     for (final char value : propertyPath.toCharArray()) {
