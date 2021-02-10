@@ -186,18 +186,24 @@ public class BeanMetadata {
     Map<String, BeanProperty> beanPropertyMap = new HashMap<>();
     final Collection<Field> declaredFields = ReflectionUtils.getFields(beanClass);
     for (final Field declaredField : declaredFields) {
-      if (Modifier.isStatic(declaredField.getModifiers())) {
-        continue;
+      if (!shouldSkip(declaredField)) {
+        String propertyName = getPropertyName(declaredField);
+        beanPropertyMap.put(propertyName, new BeanProperty(declaredField));
       }
-
-      String propertyName = getAnnotatedPropertyName(declaredField);
-      if (propertyName == null) {
-        propertyName = declaredField.getName();
-      }
-
-      beanPropertyMap.put(propertyName, new BeanProperty(declaredField));
     }
     return beanPropertyMap;
+  }
+
+  protected boolean shouldSkip(Field declaredField) {
+    return Modifier.isStatic(declaredField.getModifiers());
+  }
+
+  protected String getPropertyName(Field declaredField) {
+    String propertyName = getAnnotatedPropertyName(declaredField);
+    if (propertyName == null) {
+      propertyName = declaredField.getName();
+    }
+    return propertyName;
   }
 
   protected String getAnnotatedPropertyName(AnnotatedElement propertyElement) {
