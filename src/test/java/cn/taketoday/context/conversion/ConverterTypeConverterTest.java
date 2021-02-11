@@ -61,6 +61,6 @@ public class ConverterTypeConverterTest {
             .isEqualTo(1234234L);
 
     Assertions.assertThat(converter.getConverterMap())
-            .hasSize(13);
+            .hasSize(14);
   }
 }

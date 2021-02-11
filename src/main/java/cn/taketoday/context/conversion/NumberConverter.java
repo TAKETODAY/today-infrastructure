@@ -21,20 +21,18 @@
 package cn.taketoday.context.conversion;
 
 import cn.taketoday.context.exception.ConversionException;
-import cn.taketoday.context.utils.Assert;
 
 /**
  * @author TODAY
  * 2021/1/6 23:18
  */
-public class NumberConverter implements Converter<Object, Number>, TypeCapable {
+public class NumberConverter
+        extends AbstractTypeCapable implements Converter<Object, Number>, TypeCapable {
 
-  private final Class<?> type;
   private final boolean primitive;
 
   public NumberConverter(Class<?> targetClass) {
-    Assert.notNull(targetClass, "targetClass must not be null");
-    this.type = targetClass;
+    super(targetClass);
     this.primitive = targetClass.isPrimitive();
   }
 
@@ -80,11 +78,6 @@ public class NumberConverter implements Converter<Object, Number>, TypeCapable {
 
   public boolean isPrimitive() {
     return primitive;
-  }
-
-  @Override
-  public Class<?> getType() {
-    return type;
   }
 
 }

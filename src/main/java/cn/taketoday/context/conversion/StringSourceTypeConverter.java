@@ -24,7 +24,7 @@ package cn.taketoday.context.conversion;
  * 2019-06-06 15:31
  * @since 2.1.6
  */
-public abstract class StringTypeConverter implements TypeConverter {
+public abstract class StringSourceTypeConverter implements TypeConverter {
 
   @Override
   public final boolean supports(Class<?> targetClass, Object source) {

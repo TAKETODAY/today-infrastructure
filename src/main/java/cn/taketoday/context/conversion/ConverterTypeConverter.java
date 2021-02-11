@@ -53,7 +53,7 @@ public class ConverterTypeConverter
 
   @Override
   public boolean supports(final Class<?> targetClass, final Object source) {
-    final List<GenericConverter> converters = converterMap.get(targetClass);
+    final List<GenericConverter> converters = getGenericConverters(targetClass);
     if (!CollectionUtils.isEmpty(converters)) {
       for (final GenericConverter converter : converters) {
         if (converter.supports(source)) {
@@ -66,7 +66,7 @@ public class ConverterTypeConverter
 
   @Override
   public Object convert(final Class<?> targetClass, final Object source) {
-    final List<GenericConverter> converters = converterMap.get(targetClass);
+    final List<GenericConverter> converters = getGenericConverters(targetClass);
     if (!CollectionUtils.isEmpty(converters)) {
       for (final GenericConverter converter : converters) {
         if (converter.supports(source)) {
@@ -79,16 +79,23 @@ public class ConverterTypeConverter
                     + source + "] '" + source.getClass() + "' to target class: [" + targetClass + "]");
   }
 
+  protected List<GenericConverter> getGenericConverters(Class<?> targetClass) {
+    final List<GenericConverter> ret = converterMap.get(targetClass);
+    return CollectionUtils.isEmpty(ret)
+           ? converterMap.get(Object.class)
+           : ret;
+  }
+
   public void addConverter(Converter<?, ?> converter) {
     if (converter instanceof TypeCapable) {
       addConverter(((TypeCapable) converter).getType(), converter);
     }
     else {
       Assert.notNull(converter, "converter must not be null");
-      final Type[] genericityClass = ClassUtils.getGenericityClass(converter.getClass());
-      if (ObjectUtils.isNotEmpty(genericityClass)) {
-        final Type targetClass = genericityClass[1];
-        final Type sourceClass = genericityClass[0];
+      final Type[] generics = ClassUtils.getGenerics(converter.getClass(), Converter.class);
+      if (ObjectUtils.isNotEmpty(generics)) {
+        final Type targetClass = generics[1];
+        final Type sourceClass = generics[0];
 
         if (targetClass instanceof Class && sourceClass instanceof Class) {
           addConverter((Class<?>) targetClass, (Class<?>) sourceClass, converter);
@@ -110,9 +117,9 @@ public class ConverterTypeConverter
   public void addConverter(Class<?> targetClass, Converter<?, ?> converter) {
     Assert.notNull(converter, "converter must not be null");
 
-    final Type[] genericityClass = ClassUtils.getGenericityClass(converter.getClass());
-    if (ObjectUtils.isNotEmpty(genericityClass)) {
-      final Type sourceClass = genericityClass[0];
+    final Type[] generics = ClassUtils.getGenerics(converter.getClass(), Converter.class);
+    if (ObjectUtils.isNotEmpty(generics)) {
+      final Type sourceClass = generics[0];
       if (sourceClass instanceof Class) {
         addConverter(targetClass, (Class<?>) sourceClass, converter);
         return;
@@ -137,6 +144,7 @@ public class ConverterTypeConverter
 
   public void registerDefaultConverters() {
     addConverters(
+            new ObjectToStringConverter(),
             new IntegerConverter(int.class),
             new IntegerConverter(Integer.class),
             new LongConverter(Long.class),
