@@ -81,7 +81,7 @@ public class MapParameterResolver
     if (props != null) { // 处理 Properties
       return ContextUtils.loadProps(props, System.getProperties());
     }
-    Class<?> beanClass = getBeanClass(ClassUtils.getGenericityClass(parameter));
+    Class<?> beanClass = getBeanClass(ClassUtils.getGenerics(parameter));
     return beanFactory.getBeansOfType(beanClass);
   }
 

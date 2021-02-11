@@ -370,7 +370,7 @@ public class ClassUtilsTest {
   public void testGetUserClass() {
     assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(getClass()));
     assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(getClass().getName()));
-    assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(new ClassUtilsTest().getClass().getName()));
+    assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(ClassUtilsTest.class.getName()));
 
     Enhancer enhancer = new Enhancer();
 
@@ -407,24 +407,24 @@ public class ClassUtilsTest {
   }
 
   @Test
-  public void testGetGenericityClass() {
-    setProcess("testGetGenericityClass");
+  public void testGetGenerics() {
+    setProcess("testGetGenerics");
 
-    assertThat(ClassUtils.getGenericityClass(Generic.class))
+    assertThat(ClassUtils.getGenerics(Generic.class, Genericity.class))
             .isNotNull()
             .hasSize(1)
             .contains(Integer.class);
 
     Field stringList = ReflectionUtils.findField(Generic.class, "stringList");
 
-    assertThat(ClassUtils.getGenericityClass(stringList))
+    assertThat(ClassUtils.getGenerics(stringList))
             .isNotNull()
             .hasSize(1)
             .contains(String.class);
 
     Field stringMap = ReflectionUtils.findField(Generic.class, "stringMap");
 
-    assertThat(ClassUtils.getGenericityClass(stringMap))
+    assertThat(ClassUtils.getGenerics(stringMap))
             .isNotNull()
             .hasSize(2)
             .contains(String.class, Object.class);
@@ -433,37 +433,143 @@ public class ClassUtilsTest {
     Constructor<Generic> constructor = ClassUtils.getSuitableConstructor(Generic.class);
     Parameter[] parameters = constructor.getParameters();
 
-    assertThat(ClassUtils.getGenericityClass(parameters[0]))
+    assertThat(ClassUtils.getGenerics(parameters[0]))
             .isNotNull()
             .hasSize(1)
             .contains(String.class);
 
-    assertThat(ClassUtils.getGenericityClass(parameters[1]))
+    assertThat(ClassUtils.getGenerics(parameters[1]))
             .isNotNull()
             .hasSize(2)
             .contains(String.class, Object.class);
 
     Method method = ReflectionUtils.findMethod(Generic.class, "generic");
 
-    assertThat(ClassUtils.getGenericityClass(method.getParameters()[0]))
+    assertThat(ClassUtils.getGenerics(method.getParameters()[0]))
             .isNotNull()
             .hasSize(1)
             .contains(String.class);
 
-    assertThat(ClassUtils.getGenericityClass(method.getParameters()[1]))
+    assertThat(ClassUtils.getGenerics(method.getParameters()[1]))
             .isNotNull()
             .hasSize(2)
             .contains(String.class, Object.class);
 
     Field list = ReflectionUtils.findField(Generic.class, "list");
 
-    final Type[] genericityClass = ClassUtils.getGenericityClass(list);
+    final Type[] genericityClass = ClassUtils.getGenerics(list);
     assertThat(genericityClass)
             .isNotNull()
             .hasSize(1);
 
     assertThat(genericityClass[0])
             .isInstanceOf(WildcardType.class);
+
+  }
+
+  // fix bug
+
+  interface Interface<T> {
+
+  }
+
+  interface Interface1<T> {
+
+  }
+
+  interface Interface2<T> {
+
+  }
+
+  interface NestedGenericInterface extends Interface<String> {
+
+  }
+
+  static abstract class Abs {
+
+  }
+
+  static abstract class GenericAbs implements Interface<String> {
+
+  }
+
+  static class AbsGeneric extends Abs
+          implements Interface<String>,
+                     Interface1<Integer>,
+                     Interface2<Interface<String>> {
+
+  }
+
+  static class GenericAbsGeneric extends GenericAbs
+          implements Interface1<Integer>, Interface2<Interface<String>> {
+
+  }
+
+  static class NestedGenericInterfaceBean extends GenericAbs
+          implements NestedGenericInterface, Interface1<Integer>, Interface2<Interface<String>> {
+
+  }
+
+  static class NoGeneric {
+
+  }
+
+/*
+  @Test
+  public void test() {
+    final Class<NoGeneric> noGeneric = NoGeneric.class;
+    final Class<AbsGeneric> absGenericClass = AbsGeneric.class;
+    final Class<GenericAbsGeneric> genericAbsGeneric = GenericAbsGeneric.class;
+    final Class<NestedGenericInterfaceBean> nestedGenericInterfaceBeanClass = NestedGenericInterfaceBean.class;
+
+    // 直接在第一级接口
+    final java.lang.reflect.Type[] genericInterfaces = absGenericClass.getGenericInterfaces();
+
+    for (final Type genericInterface : genericInterfaces) {
+//      System.out.println(genericInterface);
+    }
+    // 在父类上找
+    final Type genericSuperclass = genericAbsGeneric.getGenericSuperclass();
+
+//    System.out.println(genericSuperclass);
+    // 第一级没有
+    final Type[] genericInterfaces1 = nestedGenericInterfaceBeanClass.getGenericInterfaces();
+    for (final Type genericInterface : genericInterfaces1) {
+//      System.out.println(genericInterface);
+    }
+
+    // 没有
+//    System.out.println(Arrays.toString(noGeneric.getGenericInterfaces()));
+
+    //
+
+    for (final Type genericInterface : genericInterfaces) {
+      System.out.println(genericInterface.getClass());
+    }
+
+  }*/
+
+  @Test
+  public void testGetGenericsInterface() {
+    setProcess("testGetGenericsInterface");
+    final Type[] generics = ClassUtils.getGenerics(AbsGeneric.class, Interface.class);
+    final Type[] generics1 = ClassUtils.getGenerics(GenericAbsGeneric.class, Interface.class);
+    final Type[] generics2 = ClassUtils.getGenerics(NestedGenericInterfaceBean.class, Interface.class);
+
+    System.out.println(Arrays.toString(generics));
+    System.out.println(Arrays.toString(generics1));
+    System.out.println(Arrays.toString(generics2));
+
+    assertThat(generics1)
+            .hasSize(1)
+            .isEqualTo(generics)
+            .isEqualTo(generics2)
+            .contains(String.class)
+    ;
+
+    assertThat(ClassUtils.getGenerics(NoGeneric.class))
+            .isNull();
+
   }
 
 }

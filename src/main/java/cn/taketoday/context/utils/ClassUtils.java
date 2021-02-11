@@ -1278,21 +1278,21 @@ public abstract class ClassUtils {
     return ReflectionUtils.getFieldArray(targetClass);
   }
 
+  // Generics
+
   /**
-   * Get genericity class
-   *
    * @param type
    *         source type
    *
    * @since 2.1.7
    */
-  public static java.lang.reflect.Type[] getGenericityClass(final Class<?> type) {
+  public static java.lang.reflect.Type[] getGenerics(final Class<?> type) {
     if (type != null) {
       final java.lang.reflect.Type genericSuperclass = type.getGenericSuperclass();
 
       final Class<?> superclass = type.getSuperclass();
       if (genericSuperclass == superclass && genericSuperclass != Object.class) {
-        return getGenericityClass(superclass);
+        return getGenerics(superclass);
       }
       if (genericSuperclass instanceof ParameterizedType) {
         return getActualTypeArguments(genericSuperclass);
@@ -1305,17 +1305,76 @@ public abstract class ClassUtils {
     return null;
   }
 
-  public static java.lang.reflect.Type[] getGenericityClass(final Field property) {
+  public static java.lang.reflect.Type[] getGenerics(final Field property) {
     return getActualTypeArguments(property != null ? property.getGenericType() : null);
   }
 
-  public static java.lang.reflect.Type[] getGenericityClass(final Parameter parameter) {
+  public static java.lang.reflect.Type[] getGenerics(final Parameter parameter) {
     return getActualTypeArguments(parameter != null ? parameter.getParameterizedType() : null);
   }
 
   static java.lang.reflect.Type[] getActualTypeArguments(final java.lang.reflect.Type pType) {
     if (pType instanceof ParameterizedType) {
       return ((ParameterizedType) pType).getActualTypeArguments();
+    }
+    return null;
+  }
+
+  /**
+   * Find generics in target class
+   *
+   * @param type
+   *         find generics in target class
+   * @param superClass
+   *         A interface class or super class
+   *
+   * @return Target generics {@link Type}s
+   *
+   * @since 3.0
+   */
+  public static java.lang.reflect.Type[] getGenerics(final Class<?> type, Class<?> superClass) {
+    if (type != null) {
+      Assert.notNull(superClass, "'interfaceClass or superClass' must not be null");
+      if (superClass.isInterface()) {
+        // find interface
+        for (final java.lang.reflect.Type genericType : type.getGenericInterfaces()) {
+          final java.lang.reflect.Type[] generics = getGenerics(genericType, superClass);
+          if (generics != null) {
+            return generics;
+          }
+        }
+      }
+      else {
+        final java.lang.reflect.Type genericType = type.getGenericSuperclass();
+        final java.lang.reflect.Type[] generics = getGenerics(genericType, superClass);
+        if (generics != null) {
+          return generics;
+        }
+      }
+      // super class
+      final Class<?> superclass = type.getSuperclass();
+      if (superclass != null && superclass != Object.class) {
+        return getGenerics(superclass, superClass);
+      }
+    }
+    return null;
+  }
+
+  public static java.lang.reflect.Type[] getGenerics(java.lang.reflect.Type genericType, Class<?> superClass) {
+    if (genericType instanceof ParameterizedType) {
+      final java.lang.reflect.Type rawType = ((ParameterizedType) genericType).getRawType();
+      if (superClass.equals(rawType)) {
+        return ((ParameterizedType) genericType).getActualTypeArguments();
+      }
+      else if (rawType instanceof Class) {
+        final java.lang.reflect.Type[] generics = getGenerics((Class<?>) rawType, superClass);
+        if (generics != null) {
+          return generics;
+        }
+      }
+    } // next level
+    else if (genericType instanceof Class) {
+      return getGenerics((Class<?>) genericType, superClass);
     }
     return null;
   }
@@ -1938,6 +1997,7 @@ public abstract class ClassUtils {
    *
    * @return the package name, or the empty String if the class
    * is defined in the default package
+   *
    * @since 3.0
    */
   public static String getPackageName(Class<?> clazz) {
@@ -1954,6 +2014,7 @@ public abstract class ClassUtils {
    *
    * @return the package name, or the empty String if the class
    * is defined in the default package
+   *
    * @since 3.0
    */
   public static String getPackageName(String fqClassName) {
@@ -1961,7 +2022,6 @@ public abstract class ClassUtils {
     int lastDotIndex = fqClassName.lastIndexOf(Constant.PACKAGE_SEPARATOR);
     return (lastDotIndex != -1 ? fqClassName.substring(0, lastDotIndex) : Constant.BLANK);
   }
-
 
   /**
    * Adapt the given arguments to the target signature in the given method,

@@ -42,7 +42,7 @@ public abstract class TypeReference<T> {
   }
 
   Type getTypeParameter(Class<?> clazz) {
-    final Type[] generics = ClassUtils.getGenericityClass(clazz);
+    final Type[] generics = ClassUtils.getGenerics(clazz, TypeReference.class);
     if (ObjectUtils.isNotEmpty(generics)) {
       return generics[0];
     }

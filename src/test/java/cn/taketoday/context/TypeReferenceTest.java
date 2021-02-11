@@ -37,12 +37,15 @@ public class TypeReferenceTest {
   public void testTypeReference() {
     TypeReference<Integer> reference = new TypeReference<Integer>() { };
 
-    final Type[] genericityClass = ClassUtils.getGenericityClass(reference.getClass());
+    final Type[] generics = ClassUtils.getGenerics(reference.getClass(), TypeReference.class);
 
-    Assertions.assertThat(genericityClass)
+    Assertions.assertThat(generics)
             .hasSize(1);
-    Assertions.assertThat(genericityClass[0])
+    Assertions.assertThat(generics[0])
             .isEqualTo(Integer.class)
+            .isEqualTo(new IntegerTypeReference().getRawType())
+            .isEqualTo(new IntegerTypeReference1().getRawType())
+            .isEqualTo(new IntegerTypeReference2().getRawType())
             .isEqualTo(new IntegerTypeReference().getTypeParameter(reference.getClass()))
             .isEqualTo(new IntegerTypeReference1().getTypeParameter(reference.getClass()))
             .isEqualTo(new IntegerTypeReference2().getTypeParameter(reference.getClass()));

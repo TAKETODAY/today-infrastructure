@@ -33,12 +33,12 @@ import java.util.List;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.conversion.ConverterTypeConverter;
-import cn.taketoday.context.conversion.StringTypeConverter;
+import cn.taketoday.context.conversion.StringSourceTypeConverter;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.io.Resource;
 
-import static cn.taketoday.context.conversion.DelegatingStringTypeConverter.delegate;
+import static cn.taketoday.context.conversion.DelegatingStringSourceTypeConverter.delegate;
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import static cn.taketoday.context.utils.OrderUtils.reversedSort;
 import static java.util.Objects.requireNonNull;
@@ -52,13 +52,13 @@ public abstract class ConvertUtils {
   private static TypeConverter[] converters;
 
   static {
-    setConverters(new StringEnumConverter(),
-                  new StringResourceConverter(),
+    setConverters(new StringSourceEnumConverter(),
+                  new StringSourceResourceConverter(),
                   new PrimitiveClassConverter(),
                   ConverterTypeConverter.getSharedInstance(),
                   delegate((c) -> c == MimeType.class, MimeType::valueOf),
                   delegate((c) -> c == MediaType.class, MediaType::valueOf),
-                  new StringConstructorConverter(),
+                  new StringSourceConstructorConverter(),
                   delegate((c) -> c == Class.class, source -> {
                     try {
                       return Class.forName(source);
@@ -73,7 +73,7 @@ public abstract class ConvertUtils {
                   delegate((c) -> c == Boolean.class || c == boolean.class, Boolean::parseBoolean),
                   new ArrayToCollectionConverter(),
                   new ArrayStringArrayConverter(),
-                  new StringArrayConverter()//
+                  new StringSourceArrayConverter()//
     );
   }
 
@@ -231,7 +231,7 @@ public abstract class ConvertUtils {
    * @since 2.1.6
    */
   @Order(Ordered.HIGHEST_PRECEDENCE)
-  static class StringResourceConverter extends StringTypeConverter {
+  static class StringSourceResourceConverter extends StringSourceTypeConverter {
 
     @Override
     public boolean supports(Class<?> targetClass) {
@@ -273,7 +273,7 @@ public abstract class ConvertUtils {
    * @since 2.1.6
    */
   @Order(Ordered.HIGHEST_PRECEDENCE)
-  static class StringEnumConverter extends StringTypeConverter {
+  static class StringSourceEnumConverter extends StringSourceTypeConverter {
 
     @Override
     public boolean supports(Class<?> targetClass) {
@@ -293,7 +293,7 @@ public abstract class ConvertUtils {
    * @since 2.1.6
    */
   @Order(Ordered.HIGHEST_PRECEDENCE)
-  static class StringArrayConverter extends StringTypeConverter {
+  static class StringSourceArrayConverter extends StringSourceTypeConverter {
 
     @Override
     public boolean supports(Class<?> targetClass) {
@@ -364,7 +364,7 @@ public abstract class ConvertUtils {
    * 2019-06-06 16:12
    */
   @Order(Ordered.LOWEST_PRECEDENCE)
-  static class StringConstructorConverter extends StringTypeConverter {
+  static class StringSourceConstructorConverter extends StringSourceTypeConverter {
 
     @Override
     public boolean supports(Class<?> targetClass) {
