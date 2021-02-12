@@ -47,6 +47,7 @@ import static cn.taketoday.context.asm.Opcodes.INVOKESTATIC;
  */
 public abstract class GeneratorSupport<T> {
   static final Type GENERATOR_SUPPORT_TYPE = Type.getType(GeneratorSupport.class);
+  static final String GENERATOR_SUPPORT_TYPE_INTERNAL_NAME = GENERATOR_SUPPORT_TYPE.getInternalName();
 
   static final String DEFAULT_SUPER = "Ljava/lang/Object;";
   static final LinkedList<GeneratorNode> created = new LinkedList<>();
@@ -167,9 +168,10 @@ public abstract class GeneratorSupport<T> {
         final Type boxedType = TypeUtils.getBoxedType(parameterType); // java.lang.Long ...
         codeEmitter.checkcast(boxedType);
 
+        // use "convert" method
         final String descriptor = boxedType.getDescriptor();
         codeEmitter.visitMethodInsn(INVOKESTATIC,
-                                    GENERATOR_SUPPORT_TYPE.getInternalName(),
+                                    GENERATOR_SUPPORT_TYPE_INTERNAL_NAME,
                                     "convert", '(' + descriptor + ')' + parameterType.getDescriptor(), false);
       }
       else {
