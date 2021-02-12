@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,26 +17,44 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.context.reflect;
 
-import java.lang.reflect.Field;
-
-import cn.taketoday.context.utils.ReflectionUtils;
-
 /**
- * @author TODAY
- * 2020/9/19 22:38
+ * @author TODAY 2021/2/12 12:23
  */
-public class FieldSetterMethod extends SetterSupport {
-  private final Field field;
+public abstract class SetterSupport implements SetterMethod {
+  private boolean primitive;
 
-  public FieldSetterMethod(final Field field) {
-    super(field.getType().isPrimitive());
-    this.field = field;
+  protected SetterSupport() { }
+
+  protected SetterSupport(boolean primitive) {
+    this.primitive = primitive;
   }
 
+  /**
+   * If property is a primitive type and value is {@code null},
+   * do nothing
+   *
+   * @param obj
+   *         object
+   * @param value
+   *         value
+   */
   @Override
-  protected void setInternal(Object obj, Object value) {
-    ReflectionUtils.setField(field, obj, value);
+  public final void set(Object obj, Object value) {
+    if (!primitive || value != null) {
+      setInternal(obj, value);
+    }
+  }
+
+  protected abstract void setInternal(Object obj, Object value);
+
+  public void setPrimitive(boolean primitive) {
+    this.primitive = primitive;
+  }
+
+  public boolean isPrimitive() {
+    return primitive;
   }
 }

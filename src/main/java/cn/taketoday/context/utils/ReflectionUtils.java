@@ -48,6 +48,7 @@ import cn.taketoday.context.reflect.MapConstructor;
 import cn.taketoday.context.reflect.MethodAccessor;
 import cn.taketoday.context.reflect.MethodAccessorGetterMethod;
 import cn.taketoday.context.reflect.MethodAccessorPropertyAccessor;
+import cn.taketoday.context.reflect.MethodAccessorSetterMethod;
 import cn.taketoday.context.reflect.MethodInvoker;
 import cn.taketoday.context.reflect.PropertyAccessor;
 import cn.taketoday.context.reflect.ReadOnlyFieldPropertyAccessor;
@@ -1067,7 +1068,7 @@ public abstract class ReflectionUtils {
 
     Method setMethod = findMethod(declaringClass, "set".concat(capitalizeProperty), type);
     if (setMethod != null && getMethod != null) {
-      return new MethodAccessorPropertyAccessor(setMethod, getMethod);
+      return new MethodAccessorPropertyAccessor(type.isPrimitive(), setMethod, getMethod);
     }
 
     if (setMethod != null) {
@@ -1215,12 +1216,7 @@ public abstract class ReflectionUtils {
   public static SetterMethod newSetterMethod(final Method method, Class<?> type) {
     final MethodInvoker accessor = MethodInvoker.create(method);
     final boolean primitive = type.isPrimitive();
-    return (Object obj, Object value) -> {
-      if (primitive) {
-        Assert.notNull(value, "primitive type value must not be null");
-      }
-      accessor.invoke(obj, new Object[] { value });
-    };
+    return new MethodAccessorSetterMethod(primitive, accessor);
   }
 
   @SuppressWarnings("unchecked")

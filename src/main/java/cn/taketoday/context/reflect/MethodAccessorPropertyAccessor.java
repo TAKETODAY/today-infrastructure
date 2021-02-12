@@ -29,12 +29,14 @@ import cn.taketoday.context.utils.ReflectionUtils;
  * @author TODAY
  * 2020/9/11 15:54
  */
-public class MethodAccessorPropertyAccessor implements PropertyAccessor {
+public class MethodAccessorPropertyAccessor
+        extends SetterSupport implements PropertyAccessor {
 
   private final MethodAccessor setMethodAccessor;
   private final MethodAccessor getMethodAccessor;
 
-  public MethodAccessorPropertyAccessor(Method setMethod, Method getMethod) {
+  public MethodAccessorPropertyAccessor(boolean primitive, Method setMethod, Method getMethod) {
+    super(primitive);
     Assert.notNull(setMethod, "setMethod must not be null");
     Assert.notNull(getMethod, "getMethod must not be null");
 
@@ -42,8 +44,9 @@ public class MethodAccessorPropertyAccessor implements PropertyAccessor {
     this.getMethodAccessor = ReflectionUtils.newMethodAccessor(getMethod);
   }
 
-  public MethodAccessorPropertyAccessor(MethodAccessor setMethodAccessor,
+  public MethodAccessorPropertyAccessor(boolean primitive, MethodAccessor setMethodAccessor,
                                         MethodAccessor getMethodAccessor) {
+    super(primitive);
     Assert.notNull(setMethodAccessor, "setMethodAccessor must not be null");
     Assert.notNull(getMethodAccessor, "getMethodAccessor must not be null");
 
@@ -57,7 +60,7 @@ public class MethodAccessorPropertyAccessor implements PropertyAccessor {
   }
 
   @Override
-  public void set(final Object obj, final Object value) {
+  protected void setInternal(Object obj, Object value) {
     setMethodAccessor.invoke(obj, new Object[] { value });
   }
 }

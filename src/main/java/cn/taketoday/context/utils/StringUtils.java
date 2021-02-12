@@ -544,7 +544,7 @@ public abstract class StringUtils {
    *         If can't read the string
    */
   public static String readAsText(final InputStream inputStream) throws IOException {
-    return readAsText(inputStream, 1024);
+    return readAsText(inputStream, 8192);
   }
 
   /**

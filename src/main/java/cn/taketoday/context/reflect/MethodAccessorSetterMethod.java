@@ -24,15 +24,16 @@ package cn.taketoday.context.reflect;
  * @author TODAY
  * 2021/1/7 17:43
  */
-public class MethodAccessorSetterMethod implements SetterMethod {
+public class MethodAccessorSetterMethod extends SetterSupport implements SetterMethod {
   private final MethodAccessor accessor;
 
-  public MethodAccessorSetterMethod(MethodAccessor accessor) {
+  public MethodAccessorSetterMethod(boolean primitive, MethodAccessor accessor) {
+    super(primitive);
     this.accessor = accessor;
   }
 
   @Override
-  public void set(Object obj, Object value) {
+  protected void setInternal(Object obj, Object value) {
     accessor.invoke(obj, new Object[] { value });
   }
 }

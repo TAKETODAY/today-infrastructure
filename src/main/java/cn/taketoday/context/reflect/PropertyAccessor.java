@@ -24,9 +24,6 @@ package cn.taketoday.context.reflect;
  * @author TODAY
  * 2020/9/11 11:06
  */
-public interface PropertyAccessor {
+public interface PropertyAccessor extends SetterMethod, GetterMethod {
 
-  Object get(Object obj);
-
-  void set(Object obj, Object value);
 }
