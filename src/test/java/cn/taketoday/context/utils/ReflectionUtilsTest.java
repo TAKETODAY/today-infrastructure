@@ -20,661 +20,662 @@
 
 package cn.taketoday.context.utils;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.junit.Assert.assertNotEquals;
+import junit.framework.TestCase;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.rmi.ConnectException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.objects.TestObject;
+import cn.taketoday.context.reflect.ConstructorAccessor;
 import cn.taketoday.context.reflect.GetterMethod;
 import cn.taketoday.context.reflect.PropertyAccessor;
 import cn.taketoday.context.reflect.ReflectionException;
 import cn.taketoday.context.reflect.SetterMethod;
-import junit.framework.TestCase;
-
-import org.junit.Test;
-
 import lombok.Getter;
 import lombok.Setter;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.Assert.assertNotEquals;
+
 /**
  * @author TODAY <br>
- *         2020-08-13 21:55
+ * 2020-08-13 21:55
  */
 public class ReflectionUtilsTest extends TestCase {
 
-    public static class POJO1 {
+  public static class POJO1 {
 
-    }
+  }
 
-    public void testCreate() {
-        Object o = ReflectionUtils.newConstructor(POJO1.class).newInstance();
-        assertNotNull(o);
-        assertSame(POJO1.class, o.getClass());
-    }
+  public void testCreate() {
+    Object o = ReflectionUtils.newConstructor(POJO1.class).newInstance();
+    assertNotNull(o);
+    assertSame(POJO1.class, o.getClass());
+  }
 
-    public static class POJO3 {
-        public boolean constructorInvoked = true;
-    }
+  public static class POJO3 {
+    public boolean constructorInvoked = true;
+  }
 
-    public static class POJO4 extends POJO3 {
-        public boolean pojo4_constructorInvoked = true;
-    }
+  public static class POJO4 extends POJO3 {
+    public boolean pojo4_constructorInvoked = true;
+  }
 
-    public void testCallConstructor() {
-        POJO3 pojo3 = ReflectionUtils.newConstructor(POJO3.class).newInstance();
-        assertNotNull(pojo3);
-        assertTrue(pojo3.constructorInvoked);
-    }
+  public void testCallConstructor() {
+    POJO3 pojo3 = ReflectionUtils.newConstructor(POJO3.class).newInstance();
+    assertNotNull(pojo3);
+    assertTrue(pojo3.constructorInvoked);
+  }
 
-    public void testCallParentConstructor() {
-        POJO4 pojo = ReflectionUtils.newConstructor(POJO4.class).newInstance();
-        assertNotNull(pojo);
-        assertTrue(pojo.constructorInvoked);
-        assertTrue(pojo.pojo4_constructorInvoked);
-    }
+  public void testCallParentConstructor() {
+    POJO4 pojo = ReflectionUtils.newConstructor(POJO4.class).newInstance();
+    assertNotNull(pojo);
+    assertTrue(pojo.constructorInvoked);
+    assertTrue(pojo.pojo4_constructorInvoked);
+  }
 
-    public static class SetterMethodTest extends TestCase {
-        @Getter
-        @Setter
-        public static class POJO1 {
-
-            boolean _boolean;
-            byte _byte;
-            short _short;
-            int _int;
-            long _long;
-            float _float;
-            double _double;
-            char _char;
-            Object _obj;
-
-            volatile boolean _volatileBoolean;
-            volatile byte _volatileByte;
-            volatile short _volatileShort;
-            volatile int _volatileInt;
-            volatile long _volatileLong;
-            volatile float _volatileFloat;
-            volatile double _volatileDouble;
-            volatile char _volatileChar;
-            volatile Object _volatileObj;
-
-            static boolean _staticBoolean;
-            static byte _staticByte;
-            static short _staticShort;
-            static int _staticInt;
-            static long _staticLong;
-            static float _staticFloat;
-            static double _staticDouble;
-            static char _staticChar;
-            static Object _staticObj;
-
-            static volatile boolean _staticVolatileBoolean;
-            static volatile byte _staticVolatileByte;
-            static volatile short _staticVolatileShort;
-            static volatile int _staticVolatileInt;
-            static volatile long _staticVolatileLong;
-            static volatile float _staticVolatileFloat;
-            static volatile double _staticVolatileDouble;
-            static volatile char _staticVolatileChar;
-            static volatile Object _staticVolatileObj;
-
-            @Override
-            public boolean equals(Object o) {
-                if (this == o) return true;
-                if (o == null || getClass() != o.getClass()) return false;
-
-                POJO1 pojo1 = (POJO1) o;
-
-                if (_boolean != pojo1._boolean) return false;
-                if (_byte != pojo1._byte) return false;
-                if (_char != pojo1._char) return false;
-                if (Double.compare(pojo1._double, _double) != 0) return false;
-                if (Float.compare(pojo1._float, _float) != 0) return false;
-                if (_int != pojo1._int) return false;
-                if (_long != pojo1._long) return false;
-                if (_short != pojo1._short) return false;
-
-                return Objects.equals(_obj, pojo1._obj);
-            }
-        }
-
-        public void testAllTypes() throws IllegalAccessException, NoSuchFieldException {
-            POJO1 pojo1 = new POJO1();
-            pojo1._boolean = true;
-            pojo1._byte = 17;
-            pojo1._short = 87;
-            pojo1._int = Integer.MIN_VALUE;
-            pojo1._long = 1337;
-            pojo1._char = 'a';
-            pojo1._double = Math.PI;
-            pojo1._float = (float) Math.log(93);
-            pojo1._obj = pojo1;
-
-            pojo1._volatileBoolean = true;
-            pojo1._volatileByte = 17;
-            pojo1._volatileShort = 87;
-            pojo1._volatileInt = Integer.MIN_VALUE;
-            pojo1._volatileLong = 1337;
-            pojo1._volatileChar = 'a';
-            pojo1._volatileDouble = Math.PI;
-            pojo1._volatileFloat = (float) Math.log(93);
-            pojo1._volatileObj = pojo1;
-
-            pojo1._staticVolatileBoolean = true;
-            pojo1._staticVolatileByte = 17;
-            pojo1._staticVolatileShort = 87;
-            pojo1._staticVolatileInt = Integer.MIN_VALUE;
-            pojo1._staticVolatileLong = 1337;
-            pojo1._staticVolatileChar = 'a';
-            pojo1._staticVolatileDouble = Math.PI;
-            pojo1._staticVolatileFloat = (float) Math.log(93);
-            pojo1._staticVolatileObj = pojo1;
-
-            pojo1._staticBoolean = true;
-            pojo1._staticByte = 17;
-            pojo1._staticShort = 87;
-            pojo1._staticInt = Integer.MIN_VALUE;
-            pojo1._staticLong = 1337;
-            pojo1._staticChar = 'a';
-            pojo1._staticDouble = Math.PI;
-            pojo1._staticFloat = (float) Math.log(93);
-            pojo1._staticObj = pojo1;
-
-            POJO1 pojo2 = new POJO1();
-
-            assertNotEquals(pojo1, pojo2);
-
-            final Field[] declaredFields = pojo1.getClass().getDeclaredFields();
-            for (Field field : declaredFields) {
-                final String name = field.getName();
-                if (name.charAt(0) == '_') {
-                    final SetterMethod setter = ReflectionUtils.newUnsafeSetterMethod(field);
-
-                    Object val1 = field.get(pojo1);
-                    Object val2 = field.get(pojo2);
-
-                    if (Modifier.isStatic(field.getModifiers())) {
-                        assertEquals(val1, val2);
-                        setter.set(pojo2, val1);
-                        Object val3 = field.get(pojo2);
-                        assertEquals(val1, val3);
-                        setter.set(pojo2, val2);
-                    }
-                    else {
-                        assertNotEquals(val1, val2);
-                        setter.set(pojo2, val1);
-                        Object val3 = field.get(pojo2);
-                        assertEquals(val1, val3);
-                        setter.set(pojo2, val2);
-                    }
-                }
-            }
-
-            Method[] methods = pojo1.getClass().getDeclaredMethods();
-            for (Method method : methods) {
-                if (!method.getName().startsWith("set_")) continue;
-                Field field = pojo1.getClass()
-                        .getDeclaredField(method.getName().substring(3));
-
-                SetterMethod setter = ReflectionUtils.newSetterMethod(method);
-                Object val1 = field.get(pojo1);
-                Object val2 = field.get(pojo2);
-
-                assertNotEquals(val1, val2);
-                setter.set(pojo2, val1);
-                Object val3 = field.get(pojo2);
-                assertEquals(val1, val3);
-            }
-
-            assertEquals(pojo1, pojo2);
-
-            // let's reset all values to NULL
-            // primitive fields will not be affected
-            for (Method method : methods) {
-                if (!method.getName().startsWith("set_")) continue;
-
-                Field field = pojo1.getClass().getDeclaredField(method.getName().substring(3));
-                SetterMethod setter = ReflectionUtils.newSetterMethod(method);
-                Object val1 = field.get(pojo1);
-                assertNotNull(val1);
-
-                if (!field.getType().isPrimitive()) {
-                    setter.set(pojo1, null);
-                }
-
-                Object val2 = field.get(pojo1);
-                if (!field.getType().isPrimitive()) {
-                    assertNull(val2);
-                    continue;
-                }
-                assertNotNull(val2);
-                // not affected
-                assertEquals(val1, val2);
-            }
-            pojo2._obj = null;
-            assertEquals(pojo2, pojo1);
-        }
-    }
-
-    // --------------
-
-    public static class GetterMethodTest extends TestCase {
-        @Getter
-        @Setter
-        public static class POJO1 {
-            boolean _boolean;
-            byte _byte;
-            short _short;
-            int _int;
-            long _long;
-            float _float;
-            double _double;
-            char _char;
-            Object _obj;
-
-            volatile boolean _volatileBoolean;
-            volatile byte _volatileByte;
-            volatile short _volatileShort;
-            volatile int _volatileInt;
-            volatile long _volatileLong;
-            volatile float _volatileFloat;
-            volatile double _volatileDouble;
-            volatile char _volatileChar;
-            volatile Object _volatileObj;
-
-            static boolean _staticBoolean;
-            static byte _staticByte;
-            static short _staticShort;
-            static int _staticInt;
-            static long _staticLong;
-            static float _staticFloat;
-            static double _staticDouble;
-            static char _staticChar;
-            static Object _staticObj;
-
-            static volatile boolean _staticVolatileBoolean;
-            static volatile byte _staticVolatileByte;
-            static volatile short _staticVolatileShort;
-            static volatile int _staticVolatileInt;
-            static volatile long _staticVolatileLong;
-            static volatile float _staticVolatileFloat;
-            static volatile double _staticVolatileDouble;
-            static volatile char _staticVolatileChar;
-            static volatile Object _staticVolatileObj;
-
-            @Override
-            public boolean equals(Object o) {
-                if (this == o) return true;
-                if (o == null || getClass() != o.getClass()) return false;
-
-                POJO1 pojo1 = (POJO1) o;
-
-                if (_boolean != pojo1._boolean) return false;
-                if (_byte != pojo1._byte) return false;
-                if (_char != pojo1._char) return false;
-                if (Double.compare(pojo1._double, _double) != 0) return false;
-                if (Float.compare(pojo1._float, _float) != 0) return false;
-                if (_int != pojo1._int) return false;
-                if (_long != pojo1._long) return false;
-                if (_short != pojo1._short) return false;
-
-                return Objects.equals(_obj, pojo1._obj);
-            }
-        }
-
-        public void testAllTypes() throws IllegalAccessException, NoSuchFieldException {
-            POJO1 pojo = new POJO1();
-            pojo._boolean = true;
-            pojo._byte = 17;
-            pojo._short = 87;
-            pojo._int = Integer.MIN_VALUE;
-            pojo._long = 1337;
-            pojo._char = 'a';
-            pojo._double = Math.PI;
-            pojo._float = (float) Math.log(93);
-            pojo._obj = pojo;
-
-            pojo._volatileBoolean = true;
-            pojo._volatileByte = 17;
-            pojo._volatileShort = 87;
-            pojo._volatileInt = Integer.MIN_VALUE;
-            pojo._volatileLong = 1337;
-            pojo._volatileChar = 'a';
-            pojo._volatileDouble = Math.PI;
-            pojo._volatileFloat = (float) Math.log(93);
-            pojo._volatileObj = pojo;
-
-            pojo._staticVolatileBoolean = true;
-            pojo._staticVolatileByte = 17;
-            pojo._staticVolatileShort = 87;
-            pojo._staticVolatileInt = Integer.MIN_VALUE;
-            pojo._staticVolatileLong = 1337;
-            pojo._staticVolatileChar = 'a';
-            pojo._staticVolatileDouble = Math.PI;
-            pojo._staticVolatileFloat = (float) Math.log(93);
-            pojo._staticVolatileObj = pojo;
-
-            pojo._staticBoolean = true;
-            pojo._staticByte = 17;
-            pojo._staticShort = 87;
-            pojo._staticInt = Integer.MIN_VALUE;
-            pojo._staticLong = 1337;
-            pojo._staticChar = 'a';
-            pojo._staticDouble = Math.PI;
-            pojo._staticFloat = (float) Math.log(93);
-            pojo._staticObj = pojo;
-
-            final Field[] declaredFields = pojo.getClass().getDeclaredFields();
-            for (Field field : declaredFields) {
-                final String name = field.getName();
-                if (name.charAt(0) == '_') {
-                    final GetterMethod getter = ReflectionUtils.newUnsafeGetterMethod(field);
-
-                    Object val1 = field.get(pojo);
-                    assertEquals(val1, getter.get(pojo));
-                }
-            }
-
-            Method[] methods = pojo.getClass().getDeclaredMethods();
-            for (Method method : methods) {
-                if (!method.getName().startsWith("get_")) continue;
-
-                Field field = pojo.getClass().getDeclaredField(method.getName().substring(3));
-
-                GetterMethod getter = ReflectionUtils.newGetterMethod(method);
-
-                Object val1 = field.get(pojo);
-                assertEquals(val1, getter.get(pojo));
-            }
-        }
-
-    }
-
-    // -----------------------
-
+  public static class SetterMethodTest extends TestCase {
     @Getter
     @Setter
-    public static class PropertyBean {
-        static int static_pro = 0;
-        boolean bool = false;
-        final long finalPro = 10L;
-        static final short staticFinalPro = 100;
+    public static class POJO1 {
+
+      boolean _boolean;
+      byte _byte;
+      short _short;
+      int _int;
+      long _long;
+      float _float;
+      double _double;
+      char _char;
+      Object _obj;
+
+      volatile boolean _volatileBoolean;
+      volatile byte _volatileByte;
+      volatile short _volatileShort;
+      volatile int _volatileInt;
+      volatile long _volatileLong;
+      volatile float _volatileFloat;
+      volatile double _volatileDouble;
+      volatile char _volatileChar;
+      volatile Object _volatileObj;
+
+      static boolean _staticBoolean;
+      static byte _staticByte;
+      static short _staticShort;
+      static int _staticInt;
+      static long _staticLong;
+      static float _staticFloat;
+      static double _staticDouble;
+      static char _staticChar;
+      static Object _staticObj;
+
+      static volatile boolean _staticVolatileBoolean;
+      static volatile byte _staticVolatileByte;
+      static volatile short _staticVolatileShort;
+      static volatile int _staticVolatileInt;
+      static volatile long _staticVolatileLong;
+      static volatile float _staticVolatileFloat;
+      static volatile double _staticVolatileDouble;
+      static volatile char _staticVolatileChar;
+      static volatile Object _staticVolatileObj;
+
+      @Override
+      public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        POJO1 pojo1 = (POJO1) o;
+
+        if (_boolean != pojo1._boolean) return false;
+        if (_byte != pojo1._byte) return false;
+        if (_char != pojo1._char) return false;
+        if (Double.compare(pojo1._double, _double) != 0) return false;
+        if (Float.compare(pojo1._float, _float) != 0) return false;
+        if (_int != pojo1._int) return false;
+        if (_long != pojo1._long) return false;
+        if (_short != pojo1._short) return false;
+
+        return Objects.equals(_obj, pojo1._obj);
+      }
     }
 
-    public void testNewPropertyAccessor() throws NoSuchFieldException {
-        final PropertyBean propertyBean = new PropertyBean();
+    public void testAllTypes() throws IllegalAccessException, NoSuchFieldException {
+      POJO1 pojo1 = new POJO1();
+      pojo1._boolean = true;
+      pojo1._byte = 17;
+      pojo1._short = 87;
+      pojo1._int = Integer.MIN_VALUE;
+      pojo1._long = 1337;
+      pojo1._char = 'a';
+      pojo1._double = Math.PI;
+      pojo1._float = (float) Math.log(93);
+      pojo1._obj = pojo1;
 
-        final Field declaredField = PropertyBean.class.getDeclaredField("static_pro");
-        final PropertyAccessor staticProAccessor = ReflectionUtils.newPropertyAccessor(declaredField);
+      pojo1._volatileBoolean = true;
+      pojo1._volatileByte = 17;
+      pojo1._volatileShort = 87;
+      pojo1._volatileInt = Integer.MIN_VALUE;
+      pojo1._volatileLong = 1337;
+      pojo1._volatileChar = 'a';
+      pojo1._volatileDouble = Math.PI;
+      pojo1._volatileFloat = (float) Math.log(93);
+      pojo1._volatileObj = pojo1;
 
-        assertEquals(staticProAccessor.get(null), 0);
-        staticProAccessor.set(null, 2);
-        assertEquals(staticProAccessor.get(null), 2);
+      pojo1._staticVolatileBoolean = true;
+      pojo1._staticVolatileByte = 17;
+      pojo1._staticVolatileShort = 87;
+      pojo1._staticVolatileInt = Integer.MIN_VALUE;
+      pojo1._staticVolatileLong = 1337;
+      pojo1._staticVolatileChar = 'a';
+      pojo1._staticVolatileDouble = Math.PI;
+      pojo1._staticVolatileFloat = (float) Math.log(93);
+      pojo1._staticVolatileObj = pojo1;
 
-        final Field boolField = PropertyBean.class.getDeclaredField("bool");
-        final PropertyAccessor boolAccessor = ReflectionUtils.newPropertyAccessor(boolField);
+      pojo1._staticBoolean = true;
+      pojo1._staticByte = 17;
+      pojo1._staticShort = 87;
+      pojo1._staticInt = Integer.MIN_VALUE;
+      pojo1._staticLong = 1337;
+      pojo1._staticChar = 'a';
+      pojo1._staticDouble = Math.PI;
+      pojo1._staticFloat = (float) Math.log(93);
+      pojo1._staticObj = pojo1;
 
-        assertEquals(boolAccessor.get(propertyBean), false);
-        boolAccessor.set(propertyBean, true);
-        assertEquals(boolAccessor.get(propertyBean), true);
+      POJO1 pojo2 = new POJO1();
 
-        final Field finalProField = PropertyBean.class.getDeclaredField("finalPro");
-        final PropertyAccessor finalProAccessor = ReflectionUtils.newPropertyAccessor(finalProField);
-        assertEquals(finalProAccessor.get(propertyBean), 10L);
+      assertNotEquals(pojo1, pojo2);
 
-        try {
-            finalProAccessor.set(null, 101);
+      final Field[] declaredFields = pojo1.getClass().getDeclaredFields();
+      for (Field field : declaredFields) {
+        final String name = field.getName();
+        if (name.charAt(0) == '_') {
+          final SetterMethod setter = ReflectionUtils.newUnsafeSetterMethod(field);
+
+          Object val1 = field.get(pojo1);
+          Object val2 = field.get(pojo2);
+
+          if (Modifier.isStatic(field.getModifiers())) {
+            assertEquals(val1, val2);
+            setter.set(pojo2, val1);
+            Object val3 = field.get(pojo2);
+            assertEquals(val1, val3);
+            setter.set(pojo2, val2);
+          }
+          else {
+            assertNotEquals(val1, val2);
+            setter.set(pojo2, val1);
+            Object val3 = field.get(pojo2);
+            assertEquals(val1, val3);
+            setter.set(pojo2, val2);
+          }
         }
-        catch (ReflectionException e) {
-            assertEquals(finalProAccessor.get(propertyBean), 10L);
+      }
+
+      Method[] methods = pojo1.getClass().getDeclaredMethods();
+      for (Method method : methods) {
+        if (!method.getName().startsWith("set_")) continue;
+        Field field = pojo1.getClass()
+                .getDeclaredField(method.getName().substring(3));
+
+        SetterMethod setter = ReflectionUtils.newSetterMethod(method);
+        Object val1 = field.get(pojo1);
+        Object val2 = field.get(pojo2);
+
+        assertNotEquals(val1, val2);
+        setter.set(pojo2, val1);
+        Object val3 = field.get(pojo2);
+        assertEquals(val1, val3);
+      }
+
+      assertEquals(pojo1, pojo2);
+
+      // let's reset all values to NULL
+      // primitive fields will not be affected
+      for (Method method : methods) {
+        if (!method.getName().startsWith("set_")) continue;
+
+        Field field = pojo1.getClass().getDeclaredField(method.getName().substring(3));
+        SetterMethod setter = ReflectionUtils.newSetterMethod(method);
+        Object val1 = field.get(pojo1);
+        assertNotNull(val1);
+
+        if (!field.getType().isPrimitive()) {
+          setter.set(pojo1, null);
         }
-        final Field staticFinalProField = PropertyBean.class.getDeclaredField("staticFinalPro");
-        final PropertyAccessor staticFinalProAccessor = ReflectionUtils.newPropertyAccessor(staticFinalProField);
-        assertEquals(staticFinalProAccessor.get(propertyBean), (short) 100);
 
-        try {
-            staticFinalProAccessor.set(null, 101);
+        Object val2 = field.get(pojo1);
+        if (!field.getType().isPrimitive()) {
+          assertNull(val2);
+          continue;
         }
-        catch (ReflectionException e) {
-            assertEquals(staticFinalProAccessor.get(propertyBean), (short) 100);
+        assertNotNull(val2);
+        // not affected
+        assertEquals(val1, val2);
+      }
+      pojo2._obj = null;
+      assertEquals(pojo2, pojo1);
+    }
+  }
+
+  // --------------
+
+  public static class GetterMethodTest extends TestCase {
+    @Getter
+    @Setter
+    public static class POJO1 {
+      boolean _boolean;
+      byte _byte;
+      short _short;
+      int _int;
+      long _long;
+      float _float;
+      double _double;
+      char _char;
+      Object _obj;
+
+      volatile boolean _volatileBoolean;
+      volatile byte _volatileByte;
+      volatile short _volatileShort;
+      volatile int _volatileInt;
+      volatile long _volatileLong;
+      volatile float _volatileFloat;
+      volatile double _volatileDouble;
+      volatile char _volatileChar;
+      volatile Object _volatileObj;
+
+      static boolean _staticBoolean;
+      static byte _staticByte;
+      static short _staticShort;
+      static int _staticInt;
+      static long _staticLong;
+      static float _staticFloat;
+      static double _staticDouble;
+      static char _staticChar;
+      static Object _staticObj;
+
+      static volatile boolean _staticVolatileBoolean;
+      static volatile byte _staticVolatileByte;
+      static volatile short _staticVolatileShort;
+      static volatile int _staticVolatileInt;
+      static volatile long _staticVolatileLong;
+      static volatile float _staticVolatileFloat;
+      static volatile double _staticVolatileDouble;
+      static volatile char _staticVolatileChar;
+      static volatile Object _staticVolatileObj;
+
+      @Override
+      public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        POJO1 pojo1 = (POJO1) o;
+
+        if (_boolean != pojo1._boolean) return false;
+        if (_byte != pojo1._byte) return false;
+        if (_char != pojo1._char) return false;
+        if (Double.compare(pojo1._double, _double) != 0) return false;
+        if (Float.compare(pojo1._float, _float) != 0) return false;
+        if (_int != pojo1._int) return false;
+        if (_long != pojo1._long) return false;
+        if (_short != pojo1._short) return false;
+
+        return Objects.equals(_obj, pojo1._obj);
+      }
+    }
+
+    public void testAllTypes() throws IllegalAccessException, NoSuchFieldException {
+      POJO1 pojo = new POJO1();
+      pojo._boolean = true;
+      pojo._byte = 17;
+      pojo._short = 87;
+      pojo._int = Integer.MIN_VALUE;
+      pojo._long = 1337;
+      pojo._char = 'a';
+      pojo._double = Math.PI;
+      pojo._float = (float) Math.log(93);
+      pojo._obj = pojo;
+
+      pojo._volatileBoolean = true;
+      pojo._volatileByte = 17;
+      pojo._volatileShort = 87;
+      pojo._volatileInt = Integer.MIN_VALUE;
+      pojo._volatileLong = 1337;
+      pojo._volatileChar = 'a';
+      pojo._volatileDouble = Math.PI;
+      pojo._volatileFloat = (float) Math.log(93);
+      pojo._volatileObj = pojo;
+
+      pojo._staticVolatileBoolean = true;
+      pojo._staticVolatileByte = 17;
+      pojo._staticVolatileShort = 87;
+      pojo._staticVolatileInt = Integer.MIN_VALUE;
+      pojo._staticVolatileLong = 1337;
+      pojo._staticVolatileChar = 'a';
+      pojo._staticVolatileDouble = Math.PI;
+      pojo._staticVolatileFloat = (float) Math.log(93);
+      pojo._staticVolatileObj = pojo;
+
+      pojo._staticBoolean = true;
+      pojo._staticByte = 17;
+      pojo._staticShort = 87;
+      pojo._staticInt = Integer.MIN_VALUE;
+      pojo._staticLong = 1337;
+      pojo._staticChar = 'a';
+      pojo._staticDouble = Math.PI;
+      pojo._staticFloat = (float) Math.log(93);
+      pojo._staticObj = pojo;
+
+      final Field[] declaredFields = pojo.getClass().getDeclaredFields();
+      for (Field field : declaredFields) {
+        final String name = field.getName();
+        if (name.charAt(0) == '_') {
+          final GetterMethod getter = ReflectionUtils.newUnsafeGetterMethod(field);
+
+          Object val1 = field.get(pojo);
+          assertEquals(val1, getter.get(pojo));
         }
+      }
 
+      Method[] methods = pojo.getClass().getDeclaredMethods();
+      for (Method method : methods) {
+        if (!method.getName().startsWith("get_")) continue;
+
+        Field field = pojo.getClass().getDeclaredField(method.getName().substring(3));
+
+        GetterMethod getter = ReflectionUtils.newGetterMethod(method);
+
+        Object val1 = field.get(pojo);
+        assertEquals(val1, getter.get(pojo));
+      }
     }
 
-    // ------------------------------------------------------------------------------
+  }
 
-    public void testFindField() {
-        Field field = ReflectionUtils.findField(TestObjectSubclassWithPublicField.class, "publicField", String.class);
-        assertThat(field).isNotNull();
-        assertThat(field.getName()).isEqualTo("publicField");
-        assertThat(field.getType()).isEqualTo(String.class);
-        assertThat(Modifier.isPublic(field.getModifiers())).as("Field should be public.").isTrue();
+  // -----------------------
 
-        field = ReflectionUtils.findField(TestObjectSubclassWithNewField.class, "prot", String.class);
-        assertThat(field).isNotNull();
-        assertThat(field.getName()).isEqualTo("prot");
-        assertThat(field.getType()).isEqualTo(String.class);
-        assertThat(Modifier.isProtected(field.getModifiers())).as("Field should be protected.").isTrue();
+  @Getter
+  @Setter
+  public static class PropertyBean {
+    static int static_pro = 0;
+    boolean bool = false;
+    final long finalPro = 10L;
+    static final short staticFinalPro = 100;
+  }
 
-        field = ReflectionUtils.findField(TestObjectSubclassWithNewField.class, "name", String.class);
-        assertThat(field).isNotNull();
-        assertThat(field.getName()).isEqualTo("name");
-        assertThat(field.getType()).isEqualTo(String.class);
-        assertThat(Modifier.isPrivate(field.getModifiers())).as("Field should be private.").isTrue();
+  public void testNewPropertyAccessor() throws NoSuchFieldException {
+    final PropertyBean propertyBean = new PropertyBean();
+
+    final Field declaredField = PropertyBean.class.getDeclaredField("static_pro");
+    final PropertyAccessor staticProAccessor = ReflectionUtils.newPropertyAccessor(declaredField);
+
+    assertEquals(staticProAccessor.get(null), 0);
+    staticProAccessor.set(null, 2);
+    assertEquals(staticProAccessor.get(null), 2);
+
+    final Field boolField = PropertyBean.class.getDeclaredField("bool");
+    final PropertyAccessor boolAccessor = ReflectionUtils.newPropertyAccessor(boolField);
+
+    assertEquals(boolAccessor.get(propertyBean), false);
+    boolAccessor.set(propertyBean, true);
+    assertEquals(boolAccessor.get(propertyBean), true);
+
+    final Field finalProField = PropertyBean.class.getDeclaredField("finalPro");
+    final PropertyAccessor finalProAccessor = ReflectionUtils.newPropertyAccessor(finalProField);
+    assertEquals(finalProAccessor.get(propertyBean), 10L);
+
+    try {
+      finalProAccessor.set(null, 101);
+    }
+    catch (ReflectionException e) {
+      assertEquals(finalProAccessor.get(propertyBean), 10L);
+    }
+    final Field staticFinalProField = PropertyBean.class.getDeclaredField("staticFinalPro");
+    final PropertyAccessor staticFinalProAccessor = ReflectionUtils.newPropertyAccessor(staticFinalProField);
+    assertEquals(staticFinalProAccessor.get(propertyBean), (short) 100);
+
+    try {
+      staticFinalProAccessor.set(null, 101);
+    }
+    catch (ReflectionException e) {
+      assertEquals(staticFinalProAccessor.get(propertyBean), (short) 100);
     }
 
-    public void testSetField() {
-        TestObjectSubclassWithNewField testBean = new TestObjectSubclassWithNewField();
-        Field field = ReflectionUtils.findField(TestObjectSubclassWithNewField.class, "name", String.class);
+  }
 
-        ReflectionUtils.makeAccessible(field);
+  // ------------------------------------------------------------------------------
 
-        ReflectionUtils.setField(field, testBean, "FooBar");
-        assertThat(testBean.getName()).isNotNull();
-        assertThat(testBean.getName()).isEqualTo("FooBar");
+  public void testFindField() {
+    Field field = ReflectionUtils.findField(TestObjectSubclassWithPublicField.class, "publicField", String.class);
+    assertThat(field).isNotNull();
+    assertThat(field.getName()).isEqualTo("publicField");
+    assertThat(field.getType()).isEqualTo(String.class);
+    assertThat(Modifier.isPublic(field.getModifiers())).as("Field should be public.").isTrue();
 
-        ReflectionUtils.setField(field, testBean, null);
-        assertThat((Object) testBean.getName()).isNull();
+    field = ReflectionUtils.findField(TestObjectSubclassWithNewField.class, "prot", String.class);
+    assertThat(field).isNotNull();
+    assertThat(field.getName()).isEqualTo("prot");
+    assertThat(field.getType()).isEqualTo(String.class);
+    assertThat(Modifier.isProtected(field.getModifiers())).as("Field should be protected.").isTrue();
+
+    field = ReflectionUtils.findField(TestObjectSubclassWithNewField.class, "name", String.class);
+    assertThat(field).isNotNull();
+    assertThat(field.getName()).isEqualTo("name");
+    assertThat(field.getType()).isEqualTo(String.class);
+    assertThat(Modifier.isPrivate(field.getModifiers())).as("Field should be private.").isTrue();
+  }
+
+  public void testSetField() {
+    TestObjectSubclassWithNewField testBean = new TestObjectSubclassWithNewField();
+    Field field = ReflectionUtils.findField(TestObjectSubclassWithNewField.class, "name", String.class);
+
+    ReflectionUtils.makeAccessible(field);
+
+    ReflectionUtils.setField(field, testBean, "FooBar");
+    assertThat(testBean.getName()).isNotNull();
+    assertThat(testBean.getName()).isEqualTo("FooBar");
+
+    ReflectionUtils.setField(field, testBean, null);
+    assertThat((Object) testBean.getName()).isNull();
+  }
+
+  public void testInvokeMethod() throws Exception {
+    String rob = "Rob Harrop";
+
+    TestObject bean = new TestObject();
+    bean.setName(rob);
+
+    Method getName = TestObject.class.getMethod("getName");
+    Method setName = TestObject.class.getMethod("setName", String.class);
+
+    Object name = ReflectionUtils.invokeMethod(getName, bean);
+    assertThat(name).as("Incorrect name returned").isEqualTo(rob);
+
+    String juergen = "Juergen Hoeller";
+    ReflectionUtils.invokeMethod(setName, bean, juergen);
+    assertThat(bean.getName()).as("Incorrect name set").isEqualTo(juergen);
+  }
+
+  public void testDeclaresException() throws Exception {
+    Method remoteExMethod = A.class.getDeclaredMethod("foo", Integer.class);
+    assertThat(ReflectionUtils.declaresException(remoteExMethod, RemoteException.class)).isTrue();
+    assertThat(ReflectionUtils.declaresException(remoteExMethod, ConnectException.class)).isTrue();
+    assertThat(ReflectionUtils.declaresException(remoteExMethod, NoSuchMethodException.class)).isFalse();
+    assertThat(ReflectionUtils.declaresException(remoteExMethod, Exception.class)).isFalse();
+
+    Method illegalExMethod = B.class.getDeclaredMethod("bar", String.class);
+    assertThat(ReflectionUtils.declaresException(illegalExMethod, IllegalArgumentException.class)).isTrue();
+    assertThat(ReflectionUtils.declaresException(illegalExMethod, NumberFormatException.class)).isTrue();
+    assertThat(ReflectionUtils.declaresException(illegalExMethod, IllegalStateException.class)).isFalse();
+    assertThat(ReflectionUtils.declaresException(illegalExMethod, Exception.class)).isFalse();
+  }
+
+  public void testCopySrcToDestinationOfIncorrectClass() {
+    TestObject src = new TestObject();
+    String dest = new String();
+    assertThatIllegalArgumentException().isThrownBy(() -> ReflectionUtils.shallowCopyFieldState(src, dest));
+  }
+
+  public void testRejectsNullSrc() {
+    TestObject src = null;
+    String dest = new String();
+    assertThatIllegalArgumentException().isThrownBy(() -> ReflectionUtils.shallowCopyFieldState(src, dest));
+  }
+
+  public void testRejectsNullDest() {
+    TestObject src = new TestObject();
+    String dest = null;
+    assertThatIllegalArgumentException().isThrownBy(() -> ReflectionUtils.shallowCopyFieldState(src, dest));
+  }
+
+  public void testValidCopy() {
+    TestObject src = new TestObject();
+    TestObject dest = new TestObject();
+    testValidCopy(src, dest);
+  }
+
+  public void testValidCopyOnSubTypeWithNewField() {
+    TestObjectSubclassWithNewField src = new TestObjectSubclassWithNewField();
+    TestObjectSubclassWithNewField dest = new TestObjectSubclassWithNewField();
+    src.magic = 11;
+
+    // Will check inherited fields are copied
+    testValidCopy(src, dest);
+
+    // Check subclass fields were copied
+    assertThat(dest.magic).isEqualTo(src.magic);
+    assertThat(dest.prot).isEqualTo(src.prot);
+  }
+
+  public void testValidCopyToSubType() {
+    TestObject src = new TestObject();
+    TestObjectSubclassWithNewField dest = new TestObjectSubclassWithNewField();
+    dest.magic = 11;
+    testValidCopy(src, dest);
+    // Should have left this one alone
+    assertThat(dest.magic).isEqualTo(11);
+  }
+
+  public void testValidCopyToSubTypeWithFinalField() {
+    TestObjectSubclassWithFinalField src = new TestObjectSubclassWithFinalField();
+    TestObjectSubclassWithFinalField dest = new TestObjectSubclassWithFinalField();
+    // Check that this doesn't fail due to attempt to assign final
+    testValidCopy(src, dest);
+  }
+
+  private void testValidCopy(TestObject src, TestObject dest) {
+    src.setName("freddie");
+    src.setAge(15);
+    src.setSpouse(new TestObject());
+    assertThat(src.getAge() == dest.getAge()).isFalse();
+
+    ReflectionUtils.shallowCopyFieldState(src, dest);
+    assertThat(dest.getAge()).isEqualTo(src.getAge());
+    assertThat(dest.getSpouse()).isEqualTo(src.getSpouse());
+  }
+
+  public void testDoWithProtectedMethods() {
+    ListSavingMethodCallback mc = new ListSavingMethodCallback();
+    ReflectionUtils.doWithMethods(TestObject.class, mc, new ReflectionUtils.MethodFilter() {
+      @Override
+      public boolean matches(Method m) {
+        return Modifier.isProtected(m.getModifiers());
+      }
+    });
+    assertThat(mc.getMethodNames().isEmpty()).isFalse();
+    assertThat(mc.getMethodNames().contains("clone")).as("Must find protected method on Object").isTrue();
+    assertThat(mc.getMethodNames().contains("finalize")).as("Must find protected method on Object").isTrue();
+    assertThat(mc.getMethodNames().contains("hashCode")).as("Public, not protected").isFalse();
+    assertThat(mc.getMethodNames().contains("absquatulate")).as("Public, not protected").isFalse();
+  }
+
+  public void testDuplicatesFound() {
+    ListSavingMethodCallback mc = new ListSavingMethodCallback();
+    ReflectionUtils.doWithMethods(TestObjectSubclass.class, mc);
+    int absquatulateCount = 0;
+    for (String name : mc.getMethodNames()) {
+      if (name.equals("absquatulate")) {
+        ++absquatulateCount;
+      }
     }
+    assertThat(absquatulateCount).as("Found 2 absquatulates").isEqualTo(2);
+  }
 
-    public void testInvokeMethod() throws Exception {
-        String rob = "Rob Harrop";
+  public void testFindMethod() throws Exception {
+    assertThat(ReflectionUtils.findMethod(B.class, "bar", String.class)).isNotNull();
+    assertThat(ReflectionUtils.findMethod(B.class, "foo", Integer.class)).isNotNull();
+    assertThat(ReflectionUtils.findMethod(B.class, "getClass")).isNotNull();
+  }
 
-        TestObject bean = new TestObject();
-        bean.setName(rob);
-
-        Method getName = TestObject.class.getMethod("getName");
-        Method setName = TestObject.class.getMethod("setName", String.class);
-
-        Object name = ReflectionUtils.invokeMethod(getName, bean);
-        assertThat(name).as("Incorrect name returned").isEqualTo(rob);
-
-        String juergen = "Juergen Hoeller";
-        ReflectionUtils.invokeMethod(setName, bean, juergen);
-        assertThat(bean.getName()).as("Incorrect name set").isEqualTo(juergen);
+  public void testGetAllDeclaredMethods() throws Exception {
+    class Foo {
+      @Override
+      public String toString() {
+        return super.toString();
+      }
     }
-
-    public void testDeclaresException() throws Exception {
-        Method remoteExMethod = A.class.getDeclaredMethod("foo", Integer.class);
-        assertThat(ReflectionUtils.declaresException(remoteExMethod, RemoteException.class)).isTrue();
-        assertThat(ReflectionUtils.declaresException(remoteExMethod, ConnectException.class)).isTrue();
-        assertThat(ReflectionUtils.declaresException(remoteExMethod, NoSuchMethodException.class)).isFalse();
-        assertThat(ReflectionUtils.declaresException(remoteExMethod, Exception.class)).isFalse();
-
-        Method illegalExMethod = B.class.getDeclaredMethod("bar", String.class);
-        assertThat(ReflectionUtils.declaresException(illegalExMethod, IllegalArgumentException.class)).isTrue();
-        assertThat(ReflectionUtils.declaresException(illegalExMethod, NumberFormatException.class)).isTrue();
-        assertThat(ReflectionUtils.declaresException(illegalExMethod, IllegalStateException.class)).isFalse();
-        assertThat(ReflectionUtils.declaresException(illegalExMethod, Exception.class)).isFalse();
+    int toStringMethodCount = 0;
+    final Method[] allDeclaredMethods = ReflectionUtils.getAllDeclaredMethods(Foo.class);
+    for (Method method : allDeclaredMethods) {
+      if (method.getName().equals("toString")) {
+        toStringMethodCount++;
+      }
     }
+    assertThat(toStringMethodCount).isEqualTo(2);
+  }
 
-    public void testCopySrcToDestinationOfIncorrectClass() {
-        TestObject src = new TestObject();
-        String dest = new String();
-        assertThatIllegalArgumentException().isThrownBy(() -> ReflectionUtils.shallowCopyFieldState(src, dest));
+  public void testGetUniqueDeclaredMethods() throws Exception {
+    class Foo {
+      @Override
+      public String toString() {
+        return super.toString();
+      }
     }
-
-    public void testRejectsNullSrc() {
-        TestObject src = null;
-        String dest = new String();
-        assertThatIllegalArgumentException().isThrownBy(() -> ReflectionUtils.shallowCopyFieldState(src, dest));
+    int toStringMethodCount = 0;
+    for (Method method : ReflectionUtils.getUniqueDeclaredMethods(Foo.class)) {
+      if (method.getName().equals("toString")) {
+        toStringMethodCount++;
+      }
     }
+    assertThat(toStringMethodCount).isEqualTo(1);
+  }
 
-    public void testRejectsNullDest() {
-        TestObject src = new TestObject();
-        String dest = null;
-        assertThatIllegalArgumentException().isThrownBy(() -> ReflectionUtils.shallowCopyFieldState(src, dest));
+  public void testGetUniqueDeclaredMethods_withCovariantReturnType() throws Exception {
+    class Parent {
+      @SuppressWarnings("unused")
+      public Number m1() {
+        return Integer.valueOf(42);
+      }
     }
-
-    public void testValidCopy() {
-        TestObject src = new TestObject();
-        TestObject dest = new TestObject();
-        testValidCopy(src, dest);
+    class Leaf extends Parent {
+      @Override
+      public Integer m1() {
+        return Integer.valueOf(42);
+      }
     }
-
-    public void testValidCopyOnSubTypeWithNewField() {
-        TestObjectSubclassWithNewField src = new TestObjectSubclassWithNewField();
-        TestObjectSubclassWithNewField dest = new TestObjectSubclassWithNewField();
-        src.magic = 11;
-
-        // Will check inherited fields are copied
-        testValidCopy(src, dest);
-
-        // Check subclass fields were copied
-        assertThat(dest.magic).isEqualTo(src.magic);
-        assertThat(dest.prot).isEqualTo(src.prot);
+    int m1MethodCount = 0;
+    Method[] methods = ReflectionUtils.getUniqueDeclaredMethods(Leaf.class);
+    for (Method method : methods) {
+      if (method.getName().equals("m1")) {
+        m1MethodCount++;
+      }
     }
+    assertThat(m1MethodCount).isEqualTo(1);
+  }
 
-    public void testValidCopyToSubType() {
-        TestObject src = new TestObject();
-        TestObjectSubclassWithNewField dest = new TestObjectSubclassWithNewField();
-        dest.magic = 11;
-        testValidCopy(src, dest);
-        // Should have left this one alone
-        assertThat(dest.magic).isEqualTo(11);
-    }
-
-    public void testValidCopyToSubTypeWithFinalField() {
-        TestObjectSubclassWithFinalField src = new TestObjectSubclassWithFinalField();
-        TestObjectSubclassWithFinalField dest = new TestObjectSubclassWithFinalField();
-        // Check that this doesn't fail due to attempt to assign final
-        testValidCopy(src, dest);
-    }
-
-    private void testValidCopy(TestObject src, TestObject dest) {
-        src.setName("freddie");
-        src.setAge(15);
-        src.setSpouse(new TestObject());
-        assertThat(src.getAge() == dest.getAge()).isFalse();
-
-        ReflectionUtils.shallowCopyFieldState(src, dest);
-        assertThat(dest.getAge()).isEqualTo(src.getAge());
-        assertThat(dest.getSpouse()).isEqualTo(src.getSpouse());
-    }
-
-    public void testDoWithProtectedMethods() {
-        ListSavingMethodCallback mc = new ListSavingMethodCallback();
-        ReflectionUtils.doWithMethods(TestObject.class, mc, new ReflectionUtils.MethodFilter() {
-            @Override
-            public boolean matches(Method m) {
-                return Modifier.isProtected(m.getModifiers());
-            }
-        });
-        assertThat(mc.getMethodNames().isEmpty()).isFalse();
-        assertThat(mc.getMethodNames().contains("clone")).as("Must find protected method on Object").isTrue();
-        assertThat(mc.getMethodNames().contains("finalize")).as("Must find protected method on Object").isTrue();
-        assertThat(mc.getMethodNames().contains("hashCode")).as("Public, not protected").isFalse();
-        assertThat(mc.getMethodNames().contains("absquatulate")).as("Public, not protected").isFalse();
-    }
-
-    public void testDuplicatesFound() {
-        ListSavingMethodCallback mc = new ListSavingMethodCallback();
-        ReflectionUtils.doWithMethods(TestObjectSubclass.class, mc);
-        int absquatulateCount = 0;
-        for (String name : mc.getMethodNames()) {
-            if (name.equals("absquatulate")) {
-                ++absquatulateCount;
-            }
-        }
-        assertThat(absquatulateCount).as("Found 2 absquatulates").isEqualTo(2);
-    }
-
-    public void testFindMethod() throws Exception {
-        assertThat(ReflectionUtils.findMethod(B.class, "bar", String.class)).isNotNull();
-        assertThat(ReflectionUtils.findMethod(B.class, "foo", Integer.class)).isNotNull();
-        assertThat(ReflectionUtils.findMethod(B.class, "getClass")).isNotNull();
-    }
-
-    public void testGetAllDeclaredMethods() throws Exception {
-        class Foo {
-            @Override
-            public String toString() {
-                return super.toString();
-            }
-        }
-        int toStringMethodCount = 0;
-        final Method[] allDeclaredMethods = ReflectionUtils.getAllDeclaredMethods(Foo.class);
-        for (Method method : allDeclaredMethods) {
-            if (method.getName().equals("toString")) {
-                toStringMethodCount++;
-            }
-        }
-        assertThat(toStringMethodCount).isEqualTo(2);
-    }
-
-    public void testGetUniqueDeclaredMethods() throws Exception {
-        class Foo {
-            @Override
-            public String toString() {
-                return super.toString();
-            }
-        }
-        int toStringMethodCount = 0;
-        for (Method method : ReflectionUtils.getUniqueDeclaredMethods(Foo.class)) {
-            if (method.getName().equals("toString")) {
-                toStringMethodCount++;
-            }
-        }
-        assertThat(toStringMethodCount).isEqualTo(1);
-    }
-
-    public void testGetUniqueDeclaredMethods_withCovariantReturnType() throws Exception {
-        class Parent {
-            @SuppressWarnings("unused")
-            public Number m1() {
-                return Integer.valueOf(42);
-            }
-        }
-        class Leaf extends Parent {
-            @Override
-            public Integer m1() {
-                return Integer.valueOf(42);
-            }
-        }
-        int m1MethodCount = 0;
-        Method[] methods = ReflectionUtils.getUniqueDeclaredMethods(Leaf.class);
-        for (Method method : methods) {
-            if (method.getName().equals("m1")) {
-                m1MethodCount++;
-            }
-        }
-        assertThat(m1MethodCount).isEqualTo(1);
-    }
-
-    public void testGetUniqueDeclaredMethods_isFastEnough() {
-        @SuppressWarnings("unused")
-        class C { //@off
+  public void testGetUniqueDeclaredMethods_isFastEnough() {
+    @SuppressWarnings("unused")
+    class C { //@off
             void m00() { } void m01() { } void m02() { } void m03() { } void m04() { }
             void m05() { } void m06() { } void m07() { } void m08() { } void m09() { }
             void m10() { } void m11() { } void m12() { } void m13() { } void m14() { }
@@ -697,93 +698,94 @@ public class ReflectionUtilsTest extends TestCase {
             void m95() { } void m96() { } void m97() { } void m98() { } void m99() { }
         } //@on
 
-        Method[] methods = ReflectionUtils.getUniqueDeclaredMethods(C.class);
-        assertThat(methods.length).isGreaterThan(100);
+    Method[] methods = ReflectionUtils.getUniqueDeclaredMethods(C.class);
+    assertThat(methods.length).isGreaterThan(100);
+  }
+
+  public void testGetDeclaredMethodsReturnsCopy() {
+    Method[] m1 = ReflectionUtils.getDeclaredMethods(A.class);
+    Method[] m2 = ReflectionUtils.getDeclaredMethods(A.class);
+    assertThat(m1).isNotSameAs(m2);
+  }
+
+  private static class ListSavingMethodCallback implements ReflectionUtils.MethodCallback {
+
+    private List<String> methodNames = new ArrayList<>();
+
+    private List<Method> methods = new ArrayList<>();
+
+    @Override
+    public void doWith(Method m) throws IllegalArgumentException, IllegalAccessException {
+      this.methodNames.add(m.getName());
+      this.methods.add(m);
     }
 
-    public void testGetDeclaredMethodsReturnsCopy() {
-        Method[] m1 = ReflectionUtils.getDeclaredMethods(A.class);
-        Method[] m2 = ReflectionUtils.getDeclaredMethods(A.class);
-        assertThat(m1).isNotSameAs(m2);
-    }
-
-    private static class ListSavingMethodCallback implements ReflectionUtils.MethodCallback {
-
-        private List<String> methodNames = new ArrayList<>();
-
-        private List<Method> methods = new ArrayList<>();
-
-        @Override
-        public void doWith(Method m) throws IllegalArgumentException, IllegalAccessException {
-            this.methodNames.add(m.getName());
-            this.methods.add(m);
-        }
-
-        public List<String> getMethodNames() {
-            return this.methodNames;
-        }
-
-        @SuppressWarnings("unused")
-        public List<Method> getMethods() {
-            return this.methods;
-        }
-    }
-
-    private static class TestObjectSubclass extends TestObject {
-
-        @Override
-        public void absquatulate() {
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    private static class TestObjectSubclassWithPublicField extends TestObject {
-
-        @SuppressWarnings("unused")
-        public String publicField = "foo";
-    }
-
-    private static class TestObjectSubclassWithNewField extends TestObject {
-
-        private int magic;
-
-        protected String prot = "foo";
-    }
-
-    private static class TestObjectSubclassWithFinalField extends TestObject {
-
-        @SuppressWarnings("unused")
-        private final String foo = "will break naive copy that doesn't exclude statics";
-    }
-
-    private static class A {
-
-        @SuppressWarnings("unused")
-        private void foo(Integer i) throws RemoteException {}
+    public List<String> getMethodNames() {
+      return this.methodNames;
     }
 
     @SuppressWarnings("unused")
-    private static class B extends A {
-
-        void bar(String s) throws IllegalArgumentException {}
-
-        int add(int... args) {
-            int sum = 0;
-            for (int i = 0; i < args.length; i++) {
-                sum += args[i];
-            }
-            return sum;
-        }
+    public List<Method> getMethods() {
+      return this.methods;
     }
+  }
 
-    // --------------------
+  private static class TestObjectSubclass extends TestObject {
 
-    public void testGetFields() {
-
-        Collection<Field> fields = ReflectionUtils.getFields(StandardApplicationContext.class);
-
-        final Field[] fieldArray = ReflectionUtils.getFieldArray(StandardApplicationContext.class);
-        assert fields.size() == fieldArray.length;
-
+    @Override
+    public void absquatulate() {
+      throw new UnsupportedOperationException();
     }
+  }
+
+  private static class TestObjectSubclassWithPublicField extends TestObject {
+
+    @SuppressWarnings("unused")
+    public String publicField = "foo";
+  }
+
+  private static class TestObjectSubclassWithNewField extends TestObject {
+
+    private int magic;
+
+    protected String prot = "foo";
+  }
+
+  private static class TestObjectSubclassWithFinalField extends TestObject {
+
+    @SuppressWarnings("unused")
+    private final String foo = "will break naive copy that doesn't exclude statics";
+  }
+
+  private static class A {
+
+    @SuppressWarnings("unused")
+    private void foo(Integer i) throws RemoteException {}
+  }
+
+  @SuppressWarnings("unused")
+  private static class B extends A {
+
+    void bar(String s) throws IllegalArgumentException {}
+
+    int add(int... args) {
+      int sum = 0;
+      for (int i = 0; i < args.length; i++) {
+        sum += args[i];
+      }
+      return sum;
+    }
+  }
+
+  // --------------------
+
+  public void testGetFields() {
+
+    Collection<Field> fields = ReflectionUtils.getFields(StandardApplicationContext.class);
+
+    final Field[] fieldArray = ReflectionUtils.getFieldArray(StandardApplicationContext.class);
+    assert fields.size() == fieldArray.length;
+
+  }
+
 }

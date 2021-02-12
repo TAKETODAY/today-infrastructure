@@ -1143,7 +1143,7 @@ public abstract class ReflectionUtils {
       return newConstructorAccessor(constructor);
     }
     catch (NoSuchMethodException e) {
-      throw new ReflectionException("target class: '" + target + "‘ has no default constructor");
+      throw new ReflectionException("Target class: '" + target + "‘ has no default constructor");
     }
   }
 
