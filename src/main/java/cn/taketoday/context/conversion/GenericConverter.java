@@ -20,11 +20,14 @@
 
 package cn.taketoday.context.conversion;
 
+import cn.taketoday.context.Ordered;
+import cn.taketoday.context.utils.OrderUtils;
+
 /**
  * @author TODAY
  * 2021/1/8 22:41
  */
-public class GenericConverter implements Converter {
+public class GenericConverter implements Converter, Ordered {
   final Class<?> sourceClass;
   final Converter converter;
 
@@ -40,5 +43,11 @@ public class GenericConverter implements Converter {
   @Override
   public Object convert(Object source) {
     return converter.convert(source);
+  }
+
+  // order support
+  @Override
+  public int getOrder() {
+    return OrderUtils.getOrder(converter);
   }
 }
