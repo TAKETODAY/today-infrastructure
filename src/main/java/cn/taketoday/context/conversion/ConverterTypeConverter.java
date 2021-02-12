@@ -22,8 +22,8 @@ package cn.taketoday.context.conversion;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +34,7 @@ import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.OrderUtils;
 
 /**
  * @author TODAY
@@ -134,8 +135,10 @@ public class ConverterTypeConverter
     Assert.notNull(sourceClass, "sourceClass must not be null");
 
     List<GenericConverter> converters =
-            converterMap.computeIfAbsent(targetClass, s -> new ArrayList<>(2));
+            converterMap.computeIfAbsent(targetClass, s -> new LinkedList<>());
     converters.add(new GenericConverter(sourceClass, converter));
+    // order support
+    OrderUtils.reversedSort(converters);
   }
 
   public Map<Class<?>, List<GenericConverter>> getConverterMap() {

@@ -20,10 +20,17 @@
 
 package cn.taketoday.context.conversion;
 
+import cn.taketoday.context.OrderedSupport;
+
 /**
  * @author TODAY 2021/2/11 12:15
  */
-public class ObjectToStringConverter implements Converter<Object, String> {
+public class ObjectToStringConverter
+        extends OrderedSupport implements Converter<Object, String> {
+
+  public ObjectToStringConverter() {
+    super(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE);
+  }
 
   @Override
   public String convert(Object source) {
