@@ -26,6 +26,7 @@ import cn.taketoday.jdbc.data.Row;
 import cn.taketoday.jdbc.data.Table;
 import cn.taketoday.jdbc.data.TableResultSetIterator;
 import cn.taketoday.jdbc.reflection.ReadableProperty;
+import cn.taketoday.jdbc.type.ObjectTypeHandler;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.JdbcUtils;
@@ -557,7 +558,7 @@ public class Query implements AutoCloseable {
     return this.connection;
   }
 
-  public Object executeScalar() {
+  public Object executeScalar(TypeHandler<?> typeHandler) {
     long start = System.currentTimeMillis();
 
     logExecution();
@@ -565,7 +566,7 @@ public class Query implements AutoCloseable {
             final ResultSet rs = ps.executeQuery()) {
 
       if (rs.next()) {
-        Object ret = rs.getObject(1);
+        final Object ret = typeHandler.getResult(rs, 1);
         if (log.isDebugEnabled()) {
           log.debug("total: {} ms; executed scalar [{}]",
                     System.currentTimeMillis() - start, this.getName() == null ? "No name" : getName());
@@ -578,11 +579,16 @@ public class Query implements AutoCloseable {
     }
     catch (SQLException e) {
       this.connection.onException();
-      throw new PersistenceException("Database error occurred while running executeScalar: " + e.getMessage(), e);
+      throw new PersistenceException(
+              "Database error occurred while running executeScalar: " + e.getMessage(), e);
     }
     finally {
       closeConnectionIfNecessary();
     }
+  }
+
+  public Object executeScalar() {
+    return executeScalar(ObjectTypeHandler.getSharedInstance());
   }
 
   public TypeHandlerRegistry getTypeHandlerRegistry() {
@@ -590,7 +596,7 @@ public class Query implements AutoCloseable {
   }
 
   public <V> V executeScalar(Class<V> returnType) {
-    final Object source = executeScalar();
+    final Object source = executeScalar(getTypeHandlerRegistry().getTypeHandler(returnType));
     return ConvertUtils.convert(returnType, source);
   }
 

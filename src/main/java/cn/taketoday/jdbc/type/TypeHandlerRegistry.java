@@ -111,6 +111,8 @@ public class TypeHandlerRegistry {
     register(Character.class, new CharacterTypeHandler());
 
     register(UUID.class, new UUIDTypeHandler());
+
+    registerJodaTime();
   }
 
   /**
@@ -236,6 +238,15 @@ public class TypeHandlerRegistry {
 
   public void register(Class<?> javaTypeClass, Class<?> typeHandlerClass) {
     register(javaTypeClass, getInstance(javaTypeClass, typeHandlerClass));
+  }
+
+  void registerJodaTime() {
+    try {
+      register(JodaDateTimeTypeHandler.class);
+      register(JodaLocalDateTypeHandler.class);
+      register(JodaLocalTimeTypeHandler.class);
+    }
+    catch (Exception ignored) { }
   }
 
   // Construct a handler (used also from Builders)

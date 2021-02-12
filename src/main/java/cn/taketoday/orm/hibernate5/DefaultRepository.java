@@ -37,7 +37,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.InitializingBean;
@@ -70,7 +69,7 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
   @SuppressWarnings("unchecked")
   public DefaultRepository() {
 
-    final Type[] actualTypeArguments = ClassUtils.getGenericityClass(getClass());
+    final Type[] actualTypeArguments = ClassUtils.getGenerics(getClass(), DefaultRepository.class);
     if (ObjectUtils.isNotEmpty(actualTypeArguments)) {
       final Type type = actualTypeArguments[0];
       if (type instanceof Class) {

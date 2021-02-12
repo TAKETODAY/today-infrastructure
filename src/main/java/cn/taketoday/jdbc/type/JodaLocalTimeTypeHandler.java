@@ -12,6 +12,7 @@ import java.sql.Timestamp;
  * @author TODAY
  * @date 2021/1/6 16:21
  */
+@MappedTypes(LocalTime.class)
 public class JodaLocalTimeTypeHandler extends BaseTypeHandler<LocalTime> {
 
   @Override
@@ -21,17 +22,17 @@ public class JodaLocalTimeTypeHandler extends BaseTypeHandler<LocalTime> {
 
   @Override
   public LocalTime getResult(ResultSet rs, String columnName) throws SQLException {
-    return getResultInternal(rs.getObject(columnName));
+    return getResultInternal(rs.getTime(columnName));
   }
 
   @Override
   public LocalTime getResult(ResultSet rs, int columnIndex) throws SQLException {
-    return getResultInternal(rs.getObject(columnIndex));
+    return getResultInternal(rs.getTime(columnIndex));
   }
 
   @Override
   public LocalTime getResult(CallableStatement cs, int columnIndex) throws SQLException {
-    return getResultInternal(cs.getObject(columnIndex));
+    return getResultInternal(cs.getTime(columnIndex));
   }
 
   protected LocalTime getResultInternal(final Object val) {
@@ -45,8 +46,9 @@ public class JodaLocalTimeTypeHandler extends BaseTypeHandler<LocalTime> {
       return new LocalTime(val);
     }
     catch (IllegalArgumentException ex) {
-      throw new TypeException("Don't know how to convert from type '" + val.getClass().getName() + "' to type '"
-                                      + LocalTime.class.getName() + "'", ex);
+      throw new TypeException(
+              "Don't know how to convert from type '" + val.getClass().getName() + "' to type '"
+                      + LocalTime.class.getName() + "'", ex);
     }
   }
 

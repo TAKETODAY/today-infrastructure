@@ -23,6 +23,10 @@ import java.sql.SQLException;
 import cn.taketoday.context.utils.Assert;
 
 /**
+ * <p>
+ * Use {@link Enum#name()}
+ * </p>
+ *
  * @author Clinton Begin
  * @author TODAY
  */

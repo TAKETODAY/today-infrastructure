@@ -23,6 +23,8 @@ import java.sql.SQLException;
 import cn.taketoday.context.utils.Assert;
 
 /**
+ * Use {@link Enum#ordinal()}
+ *
  * @author Clinton Begin
  * @author TODAY
  */
@@ -72,13 +74,13 @@ public class EnumOrdinalTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E
     return toOrdinalEnum(ordinal);
   }
 
-  private E toOrdinalEnum(int ordinal) {
+  E toOrdinalEnum(int ordinal) {
     try {
       return enums[ordinal];
     }
     catch (Exception ex) {
-      throw new IllegalArgumentException("Cannot convert " + ordinal + " to "
-                                                 + type.getSimpleName() + " by ordinal value.", ex);
+      throw new IllegalArgumentException(
+              "Cannot convert " + ordinal + " to " + type.getSimpleName() + " by ordinal value.", ex);
     }
   }
 }

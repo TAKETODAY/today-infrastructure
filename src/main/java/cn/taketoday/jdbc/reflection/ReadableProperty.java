@@ -3,6 +3,7 @@ package cn.taketoday.jdbc.reflection;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,8 +12,6 @@ import cn.taketoday.context.utils.Mappings;
 import cn.taketoday.context.utils.ReflectionUtils;
 
 import static java.beans.Introspector.decapitalize;
-import static java.lang.reflect.Modifier.isPrivate;
-import static java.lang.reflect.Modifier.isStatic;
 
 /**
  * @author TODAY
@@ -59,7 +58,7 @@ public class ReadableProperty {
 
     for (final Field field : ReflectionUtils.getFields(cls)) {
 
-      if (isStaticOrPrivate(field)) {
+      if (isStatic(field)) {
         continue;
       }
       String propName = field.getName();
@@ -76,15 +75,15 @@ public class ReadableProperty {
     }
   }
 
-  private static boolean isStaticOrPrivate(Member m) {
+  private static boolean isStatic(Member m) {
     final int modifiers = m.getModifiers();
-    return isStatic(modifiers) || isPrivate(modifiers);
+    return Modifier.isStatic(modifiers) /*|| isPrivate(modifiers)*/;
   }
 
   private static void collectPropertyGetters(Map<String, ReadableProperty> map, Class<?> cls) {
 
     for (final Method m : ReflectionUtils.getDeclaredMethods(cls)) {
-      if (isStaticOrPrivate(m)) {
+      if (isStatic(m)) {
         continue;
       }
       if (0 != m.getParameterTypes().length) {

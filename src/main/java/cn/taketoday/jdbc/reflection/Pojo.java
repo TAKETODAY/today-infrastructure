@@ -1,15 +1,17 @@
 package cn.taketoday.jdbc.reflection;
 
+import cn.taketoday.context.factory.BeanProperty;
+
 /**
  * Used internally to represent a plain old java object.
  */
 public class Pojo {
 
   private final Object object;
-  private final BeanMetadata metadata;
+  private final JdbcBeanMetadata metadata;
   private final boolean caseSensitive;
 
-  public Pojo(BeanMetadata metadata, Object object) {
+  public Pojo(JdbcBeanMetadata metadata, Object object) {
     this.object = object;
     this.metadata = metadata;
     this.caseSensitive = metadata.isCaseSensitive();
@@ -19,7 +21,7 @@ public class Pojo {
     // String.split uses RegularExpression
     // this is overkill for every column for every row
     int index = propertyPath.indexOf('.');
-    final BeanMetadata metadata = this.metadata;
+    final JdbcBeanMetadata metadata = this.metadata;
 
     final BeanProperty beanProperty;
     if (index > 0) {
@@ -34,7 +36,7 @@ public class Pojo {
         return null;
       }
 
-      BeanMetadata subMetadata = metadata.createProperty(beanProperty.getType(), this.caseSensitive);
+      JdbcBeanMetadata subMetadata = metadata.createProperty(beanProperty.getType(), this.caseSensitive);
       Pojo subPojo = new Pojo(subMetadata, propertyValue);
       return subPojo.getProperty(newPath);
     }
@@ -49,7 +51,7 @@ public class Pojo {
     // String.split uses RegularExpression
     // this is overkill for every column for every row
     int index = propertyPath.indexOf('.');
-    final BeanMetadata metadata = this.metadata;
+    final JdbcBeanMetadata metadata = this.metadata;
     final BeanProperty beanProperty;
     if (index > 0) {
       final String property = propertyPath.substring(0, index);
@@ -61,7 +63,7 @@ public class Pojo {
         beanProperty.setValue(object, subValue);
       }
 
-      BeanMetadata subMetadata = metadata.createProperty(beanProperty.getType(), this.caseSensitive);
+      JdbcBeanMetadata subMetadata = metadata.createProperty(beanProperty.getType(), this.caseSensitive);
 
       Pojo subPojo = new Pojo(subMetadata, subValue);
       String newPath = propertyPath.substring(index + 1);

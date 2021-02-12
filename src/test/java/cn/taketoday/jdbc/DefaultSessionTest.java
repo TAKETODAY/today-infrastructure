@@ -27,6 +27,9 @@ import java.util.Map;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
+import cn.taketoday.context.reflect.BeanConstructor;
+import cn.taketoday.context.utils.ReflectionUtils;
+import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.jdbc.data.LazyTable;
 import cn.taketoday.jdbc.data.Row;
 import cn.taketoday.jdbc.data.Table;
@@ -35,6 +38,9 @@ import cn.taketoday.jdbc.pojos.ComplexEntity;
 import cn.taketoday.jdbc.pojos.EntityWithPrivateFields;
 import cn.taketoday.jdbc.pojos.StringConversionPojo;
 import cn.taketoday.jdbc.pojos.SuperPojo;
+import cn.taketoday.jdbc.type.BytesInputStreamTypeHandler;
+import cn.taketoday.jdbc.type.EnumOrdinalTypeHandler;
+import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.IOUtils;
 
 import static cn.taketoday.jdbc.connectionsources.ConnectionSources.join;
@@ -43,6 +49,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -339,7 +346,8 @@ public class DefaultSessionTest extends BaseMemDbTest {
               .addParameter("id", 2).addParameter("text", "test2").addToBatch()
               .executeBatch();
 
-      List<ColumnEntity> result = connection.createQuery("select * from test_column_annotation").executeAndFetch(ColumnEntity.class);
+      List<ColumnEntity> result = connection.createQuery("select * from test_column_annotation")
+              .executeAndFetch(ColumnEntity.class);
 
       assertTrue(result.size() == 2);
       assertEquals(1, result.get(0).getId());
@@ -636,8 +644,9 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
   @Test
   public void testStringConversion() {
-    StringConversionPojo pojo = defaultSession.createQuery("select '1' val1, '2  ' val2, '' val3, '' val4, null val5 from (values(0))")
-            .executeAndFetchFirst(StringConversionPojo.class);
+    StringConversionPojo pojo =
+            defaultSession.createQuery("select '1' val1, '2  ' val2, '' val3, '' val4, null val5 from (values(0))")
+                    .executeAndFetchFirst(StringConversionPojo.class);
 
     assertEquals((Integer) 1, pojo.val1);
     assertEquals(2l, pojo.val2);
@@ -863,19 +872,26 @@ public class DefaultSessionTest extends BaseMemDbTest {
             .addParameter("val", TestEnum.HELLO).addParameter("val2", TestEnum.HELLO.ordinal()).addToBatch()
             .addParameter("val", TestEnum.WORLD).addParameter("val2", TestEnum.WORLD.ordinal()).addToBatch().executeBatch();
 
-    List<EntityWithEnum> list = defaultSession.createQuery("select id, enum_val val, enum_val2 val2 from EnumTest").executeAndFetch(
-            EntityWithEnum.class);
+    TestEnum testEnum = defaultSession.createQuery("select 'HELLO' from (values(0))")
+            .executeScalar(TestEnum.class);
+    assertThat(testEnum, is(TestEnum.HELLO));
+
+    TestEnum testEnum2 = defaultSession.createQuery("select NULL from (values(0))")
+            .executeScalar(TestEnum.class);
+    assertThat(testEnum2, is(nullValue()));
+
+    final TypeHandlerRegistry handlerRegistry = new TypeHandlerRegistry();
+    handlerRegistry.setDefaultEnumTypeHandler(EnumOrdinalTypeHandler.class);
+    defaultSession.setTypeHandlerRegistry(handlerRegistry);
+
+    List<EntityWithEnum> list = defaultSession.createQuery("select id, enum_val val, enum_val2 val2 from EnumTest")
+            .executeAndFetch(EntityWithEnum.class);
 
     assertThat(list.get(0).val, is(TestEnum.HELLO));
     assertThat(list.get(0).val2, is(TestEnum.HELLO));
     assertThat(list.get(1).val, is(TestEnum.WORLD));
     assertThat(list.get(1).val2, is(TestEnum.WORLD));
 
-    TestEnum testEnum = defaultSession.createQuery("select 'HELLO' from (values(0))").executeScalar(TestEnum.class);
-    assertThat(testEnum, is(TestEnum.HELLO));
-
-    TestEnum testEnum2 = defaultSession.createQuery("select NULL from (values(0))").executeScalar(TestEnum.class);
-    assertThat(testEnum2, is(nullValue()));
   }
 
   public static class BooleanPOJO {
@@ -924,14 +940,25 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
     // select
     String sql = "select id, data from blobtbl2";
-    BlobPOJO1 pojo1 = defaultSession.createQuery(sql).executeAndFetchFirst(BlobPOJO1.class);
-    BlobPOJO2 pojo2 = defaultSession.createQuery(sql).executeAndFetchFirst(BlobPOJO2.class);
+    BlobPOJO1 pojo1 = defaultSession.createQuery(sql)
+            .executeAndFetchFirst(BlobPOJO1.class);
+
+    final TypeHandlerRegistry handlerRegistry = new TypeHandlerRegistry();
+    handlerRegistry.register(InputStream.class, new BytesInputStreamTypeHandler());
+    defaultSession.setTypeHandlerRegistry(handlerRegistry);
+
+
+    BlobPOJO2 pojo2 = defaultSession.createQuery(sql)
+            .executeAndFetchFirst(BlobPOJO2.class);
 
     String pojo1DataString = new String(pojo1.data);
     assertThat(dataString, is(equalTo(pojo1DataString)));
 
-    byte[] pojo2Data = IOUtils.toByteArray(pojo2.data);
-    String pojo2DataString = new String(pojo2Data);
+    final InputStream inputStream = pojo2.data;
+
+    final String pojo2DataString = StringUtils.readAsText(inputStream);
+//    byte[] pojo2Data = IOUtils.toByteArray(pojo2.data);
+//    String pojo2DataString = new String(pojo2Data);
     assertThat(dataString, is(equalTo(pojo2DataString)));
   }
 
@@ -972,10 +999,12 @@ public class DefaultSessionTest extends BaseMemDbTest {
     assertThat(sqlTime, is(notNullValue()));
     assertTrue(p.getMinutes() == 0);
 
-    Date date = defaultSession.createQuery(sql).executeScalar(Date.class);
+    Date date = defaultSession.createQuery(sql)
+            .executeScalar(Date.class);
     assertThat(date, is(notNullValue()));
 
-    LocalTime jodaTime = defaultSession.createQuery(sql).executeScalar(LocalTime.class);
+    LocalTime jodaTime = defaultSession.createQuery(sql)
+            .executeScalar(LocalTime.class);
     assertTrue(jodaTime.getMillisOfDay() > 0);
     assertThat(jodaTime.getHourOfDay(), is(equalTo(new LocalTime().getHourOfDay())));
   }
@@ -1043,10 +1072,13 @@ public class DefaultSessionTest extends BaseMemDbTest {
     };
 
     String insertSql = "insert into bindtbl(data1, data2, data3) values(:data1, :data2, :data3)";
-    defaultSession.createQuery(insertSql).bind(pojo1).executeUpdate();
+    defaultSession.createQuery(insertSql)
+            .bind(pojo1)
+            .executeUpdate();
 
     String selectSql = "select data1, data2, data3 from bindtbl";
-    BindablePojo pojo2 = defaultSession.createQuery(selectSql).executeAndFetchFirst(BindablePojo.class);
+    BindablePojo pojo2 = defaultSession.createQuery(selectSql)
+            .executeAndFetchFirst(BindablePojo.class);
 
     assertTrue(pojo1.equals(pojo2));
   }
@@ -1400,28 +1432,28 @@ public class DefaultSessionTest extends BaseMemDbTest {
     assertThat(users2.size(), is(equalTo(10004)));
   }
 
+  static class LocalPojo {
+    private long idVal;
+    private String anotherVeryExcitingValue;
+
+    public long getIdVal() {
+      return idVal;
+    }
+
+    public String getAnotherVeryExcitingValue() {
+      return anotherVeryExcitingValue;
+    }
+
+    public void setAnotherVeryExcitingValue(String anotherVeryExcitingValue) {
+      this.anotherVeryExcitingValue = anotherVeryExcitingValue;
+    }
+  }
+
   @Test
   public void testAutoDeriveColumnNames() {
     String createTableSql = "create table testAutoDeriveColumnNames (id_val integer primary key, another_very_exciting_value varchar(20))";
     String insertSql = "insert into testAutoDeriveColumnNames values (:id, :val)";
     String selectSql = "select * from testAutoDeriveColumnNames";
-
-    class LocalPojo {
-      private long idVal;
-      private String anotherVeryExcitingValue;
-
-      public long getIdVal() {
-        return idVal;
-      }
-
-      public String getAnotherVeryExcitingValue() {
-        return anotherVeryExcitingValue;
-      }
-
-      public void setAnotherVeryExcitingValue(String anotherVeryExcitingValue) {
-        this.anotherVeryExcitingValue = anotherVeryExcitingValue;
-      }
-    }
 
     try (JdbcConnection con = defaultSession.open()) {
       con.createQuery(createTableSql).executeUpdate();

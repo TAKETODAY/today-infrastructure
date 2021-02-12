@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import cn.taketoday.jdbc.ResultSetHandler;
-import cn.taketoday.jdbc.reflection.BeanMetadata;
+import cn.taketoday.jdbc.reflection.JdbcBeanMetadata;
 
 /**
  * @author TODAY
@@ -13,10 +13,10 @@ import cn.taketoday.jdbc.reflection.BeanMetadata;
 public class ObjectResultHandler<T> implements ResultSetHandler<T> {
 
   final int columnCount;
-  final BeanMetadata metadata;
+  final JdbcBeanMetadata metadata;
   final JdbcPropertyAccessor[] propertyAccessors;
 
-  public ObjectResultHandler(final BeanMetadata metadata, final JdbcPropertyAccessor[] accessors, int columnCount) {
+  public ObjectResultHandler(final JdbcBeanMetadata metadata, final JdbcPropertyAccessor[] accessors, int columnCount) {
     this.metadata = metadata;
     this.propertyAccessors = accessors;
     this.columnCount = columnCount;

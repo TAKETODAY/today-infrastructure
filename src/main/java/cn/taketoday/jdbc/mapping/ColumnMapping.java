@@ -104,7 +104,7 @@ public class ColumnMapping implements PropertyAccessor {
 
     this.column = columnName;
     this.accessor = ReflectionUtils.newPropertyAccessor(field);
-    this.genericityClass = ClassUtils.getGenericityClass(type);
+    this.genericityClass = ClassUtils.getGenerics(type);
 
     this.resolver = obtainResolver();
     log.debug("Create Column Mapping: [{}]", this);

@@ -290,6 +290,11 @@ public class IssuesTest {
     public String theVal;
   }
 
+  static class ThePojo {
+    public int id;
+    public String name;
+  }
+
   /**
    * Test for issue #148 (https://github.com/aaberg/sql2o/issues/148) ##
    * IndexOutOfRange exception When a resultset has multiple columns with the same
@@ -298,11 +303,6 @@ public class IssuesTest {
    */
   @Test
   public void testIndexOutOfRangeExceptionWithMultipleColumnsWithSameName() {
-
-    class ThePojo {
-      public int id;
-      public String name;
-    }
 
     String sql = "select 11 id, 'something' name, 'something else' name from (values(0))";
 
@@ -321,17 +321,17 @@ public class IssuesTest {
     assertEquals("something else", t.rows().get(0).getString("name"));
   }
 
+  static class TheIgnoreSqlCommentPojo {
+    public int id;
+    public int intval;
+    public String strval;
+  }
+
   /**
    * Reproduce issue #142 (https://github.com/aaberg/sql2o/issues/142)
    */
   @Test
   public void testIgnoreSqlComments() {
-
-    class ThePojo {
-      public int id;
-      public int intval;
-      public String strval;
-    }
 
     String createSql = "create table testIgnoreSqlComments(id integer primary key, intval integer, strval varchar(100))";
 
@@ -357,41 +357,17 @@ public class IssuesTest {
                 .executeUpdate();
       }
 
-      List<ThePojo> resultList = connection.createQuery(fetchQuery)
+      List<TheIgnoreSqlCommentPojo> resultList = connection.createQuery(fetchQuery)
               .addParameter("param", 5)
-              .executeAndFetch(ThePojo.class);
+              .executeAndFetch(TheIgnoreSqlCommentPojo.class);
 
       assertEquals(10, resultList.size());
     }
   }
 
-  /**
-   * Testing for github issue #134. Add option to ignore mapping errors
-   */
-  @Test
-  public void testIssue134ThrowOnMappingErrorProperty() {
-    String sql = "select 1 id, 'foo' val1, 'bar' val2 from (values(0))";
-
-    class Pojo {
-      public int id;
-      public String val1;
-    }
-
-    try (JdbcConnection connection = sql2o.open()) {
-
-      try {
-        Pojo pojo = connection.createQuery(sql).executeAndFetchFirst(Pojo.class);
-        fail("Expeced an exception to be thrown");
-      }
-      catch (PersistenceException e) {
-        assertEquals("Could not map VAL2 to any property.", e.getMessage());
-      }
-
-      Pojo pojo = connection.createQuery(sql).throwOnMappingFailure(false).executeAndFetchFirst(Pojo.class);
-
-      assertEquals(1, pojo.id);
-      assertEquals("foo", pojo.val1);
-    }
+  static class Pojo {
+    public int id;
+    public String val1;
   }
 
   @Test

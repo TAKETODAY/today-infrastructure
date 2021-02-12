@@ -11,6 +11,8 @@ import cn.taketoday.context.conversion.ConverterTypeConverter;
 import cn.taketoday.jdbc.connectionsources.ConnectionSource;
 import cn.taketoday.jdbc.connectionsources.DataSourceConnectionSource;
 import cn.taketoday.jdbc.conversion.ClobToStringConverter;
+import cn.taketoday.jdbc.conversion.OffsetTimeToSQLTimeConverter;
+import cn.taketoday.jdbc.conversion.TimeToJodaLocalTimeConverter;
 import cn.taketoday.jdbc.parsing.SqlParameterParsingStrategy;
 import cn.taketoday.jdbc.parsing.impl.DefaultSqlParameterParsingStrategy;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
@@ -38,16 +40,20 @@ public class DefaultSession {
 
   private TypeHandlerRegistry typeHandlerRegistry = TypeHandlerRegistry.getSharedInstance();
 
-  private Map<String, String> defaultColumnMappings;
   private boolean defaultCaseSensitive;
-
-  private ConnectionSource connectionSource;
   private boolean generatedKeys = true;
+  private ConnectionSource connectionSource;
+  private Map<String, String> defaultColumnMappings;
   private SqlParameterParsingStrategy parsingStrategy = new DefaultSqlParameterParsingStrategy();
 
   static {
     final ClobToStringConverter stringConverter = new ClobToStringConverter();
-    ConverterTypeConverter.getSharedInstance().addConverter(stringConverter);
+    final TimeToJodaLocalTimeConverter jodaLocalTimeConverter= new TimeToJodaLocalTimeConverter();
+
+    final ConverterTypeConverter sharedInstance = ConverterTypeConverter.getSharedInstance();
+    sharedInstance.addConverter(stringConverter);
+    sharedInstance.addConverter(jodaLocalTimeConverter);
+    sharedInstance.addConverter(new OffsetTimeToSQLTimeConverter());
   }
 
   public DefaultSession(String jndiLookup) {

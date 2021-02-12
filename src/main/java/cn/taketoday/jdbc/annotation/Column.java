@@ -24,10 +24,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.context.annotation.Property;
+
 /**
  * @author TODAY <br>
  *         2018-08-22 16:43
  */
+@Property
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD, ElementType.TYPE })
 public @interface Column {

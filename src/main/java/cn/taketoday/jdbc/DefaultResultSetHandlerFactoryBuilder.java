@@ -2,7 +2,7 @@ package cn.taketoday.jdbc;
 
 import java.util.Map;
 
-import cn.taketoday.jdbc.reflection.BeanMetadata;
+import cn.taketoday.jdbc.reflection.JdbcBeanMetadata;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 
 public class DefaultResultSetHandlerFactoryBuilder implements ResultSetHandlerFactoryBuilder {
@@ -52,7 +52,7 @@ public class DefaultResultSetHandlerFactoryBuilder implements ResultSetHandlerFa
 
 
   public <T> ResultSetHandlerFactory<T> newFactory(Class<T> clazz) {
-    BeanMetadata pojoMetadata = new BeanMetadata(clazz, caseSensitive, autoDeriveColumnNames, columnMappings, throwOnMappingError);
+    JdbcBeanMetadata pojoMetadata = new JdbcBeanMetadata(clazz, caseSensitive, autoDeriveColumnNames, columnMappings, throwOnMappingError);
     return new DefaultResultSetHandlerFactory<>(pojoMetadata, registry);
   }
 

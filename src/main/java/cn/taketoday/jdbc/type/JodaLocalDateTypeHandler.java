@@ -12,6 +12,7 @@ import java.sql.SQLException;
  * @author TODAY
  * @date 2021/1/6 16:04
  */
+@MappedTypes(LocalDate.class)
 public class JodaLocalDateTypeHandler extends BaseTypeHandler<LocalDate> {
 
   @Override
@@ -45,8 +46,9 @@ public class JodaLocalDateTypeHandler extends BaseTypeHandler<LocalDate> {
       return new LocalDate(val);
     }
     catch (IllegalArgumentException ex) {
-      throw new TypeException("Don't know how to convert from type '" + val.getClass().getName() + "' to type '"
-                                      + LocalDate.class.getName() + "'", ex);
+      throw new TypeException(
+              "Don't know how to convert from type '" + val.getClass().getName() + "' to type '"
+                      + LocalDate.class.getName() + "'", ex);
     }
   }
 }

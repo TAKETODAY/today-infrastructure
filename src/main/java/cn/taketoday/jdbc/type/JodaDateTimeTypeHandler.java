@@ -14,6 +14,7 @@ import java.sql.Timestamp;
  * @author TODAY
  * @date 2021/1/6 15:55
  */
+@MappedTypes(DateTime.class)
 public class JodaDateTimeTypeHandler extends BaseTypeHandler<DateTime> {
   private final DateTimeZone timeZone;
 
@@ -57,7 +58,7 @@ public class JodaDateTimeTypeHandler extends BaseTypeHandler<DateTime> {
       return new LocalDateTime(val).toDateTime(timeZone);
     }
     catch (IllegalArgumentException ex) {
-      throw new TypeException("Error while converting type " + val.getClass().toString() + " to jodatime", ex);
+      throw new TypeException("Error while converting type " + val.getClass().toString() + " to joda-time", ex);
     }
   }
 }

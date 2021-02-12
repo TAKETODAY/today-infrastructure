@@ -4,10 +4,10 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
+import cn.taketoday.context.factory.BeanProperty;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.Mappings;
-import cn.taketoday.jdbc.reflection.BeanMetadata;
-import cn.taketoday.jdbc.reflection.BeanProperty;
+import cn.taketoday.jdbc.reflection.JdbcBeanMetadata;
 import cn.taketoday.jdbc.reflection.Pojo;
 import cn.taketoday.jdbc.result.JdbcPropertyAccessor;
 import cn.taketoday.jdbc.result.ObjectResultHandler;
@@ -19,10 +19,10 @@ import cn.taketoday.jdbc.utils.JdbcUtils;
 
 public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactory<T> {
 
-  private final BeanMetadata metadata;
+  private final JdbcBeanMetadata metadata;
   final TypeHandlerRegistry registry;
 
-  public DefaultResultSetHandlerFactory(BeanMetadata pojoMetadata, TypeHandlerRegistry registry) {
+  public DefaultResultSetHandlerFactory(JdbcBeanMetadata pojoMetadata, TypeHandlerRegistry registry) {
     this.metadata = pojoMetadata;
     this.registry = registry;
   }
@@ -72,7 +72,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
     return new ObjectResultHandler<>(metadata, accessors, columnCount);
   }
 
-  private JdbcPropertyAccessor getPropertyAccessor(final String propertyPath, final BeanMetadata metadata) {
+  private JdbcPropertyAccessor getPropertyAccessor(final String propertyPath, final JdbcBeanMetadata metadata) {
     int index = propertyPath.indexOf('.');
 
     if (index <= 0) {
@@ -83,7 +83,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
         return null;
       }
       final TypeHandler<?> typeHandler = registry.getTypeHandler(beanProperty.getType());
-      return new TypeHandlerPropertyAccessor(typeHandler, beanProperty.getPropertyAccessor());
+      return new TypeHandlerPropertyAccessor(typeHandler, beanProperty);
     }
 
     // dot path - long way
@@ -97,13 +97,15 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
       public Object get(final Object obj) {
         Pojo pojo = new Pojo(metadata, obj);
         return pojo.getProperty(propertyPath);
+//        return BeanPropertyAccessor.getProperty(obj, metadata, propertyPath);
       }
 
       @Override
       public void set(final Object obj, final ResultSet resultSet, final int columnIndex) throws SQLException {
-        Pojo pojo = new Pojo(metadata, obj);
         final Object result = typeHandler.getResult(resultSet, columnIndex);
+        Pojo pojo = new Pojo(metadata, obj);
         pojo.setProperty(propertyPath, result);
+//        BeanPropertyAccessor.setProperty(obj, metadata, propertyPath, result);
       }
     }
 
@@ -149,7 +151,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
     @Override
     protected ResultSetHandler createValue(Object key, ResultSetMetaData param) {
       try {
-        return ((Key)key).factory.newResultSetHandler0(param);
+        return ((Key) key).factory.newResultSetHandler0(param);
       }
       catch (SQLException e) {
         throw new RuntimeException(e);
