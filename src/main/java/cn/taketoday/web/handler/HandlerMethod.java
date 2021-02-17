@@ -135,7 +135,7 @@ public class HandlerMethod
 
   public Type[] getGenerics() {
     if (generics == null) {
-      generics = ClassUtils.getGenericityClass(returnType);
+      generics = ClassUtils.getGenerics(returnType);
     }
     return generics;
   }

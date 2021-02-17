@@ -30,7 +30,7 @@ import cn.taketoday.context.EmptyObject;
  * @since 3.0
  */
 public class CacheableMappedHandlerRegistry extends MappedHandlerRegistry {
-  static final String CACHE_NAME = CacheableMappedHandlerRegistry.class + "pattern-matching";
+  static final String CACHE_NAME = CacheableMappedHandlerRegistry.class.getName() + "pattern-matching";
 
   private Cache patternMatchingCache;
 
@@ -53,8 +53,9 @@ public class CacheableMappedHandlerRegistry extends MappedHandlerRegistry {
   }
 
   public final Cache getPatternMatchingCache() {
+    Cache patternMatchingCache = this.patternMatchingCache;
     if (patternMatchingCache == null) {
-      patternMatchingCache = createPatternMatchingCache();
+      this.patternMatchingCache = patternMatchingCache = createPatternMatchingCache();
     }
     return patternMatchingCache;
   }
