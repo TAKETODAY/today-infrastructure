@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.aop.advice;
+package cn.taketoday.aop.support.advice;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -25,23 +25,20 @@ import java.lang.reflect.Method;
 
 /**
  * @author TODAY <br>
- * 2018-10-13 11:25
+ * 2018-10-13 11:23
  */
-public class MethodAfterThrowingAdvice extends MethodAfterAdvice {
+public class MethodAfterReturningAdvice extends MethodAfterAdvice {
 
-  public MethodAfterThrowingAdvice(Method method, Object aspect) {
+  public MethodAfterReturningAdvice(Method method, Object aspect) {
     super(method, aspect);
-    setOrder(5);
+    setOrder(4);
   }
 
   @Override
-  public Object invoke(final MethodInvocation inv) throws Throwable {
-    try {
-      return inv.proceed();
-    }
-    catch (Throwable ex) {
-      return invokeAdviceMethod(inv, null, ex); // fix Use
-    }
+  public Object invoke(MethodInvocation inv) throws Throwable {
+    final Object returnValue = inv.proceed();
+    invokeAdviceMethod(inv, returnValue, null);
+    return returnValue;
   }
 
 }

@@ -22,8 +22,8 @@ package cn.taketoday.aop;
 
 import org.aopalliance.aop.Advice;
 
-import cn.taketoday.aop.advice.MethodAfterReturningAdvice;
-import cn.taketoday.aop.advice.MethodAfterThrowingAdvice;
+import cn.taketoday.aop.support.advice.MethodAfterReturningAdvice;
+import cn.taketoday.aop.support.advice.MethodAfterThrowingAdvice;
 
 /**
  * Base interface holding AOP <b>advice</b> (action to take at a joinpoint)

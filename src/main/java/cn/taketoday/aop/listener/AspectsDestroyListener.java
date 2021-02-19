@@ -19,7 +19,7 @@
  */
 package cn.taketoday.aop.listener;
 
-import cn.taketoday.aop.advice.AspectsRegistry;
+import cn.taketoday.aop.support.advice.AspectsRegistry;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.event.ContextCloseEvent;
@@ -30,6 +30,7 @@ import cn.taketoday.context.logger.LoggerFactory;
  * @author TODAY <br>
  * 2019-02-14 20:48
  */
+@Deprecated
 public class AspectsDestroyListener
         extends OrderedSupport implements ApplicationListener<ContextCloseEvent> {
 

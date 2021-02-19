@@ -25,7 +25,7 @@ import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Objects;
 
-import cn.taketoday.aop.advice.AbstractAdvice;
+import cn.taketoday.aop.support.advice.AbstractAdvice;
 
 /**
  * @author Today <br>

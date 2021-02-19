@@ -29,10 +29,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import cn.taketoday.aop.advice.AbstractAdvice;
-import cn.taketoday.aop.advice.AspectsRegistry;
 import cn.taketoday.aop.annotation.Advice;
 import cn.taketoday.aop.annotation.AdviceImpl;
+import cn.taketoday.aop.support.advice.AbstractAdvice;
+import cn.taketoday.aop.support.advice.AspectsRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.exception.ConfigurationException;
@@ -48,6 +48,7 @@ import cn.taketoday.context.utils.StringUtils;
  * @author TODAY <br>
  * 2018-11-10 13:13
  */
+@Deprecated
 public class DefaultProxyFactory {
 
   private static final Logger log = LoggerFactory.getLogger(DefaultProxyFactory.class);
@@ -84,7 +85,6 @@ public class DefaultProxyFactory {
           final Advice[] advices = ClassUtils.getAnnotationArray(aspectClass, Advice.class, AdviceImpl.class);
           // matching class start
           if (matchClass(targetClass, advices)) { // matched
-            weaved = matchMethod(aspect, null, targetClass, advices);
             weaved = matchMethod(aspect, null, targetClass, advices);
           }
         }

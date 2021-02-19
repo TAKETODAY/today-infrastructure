@@ -60,6 +60,7 @@ import static cn.taketoday.context.asm.Opcodes.JAVA_VERSION;
  * @author TODAY <br>
  * 2019-09-07 10:44
  */
+@Deprecated
 public class OldStandardProxyCreator {
 
   private static final Logger log = LoggerFactory.getLogger(OldStandardProxyCreator.class);

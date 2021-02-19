@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.aop.advice;
+package cn.taketoday.aop.support.advice;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +35,7 @@ import cn.taketoday.context.utils.OrderUtils;
  * @author TODAY <br>
  * 2018-11-10 18:48
  */
+@Deprecated
 public enum AspectsRegistry {
 
   ASPECTS_REGISTRY;

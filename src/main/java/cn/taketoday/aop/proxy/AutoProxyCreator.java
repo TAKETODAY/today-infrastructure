@@ -32,6 +32,7 @@ import cn.taketoday.context.factory.BeanPostProcessor;
  * @author TODAY <br>
  * 2018-11-10 13:13
  */
+@Deprecated
 public class AutoProxyCreator extends OrderedSupport implements BeanPostProcessor {
 
   private final ApplicationContext context;

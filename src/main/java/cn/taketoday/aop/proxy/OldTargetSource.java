@@ -32,6 +32,7 @@ import cn.taketoday.context.utils.CollectionUtils;
  * @author TODAY <br>
  * 2018-11-10 11:47
  */
+@Deprecated
 public class OldTargetSource {
 
   private Object target;
