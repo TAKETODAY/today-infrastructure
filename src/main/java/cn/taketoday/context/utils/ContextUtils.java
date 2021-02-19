@@ -70,6 +70,7 @@ import cn.taketoday.context.factory.DestructionBeanPostProcessor;
 import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.factory.PropertyValue;
 import cn.taketoday.context.factory.StandardBeanDefinition;
+import cn.taketoday.context.loader.ArrayParameterResolver;
 import cn.taketoday.context.loader.AutowiredParameterResolver;
 import cn.taketoday.context.loader.AutowiredPropertyResolver;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
@@ -109,6 +110,7 @@ public abstract class ContextUtils {
   static {
 
     setParameterResolvers(new MapParameterResolver(),
+                          new ArrayParameterResolver(),
                           new AutowiredParameterResolver(),
                           new CollectionParameterResolver(),
                           delegate(p -> p.isAnnotationPresent(Env.class),

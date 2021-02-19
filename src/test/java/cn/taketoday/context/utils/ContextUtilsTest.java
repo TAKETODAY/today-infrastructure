@@ -183,7 +183,7 @@ public class ContextUtilsTest {
 
       Config newInstance = constructor.newInstance(parameters);
 
-      assert parameters.length == 12;
+      assert parameters.length == 14;
 
       assert parameters[0] instanceof UserModel;
 
@@ -248,7 +248,10 @@ public class ContextUtilsTest {
             List<Object> listObjects,
             ArrayList<Object> arrayListObjects,
             Map<String, Object> mapObjects,
-            HashMap<String, Object> hashMapObjects
+            HashMap<String, Object> hashMapObjects,
+            Object[] array,
+            UserModel[] none
+
     ) {
       assert placeHolder == 12345;
       assert placeHolderEnv == 12345;
