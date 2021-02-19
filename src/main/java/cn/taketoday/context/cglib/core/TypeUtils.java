@@ -116,7 +116,10 @@ public abstract class TypeUtils {
     return copy;
   }
 
-  public static Type[] add(Type[] t1, Type[] t2) {
+  public static Type[] add(Type[] t1, Type... t2) {
+    if (ObjectUtils.isEmpty(t2)) {
+      return t1;
+    }
     // TODO: set semantics?
     Type[] all = new Type[t1.length + t2.length];
     System.arraycopy(t1, 0, all, 0, t1.length);

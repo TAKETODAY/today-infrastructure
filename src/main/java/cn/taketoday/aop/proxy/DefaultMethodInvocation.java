@@ -33,7 +33,7 @@ import cn.taketoday.context.reflect.MethodInvoker;
  * @author TODAY <br>
  * 2018-11-10 13:14
  */
-public class DefaultMethodInvocation implements MethodInvocation {
+public class DefaultMethodInvocation extends RuntimeMethodInvocation implements MethodInvocation {
 
   private final Object target;
   private final Object[] args;
@@ -53,11 +53,11 @@ public class DefaultMethodInvocation implements MethodInvocation {
                                  MethodInvoker invoker,
                                  Object[] arguments,
                                  MethodInterceptor[] advices) {
-    this.invoker = invoker;
     this.target = target;
     this.method = method;
     this.args = arguments;
     this.advices = advices;
+    this.invoker = invoker;
     this.adviceLength = advices.length;
   }
 
@@ -72,27 +72,23 @@ public class DefaultMethodInvocation implements MethodInvocation {
   }
 
   @Override
-  public Object proceed() throws Throwable {
-    if (currentAdviceIndex == adviceLength) {
-      // join-point
-      return invoker.invoke(target, args);
-    }
+  protected boolean matchesRuntime(RuntimeMethodInterceptor runtimeInterceptor) {
+    return runtimeInterceptor.matches(method, target.getClass(), args);
+  }
 
-    final MethodInterceptor interceptor = advices[currentAdviceIndex++];
-    if (interceptor instanceof RuntimeMethodInterceptor) {
-      // runtime
-      final RuntimeMethodInterceptor runtimeInterceptor = (RuntimeMethodInterceptor) interceptor;
-      if (runtimeInterceptor.matches(method, target.getClass(), args)) {
-        return runtimeInterceptor.invoke(this);
-      }
-      else {
-        // next in the chain.
-        return proceed();
-      }
-    }
-    // It's an interceptor, so we just invoke it: The pointcut will have
-    // been evaluated statically before this object was constructed.
-    return interceptor.invoke(this);
+  @Override
+  protected Object invokeJoinPoint() {
+    return invoker.invoke(target, args);
+  }
+
+  @Override
+  protected boolean shouldCallJoinPoint() {
+    return currentAdviceIndex == adviceLength;
+  }
+
+  @Override
+  protected MethodInterceptor currentMethodInterceptor() {
+    return advices[currentAdviceIndex++];
   }
 
   @Override

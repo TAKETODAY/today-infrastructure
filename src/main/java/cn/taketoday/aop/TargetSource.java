@@ -63,13 +63,11 @@ public interface TargetSource extends TargetClassAware {
    * Return a target instance. Invoked immediately before the
    * AOP framework calls the "target" of an AOP method invocation.
    *
-   * @return the target object which contains the joinpoint,
+   * @return the target object which contains the join-point,
    * or {@code null} if there is no actual target instance
    *
-   * @throws Exception
-   *         if the target object can't be resolved
    */
-  Object getTarget() throws Exception;
+  Object getTarget();
 
   /**
    * Release the given target object obtained from the

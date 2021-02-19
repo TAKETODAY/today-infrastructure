@@ -20,6 +20,8 @@
 
 package cn.taketoday.aop.proxy;
 
+import cn.taketoday.context.NamedThreadLocal;
+
 /**
  * Class containing static methods used to obtain information about the current AOP invocation.
  *
@@ -50,7 +52,7 @@ public final class AopContext {
    *
    * @see ProxyConfig#setExposeProxy
    */
-  private static final ThreadLocal<Object> currentProxy = new ThreadLocal<>();
+  private static final ThreadLocal<Object> currentProxy = new NamedThreadLocal<>("Current AOP proxy");
 
   /**
    * Try to return the current AOP proxy. This method is usable only if the

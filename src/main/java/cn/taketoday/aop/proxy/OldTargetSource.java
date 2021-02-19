@@ -32,14 +32,14 @@ import cn.taketoday.context.utils.CollectionUtils;
  * @author TODAY <br>
  * 2018-11-10 11:47
  */
-public class TargetSourceIm {
+public class OldTargetSource {
 
   private Object target;
   private Class<?> targetClass;
   private Class<?>[] interfaces;
   private Map<Method, List<MethodInterceptor>> aspectMappings;
 
-  public TargetSourceIm(Object target, Class<?> targetClass) {
+  public OldTargetSource(Object target, Class<?> targetClass) {
     this.target = target;
     this.targetClass = targetClass;
     this.interfaces = targetClass.getInterfaces();

@@ -35,7 +35,7 @@ package cn.taketoday.aop.target;
 public class SimpleBeanTargetSource extends AbstractBeanFactoryTargetSource {
 
   @Override
-  public Object getTarget() throws Exception {
+  public Object getTarget() {
     return getBeanFactory().getBean(getTargetBeanName());
   }
 

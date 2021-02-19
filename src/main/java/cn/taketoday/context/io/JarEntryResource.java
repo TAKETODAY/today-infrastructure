@@ -195,6 +195,11 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
     return false;
   }
 
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), name, jarFile);
+  }
+
   private static class JarEntryInputStream extends FilterInputStream {
 
     private final JarFile jarFile;

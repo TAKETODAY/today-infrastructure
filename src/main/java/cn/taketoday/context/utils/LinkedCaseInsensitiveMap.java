@@ -54,6 +54,7 @@ import java.util.function.Function;
  */
 @SuppressWarnings("serial")
 public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable, Cloneable {
+  private static final long serialVersionUID = 1L;
 
   private final LinkedHashMap<String, V> targetMap;
 

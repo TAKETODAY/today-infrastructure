@@ -48,6 +48,7 @@ import cn.taketoday.aop.proxy.AopProxy;
 import cn.taketoday.aop.proxy.AopProxyUtils;
 import cn.taketoday.aop.proxy.CglibAopProxy;
 import cn.taketoday.aop.proxy.JdkDynamicAopProxy;
+import cn.taketoday.aop.proxy.StandardAopProxy;
 import cn.taketoday.aop.proxy.StandardProxy;
 import cn.taketoday.aop.proxy.UnknownAdviceTypeException;
 import cn.taketoday.context.utils.Assert;
@@ -471,7 +472,11 @@ public abstract class AopUtils {
       if (targetClass.isInterface() || Proxy.isProxyClass(targetClass)) {
         return new JdkDynamicAopProxy(config);
       }
-      return new CglibAopProxy(config);
+
+      if (config.isUsingCglib()) {
+        return new CglibAopProxy(config);
+      }
+      return new StandardAopProxy(config);
     }
     else {
       return new JdkDynamicAopProxy(config);

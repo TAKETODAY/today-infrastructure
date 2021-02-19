@@ -21,6 +21,7 @@
 package cn.taketoday.aop.target;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.context.utils.Assert;
@@ -103,7 +104,7 @@ public class HotSwappableTargetSource implements TargetSource, Serializable {
   @Override
   public boolean equals(Object other) {
     return (this == other || (other instanceof HotSwappableTargetSource &&
-            this.target.equals(((HotSwappableTargetSource) other).target)));
+            Objects.equals(target, ((HotSwappableTargetSource) other).target)));
   }
 
   @Override

@@ -27,6 +27,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.util.Objects;
 
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.Assert;
@@ -146,6 +147,11 @@ public class ClassPathResource implements Resource, WritableResource {
   @Override
   public boolean equals(Object obj) {
     return obj == this || (obj instanceof ClassPathResource && resource.equals(((ClassPathResource) obj).getOriginalResource()));
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(resource);
   }
 
   /**

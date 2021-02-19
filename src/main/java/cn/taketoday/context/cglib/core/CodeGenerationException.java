@@ -15,14 +15,14 @@
  */
 package cn.taketoday.context.cglib.core;
 
+import cn.taketoday.context.NestedRuntimeException;
 import cn.taketoday.context.utils.ExceptionUtils;
 
 /**
  * @version $Id: CodeGenerationException.java,v 1.3 2004/06/24 21:15:21
  * herbyderby Exp $
  */
-public class CodeGenerationException extends RuntimeException {
-
+public class CodeGenerationException extends NestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
   public CodeGenerationException() { }

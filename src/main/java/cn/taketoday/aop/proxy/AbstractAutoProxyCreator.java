@@ -51,8 +51,7 @@ import cn.taketoday.context.utils.OrderUtils;
  */
 public abstract class AbstractAutoProxyCreator
         extends ProxyConfig implements InstantiationAwareBeanPostProcessor, BeanFactoryAware {
-
-  protected final transient Logger logger = LoggerFactory.getLogger(getClass());
+  protected final transient Logger log = LoggerFactory.getLogger(getClass());
 
   private BeanFactory beanFactory;
 
@@ -65,6 +64,7 @@ public abstract class AbstractAutoProxyCreator
   private boolean freezeProxy = false;
   private transient TargetSourceCreator[] targetSourceCreators;
   private transient ClassLoader proxyClassLoader = ClassUtils.getClassLoader();
+  private List<Advisor> candidateAdvisors;
 
   /**
    * Set custom {@code TargetSourceCreators} to be applied in this order.
@@ -135,7 +135,9 @@ public abstract class AbstractAutoProxyCreator
     TargetSource targetSource = getCustomTargetSource(def);
     if (targetSource != null) {
       Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(def, targetSource);
-      return createProxy(def, specificInterceptors, targetSource);
+      if(ObjectUtils.isNotEmpty(specificInterceptors)) {
+        return createProxy(def, specificInterceptors, targetSource);
+      }
     }
     return null;
   }
@@ -147,9 +149,9 @@ public abstract class AbstractAutoProxyCreator
         TargetSource source = creator.getTargetSource(def);
         if (source != null) {
           // Found a matching TargetSource.
-          if (logger.isTraceEnabled()) {
-            logger.trace("TargetSourceCreator [{}] found custom TargetSource for bean with BeanDefinition '{}'",
-                         creator, def);
+          if (log.isTraceEnabled()) {
+            log.trace("TargetSourceCreator [{}] found custom TargetSource for bean with BeanDefinition '{}'",
+                      creator, def);
           }
           return source;
         }
@@ -194,9 +196,18 @@ public abstract class AbstractAutoProxyCreator
     // Create proxy if we have advice.
     Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(def, null);
     if (ObjectUtils.isNotEmpty(specificInterceptors)) {
-      return createProxy(def, specificInterceptors, new SingletonTargetSource(bean));
+      final TargetSource targetSource = getTargetSource(bean, def);
+      return createProxy(def, specificInterceptors, targetSource);
     }
     return bean;
+  }
+
+  protected TargetSource getTargetSource(Object bean, BeanDefinition def) {
+    TargetSource targetSource = getCustomTargetSource(def);
+    if (targetSource == null) {
+      targetSource = new SingletonTargetSource(bean);
+    }
+    return targetSource;
   }
 
   protected Object createProxy(BeanDefinition def, Object[] specificInterceptors, TargetSource targetSource) {
@@ -242,8 +253,6 @@ public abstract class AbstractAutoProxyCreator
                                          BeanDefinition def, TargetSource targetSource) {
     return AopUtils.filterAdvisors(candidateAdvisors, def.getBeanClass());
   }
-
-  private List<Advisor> candidateAdvisors;
 
   protected List<Advisor> getCandidateAdvisors() {
     if (candidateAdvisors == null) {
@@ -297,8 +306,8 @@ public abstract class AbstractAutoProxyCreator
             || Advisor.class.isAssignableFrom(beanClass)
             || Pointcut.class.isAssignableFrom(beanClass)
             || AopInfrastructureBean.class.isAssignableFrom(beanClass);
-    if (retVal && logger.isTraceEnabled()) {
-      logger.trace("Did not attempt to auto-proxy infrastructure class [{}]", beanClass.getName());
+    if (retVal && log.isTraceEnabled()) {
+      log.trace("Did not attempt to auto-proxy infrastructure class [{}]", beanClass.getName());
     }
     return retVal;
   }

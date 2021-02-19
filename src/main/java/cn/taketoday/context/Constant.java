@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context;
 
+import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -47,6 +48,7 @@ public interface Constant extends Opcodes, Serializable {
   String KEY_ROOT = "root";
   String KEY_RESULT = "result";
 
+  File[] EMPTY_FILE_ARRAY = {};
   Type[] TYPES_EMPTY_ARRAY = {};
   Field[] EMPTY_FIELD_ARRAY = {};
   Method[] EMPTY_METHOD_ARRAY = {};
@@ -54,6 +56,7 @@ public interface Constant extends Opcodes, Serializable {
   Class<?>[] EMPTY_CLASS_ARRAY = {};
   Resource[] EMPTY_RESOURCE_ARRAY = {};
   PropertyValue[] EMPTY_PROPERTY_VALUE = {};
+
   AnnotationAttributes[] EMPTY_ANNOTATION_ATTRIBUTES = {};
 
   Serializable EMPTY_OBJECT = EmptyObject.INSTANCE;

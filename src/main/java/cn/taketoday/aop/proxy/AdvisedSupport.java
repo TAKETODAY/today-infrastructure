@@ -99,7 +99,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * Array updated on changes to the advisors list, which is easier
    * to manipulate internally.
    */
-  private Advisor[] advisorArray = new Advisor[0];
+  private Advisor[] advisorArray = EMPTY_ADVISORS;
 
   /**
    * No-arg constructor for use as a JavaBean.
@@ -581,8 +581,8 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * caching methods, for efficient equals and hashCode comparisons.
    */
   static final class MethodCacheKey implements Comparable<MethodCacheKey> {
-    private final Method method;
     private final int hashCode;
+    private final Method method;
 
     public MethodCacheKey(Method method) {
       this.method = method;
@@ -591,8 +591,8 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 
     @Override
     public boolean equals(Object other) {
-      return (this == other || (other instanceof MethodCacheKey &&
-              this.method == ((MethodCacheKey) other).method));
+      return (this == other
+              || (other instanceof MethodCacheKey && this.method == ((MethodCacheKey) other).method));
     }
 
     @Override

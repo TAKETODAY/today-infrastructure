@@ -151,6 +151,11 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
     return false;
   }
 
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), declaringName, factoryMethod);
+  }
+
   // AnnotatedElement
   // -----------------------------
 

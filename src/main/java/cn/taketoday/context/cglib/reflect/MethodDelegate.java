@@ -18,6 +18,7 @@ package cn.taketoday.context.cglib.reflect;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
+import java.util.Objects;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
@@ -145,9 +146,11 @@ abstract public class MethodDelegate {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    MethodDelegate other = (MethodDelegate) obj;
-    return (other != null && target == other.target) && eqMethod.equals(other.eqMethod);
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof MethodDelegate)) return false;
+    final MethodDelegate that = (MethodDelegate) o;
+    return Objects.equals(target, that.target) && Objects.equals(eqMethod, that.eqMethod);
   }
 
   @Override

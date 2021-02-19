@@ -44,6 +44,8 @@ import cn.taketoday.aop.support.DefaultPointcutAdvisor;
  */
 public interface Advised extends TargetClassAware {
 
+  Advisor[] EMPTY_ADVISORS = new Advisor[0];
+
   /**
    * Return whether the Advised configuration is frozen,
    * in which case no advice changes can be made.

@@ -27,7 +27,7 @@ import cn.taketoday.context.NamedThreadLocal;
 import cn.taketoday.context.factory.DisposableBean;
 
 /**
- * Alternative to an object pool. This {@link org.springframework.aop.TargetSource}
+ * Alternative to an object pool. This {@link cn.taketoday.aop.TargetSource}
  * uses a threading model in which every thread has its own copy of the target.
  * There's no contention for targets. Target object creation is kept to a minimum
  * on the running server.

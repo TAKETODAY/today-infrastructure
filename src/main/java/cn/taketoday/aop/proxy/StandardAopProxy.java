@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,28 +17,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.cache;
 
-import cn.taketoday.context.NestedRuntimeException;
+package cn.taketoday.aop.proxy;
+
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.utils.Assert;
+import cn.taketoday.context.utils.ContextUtils;
 
 /**
- * @author TODAY <br>
- * 2019-02-27 13:50
+ * @author TODAY 2021/2/12 17:30
  */
-public class CacheException extends NestedRuntimeException {
+public class StandardAopProxy implements AopProxy {
 
-  private static final long serialVersionUID = 1L;
+  private final AdvisedSupport config;
 
-  public CacheException(String message) {
-    super(message);
+  public StandardAopProxy(AdvisedSupport config) {
+    Assert.notNull(config, "AdvisedSupport must not be null");
+    if (config.getAdvisors().length == 0 && config.getTargetSource() == AdvisedSupport.EMPTY_TARGET_SOURCE) {
+      throw new AopConfigException("No advisors and no TargetSource specified");
+    }
+    this.config = config;
   }
 
-  public CacheException(Throwable cause) {
-    super(cause);
+  @Override
+  public Object getProxy(ClassLoader classLoader) {
+    final ApplicationContext beanFactory = ContextUtils.getLastStartupContext(); // TODO
+    return StandardProxyCreator.createProxy(config, classLoader, beanFactory);
   }
-
-  public CacheException(String message, Throwable cause) {
-    super(message, cause);
-  }
-
 }

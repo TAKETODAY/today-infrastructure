@@ -53,9 +53,9 @@ public class DefaultProxyFactory {
   private static final Logger log = LoggerFactory.getLogger(DefaultProxyFactory.class);
 
   //  private static final CglibProxyCreator CGLIB_PROXY_CREATOR = new CglibProxyCreator();
-  private static final StandardProxyCreator CGLIB_PROXY_CREATOR = new StandardProxyCreator();
+  private static final OldStandardProxyCreator CGLIB_PROXY_CREATOR = new OldStandardProxyCreator();
 
-  private final TargetSourceIm targetSource;
+  private final OldTargetSource targetSource;
   private final ApplicationContext applicationContext;
 
   private final Map<Method, List<MethodInterceptor>> aspectMappings = new HashMap<>(16);
@@ -64,7 +64,7 @@ public class DefaultProxyFactory {
     this(null, null);
   }
 
-  public DefaultProxyFactory(TargetSourceIm targetSource, ApplicationContext context) {
+  public DefaultProxyFactory(OldTargetSource targetSource, ApplicationContext context) {
     this.targetSource = targetSource;
     this.applicationContext = context;
   }

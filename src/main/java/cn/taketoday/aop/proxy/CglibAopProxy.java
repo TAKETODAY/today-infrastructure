@@ -84,6 +84,8 @@ import cn.taketoday.context.utils.ReflectionUtils;
  * @since 3.0
  */
 public class CglibAopProxy implements AopProxy, Serializable {
+  private static final long serialVersionUID = 1L;
+
   protected static final Logger log = LoggerFactory.getLogger(CglibAopProxy.class);
 
   // Constants for CGLIB callback array indices
@@ -125,7 +127,7 @@ public class CglibAopProxy implements AopProxy, Serializable {
    */
   public CglibAopProxy(AdvisedSupport config) {
     Assert.notNull(config, "AdvisedSupport must not be null");
-    if (config.getAdvisors().length == 0 && config.getTargetSource() == AdvisedSupport.EMPTY_TARGET_SOURCE) {
+    if (ObjectUtils.isEmpty(config.getAdvisors()) && config.getTargetSource() == AdvisedSupport.EMPTY_TARGET_SOURCE) {
       throw new AopConfigException("No advisors and no TargetSource specified");
     }
     this.advised = config;

@@ -393,7 +393,7 @@ public class CodeEmitter extends LocalVariablesSorter {
       mv.visitInsn(TypeUtils.lconst(value));
     }
     else {
-      mv.visitLdcInsn(new Long(value));
+      mv.visitLdcInsn(Long.valueOf(value));
     }
   }
 
