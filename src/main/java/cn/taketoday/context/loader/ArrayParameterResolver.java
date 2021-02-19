@@ -20,10 +20,10 @@
 
 package cn.taketoday.context.loader;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Parameter;
 import java.util.Map;
 
-import cn.taketoday.context.Constant;
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.utils.ClassUtils;
@@ -54,7 +54,7 @@ public class ArrayParameterResolver
     final Class<?> parameterType = parameter.getType().getComponentType();
     final Map<String, ?> beans = beanFactory.getBeansOfType(parameterType);
     if (CollectionUtils.isEmpty(beans)) {
-      return Constant.EMPTY_OBJECT_ARRAY;
+      return Array.newInstance(parameterType, 0);
     }
     return beans.values().toArray();
   }
