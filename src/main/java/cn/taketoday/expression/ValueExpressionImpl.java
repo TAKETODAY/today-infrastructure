@@ -95,6 +95,7 @@ import cn.taketoday.expression.parser.Node;
  */
 @SuppressWarnings("serial")
 public final class ValueExpressionImpl extends ValueExpression {
+  private static final long serialVersionUID = 1L;
 
   private final String expr;
   private transient Node node;

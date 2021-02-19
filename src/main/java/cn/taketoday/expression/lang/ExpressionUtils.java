@@ -61,7 +61,7 @@ import static cn.taketoday.context.Constant.BLANK;
  */
 public abstract class ExpressionUtils {
 
-  protected static Long ZERO = 0L;
+  protected static final Long ZERO = 0L;
 
   public static void throwUnhandled(Object base, Object property) throws ExpressionException {
     if (base == null) {

@@ -125,45 +125,57 @@ public class ParseException extends Exception {
    * printing of the final stack trace, and hence the correct error message gets
    * displayed.
    */
+  @Override
   public String getMessage() {
     if (!specialConstructor) {
       return super.getMessage();
     }
-    String expected = Constant.BLANK;
+//    String expected = Constant.BLANK;
+    StringBuilder expected = new StringBuilder();
     int maxSize = 0;
     for (int i = 0; i < expectedTokenSequences.length; i++) {
       if (maxSize < expectedTokenSequences[i].length) {
         maxSize = expectedTokenSequences[i].length;
       }
       for (int j = 0; j < expectedTokenSequences[i].length; j++) {
-        expected += tokenImage[expectedTokenSequences[i][j]] + " ";
+        expected.append(tokenImage[expectedTokenSequences[i][j]]).append(" ");
       }
       if (expectedTokenSequences[i][expectedTokenSequences[i].length - 1] != 0) {
-        expected += "...";
+        expected.append("...");
       }
-      expected += eol + "    ";
+      expected.append(eol).append("    ");
     }
-    String retval = "Encountered \"";
+    StringBuilder ret = new StringBuilder("Encountered \"");
+
+//    String retval = "Encountered \"";
     Token tok = currentToken.next;
     for (int i = 0; i < maxSize; i++) {
-      if (i != 0) retval += " ";
+      if (i != 0) {
+        ret.append(" ");
+      }
       if (tok.kind == 0) {
-        retval += tokenImage[0];
+        ret.append(tokenImage[0]);
         break;
       }
-      retval += add_escapes(tok.image);
+      ret.append(add_escapes(tok.image));
       tok = tok.next;
     }
-    retval += "\" at line " + currentToken.next.beginLine + ", column " + currentToken.next.beginColumn;
-    retval += '.' + eol;
+    ret.append("\" at line ").append(currentToken.next.beginLine).append(", column ").append(currentToken.next.beginColumn);
+
+//    retval += "\" at line " + currentToken.next.beginLine + ", column " + currentToken.next.beginColumn;
+//    retval += '.' + eol;
+    ret.append('.').append(eol);
     if (expectedTokenSequences.length == 1) {
-      retval += "Was expecting:" + eol + "    ";
+      ret.append("Was expecting:").append(eol).append("    ");
+//      retval += "Was expecting:" + eol + "    ";
     }
     else {
-      retval += "Was expecting one of:" + eol + "    ";
+      ret.append("Was expecting one of:").append(eol).append("    ");
+//      retval += "Was expecting one of:" + eol + "    ";
     }
-    retval += expected;
-    return retval;
+    ret.append(expected);
+//    retval += expected;
+    return ret.toString();
   }
 
   /**

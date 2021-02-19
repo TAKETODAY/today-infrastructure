@@ -1658,7 +1658,7 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   }
 
   int curLexState = 0;
-  int defaultLexState = 0;
+//  int defaultLexState = 0;
   int jjnewStateCnt;
   int jjround;
   int jjmatchedPos;

@@ -85,6 +85,7 @@ public class DefaultProxyFactory {
           // matching class start
           if (matchClass(targetClass, advices)) { // matched
             weaved = matchMethod(aspect, null, targetClass, advices);
+            weaved = matchMethod(aspect, null, targetClass, advices);
           }
         }
 

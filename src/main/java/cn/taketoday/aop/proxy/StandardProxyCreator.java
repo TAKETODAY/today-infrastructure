@@ -155,6 +155,11 @@ public class StandardProxyCreator {
    */
   public static class StandardProxyGenerator extends AbstractClassGenerator<Object> {
 
+    static final String FIELD_TARGET = "target";
+    static final String FIELD_CONFIG = "config";
+    static final String FIELD_TARGET_SOURCE = "targetSource";
+    static final int field_access = Constant.ACC_PRIVATE | Constant.ACC_FINAL;
+
     private static final Signature proceed;
     private static final Signature getTarget;
     private static final Signature dynamicProceed;
@@ -308,10 +313,10 @@ public class StandardProxyCreator {
 
       final boolean targetSourceStatic = targetSource.isStatic();
       if (targetSourceStatic) {
-        ce.declare_field(Constant.ACC_PRIVATE | Constant.ACC_FINAL, "target", targetType, null);
+        ce.declare_field(field_access, FIELD_TARGET, targetType, null);
       }
-      ce.declare_field(Constant.ACC_PRIVATE | Constant.ACC_FINAL, "config", advisedSupportType, null);
-      ce.declare_field(Constant.ACC_PRIVATE | Constant.ACC_FINAL, "targetSource", targetSourceType, null);
+      ce.declare_field(field_access, FIELD_CONFIG, advisedSupportType, null);
+      ce.declare_field(field_access, FIELD_TARGET_SOURCE, targetSourceType, null);
 
       // 父类构造器参数
       constructor(ce, targetType, targetSourceStatic);
@@ -355,7 +360,7 @@ public class StandardProxyCreator {
         if (targetSourceStatic) {
           // 准备参数
           // Object target, StandardMethodInvocation.Target targetInv, Object[] args
-          codeEmitter.getfield("target");
+          codeEmitter.getfield(FIELD_TARGET);
           codeEmitter.getfield(targetInvField);
           prepareArgs(method, codeEmitter);
 
@@ -368,7 +373,7 @@ public class StandardProxyCreator {
         }
         else {
           //TargetSource targetSource, StandardMethodInvocation.Target targetInv, Object[] args
-          codeEmitter.getfield("targetSource");
+          codeEmitter.getfield(FIELD_TARGET_SOURCE);
           codeEmitter.getfield(targetInvField);
           prepareArgs(method, codeEmitter);
 
@@ -447,6 +452,15 @@ public class StandardProxyCreator {
       return new StandardMethodInvocation.Target(method, interceptors);
     }
 
+    /**
+     * <pre>
+     *   public AopTest$PrinterBean$$AopByTODAY$$168c2842(PrinterBean var1, TargetSource var2, AdvisedSupport var3) {
+     *     this.target = var1;
+     *     this.config = var3;
+     *     this.targetSource = var2;
+     *   }
+     * </pre>
+     */
     protected void constructor(final ClassEmitter ce, final Type targetType, boolean targetSourceStatic) {
       // 构造器
       Type[] superTypes = TypeUtils.getTypes(getParameterTypes());
@@ -479,7 +493,7 @@ public class StandardProxyCreator {
         code.load_this();
 
         code.load_arg(typesLength);
-        code.putfield("target");
+        code.putfield(FIELD_TARGET);
       }
       else {
         offset = 0;
@@ -487,23 +501,30 @@ public class StandardProxyCreator {
 
       code.load_this();
       code.load_arg(typesLength + offset);
-      code.putfield("targetSource");
+      code.putfield(FIELD_TARGET_SOURCE);
 
       code.load_this();
       code.load_arg(typesLength + offset + 1);
-      code.putfield("config");
+      code.putfield(FIELD_CONFIG);
 
       code.return_value();
       code.end_method();
     }
 
+    /**
+     * <pre>
+     *   void none() {
+     *     ((Bean) target).none();
+     *   }
+     * </pre>
+     */
     protected void invokeStaticTarget(final ClassEmitter ce, final Type targetType, final Method method) {
       MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method);
       final CodeEmitter codeEmitter = EmitUtils.beginMethod(ce, methodInfo, method.getModifiers());
 
       codeEmitter.load_this();
 
-      codeEmitter.getfield("target");
+      codeEmitter.getfield(FIELD_TARGET);
 
       codeEmitter.load_args();
       codeEmitter.invoke(methodInfo);
@@ -515,7 +536,6 @@ public class StandardProxyCreator {
 
     /**
      * <pre>
-     *   @Override
      *   void noneStatic() {
      *     ((Bean) this.targetSource.getTarget()).noneStatic();
      *   }
@@ -528,7 +548,7 @@ public class StandardProxyCreator {
       // this.targetSource.getTarget()
 
       codeEmitter.load_this();
-      codeEmitter.getfield( "targetSource");
+      codeEmitter.getfield(FIELD_TARGET_SOURCE);
       codeEmitter.invoke_interface(targetSourceType, targetSourceGetTarget);
 
       // cast
