@@ -25,14 +25,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.aop.support.aspect.MethodBeforeAdvice;
+import cn.taketoday.aop.support.annotation.BeforeMethodInterceptor;
 
 /**
  * @author TODAY <br>
  * 2018-08-09 18:50
+ * @see BeforeMethodInterceptor
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Advice(interceptor = MethodBeforeAdvice.class)
+@Advice(interceptor = BeforeMethodInterceptor.class)
 @Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface Before {
 

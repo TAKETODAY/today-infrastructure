@@ -27,7 +27,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.aop.support.aspect.AbstractAspectAdvice;
+import cn.taketoday.aop.support.annotation.AbstractAnnotationMethodInterceptor;
 
 /**
  * @author TODAY <br>
@@ -50,6 +50,6 @@ public @interface Advice {
   /** Method in class */
   String[] method() default {};
 
-  Class<? extends MethodInterceptor> interceptor() default AbstractAspectAdvice.class;
+  Class<? extends MethodInterceptor> interceptor() default AbstractAnnotationMethodInterceptor.class;
 
 }

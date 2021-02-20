@@ -17,29 +17,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.aop.support.aspect;
+package cn.taketoday.aop.support.annotation;
 
 import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.aop.BeforeAdvice;
+import cn.taketoday.aop.AfterAdvice;
 
 /**
- * @author TODAY <br>
- * 2018-10-13 11:27
+ * @author TODAY 2018-10-13 11:03
+ * @see cn.taketoday.aop.annotation.After
  */
-public class MethodBeforeAdvice extends AbstractAspectAdvice implements BeforeAdvice {
+public class AfterMethodInterceptor extends AbstractAnnotationMethodInterceptor implements AfterAdvice {
 
-  public MethodBeforeAdvice(Method method, Object aspect) {
+  public AfterMethodInterceptor(Method method, Object aspect) {
     super(method, aspect);
-    setOrder(2);
+    setOrder(3);
   }
 
   @Override
   public Object invoke(MethodInvocation inv) throws Throwable {
-    invokeAdviceMethod(inv, null, null);
-    return inv.proceed();
+    return invokeAdviceMethod(inv, inv.proceed(), null);
   }
 
 }

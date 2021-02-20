@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -15,31 +15,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.aop.support.aspect;
-
-import org.aopalliance.intercept.MethodInvocation;
-
-import java.lang.reflect.Method;
-
-import cn.taketoday.aop.AfterAdvice;
 
 /**
- * @author TODAY <br>
+ * support for cn.taketoday.aop.annotation
  *
- * 2018-10-13 11:03
+ * @author TODAY 2021/2/20 22:28
+ * @see cn.taketoday.aop.annotation.After
+ * @see cn.taketoday.aop.annotation.Before
+ * @see cn.taketoday.aop.annotation.AfterThrowing
+ * @see cn.taketoday.aop.annotation.AfterReturning
  */
-public class MethodAfterAdvice extends AbstractAspectAdvice implements AfterAdvice {
-
-  public MethodAfterAdvice(Method method, Object aspect) {
-    super(method, aspect);
-    setOrder(3);
-  }
-
-  @Override
-  public Object invoke(MethodInvocation inv) throws Throwable {
-    return invokeAdviceMethod(inv, inv.proceed(), null);
-  }
-
-}
+package cn.taketoday.aop.support.annotation;

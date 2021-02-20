@@ -22,6 +22,7 @@ package cn.taketoday.aop.support;
 
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -33,13 +34,16 @@ import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.aop.Advisor;
+import cn.taketoday.aop.AfterReturningAdvice;
 import cn.taketoday.aop.AopInvocationException;
 import cn.taketoday.aop.IntroductionAdvisor;
 import cn.taketoday.aop.IntroductionAwareMethodMatcher;
+import cn.taketoday.aop.MethodBeforeAdvice;
 import cn.taketoday.aop.MethodMatcher;
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.PointcutAdvisor;
 import cn.taketoday.aop.TargetClassAware;
+import cn.taketoday.aop.ThrowsAdvice;
 import cn.taketoday.aop.proxy.Advised;
 import cn.taketoday.aop.proxy.AdvisedSupport;
 import cn.taketoday.aop.proxy.AdvisorAdapter;
@@ -70,6 +74,12 @@ import cn.taketoday.context.utils.ReflectionUtils;
 public abstract class AopUtils {
 
   private static final List<AdvisorAdapter> advisorAdapters = new ArrayList<>();
+
+  static {
+    advisorAdapters.add(new AfterAdvisorAdapter());
+    advisorAdapters.add(new BeforeAdvisorAdapter());
+    advisorAdapters.add(new ThrowsAdviceAdvisorAdapter());
+  }
 
   /**
    * Check whether the given object is a JDK dynamic proxy or a CGLIB proxy.
@@ -490,6 +500,73 @@ public abstract class AopUtils {
   private static boolean hasNoUserSuppliedProxyInterfaces(AdvisedSupport config) {
     Class<?>[] ifcs = config.getProxiedInterfaces();
     return (ifcs.length == 0 || (ifcs.length == 1 && StandardProxy.class.isAssignableFrom(ifcs[0])));
+  }
+
+  // AdvisorAdapter
+
+  static class BeforeAdvisorAdapter implements AdvisorAdapter {
+
+    @Override
+    public boolean supportsAdvice(Advice advice) {
+      return advice instanceof MethodBeforeAdvice;
+    }
+
+    @Override
+    public MethodInterceptor getInterceptor(Advisor advisor) {
+      final MethodBeforeAdvice advice = (MethodBeforeAdvice) advisor.getAdvice();
+      return new MethodInterceptor() {
+        @Override
+        public Object invoke(MethodInvocation invocation) throws Throwable {
+          advice.before(invocation);
+          return invocation.proceed();
+        }
+      };
+    }
+  }
+
+  static class AfterAdvisorAdapter implements AdvisorAdapter {
+
+    @Override
+    public boolean supportsAdvice(Advice advice) {
+      return advice instanceof AfterReturningAdvice;
+    }
+
+    @Override
+    public MethodInterceptor getInterceptor(Advisor advisor) {
+      final AfterReturningAdvice advice = (AfterReturningAdvice) advisor.getAdvice();
+      return new MethodInterceptor() {
+        @Override
+        public Object invoke(MethodInvocation invocation) throws Throwable {
+          final Object returnValue = invocation.proceed();
+          advice.afterReturning(returnValue, invocation);
+          return returnValue;
+        }
+      };
+    }
+  }
+
+  static class ThrowsAdviceAdvisorAdapter implements AdvisorAdapter {
+
+    @Override
+    public boolean supportsAdvice(Advice advice) {
+      return advice instanceof ThrowsAdvice;
+    }
+
+    @Override
+    public MethodInterceptor getInterceptor(Advisor advisor) {
+      final ThrowsAdvice advice = (ThrowsAdvice) advisor.getAdvice();
+      return new MethodInterceptor() {
+        @Override
+        public Object invoke(MethodInvocation invocation) {
+          try {
+            return invocation.proceed();
+          }
+          catch (Throwable ex) {
+            return advice.afterThrowing(ex, invocation);
+          }
+        }
+      };
+    }
   }
 
 }

@@ -25,7 +25,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.aop.support.aspect.MethodAfterThrowingAdvice;
+import cn.taketoday.aop.support.annotation.AfterThrowingMethodInterceptor;
 
 /**
  * @author TODAY <br>
@@ -33,7 +33,7 @@ import cn.taketoday.aop.support.aspect.MethodAfterThrowingAdvice;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD, ElementType.TYPE })
-@Advice(interceptor = MethodAfterThrowingAdvice.class)
+@Advice(interceptor = AfterThrowingMethodInterceptor.class)
 public @interface AfterThrowing {
 
   /** Annotated with */

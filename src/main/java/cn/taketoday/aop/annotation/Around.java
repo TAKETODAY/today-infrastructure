@@ -25,7 +25,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.aop.support.aspect.AroundMethodAdvice;
+import cn.taketoday.aop.support.annotation.AroundMethodInterceptor;
 
 /**
  * @author TODAY <br>
@@ -33,7 +33,7 @@ import cn.taketoday.aop.support.aspect.AroundMethodAdvice;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD, ElementType.TYPE })
-@Advice(interceptor = AroundMethodAdvice.class)
+@Advice(interceptor = AroundMethodInterceptor.class)
 public @interface Around {
 
   /** Annotated with */

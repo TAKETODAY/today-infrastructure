@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop.support.aspect;
+package cn.taketoday.aop.support.annotation;
 
 import org.aopalliance.intercept.MethodInterceptor;
 
@@ -122,30 +122,29 @@ public class AspectAutoProxyCreator
   //
 
   @Override
-  protected void postCandidateAdvisors(List<Advisor> candidateAdvisors) {
-    super.postCandidateAdvisors(candidateAdvisors);
+  protected void addCandidateAdvisors(List<Advisor> candidateAdvisors) {
+    super.addCandidateAdvisors(candidateAdvisors);
     loadAspects();
 
     for (final Object aspect : aspects) {
       final Class<?> aspectClass = aspect.getClass();
       if (aspect instanceof MethodInterceptor) {
         final Advice[] advices = ClassUtils.getAnnotationArray(aspectClass, Advice.class);
-        addAdvidors(candidateAdvisors, aspect, null, advices);
+        addCandidateAdvisors(candidateAdvisors, aspect, null, advices);
       }
 
       final Method[] declaredMethods = ReflectionUtils.getDeclaredMethods(aspectClass);
       for (final Method aspectMethod : declaredMethods) {
         final Advice[] advices = ClassUtils.getAnnotationArray(aspectMethod, Advice.class);
-        addAdvidors(candidateAdvisors, aspect, aspectMethod, advices);
+        addCandidateAdvisors(candidateAdvisors, aspect, aspectMethod, advices);
       }
     }
 
   }
 
-  private void addAdvidors(List<Advisor> candidateAdvisors, Object aspect, Method aspectMethod, Advice[] advices) {
+  private void addCandidateAdvisors(List<Advisor> candidateAdvisors, Object aspect, Method aspectMethod, Advice[] advices) {
     if (ObjectUtils.isNotEmpty(advices)) {
       for (final Advice advice : advices) {
-        final Class<? extends Annotation>[] annotations = advice.value();
         final Class<? extends MethodInterceptor> interceptor = advice.interceptor();
         MethodInterceptor methodInterceptor;
         if (aspectMethod == null) { // method interceptor
@@ -164,10 +163,16 @@ public class AspectAutoProxyCreator
           log.trace("Found Interceptor: [{}]", methodInterceptor);
         }
 
-        for (final Class<? extends Annotation> annotation : annotations) {
-          final AnnotationMatchingPointcut matchingPointcut = AnnotationMatchingPointcut.forMethodAnnotation(annotation);
-          final DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor(matchingPointcut, methodInterceptor);
-          candidateAdvisors.add(pointcutAdvisor);
+        //
+
+        // Annotations
+        final Class<? extends Annotation>[] annotations = advice.value();
+        if (ObjectUtils.isNotEmpty(annotations)) {
+          for (final Class<? extends Annotation> annotation : annotations) {
+            final AnnotationMatchingPointcut matchingPointcut = AnnotationMatchingPointcut.forMethodAnnotation(annotation);
+            final DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor(matchingPointcut, methodInterceptor);
+            candidateAdvisors.add(pointcutAdvisor);
+          }
         }
       }
     }
@@ -187,13 +192,13 @@ public class AspectAutoProxyCreator
                                           final Method aspectMethod,
                                           final Class<? extends MethodInterceptor> interceptor) //
   {
-    if (interceptor == AbstractAspectAdvice.class || !MethodInterceptor.class.isAssignableFrom(interceptor)) {
+    if (interceptor == AbstractAnnotationMethodInterceptor.class || !MethodInterceptor.class.isAssignableFrom(interceptor)) {
       throw new ConfigurationException(
-              "You must be implement: [" + AbstractAspectAdvice.class.getName() +
+              "You must be implement: [" + AbstractAnnotationMethodInterceptor.class.getName() +
                       "] or [" + MethodInterceptor.class.getName() + "]");
     }
 
-    if (AbstractAspectAdvice.class.isAssignableFrom(interceptor)) {
+    if (AbstractAnnotationMethodInterceptor.class.isAssignableFrom(interceptor)) {
       final Constructor<? extends MethodInterceptor> constructor = ClassUtils.obtainConstructor(interceptor);
       return ClassUtils.newInstance(constructor, new Object[] { aspectMethod, aspect });
     }
