@@ -29,6 +29,7 @@ import cn.taketoday.aop.MethodBeforeAdvice;
 import cn.taketoday.aop.ThrowsAdvice;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.cglib.core.DebuggingClassWriter;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import lombok.ToString;
@@ -103,14 +104,15 @@ public class ProxyFactoryBeanTests {
 
   @Test
   public void test() {
-//    DebuggingClassWriter.setDebugLocation("D:\\dev\\temp\\debug");
+    DebuggingClassWriter.setDebugLocation("D:\\dev\\temp\\debug");
 
     try (StandardApplicationContext context = new StandardApplicationContext("", "cn.taketoday.aop.support")) {
       final ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
       proxyFactoryBean.setProxyTargetClass(true);
       proxyFactoryBean.setBeanFactory(context);
+      proxyFactoryBean.setExposeProxy(true);
 
-      proxyFactoryBean.setInterceptorNames("myThrows", "myAspect", "myAfterReturning", "myBefore");
+      proxyFactoryBean.setInterceptorNames("myAspect", "myAfterReturning", "myBefore", "myThrows");
       proxyFactoryBean.setTargetName("targetBean");
 
       final Object bean = proxyFactoryBean.getBean();

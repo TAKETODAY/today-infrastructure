@@ -55,6 +55,10 @@ import cn.taketoday.aop.proxy.JdkDynamicAopProxy;
 import cn.taketoday.aop.proxy.StandardAopProxy;
 import cn.taketoday.aop.proxy.StandardProxy;
 import cn.taketoday.aop.proxy.UnknownAdviceTypeException;
+import cn.taketoday.aop.support.annotation.AfterReturningMethodInterceptor;
+import cn.taketoday.aop.support.annotation.AfterThrowingMethodInterceptor;
+import cn.taketoday.aop.support.annotation.BeforeMethodInterceptor;
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
@@ -76,9 +80,9 @@ public abstract class AopUtils {
   private static final List<AdvisorAdapter> advisorAdapters = new ArrayList<>();
 
   static {
-    advisorAdapters.add(new AfterAdvisorAdapter());
     advisorAdapters.add(new BeforeAdvisorAdapter());
     advisorAdapters.add(new ThrowsAdviceAdvisorAdapter());
+    advisorAdapters.add(new AfterReturningAdvisorAdapter());
   }
 
   /**
@@ -343,11 +347,17 @@ public abstract class AopUtils {
 
   //
 
+  /**
+   * get un-ordered {@link MethodInterceptor} array
+   */
   public static MethodInterceptor[] getInterceptorsArray(Advised config, Method method, Class<?> targetClass) {
     final List<MethodInterceptor> interceptors = getInterceptors(config, method, targetClass);
     return interceptors.toArray(new MethodInterceptor[interceptors.size()]);
   }
 
+  /**
+   * get un-ordered {@link MethodInterceptor} list
+   */
   public static List<MethodInterceptor> getInterceptors(Advised config, Method method, Class<?> targetClass) {
 
     // This is somewhat tricky... We have to process introductions first,
@@ -514,17 +524,24 @@ public abstract class AopUtils {
     @Override
     public MethodInterceptor getInterceptor(Advisor advisor) {
       final MethodBeforeAdvice advice = (MethodBeforeAdvice) advisor.getAdvice();
-      return new MethodInterceptor() {
+      class Interceptor implements MethodInterceptor, Ordered {
+
         @Override
         public Object invoke(MethodInvocation invocation) throws Throwable {
           advice.before(invocation);
           return invocation.proceed();
         }
-      };
+
+        @Override
+        public int getOrder() {
+          return BeforeMethodInterceptor.DEFAULT_ORDER;
+        }
+      }
+      return new Interceptor();
     }
   }
 
-  static class AfterAdvisorAdapter implements AdvisorAdapter {
+  static class AfterReturningAdvisorAdapter implements AdvisorAdapter {
 
     @Override
     public boolean supportsAdvice(Advice advice) {
@@ -534,14 +551,22 @@ public abstract class AopUtils {
     @Override
     public MethodInterceptor getInterceptor(Advisor advisor) {
       final AfterReturningAdvice advice = (AfterReturningAdvice) advisor.getAdvice();
-      return new MethodInterceptor() {
+
+      class Interceptor implements MethodInterceptor, Ordered {
+
         @Override
         public Object invoke(MethodInvocation invocation) throws Throwable {
           final Object returnValue = invocation.proceed();
           advice.afterReturning(returnValue, invocation);
           return returnValue;
         }
-      };
+
+        @Override
+        public int getOrder() {
+          return AfterReturningMethodInterceptor.DEFAULT_ORDER;
+        }
+      }
+      return new Interceptor();
     }
   }
 
@@ -555,9 +580,10 @@ public abstract class AopUtils {
     @Override
     public MethodInterceptor getInterceptor(Advisor advisor) {
       final ThrowsAdvice advice = (ThrowsAdvice) advisor.getAdvice();
-      return new MethodInterceptor() {
+
+      class Interceptor implements MethodInterceptor, Ordered {
         @Override
-        public Object invoke(MethodInvocation invocation) {
+        public Object invoke(MethodInvocation invocation) throws Throwable {
           try {
             return invocation.proceed();
           }
@@ -565,7 +591,14 @@ public abstract class AopUtils {
             return advice.afterThrowing(ex, invocation);
           }
         }
-      };
+
+        @Override
+        public int getOrder() {
+          return AfterThrowingMethodInterceptor.DEFAULT_ORDER;
+        }
+      }
+
+      return new Interceptor();
     }
   }
 

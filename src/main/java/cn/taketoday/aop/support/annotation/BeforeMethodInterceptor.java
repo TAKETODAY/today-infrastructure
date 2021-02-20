@@ -28,10 +28,11 @@ import java.lang.reflect.Method;
  * @see cn.taketoday.aop.annotation.Before
  */
 public class BeforeMethodInterceptor extends AbstractAnnotationMethodInterceptor {
+  public static final int DEFAULT_ORDER = 2;
 
   public BeforeMethodInterceptor(Method method, Object aspect) {
     super(method, aspect);
-    setOrder(2);
+    setOrder(DEFAULT_ORDER);
   }
 
   @Override

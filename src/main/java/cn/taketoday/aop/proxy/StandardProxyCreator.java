@@ -378,7 +378,6 @@ public class StandardProxyCreator {
 
     protected StandardMethodInvocation.Target getTargetMethodInvocation(final Method method) {
       final MethodInterceptor[] interceptors = config.getInterceptors(method, targetSource.getTargetClass());
-      // OrderUtils.reversedSort(interceptors); //TODO
       return new StandardMethodInvocation.Target(method, interceptors);
     }
 

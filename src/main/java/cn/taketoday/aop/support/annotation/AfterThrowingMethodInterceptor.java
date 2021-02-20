@@ -27,11 +27,12 @@ import java.lang.reflect.Method;
  * @author TODAY 2018-10-13 11:25
  * @see cn.taketoday.aop.annotation.AfterThrowing
  */
-public class AfterThrowingMethodInterceptor extends AfterMethodInterceptor {
+public class AfterThrowingMethodInterceptor extends AbstractAnnotationMethodInterceptor {
+  public static final int DEFAULT_ORDER = 5;
 
   public AfterThrowingMethodInterceptor(Method method, Object aspect) {
     super(method, aspect);
-    setOrder(5);
+    setOrder(DEFAULT_ORDER);
   }
 
   @Override

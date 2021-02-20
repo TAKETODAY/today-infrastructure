@@ -29,7 +29,8 @@ import cn.taketoday.aop.AfterAdvice;
  * @author TODAY 2018-10-13 11:03
  * @see cn.taketoday.aop.annotation.After
  */
-public class AfterMethodInterceptor extends AbstractAnnotationMethodInterceptor implements AfterAdvice {
+public class AfterMethodInterceptor
+        extends AbstractAnnotationMethodInterceptor implements AfterAdvice {
 
   public AfterMethodInterceptor(Method method, Object aspect) {
     super(method, aspect);

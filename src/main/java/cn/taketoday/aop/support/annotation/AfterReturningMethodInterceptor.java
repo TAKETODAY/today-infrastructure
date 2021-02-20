@@ -28,10 +28,11 @@ import java.lang.reflect.Method;
  * @see cn.taketoday.aop.annotation.AfterReturning
  */
 public class AfterReturningMethodInterceptor extends AfterMethodInterceptor {
+  public static final int DEFAULT_ORDER = 4;
 
   public AfterReturningMethodInterceptor(Method method, Object aspect) {
     super(method, aspect);
-    setOrder(4);
+    setOrder(DEFAULT_ORDER);
   }
 
   @Override

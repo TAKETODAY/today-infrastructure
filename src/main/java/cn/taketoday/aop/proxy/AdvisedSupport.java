@@ -46,6 +46,7 @@ import cn.taketoday.aop.target.SingletonTargetSource;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
+import cn.taketoday.context.utils.OrderUtils;
 
 /**
  * Base class for AOP proxy configuration managers.
@@ -468,19 +469,25 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   /**
    * Determine a list of {@link org.aopalliance.intercept.MethodInterceptor} objects
    * for the given method, based on this configuration.
+   * <p>
+   * ordered {@link MethodInterceptor} array
+   * </p>
    *
    * @param method
    *         the proxied method
    * @param targetClass
    *         the target class
    *
-   * @return a List of MethodInterceptors (may also include InterceptorAndDynamicMethodMatchers)
+   * @return a List of MethodInterceptors (may also include {@link cn.taketoday.aop.support.RuntimeMethodInterceptor})
+   *
+   * @see cn.taketoday.aop.support.RuntimeMethodInterceptor
    */
   public MethodInterceptor[] getInterceptors(Method method, Class<?> targetClass) {
     MethodCacheKey cacheKey = new MethodCacheKey(method);
     MethodInterceptor[] cached = this.methodCache.get(cacheKey);
     if (cached == null) {
       cached = AopUtils.getInterceptorsArray(this, method, targetClass);
+      OrderUtils.reversedSort(cached);
       this.methodCache.put(cacheKey, cached);
     }
     return cached;
