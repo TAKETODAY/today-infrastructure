@@ -40,7 +40,7 @@ public class ProxyConfig implements Serializable {
   boolean opaque = false;
   boolean exposeProxy = false;
   private boolean frozen = false;
-  private boolean optimize = false;
+  private boolean optimize = true;
   private boolean proxyTargetClass = false;
 
   private boolean usingCglib = false;
