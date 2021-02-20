@@ -25,6 +25,8 @@ import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ContextUtils;
 
 /**
+ * StandardProxy
+ *
  * @author TODAY 2021/2/12 17:30
  */
 public class StandardAopProxy implements AopProxy {

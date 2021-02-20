@@ -57,6 +57,8 @@ import static cn.taketoday.context.asm.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.context.asm.Opcodes.JAVA_VERSION;
 
 /**
+ * StandardProxy Creator
+ *
  * @author TODAY 2021/2/12 17:35
  */
 public class StandardProxyCreator {

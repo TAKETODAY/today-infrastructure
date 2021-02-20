@@ -842,6 +842,8 @@ context is closing
 
 ## AOP部分
 
+底层使用`CGLIB`，JDK动态代理，或自己写的`StandardAopProxy` ,`CGLIB`,`JDK` 版本功能最完善,来自`Spring Aop`使用了Spring的抽象接口，自己用字节码技术实现了`StandardAopProxy`  自以为性能更优。
+
 > 使用@Aspect标注一个切面
 
 ```java
@@ -954,6 +956,244 @@ public void test_Login() throws NoSuchBeanDefinitionException {
     }
 }
 ```
+
+### 3.0版本
+
+#### 使用```ProxyFactoryBean```
+
+```java
+/**
+ * @author TODAY 2021/2/20 21:26
+ */
+public class ProxyFactoryBeanTests {
+  static final Logger log = LoggerFactory.getLogger(ProxyFactoryBeanTests.class);
+
+  //需要实现接口，确定哪个通知，及告诉Aop应该执行哪个方法
+  @Singleton
+  static class MyAspect implements MethodInterceptor {
+    public Object invoke(MethodInvocation mi) throws Throwable {
+      log.debug("方法执行之前");
+      // 0
+      Object obj = mi.proceed();
+
+      // test == 0
+
+      final TargetBean obj1 = (TargetBean) mi.getThis();
+      obj1.test = 10;
+      obj = mi.proceed(); // toString
+
+      log.debug("方法执行之后");
+      return obj;
+    }
+  }
+
+  @Singleton
+  static class MyAfterReturning implements AfterReturningAdvice {
+
+    @Override
+    public void afterReturning(Object returnValue, MethodInvocation invocation) throws Throwable {
+      // test == 0
+      log.debug("方法执行之后 返回值： " + returnValue);
+    }
+  }
+
+  @Singleton
+  static class MyBefore implements MethodBeforeAdvice {
+
+    @Override
+    public void before(MethodInvocation invocation) throws Throwable {
+      log.info("之前");
+    }
+  }
+
+  @Singleton
+  static class MyThrows implements ThrowsAdvice {
+
+    @Override
+    public Object afterThrowing(Throwable ex, MethodInvocation invocation) {
+      log.info(ex.toString());
+
+      return "异常数据";
+    }
+  }
+
+  @ToString
+  @Singleton
+  static class TargetBean {
+
+    int test;
+
+    String throwsTest() {
+      int i = 1 / 0;
+      return "ok";
+    }
+
+  }
+
+  @Test
+  public void test() {
+
+    try (StandardApplicationContext context = new StandardApplicationContext("", "cn.taketoday.aop.support")) {
+      final ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
+      proxyFactoryBean.setProxyTargetClass(true);
+      proxyFactoryBean.setBeanFactory(context);
+      proxyFactoryBean.setExposeProxy(true);
+
+      proxyFactoryBean.setInterceptorNames("myAspect", "myAfterReturning", "myBefore", "myThrows");
+      proxyFactoryBean.setTargetName("targetBean");
+
+      final Object bean = proxyFactoryBean.getBean();
+      log.debug(bean.toString());
+
+      final String ret = ((TargetBean) bean).throwsTest();
+
+      assert ret.equals("异常数据");
+    }
+  }
+}
+```
+
+#### 类似Spring Aop的使用方法
+
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.METHOD, ElementType.TYPE })
+public @interface Aware { }
+
+static class PrinterBean {
+
+  @Aware
+  void print() {
+    System.out.println("print");
+  }
+
+  void none() {
+    System.out.println("none");
+  }
+
+  void none(String arg) {
+    System.out.println("none" + arg);
+  }
+
+  @Aware
+  int none(Integer input) {
+    System.out.println("none" + input);
+    return input;
+  }
+
+}
+
+@Test
+public void testAttributeAccessor() throws Throwable {
+
+  
+
+static class LoggingInterceptor implements MethodInterceptor {
+
+  @Override
+  public Object invoke(MethodInvocation invocation) throws Throwable {
+    log.debug("LoggingInterceptor @Around Before method");
+    final Object proceed = invocation.proceed();
+    log.debug("LoggingInterceptor @Around After method");
+    return proceed;
+  }
+
+}
+
+static class MyInterceptor implements MethodInterceptor {
+
+  @Override
+  public Object invoke(MethodInvocation invocation) throws Throwable {
+    final Object proceed = invocation.proceed();
+    final Object aThis = invocation.getThis();
+    System.out.println(aThis);
+    return proceed;
+  }
+
+}
+
+@Import({ LoggingInterceptor.class, MyInterceptor.class })
+static class LoggingConfig {
+
+  @Singleton
+  public DefaultPointcutAdvisor loggingAdvisor(LoggingInterceptor loggingAspect) {
+    AnnotationMatchingPointcut pointcut = new AnnotationMatchingPointcut(null, Aware.class);
+
+    DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor();
+    advisor.setPointcut(pointcut);
+    advisor.setAdvice(loggingAspect);
+
+    return advisor;
+  }
+
+  @Singleton
+  public DefaultPointcutAdvisor advisor(MyInterceptor interceptor) {
+    AnnotationMatchingPointcut pointcut = new AnnotationMatchingPointcut(null, Aware.class);
+
+    DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor();
+    advisor.setPointcut(pointcut);
+    advisor.setAdvice(interceptor);
+
+    return advisor;
+  }
+
+}
+
+@Test
+public void testNewVersionAop() throws Throwable {
+
+  try (StandardApplicationContext context = new StandardApplicationContext()) {
+
+    final TargetSourceCreator targetSourceCreator = new TargetSourceCreator() {
+
+      @Override
+      public TargetSource getTargetSource(BeanDefinition def) {
+
+        return new PrototypeTargetSource() {
+
+          @Override
+          public Class<?> getTargetClass() {
+            return PrinterBean.class;
+          }
+
+          @Override
+          protected Object newPrototypeInstance() {
+            return new PrinterBean();
+          }
+        };
+      }
+    };
+
+    final StandardBeanFactory beanFactory = context.getBeanFactory();
+    final DefaultAutoProxyCreator autoProxyCreator = new DefaultAutoProxyCreator();
+    context.addBeanPostProcessor(autoProxyCreator);
+    autoProxyCreator.setBeanFactory(beanFactory);
+    autoProxyCreator.setFrozen(true);
+    autoProxyCreator.setExposeProxy(true);
+
+    beanFactory.importBeans(LoggingConfig.class, PrinterBean.class);
+
+    final PrinterBean bean = beanFactory.getBean(PrinterBean.class);
+    final DefaultPointcutAdvisor pointcutAdvisor = beanFactory.getBean(DefaultPointcutAdvisor.class);
+    System.out.println(pointcutAdvisor);
+
+    bean.print();
+
+    bean.none();
+    bean.none("TODAY");
+    final int none = bean.none(1);
+    assertThat(none).isEqualTo(1);
+
+    System.out.println(none);
+
+//      Advised advised = (Advised) bean;
+//      System.out.println(Arrays.toString(advised.getAdvisors()));
+
+  }
+}
+
+```
+
 
 
 
