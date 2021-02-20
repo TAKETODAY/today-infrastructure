@@ -40,7 +40,7 @@ import cn.taketoday.aop.annotation.Throwing;
 import cn.taketoday.aop.proxy.DefaultAutoProxyCreator;
 import cn.taketoday.aop.support.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
-import cn.taketoday.aop.support.aspect.AspectAutoProxyCreator;
+import cn.taketoday.aop.support.annotation.AspectAutoProxyCreator;
 import cn.taketoday.aop.target.PrototypeTargetSource;
 import cn.taketoday.aop.target.TargetSourceCreator;
 import cn.taketoday.context.AttributeAccessor;
