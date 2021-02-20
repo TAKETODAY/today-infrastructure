@@ -22,11 +22,11 @@ package cn.taketoday.aop;
 
 import org.aopalliance.aop.Advice;
 
-import cn.taketoday.aop.support.advice.MethodAfterReturningAdvice;
-import cn.taketoday.aop.support.advice.MethodAfterThrowingAdvice;
+import cn.taketoday.aop.support.aspect.MethodAfterReturningAdvice;
+import cn.taketoday.aop.support.aspect.MethodAfterThrowingAdvice;
 
 /**
- * Base interface holding AOP <b>advice</b> (action to take at a joinpoint)
+ * Base interface holding AOP <b>advice</b> (action to take at a join-point)
  * and a filter determining the applicability of the advice (such as
  * a pointcut). <i>This interface is not for use by  users, but to
  * allow for commonality in support for different types of advice.</i>

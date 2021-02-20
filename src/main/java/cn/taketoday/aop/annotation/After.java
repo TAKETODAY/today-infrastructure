@@ -25,7 +25,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.aop.support.advice.MethodAfterAdvice;
+import cn.taketoday.aop.support.aspect.MethodAfterAdvice;
 
 /**
  * @author TODAY <br>

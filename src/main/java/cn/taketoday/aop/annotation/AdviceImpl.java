@@ -25,7 +25,7 @@ import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Objects;
 
-import cn.taketoday.aop.support.advice.AbstractAdvice;
+import cn.taketoday.aop.support.aspect.AbstractAspectAdvice;
 
 /**
  * @author Today <br>
@@ -39,7 +39,7 @@ public class AdviceImpl implements Advice {
   private Class<?>[] target = null;
   private String method[] = { "*" };
   private Class<? extends Annotation>[] value;
-  private Class<? extends MethodInterceptor> interceptor = AbstractAdvice.class;
+  private Class<? extends MethodInterceptor> interceptor = AbstractAspectAdvice.class;
 
   @Override
   public Class<? extends Annotation> annotationType() {

@@ -55,7 +55,6 @@ import cn.taketoday.context.AttributeAccessor;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.cglib.core.DebuggingClassWriter;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.StandardBeanFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -186,24 +185,24 @@ public class AopTest {
   @Aspect
   static class TimerAspect {
 
-    @AfterReturning(Timer.class)
+    @AfterReturning(TimeAware.class)
     public void afterReturning(@JoinPoint Joinpoint joinpoint, @Attribute AttributeAccessor accessor) {
       final long start = (long) accessor.getAttribute("Time");
       log.debug("TimeAspect @AfterReturning Use [{}] ms", System.currentTimeMillis() - start);
     }
 
-    @AfterThrowing(Timer.class)
+    @AfterThrowing(TimeAware.class)
     public void afterThrowing(@Throwing Throwable throwable) {
       log.error("TimeAspect @AfterThrowing With Msg: [{}]", throwable.getMessage(), throwable);
     }
 
-    @Before(Timer.class)
+    @Before(TimeAware.class)
     public void before(AttributeAccessor accessor) {
       accessor.setAttribute("Time", System.currentTimeMillis());
       log.debug("TimeAspect @Before method");
     }
 
-    @Around(Timer.class)
+    @Around(TimeAware.class)
     public Object around(@JoinPoint Joinpoint joinpoint) throws Throwable {
       log.debug("TimeAspect @Around Before method");
       Object proceed = joinpoint.proceed();

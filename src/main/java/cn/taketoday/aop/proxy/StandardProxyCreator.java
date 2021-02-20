@@ -47,7 +47,6 @@ import cn.taketoday.context.cglib.core.TypeUtils;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.reflect.GeneratorSupport;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ObjectUtils;
@@ -86,73 +85,6 @@ public class StandardProxyCreator {
     Object newInstance(Class<?> superClass);
   }
 
-  static class Bean {
-
-    void test() {
-
-    }
-
-    void none() {
-    }
-
-    void noneStatic() {
-
-    }
-
-    int testReturn() {
-      return 100;
-    }
-  }
-
-  public static class Bean$$AopByTODAY$$b059af0e extends Bean implements StandardProxy {
-
-    private final Bean target;
-    private final TargetSource targetSource;
-    private static final StandardMethodInvocation.Target testMR2B = InvocationRegistry.getTarget("testMR2B");
-    private static final StandardMethodInvocation.Target testReturnlQaU = InvocationRegistry.getTarget("testReturnlQaU");
-
-    public Bean$$AopByTODAY$$b059af0e(Bean target, TargetSource targetSource) {
-      this.target = target;
-      this.targetSource = targetSource;
-    }
-
-    @Override
-    void test() {
-      try {
-//        StandardProxyInvoker.proceed(this, targetSource, testMR2B, Constant.EMPTY_OBJECT_ARRAY);
-      }
-      catch (Throwable throwable) {
-        throwable.printStackTrace();
-      }
-    }
-
-    @Override
-    void none() {
-      this.target.none();
-    }
-
-    @Override
-    void noneStatic() {
-      ((Bean) this.targetSource.getTarget()).noneStatic();
-    }
-
-    @Override
-    int testReturn() {
-      Object ret = null;
-      try {
-//        ret = StandardProxyInvoker.proceed(this, targetSource, testReturnlQaU, Constant.EMPTY_OBJECT_ARRAY);
-      }
-      catch (Throwable throwable) {
-        throwable.printStackTrace();
-      }
-      return GeneratorSupport.convert((Integer) ret);
-    }
-
-  }
-
-  /**
-   * 如果是static直接获取bean调用方法，
-   */
   public static class StandardProxyGenerator extends AbstractClassGenerator<Object> {
 
     static final String FIELD_TARGET = "target";
@@ -265,12 +197,10 @@ public class StandardProxyCreator {
       final Class<?>[] copy = new Class[superLength + (targetSourceStatic ? 3 : 2)];
       System.arraycopy(types, 0, copy, 0, superLength);
 
-      int offset = 1;
+      int offset = 0;
       if (targetSourceStatic) {
         copy[superLength] = targetClass;
-      }
-      else {
-        offset = 0;
+        offset = 1;
       }
 
       copy[superLength + offset] = TargetSource.class;
@@ -453,7 +383,7 @@ public class StandardProxyCreator {
     }
 
     /**
-     * <pre>
+     * <pre class="code">
      *   public AopTest$PrinterBean$$AopByTODAY$$168c2842(PrinterBean var1, TargetSource var2, AdvisedSupport var3) {
      *     this.target = var1;
      *     this.config = var3;
@@ -488,15 +418,13 @@ public class StandardProxyCreator {
       code.super_invoke_constructor(TypeUtils.parseConstructor(superTypes));
       // 赋值
 
-      int offset = 1;
+      int offset = 0;
       if (targetSourceStatic) {
         code.load_this();
-
         code.load_arg(typesLength);
         code.putfield(FIELD_TARGET);
-      }
-      else {
-        offset = 0;
+
+        offset = 1;
       }
 
       code.load_this();
@@ -512,7 +440,7 @@ public class StandardProxyCreator {
     }
 
     /**
-     * <pre>
+     * <pre class="code">
      *   void none() {
      *     ((Bean) target).none();
      *   }
@@ -535,7 +463,7 @@ public class StandardProxyCreator {
     }
 
     /**
-     * <pre>
+     * <pre class="code">
      *   void noneStatic() {
      *     ((Bean) this.targetSource.getTarget()).noneStatic();
      *   }

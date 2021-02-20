@@ -25,12 +25,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.aop.listener.AspectsDestroyListener;
-import cn.taketoday.aop.proxy.AutoProxyCreator;
+import cn.taketoday.aop.proxy.AspectAutoProxyCreator;
 import cn.taketoday.aop.proxy.DefaultAutoProxyCreator;
 import cn.taketoday.aop.target.TargetSourceCreator;
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.utils.ObjectUtils;
 
 /**
  * Enable Aspect Oriented Programming
@@ -50,13 +50,16 @@ class AutoProxyConfiguration {
   @MissingBean
   DefaultAutoProxyCreator defaultAutoProxyCreator(TargetSourceCreator[] sourceCreators) {
     final DefaultAutoProxyCreator proxyCreator = new DefaultAutoProxyCreator();
-    proxyCreator.setTargetSourceCreators(sourceCreators);
+
+    if(ObjectUtils.isNotEmpty(sourceCreators)) {
+      proxyCreator.setTargetSourceCreators(sourceCreators);
+    }
     return proxyCreator;
   }
 
   @MissingBean
-  AutoProxyCreator autoProxyCreator(ApplicationContext context) {
-    return new AutoProxyCreator(context);
+  AspectAutoProxyCreator aspectAutoProxyCreator() {
+    return new AspectAutoProxyCreator();
   }
 
   @MissingBean

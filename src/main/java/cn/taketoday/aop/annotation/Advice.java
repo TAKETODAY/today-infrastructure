@@ -27,11 +27,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.aop.support.advice.AbstractAdvice;
+import cn.taketoday.aop.support.aspect.AbstractAspectAdvice;
 
 /**
  * @author TODAY <br>
  * 2018-11-10 13:10
+ * @see Pointcut
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD, ElementType.TYPE })
@@ -49,6 +50,6 @@ public @interface Advice {
   /** Method in class */
   String[] method() default {};
 
-  Class<? extends MethodInterceptor> interceptor() default AbstractAdvice.class;
+  Class<? extends MethodInterceptor> interceptor() default AbstractAspectAdvice.class;
 
 }

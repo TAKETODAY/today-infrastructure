@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
+ * 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,26 +17,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.aop.support.advice;
+package cn.taketoday.aop;
 
-import org.aopalliance.intercept.MethodInvocation;
-
-import java.lang.reflect.Method;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author TODAY <br>
- * 2018-11-10 13:14
+ *         2018-11-10 19:06
  */
-public class AroundMethodAdvice extends AbstractAdvice {
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.METHOD, ElementType.TYPE })
+public @interface TimeAware {
 
-  public AroundMethodAdvice(Method method, Object aspect) {
-    super(method, aspect);
-    setOrder(1);
-  }
-
-  @Override
-  public Object invoke(MethodInvocation inv) throws Throwable {
-    return invokeAdviceMethod(inv, null, null);
-  }
-
+    /**
+     * key
+     */
+    String value() default "";
 }

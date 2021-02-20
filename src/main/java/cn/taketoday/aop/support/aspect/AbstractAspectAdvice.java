@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.aop.support.advice;
+package cn.taketoday.aop.support.aspect;
 
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.Joinpoint;
@@ -47,10 +47,10 @@ import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ExceptionUtils;
 
 /**
- * @author TODAY <br>
- * 2018-11-10 11:26
+ * @author TODAY 2018-11-10 11:26
+ * @see cn.taketoday.aop.annotation.Aspect
  */
-public abstract class AbstractAdvice
+public abstract class AbstractAspectAdvice
         extends OrderedSupport implements Advice, MethodInterceptor {
 
   private final Object aspect;
@@ -60,7 +60,7 @@ public abstract class AbstractAdvice
   private final int adviceParameterLength;
   private final Class<?>[] adviceParameterTypes;
 
-  public AbstractAdvice(Method adviceMethod, Object aspect) {
+  public AbstractAspectAdvice(Method adviceMethod, Object aspect) {
     Assert.notNull(aspect, "aspect must not be null");
     Assert.notNull(adviceMethod, "adviceMethod must not be null");
 

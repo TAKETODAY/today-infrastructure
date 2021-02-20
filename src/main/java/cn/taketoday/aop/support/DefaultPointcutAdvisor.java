@@ -20,10 +20,6 @@
 
 package cn.taketoday.aop.support;
 
-/**
- * @author TODAY 2021/2/1 19:05
- */
-
 import org.aopalliance.aop.Advice;
 
 import java.io.Serializable;
@@ -39,8 +35,10 @@ import cn.taketoday.aop.Pointcut;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author TODAY 2021/2/1 19:05
  * @see #setPointcut
  * @see #setAdvice
+ * @since 3.0
  */
 @SuppressWarnings("serial")
 public class DefaultPointcutAdvisor

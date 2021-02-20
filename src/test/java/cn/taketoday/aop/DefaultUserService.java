@@ -36,7 +36,7 @@ public class DefaultUserService implements UserService {
         this.userDao = userDao;
     }
 
-    @Timer
+    @TimeAware
     @Logger("登录")
     @Override
     public User login(User user) {

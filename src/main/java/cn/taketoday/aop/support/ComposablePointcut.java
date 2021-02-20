@@ -46,8 +46,6 @@ import cn.taketoday.context.utils.Assert;
  * @since 3.0
  */
 public class ComposablePointcut implements Pointcut, Serializable {
-
-  /** use serialVersionUID from  1.2 for interoperability. */
   private static final long serialVersionUID = 1L;
 
   private ClassFilter classFilter;

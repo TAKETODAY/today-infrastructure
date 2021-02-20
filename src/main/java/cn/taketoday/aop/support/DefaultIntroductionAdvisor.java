@@ -34,6 +34,7 @@ import cn.taketoday.context.Ordered;
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 
 /**
  * Simple {@link IntroductionAdvisor} implementation
@@ -42,7 +43,7 @@ import cn.taketoday.context.utils.ClassUtils;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author TODAY 2021/2/1 20:33
- * @since 11.11.2003
+ * @since 3.0
  */
 @SuppressWarnings("serial")
 public class DefaultIntroductionAdvisor
@@ -79,7 +80,7 @@ public class DefaultIntroductionAdvisor
     this.advice = advice;
     if (introductionInfo != null) {
       Class<?>[] introducedInterfaces = introductionInfo.getInterfaces();
-      if (introducedInterfaces.length == 0) {
+      if (ObjectUtils.isEmpty(introducedInterfaces)) {
         throw new IllegalArgumentException("IntroductionAdviceSupport implements no interfaces");
       }
       for (Class<?> ifc : introducedInterfaces) {

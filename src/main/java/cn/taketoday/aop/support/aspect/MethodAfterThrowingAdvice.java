@@ -17,35 +17,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.aop.annotation;
+package cn.taketoday.aop.support.aspect;
 
-import java.lang.annotation.Annotation;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.aopalliance.intercept.MethodInvocation;
 
-import cn.taketoday.aop.support.aspect.MethodBeforeAdvice;
+import java.lang.reflect.Method;
 
 /**
  * @author TODAY <br>
- * 2018-08-09 18:50
+ * 2018-10-13 11:25
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Advice(interceptor = MethodBeforeAdvice.class)
-@Target({ ElementType.METHOD, ElementType.TYPE })
-public @interface Before {
+public class MethodAfterThrowingAdvice extends MethodAfterAdvice {
 
-  /** Annotated with */
-  Class<? extends Annotation>[] value() default {};
+  public MethodAfterThrowingAdvice(Method method, Object aspect) {
+    super(method, aspect);
+    setOrder(5);
+  }
 
-  /** Package name */
-  String[] pointcut() default {};
-
-  /** Target classes */
-  Class<?>[] target() default {};
-
-  /** Method in class */
-  String[] method() default {};
+  @Override
+  public Object invoke(final MethodInvocation inv) throws Throwable {
+    try {
+      return inv.proceed();
+    }
+    catch (Throwable ex) {
+      return invokeAdviceMethod(inv, null, ex); // fix Use
+    }
+  }
 
 }

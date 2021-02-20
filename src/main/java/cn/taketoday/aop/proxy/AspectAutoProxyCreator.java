@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -15,9 +15,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.aop.support.advice;
+
+package cn.taketoday.aop.proxy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,13 +33,9 @@ import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.OrderUtils;
 
 /**
- * @author TODAY <br>
- * 2018-11-10 18:48
+ * @author TODAY 2021/2/19 23:55
  */
-@Deprecated
-public enum AspectsRegistry {
-
-  ASPECTS_REGISTRY;
+public class AspectAutoProxyCreator extends AbstractAutoProxyCreator {
 
   private final List<Object> aspects = new ArrayList<>();
 
@@ -46,10 +43,6 @@ public enum AspectsRegistry {
 
   public void addAspect(Object aspect) {
     getAspects().add(aspect);
-  }
-
-  public static AspectsRegistry getInstance() {
-    return ASPECTS_REGISTRY;
   }
 
   public void sortAspects() {
@@ -66,12 +59,10 @@ public enum AspectsRegistry {
 
   public void loadAspects(final ConfigurableBeanFactory applicationContext) {
     final Logger log = LoggerFactory.getLogger(getClass());
-
     log.debug("Loading Aspect Objects");
 
     setAspectsLoaded(true);
     try {
-
       for (final BeanDefinition beanDefinition : applicationContext.getBeanDefinitions().values()) {
 
         if (beanDefinition.isAnnotationPresent(Aspect.class)) {
@@ -98,4 +89,8 @@ public enum AspectsRegistry {
     return aspects;
   }
 
+  @Override
+  protected boolean advisorsPreFiltered() {
+    return true;
+  }
 }

@@ -176,13 +176,13 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
         // The target does not implement the hashCode() method itself.
         return hashCode();
       }
-      else if (!advised.opaque && method.getDeclaringClass().isInterface() &&
+      else if (!advised.isOpaque() && method.getDeclaringClass().isInterface() &&
               method.getDeclaringClass().isAssignableFrom(Advised.class)) {
         // Service invocations on ProxyConfig with the proxy config...
         return AopUtils.invokeJoinpointUsingReflection(advised, method, args);
       }
 
-      if (advised.exposeProxy) {
+      if (advised.isExposeProxy()) {
         // Make invocation available if necessary.
         oldProxy = AopContext.setCurrentProxy(proxy);
         setProxyContext = true;

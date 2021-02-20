@@ -19,7 +19,7 @@
  */
 package cn.taketoday.aop.listener;
 
-import cn.taketoday.aop.support.advice.AspectsRegistry;
+import cn.taketoday.aop.support.aspect.AspectsRegistry;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.event.ContextCloseEvent;

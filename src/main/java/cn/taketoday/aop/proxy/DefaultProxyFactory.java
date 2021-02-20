@@ -31,8 +31,8 @@ import java.util.regex.Pattern;
 
 import cn.taketoday.aop.annotation.Advice;
 import cn.taketoday.aop.annotation.AdviceImpl;
-import cn.taketoday.aop.support.advice.AbstractAdvice;
-import cn.taketoday.aop.support.advice.AspectsRegistry;
+import cn.taketoday.aop.support.aspect.AbstractAspectAdvice;
+import cn.taketoday.aop.support.aspect.AspectsRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.exception.ConfigurationException;
@@ -307,13 +307,13 @@ public class DefaultProxyFactory {
                                                  final Class<? extends MethodInterceptor> interceptor,
                                                  final ApplicationContext beanFactory) throws Throwable //
   {
-    if (interceptor == AbstractAdvice.class || !MethodInterceptor.class.isAssignableFrom(interceptor)) {
+    if (interceptor == AbstractAspectAdvice.class || !MethodInterceptor.class.isAssignableFrom(interceptor)) {
       throw new ConfigurationException(
-              "You must be implement: [" + AbstractAdvice.class.getName() +
+              "You must be implement: [" + AbstractAspectAdvice.class.getName() +
                       "] or [" + MethodInterceptor.class.getName() + "]");
     }
 
-    if (AbstractAdvice.class.isAssignableFrom(interceptor)) {
+    if (AbstractAspectAdvice.class.isAssignableFrom(interceptor)) {
       return interceptor.getConstructor(Method.class, Object.class).newInstance(aspectMethod, aspect);
     }
 
