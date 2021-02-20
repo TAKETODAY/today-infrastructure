@@ -38,6 +38,7 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Bean.C;
 import cn.taketoday.context.utils.Bean.S;
+import lombok.ToString;
 import test.demo.config.Config;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -570,6 +571,33 @@ public class ClassUtilsTest {
     assertThat(ClassUtils.getGenerics(NoGeneric.class))
             .isNull();
 
+  }
+
+  static class TestNewInstanceBean { }
+
+  @ToString
+  static class TestNewInstanceBeanProvidedArgs {
+    Integer integer;
+
+    TestNewInstanceBeanProvidedArgs(Integer integer) {
+      this.integer = integer;
+    }
+  }
+
+  //
+  @Test
+  public void testNewInstance() {
+    final TestNewInstanceBean testNewInstanceBean = ClassUtils.newInstance(TestNewInstanceBean.class);
+
+    System.out.println(testNewInstanceBean);
+
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+
+      final TestNewInstanceBeanProvidedArgs providedArgs = ClassUtils
+              .newInstance(TestNewInstanceBeanProvidedArgs.class, context, new Object[] { 1, "TODAY" });
+
+      System.out.println(providedArgs);
+    }
   }
 
 }
