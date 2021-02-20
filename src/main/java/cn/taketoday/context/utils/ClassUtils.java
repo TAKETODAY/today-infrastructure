@@ -1087,12 +1087,33 @@ public abstract class ClassUtils {
    *         if any reflective operation exception occurred
    */
   public static <T> T newInstance(final Class<T> beanClass, final BeanFactory beanFactory) {
+    return newInstance(beanClass, beanFactory, null);
+  }
+
+  /**
+   * Use default {@link Constructor} or Annotated {@link Autowired}
+   * {@link Constructor} to create bean instance.
+   *
+   * @param beanClass
+   *         target bean class
+   * @param beanFactory
+   *         bean factory
+   * @param providedArgs
+   *         User provided arguments
+   *
+   * @return bean class 's instance
+   *
+   * @throws BeanInstantiationException
+   *         if any reflective operation exception occurred
+   */
+  public static <T> T newInstance(final Class<T> beanClass, final BeanFactory beanFactory, Object[] providedArgs) {
+
     final Constructor<T> constructor = getSuitableConstructor(beanClass);
     if (constructor == null) {
       throw new BeanInstantiationException(beanClass, "No suitable constructor found");
     }
     try {
-      return constructor.newInstance(resolveParameter(constructor, beanFactory));
+      return constructor.newInstance(resolveParameter(constructor, beanFactory, providedArgs));
     }
     catch (InstantiationException ex) {
       throw new BeanInstantiationException(constructor, "Is it an abstract class?", ex);
