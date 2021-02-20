@@ -1083,11 +1083,6 @@ static class PrinterBean {
 
 }
 
-@Test
-public void testAttributeAccessor() throws Throwable {
-
-  
-
 static class LoggingInterceptor implements MethodInterceptor {
 
   @Override
