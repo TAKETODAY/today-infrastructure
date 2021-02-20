@@ -47,7 +47,6 @@ import cn.taketoday.context.AttributeAccessor;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.cglib.core.DebuggingClassWriter;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.StandardBeanFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -78,7 +77,7 @@ public class AopTest {
   public void testAop() throws Throwable {
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
-      DebuggingClassWriter.setDebugLocation("D:\\dev\\temp\\debug");
+//      DebuggingClassWriter.setDebugLocation("D:\\dev\\temp\\debug");
 
       final StandardBeanFactory beanFactory = context.getBeanFactory();
 

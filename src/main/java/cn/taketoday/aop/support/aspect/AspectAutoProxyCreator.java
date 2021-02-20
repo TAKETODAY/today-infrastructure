@@ -52,10 +52,10 @@ import cn.taketoday.context.utils.ReflectionUtils;
  */
 public class AspectAutoProxyCreator
         extends DefaultAutoProxyCreator implements ApplicationListener<ContextCloseEvent> {
-
-  private final List<Object> aspects = new ArrayList<>();
+  private static final long serialVersionUID = 1L;
 
   private boolean aspectsLoaded;
+  private final List<Object> aspects = new ArrayList<>();
 
   public void addAspect(Object aspect) {
     aspects.add(aspect);
