@@ -1107,13 +1107,14 @@ public abstract class ClassUtils {
    *         if any reflective operation exception occurred
    */
   public static <T> T newInstance(final Class<T> beanClass, final BeanFactory beanFactory, Object[] providedArgs) {
+    final Constructor<T> constructor = obtainConstructor(beanClass);
+    final Object[] parameter = resolveParameter(constructor, beanFactory, providedArgs);
+    return newInstance(constructor, parameter);
+  }
 
-    final Constructor<T> constructor = getSuitableConstructor(beanClass);
-    if (constructor == null) {
-      throw new BeanInstantiationException(beanClass, "No suitable constructor found");
-    }
+  public static <T> T newInstance(Constructor<T> constructor, Object[] parameter) {
     try {
-      return constructor.newInstance(resolveParameter(constructor, beanFactory, providedArgs));
+      return constructor.newInstance(parameter);
     }
     catch (InstantiationException ex) {
       throw new BeanInstantiationException(constructor, "Is it an abstract class?", ex);
@@ -1145,14 +1146,14 @@ public abstract class ClassUtils {
    *
    * @return Suitable constructor
    *
-   * @throws NoSuchMethodException
+   * @throws BeanInstantiationException
    *         If there is no suitable constructor
    * @since 2.1.7
    */
-  public static <T> Constructor<T> obtainConstructor(Class<T> beanClass) throws NoSuchMethodException {
+  public static <T> Constructor<T> obtainConstructor(Class<T> beanClass) {
     final Constructor<T> ret = getSuitableConstructor(beanClass);
     if (ret == null) {
-      throw new NoSuchMethodException("No suitable constructor found in class :[" + beanClass + "]");
+      throw new BeanInstantiationException(beanClass, "No suitable constructor found");
     }
     return ret;
   }

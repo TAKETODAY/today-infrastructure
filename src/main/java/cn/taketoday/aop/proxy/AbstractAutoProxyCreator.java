@@ -50,7 +50,7 @@ import cn.taketoday.context.utils.OrderUtils;
  * @author TODAY 2021/2/1 21:31
  */
 public abstract class AbstractAutoProxyCreator
-        extends ProxyConfig implements InstantiationAwareBeanPostProcessor, BeanFactoryAware {
+        extends ProxyConfig implements InstantiationAwareBeanPostProcessor, BeanFactoryAware, AopInfrastructureBean {
   protected final transient Logger log = LoggerFactory.getLogger(getClass());
 
   private BeanFactory beanFactory;
@@ -135,7 +135,7 @@ public abstract class AbstractAutoProxyCreator
     TargetSource targetSource = getCustomTargetSource(def);
     if (targetSource != null) {
       Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(def, targetSource);
-      if(ObjectUtils.isNotEmpty(specificInterceptors)) {
+      if (ObjectUtils.isNotEmpty(specificInterceptors)) {
         return createProxy(def, specificInterceptors, targetSource);
       }
     }
@@ -194,9 +194,9 @@ public abstract class AbstractAutoProxyCreator
       return bean;
     }
     // Create proxy if we have advice.
-    Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(def, null);
+    final TargetSource targetSource = getTargetSource(bean, def);
+    Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(def, targetSource);
     if (ObjectUtils.isNotEmpty(specificInterceptors)) {
-      final TargetSource targetSource = getTargetSource(bean, def);
       return createProxy(def, specificInterceptors, targetSource);
     }
     return bean;
@@ -257,9 +257,19 @@ public abstract class AbstractAutoProxyCreator
   protected List<Advisor> getCandidateAdvisors() {
     if (candidateAdvisors == null) {
       candidateAdvisors = new ArrayList<>();
-      final BeanFactory beanFactory = getBeanFactory();
-      candidateAdvisors.addAll(beanFactory.getBeans(Advisor.class));
+      postCandidateAdvisors(candidateAdvisors);
     }
+    return candidateAdvisors;
+  }
+
+  protected void postCandidateAdvisors(List<Advisor> candidateAdvisors) {
+    final BeanFactory beanFactory = getBeanFactory();
+    candidateAdvisors.addAll(beanFactory.getBeans(Advisor.class));
+
+  }
+
+  protected List<Advisor> createCandidateAdvisors() {
+
     return candidateAdvisors;
   }
 

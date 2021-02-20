@@ -398,21 +398,20 @@ public abstract class AopUtils {
     if (adviceObject instanceof Advisor) {
       return (Advisor) adviceObject;
     }
-    if (!(adviceObject instanceof Advice)) {
-      throw new UnknownAdviceTypeException(adviceObject);
-    }
-    Advice advice = (Advice) adviceObject;
-    if (advice instanceof MethodInterceptor) {
-      // So well-known it doesn't even need an adapter.
-      return new DefaultPointcutAdvisor(advice);
-    }
-    for (AdvisorAdapter adapter : advisorAdapters) {
-      // Check that it is supported.
-      if (adapter.supportsAdvice(advice)) {
+    if (adviceObject instanceof Advice) {
+      Advice advice = (Advice) adviceObject;
+      if (advice instanceof MethodInterceptor) {
+        // So well-known it doesn't even need an adapter.
         return new DefaultPointcutAdvisor(advice);
       }
+      for (AdvisorAdapter adapter : advisorAdapters) {
+        // Check that it is supported.
+        if (adapter.supportsAdvice(advice)) {
+          return new DefaultPointcutAdvisor(advice);
+        }
+      }
     }
-    throw new UnknownAdviceTypeException(advice);
+    throw new UnknownAdviceTypeException(adviceObject);
   }
 
   public static MethodInterceptor[] getInterceptors(Advisor advisor) throws UnknownAdviceTypeException {

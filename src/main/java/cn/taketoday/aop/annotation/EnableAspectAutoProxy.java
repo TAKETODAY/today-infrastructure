@@ -24,9 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.aop.listener.AspectsDestroyListener;
-import cn.taketoday.aop.proxy.AspectAutoProxyCreator;
-import cn.taketoday.aop.proxy.DefaultAutoProxyCreator;
+import cn.taketoday.aop.support.aspect.AspectAutoProxyCreator;
 import cn.taketoday.aop.target.TargetSourceCreator;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
@@ -48,23 +46,13 @@ public @interface EnableAspectAutoProxy {
 class AutoProxyConfiguration {
 
   @MissingBean
-  DefaultAutoProxyCreator defaultAutoProxyCreator(TargetSourceCreator[] sourceCreators) {
-    final DefaultAutoProxyCreator proxyCreator = new DefaultAutoProxyCreator();
+  AspectAutoProxyCreator aspectAutoProxyCreator(TargetSourceCreator[] sourceCreators) {
+    final AspectAutoProxyCreator proxyCreator = new AspectAutoProxyCreator();
 
     if(ObjectUtils.isNotEmpty(sourceCreators)) {
       proxyCreator.setTargetSourceCreators(sourceCreators);
     }
     return proxyCreator;
-  }
-
-  @MissingBean
-  AspectAutoProxyCreator aspectAutoProxyCreator() {
-    return new AspectAutoProxyCreator();
-  }
-
-  @MissingBean
-  AspectsDestroyListener aspectsDestroyListener() {
-    return new AspectsDestroyListener();
   }
 
 }
