@@ -71,6 +71,10 @@ import cn.taketoday.web.resolver.ParameterResolvers;
 import cn.taketoday.web.resolver.RequestBodyParameterResolver;
 import cn.taketoday.web.resolver.StreamParameterResolver;
 import cn.taketoday.web.resolver.ThrowableHandlerParameterResolver;
+import cn.taketoday.web.resolver.date.DateParameterResolver;
+import cn.taketoday.web.resolver.date.LocalDateParameterResolver;
+import cn.taketoday.web.resolver.date.LocalDateTimeParameterResolver;
+import cn.taketoday.web.resolver.date.LocalTimeParameterResolver;
 import cn.taketoday.web.view.HttpStatusResultHandler;
 import cn.taketoday.web.view.ImageResultHandler;
 import cn.taketoday.web.view.ModelAndViewResultHandler;
@@ -424,6 +428,13 @@ public class WebApplicationLoader
 
     resolvers.add(new CollectionParameterResolver());
     resolvers.add(new BeanParameterResolver());
+
+    // Date API support
+    resolvers.add(new DateParameterResolver());
+    resolvers.add(new LocalDateParameterResolver());
+    resolvers.add(new LocalTimeParameterResolver());
+    resolvers.add(new LocalDateTimeParameterResolver());
+
 
     // User customize parameter resolver
     // ------------------------------------------
