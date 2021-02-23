@@ -42,6 +42,11 @@ public abstract class AbstractDateParameterResolver
   @Override
   public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
     final String parameterValue = getParameterValue(context, parameter);
+
+    if(StringUtils.isEmpty(parameterValue)) {
+      return null;
+    }
+
     DateTimeFormatter formatter = getFormatter(parameter);
     try {
       return resolveInternal(parameterValue, formatter);
