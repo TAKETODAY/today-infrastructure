@@ -34,6 +34,7 @@ import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalField;
 import java.time.temporal.UnsupportedTemporalTypeException;
 
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
@@ -188,6 +189,7 @@ public class DateUtils {
    * @return {@link Instant}对象
    */
   public static long toEpochMilli(TemporalAccessor temporalAccessor) {
+    Assert.notNull(temporalAccessor, "temporalAccessor must not be null");
     return toInstant(temporalAccessor).toEpochMilli();
   }
 
