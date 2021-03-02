@@ -330,8 +330,6 @@ public abstract class ClassUtils {
    *         class gull name
    * @param classLoader
    *         use this {@link ClassLoader} load the class
-   *
-   * @return
    */
   @SuppressWarnings("unchecked")
   public static <T> Class<T> loadClass(String name, ClassLoader classLoader) {
@@ -430,7 +428,10 @@ public abstract class ClassUtils {
       }
       ANNOTATIONS.put(key, ret);
     }
-    return ret == EmptyObject.INSTANCE ? null : (T[]) ret;
+    else if (ret == EmptyObject.INSTANCE) {
+      return null;
+    }
+    return (T[]) ret;
   }
 
   /**
@@ -469,7 +470,10 @@ public abstract class ClassUtils {
       }
       ANNOTATIONS.put(key, ret);
     }
-    return ret == EmptyObject.INSTANCE ? null : (T[]) ret;
+    else if (ret == EmptyObject.INSTANCE) {
+      return null;
+    }
+    return (T[]) ret;
   }
 
   /**

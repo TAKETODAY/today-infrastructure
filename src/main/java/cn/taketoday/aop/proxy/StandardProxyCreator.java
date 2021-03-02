@@ -87,7 +87,7 @@ public class StandardProxyCreator {
     Object newInstance(Class<?> superClass);
   }
 
-  public static class StandardProxyGenerator extends AbstractClassGenerator<Object> {
+  static class StandardProxyGenerator extends AbstractClassGenerator<Object> {
 
     static final String FIELD_TARGET = "target";
     static final String FIELD_CONFIG = "config";

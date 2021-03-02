@@ -113,30 +113,6 @@ public class AopTest {
     }
   }
 
-  static class Bean {
-
-    static void testStatic() {
-      System.out.println("testStatic");
-    }
-
-    void test() {
-      System.out.println("test");
-    }
-
-    void test1() {
-      System.out.println("test1");
-    }
-
-    int testReturn() {
-      return 100;
-    }
-
-    void none() {
-      System.out.println("none aop");
-    }
-
-  }
-
   //  @Test
 //  public void testStandardProxyCreator() throws Throwable {
 ////    DebuggingClassWriter.setDebugLocation("D:\\dev\\temp\\debug");
