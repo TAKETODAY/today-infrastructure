@@ -68,7 +68,7 @@ public class Jetty {
   private static final Logger log = LoggerFactory.getLogger(Jetty.class);
 
   private Server server;
-  private int port = 8080;
+  private int port = 60000;
   private String host = "localhost";
   private String contextPath = Constant.BLANK;
   private boolean autoStart = true;
