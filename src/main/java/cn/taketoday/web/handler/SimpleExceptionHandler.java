@@ -39,8 +39,9 @@ import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.TemplateResultHandler;
 
 /**
- * @author TODAY <br>
- * 2020-03-29 21:01
+ * Simple {@link HandlerExceptionHandler}
+ *
+ * @author TODAY 2020-03-29 21:01
  */
 public class SimpleExceptionHandler
         extends OrderedSupport implements HandlerExceptionHandler {

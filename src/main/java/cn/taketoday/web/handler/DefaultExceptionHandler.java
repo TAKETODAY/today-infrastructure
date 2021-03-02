@@ -55,6 +55,9 @@ public class DefaultExceptionHandler
   /** @since 3.0 */
   private boolean inheritable;
 
+  /** @since 3.0 */
+  private ThrowableHandlerMethod globalHandler;
+
   @Override
   public Object handleException(RequestContext context, Throwable target, Object handler) throws Throwable {
     // prepare context throwable
@@ -111,12 +114,12 @@ public class DefaultExceptionHandler
                 : exceptionHandlers.entrySet()) {
           final Class<? extends Throwable> entryKey = entry.getKey();
 
-          if (entryKey.isAssignableFrom(runtimeEx)) {
+          if (entryKey != Throwable.class && entryKey.isAssignableFrom(runtimeEx)) {
             return entry.getValue();
           }
         }
       }
-      return exceptionHandlers.get(Throwable.class); // Global exception handler
+      return globalHandler; // Global exception handler
     }
     return ret;
   }
@@ -131,6 +134,10 @@ public class DefaultExceptionHandler
    */
   public void setInheritable(boolean inheritable) {
     this.inheritable = inheritable;
+  }
+
+  void setGlobalHandler(ThrowableHandlerMethod globalHandler) {
+    this.globalHandler = globalHandler;
   }
 
   // WebApplicationInitializer
@@ -149,6 +156,13 @@ public class DefaultExceptionHandler
           }
         }
       }
+    }
+
+    // @since 3.0
+    final ThrowableHandlerMethod global = exceptionHandlers.get(Throwable.class);
+    if (global != null) {
+      setGlobalHandler(global);
+      exceptionHandlers.remove(Throwable.class);
     }
   }
 
