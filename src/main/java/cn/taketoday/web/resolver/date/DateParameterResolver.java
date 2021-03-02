@@ -29,7 +29,6 @@ import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.DateTimeFormat;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.ParameterConversionException;
 import cn.taketoday.web.resolver.ParameterResolver;
 
 /**
@@ -53,7 +52,7 @@ public class DateParameterResolver extends OrderedSupport implements ParameterRe
       return simpleDateFormat.parse(parameterValue);
     }
     catch (ParseException e) {
-      throw new ParameterConversionException(parameter, parameterValue, e);
+      throw new DateParameterParsingException(parameter, parameterValue, e);
     }
   }
 

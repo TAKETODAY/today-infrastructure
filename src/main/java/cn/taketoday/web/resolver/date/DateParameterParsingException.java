@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,27 +17,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver;
+
+package cn.taketoday.web.resolver.date;
 
 import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.resolver.ParameterConversionException;
 
 /**
- * Parameter can't convert to target class
- *
- * @author TODAY 2021/1/17 9:43
- * @since 3.0
+ * @author TODAY 2021/3/2 11:23
  */
-public class ParameterConversionException extends MethodParameterException {
-  private static final long serialVersionUID = 1L;
+public class DateParameterParsingException extends ParameterConversionException {
 
-  private final String value;
-
-  public ParameterConversionException(MethodParameter parameter, String value, Throwable cause) {
+  public DateParameterParsingException(MethodParameter parameter, String value, Throwable cause) {
     super(parameter, "Cant convert '" + value + "' to " + parameter.getParameterClass(), cause);
-    this.value = value;
   }
 
-  public String getValue() {
-    return value;
-  }
 }
