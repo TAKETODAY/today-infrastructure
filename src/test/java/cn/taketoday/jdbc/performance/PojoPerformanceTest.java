@@ -32,6 +32,9 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.sql2o.Sql2o;
 import org.sql2o.quirks.NoQuirks;
+import org.teasoft.bee.osql.BeeSql;
+import org.teasoft.bee.osql.Suid;
+import org.teasoft.honey.osql.core.BeeFactory;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
@@ -155,6 +158,7 @@ public class PojoPerformanceTest {
 
     tests.add(new HibernateTypicalSelect());
 
+    tests.add(new BeeSelect());
     tests.add(new TODAYTypicalSelect());
     tests.add(new TODAYOptimizedSelect());
     tests.add(new HandCodedSelect());
@@ -235,6 +239,30 @@ public class PojoPerformanceTest {
     @Override
     public void close() {
       conn.close();
+    }
+  }
+
+  class BeeSelect extends PerformanceTestBase {
+    Suid suid;
+    BeeSql beeSql;
+    @Override
+    public void init() {
+      suid = BeeFactory.getHoneyFactory().getSuid();
+      beeSql = BeeFactory.getHoneyFactory().getBeeSql();
+    }
+
+    @Override
+    public void run(int input) {
+//      final Post post = new Post();
+//      post.id = input;
+//      List<Post> list1 = suid.select(post);
+
+      beeSql.select(SELECT_TYPICAL + " WHERE id = " + input);
+
+    }
+
+    @Override
+    public void close() {
     }
   }
 

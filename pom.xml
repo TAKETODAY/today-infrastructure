@@ -213,6 +213,20 @@
     </dependency>
 
     <dependency>
+      <groupId>org.teasoft</groupId>
+      <artifactId>bee</artifactId>
+      <version>1.8.99</version>
+      <scope>test</scope>
+
+    </dependency>
+    <dependency>
+      <groupId>org.teasoft</groupId>
+      <artifactId>honey</artifactId>
+      <version>1.8.99</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <scope>test</scope>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
