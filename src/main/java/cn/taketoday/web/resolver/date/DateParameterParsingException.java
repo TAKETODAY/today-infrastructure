@@ -29,7 +29,7 @@ import cn.taketoday.web.resolver.ParameterConversionException;
 public class DateParameterParsingException extends ParameterConversionException {
 
   public DateParameterParsingException(MethodParameter parameter, String value, Throwable cause) {
-    super(parameter, "Cant convert '" + value + "' to " + parameter.getParameterClass(), cause);
+    super(parameter, value, cause);
   }
 
 }
