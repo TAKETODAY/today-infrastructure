@@ -146,7 +146,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
       if (parameter.isGenericPresent(String.class, 0)) { // Map<String, >
         if (parameter.isGenericPresent(List.class, 1)) { // Map<String, List<>>
 
-          final Type type = parameter.getGenericityClass()[1];
+          final Type type = parameter.getGenerics()[1];
           if (type instanceof ParameterizedType) {
             Type t = ((ParameterizedType) type).getActualTypeArguments()[0];
             return t.equals(MultipartFile.class) || t.equals(DefaultMultipartFile.class);

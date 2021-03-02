@@ -127,7 +127,7 @@ public class FastJsonMessageConverter implements MessageConverter {
     // style: [{"name":"today","age":21},{"name":"YHJ","age":22}]
 
     if (parameter.is(List.class)) {
-      return requestBody.toJavaList((Class<?>) parameter.getGenericityClass(0));
+      return requestBody.toJavaList((Class<?>) parameter.getGenerics(0));
     }
 
     if (parameter.isArray()) {
@@ -157,7 +157,7 @@ public class FastJsonMessageConverter implements MessageConverter {
 
     if (parameter.is(List.class)) {
       return getJSONArray(parameter, requestBody)
-              .toJavaList((Class<?>) parameter.getGenericityClass(0));
+              .toJavaList((Class<?>) parameter.getGenerics(0));
     }
 
     if (parameter.isArray()) {

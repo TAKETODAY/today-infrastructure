@@ -64,7 +64,7 @@ public class CollectionParameterResolver implements ParameterResolver {
 
     final String parameterName = parameter.getName();
     final ParamList<Object> list = new ParamList<>();
-    final Class<?> clazz = (Class<?>) parameter.getGenericityClass()[0];
+    final Class<?> clazz = (Class<?>) parameter.getGenerics()[0];
     final Enumeration<String> parameterNames = context.parameterNames();// all request parameter name
     final String collectionParamRegexp = Constant.COLLECTION_PARAM_REGEXP;
 

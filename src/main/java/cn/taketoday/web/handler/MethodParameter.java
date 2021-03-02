@@ -21,11 +21,11 @@ package cn.taketoday.web.handler;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Objects;
 
 import cn.taketoday.context.AnnotationAttributes;
+import cn.taketoday.context.AttributeAccessorSupport;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.NumberUtils;
 import cn.taketoday.context.utils.StringUtils;
@@ -39,7 +39,7 @@ import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributes;
  * @author TODAY
  * @version 2.3.7 <br>
  */
-public class MethodParameter {
+public class MethodParameter extends AttributeAccessorSupport {
 
   private final int parameterIndex;
   private final Class<?> parameterClass;
@@ -49,7 +49,7 @@ public class MethodParameter {
   private boolean required;
   /** the default value */
   private String defaultValue;
-  private Type[] genericityClass;
+  private Type[] generics;
   private HandlerMethod handlerMethod;
 
   public MethodParameter(HandlerMethod handlerMethod, MethodParameter other) {
@@ -59,7 +59,7 @@ public class MethodParameter {
     this.defaultValue = other.defaultValue;
     this.parameterIndex = other.parameterIndex;
     this.parameterClass = other.parameterClass;
-    this.genericityClass = other.genericityClass;
+    this.generics = other.generics;
 
     this.handlerMethod = handlerMethod;
   }
@@ -68,11 +68,7 @@ public class MethodParameter {
     this.parameter = parameter;
     this.parameterIndex = index;
     this.parameterClass = parameter.getType();
-
-    Type parameterizedType = parameter.getParameterizedType();
-    if (parameterizedType instanceof ParameterizedType) {
-      this.genericityClass = ((ParameterizedType) parameterizedType).getActualTypeArguments();
-    }
+    this.generics = ClassUtils.getGenerics(parameter);
 
     AnnotationAttributes attributes = getAnnotationAttributes(RequestParam.class, parameter);
     if (attributes != null) {
@@ -112,21 +108,21 @@ public class MethodParameter {
     return parameterClass.isInstance(obj);
   }
 
-  public Type getGenericityClass(final int index) {
-    final Type[] genericityClass = this.genericityClass;
-    if (genericityClass != null && genericityClass.length > index) {
-      return genericityClass[index];
+  public Type getGenerics(final int index) {
+    final Type[] generics = this.generics;
+    if (generics != null && generics.length > index) {
+      return generics[index];
     }
     return null;
   }
 
   public boolean isGenericPresent(final Type requiredType, final int index) {
-    return requiredType.equals(getGenericityClass(index));
+    return requiredType.equals(getGenerics(index));
   }
 
   public boolean isGenericPresent(final Type requiredType) {
-    if (genericityClass != null) {
-      for (final Type type : genericityClass) {
+    if (generics != null) {
+      for (final Type type : generics) {
         if (type.equals(requiredType)) {
           return true;
         }
@@ -207,12 +203,12 @@ public class MethodParameter {
     return defaultValue;
   }
 
-  public void setGenericityClass(Type[] genericityClass) {
-    this.genericityClass = genericityClass;
+  public void setGenerics(Type[] generics) {
+    this.generics = generics;
   }
 
-  public Type[] getGenericityClass() {
-    return genericityClass;
+  public Type[] getGenerics() {
+    return generics;
   }
 
   public Parameter getParameter() {

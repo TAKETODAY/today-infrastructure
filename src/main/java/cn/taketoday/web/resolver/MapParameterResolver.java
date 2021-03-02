@@ -59,7 +59,7 @@ public class MapParameterResolver
   public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
 
     // parameter class
-    final Class<?> clazz = (Class<?>) parameter.getGenericityClass(1);
+    final Class<?> clazz = (Class<?>) parameter.getGenerics(1);
 
     final String parameterName = parameter.getName();
     final Enumeration<String> parameterNames = context.parameterNames();// all parameter
