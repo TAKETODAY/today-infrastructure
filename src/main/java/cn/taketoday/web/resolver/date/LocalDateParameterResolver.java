@@ -21,7 +21,6 @@
 package cn.taketoday.web.resolver.date;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 
 import cn.taketoday.web.handler.MethodParameter;
@@ -32,7 +31,7 @@ import cn.taketoday.web.utils.DateUtils;
  * @author TODAY 2021/2/23 20:45
  */
 public class LocalDateParameterResolver
-        extends AbstractDateParameterResolver implements ParameterResolver {
+        extends AbstractJavaTimeParameterResolver implements ParameterResolver {
 
   @Override
   public boolean supports(MethodParameter parameter) {
@@ -40,8 +39,7 @@ public class LocalDateParameterResolver
   }
 
   @Override
-  protected Object resolveInternal(String parameterValue, DateTimeFormatter formatter) {
-    final TemporalAccessor temporalAccessor = formatter.parse(parameterValue);
+  protected Object fromTemporalAccessor(TemporalAccessor temporalAccessor) {
     return DateUtils.ofDate(temporalAccessor);
   }
 

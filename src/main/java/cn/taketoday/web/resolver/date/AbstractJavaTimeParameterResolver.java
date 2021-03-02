@@ -20,60 +20,57 @@
 
 package cn.taketoday.web.resolver.date;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.TemporalAccessor;
 
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.annotation.DateTimeFormat;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.ParameterResolver;
 
 /**
- * @author TODAY 2021/2/23 20:10
+ * @author TODAY 2021/2/23 21:25
  */
-public class DateParameterResolver
-        extends AbstractDateParameterResolver implements ParameterResolver {
+public abstract class AbstractJavaTimeParameterResolver extends AbstractDateParameterResolver {
 
-  private String defaultPattern = "yyyy-MM-dd HH:mm:ss";
-
-  @Override
-  public boolean supports(MethodParameter parameter) {
-    return parameter.is(Date.class);
-  }
+  private DateTimeFormatter defaultFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
   @Override
   protected Object resolveInternal(String parameterValue, MethodParameter parameter) {
 
-    final SimpleDateFormat simpleDateFormat = getFormatter(parameter);
-
+    DateTimeFormatter formatter = getFormatter(parameter);
     try {
-      return simpleDateFormat.parse(parameterValue);
+      return fromTemporalAccessor(formatter.parse(parameterValue));
     }
-    catch (ParseException e) {
+    catch (DateTimeParseException e) {
       throw new DateParameterParsingException(parameter, parameterValue, e);
     }
   }
 
+  protected Object fromTemporalAccessor(TemporalAccessor temporalAccessor) {
+    return null;
+  }
+
   /**
-   * Get {@link SimpleDateFormat}
+   * Get {@link DateTimeFormatter}
    */
-  protected SimpleDateFormat getFormatter(MethodParameter parameter) {
+  protected DateTimeFormatter getFormatter(MethodParameter parameter) {
     final DateTimeFormat dateTimeFormat = getAnnotation(parameter);
     if (dateTimeFormat != null) {
       final String pattern = dateTimeFormat.value();
       if (StringUtils.isNotEmpty(pattern)) {
-        return new SimpleDateFormat(pattern);
+        return DateTimeFormatter.ofPattern(pattern);
       }
     }
-    return new SimpleDateFormat(defaultPattern);
+    return defaultFormatter;
   }
 
-  public void setDefaultPattern(String defaultPattern) {
-    this.defaultPattern = defaultPattern;
+  public void setDefaultFormatter(DateTimeFormatter defaultFormatter) {
+    this.defaultFormatter = defaultFormatter;
   }
 
-  public String getDefaultPattern() {
-    return defaultPattern;
+  public DateTimeFormatter getDefaultFormatter() {
+    return defaultFormatter;
   }
+
 }

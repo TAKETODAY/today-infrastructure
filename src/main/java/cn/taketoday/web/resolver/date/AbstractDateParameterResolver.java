@@ -20,9 +20,6 @@
 
 package cn.taketoday.web.resolver.date;
 
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-
 import cn.taketoday.context.EmptyObject;
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.utils.StringUtils;
@@ -33,48 +30,27 @@ import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.resolver.ParameterResolver;
 
 /**
- * @author TODAY 2021/2/23 21:25
+ * @author TODAY 2021/3/2 12:30
  */
-public abstract class AbstractDateParameterResolver
+public class AbstractDateParameterResolver
         extends OrderedSupport implements ParameterResolver {
   static final String FORMAT_ANNOTATION_KEY = AbstractDateParameterResolver.class.getName() + "-DateTimeFormat";
-
-  private DateTimeFormatter defaultFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
   @Override
   public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
     final String parameterValue = getParameterValue(context, parameter);
-
     if (StringUtils.isEmpty(parameterValue)) {
       return null;
     }
-
-    DateTimeFormatter formatter = getFormatter(parameter);
-    try {
-      return resolveInternal(parameterValue, formatter);
-    }
-    catch (DateTimeParseException e) {
-      throw new DateParameterParsingException(parameter, parameterValue, e);
-    }
+    return resolveInternal(parameterValue, parameter);
   }
 
-  protected Object resolveInternal(String parameterValue, DateTimeFormatter formatter) {
+  protected Object resolveInternal(String parameterValue, MethodParameter parameter) {
     return null;
   }
 
   protected String getParameterValue(RequestContext context, MethodParameter parameter) {
     return context.parameter(parameter.getName());
-  }
-
-  protected DateTimeFormatter getFormatter(MethodParameter parameter) {
-    final DateTimeFormat dateTimeFormat = getAnnotation(parameter);
-    if (dateTimeFormat != null) {
-      final String pattern = dateTimeFormat.value();
-      if (StringUtils.isNotEmpty(pattern)) {
-        return DateTimeFormatter.ofPattern(pattern);
-      }
-    }
-    return defaultFormatter;
   }
 
   protected DateTimeFormat getAnnotation(MethodParameter parameter) {
@@ -96,14 +72,6 @@ public abstract class AbstractDateParameterResolver
       return null;
     }
     return (DateTimeFormat) attribute;
-  }
-
-  public void setDefaultFormatter(DateTimeFormatter defaultFormatter) {
-    this.defaultFormatter = defaultFormatter;
-  }
-
-  public DateTimeFormatter getDefaultFormatter() {
-    return defaultFormatter;
   }
 
 }
