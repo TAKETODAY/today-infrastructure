@@ -23,10 +23,12 @@ package cn.taketoday.web.resolver.date;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+import cn.taketoday.context.EmptyObject;
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.DateTimeFormat;
+import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.resolver.ParameterConversionException;
 import cn.taketoday.web.resolver.ParameterResolver;
@@ -36,6 +38,7 @@ import cn.taketoday.web.resolver.ParameterResolver;
  */
 public abstract class AbstractDateParameterResolver
         extends OrderedSupport implements ParameterResolver {
+  static final String FORMAT_ANNOTATION_KEY = AbstractDateParameterResolver.class.getName() + "-DateTimeFormat";
 
   private DateTimeFormatter defaultFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -43,7 +46,7 @@ public abstract class AbstractDateParameterResolver
   public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
     final String parameterValue = getParameterValue(context, parameter);
 
-    if(StringUtils.isEmpty(parameterValue)) {
+    if (StringUtils.isEmpty(parameterValue)) {
       return null;
     }
 
@@ -65,7 +68,7 @@ public abstract class AbstractDateParameterResolver
   }
 
   protected DateTimeFormatter getFormatter(MethodParameter parameter) {
-    final DateTimeFormat dateTimeFormat = parameter.getAnnotation(DateTimeFormat.class);
+    final DateTimeFormat dateTimeFormat = getAnnotation(parameter);
     if (dateTimeFormat != null) {
       final String pattern = dateTimeFormat.value();
       if (StringUtils.isNotEmpty(pattern)) {
@@ -73,6 +76,27 @@ public abstract class AbstractDateParameterResolver
       }
     }
     return defaultFormatter;
+  }
+
+  protected DateTimeFormat getAnnotation(MethodParameter parameter) {
+    final Object attribute = parameter.getAttribute(FORMAT_ANNOTATION_KEY);
+    if (attribute == null) {
+      DateTimeFormat ret = parameter.getAnnotation(DateTimeFormat.class);
+      if (ret == null) {
+        final HandlerMethod handlerMethod = parameter.getHandlerMethod();
+        ret = handlerMethod.getMethodAnnotation(DateTimeFormat.class);
+        if (ret == null) {
+          ret = handlerMethod.getDeclaringClassAnnotation(DateTimeFormat.class);
+        }
+      }
+
+      parameter.setAttribute(FORMAT_ANNOTATION_KEY, ret == null ? EmptyObject.INSTANCE : ret);
+      return ret;
+    }
+    else if (attribute == EmptyObject.INSTANCE) {
+      return null;
+    }
+    return (DateTimeFormat) attribute;
   }
 
   public void setDefaultFormatter(DateTimeFormatter defaultFormatter) {
