@@ -428,10 +428,7 @@ public abstract class ClassUtils {
       }
       ANNOTATIONS.put(key, ret);
     }
-    else if (ret == EmptyObject.INSTANCE) {
-      return null;
-    }
-    return (T[]) ret;
+    return ret == EmptyObject.INSTANCE ? null : (T[]) ret;
   }
 
   /**
@@ -470,10 +467,7 @@ public abstract class ClassUtils {
       }
       ANNOTATIONS.put(key, ret);
     }
-    else if (ret == EmptyObject.INSTANCE) {
-      return null;
-    }
-    return (T[]) ret;
+    return ret == EmptyObject.INSTANCE ? null : (T[]) ret;
   }
 
   /**
