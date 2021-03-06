@@ -209,6 +209,7 @@ public class TomcatServer extends AbstractServletWebServer {
         tomcat.stop();
         tomcat.destroy();
       }
+      log.info("Tomcat is stopped");
     }
     catch (Throwable ex) {
       log.error("Tomcat failed to stop", ex);
