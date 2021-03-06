@@ -90,7 +90,7 @@ public abstract class AbstractPrototypeTargetSource extends AbstractBeanFactoryT
         ((DisposableBean) target).destroy();
       }
       catch (Throwable ex) {
-        logger.warn("Destroy method on bean with name '" + getTargetBeanName() + "' threw an exception", ex);
+        logger.warn("Destroy method on bean with name '{}' threw an exception", getTargetBeanName(), ex);
       }
     }
   }

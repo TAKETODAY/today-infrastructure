@@ -43,7 +43,6 @@ import cn.taketoday.aop.TargetSource;
  */
 public abstract class AbstractRefreshableTargetSource implements TargetSource, Refreshable {
 
-  /** Logger available to subclasses. */
   protected final Log logger = LogFactory.getLog(getClass());
 
   protected Object targetObject;

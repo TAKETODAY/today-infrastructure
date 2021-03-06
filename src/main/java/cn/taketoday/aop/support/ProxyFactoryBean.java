@@ -37,6 +37,7 @@ import cn.taketoday.context.utils.ObjectUtils;
 
 /**
  * @author TODAY 2021/2/20 21:23
+ * @since 3.0
  */
 public class ProxyFactoryBean
         extends ProxyConfig implements FactoryBean<Object>, BeanFactoryAware, BeanClassLoaderAware {
