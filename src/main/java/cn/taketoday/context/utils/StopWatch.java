@@ -124,7 +124,7 @@ public class StopWatch {
    * @see #stop()
    */
   public void start() throws IllegalStateException {
-    start("");
+    start(Constant.BLANK);
   }
 
   /**
@@ -190,7 +190,6 @@ public class StopWatch {
    * Get the time taken by the last task in nanoseconds.
    *
    * @see #getLastTaskTimeMillis()
-   * @since 5.2
    */
   public long getLastTaskTimeNanos() throws IllegalStateException {
     if (this.lastTaskInfo == null) {
