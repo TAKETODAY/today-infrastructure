@@ -32,8 +32,6 @@ import cn.taketoday.web.config.WebMvcConfiguration;
  */
 public class WebServerApplicationLoader extends WebApplicationLoader {
 
-  private static final long serialVersionUID = 1L;
-
   private Supplier<List<WebApplicationInitializer>> initializersSupplier;
 
   public WebServerApplicationLoader(Supplier<List<WebApplicationInitializer>> initializersSupplier) {
