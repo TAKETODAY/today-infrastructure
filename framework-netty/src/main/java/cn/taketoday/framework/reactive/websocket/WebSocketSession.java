@@ -1,6 +1,5 @@
 package cn.taketoday.framework.reactive.websocket;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -54,7 +53,7 @@ public class WebSocketSession implements WebSession {
   }
 
   @Override
-  public Serializable getId() {
+  public String getId() {
     return id;
   }
 
@@ -64,7 +63,7 @@ public class WebSocketSession implements WebSession {
   }
 
   @Override
-  public Set<Serializable> getKeys() {
+  public Set<String> getKeys() {
     return new LinkedHashSet<>(this.attrs.keySet());
   }
 }

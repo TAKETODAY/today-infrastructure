@@ -419,7 +419,7 @@ public class NettyRequestContext
   }
 
   @Override
-  public RedirectModel redirectModel(RedirectModel redirectModel) {
+  public RedirectModel applyRedirectModel(RedirectModel redirectModel) {
 
     //TODO
     return redirectModel;

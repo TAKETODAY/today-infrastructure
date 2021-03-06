@@ -22,7 +22,6 @@ package cn.taketoday.framework.reactive;
 import java.util.concurrent.Executor;
 
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.exception.ExceptionUnhandledException;
 import cn.taketoday.web.handler.DispatcherHandler;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -66,16 +65,11 @@ public class ReactiveDispatcher
     }
   }
 
-  protected void sync(ChannelHandlerContext ctx, FullHttpRequest msg) {
+  protected void sync(ChannelHandlerContext ctx, FullHttpRequest msg) throws Throwable {
     // Lookup handler mapping
     final NettyRequestContext context = new NettyRequestContext(getContextPath(), ctx, msg);
-    try {
       handle(context);
       context.send();
-    }
-    catch (Throwable e) {
-      throw new ExceptionUnhandledException(e);
-    }
   }
 
   protected void async(ChannelHandlerContext ctx, FullHttpRequest request) {

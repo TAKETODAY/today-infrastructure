@@ -151,7 +151,7 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
 
   protected final NettyServerInitializer obtainNettyServerInitializer() {
     NettyServerInitializer ret = getNettyServerInitializer();
-    Assert.notNull(ret, "No NettyServerInitializer");
+    Assert.state(ret != null, "No NettyServerInitializer");
     return ret;
   }
 
