@@ -22,7 +22,7 @@ package cn.taketoday.context.event;
 import java.util.Set;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.factory.PropertyValue;
+import cn.taketoday.context.factory.BeanReferencePropertyValue;
 
 /**
  * Handled all dependencies
@@ -34,14 +34,14 @@ import cn.taketoday.context.factory.PropertyValue;
 @SuppressWarnings("serial")
 public class DependenciesHandledEvent extends ApplicationContextEvent {
 
-  private final Set<PropertyValue> dependencies;
+  private final Set<BeanReferencePropertyValue> dependencies;
 
-  public DependenciesHandledEvent(ApplicationContext source, Set<PropertyValue> dependencies) {
+  public DependenciesHandledEvent(ApplicationContext source, Set<BeanReferencePropertyValue> dependencies) {
     super(source);
     this.dependencies = dependencies;
   }
 
-  public final Set<PropertyValue> getDependencies() {
+  public final Set<BeanReferencePropertyValue> getDependencies() {
     return dependencies;
   }
 

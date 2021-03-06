@@ -45,6 +45,7 @@ import cn.taketoday.context.event.ContextRefreshEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.context.event.DependenciesHandledEvent;
 import cn.taketoday.context.event.ObjectRefreshedEvent;
+import cn.taketoday.context.exception.BeanInitializingException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
@@ -54,7 +55,8 @@ import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.BeanFactoryPostProcessor;
 import cn.taketoday.context.factory.BeanPostProcessor;
 import cn.taketoday.context.factory.BeanReference;
-import cn.taketoday.context.factory.PropertyValue;
+import cn.taketoday.context.factory.BeanReferencePropertyValue;
+import cn.taketoday.context.factory.ObjectSupplier;
 import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.listener.ContextCloseListener;
 import cn.taketoday.context.loader.CandidateComponentScanner;
@@ -353,8 +355,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     beanFactory.registerBeanPostProcessors();
 
     if (beanFactory.isFullPrototype()) {
-      for (PropertyValue propertyValue : beanFactory.getDependencies()) {
-        final BeanReference ref = (BeanReference) propertyValue.getValue();
+      for (BeanReferencePropertyValue propertyValue : beanFactory.getDependencies()) {
+        final BeanReference ref = propertyValue.getReference();
         final BeanDefinition def = beanFactory.getBeanDefinition(ref.getName());
         if (def != null && def.isPrototype()) {
           ref.applyPrototype();
@@ -701,6 +703,16 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   @Override
+  public <T> ObjectSupplier<T> getBeanSupplier(BeanDefinition def) {
+    return getBeanFactory().getBeanSupplier(def);
+  }
+
+  @Override
+  public <T> ObjectSupplier<T> getBeanSupplier(Class<T> requiredType) {
+    return getBeanFactory().getBeanSupplier(requiredType);
+  }
+
+  @Override
   public Object getScopeBean(BeanDefinition def, Scope scope) {
     return getBeanFactory().getScopeBean(def, scope);
   }
@@ -876,6 +888,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   @Override
   public void autowireBeanProperties(final Object existingBean) {
     getBeanFactory().autowireBeanProperties(existingBean);
+  }
+
+  @Override
+  public Object initializeBean(Object existingBean) throws BeanInitializingException {
+    return getBeanFactory().initializeBean(existingBean);
   }
 
   @Override

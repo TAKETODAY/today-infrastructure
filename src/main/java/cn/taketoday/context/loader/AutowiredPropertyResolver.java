@@ -32,6 +32,7 @@ import cn.taketoday.context.aware.OrderedApplicationContextSupport;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.BeanReference;
+import cn.taketoday.context.factory.BeanReferencePropertyValue;
 import cn.taketoday.context.factory.PropertyValue;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtils;
@@ -98,7 +99,7 @@ public class AutowiredPropertyResolver
       name = byType(propertyClass);
     }
 
-    return new PropertyValue(new BeanReference(name, required, field), field);
+    return new BeanReferencePropertyValue(new BeanReference(name, required, field), field);
   }
 
   /**

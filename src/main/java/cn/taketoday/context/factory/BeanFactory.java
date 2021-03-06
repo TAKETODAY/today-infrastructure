@@ -241,6 +241,30 @@ public interface BeanFactory {
   Object getScopeBean(BeanDefinition def, Scope scope);
 
   /**
+   * Return a provider for the specified bean, allowing for lazy on-demand retrieval
+   * of instances, including availability and uniqueness options.
+   *
+   * @param requiredType
+   *         type the bean must match; can be an interface or superclass
+   *
+   * @return a corresponding provider handle
+   *
+   * @since 3.0
+   */
+  <T> ObjectSupplier<T> getBeanSupplier(Class<T> requiredType);
+
+  /**
+   * Return a provider for the specified bean, allowing for lazy on-demand retrieval
+   * of instances, including availability and uniqueness options.
+   *
+   * @param def
+   *         BeanDefinition
+   *
+   * @since 3.0
+   */
+  <T> ObjectSupplier<T> getBeanSupplier(BeanDefinition def);
+
+  /**
    * Return the names of beans matching the given type (including subclasses),
    * judging from either bean definitions or the value of {@code getBeanClass}
    * in the case of FactoryBeans.

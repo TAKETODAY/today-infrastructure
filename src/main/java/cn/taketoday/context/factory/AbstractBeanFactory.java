@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.Scope;
@@ -79,7 +80,7 @@ public abstract class AbstractBeanFactory
   /** object factories */
   private Map<Class<?>, Object> objectFactories;
   /** dependencies */
-  private final HashSet<PropertyValue> dependencies = new HashSet<>(128);
+  private final HashSet<BeanReferencePropertyValue> dependencies = new HashSet<>(128);
   /** Bean Post Processors */
   private final ArrayList<BeanPostProcessor> postProcessors = new ArrayList<>();
   /** Map of bean instance, keyed by bean name */
@@ -158,7 +159,7 @@ public abstract class AbstractBeanFactory
    *
    * @since 2.1.2
    */
-  protected <T> Object doGetBeanForType(final Class<T> requiredType) {
+  <T> Object doGetBeanForType(final Class<T> requiredType) {
     for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
       if (requiredType.isAssignableFrom(entry.getValue().getBeanClass())) {
         final Object bean = getBean(entry.getValue());
@@ -181,6 +182,59 @@ public abstract class AbstractBeanFactory
   public <T> T getBean(String name, Class<T> requiredType) {
     final Object bean = getBean(name);
     return requiredType.isInstance(bean) ? (T) bean : null;
+  }
+
+  static class SingletonObjectSupplier<T> implements ObjectSupplier<T> {
+    final T targetSingleton;
+
+    SingletonObjectSupplier(T targetSingleton) {
+      this.targetSingleton = targetSingleton;
+    }
+
+    @Override
+    public T get() throws BeansException {
+      return targetSingleton;
+    }
+
+    @Override
+    public T getIfAvailable() throws BeansException {
+      return targetSingleton;
+    }
+
+    @Override
+    public Stream<T> stream() {
+      return Stream.of(targetSingleton);
+    }
+
+    @Override
+    public Stream<T> orderedStream() {
+      return stream();
+    }
+
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> ObjectSupplier<T> getBeanSupplier(final BeanDefinition def) {
+    Assert.notNull(def, "BeanDefinition must not be null");
+
+    if (def.isSingleton()) {
+      return new SingletonObjectSupplier<>((T) getBean(def));
+    }
+
+    return new DefaultObjectSupplier<T>(def.getBeanClass(), this) {
+
+      @Override
+      public T getIfAvailable() throws BeansException {
+        return (T) getBean(def);
+      }
+    };
+  }
+
+  @Override
+  public <T> ObjectSupplier<T> getBeanSupplier(Class<T> requiredType) {
+    Assert.notNull(requiredType, "requiredType must not be null");
+    return new DefaultObjectSupplier<>(requiredType, this);
   }
 
   @Override
@@ -339,47 +393,26 @@ public abstract class AbstractBeanFactory
    */
   protected void applyPropertyValues(final Object bean, final PropertyValue[] propertyValues) {
     for (final PropertyValue propertyValue : propertyValues) {
-      Object value = propertyValue.getValue();
-      // reference bean
-      if (value instanceof BeanReference) {
-        final BeanReference reference = (BeanReference) value;
-        // fix: same name of bean
-        value = resolvePropertyValue(reference);
-        if (value == null) {
-          if (reference.isRequired()) {
-            log.error("[{}] is required.", propertyValue);
-            throw new NoSuchBeanDefinitionException(reference.getName(), reference.getReferenceClass());
-          }
-          continue; // if reference bean is null and it is not required ,do nothing,default value
-        }
-      }
-      // set property
-      propertyValue.set(bean, value);
-    }
-  }
 
-  /**
-   * Resolve reference {@link PropertyValue}
-   *
-   * @param ref
-   *         {@link BeanReference} record a reference of bean
-   *
-   * @return A {@link PropertyValue} bean or a proxy
-   */
-  protected Object resolvePropertyValue(final BeanReference ref) {
-
-    final String name = ref.getName();
-    final Class<?> type = ref.getReferenceClass();
-
-    if (fullPrototype && ref.isPrototype() && containsBeanDefinition(name)) {
-      return Prototypes.newProxyInstance(type, getBeanDefinition(name), this);
+      propertyValue.applyValue(bean, this);
+//
+//      Object value = propertyValue.getValue();
+//      // reference bean
+//      if (value instanceof BeanReference) {
+//        final BeanReference reference = (BeanReference) value;
+//        // fix: same name of bean
+//        value = resolvePropertyValue(reference);
+//        if (value == null) {
+//          if (reference.isRequired()) {
+//            log.error("[{}] is required.", propertyValue);
+//            throw new NoSuchBeanDefinitionException(reference.getName(), reference.getReferenceClass());
+//          }
+//          continue; // if reference bean is null and it is not required ,do nothing,default value
+//        }
+//      }
+//      // set property
+//      propertyValue.set(bean, value);
     }
-    final BeanDefinition reference = ref.getReference();
-    if (reference != null) {
-      return getBean(reference);
-    }
-    final Object bean = getBean(name, type);
-    return bean != null ? bean : doGetBeanForType(type);
   }
 
   /**
@@ -729,9 +762,9 @@ public abstract class AbstractBeanFactory
    */
   public void handleDependency() {
 
-    for (final PropertyValue propertyValue : getDependencies()) {
+    for (final BeanReferencePropertyValue propertyValue : getDependencies()) {
 
-      final BeanReference ref = (BeanReference) propertyValue.getValue();
+      final BeanReference ref = propertyValue.getReference();
       final String beanName = ref.getName();
 
       // fix: #2 when handle dependency some bean definition has already exist
@@ -1107,8 +1140,8 @@ public abstract class AbstractBeanFactory
     final PropertyValue[] propertyValues = beanDefinition.getPropertyValues();
     if (ObjectUtils.isNotEmpty(propertyValues)) {
       for (final PropertyValue propertyValue : propertyValues) {
-        if (propertyValue.getValue() instanceof BeanReference) {
-          this.dependencies.add(propertyValue);
+        if (propertyValue instanceof BeanReferencePropertyValue) {
+          this.dependencies.add((BeanReferencePropertyValue) propertyValue);
         }
       }
     }
@@ -1263,7 +1296,7 @@ public abstract class AbstractBeanFactory
     return getBeanDefinitions().size();
   }
 
-  public Set<PropertyValue> getDependencies() {
+  public Set<BeanReferencePropertyValue> getDependencies() {
     return dependencies;
   }
 
@@ -1416,6 +1449,11 @@ public abstract class AbstractBeanFactory
     }
     // apply properties
     applyPropertyValues(existingBean, prototypeDef.getPropertyValues());
+  }
+
+  @Override
+  public Object initializeBean(Object existingBean) throws BeanInitializingException {
+    return initializeBean(existingBean, getBeanNameCreator().create(existingBean.getClass()));
   }
 
   @Override

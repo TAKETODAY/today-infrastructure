@@ -129,6 +129,23 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
           throws BeanInitializingException;
 
   /**
+   * Initialize the given raw bean, applying factory callbacks such as
+   * {@code setBeanName} and {@code setBeanFactory}, also applying all bean post
+   * processors (including ones which might wrap the given raw bean).
+   * <p>
+   *
+   * @param existingBean
+   *         the existing bean instance
+   *
+   * @return the bean instance to use, either the original or a wrapped one
+   *
+   * @throws BeanInitializingException
+   *         if the initialization failed
+   * @see #initializeBean(Object, String)
+   */
+  Object initializeBean(Object existingBean) throws BeanInitializingException;
+
+  /**
    * Fully initialize the given raw bean, applying factory callbacks such as
    * {@code setBeanName} and {@code setBeanFactory}, also applying all bean post
    * processors (including ones which might wrap the given raw bean).

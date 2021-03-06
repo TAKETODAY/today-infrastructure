@@ -132,7 +132,7 @@ public class DefaultBeanDefinition
   @Override
   public PropertyValue getPropertyValue(String name) {
     for (PropertyValue propertyValue : propertyValues) {
-      if (propertyValue.getField().getName().equals(name)) {
+      if (propertyValue.getName().equals(name)) {
         return propertyValue;
       }
     }

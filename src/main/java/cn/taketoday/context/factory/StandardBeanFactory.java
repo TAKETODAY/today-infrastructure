@@ -55,6 +55,7 @@ import cn.taketoday.context.loader.BeanDefinitionImporter;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.context.loader.ImportSelector;
+import cn.taketoday.context.loader.ObjectSupplierPropertyResolver;
 import cn.taketoday.context.loader.PropertyValueResolver;
 import cn.taketoday.context.loader.PropsPropertyResolver;
 import cn.taketoday.context.loader.ValuePropertyResolver;
@@ -668,6 +669,7 @@ public class StandardBeanFactory
       final ConfigurableApplicationContext context = getApplicationContext();
       setPropertyValueResolvers(new ValuePropertyResolver(context),
                                 new PropsPropertyResolver(context),
+                                new ObjectSupplierPropertyResolver(),
                                 new AutowiredPropertyResolver(context));
     }
     return propertyValueResolvers;
