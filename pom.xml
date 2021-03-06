@@ -8,7 +8,7 @@
 
   <version>latest</version>
 
-  <packaging>pom</packaging>
+  <packaging>jar</packaging>
 
   <name>TODAY Framework</name>
 
@@ -16,10 +16,11 @@
 
   <properties>
     <skipTests>true</skipTests>
-    <jetty.version>9.4.34.v20201102</jetty.version>
-    <embed.tomcat.version>9.0.35</embed.tomcat.version>
-    <undertow.version>2.0.28.Final</undertow.version>
     <netty.version>4.1.44.Final</netty.version>
+    <jetty.version>9.4.34.v20201102</jetty.version>
+    <undertow.version>2.0.28.Final</undertow.version>
+    <embed.tomcat.version>9.0.35</embed.tomcat.version>
+
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
