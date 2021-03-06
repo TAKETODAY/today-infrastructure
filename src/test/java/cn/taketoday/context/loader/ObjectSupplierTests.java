@@ -32,18 +32,21 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.factory.ObjectSupplier;
 import cn.taketoday.context.utils.ClassUtils;
+import lombok.ToString;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author TODAY 2021/3/6 13:24
  */
-public class ObjectSupplierParameterResolverTests {
+public class ObjectSupplierTests {
 
+  @ToString
   static class Bean {
 
   }
 
+  @ToString
   static class TEST {
 
     @Autowired
@@ -56,7 +59,20 @@ public class ObjectSupplierParameterResolverTests {
   }
 
   @Test
-  public void test() throws Throwable {
+  public void testProperty() throws Throwable {
+    try (ConfigurableApplicationContext context = new StandardApplicationContext(new HashSet<>())) {
+      context.importBeans(Bean.class, TEST.class);
+
+      final TEST test = context.getBean(TEST.class);
+      final Bean bean = context.getBean(Bean.class);
+
+      assertThat(test.beanObjectSupplier.get())
+              .isEqualTo(bean);
+
+    }
+  }
+
+  public void testParameter() throws Throwable {
     final Constructor<TEST> constructor = ClassUtils.getSuitableConstructor(TEST.class);
     final Parameter[] parameters = constructor.getParameters();
 

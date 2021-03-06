@@ -74,4 +74,12 @@ public class DefaultObjectSupplier<T> implements ObjectSupplier<T> {
   public int hashCode() {
     return Objects.hash(requiredType, beanFactory);
   }
+
+  @Override
+  public String toString() {
+    return "DefaultObjectSupplier{" +
+            "requiredType=" + requiredType +
+            ", beanFactory=" + beanFactory +
+            '}';
+  }
 }
