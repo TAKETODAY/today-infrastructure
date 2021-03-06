@@ -1,12 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>cn.taketoday</groupId>
-  <artifactId>today-framework-parent</artifactId>
 
-  <!--
-      <version>1.0.0.RELEASE</version>
-  -->
+  <groupId>cn.taketoday</groupId>
+  <artifactId>today-framework</artifactId>
 
   <version>latest</version>
 
@@ -14,17 +12,28 @@
 
   <name>TODAY Framework</name>
 
-  <description>today-framework is a high-performance lightweight web framework.</description>
+  <description>A Java library for building web applications like Spring Boot.</description>
 
   <properties>
     <skipTests>true</skipTests>
+    <jetty.version>9.4.34.v20201102</jetty.version>
+    <embed.tomcat.version>9.0.35</embed.tomcat.version>
+    <undertow.version>2.0.28.Final</undertow.version>
+    <netty.version>4.1.44.Final</netty.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
+
   </properties>
 
-
   <dependencies>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>4.0.1</version>
+      <scope>provided</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -87,6 +96,58 @@
       <version>1.2.70</version>
       <scope>test</scope>
     </dependency>
+
+
+    <!--server -->
+
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-core</artifactId>
+      <version>${embed.tomcat.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-webapp</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.undertow</groupId>
+      <artifactId>undertow-core</artifactId>
+      <version>${undertow.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.undertow</groupId>
+      <artifactId>undertow-servlet</artifactId>
+      <version>${undertow.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.spec.javax.servlet</groupId>
+          <artifactId>jboss-servlet-api_4.0_spec</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>io.undertow</groupId>
+      <artifactId>undertow-websockets-jsr</artifactId>
+      <version>${undertow.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.freemarker</groupId>
+      <artifactId>freemarker</artifactId>
+      <version>2.3.29</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-all</artifactId>
+      <version>${netty.version}</version>
+    </dependency>
+
 
   </dependencies>
 
@@ -231,11 +292,5 @@
       </plugin>
     </plugins>
   </build>
-  <modules>
-    <module>framework-core</module>
-    <module>framework-tomcat</module>
-    <module>framework-undertow</module>
-    <module>framework-jetty</module>
-    <module>framework-netty</module>
-  </modules>
+
 </project>
