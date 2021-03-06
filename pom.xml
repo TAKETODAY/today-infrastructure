@@ -26,6 +26,43 @@
 
   </properties>
 
+  <!--  -->
+
+  <licenses>
+    <license>
+      <name>GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007</name>
+      <url>https://www.gnu.org/licenses/gpl.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+
+  <url>https://taketoday.cn</url>
+  <organization>
+    <name>TODAY</name>
+    <url>https://taketoday.cn</url>
+  </organization>
+
+  <developers>
+    <developer>
+      <name>TODAY</name>
+      <url>https://taketoday.cn</url>
+      <email>taketoday@foxmail.com</email>
+    </developer>
+  </developers>
+
+  <scm>
+    <url>https://github.com/TAKETODAY/today-framework.git</url>
+    <developerConnection>TODAY</developerConnection>
+    <tag>web-framework</tag>
+  </scm>
+
+  <issueManagement>
+    <system>Github Issues</system>
+    <url>https://github.com/TAKETODAY/today-framework/issues</url>
+  </issueManagement>
+
+
   <dependencies>
 
     <dependency>
@@ -83,14 +120,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.freemarker</groupId>
-      <artifactId>freemarker</artifactId>
-      <version>2.3.29</version>
-      <scope>test</scope>
-    </dependency>
-
-
-    <dependency>
       <groupId>com.alibaba</groupId>
       <artifactId>fastjson</artifactId>
       <version>1.2.70</version>
@@ -104,18 +133,21 @@
       <groupId>org.apache.tomcat.embed</groupId>
       <artifactId>tomcat-embed-core</artifactId>
       <version>${embed.tomcat.version}</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-webapp</artifactId>
       <version>${jetty.version}</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>io.undertow</groupId>
       <artifactId>undertow-core</artifactId>
       <version>${undertow.version}</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -128,12 +160,14 @@
           <artifactId>jboss-servlet-api_4.0_spec</artifactId>
         </exclusion>
       </exclusions>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>io.undertow</groupId>
       <artifactId>undertow-websockets-jsr</artifactId>
       <version>${undertow.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.freemarker</groupId>
@@ -146,46 +180,11 @@
       <groupId>io.netty</groupId>
       <artifactId>netty-all</artifactId>
       <version>${netty.version}</version>
+      <scope>provided</scope>
     </dependency>
 
 
   </dependencies>
-
-  <!--  -->
-
-  <licenses>
-    <license>
-      <name>GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007</name>
-      <url>https://www.gnu.org/licenses/gpl.txt</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-
-
-  <url>https://taketoday.cn</url>
-  <organization>
-    <name>TODAY</name>
-    <url>https://taketoday.cn</url>
-  </organization>
-
-  <developers>
-    <developer>
-      <name>TODAY</name>
-      <url>https://taketoday.cn</url>
-      <email>taketoday@foxmail.com</email>
-    </developer>
-  </developers>
-
-  <scm>
-    <url>https://github.com/TAKETODAY/today-framework.git</url>
-    <developerConnection>TODAY</developerConnection>
-    <tag>web-framework</tag>
-  </scm>
-
-  <issueManagement>
-    <system>Github Issues</system>
-    <url>https://github.com/TAKETODAY/today-framework/issues</url>
-  </issueManagement>
 
 
   <distributionManagement>
