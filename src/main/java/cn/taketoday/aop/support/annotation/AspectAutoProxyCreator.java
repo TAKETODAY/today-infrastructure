@@ -97,7 +97,7 @@ public class AspectAutoProxyCreator
 
   @Override
   public void onApplicationEvent(ContextCloseEvent event) {
-    log.info("Destroying Aspects Objects");
+    log.info("Removing Aspects");
 
     aspectsDef.clear();
     setAspectsLoaded(false);
