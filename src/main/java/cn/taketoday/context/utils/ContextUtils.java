@@ -66,6 +66,7 @@ import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.BeanPostProcessor;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
+import cn.taketoday.context.factory.DefaultPropertyValue;
 import cn.taketoday.context.factory.DestructionBeanPostProcessor;
 import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.factory.PropertyValue;
@@ -77,6 +78,7 @@ import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.CollectionParameterResolver;
 import cn.taketoday.context.loader.ExecutableParameterResolver;
 import cn.taketoday.context.loader.MapParameterResolver;
+import cn.taketoday.context.loader.ObjectSupplierParameterResolver;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.expression.ExpressionException;
@@ -111,8 +113,9 @@ public abstract class ContextUtils {
 
     setParameterResolvers(new MapParameterResolver(),
                           new ArrayParameterResolver(),
-                          new AutowiredParameterResolver(),
                           new CollectionParameterResolver(),
+                          new ObjectSupplierParameterResolver(),
+                          new AutowiredParameterResolver(),
                           delegate(p -> p.isAnnotationPresent(Env.class),
                                    (p, b) -> resolveValue(p.getAnnotation(Env.class), p.getType())),
                           delegate(p -> p.isAnnotationPresent(Value.class),
@@ -539,7 +542,7 @@ public abstract class ContextUtils {
     for (final Field declaredField : ReflectionUtils.getFields(type)) {
       final Object converted = resolveProps(declaredField, nested, prefixs, properties);
       if (converted != null) {
-        propertyValues.add(new PropertyValue(converted, makeAccessible(declaredField)));
+        propertyValues.add(new DefaultPropertyValue(converted, makeAccessible(declaredField)));
       }
     }
     return propertyValues;

@@ -27,6 +27,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.factory.DefaultPropertyValue;
 import cn.taketoday.context.factory.PropertyValue;
 
 /**
@@ -48,7 +49,7 @@ public class PropsPropertyResolverTest {
         try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext()) {
             PropsPropertyResolver propertyResolver = new PropsPropertyResolver(applicationContext);
 
-            PropertyValue resolveProperty = //
+            DefaultPropertyValue resolveProperty = //
                     propertyResolver.resolveProperty(PropsPropertyResolverTest.class.getDeclaredField("properties"));
 
             assert resolveProperty.getValue() != null;

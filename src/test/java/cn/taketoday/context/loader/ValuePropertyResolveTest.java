@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,66 +19,66 @@
  */
 package cn.taketoday.context.loader;
 
-import java.util.Properties;
-
 import org.junit.Test;
+
+import java.util.Properties;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.Value;
+import cn.taketoday.context.factory.DefaultPropertyValue;
 import cn.taketoday.context.factory.PropertyValue;
 
 /**
  * @author Today <br>
- * 
- *         2018-08-04 15:58
+ *
+ * 2018-08-04 15:58
  */
 public class ValuePropertyResolveTest {
 
-    @Value("#{site.host}")
-    private String host = null;
+  @Value("#{site.host}")
+  private String host = null;
 
-    @Env("site.name")
-    private String name = null;
+  @Env("site.name")
+  private String name = null;
 
-    @Env
-    private String test = null;
+  @Env
+  private String test = null;
 
-    @Test
-    public void testResolveProperty() throws Exception {
+  @Test
+  public void testResolveProperty() throws Exception {
 
+    try (ApplicationContext applicationContext = new StandardApplicationContext()) {
+      ValuePropertyResolver propertyResolver = new ValuePropertyResolver(applicationContext);
 
-        try (ApplicationContext applicationContext = new StandardApplicationContext()) {
-            ValuePropertyResolver propertyResolver = new ValuePropertyResolver(applicationContext);
+      // host
+      // ----------------------------
+      DefaultPropertyValue host = propertyResolver.resolveProperty(ValuePropertyResolveTest.class.getDeclaredField("host"));
 
-            // host
-            // ----------------------------
-            PropertyValue host = propertyResolver.resolveProperty(ValuePropertyResolveTest.class.getDeclaredField("host"));
+      assert host.getValue() != null;
 
-            assert host.getValue() != null;
+      System.out.println("Site -> " + host.getValue());
 
-            System.out.println("Site -> " + host.getValue());
+      // name
+      // ----------------------------
+      DefaultPropertyValue name = propertyResolver.resolveProperty(ValuePropertyResolveTest.class.getDeclaredField("name"));
 
-            // name
-            // ----------------------------
-            PropertyValue name = propertyResolver.resolveProperty(ValuePropertyResolveTest.class.getDeclaredField("name"));
+      assert name.getValue() != null;
 
-            assert name.getValue() != null;
+      System.out.println("Name -> " + name.getValue());
 
-            System.out.println("Name -> " + name.getValue());
+      // test
+      // ----------------------------
+      final Properties properties = applicationContext.getEnvironment().getProperties();
+      properties.put("cn.taketoday.context.loader.ValuePropertyResolveTest.test", "TEST");
 
-            // test
-            // ----------------------------
-            final Properties properties = applicationContext.getEnvironment().getProperties();
-            properties.put("cn.taketoday.context.loader.ValuePropertyResolveTest.test", "TEST");
+      DefaultPropertyValue test = propertyResolver.resolveProperty(ValuePropertyResolveTest.class.getDeclaredField("test"));
 
-            PropertyValue test = propertyResolver.resolveProperty(ValuePropertyResolveTest.class.getDeclaredField("test"));
-
-            assert "TEST".equals(test.getValue());
-
-        }
+      assert "TEST".equals(test.getValue());
 
     }
+
+  }
 
 }

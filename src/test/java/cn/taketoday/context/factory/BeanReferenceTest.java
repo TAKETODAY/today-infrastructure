@@ -28,6 +28,8 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.exception.ContextException;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author TODAY <br>
  *         2019-06-12 21:19
@@ -51,9 +53,12 @@ public class BeanReferenceTest {
 
             final PropertyValue propertyValue = beanDefinition.getPropertyValue("test");
 
-            final Object value = propertyValue.getValue();
-            System.err.println(value);
-            assert value.equals(beanReference);
+
+            assertThat(propertyValue).isInstanceOf(BeanReferencePropertyValue.class);
+
+            BeanReferencePropertyValue referencePropertyValue = (BeanReferencePropertyValue) propertyValue;
+            final Object value = referencePropertyValue.getReference();
+            assertThat(value).isEqualTo(beanReference);
 
             final BeanReference beanReference2 = new BeanReference("test", true, declaredField);
             final BeanReference beanReference3 = new BeanReference("test", true, declaredField);

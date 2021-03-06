@@ -70,7 +70,7 @@ public class BeanDefinitionTest {
 
             beanDefinition.setPropertyValues(null);
 
-            propertyValues.add(new PropertyValue(123, testInt));
+            propertyValues.add(new DefaultPropertyValue(123, testInt));
 
             beanDefinition.addPropertyValue(propertyValues);
 
@@ -79,13 +79,13 @@ public class BeanDefinitionTest {
             beanDefinition.addPropertyValue();
 
             beanDefinition.addPropertyValue(//
-                                            new PropertyValue("TEST_STRING", test), //
-                                            new PropertyValue(123.123, testDouble)//
+                                            new DefaultPropertyValue("TEST_STRING", test), //
+                                            new DefaultPropertyValue(123.123, testDouble)//
             );
 
             beanDefinition.addPropertyValue(//
-                                            new PropertyValue("TEST_STRING", test), //
-                                            new PropertyValue(123.123, testDouble)//
+                                            new DefaultPropertyValue("TEST_STRING", test), //
+                                            new DefaultPropertyValue(123.123, testDouble)//
             );
 
             beanDefinition.getPropertyValue("test");
