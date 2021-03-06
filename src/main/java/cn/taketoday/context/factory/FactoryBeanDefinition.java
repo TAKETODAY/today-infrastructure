@@ -231,6 +231,11 @@ public class FactoryBeanDefinition<T>
     return factoryDef.newInstance(factory);
   }
 
+  @Override
+  public Object newInstance(BeanFactory factory, Object... args) {
+    return factoryDef.newInstance(factory, args);
+  }
+
   public Supplier<FactoryBean<T>> getFactorySupplier() {
     return factorySupplier;
   }

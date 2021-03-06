@@ -269,10 +269,24 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    * new bean instance
    *
    * @param factory
-   *         this bean factory
+   *         input bean factory
    *
    * @return new bean instance
+   * @since 3.0
    */
   Object newInstance(BeanFactory factory);
+
+  /**
+   * new bean instance
+   *
+   * @param factory
+   *         input bean factory
+   * @param args
+   *         arguments to use when creating a corresponding instance
+   *
+   * @return new bean instance
+   * @since 3.0
+   */
+  Object newInstance(BeanFactory factory, Object... args);
 
 }

@@ -353,6 +353,12 @@ public class DefaultBeanDefinition
     return target.newInstance(resolveParameter(getExecutable(), factory));
   }
 
+  @Override
+  public Object newInstance(BeanFactory factory, Object... args) {
+    final BeanConstructor<?> target = getConstructor(factory);
+    return target.newInstance(args);
+  }
+
   // Object
 
   @Override
