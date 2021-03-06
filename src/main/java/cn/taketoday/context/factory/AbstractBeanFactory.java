@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context.factory;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -1515,5 +1516,14 @@ public abstract class AbstractBeanFactory
 
   private BeanDefinition getPrototypeBeanDefinition(final Object existingBean, final String beanName) {
     return getPrototypeBeanDefinition(ClassUtils.getUserClass(existingBean)).setName(beanName);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder(ObjectUtils.toHexString(this));
+    sb.append(": defining beans [");
+    sb.append(StringUtils.collectionToString(this.beanDefinitionMap.keySet()));
+    sb.append("]");
+    return sb.toString();
   }
 }
