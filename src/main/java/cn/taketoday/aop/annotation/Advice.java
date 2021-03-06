@@ -30,6 +30,8 @@ import java.lang.annotation.Target;
 import cn.taketoday.aop.support.annotation.AbstractAnnotationMethodInterceptor;
 
 /**
+ * Root annotation for Advice
+ *
  * @author TODAY <br>
  * 2018-11-10 13:10
  * @see Pointcut
@@ -41,7 +43,7 @@ public @interface Advice {
   /** Annotated with */
   Class<? extends Annotation>[] value() default {};
 
-  /** Package name */
+  /** pointcut */
   String[] pointcut() default {};
 
   /** Target classes */

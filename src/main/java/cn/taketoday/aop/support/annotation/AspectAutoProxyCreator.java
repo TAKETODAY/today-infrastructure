@@ -23,10 +23,10 @@ package cn.taketoday.aop.support.annotation;
 import org.aopalliance.intercept.MethodInterceptor;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.annotation.Advice;
@@ -34,14 +34,14 @@ import cn.taketoday.aop.annotation.Aspect;
 import cn.taketoday.aop.proxy.DefaultAutoProxyCreator;
 import cn.taketoday.aop.support.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
+import cn.taketoday.aop.support.SuppliedMethodInterceptor;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.event.ContextCloseEvent;
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.factory.AutowireCapableBeanFactory;
 import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.factory.ConfigurableBeanFactory;
+import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.listener.ApplicationListener;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
@@ -49,20 +49,18 @@ import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
  * @author TODAY 2021/2/19 23:55
+ * @since 3.0
  */
 public class AspectAutoProxyCreator
         extends DefaultAutoProxyCreator implements ApplicationListener<ContextCloseEvent> {
   private static final long serialVersionUID = 1L;
 
   private boolean aspectsLoaded;
-  private final List<Object> aspects = new ArrayList<>();
 
-  public void addAspect(Object aspect) {
-    aspects.add(aspect);
-  }
+  private final List<BeanDefinition> aspectsDef = new ArrayList<>();
 
   public void sortAspects() {
-    OrderUtils.reversedSort(aspects);
+    OrderUtils.reversedSort(aspectsDef);
   }
 
   public boolean isAspectsLoaded() {
@@ -75,47 +73,33 @@ public class AspectAutoProxyCreator
 
   void loadAspects() {
     if (!aspectsLoaded) {
-      loadAspects((ConfigurableBeanFactory) getBeanFactory());
+      loadAspects(getBeanFactory());
     }
   }
 
-  public void loadAspects(final ConfigurableBeanFactory applicationContext) {
-    final Logger log = LoggerFactory.getLogger(getClass());
-    log.debug("Loading Aspect Objects");
+  public void loadAspects(final BeanFactory beanFactory) {
+    log.debug("Loading Aspect Bean Definition");
 
     setAspectsLoaded(true);
-    try {
-      for (final BeanDefinition beanDefinition : applicationContext.getBeanDefinitions().values()) {
 
-        if (beanDefinition.isAnnotationPresent(Aspect.class)) {
-          // fix use beanDefinition.getName()
-          final String aspectName = beanDefinition.getName();
-          log.debug("Found Aspect: [{}]", aspectName);
+    for (final BeanDefinition beanDefinition : beanFactory.getBeanDefinitions().values()) {
+      if (beanDefinition.isAnnotationPresent(Aspect.class)) {
+        // fix use beanDefinition.getName()
+        final String aspectName = beanDefinition.getName();
+        log.debug("Found Aspect: [{}]", aspectName);
 
-          Object aspectInstance = applicationContext.getSingleton(aspectName);
-          if (aspectInstance == null) {
-            aspectInstance = ClassUtils.newInstance(beanDefinition, applicationContext);
-            applicationContext.registerSingleton(aspectName, aspectInstance);
-          }
-          addAspect(aspectInstance);
-        }
+        aspectsDef.add(beanDefinition);
       }
-      sortAspects();
     }
-    catch (Throwable e) {
-      throw new ConfigurationException(e);
-    }
-  }
 
-  public List<Object> getAspects() {
-    return aspects;
+    sortAspects();
   }
 
   @Override
   public void onApplicationEvent(ContextCloseEvent event) {
     log.info("Destroying Aspects Objects");
 
-    aspects.clear();
+    aspectsDef.clear();
     setAspectsLoaded(false);
   }
 
@@ -126,44 +110,46 @@ public class AspectAutoProxyCreator
     super.addCandidateAdvisors(candidateAdvisors);
     loadAspects();
 
-    for (final Object aspect : aspects) {
-      final Class<?> aspectClass = aspect.getClass();
-      if (aspect instanceof MethodInterceptor) {
+    for (final BeanDefinition def : aspectsDef) {
+      final Class<?> aspectClass = def.getBeanClass();
+      // around
+      if (MethodInterceptor.class.isAssignableFrom(aspectClass)) {
         final Advice[] advices = ClassUtils.getAnnotationArray(aspectClass, Advice.class);
-        addCandidateAdvisors(candidateAdvisors, aspect, null, advices);
+        addCandidateAdvisors(candidateAdvisors, def, null, advices);
       }
-
+      // annotations: @AfterReturning @Around @Before @After @AfterThrowing
       final Method[] declaredMethods = ReflectionUtils.getDeclaredMethods(aspectClass);
       for (final Method aspectMethod : declaredMethods) {
         final Advice[] advices = ClassUtils.getAnnotationArray(aspectMethod, Advice.class);
-        addCandidateAdvisors(candidateAdvisors, aspect, aspectMethod, advices);
+        addCandidateAdvisors(candidateAdvisors, def, aspectMethod, advices);
       }
     }
 
   }
 
-  private void addCandidateAdvisors(List<Advisor> candidateAdvisors, Object aspect, Method aspectMethod, Advice[] advices) {
+  private void addCandidateAdvisors(List<Advisor> candidateAdvisors, BeanDefinition aspectDef, Method aspectMethod, Advice[] advices) {
     if (ObjectUtils.isNotEmpty(advices)) {
       for (final Advice advice : advices) {
         final Class<? extends MethodInterceptor> interceptor = advice.interceptor();
         MethodInterceptor methodInterceptor;
         if (aspectMethod == null) { // method interceptor
-          if (!(aspect instanceof MethodInterceptor)) {
+          if (!(MethodInterceptor.class.isAssignableFrom(aspectDef.getBeanClass()))) {
             throw new ConfigurationException(
-                    '[' + aspect.getClass().getName() +
+                    '[' + aspectDef.getBeanClass().getName() +
                             "] must be implement: [" + MethodInterceptor.class.getName() + ']');
           }
-          methodInterceptor = (MethodInterceptor) aspect;
+
+          final BeanFactory beanFactory = getBeanFactory();
+          Supplier<MethodInterceptor> beanSupplier = beanFactory.getBeanSupplier(aspectDef);
+          methodInterceptor = new SuppliedMethodInterceptor(beanSupplier);
         }
         else {
-          methodInterceptor = getInterceptor(aspect, aspectMethod, interceptor);
+          methodInterceptor = getInterceptor(aspectDef, aspectMethod, interceptor);
         }
 
         if (log.isTraceEnabled()) {
           log.trace("Found Interceptor: [{}]", methodInterceptor);
         }
-
-        //
 
         // Annotations
         final Class<? extends Annotation>[] annotations = advice.value();
@@ -181,14 +167,14 @@ public class AspectAutoProxyCreator
   /**
    * Get an advice instance
    *
-   * @param aspect
-   *         aspect instance
+   * @param def
+   *         aspect {@link BeanDefinition}
    * @param aspectMethod
    *         current aspect method
    * @param interceptor
    *         interceptor type
    */
-  public MethodInterceptor getInterceptor(final Object aspect,
+  public MethodInterceptor getInterceptor(final BeanDefinition def,
                                           final Method aspectMethod,
                                           final Class<? extends MethodInterceptor> interceptor) //
   {
@@ -198,18 +184,19 @@ public class AspectAutoProxyCreator
                       "] or [" + MethodInterceptor.class.getName() + "]");
     }
 
-    if (AbstractAnnotationMethodInterceptor.class.isAssignableFrom(interceptor)) {
-      final Constructor<? extends MethodInterceptor> constructor = ClassUtils.obtainConstructor(interceptor);
-      return ClassUtils.newInstance(constructor, new Object[] { aspectMethod, aspect });
-    }
-
-    // fix
+    final BeanFactory beanFactory = getBeanFactory();
     if (ClassUtils.isAnnotationPresent(interceptor, Component.class)) {
-      MethodInterceptor ret = getBeanFactory().getBean(interceptor);
+      MethodInterceptor ret = beanFactory.getBean(interceptor);
       if (ret != null) {
         return ret;
       }
     }
-    return ClassUtils.newInstance(interceptor, getBeanFactory());
+
+    // dynamic parameters -> aspectMethod, def
+    final MethodInterceptor ret = ClassUtils.newInstance(interceptor, beanFactory, new Object[] { aspectMethod, def });
+    if (beanFactory instanceof AutowireCapableBeanFactory) {
+      ((AutowireCapableBeanFactory) beanFactory).autowireBean(ret);
+    }
+    return ret;
   }
 }

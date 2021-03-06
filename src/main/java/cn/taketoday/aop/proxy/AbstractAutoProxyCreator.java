@@ -47,10 +47,14 @@ import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 
 /**
+ * Abstract Auto Proxy Creator use {@link cn.taketoday.context.factory.BeanPostProcessor}
+ * mechanism to replace original bean
+ *
  * @author TODAY 2021/2/1 21:31
  */
 public abstract class AbstractAutoProxyCreator
         extends ProxyConfig implements InstantiationAwareBeanPostProcessor, BeanFactoryAware, AopInfrastructureBean {
+
   private static final long serialVersionUID = 1L;
 
   protected final transient Logger log = LoggerFactory.getLogger(getClass());

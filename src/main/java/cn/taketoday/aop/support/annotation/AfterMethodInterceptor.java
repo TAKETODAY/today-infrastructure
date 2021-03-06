@@ -24,6 +24,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import java.lang.reflect.Method;
 
 import cn.taketoday.aop.AfterAdvice;
+import cn.taketoday.context.factory.BeanDefinition;
 
 /**
  * @author TODAY 2018-10-13 11:03
@@ -32,8 +33,8 @@ import cn.taketoday.aop.AfterAdvice;
 public class AfterMethodInterceptor
         extends AbstractAnnotationMethodInterceptor implements AfterAdvice {
 
-  public AfterMethodInterceptor(Method method, Object aspect) {
-    super(method, aspect);
+  public AfterMethodInterceptor(Method method, BeanDefinition aspectDef) {
+    super(method, aspectDef);
     setOrder(3);
   }
 

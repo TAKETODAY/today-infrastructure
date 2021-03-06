@@ -23,6 +23,8 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
 
+import cn.taketoday.context.factory.BeanDefinition;
+
 /**
  * @author TODAY 2018-10-13 11:27
  * @see cn.taketoday.aop.annotation.Before
@@ -30,8 +32,8 @@ import java.lang.reflect.Method;
 public class BeforeMethodInterceptor extends AbstractAnnotationMethodInterceptor {
   public static final int DEFAULT_ORDER = 2;
 
-  public BeforeMethodInterceptor(Method method, Object aspect) {
-    super(method, aspect);
+  public BeforeMethodInterceptor(Method method, BeanDefinition aspectDef) {
+    super(method, aspectDef);
     setOrder(DEFAULT_ORDER);
   }
 

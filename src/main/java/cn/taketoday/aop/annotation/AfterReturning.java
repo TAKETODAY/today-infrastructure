@@ -39,7 +39,7 @@ public @interface AfterReturning {
   /** Annotated with */
   Class<? extends Annotation>[] value() default {};
 
-  /** Package name */
+  /** pointcut */
   String[] pointcut() default {};
 
   /** Target classes */

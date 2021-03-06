@@ -23,6 +23,8 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
 
+import cn.taketoday.context.factory.BeanDefinition;
+
 /**
  * @author TODAY 2018-10-13 11:25
  * @see cn.taketoday.aop.annotation.AfterThrowing
@@ -30,8 +32,8 @@ import java.lang.reflect.Method;
 public class AfterThrowingMethodInterceptor extends AbstractAnnotationMethodInterceptor {
   public static final int DEFAULT_ORDER = 5;
 
-  public AfterThrowingMethodInterceptor(Method method, Object aspect) {
-    super(method, aspect);
+  public AfterThrowingMethodInterceptor(Method method, BeanDefinition aspectDef) {
+    super(method, aspectDef);
     setOrder(DEFAULT_ORDER);
   }
 
