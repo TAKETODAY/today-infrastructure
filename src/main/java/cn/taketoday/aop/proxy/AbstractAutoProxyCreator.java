@@ -274,11 +274,6 @@ public abstract class AbstractAutoProxyCreator
 
   }
 
-  protected List<Advisor> createCandidateAdvisors() {
-
-    return candidateAdvisors;
-  }
-
   protected void postEligibleAdvisors(List<Advisor> eligibleAdvisors) { }
 
   /**
@@ -318,14 +313,10 @@ public abstract class AbstractAutoProxyCreator
    * @see cn.taketoday.aop.AopInfrastructureBean
    */
   protected boolean isInfrastructureClass(Class<?> beanClass) {
-    boolean retVal = Advice.class.isAssignableFrom(beanClass)
+    return Advice.class.isAssignableFrom(beanClass)
             || Advisor.class.isAssignableFrom(beanClass)
             || Pointcut.class.isAssignableFrom(beanClass)
             || AopInfrastructureBean.class.isAssignableFrom(beanClass);
-    if (retVal && log.isTraceEnabled()) {
-      log.trace("Did not attempt to auto-proxy infrastructure class [{}]", beanClass.getName());
-    }
-    return retVal;
   }
 
   /**
