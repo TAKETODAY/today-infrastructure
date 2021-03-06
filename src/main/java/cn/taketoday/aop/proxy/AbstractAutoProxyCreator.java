@@ -51,6 +51,8 @@ import cn.taketoday.context.utils.OrderUtils;
  */
 public abstract class AbstractAutoProxyCreator
         extends ProxyConfig implements InstantiationAwareBeanPostProcessor, BeanFactoryAware, AopInfrastructureBean {
+  private static final long serialVersionUID = 1L;
+
   protected final transient Logger log = LoggerFactory.getLogger(getClass());
 
   private BeanFactory beanFactory;

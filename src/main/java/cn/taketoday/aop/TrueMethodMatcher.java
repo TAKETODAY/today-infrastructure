@@ -31,6 +31,7 @@ import java.lang.reflect.Method;
  * @since 3.0
  */
 final class TrueMethodMatcher implements MethodMatcher, Serializable {
+  private static final long serialVersionUID = 1L;
 
   public static final TrueMethodMatcher INSTANCE = new TrueMethodMatcher();
 

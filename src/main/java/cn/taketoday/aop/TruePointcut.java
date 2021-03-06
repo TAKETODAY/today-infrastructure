@@ -30,6 +30,7 @@ import java.io.Serializable;
  * @since 3.0
  */
 final class TruePointcut implements Pointcut, Serializable {
+  private static final long serialVersionUID = 1L;
 
   public static final TruePointcut INSTANCE = new TruePointcut();
 

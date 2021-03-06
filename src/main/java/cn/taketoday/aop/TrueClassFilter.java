@@ -30,6 +30,7 @@ import java.io.Serializable;
  * @since 3.0
  */
 final class TrueClassFilter implements ClassFilter, Serializable {
+  private static final long serialVersionUID = 1L;
 
   public static final TrueClassFilter INSTANCE = new TrueClassFilter();
 

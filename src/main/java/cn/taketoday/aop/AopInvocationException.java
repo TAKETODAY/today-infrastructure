@@ -31,6 +31,7 @@ import cn.taketoday.context.exception.ContextException;
  * @since 3.0
  */
 public class AopInvocationException extends ContextException {
+  private static final long serialVersionUID = 1L;
 
   /**
    * Constructor for AopInvocationException.
