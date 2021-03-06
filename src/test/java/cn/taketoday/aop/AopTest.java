@@ -311,7 +311,7 @@ public class AopTest {
       autoProxyCreator.setTargetSourceCreators(targetSourceCreator);
 
       beanFactory.importBeans(LoggingConfig.class, PrinterBean.class);
-//      DebuggingClassWriter.setDebugLocation("D:\\dev\\temp\\debug");
+      DebuggingClassWriter.setDebugLocation("D:\\dev\\temp\\debug");
 
       final PrinterBean bean = beanFactory.getBean(PrinterBean.class);
 
@@ -326,6 +326,9 @@ public class AopTest {
       Advised advised = (Advised) bean;
 
       assertThat(advised.getAdvisors()).hasSize(1);
+
+      final Class<?> targetClass = advised.getTargetClass();
+
     }
   }
 

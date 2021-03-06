@@ -341,7 +341,7 @@ public class StandardProxyCreator {
 
       // Advised
       if (!this.config.isOpaque()) {
-        for (final Method method : ReflectionUtils.getDeclaredMethods(Advised.class)) {
+        for (final Method method : Advised.class.getMethods()) {
           generateAdvised(ce, targetType, method);
         }
       }
