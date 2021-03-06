@@ -130,7 +130,6 @@ public class AspectAutoProxyCreator
   private void addCandidateAdvisors(List<Advisor> candidateAdvisors, BeanDefinition aspectDef, Method aspectMethod, Advice[] advices) {
     if (ObjectUtils.isNotEmpty(advices)) {
       for (final Advice advice : advices) {
-        final Class<? extends MethodInterceptor> interceptor = advice.interceptor();
         MethodInterceptor methodInterceptor;
         if (aspectMethod == null) { // method interceptor
           if (!(MethodInterceptor.class.isAssignableFrom(aspectDef.getBeanClass()))) {
@@ -144,7 +143,7 @@ public class AspectAutoProxyCreator
           methodInterceptor = new SuppliedMethodInterceptor(beanSupplier);
         }
         else {
-          methodInterceptor = getInterceptor(aspectDef, aspectMethod, interceptor);
+          methodInterceptor = getInterceptor(aspectDef, aspectMethod, advice.interceptor());
         }
 
         if (log.isTraceEnabled()) {
