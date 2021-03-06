@@ -22,7 +22,7 @@ package cn.taketoday.context;
 /**
  * @author TODAY 2019-12-27 11:31
  */
-public abstract class OrderedSupport implements Ordered {
+public class OrderedSupport implements Ordered {
 
   protected Integer order;
 
