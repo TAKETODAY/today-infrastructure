@@ -50,9 +50,11 @@ import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 import static cn.taketoday.context.Constant.SOURCE_FILE;
+import static cn.taketoday.context.asm.Opcodes.ACC_FINAL;
 import static cn.taketoday.context.asm.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.context.asm.Opcodes.JAVA_VERSION;
 
@@ -101,7 +103,6 @@ public class StandardProxyCreator {
     private static final Signature dynamicExposeProceed;
     private static final Signature targetSourceGetTarget;
 
-    private static final Type stdProxy = Type.getType(StandardProxy.class);
     private static final Type targetSourceType = Type.getType(TargetSource.class);
     private static final Type advisedSupportType = Type.getType(AdvisedSupport.class);
     private static final Type stdProxyInvoker = Type.getType(StandardProxyInvoker.class);
@@ -240,8 +241,10 @@ public class StandardProxyCreator {
       final ClassEmitter ce = new ClassEmitter(v);
       final Type targetType = TypeUtils.parseType(targetClass);
 
-      final Type[] interfaces = TypeUtils.add(TypeUtils.getTypes(targetClass.getInterfaces()), stdProxy);
-      ce.beginClass(JAVA_VERSION, ACC_PUBLIC, getClassName(), targetType, interfaces, SOURCE_FILE);
+      final Class<?>[] proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(this.config);
+      final Type[] interfaces = TypeUtils.getTypes(proxiedInterfaces);
+
+      ce.beginClass(JAVA_VERSION, ACC_PUBLIC | ACC_FINAL, getClassName(), targetType, interfaces, SOURCE_FILE);
 
       final boolean targetSourceStatic = targetSource.isStatic();
       if (targetSourceStatic) {
@@ -254,6 +257,7 @@ public class StandardProxyCreator {
       constructor(ce, targetType, targetSourceStatic);
 
       List<String> fields = new ArrayList<>();
+
       for (Method method : targetClass.getDeclaredMethods()) {
 
         final int modifiers = method.getModifiers();
@@ -263,6 +267,7 @@ public class StandardProxyCreator {
           continue;
         }
 
+        // direct invoke
         final MethodInterceptor[] interceptors = config.getInterceptors(method, targetClass);
         if (ObjectUtils.isEmpty(interceptors)) {
           if (targetSourceStatic) {
@@ -273,6 +278,8 @@ public class StandardProxyCreator {
           }
           continue;
         }
+
+        // proxy
 
         final String targetInvField = putTargetInv(method, fields);
         fields.add(targetInvField);
@@ -332,6 +339,14 @@ public class StandardProxyCreator {
         codeEmitter.end_method();
       }
 
+      // Advised
+      if (!this.config.isOpaque()) {
+        for (final Method method : ReflectionUtils.getDeclaredMethods(Advised.class)) {
+          generateAdvised(ce, targetType, method);
+        }
+      }
+
+      // static block
       if (!fields.isEmpty()) {
         final CodeEmitter staticBlock = ce.begin_static(false); // 静态代码块
         for (final String target : fields) {
@@ -483,6 +498,29 @@ public class StandardProxyCreator {
       // cast
 
       codeEmitter.checkcast(targetType);
+      codeEmitter.load_args();
+      codeEmitter.invoke(methodInfo);
+      codeEmitter.return_value();
+
+      codeEmitter.unbox_or_zero(Type.getType(method.getReturnType()));
+      codeEmitter.end_method();
+    }
+
+    /**
+     * <pre class="code">
+     *   boolean isProxyTargetClass() {
+     *     return this.config.isProxyTargetClass();
+     *   }
+     * </pre>
+     */
+    public void generateAdvised(final ClassEmitter ce, final Type targetType, final Method method) {
+      MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method, ACC_PUBLIC | ACC_FINAL);
+      final CodeEmitter codeEmitter = EmitUtils.beginMethod(ce, methodInfo, ACC_PUBLIC | ACC_FINAL);
+
+      codeEmitter.load_this();
+
+      codeEmitter.getfield(FIELD_CONFIG);
+
       codeEmitter.load_args();
       codeEmitter.invoke(methodInfo);
       codeEmitter.return_value();

@@ -22,12 +22,14 @@ package cn.taketoday.aop;
 import org.aopalliance.intercept.Joinpoint;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Arrays;
 
 import cn.taketoday.aop.annotation.AfterReturning;
 import cn.taketoday.aop.annotation.AfterThrowing;
@@ -37,6 +39,7 @@ import cn.taketoday.aop.annotation.Attribute;
 import cn.taketoday.aop.annotation.Before;
 import cn.taketoday.aop.annotation.JoinPoint;
 import cn.taketoday.aop.annotation.Throwing;
+import cn.taketoday.aop.proxy.Advised;
 import cn.taketoday.aop.proxy.DefaultAutoProxyCreator;
 import cn.taketoday.aop.support.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
@@ -47,6 +50,7 @@ import cn.taketoday.context.AttributeAccessor;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.cglib.core.DebuggingClassWriter;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.StandardBeanFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -268,17 +272,6 @@ public class AopTest {
       return advisor;
     }
 
-    @Singleton
-    public DefaultPointcutAdvisor advisor(MyInterceptor interceptor) {
-      AnnotationMatchingPointcut pointcut = new AnnotationMatchingPointcut(null, Aware.class);
-
-      DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor();
-      advisor.setPointcut(pointcut);
-      advisor.setAdvice(interceptor);
-
-      return advisor;
-    }
-
   }
 
   @Test
@@ -312,16 +305,15 @@ public class AopTest {
       autoProxyCreator.setBeanFactory(beanFactory);
       autoProxyCreator.setFrozen(true);
       autoProxyCreator.setExposeProxy(true);
+      autoProxyCreator.setOpaque(false);
 //      autoProxyCreator.setUsingCglib(true);
 
-//      autoProxyCreator.setTargetSourceCreators(targetSourceCreator);
+      autoProxyCreator.setTargetSourceCreators(targetSourceCreator);
 
       beanFactory.importBeans(LoggingConfig.class, PrinterBean.class);
 //      DebuggingClassWriter.setDebugLocation("D:\\dev\\temp\\debug");
 
       final PrinterBean bean = beanFactory.getBean(PrinterBean.class);
-      final DefaultPointcutAdvisor pointcutAdvisor = beanFactory.getBean(DefaultPointcutAdvisor.class);
-      System.out.println(pointcutAdvisor);
 
       bean.print();
 
@@ -330,11 +322,10 @@ public class AopTest {
       final int none = bean.none(1);
       assertThat(none).isEqualTo(1);
 
-      System.out.println(none);
+      assertThat(bean).isInstanceOf(Advised.class);
+      Advised advised = (Advised) bean;
 
-//      Advised advised = (Advised) bean;
-//      System.out.println(Arrays.toString(advised.getAdvisors()));
-
+      assertThat(advised.getAdvisors()).hasSize(1);
     }
   }
 
