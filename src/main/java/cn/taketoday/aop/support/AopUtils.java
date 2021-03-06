@@ -29,6 +29,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -61,6 +62,7 @@ import cn.taketoday.aop.support.annotation.BeforeMethodInterceptor;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
@@ -80,9 +82,9 @@ public abstract class AopUtils {
   private static final List<AdvisorAdapter> advisorAdapters = new ArrayList<>();
 
   static {
-    advisorAdapters.add(new BeforeAdvisorAdapter());
-    advisorAdapters.add(new ThrowsAdviceAdvisorAdapter());
-    advisorAdapters.add(new AfterReturningAdvisorAdapter());
+    addAdvisorAdapters(new BeforeAdvisorAdapter(),
+                       new ThrowsAdviceAdvisorAdapter(),
+                       new AfterReturningAdvisorAdapter());
   }
 
   /**
@@ -513,6 +515,17 @@ public abstract class AopUtils {
   }
 
   // AdvisorAdapter
+
+  /**
+   * Add {@link AdvisorAdapter} to {@link #advisorAdapters} and sort them
+   *
+   * @param adapters
+   *         new AdvisorAdapters
+   */
+  public static void addAdvisorAdapters(AdvisorAdapter... adapters) {
+    Collections.addAll(advisorAdapters, adapters);
+    OrderUtils.reversedSort(advisorAdapters);
+  }
 
   static class BeforeAdvisorAdapter implements AdvisorAdapter {
 
