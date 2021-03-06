@@ -65,7 +65,6 @@ public interface TargetSource extends TargetClassAware {
    *
    * @return the target object which contains the join-point,
    * or {@code null} if there is no actual target instance
-   *
    */
   Object getTarget();
 

@@ -49,7 +49,7 @@ class AutoProxyConfiguration {
   AspectAutoProxyCreator aspectAutoProxyCreator(TargetSourceCreator[] sourceCreators) {
     final AspectAutoProxyCreator proxyCreator = new AspectAutoProxyCreator();
 
-    if(ObjectUtils.isNotEmpty(sourceCreators)) {
+    if (ObjectUtils.isNotEmpty(sourceCreators)) {
       proxyCreator.setTargetSourceCreators(sourceCreators);
     }
     return proxyCreator;

@@ -272,6 +272,7 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    *         input bean factory
    *
    * @return new bean instance
+   *
    * @since 3.0
    */
   Object newInstance(BeanFactory factory);
@@ -285,6 +286,7 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    *         arguments to use when creating a corresponding instance
    *
    * @return new bean instance
+   *
    * @since 3.0
    */
   Object newInstance(BeanFactory factory, Object... args);

@@ -19,7 +19,6 @@
  */
 package cn.taketoday.context.factory;
 
-import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;

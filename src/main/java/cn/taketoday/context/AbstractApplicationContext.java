@@ -616,7 +616,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   @Override
   public void registerBean(Set<Class<?>> clazz) {
     getBeanFactory().registerBean(clazz);
-  }   
+  }
 
   @Override
   public void registerBean(Object obj) {
