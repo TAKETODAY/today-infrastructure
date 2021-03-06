@@ -21,6 +21,7 @@
 package cn.taketoday.context.factory;
 
 import java.lang.reflect.Field;
+import java.util.Objects;
 
 /**
  * @author TODAY 2021/3/6 14:55
@@ -47,6 +48,20 @@ public class DefaultPropertyValue extends AbstractPropertyValue {
   @Override
   protected Object resolveValue(AbstractBeanFactory beanFactory) {
     return getValue();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof DefaultPropertyValue)) return false;
+    if (!super.equals(o)) return false;
+    final DefaultPropertyValue that = (DefaultPropertyValue) o;
+    return Objects.equals(value, that.value);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), value);
   }
 
   @Override

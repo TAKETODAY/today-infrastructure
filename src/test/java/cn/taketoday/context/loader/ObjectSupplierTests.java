@@ -72,6 +72,7 @@ public class ObjectSupplierTests {
     }
   }
 
+  @Test
   public void testParameter() throws Throwable {
     final Constructor<TEST> constructor = ClassUtils.getSuitableConstructor(TEST.class);
     final Parameter[] parameters = constructor.getParameters();
