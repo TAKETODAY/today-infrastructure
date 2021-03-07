@@ -22,14 +22,12 @@ package cn.taketoday.aop;
 import org.aopalliance.intercept.Joinpoint;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Arrays;
 
 import cn.taketoday.aop.annotation.AfterReturning;
 import cn.taketoday.aop.annotation.AfterThrowing;
@@ -50,8 +48,8 @@ import cn.taketoday.context.AttributeAccessor;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.cglib.core.DebuggingClassWriter;
 import cn.taketoday.context.factory.BeanDefinition;
+import cn.taketoday.context.factory.ObjectSupplier;
 import cn.taketoday.context.factory.StandardBeanFactory;
 import lombok.extern.slf4j.Slf4j;
 
@@ -193,6 +191,10 @@ public class AopTest {
 
   static class PrinterBean {
 
+    PrinterBean(ObjectSupplier<PrinterBean> supplier) {
+
+    }
+
     @Aware
     void print() {
       System.out.println("print");
@@ -293,7 +295,7 @@ public class AopTest {
 
             @Override
             protected Object newPrototypeInstance() {
-              return new PrinterBean();
+              return new PrinterBean(null);
             }
           };
         }
@@ -311,7 +313,7 @@ public class AopTest {
       autoProxyCreator.setTargetSourceCreators(targetSourceCreator);
 
       beanFactory.importBeans(LoggingConfig.class, PrinterBean.class);
-      DebuggingClassWriter.setDebugLocation("D:\\dev\\temp\\debug");
+//      DebuggingClassWriter.setDebugLocation("D:\\dev\\temp\\debug");
 
       final PrinterBean bean = beanFactory.getBean(PrinterBean.class);
 
@@ -328,6 +330,11 @@ public class AopTest {
       assertThat(advised.getAdvisors()).hasSize(1);
 
       final Class<?> targetClass = advised.getTargetClass();
+      assertThat(targetClass).isEqualTo(PrinterBean.class);
+
+      assertThat(advised.isFrozen())
+              .isEqualTo(advised.isExposeProxy())
+              .isEqualTo(advised.isPreFiltered()).isTrue();
 
     }
   }
