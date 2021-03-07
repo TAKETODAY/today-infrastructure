@@ -477,6 +477,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
           oldProxy = AopContext.setCurrentProxy(proxy);
           restore = true;
         }
+        // TODO 优化性能
         // Get as late as possible to minimize the time we "own" the target, in case it comes from a pool...
         target = targetSource.getTarget();
         Class<?> targetClass = (target != null ? target.getClass() : null);
@@ -493,7 +494,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
           retVal = methodProxy.invoke(target, argsToUse);
         }
         else {
-          // We need to create a method invocation...
+          // We need to create a CglibMethodInvocation...
           retVal = new CglibMethodInvocation(target, method, targetClass, methodProxy, args, chain).proceed();
         }
         // Massage return value if necessary.

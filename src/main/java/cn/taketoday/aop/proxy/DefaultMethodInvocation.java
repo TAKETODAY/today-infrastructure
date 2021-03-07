@@ -82,11 +82,6 @@ public class DefaultMethodInvocation extends AbstractMethodInvocation implements
     return args;
   }
 
-//  @Override
-//  protected boolean matchesRuntime(RuntimeMethodInterceptor runtimeInterceptor) {
-//    return runtimeInterceptor.matches(method, target.getClass(), args);
-//  }
-
   @Override
   protected Object invokeJoinPoint() {
     return invoker.invoke(target, args);

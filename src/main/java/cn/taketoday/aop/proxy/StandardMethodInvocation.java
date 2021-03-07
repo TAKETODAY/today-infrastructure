@@ -64,11 +64,6 @@ public class StandardMethodInvocation
     return target.getTargetClass();
   }
 
-//  @Override
-//  protected boolean matchesRuntime(RuntimeMethodInterceptor runtimeInterceptor) {
-//    return runtimeInterceptor.matches(getMethod(), target.getTargetClass(), args);
-//  }
-
   @Override
   protected Object invokeJoinPoint() {
     return target.proceed(bean, args);

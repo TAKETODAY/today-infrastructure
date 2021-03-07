@@ -196,6 +196,7 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
       target = targetSource.getTarget();
       Class<?> targetClass = (target != null ? target.getClass() : null);
 
+      // TODO 优化性能
       // Get the interception chain for this method.
       MethodInterceptor[] chain = advised.getInterceptors(method, targetClass);
 
