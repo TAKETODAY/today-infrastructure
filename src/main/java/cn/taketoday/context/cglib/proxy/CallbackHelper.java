@@ -92,7 +92,7 @@ public abstract class CallbackHelper implements CallbackFilter {
   }
 
   public int accept(Method method) {
-    return methodMap.get(method).intValue();
+    return methodMap.get(method);
   }
 
   public int hashCode() {

@@ -48,6 +48,7 @@ import cn.taketoday.context.AttributeAccessor;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.cglib.core.DebuggingClassWriter;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.ObjectSupplier;
 import cn.taketoday.context.factory.StandardBeanFactory;
@@ -190,9 +191,10 @@ public class AopTest {
   public @interface Aware { }
 
   static class PrinterBean {
+    ObjectSupplier<PrinterBean> selfSupplier;
 
-    PrinterBean(ObjectSupplier<PrinterBean> supplier) {
-
+    PrinterBean(ObjectSupplier<PrinterBean> selfSupplier) {
+      this.selfSupplier = selfSupplier;
     }
 
     @Aware
@@ -313,7 +315,7 @@ public class AopTest {
       autoProxyCreator.setTargetSourceCreators(targetSourceCreator);
 
       beanFactory.importBeans(LoggingConfig.class, PrinterBean.class);
-//      DebuggingClassWriter.setDebugLocation("D:\\dev\\temp\\debug");
+      DebuggingClassWriter.setDebugLocation("D:\\dev\\temp\\debug");
 
       final PrinterBean bean = beanFactory.getBean(PrinterBean.class);
 
