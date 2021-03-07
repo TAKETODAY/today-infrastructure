@@ -43,6 +43,7 @@ import cn.taketoday.context.factory.InstantiationAwareBeanPostProcessor;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 
@@ -240,7 +241,8 @@ public abstract class AbstractAutoProxyCreator
       proxyFactory.setPreFiltered(true);
     }
 
-    return proxyFactory.getProxy(getProxyClassLoader());
+    return proxyFactory.getProxy(getProxyClassLoader(),
+                                 constructor -> ContextUtils.resolveParameter(constructor, beanFactory));
   }
 
   protected Object[] getAdvicesAndAdvisorsForBean(BeanDefinition def, TargetSource targetSource) {

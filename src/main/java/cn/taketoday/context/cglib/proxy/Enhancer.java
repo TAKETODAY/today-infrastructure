@@ -526,24 +526,6 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     private final Class<?>[] primaryConstructorArgTypes;
     private final Constructor<?> primaryConstructor;
 
-    public EnhancerFactoryData(Class<?> generatedClass, Class<?>[] primaryConstructorArgTypes, boolean classOnly) {
-      this.generatedClass = generatedClass;
-      try {
-        setThreadCallbacks = getCallbacksSetter(generatedClass, SET_THREAD_CALLBACKS_NAME);
-        if (classOnly) {
-          this.primaryConstructorArgTypes = null;
-          this.primaryConstructor = null;
-        }
-        else {
-          this.primaryConstructorArgTypes = primaryConstructorArgTypes;
-          this.primaryConstructor = CglibReflectUtils.getConstructor(generatedClass, primaryConstructorArgTypes);
-        }
-      }
-      catch (NoSuchMethodException e) {
-        throw new CodeGenerationException(e);
-      }
-    }
-
     /**
      * Creates proxy instance for given argument types, and assigns the callbacks.
      * Ideally, for each proxy class, just one set of argument types should be used,
@@ -580,6 +562,24 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         setThreadCallbacks(null);
       }
 
+    }
+
+    public EnhancerFactoryData(Class<?> generatedClass, Class<?>[] primaryConstructorArgTypes, boolean classOnly) {
+      this.generatedClass = generatedClass;
+      try {
+        setThreadCallbacks = getCallbacksSetter(generatedClass, SET_THREAD_CALLBACKS_NAME);
+        if (classOnly) {
+          this.primaryConstructorArgTypes = null;
+          this.primaryConstructor = null;
+        }
+        else {
+          this.primaryConstructorArgTypes = primaryConstructorArgTypes;
+          this.primaryConstructor = CglibReflectUtils.getConstructor(generatedClass, primaryConstructorArgTypes);
+        }
+      }
+      catch (NoSuchMethodException e) {
+        throw new CodeGenerationException(e);
+      }
     }
 
     private void setThreadCallbacks(Callback[] callbacks) {

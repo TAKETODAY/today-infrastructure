@@ -20,30 +20,526 @@
 
 package cn.taketoday.aop.proxy;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ContextUtils;
+import org.aopalliance.intercept.MethodInterceptor;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.security.ProtectionDomain;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+
+import cn.taketoday.aop.TargetSource;
+import cn.taketoday.context.Constant;
+import cn.taketoday.context.asm.ClassVisitor;
+import cn.taketoday.context.asm.Type;
+import cn.taketoday.context.cglib.core.AbstractClassGenerator;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
+import cn.taketoday.context.cglib.core.ClassEmitter;
+import cn.taketoday.context.cglib.core.CodeEmitter;
+import cn.taketoday.context.cglib.core.CodeGenerationException;
+import cn.taketoday.context.cglib.core.EmitUtils;
+import cn.taketoday.context.cglib.core.KeyFactory;
+import cn.taketoday.context.cglib.core.Local;
+import cn.taketoday.context.cglib.core.MethodInfo;
+import cn.taketoday.context.cglib.core.Signature;
+import cn.taketoday.context.cglib.core.TypeUtils;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.StringUtils;
+
+import static cn.taketoday.context.Constant.SOURCE_FILE;
+import static cn.taketoday.context.asm.Opcodes.ACC_FINAL;
+import static cn.taketoday.context.asm.Opcodes.ACC_PUBLIC;
+import static cn.taketoday.context.asm.Opcodes.JAVA_VERSION;
 
 /**
  * StandardProxy
  *
  * @author TODAY 2021/2/12 17:30
+ * @since 3.0
  */
-public class StandardAopProxy implements AopProxy {
-
-  private final AdvisedSupport config;
+public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopProxy {
+  private static final Logger log = LoggerFactory.getLogger(StandardAopProxy.class);
 
   public StandardAopProxy(AdvisedSupport config) {
-    Assert.notNull(config, "AdvisedSupport must not be null");
-    if (config.getAdvisors().length == 0 && config.getTargetSource() == AdvisedSupport.EMPTY_TARGET_SOURCE) {
-      throw new AopConfigException("No advisors and no TargetSource specified");
-    }
-    this.config = config;
+    super(config);
   }
 
   @Override
-  public Object getProxy(ClassLoader classLoader) {
-    final ApplicationContext beanFactory = ContextUtils.getLastStartupContext(); // TODO
-    return StandardProxyCreator.createProxy(config, classLoader, beanFactory);
+  public Object getProxy(ClassLoader classLoader, Function<Constructor<?>, Object[]> argsFunction) {
+    if (log.isDebugEnabled()) {
+      log.debug("Creating Standard Proxy {}", config.getTargetSource());
+    }
+    return super.getProxy(classLoader, argsFunction);
   }
+
+  @Override
+  protected Object getProxyInternal(Class<?> proxySuperClass,
+                                    ClassLoader classLoader,
+                                    Function<Constructor<?>, Object[]> argsFunction) {
+
+    final StandardProxyGenerator proxyGenerator = new StandardProxyGenerator(config, proxySuperClass, argsFunction);
+
+    proxyGenerator.setClassLoader(classLoader);
+
+    return proxyGenerator.create();
+  }
+
+  // Aop standard proxy object generator
+  // --------------------------------------------------------------
+
+  private static final AopKey KEY_FACTORY = KeyFactory.create(AopKey.class, KeyFactory.CLASS_BY_NAME);
+
+  interface AopKey {
+    Object newInstance(Class<?> superClass);
+  }
+
+  static class StandardProxyGenerator extends AbstractClassGenerator<Object> {
+
+    static final String FIELD_TARGET = "target";
+    static final String FIELD_CONFIG = "config";
+    static final String FIELD_TARGET_SOURCE = "targetSource";
+    static final int field_access = Constant.ACC_PRIVATE | Constant.ACC_FINAL;
+
+    private static final Signature proceed;
+    private static final Signature getTarget;
+    private static final Signature dynamicProceed;
+    private static final Signature staticExposeProceed;
+    private static final Signature dynamicExposeProceed;
+    private static final Signature targetSourceGetTarget;
+
+    private static final Type targetSourceType = Type.getType(TargetSource.class);
+    private static final Type advisedSupportType = Type.getType(AdvisedSupport.class);
+    private static final Type stdProxyInvoker = Type.getType(StandardProxyInvoker.class);
+    private static final Type invocationRegistryType = Type.getType(InvocationRegistry.class);
+    private static final Type targetInvocationType = Type.getType(StandardMethodInvocation.Target.class);
+
+    static {
+      try {
+        proceed = new Signature(StandardProxyInvoker.class.getMethod("proceed",
+                                                                     Object.class,
+                                                                     StandardMethodInvocation.Target.class,
+                                                                     Object[].class));
+        dynamicProceed = new Signature(StandardProxyInvoker.class
+                                               .getMethod("dynamicProceed",
+                                                          TargetSource.class,
+                                                          StandardMethodInvocation.Target.class,
+                                                          Object[].class));
+        dynamicExposeProceed = new Signature(StandardProxyInvoker.class.getMethod("dynamicExposeProceed", Object.class, TargetSource.class,
+                                                                                  StandardMethodInvocation.Target.class, Object[].class));
+        staticExposeProceed = new Signature(StandardProxyInvoker.class.getMethod("staticExposeProceed",
+                                                                                 Object.class,
+                                                                                 Object.class,
+                                                                                 StandardMethodInvocation.Target.class,
+                                                                                 Object[].class));
+
+        targetSourceGetTarget = new Signature(TargetSource.class.getDeclaredMethod("getTarget"));
+        getTarget = new Signature(InvocationRegistry.class.getDeclaredMethod("getTarget", String.class));
+      }
+      catch (NoSuchMethodException e) {
+        throw new CodeGenerationException(e);
+      }
+    }
+
+    /** super class's constructor' params */
+    private Class<?>[] parameterTypes;
+    private final AdvisedSupport config;
+    private final TargetSource targetSource;
+    /** class to be proxy-ed */
+    private final Class<?> targetClass;
+    /** super class's constructor */
+    private Constructor<?> constructor;
+
+    final Function<Constructor<?>, Object[]> constructorArgsFunction;
+
+    public StandardProxyGenerator(AdvisedSupport config,
+                                  Class<?> proxySuperClass,
+                                  Function<Constructor<?>, Object[]> constructorArgsFunction) {
+      super("Aop");
+      this.config = config;
+      this.targetClass = proxySuperClass;
+      this.targetSource = config.getTargetSource();
+      this.constructorArgsFunction = constructorArgsFunction;
+    }
+
+    public TargetSource getTargetSource() {
+      return targetSource;
+    }
+
+    @Override
+    protected ClassLoader getDefaultClassLoader() {
+      return targetClass.getClassLoader();
+    }
+
+    @Override
+    protected ProtectionDomain getProtectionDomain() {
+      return CglibReflectUtils.getProtectionDomain(targetClass);
+    }
+
+    public Object create() {
+      setNamePrefix(targetClass.getName());
+      Object key = KEY_FACTORY.newInstance(targetClass);
+      return super.create(key);
+    }
+
+    public Class<?>[] getParameterTypes() {
+      if (parameterTypes == null) {
+        if (constructor == null) {
+          constructor = ClassUtils.getSuitableConstructor(targetClass);
+          if (constructor == null) {
+            throw new CodeGenerationException("No suitable constructor found in class: [" + targetClass + "]");
+          }
+        }
+        this.parameterTypes = constructor.getParameterTypes();
+      }
+      return parameterTypes;
+    }
+
+    @Override
+    protected Object firstInstance(Class<Object> type) {
+      final boolean targetSourceStatic = targetSource.isStatic();
+
+      Class<?>[] types = getParameterTypes();
+      final int superLength = types.length;
+      // proxy constructor args types
+      final Class<?>[] argTypes = new Class[superLength + (targetSourceStatic ? 3 : 2)];
+      System.arraycopy(types, 0, argTypes, 0, superLength);
+
+      int offset = 0;
+      if (targetSourceStatic) {
+        argTypes[superLength] = targetClass;
+        offset = 1;
+      }
+
+      argTypes[superLength + offset] = TargetSource.class;
+      argTypes[superLength + offset + 1] = AdvisedSupport.class;
+
+      // proxy constructor arguments
+      Object[] args = createArgs(argTypes);
+
+      if (targetSourceStatic) {
+        args[superLength] = targetSource.getTarget();
+      }
+      args[superLength + offset] = targetSource;
+      args[superLength + offset + 1] = config;
+
+      return CglibReflectUtils.newInstance(type, argTypes, args);
+    }
+
+    Object[] createArgs(Class<?>[] proxyConstructorArgTypes) {
+      final Object[] ret = new Object[proxyConstructorArgTypes.length];
+      if (constructorArgsFunction != null) {
+        final Object[] args = constructorArgsFunction.apply(constructor);
+        if (args != null) {
+          System.arraycopy(args, 0, ret, 0, args.length);
+        }
+      }
+      return ret;
+    }
+
+    @Override
+    protected Object nextInstance(Object instance) {
+      return instance;
+    }
+
+    @Override
+    public void generateClass(ClassVisitor v) {
+
+      final ClassEmitter ce = new ClassEmitter(v);
+      final Type targetType = TypeUtils.parseType(targetClass);
+
+      final Class<?>[] proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(this.config);
+      final Type[] interfaces = TypeUtils.getTypes(proxiedInterfaces);
+
+      ce.beginClass(JAVA_VERSION, ACC_PUBLIC | ACC_FINAL, getClassName(), targetType, interfaces, SOURCE_FILE);
+
+      final boolean targetSourceStatic = targetSource.isStatic();
+      if (targetSourceStatic) {
+        ce.declare_field(field_access, FIELD_TARGET, targetType, null);
+      }
+      ce.declare_field(field_access, FIELD_CONFIG, advisedSupportType, null);
+      ce.declare_field(field_access, FIELD_TARGET_SOURCE, targetSourceType, null);
+
+      // 父类构造器参数
+      constructor(ce, targetType, targetSourceStatic);
+
+      List<String> fields = new ArrayList<>();
+
+      for (Method method : targetClass.getDeclaredMethods()) {
+
+        final int modifiers = method.getModifiers();
+        if (Modifier.isStatic(modifiers)
+                || Modifier.isFinal(modifiers)
+                || Modifier.isPrivate(modifiers)) { // TODO private
+          continue;
+        }
+
+        // direct invoke
+        final MethodInterceptor[] interceptors = config.getInterceptors(method, targetClass);
+        if (ObjectUtils.isEmpty(interceptors)) {
+          if (targetSourceStatic) {
+            invokeStaticTarget(ce, targetType, method);
+          }
+          else {
+            invokeTargetFromTargetSource(ce, targetType, method);
+          }
+          continue;
+        }
+
+        // proxy
+
+        final String targetInvField = putTargetInv(method, fields);
+        fields.add(targetInvField);
+
+        ce.declare_field(getStaticAccess(), targetInvField, targetInvocationType, null);
+
+        MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method);
+        // 当前方法
+        final CodeEmitter codeEmitter = EmitUtils.beginMethod(ce, methodInfo, modifiers);
+
+        if (config.isExposeProxy()) {
+          // 加载代理对象
+          codeEmitter.load_this(); // proxy
+        }
+
+        codeEmitter.load_this();
+        if (targetSourceStatic) {
+          // 准备参数
+          // Object target, StandardMethodInvocation.Target targetInv, Object[] args
+          codeEmitter.getfield(FIELD_TARGET);
+          codeEmitter.getfield(targetInvField);
+          prepareArgs(method, codeEmitter);
+
+          if (config.isExposeProxy()) {
+            codeEmitter.invoke_static(stdProxyInvoker, staticExposeProceed);
+          }
+          else {
+            codeEmitter.invoke_static(stdProxyInvoker, proceed);
+          }
+        }
+        else {
+          //TargetSource targetSource, StandardMethodInvocation.Target targetInv, Object[] args
+          codeEmitter.getfield(FIELD_TARGET_SOURCE);
+          codeEmitter.getfield(targetInvField);
+          prepareArgs(method, codeEmitter);
+
+          if (config.isExposeProxy()) {
+            codeEmitter.invoke_static(stdProxyInvoker, dynamicExposeProceed);
+          }
+          else {
+            codeEmitter.invoke_static(stdProxyInvoker, dynamicProceed);
+          }
+        }
+
+        Local returnLocal = null;
+        if (method.getReturnType() != void.class) {
+          returnLocal = codeEmitter.make_local();
+          codeEmitter.store_local(returnLocal);
+        }
+
+        if (returnLocal != null) {
+          codeEmitter.load_local(returnLocal);
+          codeEmitter.unbox_or_zero(Type.getType(method.getReturnType()));
+        }
+
+        codeEmitter.return_value();
+        codeEmitter.end_method();
+      }
+
+      // Advised
+      if (!this.config.isOpaque()) {
+        for (final Method method : Advised.class.getMethods()) {
+          generateAdvised(ce, targetType, method);
+        }
+      }
+
+      // static block
+      if (!fields.isEmpty()) {
+        final CodeEmitter staticBlock = ce.begin_static(false); // 静态代码块
+        for (final String target : fields) {
+          staticBlock.visitLdcInsn(target);
+          staticBlock.invoke_static(invocationRegistryType, getTarget);
+          staticBlock.putfield(target);
+        }
+      }
+
+      ce.endClass();
+    }
+
+    protected void prepareArgs(Method method, CodeEmitter codeEmitter) {
+      if (method.getParameterCount() == 0) {
+        codeEmitter.getstatic(Type.getType(Constant.class), "EMPTY_OBJECT_ARRAY", Constant.TYPE_OBJECT_ARRAY);
+      }
+      else {
+        codeEmitter.create_arg_array(); // args
+      }
+    }
+
+    /**
+     * @param method
+     *         current method
+     * @param fields
+     *         Target keys in {@link #targetClass}
+     *
+     * @return Target key
+     */
+    protected String putTargetInv(final Method method, final List<String> fields) {
+      final String field = method.getName() + StringUtils.getRandomString(4);
+      if (fields.contains(field)) {
+        return putTargetInv(method, fields);
+      }
+      final StandardMethodInvocation.Target target = InvocationRegistry.getTarget(field);
+      if (target != null) {
+        return putTargetInv(method, fields);
+      }
+      InvocationRegistry.putTarget(field, getTargetMethodInvocation(method));
+      return field;
+    }
+
+    protected int getStaticAccess() {
+      return Constant.PRIVATE_FINAL_STATIC;
+    }
+
+    protected StandardMethodInvocation.Target getTargetMethodInvocation(final Method method) {
+      final MethodInterceptor[] interceptors = config.getInterceptors(method, targetSource.getTargetClass());
+      return new StandardMethodInvocation.Target(method, interceptors);
+    }
+
+    /**
+     * <pre class="code">
+     *   public AopTest$PrinterBean$$AopByTODAY$$168c2842(PrinterBean var1, TargetSource var2, AdvisedSupport var3) {
+     *     this.target = var1;
+     *     this.config = var3;
+     *     this.targetSource = var2;
+     *   }
+     * </pre>
+     */
+    protected void constructor(final ClassEmitter ce, final Type targetType, boolean targetSourceStatic) {
+      // 构造器
+      Type[] superTypes = TypeUtils.getTypes(getParameterTypes());
+      Type[] types = superTypes.clone();
+      final int typesLength = types.length;
+
+      // 构建参数,额外的参数添加在最后
+      if (targetSourceStatic) {
+        // 直接添加对象
+        types = TypeUtils.add(types, targetType, true); // 子类构造器参数
+      }
+      types = TypeUtils.add(types, targetSourceType, advisedSupportType);
+
+      final Signature parseConstructor = TypeUtils.parseConstructor(types);
+
+      final CodeEmitter code = ce.beginMethod(ACC_PUBLIC, parseConstructor);
+
+      code.load_this();
+      code.dup();
+
+      // 调用父类构造器
+      if (typesLength > 0) {
+        code.load_args(0, typesLength);
+      }
+      code.super_invoke_constructor(TypeUtils.parseConstructor(superTypes));
+      // 赋值
+
+      int offset = 0;
+      if (targetSourceStatic) {
+        code.load_this();
+        code.load_arg(typesLength);
+        code.putfield(FIELD_TARGET);
+
+        offset = 1;
+      }
+
+      code.load_this();
+      code.load_arg(typesLength + offset);
+      code.putfield(FIELD_TARGET_SOURCE);
+
+      code.load_this();
+      code.load_arg(typesLength + offset + 1);
+      code.putfield(FIELD_CONFIG);
+
+      code.return_value();
+      code.end_method();
+    }
+
+    /**
+     * <pre class="code">
+     *   void none() {
+     *     ((Bean) target).none();
+     *   }
+     * </pre>
+     */
+    protected void invokeStaticTarget(final ClassEmitter ce, final Type targetType, final Method method) {
+      MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method);
+      final CodeEmitter codeEmitter = EmitUtils.beginMethod(ce, methodInfo, method.getModifiers());
+
+      codeEmitter.load_this();
+
+      codeEmitter.getfield(FIELD_TARGET);
+
+      codeEmitter.load_args();
+      codeEmitter.invoke(methodInfo);
+      codeEmitter.return_value();
+
+      codeEmitter.unbox_or_zero(Type.getType(method.getReturnType()));
+      codeEmitter.end_method();
+    }
+
+    /**
+     * <pre class="code">
+     *   void noneStatic() {
+     *     ((Bean) this.targetSource.getTarget()).noneStatic();
+     *   }
+     * </pre>
+     */
+    protected void invokeTargetFromTargetSource(final ClassEmitter ce, final Type targetType, final Method method) {
+      MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method);
+      final CodeEmitter codeEmitter = EmitUtils.beginMethod(ce, methodInfo, method.getModifiers());
+
+      // this.targetSource.getTarget()
+
+      codeEmitter.load_this();
+      codeEmitter.getfield(FIELD_TARGET_SOURCE);
+      codeEmitter.invoke_interface(targetSourceType, targetSourceGetTarget);
+
+      // cast
+
+      codeEmitter.checkcast(targetType);
+      codeEmitter.load_args();
+      codeEmitter.invoke(methodInfo);
+      codeEmitter.return_value();
+
+      codeEmitter.unbox_or_zero(Type.getType(method.getReturnType()));
+      codeEmitter.end_method();
+    }
+
+    /**
+     * <pre class="code">
+     *   boolean isProxyTargetClass() {
+     *     return this.config.isProxyTargetClass();
+     *   }
+     * </pre>
+     */
+    public void generateAdvised(final ClassEmitter ce, final Type targetType, final Method method) {
+      MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method, ACC_PUBLIC | ACC_FINAL);
+      final CodeEmitter codeEmitter = EmitUtils.beginMethod(ce, methodInfo, ACC_PUBLIC | ACC_FINAL);
+
+      codeEmitter.load_this();
+
+      codeEmitter.getfield(FIELD_CONFIG);
+
+      codeEmitter.load_args();
+      codeEmitter.invoke(methodInfo);
+      codeEmitter.return_value();
+
+      codeEmitter.unbox_or_zero(Type.getType(method.getReturnType()));
+      codeEmitter.end_method();
+    }
+
+  }
+
 }

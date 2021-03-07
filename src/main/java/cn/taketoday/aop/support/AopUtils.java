@@ -79,6 +79,8 @@ import cn.taketoday.context.utils.ReflectionUtils;
  */
 public abstract class AopUtils {
 
+  public static final MethodInterceptor[] EMPTY_INTERCEPTOR = new MethodInterceptor[0];
+
   private static final List<AdvisorAdapter> advisorAdapters = new ArrayList<>();
 
   static {
@@ -354,6 +356,9 @@ public abstract class AopUtils {
    */
   public static MethodInterceptor[] getInterceptorsArray(Advised config, Method method, Class<?> targetClass) {
     final List<MethodInterceptor> interceptors = getInterceptors(config, method, targetClass);
+    if (interceptors.isEmpty()) {
+      return EMPTY_INTERCEPTOR;
+    }
     return interceptors.toArray(new MethodInterceptor[interceptors.size()]);
   }
 

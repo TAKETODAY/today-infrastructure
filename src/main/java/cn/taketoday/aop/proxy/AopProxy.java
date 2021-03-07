@@ -20,6 +20,9 @@
 
 package cn.taketoday.aop.proxy;
 
+import java.lang.reflect.Constructor;
+import java.util.function.Function;
+
 /**
  * Delegate interface for a configured AOP proxy, allowing for the creation
  * of actual proxy objects.
@@ -45,7 +48,7 @@ public interface AopProxy {
    * @see Thread#getContextClassLoader()
    */
   default Object getProxy() {
-    return getProxy(null);
+    return getProxy(null, null);
   }
 
   /**
@@ -61,6 +64,25 @@ public interface AopProxy {
    *
    * @return the new proxy object (never {@code null})
    */
-  Object getProxy(ClassLoader classLoader);
+  default Object getProxy(ClassLoader classLoader) {
+    return getProxy(classLoader, null);
+  }
+
+  /**
+   * Create a new proxy object.
+   * <p>Uses the given class loader (if necessary for proxy creation).
+   * {@code null} will simply be passed down and thus lead to the low-level
+   * proxy facility's default, which is usually different from the default chosen
+   * by the AopProxy implementation's {@link #getProxy()} method.
+   *
+   * @param classLoader
+   *         the class loader to create the proxy with
+   *         (or {@code null} for the low-level proxy facility's default)
+   * @param argsFunction
+   *         constructor arguments getter
+   *
+   * @return the new proxy object (never {@code null})
+   */
+  Object getProxy(ClassLoader classLoader, Function<Constructor<?>, Object[]> argsFunction);
 
 }
