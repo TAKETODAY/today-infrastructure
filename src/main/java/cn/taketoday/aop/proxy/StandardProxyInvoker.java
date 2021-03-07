@@ -21,8 +21,7 @@
 package cn.taketoday.aop.proxy;
 
 import org.aopalliance.intercept.MethodInterceptor;
-
-import java.lang.reflect.Method;
+import org.aopalliance.intercept.MethodInvocation;
 
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.context.utils.ObjectUtils;
@@ -95,18 +94,15 @@ public interface StandardProxyInvoker {
       }
       target = targetSource.getTarget();
 
-      final Method targetInvMethod = targetInv.getMethod();
-      final MethodInterceptor[] interceptors = advised.getInterceptors(targetInvMethod, targetInv.getTargetClass());
+      final MethodInterceptor[] interceptors = targetInv.getDynamicInterceptors();
       // Check whether we only have one Interceptor: that is, no real advice,
       // but just use MethodInvoker invocation of the target.
       if (ObjectUtils.isEmpty(interceptors)) {
         return targetInv.proceed(target, args);
       }
 
-      // We need to create a default method invocation...
-      return new DefaultMethodInvocation(target, targetInvMethod,
-                                         targetInv.getInvoker(),
-                                         args, interceptors).proceed();
+      // We need to create a DynamicStandardMethodInvocation...
+      return new DynamicStandardMethodInvocation(target, targetInv, args, interceptors).proceed();
     }
     finally {
       if (target != null && !targetSource.isStatic()) {
@@ -117,6 +113,29 @@ public interface StandardProxyInvoker {
         AopContext.setCurrentProxy(oldProxy);
       }
     }
+  }
+
+}
+
+class DynamicStandardMethodInvocation extends StandardMethodInvocation implements MethodInvocation {
+
+  private final int adviceLength;
+  private final MethodInterceptor[] advices;
+
+  public DynamicStandardMethodInvocation(Object bean, TargetInvocation target, Object[] arguments, MethodInterceptor[] advices) {
+    super(bean, target, arguments);
+    this.advices = advices;
+    this.adviceLength = advices.length;
+  }
+
+  @Override
+  protected boolean shouldCallJoinPoint() {
+    return currentAdviceIndex == adviceLength;
+  }
+
+  @Override
+  protected MethodInterceptor currentInterceptor() {
+    return advices[currentAdviceIndex++];
   }
 
 }

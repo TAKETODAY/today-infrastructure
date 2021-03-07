@@ -20,6 +20,8 @@
 
 package cn.taketoday.aop.support;
 
+import org.aopalliance.intercept.MethodInvocation;
+
 import java.lang.reflect.Method;
 
 import cn.taketoday.aop.MethodMatcher;
@@ -46,6 +48,10 @@ public abstract class DynamicMethodMatcher implements MethodMatcher {
   @Override
   public boolean matches(Method method, Class<?> targetClass) {
     return true;
+  }
+
+  protected Class<?> getTargetClass(MethodInvocation invocation) {
+    return AopUtils.getTargetClass(invocation);
   }
 
 }

@@ -20,11 +20,14 @@
 
 package cn.taketoday.aop.support;
 
+import org.aopalliance.intercept.MethodInvocation;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
 import cn.taketoday.aop.MethodMatcher;
 import cn.taketoday.aop.Pointcut;
+import cn.taketoday.aop.proxy.DefaultMethodInvocation;
 import cn.taketoday.context.utils.Assert;
 
 /**
@@ -82,6 +85,34 @@ public abstract class Pointcuts {
    *
    * @param pointcut
    *         the pointcut to match
+   * @param invocation
+   *         runtime invocation contains the candidate method
+   *         and target class, arguments to the method
+   *
+   * @return whether there's a runtime match
+   */
+  public static boolean matches(Pointcut pointcut, MethodInvocation invocation) {
+    Assert.notNull(pointcut, "Pointcut must not be null");
+    if (pointcut == Pointcut.TRUE) {
+      return true;
+    }
+    final Class<?> targetClass = AopUtils.getTargetClass(invocation);
+    if (pointcut.getClassFilter().matches(targetClass)) {
+      // Only check if it gets past first hurdle.
+      MethodMatcher mm = pointcut.getMethodMatcher();
+      if (mm.matches(invocation.getMethod(), targetClass)) {
+        // We may need additional runtime (argument) check.
+        return (!mm.isRuntime() || mm.matches(invocation));
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Perform the least expensive check for a pointcut match.
+   *
+   * @param pointcut
+   *         the pointcut to match
    * @param method
    *         the candidate method
    * @param targetClass
@@ -101,7 +132,7 @@ public abstract class Pointcuts {
       MethodMatcher mm = pointcut.getMethodMatcher();
       if (mm.matches(method, targetClass)) {
         // We may need additional runtime (argument) check.
-        return (!mm.isRuntime() || mm.matches(method, targetClass, args));
+        return (!mm.isRuntime() || mm.matches(new DefaultMethodInvocation(method, targetClass, args)));
       }
     }
     return false;

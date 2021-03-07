@@ -20,6 +20,8 @@
 
 package cn.taketoday.aop.support;
 
+import org.aopalliance.intercept.MethodInvocation;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
@@ -120,8 +122,8 @@ public abstract class MethodMatchers {
   public static boolean matches(MethodMatcher mm, Method method, Class<?> targetClass, boolean hasIntroductions) {
     Assert.notNull(mm, "MethodMatcher must not be null");
     return (mm instanceof IntroductionAwareMethodMatcher ?
-            ((IntroductionAwareMethodMatcher) mm).matches(method, targetClass, hasIntroductions) :
-            mm.matches(method, targetClass));
+            ((IntroductionAwareMethodMatcher) mm).matches(method, targetClass, hasIntroductions)
+                                                         : mm.matches(method, targetClass));
   }
 
   /**
@@ -158,8 +160,8 @@ public abstract class MethodMatchers {
     }
 
     @Override
-    public boolean matches(Method method, Class<?> targetClass, Object... args) {
-      return this.mm1.matches(method, targetClass, args) || this.mm2.matches(method, targetClass, args);
+    public boolean matches(MethodInvocation invocation) {
+      return this.mm1.matches(invocation) || this.mm2.matches(invocation);
     }
 
     @Override
@@ -303,14 +305,11 @@ public abstract class MethodMatchers {
     }
 
     @Override
-    public boolean matches(Method method, Class<?> targetClass, Object[] args) {
-      // Because a dynamic intersection may be composed of a static and dynamic part,
-      // we must avoid calling the 3-arg matches method on a dynamic matcher, as
-      // it will probably be an unsupported operation.
-      boolean aMatches = (this.mm1.isRuntime() ?
-                          this.mm1.matches(method, targetClass, args) : this.mm1.matches(method, targetClass));
-      boolean bMatches = (this.mm2.isRuntime() ?
-                          this.mm2.matches(method, targetClass, args) : this.mm2.matches(method, targetClass));
+    public boolean matches(MethodInvocation invocation) {
+      final Method method = invocation.getMethod();
+      final Class<?> targetClass = invocation.getThis().getClass();
+      boolean aMatches = (this.mm1.isRuntime() ? this.mm1.matches(invocation) : this.mm1.matches(method, targetClass));
+      boolean bMatches = (this.mm2.isRuntime() ? this.mm2.matches(invocation) : this.mm2.matches(method, targetClass));
       return aMatches && bMatches;
     }
 
@@ -353,6 +352,7 @@ public abstract class MethodMatchers {
       return (MethodMatchers.matches(this.mm1, method, targetClass, hasIntroductions) &&
               MethodMatchers.matches(this.mm2, method, targetClass, hasIntroductions));
     }
+
   }
 
 }

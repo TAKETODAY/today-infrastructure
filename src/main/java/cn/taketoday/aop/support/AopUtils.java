@@ -162,6 +162,30 @@ public abstract class AopUtils {
   }
 
   /**
+   * Determine the target class of the given invocation.
+   * <p>Returns the target class for an AOP proxy or the plain class otherwise.
+   *
+   * @param invocation
+   *         the instance to check
+   *
+   * @return the target class (or the plain class of the given object as fallback;
+   * never {@code null})
+   *
+   * @see TargetClassAware#getTargetClass()
+   */
+  public static Class<?> getTargetClass(MethodInvocation invocation) {
+    Assert.notNull(invocation, "MethodInvocation must not be null");
+    Class<?> result = null;
+    if (invocation instanceof TargetClassAware) {
+      result = ((TargetClassAware) invocation).getTargetClass();
+    }
+    if (result == null) {
+      result = getTargetClass(invocation.getThis());
+    }
+    return result;
+  }
+
+  /**
    * Can the given pointcut apply at all on the given class?
    * <p>This is an important test as it can be used to optimize
    * out a pointcut for a class.

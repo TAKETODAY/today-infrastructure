@@ -27,23 +27,21 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Objects;
 
-import cn.taketoday.aop.support.RuntimeMethodInterceptor;
-
 /**
  * @author TODAY <br>
  * 2018-11-10 13:14
  */
 public class StandardMethodInvocation
-        extends RuntimeMethodInvocation implements MethodInvocation {
+        extends AbstractMethodInvocation implements MethodInvocation {
 
   private final Object bean;
   private final Object[] args;
-  private final TargetInvocation target;
+  final TargetInvocation target;
 
   /**
    * a flag show that current index of advice
    */
-  private int currentAdviceIndex = 0;
+  int currentAdviceIndex = 0;
 
   public StandardMethodInvocation(Object bean, TargetInvocation target, Object[] arguments) {
     this.bean = bean;
@@ -62,9 +60,14 @@ public class StandardMethodInvocation
   }
 
   @Override
-  protected boolean matchesRuntime(RuntimeMethodInterceptor runtimeInterceptor) {
-    return runtimeInterceptor.matches(getMethod(), target.getTargetClass(), args);
+  public Class<?> getTargetClass() {
+    return target.getTargetClass();
   }
+
+//  @Override
+//  protected boolean matchesRuntime(RuntimeMethodInterceptor runtimeInterceptor) {
+//    return runtimeInterceptor.matches(getMethod(), target.getTargetClass(), args);
+//  }
 
   @Override
   protected Object invokeJoinPoint() {
@@ -77,7 +80,7 @@ public class StandardMethodInvocation
   }
 
   @Override
-  protected MethodInterceptor currentMethodInterceptor() {
+  protected MethodInterceptor currentInterceptor() {
     return target.currentAdvice(currentAdviceIndex++);
   }
 

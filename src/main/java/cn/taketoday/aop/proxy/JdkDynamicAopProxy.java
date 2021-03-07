@@ -211,7 +211,7 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
       }
       else {
         MethodInvocation invocation =
-                new DefaultMethodInvocation(target, method, cache.get(method, this), args, chain);
+                new DefaultMethodInvocation(target, method, targetClass, cache.get(method, this), args, chain);
         // Proceed to the join-point through the interceptor chain.
         retVal = invocation.proceed();
       }

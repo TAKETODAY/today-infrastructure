@@ -24,31 +24,32 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import cn.taketoday.aop.TargetClassAware;
 import cn.taketoday.context.reflect.MethodInvoker;
 
 /**
  * @author TODAY 2021/3/7 21:55
  */
-public class TargetInvocation {
+public class TargetInvocation implements TargetClassAware {
 
   private static final Map<String, TargetInvocation> targetMap = new HashMap<>();
 
   private final Method method;
-  private final int adviceLength;
   private final Class<?> targetClass;
   private final MethodInvoker invoker;
-  private final MethodInterceptor[] advices;
+  private final AdvisedSupport config;
 
-  public TargetInvocation(Method method, Class<?> targetClass, MethodInterceptor[] advices) {
+  private int adviceLength;
+  private MethodInterceptor[] interceptors;
+
+  public TargetInvocation(Method method, Class<?> targetClass, AdvisedSupport config) {
     this.method = method;
-    this.advices = advices;
+    this.config = config;
     this.targetClass = targetClass;
-    this.adviceLength = advices.length;
     this.invoker = MethodInvoker.create(method);
   }
 
@@ -61,11 +62,11 @@ public class TargetInvocation {
   }
 
   public final Object invokeAdvice(final MethodInvocation invocation, final int index) throws Throwable {
-    return advices[index].invoke(invocation);
+    return getInterceptors()[index].invoke(invocation);
   }
 
   public final MethodInterceptor currentAdvice(final int index) {
-    return advices[index];
+    return getInterceptors()[index];
   }
 
   public int getAdviceLength() {
@@ -76,8 +77,21 @@ public class TargetInvocation {
     return invoker;
   }
 
+  @Override
   public Class<?> getTargetClass() {
     return targetClass;
+  }
+
+  public MethodInterceptor[] getDynamicInterceptors() {
+    return config.getInterceptors(method, targetClass);
+  }
+
+  public MethodInterceptor[] getInterceptors() {
+    if (interceptors == null) {
+      interceptors = config.getInterceptors(method, targetClass);
+      adviceLength = interceptors.length;
+    }
+    return interceptors;
   }
 
   @Override
@@ -88,14 +102,12 @@ public class TargetInvocation {
     return adviceLength == target.adviceLength
             && Objects.equals(method, target.method)
             && Objects.equals(invoker, target.invoker)
-            && Arrays.equals(advices, target.advices);
+            && Objects.equals(config, target.config);
   }
 
   @Override
   public int hashCode() {
-    int result = Objects.hash(method, adviceLength, invoker);
-    result = 31 * result + Arrays.hashCode(advices);
-    return result;
+    return Objects.hash(method, targetClass, config);
   }
 
   @Override
@@ -103,7 +115,7 @@ public class TargetInvocation {
     return "TargetInvocation{" +
             "method=" + method +
             ", targetClass=" + targetClass +
-            ", advices=" + Arrays.toString(advices) +
+            ", config=" + config +
             '}';
   }
 

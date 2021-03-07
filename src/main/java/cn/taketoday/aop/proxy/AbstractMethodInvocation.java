@@ -23,6 +23,7 @@ package cn.taketoday.aop.proxy;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
+import cn.taketoday.aop.TargetClassAware;
 import cn.taketoday.aop.support.RuntimeMethodInterceptor;
 import cn.taketoday.context.AttributeAccessorSupport;
 
@@ -32,8 +33,8 @@ import cn.taketoday.context.AttributeAccessorSupport;
  * @see AttributeAccessorSupport
  * @since 3.0
  */
-public abstract class RuntimeMethodInvocation
-        extends AttributeAccessorSupport implements MethodInvocation {
+public abstract class AbstractMethodInvocation
+        extends AttributeAccessorSupport implements MethodInvocation, TargetClassAware {
 
   @Override
   public Object proceed() throws Throwable {
@@ -42,20 +43,9 @@ public abstract class RuntimeMethodInvocation
       return invokeJoinPoint();
     }
 
-    final MethodInterceptor interceptor = currentMethodInterceptor();
-    if (interceptor instanceof RuntimeMethodInterceptor) {
-      // runtime
-      final RuntimeMethodInterceptor runtimeInterceptor = (RuntimeMethodInterceptor) interceptor;
-      if (matchesRuntime(runtimeInterceptor)) {
-        return runtimeInterceptor.invoke(this);
-      }
-      else {
-        // next in the chain.
-        return proceed();
-      }
-    }
-    // It's an interceptor, so we just invoke it: The pointcut will have
-    // been evaluated statically before this object was constructed.
+    final MethodInterceptor interceptor = currentInterceptor();
+    // It's an interceptor, so we just invoke it
+    // runtime interceptor will automatically matches MethodInvocation
     return interceptor.invoke(this);
   }
 
@@ -63,8 +53,6 @@ public abstract class RuntimeMethodInvocation
 
   protected abstract boolean shouldCallJoinPoint();
 
-  protected abstract MethodInterceptor currentMethodInterceptor();
-
-  protected abstract boolean matchesRuntime(RuntimeMethodInterceptor runtimeInterceptor);
+  protected abstract MethodInterceptor currentInterceptor();
 
 }

@@ -23,42 +23,42 @@ package cn.taketoday.aop.support;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
-import java.lang.reflect.Method;
-
 import cn.taketoday.aop.MethodMatcher;
+import cn.taketoday.context.utils.Assert;
 
 /**
  * Runtime MethodInterceptor
+ * <p>
+ * use runtime {@link MethodMatcher} to match interceptor can be executed
+ *
+ * </p>
  *
  * @author TODAY 2021/2/1 19:31
  */
-public class RuntimeMethodInterceptor implements MethodInterceptor, MethodMatcher {
+public class RuntimeMethodInterceptor implements MethodInterceptor {
 
   private final MethodMatcher methodMatcher;
   private final MethodInterceptor interceptor;
 
   public RuntimeMethodInterceptor(MethodInterceptor interceptor, MethodMatcher methodMatcher) {
+    Assert.notNull(interceptor, "interceptor must not be null");
+    Assert.notNull(methodMatcher, "methodMatcher must not be null");
+    Assert.state(methodMatcher.isRuntime(), "methodMatcher must be a runtime Matcher");
+
     this.interceptor = interceptor;
     this.methodMatcher = methodMatcher;
+
   }
 
   @Override
   public final Object invoke(MethodInvocation invocation) throws Throwable {
-    return interceptor.invoke(invocation);
+    if (methodMatcher.matches(invocation)) {
+      return interceptor.invoke(invocation);
+    }
+    else {
+      // next in the chain.
+      return invocation.proceed();
+    }
   }
 
-  @Override
-  public boolean matches(Method method, Class<?> targetClass) {
-    return methodMatcher.matches(method, targetClass);
-  }
-
-  @Override
-  public boolean isRuntime() {
-    return true;
-  }
-
-  @Override
-  public boolean matches(Method method, Class<?> targetClass, Object[] args) {
-    return methodMatcher.matches(method, targetClass, args);
-  }
 }

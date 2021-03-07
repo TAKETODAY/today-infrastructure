@@ -124,7 +124,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
 
   @Override
   protected Object getProxyInternal(
-          Class<?> proxySuperClass, ClassLoader classLoader, Function<Constructor<?>, Object[]> argsFunction)  {
+          Class<?> proxySuperClass, ClassLoader classLoader, Function<Constructor<?>, Object[]> argsFunction) {
 
     final Class<?> rootClass = config.getTargetClass();
 
@@ -494,7 +494,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
         }
         else {
           // We need to create a method invocation...
-          retVal = new CglibMethodInvocation(target, method, methodProxy, args, chain).proceed();
+          retVal = new CglibMethodInvocation(target, method, targetClass, methodProxy, args, chain).proceed();
         }
         // Massage return value if necessary.
         Class<?> returnType = method.getReturnType();
@@ -564,7 +564,13 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
     public CglibMethodInvocation(Object target, Method method,
                                  MethodProxy proxy, Object[] arguments,
                                  org.aopalliance.intercept.MethodInterceptor[] advices) {
-      super(target, method, new MethodProxyMethodInvoker(proxy), arguments, advices);
+      super(target, method, target.getClass(), new MethodProxyMethodInvoker(proxy), arguments, advices);
+    }
+
+    public CglibMethodInvocation(Object target, Method method, Class<?> targetClass,
+                                 MethodProxy proxy, Object[] arguments,
+                                 org.aopalliance.intercept.MethodInterceptor[] advices) {
+      super(target, method, targetClass, new MethodProxyMethodInvoker(proxy), arguments, advices);
     }
 
     @Override

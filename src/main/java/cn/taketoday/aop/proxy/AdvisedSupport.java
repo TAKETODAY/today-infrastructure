@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.aop.Advisor;
@@ -82,7 +81,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   private boolean preFiltered = false;
 
   /** Cache with Method as key and advisor chain List as value. */
-  private transient Map<MethodCacheKey, MethodInterceptor[]> methodCache;
+  private transient ConcurrentHashMap<MethodCacheKey, MethodInterceptor[]> methodCache;
 
   /**
    * Interfaces to be implemented by the proxy. Held in List to keep the order

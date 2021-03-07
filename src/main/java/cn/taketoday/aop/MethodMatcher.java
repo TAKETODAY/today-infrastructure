@@ -19,6 +19,8 @@
  */
 package cn.taketoday.aop;
 
+import org.aopalliance.intercept.MethodInvocation;
+
 import java.lang.reflect.Method;
 
 /**
@@ -27,17 +29,17 @@ import java.lang.reflect.Method;
  * <p>A MethodMatcher may be evaluated <b>statically</b> or at <b>runtime</b> (dynamically).
  * Static matching involves method and (possibly) method attributes. Dynamic matching
  * also makes arguments for a particular call available, and any effects of running
- * previous advice applying to the joinpoint.
+ * previous advice applying to the join-point.
  *
  * <p>If an implementation returns {@code false} from its {@link #isRuntime()}
  * method, evaluation can be performed statically, and the result will be the same
  * for all invocations of this method, whatever their arguments. This means that
- * if the {@link #isRuntime()} method returns {@code false}, the 3-arg
- * {@link #matches(java.lang.reflect.Method, Class, Object[])} method will never be invoked.
+ * if the {@link #isRuntime()} method returns {@code false}, the 1-arg
+ * {@link #matches(MethodInvocation)} method will never be invoked.
  *
  * <p>If an implementation returns {@code true} from its 2-arg
  * {@link #matches(java.lang.reflect.Method, Class)} method and its {@link #isRuntime()} method
- * returns {@code true}, the 3-arg {@link #matches(java.lang.reflect.Method, Class, Object[])}
+ * returns {@code true}, the 1-arg {@link #matches(MethodInvocation)}
  * method will be invoked <i>immediately before each potential execution of the related advice</i>,
  * to decide whether the advice should run. All previous advice, such as earlier interceptors
  * in an interceptor chain, will have run, so any state changes they have produced in
@@ -70,15 +72,14 @@ public interface MethodMatcher {
 
   /**
    * Is this MethodMatcher dynamic, that is, must a final call be made on the
-   * {@link #matches(java.lang.reflect.Method, Class, Object[])} method at runtime
+   * {@link #matches(MethodInvocation)} method at runtime
    * even if the 2-arg matches method returns {@code true}?
    * <p>
    * Can be invoked when an AOP proxy is created, and need not be invoked again
    * before each method invocation,
    *
-   * @return whether or not a runtime match via the 3-arg
-   * {@link #matches(java.lang.reflect.Method, Class, Object[])} method is
-   * required if static matching passed
+   * @return whether or not a runtime match via the 1-arg  {@link #matches(MethodInvocation)}
+   * method is required if static matching passed
    */
   boolean isRuntime();
 
@@ -91,18 +92,15 @@ public interface MethodMatcher {
    * returns {@code true}. Invoked immediately before potential running of the
    * advice, after any advice earlier in the advice chain has run.
    *
-   * @param method
-   *         the candidate method
-   * @param targetClass
-   *         the target class
-   * @param args
-   *         arguments to the method
+   * @param invocation
+   *         runtime invocation contains the candidate method
+   *         and target class, arguments to the method
    *
    * @return whether there's a runtime match
    *
    * @see MethodMatcher#matches(Method, Class)
    */
-  boolean matches(Method method, Class<?> targetClass, Object[] args);
+  boolean matches(MethodInvocation invocation);
 
   /**
    * Canonical instance that matches all methods.

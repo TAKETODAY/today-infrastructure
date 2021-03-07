@@ -27,18 +27,18 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Objects;
 
-import cn.taketoday.aop.support.RuntimeMethodInterceptor;
 import cn.taketoday.context.reflect.MethodInvoker;
 
 /**
  * @author TODAY <br>
  * 2018-11-10 13:14
  */
-public class DefaultMethodInvocation extends RuntimeMethodInvocation implements MethodInvocation {
+public class DefaultMethodInvocation extends AbstractMethodInvocation implements MethodInvocation {
 
   private final Object target;
   private final Object[] args;
   private final Method method;
+  private final Class<?> targetClass;
   private final MethodInvoker invoker;
   private final MethodInterceptor[] advices;
 
@@ -49,17 +49,27 @@ public class DefaultMethodInvocation extends RuntimeMethodInvocation implements 
 
   private final int adviceLength;
 
+  public DefaultMethodInvocation(Method method, Class<?> targetClass, Object[] arguments) {
+    this(null, method, targetClass, null, arguments, null);
+  }
+
   public DefaultMethodInvocation(Object target,
                                  Method method,
+                                 Class<?> targetClass,
                                  MethodInvoker invoker,
                                  Object[] arguments,
                                  MethodInterceptor[] advices) {
     this.target = target;
     this.method = method;
+    this.targetClass = targetClass;
     this.args = arguments;
     this.advices = advices;
     this.invoker = invoker;
-    this.adviceLength = advices.length;
+    if (advices != null)
+      this.adviceLength = advices.length;
+    else {
+      this.adviceLength = 0;
+    }
   }
 
   @Override
@@ -72,10 +82,10 @@ public class DefaultMethodInvocation extends RuntimeMethodInvocation implements 
     return args;
   }
 
-  @Override
-  protected boolean matchesRuntime(RuntimeMethodInterceptor runtimeInterceptor) {
-    return runtimeInterceptor.matches(method, target.getClass(), args);
-  }
+//  @Override
+//  protected boolean matchesRuntime(RuntimeMethodInterceptor runtimeInterceptor) {
+//    return runtimeInterceptor.matches(method, target.getClass(), args);
+//  }
 
   @Override
   protected Object invokeJoinPoint() {
@@ -88,13 +98,18 @@ public class DefaultMethodInvocation extends RuntimeMethodInvocation implements 
   }
 
   @Override
-  protected MethodInterceptor currentMethodInterceptor() {
+  protected MethodInterceptor currentInterceptor() {
     return advices[currentAdviceIndex++];
   }
 
   @Override
   public Object getThis() {
     return target;
+  }
+
+  @Override
+  public Class<?> getTargetClass() {
+    return targetClass;
   }
 
   @Override

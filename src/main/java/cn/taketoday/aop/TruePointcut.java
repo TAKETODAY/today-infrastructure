@@ -37,8 +37,7 @@ final class TruePointcut implements Pointcut, Serializable {
   /**
    * Enforce Singleton pattern.
    */
-  private TruePointcut() {
-  }
+  private TruePointcut() { }
 
   @Override
   public ClassFilter getClassFilter() {

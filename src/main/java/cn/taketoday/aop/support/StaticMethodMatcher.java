@@ -20,7 +20,7 @@
 
 package cn.taketoday.aop.support;
 
-import java.lang.reflect.Method;
+import org.aopalliance.intercept.MethodInvocation;
 
 import cn.taketoday.aop.MethodMatcher;
 import cn.taketoday.context.OrderedSupport;
@@ -42,9 +42,8 @@ public abstract class StaticMethodMatcher
   }
 
   @Override
-  public final boolean matches(Method method, Class<?> targetClass, Object[] args) {
+  public boolean matches(MethodInvocation invocation) {
     // should never be invoked because isRuntime() returns false
     throw new UnsupportedOperationException("Illegal MethodMatcher usage");
   }
-
 }

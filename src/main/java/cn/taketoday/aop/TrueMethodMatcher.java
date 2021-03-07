@@ -20,6 +20,8 @@
 
 package cn.taketoday.aop;
 
+import org.aopalliance.intercept.MethodInvocation;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
@@ -38,8 +40,7 @@ final class TrueMethodMatcher implements MethodMatcher, Serializable {
   /**
    * Enforce Singleton pattern.
    */
-  private TrueMethodMatcher() {
-  }
+  private TrueMethodMatcher() { }
 
   @Override
   public boolean isRuntime() {
@@ -52,7 +53,7 @@ final class TrueMethodMatcher implements MethodMatcher, Serializable {
   }
 
   @Override
-  public boolean matches(Method method, Class<?> targetClass, Object... args) {
+  public boolean matches(MethodInvocation invocation) {
     // Should never be invoked as isRuntime returns false.
     throw new UnsupportedOperationException();
   }

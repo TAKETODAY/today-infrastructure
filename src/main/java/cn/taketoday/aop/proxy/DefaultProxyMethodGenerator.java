@@ -20,8 +20,6 @@
 
 package cn.taketoday.aop.proxy;
 
-import org.aopalliance.intercept.MethodInterceptor;
-
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -182,8 +180,7 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
   }
 
   protected TargetInvocation getTarget(final Method method, StandardProxyContext context) {
-    final MethodInterceptor[] interceptors = context.getConfig().getInterceptors(method, context.getTargetClass());
-    return new TargetInvocation(method, context.getTargetClass(), interceptors);
+    return new TargetInvocation(method, context.getTargetClass(), context.getConfig());
   }
 
   protected void prepareArgs(Method method, CodeEmitter codeEmitter) {
