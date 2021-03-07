@@ -57,7 +57,10 @@ import static cn.taketoday.context.asm.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.context.asm.Opcodes.JAVA_VERSION;
 
 /**
- * StandardProxy
+ * Bytecode-based {@link AopProxy} implementation for the AOP framework.
+ * <p>
+ * Use CGLIB {@link AbstractClassGenerator} to generate a sub-class
+ * </p>
  *
  * @author TODAY 2021/2/12 17:30
  * @since 3.0

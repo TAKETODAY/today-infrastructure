@@ -25,6 +25,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Objects;
 
 import cn.taketoday.aop.support.RuntimeMethodInterceptor;
 import cn.taketoday.context.reflect.MethodInvoker;
@@ -99,6 +100,29 @@ public class DefaultMethodInvocation extends RuntimeMethodInvocation implements 
   @Override
   public AccessibleObject getStaticPart() {
     return method;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof DefaultMethodInvocation)) return false;
+    if (!super.equals(o)) return false;
+    final DefaultMethodInvocation that = (DefaultMethodInvocation) o;
+    return currentAdviceIndex == that.currentAdviceIndex
+            && adviceLength == that.adviceLength
+            && Arrays.equals(args, that.args)
+            && Objects.equals(target, that.target)
+            && Objects.equals(method, that.method)
+            && Objects.equals(invoker, that.invoker)
+            && Arrays.equals(advices, that.advices);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = Objects.hash(super.hashCode(), target, method, invoker);
+    result = 31 * result + Arrays.hashCode(args);
+    result = 31 * result + Arrays.hashCode(advices);
+    return result;
   }
 
   @Override

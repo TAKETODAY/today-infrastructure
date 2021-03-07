@@ -123,8 +123,8 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
   }
 
   @Override
-  protected Object getProxyInternal(Class<?> proxySuperClass, ClassLoader classLoader,
-                                    Function<Constructor<?>, Object[]> argsFunction) throws Exception {
+  protected Object getProxyInternal(
+          Class<?> proxySuperClass, ClassLoader classLoader, Function<Constructor<?>, Object[]> argsFunction)  {
 
     final Class<?> rootClass = config.getTargetClass();
 
@@ -134,7 +134,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
       enhancer.setClassLoader(classLoader);
     }
     enhancer.setSuperclass(proxySuperClass);
-    enhancer.setInterfaces(AopProxyUtils.completeProxiedInterfaces(this.config));
+    enhancer.setInterfaces(AopProxyUtils.completeProxiedInterfaces(config));
 
     Callback[] callbacks = getCallbacks(rootClass);
     Class<?>[] types = new Class<?>[callbacks.length];
@@ -144,9 +144,9 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
     // fixedInterceptorMap only populated at this point, after getCallbacks call above
     enhancer.setCallbackFilter(
             new ProxyCallbackFilter(
-                    this.config.getConfigurationOnlyCopy(),
-                    this.fixedInterceptorMap,
-                    this.fixedInterceptorOffset
+                    config.getConfigurationOnlyCopy(),
+                    fixedInterceptorMap,
+                    fixedInterceptorOffset
             )
     );
     enhancer.setCallbackTypes(types);
@@ -160,8 +160,8 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
   protected Object createProxyClassAndInstance(Enhancer enhancer, Callback[] callbacks) {
     enhancer.setInterceptDuringConstruction(false);
     enhancer.setCallbacks(callbacks);
-    return this.constructorArgs != null && this.constructorArgTypes != null
-           ? enhancer.create(this.constructorArgTypes, this.constructorArgs)
+    return constructorArgs != null && constructorArgTypes != null
+           ? enhancer.create(constructorArgTypes, constructorArgs)
            : enhancer.create();
   }
 
@@ -243,12 +243,12 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
   @Override
   public boolean equals(Object other) {
     return (this == other || (other instanceof CglibAopProxy &&
-            AopProxyUtils.equalsInProxy(this.config, ((CglibAopProxy) other).config)));
+            AopProxyUtils.equalsInProxy(config, ((CglibAopProxy) other).config)));
   }
 
   @Override
   public int hashCode() {
-    return CglibAopProxy.class.hashCode() * 13 + this.config.getTargetSource().hashCode();
+    return CglibAopProxy.class.hashCode() * 13 + config.getTargetSource().hashCode();
   }
 
   /**
@@ -472,7 +472,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
       final AdvisedSupport advised = this.advised;
       final TargetSource targetSource = advised.getTargetSource();
       try {
-        if (advised.exposeProxy) {
+        if (advised.isExposeProxy()) {
           // Make invocation available if necessary.
           oldProxy = AopContext.setCurrentProxy(proxy);
           restore = true;
@@ -647,7 +647,8 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
         log.trace("Found finalize() method - using NO_OVERRIDE");
         return NO_OVERRIDE;
       }
-      if (!this.advised.isOpaque()
+      final AdvisedSupport advised = this.advised;
+      if (!advised.isOpaque()
               && method.getDeclaringClass().isInterface()
               && method.getDeclaringClass().isAssignableFrom(Advised.class)) {
         if (log.isTraceEnabled()) {
@@ -669,13 +670,13 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
         }
         return INVOKE_HASHCODE;
       }
-      Class<?> targetClass = this.advised.getTargetClass();
+      Class<?> targetClass = advised.getTargetClass();
       // Proxy is not yet available, but that shouldn't matter.
-      org.aopalliance.intercept.MethodInterceptor[] chain = this.advised.getInterceptors(method, targetClass);
+      org.aopalliance.intercept.MethodInterceptor[] chain = advised.getInterceptors(method, targetClass);
       boolean haveAdvice = ObjectUtils.isNotEmpty(chain);
-      boolean exposeProxy = this.advised.isExposeProxy();
-      boolean isStatic = this.advised.getTargetSource().isStatic();
-      boolean isFrozen = this.advised.isFrozen();
+      boolean exposeProxy = advised.isExposeProxy();
+      boolean isStatic = advised.getTargetSource().isStatic();
+      boolean isFrozen = advised.isFrozen();
       if (haveAdvice || !isFrozen) {
         // If exposing the proxy, then AOP_PROXY must be used.
         if (exposeProxy) {
@@ -735,23 +736,24 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
       if (!(other instanceof ProxyCallbackFilter)) {
         return false;
       }
+      final AdvisedSupport advised = this.advised;
       ProxyCallbackFilter otherCallbackFilter = (ProxyCallbackFilter) other;
       AdvisedSupport otherAdvised = otherCallbackFilter.advised;
-      if (this.advised.isFrozen() != otherAdvised.isFrozen()) {
+      if (advised.isFrozen() != otherAdvised.isFrozen()) {
         return false;
       }
-      if (this.advised.isExposeProxy() != otherAdvised.isExposeProxy()) {
+      if (advised.isExposeProxy() != otherAdvised.isExposeProxy()) {
         return false;
       }
-      if (this.advised.getTargetSource().isStatic() != otherAdvised.getTargetSource().isStatic()) {
+      if (advised.getTargetSource().isStatic() != otherAdvised.getTargetSource().isStatic()) {
         return false;
       }
-      if (!AopProxyUtils.equalsProxiedInterfaces(this.advised, otherAdvised)) {
+      if (!AopProxyUtils.equalsProxiedInterfaces(advised, otherAdvised)) {
         return false;
       }
       // Advice instance identity is unimportant to the proxy class:
       // All that matters is type and ordering.
-      Advisor[] thisAdvisors = this.advised.getAdvisors();
+      Advisor[] thisAdvisors = advised.getAdvisors();
       Advisor[] thatAdvisors = otherAdvised.getAdvisors();
       if (thisAdvisors.length != thatAdvisors.length) {
         return false;
@@ -784,15 +786,16 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
     @Override
     public int hashCode() {
       int hashCode = 0;
-      Advisor[] advisors = this.advised.getAdvisors();
+      final AdvisedSupport advised = this.advised;
+      Advisor[] advisors = advised.getAdvisors();
       for (Advisor advisor : advisors) {
         Advice advice = advisor.getAdvice();
         hashCode = 13 * hashCode + advice.getClass().hashCode();
       }
-      hashCode = 13 * hashCode + (this.advised.isFrozen() ? 1 : 0);
-      hashCode = 13 * hashCode + (this.advised.isExposeProxy() ? 1 : 0);
-      hashCode = 13 * hashCode + (this.advised.isOptimize() ? 1 : 0);
-      hashCode = 13 * hashCode + (this.advised.isOpaque() ? 1 : 0);
+      hashCode = 13 * hashCode + (advised.isFrozen() ? 1 : 0);
+      hashCode = 13 * hashCode + (advised.isExposeProxy() ? 1 : 0);
+      hashCode = 13 * hashCode + (advised.isOptimize() ? 1 : 0);
+      hashCode = 13 * hashCode + (advised.isOpaque() ? 1 : 0);
       return hashCode;
     }
   }
