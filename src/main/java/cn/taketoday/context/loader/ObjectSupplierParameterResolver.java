@@ -64,7 +64,7 @@ public class ObjectSupplierParameterResolver
       }
     }
 
-    throw new UnsupportedOperationException("Unsupported " + parameter);
+    throw new UnsupportedOperationException("Unsupported '" + parameter + "' In -> " + parameter.getDeclaringExecutable());
   }
 
 }

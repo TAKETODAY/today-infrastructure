@@ -69,7 +69,7 @@ public class ObjectSupplierPropertyResolver
         return new ObjectSupplierPropertyValue(field, target);
       }
     }
-    throw new UnsupportedOperationException("Unsupported " + field);
+    throw new UnsupportedOperationException("Unsupported '" + field + "' In -> " + field.getDeclaringClass());
   }
 
   static class ObjectSupplierPropertyValue
