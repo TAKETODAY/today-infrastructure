@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Objects;
 
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
@@ -113,14 +115,70 @@ public abstract class AbstractResource implements Resource {
     return resources.toArray(new Resource[resources.size()]);
   }
 
+  /**
+   * This method reads the entire InputStream to determine the content length.
+   * <p>For a custom sub-class of {@code InputStreamResource}, we strongly
+   * recommend overriding this method with a more optimal implementation, e.g.
+   * checking File length, or possibly simply returning -1 if the stream can
+   * only be read once.
+   *
+   * @see #getInputStream()
+   */
   @Override
   public long contentLength() throws IOException {
-    return getFile().length();
+    InputStream is = getInputStream();
+    try {
+      long size = 0;
+      byte[] buf = new byte[256];
+      int read;
+      while ((read = is.read(buf)) != -1) {
+        size += read;
+      }
+      return size;
+    }
+    finally {
+      try {
+        is.close();
+      }
+      catch (IOException ex) {
+        Logger logger = LoggerFactory.getLogger(getClass());
+        if (logger.isDebugEnabled()) {
+          logger.debug("Could not close content-length InputStream for " + this, ex);
+        }
+      }
+    }
   }
 
+  /**
+   * This implementation checks the timestamp of the underlying File,
+   * if available.
+   *
+   * @see #getFileForLastModifiedCheck()
+   */
   @Override
   public long lastModified() throws IOException {
-    return getFile().lastModified();
+    File fileToCheck = getFileForLastModifiedCheck();
+    long lastModified = fileToCheck.lastModified();
+    if (lastModified == 0L && !fileToCheck.exists()) {
+      throw new FileNotFoundException(this + " cannot be resolved in the file system for checking its last-modified timestamp");
+    }
+    return lastModified;
+  }
+
+  /**
+   * Determine the File to use for timestamp checking.
+   * <p>The default implementation delegates to {@link #getFile()}.
+   *
+   * @return the File to use for timestamp checking (never {@code null})
+   *
+   * @throws FileNotFoundException
+   *         if the resource cannot be resolved as
+   *         an absolute file path, i.e. is not available in a file system
+   * @throws IOException
+   *         in case of general resolution/reading failures
+   */
+  protected File getFileForLastModifiedCheck() throws IOException {
+    return getFile();
   }
 
   @Override
@@ -146,6 +204,11 @@ public abstract class AbstractResource implements Resource {
     catch (IOException e) {
       return super.toString();
     }
+  }
+
+  @Override
+  public int hashCode() {
+    return toString().hashCode();
   }
 
   @Override

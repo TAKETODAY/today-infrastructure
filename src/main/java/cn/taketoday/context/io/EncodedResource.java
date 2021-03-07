@@ -45,11 +45,9 @@ import java.util.Objects;
  */
 public class EncodedResource implements Readable {
 
-  private final Resource resource;
-
   private final String encoding;
-
   private final Charset charset;
+  private final Resource resource;
 
   /**
    * Create a new {@code EncodedResource} for the given {@code Resource}, not
