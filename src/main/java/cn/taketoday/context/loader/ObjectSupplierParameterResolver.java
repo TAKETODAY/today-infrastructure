@@ -29,6 +29,7 @@ import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.ObjectSupplier;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 
 /**
  * for {@link ObjectSupplier} ExecutableParameterResolver
@@ -54,12 +55,15 @@ public class ObjectSupplierParameterResolver
 
   @Override
   public ObjectSupplier<?> resolve(Parameter parameter, BeanFactory beanFactory) {
-    Type[] generics = ClassUtils.getGenerics(parameter);
-    Type generic = generics[0];
-    if (generic instanceof Class) {
-      Class<?> target = (Class<?>) generic;
-      return beanFactory.getBeanSupplier(target);
+    final Type[] generics = ClassUtils.getGenerics(parameter);
+    if (ObjectUtils.isNotEmpty(generics)) {
+      final Type generic = generics[0];
+      if (generic instanceof Class) {
+        final Class<?> target = (Class<?>) generic;
+        return beanFactory.getBeanSupplier(target);
+      }
     }
+
     throw new UnsupportedOperationException("Unsupported " + parameter);
   }
 
