@@ -40,8 +40,8 @@ public class TargetInvocation implements TargetClassAware {
 
   private final Method method;
   private final Class<?> targetClass;
-  private final MethodInvoker invoker;
   private final AdvisedSupport config;
+  private final MethodInvoker invoker;
 
   private int adviceLength;
   private MethodInterceptor[] interceptors;
@@ -87,11 +87,12 @@ public class TargetInvocation implements TargetClassAware {
   }
 
   public MethodInterceptor[] getInterceptors() {
-    if (interceptors == null) {
-      interceptors = config.getInterceptors(method, targetClass);
-      adviceLength = interceptors.length;
+    MethodInterceptor[] ret = this.interceptors;
+    if (ret == null) {
+      ret = this.interceptors = getDynamicInterceptors();
+      adviceLength = ret.length;
     }
-    return interceptors;
+    return ret;
   }
 
   @Override
