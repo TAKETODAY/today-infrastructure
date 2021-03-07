@@ -25,6 +25,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import cn.taketoday.context.cglib.core.internal.LoadingCache;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 
 import static cn.taketoday.context.cglib.core.CglibReflectUtils.defineClass;
@@ -89,10 +90,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
     private final Predicate<Object> uniqueNamePredicate = reservedClassNames::contains;
 
     public ClassLoaderData(ClassLoader classLoader) {
-
-      if (classLoader == null) {
-        throw new IllegalArgumentException("classLoader == null is not yet supported");
-      }
+      Assert.notNull(classLoader, "classLoader == null is not yet supported");
       this.classLoader = new WeakReference<>(classLoader);
       this.generatedClasses = new LoadingCache<>(GET_KEY, gen -> gen.wrapCachedClass(gen.generate(this)));
     }
@@ -275,16 +273,13 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
     this.key = key;
 
     try {
-
-      ClassLoader loader = getClassLoader();
-      Map<ClassLoader, ClassLoaderData> cache = CACHE;
-      ClassLoaderData data = cache.get(loader);
+      final ClassLoader loader = getClassLoader();
+      ClassLoaderData data = CACHE.get(loader);
       if (data == null) {
         synchronized (AbstractClassGenerator.class) {
-          cache = CACHE;
-          data = cache.get(loader);
+          data = CACHE.get(loader);
           if (data == null) {
-            Map<ClassLoader, ClassLoaderData> newCache = new WeakHashMap<>(cache);
+            Map<ClassLoader, ClassLoaderData> newCache = new WeakHashMap<>(CACHE);
             newCache.put(loader, data = new ClassLoaderData(loader));
             CACHE = newCache;
           }
@@ -296,10 +291,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
              ? firstInstance((Class<T>) obj)
              : nextInstance(obj);
     }
-    catch (RuntimeException e) {
-      throw e;
-    }
-    catch (Error e) {
+    catch (RuntimeException | Error e) {
       throw e;
     }
     catch (Exception e) {

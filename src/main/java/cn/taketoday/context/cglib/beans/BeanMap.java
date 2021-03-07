@@ -29,6 +29,7 @@ import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.KeyFactory;
+import cn.taketoday.context.utils.Assert;
 
 /**
  * A <code>Map</code>-based view of a JavaBean. The default set of keys is the
@@ -138,7 +139,7 @@ abstract public class BeanMap implements Map {
      * class will be reused if possible.
      */
     public BeanMap create() {
-      if (beanClass == null) throw new IllegalArgumentException("Class of bean unknown");
+      Assert.notNull(beanClass, "Class of bean unknown");
       setNamePrefix(beanClass.getName());
       return (BeanMap) super.create(KEY_FACTORY.newInstance(beanClass, require));
     }
