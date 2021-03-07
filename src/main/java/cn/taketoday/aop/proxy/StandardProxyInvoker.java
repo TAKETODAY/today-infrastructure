@@ -32,13 +32,12 @@ import cn.taketoday.context.utils.ObjectUtils;
  */
 public interface StandardProxyInvoker {
 
-  static Object proceed(Object target, StandardMethodInvocation.Target targetInv, Object[] args) throws Throwable {
+  static Object proceed(Object target, TargetInvocation targetInv, Object[] args) throws Throwable {
     return new StandardMethodInvocation(target, targetInv, args).proceed();
   }
 
   static Object staticExposeProceed(Object proxy, Object target,
-                                    StandardMethodInvocation.Target targetInv, Object[] args) throws Throwable {
-
+                                    TargetInvocation targetInv, Object[] args) throws Throwable {
     Object oldProxy = null;
     try {
       oldProxy = AopContext.setCurrentProxy(proxy);
@@ -50,7 +49,7 @@ public interface StandardProxyInvoker {
   }
 
   static Object dynamicExposeProceed(Object proxy, TargetSource targetSource,
-                                     StandardMethodInvocation.Target targetInv, Object[] args) throws Throwable {
+                                     TargetInvocation targetInv, Object[] args) throws Throwable {
 
     Object oldProxy = null;
     final Object target = targetSource.getTarget();
@@ -67,7 +66,7 @@ public interface StandardProxyInvoker {
   }
 
   static Object dynamicProceed(TargetSource targetSource,
-                               StandardMethodInvocation.Target targetInv, Object[] args) throws Throwable {
+                               TargetInvocation targetInv, Object[] args) throws Throwable {
 
     final Object target = targetSource.getTarget();
     try {
@@ -81,7 +80,7 @@ public interface StandardProxyInvoker {
   }
 
   static Object dynamicAdvisedProceed(Object proxy, AdvisedSupport advised,
-                                      StandardMethodInvocation.Target targetInv, Object[] args) throws Throwable {
+                                      TargetInvocation targetInv, Object[] args) throws Throwable {
 
     Object target = null;
     Object oldProxy = null;
@@ -95,23 +94,19 @@ public interface StandardProxyInvoker {
         restore = true;
       }
       target = targetSource.getTarget();
-      final Class<?> targetClass = (target != null ? target.getClass() : null);
 
-      final Object retVal;
       final Method targetInvMethod = targetInv.getMethod();
-      final MethodInterceptor[] interceptors = advised.getInterceptors(targetInvMethod, targetClass);
+      final MethodInterceptor[] interceptors = advised.getInterceptors(targetInvMethod, targetInv.getTargetClass());
       // Check whether we only have one Interceptor: that is, no real advice,
       // but just use MethodInvoker invocation of the target.
       if (ObjectUtils.isEmpty(interceptors)) {
-        retVal = targetInv.proceed(target, args);
+        return targetInv.proceed(target, args);
       }
-      else {
-        // We need to create a default method invocation...
-        retVal = new DefaultMethodInvocation(target, targetInvMethod,
-                                             targetInv.getInvoker(),
-                                             args, interceptors).proceed();
-      }
-      return retVal;
+
+      // We need to create a default method invocation...
+      return new DefaultMethodInvocation(target, targetInvMethod,
+                                         targetInv.getInvoker(),
+                                         args, interceptors).proceed();
     }
     finally {
       if (target != null && !targetSource.isStatic()) {

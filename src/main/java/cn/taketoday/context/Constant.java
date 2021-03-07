@@ -95,6 +95,7 @@ public interface Constant extends Opcodes, Serializable {
 
   String STATIC_NAME = "<clinit>";
   String SOURCE_FILE = "<cglibGenerated>";
+  String AOP_SOURCE_FILE = "<aopGenerated>";
   String SUID_FIELD_NAME = "serialVersionUID";
 
   int PRIVATE_FINAL_STATIC = ACC_PRIVATE | ACC_FINAL | ACC_STATIC;

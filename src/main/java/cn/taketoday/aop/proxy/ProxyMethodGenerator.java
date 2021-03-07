@@ -20,25 +20,24 @@
 
 package cn.taketoday.aop.proxy;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import cn.taketoday.aop.proxy.StandardMethodInvocation.Target;
+import java.lang.reflect.Method;
 
 /**
- * @author TODAY
- * 2020/10/30 22:32
+ * @author TODAY 2021/3/7 20:13
  */
-public abstract class InvocationRegistry {
+public interface ProxyMethodGenerator {
 
-  private static final Map<String, Target> targetMap = new HashMap<>();
+  String FIELD_TARGET = "target";
+  String FIELD_CONFIG = "config";
+  String FIELD_TARGET_SOURCE = "targetSource";
 
-  public static Target getTarget(String key) {
-    return targetMap.get(key);
-  }
+//  boolean supports(Method method, StandardProxyContext context);
 
-  public static void putTarget(String key, Target target) {
-    targetMap.put(key, target);
-  }
+  /**
+   * @return generate status
+   */
+  boolean generate(Method method, StandardProxyContext context);
+
+//  void generate(Method method, AdvisedSupport config, CodeEmitter codeEmitter);
 
 }

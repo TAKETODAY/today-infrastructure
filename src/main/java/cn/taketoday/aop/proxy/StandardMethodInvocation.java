@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import cn.taketoday.aop.support.RuntimeMethodInterceptor;
-import cn.taketoday.context.reflect.MethodInvoker;
 
 /**
  * @author TODAY <br>
@@ -38,15 +37,15 @@ public class StandardMethodInvocation
         extends RuntimeMethodInvocation implements MethodInvocation {
 
   private final Object bean;
-  private final Target target;
   private final Object[] args;
+  private final TargetInvocation target;
 
   /**
    * a flag show that current index of advice
    */
   private int currentAdviceIndex = 0;
 
-  public StandardMethodInvocation(Object bean, Target target, Object[] arguments) {
+  public StandardMethodInvocation(Object bean, TargetInvocation target, Object[] arguments) {
     this.bean = bean;
     this.target = target;
     this.args = arguments;
@@ -64,7 +63,7 @@ public class StandardMethodInvocation
 
   @Override
   protected boolean matchesRuntime(RuntimeMethodInterceptor runtimeInterceptor) {
-    return runtimeInterceptor.matches(getMethod(), target.getClass(), args);
+    return runtimeInterceptor.matches(getMethod(), target.getTargetClass(), args);
   }
 
   @Override
@@ -74,7 +73,7 @@ public class StandardMethodInvocation
 
   @Override
   protected boolean shouldCallJoinPoint() {
-    return currentAdviceIndex == target.adviceLength;
+    return currentAdviceIndex == target.getAdviceLength();
   }
 
   @Override
@@ -113,64 +112,6 @@ public class StandardMethodInvocation
     int result = Objects.hash(super.hashCode(), target, currentAdviceIndex);
     result = 31 * result + Arrays.hashCode(args);
     return result;
-  }
-
-  public static class Target {
-
-    private final Method method;
-    private final int adviceLength;
-    private final MethodInvoker invoker;
-    private final MethodInterceptor[] advices;
-
-    public Target(Method method, MethodInterceptor[] advices) {
-      this.method = method;
-      this.advices = advices;
-      this.adviceLength = advices.length;
-      this.invoker = MethodInvoker.create(method);
-    }
-
-    public Method getMethod() {
-      return method;
-    }
-
-    public final Object proceed(Object bean, Object[] args) {
-      return invoker.invoke(bean, args);
-    }
-
-    public final Object invokeAdvice(final MethodInvocation invocation, final int index) throws Throwable {
-      return advices[index].invoke(invocation);
-    }
-
-    public final MethodInterceptor currentAdvice(final int index) {
-      return advices[index];
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof Target)) return false;
-      final Target target = (Target) o;
-      return adviceLength == target.adviceLength
-              && Objects.equals(method, target.method)
-              && Objects.equals(invoker, target.invoker)
-              && Arrays.equals(advices, target.advices);
-    }
-
-    @Override
-    public int hashCode() {
-      int result = Objects.hash(method, adviceLength, invoker);
-      result = 31 * result + Arrays.hashCode(advices);
-      return result;
-    }
-
-    @Override
-    public String toString() {
-      return "Target{" +
-              "method=" + method +
-              ", adviceLength=" + adviceLength +
-              ", advices=" + Arrays.toString(advices) +
-              '}';
-    }
   }
 
 }

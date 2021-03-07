@@ -1,0 +1,119 @@
+/*
+ * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ */
+
+package cn.taketoday.aop.proxy;
+
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
+import cn.taketoday.context.reflect.MethodInvoker;
+
+/**
+ * @author TODAY 2021/3/7 21:55
+ */
+public class TargetInvocation {
+
+  private static final Map<String, TargetInvocation> targetMap = new HashMap<>();
+
+  private final Method method;
+  private final int adviceLength;
+  private final Class<?> targetClass;
+  private final MethodInvoker invoker;
+  private final MethodInterceptor[] advices;
+
+  public TargetInvocation(Method method, Class<?> targetClass, MethodInterceptor[] advices) {
+    this.method = method;
+    this.advices = advices;
+    this.targetClass = targetClass;
+    this.adviceLength = advices.length;
+    this.invoker = MethodInvoker.create(method);
+  }
+
+  public Method getMethod() {
+    return method;
+  }
+
+  public final Object proceed(Object bean, Object[] args) {
+    return invoker.invoke(bean, args);
+  }
+
+  public final Object invokeAdvice(final MethodInvocation invocation, final int index) throws Throwable {
+    return advices[index].invoke(invocation);
+  }
+
+  public final MethodInterceptor currentAdvice(final int index) {
+    return advices[index];
+  }
+
+  public int getAdviceLength() {
+    return adviceLength;
+  }
+
+  public MethodInvoker getInvoker() {
+    return invoker;
+  }
+
+  public Class<?> getTargetClass() {
+    return targetClass;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof TargetInvocation)) return false;
+    final TargetInvocation target = (TargetInvocation) o;
+    return adviceLength == target.adviceLength
+            && Objects.equals(method, target.method)
+            && Objects.equals(invoker, target.invoker)
+            && Arrays.equals(advices, target.advices);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = Objects.hash(method, adviceLength, invoker);
+    result = 31 * result + Arrays.hashCode(advices);
+    return result;
+  }
+
+  @Override
+  public String toString() {
+    return "TargetInvocation{" +
+            "method=" + method +
+            ", targetClass=" + targetClass +
+            ", advices=" + Arrays.toString(advices) +
+            '}';
+  }
+
+  //
+
+  public static TargetInvocation getTarget(String key) {
+    return targetMap.get(key);
+  }
+
+  public static void putTarget(String key, TargetInvocation target) {
+    targetMap.put(key, target);
+  }
+}
