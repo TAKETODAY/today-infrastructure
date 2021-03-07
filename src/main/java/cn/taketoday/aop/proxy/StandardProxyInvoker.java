@@ -20,7 +20,12 @@
 
 package cn.taketoday.aop.proxy;
 
+import org.aopalliance.intercept.MethodInterceptor;
+
+import java.lang.reflect.Method;
+
 import cn.taketoday.aop.TargetSource;
+import cn.taketoday.context.utils.ObjectUtils;
 
 /**
  * @author TODAY 2021/2/16 22:58
@@ -75,8 +80,8 @@ public interface StandardProxyInvoker {
     }
   }
 
-  static Object dynamicProceed(Object proxy, AdvisedSupport advised,
-                               StandardMethodInvocation.Target targetInv, Object[] args) throws Throwable {
+  static Object dynamicAdvisedProceed(Object proxy, AdvisedSupport advised,
+                                      StandardMethodInvocation.Target targetInv, Object[] args) throws Throwable {
 
     Object target = null;
     Object oldProxy = null;
@@ -89,10 +94,24 @@ public interface StandardProxyInvoker {
         oldProxy = AopContext.setCurrentProxy(proxy);
         restore = true;
       }
-      // Get as late as possible to minimize the time we "own" the target, in case it comes from a pool...
       target = targetSource.getTarget();
+      final Class<?> targetClass = (target != null ? target.getClass() : null);
 
-      return proceed(target, targetInv, args);
+      final Object retVal;
+      final Method targetInvMethod = targetInv.getMethod();
+      final MethodInterceptor[] interceptors = advised.getInterceptors(targetInvMethod, targetClass);
+      // Check whether we only have one Interceptor: that is, no real advice,
+      // but just use MethodInvoker invocation of the target.
+      if (ObjectUtils.isEmpty(interceptors)) {
+        retVal = targetInv.proceed(target, args);
+      }
+      else {
+        // We need to create a default method invocation...
+        retVal = new DefaultMethodInvocation(target, targetInvMethod,
+                                             targetInv.getInvoker(),
+                                             args, interceptors).proceed();
+      }
+      return retVal;
     }
     finally {
       if (target != null && !targetSource.isStatic()) {
