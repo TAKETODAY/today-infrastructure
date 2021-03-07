@@ -35,9 +35,10 @@ import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.reflect.MethodMethodAccessor;
+import cn.taketoday.context.reflect.MethodInvoker;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.Mappings;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
 
@@ -70,7 +71,6 @@ import cn.taketoday.context.utils.ReflectionUtils;
  * @since 3.0
  */
 public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializable {
-
   private static final long serialVersionUID = 1L;
 
   /*
@@ -124,7 +124,7 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
   @Override
   public Object getProxy(ClassLoader classLoader, Function<Constructor<?>, Object[]> argsFunction) {
     if (logger.isTraceEnabled()) {
-      logger.trace("Creating JDK dynamic proxy: " + this.advised.getTargetSource());
+      logger.trace("Creating JDK dynamic proxy: {}", this.advised.getTargetSource());
     }
     Class<?>[] proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(this.advised);
     findDefinedEqualsAndHashCodeMethods(proxiedInterfaces);
@@ -138,7 +138,7 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
    * @param proxiedInterfaces
    *         the interfaces to introspect
    */
-  private void findDefinedEqualsAndHashCodeMethods(Class<?>[] proxiedInterfaces) {
+  void findDefinedEqualsAndHashCodeMethods(Class<?>[] proxiedInterfaces) {
     for (Class<?> proxiedInterface : proxiedInterfaces) {
       Method[] methods = proxiedInterface.getDeclaredMethods();
       for (Method method : methods) {
@@ -178,8 +178,9 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
         // The target does not implement the hashCode() method itself.
         return hashCode();
       }
-      else if (!advised.isOpaque() && method.getDeclaringClass().isInterface() &&
-              method.getDeclaringClass().isAssignableFrom(Advised.class)) {
+      else if (!advised.isOpaque()
+              && method.getDeclaringClass().isInterface()
+              && method.getDeclaringClass().isAssignableFrom(Advised.class)) {
         // Service invocations on ProxyConfig with the proxy config...
         return AopUtils.invokeJoinpointUsingReflection(advised, method, args);
       }
@@ -210,8 +211,8 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
       }
       else {
         MethodInvocation invocation =
-                new DefaultMethodInvocation(target, method, new MethodMethodAccessor(method), args, chain);
-        // Proceed to the joinpoint through the interceptor chain.
+                new DefaultMethodInvocation(target, method, cache.get(method, this), args, chain);
+        // Proceed to the join-point through the interceptor chain.
         retVal = invocation.proceed();
       }
 
@@ -235,6 +236,13 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
       }
     }
   }
+
+  static final Mappings<MethodInvoker, JdkDynamicAopProxy> cache = new Mappings<MethodInvoker, JdkDynamicAopProxy>() {
+    @Override
+    protected MethodInvoker createValue(Object key, JdkDynamicAopProxy param) {
+      return MethodInvoker.create((Method) key);
+    }
+  };
 
   /**
    * Equality means interfaces, advisors and TargetSource are equal.
