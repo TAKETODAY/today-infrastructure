@@ -24,6 +24,8 @@ import java.lang.reflect.Field;
 import java.util.Objects;
 
 /**
+ * Default implementation of {@link PropertyValue}
+ *
  * @author TODAY 2021/3/6 14:55
  * @since 3.0
  */

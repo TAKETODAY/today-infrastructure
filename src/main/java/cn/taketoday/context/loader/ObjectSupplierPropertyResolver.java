@@ -36,7 +36,7 @@ import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 
 /**
- * for {@link ObjectSupplier}  PropertyValueResolver
+ * for {@link ObjectSupplier} PropertyValueResolver
  *
  * @author TODAY 2021/3/6 12:10
  * @since 3.0
@@ -72,6 +72,11 @@ public class ObjectSupplierPropertyResolver
     throw new UnsupportedOperationException("Unsupported '" + field + "' In -> " + field.getDeclaringClass());
   }
 
+  /**
+   * {@link ObjectSupplier} property value
+   *
+   * @since 3.0
+   */
   static class ObjectSupplierPropertyValue
           extends AbstractPropertyValue implements PropertyValue {
 

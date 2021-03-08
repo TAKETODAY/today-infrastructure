@@ -26,7 +26,10 @@ import java.util.Objects;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 
 /**
+ * Use BeanReference to resolve value
+ *
  * @author TODAY 2021/3/6 15:18
+ * @since 3.0
  */
 public class BeanReferencePropertyValue extends AbstractPropertyValue {
 

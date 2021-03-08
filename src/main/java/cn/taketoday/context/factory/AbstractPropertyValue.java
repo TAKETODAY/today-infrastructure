@@ -28,6 +28,11 @@ import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
+ * <p>
+ * Subclasses override {@link #resolveValue(AbstractBeanFactory)}
+ * to resolve different Property
+ * </p>
+ *
  * @author TODAY 2021/3/6 14:50
  * @since 3.0
  */
