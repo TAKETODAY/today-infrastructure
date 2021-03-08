@@ -326,7 +326,6 @@ public class ExpressionFactory implements NodeVisitor {
    * @throws NullPointerException
    *         Thrown if expectedType is null.
    */
-
   public ValueExpression createValueExpression(Object instance, Class<?> expectedType) {
     // if expectedType == null will not convert object
     return new ValueExpressionLiteral(instance, expectedType);
@@ -356,7 +355,6 @@ public class ExpressionFactory implements NodeVisitor {
    *
    * @since EL 3.0
    */
-
   public ExpressionResolver getStreamELResolver() {
     return StreamExpressionResolver.getInstance();
   }
@@ -368,7 +366,6 @@ public class ExpressionFactory implements NodeVisitor {
    *
    * @since EL 3.0
    */
-
   public Map<String, Method> getInitFunctionMap() {
     return this.functionMap;
   }
@@ -392,9 +389,8 @@ public class ExpressionFactory implements NodeVisitor {
       }
       else {
         Class<?> type = null;
-        Node child = null;
         for (int i = 0; i < numChildren; i++) {
-          child = node.jjtGetChild(i);
+          final Node child = node.jjtGetChild(i);
           if (child instanceof AstLiteralExpression) {
             continue;
           }

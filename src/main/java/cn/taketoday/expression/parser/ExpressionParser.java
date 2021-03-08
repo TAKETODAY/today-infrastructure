@@ -62,6 +62,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
    *         expression
    *
    * @throws ExpressionException
+   *         Failed to parse the expression
    */
   public static AstCompositeExpression parse(String ref) {
     try {
