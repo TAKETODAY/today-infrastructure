@@ -35,6 +35,8 @@ import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations
 import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareELContext;
 
 /**
+ * {@link org.aopalliance.intercept.MethodInterceptor} for {@link CacheEvict}
+ *
  * @author TODAY <br>
  * 2019-02-27 20:54
  */

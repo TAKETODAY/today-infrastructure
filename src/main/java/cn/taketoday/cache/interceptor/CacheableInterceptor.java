@@ -40,6 +40,8 @@ import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations
 import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareELContext;
 
 /**
+ * {@link org.aopalliance.intercept.MethodInterceptor} for {@link Cacheable}
+ *
  * @author TODAY <br>
  * 2019-02-27 19:50
  */

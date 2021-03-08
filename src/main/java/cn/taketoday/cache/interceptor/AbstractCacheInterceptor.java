@@ -59,7 +59,7 @@ public abstract class AbstractCacheInterceptor
         extends CacheOperations implements MethodInterceptor, Ordered {
 
   private CacheManager cacheManager;
-  private final OrderedSupport ordered = new OrderedSupport() { };
+  private final OrderedSupport ordered = new OrderedSupport();
 
   public AbstractCacheInterceptor() {}
 
@@ -96,7 +96,7 @@ public abstract class AbstractCacheInterceptor
    */
   protected String prepareCacheName(final Method method, final String cacheName) {
     // if cache name is empty use declaring class full name
-    if (cacheName.isEmpty()) {
+    if (StringUtils.isEmpty(cacheName)) {
       return method.getDeclaringClass().getName();
     }
     return cacheName;
@@ -129,7 +129,7 @@ public abstract class AbstractCacheInterceptor
   }
 
   /**
-   * @see ProxyCachingConfiguration
+   * @see cn.taketoday.cache.annotation.ProxyCachingConfiguration
    */
   @PostConstruct
   protected void initCacheInterceptor(ApplicationContext context) {
@@ -305,7 +305,8 @@ public abstract class AbstractCacheInterceptor
       }
       if (obj instanceof MethodKey) {
         final MethodKey other = (MethodKey) obj;
-        return other.annotationClass == annotationClass && other.targetMethod.equals(this.targetMethod);
+        return other.annotationClass == annotationClass
+                && other.targetMethod == this.targetMethod;
       }
       return false;
     }

@@ -38,6 +38,8 @@ import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations
 import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareELContext;
 
 /**
+ * {@link org.aopalliance.intercept.MethodInterceptor} for {@link CachePut}
+ *
  * @author TODAY <br>
  * 2018-12-23 22:11
  */
@@ -54,10 +56,18 @@ public class CachePutInterceptor extends AbstractCacheInterceptor {
     setCacheManager(cacheManager);
   }
 
+  /**
+   * Put cache operation
+   *
+   * @param invocation
+   *         the method invocation join-point
+   */
   @Override
   public Object invoke(MethodInvocation invocation) throws Throwable {
-
+    // process
     final Object result = invocation.proceed();
+
+    // put cache
 
     final Method method = invocation.getMethod();
     final MethodKey methodKey = new MethodKey(method, CachePut.class);
@@ -65,7 +75,6 @@ public class CachePutInterceptor extends AbstractCacheInterceptor {
     final CacheExpressionContext context = prepareELContext(methodKey, invocation);
 
     context.putBean(Constant.KEY_RESULT, result);
-
     if (isConditionPassing(cachePut.condition(), context)) {
       final Object key = createKey(cachePut.key(), context, invocation);
       put(obtainCache(method, cachePut), key, result);
