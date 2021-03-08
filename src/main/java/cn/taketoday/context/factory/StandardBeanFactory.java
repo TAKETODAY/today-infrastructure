@@ -66,6 +66,7 @@ import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.StringUtils;
 
@@ -77,7 +78,6 @@ import static cn.taketoday.context.utils.ContextUtils.conditional;
 import static cn.taketoday.context.utils.ContextUtils.findNames;
 import static cn.taketoday.context.utils.ContextUtils.resolveInitMethod;
 import static cn.taketoday.context.utils.ContextUtils.resolveProps;
-import static cn.taketoday.context.utils.OrderUtils.reversedSort;
 import static cn.taketoday.context.utils.ReflectionUtils.makeAccessible;
 import static java.util.Objects.requireNonNull;
 
@@ -99,7 +99,7 @@ public class StandardBeanFactory
   /**
    * @since 3.0 Resolve {@link PropertyValue}
    */
-  private PropertyValueResolver[] propertyValueResolvers;
+  private final LinkedList<PropertyValueResolver> propertyResolvers = new LinkedList<>();
 
   /**
    * @since 2.1.7 Preventing repeated initialization of beans(Prevent duplicate
@@ -310,6 +310,7 @@ public class StandardBeanFactory
   /**
    * Resolve bean from META-INF/beans
    *
+   * @see Constant#META_INFO_beans
    * @since 2.1.6
    */
   public Set<Class<?>> loadMetaInfoBeans() {
@@ -317,7 +318,7 @@ public class StandardBeanFactory
 
     // Load the META-INF/beans @since 2.1.6
     // ---------------------------------------------------
-    final Set<Class<?>> beans = ContextUtils.loadFromMetaInfo("META-INF/beans");
+    final Set<Class<?>> beans = ContextUtils.loadFromMetaInfo(Constant.META_INFO_beans);
     final BeanNameCreator beanNameCreator = getBeanNameCreator();
     for (final Class<?> beanClass : beans) {
 
@@ -515,8 +516,7 @@ public class StandardBeanFactory
     catch (Throwable ex) {
       ex = ExceptionUtils.unwrapThrowable(ex);
       throw new BeanDefinitionStoreException(
-              "An Exception Occurred When Register Bean Definition: ["
-                      + name + "], With Msg: [" + ex + "]", ex);
+              "An Exception Occurred When Register Bean Definition: [" + name + "]", ex);
     }
   }
 
@@ -662,28 +662,37 @@ public class StandardBeanFactory
   }
 
   /**
+   * @see Constant#META_INFO_property_resolvers
    * @since 3.0
    */
-  public PropertyValueResolver[] getPropertyValueResolvers() {
-    if (propertyValueResolvers == null) {
+  public LinkedList<PropertyValueResolver> getPropertyValueResolvers() {
+    if (propertyResolvers.isEmpty()) {
       final ConfigurableApplicationContext context = getApplicationContext();
+      final Set<PropertyValueResolver> objects = ContextUtils.loadBeansFromMetaInfo(Constant.META_INFO_property_resolvers, this);
+      // un-ordered
+      propertyResolvers.addAll(objects);
+
       setPropertyValueResolvers(new ValuePropertyResolver(context),
                                 new PropsPropertyResolver(context),
                                 new ObjectSupplierPropertyResolver(),
                                 new AutowiredPropertyResolver(context));
+
     }
-    return propertyValueResolvers;
+    return propertyResolvers;
   }
 
   /**
    * @since 3.0
    */
   public void setPropertyValueResolvers(PropertyValueResolver... resolvers) {
-    propertyValueResolvers = reversedSort(nonNull(resolvers, "PropertyValueResolver must not be null"));
+    nonNull(resolvers, "PropertyValueResolver must not be null");
+
+    propertyResolvers.clear();
+    Collections.addAll(propertyResolvers, OrderUtils.reversedSort(resolvers));
   }
 
   /**
-   * Add {@link PropertyValueResolver} to {@link #propertyValueResolvers}
+   * Add {@link PropertyValueResolver} to {@link #propertyResolvers}
    *
    * @param resolvers
    *         {@link PropertyValueResolver} object
@@ -692,14 +701,8 @@ public class StandardBeanFactory
    */
   public void addPropertyValueResolvers(final PropertyValueResolver... resolvers) {
     if (ObjectUtils.isNotEmpty(resolvers)) {
-      final List<PropertyValueResolver> valueResolvers = new LinkedList<>();
-
-      if (propertyValueResolvers != null) {
-        Collections.addAll(valueResolvers, propertyValueResolvers);
-      }
-
-      Collections.addAll(valueResolvers, resolvers);
-      setPropertyValueResolvers(valueResolvers.toArray(new PropertyValueResolver[valueResolvers.size()]));
+      Collections.addAll(propertyResolvers, resolvers);
+      OrderUtils.reversedSort(propertyResolvers);
     }
   }
 

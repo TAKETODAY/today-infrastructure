@@ -41,6 +41,10 @@ import static cn.taketoday.context.cglib.core.TypeUtils.parseType;
  */
 public interface Constant extends Opcodes, Serializable {
 
+  String META_INFO_beans = "META-INF/beans";
+  String META_INFO_listeners = "META-INF/listeners";
+  String META_INFO_property_resolvers = "META-INF/property-resolvers";
+
   int DEFAULT_CAPACITY = 0; // @since 3.0
 
   String CONTEXT_VERSION = "3.0";

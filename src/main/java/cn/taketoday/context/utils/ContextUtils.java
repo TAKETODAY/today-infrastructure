@@ -1013,22 +1013,53 @@ public abstract class ContextUtils {
       try {
         final Enumeration<URL> resources = classLoader.getResources(resource);
         while (resources.hasMoreElements()) {
+          final URL url = resources.nextElement();
+          String className = null;
           try (final BufferedReader reader = //
-                  new BufferedReader(new InputStreamReader(resources.nextElement().openStream(), charset))) {
+                  new BufferedReader(new InputStreamReader(url.openStream(), charset))) {
 
-            String str;
-            while ((str = reader.readLine()) != null) {
-              ret.add(classLoader.loadClass(str));
+            while ((className = reader.readLine()) != null) {
+              ret.add(classLoader.loadClass(className));
             }
+          }
+          catch (ClassNotFoundException e) {
+            throw new ConfigurationException("Class file: '" + className + "' not in " + url);
           }
         }
         return ret;
       }
-      catch (IOException | ClassNotFoundException e) {
-        throw new ContextException("Exception occurred when load from '" + resource + "' Msg: " + e, e);
+      catch (IOException e) {
+        throw new ContextException("Exception occurred when load from '" + resource + '\'', e);
       }
     }
     throw new ConfigurationException("Resource must start with 'META-INF'");
+  }
+
+  /**
+   * Scan beans set from META-INF/xxx
+   *
+   * @param resource
+   *         Resource file start with 'META-INF'
+   *
+   * @return bean set from META-INF/xxx
+   *
+   * @throws ContextException
+   *         If any {@link IOException} occurred
+   * @since 3.0
+   */
+  public static <T> Set<T> loadBeansFromMetaInfo(String resource) {
+    return loadBeansFromMetaInfo(resource, getLastStartupContext());
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <T> Set<T> loadBeansFromMetaInfo(String resource, BeanFactory beanFactory) {
+    final Set<Class<?>> classes = loadFromMetaInfo(resource);
+    Set<T> ret = new HashSet<>();
+    for (final Class<?> aClass : classes) {
+      final Object obj = ClassUtils.newInstance(aClass, beanFactory);
+      ret.add((T) obj);
+    }
+    return ret;
   }
 
   // ExecutableParameterResolver @since 2.17
