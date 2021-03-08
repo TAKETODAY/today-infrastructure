@@ -382,7 +382,7 @@ public abstract class AbstractBeanFactory
    * @param bean
    *         Bean instance
    * @param def
-   *         use {@link BeanDefinition#applyPropertyValues(Object)}
+   *         use {@link BeanDefinition}
    *
    * @throws PropertyValueException
    *         If any {@link Exception} occurred when apply
@@ -390,10 +390,11 @@ public abstract class AbstractBeanFactory
    * @throws NoSuchBeanDefinitionException
    *         If {@link BeanReference} is required and there isn't a bean in
    *         this {@link BeanFactory}
-   * @see BeanDefinition#applyPropertyValues(Object)
    */
   protected void applyPropertyValues(final Object bean, final BeanDefinition def) {
-    def.applyPropertyValues(bean);
+    for (final PropertyValue propertyValue : def.getPropertyValues()) {
+      propertyValue.applyValue(bean, this);
+    }
   }
 
   /**
@@ -1109,8 +1110,10 @@ public abstract class AbstractBeanFactory
    *
    * @return Target singleton
    */
+  @SuppressWarnings("unchecked")
   public <T> T getSingleton(String name, Class<T> targetClass) {
-    return targetClass.cast(getSingleton(name));
+    final Object singleton = getSingleton(name);
+    return targetClass.isInstance(singleton) ? (T) singleton : null;
   }
 
   @Override

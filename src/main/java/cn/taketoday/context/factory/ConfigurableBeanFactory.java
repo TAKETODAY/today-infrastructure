@@ -209,8 +209,7 @@ public interface ConfigurableBeanFactory
   void removeBeanPostProcessor(BeanPostProcessor beanPostProcessor);
 
   /**
-   * Enable full {@link cn.taketoday.context.annotation.Prototype Prototype} , now
-   * {@link PropertyValue} only support interface
+   * Enable full {@link cn.taketoday.context.annotation.Prototype Prototype}
    *
    * @since 2.1.6
    */
