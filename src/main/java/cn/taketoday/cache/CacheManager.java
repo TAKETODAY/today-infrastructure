@@ -30,7 +30,7 @@ import cn.taketoday.cache.annotation.CacheConfig;
 public interface CacheManager {
 
   /**
-   * Use default CacheConfig#EMPTY_CACHE_CONFIG
+   * Use default {@link CacheConfig#EMPTY_CACHE_CONFIG}
    *
    * @param name
    *         the cache identifier (must not be {@code null})

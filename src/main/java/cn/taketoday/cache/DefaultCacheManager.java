@@ -20,7 +20,6 @@
 package cn.taketoday.cache;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.context.utils.Assert;
@@ -34,7 +33,7 @@ public class DefaultCacheManager extends AbstractCacheManager implements CacheMa
   public DefaultCacheManager() {}
 
   public DefaultCacheManager(String... cacheNames) {
-    Objects.requireNonNull(cacheNames, "cacheNames s can't be null");
+    Assert.notNull(cacheNames, "cacheNames s can't be null");
     setCacheNames(Arrays.asList(cacheNames));
   }
 
