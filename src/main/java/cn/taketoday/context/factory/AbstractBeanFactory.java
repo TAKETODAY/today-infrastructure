@@ -418,7 +418,7 @@ public abstract class AbstractBeanFactory
       catch (Exception e) {
         throw new BeanInitializingException(
                 "An Exception Occurred When [" + bean
-                        + "] invoke init method: [" + method + "], With Msg: [" + e + "]", e);
+                        + "] invoke init method: [" + method + "]", e);
       }
     }
 
@@ -428,8 +428,7 @@ public abstract class AbstractBeanFactory
       }
       catch (Exception e) {
         throw new BeanInitializingException(
-                "An Exception Occurred When [" + bean
-                        + "] apply after properties, With Msg: [" + e + "]", e);
+                "An Exception Occurred When [" + bean + "] apply after properties", e);
       }
     }
   }
@@ -589,8 +588,7 @@ public abstract class AbstractBeanFactory
       }
       catch (Exception e) {
         throw new BeanInitializingException(
-                "An Exception Occurred When [" +
-                        bean + "] before properties set, With Msg: [" + e + "]", e);
+                "An Exception Occurred When [" + bean + "] before properties set", e);
       }
     }
     // apply properties
@@ -604,8 +602,7 @@ public abstract class AbstractBeanFactory
       }
       catch (Exception e) {
         throw new BeanInitializingException(
-                "An Exception Occurred When [" +
-                        bean + "] after properties set, With Msg: [" + e + "]", e);
+                "An Exception Occurred When [" + bean + "] after properties set", e);
       }
     }
     return ret;
@@ -1478,8 +1475,7 @@ public abstract class AbstractBeanFactory
       }
       catch (Exception e) {
         throw new BeanInitializingException(
-                "An Exception Occurred When [" +
-                        existingBean + "] before properties set, With Msg: [" + e + "]", e);
+                "An Exception Occurred When [" + existingBean + "] before properties set", e);
       }
     }
     return ret;
@@ -1498,8 +1494,7 @@ public abstract class AbstractBeanFactory
       }
       catch (Exception e) {
         throw new BeanInitializingException(
-                "An Exception Occurred When [" +
-                        existingBean + "] after properties set, With Msg: [" + e + "]", e);
+                "An Exception Occurred When [" + existingBean + "] after properties set", e);
       }
     }
     return ret;

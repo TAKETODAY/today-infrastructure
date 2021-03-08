@@ -158,7 +158,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
       close();
       applyState(State.FAILED);
       ex = ExceptionUtils.unwrapThrowable(ex);
-      throw new ContextException("An Exception Occurred When Loading Context, With Msg: [" + ex + "]", ex);
+      throw new ContextException("An Exception Occurred When Loading Context", ex);
     }
   }
 
@@ -178,7 +178,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
       env.loadProperties();
     }
     catch (IOException ex) {
-      throw new ContextException("An Exception Occurred When Loading Properties, With Msg: [" + ex + ']', ex);
+      throw new ContextException("An Exception Occurred When Loading Properties", ex);
     }
     postProcessLoadProperties(env);
 
@@ -420,7 +420,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
     catch (Throwable ex) {
       ex = ExceptionUtils.unwrapThrowable(ex);
-      throw new ContextException("An Exception Occurred When Register Application Listener, With Msg: [" + ex + "]", ex);
+      throw new ContextException("An Exception Occurred When Register Application Listener", ex);
     }
   }
 
@@ -510,8 +510,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
     catch (Throwable ex) {
       ex = ExceptionUtils.unwrapThrowable(ex);
-      throw new ContextException(
-              "An Exception Occurred When Refresh Context: [" + this + "] With Msg: [" + ex + "]", ex);
+      throw new ContextException("An Exception Occurred When Refresh Context: [" + this + "]", ex);
     }
   }
 
@@ -633,7 +632,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   @Override
-  public void initializeSingletons() throws Throwable {
+  public void initializeSingletons() {
     getBeanFactory().initializeSingletons();
   }
 
