@@ -28,6 +28,12 @@ import cn.taketoday.aop.support.RuntimeMethodInterceptor;
 import cn.taketoday.context.AttributeAccessorSupport;
 
 /**
+ * Implemented basic {@link #proceed()} logic
+ *
+ * <p>
+ * Runtime {@link MethodInterceptor} will automatically match current {@link MethodInvocation}
+ * </p>
+ *
  * @author TODAY 2021/2/14 21:43
  * @see RuntimeMethodInterceptor
  * @see AttributeAccessorSupport
@@ -36,23 +42,54 @@ import cn.taketoday.context.AttributeAccessorSupport;
 public abstract class AbstractMethodInvocation
         extends AttributeAccessorSupport implements MethodInvocation, TargetClassAware {
 
+  /**
+   * Basic {@link #proceed()} logic
+   *
+   * <p>
+   * Subclasses can override this method to handle {@link Exception}
+   * </p>
+   *
+   * @return
+   *
+   * @throws Throwable
+   * @see cn.taketoday.aop.proxy.CglibAopProxy.CglibMethodInvocatio
+   * @see DefaultMethodInvocation
+   * @see StandardMethodInvocation
+   */
   @Override
   public Object proceed() throws Throwable {
-    if (shouldCallJoinPoint()) {
-      // join-point
-      return invokeJoinPoint();
+    if (hasInterceptor()) {
+      // It's an interceptor, so we just invoke it
+      // runtime interceptor will automatically matches MethodInvocation
+      return executeInterceptor();
     }
-
-    final MethodInterceptor interceptor = currentInterceptor();
-    // It's an interceptor, so we just invoke it
-    // runtime interceptor will automatically matches MethodInvocation
-    return interceptor.invoke(this);
+    // join-point
+    return invokeJoinPoint();
   }
 
+  /**
+   * Invoke jon-point
+   *
+   * @return the result of the call to {@link MethodInvocation#proceed()}, might be
+   * intercepted by the interceptor.
+   */
   protected abstract Object invokeJoinPoint();
 
-  protected abstract boolean shouldCallJoinPoint();
+  /**
+   * Determine whether there is an interceptor
+   */
+  protected abstract boolean hasInterceptor();
 
-  protected abstract MethodInterceptor currentInterceptor();
+  /**
+   * Invoke current {@link MethodInterceptor}
+   * <p>
+   * {@link #hasInterceptor()} must returns{@code true}
+   * </p>
+   *
+   * @throws Throwable
+   *         if the interceptors or the target-object throws an exception.
+   * @see #hasInterceptor()
+   */
+  protected abstract Object executeInterceptor() throws Throwable;
 
 }

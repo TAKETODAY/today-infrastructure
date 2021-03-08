@@ -88,13 +88,13 @@ public class DefaultMethodInvocation extends AbstractMethodInvocation implements
   }
 
   @Override
-  protected boolean shouldCallJoinPoint() {
-    return currentAdviceIndex == adviceLength;
+  protected boolean hasInterceptor() {
+    return currentAdviceIndex < adviceLength;
   }
 
   @Override
-  protected MethodInterceptor currentInterceptor() {
-    return advices[currentAdviceIndex++];
+  protected Object executeInterceptor() throws Throwable {
+    return advices[currentAdviceIndex++].invoke(this);
   }
 
   @Override

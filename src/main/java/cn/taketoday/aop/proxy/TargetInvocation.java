@@ -62,7 +62,7 @@ public class TargetInvocation implements TargetClassAware {
   }
 
   public final Object invokeAdvice(final MethodInvocation invocation, final int index) throws Throwable {
-    return getInterceptors()[index].invoke(invocation);
+    return currentAdvice(index).invoke(invocation);
   }
 
   public final MethodInterceptor currentAdvice(final int index) {

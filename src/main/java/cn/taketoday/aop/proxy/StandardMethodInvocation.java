@@ -19,7 +19,6 @@
  */
 package cn.taketoday.aop.proxy;
 
-import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.AccessibleObject;
@@ -30,6 +29,7 @@ import java.util.Objects;
 /**
  * @author TODAY <br>
  * 2018-11-10 13:14
+ * @see TargetInvocation
  */
 public class StandardMethodInvocation
         extends AbstractMethodInvocation implements MethodInvocation {
@@ -70,13 +70,13 @@ public class StandardMethodInvocation
   }
 
   @Override
-  protected boolean shouldCallJoinPoint() {
-    return currentAdviceIndex == target.getAdviceLength();
+  protected boolean hasInterceptor() {
+    return currentAdviceIndex < target.getAdviceLength();
   }
 
   @Override
-  protected MethodInterceptor currentInterceptor() {
-    return target.currentAdvice(currentAdviceIndex++);
+  protected Object executeInterceptor() throws Throwable {
+    return target.invokeAdvice(this, currentAdviceIndex++);
   }
 
   @Override

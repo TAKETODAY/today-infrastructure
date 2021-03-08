@@ -21,7 +21,6 @@
 package cn.taketoday.aop.proxy;
 
 import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
 
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.context.utils.ObjectUtils;
@@ -117,25 +116,3 @@ public interface StandardProxyInvoker {
 
 }
 
-class DynamicStandardMethodInvocation extends StandardMethodInvocation implements MethodInvocation {
-
-  private final int adviceLength;
-  private final MethodInterceptor[] advices;
-
-  public DynamicStandardMethodInvocation(Object bean, TargetInvocation target, Object[] arguments, MethodInterceptor[] advices) {
-    super(bean, target, arguments);
-    this.advices = advices;
-    this.adviceLength = advices.length;
-  }
-
-  @Override
-  protected boolean shouldCallJoinPoint() {
-    return currentAdviceIndex == adviceLength;
-  }
-
-  @Override
-  protected MethodInterceptor currentInterceptor() {
-    return advices[currentAdviceIndex++];
-  }
-
-}
