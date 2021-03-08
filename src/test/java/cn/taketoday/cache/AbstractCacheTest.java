@@ -29,119 +29,119 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class AbstractCacheTest extends TestCase {
 
-    protected AbstractCache cache;
+  protected AbstractCache cache;
 
-    public AbstractCacheTest(final AbstractCache cache) {
-        this.cache = cache;
-        cache.setName("test");
+  public AbstractCacheTest(final AbstractCache cache) {
+    this.cache = cache;
+    cache.setName("test");
+  }
+
+  public void setCache(final AbstractCache cache) {
+    this.cache = cache;
+  }
+
+  protected AbstractCache getCache() {
+    return this.cache;
+  }
+
+  @Before
+  public void setUp() throws Exception {
+    getCache().put("key1", "value1");
+    getCache().put("key2", "value2");
+    getCache().put("key3", 3);
+    getCache().put("key128", 128);
+  }
+
+  public void testGetName() {
+    assertEquals(getCache().getName(), "test");
+  }
+
+  public void testSetName() {
+    getCache().setName("test1");
+    assertEquals(getCache().getName(), "test1");
+  }
+
+  public void testGet() {
+    final AbstractCache cache = getCache();
+    assertThat(cache.get("key")).isNull();
+    assertThat(cache.get("key1")).isEqualTo("value1");
+    assertThat(cache.get("key2")).isEqualTo("value2");
+    assertThat(cache.get("key3")).isEqualTo(3);
+    assertThat(cache.get("key128")).isEqualTo(128);
+
+    // ----------------------String,Class
+    assertThat(cache.get("key1", String.class)).isEqualTo("value1").isEqualTo(cache.get("key1"));
+    Class<Integer> c = null;
+    try {
+      cache.get("key1", c);
+      String value1 = String.class.cast(cache.get("key1", c));
+      assertThat(value1).isEqualTo("value1").isEqualTo(cache.get("key1"));
+    }
+    catch (ClassCastException e) {
+      fail("Type assert error");
+    }
+    try {
+      cache.get("key1", c);
+    }
+    catch (ClassCastException e) {
+      fail("Type assert error");
     }
 
-    public void setCache(final AbstractCache cache) {
-        this.cache = cache;
+    try {
+      assertThat(cache.get("key1", int.class)).isEqualTo("value1");
+      fail("Type assert error");
     }
+    catch (IllegalStateException e) {}
 
-    protected AbstractCache getCache() {
-        return this.cache;
-    }
+    // --------------------------Object key, CacheCallback<T> valueLoader
 
-    @Before
-    public void setUp() throws Exception {
-        getCache().put("key1", "value1");
-        getCache().put("key2", "value2");
-        getCache().put("key3", 3);
-        getCache().put("key128", 128);
-    }
+    assertThat(cache.get("key", () -> {
+      return "value";
+    })).isEqualTo("value");
+    assertThat(cache.get("key---dddddddd", (CacheCallback<String>) () -> null)).isNull();
+  }
 
-    public void testGetName() {
-        assertEquals(getCache().getName(), "test");
-    }
+  public void testLookupValue() {
+    final AbstractCache cache = getCache();
+    cache.put("null", null);
 
-    public void testSetName() {
-        getCache().setName("test1");
-        assertEquals(getCache().getName(), "test1");
-    }
+    final Object value = cache.lookupValue("key");
+    assertNull(value);
 
-    public void testGet() {
-        final AbstractCache cache = getCache();
-        assertThat(cache.get("key")).isNull();
-        assertThat(cache.get("key1")).isEqualTo("value1");
-        assertThat(cache.get("key2")).isEqualTo("value2");
-        assertThat(cache.get("key3")).isEqualTo(3);
-        assertThat(cache.get("key128")).isEqualTo(128);
+    final Object nullValue = cache.lookupValue("null");
+    assertNotNull(nullValue);
+    assertEquals(nullValue, EmptyObject.INSTANCE);
+  }
 
-        // ----------------------String,Class
-        assertThat(cache.get("key1", String.class)).isEqualTo("value1").isEqualTo(cache.get("key1"));
-        Class<Integer> c = null;
-        try {
-            cache.get("key1", c);
-            String value1 = String.class.cast(cache.get("key1", c));
-            assertThat(value1).isEqualTo("value1").isEqualTo(cache.get("key1"));
-        }
-        catch (ClassCastException e) {
-            fail("Type assert error");
-        }
-        try {
-            cache.get("key1", c);
-        }
-        catch (ClassCastException e) {
-            fail("Type assert error");
-        }
+  public void testToStoreValue() {
+    assertEquals(AbstractCache.toStoreValue(null), EmptyObject.INSTANCE);
+    assertEquals(AbstractCache.toStoreValue("null"), "null");
+  }
 
-        try {
-            assertThat(cache.get("key1", int.class)).isEqualTo("value1");
-            fail("Type assert error");
-        }
-        catch (IllegalStateException e) {}
+  public void testToRealValue() {
+    assertNull(AbstractCache.toRealValue(null));
+    assertNull(AbstractCache.toRealValue(EmptyObject.INSTANCE));
+    assertEquals(AbstractCache.toRealValue("null"), "null");
+  }
 
-        // --------------------------Object key, CacheCallback<T> valueLoader
+  public void testEvict() {
+    final Cache cache = getCache();
 
-        assertThat(cache.get("key", () -> {
-            return "value";
-        })).isEqualTo("value");
-        assertThat(cache.get("key---dddddddd", (CacheCallback<String>) () -> null)).isNull();
-    }
+    cache.evict("key1");
+    cache.evict("key2");
+    cache.evict("key3");
+    assertNull(cache.get("key1"));
+    assertNull(cache.get("key2"));
+    assertNull(cache.get("key3"));
+  }
 
-    public void testLookupValue() {
-        final AbstractCache cache = getCache();
-        cache.put("null", null);
+  public void testClear() {
+    final Cache cache = getCache();
 
-        final Object value = cache.lookupValue("key");
-        assertNull(value);
-
-        final Object nullValue = cache.lookupValue("null");
-        assertNotNull(nullValue);
-        assertEquals(nullValue, EmptyObject.INSTANCE);
-    }
-
-    public void testToStoreValue() {
-        assertEquals(AbstractCache.toStoreValue(null), EmptyObject.INSTANCE);
-        assertEquals(AbstractCache.toStoreValue("null"), "null");
-    }
-
-    public void testToRealValue() {
-        assertNull(AbstractCache.toRealValue(null));
-        assertNull(AbstractCache.toRealValue(EmptyObject.INSTANCE));
-        assertEquals(AbstractCache.toRealValue("null"), "null");
-    }
-
-    public void testEvict() {
-        final Cache cache = getCache();
-
-        cache.evict("key1");
-        cache.evict("key2");
-        cache.evict("key3");
-        assertNull(cache.get("key1"));
-        assertNull(cache.get("key2"));
-        assertNull(cache.get("key3"));
-    }
-
-    public void testClear() {
-        final Cache cache = getCache();
-
-        cache.clear();
-        assertNull(cache.get("key1"));
-        assertNull(cache.get("key2"));
-        assertNull(cache.get("key3"));
-    }
+    cache.clear();
+    assertNull(cache.get("key1"));
+    assertNull(cache.get("key2"));
+    assertNull(cache.get("key3"));
+  }
 
 }
