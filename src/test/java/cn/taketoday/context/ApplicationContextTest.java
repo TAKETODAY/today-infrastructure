@@ -22,7 +22,6 @@ package cn.taketoday.context;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Map;
 
 import cn.taketoday.context.ApplicationContextTest.RequiredTest.Bean1;
@@ -59,23 +58,23 @@ public class ApplicationContextTest {
    */
   @Test
   public void testApplicationContext() throws NoSuchBeanDefinitionException {
-    try (ApplicationContext applicationContext = new StandardApplicationContext("")) {
-      applicationContext.loadContext("test.demo.repository");
+    try (StandardApplicationContext context = new StandardApplicationContext("")) {
+      context.loadContext("test.demo.repository");
 
-      boolean containsBean = applicationContext.containsBeanDefinition(DefaultUserRepository.class);
-      assertThat(toString(applicationContext)).isEqualTo(applicationContext.toString());
+      boolean containsBean = context.containsBeanDefinition(DefaultUserRepository.class);
+      assertThat(toString(context)).isEqualTo(context.toString());
       assert containsBean : "UserDaoImpl load error.";
     }
   }
 
-  static String toString(ApplicationContext context) {
+  static String toString(AbstractApplicationContext context) {
     StringBuilder sb = new StringBuilder(ObjectUtils.toHexString(context));
     sb.append(": defining beans [");
     sb.append(StringUtils.collectionToString(context.getBeanDefinitions().keySet()));
     sb.append("], state: [");
     sb.append(context.getState());
     sb.append("], on startup date: ");
-    sb.append(new Date(context.getStartupDate()));
+    sb.append(context.formatStartupDate());
     return sb.toString();
   }
 
