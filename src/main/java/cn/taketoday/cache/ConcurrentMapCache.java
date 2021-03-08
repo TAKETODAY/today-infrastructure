@@ -19,6 +19,8 @@
  */
 package cn.taketoday.cache;
 
+import java.util.function.UnaryOperator;
+
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.utils.ConcurrentCache;
 
@@ -26,7 +28,7 @@ import cn.taketoday.context.utils.ConcurrentCache;
  * @author TODAY <br>
  * 2019-12-17 12:29
  */
-public class ConcurrentMapCache extends AbstractCache {
+public class ConcurrentMapCache extends AbstractMappingFunctionCache {
 
   private final ConcurrentCache<Object, Object> store;
 
@@ -48,8 +50,8 @@ public class ConcurrentMapCache extends AbstractCache {
   }
 
   @Override
-  protected <T> Object getInternal(Object key, CacheCallback<T> valueLoader) {
-    return store.get(key, k -> lookupValue(k, valueLoader));
+  protected Object getInternal(Object key, UnaryOperator<Object> mappingFunction) {
+    return store.get(key, mappingFunction);
   }
 
   @Override

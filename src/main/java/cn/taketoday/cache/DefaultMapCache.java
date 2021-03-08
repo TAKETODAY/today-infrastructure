@@ -21,6 +21,7 @@ package cn.taketoday.cache;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.UnaryOperator;
 
 import cn.taketoday.context.Constant;
 
@@ -28,7 +29,7 @@ import cn.taketoday.context.Constant;
  * @author TODAY <br>
  * 2019-02-28 18:10
  */
-public class DefaultMapCache extends AbstractCache {
+public class DefaultMapCache extends AbstractMappingFunctionCache {
 
   private final Map<Object, Object> store;
 
@@ -70,8 +71,8 @@ public class DefaultMapCache extends AbstractCache {
   }
 
   @Override
-  protected <T> Object getInternal(Object key, CacheCallback<T> valueLoader) {
-    return this.store.computeIfAbsent(key, k -> lookupValue(k, valueLoader));
+  protected Object getInternal(Object key, UnaryOperator<Object> mappingFunction) {
+    return this.store.computeIfAbsent(key, mappingFunction);
   }
 
 }

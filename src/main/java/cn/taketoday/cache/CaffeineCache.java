@@ -22,13 +22,15 @@ package cn.taketoday.cache;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
+import java.util.function.UnaryOperator;
+
 import cn.taketoday.context.utils.Assert;
 
 /**
  * @author TODAY <br>
  * 2020-08-15 19:50
  */
-public class CaffeineCache extends AbstractCache {
+public class CaffeineCache extends AbstractMappingFunctionCache {
 
   private final Cache<Object, Object> caffeine;
 
@@ -59,8 +61,8 @@ public class CaffeineCache extends AbstractCache {
   }
 
   @Override
-  protected <T> Object getInternal(Object key, CacheCallback<T> valueLoader) {
-    return this.caffeine.get(key, k -> lookupValue(k, valueLoader));
+  protected Object getInternal(Object key, UnaryOperator<Object> mappingFunction) {
+    return this.caffeine.get(key, mappingFunction);
   }
 
   @Override
