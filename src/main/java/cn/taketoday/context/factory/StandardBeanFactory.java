@@ -272,21 +272,21 @@ public class StandardBeanFactory
    *
    * @param missingBean
    *         {@link MissingBean} metadata
-   * @param beanDefinition
+   * @param def
    *         Target {@link BeanDefinition}
    */
-  protected void registerMissingBean(final MissingBean missingBean, final BeanDefinition beanDefinition) {
-    final Class<?> beanClass = beanDefinition.getBeanClass();
+  protected void registerMissingBean(final MissingBean missingBean, final BeanDefinition def) {
+    final Class<?> beanClass = def.getBeanClass();
 
-    beanDefinition.setScope(missingBean.scope())
+    def.setScope(missingBean.scope())
             .setDestroyMethods(missingBean.destroyMethods())
             .setInitMethods(resolveInitMethod(missingBean.initMethods(), beanClass))
             .setPropertyValues(resolvePropertyValue(beanClass));
 
-    resolveProps(beanDefinition, getApplicationContext().getEnvironment());
+    resolveProps(def, getApplicationContext().getEnvironment());
 
     // register missed bean
-    register(beanDefinition.getName(), beanDefinition);
+    register(def.getName(), def);
   }
 
   /**

@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -976,4 +977,17 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   public void registerScope(String name, Scope scope) {
     getBeanFactory().registerScope(name, scope);
   }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder(ObjectUtils.toHexString(this));
+    sb.append(": defining beans [");
+    sb.append(StringUtils.collectionToString(getBeanDefinitions().keySet()));
+    sb.append("], state: [");
+    sb.append(state);
+    sb.append("], on startup date: ");
+    sb.append(new Date(startupDate));
+    return sb.toString();
+  }
+
 }
