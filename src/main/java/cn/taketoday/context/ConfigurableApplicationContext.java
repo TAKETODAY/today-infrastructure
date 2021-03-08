@@ -20,7 +20,6 @@
 package cn.taketoday.context;
 
 import cn.taketoday.context.env.ConfigurableEnvironment;
-import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.factory.BeanFactoryPostProcessor;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.listener.ApplicationListener;
@@ -31,17 +30,6 @@ import cn.taketoday.context.loader.CandidateComponentScanner;
  * 2018-11-14 21:16
  */
 public interface ConfigurableApplicationContext extends ApplicationContext {
-
-  /**
-   * Setting the {@link Environment}
-   *
-   * @param environment
-   *         {@link Environment} instance
-   *
-   * @since 2.1.0
-   */
-  @Deprecated
-  void setEnvironment(ConfigurableEnvironment environment);
 
   /**
    * Get configurable environment

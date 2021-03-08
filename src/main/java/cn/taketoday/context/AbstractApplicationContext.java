@@ -552,10 +552,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   @Override
   public abstract AbstractBeanFactory getBeanFactory();
 
-  @Override
-  public void setEnvironment(ConfigurableEnvironment environment) {
-
-  }
 
   @Override
   public ConfigurableEnvironment getEnvironment() {
