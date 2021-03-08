@@ -98,9 +98,6 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
 
   static class StandardProxyGenerator extends AbstractClassGenerator<Object> {
 
-    static final String FIELD_TARGET = "target";
-    static final String FIELD_CONFIG = "config";
-    static final String FIELD_TARGET_SOURCE = "targetSource";
     static final int field_access = Constant.ACC_PRIVATE | Constant.ACC_FINAL;
 
     private static final Signature getTarget;
@@ -239,10 +236,10 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
 
       final boolean targetSourceStatic = targetSource.isStatic();
       if (targetSourceStatic) {
-        ce.declare_field(field_access, FIELD_TARGET, targetType, null);
+        ce.declare_field(field_access, ProxyMethodGenerator.FIELD_TARGET, targetType, null);
       }
-      ce.declare_field(field_access, FIELD_CONFIG, advisedSupportType, null);
-      ce.declare_field(field_access, FIELD_TARGET_SOURCE, targetSourceType, null);
+      ce.declare_field(field_access, ProxyMethodGenerator.FIELD_CONFIG, advisedSupportType, null);
+      ce.declare_field(field_access, ProxyMethodGenerator.FIELD_TARGET_SOURCE, targetSourceType, null);
 
       // generate constructor
       generateConstructor(ce, targetType, targetSourceStatic);
@@ -331,18 +328,18 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
       if (targetSourceStatic) {
         code.load_this();
         code.load_arg(typesLength);
-        code.putfield(FIELD_TARGET);
+        code.putfield(ProxyMethodGenerator.FIELD_TARGET);
 
         offset = 1;
       }
 
       code.load_this();
       code.load_arg(typesLength + offset);
-      code.putfield(FIELD_TARGET_SOURCE);
+      code.putfield(ProxyMethodGenerator.FIELD_TARGET_SOURCE);
 
       code.load_this();
       code.load_arg(typesLength + offset + 1);
-      code.putfield(FIELD_CONFIG);
+      code.putfield(ProxyMethodGenerator.FIELD_CONFIG);
 
       code.return_value();
       code.end_method();
@@ -361,7 +358,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
 
       codeEmitter.load_this();
 
-      codeEmitter.getfield(FIELD_CONFIG);
+      codeEmitter.getfield(ProxyMethodGenerator.FIELD_CONFIG);
 
       codeEmitter.load_args();
       codeEmitter.invoke(methodInfo);

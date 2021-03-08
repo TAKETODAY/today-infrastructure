@@ -93,7 +93,7 @@ public interface StandardProxyInvoker {
       }
       target = targetSource.getTarget();
 
-      final MethodInterceptor[] interceptors = targetInv.getDynamicInterceptors();
+      final MethodInterceptor[] interceptors = targetInv.getDynamicInterceptors(advised);
       // Check whether we only have one Interceptor: that is, no real advice,
       // but just use MethodInvoker invocation of the target.
       if (ObjectUtils.isEmpty(interceptors)) {

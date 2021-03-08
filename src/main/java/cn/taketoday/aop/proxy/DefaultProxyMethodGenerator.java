@@ -122,39 +122,56 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
     final AdvisedSupport config = context.getConfig();
     final boolean exposeProxy = config.isExposeProxy();
     final boolean isStatic = config.getTargetSource().isStatic();
+    final boolean opaque = config.isOpaque(); //
 
-    if (exposeProxy) {
-      // load proxy object: this
-      codeEmitter.load_this();
-    }
-
-    codeEmitter.load_this();
-    if (isStatic) {
-      // Object target, Target targetInv, Object[] args
-      codeEmitter.getfield(FIELD_TARGET);
-      codeEmitter.getfield(targetInvField);
-      prepareArgs(method, codeEmitter);
-
+    if (opaque) {
+      // cannot change interceptor chain
       if (exposeProxy) {
-        codeEmitter.invoke_static(stdProxyInvoker, staticExposeProceed);
+        // load proxy object: this
+        codeEmitter.load_this();
+      }
+      codeEmitter.load_this();
+      if (isStatic) {
+        // Object target, Target targetInv, Object[] args
+        codeEmitter.getfield(FIELD_TARGET);
+        codeEmitter.getfield(targetInvField);
+        prepareArgs(method, codeEmitter);
+
+        if (exposeProxy) {
+          codeEmitter.invoke_static(stdProxyInvoker, staticExposeProceed);
+        }
+        else {
+          codeEmitter.invoke_static(stdProxyInvoker, proceed);
+        }
       }
       else {
-        codeEmitter.invoke_static(stdProxyInvoker, proceed);
+        //TargetSource targetSource, Target targetInv, Object[] args
+        codeEmitter.getfield(FIELD_TARGET_SOURCE);
+        codeEmitter.getfield(targetInvField);
+        prepareArgs(method, codeEmitter);
+
+        if (exposeProxy) {
+          codeEmitter.invoke_static(stdProxyInvoker, dynamicExposeProceed);
+        }
+        else {
+          codeEmitter.invoke_static(stdProxyInvoker, dynamicProceed);
+        }
       }
     }
     else {
-      //TargetSource targetSource, Target targetInv, Object[] args
-      codeEmitter.getfield(FIELD_TARGET_SOURCE);
+      // ------------------------------
+      // dynamic Advised
+      // Object proxy, AdvisedSupport advised, TargetInvocation targetInv, Object[] args
+
+      codeEmitter.load_this();
+      codeEmitter.load_this();
+      codeEmitter.getfield(FIELD_CONFIG);
       codeEmitter.getfield(targetInvField);
       prepareArgs(method, codeEmitter);
 
-      if (exposeProxy) {
-        codeEmitter.invoke_static(stdProxyInvoker, dynamicExposeProceed);
-      }
-      else {
-        codeEmitter.invoke_static(stdProxyInvoker, dynamicProceed);
-      }
+      codeEmitter.invoke_static(stdProxyInvoker, dynamicAdvisedProceed);
     }
+
   }
 
   /**

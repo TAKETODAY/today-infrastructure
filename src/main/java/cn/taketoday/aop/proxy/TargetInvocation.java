@@ -33,6 +33,7 @@ import cn.taketoday.context.reflect.MethodInvoker;
 
 /**
  * @author TODAY 2021/3/7 21:55
+ * @since 3.0
  */
 public class TargetInvocation implements TargetClassAware {
 
@@ -82,14 +83,14 @@ public class TargetInvocation implements TargetClassAware {
     return targetClass;
   }
 
-  public MethodInterceptor[] getDynamicInterceptors() {
+  public MethodInterceptor[] getDynamicInterceptors(AdvisedSupport config) {
     return config.getInterceptors(method, targetClass);
   }
 
   public MethodInterceptor[] getInterceptors() {
     MethodInterceptor[] ret = this.interceptors;
     if (ret == null) {
-      ret = this.interceptors = getDynamicInterceptors();
+      ret = this.interceptors = getDynamicInterceptors(this.config);
       adviceLength = ret.length;
     }
     return ret;

@@ -48,7 +48,6 @@ import cn.taketoday.context.AttributeAccessor;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.cglib.core.DebuggingClassWriter;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.ObjectSupplier;
 import cn.taketoday.context.factory.StandardBeanFactory;
@@ -309,13 +308,54 @@ public class AopTest {
       autoProxyCreator.setBeanFactory(beanFactory);
       autoProxyCreator.setFrozen(true);
       autoProxyCreator.setExposeProxy(true);
-      autoProxyCreator.setOpaque(false);
+//      autoProxyCreator.setOpaque(true);
 //      autoProxyCreator.setUsingCglib(true);
 
       autoProxyCreator.setTargetSourceCreators(targetSourceCreator);
 
       beanFactory.importBeans(LoggingConfig.class, PrinterBean.class);
-      DebuggingClassWriter.setDebugLocation("D:\\dev\\temp\\debug");
+//      DebuggingClassWriter.setDebugLocation("D:\\dev\\temp\\debug");
+
+      final PrinterBean bean = beanFactory.getBean(PrinterBean.class);
+
+      bean.print();
+
+      bean.none();
+      bean.none("TODAY");
+      final int none = bean.none(1);
+      assertThat(none).isEqualTo(1);
+
+      assertThat(bean).isInstanceOf(Advised.class);
+      Advised advised = (Advised) bean;
+
+      assertThat(advised.getAdvisors()).hasSize(1);
+
+      final Class<?> targetClass = advised.getTargetClass();
+      assertThat(targetClass).isEqualTo(PrinterBean.class);
+
+      assertThat(advised.isFrozen())
+              .isEqualTo(advised.isExposeProxy())
+              .isEqualTo(advised.isPreFiltered()).isTrue();
+
+    }
+  }
+
+//  @Test
+  public void test(){
+//    DebuggingClassWriter.setDebugLocation("D:\\dev\\temp\\debug");
+
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+
+      final StandardBeanFactory beanFactory = context.getBeanFactory();
+      final DefaultAutoProxyCreator autoProxyCreator = new DefaultAutoProxyCreator();
+      context.addBeanPostProcessor(autoProxyCreator);
+      autoProxyCreator.setBeanFactory(beanFactory);
+      autoProxyCreator.setFrozen(true);
+      autoProxyCreator.setExposeProxy(true);
+//      autoProxyCreator.setOpaque(true);
+//      autoProxyCreator.setUsingCglib(true);
+
+      beanFactory.importBeans(LoggingConfig.class, PrinterBean.class);
 
       final PrinterBean bean = beanFactory.getBean(PrinterBean.class);
 

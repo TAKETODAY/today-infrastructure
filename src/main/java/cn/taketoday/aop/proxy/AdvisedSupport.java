@@ -75,7 +75,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   public static final TargetSource EMPTY_TARGET_SOURCE = EmptyTargetSource.INSTANCE;
 
   /** Package-protected to allow direct access for efficiency. */
-  TargetSource targetSource = EMPTY_TARGET_SOURCE;
+  transient TargetSource targetSource = EMPTY_TARGET_SOURCE;
 
   /** Whether the Advisors are already filtered for the specific target class. */
   private boolean preFiltered = false;
@@ -93,13 +93,13 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * List of Advisors. If an Advice is added, it will be wrapped
    * in an Advisor before being added to this List.
    */
-  private List<Advisor> advisors = new ArrayList<>();
+  private transient List<Advisor> advisors = new ArrayList<>();
 
   /**
    * Array updated on changes to the advisors list, which is easier
    * to manipulate internally.
    */
-  private Advisor[] advisorArray = EMPTY_ADVISORS;
+  private transient Advisor[] advisorArray = EMPTY_ADVISORS;
 
   /**
    * No-arg constructor for use as a JavaBean.
