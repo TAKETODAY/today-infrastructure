@@ -29,10 +29,9 @@ import cn.taketoday.context.EmptyObject;
  * 2019-02-27 18:12
  */
 public class DefaultCacheKey implements Serializable {
-
   private static final long serialVersionUID = 1L;
 
-  public static final DefaultCacheKey EMPTY = new DefaultCacheKey(EmptyObject.INSTANCE);
+  public static final DefaultCacheKey EMPTY = new DefaultCacheKey(new Object[] { EmptyObject.INSTANCE });
 
   private final int hash;
   private final Object[] params;
@@ -43,21 +42,22 @@ public class DefaultCacheKey implements Serializable {
    * @param params
    *         the method parameters
    */
-  public DefaultCacheKey(Object... params) {
+  public DefaultCacheKey(Object[] params) {
     if (params == null) {
       this.params = EMPTY.getParams();
     }
     else {
       this.params = new Object[params.length];
-      System.arraycopy(params, 0, this.getParams(), 0, params.length);
+      System.arraycopy(params, 0, this.params, 0, params.length);
     }
-    this.hash = Arrays.deepHashCode(this.getParams());
+    this.hash = Arrays.hashCode(this.params);
   }
 
   @Override
   public boolean equals(Object other) {
     return (this == other //
-            || (other instanceof DefaultCacheKey && Arrays.deepEquals(this.getParams(), ((DefaultCacheKey) other).getParams()))//
+            || (other instanceof DefaultCacheKey
+            && Arrays.deepEquals(getParams(), ((DefaultCacheKey) other).getParams()))//
     );
   }
 
@@ -68,7 +68,7 @@ public class DefaultCacheKey implements Serializable {
 
   @Override
   public String toString() {
-    return getClass().getSimpleName() + " " + Arrays.deepToString(this.getParams());
+    return getClass().getSimpleName() + " " + Arrays.toString(getParams());
   }
 
   public Object[] getParams() {
