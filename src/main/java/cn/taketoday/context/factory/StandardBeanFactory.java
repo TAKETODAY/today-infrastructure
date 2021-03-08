@@ -672,7 +672,7 @@ public class StandardBeanFactory
       // un-ordered
       propertyResolvers.addAll(objects);
 
-      setPropertyValueResolvers(new ValuePropertyResolver(context),
+      addPropertyValueResolvers(new ValuePropertyResolver(context),
                                 new PropsPropertyResolver(context),
                                 new ObjectSupplierPropertyResolver(),
                                 new AutowiredPropertyResolver(context));
