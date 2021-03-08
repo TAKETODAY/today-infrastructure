@@ -20,11 +20,7 @@
 
 package cn.taketoday.context;
 
-import java.lang.reflect.Type;
-
-import cn.taketoday.context.exception.ContextException;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.GenericTypeResolver;
 
 /**
  * @author TODAY
@@ -32,23 +28,17 @@ import cn.taketoday.context.utils.ObjectUtils;
  */
 public abstract class TypeReference<T> {
 
-  private Type rawType;
+  private Class<?> typeArgument;
 
-  public final Type getRawType() {
-    if (rawType == null) {
-      rawType = getTypeParameter(getClass());
+  public final Class<?> getRawType() {
+    if (typeArgument == null) {
+      typeArgument = getTypeParameter(getClass());
     }
-    return rawType;
+    return typeArgument;
   }
 
-  Type getTypeParameter(Class<?> clazz) {
-    final Type[] generics = ClassUtils.getGenerics(clazz, TypeReference.class);
-    if (ObjectUtils.isNotEmpty(generics)) {
-      return generics[0];
-    }
-    throw new ContextException(
-            "'" + getClass() + "' extends TypeReference but misses the type parameter. "
-                    + "Remove the extension or add a type parameter to it.");
+  Class<?> getTypeParameter(Class<?> clazz) {
+    return GenericTypeResolver.resolveTypeArgument(clazz, TypeReference.class);
   }
 
   @Override

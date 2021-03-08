@@ -20,7 +20,6 @@
 
 package cn.taketoday.context.conversion;
 
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -31,8 +30,8 @@ import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
+import cn.taketoday.context.utils.GenericTypeResolver;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 
@@ -93,17 +92,15 @@ public class ConverterTypeConverter
     }
     else {
       Assert.notNull(converter, "converter must not be null");
-      final Type[] generics = ClassUtils.getGenerics(converter.getClass(), Converter.class);
+      final Class<?>[] generics = GenericTypeResolver.resolveTypeArguments(converter.getClass(), Converter.class);
       if (ObjectUtils.isNotEmpty(generics)) {
-        final Type targetClass = generics[1];
-        final Type sourceClass = generics[0];
-
-        if (targetClass instanceof Class && sourceClass instanceof Class) {
-          addConverter((Class<?>) targetClass, (Class<?>) sourceClass, converter);
-          return;
-        }
+        final Class<?> targetClass = generics[1];
+        final Class<?> sourceClass = generics[0];
+        addConverter(targetClass, sourceClass, converter);
       }
-      throw new ConfigurationException("can't register get converter's target class");
+      else {
+        throw new ConfigurationException("can't register get converter's target class");
+      }
     }
   }
 
@@ -117,16 +114,12 @@ public class ConverterTypeConverter
 
   public void addConverter(Class<?> targetClass, Converter<?, ?> converter) {
     Assert.notNull(converter, "converter must not be null");
-
-    final Type[] generics = ClassUtils.getGenerics(converter.getClass(), Converter.class);
+    final Class<?>[] generics = GenericTypeResolver.resolveTypeArguments(converter.getClass(), Converter.class);
     if (ObjectUtils.isNotEmpty(generics)) {
-      final Type sourceClass = generics[0];
-      if (sourceClass instanceof Class) {
-        addConverter(targetClass, (Class<?>) sourceClass, converter);
-        return;
-      }
+      addConverter(targetClass, generics[0], converter);
     }
-    throw new ConfigurationException("can't register get converter's source class");
+    else
+      throw new ConfigurationException("can't register get converter's source class");
   }
 
   public void addConverter(Class<?> targetClass, Class<?> sourceClass, Converter<?, ?> converter) {
