@@ -43,9 +43,9 @@ public class TypeReferenceTest {
             .hasSize(1);
     Assertions.assertThat(generics[0])
             .isEqualTo(Integer.class)
-            .isEqualTo(new IntegerTypeReference().getRawType())
-            .isEqualTo(new IntegerTypeReference1().getRawType())
-            .isEqualTo(new IntegerTypeReference2().getRawType())
+            .isEqualTo(new IntegerTypeReference().getTypeParameter())
+            .isEqualTo(new IntegerTypeReference1().getTypeParameter())
+            .isEqualTo(new IntegerTypeReference2().getTypeParameter())
             .isEqualTo(new IntegerTypeReference().getTypeParameter(reference.getClass()))
             .isEqualTo(new IntegerTypeReference1().getTypeParameter(reference.getClass()))
             .isEqualTo(new IntegerTypeReference2().getTypeParameter(reference.getClass()));

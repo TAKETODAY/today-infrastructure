@@ -28,22 +28,22 @@ import cn.taketoday.context.utils.GenericTypeResolver;
  */
 public abstract class TypeReference<T> {
 
-  private Class<?> typeArgument;
+  private Class<T> typeArgument;
 
-  public final Class<?> getRawType() {
+  public final Class<T> getTypeParameter() {
     if (typeArgument == null) {
       typeArgument = getTypeParameter(getClass());
     }
     return typeArgument;
   }
 
-  Class<?> getTypeParameter(Class<?> clazz) {
+  Class<T> getTypeParameter(Class<?> clazz) {
     return GenericTypeResolver.resolveTypeArgument(clazz, TypeReference.class);
   }
 
   @Override
   public String toString() {
-    return getRawType().toString();
+    return getTypeParameter().toString();
   }
 
 }

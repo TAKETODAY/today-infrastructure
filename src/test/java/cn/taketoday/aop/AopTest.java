@@ -241,9 +241,9 @@ public class AopTest {
 
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
-      log.debug("LoggingInterceptor @Around Before method");
+      System.out.println("LoggingInterceptor @Around Before method");
       final Object proceed = invocation.proceed();
-      log.debug("LoggingInterceptor @Around After method");
+      System.out.println("LoggingInterceptor @Around After method");
       return proceed;
     }
 
