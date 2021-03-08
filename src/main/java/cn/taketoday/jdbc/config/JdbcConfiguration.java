@@ -19,24 +19,9 @@
  */
 package cn.taketoday.jdbc.config;
 
-import java.util.List;
-
-import cn.taketoday.jdbc.mapping.result.ResultResolver;
-
 /**
- * @author TODAY <br>
- *         2019-08-24 11:50
+ * @author TODAY 2019-08-24 11:50
  */
 public interface JdbcConfiguration {
-
-  /**
-   * Configure {@link ResultResolver}
-   *
-   * @param resolvers
-   *            {@link ResultResolver} registry
-   */
-  default void configureResultResolver(List<ResultResolver> resolvers) {
-
-  }
 
 }

@@ -31,23 +31,26 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.jdbc.mapping.ColumnMapping;
-import cn.taketoday.jdbc.mapping.TableMapping;
+import cn.taketoday.jdbc.reflection.JdbcBeanMetadata;
+import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.JdbcUtils;
 
 /**
  * @author TODAY <br>
- *         2019-08-18 20:12
+ * 2019-08-18 20:12
  */
 public class QueryExecutor extends Executor implements QueryOperation, QueryOptionalOperation {
 
-  public QueryExecutor() {
+  private TypeHandlerRegistry registry = TypeHandlerRegistry.getSharedInstance();
 
-  }
+  public QueryExecutor() { }
 
   public QueryExecutor(final DataSource dataSource) {
     setDataSource(dataSource);
+  }
+
+  public void setRegistry(TypeHandlerRegistry registry) {
+    this.registry = registry;
   }
 
   @Override
@@ -95,8 +98,6 @@ public class QueryExecutor extends Executor implements QueryOperation, QueryOpti
     });
   }
 
-  private static final Map<Class<?>, TableMapping> TABLE_MAPPINGS = new HashMap<>();
-
   @Override
   public <T> T query(final String sql, final Object[] args, final Class<T> requiredType) throws SQLException {
 
@@ -106,19 +107,11 @@ public class QueryExecutor extends Executor implements QueryOperation, QueryOpti
       public T extractData(ResultSet rs) throws SQLException {
 
         if (rs.next()) {
-          final T ret = ClassUtils.newInstance(requiredType);
           final ResultSetMetaData metaData = rs.getMetaData();
-          final int columnCount = metaData.getColumnCount() + 1;
+          final ResultSetHandlerFactory<T> factory = newFactory(requiredType);
+          final cn.taketoday.jdbc.ResultSetHandler<T> resultSetHandler = factory.newResultSetHandler(metaData);
 
-          final TableMapping table = TABLE_MAPPINGS.computeIfAbsent(requiredType, TableMapping::new);
-
-          for (int i = 1; i < columnCount; i++) {
-            final ColumnMapping propertyMapping = table.get(JdbcUtils.getColumnName(metaData, i));
-            if (propertyMapping != null) {
-              propertyMapping.resolveResult(ret, rs);
-            }
-          }
-          return ret;
+          return resultSetHandler.handle(rs);
         }
         return null;
       }
@@ -127,37 +120,29 @@ public class QueryExecutor extends Executor implements QueryOperation, QueryOpti
     return query(sql, args, new ResultSetExtractor0());
   }
 
+  private boolean caseSensitive;
+  private boolean throwOnMappingError;
+  private boolean autoDeriveColumnNames;
+  private Map<String, String> columnMappings;
+
+  public <T> ResultSetHandlerFactory<T> newFactory(Class<T> clazz) {
+    JdbcBeanMetadata pojoMetadata = new JdbcBeanMetadata(clazz, caseSensitive, autoDeriveColumnNames, columnMappings, throwOnMappingError);
+    return new DefaultResultSetHandlerFactory<>(pojoMetadata, registry);
+  }
+
   @Override
   public <T> List<T> queryList(final String sql, final Object[] args, final Class<T> elementType) throws SQLException {
+
+
     return query(sql, args, (ResultSet result) -> {
       final ArrayList<T> ret = new ArrayList<>();
 
       final ResultSetMetaData metaData = result.getMetaData();
-      final int columnCount = metaData.getColumnCount() + 1;
+      final ResultSetHandlerFactory<T> factory = newFactory(elementType);
+      final cn.taketoday.jdbc.ResultSetHandler<T> resultSetHandler = factory.newResultSetHandler(metaData);
 
-      final class ResultSetExtractor0 implements ResultSetExtractor<T> {
-
-        final TableMapping table = TABLE_MAPPINGS.computeIfAbsent(elementType, TableMapping::new);
-
-        @Override
-        public T extractData(ResultSet rs) throws SQLException {
-
-          final T ret = ClassUtils.newInstance(elementType);
-
-          for (int i = 1; i < columnCount; i++) {
-
-            final ColumnMapping propertyMapping = table.get(JdbcUtils.getColumnName(metaData, i));
-            if (propertyMapping != null) {
-              propertyMapping.resolveResult(ret, rs);
-            }
-          }
-          return ret;
-        }
-      }
-
-      final ResultSetExtractor0 extractor0 = new ResultSetExtractor0();
       while (result.next()) {
-        ret.add(extractor0.extractData(result));
+        ret.add(resultSetHandler.handle(result));
       }
       return ret;
     });

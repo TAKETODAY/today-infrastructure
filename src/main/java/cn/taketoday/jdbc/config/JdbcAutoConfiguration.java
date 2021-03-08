@@ -28,8 +28,6 @@ import cn.taketoday.context.event.LoadingMissingBeanEvent;
 import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.OrderUtils;
-import cn.taketoday.jdbc.mapping.ColumnMapping;
-import cn.taketoday.jdbc.mapping.result.ResultResolver;
 
 /**
  * @author TODAY <br>
@@ -50,23 +48,12 @@ public class JdbcAutoConfiguration implements ApplicationListener<LoadingMissing
     configureResultResolver(applicationContext, jdbcConfiguration);
   }
 
-  protected JdbcConfiguration getJdbcConfiguration(ApplicationContext applicationContext) {
-    return new CompositeJdbcConfiguration(applicationContext.getBeans(JdbcConfiguration.class));
-  }
-
   protected void configureResultResolver(ApplicationContext applicationContext, JdbcConfiguration jdbcConfiguration) {
 
-    final List<ResultResolver> resultResolvers = applicationContext.getBeans(ResultResolver.class);
+  }
 
-    ColumnMapping.addDefaultResolvers(resultResolvers);
-
-    // User
-    // -------------------------------------
-
-    jdbcConfiguration.configureResultResolver(resultResolvers);
-    OrderUtils.reversedSort(resultResolvers);
-
-    ColumnMapping.addResolver(resultResolvers);
+  protected JdbcConfiguration getJdbcConfiguration(ApplicationContext applicationContext) {
+    return new CompositeJdbcConfiguration(applicationContext.getBeans(JdbcConfiguration.class));
   }
 
   /**
@@ -88,12 +75,5 @@ public class JdbcAutoConfiguration implements ApplicationListener<LoadingMissing
       return jdbcConfigurations;
     }
 
-    @Override
-    public void configureResultResolver(List<ResultResolver> resolvers) {
-      for (final JdbcConfiguration configuration : getJdbcConfigurations()) {
-        configuration.configureResultResolver(resolvers);
-      }
-    }
   }
-
 }

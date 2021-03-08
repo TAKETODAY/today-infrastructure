@@ -16,6 +16,7 @@ import cn.taketoday.jdbc.conversion.TimeToJodaLocalTimeConverter;
 import cn.taketoday.jdbc.parsing.SqlParameterParsingStrategy;
 import cn.taketoday.jdbc.parsing.impl.DefaultSqlParameterParsingStrategy;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
+import cn.taketoday.jdbc.utils.FeatureDetector;
 
 /**
  * DefaultSession is the main class for the today-jdbc library.
@@ -48,11 +49,15 @@ public class DefaultSession {
 
   static {
     final ClobToStringConverter stringConverter = new ClobToStringConverter();
-    final TimeToJodaLocalTimeConverter jodaLocalTimeConverter= new TimeToJodaLocalTimeConverter();
 
     final ConverterTypeConverter sharedInstance = ConverterTypeConverter.getSharedInstance();
     sharedInstance.addConverter(stringConverter);
-    sharedInstance.addConverter(jodaLocalTimeConverter);
+
+    if (FeatureDetector.isJodaTimeAvailable()) {
+      final TimeToJodaLocalTimeConverter jodaLocalTimeConverter = new TimeToJodaLocalTimeConverter();
+      sharedInstance.addConverter(jodaLocalTimeConverter);
+    }
+
     sharedInstance.addConverter(new OffsetTimeToSQLTimeConverter());
   }
 
