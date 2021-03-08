@@ -403,6 +403,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     if (!ApplicationListener.class.isAssignableFrom(listenerClass)) {
       throw new ConfigurationException("@ContextListener must be a 'ApplicationListener'");
     }
+
     try {
       final String name = getEnvironment().getBeanNameCreator().create(listenerClass);
       // if exist bean
@@ -778,6 +779,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   @Override
   public Object getSingleton(String name) {
     return getBeanFactory().getSingleton(name);
+  }
+
+  @Override
+  public <T> T getSingleton(Class<T> requiredType) {
+    return getBeanFactory().getSingleton(requiredType);
   }
 
   @Override

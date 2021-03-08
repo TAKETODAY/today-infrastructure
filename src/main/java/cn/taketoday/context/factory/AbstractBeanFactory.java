@@ -381,8 +381,8 @@ public abstract class AbstractBeanFactory
    *
    * @param bean
    *         Bean instance
-   * @param propertyValues
-   *         Property list
+   * @param def
+   *         use {@link BeanDefinition#applyPropertyValues(Object)}
    *
    * @throws PropertyValueException
    *         If any {@link Exception} occurred when apply
@@ -390,29 +390,10 @@ public abstract class AbstractBeanFactory
    * @throws NoSuchBeanDefinitionException
    *         If {@link BeanReference} is required and there isn't a bean in
    *         this {@link BeanFactory}
+   * @see BeanDefinition#applyPropertyValues(Object)
    */
-  protected void applyPropertyValues(final Object bean, final PropertyValue[] propertyValues) {
-    for (final PropertyValue propertyValue : propertyValues) {
-
-      propertyValue.applyValue(bean, this);
-//
-//      Object value = propertyValue.getValue();
-//      // reference bean
-//      if (value instanceof BeanReference) {
-//        final BeanReference reference = (BeanReference) value;
-//        // fix: same name of bean
-//        value = resolvePropertyValue(reference);
-//        if (value == null) {
-//          if (reference.isRequired()) {
-//            log.error("[{}] is required.", propertyValue);
-//            throw new NoSuchBeanDefinitionException(reference.getName(), reference.getReferenceClass());
-//          }
-//          continue; // if reference bean is null and it is not required ,do nothing,default value
-//        }
-//      }
-//      // set property
-//      propertyValue.set(bean, value);
-    }
+  protected void applyPropertyValues(final Object bean, final BeanDefinition def) {
+    def.applyPropertyValues(bean);
   }
 
   /**
@@ -573,7 +554,7 @@ public abstract class AbstractBeanFactory
     final List<BeanPostProcessor> postProcessors = getPostProcessors();
     if (postProcessors.isEmpty()) {
       // apply properties
-      applyPropertyValues(bean, def.getPropertyValues());
+      applyPropertyValues(bean, def);
       // invoke initialize methods
       invokeInitMethods(bean, def.getInitMethods());
       return bean;
@@ -612,7 +593,7 @@ public abstract class AbstractBeanFactory
       }
     }
     // apply properties
-    applyPropertyValues(ret, def.getPropertyValues());
+    applyPropertyValues(ret, def);
     // invoke initialize methods
     invokeInitMethods(ret, def.getInitMethods());
     // after properties
@@ -1099,6 +1080,25 @@ public abstract class AbstractBeanFactory
     return singletons.get(name);
   }
 
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T getSingleton(final Class<T> requiredType) {
+    final String maybe = getBeanNameCreator().create(requiredType);
+    final Object singleton = getSingleton(maybe);
+    if (singleton == null) {
+      final Map<String, Object> singletons = getSingletons();
+      for (final Object value : singletons.values()) {
+        if (requiredType.isInstance(value)) {
+          return (T) value;
+        }
+      }
+    }
+    else if (requiredType.isInstance(singleton)) {
+      return (T) singleton;
+    }
+    return null;
+  }
+
   /**
    * Get target singleton
    *
@@ -1435,7 +1435,7 @@ public abstract class AbstractBeanFactory
     }
     aware(existingBean, prototypeDef);
     // apply properties
-    applyPropertyValues(existingBean, prototypeDef.getPropertyValues());
+    applyPropertyValues(existingBean, prototypeDef);
     // invoke initialize methods
     invokeInitMethods(existingBean, prototypeDef.getInitMethods());
   }
@@ -1448,7 +1448,7 @@ public abstract class AbstractBeanFactory
       log.debug("Autowiring bean properties named: [{}].", prototypeDef.getName());
     }
     // apply properties
-    applyPropertyValues(existingBean, prototypeDef.getPropertyValues());
+    applyPropertyValues(existingBean, prototypeDef);
   }
 
   @Override

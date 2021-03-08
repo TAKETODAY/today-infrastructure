@@ -69,6 +69,18 @@ public interface SingletonBeanRegistry {
   Object getSingleton(String name);
 
   /**
+   * Get singleton objects
+   *
+   * @param requiredType
+   *         required type
+   * @param <T>
+   *         required type
+   *
+   * @return singleton object
+   */
+  <T> T getSingleton(Class<T> requiredType);
+
+  /**
    * remove a singleton with given name
    *
    * @param name
