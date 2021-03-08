@@ -43,15 +43,15 @@ public abstract class AbstractMethodInvocation
         extends AttributeAccessorSupport implements MethodInvocation, TargetClassAware {
 
   /**
-   * Basic {@link #proceed()} logic
-   *
+   * Basic logic. Proceeds to the next interceptor in the chain.
    * <p>
    * Subclasses can override this method to handle {@link Exception}
    * </p>
    *
-   * @return
+   * @return see the children interfaces' proceed definition.
    *
    * @throws Throwable
+   *         if the join-point throws an exception.
    * @see cn.taketoday.aop.proxy.CglibAopProxy.CglibMethodInvocation
    * @see DefaultMethodInvocation
    * @see StandardMethodInvocation
