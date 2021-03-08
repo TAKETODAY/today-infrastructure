@@ -30,6 +30,10 @@
     </encoder>
   </appender>
 
+  <logger name="cn.taketoday.context.logger" level="TRACE">
+    <appender-ref ref="STDOUT" />
+  </logger>
+
   <!--  <root level="TRACE">-->
   <root level="INFO">
     <appender-ref ref="STDOUT" />
