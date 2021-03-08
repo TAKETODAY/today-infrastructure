@@ -20,14 +20,13 @@
 
 package cn.taketoday.context.factory;
 
-import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
-import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.GenericTypeResolver;
 
 /**
  * @author TODAY 2021/3/6 11:18
@@ -108,12 +107,8 @@ public interface ObjectSupplier<T> extends Supplier<T>, Iterable<T> {
   }
 
   default Class<?> getRequiredType() {
-    final Type[] generics = ClassUtils.getGenerics(getClass(), ObjectSupplier.class);
-    final Type generic = generics[0];
-    if (!(generic instanceof Class)) {
-      return null;
-    }
-    return (Class<?>) generic;
+    final Class<?>[] generics = GenericTypeResolver.resolveTypeArguments(getClass(), ObjectSupplier.class);
+    return generics[0];
   }
 
   //
