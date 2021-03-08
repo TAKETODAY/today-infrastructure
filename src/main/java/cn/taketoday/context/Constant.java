@@ -70,13 +70,14 @@ public interface Constant extends Opcodes, Serializable {
 
   Signature SIG_STATIC = TypeUtils.parseSignature("void <clinit>()");
 
+  Type TYPE_CONSTANT = Type.getType(Constant.class);
   Type TYPE_OBJECT_ARRAY = parseType("Object[]");
   Type TYPE_CLASS_ARRAY = parseType("Class[]");
   Type TYPE_STRING_ARRAY = parseType("String[]");
 
   Type TYPE_TYPE = Type.getType(Type.class);
   Type TYPE_ERROR = parseType("Error");
-  Type TYPE_SYSTEM = parseType("System");
+//  Type TYPE_SYSTEM = parseType("System");
   Type TYPE_LONG = parseType("Long");
   Type TYPE_BYTE = parseType("Byte");
   Type TYPE_CLASS = parseType("Class");
@@ -90,7 +91,7 @@ public interface Constant extends Opcodes, Serializable {
   Type TYPE_INTEGER = parseType("Integer");
   Type TYPE_CHARACTER = parseType("Character");
   Type TYPE_THROWABLE = parseType("Throwable");
-  Type TYPE_CLASS_LOADER = parseType("ClassLoader");
+//  Type TYPE_CLASS_LOADER = parseType("ClassLoader");
   Type TYPE_STRING_BUFFER = parseType("StringBuffer");
   Type TYPE_BIG_INTEGER = parseType("java.math.BigInteger");
   Type TYPE_BIG_DECIMAL = parseType("java.math.BigDecimal");

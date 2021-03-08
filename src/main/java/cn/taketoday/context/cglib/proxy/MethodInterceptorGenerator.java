@@ -50,7 +50,6 @@ class MethodInterceptorGenerator implements CallbackGenerator {
 
   public static final MethodInterceptorGenerator INSTANCE = new MethodInterceptorGenerator();
 
-  static final String EMPTY_ARGS_NAME = "TODAY$emptyArgs";
   static final String FIND_PROXY_NAME = "TODAY$findMethodProxy";
 
   static final Class<?>[] FIND_PROXY_TYPES = { Signature.class };
@@ -113,40 +112,40 @@ class MethodInterceptorGenerator implements CallbackGenerator {
       sigMap.put(sig.toString(), methodProxyField);
       ce.declare_field(PRIVATE_FINAL_STATIC, methodField, METHOD, null);
       ce.declare_field(PRIVATE_FINAL_STATIC, methodProxyField, METHOD_PROXY, null);
-      ce.declare_field(PRIVATE_FINAL_STATIC, EMPTY_ARGS_NAME, Constant.TYPE_OBJECT_ARRAY, null);
 
       // access method
-      CodeEmitter e = ce.beginMethod(Constant.ACC_FINAL, impl, method.getExceptionTypes());
-      superHelper(e, method, context);
-      e.return_value();
-      e.end_method();
+      CodeEmitter codeEmitter = ce.beginMethod(Constant.ACC_FINAL, impl, method.getExceptionTypes());
+      superHelper(codeEmitter, method, context);
+      codeEmitter.return_value();
+      codeEmitter.end_method();
 
       // around method
-      e = context.beginMethod(ce, method);
-      Label nullInterceptor = e.make_label();
-      context.emitCallback(e, context.getIndex(method));
-      e.dup();
-      e.ifnull(nullInterceptor);
+      codeEmitter = context.beginMethod(ce, method);
+      Label nullInterceptor = codeEmitter.make_label();
+      context.emitCallback(codeEmitter, context.getIndex(method));
+      codeEmitter.dup();
+      codeEmitter.ifnull(nullInterceptor);
 
-      e.load_this(); // obj
-      e.getfield(methodField); // method
+      codeEmitter.load_this(); // obj
+      codeEmitter.getfield(methodField); // method
 
       if (sig.getArgumentTypes().length == 0) {
-        e.getfield(EMPTY_ARGS_NAME);
+        // empty args
+        EmitUtils.loadEmptyArguments(codeEmitter);
       }
       else {
-        e.create_arg_array(); // args
+        codeEmitter.create_arg_array(); // args
       }
 
-      e.getfield(methodProxyField);  // methodProxy
-      e.invoke_interface(METHOD_INTERCEPTOR, INTERCEPT);
-      e.unbox_or_zero(sig.getReturnType());
-      e.return_value();
+      codeEmitter.getfield(methodProxyField);  // methodProxy
+      codeEmitter.invoke_interface(METHOD_INTERCEPTOR, INTERCEPT);
+      codeEmitter.unbox_or_zero(sig.getReturnType());
+      codeEmitter.return_value();
 
-      e.mark(nullInterceptor);
-      superHelper(e, method, context);
-      e.return_value();
-      e.end_method();
+      codeEmitter.mark(nullInterceptor);
+      superHelper(codeEmitter, method, context);
+      codeEmitter.return_value();
+      codeEmitter.end_method();
     }
     generateFindProxy(ce, sigMap);
   }
@@ -176,14 +175,10 @@ class MethodInterceptorGenerator implements CallbackGenerator {
   @Override
   public void generateStatic(final CodeEmitter e, final Context context, final List<MethodInfo> methods) throws Exception {
 
-    e.push(0);
-    e.newArray();
-    e.putfield(EMPTY_ARGS_NAME);
-
-    Local thisclass = e.make_local();
-    Local declaringclass = e.make_local();
+    Local thisClass = e.make_local();
+    Local declaringClass = e.make_local();
     EmitUtils.loadClassThis(e);
-    e.store_local(thisclass);
+    e.store_local(thisClass);
 
     final Map<ClassInfo, List<MethodInfo>> methodsByClass = CollectionUtils.bucket(methods, METHOD_TO_CLASS);
 
@@ -209,7 +204,7 @@ class MethodInterceptorGenerator implements CallbackGenerator {
 
       EmitUtils.loadClass(e, classInfo.getType());
       e.dup();
-      e.store_local(declaringclass);
+      e.store_local(declaringClass);
       e.invoke_virtual(Constant.TYPE_CLASS, GET_DECLARED_METHODS);
       e.invoke_static(REFLECT_UTILS, FIND_METHODS);
 
@@ -222,8 +217,8 @@ class MethodInterceptorGenerator implements CallbackGenerator {
         e.array_load(METHOD);
         e.putfield(getMethodField(impl));
 
-        e.load_local(declaringclass);
-        e.load_local(thisclass);
+        e.load_local(declaringClass);
+        e.load_local(thisClass);
         e.push(sig.getDescriptor());
         e.push(sig.getName());
         e.push(impl.getName());

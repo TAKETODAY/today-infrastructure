@@ -982,4 +982,9 @@ public abstract class EmitUtils {
   public static CodeEmitter beginMethod(ClassEmitter e, MethodInfo method, int access) {
     return e.beginMethod(access, method.getSignature(), method.getExceptionTypes());
   }
+
+  public static void loadEmptyArguments(CodeEmitter codeEmitter) {
+    codeEmitter.getstatic(Constant.TYPE_CONSTANT, "EMPTY_OBJECT_ARRAY", Constant.TYPE_OBJECT_ARRAY);
+  }
+
 }

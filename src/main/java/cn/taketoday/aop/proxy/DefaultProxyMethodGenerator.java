@@ -120,19 +120,22 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
 
   void generateProxyMethod(Method method, String targetInvField, StandardProxyContext context, CodeEmitter codeEmitter) {
     final AdvisedSupport config = context.getConfig();
-    if (config.isExposeProxy()) {
+    final boolean exposeProxy = config.isExposeProxy();
+    final boolean isStatic = config.getTargetSource().isStatic();
+
+    if (exposeProxy) {
       // load proxy object: this
       codeEmitter.load_this();
     }
 
     codeEmitter.load_this();
-    if (config.getTargetSource().isStatic()) {
+    if (isStatic) {
       // Object target, Target targetInv, Object[] args
       codeEmitter.getfield(FIELD_TARGET);
       codeEmitter.getfield(targetInvField);
       prepareArgs(method, codeEmitter);
 
-      if (config.isExposeProxy()) {
+      if (exposeProxy) {
         codeEmitter.invoke_static(stdProxyInvoker, staticExposeProceed);
       }
       else {
@@ -145,7 +148,7 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
       codeEmitter.getfield(targetInvField);
       prepareArgs(method, codeEmitter);
 
-      if (config.isExposeProxy()) {
+      if (exposeProxy) {
         codeEmitter.invoke_static(stdProxyInvoker, dynamicExposeProceed);
       }
       else {
@@ -185,7 +188,7 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
 
   protected void prepareArgs(Method method, CodeEmitter codeEmitter) {
     if (method.getParameterCount() == 0) {
-      codeEmitter.getstatic(Type.getType(Constant.class), "EMPTY_OBJECT_ARRAY", Constant.TYPE_OBJECT_ARRAY);
+      EmitUtils.loadEmptyArguments(codeEmitter);
     }
     else {
       codeEmitter.create_arg_array(); // args

@@ -103,6 +103,7 @@ public class TargetInvocation implements TargetClassAware {
     return adviceLength == target.adviceLength
             && Objects.equals(method, target.method)
             && Objects.equals(invoker, target.invoker)
+            && Objects.equals(targetClass, target.targetClass)
             && Objects.equals(config, target.config);
   }
 

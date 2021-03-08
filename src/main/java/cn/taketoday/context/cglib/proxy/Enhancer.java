@@ -1277,6 +1277,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
   private void emitMethods(final ClassEmitter ce, List<MethodInfo> methods, List<Method> actualMethods) {
 
+    final Type[] callbackTypes = this.callbackTypes;
     final CallbackGenerator[] generators = CallbackInfo.getGenerators(callbackTypes);
 
     final Map<CallbackGenerator, List<MethodInfo>> groups = new HashMap<>();
