@@ -33,11 +33,11 @@ public interface BeanDefinitionImporter {
   /**
    * Register bean definitions
    *
-   * @param importingDef
+   * @param annotatedMetadata
    *         The BeanDefinition that annotated {@link Import}
    * @param registry
    *         Bean definition registry
    */
-  void registerBeanDefinitions(BeanDefinition importingDef, BeanDefinitionRegistry registry);
+  void registerBeanDefinitions(BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry);
 
 }

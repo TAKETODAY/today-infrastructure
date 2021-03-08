@@ -50,6 +50,7 @@ import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.event.LoadingMissingBeanEvent;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.loader.AutowiredPropertyResolver;
 import cn.taketoday.context.loader.BeanDefinitionImporter;
@@ -335,7 +336,7 @@ public class StandardBeanFactory
   public void importBeans(final Class<?>... beans) {
     for (final Class<?> bean : Objects.requireNonNull(beans)) {
       final BeanDefinition def = createBeanDefinition(bean);
-      importBeans(def);
+      importAnnotated(def);
       register(def);
       loadConfigurationBeans(def); // scan config bean
     }
@@ -345,17 +346,17 @@ public class StandardBeanFactory
   public void importBeans(final Set<BeanDefinition> defs) {
 
     for (final BeanDefinition def : defs) {
-      importBeans(def);
+      importAnnotated(def);
     }
   }
 
   @Override
-  public void importBeans(final BeanDefinition def) {
+  public void importAnnotated(final BeanDefinition annotated) {
 
-    for (final AnnotationAttributes attr : getAnnotationAttributesArray(def, Import.class)) {
+    for (final AnnotationAttributes attr : getAnnotationAttributesArray(annotated, Import.class)) {
       for (final Class<?> importClass : attr.getAttribute(VALUE, Class[].class)) {
         if (!containsBeanDefinition(importClass, true)) {
-          selectImport(def, importClass);
+          doImport(annotated, importClass);
         }
       }
     }
@@ -364,21 +365,29 @@ public class StandardBeanFactory
   /**
    * Select import
    *
+   * @param annotated
+   *         Target {@link BeanDefinition}
+   *
    * @since 2.1.7
    */
-  protected void selectImport(final BeanDefinition def, final Class<?> importClass) {
+  protected void doImport(final BeanDefinition annotated, final Class<?> importClass) {
     log.debug("Importing: [{}]", importClass);
 
     BeanDefinition importDef = createBeanDefinition(importClass);
     register(importDef);
     loadConfigurationBeans(importDef); // scan config bean
     if (ImportSelector.class.isAssignableFrom(importClass)) {
-      for (final String select : createImporter(importDef, ImportSelector.class).selectImports(def)) {
-        register(createBeanDefinition(ClassUtils.loadClass(select)));
+      final String[] imports = createImporter(importDef, ImportSelector.class).selectImports(annotated);
+      if (StringUtils.isArrayNotEmpty(imports)) {
+        for (final String select : imports) {
+          final Class<Object> beanClass = ClassUtils.loadClass(select);
+          ConfigurationException.nonNull(beanClass, "Bean class not in class-path: " + select);
+          register(createBeanDefinition(beanClass));
+        }
       }
     }
     if (BeanDefinitionImporter.class.isAssignableFrom(importClass)) {
-      createImporter(importDef, BeanDefinitionImporter.class).registerBeanDefinitions(def, this);
+      createImporter(importDef, BeanDefinitionImporter.class).registerBeanDefinitions(annotated, this);
     }
     if (ApplicationListener.class.isAssignableFrom(importClass)) {
       getApplicationContext().addApplicationListener(createImporter(importDef, ApplicationListener.class));
@@ -527,7 +536,7 @@ public class StandardBeanFactory
    */
   protected void postProcessRegisterBeanDefinition(final BeanDefinition targetDef) {
     if (targetDef.isAnnotationPresent(Import.class)) { // @since 2.1.7
-      importBeans(targetDef);
+      importAnnotated(targetDef);
     }
     if (targetDef.isAnnotationPresent(ComponentScan.class)) {
       componentScan(targetDef);

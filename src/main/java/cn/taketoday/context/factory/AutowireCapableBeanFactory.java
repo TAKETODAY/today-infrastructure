@@ -229,12 +229,12 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
   /**
    * Load {@link Import} beans from input {@link BeanDefinition}
    *
-   * @param def
-   *         Input {@link BeanDefinition}
+   * @param annotated
+   *         Target {@link BeanDefinition} Import
    *
    * @since 3.0
    */
-  void importBeans(BeanDefinition def);
+  void importAnnotated(BeanDefinition annotated);
 
   /**
    * Load {@link Import} beans from input {@link BeanDefinition}s

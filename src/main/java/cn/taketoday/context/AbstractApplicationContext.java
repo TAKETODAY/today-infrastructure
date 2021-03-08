@@ -905,8 +905,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   @Override
-  public void importBeans(final BeanDefinition def) {
-    getBeanFactory().importBeans(def);
+  public void importAnnotated(final BeanDefinition annotated) {
+    getBeanFactory().importAnnotated(annotated);
   }
 
   @Override

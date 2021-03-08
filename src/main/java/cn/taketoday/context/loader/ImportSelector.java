@@ -38,10 +38,10 @@ public interface ImportSelector {
    * Select and return the full names of which class(es) should be imported based
    * on the importing @{@link Configuration} BeanDefinition.
    *
-   * @param importingDef
+   * @param annotatedMetadata
    *         Target {@link BeanDefinition}
    *
    * @return import classes Never be null
    */
-  String[] selectImports(BeanDefinition importingDef);
+  String[] selectImports(BeanDefinition annotatedMetadata);
 }
