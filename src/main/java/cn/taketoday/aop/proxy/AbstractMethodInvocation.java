@@ -52,7 +52,7 @@ public abstract class AbstractMethodInvocation
    * @return
    *
    * @throws Throwable
-   * @see cn.taketoday.aop.proxy.CglibAopProxy.CglibMethodInvocatio
+   * @see cn.taketoday.aop.proxy.CglibAopProxy.CglibMethodInvocation
    * @see DefaultMethodInvocation
    * @see StandardMethodInvocation
    */
