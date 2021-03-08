@@ -25,7 +25,6 @@ import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -184,8 +183,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   protected void prepareRefresh() {
 
     this.startupDate = System.currentTimeMillis();
-    log.info("Starting Application Context at [{}].", //
-             new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(startupDate));
+    log.info("Starting Application Context at [{}].", formatStartupDate());
 
     applyState(State.STARTING);
 
@@ -986,8 +984,12 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     sb.append("], state: [");
     sb.append(state);
     sb.append("], on startup date: ");
-    sb.append(new Date(startupDate));
+    sb.append(formatStartupDate());
     return sb.toString();
+  }
+
+  public String formatStartupDate() {
+    return new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(startupDate);
   }
 
 }

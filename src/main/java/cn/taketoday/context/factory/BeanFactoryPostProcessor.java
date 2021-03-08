@@ -72,7 +72,7 @@ public interface BeanFactoryPostProcessor {
    * @param beanFactory
    *         the bean factory used by the application context
    *
-   * @throws org.springframework.beans.BeansException
+   * @throws BeansException
    *         in case of errors
    */
   void postProcessBeanFactory(ConfigurableBeanFactory beanFactory);
