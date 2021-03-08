@@ -110,21 +110,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     applyState(State.NONE);
     this.environment = env;
     ContextUtils.setLastStartupContext(this); // @since 2.1.6
-    // check registry
-    if (env.getBeanDefinitionRegistry() == null) {
-      env.setBeanDefinitionRegistry(getBeanFactory());
-    }
-    // check bean definition loader
-    if (env.getBeanDefinitionLoader() == null) {
-      env.setBeanDefinitionLoader(getBeanFactory().getBeanDefinitionLoader());
-    }
-    // Expression
-    if (env.getExpressionProcessor() == null) {
-      final ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
-      final ValueExpressionContext elContext = new ValueExpressionContext(exprFactory, getBeanFactory());
-      elContext.defineBean(Constant.ENV, env.getProperties()); // @since 2.1.6
-      env.setExpressionProcessor(new ExpressionProcessor(new ExpressionManager(elContext, exprFactory)));
-    }
+    checkEnvironment(env);
   }
 
   /**
@@ -259,24 +245,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     final AbstractBeanFactory beanFactory = getBeanFactory();
     // must not be null
     final ConfigurableEnvironment env = getEnvironment();
-    // check registry
-    if (env.getBeanDefinitionRegistry() == null) {
-      env.setBeanDefinitionRegistry(beanFactory);
-    }
-    // check bean definition loader
-    if (env.getBeanDefinitionLoader() == null) {
-      env.setBeanDefinitionLoader(beanFactory.getBeanDefinitionLoader());
-    }
-    // Expression
-    if (env.getExpressionProcessor() == null) {
-      final ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
-      final ValueExpressionContext elContext = new ValueExpressionContext(exprFactory, beanFactory);
-      elContext.defineBean(Constant.ENV, env.getProperties()); // @since 2.1.6
-      env.setExpressionProcessor(new ExpressionProcessor(new ExpressionManager(elContext, exprFactory)));
-    }
+
+    checkEnvironment(env);
     // register framework beans
     log.debug("Registering framework beans");
-    registerFrameworkBeans(beanFactory.getBeanNameCreator());
+    registerFrameworkBeans(env, beanFactory.getBeanNameCreator());
     // Loading candidates components
     log.debug("Loading candidates components");
     final Set<Class<?>> candidates = getComponentCandidates();
@@ -297,6 +270,27 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
   }
 
+  /**
+   * check {@link ConfigurableEnvironment}
+   */
+  protected void checkEnvironment(ConfigurableEnvironment env) {
+    // check registry
+    if (env.getBeanDefinitionRegistry() == null) {
+      env.setBeanDefinitionRegistry(getBeanFactory());
+    }
+    // check bean definition loader
+    if (env.getBeanDefinitionLoader() == null) {
+      env.setBeanDefinitionLoader(getBeanFactory().getBeanDefinitionLoader());
+    }
+    // Expression
+    if (env.getExpressionProcessor() == null) {
+      final ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
+      final ValueExpressionContext elContext = new ValueExpressionContext(exprFactory, getBeanFactory());
+      elContext.defineBean(Constant.ENV, env.getProperties()); // @since 2.1.6
+      env.setExpressionProcessor(new ExpressionProcessor(new ExpressionManager(elContext, exprFactory)));
+    }
+  }
+
   protected Set<Class<?>> getComponentCandidates() {
     final CandidateComponentScanner scanner = getCandidateComponentScanner();
     if (ObjectUtils.isEmpty(locations)) {
@@ -311,13 +305,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
   /**
    * Register Framework Beans
-   *
-   * @param beanNameCreator
-   *         Bean name creator to create bean name
    */
-  protected void registerFrameworkBeans(final BeanNameCreator beanNameCreator) {
-
-    final ConfigurableEnvironment env = getEnvironment();
+  protected void registerFrameworkBeans(ConfigurableEnvironment env, final BeanNameCreator beanNameCreator) {
     final ExpressionProcessor elProcessor = env.getExpressionProcessor();
 
     // register ELManager @since 2.1.5
@@ -551,12 +540,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   @Override
   public abstract AbstractBeanFactory getBeanFactory();
 
-
   @Override
   public ConfigurableEnvironment getEnvironment() {
     return environment;
   }
-
 
   @Override
   public boolean hasStarted() {
