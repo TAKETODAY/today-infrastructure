@@ -573,6 +573,47 @@ public class ClassUtilsTest {
 
   }
 
+  // super class generic-s
+
+  static class SuperClass<T> {
+
+  }
+
+  static abstract class AbsSuperClass<T> extends SuperClass<T> {
+
+  }
+
+  static class Child extends AbsSuperClass<Integer> {
+
+  }
+
+  static class AbsSuperClassMultiple<A, T> extends SuperClass<T> {
+
+  }
+
+  static class ChildMultiple extends AbsSuperClassMultiple<Integer, String> {
+
+  }
+
+  static class ChildMultiple0 extends ChildMultiple {
+
+  }
+
+  @Test
+  public void testGetGenericsSuperClass() {
+
+    final Class[] generics = ClassUtils.getGenerics(Child.class, SuperClass.class);
+    final Class[] ChildMultiple = ClassUtils.getGenerics(ChildMultiple.class, SuperClass.class);
+    final Class[] ChildMultiple0 = ClassUtils.getGenerics(ChildMultiple0.class, SuperClass.class);
+
+    assertThat(generics).hasSize(1);
+
+    assertThat(ChildMultiple)
+            .isEqualTo(ChildMultiple0)
+            .contains(String.class);
+
+  }
+
   static class TestNewInstanceBean { }
 
   @ToString

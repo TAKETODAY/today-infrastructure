@@ -36,6 +36,10 @@ public class Mappings<V, T> {
     this(new HashMap<>());
   }
 
+  public Mappings(int initialCapacity) {
+    this(new HashMap<>(initialCapacity));
+  }
+
   /**
    * @param mapping
    *         allows to define your own map implementation
@@ -142,6 +146,10 @@ public class Mappings<V, T> {
 
   public void setMappingFunction(Function<V> mappingFunction) {
     this.mappingFunction = mappingFunction;
+  }
+
+  public void clear() {
+    mapping.clear();
   }
 
   @FunctionalInterface

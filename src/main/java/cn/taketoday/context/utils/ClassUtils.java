@@ -1348,55 +1348,12 @@ public abstract class ClassUtils {
    * @param superClass
    *         A interface class or super class
    *
-   * @return Target generics {@link Type}s
-   *
+   * @return Target generics {@link Class}s
+   * @deprecated use {@link GenericTypeResolver#resolveTypeArguments(Class, Class)}
    * @since 3.0
    */
-  public static java.lang.reflect.Type[] getGenerics(final Class<?> type, Class<?> superClass) {
-    if (type != null) {
-      Assert.notNull(superClass, "'interfaceClass or superClass' must not be null");
-      if (superClass.isInterface()) {
-        // find interface
-        for (final java.lang.reflect.Type genericType : type.getGenericInterfaces()) {
-          final java.lang.reflect.Type[] generics = getGenerics(genericType, superClass);
-          if (generics != null) {
-            return generics;
-          }
-        }
-      }
-      else {
-        final java.lang.reflect.Type genericType = type.getGenericSuperclass();
-        final java.lang.reflect.Type[] generics = getGenerics(genericType, superClass);
-        if (generics != null) {
-          return generics;
-        }
-      }
-      // super class
-      final Class<?> superclass = type.getSuperclass();
-      if (superclass != null && superclass != Object.class) {
-        return getGenerics(superclass, superClass);
-      }
-    }
-    return null;
-  }
-
-  public static java.lang.reflect.Type[] getGenerics(java.lang.reflect.Type genericType, Class<?> superClass) {
-    if (genericType instanceof ParameterizedType) {
-      final java.lang.reflect.Type rawType = ((ParameterizedType) genericType).getRawType();
-      if (superClass.equals(rawType)) {
-        return ((ParameterizedType) genericType).getActualTypeArguments();
-      }
-      else if (rawType instanceof Class) {
-        final java.lang.reflect.Type[] generics = getGenerics((Class<?>) rawType, superClass);
-        if (generics != null) {
-          return generics;
-        }
-      }
-    } // next level
-    else if (genericType instanceof Class) {
-      return getGenerics((Class<?>) genericType, superClass);
-    }
-    return null;
+  public static Class<?>[] getGenerics(final Class<?> type, Class<?> superClass) {
+    return GenericTypeResolver.resolveTypeArguments(type, superClass);
   }
 
   // --------------------------- parameter names discovering
