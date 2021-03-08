@@ -30,6 +30,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 
@@ -71,7 +72,6 @@ import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 import static cn.taketoday.context.Constant.VALUE;
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributes;
 import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
 import static cn.taketoday.context.utils.ContextUtils.conditional;
@@ -79,7 +79,6 @@ import static cn.taketoday.context.utils.ContextUtils.findNames;
 import static cn.taketoday.context.utils.ContextUtils.resolveInitMethod;
 import static cn.taketoday.context.utils.ContextUtils.resolveProps;
 import static cn.taketoday.context.utils.ReflectionUtils.makeAccessible;
-import static java.util.Objects.requireNonNull;
 
 /**
  * Standard {@link BeanFactory} implementation
@@ -334,7 +333,7 @@ public class StandardBeanFactory
 
   @Override
   public void importBeans(final Class<?>... beans) {
-    for (final Class<?> bean : requireNonNull(beans)) {
+    for (final Class<?> bean : Objects.requireNonNull(beans)) {
       final BeanDefinition def = createBeanDefinition(bean);
       importBeans(def);
       register(def);
@@ -685,7 +684,7 @@ public class StandardBeanFactory
    * @since 3.0
    */
   public void setPropertyValueResolvers(PropertyValueResolver... resolvers) {
-    nonNull(resolvers, "PropertyValueResolver must not be null");
+    Assert.notNull(resolvers, "PropertyValueResolver must not be null");
 
     propertyResolvers.clear();
     Collections.addAll(propertyResolvers, OrderUtils.reversedSort(resolvers));
