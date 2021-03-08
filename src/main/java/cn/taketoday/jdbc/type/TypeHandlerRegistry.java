@@ -50,7 +50,7 @@ public class TypeHandlerRegistry {
   private ObjectTypeHandler objectTypeHandler = ObjectTypeHandler.getSharedInstance();
 
   private final TypeHandler<Object> unknownTypeHandler;
-  private final Map<Type, TypeHandler<?>> typeHandlers = new HashMap<>();
+  private final Map<Class<?>, TypeHandler<?>> typeHandlers = new HashMap<>();
   private Class<? extends TypeHandler> defaultEnumTypeHandler = EnumTypeHandler.class;
 
   public TypeHandlerRegistry() {
@@ -140,27 +140,23 @@ public class TypeHandlerRegistry {
   //
 
   public boolean hasTypeHandler(Class<?> javaType) {
-    return javaType != null && getTypeHandler((Type) javaType) != null;
+    return javaType != null && getTypeHandler(javaType) != null;
   }
 
   public boolean hasTypeHandler(TypeReference<?> javaTypeReference) {
     return javaTypeReference != null && getTypeHandler(javaTypeReference) != null;
   }
 
-  public <T> TypeHandler<T> getTypeHandler(Class<T> type) {
-    return getTypeHandler((Type) type);
-  }
-
   public <T> TypeHandler<T> getTypeHandler(TypeReference<T> javaTypeReference) {
-    return getTypeHandler(javaTypeReference.getRawType());
+    return getTypeHandler(javaTypeReference.getTypeParameter());
   }
 
   @SuppressWarnings("unchecked")
-  public <T> TypeHandler<T> getTypeHandler(Type type) {
+  public <T> TypeHandler<T> getTypeHandler(Class<T> type) {
     TypeHandler<?> typeHandler = typeHandlers.get(type);
     if (typeHandler == null) {
-      if (type instanceof Class && Enum.class.isAssignableFrom((Class<?>) type)) {
-        typeHandler = getInstance((Class<?>) type, defaultEnumTypeHandler);
+      if (Enum.class.isAssignableFrom(type)) {
+        typeHandler = getInstance(type, defaultEnumTypeHandler);
         register(type, typeHandler);
       }
       else {
@@ -184,7 +180,7 @@ public class TypeHandlerRegistry {
     final MappedTypes mappedTypes = ClassUtils.getAnnotation(MappedTypes.class, typeHandler.getClass());
     if (mappedTypes != null) {
       for (Class<?> handledType : mappedTypes.value()) {
-        register(handledType, typeHandler);
+        register((Class<T>) handledType, typeHandler);
         mappedTypeFound = true;
       }
     }
@@ -192,7 +188,7 @@ public class TypeHandlerRegistry {
     if (!mappedTypeFound && typeHandler instanceof TypeReference) {
       try {
         TypeReference<T> typeReference = (TypeReference<T>) typeHandler;
-        register(typeReference.getRawType(), typeHandler);
+        register(typeReference.getTypeParameter(), typeHandler);
         mappedTypeFound = true;
       }
       catch (Throwable t) {
@@ -204,16 +200,12 @@ public class TypeHandlerRegistry {
     }
   }
 
-  public <T> void register(Class<T> javaType, TypeHandler<? extends T> typeHandler) {
-    register((Type) javaType, typeHandler);
-  }
-
-  public <T> void register(Type javaType, TypeHandler<? extends T> typeHandler) {
+  public <T> void register(Class<T> javaType, TypeHandler<?> typeHandler) {
     typeHandlers.put(javaType, typeHandler);
   }
 
-  public <T> void register(TypeReference<T> reference, TypeHandler<? extends T> handler) {
-    register(reference.getRawType(), handler);
+  public <T> void register(TypeReference<T> reference, TypeHandler<T> handler) {
+    register(reference.getTypeParameter(), handler);
   }
 
   //
@@ -281,7 +273,7 @@ public class TypeHandlerRegistry {
    *
    * @return the type handlers
    */
-  public Map<Type, TypeHandler<?>> getTypeHandlers() {
+  public Map<Class<?>, TypeHandler<?>> getTypeHandlers() {
     return typeHandlers;
   }
 
