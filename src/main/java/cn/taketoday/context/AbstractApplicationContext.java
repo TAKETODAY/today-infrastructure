@@ -35,7 +35,6 @@ import cn.taketoday.context.annotation.ContextListener;
 import cn.taketoday.context.el.ValueExpressionContext;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.env.Environment;
-import cn.taketoday.context.env.StandardEnvironment;
 import cn.taketoday.context.event.ApplicationEventCapable;
 import cn.taketoday.context.event.BeanDefinitionLoadedEvent;
 import cn.taketoday.context.event.BeanDefinitionLoadingEvent;
@@ -258,8 +257,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   public void prepareBeanFactory() {
 
     final AbstractBeanFactory beanFactory = getBeanFactory();
-    final ConfigurableEnvironment env = getEnvironment();
     // must not be null
+    final ConfigurableEnvironment env = getEnvironment();
     // check registry
     if (env.getBeanDefinitionRegistry() == null) {
       env.setBeanDefinitionRegistry(beanFactory);
@@ -558,14 +557,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     return environment;
   }
 
-  /**
-   * create {@link ConfigurableEnvironment}
-   *
-   * @return a default {@link ConfigurableEnvironment}
-   */
-  protected ConfigurableEnvironment createEnvironment() {
-    return new StandardEnvironment();
-  }
 
   @Override
   public boolean hasStarted() {

@@ -17,6 +17,8 @@
 
 package cn.taketoday.expression;
 
+import cn.taketoday.context.NestedRuntimeException;
+
 /**
  * Represents any of the exception conditions that can arise during expression
  * evaluation.
@@ -24,7 +26,7 @@ package cn.taketoday.expression;
  * @since JSP 2.1
  */
 @SuppressWarnings("serial")
-public class ExpressionException extends RuntimeException {
+public class ExpressionException extends NestedRuntimeException {
 
   // -------------------------------------
 

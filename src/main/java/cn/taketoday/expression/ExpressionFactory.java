@@ -439,8 +439,9 @@ public class ExpressionFactory implements NodeVisitor {
       VariableMapper varMapper = context.getVariableMapper();
 
       AstFunction funcNode = (AstFunction) node;
-      if ((funcNode.getPrefix().length() == 0) && //
-              (fnMapper == null || fnMapper.resolveFunction(funcNode.getPrefix(), funcNode.getLocalName()) == null)) //
+      final String prefix = funcNode.getPrefix();
+      if ((prefix.isEmpty()) && //
+              (fnMapper == null || fnMapper.resolveFunction(prefix, funcNode.getLocalName()) == null)) //
       {
         // This can be a call to a LambdaExpression. The target
         // of the call is a bean or an EL variable. Capture
@@ -456,7 +457,7 @@ public class ExpressionFactory implements NodeVisitor {
       if (fnMapper == null) {
         throw new ExpressionException("Expression uses functions, but no FunctionMapper was provided");
       }
-      Method m = fnMapper.resolveFunction(funcNode.getPrefix(), funcNode.getLocalName());
+      Method m = fnMapper.resolveFunction(prefix, funcNode.getLocalName());
       if (m == null) {
         throw new ExpressionException("Function ''" + funcNode.getOutputName() + "'' not found");
       }
