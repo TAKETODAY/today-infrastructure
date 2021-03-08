@@ -56,8 +56,6 @@ public class ApplicationContextTest {
 
   /**
    * test ApplicationContext
-   *
-   * @throws NoSuchBeanDefinitionException
    */
   @Test
   public void testApplicationContext() throws NoSuchBeanDefinitionException {
@@ -83,8 +81,6 @@ public class ApplicationContextTest {
 
   /**
    * test load context and get singleton.
-   *
-   * @throws NoSuchBeanDefinitionException
    */
   @Test
   public void testLoadSingleton() throws NoSuchBeanDefinitionException {
@@ -103,8 +99,6 @@ public class ApplicationContextTest {
 
   /**
    * test load FactoryBean.
-   *
-   * @throws NoSuchBeanDefinitionException
    */
   @Test
   public void testLoadFactoryBean() throws NoSuchBeanDefinitionException {
