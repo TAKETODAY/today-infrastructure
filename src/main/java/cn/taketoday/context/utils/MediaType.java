@@ -817,7 +817,7 @@ public class MediaType extends MimeType implements Serializable {
    */
   private static HashMap<String, MediaType> parseMimeTypes() {
 
-    try (final InputStream is = new ClassPathResource(MIME_TYPES_FILE_NAME, MediaType.class).getInputStream()) {
+    try (final InputStream is = new ClassPathResource(MIME_TYPES_FILE_NAME).getInputStream()) {
       try (final BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.US_ASCII))) {
 
         final HashMap<String, MediaType> result = new HashMap<>();
