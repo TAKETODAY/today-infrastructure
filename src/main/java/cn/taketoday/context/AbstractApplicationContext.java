@@ -145,12 +145,14 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
       prepareRefresh();
       // Prepare BeanFactory
       prepareBeanFactory();
+      // Initialization singletons that has already in context
       // Initialize other special beans in specific context subclasses.
+      // for example a Web Server
       preRefresh();
-      // Global Lazy loading
-      if (!getEnvironment().getFlag(Constant.ENABLE_LAZY_LOADING)) {
-        refresh(); // Initialize all singletons.
-      }
+
+      // Refresh factory, Initialize all singletons.
+      refresh();
+
       // Finish refresh
       finishRefresh();
     }
@@ -232,7 +234,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   /**
-   * Template method
+   * Initialization singletons that has already in context
    */
   protected void preRefresh() {
     publishEvent(new ContextPreRefreshEvent(this));

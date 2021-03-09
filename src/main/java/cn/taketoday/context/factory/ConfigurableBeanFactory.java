@@ -181,7 +181,15 @@ public interface ConfigurableBeanFactory
 
   /**
    * Initialize singletons
+   * <p>
+   * Ensure that all non-lazy-init singletons are instantiated, also considering
+   * {@link FactoryBean FactoryBeans}.
+   * Typically invoked at the end of factory setup, if desired.
+   * </p>
    *
+   * @throws BeansException
+   *         if one of the singleton beans could not be created.
+   *         Note: This may have left the factory with some beans already initialized!
    * @throws Throwable
    *         when could not initialize singletons
    * @since 2.1.2

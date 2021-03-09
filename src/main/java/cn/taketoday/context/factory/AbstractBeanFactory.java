@@ -673,13 +673,13 @@ public abstract class AbstractBeanFactory
     if (def.isInitialized()) { // fix #7
       return bean;
     }
-    final Object initBean = initializeBean(bean, def);
-    if (initBean != bean) {
-      registerSingleton(def.getName(), initBean);
+    final Object afterInit = initializeBean(bean, def);
+    if (afterInit != bean) {
+      registerSingleton(def.getName(), afterInit);
     }
     // apply this bean definition's 'initialized' property
     def.setInitialized(true);
-    return initBean;
+    return afterInit;
   }
 
   /**
@@ -715,13 +715,15 @@ public abstract class AbstractBeanFactory
     }
 
     final Object bean = createBeanIfNecessary(def);
-    final Object initBean = initializeBean(bean, def);
+    // After initialization
+    final Object afterInit = initializeBean(bean, def);
 
-    if (initBean != bean) {
-      registerSingleton(def.getName(), initBean);
+    if (afterInit != bean) {
+      registerSingleton(def.getName(), afterInit);
     }
     def.setInitialized(true);
-    return initBean;
+
+    return afterInit;
   }
 
   /**
@@ -1304,13 +1306,34 @@ public abstract class AbstractBeanFactory
   public void initializeSingletons() {
     log.debug("Initialization of singleton objects.");
     for (final BeanDefinition def : getBeanDefinitions().values()) {
-      // lazy-init
+      // Trigger initialization of all non-lazy singleton beans...
       if (def.isSingleton() && !def.isInitialized() && !def.isLazyInit()) {
-        createSingleton(def);
+        if (def.isFactoryBean()) {
+          final FactoryBean<?> factoryBean = getFactoryBeanInstance(def);
+          final boolean isEagerInit = factoryBean instanceof SmartFactoryBean && ((SmartFactoryBean<?>) factoryBean).isEagerInit();
+          if (isEagerInit) {
+            getBean(def);
+          }
+          else {
+          }
+          createSingleton(def);
+        }
       }
     }
 
+    // Trigger post-initialization callback for all applicable beans...
+    for (final Object singleton : getSingletons().values()) {
+      postSingletonInitialization(singleton);
+    }
+
     log.debug("The singleton objects are initialized.");
+  }
+
+  protected void postSingletonInitialization(final Object singleton) {
+    // SmartInitializingSingleton
+    if (singleton instanceof SmartInitializingSingleton) {
+      ((SmartInitializingSingleton) singleton).afterSingletonsInstantiated();
+    }
   }
 
   /**

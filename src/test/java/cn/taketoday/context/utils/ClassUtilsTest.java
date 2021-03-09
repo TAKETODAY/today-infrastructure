@@ -464,7 +464,8 @@ public class ClassUtilsTest {
             .hasSize(1);
 
     assertThat(genericityClass[0])
-            .isInstanceOf(WildcardType.class);
+            .isEqualTo(Object.class)
+            .isInstanceOf(Class.class);
 
   }
 

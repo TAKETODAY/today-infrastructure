@@ -120,7 +120,6 @@ public interface Constant extends Opcodes, Serializable {
     long 	BYTES_PER_TB 			= BYTES_PER_GB * 1024;
 
     //@since 2.1.6
-    String 	ENABLE_LAZY_LOADING 	= "enable.lazy.loading"; // Global lazy loading flag
     String	ENABLE_FULL_PROTOTYPE	= "enable.full.prototype";
     String	ENABLE_FULL_LIFECYCLE	= "enable.full.lifecycle";
     String[]  EMPTY_STRING_ARRAY	= new String[0];
