@@ -1314,8 +1314,8 @@ public abstract class AbstractBeanFactory
           if (isEagerInit) {
             getBean(def);
           }
-          else {
-          }
+        }
+        else {
           createSingleton(def);
         }
       }
