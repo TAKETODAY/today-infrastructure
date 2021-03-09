@@ -18,18 +18,20 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop.proxy;
+package cn.taketoday.aop.proxy.std;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.taketoday.aop.proxy.AdvisedSupport;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.ClassEmitter;
 
 /**
  * @author TODAY 2021/3/7 20:17
+ * @since 3.0
  */
-public class StandardProxyContext {
+public class GeneratorContext {
 
   final Type targetType;
   final Class<?> targetClass;
@@ -38,7 +40,7 @@ public class StandardProxyContext {
 
   final List<String> fields = new ArrayList<>();
 
-  public StandardProxyContext(Type targetType, AdvisedSupport config, ClassEmitter classEmitter, Class<?> targetClass) {
+  public GeneratorContext(Type targetType, AdvisedSupport config, ClassEmitter classEmitter, Class<?> targetClass) {
     this.targetType = targetType;
     this.config = config;
     this.classEmitter = classEmitter;

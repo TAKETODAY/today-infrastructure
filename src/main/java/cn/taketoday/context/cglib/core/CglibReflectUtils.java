@@ -251,21 +251,20 @@ public abstract class CglibReflectUtils {
 
     final String prefix = (dimensions > 0) ? brackets + "L" : Constant.BLANK;
     final String suffix = (dimensions > 0) ? ";" : Constant.BLANK;
-    try {//@off
-            return Class.forName(new StringBuilder(prefix)
-                                         .append(className)
-                                         .append(suffix)
-                                         .toString(), false, loader);//@on
+    try {
+      return Class.forName(new StringBuilder(prefix)
+                                   .append(className)
+                                   .append(suffix)
+                                   .toString(), false, loader);
     }
     catch (ClassNotFoundException ignore) {}
     for (int i = 0; i < packages.length; i++) {
       try {
-//@off
-                return Class.forName(new StringBuilder(prefix)
+        return Class.forName(new StringBuilder(prefix)
                                      .append(packages[i])
                                      .append('.')
                                      .append(className)
-                                     .append(suffix).toString(), false, loader);//@on
+                                     .append(suffix).toString(), false, loader);
       }
       catch (ClassNotFoundException ignore) {}
     }

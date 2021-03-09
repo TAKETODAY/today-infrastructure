@@ -2102,4 +2102,35 @@ public abstract class ClassUtils {
     return getShortName(getQualifiedName(clazz));
   }
 
+  /**
+   * Given an input class object, return a string which consists of the
+   * class's package name as a pathname, i.e., all dots ('.') are replaced by
+   * slashes ('/'). Neither a leading nor trailing slash is added. The result
+   * could be concatenated with a slash and the name of a resource and fed
+   * directly to {@code ClassLoader.getResource()}. For it to be fed to
+   * {@code Class.getResource} instead, a leading slash would also have
+   * to be prepended to the returned value.
+   *
+   * @param clazz
+   *         the input class. A {@code null} value or the default
+   *         (empty) package will result in an empty string ("") being returned.
+   *
+   * @return a path which represents the package name
+   *
+   * @see ClassLoader#getResource
+   * @see Class#getResource
+   * @since 3.0
+   */
+  public static String classPackageAsResourcePath(Class<?> clazz) {
+    if (clazz == null) {
+      return Constant.BLANK;
+    }
+    String className = clazz.getName();
+    int packageEndIndex = className.lastIndexOf(Constant.PACKAGE_SEPARATOR);
+    if (packageEndIndex == -1) {
+      return Constant.BLANK;
+    }
+    String packageName = className.substring(0, packageEndIndex);
+    return packageName.replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR);
+  }
 }

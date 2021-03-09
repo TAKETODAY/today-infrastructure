@@ -18,13 +18,14 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop.proxy;
+package cn.taketoday.aop.proxy.std;
 
 import org.aopalliance.intercept.MethodInterceptor;
 
 import java.lang.reflect.Method;
 
 import cn.taketoday.aop.TargetSource;
+import cn.taketoday.aop.proxy.AdvisedSupport;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.ClassEmitter;
@@ -53,7 +54,7 @@ public class NoneProxyMethodGenerator implements ProxyMethodGenerator {
   }
 
   @Override
-  public boolean generate(Method method, StandardProxyContext context) {
+  public boolean generate(Method method, GeneratorContext context) {
     final AdvisedSupport config = context.getConfig();
     final MethodInterceptor[] interceptors = context.getConfig().getInterceptors(method, context.getTargetClass());
 
@@ -77,7 +78,7 @@ public class NoneProxyMethodGenerator implements ProxyMethodGenerator {
    *   }
    * </pre>
    */
-  protected void invokeStaticTarget(Method method, StandardProxyContext context) {
+  protected void invokeStaticTarget(Method method, GeneratorContext context) {
     final ClassEmitter emitter = context.getClassEmitter();
     MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method);
     final CodeEmitter codeEmitter = EmitUtils.beginMethod(emitter, methodInfo, method.getModifiers());
@@ -101,7 +102,7 @@ public class NoneProxyMethodGenerator implements ProxyMethodGenerator {
    *   }
    * </pre>
    */
-  protected void invokeTargetFromTargetSource(Method method, StandardProxyContext context) {
+  protected void invokeTargetFromTargetSource(Method method, GeneratorContext context) {
     final ClassEmitter emitter = context.getClassEmitter();
     MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method);
     final CodeEmitter codeEmitter = EmitUtils.beginMethod(emitter, methodInfo, method.getModifiers());

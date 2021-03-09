@@ -45,8 +45,6 @@ public abstract class AnnotationVisitor {
 
   /**
    * Constructs a new {@link AnnotationVisitor}.
-   *
-   * use {@link Opcodes#ASM7}.
    */
   public AnnotationVisitor() {
     this(null);

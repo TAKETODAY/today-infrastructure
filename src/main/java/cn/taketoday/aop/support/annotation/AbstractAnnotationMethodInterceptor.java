@@ -73,7 +73,7 @@ public abstract class AbstractAnnotationMethodInterceptor
 
     this.aspectDef = aspectDef;
 
-    this.invoker = MethodInvoker.create(adviceMethod);
+    this.invoker = MethodInvoker.create(adviceMethod, aspectDef.getBeanClass());
     this.adviceParameterLength = adviceMethod.getParameterCount();
     this.adviceParameters = new byte[adviceParameterLength];
     this.adviceParameterTypes = adviceMethod.getParameterTypes();

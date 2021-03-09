@@ -18,12 +18,15 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop.proxy;
+package cn.taketoday.aop.proxy.std;
 
 import java.lang.reflect.Method;
 import java.util.List;
 
 import cn.taketoday.aop.TargetSource;
+import cn.taketoday.aop.proxy.AdvisedSupport;
+import cn.taketoday.aop.proxy.StandardProxyInvoker;
+import cn.taketoday.aop.proxy.TargetInvocation;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
@@ -84,7 +87,7 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
   }
 
   @Override
-  public boolean generate(Method method, StandardProxyContext context) {
+  public boolean generate(Method method, GeneratorContext context) {
     final List<String> fields = context.getFields();
     final String targetInvField = putTargetInv(method, context, fields);
     context.addField(targetInvField);
@@ -118,7 +121,7 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
     return true;
   }
 
-  void generateProxyMethod(Method method, String targetInvField, StandardProxyContext context, CodeEmitter codeEmitter) {
+  void generateProxyMethod(Method method, String targetInvField, GeneratorContext context, CodeEmitter codeEmitter) {
     final AdvisedSupport config = context.getConfig();
     final boolean exposeProxy = config.isExposeProxy();
     final boolean isStatic = config.getTargetSource().isStatic();
@@ -178,11 +181,11 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
    * @param method
    *         current method
    * @param fields
-   *         Target keys in {@link StandardProxyContext#targetClass}
+   *         Target keys in {@link GeneratorContext#targetClass}
    *
    * @return Target key
    */
-  protected String putTargetInv(final Method method, StandardProxyContext context, final List<String> fields) {
+  protected String putTargetInv(final Method method, GeneratorContext context, final List<String> fields) {
     final String field = method.getName() + StringUtils.getRandomString(4);
     if (fields.contains(field)) {
       return putTargetInv(method, context, fields);
@@ -199,7 +202,7 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
     return Constant.PRIVATE_FINAL_STATIC;
   }
 
-  protected TargetInvocation getTarget(final Method method, StandardProxyContext context) {
+  protected TargetInvocation getTarget(final Method method, GeneratorContext context) {
     return new TargetInvocation(method, context.getTargetClass(), context.getConfig());
   }
 

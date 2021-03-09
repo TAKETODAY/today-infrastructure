@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop.proxy;
+package cn.taketoday.aop.proxy.std;
 
 import java.lang.reflect.Method;
 
@@ -36,8 +36,11 @@ public interface ProxyMethodGenerator {
   /**
    * @return generate status
    */
-  boolean generate(Method method, StandardProxyContext context);
+  boolean generate(Method method, GeneratorContext context);
 
 //  void generate(Method method, AdvisedSupport config, CodeEmitter codeEmitter);
+
+
+
 
 }
