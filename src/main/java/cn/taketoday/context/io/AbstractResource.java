@@ -23,9 +23,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +35,7 @@ import java.util.Objects;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
@@ -64,8 +67,92 @@ public abstract class AbstractResource implements Resource {
   }
 
   @Override
+  public boolean isReadable() {
+    try {
+      URL url = getLocation();
+      if (ResourceUtils.isFileURL(url)) {
+        // Proceed with file system resolution
+        File file = getFile();
+        return (file.canRead() && !file.isDirectory());
+      }
+      else {
+        // Try InputStream resolution for jar resources
+        URLConnection con = url.openConnection();
+        customizeConnection(con);
+        if (con instanceof HttpURLConnection) {
+          HttpURLConnection httpCon = (HttpURLConnection) con;
+          int code = httpCon.getResponseCode();
+          if (code != HttpURLConnection.HTTP_OK) {
+            httpCon.disconnect();
+            return false;
+          }
+        }
+        long contentLength = con.getContentLengthLong();
+        if (contentLength > 0) {
+          return true;
+        }
+        else if (contentLength == 0) {
+          // Empty file or directory -> not considered readable...
+          return false;
+        }
+        else {
+          // Fall back to stream existence: can we open the stream?
+          getInputStream().close();
+          return true;
+        }
+      }
+    }
+    catch (IOException ex) {
+      return false;
+    }
+  }
+
+  /**
+   * Customize the given {@link URLConnection}, obtained in the course of an
+   * {@link #exists()}, {@link #contentLength()} or {@link #lastModified()} call.
+   * <p>Calls {@link ResourceUtils#useCachesIfNecessary(URLConnection)} and
+   * delegates to {@link #customizeConnection(HttpURLConnection)} if possible.
+   * Can be overridden in subclasses.
+   *
+   * @param con
+   *         the URLConnection to customize
+   *
+   * @throws IOException
+   *         if thrown from URLConnection methods
+   */
+  protected void customizeConnection(URLConnection con) throws IOException {
+    ResourceUtils.useCachesIfNecessary(con);
+    if (con instanceof HttpURLConnection) {
+      customizeConnection((HttpURLConnection) con);
+    }
+  }
+
+  /**
+   * Customize the given {@link HttpURLConnection}, obtained in the course of an
+   * {@link #exists()}, {@link #contentLength()} or {@link #lastModified()} call.
+   * <p>Sets request method "HEAD" by default. Can be overridden in subclasses.
+   *
+   * @param con
+   *         the HttpURLConnection to customize
+   *
+   * @throws IOException
+   *         if thrown from HttpURLConnection methods
+   */
+  protected void customizeConnection(HttpURLConnection con) throws IOException {
+    con.setRequestMethod("HEAD");
+  }
+
+  /**
+   * This implementation always returns {@code false}.
+   */
+  @Override
+  public boolean isOpen() {
+    return false;
+  }
+
+  @Override
   public URL getLocation() throws IOException {
-    throw new FileNotFoundException(getName() + " cannot be resolved to URL");
+    throw new FileNotFoundException(this + " cannot be resolved to URL");
   }
 
   @Override
@@ -81,7 +168,7 @@ public abstract class AbstractResource implements Resource {
 
   @Override
   public File getFile() throws IOException {
-    throw new FileNotFoundException(getName() + " cannot be resolved to absolute file path");
+    throw new FileNotFoundException(this + " cannot be resolved to absolute file path");
   }
 
   @Override
@@ -183,7 +270,7 @@ public abstract class AbstractResource implements Resource {
 
   @Override
   public Resource createRelative(String relativePath) throws IOException {
-    throw new FileNotFoundException(relativePath + " cannot be resolved relative file path");
+    throw new FileNotFoundException(this + " cannot be resolved relative file path for " + relativePath);
   }
 
   @Override

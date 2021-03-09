@@ -33,6 +33,7 @@ import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ResourceUtils;
+import cn.taketoday.context.utils.StringUtils;
 
 /**
  * @author TODAY <br>
@@ -40,80 +41,147 @@ import cn.taketoday.context.utils.ResourceUtils;
  */
 public class ClassPathResource implements Resource, WritableResource {
 
-  private final Resource resource;
+  private final String location;
+  private Class<?> resourceClass;
+  private ClassLoader classLoader;
 
-  public ClassPathResource(URL location) {
-    this.resource = ResourceUtils.getResource(location);
-  }
+  private Resource resource;
 
+  /**
+   * Create a new {@code ClassPathResource} for {@code ClassLoader} usage.
+   * A leading slash will be removed, as the ClassLoader resource access
+   * methods will not accept it.
+   * <p>The thread context class loader will be used for
+   * loading the resource.
+   *
+   * @param location
+   *         the absolute path within the class path
+   *
+   * @see java.lang.ClassLoader#getResourceAsStream(String)
+   * @see ClassUtils#getClassLoader() ()
+   */
   public ClassPathResource(String location) {
     this(location, ClassUtils.getClassLoader());
   }
 
-  public ClassPathResource(String location, Class<?> resourceClass) {
-    this(location, resourceClass.getClassLoader());
+  /**
+   * Create a new {@code ClassPathResource} for {@code ClassLoader} usage.
+   * A leading slash will be removed, as the ClassLoader resource access
+   * methods will not accept it.
+   *
+   * @param path
+   *         the absolute path within the classpath
+   * @param classLoader
+   *         the class loader to load the resource with,
+   *         or {@code null} for the thread context class loader
+   *
+   * @see ClassLoader#getResourceAsStream(String)
+   */
+  public ClassPathResource(String path, ClassLoader classLoader) {
+    Assert.notNull(path, "Path must not be null");
+    String pathToUse = StringUtils.cleanPath(path);
+    if (pathToUse.startsWith("/")) {
+      pathToUse = pathToUse.substring(1);
+    }
+    this.location = pathToUse;
+    this.classLoader = (classLoader != null ? classLoader : ClassUtils.getClassLoader());
   }
 
-  public ClassPathResource(String location, ClassLoader classLoader) {
-    Assert.notNull(location, "Location must not be null");
-    final URL resource = (classLoader != null ? classLoader : ClassUtils.getClassLoader()).getResource(location);
-    // linux path start with '/'
-    this.resource = resource == null ? new FileBasedResource(location) : ResourceUtils.getResource(resource);
+  /**
+   * Create a new {@code ClassPathResource} for {@code Class} usage.
+   * The path can be relative to the given class, or absolute within
+   * the classpath via a leading slash.
+   *
+   * @param path
+   *         relative or absolute path within the class path
+   * @param clazz
+   *         the class to load resources with
+   *
+   * @see java.lang.Class#getResourceAsStream
+   */
+  public ClassPathResource(String path, Class<?> clazz) {
+    Assert.notNull(path, "Path must not be null");
+    this.location = StringUtils.cleanPath(path);
+    this.resourceClass = clazz;
+  }
+
+  Resource getResource() {
+    if (resource == null) {
+      URL url;
+      if (resourceClass != null) {
+        url = resourceClass.getResource(location);
+      }
+      else if (classLoader != null) {
+        url = classLoader.getResource(location);
+      }
+      else {
+        url = ClassLoader.getSystemResource(location);
+      }
+      if (url != null) {
+        resource = ResourceUtils.getResource(url);
+      }
+      else {
+        resource = new FileBasedResource(location);
+      }
+    }
+    return resource;
   }
 
   @Override
   public InputStream getInputStream() throws IOException {
-    return resource.getInputStream();
+    return getResource().getInputStream();
   }
 
   @Override
   public long contentLength() throws IOException {
-    return resource.contentLength();
+    return getResource().contentLength();
   }
 
   @Override
   public String getName() {
-    return resource.getName();
+    return StringUtils.getFilename(location);
   }
 
   @Override
   public long lastModified() throws IOException {
-    return resource.lastModified();
+    return getResource().lastModified();
   }
 
   @Override
   public URL getLocation() throws IOException {
-    return resource.getLocation();
+    return getResource().getLocation();
   }
 
   @Override
   public File getFile() throws IOException {
-    return resource.getFile();
+    return getResource().getFile();
   }
 
   @Override
   public boolean exists() {
-    return resource.exists();
+    return getResource().exists();
   }
 
   @Override
   public boolean isDirectory() throws IOException {
-    return resource.isDirectory();
+    return getResource().isDirectory();
   }
 
   @Override
   public String[] list() throws IOException {
-    return resource.list();
+    return getResource().list();
   }
 
   @Override
   public Resource createRelative(String relativePath) throws IOException {
-    return resource.createRelative(relativePath);
+    final String pathToUse = ResourceUtils.getRelativePath(location, relativePath);
+    return (this.resourceClass != null ? new ClassPathResource(pathToUse, this.resourceClass) :
+            new ClassPathResource(pathToUse, this.classLoader));
   }
 
   @Override
   public OutputStream getOutputStream() throws IOException {
-    final Resource resource = this.resource;
+    final Resource resource = this.getResource();
     if (resource instanceof Writable) {
       return ((Writable) resource).getOutputStream();
     }
@@ -122,12 +190,12 @@ public class ClassPathResource implements Resource, WritableResource {
 
   @Override
   public ReadableByteChannel readableChannel() throws IOException {
-    return resource.readableChannel();
+    return getResource().readableChannel();
   }
 
   @Override
   public WritableByteChannel writableChannel() throws IOException {
-    final Resource resource = this.resource;
+    final Resource resource = this.getResource();
     if (resource instanceof Writable) {
       return ((Writable) resource).writableChannel();
     }
@@ -136,22 +204,22 @@ public class ClassPathResource implements Resource, WritableResource {
 
   @Override
   public Resource[] list(ResourceFilter filter) throws IOException {
-    return resource.list(filter);
+    return getResource().list(filter);
   }
 
   @Override
-  public String toString() {
-    return resource.toString();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    return obj == this || (obj instanceof ClassPathResource && resource.equals(((ClassPathResource) obj).getOriginalResource()));
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof ClassPathResource)) return false;
+    final ClassPathResource that = (ClassPathResource) o;
+    return Objects.equals(location, that.location)
+            && Objects.equals(resourceClass, that.resourceClass)
+            && Objects.equals(classLoader, that.classLoader);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(resource);
+    return Objects.hash(location, resourceClass, classLoader);
   }
 
   /**
@@ -160,10 +228,27 @@ public class ClassPathResource implements Resource, WritableResource {
    * @return Original {@link Resource}
    */
   public final Resource getOriginalResource() {
-    return resource;
+    return getResource();
   }
 
   public URI getURI() throws IOException {
-    return resource.getURI();
+    return getResource().getURI();
   }
+
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder("class path resource [");
+    String pathToUse = this.location;
+    if (this.resourceClass != null && !pathToUse.startsWith("/")) {
+      builder.append(ClassUtils.classPackageAsResourcePath(resourceClass));
+      builder.append('/');
+    }
+    if (pathToUse.startsWith("/")) {
+      pathToUse = pathToUse.substring(1);
+    }
+    builder.append(pathToUse);
+    builder.append(']');
+    return builder.toString();
+  }
+
 }

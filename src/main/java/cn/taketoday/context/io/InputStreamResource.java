@@ -84,6 +84,14 @@ public class InputStreamResource extends AbstractResource {
   }
 
   /**
+   * This implementation always returns {@code true}.
+   */
+  @Override
+  public boolean isOpen() {
+    return true;
+  }
+
+  /**
    * This implementation throws IllegalStateException if attempting to
    * read the underlying stream multiple times.
    */

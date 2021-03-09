@@ -54,7 +54,7 @@ public class UrlBasedResource extends AbstractResource {
   }
 
   public UrlBasedResource(String path) throws MalformedURLException {
-    this(new URL(path));
+    this(new URL(StringUtils.cleanPath(path)));
   }
 
   public UrlBasedResource(String protocol, String location) throws URISyntaxException, MalformedURLException {

@@ -95,6 +95,32 @@ public interface Resource extends Readable {
   boolean exists();
 
   /**
+   * Indicate whether non-empty contents of this resource can be read via
+   * {@link #getInputStream()}.
+   * <p>Will be {@code true} for typical resource descriptors that exist
+   * since it strictly implies {@link #exists()} semantics as of 5.1.
+   * Note that actual content reading may still fail when attempted.
+   * However, a value of {@code false} is a definitive indication
+   * that the resource content cannot be read.
+   *
+   * @see #getInputStream()
+   * @see #exists()
+   */
+  default boolean isReadable() {
+    return exists();
+  }
+
+  /**
+   * Indicate whether this resource represents a handle with an open stream.
+   * If {@code true}, the InputStream cannot be read multiple times,
+   * and must be read and closed to avoid resource leaks.
+   * <p>Will be {@code false} for typical resource descriptors.
+   */
+  default boolean isOpen() {
+    return false;
+  }
+
+  /**
    * Is a directory?
    *
    * @throws IOException

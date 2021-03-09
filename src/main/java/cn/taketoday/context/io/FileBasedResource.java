@@ -87,7 +87,12 @@ public class FileBasedResource extends AbstractResource implements WritableResou
    */
   @Override
   public InputStream getInputStream() throws IOException {
-    return Files.newInputStream(this.filePath);
+    try {
+      return Files.newInputStream(this.filePath);
+    }
+    catch (NoSuchFileException ex) {
+      throw new FileNotFoundException(ex.getMessage());
+    }
   }
 
   /**
@@ -220,6 +225,19 @@ public class FileBasedResource extends AbstractResource implements WritableResou
   @Override
   public WritableByteChannel writableChannel() throws IOException {
     return FileChannel.open(this.filePath, StandardOpenOption.WRITE);
+  }
+
+  /**
+   * This implementation checks whether the underlying file is marked as readable
+   * (and corresponds to an actual file with content, not to a directory).
+   *
+   * @see java.io.File#canRead()
+   * @see java.io.File#isDirectory()
+   */
+  @Override
+  public boolean isReadable() {
+    return (this.file != null ? this.file.canRead() && !this.file.isDirectory() :
+            Files.isReadable(this.filePath) && !Files.isDirectory(this.filePath));
   }
 
   @Override
