@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import cn.taketoday.context.DecoratingProxy;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Order;
 
@@ -66,7 +67,11 @@ public abstract class OrderUtils {
     if (obj instanceof AnnotatedElement) {
       return getOrder((AnnotatedElement) obj);
     }
-    return getOrder(obj.getClass());
+
+    if (obj instanceof DecoratingProxy) {
+      return getOrder(((DecoratingProxy) obj).getDecoratedClass());
+    }
+    return getOrder(ClassUtils.getUserClass(obj));
   }
 
   /**

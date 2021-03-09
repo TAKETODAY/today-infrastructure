@@ -246,7 +246,7 @@ public class ProxyFactoryTests {
   @Test
   public void testCanAddAndRemoveAspectInterfacesOnSingleton() {
     ProxyFactory config = new ProxyFactory(new TestBean());
-    config.setProxyTargetClass(false);
+//    config.setProxyTargetClass(false);
     DebuggingClassWriter.setDebugLocation("D:\\dev\\temp\\debug");
 //    config.setOptimize(false);
 //    config.setUsingCglib(true);
