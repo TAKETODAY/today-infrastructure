@@ -183,7 +183,7 @@ public abstract class GenericTypeResolver {
    */
   public static Class<?> resolveReturnTypeArgument(Method method, Class<?> genericIfc) {
     Assert.notNull(method, "method must not be null");
-    Type returnType = method.getReturnType();
+    Class<?> returnType = method.getReturnType();
     Type genericReturnType = method.getGenericReturnType();
     if (returnType.equals(genericIfc)) {
       if (genericReturnType instanceof ParameterizedType) {
@@ -198,7 +198,7 @@ public abstract class GenericTypeResolver {
         return null;
       }
     }
-    return resolveTypeArgument((Class<?>) returnType, genericIfc);
+    return resolveTypeArgument(returnType, genericIfc);
   }
 
   /**
@@ -279,12 +279,7 @@ public abstract class GenericTypeResolver {
       Type rawType = paramIfc.getRawType();
       if (genericIfc.equals(rawType)) {
         Type[] typeArgs = paramIfc.getActualTypeArguments();
-        Class<?>[] result = new Class[typeArgs.length];
-        for (int i = 0; i < typeArgs.length; i++) {
-          Type arg = typeArgs[i];
-          result[i] = extractClass(ownerClass, arg);
-        }
-        return result;
+        return extractClasses(ownerClass, typeArgs);
       }
       else if (genericIfc.isAssignableFrom((Class<?>) rawType)) {
         return doResolveTypeArguments(ownerClass, (Class<?>) rawType, genericIfc);
@@ -294,6 +289,21 @@ public abstract class GenericTypeResolver {
       return doResolveTypeArguments(ownerClass, (Class<?>) ifc, genericIfc);
     }
     return null;
+  }
+
+  /**
+   * Extract Classes from the given Type[].
+   */
+  static Class<?>[] extractClasses(Class<?> ownerClass, Type[] typeArgs) {
+    if (typeArgs == null) {
+      return null;
+    }
+    Class<?>[] result = new Class[typeArgs.length];
+    for (int i = 0; i < typeArgs.length; i++) {
+      Type arg = typeArgs[i];
+      result[i] = extractClass(ownerClass, arg);
+    }
+    return result;
   }
 
   /**

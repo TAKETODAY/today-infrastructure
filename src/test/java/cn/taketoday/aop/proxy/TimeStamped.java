@@ -18,20 +18,24 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop;
+package cn.taketoday.aop.proxy;
 
-public interface ITestBean extends IOther {
 
-  String getName();
 
-  void setName(String name);
+/**
+ * This interface can be implemented by cacheable objects or cache entries,
+ * to enable the freshness of objects to be checked.
+ *
+ * @author Rod Johnson
+ * @author TODAY 2021/3/8 22:18
+ */
+public interface TimeStamped {
 
-  int getAge();
-
-  void setAge(int age);
-
-  ITestBean getSpouse();
-
-  void setSpouse(ITestBean spouse);
+  /**
+   * Return the timestamp for this object.
+   * @return long the timestamp for this object,
+   * as returned by System.currentTimeMillis()
+   */
+  long getTimeStamp();
 
 }

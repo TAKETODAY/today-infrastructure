@@ -18,20 +18,31 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop;
+package cn.taketoday.aop.proxy;
 
-public interface ITestBean extends IOther {
+import cn.taketoday.aop.support.DelegatingIntroductionInterceptor;
 
-  String getName();
+/**
+ * @author TODAY 2021/3/8 22:27
+ */
+public class TimestampIntroductionInterceptor
+        extends DelegatingIntroductionInterceptor implements TimeStamped {
 
-  void setName(String name);
+  private long ts;
 
-  int getAge();
+  public TimestampIntroductionInterceptor() { }
 
-  void setAge(int age);
+  public TimestampIntroductionInterceptor(long ts) {
+    this.ts = ts;
+  }
 
-  ITestBean getSpouse();
+  public void setTime(long ts) {
+    this.ts = ts;
+  }
 
-  void setSpouse(ITestBean spouse);
+  @Override
+  public long getTimeStamp() {
+    return ts;
+  }
 
 }

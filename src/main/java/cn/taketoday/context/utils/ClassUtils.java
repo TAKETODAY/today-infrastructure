@@ -1325,12 +1325,22 @@ public abstract class ClassUtils {
     return null;
   }
 
-  public static java.lang.reflect.Type[] getGenerics(final Field property) {
-    return getActualTypeArguments(property != null ? property.getGenericType() : null);
+  public static Class<?>[] getGenerics(final Field property) {
+    Assert.notNull(property, "property must not be null");
+    return GenericTypeResolver.extractClasses(property.getType(), getGenericTypes(property));
   }
 
-  public static java.lang.reflect.Type[] getGenerics(final Parameter parameter) {
-    return getActualTypeArguments(parameter != null ? parameter.getParameterizedType() : null);
+  public static Class<?>[] getGenerics(final Parameter parameter) {
+    Assert.notNull(parameter, "parameter must not be null");
+    return GenericTypeResolver.extractClasses(parameter.getType(), getGenericTypes(parameter));
+  }
+
+  public static java.lang.reflect.Type[] getGenericTypes(final Field property) {
+    return property != null ? getActualTypeArguments(property.getGenericType()) : null;
+  }
+
+  public static java.lang.reflect.Type[] getGenericTypes(final Parameter parameter) {
+    return parameter != null ? getActualTypeArguments(parameter.getParameterizedType()) : null;
   }
 
   static java.lang.reflect.Type[] getActualTypeArguments(final java.lang.reflect.Type pType) {
@@ -1349,7 +1359,7 @@ public abstract class ClassUtils {
    *         A interface class or super class
    *
    * @return Target generics {@link Class}s
-   * @deprecated use {@link GenericTypeResolver#resolveTypeArguments(Class, Class)}
+   *
    * @since 3.0
    */
   public static Class<?>[] getGenerics(final Class<?> type, Class<?> superClass) {
@@ -2037,6 +2047,60 @@ public abstract class ClassUtils {
       }
     }
     return arguments;
+  }
+
+  /**
+   * Return the qualified name of the given class: usually simply
+   * the class name, but component type class name + "[]" for arrays.
+   *
+   * @param clazz
+   *         the class
+   *
+   * @return the qualified name of the class
+   *
+   * @since 3.0
+   */
+  public static String getQualifiedName(Class<?> clazz) {
+    Assert.notNull(clazz, "Class must not be null");
+    return clazz.getTypeName();
+  }
+
+  /**
+   * Get the class name without the qualified package name.
+   *
+   * @param className
+   *         the className to get the short name for
+   *
+   * @return the class name of the class without the package name
+   *
+   * @throws IllegalArgumentException
+   *         if the className is empty
+   * @since 3.0
+   */
+  public static String getShortName(String className) {
+    Assert.hasLength(className, "Class name must not be empty");
+    int lastDotIndex = className.lastIndexOf(Constant.PACKAGE_SEPARATOR);
+    int nameEndIndex = className.indexOf(Constant.CGLIB_CLASS_SEPARATOR);
+    if (nameEndIndex == -1) {
+      nameEndIndex = className.length();
+    }
+    String shortName = className.substring(lastDotIndex + 1, nameEndIndex);
+    shortName = shortName.replace(Constant.INNER_CLASS_SEPARATOR, Constant.PACKAGE_SEPARATOR);
+    return shortName;
+  }
+
+  /**
+   * Get the class name without the qualified package name.
+   *
+   * @param clazz
+   *         the class to get the short name for
+   *
+   * @return the class name of the class without the package name
+   *
+   * @since 3.0
+   */
+  public static String getShortName(Class<?> clazz) {
+    return getShortName(getQualifiedName(clazz));
   }
 
 }

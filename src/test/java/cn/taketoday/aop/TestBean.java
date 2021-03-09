@@ -23,6 +23,17 @@ package cn.taketoday.aop;
 public class TestBean implements ITestBean {
   private int age;
   private String name;
+  private ITestBean spouse;
+
+  public TestBean() { }
+
+  public TestBean(String name) {
+    this.name = name;
+  }
+
+  public void setSpouse(ITestBean spouse) {
+    this.spouse = spouse;
+  }
 
   public void absquatulate() {
 
@@ -34,6 +45,11 @@ public class TestBean implements ITestBean {
 
   public void setAge(int age) {
     this.age = age;
+  }
+
+  @Override
+  public ITestBean getSpouse() {
+    return spouse;
   }
 
   @Override

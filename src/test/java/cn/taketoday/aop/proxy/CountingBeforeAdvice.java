@@ -18,20 +18,23 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop;
+package cn.taketoday.aop.proxy;
 
-public interface ITestBean extends IOther {
+import org.aopalliance.intercept.MethodInvocation;
 
-  String getName();
+import cn.taketoday.aop.MethodBeforeAdvice;
 
-  void setName(String name);
+/**
+ * Simple before advice example that we can use for counting checks.
+ *
+ * @author Rod Johnson
+ * @author TODAY 2021/3/8 22:16
+ */
+@SuppressWarnings("serial")
+public class CountingBeforeAdvice extends MethodCounter implements MethodBeforeAdvice {
 
-  int getAge();
-
-  void setAge(int age);
-
-  ITestBean getSpouse();
-
-  void setSpouse(ITestBean spouse);
-
+  @Override
+  public void before(MethodInvocation invocation) throws Throwable {
+    count(invocation.getMethod());
+  }
 }

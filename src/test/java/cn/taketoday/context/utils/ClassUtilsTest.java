@@ -434,24 +434,24 @@ public class ClassUtilsTest {
     Constructor<Generic> constructor = ClassUtils.getSuitableConstructor(Generic.class);
     Parameter[] parameters = constructor.getParameters();
 
-    assertThat(ClassUtils.getGenerics(parameters[0]))
+    assertThat(ClassUtils.getGenericTypes(parameters[0]))
             .isNotNull()
             .hasSize(1)
             .contains(String.class);
 
-    assertThat(ClassUtils.getGenerics(parameters[1]))
+    assertThat(ClassUtils.getGenericTypes(parameters[1]))
             .isNotNull()
             .hasSize(2)
             .contains(String.class, Object.class);
 
     Method method = ReflectionUtils.findMethod(Generic.class, "generic");
 
-    assertThat(ClassUtils.getGenerics(method.getParameters()[0]))
+    assertThat(ClassUtils.getGenericTypes(method.getParameters()[0]))
             .isNotNull()
             .hasSize(1)
             .contains(String.class);
 
-    assertThat(ClassUtils.getGenerics(method.getParameters()[1]))
+    assertThat(ClassUtils.getGenericTypes(method.getParameters()[1]))
             .isNotNull()
             .hasSize(2)
             .contains(String.class, Object.class);
