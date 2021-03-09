@@ -262,17 +262,10 @@ public class BeanFactoryTest extends BaseTest {
 
   @Test
   public void testGetBeansOfType() {
-
     setProcess("Get Beans Of Type");
-
     final ConfigurableBeanFactory beanFactory = getBeanFactory();
-
     final Map<String, Interface> beansOfType = beanFactory.getBeansOfType(Interface.class);
-
-    System.err.println(beansOfType);
-
     assert beansOfType.size() == 3;
-
   }
 
   //
@@ -298,6 +291,8 @@ public class BeanFactoryTest extends BaseTest {
     assertThat(singleton)
             .isEqualTo(obj)
             .isNotNull();
+
+    beanFactory.removeBean("registerBean");
 
   }
 
