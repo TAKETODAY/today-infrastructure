@@ -1099,22 +1099,6 @@ public abstract class AbstractBeanFactory
     return null;
   }
 
-  /**
-   * Get target singleton
-   *
-   * @param name
-   *         Bean name
-   * @param targetClass
-   *         Target class
-   *
-   * @return Target singleton
-   */
-  @SuppressWarnings("unchecked")
-  public <T> T getSingleton(String name, Class<T> targetClass) {
-    final Object singleton = getSingleton(name);
-    return targetClass.isInstance(singleton) ? (T) singleton : null;
-  }
-
   @Override
   public void removeSingleton(String name) {
     singletons.remove(name);
