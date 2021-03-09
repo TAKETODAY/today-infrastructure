@@ -168,7 +168,7 @@ public class DefaultIntroductionAdvisor
 
   @Override
   public String toString() {
-    return getClass().getName() + ": advice [" + this.advice + "]; interfaces "
+    return ObjectUtils.toHexString(this) + ": advice [" + this.advice + "]; interfaces "
             + ClassUtils.classNamesToString(this.interfaces);
   }
 

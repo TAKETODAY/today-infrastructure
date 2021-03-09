@@ -32,7 +32,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.AfterReturningAdvice;
@@ -233,7 +232,7 @@ public abstract class AopUtils {
       introductionAwareMethodMatcher = (IntroductionAwareMethodMatcher) methodMatcher;
     }
 
-    Set<Class<?>> classes = new LinkedHashSet<>();
+    LinkedHashSet<Class<?>> classes = new LinkedHashSet<>();
     if (!Proxy.isProxyClass(targetClass)) {
       classes.add(ClassUtils.getUserClass(targetClass));
     }
