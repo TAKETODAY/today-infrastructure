@@ -20,6 +20,9 @@
 package cn.taketoday.context;
 
 import java.util.Map;
+import java.util.function.Function;
+
+import cn.taketoday.context.utils.Assert;
 
 /**
  * Interface defining a generic contract for attaching and accessing metadata
@@ -92,4 +95,42 @@ public interface AttributeAccessor {
    * @since 3.0
    */
   Map<String, Object> getAttributes();
+
+  /**
+   * Compute a new value for the attribute identified by {@code name} if
+   * necessary and {@linkplain #setAttribute set} the new value in this
+   * {@code AttributeAccessor}.
+   * <p>If a value for the attribute identified by {@code name} already exists
+   * in this {@code AttributeAccessor}, the existing value will be returned
+   * without applying the supplied compute function.
+   * <p>The default implementation of this method is not thread safe but can
+   * overridden by concrete implementations of this interface.
+   *
+   * @param <T>
+   *         the type of the attribute value
+   * @param name
+   *         the unique attribute key
+   * @param computeFunction
+   *         a function that computes a new value for the attribute
+   *         name; the function must not return a {@code null} value
+   *
+   * @return the existing value or newly computed value for the named attribute
+   *
+   * @see #getAttribute(String)
+   * @see #setAttribute(String, Object)
+   * @since 3.0
+   */
+  @SuppressWarnings("unchecked")
+  default <T> T computeAttribute(String name, Function<String, T> computeFunction) {
+    Assert.notNull(name, "Name must not be null");
+    Assert.notNull(computeFunction, "Compute function must not be null");
+    Object value = getAttribute(name);
+    if (value == null) {
+      value = computeFunction.apply(name);
+      Assert.state(value != null,
+                   () -> String.format("Compute function must not return null for attribute named '%s'", name));
+      setAttribute(name, value);
+    }
+    return (T) value;
+  }
 }

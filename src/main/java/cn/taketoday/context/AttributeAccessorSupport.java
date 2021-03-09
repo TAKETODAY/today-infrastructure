@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.CollectionUtils;
@@ -50,7 +51,6 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
   @Override
   public void setAttribute(String name, Object value) {
     if (value != null) {
-      Assert.notNull(name, "Name must not be null");
       getAttributes().put(name, value);
     }
     else {
@@ -60,25 +60,44 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
 
   @Override
   public Object getAttribute(String name) {
-    Assert.notNull(name, "Name must not be null");
     return getAttributes().get(name);
   }
 
   @Override
-  public Object removeAttribute(String name) {
+  @SuppressWarnings("unchecked")
+  public <T> T computeAttribute(String name, Function<String, T> computeFunction) {
     Assert.notNull(name, "Name must not be null");
-    return getAttributes().remove(name);
+    Assert.notNull(computeFunction, "Compute function must not be null");
+    Object value = getAttributes().computeIfAbsent(name, computeFunction);
+    Assert.state(value != null,
+                 () -> String.format("Compute function must not return null for attribute named '%s'", name));
+    return (T) value;
+  }
+
+  @Override
+  public Object removeAttribute(String name) {
+    if (attributes != null) {
+      Assert.notNull(name, "Name must not be null");
+      return attributes.remove(name);
+    }
+    return null;
   }
 
   @Override
   public boolean hasAttribute(String name) {
-    Assert.notNull(name, "Name must not be null");
-    return getAttributes().containsKey(name);
+    if (attributes != null) {
+      Assert.notNull(name, "Name must not be null");
+      return attributes.containsKey(name);
+    }
+    return false;
   }
 
   @Override
   public String[] attributeNames() {
-    return StringUtils.toStringArray(getAttributes().keySet());
+    if (attributes != null) {
+      return StringUtils.toStringArray(getAttributes().keySet());
+    }
+    return Constant.EMPTY_STRING_ARRAY;
   }
 
   /**
@@ -103,11 +122,6 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
     return (this == other
             || (other instanceof AttributeAccessorSupport &&
             Objects.equals(attributes, (((AttributeAccessorSupport) other).attributes))));
-  }
-
-  @Override
-  public int hashCode() {
-    return getAttributes().hashCode();
   }
 
   @Override
