@@ -28,8 +28,8 @@ import cn.taketoday.aop.AopInvocationException;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
- * A null value returned from around advice is very hard to debug if
- * the caller expects a primitive.
+ * A null value returned from around advice is very hard to debug if the caller
+ * expects a primitive.
  *
  * @author TODAY 2021/2/3 23:31
  */
@@ -55,7 +55,8 @@ public class NullPrimitiveTests {
 
     Foo foo = (Foo) factory.getProxy();
 
-    assertThatExceptionOfType(AopInvocationException.class).isThrownBy(foo::getValue)
+    assertThatExceptionOfType(AopInvocationException.class)
+            .isThrownBy(foo::getValue)
             .withMessageContaining("Foo.getValue()");
   }
 
@@ -74,7 +75,8 @@ public class NullPrimitiveTests {
 
     Bar bar = (Bar) factory.getProxy();
 
-    assertThatExceptionOfType(AopInvocationException.class).isThrownBy(bar::getValue)
+    assertThatExceptionOfType(AopInvocationException.class)
+            .isThrownBy(bar::getValue)
             .withMessageContaining("Bar.getValue()");
   }
 

@@ -34,6 +34,8 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import lombok.ToString;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Today <br>
  *
@@ -270,6 +272,41 @@ public class BeanFactoryTest extends BaseTest {
     System.err.println(beansOfType);
 
     assert beansOfType.size() == 3;
+
+  }
+
+  //
+
+  static class RegisterBean implements Interface {
+
+    @Override
+    public void test() {
+
+    }
+  }
+
+  @Test
+  public void registerBean() {
+    final ConfigurableBeanFactory beanFactory = getBeanFactory();
+    // System.err.println(beanFactory);
+
+    final RegisterBean obj = new RegisterBean();
+    beanFactory.registerBean("registerBean", obj);
+
+    final Interface singleton = beanFactory.getBean("registerBean", Interface.class);
+
+    assertThat(singleton)
+            .isEqualTo(obj)
+            .isNotNull();
+
+  }
+
+  @Test
+  public void getSingleton() {
+    final ConfigurableBeanFactory beanFactory = getBeanFactory();
+    final Interface singleton = beanFactory.getSingleton(Interface.class);
+    assertThat(singleton)
+            .isNotNull();
 
   }
 

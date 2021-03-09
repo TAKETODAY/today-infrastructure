@@ -15,9 +15,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-import java.lang.reflect.WildcardType;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -277,13 +277,15 @@ public class ClassUtilsTest {
 
     setProcess("AutowiredOnConstructor");
 
-    try (ApplicationContext applicationContext = new StandardApplicationContext("", "")) {
-      System.err.println(applicationContext.getBean(AutowiredOnConstructor.class));
-      applicationContext.registerBean("testAutowiredOnConstructorThrow", AutowiredOnConstructorThrow.class);
+    try (ApplicationContext context = new StandardApplicationContext(new HashSet<>())) {
+      context.importBeans(AutowiredOnConstructor.class, AutowiredOnConstructorThrow.class);
 
+      assertThat(context.getBean(AutowiredOnConstructor.class))
+              .isNotNull();
+
+      context.registerBean("testAutowiredOnConstructorThrow", AutowiredOnConstructorThrow.class);
       try {
-        applicationContext.getBean(AutowiredOnConstructorThrow.class);
-
+        context.getBean(AutowiredOnConstructorThrow.class);
         assert false;
       }
       catch (Exception e) {
@@ -335,7 +337,7 @@ public class ClassUtilsTest {
   private static class AutowiredOnConstructor {
 
     @Autowired
-    private AutowiredOnConstructor(ApplicationContext applicationContext) {
+    private AutowiredOnConstructor(ApplicationContext context) {
       System.err.println("init");
     }
 

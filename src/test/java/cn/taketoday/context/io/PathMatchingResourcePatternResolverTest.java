@@ -42,6 +42,7 @@ public class PathMatchingResourcePatternResolverTest {
         "AbstractResource.class", //
         "ClassPathResource.class", //
         "EncodedResource.class", //
+        "DescriptiveResource.class", //
         "InputStreamResource.class", //
         "ByteArrayResource.class", //
         "FileBasedResource.class", //
@@ -56,6 +57,10 @@ public class PathMatchingResourcePatternResolverTest {
         "Writable.class", //
         "WritableResource.class", //
         "PathMatchingResourcePatternResolverTest.class", //
+        "ResourceTests.class", //
+        "ResourceTests$2.class", //
+        "ResourceTests$1.class", //
+        "EncodedResourceTests.class", //
         "JarEntryResource$JarEntryInputStream.class", //
     };
 

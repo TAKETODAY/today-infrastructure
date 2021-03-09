@@ -26,6 +26,7 @@ import org.junit.Test;
 import java.io.Serializable;
 import java.util.Objects;
 
+import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.NopInterceptor;
 import cn.taketoday.aop.SerializableNopInterceptor;
 import cn.taketoday.aop.SerializationTestUtils;
@@ -112,7 +113,8 @@ public class NameMatchMethodPointcutTests {
 		testSets();
 		// Count is now 2
 		Person p2 = SerializationTestUtils.serializeAndDeserialize(proxied);
-		NopInterceptor nop2 = (NopInterceptor) ((Advised) p2).getAdvisors()[0].getAdvice();
+		final Advisor[] advisors = ((Advised) p2).getAdvisors();
+		NopInterceptor nop2 = (NopInterceptor) advisors[0].getAdvice();
 		p2.getName();
 		assertThat(nop2.getCount()).isEqualTo(2);
 		p2.echo(null);
