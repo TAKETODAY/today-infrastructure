@@ -76,7 +76,7 @@ public class ContextUtilsTest {
   @Test
   public void test_FindInProperties() throws ConfigurationException {
 
-    try (ApplicationContext applicationContext = new StandardApplicationContext("", "")) {
+    try (ApplicationContext applicationContext = new StandardApplicationContext("", "cn.taketoday.context.utils")) {
 
       Properties properties = applicationContext.getEnvironment().getProperties();
 
