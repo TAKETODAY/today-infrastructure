@@ -33,6 +33,7 @@ import java.util.function.Function;
 import cn.taketoday.aop.AopInvocationException;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
+import cn.taketoday.context.DecoratingProxy;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.reflect.MethodInvoker;
@@ -126,7 +127,7 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
     if (logger.isTraceEnabled()) {
       logger.trace("Creating JDK dynamic proxy: {}", this.advised.getTargetSource());
     }
-    Class<?>[] proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(this.advised);
+    Class<?>[] proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(this.advised, true);
     findDefinedEqualsAndHashCodeMethods(proxiedInterfaces);
     return Proxy.newProxyInstance(classLoader, proxiedInterfaces, this);
   }
@@ -178,6 +179,10 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
         // The target does not implement the hashCode() method itself.
         return hashCode();
       }
+      else if (method.getDeclaringClass() == DecoratingProxy.class) {
+        // There is only getDecoratedClass() declared -> dispatch to proxy config.
+        return AopProxyUtils.ultimateTargetClass(this.advised);
+      }
       else if (!advised.isOpaque()
               && method.getDeclaringClass().isInterface()
               && method.getDeclaringClass().isAssignableFrom(Advised.class)) {
@@ -196,7 +201,6 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
       target = targetSource.getTarget();
       Class<?> targetClass = (target != null ? target.getClass() : null);
 
-      // TODO 优化性能
       // Get the interception chain for this method.
       MethodInterceptor[] chain = advised.getInterceptors(method, targetClass);
 
@@ -209,10 +213,13 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
         // nothing but a reflective operation on the target, and no hot swapping or fancy proxying.
         Object[] argsToUse = ClassUtils.adaptArgumentsIfNecessary(method, args);
         retVal = AopUtils.invokeJoinpointUsingReflection(target, method, argsToUse);
+
+//        retVal = methodInvoker.invoke(target, args);
+        System.out.println(method);
       }
       else {
         MethodInvocation invocation =
-                new DefaultMethodInvocation(target, method, targetClass, cache.get(method, this), args, chain);
+                new DefaultMethodInvocation(target, method, targetClass, cache.get(method, targetClass), args, chain);
         // Proceed to the join-point through the interceptor chain.
         retVal = invocation.proceed();
       }
@@ -238,10 +245,10 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
     }
   }
 
-  static final Mappings<MethodInvoker, JdkDynamicAopProxy> cache = new Mappings<MethodInvoker, JdkDynamicAopProxy>() {
+  static final Mappings<MethodInvoker, Class<?>> cache = new Mappings<MethodInvoker, Class<?>>() {
     @Override
-    protected MethodInvoker createValue(Object key, JdkDynamicAopProxy param) {
-      return MethodInvoker.create((Method) key);
+    protected MethodInvoker createValue(Object key, Class<?> param) {
+      return MethodInvoker.create((Method) key, param);
     }
   };
 
