@@ -139,7 +139,7 @@ public class BeanProperty {
 
   public Type[] getGenerics() {
     if (genericClass == null) {
-      this.genericClass = ClassUtils.getGenerics(field);
+      this.genericClass = ClassUtils.getGenericTypes(field);
     }
     return genericClass;
   }

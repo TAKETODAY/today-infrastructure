@@ -42,6 +42,7 @@ import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.aware.ApplicationContextAware;
@@ -535,19 +536,30 @@ public class StandardBeanFactory
    *         Target {@link BeanDefinition}
    */
   protected void postProcessRegisterBeanDefinition(final BeanDefinition targetDef) {
+    // import beans
     if (targetDef.isAnnotationPresent(Import.class)) { // @since 2.1.7
       importAnnotated(targetDef);
     }
+    // scan components
     if (targetDef.isAnnotationPresent(ComponentScan.class)) {
       componentScan(targetDef);
     }
-    // application listener @since 2.1.7
+    // load application listener @since 2.1.7
     if (ApplicationListener.class.isAssignableFrom(targetDef.getBeanClass())) {
       Object listener = getSingleton(targetDef.getName());
       if (listener == null) {
         listener = createBeanIfNecessary(targetDef);
         applicationContext.addApplicationListener((ApplicationListener<?>) listener);
       }
+    }
+    // apply lazy init @since 3.0
+    applyLazyInit(targetDef);
+  }
+
+  protected void applyLazyInit(BeanDefinition def) {
+    final Lazy lazy = def.getAnnotation(Lazy.class);
+    if (lazy != null) {
+      def.setLazyInit(lazy.value());
     }
   }
 

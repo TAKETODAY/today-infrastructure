@@ -106,6 +106,8 @@ public class DefaultBeanDefinition
   private Executable executable;
   /** @since 3.0 */
   private BeanConstructor<?> constructor;
+  /** lazy init flag @since 3.0 */
+  private Boolean lazyInit;
 
   public DefaultBeanDefinition(String name, Class<?> beanClass) {
     this.name = name;
@@ -357,6 +359,43 @@ public class DefaultBeanDefinition
   public Object newInstance(BeanFactory factory, Object... args) {
     final BeanConstructor<?> target = getConstructor(factory);
     return target.newInstance(args);
+  }
+
+  /**
+   * Set whether this bean should be lazily initialized.
+   * <p>If {@code false}, the bean will get instantiated on startup by bean
+   * factories that perform eager initialization of singletons.
+   *
+   * @since 3.0
+   */
+  @Override
+  public void setLazyInit(boolean lazyInit) {
+    this.lazyInit = lazyInit;
+  }
+
+  /**
+   * Return whether this bean should be lazily initialized, i.e. not
+   * eagerly instantiated on startup. Only applicable to a singleton bean.
+   *
+   * @return whether to apply lazy-init semantics ({@code false} by default)
+   *
+   * @since 3.0
+   */
+  @Override
+  public boolean isLazyInit() {
+    return (this.lazyInit != null && this.lazyInit);
+  }
+
+  /**
+   * Return whether this bean should be lazily initialized, i.e. not
+   * eagerly instantiated on startup. Only applicable to a singleton bean.
+   *
+   * @return the lazy-init flag if explicitly set, or {@code null} otherwise
+   *
+   * @since 3.0
+   */
+  public Boolean getLazyInit() {
+    return this.lazyInit;
   }
 
   // Object

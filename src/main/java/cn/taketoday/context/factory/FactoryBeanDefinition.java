@@ -236,6 +236,16 @@ public class FactoryBeanDefinition<T>
     return factoryDef.newInstance(factory, args);
   }
 
+  @Override
+  public boolean isLazyInit() {
+    return factoryDef.isLazyInit();
+  }
+
+  @Override
+  public void setLazyInit(boolean lazyInit) {
+    factoryDef.setLazyInit(lazyInit);
+  }
+
   public Supplier<FactoryBean<T>> getFactorySupplier() {
     return factorySupplier;
   }

@@ -1282,8 +1282,8 @@ public abstract class AbstractBeanFactory
 
   private Predicate<BeanDefinition> getPredicate(final Class<?> type, final boolean equals) {
     return equals
-           ? (beanDef) -> type == beanDef.getBeanClass()
-           : (beanDef) -> type.isAssignableFrom(beanDef.getBeanClass());
+           ? beanDef -> type == beanDef.getBeanClass()
+           : beanDef -> type.isAssignableFrom(beanDef.getBeanClass());
   }
 
   @Override
@@ -1304,7 +1304,8 @@ public abstract class AbstractBeanFactory
   public void initializeSingletons() {
     log.debug("Initialization of singleton objects.");
     for (final BeanDefinition def : getBeanDefinitions().values()) {
-      if (def.isSingleton() && !def.isInitialized()) {
+      // lazy-init
+      if (def.isSingleton() && !def.isInitialized() && !def.isLazyInit()) {
         createSingleton(def);
       }
     }

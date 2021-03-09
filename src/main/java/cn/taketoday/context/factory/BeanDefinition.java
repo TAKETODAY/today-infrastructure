@@ -291,4 +291,20 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    */
   Object newInstance(BeanFactory factory, Object... args);
 
+  /**
+   * Set whether this bean should be lazily initialized.
+   * <p>If {@code false}, the bean will get instantiated on startup by bean
+   * factories that perform eager initialization of singletons.
+   * @since 3.0
+   */
+  void setLazyInit(boolean lazyInit);
+
+  /**
+   * Return whether this bean should be lazily initialized, i.e. not
+   * eagerly instantiated on startup. Only applicable to a singleton bean.
+   *
+   * @since 3.0
+   */
+  boolean isLazyInit();
+
 }
