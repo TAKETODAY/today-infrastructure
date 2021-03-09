@@ -93,12 +93,18 @@ public class ConstructorAccessorGenerator
   }
 
   @Override
-  protected ConstructorAccessor privateInstance() {
+  protected ConstructorAccessor fallback(Exception exception) {
+    log.warn("Cannot access a Constructor: [{}]", targetConstructor, exception);
+    return super.fallback(exception);
+  }
+
+  @Override
+  protected ConstructorAccessor fallbackInstance() {
     return new ConstructorConstructorAccessor(targetConstructor);
   }
 
   @Override
-  protected boolean isPrivate() {
+  protected boolean cannotAccess() {
     return Modifier.isPrivate(targetClass.getModifiers())
             || Modifier.isPrivate(targetConstructor.getModifiers());
   }

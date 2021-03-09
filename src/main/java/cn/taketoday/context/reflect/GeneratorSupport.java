@@ -20,6 +20,7 @@
 package cn.taketoday.context.reflect;
 
 import java.lang.reflect.Executable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.Objects;
 
@@ -33,6 +34,8 @@ import cn.taketoday.context.cglib.core.CodeGenerationException;
 import cn.taketoday.context.cglib.core.DefaultGeneratorStrategy;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.TypeUtils;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 
@@ -46,6 +49,8 @@ import static cn.taketoday.context.asm.Opcodes.INVOKESTATIC;
  * 2020/9/11 16:32
  */
 public abstract class GeneratorSupport<T> {
+
+  static final Logger log = LoggerFactory.getLogger(GeneratorSupport.class);
   static final Type GENERATOR_SUPPORT_TYPE = Type.getType(GeneratorSupport.class);
   static final String GENERATOR_SUPPORT_TYPE_INTERNAL_NAME = GENERATOR_SUPPORT_TYPE.getInternalName();
 
@@ -57,7 +62,7 @@ public abstract class GeneratorSupport<T> {
   final Class<?> targetClass;
 
   GeneratorSupport(final Class<?> targetClass) {
-    Assert.notNull(targetClass, "targetClass  must not be null");
+    Assert.notNull(targetClass, "targetClass must not be null");
     this.targetClass = targetClass;
   }
 
@@ -71,14 +76,31 @@ public abstract class GeneratorSupport<T> {
       }
     }
 
-    final T ret = (T) doCreate();
-    created.add(new GeneratorNode(cacheKey, ret));
-    return ret;
+    try {
+      final Object ret = createInternal();
+      created.add(new GeneratorNode(cacheKey, ret));
+      return (T) ret;
+    }
+    catch (Exception e) {
+      return fallback(e);
+    }
   }
 
-  Object doCreate() {
-    if (isPrivate()) {
-      return privateInstance();
+  protected T fallback(Exception exception) {
+    if (exception instanceof InvocationTargetException) {
+      if (((InvocationTargetException) exception).getTargetException() instanceof SecurityException) {
+        return fallbackInstance();
+      }
+    }
+    else if (exception instanceof SecurityException) {
+      return fallbackInstance();
+    }
+    throw new CodeGenerationException(exception);
+  }
+
+  Object createInternal() throws Exception {
+    if (cannotAccess()) {
+      return fallbackInstance();
     }
     final ClassLoader classLoader = getClassLoader();
     try {
@@ -91,23 +113,21 @@ public abstract class GeneratorSupport<T> {
 
   abstract Object cacheKey();
 
-  abstract T privateInstance();
+  abstract T fallbackInstance();
 
-  abstract boolean isPrivate();
+  abstract boolean cannotAccess();
 
-  Class<T> generateClass(final ClassLoader classLoader) {
-    try {
-      final byte[] b = DefaultGeneratorStrategy.INSTANCE.generate(getClassGenerator());
-      return CglibReflectUtils.defineClass(getClassName(), b, classLoader, CglibReflectUtils.getProtectionDomain(targetClass));
-    }
-    catch (Exception e) {
-      throw new CodeGenerationException(e);
-    }
+  Class<T> generateClass(final ClassLoader classLoader) throws Exception {
+    final byte[] b = DefaultGeneratorStrategy.INSTANCE.generate(getClassGenerator());
+    return CglibReflectUtils.defineClass(getClassName(), b, classLoader, CglibReflectUtils.getProtectionDomain(targetClass));
   }
 
   ClassLoader getClassLoader() {
     if (classLoader == null) {
-      return classLoader = targetClass.getClassLoader();
+      classLoader = targetClass.getClassLoader();
+      if (classLoader == null) {
+        classLoader = ClassUtils.getClassLoader();
+      }
     }
     return classLoader;
   }

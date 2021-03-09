@@ -32,6 +32,7 @@ import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.MethodInfo;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.utils.Assert;
+import cn.taketoday.context.utils.ClassUtils;
 
 import static cn.taketoday.context.asm.Opcodes.ACC_FINAL;
 import static cn.taketoday.context.asm.Opcodes.ACC_PUBLIC;
@@ -56,6 +57,22 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    */
   public static MethodInvoker create(Method executable) {
     return new MethodInvokerGenerator(executable).create();
+  }
+
+  /**
+   * Create a {@link MethodInvoker}
+   *
+   * @param executable
+   *         Target Method to invoke
+   * @param targetClass
+   *         most specific target class
+   *
+   * @return {@link MethodInvoker} sub object
+   *
+   * @since 3.0
+   */
+  public static MethodInvoker create(Method executable, Class<?> targetClass) {
+    return new MethodInvokerGenerator(executable, targetClass).create();
   }
 
   /**
@@ -110,7 +127,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
     public MethodInvokerGenerator(Method method, Class<?> targetClass) {
       super(targetClass);
       Assert.notNull(method, "method must not be null");
-      this.targetMethod = method;
+      this.targetMethod = ClassUtils.getMostSpecificMethod(method, targetClass);
     }
 
     @Override
@@ -146,12 +163,18 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
     }
 
     @Override
-    protected MethodInvoker privateInstance() {
+    protected MethodInvoker fallback(Exception exception) {
+      log.warn("Cannot access a Method: [{}]", targetMethod, exception);
+      return super.fallback(exception);
+    }
+
+    @Override
+    protected MethodInvoker fallbackInstance() {
       return new MethodMethodAccessor(targetMethod);
     }
 
     @Override
-    protected boolean isPrivate() {
+    protected boolean cannotAccess() {
       return Modifier.isPrivate(targetClass.getModifiers())
               || Modifier.isPrivate(targetMethod.getModifiers());
     }
