@@ -26,7 +26,6 @@ import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.handler.PathVariableMethodParameter;
-import cn.taketoday.web.utils.WebUtils;
 
 import static cn.taketoday.context.utils.ConvertUtils.convert;
 
@@ -35,7 +34,7 @@ import static cn.taketoday.context.utils.ConvertUtils.convert;
  *
  * @author TODAY <br>
  * 2019-07-09 22:49
- * @deprecated use PathVariableMethodParameter
+ * @deprecated use {@link PathVariableMethodParameter}
  */
 @Deprecated
 public class PathVariableParameterResolver
@@ -75,7 +74,7 @@ public class PathVariableParameterResolver
       return convert(pathVariables[parameter.getPathIndex()], parameter.getParameterClass());
     }
     catch (Throwable e) {
-      throw WebUtils.newBadRequest("Path variable", p.getName(), e);
+      throw new MissingParameterException("Path variable", p);
     }
   }
 

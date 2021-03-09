@@ -52,14 +52,14 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
   @Override
   public boolean supports(final MethodParameter parameter) {
     final Class<?> parameterClass = parameter.getParameterClass();
-    return parameterClass == MultipartFile.class //
+    return parameterClass == MultipartFile.class
             || parameterClass == DefaultMultipartFile.class;
   }
 
   @Override
-  protected Object resolveInternal(final RequestContext context, //
+  protected Object resolveInternal(final RequestContext context,
                                    final MethodParameter parameter,
-                                   final List<MultipartFile> files) throws Throwable {
+                                   final List<MultipartFile> files) {
     return files.get(0);
   }
 
@@ -79,15 +79,15 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
       final Class<?> parameterClass = parameter.getParameterClass();
 
-      return (parameterClass == Collection.class || parameterClass == List.class || parameterClass == Set.class) //
-              && (parameter.isGenericPresent(MultipartFile.class, 0) //
+      return (parameterClass == Collection.class || parameterClass == List.class || parameterClass == Set.class)
+              && (parameter.isGenericPresent(MultipartFile.class, 0)
               || parameter.isGenericPresent(DefaultMultipartFile.class, 0));
     }
 
     @Override
-    protected Object resolveInternal(final RequestContext context, //
+    protected Object resolveInternal(final RequestContext context,
                                      final MethodParameter parameter,
-                                     final List<MultipartFile> multipartFiles) throws Throwable //
+                                     final List<MultipartFile> multipartFiles) //
     {
       if (parameter.getParameterClass() == Set.class) {
         return new HashSet<>(multipartFiles);
@@ -136,8 +136,8 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
     private final MultipartConfiguration multipartConfiguration;
 
     @Autowired
-    public MapMultipartParameterResolver(MultipartConfiguration multipartConfiguration) {
-      this.multipartConfiguration = multipartConfiguration;
+    public MapMultipartParameterResolver(MultipartConfiguration multipartConfig) {
+      this.multipartConfiguration = multipartConfig;
     }
 
     @Override
@@ -190,7 +190,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
           cleanupMultipart(context);
         }
       }
-      throw WebUtils.newBadRequest("This is not a multipart request", parameter.getName(), null);
+      throw new MissingMultipartFileException(parameter);
     }
 
     @Override

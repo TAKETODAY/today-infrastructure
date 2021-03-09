@@ -30,15 +30,16 @@ import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.utils.WebUtils;
 
 /**
- * @author TODAY <br>
- * 2019-07-11 23:14
+ * For Multipart {@link MultipartFile}
+ *
+ * @author TODAY 2019-07-11 23:14
  */
 public abstract class AbstractMultipartResolver implements ParameterResolver {
 
   private final MultipartConfiguration multipartConfiguration;
 
-  public AbstractMultipartResolver(MultipartConfiguration multipartConfiguration) {
-    this.multipartConfiguration = multipartConfiguration;
+  public AbstractMultipartResolver(MultipartConfiguration multipartConfig) {
+    this.multipartConfiguration = multipartConfig;
   }
 
   @Override
@@ -63,15 +64,15 @@ public abstract class AbstractMultipartResolver implements ParameterResolver {
         cleanupMultipart(context);
       }
     }
-    throw WebUtils.newBadRequest("This is not a multipart request", parameter.getName(), null);
+    throw new MissingMultipartFileException(parameter);
   }
 
   @Override
   public abstract boolean supports(final MethodParameter parameter);
 
-  protected abstract Object resolveInternal(final RequestContext context,
-                                            final MethodParameter parameter,
-                                            final List<MultipartFile> multipartFiles) throws Throwable;
+  abstract Object resolveInternal(final RequestContext context,
+                                  final MethodParameter parameter,
+                                  final List<MultipartFile> multipartFiles) throws Throwable;
 
   protected void cleanupMultipart(final RequestContext request) {}
 

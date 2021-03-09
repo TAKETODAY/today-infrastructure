@@ -27,7 +27,6 @@ import java.util.List;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.CookieValue;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
@@ -52,7 +51,7 @@ public class CookieParameterResolver implements ParameterResolver {
     }
     // no cookie
     if (parameter.isRequired()) {
-      throw WebUtils.newBadRequest("Cookie", name, null);
+      throw new MissingParameterException("Cookie", parameter);
     }
     return null;
   }

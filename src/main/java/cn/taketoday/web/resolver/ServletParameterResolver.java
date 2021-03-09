@@ -34,11 +34,10 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Application;
 import cn.taketoday.web.annotation.SessionAttribute;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
- *         2019-07-12 18:04
+ * 2019-07-12 18:04
  */
 public class ServletParameterResolver {
 
@@ -133,7 +132,7 @@ public class ServletParameterResolver {
       }
       // no cookie
       if (parameter.isRequired()) {
-        throw WebUtils.newBadRequest("Cookie", name, null);
+        throw new MissingParameterException("Cookie", parameter);
       }
       return null;
     }

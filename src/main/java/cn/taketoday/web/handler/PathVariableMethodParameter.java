@@ -25,8 +25,8 @@ import cn.taketoday.context.PathMatcher;
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.resolver.MissingParameterException;
 import cn.taketoday.web.resolver.ParameterConversionException;
-import cn.taketoday.web.utils.WebUtils;
 
 import static cn.taketoday.context.utils.ConvertUtils.convert;
 
@@ -59,7 +59,7 @@ public class PathVariableMethodParameter extends MethodParameter {
       String requestURI = StringUtils.decodeUrl(request.requestURI());
       pathVariables = request.pathVariables(pathMatcher.extractVariables(pathPattern, requestURI));
       if (pathVariables == null) {
-        throw WebUtils.newBadRequest("Path variable", getName(), null);
+        throw new MissingParameterException("Path variable", this);
       }
     }
     try {

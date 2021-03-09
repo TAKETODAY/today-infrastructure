@@ -24,7 +24,6 @@ import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.utils.WebUtils;
 
 /**
  * 数组参数解析器
@@ -62,7 +61,7 @@ public class ArrayParameterResolver
       values = StringUtils.split(context.parameter(name));
       if (ObjectUtils.isEmpty(values)) {
         if (parameter.isRequired()) {
-          throw WebUtils.newBadRequest("Array", name, null);
+          throw new MissingParameterException("Array", parameter);
         }
         return null;
       }
