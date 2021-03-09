@@ -21,7 +21,6 @@
 package cn.taketoday.context.loader;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.function.Supplier;
 
@@ -61,13 +60,9 @@ public class ObjectSupplierPropertyResolver
 
   @Override
   public PropertyValue resolveProperty(Field field) throws ContextException {
-    final Type[] generics = ClassUtils.getGenerics(field);
+    final Class<?>[] generics = ClassUtils.getGenerics(field);
     if (ObjectUtils.isNotEmpty(generics)) {
-      final Type generic = generics[0];
-      if (generic instanceof Class) {
-        final Class<?> target = (Class<?>) generic;
-        return new ObjectSupplierPropertyValue(field, target);
-      }
+      return new ObjectSupplierPropertyValue(field, generics[0]);
     }
     throw new UnsupportedOperationException("Unsupported '" + field + "' In -> " + field.getDeclaringClass());
   }

@@ -21,7 +21,6 @@
 package cn.taketoday.context.loader;
 
 import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
 import java.util.function.Supplier;
 
 import cn.taketoday.context.Ordered;
@@ -55,15 +54,10 @@ public class ObjectSupplierParameterResolver
 
   @Override
   public ObjectSupplier<?> resolve(Parameter parameter, BeanFactory beanFactory) {
-    final Type[] generics = ClassUtils.getGenerics(parameter);
+    final Class<?>[] generics = ClassUtils.getGenerics(parameter);
     if (ObjectUtils.isNotEmpty(generics)) {
-      final Type generic = generics[0];
-      if (generic instanceof Class) {
-        final Class<?> target = (Class<?>) generic;
-        return beanFactory.getBeanSupplier(target);
-      }
+      return beanFactory.getBeanSupplier(generics[0]);
     }
-
     throw new UnsupportedOperationException("Unsupported '" + parameter + "' In -> " + parameter.getDeclaringExecutable());
   }
 

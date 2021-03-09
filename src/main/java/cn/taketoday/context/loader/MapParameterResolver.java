@@ -20,8 +20,6 @@
 package cn.taketoday.context.loader;
 
 import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
-import java.lang.reflect.WildcardType;
 import java.util.Map;
 import java.util.Properties;
 
@@ -29,7 +27,6 @@ import cn.taketoday.context.Ordered;
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.annotation.DefaultProps;
 import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
@@ -94,16 +91,9 @@ public class MapParameterResolver
     return map;
   }
 
-  protected Class<?> getBeanClass(final Type[] genericityClass) {
-    if (ObjectUtils.isNotEmpty(genericityClass)) {
-      final Type beanType = genericityClass[1];
-      if (beanType instanceof WildcardType) {
-        return Object.class;
-      }
-      else if (beanType instanceof Class) {
-        return (Class<?>) beanType;
-      }
-      throw new ConfigurationException("Not Support " + beanType);
+  protected Class<?> getBeanClass(final Class<?>[] generics) {
+    if (ObjectUtils.isNotEmpty(generics)) {
+      return generics[1];
     }
     return Object.class;
   }

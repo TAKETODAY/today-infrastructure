@@ -55,10 +55,10 @@ public class CollectionParameterResolver
 
   @Override
   public Object resolve(final Parameter parameter, final BeanFactory beanFactory) {
-    final Type[] generics = ClassUtils.getGenerics(parameter);
+    final Class<?>[] generics = ClassUtils.getGenerics(parameter);
     if (ObjectUtils.isNotEmpty(generics)) {
-      final Type type = generics[0];
-      final Map<String, ?> beans = beanFactory.getBeansOfType((Class<?>) type);
+      final Class<?> type = generics[0];
+      final Map<String, ?> beans = beanFactory.getBeansOfType(type);
       final Class<?> parameterType = parameter.getType();
       final Collection<Object> objects = CollectionUtils.createCollection(parameterType, beans.size());
       objects.addAll(beans.values());
