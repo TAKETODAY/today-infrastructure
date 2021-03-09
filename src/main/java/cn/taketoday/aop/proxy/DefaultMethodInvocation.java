@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Objects;
 
-import cn.taketoday.context.reflect.MethodInvoker;
+import cn.taketoday.aop.support.AopUtils;
 
 /**
  * @author TODAY <br>
@@ -35,12 +35,11 @@ import cn.taketoday.context.reflect.MethodInvoker;
  */
 public class DefaultMethodInvocation extends AbstractMethodInvocation implements MethodInvocation {
 
-  private final Object target;
-  private final Object[] args;
-  private final Method method;
-  private final Class<?> targetClass;
-  private final MethodInvoker invoker;
-  private final MethodInterceptor[] advices;
+  final Object target;
+  final Object[] args;
+  final Method method;
+  final Class<?> targetClass;
+  final MethodInterceptor[] advices;
 
   /**
    * a flag show that current index of advice
@@ -50,13 +49,12 @@ public class DefaultMethodInvocation extends AbstractMethodInvocation implements
   private final int adviceLength;
 
   public DefaultMethodInvocation(Method method, Class<?> targetClass, Object[] arguments) {
-    this(null, method, targetClass, null, arguments, null);
+    this(null, method, targetClass, arguments, null);
   }
 
   public DefaultMethodInvocation(Object target,
                                  Method method,
                                  Class<?> targetClass,
-                                 MethodInvoker invoker,
                                  Object[] arguments,
                                  MethodInterceptor[] advices) {
     this.target = target;
@@ -64,7 +62,6 @@ public class DefaultMethodInvocation extends AbstractMethodInvocation implements
     this.targetClass = targetClass;
     this.args = arguments;
     this.advices = advices;
-    this.invoker = invoker;
     if (advices != null)
       this.adviceLength = advices.length;
     else {
@@ -83,8 +80,8 @@ public class DefaultMethodInvocation extends AbstractMethodInvocation implements
   }
 
   @Override
-  protected Object invokeJoinPoint() {
-    return invoker.invoke(target, args);
+  protected Object invokeJoinPoint() throws Throwable {
+    return AopUtils.invokeJoinpointUsingReflection(target, method, args);
   }
 
   @Override
@@ -123,13 +120,12 @@ public class DefaultMethodInvocation extends AbstractMethodInvocation implements
             && Arrays.equals(args, that.args)
             && Objects.equals(target, that.target)
             && Objects.equals(method, that.method)
-            && Objects.equals(invoker, that.invoker)
             && Arrays.equals(advices, that.advices);
   }
 
   @Override
   public int hashCode() {
-    int result = Objects.hash(super.hashCode(), target, method, invoker);
+    int result = Objects.hash(super.hashCode(), target, method);
     result = 31 * result + Arrays.hashCode(args);
     result = 31 * result + Arrays.hashCode(advices);
     return result;

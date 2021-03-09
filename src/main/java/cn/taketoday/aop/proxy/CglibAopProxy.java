@@ -48,7 +48,6 @@ import cn.taketoday.context.cglib.proxy.MethodProxy;
 import cn.taketoday.context.cglib.proxy.NoOp;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.reflect.MethodInvoker;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
@@ -226,7 +225,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
         Method method = methods[x];
         org.aopalliance.intercept.MethodInterceptor[] chain = config.getInterceptors(method, rootClass);
 
-        fixedCallbacks[x] = new FixedChainStaticTargetInterceptor(chain, config.getTargetSource().getTarget());
+        fixedCallbacks[x] = new FixedChainStaticTargetInterceptor(chain, config);
         this.fixedInterceptorMap.put(method, x);
       }
 
@@ -439,16 +438,18 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
    */
   static class FixedChainStaticTargetInterceptor implements MethodInterceptor, Serializable {
     final Object target;
+    final Class<?> targetClass;
     final org.aopalliance.intercept.MethodInterceptor[] adviceChain;
 
-    public FixedChainStaticTargetInterceptor(org.aopalliance.intercept.MethodInterceptor[] adviceChain, Object target) {
+    public FixedChainStaticTargetInterceptor(org.aopalliance.intercept.MethodInterceptor[] adviceChain, AdvisedSupport config) {
       this.adviceChain = adviceChain;
-      this.target = target;
+      this.targetClass = config.getTargetClass();
+      this.target = config.getTargetSource().getTarget();
     }
 
     @Override
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-      return new CglibMethodInvocation(target, method, methodProxy, args, adviceChain).proceed();
+      return new CglibMethodInvocation(target, method, targetClass, methodProxy, args, adviceChain).proceed();
     }
   }
 
@@ -477,7 +478,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
           oldProxy = AopContext.setCurrentProxy(proxy);
           restore = true;
         }
-        // TODO 优化性能
+
         // Get as late as possible to minimize the time we "own" the target, in case it comes from a pool...
         target = targetSource.getTarget();
         Class<?> targetClass = (target != null ? target.getClass() : null);
@@ -533,54 +534,28 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
     }
   }
 
-  static class MethodProxyMethodInvoker extends MethodInvoker {
-    final MethodProxy proxy;
-
-    MethodProxyMethodInvoker(MethodProxy proxy) {
-      this.proxy = proxy;
-    }
-
-    @Override
-    public Object invoke(Object obj, Object[] args) {
-      try {
-        return proxy.invoke(obj, args);
-      }
-      catch (Throwable e) {
-        throw new MethodInvokerRuntimeException(e);
-      }
-    }
-  }
-
-  static class MethodInvokerRuntimeException extends RuntimeException {
-    public MethodInvokerRuntimeException(Throwable cause) {
-      super(cause);
-    }
-  }
-
   /**
    * Implementation of AOP Alliance MethodInvocation used by this AOP proxy.
    */
   static class CglibMethodInvocation extends DefaultMethodInvocation {
-
-    public CglibMethodInvocation(Object target, Method method,
-                                 MethodProxy proxy, Object[] arguments,
-                                 org.aopalliance.intercept.MethodInterceptor[] advices) {
-      super(target, method, target.getClass(), new MethodProxyMethodInvoker(proxy), arguments, advices);
-    }
+    final MethodProxy proxy;
 
     public CglibMethodInvocation(Object target, Method method, Class<?> targetClass,
                                  MethodProxy proxy, Object[] arguments,
                                  org.aopalliance.intercept.MethodInterceptor[] advices) {
-      super(target, method, targetClass, new MethodProxyMethodInvoker(proxy), arguments, advices);
+      super(target, method, targetClass, arguments, advices);
+      this.proxy = proxy;
+    }
+
+    @Override
+    protected Object invokeJoinPoint() throws Throwable {
+      return proxy.invoke(target, args);
     }
 
     @Override
     public Object proceed() throws Throwable {
       try {
         return super.proceed();
-      }
-      catch (MethodInvokerRuntimeException e) {
-        throw e.getCause();
       }
       catch (RuntimeException ex) {
         throw ex;

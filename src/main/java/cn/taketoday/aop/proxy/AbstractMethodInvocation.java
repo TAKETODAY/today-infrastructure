@@ -73,7 +73,7 @@ public abstract class AbstractMethodInvocation
    * @return the result of the call to {@link MethodInvocation#proceed()}, might be
    * intercepted by the interceptor.
    */
-  protected abstract Object invokeJoinPoint();
+  protected abstract Object invokeJoinPoint() throws Throwable;
 
   /**
    * Determine whether there is an interceptor

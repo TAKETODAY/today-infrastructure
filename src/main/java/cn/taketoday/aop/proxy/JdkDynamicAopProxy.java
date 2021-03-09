@@ -21,7 +21,6 @@
 package cn.taketoday.aop.proxy;
 
 import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -36,10 +35,8 @@ import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.context.DecoratingProxy;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.reflect.MethodInvoker;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.Mappings;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
 
@@ -213,15 +210,10 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
         // nothing but a reflective operation on the target, and no hot swapping or fancy proxying.
         Object[] argsToUse = ClassUtils.adaptArgumentsIfNecessary(method, args);
         retVal = AopUtils.invokeJoinpointUsingReflection(target, method, argsToUse);
-
-//        retVal = methodInvoker.invoke(target, args);
-        System.out.println(method);
       }
       else {
-        MethodInvocation invocation =
-                new DefaultMethodInvocation(target, method, targetClass, cache.get(method, targetClass), args, chain);
         // Proceed to the join-point through the interceptor chain.
-        retVal = invocation.proceed();
+        retVal = new DefaultMethodInvocation(target, method, targetClass, args, chain).proceed();
       }
 
       // Massage return value if necessary.
@@ -244,13 +236,6 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
       }
     }
   }
-
-  static final Mappings<MethodInvoker, Class<?>> cache = new Mappings<MethodInvoker, Class<?>>() {
-    @Override
-    protected MethodInvoker createValue(Object key, Class<?> param) {
-      return MethodInvoker.create((Method) key, param);
-    }
-  };
 
   /**
    * Equality means interfaces, advisors and TargetSource are equal.
