@@ -29,6 +29,10 @@ import java.util.List;
 import java.util.function.Function;
 
 import cn.taketoday.aop.TargetSource;
+import cn.taketoday.aop.proxy.std.DefaultProxyMethodGenerator;
+import cn.taketoday.aop.proxy.std.GeneratorContext;
+import cn.taketoday.aop.proxy.std.NoneProxyMethodGenerator;
+import cn.taketoday.aop.proxy.std.ProxyMethodGenerator;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Type;
@@ -151,6 +155,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
     }
 
     public Object create() {
+      setUseCache(false);
       setNamePrefix(targetClass.getName());
       Object key = KEY_FACTORY.newInstance(targetClass);
       return super.create(key);
@@ -228,8 +233,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
 
       final ClassEmitter ce = new ClassEmitter(v);
       final Type targetType = TypeUtils.parseType(targetClass);
-
-      final Class<?>[] proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(this.config);
+      final Class<?>[] proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(config);
       final Type[] interfaces = TypeUtils.getTypes(proxiedInterfaces);
 
       ce.beginClass(JAVA_VERSION, ACC_PUBLIC | ACC_FINAL, getClassName(), targetType, interfaces, AOP_SOURCE_FILE);
@@ -244,9 +248,10 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
       // generate constructor
       generateConstructor(ce, targetType, targetSourceStatic);
 
-      final StandardProxyContext context = new StandardProxyContext(targetType, config, ce, targetClass);
+      final GeneratorContext context = new GeneratorContext(targetType, config, ce, targetClass);
 
       for (Method method : targetClass.getDeclaredMethods()) {
+//      for (Method method : ReflectionUtils.getUniqueDeclaredMethods(targetClass)) {
         if (shouldGenerate(method)) {
           for (final ProxyMethodGenerator methodGenerator : methodGenerators) {
             if (methodGenerator.generate(method, context)) {
@@ -268,7 +273,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
       ce.endClass();
     }
 
-    void generateStaticBlock(ClassEmitter ce, StandardProxyContext context) {
+    void generateStaticBlock(ClassEmitter ce, GeneratorContext context) {
       final List<String> fields = context.getFields();
       // static block
       if (!fields.isEmpty()) {
@@ -282,9 +287,13 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
     }
 
     boolean shouldGenerate(Method method) {
+      if(method.getName().equals("finalize")) {
+        return false;
+      }
       final int modifiers = method.getModifiers();
       return !(Modifier.isStatic(modifiers)
               || Modifier.isFinal(modifiers)
+              || Modifier.isNative(modifiers)
               || Modifier.isPrivate(modifiers));
     }
 

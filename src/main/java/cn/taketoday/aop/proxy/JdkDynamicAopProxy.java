@@ -29,7 +29,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.function.Function;
 
-import cn.taketoday.aop.AopInvocationException;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.context.DecoratingProxy;
@@ -39,6 +38,8 @@ import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
+
+import static cn.taketoday.aop.proxy.StandardProxyInvoker.assertReturnValue;
 
 /**
  * JDK-based {@link AopProxy} implementation for the AOP framework,
@@ -216,13 +217,7 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
         retVal = new DefaultMethodInvocation(target, method, targetClass, args, chain).proceed();
       }
 
-      // Massage return value if necessary.
-      Class<?> returnType = method.getReturnType();
-
-      if (retVal == null && returnType != Void.TYPE && returnType.isPrimitive()) {
-        throw new AopInvocationException(
-                "Null return value from advice does not match primitive return type for: " + method);
-      }
+      assertReturnValue(retVal, method);
       return retVal;
     }
     finally {

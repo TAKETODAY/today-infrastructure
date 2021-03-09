@@ -75,7 +75,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   public static final TargetSource EMPTY_TARGET_SOURCE = EmptyTargetSource.INSTANCE;
 
   /** Package-protected to allow direct access for efficiency. */
-  transient TargetSource targetSource = EMPTY_TARGET_SOURCE;
+  TargetSource targetSource = EMPTY_TARGET_SOURCE;
 
   /** Whether the Advisors are already filtered for the specific target class. */
   private boolean preFiltered = false;
@@ -93,13 +93,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * List of Advisors. If an Advice is added, it will be wrapped
    * in an Advisor before being added to this List.
    */
-  private transient List<Advisor> advisors = new ArrayList<>();
-
-  /**
-   * Array updated on changes to the advisors list, which is easier
-   * to manipulate internally.
-   */
-  private transient Advisor[] advisorArray = EMPTY_ADVISORS;
+  private ArrayList<Advisor> advisors = new ArrayList<>();
 
   /**
    * No-arg constructor for use as a JavaBean.
@@ -142,7 +136,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 
   /**
    * Set a target class to be proxied, indicating that the proxy
-   * should be castable to the given class.
+   * should be cast-able to the given class.
    * <p>Internally, an {@link cn.taketoday.aop.target.EmptyTargetSource}
    * for the given target class will be used. The kind of proxy needed
    * will be determined on actual creation of the proxy.
@@ -232,7 +226,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 
   @Override
   public final Advisor[] getAdvisors() {
-    return this.advisorArray;
+    return advisors.toArray(new Advisor[0]);
   }
 
   @Override
@@ -281,7 +275,6 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
       }
     }
 
-    updateAdvisorArray();
     adviceChanged();
   }
 
@@ -326,13 +319,12 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
     }
     if (!CollectionUtils.isEmpty(advisors)) {
       for (Advisor advisor : advisors) {
+        Assert.notNull(advisor, "Advisor must not be null");
         if (advisor instanceof IntroductionAdvisor) {
           validateIntroductionAdvisor((IntroductionAdvisor) advisor);
         }
-        Assert.notNull(advisor, "Advisor must not be null");
         this.advisors.add(advisor);
       }
-      updateAdvisorArray();
       adviceChanged();
     }
   }
@@ -356,21 +348,13 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
               "Illegal position " + pos + " in advisor list with size " + this.advisors.size());
     }
     this.advisors.add(pos, advisor);
-    updateAdvisorArray();
     adviceChanged();
   }
 
   /**
-   * Bring the array up to date with the list.
-   */
-  protected final void updateAdvisorArray() {
-    this.advisorArray = this.advisors.toArray(new Advisor[this.advisors.size()]);
-  }
-
-  /**
    * Allows uncontrolled access to the {@link List} of {@link Advisor Advisors}.
-   * <p>Use with care, and remember to {@link #updateAdvisorArray() refresh the advisor array}
-   * and {@link #adviceChanged() fire advice changed events} when making any modifications.
+   * <p>Use with care, and remember to {@link #adviceChanged() fire advice changed events}
+   * when making any modifications.
    */
   protected final List<Advisor> getAdvisorsInternal() {
     return this.advisors;
@@ -526,13 +510,12 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
     this.targetSource = targetSource;
     this.interfaces = new ArrayList<>(other.interfaces);
     for (Advisor advisor : advisors) {
+      Assert.notNull(advisor, "Advisor must not be null");
       if (advisor instanceof IntroductionAdvisor) {
         validateIntroductionAdvisor((IntroductionAdvisor) advisor);
       }
-      Assert.notNull(advisor, "Advisor must not be null");
       this.advisors.add(advisor);
     }
-    updateAdvisorArray();
     adviceChanged();
   }
 
@@ -546,7 +529,6 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
     copy.targetSource = EmptyTargetSource.forClass(getTargetClass(), getTargetSource().isStatic());
     copy.interfaces = this.interfaces;
     copy.advisors = this.advisors;
-    copy.updateAdvisorArray();
     return copy;
   }
 

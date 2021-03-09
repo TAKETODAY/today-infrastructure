@@ -34,7 +34,6 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import cn.taketoday.aop.Advisor;
-import cn.taketoday.aop.AopInvocationException;
 import cn.taketoday.aop.PointcutAdvisor;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
@@ -51,6 +50,8 @@ import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
+
+import static cn.taketoday.aop.proxy.StandardProxyInvoker.assertReturnValue;
 
 /**
  * CGLIB-based {@link AopProxy} implementation for the AOP framework.
@@ -498,13 +499,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
           // We need to create a CglibMethodInvocation...
           retVal = new CglibMethodInvocation(target, method, targetClass, methodProxy, args, chain).proceed();
         }
-        // Massage return value if necessary.
-        Class<?> returnType = method.getReturnType();
-
-        if (retVal == null && returnType != Void.TYPE && returnType.isPrimitive()) {
-          throw new AopInvocationException(
-                  "Null return value from advice does not match primitive return type for: " + method);
-        }
+        assertReturnValue(retVal, method);
         return retVal;
       }
       finally {

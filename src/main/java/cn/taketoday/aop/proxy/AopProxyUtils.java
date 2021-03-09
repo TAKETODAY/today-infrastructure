@@ -31,6 +31,7 @@ import cn.taketoday.aop.TargetClassAware;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.target.SingletonTargetSource;
+import cn.taketoday.context.DecoratingProxy;
 import cn.taketoday.context.utils.Assert;
 
 /**
@@ -101,7 +102,7 @@ public abstract class AopProxyUtils {
    * Determine the complete set of interfaces to proxy for the given AOP configuration.
    * <p>This will always add the {@link Advised} interface unless the AdvisedSupport's
    * {@link AdvisedSupport#setOpaque "opaque"} flag is on. Always adds the
-   * {@link cn.taketoday.aop.proxy.StandardProxy} marker interface.
+   * {@link StandardProxy} marker interface.
    *
    * @param advised
    *         the proxy config
@@ -110,8 +111,31 @@ public abstract class AopProxyUtils {
    *
    * @see StandardProxy
    * @see Advised
+   * @since 3.0
    */
   public static Class<?>[] completeProxiedInterfaces(AdvisedSupport advised) {
+    return completeProxiedInterfaces(advised, false);
+  }
+
+  /**
+   * Determine the complete set of interfaces to proxy for the given AOP configuration.
+   * <p>This will always add the {@link Advised} interface unless the AdvisedSupport's
+   * {@link AdvisedSupport#setOpaque "opaque"} flag is on. Always adds the
+   * {@link StandardProxy} marker interface.
+   *
+   * @param advised
+   *         the proxy config
+   * @param decoratingProxy
+   *         whether to expose the {@link DecoratingProxy} interface
+   *
+   * @return the complete set of interfaces to proxy
+   *
+   * @see StandardProxy
+   * @see Advised
+   * @see DecoratingProxy
+   * @since 3.0
+   */
+  public static Class<?>[] completeProxiedInterfaces(AdvisedSupport advised, boolean decoratingProxy) {
     Class<?>[] specifiedInterfaces = advised.getProxiedInterfaces();
     if (specifiedInterfaces.length == 0) {
       // No user-specified interfaces: check whether target class is an interface.
@@ -128,6 +152,7 @@ public abstract class AopProxyUtils {
     }
     boolean addProxy = !advised.isInterfaceProxied(StandardProxy.class);
     boolean addAdvised = !advised.isOpaque() && !advised.isInterfaceProxied(Advised.class);
+    boolean addDecoratingProxy = decoratingProxy && !advised.isInterfaceProxied(DecoratingProxy.class);
     int nonUserIfcCount = 0;
     if (addProxy) {
       nonUserIfcCount++;
@@ -135,12 +160,17 @@ public abstract class AopProxyUtils {
     if (addAdvised) {
       nonUserIfcCount++;
     }
+    if (addDecoratingProxy) {
+      nonUserIfcCount++;
+    }
     Class<?>[] proxiedInterfaces = new Class<?>[specifiedInterfaces.length + nonUserIfcCount];
     System.arraycopy(specifiedInterfaces, 0, proxiedInterfaces, 0, specifiedInterfaces.length);
     int index = specifiedInterfaces.length;
     if (addProxy) {
-      proxiedInterfaces[index] = StandardProxy.class;
-      index++;
+      proxiedInterfaces[index++] = StandardProxy.class;
+    }
+    if (addDecoratingProxy) {
+      proxiedInterfaces[index++] = DecoratingProxy.class;
     }
     if (addAdvised) {
       proxiedInterfaces[index] = Advised.class;
@@ -167,6 +197,9 @@ public abstract class AopProxyUtils {
       nonUserIfcCount++;
     }
     if (proxy instanceof Advised) {
+      nonUserIfcCount++;
+    }
+    if (proxy instanceof DecoratingProxy) {
       nonUserIfcCount++;
     }
     Class<?>[] userInterfaces = Arrays.copyOf(proxyInterfaces, proxyInterfaces.length - nonUserIfcCount);

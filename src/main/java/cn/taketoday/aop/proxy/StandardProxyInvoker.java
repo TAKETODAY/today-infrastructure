@@ -22,6 +22,9 @@ package cn.taketoday.aop.proxy;
 
 import org.aopalliance.intercept.MethodInterceptor;
 
+import java.lang.reflect.Method;
+
+import cn.taketoday.aop.AopInvocationException;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.context.utils.ObjectUtils;
 
@@ -101,7 +104,9 @@ public interface StandardProxyInvoker {
       }
 
       // We need to create a DynamicStandardMethodInvocation...
-      return new DynamicStandardMethodInvocation(target, targetInv, args, interceptors).proceed();
+      final Object retVal = new DynamicStandardMethodInvocation(target, targetInv, args, interceptors).proceed();
+      assertReturnValue(retVal, targetInv.getMethod());
+      return retVal;
     }
     finally {
       if (target != null && !targetSource.isStatic()) {
@@ -111,6 +116,15 @@ public interface StandardProxyInvoker {
         // Restore old proxy.
         AopContext.setCurrentProxy(oldProxy);
       }
+    }
+  }
+
+  static void assertReturnValue(Object retVal, Method method) {
+    // Massage return value if necessary.
+    final Class<?> returnType = method.getReturnType();
+    if (retVal == null && returnType != Void.TYPE && returnType.isPrimitive()) {
+      throw new AopInvocationException(
+              "Null return value from advice does not match primitive return type for: " + method);
     }
   }
 
