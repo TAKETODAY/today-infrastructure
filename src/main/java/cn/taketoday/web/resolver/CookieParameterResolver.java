@@ -32,7 +32,8 @@ import cn.taketoday.web.handler.MethodParameter;
  * @author TODAY <br>
  * 2019-07-12 23:39
  */
-public class CookieParameterResolver implements ParameterResolver {
+public class CookieParameterResolver
+        extends AbstractParameterResolver implements ParameterResolver {
 
   @Override
   public boolean supports(final MethodParameter parameter) {
@@ -40,18 +41,18 @@ public class CookieParameterResolver implements ParameterResolver {
   }
 
   @Override
-  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+  protected Object missingParameter(MethodParameter parameter) {
+    // no cookie
+    throw new MissingCookieException(parameter);
+  }
 
+  @Override
+  protected Object resolveInternal(final RequestContext context, final MethodParameter parameter) {
     final String name = parameter.getName();
-
     for (final HttpCookie cookie : context.cookies()) {
       if (name.equals(cookie.getName())) {
         return cookie;
       }
-    }
-    // no cookie
-    if (parameter.isRequired()) {
-      throw new MissingParameterException("Cookie", parameter);
     }
     return null;
   }
@@ -64,12 +65,12 @@ public class CookieParameterResolver implements ParameterResolver {
     }
 
     @Override
-    protected void parameterCanNotResolve(MethodParameter parameter) {
-      throw new MissingParameterException("Cookie", parameter);
+    protected Object missingParameter(MethodParameter parameter) {
+      throw new MissingCookieException(parameter);
     }
 
     @Override
-    protected Object resolveSource(final RequestContext context, final MethodParameter parameter) {
+    protected Object resolveInternal(RequestContext context, MethodParameter parameter) {
       final HttpCookie cookie = context.cookie(parameter.getName());
       if (cookie != null) {
         return cookie.getValue();

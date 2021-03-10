@@ -23,20 +23,19 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.utils.DataSize;
+import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.exception.FileSizeExceededException;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.multipart.DefaultMultipartFile;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.utils.WebUtils;
+
+import static cn.taketoday.web.resolver.MapParameterResolver.supportsMap;
 
 /**
  * @author TODAY <br>
@@ -51,9 +50,11 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
   @Override
   public boolean supports(final MethodParameter parameter) {
-    final Class<?> parameterClass = parameter.getParameterClass();
-    return parameterClass == MultipartFile.class
-            || parameterClass == DefaultMultipartFile.class;
+    return supportsMultipart(parameter.getParameterClass());
+  }
+
+  static boolean supportsMultipart(final Class<?> type) {
+    return type == MultipartFile.class || type == DefaultMultipartFile.class;
   }
 
   @Override
@@ -76,12 +77,10 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
     @Override
     public boolean supports(final MethodParameter parameter) {
-
       final Class<?> parameterClass = parameter.getParameterClass();
-
-      return (parameterClass == Collection.class || parameterClass == List.class || parameterClass == Set.class)
-              && (parameter.isGenericPresent(MultipartFile.class, 0)
-              || parameter.isGenericPresent(DefaultMultipartFile.class, 0));
+      return CollectionUtils.isCollection(parameterClass) && (
+              parameter.isGenericPresent(MultipartFile.class, 0) || parameter.isGenericPresent(DefaultMultipartFile.class, 0)
+      );
     }
 
     @Override
@@ -89,11 +88,14 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
                                      final MethodParameter parameter,
                                      final List<MultipartFile> multipartFiles) //
     {
-      if (parameter.getParameterClass() == Set.class) {
-        return new HashSet<>(multipartFiles);
+      final Class<?> parameterClass = parameter.getParameterClass();
+      if (parameterClass == Collection.class || parameterClass == List.class) {
+        //for Collection List
+        return multipartFiles;
       }
-      //for Collection List
-      return multipartFiles;
+      final Collection<MultipartFile> ret = CollectionUtils.createCollection(parameterClass, multipartFiles.size());
+      ret.addAll(multipartFiles);
+      return ret;
     }
   }
 
@@ -110,12 +112,11 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
     @Override
     public boolean supports(final MethodParameter parameter) {
-
-      final Class<?> parameterClass;
-
-      return parameter.isArray() //
-              && ((parameterClass = parameter.getParameterClass().getComponentType()) == MultipartFile.class //
-              || parameterClass == DefaultMultipartFile.class);
+      if (parameter.isArray()) {
+        final Class<?> componentType = parameter.getComponentType();
+        return DefaultMultipartResolver.supportsMultipart(componentType);
+      }
+      return false;
     }
 
     @Override
@@ -131,66 +132,48 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
    * @author TODAY <br>
    * 2019-07-11 23:35
    */
-  public static class MapMultipartParameterResolver extends MapParameterResolver implements ParameterResolver {
-
-    private final MultipartConfiguration multipartConfiguration;
+  public static class MapMultipartParameterResolver
+          extends AbstractMultipartResolver implements ParameterResolver, Ordered {
 
     @Autowired
     public MapMultipartParameterResolver(MultipartConfiguration multipartConfig) {
-      this.multipartConfiguration = multipartConfig;
+      super(multipartConfig);
     }
 
     @Override
-    protected boolean supportsInternal(MethodParameter parameter) {
-
-      if (parameter.isGenericPresent(String.class, 0)) { // Map<String, >
-        if (parameter.isGenericPresent(List.class, 1)) { // Map<String, List<>>
-
-          final Type type = parameter.getGenerics()[1];
-          if (type instanceof ParameterizedType) {
-            Type t = ((ParameterizedType) type).getActualTypeArguments()[0];
-            return t.equals(MultipartFile.class) || t.equals(DefaultMultipartFile.class);
+    public boolean supports(MethodParameter parameter) {
+      if (supportsMap(parameter)) {
+        if (parameter.isGenericPresent(String.class, 0)) { // Map<String, >
+          Class<?> target = null;
+          if (parameter.isGenericPresent(List.class, 1)) { // Map<String, List<>>
+            final Type type = parameter.getGenerics()[1];
+            if (type instanceof ParameterizedType) {
+              Type t = ((ParameterizedType) type).getActualTypeArguments()[0];
+              target = (Class<?>) t;
+            }
           }
-        }
-        else {
-          return parameter.isGenericPresent(MultipartFile.class, 1) //
-                  || parameter.isGenericPresent(DefaultMultipartFile.class, 1);
+          else {
+            target = (Class<?>) parameter.getGenerics(1);
+          }
+          return supportsMultipart(target);
         }
       }
       return false;
     }
 
     @Override
-    public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+    protected Object resolveInternal(final RequestContext context, final MethodParameter parameter,
+                                     final Map<String, List<MultipartFile>> multipartFiles) throws Throwable {
 
-      if (WebUtils.isMultipart(context)) {
-        if (multipartConfiguration.getMaxRequestSize().toBytes() < context.contentLength()) { // exceed max size?
-          throw new FileSizeExceededException(multipartConfiguration.getMaxRequestSize(), null)//
-                  .setActual(DataSize.of(context.contentLength()));
-        }
-
-        try {
-          final Map<String, List<MultipartFile>> multipartFiles = context.multipartFiles();
-
-          if (multipartFiles.isEmpty()) {
-            throw new MissingMultipartFileException(parameter);
-          }
-
-          if (parameter.isGenericPresent(List.class, 1)) {
-            return multipartFiles;
-          }
-          final HashMap<String, MultipartFile> files = new HashMap<>();
-          for (final Map.Entry<String, List<MultipartFile>> listEntry : multipartFiles.entrySet()) {
-            files.put(listEntry.getKey(), listEntry.getValue().get(0));
-          }
-
-          return files;
-        }
-        finally {
-          cleanupMultipart(context);
-        }
+      if (parameter.isGenericPresent(List.class, 1)) {
+        return multipartFiles;
       }
-      throw new MissingMultipartFileException(parameter);
+      final HashMap<String, MultipartFile> files = new HashMap<>();
+      for (final Map.Entry<String, List<MultipartFile>> listEntry : multipartFiles.entrySet()) {
+        files.put(listEntry.getKey(), listEntry.getValue().get(0));
+      }
+
+      return files;
     }
 
     @Override
@@ -198,7 +181,6 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
       return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 80;
     }
 
-    protected void cleanupMultipart(final RequestContext request) {}
   }
 
 }

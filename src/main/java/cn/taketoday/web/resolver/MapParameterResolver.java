@@ -23,7 +23,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
@@ -33,7 +32,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * 2019-07-09 22:49
  */
 public class MapParameterResolver
-        extends OrderedSupport implements ParameterResolver {
+        extends OrderedAbstractParameterResolver implements ParameterResolver {
 
   public MapParameterResolver() {
     this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 90);
@@ -45,8 +44,9 @@ public class MapParameterResolver
 
   @Override
   public boolean supports(final MethodParameter parameter) {
-    return parameter.is(Map.class) && supportsInternal(parameter);
+    return supportsMap(parameter) && supportsInternal(parameter);
   }
+
 
   protected boolean supportsInternal(final MethodParameter parameter) {
     return true;
@@ -56,7 +56,7 @@ public class MapParameterResolver
    * Resolve {@link Map} parameter.
    */
   @Override
-  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+  protected Object resolveInternal(final RequestContext context, final MethodParameter parameter) throws Throwable {
 
     // parameter class
     final Class<?> clazz = (Class<?>) parameter.getGenerics(1);
@@ -90,4 +90,7 @@ public class MapParameterResolver
     // throw WebUtils.newBadRequest("Collection variable", parameter.getParameterName(), null);
   }
 
+  static boolean supportsMap(MethodParameter parameter) {
+    return parameter.is(Map.class);
+  }
 }

@@ -19,17 +19,16 @@
  */
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**
  * @author TODAY <br>
- *         2019-07-13 11:21
+ * 2019-07-13 11:21
  */
 public abstract class TypeConverterParameterResolver
-        extends OrderedSupport implements ParameterResolver {
+        extends OrderedAbstractParameterResolver implements ParameterResolver {
 
   protected TypeConverterParameterResolver() {
     this(HIGHEST_PRECEDENCE);
@@ -43,25 +42,13 @@ public abstract class TypeConverterParameterResolver
   public abstract boolean supports(MethodParameter parameter);
 
   @Override
-  public final Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-    Object source = resolveSource(context, parameter);
-    if (source == null) {
-      if (parameter.isRequired()) {
-        parameterCanNotResolve(parameter);
-      }
-      else {
-        source = parameter.getDefaultValue();
-      }
-    }
-    return ConvertUtils.convert(source, resolveTargetClass(parameter));
+  protected Object resolveInternal(final RequestContext context, final MethodParameter parameter) {
+    return context.parameter(parameter.getName());
   }
 
-  protected void parameterCanNotResolve(final MethodParameter parameter) {
-    throw new MissingParameterException(parameter);
-  }
-
-  protected Object resolveSource(final RequestContext requestContext, final MethodParameter parameter) {
-    return requestContext.parameter(parameter.getName());
+  @Override
+  protected Object transformValue(RequestContext context, MethodParameter parameter, Object original) {
+    return ConvertUtils.convert(original, resolveTargetClass(parameter));
   }
 
   protected Class<?> resolveTargetClass(final MethodParameter parameter) {

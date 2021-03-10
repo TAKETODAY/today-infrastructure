@@ -26,6 +26,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 import cn.taketoday.context.annotation.Autowired;
@@ -39,6 +40,9 @@ import cn.taketoday.web.resolver.RequestBodyParsingException;
 import cn.taketoday.web.ui.JsonSequence;
 
 /**
+ * support {@link JSONArray}, {@link JSONObject},
+ * {@link Collection}, POJO, Array
+ *
  * @author TODAY 2019-07-17 20:17
  */
 public class FastJsonMessageConverter extends AbstractMessageConverter implements MessageConverter {

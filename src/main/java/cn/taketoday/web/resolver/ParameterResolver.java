@@ -40,11 +40,11 @@ public interface ParameterResolver {
    * Resolve parameter
    *
    * @param context
-   *         Current request Context
+   *         Current request context
    * @param parameter
    *         parameter
    *
-   * @return method parameter instances
+   * @return method parameter instance
    *
    * @throws Throwable
    *         if any {@link Exception} occurred

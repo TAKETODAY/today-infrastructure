@@ -20,6 +20,7 @@
 package cn.taketoday.web.resolver;
 
 import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.context.utils.DataSize;
 import cn.taketoday.web.RequestContext;
@@ -34,45 +35,62 @@ import cn.taketoday.web.utils.WebUtils;
  *
  * @author TODAY 2019-07-11 23:14
  */
-public abstract class AbstractMultipartResolver implements ParameterResolver {
+public abstract class AbstractMultipartResolver
+        extends AbstractParameterResolver implements ParameterResolver {
 
-  private final MultipartConfiguration multipartConfiguration;
+  final MultipartConfiguration multipartConfiguration;
 
   public AbstractMultipartResolver(MultipartConfiguration multipartConfig) {
     this.multipartConfiguration = multipartConfig;
   }
 
+  /**
+   * @throws FileSizeExceededException
+   *         upload file size exceeded
+   * @see MultipartConfiguration#getMaxRequestSize()
+   */
   @Override
-  public final Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+  protected Object resolveInternal(final RequestContext context, final MethodParameter parameter) throws Throwable {
     if (WebUtils.isMultipart(context)) {
-      if (getMultipartConfiguration().getMaxRequestSize().toBytes() < context.contentLength()) { // exceed max size?
-
-        throw new FileSizeExceededException(getMultipartConfiguration().getMaxRequestSize(), null)//
+      final DataSize maxRequestSize = getMultipartConfiguration().getMaxRequestSize();
+      // exceed max size?
+      if (maxRequestSize.toBytes() < context.contentLength()) {
+        throw new FileSizeExceededException(maxRequestSize, null)
                 .setActual(DataSize.of(context.contentLength()));
       }
       try {
-        final List<MultipartFile> multipartFiles = context.multipartFiles().get(parameter.getName());
-        if (multipartFiles == null) {
-          if (parameter.isRequired()) {
-            throw new MissingMultipartFileException(parameter);
-          }
-          return null;
-        }
-        return resolveInternal(context, parameter, multipartFiles);
+        return resolveInternal(context, parameter, context.multipartFiles());
       }
       finally {
         cleanupMultipart(context);
       }
     }
-    throw new MissingMultipartFileException(parameter);
+    return null;
+  }
+
+  protected Object resolveInternal(final RequestContext context,
+                                   final MethodParameter parameter,
+                                   final Map<String, List<MultipartFile>> multipartFiles) throws Throwable {
+
+    final List<MultipartFile> resolved = multipartFiles.get(parameter.getName());
+    if (resolved != null) {
+      return resolveInternal(context, parameter, multipartFiles);
+    }
+    return null;
+  }
+
+  /**
+   * @param multipartFiles
+   *         none null multipart files
+   */
+  protected Object resolveInternal(final RequestContext context,
+                                   final MethodParameter parameter,
+                                   final List<MultipartFile> multipartFiles) throws Throwable {
+    return null;
   }
 
   @Override
   public abstract boolean supports(final MethodParameter parameter);
-
-  abstract Object resolveInternal(final RequestContext context,
-                                  final MethodParameter parameter,
-                                  final List<MultipartFile> multipartFiles) throws Throwable;
 
   protected void cleanupMultipart(final RequestContext request) {}
 

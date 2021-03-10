@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,31 +17,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.context.conversion.TypeConverter;
-import cn.taketoday.context.exception.ConversionException;
-import cn.taketoday.web.RequestContext;
+import cn.taketoday.context.Ordered;
+import cn.taketoday.context.OrderedSupport;
 
 /**
- * @author TODAY <br>
- *         2019-07-09 23:56
+ * @author TODAY 2021/3/10 20:30
  */
-public abstract class RequestContextConverter implements TypeConverter {
+public abstract class OrderedAbstractParameterResolver extends AbstractParameterResolver implements Ordered {
+  final OrderedSupport ordered = new OrderedSupport();
+
+  OrderedAbstractParameterResolver() {
+    this(LOWEST_PRECEDENCE);
+  }
+
+  OrderedAbstractParameterResolver(int order) {
+    ordered.setOrder(order);
+  }
 
   @Override
-  public boolean supports(Class<?> targetClass, Object source) {
-    return source instanceof RequestContext && supports(targetClass);
+  public int getOrder() {
+    return ordered.getOrder();
   }
 
-  protected boolean supports(Class<?> targetClass) {
-    return true;
+  public void setOrder(int order) {
+    ordered.setOrder(order);
   }
-
-  @Override
-  public final Object convert(Class<?> targetClass, Object source) throws ConversionException {
-    return convertInternal(targetClass, (RequestContext) source);
-  }
-
-  protected abstract Object convertInternal(Class<?> targetClass, RequestContext source) throws ConversionException;
 }

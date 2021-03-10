@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,32 +17,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.annotation.RequestHeader;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**
- * for {@link RequestHeader}
- *
- * @author TODAY <br>
- * 2019-07-13 11:11
+ * @author TODAY 2021/3/10 20:14
  */
-public class HeaderParameterResolver extends TypeConverterParameterResolver {
+public class MissingCookieException extends MissingParameterException {
 
-  @Override
-  public boolean supports(MethodParameter parameter) {
-    return parameter.isAnnotationPresent(RequestHeader.class);
+  public MissingCookieException(MethodParameter parameter) {
+    super("Cookie", parameter);
   }
 
-  @Override
-  protected Object missingParameter(MethodParameter parameter) {
-    throw new MissingRequestHeaderException(parameter);
+  public final String getRequiredCookieName() {
+    return getParameterName();
   }
 
-  @Override
-  protected Object resolveInternal(RequestContext context, MethodParameter parameter) {
-    return context.requestHeader(parameter.getName());
-  }
 }
