@@ -31,11 +31,11 @@ import java.util.List;
 
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Env;
+import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.MissingRequestBodyException;
 import cn.taketoday.web.resolver.RequestBodyParsingException;
 
 /**
@@ -70,38 +70,34 @@ public class FastJsonMessageConverter extends AbstractMessageConverter implement
 
   @Override
   public Object read(final RequestContext context, final MethodParameter parameter) throws IOException {
-
-    final Object requestBody = context.requestBody();
-    if (requestBody != null) {
-      return toJavaObject(parameter, requestBody);
+    final Object body = getBody(context);
+    if (body instanceof JSONArray) { // array
+      return fromJSONArray(parameter, (JSONArray) body);
     }
-
-    final StringBuilder builder = new StringBuilder((int) (context.contentLength() + 16));
-    try {
-      StringUtils.appendLine(context.getReader(), builder);
+    else if (body instanceof JSONObject) {
+      return fromJSONObject(parameter, (JSONObject) body);
     }
-    catch (IOException e) {
-      throw new RequestBodyParsingException("Request body read failed", e);
-    }
-    if (builder.length() == 0) {
-      throw new MissingRequestBodyException(parameter);
-    }
-    final Object body = JSON.parse(builder.toString());
-    context.requestBody(body);
-
-    return toJavaObject(parameter, body);
+    return null;
   }
 
-  protected Object toJavaObject(final MethodParameter parameter, final Object parsedJson) {
-
-    if (parsedJson instanceof JSONArray) { // array
-      return fromJSONArray(parameter, (JSONArray) parsedJson);
+  Object getBody(RequestContext context) {
+    Object requestBody = context.requestBody();
+    if (requestBody == null) {
+      final StringBuilder builder = new StringBuilder((int) (context.contentLength() + 16));
+      try {
+        StringUtils.appendLine(context.getReader(), builder);
+      }
+      catch (IOException e) {
+        throw new RequestBodyParsingException("Request body read failed", e);
+      }
+      if (builder.length() == 0) {
+        return null;
+      }
+      requestBody = JSON.parse(builder.toString());
+      // cache request body
+      context.requestBody(requestBody);
     }
-
-    if (parsedJson instanceof JSONObject) {
-      return fromJSONObject(parameter, (JSONObject) parsedJson);
-    }
-    throw new MissingRequestBodyException(parameter);
+    return requestBody;
   }
 
   protected Object fromJSONArray(final MethodParameter parameter, final JSONArray requestBody) {
@@ -122,10 +118,10 @@ public class FastJsonMessageConverter extends AbstractMessageConverter implement
 
     try {
       final List<?> list = requestBody.toJavaList(parameter.getParameterClass());
-      if (!list.isEmpty()) {
+      if (!CollectionUtils.isEmpty(list)) {
         return list.get(0);
       }
-      throw new MissingRequestBodyException(parameter);
+      return null;
     }
     catch (JSONException e) {
       throw new RequestBodyParsingException("Request body read failed", e);
@@ -166,11 +162,8 @@ public class FastJsonMessageConverter extends AbstractMessageConverter implement
   }
 
   protected JSONArray getJSONArray(final MethodParameter parameter, final JSONObject requestBody) {
-    final JSONArray array = requestBody.getJSONArray(parameter.getName());
-    if (array == null) { // style: {"users":[{"name":"today","age":21},{"name":"YHJ","age":22}],...}
-      throw new MissingRequestBodyException(parameter);
-    }
-    return array;
+    // style: {"users":[{"name":"today","age":21},{"name":"YHJ","age":22}],...}
+    return requestBody.getJSONArray(parameter.getName());
   }
 
   public SerializerFeature[] getSerializeFeatures() {
