@@ -52,7 +52,7 @@ import cn.taketoday.web.resolver.RequestBodyParsingException;
 public class JacksonMessageConverter
         extends AbstractMessageConverter implements MessageConverter {
 
-  private ObjectMapper mapper;
+  private ObjectMapper mapper; //TODO config object mapper
 
   public JacksonMessageConverter() {
     this(new ObjectMapper());

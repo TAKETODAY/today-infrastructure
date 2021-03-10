@@ -27,8 +27,8 @@ import java.util.Map.Entry;
 import javax.imageio.ImageIO;
 
 import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
@@ -66,28 +66,33 @@ public abstract class AbstractResultHandler
     return false;
   }
 
-  public void handleObject(final RequestContext requestContext, final Object view) throws Throwable {
+  public void handleObject(final RequestContext request, final Object view) throws Throwable {
     if (view != null) {
       if (view instanceof String) {
-        handleString((String) view, requestContext);
+        handleString((String) view, request);
       }
       else if (view instanceof File) {
-        downloadFile(requestContext, ResourceUtils.getResource((File) view));
+        downloadFile(request, ResourceUtils.getResource((File) view));
       }
       else if (view instanceof Resource) {
-        downloadFile(requestContext, (Resource) view);
+        downloadFile(request, (Resource) view);
       }
       else if (view instanceof ModelAndView) {
-        resolveModelAndView(requestContext, (ModelAndView) view);
+        resolveModelAndView(request, (ModelAndView) view);
       }
       else if (view instanceof RenderedImage) {
-        handleImageView((RenderedImage) view, requestContext);
+        handleImageView((RenderedImage) view, request);
       }
       else {
-        obtainMessageConverter().write(requestContext, view);
+        obtainMessageConverter().write(request, view);
       }
     }
+    else {
+      handleNull(request);
+    }
   }
+
+  protected void handleNull(RequestContext request) { }
 
   /**
    * Resolve {@link ModelAndView} return type
@@ -171,11 +176,9 @@ public abstract class AbstractResultHandler
   }
 
   public MessageConverter obtainMessageConverter() {
-    final MessageConverter messageConverter = getMessageConverter();
-    if (messageConverter == null) {
-      throw new ConfigurationException("message converter must not be null");
-    }
-    return messageConverter;
+    final MessageConverter converter = getMessageConverter();
+    Assert.state(converter != null, "No MessageConverter.");
+    return converter;
   }
 
   public void setMessageConverter(MessageConverter messageConverter) {

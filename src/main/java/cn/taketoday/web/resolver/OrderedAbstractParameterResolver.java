@@ -29,10 +29,6 @@ import cn.taketoday.context.OrderedSupport;
 public abstract class OrderedAbstractParameterResolver extends AbstractParameterResolver implements Ordered {
   final OrderedSupport ordered = new OrderedSupport();
 
-  OrderedAbstractParameterResolver(int order) {
-    ordered.setOrder(order);
-  }
-
   @Override
   public int getOrder() {
     return ordered.getOrder();
