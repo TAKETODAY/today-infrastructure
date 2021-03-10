@@ -79,7 +79,8 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
     public boolean supports(final MethodParameter parameter) {
       final Class<?> parameterClass = parameter.getParameterClass();
       return CollectionUtils.isCollection(parameterClass) && (
-              parameter.isGenericPresent(MultipartFile.class, 0) || parameter.isGenericPresent(DefaultMultipartFile.class, 0)
+              parameter.isGenericPresent(MultipartFile.class, 0)
+                      || parameter.isGenericPresent(DefaultMultipartFile.class, 0)
       );
     }
 
