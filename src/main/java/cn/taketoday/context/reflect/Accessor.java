@@ -21,9 +21,9 @@
 package cn.taketoday.context.reflect;
 
 /**
- * @author TODAY
- * 2020/9/11 10:39
+ * @author TODAY 2021/3/10 17:50
+ * @since 3.0
  */
-public interface MethodAccessor extends Invoker, Accessor {
+public interface Accessor {
 
 }

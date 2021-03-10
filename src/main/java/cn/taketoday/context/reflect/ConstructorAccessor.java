@@ -20,11 +20,10 @@
 package cn.taketoday.context.reflect;
 
 /**
- * @author TODAY
- * 2020.08.26
+ * @author TODAY 2020.08.26
  */
 @FunctionalInterface
-public interface ConstructorAccessor {
+public interface ConstructorAccessor extends Accessor {
 
   /**
    * Invoke default {@link java.lang.reflect.Constructor}

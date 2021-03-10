@@ -32,6 +32,7 @@ import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.MethodInfo;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
 
 import static cn.taketoday.context.asm.Opcodes.ACC_FINAL;
@@ -94,7 +95,8 @@ public class ConstructorAccessorGenerator
 
   @Override
   protected ConstructorAccessor fallback(Exception exception) {
-    log.warn("Cannot access a Constructor: [{}]", targetConstructor, exception);
+    LoggerFactory.getLogger(ConstructorAccessorGenerator.class)
+            .warn("Cannot access a Constructor: [{}]", targetConstructor, exception);
     return super.fallback(exception);
   }
 

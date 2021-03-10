@@ -21,8 +21,6 @@ package cn.taketoday.context.reflect;
 
 import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
-import java.util.LinkedList;
-import java.util.Objects;
 
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Type;
@@ -34,10 +32,9 @@ import cn.taketoday.context.cglib.core.CodeGenerationException;
 import cn.taketoday.context.cglib.core.DefaultGeneratorStrategy;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.TypeUtils;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.Mappings;
 
 import static cn.taketoday.context.asm.Opcodes.ACC_FINAL;
 import static cn.taketoday.context.asm.Opcodes.ACC_PUBLIC;
@@ -48,18 +45,28 @@ import static cn.taketoday.context.asm.Opcodes.INVOKESTATIC;
  * @author TODAY
  * 2020/9/11 16:32
  */
-public abstract class GeneratorSupport<T> {
+public abstract class GeneratorSupport<T extends Accessor> {
 
-  static final Logger log = LoggerFactory.getLogger(GeneratorSupport.class);
   static final Type GENERATOR_SUPPORT_TYPE = Type.getType(GeneratorSupport.class);
   static final String GENERATOR_SUPPORT_TYPE_INTERNAL_NAME = GENERATOR_SUPPORT_TYPE.getInternalName();
 
   static final String DEFAULT_SUPER = "Ljava/lang/Object;";
-  static final LinkedList<GeneratorNode> created = new LinkedList<>();
 
   String className;
   ClassLoader classLoader;
   final Class<?> targetClass;
+
+  static final Mappings<Accessor, GeneratorSupport<?>> mappings = new Mappings<Accessor, GeneratorSupport<?>>() {
+    @Override
+    protected Accessor createValue(Object key, GeneratorSupport<?> generator) {
+      try {
+        return generator.createInternal();
+      }
+      catch (Exception e) {
+        return generator.fallback(e);
+      }
+    }
+  };
 
   GeneratorSupport(final Class<?> targetClass) {
     Assert.notNull(targetClass, "targetClass must not be null");
@@ -68,25 +75,11 @@ public abstract class GeneratorSupport<T> {
 
   @SuppressWarnings("unchecked")
   public T create() {
-
     final Object cacheKey = cacheKey();
-    for (final GeneratorNode node : created) {
-      if (Objects.equals(cacheKey, node.key)) {
-        return (T) node.value;
-      }
-    }
-
-    try {
-      final Object ret = createInternal();
-      created.add(new GeneratorNode(cacheKey, ret));
-      return (T) ret;
-    }
-    catch (Exception e) {
-      return fallback(e);
-    }
+    return (T) mappings.get(cacheKey, this);
   }
 
-  protected T fallback(Exception exception) {
+  T fallback(Exception exception) {
     if (exception instanceof InvocationTargetException) {
       if (((InvocationTargetException) exception).getTargetException() instanceof SecurityException) {
         return fallbackInstance();
@@ -98,13 +91,14 @@ public abstract class GeneratorSupport<T> {
     throw new CodeGenerationException(exception);
   }
 
-  Object createInternal() throws Exception {
+  @SuppressWarnings("unchecked")
+  T createInternal() throws Exception {
     if (cannotAccess()) {
       return fallbackInstance();
     }
     final ClassLoader classLoader = getClassLoader();
     try {
-      return ClassUtils.newInstance(classLoader.loadClass(getClassName()));
+      return (T) ClassUtils.newInstance(classLoader.loadClass(getClassName()));
     }
     catch (ClassNotFoundException e) {
       return ClassUtils.newInstance(generateClass(classLoader));
@@ -253,14 +247,4 @@ public abstract class GeneratorSupport<T> {
     return value == null ? 0 : value;
   }
 
-}
-
-class GeneratorNode {
-  final Object key;
-  final Object value;
-
-  GeneratorNode(final Object key, final Object value) {
-    this.key = key;
-    this.value = value;
-  }
 }

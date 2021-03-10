@@ -31,6 +31,7 @@ import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.MethodInfo;
 import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 
@@ -164,7 +165,8 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
 
     @Override
     protected MethodInvoker fallback(Exception exception) {
-      log.warn("Cannot access a Method: [{}]", targetMethod, exception);
+      LoggerFactory.getLogger(MethodInvokerGenerator.class)
+              .warn("Cannot access a Method: [{}]", targetMethod, exception);
       return super.fallback(exception);
     }
 
@@ -186,7 +188,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
 
     @Override
     protected Object cacheKey() {
-      return targetMethod;
+      return new MethodInvokerCacheKey(targetMethod, targetClass);
     }
 
     @Override
@@ -200,4 +202,13 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
     }
   }
 
+  static class MethodInvokerCacheKey {
+    final Method targetMethod;
+    final Class<?> targetClass;
+
+    MethodInvokerCacheKey(Method targetMethod, Class<?> targetClass) {
+      this.targetMethod = targetMethod;
+      this.targetClass = targetClass;
+    }
+  }
 }
