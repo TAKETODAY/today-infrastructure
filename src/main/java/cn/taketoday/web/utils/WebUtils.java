@@ -74,6 +74,7 @@ public abstract class WebUtils {
    * @param type
    *         type
    */
+  @Deprecated
   public static BadRequestException newBadRequest(String type, MethodParameter parameter, Throwable ex) {
     return newBadRequest(type, parameter.getName(), ex);
   }
@@ -84,6 +85,7 @@ public abstract class WebUtils {
    * @param methodParameterName
    *         parameter name
    */
+  @Deprecated
   public static BadRequestException newBadRequest(String type, String methodParameterName, Throwable ex) {
     StringBuilder msg = new StringBuilder(64);
 
