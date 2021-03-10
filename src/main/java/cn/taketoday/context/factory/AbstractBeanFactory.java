@@ -184,42 +184,31 @@ public abstract class AbstractBeanFactory
     return requiredType.isInstance(bean) ? (T) bean : null;
   }
 
-  static class SingletonObjectSupplier<T> implements ObjectSupplier<T> {
-    final T targetSingleton;
-
-    SingletonObjectSupplier(T targetSingleton) {
-      this.targetSingleton = targetSingleton;
-    }
-
-    @Override
-    public T get() throws BeansException {
-      return targetSingleton;
-    }
-
-    @Override
-    public T getIfAvailable() throws BeansException {
-      return targetSingleton;
-    }
-
-    @Override
-    public Stream<T> stream() {
-      return Stream.of(targetSingleton);
-    }
-
-    @Override
-    public Stream<T> orderedStream() {
-      return stream();
-    }
-
-  }
-
   @Override
   @SuppressWarnings("unchecked")
   public <T> ObjectSupplier<T> getBeanSupplier(final BeanDefinition def) {
     Assert.notNull(def, "BeanDefinition must not be null");
 
     if (def.isSingleton()) {
-      return new SingletonObjectSupplier<>((T) getBean(def));
+      class SingletonObjectSupplier implements ObjectSupplier<T> {
+        T targetSingleton;
+
+        @Override
+        public T get() throws BeansException {
+          T ret = targetSingleton;
+          if (ret == null) {
+            ret = targetSingleton = (T) getBean(def);
+          }
+          return ret;
+        }
+
+        public T getIfAvailable() {return targetSingleton;}
+
+        public Stream<T> orderedStream() {return stream(); }
+
+        public Stream<T> stream() {return Stream.of(targetSingleton);}
+      }
+      return new SingletonObjectSupplier();
     }
 
     return new DefaultObjectSupplier<T>(def.getBeanClass(), this) {
