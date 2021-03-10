@@ -23,6 +23,7 @@ package cn.taketoday.aop.support.annotation;
 import org.aopalliance.intercept.MethodInterceptor;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,8 @@ import cn.taketoday.aop.proxy.DefaultAutoProxyCreator;
 import cn.taketoday.aop.support.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.SuppliedMethodInterceptor;
+import cn.taketoday.context.AnnotationAttributes;
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.event.ContextCloseEvent;
 import cn.taketoday.context.exception.ConfigurationException;
@@ -110,57 +113,62 @@ public class AspectAutoProxyCreator
     super.addCandidateAdvisors(candidateAdvisors);
     loadAspects();
 
-    for (final BeanDefinition def : aspectsDef) {
-      final Class<?> aspectClass = def.getBeanClass();
+    for (final BeanDefinition aspectDef : aspectsDef) {
+      final Class<?> aspectClass = aspectDef.getBeanClass();
       // around
       if (MethodInterceptor.class.isAssignableFrom(aspectClass)) {
-        final Advice[] advices = ClassUtils.getAnnotationArray(aspectClass, Advice.class);
-        addCandidateAdvisors(candidateAdvisors, def, null, advices);
+        final AnnotationAttributes[] adviceAttributes = getAdviceAttributes(aspectDef);
+        addCandidateAdvisors(candidateAdvisors, aspectDef, null, adviceAttributes);
       }
       // annotations: @AfterReturning @Around @Before @After @AfterThrowing
       final Method[] declaredMethods = ReflectionUtils.getDeclaredMethods(aspectClass);
       for (final Method aspectMethod : declaredMethods) {
-        final Advice[] advices = ClassUtils.getAnnotationArray(aspectMethod, Advice.class);
-        addCandidateAdvisors(candidateAdvisors, def, aspectMethod, advices);
+        final AnnotationAttributes[] adviceAttributes = getAdviceAttributes(aspectMethod);
+        addCandidateAdvisors(candidateAdvisors, aspectDef, aspectMethod, adviceAttributes);
       }
     }
-
   }
 
-  private void addCandidateAdvisors(List<Advisor> candidateAdvisors, BeanDefinition aspectDef, Method aspectMethod, Advice[] advices) {
-    if (ObjectUtils.isNotEmpty(advices)) {
-      for (final Advice advice : advices) {
-        MethodInterceptor methodInterceptor;
-        if (aspectMethod == null) { // method interceptor
-          if (!(MethodInterceptor.class.isAssignableFrom(aspectDef.getBeanClass()))) {
-            throw new ConfigurationException(
-                    '[' + aspectDef.getBeanClass().getName() +
-                            "] must be implement: [" + MethodInterceptor.class.getName() + ']');
-          }
-
-          final BeanFactory beanFactory = getBeanFactory();
-          Supplier<MethodInterceptor> beanSupplier = beanFactory.getBeanSupplier(aspectDef);
-          methodInterceptor = new SuppliedMethodInterceptor(beanSupplier);
-        }
-        else {
-          methodInterceptor = getInterceptor(aspectDef, aspectMethod, advice.interceptor());
-        }
-
+  void addCandidateAdvisors(List<Advisor> candidateAdvisors, BeanDefinition aspectDef,
+                            Method aspectMethod, AnnotationAttributes[] adviceAttributes) {
+    // fix Standard Bean def
+    if (ObjectUtils.isNotEmpty(adviceAttributes)) {
+      for (final AnnotationAttributes advice : adviceAttributes) {
+        MethodInterceptor interceptor = getInterceptor(aspectDef, aspectMethod, advice);
         if (log.isTraceEnabled()) {
-          log.trace("Found Interceptor: [{}]", methodInterceptor);
+          log.trace("Found Interceptor: [{}]", interceptor);
         }
 
         // Annotations
-        final Class<? extends Annotation>[] annotations = advice.value();
+        final Class<? extends Annotation>[] annotations = advice.getClassArray(Constant.VALUE);
         if (ObjectUtils.isNotEmpty(annotations)) {
           for (final Class<? extends Annotation> annotation : annotations) {
             final AnnotationMatchingPointcut matchingPointcut = AnnotationMatchingPointcut.forMethodAnnotation(annotation);
-            final DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor(matchingPointcut, methodInterceptor);
+            final DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor(matchingPointcut, interceptor);
             candidateAdvisors.add(pointcutAdvisor);
           }
         }
       }
     }
+  }
+
+  MethodInterceptor getInterceptor(BeanDefinition aspectDef, Method aspectMethod, AnnotationAttributes advice) {
+    if (aspectMethod == null) { // method interceptor
+      if (!(MethodInterceptor.class.isAssignableFrom(aspectDef.getBeanClass()))) {
+        throw new ConfigurationException(
+                '[' + aspectDef.getBeanClass().getName() +
+                        "] must be implement: [" + MethodInterceptor.class.getName() + ']');
+      }
+
+      final BeanFactory beanFactory = getBeanFactory();
+      Supplier<MethodInterceptor> beanSupplier = beanFactory.getBeanSupplier(aspectDef);
+      return new SuppliedMethodInterceptor(beanSupplier);
+    }
+    return getInterceptor(aspectDef, aspectMethod, advice.getClass("interceptor"));
+  }
+
+  AnnotationAttributes[] getAdviceAttributes(AnnotatedElement annotated) {
+    return ClassUtils.getAnnotationAttributesArray(annotated, Advice.class);
   }
 
   /**
