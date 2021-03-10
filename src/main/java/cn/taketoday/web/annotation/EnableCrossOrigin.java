@@ -31,8 +31,7 @@ import cn.taketoday.web.cors.DefaultCorsProcessor;
 import cn.taketoday.web.registry.HandlerCorsCustomizer;
 
 /**
- * @author TODAY
- * @date 2020/12/10 23:39
+ * @author TODAY 2020/12/10 23:39
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD, ElementType.TYPE })

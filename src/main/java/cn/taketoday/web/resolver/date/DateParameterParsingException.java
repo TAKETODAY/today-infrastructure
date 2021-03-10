@@ -25,6 +25,7 @@ import cn.taketoday.web.resolver.ParameterConversionException;
 
 /**
  * @author TODAY 2021/3/2 11:23
+ * @since 3.0
  */
 public class DateParameterParsingException extends ParameterConversionException {
 

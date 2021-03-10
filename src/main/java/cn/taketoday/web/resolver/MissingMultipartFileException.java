@@ -28,8 +28,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * <p>This may be because the request is not a multipart/form-data request,
  * because the part is not present in the request.
  *
- * @author TODAY
- * @date 2021/1/17 10:30
+ * @author TODAY 2021/1/17 10:30
  * @since 3.0
  */
 public class MissingMultipartFileException extends MissingParameterException {

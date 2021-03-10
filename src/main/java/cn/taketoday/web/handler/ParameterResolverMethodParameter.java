@@ -28,8 +28,7 @@ import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolvers;
 
 /**
- * @author TODAY
- * @date 2020/9/26 20:06
+ * @author TODAY 2020/9/26 20:06
  * @since 3.0
  */
 public class ParameterResolverMethodParameter extends MethodParameter {

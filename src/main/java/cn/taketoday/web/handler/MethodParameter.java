@@ -27,6 +27,7 @@ import java.util.Objects;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.AttributeAccessorSupport;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.NumberUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
@@ -88,12 +89,16 @@ public class MethodParameter extends AttributeAccessorSupport {
     }
   }
 
-  public boolean isInterface() {
-    return parameterClass.isInterface();
-  }
-
   public boolean isArray() {
     return parameterClass.isArray();
+  }
+
+  public boolean isCollection() {
+    return CollectionUtils.isCollection(parameterClass);
+  }
+
+  public boolean isInterface() {
+    return parameterClass.isInterface();
   }
 
   public boolean is(final Class<?> type) {
@@ -193,6 +198,10 @@ public class MethodParameter extends AttributeAccessorSupport {
 
   public Class<?> getParameterClass() {
     return parameterClass;
+  }
+
+  public Class<?> getComponentType() {
+    return parameterClass.getComponentType();
   }
 
   public void setDefaultValue(String defaultValue) {

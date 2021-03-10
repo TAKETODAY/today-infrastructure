@@ -27,10 +27,9 @@ import java.lang.annotation.Target;
 import cn.taketoday.web.Constant;
 
 /**
- *
  * @author TODAY <br>
- *         2018-07-01 14:06:43 <br>
- *         2018-08-21 20:17 change
+ * 2018-07-01 14:06:43 <br>
+ * 2018-08-21 20:17 change
  */
 @RequestParam
 @Target(ElementType.PARAMETER)
@@ -39,5 +38,14 @@ public @interface RequestBody {
 
   /** Request body name */
   String value() default Constant.BLANK;
+
+  /**
+   * If required == true when request parameter is null, will be return bad
+   * request.
+   *
+   * @see cn.taketoday.web.resolver.MissingRequestBodyException
+   * @since 3.0
+   */
+  boolean required() default false;
 
 }

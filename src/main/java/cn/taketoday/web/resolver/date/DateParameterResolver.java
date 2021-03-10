@@ -30,7 +30,10 @@ import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.resolver.ParameterResolver;
 
 /**
+ * for {@link Date}
+ *
  * @author TODAY 2021/2/23 20:10
+ * @since 3.0
  */
 public class DateParameterResolver
         extends AbstractDateParameterResolver implements ParameterResolver {

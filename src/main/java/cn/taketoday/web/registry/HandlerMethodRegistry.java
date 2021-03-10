@@ -41,6 +41,7 @@ import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.Prototypes;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
@@ -64,7 +65,6 @@ import static cn.taketoday.context.utils.CollectionUtils.newHashSet;
 import static cn.taketoday.context.utils.ContextUtils.resolveValue;
 import static cn.taketoday.context.utils.StringUtils.checkUrl;
 import static java.util.Collections.addAll;
-import static java.util.Objects.requireNonNull;
 
 /**
  * Store {@link HandlerMethod}
@@ -257,9 +257,7 @@ public class HandlerMethodRegistry
    *
    * @see RequestMethod
    */
-  protected void mappingHandlerMethod(String path,
-                                      RequestMethod requestMethod,
-                                      HandlerMethod handlerMethod) {
+  protected void mappingHandlerMethod(String path, RequestMethod requestMethod, HandlerMethod handlerMethod) {
     // GET/blog/users/1 GET/blog/#{key}/1
     final String pathPattern = getContextPath().concat(resolveValue(path, String.class, variables));
     registerHandler(requestMethod, pathPattern, transformHandlerMethod(pathPattern, handlerMethod));
@@ -319,8 +317,8 @@ public class HandlerMethodRegistry
     for (final String variable : pathMatcher.extractVariableNames(pathPattern)) {
       final MethodParameter parameter = parameterMapping.get(variable);
       if (parameter == null) {
-        throw new ConfigurationException("There isn't a variable named: ["
-                                                 + variable + "] in the parameter list at method: [" + handler.getMethod() + "]");
+        throw new ConfigurationException(
+                "There isn't a variable named: [" + variable + "] in the parameter list at method: [" + handler.getMethod() + "]");
       }
       methodParameters[parameters.indexOf(parameter)] = //
               new PathVariableMethodParameter(i++, pathPattern, handler, parameter, pathMatcher);
@@ -340,9 +338,8 @@ public class HandlerMethodRegistry
   protected HandlerMethod createHandlerMethod(final Class<?> beanClass, final Method method) {
     final Object handlerBean = createHandler(beanClass, this.beanFactory);
     if (handlerBean == null) {
-      throw new ConfigurationException("An unexpected exception occurred: [Can't get bean with given type: ["
-                                               + beanClass.getName() + "]]"//
-      );
+      throw new ConfigurationException(
+              "An unexpected exception occurred: [Can't get bean with given type: [" + beanClass.getName() + "]]");
     }
     return new HandlerMethod(handlerBean, method, getInterceptors(beanClass, method));
   }
@@ -427,7 +424,8 @@ public class HandlerMethodRegistry
         }
       }
       final HandlerInterceptor instance = beanFactory.getBean(interceptor);
-      ret[i++] = requireNonNull(instance, "Can't get target interceptor bean");
+      Assert.state(instance != null, "Can't get target interceptor bean");
+      ret[i++] = instance;
     }
     return ret;
   }

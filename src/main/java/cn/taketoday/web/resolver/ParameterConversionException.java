@@ -33,7 +33,7 @@ public class ParameterConversionException extends MethodParameterException {
   private final String value;
 
   public ParameterConversionException(MethodParameter parameter, String value, Throwable cause) {
-    super(parameter, "Cant convert '" + value + "' to " + parameter.getParameterClass(), cause);
+    super(parameter, "Cannot convert '" + value + "' to " + parameter.getParameterClass(), cause);
     this.value = value;
   }
 

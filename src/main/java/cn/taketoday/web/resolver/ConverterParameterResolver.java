@@ -24,7 +24,6 @@ import cn.taketoday.context.conversion.Converter;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
@@ -52,12 +51,12 @@ public class ConverterParameterResolver
   }
 
   @Override
-  public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
+  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
 
-    final String value = requestContext.parameter(parameter.getName());
+    final String value = context.parameter(parameter.getName());
     if (StringUtils.isEmpty(value)) {
       if (parameter.isRequired()) {
-        throw WebUtils.newBadRequest(null, parameter, null);
+        throw new MissingParameterException(parameter);
       }
       return converter.convert(parameter.getDefaultValue());
     }

@@ -18,32 +18,24 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.resolver.date;
-
-import java.time.LocalDate;
-import java.time.temporal.TemporalAccessor;
+package cn.taketoday.web.resolver;
 
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.ParameterResolver;
-import cn.taketoday.web.utils.DateUtils;
 
 /**
- * for {@link LocalDate}
+ * Missing RequestBody in current request
  *
- * @author TODAY 2021/2/23 20:45
+ * @author TODAY 2021/3/10 12:51
  * @since 3.0
  */
-public class LocalDateParameterResolver
-        extends AbstractJavaTimeParameterResolver implements ParameterResolver {
+public class MissingRequestBodyException extends MissingParameterException {
 
-  @Override
-  public boolean supports(MethodParameter parameter) {
-    return parameter.is(LocalDate.class);
+  public MissingRequestBodyException(MethodParameter parameter) {
+    super("RequestBody", parameter);
   }
 
-  @Override
-  protected Object fromTemporalAccessor(TemporalAccessor temporalAccessor) {
-    return DateUtils.ofDate(temporalAccessor);
+  public MissingRequestBodyException(String type, MethodParameter parameter) {
+    super(type, parameter);
   }
 
 }

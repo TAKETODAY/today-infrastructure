@@ -19,15 +19,17 @@
  */
 package cn.taketoday.web.resolver;
 
+import java.io.IOException;
+
 import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.view.MessageConverter;
 
 /**
  * @author TODAY <br>
- *         2019-07-12 22:23
+ * 2019-07-12 22:23
  */
 public class RequestBodyParameterResolver extends OrderedSupport implements ParameterResolver {
 
@@ -49,7 +51,12 @@ public class RequestBodyParameterResolver extends OrderedSupport implements Para
 
   @Override
   public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-    return messageConverter.read(requestContext, parameter);
+    try {
+      return messageConverter.read(requestContext, parameter);
+    }
+    catch (IOException e) {
+      throw new RequestBodyParsingException("Request body read failed", e);
+    }
   }
 
   public MessageConverter getMessageConverter() {

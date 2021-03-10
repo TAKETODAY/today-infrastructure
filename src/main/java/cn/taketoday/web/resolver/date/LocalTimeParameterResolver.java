@@ -28,9 +28,10 @@ import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.utils.DateUtils;
 
 /**
- * for LocalTime
+ * for {@link LocalTime}
  *
  * @author TODAY 2021/2/23 21:16
+ * @since 3.0
  */
 public class LocalTimeParameterResolver
         extends AbstractJavaTimeParameterResolver implements ParameterResolver {

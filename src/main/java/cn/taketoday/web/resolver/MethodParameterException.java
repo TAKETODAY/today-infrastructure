@@ -25,8 +25,8 @@ import cn.taketoday.web.handler.MethodParameter;
 /**
  * MethodParameter can't be resolved
  *
- * @author TODAY
- * @date 2021/1/17 10:05
+ * @author TODAY 2021/1/17 10:05
+ * @since 3.0
  */
 public class MethodParameterException extends WebNestedRuntimeException {
   private static final long serialVersionUID = 1L;

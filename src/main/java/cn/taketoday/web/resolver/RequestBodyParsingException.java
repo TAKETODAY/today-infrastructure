@@ -18,32 +18,32 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.resolver.date;
+package cn.taketoday.web.resolver;
 
-import java.time.LocalDate;
-import java.time.temporal.TemporalAccessor;
-
-import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.ParameterResolver;
-import cn.taketoday.web.utils.DateUtils;
+import cn.taketoday.web.exception.WebNestedRuntimeException;
 
 /**
- * for {@link LocalDate}
+ * RequestBody cannot be parsed
  *
- * @author TODAY 2021/2/23 20:45
+ * @author TODAY 2021/3/10 12:59
  * @since 3.0
  */
-public class LocalDateParameterResolver
-        extends AbstractJavaTimeParameterResolver implements ParameterResolver {
+public class RequestBodyParsingException extends WebNestedRuntimeException {
+  private static final long serialVersionUID = 1L;
 
-  @Override
-  public boolean supports(MethodParameter parameter) {
-    return parameter.is(LocalDate.class);
+  public RequestBodyParsingException() {
+    super();
   }
 
-  @Override
-  protected Object fromTemporalAccessor(TemporalAccessor temporalAccessor) {
-    return DateUtils.ofDate(temporalAccessor);
+  public RequestBodyParsingException(String message) {
+    super(message);
   }
 
+  public RequestBodyParsingException(Throwable cause) {
+    super(cause);
+  }
+
+  public RequestBodyParsingException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

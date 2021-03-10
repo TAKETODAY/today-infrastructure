@@ -22,10 +22,14 @@ package cn.taketoday.web.resolver;
 import cn.taketoday.web.exception.WebNestedRuntimeException;
 
 /**
- * @author TODAY
- * @date 2021/1/17 10:41
+ * MultipartFile cannot be parsed
+ *
+ * @author TODAY 2021/1/17 10:41
+ * @since 3.0
  */
 public class MultipartFileParsingException extends WebNestedRuntimeException {
+  private static final long serialVersionUID = 1L;
+
   public MultipartFileParsingException() {
     super();
   }

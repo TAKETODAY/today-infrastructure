@@ -30,6 +30,7 @@ import cn.taketoday.web.handler.MethodParameter;
 
 /**
  * @author TODAY 2021/2/23 21:25
+ * @since 3.0
  */
 public abstract class AbstractJavaTimeParameterResolver extends AbstractDateParameterResolver {
 
