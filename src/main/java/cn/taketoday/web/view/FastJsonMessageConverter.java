@@ -37,7 +37,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.resolver.MissingRequestBodyException;
 import cn.taketoday.web.resolver.RequestBodyParsingException;
-import cn.taketoday.web.ui.JsonSequence;
 
 /**
  * support {@link JSONArray}, {@link JSONObject},
@@ -60,36 +59,12 @@ public class FastJsonMessageConverter extends AbstractMessageConverter implement
   }
 
   @Override
-  void writeInternal(final RequestContext context, final Object noneNullMessage) throws IOException {
-
-    if (noneNullMessage instanceof CharSequence) {
-      try {
-        context.getOutputStream()
-                .write(noneNullMessage.toString().getBytes(Constant.DEFAULT_CHARSET));
-      }
-      catch (RuntimeException e) {
-        context.getWriter().write(noneNullMessage.toString());
-      }
+  void writeInternal(final RequestContext context, Object noneNullMessage) throws IOException {
+    try {
+      JSON.writeJSONString(context.getOutputStream(), noneNullMessage, getSerializeFeatures());
     }
-    else {
-      context.contentType(Constant.CONTENT_TYPE_JSON);
-      if (noneNullMessage instanceof JsonSequence) {
-        try {
-          context.getOutputStream()
-                  .write(((JsonSequence) noneNullMessage).toJson().getBytes(Constant.DEFAULT_CHARSET));
-        }
-        catch (RuntimeException e) {
-          context.getWriter().write(((JsonSequence) noneNullMessage).toJson());
-        }
-      }
-      else {
-        try {
-          JSON.writeJSONString(context.getOutputStream(), noneNullMessage, getSerializeFeatures());
-        }
-        catch (RuntimeException e) {
-          JSON.writeJSONString(context.getWriter(), noneNullMessage, getSerializeFeatures());
-        }
-      }
+    catch (RuntimeException e) {
+      JSON.writeJSONString(context.getWriter(), noneNullMessage, getSerializeFeatures());
     }
   }
 

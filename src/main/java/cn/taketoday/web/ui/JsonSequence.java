@@ -28,6 +28,6 @@ public interface JsonSequence {
   /**
    * Returns JSON string
    */
-  String toJson();
+  Object getJSON();
 
 }

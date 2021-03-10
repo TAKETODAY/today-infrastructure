@@ -30,7 +30,7 @@ import cn.taketoday.web.ui.JsonSequence;
  * 2019-07-17 13:31
  * @see JsonSequence
  */
-public interface  MessageConverter {
+public interface MessageConverter {
 
   /**
    * Write message to client

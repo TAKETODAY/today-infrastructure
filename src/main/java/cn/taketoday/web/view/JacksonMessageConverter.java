@@ -37,10 +37,8 @@ import cn.taketoday.context.annotation.condition.ConditionalOnClass;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.MissingRequestBodyException;
 import cn.taketoday.web.resolver.RequestBodyParsingException;
 
 /**
@@ -66,8 +64,6 @@ public class JacksonMessageConverter
 
   @Override
   void writeInternal(RequestContext context, Object noneNullMessage) throws IOException {
-
-    context.contentType(Constant.CONTENT_TYPE_JSON);
     mapper.writeValue(context.getOutputStream(), noneNullMessage);
   }
 
@@ -121,10 +117,6 @@ public class JacksonMessageConverter
       catch (JsonProcessingException e) {
         throw new RequestBodyParsingException("Request body read failed", e);
       }
-    }
-
-    if (parameter.isRequired()) {
-      throw new MissingRequestBodyException(parameter);
     }
     return null;
   }

@@ -22,7 +22,9 @@ package cn.taketoday.web.view;
 
 import java.io.IOException;
 
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ui.JsonSequence;
 
 /**
  * @author TODAY 2021/3/10 12:37
@@ -33,11 +35,24 @@ public abstract class AbstractMessageConverter implements MessageConverter {
   @Override
   public void write(RequestContext context, Object message) throws IOException {
     if (message != null) {
-      writeInternal(context, message);
+      if (message instanceof CharSequence) {
+        writeStringInternal(context, message.toString());
+      }
+      else {
+        if (message instanceof JsonSequence) {
+          message = ((JsonSequence) message).getJSON();
+        }
+        context.contentType(Constant.CONTENT_TYPE_JSON);
+        writeInternal(context, message);
+      }
     }
     else {
       writeNullInternal(context);
     }
+  }
+
+  void writeStringInternal(RequestContext context, String message) throws IOException {
+    context.getWriter().write(message);
   }
 
   void writeNullInternal(RequestContext context) throws IOException { }
