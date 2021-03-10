@@ -68,13 +68,18 @@ public abstract class AbstractMultipartResolver
     return null;
   }
 
+  @Override
+  protected Object missingParameter(MethodParameter parameter) {
+    throw new MissingMultipartFileException(parameter);
+  }
+
   protected Object resolveInternal(final RequestContext context,
                                    final MethodParameter parameter,
                                    final Map<String, List<MultipartFile>> multipartFiles) throws Throwable {
 
     final List<MultipartFile> resolved = multipartFiles.get(parameter.getName());
     if (resolved != null) {
-      return resolveInternal(context, parameter, multipartFiles);
+      return resolveInternal(context, parameter, resolved);
     }
     return null;
   }
