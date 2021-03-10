@@ -21,6 +21,7 @@ package cn.taketoday.context.reflect;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Objects;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
@@ -203,12 +204,28 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
   }
 
   static class MethodInvokerCacheKey {
+    int hash;
     final Method targetMethod;
     final Class<?> targetClass;
 
     MethodInvokerCacheKey(Method targetMethod, Class<?> targetClass) {
       this.targetMethod = targetMethod;
       this.targetClass = targetClass;
+      this.hash = Objects.hash(targetMethod, targetClass);
     }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (!(o instanceof MethodInvokerCacheKey)) return false;
+      final MethodInvokerCacheKey that = (MethodInvokerCacheKey) o;
+      return Objects.equals(targetMethod, that.targetMethod) && Objects.equals(targetClass, that.targetClass);
+    }
+
+    @Override
+    public int hashCode() {
+      return hash;
+    }
+
   }
 }
