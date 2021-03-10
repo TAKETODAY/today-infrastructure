@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import cn.taketoday.context.EmptyObject;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.resolver.MultipartFileParsingException;
 import cn.taketoday.web.ui.ModelAndView;
@@ -132,8 +133,8 @@ public abstract class AbstractRequestContext implements RequestContext {
   }
 
   @Override
-  public Object requestBody(Object body) {
-    return this.requestBody = body;
+  public void requestBody(Object body) {
+    this.requestBody = body != null ? body : EmptyObject.INSTANCE;
   }
 
   @Override

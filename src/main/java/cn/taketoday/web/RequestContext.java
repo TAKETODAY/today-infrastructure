@@ -49,7 +49,7 @@ import cn.taketoday.web.ui.RedirectModel;
  */
 public interface RequestContext extends Readable, Writable, Model, HttpHeaders, Flushable {
 
-  String KEY_REDIRECT_MODEL = RequestContext.class + ".redirect-model";
+  String KEY_REDIRECT_MODEL = RequestContext.class.getName() + ".redirect-model";
 
   HttpCookie[] EMPTY_COOKIES = {};
 
@@ -326,7 +326,7 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * Clears any data that exists in the buffer as well as the status code,
    * headers. The state of calling {@link #getWriter} or {@link #getOutputStream}
    * is also cleared. It is legal, for instance, to call {@link #getWriter},
-   * {@link #reset} and then {@link #getOutputStream}. If {@link #getWriter} or
+   * {@link #reset()} and then {@link #getOutputStream}. If {@link #getWriter} or
    * {@link #getOutputStream} have been called before this method, then the
    * corrresponding returned Writer or OutputStream will be staled and the
    * behavior of using the stale object is undefined. If the response has been
@@ -541,14 +541,15 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
   Object requestBody();
 
   /**
-   * Apply request body object
+   * Cache request body object
+   * <p>
+   * If input body is {@code null} will cache {@link cn.taketoday.context.EmptyObject#INSTANCE}
+   * </p>
    *
    * @param body
    *         Target request body object
-   *
-   * @return Request body object
    */
-  Object requestBody(Object body);
+  void requestBody(Object body);
 
   String[] pathVariables();
 

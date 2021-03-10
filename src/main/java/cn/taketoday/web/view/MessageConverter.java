@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,41 +17,47 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web;
+package cn.taketoday.web.view;
 
 import java.io.IOException;
 
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.ui.JsonSequence;
 
 /**
  * @author TODAY <br>
- *         2019-07-17 13:31
+ * 2019-07-17 13:31
+ * @see JsonSequence
  */
-public interface MessageConverter {
+public interface  MessageConverter {
 
   /**
    * Write message to client
    *
-   * @param requestContext
-   *            Current request context
+   * @param context
+   *         Current request context
    * @param message
-   *            The message write to client
+   *         The message write to client
+   *
    * @throws IOException
-   *             If any input output exception occurred
+   *         If any input output exception occurred
    */
-  void write(RequestContext requestContext, Object message) throws IOException;
+  void write(RequestContext context, Object message) throws IOException;
 
   /**
    * Read The request body and convert it to Target object
    *
-   * @param requestContext
-   *            Current request context
+   * @param context
+   *         Current request context
    * @param parameter
-   *            Handler method parameter
+   *         Handler method parameter
+   *
    * @return The handler method parameter object
+   *
    * @throws IOException
-   *             If any input output exception occurred
+   *         If any input output exception occurred
    */
-  Object read(RequestContext requestContext, MethodParameter parameter) throws IOException;
+  Object read(RequestContext context, MethodParameter parameter) throws IOException;
 
 }

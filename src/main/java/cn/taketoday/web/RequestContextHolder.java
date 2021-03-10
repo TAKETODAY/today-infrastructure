@@ -292,9 +292,7 @@ public abstract class RequestContextHolder {
     }
 
     @Override
-    public Object requestBody(Object body) {
-      return null;
-    }
+    public void requestBody(Object body) {}
 
     @Override
     public String[] pathVariables() {

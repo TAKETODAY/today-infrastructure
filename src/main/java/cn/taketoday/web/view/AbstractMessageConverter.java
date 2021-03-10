@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,42 +17,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.view;
 
+import java.io.IOException;
+
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
- * @author TODAY <br>
- * 2019-07-14 17:41
+ * @author TODAY 2021/3/10 12:37
+ * @since 3.0
  */
-public class ObjectResultHandler extends HandlerMethodResultHandler {
-
-  public ObjectResultHandler(
-          TemplateViewResolver viewResolver,
-          MessageConverter messageConverter, int downloadFileBuf) {
-
-    setMessageConverter(messageConverter);
-    setTemplateViewResolver(viewResolver);
-    setDownloadFileBufferSize(downloadFileBuf);
-  }
+public abstract class AbstractMessageConverter implements MessageConverter {
 
   @Override
-  public boolean supports(HandlerMethod handlerMethod) {
-    return handlerMethod.is(Object.class);
-  }
-
-  @Override
-  public void handleResult(final RequestContext context, final Object handler, final Object result) throws Throwable {
-    if (result != null) {
-      handleObject(context, result);
+  public void write(RequestContext context, Object message) throws IOException {
+    if (message != null) {
+      writeInternal(context, message);
+    }
+    else {
+      writeNullInternal(context);
     }
   }
 
-  @Override
-  public boolean supportsResult(Object result) {
-    return true;
-  }
+  void writeNullInternal(RequestContext context) throws IOException { }
 
+  /**
+   * Write none null message
+   */
+  abstract void writeInternal(RequestContext context, Object noneNullMessage) throws IOException;
 }

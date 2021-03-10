@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web;
+package cn.taketoday.web.view;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -30,19 +30,18 @@ import java.util.List;
 
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Env;
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.exception.BadRequestException;
+import cn.taketoday.web.Constant;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.resolver.MissingRequestBodyException;
+import cn.taketoday.web.resolver.RequestBodyParsingException;
 import cn.taketoday.web.ui.JsonSequence;
-import cn.taketoday.web.utils.WebUtils;
 
 /**
- * @author TODAY <br>
- *         2019-07-17 20:17
+ * @author TODAY 2019-07-17 20:17
  */
-@MissingBean(type = MessageConverter.class)
-public class FastJsonMessageConverter implements MessageConverter {
+public class FastJsonMessageConverter extends AbstractMessageConverter implements MessageConverter {
 
   private SerializerFeature[] serializeFeatures;
 
@@ -51,64 +50,67 @@ public class FastJsonMessageConverter implements MessageConverter {
 
     this.serializeFeatures = feature == null ? new SerializerFeature[] { //
             SerializerFeature.WriteMapNullValue, //
-            SerializerFeature.WriteNullListAsEmpty, // 
+            SerializerFeature.WriteNullListAsEmpty, //
             SerializerFeature.DisableCircularReferenceDetect//
     } : feature;
   }
 
   @Override
-  public void write(final RequestContext context, final Object message) throws IOException {
+  void writeInternal(final RequestContext context, final Object noneNullMessage) throws IOException {
 
-    if (message instanceof CharSequence) {
+    if (noneNullMessage instanceof CharSequence) {
       try {
         context.getOutputStream()
-                .write(message.toString().getBytes(Constant.DEFAULT_CHARSET));
+                .write(noneNullMessage.toString().getBytes(Constant.DEFAULT_CHARSET));
       }
       catch (RuntimeException e) {
-        context.getWriter().write(message.toString());
+        context.getWriter().write(noneNullMessage.toString());
       }
     }
     else {
       context.contentType(Constant.CONTENT_TYPE_JSON);
-      if (message instanceof JsonSequence) {
+      if (noneNullMessage instanceof JsonSequence) {
         try {
           context.getOutputStream()
-                  .write(((JsonSequence) message).toJson().getBytes(Constant.DEFAULT_CHARSET));
+                  .write(((JsonSequence) noneNullMessage).toJson().getBytes(Constant.DEFAULT_CHARSET));
         }
         catch (RuntimeException e) {
-          context.getWriter().write(((JsonSequence) message).toJson());
+          context.getWriter().write(((JsonSequence) noneNullMessage).toJson());
         }
       }
       else {
         try {
-          JSON.writeJSONString(context.getOutputStream(), message, getSerializeFeatures());
+          JSON.writeJSONString(context.getOutputStream(), noneNullMessage, getSerializeFeatures());
         }
         catch (RuntimeException e) {
-          JSON.writeJSONString(context.getWriter(), message, getSerializeFeatures());
+          JSON.writeJSONString(context.getWriter(), noneNullMessage, getSerializeFeatures());
         }
       }
     }
   }
 
   @Override
-  public Object read(final RequestContext requestContext, final MethodParameter parameter) throws IOException {
+  public Object read(final RequestContext context, final MethodParameter parameter) throws IOException {
 
-    final Object requestBody = requestContext.requestBody();
+    final Object requestBody = context.requestBody();
     if (requestBody != null) {
       return toJavaObject(parameter, requestBody);
     }
 
-    final StringBuilder builder = new StringBuilder((int) (requestContext.contentLength() + 16));
+    final StringBuilder builder = new StringBuilder((int) (context.contentLength() + 16));
     try {
-      StringUtils.appendLine(requestContext.getReader(), builder);
+      StringUtils.appendLine(context.getReader(), builder);
     }
     catch (IOException e) {
-      throw WebUtils.newBadRequest("Request body", parameter, e);
+      throw new RequestBodyParsingException("Request body read failed", e);
     }
     if (builder.length() == 0) {
-      throw WebUtils.newBadRequest("Request body", parameter, null);
+      throw new MissingRequestBodyException(parameter);
     }
-    return toJavaObject(parameter, requestContext.requestBody(JSON.parse(builder.toString())));
+    final Object body = JSON.parse(builder.toString());
+    context.requestBody(body);
+
+    return toJavaObject(parameter, body);
   }
 
   protected Object toJavaObject(final MethodParameter parameter, final Object parsedJson) {
@@ -120,7 +122,7 @@ public class FastJsonMessageConverter implements MessageConverter {
     if (parsedJson instanceof JSONObject) {
       return fromJSONObject(parameter, (JSONObject) parsedJson);
     }
-    throw WebUtils.newBadRequest("Request body", parameter, null);
+    throw new MissingRequestBodyException(parameter);
   }
 
   protected Object fromJSONArray(final MethodParameter parameter, final JSONArray requestBody) {
@@ -140,16 +142,14 @@ public class FastJsonMessageConverter implements MessageConverter {
     }
 
     try {
-
       final List<?> list = requestBody.toJavaList(parameter.getParameterClass());
       if (!list.isEmpty()) {
         return list.get(0);
       }
-
-      throw WebUtils.newBadRequest("Request body", parameter, null);
+      throw new MissingRequestBodyException(parameter);
     }
     catch (JSONException e) {
-      throw new BadRequestException(e);
+      throw new RequestBodyParsingException("Request body read failed", e);
     }
   }
 
@@ -189,7 +189,7 @@ public class FastJsonMessageConverter implements MessageConverter {
   protected JSONArray getJSONArray(final MethodParameter parameter, final JSONObject requestBody) {
     final JSONArray array = requestBody.getJSONArray(parameter.getName());
     if (array == null) { // style: {"users":[{"name":"today","age":21},{"name":"YHJ","age":22}],...}
-      throw WebUtils.newBadRequest("Request body", parameter, null);
+      throw new MissingRequestBodyException(parameter);
     }
     return array;
   }
@@ -202,3 +202,4 @@ public class FastJsonMessageConverter implements MessageConverter {
     this.serializeFeatures = serializeFeatures;
   }
 }
+

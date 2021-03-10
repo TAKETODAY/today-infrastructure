@@ -1,4 +1,4 @@
-cn.taketoday.web.FastJsonMessageConverter
+cn.taketoday.web.view.JacksonMessageConverter
 cn.taketoday.web.multipart.MultipartConfiguration
 cn.taketoday.web.view.template.FreeMarkerTemplateViewResolver
 cn.taketoday.web.validation.DefaultValidator
