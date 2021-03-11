@@ -29,7 +29,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import cn.taketoday.aop.annotation.Annotated;
 import cn.taketoday.aop.annotation.Argument;
@@ -38,7 +37,6 @@ import cn.taketoday.aop.annotation.Attribute;
 import cn.taketoday.aop.annotation.JoinPoint;
 import cn.taketoday.aop.annotation.Returning;
 import cn.taketoday.aop.annotation.Throwing;
-import cn.taketoday.aop.proxy.StandardMethodInvocation;
 import cn.taketoday.context.AttributeAccessor;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.OrderedSupport;
@@ -46,8 +44,10 @@ import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
+import cn.taketoday.context.factory.ObjectSupplier;
 import cn.taketoday.context.reflect.MethodInvoker;
 import cn.taketoday.context.utils.Assert;
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 
 /**
@@ -65,7 +65,7 @@ public abstract class AbstractAnnotationMethodInterceptor
 
   BeanFactory beanFactory;
   final BeanDefinition aspectDef;
-  Supplier<Object> aspectSupplier;
+  ObjectSupplier<Object> aspectSupplier;
 
   public AbstractAnnotationMethodInterceptor(Method adviceMethod, BeanDefinition aspectDef) {
     Assert.notNull(adviceMethod, "adviceMethod must not be null");
@@ -168,7 +168,7 @@ public abstract class AbstractAnnotationMethodInterceptor
           if (inv instanceof AttributeAccessor) {
             final Class<?> parameterType = adviceParameterTypes[idx];
             if (AttributeAccessor.class == parameterType
-                    || StandardMethodInvocation.class == parameterType) {
+                    || MethodInvocation.class == parameterType) {
               args[idx] = inv;
               break;
             }
@@ -189,7 +189,7 @@ public abstract class AbstractAnnotationMethodInterceptor
           args[idx] = returnValue;
           break;
         case Constant.TYPE_ANNOTATED:
-          args[idx] = resolveAnnotation(inv, (Class<? extends Annotation>) adviceParameterTypes[idx]);
+          args[idx] = resolveAnnotation(inv, adviceParameterTypes[idx]);
           break;
         case Constant.TYPE_JOIN_POINT:
           args[idx] = inv;
@@ -198,24 +198,28 @@ public abstract class AbstractAnnotationMethodInterceptor
           Class<?> parameterType = adviceParameterTypes[idx];
           if (Joinpoint.class.isAssignableFrom(parameterType)) {
             args[idx] = inv;
+            break;
           }
-          if (Annotation.class.isAssignableFrom(parameterType)) {
-            args[idx] = resolveAnnotation(inv, (Class<? extends Annotation>) parameterType);
+          else if (Annotation.class.isAssignableFrom(parameterType)) {
+            args[idx] = resolveAnnotation(inv, parameterType);
+            break;
           }
-          if (throwable != null) {
+          else if (throwable != null) {
             throwable = ExceptionUtils.unwrapThrowable(throwable);
             if (parameterType == Throwable.class //
                     || parameterType.isAssignableFrom(throwable.getClass())) //
             {
               args[idx] = throwable;
+              break;
             }
           }
-          if (returnValue != null && parameterType.isAssignableFrom(returnValue.getClass())) {
+          else if (returnValue != null && parameterType.isAssignableFrom(returnValue.getClass())) {
             args[idx] = returnValue;
+            break;
           }
-          if (inv instanceof AttributeAccessor) {
+          else if (inv instanceof AttributeAccessor) {
             if (AttributeAccessor.class == parameterType
-                    || StandardMethodInvocation.class == parameterType) {
+                    || MethodInvocation.class == parameterType) {
               args[idx] = inv;
               break;
             }
@@ -224,11 +228,8 @@ public abstract class AbstractAnnotationMethodInterceptor
               args[idx] = ((AttributeAccessor) inv).getAttributes();
               break;
             }
-            else {
-              throw new ConfigurationException("Not supported " + parameterType);
-            }
           }
-          break;
+          throw new ConfigurationException("Not supported " + parameterType);
         }
       }
       idx++;
@@ -246,17 +247,17 @@ public abstract class AbstractAnnotationMethodInterceptor
    *
    * @return Annotation
    */
-  private Object resolveAnnotation(MethodInvocation methodInvocation,
-                                   Class<? extends Annotation> annotationClass) {
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  Object resolveAnnotation(MethodInvocation methodInvocation, Class annotationClass) {
     final Method method = methodInvocation.getMethod();
-    Annotation annotation = method.getAnnotation(annotationClass);
+    Annotation annotation = ClassUtils.getAnnotation(annotationClass, method);
     if (annotation == null) {
-      annotation = method.getDeclaringClass().getAnnotation(annotationClass);
+      annotation = ClassUtils.getAnnotation(annotationClass, method.getDeclaringClass());
     }
     return annotation;
   }
 
-  public void setAspectSupplier(Supplier<Object> aspectSupplier) {
+  public void setAspectSupplier(ObjectSupplier<Object> aspectSupplier) {
     this.aspectSupplier = aspectSupplier;
   }
 
@@ -265,11 +266,10 @@ public abstract class AbstractAnnotationMethodInterceptor
     this.beanFactory = beanFactory;
   }
 
-  Object obtainAspectInstance() {
-    Supplier<Object> ret = this.aspectSupplier;
+  final Object obtainAspectInstance() {
+    ObjectSupplier<Object> ret = this.aspectSupplier;
     if (ret == null) {
       Assert.state(beanFactory != null, " No beanFactory");
-
       ret = this.aspectSupplier = beanFactory.getBeanSupplier(aspectDef);
     }
     return ret.get();
