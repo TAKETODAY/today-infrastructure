@@ -28,6 +28,7 @@ import cn.taketoday.context.utils.OrderUtils;
 
 /**
  * @author TODAY 2021/3/6 14:10
+ * @since 3.0
  */
 @SuppressWarnings("unchecked")
 public class DefaultObjectSupplier<T> implements ObjectSupplier<T> {

@@ -107,8 +107,7 @@ public interface ObjectSupplier<T> extends Supplier<T>, Iterable<T> {
   }
 
   default Class<?> getRequiredType() {
-    final Class<?>[] generics = GenericTypeResolver.resolveTypeArguments(getClass(), ObjectSupplier.class);
-    return generics[0];
+    return GenericTypeResolver.resolveTypeArgument(getClass(), ObjectSupplier.class);
   }
 
   //
