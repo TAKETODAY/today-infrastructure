@@ -24,7 +24,6 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -52,7 +51,7 @@ import static java.lang.reflect.Modifier.STATIC;
 /**
  * @version $Id: ReflectUtils.java,v 1.30 2009/01/11 19:47:49 herbyderby Exp $
  */
-//@SuppressWarnings("all")
+@SuppressWarnings("all")
 public abstract class CglibReflectUtils {
 
   private static final HashMap<String, Class> primitives = new HashMap<>();
@@ -67,7 +66,6 @@ public abstract class CglibReflectUtils {
   private static final ArrayList<Method> OBJECT_METHODS = new ArrayList<>();
 
   static {
-
     ProtectionDomain protectionDomain;
     Method defineClass, defineClassUnsafe;
     Object unsafe;
@@ -75,7 +73,6 @@ public abstract class CglibReflectUtils {
     try {
       protectionDomain = getProtectionDomain(CglibReflectUtils.class);
       try {
-
         defineClass = doPrivileged(() -> {
           final Class loader = Class.forName("java.lang.ClassLoader"); // JVM crash w/o this
           final Method ret = loader.getDeclaredMethod("defineClass",
@@ -94,12 +91,7 @@ public abstract class CglibReflectUtils {
         // Fallback on Jigsaw where this method is not available.
         throwable = t;
         defineClass = null;
-        unsafe = doPrivileged(() -> {
-          Class u = Class.forName("sun.misc.Unsafe");
-          Field theUnsafe = u.getDeclaredField("theUnsafe");
-          theUnsafe.setAccessible(true);
-          return theUnsafe.get(null);
-        });
+        unsafe = ReflectionUtils.getUnsafe();
 
         Class u = Class.forName("sun.misc.Unsafe");
         defineClassUnsafe = u.getMethod("defineClass",
@@ -124,10 +116,10 @@ public abstract class CglibReflectUtils {
       if (throwable == null) {
         throwable = t;
       }
-      protectionDomain = null;
-      defineClass = null;
-      defineClassUnsafe = null;
       unsafe = null;
+      defineClass = null;
+      protectionDomain = null;
+      defineClassUnsafe = null;
     }
     UNSAFE = unsafe;
     THROWABLE = throwable;
@@ -441,24 +433,25 @@ public abstract class CglibReflectUtils {
     throw new IllegalArgumentException(iface + " is not an interface");
   }
 
+  @SuppressWarnings("unchecked")
   public static <T> Class<T> defineClass(String className, byte[] b, //
                                          ClassLoader loader, ProtectionDomain protection) throws Exception //
   {
     final ProtectionDomain protectionDomainToUse = protection == null ? PROTECTION_DOMAIN : protection;
 
-    Class<T> c;
+    Object c;
     if (DEFINE_CLASS != null) {
-      c = (Class<T>) DEFINE_CLASS.invoke(loader, className, b, 0, b.length, protectionDomainToUse);
+      c = DEFINE_CLASS.invoke(loader, className, b, 0, b.length, protectionDomainToUse);
     }
     else if (DEFINE_CLASS_UNSAFE != null) {
-      c = (Class<T>) DEFINE_CLASS_UNSAFE.invoke(UNSAFE, className, b, 0, b.length, loader, protectionDomainToUse);
+      c = DEFINE_CLASS_UNSAFE.invoke(UNSAFE, className, b, 0, b.length, loader, protectionDomainToUse);
     }
     else {
       throw new CodeGenerationException(THROWABLE);
     }
     // Force static initializers to run.
     Class.forName(className, true, loader);
-    return c;
+    return (Class<T>) c;
   }
 
   public static int findPackageProtected(Class[] classes) {

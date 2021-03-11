@@ -264,8 +264,8 @@ public abstract class ReflectionUtils {
   }
 
   private static boolean hasSameParams(Method method, Class<?>[] paramTypes) {
-    return (paramTypes.length == method.getParameterCount() &&
-            Arrays.equals(paramTypes, method.getParameterTypes()));
+    return paramTypes.length == method.getParameterCount()
+            && Arrays.equals(paramTypes, method.getParameterTypes());
   }
 
   /**
@@ -479,7 +479,6 @@ public abstract class ReflectionUtils {
 
   private static Method[] getDeclaredMethods(Class<?> targetClass, boolean defensive) {
     Assert.notNull(targetClass, "targetClass must not be null");
-
     Method[] result = DECLARED_METHODS_CACHE.get(targetClass);
     if (result == null) {
       try {
@@ -500,8 +499,9 @@ public abstract class ReflectionUtils {
         DECLARED_METHODS_CACHE.put(targetClass, (result.length == 0 ? EMPTY_METHOD_ARRAY : result));
       }
       catch (Throwable ex) {
-        throw new IllegalStateException("Failed to introspect Class [" + targetClass.getName() +
-                                                "] from ClassLoader [" + targetClass.getClassLoader() + "]", ex);
+        throw new IllegalStateException(
+                "Failed to introspect Class [" + targetClass.getName() +
+                        "] from ClassLoader [" + targetClass.getClassLoader() + "]", ex);
       }
     }
     return (result.length == 0 || !defensive) ? result : result.clone();
