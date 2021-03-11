@@ -48,6 +48,7 @@ import cn.taketoday.framework.ServletWebServerApplicationContext;
 import cn.taketoday.framework.bean.ErrorPage;
 import cn.taketoday.framework.bean.MimeMappings;
 import cn.taketoday.framework.config.CompressionConfiguration;
+import cn.taketoday.framework.config.DefaultServletConfiguration;
 import cn.taketoday.framework.config.WebDocumentConfiguration;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
@@ -365,7 +366,7 @@ public class UndertowServer
   }
 
   @Override
-  protected Servlet getDefaultServlet() {
+  protected Servlet createDefaultServlet() {
     return new DefaultServlet();
   }
 

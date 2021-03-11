@@ -55,7 +55,7 @@ import lombok.Setter;
 
 /**
  * @author TODAY <br>
- *         2019-01-26 11:08
+ * 2019-01-26 11:08
  */
 @Getter
 @Setter
@@ -82,35 +82,28 @@ public abstract class AbstractServletWebServer
    * Add jsp to context
    */
   protected void addJspServlet() {
-
     final JspServletConfiguration jspServletConfiguration = this.jspServletConfiguration;
+    if (jspServletConfiguration != null) {
+      // config jsp servlet
+      getWebApplicationConfiguration().configureJspServlet(jspServletConfiguration);
+      if (jspServletConfiguration.isEnable()) {
+        try {
+          Servlet jspServlet = ClassUtils.newInstance(jspServletConfiguration.getClassName());
+          if (jspServlet != null) {
+            log.info("Jsp is enabled, use jsp servlet: [{}]", jspServlet.getServletInfo());
 
-    if (jspServletConfiguration == null) {
-      return;
-    }
-    // config jsp servlet
-    getWebApplicationConfiguration().configureJspServlet(jspServletConfiguration);
+            WebServletInitializer<Servlet> initializer = new WebServletInitializer<>(jspServlet);
+            initializer.setName(jspServletConfiguration.getName());
+            initializer.setOrder(Ordered.HIGHEST_PRECEDENCE);
+            initializer.addUrlMappings(jspServletConfiguration.getUrlMappings());
+            initializer.setInitParameters(jspServletConfiguration.getInitParameters());
 
-    if (jspServletConfiguration.isEnable()) {
-
-      try {
-        Servlet jspServlet = ClassUtils.newInstance(jspServletConfiguration.getClassName());
-
-        if (jspServlet != null) {
-          log.info("Jsp is enabled, use jsp servlet: [{}]", jspServlet.getServletInfo());
-
-          WebServletInitializer<Servlet> initializer = new WebServletInitializer<>(jspServlet);
-
-          initializer.setName(jspServletConfiguration.getName());
-          initializer.setOrder(Ordered.HIGHEST_PRECEDENCE);
-          initializer.addUrlMappings(jspServletConfiguration.getUrlMappings());
-          initializer.setInitParameters(jspServletConfiguration.getInitParameters());
-
-          getContextInitializers().add(initializer);
+            getContextInitializers().add(initializer);
+          }
         }
-      }
-      catch (ClassNotFoundException e) {
-        throw new ConfigurationException(e);
+        catch (ClassNotFoundException e) {
+          throw new ConfigurationException(e);
+        }
       }
     }
   }
@@ -119,32 +112,34 @@ public abstract class AbstractServletWebServer
    * Add default servlet
    */
   protected void addDefaultServlet() {
+    final DefaultServletConfiguration servletConfiguration = this.defaultServletConfiguration;
+    if (servletConfiguration != null) {
 
-    final DefaultServletConfiguration defaultServletConfiguration = this.defaultServletConfiguration;
+      // config default servlet
+      getWebApplicationConfiguration().configureDefaultServlet(servletConfiguration);
+      if (servletConfiguration.isEnable()) {
+        Servlet defaultServlet = getDefaultServlet(servletConfiguration);
+        if (defaultServlet != null) {
+          log.info("Default servlet is enabled, use servlet: [{}]", defaultServlet.getServletInfo());
 
-    if (defaultServletConfiguration == null) {
-      return;
-    }
-    // config default servlet
-    getWebApplicationConfiguration().configureDefaultServlet(defaultServletConfiguration);
+          WebServletInitializer<Servlet> initializer = new WebServletInitializer<>(defaultServlet);
+          initializer.setName(Constant.DEFAULT);
+          initializer.setOrder(Ordered.HIGHEST_PRECEDENCE);
+          initializer.addUrlMappings(servletConfiguration.getUrlMappings());
+          initializer.setInitParameters(servletConfiguration.getInitParameters());
 
-    if (defaultServletConfiguration.isEnable()) {
-
-      final Servlet defaultServlet = getDefaultServlet();
-      if (defaultServlet != null) {
-
-        log.info("Default servlet is enabled, use servlet: [{}]", defaultServlet.getServletInfo());
-
-        WebServletInitializer<Servlet> initializer = new WebServletInitializer<>(defaultServlet);
-
-        initializer.setName(Constant.DEFAULT);
-        initializer.setOrder(Ordered.HIGHEST_PRECEDENCE);
-        initializer.addUrlMappings(defaultServletConfiguration.getUrlMappings());
-        initializer.setInitParameters(defaultServletConfiguration.getInitParameters());
-
-        getContextInitializers().add(initializer);
+          getContextInitializers().add(initializer);
+        }
       }
     }
+  }
+
+  protected Servlet getDefaultServlet(DefaultServletConfiguration servletConfiguration) {
+    Servlet defaultServlet = servletConfiguration.getDefaultServlet();
+    if (defaultServlet != null) {
+      defaultServlet = createDefaultServlet();
+    }
+    return defaultServlet;
   }
 
   @Override
@@ -198,11 +193,10 @@ public abstract class AbstractServletWebServer
   /**
    * Get Default Servlet Instance
    */
-  protected abstract Servlet getDefaultServlet();
+  protected abstract Servlet createDefaultServlet();
 
   @Override
   protected void prepareInitialize() {
-
     super.prepareInitialize();
 
     final WebServerApplicationContext context = getApplicationContext();
@@ -220,7 +214,6 @@ public abstract class AbstractServletWebServer
     }
 
     addDefaultServlet();
-
     addJspServlet();
   }
 

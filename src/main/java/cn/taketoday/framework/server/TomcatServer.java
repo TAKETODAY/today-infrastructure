@@ -80,6 +80,7 @@ import cn.taketoday.framework.WebServerException;
 import cn.taketoday.framework.bean.ErrorPage;
 import cn.taketoday.framework.bean.MimeMappings;
 import cn.taketoday.framework.config.CompressionConfiguration;
+import cn.taketoday.framework.config.DefaultServletConfiguration;
 import cn.taketoday.framework.config.JspServletConfiguration;
 import cn.taketoday.framework.config.WebDocumentConfiguration;
 import lombok.Getter;
@@ -590,7 +591,7 @@ public class TomcatServer extends AbstractServletWebServer {
   }
 
   @Override
-  protected Servlet getDefaultServlet() {
+  protected Servlet createDefaultServlet() {
     return new DefaultServlet();
   }
 

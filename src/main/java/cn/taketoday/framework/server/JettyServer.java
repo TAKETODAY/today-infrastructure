@@ -74,6 +74,7 @@ import cn.taketoday.framework.WebServerException;
 import cn.taketoday.framework.bean.ErrorPage;
 import cn.taketoday.framework.bean.MimeMappings;
 import cn.taketoday.framework.config.CompressionConfiguration;
+import cn.taketoday.framework.config.DefaultServletConfiguration;
 import cn.taketoday.framework.config.SessionConfiguration;
 import cn.taketoday.framework.config.WebDocumentConfiguration;
 import cn.taketoday.web.config.WebApplicationInitializer;
@@ -540,7 +541,7 @@ public class JettyServer
   }
 
   @Override
-  protected Servlet getDefaultServlet() {
+  protected Servlet createDefaultServlet() {
     return new DefaultServlet();
   }
 

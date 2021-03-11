@@ -42,8 +42,7 @@ import cn.taketoday.framework.server.ConfigurableWebServer;
 import cn.taketoday.framework.server.WebServer;
 
 /**
- * @author TODAY <br>
- *         2019-06-19 20:05
+ * @author TODAY 2019-06-19 20:05
  */
 public abstract class ApplicationUtils {
 
@@ -59,8 +58,8 @@ public abstract class ApplicationUtils {
     // Get WebServer instance
     WebServer webServer = beanFactory.getBean(WebServer.class);
     if (webServer == null) {
-      throw new ConfigurationException("The context: ["
-                                               + beanFactory + "] doesn't exist a [cn.taketoday.framework.server.WebServer] bean");
+      throw new ConfigurationException(
+              "The bean factory: [" + beanFactory + "] doesn't exist a [cn.taketoday.framework.server.WebServer] bean");
     }
 
     if (webServer instanceof ConfigurableWebServer) {
@@ -184,7 +183,7 @@ public abstract class ApplicationUtils {
 
   /**
    * @param homeDir
-   *            source dir
+   *         source dir
    */
   private static File findHomeDir(File homeDir) {
 
@@ -208,7 +207,8 @@ public abstract class ApplicationUtils {
    * Parse command arguments
    *
    * @param args
-   *            arguments
+   *         arguments
+   *
    * @return key-value
    */
   public static Map<String, String> parseCommandArguments(final String... args) {

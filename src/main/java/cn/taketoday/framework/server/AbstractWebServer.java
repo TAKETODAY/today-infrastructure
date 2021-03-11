@@ -31,6 +31,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.Constant;
@@ -50,7 +51,7 @@ import lombok.Setter;
 
 /**
  * @author TODAY <br>
- *         2019-01-26 11:08
+ * 2019-01-26 11:08
  */
 @Getter
 @Setter
@@ -81,7 +82,7 @@ public abstract class AbstractWebServer implements ConfigurableWebServer {
   @Override
   public void initialize(WebApplicationInitializer... contextInitializers) {
 
-    if (contextInitializers != null) {
+    if (ObjectUtils.isNotEmpty(contextInitializers)) {
       Collections.addAll(this.contextInitializers, contextInitializers);
     }
 
