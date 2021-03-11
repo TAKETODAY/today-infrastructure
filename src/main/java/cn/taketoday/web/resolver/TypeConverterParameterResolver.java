@@ -35,7 +35,7 @@ public abstract class TypeConverterParameterResolver
   }
 
   protected TypeConverterParameterResolver(int order) {
-    super(order);
+    setOrder(order);
   }
 
   @Override
