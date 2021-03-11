@@ -1,17 +1,21 @@
-/*
- * Copyright 2003,2004 The Apache Software Foundation
+/**
+ * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.context.cglib.core;
 
@@ -25,7 +29,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
@@ -42,12 +48,11 @@ import cn.taketoday.context.utils.ReflectionUtils;
 
 import static java.lang.reflect.Modifier.FINAL;
 import static java.lang.reflect.Modifier.STATIC;
-import static java.security.AccessController.doPrivileged;
 
 /**
  * @version $Id: ReflectUtils.java,v 1.30 2009/01/11 19:47:49 herbyderby Exp $
  */
-@SuppressWarnings("all")
+//@SuppressWarnings("all")
 public abstract class CglibReflectUtils {
 
   private static final HashMap<String, Class> primitives = new HashMap<>();
@@ -70,7 +75,8 @@ public abstract class CglibReflectUtils {
     try {
       protectionDomain = getProtectionDomain(CglibReflectUtils.class);
       try {
-        defineClass = doPrivileged((PrivilegedExceptionAction<Method>) () -> {
+
+        defineClass = doPrivileged(() -> {
           final Class loader = Class.forName("java.lang.ClassLoader"); // JVM crash w/o this
           final Method ret = loader.getDeclaredMethod("defineClass",
                                                       String.class,
@@ -88,7 +94,7 @@ public abstract class CglibReflectUtils {
         // Fallback on Jigsaw where this method is not available.
         throwable = t;
         defineClass = null;
-        unsafe = doPrivileged((PrivilegedExceptionAction) () -> {
+        unsafe = doPrivileged(() -> {
           Class u = Class.forName("sun.misc.Unsafe");
           Field theUnsafe = u.getDeclaredField("theUnsafe");
           theUnsafe.setAccessible(true);
@@ -104,7 +110,7 @@ public abstract class CglibReflectUtils {
                                         ClassLoader.class,
                                         ProtectionDomain.class);
       }
-      doPrivileged((PrivilegedExceptionAction) () -> {
+      doPrivileged(() -> {
         for (Method method : Object.class.getDeclaredMethods()) {
           if ("finalize".equals(method.getName()) || (method.getModifiers() & (FINAL | STATIC)) > 0) {
             continue;
@@ -152,8 +158,12 @@ public abstract class CglibReflectUtils {
     transforms.put("boolean", "Z");
   }
 
+  static <T> T doPrivileged(PrivilegedExceptionAction<T> action) throws PrivilegedActionException {
+    return AccessController.doPrivileged(action);
+  }
+
   public static ProtectionDomain getProtectionDomain(final Class<?> source) {
-    return source == null ? null : doPrivileged((PrivilegedAction<ProtectionDomain>) () -> source.getProtectionDomain());
+    return source == null ? null : AccessController.doPrivileged((PrivilegedAction<ProtectionDomain>) source::getProtectionDomain);
   }
 
   public static Type[] getExceptionTypes(Member member) {

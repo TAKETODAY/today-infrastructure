@@ -42,6 +42,7 @@ package cn.taketoday.expression.lang;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 
 import cn.taketoday.context.utils.NumberUtils;
 
@@ -64,224 +65,24 @@ public abstract class ExpressionArithmetic extends ExpressionUtils {
           BIGDECIMAL, DOUBLE, BIGINTEGER
   };
 
-  public static final class BigDecimalDelegate extends ExpressionArithmetic {
-    @Override
-    protected Number add(Number num0, Number num1) {
-      return ((BigDecimal) num0).add((BigDecimal) num1);
-    }
-
-    @Override
-    protected Number convert(Number num) {
-      if (num instanceof BigDecimal) {
-        return num;
-      }
-      return num instanceof BigInteger ? new BigDecimal((BigInteger) num) : new BigDecimal(num.doubleValue());
-    }
-
-    @Override
-    protected Number convert(String str) {
-      return new BigDecimal(str);
-    }
-
-    @Override
-    protected Number divide(Number num0, Number num1) {
-      return ((BigDecimal) num0).divide((BigDecimal) num1, BigDecimal.ROUND_HALF_UP);
-    }
-
-    @Override
-    protected Number subtract(Number num0, Number num1) {
-      return ((BigDecimal) num0).subtract((BigDecimal) num1);
-    }
-
-    @Override
-    protected Number mod(Number num0, Number num1) {
-      return num0.doubleValue() % num1.doubleValue();
-    }
-
-    @Override
-    protected Number multiply(Number num0, Number num1) {
-      return ((BigDecimal) num0).multiply((BigDecimal) num1);
-    }
-
-    @Override
-    public boolean matches(Object obj0, Object obj1) {
-      return obj0 instanceof BigDecimal || obj1 instanceof BigDecimal;
-    }
-  }
-
-  public final static class BigIntegerDelegate extends ExpressionArithmetic {
-    @Override
-    protected Number add(Number num0, Number num1) {
-      return ((BigInteger) num0).add((BigInteger) num1);
-    }
-
-    @Override
-    protected Number convert(Number num) {
-      return num instanceof BigInteger ? num : new BigInteger(num.toString());
-    }
-
-    @Override
-    protected Number convert(String str) {
-      return new BigInteger(str);
-    }
-
-    @Override
-    protected Number divide(Number num0, Number num1) {
-      return new BigDecimal((BigInteger) num0).divide(new BigDecimal((BigInteger) num1), BigDecimal.ROUND_HALF_UP);
-    }
-
-    @Override
-    protected Number multiply(Number num0, Number num1) {
-      return ((BigInteger) num0).multiply((BigInteger) num1);
-    }
-
-    @Override
-    protected Number mod(Number num0, Number num1) {
-      return ((BigInteger) num0).mod((BigInteger) num1);
-    }
-
-    @Override
-    protected Number subtract(Number num0, Number num1) {
-      return ((BigInteger) num0).subtract((BigInteger) num1);
-    }
-
-    @Override
-    public boolean matches(Object obj0, Object obj1) {
-      return obj0 instanceof BigInteger || obj1 instanceof BigInteger;
-    }
-  }
-
-  public final static class DoubleDelegate extends ExpressionArithmetic {
-    @Override
-    protected Number add(Number num0, Number num1) {
-      // could only be one of these
-      if (num0 instanceof BigDecimal) {
-        return ((BigDecimal) num0).add(new BigDecimal(num1.doubleValue()));
-      }
-      if (num1 instanceof BigDecimal) {
-        return new BigDecimal(num0.doubleValue()).add((BigDecimal) num1);
-      }
-      return num0.doubleValue() + num1.doubleValue();
-    }
-
-    @Override
-    protected Number convert(Number num) {
-      if (num instanceof Double) return num;
-      if (num instanceof BigInteger) return new BigDecimal((BigInteger) num);
-      return num.doubleValue();
-    }
-
-    @Override
-    protected Number convert(String str) {
-      return Double.parseDouble(str);
-    }
-
-    @Override
-    protected Number divide(Number num0, Number num1) {
-      return num0.doubleValue() / num1.doubleValue();
-    }
-
-    @Override
-    protected Number mod(Number num0, Number num1) {
-      return num0.doubleValue() % num1.doubleValue();
-    }
-
-    @Override
-    protected Number subtract(Number num0, Number num1) {
-      // could only be one of these
-      if (num0 instanceof BigDecimal) {
-        return ((BigDecimal) num0).subtract(new BigDecimal(num1.doubleValue()));
-      }
-      else if (num1 instanceof BigDecimal) {
-        return ((new BigDecimal(num0.doubleValue()).subtract((BigDecimal) num1)));
-      }
-      return num0.doubleValue() - num1.doubleValue();
-    }
-
-    @Override
-    protected Number multiply(Number num0, Number num1) {
-      // could only be one of these
-      if (num0 instanceof BigDecimal) {
-        return ((BigDecimal) num0).multiply(new BigDecimal(num1.doubleValue()));
-      }
-      else if (num1 instanceof BigDecimal) {
-        return ((new BigDecimal(num0.doubleValue()).multiply((BigDecimal) num1)));
-      }
-      return num0.doubleValue() * num1.doubleValue();
-    }
-
-    @Override
-    public boolean matches(Object obj0, Object obj1) {
-      return (obj0 instanceof Double
-              || obj1 instanceof Double
-              || obj0 instanceof Float
-              || obj1 instanceof Float
-              || (obj0 != null && (Double.TYPE == obj0.getClass() || Float.TYPE == obj0.getClass()))
-              || (obj1 != null && (Double.TYPE == obj1.getClass() || Float.TYPE == obj1.getClass()))
-              || (obj0 instanceof String && ExpressionUtils.isStringFloat((String) obj0))
-              || (obj1 instanceof String && ExpressionUtils.isStringFloat((String) obj1))//
-      );
-    }
-  }
-
-  public static final class LongDelegate extends ExpressionArithmetic {
-    @Override
-    protected Number add(Number num0, Number num1) {
-      return num0.longValue() + num1.longValue();
-    }
-
-    @Override
-    protected Number convert(Number num) {
-      //			if (num instanceof Long)
-      //				return num;
-      return num.longValue();
-    }
-
-    @Override
-    protected Number convert(String str) {
-      return Long.parseLong(str);
-    }
-
-    @Override
-    protected Number divide(Number num0, Number num1) {
-      return num0.longValue() / num1.longValue();
-    }
-
-    @Override
-    protected Number mod(Number num0, Number num1) {
-      return num0.longValue() % num1.longValue();
-    }
-
-    @Override
-    protected Number subtract(Number num0, Number num1) {
-      return num0.longValue() - num1.longValue();
-    }
-
-    @Override
-    protected Number multiply(Number num0, Number num1) {
-      return num0.longValue() * num1.longValue();
-    }
-
-    @Override
-    public boolean matches(Object obj0, Object obj1) {
-      return (obj0 instanceof Long || obj1 instanceof Long);
-    }
+  protected ExpressionArithmetic() {
+    super();
   }
 
   public static Number add(final Object obj0, final Object obj1) {
-    return operation(obj0, obj1, ExpressionArithmetic::add);
+    return operation(obj0, obj1, ExpressionArithmetic::addInternal);
   }
 
   public static Number mod(final Object obj0, final Object obj1) {
-    return operation(obj0, obj1, ExpressionArithmetic::mod);
+    return operation(obj0, obj1, ExpressionArithmetic::modInternal);
   }
 
   public static Number subtract(final Object obj0, final Object obj1) {
-    return operation(obj0, obj1, ExpressionArithmetic::subtract);
+    return operation(obj0, obj1, ExpressionArithmetic::subtractInternal);
   }
 
   public static Number multiply(final Object obj0, final Object obj1) {
-    return operation(obj0, obj1, ExpressionArithmetic::multiply);
+    return operation(obj0, obj1, ExpressionArithmetic::multiplyInternal);
   }
 
   public static Number divide(final Object obj0, final Object obj1) {
@@ -293,7 +94,7 @@ public abstract class ExpressionArithmetic extends ExpressionUtils {
     else if (BIGINTEGER.matches(obj0, obj1)) delegate = BIGDECIMAL;
     else
       delegate = DOUBLE;
-    return delegate.divide(delegate.convert(obj0), delegate.convert(obj1));
+    return delegate.divideInternal(delegate.convert(obj0), delegate.convert(obj1));
   }
 
   public static boolean isNumber(final Object obj) {
@@ -316,21 +117,16 @@ public abstract class ExpressionArithmetic extends ExpressionUtils {
     final ExpressionArithmetic arithmetic = LONG;
     return operation.apply(arithmetic, arithmetic.convert(obj0), arithmetic.convert(obj1));
   }
-
-  protected ExpressionArithmetic() {
-    super();
-  }
-
   //@off
-    protected abstract Number convert(final Number num);
-    protected abstract Number convert(final String str);
+  protected abstract Number convert(final Number num);
+  protected abstract Number convert(final String str);
 
-    protected abstract Number mod(final Number num0, final Number num1);
-    protected abstract Number add(final Number num0, final Number num1);
-    protected abstract Number divide(final Number num0, final Number num1);
-    protected abstract Number multiply(final Number num0, final Number num1);
-    protected abstract Number subtract(final Number num0, final Number num1);
-    protected abstract boolean matches(final Object obj0, final Object obj1);//@on
+  protected abstract Number modInternal(final Number num0, final Number num1);
+  protected abstract Number addInternal(final Number num0, final Number num1);
+  protected abstract Number divideInternal(final Number num0, final Number num1);
+  protected abstract Number multiplyInternal(final Number num0, final Number num1);
+  protected abstract Number subtractInternal(final Number num0, final Number num1);
+  protected abstract boolean matches(final Object obj0, final Object obj1);//@on
 
   protected final Number convert(final Object obj) {
 
@@ -352,6 +148,212 @@ public abstract class ExpressionArithmetic extends ExpressionUtils {
     }
 
     throw new IllegalArgumentException("Cannot convert " + obj + " of type " + objType + " to Number");
+  }
+
+  static final class BigDecimalDelegate extends ExpressionArithmetic {
+    @Override
+    protected Number addInternal(Number num0, Number num1) {
+      return ((BigDecimal) num0).add((BigDecimal) num1);
+    }
+
+    @Override
+    protected Number convert(Number num) {
+      if (num instanceof BigDecimal) {
+        return num;
+      }
+      return num instanceof BigInteger
+             ? new BigDecimal((BigInteger) num) : BigDecimal.valueOf(num.doubleValue());
+    }
+
+    @Override
+    protected Number convert(String str) {
+      return new BigDecimal(str);
+    }
+
+    @Override
+    protected Number divideInternal(Number num0, Number num1) {
+      return ((BigDecimal) num0).divide((BigDecimal) num1, BigDecimal.ROUND_HALF_UP);
+    }
+
+    @Override
+    protected Number subtractInternal(Number num0, Number num1) {
+      return ((BigDecimal) num0).subtract((BigDecimal) num1);
+    }
+
+    @Override
+    protected Number modInternal(Number num0, Number num1) {
+      return num0.doubleValue() % num1.doubleValue();
+    }
+
+    @Override
+    protected Number multiplyInternal(Number num0, Number num1) {
+      return ((BigDecimal) num0).multiply((BigDecimal) num1);
+    }
+
+    @Override
+    public boolean matches(Object obj0, Object obj1) {
+      return obj0 instanceof BigDecimal || obj1 instanceof BigDecimal;
+    }
+  }
+
+  static class BigIntegerDelegate extends ExpressionArithmetic {
+    @Override
+    protected Number addInternal(Number num0, Number num1) {
+      return ((BigInteger) num0).add((BigInteger) num1);
+    }
+
+    @Override
+    protected Number convert(Number num) {
+      return num instanceof BigInteger ? num : new BigInteger(num.toString());
+    }
+
+    @Override
+    protected Number convert(String str) {
+      return new BigInteger(str);
+    }
+
+    @Override
+    protected Number divideInternal(Number num0, Number num1) {
+      return new BigDecimal((BigInteger) num0)
+              .divide(new BigDecimal((BigInteger) num1), RoundingMode.HALF_UP);
+    }
+
+    @Override
+    protected Number multiplyInternal(Number num0, Number num1) {
+      return ((BigInteger) num0).multiply((BigInteger) num1);
+    }
+
+    @Override
+    protected Number modInternal(Number num0, Number num1) {
+      return ((BigInteger) num0).mod((BigInteger) num1);
+    }
+
+    @Override
+    protected Number subtractInternal(Number num0, Number num1) {
+      return ((BigInteger) num0).subtract((BigInteger) num1);
+    }
+
+    @Override
+    public boolean matches(Object obj0, Object obj1) {
+      return obj0 instanceof BigInteger || obj1 instanceof BigInteger;
+    }
+  }
+
+  static class DoubleDelegate extends ExpressionArithmetic {
+    @Override
+    protected Number addInternal(Number num0, Number num1) {
+      // could only be one of these
+      if (num0 instanceof BigDecimal) {
+        return ((BigDecimal) num0).add(BigDecimal.valueOf(num1.doubleValue()));
+      }
+      if (num1 instanceof BigDecimal) {
+        return BigDecimal.valueOf(num0.doubleValue()).add((BigDecimal) num1);
+      }
+      return num0.doubleValue() + num1.doubleValue();
+    }
+
+    @Override
+    protected Number convert(Number num) {
+      if (num instanceof Double) return num;
+      if (num instanceof BigInteger) return new BigDecimal((BigInteger) num);
+      return num.doubleValue();
+    }
+
+    @Override
+    protected Number convert(String str) {
+      return Double.parseDouble(str);
+    }
+
+    @Override
+    protected Number divideInternal(Number num0, Number num1) {
+      return num0.doubleValue() / num1.doubleValue();
+    }
+
+    @Override
+    protected Number modInternal(Number num0, Number num1) {
+      return num0.doubleValue() % num1.doubleValue();
+    }
+
+    @Override
+    protected Number subtractInternal(Number num0, Number num1) {
+      // could only be one of these
+      if (num0 instanceof BigDecimal) {
+        return ((BigDecimal) num0).subtract(BigDecimal.valueOf(num1.doubleValue()));
+      }
+      else if (num1 instanceof BigDecimal) {
+        return ((BigDecimal.valueOf(num0.doubleValue()).subtract((BigDecimal) num1)));
+      }
+      return num0.doubleValue() - num1.doubleValue();
+    }
+
+    @Override
+    protected Number multiplyInternal(Number num0, Number num1) {
+      // could only be one of these
+      if (num0 instanceof BigDecimal) {
+        return ((BigDecimal) num0).multiply(BigDecimal.valueOf(num1.doubleValue()));
+      }
+      else if (num1 instanceof BigDecimal) {
+        return ((BigDecimal.valueOf(num0.doubleValue()).multiply((BigDecimal) num1)));
+      }
+      return num0.doubleValue() * num1.doubleValue();
+    }
+
+    @Override
+    public boolean matches(Object obj0, Object obj1) {
+      return (obj0 instanceof Double
+              || obj1 instanceof Double
+              || obj0 instanceof Float
+              || obj1 instanceof Float
+              || (obj0 != null && (Double.TYPE == obj0.getClass() || Float.TYPE == obj0.getClass()))
+              || (obj1 != null && (Double.TYPE == obj1.getClass() || Float.TYPE == obj1.getClass()))
+              || (obj0 instanceof String && ExpressionUtils.isStringFloat((String) obj0))
+              || (obj1 instanceof String && ExpressionUtils.isStringFloat((String) obj1))//
+      );
+    }
+  }
+
+  public static final class LongDelegate extends ExpressionArithmetic {
+    @Override
+    protected Number addInternal(Number num0, Number num1) {
+      return num0.longValue() + num1.longValue();
+    }
+
+    @Override
+    protected Number convert(Number num) {
+      // if (num instanceof Long)
+      //   return num;
+      return num.longValue();
+    }
+
+    @Override
+    protected Number convert(String str) {
+      return Long.parseLong(str);
+    }
+
+    @Override
+    protected Number divideInternal(Number num0, Number num1) {
+      return num0.longValue() / num1.longValue();
+    }
+
+    @Override
+    protected Number modInternal(Number num0, Number num1) {
+      return num0.longValue() % num1.longValue();
+    }
+
+    @Override
+    protected Number subtractInternal(Number num0, Number num1) {
+      return num0.longValue() - num1.longValue();
+    }
+
+    @Override
+    protected Number multiplyInternal(Number num0, Number num1) {
+      return num0.longValue() * num1.longValue();
+    }
+
+    @Override
+    public boolean matches(Object obj0, Object obj1) {
+      return (obj0 instanceof Long || obj1 instanceof Long);
+    }
   }
 
 }

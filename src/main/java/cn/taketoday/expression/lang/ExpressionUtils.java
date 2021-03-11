@@ -234,7 +234,7 @@ public abstract class ExpressionUtils {
   protected static Number coerceToNumber(final Number number, final Class<?> type) throws IllegalArgumentException {
 
     if (Long.TYPE == type || Long.class == type) {
-      return Long.valueOf(number.longValue());
+      return number.longValue();
     }
 
     if (Double.TYPE == type || Double.class == type) {
@@ -263,16 +263,16 @@ public abstract class ExpressionUtils {
       if (number instanceof Long) {
         return new BigDecimal((Long) number);
       }
-      return new BigDecimal(number.doubleValue());
+      return BigDecimal.valueOf(number.doubleValue());
     }
     if (Byte.TYPE == type || Byte.class.equals(type)) {
-      return Byte.valueOf(number.byteValue());
+      return number.byteValue();
     }
     if (Short.TYPE == type || Short.class.equals(type)) {
-      return Short.valueOf(number.shortValue());
+      return number.shortValue();
     }
     if (Float.TYPE == type || Float.class.equals(type)) {
-      return Float.valueOf(number.floatValue());
+      return number.floatValue();
     }
 
     throw new IllegalArgumentException("Cannot convert " + number + " of type " + number.getClass() + " to " + type);

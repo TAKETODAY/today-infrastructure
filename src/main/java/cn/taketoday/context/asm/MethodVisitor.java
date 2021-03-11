@@ -448,12 +448,7 @@ public abstract class MethodVisitor {
    *         the method's name.
    * @param descriptor
    *         the method's descriptor (see {@link Type}).
-   *
-   * @deprecated use
-   * {@link #visitMethodInsn(int, String, String, String, boolean)}
-   * instead.
    */
-  @Deprecated
   public void visitMethodInsn(final int opcode, final String owner, final String name, final String descriptor) {
     visitMethodInsn(opcode, owner, name, descriptor, opcode == Opcodes.INVOKEINTERFACE);
   }
