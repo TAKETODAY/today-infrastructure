@@ -39,7 +39,7 @@ public class MapParameterResolver
   }
 
   public MapParameterResolver(final int order) {
-    super(order);
+    setOrder(order);
   }
 
   @Override

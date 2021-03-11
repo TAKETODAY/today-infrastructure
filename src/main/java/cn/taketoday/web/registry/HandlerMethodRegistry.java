@@ -98,7 +98,7 @@ public class HandlerMethodRegistry
   @Override
   public void onStartup(WebApplicationContext context) {
 
-    log.info("Initializing Controllers");
+    log.info("Initializing Annotation Controllers");
     startConfiguration();
   }
 
