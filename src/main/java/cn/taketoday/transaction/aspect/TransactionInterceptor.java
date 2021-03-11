@@ -26,17 +26,20 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.aop.annotation.Advice;
-import cn.taketoday.aop.annotation.Aspect;
+import cn.taketoday.aop.support.annotation.Advice;
+import cn.taketoday.aop.support.annotation.Aspect;
 import cn.taketoday.context.AnnotationAttributes;
+import cn.taketoday.context.NamedThreadLocal;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.factory.BeanFactory;
+import cn.taketoday.context.factory.ObjectSupplier;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.transaction.DefaultTransactionDefinition;
@@ -49,7 +52,7 @@ import cn.taketoday.transaction.Transactional;
 
 /**
  * @author TODAY <br>
- *         2018-11-12 21:09
+ * 2018-11-12 21:09
  */
 @Aspect
 @Advice(Transactional.class)
@@ -59,13 +62,13 @@ public class TransactionInterceptor implements MethodInterceptor {
   private static final Logger log = LoggerFactory.getLogger(TransactionInterceptor.class);
 
   private final BeanFactory beanFactory;
-  private final TransactionManager transactionManager;
+  private final ObjectSupplier<TransactionManager> transactionManager; // lazy load
 
-  private static final ThreadLocal<TransactionStatus> TRANSACTION = new ThreadLocal<>();
   private static final Map<Object, TransactionDefinition> DEF_CACHE = new HashMap<>(1024);
+  private static final ThreadLocal<TransactionStatus> TRANSACTION = new NamedThreadLocal<>("Current Transaction Status");
 
   @Autowired
-  public TransactionInterceptor(TransactionManager transactionManager, BeanFactory beanFactory) {
+  public TransactionInterceptor(ObjectSupplier<TransactionManager> transactionManager, BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
     this.transactionManager = transactionManager;
   }
@@ -76,8 +79,8 @@ public class TransactionInterceptor implements MethodInterceptor {
    * not throw an application exception.
    *
    * @throws NoTransactionException
-   *             if the transaction info cannot be found, because the method was
-   *             invoked outside an AOP invocation context
+   *         if the transaction info cannot be found, because the method was
+   *         invoked outside an AOP invocation context
    */
   public static TransactionStatus currentTransactionStatus() throws NoTransactionException {
     TransactionStatus metaData = TRANSACTION.get();
@@ -91,7 +94,7 @@ public class TransactionInterceptor implements MethodInterceptor {
   public Object invoke(final MethodInvocation invocation) throws Throwable {
 
     final TransactionDefinition def = obtainDefinition(invocation.getMethod());
-    final TransactionManager tm = obtainTransactionManager(beanFactory, transactionManager, def);
+    final TransactionManager tm = obtainTransactionManager(def);
     final TransactionStatus status = tm.getTransaction(def);
     final TransactionStatus old = bindToThread(status);
 
@@ -107,11 +110,16 @@ public class TransactionInterceptor implements MethodInterceptor {
       throw e;
     }
     finally {
-      restoreThreadLocalStatus(old);
+      if (old == null) {
+        TRANSACTION.remove();
+      }
+      else {
+        restoreThreadLocalStatus(old);
+      }
     }
   }
 
-  protected static TransactionStatus bindToThread(TransactionStatus status) {
+  static TransactionStatus bindToThread(TransactionStatus status) {
 
     final ThreadLocal<TransactionStatus> local = TRANSACTION;
     TransactionStatus old = local.get();
@@ -119,7 +127,7 @@ public class TransactionInterceptor implements MethodInterceptor {
     return old;
   }
 
-  protected static void restoreThreadLocalStatus(TransactionStatus old) {
+  static void restoreThreadLocalStatus(TransactionStatus old) {
     TRANSACTION.set(old);
   }
 
@@ -128,11 +136,11 @@ public class TransactionInterceptor implements MethodInterceptor {
    * depending on the configuration.
    *
    * @param ex
-   *            throwable encountered
+   *         throwable encountered
    */
-  protected static void completeTransactionAfterThrowing(final TransactionDefinition def,
-                                                         final TransactionStatus transactionStatus,
-                                                         final TransactionManager tm, final Throwable ex) {
+  static void completeTransactionAfterThrowing(final TransactionDefinition def,
+                                               final TransactionStatus transactionStatus,
+                                               final TransactionManager tm, final Throwable ex) {
     if (transactionStatus != null) {
       if (log.isTraceEnabled()) {
         log.trace("Completing transaction for [{}] after exception: [{}] ", def.getName(), ex, ex);
@@ -170,8 +178,7 @@ public class TransactionInterceptor implements MethodInterceptor {
     }
   }
 
-  protected static TransactionDefinition obtainDefinition(final Method method) {
-
+  static TransactionDefinition obtainDefinition(final Method method) {
     TransactionDefinition ret = DEF_CACHE.get(method);
     if (ret == null) {
       ret = getTransaction(method);
@@ -183,25 +190,21 @@ public class TransactionInterceptor implements MethodInterceptor {
     return ret;
   }
 
-  private static TransactionDefinition getTransaction(Method method) {
-
+  static TransactionDefinition getTransaction(Method method) {
     AnnotationAttributes attributes = ClassUtils.getAnnotationAttributes(Transactional.class, method);
-
     if (attributes == null) {
       attributes = ClassUtils.getAnnotationAttributes(Transactional.class, method.getDeclaringClass());
     }
-
     if (attributes == null) {
-      throw new ConfigurationException("'cn.taketoday.transaction.Transactional' must present on: ["
-                                               + method + "] or on its class");
+      throw new ConfigurationException(
+              "'cn.taketoday.transaction.Transactional' must present on: ["
+                      + method + "] or on its class");
     }
 
     return new DefaultTransactionDefinition(attributes).setName(ClassUtils.getQualifiedMethodName(method));
   }
 
-  protected static TransactionManager obtainTransactionManager(BeanFactory beanFactory,
-                                                               TransactionManager transactionManager,
-                                                               TransactionDefinition definition) {
+  protected TransactionManager obtainTransactionManager(TransactionDefinition definition) {
 
     if (definition != null && beanFactory != null) {
       final String qualifier = definition.getQualifier();
@@ -209,10 +212,13 @@ public class TransactionInterceptor implements MethodInterceptor {
         return obtainQualifiedTransactionManager(beanFactory, qualifier);
       }
     }
-    return transactionManager;
+
+    TransactionManager ret = transactionManager.getIfAvailable();
+    Assert.state(ret != null, "No TransactionManager.");
+    return ret;
   }
 
-  private static TransactionManager obtainQualifiedTransactionManager(BeanFactory beanFactory, String qualifier) {
+  static TransactionManager obtainQualifiedTransactionManager(BeanFactory beanFactory, String qualifier) {
     final TransactionManager ret = beanFactory.getBean(qualifier, TransactionManager.class);
     if (ret == null) {
       throw new NoSuchBeanDefinitionException(qualifier, TransactionManager.class);
@@ -226,7 +232,7 @@ public class TransactionInterceptor implements MethodInterceptor {
     return beanFactory;
   }
 
-  public final TransactionManager getTransactionManager() {
-    return transactionManager;
+  public TransactionManager getTransactionManager() {
+    return transactionManager.get();
   }
 }

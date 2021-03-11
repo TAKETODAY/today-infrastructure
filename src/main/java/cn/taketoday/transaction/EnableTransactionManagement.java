@@ -22,6 +22,7 @@ package cn.taketoday.transaction;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import cn.taketoday.aop.EnableAspectAutoProxy;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.transaction.aspect.TransactionInterceptor;
 
@@ -35,6 +36,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * @author TODAY <br>
  * 		   2020-09-09 17:22
  */
+@EnableAspectAutoProxy
 @Import(TransactionInterceptor.class)
 public @interface EnableTransactionManagement {
 
