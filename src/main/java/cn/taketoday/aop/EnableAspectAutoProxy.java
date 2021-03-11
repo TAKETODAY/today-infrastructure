@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -15,37 +15,44 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.aop.annotation;
+package cn.taketoday.aop;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.aop.support.annotation.AroundMethodInterceptor;
+import cn.taketoday.aop.support.annotation.AspectAutoProxyCreator;
+import cn.taketoday.aop.target.TargetSourceCreator;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.utils.ObjectUtils;
 
 /**
+ * Enable Aspect Oriented Programming
+ *
  * @author TODAY <br>
- * 2018-08-09 18:55
+ * 2020-02-06 20:02
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD, ElementType.TYPE })
-@Advice(interceptor = AroundMethodInterceptor.class)
-public @interface Around {
+@Target({ ElementType.TYPE, ElementType.METHOD })
+@Import(AutoProxyConfiguration.class)
+public @interface EnableAspectAutoProxy {
 
-  /** Annotated with */
-  Class<? extends Annotation>[] value() default {};
+}
 
-  /** Package name */
-  String[] pointcut() default {};
+class AutoProxyConfiguration {
 
-  /** Target classes */
-  Class<?>[] target() default {};
+  @MissingBean
+  AspectAutoProxyCreator aspectAutoProxyCreator(TargetSourceCreator[] sourceCreators) {
+    final AspectAutoProxyCreator proxyCreator = new AspectAutoProxyCreator();
 
-  /** Method in class */
-  String[] method() default {};
+    if (ObjectUtils.isNotEmpty(sourceCreators)) {
+      proxyCreator.setTargetSourceCreators(sourceCreators);
+    }
+    return proxyCreator;
+  }
 
 }

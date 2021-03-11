@@ -23,8 +23,8 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.aop.annotation.Advice;
-import cn.taketoday.aop.annotation.Aspect;
+import cn.taketoday.aop.support.annotation.Advice;
+import cn.taketoday.aop.support.annotation.Aspect;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.CacheEvict;

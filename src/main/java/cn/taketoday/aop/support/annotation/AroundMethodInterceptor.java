@@ -24,16 +24,16 @@ import org.aopalliance.intercept.MethodInvocation;
 import java.lang.reflect.Method;
 
 import cn.taketoday.context.factory.BeanDefinition;
+import cn.taketoday.context.factory.BeanFactory;
 
 /**
  * @author TODAY 2018-11-10 13:14
- * @see cn.taketoday.aop.annotation.Around
+ * @see Around
  */
-public class AroundMethodInterceptor extends AbstractAnnotationMethodInterceptor {
+class AroundMethodInterceptor extends AbstractAnnotationMethodInterceptor {
 
-  public AroundMethodInterceptor(Method method, BeanDefinition aspectDef) {
-    super(method, aspectDef);
-    setOrder(1);
+  public AroundMethodInterceptor(Method method, BeanFactory beanFactory, BeanDefinition aspectDef) {
+    super(method, beanFactory, aspectDef);
   }
 
   @Override
@@ -41,4 +41,8 @@ public class AroundMethodInterceptor extends AbstractAnnotationMethodInterceptor
     return invokeAdviceMethod(inv, null, null);
   }
 
+  @Override
+  public int getOrder() {
+    return Around.DEFAULT_ORDER;
+  }
 }

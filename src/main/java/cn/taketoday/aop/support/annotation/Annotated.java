@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -15,37 +15,21 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.aop.support.annotation;
 
-import org.aopalliance.intercept.MethodInvocation;
-
-import java.lang.reflect.Method;
-
-import cn.taketoday.aop.AfterAdvice;
-import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.factory.BeanFactory;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * @author TODAY 2018-10-13 11:03
- * @see After
+ * @author TODAY <br>
+ * 2018-11-12 17:49
  */
-class AfterMethodInterceptor
-        extends AbstractAnnotationMethodInterceptor implements AfterAdvice {
-
-  public AfterMethodInterceptor(Method method, BeanFactory beanFactory, BeanDefinition aspectDef) {
-    super(method, beanFactory, aspectDef);
-  }
-
-  @Override
-  public Object invoke(MethodInvocation inv) throws Throwable {
-    return invokeAdviceMethod(inv, inv.proceed(), null);
-  }
-
-  @Override
-  public int getOrder() {
-    return After.DEFAULT_ORDER;
-  }
+@Target({ ElementType.PARAMETER })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Annotated {
 
 }

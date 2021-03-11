@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -15,9 +15,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.aop.annotation;
+package cn.taketoday.aop.support.annotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
@@ -25,16 +25,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.aop.support.annotation.AfterMethodInterceptor;
-
 /**
  * @author TODAY <br>
- * 2018-08-09 18:56
+ * 2018-08-09 18:50
+ * @see BeforeMethodInterceptor
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Advice(interceptor = AfterMethodInterceptor.class)
+@Advice(interceptor = BeforeMethodInterceptor.class)
 @Target({ ElementType.METHOD, ElementType.TYPE })
-public @interface After {
+public @interface Before {
+
+  int DEFAULT_ORDER = 2;
 
   /** Annotated with */
   Class<? extends Annotation>[] value() default {};

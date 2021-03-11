@@ -22,9 +22,6 @@ package cn.taketoday.aop;
 
 import org.aopalliance.aop.Advice;
 
-import cn.taketoday.aop.support.annotation.AfterReturningMethodInterceptor;
-import cn.taketoday.aop.support.annotation.AfterThrowingMethodInterceptor;
-
 /**
  * Base interface holding AOP <b>advice</b> (action to take at a join-point)
  * and a filter determining the applicability of the advice (such as
@@ -58,8 +55,9 @@ public interface Advisor {
    *
    * @see org.aopalliance.intercept.MethodInterceptor
    * @see BeforeAdvice
-   * @see AfterThrowingMethodInterceptor
-   * @see AfterReturningMethodInterceptor
+   * @see AfterAdvice
+   * @see ThrowsAdvice
+   * @see AfterReturningAdvice
    */
   Advice getAdvice();
 }

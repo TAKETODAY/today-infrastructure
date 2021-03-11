@@ -17,23 +17,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+package cn.taketoday.aop.support.annotation;
 
-package cn.taketoday.aop.annotation;
-
+import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.Constant;
-
 /**
- * @author TODAY
- * 2020/11/1 14:59
+ * @author TODAY <br>
+ * 2018-08-09 18:55
  */
-@Target({ ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Attribute {
+@Target({ ElementType.METHOD, ElementType.TYPE })
+@Advice(interceptor = AroundMethodInterceptor.class)
+public @interface Around {
 
-  String value() default Constant.BLANK;
+  int DEFAULT_ORDER = 1;
+
+  /** Annotated with */
+  Class<? extends Annotation>[] value() default {};
+
+  /** Package name */
+  String[] pointcut() default {};
+
+  /** Target classes */
+  Class<?>[] target() default {};
+
+  /** Method in class */
+  String[] method() default {};
+
 }

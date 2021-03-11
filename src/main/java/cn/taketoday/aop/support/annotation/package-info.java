@@ -22,9 +22,9 @@
  * support for cn.taketoday.aop.annotation
  *
  * @author TODAY 2021/2/20 22:28
- * @see cn.taketoday.aop.annotation.After
- * @see cn.taketoday.aop.annotation.Before
- * @see cn.taketoday.aop.annotation.AfterThrowing
- * @see cn.taketoday.aop.annotation.AfterReturning
+ * @see cn.taketoday.aop.support.annotation.After
+ * @see cn.taketoday.aop.support.annotation.Before
+ * @see cn.taketoday.aop.support.annotation.AfterThrowing
+ * @see cn.taketoday.aop.support.annotation.AfterReturning
  */
 package cn.taketoday.aop.support.annotation;

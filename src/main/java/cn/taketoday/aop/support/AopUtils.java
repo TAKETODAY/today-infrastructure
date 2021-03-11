@@ -55,9 +55,9 @@ import cn.taketoday.aop.proxy.JdkDynamicAopProxy;
 import cn.taketoday.aop.proxy.StandardAopProxy;
 import cn.taketoday.aop.proxy.StandardProxy;
 import cn.taketoday.aop.proxy.UnknownAdviceTypeException;
-import cn.taketoday.aop.support.annotation.AfterReturningMethodInterceptor;
-import cn.taketoday.aop.support.annotation.AfterThrowingMethodInterceptor;
-import cn.taketoday.aop.support.annotation.BeforeMethodInterceptor;
+import cn.taketoday.aop.support.annotation.AfterReturning;
+import cn.taketoday.aop.support.annotation.AfterThrowing;
+import cn.taketoday.aop.support.annotation.Before;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
@@ -575,7 +575,7 @@ public abstract class AopUtils {
 
         @Override
         public int getOrder() {
-          return BeforeMethodInterceptor.DEFAULT_ORDER;
+          return Before.DEFAULT_ORDER;
         }
       }
       return new Interceptor();
@@ -604,7 +604,7 @@ public abstract class AopUtils {
 
         @Override
         public int getOrder() {
-          return AfterReturningMethodInterceptor.DEFAULT_ORDER;
+          return AfterReturning.DEFAULT_ORDER;
         }
       }
       return new Interceptor();
@@ -635,7 +635,7 @@ public abstract class AopUtils {
 
         @Override
         public int getOrder() {
-          return AfterThrowingMethodInterceptor.DEFAULT_ORDER;
+          return AfterThrowing.DEFAULT_ORDER;
         }
       }
 

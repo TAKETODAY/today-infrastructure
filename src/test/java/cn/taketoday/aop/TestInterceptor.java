@@ -22,10 +22,10 @@ package cn.taketoday.aop;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
-import cn.taketoday.aop.annotation.Advice;
-import cn.taketoday.aop.annotation.After;
-import cn.taketoday.aop.annotation.Aspect;
-import cn.taketoday.aop.annotation.Returning;
+import cn.taketoday.aop.support.annotation.Advice;
+import cn.taketoday.aop.support.annotation.After;
+import cn.taketoday.aop.support.annotation.Aspect;
+import cn.taketoday.aop.support.annotation.Returning;
 import cn.taketoday.context.annotation.Order;
 import lombok.extern.slf4j.Slf4j;
 

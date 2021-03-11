@@ -30,17 +30,9 @@ import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.aop.annotation.Annotated;
-import cn.taketoday.aop.annotation.Argument;
-import cn.taketoday.aop.annotation.Arguments;
-import cn.taketoday.aop.annotation.Attribute;
-import cn.taketoday.aop.annotation.JoinPoint;
-import cn.taketoday.aop.annotation.Returning;
-import cn.taketoday.aop.annotation.Throwing;
 import cn.taketoday.context.AttributeAccessor;
 import cn.taketoday.context.Constant;
-import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.aware.BeanFactoryAware;
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
@@ -52,10 +44,9 @@ import cn.taketoday.context.utils.ExceptionUtils;
 
 /**
  * @author TODAY 2018-11-10 11:26
- * @see cn.taketoday.aop.annotation.Aspect
+ * @see Aspect
  */
-public abstract class AbstractAnnotationMethodInterceptor
-        extends OrderedSupport implements Advice, MethodInterceptor, BeanFactoryAware {
+public abstract class AbstractAnnotationMethodInterceptor implements Advice, MethodInterceptor, Ordered {
 
   //private final Method adviceMethod;
   private final MethodInvoker invoker;
@@ -63,15 +54,16 @@ public abstract class AbstractAnnotationMethodInterceptor
   private final int adviceParameterLength;
   private final Class<?>[] adviceParameterTypes;
 
-  BeanFactory beanFactory;
-  final BeanDefinition aspectDef;
-  ObjectSupplier<Object> aspectSupplier;
+//  final BeanFactory beanFactory;
+//  final BeanDefinition aspectDef;
+  final ObjectSupplier<Object> aspectSupplier;
 
-  public AbstractAnnotationMethodInterceptor(Method adviceMethod, BeanDefinition aspectDef) {
+  public AbstractAnnotationMethodInterceptor(Method adviceMethod, BeanFactory beanFactory, BeanDefinition aspectDef) {
+    Assert.notNull(beanFactory, "beanFactory must not be null");
     Assert.notNull(adviceMethod, "adviceMethod must not be null");
     Assert.notNull(aspectDef, "aspect bean definition must not be null");
 
-    this.aspectDef = aspectDef;
+    this.aspectSupplier = beanFactory.getBeanSupplier(aspectDef);
 
     this.invoker = MethodInvoker.create(adviceMethod, aspectDef.getBeanClass());
     this.adviceParameterLength = adviceMethod.getParameterCount();
@@ -104,12 +96,6 @@ public abstract class AbstractAnnotationMethodInterceptor
         adviceParameters[i] = Constant.TYPE_ATTRIBUTE;
       }
     }
-  }
-
-  public AbstractAnnotationMethodInterceptor(Method adviceMethod, BeanFactory beanFactory, BeanDefinition aspectDef) {
-    this(adviceMethod, aspectDef);
-    Assert.notNull(beanFactory, "beanFactory must not be null");
-    this.beanFactory = beanFactory;
   }
 
   public abstract Object invoke(MethodInvocation invocation) throws Throwable;
@@ -257,22 +243,8 @@ public abstract class AbstractAnnotationMethodInterceptor
     return annotation;
   }
 
-  public void setAspectSupplier(ObjectSupplier<Object> aspectSupplier) {
-    this.aspectSupplier = aspectSupplier;
-  }
-
-  @Override
-  public void setBeanFactory(BeanFactory beanFactory) {
-    this.beanFactory = beanFactory;
-  }
-
   final Object obtainAspectInstance() {
-    ObjectSupplier<Object> ret = this.aspectSupplier;
-    if (ret == null) {
-      Assert.state(beanFactory != null, " No beanFactory");
-      ret = this.aspectSupplier = beanFactory.getBeanSupplier(aspectDef);
-    }
-    return ret.get();
+    return aspectSupplier.get();
   }
 
 }

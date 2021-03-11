@@ -23,8 +23,7 @@ package cn.taketoday.aop.support;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
-import java.util.function.Supplier;
-
+import cn.taketoday.context.factory.ObjectSupplier;
 import cn.taketoday.context.utils.Assert;
 
 /**
@@ -32,15 +31,15 @@ import cn.taketoday.context.utils.Assert;
  * @since 3.0
  */
 public class SuppliedMethodInterceptor implements MethodInterceptor {
-  final Supplier<MethodInterceptor> interceptorSupplier;
+  final ObjectSupplier<MethodInterceptor> supplier;
 
-  public SuppliedMethodInterceptor(Supplier<MethodInterceptor> interceptorSupplier) {
+  public SuppliedMethodInterceptor(ObjectSupplier<MethodInterceptor> interceptorSupplier) {
     Assert.notNull(interceptorSupplier, "interceptorSupplier must not be null");
-    this.interceptorSupplier = interceptorSupplier;
+    this.supplier = interceptorSupplier;
   }
 
   MethodInterceptor obtainInterceptor() {
-    final MethodInterceptor ret = interceptorSupplier.get();
+    final MethodInterceptor ret = supplier.getIfAvailable();
     Assert.state(ret != null, "No MethodInterceptor");
     return ret;
   }

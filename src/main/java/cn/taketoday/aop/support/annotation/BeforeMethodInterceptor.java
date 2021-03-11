@@ -24,17 +24,16 @@ import org.aopalliance.intercept.MethodInvocation;
 import java.lang.reflect.Method;
 
 import cn.taketoday.context.factory.BeanDefinition;
+import cn.taketoday.context.factory.BeanFactory;
 
 /**
  * @author TODAY 2018-10-13 11:27
- * @see cn.taketoday.aop.annotation.Before
+ * @see Before
  */
-public class BeforeMethodInterceptor extends AbstractAnnotationMethodInterceptor {
-  public static final int DEFAULT_ORDER = 2;
+class BeforeMethodInterceptor extends AbstractAnnotationMethodInterceptor {
 
-  public BeforeMethodInterceptor(Method method, BeanDefinition aspectDef) {
-    super(method, aspectDef);
-    setOrder(DEFAULT_ORDER);
+  public BeforeMethodInterceptor(Method method, BeanFactory beanFactory, BeanDefinition aspectDef) {
+    super(method, beanFactory, aspectDef);
   }
 
   @Override
@@ -43,4 +42,8 @@ public class BeforeMethodInterceptor extends AbstractAnnotationMethodInterceptor
     return inv.proceed();
   }
 
+  @Override
+  public int getOrder() {
+    return Before.DEFAULT_ORDER;
+  }
 }

@@ -24,17 +24,16 @@ import org.aopalliance.intercept.MethodInvocation;
 import java.lang.reflect.Method;
 
 import cn.taketoday.context.factory.BeanDefinition;
+import cn.taketoday.context.factory.BeanFactory;
 
 /**
  * @author TODAY 2018-10-13 11:25
- * @see cn.taketoday.aop.annotation.AfterThrowing
+ * @see AfterThrowing
  */
-public class AfterThrowingMethodInterceptor extends AbstractAnnotationMethodInterceptor {
-  public static final int DEFAULT_ORDER = 5;
+class AfterThrowingMethodInterceptor extends AbstractAnnotationMethodInterceptor {
 
-  public AfterThrowingMethodInterceptor(Method method, BeanDefinition aspectDef) {
-    super(method, aspectDef);
-    setOrder(DEFAULT_ORDER);
+  public AfterThrowingMethodInterceptor(Method method, BeanFactory beanFactory, BeanDefinition aspectDef) {
+    super(method, beanFactory, aspectDef);
   }
 
   @Override
@@ -47,4 +46,8 @@ public class AfterThrowingMethodInterceptor extends AbstractAnnotationMethodInte
     }
   }
 
+  @Override
+  public int getOrder() {
+    return AfterThrowing.DEFAULT_ORDER;
+  }
 }
