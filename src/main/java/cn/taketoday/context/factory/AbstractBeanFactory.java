@@ -190,7 +190,7 @@ public abstract class AbstractBeanFactory
     Assert.notNull(def, "BeanDefinition must not be null");
 
     if (def.isSingleton()) {
-      class SingletonObjectSupplier implements ObjectSupplier<T> {
+      final class SingletonObjectSupplier implements ObjectSupplier<T> {
         T targetSingleton;
 
         @Override
@@ -202,9 +202,10 @@ public abstract class AbstractBeanFactory
           return ret;
         }
 
-        public Stream<T> orderedStream() {return stream(); }
-
-        public Stream<T> stream() {return Stream.of(targetSingleton);}
+        @Override //@off
+        public T get() { return getIfAvailable(); }
+        public Stream<T> orderedStream() { return stream(); }
+        public Stream<T> stream() { return Stream.of(targetSingleton); } //@on
       }
       return new SingletonObjectSupplier();
     }
