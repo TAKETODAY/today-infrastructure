@@ -194,15 +194,13 @@ public abstract class AbstractBeanFactory
         T targetSingleton;
 
         @Override
-        public T get() throws BeansException {
+        public T getIfAvailable() throws BeansException {
           T ret = targetSingleton;
           if (ret == null) {
             ret = targetSingleton = (T) getBean(def);
           }
           return ret;
         }
-
-        public T getIfAvailable() {return targetSingleton;}
 
         public Stream<T> orderedStream() {return stream(); }
 
