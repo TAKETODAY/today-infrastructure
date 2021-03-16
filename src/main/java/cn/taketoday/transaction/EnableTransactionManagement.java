@@ -30,12 +30,12 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@Retention(RUNTIME)
-@Target({ TYPE, METHOD })
 /**
  * @author TODAY <br>
  * 		   2020-09-09 17:22
  */
+@Retention(RUNTIME)
+@Target({ TYPE, METHOD })
 @EnableAspectAutoProxy
 @Import(TransactionInterceptor.class)
 public @interface EnableTransactionManagement {

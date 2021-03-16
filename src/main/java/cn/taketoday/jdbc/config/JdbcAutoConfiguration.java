@@ -24,8 +24,8 @@ import java.util.List;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Order;
+import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.LoadingMissingBeanEvent;
-import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.OrderUtils;
 
