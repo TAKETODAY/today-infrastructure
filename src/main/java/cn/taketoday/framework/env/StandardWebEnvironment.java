@@ -41,7 +41,6 @@ import cn.taketoday.framework.annotation.PropertiesSource;
 import cn.taketoday.framework.utils.ApplicationUtils;
 
 import static cn.taketoday.context.utils.ClassUtils.getAnnotation;
-import static cn.taketoday.context.utils.ClassUtils.isAnnotationPresent;
 
 /**
  * @author TODAY <br>
@@ -79,9 +78,9 @@ public class StandardWebEnvironment extends StandardEnvironment {
 
     // load properties from starter class annotated @PropertiesSource
     final Class<?> applicationClass = this.applicationClass;
-    if (isAnnotationPresent(applicationClass, PropertiesSource.class)) {
-      for (final String propertiesLocation :
-              StringUtils.split(getAnnotation(PropertiesSource.class, applicationClass).value())) {
+    final PropertiesSource propertiesSource = getAnnotation(PropertiesSource.class, applicationClass);
+    if (propertiesSource != null) {
+      for (final String propertiesLocation : StringUtils.split(propertiesSource.value())) {
 
         if (!locations.contains(propertiesLocation)) {
           loadProperties(propertiesLocation);
