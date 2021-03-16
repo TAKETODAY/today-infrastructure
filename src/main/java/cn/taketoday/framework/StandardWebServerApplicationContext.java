@@ -19,13 +19,10 @@
  */
 package cn.taketoday.framework;
 
-import java.util.List;
-import java.util.Map;
-
+import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.factory.StandardBeanFactory;
-import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.framework.env.StandardWebEnvironment;
 import cn.taketoday.framework.server.WebServer;
 import cn.taketoday.framework.utils.ApplicationUtils;
@@ -72,8 +69,8 @@ public class StandardWebServerApplicationContext
   }
 
   @Override
-  protected void postProcessRegisterListener(Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners) {
-    super.postProcessRegisterListener(applicationListeners);
+  protected void registerFrameworkBeans(ConfigurableEnvironment env, BeanNameCreator beanNameCreator) {
+    super.registerFrameworkBeans(env, beanNameCreator);
     registerSingleton(this);
   }
 
