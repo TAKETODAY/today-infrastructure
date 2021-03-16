@@ -20,7 +20,7 @@
 package cn.taketoday.context.listener;
 
 import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.ContextListener;
+import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.BeanDefinitionLoadedEvent;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
@@ -30,7 +30,6 @@ import cn.taketoday.context.logger.LoggerFactory;
  * 
  *         2018-11-08 20:38
  */
-@ContextListener
 public class BeanDefinitionLoadedListener_3 implements ApplicationListener<BeanDefinitionLoadedEvent>, Ordered {
 
     private static final Logger log = LoggerFactory.getLogger(BeanDefinitionLoadedListener_3.class);

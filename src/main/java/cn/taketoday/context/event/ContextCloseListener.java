@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -15,9 +15,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.listener;
+package cn.taketoday.context.event;
 
 import java.text.SimpleDateFormat;
 
@@ -26,7 +26,6 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.event.ContextCloseEvent;
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
@@ -36,8 +35,8 @@ import static cn.taketoday.context.utils.ContextUtils.destroyBean;
 import static cn.taketoday.context.utils.ExceptionUtils.unwrapThrowable;
 
 /**
- * @author TODAY <br>
- * 2018-09-09 23:20
+ * @author TODAY 2018-09-09 23:20
+ * @see ContextCloseEvent
  */
 public class ContextCloseListener
         extends OrderedSupport implements ApplicationListener<ContextCloseEvent> {

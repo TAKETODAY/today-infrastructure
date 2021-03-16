@@ -31,18 +31,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.context.annotation.ContextListener;
 import cn.taketoday.context.el.ValueExpressionContext;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.event.ApplicationEventCapable;
+import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.BeanDefinitionLoadedEvent;
 import cn.taketoday.context.event.BeanDefinitionLoadingEvent;
 import cn.taketoday.context.event.ContextCloseEvent;
+import cn.taketoday.context.event.ContextCloseListener;
 import cn.taketoday.context.event.ContextPreRefreshEvent;
 import cn.taketoday.context.event.ContextRefreshEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.context.event.DependenciesHandledEvent;
+import cn.taketoday.context.event.EventListener;
 import cn.taketoday.context.event.ObjectRefreshedEvent;
 import cn.taketoday.context.exception.BeanInitializingException;
 import cn.taketoday.context.exception.ConfigurationException;
@@ -56,8 +58,6 @@ import cn.taketoday.context.factory.BeanPostProcessor;
 import cn.taketoday.context.factory.BeanReference;
 import cn.taketoday.context.factory.BeanReferencePropertyValue;
 import cn.taketoday.context.factory.ObjectSupplier;
-import cn.taketoday.context.listener.ApplicationListener;
-import cn.taketoday.context.listener.ContextCloseListener;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
@@ -380,7 +380,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     log.debug("Loading Application Listeners.");
 
     for (final Class<?> contextListener : classes) {
-      if (contextListener.isAnnotationPresent(ContextListener.class)) {
+      if (contextListener.isAnnotationPresent(EventListener.class)) {
         registerListener(contextListener);
       }
     }

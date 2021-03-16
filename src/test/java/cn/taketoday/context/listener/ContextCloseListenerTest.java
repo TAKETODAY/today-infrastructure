@@ -25,6 +25,7 @@ import org.junit.Test;
 
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.event.ContextCloseListener;
 import cn.taketoday.context.factory.StandardBeanFactory;
 
 /**

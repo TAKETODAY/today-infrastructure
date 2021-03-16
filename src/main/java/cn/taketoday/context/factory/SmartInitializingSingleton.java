@@ -20,7 +20,7 @@
 
 package cn.taketoday.context.factory;
 
-import cn.taketoday.context.listener.ApplicationListener;
+import cn.taketoday.context.event.ApplicationListener;
 
 /**
  * Callback interface triggered at the end of the singleton pre-instantiation phase

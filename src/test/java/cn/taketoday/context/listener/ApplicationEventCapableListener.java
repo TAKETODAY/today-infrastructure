@@ -21,8 +21,8 @@ package cn.taketoday.context.listener;
 
 import java.util.EventObject;
 
-import cn.taketoday.context.annotation.ContextListener;
 import cn.taketoday.context.event.ApplicationEventCapable;
+import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.BeanDefinitionLoadedEvent;
 import cn.taketoday.context.event.BeanDefinitionLoadingEvent;
 
@@ -30,7 +30,6 @@ import cn.taketoday.context.event.BeanDefinitionLoadingEvent;
  * @author TODAY <br>
  *         2019-11-05 23:12
  */
-@ContextListener
 public class ApplicationEventCapableListener implements ApplicationListener<EventObject>, ApplicationEventCapable {
 
     @Override

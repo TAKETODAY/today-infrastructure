@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -15,21 +15,25 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.annotation;
+package cn.taketoday.context.event;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.EventListener;
 
 /**
  * @author TODAY <br>
- * 2018-09-10 11:09
+ * 2018-09-09 21:23
  */
-@Target({ ElementType.TYPE })
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ContextListener {
+@FunctionalInterface
+public interface ApplicationListener<E> extends EventListener {
+
+  /**
+   * On event
+   *
+   * @param event
+   *         event instance
+   */
+  void onApplicationEvent(E event);
 
 }

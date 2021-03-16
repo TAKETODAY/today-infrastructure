@@ -52,7 +52,7 @@ import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.event.LoadingMissingBeanEvent;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.listener.ApplicationListener;
+import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.loader.AutowiredPropertyResolver;
 import cn.taketoday.context.loader.BeanDefinitionImporter;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
