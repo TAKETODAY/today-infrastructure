@@ -20,8 +20,6 @@
 
 package cn.taketoday.context.factory;
 
-import cn.taketoday.context.exception.ContextException;
-
 /**
  * Sub-interface of {@link BeanPostProcessor} that adds a before-instantiation callback,
  * and a callback after instantiation but before explicit properties are set or
@@ -59,11 +57,11 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
    * @return the bean object to expose instead of a default instance of the target bean,
    * or {@code null} to proceed with default instantiation
    *
-   * @throws cn.taketoday.context.exception.ContextException
+   * @throws BeansException
    *         in case of errors
    * @see BeanDefinition#getBeanClass()
    */
-  default Object postProcessBeforeInstantiation(BeanDefinition def) throws ContextException {
+  default Object postProcessBeforeInstantiation(BeanDefinition def) {
     return null;
   }
 }
