@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,10 +17,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.el;
+package cn.taketoday.context.factory;
 
 import cn.taketoday.context.AbstractApplicationContext;
-import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.expression.BeanNameResolver;
 
 /**
