@@ -401,19 +401,18 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    *         If listenerClass isn't a {@link ApplicationListener}
    * @see #getEnvironment()
    */
-  protected void registerListener(Class<?> listenerClass) {
+  protected void registerListener(final Class<?> listenerClass) {
     if (!ApplicationListener.class.isAssignableFrom(listenerClass)) {
       throw new ConfigurationException("@EventListener must be a 'ApplicationListener'");
     }
 
     try {
-      final String name = getEnvironment().getBeanNameCreator().create(listenerClass);
       // if exist bean
-      Object applicationListener = getSingleton(name);
+      Object applicationListener = getSingleton(listenerClass);
       if (applicationListener == null) {
         // create bean instance
         applicationListener = ClassUtils.newInstance(listenerClass, this);
-        registerSingleton(name, applicationListener);
+        registerSingleton(applicationListener);
       }
       addApplicationListener((ApplicationListener<?>) applicationListener);
     }

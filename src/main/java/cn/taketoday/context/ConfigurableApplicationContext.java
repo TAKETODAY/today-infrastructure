@@ -20,9 +20,9 @@
 package cn.taketoday.context;
 
 import cn.taketoday.context.env.ConfigurableEnvironment;
+import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.factory.BeanFactoryPostProcessor;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
-import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 
 /**
@@ -56,6 +56,8 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
    * @param listener
    *         the {@link ApplicationListener}
    *
+   * @throws IllegalArgumentException
+   *         if listener is null
    * @since 2.1.6
    */
   void addApplicationListener(ApplicationListener<?> listener);
