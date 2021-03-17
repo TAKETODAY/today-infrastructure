@@ -24,8 +24,8 @@ import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 /**
- * @author TODAY
- * 2021/1/6 23:34
+ * @author TODAY 2021/1/6 23:34
+ * @since 3.0
  */
 public class FunctionNumberConverter extends NumberConverter {
 

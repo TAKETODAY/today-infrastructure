@@ -21,8 +21,8 @@
 package cn.taketoday.context.conversion;
 
 /**
- * @author TODAY
- * 2021/1/6 23:23
+ * @author TODAY 2021/1/6 23:23
+ * @since 3.0
  */
 public interface TypeCapable {
 

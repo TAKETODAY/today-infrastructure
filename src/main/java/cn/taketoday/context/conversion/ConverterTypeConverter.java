@@ -36,8 +36,7 @@ import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 
 /**
- * @author TODAY
- * 2021/1/6 21:44
+ * @author TODAY 2021/1/6 21:44
  * @since 3.0
  */
 public class ConverterTypeConverter

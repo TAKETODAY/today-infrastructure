@@ -24,6 +24,7 @@ import cn.taketoday.context.utils.Assert;
 
 /**
  * @author TODAY 2021/2/11 12:16
+ * @since 3.0
  */
 public abstract class AbstractTypeCapable implements TypeCapable {
   final Class<?> type;
