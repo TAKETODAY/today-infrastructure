@@ -44,7 +44,7 @@ public class CycleDependencyTest {
         CandidateComponentScanner.getSharedInstance().clear();
 
         try (ApplicationContext applicationContext = new StandardApplicationContext()) {
-            applicationContext.loadContext("cn.taketoday.context.factory.cycle");
+            applicationContext.load("cn.taketoday.context.factory.cycle");
             assertEquals(3, applicationContext.getBeanDefinitionCount());
 
             final BeanA beanA = applicationContext.getBean(BeanA.class);

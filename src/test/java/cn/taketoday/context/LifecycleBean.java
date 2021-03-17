@@ -100,7 +100,7 @@ public class LifecycleBean //
         beans.add(LifecycleBean.class);
         try (final ApplicationContext applicationContext = new StandardApplicationContext("info.properties")) {
 
-            applicationContext.loadContext(beans);
+            applicationContext.load(beans);
 
             Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry()
                     .getBeanDefinitions();

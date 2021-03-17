@@ -73,7 +73,7 @@ public class StandardApplicationContext
    */
   public StandardApplicationContext(Collection<Class<?>> classes) {
     this(Constant.BLANK);
-    loadContext(classes);
+    load(classes);
   }
 
   /**
@@ -97,7 +97,7 @@ public class StandardApplicationContext
    */
   public StandardApplicationContext(String propertiesLocation, String... locations) {
     this(propertiesLocation);
-    loadContext(locations);
+    load(locations);
   }
 
   @Override

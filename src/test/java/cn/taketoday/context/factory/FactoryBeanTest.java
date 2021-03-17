@@ -147,7 +147,7 @@ public class FactoryBeanTest {
 
         try (ApplicationContext applicationContext = new StandardApplicationContext()) {
 
-            applicationContext.loadContext(classes);
+            applicationContext.load(classes);
 
             applicationContext.registerBean("factoryBeanConfigurationImporter", FactoryBeanConfigurationImporter.class);
 

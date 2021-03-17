@@ -142,7 +142,7 @@ public interface BeanFactory {
 
   /**
    * Get a set of beans with given type, this method must invoke after
-   * {@link ApplicationContext#loadContext(String...)}
+   * {@link ApplicationContext#load(String...)}
    *
    * @param requiredType
    *         Given bean type
@@ -163,7 +163,7 @@ public interface BeanFactory {
    * by other means than bean definitions.
    * <p>
    * Get a map of beans with given type, this method must invoke after
-   * {@link ApplicationContext#loadContext(String...)}
+   * {@link ApplicationContext#load(String...)}
    * </p>
    *
    * @param requiredType
@@ -186,7 +186,7 @@ public interface BeanFactory {
    * by other means than bean definitions.
    * <p>
    * Get a map of beans with given type, this method must invoke after
-   * {@link ApplicationContext#loadContext(String...)}
+   * {@link ApplicationContext#load(String...)}
    * </p>
    *
    * @param requiredType

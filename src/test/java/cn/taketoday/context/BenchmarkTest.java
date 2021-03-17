@@ -36,7 +36,7 @@ public class BenchmarkTest {
     public void testSingleton() {
         long start = System.currentTimeMillis();
         ApplicationContext applicationContext = new StandardApplicationContext();
-        applicationContext.loadContext();
+        applicationContext.load();
         System.out.println("start context used: " + (System.currentTimeMillis() - start) + "ms");
         start = System.currentTimeMillis();
         for (int i = 0; i < times; i++) {
@@ -52,7 +52,7 @@ public class BenchmarkTest {
     public void testPrototype() {
         long start = System.currentTimeMillis();
         ApplicationContext applicationContext = new StandardApplicationContext();
-        applicationContext.loadContext();
+        applicationContext.load();
         System.out.println("start context used: " + (System.currentTimeMillis() - start) + "ms");
         start = System.currentTimeMillis();
 

@@ -59,7 +59,7 @@ public class ApplicationContextTest {
   @Test
   public void testApplicationContext() throws NoSuchBeanDefinitionException {
     try (StandardApplicationContext context = new StandardApplicationContext("")) {
-      context.loadContext("test.demo.repository");
+      context.load("test.demo.repository");
 
       boolean containsBean = context.containsBeanDefinition(DefaultUserRepository.class);
       assertThat(toString(context)).isEqualTo(context.toString());
@@ -84,7 +84,7 @@ public class ApplicationContextTest {
   @Test
   public void testLoadSingleton() throws NoSuchBeanDefinitionException {
     try (ApplicationContext applicationContext = new StandardApplicationContext()) {
-      applicationContext.loadContext("test.demo.config");
+      applicationContext.load("test.demo.config");
       Config config = applicationContext.getBean(Config.class);
       Config config_ = applicationContext.getBean(Config.class);
 
@@ -103,7 +103,7 @@ public class ApplicationContextTest {
   public void testLoadFactoryBean() throws NoSuchBeanDefinitionException {
 
     try (ApplicationContext applicationContext = new StandardApplicationContext("")) {
-      applicationContext.loadContext("test.demo.config");
+      applicationContext.load("test.demo.config");
       Config config = applicationContext.getBean("FactoryBean-Config", Config.class);
       Config config_ = applicationContext.getBean("FactoryBean-Config", Config.class);
 
@@ -125,7 +125,7 @@ public class ApplicationContextTest {
    * Manual Loading.
    */
   @Test
-  public void testManualLoadContext() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
+  public void testManualLoad() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
 
     try (StandardApplicationContext applicationContext = new StandardApplicationContext("")) {
 
@@ -143,7 +143,7 @@ public class ApplicationContextTest {
   }
 
   @Test
-  public void testloadFromCollection() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
+  public void testLoadFromCollection() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
 
     try (ApplicationContext applicationContext = //
             new StandardApplicationContext(Arrays.asList(ConfigurationBean.class))) {

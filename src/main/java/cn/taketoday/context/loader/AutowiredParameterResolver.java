@@ -52,7 +52,6 @@ public class AutowiredParameterResolver
 
   @Override
   public final Object resolve(Parameter parameter, BeanFactory beanFactory) {
-
     final Autowired autowired = parameter.getAnnotation(Autowired.class); // @Autowired on parameter
 
     Object bean = resolveBean(autowired != null ? autowired.value() : null, parameter.getType(), beanFactory);

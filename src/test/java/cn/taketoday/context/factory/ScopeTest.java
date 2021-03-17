@@ -101,7 +101,7 @@ public class ScopeTest {
             context.addBeanFactoryPostProcessor(configurer);
             context.getCandidateComponentScanner().setCandidates(Collections.emptySet());
             
-            context.loadContext();
+            context.load();
             context.getCandidateComponentScanner().setCandidates(null);
             
             final Object bean = context.getBean(def);

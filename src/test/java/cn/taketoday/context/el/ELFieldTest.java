@@ -91,7 +91,7 @@ public class ELFieldTest {
     @Test
     public void test_Number() {
 
-        applicationContext.loadContext("cn.taketoday.context.el");
+        applicationContext.load("cn.taketoday.context.el");
 
         ELFieldTest bean = applicationContext.getBean(getClass());
         System.err.println(bean.testFloat);
@@ -110,7 +110,7 @@ public class ELFieldTest {
                 .setId(1);
 
         applicationContext.getEnvironment().getExpressionProcessor().defineBean("user", user);
-        applicationContext.loadContext("cn.taketoday.context.el");
+        applicationContext.load("cn.taketoday.context.el");
 
         ELFieldTest bean = applicationContext.getBean(getClass());
         System.err.println(bean);
@@ -127,7 +127,7 @@ public class ELFieldTest {
                 .setId(1);
 
         applicationContext.getEnvironment().getExpressionProcessor().defineBean("user", user);
-        applicationContext.loadContext("cn.taketoday.context.el");
+        applicationContext.load("cn.taketoday.context.el");
 
         ELFieldTest bean = applicationContext.getBean(getClass());
         System.err.println(bean);

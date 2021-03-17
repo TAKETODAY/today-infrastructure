@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context;
 
+import org.checkerframework.checker.units.qual.A;
+
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.text.SimpleDateFormat;
@@ -113,12 +115,17 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   /**
    * Load all the class in class path
    */
-  public void loadContext() {
-    loadContext(Constant.BLANK);
+  public void load() {
+    load(Constant.BLANK);
   }
 
   @Override
   public void loadContext(Collection<Class<?>> candidates) {
+    load(candidates);
+  }
+
+  @Override
+  public void load(Collection<Class<?>> candidates) {
     final Set<Class<?>> candidateSet;
     if (candidates instanceof Set) {
       candidateSet = (Set<Class<?>>) candidates;
@@ -129,7 +136,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     getCandidateComponentScanner().setCandidates(candidateSet);
 
-    loadContext((String[]) null);
+    load((String[]) null);
   }
 
   /**
@@ -140,6 +147,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    */
   @Override
   public void loadContext(String... locations) {
+    load(locations);
+  }
+
+  @Override
+  public void load(String... locations) {
     this.locations = locations;
 
     try {
