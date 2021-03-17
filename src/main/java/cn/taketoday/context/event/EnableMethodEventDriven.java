@@ -28,6 +28,35 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.annotation.Import;
 
 /**
+ * Usage:
+ *
+ * <pre>
+ * class Event { }
+ * class SubEvent extends Event { }
+ * class StaticEvent { }
+ *
+ * class EventBean {
+ *
+ *  {@code @EventListener}
+ *  public void listener(Event event) {
+ *    System.out.println(event);
+ *  }
+ *
+ *  {@code @EventListener}
+ *  public void listener(Event event, EventBean bean, @Value("#{env.props}") int props) {
+ *    System.out.println(event);
+ *    System.out.println(bean);
+ *  }
+ *
+ *  {@code @EventListener}
+ *  public static void listener(StaticEvent event, EventBean bean) {
+ *    System.out.println(event);
+ *    System.out.println(bean);
+ *  }
+ *
+ * }
+ * </pre>
+ *
  * @author TODAY 2021/3/17 12:37
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })

@@ -23,9 +23,11 @@ package cn.taketoday.context.event;
 import org.junit.Test;
 
 import java.util.Collections;
+import java.util.EventObject;
 
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.annotation.Value;
 import lombok.ToString;
 
 /**
@@ -68,6 +70,7 @@ public class MethodEventDrivenPostProcessorTests {
       context.publishEvent(new Event("test event"));
       context.publishEvent(new SubEvent("test SubEvent"));
       context.publishEvent(new StaticEvent());
+      context.publishEvent(new EventObjectEvent("test event object"));
 
     }
   }
@@ -86,9 +89,25 @@ public class MethodEventDrivenPostProcessorTests {
     }
 
     @EventListener(StaticEvent.class)
-    public static void listener(StaticEvent event, EventBean bean) {
+    static void staticListener(EventBean bean, StaticEvent event) {
       System.out.println(event);
       System.out.println(bean);
+    }
+
+    @EventListener
+    static void staticListener(StaticEvent event/* event must declared first place*/, EventBean bean) {
+      System.out.println(event);
+      System.out.println(bean);
+    }
+
+    @EventListener
+    public void listener(@Value("${1+2}") int value, EventObjectEvent event/* EventObject No need to declare first place*/) {
+      assert value == 3;
+    }
+
+    @EventListener(EventObjectEvent.class)
+    public void listener(@Value("${1+2}") int value/*You can also not use event*/) {
+      assert value == 3;
     }
 
   }
@@ -115,4 +134,10 @@ public class MethodEventDrivenPostProcessorTests {
 
   }
 
+  static class EventObjectEvent extends EventObject {
+
+    public EventObjectEvent(Object source) {
+      super(source);
+    }
+  }
 }
