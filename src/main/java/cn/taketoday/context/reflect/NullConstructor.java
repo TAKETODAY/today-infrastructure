@@ -22,8 +22,9 @@ package cn.taketoday.context.reflect;
 
 /**
  * @author TODAY 2021/1/29 15:56
+ * @since 3.0
  */
-public class NullConstructor implements ConstructorAccessor {
+public final class NullConstructor implements ConstructorAccessor {
   public static final NullConstructor INSTANCE = new NullConstructor();
 
   @Override
