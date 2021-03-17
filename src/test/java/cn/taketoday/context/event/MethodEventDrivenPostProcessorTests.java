@@ -46,6 +46,7 @@ public class MethodEventDrivenPostProcessorTests {
       context.publishEvent(new Event("test event"));
       context.publishEvent(new SubEvent("test SubEvent"));
       context.publishEvent(new StaticEvent());
+      context.publishEvent(new EventObjectEvent("test event object"));
 
     }
   }

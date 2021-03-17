@@ -39,6 +39,8 @@ import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
+ * Process @EventListener annotated on a method
+ *
  * @author TODAY 2021/3/17 12:35
  */
 public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
