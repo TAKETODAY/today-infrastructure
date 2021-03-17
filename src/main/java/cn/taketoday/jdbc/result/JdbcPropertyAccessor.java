@@ -4,8 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * @author TODAY
- * @date 2021/1/7 22:49
+ * @author TODAY 2021/1/7 22:49
  */
 public interface JdbcPropertyAccessor {
 

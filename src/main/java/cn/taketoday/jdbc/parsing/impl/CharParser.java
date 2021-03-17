@@ -5,7 +5,7 @@ package cn.taketoday.jdbc.parsing.impl;
  */
 public interface CharParser {
 
-  boolean canParse(char c, String sql, int idx);
+  boolean supports(char c, String sql, int idx);
 
   int parse(char c, int idx, StringBuilder parsedSql, String sql, int length);
 }

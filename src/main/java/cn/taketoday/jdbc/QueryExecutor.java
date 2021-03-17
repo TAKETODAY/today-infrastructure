@@ -55,53 +55,64 @@ public class QueryExecutor extends Executor implements QueryOperation, QueryOpti
 
   @Override
   public <T> List<T> queryList(final String sql, final Object[] args, final RowMapper<T> rowMapper) throws SQLException {
+    final class QueryListResultSetExtractor implements ResultSetExtractor<List<T>> {
+      @Override
+      public List<T> extractData(ResultSet result) throws SQLException {
 
-    return query(sql, args, (ResultSet result) -> {
-
-      final ArrayList<T> ret = new ArrayList<>();
-      int i = 1;
-      while (result.next()) {
-        ret.add(rowMapper.mapRow(result, i++));
+        final ArrayList<T> ret = new ArrayList<>();
+        int i = 1;
+        while (result.next()) {
+          ret.add(rowMapper.mapRow(result, i++));
+        }
+        return ret;
       }
-      return ret;
-    });
+    }
+    return query(sql, args, new QueryListResultSetExtractor());
   }
 
   @Override
   public <T> T query(final String sql, final Object[] args, final ResultSetExtractor<T> rse) throws SQLException {
+    final class ExecuteConnectionCallback implements ConnectionCallback<T> {
 
-    return execute((ConnectionCallback<T>) (con) -> {
+      @Override
+      public T doInConnection(Connection con) throws SQLException {
+        try (final PreparedStatement statement = con.prepareStatement(sql)) {
+          applyStatementSettings(statement, args);
 
-      try (final PreparedStatement statement = con.prepareStatement(sql)) {
-        applyStatementSettings(statement, args);
-
-        try (final ResultSet result = statement.executeQuery()) {
-          return rse.extractData(result);
+          try (final ResultSet result = statement.executeQuery()) {
+            return rse.extractData(result);
+          }
         }
       }
-    });
+    }
+
+    return execute(new ExecuteConnectionCallback());
   }
 
   @Override
   public void query(final String sql, final Object[] args, final ResultSetHandler rch) throws SQLException {
-    execute((ConnectionCallback<Void>) (Connection con) -> {
+    final class ExecuteConnectionCallback implements ConnectionCallback<Void> {
 
-      try (final PreparedStatement statement = con.prepareStatement(sql)) {
-        applyStatementSettings(statement, args);
-        try (final ResultSet result = statement.executeQuery()) {
-          if (result.next()) {
-            rch.handleResult(result);
+      @Override
+      public Void doInConnection(Connection con) throws SQLException {
+        try (final PreparedStatement statement = con.prepareStatement(sql)) {
+          applyStatementSettings(statement, args);
+          try (final ResultSet result = statement.executeQuery()) {
+            if (result.next()) {
+              rch.handleResult(result);
+            }
           }
         }
+        return null;
       }
-      return null;
-    });
+    }
+
+    execute(new ExecuteConnectionCallback());
   }
 
   @Override
   public <T> T query(final String sql, final Object[] args, final Class<T> requiredType) throws SQLException {
-
-    final class ResultSetExtractor0 implements ResultSetExtractor<T> {
+    final class QueryResultSetExtractor implements ResultSetExtractor<T> {
 
       @Override
       public T extractData(ResultSet rs) throws SQLException {
@@ -117,7 +128,7 @@ public class QueryExecutor extends Executor implements QueryOperation, QueryOpti
       }
     }
 
-    return query(sql, args, new ResultSetExtractor0());
+    return query(sql, args, new QueryResultSetExtractor());
   }
 
   private boolean caseSensitive;
@@ -132,61 +143,65 @@ public class QueryExecutor extends Executor implements QueryOperation, QueryOpti
 
   @Override
   public <T> List<T> queryList(final String sql, final Object[] args, final Class<T> elementType) throws SQLException {
+    final class QueryListResultSetExtractor implements ResultSetExtractor<List<T>> {
+      @Override
+      public List<T> extractData(ResultSet result) throws SQLException {
+        final ArrayList<T> ret = new ArrayList<>();
 
+        final ResultSetMetaData metaData = result.getMetaData();
+        final ResultSetHandlerFactory<T> factory = newFactory(elementType);
+        final cn.taketoday.jdbc.ResultSetHandler<T> resultSetHandler = factory.newResultSetHandler(metaData);
 
-    return query(sql, args, (ResultSet result) -> {
-      final ArrayList<T> ret = new ArrayList<>();
-
-      final ResultSetMetaData metaData = result.getMetaData();
-      final ResultSetHandlerFactory<T> factory = newFactory(elementType);
-      final cn.taketoday.jdbc.ResultSetHandler<T> resultSetHandler = factory.newResultSetHandler(metaData);
-
-      while (result.next()) {
-        ret.add(resultSetHandler.handle(result));
+        while (result.next()) {
+          ret.add(resultSetHandler.handle(result));
+        }
+        return ret;
       }
-      return ret;
-    });
+    }
+
+    return query(sql, args, new QueryListResultSetExtractor());
   }
 
   @Override
   public List<Map<String, Object>> queryList(final String sql, final Object[] args) throws SQLException {
+    final class ListMapResultSetExtractor implements ResultSetExtractor<List<Map<String, Object>>> {
+      @Override
+      public List<Map<String, Object>> extractData(ResultSet result) throws SQLException {
+        final List<Map<String, Object>> ret = new ArrayList<>();
+        final ResultSetMetaData metaData = result.getMetaData();
+        int columnCount = metaData.getColumnCount();
 
-    return query(sql, args, (ResultSet result) -> {
+        while (result.next()) {
+          final Map<String, Object> map = new HashMap<>(columnCount);
 
-      final List<Map<String, Object>> ret = new ArrayList<>();
-      final ResultSetMetaData metaData = result.getMetaData();
-      int columnCount = metaData.getColumnCount();
+          for (int i = 1; i <= columnCount; i++) {
+            map.put(JdbcUtils.getColumnName(metaData, i), JdbcUtils.getResultSetValue(result, i));
+          }
 
-      while (result.next()) {
-        final Map<String, Object> map = new HashMap<>(columnCount);
-
-        for (int i = 1; i <= columnCount; i++) {
-          map.put(JdbcUtils.getColumnName(metaData, i), JdbcUtils.getResultSetValue(result, i));
+          ret.add(map);
         }
-
-        ret.add(map);
+        return ret;
       }
-      return ret;
-    });
-
+    }
+    return query(sql, args, new ListMapResultSetExtractor());
   }
 
   @Override
   public Map<String, Object> queryMap(final String sql, final Object[] args) throws SQLException {
+    final class MapResultSetExtractor implements ResultSetExtractor<Map<String, Object>> {
+      @Override
+      public Map<String, Object> extractData(ResultSet result) throws SQLException {
+        final ResultSetMetaData metaData = result.getMetaData();
+        final int all = metaData.getColumnCount();
 
-    return query(sql, args, (ResultSet result) -> {
-
-      final ResultSetMetaData metaData = result.getMetaData();
-      final int all = metaData.getColumnCount();
-
-      final Map<String, Object> ret = new HashMap<>(all);
-
-      for (int i = 1; i <= all; i++) {
-        ret.put(JdbcUtils.getColumnName(metaData, i), JdbcUtils.getResultSetValue(result, i));
+        final Map<String, Object> ret = new HashMap<>(all);
+        for (int i = 1; i <= all; i++) {
+          ret.put(JdbcUtils.getColumnName(metaData, i), JdbcUtils.getResultSetValue(result, i));
+        }
+        return ret;
       }
-      return ret;
-
-    });
+    }
+    return query(sql, args, new MapResultSetExtractor());
   }
 
 }

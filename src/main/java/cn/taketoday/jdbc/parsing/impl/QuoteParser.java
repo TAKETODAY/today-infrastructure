@@ -6,7 +6,7 @@ package cn.taketoday.jdbc.parsing.impl;
 public class QuoteParser implements CharParser {
 
   @Override
-  public boolean canParse(char c, String sql, int idx) {
+  public boolean supports(char c, String sql, int idx) {
     return c == '\'' || c == '"';
   }
 

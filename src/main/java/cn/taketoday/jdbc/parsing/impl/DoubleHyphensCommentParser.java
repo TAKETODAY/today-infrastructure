@@ -6,7 +6,7 @@ package cn.taketoday.jdbc.parsing.impl;
 public class DoubleHyphensCommentParser extends AbstractCommentParser {
 
   @Override
-  public boolean canParse(char c, String sql, int idx) {
+  public boolean supports(char c, String sql, int idx) {
     return sql.length() > idx + 1 && c == '-' && sql.charAt(idx + 1) == '-';
   }
 

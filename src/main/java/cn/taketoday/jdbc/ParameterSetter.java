@@ -4,8 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- * @author TODAY
- * @date 2021/1/7 15:09
+ * @author TODAY 2021/1/7 15:09
  */
 @FunctionalInterface
 public interface ParameterSetter {

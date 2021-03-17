@@ -14,8 +14,7 @@ import cn.taketoday.context.utils.ReflectionUtils;
 import static java.beans.Introspector.decapitalize;
 
 /**
- * @author TODAY
- * @date 2021/1/8 18:52
+ * @author TODAY 2021/1/8 18:52
  */
 public class ReadableProperty {
 

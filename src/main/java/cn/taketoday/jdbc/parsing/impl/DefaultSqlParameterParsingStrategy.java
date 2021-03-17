@@ -20,6 +20,7 @@ public class DefaultSqlParameterParsingStrategy implements SqlParameterParsingSt
     };
   }
 
+  @Override
   public String parseSql(String statement, Map<String, List<Integer>> paramMap) {
     final int length = statement.length();
     final StringBuilder parsedQuery = new StringBuilder(length);
@@ -29,7 +30,7 @@ public class DefaultSqlParameterParsingStrategy implements SqlParameterParsingSt
     for (int idx = 0; idx < length; idx++) {
       for (CharParser parser : charParsers) {
         char c = statement.charAt(idx);
-        if (parser.canParse(c, statement, idx)) {
+        if (parser.supports(c, statement, idx)) {
           idx = parser.parse(c, idx, parsedQuery, statement, length);
           break;
         }

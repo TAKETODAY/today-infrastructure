@@ -24,7 +24,7 @@ import java.util.concurrent.Executor;
  */
 public class WrappedConnection implements Connection {
 
-  private Connection source;
+  private final Connection source;
 
   public WrappedConnection(Connection source) {
     this.source = source;

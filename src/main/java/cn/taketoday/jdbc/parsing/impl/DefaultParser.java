@@ -6,7 +6,7 @@ package cn.taketoday.jdbc.parsing.impl;
 public class DefaultParser implements CharParser {
 
   @Override
-  public boolean canParse(char c, String sql, int idx) {
+  public boolean supports(char c, String sql, int idx) {
     return true;
   }
 

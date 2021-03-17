@@ -4,8 +4,7 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
- * @author TODAY
- * @date 2021/1/8 18:24
+ * @author TODAY 2021/1/8 18:24
  */
 public class CamelCaseToUnderscore {
 

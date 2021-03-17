@@ -8,12 +8,12 @@ public class ForwardSlashCommentParser extends AbstractCommentParser {
   private boolean commentAlmostEnded;
 
   @Override
-  protected void init() {
+  protected void startParsing() {
     commentAlmostEnded = false;
   }
 
   @Override
-  public boolean canParse(char c, String sql, int idx) {
+  public boolean supports(char c, String sql, int idx) {
     return sql.length() > idx + 1 && c == '/' && sql.charAt(idx + 1) == '*';
   }
 

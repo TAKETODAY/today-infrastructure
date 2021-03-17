@@ -5,11 +5,11 @@ package cn.taketoday.jdbc.parsing.impl;
  */
 public abstract class AbstractCommentParser implements CharParser {
 
-  protected void init() {}
+  protected void startParsing() {}
 
   @Override
   public int parse(char c, int idx, StringBuilder parsedSql, String sql, int length) {
-    init();
+    startParsing();
     do {
       parsedSql.append(c);
       if (++idx == length) {
