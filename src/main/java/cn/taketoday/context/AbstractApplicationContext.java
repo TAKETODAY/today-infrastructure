@@ -33,6 +33,7 @@ import java.util.Set;
 
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.env.Environment;
+import cn.taketoday.context.event.ApplicationEvent;
 import cn.taketoday.context.event.ApplicationEventCapable;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.BeanDefinitionLoadedEvent;
@@ -66,6 +67,7 @@ import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
+import cn.taketoday.context.utils.GenericTypeResolver;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
@@ -435,14 +437,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
       }
     }
     else {
-      for (final Method method : ReflectionUtils.getDeclaredMethods(listener.getClass())) {
-        // onApplicationEvent
-        if (!method.isBridge() && method.getName().equals(Constant.ON_APPLICATION_EVENT)) {
-          // register listener
-          addApplicationListener(listener, method.getParameterTypes()[0], listeners);
-          break;
-        }
-      }
+      final Class<?> eventType = GenericTypeResolver.resolveTypeArgument(listener.getClass(), ApplicationListener.class);
+      addApplicationListener(listener, eventType, listeners);
     }
   }
 
@@ -457,8 +453,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    *         The event type
    */
   @SuppressWarnings({ "unchecked" })
-  protected void addApplicationListener(Object applicationListener, Class<?> eventType,
-                                        Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners) //
+  void addApplicationListener(ApplicationListener<?> applicationListener, Class<?> eventType,
+                              Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners) //
   {
     List<ApplicationListener<Object>> listeners = applicationListeners.get(eventType);
     if (listeners == null) {
