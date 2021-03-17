@@ -47,7 +47,6 @@ public class MapParameterResolver
     return supportsMap(parameter) && supportsInternal(parameter);
   }
 
-
   protected boolean supportsInternal(final MethodParameter parameter) {
     return true;
   }

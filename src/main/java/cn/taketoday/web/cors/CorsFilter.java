@@ -31,10 +31,6 @@ import javax.servlet.ServletResponse;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.cors.CorsConfiguration;
-import cn.taketoday.web.cors.CorsConfigurationSource;
-import cn.taketoday.web.cors.CorsProcessor;
-import cn.taketoday.web.cors.DefaultCorsProcessor;
 import cn.taketoday.web.utils.ServletUtils;
 import cn.taketoday.web.utils.WebUtils;
 
@@ -46,8 +42,7 @@ import cn.taketoday.web.utils.WebUtils;
  * {@link CorsConfigurationSource}
  *
  * @author Sebastien Deleuze
- * @author TODAY
- * @date 2020/12/8 22:27
+ * @author TODAY 2020/12/8 22:27
  * @see <a href="https://www.w3.org/TR/cors/">CORS W3C recommendation</a>
  * @since 3.0
  */

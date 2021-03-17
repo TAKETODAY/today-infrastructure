@@ -31,7 +31,6 @@ import javax.servlet.Filter;
 import javax.servlet.Registration;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.utils.StringUtils;

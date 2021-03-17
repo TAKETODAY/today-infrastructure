@@ -159,7 +159,7 @@ public class WebServletApplicationLoader
       final StandardWebServletApplicationContext context = new StandardWebServletApplicationContext();
       context.setServletContext(servletContext);
       setApplicationContext(ret = context);
-      context.loadContext();
+      context.load();
     }
     else if (ret instanceof ConfigurableWebServletApplicationContext && ret.getServletContext() == null) {
       ((ConfigurableWebServletApplicationContext) ret).setServletContext(servletContext);

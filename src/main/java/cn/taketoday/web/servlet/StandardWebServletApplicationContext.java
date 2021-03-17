@@ -34,8 +34,8 @@ import cn.taketoday.web.utils.WebUtils;
  * @author TODAY <br>
  *         2018-07-10 1:16:17
  */
-public class StandardWebServletApplicationContext extends StandardApplicationContext
-        implements WebServletApplicationContext, ConfigurableWebServletApplicationContext {
+public class StandardWebServletApplicationContext
+        extends StandardApplicationContext implements WebServletApplicationContext, ConfigurableWebServletApplicationContext {
 
   /** Servlet context */
   private ServletContext servletContext;
@@ -77,7 +77,7 @@ public class StandardWebServletApplicationContext extends StandardApplicationCon
    */
   public StandardWebServletApplicationContext(Set<Class<?>> classes, ServletContext servletContext) {
     this(servletContext);
-    loadContext(classes);
+    load(classes);
   }
 
   /**
@@ -92,7 +92,7 @@ public class StandardWebServletApplicationContext extends StandardApplicationCon
   public StandardWebServletApplicationContext(ServletContext servletContext, String propertiesLocation, String... locations) {
     this(servletContext);
     setPropertiesLocation(propertiesLocation);
-    loadContext(locations);
+    load(locations);
   }
 
   @Override

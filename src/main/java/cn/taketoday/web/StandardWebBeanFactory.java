@@ -19,13 +19,11 @@
  */
 package cn.taketoday.web;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.ObjectFactory;
 import cn.taketoday.context.factory.StandardBeanFactory;
-import cn.taketoday.context.utils.CollectionUtils;
 
 /**
  * @author TODAY <br>
