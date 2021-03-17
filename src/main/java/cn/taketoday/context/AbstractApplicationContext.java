@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.context.factory.ValueExpressionContext;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.event.ApplicationEventCapable;
@@ -58,6 +57,7 @@ import cn.taketoday.context.factory.BeanPostProcessor;
 import cn.taketoday.context.factory.BeanReference;
 import cn.taketoday.context.factory.BeanReferencePropertyValue;
 import cn.taketoday.context.factory.ObjectSupplier;
+import cn.taketoday.context.factory.ValueExpressionContext;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
@@ -198,7 +198,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    * Post process after load properties
    *
    * @param environment
-   *         {@link Environment}
+   *         {@link ConfigurableEnvironment}
    */
   protected void postProcessLoadProperties(ConfigurableEnvironment environment) {
     // @since 3.0 enable check params types
@@ -374,13 +374,13 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    * @param applicationListeners
    *         {@link ApplicationListener} cache
    */
-  protected void registerListener(final Collection<Class<?>> classes,
-                                  final Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners) //
+  void registerListener(final Collection<Class<?>> classes,
+                        final Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners) //
   {
     log.debug("Loading Application Listeners.");
 
     for (final Class<?> contextListener : classes) {
-      if (contextListener.isAnnotationPresent(EventListener.class)) {
+      if (ClassUtils.isAnnotationPresent(contextListener, EventListener.class)) {
         registerListener(contextListener);
       }
     }
