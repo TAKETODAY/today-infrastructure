@@ -74,7 +74,6 @@ import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
 
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 
 /**
  * @author TODAY <br>
@@ -260,7 +259,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     registerListener(candidates, applicationListeners);
 
     // start loading bean definitions ; publish loading bean definition event
-    publishEvent(new BeanDefinitionLoadingEvent(this, candidates));
+    publishEvent(new BeanDefinitionLoadingEvent(this, candidates)); // first event
     loadBeanDefinitions(beanFactory, candidates);
     // bean definitions loaded
     publishEvent(new BeanDefinitionLoadedEvent(this, beanFactory.getBeanDefinitions()));
@@ -374,14 +373,14 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    * @param applicationListeners
    *         {@link ApplicationListener} cache
    */
-  void registerListener(final Collection<Class<?>> classes,
+  void registerListener(final Collection<Class<?>> candidates,
                         final Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners) //
   {
     log.debug("Loading Application Listeners.");
 
-    for (final Class<?> contextListener : classes) {
-      if (ClassUtils.isAnnotationPresent(contextListener, EventListener.class)) {
-        registerListener(contextListener);
+    for (final Class<?> candidateListener : candidates) {
+      if (ClassUtils.isAnnotationPresent(candidateListener, EventListener.class)) {
+        registerListener(candidateListener);
       }
     }
 
@@ -401,9 +400,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    * @see #getEnvironment()
    */
   protected void registerListener(Class<?> listenerClass) {
-
     if (!ApplicationListener.class.isAssignableFrom(listenerClass)) {
-      throw new ConfigurationException("@ContextListener must be a 'ApplicationListener'");
+      throw new ConfigurationException("@EventListener must be a 'ApplicationListener'");
     }
 
     try {
@@ -428,7 +426,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
   @Override
   public void addApplicationListener(final ApplicationListener<?> listener) {
-    nonNull(listener, "listener can't be null");
+    Assert.notNull(listener, "listener can't be null");
 
     final HashMap<Class<?>, List<ApplicationListener<Object>>> listeners = this.applicationListeners;
     if (listener instanceof ApplicationEventCapable) { // @since 2.1.7
