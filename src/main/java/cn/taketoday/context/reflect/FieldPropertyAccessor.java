@@ -25,8 +25,7 @@ import java.lang.reflect.Field;
 import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
- * @author TODAY
- * 2020/9/11 17:56
+ * @author TODAY 2020/9/11 17:56
  */
 public class FieldPropertyAccessor extends SetterSupport implements PropertyAccessor {
   private final Field field;

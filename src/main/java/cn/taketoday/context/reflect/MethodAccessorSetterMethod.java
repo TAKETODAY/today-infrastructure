@@ -21,8 +21,8 @@
 package cn.taketoday.context.reflect;
 
 /**
- * @author TODAY
- * 2021/1/7 17:43
+ * @author TODAY 2021/1/7 17:43
+ * @since 3.0
  */
 public class MethodAccessorSetterMethod extends SetterSupport implements SetterMethod {
   private final MethodAccessor accessor;

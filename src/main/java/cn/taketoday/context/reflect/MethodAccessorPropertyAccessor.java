@@ -26,8 +26,7 @@ import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
- * @author TODAY
- * 2020/9/11 15:54
+ * @author TODAY 2020/9/11 15:54
  */
 public class MethodAccessorPropertyAccessor
         extends SetterSupport implements PropertyAccessor {

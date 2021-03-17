@@ -24,8 +24,7 @@ import java.lang.reflect.Field;
 import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
- * @author TODAY
- * 2020/9/19 22:38
+ * @author TODAY 2020/9/19 22:38
  */
 public class FieldSetterMethod extends SetterSupport {
   private final Field field;

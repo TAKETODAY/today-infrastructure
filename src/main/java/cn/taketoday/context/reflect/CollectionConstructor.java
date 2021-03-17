@@ -26,6 +26,7 @@ import cn.taketoday.context.utils.CollectionUtils;
 
 /**
  * @author TODAY 2021/1/29 15:56
+ * @since 3.0
  */
 public class CollectionConstructor implements ConstructorAccessor {
 

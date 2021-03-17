@@ -19,16 +19,17 @@
  */
 package cn.taketoday.context.reflect;
 
+import cn.taketoday.context.NestedRuntimeException;
+
 /**
  * @author TODAY <br>
  * 2020-08-13 18:46
  */
-public class ReflectionException extends RuntimeException {
+public class ReflectionException extends NestedRuntimeException {
 
   private static final long serialVersionUID = 1L;
 
-  public ReflectionException() {
-  }
+  public ReflectionException() { }
 
   public ReflectionException(String message) {
     super(message);
@@ -40,10 +41,6 @@ public class ReflectionException extends RuntimeException {
 
   public ReflectionException(String message, Throwable cause) {
     super(message, cause);
-  }
-
-  public ReflectionException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-    super(message, cause, enableSuppression, writableStackTrace);
   }
 
 }
