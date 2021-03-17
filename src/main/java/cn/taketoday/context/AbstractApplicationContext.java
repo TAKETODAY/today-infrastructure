@@ -21,7 +21,6 @@ package cn.taketoday.context;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,7 +32,6 @@ import java.util.Set;
 
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.env.Environment;
-import cn.taketoday.context.event.ApplicationEvent;
 import cn.taketoday.context.event.ApplicationEventCapable;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.BeanDefinitionLoadedEvent;
@@ -70,12 +68,10 @@ import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.GenericTypeResolver;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
-import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
-
 
 /**
  * @author TODAY <br>
@@ -123,9 +119,14 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
   @Override
   public void loadContext(Collection<Class<?>> candidates) {
-    final Set<Class<?>> candidateSet = candidates instanceof Set
-                                       ? (Set<Class<?>>) candidates
-                                       : new HashSet<>(candidates);
+    final Set<Class<?>> candidateSet;
+    if (candidates instanceof Set) {
+      candidateSet = (Set<Class<?>>) candidates;
+    }
+    else {
+      candidateSet = new HashSet<>(candidates);
+    }
+
     getCandidateComponentScanner().setCandidates(candidateSet);
 
     loadContext((String[]) null);
@@ -251,12 +252,12 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     checkEnvironment(env);
     // register framework beans
-    log.debug("Registering framework beans");
+    log.info("Registering framework beans");
     registerFrameworkBeans(env, beanFactory.getBeanNameCreator());
     // Loading candidates components
-    log.debug("Loading candidates components");
+    log.info("Loading candidates components");
     final Set<Class<?>> candidates = getComponentCandidates();
-    log.debug("There are [{}] candidates components in [{}]", candidates.size(), this);
+    log.info("There are [{}] candidates components in [{}]", candidates.size(), this);
     // register listener
     registerListener(candidates, applicationListeners);
 
@@ -360,7 +361,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    * Register {@link BeanFactoryPostProcessor}s
    */
   public void registerBeanFactoryPostProcessor() {
-    log.debug("Start loading BeanFactoryPostProcessor.");
+    log.info("Start loading BeanFactoryPostProcessor.");
 
     final List<BeanFactoryPostProcessor> postProcessors = getBeans(BeanFactoryPostProcessor.class);
     if (!postProcessors.isEmpty()) {
@@ -378,7 +379,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   void registerListener(final Collection<Class<?>> candidates,
                         final Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners) //
   {
-    log.debug("Loading Application Listeners.");
+    log.info("Loading Application Listeners.");
 
     for (final Class<?> candidateListener : candidates) {
       if (ClassUtils.isAnnotationPresent(candidateListener, EventListener.class)) {
@@ -490,8 +491,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    * @since 2.1.6
    */
   public Set<Class<?>> loadMetaInfoListeners() { // fixed #9 Some listener in a jar can't be load
-
-    log.debug("Loading META-INF/listeners");
+    log.info("Loading META-INF/listeners");
     // Load the META-INF/listeners
     // ---------------------------------------------------
     return ContextUtils.loadFromMetaInfo(Constant.META_INFO_listeners);

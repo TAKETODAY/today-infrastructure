@@ -1041,14 +1041,14 @@ public abstract class AbstractBeanFactory
 
     synchronized (singletons) {
       final Object oldBean = singletons.put(name, singleton);
-      if (log.isDebugEnabled()) {
-        if (oldBean == null) {
+      if (oldBean == null) {
+        if (log.isDebugEnabled()) {
           log.debug("Register Singleton: [{}] = [{}]", name, ObjectUtils.toHexString(singleton));
         }
-        else if (oldBean != singleton) {
-          log.debug("Refresh Singleton: [{}] = [{}] old bean: [{}] ",
-                    name, ObjectUtils.toHexString(singleton), ObjectUtils.toHexString(oldBean));
-        }
+      }
+      else if (oldBean != singleton) {
+        log.info("Refresh Singleton: [{}] = [{}] old bean: [{}] ",
+                 name, ObjectUtils.toHexString(singleton), ObjectUtils.toHexString(oldBean));
       }
     }
   }
