@@ -789,6 +789,9 @@ public abstract class ContextUtils {
    *
    * @param def
    *         Target {@link BeanDefinition}
+   *
+   * @throws ConfigurationException
+   *         invalid {@link BeanDefinition}
    */
   public static void validateBeanDefinition(BeanDefinition def) {
 

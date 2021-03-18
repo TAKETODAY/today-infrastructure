@@ -160,6 +160,11 @@ public class FactoryBeanDefinition<T>
   }
 
   @Override
+  public void addPropertyValue(String name, Object value) {
+    factoryDef.addPropertyValue(name, value);
+  }
+
+  @Override
   public void addPropertyValue(PropertyValue... propertyValues) {
     factoryDef.addPropertyValue(propertyValues);
   }

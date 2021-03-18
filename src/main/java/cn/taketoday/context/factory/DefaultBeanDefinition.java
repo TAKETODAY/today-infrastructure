@@ -21,6 +21,7 @@ package cn.taketoday.context.factory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Executable;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,9 +35,9 @@ import cn.taketoday.context.AttributeAccessorSupport;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.Scope;
-import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.reflect.BeanConstructor;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ContextUtils;
@@ -59,7 +60,7 @@ public class DefaultBeanDefinition
   /** bean name. */
   private String name;
   /** bean class. */
-  private final Class<?> beanClass;
+  private Class<?> beanClass;
   /** bean scope. */
   private String scope;
 
@@ -157,6 +158,10 @@ public class DefaultBeanDefinition
     return beanClass;
   }
 
+  public void setBeanClass(Class<?> beanClass) {
+    this.beanClass = beanClass;
+  }
+
   @Override
   public Method[] getInitMethods() {
     return initMethods;
@@ -231,8 +236,7 @@ public class DefaultBeanDefinition
 
   @Override
   public BeanDefinition setInitMethods(String... initMethods) {
-    ConfigurationException.nonNull(beanClass, "Bean Class must applied before invoke this method");
-    return setInitMethods(ContextUtils.resolveInitMethod(initMethods, beanClass));
+    return setInitMethods(ContextUtils.resolveInitMethod(initMethods, obtainBeanClass()));
   }
 
   @Override
@@ -248,13 +252,23 @@ public class DefaultBeanDefinition
   }
 
   @Override
+  public void addPropertyValue(final String name, final Object value) {
+    Assert.notNull(name, "property name must not be null");
+
+    final Field field = ReflectionUtils.findField(obtainBeanClass(), name);
+    if (field == null) {
+      throw new IllegalArgumentException("property '" + name + "' not found");
+    }
+    final DefaultPropertyValue propertyValue = new DefaultPropertyValue(value, field);
+    addPropertyValue(propertyValue);
+  }
+
+  @Override
   public void addPropertyValue(PropertyValue... newValues) {
-
-    if (ObjectUtils.isNotEmpty(newValues)) { // fix
-
-      final PropertyValue[] propertyValues = this.propertyValues;
-      if (propertyValues == null) {
-        this.propertyValues = newValues;
+    if (ObjectUtils.isNotEmpty(newValues)) {
+      final PropertyValue[] propertyValues = getPropertyValues();
+      if (ObjectUtils.isEmpty(propertyValues)) {
+        setPropertyValues(newValues);
       }
       else {
         List<PropertyValue> pool = new ArrayList<>(newValues.length + propertyValues.length);
@@ -262,22 +276,21 @@ public class DefaultBeanDefinition
         Collections.addAll(pool, newValues);
         Collections.addAll(pool, propertyValues);
 
-        this.propertyValues = pool.toArray(new PropertyValue[pool.size()]);
+        setPropertyValues(pool.toArray(new PropertyValue[pool.size()]));
       }
     }
   }
 
   @Override
-  public void addPropertyValue(Collection<PropertyValue> propertyValues) {
-
-    if (CollectionUtils.isEmpty(propertyValues)) {
+  public void addPropertyValue(Collection<PropertyValue> newValues) {
+    if (CollectionUtils.isEmpty(newValues)) {
       return;
     }
-
-    if (this.propertyValues != null) {
-      Collections.addAll(propertyValues, this.propertyValues);
+    final PropertyValue[] propertyValues = getPropertyValues();
+    if (ObjectUtils.isNotEmpty(propertyValues)) {
+      Collections.addAll(newValues, propertyValues);
     }
-    this.propertyValues = propertyValues.toArray(new PropertyValue[propertyValues.size()]);
+    setPropertyValues(newValues.toArray(new PropertyValue[newValues.size()]));
   }
 
   /**
@@ -398,6 +411,12 @@ public class DefaultBeanDefinition
     return this.lazyInit;
   }
 
+  Class<?> obtainBeanClass() {
+    final Class<?> beanClass = getBeanClass();
+    Assert.state(beanClass != null, "Bean Class is Null");
+    return beanClass;
+  }
+
   // Object
 
   @Override
@@ -408,8 +427,9 @@ public class DefaultBeanDefinition
     if (obj instanceof DefaultBeanDefinition) {
       final DefaultBeanDefinition other = (DefaultBeanDefinition) obj;
       return Objects.equals(name, other.name)
-              && Objects.equals(scope, other.scope)
+              && lazyInit == other.lazyInit
               && beanClass == other.beanClass
+              && Objects.equals(scope, other.scope)
               && Objects.equals(childDef, other.childDef)
               && Objects.deepEquals(initMethods, other.initMethods)
               && Objects.deepEquals(destroyMethods, other.destroyMethods)
@@ -420,7 +440,7 @@ public class DefaultBeanDefinition
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, beanClass);
+    return Objects.hash(name, beanClass, lazyInit, scope);
   }
 
   @Override

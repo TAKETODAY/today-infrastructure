@@ -152,6 +152,13 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   void addPropertyValue(PropertyValue... propertyValues);
 
   /**
+   * Add PropertyValue to list.
+   *
+   * @since 3.0
+   */
+  void addPropertyValue(String name, Object value);
+
+  /**
    * Add a collection of {@link PropertyValue}s
    *
    * @param propertyValues
@@ -295,6 +302,7 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    * Set whether this bean should be lazily initialized.
    * <p>If {@code false}, the bean will get instantiated on startup by bean
    * factories that perform eager initialization of singletons.
+   *
    * @since 3.0
    */
   void setLazyInit(boolean lazyInit);

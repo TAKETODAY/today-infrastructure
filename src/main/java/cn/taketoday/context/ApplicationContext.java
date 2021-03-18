@@ -102,6 +102,8 @@ public interface ApplicationContext
    *
    * @param locations
    *         packages to scan
+   *
+   * @since 3.0
    */
   void load(String... locations);
 
@@ -123,7 +125,7 @@ public interface ApplicationContext
    * @param candidates
    *         class set
    *
-   * @since 2.1.2
+   * @since 3.0
    */
   void load(Collection<Class<?>> candidates);
 
