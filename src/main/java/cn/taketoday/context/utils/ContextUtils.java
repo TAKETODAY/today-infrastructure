@@ -548,7 +548,7 @@ public abstract class ContextUtils {
     return propertyValues;
   }
 
-  private static Class<?> getBeanClass(final AnnotatedElement annotated) {
+  public static Class<?> getBeanClass(final AnnotatedElement annotated) {
     if (annotated instanceof Class) {
       return (Class<?>) annotated;
     }
@@ -883,39 +883,6 @@ public abstract class ContextUtils {
     if (obj instanceof DisposableBean) {
       ((DisposableBean) obj).destroy();
     }
-  }
-
-  /**
-   * Is a context missed bean?
-   *
-   * @param missingBean
-   *         The {@link Annotation} declared on the class or a method
-   * @param annotated
-   *         Missed bean class or method
-   * @param beanFactory
-   *         The {@link AbstractBeanFactory}
-   *
-   * @return If the bean is missed in context
-   *
-   * @since 2.1.6
-   */
-  public static boolean isMissedBean(
-          final MissingBean missingBean,
-          final AnnotatedElement annotated,
-          final ConfigurableBeanFactory beanFactory
-  ) {
-    if (missingBean == null || !conditional(annotated)) { // fix @Conditional not
-      return false;
-    }
-
-    final String beanName = missingBean.value();
-    if (StringUtils.isNotEmpty(beanName) && beanFactory.containsBeanDefinition(beanName)) {
-      return false;
-    }
-    final Class<?> type = missingBean.type();
-
-    return !((type != void.class && beanFactory.containsBeanDefinition(type, !type.isInterface())) //
-            || beanFactory.containsBeanDefinition(getBeanClass(annotated)));
   }
 
   // bean definition

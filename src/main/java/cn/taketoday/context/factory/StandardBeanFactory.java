@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context.factory;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -93,7 +94,7 @@ public class StandardBeanFactory
 
   private static final Logger log = LoggerFactory.getLogger(StandardBeanFactory.class);
 
-  private final ConfigurableApplicationContext applicationContext;
+  private final ConfigurableApplicationContext context;
   private final HashSet<Method> missingMethods = new HashSet<>(32);
   private final LinkedList<AnnotatedElement> componentScanned = new LinkedList<>();
 
@@ -108,9 +109,9 @@ public class StandardBeanFactory
    */
   private final HashSet<String> currentInitializingBeanName = new HashSet<>();
 
-  public StandardBeanFactory(ConfigurableApplicationContext applicationContext) {
-    Assert.notNull(applicationContext, "applicationContext must not be null");
-    this.applicationContext = applicationContext;
+  public StandardBeanFactory(ConfigurableApplicationContext context) {
+    Assert.notNull(context, "applicationContext must not be null");
+    this.context = context;
   }
 
   @Override
@@ -226,20 +227,20 @@ public class StandardBeanFactory
   /**
    * Load missing beans, default beans
    *
-   * @param beanClasses
-   *         Class set
+   * @param candidates
+   *         candidate class set
    */
-  public void loadMissingBean(final Collection<Class<?>> beanClasses) {
+  public void loadMissingBean(final Collection<Class<?>> candidates) {
     log.debug("Loading lost beans");
 
     final ConfigurableApplicationContext context = getApplicationContext();
-    context.publishEvent(new LoadingMissingBeanEvent(context, beanClasses));
+    context.publishEvent(new LoadingMissingBeanEvent(context, candidates));
 
-    for (final Class<?> beanClass : beanClasses) {
+    for (final Class<?> beanClass : candidates) {
 
       final MissingBean missingBean = beanClass.getAnnotation(MissingBean.class);
 
-      if (ContextUtils.isMissedBean(missingBean, beanClass, this)) {
+      if (isMissedBean(missingBean, beanClass)) {
         registerMissingBean(missingBean, new DefaultBeanDefinition(getBeanName(missingBean, beanClass), beanClass));
       }
     }
@@ -249,7 +250,7 @@ public class StandardBeanFactory
     for (final Method method : missingMethods) {
       final MissingBean missingBean = method.getAnnotation(MissingBean.class);
 
-      if (ContextUtils.isMissedBean(missingBean, method, this)) {
+      if (isMissedBean(missingBean, method)) {
 
         final Class<?> beanClass = method.getReturnType();
         StandardBeanDefinition beanDefinition = // @Configuration use default bean name
@@ -266,6 +267,33 @@ public class StandardBeanFactory
       }
     }
     missingMethods.clear();
+  }
+
+  /**
+   * Is a context missed bean?
+   *
+   * @param missingBean
+   *         The {@link Annotation} declared on the class or a method
+   * @param annotated
+   *         Missed bean class or method
+   *
+   * @return If the bean is missed in context
+   *
+   * @since 3.0
+   */
+  boolean isMissedBean(final MissingBean missingBean, final AnnotatedElement annotated) {
+    if (missingBean == null || !conditional(annotated, context)) { // use current application context
+      return false;
+    }
+
+    final String beanName = missingBean.value();
+    if (StringUtils.isNotEmpty(beanName) && containsBeanDefinition(beanName)) {
+      return false;
+    }
+    final Class<?> type = missingBean.type();
+
+    return !((type != void.class && containsBeanDefinition(type, !type.isInterface())) //
+            || containsBeanDefinition(ContextUtils.getBeanClass(annotated)));
   }
 
   /**
@@ -433,7 +461,7 @@ public class StandardBeanFactory
   @Override
   public void loadBeanDefinition(final Class<?> candidate) {
     // don't load abstract class
-    if (!Modifier.isAbstract(candidate.getModifiers()) && conditional(candidate, applicationContext)) {
+    if (!Modifier.isAbstract(candidate.getModifiers()) && conditional(candidate, context)) {
       register(candidate);
     }
   }
@@ -549,7 +577,7 @@ public class StandardBeanFactory
       Object listener = getSingleton(targetDef.getName());
       if (listener == null) {
         listener = createBeanIfNecessary(targetDef);
-        applicationContext.addApplicationListener((ApplicationListener<?>) listener);
+        context.addApplicationListener((ApplicationListener<?>) listener);
       }
     }
     // apply lazy init @since 3.0
@@ -633,7 +661,7 @@ public class StandardBeanFactory
 
   @Override
   public ConfigurableApplicationContext getApplicationContext() {
-    return applicationContext;
+    return context;
   }
 
   // PropertyValue    @since 3.0
