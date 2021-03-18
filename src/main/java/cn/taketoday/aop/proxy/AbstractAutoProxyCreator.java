@@ -54,7 +54,7 @@ import cn.taketoday.context.utils.OrderUtils;
  * @author TODAY 2021/2/1 21:31
  */
 public abstract class AbstractAutoProxyCreator
-        extends ProxyConfig implements InstantiationAwareBeanPostProcessor, BeanFactoryAware, AopInfrastructureBean {
+        extends ProxyConfig implements InstantiationAwareBeanPostProcessor, BeanFactoryAware, AopInfrastructureBean, ProxyCreator {
 
   private static final long serialVersionUID = 1L;
 

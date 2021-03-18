@@ -24,10 +24,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.aop.proxy.ProxyConfig;
+import cn.taketoday.aop.proxy.ProxyCreator;
 import cn.taketoday.aop.support.annotation.AspectAutoProxyCreator;
 import cn.taketoday.aop.target.TargetSourceCreator;
+import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.factory.BeanDefinition;
+import cn.taketoday.context.factory.BeanDefinitionRegistry;
+import cn.taketoday.context.loader.BeanDefinitionImporter;
+import cn.taketoday.context.utils.Assert;
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 
 /**
@@ -41,10 +49,26 @@ import cn.taketoday.context.utils.ObjectUtils;
 @Import(AutoProxyConfiguration.class)
 public @interface EnableAspectAutoProxy {
 
+  /**
+   * Return whether the AOP proxy will expose the AOP proxy for
+   * each invocation.
+   */
+  boolean exposeProxy() default false;
+
+  /**
+   * Return whether to proxy the target class directly as well as any interfaces.
+   */
+  boolean proxyTargetClass() default true;
 }
 
-class AutoProxyConfiguration {
+class AutoProxyConfiguration implements BeanDefinitionImporter {
 
+  /**
+   * ProxyCreator Bean
+   *
+   * @param sourceCreators
+   *         Custom {@link TargetSourceCreator}s
+   */
   @MissingBean
   AspectAutoProxyCreator aspectAutoProxyCreator(TargetSourceCreator[] sourceCreators) {
     final AspectAutoProxyCreator proxyCreator = new AspectAutoProxyCreator();
@@ -55,4 +79,18 @@ class AutoProxyConfiguration {
     return proxyCreator;
   }
 
+  @Override
+  public void registerBeanDefinitions(BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry) {
+    final BeanDefinition proxyCreatorDef = registry.getBeanDefinition(ProxyCreator.class);
+    Assert.state(proxyCreatorDef != null, "No ProxyCreator bean definition.");
+
+    if (ProxyConfig.class.isAssignableFrom(proxyCreatorDef.getBeanClass())) {
+      final AnnotationAttributes aspectAutoProxy = ClassUtils.getAnnotationAttributes(EnableAspectAutoProxy.class, annotatedMetadata);
+      if (aspectAutoProxy != null) {
+        proxyCreatorDef.addPropertyValue("exposeProxy", aspectAutoProxy.getBoolean("exposeProxy"));
+        proxyCreatorDef.addPropertyValue("proxyTargetClass", aspectAutoProxy.getBoolean("proxyTargetClass"));
+      }
+    }
+
+  }
 }
