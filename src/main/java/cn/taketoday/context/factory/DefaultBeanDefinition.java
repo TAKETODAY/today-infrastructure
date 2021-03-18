@@ -126,6 +126,7 @@ public class DefaultBeanDefinition
   public DefaultBeanDefinition(String beanName, BeanDefinition childDef) {
     copy(childDef);
     setName(beanName);
+    setChild(childDef);
   }
 
   @Override
