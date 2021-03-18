@@ -315,4 +315,9 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    */
   boolean isLazyInit();
 
+  /**
+   * @since 3.0
+   */
+  void copy(BeanDefinition newDef);
+
 }

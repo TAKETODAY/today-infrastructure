@@ -411,6 +411,24 @@ public class DefaultBeanDefinition
     return this.lazyInit;
   }
 
+  @Override
+  public void copy(BeanDefinition newDef) {
+    setName(newDef.getName());
+    setChild(newDef.getChild());
+    setScope(newDef.getScope());
+
+    setBeanClass(newDef.getBeanClass());
+    setFactoryBean(newDef.isFactoryBean());
+    setInitMethods(newDef.getInitMethods());
+    setDestroyMethods(newDef.getDestroyMethods());
+    setPropertyValues(newDef.getPropertyValues());
+
+    setLazyInit(newDef.isLazyInit());
+    setInitialized(newDef.isInitialized());
+
+    copyAttributesFrom(newDef);
+  }
+
   Class<?> obtainBeanClass() {
     final Class<?> beanClass = getBeanClass();
     Assert.state(beanClass != null, "Bean Class is Null");

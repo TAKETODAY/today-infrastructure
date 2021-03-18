@@ -133,4 +133,10 @@ public interface AttributeAccessor {
     }
     return (T) value;
   }
+
+  /**
+   * @since 3.0
+   */
+  void copyAttributesFrom(AttributeAccessor source);
+
 }

@@ -247,6 +247,11 @@ public class FactoryBeanDefinition<T>
   }
 
   @Override
+  public void copy(BeanDefinition newDef) {
+    factoryDef.copy(newDef);
+  }
+
+  @Override
   public void setLazyInit(boolean lazyInit) {
     factoryDef.setLazyInit(lazyInit);
   }

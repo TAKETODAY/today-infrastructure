@@ -39,9 +39,15 @@ public @interface MissingBean {
 
   /**
    * Missing bean name
+   * <p>
+   * this attr determine the bean definition
+   * </p>
    */
   String value() default Constant.BLANK;
 
+  /**
+   * this attr determine the bean definition
+   */
   Class<?> type() default void.class;
 
   /**
