@@ -111,8 +111,8 @@ public class DefaultBeanDefinition
   private Boolean lazyInit;
 
   public DefaultBeanDefinition(String name, Class<?> beanClass) {
-    this.name = name;
-    this.beanClass = beanClass;
+    setName(name);
+    setBeanClass(beanClass);
   }
 
   /**
@@ -124,12 +124,8 @@ public class DefaultBeanDefinition
    *         Child {@link BeanDefinition}
    */
   public DefaultBeanDefinition(String beanName, BeanDefinition childDef) {
-    this(beanName, childDef.getBeanClass());
-    setChild(childDef);
-    setScope(childDef.getScope());
-    setInitMethods(childDef.getInitMethods());
-    setDestroyMethods(childDef.getDestroyMethods());
-    setPropertyValues(childDef.getPropertyValues());
+    copy(childDef);
+    setName(beanName);
   }
 
   @Override
