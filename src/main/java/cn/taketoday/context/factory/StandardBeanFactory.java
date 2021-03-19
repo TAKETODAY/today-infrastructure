@@ -91,10 +91,10 @@ import static cn.taketoday.context.utils.ReflectionUtils.makeAccessible;
  */
 public class StandardBeanFactory
         extends AbstractBeanFactory implements ConfigurableBeanFactory, BeanDefinitionLoader {
-  private static final Logger log = LoggerFactory.getLogger(StandardBeanFactory.class);
 
+  private static final Logger log = LoggerFactory.getLogger(StandardBeanFactory.class);
   // @since 3.0
-  static final String MissingBeanMetadata = "MissingBeanMetadata";
+  static final String MissingBeanMetadata = MissingBean.class.getName() + "-Metadata";
 
   private final ConfigurableApplicationContext context;
   private final LinkedList<AnnotatedElement> componentScanned = new LinkedList<>();

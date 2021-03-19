@@ -29,7 +29,6 @@ import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.jar.JarEntry;
@@ -55,8 +54,9 @@ import static cn.taketoday.context.Constant.PACKAGE_SEPARATOR;
 import static cn.taketoday.context.Constant.PATH_SEPARATOR;
 
 /**
- * @author TODAY <br>
- * 2019-11-26 20:02
+ * Candidate Component Scanner
+ *
+ * @author TODAY 2019-11-26 20:02
  */
 public class CandidateComponentScanner {
 
@@ -83,16 +83,14 @@ public class CandidateComponentScanner {
                   && !resource.getName().startsWith("package-info"));
 
   public static String[] getDefaultIgnoreJarPrefix() {
-
     if (defaultIgnoreScanJarPrefixs != null) {
       return defaultIgnoreScanJarPrefixs;
     }
-
-    log.debug("Loading 'META-INF/ignore/jar-prefix'");
+    log.info("Loading 'META-INF/ignore/jar-prefix'");
 
     // Load the META-INF/ignore/jar-prefix to ignore some jars
     // --------------------------------------------------------------
-    final Set<String> ignoreScanJars = new HashSet<>(64);
+    final HashSet<String> ignoreScanJars = new HashSet<>(64);
 
     try { // @since 2.1.6
 
@@ -203,8 +201,7 @@ public class CandidateComponentScanner {
    * @return Class set
    */
   public Set<Class<?>> scan(final String... packages) {
-
-    Objects.requireNonNull(packages, "scan package can't be null");
+    Assert.notNull(packages, "scan packages can't be null");
 
     if (packages.length == 1) {
       return scanOne(packages[0]); // packages.length == 1
@@ -504,8 +501,7 @@ public class CandidateComponentScanner {
     return scanningTimes;
   }
 
-  final static class DefaultJarResourcePredicate implements Predicate<Resource> {
-
+  static final class DefaultJarResourcePredicate implements Predicate<Resource> {
     private final CandidateComponentScanner scanner;
 
     DefaultJarResourcePredicate(CandidateComponentScanner scanner) {
