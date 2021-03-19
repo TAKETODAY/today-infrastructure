@@ -59,6 +59,11 @@ public class MockRequestContext extends AbstractRequestContext {
   }
 
   @Override
+  public Map<String, String[]> parameters() {
+    return null;
+  }
+
+  @Override
   public String requestHeader(String name) {
     return null;
   }
@@ -144,22 +149,6 @@ public class MockRequestContext extends AbstractRequestContext {
   }
 
   @Override public RequestContext addCookie(HttpCookie cookie) {
-    return null;
-  }
-
-  @Override public Map<String, String[]> parameters() {
-    return null;
-  }
-
-  @Override public Enumeration<String> parameterNames() {
-    return null;
-  }
-
-  @Override public String[] parameters(String name) {
-    return new String[0];
-  }
-
-  @Override public String parameter(String name) {
     return null;
   }
 

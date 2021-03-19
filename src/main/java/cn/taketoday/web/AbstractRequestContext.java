@@ -26,11 +26,15 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpCookie;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import cn.taketoday.context.EmptyObject;
+import cn.taketoday.context.utils.CollectionUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.resolver.MultipartFileParsingException;
 import cn.taketoday.web.ui.ModelAndView;
@@ -38,8 +42,9 @@ import cn.taketoday.web.ui.ModelAndView;
 import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
 
 /**
- * @author TODAY <br>
- * 2020-03-29 22:20
+ * Abstract {@link RequestContext}
+ *
+ * @author TODAY 2020-03-29 22:20
  */
 public abstract class AbstractRequestContext implements RequestContext {
 
@@ -194,6 +199,57 @@ public abstract class AbstractRequestContext implements RequestContext {
    *         if this request is not of type multipart/form-data
    */
   protected abstract Map<String, List<MultipartFile>> parseMultipartFiles() throws IOException;
+
+  // parameter @since 3.0
+
+  /**
+   * @param name
+   *         a <code>String</code> specifying the name of the parameter
+   *
+   * @since 3.0
+   */
+  @Override
+  public String parameter(String name) {
+    final String[] parameters = parameters(name);
+    if (ObjectUtils.isNotEmpty(parameters)) {
+      return parameters[0];
+    }
+    return null;
+  }
+
+  /**
+   * @param name
+   *         a <code>String</code> containing the name of the parameter whose
+   *         value is requested
+   *
+   * @since 3.0
+   */
+  @Override
+  public String[] parameters(String name) {
+    final Map<String, String[]> parameters = parameters();
+    if (CollectionUtils.isEmpty(parameters)) {
+      return null;
+    }
+    return parameters.get(name);
+  }
+
+  /**
+   * @since 3.0
+   */
+  @Override
+  public Enumeration<String> parameterNames() {
+    final Map<String, String[]> parameters = parameters();
+    if (CollectionUtils.isEmpty(parameters)) {
+      return null;
+    }
+    return Collections.enumeration(parameters.keySet());
+  }
+
+  /**
+   * @since 3.0
+   */
+  @Override
+  public abstract Map<String, String[]> parameters();
 
   @Override
   public String toString() {
