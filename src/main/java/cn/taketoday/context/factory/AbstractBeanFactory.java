@@ -1104,14 +1104,14 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public void registerBeanDefinition(final String beanName, final BeanDefinition beanDefinition) {
-    this.beanDefinitionMap.put(beanName, beanDefinition);
+  public void registerBeanDefinition(final String beanName, final BeanDefinition def) {
+    this.beanDefinitionMap.put(beanName, def);
 
-    postRegisterBeanDefinition(beanDefinition);
+    postProcessRegisterBeanDefinition(def);
   }
 
-  protected void postRegisterBeanDefinition(final BeanDefinition beanDefinition) {
-    final PropertyValue[] propertyValues = beanDefinition.getPropertyValues();
+  protected void postProcessRegisterBeanDefinition(final BeanDefinition def) {
+    final PropertyValue[] propertyValues = def.getPropertyValues();
     if (ObjectUtils.isNotEmpty(propertyValues)) {
       for (final PropertyValue propertyValue : propertyValues) {
         if (propertyValue instanceof BeanReferencePropertyValue) {

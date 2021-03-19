@@ -508,42 +508,40 @@ public class StandardBeanFactory
    */
   @Override
   public void register(final String name, BeanDefinition def) {
-    ContextUtils.validateBeanDefinition(def);
-    final Class<?> beanClass = def.getBeanClass();
     def = transformBeanDefinition(name, def);
-
     if (def == null) {
       return;
     }
 
+    ContextUtils.validateBeanDefinition(def);
     String nameToUse = name;
+    final Class<?> beanClass = def.getBeanClass();
+
+    if (containsBeanDefinition(name) && !def.hasAttribute(MissingBeanMetadata)) {
+      final BeanDefinition existBeanDef = getBeanDefinition(name);
+      Class<?> existClass = existBeanDef.getBeanClass();
+      log.info("=====================|repeat bean definition START|=====================");
+      log.info("There is already a bean called: [{}], its bean definition: [{}].", name, existBeanDef);
+
+      if (beanClass.equals(existClass)) {
+        log.warn("They have same bean class: [{}]. We will override it.", beanClass);
+      }
+      else {
+        nameToUse = beanClass.getName();
+        def.setName(nameToUse);
+        log.warn("Current bean class: [{}]. You are supposed to change your bean name creator or bean name.", beanClass);
+        log.warn("Current bean definition: [{}] will be registed as: [{}].", def, nameToUse);
+      }
+      log.info("======================|END|======================");
+    }
 
     try {
-      if (containsBeanDefinition(name) && !def.hasAttribute(MissingBeanMetadata)) {
-        final BeanDefinition existBeanDef = getBeanDefinition(name);
-        Class<?> existClass = existBeanDef.getBeanClass();
-        log.info("=====================|repeat bean definition START|=====================");
-        log.info("There is already a bean called: [{}], its bean definition: [{}].", name, existBeanDef);
-
-        if (beanClass.equals(existClass)) {
-          log.warn("They have same bean class: [{}]. We will override it.", beanClass);
-        }
-        else {
-          nameToUse = beanClass.getName();
-          def.setName(nameToUse);
-          log.warn("Current bean class: [{}]. You are supposed to change your bean name creator or bean name.", beanClass);
-          log.warn("Current bean definition: [{}] will be registed as: [{}].", def, nameToUse);
-        }
-        log.info("======================|END|======================");
-      }
-
       if (FactoryBean.class.isAssignableFrom(beanClass)) { // process FactoryBean
         registerFactoryBean(nameToUse, def);
       }
       else {
         registerBeanDefinition(nameToUse, def);
       }
-      postProcessRegisterBeanDefinition(def);
     }
     catch (Throwable ex) {
       ex = ExceptionUtils.unwrapThrowable(ex);
@@ -583,6 +581,8 @@ public class StandardBeanFactory
    *         Target {@link BeanDefinition}
    */
   protected void postProcessRegisterBeanDefinition(final BeanDefinition targetDef) {
+    super.postProcessRegisterBeanDefinition(targetDef);
+
     // import beans
     if (targetDef.isAnnotationPresent(Import.class)) { // @since 2.1.7
       importAnnotated(targetDef);
