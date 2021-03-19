@@ -20,6 +20,8 @@
 
 package cn.taketoday.context.conversion;
 
+import java.lang.reflect.Array;
+
 import cn.taketoday.context.exception.ConversionException;
 
 /**
@@ -73,6 +75,9 @@ public class NumberConverter
   }
 
   protected Number convertObject(Object source) {
+    if (source.getClass().isArray() && Array.getLength(source) > 0) {
+      return convert(Array.get(source, 0));
+    }
     throw new ConversionException("Not support source: '" + source + "' convert to target class: " + type);
   }
 

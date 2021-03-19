@@ -342,7 +342,7 @@ public abstract class ConvertUtils {
 
     @Override
     public boolean supports(Class<?> targetClass, Object source) {
-      return !targetClass.isArray() && source.getClass().isArray();
+      return !targetClass.isArray() && source.getClass().isArray() && Array.getLength(source) > 0;
     }
 
     @Override
