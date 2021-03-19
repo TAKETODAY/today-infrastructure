@@ -73,7 +73,8 @@ public abstract class ConvertUtils {
                   delegate((c) -> c == Boolean.class || c == boolean.class, Boolean::parseBoolean),
                   new ArrayToCollectionConverter(),
                   new ArrayStringArrayConverter(),
-                  new StringSourceArrayConverter()//
+                  new StringSourceArrayConverter(),
+                  new ArraySourceToSingleConverter()//
     );
   }
 
@@ -330,6 +331,24 @@ public abstract class ConvertUtils {
         ret.add(Array.get(source, i));
       }
       return ret;
+    }
+  }
+
+  /**
+   * @since 3.0
+   */
+  @Order(Ordered.LOWEST_PRECEDENCE - Ordered.HIGHEST_PRECEDENCE)
+  static class ArraySourceToSingleConverter implements TypeConverter {
+
+    @Override
+    public boolean supports(Class<?> targetClass, Object source) {
+      return !targetClass.isArray() && source.getClass().isArray();
+    }
+
+    @Override
+    public Object convert(Class<?> targetClass, Object source) {
+      final Object content = Array.get(source, 0);
+      return ConvertUtils.convert(content, targetClass);
     }
   }
 
