@@ -546,7 +546,7 @@ public class StandardBeanFactory
     catch (Throwable ex) {
       ex = ExceptionUtils.unwrapThrowable(ex);
       throw new BeanDefinitionStoreException(
-              "An Exception Occurred When Register Bean Definition: [" + name + "]", ex);
+              "An Exception Occurred When Register Bean Definition: [" + def + "]", ex);
     }
   }
 
@@ -574,12 +574,7 @@ public class StandardBeanFactory
     return def;
   }
 
-  /**
-   * Process after register {@link BeanDefinition}
-   *
-   * @param targetDef
-   *         Target {@link BeanDefinition}
-   */
+  @Override
   protected void postProcessRegisterBeanDefinition(final BeanDefinition targetDef) {
     super.postProcessRegisterBeanDefinition(targetDef);
 

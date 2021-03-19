@@ -1110,6 +1110,12 @@ public abstract class AbstractBeanFactory
     postProcessRegisterBeanDefinition(def);
   }
 
+  /**
+   * Process after register {@link BeanDefinition}
+   *
+   * @param targetDef
+   *         Target {@link BeanDefinition}
+   */
   protected void postProcessRegisterBeanDefinition(final BeanDefinition def) {
     final PropertyValue[] propertyValues = def.getPropertyValues();
     if (ObjectUtils.isNotEmpty(propertyValues)) {
