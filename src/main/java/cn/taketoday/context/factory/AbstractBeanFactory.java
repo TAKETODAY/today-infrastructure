@@ -1116,8 +1116,8 @@ public abstract class AbstractBeanFactory
    * @param targetDef
    *         Target {@link BeanDefinition}
    */
-  protected void postProcessRegisterBeanDefinition(final BeanDefinition def) {
-    final PropertyValue[] propertyValues = def.getPropertyValues();
+  protected void postProcessRegisterBeanDefinition(final BeanDefinition targetDef) {
+    final PropertyValue[] propertyValues = targetDef.getPropertyValues();
     if (ObjectUtils.isNotEmpty(propertyValues)) {
       for (final PropertyValue propertyValue : propertyValues) {
         if (propertyValue instanceof BeanReferencePropertyValue) {
