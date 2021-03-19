@@ -79,7 +79,7 @@ public class BeanProperty {
   public Object newInstance(final Object[] args) {
     if (constructor == null) {
       final Class<?> fieldType = this.fieldType;
-      if (ClassUtils.isSimpleType(fieldType)) {
+      if (ClassUtils.primitiveTypes.contains(fieldType)) {
         throw new BeanInstantiationException(fieldType, "Cannot be instantiated a simple type");
       }
       constructor = ReflectionUtils.newConstructorAccessor(fieldType);

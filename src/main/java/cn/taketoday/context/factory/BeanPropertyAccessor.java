@@ -147,7 +147,8 @@ public class BeanPropertyAccessor {
    * @throws IndexOutOfBoundsException
    *         if the index is out of list range (<tt>index &lt; 0 || index &gt;= size()</tt>)
    */
-  public static Object getProperty(final Object root, final BeanMetadata metadata, final String propertyPath) {
+  public static Object getProperty(
+          final Object root, final BeanMetadata metadata, final String propertyPath) {
     final int signIndex = getNestedPropertySeparatorIndex(propertyPath);
 
     if (signIndex != -1) {
@@ -306,7 +307,8 @@ public class BeanPropertyAccessor {
    * @param value
    *         Property value
    */
-  public static void setProperty(final Object root, final BeanMetadata metadata, final String propertyPath, final Object value) {
+  public static void setProperty(
+          final Object root, final BeanMetadata metadata, final String propertyPath, final Object value) {
     final int index = getNestedPropertySeparatorIndex(propertyPath);
 
     if (index != -1) {
@@ -348,6 +350,7 @@ public class BeanPropertyAccessor {
       setProperty(subValue, subMetadata, newPath, value);
     }
     else {
+      // do set property operation
       final int signIndex = propertyPath.indexOf('['); // array,list: [0]; map: [key]
       if (signIndex < 0) {
         metadata.setProperty(root, propertyPath, value);

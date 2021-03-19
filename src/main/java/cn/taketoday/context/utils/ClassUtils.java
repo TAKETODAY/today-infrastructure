@@ -107,7 +107,7 @@ public abstract class ClassUtils {
   static final WeakHashMap<AnnotationKey<?>, AnnotationAttributes[]> ANNOTATION_ATTRIBUTES = new WeakHashMap<>(128);
 
   /** @since 3.0 */
-  static HashSet<Class<?>> primitiveTypes;
+  public static HashSet<Class<?>> primitiveTypes;
 
   static {
 
