@@ -41,11 +41,9 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.exception.BadRequestException;
 import cn.taketoday.web.handler.DefaultResponseStatus;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.http.HttpStatus;
 
 /**
@@ -68,37 +66,6 @@ public abstract class WebUtils {
 
   public static void setLastStartupWebContext(WebApplicationContext applicationContext) {
     WebUtils.lastStartupContext = applicationContext;
-  }
-
-  /**
-   * @param type
-   *         type
-   */
-  @Deprecated
-  public static BadRequestException newBadRequest(String type, MethodParameter parameter, Throwable ex) {
-    return newBadRequest(type, parameter.getName(), ex);
-  }
-
-  /**
-   * @param type
-   *         type
-   * @param methodParameterName
-   *         parameter name
-   */
-  @Deprecated
-  public static BadRequestException newBadRequest(String type, String methodParameterName, Throwable ex) {
-    StringBuilder msg = new StringBuilder(64);
-
-    if (StringUtils.isNotEmpty(type)) {
-      msg.append(type);
-    }
-    else {
-      msg.append("Parameter");
-    }
-
-    msg.append(": [").append(methodParameterName).append("] is required and it can't be resolve, bad request.");
-
-    return new BadRequestException(msg.toString(), ex);
   }
 
   /**

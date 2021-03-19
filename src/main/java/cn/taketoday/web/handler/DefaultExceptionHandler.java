@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -172,6 +172,7 @@ public class DefaultExceptionHandler
    *
    * @return Throwable class array
    */
+  @SuppressWarnings("unchecked")
   protected Class<? extends Throwable>[] getCatchThrowableClasses(final Method method) {
     Class<? extends Throwable>[] catchExClasses = method.getAnnotation(ExceptionHandler.class).value();
     if (ObjectUtils.isEmpty(catchExClasses)) {

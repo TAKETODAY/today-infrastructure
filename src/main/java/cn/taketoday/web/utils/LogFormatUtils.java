@@ -30,8 +30,7 @@ import cn.taketoday.context.logger.Logger;
  * From Spring
  * </p>
  *
- * @author TODAY
- * @date 2020/12/6 18:29
+ * @author TODAY 2020/12/6 18:29
  * @since 3.0
  */
 public abstract class LogFormatUtils {

@@ -147,7 +147,7 @@ public class ServletParameterResolver {
     }
 
     @Override
-    protected List<?> resolveList(RequestContext context, MethodParameter parameter) throws Throwable {
+    protected List<?> resolveCollection(RequestContext context, MethodParameter parameter) throws Throwable {
 
       final Cookie[] cookies = context.nativeRequest(HttpServletRequest.class).getCookies();
       final List<Cookie> ret = new ArrayList<>(cookies.length);

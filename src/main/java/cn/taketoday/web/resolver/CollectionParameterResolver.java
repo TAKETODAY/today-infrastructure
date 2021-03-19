@@ -21,10 +21,8 @@ package cn.taketoday.web.resolver;
 
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
+import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
@@ -38,10 +36,7 @@ public class CollectionParameterResolver implements ParameterResolver {
 
   @Override
   public final boolean supports(final MethodParameter parameter) {
-
-    return (parameter.is(Collection.class) //
-            || parameter.is(List.class) //
-            || parameter.is(Set.class)) && supportsInternal(parameter);
+    return parameter.isCollection() && supportsInternal(parameter);
   }
 
   protected boolean supportsInternal(final MethodParameter parameter) {
@@ -52,15 +47,18 @@ public class CollectionParameterResolver implements ParameterResolver {
    * Resolve {@link Collection} parameter.
    */
   @Override
-  public final Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-
-    if (parameter.is(Set.class)) {
-      return new HashSet<>(resolveList(context, parameter));
+  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+    final Collection<?> collection = resolveCollection(context, parameter);
+    if (parameter.is(collection.getClass())) {
+      return collection;
     }
-    return resolveList(context, parameter);
+
+    final Collection<Object> ret = CollectionUtils.createCollection(parameter.getParameterClass(), collection.size());
+    ret.addAll(collection);
+    return ret;
   }
 
-  protected List<?> resolveList(final RequestContext context, final MethodParameter parameter) throws Throwable {
+  protected Collection<?> resolveCollection(final RequestContext context, final MethodParameter parameter) throws Throwable {
 
     final String parameterName = parameter.getName();
     final ParamList<Object> list = new ParamList<>();
