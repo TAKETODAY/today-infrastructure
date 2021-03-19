@@ -208,7 +208,8 @@ public class BeanPropertyAccessor {
       return propValue;
     }
     catch (NumberFormatException e) {
-      throw new IllegalArgumentException("Unsupported Operator: " + propertyPath + ", value: " + root, e);
+      throw new IllegalArgumentException(
+              "Unsupported Operator: " + propertyPath + ", value: " + root, e);
     }
   }
 
@@ -242,7 +243,8 @@ public class BeanPropertyAccessor {
       final Set set = (Set) propertyValue;
       int index = Integer.parseInt(key);
       if (index < 0 || index >= set.size()) {
-        throw new IndexOutOfBoundsException("Cannot get element with index " + index + " from Set of size " + set.size());
+        throw new IndexOutOfBoundsException(
+                "Cannot get element with index " + index + " from Set of size " + set.size());
       }
       final Iterator it = set.iterator();
       for (int j = 0; it.hasNext(); j++) {
