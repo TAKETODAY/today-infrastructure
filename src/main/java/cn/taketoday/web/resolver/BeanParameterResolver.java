@@ -54,17 +54,11 @@ public class BeanParameterResolver
 
   @Override
   public boolean supports(MethodParameter parameter) {
-    return true;
+    return !ClassUtils.isSimpleType(parameter.getParameterClass());
   }
 
-  static class PropertyValue {
-    String name;
-    Object value;
-
-  }
-
-//  @Override
-  public Object resolveParameter0(final RequestContext context, final MethodParameter parameter) {
+  //  @Override
+  public Object newVersion(final RequestContext context, final MethodParameter parameter) {
     final Class<?> parameterClass = parameter.getParameterClass();
 
     BeanMetadata metadata = BeanMetadata.ofClass(parameterClass);
@@ -80,7 +74,7 @@ public class BeanParameterResolver
           if (ObjectUtils.isNotEmpty(value)) {
             Object property = value;
             if (value.length == 1) {
-              property = value[0];
+              property = value[0]; // TODO source value problem
             }
             final String propertyPath = entry.getKey();
             try {
@@ -97,7 +91,15 @@ public class BeanParameterResolver
     return bean;
   }
 
-  // @Override
+  /**
+   * old version
+   *
+   * @param context
+   *         Current request context
+   * @param parameter
+   *         parameter
+   */
+  @Override
   public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
     final Class<?> parameterClass = parameter.getParameterClass();
     final Object bean = ClassUtils.newInstance(parameterClass);
@@ -136,49 +138,5 @@ public class BeanParameterResolver
       }
     }
   }
-
-  // --
-
-//  Scope scope;
-//  ApplicationContext ctx;
-//  BeanDefinitionLoader beanDefinitionLoader;
-//  Map<MethodParameter, BeanDefinition> defs;
-//
-//  public Object resolve(final RequestContext context, final MethodParameter parameter) {
-//    return ctx.getScopeBean(getBeanDefinition(parameter), scope);
-//  }
-//
-//  protected BeanDefinition getBeanDefinition(final MethodParameter parameter) {
-//    BeanDefinition def;
-//    if ((def = defs.get(parameter)) == null) {
-//      def = createBeanDefinition(parameter);
-//      defs.put(parameter, def);
-//    }
-//    return def;
-//  }
-//
-//  protected BeanDefinition createBeanDefinition(final MethodParameter parameter) {
-//    final Class<?> parameterClass = parameter.getParameterClass();
-//    final BeanDefinition ret = beanDefinitionLoader.createBeanDefinition(parameter.getName(), parameterClass);
-//    final Collection<Field> fields = ClassUtils.getFields(parameterClass);
-//    for (Field field : fields) {
-//
-//    }
-//    return ret;
-//  }
-//
-//  static class RequestPropertyValue extends PropertyValue {
-//
-//    private RequestContext context;
-//
-//    public RequestPropertyValue(Object value, Field field) {
-//      super(value, field);
-//    }
-//
-//    @Override
-//    public Object getValue() {
-//      return super.getValue();
-//    }
-//  }
 
 }

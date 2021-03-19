@@ -1,10 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- 
+<?xml version="1.0" encoding="UTF-8"?><!--
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,26 +13,29 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  -->
 <configuration>
-    <contextName>TODAY WEB TEST</contextName>
+  <contextName>TODAY Web</contextName>
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            %yellow(%d{yyyy-MM-dd HH:mm:ss.SSS}) %highlight(%-5level) - %blue([%16.16t]) %green(%-40.40logger{40}) %cyan(%4.4L - %m%n)
-        </encoder>
-    </appender>
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>
+        %red(%d{yyyy-MM-dd HH:mm:ss.SSS}) %highlight(%-5level) - %blue([%16.16t]) %cyan(%-40.40logger{40}) %4.4L - %m%n
+      </pattern>
+    </encoder>
+  </appender>
 
-<!-- 	
-	<root level="INFO">
--->
-    <root level="INFO">
-<!--    <root level="TRACE">-->
-        <appender-ref ref="STDOUT" />
-    </root>
+  <!--
+      <root level="INFO">
+   -->
+  <root level="INFO">
+    <appender-ref ref="STDOUT" />
+  </root>
 
 </configuration>
+
+
 
