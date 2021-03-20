@@ -142,11 +142,6 @@ public class DefaultConversionService implements ConversionService {
     return typeConverter.convert(targetClass, source);
   }
 
-  @Override
-  public Object convertIfNecessary(Object source, Class<?> targetClass) {
-    return null;
-  }
-
   /**
    * Add {@link TypeConverter} to {@link #converters}
    *

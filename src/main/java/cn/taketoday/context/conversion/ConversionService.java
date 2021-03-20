@@ -57,15 +57,4 @@ public interface ConversionService {
    */
   Object convert(Object source, Class<?> targetClass);
 
-  /**
-   * Convert source to target type
-   *
-   * @param source
-   *         source object
-   * @param targetClass
-   *         target class to be converted
-   *
-   * @return converted object or source object
-   */
-  Object convertIfNecessary(Object source, Class<?> targetClass);
 }
