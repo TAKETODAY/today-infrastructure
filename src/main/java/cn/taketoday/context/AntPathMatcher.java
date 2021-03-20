@@ -72,6 +72,10 @@ import cn.taketoday.context.utils.StringUtils;
  * that users of this implementation to sanitize patterns in order to prefix
  * them with "/" as it makes sense in the context in which they're used.
  *
+ * <p>
+ * from Spring
+ * </p>
+ *
  * @author Alef Arendsen
  * @author Juergen Hoeller
  * @author Rob Harrop
@@ -80,7 +84,6 @@ import cn.taketoday.context.utils.StringUtils;
  * @author Sam Brannen
  * @author TODAY <br>
  * 2019-03-26 10:20
- * @since 16.07.2003
  * @since 2.1.7
  */
 public class AntPathMatcher implements PathMatcher {

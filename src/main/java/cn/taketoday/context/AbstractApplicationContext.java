@@ -19,8 +19,6 @@
  */
 package cn.taketoday.context;
 
-import org.checkerframework.checker.units.qual.A;
-
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.text.SimpleDateFormat;
@@ -28,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -80,11 +79,9 @@ import cn.taketoday.expression.ExpressionProcessor;
  * 2018-09-09 22:02
  */
 public abstract class AbstractApplicationContext implements ConfigurableApplicationContext {
-
   private static final Logger log = LoggerFactory.getLogger(AbstractApplicationContext.class);
 
   private long startupDate;
-
   private final ConfigurableEnvironment environment;
 
   // @since 2.1.5
@@ -95,7 +92,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   /** @since 2.1.7 Scan candidates */
   private CandidateComponentScanner candidateComponentScanner;
 
-  private ArrayList<BeanFactoryPostProcessor> factoryPostProcessors;
+  private LinkedList<BeanFactoryPostProcessor> factoryPostProcessors;
 
   /**
    * Construct with a {@link ConfigurableEnvironment}
@@ -345,7 +342,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    *         bean factory
    */
   protected void postProcessBeanFactory(AbstractBeanFactory beanFactory) {
-
     registerBeanFactoryPostProcessor();
 
     if (!CollectionUtils.isEmpty(factoryPostProcessors)) {
@@ -951,9 +947,9 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   public final List<BeanFactoryPostProcessor> getFactoryPostProcessors() {
-    final ArrayList<BeanFactoryPostProcessor> processors = this.factoryPostProcessors;
+    final LinkedList<BeanFactoryPostProcessor> processors = this.factoryPostProcessors;
     if (processors == null) {
-      return this.factoryPostProcessors = new ArrayList<>();
+      return this.factoryPostProcessors = new LinkedList<>();
     }
     return processors;
   }
