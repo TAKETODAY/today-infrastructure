@@ -20,6 +20,7 @@
 package cn.taketoday.web.handler;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Objects;
@@ -40,7 +41,8 @@ import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributes;
  * @author TODAY
  * @version 2.3.7 <br>
  */
-public class MethodParameter extends AttributeAccessorSupport {
+public class MethodParameter
+        extends AttributeAccessorSupport implements AnnotatedElement {
 
   private final int parameterIndex;
   private final Class<?> parameterClass;
@@ -136,12 +138,41 @@ public class MethodParameter extends AttributeAccessorSupport {
     return false;
   }
 
+  @Override
   public boolean isAnnotationPresent(final Class<? extends Annotation> annotationClass) {
     return ClassUtils.isAnnotationPresent(parameter, annotationClass);
   }
 
+  @Override
   public <A extends Annotation> A getAnnotation(final Class<A> annotationClass) {
-    return annotationClass == null ? null : ClassUtils.getAnnotation(annotationClass, parameter);
+    return ClassUtils.getAnnotation(annotationClass, parameter);
+  }
+
+  // AnnotatedElement @since 3.0
+
+  @Override
+  public Annotation[] getAnnotations() {
+    return parameter.getAnnotations();
+  }
+
+  @Override
+  public Annotation[] getDeclaredAnnotations() {
+    return parameter.getDeclaredAnnotations();
+  }
+
+  @Override
+  public <T extends Annotation> T getDeclaredAnnotation(Class<T> annotationClass) {
+    return parameter.getDeclaredAnnotation(annotationClass);
+  }
+
+  @Override
+  public <T extends Annotation> T[] getAnnotationsByType(Class<T> annotationClass) {
+    return parameter.getAnnotationsByType(annotationClass);
+  }
+
+  @Override
+  public <T extends Annotation> T[] getDeclaredAnnotationsByType(Class<T> annotationClass) {
+    return parameter.getDeclaredAnnotationsByType(annotationClass);
   }
 
   // ----- resolver
