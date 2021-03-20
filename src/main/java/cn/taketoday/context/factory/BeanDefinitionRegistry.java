@@ -22,6 +22,8 @@ package cn.taketoday.context.factory;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.context.exception.BeanDefinitionStoreException;
+
 /**
  * Store bean definitions.
  *
@@ -37,7 +39,7 @@ public interface BeanDefinitionRegistry {
   Map<String, BeanDefinition> getBeanDefinitions();
 
   /**
-   * register a bean with the given name and type
+   * register a bean with the given name and {@link BeanDefinition}
    *
    * @param def
    *         Bean definition
@@ -148,4 +150,20 @@ public interface BeanDefinitionRegistry {
     registerBeanDefinition(def.getName(), def);
   }
 
+  /**
+   * register a bean with the given bean class
+   *
+   * @since 3.0
+   */
+  void registerBean(Class<?> beanClass) throws BeanDefinitionStoreException;
+
+  /**
+   * register a bean with the given name and bean class
+   *
+   * @param beanClass
+   *         bean class
+   *
+   * @since 3.0
+   */
+  void registerBean(String name, Class<?> beanClass) throws BeanDefinitionStoreException;
 }

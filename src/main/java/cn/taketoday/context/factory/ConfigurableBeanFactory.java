@@ -77,6 +77,7 @@ public interface ConfigurableBeanFactory
    * @throws BeanDefinitionStoreException
    *         If can't store a bean
    */
+  @Override
   void registerBean(String name, Class<?> clazz) throws BeanDefinitionStoreException;
 
   /**
@@ -117,6 +118,7 @@ public interface ConfigurableBeanFactory
    * @throws BeanDefinitionStoreException
    *         If can't store a bean
    */
+  @Override
   void registerBean(Class<?> clazz) throws BeanDefinitionStoreException;
 
   /**
