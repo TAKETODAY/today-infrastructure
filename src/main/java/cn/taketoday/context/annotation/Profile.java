@@ -40,8 +40,6 @@ public @interface Profile {
 
   /**
    * Accept profiles, using '!' to exclude profiles
-   *
-   * @return
    */
   String[] value();
 

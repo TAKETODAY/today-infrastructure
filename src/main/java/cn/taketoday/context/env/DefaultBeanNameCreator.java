@@ -40,7 +40,8 @@ public class DefaultBeanNameCreator implements BeanNameCreator {
     this(true);
   }
 
-  public DefaultBeanNameCreator(@Env(value = KEY_USE_SIMPLE_NAME, defaultValue = "true") boolean useSimpleName) {
+  public DefaultBeanNameCreator(
+          @Env(value = KEY_USE_SIMPLE_NAME, defaultValue = "true") boolean useSimpleName) {
     this.useSimpleName = useSimpleName;
   }
 
