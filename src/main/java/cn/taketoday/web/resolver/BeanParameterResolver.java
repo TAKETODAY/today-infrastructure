@@ -64,6 +64,7 @@ public class BeanParameterResolver
 
     BeanMetadata metadata = BeanMetadata.ofClass(parameterClass);
     final Object bean = metadata.newInstance(); // native-invoke constructor
+    final BeanPropertyAccessor propertyAccessor = new BeanPropertyAccessor(metadata, bean);
 
     final Map<String, String[]> parameters = context.parameters();
     if (parameters != null) {
@@ -76,7 +77,7 @@ public class BeanParameterResolver
             Object property = value[0];
             final String propertyPath = entry.getKey();
             try {
-              BeanPropertyAccessor.setProperty(bean, metadata, propertyPath, property);
+              propertyAccessor.setProperty(bean, metadata, propertyPath, property);
             }
             catch (NoSuchPropertyException ignored) { }
             catch (InvalidPropertyValueException e) {
