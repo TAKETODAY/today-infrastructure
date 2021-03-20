@@ -276,6 +276,11 @@ public class BeanPropertyAccessor {
    *         Property path to set
    * @param value
    *         Property value
+   *
+   * @throws NoSuchPropertyException
+   *         If no such property
+   * @throws InvalidPropertyException
+   *         Invalid property
    */
   public void setProperty(final String propertyPath, final Object value) {
     setProperty(bean, metadata, propertyPath, value);
@@ -290,6 +295,11 @@ public class BeanPropertyAccessor {
    *         Property path to set
    * @param value
    *         Property value
+   *
+   * @throws NoSuchPropertyException
+   *         If no such property
+   * @throws InvalidPropertyException
+   *         Invalid property
    */
   public static void setProperty(final Object root, final String propertyPath, final Object value) {
     setProperty(root, BeanMetadata.ofObject(root), propertyPath, value);
@@ -306,6 +316,11 @@ public class BeanPropertyAccessor {
    *         Property path to set
    * @param value
    *         Property value
+   *
+   * @throws NoSuchPropertyException
+   *         If no such property
+   * @throws InvalidPropertyException
+   *         Invalid property
    */
   public static void setProperty(
           final Object root, final BeanMetadata metadata, final String propertyPath, final Object value) {
