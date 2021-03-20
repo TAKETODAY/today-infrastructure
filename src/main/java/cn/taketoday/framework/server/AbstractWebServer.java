@@ -41,6 +41,7 @@ import cn.taketoday.framework.bean.ErrorPage;
 import cn.taketoday.framework.bean.MimeMappings;
 import cn.taketoday.framework.config.CompositeWebApplicationConfiguration;
 import cn.taketoday.framework.config.CompressionConfiguration;
+import cn.taketoday.framework.config.SessionConfiguration;
 import cn.taketoday.framework.config.WebApplicationConfiguration;
 import cn.taketoday.framework.config.WebDocumentConfiguration;
 import cn.taketoday.framework.utils.ApplicationUtils;
@@ -66,6 +67,9 @@ public abstract class AbstractWebServer implements ConfigurableWebServer {
   private String displayName = "Web-App";
 
   private String deployName = "deploy-web-app";
+
+  @Autowired(required = false)
+  private SessionConfiguration sessionConfiguration;
 
   @Autowired(required = false)
   private CompressionConfiguration compression;

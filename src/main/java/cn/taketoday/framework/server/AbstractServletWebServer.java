@@ -46,10 +46,10 @@ import cn.taketoday.framework.WebServerApplicationContext;
 import cn.taketoday.framework.config.DefaultServletConfiguration;
 import cn.taketoday.framework.config.JspServletConfiguration;
 import cn.taketoday.framework.config.SessionConfiguration;
-import cn.taketoday.framework.config.SessionCookieConfiguration;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.servlet.initializer.OrderedServletContextInitializer;
 import cn.taketoday.web.servlet.initializer.WebServletInitializer;
+import cn.taketoday.web.session.SessionCookieConfiguration;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -64,8 +64,6 @@ public abstract class AbstractServletWebServer
 
   private static final Logger log = LoggerFactory.getLogger(AbstractServletWebServer.class);
 
-  @Autowired(required = false)
-  private SessionConfiguration sessionConfiguration;
   @Autowired(required = false)
   private JspServletConfiguration jspServletConfiguration;
   @Autowired(required = false)

@@ -73,7 +73,7 @@ public class WebApplication {
    * @return {@link WebServerApplicationContext}
    */
   public ConfigurableWebServerApplicationContext run(String... args) {
-    log.debug("Starting Web Application at [{}]", getAppBasePath());
+    log.info("Starting Web Application at [{}]", getAppBasePath());
 
     final ConfigurableWebServerApplicationContext context = getApplicationContext();
     try {
@@ -81,10 +81,10 @@ public class WebApplication {
       final Class<?> startupClass = context.getStartupClass();
       if (startupClass == null) {
         log.info("There isn't a Startup Class");
-        context.loadContext(); // load from all classpath
+        context.load(); // load from all classpath
       }
       else {
-        context.loadContext(startupClass.getPackage().getName());
+        context.load(startupClass.getPackage().getName());
       }
 
       nonNull(context.getWebServer(), "Web server can't be null")

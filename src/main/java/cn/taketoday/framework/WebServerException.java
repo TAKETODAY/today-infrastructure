@@ -19,15 +19,14 @@
  */
 package cn.taketoday.framework;
 
-import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.NestedRuntimeException;
 
 /**
- *
  * @author TODAY <br>
  *         2019-02-14 21:09
  */
-@SuppressWarnings("serial")
-public class WebServerException extends ContextException {
+public class WebServerException extends NestedRuntimeException {
+  private static final long serialVersionUID = 1L;
 
   public WebServerException(Throwable cause) {
     super(cause);

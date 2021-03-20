@@ -29,6 +29,7 @@ import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.framework.utils.ApplicationUtils;
+import cn.taketoday.web.session.SessionCookieConfiguration;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -51,8 +52,8 @@ public class SessionConfiguration {
   private TrackingMode[] trackingModes;
   private Duration timeout = Duration.ofMinutes(30);
 
-  @Autowired
-  private SessionCookieConfiguration cookieConfiguration;
+  @Autowired(required = false)
+  private SessionCookieConfiguration cookieConfiguration = new SessionCookieConfiguration();
 
   public File getStoreDirectory(Class<?> startupClass) throws IOException {
 
