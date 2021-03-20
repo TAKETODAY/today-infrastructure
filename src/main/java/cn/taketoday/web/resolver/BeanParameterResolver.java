@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.resolver;
 
-import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,11 +26,10 @@ import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.factory.BeanMetadata;
 import cn.taketoday.context.factory.BeanPropertyAccessor;
+import cn.taketoday.context.factory.InvalidPropertyValueException;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 
@@ -57,12 +55,15 @@ public class BeanParameterResolver
     return !ClassUtils.isSimpleType(parameter.getParameterClass());
   }
 
-  //  @Override
-  public Object newVersion(final RequestContext context, final MethodParameter parameter) {
+  /**
+   * @return Pojo parameter
+   */
+  @Override
+  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) {
     final Class<?> parameterClass = parameter.getParameterClass();
 
     BeanMetadata metadata = BeanMetadata.ofClass(parameterClass);
-    final Object bean = metadata.newInstance();
+    final Object bean = metadata.newInstance(); // native-invoke constructor
 
     final Map<String, String[]> parameters = context.parameters();
     if (parameters != null) {
@@ -72,16 +73,14 @@ public class BeanParameterResolver
         for (final Map.Entry<String, String[]> entry : entries) {
           final String[] value = entry.getValue();
           if (ObjectUtils.isNotEmpty(value)) {
-            Object property = value;
-            if (value.length == 1) {
-              property = value[0]; // TODO source value problem
-            }
+            Object property = value[0];
             final String propertyPath = entry.getKey();
             try {
               BeanPropertyAccessor.setProperty(bean, metadata, propertyPath, property);
             }
-            catch (NoSuchPropertyException ignored) {
-              ignored.printStackTrace();
+            catch (NoSuchPropertyException ignored) { }
+            catch (InvalidPropertyValueException e) {
+              throw new MethodParameterException(parameter, e);
             }
           }
         }
@@ -89,54 +88,6 @@ public class BeanParameterResolver
     }
 
     return bean;
-  }
-
-  /**
-   * old version
-   *
-   * @param context
-   *         Current request context
-   * @param parameter
-   *         parameter
-   */
-  @Override
-  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-    final Class<?> parameterClass = parameter.getParameterClass();
-    final Object bean = ClassUtils.newInstance(parameterClass);
-
-    final Map<String, String[]> parameters = context.parameters();
-    if (parameters != null) {
-      final Set<Map.Entry<String, String[]>> entries = parameters.entrySet();
-      if (!CollectionUtils.isEmpty(entries)) {
-        // 遍历参数
-        for (final Map.Entry<String, String[]> entry : entries) {
-          final String[] value = entry.getValue();
-          if (ObjectUtils.isNotEmpty(value)) {
-            final Field field = ReflectionUtils.findField(parameterClass, entry.getKey());
-            if (field != null) {
-              applyParameter(field, bean, value);
-            }
-          }
-        }
-      }
-    }
-
-    return bean;
-  }
-
-  protected void applyParameter(final Field field, final Object bean, final String[] value) {
-    final Class<?> type = field.getType();
-    if (type.isArray()) {
-      ReflectionUtils.makeAccessible(field);
-      ReflectionUtils.setField(field, bean, ObjectUtils.toArrayObject(value, type));
-    }
-    else {
-      final String parameter = value[0];
-      if (parameter != null) {
-        ReflectionUtils.makeAccessible(field);
-        ReflectionUtils.setField(field, bean, ConvertUtils.convert(parameter, type));
-      }
-    }
   }
 
 }

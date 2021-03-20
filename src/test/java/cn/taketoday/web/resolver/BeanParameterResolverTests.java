@@ -133,9 +133,9 @@ public class BeanParameterResolverTests extends TestCase {
             }));
 
     final ParameterMockRequestContext context = new ParameterMockRequestContext(params);
-    final Object parameter = resolver.resolveParameter(context, testUser);
+    final Object parameter = resolver.resolveParameter0(context, testUser);
     // new version
-    final Object newVersion = resolver.newVersion(context, testUser);
+    final Object newVersion = resolver.resolveParameter(context, testUser);
     assertThat(newVersion).isEqualTo(today).isEqualTo(parameter);
   }
 
@@ -161,6 +161,13 @@ public class BeanParameterResolverTests extends TestCase {
       put("nestedMap[yhj].name", "TODAY");
       put("nestedList[0].age", "20");
       put("nestedList[0].name", "TODAY");
+
+      put("nested.nested.age", "20");
+      put("nested.nested.name", "TODAY");
+      put("nested.nestedMap[yhj].age", "20");
+      put("nested.nestedMap[yhj].name", "TODAY");
+      put("nested.nestedList[0].age", "20");
+      put("nested.nestedList[0].name", "TODAY");
     }
 
     public void put(String key, String value) {
@@ -174,7 +181,7 @@ public class BeanParameterResolverTests extends TestCase {
     final ParameterMockRequestContext context = new ParameterMockRequestContext(params);
 
     // new version
-    final Object newVersion = resolver.newVersion(context, testUser);
+    final Object newVersion = resolver.resolveParameter(context, testUser);
     assertThat(newVersion).isInstanceOf(UserForm.class);
 
     UserForm user = (UserForm) newVersion;
