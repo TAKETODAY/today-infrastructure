@@ -24,7 +24,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Properties;
 
-import cn.taketoday.framework.env.StandardWebEnvironment;
+import cn.taketoday.framework.StandardWebEnvironment;
 
 /**
  * @author TODAY <br>

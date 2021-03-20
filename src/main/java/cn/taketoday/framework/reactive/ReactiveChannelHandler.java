@@ -19,9 +19,6 @@
  */
 package cn.taketoday.framework.reactive;
 
-import java.util.concurrent.Executor;
-
-import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.DispatcherHandler;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -32,19 +29,30 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-import static java.util.concurrent.CompletableFuture.completedFuture;
 
 /**
- * @author TODAY <br>
- *         2019-07-04 21:50
+ * Netty {@link DispatcherHandler} implementation like {@link cn.taketoday.web.servlet.DispatcherServlet}
+ *
+ * @author TODAY 2019-07-04 21:50
  */
-public class ReactiveDispatcher
-        extends DispatcherHandler implements ChannelInboundHandler {
+public class ReactiveChannelHandler implements ChannelInboundHandler {
 
-  public ReactiveDispatcher() {}
+  private NettyDispatcher nettyDispatcher;
 
-  public ReactiveDispatcher(WebApplicationContext context) {
-    super(context);
+  public ReactiveChannelHandler() {
+    this(new AsyncNettyDispatcherHandler());
+  }
+
+  public ReactiveChannelHandler(NettyDispatcher nettyDispatcher) {
+    this.nettyDispatcher = nettyDispatcher;
+  }
+
+  public NettyDispatcher getNettyDispatcher() {
+    return nettyDispatcher;
+  }
+
+  public void setNettyDispatcher(NettyDispatcher nettyDispatcher) {
+    this.nettyDispatcher = nettyDispatcher;
   }
 
   @Override
@@ -53,53 +61,18 @@ public class ReactiveDispatcher
   }
 
   @Override
-  public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
+  public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
     if (msg instanceof FullHttpRequest) { // sync(ctx, msg);
-      async(ctx, (FullHttpRequest) msg);
+      nettyDispatcher.dispatch(ctx, (FullHttpRequest) msg);
     }
-//        else if(msg instanceof WebSocketFrame) {
-//
-//        }
     else {
       ctx.fireChannelRead(msg);
     }
   }
 
-  protected void sync(ChannelHandlerContext ctx, FullHttpRequest msg) throws Throwable {
-    // Lookup handler mapping
-    final NettyRequestContext context = new NettyRequestContext(getContextPath(), ctx, msg);
-      handle(context);
-      context.send();
-  }
-
-  protected void async(ChannelHandlerContext ctx, FullHttpRequest request) {
-
-    final NettyRequestContext context = new NettyRequestContext(getContextPath(), ctx, request);
-
-    final Executor executor = ctx.executor();
-
-    completedFuture(context)
-            .thenApplyAsync(this::lookupHandler, executor)
-            .thenApplyAsync(handler -> handle(ctx, context, handler), executor)
-            .thenAcceptAsync(handler -> context.send(), executor);
-  }
-
-  protected Object handle(ChannelHandlerContext ctx, final NettyRequestContext context, Object handler) {
-    try {
-      handle(handler, context);
-    }
-    catch (Throwable e) {
-      ctx.fireExceptionCaught(e);
-    }
-    return handler;
-  }
-
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-
-    log.error("cause :{}", cause.toString(), cause);
-
-    FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.BAD_REQUEST);
+    FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR);
     ctx.writeAndFlush(response)
             .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
   }

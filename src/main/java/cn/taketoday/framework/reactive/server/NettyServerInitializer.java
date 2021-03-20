@@ -21,7 +21,8 @@ package cn.taketoday.framework.reactive.server;
 
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.framework.reactive.ReactiveDispatcher;
+import cn.taketoday.context.utils.Assert;
+import cn.taketoday.framework.reactive.ReactiveChannelHandler;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
@@ -38,9 +39,10 @@ public class NettyServerInitializer
 
   private static final Logger log = LoggerFactory.getLogger(NettyServerInitializer.class);
 
-  private final ReactiveDispatcher reactiveDispatcher;
+  private final ReactiveChannelHandler reactiveDispatcher;
 
-  public NettyServerInitializer(ReactiveDispatcher reactiveDispatcher) {
+  public NettyServerInitializer(ReactiveChannelHandler reactiveDispatcher) {
+    Assert.notNull(reactiveDispatcher, "ReactiveDispatcher must not be null");
     this.reactiveDispatcher = reactiveDispatcher;
   }
 

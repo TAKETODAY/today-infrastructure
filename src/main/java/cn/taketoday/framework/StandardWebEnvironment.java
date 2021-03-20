@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.framework.env;
+package cn.taketoday.framework;
 
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.extensions.compactnotation.CompactConstructor;
@@ -36,7 +36,6 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.framework.Constant;
 import cn.taketoday.framework.annotation.PropertiesSource;
 import cn.taketoday.framework.utils.ApplicationUtils;
 

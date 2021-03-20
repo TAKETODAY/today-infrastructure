@@ -430,7 +430,6 @@ public class NettyRequestContext
   private boolean keepAlive = true;
 
   public RequestContext send() {
-
     assertNotCommitted();
 
     final HttpHeaders headers = getResponseHeaders();

@@ -26,7 +26,6 @@ import javax.annotation.PreDestroy;
 
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
@@ -35,7 +34,7 @@ import cn.taketoday.framework.StandardWebServerApplicationContext;
 import cn.taketoday.framework.WebServerApplicationContext;
 import cn.taketoday.framework.WebServerException;
 import cn.taketoday.framework.reactive.NettyWebServerApplicationLoader;
-import cn.taketoday.framework.reactive.ReactiveDispatcher;
+import cn.taketoday.framework.reactive.ReactiveChannelHandler;
 import cn.taketoday.framework.server.AbstractWebServer;
 import cn.taketoday.framework.server.WebServer;
 import io.netty.bootstrap.ServerBootstrap;
@@ -51,34 +50,30 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.ResourceLeakDetector;
-import lombok.Getter;
 import lombok.Setter;
 
 /**
- * @author TODAY <br>
- * 2019-07-02 21:15
+ * @author TODAY 2019-07-02 21:15
  */
 @Setter
-@Getter
-@Singleton
 @Props(prefix = { "server.", "server.netty." })
 public class NettyWebServer extends AbstractWebServer implements WebServer {
-
   private static final Logger log = LoggerFactory.getLogger(NettyWebServer.class);
 
   private Channel channel;
   private EventLoopGroup childGroup;
   private EventLoopGroup parentGroup;
   private Class<? extends ServerSocketChannel> socketChannel;
-  private final StandardWebServerApplicationContext applicationContext;
+  private final StandardWebServerApplicationContext context;
 
   @Autowired
-  public NettyWebServer(StandardWebServerApplicationContext applicationContext) {
-    this.applicationContext = applicationContext;
-    applicationContext.setContextPath(getContextPath());
+  public NettyWebServer(StandardWebServerApplicationContext context) {
+    Assert.notNull(context, "Application context must not be null");
+    this.context = context;
+    context.setContextPath(getContextPath());
   }
 
-  public static boolean epollIsAvailable() {
+  protected boolean epollIsAvailable() {
     try {
       Object obj = Class.forName("io.netty.channel.epoll.Epoll").getMethod("isAvailable").invoke(null);
       return obj != null
@@ -95,13 +90,14 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
     super.prepareInitialize();
   }
 
+
   @Override
   protected void contextInitialized() {
     super.contextInitialized();
 
     try {
       new NettyWebServerApplicationLoader(this::getMergedInitializers)
-              .onStartup(applicationContext);
+              .onStartup(context);
     }
     catch (Throwable e) {
       throw new ConfigurationException(e);
@@ -159,7 +155,7 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
     final WebServerApplicationContext context = getApplicationContext();
     NettyServerInitializer ret = context.getBean(NettyServerInitializer.class);
     if (ret == null) {
-      final ReactiveDispatcher reactiveDispatcher = context.getBean(ReactiveDispatcher.class);
+      final ReactiveChannelHandler reactiveDispatcher = context.getBean(ReactiveChannelHandler.class);
       ret = new NettyServerInitializer(reactiveDispatcher);
     }
     return ret;
@@ -168,7 +164,6 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
   @PreDestroy
   @Override
   public void stop() {
-
     log.info("shutdown: [{}]", this);
 
     if (this.parentGroup != null) {
@@ -197,6 +192,22 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
 
   @Override
   protected WebServerApplicationContext getApplicationContext() {
-    return applicationContext;
+    return context;
+  }
+
+  public Channel getChannel() {
+    return channel;
+  }
+
+  public EventLoopGroup getChildGroup() {
+    return childGroup;
+  }
+
+  public EventLoopGroup getParentGroup() {
+    return parentGroup;
+  }
+
+  public Class<? extends ServerSocketChannel> getSocketChannel() {
+    return socketChannel;
   }
 }

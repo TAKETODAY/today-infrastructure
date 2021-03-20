@@ -23,6 +23,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.factory.BeanDefinition;
+import cn.taketoday.context.factory.BeanDefinitionRegistry;
+import cn.taketoday.context.loader.AnnotationBeanDefinitionRegistrar;
 import cn.taketoday.framework.reactive.server.NettyServerInitializer;
 import cn.taketoday.framework.reactive.server.NettyWebServer;
 
@@ -30,13 +34,36 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@Retention(RUNTIME)
-@Target({ TYPE, METHOD })
 /**
  * @author TODAY <br>
- *         2019-11-22 00:30
+ * 2019-11-22 00:30
  */
-@Import({ NettyWebServer.class, NettyServerInitializer.class, ReactiveDispatcher.class })
+@Retention(RUNTIME)
+@Target({ TYPE, METHOD })
+@Import(NettyConfig.class)
 public @interface EnableDefaultNetty {
 
+  boolean async() default true;
+}
+
+class NettyConfig extends AnnotationBeanDefinitionRegistrar<EnableDefaultNetty> {
+
+  @MissingBean(type = ReactiveChannelHandler.class)
+  @Import({ NettyWebServer.class, NettyServerInitializer.class })
+  ReactiveChannelHandler reactiveChannelHandler(NettyDispatcher nettyDispatcher) {
+    return new ReactiveChannelHandler(nettyDispatcher);
+  }
+
+  @Override
+  public void registerBeanDefinitions(EnableDefaultNetty target, BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry) {
+    if (!registry.containsBeanDefinition(NettyDispatcher.class)) {
+      final boolean async = target.async();
+      if (async) {
+        registry.registerBean(AsyncNettyDispatcherHandler.class);
+      }
+      else {
+        registry.registerBean(SyncNettyDispatcherHandler.class);
+      }
+    }
+  }
 }

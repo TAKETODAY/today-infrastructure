@@ -45,7 +45,7 @@ public class NettyWebServerApplicationLoader extends WebServerApplicationLoader 
 
   @Override
   protected DispatcherHandler createDispatcher(WebApplicationContext context) {
-    final ReactiveDispatcher dispatcherServlet = new ReactiveDispatcher();
+    final AsyncNettyDispatcherHandler dispatcherServlet = new AsyncNettyDispatcherHandler();
     dispatcherServlet.setApplicationContext(context);
     return dispatcherServlet;
   }
