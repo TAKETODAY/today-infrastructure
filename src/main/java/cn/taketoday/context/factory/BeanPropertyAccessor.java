@@ -279,8 +279,8 @@ public class BeanPropertyAccessor {
    *
    * @throws NoSuchPropertyException
    *         If no such property
-   * @throws InvalidPropertyException
-   *         Invalid property
+   * @throws InvalidPropertyValueException
+   *         Invalid property value
    */
   public void setProperty(final String propertyPath, final Object value) {
     setProperty(bean, metadata, propertyPath, value);
@@ -298,8 +298,8 @@ public class BeanPropertyAccessor {
    *
    * @throws NoSuchPropertyException
    *         If no such property
-   * @throws InvalidPropertyException
-   *         Invalid property
+   * @throws InvalidPropertyValueException
+   *         Invalid property value
    */
   public static void setProperty(final Object root, final String propertyPath, final Object value) {
     setProperty(root, BeanMetadata.ofObject(root), propertyPath, value);
@@ -319,8 +319,8 @@ public class BeanPropertyAccessor {
    *
    * @throws NoSuchPropertyException
    *         If no such property
-   * @throws InvalidPropertyException
-   *         Invalid property
+   * @throws InvalidPropertyValueException
+   *         Invalid property value
    */
   public static void setProperty(
           final Object root, final BeanMetadata metadata, final String propertyPath, final Object value) {
@@ -432,7 +432,7 @@ public class BeanPropertyAccessor {
             list.add(null);
           }
           catch (NullPointerException ex) {
-            throw new InvalidPropertyException(
+            throw new InvalidPropertyValueException(
                     "Cannot set element with index " + index + " in List of size " + size +
                             ", accessed using property path '" + propertyPath +
                             "': List does not support filling up gaps with null elements");
@@ -445,7 +445,7 @@ public class BeanPropertyAccessor {
           list.set(index, convertedValue);
         }
         catch (IndexOutOfBoundsException ex) {
-          throw new InvalidPropertyException("Invalid list index in property path '" + propertyPath + "'", ex);
+          throw new InvalidPropertyValueException("Invalid list index in property path '" + propertyPath + "'", ex);
         }
       }
     }
@@ -481,7 +481,7 @@ public class BeanPropertyAccessor {
         Array.set(propValue, arrayIndex, ConvertUtils.convert(value, componentType));
       }
       else {
-        throw new InvalidPropertyException(
+        throw new InvalidPropertyValueException(
                 "Property referenced in indexed property path '" + propertyPath +
                         "' is neither an array nor a List nor a Map; returned value was [" + propValue + "]");
       }

@@ -20,26 +20,29 @@
 
 package cn.taketoday.context.factory;
 
-import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.NestedRuntimeException;
 
 /**
+ * Invalid property value
+ *
  * @author TODAY 2021/1/29 16:43
+ * @since 3.0
  */
-public class InvalidPropertyException extends ContextException {
+public class InvalidPropertyValueException extends NestedRuntimeException {
 
   private static final long serialVersionUID = 1L;
 
-  public InvalidPropertyException() {}
+  public InvalidPropertyValueException() {}
 
-  public InvalidPropertyException(String message) {
+  public InvalidPropertyValueException(String message) {
     super(message);
   }
 
-  public InvalidPropertyException(Throwable cause) {
+  public InvalidPropertyValueException(Throwable cause) {
     super(cause);
   }
 
-  public InvalidPropertyException(String message, Throwable cause) {
+  public InvalidPropertyValueException(String message, Throwable cause) {
     super(message, cause);
   }
 
