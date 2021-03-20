@@ -513,12 +513,10 @@ public class TomcatServer extends AbstractServletWebServer {
    *
    */
   protected void configureErrorPages(Context context) {
-
     final Set<ErrorPage> errorPages = getErrorPages();
 
     // config error pages
     getWebApplicationConfiguration().configureErrorPages(errorPages);
-
     for (ErrorPage errorPage : errorPages) {
       final org.apache.tomcat.util.descriptor.web.ErrorPage tomcatErrorPage = new org.apache.tomcat.util.descriptor.web.ErrorPage();
       if (errorPage.getPath() != null) {
@@ -533,9 +531,7 @@ public class TomcatServer extends AbstractServletWebServer {
   }
 
   protected void configureSession(Context context) {
-
     context.setSessionTimeout((int) getSessionTimeoutInMinutes());
-
     context.setUseHttpOnly(getSessionConfiguration().getCookieConfiguration().isHttpOnly());
 
     Manager manager = context.getManager();
@@ -581,12 +577,6 @@ public class TomcatServer extends AbstractServletWebServer {
       catch (IOException e) {
         throw new ConfigurationException(e);
       }
-    }
-  }
-
-  public static void state(boolean expression, String message) {
-    if (!expression) {
-      throw new IllegalStateException(message);
     }
   }
 

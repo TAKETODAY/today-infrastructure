@@ -40,9 +40,9 @@ import cn.taketoday.framework.Constant;
 import cn.taketoday.web.AbstractRequestContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.resolver.ParameterReadFailedException;
 import cn.taketoday.web.ui.Model;
 import cn.taketoday.web.ui.RedirectModel;
-import cn.taketoday.web.utils.WebUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
@@ -140,12 +140,12 @@ public class NettyRequestContext
   }
 
   @Override
-  protected InputStream getInputStreamInternal() throws IOException {
+  protected InputStream getInputStreamInternal() {
     return new ByteBufInputStream(request.content());
   }
 
   @Override
-  protected OutputStream getOutputStreamInternal() throws IOException {
+  protected OutputStream getOutputStreamInternal() {
     return new ByteBufOutputStream(responseBody);
   }
 
@@ -328,22 +328,6 @@ public class NettyRequestContext
     return ret;
   }
 
-  @Override
-  public Enumeration<String> parameterNames() {
-    return Collections.enumeration(parameters().keySet());
-  }
-
-  @Override
-  public String[] parameters(String name) {
-    return parameters().get(name);
-  }
-
-  @Override
-  public String parameter(String name) {
-
-    final String[] parameter = parameters().get(name);
-    return ObjectUtils.isNotEmpty(parameter) ? parameter[0] : null;
-  }
 
   private static final HttpDataFactory HTTP_DATA_FACTORY = new DefaultHttpDataFactory(true);
 
@@ -378,7 +362,7 @@ public class NettyRequestContext
           list.add(((Attribute) data).getValue());
         }
         catch (IOException e) {
-          throw WebUtils.newBadRequest("HttpData", "name", e);
+          throw new ParameterReadFailedException("Netty http-data read failed", e);
         }
       }
     }

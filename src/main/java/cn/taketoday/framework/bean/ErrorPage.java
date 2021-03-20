@@ -54,24 +54,16 @@ public class ErrorPage {
   }
 
   @Override
-  public int hashCode() {
-    return Objects.hash(status, path, exception);
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof ErrorPage)) return false;
+    final ErrorPage errorPage = (ErrorPage) o;
+    return status == errorPage.status && Objects.equals(path, errorPage.path) && Objects
+            .equals(exception, errorPage.exception);
   }
 
   @Override
-  public boolean equals(Object obj) {
-
-    if (this == obj) {
-      return true;
-    }
-    if (obj instanceof ErrorPage) {
-      final ErrorPage other = ((ErrorPage) obj);
-
-      return other.exception == this.exception //
-              && (this.path != null && this.path.equals(other.path)) //
-              && other.status == status;
-    }
-    return false;
+  public int hashCode() {
+    return Objects.hash(status, path, exception);
   }
-
 }
