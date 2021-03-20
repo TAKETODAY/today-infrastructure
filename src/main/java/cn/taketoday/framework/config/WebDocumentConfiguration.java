@@ -53,7 +53,7 @@ public class WebDocumentConfiguration {
   private final Class<?> startupClass;
 
   @Autowired
-  public WebDocumentConfiguration(WebServerApplicationContext context) { //TODO Startup class
+  public WebDocumentConfiguration(WebServerApplicationContext context) {
     this.startupClass = context.getStartupClass() == null ? WebDocumentConfiguration.class : context.getStartupClass();
   }
 

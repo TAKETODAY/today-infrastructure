@@ -28,7 +28,7 @@ import lombok.Setter;
 /**
  * Session cookie properties.
  *
- * @author TODAY(taketoday @ foxmail.com) https://taketoday.cn <br>
+ * @author TODAY(taketoday@foxmail.com) https://taketoday.cn <br>
  *         2019-01-26 17:16
  */
 @Getter
