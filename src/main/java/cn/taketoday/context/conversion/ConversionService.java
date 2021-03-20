@@ -44,13 +44,28 @@ public interface ConversionService {
 
   /**
    * Convert source to target type
+   * <p>
+   * If source object is {@code null} just returns {@code null}
+   * </p>
    *
    * @param source
-   *         value
+   *         source object
    * @param targetClass
    *         targetClass
    *
    * @return converted object
    */
   Object convert(Object source, Class<?> targetClass);
+
+  /**
+   * Convert source to target type
+   *
+   * @param source
+   *         source object
+   * @param targetClass
+   *         target class to be converted
+   *
+   * @return converted object or source object
+   */
+  Object convertIfNecessary(Object source, Class<?> targetClass);
 }

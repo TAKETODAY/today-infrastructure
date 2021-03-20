@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.context.conversion.ConversionService;
+import cn.taketoday.context.conversion.DefaultConversionService;
 import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.utils.ConvertUtils;
 
@@ -38,6 +40,8 @@ public class BeanPropertyAccessor {
 
   private final Object bean;
   private final BeanMetadata metadata;
+
+  private ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
   public BeanPropertyAccessor(Class<?> beanClass) {
     this.metadata = BeanMetadata.ofClass(beanClass);
@@ -78,8 +82,9 @@ public class BeanPropertyAccessor {
    *         (<tt>index &lt; 0 || index &gt;= size()</tt>)
    * @see #getProperty(String)
    */
+  @SuppressWarnings("unchecked")
   public <T> T getProperty(final String propertyPath, final Class<T> requiredType) {
-    return ConvertUtils.convert(requiredType, getProperty(propertyPath));
+    return (T) conversionService.convert(getProperty(propertyPath), requiredType);
   }
 
   /**
@@ -301,7 +306,7 @@ public class BeanPropertyAccessor {
    * @throws InvalidPropertyValueException
    *         Invalid property value
    */
-  public static void setProperty(final Object root, final String propertyPath, final Object value) {
+  public void setProperty(final Object root, final String propertyPath, final Object value) {
     setProperty(root, BeanMetadata.ofObject(root), propertyPath, value);
   }
 
@@ -322,7 +327,7 @@ public class BeanPropertyAccessor {
    * @throws InvalidPropertyValueException
    *         Invalid property value
    */
-  public static void setProperty(
+  public void setProperty(
           final Object root, final BeanMetadata metadata, final String propertyPath, final Object value) {
     final int index = getNestedPropertySeparatorIndex(propertyPath);
 
@@ -384,7 +389,7 @@ public class BeanPropertyAccessor {
     return metadata.obtainBeanProperty(property);
   }
 
-  static Object getComponentValue(Object root, String propertyPath, Object subValue, int signIndex, BeanProperty beanProperty) {
+  Object getComponentValue(Object root, String propertyPath, Object subValue, int signIndex, BeanProperty beanProperty) {
     final Object componentValue = beanProperty.newComponentInstance();
     final String key = getKey(propertyPath, signIndex);
     setKeyedProperty(root, beanProperty, subValue, key, componentValue, propertyPath);
@@ -412,7 +417,7 @@ public class BeanPropertyAccessor {
   }
 
   @SuppressWarnings("unchecked")
-  static void setKeyedProperty(
+  void setKeyedProperty(
           final Object root, final BeanProperty beanProperty, Object propValue,
           final String key, final Object value, final String propertyPath
   ) {
@@ -420,7 +425,7 @@ public class BeanPropertyAccessor {
       Object convertedValue = value;
       final Type valueType = beanProperty.getGeneric(0);
       if (valueType instanceof Class) {
-        convertedValue = ConvertUtils.convert(convertedValue, (Class<?>) valueType);
+        convertedValue = conversionService.convert(convertedValue, (Class<?>) valueType);
       }
 
       List<Object> list = (List<Object>) propValue;
@@ -454,11 +459,11 @@ public class BeanPropertyAccessor {
       Object convertedValue = value;
       final Type keyType = beanProperty.getGeneric(0);
       if (keyType instanceof Class) {
-        convertedKey = ConvertUtils.convert(convertedKey, (Class<?>) keyType);
+        convertedKey = conversionService.convert(convertedKey, (Class<?>) keyType);
       }
       final Type valueType = beanProperty.getGeneric(1);
       if (valueType instanceof Class) {
-        convertedValue = ConvertUtils.convert(convertedValue, (Class<?>) valueType);
+        convertedValue = conversionService.convert(convertedValue, (Class<?>) valueType);
       }
       ((Map) propValue).put(convertedKey, convertedValue);
     }
@@ -522,6 +527,13 @@ public class BeanPropertyAccessor {
     return metadata;
   }
 
+  public void setConversionService(ConversionService conversionService) {
+    this.conversionService = conversionService;
+  }
+
+  public ConversionService getConversionService() {
+    return conversionService;
+  }
   // static
 
   public static BeanPropertyAccessor ofObject(Object object) {
