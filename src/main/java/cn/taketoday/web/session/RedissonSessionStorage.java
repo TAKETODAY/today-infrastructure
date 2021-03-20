@@ -28,7 +28,8 @@ import cn.taketoday.web.Constant;
  * @author TODAY <br>
  *         2019-09-28 10:31
  */
-public class RedissonSessionStorage extends AbstractWebSessionStorage implements WebSessionStorage {
+public class RedissonSessionStorage
+        extends AbstractWebSessionStorage implements WebSessionStorage {
 
   private final String prefix;
   private final RMapCache<String, WebSession> sessions;

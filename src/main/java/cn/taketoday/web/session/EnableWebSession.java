@@ -22,7 +22,9 @@ package cn.taketoday.web.session;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.MissingBean;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
@@ -30,11 +32,39 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * @author TODAY <br>
- *         2019-10-03 00:30
+ * 2019-10-03 00:30
  */
 @Retention(RUNTIME)
 @Target({ TYPE, METHOD })
 @Import(WebSessionConfiguration.class)
 public @interface EnableWebSession {
+
+}
+
+class WebSessionConfiguration {
+
+  @MissingBean
+  @Import({ WebSessionParameterResolver.class,
+          WebSessionAttributeParameterResolver.class })
+  public DefaultWebSessionManager webSessionManager(
+          @Autowired(required = false) TokenResolver tokenResolver,
+          @Autowired(required = false) WebSessionStorage sessionStorage,
+          @Autowired(required = false) SessionCookieConfiguration cookieConfiguration
+  ) {
+
+    if (tokenResolver == null) {
+      if (cookieConfiguration == null) {
+        tokenResolver = new CookieTokenResolver();
+      }
+      else {
+        tokenResolver = new CookieTokenResolver(cookieConfiguration);
+      }
+    }
+
+    if (sessionStorage == null) {
+      sessionStorage = new MemWebSessionStorage();
+    }
+    return new DefaultWebSessionManager(tokenResolver, sessionStorage);
+  }
 
 }

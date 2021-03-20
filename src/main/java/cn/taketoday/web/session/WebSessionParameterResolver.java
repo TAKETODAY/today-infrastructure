@@ -43,7 +43,7 @@ public class WebSessionParameterResolver
   }
 
   @Override
-  public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+  public Object resolveParameter(RequestContext context, MethodParameter parameter) {
     return sessionManager.getSession(context);
   }
 

@@ -62,7 +62,6 @@ public class HeaderTokenResolver implements TokenResolver {
 
   @Override
   public String getToken(RequestContext context) {
-
     String token = context.requestHeader(getAuthorizationHeader());
 
     if (StringUtils.isEmpty(token)) { // has already set the header on the current request
@@ -73,9 +72,8 @@ public class HeaderTokenResolver implements TokenResolver {
 
   @Override
   public void saveToken(RequestContext context, WebSession session) {
-
     final String requiredAuthorizationHeader = getRequiredAuthorizationHeader();
-    context.responseHeader(requiredAuthorizationHeader, session.getId().toString());
+    context.responseHeader(requiredAuthorizationHeader, session.getId());
 
     if (isExposeHeaders()) {
       context.addResponseHeader(Constant.ACCESS_CONTROL_EXPOSE_HEADERS, requiredAuthorizationHeader);

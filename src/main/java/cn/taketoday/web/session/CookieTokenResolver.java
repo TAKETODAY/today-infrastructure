@@ -20,8 +20,8 @@
 package cn.taketoday.web.session;
 
 import java.net.HttpCookie;
-import java.util.Objects;
 
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 
@@ -31,9 +31,8 @@ import cn.taketoday.web.RequestContext;
  */
 public class CookieTokenResolver implements TokenResolver {
 
-  private HttpCookie sessionCookie;
-
   private final String cookieName;
+  private HttpCookie sessionCookie;
 
   public CookieTokenResolver() {
     this(Constant.AUTHORIZATION);
@@ -47,13 +46,19 @@ public class CookieTokenResolver implements TokenResolver {
   }
 
   public CookieTokenResolver(HttpCookie sessionCookie) {
+    Assert.notNull(sessionCookie, "sessionCookie must not be null");
     this.sessionCookie = sessionCookie;
-    this.cookieName = Objects.requireNonNull(sessionCookie.getName(), "'cookie name' could not be null");
+    this.cookieName = sessionCookie.getName();
+  }
+
+  public CookieTokenResolver(SessionCookieConfiguration config) {
+    Assert.notNull(config, "cookieConfiguration must not be null");
+    setSessionCookie(config.toHttpCookie());
+    this.cookieName = sessionCookie.getName();
   }
 
   @Override
   public String getToken(RequestContext context) {
-
     final HttpCookie cookie = context.cookie(cookieName);
     if (cookie == null) {
       return null;
@@ -65,7 +70,7 @@ public class CookieTokenResolver implements TokenResolver {
   public void saveToken(RequestContext context, WebSession session) {
 
     final HttpCookie cookie = (HttpCookie) getSessionCookie().clone();
-    cookie.setValue(session.getId().toString());
+    cookie.setValue(session.getId());
     context.addCookie(cookie);
   }
 

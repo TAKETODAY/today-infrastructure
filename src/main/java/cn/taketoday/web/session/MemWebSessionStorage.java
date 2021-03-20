@@ -26,7 +26,8 @@ import java.util.Map;
  * @author TODAY <br>
  *         2019-09-28 10:31
  */
-public class MemWebSessionStorage extends AbstractWebSessionStorage implements WebSessionStorage {
+public class MemWebSessionStorage
+        extends AbstractWebSessionStorage implements WebSessionStorage {
 
   private final Map<String, WebSession> sessions;
 
