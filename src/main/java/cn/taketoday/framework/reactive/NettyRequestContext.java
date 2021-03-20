@@ -522,7 +522,7 @@ public class NettyRequestContext
   }
 
   @Override
-  public RequestContext sendError(int sc) throws IOException {
+  public RequestContext sendError(int sc) {
     assertNotCommitted();
 
     final FullHttpResponse response = getResponse();
@@ -534,7 +534,7 @@ public class NettyRequestContext
   }
 
   @Override
-  public RequestContext sendError(int sc, String msg) throws IOException {
+  public RequestContext sendError(int sc, String msg) {
     assertNotCommitted();
 
     final FullHttpResponse response = getResponse();
@@ -609,8 +609,7 @@ public class NettyRequestContext
   }
 
   @Override
-  protected Map<String, List<MultipartFile>> parseMultipartFiles() throws IOException {
-
+  protected Map<String, List<MultipartFile>> parseMultipartFiles() {
     final HashMap<String, List<MultipartFile>> multipartFiles = new HashMap<>();
 
     for (InterfaceHttpData data : getRequestDecoder().getBodyHttpDatas()) {
