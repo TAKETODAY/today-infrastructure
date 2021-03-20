@@ -23,6 +23,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import cn.taketoday.context.ApplicationContext.State;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
@@ -244,7 +245,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   public void handleException(final Object handler,
                               final Throwable exception,
                               final RequestContext context) throws Throwable {
-    final Object view = obtainExceptionHandler()
+    final Object view = getExceptionHandler()
             .handleException(context, unwrapThrowable(exception), handler);
     if (view != HandlerAdapter.NONE_RETURN_VALUE) {
       for (final RuntimeResultHandler resultHandler : resultHandlers) {
@@ -301,27 +302,27 @@ public class DispatcherHandler extends WebApplicationContextSupport {
     return handlerRegistry;
   }
 
-  public HandlerExceptionHandler obtainExceptionHandler() {
-    return nonNull(getExceptionHandler(), "You must provide an 'ExceptionHandler'");
-  }
-
   public HandlerExceptionHandler getExceptionHandler() {
     return exceptionHandler;
   }
 
   public void setHandlerRegistry(HandlerRegistry handlerRegistry) {
+    Assert.notNull(resultHandlers, "HandlerRegistry must not be null");
     this.handlerRegistry = nonNull(handlerRegistry, "handler registry must not be null");
   }
 
   public void setHandlerAdapters(HandlerAdapter... handlerAdapters) {
-    this.handlerAdapters = nonNull(handlerAdapters, "request handlers must not be null");
+    Assert.notNull(handlerAdapters, "handlerAdapters must not be null");
+    this.handlerAdapters = handlerAdapters;
   }
 
   public void setExceptionHandler(HandlerExceptionHandler exceptionHandler) {
-    this.exceptionHandler = nonNull(exceptionHandler, "ExceptionHandler must not be null");
+    Assert.notNull(exceptionHandler, "exceptionHandler must not be null");
+    this.exceptionHandler = exceptionHandler;
   }
 
   public void setResultHandlers(RuntimeResultHandler... resultHandlers) {
-    this.resultHandlers = nonNull(resultHandlers, "result handlers must not be null");
+    Assert.notNull(resultHandlers, "resultHandlers must not be null");
+    this.resultHandlers = resultHandlers;
   }
 }
