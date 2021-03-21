@@ -473,16 +473,16 @@ public class WebApplicationLoader
 
   /**
    * configure {@link Validator}s
+   *
    * @since 3.0
    */
   protected void configureValidators(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
     final CompositeValidator compositeValidator = context.getBean(CompositeValidator.class);
-
-    // context Validator beans
-    final List<Validator> validators = context.getBeans(Validator.class);
-    compositeValidator.addValidators(validators);
-    // user Manual config
-    mvcConfiguration.configureValidators(compositeValidator);
+    if (compositeValidator != null) {
+      log.info("Enable Bean Validation");
+      // user Manual config
+      mvcConfiguration.configureValidators(compositeValidator);
+    }
   }
 
   //
