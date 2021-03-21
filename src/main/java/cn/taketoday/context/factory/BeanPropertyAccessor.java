@@ -31,6 +31,7 @@ import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.DefaultConversionService;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.exception.NoSuchPropertyException;
+import cn.taketoday.context.utils.Assert;
 
 /**
  * @author TODAY 2021/1/27 22:35
@@ -38,7 +39,7 @@ import cn.taketoday.context.exception.NoSuchPropertyException;
  */
 public class BeanPropertyAccessor {
 
-  private Object bean;
+  private Object rootObject;
   private BeanMetadata metadata;
 
   private ConversionService conversionService = DefaultConversionService.getSharedInstance();
@@ -47,16 +48,16 @@ public class BeanPropertyAccessor {
 
   public BeanPropertyAccessor(Class<?> beanClass) {
     this.metadata = BeanMetadata.ofClass(beanClass);
-    this.bean = metadata.newInstance();
+    this.rootObject = metadata.newInstance();
   }
 
-  public BeanPropertyAccessor(Object object) {
-    this(BeanMetadata.ofClass(object.getClass()), object);
+  public BeanPropertyAccessor(Object rootObject) {
+    this(BeanMetadata.ofClass(rootObject.getClass()), rootObject);
   }
 
-  public BeanPropertyAccessor(BeanMetadata metadata, Object object) {
-    this.bean = object;
+  public BeanPropertyAccessor(BeanMetadata metadata, Object rootObject) {
     this.metadata = metadata;
+    this.rootObject = rootObject;
   }
 
   // get
@@ -111,7 +112,7 @@ public class BeanPropertyAccessor {
    *         if the index is out of list range (<tt>index &lt; 0 || index &gt;= size()</tt>)
    */
   public Object getProperty(final String propertyPath) {
-    return getProperty(bean, getMetadata(), propertyPath);
+    return getProperty(getRootObject(), obtainMetadata(), propertyPath);
   }
 
   /**
@@ -292,7 +293,7 @@ public class BeanPropertyAccessor {
    *         Invalid property value
    */
   public void setProperty(final String propertyPath, final Object value) {
-    setProperty(bean, getMetadata(), propertyPath, value);
+    setProperty(getRootObject(), obtainMetadata(), propertyPath, value);
   }
 
   /**
@@ -506,15 +507,19 @@ public class BeanPropertyAccessor {
    * @throws InvalidPropertyValueException
    *         conversion failed
    */
-  protected Object convertIfNecessary(final Object value,
-                                      final BeanProperty beanProperty) {
+  protected Object convertIfNecessary(final Object value, final BeanProperty beanProperty) {
     return convertIfNecessary(value, beanProperty.getType());
   }
 
-  protected Object convertIfNecessary(final Object value,
-                                      final Class<?> requiredType,
-                                      final BeanProperty beanProperty) {
-    return convertIfNecessary(value, requiredType);
+  protected Object convertIfNecessary(final Object value, final Class<?> requiredType, final BeanProperty beanProperty) {
+    if (requiredType.isInstance(value)) {
+      return value;
+    }
+    return doConvertInternal(value, requiredType, beanProperty);
+  }
+
+  protected Object doConvertInternal(Object value, Class<?> requiredType, final BeanProperty beanProperty) {
+    return doConvertInternal(value, requiredType);
   }
 
   /**
@@ -525,6 +530,10 @@ public class BeanPropertyAccessor {
     if (requiredType.isInstance(value)) {
       return value;
     }
+    return doConvertInternal(value, requiredType);
+  }
+
+  protected Object doConvertInternal(Object value, Class<?> requiredType) {
     final TypeConverter typeConverter = conversionService.getConverter(value, requiredType);
     if (typeConverter == null) {
       throw new InvalidPropertyValueException(
@@ -560,19 +569,28 @@ public class BeanPropertyAccessor {
 
   //
 
-  public void setBean(Object bean) {
-    this.bean = bean;
+  public void setRootObject(Object rootObject) {
+    this.rootObject = rootObject;
   }
 
   public void setMetadata(BeanMetadata metadata) {
     this.metadata = metadata;
   }
 
-  public Object getBean() {
-    return this.bean;
+  public Object getRootObject() {
+    if (rootObject == null) {
+      setRootObject(obtainMetadata().newInstance());
+    }
+    return rootObject;
   }
 
   public BeanMetadata getMetadata() {
+    return metadata;
+  }
+
+  public BeanMetadata obtainMetadata() {
+    final BeanMetadata metadata = getMetadata();
+    Assert.state(metadata != null, "No BeanMetadata.");
     return metadata;
   }
 
