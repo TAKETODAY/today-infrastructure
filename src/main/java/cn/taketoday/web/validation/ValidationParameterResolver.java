@@ -45,8 +45,10 @@ public class ValidationParameterResolver
         extends OrderedSupport implements ParameterResolver {
 
   private final Validator validator;
-  private final Map<MethodParameter, ParameterResolver> resolvers = new HashMap<>();
+  private final Map<MethodParameter, ParameterResolver> resolverMap = new HashMap<>();
   private static final Class<? extends Annotation> VALID_CLASS = ClassUtils.loadClass("javax.validation.Valid");
+
+  private ParameterResolvers resolvers;
 
   @Autowired
   public ValidationParameterResolver(Validator validator) {
@@ -62,9 +64,9 @@ public class ValidationParameterResolver
   public boolean supports(MethodParameter parameter) {
 
     if (parameter.isAnnotationPresent(VALID_CLASS)) {
-      for (final ParameterResolver parameterResolver : ParameterResolvers.getResolvers()) {
-        if (parameterResolver != this && parameterResolver.supports(parameter)) {
-          resolvers.put(parameter, parameterResolver);
+      for (final ParameterResolver resolver : resolvers.getResolvers()) {
+        if (resolver != this && resolver.supports(parameter)) {
+          resolverMap.put(parameter, resolver);
           return true;
         }
       }
@@ -105,7 +107,7 @@ public class ValidationParameterResolver
   }
 
   protected ParameterResolver getResolver(final MethodParameter parameter) {
-    return resolvers.get(parameter);
+    return resolverMap.get(parameter);
   }
 
   protected ParameterResolver obtainResolver(final MethodParameter parameter) {
@@ -114,4 +116,12 @@ public class ValidationParameterResolver
     return resolver;
   }
 
+  @Autowired
+  public void setResolvers(ParameterResolvers resolvers) {
+    this.resolvers = resolvers;
+  }
+
+  public ParameterResolvers getResolvers() {
+    return resolvers;
+  }
 }

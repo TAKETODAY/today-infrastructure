@@ -443,7 +443,9 @@ public class WebApplicationLoader
     // post
     postConfigureParameterResolver(resolvers, mvcConfiguration);
 
-    ParameterResolvers.addResolver(resolvers);
+    final ParameterResolvers parameterResolvers = obtainApplicationContext().getBean(ParameterResolvers.class);
+
+    parameterResolvers.addResolver(resolvers);
   }
 
   protected void postConfigureParameterResolver(final List<ParameterResolver> resolvers,

@@ -78,13 +78,7 @@ public class HandlerMethod
     if (method != null) {
       this.returnType = method.getReturnType();
       this.handlerInvoker = MethodInvoker.create(method);
-      this.parameters = ParameterResolverMethodParameter.ofMethod(method);
       setOrder(OrderUtils.getOrder(method) + OrderUtils.getOrder(bean));
-      if (ObjectUtils.isNotEmpty(parameters)) {
-        for (MethodParameter parameter : parameters) {
-          parameter.setHandlerMethod(this);
-        }
-      }
     }
 
     setResponseStatus(WebUtils.getResponseStatus(this));

@@ -23,43 +23,41 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.handler.MethodParameter;
 
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
-
 /**
- * @author TODAY <br>
- * 2019-07-07 23:24
+ * @author TODAY 2019-07-07 23:24
  */
-public abstract class ParameterResolvers {
+@MissingBean
+public class ParameterResolvers {
 
-  private static final LinkedList<ParameterResolver> PARAMETER_RESOLVERS = new LinkedList<>();
+  private final LinkedList<ParameterResolver> resolvers = new LinkedList<>();
 
-  public static void addResolver(ParameterResolver... resolver) {
-
-    Collections.addAll(PARAMETER_RESOLVERS, resolver);
-    OrderUtils.reversedSort(PARAMETER_RESOLVERS);
+  public void addResolver(ParameterResolver... resolver) {
+    Collections.addAll(resolvers, resolver);
+    OrderUtils.reversedSort(resolvers);
   }
 
-  public static void addResolver(List<ParameterResolver> resolvers) {
-
-    PARAMETER_RESOLVERS.addAll(resolvers);
-    OrderUtils.reversedSort(PARAMETER_RESOLVERS);
+  public void addResolver(List<ParameterResolver> resolvers) {
+    this.resolvers.addAll(resolvers);
+    OrderUtils.reversedSort(this.resolvers);
   }
 
-  public static void setResolver(List<ParameterResolver> resolver) {
-    PARAMETER_RESOLVERS.clear();
-    PARAMETER_RESOLVERS.addAll(resolver);
-    OrderUtils.reversedSort(PARAMETER_RESOLVERS);
+  public void setResolver(List<ParameterResolver> resolver) {
+    resolvers.clear();
+    resolvers.addAll(resolver);
+    OrderUtils.reversedSort(resolvers);
   }
 
-  public static List<ParameterResolver> getResolvers() {
-    return PARAMETER_RESOLVERS;
+  public List<ParameterResolver> getResolvers() {
+    return resolvers;
   }
 
-  public static ParameterResolver getResolver(final MethodParameter parameter) {
+  public ParameterResolver getResolver(final MethodParameter parameter) {
     for (final ParameterResolver resolver : getResolvers()) {
       if (resolver.supports(parameter)) {
         return resolver;
@@ -74,11 +72,12 @@ public abstract class ParameterResolvers {
    *
    * @return A suitable {@link ParameterResolver}
    */
-  public static ParameterResolver obtainResolver(final MethodParameter parameter) {
-    return nonNull(getResolver(parameter),
-                   () -> "There isn't have a parameter resolver to resolve parameter: [" //
-                           + parameter.getParameterClass() + "] called: [" + parameter.getName() + "]");
-
+  public ParameterResolver obtainResolver(final MethodParameter parameter) {
+    final ParameterResolver resolver = getResolver(parameter);
+    Assert.state(resolver != null,
+                 () -> "There isn't have a parameter resolver to resolve parameter: ["
+                         + parameter.getParameterClass() + "] called: [" + parameter.getName() + "]");
+    return resolver;
   }
 
 }

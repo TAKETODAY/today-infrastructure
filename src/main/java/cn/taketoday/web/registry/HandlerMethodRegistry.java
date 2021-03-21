@@ -20,6 +20,7 @@
 package cn.taketoday.web.registry;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -56,8 +57,10 @@ import cn.taketoday.web.annotation.RootController;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.ParameterResolverMethodParameter;
 import cn.taketoday.web.handler.PathVariableMethodParameter;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
+import cn.taketoday.web.resolver.ParameterResolvers;
 
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributes;
@@ -79,6 +82,9 @@ public class HandlerMethodRegistry
   private Properties variables;
   private AbstractBeanFactory beanFactory;
   private BeanDefinitionLoader beanDefinitionLoader;
+
+  // @since 3.0
+  private ParameterResolvers parameterResolvers;
 
   public HandlerMethodRegistry() {
     setOrder(HIGHEST_PRECEDENCE);
@@ -108,6 +114,7 @@ public class HandlerMethodRegistry
 
     final Environment environment = context.getEnvironment();
     this.variables = environment.getProperties();
+    this.parameterResolvers = context.getBean(ParameterResolvers.class);
     this.beanDefinitionLoader = environment.getBeanDefinitionLoader();
 
     super.initApplicationContext(context);
@@ -188,16 +195,47 @@ public class HandlerMethodRegistry
                                     final Set<String> namespaces,
                                     final Set<RequestMethod> methodsOnClass) //
   {
-    final AnnotationAttributes[] annotationAttributes = // find mapping on method
+    final AnnotationAttributes[] actionMapping = // find mapping on method
             ClassUtils.getAnnotationAttributesArray(method, ActionMapping.class);
 
-    if (ObjectUtils.isNotEmpty(annotationAttributes)) {
+    if (ObjectUtils.isNotEmpty(actionMapping)) {
+      // build HandlerMethod
+      final HandlerMethod handler = createHandlerMethod(beanClass, method);
+      final MethodParameter[] parameters = getMethodParameters(handler);
+      handler.setParameters(parameters);
+
+      if (ObjectUtils.isNotEmpty(parameters)) {
+        for (MethodParameter parameter : parameters) {
+          parameter.setHandlerMethod(handler);
+        }
+      }
+
       // do mapping url
-      mappingHandlerMethod(createHandlerMethod(beanClass, method), // create HandlerMethod
+      mappingHandlerMethod(handler,
                            namespaces,
                            methodsOnClass,
-                           annotationAttributes);
+                           actionMapping);
     }
+  }
+
+  protected MethodParameter[] getMethodParameters(HandlerMethod handler) {
+    final Method method = handler.getMethod();
+    final int length = method.getParameterCount();
+    if (length == 0) {
+      return null;
+    }
+
+    final MethodParameter[] ret = new MethodParameter[length];
+    final String[] methodArgsNames = ClassUtils.getMethodArgsNames(method);
+    final Parameter[] parameters = method.getParameters();
+    for (int i = 0; i < length; i++) {
+      ret[i] = createMethodParameter(methodArgsNames[i], parameters[i], i);
+    }
+    return ret;
+  }
+
+  protected ParameterResolverMethodParameter createMethodParameter(String methodArgsName, Parameter parameter, int index) {
+    return new ParameterResolverMethodParameter(index, parameter, methodArgsName, parameterResolvers);
   }
 
   /**
@@ -259,8 +297,12 @@ public class HandlerMethodRegistry
    */
   protected void mappingHandlerMethod(String path, RequestMethod requestMethod, HandlerMethod handlerMethod) {
     // GET/blog/users/1 GET/blog/#{key}/1
-    final String pathPattern = getContextPath().concat(resolveValue(path, String.class, variables));
+    final String pathPattern = getContextPath().concat(resolveVariable(path));
     registerHandler(requestMethod, pathPattern, transformHandlerMethod(pathPattern, handlerMethod));
+  }
+
+  protected String resolveVariable(String path) {
+    return resolveValue(path, String.class, variables);
   }
 
   public void registerHandler(RequestMethod method, String pathPattern, Object handler) {
@@ -272,18 +314,18 @@ public class HandlerMethodRegistry
    *
    * @param pathPattern
    *         path pattern
-   * @param handlerMethod
+   * @param handler
    *         Target {@link HandlerMethod}
    *
    * @return Transformed {@link HandlerMethod}
    */
-  protected HandlerMethod transformHandlerMethod(final String pathPattern, final HandlerMethod handlerMethod) {
+  protected HandlerMethod transformHandlerMethod(final String pathPattern, final HandlerMethod handler) {
     if (containsPathVariable(pathPattern)) {
-      final HandlerMethod transformed = new HandlerMethod(handlerMethod);
+      final HandlerMethod transformed = new HandlerMethod(handler);
       mappingPathVariable(pathPattern, transformed);
       return transformed;
     }
-    return handlerMethod;
+    return handler;
   }
 
   /**
@@ -318,7 +360,8 @@ public class HandlerMethodRegistry
       final MethodParameter parameter = parameterMapping.get(variable);
       if (parameter == null) {
         throw new ConfigurationException(
-                "There isn't a variable named: [" + variable + "] in the parameter list at method: [" + handler.getMethod() + "]");
+                "There isn't a variable named: [" + variable +
+                        "] in the parameter list at method: [" + handler.getMethod() + "]");
       }
       methodParameters[parameters.indexOf(parameter)] = //
               new PathVariableMethodParameter(i++, pathPattern, handler, parameter, pathMatcher);

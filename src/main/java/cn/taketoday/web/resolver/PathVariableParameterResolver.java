@@ -71,7 +71,7 @@ public class PathVariableParameterResolver
         final String[] extractVariables = getPathMatcher().extractVariables(parameter.getPathPattern(), requestURI);
         pathVariables = request.pathVariables(extractVariables);
       }
-      return convert(pathVariables[parameter.getPathIndex()], parameter.getParameterClass());
+      return convert(pathVariables[parameter.getVariableIndex()], parameter.getParameterClass());
     }
     catch (Throwable e) {
       throw new MissingParameterException("Path variable", p);

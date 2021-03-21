@@ -19,13 +19,13 @@
  */
 package cn.taketoday.web.handler;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Objects;
 
 import cn.taketoday.context.AnnotationAttributes;
+import cn.taketoday.context.AnnotationSupport;
 import cn.taketoday.context.AttributeAccessorSupport;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
@@ -42,7 +42,7 @@ import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributes;
  * @version 2.3.7 <br>
  */
 public class MethodParameter
-        extends AttributeAccessorSupport implements AnnotatedElement {
+        extends AttributeAccessorSupport implements AnnotationSupport {
 
   private final int parameterIndex;
   private final Class<?> parameterClass;
@@ -138,41 +138,11 @@ public class MethodParameter
     return false;
   }
 
-  @Override
-  public boolean isAnnotationPresent(final Class<? extends Annotation> annotationClass) {
-    return ClassUtils.isAnnotationPresent(parameter, annotationClass);
-  }
-
-  @Override
-  public <A extends Annotation> A getAnnotation(final Class<A> annotationClass) {
-    return ClassUtils.getAnnotation(annotationClass, parameter);
-  }
-
   // AnnotatedElement @since 3.0
 
   @Override
-  public Annotation[] getAnnotations() {
-    return parameter.getAnnotations();
-  }
-
-  @Override
-  public Annotation[] getDeclaredAnnotations() {
-    return parameter.getDeclaredAnnotations();
-  }
-
-  @Override
-  public <T extends Annotation> T getDeclaredAnnotation(Class<T> annotationClass) {
-    return parameter.getDeclaredAnnotation(annotationClass);
-  }
-
-  @Override
-  public <T extends Annotation> T[] getAnnotationsByType(Class<T> annotationClass) {
-    return parameter.getAnnotationsByType(annotationClass);
-  }
-
-  @Override
-  public <T extends Annotation> T[] getDeclaredAnnotationsByType(Class<T> annotationClass) {
-    return parameter.getDeclaredAnnotationsByType(annotationClass);
+  public AnnotatedElement getAnnotationSource() {
+    return parameter;
   }
 
   // ----- resolver

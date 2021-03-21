@@ -19,10 +19,8 @@
  */
 package cn.taketoday.web.handler;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolvers;
@@ -32,15 +30,19 @@ import cn.taketoday.web.resolver.ParameterResolvers;
  * @since 3.0
  */
 public class ParameterResolverMethodParameter extends MethodParameter {
+  private final ParameterResolver resolver;
 
-  private final ParameterResolver resolver = ParameterResolvers.obtainResolver(this);
-
-  public ParameterResolverMethodParameter(HandlerMethod handler, MethodParameter other) {
+  public ParameterResolverMethodParameter(
+          HandlerMethod handler, MethodParameter other, ParameterResolvers resolvers) {
     super(handler, other);
+    this.resolver = resolvers.getResolver(this);
   }
 
-  public ParameterResolverMethodParameter(int index, Parameter parameter, String parameterName) {
+  public ParameterResolverMethodParameter(
+          int index, Parameter parameter, String parameterName,ParameterResolvers resolvers) {
     super(index, parameter, parameterName);
+
+    this.resolver = resolvers.getResolver(this);
   }
 
   @Override
@@ -50,24 +52,6 @@ public class ParameterResolverMethodParameter extends MethodParameter {
 
   public ParameterResolver getResolver() {
     return resolver;
-  }
-
-  // static
-  // --------------------------------------
-
-  public static MethodParameter[] ofMethod(Method method) {
-    final int length = method.getParameterCount();
-    if (length == 0) {
-      return null;
-    }
-
-    final MethodParameter[] ret = new MethodParameter[length];
-    final String[] methodArgsNames = ClassUtils.getMethodArgsNames(method);
-    final Parameter[] parameters = method.getParameters();
-    for (int i = 0; i < length; i++) {
-      ret[i] = new ParameterResolverMethodParameter(i, parameters[i], methodArgsNames[i]);
-    }
-    return ret;
   }
 
 }
