@@ -499,6 +499,9 @@ public class BeanPropertyAccessor {
   }
 
   /**
+   * @param beanProperty
+   *         property metadata
+   *
    * @throws InvalidPropertyValueException
    *         conversion failed
    */
@@ -512,7 +515,7 @@ public class BeanPropertyAccessor {
    * @throws InvalidPropertyValueException
    *         conversion failed
    */
-  final Object convertIfNecessary(final Object value, final Class<?> requiredType) {
+  protected Object convertIfNecessary(final Object value, final Class<?> requiredType) {
     if (requiredType.isInstance(value)) {
       return value;
     }
