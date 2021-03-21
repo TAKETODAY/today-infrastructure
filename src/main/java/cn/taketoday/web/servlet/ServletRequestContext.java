@@ -54,6 +54,7 @@ import cn.taketoday.web.exception.WebNestedRuntimeException;
 import cn.taketoday.web.multipart.DefaultMultipartFile;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.resolver.MultipartFileParsingException;
+import cn.taketoday.web.resolver.NotMultipartRequestException;
 import cn.taketoday.web.ui.RedirectModel;
 
 /**
@@ -598,7 +599,7 @@ public class ServletRequestContext
       throw new MultipartFileParsingException("MultipartFile parsing failed.", e);
     }
     catch (ServletException e) {
-      throw new MultipartFileParsingException("This is not a multipart request", e);
+      throw new NotMultipartRequestException("This is not a multipart request", e);
     }
   }
 
