@@ -7,3 +7,4 @@ cn.taketoday.web.validation.ValidationParameterResolver
 cn.taketoday.web.handler.NotFoundRequestAdapter
 cn.taketoday.web.registry.HandlerMethodRegistry
 cn.taketoday.web.resolver.ParameterResolvers
+cn.taketoday.web.resolver.DataBinderParameterResolver

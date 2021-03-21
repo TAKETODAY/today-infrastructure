@@ -19,20 +19,13 @@
  */
 package cn.taketoday.web.resolver;
 
-import java.util.Map;
-import java.util.Set;
-
 import cn.taketoday.context.OrderedSupport;
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.DefaultConversionService;
-import cn.taketoday.context.exception.NoSuchPropertyException;
-import cn.taketoday.context.factory.BeanMetadata;
-import cn.taketoday.context.factory.BeanPropertyAccessor;
-import cn.taketoday.context.factory.InvalidPropertyValueException;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebDataBinder;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**
@@ -41,17 +34,25 @@ import cn.taketoday.web.handler.MethodParameter;
  * @author TODAY <br>
  * 2019-07-13 01:11
  */
-public class BeanParameterResolver
+@MissingBean(type = DataBinderParameterResolver.class)
+public class DataBinderParameterResolver
         extends OrderedSupport implements ParameterResolver {
 
-  private ConversionService conversionService = new DefaultConversionService();
+  private ConversionService conversionService;
 
-  public BeanParameterResolver() {
+  public DataBinderParameterResolver() {
     this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 100);
   }
 
-  public BeanParameterResolver(final int order) {
+  public DataBinderParameterResolver(final int order) {
     super(order);
+    DefaultConversionService conversionService = new DefaultConversionService();
+    DefaultConversionService.registerDefaultConverters(conversionService);
+    this.conversionService = conversionService;
+  }
+
+  public DataBinderParameterResolver(ConversionService conversionService) {
+    this.conversionService = conversionService;
   }
 
   @Override
@@ -65,35 +66,16 @@ public class BeanParameterResolver
   @Override
   public Object resolveParameter(final RequestContext context, final MethodParameter parameter) {
     final Class<?> parameterClass = parameter.getParameterClass();
-
-    BeanMetadata metadata = BeanMetadata.ofClass(parameterClass);
-    final Object bean = metadata.newInstance(); // native-invoke constructor
-    final BeanPropertyAccessor propertyAccessor = new BeanPropertyAccessor(metadata, bean);
-    propertyAccessor.setConversionService(conversionService);
-
-    final Map<String, String[]> parameters = context.parameters();
-    if (parameters != null) {
-      final Set<Map.Entry<String, String[]>> entries = parameters.entrySet();
-      if (!CollectionUtils.isEmpty(entries)) {
-        // 遍历参数
-        for (final Map.Entry<String, String[]> entry : entries) {
-          final String[] value = entry.getValue();
-          if (ObjectUtils.isNotEmpty(value)) {
-            Object property = value[0];
-            final String propertyPath = entry.getKey();
-            try {
-              propertyAccessor.setProperty(bean, metadata, propertyPath, property);
-            }
-            catch (NoSuchPropertyException ignored) { }
-            catch (InvalidPropertyValueException e) {
-              throw new MethodParameterException(parameter, e);
-            }
-          }
-        }
-      }
-    }
-
-    return bean;
+    final WebDataBinder dataBinder = new WebDataBinder(parameterClass);
+    dataBinder.setConversionService(conversionService);
+    return dataBinder.bind(context);
   }
 
+  public void setConversionService(ConversionService conversionService) {
+    this.conversionService = conversionService;
+  }
+
+  public ConversionService getConversionService() {
+    return conversionService;
+  }
 }

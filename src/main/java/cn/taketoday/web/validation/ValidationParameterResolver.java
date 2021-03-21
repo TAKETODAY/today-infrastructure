@@ -74,7 +74,7 @@ public class ValidationParameterResolver
   public boolean supports(MethodParameter parameter) {
 
     if (parameter.isAnnotationPresent(VALID_CLASS)) {
-      for (final ParameterResolver resolver : resolvers.getResolvers()) {
+      for (final ParameterResolver resolver : obtainResolvers().getResolvers()) {
         if (resolver != this && resolver.supports(parameter)) {
           resolverMap.put(parameter, resolver);
           return true;
@@ -132,5 +132,11 @@ public class ValidationParameterResolver
 
   public ParameterResolvers getResolvers() {
     return resolvers;
+  }
+
+  protected ParameterResolvers obtainResolvers() {
+    final ParameterResolvers ret = getResolvers();
+    Assert.state(ret != null, "No ParameterResolvers.");
+    return ret;
   }
 }

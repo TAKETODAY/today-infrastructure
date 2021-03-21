@@ -59,7 +59,6 @@ import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resolver.ArrayParameterResolver;
-import cn.taketoday.web.resolver.BeanParameterResolver;
 import cn.taketoday.web.resolver.CollectionParameterResolver;
 import cn.taketoday.web.resolver.CookieParameterResolver;
 import cn.taketoday.web.resolver.HeaderParameterResolver;
@@ -424,7 +423,7 @@ public class WebApplicationLoader
     resolvers.add(new ThrowableHandlerParameterResolver());
 
     resolvers.add(new CollectionParameterResolver());
-    resolvers.add(new BeanParameterResolver());
+    //resolvers.add(new DataBinderParameterResolver());
 
     // Date API support
     resolvers.add(new DateParameterResolver());

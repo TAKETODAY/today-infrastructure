@@ -122,7 +122,7 @@ public class BeanParameterResolverTests extends TestCase {
   public void testSimpleResolveParameter() throws Throwable {
     final UserForm today = new UserForm().setAge(20).setName("TODAY");
 
-    final BeanParameterResolver resolver = new BeanParameterResolver();
+    final DataBinderParameterResolver resolver = new DataBinderParameterResolver();
 
     final Map<String, Object> map = BeanMap.create(today);
     final Map<String, String[]> params = map.entrySet().stream()
@@ -176,7 +176,7 @@ public class BeanParameterResolverTests extends TestCase {
 
   public void testResolveParameter() {
     final UserForm today = new UserForm().setAge(20).setName("TODAY");
-    final BeanParameterResolver resolver = new BeanParameterResolver();
+    final DataBinderParameterResolver resolver = new DataBinderParameterResolver();
     final ParameterMockRequestContext context = new ParameterMockRequestContext(params);
 
     // new version
