@@ -63,6 +63,11 @@ public class CompositeValidator {
     Collections.addAll(this.validators, validators);
   }
 
+  public void addValidators(List<Validator> validators) {
+    Assert.notNull(validators, "validator must not be null");
+    this.validators.addAll(validators);
+  }
+
   public List<Validator> getValidators() {
     return validators;
   }

@@ -31,12 +31,13 @@ import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resolver.ParameterResolver;
+import cn.taketoday.web.validation.CompositeValidator;
 import cn.taketoday.web.view.ResultHandler;
 import cn.taketoday.web.view.template.AbstractTemplateViewResolver;
 
 /**
  * @author TODAY <br>
- *         2019-05-17 17:46
+ * 2019-05-17 17:46
  */
 public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
 
@@ -135,6 +136,13 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   public void configureExceptionHandlers(final List<HandlerExceptionHandler> handlers) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
       webMvcConfiguration.configureExceptionHandlers(handlers);
+    }
+  }
+
+  @Override
+  public void configureValidators(CompositeValidator validator) {
+    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+      webMvcConfiguration.configureValidators(validator);
     }
   }
 

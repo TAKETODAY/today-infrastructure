@@ -73,6 +73,8 @@ import cn.taketoday.web.resolver.date.DateParameterResolver;
 import cn.taketoday.web.resolver.date.LocalDateParameterResolver;
 import cn.taketoday.web.resolver.date.LocalDateTimeParameterResolver;
 import cn.taketoday.web.resolver.date.LocalTimeParameterResolver;
+import cn.taketoday.web.validation.CompositeValidator;
+import cn.taketoday.web.validation.Validator;
 import cn.taketoday.web.view.HttpStatusResultHandler;
 import cn.taketoday.web.view.ImageResultHandler;
 import cn.taketoday.web.view.MessageConverter;
@@ -123,6 +125,8 @@ public class WebApplicationLoader
 
     configureViewControllerHandler(context, mvcConfiguration);
     configureHandlerRegistry(context.getBeans(HandlerRegistry.class), mvcConfiguration);//fix
+    // @since 3.0
+    configureValidators(context, mvcConfiguration);
 
     // check all Components
     checkFrameWorkComponents(context);
@@ -466,6 +470,22 @@ public class WebApplicationLoader
       mvcConfiguration.configureResourceHandler(registry);
     }
   }
+
+  /**
+   * configure {@link Validator}s
+   * @since 3.0
+   */
+  protected void configureValidators(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
+    final CompositeValidator compositeValidator = context.getBean(CompositeValidator.class);
+
+    // context Validator beans
+    final List<Validator> validators = context.getBeans(Validator.class);
+    compositeValidator.addValidators(validators);
+    // user Manual config
+    mvcConfiguration.configureValidators(compositeValidator);
+  }
+
+  //
 
   /**
    * Invoke all {@link WebApplicationInitializer}s
