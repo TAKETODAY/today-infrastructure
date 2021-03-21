@@ -27,44 +27,44 @@ import java.lang.reflect.AnnotatedElement;
  * @author TODAY 2021/3/20 22:59
  * @since 3.0
  */
-public abstract class AbstractDelegatingAnnotatedElement implements AnnotatedElement {
+public interface AnnotationSupport extends AnnotatedElement {
 
-  protected abstract AnnotatedElement getAnnotationSource();
+  AnnotatedElement getAnnotationSource();
 
   @Override
-  public boolean isAnnotationPresent(final Class<? extends Annotation> annotationClass) {
+  default boolean isAnnotationPresent(final Class<? extends Annotation> annotationClass) {
     return ClassUtils.isAnnotationPresent(getAnnotationSource(), annotationClass);
   }
 
   @Override
-  public <A extends Annotation> A getAnnotation(final Class<A> annotationClass) {
+  default <A extends Annotation> A getAnnotation(final Class<A> annotationClass) {
     return ClassUtils.getAnnotation(annotationClass, getAnnotationSource());
   }
 
   // AnnotatedElement @since 3.0
 
   @Override
-  public Annotation[] getAnnotations() {
+  default Annotation[] getAnnotations() {
     return getAnnotationSource().getAnnotations();
   }
 
   @Override
-  public Annotation[] getDeclaredAnnotations() {
+  default Annotation[] getDeclaredAnnotations() {
     return getAnnotationSource().getDeclaredAnnotations();
   }
 
   @Override
-  public <T extends Annotation> T getDeclaredAnnotation(Class<T> annotationClass) {
+  default <T extends Annotation> T getDeclaredAnnotation(Class<T> annotationClass) {
     return getAnnotationSource().getDeclaredAnnotation(annotationClass);
   }
 
   @Override
-  public <T extends Annotation> T[] getAnnotationsByType(Class<T> annotationClass) {
+  default <T extends Annotation> T[] getAnnotationsByType(Class<T> annotationClass) {
     return getAnnotationSource().getAnnotationsByType(annotationClass);
   }
 
   @Override
-  public <T extends Annotation> T[] getDeclaredAnnotationsByType(Class<T> annotationClass) {
+  default <T extends Annotation> T[] getDeclaredAnnotationsByType(Class<T> annotationClass) {
     return getAnnotationSource().getDeclaredAnnotationsByType(annotationClass);
   }
 }

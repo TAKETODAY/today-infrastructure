@@ -32,10 +32,10 @@ import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.reflect.ConstructorAccessor;
 import cn.taketoday.context.reflect.NullConstructor;
 import cn.taketoday.context.reflect.PropertyAccessor;
-import cn.taketoday.context.utils.AbstractDelegatingAnnotatedElement;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ConvertUtils;
+import cn.taketoday.context.utils.AnnotationSupport;
 import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
@@ -43,8 +43,7 @@ import cn.taketoday.context.utils.ReflectionUtils;
  * 2021/1/27 22:28
  * @since 3.0
  */
-public class BeanProperty
-        extends AbstractDelegatingAnnotatedElement implements AnnotatedElement {
+public class BeanProperty implements AnnotationSupport {
 
   private final Field field;
   private final Class<?> fieldType;
@@ -238,7 +237,7 @@ public class BeanProperty
   // AnnotatedElement
 
   @Override
-  protected AnnotatedElement getAnnotationSource() {
+  public AnnotatedElement getAnnotationSource() {
     return field;
   }
 
