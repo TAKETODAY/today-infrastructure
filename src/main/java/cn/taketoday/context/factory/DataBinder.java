@@ -21,16 +21,17 @@
 package cn.taketoday.context.factory;
 
 import java.beans.PropertyEditor;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author TODAY 2021/3/21 15:40
  * @since 3.0
  */
 public class DataBinder extends BeanPropertyAccessor {
-  protected final List<PropertyValue> propertyValues = new ArrayList<>();
+  protected final List<PropertyValue> propertyValues = new LinkedList<>();
 
   public DataBinder() { }
 
@@ -46,7 +47,17 @@ public class DataBinder extends BeanPropertyAccessor {
     super(metadata, object);
   }
 
+  /**
+   * Bind {@link #propertyValues} to {@link #rootObject} object
+   */
   public Object bind() {
+    return bind(propertyValues);
+  }
+
+  /**
+   * Bind {@code propertyValues} to {@link #rootObject} object
+   */
+  public Object bind(List<PropertyValue> propertyValues) {
     final Object rootObject = getRootObject();
     final BeanMetadata metadata = getMetadata();
     for (final PropertyValue propertyValue : propertyValues) {
@@ -77,15 +88,26 @@ public class DataBinder extends BeanPropertyAccessor {
     return null;
   }
 
+  //
+
   public void addPropertyValue(String name, Object value) {
-    addPropertyValues(new PropertyValue(name, value));
+    addPropertyValue(new PropertyValue(name, value));
+  }
+
+  public void addPropertyValue(PropertyValue propertyValue) {
+    propertyValues.add(propertyValue);
   }
 
   public void addPropertyValues(PropertyValue... propertyValues) {
     Collections.addAll(this.propertyValues, propertyValues);
   }
+
   public void addPropertyValues(List<PropertyValue> propertyValues) {
     this.propertyValues.addAll(propertyValues);
+  }
+
+  public void addPropertyValues(Map<String, Object> propertyValues) {
+    propertyValues.forEach(this::addPropertyValue);
   }
 
 }

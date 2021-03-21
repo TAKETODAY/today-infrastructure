@@ -39,8 +39,8 @@ import cn.taketoday.context.utils.Assert;
  */
 public class BeanPropertyAccessor {
 
-  private Object rootObject;
-  private BeanMetadata metadata;
+  protected Object rootObject;
+  protected BeanMetadata metadata;
 
   private ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
