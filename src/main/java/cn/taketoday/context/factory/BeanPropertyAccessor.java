@@ -31,7 +31,6 @@ import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.DefaultConversionService;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.exception.NoSuchPropertyException;
-import cn.taketoday.context.utils.ConvertUtils;
 
 /**
  * @author TODAY 2021/1/27 22:35
@@ -489,7 +488,7 @@ public class BeanPropertyAccessor {
           beanProperty.setValue(root, propValue);
         }
 
-        Array.set(propValue, arrayIndex, ConvertUtils.convert(value, componentType));
+        Array.set(propValue, arrayIndex, convertIfNecessary(value, componentType));
       }
       else {
         throw new InvalidPropertyValueException(
