@@ -54,7 +54,7 @@ public class MockRequestContext extends AbstractRequestContext {
   }
 
   @Override
-  protected Map<String, List<MultipartFile>> parseMultipartFiles() throws IOException {
+  protected Map<String, List<MultipartFile>> parseMultipartFiles() {
     return null;
   }
 

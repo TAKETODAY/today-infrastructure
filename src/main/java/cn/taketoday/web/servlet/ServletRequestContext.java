@@ -25,15 +25,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpCookie;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -576,19 +577,27 @@ public class ServletRequestContext
   }
 
   @Override
-  protected Map<String, List<MultipartFile>> parseMultipartFiles() throws IOException {
-
+  protected Map<String, List<MultipartFile>> parseMultipartFiles() {
     final HashMap<String, List<MultipartFile>> multipartFiles = new HashMap<>();
-
+    final class MappingFunction implements Function<String, List<MultipartFile>> {
+      @Override
+      public List<MultipartFile> apply(String k) {
+        return new LinkedList<>();
+      }
+    }
+    final MappingFunction mappingFunction = new MappingFunction();
     try {
       for (final Part part : request.getParts()) {
         final String name = part.getName();
-        List<MultipartFile> parts = multipartFiles.computeIfAbsent(name, k -> new ArrayList<>(4));
+        List<MultipartFile> parts = multipartFiles.computeIfAbsent(name, mappingFunction);
         parts.add(new DefaultMultipartFile(part));
       }
       return multipartFiles;
     }
-    catch (ServletException e) { // if this request is not of type multipart/form-data
+    catch (IOException e) {
+      throw new MultipartFileParsingException("MultipartFile parsing failed.", e);
+    }
+    catch (ServletException e) {
       throw new MultipartFileParsingException("This is not a multipart request", e);
     }
   }
