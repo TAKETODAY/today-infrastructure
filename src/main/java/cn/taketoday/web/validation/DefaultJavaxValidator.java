@@ -47,7 +47,7 @@ public class DefaultJavaxValidator implements Validator {
 
   @Override
   public boolean supports(Object obj) {
-    return false;
+    return true;
   }
 
   @Override

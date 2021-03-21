@@ -57,11 +57,13 @@ public class ValidationParameterResolver
 
   public ValidationParameterResolver(final int order, final CompositeValidator validator) {
     super(order);
+    Assert.notNull(validator, "CompositeValidator must not be null");
     this.validator = validator;
   }
 
   public ValidationParameterResolver(final int order, final CompositeValidator validator, ParameterResolvers resolvers) {
     super(order);
+    Assert.notNull(validator, "CompositeValidator must not be null");
     this.validator = validator;
     this.resolvers = resolvers;
   }
@@ -85,7 +87,7 @@ public class ValidationParameterResolver
     final Object value = resolveValue(context, parameter);
 
     final DefaultErrors errors = new DefaultErrors();
-    validate(value, errors);
+    validate(getValidator(), value, errors);
     if (errors.hasErrors()) {
       final MethodParameter[] parameters = parameter.getHandlerMethod().getParameters();
       final int length = parameters.length;
@@ -106,8 +108,8 @@ public class ValidationParameterResolver
     return obtainResolver(parameter).resolveParameter(context, parameter);
   }
 
-  protected void validate(Object value, DefaultErrors errors) {
-    getValidator().validate(value, errors);
+  protected void validate(CompositeValidator validator, Object value, DefaultErrors errors) {
+    validator.validate(value, errors);
   }
 
   protected Throwable buildException(final Errors errors) {
