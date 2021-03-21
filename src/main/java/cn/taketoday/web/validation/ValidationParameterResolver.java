@@ -87,11 +87,12 @@ public class ValidationParameterResolver
     final Object value = resolveValue(context, parameter);
 
     final DefaultErrors errors = new DefaultErrors();
+    context.attribute(Constant.VALIDATION_ERRORS, errors);
+
     validate(getValidator(), value, errors);
     if (errors.hasErrors()) {
       final MethodParameter[] parameters = parameter.getHandlerMethod().getParameters();
       final int length = parameters.length;
-      context.attribute(Constant.VALIDATION_ERRORS, errors);
       if (length == 1) {
         throw buildException(errors);
       }
