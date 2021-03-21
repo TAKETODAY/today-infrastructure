@@ -29,6 +29,7 @@ import java.util.Set;
 
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.DefaultConversionService;
+import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.utils.ConvertUtils;
 
@@ -80,11 +81,13 @@ public class BeanPropertyAccessor {
    * @throws IndexOutOfBoundsException
    *         if the index is out of list range
    *         (<tt>index &lt; 0 || index &gt;= size()</tt>)
+   * @throws InvalidPropertyValueException
+   *         conversion failed
    * @see #getProperty(String)
    */
   @SuppressWarnings("unchecked")
   public <T> T getProperty(final String propertyPath, final Class<T> requiredType) {
-    return (T) conversionService.convert(getProperty(propertyPath), requiredType);
+    return (T) convertIfNecessary(getProperty(propertyPath), requiredType);
   }
 
   /**
@@ -425,7 +428,7 @@ public class BeanPropertyAccessor {
       Object convertedValue = value;
       final Type valueType = beanProperty.getGeneric(0);
       if (valueType instanceof Class) {
-        convertedValue = conversionService.convert(convertedValue, (Class<?>) valueType);
+        convertedValue = convertIfNecessary(convertedValue, (Class<?>) valueType);
       }
 
       List<Object> list = (List<Object>) propValue;
@@ -459,11 +462,11 @@ public class BeanPropertyAccessor {
       Object convertedValue = value;
       final Type keyType = beanProperty.getGeneric(0);
       if (keyType instanceof Class) {
-        convertedKey = conversionService.convert(convertedKey, (Class<?>) keyType);
+        convertedKey = convertIfNecessary(convertedKey, (Class<?>) keyType);
       }
       final Type valueType = beanProperty.getGeneric(1);
       if (valueType instanceof Class) {
-        convertedValue = conversionService.convert(convertedValue, (Class<?>) valueType);
+        convertedValue = convertIfNecessary(convertedValue, (Class<?>) valueType);
       }
       ((Map) propValue).put(convertedKey, convertedValue);
     }
@@ -491,6 +494,23 @@ public class BeanPropertyAccessor {
                         "' is neither an array nor a List nor a Map; returned value was [" + propValue + "]");
       }
     }
+  }
+
+  /**
+   * @throws InvalidPropertyValueException
+   *         conversion failed
+   */
+  final Object convertIfNecessary(final Object value, final Class<?> requiredType) {
+    if (requiredType.isInstance(value)) {
+      return value;
+    }
+    final TypeConverter typeConverter = conversionService.getConverter(value, requiredType);
+    if (typeConverter == null) {
+      throw new InvalidPropertyValueException(
+              "Invalid property value [" + value + "] cannot convert '"
+                      + value.getClass() + "' to target class: [" + requiredType + "]");
+    }
+    return typeConverter.convert(requiredType, value);
   }
 
   /**
