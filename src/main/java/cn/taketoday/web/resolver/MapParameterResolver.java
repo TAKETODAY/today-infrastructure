@@ -89,7 +89,7 @@ public class MapParameterResolver
     // throw WebUtils.newBadRequest("Collection variable", parameter.getParameterName(), null);
   }
 
-  static boolean supportsMap(MethodParameter parameter) {
+  protected static boolean supportsMap(MethodParameter parameter) {
     return parameter.is(Map.class);
   }
 }

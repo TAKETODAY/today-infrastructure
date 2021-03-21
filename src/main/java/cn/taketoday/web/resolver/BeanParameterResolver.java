@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.context.OrderedSupport;
+import cn.taketoday.context.conversion.ConversionService;
+import cn.taketoday.context.conversion.DefaultConversionService;
 import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.factory.BeanMetadata;
 import cn.taketoday.context.factory.BeanPropertyAccessor;
@@ -41,6 +43,8 @@ import cn.taketoday.web.handler.MethodParameter;
  */
 public class BeanParameterResolver
         extends OrderedSupport implements ParameterResolver {
+
+  private ConversionService conversionService = new DefaultConversionService();
 
   public BeanParameterResolver() {
     this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 100);
@@ -65,6 +69,7 @@ public class BeanParameterResolver
     BeanMetadata metadata = BeanMetadata.ofClass(parameterClass);
     final Object bean = metadata.newInstance(); // native-invoke constructor
     final BeanPropertyAccessor propertyAccessor = new BeanPropertyAccessor(metadata, bean);
+    propertyAccessor.setConversionService(conversionService);
 
     final Map<String, String[]> parameters = context.parameters();
     if (parameters != null) {

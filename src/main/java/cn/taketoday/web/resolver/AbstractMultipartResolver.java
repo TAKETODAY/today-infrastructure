@@ -38,7 +38,7 @@ import cn.taketoday.web.utils.WebUtils;
 public abstract class AbstractMultipartResolver
         extends AbstractParameterResolver implements ParameterResolver {
 
-  final MultipartConfiguration multipartConfiguration;
+  protected final MultipartConfiguration multipartConfiguration;
 
   public AbstractMultipartResolver(MultipartConfiguration multipartConfig) {
     this.multipartConfiguration = multipartConfig;

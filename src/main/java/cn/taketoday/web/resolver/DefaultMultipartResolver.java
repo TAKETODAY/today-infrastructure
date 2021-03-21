@@ -53,7 +53,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
     return supportsMultipart(parameter.getParameterClass());
   }
 
-  static boolean supportsMultipart(final Class<?> type) {
+  protected static boolean supportsMultipart(final Class<?> type) {
     return type == MultipartFile.class || type == DefaultMultipartFile.class;
   }
 
