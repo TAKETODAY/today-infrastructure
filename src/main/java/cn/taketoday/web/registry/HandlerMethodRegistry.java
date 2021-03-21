@@ -20,7 +20,6 @@
 package cn.taketoday.web.registry;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -57,7 +56,7 @@ import cn.taketoday.web.annotation.RootController;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.handler.ParameterResolverMethodParameter;
+import cn.taketoday.web.handler.MethodParameterBuilder;
 import cn.taketoday.web.handler.PathVariableMethodParameter;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resolver.ParameterResolvers;
@@ -84,7 +83,7 @@ public class HandlerMethodRegistry
   private BeanDefinitionLoader beanDefinitionLoader;
 
   // @since 3.0
-  private ParameterResolvers parameterResolvers;
+  protected final MethodParameterBuilder parameterBuilder = new MethodParameterBuilder();
 
   public HandlerMethodRegistry() {
     setOrder(HIGHEST_PRECEDENCE);
@@ -111,11 +110,11 @@ public class HandlerMethodRegistry
   @Override
   protected void initApplicationContext(ApplicationContext context) {
     this.beanFactory = nonNull(context.getBean(AbstractBeanFactory.class));
-
     final Environment environment = context.getEnvironment();
+
     this.variables = environment.getProperties();
-    this.parameterResolvers = context.getBean(ParameterResolvers.class);
     this.beanDefinitionLoader = environment.getBeanDefinitionLoader();
+    this.parameterBuilder.setParameterResolvers(context.getBean(ParameterResolvers.class));
 
     super.initApplicationContext(context);
   }
@@ -125,12 +124,9 @@ public class HandlerMethodRegistry
    */
   protected void startConfiguration() {
     final ApplicationContext beanFactory = obtainApplicationContext();
-
     // @since 2.3.3
     for (final Entry<String, BeanDefinition> entry : beanFactory.getBeanDefinitions().entrySet()) {
-
       final BeanDefinition def = entry.getValue();
-
       if (!def.isAbstract() && isController(def)) { // ActionMapping on the class is ok
         buildHandlerMethod(def.getBeanClass());
       }
@@ -159,7 +155,6 @@ public class HandlerMethodRegistry
    * @since 2.3.7
    */
   public void buildHandlerMethod(final Class<?> beanClass) {
-
     final Set<String> namespaces = new LinkedHashSet<>(4, 1.0f); // name space
     final Set<RequestMethod> methodsOnClass = new LinkedHashSet<>(8, 1.0f); // method
 
@@ -201,7 +196,7 @@ public class HandlerMethodRegistry
     if (ObjectUtils.isNotEmpty(actionMapping)) {
       // build HandlerMethod
       final HandlerMethod handler = createHandlerMethod(beanClass, method);
-      final MethodParameter[] parameters = getMethodParameters(handler);
+      final MethodParameter[] parameters = parameterBuilder.build(handler.getMethod());
       handler.setParameters(parameters);
 
       if (ObjectUtils.isNotEmpty(parameters)) {
@@ -216,26 +211,6 @@ public class HandlerMethodRegistry
                            methodsOnClass,
                            actionMapping);
     }
-  }
-
-  protected MethodParameter[] getMethodParameters(HandlerMethod handler) {
-    final Method method = handler.getMethod();
-    final int length = method.getParameterCount();
-    if (length == 0) {
-      return null;
-    }
-
-    final MethodParameter[] ret = new MethodParameter[length];
-    final String[] methodArgsNames = ClassUtils.getMethodArgsNames(method);
-    final Parameter[] parameters = method.getParameters();
-    for (int i = 0; i < length; i++) {
-      ret[i] = createMethodParameter(methodArgsNames[i], parameters[i], i);
-    }
-    return ret;
-  }
-
-  protected ParameterResolverMethodParameter createMethodParameter(String methodArgsName, Parameter parameter, int index) {
-    return new ParameterResolverMethodParameter(index, parameter, methodArgsName, parameterResolvers);
   }
 
   /**

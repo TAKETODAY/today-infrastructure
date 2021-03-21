@@ -25,8 +25,7 @@ import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.web.RequestContext;
 
 /**
- * @author TODAY
- * @date 2020/12/23 21:53
+ * @author TODAY 2020/12/23 21:53
  */
 public class CompositeHandlerExceptionHandler
         extends OrderedSupport implements HandlerExceptionHandler {

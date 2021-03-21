@@ -36,6 +36,7 @@ import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.config.WebApplicationInitializer;
+import cn.taketoday.web.resolver.ParameterResolvers;
 import cn.taketoday.web.utils.WebUtils;
 
 /**
@@ -143,16 +144,21 @@ public class DefaultExceptionHandler
   // WebApplicationInitializer
 
   @Override
-  public void onStartup(WebApplicationContext beanFactory) {
+  public void onStartup(final WebApplicationContext beanFactory) {
     log.info("Initialize @ExceptionHandler");
+    final ParameterResolvers resolvers = beanFactory.getBean(ParameterResolvers.class);
+    final MethodParameterBuilder builder = new MethodParameterBuilder();
+    builder.setParameterResolvers(resolvers);
+
     // get all error handlers
     final List<Object> errorHandlers = beanFactory.getAnnotatedBeans(ControllerAdvice.class);
     for (final Object errorHandler : errorHandlers) {
       for (final Method method : ReflectionUtils.getDeclaredMethods(errorHandler.getClass())) {
         if (method.isAnnotationPresent(ExceptionHandler.class)) {
+          final MethodParameter[] parameters = builder.build(method);
           final Class<? extends Throwable>[] catchExClasses = getCatchThrowableClasses(method);
           for (Class<? extends Throwable> exceptionClass : catchExClasses) {
-            exceptionHandlers.put(exceptionClass, new ThrowableHandlerMethod(errorHandler, method));
+            exceptionHandlers.put(exceptionClass, new ThrowableHandlerMethod(errorHandler, method, parameters));
           }
         }
       }
@@ -197,8 +203,9 @@ public class DefaultExceptionHandler
 
   protected static class ThrowableHandlerMethod extends HandlerMethod {
 
-    public ThrowableHandlerMethod(Object handler, Method method) {
+    public ThrowableHandlerMethod(Object handler, Method method, MethodParameter[] parameters) {
       super(handler, method, null);
+      setParameters(parameters);
     }
 
     @Override
