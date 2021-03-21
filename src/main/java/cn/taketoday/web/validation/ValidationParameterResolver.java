@@ -50,14 +50,24 @@ public class ValidationParameterResolver
 
   private ParameterResolvers resolvers;
 
-  @Autowired
   public ValidationParameterResolver(Validator validator) {
     this(HIGHEST_PRECEDENCE + 100, validator);
+  }
+
+  @Autowired
+  public ValidationParameterResolver(Validator validator, ParameterResolvers resolvers) {
+    this(HIGHEST_PRECEDENCE + 100, validator, resolvers);
   }
 
   public ValidationParameterResolver(final int order, final Validator validator) {
     super(order);
     this.validator = validator;
+  }
+
+  public ValidationParameterResolver(final int order, final Validator validator, ParameterResolvers resolvers) {
+    super(order);
+    this.validator = validator;
+    this.resolvers = resolvers;
   }
 
   @Override
@@ -116,7 +126,6 @@ public class ValidationParameterResolver
     return resolver;
   }
 
-  @Autowired
   public void setResolvers(ParameterResolvers resolvers) {
     this.resolvers = resolvers;
   }
