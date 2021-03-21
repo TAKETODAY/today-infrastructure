@@ -35,7 +35,7 @@ import cn.taketoday.context.reflect.PropertyAccessor;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ConvertUtils;
-import cn.taketoday.context.utils.AnnotationSupport;
+import cn.taketoday.context.AnnotationSupport;
 import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
