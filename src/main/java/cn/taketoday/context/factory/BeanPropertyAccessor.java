@@ -39,10 +39,12 @@ import cn.taketoday.context.utils.ConvertUtils;
  */
 public class BeanPropertyAccessor {
 
-  private final Object bean;
-  private final BeanMetadata metadata;
+  private Object bean;
+  private BeanMetadata metadata;
 
   private ConversionService conversionService = DefaultConversionService.getSharedInstance();
+
+  protected BeanPropertyAccessor() { }
 
   public BeanPropertyAccessor(Class<?> beanClass) {
     this.metadata = BeanMetadata.ofClass(beanClass);
@@ -110,7 +112,7 @@ public class BeanPropertyAccessor {
    *         if the index is out of list range (<tt>index &lt; 0 || index &gt;= size()</tt>)
    */
   public Object getProperty(final String propertyPath) {
-    return getProperty(bean, metadata, propertyPath);
+    return getProperty(bean, getMetadata(), propertyPath);
   }
 
   /**
@@ -291,7 +293,7 @@ public class BeanPropertyAccessor {
    *         Invalid property value
    */
   public void setProperty(final String propertyPath, final Object value) {
-    setProperty(bean, metadata, propertyPath, value);
+    setProperty(bean, getMetadata(), propertyPath, value);
   }
 
   /**
@@ -538,6 +540,14 @@ public class BeanPropertyAccessor {
   }
 
   //
+
+  public void setBean(Object bean) {
+    this.bean = bean;
+  }
+
+  public void setMetadata(BeanMetadata metadata) {
+    this.metadata = metadata;
+  }
 
   public Object getBean() {
     return this.bean;
