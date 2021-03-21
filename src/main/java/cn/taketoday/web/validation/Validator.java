@@ -20,11 +20,18 @@
 package cn.taketoday.web.validation;
 
 /**
- * @author TODAY <br>
- * 2019-07-21 14:22
+ * @author TODAY 2019-07-21 14:22
  */
 public interface Validator {
 
+  /**
+   * supports input object?
+   *
+   * @param obj
+   *         input object
+   *
+   * @since 3.0
+   */
   boolean supports(Object obj);
 
   /**

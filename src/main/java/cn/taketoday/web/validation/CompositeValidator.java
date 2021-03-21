@@ -28,6 +28,8 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.utils.Assert;
 
 /**
+ * list of {@link Validator}
+ *
  * @author TODAY 2021/3/21 21:19
  * @since 3.0
  */
