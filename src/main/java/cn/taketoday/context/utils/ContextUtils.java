@@ -98,7 +98,6 @@ import static java.util.Objects.requireNonNull;
  * 2019-01-16 20:04
  */
 public abstract class ContextUtils {
-
   private static final Logger log = LoggerFactory.getLogger(ContextUtils.class);
 
   // @since 2.1.6 shared applicationContext
@@ -736,8 +735,8 @@ public abstract class ContextUtils {
    *
    * @return If matched
    */
-  public static boolean conditional(final AnnotatedElement annotated) {
-    return conditional(annotated, getLastStartupContext());
+  public static boolean passCondition(final AnnotatedElement annotated) {
+    return passCondition(annotated, getLastStartupContext());
   }
 
   /**
@@ -750,23 +749,23 @@ public abstract class ContextUtils {
    *
    * @return If matched
    */
-  public static boolean conditional(final AnnotatedElement annotated, final ApplicationContext context) {
+  public static boolean passCondition(final AnnotatedElement annotated, final ApplicationContext context) {
     final AnnotationAttributes[] attributes = getAnnotationAttributesArray(annotated, Conditional.class);
     if (ObjectUtils.isEmpty(attributes)) {
       return true;
     }
     if (attributes.length == 1) {
-      return conditional(annotated, context, attributes[0].getClassArray(VALUE));
+      return passCondition(annotated, context, attributes[0].getClassArray(VALUE));
     }
     for (final AnnotationAttributes conditional : reversedSort(attributes)) {
-      if (!conditional(annotated, context, conditional.getClassArray(VALUE))) {
+      if (!passCondition(annotated, context, conditional.getClassArray(VALUE))) {
         return false; // can't match
       }
     }
     return true;
   }
 
-  public static boolean conditional(
+  public static boolean passCondition(
           final AnnotatedElement annotated,
           final ApplicationContext context,
           final Class<? extends Condition>[] condition

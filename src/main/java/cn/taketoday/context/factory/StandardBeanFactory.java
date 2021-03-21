@@ -36,6 +36,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import cn.taketoday.context.AnnotationAttributes;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.Constant;
@@ -77,7 +78,6 @@ import cn.taketoday.context.utils.StringUtils;
 import static cn.taketoday.context.Constant.VALUE;
 import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributes;
 import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
-import static cn.taketoday.context.utils.ContextUtils.conditional;
 import static cn.taketoday.context.utils.ContextUtils.findNames;
 import static cn.taketoday.context.utils.ContextUtils.resolveInitMethod;
 import static cn.taketoday.context.utils.ContextUtils.resolveProps;
@@ -175,7 +175,7 @@ public class StandardBeanFactory
       if (ObjectUtils.isEmpty(components)) {
         // detect missed bean
         final MissingBean missingBean = ClassUtils.getAnnotation(MissingBean.class, method);
-        if (isMissedBean(missingBean, method)) {
+        if (isMissedBean(missingBean, method, context)) {
           // register directly @since 3.0
           final Class<?> beanClass = method.getReturnType();
 
@@ -196,7 +196,7 @@ public class StandardBeanFactory
           registerMissingBean(missingBean, stdDef);
         }
       }
-      else if (conditional(method, context)) { // pass the condition
+      else if (ContextUtils.passCondition(method, context)) { // pass the condition
         registerConfigurationBean(def, method, components);
       }
     }
@@ -261,7 +261,7 @@ public class StandardBeanFactory
 
     for (final Class<?> beanClass : candidates) {
       final MissingBean missingBean = beanClass.getAnnotation(MissingBean.class);
-      if (isMissedBean(missingBean, beanClass)) {
+      if (isMissedBean(missingBean, beanClass, context)) {
 
         String beanName = missingBean.value();
         if (StringUtils.isEmpty(beanName)) {
@@ -281,13 +281,16 @@ public class StandardBeanFactory
    *         The {@link Annotation} declared on the class or a method
    * @param annotated
    *         Missed bean class or method
+   * @param context
+   *         Application context
    *
    * @return If the bean is missed in context
    *
    * @since 3.0
    */
-  boolean isMissedBean(final MissingBean missingBean, final AnnotatedElement annotated) {
-    if (missingBean == null || !conditional(annotated, context)) { // use current application context
+  boolean isMissedBean(final MissingBean missingBean,
+                       final AnnotatedElement annotated, final ApplicationContext context) {
+    if (missingBean == null || !ContextUtils.passCondition(annotated, context)) { // use current application context
       return false;
     }
 
@@ -334,18 +337,30 @@ public class StandardBeanFactory
    */
   public Set<Class<?>> loadMetaInfoBeans() {
     log.debug("Loading META-INF/beans");
+    final ConfigurableApplicationContext context = getApplicationContext();
 
     // Load the META-INF/beans @since 2.1.6
     // ---------------------------------------------------
     final Set<Class<?>> beans = ContextUtils.loadFromMetaInfo(Constant.META_INFO_beans);
     final BeanNameCreator beanNameCreator = getBeanNameCreator();
     for (final Class<?> beanClass : beans) {
-
-      if (conditional(beanClass)
-              && !ClassUtils.isAnnotationPresent(beanClass, MissingBean.class)) {
+      final MissingBean missingBean = ClassUtils.getAnnotation(MissingBean.class, beanClass);
+      if (isMissedBean(missingBean, beanClass, context)) {
+        // MissingBean in 'META-INF/beans' @since 3.0
+        final BeanDefinition def = createBeanDefinition(beanClass);
+        final String name = missingBean/*never be null*/.value();
+        if (StringUtils.isNotEmpty(name)) {
+          def.setName(name); // refresh bean name
+        }
+        registerMissingBean(missingBean, def);
+      }
+      else if (ContextUtils.passCondition(beanClass, context)) {
         // can't be a missed bean. MissingBean load after normal loading beans
         ContextUtils.createBeanDefinitions(beanNameCreator.create(beanClass), beanClass, this)
                 .forEach(this::register);
+      }
+      else {
+        log.info("'{}' cannot pass the condition, dont register to the map", beanClass);
       }
     }
     return beans;
@@ -451,7 +466,7 @@ public class StandardBeanFactory
   @Override
   public void loadBeanDefinition(final Class<?> candidate) {
     // don't load abstract class
-    if (!Modifier.isAbstract(candidate.getModifiers()) && conditional(candidate, context)) {
+    if (!Modifier.isAbstract(candidate.getModifiers()) && ContextUtils.passCondition(candidate, context)) {
       register(candidate);
     }
   }
@@ -730,7 +745,8 @@ public class StandardBeanFactory
   public LinkedList<PropertyValueResolver> getPropertyValueResolvers() {
     if (propertyResolvers.isEmpty()) {
       final ConfigurableApplicationContext context = getApplicationContext();
-      final Set<PropertyValueResolver> objects = ContextUtils.loadBeansFromMetaInfo(Constant.META_INFO_property_resolvers, this);
+      final Set<PropertyValueResolver> objects =
+              ContextUtils.loadBeansFromMetaInfo(Constant.META_INFO_property_resolvers, this);
       // un-ordered
       propertyResolvers.addAll(objects);
 
