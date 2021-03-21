@@ -299,9 +299,12 @@ public class StandardBeanFactory
       return false;
     }
     final Class<?> type = missingBean.type();
-
-    return !((type != void.class && containsBeanDefinition(type, !type.isInterface())) //
-            || containsBeanDefinition(ContextUtils.getBeanClass(annotated)));
+    if (type != void.class) {
+      return !containsBeanDefinition(type, !type.isInterface());
+    }
+    else {
+      return !containsBeanDefinition(ContextUtils.getBeanClass(annotated));
+    }
   }
 
   /**
