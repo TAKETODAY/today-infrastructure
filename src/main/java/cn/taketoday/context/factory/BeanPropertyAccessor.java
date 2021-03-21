@@ -430,7 +430,7 @@ public class BeanPropertyAccessor {
       Object convertedValue = value;
       final Type valueType = beanProperty.getGeneric(0);
       if (valueType instanceof Class) {
-        convertedValue = convertIfNecessary(convertedValue, (Class<?>) valueType);
+        convertedValue = convertIfNecessary(convertedValue, (Class<?>) valueType, beanProperty);
       }
 
       List<Object> list = (List<Object>) propValue;
@@ -468,7 +468,7 @@ public class BeanPropertyAccessor {
       }
       final Type valueType = beanProperty.getGeneric(1);
       if (valueType instanceof Class) {
-        convertedValue = convertIfNecessary(convertedValue, (Class<?>) valueType);
+        convertedValue = convertIfNecessary(convertedValue, (Class<?>) valueType, beanProperty);
       }
       ((Map) propValue).put(convertedKey, convertedValue);
     }
@@ -488,7 +488,7 @@ public class BeanPropertyAccessor {
           beanProperty.setValue(root, propValue);
         }
 
-        Array.set(propValue, arrayIndex, convertIfNecessary(value, componentType));
+        Array.set(propValue, arrayIndex, convertIfNecessary(value, componentType, beanProperty));
       }
       else {
         throw new InvalidPropertyValueException(
@@ -496,6 +496,16 @@ public class BeanPropertyAccessor {
                         "' is neither an array nor a List nor a Map; returned value was [" + propValue + "]");
       }
     }
+  }
+
+  /**
+   * @throws InvalidPropertyValueException
+   *         conversion failed
+   */
+  protected Object convertIfNecessary(final Object value,
+                                      final Class<?> requiredType,
+                                      final BeanProperty beanProperty) {
+    return convertIfNecessary(value, requiredType);
   }
 
   /**
