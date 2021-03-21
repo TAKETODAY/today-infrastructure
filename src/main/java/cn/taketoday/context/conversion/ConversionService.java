@@ -43,7 +43,9 @@ public interface ConversionService {
    * @return whether this {@link ConversionService} supports to convert source object
    * to target class object
    */
-  boolean canConvert(Object source, Class<?> targetClass);
+  default boolean canConvert(Object source, Class<?> targetClass) {
+    return getConverter(source, targetClass) != null;
+  }
 
   /**
    * Convert source to target type
@@ -59,5 +61,17 @@ public interface ConversionService {
    * @return converted object
    */
   <T> T convert(Object source, Class<T> targetClass);
+
+  /**
+   * Get Target {@link TypeConverter}
+   *
+   * @param source
+   *         input source
+   * @param targetClass
+   *         convert to target class
+   *
+   * @return TypeConverter
+   */
+  TypeConverter getConverter(Object source, Class<?> targetClass);
 
 }
