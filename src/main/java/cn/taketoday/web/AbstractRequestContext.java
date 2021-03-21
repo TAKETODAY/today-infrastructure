@@ -182,7 +182,7 @@ public abstract class AbstractRequestContext implements RequestContext {
   // -----------------------------------------------------
 
   @Override
-  public Map<String, List<MultipartFile>> multipartFiles() throws IOException {
+  public Map<String, List<MultipartFile>> multipartFiles() {
     final Map<String, List<MultipartFile>> multipartFiles = this.multipartFiles;
     if (multipartFiles == null) {
       return this.multipartFiles = parseMultipartFiles();
@@ -193,12 +193,10 @@ public abstract class AbstractRequestContext implements RequestContext {
   /**
    * map list MultipartFile
    *
-   * @throws IOException
-   *         if an I/O error occurred during the retrieval of the Part components of this request
    * @throws MultipartFileParsingException
    *         if this request is not of type multipart/form-data
    */
-  protected abstract Map<String, List<MultipartFile>> parseMultipartFiles() throws IOException;
+  protected abstract Map<String, List<MultipartFile>> parseMultipartFiles();
 
   // parameter @since 3.0
 

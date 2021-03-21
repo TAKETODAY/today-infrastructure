@@ -315,7 +315,7 @@ public abstract class RequestContextHolder {
     }
 
     @Override
-    public Map<String, List<MultipartFile>> multipartFiles() throws IOException {
+    public Map<String, List<MultipartFile>> multipartFiles() {
       return null;
     }
 
