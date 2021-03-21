@@ -23,7 +23,7 @@ import java.util.Set;
 
 /**
  * @author TODAY <br>
- *         2019-07-21 14:26
+ * 2019-07-21 14:26
  */
 public interface Errors {
 
@@ -43,5 +43,7 @@ public interface Errors {
    * @return a list of {@link ObjectError} instances
    */
   Set<ObjectError> getAllErrors();
+
+  void addError(ObjectError error);
 
 }

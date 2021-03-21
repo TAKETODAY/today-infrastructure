@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,54 +17,45 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.validation;
 
+import java.util.HashSet;
 import java.util.Set;
 
-import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.exception.WebNestedRuntimeException;
-import cn.taketoday.web.http.HttpStatus;
-
 /**
- * @author TODAY <br>
- * 2019-07-21 14:35
+ * @author TODAY 2021/3/21 21:27
+ * @since 3.0
  */
-@ResponseStatus(HttpStatus.BAD_REQUEST)
-public class ValidationException extends WebNestedRuntimeException implements Errors {
-  private static final long serialVersionUID = 1L;
+public class DefaultErrors implements Errors {
 
-  private final Errors errors;
+  private final Set<ObjectError> errors;
 
-  public ValidationException() {
-    this.errors = new DefaultErrors();
+  public DefaultErrors() {
+    this.errors = new HashSet<>();
   }
 
-  public ValidationException(Errors errors) {
-    this.errors = errors;
+  public DefaultErrors(Errors errors) {
+    this.errors = errors.getAllErrors();
   }
 
   @Override
   public boolean hasErrors() {
-    return !errors.hasErrors();
+    return !errors.isEmpty();
   }
 
   @Override
   public int getErrorCount() {
-    return errors.getErrorCount();
+    return errors.size();
   }
 
   @Override
   public void addError(ObjectError error) {
-    this.errors.addError(error);
+    this.errors.add(error);
   }
 
   @Override
   public Set<ObjectError> getAllErrors() {
-    return errors.getAllErrors();
-  }
-
-  @Override
-  public String getMessage() {
-    return errors.toString();
+    return errors;
   }
 }
