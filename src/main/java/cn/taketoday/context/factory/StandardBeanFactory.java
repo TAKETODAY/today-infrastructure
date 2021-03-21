@@ -100,7 +100,7 @@ public class StandardBeanFactory
   private final LinkedList<AnnotatedElement> componentScanned = new LinkedList<>();
 
   /**
-   * @since 3.0 Resolve {@link PropertyValue}
+   * @since 3.0 Resolve {@link PropertySetter}
    */
   private final LinkedList<PropertyValueResolver> propertyResolvers = new LinkedList<>();
 
@@ -190,8 +190,8 @@ public class StandardBeanFactory
 
           if (method.isAnnotationPresent(Props.class)) {
             // @Props on method
-            final List<PropertyValue> props = resolveProps(method, environment.getProperties());
-            stdDef.addPropertyValue(props);
+            final List<PropertySetter> props = resolveProps(method, environment.getProperties());
+            stdDef.addPropertySetter(props);
           }
           registerMissingBean(missingBean, stdDef);
         }
@@ -239,7 +239,7 @@ public class StandardBeanFactory
         stdDef.setDeclaringName(declaringBeanName)
                 .setFactoryMethod(method);
         // resolve @Props on a bean
-        stdDef.addPropertyValue(resolveProps(stdDef, properties));
+        stdDef.addPropertySetter(resolveProps(stdDef, properties));
         register(name, stdDef);
       }
     }
@@ -688,21 +688,21 @@ public class StandardBeanFactory
    *
    * @since 3.0
    */
-  public PropertyValue[] resolvePropertyValue(final Class<?> beanClass) {
+  public PropertySetter[] resolvePropertyValue(final Class<?> beanClass) {
 
-    final LinkedHashSet<PropertyValue> propertyValues = new LinkedHashSet<>(32);
+    final LinkedHashSet<PropertySetter> propertySetters = new LinkedHashSet<>(32);
     for (final Field field : ReflectionUtils.getFields(beanClass)) {
       // if property is required and PropertyValue is null will throw ex in PropertyValueResolver
-      final PropertyValue created = createPropertyValue(makeAccessible(field));
+      final PropertySetter created = createPropertyValue(makeAccessible(field));
       // not required
       if (created != null) {
-        propertyValues.add(created);
+        propertySetters.add(created);
       }
     }
 
-    return propertyValues.isEmpty()
+    return propertySetters.isEmpty()
            ? BeanDefinition.EMPTY_PROPERTY_VALUE
-           : propertyValues.toArray(new PropertyValue[propertyValues.size()]);
+           : propertySetters.toArray(new PropertySetter[propertySetters.size()]);
   }
 
   /**
@@ -711,9 +711,9 @@ public class StandardBeanFactory
    * @param field
    *         Property
    *
-   * @return A new {@link PropertyValue}
+   * @return A new {@link PropertySetter}
    */
-  public PropertyValue createPropertyValue(final Field field) {
+  public PropertySetter createPropertyValue(final Field field) {
 
     for (final PropertyValueResolver propertyValueResolver : getPropertyValueResolvers()) {
       if (propertyValueResolver.supportsProperty(field)) {

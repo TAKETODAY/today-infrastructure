@@ -28,9 +28,9 @@ import cn.taketoday.context.Ordered;
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.factory.AbstractBeanFactory;
-import cn.taketoday.context.factory.AbstractPropertyValue;
+import cn.taketoday.context.factory.AbstractPropertySetter;
 import cn.taketoday.context.factory.ObjectSupplier;
-import cn.taketoday.context.factory.PropertyValue;
+import cn.taketoday.context.factory.PropertySetter;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 
@@ -59,10 +59,10 @@ public class ObjectSupplierPropertyResolver
   }
 
   @Override
-  public PropertyValue resolveProperty(Field field) throws ContextException {
+  public PropertySetter resolveProperty(Field field) throws ContextException {
     final Class<?>[] generics = ClassUtils.getGenerics(field);
     if (ObjectUtils.isNotEmpty(generics)) {
-      return new ObjectSupplierPropertyValue(field, generics[0]);
+      return new ObjectSupplierPropertySetter(field, generics[0]);
     }
     throw new UnsupportedOperationException("Unsupported '" + field + "' In -> " + field.getDeclaringClass());
   }
@@ -72,12 +72,12 @@ public class ObjectSupplierPropertyResolver
    *
    * @since 3.0
    */
-  static class ObjectSupplierPropertyValue
-          extends AbstractPropertyValue implements PropertyValue {
+  static class ObjectSupplierPropertySetter
+          extends AbstractPropertySetter implements PropertySetter {
 
     final Class<?> target;
 
-    public ObjectSupplierPropertyValue(Field field, Class<?> target) {
+    public ObjectSupplierPropertySetter(Field field, Class<?> target) {
       super(field);
       this.target = target;
     }
@@ -90,9 +90,9 @@ public class ObjectSupplierPropertyResolver
     @Override
     public boolean equals(Object o) {
       if (this == o) return true;
-      if (!(o instanceof ObjectSupplierPropertyValue)) return false;
+      if (!(o instanceof ObjectSupplierPropertySetter)) return false;
       if (!super.equals(o)) return false;
-      final ObjectSupplierPropertyValue that = (ObjectSupplierPropertyValue) o;
+      final ObjectSupplierPropertySetter that = (ObjectSupplierPropertySetter) o;
       return Objects.equals(target, that.target);
     }
 

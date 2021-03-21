@@ -30,7 +30,7 @@ import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.DisposableBean;
-import cn.taketoday.context.factory.PropertyValue;
+import cn.taketoday.context.factory.PropertySetter;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ObjectUtils;
@@ -108,7 +108,7 @@ public class ApplicationContextTest {
       Config config_ = applicationContext.getBean("FactoryBean-Config", Config.class);
 
       BeanDefinition beanDefinition = applicationContext.getBeanDefinition("FactoryBean-Config");
-      PropertyValue propertyValue = beanDefinition.getPropertyValue("pro");
+      PropertySetter propertySetter = beanDefinition.getPropertyValue("pro");
       ConfigFactoryBean bean = applicationContext.getBean("$FactoryBean-Config", ConfigFactoryBean.class);
 
       assertNotNull(bean); // @Prototype 
@@ -117,7 +117,7 @@ public class ApplicationContextTest {
       log.debug("{}", config.hashCode());
       log.debug("{}", config_.hashCode());
       log.debug("{}", bean);
-      log.debug("{}", propertyValue);
+      log.debug("{}", propertySetter);
     }
   }
 

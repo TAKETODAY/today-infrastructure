@@ -17,39 +17,37 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context.loader;
-
-import java.lang.reflect.Field;
-
-import cn.taketoday.context.exception.ContextException;
-import cn.taketoday.context.factory.PropertySetter;
+package cn.taketoday.context.factory;
 
 /**
- * Resolve field property
+ * Bean property setter (applier)
  *
- * @author TODAY <br>
- * 2018-08-04 15:04
+ * @author TODAY 2018-06-23 11:28:01
  */
-@FunctionalInterface
-public interface PropertyValueResolver {
+public interface PropertySetter {
 
   /**
-   * Whether the given field is supported by this resolver.
+   * It shows that the value is not set
    */
-  default boolean supportsProperty(Field field) {
-    return false;
-  }
+  Object DO_NOT_SET = new Object();
 
   /**
-   * Resolve {@link PropertySetter}.
+   * Get Property name
    *
-   * @param field
-   *         bean's field
-   *
-   * @return property value
-   *
-   * @throws ContextException
+   * @return Property name
    */
-  PropertySetter resolveProperty(Field field) throws ContextException;
+  String getName();
 
+  /**
+   * set value to property
+   * <p>
+   * If property value is {@link #DO_NOT_SET} will not set value
+   * </p>
+   *
+   * @param bean
+   *         property's bean
+   * @param beanFactory
+   *         current AbstractBeanFactory
+   */
+  void applyValue(Object bean, AbstractBeanFactory beanFactory);
 }

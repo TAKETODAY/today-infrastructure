@@ -115,7 +115,7 @@ public class FactoryBeanDefinition<T>
   }
 
   @Override
-  public PropertyValue getPropertyValue(String name) throws NoSuchPropertyException {
+  public PropertySetter getPropertyValue(String name) throws NoSuchPropertyException {
     return factoryDef.getPropertyValue(name);
   }
 
@@ -155,8 +155,8 @@ public class FactoryBeanDefinition<T>
   }
 
   @Override
-  public PropertyValue[] getPropertyValues() {
-    return factoryDef.getPropertyValues();
+  public PropertySetter[] getPropertySetters() {
+    return factoryDef.getPropertySetters();
   }
 
   @Override
@@ -165,13 +165,13 @@ public class FactoryBeanDefinition<T>
   }
 
   @Override
-  public void addPropertyValue(PropertyValue... propertyValues) {
-    factoryDef.addPropertyValue(propertyValues);
+  public void addPropertySetter(PropertySetter... propertySetters) {
+    factoryDef.addPropertySetter(propertySetters);
   }
 
   @Override
-  public void addPropertyValue(Collection<PropertyValue> propertyValues) {
-    factoryDef.addPropertyValue(propertyValues);
+  public void addPropertySetter(Collection<PropertySetter> propertySetters) {
+    factoryDef.addPropertySetter(propertySetters);
   }
 
   @Override
@@ -205,8 +205,8 @@ public class FactoryBeanDefinition<T>
   }
 
   @Override
-  public FactoryBeanDefinition<T> setPropertyValues(PropertyValue... propertyValues) {
-    factoryDef.setPropertyValues(propertyValues);
+  public FactoryBeanDefinition<T> setPropertyValues(PropertySetter... propertySetters) {
+    factoryDef.setPropertyValues(propertySetters);
     return this;
   }
 

@@ -27,8 +27,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.Value;
-import cn.taketoday.context.factory.DefaultPropertyValue;
-import cn.taketoday.context.factory.PropertyValue;
+import cn.taketoday.context.factory.DefaultPropertySetter;
 
 /**
  * @author Today <br>
@@ -54,7 +53,7 @@ public class ValuePropertyResolveTest {
 
       // host
       // ----------------------------
-      DefaultPropertyValue host = propertyResolver.resolveProperty(ValuePropertyResolveTest.class.getDeclaredField("host"));
+      DefaultPropertySetter host = propertyResolver.resolveProperty(ValuePropertyResolveTest.class.getDeclaredField("host"));
 
       assert host.getValue() != null;
 
@@ -62,7 +61,7 @@ public class ValuePropertyResolveTest {
 
       // name
       // ----------------------------
-      DefaultPropertyValue name = propertyResolver.resolveProperty(ValuePropertyResolveTest.class.getDeclaredField("name"));
+      DefaultPropertySetter name = propertyResolver.resolveProperty(ValuePropertyResolveTest.class.getDeclaredField("name"));
 
       assert name.getValue() != null;
 
@@ -73,7 +72,7 @@ public class ValuePropertyResolveTest {
       final Properties properties = applicationContext.getEnvironment().getProperties();
       properties.put("cn.taketoday.context.loader.ValuePropertyResolveTest.test", "TEST");
 
-      DefaultPropertyValue test = propertyResolver.resolveProperty(ValuePropertyResolveTest.class.getDeclaredField("test"));
+      DefaultPropertySetter test = propertyResolver.resolveProperty(ValuePropertyResolveTest.class.getDeclaredField("test"));
 
       assert "TEST".equals(test.getValue());
 

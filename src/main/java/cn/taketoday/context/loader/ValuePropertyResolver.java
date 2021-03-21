@@ -28,7 +28,7 @@ import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.aware.OrderedApplicationContextSupport;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.factory.DefaultPropertyValue;
+import cn.taketoday.context.factory.DefaultPropertySetter;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.StringUtils;
@@ -61,7 +61,7 @@ public class ValuePropertyResolver
    * Resolve {@link Value} and {@link Env} annotation property.
    */
   @Override
-  public DefaultPropertyValue resolveProperty(final Field field) {
+  public DefaultPropertySetter resolveProperty(final Field field) {
 
     String expression;
     final boolean required;
@@ -102,13 +102,13 @@ public class ValuePropertyResolver
     if (resolved == null) {
       return required(field, required, expression, null);
     }
-    return new DefaultPropertyValue(resolved, field);
+    return new DefaultPropertySetter(resolved, field);
   }
 
-  private DefaultPropertyValue required(final Field field,
-                                        final boolean required,
-                                        final String expression,
-                                        ConfigurationException e) {
+  private DefaultPropertySetter required(final Field field,
+                                         final boolean required,
+                                         final String expression,
+                                         ConfigurationException e) {
     if (required) {
       throw new ConfigurationException("Can't resolve field: [" + field + "] -> [" + expression + "].", e);
     }

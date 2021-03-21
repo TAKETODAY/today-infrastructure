@@ -30,7 +30,7 @@ import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.TypeUtils;
-import cn.taketoday.context.factory.PropertyValue;
+import cn.taketoday.context.factory.PropertySetter;
 import cn.taketoday.context.io.Resource;
 
 import static cn.taketoday.context.cglib.core.TypeUtils.parseType;
@@ -59,7 +59,7 @@ public interface Constant extends Opcodes, Serializable {
   Object[] EMPTY_OBJECT_ARRAY = {};
   Class<?>[] EMPTY_CLASS_ARRAY = {};
   Resource[] EMPTY_RESOURCE_ARRAY = {};
-  PropertyValue[] EMPTY_PROPERTY_VALUE = {};
+  PropertySetter[] EMPTY_PROPERTY_VALUE = {};
 
   AnnotationAttributes[] EMPTY_ANNOTATION_ATTRIBUTES = {};
 

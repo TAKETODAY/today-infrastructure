@@ -80,7 +80,7 @@ public abstract class AbstractBeanFactory
   /** object factories */
   private Map<Class<?>, Object> objectFactories;
   /** dependencies */
-  private final HashSet<BeanReferencePropertyValue> dependencies = new HashSet<>(128);
+  private final HashSet<BeanReferencePropertySetter> dependencies = new HashSet<>(128);
   /** Bean Post Processors */
   private final ArrayList<BeanPostProcessor> postProcessors = new ArrayList<>();
   /** Map of bean instance, keyed by bean name */
@@ -374,14 +374,14 @@ public abstract class AbstractBeanFactory
    *
    * @throws PropertyValueException
    *         If any {@link Exception} occurred when apply
-   *         {@link PropertyValue}
+   *         {@link PropertySetter}
    * @throws NoSuchBeanDefinitionException
    *         If {@link BeanReference} is required and there isn't a bean in
    *         this {@link BeanFactory}
    */
   protected void applyPropertyValues(final Object bean, final BeanDefinition def) {
-    for (final PropertyValue propertyValue : def.getPropertyValues()) {
-      propertyValue.applyValue(bean, this);
+    for (final PropertySetter propertySetter : def.getPropertySetters()) {
+      propertySetter.applyValue(bean, this);
     }
   }
 
@@ -731,7 +731,7 @@ public abstract class AbstractBeanFactory
    */
   public void handleDependency() {
 
-    for (final BeanReferencePropertyValue propertyValue : getDependencies()) {
+    for (final BeanReferencePropertySetter propertyValue : getDependencies()) {
 
       final BeanReference ref = propertyValue.getReference();
       final String beanName = ref.getName();
@@ -1117,11 +1117,11 @@ public abstract class AbstractBeanFactory
    *         Target {@link BeanDefinition}
    */
   protected void postProcessRegisterBeanDefinition(final BeanDefinition targetDef) {
-    final PropertyValue[] propertyValues = targetDef.getPropertyValues();
-    if (ObjectUtils.isNotEmpty(propertyValues)) {
-      for (final PropertyValue propertyValue : propertyValues) {
-        if (propertyValue instanceof BeanReferencePropertyValue) {
-          this.dependencies.add((BeanReferencePropertyValue) propertyValue);
+    final PropertySetter[] propertySetters = targetDef.getPropertySetters();
+    if (ObjectUtils.isNotEmpty(propertySetters)) {
+      for (final PropertySetter propertySetter : propertySetters) {
+        if (propertySetter instanceof BeanReferencePropertySetter) {
+          this.dependencies.add((BeanReferencePropertySetter) propertySetter);
         }
       }
     }
@@ -1276,7 +1276,7 @@ public abstract class AbstractBeanFactory
     return getBeanDefinitions().size();
   }
 
-  public Set<BeanReferencePropertyValue> getDependencies() {
+  public Set<BeanReferencePropertySetter> getDependencies() {
     return dependencies;
   }
 

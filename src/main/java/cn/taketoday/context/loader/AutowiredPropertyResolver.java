@@ -32,8 +32,8 @@ import cn.taketoday.context.aware.OrderedApplicationContextSupport;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.BeanReference;
-import cn.taketoday.context.factory.BeanReferencePropertyValue;
-import cn.taketoday.context.factory.PropertyValue;
+import cn.taketoday.context.factory.BeanReferencePropertySetter;
+import cn.taketoday.context.factory.PropertySetter;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtils;
 
@@ -76,7 +76,7 @@ public class AutowiredPropertyResolver
   }
 
   @Override
-  public PropertyValue resolveProperty(final Field field) {
+  public PropertySetter resolveProperty(final Field field) {
 
     final Autowired autowired = field.getAnnotation(Autowired.class); // auto wired
 
@@ -99,7 +99,7 @@ public class AutowiredPropertyResolver
       name = byType(propertyClass);
     }
 
-    return new BeanReferencePropertyValue(new BeanReference(name, required, field), field);
+    return new BeanReferencePropertySetter(new BeanReference(name, required, field), field);
   }
 
   /**

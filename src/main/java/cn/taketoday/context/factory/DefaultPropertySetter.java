@@ -24,17 +24,17 @@ import java.lang.reflect.Field;
 import java.util.Objects;
 
 /**
- * Default implementation of {@link PropertyValue}
+ * Default implementation of {@link PropertySetter}
  *
  * @author TODAY 2021/3/6 14:55
  * @since 3.0
  */
-public class DefaultPropertyValue extends AbstractPropertyValue {
+public class DefaultPropertySetter extends AbstractPropertySetter {
 
   /** property value */
   private final Object value;
 
-  public DefaultPropertyValue(Object value, Field field) {
+  public DefaultPropertySetter(Object value, Field field) {
     super(field);
     this.value = value;
   }
@@ -55,9 +55,9 @@ public class DefaultPropertyValue extends AbstractPropertyValue {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof DefaultPropertyValue)) return false;
+    if (!(o instanceof DefaultPropertySetter)) return false;
     if (!super.equals(o)) return false;
-    final DefaultPropertyValue that = (DefaultPropertyValue) o;
+    final DefaultPropertySetter that = (DefaultPropertySetter) o;
     return Objects.equals(value, that.value);
   }
 

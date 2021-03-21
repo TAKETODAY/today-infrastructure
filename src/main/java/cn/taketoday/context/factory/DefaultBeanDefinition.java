@@ -80,7 +80,7 @@ public class DefaultBeanDefinition
   private String[] destroyMethods = Constant.EMPTY_STRING_ARRAY;
 
   /** property values */
-  private PropertyValue[] propertyValues = EMPTY_PROPERTY_VALUE;
+  private PropertySetter[] propertySetters = EMPTY_PROPERTY_VALUE;
 
   /**
    * <p>
@@ -130,10 +130,10 @@ public class DefaultBeanDefinition
   }
 
   @Override
-  public PropertyValue getPropertyValue(String name) {
-    for (PropertyValue propertyValue : propertyValues) {
-      if (propertyValue.getName().equals(name)) {
-        return propertyValue;
+  public PropertySetter getPropertyValue(String name) {
+    for (PropertySetter propertySetter : propertySetters) {
+      if (propertySetter.getName().equals(name)) {
+        return propertySetter;
       }
     }
     throw new NoSuchPropertyException("No such property named: [" + name + "]");
@@ -195,8 +195,8 @@ public class DefaultBeanDefinition
   }
 
   @Override
-  public PropertyValue[] getPropertyValues() {
-    return propertyValues;
+  public PropertySetter[] getPropertySetters() {
+    return propertySetters;
   }
 
   // -----------------------
@@ -243,8 +243,8 @@ public class DefaultBeanDefinition
   }
 
   @Override
-  public BeanDefinition setPropertyValues(PropertyValue... propertyValues) {
-    this.propertyValues = propertyValues;
+  public BeanDefinition setPropertyValues(PropertySetter... propertySetters) {
+    this.propertySetters = propertySetters;
     return this;
   }
 
@@ -256,38 +256,38 @@ public class DefaultBeanDefinition
     if (field == null) {
       throw new IllegalArgumentException("property '" + name + "' not found");
     }
-    final DefaultPropertyValue propertyValue = new DefaultPropertyValue(value, field);
-    addPropertyValue(propertyValue);
+    final DefaultPropertySetter propertyValue = new DefaultPropertySetter(value, field);
+    addPropertySetter(propertyValue);
   }
 
   @Override
-  public void addPropertyValue(PropertyValue... newValues) {
-    if (ObjectUtils.isNotEmpty(newValues)) {
-      final PropertyValue[] propertyValues = getPropertyValues();
-      if (ObjectUtils.isEmpty(propertyValues)) {
-        setPropertyValues(newValues);
+  public void addPropertySetter(PropertySetter... setters) {
+    if (ObjectUtils.isNotEmpty(setters)) {
+      final PropertySetter[] propertySetters = getPropertySetters();
+      if (ObjectUtils.isEmpty(propertySetters)) {
+        setPropertyValues(setters);
       }
       else {
-        List<PropertyValue> pool = new ArrayList<>(newValues.length + propertyValues.length);
+        List<PropertySetter> pool = new ArrayList<>(setters.length + propertySetters.length);
 
-        Collections.addAll(pool, newValues);
-        Collections.addAll(pool, propertyValues);
+        Collections.addAll(pool, setters);
+        Collections.addAll(pool, propertySetters);
 
-        setPropertyValues(pool.toArray(new PropertyValue[pool.size()]));
+        setPropertyValues(pool.toArray(new PropertySetter[pool.size()]));
       }
     }
   }
 
   @Override
-  public void addPropertyValue(Collection<PropertyValue> newValues) {
+  public void addPropertySetter(Collection<PropertySetter> newValues) {
     if (CollectionUtils.isEmpty(newValues)) {
       return;
     }
-    final PropertyValue[] propertyValues = getPropertyValues();
-    if (ObjectUtils.isNotEmpty(propertyValues)) {
-      Collections.addAll(newValues, propertyValues);
+    final PropertySetter[] propertySetters = getPropertySetters();
+    if (ObjectUtils.isNotEmpty(propertySetters)) {
+      Collections.addAll(newValues, propertySetters);
     }
-    setPropertyValues(newValues.toArray(new PropertyValue[newValues.size()]));
+    setPropertyValues(newValues.toArray(new PropertySetter[newValues.size()]));
   }
 
   /**
@@ -418,7 +418,7 @@ public class DefaultBeanDefinition
     setFactoryBean(newDef.isFactoryBean());
     setInitMethods(newDef.getInitMethods());
     setDestroyMethods(newDef.getDestroyMethods());
-    setPropertyValues(newDef.getPropertyValues());
+    setPropertyValues(newDef.getPropertySetters());
 
     setLazyInit(newDef.isLazyInit());
     setInitialized(newDef.isInitialized());
@@ -448,7 +448,7 @@ public class DefaultBeanDefinition
               && Objects.equals(childDef, other.childDef)
               && Objects.deepEquals(initMethods, other.initMethods)
               && Objects.deepEquals(destroyMethods, other.destroyMethods)
-              && Objects.deepEquals(propertyValues, other.propertyValues);
+              && Objects.deepEquals(propertySetters, other.propertySetters);
     }
     return false;
   }
@@ -467,7 +467,7 @@ public class DefaultBeanDefinition
             .append("\",\n\t\"beanClass\":\"").append(beanClass)//
             .append("\",\n\t\"initMethods\":\"").append(Arrays.toString(initMethods))//
             .append("\",\n\t\"destroyMethods\":\"").append(Arrays.toString(destroyMethods))//
-            .append("\",\n\t\"propertyValues\":\"").append(Arrays.toString(propertyValues))//
+            .append("\",\n\t\"propertyValues\":\"").append(Arrays.toString(propertySetters))//
             .append("\",\n\t\"initialized\":\"").append(initialized)//
             .append("\",\n\t\"factoryBean\":\"").append(factoryBean)//
             .append("\",\n\t\"child\":\"").append(childDef)//

@@ -40,7 +40,7 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
 
   Method[] EMPTY_METHOD = Constant.EMPTY_METHOD_ARRAY;
 
-  PropertyValue[] EMPTY_PROPERTY_VALUE = Constant.EMPTY_PROPERTY_VALUE;
+  PropertySetter[] EMPTY_PROPERTY_VALUE = Constant.EMPTY_PROPERTY_VALUE;
 
   /**
    * Get a property
@@ -53,7 +53,7 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    * @throws NoSuchPropertyException
    *         If there is no property with given name
    */
-  PropertyValue getPropertyValue(String name) throws NoSuchPropertyException;
+  PropertySetter getPropertyValue(String name) throws NoSuchPropertyException;
 
   /**
    * Indicates that If the bean is a {@link Singleton}.
@@ -135,21 +135,21 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   boolean isAbstract();
 
   /**
-   * Get all the {@link PropertyValue}s
+   * Get all the {@link PropertySetter}s
    *
-   * @return The bean's all {@link PropertyValue}
+   * @return The bean's all {@link PropertySetter}
    */
-  PropertyValue[] getPropertyValues();
+  PropertySetter[] getPropertySetters();
 
   // ----------------- Configurable
 
   /**
    * Add PropertyValue to list.
    *
-   * @param propertyValues
-   *         {@link PropertyValue} object
+   * @param propertySetters
+   *         {@link PropertySetter} object
    */
-  void addPropertyValue(PropertyValue... propertyValues);
+  void addPropertySetter(PropertySetter... propertySetters);
 
   /**
    * Add PropertyValue to list.
@@ -159,12 +159,12 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   void addPropertyValue(String name, Object value);
 
   /**
-   * Add a collection of {@link PropertyValue}s
+   * Add a collection of {@link PropertySetter}s
    *
-   * @param propertyValues
-   *         The {@link Collection} of {@link PropertyValue}s
+   * @param propertySetters
+   *         The {@link Collection} of {@link PropertySetter}s
    */
-  void addPropertyValue(Collection<PropertyValue> propertyValues);
+  void addPropertySetter(Collection<PropertySetter> propertySetters);
 
   /**
    * Apply bean If its initialized
@@ -220,14 +220,14 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
   BeanDefinition setDestroyMethods(String... destroyMethods);
 
   /**
-   * Apply bean' {@link PropertyValue}s
+   * Apply bean' {@link PropertySetter}s
    *
-   * @param propertyValues
-   *         The array of the bean's {@link PropertyValue}s
+   * @param propertySetters
+   *         The array of the bean's {@link PropertySetter}s
    *
    * @return The {@link BeanDefinition}
    */
-  BeanDefinition setPropertyValues(PropertyValue... propertyValues);
+  BeanDefinition setPropertyValues(PropertySetter... propertySetters);
 
   /**
    * Indicates that If the bean is a {@link FactoryBean}.

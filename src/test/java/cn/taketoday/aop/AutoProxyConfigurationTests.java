@@ -26,8 +26,8 @@ import cn.taketoday.aop.proxy.ProxyConfig;
 import cn.taketoday.aop.proxy.ProxyCreator;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.factory.DefaultPropertyValue;
-import cn.taketoday.context.factory.PropertyValue;
+import cn.taketoday.context.factory.DefaultPropertySetter;
+import cn.taketoday.context.factory.PropertySetter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,18 +48,18 @@ public class AutoProxyConfigurationTests {
 
       final BeanDefinition proxyCreatorDef = context.getBeanDefinition(ProxyCreator.class);
 
-      final PropertyValue exposeProxy = proxyCreatorDef.getPropertyValue("exposeProxy");
-      final PropertyValue proxyTargetClass = proxyCreatorDef.getPropertyValue("proxyTargetClass");
+      final PropertySetter exposeProxy = proxyCreatorDef.getPropertyValue("exposeProxy");
+      final PropertySetter proxyTargetClass = proxyCreatorDef.getPropertyValue("proxyTargetClass");
 
 
-      assertThat(exposeProxy).isInstanceOf(DefaultPropertyValue.class);
-      assertThat(proxyTargetClass).isInstanceOf(DefaultPropertyValue.class);
+      assertThat(exposeProxy).isInstanceOf(DefaultPropertySetter.class);
+      assertThat(proxyTargetClass).isInstanceOf(DefaultPropertySetter.class);
 
       assertThat(exposeProxy.getName()).isEqualTo("exposeProxy");
       assertThat(proxyTargetClass.getName()).isEqualTo("proxyTargetClass");
 
-      DefaultPropertyValue _exposeProxy = (DefaultPropertyValue) exposeProxy;
-      DefaultPropertyValue _proxyTargetClass = (DefaultPropertyValue) proxyTargetClass;
+      DefaultPropertySetter _exposeProxy = (DefaultPropertySetter) exposeProxy;
+      DefaultPropertySetter _proxyTargetClass = (DefaultPropertySetter) proxyTargetClass;
 
       final ProxyConfig proxyCreator = context.getBean(ProxyConfig.class);
 

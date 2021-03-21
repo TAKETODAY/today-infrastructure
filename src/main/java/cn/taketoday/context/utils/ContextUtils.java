@@ -55,21 +55,18 @@ import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.DefaultProps;
 import cn.taketoday.context.annotation.Env;
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ContextException;
-import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.BeanPostProcessor;
-import cn.taketoday.context.factory.ConfigurableBeanFactory;
-import cn.taketoday.context.factory.DefaultPropertyValue;
+import cn.taketoday.context.factory.DefaultPropertySetter;
 import cn.taketoday.context.factory.DestructionBeanPostProcessor;
 import cn.taketoday.context.factory.DisposableBean;
-import cn.taketoday.context.factory.PropertyValue;
+import cn.taketoday.context.factory.PropertySetter;
 import cn.taketoday.context.factory.StandardBeanDefinition;
 import cn.taketoday.context.loader.ArrayParameterResolver;
 import cn.taketoday.context.loader.AutowiredParameterResolver;
@@ -507,11 +504,11 @@ public abstract class ContextUtils {
    *         Application {@link Environment}
    */
   public static void resolveProps(final BeanDefinition def, final Environment env) {
-    def.addPropertyValue(resolveProps(def, env.getProperties()));
+    def.addPropertySetter(resolveProps(def, env.getProperties()));
   }
 
   /**
-   * Resolve {@link PropertyValue}s from target {@link Method} or {@link Class}
+   * Resolve {@link PropertySetter}s from target {@link Method} or {@link Class}
    *
    * @param annotated
    *         Target {@link AnnotatedElement}
@@ -521,8 +518,8 @@ public abstract class ContextUtils {
    * @throws ConfigurationException
    *         If not support {@link AnnotatedElement}
    */
-  public static List<PropertyValue> resolveProps(final AnnotatedElement annotated,
-                                                 final Properties properties) {
+  public static List<PropertySetter> resolveProps(final AnnotatedElement annotated,
+                                                  final Properties properties) {
     Assert.notNull(annotated, "AnnotatedElement must not be null");
 
     final Props props = annotated.getAnnotation(Props.class);
@@ -535,17 +532,17 @@ public abstract class ContextUtils {
     if (log.isDebugEnabled()) {
       log.debug("Loading Properties For: [{}]", type.getName());
     }
-    final List<PropertyValue> propertyValues = new ArrayList<>();
+    final List<PropertySetter> propertySetters = new ArrayList<>();
     final String[] prefixs = props.prefix();
     final List<Class<?>> nested = Arrays.asList(props.nested());
 
     for (final Field declaredField : ReflectionUtils.getFields(type)) {
       final Object converted = resolveProps(declaredField, nested, prefixs, properties);
       if (converted != null) {
-        propertyValues.add(new DefaultPropertyValue(converted, makeAccessible(declaredField)));
+        propertySetters.add(new DefaultPropertySetter(converted, makeAccessible(declaredField)));
       }
     }
-    return propertyValues;
+    return propertySetters;
   }
 
   public static Class<?> getBeanClass(final AnnotatedElement annotated) {

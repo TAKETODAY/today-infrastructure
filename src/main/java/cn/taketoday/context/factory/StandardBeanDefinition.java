@@ -125,7 +125,7 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
             .append("\",\n\t\"factoryMethod\":\"").append(getFactoryMethod())//
             .append("\",\n\t\"initMethods\":\"").append(Arrays.toString(getInitMethods()))//
             .append("\",\n\t\"destroyMethods\":\"").append(Arrays.toString(getDestroyMethods()))//
-            .append("\",\n\t\"propertyValues\":\"").append(Arrays.toString(getPropertyValues()))//
+            .append("\",\n\t\"propertyValues\":\"").append(Arrays.toString(getPropertySetters()))//
             .append("\",\n\t\"initialized\":\"").append(isInitialized())//
             .append("\",\n\t\"factoryBean\":\"").append(isFactoryBean())//
             .append("\",\n\t\"abstract\":\"").append(isAbstract())//

@@ -36,14 +36,14 @@ import cn.taketoday.context.utils.ReflectionUtils;
  * @author TODAY 2021/3/6 14:50
  * @since 3.0
  */
-public abstract class AbstractPropertyValue implements PropertyValue {
+public abstract class AbstractPropertySetter implements PropertySetter {
 
   /** field info */
   final Field field;
   /** @since 3.0 */
   final SetterMethod accessor;
 
-  public AbstractPropertyValue(Field field) {
+  public AbstractPropertySetter(Field field) {
     Assert.notNull(field, "field must not be null");
     this.field = field;
     this.accessor = ReflectionUtils.newSetterMethod(field);
@@ -84,8 +84,8 @@ public abstract class AbstractPropertyValue implements PropertyValue {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof AbstractPropertyValue)) return false;
-    final AbstractPropertyValue that = (AbstractPropertyValue) o;
+    if (!(o instanceof AbstractPropertySetter)) return false;
+    final AbstractPropertySetter that = (AbstractPropertySetter) o;
     return Objects.equals(field, that.field);
   }
 

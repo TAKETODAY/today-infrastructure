@@ -65,27 +65,27 @@ public class BeanDefinitionTest {
             final Field testInt = BeanDefinitionTest.class.getDeclaredField("testInt");
             final Field testDouble = BeanDefinitionTest.class.getDeclaredField("testDouble");
 
-            HashSet<PropertyValue> propertyValues = new HashSet<>();
-            beanDefinition.addPropertyValue(propertyValues);
+            HashSet<PropertySetter> propertySetters = new HashSet<>();
+            beanDefinition.addPropertySetter(propertySetters);
 
             beanDefinition.setPropertyValues(null);
 
-            propertyValues.add(new DefaultPropertyValue(123, testInt));
+            propertySetters.add(new DefaultPropertySetter(123, testInt));
 
-            beanDefinition.addPropertyValue(propertyValues);
+            beanDefinition.addPropertySetter(propertySetters);
 
             beanDefinition.setPropertyValues(null);
 
-            beanDefinition.addPropertyValue();
+            beanDefinition.addPropertySetter();
 
-            beanDefinition.addPropertyValue(//
-                                            new DefaultPropertyValue("TEST_STRING", test), //
-                                            new DefaultPropertyValue(123.123, testDouble)//
+            beanDefinition.addPropertySetter(//
+                                             new DefaultPropertySetter("TEST_STRING", test), //
+                                             new DefaultPropertySetter(123.123, testDouble)//
             );
 
-            beanDefinition.addPropertyValue(//
-                                            new DefaultPropertyValue("TEST_STRING", test), //
-                                            new DefaultPropertyValue(123.123, testDouble)//
+            beanDefinition.addPropertySetter(//
+                                             new DefaultPropertySetter("TEST_STRING", test), //
+                                             new DefaultPropertySetter(123.123, testDouble)//
             );
 
             beanDefinition.getPropertyValue("test");
@@ -99,7 +99,7 @@ public class BeanDefinitionTest {
                 assert true;
             }
 
-            beanDefinition.addPropertyValue(propertyValues);
+            beanDefinition.addPropertySetter(propertySetters);
 
             applicationContext.registerBean("testBean", beanDefinition);
 

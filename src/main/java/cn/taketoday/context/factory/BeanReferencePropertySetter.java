@@ -31,11 +31,11 @@ import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
  * @author TODAY 2021/3/6 15:18
  * @since 3.0
  */
-public class BeanReferencePropertyValue extends AbstractPropertyValue {
+public class BeanReferencePropertySetter extends AbstractPropertySetter {
 
   final BeanReference reference;
 
-  public BeanReferencePropertyValue(BeanReference value, Field field) {
+  public BeanReferencePropertySetter(BeanReference value, Field field) {
     super(field);
     this.reference = value;
   }
@@ -55,12 +55,12 @@ public class BeanReferencePropertyValue extends AbstractPropertyValue {
   }
 
   /**
-   * Resolve reference {@link PropertyValue}
+   * Resolve reference {@link PropertySetter}
    *
    * @param ref
    *         {@link BeanReference} record a reference of bean
    *
-   * @return A {@link PropertyValue} bean or a proxy
+   * @return A {@link PropertySetter} bean or a proxy
    */
   protected Object resolveBeanReference(AbstractBeanFactory beanFactory, BeanReference ref) {
     final String name = ref.getName();
@@ -84,9 +84,9 @@ public class BeanReferencePropertyValue extends AbstractPropertyValue {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof BeanReferencePropertyValue)) return false;
+    if (!(o instanceof BeanReferencePropertySetter)) return false;
     if (!super.equals(o)) return false;
-    final BeanReferencePropertyValue that = (BeanReferencePropertyValue) o;
+    final BeanReferencePropertySetter that = (BeanReferencePropertySetter) o;
     return Objects.equals(reference, that.reference);
   }
 

@@ -27,7 +27,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.aware.OrderedApplicationContextSupport;
-import cn.taketoday.context.factory.DefaultPropertyValue;
+import cn.taketoday.context.factory.DefaultPropertySetter;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 
@@ -56,7 +56,7 @@ public class PropsPropertyResolver
    * Resolve {@link Props} annotation property.
    */
   @Override
-  public DefaultPropertyValue resolveProperty(Field field) {
+  public DefaultPropertySetter resolveProperty(Field field) {
 
     Props props = ClassUtils.getAnnotation(Props.class, field);
 
@@ -67,9 +67,9 @@ public class PropsPropertyResolver
     final Class<?> propertyClass = field.getType();
     if (!Map.class.isAssignableFrom(propertyClass)) {
 
-      return new DefaultPropertyValue(ContextUtils.resolveProps(props, propertyClass, properties), field);
+      return new DefaultPropertySetter(ContextUtils.resolveProps(props, propertyClass, properties), field);
     }
-    return new DefaultPropertyValue(properties, field);
+    return new DefaultPropertySetter(properties, field);
   }
 
 }

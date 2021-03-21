@@ -51,12 +51,12 @@ public class BeanReferenceTest {
 
             final BeanDefinition beanDefinition = applicationContext.getBeanDefinition(getClass());
 
-            final PropertyValue propertyValue = beanDefinition.getPropertyValue("test");
+            final PropertySetter propertySetter = beanDefinition.getPropertyValue("test");
 
 
-            assertThat(propertyValue).isInstanceOf(BeanReferencePropertyValue.class);
+            assertThat(propertySetter).isInstanceOf(BeanReferencePropertySetter.class);
 
-            BeanReferencePropertyValue referencePropertyValue = (BeanReferencePropertyValue) propertyValue;
+            BeanReferencePropertySetter referencePropertyValue = (BeanReferencePropertySetter) propertySetter;
             final Object value = referencePropertyValue.getReference();
             assertThat(value).isEqualTo(beanReference);
 
