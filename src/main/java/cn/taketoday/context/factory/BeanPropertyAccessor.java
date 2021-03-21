@@ -394,14 +394,15 @@ public class BeanPropertyAccessor {
     return metadata.obtainBeanProperty(property);
   }
 
-  Object getComponentValue(Object root, String propertyPath, Object subValue, int signIndex, BeanProperty beanProperty) {
+  protected Object getComponentValue(
+          Object root, String propertyPath, Object subValue, int signIndex, BeanProperty beanProperty) {
     final Object componentValue = beanProperty.newComponentInstance();
     final String key = getKey(propertyPath, signIndex);
     setKeyedProperty(root, beanProperty, subValue, key, componentValue, propertyPath);
     return componentValue;
   }
 
-  static String getKey(String propertyPath, int signIndex) {
+  protected static String getKey(String propertyPath, int signIndex) {
     return propertyPath.substring(signIndex + 1, propertyPath.indexOf(']'));
   }
 
@@ -422,7 +423,7 @@ public class BeanPropertyAccessor {
   }
 
   @SuppressWarnings("unchecked")
-  void setKeyedProperty(
+  protected void setKeyedProperty(
           final Object root, final BeanProperty beanProperty, Object propValue,
           final String key, final Object value, final String propertyPath
   ) {
