@@ -23,7 +23,14 @@ package cn.taketoday.context.conversion;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
+import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.time.Duration;
+
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.utils.DataSize;
+import cn.taketoday.context.utils.MediaType;
+import cn.taketoday.context.utils.MimeType;
 
 /**
  * @author TODAY
@@ -61,6 +68,27 @@ public class ConverterTypeConverterTest {
             .isEqualTo(1234234L);
 
     Assertions.assertThat(converter.getConverterMap())
-            .hasSize(14);
+            .containsKey(int.class)
+            .containsKey(Integer.class)
+            .containsKey(Long.class)
+            .containsKey(long.class)
+            .containsKey(double.class)
+            .containsKey(Double.class)
+            .containsKey(float.class)
+            .containsKey(Float.class)
+            .containsKey(byte.class)
+            .containsKey(Byte.class)
+            .containsKey(short.class)
+            .containsKey(Short.class)
+            .containsKey(BigDecimal.class)
+
+            .containsKey(Class.class)
+            .containsKey(Charset.class)
+            .containsKey(DataSize.class)
+            .containsKey(MimeType.class)
+            .containsKey(MediaType.class)
+            .containsKey(Duration.class)
+    ;
+
   }
 }
