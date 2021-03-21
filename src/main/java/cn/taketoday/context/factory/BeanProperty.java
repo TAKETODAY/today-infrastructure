@@ -27,6 +27,9 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.context.AnnotationSupport;
+import cn.taketoday.context.conversion.ConversionService;
+import cn.taketoday.context.conversion.DefaultConversionService;
 import cn.taketoday.context.exception.BeanInstantiationException;
 import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.reflect.ConstructorAccessor;
@@ -34,8 +37,6 @@ import cn.taketoday.context.reflect.NullConstructor;
 import cn.taketoday.context.reflect.PropertyAccessor;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ConvertUtils;
-import cn.taketoday.context.AnnotationSupport;
 import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
@@ -55,6 +56,8 @@ public class BeanProperty implements AnnotationSupport {
   private Type componentType;
   private boolean componentResolved;
   private ConstructorAccessor componentConstructor;
+
+  private ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
   public BeanProperty(Field field) {
     Assert.notNull(field, "field must not be null");
@@ -113,8 +116,16 @@ public class BeanProperty implements AnnotationSupport {
     obtainAccessor().set(obj, convertIfNecessary(fieldType, value));
   }
 
-  final Object convertIfNecessary(final Class<?> requiredType, Object value) {
-    return requiredType.isInstance(value) ? value : ConvertUtils.convert(value, requiredType);
+  protected Object convertIfNecessary(final Class<?> requiredType, Object value) {
+    if (requiredType.isInstance(value)) {
+      return value;
+    }
+    ConversionService conversionService = getConversionService();
+    if (conversionService == null) {
+      conversionService = DefaultConversionService.getSharedInstance();
+      setConversionService(conversionService);
+    }
+    return conversionService.convert(value, requiredType);
   }
 
   PropertyAccessor obtainAccessor() {
@@ -208,6 +219,14 @@ public class BeanProperty implements AnnotationSupport {
 
   public void setPropertyAccessor(PropertyAccessor propertyAccessor) {
     this.propertyAccessor = propertyAccessor;
+  }
+
+  public void setConversionService(ConversionService conversionService) {
+    this.conversionService = conversionService;
+  }
+
+  public ConversionService getConversionService() {
+    return conversionService;
   }
 
   public boolean isMap() {

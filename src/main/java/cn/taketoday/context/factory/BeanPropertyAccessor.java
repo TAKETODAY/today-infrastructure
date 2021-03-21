@@ -377,7 +377,8 @@ public class BeanPropertyAccessor {
       // do set property operation
       final int signIndex = propertyPath.indexOf('['); // array,list: [0]; map: [key]
       if (signIndex < 0) {
-        metadata.setProperty(root, propertyPath, value);
+        final BeanProperty beanProperty = metadata.obtainBeanProperty(propertyPath);
+        beanProperty.setValue(root, convertIfNecessary(value, beanProperty));
       }
       else {
         final BeanProperty beanProperty = getBeanProperty(metadata, propertyPath, signIndex);
@@ -505,6 +506,11 @@ public class BeanPropertyAccessor {
    * @throws InvalidPropertyValueException
    *         conversion failed
    */
+  protected Object convertIfNecessary(final Object value,
+                                      final BeanProperty beanProperty) {
+    return convertIfNecessary(value, beanProperty.getType());
+  }
+
   protected Object convertIfNecessary(final Object value,
                                       final Class<?> requiredType,
                                       final BeanProperty beanProperty) {
