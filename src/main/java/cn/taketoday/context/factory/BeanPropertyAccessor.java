@@ -534,7 +534,7 @@ public class BeanPropertyAccessor {
   }
 
   protected Object doConvertInternal(Object value, Class<?> requiredType) {
-    final TypeConverter typeConverter = conversionService.getConverter(value, requiredType);
+    final TypeConverter typeConverter = getConversionService().getConverter(value, requiredType);
     if (typeConverter == null) {
       throw new InvalidPropertyValueException(
               "Invalid property value [" + value + "] cannot convert '"
@@ -599,6 +599,10 @@ public class BeanPropertyAccessor {
   }
 
   public ConversionService getConversionService() {
+    ConversionService conversionService = this.conversionService;
+    if (conversionService == null) {
+      this.conversionService = conversionService = DefaultConversionService.getSharedInstance();
+    }
     return conversionService;
   }
   // static

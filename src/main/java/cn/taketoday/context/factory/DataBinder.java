@@ -58,8 +58,17 @@ public class DataBinder extends BeanPropertyAccessor {
    * Bind {@code propertyValues} to {@link #rootObject} object
    */
   public Object bind(List<PropertyValue> propertyValues) {
-    final Object rootObject = getRootObject();
-    final BeanMetadata metadata = getMetadata();
+    return bind(getRootObject(), propertyValues);
+  }
+
+  /**
+   * Bind {@code propertyValues} to {@code rootObject} object
+   */
+  public Object bind(Object rootObject, List<PropertyValue> propertyValues) {
+    return bind(rootObject, getMetadata(), propertyValues);
+  }
+
+  public Object bind(Object rootObject, BeanMetadata metadata, List<PropertyValue> propertyValues) {
     for (final PropertyValue propertyValue : propertyValues) {
       setProperty(rootObject, metadata, propertyValue);
     }
@@ -110,4 +119,7 @@ public class DataBinder extends BeanPropertyAccessor {
     propertyValues.forEach(this::addPropertyValue);
   }
 
+  public List<PropertyValue> getPropertyValues() {
+    return propertyValues;
+  }
 }
