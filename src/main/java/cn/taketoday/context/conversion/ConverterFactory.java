@@ -22,8 +22,7 @@ package cn.taketoday.context.conversion;
 /**
  * {@link Converter} factory
  *
- * @author Today <br>
- * 2018-08-08 07:19
+ * @author TODAY 2018-08-08 07:19
  */
 @FunctionalInterface
 public interface ConverterFactory<S, R> {

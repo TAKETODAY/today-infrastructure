@@ -27,7 +27,7 @@ import cn.taketoday.context.utils.OrderUtils;
  * @author TODAY
  * 2021/1/8 22:41
  */
-public class GenericConverter implements Converter<Object, Object>, Ordered {
+class GenericConverter implements Converter<Object, Object>, Ordered {
   final Class<?> sourceClass;
   final Converter converter;
 

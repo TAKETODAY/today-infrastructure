@@ -21,43 +21,23 @@
 package cn.taketoday.context.conversion;
 
 /**
- * Conversion Service
- * <p>
- * Use {@link Converter} to convert
- * </p>
- *
- * @author TODAY 2021/3/19 20:59
- * @since 3.0
+ * @author TODAY 2021/3/21 10:35
  */
-public interface ConversionService {
+public class FloatConverter extends NumberConverter {
 
-  /**
-   * whether this {@link ConversionService} supports to convert source object to
-   * target class object
-   *
-   * @param targetClass
-   *         target class
-   * @param source
-   *         source object
-   *
-   * @return whether this {@link ConversionService} supports to convert source object
-   * to target class object
-   */
-  boolean canConvert(Object source, Class<?> targetClass);
+  public FloatConverter(Class<?> targetClass) {
+    super(targetClass);
+  }
 
-  /**
-   * Convert source to target type
-   * <p>
-   * If source object is {@code null} just returns {@code null}
-   * </p>
-   *
-   * @param source
-   *         source object
-   * @param targetClass
-   *         targetClass
-   *
-   * @return converted object
-   */
-  <T> T convert(Object source, Class<T> targetClass);
+  @Override
+  protected Number convertNumber(Number source) {
+    return source.floatValue();
+  }
+
+  @Override
+  protected Number convertString(String source) {
+    return Float.parseFloat(source);
+  }
 
 }
+

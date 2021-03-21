@@ -24,8 +24,7 @@ import cn.taketoday.context.exception.ConversionException;
 /**
  * A {@link Converter}
  *
- * @author Today <br>
- * 2018-07-07 21:33:52
+ * @author TODAY 2018-07-07 21:33:52
  */
 @FunctionalInterface
 public interface Converter<S, T> {

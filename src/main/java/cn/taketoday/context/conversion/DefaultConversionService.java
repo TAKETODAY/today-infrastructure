@@ -24,8 +24,6 @@ import java.io.File;
 import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URL;
-import java.nio.charset.Charset;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,15 +36,11 @@ import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ConvertUtils;
-import cn.taketoday.context.utils.DataSize;
-import cn.taketoday.context.utils.MediaType;
-import cn.taketoday.context.utils.MimeType;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 
-import static cn.taketoday.context.conversion.DelegatingStringSourceTypeConverter.delegate;
 import static cn.taketoday.context.utils.OrderUtils.reversedSort;
 
 /**
@@ -56,36 +50,24 @@ import static cn.taketoday.context.utils.OrderUtils.reversedSort;
 public class DefaultConversionService implements ConversionService {
   private static DefaultConversionService sharedInstance = new DefaultConversionService();
 
-  private TypeConverter[] converters;
-
   static {
     sharedInstance.registerDefaultConverters();
   }
 
+  private TypeConverter[] converters;
+
   public void registerDefaultConverters() {
-    setConverters(new StringSourceEnumConverter(),
-                  new StringSourceResourceConverter(),
-                  new PrimitiveClassConverter(),
-                  ConverterTypeConverter.getSharedInstance(),
-                  delegate((c) -> c == MimeType.class, MimeType::valueOf),
-                  delegate((c) -> c == MediaType.class, MediaType::valueOf),
-                  new StringSourceConstructorConverter(),
-                  delegate((c) -> c == Class.class, source -> {
-                    try {
-                      return Class.forName(source);
-                    }
-                    catch (ClassNotFoundException e) {
-                      throw new ConversionException(e);
-                    }
-                  }),
-                  delegate((c) -> c == DataSize.class, DataSize::parse),
-                  delegate((c) -> c == Charset.class, Charset::forName),
-                  delegate((c) -> c == Duration.class, ConvertUtils::parseDuration),
-                  delegate((c) -> c == Boolean.class || c == boolean.class, Boolean::parseBoolean),
-                  new ArrayToCollectionConverter(),
-                  new ArrayStringArrayConverter(),
-                  new StringSourceArrayConverter(),
-                  new ArraySourceToSingleConverter()//
+    setConverters(
+            new PrimitiveClassConverter(),
+            ConverterTypeConverter.getSharedInstance(),
+            new StringSourceEnumConverter(),
+            new StringSourceResourceConverter(),
+            new StringSourceConstructorConverter(),
+            new BooleanConverter(),
+            new ArrayToCollectionConverter(),
+            new ArrayStringArrayConverter(),
+            new StringSourceArrayConverter(),
+            new ArraySourceToSingleConverter()//
     );
   }
 
@@ -125,13 +107,14 @@ public class DefaultConversionService implements ConversionService {
   }
 
   @Override
-  public Object convert(Object source, Class<?> targetClass) {
+  @SuppressWarnings("unchecked")
+  public <T> T convert(Object source, Class<T> targetClass) {
     if (source == null) {
       return null;
     }
     Assert.notNull(targetClass, "targetClass must not be null");
     if (targetClass.isInstance(source)) {
-      return source;
+      return (T) source;
     }
     final TypeConverter typeConverter = getConverter(source, targetClass);
     if (typeConverter == null) {
@@ -139,7 +122,7 @@ public class DefaultConversionService implements ConversionService {
               "There isn't a 'cn.taketoday.context.conversion.TypeConverter' to convert: ["
                       + source + "] '" + source.getClass() + "' to target class: [" + targetClass + "]");
     }
-    return typeConverter.convert(targetClass, source);
+    return (T) typeConverter.convert(targetClass, source);
   }
 
   /**

@@ -152,127 +152,20 @@ public class ConverterTypeConverter
             new ByteConverter(byte.class),
             new ShortConverter(short.class),
             new ShortConverter(Short.class),
+            new BigDecimalConverter(BigDecimal.class),
 
-            new BigDecimalConverter(BigDecimal.class)
+            new ClassConverter(),
+            new CharsetConverter(),
+            new DurationConverter(),
+            new DataSizeConverter(),
+            new MimeTypeConverter(),
+            new MediaTypeConverter()
+
     );
   }
 
   public static ConverterTypeConverter getSharedInstance() {
     return sharedInstance;
-  }
-
-  static class IntegerConverter extends NumberConverter {
-
-    public IntegerConverter(Class<?> targetClass) {
-      super(targetClass);
-    }
-  }
-
-  static class LongConverter extends NumberConverter {
-
-    public LongConverter(Class<?> targetClass) {
-      super(targetClass);
-    }
-
-    @Override
-    protected Number convertNumber(Number source) {
-      return source.longValue();
-    }
-
-    @Override
-    protected Number convertString(String source) {
-      return Long.parseLong(source);
-    }
-  }
-
-  static class DoubleConverter extends NumberConverter {
-
-    public DoubleConverter(Class<?> targetClass) {
-      super(targetClass);
-    }
-
-    @Override
-    protected Number convertNumber(Number source) {
-      return source.doubleValue();
-    }
-
-    @Override
-    protected Number convertString(String source) {
-      return Double.parseDouble(source);
-    }
-  }
-
-  static class FloatConverter extends NumberConverter {
-
-    public FloatConverter(Class<?> targetClass) {
-      super(targetClass);
-    }
-
-    @Override
-    protected Number convertNumber(Number source) {
-      return source.floatValue();
-    }
-
-    @Override
-    protected Number convertString(String source) {
-      return Float.parseFloat(source);
-    }
-
-  }
-
-  static class ByteConverter extends NumberConverter {
-
-    public ByteConverter(Class<?> targetClass) {
-      super(targetClass);
-    }
-
-    @Override
-    protected Number convertNumber(Number source) {
-      return source.byteValue();
-    }
-
-    @Override
-    protected Number convertString(String source) {
-      return Byte.parseByte(source);
-    }
-  }
-
-  static class ShortConverter extends NumberConverter {
-
-    public ShortConverter(Class<?> targetClass) {
-      super(targetClass);
-    }
-
-    @Override
-    protected Number convertNumber(Number source) {
-      return source.shortValue();
-    }
-
-    @Override
-    protected Number convertString(String source) {
-      return Short.parseShort(source);
-    }
-  }
-
-  static class BigDecimalConverter extends NumberConverter {
-
-    public BigDecimalConverter(Class<?> targetClass) {
-      super(targetClass);
-    }
-
-    @Override
-    protected Number convertString(String source) {
-      return BigDecimal.valueOf(Double.parseDouble(source));
-    }
-
-    @Override
-    protected BigDecimal convertNumber(Number source) {
-      if (source instanceof BigDecimal) {
-        return (BigDecimal) source;
-      }
-      return BigDecimal.valueOf(source.doubleValue());
-    }
-
   }
 
 }

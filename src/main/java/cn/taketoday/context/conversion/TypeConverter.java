@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -24,11 +24,9 @@ import cn.taketoday.context.exception.ConversionException;
 /**
  * Type converter
  *
- * @author TODAY <br>
- * 2019-06-06 14:17
+ * @author TODAY 2019-06-06 14:17
  * @since 2.1.6
  */
-@FunctionalInterface
 public interface TypeConverter {
 
   /**
@@ -43,9 +41,7 @@ public interface TypeConverter {
    * @return whether this {@link TypeConverter} supports to convert source object
    * to target class object
    */
-  default boolean supports(Class<?> targetClass, Object source) {
-    return true;
-  }
+  boolean supports(Class<?> targetClass, Object source);
 
   /**
    * Convert source object to target object
