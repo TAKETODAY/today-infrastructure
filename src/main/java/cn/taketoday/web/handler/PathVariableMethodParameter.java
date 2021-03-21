@@ -36,17 +36,17 @@ import static cn.taketoday.context.utils.ConvertUtils.convert;
  */
 public class PathVariableMethodParameter extends MethodParameter {
 
-  private final int pathIndex;
+  private final int variableIndex;
   private final String pathPattern;
   private final PathMatcher pathMatcher;
 
-  public PathVariableMethodParameter(int pathIndex,
+  public PathVariableMethodParameter(int variableIndex,
                                      String pathPattern,
                                      HandlerMethod handler,
                                      MethodParameter other,
                                      PathMatcher pathMatcher) {
     super(handler, other);
-    this.pathIndex = pathIndex;
+    this.variableIndex = variableIndex;
     this.pathPattern = pathPattern;
     this.pathMatcher = pathMatcher;
   }
@@ -63,15 +63,15 @@ public class PathVariableMethodParameter extends MethodParameter {
       }
     }
     try {
-      return convert(pathVariables[pathIndex], getParameterClass());
+      return convert(pathVariables[variableIndex], getParameterClass());
     }
     catch (ConversionException e) {
-      throw new ParameterConversionException(this, pathVariables[pathIndex], e);
+      throw new ParameterConversionException(this, pathVariables[variableIndex], e);
     }
   }
 
-  public int getPathIndex() {
-    return pathIndex;
+  public int getVariableIndex() {
+    return variableIndex;
   }
 
   public String getPathPattern() {
@@ -84,13 +84,13 @@ public class PathVariableMethodParameter extends MethodParameter {
     if (!(o instanceof PathVariableMethodParameter)) return false;
     if (!super.equals(o)) return false;
     final PathVariableMethodParameter that = (PathVariableMethodParameter) o;
-    return pathIndex == that.pathIndex &&
-            Objects.equals(pathPattern, that.pathPattern) &&
-            Objects.equals(pathMatcher, that.pathMatcher);
+    return variableIndex == that.variableIndex
+            && Objects.equals(pathPattern, that.pathPattern)
+            && Objects.equals(pathMatcher, that.pathMatcher);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(super.hashCode(), pathIndex, pathPattern, pathMatcher);
+    return Objects.hash(super.hashCode(), variableIndex, pathPattern, pathMatcher);
   }
 }
