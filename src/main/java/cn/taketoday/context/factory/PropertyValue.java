@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -15,40 +15,40 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.context.factory;
 
 /**
- * Bean property applier
- *
- * @author TODAY <br>
- * 2018-06-23 11:28:01
+ * @author TODAY 2021/3/21 15:49
  */
-public interface PropertyValue {
+public class PropertyValue {
 
-  /**
-   * It shows that the value is not set
-   */
-  Object DO_NOT_SET = new Object();
+  private String name;
+  private Object value;
 
-  /**
-   * Get Property name
-   *
-   * @return Property name
-   */
-  String getName();
+  public PropertyValue() {}
 
-  /**
-   * set value to property
-   * <p>
-   * If property value is {@link #DO_NOT_SET} will not set value
-   * </p>
-   *
-   * @param bean
-   *         property's bean
-   * @param beanFactory
-   *         current AbstractBeanFactory
-   */
-  void applyValue(Object bean, AbstractBeanFactory beanFactory);
+  public PropertyValue(String name, Object value) {
+    this.name = name;
+    this.value = value;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public Object getValue() {
+    return value;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setValue(Object value) {
+    this.value = value;
+  }
+
 }

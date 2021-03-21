@@ -21,6 +21,8 @@
 package cn.taketoday.context.factory;
 
 import java.beans.PropertyEditor;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -28,17 +30,37 @@ import java.util.List;
  * @since 3.0
  */
 public class DataBinder extends BeanPropertyAccessor {
+  protected final List<PropertyValue> propertyValues = new ArrayList<>();
 
-  List<PropertyValue> propertyValues;
+  public DataBinder() { }
+
+  public DataBinder(Class<?> beanClass) {
+    super(beanClass);
+  }
+
+  public DataBinder(Object object) {
+    super(BeanMetadata.ofClass(object.getClass()), object);
+  }
+
+  public DataBinder(BeanMetadata metadata, Object object) {
+    super(metadata, object);
+  }
 
   public Object bind() {
-    final Object bean = getMetadata().newInstance(); // native-invoke constructor
+    final Object rootObject = getRootObject();
+    final BeanMetadata metadata = getMetadata();
+    for (final PropertyValue propertyValue : propertyValues) {
+      setProperty(rootObject, metadata, propertyValue);
+    }
+    return rootObject;
+  }
 
-    return bean;
+  public void setProperty(final Object root, final BeanMetadata metadata, final PropertyValue propertyValue) {
+    setProperty(root, metadata, propertyValue.getName(), propertyValue.getValue());
   }
 
   @Override
-  protected Object convertIfNecessary(Object value, Class<?> requiredType, BeanProperty beanProperty) {
+  protected Object doConvertInternal(Object value, Class<?> requiredType, BeanProperty beanProperty) {
     final PropertyEditor editor = findEditor(requiredType, beanProperty);
     if (editor != null && value instanceof String) {
       try {
@@ -47,11 +69,23 @@ public class DataBinder extends BeanPropertyAccessor {
       }
       catch (IllegalArgumentException ignored) { }
     }
-    return super.convertIfNecessary(value, requiredType, beanProperty);
+    // fallback to conversion service
+    return super.doConvertInternal(value, requiredType, beanProperty);
   }
 
   private PropertyEditor findEditor(Class<?> requiredType, BeanProperty beanProperty) {
     return null;
+  }
+
+  public void addPropertyValue(String name, Object value) {
+    addPropertyValues(new PropertyValue(name, value));
+  }
+
+  public void addPropertyValues(PropertyValue... propertyValues) {
+    Collections.addAll(this.propertyValues, propertyValues);
+  }
+  public void addPropertyValues(List<PropertyValue> propertyValues) {
+    this.propertyValues.addAll(propertyValues);
   }
 
 }
