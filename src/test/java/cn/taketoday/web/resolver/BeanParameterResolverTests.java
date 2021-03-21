@@ -133,10 +133,9 @@ public class BeanParameterResolverTests extends TestCase {
             }));
 
     final ParameterMockRequestContext context = new ParameterMockRequestContext(params);
-    final Object parameter = resolver.resolveParameter0(context, testUser);
     // new version
     final Object newVersion = resolver.resolveParameter(context, testUser);
-    assertThat(newVersion).isEqualTo(today).isEqualTo(parameter);
+    assertThat(newVersion).isEqualTo(today);
   }
 
   final Map<String, String[]> params = new HashMap<String, String[]>() {
