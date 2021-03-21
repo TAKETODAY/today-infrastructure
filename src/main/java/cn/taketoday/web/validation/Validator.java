@@ -21,19 +21,21 @@ package cn.taketoday.web.validation;
 
 /**
  * @author TODAY <br>
- *         2019-07-21 14:22
+ * 2019-07-21 14:22
  */
-@FunctionalInterface
 public interface Validator {
+
+  boolean supports(Object obj);
 
   /**
    * Validates all constraints on {@code object}.
    *
    * @param object
-   *            object to validate
-   * @return a set of the constraint violations caused by this validation; will be
+   *         object to validate
+   * @param errors
+   *         a set of the constraint violations caused by this validation; will be
    *         null if no error occurs
    */
-  Errors validate(Object object);
+  void validate(Object object, Errors errors);
 
 }

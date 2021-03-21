@@ -57,8 +57,8 @@ public interface Constant extends cn.taketoday.context.Constant {
   /**********************************************************
    * Framework Attribute Keys
    */
-  String KEY_THROWABLE = HandlerExceptionHandler.class + "-context-throwable";
-  String VALIDATION_ERRORS = ParameterResolver.class + "-context-validation-errors";
+  String KEY_THROWABLE = HandlerExceptionHandler.class.getName() + "-context-throwable";
+  String VALIDATION_ERRORS = ParameterResolver.class.getName() + "-context-validation-errors";
 
   //@off
 	/**

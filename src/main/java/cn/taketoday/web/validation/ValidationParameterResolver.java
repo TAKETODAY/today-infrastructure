@@ -25,8 +25,6 @@ import java.util.Map;
 
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.annotation.condition.ConditionalOnClass;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.web.Constant;
@@ -36,35 +34,33 @@ import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolvers;
 
 /**
- * @author TODAY <br>
- * 2019-07-20 17:00
+ * @author TODAY 2019-07-20 17:00
  */
-@ConditionalOnClass("javax.validation.Valid")
-@MissingBean(type = ValidationParameterResolver.class)
 public class ValidationParameterResolver
         extends OrderedSupport implements ParameterResolver {
 
-  private final Validator validator;
+  /** list of validators @since 3.0 */
+  private final CompositeValidator validator;
   private final Map<MethodParameter, ParameterResolver> resolverMap = new HashMap<>();
   private static final Class<? extends Annotation> VALID_CLASS = ClassUtils.loadClass("javax.validation.Valid");
 
   private ParameterResolvers resolvers;
 
-  public ValidationParameterResolver(Validator validator) {
+  public ValidationParameterResolver(CompositeValidator validator) {
     this(HIGHEST_PRECEDENCE + 100, validator);
   }
 
   @Autowired
-  public ValidationParameterResolver(Validator validator, ParameterResolvers resolvers) {
+  public ValidationParameterResolver(CompositeValidator validator, ParameterResolvers resolvers) {
     this(HIGHEST_PRECEDENCE + 100, validator, resolvers);
   }
 
-  public ValidationParameterResolver(final int order, final Validator validator) {
+  public ValidationParameterResolver(final int order, final CompositeValidator validator) {
     super(order);
     this.validator = validator;
   }
 
-  public ValidationParameterResolver(final int order, final Validator validator, ParameterResolvers resolvers) {
+  public ValidationParameterResolver(final int order, final CompositeValidator validator, ParameterResolvers resolvers) {
     super(order);
     this.validator = validator;
     this.resolvers = resolvers;
@@ -86,10 +82,11 @@ public class ValidationParameterResolver
 
   @Override
   public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-    final Object value = obtainResolver(parameter).resolveParameter(context, parameter);
-    final Errors errors = getValidator().validate(value);
-    if (errors != null) {
+    final Object value = resolveValue(context, parameter);
 
+    final DefaultErrors errors = new DefaultErrors();
+    validate(value, errors);
+    if (errors.hasErrors()) {
       final MethodParameter[] parameters = parameter.getHandlerMethod().getParameters();
       final int length = parameters.length;
       context.attribute(Constant.VALIDATION_ERRORS, errors);
@@ -105,6 +102,14 @@ public class ValidationParameterResolver
     return value;
   }
 
+  protected Object resolveValue(RequestContext context, MethodParameter parameter) throws Throwable {
+    return obtainResolver(parameter).resolveParameter(context, parameter);
+  }
+
+  protected void validate(Object value, DefaultErrors errors) {
+    getValidator().validate(value, errors);
+  }
+
   protected Throwable buildException(final Errors errors) {
     if (errors instanceof Throwable) {
       return (Throwable) errors;
@@ -112,7 +117,7 @@ public class ValidationParameterResolver
     return new ValidationException(errors);
   }
 
-  public Validator getValidator() {
+  public CompositeValidator getValidator() {
     return validator;
   }
 

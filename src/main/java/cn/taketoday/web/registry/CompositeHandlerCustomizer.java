@@ -27,8 +27,7 @@ import cn.taketoday.context.utils.OrderUtils;
 import static java.util.Objects.requireNonNull;
 
 /**
- * @author TODAY
- * @date 2020/12/10 23:31
+ * @author TODAY 2020/12/10 23:31
  */
 public class CompositeHandlerCustomizer implements HandlerCustomizer {
 

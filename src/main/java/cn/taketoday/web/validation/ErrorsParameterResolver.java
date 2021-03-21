@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.Set;
 
 import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
@@ -33,7 +32,6 @@ import cn.taketoday.web.resolver.ParameterResolver;
  * @author TODAY <br>
  * 2019-07-20 17:00
  */
-@MissingBean(type = ErrorsParameterResolver.class)
 public class ErrorsParameterResolver
         extends OrderedSupport implements ParameterResolver {
 
@@ -45,7 +43,7 @@ public class ErrorsParameterResolver
     super(order);
   }
 
-  private static final Errors EMPTY = new Errors() {
+  static final Errors EMPTY = new Errors() {
 
     @Override
     public boolean hasErrors() {
@@ -61,6 +59,9 @@ public class ErrorsParameterResolver
     public Set<ObjectError> getAllErrors() {
       return Collections.emptySet();
     }
+
+    @Override
+    public void addError(ObjectError error) { }
   };
 
   @Override
