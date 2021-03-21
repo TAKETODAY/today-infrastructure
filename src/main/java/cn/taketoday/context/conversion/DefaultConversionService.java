@@ -97,9 +97,7 @@ public class DefaultConversionService implements ConversionService {
 
   public void setConverters(TypeConverter... cts) {
     Assert.notNull(cts, "TypeConverter must not be null");
-    synchronized (ConvertUtils.class) {
-      converters = reversedSort(cts);
-    }
+    converters = reversedSort(cts);
   }
 
   @Override
