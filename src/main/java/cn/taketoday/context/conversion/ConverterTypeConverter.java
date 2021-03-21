@@ -44,7 +44,7 @@ public class ConverterTypeConverter
   private static final ConverterTypeConverter sharedInstance = new ConverterTypeConverter();
 
   static {
-    sharedInstance.registerDefaultConverters();
+    registerDefaultConverters(sharedInstance);
     sharedInstance.setOrder(HIGHEST_PRECEDENCE + 1);
   }
 
@@ -137,8 +137,8 @@ public class ConverterTypeConverter
     return converterMap;
   }
 
-  public void registerDefaultConverters() {
-    addConverters(
+  public static void registerDefaultConverters(ConverterTypeConverter converter) {
+    converter.addConverters(
             new ObjectToStringConverter(),
             new IntegerConverter(int.class),
             new IntegerConverter(Integer.class),

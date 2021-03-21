@@ -49,7 +49,7 @@ public class ConverterTypeConverterTest {
   @Test
   public void testConverterTypeConverter() {
     final ConverterTypeConverter converter = new ConverterTypeConverter();
-    converter.registerDefaultConverters();
+    ConverterTypeConverter.registerDefaultConverters(converter);
     converter.addConverter(integerConverter);
     try {
       converter.addConverter(lambdaConverter);

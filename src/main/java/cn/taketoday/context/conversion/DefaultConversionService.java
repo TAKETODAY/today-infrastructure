@@ -47,19 +47,21 @@ import static cn.taketoday.context.utils.OrderUtils.reversedSort;
  * @author TODAY 2021/3/20 22:42
  * @since 3.0
  */
-public class DefaultConversionService implements ConversionService {
+public class DefaultConversionService implements ConfigurableConversionService {
   private static DefaultConversionService sharedInstance = new DefaultConversionService();
 
   static {
-    sharedInstance.registerDefaultConverters();
+    registerDefaultConverters(sharedInstance);
   }
 
   private TypeConverter[] converters;
 
-  public void registerDefaultConverters() {
-    setConverters(
+  private ConverterTypeConverter converterTypeConverter = ConverterTypeConverter.getSharedInstance();
+
+  public static void registerDefaultConverters(ConverterRegistry registry) {
+    registry.setConverters(
             new PrimitiveClassConverter(),
-            ConverterTypeConverter.getSharedInstance(),
+            registry.getConverterTypeConverter(),
             new StringSourceEnumConverter(),
             new StringSourceResourceConverter(),
             new StringSourceConstructorConverter(),
@@ -95,6 +97,7 @@ public class DefaultConversionService implements ConversionService {
     return converters;
   }
 
+  @Override
   public void setConverters(TypeConverter... cts) {
     Assert.notNull(cts, "TypeConverter must not be null");
     converters = reversedSort(cts);
@@ -109,7 +112,7 @@ public class DefaultConversionService implements ConversionService {
   @SuppressWarnings("unchecked")
   public <T> T convert(Object source, Class<T> targetClass) {
     if (source == null) {
-      return null;
+      return convertNull(targetClass);
     }
     Assert.notNull(targetClass, "targetClass must not be null");
     if (targetClass.isInstance(source)) {
@@ -124,6 +127,10 @@ public class DefaultConversionService implements ConversionService {
     return (T) typeConverter.convert(targetClass, source);
   }
 
+  protected <T> T convertNull(Class<T> targetClass) {
+    return null;
+  }
+
   /**
    * Add {@link TypeConverter} to {@link #converters}
    *
@@ -132,6 +139,7 @@ public class DefaultConversionService implements ConversionService {
    *
    * @since 2.1.6
    */
+  @Override
   public void addConverter(TypeConverter... converters) {
     if (ObjectUtils.isNotEmpty(converters)) {
       final List<TypeConverter> typeConverters = new ArrayList<>();
@@ -148,6 +156,7 @@ public class DefaultConversionService implements ConversionService {
    *
    * @since 2.1.6
    */
+  @Override
   public void addConverter(List<TypeConverter> converters) {
     if (ObjectUtils.isNotEmpty(converters)) {
       if (getConverters() != null) {
@@ -155,6 +164,36 @@ public class DefaultConversionService implements ConversionService {
       }
       setConverters(converters.toArray(new TypeConverter[converters.size()]));
     }
+  }
+
+  @Override
+  public void addConverters(Converter<?, ?>... converters) {
+    converterTypeConverter.addConverters(converters);
+  }
+
+  @Override
+  public void addConverter(Converter<?, ?> converter) {
+    converterTypeConverter.addConverter(converter);
+  }
+
+  @Override
+  public void addConverter(Class<?> targetClass, Converter<?, ?> converter) {
+    converterTypeConverter.addConverter(targetClass, converter);
+  }
+
+  @Override
+  public void addConverter(Class<?> targetClass, Class<?> sourceClass, Converter<?, ?> converter) {
+    converterTypeConverter.addConverter(targetClass, sourceClass, converter);
+  }
+
+  @Override
+  public void setConverterTypeConverter(ConverterTypeConverter converterTypeConverter) {
+    this.converterTypeConverter = converterTypeConverter;
+  }
+
+  @Override
+  public ConverterTypeConverter getConverterTypeConverter() {
+    return converterTypeConverter;
   }
 
   // static
