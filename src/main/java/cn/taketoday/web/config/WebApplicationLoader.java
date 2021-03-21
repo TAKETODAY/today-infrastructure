@@ -214,19 +214,18 @@ public class WebApplicationLoader
       handlers.add(exceptionHandler);
     }
 
-    final WebApplicationContext context = obtainApplicationContext();
-
-    // 默认
-    DefaultExceptionHandler defaultHandler = context.getBean(DefaultExceptionHandler.class);
-    if (defaultHandler == null) {
-      context.registerBean(DefaultExceptionHandler.class);
-      defaultHandler = context.getBean(DefaultExceptionHandler.class);
-    }
-
-    handlers.add(defaultHandler);
-
-    // 用户
+    // user config
     mvcConfiguration.configureExceptionHandlers(handlers);
+
+    if (handlers.isEmpty()) {
+      final WebApplicationContext context = obtainApplicationContext();
+      DefaultExceptionHandler defaultHandler = context.getBean(DefaultExceptionHandler.class);
+      if (defaultHandler == null) {
+        context.registerBean(DefaultExceptionHandler.class);
+        defaultHandler = context.getBean(DefaultExceptionHandler.class);
+      }
+      handlers.add(defaultHandler);
+    }
 
     // set
     dispatcherHandler.setExceptionHandler(handlers.size() == 1
@@ -263,7 +262,6 @@ public class WebApplicationLoader
    *         All {@link WebMvcConfiguration} object
    */
   protected void configureTypeConverter(List<TypeConverter> typeConverters, WebMvcConfiguration mvcConfiguration) {
-
     mvcConfiguration.configureTypeConverter(typeConverters);
 
     ConvertUtils.addConverter(typeConverters);
@@ -347,7 +345,6 @@ public class WebApplicationLoader
    *         All {@link WebMvcConfiguration} object
    */
   protected void configureParameterResolver(List<ParameterResolver> resolvers, WebMvcConfiguration mvcConfiguration) {
-
     // Use ConverterParameterResolver to resolve primitive types
     // --------------------------------------------------------------------------
 
@@ -435,7 +432,6 @@ public class WebApplicationLoader
     resolvers.add(new LocalTimeParameterResolver());
     resolvers.add(new LocalDateTimeParameterResolver());
 
-
     // User customize parameter resolver
     // ------------------------------------------
 
@@ -443,8 +439,7 @@ public class WebApplicationLoader
     // post
     postConfigureParameterResolver(resolvers, mvcConfiguration);
 
-    final ParameterResolvers parameterResolvers = obtainApplicationContext().getBean(ParameterResolvers.class);
-
+    final ParameterResolvers parameterResolvers = context.getBean(ParameterResolvers.class);
     parameterResolvers.addResolver(resolvers);
   }
 
