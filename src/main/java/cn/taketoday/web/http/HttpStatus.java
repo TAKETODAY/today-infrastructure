@@ -30,8 +30,7 @@ package cn.taketoday.web.http;
  * @author Arjen Poutsma
  * @author Sebastien Deleuze
  * @author Brian Clozel
- * @author TODAY
- * @date 2020/12/6 15:51
+ * @author TODAY 2020/12/6 15:51
  * @see HttpStatus.Series
  * @see <a href="https://www.iana.org/assignments/http-status-codes">HTTP Status Code Registry</a>
  * @see <a href="https://en.wikipedia.org/wiki/List_of_HTTP_status_codes">List of HTTP status codes - Wikipedia</a>

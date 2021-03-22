@@ -521,6 +521,9 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
 
   <T> T nativeSession(Class<T> sessionClass);
 
+  /**
+   * Native request : HttpServletRequest
+   */
   <T> T nativeRequest();
 
   <T> T nativeRequest(Class<T> requestClass);

@@ -26,7 +26,6 @@ import cn.taketoday.context.utils.MultiValueMap;
 /**
  * Represents an HTTP request or response entity, consisting of headers and body.
  *
- * <p>Typically used in combination with the {@link org.springframework.web.client.RestTemplate},
  * like so:
  * <pre class="code">
  * HttpHeaders headers = new HttpHeaders();
@@ -55,8 +54,7 @@ import cn.taketoday.context.utils.MultiValueMap;
  *
  * @author Arjen Poutsma
  * @author Juergen Hoeller
- * @author TODAY
- * @date 2020/12/6 17:10
+ * @author TODAY 2020/12/6 17:10
  * @see #getBody()
  * @see #getHeaders()
  * @since 3.0.2

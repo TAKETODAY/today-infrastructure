@@ -68,8 +68,7 @@ import jodd.net.HttpMethod;
  *
  * @author Arjen Poutsma
  * @author Brian Clozel
- * @author TODAY
- * @date 2020/12/6 17:06
+ * @author TODAY 2020/12/6 17:06
  * @see #getStatusCode()
  * @since 3.0
  */

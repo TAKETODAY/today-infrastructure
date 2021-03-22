@@ -53,15 +53,14 @@ public class JstlTemplateViewResolver extends AbstractTemplateViewResolver {
    * @since 2.3.3
    */
   @PostConstruct
-  public void afterPropertiesSet(WebServletApplicationContext applicationContext) {
-
+  public void afterPropertiesSet(WebServletApplicationContext context) {
     final String jspServlet = "org.apache.jasper.servlet.JspServlet";
 
     if (!ClassUtils.isPresent(jspServlet)) {
       throw new ConfigurationException("You must provide: [" + jspServlet + "] to your application's class path");
     }
 
-    final ServletContext servletContext = applicationContext.getServletContext();
+    final ServletContext servletContext = context.getServletContext();
 
     boolean register = true;
     for (Entry<String, ? extends ServletRegistration> entry : servletContext.getServletRegistrations().entrySet()) {

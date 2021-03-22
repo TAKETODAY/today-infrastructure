@@ -35,8 +35,7 @@ import cn.taketoday.web.RequestContext;
  * as well as Ant-style path patterns (such as {@code "/admin/**"}).
  *
  * @author Sebastien Deleuze
- * @author TODAY
- * @date 2020/12/10 23:09
+ * @author TODAY 2020/12/10 23:09
  * @since 3.0
  */
 public class UrlBasedCorsConfigurationSource implements CorsConfigurationSource {

@@ -49,14 +49,13 @@ import static cn.taketoday.context.utils.StringUtils.collectionToString;
  * @author Sebastien Deleuze
  * @author Rossen Stoyanchev
  * @author TODAY <br>
- *         2019-12-23 21:02
+ * 2019-12-23 21:02
  */
 public class DefaultCorsProcessor implements CorsProcessor {
-
-  private static final Logger logger = LoggerFactory.getLogger(DefaultCorsProcessor.class);
+  private static final Logger log = LoggerFactory.getLogger(DefaultCorsProcessor.class);
 
   @Override
-  public boolean process(CorsConfiguration config, RequestContext context) throws IOException {
+  public boolean process(final CorsConfiguration config, final RequestContext context) throws IOException {
 
     context.addResponseHeader(Constant.VARY, Constant.ORIGIN);
     context.addResponseHeader(Constant.VARY, Constant.ACCESS_CONTROL_REQUEST_METHOD);
@@ -67,7 +66,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
     }
 
     if (context.responseHeader(Constant.ACCESS_CONTROL_ALLOW_ORIGIN) != null) {
-      logger.trace("Skip: response already contains \"Access-Control-Allow-Origin\"");
+      log.trace("Skip: response already contains \"Access-Control-Allow-Origin\"");
       return true;
     }
     final boolean preFlightRequest = WebUtils.isPreFlightRequest(context);
@@ -96,14 +95,15 @@ public class DefaultCorsProcessor implements CorsProcessor {
   /**
    * Handle the given request.
    */
-  protected boolean handleInternal(RequestContext context, CorsConfiguration config, boolean preFlightRequest) throws IOException {
+  protected boolean handleInternal(
+          final RequestContext context, final CorsConfiguration config, boolean preFlightRequest) throws IOException {
 
     final String requestOrigin = context.requestHeader(Constant.ORIGIN);
 
     String allowOrigin = checkOrigin(config, requestOrigin);
 
     if (allowOrigin == null) {
-      logger.debug("Reject: '" + requestOrigin + "' origin is not allowed");
+      log.debug("Reject: '{}' origin is not allowed", requestOrigin);
       rejectRequest(context);
       return false;
     }
@@ -111,7 +111,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
     String requestMethod = getMethodToUse(context, preFlightRequest);
     List<String> allowMethods = checkMethods(config, requestMethod);
     if (allowMethods == null) {
-      logger.debug("Reject: HTTP '" + requestMethod + "' is not allowed");
+      log.debug("Reject: HTTP '{}' is not allowed", requestMethod);
       rejectRequest(context);
       return false;
     }
@@ -119,7 +119,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
     List<String> requestHeaders = getHeadersToUse(context, preFlightRequest);
     List<String> allowHeaders = checkHeaders(config, requestHeaders);
     if (preFlightRequest && allowHeaders == null) {
-      logger.debug("Reject: headers '" + requestHeaders + "' are not allowed");
+      log.debug("Reject: headers '{}' are not allowed", requestHeaders);
       rejectRequest(context);
       return false;
     }
