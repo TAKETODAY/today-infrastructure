@@ -31,12 +31,7 @@ import cn.taketoday.context.conversion.Converter;
  * @author TODAY
  * @since 3.0
  */
-final class EnumToStringConverter
-        extends AbstractConditionalEnumConverter implements Converter<Enum<?>, String> {
-
-  public EnumToStringConverter(ConversionService conversionService) {
-    super(conversionService);
-  }
+final class EnumToStringConverter implements Converter<Enum<?>, String> {
 
   @Override
   public String convert(Enum<?> source) {

@@ -21,6 +21,7 @@ package cn.taketoday.context.conversion.support;
 
 import java.nio.ByteBuffer;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.TypeConverter;
 
@@ -42,29 +43,29 @@ final class ByteBufferConverter implements TypeConverter {
   }
 
   @Override
-  public boolean supports(Class<?> targetType, Object source) {
+  public boolean supports(GenericDescriptor targetType, Class<?> sourceType) {
     // ByteBuffer.class -> byte[].class
     // ByteBuffer.class -> Object.class
     // byte[].class -> ByteBuffer.class
     // Object.class -> ByteBuffer.class
 
-    boolean byteBufferTarget = ByteBuffer.class.isAssignableFrom(targetType);
-    if (source instanceof ByteBuffer) {
+    final boolean byteBufferTarget = targetType.isAssignableTo(ByteBuffer.class);
+    if (ByteBuffer.class.isAssignableFrom(sourceType)) {
       // 转换为其他ByteBuffer
       return byteBufferTarget ||
-              (byte[].class == targetType || conversionService.canConvert(source, targetType));
+              (targetType.is(byte[].class) || conversionService.canConvert(sourceType, targetType));
     }
 
-    return byteBufferTarget && matchesToByteBuffer(source);
+    return byteBufferTarget && matchesToByteBuffer(sourceType);
   }
 
-  private boolean matchesToByteBuffer(Object source) {
-    return (source instanceof byte[] || conversionService.canConvert(source, byte[].class));
+  private boolean matchesToByteBuffer(Class<?> sourceType) {
+    return (sourceType == byte[].class || conversionService.canConvert(sourceType, byte[].class));
   }
 
   @Override
-  public Object convert(Class<?> targetType, Object source) {
-    boolean byteBufferTarget = ByteBuffer.class.isAssignableFrom(targetType);
+  public Object convert(GenericDescriptor targetType, Object source) {
+    boolean byteBufferTarget = targetType.isAssignableTo(ByteBuffer.class);
     if (source instanceof ByteBuffer) {
       ByteBuffer buffer = (ByteBuffer) source;
       return (byteBufferTarget ? buffer.duplicate() : convertFromByteBuffer(buffer, targetType));
@@ -76,10 +77,10 @@ final class ByteBufferConverter implements TypeConverter {
     throw new IllegalStateException("Unexpected source/target types");
   }
 
-  private Object convertFromByteBuffer(ByteBuffer source, Class<?> targetType) {
+  private Object convertFromByteBuffer(ByteBuffer source, GenericDescriptor targetType) {
     byte[] bytes = new byte[source.remaining()];
     source.get(bytes);
-    if (targetType == byte[].class) {
+    if (targetType.is(byte[].class)) {
       return bytes;
     }
     return this.conversionService.convert(bytes, targetType);

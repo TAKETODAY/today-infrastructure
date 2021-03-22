@@ -27,9 +27,9 @@ import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionFailedException;
 import cn.taketoday.context.conversion.TypeConverter;
-import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
@@ -63,24 +63,21 @@ import cn.taketoday.context.utils.ReflectionUtils;
  * @since 3.0
  */
 final class ObjectToObjectConverter implements TypeConverter {
-
   // Cache for the latest to-method resolved on a given Class
-  private static final Map<Class<?>, Member> conversionMemberCache =
-          new ConcurrentHashMap<>(32);
+  private static final Map<Class<?>, Member> conversionMemberCache = new ConcurrentHashMap<>(32);
 
   // Object.class, Object.class
 
   @Override
-  public boolean supports(Class<?> targetType, Object source) {
-    final Class<?> sourceClass = source.getClass();
-    return sourceClass != targetType
-            && hasConversionMethodOrConstructor(targetType, sourceClass);
+  public boolean supports(final GenericDescriptor targetType, final Class<?> sourceType) {
+    return !targetType.is(sourceType)
+            && hasConversionMethodOrConstructor(targetType.getType(), sourceType);
   }
 
   @Override
-  public Object convert(Class<?> targetClass, Object source) {
+  public Object convert(GenericDescriptor targetType, Object source) {
     Class<?> sourceClass = source.getClass();
-    Member member = getValidatedMember(targetClass, sourceClass);
+    Member member = getValidatedMember(targetType.getType(), sourceClass);
 
     try {
       if (member instanceof Method) {
@@ -100,10 +97,10 @@ final class ObjectToObjectConverter implements TypeConverter {
       }
     }
     catch (InvocationTargetException ex) {
-      throw new ConversionFailedException(ex.getTargetException(), source, targetClass);
+      throw new ConversionFailedException(ex.getTargetException(), source, targetType);
     }
     catch (Throwable ex) {
-      throw new ConversionFailedException(ex, source, targetClass);
+      throw new ConversionFailedException(ex, source, targetType);
     }
 
     // If sourceClass is Number and targetClass is Integer, the following message should expand to:
@@ -112,7 +109,7 @@ final class ObjectToObjectConverter implements TypeConverter {
     throw new IllegalStateException(
             String.format("No to%3$s() method exists on %1$s, and no static valueOf/of/from(%1$s)" +
                                   " method or %3$s(%1$s) constructor exists on %2$s.",
-                          sourceClass.getName(), targetClass.getName(), targetClass.getSimpleName()));
+                          sourceClass.getName(), targetType.getName(), targetType.getSimpleName()));
   }
 
   static boolean hasConversionMethodOrConstructor(Class<?> targetClass, Class<?> sourceClass) {
@@ -144,7 +141,7 @@ final class ObjectToObjectConverter implements TypeConverter {
     if (member instanceof Method) {
       Method method = (Method) member;
       return (!Modifier.isStatic(method.getModifiers()) ?
-              ClassUtils.isAssignable(method.getDeclaringClass(), sourceClass) :
+              isAssignable(method.getDeclaringClass(), sourceClass) :
               method.getParameterTypes()[0] == sourceClass);
     }
     else if (member instanceof Constructor) {
@@ -156,6 +153,10 @@ final class ObjectToObjectConverter implements TypeConverter {
     }
   }
 
+  private static boolean isAssignable(Class<?> declaringClass, Class<?> sourceClass) {
+    return sourceClass.isAssignableFrom(declaringClass);
+  }
+
   private static Method determineToMethod(Class<?> targetClass, Class<?> sourceClass) {
     if (String.class == targetClass || String.class == sourceClass) {
       // Do not accept a toString() method or any to methods on String itself
@@ -164,7 +165,7 @@ final class ObjectToObjectConverter implements TypeConverter {
 
     final Method method = ReflectionUtils.findMethod(sourceClass, "to" + targetClass.getSimpleName());
     return (method != null && !Modifier.isStatic(method.getModifiers()) &&
-                    ClassUtils.isAssignable(targetClass, method.getReturnType()) ? method : null);
+                    isAssignable(targetClass, method.getReturnType()) ? method : null);
   }
 
   private static Method determineFactoryMethod(Class<?> targetClass, Class<?> sourceClass) {
@@ -173,18 +174,23 @@ final class ObjectToObjectConverter implements TypeConverter {
       return null;
     }
 
-    Method method = ClassUtils.getStaticMethod(targetClass, "valueOf", sourceClass);
-    if (method == null) {
-      method = ClassUtils.getStaticMethod(targetClass, "of", sourceClass);
-      if (method == null) {
-        method = ClassUtils.getStaticMethod(targetClass, "from", sourceClass);
+    Method method = ReflectionUtils.findMethod(targetClass, "valueOf", sourceClass);
+    if (method == null || !Modifier.isStatic(method.getModifiers())) {
+      method = ReflectionUtils.findMethod(targetClass, "of", sourceClass);
+      if (method == null || !Modifier.isStatic(method.getModifiers())) {
+        method = ReflectionUtils.findMethod(targetClass, "from", sourceClass);
       }
     }
     return method;
   }
 
   private static Constructor<?> determineFactoryConstructor(Class<?> targetClass, Class<?> sourceClass) {
-    return ClassUtils.getConstructorIfAvailable(targetClass, sourceClass);
+    try {
+      return targetClass.getDeclaredConstructor(sourceClass);
+    }
+    catch (NoSuchMethodException e) {
+      return null;
+    }
   }
 
 }

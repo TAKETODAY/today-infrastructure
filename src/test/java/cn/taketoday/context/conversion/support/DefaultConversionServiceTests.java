@@ -25,6 +25,8 @@ import org.junit.Test;
 import java.awt.Color;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
@@ -50,11 +52,13 @@ import java.util.TimeZone;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.TypeReference;
 import cn.taketoday.context.conversion.ConversionFailedException;
 import cn.taketoday.context.conversion.Converter;
 import cn.taketoday.context.conversion.ConverterNotFoundException;
 import cn.taketoday.context.conversion.ConverterRegistry;
+import cn.taketoday.context.utils.GenericTypeResolver;
 import cn.taketoday.context.utils.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -374,10 +378,10 @@ public class DefaultConversionServiceTests {
     ConverterRegistry registry = conversionService;
     registry.addConverter(new ColorConverter());
     final Method handlerMethod = getClass().getMethod("handlerMethod", List.class);
-    final Class<?>[] parameterTypes = handlerMethod.getParameterTypes();
+    final GenericDescriptor descriptor = GenericDescriptor.of(handlerMethod, 0);
 
-    List<Color> colors = (List<Color>) conversionService.convert(new String[] { "ffffff", "#000000" },
-                                                                 parameterTypes[0]);
+    List<Color> colors = conversionService.convert(new String[] { "ffffff", "#000000" }, descriptor);
+
     assertThat(colors.size()).isEqualTo(2);
     assertThat(colors.get(0)).isEqualTo(Color.WHITE);
     assertThat(colors.get(1)).isEqualTo(Color.BLACK);
@@ -742,7 +746,12 @@ public class DefaultConversionServiceTests {
     List<String> strings = new ArrayList<>();
     strings.add("3");
     strings.add("9");
-    List<Integer> integers = conversionService.convert(strings, new TypeReference<List<Integer>>(){}.getTypeParameter());
+
+    final GenericDescriptor sourceType = GenericDescriptor.collection(List.class, String.class);
+    final GenericDescriptor targetType = GenericDescriptor.collection(List.class, Integer.class);
+    List<Integer> integers = conversionService.convert(strings,sourceType, targetType);
+
+
     assertThat((int) integers.get(0)).isEqualTo((int) Integer.valueOf(3));
     assertThat((int) integers.get(1)).isEqualTo((int) Integer.valueOf(9));
   }

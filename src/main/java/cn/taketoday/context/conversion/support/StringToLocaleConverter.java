@@ -33,14 +33,24 @@ import cn.taketoday.context.utils.StringUtils;
  * @author Keith Donald
  * @author Juergen Hoeller
  * @author TODAY
- * @see StringUtils#parseLocale
  * @since 3.0
  */
 final class StringToLocaleConverter implements Converter<String, Locale> {
 
   @Override
   public Locale convert(String source) {
-    return StringUtils.parseLocale(source);
+    if (source.isEmpty()) {
+      return null;
+    }
+
+    final String[] items = source.split("_");
+    if (items.length == 1) {
+      return new Locale(items[0]);
+    }
+    if (items.length == 2) {
+      return new Locale(items[0], items[1]);
+    }
+    return new Locale(items[0], items[1], items[2]);
   }
 
 }

@@ -22,6 +22,7 @@ package cn.taketoday.context.conversion.support;
 import java.util.ArrayList;
 import java.util.Map;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.utils.CollectionUtils;
@@ -48,14 +49,15 @@ final class MapToMapConverter implements TypeConverter {
   }
 
   @Override
-  public boolean supports(Class<?> targetType, Object source) {
+  public boolean supports(final GenericDescriptor targetType, final Class<?> sourceType) {
     // Map.class, Map.class
-    return Map.class.isAssignableFrom(targetType) && source instanceof Map;
+    return targetType.isAssignableTo(Map.class)
+            && Map.class.isAssignableFrom(sourceType);
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public Object convert(Class<?> targetType, Object source) {
+  public Object convert(final GenericDescriptor targetType, final Object source) {
     Map<Object, Object> sourceMap = (Map<Object, Object>) source;
 
     // Shortcut if possible...
@@ -64,7 +66,7 @@ final class MapToMapConverter implements TypeConverter {
       return sourceMap;
     }
 
-    final Class<?>[] targetTypes = GenericTypeResolver.resolveTypeArguments(targetType, Map.class);
+    final Class<?>[] targetTypes = targetType.getGenerics(Map.class);
 
     Class<?> targetKeyType = targetTypes[0];
     Class<?> targetValueType = targetTypes[1];
@@ -89,7 +91,7 @@ final class MapToMapConverter implements TypeConverter {
       return sourceMap;
     }
 
-    Map<Object, Object> targetMap = CollectionUtils.createMap(targetType, targetKeyType, sourceMap.size());
+    Map<Object, Object> targetMap = CollectionUtils.createMap(targetType.getType(), targetKeyType, sourceMap.size());
     for (MapEntry entry : targetEntries) {
       entry.addToMap(targetMap);
     }

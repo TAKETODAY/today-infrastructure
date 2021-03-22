@@ -24,6 +24,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URL;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionFailedException;
 import cn.taketoday.context.conversion.StringSourceTypeConverter;
 import cn.taketoday.context.io.Resource;
@@ -36,7 +37,8 @@ import cn.taketoday.context.utils.ResourceUtils;
 final class StringToResourceConverter extends StringSourceTypeConverter {
 
   @Override
-  public boolean supportsInternal(Class<?> targetClass, Object source) {
+  public boolean supportsInternal(final GenericDescriptor targetType, final Class<?> source) {
+    final Class<?> targetClass = targetType.getType();
     return targetClass == Resource.class
             || targetClass == URI.class
             || targetClass == URL.class
@@ -45,8 +47,8 @@ final class StringToResourceConverter extends StringSourceTypeConverter {
   }
 
   @Override
-  protected Object convertInternal(Class<?> targetClass, String source) {
-
+  protected Object convertInternal(GenericDescriptor targetType, String source) {
+    final Class<?> targetClass = targetType.getType();
     try {
       if (targetClass == Resource[].class) {
         return ResourceUtils.getResources(source);
@@ -64,7 +66,7 @@ final class StringToResourceConverter extends StringSourceTypeConverter {
       return resource;
     }
     catch (Throwable e) {
-      throw new ConversionFailedException(e, source, targetClass);
+      throw new ConversionFailedException(e, source, targetType);
     }
   }
 }

@@ -23,9 +23,9 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Optional;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.TypeConverter;
-import cn.taketoday.context.utils.GenericTypeResolver;
 
 /**
  * Convert an Object to {@code java.util.Optional<T>} if necessary using the
@@ -45,25 +45,25 @@ final class ObjectToOptionalConverter implements TypeConverter {
   }
 
   @Override
-  public boolean supports(Class<?> targetType, Object source) {
-    // Collection.class, Optional.class
-    // Object[].class, Optional.class
-    // Object.class, Optional.class
+  public boolean supports(final GenericDescriptor targetType, final Class<?> sourceType) {
+    // Collection.class -> Optional.class
+    // Object[].class -> Optional.class
+    // Object.class -> Optional.class
 
-    final Class<Object> elementType = GenericTypeResolver.resolveTypeArgument(targetType, Optional.class);
-    if (elementType != null) {
-      return this.conversionService.canConvert(source, elementType);
+    if (targetType.is(Optional.class)) {
+      final Class<Object> valueType = targetType.getGeneric(Optional.class);
+      if (valueType != null) {
+        return this.conversionService.canConvert(sourceType, valueType);
+      }
     }
-    else {
-      return true;
-    }
+    return false;
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public Object convert(final Class<?> targetType, final Object source) {
+  public Object convert(final GenericDescriptor targetType, final Object source) {
     // Optional<E> -> E
-    final Class<Object> elementType = GenericTypeResolver.resolveTypeArgument(targetType, Optional.class);
+    final Class<Object> elementType = targetType.getGeneric(Optional.class);
     if (source instanceof Optional) {
       final Optional<Object> optional = (Optional<Object>) source;
       if (optional.isPresent()) {

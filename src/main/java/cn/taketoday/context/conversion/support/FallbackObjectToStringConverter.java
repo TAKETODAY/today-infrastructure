@@ -21,6 +21,7 @@ package cn.taketoday.context.conversion.support;
 
 import java.io.StringWriter;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.TypeConverter;
 
 /**
@@ -45,7 +46,7 @@ final class FallbackObjectToStringConverter implements TypeConverter {
   // Object.class -> String.class
 
   @Override
-  public boolean supports(Class<?> targetType, Class<?> sourceType) {
+  public boolean supports(GenericDescriptor targetType, Class<?> sourceType) {
     if (String.class == sourceType) {
       // no conversion required
       return false;
@@ -56,7 +57,7 @@ final class FallbackObjectToStringConverter implements TypeConverter {
   }
 
   @Override
-  public Object convert(Class<?> targetType, Object source) {
+  public Object convert(GenericDescriptor targetType, Object source) {
     return (source != null ? source.toString() : null);
   }
 }

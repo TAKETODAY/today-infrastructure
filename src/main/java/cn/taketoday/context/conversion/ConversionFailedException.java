@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.conversion;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.exception.ConversionException;
 
 /**
@@ -33,12 +34,12 @@ import cn.taketoday.context.exception.ConversionException;
 public class ConversionFailedException extends ConversionException {
   private static final long serialVersionUID = 1L;
 
-  public ConversionFailedException(Throwable cause, Object source, Class<?> targetClass) {
-    super("Conversion failed", cause, source, targetClass);
+  public ConversionFailedException(Throwable cause, Object source, GenericDescriptor targetType) {
+    super("Conversion failed", cause, source, targetType);
   }
 
-  public ConversionFailedException(String message, Throwable cause, Object source, Class<?> targetClass) {
-    super(message, cause, source, targetClass);
+  public ConversionFailedException(String message, Throwable cause, Object source, GenericDescriptor targetType) {
+    super(message, cause, source, targetType);
   }
 
 }

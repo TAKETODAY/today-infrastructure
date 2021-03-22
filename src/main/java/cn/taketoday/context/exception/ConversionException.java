@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context.exception;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.NestedRuntimeException;
 
 /**
@@ -30,7 +31,7 @@ public class ConversionException extends NestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
   final Object source;
-  final Class<?> targetClass;
+  final GenericDescriptor targetType;
 
   public ConversionException() {
     this(null, null, null, null);
@@ -48,18 +49,18 @@ public class ConversionException extends NestedRuntimeException {
     this(message, null, null, null);
   }
 
-  public ConversionException(String message, Throwable cause, Object source, Class<?> targetClass) {
+  public ConversionException(String message, Throwable cause, Object source, GenericDescriptor targetType) {
     super(message, cause);
     this.source = source;
-    this.targetClass = targetClass;
+    this.targetType = targetType;
   }
 
   public Object getSource() {
     return source;
   }
 
-  public Class<?> getTargetClass() {
-    return targetClass;
+  public GenericDescriptor getTargetType() {
+    return targetType;
   }
 
 }

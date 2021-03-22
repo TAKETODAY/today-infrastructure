@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context.conversion;
 
+import cn.taketoday.context.GenericDescriptor;
+
 /**
  * @author TODAY <br>
  * 2019-06-06 15:31
@@ -27,18 +29,19 @@ package cn.taketoday.context.conversion;
 public abstract class StringSourceTypeConverter implements TypeConverter {
 
   @Override
-  public final boolean supports(Class<?> targetClass, Object source) {
-    return source instanceof String && supportsInternal(targetClass, source);
+  public final boolean supports(final GenericDescriptor targetType, final Class<?> sourceType) {
+    return sourceType == String.class
+            && supportsInternal(targetType, sourceType);
   }
 
-  public boolean supportsInternal(Class<?> targetClass, Object source) {
+  public boolean supportsInternal(GenericDescriptor targetType, Class<?> sourceType) {
     return true;
   }
 
   @Override
-  public final Object convert(Class<?> targetClass, Object source) {
-    return convertInternal(targetClass, (String) source);
+  public final Object convert(GenericDescriptor targetType, Object source) {
+    return convertInternal(targetType, (String) source);
   }
 
-  protected abstract Object convertInternal(Class<?> targetClass, String source);
+  protected abstract Object convertInternal(GenericDescriptor targetClass, String source);
 }

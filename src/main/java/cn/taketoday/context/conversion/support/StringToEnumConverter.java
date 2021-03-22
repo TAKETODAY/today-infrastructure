@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.conversion.support;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.StringSourceTypeConverter;
 import cn.taketoday.context.conversion.TypeConverter;
 
@@ -30,17 +31,18 @@ import cn.taketoday.context.conversion.TypeConverter;
 public class StringToEnumConverter extends StringSourceTypeConverter implements TypeConverter {
 
   @Override
-  public boolean supportsInternal(Class<?> targetClass, Object source) {
+  public boolean supportsInternal(GenericDescriptor targetClass, Class<?> sourceType) {
     return targetClass.isEnum();
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  protected Object convertInternal(Class<?> targetClass, String source) {
+  protected Object convertInternal(GenericDescriptor targetClass, String source) {
     if (source.isEmpty()) {
       // It's an empty enum identifier: reset the enum value to null.
       return null;
     }
-    return Enum.valueOf((Class<Enum>) targetClass, source.trim());
+    return Enum.valueOf((Class<Enum>) targetClass.getType(), source.trim());
   }
+
 }

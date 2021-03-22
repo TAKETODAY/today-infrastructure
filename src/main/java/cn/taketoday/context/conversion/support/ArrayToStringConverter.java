@@ -21,6 +21,7 @@ package cn.taketoday.context.conversion.support;
 
 import java.util.Arrays;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.utils.ObjectUtils;
 
@@ -39,14 +40,15 @@ final class ArrayToStringConverter extends ArraySourceConverter {
   }
 
   @Override
-  protected boolean supportsInternal(Class<?> targetType, Object source) {
-    // Object[].class, String.class
-    return String.class == targetType;
+  protected boolean supportsInternal(final GenericDescriptor targetType, Class<?> sourceType) {
+    // Object[].class -> String.class
+    return targetType.is(String.class);
   }
 
   @Override
-  public Object convert(Class<?> targetType, Object source) {
-    return this.helperConverter.convertInternal(targetType, Arrays.asList(ObjectUtils.toObjectArray(source)));
+  public Object convert(GenericDescriptor targetType, Object source) {
+    return this.helperConverter.convertInternal(targetType,
+                                                Arrays.asList(ObjectUtils.toObjectArray(source)));
   }
 
 }

@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.conversion.support;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.TypeConverter;
 
 /**
@@ -29,9 +30,9 @@ import cn.taketoday.context.conversion.TypeConverter;
 public abstract class ToArrayConverter implements TypeConverter {
 
   @Override
-  public boolean supports(Class<?> targetType, Object source) {
-    return targetType.isArray() && supportsInternal(targetType, source);
+  public final boolean supports(final GenericDescriptor targetType, final Class<?> sourceType) {
+    return targetType.isArray() && supportsInternal(targetType, sourceType);
   }
 
-  protected abstract boolean supportsInternal(Class<?> targetType, Object source);
+  protected abstract boolean supportsInternal(GenericDescriptor targetType, Class<?> source);
 }

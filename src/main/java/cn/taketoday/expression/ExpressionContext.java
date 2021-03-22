@@ -22,6 +22,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Stack;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.utils.ConvertUtils;
 
@@ -410,7 +411,7 @@ public abstract class ExpressionContext {
       }
       final TypeConverter typeConverter = ConvertUtils.getConverter(obj, targetType);
       if (typeConverter != null) {
-        return typeConverter.convert(targetType, obj);
+        return typeConverter.convert(GenericDescriptor.ofClass(targetType), obj);
       }
       final ExpressionResolver elResolver = getResolver();
       if (elResolver != null) {

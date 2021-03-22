@@ -48,17 +48,14 @@ public interface ConverterRegistry {
 
   // Converter
 
-  void addConverter(Converter<?, ?> converter);
+  <S, T> void addConverter(Converter<S, T> converter);
 
   void addConverters(Converter<?, ?>... converters);
 
-  void addConverter(Class<?> targetClass, Converter<?, ?> converter);
+  <S, T> void addConverter(
+          Class<T> targetType, Converter<? super S, ? extends T> converter);
 
-  <S, T> void addConverter(Class<T> targetClass,
-                           Class<S> sourceClass,
-                           Converter<? super S, ? extends T> converter);
+  <S, T> void addConverter(
+          Class<T> targetType, Class<S> sourceType, Converter<? super S, ? extends T> converter);
 
-  void setConverterTypeConverter(ConverterTypeConverter converterTypeConverter);
-
-  ConverterTypeConverter getConverterTypeConverter();
 }

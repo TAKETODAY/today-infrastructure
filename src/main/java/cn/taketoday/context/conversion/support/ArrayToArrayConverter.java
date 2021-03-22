@@ -21,6 +21,7 @@ package cn.taketoday.context.conversion.support;
 
 import java.lang.reflect.Array;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.TypeConverter;
 
@@ -41,12 +42,12 @@ final class ArrayToArrayConverter extends ArraySourceConverter implements TypeCo
   }
 
   @Override
-  protected boolean supportsInternal(Class<?> targetType, Object source) {
+  protected boolean supportsInternal(final GenericDescriptor targetType, Class<?> sourceType) {
     return targetType.isArray();
   }
 
   @Override
-  public Object convert(Class<?> targetType, Object source) {
+  public Object convert(final GenericDescriptor targetType, final Object source) {
     final Class<?> elementType = targetType.getComponentType();
     final int length = Array.getLength(source);
     final Object array = Array.newInstance(elementType, length);

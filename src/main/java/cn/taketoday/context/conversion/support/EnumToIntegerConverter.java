@@ -29,12 +29,7 @@ import cn.taketoday.context.conversion.Converter;
  * @author Yanming Zhou
  * @since 3.0
  */
-final class EnumToIntegerConverter
-				extends AbstractConditionalEnumConverter implements Converter<Enum<?>, Integer> {
-
-	public EnumToIntegerConverter(ConversionService conversionService) {
-		super(conversionService);
-	}
+final class EnumToIntegerConverter implements Converter<Enum<?>, Integer> {
 
 	@Override
 	public Integer convert(Enum<?> source) {

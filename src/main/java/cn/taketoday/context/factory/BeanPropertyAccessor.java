@@ -27,9 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionService;
-import cn.taketoday.context.conversion.support.DefaultConversionService;
 import cn.taketoday.context.conversion.TypeConverter;
+import cn.taketoday.context.conversion.support.DefaultConversionService;
 import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.utils.Assert;
 
@@ -519,7 +520,7 @@ public class BeanPropertyAccessor {
   }
 
   protected Object doConvertInternal(Object value, Class<?> requiredType, final BeanProperty beanProperty) {
-    return doConvertInternal(value, requiredType);
+    return doConvertInternal(value, GenericDescriptor.ofBeanProperty(beanProperty));
   }
 
   /**
@@ -530,10 +531,10 @@ public class BeanPropertyAccessor {
     if (requiredType.isInstance(value)) {
       return value;
     }
-    return doConvertInternal(value, requiredType);
+    return doConvertInternal(value, GenericDescriptor.ofClass(requiredType));
   }
 
-  protected Object doConvertInternal(Object value, Class<?> requiredType) {
+  protected Object doConvertInternal(final Object value, final GenericDescriptor requiredType) {
     final TypeConverter typeConverter = getConversionService().getConverter(value, requiredType);
     if (typeConverter == null) {
       throw new InvalidPropertyValueException(

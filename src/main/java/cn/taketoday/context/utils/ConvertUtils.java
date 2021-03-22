@@ -82,7 +82,7 @@ public abstract class ConvertUtils {
     return (T) convert(source, targetClass);
   }
 
-  public static TypeConverter[] getConverters() {
+  public static List<TypeConverter> getConverters() {
     return DefaultConversionService.getSharedInstance().getConverters();
   }
 

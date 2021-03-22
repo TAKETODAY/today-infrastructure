@@ -20,6 +20,9 @@
 
 package cn.taketoday.context.conversion;
 
+import cn.taketoday.context.GenericDescriptor;
+import cn.taketoday.context.TypeReference;
+
 /**
  * Conversion Service
  * <p>
@@ -30,8 +33,17 @@ package cn.taketoday.context.conversion;
  * @since 3.0
  */
 public interface ConversionService {
+  /**
+   * use {@link GenericDescriptor} to resolve generic info
+   */
+  boolean canConvert(Class<?> sourceType, GenericDescriptor targetType);
 
-  boolean canConvert(Class<?> sourceType, Class<?> targetType);
+  /**
+   * static test this {@link ConversionService} can convert source to target
+   */
+  default boolean canConvert(Class<?> sourceType, Class<?> targetType) {
+    return canConvert(sourceType, GenericDescriptor.ofClass(targetType));
+  }
 
   /**
    * whether this {@link ConversionService} supports to convert source object to
@@ -62,7 +74,30 @@ public interface ConversionService {
    *
    * @return converted object
    */
-  <T> T convert(Object source, Class<T> targetClass);
+  default <T> T convert(Object source, Class<T> targetClass) {
+    return convert(source, GenericDescriptor.ofClass(targetClass));
+  }
+
+  /**
+   * Convert source to target type
+   * <p>
+   * If source object is {@code null} just returns {@code null}
+   * </p>
+   *
+   * @param source
+   *         source object
+   * @param targetType
+   *         target class and generics info
+   */
+  <T> T convert(Object source, GenericDescriptor targetType);
+
+  <T> T convert(Object source, GenericDescriptor sourceDescriptor, GenericDescriptor targetType);
+
+  TypeConverter getConverter(Class<?> sourceType, GenericDescriptor targetType);
+
+  default TypeConverter getConverter(Object object, GenericDescriptor targetType) {
+    return getConverter(object.getClass(), targetType);
+  }
 
   /**
    * Get Target {@link TypeConverter}
@@ -74,6 +109,12 @@ public interface ConversionService {
    *
    * @return TypeConverter
    */
-  TypeConverter getConverter(Object source, Class<?> targetType);
+  default TypeConverter getConverter(Object source, Class<?> targetType) {
+    return getConverter(source.getClass(), targetType);
+  }
+
+  default TypeConverter getConverter(Class<?> sourceType, Class<?> targetType) {
+    return getConverter(sourceType, GenericDescriptor.ofClass(targetType));
+  }
 
 }

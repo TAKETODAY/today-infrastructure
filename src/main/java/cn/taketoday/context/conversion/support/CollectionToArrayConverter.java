@@ -22,8 +22,10 @@ package cn.taketoday.context.conversion.support;
 import java.lang.reflect.Array;
 import java.util.Collection;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.TypeConverter;
+import cn.taketoday.context.utils.CollectionUtils;
 
 /**
  * Converts a Collection to an array.
@@ -46,13 +48,13 @@ final class CollectionToArrayConverter extends ToArrayConverter implements TypeC
   }
 
   @Override
-  protected boolean supportsInternal(Class<?> targetType, Object source) {
+  protected boolean supportsInternal(GenericDescriptor targetType, Class<?> sourceType) {
     //Collection.class, Object[].class
-    return source instanceof Collection;
+    return CollectionUtils.isCollection(sourceType);
   }
 
   @Override
-  public Object convert(Class<?> targetType, Object source) {
+  public Object convert(GenericDescriptor targetType, Object source) {
     final Class<?> elementType = targetType.getComponentType();
     Collection<?> sourceCollection = (Collection<?>) source;
     Object array = Array.newInstance(elementType, sourceCollection.size());

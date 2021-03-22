@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.conversion;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.exception.ConversionException;
 
 /**
@@ -34,7 +35,7 @@ import cn.taketoday.context.exception.ConversionException;
 public class ConverterNotFoundException extends ConversionException {
   private static final long serialVersionUID = 1L;
 
-  public ConverterNotFoundException(String message, Object source, Class<?> targetType) {
+  public ConverterNotFoundException(String message, Object source, GenericDescriptor targetType) {
     super(message, null, source, targetType);
   }
 

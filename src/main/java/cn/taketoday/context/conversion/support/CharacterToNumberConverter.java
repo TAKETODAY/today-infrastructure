@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.conversion.support;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.utils.NumberUtils;
@@ -36,12 +37,12 @@ final class CharacterToNumberConverter implements TypeConverter {
   }
 
   @Override
-  public boolean supports(Class<?> targetType, Object source) {
-    return source instanceof Character && NumberUtils.isNumber(targetType);
+  public boolean supports(GenericDescriptor targetType, Class<?> sourceType) {
+    return Character.class == sourceType && NumberUtils.isNumber(targetType.getType());
   }
 
   @Override
-  public Object convert(Class<?> targetType, Object source) {
+  public Object convert(GenericDescriptor targetType, Object source) {
     final Character character = (Character) source;
     return conversionService.convert((short) character.charValue(), targetType);
   }

@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.conversion.support;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.TypeConverter;
 
 /**
@@ -29,12 +30,12 @@ import cn.taketoday.context.conversion.TypeConverter;
 final class IntegerToEnumConverter implements TypeConverter {
 
   @Override
-  public boolean supports(Class<?> targetType, Object source) {
-    return source instanceof Integer && targetType.isEnum();
+  public boolean supports(final GenericDescriptor targetType, final Class<?> sourceType) {
+    return sourceType == Integer.class && targetType.isEnum();
   }
 
   @Override
-  public Object convert(Class<?> targetType, Object source) {
-    return targetType.getEnumConstants()[(int) source];
+  public Object convert(final GenericDescriptor targetType, final Object source) {
+    return targetType.getType().getEnumConstants()[(int) source];
   }
 }

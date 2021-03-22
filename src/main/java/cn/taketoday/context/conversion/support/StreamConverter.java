@@ -26,10 +26,10 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.context.utils.GenericTypeResolver;
 
 /**
  * Converts a {@link Stream} to and from a collection or array,
@@ -46,30 +46,24 @@ class StreamConverter implements TypeConverter {
     this.conversionService = conversionService;
   }
 
-  /**
-   * @param targetType
-   *         target class
-   * @param source
-   *         source object never be null
-   */
   @Override
-  public boolean supports(Class<?> targetType, Object source) {
+  public boolean supports(final GenericDescriptor targetType, final Class<?> sourceType) {
     // Stream.class, Collection.class
     // Stream.class, Object[].class
     // Collection.class, Stream.class
     // Object[].class, Stream.class
 
-    if (source instanceof Stream) {
-      return CollectionUtils.isCollection(targetType) || targetType.isArray();
+    if (sourceType == Stream.class) {
+      return targetType.isCollection() || targetType.isArray();
     }
-    if (targetType == Stream.class) {
-      return source instanceof Collection || source.getClass().isArray();
+    if (targetType.is(Stream.class)) {
+      return CollectionUtils.isCollection(sourceType) || sourceType.isArray();
     }
     return false;
   }
 
   @Override
-  public Object convert(Class<?> targetType, Object source) {
+  public Object convert(GenericDescriptor targetType, Object source) {
     if (source instanceof Stream) {
       return convertFromStream((Stream<?>) source, targetType);
     }
@@ -80,7 +74,7 @@ class StreamConverter implements TypeConverter {
     return Arrays.stream((Object[]) source);
   }
 
-  protected Object convertFromStream(Stream<?> source, Class<?> targetType) {
+  protected Object convertFromStream(Stream<?> source, GenericDescriptor targetType) {
     final class MapFunction implements UnaryOperator<Object> {
       final Class<?> elementType;
 
@@ -94,10 +88,10 @@ class StreamConverter implements TypeConverter {
       }
     }
 
-    if (CollectionUtils.isCollection(targetType)) {
-      final Class<Object> elementType = GenericTypeResolver.resolveTypeArgument(targetType, Collection.class);
+    if (targetType.isCollection()) {
+      final Class<Object> elementType = targetType.getGeneric(Collection.class);
       return source.map(new MapFunction(elementType))
-              .collect(Collectors.toCollection(() -> CollectionUtils.createCollection(targetType, elementType, 16)));
+              .collect(Collectors.toCollection(() -> CollectionUtils.createCollection(targetType.getType(), elementType, 16)));
     }
 
     final Class<?> elementType = targetType.getComponentType();

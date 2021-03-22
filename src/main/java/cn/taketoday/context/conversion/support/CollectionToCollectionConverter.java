@@ -21,6 +21,7 @@ package cn.taketoday.context.conversion.support;
 
 import java.util.Collection;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.GenericTypeResolver;
@@ -46,26 +47,26 @@ final class CollectionToCollectionConverter extends CollectionSourceConverter {
   }
 
   @Override
-  protected boolean supportsInternal(Class<?> targetType, Object source) {
+  protected boolean supportsInternal(GenericDescriptor targetType, Class<?> sourceType) {
     // Collection.class, Collection.class
-    return CollectionUtils.isCollection(targetType);
+    return targetType.isCollection();
   }
 
   @Override
-  protected Object convertInternal(Class<?> targetType, Collection<?> sourceCollection) {
+  protected Object convertInternal(GenericDescriptor targetType, Collection<?> sourceCollection) {
     // Shortcut if possible...
     boolean copyRequired = !targetType.isInstance(sourceCollection);
     if (!copyRequired && sourceCollection.isEmpty()) {
       return sourceCollection;
     }
 
-    final Class<Object> elementType = GenericTypeResolver.resolveTypeArgument(targetType, Collection.class);
+    final Class<Object> elementType = targetType.getGeneric(Collection.class);
     if (elementType == null && !copyRequired) {
       return sourceCollection;
     }
 
     // At this point, we need a collection copy in any case, even if just for finding out about element copies...
-    Collection<Object> target = CollectionUtils.createCollection(targetType, elementType, sourceCollection.size());
+    Collection<Object> target = CollectionUtils.createCollection(targetType.getType(), elementType, sourceCollection.size());
 
     if (elementType == null) {
       target.addAll(sourceCollection);

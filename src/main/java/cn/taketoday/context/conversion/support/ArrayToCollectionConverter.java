@@ -22,10 +22,10 @@ package cn.taketoday.context.conversion.support;
 import java.lang.reflect.Array;
 import java.util.Collection;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.context.utils.GenericTypeResolver;
 
 /**
  * Converts an array to a Collection.
@@ -47,16 +47,15 @@ final class ArrayToCollectionConverter extends ArraySourceConverter implements T
   }
 
   @Override
-  protected boolean supportsInternal(Class<?> targetType, Object source) {
-    return CollectionUtils.isCollection(targetType);
+  protected boolean supportsInternal(GenericDescriptor targetType, Class<?> sourceType) {
+    return targetType.isCollection();
   }
 
   @Override
-  public Object convert(final Class<?> targetType, final Object source) {
+  public Object convert(GenericDescriptor targetType, Object source) {
     final int length = Array.getLength(source);
-
-    final Class<Object> elementType = GenericTypeResolver.resolveTypeArgument(targetType, Collection.class);
-    final Collection<Object> target = CollectionUtils.createCollection(targetType, length);
+    final Class<Object> elementType = targetType.getGeneric(Collection.class);
+    final Collection<Object> target = CollectionUtils.createCollection(targetType.getType(), elementType, length);
 
     if (elementType == null) {
       for (int i = 0; i < length; i++) {

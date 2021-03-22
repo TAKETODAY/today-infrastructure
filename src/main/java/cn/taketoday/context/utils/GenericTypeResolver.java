@@ -32,6 +32,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import cn.taketoday.context.GenericDescriptor;
+
 /**
  * Helper class for resolving generic types against type variables.
  *
@@ -46,7 +48,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Rob Harrop
  * @author Sam Brannen
  * @author TODAY 2021/3/8 18:22
- * @see GenericCollectionTypeResolver
  * @since 3.0
  */
 public abstract class GenericTypeResolver {
@@ -213,9 +214,18 @@ public abstract class GenericTypeResolver {
    *
    * @return the resolved type of the argument, or {@code null} if not resolvable
    */
-  @SuppressWarnings("unchecked")
   public static <T> Class<T> resolveTypeArgument(Class<?> clazz, Class<?> genericIfc) {
     Class<?>[] typeArgs = resolveTypeArguments(clazz, genericIfc);
+    return resolve0(genericIfc, typeArgs);
+  }
+
+  public static <T> Class<T> resolveTypeArgument(Class<?> clazz, Type arg, Class<?> genericIfc) {
+    Class<?>[] typeArgs = resolveTypeArguments(clazz, arg, genericIfc);
+    return resolve0(genericIfc, typeArgs);
+  }
+
+  @SuppressWarnings("unchecked")
+  protected static <T> Class<T> resolve0(Class<?> genericIfc, Class<?>[] typeArgs) {
     if (typeArgs == null) {
       return null;
     }
@@ -250,7 +260,7 @@ public abstract class GenericTypeResolver {
       if (genericIfc.isInterface()) {
         Type[] ifcs = classToIntrospect.getGenericInterfaces();
         for (Type ifc : ifcs) {
-          Class<?>[] result = doResolveTypeArguments(ownerClass, ifc, genericIfc);
+          Class<?>[] result = resolveTypeArguments(ownerClass, ifc, genericIfc);
           if (result != null) {
             return result;
           }
@@ -258,7 +268,7 @@ public abstract class GenericTypeResolver {
       }
       else {
         try {
-          Class<?>[] result = doResolveTypeArguments(ownerClass, classToIntrospect.getGenericSuperclass(), genericIfc);
+          Class<?>[] result = resolveTypeArguments(ownerClass, classToIntrospect.getGenericSuperclass(), genericIfc);
           if (result != null) {
             return result;
           }
@@ -273,7 +283,7 @@ public abstract class GenericTypeResolver {
     return null;
   }
 
-  static Class<?>[] doResolveTypeArguments(Class<?> ownerClass, Type ifc, Class<?> genericIfc) {
+  public static Class<?>[] resolveTypeArguments(Class<?> ownerClass, Type ifc, Class<?> genericIfc) {
     if (ifc instanceof ParameterizedType) {
       ParameterizedType paramIfc = (ParameterizedType) ifc;
       Type rawType = paramIfc.getRawType();
@@ -294,7 +304,7 @@ public abstract class GenericTypeResolver {
   /**
    * Extract Classes from the given Type[].
    */
-  static Class<?>[] extractClasses(Class<?> ownerClass, Type[] typeArgs) {
+  public static Class<?>[] extractClasses(Class<?> ownerClass, Type[] typeArgs) {
     if (typeArgs == null) {
       return null;
     }
@@ -309,7 +319,7 @@ public abstract class GenericTypeResolver {
   /**
    * Extract a Class from the given Type.
    */
-  static Class<?> extractClass(Class<?> ownerClass, Type arg) {
+  public static Class<?> extractClass(Class<?> ownerClass, Type arg) {
     if (arg instanceof ParameterizedType) {
       return extractClass(ownerClass, ((ParameterizedType) arg).getRawType());
     }

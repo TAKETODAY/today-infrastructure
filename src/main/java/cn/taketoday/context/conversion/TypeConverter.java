@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context.conversion;
 
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.exception.ConversionException;
 
 /**
@@ -43,7 +44,7 @@ public interface TypeConverter {
    */
 //  boolean supports(Class<?> targetType, Class<?> sourceType);
 
-  boolean supports(Class<?> targetClass, Object source);
+  boolean supports(GenericDescriptor targetType, Class<?> sourceType);
 
   /**
    * Convert source object to target object
@@ -58,5 +59,7 @@ public interface TypeConverter {
    * @throws ConversionException
    *         if can't convert to target object
    */
-  Object convert(Class<?> targetType, Object source);
+//  Object convert(Class<?> targetType, Object source);
+
+  Object convert(GenericDescriptor targetType, Object source);
 }

@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.StringJoiner;
 
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionService;
 
 /**
@@ -41,13 +42,13 @@ final class CollectionToStringConverter extends CollectionSourceConverter {
   }
 
   @Override
-  protected boolean supportsInternal(Class<?> targetType, Object source) {
-    // Collection.class, String.class
-    return targetType == String.class;
+  protected boolean supportsInternal(GenericDescriptor targetType, Class<?> sourceType) {
+    // Collection.class -> String.class
+    return targetType.is(String.class);
   }
 
   @Override
-  protected Object convertInternal(final Class<?> targetType, final Collection<?> sourceCollection) {
+  protected Object convertInternal(final GenericDescriptor targetType, final Collection<?> sourceCollection) {
     if (sourceCollection.isEmpty()) {
       return Constant.BLANK;
     }
