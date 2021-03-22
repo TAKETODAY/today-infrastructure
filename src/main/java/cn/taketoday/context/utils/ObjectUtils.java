@@ -296,4 +296,72 @@ public abstract class ObjectUtils {
     return false;
   }
 
+  /**
+   * Append the given object to the given array, returning a new array
+   * consisting of the input array contents plus the given object.
+   *
+   * @param array
+   *         the array to append to (can be {@code null})
+   * @param obj
+   *         the object to append
+   *
+   * @return the new array (of the same component type; never {@code null})
+   *
+   * @since 3.0
+   */
+  public static <A, O extends A> A[] addObjectToArray(A[] array, O obj) {
+    Class<?> compType = Object.class;
+    if (array != null) {
+      compType = array.getClass().getComponentType();
+    }
+    else if (obj != null) {
+      compType = obj.getClass();
+    }
+    int newArrLength = (array != null ? array.length + 1 : 1);
+    @SuppressWarnings("unchecked")
+    A[] newArr = (A[]) Array.newInstance(compType, newArrLength);
+    if (array != null) {
+      System.arraycopy(array, 0, newArr, 0, array.length);
+    }
+    newArr[newArr.length - 1] = obj;
+    return newArr;
+  }
+
+  /**
+   * Convert the given array (which may be a primitive array) to an
+   * object array (if necessary of primitive wrapper objects).
+   * <p>A {@code null} source value will be converted to an
+   * empty Object array.
+   *
+   * @param source
+   *         the (potentially primitive) array
+   *
+   * @return the corresponding object array (never {@code null})
+   *
+   * @throws IllegalArgumentException
+   *         if the parameter is not an array
+   * @since 3.0
+   */
+  public static Object[] toObjectArray(Object source) {
+    if (source instanceof Object[]) {
+      return (Object[]) source;
+    }
+    if (source == null) {
+      return Constant.EMPTY_OBJECT_ARRAY;
+    }
+    if (!source.getClass().isArray()) {
+      throw new IllegalArgumentException("Source is not an array: " + source);
+    }
+    int length = Array.getLength(source);
+    if (length == 0) {
+      return Constant.EMPTY_OBJECT_ARRAY;
+    }
+    Class<?> wrapperType = Array.get(source, 0).getClass();
+    Object[] newArray = (Object[]) Array.newInstance(wrapperType, length);
+    for (int i = 0; i < length; i++) {
+      newArray[i] = Array.get(source, i);
+    }
+    return newArray;
+  }
+
 }

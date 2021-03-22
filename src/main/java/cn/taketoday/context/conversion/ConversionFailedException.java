@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,28 +17,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.context.conversion;
 
+import cn.taketoday.context.exception.ConversionException;
+
 /**
- * @author TODAY <br>
- * 2019-06-06 15:31
- * @since 2.1.6
+ * Exception to be thrown when an actual type conversion attempt fails.
+ *
+ * @author Keith Donald
+ * @author Juergen Hoeller
+ * @author TODAY 2021/3/22 12:11
+ * @since 3.0
  */
-public abstract class StringSourceTypeConverter implements TypeConverter {
+public class ConversionFailedException extends ConversionException {
+  private static final long serialVersionUID = 1L;
 
-  @Override
-  public final boolean supports(Class<?> targetClass, Object source) {
-    return source instanceof String && supportsInternal(targetClass, source);
+  public ConversionFailedException(Throwable cause, Object source, Class<?> targetClass) {
+    super("Conversion failed", cause, source, targetClass);
   }
 
-  public boolean supportsInternal(Class<?> targetClass, Object source) {
-    return true;
+  public ConversionFailedException(String message, Throwable cause, Object source, Class<?> targetClass) {
+    super(message, cause, source, targetClass);
   }
 
-  @Override
-  public final Object convert(Class<?> targetClass, Object source) {
-    return convertInternal(targetClass, (String) source);
-  }
-
-  protected abstract Object convertInternal(Class<?> targetClass, String source);
 }

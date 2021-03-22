@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,28 +17,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.conversion;
+package cn.taketoday.context.conversion.support;
+
+import java.util.UUID;
+
+import cn.taketoday.context.conversion.Converter;
+import cn.taketoday.context.utils.StringUtils;
 
 /**
- * @author TODAY <br>
- * 2019-06-06 15:31
- * @since 2.1.6
+ * Converts from a String to a {@link UUID}.
+ *
+ * @author Phillip Webb
+ * @author TODAY
+ * @see UUID#fromString
+ * @since 3.0
  */
-public abstract class StringSourceTypeConverter implements TypeConverter {
+final class StringToUUIDConverter implements Converter<String, UUID> {
 
   @Override
-  public final boolean supports(Class<?> targetClass, Object source) {
-    return source instanceof String && supportsInternal(targetClass, source);
+  public UUID convert(String source) {
+    return (StringUtils.hasText(source) ? UUID.fromString(source.trim()) : null);
   }
 
-  public boolean supportsInternal(Class<?> targetClass, Object source) {
-    return true;
-  }
-
-  @Override
-  public final Object convert(Class<?> targetClass, Object source) {
-    return convertInternal(targetClass, (String) source);
-  }
-
-  protected abstract Object convertInternal(Class<?> targetClass, String source);
 }

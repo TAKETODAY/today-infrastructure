@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,28 +17,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.conversion;
+package cn.taketoday.context.conversion.support;
+
+import cn.taketoday.context.conversion.Converter;
 
 /**
- * @author TODAY <br>
- * 2019-06-06 15:31
- * @since 2.1.6
+ * Converts a String to a Character.
+ *
+ * @author Keith Donald
+ * @author TODAY
+ * @since 3.0
  */
-public abstract class StringSourceTypeConverter implements TypeConverter {
+final class StringToCharacterConverter implements Converter<String, Character> {
 
   @Override
-  public final boolean supports(Class<?> targetClass, Object source) {
-    return source instanceof String && supportsInternal(targetClass, source);
+  public Character convert(String source) {
+    if (source.isEmpty()) {
+      return null;
+    }
+    if (source.length() > 1) {
+      throw new IllegalArgumentException(
+              "Can only convert a [String] with length of 1 to a [Character]; string value '" + source + "'  has length of " + source
+                      .length());
+    }
+    return source.charAt(0);
   }
 
-  public boolean supportsInternal(Class<?> targetClass, Object source) {
-    return true;
-  }
-
-  @Override
-  public final Object convert(Class<?> targetClass, Object source) {
-    return convertInternal(targetClass, (String) source);
-  }
-
-  protected abstract Object convertInternal(Class<?> targetClass, String source);
 }

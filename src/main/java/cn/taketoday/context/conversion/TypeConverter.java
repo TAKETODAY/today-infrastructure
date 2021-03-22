@@ -33,20 +33,22 @@ public interface TypeConverter {
    * whether this {@link TypeConverter} supports to convert source object to
    * target class object
    *
-   * @param targetClass
+   * @param targetType
    *         target class
-   * @param source
+   * @param sourceType
    *         source object never be null
    *
    * @return whether this {@link TypeConverter} supports to convert source object
    * to target class object
    */
+//  boolean supports(Class<?> targetType, Class<?> sourceType);
+
   boolean supports(Class<?> targetClass, Object source);
 
   /**
    * Convert source object to target object
    *
-   * @param targetClass
+   * @param targetType
    *         target type
    * @param source
    *         source object never be null
@@ -56,5 +58,5 @@ public interface TypeConverter {
    * @throws ConversionException
    *         if can't convert to target object
    */
-  Object convert(Class<?> targetClass, Object source);
+  Object convert(Class<?> targetType, Object source);
 }

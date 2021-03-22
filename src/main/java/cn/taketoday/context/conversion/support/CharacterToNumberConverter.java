@@ -18,22 +18,31 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.conversion;
+package cn.taketoday.context.conversion.support;
 
-import cn.taketoday.context.OrderedSupport;
+import cn.taketoday.context.conversion.ConversionService;
+import cn.taketoday.context.conversion.TypeConverter;
+import cn.taketoday.context.utils.NumberUtils;
 
 /**
- * @author TODAY 2021/2/11 12:15
+ * @author TODAY 2021/3/22 17:56
+ * @since 3.0
  */
-public class ObjectToStringConverter
-        extends OrderedSupport implements Converter<Object, String> {
+final class CharacterToNumberConverter implements TypeConverter {
+  private final ConversionService conversionService;
 
-  public ObjectToStringConverter() {
-    super(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE);
+  public CharacterToNumberConverter(ConversionService conversionService) {
+    this.conversionService = conversionService;
   }
 
   @Override
-  public String convert(Object source) {
-    return source.toString(); // default implementation
+  public boolean supports(Class<?> targetType, Object source) {
+    return source instanceof Character && NumberUtils.isNumber(targetType);
+  }
+
+  @Override
+  public Object convert(Class<?> targetType, Object source) {
+    final Character character = (Character) source;
+    return conversionService.convert((short) character.charValue(), targetType);
   }
 }

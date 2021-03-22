@@ -17,37 +17,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+package cn.taketoday.context.conversion.support;
 
-package cn.taketoday.context.conversion;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Properties;
 
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.utils.OrderUtils;
+import cn.taketoday.context.conversion.Converter;
 
 /**
+ * Converts from a Properties to a String by calling {@link Properties#store(java.io.OutputStream, String)}.
+ * Decodes with the ISO-8859-1 charset before returning the String.
+ *
+ * @author Keith Donald
  * @author TODAY
- * 2021/1/8 22:41
+ * @since 3.0
  */
-class GenericConverter implements Converter<Object, Object>, Ordered {
-  final Class<?> sourceClass;
-  final Converter converter;
+final class PropertiesToStringConverter implements Converter<Properties, String> {
 
-  public GenericConverter(Class<?> sourceClass, Converter converter) {
-    this.converter = converter;
-    this.sourceClass = sourceClass;
+  public String convert(Properties source) {
+    try {
+      ByteArrayOutputStream os = new ByteArrayOutputStream(256);
+      source.store(os, null);
+      return os.toString("ISO-8859-1");
+    }
+    catch (IOException ex) {
+      // Should never happen.
+      throw new IllegalArgumentException("Failed to store [" + source + "] into String", ex);
+    }
   }
 
-  public boolean supports(Object source) {
-    return sourceClass.isInstance(source);
-  }
-
-  @Override
-  public Object convert(Object source) {
-    return converter.convert(source);
-  }
-
-  // order support
-  @Override
-  public int getOrder() {
-    return OrderUtils.getOrder(converter);
-  }
 }

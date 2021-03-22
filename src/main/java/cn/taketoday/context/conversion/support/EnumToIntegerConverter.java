@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,28 +17,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.conversion;
+package cn.taketoday.context.conversion.support;
+
+import cn.taketoday.context.conversion.ConversionService;
+import cn.taketoday.context.conversion.Converter;
 
 /**
- * @author TODAY <br>
- * 2019-06-06 15:31
- * @since 2.1.6
+ * Calls {@link Enum#ordinal()} to convert a source Enum to a Integer.
+ * This converter will not match enums with interfaces that can be converted.
+ *
+ * @author Yanming Zhou
+ * @since 3.0
  */
-public abstract class StringSourceTypeConverter implements TypeConverter {
+final class EnumToIntegerConverter
+				extends AbstractConditionalEnumConverter implements Converter<Enum<?>, Integer> {
 
-  @Override
-  public final boolean supports(Class<?> targetClass, Object source) {
-    return source instanceof String && supportsInternal(targetClass, source);
-  }
+	public EnumToIntegerConverter(ConversionService conversionService) {
+		super(conversionService);
+	}
 
-  public boolean supportsInternal(Class<?> targetClass, Object source) {
-    return true;
-  }
+	@Override
+	public Integer convert(Enum<?> source) {
+		return source.ordinal();
+	}
 
-  @Override
-  public final Object convert(Class<?> targetClass, Object source) {
-    return convertInternal(targetClass, (String) source);
-  }
-
-  protected abstract Object convertInternal(Class<?> targetClass, String source);
 }

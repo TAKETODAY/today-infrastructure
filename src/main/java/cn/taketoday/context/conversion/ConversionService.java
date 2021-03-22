@@ -31,11 +31,13 @@ package cn.taketoday.context.conversion;
  */
 public interface ConversionService {
 
+  boolean canConvert(Class<?> sourceType, Class<?> targetType);
+
   /**
    * whether this {@link ConversionService} supports to convert source object to
    * target class object
    *
-   * @param targetClass
+   * @param targetType
    *         target class
    * @param source
    *         source object
@@ -43,8 +45,8 @@ public interface ConversionService {
    * @return whether this {@link ConversionService} supports to convert source object
    * to target class object
    */
-  default boolean canConvert(Object source, Class<?> targetClass) {
-    return getConverter(source, targetClass) != null;
+  default boolean canConvert(Object source, Class<?> targetType) {
+    return getConverter(source, targetType) != null;
   }
 
   /**
@@ -67,11 +69,11 @@ public interface ConversionService {
    *
    * @param source
    *         input source
-   * @param targetClass
+   * @param targetType
    *         convert to target class
    *
    * @return TypeConverter
    */
-  TypeConverter getConverter(Object source, Class<?> targetClass);
+  TypeConverter getConverter(Object source, Class<?> targetType);
 
 }

@@ -17,37 +17,36 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+package cn.taketoday.context.conversion.support;
 
-package cn.taketoday.context.conversion;
+import java.util.Arrays;
 
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.utils.OrderUtils;
+import cn.taketoday.context.conversion.ConversionService;
+import cn.taketoday.context.utils.ObjectUtils;
 
 /**
+ * Converts an array to a comma-delimited String.
+ *
+ * @author Keith Donald
  * @author TODAY
- * 2021/1/8 22:41
+ * @since 3.0
  */
-class GenericConverter implements Converter<Object, Object>, Ordered {
-  final Class<?> sourceClass;
-  final Converter converter;
+final class ArrayToStringConverter extends ArraySourceConverter {
+  private final CollectionToStringConverter helperConverter;
 
-  public GenericConverter(Class<?> sourceClass, Converter converter) {
-    this.converter = converter;
-    this.sourceClass = sourceClass;
-  }
-
-  public boolean supports(Object source) {
-    return sourceClass.isInstance(source);
+  public ArrayToStringConverter(ConversionService conversionService) {
+    this.helperConverter = new CollectionToStringConverter(conversionService);
   }
 
   @Override
-  public Object convert(Object source) {
-    return converter.convert(source);
+  protected boolean supportsInternal(Class<?> targetType, Object source) {
+    // Object[].class, String.class
+    return String.class == targetType;
   }
 
-  // order support
   @Override
-  public int getOrder() {
-    return OrderUtils.getOrder(converter);
+  public Object convert(Class<?> targetType, Object source) {
+    return this.helperConverter.convertInternal(targetType, Arrays.asList(ObjectUtils.toObjectArray(source)));
   }
+
 }

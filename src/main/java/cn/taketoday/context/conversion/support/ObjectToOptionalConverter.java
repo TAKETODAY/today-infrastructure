@@ -1,0 +1,92 @@
+/*
+ * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ */
+package cn.taketoday.context.conversion.support;
+
+import java.lang.reflect.Array;
+import java.util.Collection;
+import java.util.Optional;
+
+import cn.taketoday.context.conversion.ConversionService;
+import cn.taketoday.context.conversion.TypeConverter;
+import cn.taketoday.context.utils.GenericTypeResolver;
+
+/**
+ * Convert an Object to {@code java.util.Optional<T>} if necessary using the
+ * {@code ConversionService} to convert the source Object to the generic type
+ * of Optional when known.
+ *
+ * @author Rossen Stoyanchev
+ * @author TODAY
+ * @author Juergen Hoeller
+ * @since 3.0
+ */
+final class ObjectToOptionalConverter implements TypeConverter {
+  private final ConversionService conversionService;
+
+  public ObjectToOptionalConverter(ConversionService conversionService) {
+    this.conversionService = conversionService;
+  }
+
+  @Override
+  public boolean supports(Class<?> targetType, Object source) {
+    // Collection.class, Optional.class
+    // Object[].class, Optional.class
+    // Object.class, Optional.class
+
+    final Class<Object> elementType = GenericTypeResolver.resolveTypeArgument(targetType, Optional.class);
+    if (elementType != null) {
+      return this.conversionService.canConvert(source, elementType);
+    }
+    else {
+      return true;
+    }
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public Object convert(final Class<?> targetType, final Object source) {
+    // Optional<E> -> E
+    final Class<Object> elementType = GenericTypeResolver.resolveTypeArgument(targetType, Optional.class);
+    if (source instanceof Optional) {
+      final Optional<Object> optional = (Optional<Object>) source;
+      if (optional.isPresent()) {
+        final Object original = optional.get();
+        if (elementType != null && !elementType.isInstance(original)) {
+          final Object converted = conversionService.convert(optional, elementType);
+          return Optional.of(converted);
+        }
+        // return original source
+      }
+      return source;
+    }
+    else if (elementType != null) {
+      final Object target = this.conversionService.convert(source, elementType);
+      if (target == null || (target.getClass().isArray() && Array.getLength(target) == 0) ||
+              (target instanceof Collection && ((Collection<?>) target).isEmpty())) {
+        return Optional.empty();
+      }
+      return Optional.of(target);
+    }
+    else { // not a Optional
+      return Optional.of(source);
+    }
+  }
+
+}

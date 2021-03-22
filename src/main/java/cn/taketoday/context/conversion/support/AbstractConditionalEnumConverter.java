@@ -17,22 +17,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+package cn.taketoday.context.conversion.support;
 
-package cn.taketoday.context.conversion;
+import cn.taketoday.context.conversion.ConversionService;
+import cn.taketoday.context.utils.ClassUtils;
 
 /**
- * @author TODAY 2021/3/21 11:20
+ * A base implementation for enum-based converters.
+ *
+ * @author Stephane Nicoll
+ * @author TODAY
+ * @since 3.0
  */
-public class BooleanConverter extends StringSourceTypeConverter {
+abstract class AbstractConditionalEnumConverter {
+  private final ConversionService conversionService;
 
-  @Override
-  public boolean supports(Class<?> targetClass) {
-    return targetClass == Boolean.class
-            || targetClass == boolean.class;
+  protected AbstractConditionalEnumConverter(ConversionService conversionService) {
+    this.conversionService = conversionService;
   }
 
-  @Override
-  protected Object convertInternal(Class<?> targetClass, String source) {
-    return Boolean.parseBoolean(source);
+  public boolean matches(Class<?> sourceType, Class<?> targetType) {
+    for (Class<?> interfaceType : ClassUtils.getAllInterfacesForClassAsSet(sourceType)) {
+      if (this.conversionService.canConvert(interfaceType, targetType)) {
+        return false;
+      }
+    }
+    return true;
   }
+
 }

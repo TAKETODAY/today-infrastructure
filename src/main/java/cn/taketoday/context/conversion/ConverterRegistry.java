@@ -36,7 +36,7 @@ public interface ConverterRegistry {
    * @param converters
    *         {@link TypeConverter} object
    */
-  void addConverter(TypeConverter... converters);
+  void addConverters(TypeConverter... converters);
 
   /**
    * Add a list of {@link TypeConverter}
@@ -44,7 +44,7 @@ public interface ConverterRegistry {
    * @param converters
    *         {@link TypeConverter} object
    */
-  void addConverter(List<TypeConverter> converters);
+  void addConverters(List<TypeConverter> converters);
 
   // Converter
 
@@ -54,7 +54,9 @@ public interface ConverterRegistry {
 
   void addConverter(Class<?> targetClass, Converter<?, ?> converter);
 
-  void addConverter(Class<?> targetClass, Class<?> sourceClass, Converter<?, ?> converter);
+  <S, T> void addConverter(Class<T> targetClass,
+                           Class<S> sourceClass,
+                           Converter<? super S, ? extends T> converter);
 
   void setConverterTypeConverter(ConverterTypeConverter converterTypeConverter);
 

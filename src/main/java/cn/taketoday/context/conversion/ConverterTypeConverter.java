@@ -139,7 +139,6 @@ public class ConverterTypeConverter
 
   public static void registerDefaultConverters(ConverterTypeConverter converter) {
     converter.addConverters(
-            new ObjectToStringConverter(),
             new IntegerConverter(int.class),
             new IntegerConverter(Integer.class),
             new LongConverter(Long.class),

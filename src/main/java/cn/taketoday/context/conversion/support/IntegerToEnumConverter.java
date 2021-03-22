@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,28 +17,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.conversion;
+
+package cn.taketoday.context.conversion.support;
+
+import cn.taketoday.context.conversion.TypeConverter;
 
 /**
- * @author TODAY <br>
- * 2019-06-06 15:31
- * @since 2.1.6
+ * @author TODAY 2021/3/22 16:43
+ * @since 3.0
  */
-public abstract class StringSourceTypeConverter implements TypeConverter {
+final class IntegerToEnumConverter implements TypeConverter {
 
   @Override
-  public final boolean supports(Class<?> targetClass, Object source) {
-    return source instanceof String && supportsInternal(targetClass, source);
-  }
-
-  public boolean supportsInternal(Class<?> targetClass, Object source) {
-    return true;
+  public boolean supports(Class<?> targetType, Object source) {
+    return source instanceof Integer && targetType.isEnum();
   }
 
   @Override
-  public final Object convert(Class<?> targetClass, Object source) {
-    return convertInternal(targetClass, (String) source);
+  public Object convert(Class<?> targetType, Object source) {
+    return targetType.getEnumConstants()[(int) source];
   }
-
-  protected abstract Object convertInternal(Class<?> targetClass, String source);
 }

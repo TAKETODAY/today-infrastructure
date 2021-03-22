@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,28 +17,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.conversion;
+package cn.taketoday.context.conversion.support;
+
+import cn.taketoday.context.conversion.ConversionService;
+import cn.taketoday.context.conversion.Converter;
 
 /**
- * @author TODAY <br>
- * 2019-06-06 15:31
- * @since 2.1.6
+ * Calls {@link Enum#name()} to convert a source Enum to a String.
+ * This converter will not match enums with interfaces that can be converted.
+ *
+ * @author Keith Donald
+ * @author Phillip Webb
+ * @author TODAY
+ * @since 3.0
  */
-public abstract class StringSourceTypeConverter implements TypeConverter {
+final class EnumToStringConverter
+        extends AbstractConditionalEnumConverter implements Converter<Enum<?>, String> {
 
-  @Override
-  public final boolean supports(Class<?> targetClass, Object source) {
-    return source instanceof String && supportsInternal(targetClass, source);
-  }
-
-  public boolean supportsInternal(Class<?> targetClass, Object source) {
-    return true;
+  public EnumToStringConverter(ConversionService conversionService) {
+    super(conversionService);
   }
 
   @Override
-  public final Object convert(Class<?> targetClass, Object source) {
-    return convertInternal(targetClass, (String) source);
+  public String convert(Enum<?> source) {
+    return source.name();
   }
 
-  protected abstract Object convertInternal(Class<?> targetClass, String source);
 }

@@ -19,26 +19,47 @@
  */
 package cn.taketoday.context.exception;
 
+import cn.taketoday.context.NestedRuntimeException;
+
 /**
  * @author TODAY <br>
  * 2018-06-28 17:05:34
  */
-public class ConversionException extends ContextException {
+public class ConversionException extends NestedRuntimeException {
 
   private static final long serialVersionUID = 1L;
 
-  public ConversionException() {}
+  final Object source;
+  final Class<?> targetClass;
+
+  public ConversionException() {
+    this(null, null, null, null);
+  }
 
   public ConversionException(Throwable cause) {
-    super(cause);
+    this(null, cause, null, null);
   }
 
   public ConversionException(String message, Throwable cause) {
-    super(message, cause);
+    this(message, cause, null, null);
   }
 
   public ConversionException(String message) {
-    super(message);
+    this(message, null, null, null);
+  }
+
+  public ConversionException(String message, Throwable cause, Object source, Class<?> targetClass) {
+    super(message, cause);
+    this.source = source;
+    this.targetClass = targetClass;
+  }
+
+  public Object getSource() {
+    return source;
+  }
+
+  public Class<?> getTargetClass() {
+    return targetClass;
   }
 
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,28 +17,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.conversion;
+
+package cn.taketoday.context.conversion.support;
+
+import cn.taketoday.context.conversion.TypeConverter;
 
 /**
- * @author TODAY <br>
- * 2019-06-06 15:31
- * @since 2.1.6
+ * @author TODAY 2021/3/22 12:50
+ * @since 3.0
  */
-public abstract class StringSourceTypeConverter implements TypeConverter {
+public abstract class ArraySourceConverter implements TypeConverter {
 
   @Override
-  public final boolean supports(Class<?> targetClass, Object source) {
-    return source instanceof String && supportsInternal(targetClass, source);
-  }
-
-  public boolean supportsInternal(Class<?> targetClass, Object source) {
-    return true;
+  public boolean supports(Class<?> targetType, Class<?> sourceType) {
+    return sourceType.isArray() && supportsInternal(targetType, sourceType);
   }
 
   @Override
-  public final Object convert(Class<?> targetClass, Object source) {
-    return convertInternal(targetClass, (String) source);
+  public boolean supports(Class<?> targetType, Object source) {
+    return source.getClass().isArray() && supportsInternal(targetType, source);
   }
 
-  protected abstract Object convertInternal(Class<?> targetClass, String source);
+  protected abstract boolean supportsInternal(Class<?> targetType, Object source);
+
 }
