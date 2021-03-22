@@ -89,7 +89,8 @@ public class ValidationParameterResolver
     final DefaultErrors errors = new DefaultErrors();
     context.attribute(Constant.VALIDATION_ERRORS, errors);
 
-    validate(getValidator(), value, errors);
+    doValidate(getValidator(), value, errors);
+
     if (errors.hasErrors()) {
       final MethodParameter[] parameters = parameter.getHandlerMethod().getParameters();
       final int length = parameters.length;
@@ -105,11 +106,19 @@ public class ValidationParameterResolver
     return value;
   }
 
+  /**
+   * Use {@link ParameterResolver#resolveParameter(RequestContext, MethodParameter)}
+   *
+   * @return Has not been validate parameter value
+   */
   protected Object resolveValue(RequestContext context, MethodParameter parameter) throws Throwable {
     return obtainResolver(parameter).resolveParameter(context, parameter);
   }
 
-  protected void validate(CompositeValidator validator, Object value, DefaultErrors errors) {
+  /**
+   * {@link CompositeValidator#validate(Object, Errors)}
+   */
+  protected void doValidate(CompositeValidator validator, Object value, DefaultErrors errors) {
     validator.validate(value, errors);
   }
 
