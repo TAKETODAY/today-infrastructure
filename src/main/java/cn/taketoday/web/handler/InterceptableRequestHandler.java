@@ -38,7 +38,6 @@ import static cn.taketoday.context.utils.ObjectUtils.isEmpty;
  */
 public abstract class InterceptableRequestHandler
         extends OrderedSupport implements RequestHandler {
-
   private static final Logger log = LoggerFactory.getLogger(InterceptableRequestHandler.class);
 
   /** 拦截器 */
@@ -56,10 +55,10 @@ public abstract class InterceptableRequestHandler
     final HandlerInterceptor[] interceptors = getInterceptors();
     if (interceptors != null) {
       // before
-      for (final HandlerInterceptor intercepter : interceptors) {
-        if (!intercepter.beforeProcess(context, this)) {
+      for (final HandlerInterceptor interceptor : interceptors) {
+        if (!interceptor.beforeProcess(context, this)) {
           if (log.isDebugEnabled()) {
-            log.debug("Interceptor: [{}] return false", intercepter);
+            log.debug("Interceptor: [{}] return false", interceptor);
           }
           return HandlerAdapter.NONE_RETURN_VALUE;
         }
@@ -67,8 +66,8 @@ public abstract class InterceptableRequestHandler
       // handle
       final Object result = handleInternal(context);
       // after
-      for (final HandlerInterceptor intercepter : interceptors) {
-        intercepter.afterProcess(context, this, result);
+      for (final HandlerInterceptor interceptor : interceptors) {
+        interceptor.afterProcess(context, this, result);
       }
       return result;
     }

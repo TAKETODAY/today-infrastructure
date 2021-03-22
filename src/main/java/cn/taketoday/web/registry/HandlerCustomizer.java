@@ -20,8 +20,7 @@
 package cn.taketoday.web.registry;
 
 /**
- * @author TODAY
- * @date 2020/12/10 23:30
+ * @author TODAY 2020/12/10 23:30
  */
 public interface HandlerCustomizer {
 

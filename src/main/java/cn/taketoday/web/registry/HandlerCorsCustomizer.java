@@ -31,8 +31,7 @@ import cn.taketoday.web.interceptor.CorsHandlerInterceptor;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 /**
- * @author TODAY
- * @date 2020/12/10 23:37
+ * @author TODAY 2020/12/10 23:37
  */
 public class HandlerCorsCustomizer implements HandlerMethodCustomizer {
 

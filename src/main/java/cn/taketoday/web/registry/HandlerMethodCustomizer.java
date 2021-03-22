@@ -22,8 +22,7 @@ package cn.taketoday.web.registry;
 import cn.taketoday.web.handler.HandlerMethod;
 
 /**
- * @author TODAY
- * @date 2020/12/12 0:02
+ * @author TODAY 2020/12/12 0:02
  */
 public interface HandlerMethodCustomizer extends HandlerCustomizer {
 
