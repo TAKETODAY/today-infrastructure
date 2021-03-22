@@ -38,7 +38,7 @@ import cn.taketoday.web.handler.MethodParameter;
 public class DataBinderParameterResolver
         extends OrderedSupport implements ParameterResolver {
 
-  private ConversionService conversionService;
+  private ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
   public DataBinderParameterResolver() {
     this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 100);
@@ -46,9 +46,6 @@ public class DataBinderParameterResolver
 
   public DataBinderParameterResolver(final int order) {
     super(order);
-    DefaultConversionService conversionService = new DefaultConversionService();
-    DefaultConversionService.registerDefaultConverters(conversionService);
-    this.conversionService = conversionService;
   }
 
   public DataBinderParameterResolver(ConversionService conversionService) {
