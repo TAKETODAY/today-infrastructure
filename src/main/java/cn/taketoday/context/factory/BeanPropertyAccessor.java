@@ -520,7 +520,7 @@ public class BeanPropertyAccessor {
   }
 
   protected Object doConvertInternal(Object value, Class<?> requiredType, final BeanProperty beanProperty) {
-    return doConvertInternal(value, GenericDescriptor.ofBeanProperty(beanProperty));
+    return doConvertInternal(value, GenericDescriptor.ofProperty(beanProperty));
   }
 
   /**

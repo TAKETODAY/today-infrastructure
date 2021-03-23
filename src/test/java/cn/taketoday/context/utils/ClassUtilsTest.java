@@ -472,51 +472,24 @@ public class ClassUtilsTest {
   }
 
   // fix bug
-
-  interface Interface<T> {
-
-  }
-
-  interface Interface1<T> {
-
-  }
-
-  interface Interface2<T> {
-
-  }
-
-  interface NestedGenericInterface extends Interface<String> {
-
-  }
-
-  static abstract class Abs {
-
-  }
-
-  static abstract class GenericAbs implements Interface<String> {
-
-  }
-
+  // @off
+  interface Interface<T> {}
+  interface Interface1<T> {}
+  interface Interface2<T> {}
+  interface NestedGenericInterface extends Interface<String> {}
+  static abstract class Abs {}
+  static abstract class GenericAbs implements Interface<String> {}
   static class AbsGeneric extends Abs
           implements Interface<String>,
                      Interface1<Integer>,
-                     Interface2<Interface<String>> {
-
-  }
-
+                     Interface2<Interface<String>> {}
   static class GenericAbsGeneric extends GenericAbs
-          implements Interface1<Integer>, Interface2<Interface<String>> {
-
-  }
-
+          implements Interface1<Integer>, Interface2<Interface<String>> {}
   static class NestedGenericInterfaceBean extends GenericAbs
-          implements NestedGenericInterface, Interface1<Integer>, Interface2<Interface<String>> {
+          implements NestedGenericInterface, Interface1<Integer>, Interface2<Interface<String>> {}
+  static class NoGeneric {}
 
-  }
-
-  static class NoGeneric {
-
-  }
+  // @on
 
 /*
   @Test

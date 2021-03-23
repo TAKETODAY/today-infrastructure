@@ -119,7 +119,7 @@ public class DefaultConversionService implements ConfigurableConversionService {
     if (sourceDescriptor.equals(targetType)) {
       return (T) source;
     }
-    final TypeConverter typeConverter = getConverter(source.getClass(), targetType);
+    final TypeConverter typeConverter = getConverter(sourceDescriptor.getType(), targetType);
     if (typeConverter == null) {
       return handleConverterNotFound(source, targetType);
     }

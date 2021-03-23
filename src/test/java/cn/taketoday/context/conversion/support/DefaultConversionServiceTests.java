@@ -25,8 +25,6 @@ import org.junit.Test;
 import java.awt.Color;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
@@ -58,7 +56,6 @@ import cn.taketoday.context.conversion.ConversionFailedException;
 import cn.taketoday.context.conversion.Converter;
 import cn.taketoday.context.conversion.ConverterNotFoundException;
 import cn.taketoday.context.conversion.ConverterRegistry;
-import cn.taketoday.context.utils.GenericTypeResolver;
 import cn.taketoday.context.utils.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -378,7 +375,7 @@ public class DefaultConversionServiceTests {
     ConverterRegistry registry = conversionService;
     registry.addConverter(new ColorConverter());
     final Method handlerMethod = getClass().getMethod("handlerMethod", List.class);
-    final GenericDescriptor descriptor = GenericDescriptor.of(handlerMethod, 0);
+    final GenericDescriptor descriptor = GenericDescriptor.ofParameter(handlerMethod, 0);
 
     List<Color> colors = conversionService.convert(new String[] { "ffffff", "#000000" }, descriptor);
 

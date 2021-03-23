@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context.utils;
 
+import com.sun.org.apache.bcel.internal.classfile.LocalVariable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -79,6 +81,8 @@ import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.loader.CandidateComponentScanner;
+import jdk.internal.org.objectweb.asm.tree.ClassNode;
+import jdk.internal.org.objectweb.asm.tree.MethodNode;
 
 import static cn.taketoday.context.Constant.EMPTY_ANNOTATION_ATTRIBUTES;
 import static cn.taketoday.context.utils.ContextUtils.resolveParameter;
@@ -1333,6 +1337,10 @@ public abstract class ClassUtils {
   public static Class<?>[] getGenerics(final Parameter parameter) {
     Assert.notNull(parameter, "parameter must not be null");
     return GenericTypeResolver.extractClasses(parameter.getType(), getGenericTypes(parameter));
+  }
+
+  public static java.lang.reflect.Type[] getGenericTypes(final java.lang.reflect.Type type) {
+    return type != null ? getActualTypeArguments(type) : null;
   }
 
   public static java.lang.reflect.Type[] getGenericTypes(final Field property) {

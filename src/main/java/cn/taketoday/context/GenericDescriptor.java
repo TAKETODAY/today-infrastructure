@@ -26,13 +26,16 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.StringJoiner;
 
 import cn.taketoday.context.factory.BeanProperty;
 import cn.taketoday.context.utils.Assert;
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.GenericTypeResolver;
 
@@ -43,11 +46,13 @@ import cn.taketoday.context.utils.GenericTypeResolver;
 public class GenericDescriptor {
   private final Class<?> type;
   private final Type genericType;
+  private final Type[] genericTypes;
 
-  public GenericDescriptor(Class<?> type, Type genericType) {
+  public GenericDescriptor(Class<?> type, Type genericType, Type[] genericTypes) {
     Assert.notNull(type, "type must not be null");
     this.type = type;
     this.genericType = genericType;
+    this.genericTypes = genericTypes;
   }
 
   public Class<?> getType() {
@@ -58,32 +63,96 @@ public class GenericDescriptor {
     return genericType;
   }
 
+  public Type[] getGenericTypes() {
+    return genericTypes;
+  }
+
+  private GenericDescriptor[] generics;
+
+//  public GenericDescriptor[] getGenerics() {
+//    GenericDescriptor[] generics = this.generics;
+//    if (generics == null) {
+//      if (genericType instanceof Class) {
+//        final TypeVariable<? extends Class<?>>[] typeParameters = ((Class<?>) genericType).getTypeParameters();
+//        GenericDescriptor[] ret = new GenericDescriptor[typeParameters.length];
+//        for (int i = 0; i < typeParameters.length; i++) {
+//          ret[i] = new GenericDescriptor(type, typeParameters[i], );
+//        }
+//        this.generics = ret;
+//      }
+//      else if (this.genericType instanceof ParameterizedType) {
+//        Type[] actualTypeArguments = ((ParameterizedType) this.genericType).getActualTypeArguments();
+//
+//        for (final Type actualTypeArgument : actualTypeArguments) {
+//
+//        }
+//
+//        this.generics = generics;
+//      }
+//    }
+//    return generics;
+//  }
+//
+//  public Class<?>[] getGenerics() {
+//    Class<?>[] generics = this.generics;
+//    if (generics == null) {
+//      if (genericType instanceof Class) {
+//
+//      }
+//      else if (this.genericType instanceof ParameterizedType) {
+//        Type[] actualTypeArguments = ((ParameterizedType) this.genericType).getActualTypeArguments();
+//        generics = GenericTypeResolver.extractClasses(type, actualTypeArguments);
+//        this.generics = generics;
+//      }
+//    }
+//    return generics;
+//  }
+
   public Class<?>[] getGenerics(Class<?> genericIfc) {
-    if (genericIfc.isAssignableFrom(type)) {
-      if (genericType instanceof ParameterizedType) {
-        ParameterizedType targetType = (ParameterizedType) genericType;
-        Type[] actualTypeArguments = targetType.getActualTypeArguments();
-        return GenericTypeResolver.extractClasses(type, actualTypeArguments);
+    if (genericType != type) {
+      final TypeVariable<? extends Class<?>>[] typeParameters = genericIfc.getTypeParameters();
+
+      if (genericIfc.isAssignableFrom(type)) {
+        final Type[] genericInterfaces = type.getGenericInterfaces();
+        Type[] actualTypeArguments = ((ParameterizedType) this.genericType).getActualTypeArguments();
+        if (genericInterfaces.length == 0) {
+          return GenericTypeResolver.extractClasses(type, actualTypeArguments);
+        }
+        else {
+
+        }
       }
-      else {
-        return null;
+
+      Class<?>[] ret = new Class<?>[typeParameters.length];
+      final Map<TypeVariable<?>, Type> typeVariableMaps = GenericTypeResolver.getTypeVariableMap(type);
+      final Set<Map.Entry<TypeVariable<?>, Type>> entries = typeVariableMaps.entrySet();
+      int idx = 0;
+      for (final Map.Entry<TypeVariable<?>, Type> entry : entries) {
+        final TypeVariable<?> key = entry.getKey();
+        final Type value = entry.getValue();
+        if (genericIfc == key.getGenericDeclaration()) {
+          ret[idx++] = (Class<?>) value;
+        }
+      }
+
+      if (!Arrays.asList(ret).contains(null)) {
+        return ret;
       }
     }
     return GenericTypeResolver.resolveTypeArguments(type, genericIfc);
   }
 
-  public <T> Class<T> getGeneric(Class<?> genericIfc) {
-    if (genericIfc.isAssignableFrom(type)) {
-      if (genericType instanceof ParameterizedType) {
-        ParameterizedType targetType = (ParameterizedType) genericType;
-        Type[] actualTypeArguments = targetType.getActualTypeArguments();
-        Type typeArg = actualTypeArguments[0];
-        if (!(typeArg instanceof WildcardType)) {
-          return (Class<T>) typeArg;
+  @SuppressWarnings("unchecked")
+  public <T> Class<T> getGeneric(final Class<?> genericIfc) {
+    if (genericType != type) {
+      final Map<TypeVariable<?>, Type> typeVariableMaps = GenericTypeResolver.getTypeVariableMap(type);
+      final Set<Map.Entry<TypeVariable<?>, Type>> entries = typeVariableMaps.entrySet();
+      for (final Map.Entry<TypeVariable<?>, Type> entry : entries) {
+        final TypeVariable<?> key = entry.getKey();
+        final Type value = entry.getValue();
+        if (genericIfc == key.getGenericDeclaration()) {
+          return (Class<T>) value;
         }
-      }
-      else {
-        return null;
       }
     }
     return GenericTypeResolver.resolveTypeArgument(type, genericIfc);
@@ -129,46 +198,47 @@ public class GenericDescriptor {
     return type.getSimpleName();
   }
 
-  // static
+  /**
+   * Is this type a primitive type?
+   */
+  public boolean isPrimitive() {
+    return type.isPrimitive();
+  }
+
+  // static factory methods
 
   public static GenericDescriptor map(Class<?> mapClass, Class<?> keyType, Class<?> valueType) {
-    final DefaultParameterizedType parameterizedType =
-            new DefaultParameterizedType(mapClass, new Type[] { keyType, valueType });
-
-    return new GenericDescriptor(mapClass, parameterizedType);
+    return new GenericDescriptor(mapClass, null, new Type[] { keyType, valueType });
   }
 
   public static GenericDescriptor collection(Class<?> collectionClass, Class<?> elementType) {
-    final DefaultParameterizedType parameterizedType =
-            new DefaultParameterizedType(collectionClass, new Type[] { elementType });
-    return new GenericDescriptor(collectionClass, parameterizedType);
+    return new GenericDescriptor(collectionClass, null, new Type[] { elementType });
   }
 
-  public static GenericDescriptor ofField(final Field field) {
+  public static GenericDescriptor ofProperty(final Field field) {
     final Class<?> type = field.getType();
     final Type genericType = field.getGenericType();
-    return new GenericDescriptor(type, genericType);
+    final Type[] genericTypes = ClassUtils.getGenericTypes(genericType);
+    return new GenericDescriptor(type, genericType, genericTypes);
+  }
+
+  public static GenericDescriptor ofProperty(final BeanProperty beanProperty) {
+    return ofProperty(beanProperty.getField());
   }
 
   public static GenericDescriptor ofParameter(final Parameter parameter) {
     final Class<?> type = parameter.getType();
-    final Type genericType = parameter.getParameterizedType();
-    return new GenericDescriptor(type, genericType);
-  }
-
-  public static GenericDescriptor ofBeanProperty(final BeanProperty beanProperty) {
-    return ofField(beanProperty.getField());
-  }
-
-  public static GenericDescriptor of(Class<?> type, Type genericType) {
-    return new GenericDescriptor(type, genericType);
+    final Type parameterizedType = parameter.getParameterizedType();
+    final Type[] genericTypes = ClassUtils.getGenericTypes(parameterizedType);
+    return new GenericDescriptor(type, parameterizedType, genericTypes);
   }
 
   public static GenericDescriptor ofClass(Class<?> type) {
-    return new GenericDescriptor(type, type);
+    final Type[] generics = ClassUtils.getGenerics(type);
+    return new GenericDescriptor(type, type, generics);
   }
 
-  public static GenericDescriptor of(final Executable executable, int index) {
+  public static GenericDescriptor ofParameter(final Executable executable, int index) {
     Assert.notNull(executable, "Executable must not be null");
     final Class<?>[] parameterTypes = executable.getParameterTypes();
     if (index < 0 || index >= parameterTypes.length) {
@@ -176,88 +246,20 @@ public class GenericDescriptor {
     }
 
     final Type genericType = executable.getGenericParameterTypes()[index];
-    return new GenericDescriptor(parameterTypes[index], genericType);
+    final Type[] genericTypes = ClassUtils.getGenericTypes(genericType);
+    return new GenericDescriptor(parameterTypes[index], genericType, genericTypes);
   }
 
   public static GenericDescriptor ofReturnType(final Method method) {
     Assert.notNull(method, "method must not be null");
     final Type genericType = method.getGenericReturnType();
-    return new GenericDescriptor(method.getReturnType(), genericType);
+    final Type[] genericTypes = ClassUtils.getGenericTypes(genericType);
+    return new GenericDescriptor(method.getReturnType(), genericType, genericTypes);
   }
 
-  static class DefaultParameterizedType implements ParameterizedType {
-
-    Type ownerType;
-    Class<?> rawType;
-    Type[] actualTypeArguments;
-
-    DefaultParameterizedType(Class<?> rawType, Type[] actualTypeArguments) {
-      this.rawType = rawType;
-      this.ownerType = rawType.getDeclaringClass();
-      this.actualTypeArguments = actualTypeArguments;
-    }
-
-    public Type[] getActualTypeArguments() {
-      return this.actualTypeArguments;
-    }
-
-    public Class<?> getRawType() {
-      return this.rawType;
-    }
-
-    public Type getOwnerType() {
-      return this.ownerType;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof DefaultParameterizedType)) return false;
-      final DefaultParameterizedType that = (DefaultParameterizedType) o;
-      return Objects.equals(ownerType, that.ownerType)
-              && Objects.equals(rawType, that.rawType)
-              && Arrays.equals(actualTypeArguments, that.actualTypeArguments);
-    }
-
-    @Override
-    public int hashCode() {
-      int result = Objects.hash(ownerType, rawType);
-      result = 31 * result + Arrays.hashCode(actualTypeArguments);
-      return result;
-    }
-
-    @Override
-    public String toString() {
-      StringBuilder sb = new StringBuilder();
-
-      if (ownerType != null) {
-        sb.append(ownerType.getTypeName());
-        sb.append("$");
-        if (ownerType instanceof DefaultParameterizedType) {
-          // Find simple name of nested type by removing the
-          // shared prefix with owner.
-          sb.append(
-                  rawType.getName()
-                          .replace(((DefaultParameterizedType) ownerType).rawType.getName() + "$", Constant.BLANK)
-          );
-        }
-        else
-          sb.append(rawType.getSimpleName());
-      }
-      else
-        sb.append(rawType.getName());
-
-      if (actualTypeArguments != null) {
-        StringJoiner sj = new StringJoiner(", ", "<", ">");
-        sj.setEmptyValue("");
-        for (Type t : actualTypeArguments) {
-          sj.add(t.getTypeName());
-        }
-        sb.append(sj.toString());
-      }
-
-      return sb.toString();
-    }
+  public static GenericDescriptor of(Class<?> type, Type genericType) {
+    final Type[] genericTypes = ClassUtils.getGenericTypes(genericType);
+    return new GenericDescriptor(type, genericType, genericTypes);
   }
 
   @Override
@@ -266,19 +268,27 @@ public class GenericDescriptor {
     if (!(o instanceof GenericDescriptor)) return false;
     final GenericDescriptor that = (GenericDescriptor) o;
     return type == that.type
-            && Objects.equals(genericType, that.genericType);
+            && Arrays.equals(genericTypes, that.genericTypes);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(type, genericType);
+    return Objects.hash(type, genericTypes);
   }
 
   @Override
   public String toString() {
-    return "GenericDescriptor{" +
-            "type=" + type +
-            ", genericType=" + genericType +
-            '}';
+    if (isArray()) {
+      return getComponentType() + "[]";
+    }
+    final String typeName = this.type.getName();
+    if (genericTypes != null) {
+      StringJoiner stringJoiner = new StringJoiner(", ", "<", ">");
+      for (Type argument : genericTypes) {
+        stringJoiner.add(argument.getTypeName());
+      }
+      return typeName + stringJoiner;
+    }
+    return typeName;
   }
 }

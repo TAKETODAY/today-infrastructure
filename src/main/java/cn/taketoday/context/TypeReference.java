@@ -20,6 +20,10 @@
 
 package cn.taketoday.context;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.GenericTypeResolver;
 
 /**
@@ -41,9 +45,72 @@ public abstract class TypeReference<T> {
     return GenericTypeResolver.resolveTypeArgument(clazz, TypeReference.class);
   }
 
-  @Override
-  public String toString() {
-    return getTypeParameter().toString();
+//  @Override
+//  public String toString() {
+//    return getTypeParameter().toString();
+//  }
+
+  private final Type type;
+
+  protected TypeReference() {
+    Class<?> parameterizedTypeReferenceSubclass = findParameterizedTypeReferenceSubclass(getClass());
+    Type type = parameterizedTypeReferenceSubclass.getGenericSuperclass();
+    Assert.isInstanceOf(ParameterizedType.class, type, "Type must be a parameterized type");
+    ParameterizedType parameterizedType = (ParameterizedType) type;
+    Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+    Assert.isTrue(actualTypeArguments.length == 1, "Number of type arguments must be 1");
+    this.type = actualTypeArguments[0];
   }
 
+  private TypeReference(Type type) {
+    this.type = type;
+  }
+
+  public Type getType() {
+    return this.type;
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    return (this == other || (other instanceof TypeReference &&
+            this.type.equals(((TypeReference<?>) other).type)));
+  }
+
+  @Override
+  public int hashCode() {
+    return this.type.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return "TypeReference<" + this.type + ">";
+  }
+
+  /**
+   * Build a {@code ParameterizedTypeReference} wrapping the given type.
+   *
+   * @param type
+   *         a generic type (possibly obtained via reflection,
+   *         e.g. from {@link java.lang.reflect.Method#getGenericReturnType()})
+   *
+   * @return a corresponding reference which may be passed into
+   * {@code ParameterizedTypeReference}-accepting methods
+   */
+  public static <T> TypeReference<T> forType(Type type) {
+    return new TypeReference<T>(type) {
+    };
+  }
+
+  private static Class<?> findParameterizedTypeReferenceSubclass(Class<?> child) {
+    Class<?> parent = child.getSuperclass();
+    if (Object.class == parent) {
+      throw new IllegalStateException("Expected ParameterizedTypeReference superclass");
+    }
+    else if (TypeReference.class == parent) {
+      return child;
+    }
+    else {
+      return findParameterizedTypeReferenceSubclass(parent);
+    }
+  }
 }
