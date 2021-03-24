@@ -1,6 +1,5 @@
 cn.taketoday.web.view.JacksonMessageConverter
 cn.taketoday.web.multipart.MultipartConfiguration
-cn.taketoday.web.view.template.FreeMarkerTemplateViewResolver
 cn.taketoday.web.handler.NotFoundRequestAdapter
 cn.taketoday.web.registry.HandlerMethodRegistry
 cn.taketoday.web.resolver.ParameterResolvers

@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.condition.ConditionalOnClass;
 import cn.taketoday.context.utils.Assert;
@@ -58,7 +57,6 @@ import freemarker.template.TemplateHashModel;
  * 2018-06-26 19:16:46
  */
 @Props(prefix = "web.mvc.view.")
-@MissingBean(type = TemplateViewResolver.class)
 @ConditionalOnClass({ Constant.ENV_SERVLET, "freemarker.template.Configuration" })
 public class FreeMarkerTemplateViewResolver
         extends AbstractFreeMarkerTemplateViewResolver implements WebMvcConfiguration, ServletContextAware {
