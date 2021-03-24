@@ -28,6 +28,7 @@ import cn.taketoday.context.factory.DataBinder;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY 2021/3/21 12:06
@@ -66,18 +67,22 @@ public class WebDataBinder extends DataBinder {
       }
     }
 
-    final Map<String, List<MultipartFile>> multipartFiles = context.multipartFiles();
-    if (!CollectionUtils.isEmpty(multipartFiles)) {
-      for (final Map.Entry<String, List<MultipartFile>> entry : multipartFiles.entrySet()) {
-        final List<MultipartFile> files = entry.getValue();
-        if (files.size() == 1) {
-          addPropertyValue(entry.getKey(), files.get(0));
-        }
-        else {
-          addPropertyValue(entry.getKey(), files);
+    if (WebUtils.isMultipart(context)) {
+      // Multipart
+      final Map<String, List<MultipartFile>> multipartFiles = context.multipartFiles();
+      if (!CollectionUtils.isEmpty(multipartFiles)) {
+        for (final Map.Entry<String, List<MultipartFile>> entry : multipartFiles.entrySet()) {
+          final List<MultipartFile> files = entry.getValue();
+          if (files.size() == 1) {
+            addPropertyValue(entry.getKey(), files.get(0));
+          }
+          else {
+            addPropertyValue(entry.getKey(), files);
+          }
         }
       }
     }
+
     return bind(rootObject, metadata, getPropertyValues());
   }
 }
