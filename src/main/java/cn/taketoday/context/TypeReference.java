@@ -27,30 +27,24 @@ import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.GenericTypeResolver;
 
 /**
- * @author TODAY
- * 2021/1/6 22:11
+ * The purpose of this class is to enable capturing and passing a generic
+ * {@link Type}. In order to capture the generic type and retain it at runtime,
+ * you need to create a subclass (ideally as anonymous inline class) as follows:
+ *
+ * <pre class="code">
+ * TypeReference&lt;List&lt;String&gt;&gt; typeRef = new TypeReference&lt;List&lt;String&gt;&gt;() {};
+ * </pre>
+ *
+ * @param <T>
+ *         the referenced type
+ *
+ * @author TODAY 2021/1/6 22:11
+ * @since 3.0
  */
 public abstract class TypeReference<T> {
 
-  private Class<T> typeArgument;
-
-  public final Class<T> getTypeParameter() {
-    if (typeArgument == null) {
-      typeArgument = getTypeParameter(getClass());
-    }
-    return typeArgument;
-  }
-
-  Class<T> getTypeParameter(Class<?> clazz) {
-    return GenericTypeResolver.resolveTypeArgument(clazz, TypeReference.class);
-  }
-
-//  @Override
-//  public String toString() {
-//    return getTypeParameter().toString();
-//  }
-
   private final Type type;
+  private Class<T> typeArgument;
 
   protected TypeReference() {
     Class<?> parameterizedTypeReferenceSubclass = findParameterizedTypeReferenceSubclass(getClass());
@@ -66,14 +60,25 @@ public abstract class TypeReference<T> {
     this.type = type;
   }
 
+  public final Class<T> getTypeParameter() {
+    if (typeArgument == null) {
+      typeArgument = getTypeParameter(getClass());
+    }
+    return typeArgument;
+  }
+
+  Class<T> getTypeParameter(Class<?> clazz) {
+    return GenericTypeResolver.resolveTypeArgument(clazz, TypeReference.class);
+  }
+
   public Type getType() {
     return this.type;
   }
 
   @Override
   public boolean equals(Object other) {
-    return (this == other || (other instanceof TypeReference &&
-            this.type.equals(((TypeReference<?>) other).type)));
+    return (this == other
+            || (other instanceof TypeReference && this.type.equals(((TypeReference<?>) other).type)));
   }
 
   @Override
@@ -87,18 +92,17 @@ public abstract class TypeReference<T> {
   }
 
   /**
-   * Build a {@code ParameterizedTypeReference} wrapping the given type.
+   * Build a {@code TypeReference} wrapping the given type.
    *
    * @param type
    *         a generic type (possibly obtained via reflection,
    *         e.g. from {@link java.lang.reflect.Method#getGenericReturnType()})
    *
    * @return a corresponding reference which may be passed into
-   * {@code ParameterizedTypeReference}-accepting methods
+   * {@code TypeReference}-accepting methods
    */
   public static <T> TypeReference<T> forType(Type type) {
-    return new TypeReference<T>(type) {
-    };
+    return new TypeReference<T>(type) { };
   }
 
   private static Class<?> findParameterizedTypeReferenceSubclass(Class<?> child) {
