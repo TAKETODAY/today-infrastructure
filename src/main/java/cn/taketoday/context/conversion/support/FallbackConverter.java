@@ -22,11 +22,13 @@ package cn.taketoday.context.conversion.support;
 import java.io.StringWriter;
 
 import cn.taketoday.context.GenericDescriptor;
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.conversion.TypeConverter;
 
 /**
  * Simply calls {@link Object#toString()} to convert any supported object
  * to a {@link String}.
+ * If source is instance of {@code targetType}, just return {@code source}
  *
  * <p>Supports {@link CharSequence}, {@link StringWriter}, and any class
  * with a String constructor or one of the following static factory methods:
@@ -41,23 +43,34 @@ import cn.taketoday.context.conversion.TypeConverter;
  * @see ObjectToObjectConverter
  * @since 3.0
  */
-final class FallbackObjectToStringConverter implements TypeConverter {
+final class FallbackConverter implements TypeConverter, Ordered {
 
   // Object.class -> String.class
 
   @Override
   public boolean supports(GenericDescriptor targetType, Class<?> sourceType) {
+    if (targetType.isAssignableFrom(sourceType)) {
+      return true;
+    }
     if (String.class == sourceType) {
       // no conversion required
       return false;
     }
-    return (CharSequence.class.isAssignableFrom(sourceType)
+    return CharSequence.class.isAssignableFrom(sourceType)
             || StringWriter.class.isAssignableFrom(sourceType)
-            || ObjectToObjectConverter.hasConversionMethodOrConstructor(sourceType, String.class));
+             || ObjectToObjectConverter.hasConversionMethodOrConstructor(sourceType, String.class);
   }
 
   @Override
-  public Object convert(GenericDescriptor targetType, Object source) {
+  public Object convert(final GenericDescriptor targetType, final Object source) {
+    if (targetType.isInstance(source)) {
+      return source;
+    }
     return (source != null ? source.toString() : null);
+  }
+
+  @Override
+  public int getOrder() {
+    return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - HIGHEST_PRECEDENCE - 1;
   }
 }

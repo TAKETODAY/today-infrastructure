@@ -21,7 +21,6 @@
 package cn.taketoday.context.conversion;
 
 import cn.taketoday.context.GenericDescriptor;
-import cn.taketoday.context.TypeReference;
 
 /**
  * Conversion Service
@@ -42,7 +41,7 @@ public interface ConversionService {
    * static test this {@link ConversionService} can convert source to target
    */
   default boolean canConvert(Class<?> sourceType, Class<?> targetType) {
-    return canConvert(sourceType, GenericDescriptor.ofClass(targetType));
+    return canConvert(sourceType, GenericDescriptor.valueOf(targetType));
   }
 
   /**
@@ -75,7 +74,7 @@ public interface ConversionService {
    * @return converted object
    */
   default <T> T convert(Object source, Class<T> targetClass) {
-    return convert(source, GenericDescriptor.ofClass(targetClass));
+    return convert(source, GenericDescriptor.valueOf(targetClass));
   }
 
   /**
@@ -90,8 +89,6 @@ public interface ConversionService {
    *         target class and generics info
    */
   <T> T convert(Object source, GenericDescriptor targetType);
-
-  <T> T convert(Object source, GenericDescriptor sourceDescriptor, GenericDescriptor targetType);
 
   TypeConverter getConverter(Class<?> sourceType, GenericDescriptor targetType);
 
@@ -114,7 +111,7 @@ public interface ConversionService {
   }
 
   default TypeConverter getConverter(Class<?> sourceType, Class<?> targetType) {
-    return getConverter(sourceType, GenericDescriptor.ofClass(targetType));
+    return getConverter(sourceType, GenericDescriptor.valueOf(targetType));
   }
 
 }

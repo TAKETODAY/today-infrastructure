@@ -54,8 +54,9 @@ final class ArrayToCollectionConverter extends ArraySourceConverter implements T
   @Override
   public Object convert(GenericDescriptor targetType, Object source) {
     final int length = Array.getLength(source);
-    final Class<Object> elementType = targetType.getGeneric(Collection.class);
-    final Collection<Object> target = CollectionUtils.createCollection(targetType.getType(), elementType, length);
+    final GenericDescriptor elementType = targetType.getElementDescriptor();
+    final Collection<Object> target = CollectionUtils.createCollection(
+            targetType.getType(), elementType != null ? elementType.getType() : null, length);
 
     if (elementType == null) {
       for (int i = 0; i < length; i++) {

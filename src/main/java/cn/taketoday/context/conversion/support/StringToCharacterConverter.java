@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context.conversion.support;
 
+import cn.taketoday.context.conversion.AbstractTypeCapable;
 import cn.taketoday.context.conversion.Converter;
 
 /**
@@ -28,17 +29,22 @@ import cn.taketoday.context.conversion.Converter;
  * @author TODAY
  * @since 3.0
  */
-final class StringToCharacterConverter implements Converter<String, Character> {
+final class StringToCharacterConverter
+        extends AbstractTypeCapable implements Converter<String, Character> {
+
+  protected StringToCharacterConverter(Class<?> type) {
+    super(type);
+  }
 
   @Override
-  public Character convert(String source) {
+  public Character convert(final String source) {
     if (source.isEmpty()) {
       return null;
     }
     if (source.length() > 1) {
       throw new IllegalArgumentException(
-              "Can only convert a [String] with length of 1 to a [Character]; string value '" + source + "'  has length of " + source
-                      .length());
+              "Can only convert a [String] with length of 1 to a [Character]; string value '"
+                      + source + "'  has length of " + source.length());
     }
     return source.charAt(0);
   }

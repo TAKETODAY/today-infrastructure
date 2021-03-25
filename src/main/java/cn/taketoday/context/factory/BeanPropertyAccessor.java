@@ -531,7 +531,7 @@ public class BeanPropertyAccessor {
     if (requiredType.isInstance(value)) {
       return value;
     }
-    return doConvertInternal(value, GenericDescriptor.ofClass(requiredType));
+    return doConvertInternal(value, GenericDescriptor.valueOf(requiredType));
   }
 
   protected Object doConvertInternal(final Object value, final GenericDescriptor requiredType) {

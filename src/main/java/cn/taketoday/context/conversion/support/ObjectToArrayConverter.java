@@ -49,9 +49,9 @@ final class ObjectToArrayConverter extends ToArrayConverter {
 
 	@Override
 	public Object convert(GenericDescriptor targetType, Object source) {
-		final Class<?> targetElementType = targetType.getComponentType();
+    final GenericDescriptor targetElementType = targetType.getElementDescriptor();
 
-    Object target = Array.newInstance(targetElementType, 1);
+    Object target = Array.newInstance(targetElementType.getType(), 1);
     Object targetElement = this.conversionService.convert(source, targetElementType);
     Array.set(target, 0, targetElement);
     return target;

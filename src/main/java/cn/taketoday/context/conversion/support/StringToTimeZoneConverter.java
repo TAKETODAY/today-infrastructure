@@ -22,6 +22,7 @@ package cn.taketoday.context.conversion.support;
 import java.util.TimeZone;
 
 import cn.taketoday.context.conversion.Converter;
+import cn.taketoday.context.utils.StringUtils;
 
 /**
  * Convert a String to a {@link TimeZone}.
@@ -34,7 +35,7 @@ final class StringToTimeZoneConverter implements Converter<String, TimeZone> {
 
   @Override
   public TimeZone convert(String source) {
-    return TimeZone.getTimeZone(source);
+    return StringUtils.parseTimeZoneString(source);
   }
 
 }

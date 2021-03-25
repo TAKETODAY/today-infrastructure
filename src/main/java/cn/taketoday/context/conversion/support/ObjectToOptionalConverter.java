@@ -51,7 +51,7 @@ final class ObjectToOptionalConverter implements TypeConverter {
     // Object.class -> Optional.class
 
     if (targetType.is(Optional.class)) {
-      final Class<Object> valueType = targetType.getGeneric(Optional.class);
+      final GenericDescriptor valueType = targetType.getGeneric(Optional.class);
       if (valueType != null) {
         return this.conversionService.canConvert(sourceType, valueType);
       }
@@ -63,7 +63,8 @@ final class ObjectToOptionalConverter implements TypeConverter {
   @SuppressWarnings("unchecked")
   public Object convert(final GenericDescriptor targetType, final Object source) {
     // Optional<E> -> E
-    final Class<Object> elementType = targetType.getGeneric(Optional.class);
+
+    final GenericDescriptor elementType = targetType.getGeneric(Optional.class);
     if (source instanceof Optional) {
       final Optional<Object> optional = (Optional<Object>) source;
       if (optional.isPresent()) {

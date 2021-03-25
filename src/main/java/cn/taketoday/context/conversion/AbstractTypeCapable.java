@@ -23,6 +23,8 @@ package cn.taketoday.context.conversion;
 import cn.taketoday.context.utils.Assert;
 
 /**
+ * target type capable
+ *
  * @author TODAY 2021/2/11 12:16
  * @since 3.0
  */

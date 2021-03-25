@@ -23,10 +23,10 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import cn.taketoday.context.GenericDescriptor;
+import cn.taketoday.context.ResolvableType;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.context.utils.GenericTypeResolver;
 
 /**
  * Converts a Map to another Map.
@@ -65,11 +65,14 @@ final class MapToMapConverter implements TypeConverter {
     if (!copyRequired && sourceMap.isEmpty()) {
       return sourceMap;
     }
+    final ResolvableType resolvableType = targetType.getResolvableType();
+    final ResolvableType mapType = resolvableType.asMap();
 
-    final Class<?>[] targetTypes = targetType.getGenerics(Map.class);
+    final ResolvableType keyType = mapType.getGeneric(0);
+    final ResolvableType valueType = mapType.getGeneric(1);
 
-    Class<?> targetKeyType = targetTypes[0];
-    Class<?> targetValueType = targetTypes[1];
+    Class<?> targetKeyType = keyType.resolve();
+    Class<?> targetValueType = valueType.resolve();
 
     final ConversionService conversionService = this.conversionService;
 

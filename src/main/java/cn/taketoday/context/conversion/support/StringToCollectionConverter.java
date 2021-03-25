@@ -25,7 +25,6 @@ import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.StringSourceTypeConverter;
 import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.context.utils.GenericTypeResolver;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
@@ -55,10 +54,11 @@ final class StringToCollectionConverter extends StringSourceTypeConverter {
   @Override
   protected Object convertInternal(GenericDescriptor targetType, String string) {
     String[] fields = StringUtils.split(string);
-    final Class<Object> elementDesc = targetType.getGeneric(Collection.class);
+    final GenericDescriptor elementType = targetType.getGeneric(Collection.class);
 
-    Collection<Object> target = CollectionUtils.createCollection(targetType.getType(), elementDesc, fields.length);
-    if (elementDesc == null) {
+    Collection<Object> target = CollectionUtils.createCollection(
+            targetType.getType(), elementType != null ? elementType.getType() : null, fields.length);
+    if (elementType == null) {
       for (String field : fields) {
         target.add(field.trim());
       }
@@ -66,7 +66,7 @@ final class StringToCollectionConverter extends StringSourceTypeConverter {
     else {
       final ConversionService conversionService = this.conversionService;
       for (String field : fields) {
-        Object targetElement = conversionService.convert(field.trim(), elementDesc);
+        Object targetElement = conversionService.convert(field.trim(), elementType);
         target.add(targetElement);
       }
     }

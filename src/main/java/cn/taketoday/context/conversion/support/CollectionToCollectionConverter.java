@@ -24,7 +24,6 @@ import java.util.Collection;
 import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.context.utils.GenericTypeResolver;
 
 /**
  * Converts from a Collection to another Collection.
@@ -60,13 +59,14 @@ final class CollectionToCollectionConverter extends CollectionSourceConverter {
       return sourceCollection;
     }
 
-    final Class<Object> elementType = targetType.getGeneric(Collection.class);
+    final GenericDescriptor elementType = targetType.getGeneric(Collection.class);
     if (elementType == null && !copyRequired) {
       return sourceCollection;
     }
 
     // At this point, we need a collection copy in any case, even if just for finding out about element copies...
-    Collection<Object> target = CollectionUtils.createCollection(targetType.getType(), elementType, sourceCollection.size());
+    Collection<Object> target = CollectionUtils.createCollection(
+            targetType.getType(), elementType != null ? elementType.getType() : null, sourceCollection.size());
 
     if (elementType == null) {
       target.addAll(sourceCollection);

@@ -44,7 +44,7 @@ final class CollectionToObjectConverter extends CollectionSourceConverter {
   protected boolean supportsInternal(GenericDescriptor targetType, Class<?> sourceType) {
     // Collection.class, Object.class
     final Class<?> elementType = GenericTypeResolver.resolveTypeArgument(sourceType, Collection.class);
-    return elementType != null && this.conversionService.canConvert(elementType, targetType);
+    return elementType != Object.class && this.conversionService.canConvert(elementType, targetType);
   }
 
   @Override

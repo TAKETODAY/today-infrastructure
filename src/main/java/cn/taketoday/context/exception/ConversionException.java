@@ -23,6 +23,8 @@ import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.NestedRuntimeException;
 
 /**
+ * Base class for exceptions thrown by the conversion system.
+ *
  * @author TODAY <br>
  * 2018-06-28 17:05:34
  */

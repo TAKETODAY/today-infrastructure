@@ -21,6 +21,7 @@
 package cn.taketoday.context.conversion;
 
 import java.lang.reflect.Array;
+import java.util.Collection;
 
 import cn.taketoday.context.exception.ConversionException;
 
@@ -47,8 +48,12 @@ public class NumberConverter
       return convertNumber((Number) source);
     }
     else if (source instanceof String) {
+      final String stringSource = (String) source;
+      if (stringSource.isEmpty()) {
+        return null;
+      }
       try {
-        return convertString((String) source);
+        return convertString(stringSource);
       }
       catch (NumberFormatException e) {
         throw new ConversionException("Can't convert a string: '" + source + "' to a number", e);
@@ -77,6 +82,17 @@ public class NumberConverter
   protected Number convertObject(Object source) {
     if (source.getClass().isArray() && Array.getLength(source) > 0) {
       return convert(Array.get(source, 0));
+    }
+    if (source instanceof Collection) {
+      final Object next = ((Collection<?>) source).iterator().next();
+      return convert(next);
+    }
+    if (source instanceof Character) {
+      final Character character = (Character) source;
+      return convertNumber((short) character.charValue());
+    }
+    if (source instanceof Enum) {
+      return convertNumber(((Enum<?>) source).ordinal());
     }
     throw new ConversionException("Not support source: '" + source + "' convert to target class: " + type);
   }

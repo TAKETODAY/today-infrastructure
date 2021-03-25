@@ -39,18 +39,7 @@ final class StringToLocaleConverter implements Converter<String, Locale> {
 
   @Override
   public Locale convert(String source) {
-    if (source.isEmpty()) {
-      return null;
-    }
-
-    final String[] items = source.split("_");
-    if (items.length == 1) {
-      return new Locale(items[0]);
-    }
-    if (items.length == 2) {
-      return new Locale(items[0], items[1]);
-    }
-    return new Locale(items[0], items[1], items[2]);
+    return StringUtils.parseLocale(source);
   }
 
 }

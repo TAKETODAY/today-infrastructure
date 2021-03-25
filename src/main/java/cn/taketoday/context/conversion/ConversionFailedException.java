@@ -35,7 +35,8 @@ public class ConversionFailedException extends ConversionException {
   private static final long serialVersionUID = 1L;
 
   public ConversionFailedException(Throwable cause, Object source, GenericDescriptor targetType) {
-    super("Conversion failed", cause, source, targetType);
+    super("Failed to convert from type [" + source.getClass() + "] to type [" + targetType +
+                  "] for value '" + source + "'", cause, source, targetType);
   }
 
   public ConversionFailedException(String message, Throwable cause, Object source, GenericDescriptor targetType) {

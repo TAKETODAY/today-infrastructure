@@ -45,17 +45,18 @@ final class ObjectToCollectionConverter implements TypeConverter {
   public boolean supports(final GenericDescriptor targetType, final Class<?> sourceType) {
     // Object.class, Collection.class
     if (targetType.isCollection()) {
-      final Class<Object> elementType = targetType.getGeneric(Collection.class);
+      final GenericDescriptor elementType = targetType.getGeneric(Collection.class);
       return elementType == null || conversionService.canConvert(sourceType, elementType);
     }
     return false;
   }
 
   @Override
-  public Object convert(final GenericDescriptor targetType, Object source) {
-    final Class<Object> elementType = targetType.getGeneric(Collection.class);
-    Collection<Object> target = CollectionUtils.createCollection(targetType.getType(), elementType, 1);
-    if (elementType == null || CollectionUtils.isCollection(elementType)) {
+  public Object convert(final GenericDescriptor targetType, final Object source) {
+    final GenericDescriptor elementType = targetType.getElementDescriptor();
+    Collection<Object> target = CollectionUtils.createCollection(
+            targetType.getType(), (elementType != null ? elementType.getType() : null), 1);
+    if (elementType == null || elementType.isCollection()) {
       target.add(source);
     }
     else {

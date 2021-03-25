@@ -54,12 +54,12 @@ import cn.taketoday.context.utils.ReflectionUtils;
  * <p><strong>Warning</strong>: this converter does <em>not</em> support the
  * {@link Object#toString()} method for converting from a {@code sourceType}
  * to {@code java.lang.String}. For {@code toString()} support, use
- * {@link FallbackObjectToStringConverter} instead.
+ * {@link FallbackConverter} instead.
  *
  * @author Keith Donald
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @see FallbackObjectToStringConverter
+ * @see FallbackConverter
  * @since 3.0
  */
 final class ObjectToObjectConverter implements TypeConverter {
@@ -140,21 +140,33 @@ final class ObjectToObjectConverter implements TypeConverter {
   private static boolean isApplicable(Member member, Class<?> sourceClass) {
     if (member instanceof Method) {
       Method method = (Method) member;
-      return (!Modifier.isStatic(method.getModifiers()) ?
-              isAssignable(method.getDeclaringClass(), sourceClass) :
-              method.getParameterTypes()[0] == sourceClass);
+      return !Modifier.isStatic(method.getModifiers())
+             ? isAssignable(method.getDeclaringClass(), sourceClass)
+             : method.getParameterTypes()[0] == sourceClass;
     }
     else if (member instanceof Constructor) {
       Constructor<?> ctor = (Constructor<?>) member;
-      return (ctor.getParameterTypes()[0] == sourceClass);
+      return ctor.getParameterTypes()[0] == sourceClass;
     }
     else {
       return false;
     }
   }
 
-  private static boolean isAssignable(Class<?> declaringClass, Class<?> sourceClass) {
-    return sourceClass.isAssignableFrom(declaringClass);
+  /**
+   * Check if the right-hand side type may be assigned to the left-hand side
+   * type, assuming setting by reflection. Considers primitive wrapper
+   * classes as assignable to the corresponding primitive types.
+   *
+   * @param lhsType
+   *         the target type
+   * @param rhsType
+   *         the value type that should be assigned to the target type
+   *
+   * @return if the target type is assignable from the value type
+   */
+  private static boolean isAssignable(Class<?> lhsType, Class<?> rhsType) {
+    return lhsType.isAssignableFrom(rhsType);
   }
 
   private static Method determineToMethod(Class<?> targetClass, Class<?> sourceClass) {
@@ -164,8 +176,9 @@ final class ObjectToObjectConverter implements TypeConverter {
     }
 
     final Method method = ReflectionUtils.findMethod(sourceClass, "to" + targetClass.getSimpleName());
-    return (method != null && !Modifier.isStatic(method.getModifiers()) &&
-                    isAssignable(targetClass, method.getReturnType()) ? method : null);
+    return method != null
+                   && !Modifier.isStatic(method.getModifiers())
+                   && isAssignable(targetClass, method.getReturnType()) ? method : null;
   }
 
   private static Method determineFactoryMethod(Class<?> targetClass, Class<?> sourceClass) {

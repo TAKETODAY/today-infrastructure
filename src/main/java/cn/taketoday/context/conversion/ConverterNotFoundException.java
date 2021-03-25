@@ -39,4 +39,10 @@ public class ConverterNotFoundException extends ConversionException {
     super(message, null, source, targetType);
   }
 
+  public ConverterNotFoundException(Object source, GenericDescriptor targetType) {
+    super("No converter found capable of converting from type [" +
+                  source.getClass() + "] to type [" + targetType + "]", null, source, targetType);
+
+  }
+
 }

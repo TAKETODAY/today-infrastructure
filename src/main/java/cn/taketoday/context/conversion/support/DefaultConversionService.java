@@ -33,12 +33,12 @@ import java.util.UUID;
 
 import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.conversion.BigDecimalConverter;
 import cn.taketoday.context.conversion.ByteConverter;
 import cn.taketoday.context.conversion.CharsetConverter;
 import cn.taketoday.context.conversion.ClassConverter;
 import cn.taketoday.context.conversion.ConfigurableConversionService;
+import cn.taketoday.context.conversion.ConversionFailedException;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.Converter;
 import cn.taketoday.context.conversion.ConverterNotFoundException;
@@ -99,34 +99,26 @@ public class DefaultConversionService implements ConfigurableConversionService {
       return convertNull(targetType);
     }
     Assert.notNull(targetType, "targetType must not be null");
-    if (targetType.isInstance(source)) {
-      return (T) source;
-    }
     final TypeConverter typeConverter = getConverter(source.getClass(), targetType);
     if (typeConverter == null) {
       return handleConverterNotFound(source, targetType);
     }
-    return (T) typeConverter.convert(targetType, source);
+    try {
+      return (T) typeConverter.convert(targetType, source);
+    }
+    catch (ConversionFailedException ex) {
+      throw ex;
+    }
+    catch (Throwable ex) {
+      throw new ConversionFailedException(ex, source, targetType);
+    }
   }
 
-  @Override
   @SuppressWarnings("unchecked")
-  public <T> T convert(Object source, GenericDescriptor sourceDescriptor, GenericDescriptor targetType) {
-    if (source == null) {
-      return convertNull(targetType);
-    }
-    Assert.notNull(targetType, "targetType must not be null");
-    if (sourceDescriptor.equals(targetType)) {
+  protected <T> T handleConverterNotFound(Object source, GenericDescriptor targetType) {
+    if (targetType.isInstance(source)) {
       return (T) source;
     }
-    final TypeConverter typeConverter = getConverter(sourceDescriptor.getType(), targetType);
-    if (typeConverter == null) {
-      return handleConverterNotFound(source, targetType);
-    }
-    return (T) typeConverter.convert(targetType, source);
-  }
-
-  protected <T> T handleConverterNotFound(Object source, GenericDescriptor targetType) {
     throw new ConverterNotFoundException(
             "There isn't a converter to convert: ["
                     + source + "] '" + source.getClass() + "' to target class: [" + targetType + "]",
@@ -166,13 +158,22 @@ public class DefaultConversionService implements ConfigurableConversionService {
     @Override
     protected TypeConverter createValue(final Object key, final GenericDescriptor targetType) {
       final Class<?> sourceType = ((ConverterKey) key).sourceType;
+
+      LinkedList<TypeConverter> matchedConverters = new LinkedList<>();
       for (final TypeConverter converter : converters) {
         if (converter.supports(targetType, sourceType)) {
-          return converter;
+//          return converter;
+          matchedConverters.add(converter);
         }
       }
 
-      return NO_MATCH;
+      if (matchedConverters.isEmpty()) {
+        return NO_MATCH;
+      }
+      if (matchedConverters.size() > 1) {
+        OrderUtils.reversedSort(matchedConverters);
+      }
+      return matchedConverters.get(0);
     }
   }
 
@@ -190,13 +191,13 @@ public class DefaultConversionService implements ConfigurableConversionService {
       if (this == o) return true;
       if (!(o instanceof ConverterKey)) return false;
       final ConverterKey that = (ConverterKey) o;
-      return Objects.equals(targetType, that.targetType)
-              && sourceType == that.sourceType;
+      return sourceType == that.sourceType
+              && Objects.equals(targetType, that.targetType);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(targetType, sourceType);
+      return this.sourceType.hashCode() * 31 + this.targetType.hashCode();
     }
   }
 
@@ -213,6 +214,7 @@ public class DefaultConversionService implements ConfigurableConversionService {
     if (ObjectUtils.isNotEmpty(converters)) {
       Collections.addAll(this.converters, converters);
       reversedSort(this.converters);
+      invalidateCache();
     }
   }
 
@@ -229,6 +231,7 @@ public class DefaultConversionService implements ConfigurableConversionService {
     if (ObjectUtils.isNotEmpty(converters)) {
       this.converters.addAll(converters);
       reversedSort(this.converters);
+      invalidateCache();
     }
   }
 
@@ -239,8 +242,8 @@ public class DefaultConversionService implements ConfigurableConversionService {
   @Override
   public void setConverters(final TypeConverter... converters) {
     Assert.notNull(converters, "TypeConverter must not be null");
-
     this.converters.clear();
+    invalidateCache();
     Collections.addAll(this.converters, reversedSort(converters));
   }
 
@@ -289,15 +292,20 @@ public class DefaultConversionService implements ConfigurableConversionService {
   @Override
   public <S, T> void addConverter(
           Class<T> targetType, Class<S> sourceType, Converter<? super S, ? extends T> converter) {
-
     Assert.notNull(converter, "converter must not be null");
     Assert.notNull(targetType, "targetType must not be null");
     Assert.notNull(sourceType, "sourceType must not be null");
 
-    this.converters.add(new GenericConverter(targetType, sourceType, converter));
+    final GenericConverter genericConverter = new GenericConverter(targetType, sourceType, converter);
+    this.converters.add(genericConverter);
 
+    invalidateCache();
     // order support
     OrderUtils.reversedSort(this.converters);
+  }
+
+  void invalidateCache() {
+    this.converterMappings.clear();
   }
 
   // static
@@ -328,16 +336,16 @@ public class DefaultConversionService implements ConfigurableConversionService {
                            new ZoneIdToTimeZoneConverter(),
                            new ZonedDateTimeToCalendarConverter());
 
-    registry.addConverters(new ByteBufferConverter((ConversionService) registry),
-                           new ObjectToObjectConverter(),
-                           new IdToEntityConverter((ConversionService) registry),
-                           new FallbackObjectToStringConverter(),
-                           new ObjectToOptionalConverter((ConversionService) registry),
+    registry.addConverters(
+            new StringToResourceConverter(),
+            new ByteBufferConverter((ConversionService) registry),
+            new IdToEntityConverter((ConversionService) registry),
+            new ObjectToOptionalConverter((ConversionService) registry),
 
-                           new PrimitiveClassConverter(),
-                           new StringToResourceConverter(),
-                           new StringSourceConstructorConverter()
+            new PrimitiveClassConverter(),
 
+            new ObjectToObjectConverter(),
+            new FallbackConverter()
     );
 
   }
@@ -394,6 +402,10 @@ public class DefaultConversionService implements ConfigurableConversionService {
             new ShortConverter(short.class),
             new ShortConverter(Short.class),
             new BigDecimalConverter(BigDecimal.class),
+            new BigDecimalConverter(Number.class),
+
+            new StringToCharacterConverter(char.class),
+            new StringToCharacterConverter(Character.class),
 
             new ClassConverter(),
             new CharsetConverter(),
@@ -405,13 +417,10 @@ public class DefaultConversionService implements ConfigurableConversionService {
     );
 
     registry.addConverter(String.class, Number.class, ObjectToStringConverter.INSTANCE);
-
-    registry.addConverter(new StringToCharacterConverter());
     registry.addConverter(String.class, Character.class, ObjectToStringConverter.INSTANCE);
 
     registry.addConverter(new NumberToCharacterConverter());
 
-    registry.addConverters(new CharacterToNumberConverter((ConversionService) registry));
     registry.addConverter(new StringToBooleanConverter());
     registry.addConverter(String.class, Boolean.class, ObjectToStringConverter.INSTANCE);
 
@@ -419,7 +428,6 @@ public class DefaultConversionService implements ConfigurableConversionService {
     registry.addConverter(new EnumToStringConverter());
 
     registry.addConverters(new IntegerToEnumConverter());
-    registry.addConverter(new EnumToIntegerConverter());
 
     registry.addConverter(new StringToLocaleConverter());
     registry.addConverter(String.class, Locale.class, ObjectToStringConverter.INSTANCE);
@@ -443,7 +451,6 @@ public class DefaultConversionService implements ConfigurableConversionService {
    * @author TODAY <br>
    * 2019-06-06 16:12
    */
-  @Order(Ordered.LOWEST_PRECEDENCE)
   static class StringSourceConstructorConverter extends StringSourceTypeConverter {
 
     @Override
@@ -473,7 +480,6 @@ public class DefaultConversionService implements ConfigurableConversionService {
    * @author TODAY <br>
    * 2019-06-19 12:28
    */
-  @Order(Ordered.LOWEST_PRECEDENCE)
   static class PrimitiveClassConverter implements TypeConverter {
 
     @Override
@@ -512,11 +518,11 @@ public class DefaultConversionService implements ConfigurableConversionService {
 
     @Override
     public Object convert(GenericDescriptor targetType, Object source) {
-      return null;
+      return source;
     }
   }
 
-  static final class GenericConverter implements TypeConverter {
+  static final class GenericConverter implements TypeConverter, Ordered {
     final Class<?> targetType;
     final Class<?> sourceType;
     final Converter converter;
@@ -528,14 +534,20 @@ public class DefaultConversionService implements ConfigurableConversionService {
     }
 
     @Override
-    public boolean supports(GenericDescriptor targetType, Class<?> sourceType) {
-      return targetType.is(this.targetType)
-              && this.sourceType.isAssignableFrom(sourceType); // can be a sub-class
+    public boolean supports(final GenericDescriptor targetType, final Class<?> sourceType) {
+      return targetType.is(this.targetType) && (
+              this.sourceType == sourceType || this.sourceType.isAssignableFrom(sourceType)
+      );
     }
 
     @Override
     public Object convert(GenericDescriptor targetType, Object source) {
       return converter.convert(source);
+    }
+
+    @Override
+    public int getOrder() {
+      return HIGHEST_PRECEDENCE;
     }
   }
 

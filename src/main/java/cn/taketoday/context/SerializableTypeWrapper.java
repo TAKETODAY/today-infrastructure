@@ -53,7 +53,8 @@ import cn.taketoday.context.utils.ReflectionUtils;
  * @author Phillip Webb
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @since 4.0
+ * @author TODAY
+ * @since 3.0
  */
 final class SerializableTypeWrapper {
 
@@ -62,8 +63,7 @@ final class SerializableTypeWrapper {
 
   static final Map<Type, Type> cache = new ConcurrentHashMap<>(256);
 
-  private SerializableTypeWrapper() {
-  }
+  private SerializableTypeWrapper() { }
 
   /**
    * Return a {@link Serializable} variant of {@link Field#getGenericType()}.
@@ -158,16 +158,15 @@ final class SerializableTypeWrapper {
    * or {@code Type[]}.
    */
   @SuppressWarnings("serial")
-  private static class TypeProxyInvocationHandler implements InvocationHandler, Serializable {
-
-    private final TypeProvider provider;
+  static class TypeProxyInvocationHandler implements InvocationHandler, Serializable {
+    final TypeProvider provider;
 
     public TypeProxyInvocationHandler(TypeProvider provider) {
       this.provider = provider;
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
       switch (method.getName()) {
         case "equals":
           Object other = args[0];
@@ -180,6 +179,8 @@ final class SerializableTypeWrapper {
           return Objects.hashCode(this.provider.getType());
         case "getTypeProvider":
           return this.provider;
+        default:
+          break;
       }
 
       if (Type.class == method.getReturnType() && ObjectUtils.isEmpty(args)) {
@@ -207,11 +208,8 @@ final class SerializableTypeWrapper {
    */
   @SuppressWarnings("serial")
   static class FieldTypeProvider implements TypeProvider {
-
     private final String fieldName;
-
     private final Class<?> declaringClass;
-
     private transient Field field;
 
     public FieldTypeProvider(Field field) {
@@ -248,15 +246,10 @@ final class SerializableTypeWrapper {
   static class MethodInvokeTypeProvider implements TypeProvider {
 
     private final TypeProvider provider;
-
     private final String methodName;
-
     private final Class<?> declaringClass;
-
     private final int index;
-
     private transient Method method;
-
     private transient volatile Object result;
 
     public MethodInvokeTypeProvider(TypeProvider provider, Method method, int index) {
@@ -268,7 +261,6 @@ final class SerializableTypeWrapper {
     }
 
     @Override
-
     public Type getType() {
       Object result = this.result;
       if (result == null) {

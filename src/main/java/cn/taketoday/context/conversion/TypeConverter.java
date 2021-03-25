@@ -62,4 +62,5 @@ public interface TypeConverter {
 //  Object convert(Class<?> targetType, Object source);
 
   Object convert(GenericDescriptor targetType, Object source);
+
 }

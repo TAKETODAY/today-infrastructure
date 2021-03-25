@@ -20,6 +20,7 @@
 package cn.taketoday.context.conversion.support;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.UnaryOperator;
@@ -63,40 +64,65 @@ class StreamConverter implements TypeConverter {
   }
 
   @Override
-  public Object convert(GenericDescriptor targetType, Object source) {
+  public Object convert(final GenericDescriptor targetType, final Object source) {
     if (source instanceof Stream) {
       return convertFromStream((Stream<?>) source, targetType);
     }
-    // convert to Stream
-    if (source instanceof Collection) {
-      return ((Collection<?>) source).stream();
+    final GenericDescriptor elementDescriptor = targetType.getElementDescriptor();
+    if (elementDescriptor == null) {
+      // convert to Stream
+      if (source instanceof Collection) {
+        return ((Collection<?>) source).stream();
+      }
+      return Arrays.stream((Object[]) source);
     }
-    return Arrays.stream((Object[]) source);
+    else {
+      if (source instanceof Collection) {
+        final Collection<?> collection = (Collection<?>) source;
+        final ArrayList target = new ArrayList<>(collection.size());
+
+        for (final Object element : collection) {
+          final Object converted = conversionService.convert(element, elementDescriptor);
+          target.add(converted);
+        }
+        return target.stream();
+      }
+      else {
+        // array
+        final Object[] sourceArray = (Object[]) source;
+        final ArrayList target = new ArrayList<>(sourceArray.length);
+        for (final Object element : sourceArray) {
+          final Object converted = conversionService.convert(element, elementDescriptor);
+          target.add(converted);
+        }
+        return target.stream();
+      }
+    }
   }
 
   protected Object convertFromStream(Stream<?> source, GenericDescriptor targetType) {
     final class MapFunction implements UnaryOperator<Object> {
-      final Class<?> elementType;
+      final GenericDescriptor elementType;
 
-      MapFunction(Class<?> elementType) {
+      MapFunction(GenericDescriptor elementType) {
         this.elementType = elementType;
       }
 
       @Override
-      public Object apply(Object original) {
+      public Object apply(final Object original) {
         return conversionService.convert(original, elementType);
       }
     }
 
     if (targetType.isCollection()) {
-      final Class<Object> elementType = targetType.getGeneric(Collection.class);
+      final GenericDescriptor elementType = targetType.getGeneric(Collection.class);
       return source.map(new MapFunction(elementType))
-              .collect(Collectors.toCollection(() -> CollectionUtils.createCollection(targetType.getType(), elementType, 16)));
+              .collect(Collectors.toCollection(() -> CollectionUtils.createCollection(
+                      targetType.getType(),  elementType != null ? elementType.getType() : null, 16)));
     }
-
-    final Class<?> elementType = targetType.getComponentType();
+    final GenericDescriptor elementType = targetType.getElementDescriptor();
     return source.map(new MapFunction(elementType))
-            .toArray(count -> (Object[]) Array.newInstance(elementType, count));
+            .toArray(count -> (Object[]) Array.newInstance(elementType.getType(), count));
   }
 
 }

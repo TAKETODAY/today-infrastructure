@@ -36,6 +36,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
 import cn.taketoday.context.GenericDescriptor;
+import cn.taketoday.context.conversion.ConversionFailedException;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ConversionException;
@@ -95,8 +96,7 @@ public class ConvertUtilsTest {
     assert convert.equals(123);
 
     Integer[] convertArray = (Integer[]) convert("12;456,121", Integer[].class);
-
-    System.err.println(Arrays.toString(convertArray));
+//    System.err.println(Arrays.toString(convertArray));
 
     assert convertArray.getClass().isArray();
     assert convertArray.length == 3;
@@ -118,8 +118,7 @@ public class ConvertUtilsTest {
     try {
       convert("Float", Class.class);
     }
-    catch (ConversionException e) {
-      assert e.getCause().getClass().equals(ClassNotFoundException.class);
+    catch (ConversionFailedException e) {
     }
     try {
       convert("/info", Resource.class);
@@ -140,7 +139,7 @@ public class ConvertUtilsTest {
 
     final String readAsText = StringUtils.readAsText(openStream);
     assert readAsText != null;
-    System.err.println(readAsText);
+//    System.err.println(readAsText);
     // uri
     final Object uri = convert("info.properties", URI.class);
     assert uri instanceof URI;
@@ -176,7 +175,7 @@ public class ConvertUtilsTest {
       convert("123", TEST_THROW.class);
     }
     catch (ConversionException e) {
-      assert e.getCause().getClass().equals(InvocationTargetException.class);
+      assert e.getCause().getClass().equals(ConfigurationException.class);
     }
 
     final Object convertUtilsTestResource = convert("cn/taketoday/context/utils/ConvertUtilsTest.class", Resource[].class);

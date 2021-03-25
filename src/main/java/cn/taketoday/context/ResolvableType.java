@@ -117,9 +117,9 @@ public class ResolvableType implements Serializable {
 
   private Class<?> resolved;
 
-  private volatile ResolvableType superType;
-  private volatile ResolvableType[] interfaces;
-  private volatile ResolvableType[] generics;
+  private ResolvableType superType;
+  private ResolvableType[] interfaces;
+  private ResolvableType[] generics;
 
   /**
    * Private constructor used to create a new {@link ResolvableType} for cache key purposes,
@@ -127,7 +127,6 @@ public class ResolvableType implements Serializable {
    */
   private ResolvableType(
           Type type, TypeProvider typeProvider, VariableResolver variableResolver) {
-
     this.type = type;
     this.typeProvider = typeProvider;
     this.variableResolver = variableResolver;
@@ -142,7 +141,6 @@ public class ResolvableType implements Serializable {
    */
   private ResolvableType(Type type, TypeProvider typeProvider,
                          VariableResolver variableResolver, Integer hash) {
-
     this.type = type;
     this.typeProvider = typeProvider;
     this.variableResolver = variableResolver;
@@ -191,7 +189,6 @@ public class ResolvableType implements Serializable {
    * Return the underlying Java {@link Class} being managed, if available;
    * otherwise {@code null}.
    */
-
   public Class<?> getRawClass() {
     if (this.type == this.resolved) {
       return this.resolved;
@@ -586,9 +583,7 @@ public class ResolvableType implements Serializable {
       }
       TypeVariable<?> variable = (TypeVariable<?>) this.type;
       ResolvableType resolved = this.variableResolver.resolveVariable(variable);
-      if (resolved == null || resolved.isUnresolvableTypeVariable()) {
-        return true;
-      }
+      return resolved == null || resolved.isUnresolvableTypeVariable();
     }
     return false;
   }
@@ -602,9 +597,7 @@ public class ResolvableType implements Serializable {
       WildcardType wt = (WildcardType) this.type;
       if (wt.getLowerBounds().length == 0) {
         Type[] upperBounds = wt.getUpperBounds();
-        if (upperBounds.length == 0 || (upperBounds.length == 1 && Object.class == upperBounds[0])) {
-          return true;
-        }
+        return upperBounds.length == 0 || (upperBounds.length == 1 && Object.class == upperBounds[0]);
       }
     }
     return false;
@@ -800,7 +793,6 @@ public class ResolvableType implements Serializable {
    * @see #getGeneric(int...)
    * @see #resolve()
    */
-
   public Class<?> resolveGeneric(int... indexes) {
     return getGeneric(indexes).resolve();
   }
@@ -820,7 +812,6 @@ public class ResolvableType implements Serializable {
    * @see #resolveGeneric(int...)
    * @see #resolveGenerics()
    */
-
   public Class<?> resolve() {
     return this.resolved;
   }
@@ -1455,9 +1446,10 @@ public class ResolvableType implements Serializable {
 
     @Override
     public ResolvableType resolveVariable(TypeVariable<?> variable) {
-      TypeVariable<?> variableToCompare = SerializableTypeWrapper.unwrap(variable);
-      for (int i = 0; i < this.variables.length; i++) {
-        TypeVariable<?> resolvedVariable = SerializableTypeWrapper.unwrap(this.variables[i]);
+      final TypeVariable<?> variableToCompare = SerializableTypeWrapper.unwrap(variable);
+      final TypeVariable<?>[] variables = this.variables;
+      for (int i = 0; i < variables.length; i++) {
+        TypeVariable<?> resolvedVariable = SerializableTypeWrapper.unwrap(variables[i]);
         if (Objects.equals(resolvedVariable, variableToCompare)) {
           return this.generics[i];
         }
