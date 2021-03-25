@@ -22,8 +22,9 @@ package cn.taketoday.context.utils;
 import java.time.Duration;
 import java.util.List;
 
-import cn.taketoday.context.conversion.support.DefaultConversionService;
+import cn.taketoday.context.conversion.Converter;
 import cn.taketoday.context.conversion.TypeConverter;
+import cn.taketoday.context.conversion.support.DefaultConversionService;
 
 import static java.util.Objects.requireNonNull;
 
@@ -144,4 +145,20 @@ public abstract class ConvertUtils {
     DefaultConversionService.getSharedInstance().addConverters(converters);
   }
 
+  public void addConverters(final Converter<?, ?>... converters) {
+    DefaultConversionService.getSharedInstance().addConverters(converters);
+  }
+
+  public <S, T> void addConverter(final Converter<S, T> converter) {
+    DefaultConversionService.getSharedInstance().addConverter(converter);
+  }
+
+  public <S, T> void addConverter(Class<T> targetType, Converter<? super S, ? extends T> converter) {
+    DefaultConversionService.getSharedInstance().addConverter(targetType, converter);
+  }
+
+  public <S, T> void addConverter(
+          Class<T> targetType, Class<S> sourceType, Converter<? super S, ? extends T> converter) {
+    DefaultConversionService.getSharedInstance().addConverter(targetType, sourceType, converter);
+  }
 }
