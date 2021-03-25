@@ -411,7 +411,7 @@ public abstract class ExpressionContext {
       }
       final TypeConverter typeConverter = ConvertUtils.getConverter(obj, targetType);
       if (typeConverter != null) {
-        return typeConverter.convert(GenericDescriptor.ofClass(targetType), obj);
+        return typeConverter.convert(GenericDescriptor.valueOf(targetType), obj);
       }
       final ExpressionResolver elResolver = getResolver();
       if (elResolver != null) {

@@ -30,7 +30,7 @@ import java.util.HashMap;
 public class Mappings<V, T> {
   private final HashMap<Object, V> mapping;
   /** default mapping function */
-  private Function<V> mappingFunction;
+  private volatile Function<V> mappingFunction;
 
   public Mappings() {
     this(new HashMap<>());
@@ -82,7 +82,7 @@ public class Mappings<V, T> {
   public final V get(final Object key, final T param) {
     V value = mapping.get(key);
     if (value == null) {
-      synchronized (mapping) {
+      synchronized(mapping) {
         value = mapping.get(key);
         if (value == null) {
           value = createValue(key, param);
@@ -124,7 +124,7 @@ public class Mappings<V, T> {
   public final V get(final Object key, Function<V> mappingFunction) {
     V value = mapping.get(key);
     if (value == null) {
-      synchronized (mapping) {
+      synchronized(mapping) {
         value = mapping.get(key);
         if (value == null) {
           if (mappingFunction == null) {
@@ -144,12 +144,27 @@ public class Mappings<V, T> {
     return null;
   }
 
-  public void setMappingFunction(Function<V> mappingFunction) {
+  synchronized
+  public void setMappingFunction(final Function<V> mappingFunction) {
     this.mappingFunction = mappingFunction;
   }
 
+  public V put(final Object key, final V value) {
+    synchronized(mapping) {
+      return mapping.put(key, value);
+    }
+  }
+
   public void clear() {
-    mapping.clear();
+    synchronized(mapping) {
+      mapping.clear();
+    }
+  }
+
+  public V remove(final Object key) {
+    synchronized(mapping) {
+      return mapping.remove(key);
+    }
   }
 
   @FunctionalInterface
