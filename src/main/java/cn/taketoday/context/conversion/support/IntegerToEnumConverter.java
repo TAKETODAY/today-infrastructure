@@ -22,6 +22,7 @@ package cn.taketoday.context.conversion.support;
 
 import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.TypeConverter;
+import cn.taketoday.context.utils.ClassUtils;
 
 /**
  * @author TODAY 2021/3/22 16:43
@@ -37,6 +38,6 @@ final class IntegerToEnumConverter implements TypeConverter {
 
   @Override
   public Object convert(final GenericDescriptor targetType, final Object source) {
-    return targetType.getType().getEnumConstants()[(int) source];
+    return ClassUtils.getEnumType(targetType.getType()).getEnumConstants()[(int) source];
   }
 }

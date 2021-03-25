@@ -89,7 +89,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void getGenerics() throws NoSuchMethodException {
-    final Method handlerMethod = getClass().getMethod("handlerMethod", List.class);
+//    final Method handlerMethod = getClass().getMethod("handlerMethod", List.class);
 //    final GenericDescriptor descriptor = GenericDescriptor.ofParameter(handlerMethod, 0);
 
 //    final Class<?>[] generics = descriptor.getGenerics();
