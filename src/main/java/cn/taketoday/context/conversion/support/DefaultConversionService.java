@@ -421,7 +421,10 @@ public class DefaultConversionService implements ConfigurableConversionService {
 
     registry.addConverter(new NumberToCharacterConverter());
 
-    registry.addConverter(new StringToBooleanConverter());
+    final StringToBooleanConverter converter = new StringToBooleanConverter();
+    registry.addConverter(boolean.class, String.class, converter);
+    registry.addConverter(Boolean.class, String.class, converter);
+
     registry.addConverter(String.class, Boolean.class, ObjectToStringConverter.INSTANCE);
 
     registry.addConverters(new StringToEnumConverter());
