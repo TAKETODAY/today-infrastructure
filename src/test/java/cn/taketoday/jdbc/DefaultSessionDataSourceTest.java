@@ -12,7 +12,7 @@ import javax.sql.DataSource;
  * Created with IntelliJ IDEA. User: lars Date: 10/5/12 Time: 10:54 PM To change
  * this template use File | Settings | File Templates.
  */
-public class Sql2oDataSourceTest extends TestCase {
+public class DefaultSessionDataSourceTest extends TestCase {
 
   private DefaultSession sql2o;
 

@@ -7,8 +7,7 @@ import cn.taketoday.context.conversion.Converter;
 import cn.taketoday.context.exception.ConversionException;
 
 /**
- * @author TODAY
- * @date 2021/1/8 22:00
+ * @author TODAY 2021/1/8 22:00
  */
 public class ClobToStringConverter implements Converter<Clob, String> {
 

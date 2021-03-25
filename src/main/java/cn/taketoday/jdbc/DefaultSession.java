@@ -26,7 +26,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.context.conversion.ConverterTypeConverter;
+import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.jdbc.connectionsources.ConnectionSource;
 import cn.taketoday.jdbc.connectionsources.DataSourceConnectionSource;
 import cn.taketoday.jdbc.conversion.ClobToStringConverter;
@@ -69,15 +69,14 @@ public class DefaultSession {
   static {
     final ClobToStringConverter stringConverter = new ClobToStringConverter();
 
-    final ConverterTypeConverter sharedInstance = ConverterTypeConverter.getSharedInstance();
-    sharedInstance.addConverter(stringConverter);
+    ConvertUtils.addConverter(stringConverter);
 
     if (FeatureDetector.isJodaTimeAvailable()) {
       final TimeToJodaLocalTimeConverter jodaLocalTimeConverter = new TimeToJodaLocalTimeConverter();
-      sharedInstance.addConverter(jodaLocalTimeConverter);
+      ConvertUtils.addConverter(jodaLocalTimeConverter);
     }
 
-    sharedInstance.addConverter(new OffsetTimeToSQLTimeConverter());
+    ConvertUtils.addConverter(new OffsetTimeToSQLTimeConverter());
   }
 
   public DefaultSession(String jndiLookup) {

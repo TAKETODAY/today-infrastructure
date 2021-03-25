@@ -707,11 +707,6 @@ public class Query implements AutoCloseable {
     }
   }
 
-  /**
-   * @return
-   *
-   * @throws PersistenceException
-   */
   public JdbcConnection executeBatch() {
     long start = System.currentTimeMillis();
     try {
@@ -725,7 +720,8 @@ public class Query implements AutoCloseable {
       }
       catch (SQLException sqlex) {
         throw new PersistenceException(
-                "Error while trying to fetch generated keys from database. If you are not expecting any generated keys, fix this error by setting the fetchGeneratedKeys parameter in the createQuery() method to 'false'",
+                "Error while trying to fetch generated keys from database. If you are not expecting any generated keys, " +
+                        "fix this error by setting the fetchGeneratedKeys parameter in the createQuery() method to 'false'",
                 sqlex);
       }
     }

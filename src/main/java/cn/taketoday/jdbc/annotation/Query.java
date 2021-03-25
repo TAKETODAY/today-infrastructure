@@ -27,14 +27,12 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.jdbc.SqlType;
 
+/**
+ * @author TODAY 2018-09-05 22:30
+ */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD, ElementType.TYPE })
-/**
- * @author Today <br>
- *
- *         2018-09-05 22:30
- */
 public @interface Query {
 
   String value() default "";

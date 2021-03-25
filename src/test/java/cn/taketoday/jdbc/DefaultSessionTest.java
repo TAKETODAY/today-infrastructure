@@ -221,12 +221,22 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
     String insQuery = "insert into User(name, email, text) values (:name, :email, :text)";
 
-    defaultSession.createQuery(insQuery).addParameter("name", "test").addParameter("email", "test@test.com").addParameter("text",
-                                                                                                                          "something exciting")
+    defaultSession.createQuery(insQuery)
+            .addParameter("name", "test")
+            .addParameter("email", "test@test.com")
+            .addParameter("text", "something exciting")
             .addToBatch()
-            .addParameter("name", "test2").addParameter("email", "test2@test.com").addParameter("text", "something exciting too")
+
+            .addParameter("name", "test2")
+            .addParameter("email", "test2@test.com")
+            .addParameter("text", "something exciting too")
             .addToBatch()
-            .addParameter("name", "test3").addParameter("email", "test3@test.com").addParameter("text", "blablabla").addToBatch()
+
+            .addParameter("name", "test3")
+            .addParameter("email", "test3@test.com")
+            .addParameter("text", "blablabla")
+            .addToBatch()
+
             .executeBatch();
 
     deleteUserTable();
