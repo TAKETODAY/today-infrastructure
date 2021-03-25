@@ -19,7 +19,6 @@
  */
 package cn.taketoday.context.utils;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -2137,5 +2136,19 @@ public abstract class ClassUtils {
     }
     String packageName = className.substring(0, packageEndIndex);
     return packageName.replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR);
+  }
+
+  /**
+   * @throws IllegalArgumentException
+   *         target is not a enum
+   * @since 3.0
+   */
+  public static Class<?> getEnumType(final Class<?> targetType) {
+    Class<?> enumType = targetType;
+    while (enumType != null && !enumType.isEnum()) {
+      enumType = enumType.getSuperclass();
+    }
+    Assert.notNull(enumType, () -> "The target type " + targetType.getName() + " does not refer to an enum");
+    return enumType;
   }
 }

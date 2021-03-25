@@ -348,23 +348,28 @@ public class StandardBeanFactory
     final BeanNameCreator beanNameCreator = getBeanNameCreator();
     for (final Class<?> beanClass : beans) {
       final MissingBean missingBean = ClassUtils.getAnnotation(MissingBean.class, beanClass);
-      if (isMissedBean(missingBean, beanClass, context)) {
-        // MissingBean in 'META-INF/beans' @since 3.0
-        final BeanDefinition def = createBeanDefinition(beanClass);
-        final String name = missingBean/*never be null*/.value();
-        if (StringUtils.isNotEmpty(name)) {
-          def.setName(name); // refresh bean name
+      if (missingBean != null) {
+        if (isMissedBean(missingBean, beanClass, context)) {
+          // MissingBean in 'META-INF/beans' @since 3.0
+          final BeanDefinition def = createBeanDefinition(beanClass);
+          final String name = missingBean/*never be null*/.value();
+          if (StringUtils.isNotEmpty(name)) {
+            def.setName(name); // refresh bean name
+          }
+          registerMissingBean(missingBean, def);
         }
-        registerMissingBean(missingBean, def);
-      }
-      else if (ContextUtils.passCondition(beanClass, context)) {
-        // can't be a missed bean. MissingBean load after normal loading beans
-        ContextUtils.createBeanDefinitions(beanNameCreator.create(beanClass), beanClass, this)
-                .forEach(this::register);
+        else {
+          log.info("@MissingBean -> '{}' cannot pass the condition, dont register to the map", beanClass);
+        }
       }
       else {
-        log.info("'{}' cannot pass the condition, dont register to the map", beanClass);
+        if (ContextUtils.passCondition(beanClass, context)) {
+          // can't be a missed bean. MissingBean load after normal loading beans
+          ContextUtils.createBeanDefinitions(beanNameCreator.create(beanClass), beanClass, this)
+                  .forEach(this::register);
+        }
       }
+
     }
     return beans;
   }
