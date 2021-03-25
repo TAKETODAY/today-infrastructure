@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import java.awt.Color;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -66,17 +67,21 @@ public class GenericDescriptorTests {
     final Method handlerMethod = getClass().getMethod("handlerMethod", MyList.class);
     final Method colorList = getClass().getMethod("handlerMethod1", ColorList.class);
 
-    final GenericDescriptor descriptor = GenericDescriptor.ofParameter(handlerMethod, 0);
-    final GenericDescriptor descriptor1 = GenericDescriptor.ofParameter(colorList, 0);
+//    final GenericDescriptor descriptor = GenericDescriptor.ofParameter(handlerMethod, 0);
+//    final GenericDescriptor descriptor1 = GenericDescriptor.ofParameter(colorList, 0);
 
-    final Class<?>[] generics = descriptor.getGenerics(Collection.class);
+//    final Class<?>[] generics = descriptor.getGenerics(Collection.class);
+//
+//    final Class<?>[] generics1 = descriptor1.getGenerics(Collection.class);
+//    final Class<?>[] Interface = descriptor.getGenerics(Interface.class);
+//
+//    System.out.println(Arrays.toString(generics));
+//    System.out.println(Arrays.toString(generics1));
+//    System.out.println(Arrays.toString(Interface));
 
-    final Class<?>[] generics1 = descriptor1.getGenerics(Collection.class);
-    final Class<?>[] Interface = descriptor.getGenerics(Interface.class);
+    final Type[] genericInterfaces = MyList.class.getGenericInterfaces();
 
-    System.out.println(Arrays.toString(generics));
-    System.out.println(Arrays.toString(generics1));
-    System.out.println(Arrays.toString(Interface));
+    System.out.println(Arrays.toString(genericInterfaces));
 
   }
 
@@ -85,8 +90,7 @@ public class GenericDescriptorTests {
   @Test
   public void getGenerics() throws NoSuchMethodException {
     final Method handlerMethod = getClass().getMethod("handlerMethod", List.class);
-
-    final GenericDescriptor descriptor = GenericDescriptor.ofParameter(handlerMethod, 0);
+//    final GenericDescriptor descriptor = GenericDescriptor.ofParameter(handlerMethod, 0);
 
 //    final Class<?>[] generics = descriptor.getGenerics();
 //    final Class<?>[] generics1 = descriptor.getGenerics(Set.class);

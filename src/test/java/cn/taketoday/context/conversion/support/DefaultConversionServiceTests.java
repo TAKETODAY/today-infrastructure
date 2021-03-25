@@ -213,7 +213,8 @@ public class DefaultConversionServiceTests {
 
   @Test
   public void stringToNumber() {
-    assertThat(conversionService.convert("1.0", Number.class)).isEqualTo(new BigDecimal("1.0"));
+    final Number convert = conversionService.convert("1.0", Number.class);
+    assertThat(convert).isEqualTo(new BigDecimal("1.0"));
   }
 
   @Test
@@ -258,7 +259,9 @@ public class DefaultConversionServiceTests {
 
   @Test
   public void enumToInteger() {
-    assertThat(conversionService.convert(Foo.BAR, Integer.class)).isEqualTo((int) Integer.valueOf(0));
+
+    assertThat(conversionService.convert(Foo.BAR, Integer.class))
+            .isEqualTo((int) Integer.valueOf(0));
   }
 
   @Test
@@ -543,7 +546,9 @@ public class DefaultConversionServiceTests {
   @Test
   public void convertEmptyStringToCollection() {
     Collection<?> result = conversionService.convert("", Collection.class);
-    assertThat(result.size()).isEqualTo(0);
+    assertThat(result.size()).isEqualTo(1);
+    final Object next = result.iterator().next();
+    assertThat(next).isEqualTo("");
   }
 
   @Test
@@ -781,7 +786,8 @@ public class DefaultConversionServiceTests {
     strings.put("3", "9");
     strings.put("6", "31");
     Map<Integer, Integer> integers = //
-            conversionService.convert(strings, new TypeReference<Map<Integer, Integer>>(){}.getTypeParameter());
+//            conversionService.convert(strings, new TypeReference<Map<Integer, Integer>>(){}.getTypeParameter());
+            conversionService.convert(strings, GenericDescriptor.map(Map.class,Integer.class, Integer.class ));
 
     assertThat((int) integers.get(3)).isEqualTo((int) Integer.valueOf(9));
     assertThat((int) integers.get(6)).isEqualTo((int) Integer.valueOf(31));
