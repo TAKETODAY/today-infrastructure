@@ -676,13 +676,13 @@ public class GenericDescriptor implements Serializable {
   public static GenericDescriptor nested(GenericDescriptor genericDescriptor, int nestingLevel) {
     ResolvableType nested = genericDescriptor.resolvableType;
     for (int i = 0; i < nestingLevel; i++) {
-      if (Object.class == nested.getType()) {
-        // Could be a collection type but we don't know about its element type,
-        // so let's just assume there is an element type of type Object...
-      }
-      else {
+      if (Object.class != nested.getType()) {
         nested = nested.getNested(2);
       }
+      // else {
+        // Could be a collection type but we don't know about its element type,
+        // so let's just assume there is an element type of type Object...
+      // }
     }
     if (nested == ResolvableType.NONE) {
       return null;
@@ -702,7 +702,6 @@ public class GenericDescriptor implements Serializable {
   }
 
   /**
-   * @param beanProperty
    */
   public static GenericDescriptor ofProperty(BeanProperty beanProperty) {
     return new GenericDescriptor(beanProperty);
@@ -713,7 +712,7 @@ public class GenericDescriptor implements Serializable {
     final Parameter[] parameters = executable.getParameters();
     final Parameter parameter = parameters[index];
     final Class<?> type = parameter.getType();
-    return new GenericDescriptor(resolvableType, type, parameter.getAnnotations());
+    return new GenericDescriptor(resolvableType, type, parameter);
   }
 
   /**

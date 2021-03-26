@@ -355,7 +355,7 @@ public abstract class ExpressionUtils {
       return obj;
     }
 
-    if (obj == null && !type.isPrimitive() && !(String.class == type)) {
+    if (obj == null && !type.isPrimitive() && String.class != type) {
       return null;
     }
 

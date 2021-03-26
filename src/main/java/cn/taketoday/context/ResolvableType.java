@@ -557,10 +557,9 @@ public class ResolvableType implements Serializable {
     if (resolved != null) {
       try {
         for (Type genericInterface : resolved.getGenericInterfaces()) {
-          if (genericInterface instanceof Class) {
-            if (forClass((Class<?>) genericInterface).hasGenerics()) {
-              return true;
-            }
+          if (genericInterface instanceof Class
+                  && forClass((Class<?>) genericInterface).hasGenerics()) {
+            return true;
           }
         }
       }
@@ -944,10 +943,7 @@ public class ResolvableType implements Serializable {
                     !Objects.equals(this.variableResolver.getSource(), otherType.variableResolver.getSource()))) {
       return false;
     }
-    if (!Objects.equals(this.componentType, otherType.componentType)) {
-      return false;
-    }
-    return true;
+    return Objects.equals(this.componentType, otherType.componentType);
   }
 
   @Override
