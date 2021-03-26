@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.utils.Assert;
 
 /**
@@ -33,7 +32,6 @@ import cn.taketoday.context.utils.Assert;
  * @author TODAY 2021/3/21 21:19
  * @since 3.0
  */
-@MissingBean
 public class CompositeValidator {
   private final List<Validator> validators;
 
