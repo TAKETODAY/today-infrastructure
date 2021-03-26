@@ -32,8 +32,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.annotation.condition.ConditionalOnClass;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.CollectionUtils;
@@ -47,12 +45,10 @@ import cn.taketoday.web.resolver.RequestBodyParsingException;
  * @author TODAY 2021/3/10 11:36
  * @since 3.0
  */
-@MissingBean
-@ConditionalOnClass("com.fasterxml.jackson.databind.ObjectMapper")
 public class JacksonMessageConverter
         extends AbstractMessageConverter implements MessageConverter {
 
-  private ObjectMapper mapper; //TODO config object mapper
+  private ObjectMapper mapper;
 
   public JacksonMessageConverter() {
     this(new ObjectMapper());

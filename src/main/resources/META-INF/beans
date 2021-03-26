@@ -1,6 +1,6 @@
-cn.taketoday.web.view.JacksonMessageConverter
 cn.taketoday.web.multipart.MultipartConfiguration
 cn.taketoday.web.handler.NotFoundRequestAdapter
 cn.taketoday.web.registry.HandlerMethodRegistry
 cn.taketoday.web.resolver.ParameterResolvers
 cn.taketoday.web.resolver.DataBinderParameterResolver
+cn.taketoday.web.config.JacksonConfiguration

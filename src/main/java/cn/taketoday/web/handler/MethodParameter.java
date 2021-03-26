@@ -71,7 +71,6 @@ public class MethodParameter
     this.parameter = parameter;
     this.parameterIndex = index;
     this.parameterClass = parameter.getType();
-    this.generics = ClassUtils.getGenericTypes(parameter);
 
     AnnotationAttributes attributes = getAnnotationAttributes(RequestParam.class, parameter);
     if (attributes != null) {
@@ -116,7 +115,7 @@ public class MethodParameter
   }
 
   public Type getGenerics(final int index) {
-    final Type[] generics = this.generics;
+    final Type[] generics = getGenerics();
     if (generics != null && generics.length > index) {
       return generics[index];
     }
@@ -128,6 +127,7 @@ public class MethodParameter
   }
 
   public boolean isGenericPresent(final Type requiredType) {
+    final Type[] generics = getGenerics();
     if (generics != null) {
       for (final Type type : generics) {
         if (type.equals(requiredType)) {
@@ -218,6 +218,9 @@ public class MethodParameter
   }
 
   public Type[] getGenerics() {
+    if (generics == null) {
+      this.generics = ClassUtils.getGenericTypes(parameter);
+    }
     return generics;
   }
 
