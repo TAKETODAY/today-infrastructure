@@ -364,8 +364,11 @@ public class StandardBeanFactory
       else {
         if (ContextUtils.passCondition(beanClass, context)) {
           // can't be a missed bean. MissingBean load after normal loading beans
-          ContextUtils.createBeanDefinitions(beanNameCreator.create(beanClass), beanClass, this)
-                  .forEach(this::register);
+          final List<BeanDefinition> defs =
+                  ContextUtils.createBeanDefinitions(beanNameCreator.create(beanClass), beanClass, this);
+          for (final BeanDefinition def : defs) {
+            register(def);
+          }
         }
       }
 
