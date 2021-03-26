@@ -31,6 +31,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -2150,5 +2151,33 @@ public abstract class ClassUtils {
     }
     Assert.notNull(enumType, () -> "The target type " + targetType.getName() + " does not refer to an enum");
     return enumType;
+  }
+
+  /**
+   * Get {@link Parameter} index
+   *
+   * @param parameter
+   *         {@link Parameter}
+   *
+   * @since 3.0
+   */
+  public static int getParameterIndex(final Parameter parameter) {
+    Executable executable = parameter.getDeclaringExecutable();
+    Parameter[] allParams = executable.getParameters();
+    // Try first with identity checks for greater performance.
+    for (int i = 0; i < allParams.length; i++) {
+      if (parameter == allParams[i]) {
+        return i;
+      }
+    }
+    // Potentially try again with object equality checks in order to avoid race
+    // conditions while invoking java.lang.reflect.Executable.getParameters().
+    for (int i = 0; i < allParams.length; i++) {
+      if (parameter.equals(allParams[i])) {
+        return i;
+      }
+    }
+    throw new IllegalArgumentException(
+            "Given parameter [" + parameter + "] does not match any parameter in the declaring executable");
   }
 }

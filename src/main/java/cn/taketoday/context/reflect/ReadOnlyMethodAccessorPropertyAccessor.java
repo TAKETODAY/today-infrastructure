@@ -20,21 +20,27 @@
 
 package cn.taketoday.context.reflect;
 
+import java.lang.reflect.Method;
+
 /**
  * @author TODAY
  * 2020/9/12 13:56
  */
 public class ReadOnlyMethodAccessorPropertyAccessor
         extends ReadOnlyPropertyAccessor implements PropertyAccessor {
+  private final MethodAccessor readAccessor;
 
-  private final MethodAccessor getMethodAccessor;
-
-  public ReadOnlyMethodAccessorPropertyAccessor(MethodAccessor getMethodAccessor) {
-    this.getMethodAccessor = getMethodAccessor;
+  public ReadOnlyMethodAccessorPropertyAccessor(MethodAccessor readAccessor) {
+    this.readAccessor = readAccessor;
   }
 
   @Override
   public Object get(final Object obj) {
-    return getMethodAccessor.invoke(obj, null);
+    return readAccessor.invoke(obj, null);
+  }
+
+  @Override
+  public Method getReadMethod() {
+    return readAccessor.getMethod();
   }
 }

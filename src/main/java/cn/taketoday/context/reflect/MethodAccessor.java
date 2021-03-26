@@ -20,10 +20,13 @@
 
 package cn.taketoday.context.reflect;
 
+import java.lang.reflect.Method;
+
 /**
  * @author TODAY
  * 2020/9/11 10:39
  */
 public interface MethodAccessor extends Invoker, Accessor {
 
+  Method getMethod();
 }

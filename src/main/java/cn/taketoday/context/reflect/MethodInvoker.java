@@ -46,8 +46,19 @@ import static cn.taketoday.context.cglib.core.CglibReflectUtils.getMethodInfo;
  */
 public abstract class MethodInvoker implements MethodAccessor, Invoker {
 
+  private Method method;
+
   @Override
   public abstract Object invoke(Object obj, Object[] args);
+
+  @Override
+  public Method getMethod() {
+    return method;
+  }
+
+  private void setMethod(Method method) {
+    this.method = method;
+  }
 
   /**
    * Create a {@link MethodInvoker}
@@ -130,6 +141,13 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
       super(targetClass);
       Assert.notNull(method, "method must not be null");
       this.targetMethod = ClassUtils.getMostSpecificMethod(method, targetClass);
+    }
+
+    @Override
+    public MethodInvoker create() {
+      final MethodInvoker methodInvoker = super.create();
+      methodInvoker.setMethod(targetMethod);
+      return methodInvoker;
     }
 
     @Override

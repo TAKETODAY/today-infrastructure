@@ -20,13 +20,14 @@
 
 package cn.taketoday.context.reflect;
 
+import java.lang.reflect.Method;
+
 /**
  * Fast call bean's setter Method {@link java.lang.reflect.Method Method}
  *
  * @author TODAY <br>
  * 2020-08-14 00:29
  */
-@FunctionalInterface
 public interface SetterMethod {
 
   /**
@@ -41,5 +42,12 @@ public interface SetterMethod {
    *         property value
    */
   void set(Object obj, Object value);
+
+  /**
+   * @since 3.0
+   */
+  default Method getWriteMethod() {
+    return null;
+  }
 
 }

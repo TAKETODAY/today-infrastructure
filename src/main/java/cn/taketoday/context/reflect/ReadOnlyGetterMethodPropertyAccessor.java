@@ -20,6 +20,8 @@
 
 package cn.taketoday.context.reflect;
 
+import java.lang.reflect.Method;
+
 /**
  * @author TODAY
  * 2020/9/12 15:20
@@ -27,15 +29,19 @@ package cn.taketoday.context.reflect;
 public class ReadOnlyGetterMethodPropertyAccessor
         extends ReadOnlyPropertyAccessor implements PropertyAccessor {
 
-  private final GetterMethod getterMethod;
+  private final GetterMethod readMethod;
 
-  public ReadOnlyGetterMethodPropertyAccessor(final GetterMethod getterMethod) {
-    this.getterMethod = getterMethod;
+  public ReadOnlyGetterMethodPropertyAccessor(final GetterMethod readMethod) {
+    this.readMethod = readMethod;
   }
 
   @Override
   public Object get(final Object obj) {
-    return getterMethod.get(obj);
+    return readMethod.get(obj);
   }
 
+  @Override
+  public Method getReadMethod() {
+    return readMethod.getReadMethod();
+  }
 }

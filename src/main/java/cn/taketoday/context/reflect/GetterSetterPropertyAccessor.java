@@ -20,6 +20,8 @@
 
 package cn.taketoday.context.reflect;
 
+import java.lang.reflect.Method;
+
 import cn.taketoday.context.utils.Assert;
 
 /**
@@ -28,24 +30,33 @@ import cn.taketoday.context.utils.Assert;
  */
 public class GetterSetterPropertyAccessor implements PropertyAccessor {
 
-  private final GetterMethod getterMethod;
-  private final SetterMethod setterMethod;
+  private final GetterMethod readMethod;
+  private final SetterMethod writeMethod;
 
-  public GetterSetterPropertyAccessor(GetterMethod getterMethod, SetterMethod setterMethod) {
-    Assert.notNull(getterMethod, "getterMethod must not be null");
-    Assert.notNull(setterMethod, "setterMethod must not be null");
-
-    this.getterMethod = getterMethod;
-    this.setterMethod = setterMethod;
+  public GetterSetterPropertyAccessor(GetterMethod readMethod, SetterMethod writeMethod) {
+    Assert.notNull(readMethod, "readMethod must not be null");
+    Assert.notNull(writeMethod, "writeMethod must not be null");
+    this.readMethod = readMethod;
+    this.writeMethod = writeMethod;
   }
 
   @Override
   public Object get(final Object obj) {
-    return getterMethod.get(obj);
+    return readMethod.get(obj);
   }
 
   @Override
   public void set(final Object obj, final Object value) {
-    setterMethod.set(obj, value);
+    writeMethod.set(obj, value);
+  }
+
+  @Override
+  public Method getReadMethod() {
+    return readMethod.getReadMethod();
+  }
+
+  @Override
+  public Method getWriteMethod() {
+    return writeMethod.getWriteMethod();
   }
 }

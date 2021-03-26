@@ -21,6 +21,7 @@
 package cn.taketoday.context.reflect;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import cn.taketoday.context.utils.ReflectionUtils;
 
@@ -30,9 +31,14 @@ import cn.taketoday.context.utils.ReflectionUtils;
 public class FieldPropertyAccessor extends SetterSupport implements PropertyAccessor {
   private final Field field;
 
-  public FieldPropertyAccessor(Field field) {
+  private final Method readMethod;
+  private final Method writeMethod;
+
+  public FieldPropertyAccessor(Field field, Method readMethod, Method writeMethod) {
     super(field.getType().isPrimitive());
     this.field = ReflectionUtils.makeAccessible(field);
+    this.readMethod = readMethod;
+    this.writeMethod = writeMethod;
   }
 
   @Override
@@ -43,5 +49,15 @@ public class FieldPropertyAccessor extends SetterSupport implements PropertyAcce
   @Override
   protected void setInternal(Object obj, Object value) {
     ReflectionUtils.setField(field, obj, value);
+  }
+
+  @Override
+  public Method getReadMethod() {
+    return readMethod;
+  }
+
+  @Override
+  public Method getWriteMethod() {
+    return writeMethod;
   }
 }

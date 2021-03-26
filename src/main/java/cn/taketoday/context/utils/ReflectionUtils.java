@@ -1059,20 +1059,20 @@ public abstract class ReflectionUtils {
     final Class<?> type = field.getType();
     final Class<?> declaringClass = field.getDeclaringClass();
 
-    final Method getMethod = findMethod(declaringClass, getterPropertyName(capitalizeProperty, type));
+    final Method readMethod = findMethod(declaringClass, getterPropertyName(capitalizeProperty, type));
 
     final boolean isReadOnly = Modifier.isFinal(field.getModifiers());
-    if (isReadOnly && getMethod != null) {
-      return new ReadOnlyMethodAccessorPropertyAccessor(newMethodAccessor(getMethod));
+    if (isReadOnly && readMethod != null) {
+      return new ReadOnlyMethodAccessorPropertyAccessor(newMethodAccessor(readMethod));
     }
 
-    Method setMethod = findMethod(declaringClass, "set".concat(capitalizeProperty), type);
-    if (setMethod != null && getMethod != null) {
-      return new MethodAccessorPropertyAccessor(type.isPrimitive(), setMethod, getMethod);
+    Method writeMethod = findMethod(declaringClass, "set".concat(capitalizeProperty), type);
+    if (writeMethod != null && readMethod != null) {
+      return new MethodAccessorPropertyAccessor(type.isPrimitive(), writeMethod, readMethod);
     }
 
-    if (setMethod != null) {
-      final MethodInvoker accessor = newMethodAccessor(setMethod);
+    if (writeMethod != null) {
+      final MethodInvoker accessor = newMethodAccessor(writeMethod);
       makeAccessible(field);
       return new PropertyAccessor() {
         @Override
@@ -1084,12 +1084,17 @@ public abstract class ReflectionUtils {
         public void set(Object obj, Object value) {
           accessor.invoke(obj, new Object[] { value });
         }
+
+        @Override
+        public Method getWriteMethod() {
+          return writeMethod;
+        }
       };
     }
 
-    if (getMethod != null) {
+    if (readMethod != null) {
       makeAccessible(field);
-      final MethodInvoker accessor = newMethodAccessor(getMethod);
+      final MethodInvoker accessor = newMethodAccessor(readMethod);
       return new PropertyAccessor() {
         @Override
         public Object get(Object obj) {
@@ -1100,16 +1105,23 @@ public abstract class ReflectionUtils {
         public void set(Object obj, Object value) {
           ReflectionUtils.setField(field, obj, value);
         }
+
+        @Override
+        public Method getReadMethod() {
+          return readMethod;
+        }
       };
     }
 
-    // getMethod == null && setMethod == null
+    // readMethod == null && setMethod == null
     if (isUnsafeEnabled()) {
       return isReadOnly
              ? new ReadOnlyGetterMethodPropertyAccessor(newUnsafeGetterMethod(field))
              : new GetterSetterPropertyAccessor(newUnsafeGetterMethod(field), newUnsafeSetterMethod(field));
     }
-    return isReadOnly ? new ReadOnlyFieldPropertyAccessor(field) : new FieldPropertyAccessor(field);
+    return isReadOnly
+           ? new ReadOnlyFieldPropertyAccessor(field, readMethod)
+           : new FieldPropertyAccessor(field, readMethod, writeMethod);
   }
 
   /**

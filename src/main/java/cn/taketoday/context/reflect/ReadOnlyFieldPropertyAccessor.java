@@ -20,6 +20,7 @@
 package cn.taketoday.context.reflect;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import cn.taketoday.context.utils.ReflectionUtils;
 
@@ -28,16 +29,22 @@ import cn.taketoday.context.utils.ReflectionUtils;
  * 2020/9/18 22:03
  */
 public class ReadOnlyFieldPropertyAccessor extends ReadOnlyPropertyAccessor {
-
   private final Field field;
+  private final Method readMethod;
 
-  public ReadOnlyFieldPropertyAccessor(Field field) {
+  public ReadOnlyFieldPropertyAccessor(Field field, Method readMethod) {
     field.setAccessible(true);
     this.field = field;
+    this.readMethod = readMethod;
   }
 
   @Override
   public Object get(final Object obj) {
     return ReflectionUtils.getField(field, obj);
+  }
+
+  @Override
+  public Method getReadMethod() {
+    return readMethod;
   }
 }

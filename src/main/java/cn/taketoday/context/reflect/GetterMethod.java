@@ -19,13 +19,14 @@
  */
 package cn.taketoday.context.reflect;
 
+import java.lang.reflect.Method;
+
 /**
  * Fast call bean's getter Method {@link java.lang.reflect.Method Method}
  *
  * @author TODAY <br>
  * 2020-08-13 19:46
  */
-@FunctionalInterface
 public interface GetterMethod {
 
   /**
@@ -37,4 +38,12 @@ public interface GetterMethod {
    * @return Property
    */
   Object get(Object obj);
+
+  /**
+   * @since 3.0
+   */
+  default Method getReadMethod() {
+    return null;
+  }
+
 }

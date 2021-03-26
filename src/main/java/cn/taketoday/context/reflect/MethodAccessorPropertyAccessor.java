@@ -31,35 +31,44 @@ import cn.taketoday.context.utils.ReflectionUtils;
 public class MethodAccessorPropertyAccessor
         extends SetterSupport implements PropertyAccessor {
 
-  private final MethodAccessor setMethodAccessor;
-  private final MethodAccessor getMethodAccessor;
+  private final MethodAccessor writeAccessor;
+  private final MethodAccessor readAccessor;
 
   public MethodAccessorPropertyAccessor(boolean primitive, Method setMethod, Method getMethod) {
     super(primitive);
     Assert.notNull(setMethod, "setMethod must not be null");
     Assert.notNull(getMethod, "getMethod must not be null");
 
-    this.setMethodAccessor = ReflectionUtils.newMethodAccessor(setMethod);
-    this.getMethodAccessor = ReflectionUtils.newMethodAccessor(getMethod);
+    this.writeAccessor = ReflectionUtils.newMethodAccessor(setMethod);
+    this.readAccessor = ReflectionUtils.newMethodAccessor(getMethod);
   }
 
-  public MethodAccessorPropertyAccessor(boolean primitive, MethodAccessor setMethodAccessor,
-                                        MethodAccessor getMethodAccessor) {
+  public MethodAccessorPropertyAccessor(
+          boolean primitive, MethodAccessor writeAccessor, MethodAccessor readAccessor) {
     super(primitive);
-    Assert.notNull(setMethodAccessor, "setMethodAccessor must not be null");
-    Assert.notNull(getMethodAccessor, "getMethodAccessor must not be null");
-
-    this.setMethodAccessor = setMethodAccessor;
-    this.getMethodAccessor = getMethodAccessor;
+    Assert.notNull(writeAccessor, "writeAccessor must not be null");
+    Assert.notNull(readAccessor, "readAccessor must not be null");
+    this.readAccessor = readAccessor;
+    this.writeAccessor = writeAccessor;
   }
 
   @Override
   public Object get(final Object obj) {
-    return getMethodAccessor.invoke(obj, null);
+    return readAccessor.invoke(obj, null);
   }
 
   @Override
   protected void setInternal(Object obj, Object value) {
-    setMethodAccessor.invoke(obj, new Object[] { value });
+    writeAccessor.invoke(obj, new Object[] { value });
+  }
+
+  @Override
+  public Method getReadMethod() {
+    return readAccessor.getMethod();
+  }
+
+  @Override
+  public Method getWriteMethod() {
+    return writeAccessor.getMethod();
   }
 }
