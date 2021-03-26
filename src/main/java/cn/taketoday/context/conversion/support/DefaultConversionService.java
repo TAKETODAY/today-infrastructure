@@ -63,6 +63,7 @@ import cn.taketoday.context.utils.Mappings;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
+import cn.taketoday.context.utils.ResolvableType;
 
 import static cn.taketoday.context.utils.OrderUtils.reversedSort;
 
@@ -283,9 +284,10 @@ public class DefaultConversionService implements ConfigurableConversionService {
   @SuppressWarnings("unchecked")
   public <S, T> void addConverter(Class<T> targetType, Converter<? super S, ? extends T> converter) {
     Assert.notNull(converter, "converter must not be null");
-    final Class<?>[] generics = GenericTypeResolver.resolveTypeArguments(converter.getClass(), Converter.class);
-    if (ObjectUtils.isNotEmpty(generics)) {
-      addConverter(targetType, (Class<S>) generics[0], converter);
+    ResolvableType type = ResolvableType.forClass(converter.getClass()).as(Converter.class);
+    if (type.hasGenerics()) {
+      final ResolvableType generic = type.getGeneric(0);
+      addConverter(targetType, (Class<S>) generic.toClass(), converter);
     }
     else
       throw new ConfigurationException("can't register get converter's source class");
