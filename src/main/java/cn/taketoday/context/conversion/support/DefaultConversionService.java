@@ -159,21 +159,13 @@ public class DefaultConversionService implements ConfigurableConversionService {
     protected TypeConverter createValue(final Object key, final GenericDescriptor targetType) {
       final Class<?> sourceType = ((ConverterKey) key).sourceType;
 
-      LinkedList<TypeConverter> matchedConverters = new LinkedList<>();
       for (final TypeConverter converter : converters) {
         if (converter.supports(targetType, sourceType)) {
-//          return converter;
-          matchedConverters.add(converter);
+          return converter;
         }
       }
 
-      if (matchedConverters.isEmpty()) {
-        return NO_MATCH;
-      }
-      if (matchedConverters.size() > 1) {
-        OrderUtils.reversedSort(matchedConverters);
-      }
-      return matchedConverters.get(0);
+      return NO_MATCH;
     }
   }
 
