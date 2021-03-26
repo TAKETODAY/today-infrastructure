@@ -43,6 +43,11 @@ public class BeanPropertyAccessor {
   protected Object rootObject;
   protected BeanMetadata metadata;
 
+  /**
+   * ignore unknown properties when {@code setProperty}
+   */
+  private boolean ignoreUnknownProperty = true;
+
   private ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
   protected BeanPropertyAccessor() { }
@@ -332,6 +337,7 @@ public class BeanPropertyAccessor {
    *         If no such property
    * @throws InvalidPropertyValueException
    *         Invalid property value
+   * @see #ignoreUnknownProperty
    */
   public void setProperty(
           final Object root, final BeanMetadata metadata, final String propertyPath, final Object value) {
@@ -379,8 +385,15 @@ public class BeanPropertyAccessor {
       // do set property operation
       final int signIndex = propertyPath.indexOf('['); // array,list: [0]; map: [key]
       if (signIndex < 0) {
-        final BeanProperty beanProperty = metadata.obtainBeanProperty(propertyPath);
-        beanProperty.setValue(root, convertIfNecessary(value, beanProperty));
+        try {
+          final BeanProperty beanProperty = metadata.obtainBeanProperty(propertyPath);
+          beanProperty.setValue(root, convertIfNecessary(value, beanProperty));
+        }
+        catch (NoSuchPropertyException e) {
+          if (!ignoreUnknownProperty) {
+            throw e;
+          }
+        }
       }
       else {
         final BeanProperty beanProperty = getBeanProperty(metadata, propertyPath, signIndex);
@@ -509,7 +522,7 @@ public class BeanPropertyAccessor {
    *         conversion failed
    */
   protected Object convertIfNecessary(final Object value, final BeanProperty beanProperty) {
-    return convertIfNecessary(value, beanProperty.getType());
+    return convertIfNecessary(value, beanProperty.getType(), beanProperty);
   }
 
   protected Object convertIfNecessary(final Object value, final Class<?> requiredType, final BeanProperty beanProperty) {
@@ -606,6 +619,15 @@ public class BeanPropertyAccessor {
     }
     return conversionService;
   }
+
+  public void setIgnoreUnknownProperty(boolean ignoreUnknownProperty) {
+    this.ignoreUnknownProperty = ignoreUnknownProperty;
+  }
+
+  public boolean isIgnoreUnknownProperty() {
+    return ignoreUnknownProperty;
+  }
+
   // static
 
   public static BeanPropertyAccessor ofObject(Object object) {
