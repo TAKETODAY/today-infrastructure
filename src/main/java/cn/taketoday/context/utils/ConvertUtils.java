@@ -145,19 +145,19 @@ public abstract class ConvertUtils {
     DefaultConversionService.getSharedInstance().addConverters(converters);
   }
 
-  public void addConverters(final Converter<?, ?>... converters) {
+  public static void addConverters(final Converter<?, ?>... converters) {
     DefaultConversionService.getSharedInstance().addConverters(converters);
   }
 
-  public <S, T> void addConverter(final Converter<S, T> converter) {
+  public static <S, T> void addConverter(final Converter<S, T> converter) {
     DefaultConversionService.getSharedInstance().addConverter(converter);
   }
 
-  public <S, T> void addConverter(Class<T> targetType, Converter<? super S, ? extends T> converter) {
+  public static <S, T> void addConverter(Class<T> targetType, Converter<? super S, ? extends T> converter) {
     DefaultConversionService.getSharedInstance().addConverter(targetType, converter);
   }
 
-  public <S, T> void addConverter(
+  public static <S, T> void addConverter(
           Class<T> targetType, Class<S> sourceType, Converter<? super S, ? extends T> converter) {
     DefaultConversionService.getSharedInstance().addConverter(targetType, sourceType, converter);
   }
