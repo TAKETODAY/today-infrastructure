@@ -352,7 +352,7 @@ public class StandardBeanFactory
         if (isMissedBean(missingBean, beanClass, context)) {
           // MissingBean in 'META-INF/beans' @since 3.0
           final BeanDefinition def = createBeanDefinition(beanClass);
-          final String name = missingBean/*never be null*/.value();
+          final String name = missingBean.value();
           if (StringUtils.isNotEmpty(name)) {
             def.setName(name); // refresh bean name
           }
