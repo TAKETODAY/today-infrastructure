@@ -357,7 +357,8 @@ public class StandardBeanFactory
           registerMissingBean(missingBean, def);
         }
         else {
-          log.info("@MissingBean -> '{}' cannot pass the condition, dont register to the map", beanClass);
+          log.info("@MissingBean -> '{}' cannot pass the condition " +
+                           "or contains its bean definition, dont register to the map", beanClass);
         }
       }
       else {
