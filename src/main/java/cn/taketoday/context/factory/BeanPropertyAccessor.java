@@ -396,10 +396,17 @@ public class BeanPropertyAccessor {
         }
       }
       else {
-        final BeanProperty beanProperty = getBeanProperty(metadata, propertyPath, signIndex);
-        final Object subValue = getSubValue(root, beanProperty);
-        final String key = getKey(propertyPath, signIndex);
-        setKeyedProperty(root, beanProperty, subValue, key, value, propertyPath);
+        try {
+          final BeanProperty beanProperty = getBeanProperty(metadata, propertyPath, signIndex);
+          final Object subValue = getSubValue(root, beanProperty);
+          final String key = getKey(propertyPath, signIndex);
+          setKeyedProperty(root, beanProperty, subValue, key, value, propertyPath);
+        }
+        catch (NoSuchPropertyException e) {
+          if (!ignoreUnknownProperty) {
+            throw e;
+          }
+        }
       }
     }
   }
@@ -620,6 +627,9 @@ public class BeanPropertyAccessor {
     return conversionService;
   }
 
+  /**
+   * ignore unknown properties when {@code setProperty} ?
+   */
   public void setIgnoreUnknownProperty(boolean ignoreUnknownProperty) {
     this.ignoreUnknownProperty = ignoreUnknownProperty;
   }
