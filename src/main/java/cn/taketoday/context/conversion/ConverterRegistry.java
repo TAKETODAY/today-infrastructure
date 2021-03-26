@@ -38,6 +38,8 @@ public interface ConverterRegistry {
    */
   void addConverters(TypeConverter... converters);
 
+  void addConverter(TypeConverter converter);
+
   /**
    * Add a list of {@link TypeConverter}
    *

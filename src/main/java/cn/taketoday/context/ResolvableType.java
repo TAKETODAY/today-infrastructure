@@ -18,10 +18,11 @@ package cn.taketoday.context;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -35,6 +36,7 @@ import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.context.SerializableTypeWrapper.FieldTypeProvider;
+import cn.taketoday.context.SerializableTypeWrapper.ParameterTypeProvider;
 import cn.taketoday.context.SerializableTypeWrapper.TypeProvider;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.StringUtils;
@@ -46,8 +48,8 @@ import cn.taketoday.context.utils.StringUtils;
  * {@link #resolve() resolve} to a {@link Class}.
  *
  * <p>{@code ResolvableTypes} may be obtained from {@link #forField(Field) fields},
- * {@link #forMethodParameter(Method, int) method parameters},
- * {@link #forMethodReturnType(Method) method returns} or
+ * {@link #forParameter(Executable, int) executable parameters},
+ * {@link #forReturnType(Method) method returns} or
  * {@link #forClass(Class) classes}. Most methods on this class will themselves return
  * {@link ResolvableType ResolvableTypes}, allowing easy navigation. For example:
  * <pre class="code">
@@ -64,16 +66,15 @@ import cn.taketoday.context.utils.StringUtils;
  * }
  * </pre>
  * <p>
- *   From Spring
+ * From Spring
  * </p>
  *
  * @author Phillip Webb
  * @author Juergen Hoeller
  * @author Stephane Nicoll
  * @see #forField(Field)
- * @see #forMethodParameter(Method, int)
- * @see #forMethodReturnType(Method)
- * @see #forConstructorParameter(Constructor, int)
+ * @see #forParameter(Executable, int)
+ * @see #forReturnType(Method)
  * @see #forClass(Class)
  * @see #forType(Type)
  * @see #forInstance(Object)
@@ -167,7 +168,6 @@ public class ResolvableType implements Serializable {
   /**
    * Private constructor used to create a new {@link ResolvableType} on a {@link Class} basis.
    * Avoids all {@code instanceof} checks in order to create a straight {@link Class} wrapper.
-   *
    */
   private ResolvableType(Class<?> clazz) {
     this.resolved = (clazz != null ? clazz : Object.class);
@@ -202,7 +202,7 @@ public class ResolvableType implements Serializable {
 
   /**
    * Return the underlying source of the resolvable type. Will return a {@link Field},
-   * {@link MethodParameter} or {@link Type} depending on how the {@link ResolvableType}
+   * {@link Parameter} or {@link Type} depending on how the {@link ResolvableType}
    * was constructed. With the exception of the {@link #NONE} constant, this method will
    * never return {@code null}. This method is primarily to provide access to additional
    * type information or meta-data that alternative JVM languages may provide.
@@ -1016,6 +1016,164 @@ public class ResolvableType implements Serializable {
   // Factory methods
 
   /**
+   * Return a {@link ResolvableType} for the specified {@link Executable} parameter.
+   *
+   * @param executable
+   *         the source Executable (must not be {@code null})
+   * @param parameterIndex
+   *         the parameter index
+   *
+   * @return a {@link ResolvableType} for the specified method parameter
+   *
+   * @see #forParameter(Executable, int, Class)
+   * @see #forParameter(Parameter)
+   */
+  public static ResolvableType forParameter(final Executable executable, final int parameterIndex) {
+    return forParameter(executable, parameterIndex, null);
+  }
+
+  /**
+   * Return a {@link ResolvableType} for the specified {@link Method} return type.
+   *
+   * @param method
+   *         the source for the method return type
+   *
+   * @return a {@link ResolvableType} for the specified method return
+   *
+   * @see #forReturnType(Method, Class)
+   */
+  public static ResolvableType forReturnType(Method method) {
+    Assert.notNull(method, "Method must not be null");
+    final Type genericReturnType = method.getGenericReturnType();
+    return forType(genericReturnType);
+  }
+
+  /**
+   * Return a {@link ResolvableType} for the specified {@link Method} return type.
+   * Use this variant when the class that declares the method includes generic
+   * parameter variables that are satisfied by the implementation class.
+   *
+   * @param method
+   *         the source for the method return type
+   * @param implementationClass
+   *         the implementation class
+   *
+   * @return a {@link ResolvableType} for the specified method return
+   *
+   * @see #forReturnType(Method)
+   */
+  public static ResolvableType forReturnType(Method method, Class<?> implementationClass) {
+    Assert.notNull(method, "Method must not be null");
+    final Class<?> declaringClass = method.getDeclaringClass();
+    final ResolvableType owner = implementationClass == null
+                                 ? forType(declaringClass) : forType(implementationClass).as(declaringClass);
+    return forType(null, new TypeProvider() {
+
+      @Override
+      public Type getType() {
+        return method.getGenericReturnType();
+      }
+
+      @Override
+      public Object getSource() {
+        return method;
+      }
+    }, owner.asVariableResolver());
+  }
+
+  /**
+   * Return a {@link ResolvableType} for the specified {@link Method} parameter with a
+   * given implementation. Use this variant when the class that declares the method
+   * includes generic parameter variables that are satisfied by the implementation class.
+   *
+   * @param executable
+   *         the source method or constructor (must not be {@code null})
+   * @param parameterIndex
+   *         the parameter index
+   * @param implementationClass
+   *         the implementation class
+   *
+   * @return a {@link ResolvableType} for the specified method parameter
+   *
+   * @see #forParameter(Parameter)
+   */
+  public static ResolvableType forParameter(
+          final Executable executable, final int parameterIndex, Class<?> implementationClass) {
+    Assert.notNull(executable, "Executable must not be null");
+    final Parameter[] parameters = executable.getParameters();
+
+    if (parameterIndex < 0 || parameterIndex >= parameters.length) {
+      throw new IllegalArgumentException("parameter index is illegal");
+    }
+
+    final Parameter parameter = parameters[parameterIndex];
+    final ResolvableType implementationType = (implementationClass != null ? forType(implementationClass) : null);
+    return forParameter(parameter, implementationType);
+  }
+
+  /**
+   * Return a {@link ResolvableType} for the specified {@link Parameter}.
+   *
+   * @param parameter
+   *         the source method parameter (must not be {@code null})
+   *
+   * @return a {@link ResolvableType} for the specified method parameter
+   *
+   * @see #forParameter(Executable, int)
+   */
+  public static ResolvableType forParameter(Parameter parameter) {
+    return forParameter(parameter, (Type) null);
+  }
+
+  /**
+   * Return a {@link ResolvableType} for the specified {@link Parameter} with a
+   * given implementation type. Use this variant when the class that declares the method
+   * includes generic parameter variables that are satisfied by the implementation type.
+   *
+   * @param parameter
+   *         the source method parameter (must not be {@code null})
+   * @param implementationType
+   *         the implementation type
+   *
+   * @return a {@link ResolvableType} for the specified method parameter
+   *
+   * @see #forParameter(Parameter)
+   */
+  public static ResolvableType forParameter(Parameter parameter, ResolvableType implementationType) {
+    Assert.notNull(parameter, "Parameter must not be null");
+
+    final Executable executable = parameter.getDeclaringExecutable();
+    final Class<?> declaringClass = executable.getDeclaringClass();
+    final ResolvableType owner = (implementationType != null ? implementationType.as(declaringClass) : forType(declaringClass));
+    return forType(null, new ParameterTypeProvider(parameter), owner.asVariableResolver());
+  }
+
+  public static ResolvableType forParameter(Parameter parameter, Class<?> implementationType) {
+    return forParameter(parameter, forType(implementationType));
+  }
+
+  /**
+   * Return a {@link ResolvableType} for the specified {@link Parameter},
+   * overriding the target type to resolve with a specific given type.
+   *
+   * @param parameter
+   *         the source method parameter (must not be {@code null})
+   * @param targetType
+   *         the type to resolve (a part of the method parameter's type)
+   *
+   * @return a {@link ResolvableType} for the specified method parameter
+   *
+   * @see #forParameter(Executable, int)
+   */
+  public static ResolvableType forParameter(Parameter parameter, Type targetType) {
+    Assert.notNull(parameter, "Parameter must not be null");
+    final Executable executable = parameter.getDeclaringExecutable();
+    final Class<?> declaringClass = executable.getDeclaringClass();
+    ResolvableType owner = forType(declaringClass);
+    return forType(targetType, new ParameterTypeProvider(parameter), owner.asVariableResolver());
+  }
+
+  /**
    * Return a {@link ResolvableType} for the specified {@link Class},
    * using the full generic type information for assignability checks.
    * For example: {@code ResolvableType.forClass(MyArrayList.class)}.
@@ -1387,7 +1545,6 @@ public class ResolvableType implements Serializable {
 
   /**
    * Clear the internal {@code ResolvableType}/{@code SerializableTypeWrapper} cache.
-   *
    */
   public static void clearCache() {
     cache.clear();

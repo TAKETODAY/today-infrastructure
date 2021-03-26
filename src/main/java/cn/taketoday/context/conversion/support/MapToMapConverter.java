@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import cn.taketoday.context.GenericDescriptor;
-import cn.taketoday.context.ResolvableType;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.utils.CollectionUtils;
@@ -58,31 +57,25 @@ final class MapToMapConverter implements TypeConverter {
   @Override
   @SuppressWarnings("unchecked")
   public Object convert(final GenericDescriptor targetType, final Object source) {
-    Map<Object, Object> sourceMap = (Map<Object, Object>) source;
+    final Map<Object, Object> sourceMap = (Map<Object, Object>) source;
 
     // Shortcut if possible...
     boolean copyRequired = !targetType.isInstance(source);
     if (!copyRequired && sourceMap.isEmpty()) {
       return sourceMap;
     }
-    final ResolvableType resolvableType = targetType.getResolvableType();
-    final ResolvableType mapType = resolvableType.asMap();
 
-    final ResolvableType keyType = mapType.getGeneric(0);
-    final ResolvableType valueType = mapType.getGeneric(1);
-
-    Class<?> targetKeyType = keyType.resolve();
-    Class<?> targetValueType = valueType.resolve();
+    final GenericDescriptor targetKeyType = targetType.getMapKeyGenericDescriptor();
+    final GenericDescriptor targetValueType = targetType.getMapValueGenericDescriptor();
 
     final ConversionService conversionService = this.conversionService;
+    final ArrayList<MapEntry> targetEntries = new ArrayList<>(sourceMap.size());
+    for (final Map.Entry<Object, Object> entry : sourceMap.entrySet()) {
+      final Object sourceKey = entry.getKey();
+      final Object sourceValue = entry.getValue();
 
-    ArrayList<MapEntry> targetEntries = new ArrayList<>(sourceMap.size());
-    for (Map.Entry<Object, Object> entry : sourceMap.entrySet()) {
-      Object sourceKey = entry.getKey();
-      Object sourceValue = entry.getValue();
-
-      Object targetKey = convertKey(sourceKey, targetKeyType, conversionService);
-      Object targetValue = convertValue(sourceValue, targetValueType, conversionService);
+      final Object targetKey = convertKey(sourceKey, targetKeyType, conversionService);
+      final Object targetValue = convertValue(sourceValue, targetValueType, conversionService);
 
       targetEntries.add(new MapEntry(targetKey, targetValue));
       if (sourceKey != targetKey || sourceValue != targetValue) {
@@ -94,7 +87,8 @@ final class MapToMapConverter implements TypeConverter {
       return sourceMap;
     }
 
-    Map<Object, Object> targetMap = CollectionUtils.createMap(targetType.getType(), targetKeyType, sourceMap.size());
+    final Map<Object, Object> targetMap = CollectionUtils.createMap(
+            targetType.getType(), targetKeyType != null ? targetKeyType.getType() : null, sourceMap.size());
     for (MapEntry entry : targetEntries) {
       entry.addToMap(targetMap);
     }
@@ -103,14 +97,14 @@ final class MapToMapConverter implements TypeConverter {
 
   // internal helpers
 
-  private static Object convertKey(Object sourceKey, Class<?> targetType, ConversionService conversionService) {
+  private static Object convertKey(Object sourceKey, GenericDescriptor targetType, ConversionService conversionService) {
     if (targetType == null) {
       return sourceKey;
     }
     return conversionService.convert(sourceKey, targetType);
   }
 
-  private static Object convertValue(Object sourceValue, Class<?> targetType, ConversionService conversionService) {
+  private static Object convertValue(Object sourceValue, GenericDescriptor targetType, ConversionService conversionService) {
     if (targetType == null) {
       return sourceValue;
     }

@@ -27,7 +27,6 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,14 +37,13 @@ import cn.taketoday.context.factory.BeanProperty;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.context.utils.ObjectUtils;
 
 /**
  * @author TODAY 2021/3/22 20:37
  * @since 3.0
  */
-public class GenericDescriptor implements Type {
-  private static final Annotation[] EMPTY_ANNOTATION_ARRAY = new Annotation[0];
+public class GenericDescriptor implements Serializable {
+
   private static final Map<Class<?>, GenericDescriptor> commonTypesCache = new HashMap<>(32);
 
   private static final Class<?>[] CACHED_COMMON_TYPES = {
@@ -61,17 +59,50 @@ public class GenericDescriptor implements Type {
 
   private final Class<?> type;
   private final ResolvableType resolvableType;
-  private final AnnotatedElementAdapter annotatedElement;
+  private final AnnotatedElement annotatedElement;
 
-//  private final Type genericType;
-//  private final Type[] genericTypes;
+  /**
+   * Create a new type descriptor from a {@link Field}.
+   * <p>Use this constructor when a source or target conversion point is a field.
+   *
+   * @param field
+   *         the field
+   */
+  public GenericDescriptor(Field field) {
+    this.annotatedElement = field;
+    this.resolvableType = ResolvableType.forField(field);
+    this.type = this.resolvableType.resolve(field.getType());
+  }
 
-//  public GenericDescriptor(Class<?> type, Type genericType, Type[] genericTypes) {
-//    Assert.notNull(type, "type must not be null");
-//    this.type = type;
-//    this.genericType = genericType;
-//    this.genericTypes = genericTypes;
-//  }
+  public GenericDescriptor(BeanProperty property) {
+    this.type = property.getType();
+    this.annotatedElement = property;
+    this.resolvableType = ResolvableType.forField(property.getField());
+  }
+
+  /**
+   * Create a new type descriptor from a {@link ResolvableType}.
+   * <p>This constructor is used internally and may also be used by subclasses
+   * that support non-Java languages with extended type systems.
+   *
+   * @param resolvableType
+   *         the resolvable type
+   * @param type
+   *         the backing type (or {@code null} if it should get resolved)
+   * @param annotations
+   *         the type annotations
+   */
+  public GenericDescriptor(ResolvableType resolvableType, Class<?> type, Annotation[] annotations) {
+    this.resolvableType = resolvableType;
+    this.type = (type != null ? type : resolvableType.toClass());
+    this.annotatedElement = new AnnotatedElementAdapter(annotations);
+  }
+
+  public GenericDescriptor(ResolvableType resolvableType, Class<?> type, AnnotatedElement annotated) {
+    this.annotatedElement = annotated;
+    this.resolvableType = resolvableType;
+    this.type = (type != null ? type : resolvableType.toClass());
+  }
 
   public Class<?> getType() {
     return type;
@@ -109,136 +140,20 @@ public class GenericDescriptor implements Type {
     return type.isEnum();
   }
 
+  /**
+   * Return the name of this type: the fully qualified class name.
+   */
   public Object getName() {
-    return type.getName();
+    return ClassUtils.getQualifiedName(getType());
   }
 
   public String getSimpleName() {
     return type.getSimpleName();
   }
 
-
   public GenericDescriptor getGeneric(Class<?> genericIfc) {
     final ResolvableType generic = resolvableType.as(genericIfc).getGeneric(0);
     return getRelatedIfResolvable(this, generic);
-  }
-
-  // static factory methods
-
-//  public static GenericDescriptor map(Class<?> mapClass, Class<?> keyType, Class<?> valueType) {
-//    return new GenericDescriptor(mapClass, null, new Type[] { keyType, valueType });
-//  }
-//
-//  public static GenericDescriptor collection(Class<?> collectionClass, Class<?> elementType) {
-//    return new GenericDescriptor(collectionClass, null, new Type[] { elementType });
-//  }
-//
-//  public static GenericDescriptor ofProperty(final Field field) {
-//    final Class<?> type = field.getType();
-//    final Type genericType = field.getGenericType();
-//    final Type[] genericTypes = ClassUtils.getGenericTypes(genericType);
-//    return new GenericDescriptor(type, genericType, genericTypes);
-//  }
-//
-//  public static GenericDescriptor ofProperty(final BeanProperty beanProperty) {
-//    return ofProperty(beanProperty.getField());
-//  }
-//
-//  public static GenericDescriptor ofParameter(final Parameter parameter) {
-//    final Class<?> type = parameter.getType();
-//    final Type parameterizedType = parameter.getParameterizedType();
-//    final Type[] genericTypes = ClassUtils.getGenericTypes(parameterizedType);
-//    return new GenericDescriptor(type, parameterizedType, genericTypes);
-//  }
-//
-//  public static GenericDescriptor ofClass(Class<?> type) {
-//    final Type[] generics = ClassUtils.getGenerics(type);
-//    return new GenericDescriptor(type, type, generics);
-//  }
-//
-//  public static GenericDescriptor ofParameter(final Executable executable, int index) {
-//    Assert.notNull(executable, "Executable must not be null");
-//    final Class<?>[] parameterTypes = executable.getParameterTypes();
-//    if (index < 0 || index >= parameterTypes.length) {
-//      throw new IllegalArgumentException("parameter index is illegal");
-//    }
-//
-//    final Type genericType = executable.getGenericParameterTypes()[index];
-//    final Type[] genericTypes = ClassUtils.getGenericTypes(genericType);
-//    return new GenericDescriptor(parameterTypes[index], genericType, genericTypes);
-//  }
-//
-//  public static GenericDescriptor ofReturnType(final Method method) {
-//    Assert.notNull(method, "method must not be null");
-//    final Type genericType = method.getGenericReturnType();
-//    final Type[] genericTypes = ClassUtils.getGenericTypes(genericType);
-//    return new GenericDescriptor(method.getReturnType(), genericType, genericTypes);
-//  }
-//
-//  public static GenericDescriptor of(Class<?> type, Type genericType) {
-//    final Type[] genericTypes = ClassUtils.getGenericTypes(genericType);
-//    return new GenericDescriptor(type, genericType, genericTypes);
-//  }
-
-//  @Override
-//  public boolean equals(Object o) {
-//    if (this == o) return true;
-//    if (!(o instanceof GenericDescriptor)) return false;
-//    final GenericDescriptor that = (GenericDescriptor) o;
-//    return type == that.type
-//            && Arrays.equals(genericTypes, that.genericTypes);
-//  }
-//
-//  @Override
-//  public int hashCode() {
-//    return Objects.hash(type, genericTypes);
-//  }
-//
-//  @Override
-//  public String toString() {
-//    if (isArray()) {
-//      return getComponentType() + "[]";
-//    }
-//    final String typeName = this.type.getName();
-//    if (genericTypes != null) {
-//      StringJoiner stringJoiner = new StringJoiner(", ", "<", ">");
-//      for (Type argument : genericTypes) {
-//        stringJoiner.add(argument.getTypeName());
-//      }
-//      return typeName + stringJoiner;
-//    }
-//    return typeName;
-//  }
-
-  /**
-   * Create a new type descriptor from a {@link Field}.
-   * <p>Use this constructor when a source or target conversion point is a field.
-   *
-   * @param field
-   *         the field
-   */
-  public GenericDescriptor(Field field) {
-    this.resolvableType = ResolvableType.forField(field);
-    this.type = this.resolvableType.resolve(field.getType());
-    this.annotatedElement = new AnnotatedElementAdapter(field.getAnnotations());
-  }
-
-  /**
-   * Create a new type descriptor from a {@link ResolvableType}.
-   * <p>This constructor is used internally and may also be used by subclasses
-   * that support non-Java languages with extended type systems.
-   *
-   * @param resolvableType
-   *         the resolvable type
-   * @param type
-   *         the backing type (or {@code null} if it should get resolved)
-   * @param annotations
-   *         the type annotations
-   */
-  public GenericDescriptor(ResolvableType resolvableType, Class<?> type, Annotation[] annotations) {
-    this.resolvableType = resolvableType;
-    this.type = (type != null ? type : resolvableType.toClass());
-    this.annotatedElement = new AnnotatedElementAdapter(annotations);
   }
 
   /**
@@ -333,17 +248,12 @@ public class GenericDescriptor implements Type {
    * @return <tt>true</tt> if the annotation is present
    */
   public boolean hasAnnotation(Class<? extends Annotation> annotationType) {
-    if (this.annotatedElement.isEmpty()) {
-      // Shortcut: AnnotatedElementUtils would have to expect AnnotatedElement.getAnnotations()
-      // to return a copy of the array, whereas we can do it more efficiently here.
-      return false;
-    }
     return ClassUtils.isAnnotationPresent(this.annotatedElement, annotationType);
   }
 
   /**
    * Obtain the annotation of the specified {@code annotationType} that is on this type descriptor.
-   * <p>As of Spring Framework 4.2, this method supports arbitrary levels of meta-annotations.
+   * <p>this method supports arbitrary levels of meta-annotations.
    *
    * @param annotationType
    *         the annotation type
@@ -351,11 +261,6 @@ public class GenericDescriptor implements Type {
    * @return the annotation, or {@code null} if no such annotation exists on this type descriptor
    */
   public <T extends Annotation> T getAnnotation(Class<T> annotationType) {
-    if (this.annotatedElement.isEmpty()) {
-      // Shortcut: AnnotatedElementUtils would have to expect AnnotatedElement.getAnnotations()
-      // to return a copy of the array, whereas we can do it more efficiently here.
-      return null;
-    }
     return ClassUtils.getAnnotation(annotationType, this.annotatedElement);
   }
 
@@ -614,6 +519,8 @@ public class GenericDescriptor implements Type {
     return builder.toString();
   }
 
+  // static factory methods
+
   /**
    * Create a new type descriptor for an object.
    * <p>Use this factory method to introspect a source object before asking the
@@ -648,7 +555,7 @@ public class GenericDescriptor implements Type {
       type = Object.class;
     }
     GenericDescriptor desc = commonTypesCache.get(type);
-    return (desc != null ? desc : new GenericDescriptor(ResolvableType.forClass(type), null, null));
+    return (desc != null ? desc : new GenericDescriptor(ResolvableType.forClass(type), null, (Annotation[]) null));
   }
 
   public static GenericDescriptor collection(Class<?> collectionType, Class<?> element) {
@@ -677,7 +584,7 @@ public class GenericDescriptor implements Type {
       throw new IllegalArgumentException("Collection type must be a [java.util.Collection]");
     }
     ResolvableType element = (elementDescriptor != null ? elementDescriptor.resolvableType : null);
-    return new GenericDescriptor(ResolvableType.forClassWithGenerics(collectionType, element), null, null);
+    return new GenericDescriptor(ResolvableType.forClassWithGenerics(collectionType, element), null, (Annotation[]) null);
   }
 
   public static GenericDescriptor map(Class<?> mapType, Class<?> key, Class<?> value) {
@@ -711,7 +618,7 @@ public class GenericDescriptor implements Type {
     }
     ResolvableType key = (keyDescriptor != null ? keyDescriptor.resolvableType : null);
     ResolvableType value = (valueDescriptor != null ? valueDescriptor.resolvableType : null);
-    return new GenericDescriptor(ResolvableType.forClassWithGenerics(mapType, key, value), null, null);
+    return new GenericDescriptor(ResolvableType.forClassWithGenerics(mapType, key, value), null, (Annotation[]) null);
   }
 
   /**
@@ -766,7 +673,7 @@ public class GenericDescriptor implements Type {
     return nested(new GenericDescriptor(field), nestingLevel);
   }
 
-  private static GenericDescriptor nested(GenericDescriptor genericDescriptor, int nestingLevel) {
+  public static GenericDescriptor nested(GenericDescriptor genericDescriptor, int nestingLevel) {
     ResolvableType nested = genericDescriptor.resolvableType;
     for (int i = 0; i < nestingLevel; i++) {
       if (Object.class == nested.getType()) {
@@ -794,22 +701,19 @@ public class GenericDescriptor implements Type {
     return new GenericDescriptor(beanProperty);
   }
 
+  /**
+   * @param beanProperty
+   */
   public static GenericDescriptor ofProperty(BeanProperty beanProperty) {
-    return new GenericDescriptor(beanProperty.getField());
+    return new GenericDescriptor(beanProperty);
   }
 
   public static GenericDescriptor ofParameter(final Executable executable, int index) {
-    Assert.notNull(executable, "Executable must not be null");
+    final ResolvableType resolvableType = ResolvableType.forParameter(executable, index);
     final Parameter[] parameters = executable.getParameters();
-
-    if (index < 0 || index >= parameters.length) {
-      throw new IllegalArgumentException("parameter index is illegal");
-    }
-
     final Parameter parameter = parameters[index];
     final Class<?> type = parameter.getType();
-    final Type parameterizedType = parameter.getParameterizedType();
-    return new GenericDescriptor(ResolvableType.forType(parameterizedType), type, parameter.getAnnotations());
+    return new GenericDescriptor(resolvableType, type, parameter.getAnnotations());
   }
 
   /**
@@ -819,57 +723,10 @@ public class GenericDescriptor implements Type {
    * @see ClassUtils#isAnnotationPresent(AnnotatedElement, Class)
    * @see ClassUtils#getAnnotation(AnnotatedElement, Class)
    */
-  class AnnotatedElementAdapter implements AnnotatedElement, Serializable {
-    private final Annotation[] annotations;
+  class AnnotatedElementAdapter extends cn.taketoday.context.utils.AnnotatedElementAdapter {
 
     public AnnotatedElementAdapter(Annotation[] annotations) {
-      this.annotations = annotations;
-    }
-
-    @Override
-    public boolean isAnnotationPresent(Class<? extends Annotation> annotationClass) {
-      for (Annotation annotation : getAnnotations()) {
-        if (annotation.annotationType() == annotationClass) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-      for (Annotation annotation : getAnnotations()) {
-        if (annotation.annotationType() == annotationClass) {
-          return (T) annotation;
-        }
-      }
-      return null;
-    }
-
-    @Override
-    public Annotation[] getAnnotations() {
-      return (this.annotations != null ? this.annotations.clone() : EMPTY_ANNOTATION_ARRAY);
-    }
-
-    @Override
-    public Annotation[] getDeclaredAnnotations() {
-      return getAnnotations();
-    }
-
-    public boolean isEmpty() {
-      return ObjectUtils.isEmpty(this.annotations);
-    }
-
-    @Override
-    public boolean equals(Object other) {
-      return (this == other || (other instanceof AnnotatedElementAdapter &&
-              Arrays.equals(this.annotations, ((AnnotatedElementAdapter) other).annotations)));
-    }
-
-    @Override
-    public int hashCode() {
-      return Arrays.hashCode(this.annotations);
+      super(annotations);
     }
 
     @Override

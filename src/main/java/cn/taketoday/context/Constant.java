@@ -21,6 +21,7 @@ package cn.taketoday.context;
 
 import java.io.File;
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
@@ -60,6 +61,8 @@ public interface Constant extends Opcodes, Serializable {
   Class<?>[] EMPTY_CLASS_ARRAY = {};
   Resource[] EMPTY_RESOURCE_ARRAY = {};
   PropertySetter[] EMPTY_PROPERTY_VALUE = {};
+  Annotation[] EMPTY_ANNOTATION_ARRAY = new Annotation[0];
+
 
   AnnotationAttributes[] EMPTY_ANNOTATION_ATTRIBUTES = {};
 

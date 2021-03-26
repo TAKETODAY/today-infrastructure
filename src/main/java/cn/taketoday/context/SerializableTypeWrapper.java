@@ -19,11 +19,14 @@ package cn.taketoday.context;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
@@ -33,6 +36,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
 
@@ -232,6 +236,59 @@ final class SerializableTypeWrapper {
       inputStream.defaultReadObject();
       try {
         this.field = this.declaringClass.getDeclaredField(this.fieldName);
+      }
+      catch (Throwable ex) {
+        throw new IllegalStateException("Could not find original class structure", ex);
+      }
+    }
+  }
+
+  /**
+   * {@link TypeProvider} for {@link Type Types} obtained from a {@link Parameter}.
+   */
+  @SuppressWarnings("serial")
+  static class ParameterTypeProvider implements TypeProvider {
+
+    private final String methodName;
+    private final Class<?>[] parameterTypes;
+    private final Class<?> declaringClass;
+    private final int parameterIndex;
+    private transient Parameter methodParameter;
+
+    public ParameterTypeProvider(Parameter parameter) {
+      this(parameter, ClassUtils.getParameterIndex(parameter));
+    }
+
+    public ParameterTypeProvider(Parameter parameter, int parameterIndex) {
+      final Executable executable = parameter.getDeclaringExecutable();
+      this.methodParameter = parameter;
+      this.parameterIndex = parameterIndex;
+      this.methodName = executable.getName();
+      this.parameterTypes = executable.getParameterTypes();
+      this.declaringClass = executable.getDeclaringClass();
+    }
+
+    @Override
+    public Type getType() {
+      return this.methodParameter.getParameterizedType();
+    }
+
+    @Override
+    public Object getSource() {
+      return this.methodParameter;
+    }
+
+    private void readObject(ObjectInputStream inputStream) throws IOException, ClassNotFoundException {
+      inputStream.defaultReadObject();
+      try {
+        if (this.methodName != null) {
+          final Method declaredMethod = this.declaringClass.getDeclaredMethod(this.methodName, this.parameterTypes);
+          this.methodParameter = declaredMethod.getParameters()[parameterIndex];
+        }
+        else {
+          final Constructor<?> constructor = this.declaringClass.getDeclaredConstructor(this.parameterTypes);
+          this.methodParameter = constructor.getParameters()[parameterIndex];
+        }
       }
       catch (Throwable ex) {
         throw new IllegalStateException("Could not find original class structure", ex);

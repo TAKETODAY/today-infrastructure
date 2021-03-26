@@ -40,7 +40,7 @@ import cn.taketoday.context.utils.CollectionUtils;
  * @author TODAY
  * @since 3.o
  */
-class StreamConverter implements TypeConverter {
+final class StreamConverter implements TypeConverter {
   private final ConversionService conversionService;
 
   public StreamConverter(ConversionService conversionService) {
@@ -54,7 +54,7 @@ class StreamConverter implements TypeConverter {
     // Collection.class, Stream.class
     // Object[].class, Stream.class
 
-    if (sourceType == Stream.class) {
+    if (Stream.class.isAssignableFrom(sourceType)) {
       return targetType.isCollection() || targetType.isArray();
     }
     if (targetType.is(Stream.class)) {
@@ -74,7 +74,9 @@ class StreamConverter implements TypeConverter {
       if (source instanceof Collection) {
         return ((Collection<?>) source).stream();
       }
-      return Arrays.stream((Object[]) source);
+      else if (source instanceof Object[]) {
+        return Arrays.stream((Object[]) source);
+      }
     }
     else {
       if (source instanceof Collection) {
@@ -87,7 +89,7 @@ class StreamConverter implements TypeConverter {
         }
         return target.stream();
       }
-      else {
+      else if (source instanceof Object[]) {
         // array
         final Object[] sourceArray = (Object[]) source;
         final ArrayList target = new ArrayList<>(sourceArray.length);
@@ -98,6 +100,8 @@ class StreamConverter implements TypeConverter {
         return target.stream();
       }
     }
+    // Should not happen
+    throw new IllegalStateException("Unexpected source/target types");
   }
 
   protected Object convertFromStream(Stream<?> source, GenericDescriptor targetType) {
@@ -114,15 +118,22 @@ class StreamConverter implements TypeConverter {
       }
     }
 
-    if (targetType.isCollection()) {
-      final GenericDescriptor elementType = targetType.getGeneric(Collection.class);
-      return source.map(new MapFunction(elementType))
-              .collect(Collectors.toCollection(() -> CollectionUtils.createCollection(
-                      targetType.getType(),  elementType != null ? elementType.getType() : null, 16)));
-    }
     final GenericDescriptor elementType = targetType.getElementDescriptor();
-    return source.map(new MapFunction(elementType))
-            .toArray(count -> (Object[]) Array.newInstance(elementType.getType(), count));
+    if (elementType != null) {
+      if (targetType.isCollection()) {
+        return source.map(new MapFunction(elementType))
+                .collect(Collectors.toCollection(() -> CollectionUtils.createCollection(
+                        targetType.getType(), elementType.getType(), 16)));
+      }
+      return source.map(new MapFunction(elementType))
+              .toArray(count -> (Object[]) Array.newInstance(elementType.getType(), count));
+    }
+
+    if (targetType.isCollection()) {
+      return source.collect(Collectors.toCollection(() -> CollectionUtils.createCollection(
+                      targetType.getType(), null, 16)));
+    }
+    return source.toArray(count -> (Object[]) Array.newInstance(elementType.getType(), count));
   }
 
 }

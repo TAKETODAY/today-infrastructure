@@ -210,6 +210,14 @@ public class DefaultConversionService implements ConfigurableConversionService {
     }
   }
 
+  @Override
+  public void addConverter(TypeConverter converter) {
+    this.converters.add(converter);
+
+    reversedSort(this.converters);
+    invalidateCache();
+  }
+
   /**
    * Add a list of {@link TypeConverter} to {@link #converters}
    *

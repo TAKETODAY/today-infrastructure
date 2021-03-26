@@ -20,14 +20,19 @@
 
 package cn.taketoday.context.factory;
 
-import java.lang.reflect.AnnotatedElement;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-import cn.taketoday.context.AnnotationSupport;
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.support.DefaultConversionService;
 import cn.taketoday.context.exception.BeanInstantiationException;
@@ -35,8 +40,10 @@ import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.reflect.ConstructorAccessor;
 import cn.taketoday.context.reflect.NullConstructor;
 import cn.taketoday.context.reflect.PropertyAccessor;
+import cn.taketoday.context.utils.AbstractAnnotatedElement;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.Mappings;
 import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
@@ -44,7 +51,9 @@ import cn.taketoday.context.utils.ReflectionUtils;
  * 2021/1/27 22:28
  * @since 3.0
  */
-public class BeanProperty implements AnnotationSupport {
+public class BeanProperty extends AbstractAnnotatedElement {
+
+  private static final Mappings<Annotation[], BeanProperty> annotationsCache = new Mappings<>();
 
   private final Field field;
   private final Class<?> fieldType;
@@ -55,9 +64,12 @@ public class BeanProperty implements AnnotationSupport {
 
   private Type componentType;
   private boolean componentResolved;
+  /** if this property is array or */
   private ConstructorAccessor componentConstructor;
 
   private ConversionService conversionService = DefaultConversionService.getSharedInstance();
+
+  private Annotation[] annotations;
 
   public BeanProperty(Field field) {
     Assert.notNull(field, "field must not be null");
@@ -135,10 +147,20 @@ public class BeanProperty implements AnnotationSupport {
     return propertyAccessor;
   }
 
+  /**
+   * create a component object without arguments
+   *
+   * @return component object
+   */
   public Object newComponentInstance() {
     return newComponentInstance(null);
   }
 
+  /**
+   * create a component object
+   *
+   * @return component object
+   */
   public Object newComponentInstance(Object[] args) {
     if (componentConstructor == null) {
       final Class<?> componentClass = getComponentClass();
@@ -167,7 +189,7 @@ public class BeanProperty implements AnnotationSupport {
   }
 
   /**
-   * Get componentType
+   * Get component {@link Type} may contains generic info
    *
    * @return {@link Type}
    */
@@ -189,13 +211,22 @@ public class BeanProperty implements AnnotationSupport {
   }
 
   /**
-   * Get componentClass
+   * Get component {@link Class}
    *
    * @return {@link Class}
    */
   public Class<?> getComponentClass() {
     final Type componentType = getComponentType();
-    return componentType instanceof Class ? (Class<?>) componentType : null;
+    if (componentType instanceof Class) {
+      return (Class<?>) componentType;
+    }
+    else if (componentType instanceof ParameterizedType) {
+      final Type rawType = ((ParameterizedType) componentType).getRawType();
+      if (rawType instanceof Class) {
+        return (Class<?>) rawType;
+      }
+    }
+    return null;
   }
 
   public ConstructorAccessor getConstructor() {
@@ -253,11 +284,50 @@ public class BeanProperty implements AnnotationSupport {
     return field.getName();
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof BeanProperty)) return false;
+    if (!super.equals(o)) return false;
+    final BeanProperty that = (BeanProperty) o;
+    return Objects.equals(field, that.field);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), field);
+  }
+
+  @Override
+  public String toString() {
+    return getType().getSimpleName() + " " + getName();
+  }
+
   // AnnotatedElement
 
   @Override
-  public AnnotatedElement getAnnotationSource() {
-    return field;
+  public Annotation[] getAnnotations() {
+    if (annotations == null) {
+      annotations = resolveAnnotations();
+    }
+    return annotations;
+  }
+
+  private Annotation[] resolveAnnotations() {
+    return annotationsCache.get(this, k -> {
+      final LinkedList<Annotation> annotations = new LinkedList<>();
+      final Method readMethod = obtainAccessor().getReadMethod();
+      final Method writeMethod = obtainAccessor().getWriteMethod();
+
+      if (writeMethod != null) {
+        Collections.addAll(annotations, writeMethod.getAnnotations());
+      }
+      if (readMethod != null) {
+        Collections.addAll(annotations, readMethod.getAnnotations());
+      }
+      Collections.addAll(annotations, field.getAnnotations());
+      return annotations.toArray(Constant.EMPTY_ANNOTATION_ARRAY);
+    });
   }
 
   // static
