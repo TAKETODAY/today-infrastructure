@@ -39,7 +39,7 @@ public class ParameterResolverMethodParameter extends MethodParameter {
   }
 
   public ParameterResolverMethodParameter(
-          int index, Parameter parameter, String parameterName,ParameterResolvers resolvers) {
+          int index, Parameter parameter, String parameterName, ParameterResolvers resolvers) {
     super(index, parameter, parameterName);
 
     this.resolver = resolvers.getResolver(this);

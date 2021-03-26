@@ -26,6 +26,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Objects;
 
+import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.reflect.MethodInvoker;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
@@ -41,8 +42,11 @@ import cn.taketoday.web.view.ResultHandler;
 import cn.taketoday.web.view.ResultHandlers;
 
 /**
+ * Annotation handler
+ *
  * @author TODAY <br>
  * 2018-06-25 20:03:11
+ * @see cn.taketoday.web.registry.HandlerMethodRegistry#isController(BeanDefinition)
  */
 public class HandlerMethod
         extends InterceptableRequestHandler implements HandlerAdapter, ResultHandler {
@@ -316,24 +320,39 @@ public class HandlerMethod
   // Object
 
   @Override
-  public int hashCode() {
-    return method.hashCode();
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof HandlerMethod)) return false;
+    final HandlerMethod that = (HandlerMethod) o;
+    return Objects.equals(bean, that.bean) && Objects.equals(method, that.method) && Objects
+            .equals(resultHandler, that.resultHandler) && Objects.equals(responseStatus, that.responseStatus);
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj instanceof HandlerMethod) {
-      return Objects.equals(method, ((HandlerMethod) obj).method);
-    }
-    return false;
+  public int hashCode() {
+    return Objects.hash(bean, method, resultHandler, responseStatus);
   }
 
   @Override
   public String toString() {
-    return method == null ? super.toString() : method.toString();
+    if (method == null) {
+      return super.toString();
+    }
+    final Class<?> declaringClass = method.getDeclaringClass();
+    final String simpleName = declaringClass.getSimpleName();
+
+    final StringBuilder builder = new StringBuilder();
+    builder.append(simpleName)
+            .append('#')
+            .append(method.getName())
+            .append('(');
+
+    if (ObjectUtils.isNotEmpty(parameters)) {
+      builder.append(StringUtils.arrayToString(parameters, ", "));
+    }
+
+    builder.append(')');
+    return builder.toString();
   }
 
 }

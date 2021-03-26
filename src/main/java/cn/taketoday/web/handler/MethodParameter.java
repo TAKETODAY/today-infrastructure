@@ -170,7 +170,7 @@ public class MethodParameter
 
   @Override
   public String toString() {
-    return parameter.toString();
+    return parameter.getType().getSimpleName() + " " + getName();
   }
 
   @Override

@@ -23,6 +23,8 @@ package cn.taketoday.web.resolver;
 import junit.framework.TestCase;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,9 +33,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import cn.taketoday.context.cglib.beans.BeanMap;
+import cn.taketoday.web.MockMultipartFile;
 import cn.taketoday.web.MockRequestContext;
 import cn.taketoday.web.exception.WebNestedRuntimeException;
 import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.multipart.MultipartFile;
 import lombok.Data;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,9 +80,12 @@ public class BeanParameterResolverTests extends TestCase {
 
   void test(UserForm user) { }
 
+  void test(MultipartFileUserForm user) { }
+
   void test(List<UserForm> userList, UserForm[] userArray, Set<UserForm> userSet) { }
 
   static final MethodParameter testUser;
+  static final MethodParameter testMultipartFileUserForm;
 
   static final MethodParameter testUserSet;
   static final MethodParameter testListUsers;
@@ -87,10 +94,12 @@ public class BeanParameterResolverTests extends TestCase {
   static {
     try {
       final Method test = BeanParameterResolverTests.class.getDeclaredMethod("test", UserForm.class);
+      final Method multipartFileUserForm = BeanParameterResolverTests.class.getDeclaredMethod("test", MultipartFileUserForm.class);
       final Method testList = BeanParameterResolverTests.class
               .getDeclaredMethod("test", List.class, UserForm[].class, Set.class);
 
       testUser = new MethodParameter(0, test.getParameters()[0], "user");
+      testMultipartFileUserForm = new MethodParameter(0, multipartFileUserForm.getParameters()[0], "user");
 
       testListUsers = new MethodParameter(0, testList.getParameters()[0], "userList");
       testUserArray = new MethodParameter(2, testList.getParameters()[1], "userArray");
@@ -104,6 +113,7 @@ public class BeanParameterResolverTests extends TestCase {
 
   static class ParameterMockRequestContext extends MockRequestContext {
     final Map<String, String[]> parameters;
+    Map<String, List<MultipartFile>> multipartFiles;
 
     ParameterMockRequestContext() {
       this.parameters = new HashMap<>();
@@ -116,6 +126,15 @@ public class BeanParameterResolverTests extends TestCase {
     @Override
     public Map<String, String[]> parameters() {
       return parameters;
+    }
+
+    @Override
+    public Map<String, List<MultipartFile>> multipartFiles() {
+      return multipartFiles;
+    }
+
+    public void setMultipartFiles(Map<String, List<MultipartFile>> multipartFiles) {
+      this.multipartFiles = multipartFiles;
     }
   }
 
@@ -177,6 +196,7 @@ public class BeanParameterResolverTests extends TestCase {
   public void testResolveParameter() {
     final UserForm today = new UserForm().setAge(20).setName("TODAY");
     final DataBinderParameterResolver resolver = new DataBinderParameterResolver();
+
     final ParameterMockRequestContext context = new ParameterMockRequestContext(params);
 
     // new version
@@ -193,4 +213,79 @@ public class BeanParameterResolverTests extends TestCase {
 
     System.out.println(newVersion);
   }
+
+  // Bind MultipartFile
+
+  @Data
+  public static class MultipartFileUserForm {
+    int age;
+
+    String name;
+
+    String[] arr;
+
+    List<String> stringList;
+
+    Map<String, Integer> map;
+
+    UserForm nested;
+    List<UserForm> nestedList;
+    Map<String, UserForm> nestedMap;
+
+    MultipartFile uploadFile;
+    List<MultipartFile> uploadFiles;
+//    MultipartFile[] uploadFiles;
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (!(o instanceof UserForm)) return false;
+      final UserForm userForm = (UserForm) o;
+      return age == userForm.age && Objects.equals(name, userForm.name);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(age, name);
+    }
+
+  }
+
+  static class NamedMockMultipartFile extends MockMultipartFile {
+    final String name;
+
+    NamedMockMultipartFile(String name) {
+      this.name = name;
+    }
+
+    @Override
+    public String getName() {
+      return name;
+    }
+  }
+
+  public void testBindMultipartFile() {
+
+    final MultipartFileUserForm today = new MultipartFileUserForm().setAge(20).setName("TODAY");
+    final DataBinderParameterResolver resolver = new DataBinderParameterResolver();
+    final ParameterMockRequestContext context = new ParameterMockRequestContext(params);
+
+    Map<String, List<MultipartFile>> map = new HashMap<>();
+
+    final List<MultipartFile> uploadFile = Collections.singletonList(new NamedMockMultipartFile("uploadFile"));
+    final List<MultipartFile> files = Arrays.asList(new NamedMockMultipartFile("uploadFiles"),
+                                                    new NamedMockMultipartFile("uploadFiles"));
+
+    map.put("uploadFile", uploadFile);
+    map.put("uploadFiles", files);
+    context.setMultipartFiles(map);
+
+    // new version
+    final Object newVersion = resolver.resolveParameter(context, testMultipartFileUserForm);
+    assertThat(newVersion).isInstanceOf(MultipartFileUserForm.class);
+
+    System.out.println(newVersion);
+
+  }
+
 }
