@@ -24,7 +24,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.GenericTypeResolver;
+import cn.taketoday.context.utils.ResolvableType;
 
 /**
  * The purpose of this class is to enable capturing and passing a generic
@@ -42,9 +42,7 @@ import cn.taketoday.context.utils.GenericTypeResolver;
  * @since 3.0
  */
 public abstract class TypeReference<T> {
-
   private final Type type;
-  private Class<T> typeArgument;
 
   protected TypeReference() {
     Class<?> parameterizedTypeReferenceSubclass = findParameterizedTypeReferenceSubclass(getClass());
@@ -60,18 +58,12 @@ public abstract class TypeReference<T> {
     this.type = type;
   }
 
-  public final Class<T> getTypeParameter() {
-    if (typeArgument == null) {
-      typeArgument = getTypeParameter(getClass());
-    }
-    return typeArgument;
+  public final ResolvableType getResolvableType() {
+    return ResolvableType.forType(getType());
   }
 
-  Class<T> getTypeParameter(Class<?> clazz) {
-    return GenericTypeResolver.resolveTypeArgument(clazz, TypeReference.class);
-  }
 
-  public Type getType() {
+  public final Type getType() {
     return this.type;
   }
 

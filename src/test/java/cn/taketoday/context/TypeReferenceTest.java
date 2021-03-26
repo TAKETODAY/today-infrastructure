@@ -26,6 +26,7 @@ import org.junit.Test;
 import java.lang.reflect.Type;
 
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ResolvableType;
 
 /**
  * @author TODAY
@@ -36,19 +37,19 @@ public class TypeReferenceTest {
   @Test
   public void testTypeReference() {
     TypeReference<Integer> reference = new TypeReference<Integer>() { };
-
     final Type[] generics = ClassUtils.getGenerics(reference.getClass(), TypeReference.class);
+
+    Assertions.assertThat(generics[0])
+            .isEqualTo(Integer.class);
 
     Assertions.assertThat(generics)
             .hasSize(1);
-    Assertions.assertThat(generics[0])
-            .isEqualTo(Integer.class)
-            .isEqualTo(new IntegerTypeReference().getTypeParameter())
-            .isEqualTo(new IntegerTypeReference1().getTypeParameter())
-            .isEqualTo(new IntegerTypeReference2().getTypeParameter())
-            .isEqualTo(new IntegerTypeReference().getTypeParameter(reference.getClass()))
-            .isEqualTo(new IntegerTypeReference1().getTypeParameter(reference.getClass()))
-            .isEqualTo(new IntegerTypeReference2().getTypeParameter(reference.getClass()));
+
+    Assertions.assertThat(ResolvableType.forClass(Integer.class))
+            .isEqualTo(new IntegerTypeReference().getResolvableType())
+            .isEqualTo(new IntegerTypeReference1().getResolvableType())
+            .isEqualTo(new IntegerTypeReference2().getResolvableType())
+    ;
   }
 
   static class IntegerTypeReference extends TypeReference<Integer> {
