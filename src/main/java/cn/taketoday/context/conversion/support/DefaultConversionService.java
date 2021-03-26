@@ -31,7 +31,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.conversion.BigDecimalConverter;
 import cn.taketoday.context.conversion.ByteConverter;
@@ -58,6 +57,7 @@ import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.utils.Assert;
+import cn.taketoday.context.utils.GenericDescriptor;
 import cn.taketoday.context.utils.GenericTypeResolver;
 import cn.taketoday.context.utils.Mappings;
 import cn.taketoday.context.utils.ObjectUtils;
@@ -170,12 +170,14 @@ public class DefaultConversionService implements ConfigurableConversionService {
   }
 
   static final class ConverterKey {
+    private final int hash;
     final Class<?> sourceType;
     final GenericDescriptor targetType;
 
     ConverterKey(GenericDescriptor targetType, Class<?> sourceType) {
       this.targetType = targetType;
       this.sourceType = sourceType;
+      this.hash = this.sourceType.hashCode() * 31 + this.targetType.hashCode();
     }
 
     @Override
@@ -189,7 +191,7 @@ public class DefaultConversionService implements ConfigurableConversionService {
 
     @Override
     public int hashCode() {
-      return this.sourceType.hashCode() * 31 + this.targetType.hashCode();
+      return hash;
     }
   }
 

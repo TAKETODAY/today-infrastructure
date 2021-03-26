@@ -27,8 +27,7 @@ import cn.taketoday.context.Ordered;
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.ObjectSupplier;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.ResolvableType;
 
 /**
  * for {@link ObjectSupplier} ExecutableParameterResolver
@@ -47,16 +46,17 @@ public class ObjectSupplierParameterResolver
   }
 
   @Override
-  public boolean supports(Parameter parameter) {
+  public boolean supports(final Parameter parameter) {
     final Class<?> type = parameter.getType();
     return type == ObjectSupplier.class || type == Supplier.class;
   }
 
   @Override
-  public ObjectSupplier<?> resolve(Parameter parameter, BeanFactory beanFactory) {
-    final Class<?>[] generics = ClassUtils.getGenerics(parameter);
-    if (ObjectUtils.isNotEmpty(generics)) {
-      return beanFactory.getBeanSupplier(generics[0]);
+  public ObjectSupplier<?> resolve(final Parameter parameter, final BeanFactory beanFactory) {
+    final ResolvableType parameterType = ResolvableType.forParameter(parameter);
+    if (parameterType.hasGenerics()) {
+      final ResolvableType generic = parameterType.as(Supplier.class).getGeneric(0);
+      return beanFactory.getBeanSupplier(generic.toClass());
     }
     throw new UnsupportedOperationException("Unsupported '" + parameter + "' In -> " + parameter.getDeclaringExecutable());
   }

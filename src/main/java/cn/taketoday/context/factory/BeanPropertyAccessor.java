@@ -27,12 +27,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.conversion.support.DefaultConversionService;
 import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.utils.Assert;
+import cn.taketoday.context.utils.GenericDescriptor;
 
 /**
  * @author TODAY 2021/1/27 22:35

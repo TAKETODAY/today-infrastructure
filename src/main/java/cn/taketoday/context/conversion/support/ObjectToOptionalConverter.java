@@ -23,9 +23,9 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Optional;
 
-import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.TypeConverter;
+import cn.taketoday.context.utils.GenericDescriptor;
 
 /**
  * Convert an Object to {@code java.util.Optional<T>} if necessary using the

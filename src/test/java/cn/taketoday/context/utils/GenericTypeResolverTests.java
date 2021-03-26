@@ -22,13 +22,10 @@ package cn.taketoday.context.utils;
 
 import org.junit.Test;
 
-import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 import static cn.taketoday.context.utils.GenericTypeResolver.resolveReturnTypeArgument;
-import static cn.taketoday.context.utils.GenericTypeResolver.resolveReturnTypeForGenericMethod;
 import static cn.taketoday.context.utils.GenericTypeResolver.resolveTypeArgument;
 import static cn.taketoday.context.utils.ReflectionUtils.findMethod;
 import static org.junit.Assert.assertEquals;
@@ -75,64 +72,6 @@ public class GenericTypeResolverTests {
     assertEquals(null, resolveReturnTypeArgument(findMethod(MyTypeWithMethods.class, "raw"), MyInterfaceType.class));
     assertEquals(null,
                  resolveReturnTypeArgument(findMethod(MyTypeWithMethods.class, "object"), MyInterfaceType.class));
-  }
-
-  /**
-   * @since 3.2
-   */
-  @Test
-  public void genericMethodReturnTypes() {
-    Method notParameterized = findMethod(MyTypeWithMethods.class, "notParameterized", new Class[] {});
-    assertEquals(String.class, resolveReturnTypeForGenericMethod(notParameterized, new Object[] {}));
-
-    Method notParameterizedWithArguments = findMethod(MyTypeWithMethods.class, "notParameterizedWithArguments",
-                                                      Integer.class, Boolean.class);
-    assertEquals(String.class,
-                 resolveReturnTypeForGenericMethod(notParameterizedWithArguments, new Object[] { 99, true }));
-
-    Method createProxy = findMethod(MyTypeWithMethods.class, "createProxy", Object.class);
-    assertEquals(String.class, resolveReturnTypeForGenericMethod(createProxy, new Object[] { "foo" }));
-
-    Method createNamedProxyWithDifferentTypes = findMethod(MyTypeWithMethods.class, "createNamedProxy",
-                                                           String.class, Object.class);
-    // one argument to few
-    assertNull(resolveReturnTypeForGenericMethod(createNamedProxyWithDifferentTypes, new Object[] { "enigma" }));
-    assertEquals(Long.class,
-                 resolveReturnTypeForGenericMethod(createNamedProxyWithDifferentTypes, new Object[] { "enigma", 99L }));
-
-    Method createNamedProxyWithDuplicateTypes = findMethod(MyTypeWithMethods.class, "createNamedProxy",
-                                                           String.class, Object.class);
-    assertEquals(String.class,
-                 resolveReturnTypeForGenericMethod(createNamedProxyWithDuplicateTypes, new Object[] { "enigma", "foo" }));
-
-    Method createMock = findMethod(MyTypeWithMethods.class, "createMock", Class.class);
-    assertEquals(Runnable.class, resolveReturnTypeForGenericMethod(createMock, new Object[] { Runnable.class }));
-
-    Method createNamedMock = findMethod(MyTypeWithMethods.class, "createNamedMock", String.class,
-                                        Class.class);
-    assertEquals(Runnable.class,
-                 resolveReturnTypeForGenericMethod(createNamedMock, new Object[] { "foo", Runnable.class }));
-
-    Method createVMock = findMethod(MyTypeWithMethods.class, "createVMock",
-                                    Object.class, Class.class);
-    assertEquals(Runnable.class,
-                 resolveReturnTypeForGenericMethod(createVMock, new Object[] { "foo", Runnable.class }));
-
-    // Ideally we would expect String.class instead of Object.class, but
-    // resolveReturnTypeForGenericMethod() does not currently support this form of
-    // look-up.
-    Method extractValueFrom = findMethod(MyTypeWithMethods.class, "extractValueFrom",
-                                         MyInterfaceType.class);
-    assertEquals(Object.class,
-                 resolveReturnTypeForGenericMethod(extractValueFrom, new Object[] { new MySimpleInterfaceType() }));
-
-    // Ideally we would expect Boolean.class instead of Object.class, but this
-    // information is not available at run-time due to type erasure.
-    Map<Integer, Boolean> map = new HashMap<Integer, Boolean>();
-    map.put(0, false);
-    map.put(1, true);
-    Method extractMagicValue = findMethod(MyTypeWithMethods.class, "extractMagicValue", Map.class);
-    assertEquals(Object.class, resolveReturnTypeForGenericMethod(extractMagicValue, new Object[] { map }));
   }
 
   @Test

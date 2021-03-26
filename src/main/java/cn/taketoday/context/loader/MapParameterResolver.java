@@ -28,10 +28,9 @@ import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.annotation.DefaultProps;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ContextUtils;
-import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.ResolvableType;
 
 /**
  * Resolve {@link Map}
@@ -78,7 +77,9 @@ public class MapParameterResolver
     if (props != null) { // 处理 Properties
       return ContextUtils.loadProps(props, System.getProperties());
     }
-    Class<?> beanClass = getBeanClass(ClassUtils.getGenerics(parameter));
+
+    final ResolvableType parameterType = ResolvableType.forParameter(parameter);
+    Class<?> beanClass = getBeanClass(parameterType);
     return beanFactory.getBeansOfType(beanClass);
   }
 
@@ -91,11 +92,9 @@ public class MapParameterResolver
     return map;
   }
 
-  protected Class<?> getBeanClass(final Class<?>[] generics) {
-    if (ObjectUtils.isNotEmpty(generics)) {
-      return generics[1];
-    }
-    return Object.class;
+  protected Class<?> getBeanClass(final ResolvableType parameterType) {
+    final ResolvableType generic = parameterType.asMap().getGeneric(1);
+    return generic.toClass();
   }
 
   private Props getProps(Parameter parameter) {

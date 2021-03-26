@@ -22,10 +22,10 @@ package cn.taketoday.context.conversion.support;
 import java.util.ArrayList;
 import java.util.Map;
 
-import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.utils.CollectionUtils;
+import cn.taketoday.context.utils.GenericDescriptor;
 
 /**
  * Converts a Map to another Map.

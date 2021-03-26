@@ -31,8 +31,7 @@ import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.AbstractPropertySetter;
 import cn.taketoday.context.factory.ObjectSupplier;
 import cn.taketoday.context.factory.PropertySetter;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.ResolvableType;
 
 /**
  * for {@link ObjectSupplier} PropertyValueResolver
@@ -59,10 +58,12 @@ public class ObjectSupplierPropertyResolver
   }
 
   @Override
-  public PropertySetter resolveProperty(Field field) throws ContextException {
-    final Class<?>[] generics = ClassUtils.getGenerics(field);
-    if (ObjectUtils.isNotEmpty(generics)) {
-      return new ObjectSupplierPropertySetter(field, generics[0]);
+  public PropertySetter resolveProperty(final Field field) throws ContextException {
+    final ResolvableType resolvableType = ResolvableType.forField(field);
+    if (resolvableType.hasGenerics()) {
+      final ResolvableType generic = resolvableType.getGeneric(0);
+      final Class<?> aClass = generic.toClass();
+      return new ObjectSupplierPropertySetter(field, aClass);
     }
     throw new UnsupportedOperationException("Unsupported '" + field + "' In -> " + field.getDeclaringClass());
   }

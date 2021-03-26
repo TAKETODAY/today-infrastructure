@@ -27,10 +27,10 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.utils.CollectionUtils;
+import cn.taketoday.context.utils.GenericDescriptor;
 
 /**
  * Converts a {@link Stream} to and from a collection or array,

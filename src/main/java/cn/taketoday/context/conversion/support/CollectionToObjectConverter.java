@@ -21,9 +21,9 @@ package cn.taketoday.context.conversion.support;
 
 import java.util.Collection;
 
-import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionService;
-import cn.taketoday.context.utils.GenericTypeResolver;
+import cn.taketoday.context.utils.GenericDescriptor;
+import cn.taketoday.context.utils.ResolvableType;
 
 /**
  * Converts a Collection to an Object by returning the first
@@ -43,12 +43,20 @@ final class CollectionToObjectConverter extends CollectionSourceConverter {
   @Override
   protected boolean supportsInternal(GenericDescriptor targetType, Class<?> sourceType) {
     // Collection.class, Object.class
-    final Class<?> elementType = GenericTypeResolver.resolveTypeArgument(sourceType, Collection.class);
-    return elementType != Object.class && this.conversionService.canConvert(elementType, targetType);
+    final ResolvableType resolvableType = ResolvableType.forClass(sourceType).asCollection();
+    if (resolvableType.hasGenerics()) {
+      final ResolvableType generic = resolvableType.getGeneric(0);
+      return generic != ResolvableType.NONE && this.conversionService.canConvert(generic.toClass(), targetType);
+    }
+    return false;
   }
 
   @Override
   protected Object convertInternal(GenericDescriptor targetType, Collection<?> sourceCollection) {
+    if (targetType.isInstance(sourceCollection)) {
+      return sourceCollection;
+    }
+
     if (sourceCollection.isEmpty()) {
       return null;
     }

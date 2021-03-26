@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context;
+package cn.taketoday.context.utils;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
@@ -34,9 +34,6 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import cn.taketoday.context.factory.BeanProperty;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.CollectionUtils;
 
 /**
  * @author TODAY 2021/3/22 20:37

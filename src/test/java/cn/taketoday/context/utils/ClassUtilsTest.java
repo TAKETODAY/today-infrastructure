@@ -11,7 +11,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
@@ -418,20 +417,6 @@ public class ClassUtilsTest {
             .hasSize(1)
             .contains(Integer.class);
 
-    Field stringList = ReflectionUtils.findField(Generic.class, "stringList");
-
-    assertThat(ClassUtils.getGenerics(stringList))
-            .isNotNull()
-            .hasSize(1)
-            .contains(String.class);
-
-    Field stringMap = ReflectionUtils.findField(Generic.class, "stringMap");
-
-    assertThat(ClassUtils.getGenerics(stringMap))
-            .isNotNull()
-            .hasSize(2)
-            .contains(String.class, Object.class);
-
     // param
     Constructor<Generic> constructor = ClassUtils.getSuitableConstructor(Generic.class);
     Parameter[] parameters = constructor.getParameters();
@@ -457,17 +442,16 @@ public class ClassUtilsTest {
             .isNotNull()
             .hasSize(2)
             .contains(String.class, Object.class);
+//
+//    Field list = ReflectionUtils.findField(Generic.class, "list");
+//    final Type[] genericityClass = ClassUtils.getGenerics(list);
+//    assertThat(genericityClass)
+//            .isNotNull()
+//            .hasSize(1);
 
-    Field list = ReflectionUtils.findField(Generic.class, "list");
-
-    final Type[] genericityClass = ClassUtils.getGenerics(list);
-    assertThat(genericityClass)
-            .isNotNull()
-            .hasSize(1);
-
-    assertThat(genericityClass[0])
-            .isEqualTo(Object.class)
-            .isInstanceOf(Class.class);
+//    assertThat(genericityClass[0])
+//            .isEqualTo(Object.class)
+//            .isInstanceOf(Class.class);
 
   }
 

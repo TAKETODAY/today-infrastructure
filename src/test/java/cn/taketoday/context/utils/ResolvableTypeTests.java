@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context;
+package cn.taketoday.context.utils;
 
 import org.assertj.core.api.AbstractAssert;
 import org.junit.Test;
@@ -50,16 +50,14 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
-import cn.taketoday.context.ResolvableType.VariableResolver;
-import cn.taketoday.context.utils.MultiValueMap;
+import cn.taketoday.context.TypeReference;
+import cn.taketoday.context.utils.ResolvableType.VariableResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link ResolvableType}.
@@ -1229,7 +1227,7 @@ public class ResolvableTypeTests {
   public void spr11219() throws Exception {
     ResolvableType type = ResolvableType.forField(BaseProvider.class.getField("stuff"), BaseProvider.class);
     assertThat(type.getNested(2).isAssignableFrom(ResolvableType.forClass(BaseImplementation.class))).isTrue();
-    assertThat(type.toString()).isEqualTo("java.util.Collection<cn.taketoday.context.ResolvableTypeTests$IBase<?>>");
+    assertThat(type.toString()).isEqualTo("java.util.Collection<cn.taketoday.context.utils.ResolvableTypeTests$IBase<?>>");
   }
 
   @Test

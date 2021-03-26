@@ -21,9 +21,9 @@ package cn.taketoday.context.conversion.support;
 
 import java.nio.ByteBuffer;
 
-import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.TypeConverter;
+import cn.taketoday.context.utils.GenericDescriptor;
 
 /**
  * Converts a {@link ByteBuffer} directly to and from {@code byte[] ByteBuffer}

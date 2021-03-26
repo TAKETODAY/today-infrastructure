@@ -27,9 +27,9 @@ import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionFailedException;
 import cn.taketoday.context.conversion.TypeConverter;
+import cn.taketoday.context.utils.GenericDescriptor;
 import cn.taketoday.context.utils.ReflectionUtils;
 
 /**

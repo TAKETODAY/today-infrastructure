@@ -50,11 +50,11 @@ import java.util.TimeZone;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionFailedException;
 import cn.taketoday.context.conversion.Converter;
 import cn.taketoday.context.conversion.ConverterNotFoundException;
 import cn.taketoday.context.conversion.ConverterRegistry;
+import cn.taketoday.context.utils.GenericDescriptor;
 import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.StopWatch;
 

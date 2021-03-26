@@ -1326,19 +1326,6 @@ public abstract class ClassUtils {
     return null;
   }
 
-  public static Class<?>[] getGenerics(final Field property) {
-    Assert.notNull(property, "property must not be null");
-    return GenericTypeResolver.extractClasses(property.getType(), getGenericTypes(property));
-  }
-
-  public static Class<?>[] getGenerics(final Parameter parameter) {
-    Assert.notNull(parameter, "parameter must not be null");
-    return GenericTypeResolver.extractClasses(parameter.getType(), getGenericTypes(parameter));
-  }
-
-  public static java.lang.reflect.Type[] getGenericTypes(final java.lang.reflect.Type type) {
-    return type != null ? getActualTypeArguments(type) : null;
-  }
 
   public static java.lang.reflect.Type[] getGenericTypes(final Field property) {
     return property != null ? getActualTypeArguments(property.getGenericType()) : null;

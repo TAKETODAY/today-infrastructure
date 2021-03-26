@@ -27,9 +27,8 @@ import java.util.Map;
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.ResolvableType;
 
 /**
  * @author TODAY
@@ -54,12 +53,11 @@ public class CollectionParameterResolver
 
   @Override
   public Object resolve(final Parameter parameter, final BeanFactory beanFactory) {
-    final Class<?>[] generics = ClassUtils.getGenerics(parameter);
-    if (ObjectUtils.isNotEmpty(generics)) {
-      final Class<?> type = generics[0];
-      final Map<String, ?> beans = beanFactory.getBeansOfType(type);
-      final Class<?> parameterType = parameter.getType();
-      final Collection<Object> objects = CollectionUtils.createCollection(parameterType, beans.size());
+    final ResolvableType parameterType = ResolvableType.forParameter(parameter);
+    if (parameterType.hasGenerics()) {
+      final ResolvableType type = parameterType.asCollection().getGeneric(0);
+      final Map<String, ?> beans = beanFactory.getBeansOfType(type.toClass());
+      final Collection<Object> objects = CollectionUtils.createCollection(parameter.getType(), beans.size());
       objects.addAll(beans.values());
       return objects;
     }

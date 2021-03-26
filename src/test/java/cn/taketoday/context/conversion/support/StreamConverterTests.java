@@ -27,12 +27,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionFailedException;
 import cn.taketoday.context.conversion.Converter;
 import cn.taketoday.context.conversion.ConverterNotFoundException;
 import cn.taketoday.context.conversion.IntegerConverter;
 import cn.taketoday.context.conversion.LongConverter;
+import cn.taketoday.context.utils.GenericDescriptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

@@ -21,9 +21,9 @@ package cn.taketoday.context.conversion.support;
 
 import java.io.StringWriter;
 
-import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.conversion.TypeConverter;
+import cn.taketoday.context.utils.GenericDescriptor;
 
 /**
  * Simply calls {@link Object#toString()} to convert any supported object

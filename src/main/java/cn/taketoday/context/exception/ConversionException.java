@@ -19,8 +19,8 @@
  */
 package cn.taketoday.context.exception;
 
-import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.NestedRuntimeException;
+import cn.taketoday.context.utils.GenericDescriptor;
 
 /**
  * Base class for exceptions thrown by the conversion system.

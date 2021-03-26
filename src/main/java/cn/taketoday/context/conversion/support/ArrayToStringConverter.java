@@ -21,8 +21,8 @@ package cn.taketoday.context.conversion.support;
 
 import java.util.Arrays;
 
-import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionService;
+import cn.taketoday.context.utils.GenericDescriptor;
 import cn.taketoday.context.utils.ObjectUtils;
 
 /**

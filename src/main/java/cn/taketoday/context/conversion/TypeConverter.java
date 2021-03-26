@@ -19,8 +19,8 @@
  */
 package cn.taketoday.context.conversion;
 
-import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.exception.ConversionException;
+import cn.taketoday.context.utils.GenericDescriptor;
 
 /**
  * Type converter

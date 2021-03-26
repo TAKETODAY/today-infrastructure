@@ -21,8 +21,8 @@ package cn.taketoday.context.conversion.support;
 
 import java.lang.reflect.Array;
 
-import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.conversion.ConversionService;
+import cn.taketoday.context.utils.GenericDescriptor;
 
 /**
  * Converts an Object to a single-element array containing the Object.

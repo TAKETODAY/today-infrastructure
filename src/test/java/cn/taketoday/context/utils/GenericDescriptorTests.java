@@ -18,11 +18,10 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context;
+package cn.taketoday.context.utils;
 
 import org.junit.Test;
 
-import java.awt.Color;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -35,9 +34,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -47,10 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.BeanProperty;
-import cn.taketoday.context.utils.DefaultMultiValueMap;
-import cn.taketoday.context.utils.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

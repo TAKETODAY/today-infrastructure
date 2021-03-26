@@ -20,8 +20,8 @@
 
 package cn.taketoday.context.conversion;
 
-import cn.taketoday.context.GenericDescriptor;
 import cn.taketoday.context.exception.ConversionException;
+import cn.taketoday.context.utils.GenericDescriptor;
 
 /**
  * Exception to be thrown when an actual type conversion attempt fails.
