@@ -32,6 +32,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author TODAY 2021/3/21 20:04
@@ -87,7 +88,6 @@ public class DataBinderTests {
     dataBinder.addPropertyValue("nested.nested.name", "nested-nested-TODAY");
     dataBinder.addPropertyValue("nested.list", list);
 
-
     final Object object = dataBinder.bind();
 
     assertThat(object).isInstanceOf(Nested.class);
@@ -95,7 +95,7 @@ public class DataBinderTests {
 
     assertNested(dataBinder, base);
 
-    HashMap<String ,Object> propertyValues = new HashMap<>();
+    HashMap<String, Object> propertyValues = new HashMap<>();
     propertyValues.put("name", "TODAY");
     propertyValues.put("doubles", new double[] { 10.0D, 20.0D });
     propertyValues.put("nested.map", map);
@@ -133,6 +133,24 @@ public class DataBinderTests {
 
     assertThat(dataBinder.getProperty("nested.map[age]", int.class)).isEqualTo(23);
     assertThat(dataBinder.getProperty("nested.map[age]", Integer.class)).isEqualTo(23);
+  }
+
+  static class UnknownProperty {
+
+  }
+
+  @Test
+  public void ignoreUnknownProperty() {
+    final DataBinder ignore = new DataBinder(UnknownProperty.class);
+    ignore.setProperty("name", "TODAY");
+
+    final DataBinder throwsDataBinder = new DataBinder(UnknownProperty.class);
+    throwsDataBinder.setIgnoreUnknownProperty(false);
+
+    assertThatThrownBy(() -> {
+      throwsDataBinder.setProperty("name", "TODAY");
+    }).withFailMessage("No such property: '%s' in class: %s", "name", UnknownProperty.class);
+
   }
 
 }
