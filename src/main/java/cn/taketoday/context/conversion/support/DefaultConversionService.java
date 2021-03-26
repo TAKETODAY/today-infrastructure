@@ -120,10 +120,7 @@ public class DefaultConversionService implements ConfigurableConversionService {
     if (targetType.isInstance(source)) {
       return (T) source;
     }
-    throw new ConverterNotFoundException(
-            "There isn't a converter to convert: ["
-                    + source + "] '" + source.getClass() + "' to target class: [" + targetType + "]",
-            source, targetType);
+    throw new ConverterNotFoundException(source, targetType);
   }
 
   @SuppressWarnings("unchecked")
