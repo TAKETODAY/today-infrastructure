@@ -38,6 +38,7 @@ import java.util.UUID;
 
 import cn.taketoday.context.TypeReference;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ResolvableType;
 
 /**
  * @author Clinton Begin
@@ -147,8 +148,11 @@ public class TypeHandlerRegistry {
     return javaTypeReference != null && getTypeHandler(javaTypeReference) != null;
   }
 
+  @SuppressWarnings("unchecked")
   public <T> TypeHandler<T> getTypeHandler(TypeReference<T> javaTypeReference) {
-    return getTypeHandler(javaTypeReference.getTypeParameter());
+    final ResolvableType resolvableType = javaTypeReference.getResolvableType();
+    final Class<T> aClass = (Class<T>) resolvableType.toClass();
+    return getTypeHandler(aClass);
   }
 
   @SuppressWarnings("unchecked")
@@ -188,7 +192,7 @@ public class TypeHandlerRegistry {
     if (!mappedTypeFound && typeHandler instanceof TypeReference) {
       try {
         TypeReference<T> typeReference = (TypeReference<T>) typeHandler;
-        register(typeReference.getTypeParameter(), typeHandler);
+        register(typeReference, typeHandler);
         mappedTypeFound = true;
       }
       catch (Throwable t) {
@@ -205,7 +209,9 @@ public class TypeHandlerRegistry {
   }
 
   public <T> void register(TypeReference<T> reference, TypeHandler<T> handler) {
-    register(reference.getTypeParameter(), handler);
+    final ResolvableType resolvableType = reference.getResolvableType();
+    final Class<?> aClass = resolvableType.toClass();
+    register(aClass, handler);
   }
 
   //
