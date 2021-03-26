@@ -48,6 +48,13 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
 
   private Method method;
 
+  public MethodInvoker() { }
+
+  public MethodInvoker(final Method method) {
+    Assert.notNull(method, "method must not be null");
+    this.method = method;
+  }
+
   @Override
   public abstract Object invoke(Object obj, Object[] args);
 

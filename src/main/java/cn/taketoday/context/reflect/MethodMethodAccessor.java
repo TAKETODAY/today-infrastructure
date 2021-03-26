@@ -21,7 +21,6 @@ package cn.taketoday.context.reflect;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
@@ -30,16 +29,13 @@ import cn.taketoday.context.utils.ReflectionUtils;
  */
 public class MethodMethodAccessor extends MethodInvoker implements MethodAccessor {
 
-  private final Method method;
-
   public MethodMethodAccessor(final Method method) {
-    Assert.notNull(method, "method must not be null");
-    ReflectionUtils.makeAccessible(method);
-    this.method = method;
+    super(ReflectionUtils.makeAccessible(method));
   }
 
   @Override
   public Object invoke(final Object obj, final Object[] args) {
-    return ReflectionUtils.invokeMethod(method, obj, args);
+    return ReflectionUtils.invokeMethod(getMethod(), obj, args);
   }
+
 }
