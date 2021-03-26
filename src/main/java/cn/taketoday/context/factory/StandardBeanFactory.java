@@ -174,12 +174,11 @@ public class StandardBeanFactory
       final AnnotationAttributes[] components = getAnnotationAttributesArray(method, Component.class);
       if (ObjectUtils.isEmpty(components)) {
         // detect missed bean
-        final MissingBean missingBean = ClassUtils.getAnnotation(MissingBean.class, method);
-        if (isMissedBean(missingBean, method, context)) {
+        final AnnotationAttributes attributes = getAnnotationAttributes(MissingBean.class, method);
+        if (isMissedBean(attributes, method, context)) {
           // register directly @since 3.0
           final Class<?> beanClass = method.getReturnType();
-
-          String name = missingBean/*never be null*/.value();
+          String name = attributes.getString(VALUE);
           if (StringUtils.isEmpty(name)) {
             name = method.getName();
           }
@@ -193,7 +192,7 @@ public class StandardBeanFactory
             final List<PropertySetter> props = resolveProps(method, environment.getProperties());
             stdDef.addPropertySetter(props);
           }
-          registerMissingBean(missingBean, stdDef);
+          registerMissingBean(attributes, stdDef);
         }
       }
       else if (ContextUtils.passCondition(method, context)) { // pass the condition
@@ -260,16 +259,15 @@ public class StandardBeanFactory
     context.publishEvent(new LoadingMissingBeanEvent(context, candidates));
 
     for (final Class<?> beanClass : candidates) {
-      final MissingBean missingBean = beanClass.getAnnotation(MissingBean.class);
-      if (isMissedBean(missingBean, beanClass, context)) {
-
-        String beanName = missingBean.value();
+      final AnnotationAttributes attributes = getAnnotationAttributes(MissingBean.class, beanClass);
+      if (isMissedBean(attributes, beanClass, context)) {
+        String beanName = attributes.getString(VALUE);
         if (StringUtils.isEmpty(beanName)) {
           beanName = nameCreator.create(beanClass);
         }
 
         final DefaultBeanDefinition def = new DefaultBeanDefinition(beanName, beanClass);
-        registerMissingBean(missingBean, def);
+        registerMissingBean(attributes, def);
       }
     }
   }
@@ -288,19 +286,19 @@ public class StandardBeanFactory
    *
    * @since 3.0
    */
-  boolean isMissedBean(final MissingBean missingBean,
+  boolean isMissedBean(final AnnotationAttributes missingBean,
                        final AnnotatedElement annotated, final ApplicationContext context) {
     if (missingBean == null || !ContextUtils.passCondition(annotated, context)) { // use current application context
       return false;
     }
 
-    final String beanName = missingBean.value();
+    final String beanName = missingBean.getString(VALUE);
     if (StringUtils.isNotEmpty(beanName) && containsBeanDefinition(beanName)) {
       return false;
     }
-    final Class<?> type = missingBean.type();
+    final Class<?> type = missingBean.getClass("type");
     if (type != void.class) {
-      return !containsBeanDefinition(type, !type.isInterface());
+      return !containsBeanDefinition(type, missingBean.getBoolean("equals"));
     }
     else {
       return !containsBeanDefinition(ContextUtils.getBeanClass(annotated));
@@ -315,12 +313,12 @@ public class StandardBeanFactory
    * @param def
    *         Target {@link BeanDefinition}
    */
-  protected void registerMissingBean(final MissingBean missingBean, final BeanDefinition def) {
+  protected void registerMissingBean(final AnnotationAttributes missingBean, final BeanDefinition def) {
     final Class<?> beanClass = def.getBeanClass();
 
-    def.setScope(missingBean.scope())
-            .setDestroyMethods(missingBean.destroyMethods())
-            .setInitMethods(resolveInitMethod(missingBean.initMethods(), beanClass))
+    def.setScope(missingBean.getString("scope"))
+            .setDestroyMethods(missingBean.getStringArray("destroyMethods"))
+            .setInitMethods(resolveInitMethod(missingBean.getStringArray("initMethods"), beanClass))
             .setPropertyValues(resolvePropertyValue(beanClass));
 
     // Missing BeanMetadata a flag to determine its a missed bean @since 3.0
@@ -347,12 +345,12 @@ public class StandardBeanFactory
     final Set<Class<?>> beans = ContextUtils.loadFromMetaInfo(Constant.META_INFO_beans);
     final BeanNameCreator beanNameCreator = getBeanNameCreator();
     for (final Class<?> beanClass : beans) {
-      final MissingBean missingBean = ClassUtils.getAnnotation(MissingBean.class, beanClass);
+      final AnnotationAttributes missingBean = getAnnotationAttributes(MissingBean.class, beanClass);
       if (missingBean != null) {
         if (isMissedBean(missingBean, beanClass, context)) {
           // MissingBean in 'META-INF/beans' @since 3.0
           final BeanDefinition def = createBeanDefinition(beanClass);
-          final String name = missingBean.value();
+          final String name = missingBean.getString(VALUE);
           if (StringUtils.isNotEmpty(name)) {
             def.setName(name); // refresh bean name
           }

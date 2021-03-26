@@ -662,22 +662,23 @@ public abstract class ClassUtils {
   public static <T extends Annotation> T getAnnotationProxy(
           final Class<T> annotationClass, final AnnotationAttributes attributes
   ) {
-    return annotationClass.cast(Proxy.newProxyInstance(classLoader, new Class[] { annotationClass, Annotation.class },
-                                                       (Object proxy, Method method, Object[] args) -> {
-                                                         // The switch statement compares the String object in its expression with the expressions
-                                                         // associated with each case label as if it were using the String.equals method;
-                                                         // consequently, the comparison of String objects in switch statements is case sensitive.
-                                                         // The Java compiler generates generally more efficient bytecode from switch statements
-                                                         // that use String objects than from chained if-then-else statements.
-                                                         switch (method.getName())
-                                                         {
-                                                           case Constant.EQUALS : 			return eq(proxy, attributes, args[0]);
-                                                           case Constant.HASH_CODE :		return attributes.hashCode();
-                                                           case Constant.TO_STRING :		return attributes.toString();
-                                                           case Constant.ANNOTATION_TYPE :	return annotationClass;
-                                                           default :                    return attributes.get(method.getName());
-                                                         }
-                                                       }//
+    return annotationClass.cast(
+            Proxy.newProxyInstance(classLoader, new Class[] { annotationClass, Annotation.class },
+       (Object proxy, Method method, Object[] args) -> {
+         // The switch statement compares the String object in its expression with the expressions
+         // associated with each case label as if it were using the String.equals method;
+         // consequently, the comparison of String objects in switch statements is case sensitive.
+         // The Java compiler generates generally more efficient bytecode from switch statements
+         // that use String objects than from chained if-then-else statements.
+         switch (method.getName())
+         {
+           case Constant.EQUALS : 			return eq(proxy, attributes, args[0]);
+           case Constant.HASH_CODE :		return attributes.hashCode();
+           case Constant.TO_STRING :		return attributes.toString();
+           case Constant.ANNOTATION_TYPE :	return annotationClass;
+           default :                    return attributes.get(method.getName());
+         }
+       }//
     ));
   }
   //@on
@@ -1325,7 +1326,6 @@ public abstract class ClassUtils {
     }
     return null;
   }
-
 
   public static java.lang.reflect.Type[] getGenericTypes(final Field property) {
     return property != null ? getActualTypeArguments(property.getGenericType()) : null;

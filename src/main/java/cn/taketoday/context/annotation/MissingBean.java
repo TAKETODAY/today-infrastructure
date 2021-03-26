@@ -51,6 +51,13 @@ public @interface MissingBean {
   Class<?> type() default void.class;
 
   /**
+   * equals {@link #type()} ?
+   *
+   * @since 3.0
+   */
+  boolean equals() default false;
+
+  /**
    * Specifies the name of the scope to use for the annotated component/bean.
    * <p>
    * Defaults to an empty string ({@code ""}) which implies {@link Scope#SINGLETON
