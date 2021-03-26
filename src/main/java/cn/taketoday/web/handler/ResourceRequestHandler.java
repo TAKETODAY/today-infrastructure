@@ -130,6 +130,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
     }
     else {
       write(resource, context, resourceMapping);
+      context.flush();
     }
   }
 
