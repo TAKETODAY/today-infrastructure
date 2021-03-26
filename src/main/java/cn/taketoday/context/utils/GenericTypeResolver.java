@@ -32,8 +32,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import cn.taketoday.context.GenericDescriptor;
-
 /**
  * Helper class for resolving generic types against type variables.
  *

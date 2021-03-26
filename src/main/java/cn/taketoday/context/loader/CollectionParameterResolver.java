@@ -21,7 +21,6 @@
 package cn.taketoday.context.loader;
 
 import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Map;
 
