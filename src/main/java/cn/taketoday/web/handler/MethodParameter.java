@@ -57,12 +57,12 @@ public class MethodParameter
 
   public MethodParameter(HandlerMethod handlerMethod, MethodParameter other) {
     this.name = other.name;
+    this.generics = other.generics;
     this.required = other.required;
     this.parameter = other.parameter;
     this.defaultValue = other.defaultValue;
     this.parameterIndex = other.parameterIndex;
     this.parameterClass = other.parameterClass;
-    this.generics = other.generics;
 
     this.handlerMethod = handlerMethod;
   }
@@ -71,7 +71,7 @@ public class MethodParameter
     this.parameter = parameter;
     this.parameterIndex = index;
     this.parameterClass = parameter.getType();
-    this.generics = ClassUtils.getGenerics(parameter);
+    this.generics = ClassUtils.getGenericTypes(parameter);
 
     AnnotationAttributes attributes = getAnnotationAttributes(RequestParam.class, parameter);
     if (attributes != null) {
