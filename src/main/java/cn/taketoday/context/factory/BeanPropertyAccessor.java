@@ -557,11 +557,15 @@ public class BeanPropertyAccessor {
   protected Object doConvertInternal(final Object value, final GenericDescriptor requiredType) {
     final TypeConverter typeConverter = getConversionService().getConverter(value, requiredType);
     if (typeConverter == null) {
-      throw new InvalidPropertyValueException(
-              "Invalid property value [" + value + "] cannot convert '"
-                      + value.getClass() + "' to target class: [" + requiredType + "]");
+      return converterNotFound(value, requiredType);
     }
     return typeConverter.convert(requiredType, value);
+  }
+
+  protected Object converterNotFound(final Object value, final GenericDescriptor requiredType) {
+    throw new InvalidPropertyValueException(
+            "Invalid property value [" + value + "] cannot convert '"
+                    + value.getClass() + "' to target class: [" + requiredType + "]");
   }
 
   /**
