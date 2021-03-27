@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
  * @author TODAY<br>
  * 2018-08-09 18:54
  */
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Aspect {
 

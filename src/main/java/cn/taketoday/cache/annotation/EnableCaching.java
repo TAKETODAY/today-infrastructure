@@ -24,9 +24,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.aop.support.annotation.Advice;
+import cn.taketoday.aop.support.annotation.Aspect;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.DefaultCacheManager;
 import cn.taketoday.cache.interceptor.CacheEvictInterceptor;
+import cn.taketoday.cache.interceptor.CacheExceptionResolver;
 import cn.taketoday.cache.interceptor.CachePutInterceptor;
 import cn.taketoday.cache.interceptor.CacheableInterceptor;
 import cn.taketoday.cache.interceptor.DefaultCacheExceptionResolver;
@@ -51,22 +54,28 @@ class ProxyCachingConfiguration {
     return new DefaultCacheManager();
   }
 
+  @Aspect
   @MissingBean
+  @Advice(CachePut.class)
   CachePutInterceptor cachePutInterceptor(CacheManager cacheManager) {
     return new CachePutInterceptor(cacheManager);
   }
 
+  @Aspect
   @MissingBean
+  @Advice(Cacheable.class)
   CacheableInterceptor cacheableInterceptor(CacheManager cacheManager) {
     return new CacheableInterceptor(cacheManager);
   }
 
+  @Aspect
   @MissingBean
+  @Advice(CacheEvict.class)
   CacheEvictInterceptor cacheEvictInterceptor(CacheManager cacheManager) {
     return new CacheEvictInterceptor(cacheManager);
   }
 
-  @MissingBean
+  @MissingBean(type = CacheExceptionResolver.class)
   DefaultCacheExceptionResolver cacheExceptionResolver() {
     return new DefaultCacheExceptionResolver();
   }

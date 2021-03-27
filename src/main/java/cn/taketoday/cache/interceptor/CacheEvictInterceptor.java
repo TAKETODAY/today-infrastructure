@@ -23,8 +23,6 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.aop.support.annotation.Advice;
-import cn.taketoday.aop.support.annotation.Aspect;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.CacheEvict;
@@ -40,8 +38,6 @@ import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations
  * @author TODAY <br>
  * 2019-02-27 20:54
  */
-@Aspect
-@Advice(CacheEvict.class)
 public class CacheEvictInterceptor extends AbstractCacheInterceptor {
 
   public CacheEvictInterceptor() {
