@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web;
+package cn.taketoday.web.resolver;
 
 import java.util.List;
 import java.util.Map;
@@ -27,6 +27,7 @@ import cn.taketoday.context.factory.BeanMetadata;
 import cn.taketoday.context.factory.DataBinder;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.utils.WebUtils;
 
