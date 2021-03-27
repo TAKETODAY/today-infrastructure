@@ -148,7 +148,7 @@ public abstract class AbstractCacheManager implements CacheManager {
     Assert.notNull(name, "name must not be null");
     Assert.notNull(config, "config must not be null");
     this.configMap.put(name, config);
-    refreshCache(name);
+    refreshCache(name, config);
   }
 
   /**
@@ -241,7 +241,7 @@ public abstract class AbstractCacheManager implements CacheManager {
   public Cache getCache(String name, CacheConfig cacheConfig) {
     Cache cache = cacheMap.get(name);
     if (cache == null && isDynamicCreation()) {
-      synchronized (cacheMap) {
+      synchronized(cacheMap) {
         cache = cacheMap.get(name);
         if (cache == null) {
           cache = createCache(name, cacheConfig);
@@ -297,6 +297,10 @@ public abstract class AbstractCacheManager implements CacheManager {
    * @param name
    *         cache name
    */
+  public void refreshCache(String name, CacheConfig config) {
+    registerCustomCache(name, createCache(name, config));
+  }
+
   public void refreshCache(String name) {
     registerCustomCache(name, createCache(name));
   }
@@ -319,6 +323,13 @@ public abstract class AbstractCacheManager implements CacheManager {
   @Override
   public Collection<String> getCacheNames() {
     return configMap.keySet();
+  }
+
+  protected static boolean isDefaultConfig(CacheConfig cacheConfig) {
+    if (cacheConfig == null || cacheConfig == CacheConfig.EMPTY_CACHE_CONFIG) {
+      return true;
+    }
+    return cacheConfig.maxIdleTime() == 0 && cacheConfig.expire() == 0 && cacheConfig.maxSize() == 0;
   }
 
 }

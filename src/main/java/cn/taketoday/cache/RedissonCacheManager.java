@@ -51,7 +51,7 @@ public class RedissonCacheManager extends AbstractCacheManager implements CacheM
 
   @Override
   protected Cache doCreate(final String name, final CacheConfig cacheConfig) {
-    return isDefault(cacheConfig) ? createMap(name) : createMapCache(name, cacheConfig);
+    return isDefaultConfig(cacheConfig) ? createMap(name) : createMapCache(name, cacheConfig);
   }
 
   /**
@@ -64,12 +64,6 @@ public class RedissonCacheManager extends AbstractCacheManager implements CacheM
     this.codec = codec;
   }
 
-  private static boolean isDefault(CacheConfig cacheConfig) {
-    if (cacheConfig == null || cacheConfig == CacheConfig.EMPTY_CACHE_CONFIG) {
-      return true;
-    }
-    return cacheConfig.maxIdleTime() == 0 && cacheConfig.expire() == 0 && cacheConfig.maxSize() == 0;
-  }
 
   protected Cache createMap(String name) {
     return new RedissonCache(getMap(name), name);

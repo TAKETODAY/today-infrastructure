@@ -75,7 +75,15 @@ public class CaffeineCacheManager extends AbstractCacheManager {
    */
   @Override
   protected Cache doCreate(String name, CacheConfig cacheConfig) {
-    return adaptCaffeineCache(name, createNativeCaffeineCache(name));
+    if (isDefaultConfig(cacheConfig)) {
+      return adaptCaffeineCache(name, createNativeCaffeineCache());
+    }
+
+    final Caffeine<Object, Object> caffeine = Caffeine.newBuilder()
+            .maximumSize(cacheConfig.maxSize())
+            .expireAfterWrite(cacheConfig.expire(), cacheConfig.timeUnit());
+
+    return adaptCaffeineCache(name, createNativeCaffeineCache(caffeine));
   }
 
   /**
@@ -172,15 +180,17 @@ public class CaffeineCacheManager extends AbstractCacheManager {
    * Build a common Caffeine Cache instance for the specified cache name, using
    * the common Caffeine configuration specified on this cache manager.
    *
-   * @param name
-   *         the name of the cache
-   *
    * @return the native Caffeine Cache instance
    *
    * @see #adaptCaffeineCache
    */
-  protected com.github.benmanes.caffeine.cache.Cache<Object, Object> createNativeCaffeineCache(String name) {
-    return (this.cacheLoader != null ? this.caffeine.build(this.cacheLoader) : this.caffeine.build());
+  protected com.github.benmanes.caffeine.cache.Cache<Object, Object> createNativeCaffeineCache() {
+    return createNativeCaffeineCache(caffeine);
+  }
+
+  protected com.github.benmanes.caffeine.cache.Cache<Object, Object> createNativeCaffeineCache(
+          Caffeine<Object, Object> caffeine) {
+    return (this.cacheLoader != null ? caffeine.build(this.cacheLoader) : caffeine.build());
   }
 
 }
