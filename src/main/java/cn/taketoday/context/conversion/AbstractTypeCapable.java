@@ -29,7 +29,7 @@ import cn.taketoday.context.utils.Assert;
  * @since 3.0
  */
 public abstract class AbstractTypeCapable implements TypeCapable {
-  final Class<?> type;
+  protected final Class<?> type;
 
   protected AbstractTypeCapable(Class<?> type) {
     Assert.notNull(type, "type must not be null");

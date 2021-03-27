@@ -25,7 +25,6 @@ import java.net.URI;
 import java.net.URL;
 
 import cn.taketoday.context.conversion.ConversionFailedException;
-import cn.taketoday.context.conversion.StringSourceTypeConverter;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.GenericDescriptor;
 import cn.taketoday.context.utils.ResourceUtils;

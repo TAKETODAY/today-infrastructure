@@ -18,25 +18,9 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.conversion;
-
 /**
- * @author TODAY 2021/3/21 10:34
- * @since 3.0
+ * Type Conversion System
+ *
+ * @author TODAY 2021/3/27 10:43
  */
-public class LongConverter extends NumberConverter {
-
-  public LongConverter(Class<?> targetClass) {
-    super(targetClass);
-  }
-
-  @Override
-  protected Number convertNumber(Number source) {
-    return source.longValue();
-  }
-
-  @Override
-  protected Number convertString(String source) {
-    return Long.parseLong(source);
-  }
-}
+package cn.taketoday.context.conversion;

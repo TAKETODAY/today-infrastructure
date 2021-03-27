@@ -87,9 +87,8 @@ import java.util.Map;
  * larger context of the complete logging processing chain.
  *
  * <p>
- * See also {@link #format(String, Object)},
- * {@link #format(String, Object, Object)} and
- * {@link #arrayFormat(String, Object[])} methods for more details.
+ * See also {@link #format(String, Object)} and
+ * {@link #format(String, Object[])} methods for more details.
  *
  * @author Ceki G&uuml;lc&uuml;
  * @author Joern Huxhorn

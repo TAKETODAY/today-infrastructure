@@ -17,32 +17,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+package cn.taketoday.context.conversion.support;
 
-package cn.taketoday.context.conversion;
-
-import java.math.BigDecimal;
+import cn.taketoday.context.conversion.TypeConverter;
+import cn.taketoday.context.utils.GenericDescriptor;
 
 /**
- * @author TODAY 2021/3/21 10:36
- * @since 3.0
+ * @author TODAY <br>
+ * 2019-06-06 15:31
+ * @since 2.1.6
  */
-public class BigDecimalConverter extends NumberConverter {
+public abstract class StringSourceTypeConverter implements TypeConverter {
 
-  public BigDecimalConverter(Class<?> targetClass) {
-    super(targetClass);
+  @Override
+  public final boolean supports(final GenericDescriptor targetType, final Class<?> sourceType) {
+    return sourceType == String.class
+            && supportsInternal(targetType, sourceType);
+  }
+
+  public boolean supportsInternal(GenericDescriptor targetType, Class<?> sourceType) {
+    return true;
   }
 
   @Override
-  protected Number convertString(String source) {
-    return BigDecimal.valueOf(Double.parseDouble(source));
+  public final Object convert(GenericDescriptor targetType, Object source) {
+    return convertInternal(targetType, (String) source);
   }
 
-  @Override
-  protected BigDecimal convertNumber(Number source) {
-    if (source instanceof BigDecimal) {
-      return (BigDecimal) source;
-    }
-    return BigDecimal.valueOf(source.doubleValue());
-  }
-
+  protected abstract Object convertInternal(GenericDescriptor targetClass, String source);
 }

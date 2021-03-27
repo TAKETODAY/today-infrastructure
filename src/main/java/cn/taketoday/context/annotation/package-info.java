@@ -18,18 +18,9 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.conversion;
-
-import cn.taketoday.context.utils.MimeType;
-
 /**
- * @author TODAY 2021/3/21 11:02
- * @since 3.0
+ * Useful Annotations
+ *
+ * @author TODAY 2021/3/27 10:43
  */
-public class MimeTypeConverter extends StringSourceConverter<MimeType> {
-
-  @Override
-  public MimeType convert(String source) {
-    return MimeType.valueOf(source);
-  }
-}
+package cn.taketoday.context.annotation;

@@ -18,21 +18,31 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.conversion;
+package cn.taketoday.context.conversion.support;
 
-import java.time.Duration;
-
-import cn.taketoday.context.utils.ConvertUtils;
+import java.math.BigDecimal;
 
 /**
- * @author TODAY 2021/3/21 11:18
+ * @author TODAY 2021/3/21 10:36
  * @since 3.0
  */
-public class DurationConverter extends StringSourceConverter<Duration> {
+public class BigDecimalConverter extends NumberConverter {
+
+  public BigDecimalConverter(Class<?> targetClass) {
+    super(targetClass);
+  }
 
   @Override
-  public Duration convert(String source) {
-    return ConvertUtils.parseDuration(source);
+  protected Number convertString(String source) {
+    return BigDecimal.valueOf(Double.parseDouble(source));
+  }
+
+  @Override
+  protected BigDecimal convertNumber(Number source) {
+    if (source instanceof BigDecimal) {
+      return (BigDecimal) source;
+    }
+    return BigDecimal.valueOf(source.doubleValue());
   }
 
 }

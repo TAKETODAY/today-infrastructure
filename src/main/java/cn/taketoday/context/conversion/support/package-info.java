@@ -15,7 +15,6 @@
  */
 /**
  * Default implementation of the type conversion system.
- * From Spring
  * @since 3.0
  */
 package cn.taketoday.context.conversion.support;

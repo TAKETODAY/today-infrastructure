@@ -18,40 +18,25 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.conversion;
-
-import java.util.function.Function;
-import java.util.function.UnaryOperator;
+package cn.taketoday.context.conversion.support;
 
 /**
- * @author TODAY 2021/1/6 23:34
+ * @author TODAY 2021/3/21 10:35
  * @since 3.0
  */
-public class FunctionNumberConverter extends NumberConverter {
+public class DoubleConverter extends NumberConverter {
 
-  final UnaryOperator<Number> convertFunction;
-  final Function<String, Number> stringFunction;
-
-  public FunctionNumberConverter(Class<?> type,
-                                 Function<String, Number> stringFunction,
-                                 UnaryOperator<Number> convertFunction) {
-    super(type);
-    this.stringFunction = stringFunction;
-    this.convertFunction = convertFunction;
+  public DoubleConverter(Class<?> targetClass) {
+    super(targetClass);
   }
 
   @Override
   protected Number convertNumber(Number source) {
-    return convertFunction.apply(source);
+    return source.doubleValue();
   }
 
   @Override
   protected Number convertString(String source) {
-    final String stringVal = source.trim();
-    if (stringVal.isEmpty()) {
-      return convertNull();
-    }
-    return stringFunction.apply(stringVal);
+    return Double.parseDouble(source);
   }
-
 }

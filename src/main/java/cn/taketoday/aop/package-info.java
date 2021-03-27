@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,31 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.conversion;
-
-import cn.taketoday.context.utils.GenericDescriptor;
 
 /**
- * @author TODAY <br>
- * 2019-06-06 15:31
- * @since 2.1.6
+ * Aspect Programming
+ *
+ * @author TODAY 2021/3/27 10:46
  */
-public abstract class StringSourceTypeConverter implements TypeConverter {
-
-  @Override
-  public final boolean supports(final GenericDescriptor targetType, final Class<?> sourceType) {
-    return sourceType == String.class
-            && supportsInternal(targetType, sourceType);
-  }
-
-  public boolean supportsInternal(GenericDescriptor targetType, Class<?> sourceType) {
-    return true;
-  }
-
-  @Override
-  public final Object convert(GenericDescriptor targetType, Object source) {
-    return convertInternal(targetType, (String) source);
-  }
-
-  protected abstract Object convertInternal(GenericDescriptor targetClass, String source);
-}
+package cn.taketoday.aop;

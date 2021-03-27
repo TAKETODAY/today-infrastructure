@@ -18,18 +18,21 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.conversion;
+package cn.taketoday.context.conversion.support;
 
-import java.nio.charset.Charset;
+import java.time.Duration;
+
+import cn.taketoday.context.utils.ConvertUtils;
 
 /**
- * @author TODAY 2021/3/21 11:17
+ * @author TODAY 2021/3/21 11:18
  * @since 3.0
  */
-public class CharsetConverter extends StringSourceConverter<Charset> {
+public class DurationConverter extends StringSourceConverter<Duration> {
 
   @Override
-  public Charset convert(String source) {
-    return Charset.forName(source);
+  public Duration convert(String source) {
+    return ConvertUtils.parseDuration(source);
   }
+
 }

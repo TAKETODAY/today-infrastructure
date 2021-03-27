@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,7 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
+package cn.taketoday.context.conversion.support;
+
 /**
- * Logging System Adapter
+ * @author TODAY 2021/3/21 10:37
+ * @since 3.0
  */
-package cn.taketoday.context.logger;
+public class IntegerConverter extends NumberConverter {
+
+  public IntegerConverter(Class<?> targetClass) {
+    super(targetClass);
+  }
+}

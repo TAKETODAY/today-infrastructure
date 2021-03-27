@@ -18,11 +18,14 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.conversion;
+package cn.taketoday.context.conversion.support;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
 
+import cn.taketoday.context.conversion.AbstractTypeCapable;
+import cn.taketoday.context.conversion.Converter;
+import cn.taketoday.context.conversion.TypeCapable;
 import cn.taketoday.context.exception.ConversionException;
 
 /**

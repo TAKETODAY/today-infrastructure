@@ -18,25 +18,19 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.conversion;
+package cn.taketoday.context.conversion.support;
+
+import cn.taketoday.context.utils.MediaType;
 
 /**
- * @author TODAY 2021/3/21 10:35
+ * @author TODAY 2021/3/21 11:07
  * @since 3.0
  */
-public class ByteConverter extends NumberConverter {
-
-  public ByteConverter(Class<?> targetClass) {
-    super(targetClass);
-  }
+public class MediaTypeConverter extends StringSourceConverter<MediaType> {
 
   @Override
-  protected Number convertNumber(Number source) {
-    return source.byteValue();
+  public MediaType convert(String source) {
+    return MediaType.valueOf(source);
   }
 
-  @Override
-  protected Number convertString(String source) {
-    return Byte.parseByte(source);
-  }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,7 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 /**
- * Logging System Adapter
+ * Caching System
+ *
+ * @author TODAY 2021/3/27 10:29
  */
-package cn.taketoday.context.logger;
+package cn.taketoday.cache;

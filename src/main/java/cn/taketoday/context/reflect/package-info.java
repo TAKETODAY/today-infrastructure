@@ -18,19 +18,9 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.conversion;
-
-import cn.taketoday.context.utils.MediaType;
-
 /**
- * @author TODAY 2021/3/21 11:07
- * @since 3.0
+ * Optimised Reflection System
+ *
+ * @author TODAY 2021/3/27 10:33
  */
-public class MediaTypeConverter extends StringSourceConverter<MediaType> {
-
-  @Override
-  public MediaType convert(String source) {
-    return MediaType.valueOf(source);
-  }
-
-}
+package cn.taketoday.context.reflect;

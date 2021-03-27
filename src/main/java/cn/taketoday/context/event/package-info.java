@@ -18,25 +18,9 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.conversion;
-
 /**
- * @author TODAY 2021/3/21 10:36
- * @since 3.0
+ * Event System
+ *
+ * @author TODAY 2021/3/27 10:35
  */
-public class ShortConverter extends NumberConverter {
-
-  public ShortConverter(Class<?> targetClass) {
-    super(targetClass);
-  }
-
-  @Override
-  protected Number convertNumber(Number source) {
-    return source.shortValue();
-  }
-
-  @Override
-  protected Number convertString(String source) {
-    return Short.parseShort(source);
-  }
-}
+package cn.taketoday.context.event;

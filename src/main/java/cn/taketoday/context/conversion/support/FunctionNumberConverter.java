@@ -20,28 +20,38 @@
 
 package cn.taketoday.context.conversion.support;
 
-import cn.taketoday.context.conversion.TypeConverter;
-import cn.taketoday.context.utils.GenericDescriptor;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
- * @author TODAY 2021/3/22 16:45
+ * @author TODAY 2021/1/6 23:34
  * @since 3.0
  */
-public class StringToEnumConverter extends StringSourceTypeConverter implements TypeConverter {
+public class FunctionNumberConverter extends NumberConverter {
 
-  @Override
-  public boolean supportsInternal(GenericDescriptor targetClass, Class<?> sourceType) {
-    return targetClass.isEnum();
+  final UnaryOperator<Number> convertFunction;
+  final Function<String, Number> stringFunction;
+
+  public FunctionNumberConverter(Class<?> type,
+                                 Function<String, Number> stringFunction,
+                                 UnaryOperator<Number> convertFunction) {
+    super(type);
+    this.stringFunction = stringFunction;
+    this.convertFunction = convertFunction;
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  protected Object convertInternal(GenericDescriptor targetClass, String source) {
-    if (source.isEmpty()) {
-      // It's an empty enum identifier: reset the enum value to null.
-      return null;
+  protected Number convertNumber(Number source) {
+    return convertFunction.apply(source);
+  }
+
+  @Override
+  protected Number convertString(String source) {
+    final String stringVal = source.trim();
+    if (stringVal.isEmpty()) {
+      return convertNull();
     }
-    return Enum.valueOf((Class<Enum>) targetClass.getType(), source.trim());
+    return stringFunction.apply(stringVal);
   }
 
 }

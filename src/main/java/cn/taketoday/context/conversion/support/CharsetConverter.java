@@ -18,15 +18,18 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.conversion;
+package cn.taketoday.context.conversion.support;
+
+import java.nio.charset.Charset;
 
 /**
- * @author TODAY 2021/3/21 10:37
+ * @author TODAY 2021/3/21 11:17
  * @since 3.0
  */
-public class IntegerConverter extends NumberConverter {
+public class CharsetConverter extends StringSourceConverter<Charset> {
 
-  public IntegerConverter(Class<?> targetClass) {
-    super(targetClass);
+  @Override
+  public Charset convert(String source) {
+    return Charset.forName(source);
   }
 }

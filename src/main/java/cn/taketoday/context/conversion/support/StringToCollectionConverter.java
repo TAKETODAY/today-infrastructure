@@ -22,7 +22,6 @@ package cn.taketoday.context.conversion.support;
 import java.util.Collection;
 
 import cn.taketoday.context.conversion.ConversionService;
-import cn.taketoday.context.conversion.StringSourceTypeConverter;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.GenericDescriptor;
 import cn.taketoday.context.utils.StringUtils;

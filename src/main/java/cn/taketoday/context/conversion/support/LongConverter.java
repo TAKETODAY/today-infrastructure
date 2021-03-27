@@ -18,12 +18,25 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.conversion;
+package cn.taketoday.context.conversion.support;
 
 /**
- * @author TODAY 2021/3/21 11:02
+ * @author TODAY 2021/3/21 10:34
  * @since 3.0
  */
-public abstract class StringSourceConverter<R> implements Converter<String, R> {
+public class LongConverter extends NumberConverter {
 
+  public LongConverter(Class<?> targetClass) {
+    super(targetClass);
+  }
+
+  @Override
+  protected Number convertNumber(Number source) {
+    return source.longValue();
+  }
+
+  @Override
+  protected Number convertString(String source) {
+    return Long.parseLong(source);
+  }
 }

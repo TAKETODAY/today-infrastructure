@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,7 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
+package cn.taketoday.context.conversion.support;
+
+import cn.taketoday.context.conversion.Converter;
+
 /**
- * Logging System Adapter
+ * @author TODAY 2021/3/21 11:02
+ * @since 3.0
  */
-package cn.taketoday.context.logger;
+public abstract class StringSourceConverter<R> implements Converter<String, R> {
+
+}
