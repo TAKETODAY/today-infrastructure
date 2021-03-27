@@ -20,15 +20,13 @@
 
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.web.exception.WebNestedRuntimeException;
-
 /**
  * RequestBody cannot be parsed
  *
  * @author TODAY 2021/3/10 12:59
  * @since 3.0
  */
-public class RequestBodyParsingException extends WebNestedRuntimeException {
+public class RequestBodyParsingException extends ParameterReadFailedException {
   private static final long serialVersionUID = 1L;
 
   public RequestBodyParsingException() {
