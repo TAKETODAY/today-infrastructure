@@ -46,7 +46,7 @@ public @interface EnableCaching {
 
 class ProxyCachingConfiguration {
 
-  @MissingBean
+  @MissingBean(type = CacheManager.class)
   DefaultCacheManager cacheManager() {
     return new DefaultCacheManager();
   }
