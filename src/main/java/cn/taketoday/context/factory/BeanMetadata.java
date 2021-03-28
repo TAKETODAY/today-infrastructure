@@ -176,7 +176,7 @@ public class BeanMetadata {
   /**
    * Get properties mapping
    *
-   * @return map of peoperties
+   * @return map of properties
    */
   public Map<String, BeanProperty> getBeanProperties() {
     return beanProperties;
