@@ -150,11 +150,15 @@ public class SimpleExceptionHandler
       return handleExceptionInternal(ex, context);
     }
 
+    writeErrorMessage(ex, context);
+    return NONE_RETURN_VALUE;
+  }
+
+  protected void writeErrorMessage(Throwable ex, RequestContext context) throws IOException {
     context.contentType(Constant.CONTENT_TYPE_JSON);
     final PrintWriter writer = context.getWriter();
     writer.write(buildDefaultErrorMessage(ex));
     writer.flush();
-    return NONE_RETURN_VALUE;
   }
 
   protected String buildDefaultErrorMessage(final Throwable ex) {
