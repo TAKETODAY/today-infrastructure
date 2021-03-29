@@ -1106,8 +1106,11 @@ public class ResolvableType implements Serializable {
     }
 
     final Parameter parameter = parameters[parameterIndex];
-    final ResolvableType implementationType = (implementationClass != null ? forType(implementationClass) : null);
-    return forParameter(parameter, implementationType);
+    final Class<?> declaringClass = executable.getDeclaringClass();
+    final ResolvableType owner = implementationClass == null
+                                 ? forType(declaringClass)
+                                 : forType(implementationClass).as(declaringClass);
+    return forType(null, new ParameterTypeProvider(parameter), owner.asVariableResolver());
   }
 
   /**
@@ -1140,10 +1143,13 @@ public class ResolvableType implements Serializable {
    */
   public static ResolvableType forParameter(Parameter parameter, ResolvableType implementationType) {
     Assert.notNull(parameter, "Parameter must not be null");
-
     final Executable executable = parameter.getDeclaringExecutable();
     final Class<?> declaringClass = executable.getDeclaringClass();
-    final ResolvableType owner = (implementationType != null ? implementationType.as(declaringClass) : forType(declaringClass));
+
+    final ResolvableType owner = implementationType != null
+                                 ? implementationType.as(declaringClass)
+                                 : forType(declaringClass);
+
     return forType(null, new ParameterTypeProvider(parameter), owner.asVariableResolver());
   }
 
