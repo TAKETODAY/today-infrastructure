@@ -29,6 +29,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.condition.ConditionalOnClass;
 import cn.taketoday.web.view.JacksonMessageConverter;
+import cn.taketoday.web.view.MessageConverter;
 
 /**
  * @author TODAY 2021/3/26 20:16
@@ -38,7 +39,7 @@ import cn.taketoday.web.view.JacksonMessageConverter;
 @ConditionalOnClass("com.fasterxml.jackson.databind.ObjectMapper")
 public class JacksonConfiguration {
 
-  @MissingBean
+  @MissingBean(type = MessageConverter.class)
   JacksonMessageConverter messageConverterObjectMapper(
           @Autowired(required = false) ObjectMapper objectMapper, final List<ObjectMapperCustomizer> customizers) {
 
