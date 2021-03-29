@@ -50,7 +50,6 @@ public interface Constant extends cn.taketoday.context.Constant {
   String ENABLE_WEB_MVC_XML = "enable.webmvc.xml";
   String DOWNLOAD_BUFF_SIZE = "download.buff.size";
   String ENABLE_WEB_STARTED_LOG = "enable.started.log";
-  String FAST_JSON_SERIALIZE_FEATURES = "fastjson.serialize.features";
 
   String RESOURCE_MATCH_RESULT = ResourceMatchResult.class.getName();
 

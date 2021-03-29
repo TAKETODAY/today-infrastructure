@@ -23,17 +23,16 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.resolver.RequestBodyParsingException;
@@ -44,18 +43,23 @@ import cn.taketoday.web.resolver.RequestBodyParsingException;
  *
  * @author TODAY 2019-07-17 20:17
  */
-public class FastJsonMessageConverter extends AbstractMessageConverter implements MessageConverter {
+public class FastJSONMessageConverter extends AbstractMessageConverter implements MessageConverter {
 
-  private SerializerFeature[] serializeFeatures;
+  private SerializerFeature[] serializeFeatures = new SerializerFeature[] {
+          SerializerFeature.WriteMapNullValue,
+          SerializerFeature.WriteNullListAsEmpty,
+          SerializerFeature.DisableCircularReferenceDetect
+  };
 
-  @Autowired
-  public FastJsonMessageConverter(@Env(Constant.FAST_JSON_SERIALIZE_FEATURES) SerializerFeature[] feature) {
+  /** @since 3.0 */
+  private int parserFeature = JSON.DEFAULT_PARSER_FEATURE;
+  /** fast-json Parser Config @since 3.0 */
+  private ParserConfig parserConfig = ParserConfig.getGlobalInstance();
 
-    this.serializeFeatures = feature == null ? new SerializerFeature[] { //
-            SerializerFeature.WriteMapNullValue, //
-            SerializerFeature.WriteNullListAsEmpty, //
-            SerializerFeature.DisableCircularReferenceDetect//
-    } : feature;
+  public FastJSONMessageConverter() { }
+
+  public FastJSONMessageConverter(SerializerFeature... feature) {
+    this.serializeFeatures = feature;
   }
 
   @Override
@@ -77,7 +81,7 @@ public class FastJsonMessageConverter extends AbstractMessageConverter implement
     else if (body instanceof JSONObject) {
       return fromJSONObject(parameter, (JSONObject) body);
     }
-    return null;
+    throw new RequestBodyParsingException("Cannot determine request-body");
   }
 
   Object getBody(RequestContext context) {
@@ -93,11 +97,23 @@ public class FastJsonMessageConverter extends AbstractMessageConverter implement
       if (builder.length() == 0) {
         return null;
       }
-      requestBody = JSON.parse(builder.toString());
+      requestBody = parseRequestBody(builder.toString());
       // cache request body
       context.requestBody(requestBody);
     }
     return requestBody;
+  }
+
+  /**
+   * do parse operation
+   *
+   * @param body
+   *         request body text
+   *
+   * @return {@link JSONObject} or {@link JSONArray}
+   */
+  protected Object parseRequestBody(String body) {
+    return JSON.parse(body, parserConfig, parserFeature);
   }
 
   protected Object fromJSONArray(final MethodParameter parameter, final JSONArray requestBody) {
@@ -166,12 +182,53 @@ public class FastJsonMessageConverter extends AbstractMessageConverter implement
     return requestBody.getJSONArray(parameter.getName());
   }
 
+  //
+
+  /**
+   * Add new features to {@link #parserFeature}
+   */
+  public void addParserFeatures(Feature... parserFeature) {
+    int featureValues = this.parserFeature;
+    for (Feature feature : parserFeature) {
+      featureValues = Feature.config(featureValues, feature, true);
+    }
+    setParserFeatures(featureValues);
+  }
+
+  /**
+   * override {@link #parserFeature}
+   *
+   * @param parserFeature
+   *         new {@link Feature}s
+   */
+  public void setParserFeature(Feature... parserFeature) {
+    setParserFeatures(Feature.of(parserFeature));
+  }
+
+  protected void setParserFeatures(int features) {
+    this.parserFeature = features;
+  }
+
   public SerializerFeature[] getSerializeFeatures() {
     return serializeFeatures;
   }
 
   public void setSerializeFeatures(SerializerFeature... serializeFeatures) {
     this.serializeFeatures = serializeFeatures;
+  }
+
+  public ParserConfig getParserConfig() {
+    return parserConfig;
+  }
+
+  /**
+   * Set FastJSON parser config
+   *
+   * @param parserConfig
+   *         config object
+   */
+  public void setParserConfig(ParserConfig parserConfig) {
+    this.parserConfig = parserConfig;
   }
 }
 
