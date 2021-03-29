@@ -1,4 +1,4 @@
-# TODAY WEB
+# TODAY Web
 
 🍎 A Java library for building web applications
 
