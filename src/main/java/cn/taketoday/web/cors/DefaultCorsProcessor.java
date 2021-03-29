@@ -21,20 +21,17 @@ package cn.taketoday.web.cors;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.utils.WebUtils;
-
-import static cn.taketoday.context.utils.StringUtils.collectionToString;
 
 /**
  * The default implementation of {@link CorsProcessor}, as defined by the
@@ -57,15 +54,20 @@ public class DefaultCorsProcessor implements CorsProcessor {
   @Override
   public boolean process(final CorsConfiguration config, final RequestContext context) throws IOException {
 
-    context.addResponseHeader(Constant.VARY, Constant.ORIGIN);
-    context.addResponseHeader(Constant.VARY, Constant.ACCESS_CONTROL_REQUEST_METHOD);
-    context.addResponseHeader(Constant.VARY, Constant.ACCESS_CONTROL_REQUEST_HEADERS);
+    final HttpHeaders responseHeaders = context.responseHeaders();
+
+    responseHeaders.setVary(
+            Arrays.asList(Constant.ORIGIN,
+                          Constant.ACCESS_CONTROL_REQUEST_METHOD,
+                          Constant.ACCESS_CONTROL_REQUEST_HEADERS
+            )
+    );
 
     if (!WebUtils.isCorsRequest(context)) {
       return true;
     }
 
-    if (context.responseHeader(Constant.ACCESS_CONTROL_ALLOW_ORIGIN) != null) {
+    if (responseHeaders.getFirst(Constant.ACCESS_CONTROL_ALLOW_ORIGIN) != null) {
       log.trace("Skip: response already contains \"Access-Control-Allow-Origin\"");
       return true;
     }
@@ -97,8 +99,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
    */
   protected boolean handleInternal(
           final RequestContext context, final CorsConfiguration config, boolean preFlightRequest) throws IOException {
-
-    final String requestOrigin = context.requestHeader(Constant.ORIGIN);
+    final String requestOrigin = context.requestHeaders().getOrigin();
 
     String allowOrigin = checkOrigin(config, requestOrigin);
 
@@ -124,29 +125,27 @@ public class DefaultCorsProcessor implements CorsProcessor {
       return false;
     }
 
-    context.responseHeader(Constant.ACCESS_CONTROL_ALLOW_ORIGIN, allowOrigin);
+    final HttpHeaders responseHeaders = context.responseHeaders();
+    responseHeaders.setAccessControlAllowOrigin(allowOrigin);
 
     if (preFlightRequest) {
-      context.responseHeader(Constant.ACCESS_CONTROL_ALLOW_METHODS,
-                             collectionToString(allowMethods, ","));
+      responseHeaders.addAll(Constant.ACCESS_CONTROL_ALLOW_METHODS, allowMethods);
     }
 
     if (preFlightRequest && !allowHeaders.isEmpty()) {
-      context.responseHeader(Constant.ACCESS_CONTROL_ALLOW_HEADERS,
-                             collectionToString(allowHeaders, ","));
+      responseHeaders.addAll(Constant.ACCESS_CONTROL_ALLOW_HEADERS, allowHeaders);
     }
 
     if (!ObjectUtils.isEmpty(config.getExposedHeaders())) {
-      context.responseHeader(Constant.ACCESS_CONTROL_EXPOSE_HEADERS,
-                             collectionToString(config.getExposedHeaders(), ","));
+      responseHeaders.addAll(Constant.ACCESS_CONTROL_EXPOSE_HEADERS, config.getExposedHeaders());
     }
 
     if (Boolean.TRUE.equals(config.getAllowCredentials())) {
-      context.responseHeader(Constant.ACCESS_CONTROL_ALLOW_CREDENTIALS, Boolean.TRUE.toString());
+      responseHeaders.setAccessControlAllowCredentials(Boolean.TRUE);
     }
 
     if (preFlightRequest && config.getMaxAge() != null) {
-      context.responseDateHeader(Constant.ACCESS_CONTROL_MAX_AGE, config.getMaxAge());
+      responseHeaders.setAccessControlMaxAge(config.getMaxAge());
     }
 
     context.flush();
@@ -174,7 +173,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
   }
 
   private String getMethodToUse(RequestContext context, boolean isPreFlight) {
-    return isPreFlight ? context.requestHeader(Constant.ACCESS_CONTROL_REQUEST_METHOD) : context.method();
+    return isPreFlight ? context.requestHeaders().getFirst(Constant.ACCESS_CONTROL_REQUEST_METHOD) : context.method();
   }
 
   /**
@@ -188,14 +187,14 @@ public class DefaultCorsProcessor implements CorsProcessor {
 
   private List<String> getHeadersToUse(RequestContext context, boolean isPreFlight) {
     if (isPreFlight) {
-      final String requestHeader = context.requestHeader(Constant.ACCESS_CONTROL_REQUEST_HEADERS);
-      if (StringUtils.isNotEmpty(requestHeader)) {
-        ArrayList<String> result = new ArrayList<>();
-        Collections.addAll(result, StringUtils.tokenizeToStringArray(requestHeader, ","));
-        return result;
-      }
+      return context.requestHeaders().getAccessControlRequestHeaders();
     }
-    return CollectionUtils.enumerationToList(context.requestHeaderNames());
+    // TODO optimise
+    final ArrayList<String> ret = new ArrayList<>();
+    for (final String requestHeader : context.requestHeaders()) {
+      ret.add(requestHeader);
+    }
+    return ret;
   }
 
 }

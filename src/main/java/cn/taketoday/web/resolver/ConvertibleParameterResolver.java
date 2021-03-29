@@ -19,7 +19,12 @@
  */
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.context.utils.ConvertUtils;
+import java.lang.reflect.Method;
+
+import cn.taketoday.context.conversion.ConversionService;
+import cn.taketoday.context.conversion.support.DefaultConversionService;
+import cn.taketoday.context.utils.Assert;
+import cn.taketoday.context.utils.GenericDescriptor;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 
@@ -27,14 +32,16 @@ import cn.taketoday.web.handler.MethodParameter;
  * @author TODAY <br>
  * 2019-07-13 11:21
  */
-public abstract class TypeConverterParameterResolver
+public abstract class ConvertibleParameterResolver
         extends OrderedAbstractParameterResolver implements ParameterResolver {
 
-  protected TypeConverterParameterResolver() {
+  protected ConversionService conversionService = DefaultConversionService.getSharedInstance();
+
+  protected ConvertibleParameterResolver() {
     this(HIGHEST_PRECEDENCE);
   }
 
-  protected TypeConverterParameterResolver(int order) {
+  protected ConvertibleParameterResolver(int order) {
     setOrder(order);
   }
 
@@ -47,12 +54,31 @@ public abstract class TypeConverterParameterResolver
   }
 
   @Override
-  protected Object transformValue(RequestContext context, MethodParameter parameter, Object original) {
-    return ConvertUtils.convert(original, resolveTargetClass(parameter));
+  protected Object transformValue(
+          final RequestContext context, final MethodParameter parameter, final Object original) {
+
+    final Method method = parameter.getHandlerMethod().getMethod();
+    final GenericDescriptor targetType = GenericDescriptor.ofParameter(method, parameter.getParameterIndex());
+
+    return obtainConversionService().convert(original, targetType);
   }
 
   protected Class<?> resolveTargetClass(final MethodParameter parameter) {
     return parameter.getParameterClass();
+  }
+
+  public void setConversionService(ConversionService conversionService) {
+    this.conversionService = conversionService;
+  }
+
+  public ConversionService getConversionService() {
+    return conversionService;
+  }
+
+  protected ConversionService obtainConversionService() {
+    final ConversionService conversionService = getConversionService();
+    Assert.state(conversionService != null, "No ConversionService set");
+    return conversionService;
   }
 
 }

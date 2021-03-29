@@ -35,6 +35,8 @@ import java.util.Objects;
 import cn.taketoday.context.EmptyObject;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.web.http.DefaultHttpHeaders;
+import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.resolver.MultipartFileParsingException;
 import cn.taketoday.web.ui.ModelAndView;
@@ -60,6 +62,11 @@ public abstract class AbstractRequestContext implements RequestContext {
   private OutputStream outputStream;
 
   private Map<String, List<MultipartFile>> multipartFiles;
+
+  /** @since 3.0 */
+  private HttpHeaders requestHeaders;
+  /** @since 3.0 */
+  private HttpHeaders responseHeaders;
 
   @Override
   public String contextPath() {
@@ -130,6 +137,11 @@ public abstract class AbstractRequestContext implements RequestContext {
   public ModelAndView modelAndView() {
     final ModelAndView ret = this.modelAndView;
     return ret == null ? this.modelAndView = new ModelAndView(this) : ret;
+  }
+
+  @Override
+  public boolean hasModelAndView() {
+    return modelAndView != null;
   }
 
   @Override
@@ -248,6 +260,34 @@ public abstract class AbstractRequestContext implements RequestContext {
    */
   @Override
   public abstract Map<String, String[]> parameters();
+
+  // HTTP headers
+
+  @Override
+  public HttpHeaders responseHeaders() {
+    HttpHeaders ret = this.responseHeaders;
+    if (ret == null) {
+      this.responseHeaders = ret = createResponseHeaders();
+    }
+    return ret;
+  }
+
+  protected HttpHeaders createResponseHeaders() {
+    return new DefaultHttpHeaders();
+  }
+
+  @Override
+  public HttpHeaders requestHeaders() {
+    HttpHeaders ret = this.requestHeaders;
+    if (ret == null) {
+      this.requestHeaders = ret = createRequestHeaders();
+    }
+    return ret;
+  }
+
+  protected abstract HttpHeaders createRequestHeaders();
+
+  public void applyHeaders() { }
 
   @Override
   public String toString() {

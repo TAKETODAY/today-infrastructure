@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -59,7 +60,7 @@ import static java.util.Locale.US;
  * @author TODAY <br>
  * 2020-01-28 17:15
  */
-public interface HttpHeaders extends Constant, MultiValueMap<String, String> {
+public interface HttpHeaders extends Constant, Iterable<String> {
 
   /**
    * Pattern matching ETag multiple field values in headers such as "If-Match",
@@ -103,7 +104,7 @@ public interface HttpHeaders extends Constant, MultiValueMap<String, String> {
    *
    * @return the list of header values, or an empty list
    */
-  default List<String> getOrEmpty(Object headerName) {
+  default List<String> getOrEmpty(String headerName) {
     List<String> values = get(headerName);
     return (values != null ? values : Collections.emptyList());
   }
@@ -138,7 +139,7 @@ public interface HttpHeaders extends Constant, MultiValueMap<String, String> {
             .map(range -> range.getWeight() == Locale.LanguageRange.MAX_WEIGHT ? range.getRange() : range.getRange() + ";q=" + decimal
                     .format(range.getWeight()))
             .collect(Collectors.toList());
-    set(ACCEPT_LANGUAGE, toCommaDelimitedString(values));
+    set(ACCEPT_LANGUAGE, StringUtils.collectionToString(values));
   }
 
   /**
@@ -207,7 +208,7 @@ public interface HttpHeaders extends Constant, MultiValueMap<String, String> {
    * header.
    */
   default void setAccessControlAllowHeaders(List<String> allowedHeaders) {
-    set(ACCESS_CONTROL_ALLOW_HEADERS, toCommaDelimitedString(allowedHeaders));
+    set(ACCESS_CONTROL_ALLOW_HEADERS, StringUtils.collectionToString(allowedHeaders));
   }
 
   /**
@@ -260,7 +261,7 @@ public interface HttpHeaders extends Constant, MultiValueMap<String, String> {
    * header.
    */
   default void setAccessControlExposeHeaders(List<String> exposedHeaders) {
-    set(ACCESS_CONTROL_EXPOSE_HEADERS, toCommaDelimitedString(exposedHeaders));
+    set(ACCESS_CONTROL_EXPOSE_HEADERS, StringUtils.collectionToString(exposedHeaders));
   }
 
   /**
@@ -300,7 +301,7 @@ public interface HttpHeaders extends Constant, MultiValueMap<String, String> {
    * header.
    */
   default void setAccessControlRequestHeaders(List<String> requestHeaders) {
-    set(ACCESS_CONTROL_REQUEST_HEADERS, toCommaDelimitedString(requestHeaders));
+    set(ACCESS_CONTROL_REQUEST_HEADERS, StringUtils.collectionToString(requestHeaders));
   }
 
   /**
@@ -461,7 +462,7 @@ public interface HttpHeaders extends Constant, MultiValueMap<String, String> {
    * Set the (new) value of the {@code Connection} header.
    */
   default void setConnection(List<String> connection) {
-    set(CONNECTION, toCommaDelimitedString(connection));
+    set(CONNECTION, StringUtils.collectionToString(connection));
   }
 
   /**
@@ -778,7 +779,7 @@ public interface HttpHeaders extends Constant, MultiValueMap<String, String> {
    * Set the (new) value of the {@code If-Match} header.
    */
   default void setIfMatch(List<String> ifMatchList) {
-    set(IF_MATCH, toCommaDelimitedString(ifMatchList));
+    set(IF_MATCH, StringUtils.collectionToString(ifMatchList));
   }
 
   /**
@@ -837,7 +838,7 @@ public interface HttpHeaders extends Constant, MultiValueMap<String, String> {
    * Set the (new) values of the {@code If-None-Match} header.
    */
   default void setIfNoneMatch(List<String> ifNoneMatchList) {
-    set(IF_NONE_MATCH, toCommaDelimitedString(ifNoneMatchList));
+    set(IF_NONE_MATCH, StringUtils.collectionToString(ifNoneMatchList));
   }
 
   /**
@@ -995,7 +996,7 @@ public interface HttpHeaders extends Constant, MultiValueMap<String, String> {
    *         the request header names
    */
   default void setVary(List<String> requestHeaders) {
-    set(VARY, toCommaDelimitedString(requestHeaders));
+    set(VARY, StringUtils.collectionToString(requestHeaders));
   }
 
   /**
@@ -1127,8 +1128,8 @@ public interface HttpHeaders extends Constant, MultiValueMap<String, String> {
       }
     }
     if (rejectInvalid) {
-      throw new IllegalArgumentException("Cannot parse date value \"" + headerValue +
-                                                 "\" for \"" + headerName + "\" header");
+      throw new IllegalArgumentException(
+              "Cannot parse date value \"" + headerValue + "\" for \"" + headerName + "\" header");
     }
     return null;
   }
@@ -1184,10 +1185,9 @@ public interface HttpHeaders extends Constant, MultiValueMap<String, String> {
     List<String> values = get(headerName);
     if (values != null) {
       ArrayList<String> result = new ArrayList<>();
-      Pattern etagHeaderValuePattern = ETAG_HEADER_VALUE_PATTERN;
       for (String value : values) {
         if (value != null) {
-          Matcher matcher = etagHeaderValuePattern.matcher(value);
+          Matcher matcher = ETAG_HEADER_VALUE_PATTERN.matcher(value);
           while (matcher.find()) {
             if ("*".equals(matcher.group())) {
               result.add(matcher.group());
@@ -1216,25 +1216,7 @@ public interface HttpHeaders extends Constant, MultiValueMap<String, String> {
    */
   default String getFieldValues(String headerName) {
     List<String> headerValues = get(headerName);
-    return (headerValues != null ? toCommaDelimitedString(headerValues) : null);
-  }
-
-  /**
-   * Turn the given list of header values into a comma-delimited result.
-   *
-   * @param headerValues
-   *         the list of header values
-   *
-   * @return a combined result with comma delimitation
-   */
-  default String toCommaDelimitedString(List<String> headerValues) {
-    StringJoiner joiner = new StringJoiner(", ");
-    for (String val : headerValues) {
-      if (val != null) {
-        joiner.add(val);
-      }
-    }
-    return joiner.toString();
+    return (headerValues != null ? StringUtils.collectionToString(headerValues) : null);
   }
 
   /**
@@ -1295,8 +1277,15 @@ public interface HttpHeaders extends Constant, MultiValueMap<String, String> {
     values.forEach(this::set);
   }
 
-  List<String> get(Object key);
+  List<String> get(String key);
 
-  List<String> remove(Object key);
+  List<String> remove(String key);
 
+  MultiValueMap<String, String> asMap();
+
+  /**
+   * @return header names iterator
+   */
+  @Override
+  Iterator<String> iterator();
 }

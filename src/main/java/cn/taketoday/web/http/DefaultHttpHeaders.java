@@ -20,6 +20,7 @@
 package cn.taketoday.web.http;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,11 +29,10 @@ import cn.taketoday.context.utils.DefaultMultiValueMap;
 import cn.taketoday.context.utils.MultiValueMap;
 
 /**
- * @author TODAY <br>
- *         2020-01-30 18:31
+ * @author TODAY 2020-01-30 18:31
+ * @since 3.0
  */
 public class DefaultHttpHeaders implements HttpHeaders, MultiValueMap<String, String> {
-
   private static final long serialVersionUID = 1L;
 
   final MultiValueMap<String, String> headers;
@@ -76,8 +76,13 @@ public class DefaultHttpHeaders implements HttpHeaders, MultiValueMap<String, St
   }
 
   @Override
-  public List<String> get(Object key) {
+  public List<String> get(String key) {
     return headers.get(key);
+  }
+
+  @Override
+  public List<String> remove(String key) {
+    return headers.remove(key);
   }
 
   @Override
@@ -103,6 +108,11 @@ public class DefaultHttpHeaders implements HttpHeaders, MultiValueMap<String, St
   @Override
   public boolean containsValue(Object value) {
     return headers.containsValue(value);
+  }
+
+  @Override
+  public List<String> get(Object key) {
+    return headers.get(key);
   }
 
   @Override
@@ -140,4 +150,13 @@ public class DefaultHttpHeaders implements HttpHeaders, MultiValueMap<String, St
     return headers.toSingleValueMap();
   }
 
+  @Override
+  public Iterator<String> iterator() {
+    return headers.keySet().iterator();
+  }
+
+  @Override
+  public MultiValueMap<String, String> asMap() {
+    return headers;
+  }
 }

@@ -464,28 +464,6 @@ public class CorsConfiguration {
   }
 
   /**
-   * Check the HTTP request method (or the method from the
-   * {@code Access-Control-Request-Method} header on a pre-flight request) against
-   * the configured allowed methods.
-   *
-   * @param method
-   *            the HTTP request method to check
-   * @return the list of HTTP methods to list in the response of a pre-flight
-   *         request, or {@code null} if the supplied {@code requestMethod} is not
-   *         allowed
-   */
-  public List<String> checkRequestMethod(final String method) {
-    if (method == null) {
-      return null;
-    }
-    final List<String> resolvedMethods = this.resolvedMethods;
-    if (resolvedMethods == null) {
-      return singletonList(method);
-    }
-    return (resolvedMethods.contains(method) ? resolvedMethods : null);
-  }
-
-  /**
    * Check the supplied request headers (or the headers listed in the
    * {@code Access-Control-Request-Headers} of a pre-flight request) against the
    * configured allowed headers.

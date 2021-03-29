@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 
 import cn.taketoday.context.ApplicationContext.State;
 import cn.taketoday.context.utils.Assert;
+import cn.taketoday.web.AbstractRequestContext;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
@@ -223,9 +224,17 @@ public class DispatcherHandler extends WebApplicationContextSupport {
         lookupResultHandler(handler, view)
                 .handleResult(context, handler, view);
       }
+      // @since 3.0 flush headers
+      applyHeaders(context);
     }
     catch (Throwable e) {
       handleException(handler, e, context);
+    }
+  }
+
+  private void applyHeaders(final RequestContext context) {
+    if(context instanceof AbstractRequestContext) {
+      ((AbstractRequestContext) context).applyHeaders();
     }
   }
 
@@ -251,9 +260,12 @@ public class DispatcherHandler extends WebApplicationContextSupport {
       for (final RuntimeResultHandler resultHandler : resultHandlers) {
         if (resultHandler.supportsResult(view)) {
           resultHandler.handleResult(context, handler, view);
+          break;
         }
       }
     }
+    // @since 3.0 flush headers
+    applyHeaders(context);
   }
 
   /**

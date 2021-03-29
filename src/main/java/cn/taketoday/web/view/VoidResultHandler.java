@@ -21,7 +21,6 @@ package cn.taketoday.web.view;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
@@ -47,10 +46,8 @@ public class VoidResultHandler extends ModelAndViewResultHandler {
   @Override
   public void handleResult(final RequestContext context,
                            final Object handler, final Object result) throws Throwable {
-
-    final ModelAndView modelAndView = context.modelAndView();
-    if (modelAndView != null) {
-      resolveModelAndView(context, modelAndView);
+    if (context.hasModelAndView()) {
+      resolveModelAndView(context, context.modelAndView());
     }
   }
 

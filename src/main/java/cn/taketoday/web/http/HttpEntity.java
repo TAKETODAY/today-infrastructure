@@ -110,7 +110,7 @@ public class HttpEntity<T> {
     this.body = body;
     HttpHeaders tempHeaders = new DefaultHttpHeaders();
     if (headers != null) {
-      tempHeaders.putAll(headers);
+      tempHeaders.addAll(headers);
     }
     this.headers = tempHeaders;
   }

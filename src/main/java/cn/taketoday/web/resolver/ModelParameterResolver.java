@@ -21,9 +21,9 @@ package cn.taketoday.web.resolver;
 
 import java.util.Map;
 
-import cn.taketoday.web.HttpHeaders;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.ui.Model;
 import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.ui.RedirectModel;
@@ -31,17 +31,18 @@ import cn.taketoday.web.ui.RedirectModelAttributes;
 
 /**
  * @author TODAY <br>
- *         2019-07-09 22:49
+ * 2019-07-09 22:49
  */
 public class ModelParameterResolver implements ParameterResolver {
 
   @Override
   public boolean supports(final MethodParameter parameter) {
-    return parameter.isAssignableFrom(Model.class) //
-            || parameter.is(HttpHeaders.class)//
-            || (parameter.is(Map.class)
-            && parameter.isGenericPresent(String.class, 0)
-            && parameter.isGenericPresent(Object.class, 1)//
+    return parameter.isAssignableFrom(Model.class)
+            || parameter.is(HttpHeaders.class)
+            || (
+            parameter.is(Map.class) // Map<String, Object> model;
+                    && parameter.isGenericPresent(String.class, 0)
+                    && parameter.isGenericPresent(Object.class, 1)
     );
   }
 
@@ -57,6 +58,12 @@ public class ModelParameterResolver implements ParameterResolver {
     }
     if (parameter.isAssignableFrom(ModelAndView.class)) {
       return context.modelAndView();
+    }
+
+    { // @since 3.0
+      if (parameter.is(HttpHeaders.class)) {
+        return context.requestHeaders();
+      }
     }
     return context;
   }

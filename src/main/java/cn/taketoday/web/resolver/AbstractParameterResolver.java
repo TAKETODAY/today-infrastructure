@@ -56,6 +56,12 @@ public abstract class AbstractParameterResolver implements ParameterResolver {
     }
   }
 
+  /**
+   * subclasses can perform type conversion
+   *
+   * @param original
+   *         original value
+   */
   protected Object transformValue(RequestContext context, MethodParameter parameter, Object original) {
     return original;
   }

@@ -29,6 +29,7 @@ import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.exception.NotFoundException;
 import cn.taketoday.web.exception.ResourceNotFoundException;
+import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resource.CacheControl;
@@ -119,7 +120,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
     context.status(HttpStatus.OK);
 
     final ResourceMapping resourceMapping = getMapping();
-    applyHeaders(context, lastModified, eTag, resourceMapping);
+    applyHeaders(context.responseHeaders(), lastModified, eTag, resourceMapping);
 
     if (WebUtils.isHeadRequest(context)) {
       return;
@@ -188,7 +189,8 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
                                  final RequestContext requestContext, //
                                  final ResourceMapping resourceMapping) throws IOException //
   {
-    requestContext.responseHeader(Constant.CONTENT_ENCODING, Constant.GZIP);
+    final HttpHeaders requestHeaders = requestContext.requestHeaders();
+    requestHeaders.set(Constant.CONTENT_ENCODING, Constant.GZIP);
 
     final int bufferSize = resourceMapping.getBufferSize();
 
@@ -238,29 +240,26 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
   /**
    * Apply the Content-Type, Last-Modified, ETag, Cache-Control, Expires
    *
-   * @param context
-   *         Current request context
-   *
    * @throws IOException
    *         If last modify read error
    */
-  protected void applyHeaders(final RequestContext context,
+  protected void applyHeaders(HttpHeaders responseHeaders,
                               final long lastModified,
                               final String eTag,
                               final ResourceMapping resourceMapping) throws IOException //
   {
     if (lastModified > 0) {
-      context.responseDateHeader(Constant.LAST_MODIFIED, lastModified);
+      responseHeaders.setLastModified(lastModified);
     }
     if (StringUtils.isNotEmpty(eTag)) {
-      context.responseHeader(Constant.ETAG, eTag);
+      responseHeaders.setETag(eTag);
     }
     final CacheControl cacheControl = resourceMapping.getCacheControl();
     if (cacheControl != null) {
-      context.responseHeader(Constant.CACHE_CONTROL, cacheControl.toString());
+      responseHeaders.setCacheControl(cacheControl);
     }
     if (resourceMapping.getExpires() > 0) {
-      context.responseDateHeader(Constant.EXPIRES, System.currentTimeMillis() + resourceMapping.getExpires());
+      responseHeaders.setExpires(System.currentTimeMillis() + resourceMapping.getExpires());
     }
   }
 

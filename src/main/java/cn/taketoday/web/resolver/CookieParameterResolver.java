@@ -57,7 +57,7 @@ public class CookieParameterResolver
     return null;
   }
 
-  public static class CookieAnnotationParameterResolver extends TypeConverterParameterResolver {
+  public static class CookieAnnotationParameterResolver extends ConvertibleParameterResolver {
 
     @Override
     public boolean supports(MethodParameter parameter) {

@@ -22,6 +22,7 @@ package cn.taketoday.web.session;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.http.HttpHeaders;
 
 /**
  * @author TODAY <br>
@@ -61,11 +62,11 @@ public class HeaderTokenResolver implements TokenResolver {
   }
 
   @Override
-  public String getToken(RequestContext context) {
-    String token = context.requestHeader(getAuthorizationHeader());
+  public String getToken(final RequestContext context) {
+    String token = context.requestHeaders().getFirst(getAuthorizationHeader());
 
     if (StringUtils.isEmpty(token)) { // has already set the header on the current request
-      token = context.responseHeader(getRequiredAuthorizationHeader());
+      token = context.responseHeaders().getFirst(getRequiredAuthorizationHeader());
     }
     return token;
   }
@@ -73,10 +74,11 @@ public class HeaderTokenResolver implements TokenResolver {
   @Override
   public void saveToken(RequestContext context, WebSession session) {
     final String requiredAuthorizationHeader = getRequiredAuthorizationHeader();
-    context.responseHeader(requiredAuthorizationHeader, session.getId());
+    final HttpHeaders responseHeaders = context.responseHeaders();
+    responseHeaders.set(requiredAuthorizationHeader, session.getId());
 
     if (isExposeHeaders()) {
-      context.addResponseHeader(Constant.ACCESS_CONTROL_EXPOSE_HEADERS, requiredAuthorizationHeader);
+      responseHeaders.add(Constant.ACCESS_CONTROL_EXPOSE_HEADERS, requiredAuthorizationHeader);
     }
   }
 

@@ -19,9 +19,6 @@
  */
 package cn.taketoday.web.view;
 
-import java.util.List;
-import java.util.Map;
-
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.http.ResponseEntity;
@@ -30,9 +27,9 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
 /**
  * Handle ResponseEntity
  *
- * @author TODAY
- * @date 2020/12/7 22:46
+ * @author TODAY 2020/12/7 22:46
  * @see ResponseEntity
+ * @since 3.0
  */
 public class ResponseEntityResultHandler
         extends HandlerMethodResultHandler implements ResultHandler {
@@ -62,11 +59,6 @@ public class ResponseEntityResultHandler
 
     handleObject(context, response.getBody());
     // apply headers
-    for (final Map.Entry<String, List<String>> entry : response.getHeaders().entrySet()) {
-      final String headName = entry.getKey();
-      for (final String header : entry.getValue()) {
-        context.addResponseHeader(headName, header);
-      }
-    }
+    context.responseHeaders().addAll(response.getHeaders().asMap());
   }
 }

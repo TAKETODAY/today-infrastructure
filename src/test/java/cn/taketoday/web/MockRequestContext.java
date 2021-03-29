@@ -24,11 +24,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpCookie;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.ui.Model;
 import cn.taketoday.web.ui.RedirectModel;
@@ -63,76 +63,9 @@ public class MockRequestContext extends AbstractRequestContext {
     return null;
   }
 
-  @Override
-  public String requestHeader(String name) {
-    return null;
-  }
-
-  @Override
-  public Enumeration<String> requestHeaders(String name) {
-    return null;
-  }
-
-  @Override
-  public Enumeration<String> requestHeaderNames() {
-    return null;
-  }
-
-  @Override
-  public int requestIntHeader(String name) {
-    return 0;
-  }
-
-  @Override
-  public long requestDateHeader(String name) {
-    return 0;
-  }
 
   @Override
   public String contentType() {
-    return null;
-  }
-
-  @Override
-  public String responseHeader(String name) {
-    return null;
-  }
-
-  @Override
-  public Collection<String> responseHeaders(String name) {
-    return null;
-  }
-
-  @Override
-  public Collection<String> responseHeaderNames() {
-    return null;
-  }
-
-  @Override public HttpHeaders responseHeader(String name, String value) {
-    return null;
-  }
-
-  @Override public HttpHeaders addResponseHeader(String name, String value) {
-    return null;
-  }
-
-  @Override public HttpHeaders responseDateHeader(String name, long date) {
-    return null;
-  }
-
-  @Override public HttpHeaders addResponseDateHeader(String name, long date) {
-    return null;
-  }
-
-  @Override public HttpHeaders responseIntHeader(String name, int value) {
-    return null;
-  }
-
-  @Override public HttpHeaders addResponseIntHeader(String name, int value) {
-    return null;
-  }
-
-  @Override public HttpHeaders contentType(String contentType) {
     return null;
   }
 
@@ -202,6 +135,11 @@ public class MockRequestContext extends AbstractRequestContext {
   @Override
   public RequestContext sendError(int sc, String msg) throws IOException {
     return null;
+  }
+
+  @Override
+  public void contentType(String contentType) {
+
   }
 
   @Override
@@ -287,6 +225,11 @@ public class MockRequestContext extends AbstractRequestContext {
   @Override
   public void flush() throws IOException {
 
+  }
+
+  @Override
+  protected HttpHeaders createRequestHeaders() {
+    return null;
   }
 
   @Override

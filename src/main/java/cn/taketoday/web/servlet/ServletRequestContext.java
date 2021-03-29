@@ -25,7 +25,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpCookie;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,10 +49,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
 import cn.taketoday.context.utils.ConvertUtils;
+import cn.taketoday.context.utils.DefaultMultiValueMap;
+import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.AbstractRequestContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.exception.WebNestedRuntimeException;
+import cn.taketoday.web.http.DefaultHttpHeaders;
+import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.multipart.DefaultMultipartFile;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.resolver.MultipartFileParsingException;
@@ -231,21 +237,6 @@ public class ServletRequestContext
   }
 
   @Override
-  public String requestHeader(String name) {
-    return request.getHeader(name);
-  }
-
-  @Override
-  public Enumeration<String> requestHeaders(String name) {
-    return request.getHeaders(name);
-  }
-
-  @Override
-  public Enumeration<String> requestHeaderNames() {
-    return request.getHeaderNames();
-  }
-
-  @Override
   public long contentLength() {
     return request.getContentLengthLong();
   }
@@ -256,9 +247,8 @@ public class ServletRequestContext
   }
 
   @Override
-  public RequestContext contentType(String contentType) {
+  public void contentType(String contentType) {
     response.setContentType(contentType);
-    return this;
   }
 
   @Override
@@ -320,65 +310,23 @@ public class ServletRequestContext
     return response.getStatus();
   }
 
-  @Override
-  public String responseHeader(String name) {
-    return response.getHeader(name);
-  }
+  // HTTP headers
 
   @Override
-  public Collection<String> responseHeaders(String name) {
-    return response.getHeaders(name);
-  }
+  protected HttpHeaders createRequestHeaders() {
+    final HttpServletRequest request = this.request;
 
-  @Override
-  public Collection<String> responseHeaderNames() {
-    return response.getHeaderNames();
-  }
+    final DefaultMultiValueMap<String, String> httpHeaders = new DefaultMultiValueMap<>();
+    final Enumeration<String> headerNames = request.getHeaderNames();
+    while (headerNames.hasMoreElements()) {
 
-  @Override
-  public RequestContext responseHeader(String name, String value) {
-    response.setHeader(name, value);
-    return this;
-  }
+      final String name = headerNames.nextElement();
+      final Enumeration<String> headers = request.getHeaders(name);
+      final ArrayList<String> arrayList = Collections.list(headers);
+      httpHeaders.addAll(name, arrayList);
+    }
 
-  @Override
-  public RequestContext addResponseHeader(String name, String value) {
-    response.addHeader(name, value);
-    return this;
-  }
-
-  @Override
-  public int requestIntHeader(String name) {
-    return request.getIntHeader(name);
-  }
-
-  @Override
-  public long requestDateHeader(String name) {
-    return request.getDateHeader(name);
-  }
-
-  @Override
-  public RequestContext responseDateHeader(String name, long date) {
-    response.setDateHeader(name, date);
-    return this;
-  }
-
-  @Override
-  public RequestContext addResponseDateHeader(String name, long date) {
-    response.addDateHeader(name, date);
-    return this;
-  }
-
-  @Override
-  public RequestContext responseIntHeader(String name, int value) {
-    response.setIntHeader(name, value);
-    return this;
-  }
-
-  @Override
-  public RequestContext addResponseIntHeader(String name, int value) {
-    response.addIntHeader(name, value);
-    return this;
+    return new DefaultHttpHeaders(httpHeaders);
   }
 
   @Override
@@ -600,6 +548,18 @@ public class ServletRequestContext
     }
     catch (ServletException e) {
       throw new NotMultipartRequestException("This is not a multipart request", e);
+    }
+  }
+
+  @Override
+  public void applyHeaders() {
+    final HttpServletResponse response = this.response;
+    final MultiValueMap<String, String> responseHeaders = responseHeaders().asMap();
+    for (final Entry<String, List<String>> entry : responseHeaders.entrySet()) {
+      final String key = entry.getKey();
+      for (final String value : entry.getValue()) {
+        response.addHeader(key, value);
+      }
     }
   }
 

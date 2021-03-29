@@ -22,6 +22,7 @@ package cn.taketoday.web.resolver;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestHeader;
 import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.http.HttpHeaders;
 
 /**
  * for {@link RequestHeader}
@@ -29,7 +30,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * @author TODAY <br>
  * 2019-07-13 11:11
  */
-public class HeaderParameterResolver extends TypeConverterParameterResolver {
+public class HeaderParameterResolver extends ConvertibleParameterResolver {
 
   @Override
   public boolean supports(MethodParameter parameter) {
@@ -42,7 +43,9 @@ public class HeaderParameterResolver extends TypeConverterParameterResolver {
   }
 
   @Override
-  protected Object resolveInternal(RequestContext context, MethodParameter parameter) {
-    return context.requestHeader(parameter.getName());
+  protected Object resolveInternal(final RequestContext context,final MethodParameter parameter) {
+    final String headerName = parameter.getName();
+    final HttpHeaders httpHeaders = context.requestHeaders();
+    return httpHeaders.get(headerName);
   }
 }

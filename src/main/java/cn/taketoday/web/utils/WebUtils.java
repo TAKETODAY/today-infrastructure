@@ -36,7 +36,6 @@ import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
-import cn.taketoday.web.HttpHeaders;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebApplicationContext;
@@ -44,6 +43,7 @@ import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.DefaultResponseStatus;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpStatus;
 
 /**
@@ -128,7 +128,7 @@ public abstract class WebUtils {
    * Is ajax request
    */
   public static boolean isAjax(HttpHeaders request) {
-    return Constant.XML_HTTP_REQUEST.equals(request.requestHeader(Constant.X_REQUESTED_WITH));
+    return Constant.XML_HTTP_REQUEST.equals(request.getFirst(Constant.X_REQUESTED_WITH));
   }
 
   public static boolean isHeadRequest(RequestContext requestContext) {
@@ -160,9 +160,10 @@ public abstract class WebUtils {
   {
     context.contentLength(download.contentLength());
     context.contentType(Constant.APPLICATION_FORCE_DOWNLOAD);
+    final HttpHeaders httpHeaders = context.responseHeaders();
 
-    context.responseHeader(Constant.CONTENT_TRANSFER_ENCODING, Constant.BINARY);
-    context.responseHeader(Constant.CONTENT_DISPOSITION,
+    httpHeaders.set(Constant.CONTENT_TRANSFER_ENCODING, Constant.BINARY);
+    httpHeaders.set(Constant.CONTENT_DISPOSITION,
                            new StringBuilder(Constant.ATTACHMENT_FILE_NAME)
                                    .append(StringUtils.encodeUrl(download.getName()))
                                    .append(Constant.QUOTATION_MARKS)
@@ -227,7 +228,8 @@ public abstract class WebUtils {
    * {@code Origin} header presence and ensuring that origins are different.
    */
   public static boolean isCorsRequest(final RequestContext request) {
-    return request.requestHeader(Constant.ORIGIN) != null;
+    final HttpHeaders httpHeaders = request.requestHeaders();
+    return httpHeaders.getOrigin() != null;
   }
 
   /**
@@ -237,7 +239,7 @@ public abstract class WebUtils {
    */
   public static boolean isPreFlightRequest(final RequestContext request) {
     return RequestMethod.OPTIONS.name().equals(request.method())
-            && request.requestHeader(Constant.ACCESS_CONTROL_REQUEST_METHOD) != null;
+            && request.requestHeaders().getFirst(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD) != null;
   }
 
   // checkNotModified
@@ -266,9 +268,10 @@ public abstract class WebUtils {
     // ---------------------------------------------------
 
     // If-None-Match header should contain "*" or ETag. If so, then return 304
-    final String ifNoneMatch = context.requestHeader(Constant.IF_NONE_MATCH);
+    final HttpHeaders requestHeaders = context.requestHeaders();
+    final String ifNoneMatch = requestHeaders.getFirst(Constant.IF_NONE_MATCH);
     if (matches(ifNoneMatch, eTag)) {
-      context.responseHeader(Constant.ETAG, eTag); // 304.
+      context.responseHeaders().setETag(eTag); // 304.
       context.status(HttpStatus.NOT_MODIFIED);
       return true;
     }
@@ -276,10 +279,11 @@ public abstract class WebUtils {
     // If-Modified-Since header should be greater than LastModified
     // If so, then return 304
     // This header is ignored if any If-None-Match header is specified
-    final long ifModifiedSince = context.requestDateHeader(Constant.IF_MODIFIED_SINCE);// If-Modified-Since
+
+    final long ifModifiedSince = requestHeaders.getIfModifiedSince();// If-Modified-Since
     if (ifNoneMatch == null && (ifModifiedSince > 0 && lastModified != 0 && ifModifiedSince >= lastModified)) {
       // if (ifNoneMatch == null && ge(ifModifiedSince, lastModified)) {
-      context.responseDateHeader(Constant.LAST_MODIFIED, lastModified); // 304
+      context.responseHeaders().setLastModified(lastModified); // 304
       context.status(HttpStatus.NOT_MODIFIED);
       return true;
     }
@@ -288,7 +292,7 @@ public abstract class WebUtils {
     // ----------------------------------------------------
 
     // If-Match header should contain "*" or ETag. If not, then return 412
-    final String ifMatch = context.requestHeader(Constant.IF_MATCH);
+    final String ifMatch = requestHeaders.getFirst(Constant.IF_MATCH);
     if (ifMatch != null && !matches(ifMatch, eTag)) {
 //      context.status(412);
       context.status(HttpStatus.PRECONDITION_FAILED);
@@ -297,8 +301,7 @@ public abstract class WebUtils {
 
     // If-Unmodified-Since header should be greater than LastModified.
     // If not, then return 412.
-    final long ifUnmodifiedSince = context.requestDateHeader(Constant.IF_UNMODIFIED_SINCE);// "If-Unmodified-Since"
-
+    final long ifUnmodifiedSince = requestHeaders.getIfUnmodifiedSince();// "If-Unmodified-Since"
     if (ifUnmodifiedSince > 0 && lastModified > 0 && ifUnmodifiedSince <= lastModified) {
       context.status(HttpStatus.PRECONDITION_FAILED);
       return true;
