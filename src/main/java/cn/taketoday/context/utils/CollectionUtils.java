@@ -22,10 +22,8 @@ package cn.taketoday.context.utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -120,17 +118,6 @@ public abstract class CollectionUtils {
   @SafeVarargs
   public static <E> Set<E> newHashSet(E... elements) {
     return new HashSet<>(Arrays.asList(elements));
-  }
-
-  public static <T> List<T> enumerationToList(final Enumeration<T> objs) {
-    if (objs == null) {
-      return Collections.emptyList();
-    }
-    final List<T> ret = new ArrayList<>();
-    while (objs.hasMoreElements()) {
-      ret.add(objs.nextElement());
-    }
-    return ret.isEmpty() ? Collections.emptyList() : ret;
   }
 
   // CollectionFactory
