@@ -22,6 +22,7 @@ package cn.taketoday.web.handler;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContext.State;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.web.AbstractRequestContext;
@@ -275,8 +276,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * Destroy Application
    */
   public void destroy() {
-
-    final WebApplicationContext context = obtainApplicationContext();
+    final ApplicationContext context = getApplicationContext();
     if (context != null) {
       final State state = context.getState();
       if (state != State.CLOSING && state != State.CLOSED) {
