@@ -50,8 +50,13 @@ class NettyConfig extends AnnotationBeanDefinitionRegistrar<EnableDefaultNetty> 
 
   @MissingBean(type = ReactiveChannelHandler.class)
   @Import({ NettyWebServer.class, NettyServerInitializer.class })
-  ReactiveChannelHandler reactiveChannelHandler(NettyDispatcher nettyDispatcher) {
-    return new ReactiveChannelHandler(nettyDispatcher);
+  ReactiveChannelHandler reactiveChannelHandler(NettyDispatcher nettyDispatcher, NettyRequestContextConfig contextConfig) {
+    return new ReactiveChannelHandler(nettyDispatcher, contextConfig);
+  }
+
+  @MissingBean
+  NettyRequestContextConfig nettyRequestContextConfig() {
+    return new NettyRequestContextConfig();
   }
 
   @Override

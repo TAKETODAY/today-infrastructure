@@ -19,6 +19,7 @@
  */
 package cn.taketoday.framework.reactive;
 
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.web.handler.DispatcherHandler;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -38,12 +39,18 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 public class ReactiveChannelHandler implements ChannelInboundHandler {
 
   private NettyDispatcher nettyDispatcher;
+  private NettyRequestContextConfig contextConfig;
 
   public ReactiveChannelHandler() {
     this(new AsyncNettyDispatcherHandler());
   }
 
   public ReactiveChannelHandler(NettyDispatcher nettyDispatcher) {
+    this(nettyDispatcher, new NettyRequestContextConfig());
+  }
+
+  public ReactiveChannelHandler(NettyDispatcher nettyDispatcher, NettyRequestContextConfig contextConfig) {
+    this.contextConfig = contextConfig;
     this.nettyDispatcher = nettyDispatcher;
   }
 
@@ -62,8 +69,8 @@ public class ReactiveChannelHandler implements ChannelInboundHandler {
 
   @Override
   public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
-    if (msg instanceof FullHttpRequest) { // sync(ctx, msg);
-      nettyDispatcher.dispatch(ctx, (FullHttpRequest) msg);
+    if (msg instanceof FullHttpRequest) {
+      nettyDispatcher.dispatch(ctx, (FullHttpRequest) msg, obtainContextConfig());
     }
     else {
       ctx.fireChannelRead(msg);
@@ -76,6 +83,22 @@ public class ReactiveChannelHandler implements ChannelInboundHandler {
     ctx.writeAndFlush(response)
             .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
   }
+
+  public void setContextConfig(NettyRequestContextConfig contextConfig) {
+    this.contextConfig = contextConfig;
+  }
+
+  public NettyRequestContextConfig getContextConfig() {
+    return contextConfig;
+  }
+
+  private NettyRequestContextConfig obtainContextConfig() {
+    final NettyRequestContextConfig contextConfig = getContextConfig();
+    Assert.state(contextConfig != null, "No NettyRequestContextConfig");
+    return contextConfig;
+  }
+
+  //
 
   @Override
   public void handlerAdded(ChannelHandlerContext ctx) {}

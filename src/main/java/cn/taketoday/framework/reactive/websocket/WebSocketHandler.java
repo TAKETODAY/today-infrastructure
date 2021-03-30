@@ -15,6 +15,7 @@ import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.reactive.NettyRequestContext;
+import cn.taketoday.framework.reactive.NettyRequestContextConfig;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
 import io.netty.channel.ChannelPipeline;
@@ -37,6 +38,7 @@ import lombok.SneakyThrows;
  * @author WangYi
  * @since 2020/8/13
  */
+@Deprecated
 public class WebSocketHandler
         extends SimpleChannelInboundHandler<Object> implements ApplicationContextAware {
 
@@ -45,6 +47,7 @@ public class WebSocketHandler
   private WebSocketChannel webSocketChannel;
   private WebSocketSession webSocketSession;
   private NettyRequestContext requestContext;
+  private NettyRequestContextConfig config = new NettyRequestContextConfig();
 
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -111,7 +114,7 @@ public class WebSocketHandler
   private void handleHttpRequest(ChannelHandlerContext ctx, HttpRequest request) {
     final DefaultFullHttpRequest defaultFullHttpRequest = new DefaultFullHttpRequest
             (request.protocolVersion(), request.method(), request.uri());
-    this.requestContext = new NettyRequestContext("", ctx, defaultFullHttpRequest);
+    this.requestContext = new NettyRequestContext("", ctx, defaultFullHttpRequest, config);
     if (isWebSocketRequest(request)) {
       final WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
               request.uri(), null, true);

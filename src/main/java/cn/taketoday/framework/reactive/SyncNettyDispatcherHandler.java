@@ -12,9 +12,9 @@ import io.netty.handler.codec.http.FullHttpRequest;
 public class SyncNettyDispatcherHandler extends DispatcherHandler implements NettyDispatcher {
 
   @Override
-  public void dispatch(ChannelHandlerContext ctx, FullHttpRequest request) {
+  public void dispatch(ChannelHandlerContext ctx, FullHttpRequest request, NettyRequestContextConfig config) {
     // Lookup handler mapping
-    final NettyRequestContext context = new NettyRequestContext(getContextPath(), ctx, request);
+    final NettyRequestContext context = new NettyRequestContext(getContextPath(), ctx, request, config);
     try {
       handle(context);
       context.send();

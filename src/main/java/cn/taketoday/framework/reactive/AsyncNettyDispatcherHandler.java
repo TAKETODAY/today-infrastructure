@@ -18,9 +18,10 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 public class AsyncNettyDispatcherHandler extends DispatcherHandler implements NettyDispatcher {
 
   @Override
-  public void dispatch(ChannelHandlerContext ctx, FullHttpRequest request) {
+  public void dispatch(
+          final ChannelHandlerContext ctx, final FullHttpRequest request, final NettyRequestContextConfig config) {
 
-    final NettyRequestContext nettyContext = new NettyRequestContext(getContextPath(), ctx, request);
+    final NettyRequestContext nettyContext = new NettyRequestContext(getContextPath(), ctx, request, config);
     final Executor executor = ctx.executor();
 
     final class Handler implements UnaryOperator<Object> {
