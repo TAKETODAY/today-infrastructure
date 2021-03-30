@@ -287,6 +287,11 @@ public abstract class AbstractRequestContext implements RequestContext {
 
   protected abstract HttpHeaders createRequestHeaders();
 
+  @Override
+  public void contentType(String contentType) {
+    requestHeaders().set(Constant.CONTENT_TYPE, contentType);
+  }
+
   /**
    * If {@link #responseHeaders} is not null
    */
