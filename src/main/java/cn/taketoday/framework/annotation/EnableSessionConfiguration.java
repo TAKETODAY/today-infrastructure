@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.framework.config.SessionConfiguration;
-import cn.taketoday.framework.config.SessionCookieConfiguration;
+import cn.taketoday.web.session.SessionCookieConfiguration;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;

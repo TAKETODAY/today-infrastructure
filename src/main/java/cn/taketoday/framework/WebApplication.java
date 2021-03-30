@@ -22,14 +22,13 @@ package cn.taketoday.framework;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
-
 /**
  * @author TODAY <br>
- *         2018-10-16 15:46
+ * 2018-10-16 15:46
  */
 public class WebApplication {
 
@@ -57,9 +56,9 @@ public class WebApplication {
    * Startup Web Application
    *
    * @param startupClass
-   *            Startup class
+   *         Startup class
    * @param args
-   *            Startup arguments
+   *         Startup arguments
    */
   public static ConfigurableWebServerApplicationContext run(Class<?> startupClass, String... args) {
     return new WebApplication(startupClass, args).run(args);
@@ -69,7 +68,8 @@ public class WebApplication {
    * Startup Web Application
    *
    * @param args
-   *            Startup arguments
+   *         Startup arguments
+   *
    * @return {@link WebServerApplicationContext}
    */
   public ConfigurableWebServerApplicationContext run(String... args) {
@@ -87,8 +87,8 @@ public class WebApplication {
         context.load(startupClass.getPackage().getName());
       }
 
-      nonNull(context.getWebServer(), "Web server can't be null")
-              .start();
+      Assert.state(context.getWebServer() != null, "No Web server.");
+      context.getWebServer().start();
 
       log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
                System.currentTimeMillis() - context.getStartupDate()//
