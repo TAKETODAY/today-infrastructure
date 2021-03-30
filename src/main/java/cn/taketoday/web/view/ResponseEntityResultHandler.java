@@ -54,11 +54,11 @@ public class ResponseEntityResultHandler
   protected void handleInternal(final RequestContext context,
                                 final HandlerMethod handler, final Object result) throws Throwable {
 
-    ResponseEntity<?> response = (ResponseEntity<?>) result;
+    final ResponseEntity<?> response = (ResponseEntity<?>) result;
     context.status(response.getStatusCode());
 
     handleObject(context, response.getBody());
     // apply headers
-    context.responseHeaders().addAll(response.getHeaders().asMap());
+    context.responseHeaders().addAll(response.getHeaders());
   }
 }

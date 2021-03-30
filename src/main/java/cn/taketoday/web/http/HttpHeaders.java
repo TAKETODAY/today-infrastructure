@@ -57,10 +57,13 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Locale.US;
 
 /**
- * @author TODAY <br>
- * 2020-01-28 17:15
+ * HTTP Headers
+ *
+ * @author TODAY 2020-01-28 17:15
+ * @since 3.0
  */
-public interface HttpHeaders extends Constant, Iterable<String> {
+public abstract class HttpHeaders
+        implements Constant, Iterable<String>, MultiValueMap<String, String> {
 
   /**
    * Pattern matching ETag multiple field values in headers such as "If-Match",
@@ -69,11 +72,9 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * @see <a href="https://tools.ietf.org/html/rfc7232#section-2.3">Section 2.3 of
    * RFC 7232</a>
    */
-  Pattern ETAG_HEADER_VALUE_PATTERN = Pattern.compile("\\*|\\s*((W\\/)?(\"[^\"]*\"))\\s*,?");
-
-  DecimalFormatSymbols DECIMAL_FORMAT_SYMBOLS = new DecimalFormatSymbols(Locale.ENGLISH);
-
-  ZoneId GMT = ZoneId.of("GMT");
+  private static final Pattern ETAG_HEADER_VALUE_PATTERN = Pattern.compile("\\*|\\s*((W\\/)?(\"[^\"]*\"))\\s*,?");
+  private static final DecimalFormatSymbols DECIMAL_FORMAT_SYMBOLS = new DecimalFormatSymbols(Locale.ENGLISH);
+  private static final ZoneId GMT = ZoneId.of("GMT");
 
   /**
    * Date formats with time zone as specified in the HTTP RFC to use for
@@ -104,7 +105,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    *
    * @return the list of header values, or an empty list
    */
-  default List<String> getOrEmpty(String headerName) {
+  public List<String> getOrEmpty(String headerName) {
     List<String> values = get(headerName);
     return (values != null ? values : Collections.emptyList());
   }
@@ -113,7 +114,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the list of acceptable {@linkplain MediaType media types}, as specified
    * by the {@code Accept} header.
    */
-  default void setAccept(List<MediaType> acceptableMediaTypes) {
+  public void setAccept(List<MediaType> acceptableMediaTypes) {
     set(ACCEPT, MediaType.toString(acceptableMediaTypes));
   }
 
@@ -123,7 +124,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * <p>
    * Returns an empty list when the acceptable media types are unspecified.
    */
-  default List<MediaType> getAccept() {
+  public List<MediaType> getAccept() {
     return MediaType.parseMediaTypes(get(ACCEPT));
   }
 
@@ -131,7 +132,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the acceptable language ranges, as specified by the
    * {@literal Accept-Language} header.
    */
-  default void setAcceptLanguage(List<Locale.LanguageRange> languages) {
+  public void setAcceptLanguage(List<Locale.LanguageRange> languages) {
     Assert.notNull(languages, "LanguageRange List must not be null");
 
     DecimalFormat decimal = new DecimalFormat("0.0", DECIMAL_FORMAT_SYMBOLS);
@@ -153,7 +154,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * @throws IllegalArgumentException
    *         if the value cannot be converted to a language range
    */
-  default List<Locale.LanguageRange> getAcceptLanguage() {
+  public List<Locale.LanguageRange> getAcceptLanguage() {
     String value = getFirst(ACCEPT_LANGUAGE);
     return (StringUtils.isNotEmpty(value) ? Locale.LanguageRange.parse(value) : Collections.emptyList());
   }
@@ -161,7 +162,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
   /**
    * Variant of {@link #setAcceptLanguage(List)} using {@link Locale}'s.
    */
-  default void setAcceptLanguageAsLocales(List<Locale> locales) {
+  public void setAcceptLanguageAsLocales(List<Locale> locales) {
     setAcceptLanguage(locales.stream()
                               .map(locale -> new Locale.LanguageRange(locale.toLanguageTag()))
                               .collect(Collectors.toList()));
@@ -176,7 +177,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * @throws IllegalArgumentException
    *         if the value cannot be converted to a locale
    */
-  default List<Locale> getAcceptLanguageAsLocales() {
+  public List<Locale> getAcceptLanguageAsLocales() {
     List<Locale.LanguageRange> ranges = getAcceptLanguage();
     if (ranges.isEmpty()) {
       return Collections.emptyList();
@@ -191,7 +192,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the (new) value of the {@code Access-Control-Allow-Credentials} response
    * header.
    */
-  default void setAccessControlAllowCredentials(boolean allowCredentials) {
+  public void setAccessControlAllowCredentials(boolean allowCredentials) {
     set(ACCESS_CONTROL_ALLOW_CREDENTIALS, Boolean.toString(allowCredentials));
   }
 
@@ -199,7 +200,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Return the value of the {@code Access-Control-Allow-Credentials} response
    * header.
    */
-  default boolean getAccessControlAllowCredentials() {
+  public boolean getAccessControlAllowCredentials() {
     return Boolean.parseBoolean(getFirst(ACCESS_CONTROL_ALLOW_CREDENTIALS));
   }
 
@@ -207,14 +208,14 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the (new) value of the {@code Access-Control-Allow-Headers} response
    * header.
    */
-  default void setAccessControlAllowHeaders(List<String> allowedHeaders) {
+  public void setAccessControlAllowHeaders(List<String> allowedHeaders) {
     set(ACCESS_CONTROL_ALLOW_HEADERS, StringUtils.collectionToString(allowedHeaders));
   }
 
   /**
    * Return the value of the {@code Access-Control-Allow-Headers} response header.
    */
-  default List<String> getAccessControlAllowHeaders() {
+  public List<String> getAccessControlAllowHeaders() {
     return getValuesAsList(ACCESS_CONTROL_ALLOW_HEADERS);
   }
 
@@ -222,14 +223,14 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the (new) value of the {@code Access-Control-Allow-Methods} response
    * header.
    */
-  default void setAccessControlAllowMethods(List<RequestMethod> allowedMethods) {
+  public void setAccessControlAllowMethods(List<RequestMethod> allowedMethods) {
     set(ACCESS_CONTROL_ALLOW_METHODS, StringUtils.collectionToString(allowedMethods));
   }
 
   /**
    * Return the value of the {@code Access-Control-Allow-Methods} response header.
    */
-  default List<RequestMethod> getAccessControlAllowMethods() {
+  public List<RequestMethod> getAccessControlAllowMethods() {
     List<RequestMethod> result = new ArrayList<>();
     String value = getFirst(ACCESS_CONTROL_ALLOW_METHODS);
     if (value != null) {
@@ -245,14 +246,14 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the (new) value of the {@code Access-Control-Allow-Origin} response
    * header.
    */
-  default void setAccessControlAllowOrigin(String allowedOrigin) {
+  public void setAccessControlAllowOrigin(String allowedOrigin) {
     setOrRemove(ACCESS_CONTROL_ALLOW_ORIGIN, allowedOrigin);
   }
 
   /**
    * Return the value of the {@code Access-Control-Allow-Origin} response header.
    */
-  default String getAccessControlAllowOrigin() {
+  public String getAccessControlAllowOrigin() {
     return getFieldValues(ACCESS_CONTROL_ALLOW_ORIGIN);
   }
 
@@ -260,7 +261,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the (new) value of the {@code Access-Control-Expose-Headers} response
    * header.
    */
-  default void setAccessControlExposeHeaders(List<String> exposedHeaders) {
+  public void setAccessControlExposeHeaders(List<String> exposedHeaders) {
     set(ACCESS_CONTROL_EXPOSE_HEADERS, StringUtils.collectionToString(exposedHeaders));
   }
 
@@ -268,21 +269,21 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Return the value of the {@code Access-Control-Expose-Headers} response
    * header.
    */
-  default List<String> getAccessControlExposeHeaders() {
+  public List<String> getAccessControlExposeHeaders() {
     return getValuesAsList(ACCESS_CONTROL_EXPOSE_HEADERS);
   }
 
   /**
    * Set the (new) value of the {@code Access-Control-Max-Age} response header.
    */
-  default void setAccessControlMaxAge(Duration maxAge) {
+  public void setAccessControlMaxAge(Duration maxAge) {
     set(ACCESS_CONTROL_MAX_AGE, Long.toString(maxAge.getSeconds()));
   }
 
   /**
    * Set the (new) value of the {@code Access-Control-Max-Age} response header.
    */
-  default void setAccessControlMaxAge(long maxAge) {
+  public void setAccessControlMaxAge(long maxAge) {
     set(ACCESS_CONTROL_MAX_AGE, Long.toString(maxAge));
   }
 
@@ -291,7 +292,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * <p>
    * Returns -1 when the max age is unknown.
    */
-  default long getAccessControlMaxAge() {
+  public long getAccessControlMaxAge() {
     String value = getFirst(ACCESS_CONTROL_MAX_AGE);
     return (value != null ? Long.parseLong(value) : -1);
   }
@@ -300,7 +301,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the (new) value of the {@code Access-Control-Request-Headers} request
    * header.
    */
-  default void setAccessControlRequestHeaders(List<String> requestHeaders) {
+  public void setAccessControlRequestHeaders(List<String> requestHeaders) {
     set(ACCESS_CONTROL_REQUEST_HEADERS, StringUtils.collectionToString(requestHeaders));
   }
 
@@ -308,7 +309,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Return the value of the {@code Access-Control-Request-Headers} request
    * header.
    */
-  default List<String> getAccessControlRequestHeaders() {
+  public List<String> getAccessControlRequestHeaders() {
     return getValuesAsList(ACCESS_CONTROL_REQUEST_HEADERS);
   }
 
@@ -316,14 +317,14 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the (new) value of the {@code Access-Control-Request-Method} request
    * header.
    */
-  default void setAccessControlRequestMethod(RequestMethod requestMethod) {
+  public void setAccessControlRequestMethod(RequestMethod requestMethod) {
     setOrRemove(ACCESS_CONTROL_REQUEST_METHOD, (requestMethod != null ? requestMethod.name() : null));
   }
 
   /**
    * Return the value of the {@code Access-Control-Request-Method} request header.
    */
-  default RequestMethod getAccessControlRequestMethod() {
+  public RequestMethod getAccessControlRequestMethod() {
     return RequestMethod.valueOf(getFirst(ACCESS_CONTROL_REQUEST_METHOD));
   }
 
@@ -331,7 +332,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the list of acceptable {@linkplain Charset charsets}, as specified by the
    * {@code Accept-Charset} header.
    */
-  default void setAcceptCharset(List<Charset> acceptableCharsets) {
+  public void setAcceptCharset(List<Charset> acceptableCharsets) {
     StringJoiner joiner = new StringJoiner(", ");
     for (Charset charset : acceptableCharsets) {
       joiner.add(charset.name().toLowerCase(Locale.ENGLISH));
@@ -343,7 +344,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Return the list of acceptable {@linkplain Charset charsets}, as specified by
    * the {@code Accept-Charset} header.
    */
-  default List<Charset> getAcceptCharset() {
+  public List<Charset> getAcceptCharset() {
     String value = getFirst(ACCEPT_CHARSET);
     if (value != null) {
       String[] tokens = StringUtils.tokenizeToStringArray(value, ",");
@@ -372,7 +373,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the set of allowed {@link RequestMethod HTTP methods}, as specified by
    * the {@code Allow} header.
    */
-  default void setAllow(Set<RequestMethod> allowedMethods) {
+  public void setAllow(Set<RequestMethod> allowedMethods) {
     set(ALLOW, StringUtils.collectionToString(allowedMethods));
   }
 
@@ -382,7 +383,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * <p>
    * Returns an empty set when the allowed methods are unspecified.
    */
-  default Set<RequestMethod> getAllow() {
+  public Set<RequestMethod> getAllow() {
     String value = getFirst(ALLOW);
     if (StringUtils.isNotEmpty(value)) {
       String[] tokens = StringUtils.tokenizeToStringArray(value, ",");
@@ -408,7 +409,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    *         if supplied credentials string is {@code null} or blank
    * @see <a href="https://tools.ietf.org/html/rfc7617">RFC 7617</a>
    */
-  default void setBasicAuth(String encodedCredentials) {
+  public void setBasicAuth(String encodedCredentials) {
     if (StringUtils.isEmpty(encodedCredentials)) {
       throw new IllegalArgumentException("'encodedCredentials' must not be null or blank");
     }
@@ -424,7 +425,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    *
    * @see <a href="https://tools.ietf.org/html/rfc6750">RFC 6750</a>
    */
-  default void setBearerAuth(String token) {
+  public void setBearerAuth(String token) {
     Assert.notNull(token, "The base64 encoded token must not be null");
     set(AUTHORIZATION, "Bearer ".concat(token));
   }
@@ -433,42 +434,42 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set a configured {@link CacheControl} instance as the new value of the
    * {@code Cache-Control} header.
    */
-  default void setCacheControl(CacheControl cacheControl) {
+  public void setCacheControl(CacheControl cacheControl) {
     setOrRemove(CACHE_CONTROL, cacheControl.toString());
   }
 
   /**
    * Set the (new) value of the {@code Cache-Control} header.
    */
-  default void setCacheControl(String cacheControl) {
+  public void setCacheControl(String cacheControl) {
     setOrRemove(CACHE_CONTROL, cacheControl);
   }
 
   /**
    * Return the value of the {@code Cache-Control} header.
    */
-  default String getCacheControl() {
+  public String getCacheControl() {
     return getFieldValues(CACHE_CONTROL);
   }
 
   /**
    * Set the (new) value of the {@code Connection} header.
    */
-  default void setConnection(String connection) {
+  public void setConnection(String connection) {
     set(CONNECTION, connection);
   }
 
   /**
    * Set the (new) value of the {@code Connection} header.
    */
-  default void setConnection(List<String> connection) {
+  public void setConnection(List<String> connection) {
     set(CONNECTION, StringUtils.collectionToString(connection));
   }
 
   /**
    * Return the value of the {@code Connection} header.
    */
-  default List<String> getConnection() {
+  public List<String> getConnection() {
     return getValuesAsList(CONNECTION);
   }
 
@@ -488,7 +489,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    *
    * @see #getContentDisposition()
    */
-  default void setContentDispositionFormData(String name, String filename) {
+  public void setContentDispositionFormData(String name, String filename) {
     Assert.notNull(name, "Name must not be null");
     ContentDisposition.Builder disposition = ContentDisposition.builder("form-data").name(name);
     if (filename != null) {
@@ -508,11 +509,11 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    *
    * @see #getContentDisposition()
    */
-  default void setContentDisposition(ContentDisposition contentDisposition) {
+  public void setContentDisposition(ContentDisposition contentDisposition) {
     set(CONTENT_DISPOSITION, contentDisposition.toString());
   }
 
-  default void setContentDisposition(String contentDisposition) {
+  public void setContentDisposition(String contentDisposition) {
     set(CONTENT_DISPOSITION, contentDisposition);
   }
 
@@ -521,7 +522,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    *
    * @see #setContentDisposition(ContentDisposition)
    */
-  default ContentDisposition getContentDisposition() {
+  public ContentDisposition getContentDisposition() {
     String contentDisposition = getFirst(CONTENT_DISPOSITION);
     return contentDisposition != null
            ? ContentDisposition.parse(contentDisposition)
@@ -536,7 +537,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * languages.
    * </p>
    */
-  default void setContentLanguage(Locale locale) {
+  public void setContentLanguage(Locale locale) {
     setOrRemove(CONTENT_LANGUAGE, (locale != null ? locale.toLanguageTag() : null));
   }
 
@@ -550,7 +551,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * content languages.
    * </p>
    */
-  default Locale getContentLanguage() {
+  public Locale getContentLanguage() {
     return getValuesAsList(CONTENT_LANGUAGE)
             .stream()
             .findFirst()
@@ -562,7 +563,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the length of the body in bytes, as specified by the
    * {@code Content-Length} header.
    */
-  default void setContentLength(long contentLength) {
+  public void setContentLength(long contentLength) {
     set(CONTENT_LENGTH, Long.toString(contentLength));
   }
 
@@ -572,7 +573,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * <p>
    * Returns -1 when the content-length is unknown.
    */
-  default long getContentLength() {
+  public long getContentLength() {
     String value = getFirst(CONTENT_LENGTH);
     return (value != null ? Long.parseLong(value) : -1);
   }
@@ -581,7 +582,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the {@linkplain MediaType media type} of the body, as specified by the
    * {@code Content-Type} header.
    */
-  default void setContentType(MediaType mediaType) {
+  public void setContentType(MediaType mediaType) {
     if (mediaType != null) {
       if (!mediaType.isWildcardType()) {
         throw new IllegalArgumentException("Content-Type cannot contain wildcard type '*'");
@@ -602,7 +603,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * <p>
    * Returns {@code null} when the content-type is unknown.
    */
-  default MediaType getContentType() {
+  public MediaType getContentType() {
     String value = getFirst(CONTENT_TYPE);
     return (StringUtils.isNotEmpty(value) ? MediaType.parseMediaType(value) : null);
   }
@@ -611,7 +612,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the date and time at which the message was created, as specified by the
    * {@code Date} header.
    */
-  default void setDate(ZonedDateTime date) {
+  public void setDate(ZonedDateTime date) {
     setZonedDateTime(DATE, date);
   }
 
@@ -619,7 +620,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the date and time at which the message was created, as specified by the
    * {@code Date} header.
    */
-  default void setDate(Instant date) {
+  public void setDate(Instant date) {
     setInstant(DATE, date);
   }
 
@@ -630,7 +631,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * The date should be specified as the number of milliseconds since January 1,
    * 1970 GMT.
    */
-  default void setDate(long date) {
+  public void setDate(long date) {
     setDate(DATE, date);
   }
 
@@ -644,7 +645,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * @throws IllegalArgumentException
    *         if the value cannot be converted to a date
    */
-  default long getDate() {
+  public long getDate() {
     return getFirstDate(DATE);
   }
 
@@ -652,7 +653,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the (new) entity tag of the body, as specified by the {@code ETag}
    * header.
    */
-  default void setETag(String etag) {
+  public void setETag(String etag) {
     if (etag != null) {
       if (etag.startsWith("\"") || etag.startsWith("W/")) {
         throw new IllegalArgumentException("Invalid ETag: does not start with W/ or \"");
@@ -670,7 +671,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
   /**
    * Return the entity tag of the body, as specified by the {@code ETag} header.
    */
-  default String getETag() {
+  public String getETag() {
     return getFirst(ETAG);
   }
 
@@ -678,7 +679,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the duration after which the message is no longer valid, as specified by
    * the {@code Expires} header.
    */
-  default void setExpires(ZonedDateTime expires) {
+  public void setExpires(ZonedDateTime expires) {
     setZonedDateTime(EXPIRES, expires);
   }
 
@@ -686,7 +687,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the date and time at which the message is no longer valid, as specified
    * by the {@code Expires} header.
    */
-  default void setExpires(Instant expires) {
+  public void setExpires(Instant expires) {
     setInstant(EXPIRES, expires);
   }
 
@@ -697,7 +698,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * The date should be specified as the number of milliseconds since January 1,
    * 1970 GMT.
    */
-  default void setExpires(long expires) {
+  public void setExpires(long expires) {
     setDate(EXPIRES, expires);
   }
 
@@ -710,7 +711,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    *
    * @see #getFirstZonedDateTime(String)
    */
-  default long getExpires() {
+  public long getExpires() {
     return getFirstDate(EXPIRES, false);
   }
 
@@ -721,7 +722,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * host header will only contain the
    * {@linkplain InetSocketAddress#getHostString() host name}.
    */
-  default void setHost(InetSocketAddress host) {
+  public void setHost(InetSocketAddress host) {
     if (host != null) {
       String value = host.getHostString();
       int port = host.getPort();
@@ -742,7 +743,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * {@linkplain InetSocketAddress#getPort() port} in the returned address will be
    * {@code 0}.
    */
-  default InetSocketAddress getHost() {
+  public InetSocketAddress getHost() {
     String value = getFirst(HOST);
     if (value == null) {
       return null;
@@ -771,21 +772,21 @@ public interface HttpHeaders extends Constant, Iterable<String> {
   /**
    * Set the (new) value of the {@code If-Match} header.
    */
-  default void setIfMatch(String ifMatch) {
+  public void setIfMatch(String ifMatch) {
     set(IF_MATCH, ifMatch);
   }
 
   /**
    * Set the (new) value of the {@code If-Match} header.
    */
-  default void setIfMatch(List<String> ifMatchList) {
+  public void setIfMatch(List<String> ifMatchList) {
     set(IF_MATCH, StringUtils.collectionToString(ifMatchList));
   }
 
   /**
    * Return the value of the {@code If-Match} header.
    */
-  default List<String> getIfMatch() {
+  public List<String> getIfMatch() {
     return getETagValuesAsList(IF_MATCH);
   }
 
@@ -793,7 +794,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the time the resource was last changed, as specified by the
    * {@code Last-Modified} header.
    */
-  default void setIfModifiedSince(ZonedDateTime ifModifiedSince) {
+  public void setIfModifiedSince(ZonedDateTime ifModifiedSince) {
     setZonedDateTime(IF_MODIFIED_SINCE, ifModifiedSince.withZoneSameInstant(GMT));
   }
 
@@ -801,7 +802,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the time the resource was last changed, as specified by the
    * {@code Last-Modified} header.
    */
-  default void setIfModifiedSince(Instant ifModifiedSince) {
+  public void setIfModifiedSince(Instant ifModifiedSince) {
     setInstant(IF_MODIFIED_SINCE, ifModifiedSince);
   }
 
@@ -811,7 +812,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * The date should be specified as the number of milliseconds since January 1,
    * 1970 GMT.
    */
-  default void setIfModifiedSince(long ifModifiedSince) {
+  public void setIfModifiedSince(long ifModifiedSince) {
     setDate(IF_MODIFIED_SINCE, ifModifiedSince);
   }
 
@@ -823,28 +824,28 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    *
    * @see #getFirstZonedDateTime(String)
    */
-  default long getIfModifiedSince() {
+  public long getIfModifiedSince() {
     return getFirstDate(IF_MODIFIED_SINCE, false);
   }
 
   /**
    * Set the (new) value of the {@code If-None-Match} header.
    */
-  default void setIfNoneMatch(String ifNoneMatch) {
+  public void setIfNoneMatch(String ifNoneMatch) {
     set(IF_NONE_MATCH, ifNoneMatch);
   }
 
   /**
    * Set the (new) values of the {@code If-None-Match} header.
    */
-  default void setIfNoneMatch(List<String> ifNoneMatchList) {
+  public void setIfNoneMatch(List<String> ifNoneMatchList) {
     set(IF_NONE_MATCH, StringUtils.collectionToString(ifNoneMatchList));
   }
 
   /**
    * Return the value of the {@code If-None-Match} header.
    */
-  default List<String> getIfNoneMatch() {
+  public List<String> getIfNoneMatch() {
     return getETagValuesAsList(IF_NONE_MATCH);
   }
 
@@ -852,7 +853,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the time the resource was last changed, as specified by the
    * {@code Last-Modified} header.
    */
-  default void setIfUnmodifiedSince(ZonedDateTime ifUnmodifiedSince) {
+  public void setIfUnmodifiedSince(ZonedDateTime ifUnmodifiedSince) {
     setZonedDateTime(IF_UNMODIFIED_SINCE, ifUnmodifiedSince.withZoneSameInstant(GMT));
   }
 
@@ -860,7 +861,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the time the resource was last changed, as specified by the
    * {@code Last-Modified} header.
    */
-  default void setIfUnmodifiedSince(Instant ifUnmodifiedSince) {
+  public void setIfUnmodifiedSince(Instant ifUnmodifiedSince) {
     setInstant(IF_UNMODIFIED_SINCE, ifUnmodifiedSince);
   }
 
@@ -870,7 +871,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * The date should be specified as the number of milliseconds since January 1,
    * 1970 GMT.
    */
-  default void setIfUnmodifiedSince(long ifUnmodifiedSince) {
+  public void setIfUnmodifiedSince(long ifUnmodifiedSince) {
     setDate(IF_UNMODIFIED_SINCE, ifUnmodifiedSince);
   }
 
@@ -882,7 +883,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    *
    * @see #getFirstZonedDateTime(String)
    */
-  default long getIfUnmodifiedSince() {
+  public long getIfUnmodifiedSince() {
     return getFirstDate(IF_UNMODIFIED_SINCE, false);
   }
 
@@ -890,7 +891,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the time the resource was last changed, as specified by the
    * {@code Last-Modified} header.
    */
-  default void setLastModified(ZonedDateTime lastModified) {
+  public void setLastModified(ZonedDateTime lastModified) {
     setZonedDateTime(LAST_MODIFIED, lastModified.withZoneSameInstant(GMT));
   }
 
@@ -898,7 +899,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the time the resource was last changed, as specified by the
    * {@code Last-Modified} header.
    */
-  default void setLastModified(Instant lastModified) {
+  public void setLastModified(Instant lastModified) {
     setInstant(LAST_MODIFIED, lastModified);
   }
 
@@ -909,7 +910,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * The date should be specified as the number of milliseconds since January 1,
    * 1970 GMT.
    */
-  default void setLastModified(long lastModified) {
+  public void setLastModified(long lastModified) {
     setDate(LAST_MODIFIED, lastModified);
   }
 
@@ -922,7 +923,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    *
    * @see #getFirstZonedDateTime(String)
    */
-  default long getLastModified() {
+  public long getLastModified() {
     return getFirstDate(LAST_MODIFIED, false);
   }
 
@@ -930,7 +931,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Set the (new) location of a resource, as specified by the {@code Location}
    * header.
    */
-  default void setLocation(URI location) {
+  public void setLocation(URI location) {
     setOrRemove(LOCATION, (location != null ? location.toASCIIString() : null));
   }
 
@@ -940,7 +941,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * <p>
    * Returns {@code null} when the location is unknown.
    */
-  default URI getLocation() {
+  public URI getLocation() {
     String value = getFirst(LOCATION);
     return (value != null ? URI.create(value) : null);
   }
@@ -948,42 +949,42 @@ public interface HttpHeaders extends Constant, Iterable<String> {
   /**
    * Set the (new) value of the {@code Origin} header.
    */
-  default void setOrigin(String origin) {
+  public void setOrigin(String origin) {
     setOrRemove(ORIGIN, origin);
   }
 
   /**
    * Return the value of the {@code Origin} header.
    */
-  default String getOrigin() {
+  public String getOrigin() {
     return getFirst(ORIGIN);
   }
 
   /**
    * Set the (new) value of the {@code Pragma} header.
    */
-  default void setPragma(String pragma) {
+  public void setPragma(String pragma) {
     setOrRemove(PRAGMA, pragma);
   }
 
   /**
    * Return the value of the {@code Pragma} header.
    */
-  default String getPragma() {
+  public String getPragma() {
     return getFirst(PRAGMA);
   }
 
   /**
    * Set the (new) value of the {@code Upgrade} header.
    */
-  default void setUpgrade(String upgrade) {
+  public void setUpgrade(String upgrade) {
     setOrRemove(UPGRADE, upgrade);
   }
 
   /**
    * Return the value of the {@code Upgrade} header.
    */
-  default String getUpgrade() {
+  public String getUpgrade() {
     return getFirst(UPGRADE);
   }
 
@@ -995,14 +996,14 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * @param requestHeaders
    *         the request header names
    */
-  default void setVary(List<String> requestHeaders) {
+  public void setVary(List<String> requestHeaders) {
     set(VARY, StringUtils.collectionToString(requestHeaders));
   }
 
   /**
    * Return the request header names subject to content negotiation.
    */
-  default List<String> getVary() {
+  public List<String> getVary() {
     return getValuesAsList(VARY);
   }
 
@@ -1011,7 +1012,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * string using the RFC-1123 date-time formatter. The equivalent of
    * {@link #set(String, String)} but for date headers.
    */
-  default void setZonedDateTime(String headerName, ZonedDateTime date) {
+  public void setZonedDateTime(String headerName, ZonedDateTime date) {
     set(headerName, DATE_FORMATTER.format(date));
   }
 
@@ -1020,7 +1021,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * string using the RFC-1123 date-time formatter. The equivalent of
    * {@link #set(String, String)} but for date headers.
    */
-  default void setInstant(String headerName, Instant date) {
+  public void setInstant(String headerName, Instant date) {
     setZonedDateTime(headerName, ZonedDateTime.ofInstant(date, GMT));
   }
 
@@ -1031,7 +1032,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    *
    * @see #setZonedDateTime(String, ZonedDateTime)
    */
-  default void setDate(String headerName, long date) {
+  public void setDate(String headerName, long date) {
     setInstant(headerName, Instant.ofEpochMilli(date));
   }
 
@@ -1047,7 +1048,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    *
    * @see #getFirstZonedDateTime(String)
    */
-  default long getFirstDate(String headerName) {
+  public long getFirstDate(String headerName) {
     return getFirstDate(headerName, true);
   }
 
@@ -1068,7 +1069,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    *
    * @see #getFirstZonedDateTime(String, boolean)
    */
-  default long getFirstDate(String headerName, boolean rejectInvalid) {
+  public long getFirstDate(String headerName, boolean rejectInvalid) {
     ZonedDateTime zonedDateTime = getFirstZonedDateTime(headerName, rejectInvalid);
     return (zonedDateTime != null ? zonedDateTime.toInstant().toEpochMilli() : -1);
   }
@@ -1083,7 +1084,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    *
    * @return the parsed date header, or {@code null} if none
    */
-  default ZonedDateTime getFirstZonedDateTime(String headerName) {
+  public ZonedDateTime getFirstZonedDateTime(String headerName) {
     return getFirstZonedDateTime(headerName, true);
   }
 
@@ -1102,7 +1103,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    *
    * @return the parsed date header, or {@code null} if none (or invalid)
    */
-  default ZonedDateTime getFirstZonedDateTime(String headerName, boolean rejectInvalid) {
+  public ZonedDateTime getFirstZonedDateTime(String headerName, boolean rejectInvalid) {
     String headerValue = getFirst(headerName);
     if (headerValue == null) {
       // No header value sent at all
@@ -1143,7 +1144,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    *
    * @return all associated values
    */
-  default List<String> getValuesAsList(String headerName) {
+  public List<String> getValuesAsList(String headerName) {
     List<String> values = get(headerName);
     if (values != null) {
       ArrayList<String> result = new ArrayList<>();
@@ -1163,7 +1164,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * Such headers should be cleared from the response if the intended body can't
    * be written due to errors.
    */
-  default void clearContentHeaders() {
+  public void clearContentHeaders() {
     remove(CONTENT_TYPE);
     remove(CONTENT_RANGE);
     remove(CONTENT_LENGTH);
@@ -1181,7 +1182,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    *
    * @return the combined result
    */
-  default List<String> getETagValuesAsList(String headerName) {
+  public List<String> getETagValuesAsList(String headerName) {
     List<String> values = get(headerName);
     if (values != null) {
       ArrayList<String> result = new ArrayList<>();
@@ -1214,7 +1215,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    *
    * @return the combined result
    */
-  default String getFieldValues(String headerName) {
+  public String getFieldValues(String headerName) {
     List<String> headerValues = get(headerName);
     return (headerValues != null ? StringUtils.collectionToString(headerValues) : null);
   }
@@ -1227,7 +1228,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * @param headerValue
    *         the header value, or {@code null} for none
    */
-  default void setOrRemove(String headerName, String headerValue) {
+  public void setOrRemove(String headerName, String headerValue) {
     if (headerValue != null) {
       set(headerName, headerValue);
     }
@@ -1244,7 +1245,7 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    *
    * @return the first header value, or {@code null} if none
    */
-  String getFirst(String headerName);
+  public abstract String getFirst(String headerName);
 
   /**
    * Add the given, single header value under the given name.
@@ -1259,33 +1260,31 @@ public interface HttpHeaders extends Constant, Iterable<String> {
    * @see #addAll(String, List)
    * @see #set(String, String)
    */
-  void add(String headerName, String headerValue);
+  public abstract void add(String headerName, String headerValue);
 
-  default void addAll(String key, List<? extends String> values) {
+  public void addAll(String key, List<? extends String> values) {
     for (final String value : values) {
       add(key, value);
     }
   }
 
-  default void addAll(MultiValueMap<String, String> values) {
+  public void addAll(MultiValueMap<String, String> values) {
     values.forEach(this::addAll);
   }
 
-  void set(String headerName, String headerValue);
+  public abstract void set(String headerName, String headerValue);
 
-  default void setAll(Map<String, String> values) {
+  public void setAll(Map<String, String> values) {
     values.forEach(this::set);
   }
 
-  List<String> get(String key);
+  public abstract List<String> get(String key);
 
-  List<String> remove(String key);
-
-  MultiValueMap<String, String> asMap();
+  public abstract List<String> remove(String key);
 
   /**
    * @return header names iterator
    */
   @Override
-  Iterator<String> iterator();
+  public abstract Iterator<String> iterator();
 }

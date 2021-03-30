@@ -48,7 +48,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
 import cn.taketoday.context.utils.ConvertUtils;
-import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.AbstractRequestContext;
 import cn.taketoday.web.RequestContext;
@@ -550,8 +549,7 @@ public class ServletRequestContext
   @Override
   protected void doApplyHeaders(final HttpHeaders responseHeaders) {
     final HttpServletResponse response = this.response;
-    final MultiValueMap<String, String> headerMap = responseHeaders.asMap();
-    for (final Entry<String, List<String>> entry : headerMap.entrySet()) {
+    for (final Entry<String, List<String>> entry : responseHeaders.entrySet()) {
       final String headerName = entry.getKey();
       for (final String value : entry.getValue()) {
         response.addHeader(headerName, value);

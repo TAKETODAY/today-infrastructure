@@ -34,7 +34,7 @@ import cn.taketoday.context.utils.MultiValueMap;
  * @author TODAY 2020-01-30 18:31
  * @since 3.0
  */
-public class DefaultHttpHeaders implements HttpHeaders, MultiValueMap<String, String> {
+public class DefaultHttpHeaders extends HttpHeaders {
   private static final long serialVersionUID = 1L;
 
   final MultiValueMap<String, String> headers;
@@ -165,10 +165,5 @@ public class DefaultHttpHeaders implements HttpHeaders, MultiValueMap<String, St
   @Override
   public Iterator<String> iterator() {
     return headers.keySet().iterator();
-  }
-
-  @Override
-  public MultiValueMap<String, String> asMap() {
-    return headers;
   }
 }

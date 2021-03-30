@@ -297,7 +297,7 @@ public abstract class AbstractRequestContext implements RequestContext {
    */
   public void applyHeaders() {
     final HttpHeaders responseHeaders = this.responseHeaders;
-    if (responseHeaders != null && !responseHeaders.asMap().isEmpty()) {
+    if (!CollectionUtils.isEmpty(responseHeaders)) {
       doApplyHeaders(responseHeaders);
     }
   }
@@ -306,7 +306,7 @@ public abstract class AbstractRequestContext implements RequestContext {
 
   protected void resetResponseHeader() {
     if (responseHeaders != null) {
-      responseHeaders.asMap().clear();
+      responseHeaders.clear();
     }
   }
 

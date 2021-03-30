@@ -554,7 +554,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
     @Override
     public BodyBuilder headers(HttpHeaders headers) {
       if (headers != null) {
-        this.headers.addAll(headers.asMap());
+        this.headers.addAll(headers);
       }
       return this;
     }
