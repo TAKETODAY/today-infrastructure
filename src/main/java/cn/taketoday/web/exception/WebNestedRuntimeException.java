@@ -20,6 +20,7 @@
 package cn.taketoday.web.exception;
 
 import cn.taketoday.context.NestedRuntimeException;
+import cn.taketoday.context.utils.ExceptionUtils;
 
 /**
  * @author TODAY <br>
@@ -44,6 +45,12 @@ public class WebNestedRuntimeException extends NestedRuntimeException {
     super(message, cause);
   }
 
+  /**
+   * use default message
+   * <p>
+   * {@link ExceptionUtils#buildMessage(String, Throwable)} build more detail message
+   * </p>
+   */
   @Override
   protected String buildMessage(String message) {
     return message;
