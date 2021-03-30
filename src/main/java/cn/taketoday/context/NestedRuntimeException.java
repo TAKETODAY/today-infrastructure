@@ -90,11 +90,11 @@ public abstract class NestedRuntimeException extends RuntimeException {
    */
   @Override
   public String getMessage() {
-    return buildMessage();
+    return buildMessage(super.getMessage());
   }
 
-  protected String buildMessage() {
-    return ExceptionUtils.buildMessage(super.getMessage(), getCause());
+  protected String buildMessage(String message) {
+    return ExceptionUtils.buildMessage(message, getCause());
   }
 
   /**
