@@ -182,7 +182,6 @@ public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable
   }
 
   @Override
-
   public V getOrDefault(Object key, V defaultValue) {
     if (key instanceof String) {
       String caseInsensitiveKey = this.caseInsensitiveKeys.get(convertKey((String) key));
@@ -305,7 +304,6 @@ public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable
    *
    * @see #LinkedCaseInsensitiveMap(Locale)
    * @see #convertKey(String)
-   * @since 4.3.10
    */
   public Locale getLocale() {
     return this.locale;
