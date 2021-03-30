@@ -90,6 +90,10 @@ public abstract class NestedCheckedException extends Exception {
    */
   @Override
   public String getMessage() {
+    return buildMessage();
+  }
+
+  protected String buildMessage() {
     return ExceptionUtils.buildMessage(super.getMessage(), getCause());
   }
 
