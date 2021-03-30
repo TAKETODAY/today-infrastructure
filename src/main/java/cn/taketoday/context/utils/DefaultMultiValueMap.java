@@ -26,10 +26,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Simple implementation of {@link MultiValueMap} that wraps a {@link Map},
- * storing multiple values in a {@link LinkedList}.
+ * storing multiple values in a {@link List}. Can Specify a {@link #mappingFunction}
+ * to determine which List you use , default is {@link LinkedList}
  *
  * <p>
  * This Map implementation is generally not thread-safe. It is primarily
@@ -48,13 +50,25 @@ import java.util.Set;
  * @since 2.1.7
  */
 public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializable, Cloneable {
-
   private static final long serialVersionUID = 1L;
 
+  static final Function default_mapping_function = new Function() {
+    @Override
+    public Object apply(Object k) {
+      return new LinkedList<>();
+    }
+  };
+
   private final Map<K, List<V>> map;
+  private final Function<K, List<V>> mappingFunction;
 
   public DefaultMultiValueMap() {
     this(new HashMap<>());
+  }
+
+  public DefaultMultiValueMap(Function<K, List<V>> mappingFunction) {
+    this.map = new HashMap<>();
+    this.mappingFunction = mappingFunction;
   }
 
   public DefaultMultiValueMap(int initialCapacity) {
@@ -62,7 +76,12 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
   }
 
   public DefaultMultiValueMap(int initialCapacity, float loadFactor) {
-    this(new HashMap<>(initialCapacity, loadFactor));
+    this(initialCapacity, loadFactor, default_mapping_function);
+  }
+
+  public DefaultMultiValueMap(int initialCapacity, float loadFactor, Function<K, List<V>> mappingFunction) {
+    this.map = new HashMap<>(initialCapacity, loadFactor);
+    this.mappingFunction = mappingFunction;
   }
 
   public DefaultMultiValueMap(Map<K, List<V>> map) {
@@ -70,7 +89,12 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
   }
 
   public DefaultMultiValueMap(Map<K, List<V>> map, boolean copy) {
+    this(map, copy, default_mapping_function);
+  }
+
+  public DefaultMultiValueMap(Map<K, List<V>> map, boolean copy, Function<K, List<V>> mappingFunction) {
     this.map = copy ? new HashMap<>(map) : map;
+    this.mappingFunction = mappingFunction;
   }
 
   // MultiValueMap
@@ -84,13 +108,13 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
 
   @Override
   public void add(K key, V value) {
-    List<V> values = this.map.computeIfAbsent(key, k -> new LinkedList<>());
+    List<V> values = this.map.computeIfAbsent(key, mappingFunction);
     values.add(value);
   }
 
   @Override
   public void addAll(K key, List<? extends V> values) {
-    List<V> currentValues = this.map.computeIfAbsent(key, k -> new LinkedList<>());
+    List<V> currentValues = this.map.computeIfAbsent(key, mappingFunction);
     currentValues.addAll(values);
   }
 
@@ -103,7 +127,7 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
 
   @Override
   public void set(K key, V value) {
-    List<V> values = new LinkedList<>();
+    final List<V> values = mappingFunction.apply(key);
     values.add(value);
     this.map.put(key, values);
   }
@@ -192,7 +216,7 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
    * Create a deep copy of this Map.
    *
    * @return a copy of this Map, including a copy of each value-holding List entry
-   * (consistently using an independent modifiable {@link LinkedList} for
+   * (consistently using an independent modifiable {@link List} for
    * each entry) along the lines of {@code MultiValueMap.addAll} semantics
    *
    * @see #addAll(MultiValueMap)
@@ -200,8 +224,16 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
    * @since 2.1.7
    */
   public DefaultMultiValueMap<K, V> deepCopy() {
-    DefaultMultiValueMap<K, V> ret = new DefaultMultiValueMap<>(this.map.size());
-    this.map.forEach((key, value) -> ret.put(key, new LinkedList<>(value)));
+    final DefaultMultiValueMap<K, V> ret = new DefaultMultiValueMap<>(map.size());
+    final Function<K, List<V>> mappingFunction = this.mappingFunction;
+    for (final Entry<K, List<V>> entry : map.entrySet()) {
+      final K key = entry.getKey();
+      final List<V> value = entry.getValue();
+
+      final List<V> apply = mappingFunction.apply(key);
+      apply.addAll(value);
+      ret.put(key, apply);
+    }
     return ret;
   }
 
