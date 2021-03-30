@@ -33,6 +33,7 @@ import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.ObjectUtils;
@@ -291,6 +292,7 @@ public class WebApplicationLoader
     int bufferSize = Integer.parseInt(environment.getProperty(Constant.DOWNLOAD_BUFF_SIZE, "10240"));
 
     final MessageConverter messageConverter = context.getBean(MessageConverter.class);
+    Assert.state(messageConverter != null, "No MessageConverter in this web application");
 
     handlers.add(new ImageResultHandler());
     handlers.add(new ResourceResultHandler(bufferSize));
