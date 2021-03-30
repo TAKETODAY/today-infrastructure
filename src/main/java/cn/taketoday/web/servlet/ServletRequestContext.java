@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpCookie;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -49,7 +48,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
 import cn.taketoday.context.utils.ConvertUtils;
-import cn.taketoday.context.utils.DefaultMultiValueMap;
 import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.AbstractRequestContext;
@@ -315,18 +313,14 @@ public class ServletRequestContext
   @Override
   protected HttpHeaders createRequestHeaders() {
     final HttpServletRequest request = this.request;
-// TODO optimise
-    final DefaultMultiValueMap<String, String> httpHeaders = new DefaultMultiValueMap<>();
+    final DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
     final Enumeration<String> headerNames = request.getHeaderNames();
     while (headerNames.hasMoreElements()) {
-
       final String name = headerNames.nextElement();
       final Enumeration<String> headers = request.getHeaders(name);
-      final ArrayList<String> arrayList = Collections.list(headers);
-      httpHeaders.addAll(name, arrayList);
+      httpHeaders.addAll(name, Collections.list(headers));
     }
-
-    return new DefaultHttpHeaders(httpHeaders);
+    return httpHeaders;
   }
 
   @Override

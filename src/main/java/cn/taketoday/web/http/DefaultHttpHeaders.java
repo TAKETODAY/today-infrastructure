@@ -22,10 +22,12 @@ package cn.taketoday.web.http;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.context.utils.DefaultMultiValueMap;
+import cn.taketoday.context.utils.LinkedCaseInsensitiveMap;
 import cn.taketoday.context.utils.MultiValueMap;
 
 /**
@@ -38,7 +40,11 @@ public class DefaultHttpHeaders implements HttpHeaders, MultiValueMap<String, St
   final MultiValueMap<String, String> headers;
 
   public DefaultHttpHeaders() {
-    this(new DefaultMultiValueMap<>());
+    this(new DefaultMultiValueMap<>(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH)));
+  }
+
+  public DefaultHttpHeaders(Map<String, List<String>> headers) {
+    this(new DefaultMultiValueMap<>(headers));
   }
 
   public DefaultHttpHeaders(MultiValueMap<String, String> headers) {
