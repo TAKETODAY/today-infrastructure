@@ -262,6 +262,8 @@ public class ServletRequestContext
 
   @Override
   public RequestContext reset() {
+    resetResponseHeader();
+
     response.reset();
     return this;
   }
@@ -549,12 +551,10 @@ public class ServletRequestContext
   protected void doApplyHeaders(final HttpHeaders responseHeaders) {
     final HttpServletResponse response = this.response;
     final MultiValueMap<String, String> headerMap = responseHeaders.asMap();
-    if (!headerMap.isEmpty()) {
-      for (final Entry<String, List<String>> entry : headerMap.entrySet()) {
-        final String headerName = entry.getKey();
-        for (final String value : entry.getValue()) {
-          response.addHeader(headerName, value);
-        }
+    for (final Entry<String, List<String>> entry : headerMap.entrySet()) {
+      final String headerName = entry.getKey();
+      for (final String value : entry.getValue()) {
+        response.addHeader(headerName, value);
       }
     }
   }

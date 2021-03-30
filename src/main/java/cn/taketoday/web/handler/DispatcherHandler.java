@@ -255,9 +255,9 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   public void handleException(final Object handler,
                               final Throwable exception,
                               final RequestContext context) throws Throwable {
-    // clear
-    context.responseHeaders().asMap().clear();
-
+    // clear context
+    context.reset();
+    // handle exception
     final Object view = getExceptionHandler()
             .handleException(context, unwrapThrowable(exception), handler);
     if (view != HandlerAdapter.NONE_RETURN_VALUE) {

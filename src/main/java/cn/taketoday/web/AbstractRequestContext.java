@@ -291,12 +291,19 @@ public abstract class AbstractRequestContext implements RequestContext {
    * If {@link #responseHeaders} is not null
    */
   public void applyHeaders() {
-    if (responseHeaders != null) {
+    final HttpHeaders responseHeaders = this.responseHeaders;
+    if (responseHeaders != null && !responseHeaders.asMap().isEmpty()) {
       doApplyHeaders(responseHeaders);
     }
   }
 
   protected void doApplyHeaders(HttpHeaders responseHeaders) { }
+
+  protected void resetResponseHeader() {
+    if (responseHeaders != null) {
+      responseHeaders.asMap().clear();
+    }
+  }
 
   @Override
   public String toString() {

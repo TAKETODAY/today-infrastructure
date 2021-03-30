@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.EventListener;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import javax.servlet.Filter;
@@ -174,8 +173,7 @@ public class WebServletApplicationLoader
 
   @Override
   public void onStartup(Set<Class<?>> classes, ServletContext servletContext) {
-
-    Objects.requireNonNull(servletContext, "ServletContext can't be null");
+    Assert.notNull(servletContext, "ServletContext can't be null");
 
     final WebApplicationContext context = prepareApplicationContext(servletContext);
     try {
@@ -183,7 +181,7 @@ public class WebServletApplicationLoader
         servletContext.setRequestCharacterEncoding(Constant.DEFAULT_ENCODING);
         servletContext.setResponseCharacterEncoding(Constant.DEFAULT_ENCODING);
       }
-      catch (Throwable ignored) {} // Waiting for Jetty 10.0.0
+      catch (Throwable ignored) {}
 
       onStartup(context);
     }
