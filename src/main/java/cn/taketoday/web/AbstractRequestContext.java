@@ -287,7 +287,16 @@ public abstract class AbstractRequestContext implements RequestContext {
 
   protected abstract HttpHeaders createRequestHeaders();
 
-  public void applyHeaders() { }
+  /**
+   * If {@link #responseHeaders} is not null
+   */
+  public void applyHeaders() {
+    if (responseHeaders != null) {
+      doApplyHeaders(responseHeaders);
+    }
+  }
+
+  protected void doApplyHeaders(HttpHeaders responseHeaders) { }
 
   @Override
   public String toString() {

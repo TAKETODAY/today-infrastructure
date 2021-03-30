@@ -50,7 +50,6 @@ import javax.servlet.http.Part;
 
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.DefaultMultiValueMap;
-import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.AbstractRequestContext;
 import cn.taketoday.web.RequestContext;
@@ -315,7 +314,7 @@ public class ServletRequestContext
   @Override
   protected HttpHeaders createRequestHeaders() {
     final HttpServletRequest request = this.request;
-
+// TODO optimise
     final DefaultMultiValueMap<String, String> httpHeaders = new DefaultMultiValueMap<>();
     final Enumeration<String> headerNames = request.getHeaderNames();
     while (headerNames.hasMoreElements()) {
@@ -552,13 +551,13 @@ public class ServletRequestContext
   }
 
   @Override
-  public void applyHeaders() {
+  protected void doApplyHeaders(final HttpHeaders responseHeaders) {
     final HttpServletResponse response = this.response;
-    final MultiValueMap<String, String> responseHeaders = responseHeaders().asMap();
-    for (final Entry<String, List<String>> entry : responseHeaders.entrySet()) {
-      final String key = entry.getKey();
+
+    for (final Entry<String, List<String>> entry : responseHeaders.asMap().entrySet()) {
+      final String headerName = entry.getKey();
       for (final String value : entry.getValue()) {
-        response.addHeader(key, value);
+        response.addHeader(headerName, value);
       }
     }
   }
