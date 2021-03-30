@@ -23,6 +23,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.Assert;
 
 /**
  * @author TODAY <br>
@@ -34,9 +35,10 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
   private ApplicationContext applicationContext;
 
   @Override
-  public final void setApplicationContext(ApplicationContext context) {
+  public final void setApplicationContext(final ApplicationContext context) {
     if (this.applicationContext == null) {
-      initApplicationContext(this.applicationContext = context);
+      this.applicationContext = context;
+      initApplicationContext(context);
     }
     else if (this.applicationContext != context) {
       // Ignore reinitialization if same context passed in.
@@ -92,9 +94,7 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
    */
   public ApplicationContext obtainApplicationContext() {
     final ApplicationContext context = getApplicationContext();
-    if (context == null) {
-      throw new IllegalStateException("No ApplicationContext");
-    }
+    Assert.state(context != null, "No ApplicationContext");
     return context;
   }
 
