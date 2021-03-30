@@ -44,4 +44,8 @@ public class WebNestedRuntimeException extends NestedRuntimeException {
     super(message, cause);
   }
 
+  @Override
+  protected String buildMessage(String message) {
+    return message;
+  }
 }
