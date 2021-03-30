@@ -25,7 +25,7 @@ import cn.taketoday.web.http.ResponseEntity;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
- * Handle ResponseEntity
+ * Handle {@link ResponseEntity}
  *
  * @author TODAY 2020/12/7 22:46
  * @see ResponseEntity

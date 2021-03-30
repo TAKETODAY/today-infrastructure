@@ -57,7 +57,7 @@ import cn.taketoday.context.utils.MultiValueMap;
  * @author TODAY 2020/12/6 17:10
  * @see #getBody()
  * @see #getHeaders()
- * @since 3.0.2
+ * @since 3.0
  */
 public class HttpEntity<T> {
 

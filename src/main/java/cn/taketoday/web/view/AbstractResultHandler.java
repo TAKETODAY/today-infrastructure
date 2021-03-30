@@ -51,11 +51,11 @@ public abstract class AbstractResultHandler
   /** Template view resolver */
   private TemplateViewResolver templateViewResolver;
 
-  AbstractResultHandler() {}
+  protected AbstractResultHandler() {}
 
-  AbstractResultHandler(TemplateViewResolver viewResolver,
-                        MessageConverter messageConverter,
-                        int downloadFileBuf) {
+  protected AbstractResultHandler(TemplateViewResolver viewResolver,
+                                  MessageConverter messageConverter,
+                                  int downloadFileBuf) {
     setTemplateViewResolver(viewResolver);
     setMessageConverter(messageConverter);
     setDownloadFileBufferSize(downloadFileBuf);
