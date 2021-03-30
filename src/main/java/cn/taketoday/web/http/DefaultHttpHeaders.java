@@ -39,10 +39,16 @@ public class DefaultHttpHeaders implements HttpHeaders, MultiValueMap<String, St
 
   final MultiValueMap<String, String> headers;
 
+  /**
+   * Construct a case-insensitive header map
+   */
   public DefaultHttpHeaders() {
     this(new DefaultMultiValueMap<>(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH)));
   }
 
+  /**
+   * Construct with a user input header map
+   */
   public DefaultHttpHeaders(Map<String, List<String>> headers) {
     this(new DefaultMultiValueMap<>(headers));
   }
