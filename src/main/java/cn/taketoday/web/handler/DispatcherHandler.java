@@ -254,6 +254,9 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   public void handleException(final Object handler,
                               final Throwable exception,
                               final RequestContext context) throws Throwable {
+    // clear
+    context.responseHeaders().asMap().clear();
+
     final Object view = getExceptionHandler()
             .handleException(context, unwrapThrowable(exception), handler);
     if (view != HandlerAdapter.NONE_RETURN_VALUE) {
@@ -264,7 +267,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
         }
       }
     }
-    // @since 3.0 flush headers
+    // @since 3.0 flush exception headers
     applyHeaders(context);
   }
 
