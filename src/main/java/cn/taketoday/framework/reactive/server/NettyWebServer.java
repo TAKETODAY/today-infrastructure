@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.LongAdder;
 
 import javax.annotation.PreDestroy;
 
-import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.Logger;
@@ -58,19 +58,18 @@ import lombok.Setter;
 @Setter
 @Props(prefix = { "server.", "server.netty." })
 public class NettyWebServer extends AbstractWebServer implements WebServer {
-  private static final Logger log = LoggerFactory.getLogger(NettyWebServer.class);
 
   private Channel channel;
   private EventLoopGroup childGroup;
   private EventLoopGroup parentGroup;
   private Class<? extends ServerSocketChannel> socketChannel;
-  private final StandardWebServerApplicationContext context;
 
-  @Autowired
-  public NettyWebServer(StandardWebServerApplicationContext context) {
-    Assert.notNull(context, "Application context must not be null");
-    this.context = context;
-    context.setContextPath(getContextPath());
+  @Override
+  protected void initApplicationContext(ApplicationContext context) {
+    super.initApplicationContext(context);
+    if (context instanceof StandardWebServerApplicationContext) {
+      ((StandardWebServerApplicationContext) context).setContextPath(getContextPath());
+    }
   }
 
   protected boolean epollIsAvailable() {
@@ -90,14 +89,13 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
     super.prepareInitialize();
   }
 
-
   @Override
   protected void contextInitialized() {
     super.contextInitialized();
 
     try {
       new NettyWebServerApplicationLoader(this::getMergedInitializers)
-              .onStartup(context);
+              .onStartup(obtainApplicationContext());
     }
     catch (Throwable e) {
       throw new ConfigurationException(e);
@@ -152,7 +150,7 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
   }
 
   protected NettyServerInitializer getNettyServerInitializer() {
-    final WebServerApplicationContext context = getApplicationContext();
+    final WebServerApplicationContext context = obtainApplicationContext();
     NettyServerInitializer ret = context.getBean(NettyServerInitializer.class);
     if (ret == null) {
       final ReactiveChannelHandler reactiveDispatcher = context.getBean(ReactiveChannelHandler.class);
@@ -188,11 +186,6 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
       threadNumber.add(1);
       return new Thread(runnable, prefix.concat("thread-") + threadNumber.intValue());
     }
-  }
-
-  @Override
-  protected WebServerApplicationContext getApplicationContext() {
-    return context;
   }
 
   public Channel getChannel() {

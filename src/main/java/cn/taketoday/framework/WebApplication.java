@@ -37,15 +37,20 @@ public class WebApplication {
   private final ConfigurableWebServerApplicationContext context;
   private final String appBasePath = System.getProperty("user.dir");
 
+  // io.netty.channel.ChannelInboundHandler
+
   public WebApplication() {
     this(null);
   }
 
   public WebApplication(Class<?> startupClass, String... args) {
-
     context = ClassUtils.isPresent(Constant.ENV_SERVLET)
               ? new ServletWebServerApplicationContext(startupClass, args)
               : new StandardWebServerApplicationContext(startupClass, args);
+  }
+
+  public WebApplication(ConfigurableWebServerApplicationContext context) {
+    this.context = context;
   }
 
   public ConfigurableWebServerApplicationContext getApplicationContext() {
@@ -62,6 +67,18 @@ public class WebApplication {
    */
   public static ConfigurableWebServerApplicationContext run(Class<?> startupClass, String... args) {
     return new WebApplication(startupClass, args).run(args);
+  }
+
+  /**
+   * Startup Web Application
+   *
+   * @param startupClass
+   *         Startup class
+   * @param args
+   *         Startup arguments
+   */
+  public static ConfigurableWebServerApplicationContext runReactive(Class<?> startupClass, String... args) {
+    return new WebApplication(new StandardWebServerApplicationContext(startupClass, args)).run(args);
   }
 
   /**

@@ -41,12 +41,12 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Target({ TYPE, METHOD })
 @Import(NettyConfig.class)
-public @interface EnableDefaultNetty {
+public @interface EnableNettyHandling {
 
   boolean async() default true;
 }
 
-class NettyConfig extends AnnotationBeanDefinitionRegistrar<EnableDefaultNetty> {
+class NettyConfig extends AnnotationBeanDefinitionRegistrar<EnableNettyHandling> {
 
   @MissingBean(type = ReactiveChannelHandler.class)
   @Import({ NettyWebServer.class, NettyServerInitializer.class })
@@ -60,7 +60,7 @@ class NettyConfig extends AnnotationBeanDefinitionRegistrar<EnableDefaultNetty> 
   }
 
   @Override
-  public void registerBeanDefinitions(EnableDefaultNetty target, BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry) {
+  public void registerBeanDefinitions(EnableNettyHandling target, BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry) {
     if (!registry.containsBeanDefinition(NettyDispatcher.class)) {
       final boolean async = target.async();
       if (async) {

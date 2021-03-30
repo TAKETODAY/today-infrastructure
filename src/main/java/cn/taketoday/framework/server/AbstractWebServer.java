@@ -45,22 +45,20 @@ import cn.taketoday.framework.config.SessionConfiguration;
 import cn.taketoday.framework.config.WebApplicationConfiguration;
 import cn.taketoday.framework.config.WebDocumentConfiguration;
 import cn.taketoday.framework.utils.ApplicationUtils;
+import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.config.WebApplicationLoader;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @author TODAY <br>
  * 2019-01-26 11:08
  */
-@Getter
-@Setter
-public abstract class AbstractWebServer implements ConfigurableWebServer {
+public abstract class AbstractWebServer
+        extends WebApplicationContextSupport implements ConfigurableWebServer {
 
   private int port = 8080;
   private String host = "localhost";
-  private String contextPath = Constant.BLANK;
+  protected String contextPath = Constant.BLANK;
   private String serverHeader = null;
   private boolean enableHttp2 = false;
 
@@ -118,7 +116,7 @@ public abstract class AbstractWebServer implements ConfigurableWebServer {
   }
 
   protected void prepareInitialize() {
-    final WebServerApplicationContext context = getApplicationContext();
+    final WebServerApplicationContext context = obtainApplicationContext();
     if (context.getEnvironment() instanceof ConfigurableEnvironment) {
       final Starter starter;
       final ConfigurableEnvironment environment = (ConfigurableEnvironment) context.getEnvironment();
@@ -175,8 +173,129 @@ public abstract class AbstractWebServer implements ConfigurableWebServer {
    * @return temporal directory with sub directory
    */
   protected File getTemporalDirectory(String dir) {
-    return ApplicationUtils.getTemporalDirectory(getApplicationContext().getStartupClass(), dir);
+    return ApplicationUtils.getTemporalDirectory(obtainApplicationContext().getStartupClass(), dir);
   }
 
-  protected abstract WebServerApplicationContext getApplicationContext();
+  @Override
+  public WebServerApplicationContext obtainApplicationContext() {
+    return (WebServerApplicationContext) super.obtainApplicationContext();
+  }
+
+  //
+
+  public int getPort() {
+    return port;
+  }
+
+  public void setPort(int port) {
+    this.port = port;
+  }
+
+  public String getHost() {
+    return host;
+  }
+
+  public void setHost(String host) {
+    this.host = host;
+  }
+
+  public void setContextPath(String contextPath) {
+    this.contextPath = contextPath;
+  }
+
+  public String getServerHeader() {
+    return serverHeader;
+  }
+
+  public void setServerHeader(String serverHeader) {
+    this.serverHeader = serverHeader;
+  }
+
+  public boolean isEnableHttp2() {
+    return enableHttp2;
+  }
+
+  public void setEnableHttp2(boolean enableHttp2) {
+    this.enableHttp2 = enableHttp2;
+  }
+
+  public String getDisplayName() {
+    return displayName;
+  }
+
+  public void setDisplayName(String displayName) {
+    this.displayName = displayName;
+  }
+
+  public String getDeployName() {
+    return deployName;
+  }
+
+  public void setDeployName(String deployName) {
+    this.deployName = deployName;
+  }
+
+  public SessionConfiguration getSessionConfiguration() {
+    return sessionConfiguration;
+  }
+
+  public void setSessionConfiguration(SessionConfiguration sessionConfiguration) {
+    this.sessionConfiguration = sessionConfiguration;
+  }
+
+  public CompressionConfiguration getCompression() {
+    return compression;
+  }
+
+  public void setCompression(CompressionConfiguration compression) {
+    this.compression = compression;
+  }
+
+  public LinkedHashSet<ErrorPage> getErrorPages() {
+    return errorPages;
+  }
+
+  public void setErrorPages(LinkedHashSet<ErrorPage> errorPages) {
+    this.errorPages = errorPages;
+  }
+
+  public LinkedHashSet<String> getWelcomePages() {
+    return welcomePages;
+  }
+
+  public void setWelcomePages(LinkedHashSet<String> welcomePages) {
+    this.welcomePages = welcomePages;
+  }
+
+  public LinkedList<WebApplicationInitializer> getContextInitializers() {
+    return contextInitializers;
+  }
+
+  public void setContextInitializers(LinkedList<WebApplicationInitializer> contextInitializers) {
+    this.contextInitializers = contextInitializers;
+  }
+
+  public MimeMappings getMimeMappings() {
+    return mimeMappings;
+  }
+
+  public WebDocumentConfiguration getWebDocumentConfiguration() {
+    return webDocumentConfiguration;
+  }
+
+  public void setWebDocumentConfiguration(WebDocumentConfiguration webDocumentConfiguration) {
+    this.webDocumentConfiguration = webDocumentConfiguration;
+  }
+
+  public AtomicBoolean getStarted() {
+    return started;
+  }
+
+  public void setStarted(AtomicBoolean started) {
+    this.started = started;
+  }
+
+  public void setWebApplicationConfiguration(WebApplicationConfiguration webApplicationConfiguration) {
+    this.webApplicationConfiguration = webApplicationConfiguration;
+  }
 }

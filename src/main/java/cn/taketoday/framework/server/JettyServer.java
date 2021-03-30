@@ -58,22 +58,18 @@ import java.util.function.Supplier;
 
 import javax.servlet.Servlet;
 
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.io.ClassPathResource;
 import cn.taketoday.context.io.FileBasedResource;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.framework.ServletWebServerApplicationContext;
 import cn.taketoday.framework.WebServerException;
+import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.framework.config.ErrorPage;
 import cn.taketoday.framework.config.MimeMappings;
-import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.framework.config.SessionConfiguration;
 import cn.taketoday.framework.config.WebDocumentConfiguration;
 import cn.taketoday.web.config.WebApplicationInitializer;
@@ -100,8 +96,6 @@ import lombok.Setter;
 public class JettyServer
         extends AbstractServletWebServer implements WebServer, DisposableBean {
 
-  private static final Logger log = LoggerFactory.getLogger(JettyServer.class);
-
   private Server server;
 
   private boolean autoStart = true;
@@ -121,18 +115,6 @@ public class JettyServer
   private ThreadPool threadPool;
 
   private boolean sendVersion;
-
-  private final ServletWebServerApplicationContext applicationContext;
-
-  @Autowired
-  public JettyServer(ServletWebServerApplicationContext applicationContext) {
-    this.applicationContext = applicationContext;
-  }
-
-  @Override
-  protected ServletWebServerApplicationContext getApplicationContext() {
-    return applicationContext;
-  }
 
   @Override
   protected synchronized void contextInitialized() {
@@ -488,7 +470,8 @@ public class JettyServer
       final FileSessionDataStore store = new FileSessionDataStore();
 
       try {
-        store.setStoreDir(sessionConfiguration.getStoreDirectory(applicationContext.getStartupClass()));
+        final Class<?> startupClass = obtainApplicationContext().getStartupClass();
+        store.setStoreDir(sessionConfiguration.getStoreDirectory(startupClass));
       }
       catch (IOException e) {
         throw new ConfigurationException(e);
@@ -600,7 +583,7 @@ public class JettyServer
 
       @Override
       protected void doStart() {
-        starter.setApplicationContext(applicationContext);
+        starter.setApplicationContext(obtainApplicationContext());
 
         final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(this.context.getClassLoader());

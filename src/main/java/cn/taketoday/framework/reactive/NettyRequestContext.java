@@ -448,9 +448,7 @@ public class NettyRequestContext
 
     final FullHttpResponse response = getResponse();
     response.setStatus(HttpResponseStatus.valueOf(sc));
-
-    handlerContext.writeAndFlush(response);
-    setCommitted(true);
+    send();
     return this;
   }
 
@@ -460,9 +458,7 @@ public class NettyRequestContext
 
     final FullHttpResponse response = getResponse();
     response.setStatus(HttpResponseStatus.valueOf(sc, msg));
-
-    handlerContext.writeAndFlush(response);
-    setCommitted(true);
+    send();
     return this;
   }
 

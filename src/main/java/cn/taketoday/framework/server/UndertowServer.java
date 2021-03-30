@@ -39,15 +39,12 @@ import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.io.ClassPathResource;
 import cn.taketoday.context.io.FileBasedResource;
 import cn.taketoday.context.io.JarResource;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.Constant;
-import cn.taketoday.framework.ServletWebServerApplicationContext;
+import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.framework.config.ErrorPage;
 import cn.taketoday.framework.config.MimeMappings;
-import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.framework.config.WebDocumentConfiguration;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
@@ -67,23 +64,16 @@ import io.undertow.servlet.api.ServletContainerInitializerInfo;
 import io.undertow.servlet.api.ServletStackTraces;
 import io.undertow.servlet.handlers.DefaultServlet;
 import io.undertow.servlet.util.ImmediateInstanceFactory;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @author TODAY <br>
  * 2019-01-12 17:28
  */
-@Setter
-@Getter
 @MissingBean(type = WebServer.class)
 @Props(prefix = { "server.", "server.undertow." })
 public class UndertowServer
         extends AbstractServletWebServer implements WebServer {
 
-  private static final Logger log = LoggerFactory.getLogger(UndertowServer.class);
-
-  private String serverHeader;
   private boolean useForwardHeaders;
 
   private Undertow undertow;
@@ -108,18 +98,6 @@ public class UndertowServer
 
   @Autowired(required = false)
   private SessionManager sessionManager;
-
-  private final ServletWebServerApplicationContext applicationContext;
-
-  @Autowired
-  public UndertowServer(ServletWebServerApplicationContext applicationContext) {
-    this.applicationContext = applicationContext;
-  }
-
-  @Override
-  protected ServletWebServerApplicationContext getApplicationContext() {
-    return applicationContext;
-  }
 
   @Override
   public synchronized void start() {
@@ -148,8 +126,8 @@ public class UndertowServer
     if (this.useForwardHeaders) {
       httpHandler = Handlers.proxyPeerAddress(httpHandler);
     }
-    if (StringUtils.isNotEmpty(this.serverHeader)) {
-      httpHandler = Handlers.header(httpHandler, "Server", this.serverHeader);
+    if (StringUtils.isNotEmpty(getServerHeader())) {
+      httpHandler = Handlers.header(httpHandler, "Server", getServerHeader());
     }
     return this.builder.setHandler(httpHandler).build();
   }
@@ -369,7 +347,6 @@ public class UndertowServer
     return new DefaultServlet();
   }
 
-
   private static class JarResourceManager implements ResourceManager {
 
     private final String jarFilePath;
@@ -406,4 +383,93 @@ public class UndertowServer
 
   }
 
+  // getter , setter
+
+  public boolean isUseForwardHeaders() {
+    return useForwardHeaders;
+  }
+
+  public void setUseForwardHeaders(boolean useForwardHeaders) {
+    this.useForwardHeaders = useForwardHeaders;
+  }
+
+  public Undertow getUndertow() {
+    return undertow;
+  }
+
+  public void setUndertow(Undertow undertow) {
+    this.undertow = undertow;
+  }
+
+  public Builder getBuilder() {
+    return builder;
+  }
+
+  public void setBuilder(Builder builder) {
+    this.builder = builder;
+  }
+
+  public DeploymentManager getManager() {
+    return manager;
+  }
+
+  public void setManager(DeploymentManager manager) {
+    this.manager = manager;
+  }
+
+  public boolean isEagerInitFilters() {
+    return eagerInitFilters;
+  }
+
+  public void setEagerInitFilters(boolean eagerInitFilters) {
+    this.eagerInitFilters = eagerInitFilters;
+  }
+
+  public int getBufferSize() {
+    return bufferSize;
+  }
+
+  public void setBufferSize(int bufferSize) {
+    this.bufferSize = bufferSize;
+  }
+
+  public int getIoThreads() {
+    return ioThreads;
+  }
+
+  public void setIoThreads(int ioThreads) {
+    this.ioThreads = ioThreads;
+  }
+
+  public int getWorkerThreads() {
+    return workerThreads;
+  }
+
+  public void setWorkerThreads(int workerThreads) {
+    this.workerThreads = workerThreads;
+  }
+
+  public Boolean getDirectBuffers() {
+    return directBuffers;
+  }
+
+  public void setDirectBuffers(Boolean directBuffers) {
+    this.directBuffers = directBuffers;
+  }
+
+  public ServletStackTraces getStackTraces() {
+    return stackTraces;
+  }
+
+  public void setStackTraces(ServletStackTraces stackTraces) {
+    this.stackTraces = stackTraces;
+  }
+
+  public SessionManager getSessionManager() {
+    return sessionManager;
+  }
+
+  public void setSessionManager(SessionManager sessionManager) {
+    this.sessionManager = sessionManager;
+  }
 }

@@ -70,17 +70,14 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.Constant;
-import cn.taketoday.framework.ServletWebServerApplicationContext;
 import cn.taketoday.framework.WebServerException;
-import cn.taketoday.framework.config.ErrorPage;
-import cn.taketoday.framework.config.MimeMappings;
 import cn.taketoday.framework.config.CompressionConfiguration;
+import cn.taketoday.framework.config.ErrorPage;
 import cn.taketoday.framework.config.JspServletConfiguration;
+import cn.taketoday.framework.config.MimeMappings;
 import cn.taketoday.framework.config.WebDocumentConfiguration;
 import lombok.Getter;
 import lombok.Setter;
@@ -94,8 +91,6 @@ import lombok.Setter;
 @MissingBean(type = WebServer.class)
 @Props(prefix = { "server.", "server.tomcat." })
 public class TomcatServer extends AbstractServletWebServer {
-
-  private static final Logger log = LoggerFactory.getLogger(TomcatServer.class);
 
   // connector
   private String protocol = "HTTP/1.1";
@@ -133,18 +128,6 @@ public class TomcatServer extends AbstractServletWebServer {
   private boolean autoStart = true;
 
   private boolean useRelativeRedirects = false;
-
-  private final ServletWebServerApplicationContext applicationContext;
-
-  @Autowired
-  public TomcatServer(ServletWebServerApplicationContext applicationContext) {
-    this.applicationContext = applicationContext;
-  }
-
-  @Override
-  protected ServletWebServerApplicationContext getApplicationContext() {
-    return applicationContext;
-  }
 
   private Context findContext() {
     for (Container child : this.tomcat.getHost().findChildren()) {
@@ -570,7 +553,8 @@ public class TomcatServer extends AbstractServletWebServer {
 
     if (manager instanceof StandardManager) {
       try {
-        File storeDirectory = getSessionConfiguration().getStoreDirectory(getApplicationContext().getStartupClass());
+        final Class<?> startupClass = obtainApplicationContext().getStartupClass();
+        File storeDirectory = getSessionConfiguration().getStoreDirectory(startupClass);
         ((StandardManager) manager).setPathname(new File(storeDirectory, "SESSIONS.ser").getAbsolutePath());
       }
       catch (IOException e) {

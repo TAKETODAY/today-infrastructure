@@ -38,8 +38,6 @@ import javax.servlet.annotation.ServletSecurity;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.framework.Constant;
 import cn.taketoday.framework.WebServerApplicationContext;
@@ -61,8 +59,6 @@ import lombok.Setter;
 @Setter
 public abstract class AbstractServletWebServer
         extends AbstractWebServer implements ConfigurableWebServer {
-
-  private static final Logger log = LoggerFactory.getLogger(AbstractServletWebServer.class);
 
   @Autowired(required = false)
   private JspServletConfiguration jspServletConfiguration;
@@ -196,8 +192,7 @@ public abstract class AbstractServletWebServer
   @Override
   protected void prepareInitialize() {
     super.prepareInitialize();
-
-    final WebServerApplicationContext context = getApplicationContext();
+    final WebServerApplicationContext context = obtainApplicationContext();
 
     final Class<?> startupClass = context.getStartupClass();
     if (startupClass != null) {
