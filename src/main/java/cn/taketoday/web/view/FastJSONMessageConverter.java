@@ -63,7 +63,7 @@ public class FastJSONMessageConverter extends AbstractMessageConverter implement
   }
 
   @Override
-  void writeInternal(final RequestContext context, Object noneNullMessage) throws IOException {
+  protected void writeInternal(final RequestContext context, Object noneNullMessage) throws IOException {
     try {
       JSON.writeJSONString(context.getOutputStream(), noneNullMessage, getSerializeFeatures());
     }

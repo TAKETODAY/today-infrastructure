@@ -51,11 +51,11 @@ public abstract class AbstractMessageConverter implements MessageConverter {
     }
   }
 
-  void writeStringInternal(RequestContext context, String message) throws IOException {
-    context.getWriter().write(message);
+  protected void writeStringInternal(RequestContext context, String message) throws IOException {
+    context.getWriter().println(message);
   }
 
-  void writeNullInternal(RequestContext context) throws IOException { }
+  protected void writeNullInternal(RequestContext context) throws IOException { }
 
   /**
    * Write none null message

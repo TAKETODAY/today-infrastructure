@@ -59,7 +59,12 @@ public class JacksonMessageConverter
   }
 
   @Override
-  void writeInternal(RequestContext context, Object noneNullMessage) throws IOException {
+  protected void writeStringInternal(RequestContext context, String message) throws IOException {
+    mapper.writeValue(context.getOutputStream(), message);
+  }
+
+  @Override
+  protected void writeInternal(RequestContext context, Object noneNullMessage) throws IOException {
     mapper.writeValue(context.getOutputStream(), noneNullMessage);
   }
 
