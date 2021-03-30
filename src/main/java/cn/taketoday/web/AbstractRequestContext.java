@@ -64,9 +64,9 @@ public abstract class AbstractRequestContext implements RequestContext {
   private Map<String, List<MultipartFile>> multipartFiles;
 
   /** @since 3.0 */
-  private HttpHeaders requestHeaders;
+  protected HttpHeaders requestHeaders;
   /** @since 3.0 */
-  private HttpHeaders responseHeaders;
+  protected HttpHeaders responseHeaders;
 
   @Override
   public String contextPath() {
