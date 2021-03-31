@@ -28,7 +28,7 @@ import cn.taketoday.context.aware.ApplicationContextSupport;
  */
 public class WebApplicationContextSupport extends ApplicationContextSupport {
 
-  public final String getContextPath() {
+  public String getContextPath() {
     return obtainApplicationContext().getContextPath();
   }
 

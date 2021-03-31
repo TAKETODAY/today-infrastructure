@@ -83,7 +83,7 @@ public abstract class HttpHeaders
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.1">Section
    * 7.1.1.1 of RFC 7231</a>
    */
-  DateTimeFormatter DATE_FORMATTER = ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz", US).withZone(GMT);
+  static final DateTimeFormatter DATE_FORMATTER = ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz", US).withZone(GMT);
 
   /**
    * Date formats with time zone as specified in the HTTP RFC to use for parsing.
@@ -91,7 +91,7 @@ public abstract class HttpHeaders
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.1">Section
    * 7.1.1.1 of RFC 7231</a>
    */
-  DateTimeFormatter[] DATE_PARSERS = new DateTimeFormatter[] { //
+  static final DateTimeFormatter[] DATE_PARSERS = new DateTimeFormatter[] { //
           DateTimeFormatter.RFC_1123_DATE_TIME, //
           ofPattern("EEEE, dd-MMM-yy HH:mm:ss zzz", US), //
           ofPattern("EEE MMM dd HH:mm:ss yyyy", US).withZone(GMT)
@@ -1245,6 +1245,7 @@ public abstract class HttpHeaders
    *
    * @return the first header value, or {@code null} if none
    */
+  @Override
   public abstract String getFirst(String headerName);
 
   /**
@@ -1260,27 +1261,34 @@ public abstract class HttpHeaders
    * @see #addAll(String, List)
    * @see #set(String, String)
    */
+  @Override
   public abstract void add(String headerName, String headerValue);
 
+  @Override
   public void addAll(String key, List<? extends String> values) {
     for (final String value : values) {
       add(key, value);
     }
   }
 
+  @Override
   public void addAll(MultiValueMap<String, String> values) {
     values.forEach(this::addAll);
   }
 
+  @Override
   public abstract void set(String headerName, String headerValue);
 
+  @Override
   public void setAll(Map<String, String> values) {
     values.forEach(this::set);
   }
 
-  public abstract List<String> get(String key);
+  @Override
+  public abstract List<String> get(Object headerName);
 
-  public abstract List<String> remove(String key);
+  @Override
+  public abstract List<String> remove(Object headerName);
 
   /**
    * @return header names iterator

@@ -88,16 +88,6 @@ public class DefaultHttpHeaders extends HttpHeaders {
   }
 
   @Override
-  public List<String> get(String key) {
-    return headers.get(key);
-  }
-
-  @Override
-  public List<String> remove(String key) {
-    return headers.remove(key);
-  }
-
-  @Override
   public List<String> remove(Object key) {
     return headers.remove(key);
   }
