@@ -30,6 +30,23 @@ class NettyHttpHeaders extends HttpHeaders {
   }
 
   @Override
+  public List<String> get(Object key) {
+    return headers.getAll((CharSequence) key);
+  }
+
+  @Override
+  public List<String> put(String key, List<String> value) {
+    headers.set(key, value);
+    return null;
+  }
+
+  @Override
+  public List<String> remove(Object key) {
+    headers.remove((CharSequence) key);
+    return null;
+  }
+
+  @Override
   public void add(String headerName, String headerValue) {
     headers.add(headerName, headerValue);
   }
@@ -46,17 +63,6 @@ class NettyHttpHeaders extends HttpHeaders {
       singleValueMap.put(entry.getKey(), entry.getValue());
     }
     return singleValueMap;
-  }
-
-  @Override
-  public List<String> get(String key) {
-    return headers.getAll(key);
-  }
-
-  @Override
-  public List<String> remove(String key) {
-    headers.remove(key);
-    return null;
   }
 
   @Override
@@ -93,23 +99,6 @@ class NettyHttpHeaders extends HttpHeaders {
       }
     }
     return false;
-  }
-
-  @Override
-  public List<String> get(Object key) {
-    return headers.getAll((CharSequence) key);
-  }
-
-  @Override
-  public List<String> put(String key, List<String> value) {
-    headers.set(key, value);
-    return null;
-  }
-
-  @Override
-  public List<String> remove(Object key) {
-    headers.remove((CharSequence) key);
-    return null;
   }
 
   @Override

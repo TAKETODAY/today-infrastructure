@@ -203,6 +203,11 @@ public abstract class AbstractWebServer
     this.contextPath = contextPath;
   }
 
+  @Override
+  public String getContextPath() {
+    return contextPath;
+  }
+
   public String getServerHeader() {
     return serverHeader;
   }
