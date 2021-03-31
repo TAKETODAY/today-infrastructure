@@ -104,6 +104,10 @@ public abstract class AbstractBeanFactory
     return def != null ? getBean(def) : getSingleton(name);
   }
 
+  /**
+   * @throws ConfigurationException
+   *         bean definition scope not exist in this bean factory
+   */
   @Override
   public Object getBean(final BeanDefinition def) {
     if (def.isFactoryBean()) {
@@ -1039,7 +1043,7 @@ public abstract class AbstractBeanFactory
     Assert.notNull(name, "Bean name must not be null");
     Assert.notNull(singleton, "Singleton object must not be null");
 
-    synchronized (singletons) {
+    synchronized(singletons) {
       final Object oldBean = singletons.put(name, singleton);
       if (oldBean == null) {
         if (log.isDebugEnabled()) {
