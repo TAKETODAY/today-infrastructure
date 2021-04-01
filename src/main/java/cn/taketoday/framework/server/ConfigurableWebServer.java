@@ -22,13 +22,15 @@ package cn.taketoday.framework.server;
 import cn.taketoday.web.config.WebApplicationInitializer;
 
 /**
- * @author TODAY <br>
- *         2019-01-26 11:09
+ * @author TODAY 2019-01-26 11:09
  */
 public interface ConfigurableWebServer extends WebServer {
 
   /**
+   * perform {@link WebServer} initialization
+   *
    * @param contextInitializers
+   *         {@link WebApplicationInitializer}
    */
   void initialize(WebApplicationInitializer... contextInitializers);
 

@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.taketoday.context.ApplicationContext;
@@ -37,10 +38,10 @@ import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.Constant;
 import cn.taketoday.framework.WebServerApplicationContext;
 import cn.taketoday.framework.annotation.Starter;
-import cn.taketoday.framework.config.ErrorPage;
-import cn.taketoday.framework.config.MimeMappings;
 import cn.taketoday.framework.config.CompositeWebApplicationConfiguration;
 import cn.taketoday.framework.config.CompressionConfiguration;
+import cn.taketoday.framework.config.ErrorPage;
+import cn.taketoday.framework.config.MimeMappings;
 import cn.taketoday.framework.config.SessionConfiguration;
 import cn.taketoday.framework.config.WebApplicationConfiguration;
 import cn.taketoday.framework.config.WebDocumentConfiguration;
@@ -71,9 +72,9 @@ public abstract class AbstractWebServer
 
   @Autowired(required = false)
   private CompressionConfiguration compression;
-  private LinkedHashSet<ErrorPage> errorPages = new LinkedHashSet<>();
-  private LinkedHashSet<String> welcomePages = new LinkedHashSet<>();
-  private LinkedList<WebApplicationInitializer> contextInitializers = new LinkedList<>();
+  private Set<String> welcomePages = new LinkedHashSet<>();
+  private Set<ErrorPage> errorPages = new LinkedHashSet<>();
+  private List<WebApplicationInitializer> contextInitializers = new LinkedList<>();
   private final MimeMappings mimeMappings = new MimeMappings(MimeMappings.DEFAULT);
 
   @Autowired(required = false)
@@ -256,27 +257,27 @@ public abstract class AbstractWebServer
     this.compression = compression;
   }
 
-  public LinkedHashSet<ErrorPage> getErrorPages() {
+  public Set<ErrorPage> getErrorPages() {
     return errorPages;
   }
 
-  public void setErrorPages(LinkedHashSet<ErrorPage> errorPages) {
+  public void setErrorPages(Set<ErrorPage> errorPages) {
     this.errorPages = errorPages;
   }
 
-  public LinkedHashSet<String> getWelcomePages() {
+  public Set<String> getWelcomePages() {
     return welcomePages;
   }
 
-  public void setWelcomePages(LinkedHashSet<String> welcomePages) {
+  public void setWelcomePages(Set<String> welcomePages) {
     this.welcomePages = welcomePages;
   }
 
-  public LinkedList<WebApplicationInitializer> getContextInitializers() {
+  public List<WebApplicationInitializer> getContextInitializers() {
     return contextInitializers;
   }
 
-  public void setContextInitializers(LinkedList<WebApplicationInitializer> contextInitializers) {
+  public void setContextInitializers(List<WebApplicationInitializer> contextInitializers) {
     this.contextInitializers = contextInitializers;
   }
 
