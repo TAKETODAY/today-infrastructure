@@ -75,7 +75,6 @@ import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
  */
 public class NettyRequestContext
         extends AbstractRequestContext implements RequestContext, Map<String, Object> {
-
 //    private static final Logger log = LoggerFactory.getLogger(NettyRequestContext.class);
 
   private final String url;
@@ -101,14 +100,25 @@ public class NettyRequestContext
     this.request = request;
     this.handlerContext = ctx;
     this.url = request.uri();
-    this.uri = request.uri();//TODO
+    this.uri = request.uri();// TODO
     this.config = config;
     setContextPath(contextPath);
   }
 
+  String requestURI;
+
   @Override
   public String requestURI() {
-    return uri;
+    if (requestURI == null) {
+      final int index = uri.indexOf('?');
+      if (index > -1) {
+        requestURI = uri.substring(0, index);
+      }
+      else {
+        requestURI = uri;
+      }
+    }
+    return requestURI;
   }
 
   @Override
@@ -612,4 +622,26 @@ public class NettyRequestContext
     this.committed = committed;
   }
 
+
+//  public static StringBuffer getRequestURL(RequestContext request) {
+//    StringBuffer url = new StringBuffer();
+//    String scheme = request.getScheme();
+//    int port = request.getServerPort();
+//    if (port < 0) {
+//      // Work around java.net.URL bug
+//      port = 80;
+//    }
+//
+//    url.append(scheme);
+//    url.append("://");
+//    url.append(reqHttpSchemeuest.getServerName());
+//    if ((scheme.equals("http") && (port != 80))
+//            || (scheme.equals("https") && (port != 443))) {
+//      url.append(':');
+//      url.append(port);
+//    }
+//    url.append(request.requestURI());
+//
+//    return url;
+//  }
 }

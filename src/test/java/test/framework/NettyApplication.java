@@ -60,7 +60,6 @@ public class NettyApplication {
   @EnableMethodEventDriven
   static class AppConfig {
 
-
     @EventListener(MyEvent.class)
     public void event(MyEvent event) {
       log.info("event :{}", event);
