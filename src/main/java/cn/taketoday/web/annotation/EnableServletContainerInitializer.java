@@ -33,6 +33,7 @@ import javax.servlet.annotation.HandlesTypes;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
@@ -63,12 +64,13 @@ class WebApplicationServletContainerInitializer
       Set<Class<?>> c = null;
       if (handles != null) {
         c = new HashSet<>();
+        final CandidateComponentScanner componentScanner = context.getCandidateComponentScanner();
         for (final Class<?> handlesType : handles.value()) {
           if (handlesType.isAnnotation()) {
-            c.addAll(context.getCandidateComponentScanner().getAnnotatedClasses((Class<? extends Annotation>) handlesType));
+            c.addAll(componentScanner.getAnnotatedClasses((Class<? extends Annotation>) handlesType));
           }
           else if (handlesType.isInterface()) {
-            c.addAll(context.getCandidateComponentScanner().getImplementationClasses(handlesType));
+            c.addAll(componentScanner.getImplementationClasses(handlesType));
           }
           else {
             c.add(handlesType);
