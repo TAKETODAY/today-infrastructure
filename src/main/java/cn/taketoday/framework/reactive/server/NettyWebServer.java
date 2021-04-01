@@ -19,9 +19,6 @@
  */
 package cn.taketoday.framework.reactive.server;
 
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.LongAdder;
-
 import javax.annotation.PreDestroy;
 
 import cn.taketoday.context.ApplicationContext;
@@ -47,6 +44,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.ResourceLeakDetector;
+import io.netty.util.concurrent.DefaultThreadFactory;
 
 /**
  * Netty {@link WebServer}
@@ -78,6 +76,8 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
   private EventLoopGroup childGroup;
   private EventLoopGroup parentGroup;
   private Class<? extends ServerSocketChannel> socketChannel;
+
+  private LogLevel loggingLevel;
 
   /**
    * Framework Channel Initializer
@@ -132,18 +132,18 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
         socketChannel = EpollServerSocketChannel.class;
       }
       if (parentGroup == null) {
-        parentGroup = new EpollEventLoopGroup(threadCount, new NamedThreadFactory("epoll-parent@"));
+        parentGroup = new EpollEventLoopGroup(threadCount, new DefaultThreadFactory("epoll-parent@"));
       }
       if (childGroup == null) {
-        childGroup = new EpollEventLoopGroup(acceptThreadCount, new NamedThreadFactory("epoll-child@"));
+        childGroup = new EpollEventLoopGroup(acceptThreadCount, new DefaultThreadFactory("epoll-child@"));
       }
     }
     else {
       if (parentGroup == null) {
-        parentGroup = new NioEventLoopGroup(acceptThreadCount, new NamedThreadFactory("parent@"));
+        parentGroup = new NioEventLoopGroup(acceptThreadCount, new DefaultThreadFactory("parent@"));
       }
       if (childGroup == null) {
-        childGroup = new NioEventLoopGroup(threadCount, new NamedThreadFactory("child@"));
+        childGroup = new NioEventLoopGroup(threadCount, new DefaultThreadFactory("child@"));
       }
       if (socketChannel == null) {
         socketChannel = NioServerSocketChannel.class;
@@ -176,7 +176,9 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
   }
 
   protected void postBootstrap(ServerBootstrap bootstrap) {
-    bootstrap.handler(new LoggingHandler(LogLevel.INFO));
+    if (loggingLevel != null) {
+      bootstrap.handler(new LoggingHandler(loggingLevel));
+    }
   }
 
   protected NettyServerInitializer getNettyServerInitializer() {
@@ -203,22 +205,6 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
     }
     if (this.childGroup != null) {
       this.childGroup.shutdownGracefully();
-    }
-  }
-
-  public static class NamedThreadFactory implements ThreadFactory {
-
-    private final String prefix;
-    private final LongAdder threadNumber = new LongAdder();
-
-    public NamedThreadFactory(String prefix) {
-      this.prefix = prefix;
-    }
-
-    @Override
-    public Thread newThread(Runnable runnable) {
-      threadNumber.add(1);
-      return new Thread(runnable, prefix.concat("thread-") + threadNumber.intValue());
     }
   }
 
@@ -264,5 +250,26 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
 
   public void setNettyServerInitializer(NettyServerInitializer nettyServerInitializer) {
     this.nettyServerInitializer = nettyServerInitializer;
+  }
+
+  /**
+   * Set {@link LoggingHandler} logging Level
+   * <p>
+   * If that {@code loggingLevel} is {@code null} will not register logging handler
+   * </p>
+   *
+   * @param loggingLevel
+   *         LogLevel
+   *
+   * @see LogLevel
+   * @see LoggingHandler
+   * @see ServerBootstrap#handler
+   */
+  public void setLoggingLevel(LogLevel loggingLevel) {
+    this.loggingLevel = loggingLevel;
+  }
+
+  public LogLevel getLoggingLevel() {
+    return loggingLevel;
   }
 }
