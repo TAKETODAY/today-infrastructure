@@ -304,7 +304,7 @@ public abstract class AbstractRequestContext implements RequestContext {
 
   @Override
   public void contentType(String contentType) {
-    requestHeaders().set(Constant.CONTENT_TYPE, contentType);
+    responseHeaders().set(Constant.CONTENT_TYPE, contentType);
   }
 
   /**
