@@ -23,17 +23,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpCookie;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.Constant;
@@ -42,7 +41,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.http.DefaultHttpHeaders;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.resolver.ParameterReadFailedException;
-import cn.taketoday.web.ui.Model;
 import cn.taketoday.web.ui.RedirectModel;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -74,22 +72,21 @@ import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
  * 2019-07-04 21:24
  */
 public class NettyRequestContext
-        extends AbstractRequestContext implements RequestContext, Map<String, Object> {
+        extends AbstractRequestContext implements RequestContext {
 //    private static final Logger log = LoggerFactory.getLogger(NettyRequestContext.class);
 
-  private final String url;
   private String queryString;
   private String remoteAddress;
 
   private boolean committed = false;
 
-  private Map<String, Object> attributes;
   private Map<String, String[]> parameters;
 
   private final FullHttpRequest request;
   private final ChannelHandlerContext handlerContext;
 
-  private String uri;
+  private final String uri;
+  private String requestURI;
 
   private final NettyRequestContextConfig config;
 
@@ -99,17 +96,16 @@ public class NettyRequestContext
                              NettyRequestContextConfig config) {
     this.request = request;
     this.handlerContext = ctx;
-    this.url = request.uri();
-    this.uri = request.uri();// TODO
+    this.uri = request.uri();
     this.config = config;
     setContextPath(contextPath);
   }
 
-  String requestURI;
-
   @Override
   public String requestURI() {
+    String requestURI = this.requestURI;
     if (requestURI == null) {
+      final String uri = this.uri;
       final int index = uri.indexOf('?');
       if (index > -1) {
         requestURI = uri.substring(0, index);
@@ -117,30 +113,39 @@ public class NettyRequestContext
       else {
         requestURI = uri;
       }
+      this.requestURI = requestURI;
     }
     return requestURI;
   }
 
   @Override
   public String requestURL() {
-    return request.uri();
+    final String host = request.headers().get(Constant.HOST);
+    return "http://" + host + requestURI();
   }
 
   @Override
   public String remoteAddress() {
-    return this.remoteAddress;
+    if (remoteAddress == null) {
+      final InetSocketAddress remote = (InetSocketAddress) handlerContext.channel().remoteAddress();
+      remoteAddress = remote.getAddress().getHostAddress();
+    }
+    return remoteAddress;
   }
 
   @Override
   public String queryString() {
-    final String queryString = this.queryString;
+    String queryString = this.queryString;
     if (queryString == null) {
-      final String url = this.url;
-      int index;
-      if (url == null || (index = url.indexOf('?')) == -1) {
-        return Constant.BLANK;
+      final int index;
+      final String uri = this.uri;
+      if (uri == null || (index = uri.indexOf('?')) == -1) {
+        queryString = Constant.BLANK;
       }
-      return this.queryString = url.substring(index + 1);
+      else {
+        queryString = uri.substring(index + 1);
+      }
+      this.queryString = queryString;
     }
     return queryString;
   }
@@ -157,65 +162,14 @@ public class NettyRequestContext
 
   @Override
   protected OutputStream getOutputStreamInternal() {
-    return new ByteBufOutputStream(responseBody);
-  }
-
-  public Map<String, Object> getAttributes() {
-    final Map<String, Object> attributes = this.attributes;
-    if (attributes == null) {
-      return this.attributes = new HashMap<>();
-    }
-    return attributes;
-  }
-
-  public void setAttributes(Map<String, Object> attributes) {
-    this.attributes = attributes;
-  }
-
-  @Override
-  public Model attributes(Map<String, Object> attributes) {
-    getAttributes().putAll(attributes);
-    return this;
-  }
-
-  @Override
-  public Enumeration<String> attributes() {
-    return Collections.enumeration(getAttributes().keySet());
-  }
-
-  @Override
-  public Object attribute(String name) {
-    return getAttributes().get(name);
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public <T> T attribute(String name, Class<T> targetClass) {
-    return (T) ConvertUtils.convert(getAttributes().get(name), targetClass);
-  }
-
-  @Override
-  public Model attribute(String name, Object value) {
-    getAttributes().put(name, value);
-    return this;
-  }
-
-  @Override
-  public Model removeAttribute(String name) {
-    getAttributes().remove(name);
-    return this;
-  }
-
-  @Override
-  public Map<String, Object> asMap() {
-    return attributes;
+    return new ByteBufOutputStream(responseBody());
   }
 
   @Override
   protected cn.taketoday.web.http.HttpHeaders createRequestHeaders() {
     final HttpHeaders headers = request.headers();
     final DefaultHttpHeaders ret = new DefaultHttpHeaders();
-    for (final Entry<String, String> header : headers) {
+    for (final Map.Entry<String, String> header : headers) {
       ret.add(header.getKey(), header.getValue());
     }
     return ret;
@@ -307,7 +261,7 @@ public class NettyRequestContext
 
     if (!parameters.isEmpty()) {
       final Map<String, String[]> params = new HashMap<>(parameters.size());
-      for (final Entry<String, List<String>> entry : parameters.entrySet()) {
+      for (final Map.Entry<String, List<String>> entry : parameters.entrySet()) {
         final List<String> value = entry.getValue();
         params.put(entry.getKey(), value.toArray(new String[value.size()]));
       }
@@ -358,9 +312,20 @@ public class NettyRequestContext
     return this;
   }
 
-  private final ByteBuf responseBody = Unpooled.buffer(16);
+  private ByteBuf responseBody;
 
   public final ByteBuf responseBody() {
+    ByteBuf responseBody = this.responseBody;
+    if (responseBody == null) {
+      final Supplier<ByteBuf> bufSupplier = config.getResponseBody();
+      if (bufSupplier != null) {
+        responseBody = bufSupplier.get(); // may null
+      }
+      if (responseBody == null) {
+        responseBody = Unpooled.buffer(config.getBodyInitialSize());
+      }
+      this.responseBody = responseBody;
+    }
     return responseBody;
   }
 
@@ -371,7 +336,7 @@ public class NettyRequestContext
     assertNotCommitted();
     final NettyHttpHeaders responseHeaders = responseHeaders();
     if (responseHeaders.getFirst(Constant.CONTENT_LENGTH) == null) {
-      responseHeaders.setContentLength(responseBody.readableBytes());
+      responseHeaders.setContentLength(responseBody().readableBytes());
     }
     final ChannelHandlerContext handlerContext = this.handlerContext;
     if (handlerContext != null) {
@@ -405,10 +370,12 @@ public class NettyRequestContext
   @Override
   public RequestContext reset() {
     assertNotCommitted();
-
     resetResponseHeader();
 
-    responseBody.clear();
+    if (responseBody != null) {
+      responseBody.clear();
+    }
+
     getResponse().setStatus(HttpResponseStatus.OK);
     return this;
   }
@@ -513,8 +480,11 @@ public class NettyRequestContext
     if (response == null) {
       final NettyRequestContextConfig config = this.config;
       final DefaultFullHttpResponse httpResponse =
-              new DefaultFullHttpResponse(config.getHttpVersion(), HttpResponseStatus.OK,
-                                          responseBody, responseHeaders().getOriginal(), config.getTrailingHeaders().get());
+              new DefaultFullHttpResponse(config.getHttpVersion(),
+                                          HttpResponseStatus.OK,
+                                          responseBody(),
+                                          responseHeaders().getOriginal(),
+                                          config.getTrailingHeaders().get());
 
       return this.response = httpResponse;
 
@@ -556,92 +526,10 @@ public class NettyRequestContext
   // Map
   // -----------------------------------------
 
-  @Override
-  public int size() {
-    return getAttributes().size();
-  }
-
-  @Override
-  public boolean isEmpty() {
-    return getAttributes().isEmpty();
-  }
-
-  @Override
-  public boolean containsKey(Object key) {
-    return getAttributes().containsKey(key);
-  }
-
-  @Override
-  public boolean containsValue(Object value) {
-    return getAttributes().containsValue(value);
-  }
-
-  @Override
-  public Object get(Object key) {
-    return getAttributes().get(key);
-  }
-
-  @Override
-  public Object put(String key, Object value) {
-    return getAttributes().put(key, value);
-  }
-
-  @Override
-  public Object remove(Object key) {
-    return getAttributes().remove(key);
-  }
-
-  @Override
-  public void putAll(Map<? extends String, ?> m) {
-    getAttributes().putAll(m);
-  }
-
-  @Override
-  public Set<String> keySet() {
-    return getAttributes().keySet();
-  }
-
-  @Override
-  public Collection<Object> values() {
-    return getAttributes().values();
-  }
-
-  @Override
-  public Set<Entry<String, Object>> entrySet() {
-    return getAttributes().entrySet();
-  }
-
-  @Override
-  public void clear() {
-    getAttributes().clear();
-  }
-
   // -------------------------------
 
   public void setCommitted(boolean committed) {
     this.committed = committed;
   }
 
-
-//  public static StringBuffer getRequestURL(RequestContext request) {
-//    StringBuffer url = new StringBuffer();
-//    String scheme = request.getScheme();
-//    int port = request.getServerPort();
-//    if (port < 0) {
-//      // Work around java.net.URL bug
-//      port = 80;
-//    }
-//
-//    url.append(scheme);
-//    url.append("://");
-//    url.append(reqHttpSchemeuest.getServerName());
-//    if ((scheme.equals("http") && (port != 80))
-//            || (scheme.equals("https") && (port != 443))) {
-//      url.append(':');
-//      url.append(port);
-//    }
-//    url.append(request.requestURI());
-//
-//    return url;
-//  }
 }
