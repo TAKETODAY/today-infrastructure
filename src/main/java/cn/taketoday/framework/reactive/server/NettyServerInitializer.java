@@ -39,8 +39,6 @@ import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
 public class NettyServerInitializer
         extends ChannelInitializer<SocketChannel> implements ChannelHandler {
 
-  private static final Logger log = LoggerFactory.getLogger(NettyServerInitializer.class);
-
   private final ReactiveChannelHandler reactiveDispatcher;
 
   /**
@@ -103,8 +101,6 @@ public class NettyServerInitializer
 
   @Override
   protected void initChannel(final SocketChannel ch) {
-    log.info("initChannel {}", ch);
-
     final HttpServerCodec serverCodec
             = new HttpServerCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize, validateHeaders);
 
