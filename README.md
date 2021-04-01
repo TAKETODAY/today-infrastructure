@@ -88,6 +88,83 @@ public class TestApplication implements WebMvcConfiguration, ApplicationListener
   }
 }
 ```
+# 在 Netty 里运行
+
+```java
+@Slf4j
+@RestController
+@RestControllerAdvice
+@Import(NettyApplication.AppConfig.class)
+public class NettyApplication {
+
+  public static void main(String[] args) {
+    WebApplication.runReactive(NettyApplication.class, args);
+  }
+
+  @GET("/index")
+  public String index() {
+    return "Hello";
+  }
+
+  @GET("/body/{name}/{age}")
+  public Body index(String name, int age) {
+    return new Body(name, age);
+  }
+
+  @GET("/publish-event")
+  public void index(String name, @Autowired ApplicationEventPublisher publisher) {
+    publisher.publishEvent(new MyEvent(name));
+  }
+
+  @GET("/request-context")
+  public String context(RequestContext context) {
+    final String requestURL = context.requestURL();
+    final String queryString = context.queryString();
+    System.out.println(requestURL);
+    System.out.println(queryString);
+
+    return queryString;
+  }
+
+  @Getter
+  static class Body {
+    final String name;
+    final int age;
+
+    Body(String name, int age) {
+      this.name = name;
+      this.age = age;
+    }
+  }
+
+  @Configuration
+  @EnableNettyHandling
+  @EnableMethodEventDriven
+  static class AppConfig {
+
+    @EventListener(MyEvent.class)
+    public void event(MyEvent event) {
+      log.info("event :{}", event);
+    }
+  }
+
+  @ToString
+  static class MyEvent {
+    final String name;
+
+    MyEvent(String name) {
+      this.name = name;
+    }
+  }
+
+  @ExceptionHandler(Throwable.class)
+  public void throwable(Throwable throwable) {
+    throwable.printStackTrace();
+  }
+
+}
+
+```
 
 ## 🙏 鸣谢
 本项目的诞生离不开以下开源项目：
