@@ -67,9 +67,15 @@ public class ReactiveChannelHandler implements ChannelInboundHandler {
   }
 
   @Override
-  public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
+  public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
     if (msg instanceof FullHttpRequest) {
-      nettyDispatcher.dispatch(ctx, (FullHttpRequest) msg, obtainContextConfig());
+      NettyRequestContext nettyContext = new NettyRequestContext(ctx, (FullHttpRequest) msg, obtainContextConfig());
+      try {
+        nettyDispatcher.dispatch(ctx, nettyContext);
+      }
+      catch (Throwable e) {
+        ctx.fireExceptionCaught(e);
+      }
     }
     else {
       ctx.fireChannelRead(msg);

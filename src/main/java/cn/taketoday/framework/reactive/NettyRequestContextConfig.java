@@ -43,6 +43,13 @@ public class NettyRequestContextConfig {
   private int bodyInitialSize = 64;
   private Supplier<ByteBuf> responseBody;
 
+  /**
+   * {@code contextPath} just like {@code HttpServletRequest.getContextPath()}
+   *
+   * @see javax.servlet.http.HttpServletRequest#getContextPath()
+   */
+  private String contextPath;
+
   public NettyRequestContextConfig() {
     this(() -> EmptyHttpHeaders.INSTANCE);
   }
@@ -135,5 +142,18 @@ public class NettyRequestContextConfig {
    */
   public void setBodyInitialSize(int bodyInitialSize) {
     this.bodyInitialSize = bodyInitialSize;
+  }
+
+  public void setContextPath(String contextPath) {
+    this.contextPath = contextPath;
+  }
+
+  /**
+   * {@code contextPath} just like {@code HttpServletRequest.getContextPath()}
+   *
+   * @see javax.servlet.http.HttpServletRequest#getContextPath()
+   */
+  public String getContextPath() {
+    return contextPath;
   }
 }

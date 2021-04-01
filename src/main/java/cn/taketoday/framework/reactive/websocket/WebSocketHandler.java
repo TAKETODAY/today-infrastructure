@@ -114,7 +114,7 @@ public class WebSocketHandler
   private void handleHttpRequest(ChannelHandlerContext ctx, HttpRequest request) {
     final DefaultFullHttpRequest defaultFullHttpRequest = new DefaultFullHttpRequest
             (request.protocolVersion(), request.method(), request.uri());
-    this.requestContext = new NettyRequestContext("", ctx, defaultFullHttpRequest, config);
+    this.requestContext = new NettyRequestContext(ctx, defaultFullHttpRequest, config);
     if (isWebSocketRequest(request)) {
       final WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
               request.uri(), null, true);

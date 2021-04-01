@@ -90,15 +90,13 @@ public class NettyRequestContext
 
   private final NettyRequestContextConfig config;
 
-  public NettyRequestContext(String contextPath,
-                             ChannelHandlerContext ctx,
+  public NettyRequestContext(ChannelHandlerContext ctx,
                              FullHttpRequest request,
                              NettyRequestContextConfig config) {
     this.request = request;
     this.handlerContext = ctx;
     this.uri = request.uri();
     this.config = config;
-    setContextPath(contextPath);
   }
 
   @Override
@@ -522,13 +520,13 @@ public class NettyRequestContext
     return multipartFiles;
   }
 
-  // Map
-  // -----------------------------------------
-
-  // -------------------------------
-
   public void setCommitted(boolean committed) {
     this.committed = committed;
+  }
+
+  @Override
+  protected String getContextPathInternal() {
+    return config.getContextPath();
   }
 
 }

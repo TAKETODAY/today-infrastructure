@@ -6,7 +6,6 @@ import java.util.function.UnaryOperator;
 
 import cn.taketoday.web.handler.DispatcherHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
@@ -22,12 +21,7 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 public class AsyncNettyDispatcherHandler extends DispatcherHandler implements NettyDispatcher {
 
   @Override
-  public void dispatch(
-          final ChannelHandlerContext ctx, final FullHttpRequest request, final NettyRequestContextConfig config) {
-
-    final NettyRequestContext nettyContext = new NettyRequestContext(getContextPath(), ctx, request, config);
-    final Executor executor = ctx.executor();
-
+  public void dispatch(final ChannelHandlerContext ctx, final NettyRequestContext nettyContext) {
     final class Handler implements UnaryOperator<Object> {
       @Override
       public Object apply(Object handler) {
@@ -48,9 +42,11 @@ public class AsyncNettyDispatcherHandler extends DispatcherHandler implements Ne
       }
     }
 
+    final Executor executor = ctx.executor();
     completedFuture(nettyContext)
             .thenApplyAsync(this::lookupHandler, executor)
             .thenApplyAsync(new Handler(), executor)
             .thenAcceptAsync(new Sender(), executor);
   }
+
 }

@@ -1,8 +1,8 @@
 package cn.taketoday.framework.reactive;
 
+import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.handler.DispatcherHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
 
 /**
  * Synchronous Netty {@link cn.taketoday.web.handler.DispatcherHandler}
@@ -16,15 +16,14 @@ import io.netty.handler.codec.http.FullHttpRequest;
 public class SyncNettyDispatcherHandler extends DispatcherHandler implements NettyDispatcher {
 
   @Override
-  public void dispatch(ChannelHandlerContext ctx, FullHttpRequest request, NettyRequestContextConfig config) {
-    // Lookup handler mapping
-    final NettyRequestContext context = new NettyRequestContext(getContextPath(), ctx, request, config);
+  public void dispatch(ChannelHandlerContext ctx, final NettyRequestContext nettyContext) throws Throwable {
+    RequestContextHolder.prepareContext(nettyContext);
     try {
-      handle(context);
-      context.send();
+      handle(nettyContext); // handling HTTP request
+      nettyContext.send();
     }
-    catch (Throwable e) {
-      ctx.fireExceptionCaught(e);
+    finally {
+      RequestContextHolder.resetContext();
     }
   }
 }
