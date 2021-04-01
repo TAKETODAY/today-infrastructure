@@ -62,12 +62,12 @@ public class ReactiveFreeMarkerTemplateViewResolver
    * @return {@link TemplateHashModel}
    */
   protected TemplateHashModel createModel(RequestContext context) {
-    final ObjectWrapper wrapper = this.getObjectWrapper();
+    final ObjectWrapper wrapper = getObjectWrapper();
 
     final Map<String, Object> attributes = context.asMap();
 
     // Create hash model wrapper for request
-    attributes.put(KEY_REQUEST_PARAMETERS, new RequestContextParametersHashModel(context));
+    attributes.put(KEY_REQUEST_PARAMETERS, new RequestContextParametersHashModel(wrapper, context));
 
     return DefaultMapAdapter.adapt(attributes, (ObjectWrapperWithAPISupport) wrapper);
   }
