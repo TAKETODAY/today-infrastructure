@@ -64,11 +64,6 @@ import cn.taketoday.web.ui.RedirectModel;
 public class ServletRequestContext
         extends AbstractRequestContext implements RequestContext {
 
-  /**
-   * @since 3.0
-   */
-  private Model model;
-
   private final HttpServletRequest request;
   private final HttpServletResponse response;
 
@@ -401,79 +396,32 @@ public class ServletRequestContext
     return redirectModel;
   }
 
-  /**
-   * @since 3.0
-   */
-  private Model obtainModel() {
-    Model model = this.model;
-    if (model == null) {
-      final class RequestModel extends ModelAttributes {
-        // auto flush to request attributes
-        @Override
-        public void setAttribute(String name, Object value) {
-          super.setAttribute(name, value);
-          request.setAttribute(name, value);
-        }
+  @Override
+  protected Model createModel() {
+    final class RequestModel extends ModelAttributes {
+      // auto flush to request attributes
+      @Override
+      public void setAttribute(String name, Object value) {
+        super.setAttribute(name, value);
+        request.setAttribute(name, value);
+      }
 
-        @Override
-        public Object removeAttribute(String name) {
+      @Override
+      public Object removeAttribute(String name) {
+        request.removeAttribute(name);
+        return super.removeAttribute(name);
+      }
+
+      @Override
+      public void clear() {
+        super.clear();
+        Enumeration<String> attributeNames = request.getAttributeNames();
+        while (attributeNames.hasMoreElements()) {
+          final String name = attributeNames.nextElement();
           request.removeAttribute(name);
-          return super.removeAttribute(name);
-        }
-
-        @Override
-        public void clear() {
-          super.clear();
-          Enumeration<String> attributeNames = request.getAttributeNames();
-          while (attributeNames.hasMoreElements()) {
-            final String name = attributeNames.nextElement();
-            request.removeAttribute(name);
-          }
         }
       }
-      model = new RequestModel();
-      this.model = model;
     }
-    return model;
-  }
-
-  @Override
-  public boolean containsAttribute(String name) {
-    return obtainModel().containsAttribute(name);
-  }
-
-  @Override
-  public void setAttributes(Map<String, Object> attributes) {
-    obtainModel().setAttributes(attributes);
-  }
-
-  @Override
-  public Object getAttribute(String name) {
-    return obtainModel().getAttribute(name);
-  }
-
-  @Override
-  public <T> T getAttribute(String name, Class<T> targetClass) {
-    return obtainModel().getAttribute(name, targetClass);
-  }
-
-  @Override
-  public void setAttribute(String name, Object value) {
-    obtainModel().setAttribute(name, value);
-  }
-
-  @Override
-  public Object removeAttribute(String name) {
-    return obtainModel().removeAttribute(name);
-  }
-
-  @Override
-  public Map<String, Object> asMap() {
-    return obtainModel().asMap();
-  }
-
-  @Override
-  public void clear() {
-    obtainModel().clear();
+    return new RequestModel();
   }
 }

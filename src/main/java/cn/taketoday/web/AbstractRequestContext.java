@@ -39,7 +39,9 @@ import cn.taketoday.web.http.DefaultHttpHeaders;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.resolver.MultipartFileParsingException;
+import cn.taketoday.web.ui.Model;
 import cn.taketoday.web.ui.ModelAndView;
+import cn.taketoday.web.ui.ModelAttributes;
 
 import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
 
@@ -67,6 +69,11 @@ public abstract class AbstractRequestContext implements RequestContext {
   protected HttpHeaders requestHeaders;
   /** @since 3.0 */
   protected HttpHeaders responseHeaders;
+
+  /**
+   * @since 3.0
+   */
+  private Model model;
 
   @Override
   public String contextPath() {
@@ -320,6 +327,64 @@ public abstract class AbstractRequestContext implements RequestContext {
     if (responseHeaders != null) {
       responseHeaders.clear();
     }
+  }
+
+  // Model
+
+  /**
+   * @since 3.0
+   */
+  private Model obtainModel() {
+    Model model = this.model;
+    if (model == null) {
+      model = createModel();
+      this.model = model;
+    }
+    return model;
+  }
+
+  protected Model createModel() {
+    return new ModelAttributes();
+  }
+
+  @Override
+  public boolean containsAttribute(String name) {
+    return obtainModel().containsAttribute(name);
+  }
+
+  @Override
+  public void setAttributes(Map<String, Object> attributes) {
+    obtainModel().setAttributes(attributes);
+  }
+
+  @Override
+  public Object getAttribute(String name) {
+    return obtainModel().getAttribute(name);
+  }
+
+  @Override
+  public <T> T getAttribute(String name, Class<T> targetClass) {
+    return obtainModel().getAttribute(name, targetClass);
+  }
+
+  @Override
+  public void setAttribute(String name, Object value) {
+    obtainModel().setAttribute(name, value);
+  }
+
+  @Override
+  public Object removeAttribute(String name) {
+    return obtainModel().removeAttribute(name);
+  }
+
+  @Override
+  public Map<String, Object> asMap() {
+    return obtainModel().asMap();
+  }
+
+  @Override
+  public void clear() {
+    obtainModel().clear();
   }
 
   @Override
