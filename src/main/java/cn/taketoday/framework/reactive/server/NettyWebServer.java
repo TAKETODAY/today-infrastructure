@@ -205,7 +205,7 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
   }
 
   protected void postBootstrap(ServerBootstrap bootstrap) {
-    log.info("Netty web server started.");
+    log.info("Netty web server started on port: [{}] with context path '{}'", getPort(), getContextPath());
 
     if (loggingLevel != null) {
       bootstrap.handler(new LoggingHandler(loggingLevel));
