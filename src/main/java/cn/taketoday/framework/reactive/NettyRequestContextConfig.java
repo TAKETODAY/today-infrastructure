@@ -2,6 +2,7 @@ package cn.taketoday.framework.reactive;
 
 import java.util.function.Supplier;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.EmptyHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpVersion;
@@ -9,11 +10,18 @@ import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 
 /**
+ * To help build a {@link NettyRequestContext}
+ *
+ * <p>
+ * User can use this class to customize {@link NettyRequestContext}
+ * </p>
+ *
  * @author TODAY 2021/3/30 17:46
  */
 public class NettyRequestContextConfig {
+
   /**
-   * Should Netty validate Header values to ensure they aren't malicious.
+   * Should Netty validate HTTP response Header values to ensure they aren't malicious.
    */
   private boolean validateHeaders = false;
   private boolean singleFieldHeaders = true;
@@ -26,6 +34,14 @@ public class NettyRequestContextConfig {
 
   private ServerCookieEncoder cookieEncoder = ServerCookieEncoder.STRICT;
   private ServerCookieDecoder cookieDecoder = ServerCookieDecoder.STRICT;
+
+  /**
+   * response body initial size
+   *
+   * @see io.netty.buffer.Unpooled#buffer(int)
+   */
+  private int bodyInitialSize = 64;
+  private Supplier<ByteBuf> responseBody;
 
   public NettyRequestContextConfig() {
     this(() -> EmptyHttpHeaders.INSTANCE);
@@ -92,5 +108,32 @@ public class NettyRequestContextConfig {
 
   public ServerCookieEncoder getCookieEncoder() {
     return cookieEncoder == null ? ServerCookieEncoder.STRICT : cookieEncoder;
+  }
+
+  public void setResponseBody(Supplier<ByteBuf> responseBody) {
+    this.responseBody = responseBody;
+  }
+
+  public Supplier<ByteBuf> getResponseBody() {
+    return responseBody;
+  }
+
+  /**
+   * @return response body initial capacity
+   *
+   * @see io.netty.buffer.Unpooled#buffer(int)
+   */
+  public int getBodyInitialSize() {
+    return bodyInitialSize;
+  }
+
+  /**
+   * @param bodyInitialSize
+   *         response body initial capacity
+   *
+   * @see io.netty.buffer.Unpooled#buffer(int)
+   */
+  public void setBodyInitialSize(int bodyInitialSize) {
+    this.bodyInitialSize = bodyInitialSize;
   }
 }
