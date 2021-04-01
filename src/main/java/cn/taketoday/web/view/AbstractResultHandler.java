@@ -139,7 +139,7 @@ public abstract class AbstractResultHandler
       final RedirectModel redirectModel = context.redirectModel();
       if (redirectModel != null) {
         for (final Entry<String, Object> entry : redirectModel.asMap().entrySet()) {
-          context.attribute(entry.getKey(), entry.getValue());
+          context.setAttribute(entry.getKey(), entry.getValue());
         }
         context.applyRedirectModel(null);
       }

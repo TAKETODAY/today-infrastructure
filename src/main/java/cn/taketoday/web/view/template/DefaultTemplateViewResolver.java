@@ -188,7 +188,7 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
         final RequestContext requestContext = this.context;
         if (requestContext.containsAttribute((String) property)) {
           Objects.requireNonNull(context).setPropertyResolved(base, property);
-          return requestContext.attribute((String) property);
+          return requestContext.getAttribute((String) property);
         }
       }
       return null;
@@ -201,7 +201,7 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
         final String beanName = (String) property;
         final RequestContext context = this.context;
         if (context.containsAttribute(beanName)) {
-          context.attribute(beanName, value);
+          context.setAttribute(beanName, value);
           Objects.requireNonNull(elContext).setPropertyResolved(base, property);
         }
       }
@@ -214,7 +214,7 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
         final RequestContext context = this.context;
         if (context.containsAttribute((String) property)) {
           Objects.requireNonNull(elContext).setPropertyResolved(true);
-          return context.attribute((String) property).getClass();
+          return context.getAttribute((String) property).getClass();
         }
       }
       return null;

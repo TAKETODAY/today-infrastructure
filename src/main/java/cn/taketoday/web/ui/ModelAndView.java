@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.ui;
 
-import java.util.Enumeration;
 import java.util.Map;
 
 import cn.taketoday.web.RequestContext;
@@ -53,7 +52,7 @@ public class ModelAndView implements Model {
 
   public ModelAndView(Object view, String name, Object value) {
     this(view);
-    attribute(name, value);
+    setAttribute(name, value);
   }
 
   public String getContentType() {
@@ -87,32 +86,27 @@ public class ModelAndView implements Model {
   }
 
   @Override
-  public Model attributes(Map<String, Object> attributes) {
-    return dataModel.attributes(attributes);
+  public void setAttributes(Map<String, Object> attributes) {
+    dataModel.setAttributes(attributes);
   }
 
   @Override
-  public Enumeration<String> attributes() {
-    return dataModel.attributes();
+  public Object getAttribute(String name) {
+    return dataModel.getAttribute(name);
   }
 
   @Override
-  public Object attribute(String name) {
-    return dataModel.attribute(name);
+  public <T> T getAttribute(String name, Class<T> targetClass) {
+    return dataModel.getAttribute(name, targetClass);
   }
 
   @Override
-  public <T> T attribute(String name, Class<T> targetClass) {
-    return dataModel.attribute(name, targetClass);
+  public void setAttribute(String name, Object value) {
+    dataModel.setAttribute(name, value);
   }
 
   @Override
-  public Model attribute(String name, Object value) {
-    return dataModel.attribute(name, value);
-  }
-
-  @Override
-  public Model removeAttribute(String name) {
+  public Object removeAttribute(String name) {
     return dataModel.removeAttribute(name);
   }
 

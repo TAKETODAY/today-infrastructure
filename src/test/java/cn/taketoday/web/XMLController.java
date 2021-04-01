@@ -28,7 +28,7 @@ import cn.taketoday.context.utils.StringUtils;
 public class XMLController {
 
   public void test(RequestContext request) {
-    request.attribute("key", "World");
+    request.setAttribute("key", "World");
     System.err.println(request);
   }
 
@@ -38,7 +38,7 @@ public class XMLController {
     if (StringUtils.isNotEmpty(key)) {
       return "redirect:/" + key;
     }
-    request.attribute("key", request.parameter("key"));
+    request.setAttribute("key", request.parameter("key"));
 
     return "/xml/test";
   }

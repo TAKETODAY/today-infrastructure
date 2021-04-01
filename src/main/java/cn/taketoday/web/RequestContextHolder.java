@@ -32,7 +32,6 @@ import java.util.Map;
 
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.ui.Model;
 import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.ui.RedirectModel;
 
@@ -86,32 +85,21 @@ public abstract class RequestContextHolder {
   static class ApplicationNotStartedContext implements RequestContext, Serializable {
 
     @Override
-    public Model attributes(Map<String, Object> attributes) {
+    public Object getAttribute(String name) {
       return null;
     }
 
     @Override
-    public Enumeration<String> attributes() {
+    public <T> T getAttribute(String name, Class<T> targetClass) {
       return null;
     }
 
     @Override
-    public Object attribute(String name) {
-      return null;
+    public void setAttribute(String name, Object value) {
     }
 
     @Override
-    public <T> T attribute(String name, Class<T> targetClass) {
-      return null;
-    }
-
-    @Override
-    public Model attribute(String name, Object value) {
-      return null;
-    }
-
-    @Override
-    public Model removeAttribute(String name) {
+    public Object removeAttribute(String name) {
       return null;
     }
 

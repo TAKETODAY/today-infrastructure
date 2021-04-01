@@ -87,7 +87,7 @@ public class ValidationParameterResolver
     final Object value = resolveValue(context, parameter);
 
     final DefaultErrors errors = new DefaultErrors();
-    context.attribute(Constant.VALIDATION_ERRORS, errors);
+    context.setAttribute(Constant.VALIDATION_ERRORS, errors);
 
     doValidate(getValidator(), value, errors);
 

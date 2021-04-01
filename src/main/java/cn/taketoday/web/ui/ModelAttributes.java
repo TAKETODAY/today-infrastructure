@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,36 +17,41 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver;
 
-import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.web.Constant;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.MethodParameter;
+package cn.taketoday.web.ui;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import cn.taketoday.context.AttributeAccessorSupport;
+import cn.taketoday.context.utils.ConvertUtils;
 
 /**
- * @author TODAY <br>
- * 2019-07-17 22:41
+ * @author TODAY 2021/4/1 15:56
+ * @since 3.0
  */
-public class ThrowableHandlerParameterResolver
-        extends OrderedSupport implements ParameterResolver {
+public class ModelAttributes extends AttributeAccessorSupport implements Model, Serializable {
+  private static final long serialVersionUID = 1L;
 
-  public ThrowableHandlerParameterResolver() {
-    this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 60);
-  }
-
-  public ThrowableHandlerParameterResolver(int order) {
-    super(order);
+  @Override
+  public boolean containsAttribute(String name) {
+    return super.hasAttribute(name);
   }
 
   @Override
-  public boolean supports(MethodParameter parameter) {
-    return parameter.isAssignableFrom(Throwable.class);
+  public <T> T getAttribute(String name, Class<T> targetClass) {
+    return ConvertUtils.convert(targetClass, getAttribute(name));
   }
 
   @Override
-  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-    return context.getAttribute(Constant.KEY_THROWABLE);
+  public Map<String, Object> asMap() {
+    return getAttributes();
   }
 
+  @Override
+  protected HashMap<String, Object> createAttributes() {
+    return new LinkedHashMap<>();
+  }
 }

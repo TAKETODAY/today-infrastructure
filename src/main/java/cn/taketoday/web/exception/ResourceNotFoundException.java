@@ -61,7 +61,7 @@ public class ResourceNotFoundException extends NotFoundException {
   }
 
   public static ResourceNotFoundException notFound() {
-    return notFound((ResourceMatchResult) RequestContextHolder.currentContext().attribute(RESOURCE_MATCH_RESULT));
+    return notFound((ResourceMatchResult) RequestContextHolder.currentContext().getAttribute(RESOURCE_MATCH_RESULT));
   }
 
   public static ResourceNotFoundException notFound(ResourceMatchResult matchResult) {

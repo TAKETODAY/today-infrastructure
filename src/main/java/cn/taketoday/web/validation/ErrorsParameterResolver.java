@@ -71,7 +71,7 @@ public class ErrorsParameterResolver
 
   @Override
   public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-    final Object error = context.attribute(Constant.VALIDATION_ERRORS);
+    final Object error = context.getAttribute(Constant.VALIDATION_ERRORS);
     if (error == null) {
       return EMPTY;
     }

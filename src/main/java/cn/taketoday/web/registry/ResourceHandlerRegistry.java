@@ -95,13 +95,13 @@ public class ResourceHandlerRegistry
   protected Object lookupHandler(final String handlerKey) {
     final Object handler = super.lookupHandler(handlerKey);
     if (handler instanceof ResourceMatchResult) {
-      currentContext().attribute(Constant.RESOURCE_MATCH_RESULT, handler);
+      currentContext().setAttribute(Constant.RESOURCE_MATCH_RESULT, handler);
       return ((ResourceMatchResult) handler).getHandler();
     }
     else if (handler instanceof ResourceRequestHandler) {
       currentContext()
-              .attribute(Constant.RESOURCE_MATCH_RESULT,
-                         new ResourceMatchResult(handlerKey,
+              .setAttribute(Constant.RESOURCE_MATCH_RESULT,
+                            new ResourceMatchResult(handlerKey,
                                                  handlerKey,
                                                  getPathMatcher(),
                                                  ((ResourceRequestHandler) handler)

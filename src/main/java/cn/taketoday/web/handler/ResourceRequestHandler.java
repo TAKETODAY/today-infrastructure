@@ -74,7 +74,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
   }
 
   ResourceMatchResult getResourceMatchResult(RequestContext context) {
-    final Object attribute = context.attribute(RESOURCE_MATCH_RESULT);
+    final Object attribute = context.getAttribute(RESOURCE_MATCH_RESULT);
     if (attribute == null) {
       throw new NotFoundException("Resource Not Found");
     }
@@ -88,7 +88,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
 
   @Override
   protected Object handleInternal(final RequestContext context) {
-    return resourceResolver.resolveResource((ResourceMatchResult) context.attribute(RESOURCE_MATCH_RESULT));
+    return resourceResolver.resolveResource((ResourceMatchResult) context.getAttribute(RESOURCE_MATCH_RESULT));
   }
 
   /**

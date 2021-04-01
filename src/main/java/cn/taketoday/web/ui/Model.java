@@ -19,14 +19,13 @@
  */
 package cn.taketoday.web.ui;
 
-import java.util.Enumeration;
 import java.util.Map;
 
 import cn.taketoday.context.utils.ConvertUtils;
 
 /**
  * @author TODAY <br>
- *         2018-10-14 20:30
+ * 2018-10-14 20:30
  */
 public interface Model {
 
@@ -34,78 +33,71 @@ public interface Model {
    * Contains a attribute with given name
    *
    * @param name
-   *            Attribute name
+   *         Attribute name
+   *
    * @return if contains the attribute
    */
   default boolean containsAttribute(String name) {
-    return attribute(name) == null;
+    return getAttribute(name) == null;
   }
 
   /**
    * Add the attributes from map
    *
    * @param attributes
-   *            The attributes
-   * @return this
+   *         The attributes
    */
-  Model attributes(Map<String, Object> attributes);
-
-  /**
-   * Returns an <code>Enumeration</code> containing the names of the attributes
-   * available to this request. This method returns an empty
-   * <code>Enumeration</code> if the request has no attributes available to it.
-   *
-   * @return an <code>Enumeration</code> of strings containing the names of the
-   *         request's attributes
-   */
-  Enumeration<String> attributes();
+  default void setAttributes(Map<String, Object> attributes) {
+    attributes.forEach(this::setAttribute);
+  }
 
   /**
    * Returns the value of the named attribute as an <code>Object</code>, or
    * <code>null</code> if no attribute of the given name exists.
    *
    * @param name
-   *            a <code>String</code> specifying the name of the attribute
+   *         a <code>String</code> specifying the name of the attribute
    *
    * @return an <code>Object</code> containing the value of the attribute, or
-   *         <code>null</code> if the attribute does not exist
+   * <code>null</code> if the attribute does not exist
    */
-  Object attribute(String name);
+  Object getAttribute(String name);
 
   /**
    * Returns the value of the named attribute as an <code>Object</code>, or
    * <code>null</code> if no attribute of the given name exists.
    *
    * @param name
-   *            a <code>String</code> specifying the name of the attribute
-   *
+   *         a <code>String</code> specifying the name of the attribute
    * @param targetClass
-   *            attribute will be use {@link ConvertUtils} convert to target class
+   *         attribute will be use {@link ConvertUtils} convert to target class
+   *
    * @return an converted <code>Object</code> containing the value of the
-   *         attribute, or <code>null</code> if the attribute does not exist
+   * attribute, or <code>null</code> if the attribute does not exist
    */
-  <T> T attribute(String name, Class<T> targetClass);
+  <T> T getAttribute(String name, Class<T> targetClass);
 
   /**
    * Stores an attribute in this request. Attributes are reset between requests..
    *
    * @param name
-   *            a <code>String</code> specifying the name of the attribute
+   *         a <code>String</code> specifying the name of the attribute
    * @param value
-   *            the <code>Object</code> to be stored
+   *         the <code>Object</code> to be stored
    */
-  Model attribute(String name, Object value);
+  void setAttribute(String name, Object value);
 
   /**
-   *
    * Removes an attribute from this request. This method is not generally needed
    * as attributes only persist as long as the request is being handled.
    *
    * @param name
-   *            a <code>String</code> specifying the name of the attribute to
-   *            remove
+   *         a <code>String</code> specifying the name of the attribute to
+   *         remove
+   *
+   * @return the last value of the attribute, if any
    */
-  Model removeAttribute(String name);
+  Object removeAttribute(String name);
 
   /**
    * Convert this model to a {@link Map}

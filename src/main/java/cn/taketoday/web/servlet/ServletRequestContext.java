@@ -25,16 +25,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpCookie;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 import java.util.function.Function;
 
 import javax.servlet.ServletException;
@@ -47,17 +43,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
-import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.AbstractRequestContext;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.exception.WebNestedRuntimeException;
 import cn.taketoday.web.http.DefaultHttpHeaders;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.multipart.DefaultMultipartFile;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.resolver.MultipartFileParsingException;
 import cn.taketoday.web.resolver.NotMultipartRequestException;
+import cn.taketoday.web.ui.Model;
+import cn.taketoday.web.ui.ModelAttributes;
 import cn.taketoday.web.ui.RedirectModel;
 
 /**
@@ -66,7 +62,12 @@ import cn.taketoday.web.ui.RedirectModel;
  * @since 2.3.7
  */
 public class ServletRequestContext
-        extends AbstractRequestContext implements RequestContext, Map<String, Object> {
+        extends AbstractRequestContext implements RequestContext {
+
+  /**
+   * @since 3.0
+   */
+  private Model model;
 
   private final HttpServletRequest request;
   private final HttpServletResponse response;
@@ -311,6 +312,9 @@ public class ServletRequestContext
 
   // HTTP headers
 
+  /**
+   * @since 3.0
+   */
   @Override
   protected HttpHeaders createRequestHeaders() {
     final HttpServletRequest request = this.request;
@@ -336,189 +340,7 @@ public class ServletRequestContext
     return this;
   }
 
-  @Override
-  public RedirectModel redirectModel() {
-    final Object attribute = request.getSession().getAttribute(KEY_REDIRECT_MODEL);
-
-    if (attribute instanceof RedirectModel) {
-      return (RedirectModel) attribute;
-    }
-    return null;
-  }
-
-  @Override
-  public RedirectModel applyRedirectModel(RedirectModel redirectModel) {
-    request.getSession().setAttribute(KEY_REDIRECT_MODEL, redirectModel);
-    return redirectModel;
-  }
-
-  // --------------- model
-
-  @Override
-  public RequestContext attribute(String name, Object value) {
-    request.setAttribute(name, value);
-    return this;
-  }
-
-  @Override
-  public RequestContext attributes(Map<String, Object> attributes) {
-    attributes.forEach(this::attribute);
-    return this;
-  }
-
-  @Override
-  public Map<String, Object> asMap() {
-    return this;
-  }
-
-  @Override
-  public Object attribute(String name) {
-    return get(name);
-  }
-
-  @Override
-  public Enumeration<String> attributes() {
-    return request.getAttributeNames();
-  }
-
-  @Override
-  public <T> T attribute(String name, Class<T> targetClass) {
-    return ConvertUtils.convert(targetClass, get(name));
-  }
-
-  @Override
-  public RequestContext removeAttribute(String name) {
-    request.removeAttribute(name);
-    return this;
-  }
-
-  @Override
-  public int size() {
-    int size = 0;
-    final Enumeration<String> attributes = attributes();
-    while (attributes.hasMoreElements()) {
-      attributes.nextElement(); // FIX 死循环
-      size++;
-    }
-    return size;
-  }
-
-  @Override
-  public boolean isEmpty() {
-    return size() == 0;
-  }
-
-  @Override
-  public boolean containsKey(Object key) {
-    return containsAttribute((String) key);
-  }
-
-  @Override
-  public boolean containsValue(Object value) {
-    final Enumeration<String> attributeNames = attributes();
-    while (attributeNames.hasMoreElements()) {
-      if (Objects.equals(value, get(attributeNames.nextElement()))) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  @Override
-  public Object get(Object key) {
-    if (key instanceof String) {
-      return request.getAttribute((String) key);
-    }
-    throw new WebNestedRuntimeException("Attribute name must be a String");
-  }
-
-  @Override
-  public Object put(String key, Object value) {
-    attribute(key, value);
-    return null;
-  }
-
-  @Override
-  public Object remove(Object name) {
-    if (name instanceof String) {
-      removeAttribute((String) name);
-      return null;
-    }
-    throw new WebNestedRuntimeException("Attribute name must be a String");
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public void putAll(Map<? extends String, ? extends Object> attributes) {
-    attributes((Map<String, Object>) attributes);
-  }
-
-  @Override
-  public void clear() {
-    final Enumeration<String> attributeNames = attributes();
-    while (attributeNames.hasMoreElements()) {
-      removeAttribute(attributeNames.nextElement());
-    }
-  }
-
-  @Override
-  public Set<String> keySet() {
-    final Set<String> keySet = new HashSet<>();
-    final Enumeration<String> attributeNames = attributes();
-    while (attributeNames.hasMoreElements()) {
-      keySet.add(attributeNames.nextElement());
-    }
-    return keySet;
-  }
-
-  @Override
-  public Collection<Object> values() {
-    final Set<Object> valueSet = new HashSet<>();
-    final Enumeration<String> attributeNames = attributes();
-    while (attributeNames.hasMoreElements()) {
-      valueSet.add(get(attributeNames.nextElement()));
-    }
-    return valueSet;
-  }
-
-  @Override
-  public Set<Entry<String, Object>> entrySet() {
-    final Set<Entry<String, Object>> entries = new HashSet<>();
-    final Enumeration<String> attributeNames = attributes();
-    while (attributeNames.hasMoreElements()) {
-      final String currentKey = attributeNames.nextElement();
-      entries.add(new Node(currentKey, get(currentKey)));
-    }
-    return entries;
-  }
-
-  private static final class Node implements Entry<String, Object> {
-
-    private final String key;
-    private Object value;
-
-    public Node(String key, Object value) {
-      this.key = key;
-      this.value = value;
-    }
-
-    @Override
-    public final Object setValue(Object value) {
-      Object oldValue = this.value;
-      this.value = value;
-      return oldValue;
-    }
-
-    @Override
-    public final Object getValue() {
-      return value;
-    }
-
-    @Override
-    public final String getKey() {
-      return key;
-    }
-  }
+  // parseMultipartFiles
 
   @Override
   protected Map<String, List<MultipartFile>> parseMultipartFiles() {
@@ -549,7 +371,7 @@ public class ServletRequestContext
   @Override
   protected void doApplyHeaders(final HttpHeaders responseHeaders) {
     final HttpServletResponse response = this.response;
-    for (final Entry<String, List<String>> entry : responseHeaders.entrySet()) {
+    for (final Map.Entry<String, List<String>> entry : responseHeaders.entrySet()) {
       final String headerName = entry.getKey();
       for (final String value : entry.getValue()) {
         response.addHeader(headerName, value);
@@ -562,4 +384,96 @@ public class ServletRequestContext
     response.flushBuffer();
   }
 
+  // Model
+
+  @Override
+  public RedirectModel redirectModel() {
+    final Object attribute = request.getSession().getAttribute(KEY_REDIRECT_MODEL);
+    if (attribute instanceof RedirectModel) {
+      return (RedirectModel) attribute;
+    }
+    return null;
+  }
+
+  @Override
+  public RedirectModel applyRedirectModel(RedirectModel redirectModel) {
+    request.getSession().setAttribute(KEY_REDIRECT_MODEL, redirectModel);
+    return redirectModel;
+  }
+
+  /**
+   * @since 3.0
+   */
+  private Model obtainModel() {
+    Model model = this.model;
+    if (model == null) {
+      final class RequestModel extends ModelAttributes {
+        // auto flush to request attributes
+        @Override
+        public void setAttribute(String name, Object value) {
+          super.setAttribute(name, value);
+          request.setAttribute(name, value);
+        }
+
+        @Override
+        public Object removeAttribute(String name) {
+          request.removeAttribute(name);
+          return super.removeAttribute(name);
+        }
+
+        @Override
+        public void clear() {
+          super.clear();
+          Enumeration<String> attributeNames = request.getAttributeNames();
+          while (attributeNames.hasMoreElements()) {
+            final String name = attributeNames.nextElement();
+            request.removeAttribute(name);
+          }
+        }
+      }
+      model = new RequestModel();
+      this.model = model;
+    }
+    return model;
+  }
+
+  @Override
+  public boolean containsAttribute(String name) {
+    return obtainModel().containsAttribute(name);
+  }
+
+  @Override
+  public void setAttributes(Map<String, Object> attributes) {
+    obtainModel().setAttributes(attributes);
+  }
+
+  @Override
+  public Object getAttribute(String name) {
+    return obtainModel().getAttribute(name);
+  }
+
+  @Override
+  public <T> T getAttribute(String name, Class<T> targetClass) {
+    return obtainModel().getAttribute(name, targetClass);
+  }
+
+  @Override
+  public void setAttribute(String name, Object value) {
+    obtainModel().setAttribute(name, value);
+  }
+
+  @Override
+  public Object removeAttribute(String name) {
+    return obtainModel().removeAttribute(name);
+  }
+
+  @Override
+  public Map<String, Object> asMap() {
+    return obtainModel().asMap();
+  }
+
+  @Override
+  public void clear() {
+    obtainModel().clear();
+  }
 }

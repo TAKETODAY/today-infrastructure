@@ -62,7 +62,7 @@ public class DefaultExceptionHandler
   @Override
   public Object handleException(RequestContext context, Throwable target, Object handler) throws Throwable {
     // prepare context throwable
-    context.attribute(Constant.KEY_THROWABLE, target);
+    context.setAttribute(Constant.KEY_THROWABLE, target);
     // catch all handlers
     final ThrowableHandlerMethod exHandler = lookupExceptionHandler(target);
     if (exHandler == null) {
@@ -212,7 +212,7 @@ public class DefaultExceptionHandler
     protected void applyResponseStatus(final RequestContext context) {
       final ResponseStatus status = getResponseStatus();
       if (status == null) {
-        final Object attribute = context.attribute(Constant.KEY_THROWABLE);
+        final Object attribute = context.getAttribute(Constant.KEY_THROWABLE);
         if (attribute instanceof Throwable) {
           final ResponseStatus runtimeErrorStatus = WebUtils.getResponseStatus((Throwable) attribute);
           applyResponseStatus(context, runtimeErrorStatus);

@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpCookie;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 
@@ -182,29 +181,20 @@ public class MockRequestContext extends AbstractRequestContext {
     return null;
   }
 
+
+
   @Override
-  public Model attributes(Map<String, Object> attributes) {
+  public Object getAttribute(String name) {
     return null;
   }
 
   @Override
-  public Enumeration<String> attributes() {
+  public <T> T getAttribute(String name, Class<T> targetClass) {
     return null;
   }
 
   @Override
-  public Object attribute(String name) {
-    return null;
-  }
-
-  @Override
-  public <T> T attribute(String name, Class<T> targetClass) {
-    return null;
-  }
-
-  @Override
-  public Model attribute(String name, Object value) {
-    return null;
+  public void setAttribute(String name, Object value) {
   }
 
   @Override

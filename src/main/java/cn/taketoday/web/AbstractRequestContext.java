@@ -263,6 +263,9 @@ public abstract class AbstractRequestContext implements RequestContext {
 
   // HTTP headers
 
+  /**
+   * @since 3.0
+   */
   @Override
   public HttpHeaders responseHeaders() {
     HttpHeaders ret = this.responseHeaders;
@@ -272,10 +275,16 @@ public abstract class AbstractRequestContext implements RequestContext {
     return ret;
   }
 
+  /**
+   * @since 3.0
+   */
   protected HttpHeaders createResponseHeaders() {
     return new DefaultHttpHeaders();
   }
 
+  /**
+   * @since 3.0
+   */
   @Override
   public HttpHeaders requestHeaders() {
     HttpHeaders ret = this.requestHeaders;
@@ -285,6 +294,9 @@ public abstract class AbstractRequestContext implements RequestContext {
     return ret;
   }
 
+  /**
+   * @since 3.0
+   */
   protected abstract HttpHeaders createRequestHeaders();
 
   @Override

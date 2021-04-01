@@ -365,7 +365,7 @@ public class WebApplicationLoader
     // --------------------------------------------
 
     resolvers.add(delegate(m -> m.isAnnotationPresent(RequestAttribute.class), //
-      (ctx, m) -> ctx.attribute(m.getName())//
+      (ctx, m) -> ctx.getAttribute(m.getName())//
     ));
 
     resolvers.add(delegate(m -> m.isAnnotationPresent(Value.class), //
