@@ -24,6 +24,7 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.AnnotationBeanDefinitionRegistrar;
@@ -49,9 +50,20 @@ public @interface EnableNettyHandling {
 class NettyConfig extends AnnotationBeanDefinitionRegistrar<EnableNettyHandling> {
 
   @MissingBean(type = ReactiveChannelHandler.class)
-  @Import({ NettyWebServer.class, NettyServerInitializer.class })
-  ReactiveChannelHandler reactiveChannelHandler(NettyDispatcher nettyDispatcher, NettyRequestContextConfig contextConfig) {
+  ReactiveChannelHandler reactiveChannelHandler(
+          NettyDispatcher nettyDispatcher, NettyRequestContextConfig contextConfig) {
     return new ReactiveChannelHandler(nettyDispatcher, contextConfig);
+  }
+
+  @MissingBean
+  @Props(prefix = { "server.", "server.netty." })
+  NettyWebServer nettyWebServer() {
+    return new NettyWebServer();
+  }
+
+  @MissingBean
+  NettyServerInitializer nettyServerInitializer(ReactiveChannelHandler channelHandler) {
+    return new NettyServerInitializer(channelHandler);
   }
 
   @MissingBean
@@ -59,8 +71,12 @@ class NettyConfig extends AnnotationBeanDefinitionRegistrar<EnableNettyHandling>
     return new NettyRequestContextConfig();
   }
 
+  /**
+   * register a {@link NettyDispatcher} bean
+   */
   @Override
-  public void registerBeanDefinitions(EnableNettyHandling target, BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry) {
+  public void registerBeanDefinitions(
+          EnableNettyHandling target, BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry) {
     if (!registry.containsBeanDefinition(NettyDispatcher.class)) {
       final boolean async = target.async();
       if (async) {
