@@ -241,9 +241,8 @@ public class NettyRequestContext
                                                  ? StringUtils.parseParameters(queryString)
                                                  : new HashMap<>();
 
-    final List<InterfaceHttpData> bodyHttpDatas = getRequestDecoder().getBodyHttpDatas();
-    for (final InterfaceHttpData data : bodyHttpDatas) {
-
+    final List<InterfaceHttpData> bodyHttpData = getRequestDecoder().getBodyHttpDatas();
+    for (final InterfaceHttpData data : bodyHttpData) {
       if (data instanceof Attribute) {
         try {
           final String name = data.getName();
@@ -279,7 +278,7 @@ public class NettyRequestContext
 //                    : new HttpPostStandardRequestDecoder(HTTP_DATA_FACTORY, request.retain(), DEFAULT_CHARSET);
 
       requestDecoder.setDiscardThreshold(0);
-      return this.requestDecoder = requestDecoder;
+      this.requestDecoder = requestDecoder;
     }
     return requestDecoder;
   }
