@@ -60,21 +60,21 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
    * the number of threads that will be used by
    * {@link io.netty.util.concurrent.MultithreadEventExecutorGroup}
    *
-   * For parent {@link EventLoopGroup}
+   * For child {@link EventLoopGroup}
    *
    * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
    */
-  private int threadCount = 2;
+  private int childThreadCount = 4;
 
   /**
    * the number of threads that will be used by
    * {@link io.netty.util.concurrent.MultithreadEventExecutorGroup}
    *
-   * For child {@link EventLoopGroup}
+   * For parent {@link EventLoopGroup}
    *
    * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
    */
-  private int acceptThreadCount = 2;
+  private int parentThreadCount = 4;
 
   private EventLoopGroup childGroup;
   private EventLoopGroup parentGroup;
@@ -139,18 +139,18 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
         socketChannel = EpollServerSocketChannel.class;
       }
       if (parentGroup == null) {
-        parentGroup = new EpollEventLoopGroup(threadCount, new DefaultThreadFactory("epoll-parent@"));
+        parentGroup = new EpollEventLoopGroup(parentThreadCount, new DefaultThreadFactory("epoll-parent@"));
       }
       if (childGroup == null) {
-        childGroup = new EpollEventLoopGroup(acceptThreadCount, new DefaultThreadFactory("epoll-child@"));
+        childGroup = new EpollEventLoopGroup(childThreadCount, new DefaultThreadFactory("epoll-child@"));
       }
     }
     else {
       if (parentGroup == null) {
-        parentGroup = new NioEventLoopGroup(acceptThreadCount, new DefaultThreadFactory("parent@"));
+        parentGroup = new NioEventLoopGroup(parentThreadCount, new DefaultThreadFactory("parent@"));
       }
       if (childGroup == null) {
-        childGroup = new NioEventLoopGroup(threadCount, new DefaultThreadFactory("child@"));
+        childGroup = new NioEventLoopGroup(childThreadCount, new DefaultThreadFactory("child@"));
       }
       if (socketChannel == null) {
         socketChannel = NioServerSocketChannel.class;
@@ -263,20 +263,20 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
     this.socketChannel = socketChannel;
   }
 
-  public void setAcceptThreadCount(int acceptThreadCount) {
-    this.acceptThreadCount = acceptThreadCount;
+  public void setParentThreadCount(int parentThreadCount) {
+    this.parentThreadCount = parentThreadCount;
   }
 
-  public void setThreadCount(int threadCount) {
-    this.threadCount = threadCount;
+  public void setChildThreadCount(int childThreadCount) {
+    this.childThreadCount = childThreadCount;
   }
 
-  public int getThreadCount() {
-    return threadCount;
+  public int getChildThreadCount() {
+    return childThreadCount;
   }
 
-  public int getAcceptThreadCount() {
-    return acceptThreadCount;
+  public int getParentThreadCount() {
+    return parentThreadCount;
   }
 
   public void setNettyServerInitializer(NettyServerInitializer nettyServerInitializer) {
