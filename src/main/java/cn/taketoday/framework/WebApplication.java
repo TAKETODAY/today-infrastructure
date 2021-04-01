@@ -27,17 +27,15 @@ import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 
 /**
- * @author TODAY <br>
- * 2018-10-16 15:46
+ * Web Application Runner
+ *
+ * @author TODAY 2018-10-16 15:46
  */
 public class WebApplication {
-
   private static final Logger log = LoggerFactory.getLogger(WebApplication.class);
 
   private final ConfigurableWebServerApplicationContext context;
   private final String appBasePath = System.getProperty("user.dir");
-
-  // io.netty.channel.ChannelInboundHandler
 
   public WebApplication() {
     this(null);
@@ -70,7 +68,7 @@ public class WebApplication {
   }
 
   /**
-   * Startup Web Application
+   * Startup Reactive Web Application
    *
    * @param startupClass
    *         Startup class
@@ -87,7 +85,7 @@ public class WebApplication {
    * @param args
    *         Startup arguments
    *
-   * @return {@link WebServerApplicationContext}
+   * @return {@link ConfigurableWebServerApplicationContext}
    */
   public ConfigurableWebServerApplicationContext run(String... args) {
     log.info("Starting Web Application at [{}]", getAppBasePath());
