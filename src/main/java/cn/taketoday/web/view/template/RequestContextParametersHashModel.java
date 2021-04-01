@@ -19,12 +19,12 @@
  */
 package cn.taketoday.web.view.template;
 
-import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
 
+import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.web.RequestContext;
+import freemarker.template.ObjectWrapper;
 import freemarker.template.SimpleCollection;
 import freemarker.template.SimpleScalar;
 import freemarker.template.TemplateCollectionModel;
@@ -37,10 +37,12 @@ import freemarker.template.TemplateModel;
  */
 public class RequestContextParametersHashModel implements TemplateHashModelEx {
 
-  private List<String> keys;
+  private Set<String> keys;
+  private final ObjectWrapper wrapper;
   private final RequestContext request;
 
-  public RequestContextParametersHashModel(RequestContext request) {
+  public RequestContextParametersHashModel(ObjectWrapper wrapper, RequestContext request) {
+    this.wrapper = wrapper;
     this.request = request;
   }
 
@@ -51,24 +53,23 @@ public class RequestContextParametersHashModel implements TemplateHashModelEx {
 
   @Override
   public boolean isEmpty() {
-    return !request.parameterNames().hasMoreElements();
+    return CollectionUtils.isEmpty(request.parameters());
   }
 
   @Override
   public int size() {
-    return getKeys().size();
+    return request.parameters().size();
   }
 
   @Override
   public TemplateCollectionModel keys() {
-    return new SimpleCollection(getKeys().iterator());
+    return new SimpleCollection(getKeys(), wrapper);
   }
 
   @Override
   public TemplateCollectionModel values() {
-
     final Iterator<String> iter = getKeys().iterator();
-    return new SimpleCollection(new Iterator<Object>() {
+    final class KeysIterator implements Iterator<Object> {
       public boolean hasNext() {
         return iter.hasNext();
       }
@@ -76,20 +77,16 @@ public class RequestContextParametersHashModel implements TemplateHashModelEx {
       public Object next() {
         return request.parameter(iter.next());
       }
+    }
 
-      public void remove() {
-        throw new UnsupportedOperationException();
-      }
-    });
+    return new SimpleCollection(new KeysIterator(), wrapper);
   }
 
-  private synchronized List<String> getKeys() {
-    List<String> keys = this.keys;
+  private Set<String> getKeys() {
+    Set<String> keys = this.keys;
     if (keys == null) {
-      keys = new ArrayList<>();
-      for (final Enumeration<String> enumeration = request.parameterNames(); enumeration.hasMoreElements(); ) {
-        keys.add(enumeration.nextElement());
-      }
+      keys = request.parameters().keySet();
+      this.keys = keys;
     }
     return keys;
   }
