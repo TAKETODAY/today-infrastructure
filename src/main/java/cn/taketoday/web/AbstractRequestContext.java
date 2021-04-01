@@ -84,10 +84,6 @@ public abstract class AbstractRequestContext implements RequestContext {
     return contextPath;
   }
 
-  public final void setContextPath(String contextPath) {
-    this.contextPath = contextPath;
-  }
-
   protected String getContextPathInternal() {
     return Constant.BLANK;
   }
