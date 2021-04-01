@@ -25,10 +25,7 @@ import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.PreDestroy;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.framework.StandardWebServerApplicationContext;
 import cn.taketoday.framework.WebServerApplicationContext;
@@ -39,6 +36,7 @@ import cn.taketoday.framework.server.AbstractWebServer;
 import cn.taketoday.framework.server.WebServer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollChannelOption;
@@ -50,19 +48,46 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.ResourceLeakDetector;
-import lombok.Setter;
 
 /**
+ * Netty {@link WebServer}
+ *
  * @author TODAY 2019-07-02 21:15
  */
-@Setter
-@Props(prefix = { "server.", "server.netty." })
 public class NettyWebServer extends AbstractWebServer implements WebServer {
 
+  /**
+   * the number of threads that will be used by
+   * {@link io.netty.util.concurrent.MultithreadEventExecutorGroup}
+   *
+   * For parent {@link EventLoopGroup}
+   *
+   * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
+   */
+  private int threadCount = 2;
+
+  /**
+   * the number of threads that will be used by
+   * {@link io.netty.util.concurrent.MultithreadEventExecutorGroup}
+   *
+   * For child {@link EventLoopGroup}
+   *
+   * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
+   */
+  private int acceptThreadCount = 2;
+
+  /**
+   * A channel where the I/O operation associated with this future takes place.
+   */
   private Channel channel;
   private EventLoopGroup childGroup;
   private EventLoopGroup parentGroup;
   private Class<? extends ServerSocketChannel> socketChannel;
+
+  /**
+   * Framework Channel Initializer
+   */
+  private NettyServerInitializer nettyServerInitializer;
 
   @Override
   protected void initApplicationContext(ApplicationContext context) {
@@ -72,6 +97,9 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
     }
   }
 
+  /**
+   * Subclasses can override this method to perform epoll is available logic
+   */
   protected boolean epollIsAvailable() {
     try {
       Object obj = Class.forName("io.netty.channel.epoll.Epoll").getMethod("isAvailable").invoke(null);
@@ -82,11 +110,6 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
     catch (Exception e) {
       return false;
     }
-  }
-
-  @Override
-  protected void prepareInitialize() {
-    super.prepareInitialize();
   }
 
   @Override
@@ -104,59 +127,76 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
 
   @Override
   public void start() {
-
-    ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
     final ServerBootstrap bootstrap = new ServerBootstrap();
-
-    int acceptThreadCount = 2;
-    int threadCount = 2;
+    preBootstrap(bootstrap);
 
     // enable epoll
     if (epollIsAvailable()) {
-
       bootstrap.option(EpollChannelOption.SO_REUSEPORT, true);
-      socketChannel = EpollServerSocketChannel.class;
-      this.parentGroup = new EpollEventLoopGroup(threadCount, new NamedThreadFactory("epoll-parent@"));
-      this.childGroup = new EpollEventLoopGroup(acceptThreadCount, new NamedThreadFactory("epoll-child@"));
+      if (socketChannel == null) {
+        socketChannel = EpollServerSocketChannel.class;
+      }
+      if (parentGroup == null) {
+        parentGroup = new EpollEventLoopGroup(threadCount, new NamedThreadFactory("epoll-parent@"));
+      }
+      if (childGroup == null) {
+        childGroup = new EpollEventLoopGroup(acceptThreadCount, new NamedThreadFactory("epoll-child@"));
+      }
     }
     else {
-      this.parentGroup = new NioEventLoopGroup(acceptThreadCount, new NamedThreadFactory("parent@"));
-      this.childGroup = new NioEventLoopGroup(threadCount, new NamedThreadFactory("child@"));
-      socketChannel = NioServerSocketChannel.class;
+      if (parentGroup == null) {
+        parentGroup = new NioEventLoopGroup(acceptThreadCount, new NamedThreadFactory("parent@"));
+      }
+      if (childGroup == null) {
+        childGroup = new NioEventLoopGroup(threadCount, new NamedThreadFactory("child@"));
+      }
+      if (socketChannel == null) {
+        socketChannel = NioServerSocketChannel.class;
+      }
     }
 
-    bootstrap.group(getParentGroup(), getChildGroup())
-            .channel(getSocketChannel());
+    bootstrap.group(parentGroup, childGroup)
+            .channel(socketChannel);
 
-    bootstrap.handler(new LoggingHandler(LogLevel.INFO));
+    NettyServerInitializer nettyServerInitializer = getNettyServerInitializer();
+    Assert.state(nettyServerInitializer != null, "No NettyServerInitializer");
 
-    bootstrap.childHandler(obtainNettyServerInitializer());
+    bootstrap.childHandler(nettyServerInitializer);
     bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
 
+    postBootstrap(bootstrap);
+
+    final ChannelFuture channelFuture = bootstrap.bind(getHost(), getPort());
+    channel = channelFuture.channel();
     try {
-      channel = bootstrap.bind(getHost(), getPort())
-              .sync()
-              .channel();
+      channelFuture.sync();
     }
     catch (InterruptedException e) {
+      log.error("Interrupted", e);
       throw new WebServerException(e);
     }
   }
 
-  protected final NettyServerInitializer obtainNettyServerInitializer() {
-    NettyServerInitializer ret = getNettyServerInitializer();
-    Assert.state(ret != null, "No NettyServerInitializer");
-    return ret;
+  protected void preBootstrap(ServerBootstrap bootstrap) {
+    ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
+  }
+
+  protected void postBootstrap(ServerBootstrap bootstrap) {
+    bootstrap.handler(new LoggingHandler(LogLevel.INFO));
   }
 
   protected NettyServerInitializer getNettyServerInitializer() {
-    final WebServerApplicationContext context = obtainApplicationContext();
-    NettyServerInitializer ret = context.getBean(NettyServerInitializer.class);
-    if (ret == null) {
-      final ReactiveChannelHandler reactiveDispatcher = context.getBean(ReactiveChannelHandler.class);
-      ret = new NettyServerInitializer(reactiveDispatcher);
+    NettyServerInitializer serverInitializer = this.nettyServerInitializer;
+
+    if (serverInitializer == null) {
+      final WebServerApplicationContext context = obtainApplicationContext();
+      serverInitializer = context.getBean(NettyServerInitializer.class);
+      if (serverInitializer == null) {
+        final ReactiveChannelHandler reactiveDispatcher = context.getBean(ReactiveChannelHandler.class);
+        serverInitializer = new NettyServerInitializer(reactiveDispatcher);
+      }
     }
-    return ret;
+    return serverInitializer;
   }
 
   @PreDestroy
@@ -188,6 +228,11 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
     }
   }
 
+  /**
+   * Returns a channel where the I/O operation associated with this future takes place.
+   *
+   * @return a channel where the I/O operation associated with this future takes place.
+   */
   public Channel getChannel() {
     return channel;
   }
@@ -202,5 +247,47 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
 
   public Class<? extends ServerSocketChannel> getSocketChannel() {
     return socketChannel;
+  }
+
+  /**
+   * Set a channel where the I/O operation associated with this future takes place.
+   *
+   * @param channel
+   *         A channel where the I/O operation associated with this future takes place.
+   */
+  public void setChannel(Channel channel) {
+    this.channel = channel;
+  }
+
+  public void setParentGroup(EventLoopGroup parentGroup) {
+    this.parentGroup = parentGroup;
+  }
+
+  public void setChildGroup(EventLoopGroup childGroup) {
+    this.childGroup = childGroup;
+  }
+
+  public void setSocketChannel(Class<? extends ServerSocketChannel> socketChannel) {
+    this.socketChannel = socketChannel;
+  }
+
+  public void setAcceptThreadCount(int acceptThreadCount) {
+    this.acceptThreadCount = acceptThreadCount;
+  }
+
+  public void setThreadCount(int threadCount) {
+    this.threadCount = threadCount;
+  }
+
+  public int getThreadCount() {
+    return threadCount;
+  }
+
+  public int getAcceptThreadCount() {
+    return acceptThreadCount;
+  }
+
+  public void setNettyServerInitializer(NettyServerInitializer nettyServerInitializer) {
+    this.nettyServerInitializer = nettyServerInitializer;
   }
 }

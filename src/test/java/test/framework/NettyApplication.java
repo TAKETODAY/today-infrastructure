@@ -8,6 +8,7 @@ import cn.taketoday.context.event.EnableMethodEventDriven;
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.framework.WebApplication;
 import cn.taketoday.framework.reactive.EnableNettyHandling;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RestController;
@@ -44,6 +45,12 @@ public class NettyApplication {
     publisher.publishEvent(new MyEvent(name));
   }
 
+  @GET("/request-context")
+  public void context(RequestContext context) {
+    final String requestURL = context.requestURL();
+    System.out.println(requestURL);
+  }
+
   @Getter
   static class Body {
     final String name;
@@ -69,6 +76,7 @@ public class NettyApplication {
   @ToString
   static class MyEvent {
     final String name;
+
     MyEvent(String name) {
       this.name = name;
     }
