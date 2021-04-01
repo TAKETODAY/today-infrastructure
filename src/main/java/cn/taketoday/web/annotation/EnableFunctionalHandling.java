@@ -24,16 +24,34 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.web.handler.FunctionRequestAdapter;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
 
 /**
- * @author TODAY <br>
- * 		   2020-03-30 21:38
+ * @author TODAY 2020-03-30 21:38
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Import(FunctionHandlerRegistry.class)
+@Import(FunctionalConfig.class)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface EnableFunctionalHandling {
 
+}
+
+/**
+ * @since 3.0
+ */
+class FunctionalConfig {
+
+  @MissingBean
+  FunctionHandlerRegistry functionHandlerRegistry() {
+    return new FunctionHandlerRegistry();
+  }
+
+  @MissingBean
+  FunctionRequestAdapter functionRequestAdapter() {
+    return new FunctionRequestAdapter(Ordered.HIGHEST_PRECEDENCE - 1);
+  }
 }
