@@ -35,7 +35,6 @@ import cn.taketoday.framework.reactive.ReactiveChannelHandler;
 import cn.taketoday.framework.server.AbstractWebServer;
 import cn.taketoday.framework.server.WebServer;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -163,18 +162,12 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
     postBootstrap(bootstrap);
 
     final ChannelFuture channelFuture = bootstrap.bind(getHost(), getPort());
-    Channel channel = channelFuture.channel();
     try {
       channelFuture.sync();
-      channel.closeFuture().sync();
     }
     catch (InterruptedException e) {
       log.error("Interrupted", e);
       throw new WebServerException(e);
-    }
-    finally {
-      childGroup.shutdownGracefully();
-      parentGroup.shutdownGracefully();
     }
   }
 
@@ -203,7 +196,7 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
   @PreDestroy
   @Override
   public void stop() {
-    log.info("shutdown: [{}]", this);
+    log.info("Shutdown netty web server: [{}]", this);
 
     if (this.parentGroup != null) {
       this.parentGroup.shutdownGracefully();
