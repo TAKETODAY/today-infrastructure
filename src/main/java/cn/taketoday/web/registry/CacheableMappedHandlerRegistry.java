@@ -22,6 +22,7 @@ package cn.taketoday.web.registry;
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.ConcurrentMapCache;
 import cn.taketoday.context.EmptyObject;
+import cn.taketoday.web.RequestContext;
 
 /**
  * Cache MappedHandlerRegistry
@@ -35,11 +36,11 @@ public class CacheableMappedHandlerRegistry extends MappedHandlerRegistry {
   private Cache patternMatchingCache;
 
   @Override
-  protected Object lookupPatternHandler(String handlerKey) {
+  protected Object lookupPatternHandler(final String handlerKey, final RequestContext context) {
     final Cache patternMatchingCache = getPatternMatchingCache();
     Object handler = patternMatchingCache.get(handlerKey, false);
     if (handler == null) {
-      handler = lookupCacheValue(handlerKey);
+      handler = lookupCacheValue(handlerKey, context);
       patternMatchingCache.put(handlerKey, handler);
     }
     else if (handler == EmptyObject.INSTANCE) {
@@ -48,8 +49,8 @@ public class CacheableMappedHandlerRegistry extends MappedHandlerRegistry {
     return handler;
   }
 
-  protected Object lookupCacheValue(final String handlerKey) {
-    return super.lookupPatternHandler(handlerKey);
+  protected Object lookupCacheValue(final String handlerKey, final RequestContext context) {
+    return super.lookupPatternHandler(handlerKey, context);
   }
 
   public final Cache getPatternMatchingCache() {

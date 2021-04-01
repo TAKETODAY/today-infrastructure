@@ -46,9 +46,7 @@ import cn.taketoday.web.ui.RedirectModel;
  * @since 2.3.7
  */
 public abstract class RequestContextHolder {
-
-  private static final RequestContext ApplicationNotStartedContext = new ApplicationNotStartedContext();
-
+  public static final RequestContext ApplicationNotStartedContext = new ApplicationNotStartedContext();
   private static final ThreadLocal<RequestContext> CURRENT_REQUEST_CONTEXT = new ThreadLocal<>();
 
   public static void resetContext() {

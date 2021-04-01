@@ -40,7 +40,6 @@ import cn.taketoday.web.resource.DefaultResourceResolver;
 import cn.taketoday.web.resource.WebResourceResolver;
 
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
-import static cn.taketoday.web.RequestContextHolder.currentContext;
 
 /**
  * @author TODAY <br>
@@ -92,27 +91,27 @@ public class ResourceHandlerRegistry
   }
 
   @Override
-  protected Object lookupHandler(final String handlerKey) {
-    final Object handler = super.lookupHandler(handlerKey);
+  protected Object lookupHandler(final String handlerKey, final RequestContext context) {
+    final Object handler = super.lookupHandler(handlerKey, context);
     if (handler instanceof ResourceMatchResult) {
-      currentContext().setAttribute(Constant.RESOURCE_MATCH_RESULT, handler);
+      context.setAttribute(Constant.RESOURCE_MATCH_RESULT, handler);
       return ((ResourceMatchResult) handler).getHandler();
     }
     else if (handler instanceof ResourceRequestHandler) {
-      currentContext()
-              .setAttribute(Constant.RESOURCE_MATCH_RESULT,
-                            new ResourceMatchResult(handlerKey,
-                                                 handlerKey,
-                                                 getPathMatcher(),
-                                                 ((ResourceRequestHandler) handler)
-                         )
-              );
+      context.setAttribute(
+              Constant.RESOURCE_MATCH_RESULT,
+              new ResourceMatchResult(handlerKey,
+                                      handlerKey,
+                                      getPathMatcher(),
+                                      ((ResourceRequestHandler) handler)
+              )
+      );
     }
     return handler;
   }
 
   @Override
-  protected Object lookupCacheValue(final String handlerKey) {
+  protected Object lookupCacheValue(final String handlerKey, final RequestContext context) {
     final PatternHandler matched = matchingPatternHandler(handlerKey);
     if (matched != null) {
       return new ResourceMatchResult(handlerKey,

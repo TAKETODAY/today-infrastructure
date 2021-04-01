@@ -43,6 +43,8 @@ import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.ViewController;
 
@@ -57,7 +59,11 @@ public class ViewControllerHandlerRegistry extends CacheableMappedHandlerRegistr
   private Properties variables;
 
   public final ViewController getViewController(String key) {
-    final Object obj = lookupHandler(key);
+    return getViewController(key, RequestContextHolder.currentContext());
+  }
+
+  public final ViewController getViewController(String key, RequestContext context) {
+    final Object obj = lookupHandler(key, context);
     if (obj instanceof ViewController) {
       return (ViewController) obj;
     }
