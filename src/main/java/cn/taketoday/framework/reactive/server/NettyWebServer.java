@@ -76,10 +76,6 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
    */
   private int acceptThreadCount = 2;
 
-  /**
-   * A channel where the I/O operation associated with this future takes place.
-   */
-  private Channel channel;
   private EventLoopGroup childGroup;
   private EventLoopGroup parentGroup;
   private Class<? extends ServerSocketChannel> socketChannel;
@@ -167,9 +163,10 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
     postBootstrap(bootstrap);
 
     final ChannelFuture channelFuture = bootstrap.bind(getHost(), getPort());
-    channel = channelFuture.channel();
+    Channel channel = channelFuture.channel();
     try {
       channelFuture.sync();
+      channel.closeFuture().sync();
     }
     catch (InterruptedException e) {
       log.error("Interrupted", e);
@@ -232,15 +229,6 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
     }
   }
 
-  /**
-   * Returns a channel where the I/O operation associated with this future takes place.
-   *
-   * @return a channel where the I/O operation associated with this future takes place.
-   */
-  public Channel getChannel() {
-    return channel;
-  }
-
   public EventLoopGroup getChildGroup() {
     return childGroup;
   }
@@ -251,16 +239,6 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
 
   public Class<? extends ServerSocketChannel> getSocketChannel() {
     return socketChannel;
-  }
-
-  /**
-   * Set a channel where the I/O operation associated with this future takes place.
-   *
-   * @param channel
-   *         A channel where the I/O operation associated with this future takes place.
-   */
-  public void setChannel(Channel channel) {
-    this.channel = channel;
   }
 
   public void setParentGroup(EventLoopGroup parentGroup) {
