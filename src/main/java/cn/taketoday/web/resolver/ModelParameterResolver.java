@@ -30,15 +30,19 @@ import cn.taketoday.web.ui.RedirectModel;
 import cn.taketoday.web.ui.RedirectModelAttributes;
 
 /**
- * @author TODAY <br>
- * 2019-07-09 22:49
+ * Supports {@link Model}, {@link RedirectModel}, HTTP request headers,
+ * Map<String, Object> model
+ *
+ * @author TODAY 2019-07-09 22:49
+ * @see Model
+ * @see RedirectModel
  */
 public class ModelParameterResolver implements ParameterResolver {
 
   @Override
   public boolean supports(final MethodParameter parameter) {
-    return parameter.isAssignableFrom(Model.class)
-            || parameter.is(HttpHeaders.class)
+    return parameter.isAssignableFrom(Model.class) // Model
+            || parameter.is(HttpHeaders.class) // HTTP request headers @since 3.0
             || (
             parameter.is(Map.class) // Map<String, Object> model;
                     && parameter.isGenericPresent(String.class, 0)
@@ -64,6 +68,10 @@ public class ModelParameterResolver implements ParameterResolver {
       if (parameter.is(HttpHeaders.class)) {
         return context.requestHeaders();
       }
+    }
+
+    if (parameter.is(Map.class)) {
+      return context.asMap(); // Model Map
     }
     return context;
   }
