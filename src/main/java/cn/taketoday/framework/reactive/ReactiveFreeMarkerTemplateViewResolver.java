@@ -21,7 +21,6 @@ package cn.taketoday.framework.reactive;
 
 import java.util.Map;
 
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.config.WebMvcConfiguration;
@@ -36,7 +35,7 @@ import freemarker.template.utility.ObjectWrapperWithAPISupport;
 
 /**
  * @author TODAY <br>
- *         2019-11-22 13:25
+ * 2019-11-22 13:25
  */
 @Props(prefix = "web.mvc.view.")
 public class ReactiveFreeMarkerTemplateViewResolver
@@ -44,11 +43,12 @@ public class ReactiveFreeMarkerTemplateViewResolver
 
   public static final String KEY_REQUEST_PARAMETERS = "RequestParameters";
 
+  public ReactiveFreeMarkerTemplateViewResolver() {}
+
   public ReactiveFreeMarkerTemplateViewResolver(Configuration configuration) {
     this(new DefaultObjectWrapper(configuration.getIncompatibleImprovements()), configuration);
   }
 
-  @Autowired
   public ReactiveFreeMarkerTemplateViewResolver(ObjectWrapper wrapper, Configuration configuration) {
     setConfiguration(configuration);
     setObjectWrapper(wrapper);
@@ -58,7 +58,8 @@ public class ReactiveFreeMarkerTemplateViewResolver
    * Create Model Attributes.
    *
    * @param context
-   *            Current request context
+   *         Current request context
+   *
    * @return {@link TemplateHashModel}
    */
   protected TemplateHashModel createModel(RequestContext context) {
