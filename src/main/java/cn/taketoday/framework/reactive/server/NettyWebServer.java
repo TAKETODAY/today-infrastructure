@@ -175,6 +175,10 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
       log.error("Interrupted", e);
       throw new WebServerException(e);
     }
+    finally {
+      childGroup.shutdownGracefully();
+      parentGroup.shutdownGracefully();
+    }
   }
 
   protected void preBootstrap(ServerBootstrap bootstrap) {

@@ -16,7 +16,7 @@ import cn.taketoday.web.http.HttpHeaders;
 /**
  * @author TODAY 2021/3/30 18:30
  */
-class NettyHttpHeaders extends HttpHeaders {
+final class NettyHttpHeaders extends HttpHeaders {
 
   private final io.netty.handler.codec.http.HttpHeaders headers;
 
