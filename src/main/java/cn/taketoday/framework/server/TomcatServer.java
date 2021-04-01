@@ -252,7 +252,6 @@ public class TomcatServer extends AbstractServletWebServer {
   @Override
   protected void initializeContext() {
     super.initializeContext();
-
     log.info("Initialize Tomcat Web Server Context");
 
     Tomcat tomcat = new Tomcat();

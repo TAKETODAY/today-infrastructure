@@ -59,7 +59,7 @@ public abstract class AbstractWebServer
 
   private int port = 8080;
   private String host = "localhost";
-  protected String contextPath = Constant.BLANK;
+  private String contextPath = Constant.BLANK;
   private String serverHeader = null;
   private boolean enableHttp2 = false;
 
@@ -84,6 +84,7 @@ public abstract class AbstractWebServer
 
   @Override
   public void initialize(WebApplicationInitializer... contextInitializers) {
+    log.info("Initializing web server: {}", this);
 
     if (ObjectUtils.isNotEmpty(contextInitializers)) {
       Collections.addAll(this.contextInitializers, contextInitializers);
@@ -102,12 +103,16 @@ public abstract class AbstractWebServer
   /**
    * Context Initialized
    */
-  protected void contextInitialized() {}
+  protected void contextInitialized() {
+    log.info("Server context initialized");
+  }
 
   /**
    * Finish initialized
    */
-  protected void finishInitialize() {}
+  protected void finishInitialize() {
+    log.info("Finish initialize web server");
+  }
 
   /**
    * Before {@link WebApplicationLoader} Startup
@@ -117,6 +122,8 @@ public abstract class AbstractWebServer
   }
 
   protected void prepareInitialize() {
+    log.info("Prepare initialize web server");
+
     final WebServerApplicationContext context = obtainApplicationContext();
     if (context.getEnvironment() instanceof ConfigurableEnvironment) {
       final Starter starter;
@@ -140,7 +147,9 @@ public abstract class AbstractWebServer
   /**
    * Prepare {@link ApplicationContext}
    */
-  protected void initializeContext() {}
+  protected void initializeContext() {
+    log.info("Initialize server context");
+  }
 
   protected boolean isZeroOrLess(Duration sessionTimeout) {
     return sessionTimeout == null || sessionTimeout.isNegative() || sessionTimeout.isZero();

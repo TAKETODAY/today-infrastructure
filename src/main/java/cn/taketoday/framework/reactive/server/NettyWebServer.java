@@ -19,6 +19,8 @@
  */
 package cn.taketoday.framework.reactive.server;
 
+import java.util.Objects;
+
 import javax.annotation.PreDestroy;
 
 import cn.taketoday.context.ApplicationContext;
@@ -27,6 +29,7 @@ import cn.taketoday.context.utils.Assert;
 import cn.taketoday.framework.StandardWebServerApplicationContext;
 import cn.taketoday.framework.WebServerApplicationContext;
 import cn.taketoday.framework.WebServerException;
+import cn.taketoday.framework.reactive.NettyRequestContextConfig;
 import cn.taketoday.framework.reactive.NettyWebServerApplicationLoader;
 import cn.taketoday.framework.reactive.ReactiveChannelHandler;
 import cn.taketoday.framework.server.AbstractWebServer;
@@ -87,6 +90,10 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
   @Override
   protected void initApplicationContext(ApplicationContext context) {
     super.initApplicationContext(context);
+    applyContextPath(context);
+  }
+
+  private void applyContextPath(ApplicationContext context) {
     if (context instanceof StandardWebServerApplicationContext) {
       ((StandardWebServerApplicationContext) context).setContextPath(getContextPath());
     }
@@ -173,9 +180,33 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
 
   protected void preBootstrap(ServerBootstrap bootstrap) {
     ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
+    // adjust context path
+    final WebServerApplicationContext context = obtainApplicationContext();
+    final NettyRequestContextConfig contextConfig = context.getBean(NettyRequestContextConfig.class);
+    Assert.state(contextConfig != null, "No NettyRequestContextConfig");
+    final String contextPath = contextConfig.getContextPath();
+    final String serverContextPath = getContextPath();
+    if (contextPath == null) {
+      contextConfig.setContextPath(serverContextPath);
+    }
+    else {
+      if (serverContextPath != null) {
+        if (!Objects.equals(serverContextPath, contextPath)) {
+          log.info("Using NettyRequestContextConfig 'contextPath' -> '{}'", contextPath);
+          setContextPath(contextPath);
+          // reset contextPath
+          applyContextPath(context);
+        }
+      }
+      else {
+        setContextPath(contextPath);
+      }
+    }
   }
 
   protected void postBootstrap(ServerBootstrap bootstrap) {
+    log.info("Netty web server started.");
+
     if (loggingLevel != null) {
       bootstrap.handler(new LoggingHandler(loggingLevel));
     }

@@ -51,7 +51,6 @@ public abstract class ApplicationUtils {
     ConfigurableEnvironment environment = beanFactory.getEnvironment();
     // disable web mvc xml
     environment.setProperty(Constant.ENABLE_WEB_MVC_XML, "false");
-
     final Logger logger = LoggerFactory.getLogger(ApplicationUtils.class);
     logger.info("Looking For: [{}] Bean.", WebServer.class.getName());
 
@@ -67,7 +66,6 @@ public abstract class ApplicationUtils {
         ((AbstractWebServer) webServer).getWebApplicationConfiguration()
                 .configureWebServer((AbstractWebServer) webServer);
       }
-      logger.info("Initializing Web Server: [{}]", webServer);
       ((ConfigurableWebServer) webServer).initialize();
     }
     return webServer;
