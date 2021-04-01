@@ -24,16 +24,34 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 
 /**
- * @author TODAY <br>
- *         2020-03-30 21:38
+ * @author TODAY 2020-03-30 21:38
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Import(ViewControllerHandlerRegistry.class)
+@Import(ViewControllerConfig.class)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface EnableViewController {
 
+}
+
+/**
+ * @since 3.0
+ */
+class ViewControllerConfig {
+
+  @MissingBean
+  ViewControllerHandlerRegistry viewControllerHandlerRegistry() {
+    return new ViewControllerHandlerRegistry();
+  }
+
+  @MissingBean
+  ViewControllerHandlerAdapter viewControllerHandlerAdapter() {
+    return new ViewControllerHandlerAdapter(Ordered.HIGHEST_PRECEDENCE - 2);
+  }
 }
