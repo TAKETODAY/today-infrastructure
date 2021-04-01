@@ -47,12 +47,10 @@ import cn.taketoday.web.event.WebApplicationStartedEvent;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.DefaultExceptionHandler;
 import cn.taketoday.web.handler.DispatcherHandler;
-import cn.taketoday.web.handler.FunctionRequestAdapter;
 import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.RequestHandlerAdapter;
-import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.CompositeHandlerRegistry;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
@@ -181,9 +179,6 @@ public class WebApplicationLoader
     }
     // 添加默认的
     adapters.add(new RequestHandlerAdapter(Ordered.HIGHEST_PRECEDENCE << 1));
-    adapters.add(new FunctionRequestAdapter(Ordered.HIGHEST_PRECEDENCE - 1));
-    adapters.add(new ViewControllerHandlerAdapter(Ordered.HIGHEST_PRECEDENCE - 2));
-//    adapters.add(new NotFoundRequestAdapter(-100));
 
     // 用户自定义
     mvcConfiguration.configureHandlerAdapter(adapters);
