@@ -11,9 +11,13 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
 /**
- * Async
+ * Async Netty {@link cn.taketoday.web.handler.DispatcherHandler}
+ * implementation like {@link cn.taketoday.web.servlet.DispatcherServlet}
  *
  * @author TODAY 2021/3/20 12:05
+ * @see SyncNettyDispatcherHandler
+ * @see cn.taketoday.web.handler.DispatcherHandler
+ * @see cn.taketoday.web.servlet.DispatcherServlet
  */
 public class AsyncNettyDispatcherHandler extends DispatcherHandler implements NettyDispatcher {
 

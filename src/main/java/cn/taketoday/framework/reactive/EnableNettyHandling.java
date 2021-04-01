@@ -55,12 +55,26 @@ class NettyConfig extends AnnotationBeanDefinitionRegistrar<EnableNettyHandling>
     return new ReactiveChannelHandler(nettyDispatcher, contextConfig);
   }
 
+  /**
+   * Default {@link NettyWebServer} object
+   * <p>
+   * framework will auto inject properties start with 'server.' or 'server.netty.'
+   * </p>
+   *
+   * @return returns a default {@link NettyWebServer} object
+   */
   @MissingBean
   @Props(prefix = { "server.", "server.netty." })
   NettyWebServer nettyWebServer() {
     return new NettyWebServer();
   }
 
+  /**
+   * Framework Channel Initializer
+   *
+   * @param channelHandler
+   *         ChannelInboundHandler
+   */
   @MissingBean
   NettyServerInitializer nettyServerInitializer(ReactiveChannelHandler channelHandler) {
     return new NettyServerInitializer(channelHandler);

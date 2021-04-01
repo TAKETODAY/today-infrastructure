@@ -20,7 +20,6 @@
 package cn.taketoday.framework.reactive;
 
 import cn.taketoday.context.utils.Assert;
-import cn.taketoday.web.handler.DispatcherHandler;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
@@ -32,7 +31,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 /**
- * Netty {@link DispatcherHandler} implementation like {@link cn.taketoday.web.servlet.DispatcherServlet}
+ * ChannelInboundHandler
  *
  * @author TODAY 2019-07-04 21:50
  */
