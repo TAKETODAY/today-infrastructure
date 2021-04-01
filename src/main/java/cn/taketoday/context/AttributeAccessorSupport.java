@@ -117,6 +117,15 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
     }
   }
 
+  /**
+   * @since 3.0
+   */
+  public void clear() {
+    if (attributes != null) {
+      attributes.clear();
+    }
+  }
+
   @Override
   public boolean equals(Object other) {
     return (this == other

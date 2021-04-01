@@ -564,7 +564,7 @@ public abstract class ClassUtils {
     }
     catch (Throwable ex) {
       ex = ExceptionUtils.unwrapThrowable(ex);
-      throw new ContextException("An Exception Occurred When Getting Annotation Attributes: [" + ex + "]", ex);
+      throw new ContextException("An Exception Occurred When Getting Annotation Attributes", ex);
     }
   }
 
