@@ -245,9 +245,8 @@ public class ServletRequestContext
   }
 
   @Override
-  public RequestContext contentLength(long length) {
+  public void contentLength(long length) {
     response.setContentLengthLong(length);
-    return this;
   }
 
   @Override
@@ -256,15 +255,14 @@ public class ServletRequestContext
   }
 
   @Override
-  public RequestContext reset() {
+  public void reset() {
     resetResponseHeader();
 
     response.reset();
-    return this;
   }
 
   @Override
-  public RequestContext addCookie(final HttpCookie cookie) {
+  public void addCookie(final HttpCookie cookie) {
 
     final Cookie servletCookie = new Cookie(cookie.getName(), cookie.getValue());
 
@@ -279,25 +277,21 @@ public class ServletRequestContext
     servletCookie.setMaxAge((int) cookie.getMaxAge());
 
     response.addCookie(servletCookie);
-    return this;
   }
 
   @Override
-  public RequestContext redirect(String location) throws IOException {
+  public void redirect(String location) throws IOException {
     response.sendRedirect(location);
-    return this;
   }
 
   @Override
-  public RequestContext status(int sc) {
+  public void status(int sc) {
     response.setStatus(sc);
-    return this;
   }
 
   @Override
-  public RequestContext status(final int status, final String message) {
+  public void status(final int status, final String message) {
     response.setStatus(status, message);
-    return this;
   }
 
   @Override
@@ -324,15 +318,13 @@ public class ServletRequestContext
   }
 
   @Override
-  public RequestContext sendError(int sc) throws IOException {
+  public void sendError(int sc) throws IOException {
     response.sendError(sc);
-    return this;
   }
 
   @Override
-  public RequestContext sendError(int sc, String msg) throws IOException {
+  public void sendError(int sc, String msg) throws IOException {
     response.sendError(sc, msg);
-    return this;
   }
 
   // parseMultipartFiles

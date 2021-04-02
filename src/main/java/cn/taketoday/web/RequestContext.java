@@ -145,7 +145,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @param cookie
    *         the Cookie to return to the client
    */
-  RequestContext addCookie(HttpCookie cookie);
+  void addCookie(HttpCookie cookie);
 
   /**
    * Returns a java.util.Map of the parameters of this request.
@@ -330,7 +330,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    *         an long specifying the length of the content being returned to the
    *         client; sets the Content-Length header
    */
-  RequestContext contentLength(long length);
+  void contentLength(long length);
 
   /**
    * Returns a boolean indicating if the response has been committed. A committed
@@ -355,7 +355,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @throws IllegalStateException
    *         if the response has already been committed
    */
-  RequestContext reset();
+  void reset();
 
   /**
    * Sends a temporary redirect response to the client using the specified
@@ -386,7 +386,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    *         If the response was committed or if a partial URL is given and
    *         cannot be converted into a valid URL
    */
-  RequestContext redirect(String location) throws IOException;
+  void redirect(String location) throws IOException;
 
   /**
    * Sets the status code for this response.
@@ -402,7 +402,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @param sc
    *         the status code
    */
-  RequestContext status(int sc);
+  void status(int sc);
 
   /**
    * Sets the status code and message for this response.
@@ -412,7 +412,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @param message
    *         the status message
    */
-  RequestContext status(int status, String message);
+  void status(int status, String message);
 
   /**
    * Sets the status code and message for this response.
@@ -420,8 +420,8 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @param status
    *         the status
    */
-  default RequestContext status(HttpStatus status) {
-    return status(status.value(), status.getReasonPhrase());
+  default void status(HttpStatus status) {
+    status(status.value(), status.getReasonPhrase());
   }
 
   /**
@@ -455,7 +455,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @throws IllegalStateException
    *         If the response was committed before this method call
    */
-  RequestContext sendError(int sc) throws IOException;
+  void sendError(int sc) throws IOException;
 
   /**
    * <p>
@@ -492,7 +492,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @throws IllegalStateException
    *         If the response was committed
    */
-  RequestContext sendError(int sc, String msg) throws IOException;
+  void sendError(int sc, String msg) throws IOException;
 
   /**
    * Returns a {@link OutputStream} suitable for writing binary data in the

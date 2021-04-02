@@ -153,8 +153,7 @@ public abstract class RequestContextHolder {
     }
 
     @Override
-    public RequestContext addCookie(HttpCookie cookie) {
-      return null;
+    public void addCookie(HttpCookie cookie) {
     }
 
     @Override
@@ -245,8 +244,7 @@ public abstract class RequestContextHolder {
     }
 
     @Override
-    public RequestContext contentLength(long length) {
-      return null;
+    public void contentLength(long length) {
     }
 
     @Override
@@ -255,23 +253,19 @@ public abstract class RequestContextHolder {
     }
 
     @Override
-    public RequestContext reset() {
-      return null;
+    public void reset() {
     }
 
     @Override
-    public RequestContext redirect(String location) throws IOException {
-      return null;
+    public void redirect(String location) throws IOException {
     }
 
     @Override
-    public RequestContext status(int sc) {
-      return null;
+    public void status(int sc) {
     }
 
     @Override
-    public RequestContext status(final int status, final String message) {
-      return null;
+    public void status(final int status, final String message) {
     }
 
     @Override
@@ -280,13 +274,11 @@ public abstract class RequestContextHolder {
     }
 
     @Override
-    public RequestContext sendError(int sc) throws IOException {
-      return null;
+    public void sendError(int sc) throws IOException {
     }
 
     @Override
-    public RequestContext sendError(int sc, String msg) throws IOException {
-      return null;
+    public void sendError(int sc, String msg) throws IOException {
     }
 
     @Override

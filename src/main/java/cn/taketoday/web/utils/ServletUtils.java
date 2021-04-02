@@ -31,8 +31,7 @@ import cn.taketoday.web.servlet.ServletRequestContext;
 import static cn.taketoday.web.RequestContextHolder.prepareContext;
 
 /**
- * @author TODAY
- * @date 2020/12/8 23:07
+ * @author TODAY 2020/12/8 23:07
  */
 public abstract class ServletUtils {
   // context

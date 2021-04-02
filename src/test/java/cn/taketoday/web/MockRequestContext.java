@@ -80,8 +80,7 @@ public class MockRequestContext extends AbstractRequestContext {
     return null;
   }
 
-  @Override public RequestContext addCookie(HttpCookie cookie) {
-    return null;
+  @Override public void addCookie(HttpCookie cookie) {
   }
 
   @Override public String method() {
@@ -96,29 +95,25 @@ public class MockRequestContext extends AbstractRequestContext {
     return 0;
   }
 
-  @Override public RequestContext contentLength(long length) {
-    return null;
+  @Override public void contentLength(long length) {
   }
 
   @Override public boolean committed() {
     return false;
   }
 
-  @Override public RequestContext reset() {
-    return null;
+  @Override
+  public void reset() {
   }
 
-  @Override public RequestContext redirect(String location) throws IOException {
-    return null;
+  @Override public void redirect(String location) throws IOException {
   }
 
-  @Override public RequestContext status(int sc) {
-    return null;
+  @Override public void status(int sc) {
   }
 
   @Override
-  public RequestContext status(int status, String message) {
-    return null;
+  public void status(int status, String message) {
   }
 
   @Override
@@ -127,13 +122,11 @@ public class MockRequestContext extends AbstractRequestContext {
   }
 
   @Override
-  public RequestContext sendError(int sc) throws IOException {
-    return null;
+  public void sendError(int sc) throws IOException {
   }
 
   @Override
-  public RequestContext sendError(int sc, String msg) throws IOException {
-    return null;
+  public void sendError(int sc, String msg) throws IOException {
   }
 
   @Override
