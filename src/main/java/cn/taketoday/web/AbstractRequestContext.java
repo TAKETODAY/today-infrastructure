@@ -52,18 +52,18 @@ import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
  */
 public abstract class AbstractRequestContext implements RequestContext {
 
-  private String contextPath;
-  private Object requestBody;
-  private HttpCookie[] cookies;
-  private String[] pathVariables;
-  private ModelAndView modelAndView;
+  protected String contextPath;
+  protected Object requestBody;
+  protected HttpCookie[] cookies;
+  protected String[] pathVariables;
+  protected ModelAndView modelAndView;
 
-  private PrintWriter writer;
-  private BufferedReader reader;
-  private InputStream inputStream;
-  private OutputStream outputStream;
+  protected PrintWriter writer;
+  protected BufferedReader reader;
+  protected InputStream inputStream;
+  protected OutputStream outputStream;
 
-  private Map<String, List<MultipartFile>> multipartFiles;
+  protected Map<String, List<MultipartFile>> multipartFiles;
 
   /** @since 3.0 */
   protected HttpHeaders requestHeaders;
