@@ -23,6 +23,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
@@ -48,6 +49,50 @@ public abstract class ServletUtils {
       prepareContext(context);
     }
     return context;
+  }
+
+  /**
+   * Get HttpSession
+   */
+  public static HttpSession getHttpSession(final RequestContext context) {
+    return getHttpSession(context, true);
+  }
+
+  /**
+   * Returns the current <code>HttpSession</code>
+   * associated with this request or, if there is no
+   * current session and <code>create</code> is true, returns
+   * a new session.
+   *
+   * <p>If <code>create</code> is <code>false</code>
+   * and the request has no valid <code>HttpSession</code>,
+   * this method returns <code>null</code>.
+   *
+   * <p>To make sure the session is properly maintained,
+   * you must call this method before
+   * the response is committed. If the container is using cookies
+   * to maintain session integrity and is asked to create a new session
+   * when the response is committed, an IllegalStateException is thrown.
+   *
+   * @param create
+   *         <code>true</code> to create
+   *         a new session for this request if necessary;
+   *         <code>false</code> to return <code>null</code>
+   *         if there's no current session
+   *
+   * @return the <code>HttpSession</code> associated
+   * with this request or <code>null</code> if
+   * <code>create</code> is <code>false</code>
+   * and the request has no valid session
+   *
+   * @see #getHttpSession(RequestContext)
+   */
+  public static HttpSession getHttpSession(final RequestContext context, boolean create) {
+    if (context instanceof ServletRequestContext) {
+      final HttpServletRequest request = ((ServletRequestContext) context).getRequest();
+      return request.getSession(create);
+    }
+    throw new IllegalStateException("Not run in servlet");
   }
 
 }
