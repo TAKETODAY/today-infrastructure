@@ -53,8 +53,10 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.multipart.Attribute;
@@ -75,6 +77,8 @@ public class NettyRequestContext
         extends AbstractRequestContext implements RequestContext {
 //    private static final Logger log = LoggerFactory.getLogger(NettyRequestContext.class);
 
+  private static final HttpDataFactory HTTP_DATA_FACTORY = new DefaultHttpDataFactory(true);
+
   private String queryString;
   private String remoteAddress;
 
@@ -83,20 +87,34 @@ public class NettyRequestContext
   private Map<String, String[]> parameters;
 
   private final FullHttpRequest request;
-  private final ChannelHandlerContext handlerContext;
+  private final ChannelHandlerContext channelContext;
+  private InterfaceHttpPostRequestDecoder requestDecoder;
 
   private final String uri;
   private String requestURI;
 
   private final NettyRequestContextConfig config;
 
+  // response
+  private Boolean keepAlive;
+
+  private HttpResponseStatus status = HttpResponseStatus.OK;
+
+  private ByteBuf responseBody;
+  /**
+   * response headers
+   */
+  private HttpHeaders originalResponseHeaders;
+
+  private FullHttpResponse response;
+
   public NettyRequestContext(ChannelHandlerContext ctx,
                              FullHttpRequest request,
                              NettyRequestContextConfig config) {
-    this.request = request;
-    this.handlerContext = ctx;
-    this.uri = request.uri();
     this.config = config;
+    this.request = request;
+    this.channelContext = ctx;
+    this.uri = request.uri();
   }
 
   @Override
@@ -125,7 +143,7 @@ public class NettyRequestContext
   @Override
   public String remoteAddress() {
     if (remoteAddress == null) {
-      final InetSocketAddress remote = (InetSocketAddress) handlerContext.channel().remoteAddress();
+      final InetSocketAddress remote = (InetSocketAddress) channelContext.channel().remoteAddress();
       remoteAddress = remote.getAddress().getHostAddress();
     }
     return remoteAddress;
@@ -184,16 +202,8 @@ public class NettyRequestContext
   }
 
   @Override
-  public NettyHttpHeaders responseHeaders() {
-    return (NettyHttpHeaders) super.responseHeaders();
-  }
-
-  @Override
   protected NettyHttpHeaders createResponseHeaders() {
-    final HttpHeaders responseHeaders = config.isSingleFieldHeaders()
-                                        ? new io.netty.handler.codec.http.DefaultHttpHeaders(config.isValidateHeaders())
-                                        : new CombinedHttpHeaders(config.isValidateHeaders());
-    return new NettyHttpHeaders(responseHeaders);
+    return new NettyHttpHeaders(originalResponseHeaders());
   }
 
   @Override
@@ -218,10 +228,6 @@ public class NettyRequestContext
     ret.setHttpOnly(cookie.isHttpOnly());
     return ret;
   }
-
-  private static final HttpDataFactory HTTP_DATA_FACTORY = new DefaultHttpDataFactory(true);
-
-  private InterfaceHttpPostRequestDecoder requestDecoder;
 
   @Override
   public Map<String, String[]> parameters() {
@@ -292,25 +298,23 @@ public class NettyRequestContext
   }
 
   @Override
-  public RedirectModel applyRedirectModel(RedirectModel redirectModel) {
-
+  public void applyRedirectModel(RedirectModel redirectModel) {
     //TODO
-    return redirectModel;
   }
 
   @Override
-  public RequestContext redirect(String location) {
+  public void redirect(String location) {
     assertNotCommitted();
-
-    getResponse().setStatus(HttpResponseStatus.FOUND);
-    responseHeaders().set(Constant.LOCATION, location);
-
+    status = HttpResponseStatus.FOUND;
+    originalResponseHeaders().set(HttpHeaderNames.LOCATION, location);
     send();
-    return this;
   }
 
-  private ByteBuf responseBody;
-
+  /**
+   * HTTP response body
+   *
+   * @return HTTP response body
+   */
   public final ByteBuf responseBody() {
     ByteBuf responseBody = this.responseBody;
     if (responseBody == null) {
@@ -326,27 +330,65 @@ public class NettyRequestContext
     return responseBody;
   }
 
+  public void setKeepAlive(boolean keepAlive) {
+    this.keepAlive = keepAlive;
+  }
+
+  public boolean isKeepAlive() {
+    Boolean keepAlive = this.keepAlive;
+    if (keepAlive == null) {
+      return this.keepAlive = HttpUtil.isKeepAlive(request);
+    }
+    return keepAlive;
+  }
+
+  private int readableBytes() {
+    ByteBuf responseBody = this.responseBody;
+    if (responseBody == null) {
+      return 0;
+    }
+    return responseBody.readableBytes();
+  }
+
   /**
    * Send HTTP message to the client
    */
   public void send() {
     assertNotCommitted();
-    final NettyHttpHeaders responseHeaders = responseHeaders();
-    if (responseHeaders.getFirst(Constant.CONTENT_LENGTH) == null) {
-      responseHeaders.setContentLength(responseBody().readableBytes());
+    // set Content-Length header
+    HttpHeaders responseHeaders = originalResponseHeaders;
+    if (responseHeaders == null) {
+      responseHeaders = originalResponseHeaders();
+      responseHeaders.setInt(HttpHeaderNames.CONTENT_LENGTH, readableBytes());
     }
-    final ChannelHandlerContext handlerContext = this.handlerContext;
-    if (handlerContext != null) {
-      if (config.isKeepAliveWhenSending()) {
-        responseHeaders.setConnection(Constant.KEEP_ALIVE);
-      }
-      else {
-        handlerContext.write(Unpooled.EMPTY_BUFFER)
-                .addListener(ChannelFutureListener.CLOSE);
-      }
-      handlerContext.writeAndFlush(getResponse());
+    else if (responseHeaders.get(HttpHeaderNames.CONTENT_LENGTH) == null) {
+      responseHeaders.setInt(HttpHeaderNames.CONTENT_LENGTH, readableBytes());
     }
-    final InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
+    // obtain response object
+    final ChannelHandlerContext context = this.channelContext;
+    FullHttpResponse response = this.response;
+    if (response == null) {
+      ByteBuf responseBody = this.responseBody;
+      if (responseBody == null) {
+        responseBody = Unpooled.EMPTY_BUFFER;
+      }
+      response = new DefaultFullHttpResponse(config.getHttpVersion(), status, responseBody,
+                                             responseHeaders, config.getTrailingHeaders().get());
+    }
+    else {
+      response.setStatus(status);
+    }
+
+    // write response
+    if (isKeepAlive()) {
+      responseHeaders.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+      context.writeAndFlush(response, context.voidPromise());
+    }
+    else {
+      context.writeAndFlush(response, context.voidPromise())
+              .addListener(ChannelFutureListener.CLOSE);
+    }
+
     if (requestDecoder != null) {
       requestDecoder.destroy();
     }
@@ -354,9 +396,8 @@ public class NettyRequestContext
   }
 
   @Override
-  public RequestContext contentLength(long length) {
-    responseHeaders().setContentLength(length);
-    return this;
+  public void contentLength(long length) {
+    originalResponseHeaders().set(Constant.CONTENT_LENGTH, length);
   }
 
   @Override
@@ -365,27 +406,32 @@ public class NettyRequestContext
   }
 
   @Override
-  public RequestContext reset() {
+  protected void resetResponseHeader() {
+    super.resetResponseHeader();
+    if (originalResponseHeaders != null) {
+      originalResponseHeaders.clear();
+    }
+  }
+
+  @Override
+  public void reset() {
     assertNotCommitted();
     resetResponseHeader();
 
     if (responseBody != null) {
       responseBody.clear();
     }
-
-    getResponse().setStatus(HttpResponseStatus.OK);
-    return this;
+    status = HttpResponseStatus.OK;
   }
 
-  protected void assertNotCommitted() {
-    if (committed()) {
+  private void assertNotCommitted() {
+    if (committed) {
       throw new IllegalStateException("The response has been committed");
     }
   }
 
   @Override
-  public RequestContext addCookie(HttpCookie cookie) {
-
+  public void addCookie(HttpCookie cookie) {
     final Cookie c = new DefaultCookie(cookie.getName(), cookie.getValue());
     c.setPath(cookie.getPath());
     c.setDomain(cookie.getDomain());
@@ -393,47 +439,38 @@ public class NettyRequestContext
     c.setSecure(cookie.getSecure());
     c.setHttpOnly(cookie.isHttpOnly());
 
-    responseHeaders().add(
-            Constant.SET_COOKIE, config.getCookieEncoder().encode(c)
+    originalResponseHeaders().add(
+            HttpHeaderNames.SET_COOKIE, config.getCookieEncoder().encode(c)
     );
-    return this;
   }
 
   @Override
-  public RequestContext status(int sc) {
-    getResponse().setStatus(HttpResponseStatus.valueOf(sc));
-    return this;
+  public void status(final int sc) {
+    status = HttpResponseStatus.valueOf(sc);
   }
 
   @Override
-  public RequestContext status(final int status, final String message) {
-    getResponse().setStatus(new HttpResponseStatus(status, message));
-    return this;
+  public void status(final int status, final String message) {
+    this.status = new HttpResponseStatus(status, message);
   }
 
   @Override
   public int status() {
-    return getResponse().status().code();
+    return status.code();
   }
 
   @Override
-  public RequestContext sendError(int sc) {
+  public void sendError(int sc) {
     assertNotCommitted();
-
-    final FullHttpResponse response = getResponse();
-    response.setStatus(HttpResponseStatus.valueOf(sc));
+    status = HttpResponseStatus.valueOf(sc);
     send();
-    return this;
   }
 
   @Override
-  public RequestContext sendError(int sc, String msg) {
+  public void sendError(int sc, String msg) {
     assertNotCommitted();
-
-    final FullHttpResponse response = getResponse();
-    response.setStatus(HttpResponseStatus.valueOf(sc, msg));
+    status = HttpResponseStatus.valueOf(sc, msg);
     send();
-    return this;
   }
 
   @Override
@@ -460,8 +497,6 @@ public class NettyRequestContext
     throw new ConfigurationException("The runtime request is not a: [" + requestClass + "] object");
   }
 
-  private FullHttpResponse response;
-
   @Override
   @SuppressWarnings("unchecked")
   public <T> T nativeResponse() {
@@ -472,19 +507,28 @@ public class NettyRequestContext
     return request;
   }
 
+  private HttpHeaders originalResponseHeaders() {
+    HttpHeaders originalResponseHeaders = this.originalResponseHeaders;
+    if (originalResponseHeaders == null) {
+      final NettyRequestContextConfig config = this.config;
+      originalResponseHeaders = config.isSingleFieldHeaders()
+                                ? new io.netty.handler.codec.http.DefaultHttpHeaders(config.isValidateHeaders())
+                                : new CombinedHttpHeaders(config.isValidateHeaders());
+      this.originalResponseHeaders = originalResponseHeaders;
+    }
+    return originalResponseHeaders;
+  }
+
   public final FullHttpResponse getResponse() {
-    final FullHttpResponse response = this.response;
+    FullHttpResponse response = this.response;
     if (response == null) {
       final NettyRequestContextConfig config = this.config;
-      final DefaultFullHttpResponse httpResponse =
-              new DefaultFullHttpResponse(config.getHttpVersion(),
-                                          HttpResponseStatus.OK,
-                                          responseBody(),
-                                          responseHeaders().getOriginal(),
-                                          config.getTrailingHeaders().get());
-
-      return this.response = httpResponse;
-
+      response = new DefaultFullHttpResponse(config.getHttpVersion(),
+                                             HttpResponseStatus.OK,
+                                             responseBody(),
+                                             originalResponseHeaders(),
+                                             config.getTrailingHeaders().get());
+      this.response = response;
     }
     return response;
   }
@@ -500,7 +544,7 @@ public class NettyRequestContext
 
   @Override
   public void flush() throws IOException {
-    handlerContext.flush();
+    channelContext.flush();
   }
 
   @Override

@@ -26,8 +26,6 @@ public class NettyRequestContextConfig {
   private boolean validateHeaders = false;
   private boolean singleFieldHeaders = true;
 
-  private boolean keepAliveWhenSending = true;
-
   private HttpVersion httpVersion = HttpVersion.HTTP_1_1;
 
   private Supplier<HttpHeaders> trailingHeaders;
@@ -91,14 +89,6 @@ public class NettyRequestContextConfig {
 
   public HttpVersion getHttpVersion() {
     return httpVersion;
-  }
-
-  public void setKeepAliveWhenSending(boolean keepAliveWhenSending) {
-    this.keepAliveWhenSending = keepAliveWhenSending;
-  }
-
-  public boolean isKeepAliveWhenSending() {
-    return keepAliveWhenSending;
   }
 
   public void setCookieDecoder(ServerCookieDecoder cookieDecoder) {

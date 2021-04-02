@@ -38,9 +38,13 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
+import io.netty.channel.kqueue.KQueue;
+import io.netty.channel.kqueue.KQueueEventLoopGroup;
+import io.netty.channel.kqueue.KQueueServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -103,15 +107,14 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
    * Subclasses can override this method to perform epoll is available logic
    */
   protected boolean epollIsAvailable() {
-    try {
-      Object obj = Class.forName("io.netty.channel.epoll.Epoll").getMethod("isAvailable").invoke(null);
-      return obj != null
-              && Boolean.parseBoolean(obj.toString())
-              && System.getProperty("os.name").toLowerCase().contains("linux");
-    }
-    catch (Exception e) {
-      return false;
-    }
+    return Epoll.isAvailable();
+  }
+
+  /**
+   * Subclasses can override this method to perform KQueue is available logic
+   */
+  protected boolean kQueueIsAvailable() {
+    return KQueue.isAvailable();
   }
 
   @Override
@@ -143,6 +146,17 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
       }
       if (childGroup == null) {
         childGroup = new EpollEventLoopGroup(childThreadCount, new DefaultThreadFactory("epoll-child@"));
+      }
+    }
+    else if (kQueueIsAvailable()) {
+      if (socketChannel == null) {
+        socketChannel = KQueueServerSocketChannel.class;
+      }
+      if (parentGroup == null) {
+        parentGroup = new KQueueEventLoopGroup(parentThreadCount, new DefaultThreadFactory("kQueue-parent@"));
+      }
+      if (childGroup == null) {
+        childGroup = new KQueueEventLoopGroup(childThreadCount, new DefaultThreadFactory("kQueue-child@"));
       }
     }
     else {

@@ -42,7 +42,7 @@ public class DefaultServletConfiguration {
 
   private boolean enable;
   private String[] urlMappings;
-  Servlet defaultServlet;
+  private Servlet defaultServlet;
 
   private Map<String, String> initParameters = new HashMap<>();
 
