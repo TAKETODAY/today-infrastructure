@@ -111,7 +111,7 @@ public abstract class AbstractRequestContext implements RequestContext {
   }
 
   protected PrintWriter getWriterInternal() throws IOException {
-    return new PrintWriter(getOutputStream(), true);
+    return new PrintWriter(getOutputStream());
   }
 
   @Override
