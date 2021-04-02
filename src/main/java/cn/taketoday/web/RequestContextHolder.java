@@ -30,6 +30,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.ui.ModelAndView;
@@ -37,25 +38,22 @@ import cn.taketoday.web.ui.RedirectModel;
 
 /**
  * Holder class to expose the web request in the form of a thread-bound
- * {@link RequestContext} object. The request will be inherited by any child
- * threads spawned by the current thread if the {@code inheritable} flag is set
- * to {@code true}.
+ * {@link RequestContext} object.
  *
- * @author TODAY <br>
- * 2019-03-23 10:29
+ * @author TODAY 2019-03-23 10:29
+ * @see #replaceContextHolder(RequestThreadLocal)
  * @since 2.3.7
  */
 public abstract class RequestContextHolder {
   public static final RequestContext ApplicationNotStartedContext = new ApplicationNotStartedContext();
-  private static final ThreadLocal<RequestContext> CURRENT_REQUEST_CONTEXT = new ThreadLocal<>();
+  private static RequestThreadLocal contextHolder = new DefaultRequestThreadLocal();
 
   public static void resetContext() {
-    CURRENT_REQUEST_CONTEXT.remove();
+    contextHolder.remove();
   }
 
-  public static RequestContext prepareContext(RequestContext requestContext) {
-    CURRENT_REQUEST_CONTEXT.set(requestContext);
-    return requestContext;
+  public static void prepareContext(RequestContext requestContext) {
+    contextHolder.set(requestContext);
   }
 
   public static RequestContext currentContext() {
@@ -64,7 +62,7 @@ public abstract class RequestContextHolder {
   }
 
   public static RequestContext getContext() {
-    return CURRENT_REQUEST_CONTEXT.get();
+    return contextHolder.get();
   }
 
   public static <T> T currentRequest() {
@@ -77,6 +75,17 @@ public abstract class RequestContextHolder {
 
   public static <T> T currentSession() {
     return currentContext().nativeSession();
+  }
+
+  /**
+   * replace {@link RequestThreadLocal}
+   *
+   * @param contextHolder
+   *         new {@link RequestThreadLocal} object
+   */
+  public static void replaceContextHolder(RequestThreadLocal contextHolder) {
+    Assert.notNull(contextHolder, "contextHolder must not be null");
+    RequestContextHolder.contextHolder = contextHolder;
   }
 
   @SuppressWarnings("serial")

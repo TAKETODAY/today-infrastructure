@@ -20,16 +20,35 @@
 
 package cn.taketoday.web;
 
+import cn.taketoday.context.NamedThreadLocal;
+
 /**
- * @author TODAY 2021/4/1 19:28
+ * @author TODAY 2021/4/2 16:53
  * @since 3.0
  */
-public abstract class LocalRequestContext {
+public final class DefaultRequestThreadLocal extends RequestThreadLocal {
+  private final ThreadLocal<RequestContext> threadLocal;
 
-  public abstract void remove();
+  public DefaultRequestThreadLocal() {
+    this(new NamedThreadLocal<>("Current Request Context"));
+  }
 
-  public abstract RequestContext get();
+  public DefaultRequestThreadLocal(ThreadLocal<RequestContext> threadLocal) {
+    this.threadLocal = threadLocal;
+  }
 
-  public abstract void set(RequestContext context);
+  @Override
+  public void remove() {
+    threadLocal.remove();
+  }
 
+  @Override
+  public RequestContext get() {
+    return threadLocal.get();
+  }
+
+  @Override
+  public void set(final RequestContext context) {
+    threadLocal.set(context);
+  }
 }

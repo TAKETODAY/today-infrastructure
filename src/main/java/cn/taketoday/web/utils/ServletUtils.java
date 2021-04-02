@@ -32,6 +32,7 @@ import static cn.taketoday.web.RequestContextHolder.prepareContext;
 
 /**
  * @author TODAY 2020/12/8 23:07
+ * @since 3.0
  */
 public abstract class ServletUtils {
   // context
@@ -43,7 +44,8 @@ public abstract class ServletUtils {
   public static RequestContext getRequestContext(HttpServletRequest request, HttpServletResponse response) {
     RequestContext context = RequestContextHolder.getContext();
     if (context == null) {
-      context = prepareContext(new ServletRequestContext(request, response));
+      context = new ServletRequestContext(request, response);
+      prepareContext(context);
     }
     return context;
   }
