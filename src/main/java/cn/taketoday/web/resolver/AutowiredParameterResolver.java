@@ -31,7 +31,8 @@ import cn.taketoday.web.handler.MethodParameter;
  * @author TODAY 2021/4/2 23:21
  * @since 3.0
  */
-public class AutowiredParameterResolver implements ParameterResolver {
+public class AutowiredParameterResolver
+        extends AbstractParameterResolver implements ParameterResolver {
   private final WebApplicationContext context;
 
   public AutowiredParameterResolver(WebApplicationContext context) {
@@ -44,19 +45,19 @@ public class AutowiredParameterResolver implements ParameterResolver {
   }
 
   @Override
-  public Object resolveParameter(final RequestContext ctx, final MethodParameter parameter) throws Throwable {
+  protected Object missingParameter(MethodParameter parameter) {
+    throw new NoSuchBeanDefinitionException(parameter.getParameterClass());
+  }
+
+  @Override
+  protected Object resolveInternal(RequestContext ctx, MethodParameter parameter) throws Throwable {
     final Autowired autowired = parameter.getAnnotation(Autowired.class);
-    final Object bean;
     final String name = autowired.value();
     if (StringUtils.isEmpty(name)) {
-      bean = context.getBean(parameter.getParameterClass());
+      return context.getBean(parameter.getParameterClass());
     }
     else {
-      bean = context.getBean(name, parameter.getParameterClass());
+      return context.getBean(name, parameter.getParameterClass());
     }
-    if (bean == null && autowired.required()) {
-      throw new NoSuchBeanDefinitionException(parameter.getParameterClass());
-    }
-    return bean;
   }
 }
