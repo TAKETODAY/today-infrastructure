@@ -30,6 +30,7 @@ import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.AnnotationBeanDefinitionRegistrar;
 import cn.taketoday.framework.reactive.server.NettyServerInitializer;
 import cn.taketoday.framework.reactive.server.NettyWebServer;
+import cn.taketoday.web.RequestContextHolder;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
@@ -44,7 +45,20 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Import(NettyConfig.class)
 public @interface EnableNettyHandling {
 
+  /**
+   * determine using which  {@link NettyDispatcher}
+   *
+   * @see AsyncNettyDispatcherHandler
+   * @see SyncNettyDispatcherHandler
+   */
   boolean async() default true;
+
+  /**
+   * Using {@link io.netty.util.concurrent.FastThreadLocal}
+   * to hold {@link cn.taketoday.web.RequestContext}
+   */
+  boolean fastThreadLocal() default true;
+
 }
 
 class NettyConfig extends AnnotationBeanDefinitionRegistrar<EnableNettyHandling> {
@@ -99,6 +113,11 @@ class NettyConfig extends AnnotationBeanDefinitionRegistrar<EnableNettyHandling>
       else {
         registry.registerBean(SyncNettyDispatcherHandler.class);
       }
+    }
+
+    // replace context holder
+    if (target.fastThreadLocal()) {
+      RequestContextHolder.replaceContextHolder(new FastRequestThreadLocal());
     }
   }
 }

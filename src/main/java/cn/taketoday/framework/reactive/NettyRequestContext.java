@@ -231,11 +231,12 @@ public class NettyRequestContext
 
   @Override
   public Map<String, String[]> parameters() {
-    final Map<String, String[]> params = this.parameters;
-    if (params != null) {
-      return params;
+    Map<String, String[]> params = this.parameters;
+    if (params == null) {
+      params = parseParameters();
+      this.parameters = params;
     }
-    return this.parameters = parseParameters();
+    return params;
   }
 
   protected Map<String, String[]> parseParameters() {
