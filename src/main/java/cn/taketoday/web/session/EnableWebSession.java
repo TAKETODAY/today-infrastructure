@@ -22,17 +22,17 @@ package cn.taketoday.web.session;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.annotation.Props;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * @author TODAY <br>
- * 2019-10-03 00:30
+ * @author TODAY 2019-10-03 00:30
  */
 @Retention(RUNTIME)
 @Target({ TYPE, METHOD })
@@ -43,28 +43,47 @@ public @interface EnableWebSession {
 
 class WebSessionConfiguration {
 
-  @MissingBean
+  /**
+   * default {@link WebSessionManager} bean
+   */
+  @MissingBean(type = WebSessionManager.class)
   @Import({ WebSessionParameterResolver.class,
-          WebSessionAttributeParameterResolver.class })
-  public DefaultWebSessionManager webSessionManager(
-          @Autowired(required = false) TokenResolver tokenResolver,
-          @Autowired(required = false) WebSessionStorage sessionStorage,
-          @Autowired(required = false) SessionCookieConfiguration cookieConfiguration
-  ) {
-
-    if (tokenResolver == null) {
-      if (cookieConfiguration == null) {
-        tokenResolver = new CookieTokenResolver();
-      }
-      else {
-        tokenResolver = new CookieTokenResolver(cookieConfiguration);
-      }
-    }
-
-    if (sessionStorage == null) {
-      sessionStorage = new MemWebSessionStorage();
-    }
+                  WebSessionAttributeParameterResolver.class })
+  DefaultWebSessionManager webSessionManager(
+          TokenResolver tokenResolver, WebSessionStorage sessionStorage) {
     return new DefaultWebSessionManager(tokenResolver, sessionStorage);
+  }
+
+  /**
+   * default {@link WebSessionStorage} bean
+   *
+   * @since 3.0
+   */
+  @MissingBean(type = WebSessionStorage.class)
+  MemWebSessionStorage sessionStorage() {
+    return new MemWebSessionStorage();
+  }
+
+  /**
+   * default {@link SessionCookieConfiguration} bean
+   *
+   * @since 3.0
+   */
+  @Lazy
+  @MissingBean
+  @Props(prefix = "server.session.cookie.")
+  SessionCookieConfiguration sessionCookieConfiguration() {
+    return new SessionCookieConfiguration();
+  }
+
+  /**
+   * default {@link TokenResolver} bean
+   *
+   * @since 3.0
+   */
+  @MissingBean(type = TokenResolver.class)
+  CookieTokenResolver tokenResolver(SessionCookieConfiguration config) {
+    return new CookieTokenResolver(config);
   }
 
 }

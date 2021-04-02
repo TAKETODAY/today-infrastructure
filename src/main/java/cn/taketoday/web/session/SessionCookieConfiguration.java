@@ -23,7 +23,6 @@ package cn.taketoday.web.session;
 import java.net.HttpCookie;
 import java.time.Duration;
 
-import cn.taketoday.context.annotation.Props;
 import cn.taketoday.web.Constant;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,7 +35,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@Props(prefix = "server.session.cookie.")
 public class SessionCookieConfiguration {
 
   private String name = Constant.AUTHORIZATION;
