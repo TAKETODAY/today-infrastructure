@@ -31,17 +31,20 @@ import cn.taketoday.context.loader.AnnotationBeanDefinitionRegistrar;
 import cn.taketoday.framework.reactive.server.NettyServerInitializer;
 import cn.taketoday.framework.reactive.server.NettyWebServer;
 import cn.taketoday.web.RequestContextHolder;
+import cn.taketoday.web.session.EnableWebSession;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * @author TODAY <br>
- * 2019-11-22 00:30
+ * Enable Netty, Enable {@link cn.taketoday.web.session.WebSession}
+ *
+ * @author TODAY 2019-11-22 00:30
  */
 @Retention(RUNTIME)
 @Target({ TYPE, METHOD })
+@EnableWebSession
 @Import(NettyConfig.class)
 public @interface EnableNettyHandling {
 

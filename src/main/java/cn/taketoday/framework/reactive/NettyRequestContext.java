@@ -295,12 +295,12 @@ public class NettyRequestContext
 
   @Override
   public RedirectModel redirectModel() {
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void applyRedirectModel(RedirectModel redirectModel) {
-    //TODO
+    throw new UnsupportedOperationException();
   }
 
   @Override
