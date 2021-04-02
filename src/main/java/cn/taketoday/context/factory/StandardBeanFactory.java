@@ -46,7 +46,6 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.aware.ImportAware;
@@ -168,7 +167,6 @@ public class StandardBeanFactory
 
     final ConfigurableApplicationContext context = getApplicationContext();
     final BeanNameCreator beanNameCreator = getBeanNameCreator();
-    final ConfigurableEnvironment environment = context.getEnvironment();
 
     for (final Method method : ReflectionUtils.getDeclaredMethods(def.getBeanClass())) {
       final AnnotationAttributes[] components = getAnnotationAttributesArray(method, Component.class);
@@ -187,11 +185,6 @@ public class StandardBeanFactory
                           .setFactoryMethod(method)
                           .setDeclaringName(beanNameCreator.create(method.getDeclaringClass()));
 
-          if (method.isAnnotationPresent(Props.class)) {
-            // @Props on method
-            final List<PropertySetter> props = resolveProps(method, environment.getProperties());
-            stdDef.addPropertySetter(props);
-          }
           registerMissingBean(attributes, stdDef);
         }
       }
