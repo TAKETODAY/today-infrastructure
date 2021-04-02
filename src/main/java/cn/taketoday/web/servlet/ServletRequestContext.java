@@ -383,9 +383,8 @@ public class ServletRequestContext
   }
 
   @Override
-  public RedirectModel applyRedirectModel(RedirectModel redirectModel) {
+  public void applyRedirectModel(RedirectModel redirectModel) {
     request.getSession().setAttribute(KEY_REDIRECT_MODEL, redirectModel);
-    return redirectModel;
   }
 
   @Override

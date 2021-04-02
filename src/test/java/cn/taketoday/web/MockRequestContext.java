@@ -62,7 +62,6 @@ public class MockRequestContext extends AbstractRequestContext {
     return null;
   }
 
-
   @Override
   public String contentType() {
     return null;
@@ -170,11 +169,8 @@ public class MockRequestContext extends AbstractRequestContext {
   }
 
   @Override
-  public RedirectModel applyRedirectModel(RedirectModel redirectModel) {
-    return null;
+  public void applyRedirectModel(RedirectModel redirectModel) {
   }
-
-
 
   @Override
   public Object getAttribute(String name) {

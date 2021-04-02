@@ -58,7 +58,9 @@ public class ModelParameterResolver implements ParameterResolver {
                                  final MethodParameter parameter) throws Throwable {
 
     if (parameter.isAssignableFrom(RedirectModel.class)) { // RedirectModel
-      return context.applyRedirectModel(new RedirectModelAttributes());
+      final RedirectModelAttributes redirectModel = new RedirectModelAttributes();
+      context.applyRedirectModel(redirectModel);
+      return redirectModel;
     }
     if (parameter.isAssignableFrom(ModelAndView.class)) {
       return context.modelAndView();

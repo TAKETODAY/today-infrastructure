@@ -619,5 +619,5 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
 
   RedirectModel redirectModel();
 
-  RedirectModel applyRedirectModel(RedirectModel redirectModel);
+  void applyRedirectModel(RedirectModel redirectModel);
 }
