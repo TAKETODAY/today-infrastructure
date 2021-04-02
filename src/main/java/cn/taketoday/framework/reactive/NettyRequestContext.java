@@ -41,7 +41,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.http.DefaultHttpHeaders;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.resolver.ParameterReadFailedException;
-import cn.taketoday.web.ui.RedirectModel;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
@@ -294,16 +293,6 @@ public class NettyRequestContext
   }
 
   @Override
-  public RedirectModel redirectModel() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void applyRedirectModel(RedirectModel redirectModel) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void redirect(String location) {
     assertNotCommitted();
     status = HttpResponseStatus.FOUND;
@@ -479,16 +468,6 @@ public class NettyRequestContext
     assertNotCommitted();
     status = HttpResponseStatus.valueOf(sc, msg);
     send();
-  }
-
-  @Override
-  public <T> T nativeSession() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public <T> T nativeSession(Class<T> sessionClass) {
-    throw new UnsupportedOperationException();
   }
 
   @Override
