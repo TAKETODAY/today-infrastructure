@@ -50,7 +50,6 @@ import cn.taketoday.web.resolver.MultipartFileParsingException;
 import cn.taketoday.web.resolver.NotMultipartRequestException;
 import cn.taketoday.web.ui.Model;
 import cn.taketoday.web.ui.ModelAttributes;
-import cn.taketoday.web.ui.RedirectModel;
 import cn.taketoday.web.utils.ServletUtils;
 
 /**
@@ -333,20 +332,6 @@ public class ServletRequestContext
   }
 
   // Model
-
-  @Override
-  public RedirectModel redirectModel() {
-    final Object attribute = request.getSession().getAttribute(KEY_REDIRECT_MODEL);
-    if (attribute instanceof RedirectModel) {
-      return (RedirectModel) attribute;
-    }
-    return null;
-  }
-
-  @Override
-  public void applyRedirectModel(RedirectModel redirectModel) {
-    request.getSession().setAttribute(KEY_REDIRECT_MODEL, redirectModel);
-  }
 
   @Override
   protected Model createModel() {

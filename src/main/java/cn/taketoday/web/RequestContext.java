@@ -39,7 +39,6 @@ import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.ui.Model;
 import cn.taketoday.web.ui.ModelAndView;
-import cn.taketoday.web.ui.RedirectModel;
 
 /**
  * Context holder for request-specific state.
@@ -49,8 +48,6 @@ import cn.taketoday.web.ui.RedirectModel;
  * @since 2.3.7
  */
 public interface RequestContext extends Readable, Writable, Model, Flushable {
-
-  String KEY_REDIRECT_MODEL = RequestContext.class.getName() + ".redirect-model";
 
   HttpCookie[] EMPTY_COOKIES = {};
 
@@ -613,7 +610,4 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    */
   String[] pathVariables(String[] variables);
 
-  RedirectModel redirectModel();
-
-  void applyRedirectModel(RedirectModel redirectModel);
 }

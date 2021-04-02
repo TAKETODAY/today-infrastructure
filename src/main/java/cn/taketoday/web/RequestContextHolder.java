@@ -34,7 +34,6 @@ import cn.taketoday.context.utils.Assert;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.ui.ModelAndView;
-import cn.taketoday.web.ui.RedirectModel;
 
 /**
  * Holder class to expose the web request in the form of a thread-bound
@@ -222,15 +221,6 @@ public abstract class RequestContextHolder {
     @Override
     public String[] pathVariables(String[] variables) {
       return null;
-    }
-
-    @Override
-    public RedirectModel redirectModel() {
-      return null;
-    }
-
-    @Override
-    public void applyRedirectModel(RedirectModel redirectModel) {
     }
 
     @Override

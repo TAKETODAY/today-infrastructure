@@ -21,6 +21,7 @@ package cn.taketoday.web.resolver;
 
 import java.util.Map;
 
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.http.HttpHeaders;
@@ -28,6 +29,7 @@ import cn.taketoday.web.ui.Model;
 import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.ui.RedirectModel;
 import cn.taketoday.web.ui.RedirectModelAttributes;
+import cn.taketoday.web.ui.RedirectModelManager;
 
 /**
  * Supports {@link Model}, {@link RedirectModel}, HTTP request headers,
@@ -38,6 +40,12 @@ import cn.taketoday.web.ui.RedirectModelAttributes;
  * @see RedirectModel
  */
 public class ModelParameterResolver implements ParameterResolver {
+  private final RedirectModelManager modelManager;
+
+  public ModelParameterResolver(RedirectModelManager modelManager) {
+    Assert.notNull(modelManager, "RedirectModelManager must not be null");
+    this.modelManager = modelManager;
+  }
 
   @Override
   public boolean supports(final MethodParameter parameter) {
@@ -59,7 +67,7 @@ public class ModelParameterResolver implements ParameterResolver {
 
     if (parameter.isAssignableFrom(RedirectModel.class)) { // RedirectModel
       final RedirectModelAttributes redirectModel = new RedirectModelAttributes();
-      context.applyRedirectModel(redirectModel);
+      modelManager.applyModel(context, redirectModel);
       return redirectModel;
     }
     if (parameter.isAssignableFrom(ModelAndView.class)) {
@@ -76,6 +84,10 @@ public class ModelParameterResolver implements ParameterResolver {
       return context.asMap(); // Model Map
     }
     return context;
+  }
+
+  public RedirectModelManager getModelManager() {
+    return modelManager;
   }
 
 }

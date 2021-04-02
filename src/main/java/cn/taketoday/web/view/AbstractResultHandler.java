@@ -22,7 +22,6 @@ package cn.taketoday.web.view;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 
@@ -35,6 +34,7 @@ import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.ui.RedirectModel;
+import cn.taketoday.web.ui.RedirectModelManager;
 import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
@@ -50,6 +50,8 @@ public abstract class AbstractResultHandler
   private MessageConverter messageConverter;
   /** Template view resolver */
   private TemplateViewResolver templateViewResolver;
+  /** @since 3.0 */
+  private RedirectModelManager modelManager = RedirectModelManager.NOP;
 
   protected AbstractResultHandler() {}
 
@@ -84,7 +86,7 @@ public abstract class AbstractResultHandler
         handleImageView((RenderedImage) view, request);
       }
       else {
-        obtainMessageConverter().write(request, view);
+        handleResponseBody(request, view);
       }
     }
     else {
@@ -92,7 +94,13 @@ public abstract class AbstractResultHandler
     }
   }
 
-  protected void handleNull(RequestContext request) { }
+  protected void handleResponseBody(RequestContext request, Object view) throws IOException {
+    obtainMessageConverter().write(request, view);
+  }
+
+  protected void handleNull(RequestContext request) {
+    // noop
+  }
 
   /**
    * Resolve {@link ModelAndView} return type
@@ -118,7 +126,6 @@ public abstract class AbstractResultHandler
   }
 
   public void handleRedirect(final String redirect, final RequestContext context) throws IOException {
-
     if (StringUtils.isEmpty(redirect) || redirect.startsWith(Constant.HTTP)) {
       context.redirect(redirect);
     }
@@ -128,20 +135,17 @@ public abstract class AbstractResultHandler
   }
 
   public void handleString(final String resource, final RequestContext context) throws Throwable {
-
     if (resource.startsWith(Constant.REDIRECT_URL_PREFIX)) {
       handleRedirect(resource.substring(9), context);
     }
     else if (resource.startsWith(Constant.RESPONSE_BODY_PREFIX)) {
-      getMessageConverter().write(context, resource.substring(5));
+      handleResponseBody(context, resource.substring(5));
     }
     else {
-      final RedirectModel redirectModel = context.redirectModel();
+      final RedirectModel redirectModel = modelManager.getModel(context);
       if (redirectModel != null) {
-        for (final Entry<String, Object> entry : redirectModel.asMap().entrySet()) {
-          context.setAttribute(entry.getKey(), entry.getValue());
-        }
-        context.applyRedirectModel(null);
+        context.setAttributes(redirectModel.asMap());
+        modelManager.applyModel(context, null);
       }
       getTemplateViewResolver().resolveView(resource, context);
     }
@@ -156,6 +160,7 @@ public abstract class AbstractResultHandler
    *         Image instance
    *
    * @throws IOException
+   *         if an error occurs during writing.
    * @since 2.3.3
    */
   public void handleImageView(final RenderedImage image, final RequestContext context) throws IOException {
@@ -193,4 +198,11 @@ public abstract class AbstractResultHandler
     this.templateViewResolver = templateViewResolver;
   }
 
+  public void setModelManager(RedirectModelManager modelManager) {
+    this.modelManager = modelManager;
+  }
+
+  public RedirectModelManager getModelManager() {
+    return modelManager;
+  }
 }

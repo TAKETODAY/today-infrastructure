@@ -72,6 +72,7 @@ import cn.taketoday.web.resolver.date.DateParameterResolver;
 import cn.taketoday.web.resolver.date.LocalDateParameterResolver;
 import cn.taketoday.web.resolver.date.LocalDateTimeParameterResolver;
 import cn.taketoday.web.resolver.date.LocalTimeParameterResolver;
+import cn.taketoday.web.ui.RedirectModelManager;
 import cn.taketoday.web.validation.CompositeValidator;
 import cn.taketoday.web.validation.Validator;
 import cn.taketoday.web.view.HttpStatusResultHandler;
@@ -289,16 +290,34 @@ public class WebApplicationLoader
     final MessageConverter messageConverter = context.getBean(MessageConverter.class);
     Assert.state(messageConverter != null, "No MessageConverter in this web application");
 
+    final RedirectModelManager modelManager = context.getBean(RedirectModelManager.class);
+
+    VoidResultHandler voidResultHandler
+            = new VoidResultHandler(viewResolver, messageConverter, bufferSize);
+    ObjectResultHandler objectResultHandler
+            = new ObjectResultHandler(viewResolver, messageConverter, bufferSize);
+    ModelAndViewResultHandler modelAndViewResultHandler
+            = new ModelAndViewResultHandler(viewResolver, messageConverter, bufferSize);
+    ResponseEntityResultHandler responseEntityResultHandler
+            = new ResponseEntityResultHandler(viewResolver, messageConverter, bufferSize);
+
+    if (modelManager != null) {
+      voidResultHandler.setModelManager(modelManager);
+      objectResultHandler.setModelManager(modelManager);
+      modelAndViewResultHandler.setModelManager(modelManager);
+      responseEntityResultHandler.setModelManager(modelManager);
+    }
+
     handlers.add(new ImageResultHandler());
     handlers.add(new ResourceResultHandler(bufferSize));
     handlers.add(new TemplateResultHandler(viewResolver));
-    handlers.add(new VoidResultHandler(viewResolver, messageConverter, bufferSize));
-    handlers.add(new ObjectResultHandler(viewResolver, messageConverter, bufferSize));
-    handlers.add(new ModelAndViewResultHandler(viewResolver, messageConverter, bufferSize));
-    handlers.add(new ResponseEntityResultHandler(viewResolver, messageConverter, bufferSize));
+
+    handlers.add(voidResultHandler);
+    handlers.add(objectResultHandler);
+    handlers.add(modelAndViewResultHandler);
+    handlers.add(responseEntityResultHandler);
 
     handlers.add(new ResponseBodyResultHandler(messageConverter));
-
     handlers.add(new HttpStatusResultHandler());
 
     // 自定义
@@ -414,8 +433,13 @@ public class WebApplicationLoader
     // Header
     resolvers.add(new HeaderParameterResolver());
 
+    RedirectModelManager modelManager = context.getBean(RedirectModelManager.class);
+    if (modelManager == null) {
+      log.info("RedirectModel disabled");
+      modelManager = RedirectModelManager.NOP;
+    }
     resolvers.add(new MapParameterResolver());
-    resolvers.add(new ModelParameterResolver());
+    resolvers.add(new ModelParameterResolver(modelManager));
     resolvers.add(new ArrayParameterResolver());
     resolvers.add(new StreamParameterResolver());
 

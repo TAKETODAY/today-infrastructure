@@ -30,7 +30,6 @@ import java.util.Map;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.ui.Model;
-import cn.taketoday.web.ui.RedirectModel;
 
 /**
  * @author TODAY 2021/3/10 16:35
@@ -152,15 +151,6 @@ public class MockRequestContext extends AbstractRequestContext {
   @Override
   public <T> T nativeResponse(Class<T> responseClass) {
     return null;
-  }
-
-  @Override
-  public RedirectModel redirectModel() {
-    return null;
-  }
-
-  @Override
-  public void applyRedirectModel(RedirectModel redirectModel) {
   }
 
   @Override
