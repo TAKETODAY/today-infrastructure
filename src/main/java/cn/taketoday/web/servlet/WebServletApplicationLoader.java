@@ -85,20 +85,15 @@ public class WebServletApplicationLoader
   @Override
   protected String getWebMvcConfigLocation() {
     String webMvcConfigLocation = super.getWebMvcConfigLocation();
-
     if (StringUtils.isEmpty(webMvcConfigLocation)) {
       webMvcConfigLocation = getServletContext().getInitParameter(Constant.WEB_MVC_CONFIG_LOCATION);
     }
-
     if (StringUtils.isEmpty(webMvcConfigLocation)) { // scan from '/'
       final String rootPath = getServletContext().getRealPath("/");
-
       final HashSet<String> paths = new HashSet<>();
-
       final File dir = new File(rootPath);
       if (dir.exists()) {
         log.trace("Finding Configuration File From Root Path: [{}]", rootPath);
-
         scanXml(dir, paths, (path -> (path.isDirectory() || path.getName().endsWith(".xml"))));
         return StringUtils.arrayToString(paths.toArray(new String[paths.size()]));
       }
@@ -122,9 +117,9 @@ public class WebServletApplicationLoader
    *            directory
    */
   protected void scanXml(final File dir, final Set<String> files, FileFilter filter) {
-
-    log.trace("Enter [{}]", dir.getAbsolutePath());
-
+    if(log.isTraceEnabled()) {
+      log.trace("Enter [{}]", dir.getAbsolutePath());
+    }
     final File[] listFiles = dir.listFiles(filter);
     if (listFiles == null) {
       log.error("File: [{}] Does not exist", dir);
@@ -192,25 +187,19 @@ public class WebServletApplicationLoader
 
   @Override
   protected void configureParameterResolver(List<ParameterResolver> resolvers, WebMvcConfiguration mvcConfiguration) {
-
     // Servlet cookies parameter
     // ----------------------------
-
     resolvers.add(new ServletParameterResolver.ServletCookieParameterResolver());
     resolvers.add(new ServletParameterResolver.ServletCookieArrayParameterResolver());
     resolvers.add(new ServletParameterResolver.ServletCookieCollectionParameterResolver());
-
     // Servlet components parameter
     // ----------------------------
-
     resolvers.add(new ServletParameterResolver.HttpSessionParameterResolver());
     resolvers.add(new ServletParameterResolver.ServletRequestParameterResolver());
     resolvers.add(new ServletParameterResolver.ServletResponseParameterResolver());
     resolvers.add(new ServletParameterResolver.ServletContextParameterResolver(getServletContext()));
-
     // Attributes
     // ------------------------
-
     resolvers.add(new ServletParameterResolver.HttpSessionAttributeParameterResolver());
     resolvers.add(new ServletParameterResolver.ServletContextAttributeParameterResolver(getServletContext()));
 
@@ -219,7 +208,6 @@ public class WebServletApplicationLoader
 
   @Override
   protected void checkFrameWorkComponents(WebApplicationContext context) {
-
     if (!context.containsBeanDefinition(TemplateViewResolver.class)) {
       // use freemarker view resolver
       context.registerBean(Constant.TEMPLATE_VIEW_RESOLVER, FreeMarkerTemplateViewResolver.class);
@@ -251,7 +239,6 @@ public class WebServletApplicationLoader
 
   @Override
   protected void configureInitializer(List<WebApplicationInitializer> initializers, WebMvcConfiguration config) {
-
     final WebServletApplicationContext ctx = obtainApplicationContext();
 
     configureFilter(ctx, initializers);
