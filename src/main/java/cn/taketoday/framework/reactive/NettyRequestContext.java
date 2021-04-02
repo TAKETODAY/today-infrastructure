@@ -335,7 +335,7 @@ public class NettyRequestContext
     this.keepAlive = keepAlive;
   }
 
-  public boolean isKeepAlive() {
+  private boolean isKeepAlive() {
     Boolean keepAlive = this.keepAlive;
     if (keepAlive == null) {
       return this.keepAlive = HttpUtil.isKeepAlive(request);
@@ -356,34 +356,35 @@ public class NettyRequestContext
    */
   public void send() {
     assertNotCommitted();
-    // set Content-Length header
-    HttpHeaders responseHeaders = originalResponseHeaders;
-    if (responseHeaders == null) {
-      responseHeaders = originalResponseHeaders();
-      responseHeaders.setInt(HttpHeaderNames.CONTENT_LENGTH, readableBytes());
-    }
-    else if (responseHeaders.get(HttpHeaderNames.CONTENT_LENGTH) == null) {
-      responseHeaders.setInt(HttpHeaderNames.CONTENT_LENGTH, readableBytes());
-    }
     // obtain response object
-    final ChannelHandlerContext context = this.channelContext;
     FullHttpResponse response = this.response;
     if (response == null) {
+      // flush writer's content to responseBody
+      if (writer != null) {
+        writer.flush();
+      }
       ByteBuf responseBody = this.responseBody;
       if (responseBody == null) {
         responseBody = Unpooled.EMPTY_BUFFER;
       }
       response = new DefaultFullHttpResponse(config.getHttpVersion(), status, responseBody,
-                                             responseHeaders, config.getTrailingHeaders().get());
+                                             originalResponseHeaders(), config.getTrailingHeaders().get());
     }
     else {
+      // apply HTTP status
       response.setStatus(status);
+      // flush writer
+      if (writer != null) {
+        writer.flush();
+      }
     }
-    // flush writer
-    if (writer != null) {
-      writer.flush();
+    // set Content-Length header
+    final HttpHeaders responseHeaders = originalResponseHeaders(); // never null
+    if (responseHeaders.get(HttpHeaderNames.CONTENT_LENGTH) == null) {
+      responseHeaders.setInt(HttpHeaderNames.CONTENT_LENGTH, readableBytes());
     }
     // write response
+    final ChannelHandlerContext context = this.channelContext;
     if (isKeepAlive()) {
       responseHeaders.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
       context.writeAndFlush(response, context.voidPromise());
@@ -401,7 +402,7 @@ public class NettyRequestContext
 
   @Override
   public void contentLength(long length) {
-    originalResponseHeaders().set(Constant.CONTENT_LENGTH, length);
+    originalResponseHeaders().set(HttpHeaderNames.CONTENT_LENGTH, length);
   }
 
   @Override
@@ -423,6 +424,9 @@ public class NettyRequestContext
     resetResponseHeader();
 
     if (responseBody != null) {
+      if (writer != null) {
+        writer.flush(); // flush to responseBody
+      }
       responseBody.clear();
     }
     status = HttpResponseStatus.OK;
