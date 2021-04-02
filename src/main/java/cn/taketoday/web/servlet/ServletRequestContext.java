@@ -34,10 +34,6 @@ import java.util.Map;
 import java.util.function.Function;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletRequestWrapper;
-import javax.servlet.ServletResponse;
-import javax.servlet.ServletResponseWrapper;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -55,6 +51,7 @@ import cn.taketoday.web.resolver.NotMultipartRequestException;
 import cn.taketoday.web.ui.Model;
 import cn.taketoday.web.ui.ModelAttributes;
 import cn.taketoday.web.ui.RedirectModel;
+import cn.taketoday.web.utils.ServletUtils;
 
 /**
  * @author TODAY <br>
@@ -82,54 +79,18 @@ public class ServletRequestContext
   }
 
   @SuppressWarnings("unchecked")
-  public <T> T nativeSession() {
-    return (T) request.getSession();
-  }
-
-  @SuppressWarnings("unchecked")
   public <T> T nativeRequest() {
     return (T) request;
   }
 
   @Override
-  public <T> T nativeSession(Class<T> sessionClass) {
-    return sessionClass.cast(request.getSession());
-  }
-
-  @Override
   public <T> T nativeRequest(Class<T> requestClass) {
-    return getNativeRequest(request, requestClass);
-  }
-
-  @SuppressWarnings("unchecked")
-  public static <T> T getNativeRequest(ServletRequest request, Class<T> requiredType) {
-    if (requiredType != null) {
-      if (requiredType.isInstance(request)) {
-        return (T) request;
-      }
-      else if (request instanceof ServletRequestWrapper) {
-        return getNativeRequest(((ServletRequestWrapper) request).getRequest(), requiredType);
-      }
-    }
-    return null;
-  }
-
-  @SuppressWarnings("unchecked")
-  public static <T> T getNativeResponse(ServletResponse response, Class<T> requiredType) {
-    if (requiredType != null) {
-      if (requiredType.isInstance(response)) {
-        return (T) response;
-      }
-      else if (response instanceof ServletResponseWrapper) {
-        return getNativeResponse(((ServletResponseWrapper) response).getResponse(), requiredType);
-      }
-    }
-    return null;
+    return ServletUtils.getNativeRequest(request, requestClass);
   }
 
   @Override
   public <T> T nativeResponse(Class<T> responseClass) {
-    return getNativeResponse(response, responseClass);
+    return ServletUtils.getNativeResponse(response, responseClass);
   }
 
   @SuppressWarnings("unchecked")

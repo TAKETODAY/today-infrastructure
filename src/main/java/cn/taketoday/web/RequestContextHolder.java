@@ -73,10 +73,6 @@ public abstract class RequestContextHolder {
     return currentContext().nativeResponse();
   }
 
-  public static <T> T currentSession() {
-    return currentContext().nativeSession();
-  }
-
   /**
    * replace {@link RequestThreadLocal}
    *
@@ -247,7 +243,8 @@ public abstract class RequestContextHolder {
       return null;
     }
 
-    @Override public boolean hasModelAndView() {
+    @Override
+    public boolean hasModelAndView() {
       return false;
     }
 
@@ -304,16 +301,6 @@ public abstract class RequestContextHolder {
     }
 
     @Override public HttpHeaders responseHeaders() {
-      return null;
-    }
-
-    @Override
-    public <T> T nativeSession() {
-      return null;
-    }
-
-    @Override
-    public <T> T nativeSession(Class<T> sessionClass) {
       return null;
     }
 

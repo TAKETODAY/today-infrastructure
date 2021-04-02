@@ -234,7 +234,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   }
 
   private void applyHeaders(final RequestContext context) {
-    if(context instanceof AbstractRequestContext) {
+    if (context instanceof AbstractRequestContext) {
       ((AbstractRequestContext) context).applyHeaders();
     }
   }
@@ -340,4 +340,5 @@ public class DispatcherHandler extends WebApplicationContextSupport {
     Assert.notNull(resultHandlers, "resultHandlers must not be null");
     this.resultHandlers = resultHandlers;
   }
+
 }

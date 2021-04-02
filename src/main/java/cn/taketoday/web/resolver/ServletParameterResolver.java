@@ -34,6 +34,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Application;
 import cn.taketoday.web.annotation.SessionAttribute;
 import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.utils.ServletUtils;
 
 /**
  * @author TODAY <br>
@@ -75,8 +76,9 @@ public class ServletParameterResolver {
     }
 
     @Override
-    public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-      return context.nativeSession();
+    public Object resolveParameter(
+            final RequestContext context, final MethodParameter parameter) throws Throwable {
+      return ServletUtils.getHttpSession(context);
     }
   }
 
@@ -89,7 +91,11 @@ public class ServletParameterResolver {
 
     @Override
     public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-      return context.nativeSession(HttpSession.class).getAttribute(parameter.getName());
+      final HttpSession httpSession = ServletUtils.getHttpSession(context, false);
+      if (httpSession == null) {
+        return null;
+      }
+      return httpSession.getAttribute(parameter.getName());
     }
   }
 

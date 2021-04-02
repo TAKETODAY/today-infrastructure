@@ -27,13 +27,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import cn.taketoday.context.factory.BeanDefinition;
+import cn.taketoday.context.factory.ObjectFactory;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.ServletContextAware;
 import cn.taketoday.web.StandardWebBeanFactory;
+import cn.taketoday.web.utils.ServletUtils;
 
 /**
- * @author TODAY <br>
- *         2019-03-23 14:59
+ * @author TODAY 2019-03-23 14:59
  */
 public class StandardWebServletBeanFactory extends StandardWebBeanFactory {
 
@@ -43,9 +44,7 @@ public class StandardWebServletBeanFactory extends StandardWebBeanFactory {
 
   @Override
   protected void awareInternal(final Object bean, final BeanDefinition def) {
-
     super.awareInternal(bean, def);
-
     if (bean instanceof ServletContextAware) {
       ((ServletContextAware) bean).setServletContext(getApplicationContext().getServletContext());
     }
@@ -56,10 +55,16 @@ public class StandardWebServletBeanFactory extends StandardWebBeanFactory {
 
   @Override
   protected Map<Class<?>, Object> createObjectFactories() {
-
     final Map<Class<?>, Object> servletEnv = super.createObjectFactories();
+    // @since 3.0
+    final class HttpSessionFactory implements ObjectFactory<HttpSession> {
+      @Override
+      public HttpSession getObject() {
+        return ServletUtils.getHttpSession(RequestContextHolder.currentContext());
+      }
+    }
 
-    servletEnv.put(HttpSession.class, factory(RequestContextHolder::currentSession));
+    servletEnv.put(HttpSession.class, new HttpSessionFactory());
     servletEnv.put(HttpServletRequest.class, factory(RequestContextHolder::currentRequest));
     servletEnv.put(HttpServletResponse.class, factory(RequestContextHolder::currentResponse));
 

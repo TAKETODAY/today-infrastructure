@@ -20,7 +20,9 @@
 package cn.taketoday.web.utils;
 
 import javax.servlet.ServletRequest;
+import javax.servlet.ServletRequestWrapper;
 import javax.servlet.ServletResponse;
+import javax.servlet.ServletResponseWrapper;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -53,6 +55,9 @@ public abstract class ServletUtils {
 
   /**
    * Get HttpSession
+   *
+   * @throws IllegalStateException
+   *         Not run in servlet
    */
   public static HttpSession getHttpSession(final RequestContext context) {
     return getHttpSession(context, true);
@@ -85,6 +90,8 @@ public abstract class ServletUtils {
    * <code>create</code> is <code>false</code>
    * and the request has no valid session
    *
+   * @throws IllegalStateException
+   *         Not run in servlet
    * @see #getHttpSession(RequestContext)
    */
   public static HttpSession getHttpSession(final RequestContext context, boolean create) {
@@ -93,6 +100,32 @@ public abstract class ServletUtils {
       return request.getSession(create);
     }
     throw new IllegalStateException("Not run in servlet");
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <T> T getNativeRequest(ServletRequest request, Class<T> requiredType) {
+    if (requiredType != null) {
+      if (requiredType.isInstance(request)) {
+        return (T) request;
+      }
+      else if (request instanceof ServletRequestWrapper) {
+        return getNativeRequest(((ServletRequestWrapper) request).getRequest(), requiredType);
+      }
+    }
+    return null;
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <T> T getNativeResponse(ServletResponse response, Class<T> requiredType) {
+    if (requiredType != null) {
+      if (requiredType.isInstance(response)) {
+        return (T) response;
+      }
+      else if (response instanceof ServletResponseWrapper) {
+        return getNativeResponse(((ServletResponseWrapper) response).getResponse(), requiredType);
+      }
+    }
+    return null;
   }
 
 }

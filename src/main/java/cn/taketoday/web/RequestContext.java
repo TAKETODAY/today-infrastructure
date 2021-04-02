@@ -572,10 +572,6 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
 
   // ----------------------
 
-  <T> T nativeSession();
-
-  <T> T nativeSession(Class<T> sessionClass);
-
   /**
    * Native request : HttpServletRequest
    */

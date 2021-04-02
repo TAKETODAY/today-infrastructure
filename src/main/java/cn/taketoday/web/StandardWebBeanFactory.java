@@ -24,6 +24,9 @@ import java.util.Map;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.ObjectFactory;
 import cn.taketoday.context.factory.StandardBeanFactory;
+import cn.taketoday.context.utils.Assert;
+import cn.taketoday.web.session.WebSession;
+import cn.taketoday.web.session.WebSessionManager;
 
 /**
  * @author TODAY <br>
@@ -47,6 +50,25 @@ public class StandardWebBeanFactory extends StandardBeanFactory {
   @Override
   protected Map<Class<?>, Object> createObjectFactories() {
     final Map<Class<?>, Object> env = super.createObjectFactories();
+    // @since 3.0
+    final class WebSessionFactory implements ObjectFactory<WebSession> {
+      WebSessionManager sessionManager;
+
+      private WebSessionManager obtainWebSessionManager() {
+        if (sessionManager == null) {
+          sessionManager = getBean(WebSessionManager.class);
+          Assert.state(sessionManager != null, "You must enable web session -> @EnableWebSession");
+        }
+        return sessionManager;
+      }
+
+      @Override
+      public WebSession getObject() {
+        final RequestContext context = RequestContextHolder.currentContext();
+        return obtainWebSessionManager().getSession(context);
+      }
+    }
+    env.put(WebSession.class, new WebSessionFactory());
     env.put(RequestContext.class, factory(RequestContextHolder::currentContext));
     return env;
   }

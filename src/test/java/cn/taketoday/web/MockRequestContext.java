@@ -133,15 +133,6 @@ public class MockRequestContext extends AbstractRequestContext {
 
   }
 
-  @Override
-  public <T> T nativeSession() {
-    return null;
-  }
-
-  @Override
-  public <T> T nativeSession(Class<T> sessionClass) {
-    return null;
-  }
 
   @Override
   public <T> T nativeRequest() {

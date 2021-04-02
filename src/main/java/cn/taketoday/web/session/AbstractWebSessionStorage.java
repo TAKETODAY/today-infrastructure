@@ -24,7 +24,6 @@ package cn.taketoday.web.session;
  *         2020-04-12 10:27
  */
 public abstract class AbstractWebSessionStorage implements WebSessionStorage {
-
   private final long expire;
 
   public AbstractWebSessionStorage(long expire) {
