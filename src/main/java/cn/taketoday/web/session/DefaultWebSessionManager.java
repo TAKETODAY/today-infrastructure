@@ -20,12 +20,13 @@
 package cn.taketoday.web.session;
 
 import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 
 /**
  * @author TODAY <br>
- *         2019-09-27 19:58
+ * 2019-09-27 19:58
  */
 public class DefaultWebSessionManager implements WebSessionManager {
 
@@ -44,67 +45,80 @@ public class DefaultWebSessionManager implements WebSessionManager {
           @Autowired(required = false) TokenResolver tokenResolver,
           @Autowired(required = false) WebSessionStorage sessionStorage) //
   {
-    if (sessionStorage == null) {
-      this.setSessionStorage(new MemWebSessionStorage());
-    }
-    else {
-      this.setSessionStorage(sessionStorage);
-    }
     if (tokenResolver == null) {
-      this.setTokenResolver(new CookieTokenResolver());
+      tokenResolver = new CookieTokenResolver();
     }
-    else {
-      this.setTokenResolver(tokenResolver);
+
+    if (sessionStorage == null) {
+      sessionStorage = new MemWebSessionStorage();
     }
+
+    setTokenResolver(tokenResolver);
+    setSessionStorage(sessionStorage);
   }
 
   @Override
   public WebSession createSession() {
-
-    String token = StringUtils.getUUIDString();
-
-    final WebSessionStorage sessionStorage = getSessionStorage();
+    String token = generateToken();
+    final WebSessionStorage sessionStorage = obtainSessionStorage();
     while (sessionStorage.contains(token)) {
-      token = StringUtils.getUUIDString();
+      token = generateToken();
     }
 
-    final DefaultSession ret = new DefaultSession(token, sessionStorage);
+    final WebSession ret = createSessionInternal(token, sessionStorage);
     sessionStorage.store(token, ret);
     return ret;
   }
 
+  /**
+   * default is create a {@link DefaultSession},
+   * subclasses can override this to customize {@link WebSession} implementation
+   *
+   * @param token
+   *         session ID
+   * @param sessionStorage
+   *         {@link WebSessionStorage}
+   */
+  protected WebSession createSessionInternal(final String token, final WebSessionStorage sessionStorage) {
+    return new DefaultSession(token, sessionStorage);
+  }
+
+  /**
+   * create a new session id
+   */
+  protected String generateToken() {
+    return StringUtils.getUUIDString();
+  }
+
   @Override
-  public WebSession createSession(RequestContext context) {
+  public WebSession createSession(final RequestContext context) {
     final WebSession ret = createSession();
-
-    getTokenResolver().saveToken(context, ret);
+    obtainTokenResolver().saveToken(context, ret);
     return ret;
   }
 
   @Override
-  public WebSession getSession(String id) {
-
-    final WebSessionStorage sessionStorage = getSessionStorage();
+  public WebSession getSession(final String id) {
+    final WebSessionStorage sessionStorage = obtainSessionStorage();
     WebSession ret = sessionStorage.get(id);
-
     if (ret == null) {
-      sessionStorage.store(id, ret = new DefaultSession(id, sessionStorage));
+      ret = createSessionInternal(id, sessionStorage);
+      sessionStorage.store(id, ret);
     }
-
     return ret;
   }
 
   @Override
-  public WebSession getSession(RequestContext context) {
+  public WebSession getSession(final RequestContext context) {
     return getSession(context, true);
   }
 
   @Override
-  public WebSession getSession(RequestContext context, boolean create) {
-    final String token = getTokenResolver().getToken(context);
+  public WebSession getSession(final RequestContext context, final boolean create) {
+    final String token = obtainTokenResolver().getToken(context);
 
     WebSession ret = null;
-    if ((StringUtils.isEmpty(token) || (ret = getSessionStorage().get(token)) == null) && create) {
+    if ((StringUtils.isEmpty(token) || (ret = obtainSessionStorage().get(token)) == null) && create) {
       return createSession(context);
     }
     return ret;
@@ -112,6 +126,18 @@ public class DefaultWebSessionManager implements WebSessionManager {
 
   //
   // -------------------------------------------
+
+  private WebSessionStorage obtainSessionStorage() {
+    final WebSessionStorage ret = getSessionStorage();
+    Assert.state(ret != null, "No WebSessionStorage.");
+    return ret;
+  }
+
+  private TokenResolver obtainTokenResolver() {
+    final TokenResolver ret = getTokenResolver();
+    Assert.state(ret != null, "No TokenResolver.");
+    return ret;
+  }
 
   public TokenResolver getTokenResolver() {
     return tokenResolver;

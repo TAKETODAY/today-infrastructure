@@ -23,14 +23,25 @@ import cn.taketoday.web.RequestContext;
 
 /**
  * @author TODAY <br>
- *         2019-09-27 20:24
+ * 2019-09-27 20:24
  */
 public interface WebSessionManager {
-
+  /**
+   * create a new session
+   */
   WebSession createSession();
 
+  /**
+   * create a new session associated with {@link RequestContext}
+   */
   WebSession createSession(RequestContext context);
 
+  /**
+   * Get a session with given session id
+   * <p>
+   * If there is not a session,create one.
+   * </p>
+   */
   WebSession getSession(String id);
 
   /**
@@ -38,7 +49,8 @@ public interface WebSessionManager {
    * does not have a session, creates one.
    *
    * @param context
-   *            Current request
+   *         Current request
+   *
    * @return the <code>WebSession</code> associated with this request
    *
    * @see #getSession(RequestContext, boolean)
@@ -61,15 +73,15 @@ public interface WebSessionManager {
    * response is committed, an IllegalStateException is thrown.
    *
    * @param context
-   *            Current request
+   *         Current request
    * @param create
-   *            <code>true</code> to create a new session for this request if
-   *            necessary; <code>false</code> to return <code>null</code> if
-   *            there's no current session
+   *         <code>true</code> to create a new session for this request if
+   *         necessary; <code>false</code> to return <code>null</code> if
+   *         there's no current session
    *
    * @return the <code>WebSession</code> associated with this request or
-   *         <code>null</code> if <code>create</code> is <code>false</code> and
-   *         the request has no valid session
+   * <code>null</code> if <code>create</code> is <code>false</code> and
+   * the request has no valid session
    *
    * @see #getSession(RequestContext)
    */
