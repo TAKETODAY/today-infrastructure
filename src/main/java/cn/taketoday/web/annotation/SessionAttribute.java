@@ -39,4 +39,9 @@ public @interface SessionAttribute {
   /** Session attribute name */
   String value() default Constant.BLANK;
 
+  /**
+   * If required == true when request parameter is null, will be throws exception
+   */
+  boolean required() default false;
+
 }

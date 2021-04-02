@@ -19,31 +19,40 @@
  */
 package cn.taketoday.web.session;
 
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.SessionAttribute;
 import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.resolver.AbstractParameterResolver;
 import cn.taketoday.web.resolver.OrderedParameterResolver;
 
 /**
  * @author TODAY <br>
- *         2019-09-27 22:42
+ * 2019-09-27 22:42
  */
-public class WebSessionAttributeParameterResolver implements OrderedParameterResolver {
+public class WebSessionAttributeParameterResolver
+        extends AbstractParameterResolver implements OrderedParameterResolver {
 
   private final WebSessionManager sessionManager;
 
   public WebSessionAttributeParameterResolver(WebSessionManager sessionManager) {
+    Assert.notNull(sessionManager, "sessionManager must not be null");
     this.sessionManager = sessionManager;
   }
 
   @Override
-  public boolean supports(MethodParameter parameter) {
+  public boolean supports(final MethodParameter parameter) {
     return parameter.isAnnotationPresent(SessionAttribute.class);
   }
 
   @Override
-  public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
-    return sessionManager.getSession(context).getAttribute(parameter.getName());
+  protected final Object resolveInternal(
+          final RequestContext context, final MethodParameter parameter) throws Throwable {
+    final WebSession session = sessionManager.getSession(context, false);
+    if (session == null) {
+      return null;
+    }
+    return session.getAttribute(parameter.getName());
   }
 
   @Override
