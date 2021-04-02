@@ -23,6 +23,8 @@ import javax.servlet.Servlet;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.env.ConfigurableEnvironment;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.framework.server.WebServer;
 import cn.taketoday.framework.utils.ApplicationUtils;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
@@ -31,11 +33,12 @@ import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
  * {@link Servlet} based Web {@link ApplicationContext}
  *
  * @author TODAY <br>
- *         2019-01-17 15:54
+ * 2019-01-17 15:54
  */
 public class ServletWebServerApplicationContext
         extends StandardWebServletApplicationContext
         implements WebServerApplicationContext, ConfigurableWebServerApplicationContext {
+  private static final Logger log = LoggerFactory.getLogger(ServletWebServerApplicationContext.class);
 
   private WebServer webServer;
 
@@ -53,7 +56,7 @@ public class ServletWebServerApplicationContext
    * Construct with given {@link ConfigurableEnvironment}
    *
    * @param env
-   *            {@link ConfigurableEnvironment} instance
+   *         {@link ConfigurableEnvironment} instance
    */
   public ServletWebServerApplicationContext(ConfigurableEnvironment env) {
     this(env, null);
@@ -66,6 +69,8 @@ public class ServletWebServerApplicationContext
 
   @Override
   protected void preRefresh() {
+    log.info("Looking For: [{}] Bean.", WebServer.class.getName());
+
     this.webServer = ApplicationUtils.obtainWebServer(this);
     super.preRefresh();
   }
@@ -84,7 +89,7 @@ public class ServletWebServerApplicationContext
    * Apply startup class
    *
    * @param startupClass
-   *            Startup class such as Application or XXXApplication
+   *         Startup class such as Application or XXXApplication
    */
   public void setStartupClass(Class<?> startupClass) {
     this.startupClass = startupClass;

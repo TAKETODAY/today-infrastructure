@@ -32,8 +32,6 @@ import java.util.Map;
 
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.ConfigurableWebServerApplicationContext;
 import cn.taketoday.framework.Constant;
@@ -51,8 +49,6 @@ public abstract class ApplicationUtils {
     ConfigurableEnvironment environment = beanFactory.getEnvironment();
     // disable web mvc xml
     environment.setProperty(Constant.ENABLE_WEB_MVC_XML, "false");
-    final Logger logger = LoggerFactory.getLogger(ApplicationUtils.class);
-    logger.info("Looking For: [{}] Bean.", WebServer.class.getName());
 
     // Get WebServer instance
     WebServer webServer = beanFactory.getBean(WebServer.class);
