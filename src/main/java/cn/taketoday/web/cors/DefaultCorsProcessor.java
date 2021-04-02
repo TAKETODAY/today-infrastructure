@@ -88,7 +88,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
    */
   protected void rejectRequest(RequestContext context) throws IOException {
 
-    context.status(HttpStatus.FORBIDDEN);
+    context.setStatus(HttpStatus.FORBIDDEN);
     context.getOutputStream()
             .write("Invalid CORS request".getBytes(Constant.DEFAULT_CHARSET));
     context.flush();

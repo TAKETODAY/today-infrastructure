@@ -245,17 +245,17 @@ public class ServletRequestContext
   }
 
   @Override
-  public void status(int sc) {
+  public void setStatus(int sc) {
     response.setStatus(sc);
   }
 
   @Override
-  public void status(final int status, final String message) {
+  public void setStatus(final int status, final String message) {
     response.setStatus(status, message);
   }
 
   @Override
-  public int status() {
+  public int getStatus() {
     return response.getStatus();
   }
 

@@ -107,15 +107,15 @@ public class MockRequestContext extends AbstractRequestContext {
   @Override public void redirect(String location) throws IOException {
   }
 
-  @Override public void status(int sc) {
+  @Override public void setStatus(int sc) {
   }
 
   @Override
-  public void status(int status, String message) {
+  public void setStatus(int status, String message) {
   }
 
   @Override
-  public int status() {
+  public int getStatus() {
     return 0;
   }
 

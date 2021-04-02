@@ -117,7 +117,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
       return;
     }
 
-    context.status(HttpStatus.OK);
+    context.setStatus(HttpStatus.OK);
 
     final ResourceMapping resourceMapping = getMapping();
     applyHeaders(context.responseHeaders(), lastModified, eTag, resourceMapping);

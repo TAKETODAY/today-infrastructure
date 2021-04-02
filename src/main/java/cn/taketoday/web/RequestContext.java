@@ -399,7 +399,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @param sc
    *         the status code
    */
-  void status(int sc);
+  void setStatus(int sc);
 
   /**
    * Sets the status code and message for this response.
@@ -409,7 +409,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @param message
    *         the status message
    */
-  void status(int status, String message);
+  void setStatus(int status, String message);
 
   /**
    * Sets the status code and message for this response.
@@ -417,8 +417,8 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @param status
    *         the status
    */
-  default void status(HttpStatus status) {
-    status(status.value(), status.getReasonPhrase());
+  default void setStatus(HttpStatus status) {
+    setStatus(status.value(), status.getReasonPhrase());
   }
 
   /**
@@ -426,7 +426,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    *
    * @return the current status code of this response
    */
-  int status();
+  int getStatus();
 
   /**
    * Sends an error response to the client using the specified status code and

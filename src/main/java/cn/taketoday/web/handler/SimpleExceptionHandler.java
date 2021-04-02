@@ -137,7 +137,7 @@ public class SimpleExceptionHandler
                                                final RequestContext context,
                                                final HandlerMethod handlerMethod) throws Throwable//
   {
-    context.status(getErrorStatusValue(ex));
+    context.setStatus(getErrorStatusValue(ex));
 
     if (handlerMethod.isAssignableFrom(RenderedImage.class)) {
       return resolveImageException(ex, context);

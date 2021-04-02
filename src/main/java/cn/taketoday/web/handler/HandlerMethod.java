@@ -194,10 +194,10 @@ public class HandlerMethod
       final String reason = status.reason();
       final HttpStatus httpStatus = status.value();
       if (StringUtils.hasText(reason)) {
-        context.status(httpStatus.value(), reason);
+        context.setStatus(httpStatus.value(), reason);
       }
       else {
-        context.status(httpStatus);
+        context.setStatus(httpStatus);
       }
     }
   }

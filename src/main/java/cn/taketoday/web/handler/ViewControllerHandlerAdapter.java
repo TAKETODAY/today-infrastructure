@@ -75,7 +75,7 @@ public class ViewControllerHandlerAdapter extends AbstractHandlerAdapter {
   protected void applyHttpStatus(final RequestContext context, final ViewController mapping) {
 
     if (mapping.getStatus() != null) {
-      context.status(mapping.getStatus());
+      context.setStatus(mapping.getStatus());
     }
   }
 

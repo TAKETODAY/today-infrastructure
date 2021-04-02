@@ -272,7 +272,7 @@ public abstract class WebUtils {
     final String ifNoneMatch = requestHeaders.getFirst(Constant.IF_NONE_MATCH);
     if (matches(ifNoneMatch, eTag)) {
       context.responseHeaders().setETag(eTag); // 304.
-      context.status(HttpStatus.NOT_MODIFIED);
+      context.setStatus(HttpStatus.NOT_MODIFIED);
       return true;
     }
 
@@ -284,7 +284,7 @@ public abstract class WebUtils {
     if (ifNoneMatch == null && (ifModifiedSince > 0 && lastModified != 0 && ifModifiedSince >= lastModified)) {
       // if (ifNoneMatch == null && ge(ifModifiedSince, lastModified)) {
       context.responseHeaders().setLastModified(lastModified); // 304
-      context.status(HttpStatus.NOT_MODIFIED);
+      context.setStatus(HttpStatus.NOT_MODIFIED);
       return true;
     }
 
@@ -295,7 +295,7 @@ public abstract class WebUtils {
     final String ifMatch = requestHeaders.getFirst(Constant.IF_MATCH);
     if (ifMatch != null && !matches(ifMatch, eTag)) {
 //      context.status(412);
-      context.status(HttpStatus.PRECONDITION_FAILED);
+      context.setStatus(HttpStatus.PRECONDITION_FAILED);
       return true;
     }
 
@@ -303,7 +303,7 @@ public abstract class WebUtils {
     // If not, then return 412.
     final long ifUnmodifiedSince = requestHeaders.getIfUnmodifiedSince();// "If-Unmodified-Since"
     if (ifUnmodifiedSince > 0 && lastModified > 0 && ifUnmodifiedSince <= lastModified) {
-      context.status(HttpStatus.PRECONDITION_FAILED);
+      context.setStatus(HttpStatus.PRECONDITION_FAILED);
       return true;
     }
     return false;

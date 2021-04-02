@@ -43,7 +43,7 @@ public class HttpStatusResultHandler
   public void handleResult(final RequestContext context,
                            final Object handler, final Object result) throws Throwable {
     if (result instanceof HttpStatus) {
-      context.status((HttpStatus) result);
+      context.setStatus((HttpStatus) result);
     }
   }
 
