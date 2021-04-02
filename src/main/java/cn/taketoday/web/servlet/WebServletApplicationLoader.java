@@ -54,8 +54,6 @@ import cn.taketoday.web.config.WebApplicationLoader;
 import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.event.WebApplicationFailedEvent;
 import cn.taketoday.web.handler.DispatcherHandler;
-import cn.taketoday.web.multipart.MultipartConfiguration;
-import cn.taketoday.web.resolver.DefaultMultipartResolver;
 import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.resolver.ServletParameterResolver;
 import cn.taketoday.web.servlet.initializer.DispatcherServletInitializer;
@@ -217,20 +215,6 @@ public class WebServletApplicationLoader
     resolvers.add(new ServletParameterResolver.ServletContextAttributeParameterResolver(getServletContext()));
 
     super.configureParameterResolver(resolvers, mvcConfiguration);
-  }
-
-  @Override
-  protected void configureMultipart(List<ParameterResolver> resolvers,
-                                    MultipartConfiguration multipartConfig,
-                                    WebMvcConfiguration webMvcConfiguration) {
-
-    super.configureMultipart(resolvers, multipartConfig, webMvcConfiguration);
-
-    resolvers.add(new DefaultMultipartResolver(multipartConfig));
-    resolvers.add(new DefaultMultipartResolver.ArrayMultipartResolver(multipartConfig));
-    resolvers.add(new DefaultMultipartResolver.CollectionMultipartResolver(multipartConfig));
-    resolvers.add(new DefaultMultipartResolver.MapMultipartParameterResolver(multipartConfig));
-
   }
 
   @Override

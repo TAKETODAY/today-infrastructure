@@ -60,6 +60,7 @@ import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resolver.ArrayParameterResolver;
 import cn.taketoday.web.resolver.CollectionParameterResolver;
 import cn.taketoday.web.resolver.CookieParameterResolver;
+import cn.taketoday.web.resolver.DefaultMultipartResolver;
 import cn.taketoday.web.resolver.HeaderParameterResolver;
 import cn.taketoday.web.resolver.MapParameterResolver;
 import cn.taketoday.web.resolver.ModelParameterResolver;
@@ -473,10 +474,16 @@ public class WebApplicationLoader
   }
 
   protected void configureMultipart(List<ParameterResolver> resolvers,
-                                    MultipartConfiguration multipartConfiguration, WebMvcConfiguration mvcConfiguration) {
+                                    MultipartConfiguration multipartConfig, WebMvcConfiguration mvcConfiguration) {
 
-    Objects.requireNonNull(multipartConfiguration, "Multipart Config Can't be null");
-    mvcConfiguration.configureMultipart(multipartConfiguration);
+    resolvers.add(new DefaultMultipartResolver(multipartConfig));
+    resolvers.add(new DefaultMultipartResolver.ArrayMultipartResolver(multipartConfig));
+    resolvers.add(new DefaultMultipartResolver.CollectionMultipartResolver(multipartConfig));
+    resolvers.add(new DefaultMultipartResolver.MapMultipartParameterResolver(multipartConfig));
+
+    Objects.requireNonNull(multipartConfig, "multipartConfig Can't be null");
+    mvcConfiguration.configureMultipart(multipartConfig);
+
   }
 
   /**
