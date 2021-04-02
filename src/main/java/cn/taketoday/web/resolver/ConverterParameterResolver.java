@@ -19,9 +19,9 @@
  */
 package cn.taketoday.web.resolver;
 
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.conversion.Converter;
-import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 
@@ -30,8 +30,8 @@ import cn.taketoday.web.handler.MethodParameter;
  * 2019-07-13 12:58
  */
 public class ConverterParameterResolver
-        extends OrderedSupport implements ParameterResolver {
-
+        extends AbstractParameterResolver implements ParameterResolver, Ordered {
+  private final OrderedSupport order = new OrderedSupport();
   private final SupportsFunction supports;
   private final Converter<String, Object> converter;
 
@@ -40,9 +40,18 @@ public class ConverterParameterResolver
   }
 
   public ConverterParameterResolver(SupportsFunction supports, Converter<String, Object> converter, int order) {
-    super(order);
     this.supports = supports;
     this.converter = converter;
+    setOrder(order);
+  }
+
+  public void setOrder(int order) {
+    this.order.setOrder(order);
+  }
+
+  @Override
+  public int getOrder() {
+    return order.getOrder();
   }
 
   @Override
@@ -51,16 +60,18 @@ public class ConverterParameterResolver
   }
 
   @Override
-  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+  protected Object resolveInternal(RequestContext context, MethodParameter parameter) throws Throwable {
+    return context.parameter(parameter.getName());
+  }
 
-    final String value = context.parameter(parameter.getName());
-    if (StringUtils.isEmpty(value)) {
-      if (parameter.isRequired()) {
-        throw new MissingParameterException(parameter);
-      }
-      return converter.convert(parameter.getDefaultValue());
-    }
-    return converter.convert(value);
+  @Override
+  protected Object transformValue(RequestContext context, MethodParameter parameter, Object original) {
+    return converter.convert((String) original);
+  }
+
+  @Override
+  protected Object fromDefaultValue(RequestContext context, String defaultValue) {
+    return converter.convert(defaultValue);
   }
 
   public static ConverterParameterResolver convert(SupportsFunction supports,

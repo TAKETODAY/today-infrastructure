@@ -26,13 +26,11 @@ import java.util.Properties;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.env.Environment;
-import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ConvertUtils;
@@ -58,6 +56,7 @@ import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resolver.ArrayParameterResolver;
+import cn.taketoday.web.resolver.AutowiredParameterResolver;
 import cn.taketoday.web.resolver.CollectionParameterResolver;
 import cn.taketoday.web.resolver.CookieParameterResolver;
 import cn.taketoday.web.resolver.DefaultMultipartResolver;
@@ -397,24 +396,7 @@ public class WebApplicationLoader
       (ctx, m) -> resolveProps(m.getAnnotation(Props.class), m.getParameterClass(), properties)//
     ));
 
-    resolvers.add(delegate(m -> m.isAnnotationPresent(Autowired.class), //@off
-      (ctx, m) -> {
-        final Autowired autowired = m.getAnnotation(Autowired.class);
-        final String name = autowired.value();
-
-        final Object bean;
-        if (StringUtils.isEmpty(name)) {
-            bean = context.getBean(m.getParameterClass());
-        }
-        else {
-            bean = context.getBean(name, m.getParameterClass());
-        }
-        if (bean == null && autowired.required()) {
-          throw new NoSuchBeanDefinitionException(m.getParameterClass());
-        }
-        return bean;
-      }
-    ));
+    resolvers.add(new AutowiredParameterResolver(context));
 
     // HandlerMethod @on
     resolvers.add(delegate(m -> m.is(HandlerMethod.class), (ctx, m) -> m.getHandlerMethod()));
