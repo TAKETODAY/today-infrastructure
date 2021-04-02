@@ -1,11 +1,8 @@
 package cn.taketoday.framework.reactive.websocket;
 
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
+import cn.taketoday.web.session.DefaultSession;
 import cn.taketoday.web.session.WebSession;
+import cn.taketoday.web.session.WebSessionStorage;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 
@@ -13,57 +10,14 @@ import io.netty.channel.ChannelHandlerContext;
  * @author WangYi
  * @since 2020/8/13
  */
-public class WebSocketSession implements WebSession {
-  private final Map<String, Object> attrs = new HashMap<>();
+public class WebSocketSession extends DefaultSession implements WebSession {
   private final Channel channel;
-  private final long creationTime;
-  private final String id;
   private final ChannelHandlerContext ctx;
 
-  WebSocketSession(ChannelHandlerContext ctx, String id) {
+  WebSocketSession(String id, WebSessionStorage storage, ChannelHandlerContext ctx) {
+    super(id, storage);
     this.ctx = ctx;
     this.channel = ctx.channel();
-    this.id = id;
-    this.creationTime = System.currentTimeMillis();
   }
 
-  @Override
-  public String[] getNames() {
-    return attrs.keySet().toArray(new String[0]);
-  }
-
-  @Override
-  public Object getAttribute(String name) {
-    return attrs.getOrDefault(name, "");
-  }
-
-  @Override
-  public void removeAttribute(String name) {
-    this.attrs.remove(name);
-  }
-
-  @Override
-  public void setAttribute(String name, Object value) {
-    this.attrs.put(name, value);
-  }
-
-  @Override
-  public void invalidate() {
-    this.attrs.clear();
-  }
-
-  @Override
-  public String getId() {
-    return id;
-  }
-
-  @Override
-  public long getCreationTime() {
-    return creationTime;
-  }
-
-  @Override
-  public Set<String> getKeys() {
-    return new LinkedHashSet<>(this.attrs.keySet());
-  }
 }

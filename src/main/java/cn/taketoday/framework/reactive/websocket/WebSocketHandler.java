@@ -126,8 +126,7 @@ public class WebSocketHandler
         handShaker.handshake(ctx.channel(), request);
 
         long id = ThreadLocalRandom.current().nextLong();
-        this.webSocketSession = new WebSocketSession(ctx, String.valueOf(id)
-                .replaceFirst("-", ""));
+        this.webSocketSession = new WebSocketSession(String.valueOf(id).replaceFirst("-", ""), null, ctx);
         CompletableFuture.completedFuture(webSocketContext())
                 .thenAcceptAsync(session -> webSocketChannel
                         .onConnect(session), ctx.executor());
