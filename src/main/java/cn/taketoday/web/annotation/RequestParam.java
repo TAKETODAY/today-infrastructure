@@ -34,8 +34,7 @@ import cn.taketoday.web.Constant;
 public @interface RequestParam {
 
   /**
-   * If required == true when request parameter is null, will be return bad
-   * request.
+   * If required == true when request parameter is null, will be throws exception
    */
   boolean required() default false;
 

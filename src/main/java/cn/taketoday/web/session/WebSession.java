@@ -19,27 +19,23 @@
  */
 package cn.taketoday.web.session;
 
-import java.util.Set;
+import cn.taketoday.context.AttributeAccessor;
 
 /**
  * @author TODAY <br>
- *         2019-09-27 20:16
+ * 2019-09-27 20:16
  */
-public interface WebSession {
+public interface WebSession extends AttributeAccessor {
 
-  String[] getNames();
-
-  Object getAttribute(String name);
-
-  void removeAttribute(String name);
-
-  void setAttribute(String name, Object value);
-
-  void invalidate();
-
+  /**
+   * Session Id
+   */
   String getId();
 
-  long getCreationTime();
+  /**
+   * remove this session, clear all attributes
+   */
+  void invalidate();
 
-  Set<String> getKeys();
+  long getCreationTime();
 }

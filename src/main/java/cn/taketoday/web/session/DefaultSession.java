@@ -20,21 +20,18 @@
 package cn.taketoday.web.session;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+
+import cn.taketoday.context.AttributeAccessorSupport;
 
 /**
  * @author TODAY <br>
  *         2019-09-27 19:40
  */
-public class DefaultSession implements WebSession, Serializable {
+public class DefaultSession extends AttributeAccessorSupport implements WebSession, Serializable {
   private static final long serialVersionUID = 1L;
 
   private final String id;
   private final long creationTime;
-  private final Map<String, Object> attributes = new HashMap<>();
-
   private final WebSessionStorage storage;
 
   public DefaultSession(String id, WebSessionStorage storage) {
@@ -54,34 +51,8 @@ public class DefaultSession implements WebSession, Serializable {
   }
 
   @Override
-  public Object getAttribute(String name) {
-    return attributes.get(name);
-  }
-
-  @Override
-  public String[] getNames() {
-    final Map<String, Object> attributes = this.attributes;
-    return attributes.keySet().toArray(new String[attributes.size()]);
-  }
-
-  @Override
-  public Set<String> getKeys() {
-    return attributes.keySet();
-  }
-
-  @Override
-  public void setAttribute(String name, Object value) {
-    attributes.put(name, value);
-  }
-
-  @Override
-  public void removeAttribute(String name) {
-    attributes.remove(name);
-  }
-
-  @Override
   public void invalidate() {
-    attributes.clear();
+    clear();
     storage.remove(this);
   }
 
