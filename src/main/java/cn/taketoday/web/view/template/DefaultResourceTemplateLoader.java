@@ -25,6 +25,8 @@ import java.io.Reader;
 import cn.taketoday.context.io.PathMatchingResourcePatternResolver;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.io.ResourceResolver;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ConcurrentCache;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.Constant;
@@ -37,6 +39,7 @@ import freemarker.cache.TemplateLoader;
  * 2019-09-07 22:22
  */
 public class DefaultResourceTemplateLoader implements TemplateLoader {
+  private static final Logger log = LoggerFactory.getLogger(DefaultResourceTemplateLoader.class);
 
   private String prefix;
   private String suffix;
@@ -45,11 +48,11 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
   public final ConcurrentCache<String, TemplateSource> cache;
 
   public DefaultResourceTemplateLoader() {
-    this(Constant.DEFAULT_TEMPLATE_PATH, Constant.BLANK, 1024);
+    this(Constant.DEFAULT_TEMPLATE_PATH, Constant.BLANK, 128);
   }
 
   public DefaultResourceTemplateLoader(String prefix, String suffix) {
-    this(prefix, suffix, 1024);
+    this(prefix, suffix, 128);
   }
 
   public DefaultResourceTemplateLoader(String prefix, String suffix, int size) {
@@ -67,23 +70,28 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
 
   @Override
   public Object findTemplateSource(String name) {
-
     TemplateSource ret = cache.get(name);
     // TODO 过期
     if (ret == null) {
+      final String template = getTemplate(name);
       try {
-        final String template = getTemplate(name);
         final Resource[] resources = pathMatchingResolver.getResources(template);
         if (ObjectUtils.isNotEmpty(resources)) {
           for (final Resource resource : resources) {
             if (resource.exists()) {
               cache.put(name, ret = TemplateSource.create(resource));
+              if (log.isDebugEnabled()) {
+                log.debug("Template: [{}] Found", resource);
+              }
               return ret;
             }
           }
         }
       }
       catch (IOException ignored) {}
+      if (log.isDebugEnabled()) {
+        log.debug("Template: [{}] Not found", template);
+      }
       cache.put(name, TemplateSource.EMPTY);
     }
     else if (ret == TemplateSource.EMPTY) {
@@ -94,7 +102,6 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
 
   @Override
   public long getLastModified(final Object source) {
-
     if (source instanceof TemplateSource) {
       return ((TemplateSource) source).lastModified;
     }
