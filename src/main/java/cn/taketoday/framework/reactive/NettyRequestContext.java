@@ -379,7 +379,10 @@ public class NettyRequestContext
     else {
       response.setStatus(status);
     }
-
+    // flush writer
+    if (writer != null) {
+      writer.flush();
+    }
     // write response
     if (isKeepAlive()) {
       responseHeaders.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
