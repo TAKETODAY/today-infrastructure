@@ -25,15 +25,14 @@ import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resolver.ParameterResolver;
 
 /**
- * @author TODAY <br>
+ * @author TODAY  2018 1 ? - 2018 3 8
  * @version 2.3.7
- * @time 2018 1 ? - 2018 3 8 <br>
  */
 public interface Constant extends cn.taketoday.context.Constant {
 
   String WEB_VERSION = "2.3.7.RELEASE";
 
-  String DEFAULT_TEMPLATE_PATH = "classpath:templates";
+  String DEFAULT_TEMPLATE_PATH = "classpath:templates/";
   String X_REQUIRED_AUTHORIZATION = "X-Required-Authorization";
 
   String ENV_SERVLET = "javax.servlet.Servlet";
