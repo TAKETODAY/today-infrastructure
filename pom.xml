@@ -191,6 +191,18 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>cn.taketoday</groupId>
+      <artifactId>today-framework</artifactId>
+      <version>latest</version>
+      <exclusions>
+        <exclusion>
+          <groupId>cn.taketoday</groupId>
+          <artifactId>today-web</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
   </dependencies>
 
 
