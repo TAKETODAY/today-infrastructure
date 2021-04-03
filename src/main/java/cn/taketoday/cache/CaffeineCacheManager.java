@@ -79,10 +79,14 @@ public class CaffeineCacheManager extends AbstractCacheManager {
       return adaptCaffeineCache(name, createNativeCaffeineCache());
     }
 
-    final Caffeine<Object, Object> caffeine = Caffeine.newBuilder()
-            .maximumSize(cacheConfig.maxSize())
-            .expireAfterWrite(cacheConfig.expire(), cacheConfig.timeUnit());
+    final Caffeine<Object, Object> caffeine =
+            Caffeine.newBuilder()
+                    .expireAfterWrite(cacheConfig.expire(), cacheConfig.timeUnit());
 
+    final int maxSize = cacheConfig.maxSize();
+    if (maxSize != 0) {
+      caffeine.maximumSize(maxSize);
+    }
     return adaptCaffeineCache(name, createNativeCaffeineCache(caffeine));
   }
 
