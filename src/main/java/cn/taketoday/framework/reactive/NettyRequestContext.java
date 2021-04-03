@@ -117,7 +117,7 @@ public class NettyRequestContext
   }
 
   @Override
-  public String requestURI() {
+  public String getRequestURI() {
     String requestURI = this.requestURI;
     if (requestURI == null) {
       final String uri = this.uri;
@@ -134,9 +134,9 @@ public class NettyRequestContext
   }
 
   @Override
-  public String requestURL() {
+  public String getRequestURL() {
     final String host = request.headers().get(Constant.HOST);
-    return "http://" + host + requestURI();
+    return "http://" + host + getRequestURI();
   }
 
   @Override
@@ -149,7 +149,7 @@ public class NettyRequestContext
   }
 
   @Override
-  public String queryString() {
+  public String getQueryString() {
     String queryString = this.queryString;
     if (queryString == null) {
       final int index;
@@ -166,7 +166,7 @@ public class NettyRequestContext
   }
 
   @Override
-  public String method() {
+  public String getMethod() {
     return this.request.method().name();
   }
 
@@ -196,7 +196,7 @@ public class NettyRequestContext
   }
 
   @Override
-  public String contentType() {
+  public String getContentType() {
     return request.headers().get(HttpHeaderNames.CONTENT_TYPE);
   }
 
@@ -229,7 +229,7 @@ public class NettyRequestContext
   }
 
   @Override
-  public Map<String, String[]> parameters() {
+  public Map<String, String[]> getParameters() {
     Map<String, String[]> params = this.parameters;
     if (params == null) {
       params = parseParameters();
@@ -240,7 +240,7 @@ public class NettyRequestContext
 
   protected Map<String, String[]> parseParameters() {
 
-    final String queryString = queryString();
+    final String queryString = getQueryString();
     final Map<String, List<String>> parameters = StringUtils.isNotEmpty(queryString)
                                                  ? StringUtils.parseParameters(queryString)
                                                  : new HashMap<>();
@@ -288,12 +288,12 @@ public class NettyRequestContext
   }
 
   @Override
-  public long contentLength() {
+  public long getContentLength() {
     return request.content().readableBytes();
   }
 
   @Override
-  public void redirect(String location) {
+  public void sendRedirect(String location) {
     assertNotCommitted();
     status = HttpResponseStatus.FOUND;
     originalResponseHeaders().set(HttpHeaderNames.LOCATION, location);
@@ -390,7 +390,7 @@ public class NettyRequestContext
   }
 
   @Override
-  public void contentLength(long length) {
+  public void setContentLength(long length) {
     originalResponseHeaders().set(HttpHeaderNames.CONTENT_LENGTH, length);
   }
 
@@ -442,17 +442,17 @@ public class NettyRequestContext
   }
 
   @Override
-  public void status(final int sc) {
+  public void setStatus(final int sc) {
     status = HttpResponseStatus.valueOf(sc);
   }
 
   @Override
-  public void status(final int status, final String message) {
+  public void setStatus(final int status, final String message) {
     this.status = new HttpResponseStatus(status, message);
   }
 
   @Override
-  public int status() {
+  public int getStatus() {
     return status.code();
   }
 
