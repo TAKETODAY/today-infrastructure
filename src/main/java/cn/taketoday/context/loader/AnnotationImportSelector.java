@@ -28,15 +28,14 @@ import cn.taketoday.context.factory.BeanDefinition;
  * @author TODAY 2021/3/8 16:19
  * @since 3.0
  */
-public abstract class AnnotationImportSelector<A extends Annotation>
-        extends AnnotationCapable<A> implements ImportSelector {
+public interface AnnotationImportSelector<A extends Annotation> extends AnnotationCapable<A>, ImportSelector {
 
   @Override
-  public String[] selectImports(BeanDefinition annotatedMetadata) {
+  default String[] selectImports(BeanDefinition annotatedMetadata) {
     final A target = getAnnotation(annotatedMetadata);
     return selectImports(target, annotatedMetadata);
   }
 
-  public abstract String[] selectImports(A annotation, BeanDefinition annotatedMetadata);
+  String[] selectImports(A annotation, BeanDefinition annotatedMetadata);
 
 }

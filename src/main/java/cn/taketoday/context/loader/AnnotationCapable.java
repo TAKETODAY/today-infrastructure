@@ -32,16 +32,16 @@ import cn.taketoday.context.utils.GenericTypeResolver;
  * @author TODAY 2021/3/8 16:51
  * @since 3.0
  */
-public class AnnotationCapable<A extends Annotation> {
+public interface AnnotationCapable<A extends Annotation> {
 
   /**
    * Get Annotation on sub-class
    */
-  public A getAnnotation() {
+  default A getAnnotation() {
     return getAnnotation(getClass());
   }
 
-  public A getAnnotation(AnnotatedElement annotated) {
+  default A getAnnotation(AnnotatedElement annotated) {
     Assert.notNull(annotated, "annotated must not be null");
 
     Class<A> generic = GenericTypeResolver.resolveTypeArgument(getClass(), AnnotationCapable.class);

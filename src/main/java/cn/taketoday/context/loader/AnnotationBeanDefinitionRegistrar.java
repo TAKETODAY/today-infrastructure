@@ -29,15 +29,17 @@ import cn.taketoday.context.factory.BeanDefinitionRegistry;
  * @author TODAY 2021/3/8 16:48
  * @since 3.0
  */
-public abstract class AnnotationBeanDefinitionRegistrar<A extends Annotation>
-        extends AnnotationCapable<A> implements BeanDefinitionImporter {
+public interface AnnotationBeanDefinitionRegistrar<A extends Annotation>
+        extends AnnotationCapable<A>, BeanDefinitionImporter {
 
   @Override
-  public void registerBeanDefinitions(BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry) {
+  default void registerBeanDefinitions(
+          BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry) {
     final A target = getAnnotation(annotatedMetadata);
     registerBeanDefinitions(target, annotatedMetadata, registry);
   }
 
-  public abstract void registerBeanDefinitions(A target, BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry);
+  void registerBeanDefinitions(
+          A target, BeanDefinition annotatedMetadata, BeanDefinitionRegistry registry);
 
 }

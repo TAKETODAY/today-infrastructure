@@ -111,7 +111,7 @@ public class ImportTest {
 
   }
 
-  static class AopSelector extends AnnotationImportSelector<EnableAop> implements ImportSelector {
+  static class AopSelector implements AnnotationImportSelector<EnableAop> {
 
     private EnableAop enableAop;
     private BeanDefinition annotatedMetadata;
@@ -129,8 +129,7 @@ public class ImportTest {
 
   }
 
-  static class BeanDefinitionRegistrar
-          extends AnnotationBeanDefinitionRegistrar<EnableAop> implements BeanDefinitionImporter {
+  static class BeanDefinitionRegistrar implements AnnotationBeanDefinitionRegistrar<EnableAop> {
 
     private EnableAop enableAop;
 
