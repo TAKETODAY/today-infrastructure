@@ -49,7 +49,7 @@ public class CookieParameterResolver
   @Override
   protected Object resolveInternal(final RequestContext context, final MethodParameter parameter) {
     final String name = parameter.getName();
-    for (final HttpCookie cookie : context.cookies()) {
+    for (final HttpCookie cookie : context.getCookies()) {
       if (name.equals(cookie.getName())) {
         return cookie;
       }
@@ -71,7 +71,7 @@ public class CookieParameterResolver
 
     @Override
     protected Object resolveInternal(RequestContext context, MethodParameter parameter) {
-      final HttpCookie cookie = context.cookie(parameter.getName());
+      final HttpCookie cookie = context.getCookie(parameter.getName());
       if (cookie != null) {
         return cookie.getValue();
       }
@@ -88,7 +88,7 @@ public class CookieParameterResolver
 
     @Override
     public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-      return requestContext.cookies();
+      return requestContext.getCookies();
     }
   }
 
@@ -103,7 +103,7 @@ public class CookieParameterResolver
     @Override
     protected List<?> resolveCollection(RequestContext context, MethodParameter parameter) throws Throwable {
 
-      final HttpCookie[] cookies = context.cookies();
+      final HttpCookie[] cookies = context.getCookies();
       final List<HttpCookie> ret = new ArrayList<>(cookies.length);
       Collections.addAll(ret, cookies);
       return ret;

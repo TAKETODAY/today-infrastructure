@@ -57,31 +57,31 @@ public class MockRequestContext extends AbstractRequestContext {
   }
 
   @Override
-  public Map<String, String[]> parameters() {
+  public Map<String, String[]> getParameters() {
     return null;
   }
 
   @Override
-  public String contentType() {
+  public String getContentType() {
     return null;
   }
 
-  @Override public String requestURI() {
+  @Override public String getRequestURI() {
     return null;
   }
 
-  @Override public String requestURL() {
+  @Override public String getRequestURL() {
     return null;
   }
 
-  @Override public String queryString() {
+  @Override public String getQueryString() {
     return null;
   }
 
   @Override public void addCookie(HttpCookie cookie) {
   }
 
-  @Override public String method() {
+  @Override public String getMethod() {
     return null;
   }
 
@@ -89,11 +89,11 @@ public class MockRequestContext extends AbstractRequestContext {
     return null;
   }
 
-  @Override public long contentLength() {
+  @Override public long getContentLength() {
     return 0;
   }
 
-  @Override public void contentLength(long length) {
+  @Override public void setContentLength(long length) {
   }
 
   @Override public boolean committed() {
@@ -104,7 +104,7 @@ public class MockRequestContext extends AbstractRequestContext {
   public void reset() {
   }
 
-  @Override public void redirect(String location) throws IOException {
+  @Override public void sendRedirect(String location) throws IOException {
   }
 
   @Override public void setStatus(int sc) {
@@ -128,7 +128,7 @@ public class MockRequestContext extends AbstractRequestContext {
   }
 
   @Override
-  public void contentType(String contentType) {
+  public void setContentType(String contentType) {
 
   }
 

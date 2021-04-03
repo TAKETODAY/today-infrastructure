@@ -106,7 +106,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
     final String contentType = getContentType(resource);
 
     if (StringUtils.isNotEmpty(contentType)) {
-      context.contentType(contentType);
+      context.setContentType(contentType);
     }
 
     final String eTag = resource.getETag();
@@ -223,7 +223,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
                        final RequestContext context,
                        final ResourceMapping resourceMapping) throws IOException //
   {
-    context.contentLength(resource.contentLength());
+    context.setContentLength(resource.contentLength());
 
     try (final InputStream source = resource.getInputStream()) {
       writeToOutputStream(source, context.getOutputStream(), resourceMapping.getBufferSize());

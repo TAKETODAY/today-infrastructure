@@ -47,7 +47,7 @@ public class ImageResultHandler
   @Override
   public void handleResult(final RequestContext context, final Object handler, final Object result) throws Throwable {
     if (result != null) {
-      context.contentType("image/png");
+      context.setContentType("image/png");
       // sub classes can override this method to apply content type
       ImageIO.write((RenderedImage) result, Constant.IMAGE_PNG, context.getOutputStream());
     }

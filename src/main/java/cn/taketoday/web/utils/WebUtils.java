@@ -117,10 +117,10 @@ public abstract class WebUtils {
   // ---
   public static boolean isMultipart(final RequestContext requestContext) {
 
-    if (!"POST".equals(requestContext.method())) {
+    if (!"POST".equals(requestContext.getMethod())) {
       return false;
     }
-    final String contentType = requestContext.contentType();
+    final String contentType = requestContext.getContentType();
     return (contentType != null && contentType.toLowerCase().startsWith("multipart/"));
   }
 
@@ -132,7 +132,7 @@ public abstract class WebUtils {
   }
 
   public static boolean isHeadRequest(RequestContext requestContext) {
-    return "HEAD".equalsIgnoreCase(requestContext.method());
+    return "HEAD".equalsIgnoreCase(requestContext.getMethod());
   }
 
   public static void handleException(final Object handler,
@@ -158,8 +158,8 @@ public abstract class WebUtils {
   public static void downloadFile(final RequestContext context,
                                   final Resource download, final int bufferSize) throws IOException //
   {
-    context.contentLength(download.contentLength());
-    context.contentType(Constant.APPLICATION_FORCE_DOWNLOAD);
+    context.setContentLength(download.contentLength());
+    context.setContentType(Constant.APPLICATION_FORCE_DOWNLOAD);
     final HttpHeaders httpHeaders = context.responseHeaders();
 
     httpHeaders.set(Constant.CONTENT_TRANSFER_ENCODING, Constant.BINARY);
@@ -238,7 +238,7 @@ public abstract class WebUtils {
    * CORS checks are not invoked here for performance reasons.
    */
   public static boolean isPreFlightRequest(final RequestContext request) {
-    return RequestMethod.OPTIONS.name().equals(request.method())
+    return RequestMethod.OPTIONS.name().equals(request.getMethod())
             && request.requestHeaders().getFirst(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD) != null;
   }
 

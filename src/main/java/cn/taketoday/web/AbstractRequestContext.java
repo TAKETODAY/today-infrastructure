@@ -76,7 +76,7 @@ public abstract class AbstractRequestContext implements RequestContext {
   private Model model;
 
   @Override
-  public String contextPath() {
+  public String getContextPath() {
     final String contextPath = this.contextPath;
     if (contextPath == null) {
       return this.contextPath = getContextPathInternal();
@@ -170,7 +170,7 @@ public abstract class AbstractRequestContext implements RequestContext {
   // -----------------------------------
 
   @Override
-  public HttpCookie[] cookies() {
+  public HttpCookie[] getCookies() {
     final HttpCookie[] cookies = this.cookies;
     if (cookies == null) {
       return this.cookies = getCookiesInternal();
@@ -179,8 +179,8 @@ public abstract class AbstractRequestContext implements RequestContext {
   }
 
   @Override
-  public HttpCookie cookie(final String name) {
-    for (final HttpCookie cookie : cookies()) {
+  public HttpCookie getCookie(final String name) {
+    for (final HttpCookie cookie : getCookies()) {
       if (Objects.equals(name, cookie.getName())) {
         return cookie;
       }
@@ -222,8 +222,8 @@ public abstract class AbstractRequestContext implements RequestContext {
    * @since 3.0
    */
   @Override
-  public String parameter(String name) {
-    final String[] parameters = parameters(name);
+  public String getParameter(String name) {
+    final String[] parameters = getParameters(name);
     if (ObjectUtils.isNotEmpty(parameters)) {
       return parameters[0];
     }
@@ -238,8 +238,8 @@ public abstract class AbstractRequestContext implements RequestContext {
    * @since 3.0
    */
   @Override
-  public String[] parameters(String name) {
-    final Map<String, String[]> parameters = parameters();
+  public String[] getParameters(String name) {
+    final Map<String, String[]> parameters = getParameters();
     if (CollectionUtils.isEmpty(parameters)) {
       return null;
     }
@@ -250,8 +250,8 @@ public abstract class AbstractRequestContext implements RequestContext {
    * @since 3.0
    */
   @Override
-  public Enumeration<String> parameterNames() {
-    final Map<String, String[]> parameters = parameters();
+  public Enumeration<String> getParameterNames() {
+    final Map<String, String[]> parameters = getParameters();
     if (CollectionUtils.isEmpty(parameters)) {
       return null;
     }
@@ -262,7 +262,7 @@ public abstract class AbstractRequestContext implements RequestContext {
    * @since 3.0
    */
   @Override
-  public abstract Map<String, String[]> parameters();
+  public abstract Map<String, String[]> getParameters();
 
   // HTTP headers
 
@@ -303,7 +303,7 @@ public abstract class AbstractRequestContext implements RequestContext {
   protected abstract HttpHeaders createRequestHeaders();
 
   @Override
-  public void contentType(String contentType) {
+  public void setContentType(String contentType) {
     responseHeaders().set(Constant.CONTENT_TYPE, contentType);
   }
 
@@ -385,6 +385,6 @@ public abstract class AbstractRequestContext implements RequestContext {
 
   @Override
   public String toString() {
-    return method() + " " + requestURL();
+    return getMethod() + " " + getRequestURL();
   }
 }

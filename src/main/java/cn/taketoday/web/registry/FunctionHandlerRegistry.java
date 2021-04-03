@@ -41,7 +41,7 @@ public class FunctionHandlerRegistry extends CacheableMappedHandlerRegistry {
 
   @Override
   protected String computeKey(final RequestContext context) {
-    return context.method().concat(context.requestURI());
+    return context.getMethod().concat(context.getRequestURI());
   }
 
   // HEAD

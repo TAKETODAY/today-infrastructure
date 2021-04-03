@@ -51,7 +51,7 @@ public class AbstractDateParameterResolver
   }
 
   protected String getParameterValue(RequestContext context, MethodParameter parameter) {
-    return context.parameter(parameter.getName());
+    return context.getParameter(parameter.getName());
   }
 
   protected DateTimeFormat getAnnotation(MethodParameter parameter) {

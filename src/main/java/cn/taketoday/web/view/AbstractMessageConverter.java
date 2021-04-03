@@ -42,7 +42,7 @@ public abstract class AbstractMessageConverter implements MessageConverter {
         if (message instanceof JsonSequence) {
           message = ((JsonSequence) message).getJSON();
         }
-        context.contentType(Constant.CONTENT_TYPE_JSON);
+        context.setContentType(Constant.CONTENT_TYPE_JSON);
         writeInternal(context, message);
       }
     }

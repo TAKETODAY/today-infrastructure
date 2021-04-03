@@ -55,10 +55,10 @@ public class ArrayParameterResolver
 
     final String name = parameter.getName();
     // parameter value[]
-    String[] values = context.parameters(name);
+    String[] values = context.getParameters(name);
 
     if (ObjectUtils.isEmpty(values)) {
-      values = StringUtils.split(context.parameter(name));
+      values = StringUtils.split(context.getParameter(name));
       if (ObjectUtils.isEmpty(values)) {
         if (parameter.isRequired()) {
           throw new MissingParameterException("Array", parameter);

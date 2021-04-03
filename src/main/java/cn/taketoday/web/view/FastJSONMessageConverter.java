@@ -87,7 +87,7 @@ public class FastJSONMessageConverter extends AbstractMessageConverter implement
   Object getBody(RequestContext context) {
     Object requestBody = context.requestBody();
     if (requestBody == null) {
-      final StringBuilder builder = new StringBuilder((int) (context.contentLength() + 16));
+      final StringBuilder builder = new StringBuilder((int) (context.getContentLength() + 16));
       try {
         StringUtils.appendLine(context.getReader(), builder);
       }

@@ -61,7 +61,7 @@ public class NotFoundRequestAdapter extends AbstractHandlerAdapter {
 
   protected void logNotFound(RequestContext context) {
     if (log.isDebugEnabled()) {
-      log.debug("NOT FOUND -> [{} {}]", context.method(), context.requestURI());
+      log.debug("NOT FOUND -> [{} {}]", context.getMethod(), context.getRequestURI());
     }
   }
 

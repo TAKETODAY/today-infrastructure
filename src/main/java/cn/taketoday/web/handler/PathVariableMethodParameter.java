@@ -56,7 +56,7 @@ public class PathVariableMethodParameter extends MethodParameter {
 
     String[] pathVariables = request.pathVariables();
     if (pathVariables == null) {
-      String requestURI = StringUtils.decodeUrl(request.requestURI());
+      String requestURI = StringUtils.decodeUrl(request.getRequestURI());
       pathVariables = request.pathVariables(pathMatcher.extractVariables(pathPattern, requestURI));
       if (pathVariables == null) {
         throw new MissingParameterException("Path variable", this);

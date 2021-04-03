@@ -156,7 +156,7 @@ public class MethodParameter
    * @return parameter object
    */
   protected Object resolveParameter(final RequestContext request) throws Throwable {
-    return request.parameter(getName());
+    return request.getParameter(getName());
   }
 
   public int getParameterIndex() {

@@ -173,7 +173,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
   }
 
   private String getMethodToUse(RequestContext context, boolean isPreFlight) {
-    return isPreFlight ? context.requestHeaders().getFirst(Constant.ACCESS_CONTROL_REQUEST_METHOD) : context.method();
+    return isPreFlight ? context.requestHeaders().getFirst(Constant.ACCESS_CONTROL_REQUEST_METHOD) : context.getMethod();
   }
 
   /**

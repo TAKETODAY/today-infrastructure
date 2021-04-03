@@ -60,7 +60,7 @@ public class WebDataBinder extends DataBinder {
   }
 
   public Object bind(Object rootObject, BeanMetadata metadata, RequestContext context) {
-    final Map<String, String[]> parameters = context.parameters();
+    final Map<String, String[]> parameters = context.getParameters();
     for (final Map.Entry<String, String[]> entry : parameters.entrySet()) {
       final String[] value = entry.getValue();
       if (ObjectUtils.isNotEmpty(value)) {

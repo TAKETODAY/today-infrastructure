@@ -124,7 +124,7 @@ public class BeanParameterResolverTests extends TestCase {
     }
 
     @Override
-    public Map<String, String[]> parameters() {
+    public Map<String, String[]> getParameters() {
       return parameters;
     }
 

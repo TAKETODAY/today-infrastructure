@@ -118,17 +118,17 @@ public class ServletRequestContext
   }
 
   @Override
-  public String requestURI() {
+  public String getRequestURI() {
     return request.getRequestURI();
   }
 
   @Override
-  public String requestURL() {
+  public String getRequestURL() {
     return request.getRequestURL().toString();
   }
 
   @Override
-  public String queryString() {
+  public String getQueryString() {
     return request.getQueryString();
   }
 
@@ -160,27 +160,27 @@ public class ServletRequestContext
   }
 
   @Override
-  public Map<String, String[]> parameters() {
+  public Map<String, String[]> getParameters() {
     return request.getParameterMap();
   }
 
   @Override
-  public Enumeration<String> parameterNames() {
+  public Enumeration<String> getParameterNames() {
     return request.getParameterNames();
   }
 
   @Override
-  public String[] parameters(String name) {
+  public String[] getParameters(String name) {
     return request.getParameterValues(name);
   }
 
   @Override
-  public String parameter(String name) {
+  public String getParameter(String name) {
     return request.getParameter(name);
   }
 
   @Override
-  public String method() {
+  public String getMethod() {
     return request.getMethod();
   }
 
@@ -190,22 +190,22 @@ public class ServletRequestContext
   }
 
   @Override
-  public long contentLength() {
+  public long getContentLength() {
     return request.getContentLengthLong();
   }
 
   @Override
-  public String contentType() {
+  public String getContentType() {
     return request.getContentType();
   }
 
   @Override
-  public void contentType(String contentType) {
+  public void setContentType(String contentType) {
     response.setContentType(contentType);
   }
 
   @Override
-  public void contentLength(long length) {
+  public void setContentLength(long length) {
     response.setContentLengthLong(length);
   }
 
@@ -240,7 +240,7 @@ public class ServletRequestContext
   }
 
   @Override
-  public void redirect(String location) throws IOException {
+  public void sendRedirect(String location) throws IOException {
     response.sendRedirect(location);
   }
 

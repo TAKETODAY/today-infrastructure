@@ -61,7 +61,7 @@ public class MapParameterResolver
     final Class<?> clazz = (Class<?>) parameter.getGenerics(1);
 
     final String parameterName = parameter.getName();
-    final Enumeration<String> parameterNames = context.parameterNames();// all parameter
+    final Enumeration<String> parameterNames = context.getParameterNames();// all parameter
     final Map<String, Object> map = new HashMap<>();
     final String mapParamRegexp = Constant.MAP_PARAM_REGEXP;
     while (parameterNames.hasMoreElements()) {

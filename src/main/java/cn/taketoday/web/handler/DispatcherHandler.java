@@ -147,7 +147,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   public boolean notModified(final Object handler,
                              final RequestContext context,
                              final HandlerAdapter adapter) {
-    final String method = context.method();
+    final String method = context.getMethod();
     // Process last-modified header, if supported by the handler.
     final boolean isGet = "GET".equals(method);
     if (isGet || "HEAD".equals(method)) {

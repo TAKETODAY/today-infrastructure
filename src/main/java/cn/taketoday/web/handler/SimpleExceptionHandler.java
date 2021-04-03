@@ -155,7 +155,7 @@ public class SimpleExceptionHandler
   }
 
   protected void writeErrorMessage(Throwable ex, RequestContext context) throws IOException {
-    context.contentType(Constant.CONTENT_TYPE_JSON);
+    context.setContentType(Constant.CONTENT_TYPE_JSON);
     final PrintWriter writer = context.getWriter();
     writer.write(buildDefaultErrorMessage(ex));
     writer.flush();
@@ -198,7 +198,7 @@ public class SimpleExceptionHandler
 
     Assert.state(resource != null, "System Error");
 
-    context.contentType(Constant.CONTENT_TYPE_IMAGE);
+    context.setContentType(Constant.CONTENT_TYPE_IMAGE);
     return ImageIO.read(resource);
   }
 

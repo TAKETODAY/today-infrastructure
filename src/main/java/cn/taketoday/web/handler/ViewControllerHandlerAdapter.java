@@ -68,7 +68,7 @@ public class ViewControllerHandlerAdapter extends AbstractHandlerAdapter {
   protected void applyContentType(final RequestContext context, final ViewController mapping) {
     final String contentType = mapping.getContentType();
     if (StringUtils.isNotEmpty(contentType)) {
-      context.contentType(contentType);
+      context.setContentType(contentType);
     }
   }
 

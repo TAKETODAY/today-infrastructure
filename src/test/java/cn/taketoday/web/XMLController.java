@@ -34,11 +34,11 @@ public class XMLController {
 
   public Object obj(RequestContext request) {
 
-    String key = request.parameter("r");
+    String key = request.getParameter("r");
     if (StringUtils.isNotEmpty(key)) {
       return "redirect:/" + key;
     }
-    request.setAttribute("key", request.parameter("key"));
+    request.setAttribute("key", request.getParameter("key"));
 
     return "/xml/test";
   }

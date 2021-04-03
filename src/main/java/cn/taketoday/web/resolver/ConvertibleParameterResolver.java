@@ -50,7 +50,7 @@ public abstract class ConvertibleParameterResolver
 
   @Override
   protected Object resolveInternal(final RequestContext context, final MethodParameter parameter) {
-    return context.parameter(parameter.getName());
+    return context.getParameter(parameter.getName());
   }
 
   @Override

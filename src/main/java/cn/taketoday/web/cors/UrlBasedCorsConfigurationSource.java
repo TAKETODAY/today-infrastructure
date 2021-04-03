@@ -86,7 +86,7 @@ public class UrlBasedCorsConfigurationSource implements CorsConfigurationSource 
 
   @Override
   public CorsConfiguration getCorsConfiguration(final RequestContext request) {
-    final String lookupPath = request.requestURI();
+    final String lookupPath = request.getRequestURI();
     for (Map.Entry<String, CorsConfiguration> entry : this.corsConfigurations.entrySet()) {
       if (this.pathMatcher.match(entry.getKey(), lookupPath)) {
         return entry.getValue();

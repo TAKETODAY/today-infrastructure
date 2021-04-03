@@ -127,10 +127,10 @@ public abstract class AbstractResultHandler
 
   public void handleRedirect(final String redirect, final RequestContext context) throws IOException {
     if (StringUtils.isEmpty(redirect) || redirect.startsWith(Constant.HTTP)) {
-      context.redirect(redirect);
+      context.sendRedirect(redirect);
     }
     else {
-      context.redirect(context.contextPath().concat(redirect));
+      context.sendRedirect(context.getContextPath().concat(redirect));
     }
   }
 

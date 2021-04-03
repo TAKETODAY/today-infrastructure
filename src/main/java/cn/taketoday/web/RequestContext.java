@@ -62,7 +62,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @return a <code>String</code> specifying the portion of the request URI that
    * indicates the context of the request
    */
-  String contextPath();
+  String getContextPath();
 
   /**
    * Returns the part of this request's URL from the protocol name up to the query
@@ -90,7 +90,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @return a <code>String</code> containing the part of the URL from the
    * protocol name up to the query string
    */
-  String requestURI();
+  String getRequestURI();
 
   /**
    * The returned URL contains a protocol, server name, port number, and server
@@ -98,7 +98,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    *
    * @return A URL
    */
-  String requestURL();
+  String getRequestURL();
 
   /**
    * Returns the query string that is contained in the request URL after the path.
@@ -109,7 +109,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * <code>null</code> if the URL contains no query string. The value is
    * not decoded by the container.
    */
-  String queryString();
+  String getQueryString();
 
   /**
    * Returns an array containing all of the <code>Cookie</code> objects the client
@@ -119,7 +119,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @return an array of all the <code>Cookies</code> included with this request,
    * or {@link #EMPTY_COOKIES} if the request has no cookies
    */
-  HttpCookie[] cookies();
+  HttpCookie[] getCookies();
 
   /**
    * Returns a {@link HttpCookie} object the client sent with this request. This
@@ -133,7 +133,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    *
    * @since 2.3.7
    */
-  HttpCookie cookie(String name);
+  HttpCookie getCookie(String name);
 
   /**
    * Adds the specified cookie to the response. This method can be called multiple
@@ -155,7 +155,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * as map values. The keys in the parameter map are of type String. The
    * values in the parameter map are of type String array.
    */
-  Map<String, String[]> parameters();
+  Map<String, String[]> getParameters();
 
   /**
    * Returns an <code>Enumeration</code> of <code>String</code> objects containing
@@ -166,7 +166,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * <code>String</code> containing the name of a request parameter; or an
    * empty <code>Enumeration</code> if the request has no parameters
    */
-  Enumeration<String> parameterNames();
+  Enumeration<String> getParameterNames();
 
   /**
    * Returns an array of <code>String</code> objects containing all of the values
@@ -183,9 +183,9 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @return an array of <code>String</code> objects containing the parameter's
    * values
    *
-   * @see #parameters()
+   * @see #getParameters()
    */
-  String[] parameters(String name);
+  String[] getParameters(String name);
 
   /**
    * Returns the value of a request parameter as a <code>String</code>, or
@@ -196,7 +196,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * <p>
    * You should only use this method when you are sure the parameter has only one
    * value. If the parameter might have more than one value, use
-   * {@link #parameters(String)}.
+   * {@link #getParameters(String)}.
    *
    * <p>
    * If you use this method with a multivalued parameter, the value returned is
@@ -213,9 +213,9 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    *
    * @return a <code>String</code> representing the single value of the parameter
    *
-   * @see #parameters(String)
+   * @see #getParameters(String)
    */
-  String parameter(String name);
+  String getParameter(String name);
 
   /**
    * Returns the name of the HTTP method with which this request was made, for
@@ -224,7 +224,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @return a <code>String</code> specifying the name of the method with which
    * this request was made
    */
-  String method();
+  String getMethod();
 
   /**
    * Returns the Internet Protocol (IP) address of the client or last proxy that
@@ -242,7 +242,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @return a long containing the length of the request body or -1L if the length
    * is not known
    */
-  long contentLength();
+  long getContentLength();
 
   /**
    * Retrieves the body of the request as binary data using a {@link InputStream}.
@@ -290,7 +290,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @return a <code>String</code> containing the name of the MIME type of the
    * request, or null if the type is not known
    */
-  String contentType();
+  String getContentType();
 
   /**
    * Get request HTTP headers
@@ -327,7 +327,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    *         an long specifying the length of the content being returned to the
    *         client; sets the Content-Length header
    */
-  void contentLength(long length);
+  void setContentLength(long length);
 
   /**
    * Returns a boolean indicating if the response has been committed. A committed
@@ -383,7 +383,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    *         If the response was committed or if a partial URL is given and
    *         cannot be converted into a valid URL
    */
-  void redirect(String location) throws IOException;
+  void sendRedirect(String location) throws IOException;
 
   /**
    * Sets the status code for this response.
@@ -558,7 +558,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @param contentType
    *         a <code>String</code> specifying the MIME type of the content
    */
-  void contentType(String contentType);
+  void setContentType(String contentType);
 
   /**
    * Get request HTTP headers

@@ -94,7 +94,7 @@ public class HandlerMethodRegistry
 
   @Override
   protected String computeKey(final RequestContext context) {
-    return context.method().concat(context.requestURI());
+    return context.getMethod().concat(context.getRequestURI());
   }
 
   /**

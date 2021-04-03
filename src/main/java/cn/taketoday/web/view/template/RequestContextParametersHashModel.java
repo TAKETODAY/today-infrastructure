@@ -48,17 +48,17 @@ public class RequestContextParametersHashModel implements TemplateHashModelEx {
 
   @Override
   public TemplateModel get(String key) {
-    return SimpleScalar.newInstanceOrNull(request.parameter(key));
+    return SimpleScalar.newInstanceOrNull(request.getParameter(key));
   }
 
   @Override
   public boolean isEmpty() {
-    return CollectionUtils.isEmpty(request.parameters());
+    return CollectionUtils.isEmpty(request.getParameters());
   }
 
   @Override
   public int size() {
-    return request.parameters().size();
+    return request.getParameters().size();
   }
 
   @Override
@@ -75,7 +75,7 @@ public class RequestContextParametersHashModel implements TemplateHashModelEx {
       }
 
       public Object next() {
-        return request.parameter(iter.next());
+        return request.getParameter(iter.next());
       }
     }
 
@@ -85,7 +85,7 @@ public class RequestContextParametersHashModel implements TemplateHashModelEx {
   private Set<String> getKeys() {
     Set<String> keys = this.keys;
     if (keys == null) {
-      keys = request.parameters().keySet();
+      keys = request.getParameters().keySet();
       this.keys = keys;
     }
     return keys;

@@ -56,11 +56,11 @@ public class ModelAndView implements Model {
   }
 
   public String getContentType() {
-    return dataModel.contentType();
+    return dataModel.getContentType();
   }
 
   public ModelAndView setContentType(String contentType) {
-    dataModel.contentType(contentType);
+    dataModel.setContentType(contentType);
     return this;
   }
 

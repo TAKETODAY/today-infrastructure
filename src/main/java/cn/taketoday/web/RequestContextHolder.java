@@ -114,7 +114,7 @@ public abstract class RequestContextHolder {
     public void clear() {}
 
     @Override
-    public String contentType() {
+    public String getContentType() {
       return null;
     }
 
@@ -127,32 +127,32 @@ public abstract class RequestContextHolder {
     public void flush() throws IOException {}
 
     @Override
-    public String contextPath() {
+    public String getContextPath() {
       return null;
     }
 
     @Override
-    public String requestURI() {
+    public String getRequestURI() {
       return null;
     }
 
     @Override
-    public String requestURL() {
+    public String getRequestURL() {
       return null;
     }
 
     @Override
-    public String queryString() {
+    public String getQueryString() {
       return null;
     }
 
     @Override
-    public HttpCookie[] cookies() {
+    public HttpCookie[] getCookies() {
       return null;
     }
 
     @Override
-    public HttpCookie cookie(String name) {
+    public HttpCookie getCookie(String name) {
       return null;
     }
 
@@ -161,27 +161,27 @@ public abstract class RequestContextHolder {
     }
 
     @Override
-    public Map<String, String[]> parameters() {
+    public Map<String, String[]> getParameters() {
       return null;
     }
 
     @Override
-    public Enumeration<String> parameterNames() {
+    public Enumeration<String> getParameterNames() {
       return null;
     }
 
     @Override
-    public String[] parameters(String name) {
+    public String[] getParameters(String name) {
       return null;
     }
 
     @Override
-    public String parameter(String name) {
+    public String getParameter(String name) {
       return null;
     }
 
     @Override
-    public String method() {
+    public String getMethod() {
       return null;
     }
 
@@ -191,7 +191,7 @@ public abstract class RequestContextHolder {
     }
 
     @Override
-    public long contentLength() {
+    public long getContentLength() {
       return 0;
     }
 
@@ -239,7 +239,7 @@ public abstract class RequestContextHolder {
     }
 
     @Override
-    public void contentLength(long length) {
+    public void setContentLength(long length) {
     }
 
     @Override
@@ -252,7 +252,7 @@ public abstract class RequestContextHolder {
     }
 
     @Override
-    public void redirect(String location) throws IOException {
+    public void sendRedirect(String location) throws IOException {
     }
 
     @Override
@@ -286,7 +286,7 @@ public abstract class RequestContextHolder {
       return null;
     }
 
-    @Override public void contentType(String contentType) {
+    @Override public void setContentType(String contentType) {
 
     }
 

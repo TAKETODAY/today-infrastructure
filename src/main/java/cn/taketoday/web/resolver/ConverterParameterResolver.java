@@ -61,7 +61,7 @@ public class ConverterParameterResolver
 
   @Override
   protected Object resolveInternal(RequestContext context, MethodParameter parameter) throws Throwable {
-    return context.parameter(parameter.getName());
+    return context.getParameter(parameter.getName());
   }
 
   @Override

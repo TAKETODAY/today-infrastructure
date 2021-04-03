@@ -59,7 +59,7 @@ public class CookieTokenResolver implements TokenResolver {
 
   @Override
   public String getToken(RequestContext context) {
-    final HttpCookie cookie = context.cookie(cookieName);
+    final HttpCookie cookie = context.getCookie(cookieName);
     if (cookie == null) {
       return null;
     }
