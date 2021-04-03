@@ -33,8 +33,11 @@ import javax.servlet.annotation.HandlesTypes;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.aware.AnnotationImportAware;
+import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
 
@@ -44,19 +47,32 @@ import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
-@Import(WebApplicationServletContainerInitializer.class)
+@Import(ServletContainerInitializerConfig.class)
 public @interface EnableServletContainerInitializer {
 
+  /**
+   * scan classpath classes For {@link HandlesTypes}
+   *
+   * @see HandlesTypes#value()
+   */
+  String[] scanPackages() default {};
 }
 
-class WebApplicationServletContainerInitializer
-        extends WebApplicationContextSupport implements ServletContextInitializer {
+class ServletContainerInitializerConfig
+        extends WebApplicationContextSupport implements ServletContextInitializer, AnnotationImportAware<EnableServletContainerInitializer> {
+  EnableServletContainerInitializer target;
 
   @Override
   @SuppressWarnings("unchecked")
   public void onStartup(final ServletContext servletContext) throws Throwable {
-
     final ApplicationContext context = getApplicationContext();
+    CandidateComponentScanner componentScannerToUse = context.getCandidateComponentScanner();
+    if (target != null) {
+      final String[] scanPackages = target.scanPackages();
+      if(ObjectUtils.isNotEmpty(scanPackages)) {
+        componentScannerToUse.scan(scanPackages);
+      }
+    }
 
     for (final ServletContainerInitializer initializer : context.getBeans(ServletContainerInitializer.class)) {
       final HandlesTypes handles = ClassUtils.getAnnotation(initializer, HandlesTypes.class);
@@ -64,13 +80,12 @@ class WebApplicationServletContainerInitializer
       Set<Class<?>> c = null;
       if (handles != null) {
         c = new HashSet<>();
-        final CandidateComponentScanner componentScanner = context.getCandidateComponentScanner();
         for (final Class<?> handlesType : handles.value()) {
           if (handlesType.isAnnotation()) {
-            c.addAll(componentScanner.getAnnotatedClasses((Class<? extends Annotation>) handlesType));
+            c.addAll(componentScannerToUse.getAnnotatedClasses((Class<? extends Annotation>) handlesType));
           }
           else if (handlesType.isInterface()) {
-            c.addAll(componentScanner.getImplementationClasses(handlesType));
+            c.addAll(componentScannerToUse.getImplementationClasses(handlesType));
           }
           else {
             c.add(handlesType);
@@ -81,4 +96,10 @@ class WebApplicationServletContainerInitializer
     }
   }
 
+
+  @Override
+  public void setImportBeanDefinition(
+          EnableServletContainerInitializer target, BeanDefinition importDef) {
+    this.target = target;
+  }
 }
