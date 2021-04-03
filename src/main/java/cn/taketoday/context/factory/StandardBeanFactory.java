@@ -94,6 +94,7 @@ public class StandardBeanFactory
   private static final Logger log = LoggerFactory.getLogger(StandardBeanFactory.class);
   // @since 3.0
   static final String MissingBeanMetadata = MissingBean.class.getName() + "-Metadata";
+  static final String ImportAnnotatedMetadata = Import.class.getName() + "-Metadata"; // @since 3.0
 
   private final ConfigurableApplicationContext context;
   private final LinkedList<AnnotatedElement> componentScanned = new LinkedList<>();
@@ -124,6 +125,12 @@ public class StandardBeanFactory
 
     if (bean instanceof EnvironmentAware) {
       ((EnvironmentAware) bean).setEnvironment(getApplicationContext().getEnvironment());
+    }
+    if (bean instanceof ImportAware) { // @since 3.0
+      final Object attribute = def.getAttribute(ImportAnnotatedMetadata);
+      if (attribute instanceof BeanDefinition) {
+        ((ImportAware) bean).setImportBeanDefinition((BeanDefinition) attribute);
+      }
     }
   }
 
@@ -411,6 +418,7 @@ public class StandardBeanFactory
     log.debug("Importing: [{}]", importClass);
 
     BeanDefinition importDef = createBeanDefinition(importClass);
+    importDef.setAttribute(ImportAnnotatedMetadata, annotated); // @since 3.0
     register(importDef);
     loadConfigurationBeans(importDef); // scan config bean
     if (ImportSelector.class.isAssignableFrom(importClass)) {
