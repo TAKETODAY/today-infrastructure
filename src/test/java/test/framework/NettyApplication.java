@@ -47,8 +47,8 @@ public class NettyApplication {
 
   @GET("/request-context")
   public String context(RequestContext context) {
-    final String requestURL = context.requestURL();
-    final String queryString = context.queryString();
+    final String requestURL = context.getRequestURL();
+    final String queryString = context.getQueryString();
     System.out.println(requestURL);
     System.out.println(queryString);
 
