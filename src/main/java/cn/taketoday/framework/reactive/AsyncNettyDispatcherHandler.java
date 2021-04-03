@@ -38,7 +38,7 @@ public class AsyncNettyDispatcherHandler extends DispatcherHandler implements Ne
     final class Sender implements Consumer<Object> {
       @Override
       public void accept(Object handler) {
-        nettyContext.send();
+        nettyContext.sendIfNotCommitted();
       }
     }
 

@@ -20,7 +20,7 @@ public class SyncNettyDispatcherHandler extends DispatcherHandler implements Net
     RequestContextHolder.prepareContext(nettyContext);
     try {
       handle(nettyContext); // handling HTTP request
-      nettyContext.send();
+      nettyContext.sendIfNotCommitted();
     }
     finally {
       RequestContextHolder.resetContext();

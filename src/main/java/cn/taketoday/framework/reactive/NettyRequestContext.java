@@ -273,14 +273,10 @@ public class NettyRequestContext
     return Collections.emptyMap();
   }
 
-  protected InterfaceHttpPostRequestDecoder getRequestDecoder() {
+  private InterfaceHttpPostRequestDecoder getRequestDecoder() {
     InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
     if (requestDecoder == null) {
       requestDecoder = new HttpPostRequestDecoder(HTTP_DATA_FACTORY, this.request, DEFAULT_CHARSET);
-//            requestDecoder = WebUtils.isMultipart(this)
-//                    ? new HttpPostMultipartRequestDecoder(HTTP_DATA_FACTORY, request.retain(), DEFAULT_CHARSET)
-//                    : new HttpPostStandardRequestDecoder(HTTP_DATA_FACTORY, request.retain(), DEFAULT_CHARSET);
-
       requestDecoder.setDiscardThreshold(0);
       this.requestDecoder = requestDecoder;
     }
@@ -294,7 +290,6 @@ public class NettyRequestContext
 
   @Override
   public void sendRedirect(String location) {
-    assertNotCommitted();
     status = HttpResponseStatus.FOUND;
     originalResponseHeaders().set(HttpHeaderNames.LOCATION, location);
     send();
@@ -343,7 +338,19 @@ public class NettyRequestContext
   /**
    * Send HTTP message to the client
    */
-  public void send() {
+  public void sendIfNotCommitted() {
+    if (!committed) {
+      send();
+    }
+  }
+
+  /**
+   * Send HTTP message to the client
+   *
+   * @throws IllegalStateException
+   *         If the response has been committed
+   */
+  private void send() {
     assertNotCommitted();
     // obtain response object
     FullHttpResponse response = this.response;
@@ -356,8 +363,9 @@ public class NettyRequestContext
       if (responseBody == null) {
         responseBody = Unpooled.EMPTY_BUFFER;
       }
-      response = new DefaultFullHttpResponse(config.getHttpVersion(), status, responseBody,
-                                             originalResponseHeaders(), config.getTrailingHeaders().get());
+      response = new DefaultFullHttpResponse(
+              config.getHttpVersion(), status, responseBody,
+              originalResponseHeaders(), config.getTrailingHeaders().get());
     }
     else {
       // apply HTTP status
@@ -458,14 +466,12 @@ public class NettyRequestContext
 
   @Override
   public void sendError(int sc) {
-    assertNotCommitted();
     status = HttpResponseStatus.valueOf(sc);
     send();
   }
 
   @Override
   public void sendError(int sc, String msg) {
-    assertNotCommitted();
     status = HttpResponseStatus.valueOf(sc, msg);
     send();
   }
