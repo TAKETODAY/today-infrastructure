@@ -300,17 +300,19 @@ public class WebApplicationLoader
             = new ModelAndViewResultHandler(viewResolver, messageConverter, bufferSize);
     ResponseEntityResultHandler responseEntityResultHandler
             = new ResponseEntityResultHandler(viewResolver, messageConverter, bufferSize);
+    TemplateResultHandler templateResultHandler = new TemplateResultHandler(viewResolver);
 
     if (modelManager != null) {
       voidResultHandler.setModelManager(modelManager);
       objectResultHandler.setModelManager(modelManager);
+      templateResultHandler.setModelManager(modelManager);
       modelAndViewResultHandler.setModelManager(modelManager);
       responseEntityResultHandler.setModelManager(modelManager);
     }
 
     handlers.add(new ImageResultHandler());
     handlers.add(new ResourceResultHandler(bufferSize));
-    handlers.add(new TemplateResultHandler(viewResolver));
+    handlers.add(templateResultHandler);
 
     handlers.add(voidResultHandler);
     handlers.add(objectResultHandler);

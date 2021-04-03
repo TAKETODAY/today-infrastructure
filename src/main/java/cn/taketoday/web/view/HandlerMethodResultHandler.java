@@ -29,8 +29,12 @@ import cn.taketoday.web.handler.HandlerMethod;
 public abstract class HandlerMethodResultHandler extends AbstractResultHandler {
 
   @Override
-  public boolean supportsHandler(Object handler) {
-    return handler instanceof HandlerMethod && supports((HandlerMethod) handler);
+  public boolean supportsHandler(final Object handler) {
+    return supportHandlerMethod(handler) && supports((HandlerMethod) handler);
+  }
+
+  public static boolean supportHandlerMethod(final Object handler) {
+    return handler instanceof HandlerMethod;
   }
 
   protected abstract boolean supports(HandlerMethod handler);

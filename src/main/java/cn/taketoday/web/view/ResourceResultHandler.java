@@ -21,6 +21,7 @@ package cn.taketoday.web.view;
 
 import java.io.File;
 
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.web.RequestContext;
@@ -31,15 +32,20 @@ import cn.taketoday.web.utils.WebUtils;
  * @author TODAY <br>
  * 2019-07-14 11:18
  */
-public class ResourceResultHandler
-        extends HandlerMethodResultHandler implements RuntimeResultHandler {
+public class ResourceResultHandler extends OrderedSupport implements RuntimeResultHandler {
+  private final int downloadFileBuf;
 
   public ResourceResultHandler(int downloadFileBuf) {
-    setDownloadFileBufferSize(downloadFileBuf);
+    this.downloadFileBuf = downloadFileBuf;
   }
 
   @Override
-  public boolean supports(HandlerMethod handlerMethod) {
+  public boolean supportsHandler(Object handler) {
+    return HandlerMethodResultHandler.supportHandlerMethod(handler)
+            && supports((HandlerMethod) handler);
+  }
+
+  private boolean supports(HandlerMethod handlerMethod) {
     return handlerMethod.isAssignableFrom(Resource.class)
             || handlerMethod.isAssignableFrom(File.class);
   }
@@ -55,9 +61,9 @@ public class ResourceResultHandler
                            final Object handler, final Object result) throws Throwable {
     if (result != null) {
       if (result instanceof Resource) {
-        WebUtils.downloadFile(context, (Resource) result, getDownloadFileBufferSize());
+        WebUtils.downloadFile(context, (Resource) result, downloadFileBuf);
       }
-      WebUtils.downloadFile(context, ResourceUtils.getResource((File) result), getDownloadFileBufferSize());
+      WebUtils.downloadFile(context, ResourceUtils.getResource((File) result), downloadFileBuf);
     }
   }
 
