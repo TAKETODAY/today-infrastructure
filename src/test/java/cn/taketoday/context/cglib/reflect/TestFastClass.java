@@ -1138,12 +1138,11 @@ public class TestFastClass extends cn.taketoday.context.cglib.CodeGenTestCase {
     }
 
     public void testPackagePrivateMethod_bootstrapClassLoader() throws Exception {
-        // String has a package private method getChars (used by AbstractStringBuilder),
-        // previous
+        // Executable getRoot()
         // versions of fastclass would try to call it and it would result in an
         // IllegalAccessException at runtime.
-        FastClass fc = FastClass.create(String.class);
-        Method method = String.class.getDeclaredMethod("getChars", char[].class, int.class);
+        FastClass fc = FastClass.create(Method.class);
+        Method method = Method.class.getDeclaredMethod("getRoot");
         try {
             fc.getMethod(method);
             fail();

@@ -1031,7 +1031,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * @param callback
    *         the callback to use for all methods
    */
-  public static Object create(Class superclass, Class interfaces[], Callback callback) {
+  public static Object create(Class superclass, Class[] interfaces, Callback callback) {
     Enhancer e = new Enhancer();
     e.setSuperclass(superclass);
     e.setInterfaces(interfaces);

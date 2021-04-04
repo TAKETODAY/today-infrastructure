@@ -389,8 +389,6 @@ public abstract class CglibReflectUtils {
   public static <T> Class<T> defineClass(
           String className, byte[] bytes, ClassLoader loader, ProtectionDomain protection) throws Exception //
   {
-// Force static initializers to run.
-// Class.forName(className, true, loader);
     try {
       return (Class<T>) defineClass.invoke(loader, className, bytes, 0, bytes.length, protection);
     }

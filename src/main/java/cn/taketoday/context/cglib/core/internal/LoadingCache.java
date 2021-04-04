@@ -17,17 +17,10 @@ public class LoadingCache<K, KK, V> {
   protected final Function<K, KK> keyMapper;
   protected final ConcurrentMap<KK, Object> map;
 
-  public static final Function IDENTITY = (k) -> k;
-
   public LoadingCache(Function<K, KK> keyMapper, Function<K, V> loader) {
     this.keyMapper = keyMapper;
     this.loader = loader;
     this.map = new ConcurrentHashMap<KK, Object>();
-  }
-
-  @SuppressWarnings("unchecked")
-  public static <K> Function<K, K> identity() {
-    return IDENTITY;
   }
 
   public V get(K key) {
