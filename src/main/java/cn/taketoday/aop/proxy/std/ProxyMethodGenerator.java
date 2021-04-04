@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 
 /**
  * @author TODAY 2021/3/7 20:13
+ * @since 3.0
  */
 public interface ProxyMethodGenerator {
 
@@ -31,16 +32,9 @@ public interface ProxyMethodGenerator {
   String FIELD_CONFIG = "config";
   String FIELD_TARGET_SOURCE = "targetSource";
 
-//  boolean supports(Method method, StandardProxyContext context);
-
   /**
    * @return generate status
    */
   boolean generate(Method method, GeneratorContext context);
-
-//  void generate(Method method, AdvisedSupport config, CodeEmitter codeEmitter);
-
-
-
 
 }

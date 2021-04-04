@@ -52,6 +52,7 @@ import cn.taketoday.context.utils.OrderUtils;
  * mechanism to replace original bean
  *
  * @author TODAY 2021/2/1 21:31
+ * @since 3.0
  */
 public abstract class AbstractAutoProxyCreator
         extends ProxyConfig implements InstantiationAwareBeanPostProcessor, BeanFactoryAware, AopInfrastructureBean, ProxyCreator {

@@ -30,15 +30,16 @@ import cn.taketoday.context.utils.ObjectUtils;
 
 /**
  * @author TODAY 2021/2/16 22:58
+ * @since 3.0
  */
-public interface StandardProxyInvoker {
+public abstract class StandardProxyInvoker {
 
-  static Object proceed(Object target, TargetInvocation targetInv, Object[] args) throws Throwable {
+  public static Object proceed(Object target, TargetInvocation targetInv, Object[] args) throws Throwable {
     return new StandardMethodInvocation(target, targetInv, args).proceed();
   }
 
-  static Object staticExposeProceed(Object proxy, Object target,
-                                    TargetInvocation targetInv, Object[] args) throws Throwable {
+  public static Object staticExposeProceed(
+          Object proxy, Object target, TargetInvocation targetInv, Object[] args) throws Throwable {
     Object oldProxy = null;
     try {
       oldProxy = AopContext.setCurrentProxy(proxy);
@@ -49,8 +50,8 @@ public interface StandardProxyInvoker {
     }
   }
 
-  static Object dynamicExposeProceed(Object proxy, TargetSource targetSource,
-                                     TargetInvocation targetInv, Object[] args) throws Throwable {
+  public static Object dynamicExposeProceed(
+          Object proxy, TargetSource targetSource, TargetInvocation targetInv, Object[] args) throws Throwable {
 
     Object oldProxy = null;
     final Object target = targetSource.getTarget();
@@ -66,8 +67,8 @@ public interface StandardProxyInvoker {
     }
   }
 
-  static Object dynamicProceed(TargetSource targetSource,
-                               TargetInvocation targetInv, Object[] args) throws Throwable {
+  public static Object dynamicProceed(
+          TargetSource targetSource, TargetInvocation targetInv, Object[] args) throws Throwable {
 
     final Object target = targetSource.getTarget();
     try {
@@ -80,8 +81,8 @@ public interface StandardProxyInvoker {
     }
   }
 
-  static Object dynamicAdvisedProceed(Object proxy, AdvisedSupport advised,
-                                      TargetInvocation targetInv, Object[] args) throws Throwable {
+  public static Object dynamicAdvisedProceed(
+          Object proxy, AdvisedSupport advised, TargetInvocation targetInv, Object[] args) throws Throwable {
 
     Object target = null;
     Object oldProxy = null;
@@ -119,7 +120,7 @@ public interface StandardProxyInvoker {
     }
   }
 
-  static void assertReturnValue(Object retVal, Method method) {
+  public static void assertReturnValue(Object retVal, Method method) {
     // Massage return value if necessary.
     final Class<?> returnType = method.getReturnType();
     if (retVal == null && returnType != Void.TYPE && returnType.isPrimitive()) {

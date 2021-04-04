@@ -221,7 +221,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
       return instance;
     }
 
-    static List<ProxyMethodGenerator> methodGenerators = new ArrayList<>();
+    static List<ProxyMethodGenerator> methodGenerators = new ArrayList<>(2);
 
     static {
       methodGenerators.add(new NoneProxyMethodGenerator());
@@ -273,7 +273,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
       ce.endClass();
     }
 
-    void generateStaticBlock(ClassEmitter ce, GeneratorContext context) {
+    protected void generateStaticBlock(ClassEmitter ce, GeneratorContext context) {
       final List<String> fields = context.getFields();
       // static block
       if (!fields.isEmpty()) {
@@ -286,7 +286,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
       }
     }
 
-    boolean shouldGenerate(Method method) {
+    protected boolean shouldGenerate(Method method) {
       if(method.getName().equals("finalize")) {
         return false;
       }

@@ -38,6 +38,7 @@ import cn.taketoday.context.utils.ObjectUtils;
 
 /**
  * @author TODAY 2021/3/7 20:19
+ * @since 3.0
  */
 public class NoneProxyMethodGenerator implements ProxyMethodGenerator {
 

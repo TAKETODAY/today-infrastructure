@@ -41,6 +41,7 @@ import cn.taketoday.context.utils.StringUtils;
 
 /**
  * @author TODAY 2021/3/7 20:23
+ * @since 3.0
  */
 public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
 

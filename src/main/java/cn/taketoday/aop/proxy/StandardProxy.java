@@ -21,8 +21,7 @@
 package cn.taketoday.aop.proxy;
 
 /**
- * @author TODAY
- * 2020/11/7 18:09
+ * @author TODAY 2020/11/7 18:09
  */
 public interface StandardProxy {
 }
