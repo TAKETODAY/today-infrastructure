@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -140,10 +141,11 @@ public class BenchmarkTest {
 
         MethodHandles.Lookup lookup = MethodHandles.lookup();
         start = System.currentTimeMillis();
-        final MethodHandle unreflect = lookup.unreflect(test);
-        final MethodHandle methodHandle = unreflect.bindTo(testBean);
+
+        final MethodType methodType = MethodType.methodType(String.class, String.class);
+        final MethodHandle methodHandle = lookup.findVirtual(MethodTestBean.class, "test", methodType);
         for (int i = 0; i < times; i++) {
-            final Object result = methodHandle.invoke("TODAY");
+           String re = (String) methodHandle.invoke(testBean, "TODAY");
         }
         System.out.println("MethodHandles used: " + (System.currentTimeMillis() - start) + "ms");
     }
@@ -233,7 +235,7 @@ public class BenchmarkTest {
             };
             long t = System.nanoTime();
             for (int i = 0; i < 1_0000_0000; i++)
-                ms[i & 3].invoke(this);
+                ms[i & 3].invokeExact(this);
             t = (System.nanoTime() - t) / 1_000_000;
             System.out.format("MethodHandle : %d %dms\n", v, t);
         }
@@ -282,7 +284,7 @@ public class BenchmarkTest {
         public void testInterface() {
             Runnable rs = this::func0;
             long t = System.nanoTime();
-            for (int i = 0; i < 1_0000_0000; i++)
+            for (int i = 0; i < 4_0000_0000; i++)
                 rs.run(); // 关键调用
             t = (System.nanoTime() - t) / 1_000_000;
             System.out.format("Interface: %d %dms\n", v, t);
@@ -292,7 +294,7 @@ public class BenchmarkTest {
             MethodHandles.Lookup lookup = MethodHandles.lookup();
             MethodHandle ms = lookup.unreflect(Bench2.class.getMethod("func0"));
             long t = System.nanoTime();
-            for (int i = 0; i < 1_0000_0000; i++)
+            for (int i = 0; i < 4_0000_0000; i++)
                 ms.invoke(this);
             t = (System.nanoTime() - t) / 1_000_000;
             System.out.format("MethodHandle  : %d %dms\n", v, t);
@@ -304,7 +306,7 @@ public class BenchmarkTest {
 
             Bench2 self = this;
             long t = System.nanoTime();
-            for (int i = 0; i < 1_0000_0000; i++)
+            for (int i = 0; i < 4_0000_0000; i++)
                 ma.invoke(self, null);
             t = (System.nanoTime() - t) / 1_000_000;
             System.out.format("Accessor  : %d %dms\n", v, t);

@@ -87,8 +87,7 @@ import static cn.taketoday.context.utils.ReflectionUtils.findMethod;
 import static cn.taketoday.context.utils.ReflectionUtils.getDeclaredMethods;
 
 /**
- * @author TODAY <br>
- * 2018-06-0? ?
+ * @author TODAY 2018-06-0? ?
  */
 public abstract class ClassUtils {
 
@@ -111,7 +110,6 @@ public abstract class ClassUtils {
   public static HashSet<Class<?>> primitiveTypes;
 
   static {
-
     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     if (classLoader == null) {
       classLoader = ClassUtils.class.getClassLoader();
@@ -157,14 +155,14 @@ public abstract class ClassUtils {
     primitiveTypes.add(Temporal.class);
     primitiveTypes.add(CharSequence.class);
 
-    ClassUtils.primitiveTypes = primitiveTypes;
-
     // Add ignore annotation
     addIgnoreAnnotationClass(Target.class);
     addIgnoreAnnotationClass(Inherited.class);
     addIgnoreAnnotationClass(Retention.class);
     addIgnoreAnnotationClass(Repeatable.class);
     addIgnoreAnnotationClass(Documented.class);
+
+    ClassUtils.primitiveTypes = new HashSet<>(primitiveTypes);
   }
 
   public static void addIgnoreAnnotationClass(Class<? extends Annotation> annotationClass) {
@@ -184,8 +182,11 @@ public abstract class ClassUtils {
     ClassUtils.classLoader = classLoader;
   }
 
+  /**
+   * default class loader
+   */
   public static ClassLoader getClassLoader() {
-    return ClassUtils.classLoader;
+    return classLoader;
   }
 
   /**
@@ -1391,8 +1392,7 @@ public abstract class ClassUtils {
 
     @Override
     public final Map<Method, String[]> apply(final Class<?> declaringClass) {
-
-      final Map<Method, String[]> map = new HashMap<>();
+      final HashMap<Method, String[]> map = new HashMap<>();
 
       try (InputStream resourceAsStream = getClassLoader()
               .getResourceAsStream(declaringClass.getName()
@@ -1433,7 +1433,7 @@ public abstract class ClassUtils {
           final LinkedList<LocalVariable> localVariables = methodNode.localVariables;
           if (localVariables.size() >= parameterCount) {
             int offset = Modifier.isStatic(method.getModifiers()) ? 0 : 1;
-            if (ClassUtils.enableParamNameTypeChecking) { // enable check params types
+            if (enableParamNameTypeChecking) { // enable check params types
               // check params types
               int idx = offset; // localVariable index
               int start = 0; // loop control
@@ -1467,7 +1467,6 @@ public abstract class ClassUtils {
   }
 
   static final class ClassNode extends ClassVisitor {
-
     private final LinkedList<MethodNode> methodNodes = new LinkedList<>();
 
     @Override
@@ -1477,8 +1476,8 @@ public abstract class ClassUtils {
                                      String signature,
                                      String[] exceptions) {
 
-      if (isSyntheticOrBridged(access) //
-              || Constant.CONSTRUCTOR_NAME.equals(name) //
+      if (isSyntheticOrBridged(access)
+              || Constant.CONSTRUCTOR_NAME.equals(name)
               || Constant.STATIC_CLASS_INIT.equals(name)) {
         return null;
       }

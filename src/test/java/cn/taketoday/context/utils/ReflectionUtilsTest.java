@@ -22,21 +22,18 @@ package cn.taketoday.context.utils;
 
 import junit.framework.TestCase;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.rmi.ConnectException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.objects.TestObject;
-import cn.taketoday.context.reflect.ConstructorAccessor;
 import cn.taketoday.context.reflect.GetterMethod;
 import cn.taketoday.context.reflect.PropertyAccessor;
 import cn.taketoday.context.reflect.ReflectionException;
@@ -200,7 +197,7 @@ public class ReflectionUtilsTest extends TestCase {
       for (Field field : declaredFields) {
         final String name = field.getName();
         if (name.charAt(0) == '_') {
-          final SetterMethod setter = ReflectionUtils.newUnsafeSetterMethod(field);
+          final SetterMethod setter = ReflectionUtils.newSetterMethod(field);
 
           Object val1 = field.get(pojo1);
           Object val2 = field.get(pojo2);
@@ -380,7 +377,7 @@ public class ReflectionUtilsTest extends TestCase {
       for (Field field : declaredFields) {
         final String name = field.getName();
         if (name.charAt(0) == '_') {
-          final GetterMethod getter = ReflectionUtils.newUnsafeGetterMethod(field);
+          final GetterMethod getter = ReflectionUtils.newGetterMethod(field);
 
           Object val1 = field.get(pojo);
           assertEquals(val1, getter.get(pojo));

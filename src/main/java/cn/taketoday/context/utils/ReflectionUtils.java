@@ -43,7 +43,6 @@ import cn.taketoday.context.reflect.FieldGetterMethod;
 import cn.taketoday.context.reflect.FieldPropertyAccessor;
 import cn.taketoday.context.reflect.FieldSetterMethod;
 import cn.taketoday.context.reflect.GetterMethod;
-import cn.taketoday.context.reflect.GetterSetterPropertyAccessor;
 import cn.taketoday.context.reflect.MapConstructor;
 import cn.taketoday.context.reflect.MethodAccessor;
 import cn.taketoday.context.reflect.MethodAccessorGetterMethod;
@@ -52,20 +51,16 @@ import cn.taketoday.context.reflect.MethodAccessorSetterMethod;
 import cn.taketoday.context.reflect.MethodInvoker;
 import cn.taketoday.context.reflect.PropertyAccessor;
 import cn.taketoday.context.reflect.ReadOnlyFieldPropertyAccessor;
-import cn.taketoday.context.reflect.ReadOnlyGetterMethodPropertyAccessor;
 import cn.taketoday.context.reflect.ReadOnlyMethodAccessorPropertyAccessor;
 import cn.taketoday.context.reflect.ReflectionException;
 import cn.taketoday.context.reflect.SetterMethod;
-import sun.misc.Unsafe;
 
 /**
  * Fast reflection operation
  *
- * @author TODAY <br>
- * 2020-08-13 18:45
+ * @author TODAY 2020-08-13 18:45
  * @since 2.1.7
  */
-//@SuppressWarnings("restriction")
 public abstract class ReflectionUtils {
 
   /**
@@ -102,16 +97,6 @@ public abstract class ReflectionUtils {
    */
   private static final ConcurrentCache<Class<?>, Method[]>
           DECLARED_METHODS_CACHE = ConcurrentCache.create(256);
-
-  private static boolean unsafeEnabled;
-
-  public static boolean isUnsafeEnabled() {
-    return unsafeEnabled;
-  }
-
-  public static void setUnsafeEnabled(boolean unsafeEnabled) {
-    ReflectionUtils.unsafeEnabled = unsafeEnabled;
-  }
 
   // Exception handling
 
@@ -1114,14 +1099,9 @@ public abstract class ReflectionUtils {
     }
 
     // readMethod == null && setMethod == null
-    if (isUnsafeEnabled()) {
-      return isReadOnly
-             ? new ReadOnlyGetterMethodPropertyAccessor(newUnsafeGetterMethod(field))
-             : new GetterSetterPropertyAccessor(newUnsafeGetterMethod(field), newUnsafeSetterMethod(field));
-    }
     return isReadOnly
-           ? new ReadOnlyFieldPropertyAccessor(field, readMethod)
-           : new FieldPropertyAccessor(field, readMethod, writeMethod);
+           ? new ReadOnlyFieldPropertyAccessor(field, null)
+           : new FieldPropertyAccessor(field, null, null);
   }
 
   /**
@@ -1229,265 +1209,6 @@ public abstract class ReflectionUtils {
     final MethodInvoker accessor = MethodInvoker.create(method);
     final boolean primitive = type.isPrimitive();
     return new MethodAccessorSetterMethod(primitive, accessor);
-  }
-
-  @SuppressWarnings("unchecked")
-  public static <T> BeanConstructor<T> newUnsafeConstructor(final Class<?> targetClass) {
-    final Unsafe theUnsafe = getUnsafe();
-    return args -> {
-      try {
-        return (T) theUnsafe.allocateInstance(targetClass);
-      }
-      catch (InstantiationException e) {
-        throw new ReflectionException("Could not create a new instance of class " + targetClass, e);
-      }
-    };
-  }
-
-  // --------------------- Unsafe -----------------------
-
-  public static GetterMethod newUnsafeGetterMethod(final Field field) {
-    Assert.notNull(field, "field must not be null");
-
-    Class<?> type = field.getType();
-    boolean isFinal = Modifier.isFinal(field.getModifiers());
-    boolean isStatic = Modifier.isStatic(field.getModifiers());
-    boolean isVolatile = Modifier.isVolatile(field.getModifiers());
-    boolean isQualified = isFinal || isVolatile;
-    final Unsafe theUnsafe = getUnsafe();
-    final long offset = isStatic ? theUnsafe.staticFieldOffset(field) : theUnsafe.objectFieldOffset(field);
-
-    if (isStatic) {
-      // This code path does not guarantee that the field's
-      // declaring class has been initialized, but it must be
-      // before performing reflective operations.
-      theUnsafe.ensureClassInitialized(field.getDeclaringClass());
-      final Object base = theUnsafe.staticFieldBase(field); // base
-      if (!isQualified) {
-        if (type == Boolean.TYPE) return obj -> theUnsafe.getBoolean(base, offset);
-        if (type == Byte.TYPE) return obj -> theUnsafe.getByte(base, offset);
-        if (type == Short.TYPE) return obj -> theUnsafe.getShort(base, offset);
-        if (type == Character.TYPE) return obj -> theUnsafe.getChar(base, offset);
-        if (type == Integer.TYPE) return obj -> theUnsafe.getInt(base, offset);
-        if (type == Long.TYPE) return obj -> theUnsafe.getLong(base, offset);
-        if (type == Float.TYPE) return obj -> theUnsafe.getFloat(base, offset);
-        if (type == Double.TYPE) return obj -> theUnsafe.getDouble(base, offset);
-        return obj -> theUnsafe.getObject(base, offset);
-      }
-      if (type == Boolean.TYPE) return obj -> theUnsafe.getBooleanVolatile(base, offset);
-      if (type == Character.TYPE) return obj -> theUnsafe.getCharVolatile(base, offset);
-      if (type == Byte.TYPE) return obj -> theUnsafe.getByteVolatile(base, offset);
-      if (type == Short.TYPE) return obj -> theUnsafe.getShortVolatile(base, offset);
-      if (type == Integer.TYPE) return obj -> theUnsafe.getIntVolatile(base, offset);
-      if (type == Long.TYPE) return obj -> theUnsafe.getLongVolatile(base, offset);
-      if (type == Float.TYPE) return obj -> theUnsafe.getFloatVolatile(base, offset);
-      if (type == Double.TYPE) return obj -> theUnsafe.getDoubleVolatile(base, offset);
-      return obj -> theUnsafe.getObjectVolatile(base, offset);
-    }
-    if (!isQualified) {
-      if (type == Boolean.TYPE) return obj -> theUnsafe.getBoolean(obj, offset);
-      if (type == Character.TYPE) return obj -> theUnsafe.getChar(obj, offset);
-      if (type == Byte.TYPE) return obj -> theUnsafe.getByte(obj, offset);
-      if (type == Short.TYPE) return obj -> theUnsafe.getShort(obj, offset);
-      if (type == Integer.TYPE) return obj -> theUnsafe.getInt(obj, offset);
-      if (type == Long.TYPE) return obj -> theUnsafe.getLong(obj, offset);
-      if (type == Float.TYPE) return obj -> theUnsafe.getFloat(obj, offset);
-      if (type == Double.TYPE) return obj -> theUnsafe.getDouble(obj, offset);
-      return obj -> theUnsafe.getObject(obj, offset);
-    }
-    if (type == Boolean.TYPE) return obj -> theUnsafe.getBooleanVolatile(obj, offset);
-    if (type == Character.TYPE) return obj -> theUnsafe.getCharVolatile(obj, offset);
-    if (type == Byte.TYPE) return obj -> theUnsafe.getByteVolatile(obj, offset);
-    if (type == Short.TYPE) return obj -> theUnsafe.getShortVolatile(obj, offset);
-    if (type == Integer.TYPE) return obj -> theUnsafe.getIntVolatile(obj, offset);
-    if (type == Long.TYPE) return obj -> theUnsafe.getLongVolatile(obj, offset);
-    if (type == Float.TYPE) return obj -> theUnsafe.getFloatVolatile(obj, offset);
-    if (type == Double.TYPE) return obj -> theUnsafe.getDoubleVolatile(obj, offset);
-    return obj -> theUnsafe.getObjectVolatile(obj, offset);
-  }
-
-  public static SetterMethod newUnsafeSetterMethod(final Field field) {
-    Assert.notNull(field, "field must not be null");
-
-    Class<?> type = field.getType();
-    boolean isFinal = Modifier.isFinal(field.getModifiers());
-    boolean isStatic = Modifier.isStatic(field.getModifiers());
-    boolean isVolatile = Modifier.isVolatile(field.getModifiers());
-    boolean isQualified = isFinal || isVolatile;
-    final Unsafe theUnsafe = getUnsafe();
-    final long offset = isStatic ? theUnsafe.staticFieldOffset(field) : theUnsafe.objectFieldOffset(field);
-
-    if (isStatic) {
-      // This code path does not guarantee that the field's
-      // declaring class has been initialized, but it must be
-      // before performing reflective operations.
-      theUnsafe.ensureClassInitialized(field.getDeclaringClass());
-      final Object base = theUnsafe.staticFieldBase(field); // base
-      if (!isQualified) {
-        if (type == Boolean.TYPE) return (obj, value) -> {
-          Assert.notNull(value);
-          theUnsafe.putBoolean(base, offset, (Boolean) value);
-        };
-        if (type == Character.TYPE) return (obj, value) -> {
-          Assert.notNull(value);
-          theUnsafe.putChar(base, offset, (Character) value);
-        };
-        if (type == Byte.TYPE) return (obj, value) -> {
-          Assert.notNull(value);
-          theUnsafe.putByte(base, offset, ((Number) value).byteValue());
-        };
-        if (type == Short.TYPE) return (obj, value) -> {
-          Assert.notNull(value);
-          theUnsafe.putShort(base, offset, ((Number) value).shortValue());
-        };
-        if (type == Integer.TYPE) return (obj, value) -> {
-          Assert.notNull(value);
-          theUnsafe.putInt(base, offset, ((Number) value).intValue());
-        };
-        if (type == Long.TYPE) return (obj, value) -> {
-          Assert.notNull(value);
-          theUnsafe.putLong(base, offset, ((Number) value).longValue());
-        };
-        if (type == Float.TYPE) return (obj, value) -> {
-          Assert.notNull(value);
-          theUnsafe.putFloat(base, offset, ((Number) value).floatValue());
-        };
-        if (type == Double.TYPE) return (obj, value) -> {
-          Assert.notNull(value);
-          theUnsafe.putDouble(base, offset, ((Number) value).doubleValue());
-        };
-        return (obj, value) -> theUnsafe.putObject(base, offset, value);
-      }
-      else {
-        if (type == Boolean.TYPE) return (obj, value) -> {
-          Assert.notNull(value);
-          theUnsafe.putBooleanVolatile(base, offset, (Boolean) value);
-        };
-        if (type == Character.TYPE) return (obj, value) -> {
-          Assert.notNull(value);
-          theUnsafe.putCharVolatile(base, offset, (Character) value);
-        };
-        if (type == Byte.TYPE) return (obj, value) -> {
-          Assert.notNull(value);
-          theUnsafe.putByteVolatile(base, offset, ((Number) value).byteValue());
-        };
-        if (type == Short.TYPE) return (obj, value) -> {
-          Assert.notNull(value);
-          theUnsafe.putShortVolatile(base, offset, ((Number) value).shortValue());
-        };
-        if (type == Integer.TYPE) return (obj, value) -> {
-          Assert.notNull(value);
-          theUnsafe.putIntVolatile(base, offset, ((Number) value).intValue());
-        };
-        if (type == Long.TYPE) return (obj, value) -> {
-          Assert.notNull(value);
-          theUnsafe.putLongVolatile(base, offset, ((Number) value).longValue());
-        };
-        if (type == Float.TYPE) return (obj, value) -> {
-          Assert.notNull(value);
-          theUnsafe.putFloatVolatile(base, offset, ((Number) value).floatValue());
-        };
-        if (type == Double.TYPE) return (obj, value) -> {
-          Assert.notNull(value);
-          theUnsafe.putDoubleVolatile(base, offset, ((Number) value).doubleValue());
-        };
-        return (obj, value) -> theUnsafe.putObjectVolatile(base, offset, value);
-      }
-    }
-    if (!isQualified) {
-      if (type == Boolean.TYPE) return (obj, value) -> {
-        Assert.notNull(value);
-        theUnsafe.putBoolean(obj, offset, (Boolean) value);
-      };
-      if (type == Character.TYPE) return (obj, value) -> {
-        Assert.notNull(value);
-        theUnsafe.putChar(obj, offset, (Character) value);
-      };
-      if (type == Byte.TYPE) return (obj, value) -> {
-        Assert.notNull(value);
-        theUnsafe.putByte(obj, offset, ((Number) value).byteValue());
-      };
-      if (type == Short.TYPE) return (obj, value) -> {
-        Assert.notNull(value);
-        theUnsafe.putShort(obj, offset, ((Number) value).shortValue());
-      };
-      if (type == Integer.TYPE) return (obj, value) -> {
-        Assert.notNull(value);
-        theUnsafe.putInt(obj, offset, ((Number) value).intValue());
-      };
-      if (type == Long.TYPE) return (obj, value) -> {
-        Assert.notNull(value);
-        theUnsafe.putLong(obj, offset, ((Number) value).longValue());
-      };
-      if (type == Float.TYPE) return (obj, value) -> {
-        Assert.notNull(value);
-        theUnsafe.putFloat(obj, offset, ((Number) value).floatValue());
-      };
-      if (type == Double.TYPE) return (obj, value) -> {
-        Assert.notNull(value);
-        theUnsafe.putDouble(obj, offset, ((Number) value).doubleValue());
-      };
-      return (obj, value) -> theUnsafe.putObject(obj, offset, value);
-    }
-    if (type == Boolean.TYPE) return (obj, value) -> {
-      Assert.notNull(value);
-      theUnsafe.putBooleanVolatile(obj, offset, (Boolean) value);
-    };
-    if (type == Character.TYPE) return (obj, value) -> {
-      Assert.notNull(value);
-      theUnsafe.putCharVolatile(obj, offset, (Character) value);
-    };
-    if (type == Byte.TYPE) return (obj, value) -> {
-      Assert.notNull(value);
-      theUnsafe.putByteVolatile(obj, offset, ((Number) value).byteValue());
-    };
-    if (type == Short.TYPE) return (obj, value) -> {
-      Assert.notNull(value);
-      theUnsafe.putShortVolatile(obj, offset, ((Number) value).shortValue());
-    };
-    if (type == Integer.TYPE) return (obj, value) -> {
-      Assert.notNull(value);
-      theUnsafe.putIntVolatile(obj, offset, ((Number) value).intValue());
-    };
-    if (type == Long.TYPE) return (obj, value) -> {
-      Assert.notNull(value);
-      theUnsafe.putLongVolatile(obj, offset, ((Number) value).longValue());
-    };
-    if (type == Float.TYPE) return (obj, value) -> {
-      Assert.notNull(value);
-      theUnsafe.putFloatVolatile(obj, offset, ((Number) value).floatValue());
-    };
-    if (type == Double.TYPE) return (obj, value) -> {
-      Assert.notNull(value);
-      theUnsafe.putDoubleVolatile(obj, offset, ((Number) value).doubleValue());
-    };
-    return (obj, value) -> theUnsafe.putObjectVolatile(obj, offset, value);
-  }
-
-  public static Unsafe getUnsafe() {
-    return UnsafeHolder.unsafe;
-  }
-
-  private static final class UnsafeHolder {
-    private static final Unsafe unsafe;
-
-    static {
-      try {
-        Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
-        Field declaredField = unsafeClass.getDeclaredField("theUnsafe");
-        makeAccessible(declaredField);
-        unsafe = (Unsafe) declaredField.get(null);
-      }
-      catch (ClassNotFoundException e) {
-        throw new ReflectionException("Can't found 'sun.misc.Unsafe' class", e);
-      }
-      catch (NoSuchFieldException e) {
-        throw new ReflectionException("No Field 'theUnsafe' in the 'sun.misc.Unsafe' class", e);
-      }
-      catch (IllegalAccessException e) {
-        throw new ReflectionException("Illegal Access 'theUnsafe' in the 'sun.misc.Unsafe' class", e);
-      }
-    }
   }
 
   /**

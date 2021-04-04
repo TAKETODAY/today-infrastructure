@@ -30,19 +30,20 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.Attribute;
 import cn.taketoday.context.asm.Type;
+import cn.taketoday.context.reflect.ReflectionException;
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
 
 import static java.lang.reflect.Modifier.FINAL;
@@ -57,78 +58,33 @@ public abstract class CglibReflectUtils {
   private static final HashMap<String, Class> primitives = new HashMap<>();
   private static final HashMap<String, String> transforms = new HashMap<>();
 
-  private static final ClassLoader defaultLoader = CglibReflectUtils.class.getClassLoader();
-  private static Method DEFINE_CLASS, DEFINE_CLASS_UNSAFE;
-  private static final ProtectionDomain PROTECTION_DOMAIN;
-  private static final Object UNSAFE;
-  private static final Throwable THROWABLE;
+  private static final Method defineClass;
 
-  private static final ArrayList<Method> OBJECT_METHODS = new ArrayList<>();
-
-  static {
-    ProtectionDomain protectionDomain;
-    Method defineClass, defineClassUnsafe;
-    Object unsafe;
-    Throwable throwable = null;
-    try {
-      protectionDomain = getProtectionDomain(CglibReflectUtils.class);
-      try {
-        defineClass = doPrivileged(() -> {
-          final Class loader = Class.forName("java.lang.ClassLoader"); // JVM crash w/o this
-          final Method ret = loader.getDeclaredMethod("defineClass",
-                                                      String.class,
-                                                      byte[].class,
-                                                      Integer.TYPE,
-                                                      Integer.TYPE,
-                                                      ProtectionDomain.class);
-          ret.setAccessible(true);
-          return ret;
-        });
-        defineClassUnsafe = null;
-        unsafe = null;
-      }
-      catch (Throwable t) {
-        // Fallback on Jigsaw where this method is not available.
-        throwable = t;
-        defineClass = null;
-        unsafe = ReflectionUtils.getUnsafe();
-
-        Class u = Class.forName("sun.misc.Unsafe");
-        defineClassUnsafe = u.getMethod("defineClass",
-                                        String.class,
-                                        byte[].class,
-                                        Integer.TYPE,
-                                        Integer.TYPE,
-                                        ClassLoader.class,
-                                        ProtectionDomain.class);
-      }
-      doPrivileged(() -> {
-        for (Method method : Object.class.getDeclaredMethods()) {
-          if ("finalize".equals(method.getName()) || (method.getModifiers() & (FINAL | STATIC)) > 0) {
-            continue;
-          }
-          OBJECT_METHODS.add(method);
-        }
-        return null;
-      });
-    }
-    catch (Throwable t) {
-      if (throwable == null) {
-        throwable = t;
-      }
-      unsafe = null;
-      defineClass = null;
-      protectionDomain = null;
-      defineClassUnsafe = null;
-    }
-    UNSAFE = unsafe;
-    THROWABLE = throwable;
-    DEFINE_CLASS = defineClass;
-    PROTECTION_DOMAIN = protectionDomain;
-    DEFINE_CLASS_UNSAFE = defineClassUnsafe;
-  }
+  private static final LinkedList<Method> OBJECT_METHODS = new LinkedList<>();
 
   private static final String[] CGLIB_PACKAGES = { "java.lang" };
+
+  static {
+    final Class<ClassLoader> loader = ClassLoader.class;
+    try {
+      defineClass = loader.getDeclaredMethod("defineClass",
+                                             String.class,
+                                             byte[].class,
+                                             Integer.TYPE,
+                                             Integer.TYPE,
+                                             ProtectionDomain.class);
+      ReflectionUtils.makeAccessible(defineClass);
+    }
+    catch (NoSuchMethodException e) {
+      throw new CodeGenerationException(e);
+    }
+    for (Method method : Object.class.getDeclaredMethods()) {
+      if ("finalize".equals(method.getName()) || (method.getModifiers() & (FINAL | STATIC)) > 0) {
+        continue;
+      }
+      OBJECT_METHODS.add(method);
+    }
+  }
 
   static {
     primitives.put("byte", Byte.TYPE);
@@ -148,10 +104,6 @@ public abstract class CglibReflectUtils {
     transforms.put("long", "J");
     transforms.put("short", "S");
     transforms.put("boolean", "Z");
-  }
-
-  static <T> T doPrivileged(PrivilegedExceptionAction<T> action) throws PrivilegedActionException {
-    return AccessController.doPrivileged(action);
   }
 
   public static ProtectionDomain getProtectionDomain(final Class<?> source) {
@@ -177,7 +129,7 @@ public abstract class CglibReflectUtils {
   }
 
   public static Constructor findConstructor(String desc) {
-    return findConstructor(desc, defaultLoader);
+    return findConstructor(desc, ClassUtils.getClassLoader());
   }
 
   public static Constructor findConstructor(String desc, ClassLoader loader) {
@@ -191,7 +143,7 @@ public abstract class CglibReflectUtils {
   }
 
   public static Method findMethod(String desc) {
-    return findMethod(desc, defaultLoader);
+    return findMethod(desc, ClassUtils.getClassLoader());
   }
 
   public static Method findMethod(String desc, ClassLoader loader) {
@@ -434,24 +386,17 @@ public abstract class CglibReflectUtils {
   }
 
   @SuppressWarnings("unchecked")
-  public static <T> Class<T> defineClass(String className, byte[] b, //
-                                         ClassLoader loader, ProtectionDomain protection) throws Exception //
+  public static <T> Class<T> defineClass(
+          String className, byte[] bytes, ClassLoader loader, ProtectionDomain protection) throws Exception //
   {
-    final ProtectionDomain protectionDomainToUse = protection == null ? PROTECTION_DOMAIN : protection;
-
-    Object c;
-    if (DEFINE_CLASS != null) {
-      c = DEFINE_CLASS.invoke(loader, className, b, 0, b.length, protectionDomainToUse);
+// Force static initializers to run.
+// Class.forName(className, true, loader);
+    try {
+      return (Class<T>) defineClass.invoke(loader, className, bytes, 0, bytes.length, protection);
     }
-    else if (DEFINE_CLASS_UNSAFE != null) {
-      c = DEFINE_CLASS_UNSAFE.invoke(UNSAFE, className, b, 0, b.length, loader, protectionDomainToUse);
+    catch (IllegalAccessException | InvocationTargetException e) {
+      throw new ReflectionException("defineClass failed", e);
     }
-    else {
-      throw new CodeGenerationException(THROWABLE);
-    }
-    // Force static initializers to run.
-    Class.forName(className, true, loader);
-    return (Class<T>) c;
   }
 
   public static int findPackageProtected(Class[] classes) {

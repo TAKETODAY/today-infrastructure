@@ -33,6 +33,9 @@ public interface BeanConstructor<T> {
    * Invoke default {@link java.lang.reflect.Constructor}
    *
    * @return returns T
+   *
+   * @throws cn.taketoday.context.exception.BeanInstantiationException
+   *         cannot instantiate a bean
    */
   default T newInstance() {
     return newInstance(null);
@@ -42,6 +45,9 @@ public interface BeanConstructor<T> {
    * Invoke {@link java.lang.reflect.Constructor} with given args
    *
    * @return returns T
+   *
+   * @throws cn.taketoday.context.exception.BeanInstantiationException
+   *         cannot instantiate a bean
    */
   T newInstance(Object[] args);
 }
