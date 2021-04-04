@@ -34,6 +34,7 @@ import cn.taketoday.context.utils.Assert;
  * </p>
  *
  * @author TODAY 2021/2/1 19:31
+ * @since 3.0
  */
 public final class RuntimeMethodInterceptor implements MethodInterceptor {
 
