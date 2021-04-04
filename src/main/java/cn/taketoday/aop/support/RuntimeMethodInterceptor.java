@@ -35,7 +35,7 @@ import cn.taketoday.context.utils.Assert;
  *
  * @author TODAY 2021/2/1 19:31
  */
-public class RuntimeMethodInterceptor implements MethodInterceptor {
+public final class RuntimeMethodInterceptor implements MethodInterceptor {
 
   private final MethodMatcher methodMatcher;
   private final MethodInterceptor interceptor;
@@ -47,7 +47,6 @@ public class RuntimeMethodInterceptor implements MethodInterceptor {
 
     this.interceptor = interceptor;
     this.methodMatcher = methodMatcher;
-
   }
 
   @Override
