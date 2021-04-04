@@ -28,7 +28,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -423,7 +422,7 @@ public abstract class AopUtils {
               }
             }
             else {
-              ret.addAll(Arrays.asList(interceptors));
+              Collections.addAll(ret, interceptors);
             }
           }
         }
@@ -432,12 +431,12 @@ public abstract class AopUtils {
         IntroductionAdvisor ia = (IntroductionAdvisor) advisor;
         if (config.isPreFiltered() || ia.getClassFilter().matches(actualClass)) {
           MethodInterceptor[] interceptors = getInterceptors(advisor);
-          ret.addAll(Arrays.asList(interceptors));
+          Collections.addAll(ret, interceptors);
         }
       }
       else {
         MethodInterceptor[] interceptors = getInterceptors(advisor);
-        ret.addAll(Arrays.asList(interceptors));
+        Collections.addAll(ret, interceptors);
       }
     }
 
