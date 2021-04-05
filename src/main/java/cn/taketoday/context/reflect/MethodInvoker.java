@@ -172,7 +172,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
       prepareParameters(codeEmitter, target);
 
       final MethodInfo methodInfo = getMethodInfo(target);
-      codeEmitter.invoke(methodInfo); // TODO private
+      codeEmitter.invoke(methodInfo);
       codeEmitter.box(Type.getType(target.getReturnType()));
 
       codeEmitter.return_value();
