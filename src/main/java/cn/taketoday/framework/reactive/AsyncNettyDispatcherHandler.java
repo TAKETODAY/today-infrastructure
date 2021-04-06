@@ -4,6 +4,7 @@ import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
+import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.handler.DispatcherHandler;
 import io.netty.channel.ChannelHandlerContext;
 
@@ -25,11 +26,15 @@ public class AsyncNettyDispatcherHandler extends DispatcherHandler implements Ne
     final class Handler implements UnaryOperator<Object> {
       @Override
       public Object apply(Object handler) {
+        RequestContextHolder.prepareContext(nettyContext);
         try {
           handle(handler, nettyContext);
         }
         catch (Throwable e) {
           ctx.fireExceptionCaught(e);
+        }
+        finally {
+          RequestContextHolder.resetContext();
         }
         return handler;
       }
