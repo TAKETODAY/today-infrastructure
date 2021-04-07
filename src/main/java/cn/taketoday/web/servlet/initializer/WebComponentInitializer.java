@@ -19,12 +19,11 @@
  */
 package cn.taketoday.web.servlet.initializer;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import javax.servlet.Filter;
@@ -33,6 +32,7 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 
 import cn.taketoday.context.OrderedSupport;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
@@ -48,7 +48,7 @@ public abstract class WebComponentInitializer<D extends Registration.Dynamic>
 
   private boolean asyncSupported = false;
 
-  private Set<String> urlMappings = new LinkedHashSet<>();
+  private final Set<String> urlMappings = new LinkedHashSet<>();
 
   private Map<String, String> initParameters = new LinkedHashMap<>();
 
@@ -56,7 +56,6 @@ public abstract class WebComponentInitializer<D extends Registration.Dynamic>
 
   @Override
   public void onStartup(ServletContext servletContext) {
-
     setServletContext(servletContext);
 
     D registration = addRegistration(servletContext);
@@ -87,8 +86,9 @@ public abstract class WebComponentInitializer<D extends Registration.Dynamic>
   }
 
   public void setUrlMappings(Collection<String> urlMappings) {
-    Objects.requireNonNull(urlMappings, "UrlMappings must not be null");
-    this.urlMappings = new LinkedHashSet<>(urlMappings);
+    Assert.notNull(urlMappings, "UrlMappings must not be null");
+    this.urlMappings.clear();
+    this.urlMappings.addAll(urlMappings);
   }
 
   public Collection<String> getUrlMappings() {
@@ -96,8 +96,8 @@ public abstract class WebComponentInitializer<D extends Registration.Dynamic>
   }
 
   public void addUrlMappings(String... urlMappings) {
-    Objects.requireNonNull(urlMappings, "UrlMappings must not be null");
-    this.urlMappings.addAll(Arrays.asList(urlMappings));
+    Assert.notNull(urlMappings, "UrlMappings must not be null");
+    Collections.addAll(this.urlMappings, urlMappings);
   }
 
   public String getName() {
