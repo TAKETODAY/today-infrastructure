@@ -152,7 +152,7 @@ public class ValidationParameterResolver
     return resolvers;
   }
 
-  protected ParameterResolvers obtainResolvers() {
+  private ParameterResolvers obtainResolvers() {
     final ParameterResolvers ret = getResolvers();
     Assert.state(ret != null, "No ParameterResolvers.");
     return ret;
