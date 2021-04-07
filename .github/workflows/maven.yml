@@ -21,5 +21,9 @@ jobs:
         cd ./today-context
         mvn install
         cd ../
+        git clone https://github.com/TAKETODAY/today-framework.git
+        cd ./today-framework
+        mvn install
+        cd ../
         mvn package -DskipTests=true
                 
