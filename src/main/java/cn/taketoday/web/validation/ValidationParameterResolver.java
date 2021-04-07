@@ -57,13 +57,14 @@ public class ValidationParameterResolver
 
   public ValidationParameterResolver(final int order, final WebValidator validator) {
     super(order);
-    Assert.notNull(validator, "CompositeValidator must not be null");
+    Assert.notNull(validator, "WebValidator must not be null");
     this.validator = validator;
   }
 
-  public ValidationParameterResolver(final int order, final WebValidator validator, ParameterResolvers resolvers) {
+  public ValidationParameterResolver(
+          final int order, final WebValidator validator, ParameterResolvers resolvers) {
     super(order);
-    Assert.notNull(validator, "CompositeValidator must not be null");
+    Assert.notNull(validator, "WebValidator must not be null");
     this.validator = validator;
     this.resolvers = resolvers;
   }
