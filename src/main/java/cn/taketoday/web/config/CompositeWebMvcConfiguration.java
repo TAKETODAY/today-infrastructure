@@ -31,7 +31,7 @@ import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resolver.ParameterResolver;
-import cn.taketoday.web.validation.CompositeValidator;
+import cn.taketoday.web.validation.WebValidator;
 import cn.taketoday.web.view.ResultHandler;
 import cn.taketoday.web.view.template.AbstractTemplateViewResolver;
 
@@ -140,7 +140,7 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   }
 
   @Override
-  public void configureValidators(CompositeValidator validator) {
+  public void configureValidators(WebValidator validator) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
       webMvcConfiguration.configureValidators(validator);
     }

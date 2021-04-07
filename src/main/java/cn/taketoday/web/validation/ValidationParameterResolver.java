@@ -40,28 +40,28 @@ public class ValidationParameterResolver
         extends OrderedSupport implements ParameterResolver {
 
   /** list of validators @since 3.0 */
-  private final CompositeValidator validator;
+  private final WebValidator validator;
   private final Map<MethodParameter, ParameterResolver> resolverMap = new HashMap<>();
   private static final Class<? extends Annotation> VALID_CLASS = ClassUtils.loadClass("javax.validation.Valid");
 
   private ParameterResolvers resolvers;
 
-  public ValidationParameterResolver(CompositeValidator validator) {
+  public ValidationParameterResolver(WebValidator validator) {
     this(HIGHEST_PRECEDENCE + 100, validator);
   }
 
   @Autowired
-  public ValidationParameterResolver(CompositeValidator validator, ParameterResolvers resolvers) {
+  public ValidationParameterResolver(WebValidator validator, ParameterResolvers resolvers) {
     this(HIGHEST_PRECEDENCE + 100, validator, resolvers);
   }
 
-  public ValidationParameterResolver(final int order, final CompositeValidator validator) {
+  public ValidationParameterResolver(final int order, final WebValidator validator) {
     super(order);
     Assert.notNull(validator, "CompositeValidator must not be null");
     this.validator = validator;
   }
 
-  public ValidationParameterResolver(final int order, final CompositeValidator validator, ParameterResolvers resolvers) {
+  public ValidationParameterResolver(final int order, final WebValidator validator, ParameterResolvers resolvers) {
     super(order);
     Assert.notNull(validator, "CompositeValidator must not be null");
     this.validator = validator;
@@ -116,9 +116,9 @@ public class ValidationParameterResolver
   }
 
   /**
-   * {@link CompositeValidator#validate(Object, Errors)}
+   * {@link WebValidator#validate(Object, Errors)}
    */
-  protected void doValidate(CompositeValidator validator, Object value, DefaultErrors errors) {
+  protected void doValidate(WebValidator validator, Object value, DefaultErrors errors) {
     validator.validate(value, errors);
   }
 
@@ -129,7 +129,7 @@ public class ValidationParameterResolver
     return new ValidationException(errors);
   }
 
-  public CompositeValidator getValidator() {
+  public WebValidator getValidator() {
     return validator;
   }
 

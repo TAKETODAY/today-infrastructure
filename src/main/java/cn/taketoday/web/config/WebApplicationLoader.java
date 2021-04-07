@@ -73,8 +73,8 @@ import cn.taketoday.web.resolver.date.LocalDateParameterResolver;
 import cn.taketoday.web.resolver.date.LocalDateTimeParameterResolver;
 import cn.taketoday.web.resolver.date.LocalTimeParameterResolver;
 import cn.taketoday.web.ui.RedirectModelManager;
-import cn.taketoday.web.validation.CompositeValidator;
 import cn.taketoday.web.validation.Validator;
+import cn.taketoday.web.validation.WebValidator;
 import cn.taketoday.web.view.HttpStatusResultHandler;
 import cn.taketoday.web.view.ImageResultHandler;
 import cn.taketoday.web.view.MessageConverter;
@@ -489,11 +489,11 @@ public class WebApplicationLoader
    * @since 3.0
    */
   protected void configureValidators(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    final CompositeValidator compositeValidator = context.getBean(CompositeValidator.class);
-    if (compositeValidator != null) {
+    final WebValidator webValidator = context.getBean(WebValidator.class);
+    if (webValidator != null) {
       log.info("Enable Bean Validation");
       // user Manual config
-      mvcConfiguration.configureValidators(compositeValidator);
+      mvcConfiguration.configureValidators(webValidator);
     }
   }
 

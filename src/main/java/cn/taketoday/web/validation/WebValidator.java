@@ -32,14 +32,14 @@ import cn.taketoday.context.utils.Assert;
  * @author TODAY 2021/3/21 21:19
  * @since 3.0
  */
-public class CompositeValidator {
+public class WebValidator {
   private final List<Validator> validators;
 
-  public CompositeValidator() {
+  public WebValidator() {
     this(new ArrayList<>());
   }
 
-  public CompositeValidator(List<Validator> validators) {
+  public WebValidator(List<Validator> validators) {
     this.validators = validators;
   }
 

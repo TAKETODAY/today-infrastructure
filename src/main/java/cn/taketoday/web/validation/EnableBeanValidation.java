@@ -51,8 +51,8 @@ public @interface EnableBeanValidation {
 class BeanValidationConfig {
 
   @MissingBean
-  CompositeValidator compositeValidator(List<Validator> validators) {
-    return new CompositeValidator(validators);
+  WebValidator compositeValidator(List<Validator> validators) {
+    return new WebValidator(validators);
   }
 
   @MissingBean
@@ -70,7 +70,7 @@ class BeanValidationConfig {
 
   @MissingBean
   @ConditionalOnClass("javax.validation.Valid")
-  ValidationParameterResolver validationParameterResolver(CompositeValidator validator, ParameterResolvers resolvers) {
+  ValidationParameterResolver validationParameterResolver(WebValidator validator, ParameterResolvers resolvers) {
     return new ValidationParameterResolver(validator, resolvers);
   }
 
