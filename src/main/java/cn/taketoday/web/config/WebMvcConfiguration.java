@@ -33,7 +33,7 @@ import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resolver.ParameterResolver;
-import cn.taketoday.web.validation.CompositeValidator;
+import cn.taketoday.web.validation.WebValidator;
 import cn.taketoday.web.view.ResultHandler;
 import cn.taketoday.web.view.template.AbstractTemplateViewResolver;
 import cn.taketoday.web.view.template.TemplateViewResolver;
@@ -161,13 +161,13 @@ public interface WebMvcConfiguration {
   default void configureExceptionHandlers(List<HandlerExceptionHandler> handlers) {}
 
   /**
-   * Configure {@link CompositeValidator}
+   * Configure {@link WebValidator}
    *
    * @param validator
    *         list of validators
    *
    * @since 3.0
    */
-  default void configureValidators(CompositeValidator validator) {}
+  default void configureValidators(WebValidator validator) {}
 
 }
