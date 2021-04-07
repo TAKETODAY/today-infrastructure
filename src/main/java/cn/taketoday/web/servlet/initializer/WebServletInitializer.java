@@ -26,14 +26,14 @@ import javax.servlet.ServletRegistration;
 import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.ServletSecurityElement;
 
-import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 
 /**
  * @author TODAY <br>
- *         2019-02-03 12:28
+ * 2019-02-03 12:28
  */
 public class WebServletInitializer<T extends Servlet> extends WebComponentInitializer<ServletRegistration.Dynamic> {
 
@@ -50,12 +50,9 @@ public class WebServletInitializer<T extends Servlet> extends WebComponentInitia
 
   @Override
   protected Dynamic addRegistration(ServletContext servletContext) {
-
     final T servlet = getServlet();
-    if (servlet != null) {
-      return servletContext.addServlet(getName(), servlet);
-    }
-    throw new ConfigurationException("servlet can't be null");
+    Assert.state(servlet != null, "filter can't be null");
+    return servletContext.addServlet(getName(), servlet);
   }
 
   /**
@@ -63,7 +60,7 @@ public class WebServletInitializer<T extends Servlet> extends WebComponentInitia
    * perform additional configuration if required.
    *
    * @param registration
-   *            the registration
+   *         the registration
    */
   @Override
   protected void configureRegistration(Dynamic registration) {
@@ -80,8 +77,8 @@ public class WebServletInitializer<T extends Servlet> extends WebComponentInitia
   protected void configureUrlMappings(Dynamic registration) {
 
     final String[] urlMappings = getUrlMappings().isEmpty()
-            ? Constant.DEFAULT_MAPPINGS
-            : StringUtils.toStringArray(getUrlMappings());
+                                 ? Constant.DEFAULT_MAPPINGS
+                                 : StringUtils.toStringArray(getUrlMappings());
 
     registration.addMapping(urlMappings);
   }

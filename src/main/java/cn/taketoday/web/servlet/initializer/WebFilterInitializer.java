@@ -32,8 +32,8 @@ import javax.servlet.FilterRegistration;
 import javax.servlet.FilterRegistration.Dynamic;
 import javax.servlet.ServletContext;
 
-import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 
@@ -58,10 +58,8 @@ public class WebFilterInitializer<T extends Filter> extends WebComponentInitiali
   @Override
   protected Dynamic addRegistration(ServletContext servletContext) {
     final T filter = getFilter();
-    if (filter != null) {
-      return servletContext.addFilter(getName(), filter);
-    }
-    throw new ConfigurationException("filter can't be null");
+    Assert.state(filter != null, "filter can't be null");
+    return servletContext.addFilter(getName(), filter);
   }
 
   @Override
@@ -76,7 +74,7 @@ public class WebFilterInitializer<T extends Filter> extends WebComponentInitiali
     }
     else {
       dispatcherTypes = EnumSet.noneOf(DispatcherType.class);
-      dispatcherTypes.addAll(Arrays.asList(this.dispatcherTypes));
+      Collections.addAll(dispatcherTypes, this.dispatcherTypes);
     }
 
     final Collection<String> urlMappings = getUrlMappings();
