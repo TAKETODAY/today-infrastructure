@@ -23,13 +23,26 @@ package cn.taketoday.web.socket;
 import java.nio.ByteBuffer;
 
 /**
- * @author TODAY 2021/4/3 11:57
+ * @author TODAY 2021/4/5 16:49
  * @since 3.0
  */
-public class BinaryMessage extends AbstractMessage<ByteBuffer> {
+public final class PingMessage extends AbstractMessage<ByteBuffer> {
 
-  public BinaryMessage(ByteBuffer data) {
-    super(data);
+  /**
+   * Create a new ping message with an empty payload.
+   */
+  public PingMessage() {
+    super(ByteBuffer.allocate(0));
+  }
+
+  /**
+   * Create a new ping message with the given ByteBuffer payload.
+   *
+   * @param payload
+   *         the non-null payload
+   */
+  public PingMessage(ByteBuffer payload) {
+    super(payload);
   }
 
 }

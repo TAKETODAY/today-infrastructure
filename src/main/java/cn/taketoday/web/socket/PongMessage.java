@@ -23,13 +23,28 @@ package cn.taketoday.web.socket;
 import java.nio.ByteBuffer;
 
 /**
- * @author TODAY 2021/4/3 11:57
+ * The PongMessage interface represents a web socket pong.
+ *
+ * @author TODAY 2021/4/5 12:22
  * @since 3.0
  */
-public class BinaryMessage extends AbstractMessage<ByteBuffer> {
+public final class PongMessage extends AbstractMessage<ByteBuffer> {
 
-  public BinaryMessage(ByteBuffer data) {
-    super(data);
+  /**
+   * Create a new pong message with an empty payload.
+   */
+  public PongMessage() {
+    super(ByteBuffer.allocate(0));
+  }
+
+  /**
+   * Create a new pong message with the given ByteBuffer payload.
+   *
+   * @param payload
+   *         the non-null payload
+   */
+  public PongMessage(ByteBuffer payload) {
+    super(payload);
   }
 
 }

@@ -20,16 +20,41 @@
 
 package cn.taketoday.web.socket;
 
-import java.nio.ByteBuffer;
+import cn.taketoday.web.RequestContext;
 
 /**
- * @author TODAY 2021/4/3 11:57
+ * @author TODAY 2021/4/5 12:29
  * @since 3.0
  */
-public class BinaryMessage extends AbstractMessage<ByteBuffer> {
+public class AnnotationWebSocketHandler implements WebSocketHandler {
 
-  public BinaryMessage(ByteBuffer data) {
-    super(data);
+  @Override
+  public void handshake(RequestContext context) {
+
   }
 
+  @Override
+  public void onOpen(WebSocketSession session) {
+
+  }
+
+  @Override
+  public void handleMessage(WebSocketSession session, Message message) {
+
+  }
+
+  @Override
+  public void onClose(WebSocketSession session) {
+
+  }
+
+  @Override
+  public void onError(WebSocketSession session) {
+
+  }
+
+  @Override
+  public boolean supportPartialMessage() {
+    return false;
+  }
 }

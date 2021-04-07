@@ -20,9 +20,15 @@
 
 package cn.taketoday.web.socket;
 
+import cn.taketoday.web.registry.AbstractUrlHandlerRegistry;
+
 /**
- * @author TODAY 2021/4/3 12:00
+ * {@link WebSocketHandler} registry
+ *
+ * @author TODAY 2021/4/5 12:12
+ * @since 3.0
  */
-public interface Session {
+public class WebSocketHandlerRegistry extends AbstractUrlHandlerRegistry {
+
 
 }

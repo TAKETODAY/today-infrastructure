@@ -53,8 +53,9 @@ import cn.taketoday.web.ui.ModelAttributes;
 import cn.taketoday.web.utils.ServletUtils;
 
 /**
- * @author TODAY <br>
- * 2019-07-07 22:27
+ * Servlet environment implementation
+ *
+ * @author TODAY 2019-07-07 22:27
  * @since 2.3.7
  */
 public class ServletRequestContext

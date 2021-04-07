@@ -24,6 +24,15 @@ package cn.taketoday.web.socket;
  * @author TODAY 2021/4/3 11:56
  * @since 3.0
  */
-public interface Message {
+public interface Message<T> {
+
+  T getPayload();
+
+  /**
+   * @return Whether the partial message being sent is the last part of the message.
+   */
+  default boolean isLast() {
+    return false;
+  }
 
 }

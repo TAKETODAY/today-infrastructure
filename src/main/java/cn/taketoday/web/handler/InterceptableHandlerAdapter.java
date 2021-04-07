@@ -26,8 +26,7 @@ import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.interceptor.HandlerInterceptorsCapable;
 
 /**
- * @author TODAY
- * @date 2020/12/10 22:51
+ * @author TODAY 2020/12/10 22:51
  */
 public abstract class InterceptableHandlerAdapter
         extends AbstractHandlerAdapter implements HandlerAdapter {

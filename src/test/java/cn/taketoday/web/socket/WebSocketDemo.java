@@ -20,8 +20,6 @@
 
 package cn.taketoday.web.socket;
 
-import org.apache.tomcat.websocket.server.WsSci;
-
 import javax.websocket.CloseReason;
 import javax.websocket.EndpointConfig;
 import javax.websocket.OnClose;
@@ -31,19 +29,17 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.framework.WebApplication;
 import cn.taketoday.framework.annotation.EnableTomcatHandling;
 import cn.taketoday.web.annotation.EnableServletContainerInitializer;
 import cn.taketoday.web.annotation.GET;
-import cn.taketoday.web.annotation.RestController;
 
 /**
  * @author TODAY 2021/4/3 11:54
  * @since 3.0
  */
-@RestController
+//@RestController
 @Import(WebSocketDemo.AppConfig.class)
 @EnableTomcatHandling
 @EnableServletContainerInitializer
@@ -58,8 +54,8 @@ public class WebSocketDemo {
     return "Hello";
   }
 
-  @Import(WsSci.class)
-  @Configuration
+//  @Import(WsSci.class)
+//  @Configuration
   static class AppConfig {
 
   }

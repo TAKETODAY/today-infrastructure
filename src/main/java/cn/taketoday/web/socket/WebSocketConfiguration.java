@@ -20,16 +20,14 @@
 
 package cn.taketoday.web.socket;
 
-import java.nio.ByteBuffer;
-
 /**
- * @author TODAY 2021/4/3 11:57
+ * @author TODAY 2021/4/5 19:44
  * @since 3.0
  */
-public class BinaryMessage extends AbstractMessage<ByteBuffer> {
+public interface WebSocketConfiguration {
 
-  public BinaryMessage(ByteBuffer data) {
-    super(data);
+  default void configureWebSocketHandlers(WebSocketHandlerRegistry registry) {
+    // no-op
   }
 
 }

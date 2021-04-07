@@ -20,16 +20,27 @@
 
 package cn.taketoday.web.socket;
 
-import java.nio.ByteBuffer;
+import cn.taketoday.web.exception.WebNestedRuntimeException;
 
 /**
- * @author TODAY 2021/4/3 11:57
+ * @author TODAY 2021/4/5 23:05
  * @since 3.0
  */
-public class BinaryMessage extends AbstractMessage<ByteBuffer> {
+public class HandshakeFailedException extends WebNestedRuntimeException {
 
-  public BinaryMessage(ByteBuffer data) {
-    super(data);
+  public HandshakeFailedException() {
+    super();
   }
 
+  public HandshakeFailedException(String message) {
+    super(message);
+  }
+
+  public HandshakeFailedException(Throwable cause) {
+    super(cause);
+  }
+
+  public HandshakeFailedException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }
