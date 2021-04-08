@@ -2166,4 +2166,23 @@ public abstract class ClassUtils {
     throw new IllegalArgumentException(
             "Given parameter [" + parameter + "] does not match any parameter in the declaring executable");
   }
+
+  /**
+   * Get {@link Parameter} with given {@code parameterIndex}
+   *
+   * @param executable
+   *         {@link Method} or {@link Constructor}
+   *
+   * @throws IllegalArgumentException
+   *         parameter index is illegal
+   * @since 3.0
+   */
+  public static Parameter getParameter(final Executable executable, final int parameterIndex) {
+    Assert.notNull(executable, "Executable must not be null");
+    final Parameter[] parameters = executable.getParameters();
+    if (parameterIndex < 0 || parameterIndex >= parameters.length) {
+      throw new IllegalArgumentException("parameter index is illegal");
+    }
+    return parameters[parameterIndex];
+  }
 }

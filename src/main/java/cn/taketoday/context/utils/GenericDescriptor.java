@@ -704,10 +704,9 @@ public class GenericDescriptor implements Serializable {
     return new GenericDescriptor(beanProperty);
   }
 
-  public static GenericDescriptor ofParameter(final Executable executable, int index) {
-    final ResolvableType resolvableType = ResolvableType.forParameter(executable, index);
-    final Parameter[] parameters = executable.getParameters();
-    final Parameter parameter = parameters[index];
+  public static GenericDescriptor ofParameter(final Executable executable, int parameterIndex) {
+    final Parameter parameter =  ClassUtils.getParameter(executable, parameterIndex);
+    final ResolvableType resolvableType = ResolvableType.forParameter(parameter);
     final Class<?> type = parameter.getType();
     return new GenericDescriptor(resolvableType, type, parameter);
   }

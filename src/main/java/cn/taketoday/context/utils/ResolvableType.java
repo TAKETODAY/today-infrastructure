@@ -1098,14 +1098,7 @@ public class ResolvableType implements Serializable {
    */
   public static ResolvableType forParameter(
           final Executable executable, final int parameterIndex, Class<?> implementationClass) {
-    Assert.notNull(executable, "Executable must not be null");
-    final Parameter[] parameters = executable.getParameters();
-
-    if (parameterIndex < 0 || parameterIndex >= parameters.length) {
-      throw new IllegalArgumentException("parameter index is illegal");
-    }
-
-    final Parameter parameter = parameters[parameterIndex];
+    final Parameter parameter =  ClassUtils.getParameter(executable, parameterIndex);
     final Class<?> declaringClass = executable.getDeclaringClass();
     final ResolvableType owner = implementationClass == null
                                  ? forType(declaringClass)
