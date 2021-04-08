@@ -49,20 +49,29 @@ public class BeanPropertyAccessor {
    */
   private boolean ignoreUnknownProperty = true;
 
-  private ConversionService conversionService = DefaultConversionService.getSharedInstance();
+  private ConversionService conversionService;
 
-  protected BeanPropertyAccessor() { }
+  public BeanPropertyAccessor() {
+    conversionService = DefaultConversionService.getSharedInstance();
+  }
 
   public BeanPropertyAccessor(Class<?> beanClass) {
-    this.metadata = BeanMetadata.ofClass(beanClass);
+    this(beanClass, DefaultConversionService.getSharedInstance());
+  }
+
+  public BeanPropertyAccessor(Class<?> beanClass, ConversionService conversionService) {
+    final BeanMetadata metadata = BeanMetadata.ofClass(beanClass);
     this.rootObject = metadata.newInstance();
+    this.metadata = metadata;
+    this.conversionService = conversionService;
   }
 
   public BeanPropertyAccessor(Object rootObject) {
-    this(BeanMetadata.ofClass(rootObject.getClass()), rootObject);
+    this(BeanMetadata.ofObject(rootObject), rootObject);
   }
 
   public BeanPropertyAccessor(BeanMetadata metadata, Object rootObject) {
+    this();
     this.metadata = metadata;
     this.rootObject = rootObject;
   }
