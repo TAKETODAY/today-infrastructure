@@ -149,6 +149,10 @@ public abstract class ContextUtils {
     ContextUtils.expressionEvaluator = expressionEvaluator;
   }
 
+  public static ExpressionEvaluator getExpressionEvaluator() {
+    return expressionEvaluator;
+  }
+
   /**
    * Get shared {@link ExpressionProcessor}
    *
