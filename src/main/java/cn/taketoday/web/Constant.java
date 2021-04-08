@@ -74,9 +74,6 @@ public interface Constant extends cn.taketoday.context.Constant {
 	String	DTD_NAME										= "web-configuration";
 	String	WEB_MVC_CONFIG_LOCATION			= "WebMvcConfigLocation";
 
-	String 	COLLECTION_PARAM_REGEXP			= "(\\[|\\]|\\.)";
-	String 	MAP_PARAM_REGEXP						= "(\\['|\\']|\\.)";
-
 	// config
 	String	ATTR_ID									= "id";
 	String	ATTR_CLASS							= "class";

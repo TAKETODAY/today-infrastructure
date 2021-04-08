@@ -80,15 +80,15 @@ public class JacksonMessageConverterTests {
               .getDeclaredMethod("test", List.class, JsonNode.class, User[].class, Set.class);
       final Method testRequiredM = JacksonMessageConverterTests.class.getDeclaredMethod("testRequired", User.class);
 
-      testUser = new MethodParameter(0, test.getParameters()[0], "user");
-      testJsonNode = new MethodParameter(0, testJsonNodeMethod.getParameters()[0], "node");
+      testUser = new MethodParameter(0, test, "user");
+      testJsonNode = new MethodParameter(0, testJsonNodeMethod, "node");
 
-      testListUsers = new MethodParameter(0, testList.getParameters()[0], "userList");
-      testJsonNodeInList = new MethodParameter(1, testList.getParameters()[1], "node");
-      testUserArray = new MethodParameter(2, testList.getParameters()[2], "userArray");
-      testUserSet = new MethodParameter(3, testList.getParameters()[3], "testUserSet");
+      testListUsers = new MethodParameter(0, testList, "userList");
+      testJsonNodeInList = new MethodParameter(1, testList, "node");
+      testUserArray = new MethodParameter(2, testList, "userArray");
+      testUserSet = new MethodParameter(3, testList, "testUserSet");
 
-      testRequired = new MethodParameter(0, testRequiredM.getParameters()[0], "testRequired");
+      testRequired = new MethodParameter(0, testRequiredM, "testRequired");
     }
     catch (NoSuchMethodException e) {
       throw new WebNestedRuntimeException(e);

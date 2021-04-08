@@ -57,11 +57,11 @@ import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resolver.ArrayParameterResolver;
 import cn.taketoday.web.resolver.AutowiredParameterResolver;
-import cn.taketoday.web.resolver.CollectionParameterResolver;
 import cn.taketoday.web.resolver.CookieParameterResolver;
+import cn.taketoday.web.resolver.DataBinderCollectionParameterResolver;
+import cn.taketoday.web.resolver.DataBinderMapParameterResolver;
 import cn.taketoday.web.resolver.DefaultMultipartResolver;
 import cn.taketoday.web.resolver.HeaderParameterResolver;
-import cn.taketoday.web.resolver.MapParameterResolver;
 import cn.taketoday.web.resolver.ModelParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolvers;
@@ -423,7 +423,7 @@ public class WebApplicationLoader
       log.info("RedirectModel disabled");
       modelManager = RedirectModelManager.NOP;
     }
-    resolvers.add(new MapParameterResolver());
+    resolvers.add(new DataBinderMapParameterResolver());
     resolvers.add(new ModelParameterResolver(modelManager));
     resolvers.add(new ArrayParameterResolver());
     resolvers.add(new StreamParameterResolver());
@@ -432,7 +432,8 @@ public class WebApplicationLoader
     resolvers.add(new RequestBodyParameterResolver(messageConverter));
     resolvers.add(new ThrowableHandlerParameterResolver());
 
-    resolvers.add(new CollectionParameterResolver());
+//    resolvers.add(new CollectionParameterResolver());
+    resolvers.add(new DataBinderCollectionParameterResolver());
     //resolvers.add(new DataBinderParameterResolver());
 
     // Date API support

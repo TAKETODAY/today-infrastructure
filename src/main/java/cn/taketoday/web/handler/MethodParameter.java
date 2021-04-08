@@ -20,6 +20,7 @@
 package cn.taketoday.web.handler;
 
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Objects;
@@ -88,6 +89,13 @@ public class MethodParameter
     if (StringUtils.isEmpty(this.name)) {
       this.name = parameterName; // use method parameter name
     }
+  }
+
+  /**
+   * @since 3.0
+   */
+  public MethodParameter(int index, Method method, String parameterName) {
+    this(index, ClassUtils.getParameter(method, index), parameterName);
   }
 
   public boolean isArray() {

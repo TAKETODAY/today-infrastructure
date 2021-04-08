@@ -35,7 +35,7 @@ import cn.taketoday.web.multipart.DefaultMultipartFile;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.multipart.MultipartFile;
 
-import static cn.taketoday.web.resolver.MapParameterResolver.supportsMap;
+import static cn.taketoday.web.resolver.DataBinderMapParameterResolver.supportsMap;
 
 /**
  * @author TODAY <br>

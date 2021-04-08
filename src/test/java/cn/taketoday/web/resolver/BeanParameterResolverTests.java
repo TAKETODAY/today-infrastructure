@@ -98,12 +98,12 @@ public class BeanParameterResolverTests extends TestCase {
       final Method testList = BeanParameterResolverTests.class
               .getDeclaredMethod("test", List.class, UserForm[].class, Set.class);
 
-      testUser = new MethodParameter(0, test.getParameters()[0], "user");
-      testMultipartFileUserForm = new MethodParameter(0, multipartFileUserForm.getParameters()[0], "user");
+      testUser = new MethodParameter(0, test, "user");
+      testMultipartFileUserForm = new MethodParameter(0, multipartFileUserForm, "user");
 
-      testListUsers = new MethodParameter(0, testList.getParameters()[0], "userList");
-      testUserArray = new MethodParameter(2, testList.getParameters()[1], "userArray");
-      testUserSet = new MethodParameter(3, testList.getParameters()[2], "testUserSet");
+      testListUsers = new MethodParameter(0, testList, "userList");
+      testUserArray = new MethodParameter(2, testList, "userArray");
+      testUserSet = new MethodParameter(3, testList, "testUserSet");
 
     }
     catch (NoSuchMethodException e) {
