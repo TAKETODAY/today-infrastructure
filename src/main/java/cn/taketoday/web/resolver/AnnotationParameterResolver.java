@@ -22,6 +22,7 @@ package cn.taketoday.web.resolver;
 
 import java.lang.annotation.Annotation;
 
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
@@ -30,7 +31,8 @@ import cn.taketoday.web.handler.MethodParameter;
  * @author TODAY 2021/4/8 22:38
  * @since 3.0
  */
-public abstract class AnnotationParameterResolver<A extends Annotation> implements ParameterResolver {
+public abstract class AnnotationParameterResolver<A extends Annotation>
+        extends OrderedSupport implements ParameterResolver {
   private final Class<A> annotationClass;
 
   public AnnotationParameterResolver(Class<A> annotationClass) {

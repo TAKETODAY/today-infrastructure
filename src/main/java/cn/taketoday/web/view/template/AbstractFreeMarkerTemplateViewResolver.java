@@ -38,6 +38,8 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.SharedVariable;
 import cn.taketoday.web.config.WebMvcConfiguration;
+import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.resolver.AnnotationParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolver;
 import freemarker.cache.TemplateLoader;
 import freemarker.core.Environment;
@@ -117,28 +119,39 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
 
   @Override
   public void configureParameterResolver(List<ParameterResolver> resolvers) {
+    final class SharedVariableParameterResolver extends AnnotationParameterResolver<SharedVariable> {
+      SharedVariableParameterResolver() {
+        super(SharedVariable.class);
+      }
+
+      @Override
+      protected Object resolveInternal(SharedVariable target, RequestContext context, MethodParameter parameter) {
+        final TemplateModel sharedVariable = getConfiguration().getSharedVariable(parameter.getName());
+
+        if (parameter.isInstance(sharedVariable)) {
+          return sharedVariable;
+        }
+
+        if (sharedVariable instanceof WrapperTemplateModel) {
+          final Object wrappedObject = ((WrapperTemplateModel) sharedVariable).getWrappedObject();
+          if (parameter.isInstance(wrappedObject)) {
+            return wrappedObject;
+          }
+          throw new ConfigurationException("Not a instance of: " + parameter.getParameterClass());
+        }
+
+        if (parameter.isRequired()) {
+          throw new ConfigurationException("There is no shared variable named: ".concat(parameter.getName()));
+        }
+        return ConvertUtils.convert(parameter.getDefaultValue(), parameter.getParameterClass());
+      }
+    }
 
     resolvers.add(delegate((m) -> m.isAssignableFrom(Configuration.class), (ctx, m) -> getConfiguration()));
-    resolvers.add(delegate((m) -> m.isAnnotationPresent(SharedVariable.class), (ctx, m) -> {
-      final TemplateModel sharedVariable = getConfiguration().getSharedVariable(m.getName());
 
-      if (m.isInstance(sharedVariable)) {
-        return sharedVariable;
-      }
-
-      if (sharedVariable instanceof WrapperTemplateModel) {
-        final Object wrappedObject = ((WrapperTemplateModel) sharedVariable).getWrappedObject();
-        if (m.isInstance(wrappedObject)) {
-          return wrappedObject;
-        }
-        throw new ConfigurationException("Not a instance of: " + m.getParameterClass());
-      }
-
-      if (m.isRequired()) {
-        throw new ConfigurationException("There is no shared variable named: ".concat(m.getName()));
-      }
-      return ConvertUtils.convert(m.getDefaultValue(), m.getParameterClass());
-    }, Ordered.LOWEST_PRECEDENCE + 10));
+    final SharedVariableParameterResolver resolver = new SharedVariableParameterResolver();
+    resolver.setOrder(Ordered.LOWEST_PRECEDENCE + 10);
+    resolvers.add(resolver);
   }
 
   @Override
