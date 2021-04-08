@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.StringUtils;
@@ -52,12 +53,10 @@ import static java.util.Collections.unmodifiableList;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @author Sam Brannen
- *
- * @since 2.3.7
- * @see <a href="https://www.w3.org/TR/cors/">CORS spec</a>
- *
  * @author TODAY <br>
- *         2019-12-08 16:39
+ * 2019-12-08 16:39
+ * @see <a href="https://www.w3.org/TR/cors/">CORS spec</a>
+ * @since 2.3.7
  */
 public class CorsConfiguration {
 
@@ -74,6 +73,19 @@ public class CorsConfiguration {
   private List<String> allowedHeaders;
   private List<String> exposedHeaders;
   private List<String> resolvedMethods = DEFAULT_METHODS;
+
+  /** @since 3.0 */
+  private ExpressionEvaluator expressionEvaluator = ContextUtils.getExpressionEvaluator();
+
+  /** @since 3.0 */
+  public void setExpressionEvaluator(ExpressionEvaluator expressionEvaluator) {
+    this.expressionEvaluator = expressionEvaluator;
+  }
+
+  /** @since 3.0 */
+  public ExpressionEvaluator getExpressionEvaluator() {
+    return expressionEvaluator;
+  }
 
   /**
    * Construct a new {@code CorsConfiguration} instance with no cross-origin
@@ -146,7 +158,7 @@ public class CorsConfiguration {
    * "X-Forwarded-Host", "X-Forwarded-Port", and "X-Forwarded-Proto" headers, if
    * present, in order to reflect the client-originated address. Consider using
    * the {@code ForwardedHeaderFilter} in order to choose from a central place
-   * whether to extract and use, or to discard such headers. See the 
+   * whether to extract and use, or to discard such headers. See the
    * Framework reference for more on this filter.
    */
   public void setAllowedMethods(List<String> allowedMethods) {
@@ -388,7 +400,7 @@ public class CorsConfiguration {
    * value explicitly defined.
    *
    * @return the combined {@code CorsConfiguration}, or {@code this} configuration
-   *         if the supplied configuration is {@code null}
+   * if the supplied configuration is {@code null}
    */
   public CorsConfiguration combine(CorsConfiguration other) {
     if (other == null) {
@@ -437,9 +449,10 @@ public class CorsConfiguration {
    * Check the origin of the request against the configured allowed origins.
    *
    * @param requestOrigin
-   *            the origin to check
+   *         the origin to check
+   *
    * @return the origin to use for the response, or {@code null} which means the
-   *         request origin is not allowed
+   * request origin is not allowed
    */
   public String checkOrigin(final String requestOrigin) {
     if (StringUtils.isEmpty(requestOrigin)) {
@@ -469,10 +482,11 @@ public class CorsConfiguration {
    * configured allowed headers.
    *
    * @param requestHeaders
-   *            the request headers to check
+   *         the request headers to check
+   *
    * @return the list of allowed headers to list in the response of a pre-flight
-   *         request, or {@code null} if none of the supplied request headers is
-   *         allowed
+   * request, or {@code null} if none of the supplied request headers is
+   * allowed
    */
   public List<String> checkHeaders(final List<String> requestHeaders) {
 
@@ -513,10 +527,11 @@ public class CorsConfiguration {
    * the configured allowed methods.
    *
    * @param method
-   *            the HTTP request method to check
+   *         the HTTP request method to check
+   *
    * @return the list of HTTP methods to list in the response of a pre-flight
-   *         request, or {@code null} if the supplied {@code requestMethod} is not
-   *         allowed
+   * request, or {@code null} if the supplied {@code requestMethod} is not
+   * allowed
    */
   public List<String> checkHttpMethod(String method) {
     if (method == null) {
@@ -563,6 +578,6 @@ public class CorsConfiguration {
   }
 
   protected String resolveCorsValue(String value) {
-    return ContextUtils.resolveValue(value, String.class);
+    return expressionEvaluator.evaluate(value, String.class);
   }
 }

@@ -25,6 +25,7 @@ import java.util.Objects;
 import java.util.Properties;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.Props;
@@ -95,7 +96,6 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
 
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import static cn.taketoday.context.utils.ContextUtils.resolveProps;
-import static cn.taketoday.context.utils.ContextUtils.resolveValue;
 import static cn.taketoday.web.resolver.ConverterParameterResolver.convert;
 import static cn.taketoday.web.resolver.DelegatingParameterResolver.delegate;
 
@@ -385,14 +385,16 @@ public class WebApplicationLoader
       (ctx, m) -> ctx.getAttribute(m.getName())//
     ));
 
+    final WebApplicationContext context = obtainApplicationContext();
+    final ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(context);
+
     resolvers.add(delegate(m -> m.isAnnotationPresent(Value.class), //
-      (ctx, m) -> resolveValue(m.getAnnotation(Value.class), m.getParameterClass())//
+      (ctx, m) -> expressionEvaluator.evaluate(m.getAnnotation(Value.class), m.getParameterClass())//
     ));
     resolvers.add(delegate(m -> m.isAnnotationPresent(Env.class), //
-      (ctx, m) -> resolveValue(m.getAnnotation(Env.class), m.getParameterClass())//
+      (ctx, m) -> expressionEvaluator.evaluate(m.getAnnotation(Env.class), m.getParameterClass())//
     ));
 
-    final WebApplicationContext context = obtainApplicationContext();
     final Properties properties = context.getEnvironment().getProperties();
 
     resolvers.add(delegate(m -> m.isAnnotationPresent(Props.class), //
