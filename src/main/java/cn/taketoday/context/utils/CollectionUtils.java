@@ -569,4 +569,36 @@ public abstract class CollectionUtils {
     return enumType.asSubclass(Enum.class);
   }
 
+  /**
+   * Replaces the element at the specified position in this
+   * list with the specified element (optional operation).
+   *
+   * @param list
+   *         target list
+   * @param index
+   *         new element's index
+   * @param element
+   *         element object
+   * @param <E>
+   *         Element type
+   *
+   * @throws IndexOutOfBoundsException
+   *         if the index is out of range (index < 0 || index >= size())
+   * @throws NullPointerException
+   *         if the specified element is null and this list does not permit null elements
+   * @since 3.0
+   */
+  public static <E> void setValue(final List<E> list, final int index, final E element) {
+    final int size = list.size();
+    if (index >= size && index < Integer.MAX_VALUE) {
+      for (int i = size; i < index; i++) {
+        list.add(null);
+      }
+      list.add(element);
+    }
+    else {
+      list.set(index, element);
+    }
+  }
+
 }

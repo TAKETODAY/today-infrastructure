@@ -32,6 +32,7 @@ import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.conversion.support.DefaultConversionService;
 import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.utils.Assert;
+import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.GenericDescriptor;
 
 /**
@@ -456,30 +457,19 @@ public class BeanPropertyAccessor {
         convertedValue = convertIfNecessary(convertedValue, (Class<?>) valueType);
       }
 
-      List<Object> list = (List<Object>) propValue;
-      int index = Integer.parseInt(key);
-      int size = list.size();
-      if (index >= size && index < Integer.MAX_VALUE) {
-        for (int i = size; i < index; i++) {
-          try {
-            list.add(null);
-          }
-          catch (NullPointerException ex) {
-            throw new InvalidPropertyValueException(
-                    "Cannot set element with index " + index + " in List of size " + size +
-                            ", accessed using property path '" + propertyPath +
-                            "': List does not support filling up gaps with null elements");
-          }
-        }
-        list.add(convertedValue);
+      final List<Object> list = (List<Object>) propValue;
+      final int index = Integer.parseInt(key);
+      try {
+        CollectionUtils.setValue(list, index, convertedValue);
       }
-      else {
-        try {
-          list.set(index, convertedValue);
-        }
-        catch (IndexOutOfBoundsException ex) {
-          throw new InvalidPropertyValueException("Invalid list index in property path '" + propertyPath + "'", ex);
-        }
+      catch (NullPointerException ex) {
+        throw new InvalidPropertyValueException(
+                "Cannot set element with index " + index + " in List of size " + list.size() +
+                        ", accessed using property path '" + propertyPath +
+                        "': List does not support filling up gaps with null elements");
+      }
+      catch (IndexOutOfBoundsException ex) {
+        throw new InvalidPropertyValueException("Invalid list index in property path '" + propertyPath + "'", ex);
       }
     }
     else if (propValue instanceof Map) {
