@@ -27,6 +27,7 @@ import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.factory.AutowireCapableBeanFactory;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
+import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.loader.CandidateComponentScannerCapable;
 
@@ -44,6 +45,15 @@ public interface ApplicationContext
    * @return {@link Environment}
    */
   Environment getEnvironment();
+
+  /**
+   * Get AbstractBeanFactory
+   *
+   * @return A bean factory
+   *
+   * @since 3.0
+   */
+  BeanFactory getBeanFactory();
 
   /**
    * Refresh factory, initialize singleton

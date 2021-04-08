@@ -27,8 +27,8 @@ import java.lang.reflect.AnnotatedElement;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
+import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.context.annotation.Conditional;
-import cn.taketoday.context.utils.ContextUtils;
 
 /**
  * annotation for a conditional element that depends on the value of a Java
@@ -56,6 +56,8 @@ class OnExpressionCondition implements Condition {
 
   @Override
   public boolean matches(final ApplicationContext context, final AnnotatedElement annotated) {
-    return ContextUtils.resolveValue(annotated.getAnnotation(ConditionalOnExpression.class).value(), boolean.class);
+    ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(context);
+    final String expression = annotated.getAnnotation(ConditionalOnExpression.class).value();
+    return expressionEvaluator.evaluate(expression, boolean.class);
   }
 }

@@ -151,11 +151,15 @@ public class ExpressionProcessor {
    *
    * @return The result of the expression evaluation.
    */
-  @SuppressWarnings("unchecked")
   public <T> T getValue(final String expression, final Class<T> expectedType) {
     final StandardExpressionContext elContext = elManager.getContext();
-    return (T) factory.createValueExpression(elContext, bracket(expression), expectedType)//
-            .getValue(elContext);
+    return getValue(expression, elContext, expectedType);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T getValue(final String expression, final ExpressionContext context, final Class<T> expectedType) {
+    return (T) factory.createValueExpression(context, bracket(expression), expectedType)//
+            .getValue(context);
   }
 
   /**

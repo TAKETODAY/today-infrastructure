@@ -23,6 +23,7 @@ import java.lang.reflect.Field;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.Value;
@@ -30,7 +31,6 @@ import cn.taketoday.context.aware.OrderedApplicationContextSupport;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.DefaultPropertySetter;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 import static cn.taketoday.context.utils.ClassUtils.isAnnotationPresent;
@@ -41,6 +41,8 @@ import static cn.taketoday.context.utils.ClassUtils.isAnnotationPresent;
  */
 public class ValuePropertyResolver
         extends OrderedApplicationContextSupport implements PropertyValueResolver {
+
+  private ExpressionEvaluator expressionEvaluator;
 
   public ValuePropertyResolver(ApplicationContext context) {
     this(context, Ordered.HIGHEST_PRECEDENCE - 1);
@@ -57,12 +59,17 @@ public class ValuePropertyResolver
             || isAnnotationPresent(field, Env.class);
   }
 
+  @Override
+  protected void initApplicationContext(ApplicationContext context) {
+    super.initApplicationContext(context);
+    this.expressionEvaluator = new ExpressionEvaluator(context);
+  }
+
   /**
    * Resolve {@link Value} and {@link Env} annotation property.
    */
   @Override
   public DefaultPropertySetter resolveProperty(final Field field) {
-
     String expression;
     final boolean required;
 
@@ -94,7 +101,7 @@ public class ValuePropertyResolver
     }
     Object resolved;
     try {
-      resolved = ContextUtils.resolveValue(expression, field.getType(), obtainApplicationContext().getEnvironment().getProperties());
+      resolved = expressionEvaluator.evaluate(expression, field.getType());
     }
     catch (ConfigurationException e) {
       return required(field, required, expression, e);

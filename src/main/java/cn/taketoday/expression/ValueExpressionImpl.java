@@ -148,17 +148,17 @@ public final class ValueExpressionImpl extends ValueExpression {
   }
 
   @Override
-  public Class<?> getType(ExpressionContext context) throws PropertyNotFoundException, ExpressionException {
+  public Class<?> getType(ExpressionContext context) throws ExpressionException {
     return getNode().getType(new EvaluationContext(context));
   }
 
   @Override
-  public ValueReference getValueReference(ExpressionContext context) throws PropertyNotFoundException, ExpressionException {
+  public ValueReference getValueReference(ExpressionContext context) throws ExpressionException {
     return getNode().getValueReference(new EvaluationContext(context));
   }
 
   @Override
-  public Object getValue(final ExpressionContext context) throws PropertyNotFoundException, ExpressionException {
+  public Object getValue(final ExpressionContext context) throws ExpressionException {
 
     Object value = this.getNode().getValue(new EvaluationContext(context));
 
@@ -191,14 +191,12 @@ public final class ValueExpressionImpl extends ValueExpression {
   }
 
   @Override
-  public boolean isReadOnly(ExpressionContext context) throws PropertyNotFoundException, ExpressionException {
+  public boolean isReadOnly(ExpressionContext context) throws ExpressionException {
     return getNode().isReadOnly(new EvaluationContext(context));
   }
 
   @Override
-  public void setValue(ExpressionContext context, Object value)
-          throws PropertyNotFoundException, PropertyNotWritableException, ExpressionException //
-  {
+  public void setValue(ExpressionContext context, Object value) throws ExpressionException {
     getNode().setValue(new EvaluationContext(context), value);
   }
 

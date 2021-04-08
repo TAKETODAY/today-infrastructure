@@ -51,6 +51,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConcurrentProperties;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.DefaultProps;
@@ -78,7 +79,6 @@ import cn.taketoday.context.loader.MapParameterResolver;
 import cn.taketoday.context.loader.ObjectSupplierParameterResolver;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.ExpressionProcessor;
 
 import static cn.taketoday.context.Constant.VALUE;
@@ -105,18 +105,23 @@ public abstract class ContextUtils {
 
   private static ExecutableParameterResolver[] parameterResolvers;
 
-  static {
+  /**
+   * @since 3.0
+   */
+  private static ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator();
 
+  static {
     setParameterResolvers(new MapParameterResolver(),
                           new ArrayParameterResolver(),
                           new CollectionParameterResolver(),
                           new ObjectSupplierParameterResolver(),
                           new AutowiredParameterResolver(),
                           delegate(p -> p.isAnnotationPresent(Env.class),
-                                   (p, b) -> resolveValue(p.getAnnotation(Env.class), p.getType())),
+                                   (p, b) -> expressionEvaluator.evaluate(p.getAnnotation(Env.class), p.getType())),
                           delegate(p -> p.isAnnotationPresent(Value.class),
-                                   (p, b) -> resolveValue(p.getAnnotation(Value.class), p.getType()))//
+                                   (p, b) -> expressionEvaluator.evaluate(p.getAnnotation(Value.class), p.getType()))//
     );
+
   }
 
   /**
@@ -130,16 +135,31 @@ public abstract class ContextUtils {
 
   public static void setLastStartupContext(ApplicationContext lastStartupContext) {
     ContextUtils.lastStartupContext = lastStartupContext;
+    expressionEvaluator = new ExpressionEvaluator(lastStartupContext);
+  }
+
+  /**
+   * set Global {@link ExpressionEvaluator}
+   *
+   * @param expressionEvaluator
+   *         a none null ExpressionEvaluator
+   */
+  public static void setExpressionEvaluator(ExpressionEvaluator expressionEvaluator) {
+    Assert.notNull(expressionEvaluator, "ExpressionEvaluator must not be null");
+    ContextUtils.expressionEvaluator = expressionEvaluator;
   }
 
   /**
    * Get shared {@link ExpressionProcessor}
    *
    * @return Shared {@link ExpressionProcessor}
+   *
+   * @throws IllegalStateException
+   *         There isn't a ApplicationContext
    */
   public static ExpressionProcessor getExpressionProcessor() {
     final ApplicationContext ctx = getLastStartupContext();
-    Assert.notNull(ctx, "There isn't a ApplicationContext");
+    Assert.state(ctx != null, "There isn't a ApplicationContext");
     return ctx.getEnvironment().getExpressionProcessor();
   }
 
@@ -164,91 +184,6 @@ public abstract class ContextUtils {
   }
 
   /**
-   * Resolve {@link Env} {@link Annotation}
-   *
-   * @param value
-   *         {@link Env} {@link Annotation}
-   * @param expectedType
-   *         expected value type
-   *
-   * @return A resolved value object
-   *
-   * @throws ConfigurationException
-   *         Can't resolve expression
-   * @since 2.1.6
-   */
-  public static <T> T resolveValue(final Env value, final Class<T> expectedType) {
-
-    final T resolveValue = resolveValue(
-            new StringBuilder()
-                    .append(Constant.PLACE_HOLDER_PREFIX)
-                    .append(value.value())
-                    .append(Constant.PLACE_HOLDER_SUFFIX).toString(), expectedType
-    );
-
-    if (resolveValue != null) {
-      return resolveValue;
-    }
-    if (value.required()) {
-      throw new ConfigurationException("Can't resolve property: [" + value.value() + "]");
-    }
-
-    final String defaultValue = value.defaultValue();
-    if (StringUtils.isEmpty(defaultValue)) {
-      return null;
-    }
-    return resolveValue(defaultValue, expectedType, System.getProperties());
-  }
-
-  /**
-   * Resolve {@link Value} {@link Annotation}
-   *
-   * @param value
-   *         {@link Value} {@link Annotation}
-   * @param expectedType
-   *         expected value type
-   *
-   * @return A resolved value object
-   *
-   * @throws ConfigurationException
-   *         Can't resolve expression
-   * @since 2.1.6
-   */
-  public static <T> T resolveValue(final Value value, final Class<T> expectedType) {
-
-    final T resolveValue = resolveValue(value.value(), expectedType);
-    if (resolveValue != null) {
-      return resolveValue;
-    }
-    if (value.required()) {
-      throw new ConfigurationException("Can't resolve expression: [" + value.value() + "]");
-    }
-    final String defaultValue = value.defaultValue();
-    if (StringUtils.isEmpty(defaultValue)) {
-      return null;
-    }
-    return resolveValue(defaultValue, expectedType, System.getProperties());
-  }
-
-  /**
-   * Replace a placeholder use default {@link System} properties source or eval el
-   *
-   * @param expression
-   *         expression {@link String}
-   * @param expectedType
-   *         expected value type
-   *
-   * @return A resolved value object
-   *
-   * @throws ConfigurationException
-   *         ExpressionException
-   * @since 2.1.6
-   */
-  public static <T> T resolveValue(final String expression, final Class<T> expectedType) {
-    return resolveValue(expression, expectedType, getLastStartupContext().getEnvironment().getProperties());
-  }
-
-  /**
    * replace a placeholder or eval el
    *
    * @param expression
@@ -260,24 +195,10 @@ public abstract class ContextUtils {
    *
    * @since 2.1.6
    */
-  @SuppressWarnings("unchecked")
   public static <T> T resolveValue(final String expression,
                                    final Class<T> expectedType,
                                    final Properties variables) {
-    if (expression.contains(Constant.PLACE_HOLDER_PREFIX)) {
-      final String replaced = resolvePlaceholder(variables, expression, false);
-      return (T) ConvertUtils.convert(replaced, expectedType);
-    }
-
-    if (expression.contains(Constant.EL_PREFIX)) {
-      try {
-        return getExpressionProcessor().getValue(expression, expectedType);
-      }
-      catch (ExpressionException e) {
-        throw new ConfigurationException(e);
-      }
-    }
-    return (T) ConvertUtils.convert(expression, expectedType);
+    return expressionEvaluator.evaluate(expression, expectedType, variables);
   }
 
   /**
@@ -376,38 +297,8 @@ public abstract class ContextUtils {
    * @throws ConfigurationException
    *         If not exist target property
    */
-  public static String resolvePlaceholder(final Map<Object, Object> properties,
-                                          String input, final boolean throw_) {
-    if (input == null || input.length() <= 3) { // #{} > 3
-      return input;
-    }
-    int prefixIndex;
-    int suffixIndex;
-
-    final StringBuilder builder = new StringBuilder();
-    while ((prefixIndex = input.indexOf(Constant.PLACE_HOLDER_PREFIX)) > -1 //
-            && (suffixIndex = input.indexOf(Constant.PLACE_HOLDER_SUFFIX)) > -1) {
-
-      builder.append(input, 0, prefixIndex);
-
-      final String key = input.substring(prefixIndex + 2, suffixIndex);
-
-      final Object property = properties.get(key);
-      if (property == null) {
-        if (throw_) {
-          throw new ConfigurationException("Properties -> [" + key + "] , must specify a value.");
-        }
-        log.debug("There is no property for key: [{}]", key);
-        return null;
-      }
-      // find
-      builder.append(resolvePlaceholder(properties, (property instanceof String) ? (String) property : null, throw_));
-      input = input.substring(suffixIndex + 1);
-    }
-    if (builder.length() == 0) {
-      return input;
-    }
-    return builder.append(input).toString();
+  public static String resolvePlaceholder(final Map<Object, Object> properties, String input, final boolean throw_) {
+    return expressionEvaluator.resolvePlaceholder(properties, input, throw_);
   }
 
   // ----------------- loader
@@ -1036,7 +927,7 @@ public abstract class ContextUtils {
   }
 
   public static void setParameterResolvers(ExecutableParameterResolver... resolvers) {
-    synchronized (ContextUtils.class) {
+    synchronized(ContextUtils.class) {
       parameterResolvers = reversedSort(nonNull(resolvers, "ExecutableParameterResolver must not null"));
     }
   }

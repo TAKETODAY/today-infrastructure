@@ -52,7 +52,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
   private static final Logger log = LoggerFactory.getLogger(StandardEnvironment.class);
 
   private final HashSet<String> activeProfiles = new HashSet<>(4);
-  private final Properties properties = new ConcurrentProperties();
+  private final ConcurrentProperties properties = new ConcurrentProperties();
   private BeanNameCreator beanNameCreator;
 
   /** resolve beanDefinition which It is marked annotation */
