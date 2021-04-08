@@ -39,6 +39,7 @@ import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.annotation.RequestAttribute;
@@ -49,6 +50,7 @@ import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.handler.RequestHandlerAdapter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.CompositeHandlerRegistry;
@@ -56,6 +58,7 @@ import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
+import cn.taketoday.web.resolver.AnnotationParameterResolver;
 import cn.taketoday.web.resolver.AutowiredParameterResolver;
 import cn.taketoday.web.resolver.CookieParameterResolver;
 import cn.taketoday.web.resolver.DataBinderArrayParameterResolver;
@@ -378,29 +381,16 @@ public class WebApplicationLoader
     resolvers.add(convert(m -> m.is(Double.class) || m.is(double.class), Double::parseDouble));
     resolvers.add(convert(m -> m.is(Boolean.class) || m.is(boolean.class), Boolean::parseBoolean));
 
-    // For some useful context annotations @off
+    // For some useful context annotations
     // --------------------------------------------
-
-    resolvers.add(delegate(m -> m.isAnnotationPresent(RequestAttribute.class), //
-      (ctx, m) -> ctx.getAttribute(m.getName())//
-    ));
 
     final WebApplicationContext context = obtainApplicationContext();
     final ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(context);
 
-    resolvers.add(delegate(m -> m.isAnnotationPresent(Value.class), //
-      (ctx, m) -> expressionEvaluator.evaluate(m.getAnnotation(Value.class), m.getParameterClass())//
-    ));
-    resolvers.add(delegate(m -> m.isAnnotationPresent(Env.class), //
-      (ctx, m) -> expressionEvaluator.evaluate(m.getAnnotation(Env.class), m.getParameterClass())//
-    ));
-
-    final Properties properties = context.getEnvironment().getProperties();
-
-    resolvers.add(delegate(m -> m.isAnnotationPresent(Props.class), //
-      (ctx, m) -> resolveProps(m.getAnnotation(Props.class), m.getParameterClass(), properties)//
-    ));
-
+    resolvers.add(new RequestAttributeParameterResolver());
+    resolvers.add(new EnvParameterResolver(expressionEvaluator));
+    resolvers.add(new ValueParameterResolver(expressionEvaluator));
+    resolvers.add(new PropsParameterResolver(context));
     resolvers.add(new AutowiredParameterResolver(context));
 
     // HandlerMethod @on
@@ -600,6 +590,64 @@ public class WebApplicationLoader
 
   public void setDispatcher(DispatcherHandler dispatcherHandler) {
     this.dispatcher = dispatcherHandler;
+  }
+
+  // AnnotationParameterResolver
+
+  static final class PropsParameterResolver extends AnnotationParameterResolver<Props> {
+    final Properties properties;
+    final WebApplicationContext context;
+
+    PropsParameterResolver(WebApplicationContext context) {
+      super(Props.class);
+      this.context = context;
+      this.properties = context.getEnvironment().getProperties();
+    }
+
+    @Override
+    protected Object resolveInternal(Props target, RequestContext ctx, MethodParameter parameter) {
+      final Object bean = ClassUtils.newInstance(parameter.getParameterClass(), context);
+      return resolveProps(target, bean, properties);
+    }
+  }
+
+  static final class ValueParameterResolver extends AnnotationParameterResolver<Value> {
+    final ExpressionEvaluator expressionEvaluator;
+
+    ValueParameterResolver(ExpressionEvaluator expressionEvaluator) {
+      super(Value.class);
+      this.expressionEvaluator = expressionEvaluator;
+    }
+
+    @Override
+    protected Object resolveInternal(Value target, RequestContext context, MethodParameter parameter) {
+      return expressionEvaluator.evaluate(target, parameter.getParameterClass());
+    }
+  }
+
+  static final class EnvParameterResolver extends AnnotationParameterResolver<Env> {
+    final ExpressionEvaluator expressionEvaluator;
+
+    EnvParameterResolver(ExpressionEvaluator expressionEvaluator) {
+      super(Env.class);
+      this.expressionEvaluator = expressionEvaluator;
+    }
+
+    @Override
+    protected Object resolveInternal(Env target, RequestContext context, MethodParameter parameter) {
+      return expressionEvaluator.evaluate(target, parameter.getParameterClass());
+    }
+  }
+
+  static final class RequestAttributeParameterResolver extends AnnotationParameterResolver<RequestAttribute> {
+    RequestAttributeParameterResolver() {
+      super(RequestAttribute.class);
+    }
+
+    @Override
+    public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+      return context.getAttribute(parameter.getName());
+    }
   }
 
 }
