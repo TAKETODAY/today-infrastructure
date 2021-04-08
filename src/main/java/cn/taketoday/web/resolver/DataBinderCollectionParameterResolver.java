@@ -57,20 +57,31 @@ import cn.taketoday.web.handler.MethodParameter;
  */
 public class DataBinderCollectionParameterResolver extends AbstractDataBinderParameterResolver {
 
+  private int maxValueIndex = 100;
+
   @Override
   public boolean supports(MethodParameter parameter) {
     return parameter.isCollection() && !ClassUtils.primitiveTypes.contains(parameter.getParameterClass());
   }
 
+  /**
+   * @return Collection object
+   *
+   * @throws ParameterIndexExceededException
+   *         {@code valueIndex} exceed {@link #maxValueIndex}
+   * @throws ParameterFormatException
+   *         {@code valueIndex} number format error
+   * @see #createCollection(MultiValueMap, MethodParameter)
+   */
   @Override
   protected Object doBind(MultiValueMap<String, PropertyValue> propertyValues, MethodParameter parameter) {
     final Collection<Object> collection = createCollection(propertyValues, parameter);
     final boolean isList = collection instanceof List;
 
+    final int maxValueIndex = getMaxValueIndex();
     final DataBinder dataBinder = new DataBinder();
     final Class<?> parameterClass = getComponentType(parameter);
     final BeanMetadata parameterMetadata = BeanMetadata.ofClass(parameterClass);
-
 
     for (final Map.Entry<String, List<PropertyValue>> entry : propertyValues.entrySet()) {
       final Object rootObject = parameterMetadata.newInstance();
@@ -81,7 +92,10 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
         try {
           final String key = entry.getKey();
           final int valueIndex = Integer.parseInt(key);
-          CollectionUtils.setValue((List)collection, valueIndex, rootObject);
+          if (valueIndex > maxValueIndex) {
+            throw new ParameterIndexExceededException(parameter);
+          }
+          CollectionUtils.setValue((List) collection, valueIndex, rootObject);
         }
         catch (NumberFormatException e) {
           throw new ParameterFormatException(parameter, e);
@@ -94,6 +108,9 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
     return collection;
   }
 
+  /**
+   * create {@link Collection} object
+   */
   protected Collection<Object> createCollection(MultiValueMap<String, PropertyValue> propertyValues, MethodParameter parameter) {
     return CollectionUtils.createCollection(parameter.getParameterClass(), propertyValues.size());
   }
@@ -102,5 +119,12 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
     return (Class<?>) parameter.getGenerics(0);
   }
 
+  public void setMaxValueIndex(int maxValueIndex) {
+    this.maxValueIndex = maxValueIndex;
+  }
+
+  public int getMaxValueIndex() {
+    return maxValueIndex;
+  }
 
 }

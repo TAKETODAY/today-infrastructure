@@ -23,25 +23,26 @@ package cn.taketoday.web.resolver;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**
- * @author TODAY 2021/4/8 17:45
+ * Array or List Index Exceeded
+ *
+ * @author TODAY 2021/4/8 20:46
  * @since 3.0
  */
-public class ParameterFormatException extends MethodParameterException {
+public class ParameterIndexExceededException extends ParameterFormatException {
 
-  public ParameterFormatException(MethodParameter parameter) {
-    super(parameter);
+  public ParameterIndexExceededException(MethodParameter parameter) {
+    super(parameter, "Index Exceeded");
   }
 
-  public ParameterFormatException(MethodParameter parameter, Throwable cause) {
-    super(parameter, null, cause);
+  public ParameterIndexExceededException(MethodParameter parameter, Throwable cause) {
+    super(parameter, cause);
   }
 
-  public ParameterFormatException(MethodParameter parameter, String message) {
-    super(parameter, message, null);
+  public ParameterIndexExceededException(MethodParameter parameter, String message) {
+    super(parameter, message);
   }
 
-  public ParameterFormatException(MethodParameter parameter, String message, Throwable cause) {
+  public ParameterIndexExceededException(MethodParameter parameter, String message, Throwable cause) {
     super(parameter, message, cause);
   }
-
 }

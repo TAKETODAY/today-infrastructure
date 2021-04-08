@@ -33,7 +33,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * @author TODAY 2021/4/8 17:32
  * @since 3.0
  */
-public final class DataBinderArrayParameterResolver extends DataBinderCollectionParameterResolver {
+public class DataBinderArrayParameterResolver extends DataBinderCollectionParameterResolver {
 
   @Override
   public boolean supports(MethodParameter parameter) {
