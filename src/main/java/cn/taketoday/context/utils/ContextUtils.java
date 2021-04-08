@@ -143,12 +143,16 @@ public abstract class ContextUtils {
    *
    * @param expressionEvaluator
    *         a none null ExpressionEvaluator
+   * @since 3.0
    */
   public static void setExpressionEvaluator(ExpressionEvaluator expressionEvaluator) {
     Assert.notNull(expressionEvaluator, "ExpressionEvaluator must not be null");
     ContextUtils.expressionEvaluator = expressionEvaluator;
   }
 
+  /**
+   * @since 3.0
+   */
   public static ExpressionEvaluator getExpressionEvaluator() {
     return expressionEvaluator;
   }
