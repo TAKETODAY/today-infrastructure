@@ -283,11 +283,15 @@ public class ExpressionEvaluator {
       ApplicationContext context = this.context;
       if (context == null) {
         context = ContextUtils.getLastStartupContext();
-        log.info("Using global ApplicationContext {}", context);
+        if (context == null) {
+          log.info("There isn't a global ApplicationContext");
+        }
+        else {
+          log.info("Using global ApplicationContext {}", context);
+        }
       }
       StandardExpressionContext globalContext;
       if (context == null) {
-        log.info("There isn't a global ApplicationContext");
         globalContext = new StandardExpressionContext(exprFactory);
       }
       else {
