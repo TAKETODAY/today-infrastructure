@@ -229,6 +229,10 @@ public class BeanProperty extends AbstractAnnotatedElement {
     return null;
   }
 
+  public boolean isInstance(Object value) {
+    return fieldType.isInstance(value);
+  }
+
   public ConstructorAccessor getConstructor() {
     return constructor;
   }

@@ -80,8 +80,8 @@ public class DataBinder extends BeanPropertyAccessor {
   }
 
   @Override
-  protected Object doConvertInternal(Object value, Class<?> requiredType, BeanProperty beanProperty) {
-    final PropertyEditor editor = findEditor(requiredType, beanProperty);
+  protected Object doConvertInternal(final Object value, final BeanProperty beanProperty) {
+    final PropertyEditor editor = findEditor(beanProperty);
     if (editor != null && value instanceof String) {
       try {
         editor.setAsText((String) value);
@@ -90,10 +90,10 @@ public class DataBinder extends BeanPropertyAccessor {
       catch (IllegalArgumentException ignored) { }
     }
     // fallback to conversion service
-    return super.doConvertInternal(value, requiredType, beanProperty);
+    return super.doConvertInternal(value, beanProperty);
   }
 
-  private PropertyEditor findEditor(Class<?> requiredType, BeanProperty beanProperty) {
+  protected PropertyEditor findEditor(BeanProperty beanProperty) {
     return null;
   }
 

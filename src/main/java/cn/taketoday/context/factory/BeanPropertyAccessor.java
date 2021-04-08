@@ -453,7 +453,7 @@ public class BeanPropertyAccessor {
       Object convertedValue = value;
       final Type valueType = beanProperty.getGeneric(0);
       if (valueType instanceof Class) {
-        convertedValue = convertIfNecessary(convertedValue, (Class<?>) valueType, beanProperty);
+        convertedValue = convertIfNecessary(convertedValue, (Class<?>) valueType);
       }
 
       List<Object> list = (List<Object>) propValue;
@@ -491,7 +491,7 @@ public class BeanPropertyAccessor {
       }
       final Type valueType = beanProperty.getGeneric(1);
       if (valueType instanceof Class) {
-        convertedValue = convertIfNecessary(convertedValue, (Class<?>) valueType, beanProperty);
+        convertedValue = convertIfNecessary(convertedValue, (Class<?>) valueType);
       }
       ((Map) propValue).put(convertedKey, convertedValue);
     }
@@ -511,7 +511,7 @@ public class BeanPropertyAccessor {
           beanProperty.setValue(root, propValue);
         }
 
-        Array.set(propValue, arrayIndex, convertIfNecessary(value, componentType, beanProperty));
+        Array.set(propValue, arrayIndex, convertIfNecessary(value, componentType));
       }
       else {
         throw new InvalidPropertyValueException(
@@ -529,17 +529,13 @@ public class BeanPropertyAccessor {
    *         conversion failed
    */
   protected Object convertIfNecessary(final Object value, final BeanProperty beanProperty) {
-    return convertIfNecessary(value, beanProperty.getType(), beanProperty);
-  }
-
-  protected Object convertIfNecessary(final Object value, final Class<?> requiredType, final BeanProperty beanProperty) {
-    if (requiredType.isInstance(value)) {
+    if (beanProperty.isInstance(value)) {
       return value;
     }
-    return doConvertInternal(value, requiredType, beanProperty);
+    return doConvertInternal(value, beanProperty);
   }
 
-  protected Object doConvertInternal(Object value, Class<?> requiredType, final BeanProperty beanProperty) {
+  protected Object doConvertInternal(Object value, final BeanProperty beanProperty) {
     return doConvertInternal(value, GenericDescriptor.ofProperty(beanProperty));
   }
 
