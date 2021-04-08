@@ -26,6 +26,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.context.conversion.ConversionService;
+
 /**
  * @author TODAY 2021/3/21 15:40
  * @since 3.0
@@ -37,6 +39,10 @@ public class DataBinder extends BeanPropertyAccessor {
 
   public DataBinder(Class<?> beanClass) {
     super(beanClass);
+  }
+
+  public DataBinder(Class<?> beanClass, ConversionService conversionService) {
+    super(beanClass, conversionService);
   }
 
   public DataBinder(Object object) {
