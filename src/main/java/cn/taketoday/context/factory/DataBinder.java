@@ -31,7 +31,7 @@ import java.util.Map;
  * @since 3.0
  */
 public class DataBinder extends BeanPropertyAccessor {
-  protected final List<PropertyValue> propertyValues = new LinkedList<>();
+  protected final LinkedList<PropertyValue> propertyValues = new LinkedList<>();
 
   public DataBinder() { }
 
