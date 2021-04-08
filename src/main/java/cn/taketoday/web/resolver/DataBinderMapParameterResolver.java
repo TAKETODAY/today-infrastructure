@@ -34,7 +34,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * 2019-07-09 22:49
  */
 public class DataBinderMapParameterResolver
-        extends AbstractDataBinderParameterResolver<String> implements ParameterResolver {
+        extends AbstractDataBinderParameterResolver implements ParameterResolver {
 
   public DataBinderMapParameterResolver() {
     this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 90);
@@ -53,11 +53,6 @@ public class DataBinderMapParameterResolver
     return parameter.is(Map.class);
   }
 
-  @Override
-  protected void doPutValue(MultiValueMap<String, PropertyValue> propertyValues, String key, PropertyValue propertyValue) {
-    propertyValues.add(key, propertyValue);
-  }
-
   /**
    * Resolve {@link Map} parameter.
    */
@@ -66,7 +61,7 @@ public class DataBinderMapParameterResolver
     final Map<String, Object> map = CollectionUtils.createMap(parameter.getParameterClass(), propertyValues.size());
 
     final DataBinder dataBinder = new DataBinder();
-    final Class<?> parameterClass = (Class<?>) parameter.getGenerics(0);
+    final Class<?> parameterClass = (Class<?>) parameter.getGenerics(1);
     final BeanMetadata parameterMetadata = BeanMetadata.ofClass(parameterClass);
     for (final Map.Entry<String, List<PropertyValue>> entry : propertyValues.entrySet()) {
       final Object rootObject = parameterMetadata.newInstance();

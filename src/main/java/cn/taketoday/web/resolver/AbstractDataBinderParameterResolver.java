@@ -34,7 +34,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * @author TODAY 2021/4/8 17:33
  * @since 3.0
  */
-public abstract class AbstractDataBinderParameterResolver<K> extends OrderedAbstractParameterResolver {
+public abstract class AbstractDataBinderParameterResolver extends OrderedAbstractParameterResolver {
 
   @Override
   protected Object resolveInternal(RequestContext context, MethodParameter parameter) throws Throwable {
@@ -42,7 +42,8 @@ public abstract class AbstractDataBinderParameterResolver<K> extends OrderedAbst
     final int parameterNameLength = parameterName.length();
     // prepare property values
     final Map<String, String[]> parameters = context.getParameters();
-    final DefaultMultiValueMap<K, PropertyValue> propertyValues = new DefaultMultiValueMap<>();
+
+    final DefaultMultiValueMap<String, PropertyValue> propertyValues = new DefaultMultiValueMap<>();
     for (final Map.Entry<String, String[]> entry : parameters.entrySet()) {
       final String[] paramValues = entry.getValue();
       if (ObjectUtils.isNotEmpty(paramValues)) {
@@ -57,12 +58,8 @@ public abstract class AbstractDataBinderParameterResolver<K> extends OrderedAbst
           final String key = requestParameterName.substring(parameterNameLength + 1, closeKey);
 
           final PropertyValue propertyValue = new PropertyValue(property, paramValues[0]);
-          try {
-            doPutValue(propertyValues, key, propertyValue);
-          }
-          catch (NumberFormatException e) {
-            throw new ParameterFormatException(parameter, e);
-          }
+
+          propertyValues.add(key, propertyValue);
         }
       }
     }
@@ -70,9 +67,10 @@ public abstract class AbstractDataBinderParameterResolver<K> extends OrderedAbst
     return doBind(propertyValues, parameter);
   }
 
+  /**
+   * Bind {@code propertyValues} to object
+   */
   protected abstract Object doBind(
-          MultiValueMap<K, PropertyValue> propertyValues, MethodParameter parameter);
+          MultiValueMap<String, PropertyValue> propertyValues, MethodParameter parameter);
 
-  protected abstract void doPutValue(
-          MultiValueMap<K, PropertyValue> propertyValues, String key, PropertyValue propertyValue);
 }

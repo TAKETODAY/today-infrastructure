@@ -21,7 +21,8 @@
 package cn.taketoday.web.resolver;
 
 import java.lang.reflect.Array;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import cn.taketoday.context.factory.PropertyValue;
 import cn.taketoday.context.utils.ClassUtils;
@@ -32,20 +33,29 @@ import cn.taketoday.web.handler.MethodParameter;
  * @author TODAY 2021/4/8 17:32
  * @since 3.0
  */
-public class DataBinderArrayParameterResolver extends DataBinderCollectionParameterResolver {
+public final class DataBinderArrayParameterResolver extends DataBinderCollectionParameterResolver {
 
   @Override
   public boolean supports(MethodParameter parameter) {
-    return parameter.isArray() && !ClassUtils.primitiveTypes.contains(parameter.getParameterClass());
+    return parameter.isArray() && !ClassUtils.isSimpleType(parameter.getParameterClass());
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  protected Object doBind(MultiValueMap<Integer, PropertyValue> propertyValues, MethodParameter parameter) {
-    final List<Object> list = (List<Object>) super.doBind(propertyValues, parameter);
-    final Class<?> parameterClass = parameter.getParameterClass();
-    final Object[] o = (Object[]) Array.newInstance(parameterClass, list.size());
+  protected Object doBind(MultiValueMap<String, PropertyValue> propertyValues, MethodParameter parameter) {
+    final ArrayList<Object> list = (ArrayList<Object>) super.doBind(propertyValues, parameter);
+    final Class<?> componentType = parameter.getComponentType();
+    final Object[] o = (Object[]) Array.newInstance(componentType, list.size());
     return list.toArray(o);
   }
 
+  @Override
+  protected Class<?> getComponentType(MethodParameter parameter) {
+    return parameter.getComponentType();
+  }
+
+  @Override
+  protected Collection<Object> createCollection(MultiValueMap<String, PropertyValue> propertyValues, MethodParameter parameter) {
+    return new ArrayList<>(propertyValues.size());
+  }
 }

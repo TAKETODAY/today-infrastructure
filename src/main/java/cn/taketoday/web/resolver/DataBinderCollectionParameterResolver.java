@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.resolver;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -33,10 +33,29 @@ import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**
+ * resolve collection parameter
+ *
+ * <pre>
+ *  class UserForm {
+ *     int age;
+ *
+ *     String name;
+ *
+ *     String[] arr;
+ *
+ *     List<String> stringList;
+ *
+ *     Map<String, Integer> map;
+ *  }
+ *
+ *  void test(List<UserForm> userList) { }
+ *
+ * </pre>
+ *
  * @author TODAY 2021/4/8 14:33
  * @since 3.0
  */
-public class DataBinderCollectionParameterResolver extends AbstractDataBinderParameterResolver<Integer> {
+public class DataBinderCollectionParameterResolver extends AbstractDataBinderParameterResolver {
 
   @Override
   public boolean supports(MethodParameter parameter) {
@@ -44,26 +63,44 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
   }
 
   @Override
-  protected Object doBind(MultiValueMap<Integer, PropertyValue> propertyValues, MethodParameter parameter) {
-    final ArrayList<Object> list = new ArrayList<>();
+  protected Object doBind(MultiValueMap<String, PropertyValue> propertyValues, MethodParameter parameter) {
+    final Collection<Object> collection = createCollection(propertyValues, parameter);
+    final boolean isList = collection instanceof List;
 
     final DataBinder dataBinder = new DataBinder();
-    final Class<?> parameterClass = (Class<?>) parameter.getGenerics(0);
+    final Class<?> parameterClass = getComponentType(parameter);
     final BeanMetadata parameterMetadata = BeanMetadata.ofClass(parameterClass);
-    for (final Map.Entry<Integer, List<PropertyValue>> entry : propertyValues.entrySet()) {
+
+
+    for (final Map.Entry<String, List<PropertyValue>> entry : propertyValues.entrySet()) {
       final Object rootObject = parameterMetadata.newInstance();
       final List<PropertyValue> propertyValueList = entry.getValue();
       dataBinder.bind(rootObject, parameterMetadata, propertyValueList);
 
-      CollectionUtils.setValue(list, entry.getKey(), rootObject);
+      if (isList) {
+        try {
+          final String key = entry.getKey();
+          final int valueIndex = Integer.parseInt(key);
+          CollectionUtils.setValue((List)collection, valueIndex, rootObject);
+        }
+        catch (NumberFormatException e) {
+          throw new ParameterFormatException(parameter, e);
+        }
+      }
+      else {
+        collection.add(rootObject);
+      }
     }
-    return list;
+    return collection;
   }
 
-  @Override
-  protected void doPutValue(MultiValueMap<Integer, PropertyValue> propertyValues, String key, PropertyValue propertyValue) {
-    final int valueIndex = Integer.parseInt(key);
-    propertyValues.add(valueIndex, propertyValue);
+  protected Collection<Object> createCollection(MultiValueMap<String, PropertyValue> propertyValues, MethodParameter parameter) {
+    return CollectionUtils.createCollection(parameter.getParameterClass(), propertyValues.size());
   }
+
+  protected Class<?> getComponentType(MethodParameter parameter) {
+    return (Class<?>) parameter.getGenerics(0);
+  }
+
 
 }
