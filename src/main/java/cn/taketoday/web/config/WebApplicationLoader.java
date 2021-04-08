@@ -55,9 +55,9 @@ import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
-import cn.taketoday.web.resolver.ArrayParameterResolver;
 import cn.taketoday.web.resolver.AutowiredParameterResolver;
 import cn.taketoday.web.resolver.CookieParameterResolver;
+import cn.taketoday.web.resolver.DataBinderArrayParameterResolver;
 import cn.taketoday.web.resolver.DataBinderCollectionParameterResolver;
 import cn.taketoday.web.resolver.DataBinderMapParameterResolver;
 import cn.taketoday.web.resolver.DefaultMultipartResolver;
@@ -66,6 +66,7 @@ import cn.taketoday.web.resolver.ModelParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolvers;
 import cn.taketoday.web.resolver.RequestBodyParameterResolver;
+import cn.taketoday.web.resolver.SimpleArrayParameterResolver;
 import cn.taketoday.web.resolver.StreamParameterResolver;
 import cn.taketoday.web.resolver.ThrowableHandlerParameterResolver;
 import cn.taketoday.web.resolver.date.DateParameterResolver;
@@ -423,18 +424,19 @@ public class WebApplicationLoader
       log.info("RedirectModel disabled");
       modelManager = RedirectModelManager.NOP;
     }
+
+    // @since 3.0
     resolvers.add(new DataBinderMapParameterResolver());
+    resolvers.add(new DataBinderArrayParameterResolver());
+    resolvers.add(new DataBinderCollectionParameterResolver());
+
     resolvers.add(new ModelParameterResolver(modelManager));
-    resolvers.add(new ArrayParameterResolver());
+    resolvers.add(new SimpleArrayParameterResolver());
     resolvers.add(new StreamParameterResolver());
 
     final MessageConverter messageConverter = context.getBean(MessageConverter.class);
     resolvers.add(new RequestBodyParameterResolver(messageConverter));
     resolvers.add(new ThrowableHandlerParameterResolver());
-
-//    resolvers.add(new CollectionParameterResolver());
-    resolvers.add(new DataBinderCollectionParameterResolver());
-    //resolvers.add(new DataBinderParameterResolver());
 
     // Date API support
     resolvers.add(new DateParameterResolver());

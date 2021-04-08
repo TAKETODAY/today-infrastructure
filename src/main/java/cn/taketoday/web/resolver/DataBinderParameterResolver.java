@@ -19,13 +19,22 @@
  */
 package cn.taketoday.web.resolver;
 
+import java.util.List;
+import java.util.Map;
+
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.support.DefaultConversionService;
+import cn.taketoday.context.factory.DataBinder;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.CollectionUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.utils.WebUtils;
 
 /**
  * Resolve Bean
@@ -40,7 +49,7 @@ public class DataBinderParameterResolver
   private ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
   public DataBinderParameterResolver() {
-    this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 100);
+    this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 200);
   }
 
   public DataBinderParameterResolver(final int order) {
@@ -62,12 +71,37 @@ public class DataBinderParameterResolver
   @Override
   public Object resolveParameter(final RequestContext context, final MethodParameter parameter) {
     final Class<?> parameterClass = parameter.getParameterClass();
-    final WebDataBinder dataBinder = new WebDataBinder(parameterClass);
-    dataBinder.setConversionService(conversionService);
-    return dataBinder.bind(context);
+    final DataBinder dataBinder = new DataBinder(parameterClass, conversionService);
+
+    final Map<String, String[]> parameters = context.getParameters();
+    for (final Map.Entry<String, String[]> entry : parameters.entrySet()) {
+      final String[] value = entry.getValue();
+      if (ObjectUtils.isNotEmpty(value)) {
+        dataBinder.addPropertyValue(entry.getKey(), value[0]);
+      }
+    }
+
+    if (WebUtils.isMultipart(context)) {
+      // Multipart
+      final Map<String, List<MultipartFile>> multipartFiles = context.multipartFiles();
+      if (!CollectionUtils.isEmpty(multipartFiles)) {
+        for (final Map.Entry<String, List<MultipartFile>> entry : multipartFiles.entrySet()) {
+          final List<MultipartFile> files = entry.getValue();
+          if (files.size() == 1) {
+            dataBinder.addPropertyValue(entry.getKey(), files.get(0));
+          }
+          else {
+            dataBinder.addPropertyValue(entry.getKey(), files);
+          }
+        }
+      }
+    }
+
+    return dataBinder.bind();
   }
 
   public void setConversionService(ConversionService conversionService) {
+    Assert.notNull(conversionService, "conversionService must not be null");
     this.conversionService = conversionService;
   }
 

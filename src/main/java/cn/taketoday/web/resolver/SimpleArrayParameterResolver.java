@@ -34,14 +34,14 @@ import cn.taketoday.web.handler.MethodParameter;
  * @author TODAY <br>
  * 2019-07-07 23:24
  */
-public class ArrayParameterResolver
+public class SimpleArrayParameterResolver
         extends OrderedSupport implements ParameterResolver {
 
-  public ArrayParameterResolver() {
+  public SimpleArrayParameterResolver() {
     this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 70);
   }
 
-  public ArrayParameterResolver(int order) {
+  public SimpleArrayParameterResolver(int order) {
     super(order);
   }
 
@@ -52,7 +52,6 @@ public class ArrayParameterResolver
 
   @Override
   public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-
     final String name = parameter.getName();
     // parameter value[]
     String[] values = context.getParameters(name);

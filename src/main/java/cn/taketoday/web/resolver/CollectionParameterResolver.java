@@ -29,7 +29,8 @@ import cn.taketoday.web.handler.MethodParameter;
  * @author TODAY <br>
  * 2019-07-09 22:49
  */
-public abstract class CollectionParameterResolver implements ParameterResolver {
+public abstract class CollectionParameterResolver
+        extends AbstractParameterResolver implements ParameterResolver {
 
   @Override
   public final boolean supports(final MethodParameter parameter) {
@@ -44,7 +45,7 @@ public abstract class CollectionParameterResolver implements ParameterResolver {
    * Resolve {@link Collection} parameter.
    */
   @Override
-  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+  protected Object resolveInternal(RequestContext context, MethodParameter parameter) throws Throwable {
     final Collection<?> collection = resolveCollection(context, parameter);
     if (parameter.is(collection.getClass())) {
       return collection;
@@ -57,6 +58,5 @@ public abstract class CollectionParameterResolver implements ParameterResolver {
 
   protected abstract Collection<?> resolveCollection(
           final RequestContext context, final MethodParameter parameter) throws Throwable;
-
 
 }

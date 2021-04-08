@@ -21,63 +21,30 @@
 package cn.taketoday.web.resolver;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.context.factory.BeanMetadata;
-import cn.taketoday.context.factory.BeanPropertyAccessor;
 import cn.taketoday.context.factory.DataBinder;
 import cn.taketoday.context.factory.PropertyValue;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.context.utils.DefaultMultiValueMap;
-import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.web.RequestContext;
+import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**
  * @author TODAY 2021/4/8 14:33
  * @since 3.0
  */
-public class DataBinderCollectionParameterResolver extends CollectionParameterResolver {
+public class DataBinderCollectionParameterResolver extends AbstractDataBinderParameterResolver<Integer> {
 
   @Override
-  protected boolean supportsInternal(MethodParameter parameter) {
-    return ClassUtils.primitiveTypes.contains(parameter.getParameterClass());
+  public boolean supports(MethodParameter parameter) {
+    return parameter.isCollection() && !ClassUtils.primitiveTypes.contains(parameter.getParameterClass());
   }
 
   @Override
-  protected Collection<?> resolveCollection(RequestContext context, MethodParameter parameter) throws Throwable {
-    final String parameterName = parameter.getName();
-
-    final int parameterNameLength = parameterName.length();
-
-    // prepare property values
-    final Map<String, String[]> parameters = context.getParameters();
-
-    final DefaultMultiValueMap<Integer, PropertyValue> propertyValues = new DefaultMultiValueMap<>();
-
-    for (final Map.Entry<String, String[]> entry : parameters.entrySet()) {
-      final String[] paramValues = entry.getValue();
-      if (ObjectUtils.isNotEmpty(paramValues)) {
-        final String requestParameterName = entry.getKey();
-        // users[0].userName=TODAY&users[0].age=20
-        if (requestParameterName.startsWith(parameterName)
-                && requestParameterName.charAt(parameterNameLength) == '[') {
-          // userList[0].name  '.' 's index
-          final int separatorIndex = BeanPropertyAccessor.getNestedPropertySeparatorIndex(requestParameterName);
-          final String property = requestParameterName.substring(separatorIndex + 1);
-          final int closeKey = requestParameterName.indexOf(']');
-          final String key = requestParameterName.substring(parameterNameLength + 1, closeKey);
-
-          final PropertyValue propertyValue = new PropertyValue(property, paramValues[0]);
-          final int valueIndex = Integer.parseInt(key);
-          propertyValues.add(valueIndex, propertyValue);
-        }
-      }
-    }
-
+  protected Object doBind(MultiValueMap<Integer, PropertyValue> propertyValues, MethodParameter parameter) {
     final ArrayList<Object> list = new ArrayList<>();
 
     final DataBinder dataBinder = new DataBinder();
@@ -91,6 +58,12 @@ public class DataBinderCollectionParameterResolver extends CollectionParameterRe
       CollectionUtils.setValue(list, entry.getKey(), rootObject);
     }
     return list;
+  }
+
+  @Override
+  protected void doPutValue(MultiValueMap<Integer, PropertyValue> propertyValues, String key, PropertyValue propertyValue) {
+    final int valueIndex = Integer.parseInt(key);
+    propertyValues.add(valueIndex, propertyValue);
   }
 
 }

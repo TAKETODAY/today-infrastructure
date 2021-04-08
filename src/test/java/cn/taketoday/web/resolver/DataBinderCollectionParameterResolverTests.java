@@ -23,7 +23,6 @@ package cn.taketoday.web.resolver;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -134,15 +133,16 @@ public class DataBinderCollectionParameterResolverTests {
     {
       put("userList[0].age", "20");
       put("userList[0].name", "TODAY");
-      put("userList[10].name", "TODAY");
 
       put("userList[0].map[1]", "1");
       put("userList[0].map[2]", "2");
-      put("userList[10].map[2]", "2");
 
       put("userList[0].arr[0]", "1");
       put("userList[0].arr[1]", "2");
       put("userList[0].arr[2]", "3");
+
+      put("userList[10].name", "TODAY");
+      put("userList[10].map[2]", "2");
       put("userList[10].arr[2]", "3");
     }
 
@@ -154,9 +154,7 @@ public class DataBinderCollectionParameterResolverTests {
   @Test
   @SuppressWarnings("unchecked")
   public void resolveCollection() throws Throwable {
-
     final UserForm today = new UserForm().setAge(20).setName("TODAY");
-    List<UserForm> list = Arrays.asList(today);
 
     final DataBinderCollectionParameterResolver resolver = new DataBinderCollectionParameterResolver();
     final ParameterMockRequestContext context = new ParameterMockRequestContext(params);
@@ -174,7 +172,30 @@ public class DataBinderCollectionParameterResolverTests {
     assertThat(userForm).isEqualTo(today);
     assertThat(userForm.name).isEqualTo("TODAY");
     assertThat(userForm.age).isEqualTo(20);
+    assertThat(userForm.arr).hasSize(3);
 
+    assertThat(userForm.arr[0]).isEqualTo("1");
+    assertThat(userForm.arr[1]).isEqualTo("2");
+    assertThat(userForm.arr[2]).isEqualTo("3");
+
+    assertThat(userForm.map)
+            .hasSize(2)
+            .containsEntry("1", 1)
+            .containsEntry("2", 2);
+
+    final UserForm userForm10 = res.get(10);
+
+    assertThat(userForm10.name).isEqualTo("TODAY");
+    assertThat(userForm10.age).isZero();
+
+    assertThat(userForm10.arr).hasSize(3);
+    assertThat(userForm10.arr[0]).isNull();
+    assertThat(userForm10.arr[1]).isNull();
+    assertThat(userForm10.arr[2]).isEqualTo("3");
+
+    assertThat(userForm10.map)
+            .containsEntry("2", 2)
+            .hasSize(1);
 
 //    assertThat(newVersion).isEqualTo(today);
   }
