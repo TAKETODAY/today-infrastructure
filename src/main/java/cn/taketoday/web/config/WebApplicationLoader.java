@@ -100,7 +100,6 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import static cn.taketoday.context.utils.ContextUtils.resolveProps;
 import static cn.taketoday.web.resolver.ConverterParameterResolver.convert;
-import static cn.taketoday.web.resolver.DelegatingParameterResolver.delegate;
 
 /**
  * @author TODAY <br>
@@ -409,7 +408,7 @@ public class WebApplicationLoader
     resolvers.add(new AutowiredParameterResolver(context));
 
     // HandlerMethod
-    resolvers.add(delegate(m -> m.is(HandlerMethod.class), (ctx, m) -> m.getHandlerMethod()));
+    resolvers.add(new HandlerMethodParameterResolver());
 
     // For cookies
     // ------------------------------------------
@@ -667,4 +666,15 @@ public class WebApplicationLoader
     }
   }
 
+  static final class HandlerMethodParameterResolver implements ParameterResolver {
+    @Override
+    public boolean supports(MethodParameter parameter) {
+      return parameter.is(HandlerMethod.class);
+    }
+
+    @Override
+    public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+      return parameter.getHandlerMethod();
+    }
+  }
 }
