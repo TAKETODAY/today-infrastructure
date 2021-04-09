@@ -27,7 +27,6 @@ import org.xml.sax.InputSource;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -38,7 +37,6 @@ import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
@@ -54,9 +52,7 @@ import static cn.taketoday.context.exception.ConfigurationException.nonNull;
  * @author TODAY <br>
  * 2019-12-23 22:10
  */
-public class ViewControllerHandlerRegistry extends CacheableMappedHandlerRegistry {
-
-  private Properties variables;
+public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
 
   public final ViewController getViewController(String key) {
     return getViewController(key, RequestContextHolder.currentContext());
@@ -145,15 +141,18 @@ public class ViewControllerHandlerRegistry extends CacheableMappedHandlerRegistr
   @Override
   protected void initApplicationContext(ApplicationContext context) {
     super.initApplicationContext(context);
-    this.variables = context.getEnvironment().getProperties();
   }
 
   /**
+   * configure {@link ViewController}s from a xml file
+   *
    * @param webMvcConfigLocation
-   *         Configuration File location
+   *         Configuration File location , split-able
+   *
+   * @see StringUtils#split(String)
+   * @see StringUtils#isSplitable(char)
    */
   public void configure(final String webMvcConfigLocation) throws Exception {
-
     final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     factory.setIgnoringComments(true);
     final DocumentBuilder builder = factory.newDocumentBuilder();
@@ -243,12 +242,13 @@ public class ViewControllerHandlerRegistry extends CacheableMappedHandlerRegistr
   }
 
   protected Object getControllerBean(final String name, final String className) {
-
     Object controllerBean = null;
     final WebApplicationContext context = obtainApplicationContext();
     if (StringUtils.isNotEmpty(name)) {
       if (StringUtils.isEmpty(className)) {
-        return nonNull(context.getBean(name), "You must provide a bean named: [" + name + "] or a 'class' attribute");
+        final Object bean = context.getBean(name);
+        Assert.state(bean != null, () -> "You must provide a bean named: [" + name + "] or a 'class' attribute");
+        return bean;
       }
       else {
         final Class<?> beanClass = ClassUtils.loadClass(className);
@@ -268,10 +268,10 @@ public class ViewControllerHandlerRegistry extends CacheableMappedHandlerRegistr
     return controllerBean;
   }
 
-  protected ViewController processAction(final String prefix,
-                                         final String suffix,
-                                         final Element action,
-                                         final Object controller) //
+  protected void processAction(final String prefix,
+                               final String suffix,
+                               final Element action,
+                               final Object controller) //
   {
 
     String name = action.getAttribute(Constant.ATTR_NAME); // action name
@@ -332,11 +332,7 @@ public class ViewControllerHandlerRegistry extends CacheableMappedHandlerRegistr
     name = resolveVariables(getContextPath().concat(StringUtils.checkUrl(name)));
 
     register(name, mapping);
-    return mapping;
-  }
-
-  protected String resolveVariables(final String expression) {
-    return ContextUtils.resolveValue(expression, String.class, variables);
   }
 
 }
+

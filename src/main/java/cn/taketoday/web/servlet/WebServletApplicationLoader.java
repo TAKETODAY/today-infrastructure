@@ -99,7 +99,13 @@ public class WebServletApplicationLoader
       final File dir = new File(rootPath);
       if (dir.exists()) {
         log.trace("Finding Configuration File From Root Path: [{}]", rootPath);
-        scanXml(dir, paths, (path -> (path.isDirectory() || path.getName().endsWith(".xml"))));
+        final class XmlFileFilter implements FileFilter {
+          @Override
+          public boolean accept(File path) {
+            return path.isDirectory() || path.getName().endsWith(".xml");
+          }
+        }
+        scanXml(dir, paths, new XmlFileFilter());
         return StringUtils.arrayToString(paths.toArray(new String[paths.size()]));
       }
       return null;

@@ -27,7 +27,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.Set;
 
 import cn.taketoday.context.AnnotationAttributes;
@@ -64,7 +63,6 @@ import cn.taketoday.web.resolver.ParameterResolvers;
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributes;
 import static cn.taketoday.context.utils.CollectionUtils.newHashSet;
-import static cn.taketoday.context.utils.ContextUtils.resolveValue;
 import static cn.taketoday.context.utils.StringUtils.checkUrl;
 import static java.util.Collections.addAll;
 
@@ -78,12 +76,11 @@ import static java.util.Collections.addAll;
 public class HandlerMethodRegistry
         extends AbstractUrlHandlerRegistry implements HandlerRegistry, WebApplicationInitializer {
 
-  private Properties variables;
   private AbstractBeanFactory beanFactory;
   private BeanDefinitionLoader beanDefinitionLoader;
 
   // @since 3.0
-  protected final MethodParameterBuilder parameterBuilder = new MethodParameterBuilder();
+  protected MethodParameterBuilder parameterBuilder;
 
   public HandlerMethodRegistry() {
     setOrder(HIGHEST_PRECEDENCE);
@@ -102,19 +99,17 @@ public class HandlerMethodRegistry
    */
   @Override
   public void onStartup(WebApplicationContext context) {
-
     log.info("Initializing Annotation Controllers");
     startConfiguration();
   }
 
   @Override
   protected void initApplicationContext(ApplicationContext context) {
-    this.beanFactory = nonNull(context.getBean(AbstractBeanFactory.class));
-    final Environment environment = context.getEnvironment();
+    setBeanFactory(nonNull(context.getBean(AbstractBeanFactory.class)));
 
-    this.variables = environment.getProperties();
+    final Environment environment = context.getEnvironment();
     this.beanDefinitionLoader = environment.getBeanDefinitionLoader();
-    this.parameterBuilder.setParameterResolvers(context.getBean(ParameterResolvers.class));
+    setParameterBuilder(new MethodParameterBuilder(context.getBean(ParameterResolvers.class)));
 
     super.initApplicationContext(context);
   }
@@ -122,7 +117,7 @@ public class HandlerMethodRegistry
   /**
    * Start config
    */
-  protected void startConfiguration() {
+  public void startConfiguration() {
     final ApplicationContext beanFactory = obtainApplicationContext();
     // @since 2.3.3
     for (final Entry<String, BeanDefinition> entry : beanFactory.getBeanDefinitions().entrySet()) {
@@ -272,12 +267,8 @@ public class HandlerMethodRegistry
    */
   protected void mappingHandlerMethod(String path, RequestMethod requestMethod, HandlerMethod handlerMethod) {
     // GET/blog/users/1 GET/blog/#{key}/1
-    final String pathPattern = getContextPath().concat(resolveVariable(path));
+    final String pathPattern = getContextPath().concat(resolveVariables(path));
     registerHandler(requestMethod, pathPattern, transformHandlerMethod(pathPattern, handlerMethod));
-  }
-
-  protected String resolveVariable(String path) {
-    return resolveValue(path, String.class, variables);
   }
 
   public void registerHandler(RequestMethod method, String pathPattern, Object handler) {
@@ -452,9 +443,32 @@ public class HandlerMethodRegistry
    * Rebuild Controllers
    */
   public void rebuiltControllers() {
-
     log.info("Rebuilding Controllers");
     clearHandlers();
     startConfiguration();
+  }
+
+  public void setBeanFactory(AbstractBeanFactory beanFactory) {
+    this.beanFactory = beanFactory;
+  }
+
+  public void setParameterBuilder(MethodParameterBuilder parameterBuilder) {
+    this.parameterBuilder = parameterBuilder;
+  }
+
+  public void setBeanDefinitionLoader(BeanDefinitionLoader beanDefinitionLoader) {
+    this.beanDefinitionLoader = beanDefinitionLoader;
+  }
+
+  public AbstractBeanFactory getBeanFactory() {
+    return beanFactory;
+  }
+
+  public MethodParameterBuilder getParameterBuilder() {
+    return parameterBuilder;
+  }
+
+  public BeanDefinitionLoader getBeanDefinitionLoader() {
+    return beanDefinitionLoader;
   }
 }

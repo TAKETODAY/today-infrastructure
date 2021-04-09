@@ -449,6 +449,9 @@ public class WebApplicationLoader
     return registry;
   }
 
+  /**
+   * @see ViewControllerHandlerRegistry#configure(String)
+   */
   protected String getWebMvcConfigLocation() {
     return obtainApplicationContext().getEnvironment().getProperty(Constant.WEB_MVC_CONFIG_LOCATION);
   }

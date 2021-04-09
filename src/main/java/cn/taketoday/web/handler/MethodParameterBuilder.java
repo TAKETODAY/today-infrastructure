@@ -35,6 +35,14 @@ import cn.taketoday.web.resolver.ParameterResolvers;
 public class MethodParameterBuilder {
   private ParameterResolvers parameterResolvers;
 
+  public MethodParameterBuilder() {
+    this(new ParameterResolvers());
+  }
+
+  public MethodParameterBuilder(ParameterResolvers parameterResolvers) {
+    this.parameterResolvers = parameterResolvers;
+  }
+
   public MethodParameter[] build(Method method) {
     final int length = method.getParameterCount();
     if (length == 0) {

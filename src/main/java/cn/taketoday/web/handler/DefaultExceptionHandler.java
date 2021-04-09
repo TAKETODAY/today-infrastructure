@@ -147,8 +147,7 @@ public class DefaultExceptionHandler
   public void onStartup(final WebApplicationContext beanFactory) {
     log.info("Initialize @ExceptionHandler");
     final ParameterResolvers resolvers = beanFactory.getBean(ParameterResolvers.class);
-    final MethodParameterBuilder builder = new MethodParameterBuilder();
-    builder.setParameterResolvers(resolvers);
+    final MethodParameterBuilder builder = new MethodParameterBuilder(resolvers);
 
     // get all error handlers
     final List<Object> errorHandlers = beanFactory.getAnnotatedBeans(ControllerAdvice.class);
