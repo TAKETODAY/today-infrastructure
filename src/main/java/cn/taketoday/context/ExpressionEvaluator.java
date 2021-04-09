@@ -277,6 +277,14 @@ public class ExpressionEvaluator {
     return expressionProcessor;
   }
 
+  public void setContext(ApplicationContext context) {
+    this.context = context;
+  }
+
+  public ApplicationContext getContext() {
+    return context;
+  }
+
   private ExpressionProcessor obtainProcessor() {
     if (expressionProcessor == null) {
       final ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
