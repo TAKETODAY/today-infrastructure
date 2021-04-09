@@ -35,6 +35,10 @@ public class ConverterParameterResolver
   private final SupportsFunction supports;
   private final Converter<String, Object> converter;
 
+  public ConverterParameterResolver(Class<?> targetType, Converter<String, Object> converter) {
+    this(new TargetSupportsFunction(targetType), converter, LOWEST_PRECEDENCE);
+  }
+
   public ConverterParameterResolver(SupportsFunction supports, Converter<String, Object> converter) {
     this(supports, converter, LOWEST_PRECEDENCE);
   }
@@ -74,6 +78,11 @@ public class ConverterParameterResolver
     return converter.convert(defaultValue);
   }
 
+  public static ConverterParameterResolver convert(Class<?> targetType,
+                                                   Converter<String, Object> converter) {
+    return new ConverterParameterResolver(targetType, converter);
+  }
+
   public static ConverterParameterResolver convert(SupportsFunction supports,
                                                    Converter<String, Object> converter) {
     return new ConverterParameterResolver(supports, converter);
@@ -82,6 +91,19 @@ public class ConverterParameterResolver
   public static ConverterParameterResolver convert(SupportsFunction supports,
                                                    Converter<String, Object> converter, int order) {
     return new ConverterParameterResolver(supports, converter, order);
+  }
+
+  static class TargetSupportsFunction implements SupportsFunction {
+    final Class<?> targetType;
+
+    public TargetSupportsFunction(Class<?> targetType) {
+      this.targetType = targetType;
+    }
+
+    @Override
+    public boolean supports(MethodParameter parameter) {
+      return parameter.is(targetType);
+    }
   }
 
 }

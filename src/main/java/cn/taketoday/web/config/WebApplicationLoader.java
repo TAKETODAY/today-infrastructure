@@ -373,13 +373,28 @@ public class WebApplicationLoader
     // Use ConverterParameterResolver to resolve primitive types
     // --------------------------------------------------------------------------
 
-    resolvers.add(convert(m -> m.is(String.class), s -> s));
-    resolvers.add(convert(m -> m.is(Long.class) || m.is(long.class), Long::parseLong));
-    resolvers.add(convert(m -> m.is(Integer.class) || m.is(int.class), Integer::parseInt));
-    resolvers.add(convert(m -> m.is(Short.class) || m.is(short.class), Short::parseShort));
-    resolvers.add(convert(m -> m.is(Float.class) || m.is(float.class), Float::parseFloat));
-    resolvers.add(convert(m -> m.is(Double.class) || m.is(double.class), Double::parseDouble));
-    resolvers.add(convert(m -> m.is(Boolean.class) || m.is(boolean.class), Boolean::parseBoolean));
+    final class SupportsFunction0 implements ParameterResolver.SupportsFunction {
+      final Class<?> one;
+      final Class<?> two;
+
+      SupportsFunction0(Class<?> one, Class<?> two) {
+        this.one = one;
+        this.two = two;
+      }
+
+      @Override
+      public boolean supports(MethodParameter parameter) {
+        return parameter.is(one) || parameter.is(two);
+      }
+    }
+
+    resolvers.add(convert(String.class, s -> s));
+    resolvers.add(convert(new SupportsFunction0(Long.class, long.class), Long::parseLong));
+    resolvers.add(convert(new SupportsFunction0(Integer.class, int.class), Integer::parseInt));
+    resolvers.add(convert(new SupportsFunction0(Short.class, short.class), Short::parseShort));
+    resolvers.add(convert(new SupportsFunction0(Float.class, float.class), Float::parseFloat));
+    resolvers.add(convert(new SupportsFunction0(Double.class, double.class), Double::parseDouble));
+    resolvers.add(convert(new SupportsFunction0(Boolean.class, boolean.class), Boolean::parseBoolean));
 
     // For some useful context annotations
     // --------------------------------------------
@@ -393,7 +408,7 @@ public class WebApplicationLoader
     resolvers.add(new PropsParameterResolver(context));
     resolvers.add(new AutowiredParameterResolver(context));
 
-    // HandlerMethod @on
+    // HandlerMethod
     resolvers.add(delegate(m -> m.is(HandlerMethod.class), (ctx, m) -> m.getHandlerMethod()));
 
     // For cookies
