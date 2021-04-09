@@ -70,8 +70,6 @@ import cn.taketoday.web.view.template.AbstractTemplateViewResolver;
 import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
-
 /**
  * @author TODAY <br>
  * 2019-07-10 23:12
@@ -468,7 +466,7 @@ public class WebApplicationLoader
       DispatcherHandler dispatcherHandler = context.getBean(DispatcherHandler.class);
       if (dispatcherHandler == null) {
         dispatcherHandler = createDispatcher(context);
-        nonNull(dispatcherHandler, "DispatcherHandler must not be null, sub class must create its instance");
+        Assert.state(dispatcherHandler != null, "DispatcherHandler must not be null, sub class must create its instance");
         context.registerBean(dispatcherHandler);
       }
       this.dispatcher = dispatcherHandler;

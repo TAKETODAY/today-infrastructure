@@ -67,10 +67,13 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
  * Initialize Web application in a server like tomcat, jetty, undertow
  *
  * @author TODAY <br>
- *         2019-01-12 17:28
+ * 2019-01-12 17:28
  */
 public class WebServletApplicationLoader
         extends WebApplicationLoader implements ServletContainerInitializer {
+
+  private String requestCharacterEncoding = Constant.DEFAULT_ENCODING;
+  private String responseCharacterEncoding = Constant.DEFAULT_ENCODING;
 
   @Override
   protected ServletWebMvcConfiguration getWebMvcConfiguration(ApplicationContext applicationContext) {
@@ -104,7 +107,7 @@ public class WebServletApplicationLoader
 
   /**
    * @return {@link ServletContext} or null if {@link ApplicationContext} not
-   *         initialize
+   * initialize
    */
   protected ServletContext getServletContext() {
     return obtainApplicationContext().getServletContext();
@@ -114,10 +117,10 @@ public class WebServletApplicationLoader
    * Find configuration file.
    *
    * @param dir
-   *            directory
+   *         directory
    */
   protected void scanXml(final File dir, final Set<String> files, FileFilter filter) {
-    if(log.isTraceEnabled()) {
+    if (log.isTraceEnabled()) {
       log.trace("Enter [{}]", dir.getAbsolutePath());
     }
     final File[] listFiles = dir.listFiles(filter);
@@ -139,18 +142,20 @@ public class WebServletApplicationLoader
    * Prepare {@link WebServletApplicationContext}
    *
    * @param servletContext
-   *            {@link ServletContext}
+   *         {@link ServletContext}
+   *
    * @return {@link WebServletApplicationContext}
    */
   protected WebServletApplicationContext prepareApplicationContext(ServletContext servletContext) {
     WebServletApplicationContext ret = getWebServletApplicationContext();
     if (ret == null) {
       final long startupDate = System.currentTimeMillis();
-      log.info("Your application starts to be initialized at: [{}].", //
+      log.info("Your application starts to be initialized at: [{}].",
                new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(startupDate));
-      final StandardWebServletApplicationContext context = new StandardWebServletApplicationContext();
+      final ConfigurableWebServletApplicationContext context = createContext();
+      ret = context;
       context.setServletContext(servletContext);
-      setApplicationContext(ret = context);
+      setApplicationContext(context);
       context.load();
     }
     else if (ret instanceof ConfigurableWebServletApplicationContext && ret.getServletContext() == null) {
@@ -158,6 +163,14 @@ public class WebServletApplicationLoader
       log.info("ServletContext: [{}] Configure Success.", servletContext);
     }
     return ret;
+  }
+
+  /**
+   * create a {@link ConfigurableWebServletApplicationContext},
+   * subclasses can override this method to create user customize context
+   */
+  protected ConfigurableWebServletApplicationContext createContext() {
+    return new StandardWebServletApplicationContext();
   }
 
   private WebServletApplicationContext getWebServletApplicationContext() {
@@ -170,8 +183,8 @@ public class WebServletApplicationLoader
     final WebApplicationContext context = prepareApplicationContext(servletContext);
     try {
       try {
-        servletContext.setRequestCharacterEncoding(Constant.DEFAULT_ENCODING);
-        servletContext.setResponseCharacterEncoding(Constant.DEFAULT_ENCODING);
+        servletContext.setRequestCharacterEncoding(getRequestCharacterEncoding());
+        servletContext.setResponseCharacterEncoding(getResponseCharacterEncoding());
       }
       catch (Throwable ignored) {}
       onStartup(context);
@@ -260,9 +273,9 @@ public class WebServletApplicationLoader
    * Configure {@link Filter}
    *
    * @param applicationContext
-   *            {@link ApplicationContext}
+   *         {@link ApplicationContext}
    * @param contextInitializers
-   *            {@link WebApplicationInitializer}s
+   *         {@link WebApplicationInitializer}s
    */
   protected void configureFilter(final WebApplicationContext applicationContext, //
                                  final List<WebApplicationInitializer> contextInitializers) //
@@ -307,9 +320,9 @@ public class WebServletApplicationLoader
    * Configure {@link Servlet}
    *
    * @param applicationContext
-   *            {@link ApplicationContext}
+   *         {@link ApplicationContext}
    * @param contextInitializers
-   *            {@link WebApplicationInitializer}s
+   *         {@link WebApplicationInitializer}s
    */
   protected void configureServlet(final WebApplicationContext applicationContext,
                                   final List<WebApplicationInitializer> contextInitializers) //
@@ -362,9 +375,9 @@ public class WebServletApplicationLoader
    * Configure listeners
    *
    * @param applicationContext
-   *            {@link ApplicationContext}
+   *         {@link ApplicationContext}
    * @param contextInitializers
-   *            {@link WebApplicationInitializer}s
+   *         {@link WebApplicationInitializer}s
    */
   protected void configureListener(final WebApplicationContext applicationContext,
                                    final List<WebApplicationInitializer> contextInitializers)//
@@ -373,6 +386,24 @@ public class WebServletApplicationLoader
     for (EventListener eventListener : eventListeners) {
       contextInitializers.add(new WebListenerInitializer<>(eventListener));
     }
+  }
+
+  //
+
+  public void setRequestCharacterEncoding(String requestCharacterEncoding) {
+    this.requestCharacterEncoding = requestCharacterEncoding;
+  }
+
+  public void setResponseCharacterEncoding(String responseCharacterEncoding) {
+    this.responseCharacterEncoding = responseCharacterEncoding;
+  }
+
+  public String getRequestCharacterEncoding() {
+    return requestCharacterEncoding;
+  }
+
+  public String getResponseCharacterEncoding() {
+    return responseCharacterEncoding;
   }
 
 }
