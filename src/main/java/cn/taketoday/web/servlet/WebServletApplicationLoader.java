@@ -72,7 +72,9 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
 public class WebServletApplicationLoader
         extends WebApplicationLoader implements ServletContainerInitializer {
 
+  /** @since 3.0 */
   private String requestCharacterEncoding = Constant.DEFAULT_ENCODING;
+  /** @since 3.0 */
   private String responseCharacterEncoding = Constant.DEFAULT_ENCODING;
 
   @Override
@@ -390,18 +392,54 @@ public class WebServletApplicationLoader
 
   //
 
-  public void setRequestCharacterEncoding(String requestCharacterEncoding) {
-    this.requestCharacterEncoding = requestCharacterEncoding;
+  /**
+   * Sets the request character encoding for this ServletContext.
+   *
+   * @param encoding
+   *         request character encoding
+   *
+   * @since 3.0
+   */
+  public void setRequestCharacterEncoding(String encoding) {
+    this.requestCharacterEncoding = encoding;
   }
 
-  public void setResponseCharacterEncoding(String responseCharacterEncoding) {
-    this.responseCharacterEncoding = responseCharacterEncoding;
+  /**
+   * Sets the response character encoding for this ServletContext.
+   *
+   * @param encoding
+   *         response character encoding
+   *
+   * @since 3.0
+   */
+  public void setResponseCharacterEncoding(String encoding) {
+    this.responseCharacterEncoding = encoding;
   }
 
+  /**
+   * Gets the request character encoding that are supported by default for
+   * this <tt>ServletContext</tt>. This method returns null if no request
+   * encoding character encoding has been specified in deployment descriptor
+   * or container specific configuration (for all web applications in the
+   * container).
+   *
+   * @return the request character encoding that are supported by default for
+   * this <tt>ServletContext</tt>
+   */
   public String getRequestCharacterEncoding() {
     return requestCharacterEncoding;
   }
 
+  /**
+   * Gets the response character encoding that are supported by default for
+   * this <tt>ServletContext</tt>. This method returns null if no response
+   * encoding character encoding has been specified in deployment descriptor
+   * or container specific configuration (for all web applications in the
+   * container).
+   *
+   * @return the request character encoding that are supported by default for
+   * this <tt>ServletContext</tt>
+   */
   public String getResponseCharacterEncoding() {
     return responseCharacterEncoding;
   }
