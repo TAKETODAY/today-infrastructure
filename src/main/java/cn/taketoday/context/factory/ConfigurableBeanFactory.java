@@ -158,6 +158,18 @@ public interface ConfigurableBeanFactory
   void destroyBean(String beanName, Object beanInstance);
 
   /**
+   * Destroy a bean with bean instance and bean definition
+   *
+   * @param beanInstance
+   *         Bean instance
+   * @param def
+   *         Bean definition
+   *
+   * @since 3.0
+   */
+  void destroyBean(Object beanInstance, BeanDefinition def);
+
+  /**
    * Refresh bean with given name, and publish
    * {@link cn.taketoday.context.event.ObjectRefreshedEvent ObjectRefreshedEvent}.
    *
@@ -221,17 +233,38 @@ public interface ConfigurableBeanFactory
   /**
    * Enable full {@link cn.taketoday.context.annotation.Prototype Prototype}
    *
+   * @see #setFullPrototype(boolean)
    * @since 2.1.6
    */
+  @Deprecated
   void enableFullPrototype();
 
   /**
    * Enable full {@link cn.taketoday.context.annotation.Prototype Prototype}'s
    * life cycle, default is not support
    *
+   * @see #setFullLifecycle(boolean)
    * @since 2.1.6
    */
+  @Deprecated
   void enableFullLifecycle();
+
+  /**
+   * Enable full {@link cn.taketoday.context.annotation.Prototype Prototype}
+   *
+   * @see Prototypes
+   * @since 3.0
+   */
+  void setFullPrototype(boolean fullPrototype);
+
+  /**
+   * Enable full {@link cn.taketoday.context.annotation.Prototype Prototype}'s
+   * life cycle, default is not support
+   *
+   * @see Prototypes
+   * @since 3.0
+   */
+  void setFullLifecycle(boolean fullLifecycle);
 
   /**
    * Register the given scope, backed by the given Scope implementation.

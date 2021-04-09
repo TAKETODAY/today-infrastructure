@@ -391,4 +391,30 @@ public interface BeanFactory {
   <A extends Annotation> A getAnnotationOnBean(String beanName, Class<A> annotationType)
           throws NoSuchBeanDefinitionException;
 
+  /**
+   * if this feature is enabled and if a property is prototype bean
+   * this bean-factory will inject a proxy instance to get prototype
+   * instance from every single method call.
+   *
+   * <p>
+   * default is false
+   * </p>
+   *
+   * @see Prototypes#newProxyInstance(Class, BeanDefinition, ConfigurableBeanFactory)
+   * @since 3.0
+   */
+  boolean isFullPrototype();
+
+  /**
+   * invoke prototype's destroyBean after every call
+   * <p>
+   * default is false
+   * </p>
+   *
+   * @see ConfigurableBeanFactory#destroyBean(Object, BeanDefinition)
+   * @see #isFullPrototype()
+   * @since 3.0
+   */
+  boolean isFullLifecycle();
+
 }

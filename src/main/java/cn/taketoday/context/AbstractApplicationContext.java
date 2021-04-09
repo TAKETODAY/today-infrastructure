@@ -854,6 +854,26 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     getBeanFactory().enableFullLifecycle();
   }
 
+  @Override
+  public boolean isFullLifecycle() {
+    return getBeanFactory().isFullLifecycle();
+  }
+
+  @Override
+  public boolean isFullPrototype() {
+    return getBeanFactory().isFullPrototype();
+  }
+
+  @Override
+  public void setFullLifecycle(boolean fullLifecycle) {
+    getBeanFactory().setFullLifecycle(fullLifecycle);
+  }
+
+  @Override
+  public void setFullPrototype(boolean fullPrototype) {
+    getBeanFactory().setFullPrototype(fullPrototype);
+  }
+
   // AutowireCapableBeanFactory
   // ----------------------------
 
@@ -900,6 +920,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   @Override
   public void destroyBean(final Object existingBean) {
     getBeanFactory().destroyBean(existingBean);
+  }
+
+  @Override
+  public void destroyBean(Object beanInstance, BeanDefinition def) {
+    getBeanFactory().destroyBean(beanInstance, def);
   }
 
   @Override

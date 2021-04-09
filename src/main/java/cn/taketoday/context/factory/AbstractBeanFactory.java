@@ -1146,6 +1146,7 @@ public abstract class AbstractBeanFactory
    * @param def
    *         Bean definition
    */
+  @Override
   public void destroyBean(final Object beanInstance, final BeanDefinition def) {
     if (beanInstance == null || def == null) {
       return;
@@ -1393,10 +1394,12 @@ public abstract class AbstractBeanFactory
     setFullLifecycle(true);
   }
 
+  @Override
   public boolean isFullPrototype() {
     return fullPrototype;
   }
 
+  @Override
   public boolean isFullLifecycle() {
     return fullLifecycle;
   }

@@ -35,30 +35,30 @@ import cn.taketoday.context.cglib.proxy.MethodInterceptor;
 public final class Prototypes {
 
   private final BeanDefinition def;
-  private final AbstractBeanFactory f;
+  private final ConfigurableBeanFactory factory;
 
-  private Prototypes(AbstractBeanFactory f, BeanDefinition def) {
-    this.f = f;
+  private Prototypes(ConfigurableBeanFactory factory, BeanDefinition def) {
     this.def = def;
+    this.factory = factory;
   }
 
-  private Object handle(final Method m, final Object[] a) throws Throwable {
-    final Object b = f.getBean(def);
+  private Object handle(final Method method, final Object[] a) throws Throwable {
+    final Object bean = factory.getBean(def);
     try {
-      return m.invoke(b, a);
+      return method.invoke(bean, a);
     }
     catch (InvocationTargetException e) {
       throw e.getTargetException();
     }
     finally {
-      if (f.isFullLifecycle()) {
-        f.destroyBean(b, def); // destroyBean after every call
+      if (factory.isFullLifecycle()) {
+        factory.destroyBean(bean, def); // destroyBean after every call
       }
     }
   }
 
-  public static Object newProxyInstance(Class<?> refType, BeanDefinition def, AbstractBeanFactory f) {
-    return newProxyInstance(refType, def, f, false);
+  public static Object newProxyInstance(Class<?> refType, BeanDefinition def, ConfigurableBeanFactory factory) {
+    return newProxyInstance(refType, def, factory, false);
   }
 
   /**
@@ -66,7 +66,7 @@ public final class Prototypes {
    *         Reference bean class
    * @param def
    *         Target {@link BeanDefinition}
-   * @param f
+   * @param factory
    *         {@link AbstractBeanFactory}
    * @param proxyTargetClass
    *         If true use cglib
@@ -75,10 +75,10 @@ public final class Prototypes {
    */
   public static Object newProxyInstance(Class<?> refType,
                                         BeanDefinition def,
-                                        AbstractBeanFactory f,
+                                        ConfigurableBeanFactory factory,
                                         boolean proxyTargetClass) //
   {
-    final Prototypes handler = new Prototypes(f, def);
+    final Prototypes handler = new Prototypes(factory, def);
     if (!proxyTargetClass && refType.isInterface()) { // Use Jdk Proxy
       return Proxy.newProxyInstance(
               refType.getClassLoader(),

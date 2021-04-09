@@ -32,14 +32,14 @@ import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
  * @since 3.0
  */
 public class BeanReferencePropertySetter extends AbstractPropertySetter {
-
-  final BeanReference reference;
+  private final BeanReference reference;
 
   public BeanReferencePropertySetter(BeanReference value, Field field) {
     super(field);
     this.reference = value;
   }
 
+  @Override
   protected Object resolveValue(AbstractBeanFactory beanFactory) {
     // reference bean
     final BeanReference reference = this.reference;
@@ -61,6 +61,9 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
    *         {@link BeanReference} record a reference of bean
    *
    * @return A {@link PropertySetter} bean or a proxy
+   *
+   * @see ConfigurableBeanFactory#isFullLifecycle()
+   * @see ConfigurableBeanFactory#isFullPrototype()
    */
   protected Object resolveBeanReference(AbstractBeanFactory beanFactory, BeanReference ref) {
     final String name = ref.getName();
