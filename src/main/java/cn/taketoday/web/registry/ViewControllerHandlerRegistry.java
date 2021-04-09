@@ -32,7 +32,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import cn.taketoday.context.AntPathMatcher;
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.Assert;
@@ -137,11 +136,6 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
   }
 
   // ---------------------------------------------------------
-
-  @Override
-  protected void initApplicationContext(ApplicationContext context) {
-    super.initApplicationContext(context);
-  }
 
   /**
    * configure {@link ViewController}s from a xml file

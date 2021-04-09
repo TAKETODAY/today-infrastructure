@@ -36,8 +36,9 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.BeanDefinition;
+import cn.taketoday.context.factory.BeanFactory;
+import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.factory.Prototypes;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.utils.Assert;
@@ -76,7 +77,7 @@ import static java.util.Collections.addAll;
 public class HandlerMethodRegistry
         extends AbstractUrlHandlerRegistry implements HandlerRegistry, WebApplicationInitializer {
 
-  private AbstractBeanFactory beanFactory;
+  private ConfigurableBeanFactory beanFactory;
   private BeanDefinitionLoader beanDefinitionLoader;
 
   // @since 3.0
@@ -105,12 +106,21 @@ public class HandlerMethodRegistry
 
   @Override
   protected void initApplicationContext(ApplicationContext context) {
-    setBeanFactory(nonNull(context.getBean(AbstractBeanFactory.class)));
+    setBeanFactory(nonNull(context.getBean(ConfigurableBeanFactory.class)));
 
     final Environment environment = context.getEnvironment();
-    this.beanDefinitionLoader = environment.getBeanDefinitionLoader();
+    BeanDefinitionLoader beanDefinitionLoader = environment.getBeanDefinitionLoader();
+    if (beanDefinitionLoader == null) {
+      final BeanFactory beanFactory = context.getBeanFactory();
+      if (beanFactory instanceof BeanDefinitionLoader) {
+        beanDefinitionLoader = (BeanDefinitionLoader) beanFactory;
+      }
+      else {
+        throw new IllegalStateException("No BeanDefinitionLoader");
+      }
+    }
+    setBeanDefinitionLoader(beanDefinitionLoader);
     setParameterBuilder(new MethodParameterBuilder(context.getBean(ParameterResolvers.class)));
-
     super.initApplicationContext(context);
   }
 
@@ -359,11 +369,11 @@ public class HandlerMethodRegistry
    * @param beanClass
    *         Target bean class
    * @param beanFactory
-   *         {@link AbstractBeanFactory}
+   *         {@link ConfigurableBeanFactory}
    *
    * @return Returns a handler bean of target beanClass
    */
-  protected Object createHandler(final Class<?> beanClass, final AbstractBeanFactory beanFactory) {
+  protected Object createHandler(final Class<?> beanClass, final ConfigurableBeanFactory beanFactory) {
     final BeanDefinition def = beanFactory.getBeanDefinition(beanClass);
     return def.isSingleton()
            ? beanFactory.getBean(def)
@@ -448,7 +458,7 @@ public class HandlerMethodRegistry
     startConfiguration();
   }
 
-  public void setBeanFactory(AbstractBeanFactory beanFactory) {
+  public void setBeanFactory(ConfigurableBeanFactory beanFactory) {
     this.beanFactory = beanFactory;
   }
 
@@ -460,7 +470,7 @@ public class HandlerMethodRegistry
     this.beanDefinitionLoader = beanDefinitionLoader;
   }
 
-  public AbstractBeanFactory getBeanFactory() {
+  public ConfigurableBeanFactory getBeanFactory() {
     return beanFactory;
   }
 
