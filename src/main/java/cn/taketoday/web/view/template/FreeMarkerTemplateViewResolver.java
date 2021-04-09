@@ -89,7 +89,7 @@ public class FreeMarkerTemplateViewResolver
 
   @Override
   @SuppressWarnings("unchecked")
-  protected <T> TemplateLoader createTemplateLoader(List<T> loaders) {
+  protected <T> TemplateLoader createTemplateLoader(final List<T> loaders) {
 
     if (loaders.isEmpty()) {
       if (StringUtils.isNotEmpty(prefix) && prefix.startsWith("/WEB-INF/")) {// prefix -> /WEB-INF/..

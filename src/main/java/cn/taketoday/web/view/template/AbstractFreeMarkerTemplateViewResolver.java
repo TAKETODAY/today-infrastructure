@@ -53,15 +53,12 @@ import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateModel;
 import freemarker.template.Version;
 
-import static cn.taketoday.web.resolver.DelegatingParameterResolver.delegate;
-
 /**
  * @author TODAY <br>
  * 2019-11-22 13:25
  */
 public abstract class AbstractFreeMarkerTemplateViewResolver
         extends AbstractTemplateViewResolver implements WebMvcConfiguration {
-
   private static final Logger log = LoggerFactory.getLogger(AbstractFreeMarkerTemplateViewResolver.class);
 
   protected int cacheSize = 1024;
@@ -99,8 +96,8 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
   }
 
   @PostConstruct
-  public void initFreeMarker(WebApplicationContext context, @Props(prefix = "freemarker.", replace = true) Properties settings) {
-
+  public void initFreeMarker(
+          WebApplicationContext context, @Props(prefix = "freemarker.", replace = true) Properties settings) {
     log.info("Initialize FreeMarker");
 
     configConfiguration(context);
@@ -118,38 +115,10 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
   }
 
   @Override
-  public void configureParameterResolver(List<ParameterResolver> resolvers) {
-    final class SharedVariableParameterResolver extends AnnotationParameterResolver<SharedVariable> {
-      SharedVariableParameterResolver() {
-        super(SharedVariable.class);
-      }
+  public void configureParameterResolver(final List<ParameterResolver> resolvers) {
 
-      @Override
-      protected Object resolveInternal(SharedVariable target, RequestContext context, MethodParameter parameter) {
-        final TemplateModel sharedVariable = getConfiguration().getSharedVariable(parameter.getName());
-
-        if (parameter.isInstance(sharedVariable)) {
-          return sharedVariable;
-        }
-
-        if (sharedVariable instanceof WrapperTemplateModel) {
-          final Object wrappedObject = ((WrapperTemplateModel) sharedVariable).getWrappedObject();
-          if (parameter.isInstance(wrappedObject)) {
-            return wrappedObject;
-          }
-          throw new ConfigurationException("Not a instance of: " + parameter.getParameterClass());
-        }
-
-        if (parameter.isRequired()) {
-          throw new ConfigurationException("There is no shared variable named: ".concat(parameter.getName()));
-        }
-        return ConvertUtils.convert(parameter.getDefaultValue(), parameter.getParameterClass());
-      }
-    }
-
-    resolvers.add(delegate((m) -> m.isAssignableFrom(Configuration.class), (ctx, m) -> getConfiguration()));
-
-    final SharedVariableParameterResolver resolver = new SharedVariableParameterResolver();
+    resolvers.add(new FreemarkerConfigParameterResolver());
+    SharedVariableParameterResolver resolver = new SharedVariableParameterResolver();
     resolver.setOrder(Ordered.LOWEST_PRECEDENCE + 10);
     resolvers.add(resolver);
   }
@@ -299,4 +268,45 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
     this.configuration = configuration;
   }
 
+  // ParameterResolver
+
+  private final class SharedVariableParameterResolver extends AnnotationParameterResolver<SharedVariable> {
+    SharedVariableParameterResolver() {
+      super(SharedVariable.class);
+    }
+
+    @Override
+    protected Object resolveInternal(SharedVariable target, RequestContext context, MethodParameter parameter) {
+      final TemplateModel sharedVariable = getConfiguration().getSharedVariable(parameter.getName());
+
+      if (parameter.isInstance(sharedVariable)) {
+        return sharedVariable;
+      }
+
+      if (sharedVariable instanceof WrapperTemplateModel) {
+        final Object wrappedObject = ((WrapperTemplateModel) sharedVariable).getWrappedObject();
+        if (parameter.isInstance(wrappedObject)) {
+          return wrappedObject;
+        }
+        throw new ConfigurationException("Not a instance of: " + parameter.getParameterClass());
+      }
+
+      if (parameter.isRequired()) {
+        throw new ConfigurationException("There is no shared variable named: ".concat(parameter.getName()));
+      }
+      return ConvertUtils.convert(parameter.getDefaultValue(), parameter.getParameterClass());
+    }
+  }
+
+  private final class FreemarkerConfigParameterResolver implements ParameterResolver {
+    @Override
+    public boolean supports(MethodParameter parameter) {
+      return parameter.is(Configuration.class);
+    }
+
+    @Override
+    public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+      return getConfiguration();
+    }
+  }
 }
