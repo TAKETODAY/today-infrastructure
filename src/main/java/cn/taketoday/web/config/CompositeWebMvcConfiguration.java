@@ -84,9 +84,9 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   }
 
   @Override
-  public void configureTypeConverter(List<TypeConverter> typeConverters) {
+  public void configureConversionService(List<TypeConverter> typeConverters) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureTypeConverter(typeConverters);
+      webMvcConfiguration.configureConversionService(typeConverters);
     }
   }
 

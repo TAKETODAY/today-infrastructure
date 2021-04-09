@@ -90,7 +90,7 @@ public interface WebMvcConfiguration {
    * @param typeConverters
    *         {@link TypeConverter} registry
    */
-  default void configureTypeConverter(List<TypeConverter> typeConverters) {}
+  default void configureConversionService(List<TypeConverter> typeConverters) {}
 
   /**
    * Configure WebApplicationInitializer

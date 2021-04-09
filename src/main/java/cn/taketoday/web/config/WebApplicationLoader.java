@@ -92,7 +92,7 @@ public class WebApplicationLoader
     configureExceptionHandler(context.getBeans(HandlerExceptionHandler.class), mvcConfiguration);
 
     configureResultHandler(context.getBeans(ResultHandler.class), mvcConfiguration);
-    configureTypeConverter(context.getBeans(TypeConverter.class), mvcConfiguration);
+    configureConversionService(context.getBeans(TypeConverter.class), mvcConfiguration);
     configureHandlerAdapter(context.getBeans(HandlerAdapter.class), mvcConfiguration);
     configureParameterResolver(context.getBeans(ParameterResolver.class), mvcConfiguration);
 
@@ -233,8 +233,8 @@ public class WebApplicationLoader
    * @param mvcConfiguration
    *         All {@link WebMvcConfiguration} object
    */
-  protected void configureTypeConverter(List<TypeConverter> typeConverters, WebMvcConfiguration mvcConfiguration) {
-    mvcConfiguration.configureTypeConverter(typeConverters);
+  protected void configureConversionService(List<TypeConverter> typeConverters, WebMvcConfiguration mvcConfiguration) {
+    mvcConfiguration.configureConversionService(typeConverters);
 
     ConvertUtils.addConverter(typeConverters);
   }
