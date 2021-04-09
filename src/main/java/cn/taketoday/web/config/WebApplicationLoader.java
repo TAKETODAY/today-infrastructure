@@ -361,6 +361,21 @@ public class WebApplicationLoader
     }
   }
 
+  static final class SupportsFunction0 implements ParameterResolver.SupportsFunction {
+    final Class<?> one;
+    final Class<?> two;
+
+    SupportsFunction0(Class<?> one, Class<?> two) {
+      this.one = one;
+      this.two = two;
+    }
+
+    @Override
+    public boolean supports(MethodParameter parameter) {
+      return parameter.is(one) || parameter.is(two);
+    }
+  }
+
   /**
    * Configure {@link ParameterResolver}s to resolve handler method arguments
    *
@@ -372,21 +387,6 @@ public class WebApplicationLoader
   protected void configureParameterResolver(List<ParameterResolver> resolvers, WebMvcConfiguration mvcConfiguration) {
     // Use ConverterParameterResolver to resolve primitive types
     // --------------------------------------------------------------------------
-
-    final class SupportsFunction0 implements ParameterResolver.SupportsFunction {
-      final Class<?> one;
-      final Class<?> two;
-
-      SupportsFunction0(Class<?> one, Class<?> two) {
-        this.one = one;
-        this.two = two;
-      }
-
-      @Override
-      public boolean supports(MethodParameter parameter) {
-        return parameter.is(one) || parameter.is(two);
-      }
-    }
 
     resolvers.add(convert(String.class, s -> s));
     resolvers.add(convert(new SupportsFunction0(Long.class, long.class), Long::parseLong));
@@ -464,7 +464,7 @@ public class WebApplicationLoader
 
   protected void postConfigureParameterResolver(final List<ParameterResolver> resolvers,
                                                 final WebMvcConfiguration mvcConfiguration) {
-
+    // no-op
   }
 
   protected void configureMultipart(List<ParameterResolver> resolvers,
@@ -583,7 +583,9 @@ public class WebApplicationLoader
   /**
    * Check Components
    */
-  protected void checkFrameWorkComponents(WebApplicationContext applicationContext) {}
+  protected void checkFrameWorkComponents(WebApplicationContext applicationContext) {
+    // no-op
+  }
 
   public DispatcherHandler obtainDispatcher() {
     if (dispatcher == null) {

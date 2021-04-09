@@ -57,4 +57,16 @@ public interface ParameterResolver {
     boolean supports(MethodParameter parameter);
   }
 
+  class TargetSupportsFunction implements SupportsFunction {
+    final Class<?> targetType;
+
+    public TargetSupportsFunction(Class<?> targetType) {
+      this.targetType = targetType;
+    }
+
+    @Override
+    public boolean supports(MethodParameter parameter) {
+      return parameter.is(targetType);
+    }
+  }
 }
