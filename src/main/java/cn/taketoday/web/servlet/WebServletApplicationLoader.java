@@ -167,7 +167,6 @@ public class WebServletApplicationLoader
   @Override
   public void onStartup(Set<Class<?>> classes, ServletContext servletContext) {
     Assert.notNull(servletContext, "ServletContext can't be null");
-
     final WebApplicationContext context = prepareApplicationContext(servletContext);
     try {
       try {
@@ -175,7 +174,6 @@ public class WebServletApplicationLoader
         servletContext.setResponseCharacterEncoding(Constant.DEFAULT_ENCODING);
       }
       catch (Throwable ignored) {}
-
       onStartup(context);
     }
     catch (Throwable ex) {
@@ -272,19 +270,14 @@ public class WebServletApplicationLoader
 
     List<Filter> filters = applicationContext.getAnnotatedBeans(WebFilter.class);
     for (final Filter filter : filters) {
-
       final Class<?> beanClass = filter.getClass();
-
       WebFilterInitializer<Filter> webFilterInitializer = new WebFilterInitializer<>(filter);
-
       WebFilter webFilter = beanClass.getAnnotation(WebFilter.class);
-
       final Set<String> urlPatterns = new HashSet<>();
       Collections.addAll(urlPatterns, webFilter.value());
       Collections.addAll(urlPatterns, webFilter.urlPatterns());
 
       webFilterInitializer.addUrlMappings(StringUtils.toStringArray(urlPatterns));
-
       webFilterInitializer.addServletNames(webFilter.servletNames());
       webFilterInitializer.setAsyncSupported(webFilter.asyncSupported());
 
@@ -325,13 +318,9 @@ public class WebServletApplicationLoader
     Collection<Servlet> servlets = applicationContext.getAnnotatedBeans(WebServlet.class);
 
     for (Servlet servlet : servlets) {
-
       final Class<?> beanClass = servlet.getClass();
-
       WebServletInitializer<Servlet> webServletInitializer = new WebServletInitializer<>(servlet);
-
       WebServlet webServlet = beanClass.getAnnotation(WebServlet.class);
-
       String[] urlPatterns = webServlet.urlPatterns();
       if (StringUtils.isArrayEmpty(urlPatterns)) {
         urlPatterns = new String[] { applicationContext.getBeanName(beanClass) };
@@ -355,7 +344,6 @@ public class WebServletApplicationLoader
 
       String name = webServlet.name();
       if (StringUtils.isEmpty(name)) {
-
         final String displayName = webServlet.displayName();
         if (StringUtils.isEmpty(displayName)) {
           name = applicationContext.getBeanName(beanClass);

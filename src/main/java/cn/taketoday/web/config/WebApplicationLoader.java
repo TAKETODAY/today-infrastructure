@@ -21,15 +21,9 @@ package cn.taketoday.web.config;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.Env;
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.utils.Assert;
@@ -39,18 +33,14 @@ import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
-import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
-import cn.taketoday.web.annotation.RequestAttribute;
 import cn.taketoday.web.event.WebApplicationStartedEvent;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.DefaultExceptionHandler;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
-import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.handler.RequestHandlerAdapter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.CompositeHandlerRegistry;
@@ -58,25 +48,8 @@ import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
-import cn.taketoday.web.resolver.AnnotationParameterResolver;
-import cn.taketoday.web.resolver.AutowiredParameterResolver;
-import cn.taketoday.web.resolver.CookieParameterResolver;
-import cn.taketoday.web.resolver.DataBinderArrayParameterResolver;
-import cn.taketoday.web.resolver.DataBinderCollectionParameterResolver;
-import cn.taketoday.web.resolver.DataBinderMapParameterResolver;
-import cn.taketoday.web.resolver.DefaultMultipartResolver;
-import cn.taketoday.web.resolver.HeaderParameterResolver;
-import cn.taketoday.web.resolver.ModelParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolvers;
-import cn.taketoday.web.resolver.RequestBodyParameterResolver;
-import cn.taketoday.web.resolver.SimpleArrayParameterResolver;
-import cn.taketoday.web.resolver.StreamParameterResolver;
-import cn.taketoday.web.resolver.ThrowableHandlerParameterResolver;
-import cn.taketoday.web.resolver.date.DateParameterResolver;
-import cn.taketoday.web.resolver.date.LocalDateParameterResolver;
-import cn.taketoday.web.resolver.date.LocalDateTimeParameterResolver;
-import cn.taketoday.web.resolver.date.LocalTimeParameterResolver;
 import cn.taketoday.web.ui.RedirectModelManager;
 import cn.taketoday.web.validation.Validator;
 import cn.taketoday.web.validation.WebValidator;
@@ -98,8 +71,6 @@ import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
-import static cn.taketoday.context.utils.ContextUtils.resolveProps;
-import static cn.taketoday.web.resolver.ConverterParameterResolver.convert;
 
 /**
  * @author TODAY <br>
@@ -118,8 +89,7 @@ public class WebApplicationLoader
     configureTemplateLoader(context, mvcConfiguration);
     configureResourceHandler(context, mvcConfiguration);
     configureFunctionHandler(context, mvcConfiguration);
-    configureExceptionHandler(context.getBeans(HandlerExceptionHandler.class),
-                              mvcConfiguration);
+    configureExceptionHandler(context.getBeans(HandlerExceptionHandler.class), mvcConfiguration);
 
     configureResultHandler(context.getBeans(ResultHandler.class), mvcConfiguration);
     configureTypeConverter(context.getBeans(TypeConverter.class), mvcConfiguration);
@@ -174,7 +144,8 @@ public class WebApplicationLoader
    * @param mvcConfiguration
    *         {@link WebMvcConfiguration}
    */
-  protected void configureHandlerAdapter(final List<HandlerAdapter> adapters, WebMvcConfiguration mvcConfiguration) {
+  protected void configureHandlerAdapter(
+          final List<HandlerAdapter> adapters, final WebMvcConfiguration mvcConfiguration) {
     // 先看有的
     final DispatcherHandler obtainDispatcher = obtainDispatcher();
     final HandlerAdapter[] handlerAdapters = obtainDispatcher.getHandlerAdapters();
@@ -194,11 +165,9 @@ public class WebApplicationLoader
     obtainDispatcher.setHandlerAdapters(adapters.toArray(new HandlerAdapter[adapters.size()]));
   }
 
-  protected void configureViewControllerHandler(WebApplicationContext context,
-                                                WebMvcConfiguration mvcConfiguration) throws Throwable {
-
+  protected void configureViewControllerHandler(
+          WebApplicationContext context, WebMvcConfiguration mvcConfiguration) throws Throwable {
     ViewControllerHandlerRegistry registry = context.getBean(ViewControllerHandlerRegistry.class);
-
     final Environment environment = context.getEnvironment();
     if (environment.getFlag(Constant.ENABLE_WEB_MVC_XML, true)) {
       registry = configViewControllerHandlerRegistry(registry);
@@ -208,8 +177,8 @@ public class WebApplicationLoader
     }
   }
 
-  protected void configureExceptionHandler(List<HandlerExceptionHandler> handlers,
-                                           WebMvcConfiguration mvcConfiguration) {
+  protected void configureExceptionHandler(
+          List<HandlerExceptionHandler> handlers, WebMvcConfiguration mvcConfiguration) {
 
     final DispatcherHandler dispatcherHandler = obtainDispatcher();
     final HandlerExceptionHandler exceptionHandler = dispatcherHandler.getExceptionHandler();
@@ -360,21 +329,6 @@ public class WebApplicationLoader
     }
   }
 
-  static final class SupportsFunction0 implements ParameterResolver.SupportsFunction {
-    final Class<?> one;
-    final Class<?> two;
-
-    SupportsFunction0(Class<?> one, Class<?> two) {
-      this.one = one;
-      this.two = two;
-    }
-
-    @Override
-    public boolean supports(MethodParameter parameter) {
-      return parameter.is(one) || parameter.is(two);
-    }
-  }
-
   /**
    * Configure {@link ParameterResolver}s to resolve handler method arguments
    *
@@ -384,99 +338,21 @@ public class WebApplicationLoader
    *         All {@link WebMvcConfiguration} object
    */
   protected void configureParameterResolver(List<ParameterResolver> resolvers, WebMvcConfiguration mvcConfiguration) {
-    // Use ConverterParameterResolver to resolve primitive types
-    // --------------------------------------------------------------------------
-
-    resolvers.add(convert(String.class, s -> s));
-    resolvers.add(convert(new SupportsFunction0(Long.class, long.class), Long::parseLong));
-    resolvers.add(convert(new SupportsFunction0(Integer.class, int.class), Integer::parseInt));
-    resolvers.add(convert(new SupportsFunction0(Short.class, short.class), Short::parseShort));
-    resolvers.add(convert(new SupportsFunction0(Float.class, float.class), Float::parseFloat));
-    resolvers.add(convert(new SupportsFunction0(Double.class, double.class), Double::parseDouble));
-    resolvers.add(convert(new SupportsFunction0(Boolean.class, boolean.class), Boolean::parseBoolean));
-
-    // For some useful context annotations
-    // --------------------------------------------
-
     final WebApplicationContext context = obtainApplicationContext();
-    final ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(context);
-
-    resolvers.add(new RequestAttributeParameterResolver());
-    resolvers.add(new EnvParameterResolver(expressionEvaluator));
-    resolvers.add(new ValueParameterResolver(expressionEvaluator));
-    resolvers.add(new PropsParameterResolver(context));
-    resolvers.add(new AutowiredParameterResolver(context));
-
-    // HandlerMethod
-    resolvers.add(new HandlerMethodParameterResolver());
-
-    // For cookies
-    // ------------------------------------------
-    resolvers.add(new CookieParameterResolver());
-    resolvers.add(new CookieParameterResolver.CookieArrayParameterResolver());
-    resolvers.add(new CookieParameterResolver.CookieAnnotationParameterResolver());
-    resolvers.add(new CookieParameterResolver.CookieCollectionParameterResolver());
-
-    // For multipart
-    // -------------------------------------------
-
-    configureMultipart(resolvers, context.getBean(MultipartConfiguration.class), mvcConfiguration);
-
-    // Header
-    resolvers.add(new HeaderParameterResolver());
-
-    RedirectModelManager modelManager = context.getBean(RedirectModelManager.class);
-    if (modelManager == null) {
-      log.info("RedirectModel disabled");
-      modelManager = RedirectModelManager.NOP;
-    }
+    final ParameterResolvers parameterResolvers = context.getBean(ParameterResolvers.class);
+    Assert.state(parameterResolvers != null, "No ParameterResolvers");
 
     // @since 3.0
-    resolvers.add(new DataBinderMapParameterResolver());
-    resolvers.add(new DataBinderArrayParameterResolver());
-    resolvers.add(new DataBinderCollectionParameterResolver());
-
-    resolvers.add(new ModelParameterResolver(modelManager));
-    resolvers.add(new SimpleArrayParameterResolver());
-    resolvers.add(new StreamParameterResolver());
-
-    final MessageConverter messageConverter = context.getBean(MessageConverter.class);
-    resolvers.add(new RequestBodyParameterResolver(messageConverter));
-    resolvers.add(new ThrowableHandlerParameterResolver());
-
-    // Date API support
-    resolvers.add(new DateParameterResolver());
-    resolvers.add(new LocalDateParameterResolver());
-    resolvers.add(new LocalTimeParameterResolver());
-    resolvers.add(new LocalDateTimeParameterResolver());
+    parameterResolvers.registerDefaultParameterResolvers();
+    // user customize multipartConfig
+    final MultipartConfiguration multipartConfig = context.getBean(MultipartConfiguration.class);
+    mvcConfiguration.configureMultipart(multipartConfig);
 
     // User customize parameter resolver
     // ------------------------------------------
-
     mvcConfiguration.configureParameterResolver(resolvers); // user configure
-    // post
-    postConfigureParameterResolver(resolvers, mvcConfiguration);
 
-    final ParameterResolvers parameterResolvers = context.getBean(ParameterResolvers.class);
     parameterResolvers.addResolver(resolvers);
-  }
-
-  protected void postConfigureParameterResolver(final List<ParameterResolver> resolvers,
-                                                final WebMvcConfiguration mvcConfiguration) {
-    // no-op
-  }
-
-  protected void configureMultipart(List<ParameterResolver> resolvers,
-                                    MultipartConfiguration multipartConfig, WebMvcConfiguration mvcConfiguration) {
-
-    resolvers.add(new DefaultMultipartResolver(multipartConfig));
-    resolvers.add(new DefaultMultipartResolver.ArrayMultipartResolver(multipartConfig));
-    resolvers.add(new DefaultMultipartResolver.CollectionMultipartResolver(multipartConfig));
-    resolvers.add(new DefaultMultipartResolver.MapMultipartParameterResolver(multipartConfig));
-
-    Objects.requireNonNull(multipartConfig, "multipartConfig Can't be null");
-    mvcConfiguration.configureMultipart(multipartConfig);
-
   }
 
   /**
@@ -592,7 +468,7 @@ public class WebApplicationLoader
       DispatcherHandler dispatcherHandler = context.getBean(DispatcherHandler.class);
       if (dispatcherHandler == null) {
         dispatcherHandler = createDispatcher(context);
-        nonNull(dispatcherHandler, "DispatcherHandler must not be null, sub class must create its intsance");
+        nonNull(dispatcherHandler, "DispatcherHandler must not be null, sub class must create its instance");
         context.registerBean(dispatcherHandler);
       }
       this.dispatcher = dispatcherHandler;
@@ -608,73 +484,4 @@ public class WebApplicationLoader
     this.dispatcher = dispatcherHandler;
   }
 
-  // AnnotationParameterResolver
-
-  static final class PropsParameterResolver extends AnnotationParameterResolver<Props> {
-    final Properties properties;
-    final WebApplicationContext context;
-
-    PropsParameterResolver(WebApplicationContext context) {
-      super(Props.class);
-      this.context = context;
-      this.properties = context.getEnvironment().getProperties();
-    }
-
-    @Override
-    protected Object resolveInternal(Props target, RequestContext ctx, MethodParameter parameter) {
-      final Object bean = ClassUtils.newInstance(parameter.getParameterClass(), context);
-      return resolveProps(target, bean, properties);
-    }
-  }
-
-  static final class ValueParameterResolver extends AnnotationParameterResolver<Value> {
-    final ExpressionEvaluator expressionEvaluator;
-
-    ValueParameterResolver(ExpressionEvaluator expressionEvaluator) {
-      super(Value.class);
-      this.expressionEvaluator = expressionEvaluator;
-    }
-
-    @Override
-    protected Object resolveInternal(Value target, RequestContext context, MethodParameter parameter) {
-      return expressionEvaluator.evaluate(target, parameter.getParameterClass());
-    }
-  }
-
-  static final class EnvParameterResolver extends AnnotationParameterResolver<Env> {
-    final ExpressionEvaluator expressionEvaluator;
-
-    EnvParameterResolver(ExpressionEvaluator expressionEvaluator) {
-      super(Env.class);
-      this.expressionEvaluator = expressionEvaluator;
-    }
-
-    @Override
-    protected Object resolveInternal(Env target, RequestContext context, MethodParameter parameter) {
-      return expressionEvaluator.evaluate(target, parameter.getParameterClass());
-    }
-  }
-
-  static final class RequestAttributeParameterResolver extends AnnotationParameterResolver<RequestAttribute> {
-    RequestAttributeParameterResolver() {
-      super(RequestAttribute.class);
-    }
-
-    @Override
-    public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
-      return context.getAttribute(parameter.getName());
-    }
-  }
-
-  static final class HandlerMethodParameterResolver implements ParameterResolver {
-    @Override
-    public boolean supports(MethodParameter parameter) {
-      return parameter.is(HandlerMethod.class);
-    }
-
-    @Override
-    public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
-      return parameter.getHandlerMethod();
-    }
-  }
 }

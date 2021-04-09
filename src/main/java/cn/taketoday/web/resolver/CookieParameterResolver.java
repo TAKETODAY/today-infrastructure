@@ -57,7 +57,14 @@ public class CookieParameterResolver
     return null;
   }
 
-  public static class CookieAnnotationParameterResolver extends ConvertibleParameterResolver {
+  public static void registerParameterResolver(List<ParameterResolver> resolvers) {
+    resolvers.add(new CookieParameterResolver());
+    resolvers.add(new CookieArrayParameterResolver());
+    resolvers.add(new CookieAnnotationParameterResolver());
+    resolvers.add(new CookieCollectionParameterResolver());
+  }
+
+  private static class CookieAnnotationParameterResolver extends ConvertibleParameterResolver {
 
     @Override
     public boolean supports(MethodParameter parameter) {
@@ -79,7 +86,7 @@ public class CookieParameterResolver
     }
   }
 
-  public static class CookieArrayParameterResolver implements ParameterResolver {
+  private static class CookieArrayParameterResolver implements ParameterResolver {
 
     @Override
     public boolean supports(MethodParameter parameter) {
@@ -92,7 +99,7 @@ public class CookieParameterResolver
     }
   }
 
-  public static class CookieCollectionParameterResolver
+  private static class CookieCollectionParameterResolver
           extends CollectionParameterResolver implements ParameterResolver {
 
     @Override

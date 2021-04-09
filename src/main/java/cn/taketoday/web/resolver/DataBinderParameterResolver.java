@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.support.DefaultConversionService;
 import cn.taketoday.context.factory.DataBinder;
@@ -42,7 +41,6 @@ import cn.taketoday.web.utils.WebUtils;
  * @author TODAY <br>
  * 2019-07-13 01:11
  */
-@MissingBean(type = DataBinderParameterResolver.class)
 public class DataBinderParameterResolver
         extends OrderedSupport implements ParameterResolver {
 
