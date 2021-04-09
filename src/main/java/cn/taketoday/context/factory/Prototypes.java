@@ -57,11 +57,20 @@ public final class Prototypes {
     }
   }
 
+  /**
+   * if a property is prototype bean this bean-factory
+   * will inject a proxy instance to get prototype
+   * instance from every single method call.
+   */
   public static Object newProxyInstance(Class<?> refType, BeanDefinition def, ConfigurableBeanFactory factory) {
     return newProxyInstance(refType, def, factory, false);
   }
 
   /**
+   * if a property is prototype bean this bean-factory
+   * will inject a proxy instance to get prototype
+   * instance from every single method call.
+   *
    * @param refType
    *         Reference bean class
    * @param def
