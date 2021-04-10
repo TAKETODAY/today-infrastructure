@@ -369,7 +369,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    * Register {@link BeanFactoryPostProcessor}s
    */
   public void registerBeanFactoryPostProcessor() {
-    log.info("Start loading BeanFactoryPostProcessor.");
+    log.info("Loading BeanFactoryPostProcessor.");
 
     final List<BeanFactoryPostProcessor> postProcessors = getBeans(BeanFactoryPostProcessor.class);
     if (!postProcessors.isEmpty()) {

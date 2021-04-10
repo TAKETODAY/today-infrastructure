@@ -712,7 +712,7 @@ public abstract class AbstractBeanFactory
    * Register {@link BeanPostProcessor}s
    */
   public void registerBeanPostProcessors() {
-    log.debug("Start loading BeanPostProcessor.");
+    log.info("Loading BeanPostProcessor.");
     postProcessors.addAll(getBeans(BeanPostProcessor.class));
     OrderUtils.reversedSort(postProcessors);
   }
