@@ -73,15 +73,8 @@ public class AspectAutoProxyCreator
     this.aspectsLoaded = aspectsLoaded;
   }
 
-  void loadAspects() {
-    if (!aspectsLoaded) {
-      loadAspects(getBeanFactory());
-    }
-  }
-
   public void loadAspects(final BeanFactory beanFactory) {
-    log.debug("Loading Aspect Bean Definition");
-
+    log.info("Loading aspect bean definitions");
     setAspectsLoaded(true);
 
     for (final BeanDefinition beanDefinition : beanFactory.getBeanDefinitions().values()) {
@@ -99,13 +92,18 @@ public class AspectAutoProxyCreator
 
   @Override
   public void onApplicationEvent(ContextCloseEvent event) {
-    log.info("Removing Aspects");
+    log.info("Removing aspects");
 
     aspectDefs.clear();
     setAspectsLoaded(false);
   }
 
   //
+  private void loadAspects() {
+    if (!aspectsLoaded) {
+      loadAspects(getBeanFactory());
+    }
+  }
 
   @Override
   protected void addCandidateAdvisors(List<Advisor> candidateAdvisors) {
@@ -128,8 +126,8 @@ public class AspectAutoProxyCreator
     }
   }
 
-  void addCandidateAdvisors(List<Advisor> candidateAdvisors, BeanDefinition aspectDef,
-                            Method aspectMethod, AnnotationAttributes[] adviceAttributes) {
+  private void addCandidateAdvisors(List<Advisor> candidateAdvisors, BeanDefinition aspectDef,
+                                    Method aspectMethod, AnnotationAttributes[] adviceAttributes) {
     // fix Standard Bean def
     if (ObjectUtils.isNotEmpty(adviceAttributes)) {
       for (final AnnotationAttributes advice : adviceAttributes) {
@@ -153,7 +151,7 @@ public class AspectAutoProxyCreator
     }
   }
 
-  MethodInterceptor getInterceptor(BeanDefinition aspectDef, Method aspectMethod, AnnotationAttributes advice) {
+  private MethodInterceptor getInterceptor(BeanDefinition aspectDef, Method aspectMethod, AnnotationAttributes advice) {
     final BeanFactory beanFactory = getBeanFactory();
 
     if (aspectMethod == null) { // method interceptor
@@ -214,7 +212,7 @@ public class AspectAutoProxyCreator
     }
   }
 
-  AnnotationAttributes[] getAdviceAttributes(AnnotatedElement annotated) {
+  private AnnotationAttributes[] getAdviceAttributes(AnnotatedElement annotated) {
     return ClassUtils.getAnnotationAttributesArray(annotated, Advice.class);
   }
 
