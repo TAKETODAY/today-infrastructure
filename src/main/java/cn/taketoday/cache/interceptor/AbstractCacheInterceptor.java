@@ -27,6 +27,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 import javax.annotation.PostConstruct;
@@ -43,7 +44,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ConcurrentCache;
 import cn.taketoday.context.utils.ContextUtils;
@@ -132,15 +133,16 @@ public abstract class AbstractCacheInterceptor
    * @see cn.taketoday.cache.annotation.ProxyCachingConfiguration
    */
   @PostConstruct
-  protected void initCacheInterceptor(ApplicationContext context) {
+  public void initCacheInterceptor(ApplicationContext context) {
     if (getCacheManager() == null) {
       setCacheManager(context.getBean(CacheManager.class));
     }
-    ConfigurationException.nonNull(getCacheManager(), "You must provide a 'CacheManager'");
     if (getExceptionResolver() == null) {
       setExceptionResolver(context.getBean(CacheExceptionResolver.class));
     }
-    ConfigurationException.nonNull(getExceptionResolver(), "You must provide a 'CacheExceptionResolver'");
+
+    Assert.state(getCacheManager() != null, "You must provide a 'CacheManager'");
+    Assert.state(getExceptionResolver() != null, "You must provide a 'CacheExceptionResolver'");
   }
 
   // ExpressionOperations
@@ -285,7 +287,6 @@ public abstract class AbstractCacheInterceptor
   // -----------------------------
 
   static final class MethodKey implements Serializable {
-
     private static final long serialVersionUID = 1L;
 
     private final int hash;
@@ -299,16 +300,13 @@ public abstract class AbstractCacheInterceptor
     }
 
     @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (obj instanceof MethodKey) {
-        final MethodKey other = (MethodKey) obj;
-        return other.annotationClass == annotationClass
-                && other.targetMethod == this.targetMethod;
-      }
-      return false;
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (!(o instanceof MethodKey)) return false;
+      final MethodKey methodKey = (MethodKey) o;
+      return hash == methodKey.hash
+              && Objects.equals(targetMethod, methodKey.targetMethod)
+              && Objects.equals(annotationClass, methodKey.annotationClass);
     }
 
     @Override

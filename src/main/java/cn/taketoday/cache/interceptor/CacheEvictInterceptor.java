@@ -51,7 +51,6 @@ public class CacheEvictInterceptor extends AbstractCacheInterceptor {
 
   @Override
   public Object invoke(final MethodInvocation invocation) throws Throwable {
-
     final Method method = invocation.getMethod();
     final MethodKey methodKey = new MethodKey(method, CacheEvict.class);
 
@@ -63,7 +62,10 @@ public class CacheEvictInterceptor extends AbstractCacheInterceptor {
         clear(obtainCache(method, cacheEvict));
       }
       else {
-        evict(obtainCache(method, cacheEvict), createKey(cacheEvict.key(), prepareELContext(methodKey, invocation), invocation));
+        final Object key = createKey(cacheEvict.key(),
+                                     prepareELContext(methodKey, invocation),
+                                     invocation);
+        evict(obtainCache(method, cacheEvict), key);
       }
       return invocation.proceed();
     }
@@ -76,9 +78,10 @@ public class CacheEvictInterceptor extends AbstractCacheInterceptor {
       clear(obtainCache(method, cacheEvict));
     }
     else {
-      evict(obtainCache(method, cacheEvict), createKey(cacheEvict.key(),
-                                                       prepareELContext(methodKey, invocation),
-                                                       invocation));
+      final Object key = createKey(cacheEvict.key(),
+                                   prepareELContext(methodKey, invocation),
+                                   invocation);
+      evict(obtainCache(method, cacheEvict), key);
     }
     return proceed;
   }
