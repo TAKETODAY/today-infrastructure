@@ -513,7 +513,7 @@ public abstract class ClassUtils {
   public static <A> A injectAttributes(final AnnotationAttributes source,
                                        final Class<?> annotationClass, final A instance) {
     final Class<?> implClass = instance.getClass();
-    for (final Method method : getDeclaredMethods(annotationClass)) {
+    for (final Method method : annotationClass.getDeclaredMethods()) {
       // method name must == field name
       final String name = method.getName();
       final Field field = ReflectionUtils.findField(implClass, name);
@@ -521,7 +521,8 @@ public abstract class ClassUtils {
         throw new ContextException(
                 "You Must Specify A Field: [" + name + "] In Class: [" + implClass.getName() + "]");
       }
-      ReflectionUtils.setField(ReflectionUtils.makeAccessible(field), instance, source.get(name));
+      ReflectionUtils.makeAccessible(field);
+      ReflectionUtils.setField(field, instance, source.get(name));
     }
     return instance;
   }
