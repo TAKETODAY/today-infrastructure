@@ -83,7 +83,6 @@ import cn.taketoday.expression.ExpressionProcessor;
 
 import static cn.taketoday.context.Constant.VALUE;
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
-import static cn.taketoday.context.loader.DelegatingParameterResolver.delegate;
 import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
 import static cn.taketoday.context.utils.OrderUtils.reversedSort;
 import static cn.taketoday.context.utils.ReflectionUtils.makeAccessible;
@@ -116,10 +115,8 @@ public abstract class ContextUtils {
                           new CollectionParameterResolver(),
                           new ObjectSupplierParameterResolver(),
                           new AutowiredParameterResolver(),
-                          delegate(p -> p.isAnnotationPresent(Env.class),
-                                   (p, b) -> expressionEvaluator.evaluate(p.getAnnotation(Env.class), p.getType())),
-                          delegate(p -> p.isAnnotationPresent(Value.class),
-                                   (p, b) -> expressionEvaluator.evaluate(p.getAnnotation(Value.class), p.getType()))//
+                          new EnvExecutableParameterResolver(),
+                          new ValueExecutableParameterResolver()
     );
 
   }
@@ -143,6 +140,7 @@ public abstract class ContextUtils {
    *
    * @param expressionEvaluator
    *         a none null ExpressionEvaluator
+   *
    * @since 3.0
    */
   public static void setExpressionEvaluator(ExpressionEvaluator expressionEvaluator) {
@@ -1026,4 +1024,31 @@ public abstract class ContextUtils {
     throw new ConfigurationException("Target parameter:[" + parameter + "] not supports in this context.");
   }
 
+  // ExecutableParameterResolver
+
+  private static final class EnvExecutableParameterResolver implements ExecutableParameterResolver {
+
+    @Override
+    public boolean supports(Parameter parameter) {
+      return parameter.isAnnotationPresent(Env.class);
+    }
+
+    @Override
+    public Object resolve(Parameter parameter, BeanFactory beanFactory) {
+      return expressionEvaluator.evaluate(parameter.getAnnotation(Env.class), parameter.getType());
+    }
+  }
+
+  private static final class ValueExecutableParameterResolver implements ExecutableParameterResolver {
+
+    @Override
+    public boolean supports(Parameter parameter) {
+      return parameter.isAnnotationPresent(Value.class);
+    }
+
+    @Override
+    public Object resolve(Parameter parameter, BeanFactory beanFactory) {
+      return expressionEvaluator.evaluate(parameter.getAnnotation(Value.class), parameter.getType());
+    }
+  }
 }
