@@ -134,6 +134,10 @@ public abstract class AbstractResultHandler
     }
   }
 
+  /**
+   * @see Constant#REDIRECT_URL_PREFIX
+   * @see Constant#RESPONSE_BODY_PREFIX
+   */
   public void handleString(final String resource, final RequestContext context) throws Throwable {
     if (resource.startsWith(Constant.REDIRECT_URL_PREFIX)) {
       handleRedirect(resource.substring(9), context);

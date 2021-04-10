@@ -21,6 +21,8 @@
 package cn.taketoday.web.view;
 
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
@@ -31,6 +33,8 @@ import cn.taketoday.web.ui.JsonSequence;
  * @since 3.0
  */
 public abstract class AbstractMessageConverter implements MessageConverter {
+  /** for write string*/
+  private Charset charset = Constant.DEFAULT_CHARSET;
 
   @Override
   public void write(RequestContext context, Object message) throws IOException {
@@ -52,7 +56,9 @@ public abstract class AbstractMessageConverter implements MessageConverter {
   }
 
   protected void writeStringInternal(RequestContext context, String message) throws IOException {
-    context.getWriter().println(message);
+    final OutputStreamWriter writer = new OutputStreamWriter(context.getOutputStream(), charset);
+    writer.write(message);
+    writer.flush();
   }
 
   protected void writeNullInternal(RequestContext context) throws IOException { }
@@ -61,4 +67,12 @@ public abstract class AbstractMessageConverter implements MessageConverter {
    * Write none null message
    */
   abstract void writeInternal(RequestContext context, Object noneNullMessage) throws IOException;
+
+  public void setCharset(Charset charset) {
+    this.charset = charset;
+  }
+
+  public Charset getCharset() {
+    return charset;
+  }
 }

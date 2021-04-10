@@ -24,6 +24,10 @@ import java.util.Map;
 import cn.taketoday.context.utils.ConvertUtils;
 
 /**
+ * Model that defines a holder for model attributes.
+ * Primarily designed for adding attributes to the model.
+ * Allows for accessing the overall model as a {@code java.util.Map}.
+ *
  * @author TODAY <br>
  * 2018-10-14 20:30
  */

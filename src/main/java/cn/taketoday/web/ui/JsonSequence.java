@@ -26,7 +26,7 @@ package cn.taketoday.web.ui;
 public interface JsonSequence {
 
   /**
-   * Returns JSON string
+   * Returns JSON object
    */
   Object getJSON();
 
