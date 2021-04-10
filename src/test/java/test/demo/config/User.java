@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,37 +23,35 @@ import java.io.Serializable;
 import java.util.Date;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Setter
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @SuppressWarnings("serial")
 public class User implements Serializable {
 
-    private Integer id;
-    private String userName;
-    private Integer age;
-    private String passwd;
-    private String userId;
-    private String sex;
-    private Date brithday;
+  private Integer id;
+  private String userName;
+  private Integer age;
+  private String passwd;
+  private String userId;
+  private String sex;
+  private Date brithday;
 
-    @Override
-    public String toString() {
-        return new StringBuilder()//
-                .append("{\n\t\"id\":\"").append(id)//
-                .append("\",\n\t\"userName\":\"").append(userName)//
-                .append("\",\n\t\"age\":\"").append(age)//
-                .append("\",\n\t\"passwd\":\"").append(passwd)//
-                .append("\",\n\t\"userId\":\"").append(userId)//
-                .append("\",\n\t\"sex\":\"").append(sex)//
-                .append("\",\n\t\"brithday\":\"").append(brithday)//
-                .append("\"\n}")//
-                .toString();
-    }
+  @Override
+  public String toString() {
+    return new StringBuilder()//
+            .append("{\n\t\"id\":\"").append(id)//
+            .append("\",\n\t\"userName\":\"").append(userName)//
+            .append("\",\n\t\"age\":\"").append(age)//
+            .append("\",\n\t\"passwd\":\"").append(passwd)//
+            .append("\",\n\t\"userId\":\"").append(userId)//
+            .append("\",\n\t\"sex\":\"").append(sex)//
+            .append("\",\n\t\"brithday\":\"").append(brithday)//
+            .append("\"\n}")//
+            .toString();
+  }
 
 }

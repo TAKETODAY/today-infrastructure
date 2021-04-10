@@ -24,15 +24,16 @@ import org.junit.Test;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.aop.support.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.annotation.AspectAutoProxyCreator;
 import cn.taketoday.cache.Cache;
-import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.CaffeineCache;
 import cn.taketoday.cache.CaffeineCacheManager;
+import cn.taketoday.cache.NoSuchCacheException;
 import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.Cacheable;
@@ -43,61 +44,85 @@ import test.demo.repository.impl.DefaultUserRepository;
 
 import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareAnnotation;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author TODAY 2021/4/10 17:11
  * @since 3.0
  */
 public class CacheableInterceptorTests {
-  CacheManager cacheManager = new CaffeineCacheManager();
+  CaffeineCacheManager cacheManager = new CaffeineCacheManager();
   CacheableInterceptor interceptor = new CacheableInterceptor(cacheManager);
 
   {
     interceptor.setExceptionResolver(new DefaultCacheExceptionResolver());
   }
 
-  @CacheConfig(cacheName = "users", timeUnit = TimeUnit.SECONDS, expire = 3)
+  @CacheConfig(cacheName = "users", timeUnit = TimeUnit.MILLISECONDS, expire = 60)
   static class UserService {
     DefaultUserRepository userDao = new DefaultUserRepository();
 
-    {
-      userDao.initData();
+    int accessTime = 0;
+
+    public void save(User user) {
+      userDao.save(user);
     }
 
     @Cacheable(key = "by_id_${id}")
     public User getUser(String id) {
-      System.err.println("get-user:" + id);
+      accessTime++;
+      System.out.println(id);
       return userDao.findUser(id);
     }
 
+    public int getAccessTime() {
+      return accessTime;
+    }
   }
 
   @Test
-  public void cacheName() throws Exception {
+  public void cacheableAttributes() throws Exception {
+    // cacheName
     final Method getUser = UserService.class.getDeclaredMethod("getUser", String.class);
     final MethodKey methodKey = new MethodKey(getUser, Cacheable.class);
     final CacheConfiguration cacheable = prepareAnnotation(methodKey);
     final Cache users = interceptor.getCache("users", cacheable);
-
     assertThat(users)
             .isInstanceOf(CaffeineCache.class);
 
     assertThat(users.getName())
             .isEqualTo("users");
 
-    System.out.println(users);
+    // key
+    final Cache cache = interceptor.obtainCache(getUser, cacheable);
+    assertThat(cache).isEqualTo(users);
+
+    CacheConfiguration cacheableClone = new CacheConfiguration();
+    cacheableClone.mergeCacheConfigAttributes(cacheable);
+    cacheableClone.setCacheName("users1");
+
+    final Cache users1 = interceptor.obtainCache(getUser, cacheableClone);
+    assertThat(users1).isNotEqualTo(cache).isNotEqualTo(users);
+
+    cacheManager.setDynamicCreation(false);
+
+    cacheableClone.setCacheName("users2");
+
+    try {
+      final Cache users2 = interceptor.obtainCache(getUser, cacheableClone);
+      fail("obtainCache error");
+    }
+    catch (NoSuchCacheException ignored) { }
   }
 
-//  @Aspect
-//  @MissingBean
-//  @Advice(Cacheable.class)
-//  CacheableInterceptor cacheableInterceptor(CacheManager cacheManager) {
-//    return new CacheableInterceptor(cacheManager);
-//  }
-
   @Test
-  public void testContext() {
-    try(StandardApplicationContext context = new StandardApplicationContext()){
+  public void testContext() throws Exception {
+    final Method getUser = UserService.class.getDeclaredMethod("getUser", String.class);
+    final MethodKey methodKey = new MethodKey(getUser, Cacheable.class);
+    final CacheConfiguration cacheable = prepareAnnotation(methodKey);
+    final Cache users = interceptor.getCache("users", cacheable);
+
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
       context.importBeans(UserService.class);
 //      context.importBeans(CacheableInterceptor.class);
 //      context.importBeans(CaffeineCacheManager.class);
@@ -106,20 +131,35 @@ public class CacheableInterceptorTests {
 
       final AnnotationMatchingPointcut matchingPointcut
               = AnnotationMatchingPointcut.forMethodAnnotation(Cacheable.class);
-
       final DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor(matchingPointcut, interceptor);
       context.registerBean(pointcutAdvisor);
 
       context.load(Collections.emptySet());
 
-      System.out.println(context);
-
+      final User today = new User(1, "TODAY", 20, "666", "666", "男", new Date());
       final UserService userService = context.getBean(UserService.class);
+      userService.save(today);
 
       User user = userService.getUser("666");
+      assertThat(today).isEqualTo(user);
       user = userService.getUser("666");
+      assertThat(today).isEqualTo(user);
       user = userService.getUser("666");
+      assertThat(today).isEqualTo(user);
       user = userService.getUser("666");
+      assertThat(today).isEqualTo(user);
+      // access time
+      assertThat(userService.getAccessTime()).isEqualTo(1);
+
+      Thread.sleep(100);
+      user = userService.getUser("666");
+      assertThat(today).isEqualTo(user);
+      assertThat(userService.getAccessTime()).isEqualTo(2);
+
+      //
+      final Object by_id_666 = users.get("by_id_666");
+      assertThat(today).isEqualTo(user).isEqualTo(by_id_666);
+      assertThat(userService.getAccessTime()).isEqualTo(2);
 
     }
 
