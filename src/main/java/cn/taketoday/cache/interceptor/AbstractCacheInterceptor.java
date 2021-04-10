@@ -148,21 +148,14 @@ public abstract class AbstractCacheInterceptor
   // ExpressionOperations
   //-----------------------------------------------------
 
-  interface Operations {
+  abstract static class Operations {
+    static final StandardExpressionContext SHARED_EL_CONTEXT;
+    static final ExpressionFactory EXPRESSION_FACTORY = ExpressionFactory.getSharedInstance();
+    static final ConcurrentCache<MethodKey, String[]> ARGS_NAMES_CACHE = new ConcurrentCache<>(512);
+    static final ConcurrentCache<MethodKey, CacheConfiguration> CACHE_OPERATION = new ConcurrentCache<>(512);
+    static final Function<MethodKey, String[]> ARGS_NAMES_FUNCTION = target -> ClassUtils.getMethodArgsNames(target.targetMethod);
 
-    StandardExpressionContext SHARED_EL_CONTEXT = //
-            ContextUtils.getLastStartupContext()
-                    .getEnvironment()
-                    .getExpressionProcessor()
-                    .getManager()
-                    .getContext();
-
-    ExpressionFactory EXPRESSION_FACTORY = ExpressionFactory.getSharedInstance();
-    ConcurrentCache<MethodKey, String[]> ARGS_NAMES_CACHE = new ConcurrentCache<>(512);
-    ConcurrentCache<MethodKey, CacheConfiguration> CACHE_OPERATION = new ConcurrentCache<>(512);
-    Function<MethodKey, String[]> ARGS_NAMES_FUNCTION = target -> ClassUtils.getMethodArgsNames(target.targetMethod);
-
-    Function<MethodKey, CacheConfiguration> CACHE_OPERATION_FUNCTION = target -> {
+    static final Function<MethodKey, CacheConfiguration> CACHE_OPERATION_FUNCTION = target -> {
 
       final Method method = target.targetMethod;
       final Class<? extends Annotation> annClass = target.annotationClass;
@@ -187,6 +180,20 @@ public abstract class AbstractCacheInterceptor
       return configuration;
     };
 
+    static {
+      final ApplicationContext lastStartupContext = ContextUtils.getLastStartupContext();
+      if (lastStartupContext != null) {
+        SHARED_EL_CONTEXT = lastStartupContext
+                        .getEnvironment()
+                        .getExpressionProcessor()
+                        .getManager()
+                        .getContext();
+      }
+      else {
+        SHARED_EL_CONTEXT = new StandardExpressionContext(EXPRESSION_FACTORY);
+      }
+    }
+
     // methods
     //------------------------------------------
 
@@ -195,7 +202,7 @@ public abstract class AbstractCacheInterceptor
      *
      * @return {@link Annotation} instance
      */
-    static CacheConfiguration prepareAnnotation(final MethodKey methodKey) {
+    public static CacheConfiguration prepareAnnotation(final MethodKey methodKey) {
       return CACHE_OPERATION.get(methodKey, CACHE_OPERATION_FUNCTION);
     }
 
