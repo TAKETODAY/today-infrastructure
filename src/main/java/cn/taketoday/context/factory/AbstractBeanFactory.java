@@ -401,7 +401,6 @@ public abstract class AbstractBeanFactory
    *         when invoke init methods
    */
   protected void invokeInitMethods(final Object bean, final Method[] methods) {
-
     for (final Method method : methods) {
       try {
         //method.setAccessible(true); // fix: can not access a member
@@ -413,7 +412,6 @@ public abstract class AbstractBeanFactory
                         + "] invoke init method: [" + method + "]", e);
       }
     }
-
     if (bean instanceof InitializingBean) {
       try {
         ((InitializingBean) bean).afterPropertiesSet();
@@ -453,26 +451,20 @@ public abstract class AbstractBeanFactory
    */
   @SuppressWarnings("unchecked")
   protected <T> FactoryBean<T> getFactoryBean(final BeanDefinition def) {
-
     final FactoryBean<T> factoryBean = getFactoryBeanInstance(def);
-
     if (def.isInitialized()) {
       return factoryBean;
     }
-
     if (factoryBean instanceof AbstractFactoryBean) {
       ((AbstractFactoryBean<?>) factoryBean).setSingleton(def.isSingleton());
     }
-
     // Initialize Factory
     // Factory is always a SINGLETON bean
     // ----------------------------------------
-
     if (log.isDebugEnabled()) {
       log.debug("Initialize FactoryBean: [{}]", def.getName());
     }
     final Object initBean = initializeBean(factoryBean, def);
-
     def.setInitialized(true);
     registerSingleton(getFactoryBeanName(def), initBean); // Refresh bean to the mapping
     return (FactoryBean<T>) initBean;
@@ -537,12 +529,10 @@ public abstract class AbstractBeanFactory
    */
   @Override
   public Object initializeBean(final Object bean, final BeanDefinition def) {
-
     if (log.isDebugEnabled()) {
       log.debug("Initializing bean named: [{}].", def.getName());
     }
     aware(bean, def);
-
     final List<BeanPostProcessor> postProcessors = getPostProcessors();
     if (postProcessors.isEmpty()) {
       // apply properties
