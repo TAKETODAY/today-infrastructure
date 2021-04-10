@@ -317,6 +317,13 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   /**
+   * register Framework Beans
+   */
+  public void registerFrameworkBeans() {
+    registerFrameworkBeans(getEnvironment(), getBeanFactory().getBeanNameCreator());
+  }
+
+  /**
    * Register Framework Beans
    */
   protected void registerFrameworkBeans(ConfigurableEnvironment env, final BeanNameCreator beanNameCreator) {

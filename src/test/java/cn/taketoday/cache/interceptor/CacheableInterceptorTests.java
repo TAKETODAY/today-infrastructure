@@ -117,17 +117,21 @@ public class CacheableInterceptorTests {
 
   @Test
   public void testContext() throws Exception {
-    final Method getUser = UserService.class.getDeclaredMethod("getUser", String.class);
-    final MethodKey methodKey = new MethodKey(getUser, Cacheable.class);
-    final CacheConfiguration cacheable = prepareAnnotation(methodKey);
-    final Cache users = interceptor.getCache("users", cacheable);
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
       context.importBeans(UserService.class);
-//      context.importBeans(CacheableInterceptor.class);
-//      context.importBeans(CaffeineCacheManager.class);
+      context.importBeans(CacheableInterceptor.class);
+      context.importBeans(CaffeineCacheManager.class);
       context.importBeans(AspectAutoProxyCreator.class);
       context.importBeans(DefaultCacheExceptionResolver.class);
+      context.registerFrameworkBeans();
+
+      final CacheableInterceptor interceptor = context.getBean(CacheableInterceptor.class);
+
+      final Method getUser = UserService.class.getDeclaredMethod("getUser", String.class);
+      final MethodKey methodKey = new MethodKey(getUser, Cacheable.class);
+      final CacheConfiguration cacheable = prepareAnnotation(methodKey);
+      final Cache users = interceptor.getCache("users", cacheable);
 
       final AnnotationMatchingPointcut matchingPointcut
               = AnnotationMatchingPointcut.forMethodAnnotation(Cacheable.class);
