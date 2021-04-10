@@ -108,9 +108,11 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
     }
 
     public Object get(AbstractClassGenerator gen, boolean useCache) {
-      return useCache
-             ? gen.unwrapCachedValue(generatedClasses.get(gen))
-             : gen.generate(ClassLoaderData.this);
+      if(useCache) {
+        final Object cached = generatedClasses.get(gen);
+        return gen.unwrapCachedValue(cached);
+      }
+      return gen.generate(this);
     }
 
   }
