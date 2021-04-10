@@ -114,9 +114,9 @@ public abstract class ContextUtils {
                           new ArrayParameterResolver(),
                           new CollectionParameterResolver(),
                           new ObjectSupplierParameterResolver(),
-                          new AutowiredParameterResolver(),
                           new EnvExecutableParameterResolver(),
-                          new ValueExecutableParameterResolver()
+                          new ValueExecutableParameterResolver(),
+                          new AutowiredParameterResolver()
     );
 
   }
