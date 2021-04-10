@@ -274,7 +274,6 @@ public abstract class AbstractAutoProxyCreator
   protected void addCandidateAdvisors(List<Advisor> candidateAdvisors) {
     final BeanFactory beanFactory = getBeanFactory();
     candidateAdvisors.addAll(beanFactory.getBeans(Advisor.class));
-
   }
 
   protected void postEligibleAdvisors(List<Advisor> eligibleAdvisors) { }
