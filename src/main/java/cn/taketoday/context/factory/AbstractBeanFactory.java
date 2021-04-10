@@ -1293,7 +1293,8 @@ public abstract class AbstractBeanFactory
       if (def.isSingleton() && !def.isInitialized() && !def.isLazyInit()) {
         if (def.isFactoryBean()) {
           final FactoryBean<?> factoryBean = getFactoryBeanInstance(def);
-          final boolean isEagerInit = factoryBean instanceof SmartFactoryBean && ((SmartFactoryBean<?>) factoryBean).isEagerInit();
+          final boolean isEagerInit = factoryBean instanceof SmartFactoryBean
+                  && ((SmartFactoryBean<?>) factoryBean).isEagerInit();
           if (isEagerInit) {
             getBean(def);
           }
