@@ -31,4 +31,6 @@ public interface UserRepository {
 
     public User login(User user);
 
+    User findUser(String id);
+
 }

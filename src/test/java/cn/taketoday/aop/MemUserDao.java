@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,40 +24,38 @@ import java.util.Map;
 
 /**
  * @author TODAY <br>
- *         2018-07-06 17:40:34
+ * 2018-07-06 17:40:34
  */
 public class MemUserDao implements UserDao {
 
-    private Map<String, User> users = new HashMap<>();
+  private Map<String, User> users = new HashMap<>();
 
-    public MemUserDao() {
-        users.put("666", new User().setPassword("666"));
-        users.put("6666", new User().setPassword("6666"));
-        users.put("66666", new User().setPassword("66666"));
-        users.put("666666", new User().setPassword("666666"));
-        users.put("taketoday@foxmail.com", new User().setPassword("130447AD788ACD4E5A06BF83136E78CB"));
+  public MemUserDao() {
+    users.put("666", new User().setPassword("666"));
+    users.put("6666", new User().setPassword("6666"));
+    users.put("66666", new User().setPassword("66666"));
+    users.put("666666", new User().setPassword("666666"));
+    users.put("taketoday@foxmail.com", new User().setPassword("130447AD788ACD4E5A06BF83136E78CB"));
+  }
+
+  @Override
+  public boolean save(User user) {
+    users.put(user.getEmail(), user);
+    return true;
+  }
+
+  @Override
+  public User login(User user) {
+
+    User user_ = users.get(user.getEmail());
+
+    if (user_ == null) {
+      return null;
     }
-
-    @Override
-    public boolean save(User user) {
-
-        users.put(user.getEmail(), user);
-
-        return true;
+    if (!user_.getPassword().equals(user.getPassword())) {
+      return null;
     }
-
-    @Override
-    public User login(User user) {
-
-        User user_ = users.get(user.getEmail());
-
-        if (user_ == null) {
-            return null;
-        }
-        if (!user_.getPassword().equals(user.getPassword())) {
-            return null;
-        }
-        return user_;
-    }
+    return user_;
+  }
 
 }

@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -34,7 +34,7 @@ import test.demo.config.User;
 import test.demo.repository.UserRepository;
 
 /**
- * 
+ *
  * @author Today <br>
  *         2018-07-06 17:40:34
  */
@@ -42,55 +42,60 @@ import test.demo.repository.UserRepository;
 //@Repository
 public class DefaultUserRepository implements UserRepository, BeanNameAware {
 
-    private static final Logger log = LoggerFactory.getLogger(DefaultUserRepository.class);
+  private static final Logger log = LoggerFactory.getLogger(DefaultUserRepository.class);
 
-    private Map<String, User> users = new HashMap<>();
+  private Map<String, User> users = new HashMap<>();
 
-    public DefaultUserRepository() {
+  public DefaultUserRepository() {
 
+  }
+
+  @PostConstruct
+  public void initData() {
+    log.info("init data: [{}]", this);
+    users.put("666", new User(1, "杨海健", 20, "666", "666", "男", new Date()));
+    users.put("6666", new User(2, "杨海健1", 20, "6666", "6666", "男", new Date()));
+    users.put("66666", new User(3, "杨海健2", 20, "66666", "66666", "男", new Date()));
+    users.put("666666", new User(4, "杨海健3", 20, "666666", "666666", "男", new Date()));
+  }
+
+  @Override
+  public boolean save(User user) {
+
+    users.put(user.getUserId(), user);
+
+    return true;
+  }
+
+  @PreDestroy
+  public void exit() {
+    log.info("destory: [{}]", this);
+    users = null;
+  }
+
+  @Override
+  public User login(User user) {
+    if (user == null) {
+      return null;
     }
+    User user_ = users.get(user.getUserId());
 
-    @PostConstruct
-    public void initData() {
-        log.info("init data: [{}]", this);
-        users.put("666", new User(1, "杨海健", 20, "666", "666", "男", new Date()));
-        users.put("6666", new User(2, "杨海健1", 20, "6666", "6666", "男", new Date()));
-        users.put("66666", new User(3, "杨海健2", 20, "66666", "66666", "男", new Date()));
-        users.put("666666", new User(4, "杨海健3", 20, "666666", "666666", "男", new Date()));
+    if (user_ == null) {
+      return null;
     }
-
-    @Override
-    public boolean save(User user) {
-
-        users.put(user.getUserId(), user);
-
-        return true;
+    if (!user_.getPasswd().equals(user.getPasswd())) {
+      return null;
     }
+    return user_;
+  }
 
-    @PreDestroy
-    public void exit() {
-        log.info("destory: [{}]", this);
-        users = null;
-    }
+  @Override
+  public void setBeanName(String name) {
+    log.info("[{}] named: [{}]", this, name);
+  }
 
-    @Override
-    public User login(User user) {
-        if (user == null) {
-            return null;
-        }
-        User user_ = users.get(user.getUserId());
-
-        if (user_ == null) {
-            return null;
-        }
-        if (!user_.getPasswd().equals(user.getPasswd())) {
-            return null;
-        }
-        return user_;
-    }
-
-    @Override
-    public void setBeanName(String name) {
-        log.info("[{}] named: [{}]", this, name);
-    }
+  @Override
+  public User findUser(String id) {
+    return users.get(id);
+  }
 }

@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -33,41 +33,41 @@ import lombok.Setter;
 @SuppressWarnings("serial")
 public class User implements Serializable {
 
-    /** id register time */
-    private long id;
-    /** state */
-    private byte state;
-    /** name */
-    private String name;
-    /** email */
-    private String email;
-    /** web site */
-    private String site;
-    /** type */
-    private String type;
-    /** passwd */
-    private String password;
-    /** avatar */
-    private String image;
-    /** description */
-    private String introduce;
-    /** back ground **/
-    private String background;
+  /** id register time */
+  private String id;
+  /** state */
+  private byte state;
+  /** name */
+  private String name;
+  /** email */
+  private String email;
+  /** web site */
+  private String site;
+  /** type */
+  private String type;
+  /** passwd */
+  private String password;
+  /** avatar */
+  private String image;
+  /** description */
+  private String introduce;
+  /** back ground **/
+  private String background;
 
-    @Override
-    public String toString() {
-        return new StringBuilder()//
-                .append("{\n\t\"id\":\"").append(id)//
-                .append("\",\n\t\"name\":\"").append(name)//
-                .append("\",\n\t\"site\":\"").append(site)//
-                .append("\",\n\t\"type\":\"").append(type)//
-                .append("\",\n\t\"state\":\"").append(state)//
-                .append("\",\n\t\"image\":\"").append(image)//
-                .append("\",\n\t\"email\":\"").append(email)//
-                .append("\",\n\t\"password\":\"").append(password)//
-                .append("\",\n\t\"background\":\"").append(background)//
-                .append("\",\n\t\"introduce\":\"").append(introduce)//
-                .append("\"\n}").toString();
-    }
+  @Override
+  public String toString() {
+    return new StringBuilder()//
+            .append("{\n\t\"id\":\"").append(id)//
+            .append("\",\n\t\"name\":\"").append(name)//
+            .append("\",\n\t\"site\":\"").append(site)//
+            .append("\",\n\t\"type\":\"").append(type)//
+            .append("\",\n\t\"state\":\"").append(state)//
+            .append("\",\n\t\"image\":\"").append(image)//
+            .append("\",\n\t\"email\":\"").append(email)//
+            .append("\",\n\t\"password\":\"").append(password)//
+            .append("\",\n\t\"background\":\"").append(background)//
+            .append("\",\n\t\"introduce\":\"").append(introduce)//
+            .append("\"\n}").toString();
+  }
 
 }
