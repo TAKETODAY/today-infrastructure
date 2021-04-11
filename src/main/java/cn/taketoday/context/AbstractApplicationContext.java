@@ -717,12 +717,12 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   @Override
-  public String[] getBeanNamesOfType(Class<?> requiredType, boolean includeNonSingletons) {
+  public Set<String> getBeanNamesOfType(Class<?> requiredType, boolean includeNonSingletons) {
     return getBeanFactory().getBeanNamesOfType(requiredType, includeNonSingletons);
   }
 
   @Override
-  public String[] getBeanNamesOfType(
+  public Set<String> getBeanNamesOfType(
           Class<?> requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
     return getBeanFactory().getBeanNamesOfType(requiredType, includeNoneRegistered, includeNonSingletons);
   }

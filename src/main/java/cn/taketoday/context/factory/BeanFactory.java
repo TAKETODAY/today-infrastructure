@@ -316,7 +316,7 @@ public interface BeanFactory {
    * @see FactoryBean#getBeanClass()
    * @since 3.0
    */
-  default String[] getBeanNamesOfType(Class<?> requiredType) {
+  default Set<String> getBeanNamesOfType(Class<?> requiredType) {
     return getBeanNamesOfType(requiredType, true);
   }
 
@@ -340,7 +340,7 @@ public interface BeanFactory {
    * @see FactoryBean#getBeanClass()
    * @since 3.0
    */
-  String[] getBeanNamesOfType(Class<?> requiredType, boolean includeNonSingletons);
+  Set<String> getBeanNamesOfType(Class<?> requiredType, boolean includeNonSingletons);
 
   /**
    * Return the names of beans matching the given type (including subclasses),
@@ -362,7 +362,7 @@ public interface BeanFactory {
    * @see FactoryBean#getBeanClass()
    * @since 3.0
    */
-  String[] getBeanNamesOfType(
+  Set<String> getBeanNamesOfType(
           Class<?> requiredType, boolean includeNoneRegistered, boolean includeNonSingletons);
 
   /**

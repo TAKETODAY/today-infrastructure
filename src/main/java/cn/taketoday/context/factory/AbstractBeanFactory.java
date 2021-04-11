@@ -263,22 +263,19 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public String[] getBeanNamesOfType(Class<?> requiredType, boolean includeNonSingletons) {
+  public Set<String> getBeanNamesOfType(Class<?> requiredType, boolean includeNonSingletons) {
     return getBeanNamesOfType(requiredType, true, includeNonSingletons);
   }
 
   @Override
-  public String[] getBeanNamesOfType(
+  public Set<String> getBeanNamesOfType(
           Class<?> requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
     final LinkedHashSet<String> beanNames = new LinkedHashSet<>();
 
     for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
       final BeanDefinition def = entry.getValue();
       if (isEligibleBean(def, requiredType, includeNonSingletons)) {
-        final Object bean = getBean(def);
-        if (bean != null) {
-          beanNames.add(entry.getKey());
-        }
+        beanNames.add(entry.getKey());
       }
     }
     if (includeNoneRegistered) {
@@ -289,7 +286,7 @@ public abstract class AbstractBeanFactory
         }
       }
     }
-    return beanNames.toArray(new String[0]);
+    return beanNames;
   }
 
   /**
