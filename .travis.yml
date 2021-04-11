@@ -1,17 +1,18 @@
+language: java
+
 jobs:
-- language: java
-  jdk:
-    - oraclejdk11
-    - openjdk8
-    - openjdk11
-  os:
-    - linux
-- language: java
-  jdk:
-    - oraclejdk11
-    - openjdk11
-  os:
-    - osx
+  include:
+  - language: java
+    jdk:
+      - oraclejdk11
+      - openjdk8
+      - openjdk11
+    os: linux
+  - language: java
+    jdk:
+      - oraclejdk11
+      - openjdk11
+    os: osx
 
 install:
   - mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Pci
