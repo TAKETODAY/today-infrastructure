@@ -189,6 +189,11 @@ public interface BeanFactory {
    * {@link ApplicationContext#load(String...)}
    * </p>
    *
+   * <p>
+   * <b>NOTE:</b>
+   * include singletons already in {@code singletons} but not in {@code beanDefinitionMap}
+   * </p>
+   *
    * @param requiredType
    *         the class or interface to match, or {@code null} for all concrete beans
    * @param includeNonSingletons
@@ -204,6 +209,39 @@ public interface BeanFactory {
    * @since 3.0
    */
   <T> Map<String, T> getBeansOfType(Class<T> requiredType, boolean includeNonSingletons);
+
+  /**
+   * Return the bean instances that match the given object type (including
+   * subclasses), judging from either bean definitions or the value of
+   * {@code getBeanClass} in the case of FactoryBeans.
+   * <p>Note: Does <i>not</i> ignore singleton beans that have been registered
+   * by other means than bean definitions.
+   * <p>
+   * Get a map of beans with given type, this method must invoke after
+   * {@link ApplicationContext#load(String...)}
+   * </p>
+   *
+   * @param requiredType
+   *         the class or interface to match, or {@code null} for all concrete beans
+   * @param includeNonSingletons
+   *         whether to include prototype or scoped beans too
+   *         or just singletons (also applies to FactoryBeans)
+   * @param includeNoneRegistered
+   *         whether to include singletons already in {@code singletons}
+   *         but not in {@code beanDefinitionMap}
+   * @param <T>
+   *         required type
+   *
+   * @return a Map with the matching beans, containing the bean names as
+   * keys and the corresponding bean instances as values
+   *
+   * @throws BeansException
+   *         if a bean could not be created
+   * @see FactoryBean#getBeanClass
+   * @since 3.0
+   */
+  <T> Map<String, T> getBeansOfType(
+          Class<T> requiredType, boolean includeNoneRegistered, boolean includeNonSingletons);
 
   /**
    * Get all {@link BeanDefinition}s
@@ -286,6 +324,9 @@ public interface BeanFactory {
    * Return the names of beans matching the given type (including subclasses),
    * judging from either bean definitions or the value of {@code getBeanClass}
    * in the case of FactoryBeans.
+   * <p>
+   * include singletons already in {@code singletons} but not in {@code beanDefinitionMap}
+   * </p>
    *
    * @param requiredType
    *         the class or interface to match, or {@code null} for all bean names
@@ -300,6 +341,29 @@ public interface BeanFactory {
    * @since 3.0
    */
   String[] getBeanNamesOfType(Class<?> requiredType, boolean includeNonSingletons);
+
+  /**
+   * Return the names of beans matching the given type (including subclasses),
+   * judging from either bean definitions or the value of {@code getBeanClass}
+   * in the case of FactoryBeans.
+   *
+   * @param requiredType
+   *         the class or interface to match, or {@code null} for all concrete beans
+   * @param includeNonSingletons
+   *         whether to include prototype or scoped beans too
+   *         or just singletons (also applies to FactoryBeans)
+   * @param includeNoneRegistered
+   *         whether to include singletons already in {@code singletons}
+   *         but not in {@code beanDefinitionMap}
+   *
+   * @return the names of beans (or objects created by FactoryBeans) matching
+   * the given object type (including subclasses), or an empty array if none
+   *
+   * @see FactoryBean#getBeanClass()
+   * @since 3.0
+   */
+  String[] getBeanNamesOfType(
+          Class<?> requiredType, boolean includeNoneRegistered, boolean includeNonSingletons);
 
   /**
    * Find all beans which are annotated with the supplied {@link Annotation} type,

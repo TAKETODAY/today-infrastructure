@@ -19,8 +19,6 @@
  */
 package cn.taketoday.context.utils;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -49,29 +47,20 @@ import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.BeanDefinition;
+import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.StandardBeanDefinition;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import static org.assertj.core.api.Assertions.fail;
+
 /**
  * @author Today <br>
  * 2018-07-12 20:46:41
  */
 public class ContextUtilsTest {
-
-  private long start;
-
-  @Before
-  public void start() {
-    start = System.currentTimeMillis();
-  }
-
-  @After
-  public void end() {
-    System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
-  }
 
   @Test
   public void test_FindInProperties() throws ConfigurationException {
@@ -166,7 +155,7 @@ public class ContextUtilsTest {
 
     ClassUtils.clearCache();
     try (ApplicationContext applicationContext = new StandardApplicationContext("", "cn.taketoday.context.utils")) {
-
+      final BeanFactory beanFactory = applicationContext.getBeanFactory();
       final Environment environment = applicationContext.getEnvironment();
       // placeHolder
       final Properties properties = environment.getProperties();
@@ -184,7 +173,7 @@ public class ContextUtilsTest {
 //      System.err.println(properties.get("placeHolder"));
       ContextUtils.setLastStartupContext(applicationContext);
 
-      Object[] parameters = ContextUtils.resolveParameter(constructor, applicationContext);
+      Object[] parameters = ContextUtils.resolveParameter(constructor, beanFactory);
 
       Config newInstance = constructor.newInstance(parameters);
 
@@ -316,6 +305,7 @@ public class ContextUtilsTest {
 
       try {
         ContextUtils.validateBeanDefinition(beanDefinition);
+        fail("beanDefinition");
       }
       catch (ConfigurationException e) {
         assert true;
@@ -324,12 +314,14 @@ public class ContextUtilsTest {
       StandardBeanDefinition standardBeanDefinition = new StandardBeanDefinition("", (Class<?>) null);
       try {
         ContextUtils.validateBeanDefinition(standardBeanDefinition);
+        fail("standardBeanDefinition");
       }
       catch (ConfigurationException e) {
         assert true;
       }
       try {
         ContextUtils.validateBeanDefinition(standardBeanDefinition.setDeclaringName("test"));
+        fail("setDeclaringName");
       }
       catch (ConfigurationException e) {
         assert true;

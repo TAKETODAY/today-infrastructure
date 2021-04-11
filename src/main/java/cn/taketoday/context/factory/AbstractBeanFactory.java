@@ -27,6 +27,7 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -163,7 +164,7 @@ public abstract class AbstractBeanFactory
    *
    * @since 2.1.2
    */
-  <T> Object doGetBeanForType(final Class<T> requiredType) {
+  protected <T> Object doGetBeanForType(final Class<T> requiredType) {
     for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
       if (requiredType.isAssignableFrom(entry.getValue().getBeanClass())) {
         final Object bean = getBean(entry.getValue());
@@ -230,10 +231,15 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public <T> Map<String, T> getBeansOfType(Class<T> requiredType, boolean includeNonSingletons) {
-    final HashMap<String, T> beans = new HashMap<>();
+    return getBeansOfType(requiredType, true, includeNonSingletons);
+  }
 
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> Map<String, T> getBeansOfType(
+          Class<T> requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+    final HashMap<String, T> beans = new HashMap<>();
     for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
       final BeanDefinition def = entry.getValue();
       if (isEligibleBean(def, requiredType, includeNonSingletons)) {
@@ -243,18 +249,42 @@ public abstract class AbstractBeanFactory
         }
       }
     }
+
+    if (includeNoneRegistered) {
+      for (final Entry<String, Object> entry : getSingletons().entrySet()) {
+        final Object bean = entry.getValue();
+        if (!beans.containsKey(entry.getKey())
+                && (requiredType == null || requiredType.isInstance(bean))) {
+          beans.put(entry.getKey(), (T) bean);
+        }
+      }
+    }
     return beans;
   }
 
   @Override
   public String[] getBeanNamesOfType(Class<?> requiredType, boolean includeNonSingletons) {
-    final List<String> beanNames = new ArrayList<>();
+    return getBeanNamesOfType(requiredType, true, includeNonSingletons);
+  }
+
+  @Override
+  public String[] getBeanNamesOfType(
+          Class<?> requiredType, boolean includeNoneRegistered, boolean includeNonSingletons) {
+    final LinkedHashSet<String> beanNames = new LinkedHashSet<>();
 
     for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
       final BeanDefinition def = entry.getValue();
       if (isEligibleBean(def, requiredType, includeNonSingletons)) {
         final Object bean = getBean(def);
         if (bean != null) {
+          beanNames.add(entry.getKey());
+        }
+      }
+    }
+    if (includeNoneRegistered) {
+      for (final Entry<String, Object> entry : getSingletons().entrySet()) {
+        final Object bean = entry.getValue();
+        if (requiredType == null || requiredType.isInstance(bean)) {
           beanNames.add(entry.getKey());
         }
       }
@@ -281,7 +311,8 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public Map<String, Object> getBeansOfAnnotation(Class<? extends Annotation> annotationType, boolean includeNonSingletons) {
+  public Map<String, Object> getBeansOfAnnotation(
+          Class<? extends Annotation> annotationType, boolean includeNonSingletons) {
     Assert.notNull(annotationType, "annotationType must not be null");
 
     final HashMap<String, Object> beans = new HashMap<>();
