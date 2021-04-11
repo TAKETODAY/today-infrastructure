@@ -25,6 +25,7 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.aop.support.AnnotationMatchingPointcut;
@@ -39,6 +40,7 @@ import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.Cacheable;
 import cn.taketoday.cache.interceptor.AbstractCacheInterceptor.MethodKey;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.loader.CandidateComponentScanner;
 import test.demo.config.User;
 import test.demo.repository.impl.DefaultUserRepository;
 
@@ -138,7 +140,10 @@ public class CacheableInterceptorTests {
       final DefaultPointcutAdvisor pointcutAdvisor = new DefaultPointcutAdvisor(matchingPointcut, interceptor);
       context.registerBean(pointcutAdvisor);
 
+      final CandidateComponentScanner scanner = context.getCandidateComponentScanner();
+      final Set<Class<?>> candidates = scanner.getCandidates();
       context.load(new HashSet<>());
+      scanner.setCandidates(candidates);
 
       final User today = new User(1, "TODAY", 20, "666", "666", "男", new Date());
       final UserService userService = context.getBean(UserService.class);
