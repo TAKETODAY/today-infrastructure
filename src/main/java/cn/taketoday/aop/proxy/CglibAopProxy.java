@@ -124,7 +124,8 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
 
   @Override
   protected Object getProxyInternal(
-          Class<?> proxySuperClass, ClassLoader classLoader, Function<Constructor<?>, Object[]> argsFunction) {
+          Class<?> proxySuperClass, ClassLoader classLoader,
+          Function<Constructor<?>, Object[]> argsFunction) throws Exception {
 
     final Class<?> rootClass = config.getTargetClass();
 
@@ -173,7 +174,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
     return new Enhancer();
   }
 
-  Callback[] getCallbacks(Class<?> rootClass) {
+  Callback[] getCallbacks(Class<?> rootClass) throws Exception {
     // Parameters used for optimization choices...
     final AdvisedSupport config = this.config;
     boolean exposeProxy = config.isExposeProxy();
@@ -442,7 +443,8 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
     final Class<?> targetClass;
     final org.aopalliance.intercept.MethodInterceptor[] adviceChain;
 
-    public FixedChainStaticTargetInterceptor(org.aopalliance.intercept.MethodInterceptor[] adviceChain, AdvisedSupport config) {
+    public FixedChainStaticTargetInterceptor(
+            org.aopalliance.intercept.MethodInterceptor[] adviceChain, AdvisedSupport config) throws Exception {
       this.adviceChain = adviceChain;
       this.targetClass = config.getTargetClass();
       this.target = config.getTargetSource().getTarget();

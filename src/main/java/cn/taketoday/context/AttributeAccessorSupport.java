@@ -46,7 +46,7 @@ import cn.taketoday.context.utils.StringUtils;
 public abstract class AttributeAccessorSupport implements AttributeAccessor {
 
   /** Map with String keys and Object values. */
-  private HashMap<String, Object> attributes;
+  protected HashMap<String, Object> attributes;
 
   @Override
   public void setAttribute(final String name, final Object value) {

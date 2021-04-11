@@ -20,10 +20,6 @@
 
 package cn.taketoday.aop.proxy;
 
-/**
- * @author TODAY 2021/2/1 21:49
- */
-
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
@@ -43,6 +39,7 @@ import cn.taketoday.context.utils.Assert;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author TODAY 2021/2/1 21:49
  * @see AopUtils
  * @since 3.0
  */
@@ -64,7 +61,7 @@ public abstract class AopProxyUtils {
     if (candidate instanceof Advised) {
       TargetSource targetSource = ((Advised) candidate).getTargetSource();
       if (targetSource instanceof SingletonTargetSource) {
-        return targetSource.getTarget();
+        return ((SingletonTargetSource) targetSource).getTarget();
       }
     }
     return null;

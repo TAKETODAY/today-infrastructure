@@ -35,11 +35,11 @@ import cn.taketoday.aop.support.AopUtils;
  */
 public class DefaultMethodInvocation extends AbstractMethodInvocation implements MethodInvocation {
 
-  final Object target;
-  final Object[] args;
-  final Method method;
-  final Class<?> targetClass;
-  final MethodInterceptor[] advices;
+  protected Object[] args;
+  protected final Object target;
+  protected final Method method;
+  protected final Class<?> targetClass;
+  protected final MethodInterceptor[] advices;
 
   /**
    * a flag show that current index of advice
@@ -77,6 +77,11 @@ public class DefaultMethodInvocation extends AbstractMethodInvocation implements
   @Override
   public Object[] getArguments() {
     return args;
+  }
+
+  @Override
+  protected void setArguments(Object[] arguments) {
+    args = arguments;
   }
 
   @Override

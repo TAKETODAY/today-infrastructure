@@ -34,9 +34,9 @@ import java.util.Objects;
 public class StandardMethodInvocation
         extends AbstractMethodInvocation implements MethodInvocation {
 
-  private final Object bean;
-  private final Object[] args;
-  final TargetInvocation target;
+  protected Object[] args;
+  protected final Object bean;
+  protected final TargetInvocation target;
 
   /**
    * a flag show that current index of advice
@@ -57,6 +57,11 @@ public class StandardMethodInvocation
   @Override
   public Object[] getArguments() {
     return args;
+  }
+
+  @Override
+  protected void setArguments(Object[] arguments) {
+    args = arguments;
   }
 
   @Override

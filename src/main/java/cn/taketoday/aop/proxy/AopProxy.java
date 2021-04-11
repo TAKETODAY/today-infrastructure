@@ -23,6 +23,8 @@ package cn.taketoday.aop.proxy;
 import java.lang.reflect.Constructor;
 import java.util.function.Function;
 
+import cn.taketoday.context.utils.ClassUtils;
+
 /**
  * Delegate interface for a configured AOP proxy, allowing for the creation
  * of actual proxy objects.
@@ -48,7 +50,7 @@ public interface AopProxy {
    * @see Thread#getContextClassLoader()
    */
   default Object getProxy() {
-    return getProxy(null, null);
+    return getProxy(ClassUtils.getClassLoader());
   }
 
   /**

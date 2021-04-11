@@ -23,9 +23,12 @@ package cn.taketoday.aop.proxy;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
+import java.util.HashMap;
+
 import cn.taketoday.aop.TargetClassAware;
 import cn.taketoday.aop.support.RuntimeMethodInterceptor;
 import cn.taketoday.context.AttributeAccessorSupport;
+import cn.taketoday.context.utils.ObjectUtils;
 
 /**
  * Implemented basic {@link #proceed()} logic
@@ -40,7 +43,7 @@ import cn.taketoday.context.AttributeAccessorSupport;
  * @since 3.0
  */
 public abstract class AbstractMethodInvocation
-        extends AttributeAccessorSupport implements MethodInvocation, TargetClassAware {
+        extends AttributeAccessorSupport implements MethodInvocation, TargetClassAware, Cloneable {
 
   /**
    * Basic logic. Proceeds to the next interceptor in the chain.
@@ -91,5 +94,53 @@ public abstract class AbstractMethodInvocation
    * @see #hasInterceptor()
    */
   protected abstract Object executeInterceptor() throws Throwable;
+
+  /**
+   * This implementation returns a shallow copy of this invocation object,
+   * including an independent copy of the original arguments array.
+   * <p>We want a shallow copy in this case: We want to use the same interceptor
+   * chain and other object references, but we want an independent value for the
+   * current interceptor index.
+   *
+   * @see java.lang.Object#clone()
+   */
+  public MethodInvocation invocableClone() {
+    Object[] cloneArguments = this.getArguments();
+    if (ObjectUtils.isNotEmpty(cloneArguments)) {
+      // Build an independent copy of the arguments array.
+      cloneArguments = cloneArguments.clone();
+    }
+    return invocableClone(cloneArguments);
+  }
+
+  /**
+   * This implementation returns a shallow copy of this invocation object,
+   * using the given arguments array for the clone.
+   * <p>We want a shallow copy in this case: We want to use the same interceptor
+   * chain and other object references, but we want an independent value for the
+   * current interceptor index.
+   *
+   * @see java.lang.Object#clone()
+   */
+  public MethodInvocation invocableClone(Object... arguments) {
+    // Force initialization of the user attributes Map,
+    // for having a shared Map reference in the clone.
+    if (this.attributes == null) {
+      this.attributes = new HashMap<>();
+    }
+
+    // Create the MethodInvocation clone.
+    try {
+      AbstractMethodInvocation clone = (AbstractMethodInvocation) clone();
+      clone.setArguments(arguments);
+      return clone;
+    }
+    catch (CloneNotSupportedException ex) {
+      throw new IllegalStateException(
+              "Should be able to clone object of type [" + getClass() + "]: " + ex);
+    }
+  }
+
+  protected abstract void setArguments(Object[] arguments);
 
 }

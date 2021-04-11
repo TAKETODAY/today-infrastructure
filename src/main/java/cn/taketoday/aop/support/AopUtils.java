@@ -554,7 +554,7 @@ public abstract class AopUtils {
     OrderUtils.reversedSort(advisorAdapters);
   }
 
-  static class BeforeAdvisorAdapter implements AdvisorAdapter {
+  static final class BeforeAdvisorAdapter implements AdvisorAdapter {
 
     @Override
     public boolean supportsAdvice(Advice advice) {
@@ -564,7 +564,7 @@ public abstract class AopUtils {
     @Override
     public MethodInterceptor getInterceptor(Advisor advisor) {
       final MethodBeforeAdvice advice = (MethodBeforeAdvice) advisor.getAdvice();
-      class Interceptor implements MethodInterceptor, Ordered {
+      final class Interceptor implements MethodInterceptor, Ordered {
 
         @Override
         public Object invoke(MethodInvocation invocation) throws Throwable {
@@ -581,7 +581,7 @@ public abstract class AopUtils {
     }
   }
 
-  static class AfterReturningAdvisorAdapter implements AdvisorAdapter {
+  static final class AfterReturningAdvisorAdapter implements AdvisorAdapter {
 
     @Override
     public boolean supportsAdvice(Advice advice) {
@@ -591,8 +591,7 @@ public abstract class AopUtils {
     @Override
     public MethodInterceptor getInterceptor(Advisor advisor) {
       final AfterReturningAdvice advice = (AfterReturningAdvice) advisor.getAdvice();
-
-      class Interceptor implements MethodInterceptor, Ordered {
+      final class Interceptor implements MethodInterceptor, Ordered {
 
         @Override
         public Object invoke(MethodInvocation invocation) throws Throwable {
@@ -610,7 +609,10 @@ public abstract class AopUtils {
     }
   }
 
-  static class ThrowsAdviceAdvisorAdapter implements AdvisorAdapter {
+  /**
+   * {@link ThrowsAdvice} Adapter
+   */
+  static final class ThrowsAdviceAdvisorAdapter implements AdvisorAdapter {
 
     @Override
     public boolean supportsAdvice(Advice advice) {
@@ -620,8 +622,7 @@ public abstract class AopUtils {
     @Override
     public MethodInterceptor getInterceptor(Advisor advisor) {
       final ThrowsAdvice advice = (ThrowsAdvice) advisor.getAdvice();
-
-      class Interceptor implements MethodInterceptor, Ordered {
+      final class Interceptor implements MethodInterceptor, Ordered {
         @Override
         public Object invoke(MethodInvocation invocation) throws Throwable {
           try {

@@ -61,7 +61,10 @@ public interface ThrowsAdvice extends AfterAdvice {
   /**
    * @param invocation
    *         the method invocation join-point
+   *
+   * @throws Throwable
+   *         can't handle {@link Throwable}
    */
-  Object afterThrowing(Throwable ex, MethodInvocation invocation);
+  Object afterThrowing(Throwable ex, MethodInvocation invocation) throws Throwable;
 }
 
