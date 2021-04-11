@@ -161,6 +161,7 @@ public class ContextUtilsTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void testResolveParameter() throws Exception {
 
     ClassUtils.clearCache();
@@ -171,10 +172,14 @@ public class ContextUtilsTest {
       final Properties properties = environment.getProperties();
       properties.setProperty("placeHolder", "12345");
 
-      final Constructor<?>[] declaredConstructors = Config.class.getDeclaredConstructors();
-      Constructor<Config> constructor = (Constructor<Config>)
-              (declaredConstructors[0].getParameterCount() == 0 ? declaredConstructors[1]
-                                                                : declaredConstructors[0]);
+      final Constructor<Config>[] declaredConstructors = (Constructor<Config>[]) Config.class.getDeclaredConstructors();
+      Constructor<Config> constructor = null;
+      for (final Constructor<Config> declaredConstructor : declaredConstructors) {
+        if (declaredConstructor.getParameterCount() > 0) {
+          constructor = declaredConstructor;
+        }
+      }
+
 //      properties.list(System.err);
 //      System.err.println(properties.get("placeHolder"));
       ContextUtils.setLastStartupContext(applicationContext);
