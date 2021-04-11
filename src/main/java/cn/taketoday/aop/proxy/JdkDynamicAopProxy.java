@@ -97,6 +97,8 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
    */
   private boolean hashCodeDefined;
 
+  private final Class<?>[] proxiedInterfaces;
+
   /**
    * Construct a new JdkDynamicAopProxy for the given AOP configuration.
    *
@@ -113,6 +115,8 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
       throw new AopConfigException("No advisors and no TargetSource specified");
     }
     this.advised = config;
+    this.proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(config, true);
+    findDefinedEqualsAndHashCodeMethods(proxiedInterfaces);
   }
 
   @Override
@@ -125,8 +129,6 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
     if (logger.isTraceEnabled()) {
       logger.trace("Creating JDK dynamic proxy: {}", this.advised.getTargetSource());
     }
-    Class<?>[] proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(this.advised, true);
-    findDefinedEqualsAndHashCodeMethods(proxiedInterfaces);
     return Proxy.newProxyInstance(classLoader, proxiedInterfaces, this);
   }
 
