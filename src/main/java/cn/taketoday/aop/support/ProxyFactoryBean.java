@@ -25,7 +25,7 @@ import java.util.Set;
 import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.AopConfigException;
-import cn.taketoday.aop.proxy.ProxyConfig;
+import cn.taketoday.aop.proxy.ProxyCreatorSupport;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.aop.target.SingletonTargetSource;
 import cn.taketoday.context.aware.BeanClassLoaderAware;
@@ -40,7 +40,7 @@ import cn.taketoday.context.utils.ObjectUtils;
  * @since 3.0
  */
 public class ProxyFactoryBean
-        extends ProxyConfig implements FactoryBean<Object>, BeanFactoryAware, BeanClassLoaderAware {
+        extends ProxyCreatorSupport implements FactoryBean<Object>, BeanFactoryAware, BeanClassLoaderAware {
 
   private String targetName;
   private String[] interceptorNames;

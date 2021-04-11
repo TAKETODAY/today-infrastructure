@@ -20,7 +20,11 @@
 
 package cn.taketoday.aop.proxy;
 
+import java.util.ArrayList;
+
+import cn.taketoday.aop.AdvisedSupportListener;
 import cn.taketoday.aop.support.AopUtils;
+import cn.taketoday.context.utils.Assert;
 
 /**
  * Base class for proxy factories.
@@ -35,6 +39,7 @@ public class ProxyCreatorSupport extends AdvisedSupport {
 
   /** Set to true when the first AOP proxy has been created. */
   private boolean active = false;
+  private final ArrayList<AdvisedSupportListener> listeners = new ArrayList<>();
 
   /**
    * Subclasses should call this to get a new AOP proxy. They should <b>not</b>
@@ -52,6 +57,27 @@ public class ProxyCreatorSupport extends AdvisedSupport {
    */
   private void activate() {
     this.active = true;
+
+    for (AdvisedSupportListener listener : this.listeners) {
+      listener.activated(this);
+    }
+  }
+
+  /**
+   * Propagate advice change event to all AdvisedSupportListeners.
+   *
+   * @see AdvisedSupportListener#adviceChanged
+   */
+  @Override
+  protected void adviceChanged() {
+    super.adviceChanged();
+    synchronized(this) {
+      if (this.active) {
+        for (AdvisedSupportListener listener : this.listeners) {
+          listener.adviceChanged(this);
+        }
+      }
+    }
   }
 
   /**
@@ -59,6 +85,28 @@ public class ProxyCreatorSupport extends AdvisedSupport {
    */
   protected final synchronized boolean isActive() {
     return this.active;
+  }
+
+  /**
+   * Add the given AdvisedSupportListener to this proxy configuration.
+   *
+   * @param listener
+   *         the listener to register
+   */
+  public void addListener(AdvisedSupportListener listener) {
+    Assert.notNull(listener, "AdvisedSupportListener must not be null");
+    this.listeners.add(listener);
+  }
+
+  /**
+   * Remove the given AdvisedSupportListener from this proxy configuration.
+   *
+   * @param listener
+   *         the listener to deregister
+   */
+  public void removeListener(AdvisedSupportListener listener) {
+    Assert.notNull(listener, "AdvisedSupportListener must not be null");
+    this.listeners.remove(listener);
   }
 
 }
