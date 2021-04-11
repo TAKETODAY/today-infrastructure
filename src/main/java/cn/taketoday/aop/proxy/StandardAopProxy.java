@@ -175,7 +175,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
     }
 
     @Override
-    protected Object firstInstance(Class<Object> type) {
+    protected Object firstInstance(Class<Object> type) throws Exception {
       final boolean targetSourceStatic = targetSource.isStatic();
 
       Class<?>[] types = getParameterTypes();

@@ -65,8 +65,11 @@ public interface TargetSource extends TargetClassAware {
    *
    * @return the target object which contains the join-point,
    * or {@code null} if there is no actual target instance
+   *
+   * @throws Exception
+   *         if the target object can't be resolved
    */
-  Object getTarget();
+  Object getTarget() throws Exception;
 
   /**
    * Release the given target object obtained from the
