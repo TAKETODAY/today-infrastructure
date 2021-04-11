@@ -1,12 +1,31 @@
-language: java
-jdk:
-  - oraclejdk11
-  - openjdk8
-  - openjdk11
-os:
-  - windows
-  - linux
-  - osx
+#language: java
+#jdk:
+#  - oraclejdk11
+#  - openjdk8
+#  - openjdk11
+#os:
+#  - windows
+#  - linux
+#  - osx
+#    jdk:
+
+jobs:
+  - language: java
+      jdk:
+        - oraclejdk11
+        - openjdk8
+        - openjdk11
+      os:
+        - linux
+  - language: java
+      jdk:
+        - oraclejdk11
+        - openjdk11
+      os:
+        - osx
+arch:
+  - amd64
+  - arm64
 
 install:
   - mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Pci
