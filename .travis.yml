@@ -12,9 +12,6 @@ jobs:
     - openjdk11
   os:
     - osx
-arch:
-  - amd64
-  - arm64
 
 install:
   - mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Pci
