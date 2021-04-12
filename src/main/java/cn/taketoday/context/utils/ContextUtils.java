@@ -882,7 +882,9 @@ public abstract class ContextUtils {
                   new BufferedReader(new InputStreamReader(url.openStream(), charset))) {
 
             while ((className = reader.readLine()) != null) {
-              ret.add(classLoader.loadClass(className));
+              if (StringUtils.isNotEmpty(className)) { // @since 3.0 FIX empty lines
+                ret.add(classLoader.loadClass(className));
+              }
             }
           }
           catch (ClassNotFoundException e) {
