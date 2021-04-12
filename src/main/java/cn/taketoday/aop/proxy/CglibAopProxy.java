@@ -34,6 +34,7 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import cn.taketoday.aop.Advisor;
+import cn.taketoday.aop.AopInvocationException;
 import cn.taketoday.aop.PointcutAdvisor;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
@@ -50,8 +51,6 @@ import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
-
-import static cn.taketoday.aop.proxy.StandardProxyInvoker.assertReturnValue;
 
 /**
  * CGLIB-based {@link AopProxy} implementation for the AOP framework.
@@ -501,8 +500,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
           // We need to create a CglibMethodInvocation...
           retVal = new CglibMethodInvocation(target, method, targetClass, methodProxy, args, chain).proceed();
         }
-        assertReturnValue(retVal, method);
-        return retVal;
+        return processReturnValue(proxy, target, method, retVal);
       }
       finally {
         if (target != null && !targetSource.isStatic()) {
@@ -529,6 +527,25 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
     public int hashCode() {
       return this.advised.hashCode();
     }
+  }
+
+  /**
+   * Process a return value. Wraps a return of {@code this} if necessary to be the
+   * {@code proxy} and also verifies that {@code null} is not returned as a primitive.
+   */
+  private static Object processReturnValue(Object proxy, Object target, Method method, Object retVal) {
+    // Massage return value if necessary
+    if (retVal != null && retVal == target) {
+      // Special case: it returned "this". Note that we can't help
+      // if the target sets a reference to itself in another returned object.
+      retVal = proxy;
+    }
+    final Class<?> returnType;
+    if (retVal == null && (returnType = method.getReturnType()) != Void.TYPE && returnType.isPrimitive()) {
+      throw new AopInvocationException(
+              "Null return value from advice does not match primitive return type for: " + method);
+    }
+    return retVal;
   }
 
   /**

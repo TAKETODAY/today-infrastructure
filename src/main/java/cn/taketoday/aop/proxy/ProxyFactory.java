@@ -51,7 +51,12 @@ public class ProxyFactory extends ProxyCreatorSupport {
    *         the target object to be proxied
    */
   public ProxyFactory(Object target) {
+    this(target, false);
+  }
+
+  public ProxyFactory(Object target, boolean usingCglib) {
     setTarget(target);
+    setUsingCglib(usingCglib);
     setInterfaces(ClassUtils.getAllInterfaces(target));
   }
 

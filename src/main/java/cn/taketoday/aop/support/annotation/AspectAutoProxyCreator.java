@@ -127,7 +127,7 @@ public class AspectAutoProxyCreator
   }
 
   private void addCandidateAdvisors(List<Advisor> candidateAdvisors, BeanDefinition aspectDef,
-                                    Method aspectMethod, AnnotationAttributes[] adviceAttributes) {
+                                    Method aspectMethod /*Nullable*/, AnnotationAttributes[] adviceAttributes) {
     // fix Standard Bean def
     if (ObjectUtils.isNotEmpty(adviceAttributes)) {
       for (final AnnotationAttributes advice : adviceAttributes) {

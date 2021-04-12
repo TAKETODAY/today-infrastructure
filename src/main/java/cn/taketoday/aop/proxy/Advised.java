@@ -131,6 +131,14 @@ public interface Advised extends TargetClassAware {
   Advisor[] getAdvisors();
 
   /**
+   * Return the number of advisors applying to this proxy.
+   * <p>The default implementation delegates to {@code getAdvisors().length}.
+   */
+  default int getAdvisorCount() {
+    return getAdvisors().length;
+  }
+
+  /**
    * Add an advisor at the end of the advisor chain.
    * <p>The Advisor may be an {@link cn.taketoday.aop.IntroductionAdvisor},
    * in which new interfaces will be available when a proxy is next obtained

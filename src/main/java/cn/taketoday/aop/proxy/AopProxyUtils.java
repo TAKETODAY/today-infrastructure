@@ -210,8 +210,11 @@ public abstract class AopProxyUtils {
    * rather, equality of interfaces, advisors and target sources.
    */
   public static boolean equalsInProxy(AdvisedSupport a, AdvisedSupport b) {
-    return (a == b ||
-            (equalsProxiedInterfaces(a, b) && equalsAdvisors(a, b) && a.getTargetSource().equals(b.getTargetSource())));
+    return a == b || (
+            equalsProxiedInterfaces(a, b)
+                    && equalsAdvisors(a, b)
+                    && a.getTargetSource().equals(b.getTargetSource())
+    );
   }
 
   /**
@@ -225,7 +228,7 @@ public abstract class AopProxyUtils {
    * Check equality of the advisors behind the given AdvisedSupport objects.
    */
   public static boolean equalsAdvisors(AdvisedSupport a, AdvisedSupport b) {
-    return Arrays.equals(a.getAdvisors(), b.getAdvisors());
+    return a.getAdvisorCount() == b.getAdvisorCount() && Arrays.equals(a.getAdvisors(), b.getAdvisors());
   }
 
 }

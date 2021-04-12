@@ -276,6 +276,17 @@ public abstract class AbstractAutoProxyCreator
     candidateAdvisors.addAll(beanFactory.getBeans(Advisor.class));
   }
 
+  /**
+   * Extension hook that subclasses can override to register additional Advisors,
+   * given the sorted Advisors obtained to date.
+   * <p>The default implementation is empty.
+   * <p>Typically used to add Advisors that expose contextual information
+   * required by some of the later advisors.
+   *
+   * @param eligibleAdvisors
+   *         the Advisors that have already been identified as
+   *         applying to a given bean
+   */
   protected void postEligibleAdvisors(List<Advisor> eligibleAdvisors) { }
 
   /**

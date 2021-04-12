@@ -121,12 +121,28 @@ public abstract class StandardProxyInvoker {
   }
 
   public static void assertReturnValue(Object retVal, Method method) {
-    // Massage return value if necessary.
-    final Class<?> returnType = method.getReturnType();
-    if (retVal == null && returnType != Void.TYPE && returnType.isPrimitive()) {
+    Class<?> returnType;
+    if (retVal == null && (returnType = method.getReturnType()) != Void.TYPE && returnType.isPrimitive()) {
       throw new AopInvocationException(
               "Null return value from advice does not match primitive return type for: " + method);
     }
+  }
+
+  public static Object processReturnValue(Object proxy, Object target, Object retVal, Method method) {
+    // Massage return value if necessary.
+    Class<?> returnType;
+    if (retVal != null && retVal == target &&
+            (returnType = method.getReturnType()) != Object.class && returnType.isInstance(proxy)) {
+      // Special case: it returned "this" and the return type of the method
+      // is type-compatible. Note that we can't help if the target sets
+      // a reference to itself in another returned object.
+      retVal = proxy;
+    }
+    if (retVal == null && (returnType = method.getReturnType()) != Void.TYPE && returnType.isPrimitive()) {
+      throw new AopInvocationException(
+              "Null return value from advice does not match primitive return type for: " + method);
+    }
+    return retVal;
   }
 
 }

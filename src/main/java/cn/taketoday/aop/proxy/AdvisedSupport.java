@@ -230,6 +230,11 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   }
 
   @Override
+  public int getAdvisorCount() {
+    return advisors.size();
+  }
+
+  @Override
   public void addAdvisor(Advisor advisor) {
     int pos = this.advisors.size();
     addAdvisor(pos, advisor);

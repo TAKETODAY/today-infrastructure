@@ -29,6 +29,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.function.Function;
 
+import cn.taketoday.aop.AopInvocationException;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.context.DecoratingProxy;
@@ -38,8 +39,6 @@ import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
-
-import static cn.taketoday.aop.proxy.StandardProxyInvoker.assertReturnValue;
 
 /**
  * JDK-based {@link AopProxy} implementation for the AOP framework,
@@ -167,7 +166,7 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
     boolean setProxyContext = false;
 
     final AdvisedSupport advised = this.advised;
-    TargetSource targetSource = advised.targetSource;
+    TargetSource targetSource = advised.getTargetSource();
     Object target = null;
 
     try {
@@ -218,9 +217,7 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
         // Proceed to the join-point through the interceptor chain.
         retVal = new DefaultMethodInvocation(target, method, targetClass, args, chain).proceed();
       }
-
-      assertReturnValue(retVal, method);
-      return retVal;
+      return processReturnValue(proxy, target, method, retVal);
     }
     finally {
       if (target != null && !targetSource.isStatic()) {
@@ -232,6 +229,31 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
         AopContext.setCurrentProxy(oldProxy);
       }
     }
+  }
+
+  /**
+   * Process a return value. Wraps a return of {@code this} if necessary to be the
+   * {@code proxy} and also verifies that {@code null} is not returned as a primitive.
+   */
+  private static Object processReturnValue(Object proxy, Object target, Method method, Object retVal) {
+    // Massage return value if necessary
+    Class<?> returnType;
+    if (retVal != null && retVal == target &&
+            (returnType = method.getReturnType()) != Object.class && returnType.isInstance(proxy)) {
+      // Special case: it returned "this" and the return type of the method
+      // is type-compatible. Note that we can't help if the target sets
+      // a reference to itself in another returned object.
+      retVal = proxy;
+    }
+
+    if (retVal == null) {
+      returnType = method.getReturnType();
+      if (returnType != Void.TYPE && returnType.isPrimitive()) {
+        throw new AopInvocationException(
+                "Null return value from advice does not match primitive return type for: " + method);
+      }
+    }
+    return retVal;
   }
 
   /**
