@@ -23,6 +23,7 @@ package cn.taketoday.aop.support;
 import org.aopalliance.aop.Advice;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import cn.taketoday.aop.PointcutAdvisor;
 import cn.taketoday.context.Ordered;
@@ -68,8 +69,25 @@ public abstract class AbstractPointcutAdvisor
   }
 
   @Override
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof PointcutAdvisor)) {
+      return false;
+    }
+    PointcutAdvisor otherAdvisor = (PointcutAdvisor) other;
+    return Objects.equals(getAdvice(), otherAdvisor.getAdvice())
+            && Objects.equals(getPointcut(), otherAdvisor.getPointcut());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(advice);
+  }
+
+  @Override
   public String toString() {
     return getClass().getName() + ": advice [" + getAdvice() + "]";
   }
-
 }
