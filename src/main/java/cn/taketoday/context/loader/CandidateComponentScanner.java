@@ -103,7 +103,9 @@ public class CandidateComponentScanner {
 
           String str;
           while ((str = reader.readLine()) != null) {
-            ignoreScanJars.add(str);
+            if (StringUtils.isNotEmpty(str)) { // @since 3.0 FIX empty lines
+              ignoreScanJars.add(str);
+            }
           }
         }
       }
