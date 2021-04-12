@@ -194,7 +194,7 @@ public class ProxyFactoryTests {
     TestBeanSubclass raw = new TestBeanSubclass();
     ProxyFactory factory = new ProxyFactory(raw);
     //System.out.println("Proxied interfaces are " + StringUtils.arrayToDelimitedString(factory.getProxiedInterfaces(), ","));
-    assertThat(factory.getProxiedInterfaces().length).as("Found correct number of interfaces").isEqualTo(2);
+    assertThat(factory.getProxiedInterfaces().length).as("Found correct number of interfaces").isEqualTo(5);
     ITestBean tb = (ITestBean) factory.getProxy();
     assertThat(tb).as("Picked up secondary interface").isInstanceOf(IOther.class);
     raw.setAge(25);

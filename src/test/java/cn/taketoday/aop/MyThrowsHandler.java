@@ -18,23 +18,26 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop.proxy;
+package cn.taketoday.aop;
+
+import org.aopalliance.intercept.MethodInvocation;
+
+import java.io.IOException;
+import java.rmi.RemoteException;
 
 /**
- * This interface can be implemented by cacheable objects or cache entries,
- * to enable the freshness of objects to be checked.
- *
- * @author Rod Johnson
- * @author TODAY 2021/3/8 22:18
+ * @author TODAY 2021/4/11 18:13
  */
-public interface TimeStamped {
+public class MyThrowsHandler extends MethodCounter implements ThrowsAdvice {
 
-  /**
-   * Return the timestamp for this object.
-   *
-   * @return long the timestamp for this object,
-   * as returned by System.currentTimeMillis()
-   */
-  long getTimeStamp();
-
+  @Override
+  public Object afterThrowing(Throwable ex, MethodInvocation invocation) throws Throwable {
+    if (ex instanceof RemoteException) {
+      count("remoteException");
+    }
+    else if (ex instanceof IOException) {
+      count("ioException");
+    }
+    throw ex;
+  }
 }

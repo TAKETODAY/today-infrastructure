@@ -18,23 +18,9 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop.proxy;
-
 /**
- * This interface can be implemented by cacheable objects or cache entries,
- * to enable the freshness of objects to be checked.
+ * form spring 'test.mixin'
  *
- * @author Rod Johnson
- * @author TODAY 2021/3/8 22:18
+ * @author TODAY 2021/4/11 18:00
  */
-public interface TimeStamped {
-
-  /**
-   * Return the timestamp for this object.
-   *
-   * @return long the timestamp for this object,
-   * as returned by System.currentTimeMillis()
-   */
-  long getTimeStamp();
-
-}
+package cn.taketoday.aop.mixin;

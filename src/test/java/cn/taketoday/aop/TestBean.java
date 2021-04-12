@@ -20,10 +20,26 @@
 
 package cn.taketoday.aop;
 
-public class TestBean implements ITestBean {
+import cn.taketoday.context.aware.BeanFactoryAware;
+import cn.taketoday.context.aware.BeanNameAware;
+import cn.taketoday.context.factory.BeanFactory;
+
+public class TestBean implements ITestBean, BeanNameAware, BeanFactoryAware, IOther, Comparable<Object> {
   private int age;
   private String name;
   private ITestBean spouse;
+
+  @Override
+  public void exceptional(Throwable t) throws Throwable {
+    if (t != null) {
+      throw t;
+    }
+  }
+
+  @Override
+  public int haveBirthday() {
+    return age++;
+  }
 
   public TestBean() { }
 
@@ -60,5 +76,42 @@ public class TestBean implements ITestBean {
   @Override
   public void setName(String name) {
     this.name = name;
+  }
+
+  private BeanFactory beanFactory;
+
+  @Override
+  public void setBeanFactory(BeanFactory beanFactory) {
+    this.beanFactory = beanFactory;
+  }
+
+  public BeanFactory getBeanFactory() {
+    return beanFactory;
+  }
+
+  private String beanName;
+
+  public String getBeanName() {
+    return beanName;
+  }
+
+  @Override
+  public void setBeanName(String beanName) {
+    this.beanName = beanName;
+  }
+
+  @Override
+  public int compareTo(Object other) {
+    if (this.name != null && other instanceof TestBean) {
+      return this.name.compareTo(((TestBean) other).getName());
+    }
+    else {
+      return 1;
+    }
+  }
+
+  @Override
+  public String toString() {
+    return name;
   }
 }

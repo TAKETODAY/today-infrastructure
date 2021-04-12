@@ -33,9 +33,9 @@ import cn.taketoday.aop.SerializationTestUtils;
 import cn.taketoday.aop.TestBean;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
-import cn.taketoday.aop.support.ExposeInvocationInterceptor;
 import cn.taketoday.aop.support.Pointcuts;
 import cn.taketoday.aop.support.StaticMethodMatcherPointcut;
+import cn.taketoday.aop.support.interceptor.ExposeInvocationInterceptor;
 import cn.taketoday.aop.target.EmptyTargetSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -106,7 +106,6 @@ public class AopUtilsTests {
   public class NopInterceptor implements MethodInterceptor {
 
     private int count;
-
 
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {

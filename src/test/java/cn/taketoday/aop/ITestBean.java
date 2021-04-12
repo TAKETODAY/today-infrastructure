@@ -34,4 +34,16 @@ public interface ITestBean extends IOther {
 
   void setSpouse(ITestBean spouse);
 
+  /**
+   * Throws a given (non-null) exception.
+   */
+  void exceptional(Throwable t) throws Throwable;
+
+
+  /**
+   * Increment the age by one.
+   * @return the previous age
+   */
+  int haveBirthday();
+
 }
