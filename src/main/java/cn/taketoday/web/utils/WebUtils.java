@@ -319,7 +319,7 @@ public abstract class WebUtils {
    *
    * @return Map of list parameters
    */
-  private static MultiValueMap<String, String> parseParameters(final String s) {
+  public static MultiValueMap<String, String> parseParameters(final String s) {
     if (StringUtils.isEmpty(s)) {
       return new DefaultMultiValueMap<>();
     }
