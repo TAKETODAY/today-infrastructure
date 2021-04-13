@@ -13,6 +13,7 @@ import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.annotation.RestControllerAdvice;
+import cn.taketoday.web.http.HttpHeaders;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -27,12 +28,18 @@ import lombok.extern.slf4j.Slf4j;
 public class NettyApplication {
 
   public static void main(String[] args) {
-    WebApplication.runReactive(NettyApplication.class, args);
+//    WebApplication.runReactive(NettyApplication.class, args);
+    WebApplication.run(NettyApplication.class, args);
   }
 
   @GET("/index")
   public String index() {
     return "Hello";
+  }
+
+  @GET("/header")
+  public HttpHeaders header(HttpHeaders headers) {
+    return headers;
   }
 
   @GET("/body/{name}/{age}")
