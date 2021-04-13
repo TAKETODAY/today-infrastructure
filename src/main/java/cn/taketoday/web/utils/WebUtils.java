@@ -312,6 +312,64 @@ public abstract class WebUtils {
   //
 
   /**
+   * Parse Parameters
+   *
+   * @param s
+   *         decoded {@link String}
+   *
+   * @return Map of list parameters
+   */
+  private static MultiValueMap<String, String> parseParameters(final String s) {
+    if (StringUtils.isEmpty(s)) {
+      return new DefaultMultiValueMap<>();
+    }
+
+    final DefaultMultiValueMap<String, String> params = new DefaultMultiValueMap<>();
+    int nameStart = 0;
+    int valueStart = -1;
+    int i;
+    final int len = s.length();
+    loop:
+    for (i = 0; i < len; i++) {
+      switch (s.charAt(i)) {
+        case '=':
+          if (nameStart == i) {
+            nameStart = i + 1;
+          }
+          else if (valueStart < nameStart) {
+            valueStart = i + 1;
+          }
+          break;
+        case '&':
+        case ';':
+          addParam(s, nameStart, valueStart, i, params);
+          nameStart = i + 1;
+          break;
+        case '#':
+          break loop;
+        default:
+          // continue
+      }
+    }
+    addParam(s, nameStart, valueStart, i, params);
+    return params;
+  }
+
+  private static void addParam(
+          String s, int nameStart, int valueStart, int valueEnd, DefaultMultiValueMap<String, String> params
+  ) {
+    if (nameStart < valueEnd) {
+      if (valueStart <= nameStart) {
+        valueStart = valueEnd + 1;
+      }
+      String name = s.substring(nameStart, valueStart - 1);
+      String value = s.substring(valueStart, valueEnd);
+      params.add(name, value);
+    }
+  }
+
+
+  /**
    * Parse the given string with matrix variables. An example string would look
    * like this {@code "q1=a;q1=b;q2=a,b,c"}. The resulting map would contain
    * keys {@code "q1"} and {@code "q2"} with values {@code ["a","b"]} and
