@@ -59,6 +59,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
+import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.FileUpload;
@@ -194,19 +195,19 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public HttpCookie[] doGetCookies() {
-    final List<String> all = request.headers().getAll(HttpHeaderNames.COOKIE);
-    if (CollectionUtils.isEmpty(all)) {
+    final List<String> allCookie = request.headers().getAll(HttpHeaderNames.COOKIE);
+    if (CollectionUtils.isEmpty(allCookie)) {
       return EMPTY_COOKIES;
     }
-    final NettyRequestContextConfig config = this.config;
     final Set<Cookie> parsed;
-    if (all.size() == 1) {
-      parsed = config.getCookieDecoder().decode(all.get(0));
+    final ServerCookieDecoder cookieDecoder = config.getCookieDecoder();
+    if (allCookie.size() == 1) {
+      parsed = cookieDecoder.decode(allCookie.get(0));
     }
     else {
       parsed = new TreeSet<>();
-      for (final String header : all) {
-        parsed.addAll(config.getCookieDecoder().decode(header));
+      for (final String header : allCookie) {
+        parsed.addAll(cookieDecoder.decode(header));
       }
     }
     if (ObjectUtils.isEmpty(parsed)) {
