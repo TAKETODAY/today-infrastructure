@@ -98,9 +98,10 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * indicates the context of the request
    */
   public String getContextPath() {
-    final String contextPath = this.contextPath;
+    String contextPath = this.contextPath;
     if (contextPath == null) {
-      return this.contextPath = doGetContextPath();
+      contextPath = doGetContextPath();
+      this.contextPath = contextPath;
     }
     return contextPath;
   }
@@ -174,9 +175,10 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * or {@link #EMPTY_COOKIES} if the request has no cookies
    */
   public HttpCookie[] getCookies() {
-    final HttpCookie[] cookies = this.cookies;
+    HttpCookie[] cookies = this.cookies;
     if (cookies == null) {
-      return this.cookies = doGetCookies();
+      cookies = doGetCookies();
+      this.cookies = cookies;
     }
     return cookies;
   }
@@ -366,9 +368,10 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    */
   @Override
   public InputStream getInputStream() throws IOException {
-    final InputStream inputStream = this.inputStream;
+    InputStream inputStream = this.inputStream;
     if (inputStream == null) {
-      return this.inputStream = doGetInputStream();
+      inputStream = doGetInputStream();
+      this.inputStream = inputStream;
     }
     return inputStream;
   }
@@ -392,9 +395,10 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    */
   @Override
   public BufferedReader getReader() throws IOException {
-    final BufferedReader reader = this.reader;
+    BufferedReader reader = this.reader;
     if (reader == null) {
-      return this.reader = doGetReader();
+      reader = doGetReader();
+      this.reader = reader;
     }
     return reader;
   }
@@ -409,9 +413,10 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * Get all {@link MultipartFile}s from current request
    */
   public MultiValueMap<String, MultipartFile> multipartFiles() {
-    final MultiValueMap<String, MultipartFile> multipartFiles = this.multipartFiles;
+    MultiValueMap<String, MultipartFile> multipartFiles = this.multipartFiles;
     if (multipartFiles == null) {
-      return this.multipartFiles = parseMultipartFiles();
+      multipartFiles = parseMultipartFiles();
+      this.multipartFiles = multipartFiles;
     }
     return multipartFiles;
   }
@@ -465,8 +470,12 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * {@link ApplicationNotStartedContext}
    */
   public ModelAndView modelAndView() {
-    final ModelAndView ret = this.modelAndView;
-    return ret == null ? this.modelAndView = new ModelAndView(this) : ret;
+    ModelAndView ret = this.modelAndView;
+    if (ret == null) {
+      ret = new ModelAndView(this);
+      this.modelAndView = ret;
+    }
+    return ret;
   }
 
   /**
@@ -671,9 +680,10 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    */
   @Override
   public OutputStream getOutputStream() throws IOException {
-    final OutputStream outputStream = this.outputStream;
+    OutputStream outputStream = this.outputStream;
     if (outputStream == null) {
-      return this.outputStream = doGetOutputStream();
+      outputStream = doGetOutputStream();
+      this.outputStream = outputStream;
     }
     return outputStream;
   }
@@ -702,9 +712,10 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    */
   @Override
   public PrintWriter getWriter() throws IOException {
-    final PrintWriter writer = this.writer;
+    PrintWriter writer = this.writer;
     if (writer == null) {
-      return this.writer = doGetWriter();
+      writer = doGetWriter();
+      this.writer = writer;
     }
     return writer;
   }
