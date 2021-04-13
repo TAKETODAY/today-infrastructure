@@ -47,9 +47,9 @@ import cn.taketoday.web.ui.ModelAndView;
  * 2019-06-22 15:48
  * @since 2.3.7
  */
-public interface RequestContext extends Readable, Writable, Model, Flushable {
+public abstract class RequestContext implements Readable, Writable, Model, Flushable {
 
-  HttpCookie[] EMPTY_COOKIES = {};
+  public static final HttpCookie[] EMPTY_COOKIES = {};
 
   // --- request
 
@@ -62,7 +62,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @return a <code>String</code> specifying the portion of the request URI that
    * indicates the context of the request
    */
-  String getContextPath();
+  public abstract String getContextPath();
 
   /**
    * Returns the part of this request's URL from the protocol name up to the query
@@ -90,7 +90,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @return a <code>String</code> containing the part of the URL from the
    * protocol name up to the query string
    */
-  String getRequestURI();
+  public abstract String getRequestURI();
 
   /**
    * The returned URL contains a protocol, server name, port number, and server
@@ -98,7 +98,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    *
    * @return A URL
    */
-  String getRequestURL();
+  public abstract String getRequestURL();
 
   /**
    * Returns the query string that is contained in the request URL after the path.
@@ -109,7 +109,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * <code>null</code> if the URL contains no query string. The value is
    * not decoded by the container.
    */
-  String getQueryString();
+  public abstract String getQueryString();
 
   /**
    * Returns an array containing all of the <code>Cookie</code> objects the client
@@ -119,7 +119,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @return an array of all the <code>Cookies</code> included with this request,
    * or {@link #EMPTY_COOKIES} if the request has no cookies
    */
-  HttpCookie[] getCookies();
+  public abstract HttpCookie[] getCookies();
 
   /**
    * Returns a {@link HttpCookie} object the client sent with this request. This
@@ -133,7 +133,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    *
    * @since 2.3.7
    */
-  HttpCookie getCookie(String name);
+  public abstract HttpCookie getCookie(String name);
 
   /**
    * Adds the specified cookie to the response. This method can be called multiple
@@ -142,7 +142,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @param cookie
    *         the Cookie to return to the client
    */
-  void addCookie(HttpCookie cookie);
+  public abstract void addCookie(HttpCookie cookie);
 
   /**
    * Returns a java.util.Map of the parameters of this request.
@@ -155,7 +155,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * as map values. The keys in the parameter map are of type String. The
    * values in the parameter map are of type String array.
    */
-  Map<String, String[]> getParameters();
+  public abstract Map<String, String[]> getParameters();
 
   /**
    * Returns an <code>Enumeration</code> of <code>String</code> objects containing
@@ -166,7 +166,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * <code>String</code> containing the name of a request parameter; or an
    * empty <code>Enumeration</code> if the request has no parameters
    */
-  Enumeration<String> getParameterNames();
+  public abstract Enumeration<String> getParameterNames();
 
   /**
    * Returns an array of <code>String</code> objects containing all of the values
@@ -185,7 +185,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    *
    * @see #getParameters()
    */
-  String[] getParameters(String name);
+  public abstract String[] getParameters(String name);
 
   /**
    * Returns the value of a request parameter as a <code>String</code>, or
@@ -215,7 +215,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    *
    * @see #getParameters(String)
    */
-  String getParameter(String name);
+  public abstract String getParameter(String name);
 
   /**
    * Returns the name of the HTTP method with which this request was made, for
@@ -224,7 +224,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @return a <code>String</code> specifying the name of the method with which
    * this request was made
    */
-  String getMethod();
+  public abstract String getMethod();
 
   /**
    * Returns the Internet Protocol (IP) address of the client or last proxy that
@@ -233,7 +233,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @return a <code>String</code> containing the IP address of the client that
    * sent the request
    */
-  String remoteAddress();
+  public abstract String remoteAddress();
 
   /**
    * Returns the length, in bytes, of the request body and made available by the
@@ -242,7 +242,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @return a long containing the length of the request body or -1L if the length
    * is not known
    */
-  long getContentLength();
+  public abstract long getContentLength();
 
   /**
    * Retrieves the body of the request as binary data using a {@link InputStream}.
@@ -258,7 +258,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    *         if an input or output exception occurred
    */
   @Override
-  InputStream getInputStream() throws IOException;
+  public abstract InputStream getInputStream() throws IOException;
 
   /**
    * Retrieves the body of the request as character data using a
@@ -276,12 +276,12 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @see #getInputStream
    */
   @Override
-  BufferedReader getReader() throws IOException;
+  public abstract BufferedReader getReader() throws IOException;
 
   /**
    * Get all {@link MultipartFile}s from current request
    */
-  Map<String, List<MultipartFile>> multipartFiles();
+  public abstract Map<String, List<MultipartFile>> multipartFiles();
 
   /**
    * Returns the MIME type of the body of the request, or <code>null</code> if the
@@ -290,7 +290,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @return a <code>String</code> containing the name of the MIME type of the
    * request, or null if the type is not known
    */
-  String getContentType();
+  public abstract String getContentType();
 
   /**
    * Get request HTTP headers
@@ -299,7 +299,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    *
    * @since 3.0
    */
-  HttpHeaders requestHeaders();
+  public abstract HttpHeaders requestHeaders();
 
   // ---------------- response
 
@@ -312,12 +312,12 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @return Returns {@link ModelAndView}, never be null but except
    * {@link ApplicationNotStartedContext}
    */
-  ModelAndView modelAndView();
+  public abstract ModelAndView modelAndView();
 
   /**
    * @since 3.0
    */
-  boolean hasModelAndView();
+  public abstract boolean hasModelAndView();
 
   /**
    * Sets the length of the content body in the response , this method sets the
@@ -327,7 +327,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    *         an long specifying the length of the content being returned to the
    *         client; sets the Content-Length header
    */
-  void setContentLength(long length);
+  public abstract void setContentLength(long length);
 
   /**
    * Returns a boolean indicating if the response has been committed. A committed
@@ -337,7 +337,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    *
    * @see #reset
    */
-  boolean committed();
+  public abstract boolean committed();
 
   /**
    * Clears any data that exists in the buffer as well as the status code,
@@ -352,7 +352,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @throws IllegalStateException
    *         if the response has already been committed
    */
-  void reset();
+  public abstract void reset();
 
   /**
    * Sends a temporary redirect response to the client using the specified
@@ -383,7 +383,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    *         If the response was committed or if a partial URL is given and
    *         cannot be converted into a valid URL
    */
-  void sendRedirect(String location) throws IOException;
+  public abstract void sendRedirect(String location) throws IOException;
 
   /**
    * Sets the status code for this response.
@@ -399,7 +399,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @param sc
    *         the status code
    */
-  void setStatus(int sc);
+  public abstract void setStatus(int sc);
 
   /**
    * Sets the status code and message for this response.
@@ -409,7 +409,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @param message
    *         the status message
    */
-  void setStatus(int status, String message);
+  public abstract void setStatus(int status, String message);
 
   /**
    * Sets the status code and message for this response.
@@ -417,7 +417,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @param status
    *         the status
    */
-  default void setStatus(HttpStatus status) {
+  public void setStatus(HttpStatus status) {
     setStatus(status.value(), status.getReasonPhrase());
   }
 
@@ -426,7 +426,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    *
    * @return the current status code of this response
    */
-  int getStatus();
+  public abstract int getStatus();
 
   /**
    * Sends an error response to the client using the specified status code and
@@ -452,7 +452,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @throws IllegalStateException
    *         If the response was committed before this method call
    */
-  void sendError(int sc) throws IOException;
+  public abstract void sendError(int sc) throws IOException;
 
   /**
    * <p>
@@ -489,7 +489,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @throws IllegalStateException
    *         If the response was committed
    */
-  void sendError(int sc, String msg) throws IOException;
+  public abstract void sendError(int sc, String msg) throws IOException;
 
   /**
    * Returns a {@link OutputStream} suitable for writing binary data in the
@@ -511,7 +511,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @see #reset
    */
   @Override
-  OutputStream getOutputStream() throws IOException;
+  public abstract OutputStream getOutputStream() throws IOException;
 
   /**
    * Returns a <code>PrintWriter</code> object that can send character text to the
@@ -534,7 +534,7 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @see #reset
    */
   @Override
-  PrintWriter getWriter() throws IOException;
+  public abstract PrintWriter getWriter() throws IOException;
 
   /**
    * Sets the content type of the response being sent to the client, if the
@@ -558,34 +558,34 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @param contentType
    *         a <code>String</code> specifying the MIME type of the content
    */
-  void setContentType(String contentType);
+  public abstract void setContentType(String contentType);
 
   /**
    * Get request HTTP headers
    *
    * @since 3.0
    */
-  HttpHeaders responseHeaders();
+  public abstract HttpHeaders responseHeaders();
 
   // ----------------------
 
   /**
    * Native request : HttpServletRequest
    */
-  <T> T nativeRequest();
+  public abstract <T> T nativeRequest();
 
-  <T> T nativeRequest(Class<T> requestClass);
+  public abstract <T> T nativeRequest(Class<T> requestClass);
 
-  <T> T nativeResponse();
+  public abstract <T> T nativeResponse();
 
-  <T> T nativeResponse(Class<T> responseClass);
+  public abstract <T> T nativeResponse(Class<T> responseClass);
 
   // ------------------
 
   /**
    * Request body object
    */
-  Object requestBody();
+  public abstract Object requestBody();
 
   /**
    * Cache request body object
@@ -596,9 +596,9 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    * @param body
    *         Target request body object
    */
-  void requestBody(Object body);
+  public abstract void requestBody(Object body);
 
-  String[] pathVariables();
+  public abstract String[] pathVariables();
 
   /**
    * set current {@link PathVariable}s
@@ -608,6 +608,6 @@ public interface RequestContext extends Readable, Writable, Model, Flushable {
    *
    * @return input variables
    */
-  String[] pathVariables(String[] variables);
+  public abstract String[] pathVariables(String[] variables);
 
 }

@@ -50,7 +50,7 @@ import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
  *
  * @author TODAY 2020-03-29 22:20
  */
-public abstract class AbstractRequestContext implements RequestContext {
+public abstract class AbstractRequestContext extends RequestContext {
 
   protected String contextPath;
   protected Object requestBody;

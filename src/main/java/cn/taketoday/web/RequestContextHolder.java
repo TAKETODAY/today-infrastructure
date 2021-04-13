@@ -84,7 +84,7 @@ public abstract class RequestContextHolder {
   }
 
   @SuppressWarnings("serial")
-  static class ApplicationNotStartedContext implements RequestContext, Serializable {
+  static class ApplicationNotStartedContext extends RequestContext implements Serializable {
 
     @Override
     public Object getAttribute(String name) {

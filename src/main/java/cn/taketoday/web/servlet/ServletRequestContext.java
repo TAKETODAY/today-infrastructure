@@ -41,7 +41,6 @@ import javax.servlet.http.Part;
 
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.AbstractRequestContext;
-import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.http.DefaultHttpHeaders;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.multipart.DefaultMultipartFile;
@@ -58,8 +57,7 @@ import cn.taketoday.web.utils.ServletUtils;
  * @author TODAY 2019-07-07 22:27
  * @since 2.3.7
  */
-public class ServletRequestContext
-        extends AbstractRequestContext implements RequestContext {
+public class ServletRequestContext extends AbstractRequestContext {
 
   private final HttpServletRequest request;
   private final HttpServletResponse response;
