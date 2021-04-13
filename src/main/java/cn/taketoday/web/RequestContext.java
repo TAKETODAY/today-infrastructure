@@ -84,9 +84,9 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   /** @since 3.0 */
   protected String requestURI;
   /** @since 3.0 */
-  private Map<String, String[]> parameters;
+  protected Map<String, String[]> parameters;
   /** @since 3.0 */
-  private String queryString;
+  protected String queryString;
 
   // --- request
 
