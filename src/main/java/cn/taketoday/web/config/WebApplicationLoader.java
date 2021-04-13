@@ -79,7 +79,10 @@ public class WebApplicationLoader
 
   private DispatcherHandler dispatcher;
 
-  @Override
+  public void onStartup() throws Throwable {
+    onStartup(obtainApplicationContext());
+  }
+
   public void onStartup(WebApplicationContext context) throws Throwable {
 
     final WebMvcConfiguration mvcConfiguration = getWebMvcConfiguration(context);
