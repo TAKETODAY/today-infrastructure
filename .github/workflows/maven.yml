@@ -20,9 +20,10 @@ jobs:
       run: |
         git clone https://github.com/TAKETODAY/today-context.git
         cd ./today-context
-        mvn install
+        mvn install -DskipTests=true
         cd ../
-        mvn package -DskipTests=true
+        mvn package
+# -DskipTests=true
 
 #    - name: Coveralls GitHub Action
 #      uses: coverallsapp/github-action@v1.0.1
