@@ -180,6 +180,7 @@ public abstract class StringUtils {
     return c == ',' || c == ';';
   }
 
+  @Deprecated
   public static String decodeUrl(String s) {
 
     final int numChars = s.length();
@@ -237,6 +238,7 @@ public abstract class StringUtils {
     return (needToChange ? sb.toString() : s);
   }
 
+  @Deprecated
   public static String encodeUrl(String s) {
 
     boolean needToChange = false;
