@@ -504,7 +504,9 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    *         an long specifying the length of the content being returned to the
    *         client; sets the Content-Length header
    */
-  public abstract void setContentLength(long length);
+  public void setContentLength(long length) {
+    responseHeaders().setContentLength(length);
+  }
 
   /**
    * Returns a boolean indicating if the response has been committed. A committed
