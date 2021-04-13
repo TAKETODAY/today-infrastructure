@@ -131,7 +131,7 @@ public class JacksonMessageConverter
       try {
         final JsonNode jsonNode = mapper.readTree(context.getInputStream());
         // cache json node
-        context.requestBody(jsonNode);
+        context.setRequestBody(jsonNode);
         return jsonNode;
       }
       catch (JsonParseException e) {

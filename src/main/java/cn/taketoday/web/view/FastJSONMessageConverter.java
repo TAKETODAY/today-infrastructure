@@ -99,7 +99,7 @@ public class FastJSONMessageConverter extends AbstractMessageConverter implement
       }
       requestBody = parseRequestBody(builder.toString());
       // cache request body
-      context.requestBody(requestBody);
+      context.setRequestBody(requestBody);
     }
     return requestBody;
   }

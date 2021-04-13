@@ -34,7 +34,7 @@ import cn.taketoday.web.ui.Model;
 /**
  * @author TODAY 2021/3/10 16:35
  */
-public class MockRequestContext extends AbstractRequestContext {
+public class MockRequestContext extends RequestContext {
 
   @Override
   protected InputStream getInputStreamInternal() throws IOException {

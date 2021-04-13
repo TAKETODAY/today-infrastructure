@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContext.State;
 import cn.taketoday.context.utils.Assert;
-import cn.taketoday.web.AbstractRequestContext;
+import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
@@ -35,9 +35,6 @@ import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.ResultHandler;
 import cn.taketoday.web.view.ResultHandlerCapable;
 import cn.taketoday.web.view.RuntimeResultHandler;
-
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
-import static cn.taketoday.context.utils.ExceptionUtils.unwrapThrowable;
 
 /**
  * Central dispatcher for HTTP request handlers/controllers
@@ -226,16 +223,10 @@ public class DispatcherHandler extends WebApplicationContextSupport {
                 .handleResult(context, handler, view);
       }
       // @since 3.0 flush headers
-      applyHeaders(context);
+      context.applyHeaders();
     }
     catch (Throwable e) {
       handleException(handler, e, context);
-    }
-  }
-
-  private void applyHeaders(final RequestContext context) {
-    if (context instanceof AbstractRequestContext) {
-      ((AbstractRequestContext) context).applyHeaders();
     }
   }
 
@@ -259,7 +250,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
     context.reset();
     // handle exception
     final Object view = getExceptionHandler()
-            .handleException(context, unwrapThrowable(exception), handler);
+            .handleException(context, ExceptionUtils.unwrapThrowable(exception), handler);
     if (view != HandlerAdapter.NONE_RETURN_VALUE) {
       for (final RuntimeResultHandler resultHandler : resultHandlers) {
         if (resultHandler.supportsResult(view)) {
@@ -269,7 +260,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
       }
     }
     // @since 3.0 flush exception headers
-    applyHeaders(context);
+    context.applyHeaders();
   }
 
   /**
@@ -322,8 +313,8 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   }
 
   public void setHandlerRegistry(HandlerRegistry handlerRegistry) {
-    Assert.notNull(resultHandlers, "HandlerRegistry must not be null");
-    this.handlerRegistry = nonNull(handlerRegistry, "handler registry must not be null");
+    Assert.notNull(handlerRegistry, "HandlerRegistry must not be null");
+    this.handlerRegistry = handlerRegistry;
   }
 
   public void setHandlerAdapters(HandlerAdapter... handlerAdapters) {

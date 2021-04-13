@@ -23,22 +23,32 @@ import java.io.BufferedReader;
 import java.io.Flushable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpCookie;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import cn.taketoday.context.EmptyObject;
 import cn.taketoday.context.io.Readable;
 import cn.taketoday.context.io.Writable;
+import cn.taketoday.context.utils.CollectionUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.RequestContextHolder.ApplicationNotStartedContext;
 import cn.taketoday.web.annotation.PathVariable;
+import cn.taketoday.web.http.DefaultHttpHeaders;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.ui.Model;
 import cn.taketoday.web.ui.ModelAndView;
+import cn.taketoday.web.ui.ModelAttributes;
+
+import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
 
 /**
  * Context holder for request-specific state.
@@ -51,6 +61,26 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
 
   public static final HttpCookie[] EMPTY_COOKIES = {};
 
+  protected String contextPath;
+  protected Object requestBody;
+  protected HttpCookie[] cookies;
+  protected String[] pathVariables;
+  protected ModelAndView modelAndView;
+
+  protected PrintWriter writer;
+  protected BufferedReader reader;
+  protected InputStream inputStream;
+  protected OutputStream outputStream;
+
+  protected Map<String, List<MultipartFile>> multipartFiles;
+
+  /** @since 3.0 */
+  protected HttpHeaders requestHeaders;
+  /** @since 3.0 */
+  protected HttpHeaders responseHeaders;
+  /** @since 3.0 */
+  protected Model model;
+
   // --- request
 
   /**
@@ -62,7 +92,17 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * @return a <code>String</code> specifying the portion of the request URI that
    * indicates the context of the request
    */
-  public abstract String getContextPath();
+  public String getContextPath() {
+    final String contextPath = this.contextPath;
+    if (contextPath == null) {
+      return this.contextPath = getContextPathInternal();
+    }
+    return contextPath;
+  }
+
+  protected String getContextPathInternal() {
+    return Constant.BLANK;
+  }
 
   /**
    * Returns the part of this request's URL from the protocol name up to the query
@@ -119,7 +159,19 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * @return an array of all the <code>Cookies</code> included with this request,
    * or {@link #EMPTY_COOKIES} if the request has no cookies
    */
-  public abstract HttpCookie[] getCookies();
+  public HttpCookie[] getCookies() {
+    final HttpCookie[] cookies = this.cookies;
+    if (cookies == null) {
+      return this.cookies = getCookiesInternal();
+    }
+    return cookies;
+  }
+
+  /**
+   * @return an array of all the Cookies included with this request,or
+   * {@link #EMPTY_COOKIES} if the request has no cookies
+   */
+  protected abstract HttpCookie[] getCookiesInternal();
 
   /**
    * Returns a {@link HttpCookie} object the client sent with this request. This
@@ -133,7 +185,14 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    *
    * @since 2.3.7
    */
-  public abstract HttpCookie getCookie(String name);
+  public HttpCookie getCookie(final String name) {
+    for (final HttpCookie cookie : getCookies()) {
+      if (Objects.equals(name, cookie.getName())) {
+        return cookie;
+      }
+    }
+    return null;
+  }
 
   /**
    * Adds the specified cookie to the response. This method can be called multiple
@@ -166,7 +225,13 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * <code>String</code> containing the name of a request parameter; or an
    * empty <code>Enumeration</code> if the request has no parameters
    */
-  public abstract Enumeration<String> getParameterNames();
+  public Enumeration<String> getParameterNames() {
+    final Map<String, String[]> parameters = getParameters();
+    if (CollectionUtils.isEmpty(parameters)) {
+      return null;
+    }
+    return Collections.enumeration(parameters.keySet());
+  }
 
   /**
    * Returns an array of <code>String</code> objects containing all of the values
@@ -185,7 +250,13 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    *
    * @see #getParameters()
    */
-  public abstract String[] getParameters(String name);
+  public String[] getParameters(String name) {
+    final Map<String, String[]> parameters = getParameters();
+    if (CollectionUtils.isEmpty(parameters)) {
+      return null;
+    }
+    return parameters.get(name);
+  }
 
   /**
    * Returns the value of a request parameter as a <code>String</code>, or
@@ -215,7 +286,13 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    *
    * @see #getParameters(String)
    */
-  public abstract String getParameter(String name);
+  public String getParameter(String name) {
+    final String[] parameters = getParameters(name);
+    if (ObjectUtils.isNotEmpty(parameters)) {
+      return parameters[0];
+    }
+    return null;
+  }
 
   /**
    * Returns the name of the HTTP method with which this request was made, for
@@ -258,7 +335,15 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    *         if an input or output exception occurred
    */
   @Override
-  public abstract InputStream getInputStream() throws IOException;
+  public InputStream getInputStream() throws IOException {
+    final InputStream inputStream = this.inputStream;
+    if (inputStream == null) {
+      return this.inputStream = getInputStreamInternal();
+    }
+    return inputStream;
+  }
+
+  protected abstract InputStream getInputStreamInternal() throws IOException;
 
   /**
    * Retrieves the body of the request as character data using a
@@ -276,12 +361,37 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * @see #getInputStream
    */
   @Override
-  public abstract BufferedReader getReader() throws IOException;
+  public BufferedReader getReader() throws IOException {
+    final BufferedReader reader = this.reader;
+    if (reader == null) {
+      return this.reader = getReaderInternal();
+    }
+    return reader;
+  }
+
+  protected BufferedReader getReaderInternal() throws IOException {
+    return new BufferedReader(new InputStreamReader(getInputStream(), DEFAULT_CHARSET));
+  }
 
   /**
    * Get all {@link MultipartFile}s from current request
    */
-  public abstract Map<String, List<MultipartFile>> multipartFiles();
+  // -----------------------------------------------------
+  public Map<String, List<MultipartFile>> multipartFiles() {
+    final Map<String, List<MultipartFile>> multipartFiles = this.multipartFiles;
+    if (multipartFiles == null) {
+      return this.multipartFiles = parseMultipartFiles();
+    }
+    return multipartFiles;
+  }
+
+  /**
+   * map list MultipartFile
+   *
+   * @throws cn.taketoday.web.resolver.MultipartFileParsingException
+   *         if this request is not of type multipart/form-data
+   */
+  protected abstract Map<String, List<MultipartFile>> parseMultipartFiles();
 
   /**
    * Returns the MIME type of the body of the request, or <code>null</code> if the
@@ -299,7 +409,18 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    *
    * @since 3.0
    */
-  public abstract HttpHeaders requestHeaders();
+  public HttpHeaders requestHeaders() {
+    HttpHeaders ret = this.requestHeaders;
+    if (ret == null) {
+      this.requestHeaders = ret = createRequestHeaders();
+    }
+    return ret;
+  }
+
+  /**
+   * @since 3.0
+   */
+  protected abstract HttpHeaders createRequestHeaders();
 
   // ---------------- response
 
@@ -312,12 +433,17 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * @return Returns {@link ModelAndView}, never be null but except
    * {@link ApplicationNotStartedContext}
    */
-  public abstract ModelAndView modelAndView();
+  public ModelAndView modelAndView() {
+    final ModelAndView ret = this.modelAndView;
+    return ret == null ? this.modelAndView = new ModelAndView(this) : ret;
+  }
 
   /**
    * @since 3.0
    */
-  public abstract boolean hasModelAndView();
+  public boolean hasModelAndView() {
+    return modelAndView != null;
+  }
 
   /**
    * Sets the length of the content body in the response , this method sets the
@@ -511,7 +637,15 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * @see #reset
    */
   @Override
-  public abstract OutputStream getOutputStream() throws IOException;
+  public OutputStream getOutputStream() throws IOException {
+    final OutputStream outputStream = this.outputStream;
+    if (outputStream == null) {
+      return this.outputStream = getOutputStreamInternal();
+    }
+    return outputStream;
+  }
+
+  protected abstract OutputStream getOutputStreamInternal() throws IOException;
 
   /**
    * Returns a <code>PrintWriter</code> object that can send character text to the
@@ -534,7 +668,17 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * @see #reset
    */
   @Override
-  public abstract PrintWriter getWriter() throws IOException;
+  public PrintWriter getWriter() throws IOException {
+    final PrintWriter writer = this.writer;
+    if (writer == null) {
+      return this.writer = getWriterInternal();
+    }
+    return writer;
+  }
+
+  protected PrintWriter getWriterInternal() throws IOException {
+    return new PrintWriter(getOutputStream());
+  }
 
   /**
    * Sets the content type of the response being sent to the client, if the
@@ -558,14 +702,29 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * @param contentType
    *         a <code>String</code> specifying the MIME type of the content
    */
-  public abstract void setContentType(String contentType);
+  public void setContentType(String contentType) {
+    responseHeaders().set(Constant.CONTENT_TYPE, contentType);
+  }
 
   /**
    * Get request HTTP headers
    *
    * @since 3.0
    */
-  public abstract HttpHeaders responseHeaders();
+  public HttpHeaders responseHeaders() {
+    HttpHeaders ret = this.responseHeaders;
+    if (ret == null) {
+      this.responseHeaders = ret = createResponseHeaders();
+    }
+    return ret;
+  }
+
+  /**
+   * @since 3.0
+   */
+  protected HttpHeaders createResponseHeaders() {
+    return new DefaultHttpHeaders();
+  }
 
   // ----------------------
 
@@ -585,7 +744,9 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   /**
    * Request body object
    */
-  public abstract Object requestBody();
+  public Object requestBody() {
+    return requestBody;
+  }
 
   /**
    * Cache request body object
@@ -596,9 +757,13 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * @param body
    *         Target request body object
    */
-  public abstract void requestBody(Object body);
+  public void setRequestBody(Object body) {
+    this.requestBody = body != null ? body : EmptyObject.INSTANCE;
+  }
 
-  public abstract String[] pathVariables();
+  public String[] pathVariables() {
+    return pathVariables;
+  }
 
   /**
    * set current {@link PathVariable}s
@@ -608,6 +773,89 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    *
    * @return input variables
    */
-  public abstract String[] pathVariables(String[] variables);
+  public String[] pathVariables(String[] variables) {
+    return this.pathVariables = variables;
+  }
+
+  // Model
+
+  /**
+   * @since 3.0
+   */
+  private Model obtainModel() {
+    Model model = this.model;
+    if (model == null) {
+      model = createModel();
+      this.model = model;
+    }
+    return model;
+  }
+
+  protected Model createModel() {
+    return new ModelAttributes();
+  }
+
+  @Override
+  public boolean containsAttribute(String name) {
+    return obtainModel().containsAttribute(name);
+  }
+
+  @Override
+  public void setAttributes(Map<String, Object> attributes) {
+    obtainModel().setAttributes(attributes);
+  }
+
+  @Override
+  public Object getAttribute(String name) {
+    return obtainModel().getAttribute(name);
+  }
+
+  @Override
+  public <T> T getAttribute(String name, Class<T> targetClass) {
+    return obtainModel().getAttribute(name, targetClass);
+  }
+
+  @Override
+  public void setAttribute(String name, Object value) {
+    obtainModel().setAttribute(name, value);
+  }
+
+  @Override
+  public Object removeAttribute(String name) {
+    return obtainModel().removeAttribute(name);
+  }
+
+  @Override
+  public Map<String, Object> asMap() {
+    return obtainModel().asMap();
+  }
+
+  @Override
+  public void clear() {
+    obtainModel().clear();
+  }
+
+  /**
+   * If {@link #responseHeaders} is not null
+   */
+  public void applyHeaders() {
+    final HttpHeaders responseHeaders = this.responseHeaders;
+    if (!CollectionUtils.isEmpty(responseHeaders)) {
+      doApplyHeaders(responseHeaders);
+    }
+  }
+
+  protected void doApplyHeaders(HttpHeaders responseHeaders) { }
+
+  protected void resetResponseHeader() {
+    if (responseHeaders != null) {
+      responseHeaders.clear();
+    }
+  }
+
+  @Override
+  public String toString() {
+    return getMethod() + " " + getRequestURL();
+  }
 
 }
