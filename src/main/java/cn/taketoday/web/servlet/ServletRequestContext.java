@@ -128,7 +128,7 @@ public class ServletRequestContext extends RequestContext {
   }
 
   @Override
-  public String getQueryString() {
+  public String doGetQueryString() {
     return request.getQueryString();
   }
 
