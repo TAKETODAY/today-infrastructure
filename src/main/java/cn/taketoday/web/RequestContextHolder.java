@@ -87,6 +87,10 @@ public abstract class RequestContextHolder {
       return null;
     }
 
+    @Override protected String doGetQueryString() {
+      return null;
+    }
+
     @Override public String getRequestURL() {
       return null;
     }

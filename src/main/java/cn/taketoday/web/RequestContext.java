@@ -85,6 +85,8 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   protected String requestURI;
   /** @since 3.0 */
   private Map<String, String[]> parameters;
+  /** @since 3.0 */
+  private String queryString;
 
   // --- request
 
@@ -164,7 +166,16 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * <code>null</code> if the URL contains no query string. The value is
    * not decoded by the container.
    */
-  public abstract String getQueryString();
+  public String getQueryString() {
+    String queryString = this.queryString;
+    if (queryString == null) {
+      queryString = doGetQueryString();
+      this.queryString = queryString;
+    }
+    return queryString;
+  }
+
+  protected abstract String doGetQueryString();
 
   /**
    * Returns an array containing all of the <code>Cookie</code> objects the client
