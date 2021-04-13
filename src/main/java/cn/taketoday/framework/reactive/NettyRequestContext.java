@@ -33,10 +33,11 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.utils.DefaultMultiValueMap;
+import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.Constant;
-import cn.taketoday.web.AbstractRequestContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.http.DefaultHttpHeaders;
 import cn.taketoday.web.multipart.MultipartFile;
@@ -72,25 +73,19 @@ import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
  * @author TODAY <br>
  * 2019-07-04 21:24
  */
-public class NettyRequestContext
-        extends AbstractRequestContext implements RequestContext {
+public class NettyRequestContext extends RequestContext {
 //    private static final Logger log = LoggerFactory.getLogger(NettyRequestContext.class);
 
   private static final HttpDataFactory HTTP_DATA_FACTORY = new DefaultHttpDataFactory(true);
-
-  private String queryString;
   private String remoteAddress;
 
   private boolean committed = false;
-
-  private Map<String, String[]> parameters;
 
   private final FullHttpRequest request;
   private final ChannelHandlerContext channelContext;
   private InterfaceHttpPostRequestDecoder requestDecoder;
 
   private final String uri;
-  private String requestURI;
 
   private final NettyRequestContextConfig config;
 
@@ -117,20 +112,15 @@ public class NettyRequestContext
   }
 
   @Override
-  public String getRequestURI() {
-    String requestURI = this.requestURI;
-    if (requestURI == null) {
-      final String uri = this.uri;
-      final int index = uri.indexOf('?');
-      if (index > -1) {
-        requestURI = uri.substring(0, index);
-      }
-      else {
-        requestURI = uri;
-      }
-      this.requestURI = requestURI;
+  protected final String doGetRequestURI() {
+    final String uri = this.uri;
+    final int index = uri.indexOf('?');
+    if (index > -1) {
+      return uri.substring(0, index);
     }
-    return requestURI;
+    else {
+      return uri;
+    }
   }
 
   @Override
@@ -140,7 +130,7 @@ public class NettyRequestContext
   }
 
   @Override
-  public String remoteAddress() {
+  public final String remoteAddress() {
     if (remoteAddress == null) {
       final InetSocketAddress remote = (InetSocketAddress) channelContext.channel().remoteAddress();
       remoteAddress = remote.getAddress().getHostAddress();
@@ -149,34 +139,29 @@ public class NettyRequestContext
   }
 
   @Override
-  public String getQueryString() {
-    String queryString = this.queryString;
-    if (queryString == null) {
-      final int index;
-      final String uri = this.uri;
-      if (uri == null || (index = uri.indexOf('?')) == -1) {
-        queryString = Constant.BLANK;
-      }
-      else {
-        queryString = uri.substring(index + 1);
-      }
-      this.queryString = queryString;
+  public final String doGetQueryString() {
+    final int index;
+    final String uri = this.uri;
+    if (uri == null || (index = uri.indexOf('?')) == -1) {
+      return Constant.BLANK;
     }
-    return queryString;
+    else {
+      return uri.substring(index + 1);
+    }
   }
 
   @Override
-  public String getMethod() {
+  public final String doGetMethod() {
     return this.request.method().name();
   }
 
   @Override
-  protected InputStream getInputStreamInternal() {
+  protected InputStream doGetInputStream() {
     return new ByteBufInputStream(request.content());
   }
 
   @Override
-  protected OutputStream getOutputStreamInternal() {
+  protected OutputStream doGetOutputStream() {
     return new ByteBufOutputStream(responseBody());
   }
 
@@ -206,7 +191,7 @@ public class NettyRequestContext
   }
 
   @Override
-  public HttpCookie[] getCookiesInternal() {
+  public HttpCookie[] doGetCookies() {
     final String header = request.headers().get(HttpHeaderNames.COOKIE);
     if (StringUtils.isEmpty(header)) {
       return EMPTY_COOKIES;
@@ -229,16 +214,7 @@ public class NettyRequestContext
   }
 
   @Override
-  public Map<String, String[]> getParameters() {
-    Map<String, String[]> params = this.parameters;
-    if (params == null) {
-      params = parseParameters();
-      this.parameters = params;
-    }
-    return params;
-  }
-
-  protected Map<String, String[]> parseParameters() {
+  protected Map<String, String[]> doGetParameters() {
 
     final String queryString = getQueryString();
     final Map<String, List<String>> parameters = StringUtils.isNotEmpty(queryString)
@@ -541,17 +517,13 @@ public class NettyRequestContext
   }
 
   @Override
-  protected Map<String, List<MultipartFile>> parseMultipartFiles() {
-    final HashMap<String, List<MultipartFile>> multipartFiles = new HashMap<>();
+  protected MultiValueMap<String, MultipartFile> parseMultipartFiles() {
+    final MultiValueMap<String, MultipartFile> multipartFiles = new DefaultMultiValueMap<>();
 
     for (InterfaceHttpData data : getRequestDecoder().getBodyHttpDatas()) {
       if (data instanceof FileUpload) {
         final String name = data.getName();
-        List<MultipartFile> parts = multipartFiles.get(name);
-        if (parts == null) {
-          multipartFiles.put(name, parts = new ArrayList<>(2));
-        }
-        parts.add(new FileUploadMultipartFile((FileUpload) data));
+        multipartFiles.add(name, new FileUploadMultipartFile((FileUpload) data));
       }
     }
     return multipartFiles;
@@ -562,8 +534,13 @@ public class NettyRequestContext
   }
 
   @Override
-  protected String getContextPathInternal() {
+  protected String doGetContextPath() {
     return config.getContextPath();
+  }
+
+  @Override
+  public String toString() {
+    return "Netty " + super.toString();
   }
 
 }
