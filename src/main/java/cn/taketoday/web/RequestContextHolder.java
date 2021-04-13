@@ -95,7 +95,7 @@ public abstract class RequestContextHolder {
       return null;
     }
 
-    @Override protected HttpCookie[] getCookiesInternal() {
+    @Override protected HttpCookie[] doGetCookies() {
       return new HttpCookie[0];
     }
 
@@ -107,7 +107,7 @@ public abstract class RequestContextHolder {
       return null;
     }
 
-    @Override public String getMethodInternal() {
+    @Override public String doGetMethod() {
       return null;
     }
 
@@ -119,7 +119,7 @@ public abstract class RequestContextHolder {
       return 0;
     }
 
-    @Override protected InputStream getInputStreamInternal() throws IOException {
+    @Override protected InputStream doGetInputStream() throws IOException {
       return null;
     }
 
@@ -167,7 +167,7 @@ public abstract class RequestContextHolder {
 
     }
 
-    @Override protected OutputStream getOutputStreamInternal() throws IOException {
+    @Override protected OutputStream doGetOutputStream() throws IOException {
       return null;
     }
 

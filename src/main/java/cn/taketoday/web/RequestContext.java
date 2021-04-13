@@ -100,12 +100,12 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   public String getContextPath() {
     final String contextPath = this.contextPath;
     if (contextPath == null) {
-      return this.contextPath = getContextPathInternal();
+      return this.contextPath = doGetContextPath();
     }
     return contextPath;
   }
 
-  protected String getContextPathInternal() {
+  protected String doGetContextPath() {
     return Constant.BLANK;
   }
 
@@ -176,7 +176,7 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   public HttpCookie[] getCookies() {
     final HttpCookie[] cookies = this.cookies;
     if (cookies == null) {
-      return this.cookies = getCookiesInternal();
+      return this.cookies = doGetCookies();
     }
     return cookies;
   }
@@ -185,7 +185,7 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * @return an array of all the Cookies included with this request,or
    * {@link #EMPTY_COOKIES} if the request has no cookies
    */
-  protected abstract HttpCookie[] getCookiesInternal();
+  protected abstract HttpCookie[] doGetCookies();
 
   /**
    * Returns a {@link HttpCookie} object the client sent with this request. This
@@ -326,12 +326,12 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    */
   public final String getMethod() {
     if (method == null) {
-      method = getMethodInternal();
+      method = doGetMethod();
     }
     return method;
   }
 
-  protected abstract String getMethodInternal();
+  protected abstract String doGetMethod();
 
   /**
    * Returns the Internet Protocol (IP) address of the client or last proxy that
@@ -368,12 +368,12 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   public InputStream getInputStream() throws IOException {
     final InputStream inputStream = this.inputStream;
     if (inputStream == null) {
-      return this.inputStream = getInputStreamInternal();
+      return this.inputStream = doGetInputStream();
     }
     return inputStream;
   }
 
-  protected abstract InputStream getInputStreamInternal() throws IOException;
+  protected abstract InputStream doGetInputStream() throws IOException;
 
   /**
    * Retrieves the body of the request as character data using a
@@ -394,16 +394,17 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   public BufferedReader getReader() throws IOException {
     final BufferedReader reader = this.reader;
     if (reader == null) {
-      return this.reader = getReaderInternal();
+      return this.reader = doGetReader();
     }
     return reader;
   }
 
-  protected BufferedReader getReaderInternal() throws IOException {
+  protected BufferedReader doGetReader() throws IOException {
     return new BufferedReader(new InputStreamReader(getInputStream(), DEFAULT_CHARSET));
   }
 
   // -----------------------------------------------------
+
   /**
    * Get all {@link MultipartFile}s from current request
    */
@@ -672,12 +673,12 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   public OutputStream getOutputStream() throws IOException {
     final OutputStream outputStream = this.outputStream;
     if (outputStream == null) {
-      return this.outputStream = getOutputStreamInternal();
+      return this.outputStream = doGetOutputStream();
     }
     return outputStream;
   }
 
-  protected abstract OutputStream getOutputStreamInternal() throws IOException;
+  protected abstract OutputStream doGetOutputStream() throws IOException;
 
   /**
    * Returns a <code>PrintWriter</code> object that can send character text to the
@@ -703,12 +704,12 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   public PrintWriter getWriter() throws IOException {
     final PrintWriter writer = this.writer;
     if (writer == null) {
-      return this.writer = getWriterInternal();
+      return this.writer = doGetWriter();
     }
     return writer;
   }
 
-  protected PrintWriter getWriterInternal() throws IOException {
+  protected PrintWriter doGetWriter() throws IOException {
     return new PrintWriter(getOutputStream());
   }
 

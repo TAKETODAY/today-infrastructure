@@ -48,7 +48,7 @@ public class MockRequestContext extends RequestContext {
     return null;
   }
 
-  @Override protected HttpCookie[] getCookiesInternal() {
+  @Override protected HttpCookie[] doGetCookies() {
     return new HttpCookie[0];
   }
 
@@ -60,7 +60,7 @@ public class MockRequestContext extends RequestContext {
     return null;
   }
 
-  @Override protected String getMethodInternal() {
+  @Override protected String doGetMethod() {
     return null;
   }
 
@@ -72,7 +72,7 @@ public class MockRequestContext extends RequestContext {
     return 0;
   }
 
-  @Override protected InputStream getInputStreamInternal() throws IOException {
+  @Override protected InputStream doGetInputStream() throws IOException {
     return null;
   }
 
@@ -120,7 +120,7 @@ public class MockRequestContext extends RequestContext {
 
   }
 
-  @Override protected OutputStream getOutputStreamInternal() throws IOException {
+  @Override protected OutputStream doGetOutputStream() throws IOException {
     return null;
   }
 

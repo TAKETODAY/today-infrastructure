@@ -73,7 +73,7 @@ public class ServletRequestContext extends RequestContext {
   }
 
   @Override
-  protected String getContextPathInternal() {
+  protected String doGetContextPath() {
     return request.getContextPath();
   }
 
@@ -98,22 +98,22 @@ public class ServletRequestContext extends RequestContext {
   }
 
   @Override
-  protected OutputStream getOutputStreamInternal() throws IOException {
+  protected OutputStream doGetOutputStream() throws IOException {
     return response.getOutputStream();
   }
 
   @Override
-  protected InputStream getInputStreamInternal() throws IOException {
+  protected InputStream doGetInputStream() throws IOException {
     return request.getInputStream();
   }
 
   @Override
-  protected PrintWriter getWriterInternal() throws IOException {
+  protected PrintWriter doGetWriter() throws IOException {
     return response.getWriter();
   }
 
   @Override
-  public BufferedReader getReaderInternal() throws IOException {
+  public BufferedReader doGetReader() throws IOException {
     return request.getReader();
   }
 
@@ -133,7 +133,7 @@ public class ServletRequestContext extends RequestContext {
   }
 
   @Override
-  protected HttpCookie[] getCookiesInternal() {
+  protected HttpCookie[] doGetCookies() {
 
     final Cookie[] servletCookies = request.getCookies();
     if (ObjectUtils.isEmpty(servletCookies)) { // there is not cookies
@@ -180,7 +180,7 @@ public class ServletRequestContext extends RequestContext {
   }
 
   @Override
-  protected String getMethodInternal() {
+  protected String doGetMethod() {
     return request.getMethod();
   }
 

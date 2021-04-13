@@ -103,12 +103,12 @@ public class JacksonMessageConverterTests {
     }
 
     @Override
-    protected InputStream getInputStreamInternal() {
+    protected InputStream doGetInputStream() {
       return new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
-    protected OutputStream getOutputStreamInternal() {
+    protected OutputStream doGetOutputStream() {
       return new ByteArrayOutputStream();
     }
   }
