@@ -161,7 +161,7 @@ public class ServletRequestContext extends RequestContext {
   }
 
   @Override
-  public Map<String, String[]> getParameters() {
+  public Map<String, String[]> doGetParameters() {
     return request.getParameterMap();
   }
 

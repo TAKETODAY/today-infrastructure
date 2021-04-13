@@ -103,7 +103,7 @@ public abstract class RequestContextHolder {
 
     }
 
-    @Override public Map<String, String[]> getParameters() {
+    @Override public Map<String, String[]> doGetParameters() {
       return null;
     }
 

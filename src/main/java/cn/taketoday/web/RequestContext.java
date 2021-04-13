@@ -83,6 +83,8 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   protected String method;
   /** @since 3.0 */
   protected String requestURI;
+  /** @since 3.0 */
+  private Map<String, String[]> parameters;
 
   // --- request
 
@@ -226,7 +228,16 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * as map values. The keys in the parameter map are of type String. The
    * values in the parameter map are of type String array.
    */
-  public abstract Map<String, String[]> getParameters();
+  public Map<String, String[]> getParameters() {
+    Map<String, String[]> parameters = this.parameters;
+    if (parameters == null) {
+      parameters = doGetParameters();
+      this.parameters = parameters;
+    }
+    return parameters;
+  }
+
+  protected abstract Map<String, String[]> doGetParameters();
 
   /**
    * Returns an <code>Iterator</code> of <code>String</code> objects containing

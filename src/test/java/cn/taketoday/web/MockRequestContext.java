@@ -56,7 +56,7 @@ public class MockRequestContext extends RequestContext {
 
   }
 
-  @Override public Map<String, String[]> getParameters() {
+  @Override public Map<String, String[]> doGetParameters() {
     return null;
   }
 
