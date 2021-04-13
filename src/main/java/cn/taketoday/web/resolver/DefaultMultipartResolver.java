@@ -22,13 +22,12 @@ package cn.taketoday.web.resolver;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.utils.CollectionUtils;
+import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.multipart.DefaultMultipartFile;
@@ -143,7 +142,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
     @Override
     public boolean supports(MethodParameter parameter) {
-      if (supportsMap(parameter)) {
+      if (supportsMap(parameter) || parameter.is(MultiValueMap.class)) {
         if (parameter.isGenericPresent(String.class, 0)) { // Map<String, >
           Class<?> target = null;
           if (parameter.isGenericPresent(List.class, 1)) { // Map<String, List<>>
@@ -163,18 +162,16 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
     }
 
     @Override
-    protected Object resolveInternal(final RequestContext context, final MethodParameter parameter,
-                                     final Map<String, List<MultipartFile>> multipartFiles) throws Throwable {
-
-      if (parameter.isGenericPresent(List.class, 1)) {
+    protected Object resolveInternal(
+            final RequestContext context, final MethodParameter parameter,
+            final MultiValueMap<String, MultipartFile> multipartFiles) throws Throwable {
+      // Map<String, List<MultipartFile>>
+      if (parameter.is(MultiValueMap.class) || parameter.isGenericPresent(List.class, 1)) {
         return multipartFiles;
       }
-      final HashMap<String, MultipartFile> files = new HashMap<>();
-      for (final Map.Entry<String, List<MultipartFile>> listEntry : multipartFiles.entrySet()) {
-        files.put(listEntry.getKey(), listEntry.getValue().get(0));
-      }
 
-      return files;
+      // Map<String, MultipartFile>
+      return multipartFiles.toSingleValueMap();
     }
 
     @Override

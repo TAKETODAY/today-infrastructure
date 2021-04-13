@@ -24,9 +24,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpCookie;
-import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.multipart.MultipartFile;
 
@@ -76,7 +76,7 @@ public class MockRequestContext extends RequestContext {
     return null;
   }
 
-  @Override protected Map<String, List<MultipartFile>> parseMultipartFiles() {
+  @Override protected MultiValueMap<String, MultipartFile> parseMultipartFiles() {
     return null;
   }
 

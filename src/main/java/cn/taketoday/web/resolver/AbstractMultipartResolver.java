@@ -20,9 +20,9 @@
 package cn.taketoday.web.resolver;
 
 import java.util.List;
-import java.util.Map;
 
 import cn.taketoday.context.utils.DataSize;
+import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.exception.FileSizeExceededException;
 import cn.taketoday.web.handler.MethodParameter;
@@ -75,7 +75,7 @@ public abstract class AbstractMultipartResolver
 
   protected Object resolveInternal(final RequestContext context,
                                    final MethodParameter parameter,
-                                   final Map<String, List<MultipartFile>> multipartFiles) throws Throwable {
+                                   final MultiValueMap<String, MultipartFile> multipartFiles) throws Throwable {
 
     final List<MultipartFile> resolved = multipartFiles.get(parameter.getName());
     if (resolved != null) {

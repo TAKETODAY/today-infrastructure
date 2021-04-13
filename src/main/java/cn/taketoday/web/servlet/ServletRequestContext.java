@@ -27,12 +27,9 @@ import java.io.PrintWriter;
 import java.net.HttpCookie;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -40,7 +37,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
+import cn.taketoday.context.utils.DefaultMultiValueMap;
 import cn.taketoday.context.utils.EnumerationIterator;
+import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.http.DefaultHttpHeaders;
@@ -290,20 +289,12 @@ public class ServletRequestContext extends RequestContext {
   // parseMultipartFiles
 
   @Override
-  protected Map<String, List<MultipartFile>> parseMultipartFiles() {
-    final HashMap<String, List<MultipartFile>> multipartFiles = new HashMap<>();
-    final class MappingFunction implements Function<String, List<MultipartFile>> {
-      @Override
-      public List<MultipartFile> apply(String k) {
-        return new LinkedList<>();
-      }
-    }
-    final MappingFunction mappingFunction = new MappingFunction();
+  protected MultiValueMap<String, MultipartFile> parseMultipartFiles() {
+    DefaultMultiValueMap<String, MultipartFile> multipartFiles = new DefaultMultiValueMap<>();
     try {
       for (final Part part : request.getParts()) {
         final String name = part.getName();
-        List<MultipartFile> parts = multipartFiles.computeIfAbsent(name, mappingFunction);
-        parts.add(new DefaultMultipartFile(part));
+        multipartFiles.add(name, new DefaultMultipartFile(part));
       }
       return multipartFiles;
     }

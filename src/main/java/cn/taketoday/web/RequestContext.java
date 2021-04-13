@@ -28,7 +28,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpCookie;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -36,6 +35,7 @@ import cn.taketoday.context.EmptyObject;
 import cn.taketoday.context.io.Readable;
 import cn.taketoday.context.io.Writable;
 import cn.taketoday.context.utils.CollectionUtils;
+import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.RequestContextHolder.ApplicationNotStartedContext;
 import cn.taketoday.web.annotation.PathVariable;
@@ -71,7 +71,7 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   protected InputStream inputStream;
   protected OutputStream outputStream;
 
-  protected Map<String, List<MultipartFile>> multipartFiles;
+  protected MultiValueMap<String, MultipartFile> multipartFiles;
 
   /** @since 3.0 */
   protected HttpHeaders requestHeaders;
@@ -403,12 +403,12 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
     return new BufferedReader(new InputStreamReader(getInputStream(), DEFAULT_CHARSET));
   }
 
+  // -----------------------------------------------------
   /**
    * Get all {@link MultipartFile}s from current request
    */
-  // -----------------------------------------------------
-  public Map<String, List<MultipartFile>> multipartFiles() {
-    final Map<String, List<MultipartFile>> multipartFiles = this.multipartFiles;
+  public MultiValueMap<String, MultipartFile> multipartFiles() {
+    final MultiValueMap<String, MultipartFile> multipartFiles = this.multipartFiles;
     if (multipartFiles == null) {
       return this.multipartFiles = parseMultipartFiles();
     }
@@ -421,7 +421,7 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * @throws cn.taketoday.web.resolver.MultipartFileParsingException
    *         if this request is not of type multipart/form-data
    */
-  protected abstract Map<String, List<MultipartFile>> parseMultipartFiles();
+  protected abstract MultiValueMap<String, MultipartFile> parseMultipartFiles();
 
   /**
    * Returns the MIME type of the body of the request, or <code>null</code> if the

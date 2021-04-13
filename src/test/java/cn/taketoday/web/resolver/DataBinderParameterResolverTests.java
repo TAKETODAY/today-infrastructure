@@ -34,6 +34,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import cn.taketoday.context.cglib.beans.BeanMap;
+import cn.taketoday.context.utils.DefaultMultiValueMap;
+import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.web.MockMultipartFile;
 import cn.taketoday.web.MockRequestContext;
 import cn.taketoday.web.exception.WebNestedRuntimeException;
@@ -117,7 +119,7 @@ public class DataBinderParameterResolverTests extends TestCase {
 
   static class ParameterMockRequestContext extends MockRequestContext {
     final Map<String, String[]> parameters;
-    Map<String, List<MultipartFile>> multipartFiles;
+    MultiValueMap<String, MultipartFile> multipartFiles;
 
     ParameterMockRequestContext() {
       this.parameters = new HashMap<>();
@@ -133,13 +135,14 @@ public class DataBinderParameterResolverTests extends TestCase {
     }
 
     @Override
-    public Map<String, List<MultipartFile>> multipartFiles() {
+    public MultiValueMap<String, MultipartFile> multipartFiles() {
       return multipartFiles;
     }
 
-    public void setMultipartFiles(Map<String, List<MultipartFile>> multipartFiles) {
+    public void setMultipartFiles(MultiValueMap<String, MultipartFile> multipartFiles) {
       this.multipartFiles = multipartFiles;
     }
+
   }
 
   public void testSimpleResolveParameter() throws Throwable {
@@ -274,8 +277,7 @@ public class DataBinderParameterResolverTests extends TestCase {
     final DataBinderParameterResolver resolver = new DataBinderParameterResolver();
     final ParameterMockRequestContext context = new ParameterMockRequestContext(params);
 
-    Map<String, List<MultipartFile>> map = new HashMap<>();
-
+    MultiValueMap<String, MultipartFile> map = new DefaultMultiValueMap<>();
     final List<MultipartFile> uploadFile = Collections.singletonList(new NamedMockMultipartFile("uploadFile"));
     final List<MultipartFile> files = Arrays.asList(new NamedMockMultipartFile("uploadFiles"),
                                                     new NamedMockMultipartFile("uploadFiles"));

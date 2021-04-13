@@ -29,6 +29,7 @@ import cn.taketoday.context.factory.DataBinder;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
+import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
@@ -81,7 +82,7 @@ public class DataBinderParameterResolver
 
     if (WebUtils.isMultipart(context)) {
       // Multipart
-      final Map<String, List<MultipartFile>> multipartFiles = context.multipartFiles();
+      final MultiValueMap<String, MultipartFile> multipartFiles = context.multipartFiles();
       if (!CollectionUtils.isEmpty(multipartFiles)) {
         for (final Map.Entry<String, List<MultipartFile>> entry : multipartFiles.entrySet()) {
           final List<MultipartFile> files = entry.getValue();
