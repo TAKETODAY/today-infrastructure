@@ -72,9 +72,9 @@ public abstract class HttpHeaders
    * @see <a href="https://tools.ietf.org/html/rfc7232#section-2.3">Section 2.3 of
    * RFC 7232</a>
    */
-  private static final Pattern ETAG_HEADER_VALUE_PATTERN = Pattern.compile("\\*|\\s*((W\\/)?(\"[^\"]*\"))\\s*,?");
-  private static final DecimalFormatSymbols DECIMAL_FORMAT_SYMBOLS = new DecimalFormatSymbols(Locale.ENGLISH);
-  private static final ZoneId GMT = ZoneId.of("GMT");
+  public static final Pattern ETAG_HEADER_VALUE_PATTERN = Pattern.compile("\\*|\\s*((W\\/)?(\"[^\"]*\"))\\s*,?");
+  public static final DecimalFormatSymbols DECIMAL_FORMAT_SYMBOLS = new DecimalFormatSymbols(Locale.ENGLISH);
+  public static final ZoneId GMT = ZoneId.of("GMT");
 
   /**
    * Date formats with time zone as specified in the HTTP RFC to use for
@@ -83,7 +83,7 @@ public abstract class HttpHeaders
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.1">Section
    * 7.1.1.1 of RFC 7231</a>
    */
-  static final DateTimeFormatter DATE_FORMATTER = ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz", US).withZone(GMT);
+  public static final DateTimeFormatter DATE_FORMATTER = ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz", US).withZone(GMT);
 
   /**
    * Date formats with time zone as specified in the HTTP RFC to use for parsing.
@@ -91,7 +91,7 @@ public abstract class HttpHeaders
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.1">Section
    * 7.1.1.1 of RFC 7231</a>
    */
-  static final DateTimeFormatter[] DATE_PARSERS = new DateTimeFormatter[] { //
+  public static final DateTimeFormatter[] DATE_PARSERS = new DateTimeFormatter[] { //
           DateTimeFormatter.RFC_1123_DATE_TIME, //
           ofPattern("EEEE, dd-MMM-yy HH:mm:ss zzz", US), //
           ofPattern("EEE MMM dd HH:mm:ss yyyy", US).withZone(GMT)
