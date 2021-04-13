@@ -24,9 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpCookie;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -215,38 +213,81 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   protected Map<String, String[]> doGetParameters() {
-
     final String queryString = getQueryString();
-    final Map<String, List<String>> parameters = StringUtils.isNotEmpty(queryString)
-                                                 ? StringUtils.parseParameters(queryString)
-                                                 : new HashMap<>();
-
+    final MultiValueMap<String, String> parameters = fromQueryString(queryString);
     final List<InterfaceHttpData> bodyHttpData = getRequestDecoder().getBodyHttpDatas();
     for (final InterfaceHttpData data : bodyHttpData) {
       if (data instanceof Attribute) {
         try {
           final String name = data.getName();
-          List<String> list = parameters.get(name);
-          if (list == null) {
-            parameters.put(name, list = new ArrayList<>(1));
-          }
-          list.add(((Attribute) data).getValue());
+          parameters.add(name, ((Attribute) data).getValue());
         }
         catch (IOException e) {
           throw new ParameterReadFailedException("Netty http-data read failed", e);
         }
       }
     }
-
     if (!parameters.isEmpty()) {
-      final Map<String, String[]> params = new HashMap<>(parameters.size());
-      for (final Map.Entry<String, List<String>> entry : parameters.entrySet()) {
-        final List<String> value = entry.getValue();
-        params.put(entry.getKey(), value.toArray(new String[value.size()]));
-      }
-      return params;
+      return parameters.toArrayMap(String[]::new);
     }
     return Collections.emptyMap();
+  }
+
+  /**
+   * Parse Parameters
+   *
+   * @param s
+   *         Input {@link String}
+   *
+   * @return Map of list parameters
+   */
+  private static MultiValueMap<String, String> fromQueryString(final String s) {
+    if (StringUtils.isEmpty(s)) {
+      return new DefaultMultiValueMap<>();
+    }
+
+    final DefaultMultiValueMap<String, String> params = new DefaultMultiValueMap<>();
+    int nameStart = 0;
+    int valueStart = -1;
+    int i;
+    final int len = s.length();
+    loop:
+    for (i = 0; i < len; i++) {
+      switch (s.charAt(i)) {
+        case '=':
+          if (nameStart == i) {
+            nameStart = i + 1;
+          }
+          else if (valueStart < nameStart) {
+            valueStart = i + 1;
+          }
+          break;
+        case '&':
+        case ';':
+          addParam(s, nameStart, valueStart, i, params);
+          nameStart = i + 1;
+          break;
+        case '#':
+          break loop;
+        default:
+          // continue
+      }
+    }
+    addParam(s, nameStart, valueStart, i, params);
+    return params;
+  }
+
+  private static void addParam(
+          String s, int nameStart, int valueStart, int valueEnd, DefaultMultiValueMap<String, String> params
+  ) {
+    if (nameStart < valueEnd) {
+      if (valueStart <= nameStart) {
+        valueStart = valueEnd + 1;
+      }
+      String name = s.substring(nameStart, valueStart - 1);
+      String value = s.substring(valueStart, valueEnd);
+      params.add(name, value);
+    }
   }
 
   private InterfaceHttpPostRequestDecoder getRequestDecoder() {
