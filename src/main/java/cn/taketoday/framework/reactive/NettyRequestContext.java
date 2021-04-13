@@ -199,24 +199,24 @@ public class NettyRequestContext extends RequestContext {
     if (CollectionUtils.isEmpty(allCookie)) {
       return EMPTY_COOKIES;
     }
-    final Set<Cookie> parsed;
+    final Set<Cookie> decoded;
     final ServerCookieDecoder cookieDecoder = config.getCookieDecoder();
     if (allCookie.size() == 1) {
-      parsed = cookieDecoder.decode(allCookie.get(0));
+      decoded = cookieDecoder.decode(allCookie.get(0));
     }
     else {
-      parsed = new TreeSet<>();
+      decoded = new TreeSet<>();
       for (final String header : allCookie) {
-        parsed.addAll(cookieDecoder.decode(header));
+        decoded.addAll(cookieDecoder.decode(header));
       }
     }
-    if (ObjectUtils.isEmpty(parsed)) {
+    if (ObjectUtils.isEmpty(decoded)) {
       return EMPTY_COOKIES;
     }
     else {
       int i = 0;
-      final HttpCookie[] ret = new HttpCookie[parsed.size()];
-      for (final Cookie cookie : parsed) {
+      final HttpCookie[] ret = new HttpCookie[decoded.size()];
+      for (final Cookie cookie : decoded) {
         ret[i++] = mapHttpCookie(cookie);
       }
       return ret;
@@ -235,7 +235,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   protected Map<String, String[]> doGetParameters() {
-    final String queryString = getQueryString();
+    final String queryString = StringUtils.decodeUrl(getQueryString());
     final MultiValueMap<String, String> parameters = fromQueryString(queryString);
     final List<InterfaceHttpData> bodyHttpData = getRequestDecoder().getBodyHttpDatas();
     for (final InterfaceHttpData data : bodyHttpData) {
