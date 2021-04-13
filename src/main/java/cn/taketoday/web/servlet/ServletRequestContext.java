@@ -28,6 +28,7 @@ import java.net.HttpCookie;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
+import cn.taketoday.context.utils.EnumerationIterator;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.http.DefaultHttpHeaders;
@@ -117,7 +119,7 @@ public class ServletRequestContext extends RequestContext {
   }
 
   @Override
-  public String getRequestURI() {
+  public String doGetRequestURI() {
     return request.getRequestURI();
   }
 
@@ -164,8 +166,8 @@ public class ServletRequestContext extends RequestContext {
   }
 
   @Override
-  public Enumeration<String> getParameterNames() {
-    return request.getParameterNames();
+  public Iterator<String> getParameterNames() {
+    return new EnumerationIterator<>(request.getParameterNames());
   }
 
   @Override
@@ -179,7 +181,7 @@ public class ServletRequestContext extends RequestContext {
   }
 
   @Override
-  public String getMethod() {
+  protected String getMethodInternal() {
     return request.getMethod();
   }
 
@@ -215,8 +217,7 @@ public class ServletRequestContext extends RequestContext {
 
   @Override
   public void reset() {
-    resetResponseHeader();
-
+    super.reset();
     response.reset();
   }
 

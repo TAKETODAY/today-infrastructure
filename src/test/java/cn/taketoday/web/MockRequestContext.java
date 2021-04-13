@@ -29,42 +29,11 @@ import java.util.Map;
 
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.ui.Model;
 
 /**
  * @author TODAY 2021/3/10 16:35
  */
 public class MockRequestContext extends RequestContext {
-
-  @Override
-  protected InputStream getInputStreamInternal() throws IOException {
-    return null;
-  }
-
-  @Override
-  protected OutputStream getOutputStreamInternal() throws IOException {
-    return null;
-  }
-
-  @Override
-  protected HttpCookie[] getCookiesInternal() {
-    return new HttpCookie[0];
-  }
-
-  @Override
-  protected Map<String, List<MultipartFile>> parseMultipartFiles() {
-    return null;
-  }
-
-  @Override
-  public Map<String, String[]> getParameters() {
-    return null;
-  }
-
-  @Override
-  public String getContentType() {
-    return null;
-  }
 
   @Override public String getRequestURI() {
     return null;
@@ -78,10 +47,19 @@ public class MockRequestContext extends RequestContext {
     return null;
   }
 
-  @Override public void addCookie(HttpCookie cookie) {
+  @Override protected HttpCookie[] getCookiesInternal() {
+    return new HttpCookie[0];
   }
 
-  @Override public String getMethod() {
+  @Override public void addCookie(HttpCookie cookie) {
+
+  }
+
+  @Override public Map<String, String[]> getParameters() {
+    return null;
+  }
+
+  @Override protected String getMethodInternal() {
     return null;
   }
 
@@ -93,102 +71,71 @@ public class MockRequestContext extends RequestContext {
     return 0;
   }
 
+  @Override protected InputStream getInputStreamInternal() throws IOException {
+    return null;
+  }
+
+  @Override protected Map<String, List<MultipartFile>> parseMultipartFiles() {
+    return null;
+  }
+
+  @Override public String getContentType() {
+    return null;
+  }
+
+  @Override protected HttpHeaders createRequestHeaders() {
+    return null;
+  }
+
   @Override public void setContentLength(long length) {
+
   }
 
   @Override public boolean committed() {
     return false;
   }
 
-  @Override
-  public void reset() {
-  }
-
   @Override public void sendRedirect(String location) throws IOException {
+
   }
 
   @Override public void setStatus(int sc) {
+
   }
 
-  @Override
-  public void setStatus(int status, String message) {
+  @Override public void setStatus(int status, String message) {
+
   }
 
-  @Override
-  public int getStatus() {
+  @Override public int getStatus() {
     return 0;
   }
 
-  @Override
-  public void sendError(int sc) throws IOException {
-  }
-
-  @Override
-  public void sendError(int sc, String msg) throws IOException {
-  }
-
-  @Override
-  public void setContentType(String contentType) {
+  @Override public void sendError(int sc) throws IOException {
 
   }
 
+  @Override public void sendError(int sc, String msg) throws IOException {
 
-  @Override
-  public <T> T nativeRequest() {
+  }
+
+  @Override protected OutputStream getOutputStreamInternal() throws IOException {
     return null;
   }
 
-  @Override
-  public <T> T nativeRequest(Class<T> requestClass) {
+  @Override public <T> T nativeRequest() {
     return null;
   }
 
-  @Override
-  public <T> T nativeResponse() {
+  @Override public <T> T nativeRequest(Class<T> requestClass) {
     return null;
   }
 
-  @Override
-  public <T> T nativeResponse(Class<T> responseClass) {
+  @Override public <T> T nativeResponse() {
     return null;
   }
 
-  @Override
-  public Object getAttribute(String name) {
-    return null;
-  }
-
-  @Override
-  public <T> T getAttribute(String name, Class<T> targetClass) {
-    return null;
-  }
-
-  @Override
-  public void setAttribute(String name, Object value) {
-  }
-
-  @Override
-  public Model removeAttribute(String name) {
-    return null;
-  }
-
-  @Override
-  public Map<String, Object> asMap() {
-    return null;
-  }
-
-  @Override
-  public void clear() {
-
-  }
-
-  @Override
-  public void flush() throws IOException {
-
-  }
-
-  @Override
-  protected HttpHeaders createRequestHeaders() {
+  @Override public <T> T nativeResponse(Class<T> responseClass) {
     return null;
   }
 

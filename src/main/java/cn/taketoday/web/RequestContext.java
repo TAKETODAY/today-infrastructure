@@ -27,8 +27,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpCookie;
-import java.util.Collections;
-import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -80,6 +79,10 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   protected HttpHeaders responseHeaders;
   /** @since 3.0 */
   protected Model model;
+  /** @since 3.0 */
+  protected String method;
+  /** @since 3.0 */
+  protected String requestURI;
 
   // --- request
 
@@ -130,7 +133,16 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * @return a <code>String</code> containing the part of the URL from the
    * protocol name up to the query string
    */
-  public abstract String getRequestURI();
+  public String getRequestURI() {
+    String requestURI = this.requestURI;
+    if (requestURI == null) {
+      requestURI = doGetRequestURI();
+      this.requestURI = requestURI;
+    }
+    return requestURI;
+  }
+
+  protected abstract String doGetRequestURI();
 
   /**
    * The returned URL contains a protocol, server name, port number, and server
@@ -217,20 +229,20 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   public abstract Map<String, String[]> getParameters();
 
   /**
-   * Returns an <code>Enumeration</code> of <code>String</code> objects containing
+   * Returns an <code>Iterator</code> of <code>String</code> objects containing
    * the names of the parameters contained in this request. If the request has no
-   * parameters, the method returns an empty <code>Enumeration</code>.
+   * parameters, the method returns an empty <code>Iterator</code>.
    *
-   * @return an <code>Enumeration</code> of <code>String</code> objects, each
+   * @return an <code>Iterator</code> of <code>String</code> objects, each
    * <code>String</code> containing the name of a request parameter; or an
-   * empty <code>Enumeration</code> if the request has no parameters
+   * empty <code>Iterator</code> if the request has no parameters
    */
-  public Enumeration<String> getParameterNames() {
+  public Iterator<String> getParameterNames() {
     final Map<String, String[]> parameters = getParameters();
     if (CollectionUtils.isEmpty(parameters)) {
       return null;
     }
-    return Collections.enumeration(parameters.keySet());
+    return parameters.keySet().iterator();
   }
 
   /**
@@ -301,7 +313,14 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * @return a <code>String</code> specifying the name of the method with which
    * this request was made
    */
-  public abstract String getMethod();
+  public final String getMethod() {
+    if (method == null) {
+      method = getMethodInternal();
+    }
+    return method;
+  }
+
+  protected abstract String getMethodInternal();
 
   /**
    * Returns the Internet Protocol (IP) address of the client or last proxy that
@@ -478,7 +497,9 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * @throws IllegalStateException
    *         if the response has already been committed
    */
-  public abstract void reset();
+  public void reset() {
+    resetResponseHeader();
+  }
 
   /**
    * Sends a temporary redirect response to the client using the specified
@@ -851,6 +872,11 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
     if (responseHeaders != null) {
       responseHeaders.clear();
     }
+  }
+
+  @Override
+  public void flush() throws IOException {
+    // no-op
   }
 
   @Override

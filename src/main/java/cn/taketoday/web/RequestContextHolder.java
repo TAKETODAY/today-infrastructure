@@ -106,7 +106,7 @@ public abstract class RequestContextHolder {
       return null;
     }
 
-    @Override public String getMethod() {
+    @Override public String getMethodInternal() {
       return null;
     }
 
@@ -140,10 +140,6 @@ public abstract class RequestContextHolder {
 
     @Override public boolean committed() {
       return false;
-    }
-
-    @Override public void reset() {
-
     }
 
     @Override public void sendRedirect(String location) throws IOException {
@@ -195,8 +191,6 @@ public abstract class RequestContextHolder {
       return "Application has not been started";
     }
 
-    @Override public void flush() throws IOException {
 
-    }
   }
 }
