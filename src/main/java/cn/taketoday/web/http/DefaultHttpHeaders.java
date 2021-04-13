@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.IntFunction;
 
 import cn.taketoday.context.utils.DefaultMultiValueMap;
 import cn.taketoday.context.utils.LinkedCaseInsensitiveMap;
@@ -155,5 +156,15 @@ public class DefaultHttpHeaders extends HttpHeaders {
   @Override
   public Iterator<String> iterator() {
     return headers.keySet().iterator();
+  }
+
+  @Override
+  public Map<String, String[]> toArrayMap(IntFunction<String[]> mappingFunction) {
+    return headers.toArrayMap(mappingFunction);
+  }
+
+  @Override
+  public void copyToArrayMap(Map<String, String[]> newMap, IntFunction<String[]> function) {
+    headers.copyToArrayMap(newMap, function);
   }
 }
