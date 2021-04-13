@@ -39,7 +39,7 @@ public class MockRequestContext extends RequestContext {
     return null;
   }
   @Override
-  protected String doGetRequestURI() {
+  protected String doGetRequestPath() {
     return null;
   }
 

@@ -118,7 +118,7 @@ public class ServletRequestContext extends RequestContext {
   }
 
   @Override
-  public String doGetRequestURI() {
+  public String doGetRequestPath() {
     return request.getRequestURI();
   }
 

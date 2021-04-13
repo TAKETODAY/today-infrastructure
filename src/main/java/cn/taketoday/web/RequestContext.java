@@ -82,7 +82,7 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   /** @since 3.0 */
   protected String method;
   /** @since 3.0 */
-  protected String requestURI;
+  protected String requestPath;
   /** @since 3.0 */
   protected Map<String, String[]> parameters;
   /** @since 3.0 */
@@ -138,16 +138,16 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * @return a <code>String</code> containing the part of the URL from the
    * protocol name up to the query string
    */
-  public String getRequestURI() {
-    String requestURI = this.requestURI;
-    if (requestURI == null) {
-      requestURI = doGetRequestURI();
-      this.requestURI = requestURI;
+  public String getRequestPath() {
+    String requestPath = this.requestPath;
+    if (requestPath == null) {
+      requestPath = doGetRequestPath();
+      this.requestPath = requestPath;
     }
-    return requestURI;
+    return requestPath;
   }
 
-  protected abstract String doGetRequestURI();
+  protected abstract String doGetRequestPath();
 
   /**
    * The returned URL contains a protocol, server name, port number, and server

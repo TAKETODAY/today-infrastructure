@@ -89,7 +89,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
    * @return Handler key never be null
    */
   protected String computeKey(final RequestContext context) {
-    return context.getRequestURI();
+    return context.getRequestPath();
   }
 
   protected Object lookupHandler(final String handlerKey, final RequestContext context) {

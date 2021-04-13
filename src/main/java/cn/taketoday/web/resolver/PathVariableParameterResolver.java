@@ -67,7 +67,7 @@ public class PathVariableParameterResolver
 
       String[] pathVariables = request.pathVariables();
       if (pathVariables == null) {
-        String requestURI = StringUtils.decodeUrl(request.getRequestURI());
+        String requestURI = StringUtils.decodeUrl(request.getRequestPath());
         final String[] extractVariables = getPathMatcher().extractVariables(parameter.getPathPattern(), requestURI);
         pathVariables = request.pathVariables(extractVariables);
       }

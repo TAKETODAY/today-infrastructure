@@ -87,7 +87,7 @@ public class ResourceHandlerRegistry
 
   @Override
   protected String computeKey(RequestContext context) {
-    return requestPath(context.getRequestURI(), contextPathLength);
+    return requestPath(context.getRequestPath(), contextPathLength);
   }
 
   @Override
