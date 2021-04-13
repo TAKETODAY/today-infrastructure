@@ -35,7 +35,8 @@ import cn.taketoday.web.multipart.MultipartFile;
  */
 public class MockRequestContext extends RequestContext {
 
-  @Override public String getRequestURI() {
+  @Override
+  protected String doGetRequestURI() {
     return null;
   }
 

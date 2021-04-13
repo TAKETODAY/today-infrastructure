@@ -82,7 +82,8 @@ public abstract class RequestContextHolder {
   @SuppressWarnings("serial")
   static class ApplicationNotStartedContext extends RequestContext implements Serializable {
 
-    @Override public String getRequestURI() {
+    @Override
+    protected String doGetRequestURI() {
       return null;
     }
 
