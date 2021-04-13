@@ -164,10 +164,10 @@ public abstract class WebUtils {
 
     httpHeaders.set(Constant.CONTENT_TRANSFER_ENCODING, Constant.BINARY);
     httpHeaders.set(Constant.CONTENT_DISPOSITION,
-                           new StringBuilder(Constant.ATTACHMENT_FILE_NAME)
-                                   .append(StringUtils.encodeUrl(download.getName()))
-                                   .append(Constant.QUOTATION_MARKS)
-                                   .toString()
+                    new StringBuilder(Constant.ATTACHMENT_FILE_NAME)
+                            .append(StringUtils.encodeUrl(download.getName()))
+                            .append(Constant.QUOTATION_MARKS)
+                            .toString()
     );
 
     try (final InputStream in = download.getInputStream()) {
@@ -311,6 +311,38 @@ public abstract class WebUtils {
 
   //
 
+  public static void parseParameters(MultiValueMap<String, String> parameterMap, final String s) {
+    if (StringUtils.isNotEmpty(s)) {
+      int nameStart = 0;
+      int valueStart = -1;
+      int i;
+      final int len = s.length();
+      loop:
+      for (i = 0; i < len; i++) {
+        switch (s.charAt(i)) {
+          case '=':
+            if (nameStart == i) {
+              nameStart = i + 1;
+            }
+            else if (valueStart < nameStart) {
+              valueStart = i + 1;
+            }
+            break;
+          case '&':
+          case ';':
+            addParam(s, nameStart, valueStart, i, parameterMap);
+            nameStart = i + 1;
+            break;
+          case '#':
+            break loop;
+          default:
+            // continue
+        }
+      }
+      addParam(s, nameStart, valueStart, i, parameterMap);
+    }
+  }
+
   /**
    * Parse Parameters
    *
@@ -320,43 +352,13 @@ public abstract class WebUtils {
    * @return Map of list parameters
    */
   public static MultiValueMap<String, String> parseParameters(final String s) {
-    if (StringUtils.isEmpty(s)) {
-      return new DefaultMultiValueMap<>();
-    }
-
     final DefaultMultiValueMap<String, String> params = new DefaultMultiValueMap<>();
-    int nameStart = 0;
-    int valueStart = -1;
-    int i;
-    final int len = s.length();
-    loop:
-    for (i = 0; i < len; i++) {
-      switch (s.charAt(i)) {
-        case '=':
-          if (nameStart == i) {
-            nameStart = i + 1;
-          }
-          else if (valueStart < nameStart) {
-            valueStart = i + 1;
-          }
-          break;
-        case '&':
-        case ';':
-          addParam(s, nameStart, valueStart, i, params);
-          nameStart = i + 1;
-          break;
-        case '#':
-          break loop;
-        default:
-          // continue
-      }
-    }
-    addParam(s, nameStart, valueStart, i, params);
+    parseParameters(params, s);
     return params;
   }
 
   private static void addParam(
-          String s, int nameStart, int valueStart, int valueEnd, DefaultMultiValueMap<String, String> params
+          String s, int nameStart, int valueStart, int valueEnd, MultiValueMap<String, String> params
   ) {
     if (nameStart < valueEnd) {
       if (valueStart <= nameStart) {
@@ -367,7 +369,6 @@ public abstract class WebUtils {
       params.add(name, value);
     }
   }
-
 
   /**
    * Parse the given string with matrix variables. An example string would look
