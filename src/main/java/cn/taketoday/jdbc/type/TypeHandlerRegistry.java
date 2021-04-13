@@ -238,7 +238,7 @@ public class TypeHandlerRegistry {
     register(javaTypeClass, getInstance(javaTypeClass, typeHandlerClass));
   }
 
-  void registerJodaTime() {
+  protected void registerJodaTime() {
     try {
       register(JodaDateTimeTypeHandler.class);
       register(JodaLocalDateTypeHandler.class);
