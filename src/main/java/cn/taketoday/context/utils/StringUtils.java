@@ -180,67 +180,183 @@ public abstract class StringUtils {
     return c == ',' || c == ';';
   }
 
-  @Deprecated
+  /**
+   * Decodes an {@code application/x-www-form-urlencoded} string using
+   * a specific default charset {@link Constant#DEFAULT_CHARSET}.
+   * The supplied charset is used to determine
+   * what characters are represented by any consecutive sequences of the
+   * form "<i>{@code %xy}</i>".
+   * <p>
+   * <em><strong>Note:</strong> The <a href=
+   * "http://www.w3.org/TR/html40/appendix/notes.html#non-ascii-chars">
+   * World Wide Web Consortium Recommendation</a> states that
+   * UTF-8 should be used. Not doing so may introduce
+   * incompatibilities.</em>
+   *
+   * @param s
+   *         the {@code String} to decode
+   *
+   * @return the newly decoded {@code String}
+   *
+   * @throws NullPointerException
+   *         if {@code s} or {@code charset} is {@code null}
+   * @throws IllegalArgumentException
+   *         if the implementation encounters illegal
+   *         characters
+   * @implNote This implementation will throw an {@link java.lang.IllegalArgumentException}
+   * when illegal strings are encountered.
+   * @since 3.0
+   */
   public static String decodeUrl(String s) {
+    return decodeUrl(s, Constant.DEFAULT_CHARSET);
+  }
 
-    final int numChars = s.length();
-
-    final StringBuilder sb = new StringBuilder(numChars > 500 ? numChars / 2 : numChars);
-    final Charset charset = Constant.DEFAULT_CHARSET;
-
-    int i = 0;
-    char c;
+  /**
+   * Decodes an {@code application/x-www-form-urlencoded} string using
+   * a specific {@linkplain java.nio.charset.Charset Charset}.
+   * The supplied charset is used to determine
+   * what characters are represented by any consecutive sequences of the
+   * form "<i>{@code %xy}</i>".
+   * <p>
+   * <em><strong>Note:</strong> The <a href=
+   * "http://www.w3.org/TR/html40/appendix/notes.html#non-ascii-chars">
+   * World Wide Web Consortium Recommendation</a> states that
+   * UTF-8 should be used. Not doing so may introduce
+   * incompatibilities.</em>
+   *
+   * @param s
+   *         the {@code String} to decode
+   * @param charset
+   *         the given charset
+   *
+   * @return the newly decoded {@code String}
+   *
+   * @throws NullPointerException
+   *         if {@code s} or {@code charset} is {@code null}
+   * @throws IllegalArgumentException
+   *         if the implementation encounters illegal
+   *         characters
+   * @implNote This implementation will throw an {@link java.lang.IllegalArgumentException}
+   * when illegal strings are encountered.
+   * @since 3.0
+   */
+  public static String decodeUrl(String s, Charset charset) {
+    Assert.notNull(charset, "Charset cannot be null");
     boolean needToChange = false;
+    int numChars = s.length();
+    StringBuilder sb = new StringBuilder(numChars > 500 ? numChars / 2 : numChars);
+    int i = 0;
+
+    char c;
     byte[] bytes = null;
     while (i < numChars) {
-      switch (c = s.charAt(i)) {
-        case '+': {
+      c = s.charAt(i);
+      switch (c) {
+        case '+':
           sb.append(' ');
           i++;
           needToChange = true;
           break;
-        }
-        case '%': {
+        case '%':
+          /*
+           * Starting with this instance of %, process all
+           * consecutive substrings of the form %xy. Each
+           * substring %xy will yield a byte. Convert all
+           * consecutive  bytes obtained this way to whatever
+           * character(s) they represent in the provided
+           * encoding.
+           */
           try {
             // (numChars-i)/3 is an upper bound for the number
             // of remaining bytes
-            if (bytes == null) bytes = new byte[(numChars - i) / 3];
+            if (bytes == null)
+              bytes = new byte[(numChars - i) / 3];
             int pos = 0;
+
             while (((i + 2) < numChars) && (c == '%')) {
               int v = Integer.parseInt(s.substring(i + 1, i + 3), 16);
-              if (v < 0) {
-                throw new IllegalArgumentException("Illegal hex characters in escape (%) pattern - negative value");
-              }
+              if (v < 0)
+                throw new IllegalArgumentException(
+                        "URLDecoder: Illegal hex characters in escape "
+                                + "(%) pattern - negative value");
               bytes[pos++] = (byte) v;
               i += 3;
-              if (i < numChars) c = s.charAt(i);
+              if (i < numChars)
+                c = s.charAt(i);
             }
+
             // A trailing, incomplete byte encoding such as
             // "%x" will cause an exception to be thrown
-            if ((i < numChars) && (c == '%')) {
-              throw new IllegalArgumentException("Incomplete trailing escape (%) pattern");
-            }
+            if ((i < numChars) && (c == '%'))
+              throw new IllegalArgumentException(
+                      "URLDecoder: Incomplete trailing escape (%) pattern");
+
             sb.append(new String(bytes, 0, pos, charset));
           }
           catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Illegal hex characters in escape (%) pattern - " + e.getMessage());
+            throw new IllegalArgumentException(
+                    "URLDecoder: Illegal hex characters in escape (%) pattern - "
+                            + e.getMessage());
           }
           needToChange = true;
           break;
-        }
-        default: {
+        default:
           sb.append(c);
           i++;
           break;
-        }
       }
     }
+
     return (needToChange ? sb.toString() : s);
   }
 
-  @Deprecated
+  /**
+   * Translates a string into {@code application/x-www-form-urlencoded}
+   * format using a default Charset {@link Constant#DEFAULT_CHARSET}.
+   * This method uses the supplied charset to obtain the bytes for unsafe
+   * characters.
+   * <p>
+   * <em><strong>Note:</strong> The <a href=
+   * "http://www.w3.org/TR/html40/appendix/notes.html#non-ascii-chars">
+   * World Wide Web Consortium Recommendation</a> states that
+   * UTF-8 should be used. Not doing so may introduce incompatibilities.</em>
+   *
+   * @param s
+   *         {@code String} to be translated.
+   *
+   * @return the translated {@code String}.
+   *
+   * @throws NullPointerException
+   *         if {@code s} or {@code charset} is {@code null}.
+   */
   public static String encodeUrl(String s) {
+    return encodeUrl(s, Constant.DEFAULT_CHARSET);
+  }
 
+  /**
+   * Translates a string into {@code application/x-www-form-urlencoded}
+   * format using a specific {@linkplain java.nio.charset.Charset Charset}.
+   * This method uses the supplied charset to obtain the bytes for unsafe
+   * characters.
+   * <p>
+   * <em><strong>Note:</strong> The <a href=
+   * "http://www.w3.org/TR/html40/appendix/notes.html#non-ascii-chars">
+   * World Wide Web Consortium Recommendation</a> states that
+   * UTF-8 should be used. Not doing so may introduce incompatibilities.</em>
+   *
+   * @param s
+   *         {@code String} to be translated.
+   * @param charset
+   *         the given charset
+   *
+   * @return the translated {@code String}.
+   *
+   * @throws NullPointerException
+   *         if {@code s} or {@code charset} is {@code null}.
+   * @since 3.0
+   */
+  public static String encodeUrl(String s, Charset charset) {
+    Assert.notNull(charset, "Charset cannot be null");
     boolean needToChange = false;
     final int length = s.length();
     final StringBuilder out = new StringBuilder(length);
@@ -248,7 +364,6 @@ public abstract class StringUtils {
 
     final BitSet dontNeedEncoding = StringUtils.dontNeedEncoding;
     final int caseDiff = StringUtils.caseDiff;
-    final Charset charset = Constant.DEFAULT_CHARSET;
 
     for (int i = 0; i < length; ) {
       int c = s.charAt(i);
@@ -272,7 +387,7 @@ public abstract class StringUtils {
          * just treat it as if it were any other character. */
         if (c >= 0xD800 && c <= 0xDBFF && (i + 1) < length) {
           // System.out.println(Integer.toHexString(c) + " is high surrogate");
-          int d = (int) s.charAt(i + 1);
+          int d = s.charAt(i + 1);
           // System.out.println("\tExamining " + Integer.toHexString(d));
           if (d >= 0xDC00 && d <= 0xDFFF) {
             // System.out.println("\t" + Integer.toHexString(d) + " is low surrogate");
