@@ -28,9 +28,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Supplier;
 
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.DefaultMultiValueMap;
 import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.context.utils.ObjectUtils;
@@ -83,7 +85,7 @@ public class NettyRequestContext extends RequestContext {
   private final ChannelHandlerContext channelContext;
   private InterfaceHttpPostRequestDecoder requestDecoder;
 
-  private final String uri;
+  private final String uri; // none null
 
   private final NettyRequestContextConfig config;
 
@@ -100,31 +102,45 @@ public class NettyRequestContext extends RequestContext {
 
   private FullHttpResponse response;
 
+  private final int queryStringIndex; // optimize
+
   public NettyRequestContext(ChannelHandlerContext ctx,
                              FullHttpRequest request,
                              NettyRequestContextConfig config) {
     this.config = config;
     this.request = request;
     this.channelContext = ctx;
-    this.uri = request.uri();
+    String uri = request.uri();
+    this.uri = uri;
+    this.queryStringIndex = uri.indexOf('?');
   }
 
   @Override
-  protected final String doGetRequestURI() {
-    final String uri = this.uri;
-    final int index = uri.indexOf('?');
-    if (index > -1) {
-      return uri.substring(0, index);
+  protected final String doGetRequestPath() {
+    final int index = queryStringIndex;
+    if (index == -1) {
+      return uri;
     }
     else {
-      return uri;
+      return uri.substring(0, index);
+    }
+  }
+
+  @Override
+  public final String doGetQueryString() {
+    final int index = queryStringIndex;
+    if (index == -1) {
+      return Constant.BLANK;
+    }
+    else {
+      return uri.substring(index + 1);
     }
   }
 
   @Override
   public String getRequestURL() {
     final String host = request.headers().get(Constant.HOST);
-    return "http://" + host + getRequestURI();
+    return "http://" + host + getRequestPath();
   }
 
   @Override
@@ -134,18 +150,6 @@ public class NettyRequestContext extends RequestContext {
       remoteAddress = remote.getAddress().getHostAddress();
     }
     return remoteAddress;
-  }
-
-  @Override
-  public final String doGetQueryString() {
-    final int index;
-    final String uri = this.uri;
-    if (uri == null || (index = uri.indexOf('?')) == -1) {
-      return Constant.BLANK;
-    }
-    else {
-      return uri.substring(index + 1);
-    }
   }
 
   @Override
@@ -190,15 +194,32 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public HttpCookie[] doGetCookies() {
-    final String header = request.headers().get(HttpHeaderNames.COOKIE);
-    if (StringUtils.isEmpty(header)) {
+    final List<String> all = request.headers().getAll(HttpHeaderNames.COOKIE);
+    if (CollectionUtils.isEmpty(all)) {
       return EMPTY_COOKIES;
     }
-
-    final Set<Cookie> parsed = config.getCookieDecoder().decode(header);
-    return ObjectUtils.isEmpty(parsed)
-           ? EMPTY_COOKIES
-           : parsed.stream().map(this::mapHttpCookie).toArray(HttpCookie[]::new);
+    final NettyRequestContextConfig config = this.config;
+    final Set<Cookie> parsed;
+    if (all.size() == 1) {
+      parsed = config.getCookieDecoder().decode(all.get(0));
+    }
+    else {
+      parsed = new TreeSet<>();
+      for (final String header : all) {
+        parsed.addAll(config.getCookieDecoder().decode(header));
+      }
+    }
+    if (ObjectUtils.isEmpty(parsed)) {
+      return EMPTY_COOKIES;
+    }
+    else {
+      int i = 0;
+      final HttpCookie[] ret = new HttpCookie[parsed.size()];
+      for (final Cookie cookie : parsed) {
+        ret[i++] = mapHttpCookie(cookie);
+      }
+      return ret;
+    }
   }
 
   private HttpCookie mapHttpCookie(final Cookie cookie) {
