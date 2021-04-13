@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 
 /**
  * Simple implementation of {@link MultiValueMap} that wraps a {@link Map},
@@ -147,6 +148,26 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
       }
     }
     return singleValueMap;
+  }
+
+  @Override
+  public Map<K, V[]> toArrayMap(IntFunction<V[]> function) {
+    final HashMap<K, V[]> singleValueMap = new HashMap<>(map.size());
+    copyToArrayMap(singleValueMap, function);
+    return singleValueMap;
+  }
+
+  @Override
+  public void copyToArrayMap(Map<K, V[]> newMap, IntFunction<V[]> mappingFunction) {
+    Assert.notNull(newMap, "newMap must not be null");
+    Assert.notNull(mappingFunction, "mappingFunction must not be null");
+    for (final Entry<K, List<V>> entry : map.entrySet()) {
+      final List<V> values = entry.getValue();
+      if (!CollectionUtils.isEmpty(values)) {
+        final V[] toArray = values.toArray(mappingFunction.apply(values.size()));
+        newMap.put(entry.getKey(), toArray);
+      }
+    }
   }
 
   // Map

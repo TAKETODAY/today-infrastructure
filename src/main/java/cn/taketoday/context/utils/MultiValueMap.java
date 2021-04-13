@@ -21,6 +21,7 @@ package cn.taketoday.context.utils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.IntFunction;
 
 /**
  * Extension of the {@code Map} interface that stores multiple values.
@@ -119,5 +120,15 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @return a single value representation of this map
    */
   Map<K, V> toSingleValueMap();
+
+  /**
+   * @since 3.0
+   */
+  Map<K, V[]> toArrayMap(IntFunction<V[]> mappingFunction);
+
+  /**
+   * @since 3.0
+   */
+  void copyToArrayMap(Map<K, V[]> newMap, IntFunction<V[]> function);
 
 }
