@@ -40,6 +40,7 @@ import javax.net.ssl.SSLSocket;
 
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.framework.Constant;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.http.HttpHeaders;
@@ -143,6 +144,16 @@ public class HTTPServer {
   protected volatile ServerSocketFactory serverSocketFactory;
   protected volatile Executor executor;
   protected volatile ServerSocket serv;
+  protected LightHttpConfig config = new LightHttpConfig();
+
+  public void setConfig(LightHttpConfig config) {
+    Assert.notNull(config, "LightHttpConfig cannot be null");
+    this.config = config;
+  }
+
+  public LightHttpConfig getConfig() {
+    return config;
+  }
 
   public void setHttpHandler(DispatcherHandler httpHandler) {
     this.httpHandler = httpHandler;
@@ -380,7 +391,7 @@ public class HTTPServer {
             handleTrace(req, resp);
           }
           else {
-            final LightRequestContext context = new LightRequestContext(req, resp);
+            final LightRequestContext context = new LightRequestContext(req, resp, config);
             httpHandler.handle(context);
             context.sendIfNotCommitted();
           }

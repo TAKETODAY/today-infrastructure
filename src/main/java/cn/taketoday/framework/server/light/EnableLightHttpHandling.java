@@ -37,12 +37,12 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Retention(RUNTIME)
 @Target({ TYPE, METHOD })
-@Import(LightHttpConfig.class)
+@Import(LightHttpConfiguration.class)
 public @interface EnableLightHttpHandling {
 
 }
 
-class LightHttpConfig {
+class LightHttpConfiguration {
 
   /**
    * Default {@link LightWebServer} object
@@ -54,7 +54,14 @@ class LightHttpConfig {
    */
   @MissingBean(type = WebServer.class)
   @Props(prefix = { "server.", "server.light." })
-  LightWebServer lightWebServer() {
-    return new LightWebServer();
+  LightWebServer lightWebServer(LightHttpConfig lightHttpConfig) {
+    final LightWebServer lightWebServer = new LightWebServer();
+    lightWebServer.setConfig(lightHttpConfig);
+    return lightWebServer;
+  }
+
+  @MissingBean
+  LightHttpConfig lightHttpConfig() {
+    return new LightHttpConfig();
   }
 }

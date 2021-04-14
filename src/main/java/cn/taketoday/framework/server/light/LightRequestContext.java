@@ -46,9 +46,12 @@ public class LightRequestContext extends RequestContext {
 
   private ResponseOutputBuffer responseBody;
 
-  public LightRequestContext(HttpRequest request, HttpResponse response) {
+  final LightHttpConfig config;
+
+  public LightRequestContext(HttpRequest request, HttpResponse response, LightHttpConfig config) {
     this.request = request;
     this.response = response;
+    this.config = config;
   }
 
   @Override
@@ -185,9 +188,9 @@ public class LightRequestContext extends RequestContext {
   }
 
   @Override
-  protected OutputStream doGetOutputStream() throws IOException {
+  protected OutputStream doGetOutputStream() {
     if (responseBody == null) {
-      responseBody = new ResponseOutputBuffer();// TODO size
+      responseBody = new ResponseOutputBuffer(config.getResponseBodyInitialSize());
     }
     return responseBody;
   }
@@ -226,14 +229,10 @@ public class LightRequestContext extends RequestContext {
     if (responseBody != null) {
       responseBody.reset();
     }
-    response.setStatus(HttpStatus.OK);
+    response.reset();
   }
 
   // response
-
-//  public HttpStatus getStatus() {
-//    return status;
-//  }
 
   /**
    * Send HTTP message to the client
@@ -248,7 +247,6 @@ public class LightRequestContext extends RequestContext {
     assertNotCommitted();
     response.write(responseBody);
   }
-
 
   @Override
   public String toString() {

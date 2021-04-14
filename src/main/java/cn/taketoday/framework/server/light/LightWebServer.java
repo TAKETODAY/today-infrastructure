@@ -35,7 +35,17 @@ public class LightWebServer extends AbstractWebServer {
   protected HTTPServer server;
   protected int socketTimeout = 10000;
   protected Executor executor;
-  DispatcherHandler httpHandler;
+
+  private DispatcherHandler httpHandler;
+  private LightHttpConfig config;
+
+  public void setConfig(LightHttpConfig config) {
+    this.config = config;
+  }
+
+  public LightHttpConfig getConfig() {
+    return config;
+  }
 
   @Override
   protected void prepareInitialize() {
@@ -48,6 +58,7 @@ public class LightWebServer extends AbstractWebServer {
 
     httpHandler = new DispatcherHandler(obtainApplicationContext());
     server.setHttpHandler(httpHandler);
+    server.setConfig(config);
   }
 
   @Override
