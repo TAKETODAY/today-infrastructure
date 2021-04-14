@@ -10,7 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.IntFunction;
 
+import cn.taketoday.context.utils.Assert;
+import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.web.http.HttpHeaders;
 
 /**
@@ -136,5 +139,28 @@ final class NettyHttpHeaders extends HttpHeaders {
       ret.add(new AbstractMap.SimpleEntry<>(name, headers.getAll(name)));
     }
     return ret;
+  }
+
+  @Override
+  public Map<String, String[]> toArrayMap(final IntFunction<String[]> mappingFunction) {
+    final HashMap<String, String[]> singleValueMap = new HashMap<>(headers.size());
+    copyToArrayMap(singleValueMap, mappingFunction);
+    return singleValueMap;
+  }
+
+  @Override
+  public void copyToArrayMap(final Map<String, String[]> newMap, final IntFunction<String[]> mappingFunction) {
+    Assert.notNull(newMap, "newMap must not be null");
+    Assert.notNull(mappingFunction, "mappingFunction must not be null");
+    final io.netty.handler.codec.http.HttpHeaders headers = this.headers;
+    final Set<String> names = headers.names();
+    for (final String name : names) {
+      final List<String> values = headers.getAll(name);
+      if (!CollectionUtils.isEmpty(values)) {
+        final String[] toArray = values.toArray(mappingFunction.apply(values.size()));
+        newMap.put(name, toArray);
+      }
+    }
+
   }
 }
