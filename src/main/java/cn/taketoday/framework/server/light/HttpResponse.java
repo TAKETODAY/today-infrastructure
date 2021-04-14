@@ -28,6 +28,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -389,7 +391,9 @@ public class HttpResponse implements Closeable {
 
   protected void prepareHttpHeaders(HttpHeaders headers, ResponseOutputBuffer responseBody) {
     if (!headers.containsKey(Constant.DATE)) {
-      headers.add(Constant.DATE, Utils.formatDate(System.currentTimeMillis()));
+//      final String date = DateTimeFormatter.RFC_1123_DATE_TIME.format(LocalDateTime.now());
+//      headers.add(Constant.DATE, date);
+      headers.setDate(System.currentTimeMillis());
     }
     if (serverHeader != null) {
       headers.add(Constant.SERVER, serverHeader);
@@ -459,15 +463,15 @@ public class HttpResponse implements Closeable {
    * @see <a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec6.html">HTTP/1.1: Response</a>
    */
   static void writeHttpHeaders(HttpHeaders headers, final OutputStream output) throws IOException {
-    final Charset utf8 = StandardCharsets.UTF_8;
+    final Charset charset = StandardCharsets.ISO_8859_1; // todo 编码
     // response headers
     for (final Map.Entry<String, List<String>> entry : headers.entrySet()) {
       final String name = entry.getKey();
-      final byte[] nameBytes = name.getBytes(utf8);
+      final byte[] nameBytes = name.getBytes(charset);
       for (final String value : entry.getValue()) {
         output.write(nameBytes);
         output.write(COLON); // ': '
-        output.write(value.getBytes(utf8));
+        output.write(value.getBytes(charset));
         output.write(HttpResponse.CRLF);
       }
     }
