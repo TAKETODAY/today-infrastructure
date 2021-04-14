@@ -655,12 +655,8 @@ public abstract class HttpHeaders
    */
   public void setETag(String etag) {
     if (etag != null) {
-      if (etag.startsWith("\"") || etag.startsWith("W/")) {
-        throw new IllegalArgumentException("Invalid ETag: does not start with W/ or \"");
-      }
-      if (etag.endsWith("\"")) {
-        throw new IllegalArgumentException("Invalid ETag: does not end with \"");
-      }
+      Assert.isTrue(etag.startsWith("\"") || etag.startsWith("W/"), "Invalid ETag: does not start with W/ or \"");
+      Assert.isTrue(etag.endsWith("\""), "Invalid ETag: does not end with \"");
       set(ETAG, etag);
     }
     else {
