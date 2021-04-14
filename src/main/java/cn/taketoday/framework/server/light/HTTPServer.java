@@ -22,17 +22,17 @@
 package cn.taketoday.framework.server.light;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,10 +43,12 @@ import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.framework.Constant;
 import cn.taketoday.web.handler.DispatcherHandler;
+import cn.taketoday.web.http.HttpHeaders;
 
-import static cn.taketoday.framework.server.light.Utils.join;
 import static cn.taketoday.framework.server.light.Utils.splitElements;
 import static cn.taketoday.framework.server.light.Utils.transfer;
 
@@ -139,11 +141,21 @@ import static cn.taketoday.framework.server.light.Utils.transfer;
  * @since 2008-07-24
  */
 public class HTTPServer {
+  private static final Logger log = LoggerFactory.getLogger(HTTPServer.class);
 
   /** A convenience array containing the carriage-return and line feed chars. */
   public static final byte[] CRLF = { 0x0d, 0x0a };
 
   private DispatcherHandler httpHandler;
+  private String host = "0.0.0.0";
+
+  protected volatile int port;
+  protected volatile int socketTimeout = 10000;
+  protected volatile boolean secure;
+  protected volatile ServerSocketFactory serverSocketFactory;
+  protected volatile Executor executor;
+  protected volatile ServerSocket serv;
+  protected final Map<String, VirtualHost> hosts = new ConcurrentHashMap<>();
 
   public void setHttpHandler(DispatcherHandler httpHandler) {
     this.httpHandler = httpHandler;
@@ -179,7 +191,7 @@ public class HTTPServer {
                 try {
                   socket.setSoTimeout(socketTimeout);
                   socket.setTcpNoDelay(true); // we buffer anyway, so improve latency
-                  handleConnection(socket.getInputStream(), socket.getOutputStream());
+                  handleConnection(socket);
                 }
                 finally {
                   try {
@@ -195,24 +207,16 @@ public class HTTPServer {
                   }
                 }
               }
-              catch (IOException ignore) {}
+              catch (IOException ignore) { }
             }
           }
 
           executor.execute(new AcceptRunnable(sock));
         }
       }
-      catch (IOException ignore) {}
+      catch (IOException ignore) { }
     }
   }
-
-  protected volatile int port;
-  protected volatile int socketTimeout = 10000;
-  protected volatile boolean secure;
-  protected volatile ServerSocketFactory serverSocketFactory;
-  protected volatile Executor executor;
-  protected volatile ServerSocket serv;
-  protected final Map<String, VirtualHost> hosts = new ConcurrentHashMap<>();
 
   /**
    * Constructs an HTTPServer which can accept connections on the default HTTP port 80.
@@ -320,6 +324,14 @@ public class HTTPServer {
     hosts.put(name == null ? Constant.BLANK : name, host);
   }
 
+  public void setHost(String host) {
+    this.host = host;
+  }
+
+  public String getHost() {
+    return host;
+  }
+
   /**
    * Creates the server socket used to accept connections, using the configured
    * {@link #setServerSocketFactory ServerSocketFactory} and {@link #setPort port}.
@@ -332,11 +344,12 @@ public class HTTPServer {
    *         if the socket cannot be created
    */
   protected ServerSocket createServerSocket() throws IOException {
-    try (ServerSocket serv = serverSocketFactory.createServerSocket()) {
-      serv.setReuseAddress(true);
-      serv.bind(new InetSocketAddress(port));
-      return serv;
-    }
+    ServerSocket serv = serverSocketFactory.createServerSocket();
+    serv.setReuseAddress(true);
+    final String host = getHost();
+    final InetSocketAddress address = new InetSocketAddress(host, port);
+    serv.bind(address);
+    return serv;
   }
 
   /**
@@ -384,30 +397,49 @@ public class HTTPServer {
    * contains a "Connection: close" header which explicitly requests
    * the connection be closed after the transaction ends.
    *
-   * @param in
-   *         the stream from which the incoming requests are read
-   * @param out
-   *         the stream into which the outgoing responses are written
-   *
    * @throws IOException
    *         if an error occurs
    */
-  protected void handleConnection(InputStream in, OutputStream out) throws IOException {
-    in = new BufferedInputStream(in, 4096);
-    out = new BufferedOutputStream(out, 4096);
-    LightRequest req;
-    Response resp;
+  protected void handleConnection(Socket socket) throws IOException {
+    BufferedInputStream in = new BufferedInputStream(socket.getInputStream(), 4096);
+    final OutputStream socketOutputStream = socket.getOutputStream();
+//    BufferedOutputStream out = new BufferedOutputStream(socketOutputStream, 4096);
+    final ByteArrayOutputStream out = new ByteArrayOutputStream() {
+      @Override
+      public synchronized void write(byte[] b, int off, int len) {
+        super.write(b, off, len);
+        try {
+          socketOutputStream.write(b, off, len);
+        }
+        catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    };
+
+    HttpRequest req = null;
+    HttpResponse resp;
     do {
+      resp = new HttpResponse(out);
       // create request and response and handle transaction
-      req = null;
-      resp = new Response(out);
       try {
-        req = new LightRequest(in);
-        final LightRequestContext context = new LightRequestContext(req);
-        handleTransaction(req, resp);
-        httpHandler.handle(context);
+        req = new HttpRequest(in, socket, port);
+        resp.setClientCapabilities(req);
+
+        if (preprocessTransaction(req, resp)) {
+          String method = req.getMethod();
+          if ("TRACE".equals(method)) { // default TRACE handler
+            handleTrace(req, resp);
+          }
+          else {
+            final LightRequestContext context = new LightRequestContext(req, resp);
+            httpHandler.handle(context);
+            context.sendIfNotCommitted();
+          }
+        }
       }
       catch (Throwable t) {
+        log.error("Catch throwable", t);
         // TODO
         // unhandled errors (not normal error responses like 404)
         if (req == null) { // error reading request
@@ -420,42 +452,22 @@ public class HTTPServer {
             resp.sendError(400, "Invalid request: " + t.getMessage());
         }
         else if (!resp.headersSent()) { // if headers were not already sent, we can send an error response
-          resp = new Response(out); // ignore whatever headers may have already been set
+          resp = new HttpResponse(out); // ignore whatever headers may have already been set
           resp.getHeaders().add("Connection", "close"); // about to close connection
           resp.sendError(500, "Error processing request: " + t.getMessage());
         } // otherwise just abort the connection since we can't recover
         break; // proceed to close connection
       }
       finally {
+        System.out.println(out);
         resp.close(); // close response and flush output
       }
       // consume any leftover body data so next request can be processed
       transfer(req.getBody(), null, -1);
       // RFC7230#6.6: persist connection unless client or server close explicitly (or legacy client)
     }
-    while (!"close".equalsIgnoreCase(req.getHeaders().get("Connection"))
-            && !"close".equalsIgnoreCase(resp.getHeaders().get("Connection")) && req.getVersion().endsWith("1.1"));
-  }
-
-  /**
-   * Handles a single transaction on a connection.
-   * <p>
-   * Subclasses can override this method to perform filtering on the
-   * request or response, apply wrappers to them, or further customize
-   * the transaction processing in some other way.
-   *
-   * @param req
-   *         the transaction request
-   * @param resp
-   *         the transaction response (into which the response is written)
-   *
-   * @throws IOException
-   *         if and error occurs
-   */
-  protected void handleTransaction(LightRequest req, Response resp) throws IOException {
-    resp.setClientCapabilities(req);
-    if (preprocessTransaction(req, resp))
-      handleMethod(req, resp);
+    while (!"close".equalsIgnoreCase(req.getHeaders().getFirst("Connection"))
+            && !"close".equalsIgnoreCase(resp.getHeaders().getFirst("Connection")) && req.getVersion().endsWith("1.1"));
   }
 
   /**
@@ -473,21 +485,21 @@ public class HTTPServer {
    * @throws IOException
    *         if an error occurs
    */
-  protected boolean preprocessTransaction(LightRequest req, Response resp) throws IOException {
-    Headers reqHeaders = req.getHeaders();
+  protected boolean preprocessTransaction(HttpRequest req, HttpResponse resp) throws IOException {
+    HttpHeaders reqHeaders = req.getHeaders();
     // validate request
     String version = req.getVersion();
     if (version.equals("HTTP/1.1")) {
-      if (!reqHeaders.contains("Host")) {
+      if (!reqHeaders.containsKey(Constant.HOST)) {
         // RFC2616#14.23: missing Host header gets 400
         resp.sendError(400, "Missing required Host header");
         return false;
       }
       // return a continue response before reading body
-      String expect = reqHeaders.get("Expect");
+      String expect = reqHeaders.getFirst(Constant.EXPECT);
       if (expect != null) {
-        if (expect.equalsIgnoreCase("100-continue")) {
-          Response tempResp = new Response(resp.getOutputStream());
+        if (expect.equalsIgnoreCase(Constant.CONTINUE)) {
+          HttpResponse tempResp = new HttpResponse(resp.getOutputStream());
           tempResp.sendHeaders(100);
           resp.getOutputStream().flush();
         }
@@ -500,7 +512,7 @@ public class HTTPServer {
     }
     else if (version.equals("HTTP/1.0") || version.equals("HTTP/0.9")) {
       // RFC2616#14.10 - remove connection headers from older versions
-      for (String token : splitElements(reqHeaders.get("Connection"), false))
+      for (String token : splitElements(reqHeaders.getFirst(Constant.CONNECTION), false))
         reqHeaders.remove(token);
     }
     else {
@@ -510,52 +522,7 @@ public class HTTPServer {
     return true;
   }
 
-  /**
-   * Handles a transaction according to the request method.
-   *
-   * @param req
-   *         the transaction request
-   * @param resp
-   *         the transaction response (into which the response is written)
-   *
-   * @throws IOException
-   *         if and error occurs
-   */
-  protected void handleMethod(LightRequest req, Response resp) throws IOException {
-    String method = req.getMethod();
-    Map<String, ContextHandler> handlers = req.getContext().getHandlers();
-    // RFC 2616#5.1.1 - GET and HEAD must be supported
-    if ("GET".equals(method) || handlers.containsKey(method)) {
-      serve(req, resp); // method is handled by context handler (or 404)
-    }
-    else if (method.equals("HEAD")) { // default HEAD handler
-      req.method = "GET"; // identical to a GET
-      resp.setDiscardBody(true); // process normally but discard body
-      serve(req, resp);
-    }
-    else if (method.equals("TRACE")) { // default TRACE handler
-      handleTrace(req, resp);
-    }
-    else {
-      LinkedHashSet<String> methods = new LinkedHashSet<>();
-      Collections.addAll(methods, "GET", "HEAD", "TRACE", "OPTIONS"); // built-in methods
-      // "*" is a special server-wide (no-context) request supported by OPTIONS
-      boolean isServerOptions = req.getPath().equals("*") && method.equals("OPTIONS");
-      methods.addAll(isServerOptions ? req.getVirtualHost().getMethods() : handlers.keySet());
-
-      resp.getHeaders().add("Allow", join(", ", methods));
-      if (method.equals("OPTIONS")) { // default OPTIONS handler
-        resp.getHeaders().add("Content-Length", "0"); // RFC2616#9.2
-        resp.sendHeaders(200);
-      }
-      else if (req.getVirtualHost().getMethods().contains(method)) {
-        resp.sendHeaders(405); // supported by server, but not this context (nor built-in)
-      }
-      else {
-        resp.sendError(501); // unsupported method
-      }
-    }
-  }
+  static final byte[] TRACE_BYTES = "TRACE ".getBytes(StandardCharsets.UTF_8);
 
   /**
    * Handles a TRACE method request.
@@ -568,55 +535,19 @@ public class HTTPServer {
    * @throws IOException
    *         if an error occurs
    */
-  public void handleTrace(LightRequest req, Response resp) throws IOException {
+  public void handleTrace(HttpRequest req, HttpResponse resp) throws IOException {
     resp.sendHeaders(200, -1, -1, null, "message/http", null);
-    OutputStream out = resp.getBody();
+    final OutputStream output = resp.getBody();
 
-    out.write(Utils.getBytes("TRACE ", req.getURI().toString(), " ", req.getVersion()));
-    out.write(CRLF);
+    final Charset utf8 = StandardCharsets.UTF_8;
+    output.write(TRACE_BYTES);
+    output.write(req.getRequestURI().getBytes(utf8));
+    output.write(HttpResponse.BLANK_SPACE);
+    output.write(req.getVersion().getBytes(utf8));
+    output.write(CRLF);
 
-
-
-    req.getHeaders().writeTo(out);
-
-    transfer(req.getBody(), out, -1);
-  }
-
-  /**
-   * Serves the content for a request by invoking the context
-   * handler for the requested context (path) and HTTP method.
-   *
-   * @param req
-   *         the request
-   * @param resp
-   *         the response into which the content is written
-   *
-   * @throws IOException
-   *         if an error occurs
-   */
-  protected void serve(LightRequest req, Response resp) throws IOException {
-    // get context handler to handle request
-    ContextHandler handler = req.getContext().getHandlers().get(req.getMethod());
-    if (handler == null) {
-      resp.sendError(404);
-      return;
-    }
-    // serve request
-    int status = 404;
-    // add directory index if necessary
-    String path = req.getPath();
-    if (path.endsWith("/")) {
-      String index = req.getVirtualHost().getDirectoryIndex();
-      if (index != null) {
-        req.setPath(path + index);
-        status = handler.serve(req, resp);
-        req.setPath(path);
-      }
-    }
-    if (status == 404)
-      status = handler.serve(req, resp);
-    if (status > 0)
-      resp.sendError(status);
+    HttpResponse.writeHttpHeaders(req.getHeaders(), output);
+    transfer(req.getBody(), output, -1);
   }
 
 }

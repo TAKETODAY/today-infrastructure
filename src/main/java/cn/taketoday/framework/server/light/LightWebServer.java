@@ -22,8 +22,11 @@ package cn.taketoday.framework.server.light;
 import java.io.IOException;
 import java.util.concurrent.Executor;
 
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.framework.WebServerException;
 import cn.taketoday.framework.server.AbstractWebServer;
+import cn.taketoday.framework.server.WebServerApplicationLoader;
+import cn.taketoday.web.handler.DispatcherHandler;
 
 /**
  * @author TODAY 2021/4/12 19:08
@@ -32,6 +35,7 @@ public class LightWebServer extends AbstractWebServer {
   protected HTTPServer server;
   protected int socketTimeout = 10000;
   protected Executor executor;
+  DispatcherHandler httpHandler;
 
   @Override
   protected void prepareInitialize() {
@@ -41,6 +45,23 @@ public class LightWebServer extends AbstractWebServer {
     server.setPort(getPort());
     server.setExecutor(executor);
     server.setSocketTimeout(socketTimeout);
+
+    httpHandler = new DispatcherHandler(obtainApplicationContext());
+    server.setHttpHandler(httpHandler);
+  }
+
+  @Override
+  protected void contextInitialized() {
+    super.contextInitialized();
+    try {
+      final WebServerApplicationLoader loader = new WebServerApplicationLoader(this::getMergedInitializers);
+      loader.setDispatcher(httpHandler);
+      loader.setApplicationContext(obtainApplicationContext());
+      loader.onStartup(obtainApplicationContext());
+    }
+    catch (Throwable e) {
+      throw new ConfigurationException(e);
+    }
   }
 
   @Override
@@ -49,7 +70,7 @@ public class LightWebServer extends AbstractWebServer {
       server.start();
     }
     catch (IOException e) {
-      throw new WebServerException("Cannot start a web server");
+      throw new WebServerException("Cannot start a web server", e);
     }
   }
 

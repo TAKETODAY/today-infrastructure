@@ -62,7 +62,7 @@ public class HTTPServerTests {
         server.setServerSocketFactory(SSLServerSocketFactory.getDefault());
       VirtualHost host = server.getVirtualHost(null); // default host
       host.setAllowGeneratedIndex(true); // with directory index pages
-      host.addContext("/", new FileContextHandler(dir));
+//      host.addContext("/", new FileContextHandler(dir));
 //      host.addContext("/api/time", new ContextHandler() {
 //        public int serve(LightRequest req, Response resp) throws IOException {
 //          long now = System.currentTimeMillis();

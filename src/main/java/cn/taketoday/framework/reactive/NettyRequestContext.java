@@ -42,6 +42,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.http.DefaultHttpHeaders;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.resolver.ParameterReadFailedException;
+import cn.taketoday.web.utils.WebUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
@@ -236,7 +237,7 @@ public class NettyRequestContext extends RequestContext {
   @Override
   protected Map<String, String[]> doGetParameters() {
     final String queryString = StringUtils.decodeUrl(getQueryString());
-    final MultiValueMap<String, String> parameters = fromQueryString(queryString);
+    final MultiValueMap<String, String> parameters = WebUtils.parseParameters(queryString);
     final List<InterfaceHttpData> bodyHttpData = getRequestDecoder().getBodyHttpDatas();
     for (final InterfaceHttpData data : bodyHttpData) {
       if (data instanceof Attribute) {
@@ -253,63 +254,6 @@ public class NettyRequestContext extends RequestContext {
       return parameters.toArrayMap(String[]::new);
     }
     return Collections.emptyMap();
-  }
-
-  /**
-   * Parse Parameters
-   *
-   * @param s
-   *         Input {@link String}
-   *
-   * @return Map of list parameters
-   */
-  private static MultiValueMap<String, String> fromQueryString(final String s) {
-    if (StringUtils.isEmpty(s)) {
-      return new DefaultMultiValueMap<>();
-    }
-
-    final DefaultMultiValueMap<String, String> params = new DefaultMultiValueMap<>();
-    int nameStart = 0;
-    int valueStart = -1;
-    int i;
-    final int len = s.length();
-    loop:
-    for (i = 0; i < len; i++) {
-      switch (s.charAt(i)) {
-        case '=':
-          if (nameStart == i) {
-            nameStart = i + 1;
-          }
-          else if (valueStart < nameStart) {
-            valueStart = i + 1;
-          }
-          break;
-        case '&':
-        case ';':
-          addParam(s, nameStart, valueStart, i, params);
-          nameStart = i + 1;
-          break;
-        case '#':
-          break loop;
-        default:
-          // continue
-      }
-    }
-    addParam(s, nameStart, valueStart, i, params);
-    return params;
-  }
-
-  private static void addParam(
-          String s, int nameStart, int valueStart, int valueEnd, DefaultMultiValueMap<String, String> params
-  ) {
-    if (nameStart < valueEnd) {
-      if (valueStart <= nameStart) {
-        valueStart = valueEnd + 1;
-      }
-      String name = s.substring(nameStart, valueStart - 1);
-      String value = s.substring(valueStart, valueEnd);
-      params.add(name, value);
-    }
   }
 
   private InterfaceHttpPostRequestDecoder getRequestDecoder() {

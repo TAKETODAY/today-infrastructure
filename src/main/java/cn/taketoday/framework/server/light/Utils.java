@@ -276,8 +276,8 @@ public abstract class Utils {
       }
       buf[count++] = (byte) b;
     }
-    if (b < 0 && delim != -1)
-      throw new EOFException("unexpected end of stream");
+//    if (b < 0 && delim != -1)
+//      throw new EOFException("unexpected end of stream");
     if (delim == '\n' && count > 0 && buf[count - 1] == '\r')
       count--;
     return count > 0 ? new String(buf, 0, count, enc) : Constant.BLANK;
@@ -533,32 +533,6 @@ public abstract class Utils {
       catch (UnsupportedEncodingException ignore) {} // never thrown
     }
     return params;
-  }
-
-  /**
-   * Converts a collection of pairs of objects (arrays of size two,
-   * each representing a key and corresponding value) into a Map.
-   * Duplicate keys are ignored (only the first occurrence of each key is considered).
-   * The map retains the original collection's iteration order.
-   *
-   * @param pairs
-   *         a collection of arrays, each containing a key and corresponding value
-   * @param <K>
-   *         the key type
-   * @param <V>
-   *         the value type
-   *
-   * @return a map containing the paired keys and values, or an empty map
-   */
-  @SuppressWarnings("unchecked")
-  public static <K, V> Map<K, V> toMap(Collection<? extends Object[]> pairs) {
-    if (pairs == null || pairs.isEmpty())
-      return Collections.emptyMap();
-    LinkedHashMap<K, V> map = new LinkedHashMap<>(pairs.size());
-    for (Object[] pair : pairs)
-      if (!map.containsKey(pair[0]))
-        map.put((K) pair[0], (V) pair[1]);
-    return map;
   }
 
   /**

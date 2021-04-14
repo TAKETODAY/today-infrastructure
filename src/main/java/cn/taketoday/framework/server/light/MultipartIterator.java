@@ -22,7 +22,6 @@ package cn.taketoday.framework.server.light;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 import cn.taketoday.context.utils.MediaType;
@@ -65,7 +64,7 @@ public class MultipartIterator implements Iterator<Part> {
    *         if the given request's content type
    *         is not multipart/form-data, or is missing the boundary
    */
-  public MultipartIterator(LightRequest req) throws IOException {
+  public MultipartIterator(HttpRequest req) throws IOException {
     final HttpHeaders headers = req.getHeaders();
     final MediaType contentType = headers.getContentType();
     if (!contentType.isCompatibleWith(MediaType.MULTIPART_FORM_DATA)) {

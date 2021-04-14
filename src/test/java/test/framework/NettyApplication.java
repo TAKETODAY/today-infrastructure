@@ -7,6 +7,7 @@ import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.event.EnableMethodEventDriven;
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.framework.WebApplication;
+import cn.taketoday.framework.annotation.EnableTomcatHandling;
 import cn.taketoday.framework.reactive.EnableNettyHandling;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ExceptionHandler;
@@ -28,8 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 public class NettyApplication {
 
   public static void main(String[] args) {
-//    WebApplication.runReactive(NettyApplication.class, args);
-    WebApplication.run(NettyApplication.class, args);
+    WebApplication.runReactive(NettyApplication.class, args);
+//    WebApplication.run(NettyApplication.class, args);
   }
 
   @GET("/index")
@@ -74,7 +75,8 @@ public class NettyApplication {
   }
 
   @Configuration
-  @EnableNettyHandling
+//  @EnableNettyHandling
+//  @EnableTomcatHandling
   @EnableMethodEventDriven
   static class AppConfig {
 

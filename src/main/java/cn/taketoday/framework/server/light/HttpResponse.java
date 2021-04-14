@@ -50,17 +50,20 @@ import static cn.taketoday.framework.server.light.Utils.transfer;
  *
  * @author TODAY 2021/4/13 11:31
  */
-public class Response implements Closeable {
-  private static final byte[] COLON = ": ".getBytes(StandardCharsets.UTF_8);
-  private static final byte[] BLANK_SPACE = " ".getBytes(StandardCharsets.UTF_8);
-  private static final byte[] VERSION_BYTES = "HTTP/1.1 ".getBytes(StandardCharsets.UTF_8);
+public final class HttpResponse implements Closeable {
+  public static final byte[] COLON = ": ".getBytes(StandardCharsets.UTF_8);
+  public static final byte[] BLANK_SPACE = " ".getBytes(StandardCharsets.UTF_8);
+  public static final byte[] VERSION_BYTES = "HTTP/1.1 ".getBytes(StandardCharsets.UTF_8);
 
   protected final OutputStream out; // the underlying output stream
   protected OutputStream[] encoders = new OutputStream[4]; // chained encoder streams
-  protected final DefaultHttpHeaders headers;
+  protected final DefaultHttpHeaders headers = new DefaultHttpHeaders();
   protected boolean discardBody;
   protected int state; // nothing sent, headers sent, or closed
-  protected LightRequest req; // request used in determining client capabilities
+  protected HttpRequest req; // request used in determining client capabilities
+
+  private HttpStatus status = HttpStatus.OK;
+  private String serverHeader = "JLHTTP/2.5";
 
   /**
    * Constructs a Response whose output is written to the given stream.
@@ -68,9 +71,8 @@ public class Response implements Closeable {
    * @param out
    *         the stream to which the response is written
    */
-  public Response(OutputStream out) {
+  public HttpResponse(OutputStream out) {
     this.out = out;
-    this.headers = new DefaultHttpHeaders();
   }
 
   /**
@@ -90,7 +92,7 @@ public class Response implements Closeable {
    * @param req
    *         the request
    */
-  public void setClientCapabilities(LightRequest req) {
+  public void setClientCapabilities(HttpRequest req) {
     this.req = req;
   }
 
@@ -122,62 +124,20 @@ public class Response implements Closeable {
     return state == 1;
   }
 
-  /**
-   * Returns an output stream into which the response body can be written.
-   * The stream applies encodings (e.g. compression) according to the sent headers.
-   * This method must be called after response headers have been sent
-   * that indicate there is a body. Normally, the content should be
-   * prepared (not sent) even before the headers are sent, so that any
-   * errors during processing can be caught and a proper error response returned -
-   * after the headers are sent, it's too late to change the status into an error.
-   *
-   * @return an output stream into which the response body can be written,
-   * or null if the body should not be written (e.g. it is discarded)
-   *
-   * @throws IOException
-   *         if an error occurs
-   */
-  public OutputStream getBody() throws IOException {
-    if (encoders[0] != null || discardBody)
-      return encoders[0]; // return the existing stream (or null)
-    // set up chain of encoding streams according to headers
-//    final List<String> te = headers.get("Transfer-Encoding");
-//    final List<String> ce = headers.get("Content-Encoding");
-
-    List<String> te = Arrays.asList(splitElements(headers.getFirst("Transfer-Encoding"), true));
-    List<String> ce = Arrays.asList(splitElements(headers.getFirst("Content-Encoding"), true));
-
-    int i = encoders.length - 1;
-    encoders[i] = new FilterOutputStream(out) {
-      @Override
-      public void close() {} // keep underlying connection stream open for now
-
-      @Override // override the very inefficient default implementation
-      public void write(byte[] b, int off, int len) throws IOException { out.write(b, off, len); }
-    };
-
-    if (te.contains("chunked"))
-      encoders[--i] = new ChunkedOutputStream(encoders[i + 1]);
-    if (ce.contains("gzip") || te.contains("gzip"))
-      encoders[--i] = new GZIPOutputStream(encoders[i + 1], 4096);
-    else if (ce.contains("deflate") || te.contains("deflate"))
-      encoders[--i] = new DeflaterOutputStream(encoders[i + 1]);
-    encoders[0] = encoders[i];
-    encoders[i] = null; // prevent duplicate reference
-    return encoders[0]; // returned stream is always first
+  public void setServerHeader(String serverHeader) {
+    this.serverHeader = serverHeader;
   }
 
-  /**
-   * Closes this response and flushes all output.
-   *
-   * @throws IOException
-   *         if an error occurs
-   */
-  public void close() throws IOException {
-    state = -1; // closed
-    if (encoders[0] != null)
-      encoders[0].close(); // close all chained streams (except the underlying one)
-    out.flush(); // always flush underlying stream (even if getBody was never called)
+  public String getServerHeader() {
+    return serverHeader;
+  }
+
+  public void setStatus(HttpStatus status) {
+    this.status = status;
+  }
+
+  public HttpStatus getStatus() {
+    return status;
   }
 
   /**
@@ -194,53 +154,8 @@ public class Response implements Closeable {
    * @see #sendHeaders(int, long, long, String, String, long[])
    */
   public void sendHeaders(int status) throws IOException {
-    sendHttpHeaders(HttpStatus.valueOf(status));
-  }
-
-  public void sendHttpHeaders(HttpStatus status) throws IOException {
-    if (headersSent()) {
-      throw new IOException("headers were already sent");
-    }
-    final DefaultHttpHeaders headers = this.headers;
-    if (!headers.containsKey(Constant.DATE)) {
-      headers.add(Constant.DATE, Utils.formatDate(System.currentTimeMillis()));
-    }
-    if (serverHeader != null) {
-      headers.add(Constant.SERVER, serverHeader);
-    }
-
-    final OutputStream output = this.out;
-    final Charset utf8 = StandardCharsets.UTF_8;
-    // response line
-    output.write(VERSION_BYTES);
-    output.write(Integer.toString(status.value()).getBytes(utf8));
-    output.write(BLANK_SPACE);
-    output.write(status.getReasonPhrase().getBytes(utf8));
-    output.write(HTTPServer.CRLF);
-
-    // response headers
-    for (final Map.Entry<String, List<String>> entry : headers.entrySet()) {
-      final String name = entry.getKey();
-      final byte[] nameBytes = name.getBytes(utf8);
-      for (final String value : entry.getValue()) {
-        output.write(nameBytes);
-        output.write(COLON); // ': '
-        output.write(value.getBytes(utf8));
-        output.write(HTTPServer.CRLF);
-      }
-    }
-
-    state = 1; // headers sent
-  }
-
-  private String serverHeader = "JLHTTP/2.5";
-
-  public void setServerHeader(String serverHeader) {
-    this.serverHeader = serverHeader;
-  }
-
-  public String getServerHeader() {
-    return serverHeader;
+    this.status = HttpStatus.valueOf(status);
+    write(null);
   }
 
   /**
@@ -441,11 +356,186 @@ public class Response implements Closeable {
     catch (URISyntaxException e) {
       throw new IOException("malformed URL: " + url);
     }
-    headers.add("Location", url);
+    headers.add(Constant.LOCATION, url);
     // some user-agents expect a body, so we send it
     if (permanent)
-      sendError(301, "Permanently moved to " + url);
+      send(301, "Permanently moved to " + url);
     else
-      sendError(302, "Temporarily moved to " + url);
+      send(302, "Temporarily moved to " + url);
   }
+
+  //
+
+  /**
+   * Returns an output stream into which the response body can be written.
+   * The stream applies encodings (e.g. compression) according to the sent headers.
+   * This method must be called after response headers have been sent
+   * that indicate there is a body. Normally, the content should be
+   * prepared (not sent) even before the headers are sent, so that any
+   * errors during processing can be caught and a proper error response returned -
+   * after the headers are sent, it's too late to change the status into an error.
+   *
+   * @return an output stream into which the response body can be written,
+   * or null if the body should not be written (e.g. it is discarded)
+   *
+   * @throws IOException
+   *         if an error occurs
+   */
+  public OutputStream getBody() throws IOException {
+    if (encoders[0] != null || discardBody)
+      return encoders[0]; // return the existing stream (or null)
+    // set up chain of encoding streams according to headers
+
+    List<String> te = Arrays.asList(splitElements(headers.getFirst("Transfer-Encoding"), true));
+    List<String> ce = Arrays.asList(splitElements(headers.getFirst("Content-Encoding"), true));
+
+    int i = encoders.length - 1;
+    encoders[i] = new FilterOutputStream(out) {
+      @Override
+      public void close() {} // keep underlying connection stream open for now
+
+      @Override // override the very inefficient default implementation
+      public void write(byte[] b, int off, int len) throws IOException {
+        out.write(b, off, len);
+      }
+    };
+
+    if (te.contains("chunked"))
+      encoders[--i] = new ChunkedOutputStream(encoders[i + 1]);
+    if (ce.contains("gzip") || te.contains("gzip"))
+      encoders[--i] = new GZIPOutputStream(encoders[i + 1], 4096);
+    else if (ce.contains("deflate") || te.contains("deflate"))
+      encoders[--i] = new DeflaterOutputStream(encoders[i + 1]);
+    encoders[0] = encoders[i];
+    encoders[i] = null; // prevent duplicate reference
+    return encoders[0]; // returned stream is always first
+  }
+
+  /**
+   * Closes this response and flushes all output.
+   *
+   * @throws IOException
+   *         if an error occurs
+   */
+  public void close() throws IOException {
+    final OutputStream encoder = encoders[0];
+    if (encoder != null) {
+      encoder.close(); // close all chained streams (except the underlying one)
+    }
+    out.flush(); // always flush underlying stream (even if getBody was never called)
+  }
+
+  /**
+   * After receiving and interpreting a request message, a server responds with an HTTP response message.
+   *
+   * <pre>
+   *        Response      = Status-Line               ; Section 6.1
+   *                        *(( general-header        ; Section 4.5
+   *                         | response-header        ; Section 6.2
+   *                         | entity-header ) CRLF)  ; Section 7.1
+   *                        CRLF
+   *                        [ message-body ]          ; Section 7.2
+   * </pre>
+   *
+   * @see <a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec6.html">HTTP/1.1: Response</a>
+   */
+  public void write(ResponseOutputBuffer responseBody) throws IOException {
+    final OutputStream output = this.out;
+    // write status line
+    writeStatusLine(output, status);
+    output.write(HTTPServer.CRLF);
+
+    prepareHttpHeaders(headers, responseBody);
+
+    // write headers
+    writeHttpHeaders(headers, output);
+    output.write(HTTPServer.CRLF);
+    // write response body
+    if (responseBody != null) {
+      responseBody.writeTo(getBody());
+    }
+  }
+
+  protected void prepareHttpHeaders(HttpHeaders headers, ResponseOutputBuffer responseBody) {
+    if (!headers.containsKey(Constant.DATE)) {
+      headers.add(Constant.DATE, Utils.formatDate(System.currentTimeMillis()));
+    }
+    if (serverHeader != null) {
+      headers.add(Constant.SERVER, serverHeader);
+    }
+    if (responseBody == null) {
+      headers.setContentLength(0);
+    }
+    else {
+      headers.setContentLength(responseBody.getLength());
+    }
+  }
+
+  /**
+   * The first line of a Response message is the Status-Line,
+   * consisting of the protocol version followed by a numeric
+   * status code and its associated textual phrase, with each
+   * element separated by SP characters. No CR or LF is allowed
+   * except in the final CRLF sequence.
+   *
+   * <p>
+   * Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
+   * </p>
+   *
+   * @throws IOException
+   *         if an I/O error occurs.
+   * @see <a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec6.html">HTTP/1.1: Response</a>
+   */
+  private void writeStatusLine(final OutputStream output, final HttpStatus status) throws IOException {
+    final Charset charset = StandardCharsets.ISO_8859_1;
+    // status line
+    output.write(VERSION_BYTES);
+    output.write(Integer.toString(status.value()).getBytes(charset));
+    output.write(BLANK_SPACE);
+    output.write(status.getReasonPhrase().getBytes(charset));
+  }
+
+  /**
+   * The response-header fields allow the server to pass additional
+   * information about the response which cannot be placed in the S
+   * tatus- Line. These header fields give information about the
+   * server and about further access to the resource identified by
+   * the Request-URI.
+   * <pre>
+   *        response-header = Accept-Ranges           ; Section 14.5
+   *                        | Age                     ; Section 14.6
+   *                        | ETag                    ; Section 14.19
+   *                        | Location                ; Section 14.30
+   *                        | Proxy-Authenticate      ; Section 14.33
+   *                        | Retry-After             ; Section 14.37
+   *                        | Server                  ; Section 14.38
+   *                        | Vary                    ; Section 14.44
+   *                        | WWW-Authenticate        ; Section 14.47
+   * </pre>
+   * Response-header field names can be extended reliably only in
+   * combination with a change in the protocol version. However,
+   * new or experimental header fields MAY be given the semantics
+   * of response- header fields if all parties in the communication
+   * recognize them to be response-header fields. Unrecognized header
+   * fields are treated as entity-header fields.
+   *
+   * @throws IOException
+   *         if an I/O error occurs.
+   * @see <a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec6.html">HTTP/1.1: Response</a>
+   */
+  public static void writeHttpHeaders(HttpHeaders headers, final OutputStream output) throws IOException {
+    final Charset utf8 = StandardCharsets.UTF_8;
+    // response headers
+    for (final Map.Entry<String, List<String>> entry : headers.entrySet()) {
+      final String name = entry.getKey();
+      final byte[] nameBytes = name.getBytes(utf8);
+      for (final String value : entry.getValue()) {
+        output.write(nameBytes);
+        output.write(COLON); // ': '
+        output.write(value.getBytes(utf8));
+        output.write(HTTPServer.CRLF);
+      }
+    }
+  }
+
 }

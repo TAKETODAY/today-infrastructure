@@ -46,13 +46,13 @@ public class MethodContextHandler implements ContextHandler {
     this.obj = obj;
     Class<?>[] params = m.getParameterTypes();
     if (params.length != 2
-            || !LightRequest.class.isAssignableFrom(params[0])
+            || !HttpRequest.class.isAssignableFrom(params[0])
             || !Response.class.isAssignableFrom(params[1])
             || !int.class.isAssignableFrom(m.getReturnType()))
       throw new IllegalArgumentException("invalid method signature: " + m);
   }
 
-  public int serve(LightRequest req, Response resp) throws IOException {
+  public int serve(HttpRequest req, Response resp) throws IOException {
     try {
       return (Integer) m.invoke(obj, req, resp);
     }

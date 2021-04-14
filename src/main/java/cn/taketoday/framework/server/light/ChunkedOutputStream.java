@@ -23,6 +23,9 @@ package cn.taketoday.framework.server.light;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+
+import cn.taketoday.web.http.HttpHeaders;
+
 import static cn.taketoday.framework.server.light.HTTPServer.CRLF;
 
 /**
@@ -91,12 +94,12 @@ public class ChunkedOutputStream extends FilterOutputStream {
    * @throws IOException
    *         if an error occurs
    */
-  public void writeTrailingChunk(Headers headers) throws IOException {
+  public void writeTrailingChunk(HttpHeaders headers) throws IOException {
     initChunk(0); // zero-sized chunk marks the end of the stream
     if (headers == null)
       out.write(CRLF); // empty header block
     else
-      headers.writeTo(out);
+      HttpResponse.writeHttpHeaders(headers, out);
     state = -1;
   }
 

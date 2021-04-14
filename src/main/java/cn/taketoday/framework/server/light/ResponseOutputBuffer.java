@@ -20,37 +20,23 @@
 
 package cn.taketoday.framework.server.light;
 
-import java.io.IOException;
-
-import cn.taketoday.web.RequestContext;
+import java.io.ByteArrayOutputStream;
 
 /**
- * A {@code ContextHandler} serves the content of resources within a context.
- *
- * @author TODAY 2021/4/13 10:48
- * @see VirtualHost#addContext
+ * @author TODAY 2021/4/14 21:01
  */
-public interface ContextHandler {
+public class ResponseOutputBuffer extends ByteArrayOutputStream {
 
-  /**
-   * Serves the given request using the given response.
-   *
-   * @param req
-   *         the request to be served
-   * @param resp
-   *         the response to be filled
-   *
-   * @return an HTTP status code, which will be used in returning
-   * a default response appropriate for this status. If this
-   * method invocation already sent anything in the response
-   * (headers or content), it must return 0, and no further
-   * processing will be done
-   *
-   * @throws IOException
-   *         if an IO error occurs
-   */
-  int serve(HttpRequest req, Response resp) throws IOException;
+  public ResponseOutputBuffer() {
+    super();
+  }
 
-  int serve(RequestContext context) throws IOException;
+  public ResponseOutputBuffer(int size) {
+    super(size);
+  }
+
+  public int getLength() {
+    return count;
+  }
 
 }

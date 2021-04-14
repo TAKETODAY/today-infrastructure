@@ -40,11 +40,8 @@ public class WebServerApplicationLoader extends WebApplicationLoader {
 
   @Override
   protected void configureInitializer(List<WebApplicationInitializer> initializers, WebMvcConfiguration config) {
-
     initializers.addAll(initializersSupplier.get());
-
     super.configureInitializer(initializers, config);
-
     initializersSupplier = null;
   }
 

@@ -23,21 +23,20 @@ package cn.taketoday.framework.server.light;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
+import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.framework.Constant;
 import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.web.utils.WebUtils;
 
 import static cn.taketoday.framework.server.light.Utils.detectLocalHostName;
-import static cn.taketoday.framework.server.light.Utils.parseParamsList;
 import static cn.taketoday.framework.server.light.Utils.parseRange;
 import static cn.taketoday.framework.server.light.Utils.parseULong;
 import static cn.taketoday.framework.server.light.Utils.readHeaders;
@@ -45,7 +44,6 @@ import static cn.taketoday.framework.server.light.Utils.readLine;
 import static cn.taketoday.framework.server.light.Utils.readToken;
 import static cn.taketoday.framework.server.light.Utils.split;
 import static cn.taketoday.framework.server.light.Utils.splitElements;
-import static cn.taketoday.framework.server.light.Utils.toMap;
 import static cn.taketoday.framework.server.light.Utils.trimDuplicates;
 
 /**
@@ -53,8 +51,9 @@ import static cn.taketoday.framework.server.light.Utils.trimDuplicates;
  *
  * @author TODAY 2021/4/13 11:32
  */
-public class LightRequest {
+public final class HttpRequest {
 
+  private final Socket socket;
   protected String method;
   protected URI uri;
   protected URL baseURL; // cached value
@@ -62,13 +61,19 @@ public class LightRequest {
   //  protected Headers headers;
   protected HttpHeaders requestHeaders;
   protected InputStream body;
-  protected Map<String, String> params; // cached value
-  protected VirtualHost host; // cached value
-  protected VirtualHost.ContextInfo context; // cached value
+  protected MultiValueMap<String, String> params; // cached value
   protected boolean secure;
   protected int port;
 
   protected String requestURI;
+
+  public String getRequestURI() {
+    return requestURI;
+  }
+
+  public Socket getSocket() {
+    return socket;
+  }
 
   /**
    * Constructs a Request from the data in the given input stream.
@@ -79,8 +84,10 @@ public class LightRequest {
    * @throws IOException
    *         if an error occurs
    */
-  public LightRequest(InputStream in) throws IOException {
+  public HttpRequest(InputStream in, Socket socket, int port) throws IOException {
     readRequestLine(in);
+    this.port = port;
+    this.socket = socket;
     final HttpHeaders requestHeaders = readHeaders(in);
     this.requestHeaders = requestHeaders;
     // RFC2616#3.6 - if "chunked" is used, it must be the last one
@@ -145,7 +152,8 @@ public class LightRequest {
    * @return the input stream containing the request body
    */
   public InputStream getBody() {
-    return body; }
+    return body;
+  }
 
   /**
    * Returns the path component of the request URI, after
@@ -171,7 +179,6 @@ public class LightRequest {
     try {
       uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(),
                     trimDuplicates(path, '/'), uri.getQuery(), uri.getFragment());
-      context = null; // clear cached context so it will be recalculated
     }
     catch (URISyntaxException use) {
       throw new IllegalArgumentException("error setting path", use);
@@ -201,7 +208,7 @@ public class LightRequest {
     try {
       return baseURL = new URL(secure ? "https" : "http", host, port, "");
     }
-    catch (MalformedURLException mue) {
+    catch (MalformedURLException e) {
       return null;
     }
   }
@@ -225,22 +232,14 @@ public class LightRequest {
    *         if an error occurs
    * @see Utils#parseParamsList(String)
    */
-  public List<String[]> getParamsList() throws IOException {
-    List<String[]> queryParams = parseParamsList(uri.getRawQuery());
-    List<String[]> bodyParams = Collections.emptyList();
-    String ct = requestHeaders.getFirst(Constant.CONTENT_TYPE);
-
-    if (ct != null && ct.toLowerCase(Locale.US).startsWith(Constant.APPLICATION_X_WWW_FORM_URLENCODED)){
-      bodyParams = parseParamsList(readToken(body, -1, StandardCharsets.UTF_8, 2097152)); // 2MB limit
+  public MultiValueMap<String, String> parseParameters() throws IOException {
+    final MultiValueMap<String, String> parameters = WebUtils.parseParameters(uri.getRawQuery());
+    final String ct = requestHeaders.getFirst(Constant.CONTENT_TYPE);
+    if (ct != null && ct.toLowerCase(Locale.US).startsWith(Constant.APPLICATION_X_WWW_FORM_URLENCODED)) {
+      final String bodyString = readToken(body, -1, StandardCharsets.UTF_8, 2097152); // 2MB limit
+      WebUtils.parseParameters(parameters, bodyString);
     }
-    if (bodyParams.isEmpty()){
-      return queryParams;
-    }
-    if (queryParams.isEmpty()){
-      return bodyParams;
-    }
-    queryParams.addAll(bodyParams);
-    return queryParams;
+    return parameters;
   }
 
   /**
@@ -251,7 +250,7 @@ public class LightRequest {
    * <p>
    * For multivalued parameters (i.e. multiple parameters with the same
    * name), only the first one is considered. For access to all values,
-   * use {@link #getParamsList()} instead.
+   * use {@link #parseParameters()} instead.
    * <p>
    * The map iteration retains the original order of the parameters.
    *
@@ -260,11 +259,12 @@ public class LightRequest {
    *
    * @throws IOException
    *         if an error occurs
-   * @see #getParamsList()
+   * @see #parseParameters()
    */
-  public Map<String, String> getParams() throws IOException {
-    if (params == null)
-      params = toMap(getParamsList());
+  public MultiValueMap<String, String> getParameters() throws IOException {
+    if (params == null){
+      params = parseParameters();
+    }
     return params;
   }
 
@@ -305,7 +305,7 @@ public class LightRequest {
       while (line.length() == 0);
     }
     catch (IOException ioe) { // if EOF, timeout etc.
-      throw new IOException("missing request line"); // signal that the request did not begin
+      throw new IOException("missing request line", ioe); // signal that the request did not begin
     }
     String[] tokens = split(line, " ", -1);
     if (tokens.length != 3)
@@ -313,9 +313,8 @@ public class LightRequest {
     try {
       method = tokens[0];
       // must remove '//' prefix which constructor parses as host name
-      final String requestURI = trimDuplicates(tokens[1], '/');
-      this.requestURI = requestURI;
-      uri = new URI(requestURI);
+      this.uri = new URI(trimDuplicates(tokens[1], '/'));
+      this.requestURI = uri.getRawPath();
       version = tokens[2]; // RFC2616#2.1: allow implied LWS; RFC7230#3.1.1: disallow it
     }
     catch (URISyntaxException use) {
@@ -323,28 +322,4 @@ public class LightRequest {
     }
   }
 
-  /**
-   * Returns the virtual host corresponding to the requested host name,
-   * or the default host if none exists.
-   *
-   * @return the virtual host corresponding to the requested host name,
-   * or the default virtual host
-   */
-  public VirtualHost getVirtualHost() {
-//    return host != null ? host
-//                        : (host = getVirtualHost(getBaseURL().getHost())) != null ? host
-//                                                                                  : (host = HTTPServer.this
-//                                                                                          .getVirtualHost(null));
-
-    return null;
-  }
-
-  /**
-   * Returns the info of the context handling this request.
-   *
-   * @return the info of the context handling this request, or an empty context
-   */
-  public VirtualHost.ContextInfo getContext() {
-    return context != null ? context : (context = getVirtualHost().getContext(getPath()));
-  }
 }
