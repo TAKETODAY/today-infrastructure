@@ -35,18 +35,17 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
+import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.Constant;
 import cn.taketoday.web.http.DefaultHttpHeaders;
 import cn.taketoday.web.http.HttpHeaders;
@@ -113,6 +112,7 @@ public abstract class Utils {
     addContentType("text/plain", "txt", "text", "log");
     addContentType("text/xml", "xml");
   }
+
   private static final char[] FORMAT_TEMPLATE = "DAY, 00 MON 0000 00:00:00 GMT".toCharArray(); // copy the format template
 
   /**
@@ -435,7 +435,7 @@ public abstract class Utils {
           break;
       }
       if (ref != null) {
-        sb.append(s.substring(start, i)).append(ref);
+        sb.append(s, start, i).append(ref);
         start = i + 1;
       }
     }

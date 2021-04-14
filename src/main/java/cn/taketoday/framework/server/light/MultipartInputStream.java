@@ -39,7 +39,8 @@ public class MultipartInputStream extends FilterInputStream {
 
   protected final byte[] boundary; // including leading CRLF--
   protected final byte[] buf = new byte[4096];
-  protected int head, tail; // indices of current part's data in buf
+  protected int head;
+  protected int tail; // indices of current part's data in buf
   protected int end; // last index of input data read into buf
   protected int len; // length of found boundary
   protected int state; // initial, started data, start boundary, EOS, last boundary, epilogue
@@ -64,7 +65,7 @@ public class MultipartInputStream extends FilterInputStream {
     if (len == 0 || len > 70)
       throw new IllegalArgumentException("invalid boundary length");
     this.boundary = new byte[len + 4]; // CRLF--boundary
-    System.arraycopy(HTTPServer.CRLF, 0, this.boundary, 0, 2);
+    System.arraycopy(HttpResponse.CRLF, 0, this.boundary, 0, 2);
     this.boundary[2] = this.boundary[3] = '-';
     System.arraycopy(boundary, 0, this.boundary, 4, len);
   }

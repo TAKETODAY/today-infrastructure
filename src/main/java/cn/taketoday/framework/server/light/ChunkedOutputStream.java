@@ -26,8 +26,6 @@ import java.io.OutputStream;
 
 import cn.taketoday.web.http.HttpHeaders;
 
-import static cn.taketoday.framework.server.light.HTTPServer.CRLF;
-
 /**
  * The {@code ChunkedOutputStream} encodes an OutputStream with the
  * "chunked" transfer encoding. It should be used only when the content
@@ -76,13 +74,13 @@ public class ChunkedOutputStream extends FilterOutputStream {
     if (size < 0)
       throw new IllegalArgumentException("invalid size: " + size);
     if (state > 0)
-      out.write(CRLF); // end previous chunk
+      out.write(HttpResponse.CRLF); // end previous chunk
     else if (state == 0)
       state = 1; // start first chunk
     else
       throw new IOException("chunked stream has already ended");
     out.write(Utils.getBytes(Long.toHexString(size)));
-    out.write(CRLF);
+    out.write(HttpResponse.CRLF);
   }
 
   /**
@@ -97,7 +95,7 @@ public class ChunkedOutputStream extends FilterOutputStream {
   public void writeTrailingChunk(HttpHeaders headers) throws IOException {
     initChunk(0); // zero-sized chunk marks the end of the stream
     if (headers == null)
-      out.write(CRLF); // empty header block
+      out.write(HttpResponse.CRLF); // empty header block
     else
       HttpResponse.writeHttpHeaders(headers, out);
     state = -1;

@@ -31,11 +31,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -48,6 +43,7 @@ import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.framework.Constant;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.web.http.HttpStatus;
 
 import static cn.taketoday.framework.server.light.Utils.splitElements;
 import static cn.taketoday.framework.server.light.Utils.transfer;
@@ -143,9 +139,6 @@ import static cn.taketoday.framework.server.light.Utils.transfer;
 public class HTTPServer {
   private static final Logger log = LoggerFactory.getLogger(HTTPServer.class);
 
-  /** A convenience array containing the carriage-return and line feed chars. */
-  public static final byte[] CRLF = { 0x0d, 0x0a };
-
   private DispatcherHandler httpHandler;
   private String host = "0.0.0.0";
 
@@ -155,7 +148,6 @@ public class HTTPServer {
   protected volatile ServerSocketFactory serverSocketFactory;
   protected volatile Executor executor;
   protected volatile ServerSocket serv;
-  protected final Map<String, VirtualHost> hosts = new ConcurrentHashMap<>();
 
   public void setHttpHandler(DispatcherHandler httpHandler) {
     this.httpHandler = httpHandler;
@@ -236,7 +228,6 @@ public class HTTPServer {
    */
   public HTTPServer(int port) {
     setPort(port);
-    addVirtualHost(new VirtualHost(null)); // add default virtual host
   }
 
   /**
@@ -290,40 +281,6 @@ public class HTTPServer {
     this.executor = executor;
   }
 
-  /**
-   * Returns the virtual host with the given name.
-   *
-   * @param name
-   *         the name of the virtual host to return,
-   *         or null for the default virtual host
-   *
-   * @return the virtual host with the given name, or null if it doesn't exist
-   */
-  public VirtualHost getVirtualHost(String name) {
-    return hosts.get(name == null ? Constant.BLANK : name);
-  }
-
-  /**
-   * Returns all virtual hosts.
-   *
-   * @return all virtual hosts (as an unmodifiable set)
-   */
-  public Set<VirtualHost> getVirtualHosts() {
-    return Collections.unmodifiableSet(new HashSet<VirtualHost>(hosts.values()));
-  }
-
-  /**
-   * Adds the given virtual host to the server.
-   * If the host's name or aliases already exist, they are overwritten.
-   *
-   * @param host
-   *         the virtual host to add
-   */
-  public void addVirtualHost(VirtualHost host) {
-    String name = host.getName();
-    hosts.put(name == null ? Constant.BLANK : name, host);
-  }
-
   public void setHost(String host) {
     this.host = host;
   }
@@ -369,10 +326,6 @@ public class HTTPServer {
     serv = createServerSocket();
     if (executor == null) // assign default executor if needed
       executor = Executors.newCachedThreadPool(); // consumes no resources when idle
-    // register all host aliases (which may have been modified)
-    for (VirtualHost host : getVirtualHosts())
-      for (String alias : host.getAliases())
-        hosts.put(alias, host);
     // start handling incoming connections
     new SocketHandlerThread().start();
   }
@@ -447,14 +400,14 @@ public class HTTPServer {
             break; // we're not in the middle of a transaction - so just disconnect
           resp.getHeaders().add("Connection", "close"); // about to close connection
           if (t instanceof InterruptedIOException) // e.g. SocketTimeoutException
-            resp.sendError(408, "Timeout waiting for client request");
+            resp.sendError(HttpStatus.REQUEST_TIMEOUT, "Timeout waiting for client request");
           else
-            resp.sendError(400, "Invalid request: " + t.getMessage());
+            resp.sendError(HttpStatus.BAD_REQUEST, "Invalid request: " + t.getMessage());
         }
         else if (!resp.headersSent()) { // if headers were not already sent, we can send an error response
           resp = new HttpResponse(out); // ignore whatever headers may have already been set
           resp.getHeaders().add("Connection", "close"); // about to close connection
-          resp.sendError(500, "Error processing request: " + t.getMessage());
+          resp.sendError(HttpStatus.INTERNAL_SERVER_ERROR, "Error processing request: " + t.getMessage());
         } // otherwise just abort the connection since we can't recover
         break; // proceed to close connection
       }
@@ -492,7 +445,7 @@ public class HTTPServer {
     if (version.equals("HTTP/1.1")) {
       if (!reqHeaders.containsKey(Constant.HOST)) {
         // RFC2616#14.23: missing Host header gets 400
-        resp.sendError(400, "Missing required Host header");
+        resp.sendError(HttpStatus.BAD_REQUEST, "Missing required Host header");
         return false;
       }
       // return a continue response before reading body
@@ -500,12 +453,12 @@ public class HTTPServer {
       if (expect != null) {
         if (expect.equalsIgnoreCase(Constant.CONTINUE)) {
           HttpResponse tempResp = new HttpResponse(resp.getOutputStream());
-          tempResp.sendHeaders(100);
+          tempResp.send(HttpStatus.CONTINUE);
           resp.getOutputStream().flush();
         }
         else {
           // RFC2616#14.20: if unknown expect, send 417
-          resp.sendError(417);
+          resp.sendError(HttpStatus.EXPECTATION_FAILED);
           return false;
         }
       }
@@ -516,7 +469,7 @@ public class HTTPServer {
         reqHeaders.remove(token);
     }
     else {
-      resp.sendError(400, "Unknown version: " + version);
+      resp.sendError(HttpStatus.BAD_REQUEST, "Unknown version: " + version);
       return false;
     }
     return true;
@@ -527,27 +480,27 @@ public class HTTPServer {
   /**
    * Handles a TRACE method request.
    *
-   * @param req
+   * @param request
    *         the request
-   * @param resp
+   * @param response
    *         the response into which the content is written
    *
    * @throws IOException
    *         if an error occurs
    */
-  public void handleTrace(HttpRequest req, HttpResponse resp) throws IOException {
-    resp.sendHeaders(200, -1, -1, null, "message/http", null);
-    final OutputStream output = resp.getBody();
+  public void handleTrace(HttpRequest request, HttpResponse response) throws IOException {
+    response.write(null);
 
+    final OutputStream output = response.getBody();
     final Charset utf8 = StandardCharsets.UTF_8;
     output.write(TRACE_BYTES);
-    output.write(req.getRequestURI().getBytes(utf8));
+    output.write(request.getRequestURI().getBytes(utf8));
     output.write(HttpResponse.BLANK_SPACE);
-    output.write(req.getVersion().getBytes(utf8));
-    output.write(CRLF);
+    output.write(request.getVersion().getBytes(utf8));
+    output.write(HttpResponse.CRLF);
 
-    HttpResponse.writeHttpHeaders(req.getHeaders(), output);
-    transfer(req.getBody(), output, -1);
+    HttpResponse.writeHttpHeaders(request.getHeaders(), output);
+    transfer(request.getBody(), output, -1);
   }
 
 }

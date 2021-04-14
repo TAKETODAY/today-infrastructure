@@ -43,8 +43,8 @@ import cn.taketoday.web.resolver.ParameterReadFailedException;
 public class LightRequestContext extends RequestContext {
   private final HttpRequest request;
   private final HttpResponse response;
-  private boolean committed = false;
 
+  private boolean committed = false;
   private ResponseOutputBuffer responseBody;
 
   public LightRequestContext(HttpRequest request, HttpResponse response) {
@@ -120,7 +120,7 @@ public class LightRequestContext extends RequestContext {
   }
 
   @Override
-  protected InputStream doGetInputStream() throws IOException {
+  protected InputStream doGetInputStream() {
     return request.getBody();
   }
 
@@ -177,12 +177,12 @@ public class LightRequestContext extends RequestContext {
 
   @Override
   public void sendError(int sc) throws IOException {
-    response.sendError(sc);
+    response.sendError(HttpStatus.valueOf(sc));
   }
 
   @Override
   public void sendError(int sc, String msg) throws IOException {
-    response.sendError(sc, msg);
+    response.sendError(HttpStatus.valueOf(sc), msg);
   }
 
   @Override
@@ -217,16 +217,6 @@ public class LightRequestContext extends RequestContext {
   @Override
   protected HttpHeaders createResponseHeaders() {
     return response.getHeaders();
-  }
-
-  private String serverHeader = "JLHTTP/2.5";
-
-  public void setServerHeader(String serverHeader) {
-    this.serverHeader = serverHeader;
-  }
-
-  public String getServerHeader() {
-    return serverHeader;
   }
 
   @Override

@@ -23,7 +23,6 @@ package cn.taketoday.framework.server.light;
 import java.io.Closeable;
 import java.io.FilterOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -35,22 +34,23 @@ import java.util.Map;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPOutputStream;
 
+import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.http.DefaultHttpHeaders;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpStatus;
 
 import static cn.taketoday.framework.server.light.Utils.escapeHTML;
-import static cn.taketoday.framework.server.light.Utils.isCompressible;
 import static cn.taketoday.framework.server.light.Utils.splitElements;
-import static cn.taketoday.framework.server.light.Utils.transfer;
 
 /**
  * The {@code Response} class encapsulates a single HTTP response.
  *
  * @author TODAY 2021/4/13 11:31
  */
-public final class HttpResponse implements Closeable {
+public class HttpResponse implements Closeable {
+  /** A convenience array containing the carriage-return and line feed chars. */
+  public static final byte[] CRLF = { 0x0d, 0x0a };
   public static final byte[] COLON = ": ".getBytes(StandardCharsets.UTF_8);
   public static final byte[] BLANK_SPACE = " ".getBytes(StandardCharsets.UTF_8);
   public static final byte[] VERSION_BYTES = "HTTP/1.1 ".getBytes(StandardCharsets.UTF_8);
@@ -151,97 +151,10 @@ public final class HttpResponse implements Closeable {
    *
    * @throws IOException
    *         if an error occurs or headers were already sent
-   * @see #sendHeaders(int, long, long, String, String, long[])
+   * @see HttpStatus
    */
-  public void sendHeaders(int status) throws IOException {
-    this.status = HttpStatus.valueOf(status);
-    write(null);
-  }
-
-  /**
-   * Sends the response headers, including the given response status
-   * and description, and all response headers. If they do not already
-   * exist, the following headers are added as necessary:
-   * Content-Range, Content-Type, Transfer-Encoding, Content-Encoding,
-   * Content-Length, Last-Modified, ETag, Connection  and Date. Ranges are
-   * properly calculated as well, with a 200 status changed to a 206 status.
-   *
-   * @param status
-   *         the response status
-   * @param length
-   *         the response body length, or zero if there is no body,
-   *         or negative if there is a body but its length is not yet known
-   * @param lastModified
-   *         the last modified date of the response resource,
-   *         or non-positive if unknown. A time in the future will be
-   *         replaced with the current system time.
-   * @param etag
-   *         the ETag of the response resource, or null if unknown
-   *         (see RFC2616#3.11)
-   * @param contentType
-   *         the content type of the response resource, or null
-   *         if unknown (in which case "application/octet-stream" will be sent)
-   * @param range
-   *         the content range that will be sent, or null if the
-   *         entire resource will be sent
-   *
-   * @throws IOException
-   *         if an error occurs
-   */
-  public void sendHeaders(int status, long length, long lastModified,
-                          String etag, String contentType, long[] range) throws IOException {
-    final DefaultHttpHeaders responseHeaders = this.headers;
-    if (range != null) {
-      responseHeaders.add(Constant.CONTENT_RANGE, "bytes " + range[0] + "-" +
-              range[1] + "/" + (length >= 0 ? length : "*"));
-      length = range[1] - range[0] + 1;
-      if (status == 200)
-        status = 206;
-    }
-    String ct = responseHeaders.getFirst(Constant.CONTENT_TYPE);
-    if (ct == null) {
-      ct = contentType != null ? contentType : Constant.APPLICATION_OCTET_STREAM;
-      responseHeaders.add(Constant.CONTENT_TYPE, ct);
-    }
-
-    if (!responseHeaders.containsKey(Constant.CONTENT_LENGTH)
-            && !responseHeaders.containsKey(Constant.TRANSFER_ENCODING)) {
-      // RFC2616#3.6: transfer encodings are case-insensitive and must not be sent to an HTTP/1.0 client
-      boolean modern = req != null && req.getVersion().endsWith("1.1");
-      String accepted = req == null ? null : req.getHeaders().getFirst(Constant.ACCEPT_ENCODING);
-      List<String> encodings = Arrays.asList(splitElements(accepted, true));
-      String compression = encodings.contains(Constant.GZIP)
-                           ? Constant.GZIP
-                           : encodings.contains(Constant.DEFLATE)
-                             ? Constant.DEFLATE
-                             : null;
-      if (compression != null && (length < 0 || length > 300) && isCompressible(ct) && modern) {
-        responseHeaders.add(Constant.TRANSFER_ENCODING, Constant.CHUNKED); // compressed data is always unknown length
-        responseHeaders.add(Constant.CONTENT_ENCODING, compression);
-      }
-      else if (length < 0 && modern) {
-        responseHeaders.add(Constant.TRANSFER_ENCODING, Constant.CHUNKED); // unknown length
-      }
-      else if (length >= 0) {
-        responseHeaders.setContentLength(length); // known length
-      }
-    }
-    if (!responseHeaders.containsKey(Constant.VARY)) {
-      // RFC7231#7.1.4: Vary field should include headers
-      responseHeaders.add(Constant.VARY, Constant.ACCEPT_ENCODING); // that are used in selecting representation
-    }
-    if (lastModified > 0 && !responseHeaders.containsKey(Constant.LAST_MODIFIED)) {
-      // RFC2616#14.29
-      responseHeaders.add(Constant.LAST_MODIFIED, Utils.formatDate(Math.min(lastModified, System.currentTimeMillis())));
-    }
-    if (etag != null && !responseHeaders.containsKey(Constant.ETAG)) {
-      responseHeaders.add(Constant.ETAG, etag);
-    }
-    if (req != null && Constant.CLOSE.equalsIgnoreCase(req.getHeaders().getFirst(Constant.CONNECTION))
-            && !responseHeaders.containsKey(Constant.CONNECTION)) {
-      responseHeaders.add(Constant.CONNECTION, Constant.CLOSE); // #RFC7230#6.6: should reply to close with close
-    }
-    sendHeaders(status);
+  public void send(HttpStatus status) throws IOException {
+    send(status, null);
   }
 
   /**
@@ -258,37 +171,20 @@ public final class HttpResponse implements Closeable {
    *
    * @throws IOException
    *         if an error occurs
+   * @see HttpStatus
    */
-  public void send(int status, String text) throws IOException {
-    byte[] content = text.getBytes(StandardCharsets.UTF_8);
-    sendHeaders(status, content.length, -1,
-                "W/\"" + Integer.toHexString(text.hashCode()) + "\"",
-                "text/html; charset=utf-8", null);
-    OutputStream out = getBody();
-    if (out != null)
-      out.write(content);
-  }
-
-  /**
-   * Sends an error response with the given status and detailed message.
-   * An HTML body is created containing the status and its description,
-   * as well as the message, which is escaped using the
-   * {@link Utils#escapeHTML escape} method.
-   *
-   * @param status
-   *         the response status
-   * @param text
-   *         the text body (sent as text/html)
-   *
-   * @throws IOException
-   *         if an error occurs
-   */
-  public void sendError(int status, String text) throws IOException {
-    final HttpStatus httpStatus = HttpStatus.valueOf(status);
-    send(status, String.format(
-            "<!DOCTYPE html>%n<html>%n<head><title>%d %s</title></head>%n" +
-                    "<body><h1>%d %s</h1>%n<p>%s</p>%n</body></html>",
-            status, httpStatus.getReasonPhrase(), status, httpStatus.getReasonPhrase(), escapeHTML(text)));
+  public void send(HttpStatus status, String text) throws IOException {
+    this.status = status;
+    if (text != null) {
+      final byte[] content = text.getBytes(StandardCharsets.UTF_8);
+      final DefaultHttpHeaders headers = this.headers;
+      headers.setETag("W/\"" + Integer.toHexString(text.hashCode()) + "\"");
+      headers.set(Constant.CONTENT_TYPE, "text/html; charset=utf-8");
+      write(status, headers, ResponseOutputBuffer.ofBytes(content));
+    }
+    else {
+      write(status, headers, null);
+    }
   }
 
   /**
@@ -300,41 +196,39 @@ public final class HttpResponse implements Closeable {
    * @throws IOException
    *         if an error occurs
    */
-  public void sendError(int status) throws IOException {
-    String text = status < 400 ? ":)" : "sorry it didn't work out :(";
-    sendError(status, text);
+  public void sendError(HttpStatus status) throws IOException {
+    sendError(status, null);
   }
 
   /**
-   * Sends the response body. This method must be called only after the
-   * response headers have been sent (and indicate that there is a body).
+   * Sends an error response with the given status and detailed message.
+   * An HTML body is created containing the status and its description,
+   * as well as the message, which is escaped using the
+   * {@link Utils#escapeHTML escape} method.
    *
-   * @param body
-   *         a stream containing the response body
-   * @param length
-   *         the full length of the response body, or -1 for the whole stream
-   * @param range
-   *         the sub-range within the response body that should be
-   *         sent, or null if the entire body should be sent
+   * @param status
+   *         the response status
+   * @param text
+   *         the text body (sent as text/html), can be {@code null}
    *
    * @throws IOException
    *         if an error occurs
    */
-  public void sendBody(InputStream body, long length, long[] range) throws IOException {
-    OutputStream out = getBody();
-    if (out != null) {
-      if (range != null) {
-        long offset = range[0];
-        length = range[1] - range[0] + 1;
-        while (offset > 0) {
-          long skip = body.skip(offset);
-          if (skip == 0)
-            throw new IOException("can't skip to " + range[0]);
-          offset -= skip;
-        }
-      }
-      transfer(body, out, length);
+  public void sendError(final HttpStatus status, final String text) throws IOException {
+    StringBuilder builder = new StringBuilder(100);
+    builder.append("<!DOCTYPE html>\n<html>\n<head><title>")
+            .append(status).append(" ").append(status.getReasonPhrase())
+            .append("</title></head>")
+            .append("<body><h1>")
+            .append(status).append(" ").append(status.getReasonPhrase())
+            .append("</h1>\n<p>");
+
+    if (StringUtils.isNotEmpty(text)) {
+      builder.append(escapeHTML(text));
     }
+
+    builder.append("</p>\n</body></html>");
+    send(status, builder.toString());
   }
 
   /**
@@ -359,9 +253,9 @@ public final class HttpResponse implements Closeable {
     headers.add(Constant.LOCATION, url);
     // some user-agents expect a body, so we send it
     if (permanent)
-      send(301, "Permanently moved to " + url);
+      send(HttpStatus.PERMANENT_REDIRECT, "Permanently moved to " + url);
     else
-      send(302, "Temporarily moved to " + url);
+      send(HttpStatus.TEMPORARY_REDIRECT, "Temporarily moved to " + url);
   }
 
   //
@@ -425,7 +319,26 @@ public final class HttpResponse implements Closeable {
     out.flush(); // always flush underlying stream (even if getBody was never called)
   }
 
+  public void writeBytes(byte[] responseBody) throws IOException {
+    write(headers, new ResponseOutputBuffer(responseBody));
+  }
+
+  public void write(ResponseOutputBuffer responseBody) throws IOException {
+    write(headers, responseBody);
+  }
+
+  public void write(HttpHeaders headers, ResponseOutputBuffer responseBody) throws IOException {
+    write(status, headers, responseBody);
+  }
+
   /**
+   * Sends the response headers, including the given response status
+   * and description, and all response headers. If they do not already
+   * exist, the following headers are added as necessary:
+   * Content-Range, Content-Type, Transfer-Encoding, Content-Encoding,
+   * Content-Length, Last-Modified, ETag, Connection  and Date. Ranges are
+   * properly calculated as well, with a 200 status changed to a 206 status.
+   *
    * After receiving and interpreting a request message, a server responds with an HTTP response message.
    *
    * <pre>
@@ -437,22 +350,34 @@ public final class HttpResponse implements Closeable {
    *                        [ message-body ]          ; Section 7.2
    * </pre>
    *
+   * @param status
+   *         for Status-Line
+   * @param headers
+   *         for response-header
+   * @param responseBody
+   *         for message-body
+   *
+   * @throws IOException
+   *         if an I/O error occurs.
    * @see <a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec6.html">HTTP/1.1: Response</a>
    */
-  public void write(ResponseOutputBuffer responseBody) throws IOException {
+  public void write(HttpStatus status, HttpHeaders headers, ResponseOutputBuffer responseBody) throws IOException {
     final OutputStream output = this.out;
     // write status line
     writeStatusLine(output, status);
-    output.write(HTTPServer.CRLF);
+    output.write(CRLF);
 
     prepareHttpHeaders(headers, responseBody);
 
     // write headers
     writeHttpHeaders(headers, output);
-    output.write(HTTPServer.CRLF);
+    output.write(CRLF);
     // write response body
     if (responseBody != null) {
-      responseBody.writeTo(getBody());
+      OutputStream out = getBody();
+      if (out != null) {
+        responseBody.writeTo(out);
+      }
     }
   }
 
@@ -463,11 +388,15 @@ public final class HttpResponse implements Closeable {
     if (serverHeader != null) {
       headers.add(Constant.SERVER, serverHeader);
     }
+    if (!headers.containsKey(Constant.VARY)) {
+      // RFC7231#7.1.4: Vary field should include headers
+      headers.add(Constant.VARY, Constant.ACCEPT_ENCODING); // that are used in selecting representation
+    }
     if (responseBody == null) {
       headers.setContentLength(0);
     }
     else {
-      headers.setContentLength(responseBody.getLength());
+      headers.setContentLength(responseBody.size());
     }
   }
 
@@ -486,7 +415,7 @@ public final class HttpResponse implements Closeable {
    *         if an I/O error occurs.
    * @see <a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec6.html">HTTP/1.1: Response</a>
    */
-  private void writeStatusLine(final OutputStream output, final HttpStatus status) throws IOException {
+  static void writeStatusLine(final OutputStream output, final HttpStatus status) throws IOException {
     final Charset charset = StandardCharsets.ISO_8859_1;
     // status line
     output.write(VERSION_BYTES);
@@ -523,7 +452,7 @@ public final class HttpResponse implements Closeable {
    *         if an I/O error occurs.
    * @see <a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec6.html">HTTP/1.1: Response</a>
    */
-  public static void writeHttpHeaders(HttpHeaders headers, final OutputStream output) throws IOException {
+  static void writeHttpHeaders(HttpHeaders headers, final OutputStream output) throws IOException {
     final Charset utf8 = StandardCharsets.UTF_8;
     // response headers
     for (final Map.Entry<String, List<String>> entry : headers.entrySet()) {
@@ -533,7 +462,7 @@ public final class HttpResponse implements Closeable {
         output.write(nameBytes);
         output.write(COLON); // ': '
         output.write(value.getBytes(utf8));
-        output.write(HTTPServer.CRLF);
+        output.write(HttpResponse.CRLF);
       }
     }
   }
