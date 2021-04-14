@@ -44,7 +44,6 @@ public class LightRequestContext extends RequestContext {
   private final HttpRequest request;
   private final HttpResponse response;
 
-  private boolean committed = false;
   private ResponseOutputBuffer responseBody;
 
   public LightRequestContext(HttpRequest request, HttpResponse response) {
@@ -141,11 +140,11 @@ public class LightRequestContext extends RequestContext {
 
   @Override
   public boolean committed() {
-    return committed;
+    return response.committed();
   }
 
   private void assertNotCommitted() {
-    if (committed) {
+    if (committed()) {
       throw new IllegalStateException("The response has been committed");
     }
   }
@@ -240,7 +239,7 @@ public class LightRequestContext extends RequestContext {
    * Send HTTP message to the client
    */
   public void sendIfNotCommitted() throws IOException {
-    if (!committed) {
+    if (!committed()) {
       send();
     }
   }
@@ -248,9 +247,8 @@ public class LightRequestContext extends RequestContext {
   public void send() throws IOException {
     assertNotCommitted();
     response.write(responseBody);
-    // response ok
-    this.committed = true;
   }
+
 
   @Override
   public String toString() {

@@ -126,11 +126,6 @@ import static cn.taketoday.framework.server.light.Utils.transfer;
  * the RFC, in order to make sure that protocol compliance is not broken.
  * <p>
  * <b>Getting Started</b>
- * <p>
- * For an example and a good starting point for learning how to use the API,
- * see the  {@link HTTPServerTests#main(String[])} method at the bottom of the file, and follow
- * the code into the API from there. Alternatively, you can just browse through
- * the classes and utility methods and read their documentation and code.
  *
  * @author Amichai Rothman
  * @see <a href='https://www.freeutils.net/source/jlhttp/'>JLHTTP - Java Lightweight HTTP Server (Web Server)</a>
@@ -404,7 +399,7 @@ public class HTTPServer {
           else
             resp.sendError(HttpStatus.BAD_REQUEST, "Invalid request: " + t.getMessage());
         }
-        else if (!resp.headersSent()) { // if headers were not already sent, we can send an error response
+        else if (!resp.committed()) { // if headers or status line were not already sent, we can send an error response
           resp = new HttpResponse(out); // ignore whatever headers may have already been set
           resp.getHeaders().add("Connection", "close"); // about to close connection
           resp.sendError(HttpStatus.INTERNAL_SERVER_ERROR, "Error processing request: " + t.getMessage());

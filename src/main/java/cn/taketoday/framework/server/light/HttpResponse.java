@@ -57,13 +57,14 @@ public class HttpResponse implements Closeable {
 
   protected final OutputStream out; // the underlying output stream
   protected OutputStream[] encoders = new OutputStream[4]; // chained encoder streams
-  protected final DefaultHttpHeaders headers = new DefaultHttpHeaders();
   protected boolean discardBody;
-  protected int state; // nothing sent, headers sent, or closed
   protected HttpRequest req; // request used in determining client capabilities
 
-  private HttpStatus status = HttpStatus.OK;
-  private String serverHeader = "JLHTTP/2.5";
+  protected HttpStatus status = HttpStatus.OK;
+  protected String serverHeader = "JLHTTP/2.5";
+  protected final DefaultHttpHeaders headers = new DefaultHttpHeaders();
+
+  protected boolean committed = false;
 
   /**
    * Constructs a Response whose output is written to the given stream.
@@ -71,7 +72,7 @@ public class HttpResponse implements Closeable {
    * @param out
    *         the stream to which the response is written
    */
-  public HttpResponse(OutputStream out) {
+  protected HttpResponse(OutputStream out) {
     this.out = out;
   }
 
@@ -115,15 +116,6 @@ public class HttpResponse implements Closeable {
     return out;
   }
 
-  /**
-   * Returns whether the response headers were already sent.
-   *
-   * @return whether the response headers were already sent
-   */
-  public boolean headersSent() {
-    return state == 1;
-  }
-
   public void setServerHeader(String serverHeader) {
     this.serverHeader = serverHeader;
   }
@@ -153,7 +145,7 @@ public class HttpResponse implements Closeable {
    *         if an error occurs or headers were already sent
    * @see HttpStatus
    */
-  public void send(HttpStatus status) throws IOException {
+  public void send(final HttpStatus status) throws IOException {
     send(status, null);
   }
 
@@ -173,7 +165,7 @@ public class HttpResponse implements Closeable {
    *         if an error occurs
    * @see HttpStatus
    */
-  public void send(HttpStatus status, String text) throws IOException {
+  public void send(final HttpStatus status, final String text) throws IOException {
     this.status = status;
     if (text != null) {
       final byte[] content = text.getBytes(StandardCharsets.UTF_8);
@@ -196,7 +188,7 @@ public class HttpResponse implements Closeable {
    * @throws IOException
    *         if an error occurs
    */
-  public void sendError(HttpStatus status) throws IOException {
+  public void sendError(final HttpStatus status) throws IOException {
     sendError(status, null);
   }
 
@@ -215,12 +207,12 @@ public class HttpResponse implements Closeable {
    *         if an error occurs
    */
   public void sendError(final HttpStatus status, final String text) throws IOException {
-    StringBuilder builder = new StringBuilder(100);
+    final StringBuilder builder = new StringBuilder(100);
     builder.append("<!DOCTYPE html>\n<html>\n<head><title>")
-            .append(status).append(" ").append(status.getReasonPhrase())
+            .append(status.value()).append(" ").append(status.getReasonPhrase())
             .append("</title></head>")
             .append("<body><h1>")
-            .append(status).append(" ").append(status.getReasonPhrase())
+            .append(status.value()).append(" ").append(status.getReasonPhrase())
             .append("</h1>\n<p>");
 
     if (StringUtils.isNotEmpty(text)) {
@@ -243,7 +235,7 @@ public class HttpResponse implements Closeable {
    * @throws IOException
    *         if an IO error occurs or url is malformed
    */
-  public void redirect(String url, boolean permanent) throws IOException {
+  public void redirect(String url, final boolean permanent) throws IOException {
     try {
       url = new URI(url).toASCIIString();
     }
@@ -319,15 +311,28 @@ public class HttpResponse implements Closeable {
     out.flush(); // always flush underlying stream (even if getBody was never called)
   }
 
-  public void writeBytes(byte[] responseBody) throws IOException {
+  public boolean committed() {
+    return committed;
+  }
+
+  /**
+   * reset status, headers, commit-status
+   */
+  public void reset() {
+    committed = false;
+    status = HttpStatus.OK;
+    headers.clear();
+  }
+
+  public void writeBytes(final byte[] responseBody) throws IOException {
     write(headers, new ResponseOutputBuffer(responseBody));
   }
 
-  public void write(ResponseOutputBuffer responseBody) throws IOException {
+  public void write(final ResponseOutputBuffer responseBody) throws IOException {
     write(headers, responseBody);
   }
 
-  public void write(HttpHeaders headers, ResponseOutputBuffer responseBody) throws IOException {
+  public void write(final HttpHeaders headers, final ResponseOutputBuffer responseBody) throws IOException {
     write(status, headers, responseBody);
   }
 
@@ -361,7 +366,8 @@ public class HttpResponse implements Closeable {
    *         if an I/O error occurs.
    * @see <a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec6.html">HTTP/1.1: Response</a>
    */
-  public void write(HttpStatus status, HttpHeaders headers, ResponseOutputBuffer responseBody) throws IOException {
+  public final void write(HttpStatus status, HttpHeaders headers, ResponseOutputBuffer responseBody) throws IOException {
+    committed = true;
     final OutputStream output = this.out;
     // write status line
     writeStatusLine(output, status);

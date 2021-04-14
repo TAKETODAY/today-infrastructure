@@ -68,7 +68,8 @@ public class ResponseOutputBuffer extends OutputStream {
   }
 
   protected ResponseOutputBuffer(byte[] buf) {
-    this.buf = buf;
+    this.buf = buf; // none null
+    this.count = buf.length;
   }
 
   public void setBuffer(byte[] buffer) {
@@ -263,6 +264,7 @@ public class ResponseOutputBuffer extends OutputStream {
   }
 
   // static
+
   public static ResponseOutputBuffer ofBytes(byte[] buffer) {
     return new ResponseOutputBuffer(buffer);
   }
