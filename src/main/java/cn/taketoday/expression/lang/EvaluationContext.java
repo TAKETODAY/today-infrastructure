@@ -33,7 +33,6 @@ import cn.taketoday.expression.VariableMapper;
  * 2019-11-10 20:26
  */
 public final class EvaluationContext extends ExpressionContext {
-
   private final ExpressionContext elContext;
 
   public EvaluationContext(ExpressionContext elContext) {
@@ -122,5 +121,10 @@ public final class EvaluationContext extends ExpressionContext {
   @Override
   public Object convertToType(Object obj, Class<?> type) {
     return elContext.convertToType(obj, type);
+  }
+
+  @Override
+  public Object handlePropertyNotResolved(Object base, Object property, EvaluationContext ctx) {
+   return elContext.handlePropertyNotResolved(base, property, ctx);
   }
 }

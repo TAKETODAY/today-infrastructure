@@ -137,8 +137,6 @@ public final class ValueExpressionImpl extends ValueExpression {
 
   /**
    * @return The Node for the expression
-   *
-   * @throws ExpressionException
    */
   private Node getNode() throws ExpressionException {
     if (this.node == null) {
@@ -159,7 +157,6 @@ public final class ValueExpressionImpl extends ValueExpression {
 
   @Override
   public Object getValue(final ExpressionContext context) throws ExpressionException {
-
     Object value = this.getNode().getValue(new EvaluationContext(context));
 
     if (value != null && expectedType != null) {

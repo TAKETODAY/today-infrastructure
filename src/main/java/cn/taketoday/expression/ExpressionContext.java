@@ -25,6 +25,7 @@ import java.util.Stack;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.GenericDescriptor;
+import cn.taketoday.expression.lang.EvaluationContext;
 
 /**
  * Context information for expression parsing and evaluation.
@@ -426,4 +427,15 @@ public abstract class ExpressionContext {
     }
     return ExpressionFactory.getSharedInstance().coerceToType(obj, targetType);
   }
+
+  /**
+   * @since today-context 3.0
+   */
+  public Object handlePropertyNotResolved(Object base, Object property, EvaluationContext ctx) throws ExpressionException {
+    if (base == null) {
+      throw new PropertyNotFoundException("ELResolver cannot handle a null base Object with identifier ''" + property + "''");
+    }
+    throw new PropertyNotFoundException("ELResolver did not handle type: " + base.getClass() + " with property of ''" + property + "''");
+  }
+
 }

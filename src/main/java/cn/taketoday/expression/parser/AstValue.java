@@ -87,7 +87,7 @@ public final class AstValue extends SimpleNode {
     ctx.setPropertyResolved(false);
     Class<?> ret = ctx.getResolver().getType(ctx, t.base, property);
     if (!ctx.isPropertyResolved()) {
-      ExpressionUtils.throwUnhandled(t.base, property);
+      ctx.handlePropertyNotResolved(t.base, image, ctx);
     }
     return ret;
   }
@@ -130,7 +130,10 @@ public final class AstValue extends SimpleNode {
       ctx.setPropertyResolved(false);
       value = resolver.getValue(ctx, base, property);
       if (!ctx.isPropertyResolved()) {
-        ExpressionUtils.throwUnhandled(base, property);
+        final Object resolved = ctx.handlePropertyNotResolved(base, image, ctx);
+        if (resolved != null) {
+          return resolved;
+        }
       }
     }
     return value;
@@ -205,7 +208,7 @@ public final class AstValue extends SimpleNode {
     ctx.setPropertyResolved(false);
     boolean ret = ctx.getResolver().isReadOnly(ctx, t.base, property);
     if (!ctx.isPropertyResolved()) {
-      ExpressionUtils.throwUnhandled(t.base, property);
+      ctx.handlePropertyNotResolved(t.base, image, ctx);
     }
     return ret;
   }
@@ -242,7 +245,7 @@ public final class AstValue extends SimpleNode {
     ctx.setPropertyResolved(false);
     elResolver.setValue(ctx, t.base, property, value);
     if (!ctx.isPropertyResolved()) {
-      ExpressionUtils.throwUnhandled(t.base, property);
+      ctx.handlePropertyNotResolved(t.base, image, ctx);
     }
   }
 

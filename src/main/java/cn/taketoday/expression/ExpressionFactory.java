@@ -373,13 +373,11 @@ public class ExpressionFactory implements NodeVisitor {
   // -----------------------build
 
   public static Node createNode(final String expr) throws ExpressionException {
-
     if (expr == null) {
       throw new ExpressionException("Expression cannot be null");
     }
 
     Node node = EXPRESSION_CACHE.get(expr);
-
     if (node == null) {
       node = ExpressionParser.parse(expr);
       // validate composite expression
@@ -428,7 +426,6 @@ public class ExpressionFactory implements NodeVisitor {
 
   @Override
   public void visit(Node node, ExpressionContext context) {
-
     if (node instanceof AstFunction) {
 
       FunctionMapper fnMapper = context.getFunctionMapper();

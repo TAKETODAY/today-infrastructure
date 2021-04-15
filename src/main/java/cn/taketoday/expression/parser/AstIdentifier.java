@@ -50,7 +50,6 @@ import cn.taketoday.expression.ValueExpression;
 import cn.taketoday.expression.ValueReference;
 import cn.taketoday.expression.VariableMapper;
 import cn.taketoday.expression.lang.EvaluationContext;
-import cn.taketoday.expression.lang.ExpressionUtils;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
@@ -80,11 +79,12 @@ public final class AstIdentifier extends SimpleNode {
     ctx.setPropertyResolved(false);
     final Class<?> ret = ctx.getResolver().getType(ctx, null, image);
     if (!ctx.isPropertyResolved()) {
-      ExpressionUtils.throwUnhandled(null, image);
+      ctx.handlePropertyNotResolved(null, image, ctx);
     }
     return ret;
   }
 
+  @Override
   public ValueReference getValueReference(final EvaluationContext ctx) {
     final String image = this.image;
     final VariableMapper varMapper = ctx.getVariableMapper();
@@ -120,12 +120,14 @@ public final class AstIdentifier extends SimpleNode {
           return ctx.getResolver().getValue(ctx, c, image);
         }
       }
-      // return ""; //TODO
-      ExpressionUtils.throwUnhandled(null, image);
+      ctx.handlePropertyNotResolved(null, image, ctx);
     }
     return ret;
   }
 
+
+
+  @Override
   public boolean isReadOnly(final EvaluationContext ctx) {
     final String image = this.image;
     // Lambda arguments are read only.
@@ -142,11 +144,12 @@ public final class AstIdentifier extends SimpleNode {
     ctx.setPropertyResolved(false);
     boolean ret = ctx.getResolver().isReadOnly(ctx, null, image);
     if (!ctx.isPropertyResolved()) {
-      ExpressionUtils.throwUnhandled(null, image);
+      ctx.handlePropertyNotResolved(null, image, ctx);
     }
     return ret;
   }
 
+  @Override
   public void setValue(final EvaluationContext ctx, final Object value) {
     final String image = this.image;
     // First check if this is a lambda argument
@@ -164,15 +167,17 @@ public final class AstIdentifier extends SimpleNode {
     ctx.setPropertyResolved(false);
     ctx.getResolver().setValue(ctx, null, image, value);
     if (!ctx.isPropertyResolved()) {
-      ExpressionUtils.throwUnhandled(null, image);
+      ctx.handlePropertyNotResolved(null, image, ctx);
     }
   }
 
-  public Object invoke(final EvaluationContext ctx,
-                       final Class<?>[] paramTypes, final Object[] paramValues) {
+  @Override
+  public Object invoke(
+          final EvaluationContext ctx, final Class<?>[] paramTypes, final Object[] paramValues) {
     return getMethodExpression(ctx).invoke(ctx, paramValues);
   }
 
+  @Override
   public MethodInfo getMethodInfo(final EvaluationContext ctx, final Class<?>[] paramTypes) {
     return getMethodExpression(ctx).getMethodInfo(ctx);
   }

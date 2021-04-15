@@ -94,11 +94,6 @@ public final class MethodExpressionImpl extends MethodExpression {
     this(null, null, null, null);
   }
 
-  /**
-   * @param expr
-   * @param node
-   * @param paramTypes
-   */
   public MethodExpressionImpl(String expr, Node node, Class<?>[] paramTypes, Class<?> expectedType) {
     super();
     this.expr = expr;

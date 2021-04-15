@@ -48,7 +48,6 @@ import java.math.BigInteger;
 import cn.taketoday.context.utils.NumberUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.expression.ExpressionException;
-import cn.taketoday.expression.PropertyNotFoundException;
 
 import static cn.taketoday.context.Constant.BLANK;
 
@@ -62,13 +61,6 @@ import static cn.taketoday.context.Constant.BLANK;
 public abstract class ExpressionUtils {
 
   protected static final Long ZERO = 0L;
-
-  public static void throwUnhandled(Object base, Object property) throws ExpressionException {
-    if (base == null) {
-      throw new PropertyNotFoundException("ELResolver cannot handle a null base Object with identifier ''" + property + "''");
-    }
-    throw new PropertyNotFoundException("ELResolver did not handle type: " + base.getClass() + " with property of ''" + property + "''");
-  }
 
   /**
    * @param obj0

@@ -62,13 +62,11 @@ public class MethodExpressionLiteral extends MethodExpression {
   }
 
   public Object invoke(ExpressionContext context, Object[] params) throws ExpressionException {
-
     if (this.expectedType == null) {
       return this.expr;
     }
 
     try {
-
       return context.convertToType(this.expr, this.expectedType);
     }
     catch (Exception ex) {
