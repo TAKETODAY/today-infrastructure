@@ -20,10 +20,10 @@
 package cn.taketoday.web.http;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.IntFunction;
 
@@ -154,11 +154,6 @@ public class DefaultHttpHeaders extends HttpHeaders {
   }
 
   @Override
-  public Iterator<String> iterator() {
-    return headers.keySet().iterator();
-  }
-
-  @Override
   public Map<String, String[]> toArrayMap(IntFunction<String[]> mappingFunction) {
     return headers.toArrayMap(mappingFunction);
   }
@@ -167,4 +162,21 @@ public class DefaultHttpHeaders extends HttpHeaders {
   public void copyToArrayMap(Map<String, String[]> newMap, IntFunction<String[]> function) {
     headers.copyToArrayMap(newMap, function);
   }
+
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof DefaultHttpHeaders)) {
+      return false;
+    }
+    return Objects.equals(headers, ((DefaultHttpHeaders) other).headers);
+  }
+
+  @Override
+  public int hashCode() {
+    return this.headers.hashCode();
+  }
+
 }

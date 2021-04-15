@@ -22,6 +22,8 @@ package cn.taketoday.web.http;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.Duration;
@@ -31,6 +33,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -429,7 +432,54 @@ public abstract class HttpHeaders
     if (StringUtils.isEmpty(encodedCredentials)) {
       throw new IllegalArgumentException("'encodedCredentials' must not be null or blank");
     }
-    set(AUTHORIZATION, "Basic " .concat(encodedCredentials));
+    set(AUTHORIZATION, "Basic ".concat(encodedCredentials));
+  }
+
+  /**
+   * Set the value of the {@linkplain #AUTHORIZATION Authorization} header to
+   * Basic Authentication based on the given username and password.
+   * <p>Note that this method only supports characters in the
+   * {@link StandardCharsets#ISO_8859_1 ISO-8859-1} character set.
+   *
+   * @param username
+   *         the username
+   * @param password
+   *         the password
+   *
+   * @throws IllegalArgumentException
+   *         if either {@code user} or
+   *         {@code password} contain characters that cannot be encoded to ISO-8859-1
+   * @see #setBasicAuth(String)
+   * @see #setBasicAuth(String, String, Charset)
+   * @see #encodeBasicAuth(String, String, Charset)
+   * @see <a href="https://tools.ietf.org/html/rfc7617">RFC 7617</a>
+   */
+  public void setBasicAuth(String username, String password) {
+    setBasicAuth(username, password, null);
+  }
+
+  /**
+   * Set the value of the {@linkplain #AUTHORIZATION Authorization} header to
+   * Basic Authentication based on the given username and password.
+   *
+   * @param username
+   *         the username
+   * @param password
+   *         the password
+   * @param charset
+   *         the charset to use to convert the credentials into an octet
+   *         sequence. Defaults to {@linkplain StandardCharsets#ISO_8859_1 ISO-8859-1}.
+   *
+   * @throws IllegalArgumentException
+   *         if {@code username} or {@code password}
+   *         contains characters that cannot be encoded to the given charset
+   * @see #setBasicAuth(String)
+   * @see #setBasicAuth(String, String)
+   * @see #encodeBasicAuth(String, String, Charset)
+   * @see <a href="https://tools.ietf.org/html/rfc7617">RFC 7617</a>
+   */
+  public void setBasicAuth(String username, String password, Charset charset) {
+    setBasicAuth(encodeBasicAuth(username, password, charset));
   }
 
   /**
@@ -1249,6 +1299,8 @@ public abstract class HttpHeaders
     }
   }
 
+  // abstract for subclasses
+
   /**
    * Return the first header value for the given header name, if any.
    *
@@ -1301,5 +1353,73 @@ public abstract class HttpHeaders
 
   @Override
   public abstract List<String> remove(Object headerName);
+
+  @Override
+  public String toString() {
+    return formatHeaders(this);
+  }
+
+  // static
+
+  /**
+   * Helps to format HTTP header values, as HTTP header values themselves can
+   * contain comma-separated values, can become confusing with regular
+   * {@link Map} formatting that also uses commas between entries.
+   *
+   * @param headers
+   *         the headers to format
+   *
+   * @return the headers to a String
+   */
+  public static String formatHeaders(MultiValueMap<String, String> headers) {
+    return headers.entrySet().stream()
+            .map(entry -> {
+              List<String> values = entry.getValue();
+              return entry.getKey() + ":" + (values.size() == 1 ?
+                                             "\"" + values.get(0) + "\"" :
+                                             values.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")));
+            })
+            .collect(Collectors.joining(", ", "[", "]"));
+  }
+
+  /**
+   * Encode the given username and password into Basic Authentication credentials.
+   * <p>The encoded credentials returned by this method can be supplied to
+   * {@link #setBasicAuth(String)} to set the Basic Authentication header.
+   *
+   * @param username
+   *         the username
+   * @param password
+   *         the password
+   * @param charset
+   *         the charset to use to convert the credentials into an octet
+   *         sequence. Defaults to {@linkplain StandardCharsets#ISO_8859_1 ISO-8859-1}.
+   *
+   * @throws IllegalArgumentException
+   *         if {@code username} or {@code password}
+   *         contains characters that cannot be encoded to the given charset
+   * @see #setBasicAuth(String)
+   * @see #setBasicAuth(String, String)
+   * @see #setBasicAuth(String, String, Charset)
+   * @see <a href="https://tools.ietf.org/html/rfc7617">RFC 7617</a>
+   */
+  public static String encodeBasicAuth(String username, String password, Charset charset) {
+    Assert.notNull(username, "Username must not be null");
+    Assert.doesNotContain(username, ":", "Username must not contain a colon");
+    Assert.notNull(password, "Password must not be null");
+    if (charset == null) {
+      charset = StandardCharsets.ISO_8859_1;
+    }
+
+    CharsetEncoder encoder = charset.newEncoder();
+    if (!encoder.canEncode(username) || !encoder.canEncode(password)) {
+      throw new IllegalArgumentException(
+              "Username or password contains characters that cannot be encoded to " + charset.displayName());
+    }
+
+    String credentialsString = username + ":" + password;
+    byte[] encodedBytes = Base64.getEncoder().encode(credentialsString.getBytes(charset));
+    return new String(encodedBytes, charset);
+  }
 
 }
