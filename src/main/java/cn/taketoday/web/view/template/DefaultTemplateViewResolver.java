@@ -23,16 +23,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.expression.CompositeExpressionResolver;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
@@ -44,10 +40,6 @@ import cn.taketoday.expression.VariableMapper;
 import cn.taketoday.expression.lang.EvaluationContext;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.servlet.HttpSessionModelAdapter;
-import cn.taketoday.web.servlet.ServletContextModelAdapter;
-import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.ServletRequestModelAdapter;
 
 /**
  * @author TODAY <br>
@@ -58,7 +50,8 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
 
   private final StandardExpressionContext sharedContext;
   private final ExpressionFactory expressionFactory = ExpressionFactory.getSharedInstance();
-  private boolean runInServlet;
+  /** @since 3.0 */
+  private ResolversSupplier resolversSupplier = new ResolversSupplier();
 
   public DefaultTemplateViewResolver() {
     this(ContextUtils.getExpressionProcessor().getManager());
@@ -99,7 +92,6 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
     if (rendered != null) {
       final PrintWriter writer = context.getWriter();
       writer.write(rendered);
-      writer.flush();
     }
   }
 
@@ -114,7 +106,7 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
    * @return Rendered text string
    */
   protected String renderTemplate(final String text, RequestContext context) {
-    final ExpressionContext elContext = prepareContext(context);
+    final ExpressionContext elContext = prepareContext(sharedContext, context);
     final ValueExpression expression =
             expressionFactory.createValueExpression(elContext, text, String.class);
     return expression.getValue(elContext).toString();
@@ -136,72 +128,22 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
     return StringUtils.readAsText(resource.getInputStream());
   }
 
-  protected ExpressionContext prepareContext(RequestContext context) {
-    final ExpressionResolver[] resolvers;
-    if (runInServlet) {
-      resolvers = ServletResolvers.getResolvers(sharedContext, context);
-    }
-    else {
-      resolvers = new ExpressionResolver[] {
-              new ModelAttributeResolver(context),
-              sharedContext.getResolver()
-      };
-    }
-
-    final CompositeExpressionResolver resolver = new CompositeExpressionResolver(resolvers);
-    return new TemplateViewResolverELContext(this.sharedContext, resolver);
+  public void setResolversSupplier(ResolversSupplier resolversSupplier) {
+    Assert.notNull(resolversSupplier, "resolversSupplier must not be null");
+    this.resolversSupplier = resolversSupplier;
   }
 
-  public void setRunInServlet(boolean runInServlet) {
-    this.runInServlet = runInServlet;
-  }
-
-  /**
-   * is Run In Servlet
-   */
-  public boolean isRunInServlet() {
-    return runInServlet;
-  }
-
-  static class ServletResolvers {
-
-    static ExpressionResolver[] getResolvers(StandardExpressionContext sharedContext, RequestContext context) {
-      if (context instanceof ServletRequestContext) {
-        final HttpServletRequest request = ((ServletRequestContext) context).getRequest();
-        final HttpSession session = request.getSession(false);
-        final ServletContext servletContext = request.getServletContext();
-
-        final ServletContextModelAdapter servletContextModelAdapter = new ServletContextModelAdapter(servletContext);
-        final ServletRequestModelAdapter servletRequestModelAdapter = new ServletRequestModelAdapter(request);
-
-        if (session != null) {
-          final HttpSessionModelAdapter httpSessionModelAdapter = new HttpSessionModelAdapter(session);
-          return new ExpressionResolver[] {
-                  new ModelAttributeResolver(context),
-                  new ModelAttributeResolver(servletRequestModelAdapter), // 1
-                  new ModelAttributeResolver(httpSessionModelAdapter), // 2
-                  new ModelAttributeResolver(servletContextModelAdapter), // 3
-                  sharedContext.getResolver()
-          };
-        }
-
-        return new ExpressionResolver[] {
-                new ModelAttributeResolver(context),
-                new ModelAttributeResolver(servletRequestModelAdapter), // 1
-                new ModelAttributeResolver(servletContextModelAdapter), // 2
-                sharedContext.getResolver()
-        };
-      }
-      throw new IllegalStateException("Not run in servlet");
-    }
+  protected ExpressionContext prepareContext(ExpressionContext sharedContext, RequestContext context) {
+    final ExpressionResolver resolver = resolversSupplier.getResolvers(sharedContext, context);
+    return new TemplateViewResolverELContext(sharedContext, resolver);
   }
 
   private static final class TemplateViewResolverELContext extends ExpressionContext {
 
+    private final ExpressionContext delegate;
     private final ExpressionResolver elResolver;
-    private final StandardExpressionContext delegate;
 
-    public TemplateViewResolverELContext(StandardExpressionContext delegate, ExpressionResolver elResolver) {
+    public TemplateViewResolverELContext(ExpressionContext delegate, ExpressionResolver elResolver) {
       this.delegate = delegate;
       this.elResolver = elResolver;
     }

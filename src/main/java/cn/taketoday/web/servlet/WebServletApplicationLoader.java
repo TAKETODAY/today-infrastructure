@@ -62,6 +62,7 @@ import cn.taketoday.web.servlet.initializer.WebListenerInitializer;
 import cn.taketoday.web.servlet.initializer.WebServletInitializer;
 import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
 import cn.taketoday.web.view.template.FreeMarkerTemplateViewResolver;
+import cn.taketoday.web.view.template.ResolversSupplier;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
@@ -398,17 +399,18 @@ public class WebServletApplicationLoader
   }
 
   /**
-   * set {@link DefaultTemplateViewResolver#setRunInServlet(boolean) }
+   * set {@link DefaultTemplateViewResolver#setResolversSupplier(ResolversSupplier)}
    *
    * @param templateResolver
    *         {@link TemplateViewResolver} object
-   * @see DefaultTemplateViewResolver#setRunInServlet(boolean)
+   *
+   * @see DefaultTemplateViewResolver#setResolversSupplier(ResolversSupplier)
    */
   @Override
   protected void configureTemplateViewResolver(TemplateViewResolver templateResolver, WebMvcConfiguration mvcConfiguration) {
     super.configureTemplateViewResolver(templateResolver, mvcConfiguration);
     if (templateResolver instanceof DefaultTemplateViewResolver) {
-      ((DefaultTemplateViewResolver) templateResolver).setRunInServlet(true);
+      ((DefaultTemplateViewResolver) templateResolver).setResolversSupplier(new ServletResolversSupplier());
     }
   }
 
