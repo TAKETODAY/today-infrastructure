@@ -30,28 +30,32 @@ import cn.taketoday.web.resolver.ParameterResolvers;
  * @since 3.0
  */
 public class ParameterResolverMethodParameter extends MethodParameter {
-  private final ParameterResolver resolver;
+  private final ParameterResolvers resolvers;
+  private ParameterResolver resolver;
 
   public ParameterResolverMethodParameter(
           HandlerMethod handler, MethodParameter other, ParameterResolvers resolvers) {
     super(handler, other);
-    this.resolver = resolvers.obtainResolver(this);
+    this.resolvers = resolvers;
   }
 
   public ParameterResolverMethodParameter(
           int index, Parameter parameter, String parameterName, ParameterResolvers resolvers) {
     super(index, parameter, parameterName);
-
-    this.resolver = resolvers.obtainResolver(this);
+    this.resolvers = resolvers;
   }
 
   @Override
   protected Object resolveParameter(final RequestContext request) throws Throwable {
-    return resolver.resolveParameter(request, this);
+    return getResolver().resolveParameter(request, this);
   }
 
-  public ParameterResolver getResolver() {
+  public final ParameterResolver getResolver() {
+    if (resolver == null) {
+      resolver = resolvers.obtainResolver(this);
+    }
     return resolver;
   }
+
 
 }

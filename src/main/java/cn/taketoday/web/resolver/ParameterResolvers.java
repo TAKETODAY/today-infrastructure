@@ -113,7 +113,8 @@ public class ParameterResolvers extends WebApplicationContextSupport {
     final ParameterResolver resolver = getResolver(parameter);
     Assert.state(resolver != null,
                  () -> "There isn't have a parameter resolver to resolve parameter: ["
-                         + parameter.getParameterClass() + "] called: [" + parameter.getName() + "]");
+                         + parameter.getParameterClass() + "] called: ["
+                         + parameter.getName() + "] on " + parameter.getHandlerMethod());
     return resolver;
   }
 
