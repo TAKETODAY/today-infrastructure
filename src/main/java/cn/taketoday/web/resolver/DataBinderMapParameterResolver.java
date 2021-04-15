@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.resolver;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
@@ -46,10 +47,16 @@ public class DataBinderMapParameterResolver
 
   @Override
   public boolean supports(final MethodParameter parameter) {
-    return supportsMap(parameter);
+    if (isMap(parameter)) {
+      final Type valueType = parameter.getGenerics(1);
+      if (valueType instanceof Class) {
+        return supportsSetProperties(valueType);
+      }
+    }
+    return false;
   }
 
-  public static boolean supportsMap(MethodParameter parameter) {
+  public static boolean isMap(MethodParameter parameter) {
     return parameter.is(Map.class);
   }
 

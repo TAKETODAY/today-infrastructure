@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.resolver;
 
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,6 @@ import java.util.Map;
 import cn.taketoday.context.factory.BeanMetadata;
 import cn.taketoday.context.factory.DataBinder;
 import cn.taketoday.context.factory.PropertyValue;
-import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.web.handler.MethodParameter;
@@ -61,7 +61,13 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
 
   @Override
   public boolean supports(MethodParameter parameter) {
-    return parameter.isCollection() && !ClassUtils.primitiveTypes.contains(parameter.getParameterClass());
+    if (parameter.isCollection()) {
+      final Type valueType = parameter.getGenerics(0);
+      if (valueType instanceof Class) {
+        return supportsSetProperties(valueType);
+      }
+    }
+    return false;
   }
 
   /**

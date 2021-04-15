@@ -34,7 +34,7 @@ import cn.taketoday.web.multipart.DefaultMultipartFile;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.multipart.MultipartFile;
 
-import static cn.taketoday.web.resolver.DataBinderMapParameterResolver.supportsMap;
+import static cn.taketoday.web.resolver.DataBinderMapParameterResolver.isMap;
 
 /**
  * @author TODAY <br>
@@ -142,7 +142,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
     @Override
     public boolean supports(MethodParameter parameter) {
-      if (supportsMap(parameter) || parameter.is(MultiValueMap.class)) {
+      if (isMap(parameter) || parameter.is(MultiValueMap.class)) {
         if (parameter.isGenericPresent(String.class, 0)) { // Map<String, >
           Class<?> target = null;
           if (parameter.isGenericPresent(List.class, 1)) { // Map<String, List<>>

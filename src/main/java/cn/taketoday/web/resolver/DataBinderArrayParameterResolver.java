@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import cn.taketoday.context.factory.PropertyValue;
-import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.web.handler.MethodParameter;
 
@@ -37,7 +36,7 @@ public class DataBinderArrayParameterResolver extends DataBinderCollectionParame
 
   @Override
   public boolean supports(MethodParameter parameter) {
-    return parameter.isArray() && !ClassUtils.isSimpleType(parameter.getParameterClass());
+    return parameter.isArray() && supportsSetProperties(parameter.getComponentType());
   }
 
   @Override

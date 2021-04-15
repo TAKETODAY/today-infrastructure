@@ -20,10 +20,12 @@
 
 package cn.taketoday.web.resolver;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 
 import cn.taketoday.context.factory.BeanPropertyAccessor;
 import cn.taketoday.context.factory.PropertyValue;
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.DefaultMultiValueMap;
 import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.context.utils.ObjectUtils;
@@ -72,5 +74,10 @@ public abstract class AbstractDataBinderParameterResolver extends OrderedAbstrac
    */
   protected abstract Object doBind(
           MultiValueMap<String, PropertyValue> propertyValues, MethodParameter parameter);
+
+
+  protected boolean supportsSetProperties(final Type valueType) {
+    return !ClassUtils.primitiveTypes.contains(valueType);
+  }
 
 }
