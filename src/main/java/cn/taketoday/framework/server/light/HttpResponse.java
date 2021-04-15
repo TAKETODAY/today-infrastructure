@@ -393,7 +393,7 @@ public class HttpResponse implements Closeable {
     if (!headers.containsKey(Constant.DATE)) {
 //      final String date = DateTimeFormatter.RFC_1123_DATE_TIME.format(LocalDateTime.now());
 //      headers.add(Constant.DATE, date);
-      headers.setDate(System.currentTimeMillis());
+      headers.setDate(System.currentTimeMillis()); // todo
     }
     if (serverHeader != null) {
       headers.add(Constant.SERVER, serverHeader);

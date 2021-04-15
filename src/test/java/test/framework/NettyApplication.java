@@ -38,6 +38,11 @@ public class NettyApplication {
     return "Hello";
   }
 
+  @GET("/")
+  public String hello() {
+    return "Hello";
+  }
+
   @GET("/header")
   public HttpHeaders header(HttpHeaders headers) {
     return headers;

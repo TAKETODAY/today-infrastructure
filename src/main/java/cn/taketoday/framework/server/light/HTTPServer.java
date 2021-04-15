@@ -22,6 +22,7 @@
 package cn.taketoday.framework.server.light;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -362,19 +363,19 @@ public class HTTPServer {
   protected void handleConnection(Socket socket) throws IOException {
     BufferedInputStream in = new BufferedInputStream(socket.getInputStream(), 4096);
     final OutputStream socketOutputStream = socket.getOutputStream();
-//    BufferedOutputStream out = new BufferedOutputStream(socketOutputStream, 4096);
-    final ByteArrayOutputStream out = new ByteArrayOutputStream() {
-      @Override
-      public synchronized void write(byte[] b, int off, int len) {
-        super.write(b, off, len);
-        try {
-          socketOutputStream.write(b, off, len);
-        }
-        catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
-    };
+    BufferedOutputStream out = new BufferedOutputStream(socketOutputStream, 4096);
+//    final ByteArrayOutputStream out = new ByteArrayOutputStream() {
+//      @Override
+//      public synchronized void write(byte[] b, int off, int len) {
+//        super.write(b, off, len);
+//        try {
+//          socketOutputStream.write(b, off, len);
+//        }
+//        catch (IOException e) {
+//          e.printStackTrace();
+//        }
+//      }
+//    };
 
     HttpRequest req = null;
     HttpResponse resp;
@@ -418,7 +419,7 @@ public class HTTPServer {
         break; // proceed to close connection
       }
       finally {
-        System.out.println(out);
+//        System.out.println(out);
         resp.close(); // close response and flush output
       }
       // consume any leftover body data so next request can be processed
