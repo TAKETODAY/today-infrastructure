@@ -73,10 +73,19 @@ public abstract class RequestContextHolder {
    *
    * @param contextHolder
    *         new {@link RequestThreadLocal} object
+   *
+   * @since 3.0
    */
   public static void replaceContextHolder(RequestThreadLocal contextHolder) {
     Assert.notNull(contextHolder, "contextHolder must not be null");
     RequestContextHolder.contextHolder = contextHolder;
+  }
+
+  /**
+   * @since 3.0
+   */
+  public static RequestThreadLocal getRequestThreadLocal() {
+    return RequestContextHolder.contextHolder;
   }
 
   @SuppressWarnings("serial")
@@ -195,7 +204,6 @@ public abstract class RequestContextHolder {
     public String toString() {
       return "Application has not been started";
     }
-
 
   }
 }
