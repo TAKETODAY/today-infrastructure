@@ -38,6 +38,8 @@ import cn.taketoday.expression.FunctionMapper;
 import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.expression.ValueExpression;
 import cn.taketoday.expression.VariableMapper;
+import cn.taketoday.expression.lang.EvaluationContext;
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ui.Model;
 
@@ -105,12 +107,9 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
    * @return Rendered text string
    */
   protected String renderTemplate(final String text, RequestContext context) {
-
     final ExpressionContext elContext = prepareContext(context);
-
-    final ValueExpression expression = //
+    final ValueExpression expression =
             expressionFactory.createValueExpression(elContext, text, String.class);
-
     return expression.getValue(elContext).toString();
   }
 
@@ -163,6 +162,11 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
     @Override
     public void setPropertyResolved(Object base, Object property) {
       setPropertyResolved(true);
+    }
+
+    @Override
+    public Object handlePropertyNotResolved(Object base, Object property, EvaluationContext ctx) {
+      return Constant.BLANK;
     }
 
   }

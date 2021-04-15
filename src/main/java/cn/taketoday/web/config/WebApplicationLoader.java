@@ -42,6 +42,7 @@ import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.RequestHandlerAdapter;
+import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.CompositeHandlerRegistry;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
@@ -90,14 +91,13 @@ public class WebApplicationLoader
     configureTemplateLoader(context, mvcConfiguration);
     configureResourceHandler(context, mvcConfiguration);
     configureFunctionHandler(context, mvcConfiguration);
+    configureViewControllerHandler(context, mvcConfiguration);
     configureExceptionHandler(context.getBeans(HandlerExceptionHandler.class), mvcConfiguration);
 
     configureResultHandler(context.getBeans(ResultHandler.class), mvcConfiguration);
     configureConversionService(context.getBeans(TypeConverter.class), mvcConfiguration);
     configureHandlerAdapter(context.getBeans(HandlerAdapter.class), mvcConfiguration);
     configureParameterResolver(context.getBeans(ParameterResolver.class), mvcConfiguration);
-
-    configureViewControllerHandler(context, mvcConfiguration);
     configureHandlerRegistry(context.getBeans(HandlerRegistry.class), mvcConfiguration);//fix
     // @since 3.0
     configureValidators(context, mvcConfiguration);
@@ -155,13 +155,28 @@ public class WebApplicationLoader
     }
     // 添加默认的
     adapters.add(new RequestHandlerAdapter(Ordered.HIGHEST_PRECEDENCE << 1));
-
+    final WebApplicationContext context = obtainApplicationContext();
+    // ViewControllerHandlerRegistry must configured
+    final ViewControllerHandlerRegistry viewControllerRegistry = context.getBean(ViewControllerHandlerRegistry.class);
+    if (viewControllerRegistry != null) {
+      final ViewControllerHandlerAdapter bean = context.getBean(ViewControllerHandlerAdapter.class);
+      if (bean == null) {
+        ViewControllerHandlerAdapter viewControllerHandlerAdapter = null;
+        for (final HandlerAdapter adapter : adapters) {
+          if (adapter instanceof ViewControllerHandlerAdapter) {
+            viewControllerHandlerAdapter = (ViewControllerHandlerAdapter) adapter;
+            break;
+          }
+        }
+        if (viewControllerHandlerAdapter == null) {
+          adapters.add(new ViewControllerHandlerAdapter(Ordered.HIGHEST_PRECEDENCE));
+        }
+      }
+    }
     // 用户自定义
     mvcConfiguration.configureHandlerAdapter(adapters);
-
     // 排序
     OrderUtils.reversedSort(adapters);
-
     // apply request handler
     obtainDispatcher.setHandlerAdapters(adapters.toArray(new HandlerAdapter[adapters.size()]));
   }
