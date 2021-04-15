@@ -949,6 +949,8 @@ public abstract class AbstractBeanFactory
           return System.identityHashCode(proxy);
         case "toString":
           return this.objectFactory.toString();
+        default:
+          break;
       }
       try {
         return method.invoke(objectFactory.getObject(), args);
