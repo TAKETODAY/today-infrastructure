@@ -33,7 +33,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author TODAY 2021/4/15 14:27
  */
 public class HttpStatusTests {
-
   private final Map<Integer, String> statusCodes = new LinkedHashMap<>();
 
   @Before

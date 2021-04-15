@@ -81,8 +81,10 @@ public class CorsFilter extends GenericFilter implements Filter {
       CorsConfiguration corsConfiguration = this.configSource.getCorsConfiguration(context);
       if (!this.processor.process(corsConfiguration, context)
               || WebUtils.isPreFlightRequest(context)) {
+        context.applyHeaders(); // fix response header not flush to the servlet response
         return;
       }
+      // handle next
       chain.doFilter(request, response);
     }
     finally {

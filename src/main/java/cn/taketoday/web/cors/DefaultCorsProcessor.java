@@ -53,9 +53,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
 
   @Override
   public boolean process(final CorsConfiguration config, final RequestContext context) throws IOException {
-
     final HttpHeaders responseHeaders = context.responseHeaders();
-
     responseHeaders.setVary(
             Arrays.asList(Constant.ORIGIN,
                           Constant.ACCESS_CONTROL_REQUEST_METHOD,
@@ -67,7 +65,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
       return true;
     }
 
-    if (responseHeaders.getFirst(Constant.ACCESS_CONTROL_ALLOW_ORIGIN) != null) {
+    if (responseHeaders.containsKey(Constant.ACCESS_CONTROL_ALLOW_ORIGIN)) {
       log.trace("Skip: response already contains \"Access-Control-Allow-Origin\"");
       return true;
     }
@@ -157,7 +155,6 @@ public class DefaultCorsProcessor implements CorsProcessor {
    * implementation simply delegates to
    * {@link CorsConfiguration#checkOrigin(String)}.
    */
-
   protected String checkOrigin(CorsConfiguration config, String requestOrigin) {
     return config.checkOrigin(requestOrigin);
   }
@@ -167,7 +164,6 @@ public class DefaultCorsProcessor implements CorsProcessor {
    * pre-flight request. The default implementation simply delegates to
    * {@link CorsConfiguration#checkOrigin(String)}.
    */
-
   protected List<String> checkMethods(CorsConfiguration config, String method) {
     return config.checkHttpMethod(method);
   }

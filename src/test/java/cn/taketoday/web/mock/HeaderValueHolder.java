@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.StringUtils;
 
 /**
  * Internal helper class that serves as a value holder for request headers.
@@ -82,7 +83,11 @@ class HeaderValueHolder {
   }
 
   String getStringValue() {
-    return (!this.values.isEmpty() ? String.valueOf(this.values.get(0)) : null);
+//    return (!this.values.isEmpty() ? String.valueOf(this.values.get(0)) : null);
+    if(this.values.isEmpty()) {
+      return null;
+    }
+    return StringUtils.collectionToString(values, ", ");
   }
 
   @Override
