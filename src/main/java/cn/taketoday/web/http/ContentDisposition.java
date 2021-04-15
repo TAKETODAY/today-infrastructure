@@ -40,9 +40,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * @author Sebastien Deleuze
  * @author Juergen Hoeller
  * @author Rossen Stoyanchev
- * @see <a href="https://tools.ietf.org/html/rfc6266">RFC 6266</a>
  * @author TODAY <br>
- *         2020-01-31 12:37
+ * 2020-01-31 12:37
+ * @see <a href="https://tools.ietf.org/html/rfc6266">RFC 6266</a>
  */
 public final class ContentDisposition {
 
@@ -145,11 +145,39 @@ public final class ContentDisposition {
   }
 
   /**
+   * Return a builder for a {@code ContentDisposition} of type {@literal "attachment"}.
+   *
+   * @since 3.0
+   */
+  public static Builder attachment() {
+    return builder("attachment");
+  }
+
+  /**
+   * Return a builder for a {@code ContentDisposition} of type {@literal "form-data"}.
+   *
+   * @since 3.0
+   */
+  public static Builder formData() {
+    return builder("form-data");
+  }
+
+  /**
+   * Return a builder for a {@code ContentDisposition} of type {@literal "inline"}.
+   *
+   * @since 3.0
+   */
+  public static Builder inline() {
+    return builder("inline");
+  }
+
+  /**
    * Return a builder for a {@code ContentDisposition}.
    *
    * @param type
-   *            the disposition type like for example {@literal inline},
-   *            {@literal attachment}, or {@literal form-data}
+   *         the disposition type like for example {@literal inline},
+   *         {@literal attachment}, or {@literal form-data}
+   *
    * @return the builder
    */
   public static Builder builder(String type) {
@@ -167,8 +195,10 @@ public final class ContentDisposition {
    * Parse a {@literal Content-Disposition} header value as defined in RFC 2183.
    *
    * @param contentDisposition
-   *            the {@literal Content-Disposition} header value
+   *         the {@literal Content-Disposition} header value
+   *
    * @return the parsed content disposition
+   *
    * @see #toString()
    */
   public static ContentDisposition parse(String contentDisposition) {
@@ -255,10 +285,12 @@ public final class ContentDisposition {
    * Only the US-ASCII, UTF-8 and ISO-8859-1 charsets are supported.
    *
    * @param filename
-   *            the filename
+   *         the filename
    * @param charset
-   *            the charset for the filename
+   *         the charset for the filename
+   *
    * @return the encoded header field param
+   *
    * @see <a href="https://tools.ietf.org/html/rfc5987">RFC 5987</a>
    */
   private static String decodeFilename(String filename, Charset charset) {
@@ -318,11 +350,13 @@ public final class ContentDisposition {
    * Encode the given header field param as describe in RFC 5987.
    *
    * @param input
-   *            the header field param
+   *         the header field param
    * @param charset
-   *            the charset of the header field param string, only the US-ASCII,
-   *            UTF-8 and ISO-8859-1 charsets are supported
+   *         the charset of the header field param string, only the US-ASCII,
+   *         UTF-8 and ISO-8859-1 charsets are supported
+   *
    * @return the encoded header field param
+   *
    * @see <a href="https://tools.ietf.org/html/rfc5987">RFC 5987</a>
    */
   private static String encodeFilename(String input, Charset charset) {
