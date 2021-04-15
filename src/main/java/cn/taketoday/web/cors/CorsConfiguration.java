@@ -100,6 +100,7 @@ public class CorsConfiguration {
   public CorsConfiguration(CorsConfiguration other) {
     this.maxAge = other.maxAge;
     this.allowedOrigins = other.allowedOrigins;
+    this.allowedOriginPatterns = other.allowedOriginPatterns;
     this.allowedMethods = other.allowedMethods;
     this.resolvedMethods = other.resolvedMethods;
     this.allowedHeaders = other.allowedHeaders;
