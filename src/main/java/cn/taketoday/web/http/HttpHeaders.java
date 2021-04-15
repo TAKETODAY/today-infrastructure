@@ -1429,4 +1429,8 @@ public abstract class HttpHeaders
     return new String(encodedBytes, charset);
   }
 
+  public static DefaultHttpHeaders of() {
+    return new DefaultHttpHeaders();
+  }
+
 }
