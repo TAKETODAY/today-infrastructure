@@ -35,14 +35,14 @@ public class ParameterResolverMethodParameter extends MethodParameter {
   public ParameterResolverMethodParameter(
           HandlerMethod handler, MethodParameter other, ParameterResolvers resolvers) {
     super(handler, other);
-    this.resolver = resolvers.getResolver(this);
+    this.resolver = resolvers.obtainResolver(this);
   }
 
   public ParameterResolverMethodParameter(
           int index, Parameter parameter, String parameterName, ParameterResolvers resolvers) {
     super(index, parameter, parameterName);
 
-    this.resolver = resolvers.getResolver(this);
+    this.resolver = resolvers.obtainResolver(this);
   }
 
   @Override
