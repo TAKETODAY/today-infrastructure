@@ -108,7 +108,7 @@ public class WebServletApplicationLoader
           }
         }
         scanXml(dir, paths, new XmlFileFilter());
-        return StringUtils.arrayToString(paths.toArray(new String[paths.size()]));
+        return StringUtils.collectionToString(paths);
       }
       return null;
     }
