@@ -23,18 +23,14 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.OrderUtils;
-
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 
 /**
  * @author TODAY <br>
  * 2019-12-28 13:47
  */
 public abstract class ResultHandlers {
-
   private static final LinkedList<ResultHandler> resultHandlers = new LinkedList<>();
 
   public static void addHandler(ResultHandler... handlers) {
@@ -79,13 +75,14 @@ public abstract class ResultHandlers {
 
   /**
    * Get correspond view resolver, If there isn't a suitable resolver will be
-   * throw {@link ConfigurationException}
+   * throw {@link IllegalArgumentException}
    *
    * @return A suitable {@link ResultHandler}
    */
   public static ResultHandler obtainHandler(final Object handler) {
-    return nonNull(getHandler(handler),
-                   () -> "There isn't have a result resolver to resolve : [" + handler + "]");
+    final ResultHandler resultHandler = getHandler(handler);
+    Assert.state(resultHandler != null, () -> "There isn't have a result resolver to resolve : [" + handler + "]");
+    return resultHandler;
   }
 
 }

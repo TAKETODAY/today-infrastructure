@@ -51,11 +51,12 @@ public class ParameterResolverMethodParameter extends MethodParameter {
   }
 
   public final ParameterResolver getResolver() {
+    ParameterResolver resolver = this.resolver;
     if (resolver == null) {
       resolver = resolvers.obtainResolver(this);
+      this.resolver = resolver;
     }
     return resolver;
   }
-
 
 }

@@ -86,7 +86,6 @@ public class HandlerMethod
     }
 
     setResponseStatus(WebUtils.getResponseStatus(this));
-    this.resultHandler = ResultHandlers.obtainHandler(this);
   }
 
   /**
@@ -260,6 +259,11 @@ public class HandlerMethod
   }
 
   public ResultHandler getResultHandler() {
+    ResultHandler resultHandler = this.resultHandler;
+    if (resultHandler == null) {
+      resultHandler = ResultHandlers.obtainHandler(this);
+      this.resultHandler = resultHandler;
+    }
     return resultHandler;
   }
 
@@ -274,7 +278,7 @@ public class HandlerMethod
   public void handleResult(final RequestContext context,
                            final Object handler, final Object result) throws Throwable {
     applyResponseStatus(context);
-    resultHandler.handleResult(context, handler, result);
+    getResultHandler().handleResult(context, handler, result);
   }
 
   public Object invokeHandler(final RequestContext request) throws Throwable {
