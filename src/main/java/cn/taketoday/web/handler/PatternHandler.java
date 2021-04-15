@@ -23,24 +23,24 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import cn.taketoday.context.Ordered;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.OrderUtils;
-
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 
 /**
  * @author TODAY <br>
  * 2019-12-25 14:51
  */
 public class PatternHandler implements Serializable, Ordered {
-
   private static final long serialVersionUID = 1L;
 
   private final String pattern;
   private final Object handler;
 
   public PatternHandler(String pattern, Object handler) {
-    this.pattern = nonNull(pattern, "pattern must not be null");
-    this.handler = nonNull(handler, "handler must not be null");
+    Assert.notNull(pattern, "pattern must not be null");
+    Assert.notNull(handler, "handler must not be null");
+    this.pattern = pattern;
+    this.handler = handler;
   }
 
   public String getPattern() {
@@ -66,7 +66,7 @@ public class PatternHandler implements Serializable, Ordered {
     if (obj == this) {
       return true;
     }
-    if (obj instanceof PatternHandler && obj.getClass() == getClass()) {
+    if (obj instanceof PatternHandler) {
       final PatternHandler other = (PatternHandler) obj;
       return Objects.equals(other.pattern, pattern)
               && Objects.equals(other.handler, handler);
