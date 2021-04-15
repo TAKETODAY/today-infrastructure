@@ -43,7 +43,6 @@ import cn.taketoday.web.User;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.exception.WebNestedRuntimeException;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.MissingRequestBodyException;
 import cn.taketoday.web.resolver.RequestBodyParsingException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -166,13 +165,7 @@ public class JacksonMessageConverterTests {
     assertThat(jsonNode).isInstanceOf(JsonNode.class).isEqualTo(((JsonNode) jsonNodeInList).get(0));
 
     // null string
-    try {
-      // is required
-      converter.read(contextEmptyJson, testRequired);
-      fail("Exception");
-    }
-    catch (MissingRequestBodyException ignored) { }
-
+    assertThat(converter.read(contextEmptyJson, testRequired)).isNull();
     assertThat(converter.read(contextEmptyJson, testUser)).isNull();
     assertThat(converter.read(contextEmptyJson, testJsonNode)).isNull();
     assertThat(converter.read(contextEmptyJson, testListUsers)).isNull();

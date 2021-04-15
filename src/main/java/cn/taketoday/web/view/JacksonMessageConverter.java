@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.NullNode;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -125,11 +126,16 @@ public class JacksonMessageConverter
     throw new ConfigurationException("Not support " + parameter);
   }
 
-  JsonNode getBody(RequestContext context, ObjectMapper mapper) throws IOException {
+  private JsonNode getBody(RequestContext context, ObjectMapper mapper) throws IOException {
     final Object body = context.requestBody();
     if (body == null) {
       try {
         final JsonNode jsonNode = mapper.readTree(context.getInputStream());
+        if (jsonNode == null) {
+          // cache json node
+          context.setRequestBody(NullNode.instance);
+          return null;
+        }
         // cache json node
         context.setRequestBody(jsonNode);
         return jsonNode;
@@ -138,7 +144,7 @@ public class JacksonMessageConverter
         throw new RequestBodyParsingException("Request body read failed", e);
       }
     }
-    else if (body instanceof JsonNode) {
+    else if (body != NullNode.instance) {
       return (JsonNode) body;
     }
     return null;
@@ -147,7 +153,7 @@ public class JacksonMessageConverter
   /**
    * @return {@link ObjectMapper} must not be null
    */
-  ObjectMapper obtainMapper() {
+  private ObjectMapper obtainMapper() {
     final ObjectMapper mapper = getMapper();
     Assert.state(mapper != null, "No ObjectMapper.");
     return mapper;
