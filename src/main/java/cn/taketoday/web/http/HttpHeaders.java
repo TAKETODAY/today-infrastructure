@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -57,13 +56,30 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Locale.US;
 
 /**
- * HTTP Headers
+ * A data structure representing HTTP request or response headers, mapping String header names
+ * to a list of String values, also offering accessors for common application-level data types.
  *
+ * <p>In addition to the regular methods defined by {@link Map}, this class offers many common
+ * convenience methods, for example:
+ * <ul>
+ * <li>{@link #getFirst(String)} returns the first value associated with a given header name</li>
+ * <li>{@link #add(String, String)} adds a header value to the list of values for a header name</li>
+ * <li>{@link #set(String, String)} sets the header value to a single string value</li>
+ * </ul>
+ *
+ * <p>Note that {@code HttpHeaders} generally treats header names in a case-insensitive manner.
+ *
+ * @author Arjen Poutsma
+ * @author Sebastien Deleuze
+ * @author Brian Clozel
+ * @author Juergen Hoeller
+ * @author Josh Long
+ * @author Sam Brannen
  * @author TODAY 2020-01-28 17:15
  * @since 3.0
  */
 public abstract class HttpHeaders
-        implements Constant, Iterable<String>, MultiValueMap<String, String> {
+        implements Constant, /*Iterable<String>,*/ MultiValueMap<String, String> {
 
   /**
    * Pattern matching ETag multiple field values in headers such as "If-Match",
@@ -413,7 +429,7 @@ public abstract class HttpHeaders
     if (StringUtils.isEmpty(encodedCredentials)) {
       throw new IllegalArgumentException("'encodedCredentials' must not be null or blank");
     }
-    set(AUTHORIZATION, "Basic ".concat(encodedCredentials));
+    set(AUTHORIZATION, "Basic " .concat(encodedCredentials));
   }
 
   /**
@@ -427,7 +443,7 @@ public abstract class HttpHeaders
    */
   public void setBearerAuth(String token) {
     Assert.notNull(token, "The base64 encoded token must not be null");
-    set(AUTHORIZATION, "Bearer ".concat(token));
+    set(AUTHORIZATION, "Bearer " .concat(token));
   }
 
   /**
@@ -1186,7 +1202,7 @@ public abstract class HttpHeaders
         if (value != null) {
           Matcher matcher = ETAG_HEADER_VALUE_PATTERN.matcher(value);
           while (matcher.find()) {
-            if ("*".equals(matcher.group())) {
+            if ("*" .equals(matcher.group())) {
               result.add(matcher.group());
             }
             else {
@@ -1286,9 +1302,4 @@ public abstract class HttpHeaders
   @Override
   public abstract List<String> remove(Object headerName);
 
-  /**
-   * @return header names iterator
-   */
-  @Override
-  public abstract Iterator<String> iterator();
 }
