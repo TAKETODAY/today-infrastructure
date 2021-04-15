@@ -189,12 +189,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
     if (isPreFlight) {
       return context.requestHeaders().getAccessControlRequestHeaders();
     }
-    // TODO optimise
-    final ArrayList<String> ret = new ArrayList<>();
-    for (final String requestHeader : context.requestHeaders()) {
-      ret.add(requestHeader);
-    }
-    return ret;
+    return new ArrayList<>(context.requestHeaders().keySet());
   }
 
 }
