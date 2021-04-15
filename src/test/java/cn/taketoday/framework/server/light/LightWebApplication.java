@@ -20,21 +20,42 @@
 
 package cn.taketoday.framework.server.light;
 
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.framework.ConfigurableWebServerApplicationContext;
 import cn.taketoday.framework.WebApplication;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestMethod;
+import cn.taketoday.web.annotation.ActionMapping;
+import cn.taketoday.web.annotation.Controller;
+import cn.taketoday.web.annotation.RequestParam;
 import test.framework.NettyApplication;
 
 /**
  * @author TODAY 2021/4/13 19:42
  */
 @Import(NettyApplication.class)
-@Configuration
+@Controller
 @EnableLightHttpHandling
 public class LightWebApplication {
 
   public static void main(String[] args) {
-    WebApplication.runReactive(LightWebApplication.class);
+    final ConfigurableWebServerApplicationContext context
+            = WebApplication.runReactive(LightWebApplication.class);
+    System.out.println(context);
   }
+
+  @ActionMapping(value = { "/", "/index", "/index.html" }, method = { RequestMethod.GET, RequestMethod.POST })
+  public String index(RequestContext request, @RequestParam String arr) {
+
+    String userId = request.getParameter("userId");
+    String userName = request.getParameter("userName");
+    request.setAttribute("q", arr);
+    request.setAttribute("userId", userId);
+    request.setAttribute("userName", userName);
+    request.setAttribute("url", request.getRequestURL());
+
+    return "index/index.ftl";
+  }
+
 
 }
