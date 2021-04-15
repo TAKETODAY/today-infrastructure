@@ -30,6 +30,7 @@ import cn.taketoday.web.handler.MethodParameter;
 
 /**
  * @author TODAY 2021/4/8 17:32
+ * @see <a href='https://taketoday.cn/articles/1616819014712'>TODAY Context 之 BeanPropertyAccessor</a>
  * @since 3.0
  */
 public class DataBinderArrayParameterResolver extends DataBinderCollectionParameterResolver {

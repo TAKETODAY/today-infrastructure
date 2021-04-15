@@ -54,10 +54,11 @@ import cn.taketoday.web.handler.MethodParameter;
  *
  * @author TODAY 2021/4/8 14:33
  * @since 3.0
+ * @see <a href='https://taketoday.cn/articles/1616819014712'>TODAY Context 之 BeanPropertyAccessor</a>
  */
 public class DataBinderCollectionParameterResolver extends AbstractDataBinderParameterResolver {
 
-  private int maxValueIndex = 100;
+  private int maxValueIndex = 500;
 
   @Override
   public boolean supports(MethodParameter parameter) {

@@ -31,8 +31,8 @@ import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**
- * @author TODAY <br>
- * 2019-07-09 22:49
+ * @author TODAY 2019-07-09 22:49
+ * @see <a href='https://taketoday.cn/articles/1616819014712'>TODAY Context 之 BeanPropertyAccessor</a>
  */
 public class DataBinderMapParameterResolver
         extends AbstractDataBinderParameterResolver implements ParameterResolver {

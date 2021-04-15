@@ -34,6 +34,7 @@ import cn.taketoday.web.handler.MethodParameter;
 
 /**
  * @author TODAY 2021/4/8 17:33
+ * @see <a href='https://taketoday.cn/articles/1616819014712'>TODAY Context 之 BeanPropertyAccessor</a>
  * @since 3.0
  */
 public abstract class AbstractDataBinderParameterResolver extends OrderedAbstractParameterResolver {
@@ -74,7 +75,6 @@ public abstract class AbstractDataBinderParameterResolver extends OrderedAbstrac
    */
   protected abstract Object doBind(
           MultiValueMap<String, PropertyValue> propertyValues, MethodParameter parameter);
-
 
   protected boolean supportsSetProperties(final Type valueType) {
     return !ClassUtils.primitiveTypes.contains(valueType);
