@@ -278,7 +278,13 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
 
   @Override
   public boolean equals(Object obj) {
-    return this.map.equals(obj);
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof DefaultMultiValueMap) {
+      return map.equals(((DefaultMultiValueMap<?, ?>) obj).map);
+    }
+    return false;
   }
 
   @Override
