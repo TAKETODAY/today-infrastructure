@@ -940,6 +940,16 @@ public abstract class AbstractBeanFactory
 
     @Override
     public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+      switch (method.getName()) {
+        case "equals":
+          // Only consider equal when proxies are identical.
+          return (proxy == args[0]);
+        case "hashCode":
+          // Use hashCode of proxy.
+          return System.identityHashCode(proxy);
+        case "toString":
+          return this.objectFactory.toString();
+      }
       try {
         return method.invoke(objectFactory.getObject(), args);
       }
