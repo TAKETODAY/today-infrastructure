@@ -28,7 +28,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.context.Ordered;
-import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.interceptor.HandlerInterceptorsCapable;
@@ -37,7 +37,7 @@ import lombok.Getter;
 
 /**
  * @author TODAY <br>
- *         2019-05-15 21:43
+ * 2019-05-15 21:43
  * @since 2.3.7
  */
 @Getter
@@ -115,7 +115,7 @@ public class ResourceMapping implements Serializable, Ordered, HandlerIntercepto
    * Sets the size of used buffers.
    *
    * @param bufferSize
-   *            size of buffer
+   *         size of buffer
    *
    * @return {@code this}
    */
@@ -131,19 +131,16 @@ public class ResourceMapping implements Serializable, Ordered, HandlerIntercepto
    * Sets the default expiration date for the resources.
    *
    * @param count
-   *            count
+   *         count
    * @param unit
-   *            time unit
+   *         time unit
    *
    * @return {@code this}
    */
   public ResourceMapping expires(long count, TimeUnit unit) {
+    Assert.notNull(unit, "time unit is required");
     if (count <= 0) {
       throw new IllegalArgumentException("count must be greater than zero");
-    }
-
-    if (unit == null) {
-      throw new IllegalArgumentException("time unit is required");
     }
     this.expires = unit.toMillis(count);
     return this;
@@ -154,7 +151,7 @@ public class ResourceMapping implements Serializable, Ordered, HandlerIntercepto
    * enabled gzip compression with {@code #gZip}.
    *
    * @param minLength
-   *            required minimum content length
+   *         required minimum content length
    *
    * @return {@code this}
    */
@@ -169,18 +166,13 @@ public class ResourceMapping implements Serializable, Ordered, HandlerIntercepto
    * CacheControl is empty, no Cache-Control header is applied to the response.
    *
    * @param cacheControl
-   *            cache control
+   *         cache control
    *
    * @return {@code this}
    */
   public ResourceMapping cacheControl(CacheControl cacheControl) {
-    ConfigurationException.nonNull(cacheControl, "cache control is required");
-    if (cacheControl.isEmpty()) {
-      throw new ConfigurationException("cache control is must not be empty");
-    }
-    else {
-      this.cacheControl = cacheControl;
-    }
+    Assert.notNull(cacheControl, "cache control is required");
+    this.cacheControl = cacheControl;
     return this;
   }
 
@@ -188,19 +180,19 @@ public class ResourceMapping implements Serializable, Ordered, HandlerIntercepto
    * Add pathPatterns to this mapping
    *
    * @param pathPatterns
-   *            Path patterns
+   *         Path patterns
+   *
    * @return {@link ResourceMapping}
+   *
    * @see ResourceMapping#setPathPatterns(String...)
    */
   public ResourceMapping addPathPatterns(String... pathPatterns) {
-
     final List<String> pathPatternsList = new ArrayList<>();
 
     Collections.addAll(pathPatternsList, Objects.requireNonNull(pathPatterns));
     Collections.addAll(pathPatternsList, this.pathPatterns);
 
     this.pathPatterns = pathPatternsList.toArray(new String[pathPatternsList.size()]);
-
     return this;
   }
 
@@ -208,15 +200,16 @@ public class ResourceMapping implements Serializable, Ordered, HandlerIntercepto
    * Set pathPatterns to this mapping
    *
    * @param pathPatterns
-   *            Path patterns
+   *         Path patterns
+   *
    * @return {@link ResourceMapping}
+   *
    * @see ResourceMapping#addPathPatterns(String...)
    */
   public ResourceMapping setPathPatterns(String... pathPatterns) {
     this.pathPatterns = pathPatterns == null
                         ? this.pathPatterns = Constant.EMPTY_STRING_ARRAY
                         : pathPatterns;
-
     return this;
   }
 
