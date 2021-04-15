@@ -28,8 +28,7 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.web.RequestMethod;
 
 /**
- * @author TODAY
- * @date 2020/12/8 21:46
+ * @author TODAY 2020/12/8 21:46
  */
 @Retention(RetentionPolicy.RUNTIME)
 @ActionMapping(method = RequestMethod.GET)
