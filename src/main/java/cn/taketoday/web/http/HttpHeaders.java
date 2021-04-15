@@ -42,6 +42,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -153,13 +154,19 @@ public abstract class HttpHeaders
    */
   public void setAcceptLanguage(List<Locale.LanguageRange> languages) {
     Assert.notNull(languages, "LanguageRange List must not be null");
+    final class Function0 implements Function<Locale.LanguageRange, String> {
+      @Override
+      public String apply(Locale.LanguageRange range) {
+        if (range.getWeight() == Locale.LanguageRange.MAX_WEIGHT) {
+          return range.getRange();
+        }
+        DecimalFormat decimal = new DecimalFormat("0.0", DECIMAL_FORMAT_SYMBOLS);
+        return range.getRange() + ";q=" + decimal.format(range.getWeight());
+      }
+    }
 
-    DecimalFormat decimal = new DecimalFormat("0.0", DECIMAL_FORMAT_SYMBOLS);
-    List<String> values = languages.stream()
-            .map(range -> range.getWeight() == Locale.LanguageRange.MAX_WEIGHT ? range.getRange() : range.getRange() + ";q=" + decimal
-                    .format(range.getWeight()))
-            .collect(Collectors.toList());
-    set(ACCEPT_LANGUAGE, StringUtils.collectionToString(values));
+    List<String> values = languages.stream().map(new Function0()).collect(Collectors.toList());
+    set(ACCEPT_LANGUAGE, StringUtils.collectionToString(values, ", "));
   }
 
   /**
@@ -344,7 +351,11 @@ public abstract class HttpHeaders
    * Return the value of the {@code Access-Control-Request-Method} request header.
    */
   public RequestMethod getAccessControlRequestMethod() {
-    return RequestMethod.valueOf(getFirst(ACCESS_CONTROL_REQUEST_METHOD));
+    final String first = getFirst(ACCESS_CONTROL_REQUEST_METHOD);
+    if (StringUtils.isEmpty(first)) {
+      return null;
+    }
+    return RequestMethod.valueOf(first);
   }
 
   /**
@@ -432,7 +443,7 @@ public abstract class HttpHeaders
     if (StringUtils.isEmpty(encodedCredentials)) {
       throw new IllegalArgumentException("'encodedCredentials' must not be null or blank");
     }
-    set(AUTHORIZATION, "Basic ".concat(encodedCredentials));
+    set(AUTHORIZATION, "Basic " .concat(encodedCredentials));
   }
 
   /**
@@ -501,7 +512,7 @@ public abstract class HttpHeaders
    * {@code Cache-Control} header.
    */
   public void setCacheControl(CacheControl cacheControl) {
-    setOrRemove(CACHE_CONTROL, cacheControl.toString());
+    setOrRemove(CACHE_CONTROL, cacheControl.getHeaderValue());
   }
 
   /**
@@ -650,12 +661,8 @@ public abstract class HttpHeaders
    */
   public void setContentType(MediaType mediaType) {
     if (mediaType != null) {
-      if (!mediaType.isWildcardType()) {
-        throw new IllegalArgumentException("Content-Type cannot contain wildcard type '*'");
-      }
-      if (!mediaType.isWildcardSubtype()) {
-        throw new IllegalArgumentException("Content-Type cannot contain wildcard subtype '*'");
-      }
+      Assert.isTrue(!mediaType.isWildcardType(), "Content-Type cannot contain wildcard type '*'");
+      Assert.isTrue(!mediaType.isWildcardSubtype(), "Content-Type cannot contain wildcard subtype '*'");
       set(CONTENT_TYPE, mediaType.toString());
     }
     else {
@@ -901,7 +908,7 @@ public abstract class HttpHeaders
    * Set the (new) values of the {@code If-None-Match} header.
    */
   public void setIfNoneMatch(List<String> ifNoneMatchList) {
-    set(IF_NONE_MATCH, StringUtils.collectionToString(ifNoneMatchList));
+    set(IF_NONE_MATCH, StringUtils.collectionToString(ifNoneMatchList, ", "));
   }
 
   /**
@@ -1279,7 +1286,7 @@ public abstract class HttpHeaders
    */
   public String getFieldValues(String headerName) {
     List<String> headerValues = get(headerName);
-    return (headerValues != null ? StringUtils.collectionToString(headerValues) : null);
+    return (headerValues != null ? StringUtils.collectionToString(headerValues, ", ") : null);
   }
 
   /**

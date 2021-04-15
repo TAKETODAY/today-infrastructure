@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.IntFunction;
 
@@ -171,7 +170,14 @@ public class DefaultHttpHeaders extends HttpHeaders {
     if (!(other instanceof DefaultHttpHeaders)) {
       return false;
     }
-    return Objects.equals(headers, ((DefaultHttpHeaders) other).headers);
+    return unwrap(this).equals(unwrap((DefaultHttpHeaders) other));
+  }
+
+  private static MultiValueMap<String, String> unwrap(DefaultHttpHeaders headers) {
+    while (headers.headers instanceof DefaultHttpHeaders) {
+      headers = (DefaultHttpHeaders) headers.headers;
+    }
+    return headers.headers;
   }
 
   @Override
