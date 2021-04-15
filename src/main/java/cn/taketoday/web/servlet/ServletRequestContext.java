@@ -326,30 +326,51 @@ public class ServletRequestContext extends RequestContext {
 
   @Override
   protected Model createModel() {
-    final class RequestModel extends ModelAttributes {
-      // auto flush to request attributes
-      @Override
-      public void setAttribute(String name, Object value) {
-        super.setAttribute(name, value);
-        request.setAttribute(name, value);
-      }
+    return new ServletRequestModel();
+  }
 
-      @Override
-      public Object removeAttribute(String name) {
+  private final class ServletRequestModel extends ModelAttributes {
+    // auto flush to request attributes
+    @Override
+    public void setAttribute(String name, Object value) {
+      super.setAttribute(name, value);
+      request.setAttribute(name, value);
+    }
+
+    @Override
+    public Object removeAttribute(String name) {
+      request.removeAttribute(name);
+      return super.removeAttribute(name);
+    }
+
+    @Override
+    public void clear() {
+      super.clear();
+      final HttpServletRequest request = ServletRequestContext.this.request;
+      Enumeration<String> attributeNames = request.getAttributeNames();
+      while (attributeNames.hasMoreElements()) {
+        final String name = attributeNames.nextElement();
         request.removeAttribute(name);
-        return super.removeAttribute(name);
-      }
-
-      @Override
-      public void clear() {
-        super.clear();
-        Enumeration<String> attributeNames = request.getAttributeNames();
-        while (attributeNames.hasMoreElements()) {
-          final String name = attributeNames.nextElement();
-          request.removeAttribute(name);
-        }
       }
     }
-    return new RequestModel();
+
+    @Override
+    public Object getAttribute(String name) {
+      Object attribute = super.getAttribute(name);
+      if (attribute == null) {
+        attribute = request.getAttribute(name);
+        if (attribute != null) {
+          super.setAttribute(name, attribute);
+        }
+      }
+      return attribute;
+    }
+
+    @Override
+    public boolean containsAttribute(String name) {
+      return hasAttribute(name) || request.getAttribute(name) != null;
+    }
+
   }
+
 }
