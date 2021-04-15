@@ -26,7 +26,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cn.taketoday.context.AttributeAccessorSupport;
-import cn.taketoday.context.utils.ConvertUtils;
 
 /**
  * @author TODAY 2021/4/1 15:56
@@ -38,11 +37,6 @@ public class ModelAttributes extends AttributeAccessorSupport implements Model, 
   @Override
   public boolean containsAttribute(String name) {
     return super.hasAttribute(name);
-  }
-
-  @Override
-  public <T> T getAttribute(String name, Class<T> targetClass) {
-    return ConvertUtils.convert(targetClass, getAttribute(name));
   }
 
   @Override

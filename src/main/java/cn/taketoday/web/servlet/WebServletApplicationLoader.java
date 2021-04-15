@@ -60,6 +60,7 @@ import cn.taketoday.web.servlet.initializer.DispatcherServletInitializer;
 import cn.taketoday.web.servlet.initializer.WebFilterInitializer;
 import cn.taketoday.web.servlet.initializer.WebListenerInitializer;
 import cn.taketoday.web.servlet.initializer.WebServletInitializer;
+import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
 import cn.taketoday.web.view.template.FreeMarkerTemplateViewResolver;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
@@ -393,6 +394,21 @@ public class WebServletApplicationLoader
     Collection<EventListener> eventListeners = applicationContext.getAnnotatedBeans(WebListener.class);
     for (EventListener eventListener : eventListeners) {
       contextInitializers.add(new WebListenerInitializer<>(eventListener));
+    }
+  }
+
+  /**
+   * set {@link DefaultTemplateViewResolver#setRunInServlet(boolean) }
+   *
+   * @param templateResolver
+   *         {@link TemplateViewResolver} object
+   * @see DefaultTemplateViewResolver#setRunInServlet(boolean)
+   */
+  @Override
+  protected void configureTemplateViewResolver(TemplateViewResolver templateResolver, WebMvcConfiguration mvcConfiguration) {
+    super.configureTemplateViewResolver(templateResolver, mvcConfiguration);
+    if (templateResolver instanceof DefaultTemplateViewResolver) {
+      ((DefaultTemplateViewResolver) templateResolver).setRunInServlet(true);
     }
   }
 

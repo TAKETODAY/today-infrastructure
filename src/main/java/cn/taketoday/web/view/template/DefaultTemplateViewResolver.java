@@ -22,7 +22,10 @@ package cn.taketoday.web.view.template;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.util.Objects;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.io.Resource;
@@ -41,7 +44,10 @@ import cn.taketoday.expression.VariableMapper;
 import cn.taketoday.expression.lang.EvaluationContext;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ui.Model;
+import cn.taketoday.web.servlet.HttpSessionModelAdapter;
+import cn.taketoday.web.servlet.ServletContextModelAdapter;
+import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.ServletRequestModelAdapter;
 
 /**
  * @author TODAY <br>
@@ -52,6 +58,7 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
 
   private final StandardExpressionContext sharedContext;
   private final ExpressionFactory expressionFactory = ExpressionFactory.getSharedInstance();
+  private boolean runInServlet;
 
   public DefaultTemplateViewResolver() {
     this(ContextUtils.getExpressionProcessor().getManager());
@@ -130,18 +137,73 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
   }
 
   protected ExpressionContext prepareContext(RequestContext context) {
-    return new TemplateViewResolverELContext(this.sharedContext, context);
+    final ExpressionResolver[] resolvers;
+    if (runInServlet) {
+      resolvers = ServletResolvers.getResolvers(sharedContext, context);
+    }
+    else {
+      resolvers = new ExpressionResolver[] {
+              new ModelAttributeResolver(context),
+              sharedContext.getResolver()
+      };
+    }
+
+    final CompositeExpressionResolver resolver = new CompositeExpressionResolver(resolvers);
+    return new TemplateViewResolverELContext(this.sharedContext, resolver);
   }
 
-  public static class TemplateViewResolverELContext extends ExpressionContext {
+  public void setRunInServlet(boolean runInServlet) {
+    this.runInServlet = runInServlet;
+  }
+
+  /**
+   * is Run In Servlet
+   */
+  public boolean isRunInServlet() {
+    return runInServlet;
+  }
+
+  static class ServletResolvers {
+
+    static ExpressionResolver[] getResolvers(StandardExpressionContext sharedContext, RequestContext context) {
+      if (context instanceof ServletRequestContext) {
+        final HttpServletRequest request = ((ServletRequestContext) context).getRequest();
+        final HttpSession session = request.getSession(false);
+        final ServletContext servletContext = request.getServletContext();
+
+        final ServletContextModelAdapter servletContextModelAdapter = new ServletContextModelAdapter(servletContext);
+        final ServletRequestModelAdapter servletRequestModelAdapter = new ServletRequestModelAdapter(request);
+
+        if (session != null) {
+          final HttpSessionModelAdapter httpSessionModelAdapter = new HttpSessionModelAdapter(session);
+          return new ExpressionResolver[] {
+                  new ModelAttributeResolver(context),
+                  new ModelAttributeResolver(servletRequestModelAdapter), // 1
+                  new ModelAttributeResolver(httpSessionModelAdapter), // 2
+                  new ModelAttributeResolver(servletContextModelAdapter), // 3
+                  sharedContext.getResolver()
+          };
+        }
+
+        return new ExpressionResolver[] {
+                new ModelAttributeResolver(context),
+                new ModelAttributeResolver(servletRequestModelAdapter), // 1
+                new ModelAttributeResolver(servletContextModelAdapter), // 2
+                sharedContext.getResolver()
+        };
+      }
+      throw new IllegalStateException("Not run in servlet");
+    }
+  }
+
+  private static final class TemplateViewResolverELContext extends ExpressionContext {
 
     private final ExpressionResolver elResolver;
     private final StandardExpressionContext delegate;
 
-    public TemplateViewResolverELContext(StandardExpressionContext delegate, RequestContext context) {
+    public TemplateViewResolverELContext(StandardExpressionContext delegate, ExpressionResolver elResolver) {
       this.delegate = delegate;
-      this.elResolver = new CompositeExpressionResolver(new ModelAttributeELResolver(context),
-                                                        delegate.getResolver());
+      this.elResolver = elResolver;
     }
 
     @Override
@@ -167,70 +229,6 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
     @Override
     public Object handlePropertyNotResolved(Object base, Object property, EvaluationContext ctx) {
       return Constant.BLANK;
-    }
-
-  }
-
-  /**
-   * For the {@link Model} attribute
-   *
-   * @author TODAY <br>
-   * 2019-11-25 19:48
-   */
-  public static class ModelAttributeELResolver extends ExpressionResolver {
-
-    private final RequestContext context;
-
-    public ModelAttributeELResolver(RequestContext context) {
-      this.context = context;
-    }
-
-    @Override
-    public Object getValue(ExpressionContext context, Object base, Object property) {
-
-      if (base == null && property instanceof String) {
-        final RequestContext requestContext = this.context;
-        if (requestContext.containsAttribute((String) property)) {
-          Objects.requireNonNull(context).setPropertyResolved(base, property);
-          return requestContext.getAttribute((String) property);
-        }
-      }
-      return null;
-    }
-
-    @Override
-    public void setValue(ExpressionContext elContext, Object base, Object property, Object value) {
-
-      if (base == null && property instanceof String) {
-        final String beanName = (String) property;
-        final RequestContext context = this.context;
-        if (context.containsAttribute(beanName)) {
-          context.setAttribute(beanName, value);
-          Objects.requireNonNull(elContext).setPropertyResolved(base, property);
-        }
-      }
-    }
-
-    @Override
-    public Class<?> getType(ExpressionContext elContext, Object base, Object property) {
-
-      if (base == null && property instanceof String) {
-        final RequestContext context = this.context;
-        if (context.containsAttribute((String) property)) {
-          Objects.requireNonNull(elContext).setPropertyResolved(true);
-          return context.getAttribute((String) property).getClass();
-        }
-      }
-      return null;
-    }
-
-    @Override
-    public boolean isReadOnly(ExpressionContext elContext, Object base, Object property) {
-
-      if (base == null && property instanceof String && context.containsAttribute((String) property)) {
-        Objects.requireNonNull(elContext).setPropertyResolved(true);
-      }
-      return false;
     }
 
   }

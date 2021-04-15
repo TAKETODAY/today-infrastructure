@@ -79,7 +79,9 @@ public interface Model {
    * @return an converted <code>Object</code> containing the value of the
    * attribute, or <code>null</code> if the attribute does not exist
    */
-  <T> T getAttribute(String name, Class<T> targetClass);
+  default <T> T getAttribute(String name, Class<T> targetClass) {
+    return ConvertUtils.convert(targetClass, getAttribute(name));
+  }
 
   /**
    * Stores an attribute in this request. Attributes are reset between requests..
