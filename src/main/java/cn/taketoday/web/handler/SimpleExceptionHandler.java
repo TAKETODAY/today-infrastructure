@@ -70,13 +70,13 @@ public class SimpleExceptionHandler
     }
   }
 
-  void logCatchThrowable(final Throwable target) {
+  protected void logCatchThrowable(final Throwable target) {
     if (log.isDebugEnabled()) {
       log.debug("Catch Throwable: [{}]", target.toString(), target);
     }
   }
 
-  void logResultedInException(Throwable target, Throwable handlerException) {
+  protected void logResultedInException(Throwable target, Throwable handlerException) {
     log.error("Handling of [{}] resulted in Exception: [{}]",
               target.getClass().getName(),
               handlerException.getClass().getName(), handlerException);
