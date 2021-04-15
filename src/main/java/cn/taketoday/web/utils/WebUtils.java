@@ -241,8 +241,12 @@ public abstract class WebUtils {
    * CORS checks are not invoked here for performance reasons.
    */
   public static boolean isPreFlightRequest(final RequestContext request) {
-    return RequestMethod.OPTIONS.name().equals(request.getMethod())
-            && request.requestHeaders().getFirst(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD) != null;
+    if (RequestMethod.OPTIONS.name().equals(request.getMethod())) {
+      final HttpHeaders requestHeaders = request.requestHeaders();
+      return requestHeaders.containsKey(HttpHeaders.ORIGIN)
+              && requestHeaders.containsKey(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);
+    }
+    return false;
   }
 
   // checkNotModified
@@ -250,7 +254,7 @@ public abstract class WebUtils {
 
   protected static boolean matches(final String matchHeader, final String etag) {
     if (matchHeader != null && StringUtils.isNotEmpty(etag)) {
-      return "*".equals(etag) || matchHeader.equals(etag);
+      return "*" .equals(etag) || matchHeader.equals(etag);
     }
     return false;
   }
