@@ -166,7 +166,7 @@ public abstract class HttpHeaders
     }
 
     List<String> values = languages.stream().map(new Function0()).collect(Collectors.toList());
-    set(ACCEPT_LANGUAGE, StringUtils.collectionToString(values, ", "));
+    set(ACCEPT_LANGUAGE, collectionToString(values));
   }
 
   /**
@@ -235,7 +235,7 @@ public abstract class HttpHeaders
    * header.
    */
   public void setAccessControlAllowHeaders(List<String> allowedHeaders) {
-    set(ACCESS_CONTROL_ALLOW_HEADERS, StringUtils.collectionToString(allowedHeaders));
+    set(ACCESS_CONTROL_ALLOW_HEADERS, collectionToString(allowedHeaders));
   }
 
   /**
@@ -249,8 +249,8 @@ public abstract class HttpHeaders
    * Set the (new) value of the {@code Access-Control-Allow-Methods} response
    * header.
    */
-  public void setAccessControlAllowMethods(List<RequestMethod> allowedMethods) {
-    set(ACCESS_CONTROL_ALLOW_METHODS, StringUtils.collectionToString(allowedMethods));
+  public void setAccessControlAllowMethods(List<?> allowedMethods) {
+    set(ACCESS_CONTROL_ALLOW_METHODS, collectionToString(allowedMethods));
   }
 
   /**
@@ -288,7 +288,7 @@ public abstract class HttpHeaders
    * header.
    */
   public void setAccessControlExposeHeaders(List<String> exposedHeaders) {
-    set(ACCESS_CONTROL_EXPOSE_HEADERS, StringUtils.collectionToString(exposedHeaders));
+    set(ACCESS_CONTROL_EXPOSE_HEADERS, collectionToString(exposedHeaders));
   }
 
   /**
@@ -328,7 +328,7 @@ public abstract class HttpHeaders
    * header.
    */
   public void setAccessControlRequestHeaders(List<String> requestHeaders) {
-    set(ACCESS_CONTROL_REQUEST_HEADERS, StringUtils.collectionToString(requestHeaders));
+    set(ACCESS_CONTROL_REQUEST_HEADERS, collectionToString(requestHeaders));
   }
 
   /**
@@ -404,7 +404,7 @@ public abstract class HttpHeaders
    * the {@code Allow} header.
    */
   public void setAllow(Set<RequestMethod> allowedMethods) {
-    set(ALLOW, StringUtils.collectionToString(allowedMethods));
+    set(ALLOW, StringUtils.collectionToString(allowedMethods)); // special case
   }
 
   /**
@@ -540,7 +540,7 @@ public abstract class HttpHeaders
    * Set the (new) value of the {@code Connection} header.
    */
   public void setConnection(List<String> connection) {
-    set(CONNECTION, StringUtils.collectionToString(connection));
+    set(CONNECTION, collectionToString(connection));
   }
 
   /**
@@ -849,7 +849,7 @@ public abstract class HttpHeaders
    * Set the (new) value of the {@code If-Match} header.
    */
   public void setIfMatch(List<String> ifMatchList) {
-    set(IF_MATCH, StringUtils.collectionToString(ifMatchList));
+    set(IF_MATCH, collectionToString(ifMatchList));
   }
 
   /**
@@ -908,7 +908,7 @@ public abstract class HttpHeaders
    * Set the (new) values of the {@code If-None-Match} header.
    */
   public void setIfNoneMatch(List<String> ifNoneMatchList) {
-    set(IF_NONE_MATCH, StringUtils.collectionToString(ifNoneMatchList, ", "));
+    set(IF_NONE_MATCH, collectionToString(ifNoneMatchList));
   }
 
   /**
@@ -1066,7 +1066,7 @@ public abstract class HttpHeaders
    *         the request header names
    */
   public void setVary(List<String> requestHeaders) {
-    set(VARY, StringUtils.collectionToString(requestHeaders));
+    set(VARY, StringUtils.collectionToString(requestHeaders, ", "));
   }
 
   /**
@@ -1286,7 +1286,11 @@ public abstract class HttpHeaders
    */
   public String getFieldValues(String headerName) {
     List<String> headerValues = get(headerName);
-    return (headerValues != null ? StringUtils.collectionToString(headerValues, ", ") : null);
+    return (headerValues != null ? collectionToString(headerValues) : null);
+  }
+
+  protected String collectionToString(Collection<?> headerValues) {
+    return StringUtils.collectionToString(headerValues, ", ");
   }
 
   /**
