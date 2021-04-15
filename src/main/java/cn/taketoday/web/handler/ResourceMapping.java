@@ -233,13 +233,8 @@ public class ResourceMapping implements Serializable, Ordered, HandlerIntercepto
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
-    builder.append("[locations=")
+    builder.append("ResourceMapping [locations=")
             .append(locations)
-            .append(", cacheControl=").append(cacheControl)
-            .append(", gzip=").append(gzip)
-            .append(", gzipMinLength=").append(gzipMinLength)
-            .append(", bufferSize=").append(bufferSize)
-            .append(", expires=").append(expires)
             .append(", interceptors=").append(Arrays.toString(interceptors))
             .append("]");
     return builder.toString();

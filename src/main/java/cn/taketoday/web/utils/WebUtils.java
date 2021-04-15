@@ -105,13 +105,16 @@ public abstract class WebUtils {
     return URLConnection.getFileNameMap().getContentTypeFor(filename);
   }
 
-  public static String getEtag(String name, long size, long lastModifid) {
+  public static String getEtag(String name, long size, long lastModified) {
     return new StringBuilder()
+            .append("W/\"")
             .append(name)
             .append(Constant.PATH_SEPARATOR)
             .append(size)
             .append(Constant.PATH_SEPARATOR)
-            .append(lastModifid).toString();
+            .append(lastModified)
+            .append('\"')
+            .toString();
   }
 
   // ---
