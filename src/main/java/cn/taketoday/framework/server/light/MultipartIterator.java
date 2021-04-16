@@ -20,13 +20,17 @@
 
 package cn.taketoday.framework.server.light;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import cn.taketoday.context.utils.MediaType;
-import cn.taketoday.web.http.ContentDisposition;
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.resolver.MultipartFileParsingException;
+import io.undertow.server.handlers.proxy.mod_cluster.VirtualHost;
 
 /**
  * The {@code MultipartIterator} iterates over the parts of a multipart/form-data request.
@@ -47,7 +51,8 @@ import cn.taketoday.web.http.HttpHeaders;
  *
  * @author TODAY 2021/4/13 10:53
  */
-public class MultipartIterator implements Iterator<Part> {
+public class MultipartIterator implements Iterator<RequestPart> {
+  protected final LightHttpConfig config;
 
   protected final MultipartInputStream in;
   protected boolean next;
@@ -57,14 +62,11 @@ public class MultipartIterator implements Iterator<Part> {
    *
    * @param req
    *         the multipart/form-data request
-   *
-   * @throws IOException
-   *         if an IO error occurs
-   * @throws IllegalArgumentException
-   *         if the given request's content type
-   *         is not multipart/form-data, or is missing the boundary
+   * @param config
+   *         light http config
    */
-  public MultipartIterator(HttpRequest req) throws IOException {
+  public MultipartIterator(final HttpRequest req, LightHttpConfig config) {
+    this.config = config;
     final HttpHeaders headers = req.getHeaders();
     final MediaType contentType = headers.getContentType();
     if (!contentType.isCompatibleWith(MediaType.MULTIPART_FORM_DATA)) {
@@ -73,7 +75,7 @@ public class MultipartIterator implements Iterator<Part> {
     final String boundary = contentType.getParameter("boundary"); // should be US-ASCII
     if (boundary == null)
       throw new IllegalArgumentException("Content-Type is missing boundary");
-    in = new MultipartInputStream(req.getBody(), Utils.getBytes(boundary));
+    in = new MultipartInputStream(req.getBody(), boundary.getBytes()); // todo charset
   }
 
   public boolean hasNext() {
@@ -85,25 +87,31 @@ public class MultipartIterator implements Iterator<Part> {
     }
   }
 
-  public Part next() {
+  /**
+   * @throws cn.taketoday.web.resolver.NotMultipartRequestException
+   *         if this request is not of type multipart/form-data
+   * @throws cn.taketoday.web.resolver.MultipartFileParsingException
+   *         multipart parse failed
+   */
+  @Override
+  public RequestPart next() throws MultipartFileParsingException {
     if (!hasNext())
       throw new NoSuchElementException();
     next = false;
-    Part p = new Part();
     try {
-      p.headers = Utils.readHeaders(in);
+      // 先解析 header
+      final HttpHeaders httpHeaders = Utils.readHeaders(in, config);
+      final int len = in.tail - in.head;
+      byte[] bytes = new byte[len]; // TODO 防止过大
+      in.read(bytes);
+      if (httpHeaders.containsKey(Constant.CONTENT_TYPE)) {
+        return new LightMultipartFile(new ByteArrayInputStream(bytes), httpHeaders);
+      }
+      return new RequestPart(new ByteArrayInputStream(bytes), httpHeaders);
     }
-    catch (IOException ioe) {
-      throw new RuntimeException(ioe);
+    catch (IOException e) {
+      throw new MultipartFileParsingException(e);
     }
-    final ContentDisposition contentDisposition = p.headers.getContentDisposition();
-    p.name = contentDisposition.getName();
-    p.filename = contentDisposition.getFilename();
-    p.body = in;
-    return p;
   }
 
-  public void remove() {
-    throw new UnsupportedOperationException();
-  }
 }

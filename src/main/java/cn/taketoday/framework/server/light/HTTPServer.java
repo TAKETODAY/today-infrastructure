@@ -361,7 +361,25 @@ public class HTTPServer {
    *         if an error occurs
    */
   protected void handleConnection(Socket socket) throws IOException {
-    BufferedInputStream in = new BufferedInputStream(socket.getInputStream(), 4096);
+//    BufferedInputStream in = new BufferedInputStream(socket.getInputStream(), 4096);
+    final ByteArrayOutputStream inString = new ByteArrayOutputStream();
+    BufferedInputStream in = new BufferedInputStream(socket.getInputStream(), 4096) {
+
+      @Override
+      public synchronized int read() throws IOException {
+        final int read = super.read();
+        inString.write(read);
+        return read;
+      }
+
+      @Override
+      public synchronized int read(byte[] b, int off, int len) throws IOException {
+        final int read = super.read(b, off, len);
+        inString.write(b, off, len);
+        return read;
+      }
+    };
+
     final OutputStream socketOutputStream = socket.getOutputStream();
     BufferedOutputStream out = new BufferedOutputStream(socketOutputStream, 4096);
 //    final ByteArrayOutputStream out = new ByteArrayOutputStream() {
@@ -383,7 +401,7 @@ public class HTTPServer {
       resp = new HttpResponse(out);
       // create request and response and handle transaction
       try {
-        req = new HttpRequest(in, socket, port);
+        req = new HttpRequest(in, socket, config);
         resp.setClientCapabilities(req);
 
         if (preprocessTransaction(req, resp)) {
@@ -420,6 +438,9 @@ public class HTTPServer {
       }
       finally {
 //        System.out.println(out);
+//        final String name = StandardCharsets.ISO_8859_1.name();
+//        System.out.println(inString.toString(name));
+        System.out.println(inString);
         resp.close(); // close response and flush output
       }
       // consume any leftover body data so next request can be processed

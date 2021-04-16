@@ -26,8 +26,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import javax.rmi.CORBA.Util;
-
 import cn.taketoday.web.http.HttpHeaders;
 
 /**
@@ -66,7 +64,8 @@ public class LightHttpServerUtilsTests extends TestCase {
 
     final byte[] bytes = http.getBytes(StandardCharsets.UTF_8);
 
-    final HttpHeaders strings = Utils.readHeaders(new ByteArrayInputStream(header.getBytes(StandardCharsets.UTF_8)));
+    final LightHttpConfig config = LightHttpConfig.defaultConfig();
+    final HttpHeaders strings = Utils.readHeaders(new ByteArrayInputStream(header.getBytes(StandardCharsets.UTF_8)), config);
 
     System.out.println(strings);
   }

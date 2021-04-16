@@ -20,14 +20,18 @@
 
 package cn.taketoday.framework.server.light;
 
+import java.io.IOException;
+
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.framework.ConfigurableWebServerApplicationContext;
 import cn.taketoday.framework.WebApplication;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.Controller;
+import cn.taketoday.web.annotation.POST;
 import cn.taketoday.web.annotation.RequestParam;
+import cn.taketoday.web.multipart.MultipartFile;
+import lombok.Data;
 import test.framework.NettyApplication;
 
 /**
@@ -39,9 +43,7 @@ import test.framework.NettyApplication;
 public class LightWebApplication {
 
   public static void main(String[] args) {
-    final ConfigurableWebServerApplicationContext context
-            = WebApplication.runReactive(LightWebApplication.class);
-    System.out.println(context);
+    WebApplication.runReactive(LightWebApplication.class);
   }
 
   @ActionMapping(value = { "/", "/index", "/index.html" }, method = { RequestMethod.GET, RequestMethod.POST })
@@ -57,5 +59,30 @@ public class LightWebApplication {
     return "index/index.ftl";
   }
 
+  @POST("/upload")
+  public UploadResult upload(MultipartFile file, String other) throws IOException {
+    final String fileName = file.getFileName();
+    final long size = file.getSize();
+    final String content = new String(file.getBytes());
+    final String name = file.getName();
+    return new UploadResult(fileName, size, content, name, other);
+  }
+
+  @Data
+  static class UploadResult {
+    final String fileName;
+    final long size;
+    final String content;
+    final String name;
+    final String other;
+
+    UploadResult(String fileName, long size, String content, String name, String other) {
+      this.fileName = fileName;
+      this.size = size;
+      this.content = content;
+      this.name = name;
+      this.other = other;
+    }
+  }
 
 }

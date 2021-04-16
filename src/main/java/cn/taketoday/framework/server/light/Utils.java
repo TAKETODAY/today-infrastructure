@@ -45,7 +45,6 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
-import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.Constant;
 import cn.taketoday.web.http.DefaultHttpHeaders;
 import cn.taketoday.web.http.HttpHeaders;
@@ -838,14 +837,17 @@ public abstract class Utils {
    *
    * @param in
    *         the stream from which the headers are read
+   * @param config
+   *         light http config
    *
    * @return the read headers (possibly empty, if none exist)
    *
    * @throws IOException
    *         if an IO error occurs or the headers are malformed
    *         or there are more than 100 header lines
+   * @see LightHttpConfig#getHeaderMaxCount()
    */
-  public static HttpHeaders readHeaders(InputStream in) throws IOException {
+  public static HttpHeaders readHeaders(InputStream in, LightHttpConfig config) throws IOException {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     String line;
     String prevLine = Constant.BLANK;
@@ -867,7 +869,7 @@ public abstract class Utils {
       String value = line.substring(separator + 1).trim(); // ignore LWS
       headers.add(name, value);
       prevLine = line;
-      if (++count > 100) // TODO header settings
+      if (++count > config.getHeaderMaxCount())
         throw new IOException("too many header lines");
     }
     return headers;

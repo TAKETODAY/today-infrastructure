@@ -20,15 +20,19 @@
 
 package cn.taketoday.framework.server.light;
 
+import java.io.InputStream;
+
 /**
  * @author TODAY 2021/4/15 0:02
  */
 public class LightHttpConfig {
+  private int port = 80; // todo update port
 
+  private int headerMaxCount = 100;
   /**
    * user determine the response body initial size
    */
-  private int responseBodyInitialSize;
+  private int responseBodyInitialSize = 1024;
 
   public void setResponseBodyInitialSize(int responseBodyInitialSize) {
     this.responseBodyInitialSize = responseBodyInitialSize;
@@ -37,4 +41,32 @@ public class LightHttpConfig {
   public int getResponseBodyInitialSize() {
     return responseBodyInitialSize;
   }
+
+  public void setHeaderMaxCount(int headerMaxCount) {
+    this.headerMaxCount = headerMaxCount;
+  }
+
+  /**
+   * @return max header count
+   *
+   * @see Utils#readHeaders(InputStream, LightHttpConfig)
+   */
+  public int getHeaderMaxCount() {
+    return headerMaxCount;
+  }
+
+  public void setPort(int port) {
+    this.port = port;
+  }
+
+  public int getPort() {
+    return port;
+  }
+
+  // static
+
+  public static LightHttpConfig defaultConfig() {
+    return new LightHttpConfig();
+  }
+
 }

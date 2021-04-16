@@ -36,15 +36,7 @@ import cn.taketoday.framework.Constant;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.utils.WebUtils;
 
-import static cn.taketoday.framework.server.light.Utils.detectLocalHostName;
-import static cn.taketoday.framework.server.light.Utils.parseRange;
-import static cn.taketoday.framework.server.light.Utils.parseULong;
-import static cn.taketoday.framework.server.light.Utils.readHeaders;
-import static cn.taketoday.framework.server.light.Utils.readLine;
-import static cn.taketoday.framework.server.light.Utils.readToken;
-import static cn.taketoday.framework.server.light.Utils.split;
-import static cn.taketoday.framework.server.light.Utils.splitElements;
-import static cn.taketoday.framework.server.light.Utils.trimDuplicates;
+import static cn.taketoday.framework.server.light.Utils.*;
 
 /**
  * The {@code Request} class encapsulates a single HTTP request.
@@ -84,11 +76,10 @@ public final class HttpRequest {
    * @throws IOException
    *         if an error occurs
    */
-  public HttpRequest(InputStream in, Socket socket, int port) throws IOException {
+  public HttpRequest(InputStream in, Socket socket, LightHttpConfig config) throws IOException {
     readRequestLine(in);
-    this.port = port;
     this.socket = socket;
-    final HttpHeaders requestHeaders = readHeaders(in);
+    final HttpHeaders requestHeaders = readHeaders(in, config);
     this.requestHeaders = requestHeaders;
     // RFC2616#3.6 - if "chunked" is used, it must be the last one
     // RFC2616#4.4 - if non-identity Transfer-Encoding is present,
@@ -99,7 +90,7 @@ public final class HttpRequest {
     String header = requestHeaders.getFirst(Constant.TRANSFER_ENCODING);
     if (header != null && !header.toLowerCase(Locale.US).equals(Constant.IDENTITY)) {
       if (Arrays.asList(splitElements(header, true)).contains(Constant.CHUNKED))
-        body = new ChunkedInputStream(in, requestHeaders);
+        body = new ChunkedInputStream(in, requestHeaders, config);
       else
         body = in; // body ends when connection closes
     }

@@ -45,6 +45,10 @@ public class MultipartInputStream extends FilterInputStream {
   protected int len; // length of found boundary
   protected int state; // initial, started data, start boundary, EOS, last boundary, epilogue
 
+//  enum ParsingStatus {
+//    initial,
+//  }
+
   /**
    * Constructs a MultipartInputStream with the given underlying stream.
    *

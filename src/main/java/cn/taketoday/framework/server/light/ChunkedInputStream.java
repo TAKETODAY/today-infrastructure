@@ -32,12 +32,14 @@ import static cn.taketoday.framework.server.light.Utils.readLine;
 /**
  * The {@code ChunkedInputStream} decodes an InputStream whose data has the
  * "chunked" transfer encoding applied to it, providing the underlying data.
+ *
  * @author TODAY 2021/4/13 11:26
  */
-public class ChunkedInputStream extends LimitedInputStream{
+public class ChunkedInputStream extends LimitedInputStream {
 
   protected HttpHeaders headers;
   protected boolean initialized;
+  protected final LightHttpConfig config;
 
   /**
    * Constructs a ChunkedInputStream with the given underlying stream, and
@@ -49,13 +51,16 @@ public class ChunkedInputStream extends LimitedInputStream{
    * @param headers
    *         the headers container to which the stream's trailing
    *         headers will be added, or null if they are to be discarded
+   * @param config
+   *         light http config
    *
    * @throws NullPointerException
    *         if the given stream is null
    */
-  public ChunkedInputStream(InputStream in, HttpHeaders headers) {
+  public ChunkedInputStream(InputStream in, HttpHeaders headers, LightHttpConfig config) {
     super(in, 0, true);
     this.headers = headers;
+    this.config = config;
   }
 
   @Override
@@ -88,7 +93,7 @@ public class ChunkedInputStream extends LimitedInputStream{
       if (limit == 0) { // last chunk has size 0
         limit = -1; // mark end of stream
         // read trailing headers, if any
-        HttpHeaders trailingHeaders = readHeaders(in);
+        HttpHeaders trailingHeaders = readHeaders(in, config);
         if (headers != null)
           headers.addAll(trailingHeaders);
       }

@@ -25,10 +25,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpCookie;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.context.utils.CollectionUtils;
+import cn.taketoday.context.utils.DefaultMultiValueMap;
 import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
@@ -46,7 +48,8 @@ public class LightRequestContext extends RequestContext {
 
   private ResponseOutputBuffer responseBody;
 
-  final LightHttpConfig config;
+  private final LightHttpConfig config;
+  private List<RequestPart> requestParts;
 
   public LightRequestContext(HttpRequest request, HttpResponse response, LightHttpConfig config) {
     this.request = request;
@@ -90,6 +93,12 @@ public class LightRequestContext extends RequestContext {
   protected Map<String, String[]> doGetParameters() {
     try {
       final MultiValueMap<String, String> parameters = request.getParameters();
+      // form-data
+      for (final RequestPart requestPart : getRequestParts()) {
+        if (!(requestPart instanceof MultipartFile)) {
+          parameters.add(requestPart.getName(), requestPart.getStringValue());
+        }
+      }
       return parameters.toArrayMap(String[]::new);
     }
     catch (IOException e) {
@@ -126,9 +135,35 @@ public class LightRequestContext extends RequestContext {
     return request.getBody();
   }
 
+  /**
+   * map list MultipartFile
+   *
+   * @throws cn.taketoday.web.resolver.NotMultipartRequestException
+   *         if this request is not of type multipart/form-data
+   * @throws cn.taketoday.web.resolver.MultipartFileParsingException
+   *         multipart parse failed
+   */
   @Override
   protected MultiValueMap<String, MultipartFile> parseMultipartFiles() {
-    return null;
+    final DefaultMultiValueMap<String, MultipartFile> ret = new DefaultMultiValueMap<>();
+    for (final RequestPart requestPart : getRequestParts()) {
+      if (requestPart instanceof MultipartFile) {
+        ret.add(requestPart.getName(), (MultipartFile) requestPart);
+      }
+    }
+    return ret;
+  }
+
+  private List<RequestPart> getRequestParts() {
+    if (requestParts == null) {
+      final MultipartIterator multipartIterator = new MultipartIterator(request, config);
+      final ArrayList<RequestPart> parts = new ArrayList<>();
+      while (multipartIterator.hasNext()) {
+        parts.add(multipartIterator.next());
+      }
+      requestParts = parts;
+    }
+    return requestParts;
   }
 
   @Override
