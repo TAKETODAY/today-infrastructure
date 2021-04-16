@@ -28,7 +28,7 @@ import cn.taketoday.web.servlet.WebServletApplicationLoader;
 
 /**
  * @author TODAY <br>
- *         2019-10-13 23:29
+ * 2019-10-13 23:29
  */
 public class ServletWebServerApplicationLoader extends WebServletApplicationLoader {
 

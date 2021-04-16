@@ -1,4 +1,4 @@
-# TODAY framework
+# TODAY Framework
 ![Java8](https://img.shields.io/badge/JDK-8+-success.svg)
 ![GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)
 [![Author](https://img.shields.io/badge/Author-TODAY-blue.svg)](https://github.com/TAKETODAY)

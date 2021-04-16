@@ -253,7 +253,7 @@ public final class HttpRequest {
    * @see #parseParameters()
    */
   public MultiValueMap<String, String> getParameters() throws IOException {
-    if (params == null){
+    if (params == null) {
       params = parseParameters();
     }
     return params;

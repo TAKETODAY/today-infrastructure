@@ -38,7 +38,7 @@ import io.undertow.util.HttpString;
 
 /**
  * @author TODAY <br>
- *         2019-01-12 17:28
+ * 2019-01-12 17:28
  */
 public abstract class UndertowCompressionUtils {
 
@@ -52,11 +52,12 @@ public abstract class UndertowCompressionUtils {
    * Optionally wrap the given {@link HttpHandler} for HTTP compression support.
    *
    * @param compression
-   *            the HTTP compression configuration
+   *         the HTTP compression configuration
    * @param httpHandler
-   *            the HTTP handler to wrap
+   *         the HTTP handler to wrap
+   *
    * @return the wrapped HTTP handler if compression is enabled, or the handler
-   *         itself
+   * itself
    */
   public static HttpHandler configureCompression(CompressionConfiguration compression, //
                                                  HttpHandler httpHandler) //

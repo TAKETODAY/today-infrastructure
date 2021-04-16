@@ -20,18 +20,6 @@
 
 package cn.taketoday.framework.server.light;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Date;
-import java.util.Formatter;
-import java.util.Locale;
-
-import cn.taketoday.web.RequestContext;
-
 /**
  * The {@code FileContextHandler} services a context by mapping it
  * to a file or folder (recursively) on disk.

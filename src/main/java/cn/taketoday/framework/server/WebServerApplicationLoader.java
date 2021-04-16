@@ -28,7 +28,7 @@ import cn.taketoday.web.config.WebMvcConfiguration;
 
 /**
  * @author TODAY <br>
- *         2019-11-14 20:39
+ * 2019-11-14 20:39
  */
 public class WebServerApplicationLoader extends WebApplicationLoader {
 

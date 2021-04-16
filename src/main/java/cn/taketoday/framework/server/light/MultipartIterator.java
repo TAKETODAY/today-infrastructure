@@ -28,9 +28,7 @@ import java.util.NoSuchElementException;
 import cn.taketoday.context.utils.MediaType;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.resolver.MultipartFileParsingException;
-import io.undertow.server.handlers.proxy.mod_cluster.VirtualHost;
 
 /**
  * The {@code MultipartIterator} iterates over the parts of a multipart/form-data request.
@@ -41,11 +39,9 @@ import io.undertow.server.handlers.proxy.mod_cluster.VirtualHost;
  *     method="post" and enctype="multipart/form-data", and an action URL of your choice,
  *     for example action="/upload". This form can be served normally like any other
  *     resource, e.g. from an HTML file on disk.
- * <li>Add a context handler for the action path ("/upload" in this example), using either
- *     the explicit {@link VirtualHost#addContext} method or the {@link Context} annotation.
  * <li>In the context handler implementation, construct a {@code MultipartIterator} from
- *     the client {@code Request}.
- * <li>Iterate over the form {@link Part}s, processing each named field as appropriate -
+ *     the client {@code HttpRequest}.
+ * <li>Iterate over the form {@link RequestPart}s, processing each named field as appropriate -
  *     for the file input field, read the uploaded file using the body input stream.
  * </ol>
  *

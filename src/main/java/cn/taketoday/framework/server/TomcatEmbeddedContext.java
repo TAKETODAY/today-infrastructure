@@ -30,7 +30,7 @@ import cn.taketoday.context.logger.LoggerFactory;
 
 /**
  * @author TODAY <br>
- *         2019-02-05 13:30
+ * 2019-02-05 13:30
  */
 public class TomcatEmbeddedContext extends StandardContext {
   private static final Logger log = LoggerFactory.getLogger(TomcatEmbeddedContext.class);
