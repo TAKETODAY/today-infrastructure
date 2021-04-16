@@ -205,6 +205,7 @@
       <scope>test</scope>
     </dependency>
 
+<!--
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-framework</artifactId>
@@ -216,6 +217,7 @@
         </exclusion>
       </exclusions>
     </dependency>
+-->
 
   </dependencies>
 
