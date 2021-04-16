@@ -26,6 +26,12 @@ import cn.taketoday.framework.WebApplication;
 import cn.taketoday.framework.annotation.EnableTomcatHandling;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.GET;
+import cn.taketoday.web.socket.EnableWebSocket;
+import cn.taketoday.web.socket.Message;
+import cn.taketoday.web.socket.WebSocketConfiguration;
+import cn.taketoday.web.socket.WebSocketHandler;
+import cn.taketoday.web.socket.WebSocketHandlerRegistry;
+import cn.taketoday.web.socket.WebSocketSession;
 
 /**
  * @author TODAY 2021/4/5 13:03
