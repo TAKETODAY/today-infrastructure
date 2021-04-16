@@ -180,7 +180,7 @@ public class NettyApplication {
 * [Undertow](https://github.com/undertow-io/undertow): High performance non-blocking webserver
 * [Today Web](https://github.com/TAKETODAY/today-web): A Java library for building web applications
 * [Today Context](https://github.com/TAKETODAY/today-context): A Java library for dependency injection and aspect oriented programing
-
+* [JLHTTP](https://www.freeutils.net/source/jlhttp/): Java Lightweight HTTP Server (Web Server)
 
 
 ## 📄 开源协议
