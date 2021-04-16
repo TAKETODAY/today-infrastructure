@@ -435,8 +435,10 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   /**
    * map list MultipartFile
    *
-   * @throws cn.taketoday.web.resolver.MultipartFileParsingException
+   * @throws cn.taketoday.web.resolver.NotMultipartRequestException
    *         if this request is not of type multipart/form-data
+   * @throws cn.taketoday.web.resolver.MultipartFileParsingException
+   *         multipart parse failed
    */
   protected abstract MultiValueMap<String, MultipartFile> parseMultipartFiles();
 
