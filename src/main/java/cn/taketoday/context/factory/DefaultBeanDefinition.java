@@ -395,6 +395,14 @@ public class DefaultBeanDefinition
     return target.newInstance(args);
   }
 
+  /**
+   * use {@link MethodInvoker} fast invoke init methods
+   *
+   * @param bean
+   *         target bean
+   * @param beanFactory
+   *         target factory
+   */
   public final void fastInvokeInitMethods(Object bean, BeanFactory beanFactory) {
     final MethodInvoker[] methodInvokers = this.methodInvokers;
     if (ObjectUtils.isNotEmpty(methodInvokers)) {
