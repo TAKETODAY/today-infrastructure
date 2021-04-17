@@ -44,8 +44,8 @@ import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.http.DefaultHttpHeaders;
 import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.multipart.DefaultMultipartFile;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.multipart.ServletPartMultipartFile;
 import cn.taketoday.web.resolver.MultipartParsingException;
 import cn.taketoday.web.resolver.NotMultipartRequestException;
 import cn.taketoday.web.ui.Model;
@@ -294,7 +294,7 @@ public class ServletRequestContext extends RequestContext {
     try {
       for (final Part part : request.getParts()) {
         final String name = part.getName();
-        multipartFiles.add(name, new DefaultMultipartFile(part));
+        multipartFiles.add(name, new ServletPartMultipartFile(part));
       }
       return multipartFiles;
     }

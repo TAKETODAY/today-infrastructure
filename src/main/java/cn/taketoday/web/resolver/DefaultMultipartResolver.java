@@ -30,9 +30,9 @@ import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.multipart.DefaultMultipartFile;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.multipart.ServletPartMultipartFile;
 
 import static cn.taketoday.web.resolver.DataBinderMapParameterResolver.isMap;
 
@@ -53,7 +53,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
   }
 
   protected static boolean supportsMultipart(final Class<?> type) {
-    return type == MultipartFile.class || type == DefaultMultipartFile.class;
+    return type == MultipartFile.class || type == ServletPartMultipartFile.class;
   }
 
   @Override
@@ -79,7 +79,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
       final Class<?> parameterClass = parameter.getParameterClass();
       return CollectionUtils.isCollection(parameterClass) && (
               parameter.isGenericPresent(MultipartFile.class, 0)
-                      || parameter.isGenericPresent(DefaultMultipartFile.class, 0)
+                      || parameter.isGenericPresent(ServletPartMultipartFile.class, 0)
       );
     }
 
