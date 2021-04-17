@@ -36,7 +36,7 @@ import lombok.Setter;
 @Props(prefix = "multipart.")
 public class MultipartConfiguration {
 
-  /*** file upload location */
+  /*** temp file upload location */
   private String location = System.getProperty("java.io.tmpdir");
 
   private String encoding = Constant.DEFAULT_ENCODING;
