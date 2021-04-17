@@ -26,7 +26,7 @@ package cn.taketoday.web.resolver;
  * @author TODAY 2021/3/21 21:08
  * @since 3.0
  */
-public class NotMultipartRequestException extends MultipartFileParsingException {
+public class NotMultipartRequestException extends MultipartParsingException {
 
   public NotMultipartRequestException(String message) {
     super(message);

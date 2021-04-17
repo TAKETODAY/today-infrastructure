@@ -20,27 +20,28 @@
 package cn.taketoday.web.resolver;
 
 /**
- * MultipartFile cannot be parsed
+ * Multipart cannot be parsed include
+ * {@link cn.taketoday.web.multipart.MultipartFile} and normal part
  *
  * @author TODAY 2021/1/17 10:41
  * @since 3.0
  */
-public class MultipartFileParsingException extends ParameterReadFailedException {
+public class MultipartParsingException extends ParameterReadFailedException {
   private static final long serialVersionUID = 1L;
 
-  public MultipartFileParsingException() {
+  public MultipartParsingException() {
     super();
   }
 
-  public MultipartFileParsingException(String message) {
+  public MultipartParsingException(String message) {
     super(message);
   }
 
-  public MultipartFileParsingException(Throwable cause) {
+  public MultipartParsingException(Throwable cause) {
     super(cause);
   }
 
-  public MultipartFileParsingException(String message, Throwable cause) {
+  public MultipartParsingException(String message, Throwable cause) {
     super(message, cause);
   }
 }
