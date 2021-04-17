@@ -31,7 +31,7 @@ import javax.servlet.http.Part;
  * @author TODAY <br>
  * 2018-06-28 22:40:32
  */
-public class ServletPartMultipartFile implements MultipartFile {
+public final class ServletPartMultipartFile implements MultipartFile {
 
   private final Part part;
   public static final int BUFFER_SIZE = 4096;
