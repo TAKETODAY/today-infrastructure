@@ -52,11 +52,11 @@ public abstract class GeneratorSupport<T extends Accessor> {
 
   static final String DEFAULT_SUPER = "Ljava/lang/Object;";
 
-  String className;
-  ClassLoader classLoader;
-  final Class<?> targetClass;
+  protected String className;
+  protected ClassLoader classLoader;
+  protected final Class<?> targetClass;
 
-  static final Mappings<Accessor, GeneratorSupport<?>> mappings = new Mappings<Accessor, GeneratorSupport<?>>() {
+  protected static final Mappings<Accessor, GeneratorSupport<?>> mappings = new Mappings<Accessor, GeneratorSupport<?>>() {
     @Override
     protected Accessor createValue(Object key, GeneratorSupport<?> generator) {
       try {
@@ -68,7 +68,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
     }
   };
 
-  GeneratorSupport(final Class<?> targetClass) {
+  protected GeneratorSupport(final Class<?> targetClass) {
     Assert.notNull(targetClass, "targetClass must not be null");
     this.targetClass = targetClass;
   }
@@ -79,7 +79,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
     return (T) mappings.get(cacheKey, this);
   }
 
-  T fallback(Exception exception) {
+  protected T fallback(Exception exception) {
     if (exception instanceof InvocationTargetException) {
       if (((InvocationTargetException) exception).getTargetException() instanceof SecurityException) {
         return fallbackInstance();
@@ -92,7 +92,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
   }
 
   @SuppressWarnings("unchecked")
-  T createInternal() throws Exception {
+  protected T createInternal() throws Exception {
     if (cannotAccess()) {
       return fallbackInstance();
     }
@@ -105,18 +105,18 @@ public abstract class GeneratorSupport<T extends Accessor> {
     }
   }
 
-  abstract Object cacheKey();
+  protected abstract Object cacheKey();
 
-  abstract T fallbackInstance();
+  protected abstract T fallbackInstance();
 
-  abstract boolean cannotAccess();
+  protected abstract boolean cannotAccess();
 
-  Class<T> generateClass(final ClassLoader classLoader) throws Exception {
+  protected Class<T> generateClass(final ClassLoader classLoader) throws Exception {
     final byte[] b = DefaultGeneratorStrategy.INSTANCE.generate(getClassGenerator());
     return CglibReflectUtils.defineClass(getClassName(), b, classLoader, CglibReflectUtils.getProtectionDomain(targetClass));
   }
 
-  ClassLoader getClassLoader() {
+  protected ClassLoader getClassLoader() {
     if (classLoader == null) {
       classLoader = targetClass.getClassLoader();
       if (classLoader == null) {
@@ -126,18 +126,18 @@ public abstract class GeneratorSupport<T extends Accessor> {
     return classLoader;
   }
 
-  abstract ClassGenerator getClassGenerator();
+  protected abstract ClassGenerator getClassGenerator();
 
-  String getClassName() {
+  protected String getClassName() {
     if (className == null) {
       this.className = createClassName();
     }
     return className;
   }
 
-  abstract String createClassName();
+  protected abstract String createClassName();
 
-  void buildClassNameSuffix(final StringBuilder builder, final Executable target) {
+  protected void buildClassNameSuffix(final StringBuilder builder, final Executable target) {
     if (target.getParameterCount() != 0) {
       for (final Class<?> parameterType : target.getParameterTypes()) {
         builder.append('$');
@@ -160,11 +160,11 @@ public abstract class GeneratorSupport<T extends Accessor> {
     }
   }
 
-  int getArgsIndex() {
+  protected int getArgsIndex() {
     return 2;
   }
 
-  void prepareParameters(final CodeEmitter codeEmitter, Executable targetExecutable) {
+  protected void prepareParameters(final CodeEmitter codeEmitter, Executable targetExecutable) {
 
     if (targetExecutable.getParameterCount() == 0) {
       return;
@@ -194,14 +194,14 @@ public abstract class GeneratorSupport<T extends Accessor> {
     }
   }
 
-  ClassEmitter beginClass(ClassVisitor v) {
+  protected ClassEmitter beginClass(ClassVisitor v) {
     final ClassEmitter ce = new ClassEmitter(v);
     ce.beginClass(ACC_PUBLIC | ACC_FINAL, getClassName().replace('.', '/'), getSuperType(), getInterfaces());
     EmitUtils.nullConstructor(ce);
     return ce;
   }
 
-  String[] getInterfaces() {
+  protected String[] getInterfaces() {
     return null;
   }
 
