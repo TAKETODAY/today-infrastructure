@@ -20,25 +20,17 @@
 
 package cn.taketoday.framework.server.light;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
-import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.http.ContentDisposition;
 import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.resolver.MultipartFileParsingException;
 
 /**
  * @author TODAY 2021/4/16 23:41
  */
-public class RequestPart {
+public abstract class RequestPart {
   protected final HttpHeaders headers;
-  protected final ByteArrayInputStream inputStream;
   protected ContentDisposition contentDisposition;
 
-  protected RequestPart(ByteArrayInputStream inputStream, HttpHeaders httpHeaders) {
-    this.inputStream = inputStream;
+  protected RequestPart(HttpHeaders httpHeaders) {
     this.headers = httpHeaders;
   }
 
@@ -55,20 +47,6 @@ public class RequestPart {
       contentDisposition = headers.getContentDisposition();
     }
     return contentDisposition;
-  }
-
-  public ByteArrayInputStream getInputStream() {
-    return inputStream;
-  }
-
-  public String getStringValue() {
-    try {
-      final String token = Utils.readToken(inputStream, -1, StandardCharsets.ISO_8859_1, 8192);
-      return StringUtils.decodeUrl(token);
-    }
-    catch (IOException e) {
-      throw new MultipartFileParsingException(); // todo 异常不对
-    }
   }
 
 }

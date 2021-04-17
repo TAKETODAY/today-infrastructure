@@ -30,13 +30,17 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.context.utils.CollectionUtils;
+import cn.taketoday.context.utils.DataSize;
 import cn.taketoday.context.utils.DefaultMultiValueMap;
 import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.exception.FileSizeExceededException;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpStatus;
+import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.resolver.MultipartParsingException;
 import cn.taketoday.web.resolver.ParameterReadFailedException;
 
 /**
@@ -52,9 +56,9 @@ public class LightRequestContext extends RequestContext {
   private List<RequestPart> requestParts;
 
   public LightRequestContext(HttpRequest request, HttpResponse response, LightHttpConfig config) {
+    this.config = config;
     this.request = request;
     this.response = response;
-    this.config = config;
   }
 
   @Override
@@ -95,8 +99,8 @@ public class LightRequestContext extends RequestContext {
       final MultiValueMap<String, String> parameters = request.getParameters();
       // form-data
       for (final RequestPart requestPart : getRequestParts()) {
-        if (!(requestPart instanceof MultipartFile)) {
-          parameters.add(requestPart.getName(), requestPart.getStringValue());
+        if (requestPart instanceof FieldRequestPart) {
+          parameters.add(requestPart.getName(), ((FieldRequestPart) requestPart).getStringValue());
         }
       }
       return parameters.toArrayMap(String[]::new);
@@ -140,7 +144,7 @@ public class LightRequestContext extends RequestContext {
    *
    * @throws cn.taketoday.web.resolver.NotMultipartRequestException
    *         if this request is not of type multipart/form-data
-   * @throws cn.taketoday.web.resolver.MultipartFileParsingException
+   * @throws cn.taketoday.web.resolver.MultipartParsingException
    *         multipart parse failed
    */
   @Override
@@ -154,14 +158,31 @@ public class LightRequestContext extends RequestContext {
     return ret;
   }
 
+  /**
+   * @throws FileSizeExceededException
+   */
   private List<RequestPart> getRequestParts() {
     if (requestParts == null) {
-      final MultipartIterator multipartIterator = new MultipartIterator(request, config);
-      final ArrayList<RequestPart> parts = new ArrayList<>();
-      while (multipartIterator.hasNext()) {
-        parts.add(multipartIterator.next());
+      try {
+        final long contentLength = getContentLength();
+        final LightHttpConfig config = this.config;
+        final MultipartConfiguration multipartConfig = config.getMultipartConfig();
+        if (contentLength > multipartConfig.getMaxRequestSize().toBytes()) {
+          throw new FileSizeExceededException(multipartConfig.getMaxRequestSize(), null)
+                  .setActual(DataSize.of(contentLength));
+        }
+
+        final MultipartIterator multipartIterator = new MultipartIterator(request);
+        final MultipartInputStream inputStream = multipartIterator.getInputStream();
+        final ArrayList<RequestPart> parts = new ArrayList<>();
+        while (multipartIterator.hasNext(inputStream)) {
+          parts.add(multipartIterator.obtainNext(config, multipartConfig));
+        }
+        requestParts = parts;
       }
-      requestParts = parts;
+      catch (IOException e) {
+        throw new MultipartParsingException("multipart read failed", e);
+      }
     }
     return requestParts;
   }

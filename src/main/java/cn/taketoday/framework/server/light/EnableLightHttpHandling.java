@@ -27,6 +27,7 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.framework.server.WebServer;
+import cn.taketoday.web.multipart.MultipartConfiguration;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
@@ -61,7 +62,9 @@ class LightHttpConfiguration {
   }
 
   @MissingBean
-  LightHttpConfig lightHttpConfig() {
-    return new LightHttpConfig();
+  LightHttpConfig lightHttpConfig(MultipartConfiguration multipartConfig) {
+    final LightHttpConfig lightHttpConfig = LightHttpConfig.defaultConfig();
+    lightHttpConfig.setMultipartConfig(multipartConfig);
+    return lightHttpConfig;
   }
 }

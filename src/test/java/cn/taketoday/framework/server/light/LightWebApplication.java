@@ -22,7 +22,9 @@ package cn.taketoday.framework.server.light;
 
 import java.io.IOException;
 
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.framework.WebApplication;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestMethod;
@@ -30,6 +32,7 @@ import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.POST;
 import cn.taketoday.web.annotation.RequestParam;
+import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.multipart.MultipartFile;
 import lombok.Data;
 import test.framework.NettyApplication;
@@ -37,9 +40,9 @@ import test.framework.NettyApplication;
 /**
  * @author TODAY 2021/4/13 19:42
  */
-@Import(NettyApplication.class)
 @Controller
 @EnableLightHttpHandling
+@Import({ NettyApplication.class, LightWebApplication.AppConfig.class })
 public class LightWebApplication {
 
   public static void main(String[] args) {
@@ -83,6 +86,19 @@ public class LightWebApplication {
       this.name = name;
       this.other = other;
     }
+  }
+
+  @Configuration
+  static class AppConfig {
+
+    @Singleton
+    LightHttpConfig lightHttpConfig(MultipartConfiguration multipartConfig) {
+      final LightHttpConfig lightHttpConfig = LightHttpConfig.defaultConfig();
+      lightHttpConfig.setMultipartConfig(multipartConfig);
+      multipartConfig.setLocation("D:/dev/temp/upload/");
+      return lightHttpConfig;
+    }
+
   }
 
 }

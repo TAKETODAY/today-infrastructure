@@ -20,9 +20,17 @@
 
 package cn.taketoday.framework.server.light;
 
+import org.apache.tomcat.util.http.fileupload.FileUploadException;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.http.HttpHeaders;
@@ -31,10 +39,28 @@ import cn.taketoday.web.multipart.MultipartFile;
 /**
  * @author TODAY 2021/4/16 21:15
  */
-public class LightMultipartFile extends RequestPart implements MultipartFile {
+public final class LightMultipartFile extends RequestPart implements MultipartFile {
+  private InputStream inputStream;
 
-  public LightMultipartFile(ByteArrayInputStream inputStream, HttpHeaders httpHeaders) {
-    super(inputStream, httpHeaders);
+  private File tempFile;
+  private byte[] cachedBytes;
+
+  private final int partSize;
+
+  public void setTempFile(File tempFile) {
+    this.tempFile = tempFile;
+  }
+
+  LightMultipartFile(File tempFile, HttpHeaders httpHeaders, int partSize) {
+    super(httpHeaders);
+    this.partSize = partSize;
+    this.tempFile = tempFile;
+  }
+
+  LightMultipartFile(byte[] bytes, HttpHeaders httpHeaders, int partSize) {
+    super(httpHeaders);
+    this.cachedBytes = bytes;
+    this.partSize = partSize;
   }
 
   @Override
@@ -44,7 +70,7 @@ public class LightMultipartFile extends RequestPart implements MultipartFile {
 
   @Override
   public long getSize() {
-    return inputStream.available();
+    return partSize;
   }
 
   @Override
@@ -59,19 +85,58 @@ public class LightMultipartFile extends RequestPart implements MultipartFile {
 
   @Override
   public void save(File dest) throws IOException {
+    // fix #3 Upload file not found exception
+    File parentFile = dest.getParentFile();
+    if (!parentFile.exists()) {
+      parentFile.mkdirs();
+    }
+    final InputStream inputStream = this.inputStream;
+    if (inputStream != null) {
+      /*
+       * The uploaded file is being stored on disk
+       * in a temporary location so move it to the
+       * desired file.
+       */
+      if (dest.exists()) {
+        if (!dest.delete()) {
+          throw new FileUploadException(
+                  "Cannot write uploaded file to disk!");
+        }
+      }
+      if (!tempFile.renameTo(dest)) {
 
+        try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(tempFile));
+                BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(dest))) {
+
+          Utils.copy(in, out);
+        }
+      }
+    }
+    else {
+      try (FileOutputStream fout = new FileOutputStream(dest)) {
+        fout.write(getBytes());
+      }
+    }
   }
 
   @Override
   public boolean isEmpty() {
-    return inputStream.available() == 0L;
+    return partSize == 0L;
+  }
+
+  void setCachedBytes(byte[] cachedBytes) {
+    this.cachedBytes = cachedBytes;
   }
 
   @Override
   public byte[] getBytes() throws IOException {
-    byte[] ret = new byte[(int) getSize()];
-    inputStream.read(ret);
-    return ret;
+    byte[] cachedBytes = this.cachedBytes;
+    if (cachedBytes == null) {
+      cachedBytes = new byte[(int) getSize()];
+      Utils.readBytes(inputStream, cachedBytes);
+      this.cachedBytes = cachedBytes;
+    }
+    return cachedBytes;
   }
 
   @Override
@@ -80,12 +145,19 @@ public class LightMultipartFile extends RequestPart implements MultipartFile {
   }
 
   @Override
-  public void delete() throws IOException {
-
+  public void delete() {
+    if (tempFile != null) {
+      tempFile.delete();
+    }
   }
 
   @Override
-  public ByteArrayInputStream getInputStream() {
+  public InputStream getInputStream() {
+    InputStream inputStream = this.inputStream;
+    if (inputStream == null) {
+      inputStream = new ByteArrayInputStream(cachedBytes);
+      this.inputStream = inputStream;
+    }
     return inputStream;
   }
 

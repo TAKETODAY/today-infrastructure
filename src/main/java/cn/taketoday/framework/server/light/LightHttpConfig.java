@@ -22,6 +22,8 @@ package cn.taketoday.framework.server.light;
 
 import java.io.InputStream;
 
+import cn.taketoday.web.multipart.MultipartConfiguration;
+
 /**
  * @author TODAY 2021/4/15 0:02
  */
@@ -32,7 +34,29 @@ public class LightHttpConfig {
   /**
    * user determine the response body initial size
    */
-  private int responseBodyInitialSize = 1024;
+  private int responseBodyInitialSize = 512;
+
+  private MultipartConfiguration multipartConfig;
+
+  /**
+   * Multi-segment request file size exceeds this value to cache the file
+   */
+  private int maxMultipartInMemSize  = 4096;
+
+  /**
+   * The buffer size of the file when buffering to a temporary
+   *
+   * @see MultipartConfiguration#getLocation()
+   */
+  private int multipartBufferSize;
+
+  public void setMultipartConfig(MultipartConfiguration multipartConfig) {
+    this.multipartConfig = multipartConfig;
+  }
+
+  public MultipartConfiguration getMultipartConfig() {
+    return multipartConfig;
+  }
 
   public void setResponseBodyInitialSize(int responseBodyInitialSize) {
     this.responseBodyInitialSize = responseBodyInitialSize;
@@ -63,6 +87,29 @@ public class LightHttpConfig {
     return port;
   }
 
+  public void setMaxMultipartInMemSize(int maxMultipartInMemSize) {
+    this.maxMultipartInMemSize = maxMultipartInMemSize;
+  }
+
+  /**
+   * Multi-segment request file size exceeds this value to cache the file
+   */
+  public int getMaxMultipartInMemSize() {
+    return maxMultipartInMemSize;
+  }
+
+  /**
+   * The buffer size of the file when buffering to a temporary
+   *
+   * @see MultipartConfiguration#getLocation()
+   */
+  public int getMultipartBufferSize() {
+    return multipartBufferSize;
+  }
+
+  public void setMultipartBufferSize(int multipartBufferSize) {
+    this.multipartBufferSize = multipartBufferSize;
+  }
   // static
 
   public static LightHttpConfig defaultConfig() {

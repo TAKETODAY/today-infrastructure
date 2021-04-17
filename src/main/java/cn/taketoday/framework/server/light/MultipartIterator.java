@@ -20,15 +20,19 @@
 
 package cn.taketoday.framework.server.light;
 
-import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 
+import cn.taketoday.context.utils.DataSize;
 import cn.taketoday.context.utils.MediaType;
-import cn.taketoday.web.Constant;
+import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.framework.Constant;
+import cn.taketoday.web.exception.FileSizeExceededException;
 import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.resolver.MultipartFileParsingException;
+import cn.taketoday.web.multipart.MultipartConfiguration;
+import cn.taketoday.web.resolver.MultipartParsingException;
+import cn.taketoday.web.resolver.NotMultipartRequestException;
 
 /**
  * The {@code MultipartIterator} iterates over the parts of a multipart/form-data request.
@@ -47,66 +51,105 @@ import cn.taketoday.web.resolver.MultipartFileParsingException;
  *
  * @author TODAY 2021/4/13 10:53
  */
-public class MultipartIterator implements Iterator<RequestPart> {
-  protected final LightHttpConfig config;
+public class MultipartIterator {
 
-  protected final MultipartInputStream in;
-  protected boolean next;
+  protected final MultipartInputStream inputStream;
+  protected boolean hasNext;
 
   /**
    * Creates a new MultipartIterator from the given request.
    *
    * @param req
    *         the multipart/form-data request
-   * @param config
-   *         light http config
    */
-  public MultipartIterator(final HttpRequest req, LightHttpConfig config) {
-    this.config = config;
+  public MultipartIterator(final HttpRequest req) {
     final HttpHeaders headers = req.getHeaders();
     final MediaType contentType = headers.getContentType();
     if (!contentType.isCompatibleWith(MediaType.MULTIPART_FORM_DATA)) {
-      throw new IllegalArgumentException("Content-Type is not multipart/form-data");
+      throw new NotMultipartRequestException("Content-Type is not multipart/form-data");
     }
     final String boundary = contentType.getParameter("boundary"); // should be US-ASCII
-    if (boundary == null)
-      throw new IllegalArgumentException("Content-Type is missing boundary");
-    in = new MultipartInputStream(req.getBody(), boundary.getBytes()); // todo charset
+    if (boundary == null) {
+      throw new MultipartParsingException("Content-Type is missing boundary");
+    }
+    inputStream = new MultipartInputStream(req.getBody(), boundary.getBytes()); // todo charset
   }
 
-  public boolean hasNext() {
-    try {
-      return next || (next = in.nextPart());
-    }
-    catch (IOException ioe) {
-      throw new RuntimeException(ioe);
-    }
+  public boolean hasNext() throws IOException {
+    return hasNext(inputStream);
+  }
+
+  public boolean hasNext(MultipartInputStream inputStream) throws IOException {
+    return hasNext || (hasNext = inputStream.nextPart());
+  }
+
+  public MultipartInputStream getInputStream() {
+    return inputStream;
   }
 
   /**
    * @throws cn.taketoday.web.resolver.NotMultipartRequestException
    *         if this request is not of type multipart/form-data
-   * @throws cn.taketoday.web.resolver.MultipartFileParsingException
+   * @throws cn.taketoday.web.resolver.MultipartParsingException
    *         multipart parse failed
    */
-  @Override
-  public RequestPart next() throws MultipartFileParsingException {
-    if (!hasNext())
-      throw new NoSuchElementException();
-    next = false;
-    try {
-      // 先解析 header
-      final HttpHeaders httpHeaders = Utils.readHeaders(in, config);
-      final int len = in.tail - in.head;
-      byte[] bytes = new byte[len]; // TODO 防止过大
-      in.read(bytes);
-      if (httpHeaders.containsKey(Constant.CONTENT_TYPE)) {
-        return new LightMultipartFile(new ByteArrayInputStream(bytes), httpHeaders);
-      }
-      return new RequestPart(new ByteArrayInputStream(bytes), httpHeaders);
+  public RequestPart obtainNext(LightHttpConfig config, MultipartConfiguration multipartConfig) throws IOException {
+    hasNext = false;
+    // 先解析 header
+//      final String contentDisposition = Utils.readLine(inputStream); // Content-Disposition
+//      final String contentType = Utils.readLine(inputStream); // Content-Disposition
+
+    final MultipartInputStream inputStream = this.inputStream;
+    final HttpHeaders httpHeaders = Utils.readHeaders(inputStream, config);
+    final int partSize = inputStream.tail - inputStream.head;
+    final DataSize maxFileSize = multipartConfig.getMaxFileSize();
+
+    if (partSize > maxFileSize.toBytes()) {
+      throw new FileSizeExceededException(maxFileSize, null)
+              .setActual(DataSize.of(partSize));
     }
-    catch (IOException e) {
-      throw new MultipartFileParsingException(e);
+    if (httpHeaders.containsKey(Constant.CONTENT_TYPE)) {
+//      if (!"\n".equals(contentType)) {
+      if (partSize > config.getMaxMultipartInMemSize()) {
+        final String tempLocation = multipartConfig.getLocation();
+        final File tempFileDir = new File(tempLocation);
+        final String randomString = StringUtils.getRandomString(10);
+        final File tempFile = new File(tempFileDir, randomString);
+        // save to temp file
+        try (final FileOutputStream fileOutput = new FileOutputStream(tempFile)) {
+          final int bufferSize = config.getMultipartBufferSize();
+          final int readTimes = partSize / bufferSize; // readTimes > 1
+          if (readTimes == 0) {
+            // part size 太小了 直接一次性读完
+            byte[] buffer = Utils.readBytes(inputStream, partSize);
+            fileOutput.write(buffer, 0, partSize);
+            final LightMultipartFile multipartFile = new LightMultipartFile(tempFile, httpHeaders, partSize);
+            multipartFile.setCachedBytes(buffer);
+            return multipartFile;
+          }
+          else {
+            // 分次读取
+            byte[] buffer = new byte[bufferSize];
+            int bytesRead = 0;
+            for (int i = 0; i < readTimes; i++) {
+              bytesRead += inputStream.read(buffer, 0, bufferSize);
+              fileOutput.write(buffer, 0, bytesRead);
+            }
+            // 读取剩余字节
+            buffer = Utils.readBytes(inputStream, partSize - bytesRead);
+            fileOutput.write(buffer);
+            return new LightMultipartFile(tempFile, httpHeaders, partSize);
+          }
+        }
+      }
+      else {
+        final byte[] bytes = Utils.readBytes(inputStream, partSize);
+        return new LightMultipartFile(bytes, httpHeaders, partSize); // inputStream memory
+      }
+    }
+    else {
+      final byte[] bytes = Utils.readBytes(inputStream, partSize);
+      return new FieldRequestPart(bytes, httpHeaders);
     }
   }
 
