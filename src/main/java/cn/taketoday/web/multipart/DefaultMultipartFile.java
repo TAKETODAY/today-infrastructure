@@ -92,7 +92,6 @@ public class DefaultMultipartFile implements MultipartFile {
 
   @Override
   public byte[] getBytes() throws IOException {
-
     try (final InputStream in = getInputStream()) {
       if (in == null) {
         return new byte[0];

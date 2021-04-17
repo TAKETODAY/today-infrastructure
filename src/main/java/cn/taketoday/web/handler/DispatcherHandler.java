@@ -217,17 +217,23 @@ public class DispatcherHandler extends WebApplicationContextSupport {
                      final RequestContext context,
                      final HandlerAdapter adapter) throws Throwable {
     try {
-      final Object view = adapter.handle(context, handler);
-      if (view != HandlerAdapter.NONE_RETURN_VALUE) {
-        lookupResultHandler(handler, view)
-                .handleResult(context, handler, view);
+      final Object result = adapter.handle(context, handler);
+      if (result != HandlerAdapter.NONE_RETURN_VALUE) {
+        lookupResultHandler(handler, result)
+                .handleResult(context, handler, result);
       }
-      // @since 3.0 flush headers
-      context.applyHeaders();
     }
     catch (Throwable e) {
       handleException(handler, e, context);
     }
+    postHandle(context);
+  }
+
+  protected void postHandle(RequestContext context) {
+    // @since 3.0 flush exception headers
+    context.applyHeaders();
+    // @since 3.0 cleanup MultipartFiles
+    context.cleanupMultipartFiles();
   }
 
   /**
@@ -249,18 +255,16 @@ public class DispatcherHandler extends WebApplicationContextSupport {
     // clear context
     context.reset();
     // handle exception
-    final Object view = getExceptionHandler()
+    final Object result = getExceptionHandler()
             .handleException(context, ExceptionUtils.unwrapThrowable(exception), handler);
-    if (view != HandlerAdapter.NONE_RETURN_VALUE) {
+    if (result != HandlerAdapter.NONE_RETURN_VALUE) {
       for (final RuntimeResultHandler resultHandler : resultHandlers) {
-        if (resultHandler.supportsResult(view)) {
-          resultHandler.handleResult(context, handler, view);
+        if (resultHandler.supportsResult(result)) {
+          resultHandler.handleResult(context, handler, result);
           break;
         }
       }
     }
-    // @since 3.0 flush exception headers
-    context.applyHeaders();
   }
 
   /**

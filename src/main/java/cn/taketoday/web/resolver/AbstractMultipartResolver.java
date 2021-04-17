@@ -58,12 +58,7 @@ public abstract class AbstractMultipartResolver
         throw new FileSizeExceededException(maxRequestSize, null)
                 .setActual(DataSize.of(context.getContentLength()));
       }
-      try {
-        return resolveInternal(context, parameter, context.multipartFiles());
-      }
-      finally {
-        cleanupMultipart(context);
-      }
+      return resolveInternal(context, parameter, context.multipartFiles());
     }
     return null;
   }
@@ -96,8 +91,6 @@ public abstract class AbstractMultipartResolver
 
   @Override
   public abstract boolean supports(final MethodParameter parameter);
-
-  protected void cleanupMultipart(final RequestContext request) {}
 
   public MultipartConfiguration getMultipartConfiguration() {
     return multipartConfiguration;

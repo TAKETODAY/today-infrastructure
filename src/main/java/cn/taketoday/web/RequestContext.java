@@ -28,12 +28,14 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpCookie;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import cn.taketoday.context.EmptyObject;
 import cn.taketoday.context.io.Readable;
 import cn.taketoday.context.io.Writable;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.context.utils.ObjectUtils;
@@ -915,6 +917,24 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   @Override
   public void flush() throws IOException {
     // no-op
+  }
+
+  public void cleanupMultipartFiles() {
+    final MultiValueMap<String, MultipartFile> multipartFiles = this.multipartFiles;
+    if (!CollectionUtils.isEmpty(multipartFiles)) {
+      for (final Map.Entry<String, List<MultipartFile>> entry : multipartFiles.entrySet()) {
+        final List<MultipartFile> value = entry.getValue();
+        for (final MultipartFile multipartFile : value) {
+          try {
+            multipartFile.delete();
+          }
+          catch (IOException e) {
+            LoggerFactory.getLogger(RequestContext.class)
+                    .error("error occurred when cleanup multipart", e);
+          }
+        }
+      }
+    }
   }
 
   @Override
