@@ -36,8 +36,6 @@ import lombok.Setter;
 @Props(prefix = "multipart.")
 public class MultipartConfiguration {
 
-  private static final long serialVersionUID = 1L;
-
   /*** file upload location */
   private String location = System.getProperty("java.io.tmpdir");
 
