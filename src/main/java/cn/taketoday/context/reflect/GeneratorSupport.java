@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context.reflect;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 
@@ -32,6 +33,7 @@ import cn.taketoday.context.cglib.core.CodeGenerationException;
 import cn.taketoday.context.cglib.core.DefaultGeneratorStrategy;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.TypeUtils;
+import cn.taketoday.context.exception.BeanInstantiationException;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.Mappings;
@@ -91,18 +93,32 @@ public abstract class GeneratorSupport<T extends Accessor> {
     throw new CodeGenerationException(exception);
   }
 
-  @SuppressWarnings("unchecked")
+  /**
+   * @throws Exception
+   *         cannot generate class
+   * @throws BeanInstantiationException
+   *         cannot create a {@link Accessor}
+   * @see ClassUtils#newInstance(Constructor, Object[])
+   */
   protected T createInternal() throws Exception {
     if (cannotAccess()) {
       return fallbackInstance();
     }
     final ClassLoader classLoader = getClassLoader();
+    final Class<T> accessorClass = generateIfNecessary(classLoader);
+    final Constructor<T> constructor = ClassUtils.obtainConstructor(accessorClass);
+    return ClassUtils.newInstance(constructor, null);
+  }
+
+  @SuppressWarnings("unchecked")
+  private Class<T> generateIfNecessary(ClassLoader classLoader) throws Exception {
     try {
-      return (T) ClassUtils.newInstance(classLoader.loadClass(getClassName()));
+      return (Class<T>) classLoader.loadClass(getClassName());
     }
-    catch (ClassNotFoundException e) {
-      return ClassUtils.newInstance(generateClass(classLoader));
-    }
+    catch (ClassNotFoundException ignored) {}
+    final byte[] bytes = DefaultGeneratorStrategy.INSTANCE.generate(getClassGenerator());
+    return CglibReflectUtils.defineClass(
+            getClassName(), bytes, classLoader, CglibReflectUtils.getProtectionDomain(targetClass));
   }
 
   protected abstract Object cacheKey();
@@ -110,11 +126,6 @@ public abstract class GeneratorSupport<T extends Accessor> {
   protected abstract T fallbackInstance();
 
   protected abstract boolean cannotAccess();
-
-  protected Class<T> generateClass(final ClassLoader classLoader) throws Exception {
-    final byte[] b = DefaultGeneratorStrategy.INSTANCE.generate(getClassGenerator());
-    return CglibReflectUtils.defineClass(getClassName(), b, classLoader, CglibReflectUtils.getProtectionDomain(targetClass));
-  }
 
   protected ClassLoader getClassLoader() {
     if (classLoader == null) {
