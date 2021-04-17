@@ -27,8 +27,8 @@ import java.util.function.Supplier;
 import cn.taketoday.context.AttributeAccessorSupport;
 import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.utils.Assert;
+import cn.taketoday.context.utils.SingletonSupplier;
 
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import static cn.taketoday.context.utils.ContextUtils.createBeanDefinition;
 
 /**
@@ -45,7 +45,7 @@ public class FactoryBeanDefinition<T>
   private Supplier<FactoryBean<T>> factorySupplier;
 
   public FactoryBeanDefinition(String name, Class<?> factoryClass, FactoryBean<T> factoryBean) {
-    this(createBeanDefinition(name, factoryClass), () -> factoryBean);
+    this(createBeanDefinition(name, factoryClass), SingletonSupplier.of(factoryBean));
   }
 
   public FactoryBeanDefinition(String name, Class<?> factoryClass, Supplier<FactoryBean<T>> factorySupplier) {
@@ -57,7 +57,8 @@ public class FactoryBeanDefinition<T>
   }
 
   public FactoryBeanDefinition(BeanDefinition factoryDef, Supplier<FactoryBean<T>> factorySupplier) {
-    this.factoryDef = nonNull(factoryDef);
+    Assert.notNull(factoryDef, "factory BeanDefinition cannot be null");
+    this.factoryDef = factoryDef;
     this.factorySupplier = factorySupplier;
   }
 
@@ -88,11 +89,13 @@ public class FactoryBeanDefinition<T>
   public FactoryBean<T> getFactory() {
     final Supplier<FactoryBean<T>> supplier = getFactorySupplier();
     Assert.state(supplier != null, "factorySupplier must not be null");
-    return nonNull(supplier.get(), "The provided FactoryBean cannot be null");
+    final FactoryBean<T> obj = supplier.get();
+    Assert.state(obj != null, "The provided FactoryBean cannot be null");
+    return obj;
   }
 
   public void setFactory(FactoryBean<T> factory) {
-    this.factorySupplier = () -> factory;
+    this.factorySupplier = SingletonSupplier.of(factory);
   }
 
   public void setFactorySupplier(Supplier<FactoryBean<T>> supplier) {

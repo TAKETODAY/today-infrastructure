@@ -47,7 +47,6 @@ import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 import static cn.taketoday.context.Constant.BLANK;
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 
 /**
  * A {@link ResourceResolver} implementation that is able to resolve a specified
@@ -217,7 +216,8 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
    * @see AntPathMatcher
    */
   public void setPathMatcher(PathMatcher pathMatcher) {
-    this.pathMatcher = nonNull(pathMatcher, "PathMatcher must not be null");
+    Assert.notNull(pathMatcher, "PathMatcher must not be null");
+    this.pathMatcher = pathMatcher;
   }
 
   /**

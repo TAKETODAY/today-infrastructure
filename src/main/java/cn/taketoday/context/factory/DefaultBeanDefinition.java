@@ -37,6 +37,7 @@ import cn.taketoday.context.Ordered;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.reflect.BeanConstructor;
+import cn.taketoday.context.reflect.MethodInvoker;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
@@ -109,6 +110,8 @@ public class DefaultBeanDefinition
   private BeanConstructor<?> constructor;
   /** lazy init flag @since 3.0 */
   private Boolean lazyInit;
+  /** @since 3.0 fast invoke init methods */
+  private MethodInvoker[] methodInvokers;
 
   public DefaultBeanDefinition(String name, Class<?> beanClass) {
     setName(name);
@@ -227,7 +230,18 @@ public class DefaultBeanDefinition
 
   @Override
   public BeanDefinition setInitMethods(Method... initMethods) {
-    this.initMethods = initMethods;
+    if (ObjectUtils.isNotEmpty(initMethods)) {
+      this.initMethods = initMethods;
+      this.methodInvokers = new MethodInvoker[initMethods.length];
+      int i = 0;
+      for (final Method initMethod : initMethods) {
+        methodInvokers[i++] = MethodInvoker.create(initMethod);
+      }
+    }
+    else {
+      this.initMethods = EMPTY_METHOD;
+      this.methodInvokers = null;
+    }
     return this;
   }
 
@@ -359,6 +373,7 @@ public class DefaultBeanDefinition
     return executable;
   }
 
+  /** @since 3.0 */
   @Override
   public Object newInstance(final BeanFactory factory) {
     final BeanConstructor<?> target = getConstructor(factory);
@@ -366,10 +381,28 @@ public class DefaultBeanDefinition
     return target.newInstance(args);
   }
 
+  /**
+   * @param factory
+   *         input bean factory
+   * @param args
+   *         arguments to use when creating a corresponding instance
+   *
+   * @since 3.0
+   */
   @Override
   public Object newInstance(BeanFactory factory, Object... args) {
     final BeanConstructor<?> target = getConstructor(factory);
     return target.newInstance(args);
+  }
+
+  public final void fastInvokeInitMethods(Object bean, BeanFactory beanFactory) {
+    final MethodInvoker[] methodInvokers = this.methodInvokers;
+    if (ObjectUtils.isNotEmpty(methodInvokers)) {
+      for (final MethodInvoker methodInvoker : methodInvokers) {
+        final Object[] args = resolveParameter(methodInvoker.getMethod(), beanFactory);
+        methodInvoker.invoke(bean, args);
+      }
+    }
   }
 
   /**

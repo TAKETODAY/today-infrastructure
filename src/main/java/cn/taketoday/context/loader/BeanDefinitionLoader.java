@@ -53,12 +53,6 @@ public interface BeanDefinitionLoader {
   }
 
   /**
-   * @param beanName
-   * @param beanClass
-   * @param attributes
-   *
-   * @return
-   *
    * @since 3.0
    */
   BeanDefinition createBeanDefinition(String beanName,

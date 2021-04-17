@@ -422,24 +422,35 @@ public abstract class AbstractBeanFactory
    *
    * @param bean
    *         Bean instance
-   * @param methods
-   *         Initialize methods
+   * @param def
+   *         bean definition
    *
    * @throws BeanInitializingException
    *         when invoke init methods
+   * @see Component
+   * @see InitializingBean
+   * @see javax.annotation.PostConstruct
    */
-  protected void invokeInitMethods(final Object bean, final Method[] methods) {
-    for (final Method method : methods) {
-      try {
-        //method.setAccessible(true); // fix: can not access a member
-        method.invoke(bean, resolveParameter(makeAccessible(method), this));
-      }
-      catch (Exception e) {
-        throw new BeanInitializingException(
-                "An Exception Occurred When [" + bean
-                        + "] invoke init method: [" + method + "]", e);
+  protected void invokeInitMethods(final Object bean, final BeanDefinition def) {
+    // invoke @PostConstruct or initMethods defined in @Component
+    if (def instanceof DefaultBeanDefinition) {
+      ((DefaultBeanDefinition) def).fastInvokeInitMethods(bean, this);
+    }
+    else {
+      for (final Method method : def.getInitMethods()) { /*never be null*/
+        try {
+          //method.setAccessible(true); // fix: can not access a member
+          final Object[] args = resolveParameter(makeAccessible(method), this);
+          method.invoke(bean, args);
+        }
+        catch (Exception e) {
+          throw new BeanInitializingException(
+                  "An Exception Occurred When [" + bean
+                          + "] invoke init method: [" + method + "]", e);
+        }
       }
     }
+    // InitializingBean#afterPropertiesSet
     if (bean instanceof InitializingBean) {
       try {
         ((InitializingBean) bean).afterPropertiesSet();
@@ -566,7 +577,7 @@ public abstract class AbstractBeanFactory
       // apply properties
       applyPropertyValues(bean, def);
       // invoke initialize methods
-      invokeInitMethods(bean, def.getInitMethods());
+      invokeInitMethods(bean, def);
       return bean;
     }
     return initWithPostProcessors(bean, def, postProcessors);
@@ -604,7 +615,7 @@ public abstract class AbstractBeanFactory
     // apply properties
     applyPropertyValues(ret, def);
     // invoke initialize methods
-    invokeInitMethods(ret, def.getInitMethods());
+    invokeInitMethods(ret, def);
     // after properties
     for (final BeanPostProcessor processor : processors) {
       try {
@@ -752,48 +763,37 @@ public abstract class AbstractBeanFactory
    * Handle abstract dependencies
    */
   public void handleDependency() {
-
     for (final BeanReferencePropertySetter propertyValue : getDependencies()) {
-
       final BeanReference ref = propertyValue.getReference();
       final String beanName = ref.getName();
-
       // fix: #2 when handle dependency some bean definition has already exist
       if (containsBeanDefinition(beanName)) {
         ref.setReference(getBeanDefinition(beanName));
         continue;
       }
-
       // handle dependency which is special bean like List<?> or Set<?>...
       // ----------------------------------------------------------------
-
       final BeanDefinition handleDef = handleDependency(ref);
       if (handleDef != null) {
         registerBeanDefinition(beanName, handleDef);
         ref.setReference(handleDef);
         continue;
       }
-
       // handle dependency which is interface and parent object
       // --------------------------------------------------------
-
       final Class<?> propertyType = ref.getReferenceClass();
-
       // find child beans
       final List<BeanDefinition> childDefs = doGetChildDefinition(beanName, propertyType);
-
       if (!CollectionUtils.isEmpty(childDefs)) {
         final BeanDefinition childDef = getPrimaryBeanDefinition(childDefs);
         if (log.isDebugEnabled()) {
           log.debug("Found The Implementation Of [{}] Bean: [{}].", beanName, childDef.getName());
         }
-
         DefaultBeanDefinition def = new DefaultBeanDefinition(beanName, childDef);
         registerBeanDefinition(beanName, def);
         ref.setReference(def);
         continue;
       }
-
       if (ref.isRequired()) {
         throw new ConfigurationException("Context does not exist for this reference:[" + ref + "] of bean");
       }
@@ -1477,7 +1477,7 @@ public abstract class AbstractBeanFactory
     // apply properties
     applyPropertyValues(existingBean, prototypeDef);
     // invoke initialize methods
-    invokeInitMethods(existingBean, prototypeDef.getInitMethods());
+    invokeInitMethods(existingBean, prototypeDef);
   }
 
   @Override
