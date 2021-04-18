@@ -44,8 +44,10 @@ public abstract class AbstractMultipartFile implements MultipartFile {
 
   @Override
   public byte[] getBytes() throws IOException {
+    byte[] cachedBytes = this.cachedBytes;
     if (cachedBytes == null) {
       cachedBytes = doGetBytes();
+      this.cachedBytes = cachedBytes;
     }
     return cachedBytes;
   }
