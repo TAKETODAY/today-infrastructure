@@ -20,6 +20,8 @@
 
 package cn.taketoday.framework.server.light;
 
+
+import java.io.File;
 import java.io.IOException;
 
 import cn.taketoday.context.annotation.Configuration;
@@ -68,6 +70,10 @@ public class LightWebApplication {
     final long size = file.getSize();
     final String content = new String(file.getBytes());
     final String name = file.getName();
+
+    final File file1 = new File("D:/dev/temp/upload", fileName);
+    file.save(file1);
+
     return new UploadResult(fileName, size, content, name, other);
   }
 

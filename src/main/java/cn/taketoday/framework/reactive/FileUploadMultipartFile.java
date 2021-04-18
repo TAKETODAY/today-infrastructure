@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import cn.taketoday.web.multipart.AbstractMultipartFile;
 import cn.taketoday.web.multipart.MultipartFile;
 import io.netty.handler.codec.http.multipart.FileUpload;
 
@@ -31,7 +32,7 @@ import io.netty.handler.codec.http.multipart.FileUpload;
  * @author TODAY <br>
  *         2019-11-14 13:11
  */
-public class FileUploadMultipartFile implements MultipartFile {
+public final class FileUploadMultipartFile extends AbstractMultipartFile implements MultipartFile {
 
   private static final long serialVersionUID = 1L;
 
@@ -67,7 +68,7 @@ public class FileUploadMultipartFile implements MultipartFile {
   }
 
   @Override
-  public void save(File dest) throws IOException {
+  protected void saveInternal(File dest) throws IOException {
     fileUpload.renameTo(dest);
   }
 
@@ -77,7 +78,7 @@ public class FileUploadMultipartFile implements MultipartFile {
   }
 
   @Override
-  public byte[] getBytes() throws IOException {
+  protected byte[] doGetBytes() throws IOException {
     return fileUpload.get();
   }
 
@@ -87,7 +88,7 @@ public class FileUploadMultipartFile implements MultipartFile {
   }
 
   @Override
-  public void delete() throws IOException {
+  public void delete() {
     fileUpload.delete();
   }
 
