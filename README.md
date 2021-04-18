@@ -23,78 +23,13 @@ public class DemoApplication {
 }
 ```
 
-```java
-@Slf4j
-@Configuration
-@RequestMapping
-@ContextListener
-@EnableHotReload
-@EnableDefaultMybatis
-@EnableRedissonCaching
-@Import({ TomcatServer.class })
-@ComponentScan("cn.taketoday.blog")
-@PropertiesSource("classpath:info.properties")
-@MultipartConfig(maxFileSize = 10240000, fileSizeThreshold = 1000000000, maxRequestSize = 1024000000)
-public class TestApplication implements WebMvcConfiguration, ApplicationListener<ContextStartedEvent> {
-
-  public static void main(String[] args) {
-    WebApplication.run(TestApplication.class, args);
-  }
-
-  @GET("index/{q}")
-  public String index(String q) {
-    return q;
-  }
-
-  @Singleton
-  @Profile("prod")
-  public ResourceHandlerRegistry prodResourceMappingRegistry() {
-
-    final ResourceHandlerRegistry registry = new ResourceHandlerRegistry();
-
-    registry.addResourceMapping(LoginInterceptor.class)//
-            .setPathPatterns("/assets/admin/**")//
-            .setOrder(Ordered.HIGHEST_PRECEDENCE)//
-            .addLocations("/assets/admin/");
-
-    return registry;
-  }
-
-  @Singleton
-  @Profile("dev")
-  public ResourceHandlerRegistry devRsourceMappingRegistry(@Env("site.uploadPath") String upload,
-                                                           @Env("site.assetsPath") String assetsPath) //
-  {
-    final ResourceHandlerRegistry registry = new ResourceHandlerRegistry();
-
-    registry.addResourceMapping("/assets/**")//
-            .addLocations(assetsPath);
-
-    registry.addResourceMapping("/upload/**")//
-            .addLocations(upload);
-
-    registry.addResourceMapping("/logo.png")//
-            .addLocations("file:///D:/dev/www.yhj.com/webapps/assets/images/logo.png");
-
-    registry.addResourceMapping("/favicon.ico")//
-            .addLocations("classpath:/favicon.ico");
-
-    return registry;
-  }
-
-  @Override
-  public void onApplicationEvent(ContextStartedEvent event) {
-    log.info("----------------Application Started------------------");
-  }
-}
-```
 # 在 Netty 里运行
 
 ```java
 @Slf4j
-@RestController
+@RestController // rest 控制器
 @RestControllerAdvice
-@Import(NettyApplication.AppConfig.class)
+@Import(NettyApplication.AppConfig.class) // 导入配置
 public class NettyApplication {
 
   public static void main(String[] args) {
@@ -164,6 +99,73 @@ public class NettyApplication {
 
 }
 
+```
+
+# 在 Servlet 容器里运行
+```java
+@Slf4j
+@Configuration
+@RequestMapping
+@ContextListener
+@EnableHotReload
+@EnableDefaultMybatis
+@EnableRedissonCaching
+@EnableTomcatHandling
+@ComponentScan("cn.taketoday.blog")
+@PropertiesSource("classpath:info.properties")
+@MultipartConfig(maxFileSize = 10240000, fileSizeThreshold = 1000000000, maxRequestSize = 1024000000)
+public class TestApplication implements WebMvcConfiguration, ApplicationListener<ContextStartedEvent> {
+
+  public static void main(String[] args) {
+    WebApplication.run(TestApplication.class, args);
+  }
+
+  @GET("index/{q}")
+  public String index(String q) {
+    return q;
+  }
+
+  @Singleton
+  @Profile("prod")
+  public ResourceHandlerRegistry prodResourceMappingRegistry() {
+
+    final ResourceHandlerRegistry registry = new ResourceHandlerRegistry();
+
+    registry.addResourceMapping(LoginInterceptor.class)//
+            .setPathPatterns("/assets/admin/**")//
+            .setOrder(Ordered.HIGHEST_PRECEDENCE)//
+            .addLocations("/assets/admin/");
+
+    return registry;
+  }
+
+  @Singleton
+  @Profile("dev")
+  public ResourceHandlerRegistry devRsourceMappingRegistry(@Env("site.uploadPath") String upload,
+                                                           @Env("site.assetsPath") String assetsPath) //
+  {
+    final ResourceHandlerRegistry registry = new ResourceHandlerRegistry();
+
+    registry.addResourceMapping("/assets/**")//
+            .addLocations(assetsPath);
+
+    registry.addResourceMapping("/upload/**")//
+            .addLocations(upload);
+
+    registry.addResourceMapping("/logo.png")//
+            .addLocations("file:///D:/dev/www.yhj.com/webapps/assets/images/logo.png");
+
+    registry.addResourceMapping("/favicon.ico")//
+            .addLocations("classpath:/favicon.ico");
+
+    return registry;
+  }
+
+  @Override
+  public void onApplicationEvent(ContextStartedEvent event) {
+    log.info("----------------Application Started------------------");
+  }
+}
 ```
 
 ## 🙏 鸣谢
