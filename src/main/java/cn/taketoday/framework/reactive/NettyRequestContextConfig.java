@@ -1,13 +1,19 @@
 package cn.taketoday.framework.reactive;
 
+import java.nio.charset.Charset;
 import java.util.function.Supplier;
 
+import cn.taketoday.context.utils.Assert;
+import cn.taketoday.context.utils.SingletonSupplier;
+import cn.taketoday.framework.Constant;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.EmptyHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
+import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
+import io.netty.handler.codec.http.multipart.HttpDataFactory;
 
 /**
  * To help build a {@link NettyRequestContext}
@@ -47,13 +53,21 @@ public class NettyRequestContextConfig {
    * @see javax.servlet.http.HttpServletRequest#getContextPath()
    */
   private String contextPath;
+  private Charset postRequestDecoderCharset = Constant.DEFAULT_CHARSET;
+
+  private HttpDataFactory httpDataFactory;
 
   public NettyRequestContextConfig() {
-    this(() -> EmptyHttpHeaders.INSTANCE);
+    this(SingletonSupplier.of(EmptyHttpHeaders.INSTANCE));
   }
 
   public NettyRequestContextConfig(Supplier<HttpHeaders> trailingHeaders) {
-    this.trailingHeaders = trailingHeaders;
+    this(new DefaultHttpDataFactory(true), trailingHeaders);
+  }
+
+  public NettyRequestContextConfig(HttpDataFactory httpDataFactory, Supplier<HttpHeaders> trailingHeaders) {
+    setTrailingHeaders(trailingHeaders);
+    setHttpDataFactory(httpDataFactory);
   }
 
   /**
@@ -76,6 +90,7 @@ public class NettyRequestContextConfig {
   }
 
   public void setTrailingHeaders(Supplier<HttpHeaders> trailingHeaders) {
+    Assert.notNull(trailingHeaders, "trailingHeaders Supplier cannot be null");
     this.trailingHeaders = trailingHeaders;
   }
 
@@ -145,5 +160,22 @@ public class NettyRequestContextConfig {
    */
   public String getContextPath() {
     return contextPath;
+  }
+
+  public void setPostRequestDecoderCharset(Charset postRequestDecoderCharset) {
+    this.postRequestDecoderCharset = postRequestDecoderCharset;
+  }
+
+  public Charset getPostRequestDecoderCharset() {
+    return postRequestDecoderCharset;
+  }
+
+  public void setHttpDataFactory(HttpDataFactory httpDataFactory) {
+    Assert.notNull(httpDataFactory, "httpDataFactory cannot be null");
+    this.httpDataFactory = httpDataFactory;
+  }
+
+  public HttpDataFactory getHttpDataFactory() {
+    return httpDataFactory;
   }
 }

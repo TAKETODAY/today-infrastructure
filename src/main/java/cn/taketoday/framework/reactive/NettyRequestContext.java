@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpCookie;
 import java.net.InetSocketAddress;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -62,14 +63,11 @@ import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.multipart.Attribute;
-import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.FileUpload;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
-
-import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
 
 /**
  * @author TODAY <br>
@@ -78,7 +76,6 @@ import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
 public class NettyRequestContext extends RequestContext {
 //    private static final Logger log = LoggerFactory.getLogger(NettyRequestContext.class);
 
-  private static final HttpDataFactory HTTP_DATA_FACTORY = new DefaultHttpDataFactory(true);
   private String remoteAddress;
 
   private boolean committed = false;
@@ -106,9 +103,8 @@ public class NettyRequestContext extends RequestContext {
 
   private final int queryStringIndex; // optimize
 
-  public NettyRequestContext(ChannelHandlerContext ctx,
-                             FullHttpRequest request,
-                             NettyRequestContextConfig config) {
+  public NettyRequestContext(
+          ChannelHandlerContext ctx, FullHttpRequest request, NettyRequestContextConfig config) {
     this.config = config;
     this.request = request;
     this.channelContext = ctx;
@@ -259,7 +255,10 @@ public class NettyRequestContext extends RequestContext {
   private InterfaceHttpPostRequestDecoder getRequestDecoder() {
     InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
     if (requestDecoder == null) {
-      requestDecoder = new HttpPostRequestDecoder(HTTP_DATA_FACTORY, this.request, DEFAULT_CHARSET);
+      final NettyRequestContextConfig config = this.config;
+      final Charset charset = config.getPostRequestDecoderCharset();
+      final HttpDataFactory httpDataFactory = config.getHttpDataFactory();
+      requestDecoder = new HttpPostRequestDecoder(httpDataFactory, request, charset);
       requestDecoder.setDiscardThreshold(0);
       this.requestDecoder = requestDecoder;
     }

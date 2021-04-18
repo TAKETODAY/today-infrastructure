@@ -33,9 +33,7 @@ import io.netty.handler.codec.http.multipart.FileUpload;
  *         2019-11-14 13:11
  */
 public final class FileUploadMultipartFile extends AbstractMultipartFile implements MultipartFile {
-
   private static final long serialVersionUID = 1L;
-
   private final FileUpload fileUpload;
 
   public FileUploadMultipartFile(FileUpload fileUpload) {
