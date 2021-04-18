@@ -31,11 +31,10 @@ import javax.servlet.http.Part;
  * @author TODAY <br>
  * 2018-06-28 22:40:32
  */
-public final class ServletPartMultipartFile implements MultipartFile {
+public final class ServletPartMultipartFile extends AbstractMultipartFile implements MultipartFile {
 
   private final Part part;
   public static final int BUFFER_SIZE = 4096;
-  private byte[] cacheBytes;
 
   public ServletPartMultipartFile(Part part) {
     this.part = part;
@@ -75,14 +74,7 @@ public final class ServletPartMultipartFile implements MultipartFile {
   }
 
   @Override
-  public void save(File dest) throws IOException {
-
-    // fix #3 Upload file not found exception
-    File parentFile = dest.getParentFile();
-    if (!parentFile.exists()) {
-      parentFile.mkdirs();
-    }
-
+  protected void saveInternal(File dest) throws IOException {
     part.write(dest.getAbsolutePath());
   }
 
@@ -91,26 +83,22 @@ public final class ServletPartMultipartFile implements MultipartFile {
     return part.getSize() == 0;
   }
 
-
   @Override
-  public byte[] getBytes() throws IOException {
-    if (cacheBytes == null) {
-      try (final InputStream in = getInputStream()) {
-        if (in == null) {
-          cacheBytes = new byte[0];
+  protected byte[] doGetBytes() throws IOException {
+    try (final InputStream in = getInputStream()) {
+      if (in == null) {
+        return new byte[0];
+      }
+      else {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream(BUFFER_SIZE);
+        byte[] buffer = new byte[BUFFER_SIZE];
+        int bytesRead;
+        while ((bytesRead = in.read(buffer)) != -1) {
+          out.write(buffer, 0, bytesRead);
         }
-        else {
-          final ByteArrayOutputStream out = new ByteArrayOutputStream(BUFFER_SIZE);
-          byte[] buffer = new byte[BUFFER_SIZE];
-          int bytesRead;
-          while ((bytesRead = in.read(buffer)) != -1) {
-            out.write(buffer, 0, bytesRead);
-          }
-          cacheBytes = out.toByteArray();
-        }
+        return out.toByteArray();
       }
     }
-    return cacheBytes;
   }
 
   @Override
