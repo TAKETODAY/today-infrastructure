@@ -347,8 +347,12 @@ public class NettyRequestContext extends RequestContext {
         responseBody = Unpooled.EMPTY_BUFFER;
       }
       response = new DefaultFullHttpResponse(
-              config.getHttpVersion(), status, responseBody,
-              originalResponseHeaders(), config.getTrailingHeaders().get());
+              config.getHttpVersion(),
+              status,
+              responseBody,
+              originalResponseHeaders(),
+              config.getTrailingHeaders().get()
+      );
     }
     else {
       // apply HTTP status
@@ -367,10 +371,10 @@ public class NettyRequestContext extends RequestContext {
     final ChannelHandlerContext context = this.channelContext;
     if (isKeepAlive()) {
       responseHeaders.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-      context.writeAndFlush(response, context.voidPromise());
+      context.writeAndFlush(response);
     }
     else {
-      context.writeAndFlush(response, context.voidPromise())
+      context.writeAndFlush(response)
               .addListener(ChannelFutureListener.CLOSE);
     }
 
@@ -428,8 +432,7 @@ public class NettyRequestContext extends RequestContext {
     c.setHttpOnly(cookie.isHttpOnly());
 
     originalResponseHeaders().add(
-            HttpHeaderNames.SET_COOKIE, config.getCookieEncoder().encode(c)
-    );
+            HttpHeaderNames.SET_COOKIE, config.getCookieEncoder().encode(c));
   }
 
   @Override
