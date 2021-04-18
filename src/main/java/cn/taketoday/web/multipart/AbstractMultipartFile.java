@@ -37,6 +37,14 @@ public abstract class AbstractMultipartFile implements MultipartFile {
     if (!parentFile.exists()) {
       parentFile.mkdirs();
     }
+    /*
+     * The uploaded file is being stored on disk
+     * in a temporary location so move it to the
+     * desired file.
+     */
+    if (dest.exists() && !dest.delete()) {
+      throw new IOException("Cannot write uploaded file to disk!");
+    }
     saveInternal(dest);
   }
 
