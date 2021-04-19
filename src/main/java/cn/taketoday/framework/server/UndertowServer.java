@@ -33,7 +33,6 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.io.ClassPathResource;
@@ -69,7 +68,6 @@ import io.undertow.servlet.util.ImmediateInstanceFactory;
  * @author TODAY <br>
  * 2019-01-12 17:28
  */
-@MissingBean(type = WebServer.class)
 @Props(prefix = { "server.", "server.undertow." })
 public class UndertowServer
         extends AbstractServletWebServer implements WebServer {
@@ -103,7 +101,6 @@ public class UndertowServer
   public synchronized void start() {
     log.info("Start Undertow web server");
     try {
-
       if (getStarted().get()) {
         return;
       }
@@ -120,9 +117,7 @@ public class UndertowServer
   }
 
   protected Undertow createUndertowServer() throws ServletException {
-
     HttpHandler httpHandler = getContextHandler(this.manager.start());
-
     if (this.useForwardHeaders) {
       httpHandler = Handlers.proxyPeerAddress(httpHandler);
     }
@@ -133,11 +128,8 @@ public class UndertowServer
   }
 
   protected HttpHandler getContextHandler(HttpHandler httpHandler) {
-
     HttpHandler contextHandler = httpHandler;
-
     final CompressionConfiguration compression = getCompression();
-
     if (compression != null) {
       getWebApplicationConfiguration().configureCompression(compression);
       if (compression.isEnable()) {
@@ -190,14 +182,10 @@ public class UndertowServer
   }
 
   protected DeploymentManager createDeploymentManager() {
-
     final DeploymentInfo deployment = Servlets.deployment();
-
     final ServletWebServerApplicationLoader starter = //
             new ServletWebServerApplicationLoader(this::getMergedInitializers);
-
     starter.setApplicationContext(getApplicationContext());
-
     //@off
     // 添加 ApplicationLoader
     deployment.addServletContainerInitializer(
@@ -272,20 +260,16 @@ public class UndertowServer
   protected void configureMimeMapping(DeploymentInfo deployment) {
     final MimeMappings mimeMappings = getMimeMappings();
     getWebApplicationConfiguration().configureMimeMappings(mimeMappings);
-
     for (MimeMappings.Mapping mapping : mimeMappings) {
       deployment.addMimeMapping(new MimeMapping(mapping.getExtension(), mapping.getMimeType()));
     }
   }
 
   protected void configureErrorPages(DeploymentInfo deployment) {
-
     final Set<ErrorPage> errorPages = getErrorPages();
     // config error pages
     getWebApplicationConfiguration().configureErrorPages(errorPages);
-
     for (ErrorPage errorPage : errorPages) {
-
       if (errorPage.getStatus() != 0) {
         deployment.addErrorPage(Servlets.errorPage(errorPage.getPath(), errorPage.getStatus()));
       }
@@ -299,7 +283,6 @@ public class UndertowServer
   }
 
   protected Builder createBuilder(int port) {
-
     final Builder builder = Undertow.builder();
     if (this.bufferSize != 0) {
       builder.setBufferSize(this.bufferSize);
@@ -328,7 +311,6 @@ public class UndertowServer
   }
 
   protected ResourceManager getRootResource(final cn.taketoday.context.io.Resource rootDirectory) throws IOException {
-
     if (rootDirectory instanceof JarResource) {
       return new JarResourceManager((JarResource) rootDirectory);
     }
@@ -348,7 +330,6 @@ public class UndertowServer
   }
 
   private static class JarResourceManager implements ResourceManager {
-
     private final String jarFilePath;
 
     JarResourceManager(JarResource rootDirectory) throws IOException {
@@ -357,7 +338,6 @@ public class UndertowServer
 
     @Override
     public Resource getResource(String path) throws IOException {
-
       URL url = new URL("jar:file:" + jarFilePath + '!' + (path.startsWith("/") ? path : '/' + path));
 
       URLResource resource = new URLResource(url, path);
