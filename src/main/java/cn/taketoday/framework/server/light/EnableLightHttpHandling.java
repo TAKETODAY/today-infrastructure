@@ -56,9 +56,7 @@ class LightHttpConfiguration {
   @MissingBean(type = WebServer.class)
   @Props(prefix = { "server.", "server.light." })
   LightWebServer lightWebServer(LightHttpConfig lightHttpConfig) {
-    final LightWebServer lightWebServer = new LightWebServer();
-    lightWebServer.setConfig(lightHttpConfig);
-    return lightWebServer;
+    return new LightWebServer(lightHttpConfig);
   }
 
   @MissingBean

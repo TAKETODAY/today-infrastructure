@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.concurrent.Executor;
 
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.framework.WebServerException;
 import cn.taketoday.framework.server.AbstractWebServer;
 import cn.taketoday.framework.server.WebServerApplicationLoader;
@@ -39,6 +40,14 @@ public class LightWebServer extends AbstractWebServer {
   private DispatcherHandler httpHandler;
   private LightHttpConfig config;
 
+  public LightWebServer() {
+    this(new LightHttpConfig());
+  }
+
+  public LightWebServer(LightHttpConfig config) {
+    this.config = config;
+  }
+
   public void setConfig(LightHttpConfig config) {
     this.config = config;
   }
@@ -47,18 +56,44 @@ public class LightWebServer extends AbstractWebServer {
     return config;
   }
 
+  private LightHttpConfig obtainHttpConfig() {
+    final LightHttpConfig config = getConfig();
+    Assert.state(config != null, "No LightHttpConfig");
+    return this.config;
+  }
+
   @Override
   protected void prepareInitialize() {
     super.prepareInitialize();
-    this.server = new HTTPServer(getPort());
+    final int port = getPort();
+
+    // update port to light config
+    final LightHttpConfig config = obtainHttpConfig();
+    int portInLightConfig = config.getPort();
+    if (portInLightConfig == -1) {
+      config.setPort(port);
+    }
+    else {
+      if (portInLightConfig != port) {
+        throw new ConfigurationException("cannot determine the server port");
+      }
+    }
+  }
+
+  @Override
+  protected void initializeContext() {
+    super.initializeContext();
+    HTTPServer server = new HTTPServer(getPort());
 
     server.setPort(getPort());
     server.setExecutor(executor);
     server.setSocketTimeout(socketTimeout);
 
-    httpHandler = new DispatcherHandler(obtainApplicationContext());
+    this.httpHandler = new DispatcherHandler(obtainApplicationContext());
     server.setHttpHandler(httpHandler);
-    server.setConfig(config);
+
+    server.setConfig(obtainHttpConfig());
+    this.server = server;
   }
 
   @Override

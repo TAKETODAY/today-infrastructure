@@ -20,33 +20,10 @@
 
 package cn.taketoday.framework.server.light;
 
-import cn.taketoday.web.http.ContentDisposition;
-import cn.taketoday.web.http.HttpHeaders;
-
 /**
  * @author TODAY 2021/4/16 23:41
  */
-public abstract class RequestPart {
-  protected final HttpHeaders headers;
-  protected ContentDisposition contentDisposition;
+public interface RequestPart {
 
-  protected RequestPart(HttpHeaders httpHeaders) {
-    this.headers = httpHeaders;
-  }
-
-  public String getName() {
-    return getContentDisposition().getName();
-  }
-
-  public HttpHeaders getHttpHeaders() {
-    return headers;
-  }
-
-  protected ContentDisposition getContentDisposition() {
-    if (contentDisposition == null) {
-      contentDisposition = headers.getContentDisposition();
-    }
-    return contentDisposition;
-  }
-
+  String getName();
 }

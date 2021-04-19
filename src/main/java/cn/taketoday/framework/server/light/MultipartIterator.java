@@ -27,8 +27,8 @@ import java.io.IOException;
 import cn.taketoday.context.utils.DataSize;
 import cn.taketoday.context.utils.MediaType;
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.framework.Constant;
 import cn.taketoday.web.exception.FileSizeExceededException;
+import cn.taketoday.web.http.ContentDisposition;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.resolver.MultipartParsingException;
@@ -96,11 +96,11 @@ public class MultipartIterator {
   public RequestPart obtainNext(LightHttpConfig config, MultipartConfiguration multipartConfig) throws IOException {
     hasNext = false;
     // 先解析 header
-//      final String contentDisposition = Utils.readLine(inputStream); // Content-Disposition
-//      final String contentType = Utils.readLine(inputStream); // Content-Disposition
+    final String contentDispositionString = Utils.readLine(inputStream); // Content-Disposition
+    final String contentType = Utils.readLine(inputStream); // Content-Type
 
+//    final HttpHeaders httpHeaders = Utils.readHeaders(inputStream, config);
     final MultipartInputStream inputStream = this.inputStream;
-    final HttpHeaders httpHeaders = Utils.readHeaders(inputStream, config);
     final int partSize = inputStream.tail - inputStream.head;
     final DataSize maxFileSize = multipartConfig.getMaxFileSize();
 
@@ -108,8 +108,11 @@ public class MultipartIterator {
       throw new FileSizeExceededException(maxFileSize, null)
               .setActual(DataSize.of(partSize));
     }
-    if (httpHeaders.containsKey(Constant.CONTENT_TYPE)) {
-//      if (!"\n".equals(contentType)) {
+
+    final ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionString);
+
+//    if (httpHeaders.containsKey(Constant.CONTENT_TYPE)) {
+    if (StringUtils.isNotEmpty(contentType)) {
       if (partSize > config.getMaxMultipartInMemSize()) {
         final String tempLocation = multipartConfig.getLocation();
         final File tempFileDir = new File(tempLocation);
@@ -123,7 +126,7 @@ public class MultipartIterator {
             // part size 太小了 直接一次性读完
             byte[] buffer = Utils.readBytes(inputStream, partSize);
             fileOutput.write(buffer, 0, partSize);
-            final LightMultipartFile multipartFile = new LightMultipartFile(tempFile, httpHeaders, partSize);
+            final LightMultipartFile multipartFile = new LightMultipartFile(tempFile, contentDisposition, contentType, partSize);
             multipartFile.setCachedBytes(buffer);
             return multipartFile;
           }
@@ -138,18 +141,19 @@ public class MultipartIterator {
             // 读取剩余字节
             buffer = Utils.readBytes(inputStream, partSize - bytesRead);
             fileOutput.write(buffer);
-            return new LightMultipartFile(tempFile, httpHeaders, partSize);
+            return new LightMultipartFile(tempFile, contentDisposition, contentType, partSize);
           }
         }
       }
       else {
         final byte[] bytes = Utils.readBytes(inputStream, partSize);
-        return new LightMultipartFile(bytes, httpHeaders, partSize); // inputStream memory
+        return new LightMultipartFile(bytes, contentDisposition,contentType,  partSize); // inputStream memory
       }
     }
     else {
+      final String name = contentDisposition.getName();
       final byte[] bytes = Utils.readBytes(inputStream, partSize);
-      return new FieldRequestPart(bytes, httpHeaders);
+      return new FieldRequestPart(bytes, name);
     }
   }
 

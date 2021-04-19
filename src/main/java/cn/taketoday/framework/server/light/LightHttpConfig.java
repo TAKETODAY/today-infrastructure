@@ -28,7 +28,7 @@ import cn.taketoday.web.multipart.MultipartConfiguration;
  * @author TODAY 2021/4/15 0:02
  */
 public class LightHttpConfig {
-  private int port = 80; // todo update port
+  private int port = -1;
 
   private int headerMaxCount = 100;
   /**

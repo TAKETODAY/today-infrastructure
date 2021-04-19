@@ -20,9 +20,6 @@
 
 package cn.taketoday.framework.server.light;
 
-import org.apache.tomcat.util.http.fileupload.FileUploadException;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -32,40 +29,52 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import cn.taketoday.web.Constant;
-import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.http.ContentDisposition;
+import cn.taketoday.web.multipart.AbstractMultipartFile;
 
 /**
  * @author TODAY 2021/4/16 21:15
  */
-public final class LightMultipartFile extends RequestPart implements MultipartFile {
-  private InputStream inputStream;
-
-  private File tempFile;
-  private byte[] cachedBytes;
+public final class LightMultipartFile extends AbstractMultipartFile implements RequestPart {
 
   private final int partSize;
+  protected ContentDisposition contentDisposition;
 
-  public void setTempFile(File tempFile) {
-    this.tempFile = tempFile;
-  }
+  private String contentType;
 
-  LightMultipartFile(File tempFile, HttpHeaders httpHeaders, int partSize) {
-    super(httpHeaders);
+  private File tempFile;
+  private InputStream inputStream;
+
+
+  LightMultipartFile(File tempFile, ContentDisposition contentDisposition, int partSize) {
+    this.contentDisposition = contentDisposition;
     this.partSize = partSize;
     this.tempFile = tempFile;
   }
 
-  LightMultipartFile(byte[] bytes, HttpHeaders httpHeaders, int partSize) {
-    super(httpHeaders);
+  LightMultipartFile(File tempFile, ContentDisposition contentDisposition, String contentType, int partSize) {
+    this.partSize = partSize;
+    this.tempFile = tempFile;
+    this.contentType = contentType;
+    this.contentDisposition = contentDisposition;
+  }
+
+  LightMultipartFile(byte[] bytes, ContentDisposition contentDisposition, int partSize) {
+    this.partSize = partSize;
     this.cachedBytes = bytes;
+    this.contentDisposition = contentDisposition;
+  }
+
+  public LightMultipartFile(byte[] bytes, ContentDisposition contentDisposition, String contentType, int partSize) {
     this.partSize = partSize;
+    this.cachedBytes = bytes;
+    this.contentType = contentType;
+    this.contentDisposition = contentDisposition;
   }
 
   @Override
   public String getContentType() {
-    return headers.getFirst(Constant.CONTENT_TYPE);
+    return contentType;
   }
 
   @Override
@@ -83,31 +92,21 @@ public final class LightMultipartFile extends RequestPart implements MultipartFi
     return getContentDisposition().getFilename();
   }
 
+  public ContentDisposition getContentDisposition() {
+    return contentDisposition;
+  }
+
+  public void setTempFile(File tempFile) {
+    this.tempFile = tempFile;
+  }
+
   @Override
-  public void save(File dest) throws IOException {
-    // fix #3 Upload file not found exception
-    File parentFile = dest.getParentFile();
-    if (!parentFile.exists()) {
-      parentFile.mkdirs();
-    }
+  public void saveInternal(File dest) throws IOException {
     final InputStream inputStream = this.inputStream;
     if (inputStream != null) {
-      /*
-       * The uploaded file is being stored on disk
-       * in a temporary location so move it to the
-       * desired file.
-       */
-      if (dest.exists()) {
-        if (!dest.delete()) {
-          throw new FileUploadException(
-                  "Cannot write uploaded file to disk!");
-        }
-      }
       if (!tempFile.renameTo(dest)) {
-
         try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(tempFile));
                 BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(dest))) {
-
           Utils.copy(in, out);
         }
       }
@@ -124,18 +123,14 @@ public final class LightMultipartFile extends RequestPart implements MultipartFi
     return partSize == 0L;
   }
 
-  void setCachedBytes(byte[] cachedBytes) {
+  protected void setCachedBytes(byte[] cachedBytes) {
     this.cachedBytes = cachedBytes;
   }
 
   @Override
-  public byte[] getBytes() throws IOException {
-    byte[] cachedBytes = this.cachedBytes;
-    if (cachedBytes == null) {
-      cachedBytes = new byte[(int) getSize()];
-      Utils.readBytes(inputStream, cachedBytes);
-      this.cachedBytes = cachedBytes;
-    }
+  protected byte[] doGetBytes() throws IOException {
+    byte[] cachedBytes = new byte[partSize];
+    Utils.readBytes(inputStream, cachedBytes);
     return cachedBytes;
   }
 

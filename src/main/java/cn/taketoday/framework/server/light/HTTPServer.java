@@ -396,59 +396,51 @@ public class HTTPServer {
 //    };
 
     HttpRequest req = null;
-    HttpResponse resp;
-    do {
-      resp = new HttpResponse(out);
-      // create request and response and handle transaction
-      try {
-        req = new HttpRequest(in, socket, config);
-        resp.setClientCapabilities(req);
+    HttpResponse resp = new HttpResponse(out);
+    // create request and response and handle transaction
+    try {
+      req = new HttpRequest(in, socket, config);
+      resp.setClientCapabilities(req);
 
-        if (preprocessTransaction(req, resp)) {
-          String method = req.getMethod();
-          if ("TRACE".equals(method)) { // default TRACE handler
-            handleTrace(req, resp);
-          }
-          else {
-            final LightRequestContext context = new LightRequestContext(req, resp, config);
-            httpHandler.handle(context);
-            context.sendIfNotCommitted();
-          }
+      if (preprocessTransaction(req, resp)) {
+        String method = req.getMethod();
+        if ("TRACE".equals(method)) { // default TRACE handler
+          handleTrace(req, resp);
+        }
+        else {
+          final LightRequestContext context = new LightRequestContext(req, resp, config);
+          httpHandler.handle(context);
+          context.sendIfNotCommitted();
         }
       }
-      catch (Throwable t) {
-        log.error("Catch throwable", t);
-        // TODO
-        // unhandled errors (not normal error responses like 404)
-        if (req == null) { // error reading request
-          if (t instanceof IOException && t.getMessage().contains("missing request line"))
-            break; // we're not in the middle of a transaction - so just disconnect
-          resp.getHeaders().add("Connection", "close"); // about to close connection
-          if (t instanceof InterruptedIOException) // e.g. SocketTimeoutException
-            resp.sendError(HttpStatus.REQUEST_TIMEOUT, "Timeout waiting for client request");
-          else
-            resp.sendError(HttpStatus.BAD_REQUEST, "Invalid request: " + t.getMessage());
-        }
-        else if (!resp.committed()) { // if headers or status line were not already sent, we can send an error response
-          resp = new HttpResponse(out); // ignore whatever headers may have already been set
-          resp.getHeaders().add("Connection", "close"); // about to close connection
-          resp.sendError(HttpStatus.INTERNAL_SERVER_ERROR, "Error processing request: " + t.getMessage());
-        } // otherwise just abort the connection since we can't recover
-        break; // proceed to close connection
+    }
+    catch (Throwable t) {
+      log.error("Catch throwable", t);
+      // TODO
+      // unhandled errors (not normal error responses like 404)
+      if (req == null) { // error reading request
+        if (t instanceof IOException && t.getMessage().contains("missing request line"))
+          return; // we're not in the middle of a transaction - so just disconnect
+        resp.getHeaders().add("Connection", "close"); // about to close connection
+        if (t instanceof InterruptedIOException) // e.g. SocketTimeoutException
+          resp.sendError(HttpStatus.REQUEST_TIMEOUT, "Timeout waiting for client request");
+        else
+          resp.sendError(HttpStatus.BAD_REQUEST, "Invalid request: " + t.getMessage());
       }
-      finally {
+      else if (!resp.committed()) { // if headers or status line were not already sent, we can send an error response
+        resp = new HttpResponse(out); // ignore whatever headers may have already been set
+        resp.getHeaders().add("Connection", "close"); // about to close connection
+        resp.sendError(HttpStatus.INTERNAL_SERVER_ERROR, "Error processing request: " + t.getMessage());
+      } // otherwise just abort the connection since we can't recover
+      return; // proceed to close connection
+    }
+    finally {
 //        System.out.println(out);
 //        final String name = StandardCharsets.ISO_8859_1.name();
 //        System.out.println(inString.toString(name));
-        System.out.println(inString);
-        resp.close(); // close response and flush output
-      }
-      // consume any leftover body data so next request can be processed
-      transfer(req.getBody(), null, -1);
-      // RFC7230#6.6: persist connection unless client or server close explicitly (or legacy client)
+      System.out.println(inString);
+      resp.close(); // close response and flush output
     }
-    while (!"close".equalsIgnoreCase(req.getHeaders().getFirst("Connection"))
-            && !"close".equalsIgnoreCase(resp.getHeaders().getFirst("Connection")) && req.getVersion().endsWith("1.1"));
   }
 
   /**

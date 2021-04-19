@@ -1,17 +1,16 @@
 package cn.taketoday.framework.server.light;
 
-import cn.taketoday.web.http.HttpHeaders;
-
 /**
  * @author TODAY 2021/4/17 15:08
  */
-public class FieldRequestPart extends RequestPart {
+public class FieldRequestPart implements RequestPart {
   private String value;
   private final byte[] bytes;
+  private final String name;
 
-  protected FieldRequestPart(byte[] bytes, HttpHeaders httpHeaders) {
-    super(httpHeaders);
+  protected FieldRequestPart(byte[] bytes, String name) {
     this.bytes = bytes;
+    this.name = name;
   }
 
   public String getStringValue() {
@@ -23,5 +22,10 @@ public class FieldRequestPart extends RequestPart {
 
   public byte[] getBytes() {
     return bytes;
+  }
+
+  @Override
+  public String getName() {
+    return name;
   }
 }
