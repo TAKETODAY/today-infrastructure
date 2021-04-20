@@ -156,15 +156,15 @@ public abstract class AbstractWebServer
   }
 
   public WebApplicationConfiguration getWebApplicationConfiguration() {
-
+    WebApplicationConfiguration webApplicationConfiguration = this.webApplicationConfiguration;
     if (webApplicationConfiguration == null) {
-      final List<WebApplicationConfiguration> configurations = //
-              getApplicationContext().getBeans(WebApplicationConfiguration.class);
+      final List<WebApplicationConfiguration> configurations =
+              obtainApplicationContext().getBeans(WebApplicationConfiguration.class);
 
       OrderUtils.reversedSort(configurations);
-      return webApplicationConfiguration = new CompositeWebApplicationConfiguration(configurations);
+      webApplicationConfiguration = new CompositeWebApplicationConfiguration(configurations);
+      this.webApplicationConfiguration = webApplicationConfiguration;
     }
-
     return webApplicationConfiguration;
   }
 
