@@ -28,6 +28,7 @@ import javax.annotation.PreDestroy;
 
 import org.junit.Test;
 
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.aware.BeanFactoryAware;
@@ -74,8 +75,9 @@ public class LifecycleBean //
     }
 
     @PostConstruct
-    public void initData() {
+    public void initData(ApplicationContext context, LifecycleBean myself) {
         log.info("@PostConstruct");
+        log.info("@PostConstruct {}", context);
     }
 
     @Override
