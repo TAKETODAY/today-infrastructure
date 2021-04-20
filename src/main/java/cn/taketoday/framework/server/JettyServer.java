@@ -355,7 +355,7 @@ public class JettyServer
   protected Configuration getMimeTypeConfiguration() {
     return new AbstractConfiguration() {
       @Override
-      public void configure(WebAppContext context) throws Exception {
+      public void configure(WebAppContext context) {
         final MimeTypes mimeTypes = context.getMimeTypes();
         final MimeMappings mimeMappings = getMimeMappings();
         getWebApplicationConfiguration().configureMimeMappings(mimeMappings);
@@ -374,7 +374,7 @@ public class JettyServer
   protected Configuration getErrorPageConfiguration() {
     return new AbstractConfiguration() {
       @Override
-      public void configure(WebAppContext context) throws Exception {
+      public void configure(WebAppContext context) {
         addJettyErrorPages(context.getErrorHandler(), getErrorPages());
       }
     };
@@ -525,7 +525,7 @@ public class JettyServer
     }
 
     @Override
-    public void configure(WebAppContext context) throws Exception {
+    public void configure(WebAppContext context) {
       context.addBean(new Initializer(context), true);
     }
 

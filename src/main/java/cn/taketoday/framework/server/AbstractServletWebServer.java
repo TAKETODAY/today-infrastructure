@@ -138,9 +138,7 @@ public abstract class AbstractServletWebServer
 
   @Override
   protected List<WebApplicationInitializer> getMergedInitializers() {
-
     final List<WebApplicationInitializer> contextInitializers = getContextInitializers();
-
     contextInitializers.add(new OrderedServletContextInitializer() {
       @Override
       public void onStartup(ServletContext servletContext) {
@@ -154,9 +152,7 @@ public abstract class AbstractServletWebServer
 
         @Override
         public void onStartup(ServletContext servletContext) {
-
           getWebApplicationConfiguration().configureSession(sessionConfiguration);
-
           final SessionCookieConfiguration cookie = sessionConfiguration.getCookieConfiguration();
           final SessionCookieConfig config = servletContext.getSessionCookieConfig();
 
@@ -166,11 +162,9 @@ public abstract class AbstractServletWebServer
           config.setDomain(cookie.getDomain());
           config.setComment(cookie.getComment());
           config.setHttpOnly(cookie.isHttpOnly());
-
           config.setMaxAge((int) cookie.getMaxAge().getSeconds());
 
           if (sessionConfiguration.getTrackingModes() != null) {
-
             final Set<SessionTrackingMode> collect = Arrays.stream(sessionConfiguration.getTrackingModes())
                     .map(Enum::name)
                     .map(SessionTrackingMode::valueOf)

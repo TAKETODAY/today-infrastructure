@@ -485,7 +485,9 @@ public class TomcatServer extends AbstractServletWebServer {
     final Set<String> welcomePages = getWelcomePages();
     getWebApplicationConfiguration().configureWelcomePages(welcomePages);
 
-    welcomePages.forEach(context::addWelcomeFile);
+    for (final String welcomePage : welcomePages) {
+      context.addWelcomeFile(welcomePage);
+    }
   }
 
   /**

@@ -78,8 +78,6 @@ public class UndertowServer
 
   private Builder builder;
 
-  private String contextPath = Constant.BLANK;
-
   private DeploymentManager manager;
 
   private boolean eagerInitFilters;
@@ -138,10 +136,10 @@ public class UndertowServer
       }
     }
 
-    if (StringUtils.isEmpty(this.contextPath)) {
+    if (StringUtils.isEmpty(getContextPath())) {
       return contextHandler;
     }
-    return Handlers.path().addPrefixPath(this.contextPath, contextHandler);
+    return Handlers.path().addPrefixPath(getContextPath(), contextHandler);
   }
 
   @Override
@@ -185,13 +183,13 @@ public class UndertowServer
     final DeploymentInfo deployment = Servlets.deployment();
     final ServletWebServerApplicationLoader starter = //
             new ServletWebServerApplicationLoader(this::getMergedInitializers);
-    starter.setApplicationContext(getApplicationContext());
-    //@off
+    starter.setApplicationContext(obtainApplicationContext());
     // 添加 ApplicationLoader
     deployment.addServletContainerInitializer(
-          new ServletContainerInitializerInfo(ServletWebServerApplicationLoader.class,
-                  new ImmediateInstanceFactory<>(starter), Collections.emptySet()
-          )//@on
+            new ServletContainerInitializerInfo(ServletWebServerApplicationLoader.class,
+                                                new ImmediateInstanceFactory<>(starter),
+                                                Collections.emptySet()
+            )
     );
 
     deployment.setClassLoader(getClassLoader());
@@ -200,7 +198,6 @@ public class UndertowServer
 
     final String defaultEncoding = getDefaultEncoding();
     deployment.setDefaultEncoding(defaultEncoding);
-    deployment.setDefaultRequestEncoding(defaultEncoding);
     deployment.setDefaultRequestEncoding(defaultEncoding);
 
     deployment.setDeploymentName(getDeployName());
