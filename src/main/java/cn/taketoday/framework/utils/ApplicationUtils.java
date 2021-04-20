@@ -45,18 +45,15 @@ import cn.taketoday.framework.server.WebServer;
 public abstract class ApplicationUtils {
 
   public static WebServer obtainWebServer(ConfigurableWebServerApplicationContext beanFactory) {
-
     ConfigurableEnvironment environment = beanFactory.getEnvironment();
     // disable web mvc xml
     environment.setProperty(Constant.ENABLE_WEB_MVC_XML, "false");
-
     // Get WebServer instance
     WebServer webServer = beanFactory.getBean(WebServer.class);
     if (webServer == null) {
       throw new ConfigurationException(
               "The bean factory: [" + beanFactory + "] doesn't exist a [cn.taketoday.framework.server.WebServer] bean");
     }
-
     if (webServer instanceof ConfigurableWebServer) {
       if (webServer instanceof AbstractWebServer) {
         ((AbstractWebServer) webServer).getWebApplicationConfiguration()
@@ -82,9 +79,7 @@ public abstract class ApplicationUtils {
    * @return the application temp directory
    */
   public static File getBaseTemporalDirectory(Class<?> startupClass) {
-
     final String property = System.getProperty("java.io.tmpdir");
-
     if (StringUtils.isEmpty(property)) {
       throw new IllegalStateException("There is no 'java.io.tmpdir' property set");
     }
@@ -93,22 +88,16 @@ public abstract class ApplicationUtils {
     if (!baseTempDir.exists()) {
       throw new IllegalStateException("Temp directory " + baseTempDir + " does not exist");
     }
-
     if (!baseTempDir.isDirectory()) {
       throw new IllegalStateException("Temp location " + baseTempDir + " is not a directory");
     }
-
     final File directory = new File(baseTempDir, startupClass.getName());
-
     if (!directory.exists()) {
-
       directory.mkdirs();
-
       if (!directory.exists()) {
         throw new IllegalStateException("Unable to create temp directory " + directory);
       }
     }
-
     return directory;
   }
 
@@ -206,11 +195,9 @@ public abstract class ApplicationUtils {
    * @return key-value
    */
   public static Map<String, String> parseCommandArguments(final String... args) {
-
     if (StringUtils.isArrayEmpty(args)) {
       return Collections.emptyMap();
     }
-
     final Map<String, String> argsMap = new LinkedHashMap<>();
     for (final String arg : args) {
       if (arg.startsWith("--") && arg.indexOf('=') > -1) {
