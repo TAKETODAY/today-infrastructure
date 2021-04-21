@@ -24,8 +24,7 @@ import cn.taketoday.web.RequestContext;
 /**
  * CorsConfiguration Source
  *
- * @author TODAY
- * @date 2020/12/8 22:29
+ * @author TODAY 2020/12/8 22:29
  */
 public interface CorsConfigurationSource {
 

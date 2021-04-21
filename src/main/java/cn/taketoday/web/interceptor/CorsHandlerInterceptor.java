@@ -73,8 +73,10 @@ public class CorsHandlerInterceptor
   }
 
   public final CorsProcessor getProcessor() {
+    CorsProcessor processor = this.processor;
     if (processor == null) {
       processor = createProcessor();
+      this.processor = processor;
     }
     return processor;
   }
