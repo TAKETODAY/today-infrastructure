@@ -19,31 +19,36 @@
  */
 package cn.taketoday.web.exception;
 
-import cn.taketoday.web.Constant;
+import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.http.HttpStatus;
 
 /**
  * @author TODAY <br>
- *         2018-7-1 19:38:39
+ * 2018-7-1 19:38:39
  */
 @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
 public class MethodNotAllowedException extends WebNestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
-  public MethodNotAllowedException(Throwable cause) {
-    super(cause);
+  private final String requestMethod;
+
+  private final RequestMethod[] supportedMethods;
+
+  public MethodNotAllowedException(String requestMethod, RequestMethod[] supportedMethods) {
+    this.requestMethod = requestMethod;
+    this.supportedMethods = supportedMethods;
   }
 
-  public MethodNotAllowedException(String message, Throwable cause) {
-    super(message, cause);
+  public String getMethod() {
+    return requestMethod;
   }
 
-  public MethodNotAllowedException(String message) {
-    super(message);
+  public RequestMethod getRequestMethod() {
+    return RequestMethod.valueOf(requestMethod);
   }
 
-  public MethodNotAllowedException() {
-    super(Constant.METHOD_NOT_ALLOWED);
+  public RequestMethod[] getSupportedMethods() {
+    return supportedMethods;
   }
 }

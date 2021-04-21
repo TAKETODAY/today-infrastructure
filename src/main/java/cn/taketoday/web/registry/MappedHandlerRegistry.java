@@ -63,7 +63,12 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
   protected Object lookupInternal(final RequestContext context) {
     final String handlerKey = computeKey(context);
     final Object handler = lookupHandler(handlerKey, context);
-    return handler == null ? handlerNotFound(handlerKey, context) : handler;
+    if (handler == null) {
+      return handlerNotFound(handlerKey, context);
+    }
+    else {
+      return handler;
+    }
   }
 
   /**
@@ -94,7 +99,12 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
 
   protected Object lookupHandler(final String handlerKey, final RequestContext context) {
     final Object handler = handlers.get(handlerKey);
-    return handler == null ? lookupPatternHandler(handlerKey, context) : handler;
+    if (handler == null) {
+      return lookupPatternHandler(handlerKey, context);
+    }
+    else {
+      return handler;
+    }
   }
 
   /**

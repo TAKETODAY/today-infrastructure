@@ -44,7 +44,7 @@ public @interface ActionMapping {
   /** Exclude url on class */
   boolean exclude() default false;
 
-  RequestMethod[] method() default { RequestMethod.GET };
+  RequestMethod[] method() default {};
 
   /**
    * Narrows the primary mapping by media types that can be

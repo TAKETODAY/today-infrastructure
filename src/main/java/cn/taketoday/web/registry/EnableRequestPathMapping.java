@@ -20,9 +20,20 @@
 
 package cn.taketoday.web.registry;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import cn.taketoday.context.annotation.Import;
+
 /**
- * @author TODAY 2021/3/10 11:33
+ * @author TODAY 2021/4/22 1:02
+ * @since 3.0
  */
-public class HandlerMethodUrlRegistry extends AbstractUrlHandlerRegistry {
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.METHOD, ElementType.TYPE })
+@Import(RequestPathMappingHandlerMethodRegistry.class)
+public @interface EnableRequestPathMapping {
 
 }
