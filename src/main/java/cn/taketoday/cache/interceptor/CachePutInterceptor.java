@@ -62,14 +62,12 @@ public class CachePutInterceptor extends AbstractCacheInterceptor {
   public Object invoke(MethodInvocation invocation) throws Throwable {
     // process
     final Object result = invocation.proceed();
-
     // put cache
-
     final Method method = invocation.getMethod();
     final MethodKey methodKey = new MethodKey(method, CachePut.class);
     final CacheConfiguration cachePut = prepareAnnotation(methodKey);
     final CacheExpressionContext context = prepareELContext(methodKey, invocation);
-
+    // use ${result.xxx}
     context.putBean(Constant.KEY_RESULT, result);
     if (isConditionPassing(cachePut.condition(), context)) {
       final Object key = createKey(cachePut.key(), context, invocation);

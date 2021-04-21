@@ -98,4 +98,9 @@ public class DefaultUserRepository implements UserRepository, BeanNameAware {
   public User findUser(String id) {
     return users.get(id);
   }
+
+  @Override
+  public User removeUser(String id) {
+    return users.remove(id);
+  }
 }

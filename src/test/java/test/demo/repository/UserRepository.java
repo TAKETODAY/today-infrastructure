@@ -33,4 +33,6 @@ public interface UserRepository {
 
     User findUser(String id);
 
+    User removeUser(String id);
+
 }
