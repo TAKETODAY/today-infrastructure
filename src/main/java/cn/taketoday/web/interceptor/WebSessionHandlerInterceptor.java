@@ -29,7 +29,6 @@ import cn.taketoday.web.session.WebSessionManager;
  * 2020-04-20 20:58
  */
 public abstract class WebSessionHandlerInterceptor implements HandlerInterceptor {
-
   private final WebSessionManager sessionManager;
 
   public WebSessionHandlerInterceptor(WebSessionManager sessionManager) {

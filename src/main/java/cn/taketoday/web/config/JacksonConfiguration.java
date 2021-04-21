@@ -40,7 +40,7 @@ import cn.taketoday.web.view.MessageConverter;
 public class JacksonConfiguration {
 
   @MissingBean(type = MessageConverter.class)
-  JacksonMessageConverter messageConverterObjectMapper(
+  JacksonMessageConverter jacksonMessageConverter(
           @Autowired(required = false) ObjectMapper objectMapper, final List<ObjectMapperCustomizer> customizers) {
 
     if (objectMapper == null) {
