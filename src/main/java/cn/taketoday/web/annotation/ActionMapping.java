@@ -25,13 +25,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.utils.MediaType;
 import cn.taketoday.web.RequestMethod;
 
 /**
  * Handler Or Action Mapping
  *
  * @author TODAY <br>
- *         2018-08-23 10:18 change
+ * 2018-08-23 10:18 change
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD, ElementType.TYPE })
@@ -44,4 +45,91 @@ public @interface ActionMapping {
   boolean exclude() default false;
 
   RequestMethod[] method() default { RequestMethod.GET };
+
+  /**
+   * Narrows the primary mapping by media types that can be
+   * consumed by the mapped handler. Consists of one or more
+   * media types one of which must match to the request
+   * Content-Type header.
+   * Examples:
+   * <pre>
+   * consumes = "text/plain"
+   * consumes = {"text/plain", "application/*"}
+   * consumes = MediaType.TEXT_PLAIN_VALUE
+   * </pre>
+   * Expressions can be negated by using the "!" operator,
+   * as in "!text/plain", which matches all requests with
+   * a Content-Type other than "text/plain". Supported at
+   * the type level as well as at the method level! If
+   * specified at both levels, the method level consumes
+   * condition overrides the type level condition.
+   *
+   * @see MediaType
+   * @since 3.0
+   */
+  String[] consumes() default {};
+
+  /**
+   * The parameters of the mapped request, narrowing the primary mapping.
+   * <p>
+   * Same format for any environment: a sequence of "myParam=myValue" style
+   * expressions, with a request only mapped if each such parameter is found
+   * to have the given value. Expressions can be negated by using the
+   * "!=" operator, as in "myParam!=myValue". "myParam" style expressions
+   * are also supported, with such parameters having to be present in the
+   * request (allowed to have any value). Finally, "!myParam" style
+   * expressions indicate that the specified parameter is not supposed
+   * to be present in the request.
+   * </p>
+   * <p>
+   * <b>
+   * Supported at the type level as well as at the method level! When used
+   * at the type level, all method-level mappings inherit this parameter restriction.
+   * </b>
+   * </p>
+   *
+   * @since 3.0
+   */
+  String[] params() default {};
+
+  /**
+   * Narrows the primary mapping by media types that can be
+   * produced by the mapped handler.
+   * <p>
+   * Consists of one or more media types one of which must be chosen via content
+   * negotiation against the "acceptable" media types of the
+   * request. Typically those are extracted from the "Accept"
+   * header but may be derived from query parameters, or other.
+   * </p>
+   * <pre>
+   * Examples:
+   * produces = "text/plain"
+   * produces = {"text/plain", "application/*"}
+   * produces = MediaType.TEXT_PLAIN_VALUE
+   * produces = "text/plain;charset=UTF-8"
+   * </pre>
+   * <p>
+   * If a declared media type contains a parameter
+   * (e.g. "charset=UTF-8", "type=feed", "type=entry") and
+   * if a compatible media type from the request has that parameter too,
+   * then the parameter values must match. Otherwise if the media type
+   * from the request does not contain the parameter, it is assumed the
+   * client accepts any value.
+   * </p>
+   * <p>
+   * Expressions can be negated by using the "!" operator, as in "!text/plain",
+   * which matches all requests with a Accept other than "text/plain".
+   * </p>
+   *
+   * </p>
+   * <b>
+   * Supported at the type level as well as at the method level! If
+   * specified at both levels, the method level produces condition
+   * overrides the type level condition.
+   * </b>
+   * </p>
+   *
+   * @since 3.0
+   */
+  String[] produces() default {};
 }
