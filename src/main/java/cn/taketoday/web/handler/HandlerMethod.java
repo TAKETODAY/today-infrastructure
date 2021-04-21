@@ -122,7 +122,7 @@ public class HandlerMethod
     return returnType.isArray();
   }
 
-  public boolean isAssignableFrom(final Class<?> superClass) {
+  public boolean isAssignableTo(final Class<?> superClass) {
     return superClass.isAssignableFrom(returnType);
   }
 

@@ -36,7 +36,7 @@ public class ImageResultHandler
 
   @Override
   public boolean supports(HandlerMethod handlerMethod) {
-    return handlerMethod.isAssignableFrom(RenderedImage.class);
+    return handlerMethod.isAssignableTo(RenderedImage.class);
   }
 
   @Override

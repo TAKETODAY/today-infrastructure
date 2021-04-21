@@ -139,7 +139,7 @@ public class SimpleExceptionHandler
   {
     context.setStatus(getErrorStatusValue(ex));
 
-    if (handlerMethod.isAssignableFrom(RenderedImage.class)) {
+    if (handlerMethod.isAssignableTo(RenderedImage.class)) {
       return resolveImageException(ex, context);
     }
     if (!handlerMethod.is(void.class)

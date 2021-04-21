@@ -40,7 +40,7 @@ public class ModelAndViewResultHandler extends HandlerMethodResultHandler {
 
   @Override
   public boolean supports(HandlerMethod handlerMethod) {
-    return handlerMethod.isAssignableFrom(ModelAndView.class);
+    return handlerMethod.isAssignableTo(ModelAndView.class);
   }
 
   @Override

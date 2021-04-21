@@ -46,8 +46,8 @@ public class ResourceResultHandler extends OrderedSupport implements RuntimeResu
   }
 
   private boolean supports(HandlerMethod handlerMethod) {
-    return handlerMethod.isAssignableFrom(Resource.class)
-            || handlerMethod.isAssignableFrom(File.class);
+    return handlerMethod.isAssignableTo(Resource.class)
+            || handlerMethod.isAssignableTo(File.class);
   }
 
   @Override
