@@ -96,11 +96,13 @@ public class ValidationParameterResolver
       final MethodParameter[] parameters = parameter.getHandlerMethod().getParameters();
       final int length = parameters.length;
       if (length == 1) {
+        // use  @ExceptionHandler(ValidationException.class) to handle validation exception
         throw buildException(errors);
       }
       // > 1
       int index = parameter.getParameterIndex();
       if (++index == length || !parameters[index].isAssignableTo(Errors.class)) {
+        // use  @ExceptionHandler(ValidationException.class) to handle validation exception
         throw buildException(errors);
       }
     }
