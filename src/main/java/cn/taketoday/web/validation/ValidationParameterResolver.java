@@ -21,7 +21,6 @@ package cn.taketoday.web.validation;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
-import java.util.Map;
 
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.annotation.Autowired;
@@ -41,7 +40,7 @@ public class ValidationParameterResolver
 
   /** list of validators @since 3.0 */
   private final WebValidator validator;
-  private final Map<MethodParameter, ParameterResolver> resolverMap = new HashMap<>();
+  private final HashMap<MethodParameter, ParameterResolver> resolverMap = new HashMap<>();
   private static final Class<? extends Annotation> VALID_CLASS = ClassUtils.loadClass("javax.validation.Valid");
 
   private ParameterResolvers resolvers;
@@ -56,9 +55,7 @@ public class ValidationParameterResolver
   }
 
   public ValidationParameterResolver(final int order, final WebValidator validator) {
-    super(order);
-    Assert.notNull(validator, "WebValidator must not be null");
-    this.validator = validator;
+    this(order, validator, null);
   }
 
   public ValidationParameterResolver(
