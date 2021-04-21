@@ -114,7 +114,7 @@ public class MethodParameter
     return type == this.parameterClass;
   }
 
-  public boolean isAssignableFrom(final Class<?> superClass) {
+  public boolean isAssignableTo(final Class<?> superClass) {
     return superClass.isAssignableFrom(parameterClass);
   }
 

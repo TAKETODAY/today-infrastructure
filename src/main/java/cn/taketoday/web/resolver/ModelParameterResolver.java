@@ -49,7 +49,7 @@ public class ModelParameterResolver implements ParameterResolver {
 
   @Override
   public boolean supports(final MethodParameter parameter) {
-    return parameter.isAssignableFrom(Model.class) // Model
+    return parameter.isAssignableTo(Model.class) // Model
             || parameter.is(HttpHeaders.class) // HTTP request headers @since 3.0
             || (
             parameter.is(Map.class) // Map<String, Object> model;
@@ -65,12 +65,12 @@ public class ModelParameterResolver implements ParameterResolver {
   public Object resolveParameter(final RequestContext context,
                                  final MethodParameter parameter) throws Throwable {
 
-    if (parameter.isAssignableFrom(RedirectModel.class)) { // RedirectModel
+    if (parameter.isAssignableTo(RedirectModel.class)) { // RedirectModel
       final RedirectModelAttributes redirectModel = new RedirectModelAttributes();
       modelManager.applyModel(context, redirectModel);
       return redirectModel;
     }
-    if (parameter.isAssignableFrom(ModelAndView.class)) {
+    if (parameter.isAssignableTo(ModelAndView.class)) {
       return context.modelAndView();
     }
 

@@ -100,7 +100,7 @@ public class ValidationParameterResolver
       }
       // > 1
       int index = parameter.getParameterIndex();
-      if (++index == length || !parameters[index].isAssignableFrom(Errors.class)) {
+      if (++index == length || !parameters[index].isAssignableTo(Errors.class)) {
         throw buildException(errors);
       }
     }
@@ -138,12 +138,6 @@ public class ValidationParameterResolver
     return resolverMap.get(parameter);
   }
 
-  protected ParameterResolver obtainResolver(final MethodParameter parameter) {
-    final ParameterResolver resolver = getResolver(parameter);
-    Assert.state(resolver != null, "target parameter resolver must not be null");
-    return resolver;
-  }
-
   public void setResolvers(ParameterResolvers resolvers) {
     this.resolvers = resolvers;
   }
@@ -157,4 +151,11 @@ public class ValidationParameterResolver
     Assert.state(ret != null, "No ParameterResolvers.");
     return ret;
   }
+
+  private ParameterResolver obtainResolver(final MethodParameter parameter) {
+    final ParameterResolver resolver = getResolver(parameter);
+    Assert.state(resolver != null, "target parameter resolver must not be null");
+    return resolver;
+  }
+
 }

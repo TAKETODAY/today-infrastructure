@@ -41,7 +41,7 @@ public class ThrowableHandlerParameterResolver
 
   @Override
   public boolean supports(MethodParameter parameter) {
-    return parameter.isAssignableFrom(Throwable.class);
+    return parameter.isAssignableTo(Throwable.class);
   }
 
   @Override

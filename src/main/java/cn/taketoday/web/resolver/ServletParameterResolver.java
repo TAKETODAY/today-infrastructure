@@ -46,7 +46,7 @@ public class ServletParameterResolver {
 
     @Override
     public boolean supports(final MethodParameter parameter) {
-      return parameter.isInterface() && parameter.isAssignableFrom(ServletRequest.class);
+      return parameter.isInterface() && parameter.isAssignableTo(ServletRequest.class);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class ServletParameterResolver {
 
     @Override
     public boolean supports(final MethodParameter parameter) {
-      return parameter.isInterface() && parameter.isAssignableFrom(ServletResponse.class);
+      return parameter.isInterface() && parameter.isAssignableTo(ServletResponse.class);
     }
 
     @Override
@@ -72,7 +72,7 @@ public class ServletParameterResolver {
 
     @Override
     public boolean supports(final MethodParameter parameter) {
-      return parameter.isAssignableFrom(HttpSession.class);
+      return parameter.isAssignableTo(HttpSession.class);
     }
 
     @Override

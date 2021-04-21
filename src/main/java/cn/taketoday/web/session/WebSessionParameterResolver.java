@@ -39,7 +39,7 @@ public class WebSessionParameterResolver
 
   @Override
   public boolean supports(MethodParameter parameter) {
-    return parameter.isAssignableFrom(WebSession.class);
+    return parameter.isAssignableTo(WebSession.class);
   }
 
   @Override
