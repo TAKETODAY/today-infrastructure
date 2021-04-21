@@ -30,8 +30,7 @@ abstract class AbstractMappingFunctionCache extends AbstractCache {
 
   @Override
   protected <T> Object getInternal(Object key, CacheCallback<T> valueLoader) {
-    class MappingFunction implements UnaryOperator<Object> {
-
+    final class MappingFunction implements UnaryOperator<Object> {
       @Override
       public Object apply(Object k) {
         return lookupValue(k, valueLoader);
