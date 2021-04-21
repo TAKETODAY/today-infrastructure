@@ -33,6 +33,9 @@ import cn.taketoday.context.utils.Assert;
  * @since 3.0
  */
 public class WebValidator {
+
+  private boolean iterateAllValidators;
+
   private final List<Validator> validators;
 
   public WebValidator() {
@@ -44,9 +47,13 @@ public class WebValidator {
   }
 
   public void validate(final Object object, final Errors errors) {
+    final boolean iterateAllValidators = isIterateAllValidators();
     for (final Validator validator : validators) {
       if (validator.supports(object)) {
         validator.validate(object, errors);
+        if(!iterateAllValidators) {
+          break;
+        }
       }
     }
   }
@@ -68,5 +75,13 @@ public class WebValidator {
 
   public List<Validator> getValidators() {
     return validators;
+  }
+
+  public void setIterateAllValidators(boolean iterateAllValidators) {
+    this.iterateAllValidators = iterateAllValidators;
+  }
+
+  public boolean isIterateAllValidators() {
+    return iterateAllValidators;
   }
 }

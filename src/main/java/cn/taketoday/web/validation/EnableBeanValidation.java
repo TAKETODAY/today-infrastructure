@@ -51,7 +51,7 @@ public @interface EnableBeanValidation {
 class BeanValidationConfig {
 
   @MissingBean
-  WebValidator compositeValidator(List<Validator> validators) {
+  WebValidator webValidator(List<Validator> validators) {
     return new WebValidator(validators);
   }
 
