@@ -56,6 +56,7 @@ class BeanValidationConfig {
   }
 
   @MissingBean
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   @ConditionalOnClass("org.hibernate.validator.HibernateValidator")
   DefaultJavaxValidator hibernateValidator(Environment environment) {
     final Class<ValidationProvider> aClass = ClassUtils.loadClass("org.hibernate.validator.HibernateValidator");
