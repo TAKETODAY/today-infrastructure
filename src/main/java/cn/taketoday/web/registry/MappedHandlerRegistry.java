@@ -27,7 +27,10 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import cn.taketoday.cache.Cache;
+import cn.taketoday.cache.ConcurrentMapCache;
 import cn.taketoday.context.AntPathMatcher;
+import cn.taketoday.context.EmptyObject;
 import cn.taketoday.context.PathMatcher;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.CollectionUtils;
@@ -47,12 +50,17 @@ import cn.taketoday.web.handler.PatternHandler;
  * @see #computeKey(RequestContext)
  */
 public class MappedHandlerRegistry extends AbstractHandlerRegistry {
+  /** @since 3.0 */
+  static final String CACHE_NAME = MappedHandlerRegistry.class.getName() + "pattern-matching";
 
   private final Map<String, Object> handlers = new HashMap<>();
   private List<PatternHandler> patternHandlers;
 
   private PathMatcher pathMatcher = new AntPathMatcher();
   private CompositeHandlerCustomizer handlerCustomizer;
+
+  /** @since 3.0 */
+  private Cache patternMatchingCache;
 
   @PostConstruct
   public void initHandlerRegistry(List<HandlerCustomizer> customizers) {
@@ -98,13 +106,19 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
   }
 
   protected Object lookupHandler(final String handlerKey, final RequestContext context) {
-    final Object handler = handlers.get(handlerKey);
+    Object handler = handlers.get(handlerKey);
     if (handler == null) {
-      return lookupPatternHandler(handlerKey, context);
+      final Cache patternMatchingCache = getPatternMatchingCache();
+      handler = patternMatchingCache.get(handlerKey, false);
+      if (handler == null) {
+        handler = lookupPatternHandler(handlerKey, context);
+        patternMatchingCache.put(handlerKey, handler);
+      }
+      else if (handler == EmptyObject.INSTANCE) {
+        return null;
+      }
     }
-    else {
-      return handler;
-    }
+    return handler;
   }
 
   /**
@@ -119,7 +133,38 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
    */
   protected Object lookupPatternHandler(final String handlerKey, final RequestContext context) {
     final PatternHandler matched = matchingPatternHandler(handlerKey);
-    return matched == null ? null : matched.getHandler();
+    if (matched == null) {
+      return null;
+    }
+    else {
+      return matched.getHandler();
+    }
+  }
+
+  /** @since 3.0 */
+  public final Cache getPatternMatchingCache() {
+    Cache patternMatchingCache = this.patternMatchingCache;
+    if (patternMatchingCache == null) {
+      this.patternMatchingCache = patternMatchingCache = createPatternMatchingCache();
+    }
+    return patternMatchingCache;
+  }
+
+  /** @since 3.0 */
+  protected ConcurrentMapCache createPatternMatchingCache() {
+    return new ConcurrentMapCache(CACHE_NAME, 128);
+  }
+
+  /**
+   * Set Pattern matching Cache
+   *
+   * @param patternMatchingCache
+   *         a new Cache
+   *
+   * @since 3.0
+   */
+  public void setPatternMatchingCache(final Cache patternMatchingCache) {
+    this.patternMatchingCache = patternMatchingCache;
   }
 
   protected PatternHandler matchingPatternHandler(final String handlerKey) {
@@ -139,7 +184,15 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
     }
 
     if (matchedPatterns.isEmpty()) { // none matched
-      return null;
+      for (final Map.Entry<String, Object> entry : handlers.entrySet()) {
+        final String key = entry.getKey();
+        if (matchingPattern(pathMatcher, key, handlerKey)) {
+          matchedPatterns.put(key, new PatternHandler(key, entry.getKey()));
+        }
+      }
+      if (matchedPatterns.isEmpty()) {
+        return null;
+      }
     }
 
     final ArrayList<String> patterns = new ArrayList<>(matchedPatterns.keySet());
