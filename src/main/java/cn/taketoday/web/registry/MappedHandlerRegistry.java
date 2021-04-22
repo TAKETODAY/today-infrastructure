@@ -169,7 +169,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
 
   protected PatternHandler matchingPatternHandler(final String handlerKey) {
     final List<PatternHandler> patternHandlers = getPatternHandlers();
-    if (CollectionUtils.isEmpty(patternHandlers)) {
+    if (CollectionUtils.isEmpty(patternHandlers) && handlers.isEmpty()) {
       return null;
     }
     // pattern
@@ -185,9 +185,9 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
 
     if (matchedPatterns.isEmpty()) { // none matched
       for (final Map.Entry<String, Object> entry : handlers.entrySet()) {
-        final String key = entry.getKey();
-        if (matchingPattern(pathMatcher, key, handlerKey)) {
-          matchedPatterns.put(key, new PatternHandler(key, entry.getKey()));
+        final String pattern = entry.getKey();
+        if (matchingPattern(pathMatcher, pattern, handlerKey)) {
+          matchedPatterns.put(pattern, new PatternHandler(pattern, entry.getValue()));
         }
       }
       if (matchedPatterns.isEmpty()) {
