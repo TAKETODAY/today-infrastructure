@@ -47,7 +47,7 @@ import static cn.taketoday.context.exception.ConfigurationException.nonNull;
  * @since 2.3.7
  */
 public class ResourceHandlerRegistry
-        extends CacheableMappedHandlerRegistry implements WebApplicationInitializer {
+        extends MappedHandlerRegistry implements WebApplicationInitializer {
 
   private int contextPathLength;
   private WebResourceResolver resourceResolver;
@@ -111,7 +111,7 @@ public class ResourceHandlerRegistry
   }
 
   @Override
-  protected Object lookupCacheValue(final String handlerKey, final RequestContext context) {
+  protected Object lookupPatternHandler(final String handlerKey, final RequestContext context) {
     final PatternHandler matched = matchingPatternHandler(handlerKey);
     if (matched != null) {
       return new ResourceMatchResult(handlerKey,

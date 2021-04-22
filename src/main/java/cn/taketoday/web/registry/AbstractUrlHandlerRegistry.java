@@ -30,7 +30,7 @@ import cn.taketoday.web.RequestContext;
  * @author TODAY 2020/12/23 15:56
  * @since 3.0
  */
-public abstract class AbstractUrlHandlerRegistry extends CacheableMappedHandlerRegistry {
+public abstract class AbstractUrlHandlerRegistry extends MappedHandlerRegistry {
 
   private Object rootHandler;
 

@@ -37,7 +37,7 @@ import static cn.taketoday.web.RequestMethod.TRACE;
  * @author TODAY <br>
  *         2019-12-26 17:33
  */
-public class FunctionHandlerRegistry extends CacheableMappedHandlerRegistry {
+public class FunctionHandlerRegistry extends MappedHandlerRegistry {
 
   @Override
   protected String computeKey(final RequestContext context) {

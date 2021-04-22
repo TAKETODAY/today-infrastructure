@@ -21,6 +21,7 @@ package cn.taketoday.web.registry;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -61,11 +62,8 @@ import cn.taketoday.web.handler.PathVariableMethodParameter;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resolver.ParameterResolvers;
 
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
-import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributes;
 import static cn.taketoday.context.utils.CollectionUtils.newHashSet;
 import static cn.taketoday.context.utils.StringUtils.checkUrl;
-import static java.util.Collections.addAll;
 
 /**
  * Store {@link HandlerMethod}
@@ -106,7 +104,7 @@ public class HandlerMethodRegistry
 
   @Override
   protected void initApplicationContext(ApplicationContext context) {
-    setBeanFactory(nonNull(context.getBean(ConfigurableBeanFactory.class)));
+    setBeanFactory(context.getBean(ConfigurableBeanFactory.class));
 
     final Environment environment = context.getEnvironment();
     BeanDefinitionLoader beanDefinitionLoader = environment.getBeanDefinitionLoader();
@@ -160,21 +158,10 @@ public class HandlerMethodRegistry
    * @since 2.3.7
    */
   public void buildHandlerMethod(final Class<?> beanClass) {
-    final Set<String> namespaces = new LinkedHashSet<>(4, 1.0f); // name space
-    final Set<RequestMethod> methodsOnClass = new LinkedHashSet<>(8, 1.0f); // method
-
     // find mapping on class
-    final AnnotationAttributes controllerMapping = getAnnotationAttributes(ActionMapping.class, beanClass);
-
-    if (ObjectUtils.isNotEmpty(controllerMapping)) {
-      for (final String value : controllerMapping.getStringArray(Constant.VALUE)) {
-        namespaces.add(checkUrl(value));
-      }
-      addAll(methodsOnClass, controllerMapping.getAttribute("method", RequestMethod[].class));
-    }
-
+    final AnnotationAttributes controllerMapping = ClassUtils.getAnnotationAttributes(ActionMapping.class, beanClass);
     for (final Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
-      buildHandlerMethod(beanClass, method, namespaces, methodsOnClass);
+      buildHandlerMethod(method, beanClass, controllerMapping);
     }
   }
 
@@ -185,36 +172,21 @@ public class HandlerMethodRegistry
    *         Controller
    * @param method
    *         Action or Handler
-   * @param namespaces
-   *         Name space is that path mapping on the class level
-   * @param methodsOnClass
-   *         request method on class
+   * @param controllerMapping
+   *         find mapping on class
    */
-  protected void buildHandlerMethod(final Class<?> beanClass,
-                                    final Method method,
-                                    final Set<String> namespaces,
-                                    final Set<RequestMethod> methodsOnClass) //
-  {
+  protected void buildHandlerMethod(final Method method,
+                                    final Class<?> beanClass,
+                                    final AnnotationAttributes controllerMapping) {
+
     final AnnotationAttributes[] actionMapping = // find mapping on method
             ClassUtils.getAnnotationAttributesArray(method, ActionMapping.class);
 
     if (ObjectUtils.isNotEmpty(actionMapping)) {
       // build HandlerMethod
       final HandlerMethod handler = createHandlerMethod(beanClass, method);
-      final MethodParameter[] parameters = parameterBuilder.build(handler.getMethod());
-      handler.setParameters(parameters);
-
-      if (ObjectUtils.isNotEmpty(parameters)) {
-        for (MethodParameter parameter : parameters) {
-          parameter.setHandlerMethod(handler);
-        }
-      }
-
       // do mapping url
-      mappingHandlerMethod(handler,
-                           namespaces,
-                           methodsOnClass,
-                           actionMapping);
+      mappingHandlerMethod(handler, controllerMapping, actionMapping);
     }
   }
 
@@ -223,22 +195,29 @@ public class HandlerMethodRegistry
    *
    * @param handler
    *         current {@link HandlerMethod}
-   * @param namespaces
-   *         path on class
-   * @param classRequestMethods
    *         methods on class
    * @param annotationAttributes
-   *         {@link ActionMapping} Attributes
+   *         {@link ActionMapping} Attributes, never be null
    */
   protected void mappingHandlerMethod(final HandlerMethod handler,
-                                      final Set<String> namespaces,
-                                      final Set<RequestMethod> classRequestMethods,
+                                      final AnnotationAttributes controllerMapping,
                                       final AnnotationAttributes[] annotationAttributes) {
-    final boolean emptyNamespaces = namespaces.isEmpty();
-    final boolean addClassRequestMethods = !classRequestMethods.isEmpty();
+    boolean emptyNamespaces = true;
+    boolean addClassRequestMethods = false;
+    Set<String> namespaces = Collections.emptySet();
+    Set<RequestMethod> classRequestMethods = Collections.emptySet();
+    if (ObjectUtils.isNotEmpty(controllerMapping)) {
+      namespaces = new LinkedHashSet<>(4, 1.0f); // name space
+      classRequestMethods = new LinkedHashSet<>(8, 1.0f); // method
+      for (final String value : controllerMapping.getStringArray(Constant.VALUE)) {
+        namespaces.add(checkUrl(value));
+      }
+      Collections.addAll(classRequestMethods, controllerMapping.getAttribute("method", RequestMethod[].class));
+      emptyNamespaces = namespaces.isEmpty();
+      addClassRequestMethods = !classRequestMethods.isEmpty();
+    }
 
     for (final AnnotationAttributes handlerMethodMapping : annotationAttributes) {
-
       final boolean exclude = handlerMethodMapping.getBoolean("exclude"); // exclude name space on class ?
       final Set<RequestMethod> requestMethods = // http request method on method(action/handler)
               newHashSet(handlerMethodMapping.getAttribute("method", RequestMethod[].class));
@@ -261,6 +240,7 @@ public class HandlerMethodRegistry
         }
       }
     }
+
   }
 
   /**
@@ -275,14 +255,15 @@ public class HandlerMethodRegistry
    *
    * @see RequestMethod
    */
-  protected void mappingHandlerMethod(String path, RequestMethod requestMethod, HandlerMethod handlerMethod) {
+  private void mappingHandlerMethod(String path, RequestMethod requestMethod, HandlerMethod handlerMethod) {
     // GET/blog/users/1 GET/blog/#{key}/1
-    final String pathPattern = getContextPath().concat(resolveVariables(path));
-    registerHandler(requestMethod, pathPattern, transformHandlerMethod(pathPattern, handlerMethod));
+    final String pathPattern = getRequestPathPattern(path);
+    super.registerHandler(requestMethod.name().concat(pathPattern),
+                          transformHandlerMethod(pathPattern, handlerMethod));
   }
 
-  public void registerHandler(RequestMethod method, String pathPattern, Object handler) {
-    super.registerHandler(method.name().concat(pathPattern), handler);
+  protected final String getRequestPathPattern(String path) {
+    return getContextPath().concat(resolveVariables(path));
   }
 
   /**
@@ -360,7 +341,16 @@ public class HandlerMethodRegistry
       throw new ConfigurationException(
               "An unexpected exception occurred: [Can't get bean with given type: [" + beanClass.getName() + "]]");
     }
-    return new HandlerMethod(handlerBean, method, getInterceptors(beanClass, method));
+    final HandlerMethod handler = new HandlerMethod(handlerBean, method, getInterceptors(beanClass, method));
+    final MethodParameter[] parameters = parameterBuilder.build(handler.getMethod());
+    handler.setParameters(parameters);
+
+    if (ObjectUtils.isNotEmpty(parameters)) {
+      for (MethodParameter parameter : parameters) {
+        parameter.setHandlerMethod(handler);
+      }
+    }
+    return handler;
   }
 
   /**
@@ -391,21 +381,20 @@ public class HandlerMethodRegistry
    * @return List of {@link HandlerInterceptor} objects
    */
   protected List<HandlerInterceptor> getInterceptors(final Class<?> controllerClass, final Method action) {
-
-    final List<HandlerInterceptor> ret = new ArrayList<>();
+    final ArrayList<HandlerInterceptor> ret = new ArrayList<>();
 
     // 设置类拦截器
     final Interceptor[] controllerInterceptors = ClassUtils.getAnnotationArray(controllerClass, Interceptor.class);
     if (controllerInterceptors != null) {
       for (final Interceptor controllerInterceptor : controllerInterceptors) {
-        addAll(ret, getInterceptors(controllerInterceptor.value()));
+        Collections.addAll(ret, getInterceptors(controllerInterceptor.value()));
       }
     }
     // HandlerInterceptor on a method
     final Interceptor[] actionInterceptors = ClassUtils.getAnnotationArray(action, Interceptor.class);
     if (actionInterceptors != null) {
       for (final Interceptor actionInterceptor : actionInterceptors) {
-        addAll(ret, getInterceptors(actionInterceptor.value()));
+        Collections.addAll(ret, getInterceptors(actionInterceptor.value()));
         // exclude interceptors
         final ApplicationContext beanFactory = obtainApplicationContext();
         for (Class<? extends HandlerInterceptor> interceptor : actionInterceptor.exclude()) {
@@ -424,7 +413,6 @@ public class HandlerMethodRegistry
    * @return Array of {@link HandlerInterceptor} objects
    */
   public HandlerInterceptor[] getInterceptors(Class<? extends HandlerInterceptor>[] interceptors) {
-
     if (ObjectUtils.isEmpty(interceptors)) {
       return Constant.EMPTY_HANDLER_INTERCEPTOR;
     }
@@ -459,6 +447,7 @@ public class HandlerMethodRegistry
   }
 
   public void setBeanFactory(ConfigurableBeanFactory beanFactory) {
+    Assert.notNull(beanFactory, "ConfigurableBeanFactory cannot be null");
     this.beanFactory = beanFactory;
   }
 
