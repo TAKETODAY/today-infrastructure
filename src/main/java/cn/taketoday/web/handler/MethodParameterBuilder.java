@@ -58,7 +58,7 @@ public class MethodParameterBuilder {
     return ret;
   }
 
-  protected ParameterResolverMethodParameter createParameter(String methodArgsName, Parameter parameter, int index) {
+  protected MethodParameter createParameter(String methodArgsName, Parameter parameter, int index) {
     return new ParameterResolverMethodParameter(index, parameter, methodArgsName, parameterResolvers);
   }
 
