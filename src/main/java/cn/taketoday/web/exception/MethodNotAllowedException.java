@@ -36,6 +36,7 @@ public class MethodNotAllowedException extends WebNestedRuntimeException {
   private final RequestMethod[] supportedMethods;
 
   public MethodNotAllowedException(String requestMethod, RequestMethod[] supportedMethods) {
+    super("Method '" + requestMethod + "' Not Allowed");
     this.requestMethod = requestMethod;
     this.supportedMethods = supportedMethods;
   }
