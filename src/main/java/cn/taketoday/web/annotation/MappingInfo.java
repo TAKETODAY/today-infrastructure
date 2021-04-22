@@ -20,9 +20,11 @@
 
 package cn.taketoday.web.annotation;
 
+import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.utils.InvalidMediaTypeException;
 import cn.taketoday.context.utils.MediaType;
 import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.handler.HandlerMethod;
 import lombok.Setter;
@@ -35,7 +37,6 @@ import lombok.Setter;
 public class MappingInfo {
 
   private final String[] value;
-  private final boolean exclude;
   private final String[] produces;
 
   private final MediaType[] consumes;
@@ -44,16 +45,11 @@ public class MappingInfo {
 
   private final HandlerMethod handler;
 
-  /**
-   * @throws InvalidMediaTypeException
-   *         if the media type (consumes) value cannot be parsed
-   */
-  public MappingInfo(ActionMapping mapping, HandlerMethod handler) {
-    value = mapping.value();
-    exclude = mapping.exclude();
-    produces = mapping.produces();
+  public MappingInfo(String[] value, String[] produces, String[] consumes,
+                     String[] params, RequestMethod[] method, HandlerMethod handler) {
+    this.value = value;
+    this.produces = produces;
     this.handler = handler;
-    final String[] consumes = mapping.consumes();
     if (ObjectUtils.isNotEmpty(consumes)) {
       MediaType[] mediaTypes = new MediaType[consumes.length];
       int i = 0;
@@ -65,7 +61,6 @@ public class MappingInfo {
     else {
       this.consumes = null;
     }
-    final String[] params = mapping.params();
     if (ObjectUtils.isNotEmpty(params)) {
       int i = 0;
       RequestParameter[] parameters = new RequestParameter[params.length];
@@ -78,7 +73,6 @@ public class MappingInfo {
       this.params = null;
     }
 
-    final RequestMethod[] method = mapping.method();
     if (ObjectUtils.isNotEmpty(method)) {
       this.method = method;
     }
@@ -87,16 +81,36 @@ public class MappingInfo {
     }
   }
 
+  /**
+   * @throws InvalidMediaTypeException
+   *         if the media type (consumes) value cannot be parsed
+   */
+  public MappingInfo(ActionMapping mapping, HandlerMethod handler) {
+    this(mapping.value(), mapping.produces(), mapping.consumes(),
+         mapping.params(), mapping.method(), handler);
+  }
+
+  public MappingInfo(AnnotationAttributes attributes, HandlerMethod handler) {
+    this(attributes.getStringArray(Constant.VALUE), attributes.getStringArray("produces"),
+         attributes.getStringArray("consumes"), attributes.getStringArray("params"),
+         attributes.getAttribute("method", RequestMethod[].class), handler);
+  }
+
+  public MappingInfo(MappingInfo mapping, HandlerMethod handler) {
+    this.handler = handler;
+    this.value = mapping.value;
+    this.params = mapping.params;
+    this.method = mapping.method;
+    this.produces = mapping.produces;
+    this.consumes = mapping.consumes;
+  }
+
   public HandlerMethod getHandler() {
     return handler;
   }
 
   public String[] value() {
     return value;
-  }
-
-  public boolean exclude() {
-    return exclude;
   }
 
   public RequestMethod[] method() {
@@ -115,4 +129,8 @@ public class MappingInfo {
     return produces;
   }
 
+  @Override
+  public String toString() {
+    return handler.toString();
+  }
 }
