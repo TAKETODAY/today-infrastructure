@@ -20,17 +20,24 @@
 
 package cn.taketoday.web.registry;
 
+import java.lang.reflect.Array;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
+import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.utils.MediaType;
+import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.MappingInfo;
 import cn.taketoday.web.annotation.RequestParameter;
 import cn.taketoday.web.exception.MethodNotAllowedException;
+import cn.taketoday.web.handler.HandlerMethod;
 
 /**
  * @author TODAY 2021/3/10 11:33
@@ -44,6 +51,114 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
   @Override
   protected String computeKey(RequestContext context) {
     return context.getRequestPath();
+  }
+
+  @Override
+  protected void mappingHandlerMethod(HandlerMethod handler,
+                                      AnnotationAttributes controllerMapping,
+                                      AnnotationAttributes[] annotationAttributes) {
+    final AnnotationAttributes mapping = new AnnotationAttributes(ActionMapping.class);
+    for (final AnnotationAttributes actionMapping : annotationAttributes) {
+      mergeMappingAttributes(mapping, actionMapping, controllerMapping);
+      for (final String path : mapping.getStringArray("value")) { // url on method
+        final String pathPattern = getRequestPathPattern(path);
+        // transform
+        handler = transformHandlerMethod(pathPattern, handler);
+
+        final MappingInfo mappingInfo = new MappingInfo(mapping, handler);
+        registerHandler(pathPattern, mappingInfo);
+      }
+      mapping.clear(); // for next mapping
+    }
+  }
+
+  @Override
+  protected Object transformHandler(String handlerKey, Object handler) {
+    if (handler instanceof MappingInfo) {
+      MappingInfo mapping = (MappingInfo) handler;
+      final HandlerMethod handlerMethod = mapping.getHandler();
+      final Object transformed = super.transformHandler(handlerKey, handlerMethod);
+      if (transformed != handlerMethod) {
+        mapping = new MappingInfo(mapping, (HandlerMethod) transformed);
+      }
+      return mapping;
+    }
+    return super.transformHandler(handlerKey, handler);
+  }
+
+  /*private for testing */
+  void mergeMappingAttributes(AnnotationAttributes mapping,
+                              AnnotationAttributes actionMapping,
+                              AnnotationAttributes controllerMapping) {
+    if (ObjectUtils.isEmpty(controllerMapping) || actionMapping.getBoolean("exclude")) {
+      mapping.putAll(actionMapping);
+      return;
+    }
+
+    doMergeMapping(mapping, actionMapping, controllerMapping, Constant.VALUE, true);
+    doMergeMapping(mapping, actionMapping, controllerMapping, "params");
+    doMergeMapping(mapping, actionMapping, controllerMapping, "produces");
+    doMergeMapping(mapping, actionMapping, controllerMapping, "consumes");
+    doMergeMapping(mapping, actionMapping, controllerMapping, "method", RequestMethod[].class, false);
+  }
+
+  private void doMergeMapping(AnnotationAttributes mapping,
+                              AnnotationAttributes actionMapping,
+                              AnnotationAttributes controllerMapping, String key) {
+    doMergeMapping(mapping, actionMapping, controllerMapping, key, String[].class, false);
+  }
+
+  private void doMergeMapping(AnnotationAttributes mapping,
+                              AnnotationAttributes actionMapping,
+                              AnnotationAttributes controllerMapping,
+                              String key, boolean append) {
+    doMergeMapping(mapping, actionMapping, controllerMapping, key, String[].class, append);
+  }
+
+  private <T> void doMergeMapping(AnnotationAttributes mapping,
+                                  AnnotationAttributes actionMapping,
+                                  AnnotationAttributes controllerMapping,
+                                  String key, Class<T> requiredType, boolean append) {
+
+    final T attribute = controllerMapping.getAttribute(key, requiredType);
+    final int length = Array.getLength(attribute);
+    if (length == 0) {
+      mapping.put(key, actionMapping.getAttribute(key, requiredType));
+    }
+    else {
+      LinkedHashSet<Object> values = new LinkedHashSet<>();
+      final T actionAttribute = actionMapping.getAttribute(key, requiredType);
+      final int actionLength = Array.getLength(actionAttribute);
+      if (append) {
+        for (int i = 0; i < length; i++) {
+          final Object classElement = Array.get(attribute, i);
+          final String parentPath = StringUtils.checkUrl(classElement.toString());
+          final boolean appendParentPathEmpty = !parentPath.isEmpty();
+          for (int j = 0; j < actionLength; j++) {
+            final Object element = Array.get(actionAttribute, j);
+            if (appendParentPathEmpty) {
+              values.add(parentPath.concat(StringUtils.checkUrl(element.toString())));
+            }
+            else {
+              values.add(StringUtils.checkUrl(element.toString()));
+            }
+          }
+        }
+      }
+      else {
+//      Collections.addAll(values, actionAttribute);
+        for (int i = 0; i < length; i++) {
+          final Object element = Array.get(attribute, i);
+          values.add(element);
+        }
+        for (int i = 0; i < actionLength; i++) {
+          final Object element = Array.get(actionAttribute, i);
+          values.add(element);
+        }
+      }
+      final Object array = Array.newInstance(requiredType.getComponentType(), values.size());
+      mapping.put(key, values.toArray((Object[]) array));
+    }
   }
 
   @Override
@@ -70,22 +185,24 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
   @SuppressWarnings("unchecked")
   protected Object lookupHandler(String handlerKey, RequestContext context) {
     final Object handler = super.lookupHandler(handlerKey, context);
-    if (handler instanceof MappingInfo) {  // single MappingInfo
-      final MappingInfo mappingInfo = (MappingInfo) handler;
-      if (testMapping(mappingInfo, context)) {
-        return mappingInfo.getHandler();
-      }
-      // cannot pass the condition
-      return null;
-    }
-    else if (handler instanceof List) { // list of MappingInfo
-      for (final MappingInfo mappingInfo : ((List<MappingInfo>) handler)) {
+    if (handler != null) {
+      if (handler instanceof MappingInfo) {  // single MappingInfo
+        final MappingInfo mappingInfo = (MappingInfo) handler;
         if (testMapping(mappingInfo, context)) {
           return mappingInfo.getHandler();
         }
+        // cannot pass the condition
+        return null;
       }
-      // cannot pass the condition
-      return null;
+      else if (handler instanceof List) { // list of MappingInfo
+        for (final MappingInfo mappingInfo : ((List<MappingInfo>) handler)) {
+          if (testMapping(mappingInfo, context)) {
+            return mappingInfo.getHandler();
+          }
+        }
+        // cannot pass the condition
+        return null;
+      }
     }
     return handler;
   }
@@ -138,9 +255,6 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
         }
       }
     }
-
-    //
-
     return true;
   }
 }
