@@ -22,6 +22,8 @@ package cn.taketoday.web.annotation;
 
 import org.junit.Test;
 
+import cn.taketoday.web.registry.RequestParameter;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
