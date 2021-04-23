@@ -34,14 +34,12 @@ import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.handler.HandlerMethod;
-import lombok.Setter;
 
 /**
  * @author TODAY 2021/4/21 23:57
  * @since 3.0
  */
-@Setter
-public class MappingInfo implements Ordered {
+class MappingInfo implements Ordered {
 
   private final String[] value;
   private final String[] produces;

@@ -22,6 +22,7 @@ package cn.taketoday.web.registry;
 
 import java.util.Objects;
 
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
@@ -29,7 +30,7 @@ import cn.taketoday.context.utils.StringUtils;
  * @see MappingInfo
  * @since 3.0
  */
-public class RequestParameter {
+class RequestParameter {
   private final String name;
   private final String value;
 
@@ -69,13 +70,24 @@ public class RequestParameter {
 
   // static
 
-  public static RequestParameter parse(String param) {
+  /**
+   * Parsing a string like 'paramName=xxxxx' into a {@link RequestParameter}
+   *
+   * @param param
+   *         parameter string
+   *
+   * @throws IllegalArgumentException
+   *         param string is not valid (format error),or param string cannot empty
+   */
+  static RequestParameter parse(String param) {
+    Assert.hasLength(param, "param string cannot empty");
     final int indexOfEquals = param.indexOf('=');
     if (indexOfEquals > -1) {
       String value = param.substring(indexOfEquals + 1);
       if (StringUtils.isEmpty(value)) {
         value = null;
       }
+      Assert.isTrue(indexOfEquals != 0, "param string is not valid");
       final String name = param.substring(0, indexOfEquals);
       return new RequestParameter(name, value);
     }

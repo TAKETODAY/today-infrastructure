@@ -18,13 +18,12 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.annotation;
+package cn.taketoday.web.registry;
 
 import org.junit.Test;
 
-import cn.taketoday.web.registry.RequestParameter;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author TODAY 2021/4/22 0:42
@@ -34,13 +33,20 @@ public class RequestParameterTests {
   @Test
   public void parse() {
     final RequestParameter requestParameter = RequestParameter.parse("name=TODAY");
-    final RequestParameter nullValue = RequestParameter.parse("name");
+    RequestParameter nullValue = RequestParameter.parse("name");
     assertThat(requestParameter.getName())
             .isEqualTo(nullValue.getName())
             .isEqualTo("name");
 
     assertThat(requestParameter.getValue()).isEqualTo("TODAY");
     assertThat(nullValue.getValue()).isNull();
+
+    nullValue = RequestParameter.parse("name=");
+    assertThat(nullValue.getValue()).isNull();
+
+    assertThatThrownBy(() -> RequestParameter.parse("=")).withFailMessage("param string is not valid");
+    assertThatThrownBy(() -> RequestParameter.parse("")).withFailMessage("param string cannot empty");
+
   }
 
 }
