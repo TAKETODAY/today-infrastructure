@@ -40,7 +40,6 @@ import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.exception.MethodNotAllowedException;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.PatternHandler;
-import cn.taketoday.web.http.HttpHeaders;
 
 /**
  * @author TODAY 2021/3/10 11:33
