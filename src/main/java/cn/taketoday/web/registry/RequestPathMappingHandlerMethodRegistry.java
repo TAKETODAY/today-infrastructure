@@ -228,9 +228,12 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
   private Object getExistMappingInfo(String requestPath) {
     Object existMappingInfo = getHandlers().get(requestPath);
     if (existMappingInfo == null && getPathMatcher().isPattern(requestPath)) {
-      for (final PatternHandler patternHandler : getPatternHandlers()) {
-        if (Objects.equals(patternHandler.getPattern(), requestPath)) {
-          return patternHandler.getHandler();
+      final List<PatternHandler> patternHandlers = getPatternHandlers();
+      if (ObjectUtils.isNotEmpty(patternHandlers)) {
+        for (final PatternHandler patternHandler : patternHandlers) {
+          if (Objects.equals(patternHandler.getPattern(), requestPath)) {
+            return patternHandler.getHandler();
+          }
         }
       }
     }
@@ -269,6 +272,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
 
   /**
    * @throws MethodNotAllowedException
+   *         cannot pass the method condition
    */
   protected boolean testMapping(final MappingInfo mappingInfo, final RequestContext context) {
     // test request method
