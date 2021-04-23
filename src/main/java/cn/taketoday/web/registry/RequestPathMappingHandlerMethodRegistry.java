@@ -40,6 +40,7 @@ import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.exception.MethodNotAllowedException;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.PatternHandler;
+import cn.taketoday.web.http.HttpHeaders;
 
 /**
  * @author TODAY 2021/3/10 11:33
@@ -296,7 +297,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
     if (consumes != null) {
       final MediaType contentType = context.requestHeaders().getContentType();
       for (final MediaType consume : consumes) {
-        if (!consume.isCompatibleWith(contentType)) {
+        if (!consume.includes(contentType)) {
           return false;
         }
       }
@@ -317,6 +318,38 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
         else {
           return false;
         }
+      }
+    }
+
+    // test produces (Accept header)
+    final MediaType[] produces = mappingInfo.produces();
+    if (produces != null) {
+      final List<MediaType> acceptedMediaTypes = context.requestHeaders().getAccept();
+      for (final MediaType produce : produces) {
+        if (!matchMediaType(produce, acceptedMediaTypes)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  private boolean matchMediaType(MediaType accept, List<MediaType> acceptedMediaTypes) {
+    for (MediaType acceptedMediaType : acceptedMediaTypes) {
+      if (accept.isCompatibleWith(acceptedMediaType) && matchParameters(accept, acceptedMediaType)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean matchParameters(MediaType accept, MediaType acceptedMediaType) {
+    for (String name : accept.getParameters().keySet()) {
+      String s1 = accept.getParameter(name);
+      String s2 = acceptedMediaType.getParameter(name);
+      if (StringUtils.hasText(s1) && StringUtils.hasText(s2) && !s1.equalsIgnoreCase(s2)) {
+        return false;
       }
     }
     return true;

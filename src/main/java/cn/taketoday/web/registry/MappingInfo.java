@@ -42,11 +42,12 @@ import cn.taketoday.web.handler.HandlerMethod;
 class MappingInfo implements Ordered {
 
   private final String[] value;
-  private final String[] produces;
+//  private final String[] produces;
 
+  private final MediaType[] produces;
   private final MediaType[] consumes;
-  private final RequestParameter[] params;
   private final RequestMethod[] method;
+  private final RequestParameter[] params;
 
   private final HandlerMethod handler;
 
@@ -59,7 +60,7 @@ class MappingInfo implements Ordered {
     this.value = value;
     this.handler = handler;
     this.method = compute(method);
-    this.produces = compute(produces);
+    this.produces = compute(produces, MediaType::valueOf, MediaType[]::new);
     this.consumes = compute(consumes, MediaType::valueOf, MediaType[]::new);
     this.params = compute(params, RequestParameter::parse, RequestParameter[]::new);
   }
@@ -131,7 +132,7 @@ class MappingInfo implements Ordered {
     return params;
   }
 
-  public String[] produces() {
+  public MediaType[] produces() {
     return produces;
   }
 
