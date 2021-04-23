@@ -18,9 +18,11 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.annotation;
+package cn.taketoday.web.registry;
 
 import java.util.Objects;
+
+import cn.taketoday.context.utils.StringUtils;
 
 /**
  * @author TODAY 2021/4/22 0:33
@@ -31,7 +33,7 @@ public class RequestParameter {
   private final String name;
   private final String value;
 
-  public RequestParameter(String name, String value) {
+  private RequestParameter(String name, String value) {
     this.name = name;
     this.value = value;
   }
@@ -57,15 +59,25 @@ public class RequestParameter {
     return Objects.hash(name, value);
   }
 
+  @Override
+  public String toString() {
+    if (value == null) {
+      return name;
+    }
+    return name + "=" + value;
+  }
+
   // static
 
   public static RequestParameter parse(String param) {
     final int indexOfEquals = param.indexOf('=');
     if (indexOfEquals > -1) {
-      return new RequestParameter(
-              param.substring(0, indexOfEquals),
-              param.substring(indexOfEquals + 1)
-      );
+      String value = param.substring(indexOfEquals + 1);
+      if (StringUtils.isEmpty(value)) {
+        value = null;
+      }
+      final String name = param.substring(0, indexOfEquals);
+      return new RequestParameter(name, value);
     }
     else {
       return new RequestParameter(param, null);

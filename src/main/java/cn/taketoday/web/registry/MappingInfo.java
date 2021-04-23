@@ -20,13 +20,16 @@
 
 package cn.taketoday.web.registry;
 
+import java.lang.reflect.Method;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
 import cn.taketoday.context.AnnotationAttributes;
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.utils.InvalidMediaTypeException;
 import cn.taketoday.context.utils.MediaType;
 import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.annotation.ActionMapping;
@@ -38,7 +41,7 @@ import lombok.Setter;
  * @since 3.0
  */
 @Setter
-public class MappingInfo {
+public class MappingInfo implements Ordered {
 
   private final String[] value;
   private final String[] produces;
@@ -63,12 +66,12 @@ public class MappingInfo {
     this.params = compute(params, RequestParameter::parse, RequestParameter[]::new);
   }
 
-  private static <T, R> R[] compute(T[] values, Function<T, R> function, IntFunction<R[]> array) {
+  private static <T, R> R[] compute(T[] values, Function<T, R> converter, IntFunction<R[]> array) {
     if (ObjectUtils.isNotEmpty(values)) {
       final R[] ret = array.apply(values.length);
       int i = 0;
       for (final T value : values) {
-        ret[i++] = function.apply(value);
+        ret[i++] = converter.apply(value);
       }
       return ret;
     }
@@ -137,5 +140,16 @@ public class MappingInfo {
   @Override
   public String toString() {
     return handler.toString();
+  }
+
+  // order
+
+  @Override
+  public int getOrder() {
+    final Method method = handler.getMethod();
+    final int handlerOrder = OrderUtils.getOrder(method);
+    final int paramsOrder = params == null ? 0 : params.length;
+    final int consumesOrder = consumes == null ? 0 : consumes.length;
+    return handlerOrder + consumesOrder + paramsOrder;
   }
 }

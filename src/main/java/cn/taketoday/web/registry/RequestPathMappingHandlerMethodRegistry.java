@@ -30,14 +30,13 @@ import java.util.Objects;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.utils.MediaType;
 import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ActionMapping;
-import cn.taketoday.web.annotation.MappingInfo;
-import cn.taketoday.web.annotation.RequestParameter;
 import cn.taketoday.web.exception.MethodNotAllowedException;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.PatternHandler;
@@ -68,9 +67,9 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
   protected void logMapping(String handlerKey, Object handler) { }
 
   @Override
-  protected void logReplacedHandler(String handlerKey, Object oldHandler, Object newHandler) {
+  protected void logHandlerReplaced(String handlerKey, Object oldHandler, Object newHandler) {
     if (!(oldHandler instanceof MappingInfo) && !(oldHandler instanceof List)) {
-      super.logReplacedHandler(handlerKey, oldHandler, newHandler);
+      super.logHandlerReplaced(handlerKey, oldHandler, newHandler);
     }
   }
 
@@ -90,7 +89,6 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
         final String pathPattern = getRequestPathPattern(path);
         // transform
         handler = transformHandlerMethod(pathPattern, handler);
-
         final MappingInfo mappingInfo = new MappingInfo(mapping, handler);
         registerHandler(pathPattern, mappingInfo);
       }
@@ -188,24 +186,59 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public void registerHandler(String handlerKey, Object handler) {
     if (handler instanceof MappingInfo) {
-      final Object existMappingInfo = getHandlers().get(handlerKey);
-      if (existMappingInfo instanceof List) {
-        // List<ActionMappingInfo>
-        ((List<Object>) existMappingInfo).add(handler);
-        return;
-      }
-      else if (existMappingInfo instanceof MappingInfo) {
-        // ActionMappingInfo
-        final LinkedList<Object> infos = new LinkedList<>();
-        infos.add(handler);
-        infos.add(existMappingInfo);
-        handler = infos;
+      registerHandler(handlerKey, (MappingInfo) handler);
+    }
+    else {
+      super.registerHandler(handlerKey, handler);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private void registerHandler(String requestPath, MappingInfo handler) {
+    final Object existMappingInfo = getExistMappingInfo(requestPath);
+    if (existMappingInfo instanceof List) {
+      // List<ActionMappingInfo>
+      final List<MappingInfo> mappingInfo = (List<MappingInfo>) existMappingInfo;
+      mappingInfo.add(handler);
+      sort(mappingInfo);
+    }
+    else if (existMappingInfo instanceof MappingInfo) {
+      // ActionMappingInfo
+      final LinkedList<MappingInfo> mappingInfo = new LinkedList<>();
+      mappingInfo.add(handler);
+      mappingInfo.add((MappingInfo) existMappingInfo);
+      sort(mappingInfo);
+      super.registerHandler(requestPath, mappingInfo);
+    }
+    else {
+      super.registerHandler(requestPath, handler);
+    }
+  }
+
+  /**
+   * If a handler has already exits in this registry
+   *
+   * @param requestPath
+   *         handler key
+   *
+   * @return a exits Handler
+   */
+  private Object getExistMappingInfo(String requestPath) {
+    Object existMappingInfo = getHandlers().get(requestPath);
+    if (existMappingInfo == null && getPathMatcher().isPattern(requestPath)) {
+      for (final PatternHandler patternHandler : getPatternHandlers()) {
+        if (Objects.equals(patternHandler.getPattern(), requestPath)) {
+          return patternHandler.getHandler();
+        }
       }
     }
-    super.registerHandler(handlerKey, handler);
+    return existMappingInfo;
+  }
+
+  private void sort(List<MappingInfo> handlers) {
+    OrderUtils.reversedSort(handlers);
   }
 
   @Override

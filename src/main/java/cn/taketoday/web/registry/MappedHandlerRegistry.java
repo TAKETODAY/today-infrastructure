@@ -257,14 +257,14 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
       final Object oldHandler = handlers.put(handlerKey, handler);
       if (oldHandler != null && oldHandler != handler) {
         // @since 3.0
-        logReplacedHandler(handlerKey, oldHandler, handler);
+        logHandlerReplaced(handlerKey, oldHandler, handler);
       }
     }
 
     postRegisterHandler(handlerKey, handler);
   }
 
-  protected void logReplacedHandler(String handlerKey, Object oldHandler, Object newHandler) {
+  protected void logHandlerReplaced(String handlerKey, Object oldHandler, Object newHandler) {
     log.warn("Refresh Handler Registration: [{}] onto [{}] old handler: [{}]",
              handlerKey, newHandler, oldHandler);
   }
