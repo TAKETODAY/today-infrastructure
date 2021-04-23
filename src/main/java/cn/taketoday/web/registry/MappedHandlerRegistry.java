@@ -248,25 +248,32 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
       }
     }
     handler = transformHandler(handlerKey, handler);
-
-    log.info("Mapped [{}] onto [{}]", handlerKey, handler);
+    // @since 3.0
+    logMapping(handlerKey, handler);
     if (getPathMatcher().isPattern(handlerKey)) {
       addPatternHandlers(new PatternHandler(handlerKey, handler));
     }
     else {
       final Object oldHandler = handlers.put(handlerKey, handler);
       if (oldHandler != null && oldHandler != handler) {
-        log.warn("Refresh Handler Registration: [{}] onto [{}] old handler: [{}]",
-                 handlerKey, handler, oldHandler);
+        // @since 3.0
+        logReplacedHandler(handlerKey, oldHandler, handler);
       }
     }
 
     postRegisterHandler(handlerKey, handler);
   }
 
-  protected void postRegisterHandler(final String handlerKey, final Object handler) {
-
+  protected void logReplacedHandler(String handlerKey, Object oldHandler, Object newHandler) {
+    log.warn("Refresh Handler Registration: [{}] onto [{}] old handler: [{}]",
+             handlerKey, newHandler, oldHandler);
   }
+
+  protected void logMapping(String handlerKey, Object handler) {
+    log.info("Mapped [{}] onto [{}]", handlerKey, handler);
+  }
+
+  protected void postRegisterHandler(final String handlerKey, final Object handler) { }
 
   /**
    * Transform handler

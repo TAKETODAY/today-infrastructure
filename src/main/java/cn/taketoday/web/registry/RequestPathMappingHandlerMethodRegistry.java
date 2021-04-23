@@ -24,6 +24,7 @@ import java.lang.reflect.Array;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import cn.taketoday.context.AnnotationAttributes;
@@ -33,11 +34,13 @@ import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestMethod;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.MappingInfo;
 import cn.taketoday.web.annotation.RequestParameter;
 import cn.taketoday.web.exception.MethodNotAllowedException;
 import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.handler.PatternHandler;
 
 /**
  * @author TODAY 2021/3/10 11:33
@@ -47,6 +50,29 @@ import cn.taketoday.web.handler.HandlerMethod;
  * @since 3.0
  */
 public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegistry {
+
+  @Override
+  public void onStartup(WebApplicationContext context) {
+    super.onStartup(context);
+
+    for (final Map.Entry<String, Object> entry : getHandlers().entrySet()) {
+      super.logMapping(entry.getKey(), entry.getValue());
+    }
+
+    for (final PatternHandler patternHandler : getPatternHandlers()) {
+      super.logMapping(patternHandler.getPattern(), patternHandler.getHandler());
+    }
+  }
+
+  @Override
+  protected void logMapping(String handlerKey, Object handler) { }
+
+  @Override
+  protected void logReplacedHandler(String handlerKey, Object oldHandler, Object newHandler) {
+    if (!(oldHandler instanceof MappingInfo) && !(oldHandler instanceof List)) {
+      super.logReplacedHandler(handlerKey, oldHandler, newHandler);
+    }
+  }
 
   @Override
   protected String computeKey(RequestContext context) {
@@ -175,6 +201,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
         // ActionMappingInfo
         final LinkedList<Object> infos = new LinkedList<>();
         infos.add(handler);
+        infos.add(existMappingInfo);
         handler = infos;
       }
     }

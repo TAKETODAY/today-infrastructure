@@ -159,7 +159,8 @@ public class HandlerMethodRegistry
    */
   public void buildHandlerMethod(final Class<?> beanClass) {
     // find mapping on class
-    final AnnotationAttributes controllerMapping = ClassUtils.getAnnotationAttributes(ActionMapping.class, beanClass);
+    final AnnotationAttributes controllerMapping
+            = ClassUtils.getAnnotationAttributes(ActionMapping.class, beanClass);
     for (final Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
       buildHandlerMethod(method, beanClass, controllerMapping);
     }
