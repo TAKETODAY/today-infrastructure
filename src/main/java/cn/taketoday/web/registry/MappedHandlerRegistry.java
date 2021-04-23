@@ -168,18 +168,15 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
   }
 
   protected PatternHandler matchingPatternHandler(final String handlerKey) {
-    final List<PatternHandler> patternHandlers = getPatternHandlers();
-    if (CollectionUtils.isEmpty(patternHandlers) && handlers.isEmpty()) {
-      return null;
-    }
     // pattern
     final HashMap<String, PatternHandler> matchedPatterns = new HashMap<>();
     final PathMatcher pathMatcher = getPathMatcher();
-
-    for (final PatternHandler mapping : patternHandlers) {
-      final String pattern = mapping.getPattern();
-      if (matchingPattern(pathMatcher, pattern, handlerKey)) {
-        matchedPatterns.put(pattern, mapping);
+    if (!CollectionUtils.isEmpty(patternHandlers)) {
+      for (final PatternHandler mapping : patternHandlers) {
+        final String pattern = mapping.getPattern();
+        if (matchingPattern(pathMatcher, pattern, handlerKey)) {
+          matchedPatterns.put(pattern, mapping);
+        }
       }
     }
 

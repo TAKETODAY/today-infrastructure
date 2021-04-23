@@ -34,6 +34,7 @@ import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Controller;
+import cn.taketoday.web.annotation.Produce;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
@@ -83,6 +84,11 @@ public class HandlerMethod
       this.returnType = method.getReturnType();
       this.handlerInvoker = MethodInvoker.create(method);
       setOrder(OrderUtils.getOrder(method) + OrderUtils.getOrder(bean));
+      // @since 3.0
+      final Produce produce = getMethodAnnotation(Produce.class);
+      if (produce != null) {
+        setContentType(produce.value());
+      }
     }
 
     setResponseStatus(WebUtils.getResponseStatus(this));
@@ -93,9 +99,11 @@ public class HandlerMethod
    */
   public HandlerMethod(HandlerMethod other) {
     this.bean = other.bean;
+    setOrder(other.getOrder()); // fix update order
     this.method = other.method;
     this.generics = other.generics;
     this.returnType = other.returnType;
+    this.contentType = other.contentType; // @since 3.0
     this.resultHandler = other.resultHandler;
     this.handlerInvoker = other.handlerInvoker;
     this.responseStatus = other.responseStatus;
@@ -274,11 +282,26 @@ public class HandlerMethod
   // handleRequest
   // -----------------------------------------
 
+  private String contentType;
+
+  public void setContentType(String contentType) {
+    this.contentType = contentType;
+  }
+
+  public String getContentType() {
+    return contentType;
+  }
+
   @Override
   public void handleResult(final RequestContext context,
                            final Object handler, final Object result) throws Throwable {
     applyResponseStatus(context);
     getResultHandler().handleResult(context, handler, result);
+    // @since 3.0
+    final String contentType = getContentType();
+    if (contentType != null) {
+      context.setContentType(contentType);
+    }
   }
 
   public Object invokeHandler(final RequestContext request) throws Throwable {
