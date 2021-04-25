@@ -46,6 +46,7 @@ import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
+import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestMethod;
@@ -264,7 +265,31 @@ public class HandlerMethodRegistry
   }
 
   protected final String getRequestPathPattern(String path) {
-    return getContextPath().concat(resolveVariables(path));
+    final String contextPath = getContextPath();
+    if(StringUtils.isNotEmpty(contextPath)) {
+      path = contextPath.concat(path);
+    }
+    path = resolveVariables(path);
+    return sanitizedPath(path);
+  }
+
+  /**
+   * Sanitize the given path. Uses the following rules:
+   * <ul>
+   * <li>replace all "//" by "/"</li>
+   * </ul>
+   */
+  static String sanitizedPath(final String path) {
+    int index = path.indexOf("//");
+    if (index >= 0) {
+      StringBuilder sanitized = new StringBuilder(path);
+      while (index != -1) {
+        sanitized.deleteCharAt(index);
+        index = sanitized.indexOf("//", index);
+      }
+      return sanitized.toString();
+    }
+    return path;
   }
 
   /**
