@@ -39,7 +39,7 @@ import cn.taketoday.web.handler.HandlerMethod;
  * @author TODAY 2021/4/21 23:57
  * @since 3.0
  */
-class MappingInfo implements Ordered {
+class AnnotationMappingInfo implements Ordered {
 
   private final String[] value;
 //  private final String[] produces;
@@ -55,8 +55,8 @@ class MappingInfo implements Ordered {
    * @throws InvalidMediaTypeException
    *         if the media type (consumes) value cannot be parsed
    */
-  MappingInfo(String[] value, String[] produces, String[] consumes,
-              String[] params, RequestMethod[] method, HandlerMethod handler) {
+  AnnotationMappingInfo(String[] value, String[] produces, String[] consumes,
+                        String[] params, RequestMethod[] method, HandlerMethod handler) {
     this.value = value;
     this.handler = handler;
     this.method = compute(method);
@@ -88,7 +88,7 @@ class MappingInfo implements Ordered {
    * @throws InvalidMediaTypeException
    *         if the media type (consumes) value cannot be parsed
    */
-  MappingInfo(ActionMapping mapping, HandlerMethod handler) {
+  AnnotationMappingInfo(ActionMapping mapping, HandlerMethod handler) {
     this(mapping.value(), mapping.produces(), mapping.consumes(),
          mapping.params(), mapping.method(), handler);
   }
@@ -97,13 +97,13 @@ class MappingInfo implements Ordered {
    * @throws InvalidMediaTypeException
    *         if the media type (consumes) value cannot be parsed
    */
-  MappingInfo(AnnotationAttributes attributes, HandlerMethod handler) {
+  AnnotationMappingInfo(AnnotationAttributes attributes, HandlerMethod handler) {
     this(attributes.getStringArray(Constant.VALUE), attributes.getStringArray("produces"),
          attributes.getStringArray("consumes"), attributes.getStringArray("params"),
          attributes.getAttribute("method", RequestMethod[].class), handler);
   }
 
-  public MappingInfo(MappingInfo mapping, HandlerMethod handler) {
+  public AnnotationMappingInfo(AnnotationMappingInfo mapping, HandlerMethod handler) {
     this.handler = handler;
     this.value = mapping.value;
     this.params = mapping.params;

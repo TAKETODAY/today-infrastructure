@@ -27,7 +27,7 @@ import cn.taketoday.context.utils.StringUtils;
 
 /**
  * @author TODAY 2021/4/22 0:33
- * @see MappingInfo
+ * @see AnnotationMappingInfo
  * @since 3.0
  */
 class RequestParameter {

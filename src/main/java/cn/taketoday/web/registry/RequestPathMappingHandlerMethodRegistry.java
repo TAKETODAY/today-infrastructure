@@ -67,7 +67,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
 
   @Override
   protected void logHandlerReplaced(String handlerKey, Object oldHandler, Object newHandler) {
-    if (!(oldHandler instanceof MappingInfo) && !(oldHandler instanceof List)) {
+    if (!(oldHandler instanceof AnnotationMappingInfo) && !(oldHandler instanceof List)) {
       super.logHandlerReplaced(handlerKey, oldHandler, newHandler);
     }
   }
@@ -88,7 +88,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
         final String pathPattern = getRequestPathPattern(path);
         // transform
         handler = transformHandlerMethod(pathPattern, handler);
-        final MappingInfo mappingInfo = new MappingInfo(mapping, handler);
+        final AnnotationMappingInfo mappingInfo = new AnnotationMappingInfo(mapping, handler);
         registerHandler(pathPattern, mappingInfo);
       }
       mapping.clear(); // for next mapping
@@ -97,12 +97,12 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
 
   @Override
   protected Object transformHandler(String handlerKey, Object handler) {
-    if (handler instanceof MappingInfo) {
-      MappingInfo mapping = (MappingInfo) handler;
+    if (handler instanceof AnnotationMappingInfo) {
+      AnnotationMappingInfo mapping = (AnnotationMappingInfo) handler;
       final HandlerMethod handlerMethod = mapping.getHandler();
       final Object transformed = super.transformHandler(handlerKey, handlerMethod);
       if (transformed != handlerMethod) {
-        mapping = new MappingInfo(mapping, (HandlerMethod) transformed);
+        mapping = new AnnotationMappingInfo(mapping, (HandlerMethod) transformed);
       }
       return mapping;
     }
@@ -186,8 +186,8 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
 
   @Override
   public void registerHandler(String handlerKey, Object handler) {
-    if (handler instanceof MappingInfo) {
-      registerHandler(handlerKey, (MappingInfo) handler);
+    if (handler instanceof AnnotationMappingInfo) {
+      registerHandler(handlerKey, (AnnotationMappingInfo) handler);
     }
     else {
       super.registerHandler(handlerKey, handler);
@@ -195,19 +195,19 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
   }
 
   @SuppressWarnings("unchecked")
-  private void registerHandler(String requestPath, MappingInfo handler) {
+  private void registerHandler(String requestPath, AnnotationMappingInfo handler) {
     final Object existMappingInfo = getExistMappingInfo(requestPath);
     if (existMappingInfo instanceof List) {
       // List<ActionMappingInfo>
-      final List<MappingInfo> mappingInfo = (List<MappingInfo>) existMappingInfo;
+      final List<AnnotationMappingInfo> mappingInfo = (List<AnnotationMappingInfo>) existMappingInfo;
       mappingInfo.add(handler);
       sort(mappingInfo);
     }
-    else if (existMappingInfo instanceof MappingInfo) {
+    else if (existMappingInfo instanceof AnnotationMappingInfo) {
       // ActionMappingInfo
-      final LinkedList<MappingInfo> mappingInfo = new LinkedList<>();
+      final LinkedList<AnnotationMappingInfo> mappingInfo = new LinkedList<>();
       mappingInfo.add(handler);
-      mappingInfo.add((MappingInfo) existMappingInfo);
+      mappingInfo.add((AnnotationMappingInfo) existMappingInfo);
       sort(mappingInfo);
       super.registerHandler(requestPath, mappingInfo);
     }
@@ -239,7 +239,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
     return existMappingInfo;
   }
 
-  private void sort(List<MappingInfo> handlers) {
+  private void sort(List<AnnotationMappingInfo> handlers) {
     OrderUtils.reversedSort(handlers);
   }
 
@@ -248,8 +248,8 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
   protected Object lookupHandler(String handlerKey, RequestContext context) {
     final Object handler = super.lookupHandler(handlerKey, context);
     if (handler != null) {
-      if (handler instanceof MappingInfo) {  // single MappingInfo
-        final MappingInfo mappingInfo = (MappingInfo) handler;
+      if (handler instanceof AnnotationMappingInfo) {  // single MappingInfo
+        final AnnotationMappingInfo mappingInfo = (AnnotationMappingInfo) handler;
         if (testMapping(mappingInfo, context)) {
           return mappingInfo.getHandler();
         }
@@ -257,7 +257,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
         return null;
       }
       else if (handler instanceof List) { // list of MappingInfo
-        for (final MappingInfo mappingInfo : ((List<MappingInfo>) handler)) {
+        for (final AnnotationMappingInfo mappingInfo : ((List<AnnotationMappingInfo>) handler)) {
           if (testMapping(mappingInfo, context)) {
             return mappingInfo.getHandler();
           }
@@ -269,7 +269,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
     return handler;
   }
 
-  protected boolean testMapping(final MappingInfo mappingInfo, final RequestContext context) {
+  protected boolean testMapping(final AnnotationMappingInfo mappingInfo, final RequestContext context) {
     // test request method
     final RequestMethod[] supportedMethods = mappingInfo.method();
     if (supportedMethods != null) {
