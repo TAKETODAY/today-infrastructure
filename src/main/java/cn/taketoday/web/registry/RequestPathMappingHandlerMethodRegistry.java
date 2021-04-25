@@ -37,7 +37,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ActionMapping;
-import cn.taketoday.web.exception.MethodNotAllowedException;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.PatternHandler;
 
@@ -270,10 +269,6 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
     return handler;
   }
 
-  /**
-   * @throws MethodNotAllowedException
-   *         cannot pass the method condition
-   */
   protected boolean testMapping(final MappingInfo mappingInfo, final RequestContext context) {
     // test request method
     final RequestMethod[] supportedMethods = mappingInfo.method();
@@ -287,7 +282,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
         }
       }
       if (!matched) {
-        throw new MethodNotAllowedException(requestMethod, supportedMethods);
+        return false;
       }
     }
 
