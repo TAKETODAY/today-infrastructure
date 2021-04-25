@@ -30,7 +30,7 @@ import cn.taketoday.web.resolver.ParameterResolver;
  */
 public interface Constant extends cn.taketoday.context.Constant {
 
-  String WEB_VERSION = "2.3.7.RELEASE";
+  String WEB_VERSION = "3.0.RELEASE";
 
   String DEFAULT_TEMPLATE_PATH = "classpath:templates/";
   String X_REQUIRED_AUTHORIZATION = "X-Required-Authorization";

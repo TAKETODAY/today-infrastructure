@@ -67,6 +67,9 @@ public class HandlerMethod
   /** @since 3.0 */
   private ResponseStatus responseStatus;
 
+  /** @since 3.0 */
+  private String contentType;
+
   public HandlerMethod() {
     this(null, null, null);
   }
@@ -109,16 +112,6 @@ public class HandlerMethod
     this.responseStatus = other.responseStatus;
     setInterceptors(other.getInterceptors());
     this.parameters = other.parameters != null ? other.parameters.clone() : null;
-  }
-
-  // -----------------------------------------
-
-  public static HandlerMethod create(Object bean, Method method) {
-    return new HandlerMethod(bean, method);
-  }
-
-  public static HandlerMethod create(Object bean, Method method, List<HandlerInterceptor> interceptors) {
-    return new HandlerMethod(bean, method, interceptors);
   }
 
   // ---- useful methods
@@ -282,8 +275,6 @@ public class HandlerMethod
   // handleRequest
   // -----------------------------------------
 
-  private String contentType;
-
   public void setContentType(String contentType) {
     this.contentType = contentType;
   }
@@ -351,13 +342,16 @@ public class HandlerMethod
     if (this == o) return true;
     if (!(o instanceof HandlerMethod)) return false;
     final HandlerMethod that = (HandlerMethod) o;
-    return Objects.equals(bean, that.bean) && Objects.equals(method, that.method) && Objects
-            .equals(resultHandler, that.resultHandler) && Objects.equals(responseStatus, that.responseStatus);
+    return Objects.equals(bean, that.bean)
+            && Objects.equals(method, that.method)
+            && Objects.equals(contentType, that.contentType)
+            && Objects.equals(resultHandler, that.resultHandler)
+            && Objects.equals(responseStatus, that.responseStatus);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(bean, method, resultHandler, responseStatus);
+    return Objects.hash(bean, method, resultHandler, responseStatus, contentType);
   }
 
   @Override
@@ -381,5 +375,16 @@ public class HandlerMethod
     builder.append(')');
     return builder.toString();
   }
+
+  // static
+
+  public static HandlerMethod create(Object bean, Method method) {
+    return new HandlerMethod(bean, method);
+  }
+
+  public static HandlerMethod create(Object bean, Method method, List<HandlerInterceptor> interceptors) {
+    return new HandlerMethod(bean, method, interceptors);
+  }
+
 
 }
