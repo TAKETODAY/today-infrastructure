@@ -21,8 +21,6 @@
 package cn.taketoday.web.registry;
 
 import java.lang.reflect.Array;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,7 +37,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ActionMapping;
-import cn.taketoday.web.exception.MethodNotAllowedException;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.PatternHandler;
 
@@ -257,8 +254,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
           return mappingInfo.getHandler();
         }
         // cannot pass the condition
-        return handleNoMatch(
-                Collections.singletonList((AnnotationMappingInfo) handler), requestPath, context);
+        return null;
       }
       else if (handler instanceof List) { // list of MappingInfo
         for (final AnnotationMappingInfo mappingInfo : ((List<AnnotationMappingInfo>) handler)) {
@@ -267,45 +263,10 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
           }
         }
         // cannot pass the condition
-        return handleNoMatch((List<AnnotationMappingInfo>) handler, requestPath, context);
+        return null;
       }
     }
     return handler;
-  }
-
-  /**
-   * Invoked when no matching mapping is not found.
-   *
-   * @param mappings
-   *         all registered mappings
-   * @param requestPath
-   *         mapping request path
-   *
-   * @throws MethodNotAllowedException
-   *         If method is not allowed
-   */
-  protected Object handleNoMatch(
-          List<AnnotationMappingInfo> mappings, String requestPath, RequestContext context) {
-
-    boolean methodNotAllowed = true;
-    final String requestMethod = context.getMethod();
-    final HashSet<RequestMethod> supportedMethods = new HashSet<>();
-    for (final AnnotationMappingInfo mapping : mappings) {
-      Collections.addAll(supportedMethods, mapping.method());
-      // test if its not a supported method
-      for (final RequestMethod testMethod : mapping.method()) {
-        if (requestMethod.equals(testMethod.name())) {
-          methodNotAllowed = false;
-          break;
-        }
-      }
-    }
-
-    if (methodNotAllowed) {
-      throw new MethodNotAllowedException(requestMethod, supportedMethods.toArray(new RequestMethod[0]));
-    }
-
-    return null;
   }
 
   protected boolean testMapping(final AnnotationMappingInfo mappingInfo, final RequestContext context) {

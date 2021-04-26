@@ -22,17 +22,22 @@ package cn.taketoday.web.registry;
 import cn.taketoday.web.RequestContext;
 
 /**
- * @author TODAY <br>
- *         2019-12-08 23:06
+ * For registering handler
+ *
+ * @author TODAY 2019-12-08 23:06
  */
 @FunctionalInterface
 public interface HandlerRegistry {
 
   /**
    * Lookup current request context's handler
+   * <p>
+   * <b>NOTE</b> : cannot throws any exception
+   * </p>
    *
    * @param context
-   *            Current request context
+   *         Current request context
+   *
    * @return Target handler. If returns {@code null} indicates no handler
    */
   Object lookup(RequestContext context);
