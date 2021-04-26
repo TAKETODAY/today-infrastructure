@@ -22,6 +22,8 @@ package cn.taketoday.web.handler;
 import cn.taketoday.web.RequestContext;
 
 /**
+ * Handle Exception from handler
+ *
  * @author TODAY <br>
  * 2020-03-29 20:52
  */
