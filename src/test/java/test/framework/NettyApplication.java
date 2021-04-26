@@ -7,7 +7,6 @@ import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.event.EnableMethodEventDriven;
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.framework.WebApplication;
-import cn.taketoday.framework.annotation.EnableTomcatHandling;
 import cn.taketoday.framework.reactive.EnableNettyHandling;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ExceptionHandler;
@@ -15,6 +14,7 @@ import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.annotation.RestControllerAdvice;
 import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.web.registry.EnableRequestPathMapping;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 @RestControllerAdvice
+@EnableRequestPathMapping
 @Import(NettyApplication.AppConfig.class)
 public class NettyApplication {
 
@@ -80,7 +81,7 @@ public class NettyApplication {
   }
 
   @Configuration
-//  @EnableNettyHandling
+  @EnableNettyHandling
 //  @EnableTomcatHandling
   @EnableMethodEventDriven
   static class AppConfig {

@@ -23,9 +23,9 @@ public class AsyncNettyDispatcherHandler extends DispatcherHandler implements Ne
 
   @Override
   public void dispatch(final ChannelHandlerContext ctx, final NettyRequestContext nettyContext) {
-    final class Handler implements UnaryOperator<Object> {
+    final class AsyncHandler implements UnaryOperator<Object> {
       @Override
-      public Object apply(Object handler) {
+      public Object apply(final Object handler) {
         RequestContextHolder.prepareContext(nettyContext);
         try {
           handle(handler, nettyContext);
@@ -40,9 +40,9 @@ public class AsyncNettyDispatcherHandler extends DispatcherHandler implements Ne
       }
     }
 
-    final class Sender implements Consumer<Object> {
+    final class AsyncSender implements Consumer<Object> {
       @Override
-      public void accept(Object handler) {
+      public void accept(final Object handler) {
         nettyContext.sendIfNotCommitted();
       }
     }
@@ -50,8 +50,8 @@ public class AsyncNettyDispatcherHandler extends DispatcherHandler implements Ne
     final Executor executor = ctx.executor();
     completedFuture(nettyContext)
             .thenApplyAsync(this::lookupHandler, executor)
-            .thenApplyAsync(new Handler(), executor)
-            .thenAcceptAsync(new Sender(), executor);
+            .thenApplyAsync(new AsyncHandler(), executor)
+            .thenAcceptAsync(new AsyncSender(), executor);
   }
 
 }
