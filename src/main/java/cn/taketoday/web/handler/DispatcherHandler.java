@@ -31,7 +31,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.registry.HandlerRegistry;
-import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.HandlerAdapterNotFoundException;
 import cn.taketoday.web.view.ResultHandler;
 import cn.taketoday.web.view.ResultHandlerCapable;
@@ -87,7 +86,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * @throws HandlerAdapterNotFoundException
    *         If there isn't a {@link HandlerAdapter} for target handler
    */
-  public HandlerAdapter lookupHandlerAdapter(final Object handler) {
+  private HandlerAdapter lookupHandlerAdapter(final Object handler) {
     if (handler instanceof HandlerAdapter) {
       return (HandlerAdapter) handler;
     }
@@ -132,38 +131,13 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   }
 
   /**
-   * Check if this request is not modified
-   *
-   * @param handler
-   *         HTTP handler
-   * @param context
-   *         Current HTTP request context
-   * @param adapter
-   *         Handler's {@link HandlerAdapter Adapter}
-   *
-   * @return If not modified
-   */
-  public boolean isNotModified(final Object handler,
-                               final RequestContext context,
-                               final HandlerAdapter adapter) {
-    final String method = context.getMethod();
-    // Process last-modified header, if supported by the handler.
-    final boolean isGet = "GET".equals(method);
-    if (isGet || "HEAD".equals(method)) {
-      final long lastModified = adapter.getLastModified(context, handler);
-      return isGet && WebUtils.checkNotModified(null, lastModified, context);
-    }
-    return false;
-  }
-
-  /**
    * Handle HTTP request
    *
    * @param context
    *         Current HTTP request context
    *
    * @throws Throwable
-   *         If {@link Throwable} occurred in handler
+   *         If {@link Throwable} cannot handled
    */
   public void handle(final RequestContext context) throws Throwable {
     handle(lookupHandler(context), context);
@@ -178,47 +152,11 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    *         Current HTTP request context
    *
    * @throws Throwable
-   *         If {@link Throwable} occurred in handler
+   *         If {@link Throwable} cannot handled
    */
   public void handle(final Object handler, final RequestContext context) throws Throwable {
-    handle(handler, context, lookupHandlerAdapter(handler));
-  }
-
-  /**
-   * Handle HTTP request not modify
-   *
-   * @param handler
-   *         HTTP handler
-   * @param context
-   *         Current HTTP request context
-   * @param adapter
-   *         {@link HandlerAdapter}
-   *
-   * @throws Throwable
-   *         If {@link Throwable} occurred in handler
-   */
-  public void handleNotModify(final Object handler,
-                              final RequestContext context,
-                              final HandlerAdapter adapter) throws Throwable {
-    if (!isNotModified(handler, context, adapter)) {
-      handle(handler, context, adapter);
-    }
-  }
-
-  /**
-   * Handle HTTP request
-   *
-   * @param handler
-   *         HTTP handler
-   * @param context
-   *         Current HTTP request context
-   * @param adapter
-   *         {@link HandlerAdapter}
-   */
-  public void handle(final Object handler,
-                     final RequestContext context,
-                     final HandlerAdapter adapter) throws Throwable {
     try {
+      final HandlerAdapter adapter = lookupHandlerAdapter(handler);
       final Object result = adapter.handle(context, handler);
       if (result != HandlerAdapter.NONE_RETURN_VALUE) {
         lookupResultHandler(handler, result)
@@ -228,7 +166,9 @@ public class DispatcherHandler extends WebApplicationContextSupport {
     catch (Throwable e) {
       handleException(handler, e, context);
     }
-    postHandle(context);
+    finally {
+      postHandle(context);
+    }
   }
 
   protected void postHandle(RequestContext context) {
@@ -249,7 +189,8 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    *         Current HTTP request context
    *
    * @throws Throwable
-   *         If {@link Throwable} occurred in {@link HandlerExceptionHandler}
+   *         If {@link Throwable} occurred in
+   *         {@link HandlerExceptionHandler} cannot handled
    */
   public void handleException(final Object handler,
                               final Throwable exception,

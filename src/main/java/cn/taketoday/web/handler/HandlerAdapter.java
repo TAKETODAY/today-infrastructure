@@ -109,19 +109,4 @@ public interface HandlerAdapter {
    */
   Object handle(RequestContext context, Object handler) throws Throwable;
 
-  /**
-   * Same contract as for HttpServlet's {@code getLastModified} method. Can simply
-   * return -1 if there's no support in the handler class.
-   *
-   * @param context
-   *         current HTTP request context
-   * @param handler
-   *         handler to use
-   *
-   * @return the lastModified value for the given handler
-   *
-   * @see LastModified#getLastModified
-   */
-  long getLastModified(RequestContext context, Object handler);
-
 }

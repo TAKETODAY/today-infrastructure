@@ -330,11 +330,6 @@ public class HandlerMethod
     return handleRequest(context);
   }
 
-  @Override
-  public long getLastModified(RequestContext context, Object handler) {
-    return -1;
-  }
-
   // Object
 
   @Override

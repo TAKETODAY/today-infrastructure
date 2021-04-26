@@ -60,9 +60,8 @@ public class DispatcherServlet
 
     // Lookup handler
     final Object handler = lookupHandler(context);
-    final HandlerAdapter adapter = lookupHandlerAdapter(handler);
     try {
-      handle(handler, context, adapter);
+      handle(handler, context);
     }
     catch (final Throwable e) {
       throw new ServletException(e);

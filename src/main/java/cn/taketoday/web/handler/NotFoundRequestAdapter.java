@@ -65,9 +65,4 @@ public class NotFoundRequestAdapter extends AbstractHandlerAdapter {
     }
   }
 
-  @Override
-  public long getLastModified(RequestContext context, Object handler) {
-    return -1;
-  }
-
 }
