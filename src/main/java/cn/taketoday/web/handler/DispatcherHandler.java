@@ -141,9 +141,9 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    *
    * @return If not modified
    */
-  public boolean notModified(final Object handler,
-                             final RequestContext context,
-                             final HandlerAdapter adapter) {
+  public boolean isNotModified(final Object handler,
+                               final RequestContext context,
+                               final HandlerAdapter adapter) {
     final String method = context.getMethod();
     // Process last-modified header, if supported by the handler.
     final boolean isGet = "GET".equals(method);
@@ -198,7 +198,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   public void handleNotModify(final Object handler,
                               final RequestContext context,
                               final HandlerAdapter adapter) throws Throwable {
-    if (!notModified(handler, context, adapter)) {
+    if (!isNotModified(handler, context, adapter)) {
       handle(handler, context, adapter);
     }
   }
