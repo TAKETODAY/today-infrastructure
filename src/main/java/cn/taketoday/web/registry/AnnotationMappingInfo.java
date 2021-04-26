@@ -21,6 +21,7 @@
 package cn.taketoday.web.registry;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
@@ -138,7 +139,22 @@ class AnnotationMappingInfo implements Ordered {
 
   @Override
   public String toString() {
-    return handler.toString();
+    final StringBuilder builder = new StringBuilder();
+
+    appendString(builder, "", method);
+    appendString(builder, "consumes: ", consumes);
+    appendString(builder, "produces: ", produces);
+    appendString(builder, "params: ", params);
+    builder.append(" ")
+            .append(handler);
+    return builder.toString();
+  }
+
+  private static void appendString(StringBuilder builder, String perfix, Object[] array) {
+    if (array != null) {
+      builder.append(perfix)
+              .append(Arrays.toString(array));
+    }
   }
 
   // order

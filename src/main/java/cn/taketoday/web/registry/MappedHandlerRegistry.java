@@ -262,12 +262,12 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
   }
 
   protected void logHandlerReplaced(String handlerKey, Object oldHandler, Object newHandler) {
-    log.warn("Refresh Handler Registration: [{}] onto [{}] old handler: [{}]",
+    log.warn("Refresh Handler Registration: {} onto {} old handler: {}",
              handlerKey, newHandler, oldHandler);
   }
 
   protected void logMapping(String handlerKey, Object handler) {
-    log.info("Mapped [{}] onto [{}]", handlerKey, handler);
+    log.info("Mapped '{}' onto {}", handlerKey, handler);
   }
 
   protected void postRegisterHandler(final String handlerKey, final Object handler) { }
