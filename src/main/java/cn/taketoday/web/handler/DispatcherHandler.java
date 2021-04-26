@@ -32,8 +32,10 @@ import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.utils.WebUtils;
+import cn.taketoday.web.view.HandlerAdapterNotFoundException;
 import cn.taketoday.web.view.ResultHandler;
 import cn.taketoday.web.view.ResultHandlerCapable;
+import cn.taketoday.web.view.ResultHandlerNotFoundException;
 import cn.taketoday.web.view.RuntimeResultHandler;
 
 /**
@@ -82,7 +84,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    *
    * @return A {@link HandlerAdapter}
    *
-   * @throws IllegalStateException
+   * @throws HandlerAdapterNotFoundException
    *         If there isn't a {@link HandlerAdapter} for target handler
    */
   public HandlerAdapter lookupHandlerAdapter(final Object handler) {
@@ -97,7 +99,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
         return requestHandler;
       }
     }
-    throw new IllegalStateException("No HandlerAdapter for handler: [" + handler + ']');
+    throw new HandlerAdapterNotFoundException(handler);
   }
 
   /**
@@ -110,7 +112,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    *
    * @return {@link ResultHandler}
    *
-   * @throws IllegalStateException
+   * @throws ResultHandlerNotFoundException
    *         If there isn't a {@link ResultHandler} for target handler and
    *         handler execution result
    */
@@ -126,7 +128,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
         return resultHandler;
       }
     }
-    throw new IllegalStateException("No RuntimeResultHandler for result: [" + result + ']');
+    throw new ResultHandlerNotFoundException(result, handler);
   }
 
   /**
