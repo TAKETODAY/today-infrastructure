@@ -156,8 +156,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    */
   public void handle(final Object handler, final RequestContext context) throws Throwable {
     try {
-      final HandlerAdapter adapter = lookupHandlerAdapter(handler);
-      final Object result = adapter.handle(context, handler);
+      final Object result = lookupHandlerAdapter(handler).handle(context, handler);
       if (result != HandlerAdapter.NONE_RETURN_VALUE) {
         lookupResultHandler(handler, result)
                 .handleResult(context, handler, result);
