@@ -32,7 +32,6 @@ public class MethodNotAllowedException extends WebNestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
   private final String requestMethod;
-
   private final RequestMethod[] supportedMethods;
 
   public MethodNotAllowedException(String requestMethod, RequestMethod[] supportedMethods) {
