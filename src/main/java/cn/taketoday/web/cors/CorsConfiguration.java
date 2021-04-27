@@ -21,6 +21,7 @@ package cn.taketoday.web.cors;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -36,9 +37,6 @@ import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.annotation.CrossOrigin;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
-import static java.util.Collections.unmodifiableList;
 
 /**
  * A container for CORS configuration along with methods to check against the
@@ -64,9 +62,9 @@ public class CorsConfiguration {
 
   /** Wildcard representing <em>all</em> origins, methods, or headers. */
   public static final String ALL = "*";
-  private static final List<String> DEFAULT_METHODS = unmodifiableList(asList("GET", "HEAD"));
-  private static final List<String> DEFAULT_PERMIT_ALL = singletonList(ALL);
-  private static final List<String> DEFAULT_PERMIT_METHODS = unmodifiableList(asList("GET", "HEAD", "POST"));
+  private static final List<String> DEFAULT_METHODS = Collections.unmodifiableList(Arrays.asList("GET", "HEAD"));
+  private static final List<String> DEFAULT_PERMIT_ALL = Collections.singletonList(ALL);
+  private static final List<String> DEFAULT_PERMIT_METHODS = Collections.unmodifiableList(Arrays.asList("GET", "HEAD", "POST"));
 
   private Long maxAge;
   private Boolean allowCredentials;
@@ -582,7 +580,7 @@ public class CorsConfiguration {
       return null;
     }
     if (this.resolvedMethods == null) {
-      return singletonList(method);
+      return Collections.singletonList(method);
     }
     return (this.resolvedMethods.contains(method) ? this.resolvedMethods : null);
   }
