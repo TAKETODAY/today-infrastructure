@@ -40,8 +40,7 @@ import cn.taketoday.web.view.RuntimeResultHandler;
 /**
  * Central dispatcher for HTTP request handlers/controllers
  *
- * @author TODAY <br>
- * 2019-11-16 19:05
+ * @author TODAY 2019-11-16 19:05
  * @since 3.0
  */
 public class DispatcherHandler extends WebApplicationContextSupport {

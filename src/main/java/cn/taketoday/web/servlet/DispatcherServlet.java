@@ -34,8 +34,9 @@ import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.utils.ServletUtils;
 
 /**
- * @author TODAY <br>
- * 2018-06-25 19:47:14
+ * Central dispatcher for HTTP request handlers/controllers in Servlet
+ *
+ * @author TODAY 2018-06-25 19:47:14
  * @since 2.0
  */
 public class DispatcherServlet
