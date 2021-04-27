@@ -78,6 +78,7 @@ import cn.taketoday.framework.config.ErrorPage;
 import cn.taketoday.framework.config.JspServletConfiguration;
 import cn.taketoday.framework.config.MimeMappings;
 import cn.taketoday.framework.config.WebDocumentConfiguration;
+import cn.taketoday.web.session.SessionCookieConfiguration;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -512,8 +513,11 @@ public class TomcatServer extends AbstractServletWebServer {
   }
 
   protected void configureSession(Context context) {
-    context.setSessionTimeout((int) getSessionTimeoutInMinutes());
-    context.setUseHttpOnly(getSessionConfig().getCookieConfiguration().isHttpOnly());
+    context.setSessionTimeout(getSessionTimeoutInMinutes());
+    final SessionCookieConfiguration cookieConfig = getSessionConfig().getCookieConfig();
+    if (cookieConfig != null) {
+      context.setUseHttpOnly(cookieConfig.isHttpOnly());
+    }
 
     Manager manager = context.getManager();
     if (manager == null) {
@@ -540,12 +544,12 @@ public class TomcatServer extends AbstractServletWebServer {
     }
   }
 
-  protected long getSessionTimeoutInMinutes() {
+  protected int getSessionTimeoutInMinutes() {
     Duration sessionTimeout = getSessionConfig().getTimeout();
     if (isZeroOrLess(sessionTimeout)) {
       return 0;
     }
-    return Math.max(sessionTimeout.toMinutes(), 1);
+    return (int) Math.max(sessionTimeout.toMinutes(), 1);
   }
 
   protected void configurePersistSession(Manager manager) {

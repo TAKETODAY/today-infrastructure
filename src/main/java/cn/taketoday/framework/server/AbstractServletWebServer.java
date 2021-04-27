@@ -46,6 +46,7 @@ import cn.taketoday.framework.config.JspServletConfiguration;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.servlet.initializer.OrderedServletContextInitializer;
 import cn.taketoday.web.servlet.initializer.WebServletInitializer;
+import cn.taketoday.web.session.SessionConfiguration;
 import cn.taketoday.web.session.SessionCookieConfiguration;
 import lombok.Getter;
 import lombok.Setter;
@@ -151,20 +152,22 @@ public abstract class AbstractServletWebServer
 
         @Override
         public void onStartup(ServletContext servletContext) {
-          getWebApplicationConfiguration().configureSession(sessionConfiguration);
-          final SessionCookieConfiguration cookie = sessionConfiguration.getCookieConfiguration();
-          final SessionCookieConfig config = servletContext.getSessionCookieConfig();
+          final SessionConfiguration sessionConfig = getSessionConfig();
+          getWebApplicationConfiguration().configureSession(sessionConfig);
+          final SessionCookieConfiguration cookie = sessionConfig.getCookieConfig();
 
-          config.setName(cookie.getName());
-          config.setPath(cookie.getPath());
-          config.setSecure(cookie.isSecure());
-          config.setDomain(cookie.getDomain());
-          config.setComment(cookie.getComment());
-          config.setHttpOnly(cookie.isHttpOnly());
-          config.setMaxAge((int) cookie.getMaxAge().getSeconds());
-
-          if (sessionConfiguration.getTrackingModes() != null) {
-            final Set<SessionTrackingMode> collect = Arrays.stream(sessionConfiguration.getTrackingModes())
+          if (cookie != null) {
+            final SessionCookieConfig config = servletContext.getSessionCookieConfig();
+            config.setName(cookie.getName());
+            config.setPath(cookie.getPath());
+            config.setSecure(cookie.isSecure());
+            config.setDomain(cookie.getDomain());
+            config.setComment(cookie.getComment());
+            config.setHttpOnly(cookie.isHttpOnly());
+            config.setMaxAge((int) cookie.getMaxAge().getSeconds());
+          }
+          if (sessionConfig.getTrackingModes() != null) {
+            final Set<SessionTrackingMode> collect = Arrays.stream(sessionConfig.getTrackingModes())
                     .map(Enum::name)
                     .map(SessionTrackingMode::valueOf)
                     .collect(Collectors.toSet());
