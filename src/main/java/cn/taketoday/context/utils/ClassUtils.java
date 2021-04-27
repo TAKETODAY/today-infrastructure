@@ -81,11 +81,6 @@ import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 
-import static cn.taketoday.context.Constant.EMPTY_ANNOTATION_ATTRIBUTES;
-import static cn.taketoday.context.utils.ContextUtils.resolveParameter;
-import static cn.taketoday.context.utils.ReflectionUtils.findMethod;
-import static cn.taketoday.context.utils.ReflectionUtils.getDeclaredMethods;
-
 /**
  * @author TODAY 2018-06-0? ?
  */
@@ -557,7 +552,7 @@ public abstract class ClassUtils {
           final Class<? extends Annotation> annotationType, final Object annotation
   ) {
     try {
-      final Method[] declaredMethods = getDeclaredMethods(annotationType);
+      final Method[] declaredMethods = ReflectionUtils.getDeclaredMethods(annotationType);
       final AnnotationAttributes attributes = new AnnotationAttributes(annotationType, declaredMethods.length);
       for (final Method method : declaredMethods) {
         attributes.put(method.getName(), method.invoke(annotation));
@@ -703,7 +698,7 @@ public abstract class ClassUtils {
     if (targetClass.isInstance(object)) {
       for (Entry<String, Object> entry : attributes.entrySet()) {
         final String key = entry.getKey(); // method name
-        final Method method = findMethod(targetClass, key);
+        final Method method = ReflectionUtils.findMethod(targetClass, key);
         if (method == null) {
           return false;
         }
@@ -770,7 +765,7 @@ public abstract class ClassUtils {
           final AnnotatedElement element, final Class<T> targetClass
   ) {
     if (targetClass == null) {
-      return EMPTY_ANNOTATION_ATTRIBUTES;
+      return Constant.EMPTY_ANNOTATION_ATTRIBUTES;
     }
     return getAnnotationAttributesArray(new AnnotationKey<>(element, targetClass));
   }
@@ -789,7 +784,7 @@ public abstract class ClassUtils {
     if (ret == null) {
       final Annotation[] annotations = key.element.getAnnotations();
       if (ObjectUtils.isEmpty(annotations)) {
-        ret = EMPTY_ANNOTATION_ATTRIBUTES;
+        ret = Constant.EMPTY_ANNOTATION_ATTRIBUTES;
       }
       else {
         final Class<T> annotationClass = key.annotationClass;
@@ -800,7 +795,9 @@ public abstract class ClassUtils {
             result.addAll(attr);
           }
         }
-        ret = result.isEmpty() ? EMPTY_ANNOTATION_ATTRIBUTES : result.toArray(new AnnotationAttributes[result.size()]);
+        ret = result.isEmpty()
+              ? Constant.EMPTY_ANNOTATION_ATTRIBUTES
+              : result.toArray(new AnnotationAttributes[result.size()]);
       }
       ANNOTATION_ATTRIBUTES.putIfAbsent(key, ret);
     }
@@ -989,7 +986,7 @@ public abstract class ClassUtils {
           final Class<? extends Annotation> candidateType,
           final AnnotationAttributesTransformer transformer
   ) {
-    final Method[] declaredMethods = getDeclaredMethods(candidateType);
+    final Method[] declaredMethods = ReflectionUtils.getDeclaredMethods(candidateType);
     final AnnotationAttributes target = new AnnotationAttributes(candidateType, declaredMethods.length);
     for (final Method method : declaredMethods) {
       Object value = transformer.get(method);
@@ -1110,7 +1107,7 @@ public abstract class ClassUtils {
    */
   public static <T> T newInstance(final Class<T> beanClass, final BeanFactory beanFactory, Object[] providedArgs) {
     final Constructor<T> constructor = obtainConstructor(beanClass);
-    final Object[] parameter = resolveParameter(constructor, beanFactory, providedArgs);
+    final Object[] parameter = ContextUtils.resolveParameter(constructor, beanFactory, providedArgs);
     return newInstance(constructor, parameter);
   }
 
@@ -1412,7 +1409,7 @@ public abstract class ClassUtils {
             argTypes[i++] = forName(argumentType.getClassName());
           }
 
-          final Method method = findMethod(declaringClass, methodNode.name, argTypes);
+          final Method method = ReflectionUtils.findMethod(declaringClass, methodNode.name, argTypes);
           if (method == null) {
             throw new NoSuchMethodException(
                     "No such method named: '" + methodNode.name + "' argTypes: '"
