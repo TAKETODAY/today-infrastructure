@@ -49,7 +49,7 @@ public class DefaultPropertySetter extends AbstractPropertySetter {
 
   @Override
   protected Object resolveValue(AbstractBeanFactory beanFactory) {
-    return getValue();
+    return value;
   }
 
   @Override

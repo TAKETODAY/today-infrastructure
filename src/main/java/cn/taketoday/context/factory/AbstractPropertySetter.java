@@ -39,9 +39,9 @@ import cn.taketoday.context.utils.ReflectionUtils;
 public abstract class AbstractPropertySetter implements PropertySetter {
 
   /** field info */
-  final Field field;
+  protected final Field field;
   /** @since 3.0 */
-  final SetterMethod accessor;
+  protected final SetterMethod accessor;
 
   public AbstractPropertySetter(Field field) {
     Assert.notNull(field, "field must not be null");
@@ -49,9 +49,6 @@ public abstract class AbstractPropertySetter implements PropertySetter {
     this.accessor = ReflectionUtils.newSetterMethod(field);
   }
 
-  public void doSetValue(Object bean, Object value) {
-    accessor.set(bean, value);
-  }
 
   @Override
   public void applyValue(Object bean, AbstractBeanFactory beanFactory) {
@@ -59,6 +56,10 @@ public abstract class AbstractPropertySetter implements PropertySetter {
     if (property != DO_NOT_SET) {
       doSetValue(bean, property);
     }
+  }
+
+  public void doSetValue(Object bean, Object value) {
+    accessor.set(bean, value);
   }
 
   /**

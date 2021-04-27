@@ -77,7 +77,6 @@ public class AutowiredPropertyResolver
 
   @Override
   public PropertySetter resolveProperty(final Field field) {
-
     final Autowired autowired = field.getAnnotation(Autowired.class); // auto wired
 
     String name = null;
