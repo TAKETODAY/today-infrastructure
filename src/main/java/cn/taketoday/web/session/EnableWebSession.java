@@ -49,8 +49,7 @@ class WebSessionConfiguration {
    * default {@link WebSessionManager} bean
    */
   @MissingBean(type = WebSessionManager.class)
-  @Import({ WebSessionParameterResolver.class,
-                  WebSessionAttributeParameterResolver.class })
+  @Import({ WebSessionParameterResolver.class, WebSessionAttributeParameterResolver.class })
   DefaultWebSessionManager webSessionManager(
           TokenResolver tokenResolver, WebSessionStorage sessionStorage) {
     return new DefaultWebSessionManager(tokenResolver, sessionStorage);
@@ -76,6 +75,13 @@ class WebSessionConfiguration {
   @Props(prefix = "server.session.cookie.")
   SessionCookieConfiguration sessionCookieConfiguration() {
     return new SessionCookieConfiguration();
+  }
+
+  @Lazy
+  @MissingBean
+  @Props(prefix = "server.session.")
+  SessionConfiguration sessionConfiguration(SessionCookieConfiguration sessionCookieConfig) {
+    return new SessionConfiguration(sessionCookieConfig);
   }
 
   /**
