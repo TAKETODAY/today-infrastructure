@@ -69,10 +69,10 @@ import cn.taketoday.framework.WebServerException;
 import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.framework.config.ErrorPage;
 import cn.taketoday.framework.config.MimeMappings;
-import cn.taketoday.framework.config.SessionConfiguration;
 import cn.taketoday.framework.config.WebDocumentConfiguration;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
+import cn.taketoday.web.session.SessionConfiguration;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -420,18 +420,18 @@ public class JettyServer
    */
   protected void configureSession(final WebAppContext context) {
     final SessionHandler sessionHandler = context.getSessionHandler();
-    final SessionConfiguration sessionConfiguration = getSessionConfiguration();
-    final Duration sessionTimeout = sessionConfiguration.getTimeout();
+    final SessionConfiguration sessionConfig = getSessionConfig();
+    final Duration sessionTimeout = sessionConfig.getTimeout();
     sessionHandler.setMaxInactiveInterval(isNegative(sessionTimeout)
                                           ? -1
                                           : (int) sessionTimeout.getSeconds());
 
-    if (sessionConfiguration.isPersistent()) {
+    if (sessionConfig.isPersistent()) {
       final DefaultSessionCache cache = new DefaultSessionCache(sessionHandler);
       final FileSessionDataStore store = new FileSessionDataStore();
       try {
         final Class<?> startupClass = obtainApplicationContext().getStartupClass();
-        store.setStoreDir(sessionConfiguration.getStoreDirectory(startupClass));
+        store.setStoreDir(getStoreDirectory(startupClass));
       }
       catch (IOException e) {
         throw new ConfigurationException(e);

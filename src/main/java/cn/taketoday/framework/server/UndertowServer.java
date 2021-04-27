@@ -226,7 +226,7 @@ public class UndertowServer
       manager.deploy();
       // not support persistent
       sessionManager = manager.getDeployment().getSessionManager();
-      Duration timeoutDuration = getSessionConfiguration().getTimeout();
+      Duration timeoutDuration = getSessionConfig().getTimeout();
       int sessionTimeout = (isZeroOrLess(timeoutDuration) ? -1 : (int) timeoutDuration.getSeconds());
       sessionManager.setDefaultSessionTimeout(sessionTimeout);
     }

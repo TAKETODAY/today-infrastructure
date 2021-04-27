@@ -43,7 +43,6 @@ import cn.taketoday.framework.Constant;
 import cn.taketoday.framework.WebServerApplicationContext;
 import cn.taketoday.framework.config.DefaultServletConfiguration;
 import cn.taketoday.framework.config.JspServletConfiguration;
-import cn.taketoday.framework.config.SessionConfiguration;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.servlet.initializer.OrderedServletContextInitializer;
 import cn.taketoday.web.servlet.initializer.WebServletInitializer;
@@ -146,7 +145,7 @@ public abstract class AbstractServletWebServer
       }
     });
 
-    final SessionConfiguration sessionConfiguration = getSessionConfiguration();
+    final SessionConfiguration sessionConfiguration = getSessionConfig();
     if (sessionConfiguration != null && sessionConfiguration.isEnable()) {
       contextInitializers.add(new OrderedServletContextInitializer() {
 

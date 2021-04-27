@@ -20,6 +20,7 @@
 package cn.taketoday.framework.server;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -31,6 +32,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.env.ConfigurableEnvironment;
+import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
@@ -42,13 +47,13 @@ import cn.taketoday.framework.config.CompositeWebApplicationConfiguration;
 import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.framework.config.ErrorPage;
 import cn.taketoday.framework.config.MimeMappings;
-import cn.taketoday.framework.config.SessionConfiguration;
 import cn.taketoday.framework.config.WebApplicationConfiguration;
 import cn.taketoday.framework.config.WebDocumentConfiguration;
 import cn.taketoday.framework.utils.ApplicationUtils;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.config.WebApplicationLoader;
+import cn.taketoday.web.session.SessionConfiguration;
 
 /**
  * @author TODAY <br>
@@ -68,7 +73,7 @@ public abstract class AbstractWebServer
   private String deployName = "deploy-web-app";
 
   @Autowired(required = false)
-  private SessionConfiguration sessionConfiguration;
+  private SessionConfiguration sessionConfig;
 
   @Autowired(required = false)
   private CompressionConfiguration compression;
@@ -191,6 +196,21 @@ public abstract class AbstractWebServer
     return (WebServerApplicationContext) super.obtainApplicationContext();
   }
 
+  public File getStoreDirectory(Class<?> startupClass) throws IOException {
+    Assert.state(sessionConfig != null, "Please enable web session");
+    final Resource storeDirectory = sessionConfig.getStoreDirectory();
+    if (storeDirectory == null || !storeDirectory.exists()) {
+      return ApplicationUtils.getTemporalDirectory(startupClass, "web-app-sessions");
+    }
+
+    if (storeDirectory.isDirectory()) {
+      LoggerFactory.getLogger(getClass())
+              .info("Use directory: [{}] to store sessions", storeDirectory);
+      return storeDirectory.getFile();
+    }
+    throw new ConfigurationException("Store directory must be a 'directory'");
+  }
+
   //
 
   public int getPort() {
@@ -250,12 +270,12 @@ public abstract class AbstractWebServer
     this.deployName = deployName;
   }
 
-  public SessionConfiguration getSessionConfiguration() {
-    return sessionConfiguration;
+  public SessionConfiguration getSessionConfig() {
+    return sessionConfig;
   }
 
-  public void setSessionConfiguration(SessionConfiguration sessionConfiguration) {
-    this.sessionConfiguration = sessionConfiguration;
+  public void setSessionConfig(SessionConfiguration sessionConfig) {
+    this.sessionConfig = sessionConfig;
   }
 
   public CompressionConfiguration getCompression() {

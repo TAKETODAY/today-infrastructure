@@ -513,7 +513,7 @@ public class TomcatServer extends AbstractServletWebServer {
 
   protected void configureSession(Context context) {
     context.setSessionTimeout((int) getSessionTimeoutInMinutes());
-    context.setUseHttpOnly(getSessionConfiguration().getCookieConfiguration().isHttpOnly());
+    context.setUseHttpOnly(getSessionConfig().getCookieConfiguration().isHttpOnly());
 
     Manager manager = context.getManager();
     if (manager == null) {
@@ -524,7 +524,7 @@ public class TomcatServer extends AbstractServletWebServer {
       context.setManager(manager);
     }
 
-    if (getSessionConfiguration().isPersistent()) {
+    if (getSessionConfig().isPersistent()) {
       configurePersistSession(manager);
     }
     else {
@@ -541,7 +541,7 @@ public class TomcatServer extends AbstractServletWebServer {
   }
 
   protected long getSessionTimeoutInMinutes() {
-    Duration sessionTimeout = getSessionConfiguration().getTimeout();
+    Duration sessionTimeout = getSessionConfig().getTimeout();
     if (isZeroOrLess(sessionTimeout)) {
       return 0;
     }
@@ -549,11 +549,10 @@ public class TomcatServer extends AbstractServletWebServer {
   }
 
   protected void configurePersistSession(Manager manager) {
-
     if (manager instanceof StandardManager) {
       try {
         final Class<?> startupClass = obtainApplicationContext().getStartupClass();
-        File storeDirectory = getSessionConfiguration().getStoreDirectory(startupClass);
+        File storeDirectory = getStoreDirectory(startupClass);
         ((StandardManager) manager).setPathname(new File(storeDirectory, "SESSIONS.ser").getAbsolutePath());
       }
       catch (IOException e) {
