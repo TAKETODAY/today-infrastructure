@@ -34,7 +34,6 @@ import cn.taketoday.web.RequestContext;
  */
 @MissingBean(type = NotFoundRequestAdapter.class)
 public class NotFoundRequestAdapter extends AbstractHandlerAdapter {
-
   private static final Logger log = LoggerFactory.getLogger(NotFoundRequestAdapter.class);
 
   public NotFoundRequestAdapter() {}
@@ -50,13 +49,13 @@ public class NotFoundRequestAdapter extends AbstractHandlerAdapter {
 
   @Override
   public Object handle(final RequestContext context, final Object handler) throws Throwable {
-    handleNotFound(context);
     logNotFound(context);
-    return NONE_RETURN_VALUE;
+    return handleNotFound(context);
   }
 
-  protected void handleNotFound(final RequestContext context) throws IOException {
+  protected Object handleNotFound(final RequestContext context) throws IOException {
     context.sendError(404);
+    return NONE_RETURN_VALUE;
   }
 
   protected void logNotFound(RequestContext context) {
