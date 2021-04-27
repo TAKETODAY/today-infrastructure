@@ -27,13 +27,11 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.handler.DispatcherHandler;
-import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.utils.ServletUtils;
-
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 
 /**
  * @author TODAY <br>
@@ -57,7 +55,6 @@ public class DispatcherServlet
   public void service(final ServletRequest request,
                       final ServletResponse response) throws ServletException {
     final RequestContext context = ServletUtils.getRequestContext(request, response);
-
     // Lookup handler
     final Object handler = lookupHandler(context);
     try {
@@ -78,7 +75,8 @@ public class DispatcherServlet
 
   @Override
   public ServletConfig getServletConfig() {
-    return nonNull(servletConfig, "DispatcherServlet has not been initialized");
+    Assert.state(servletConfig != null, "DispatcherServlet has not been initialized");
+    return servletConfig;
   }
 
   @Override
