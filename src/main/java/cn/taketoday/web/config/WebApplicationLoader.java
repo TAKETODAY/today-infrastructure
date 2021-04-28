@@ -74,7 +74,6 @@ public class WebApplicationLoader
   }
 
   public void onStartup(WebApplicationContext context) throws Throwable {
-
     final WebMvcConfiguration mvcConfiguration = getWebMvcConfiguration(context);
 
     configureTemplateLoader(context, mvcConfiguration);
@@ -112,7 +111,6 @@ public class WebApplicationLoader
   }
 
   protected void configureHandlerRegistry(List<HandlerRegistry> registries, WebMvcConfiguration mvcConfiguration) {
-
     final DispatcherHandler obtainDispatcher = obtainDispatcher();
     final HandlerRegistry handlerRegistry = obtainDispatcher.getHandlerRegistry();
     if (handlerRegistry != null) {
@@ -375,7 +373,6 @@ public class WebApplicationLoader
                                     final WebMvcConfiguration mvcConfiguration) throws Throwable //
   {
     final List<WebApplicationInitializer> initializers = context.getBeans(WebApplicationInitializer.class);
-
     configureInitializer(initializers, mvcConfiguration);
 
     for (final WebApplicationInitializer initializer : initializers) {
