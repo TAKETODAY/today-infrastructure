@@ -71,6 +71,9 @@ public class HandlerMethod
   /** @since 3.0 */
   private String contentType;
 
+  /** @since 3.0 */
+  private ResultHandlers resultHandlers;
+
   public HandlerMethod() {
     this(null, null, null);
   }
@@ -109,6 +112,7 @@ public class HandlerMethod
     this.returnType = other.returnType;
     this.contentType = other.contentType; // @since 3.0
     this.resultHandler = other.resultHandler;
+    this.resultHandlers = other.resultHandlers; // @since 3.0
     this.handlerInvoker = other.handlerInvoker;
     this.responseStatus = other.responseStatus;
     setInterceptors(other.getInterceptors());
@@ -265,21 +269,12 @@ public class HandlerMethod
     this.generics = generics;
   }
 
-  public ResultHandler getResultHandler() {
-    ResultHandler resultHandler = this.resultHandler;
-    if (resultHandler == null) {
-      resultHandler = ResultHandlers.obtainHandler(this);
-      this.resultHandler = resultHandler;
-    }
-    return resultHandler;
-  }
-
-  public void setResultHandler(ResultHandler resultHandler) {
-    this.resultHandler = resultHandler;
-  }
-
   // handleRequest
   // -----------------------------------------
+
+  public void setResultHandlers(ResultHandlers resultHandlers) {
+    this.resultHandlers = resultHandlers;
+  }
 
   public void setContentType(String contentType) {
     this.contentType = contentType;
@@ -290,10 +285,14 @@ public class HandlerMethod
   }
 
   @Override
-  public void handleResult(final RequestContext context,
-                           final Object handler, final Object result) throws Throwable {
+  public void handleResult(final RequestContext context, final Object handler, final Object result) throws Throwable {
     applyResponseStatus(context);
-    getResultHandler().handleResult(context, handler, result);
+    ResultHandler resultHandler = this.resultHandler;
+    if (resultHandler == null) {
+      resultHandler = resultHandlers.obtainHandler(this);
+      this.resultHandler = resultHandler;
+    }
+    resultHandler.handleResult(context, handler, result);
     // @since 3.0
     final String contentType = getContentType();
     if (contentType != null) {
@@ -386,6 +385,5 @@ public class HandlerMethod
   public static HandlerMethod create(Object bean, Method method, List<HandlerInterceptor> interceptors) {
     return new HandlerMethod(bean, method, interceptors);
   }
-
 
 }

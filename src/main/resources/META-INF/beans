@@ -3,3 +3,4 @@ cn.taketoday.web.handler.NotFoundRequestAdapter
 cn.taketoday.web.registry.HandlerMethodRegistry
 cn.taketoday.web.resolver.ParameterResolvers
 cn.taketoday.web.config.JacksonConfiguration
+cn.taketoday.web.view.ResultHandlers

@@ -51,22 +51,11 @@ import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolvers;
-import cn.taketoday.web.ui.RedirectModelManager;
 import cn.taketoday.web.validation.Validator;
 import cn.taketoday.web.validation.WebValidator;
-import cn.taketoday.web.view.HttpStatusResultHandler;
-import cn.taketoday.web.view.ImageResultHandler;
-import cn.taketoday.web.view.MessageConverter;
-import cn.taketoday.web.view.ModelAndViewResultHandler;
-import cn.taketoday.web.view.ObjectResultHandler;
-import cn.taketoday.web.view.ResourceResultHandler;
-import cn.taketoday.web.view.ResponseBodyResultHandler;
-import cn.taketoday.web.view.ResponseEntityResultHandler;
 import cn.taketoday.web.view.ResultHandler;
 import cn.taketoday.web.view.ResultHandlers;
 import cn.taketoday.web.view.RuntimeResultHandler;
-import cn.taketoday.web.view.TemplateResultHandler;
-import cn.taketoday.web.view.VoidResultHandler;
 import cn.taketoday.web.view.template.AbstractTemplateViewResolver;
 import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
 import cn.taketoday.web.view.template.TemplateViewResolver;
@@ -265,58 +254,26 @@ public class WebApplicationLoader
    */
   protected void configureResultHandler(List<ResultHandler> handlers, WebMvcConfiguration mvcConfiguration) {
     final DispatcherHandler obtainDispatcher = obtainDispatcher();
-    final RuntimeResultHandler[] resultHandlers = obtainDispatcher.getResultHandlers();
-    if (ObjectUtils.isNotEmpty(resultHandlers)) {
-      Collections.addAll(handlers, resultHandlers);
+    final RuntimeResultHandler[] existingHandlers = obtainDispatcher.getResultHandlers();
+    if (ObjectUtils.isNotEmpty(existingHandlers)) {
+      Collections.addAll(handlers, existingHandlers);
     }
     final WebApplicationContext context = obtainApplicationContext();
 
+    // @since 3.0
+    final ResultHandlers resultHandlers = context.getBean(ResultHandlers.class);
+    Assert.state(resultHandlers != null, "No ResultHandlers");
+    // @since 3.0
     final TemplateViewResolver viewResolver = getTemplateViewResolver(mvcConfiguration);
-    final Environment environment = context.getEnvironment();
-    int bufferSize = Integer.parseInt(environment.getProperty(Constant.DOWNLOAD_BUFF_SIZE, "10240"));
-
-    final MessageConverter messageConverter = context.getBean(MessageConverter.class);
-    Assert.state(messageConverter != null, "No MessageConverter in this web application");
-
-    final RedirectModelManager modelManager = context.getBean(RedirectModelManager.class);
-
-    VoidResultHandler voidResultHandler
-            = new VoidResultHandler(viewResolver, messageConverter, bufferSize);
-    ObjectResultHandler objectResultHandler
-            = new ObjectResultHandler(viewResolver, messageConverter, bufferSize);
-    ModelAndViewResultHandler modelAndViewResultHandler
-            = new ModelAndViewResultHandler(viewResolver, messageConverter, bufferSize);
-    ResponseEntityResultHandler responseEntityResultHandler
-            = new ResponseEntityResultHandler(viewResolver, messageConverter, bufferSize);
-    TemplateResultHandler templateResultHandler = new TemplateResultHandler(viewResolver);
-
-    if (modelManager != null) {
-      voidResultHandler.setModelManager(modelManager);
-      objectResultHandler.setModelManager(modelManager);
-      templateResultHandler.setModelManager(modelManager);
-      modelAndViewResultHandler.setModelManager(modelManager);
-      responseEntityResultHandler.setModelManager(modelManager);
-    }
-
-    handlers.add(new ImageResultHandler());
-    handlers.add(new ResourceResultHandler(bufferSize));
-    handlers.add(templateResultHandler);
-
-    handlers.add(voidResultHandler);
-    handlers.add(objectResultHandler);
-    handlers.add(modelAndViewResultHandler);
-    handlers.add(responseEntityResultHandler);
-
-    handlers.add(new ResponseBodyResultHandler(messageConverter));
-    handlers.add(new HttpStatusResultHandler());
+    resultHandlers.registerDefaultResultHandlers(viewResolver);
 
     // 自定义
     mvcConfiguration.configureResultHandler(handlers);
 
-    ResultHandlers.addHandler(handlers);
+    resultHandlers.addHandlers(handlers);
 
     // apply result handler
-    obtainDispatcher.setResultHandlers(ResultHandlers.getRuntimeHandlers());
+    obtainDispatcher.setResultHandlers(resultHandlers.getRuntimeHandlers());
   }
 
   protected TemplateViewResolver getTemplateViewResolver(final WebMvcConfiguration mvcConfiguration) {

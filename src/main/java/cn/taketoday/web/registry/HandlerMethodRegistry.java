@@ -62,6 +62,7 @@ import cn.taketoday.web.handler.MethodParameterBuilder;
 import cn.taketoday.web.handler.PathVariableMethodParameter;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resolver.ParameterResolvers;
+import cn.taketoday.web.view.ResultHandlers;
 
 import static cn.taketoday.context.utils.CollectionUtils.newHashSet;
 import static cn.taketoday.context.utils.StringUtils.checkUrl;
@@ -81,6 +82,8 @@ public class HandlerMethodRegistry
 
   // @since 3.0
   protected MethodParameterBuilder parameterBuilder;
+  // @since 3.0
+  private ResultHandlers resultHandlers;
 
   public HandlerMethodRegistry() {
     setOrder(HIGHEST_PRECEDENCE);
@@ -119,6 +122,8 @@ public class HandlerMethodRegistry
       }
     }
     setBeanDefinitionLoader(beanDefinitionLoader);
+    this.resultHandlers = context.getBean(ResultHandlers.class);
+    Assert.notNull(resultHandlers, "No ResultHandlers");
     setParameterBuilder(new MethodParameterBuilder(context.getBean(ParameterResolvers.class)));
     super.initApplicationContext(context);
   }
@@ -266,7 +271,7 @@ public class HandlerMethodRegistry
 
   protected final String getRequestPathPattern(String path) {
     final String contextPath = getContextPath();
-    if(StringUtils.isNotEmpty(contextPath)) {
+    if (StringUtils.isNotEmpty(contextPath)) {
       path = contextPath.concat(path);
     }
     path = resolveVariables(path);
@@ -370,7 +375,7 @@ public class HandlerMethodRegistry
     final HandlerMethod handler = new HandlerMethod(handlerBean, method, getInterceptors(beanClass, method));
     final MethodParameter[] parameters = parameterBuilder.build(handler.getMethod());
     handler.setParameters(parameters);
-
+    handler.setResultHandlers(resultHandlers); // @since 3.0
     if (ObjectUtils.isNotEmpty(parameters)) {
       for (MethodParameter parameter : parameters) {
         parameter.setHandlerMethod(handler);

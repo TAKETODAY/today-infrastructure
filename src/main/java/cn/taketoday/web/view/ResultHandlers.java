@@ -23,47 +23,55 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.OrderUtils;
+import cn.taketoday.web.Constant;
+import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.WebApplicationContextSupport;
+import cn.taketoday.web.ui.RedirectModelManager;
+import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
  * @author TODAY <br>
  * 2019-12-28 13:47
  */
-public abstract class ResultHandlers {
-  private static final LinkedList<ResultHandler> resultHandlers = new LinkedList<>();
+@MissingBean
+public class ResultHandlers extends WebApplicationContextSupport {
+  private final LinkedList<ResultHandler> handlers = new LinkedList<>();
 
-  public static void addHandler(ResultHandler... handlers) {
+  public void addHandlers(ResultHandler... handlers) {
     Assert.notNull(handlers, "handler must not be null");
-    Collections.addAll(resultHandlers, handlers);
-    OrderUtils.reversedSort(resultHandlers);
+    Collections.addAll(this.handlers, handlers);
+    OrderUtils.reversedSort(this.handlers);
   }
 
-  public static void addHandler(List<ResultHandler> handlers) {
+  public void addHandlers(List<ResultHandler> handlers) {
     Assert.notNull(handlers, "handler must not be null");
-    resultHandlers.addAll(handlers);
-    OrderUtils.reversedSort(resultHandlers);
+    this.handlers.addAll(handlers);
+    OrderUtils.reversedSort(this.handlers);
   }
 
-  public static void setHandler(List<ResultHandler> handlers) {
+  public void setHandlers(List<ResultHandler> handlers) {
     Assert.notNull(handlers, "handler must not be null");
-    resultHandlers.clear();
-    resultHandlers.addAll(handlers);
-    OrderUtils.reversedSort(resultHandlers);
+    this.handlers.clear();
+    this.handlers.addAll(handlers);
+    OrderUtils.reversedSort(this.handlers);
   }
 
-  public static List<ResultHandler> getHandlers() {
-    return resultHandlers;
+  public List<ResultHandler> getHandlers() {
+    return handlers;
   }
 
-  public static RuntimeResultHandler[] getRuntimeHandlers() {
-    return resultHandlers
+  public RuntimeResultHandler[] getRuntimeHandlers() {
+    return handlers
             .stream()
             .filter(res -> res instanceof RuntimeResultHandler)
             .toArray(RuntimeResultHandler[]::new);
   }
 
-  public static ResultHandler getHandler(final Object handler) {
+  public ResultHandler getHandler(final Object handler) {
     Assert.notNull(handler, "handler must not be null");
     for (final ResultHandler resolver : getHandlers()) {
       if (resolver.supportsHandler(handler)) {
@@ -79,10 +87,55 @@ public abstract class ResultHandlers {
    *
    * @return A suitable {@link ResultHandler}
    */
-  public static ResultHandler obtainHandler(final Object handler) {
+  public ResultHandler obtainHandler(final Object handler) {
     final ResultHandler resultHandler = getHandler(handler);
     Assert.state(resultHandler != null, () -> "There isn't have a result resolver to resolve : [" + handler + "]");
     return resultHandler;
+  }
+
+  //
+
+  public void registerDefaultResultHandlers(TemplateViewResolver viewResolver) {
+    final List<ResultHandler> handlers = getHandlers();
+    final WebApplicationContext context = obtainApplicationContext();
+
+    final Environment environment = context.getEnvironment();
+    int bufferSize = Integer.parseInt(environment.getProperty(Constant.DOWNLOAD_BUFF_SIZE, "10240"));
+
+    final MessageConverter messageConverter = context.getBean(MessageConverter.class);
+    Assert.state(messageConverter != null, "No MessageConverter in this web application");
+
+    final RedirectModelManager modelManager = context.getBean(RedirectModelManager.class);
+
+    VoidResultHandler voidResultHandler
+            = new VoidResultHandler(viewResolver, messageConverter, bufferSize);
+    ObjectResultHandler objectResultHandler
+            = new ObjectResultHandler(viewResolver, messageConverter, bufferSize);
+    ModelAndViewResultHandler modelAndViewResultHandler
+            = new ModelAndViewResultHandler(viewResolver, messageConverter, bufferSize);
+    ResponseEntityResultHandler responseEntityResultHandler
+            = new ResponseEntityResultHandler(viewResolver, messageConverter, bufferSize);
+    TemplateResultHandler templateResultHandler = new TemplateResultHandler(viewResolver);
+
+    if (modelManager != null) {
+      voidResultHandler.setModelManager(modelManager);
+      objectResultHandler.setModelManager(modelManager);
+      templateResultHandler.setModelManager(modelManager);
+      modelAndViewResultHandler.setModelManager(modelManager);
+      responseEntityResultHandler.setModelManager(modelManager);
+    }
+
+    handlers.add(new ImageResultHandler());
+    handlers.add(new ResourceResultHandler(bufferSize));
+    handlers.add(templateResultHandler);
+
+    handlers.add(voidResultHandler);
+    handlers.add(objectResultHandler);
+    handlers.add(modelAndViewResultHandler);
+    handlers.add(responseEntityResultHandler);
+
+    handlers.add(new ResponseBodyResultHandler(messageConverter));
+    handlers.add(new HttpStatusResultHandler());
   }
 
 }
