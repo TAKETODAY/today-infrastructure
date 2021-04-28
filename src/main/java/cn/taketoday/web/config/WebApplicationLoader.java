@@ -189,7 +189,7 @@ public class WebApplicationLoader
           List<HandlerExceptionHandler> handlers, WebMvcConfiguration mvcConfiguration) {
 
     final DispatcherHandler dispatcherHandler = obtainDispatcher();
-    final HandlerExceptionHandler exceptionHandler = dispatcherHandler.getExceptionHandler();
+    HandlerExceptionHandler exceptionHandler = dispatcherHandler.getExceptionHandler();
     if (exceptionHandler != null) {
       handlers.add(exceptionHandler);
     }
@@ -206,11 +206,14 @@ public class WebApplicationLoader
       }
       handlers.add(defaultHandler);
     }
-
+    if (handlers.size() == 1) {
+      exceptionHandler = handlers.get(0);
+    }
+    else {
+      exceptionHandler = new CompositeHandlerExceptionHandler(handlers);
+    }
     // set
-    dispatcherHandler.setExceptionHandler(handlers.size() == 1
-                                          ? handlers.get(0)
-                                          : new CompositeHandlerExceptionHandler(handlers));
+    dispatcherHandler.setExceptionHandler(exceptionHandler);
   }
 
   protected void configureFunctionHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
