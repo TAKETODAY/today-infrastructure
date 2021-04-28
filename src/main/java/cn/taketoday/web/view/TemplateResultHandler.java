@@ -20,7 +20,6 @@
 package cn.taketoday.web.view;
 
 import java.lang.invoke.SerializedLambda;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import cn.taketoday.context.utils.ClassUtils;
@@ -80,10 +79,7 @@ public class TemplateResultHandler extends AbstractResultHandler implements Runt
           }
         }
       }
-      catch (NoSuchMethodException
-              | IllegalAccessException
-              | IllegalArgumentException
-              | InvocationTargetException ignored) {}
+      catch (Exception ignored) {}
     }
     return false;
   }

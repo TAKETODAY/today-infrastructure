@@ -100,6 +100,8 @@ public class ResultHandlers extends WebApplicationContextSupport {
 
   /**
    * register default {@link ResultHandler}s
+   *
+   * @since 3.0
    */
   public void registerDefaultResultHandlers(TemplateViewResolver viewResolver) {
     final List<ResultHandler> handlers = getHandlers();

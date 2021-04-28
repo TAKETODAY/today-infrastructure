@@ -150,10 +150,6 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
   /**
    * Whether gZip enable
    *
-   * @param resource
-   * @param mapping
-   * @param contentType
-   *
    * @return whether gZip enable
    *
    * @throws IOException

@@ -24,15 +24,11 @@ import java.util.Locale;
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @author TODAY <br>
  * 2018-06-26 11:58:24
  */
-@Setter
-@Getter
 public abstract class AbstractTemplateViewResolver extends OrderedSupport implements TemplateViewResolver {
 
   protected Locale locale = Locale.CHINA;
@@ -62,4 +58,35 @@ public abstract class AbstractTemplateViewResolver extends OrderedSupport implem
             .toString();
   }
 
+  public void setEncoding(String encoding) {
+    this.encoding = encoding;
+  }
+
+  public void setLocale(Locale locale) {
+    this.locale = locale;
+  }
+
+  public void setPrefix(String prefix) {
+    this.prefix = prefix;
+  }
+
+  public void setSuffix(String suffix) {
+    this.suffix = suffix;
+  }
+
+  public Locale getLocale() {
+    return locale;
+  }
+
+  public String getEncoding() {
+    return encoding;
+  }
+
+  public String getPrefix() {
+    return prefix;
+  }
+
+  public String getSuffix() {
+    return suffix;
+  }
 }

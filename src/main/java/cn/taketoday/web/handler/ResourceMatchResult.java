@@ -22,17 +22,11 @@ package cn.taketoday.web.handler;
 import java.io.Serializable;
 
 import cn.taketoday.context.PathMatcher;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
- * @author TODAY <br>
- *         2019-12-05 00:46
+ * @author TODAY 2019-12-05 00:46
  */
-@Getter
-@AllArgsConstructor
 public class ResourceMatchResult implements Serializable {
-
   private static final long serialVersionUID = 1L;
 
   private final String requestPath;
@@ -40,7 +34,35 @@ public class ResourceMatchResult implements Serializable {
   private final PathMatcher pathMatcher;
   private final ResourceRequestHandler handler;
 
+  public ResourceMatchResult(
+          String requestPath,
+          String matchedPattern,
+          PathMatcher pathMatcher,
+          ResourceRequestHandler handler
+  ) {
+    this.requestPath = requestPath;
+    this.matchedPattern = matchedPattern;
+    this.pathMatcher = pathMatcher;
+    this.handler = handler;
+  }
+
   public final ResourceMapping getMapping() {
     return handler.getMapping();
+  }
+
+  public PathMatcher getPathMatcher() {
+    return pathMatcher;
+  }
+
+  public ResourceRequestHandler getHandler() {
+    return handler;
+  }
+
+  public String getRequestPath() {
+    return requestPath;
+  }
+
+  public String getMatchedPattern() {
+    return matchedPattern;
   }
 }

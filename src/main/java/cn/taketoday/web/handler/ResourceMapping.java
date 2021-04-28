@@ -42,7 +42,6 @@ import lombok.Getter;
  */
 @Getter
 public class ResourceMapping implements Serializable, Ordered, HandlerInterceptorsCapable {
-
   private static final long serialVersionUID = 1L;
 
   private static final int DEFAULT_BUFFER_SIZE = 8192;

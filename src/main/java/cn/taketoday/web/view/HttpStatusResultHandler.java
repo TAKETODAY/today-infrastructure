@@ -25,6 +25,7 @@ import cn.taketoday.web.http.HttpStatus;
 
 /**
  * @author TODAY 2020/12/23 20:12
+ * @since 3.0
  */
 public class HttpStatusResultHandler
         extends HandlerMethodResultHandler implements RuntimeResultHandler {
