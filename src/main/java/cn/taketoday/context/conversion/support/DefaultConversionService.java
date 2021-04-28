@@ -41,16 +41,13 @@ import cn.taketoday.context.conversion.ConverterRegistry;
 import cn.taketoday.context.conversion.TypeCapable;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.GenericDescriptor;
 import cn.taketoday.context.utils.GenericTypeResolver;
 import cn.taketoday.context.utils.Mappings;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
-import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.ResolvableType;
-
 
 /**
  * <p>Designed for direct instantiation but also exposes the static
@@ -436,34 +433,6 @@ public class DefaultConversionService implements ConfigurableConversionService {
 
   // TypeConverter
 
-  /**
-   * @author TODAY <br>
-   * 2019-06-06 16:12
-   */
-  static class StringSourceConstructorConverter extends StringSourceTypeConverter {
-
-    @Override
-    public boolean supportsInternal(GenericDescriptor targetClass, final Class<?> source) {
-      try {
-        targetClass.getType().getDeclaredConstructor(String.class);
-        return true;
-      }
-      catch (NoSuchMethodException e) {
-        return false;
-      }
-    }
-
-    @Override
-    protected Object convertInternal(GenericDescriptor targetType, String source) {
-      try {
-        return ReflectionUtils.accessibleConstructor(targetType.getType(), String.class)
-                .newInstance(source);
-      }
-      catch (Throwable e) {
-        throw new ConversionException(e);
-      }
-    }
-  }
 
   /**
    * @author TODAY <br>
