@@ -80,12 +80,9 @@ public class AutowiredPropertyResolver
     final Autowired autowired = field.getAnnotation(Autowired.class); // auto wired
 
     String name = null;
-    boolean required = true;
     final Class<?> propertyClass = field.getType();
-
     if (autowired != null) {
       name = autowired.value();
-      required = autowired.required();
     }
     else if (isAnnotationPresent(field, RESOURCE_CLASS)) { // @Resource
       name = ClassUtils.getAnnotationAttributes(RESOURCE_CLASS, field).getString("name");
@@ -97,7 +94,8 @@ public class AutowiredPropertyResolver
     if (StringUtils.isEmpty(name)) {
       name = byType(propertyClass);
     }
-
+    // @since 3.0
+    final boolean required = AutowiredParameterResolver.isRequired(field, autowired);
     return new BeanReferencePropertySetter(new BeanReference(name, required, field), field);
   }
 

@@ -19,15 +19,18 @@
  */
 package cn.taketoday.context.loader;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Parameter;
 
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.annotation.Required;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 import static cn.taketoday.context.utils.ContextUtils.loadProps;
@@ -51,29 +54,35 @@ public class AutowiredParameterResolver
   }
 
   @Override
+  public boolean supports(Parameter parameter) {
+    return true;
+  }
+
+  @Override
   public final Object resolve(Parameter parameter, BeanFactory beanFactory) {
     final Autowired autowired = parameter.getAnnotation(Autowired.class); // @Autowired on parameter
-
     Object bean = resolveBean(autowired != null ? autowired.value() : null, parameter.getType(), beanFactory);
-
     // @Props on a bean (pojo) which has already annotated @Autowired or not
     if (parameter.isAnnotationPresent(Props.class)) {
       bean = resolvePropsInternal(parameter, parameter.getAnnotation(Props.class), bean);
     }
-
-    if (bean == null && (autowired == null || autowired.required())) { // if it is required
+    if (bean == null && isRequired(parameter, autowired)) { // if it is required
       final NoSuchBeanDefinitionException noSuchBean = new NoSuchBeanDefinitionException(parameter.getType());
       LoggerFactory.getLogger(AutowiredParameterResolver.class)//
               .error("[{}] on executable: [{}] is required and there isn't a [{}] bean",
                      parameter, parameter.getDeclaringExecutable(), parameter.getType(), noSuchBean);
       throw noSuchBean;
     }
-
     return bean;
   }
 
-  protected Object resolveBean(final String name, final Class<?> type, final BeanFactory beanFactory) {
+  // @since 3.0 Required
+  static boolean isRequired(AnnotatedElement element, Autowired autowired) {
+    return (autowired == null || autowired.required())
+            || ClassUtils.isAnnotationPresent(element, Required.class);
+  }
 
+  protected Object resolveBean(final String name, final Class<?> type, final BeanFactory beanFactory) {
     if (StringUtils.isNotEmpty(name)) {
       // use name and bean type to get bean
       return beanFactory.getBean(name, type);
