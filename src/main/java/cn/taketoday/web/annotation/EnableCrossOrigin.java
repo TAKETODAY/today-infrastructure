@@ -43,8 +43,8 @@ public @interface EnableCrossOrigin {
 class CrossOriginConfiguration {
 
   @MissingBean
-  public HandlerCorsCustomizer handlerCorsCustomizer() {
-    return new HandlerCorsCustomizer();
+  public HandlerCorsCustomizer handlerCorsCustomizer(CorsProcessor corsProcessor) {
+    return new HandlerCorsCustomizer(corsProcessor);
   }
 
   @MissingBean

@@ -35,8 +35,13 @@ import cn.taketoday.web.interceptor.HandlerInterceptor;
  * @since 3.0
  */
 public class HandlerCorsCustomizer implements HandlerMethodCustomizer {
-
   private CorsProcessor processor;
+
+  public HandlerCorsCustomizer() { }
+
+  public HandlerCorsCustomizer(CorsProcessor processor) {
+    this.processor = processor;
+  }
 
   @Override
   public Object customize(final HandlerMethod handler) {
