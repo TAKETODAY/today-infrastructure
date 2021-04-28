@@ -51,7 +51,6 @@ import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.ResolvableType;
 
-import static cn.taketoday.context.utils.OrderUtils.reversedSort;
 
 /**
  * <p>Designed for direct instantiation but also exposes the static
@@ -191,7 +190,7 @@ public class DefaultConversionService implements ConfigurableConversionService {
   public void addConverters(final TypeConverter... converters) {
     if (ObjectUtils.isNotEmpty(converters)) {
       Collections.addAll(this.converters, converters);
-      reversedSort(this.converters);
+      OrderUtils.reversedSort(this.converters);
       invalidateCache();
     }
   }
@@ -200,7 +199,7 @@ public class DefaultConversionService implements ConfigurableConversionService {
   public void addConverter(TypeConverter converter) {
     this.converters.add(converter);
 
-    reversedSort(this.converters);
+    OrderUtils.reversedSort(this.converters);
     invalidateCache();
   }
 
@@ -216,7 +215,7 @@ public class DefaultConversionService implements ConfigurableConversionService {
   public void addConverters(final List<TypeConverter> converters) {
     if (ObjectUtils.isNotEmpty(converters)) {
       this.converters.addAll(converters);
-      reversedSort(this.converters);
+      OrderUtils.reversedSort(this.converters);
       invalidateCache();
     }
   }
@@ -230,7 +229,7 @@ public class DefaultConversionService implements ConfigurableConversionService {
     Assert.notNull(converters, "TypeConverter must not be null");
     this.converters.clear();
     invalidateCache();
-    Collections.addAll(this.converters, reversedSort(converters));
+    Collections.addAll(this.converters, OrderUtils.reversedSort(converters));
   }
 
   @Override
