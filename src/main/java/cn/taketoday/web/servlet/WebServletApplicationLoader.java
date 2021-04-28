@@ -107,7 +107,7 @@ public class WebServletApplicationLoader
             return path.isDirectory() || path.getName().endsWith(".xml");
           }
         }
-        scanXml(dir, paths, new XmlFileFilter());
+        scanConfigLocation(dir, paths, new XmlFileFilter());
         return StringUtils.collectionToString(paths);
       }
       return null;
@@ -129,7 +129,7 @@ public class WebServletApplicationLoader
    * @param dir
    *         directory
    */
-  protected void scanXml(final File dir, final Set<String> files, FileFilter filter) {
+  protected void scanConfigLocation(final File dir, final Set<String> files, FileFilter filter) {
     if (log.isTraceEnabled()) {
       log.trace("Enter [{}]", dir.getAbsolutePath());
     }
@@ -140,7 +140,7 @@ public class WebServletApplicationLoader
     }
     for (final File file : listFiles) {
       if (file.isDirectory()) { // recursive
-        scanXml(file, files, filter);
+        scanConfigLocation(file, files, filter);
       }
       else {
         files.add(file.getAbsolutePath());
@@ -262,9 +262,9 @@ public class WebServletApplicationLoader
   protected void configureInitializer(List<WebApplicationInitializer> initializers, WebMvcConfiguration config) {
     final WebServletApplicationContext ctx = obtainApplicationContext();
 
-    configureFilter(ctx, initializers);
-    configureServlet(ctx, initializers);
-    configureListener(ctx, initializers);
+    configureFilterInitializers(ctx, initializers);
+    configureServletInitializers(ctx, initializers);
+    configureListenerInitializers(ctx, initializers);
 
     // DispatcherServlet Initializer
     if (!ctx.containsBeanDefinition(DispatcherServletInitializer.class)) {
@@ -287,9 +287,8 @@ public class WebServletApplicationLoader
    * @param contextInitializers
    *         {@link WebApplicationInitializer}s
    */
-  protected void configureFilter(final WebApplicationContext applicationContext, //
-                                 final List<WebApplicationInitializer> contextInitializers) //
-  {
+  protected void configureFilterInitializers(
+          final WebApplicationContext applicationContext, final List<WebApplicationInitializer> contextInitializers) {
 
     List<Filter> filters = applicationContext.getAnnotatedBeans(WebFilter.class);
     for (final Filter filter : filters) {
@@ -334,12 +333,10 @@ public class WebServletApplicationLoader
    * @param contextInitializers
    *         {@link WebApplicationInitializer}s
    */
-  protected void configureServlet(final WebApplicationContext applicationContext,
-                                  final List<WebApplicationInitializer> contextInitializers) //
-  {
+  protected void configureServletInitializers(
+          final WebApplicationContext applicationContext, final List<WebApplicationInitializer> contextInitializers) {
 
     Collection<Servlet> servlets = applicationContext.getAnnotatedBeans(WebServlet.class);
-
     for (Servlet servlet : servlets) {
       final Class<?> beanClass = servlet.getClass();
       WebServletInitializer<Servlet> webServletInitializer = new WebServletInitializer<>(servlet);
@@ -389,9 +386,8 @@ public class WebServletApplicationLoader
    * @param contextInitializers
    *         {@link WebApplicationInitializer}s
    */
-  protected void configureListener(final WebApplicationContext applicationContext,
-                                   final List<WebApplicationInitializer> contextInitializers)//
-  {
+  protected void configureListenerInitializers(
+          final WebApplicationContext applicationContext, final List<WebApplicationInitializer> contextInitializers) {
     Collection<EventListener> eventListeners = applicationContext.getAnnotatedBeans(WebListener.class);
     for (EventListener eventListener : eventListeners) {
       contextInitializers.add(new WebListenerInitializer<>(eventListener));
