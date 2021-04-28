@@ -36,7 +36,7 @@ import cn.taketoday.context.utils.Assert;
  * @since 3.0
  */
 public class ProxyCreatorSupport extends AdvisedSupport {
-
+  private static final long serialVersionUID = 1L;
   /** Set to true when the first AOP proxy has been created. */
   private boolean active = false;
   private final ArrayList<AdvisedSupportListener> listeners = new ArrayList<>();

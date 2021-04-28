@@ -40,6 +40,7 @@ import cn.taketoday.context.utils.ClassUtils;
  * @since 3.0
  */
 public class ProxyFactory extends ProxyCreatorSupport {
+  private static final long serialVersionUID = 1L;
 
   public ProxyFactory() { }
 

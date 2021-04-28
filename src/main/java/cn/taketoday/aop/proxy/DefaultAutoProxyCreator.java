@@ -25,6 +25,7 @@ package cn.taketoday.aop.proxy;
  * @since 3.0
  */
 public class DefaultAutoProxyCreator extends AbstractAutoProxyCreator {
+  private static final long serialVersionUID = 1L;
 
   @Override
   protected boolean advisorsPreFiltered() {

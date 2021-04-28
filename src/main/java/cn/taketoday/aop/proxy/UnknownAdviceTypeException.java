@@ -31,6 +31,7 @@ package cn.taketoday.aop.proxy;
  * @see cn.taketoday.aop.Advisor
  */
 public class UnknownAdviceTypeException extends IllegalArgumentException {
+  private static final long serialVersionUID = 1L;
 
   /**
    * Create a new UnknownAdviceTypeException for the given advice object.

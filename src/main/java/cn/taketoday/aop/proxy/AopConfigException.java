@@ -20,7 +20,7 @@
 
 package cn.taketoday.aop.proxy;
 
-import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.NestedRuntimeException;
 
 /**
  * Exception that gets thrown on illegal AOP configuration arguments.
@@ -29,7 +29,8 @@ import cn.taketoday.context.exception.ContextException;
  * @author TODAY 2021/2/1 19:04
  * @since 13.03.2003
  */
-public class AopConfigException extends ContextException {
+public class AopConfigException extends NestedRuntimeException {
+  private static final long serialVersionUID = 1L;
 
   /**
    * Constructor for AopConfigException.

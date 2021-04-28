@@ -81,7 +81,7 @@ public class AspectAutoProxyCreator
       if (beanDefinition.isAnnotationPresent(Aspect.class)) {
         // fix use beanDefinition.getName()
         final String aspectName = beanDefinition.getName();
-        log.debug("Found Aspect: [{}]", aspectName);
+        log.info("Found Aspect: [{}]", aspectName);
 
         aspectDefs.add(beanDefinition);
       }
