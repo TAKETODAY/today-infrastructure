@@ -79,7 +79,8 @@ public class MapParameterResolver
     }
 
     final ResolvableType parameterType = ResolvableType.forParameter(parameter);
-    Class<?> beanClass = getBeanClass(parameterType);
+    final ResolvableType generic = parameterType.asMap().getGeneric(1);
+    Class<?> beanClass = generic.toClass();
     return beanFactory.getBeansOfType(beanClass);
   }
 
@@ -90,11 +91,6 @@ public class MapParameterResolver
       map = newMap;
     }
     return map;
-  }
-
-  protected Class<?> getBeanClass(final ResolvableType parameterType) {
-    final ResolvableType generic = parameterType.asMap().getGeneric(1);
-    return generic.toClass();
   }
 
   private Props getProps(Parameter parameter) {
