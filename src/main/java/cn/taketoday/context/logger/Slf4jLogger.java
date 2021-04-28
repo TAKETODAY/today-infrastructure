@@ -67,7 +67,7 @@ public class Slf4jLogger extends AbstractLogger {
   protected void logInternal(Level level, String format, Throwable t, Object[] args) {
 
     if (target instanceof LocationAwareLogger) { // MessageFormatter.format(format, args)
-      int i = 0;
+      int i;
       switch (level) {
         case DEBUG:
           i = LocationAwareLogger.DEBUG_INT;

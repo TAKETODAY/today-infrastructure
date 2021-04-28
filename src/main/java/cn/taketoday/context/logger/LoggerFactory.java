@@ -71,12 +71,12 @@ public abstract class LoggerFactory {
       factory = new Slf4jLoggerFactory();
       return factory.createLogger(name);
     }
-    catch (Throwable e) {}
+    catch (Throwable ignored) {}
     try {
       factory = new Log4j2LoggerFactory();
       return factory.createLogger(name);
     }
-    catch (Throwable e) {}
+    catch (Throwable ignored) {}
 
     factory = new JavaLoggingFactory();
 
