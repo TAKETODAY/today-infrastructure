@@ -63,6 +63,7 @@ public class MethodParameterTests {
     assertThat(methodParameter.getParameterIndex()).isZero();
     assertThat(methodParameter.getParameterClass()).isEqualTo(String.class);
     assertThat(methodParameter.isRequired()).isFalse();
+    assertThat(methodParameter.getDefaultValue()).isNull();
 
   }
 
@@ -83,6 +84,8 @@ public class MethodParameterTests {
     assertThat(ageMethodParameter.isArray()).isFalse();
     assertThat(ageMethodParameter.isCollection()).isFalse();
     assertThat(ageMethodParameter.isInterface()).isFalse();
+    assertThat(ageMethodParameter.getDefaultValue()).isEqualTo("0");
+
   }
 
   @Test
