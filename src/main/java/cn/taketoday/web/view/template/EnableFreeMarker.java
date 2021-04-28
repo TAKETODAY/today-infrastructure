@@ -26,14 +26,27 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.annotation.condition.ConditionalOnClass;
+import cn.taketoday.web.Constant;
 
 /**
  * @author TODAY 2021/3/24 21:50
  * @since 3.0
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Import(FreeMarkerTemplateViewResolver.class)
+@Import(FreeMarkerConfig.class)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface EnableFreeMarker {
+
+}
+
+class FreeMarkerConfig {
+
+  @Props(prefix = "web.mvc.view.")
+  @ConditionalOnClass({ Constant.ENV_SERVLET, "freemarker.template.Configuration" })
+  FreeMarkerTemplateViewResolver freeMarkerTemplateViewResolver() {
+    return new FreeMarkerTemplateViewResolver();
+  }
 
 }

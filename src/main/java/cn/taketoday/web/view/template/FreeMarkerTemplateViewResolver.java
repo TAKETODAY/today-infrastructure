@@ -28,11 +28,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.annotation.condition.ConditionalOnClass;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletContextAware;
 import cn.taketoday.web.WebApplicationContext;
@@ -53,11 +50,10 @@ import freemarker.template.ObjectWrapper;
 import freemarker.template.TemplateHashModel;
 
 /**
- * @author TODAY <br>
- * 2018-06-26 19:16:46
+ * FreeMarker run in servlet
+ *
+ * @author TODAY 2018-06-26 19:16:46
  */
-@Props(prefix = "web.mvc.view.")
-@ConditionalOnClass({ Constant.ENV_SERVLET, "freemarker.template.Configuration" })
 public class FreeMarkerTemplateViewResolver
         extends AbstractFreeMarkerTemplateViewResolver implements WebMvcConfiguration, ServletContextAware {
 
