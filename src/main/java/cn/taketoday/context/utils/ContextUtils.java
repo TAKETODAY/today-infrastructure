@@ -997,8 +997,11 @@ public abstract class ContextUtils {
     final Object[] args = new Object[parameterLength];
     int i = 0;
     for (final Parameter parameter : executable.getParameters()) {
-      final Object argument = findProvidedArgument(parameter, providedArgs);
-      args[i++] = argument != null ? argument : getParameterResolver(parameter).resolve(parameter, beanFactory);
+      Object argument = findProvidedArgument(parameter, providedArgs);
+      if (argument == null) {
+        argument = getParameterResolver(parameter).resolve(parameter, beanFactory);
+      }
+      args[i++] = argument;
     }
     return args;
   }
