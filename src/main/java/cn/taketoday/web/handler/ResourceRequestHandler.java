@@ -164,11 +164,11 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
                                   final String contentType) throws IOException //
   {
     return mapping.isGzip()
-            && isContentCompressable(contentType)
+            && isContentCompressible(contentType)
             && resource.contentLength() > mapping.getGzipMinLength();
   }
 
-  protected boolean isContentCompressable(final String contentType) {
+  protected boolean isContentCompressible(final String contentType) {
     return "image/svg+xml".equals(contentType)
             || !contentType.startsWith("image")
             && !contentType.startsWith("video");
