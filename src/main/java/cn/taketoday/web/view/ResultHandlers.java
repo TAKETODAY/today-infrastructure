@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.view;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -65,10 +66,13 @@ public class ResultHandlers extends WebApplicationContextSupport {
   }
 
   public RuntimeResultHandler[] getRuntimeHandlers() {
-    return handlers
-            .stream()
-            .filter(res -> res instanceof RuntimeResultHandler)
-            .toArray(RuntimeResultHandler[]::new);
+    final ArrayList<RuntimeResultHandler> ret = new ArrayList<>();
+    for (final ResultHandler handler : handlers) {
+      if (handler instanceof RuntimeResultHandler) {
+        ret.add((RuntimeResultHandler) handler);
+      }
+    }
+    return ret.toArray(new RuntimeResultHandler[ret.size()]);
   }
 
   public ResultHandler getHandler(final Object handler) {
