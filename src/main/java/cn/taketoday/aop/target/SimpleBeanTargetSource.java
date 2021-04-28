@@ -33,6 +33,7 @@ package cn.taketoday.aop.target;
  * @since 3.0
  */
 public class SimpleBeanTargetSource extends AbstractBeanFactoryTargetSource {
+  private static final long serialVersionUID = 1L;
 
   @Override
   public Object getTarget() {

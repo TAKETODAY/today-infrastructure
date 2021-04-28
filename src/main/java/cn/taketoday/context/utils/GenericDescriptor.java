@@ -40,6 +40,7 @@ import cn.taketoday.context.factory.BeanProperty;
  * @since 3.0
  */
 public class GenericDescriptor implements Serializable {
+  private static final long serialVersionUID = 1L;
 
   private static final Map<Class<?>, GenericDescriptor> commonTypesCache = new HashMap<>(32);
 

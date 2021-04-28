@@ -52,6 +52,7 @@ import cn.taketoday.context.utils.ReflectionUtils;
  * @since 3.0
  */
 public class BeanProperty extends AbstractAnnotatedElement {
+  private static final long serialVersionUID = 1L;
 
   private static final Mappings<Annotation[], BeanProperty> annotationsCache = new Mappings<>();
 

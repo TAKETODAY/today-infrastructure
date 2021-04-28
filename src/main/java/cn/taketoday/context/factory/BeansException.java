@@ -35,6 +35,7 @@ import cn.taketoday.context.NestedRuntimeException;
  * @since 3.0
  */
 public abstract class BeansException extends NestedRuntimeException {
+  private static final long serialVersionUID = 1L;
 
   public BeansException() { }
 
