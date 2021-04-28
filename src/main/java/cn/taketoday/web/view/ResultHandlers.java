@@ -35,8 +35,7 @@ import cn.taketoday.web.ui.RedirectModelManager;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
- * @author TODAY <br>
- * 2019-12-28 13:47
+ * @author TODAY 2019-12-28 13:47
  */
 @MissingBean
 public class ResultHandlers extends WebApplicationContextSupport {

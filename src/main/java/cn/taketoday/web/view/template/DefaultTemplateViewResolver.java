@@ -63,7 +63,7 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
 
   public DefaultTemplateViewResolver(ExpressionManager elManager, ResolversSupplier resolversSupplier) {
     this.sharedContext = elManager.getContext();
-    this.resolversSupplier = resolversSupplier;
+    setResolversSupplier(resolversSupplier);
   }
 
   @Override

@@ -280,7 +280,6 @@ public class WebApplicationLoader
   }
 
   protected TemplateViewResolver getTemplateViewResolver(final WebMvcConfiguration mvcConfiguration) {
-
     final WebApplicationContext context = obtainApplicationContext();
     TemplateViewResolver templateViewResolver = context.getBean(TemplateViewResolver.class);
 
