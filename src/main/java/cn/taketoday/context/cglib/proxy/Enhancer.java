@@ -46,7 +46,7 @@ import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.ClassEmitter;
 import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.CodeGenerationException;
-import cn.taketoday.context.cglib.core.CollectionUtils;
+import cn.taketoday.context.cglib.core.CglibCollectionUtils;
 import cn.taketoday.context.cglib.core.DuplicatesPredicate;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.GeneratorStrategy;
@@ -692,10 +692,10 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       }
       methods.addAll(interfaceMethods);
     }
-    CollectionUtils.filter(methods, new RejectModifierPredicate(ACC_STATIC));
-    CollectionUtils.filter(methods, new VisibilityPredicate(superclass, true));
-    CollectionUtils.filter(methods, new DuplicatesPredicate(methods));
-    CollectionUtils.filter(methods, new RejectModifierPredicate(Constant.ACC_FINAL));
+    CglibCollectionUtils.filter(methods, new RejectModifierPredicate(ACC_STATIC));
+    CglibCollectionUtils.filter(methods, new VisibilityPredicate(superclass, true));
+    CglibCollectionUtils.filter(methods, new DuplicatesPredicate(methods));
+    CglibCollectionUtils.filter(methods, new RejectModifierPredicate(Constant.ACC_FINAL));
   }
 
   @Override
@@ -719,7 +719,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     final Set forcePublic = new HashSet();
     getMethods(sc, interfaces, actualMethods, interfaceMethods, forcePublic);
 
-    final List<MethodInfo> methods = CollectionUtils.transform(actualMethods, (Method method) -> {
+    final List<MethodInfo> methods = CglibCollectionUtils.transform(actualMethods, (Method method) -> {
 
       int modifiers = Constant.ACC_FINAL | (method.getModifiers() //
               & ~Constant.ACC_ABSTRACT //
@@ -752,7 +752,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
                    Constant.SOURCE_FILE//
       );
     }
-    List constructorInfo = CollectionUtils.transform(constructors, MethodInfoTransformer.getInstance());
+    List constructorInfo = CglibCollectionUtils.transform(constructors, MethodInfoTransformer.getInstance());
 
     e.declare_field(ACC_PRIVATE, BOUND_FIELD, BOOLEAN_TYPE, null);
     e.declare_field(ACC_PUBLIC | ACC_STATIC, FACTORY_DATA_FIELD, OBJECT_TYPE, null);
@@ -811,7 +811,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    *         if there are no non-private constructors
    */
   protected void filterConstructors(Class sc, List constructors) {
-    CollectionUtils.filter(constructors, new VisibilityPredicate(sc, true));
+    CglibCollectionUtils.filter(constructors, new VisibilityPredicate(sc, true));
     if (constructors.size() == 0) throw new IllegalArgumentException("No visible constructors in " + sc);
   }
 
@@ -1283,7 +1283,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     final Map<CallbackGenerator, List<MethodInfo>> groups = new HashMap<>();
     final Map<MethodInfo, Integer> indexes = new HashMap<>();
     final Map<MethodInfo, Integer> originalModifiers = new HashMap<>();
-    final Map<MethodInfo, Integer> positions = CollectionUtils.getIndexMap(methods);
+    final Map<MethodInfo, Integer> positions = CglibCollectionUtils.getIndexMap(methods);
     final Map<Class<?>, Set<Signature>> declToBridge = new HashMap<>();
 
     Iterator<MethodInfo> it1 = methods.iterator();

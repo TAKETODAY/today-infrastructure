@@ -28,12 +28,10 @@ import java.util.function.Predicate;
  * @author TODAY
  * @version $Id: CollectionUtils.java,v 1.7 2004/06/24 21:15:21 herbyderby Exp $
  */
-public abstract class CollectionUtils {
+public abstract class CglibCollectionUtils {
 
   public static <K, T> Map<K, List<T>> bucket(Collection<T> c, Transformer<T, K> t) {
-
     final Map<K, List<T>> buckets = new HashMap<>();
-
     for (final T value : c) {
       K key = t.transform(value);
       List<T> bucket = buckets.get(key);
@@ -45,8 +43,7 @@ public abstract class CollectionUtils {
     return buckets;
   }
 
-  public static <T extends Object> void reverse(Map<T, T> source, Map<T, T> target) {
-
+  public static <T> void reverse(Map<T, T> source, Map<T, T> target) {
     for (Entry<T, T> entry : source.entrySet()) {
       target.put(entry.getValue(), entry.getKey());
     }

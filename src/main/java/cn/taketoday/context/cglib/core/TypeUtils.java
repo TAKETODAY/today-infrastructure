@@ -55,7 +55,7 @@ public abstract class TypeUtils {
     transforms.put("short", "S");
     transforms.put("boolean", "Z");
 
-    CollectionUtils.reverse(transforms, rtransforms);
+    CglibCollectionUtils.reverse(transforms, rtransforms);
   }
 
   public static Type getType(String className) {

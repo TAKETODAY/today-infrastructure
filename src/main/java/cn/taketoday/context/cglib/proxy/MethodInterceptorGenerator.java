@@ -29,7 +29,7 @@ import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.ClassEmitter;
 import cn.taketoday.context.cglib.core.ClassInfo;
 import cn.taketoday.context.cglib.core.CodeEmitter;
-import cn.taketoday.context.cglib.core.CollectionUtils;
+import cn.taketoday.context.cglib.core.CglibCollectionUtils;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.Local;
 import cn.taketoday.context.cglib.core.MethodInfo;
@@ -180,7 +180,7 @@ class MethodInterceptorGenerator implements CallbackGenerator {
     EmitUtils.loadClassThis(e);
     e.store_local(thisClass);
 
-    final Map<ClassInfo, List<MethodInfo>> methodsByClass = CollectionUtils.bucket(methods, METHOD_TO_CLASS);
+    final Map<ClassInfo, List<MethodInfo>> methodsByClass = CglibCollectionUtils.bucket(methods, METHOD_TO_CLASS);
 
     for (final Entry<ClassInfo, List<MethodInfo>> entry : methodsByClass.entrySet()) {
 

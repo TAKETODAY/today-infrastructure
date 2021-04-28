@@ -37,7 +37,7 @@ import static cn.taketoday.context.Constant.SWITCH_STYLE_HASHONLY;
 import static cn.taketoday.context.Constant.SWITCH_STYLE_TRIE;
 import static cn.taketoday.context.Constant.TYPE_CLASS;
 import static cn.taketoday.context.Constant.TYPE_STRING_BUFFER;
-import static cn.taketoday.context.cglib.core.CollectionUtils.bucket;
+import static cn.taketoday.context.cglib.core.CglibCollectionUtils.bucket;
 import static cn.taketoday.context.cglib.core.TypeUtils.parseConstructor;
 import static cn.taketoday.context.cglib.core.TypeUtils.parseSignature;
 

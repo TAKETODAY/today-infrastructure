@@ -23,7 +23,7 @@ import java.util.List;
 
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
-import cn.taketoday.context.cglib.core.CollectionUtils;
+import cn.taketoday.context.cglib.core.CglibCollectionUtils;
 import cn.taketoday.context.cglib.core.RejectModifierPredicate;
 
 /**
@@ -52,7 +52,7 @@ class MixinEverythingEmitter extends MixinEmitter {
 
     Collections.addAll(methods, type.getMethods());
 
-    CollectionUtils.filter(methods, new RejectModifierPredicate(Modifier.FINAL | Modifier.STATIC));
+    CglibCollectionUtils.filter(methods, new RejectModifierPredicate(Modifier.FINAL | Modifier.STATIC));
     return methods.toArray(new Method[methods.size()]);
   }
 }
