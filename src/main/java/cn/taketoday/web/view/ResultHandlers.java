@@ -95,6 +95,9 @@ public class ResultHandlers extends WebApplicationContextSupport {
 
   //
 
+  /**
+   * register default {@link ResultHandler}s
+   */
   public void registerDefaultResultHandlers(TemplateViewResolver viewResolver) {
     final List<ResultHandler> handlers = getHandlers();
     final WebApplicationContext context = obtainApplicationContext();

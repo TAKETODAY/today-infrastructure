@@ -182,6 +182,9 @@ public class WebApplicationLoader
     }
   }
 
+  /**
+   * configure HandlerExceptionHandler
+   */
   protected void configureExceptionHandler(
           List<HandlerExceptionHandler> handlers, WebMvcConfiguration mvcConfiguration) {
 
