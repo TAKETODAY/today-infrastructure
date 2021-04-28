@@ -120,7 +120,7 @@ public class FastJSONMessageConverter extends AbstractMessageConverter implement
     // style: [{"name":"today","age":21},{"name":"YHJ","age":22}]
 
     if (parameter.is(List.class)) {
-      return requestBody.toJavaList((Class<?>) parameter.getGenerics(0));
+      return requestBody.toJavaList((Class<?>) parameter.getGeneric(0));
     }
 
     if (parameter.isArray()) {
@@ -148,7 +148,7 @@ public class FastJSONMessageConverter extends AbstractMessageConverter implement
 
     if (parameter.is(List.class)) {
       return getJSONArray(parameter, requestBody)
-              .toJavaList((Class<?>) parameter.getGenerics(0));
+              .toJavaList((Class<?>) parameter.getGeneric(0));
     }
 
     if (parameter.isArray()) {

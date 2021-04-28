@@ -48,7 +48,7 @@ public class DataBinderMapParameterResolver
   @Override
   public boolean supports(final MethodParameter parameter) {
     if (isMap(parameter)) {
-      final Type valueType = parameter.getGenerics(1);
+      final Type valueType = parameter.getGeneric(1);
       if (valueType instanceof Class) {
         return supportsSetProperties(valueType);
       }
@@ -68,7 +68,7 @@ public class DataBinderMapParameterResolver
     final Map<String, Object> map = CollectionUtils.createMap(parameter.getParameterClass(), propertyValues.size());
 
     final DataBinder dataBinder = new DataBinder();
-    final Class<?> parameterClass = (Class<?>) parameter.getGenerics(1);
+    final Class<?> parameterClass = (Class<?>) parameter.getGeneric(1);
     final BeanMetadata parameterMetadata = BeanMetadata.ofClass(parameterClass);
     for (final Map.Entry<String, List<PropertyValue>> entry : propertyValues.entrySet()) {
       final Object rootObject = parameterMetadata.newInstance();

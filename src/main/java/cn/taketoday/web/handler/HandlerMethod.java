@@ -32,6 +32,7 @@ import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.Produce;
@@ -132,8 +133,13 @@ public class HandlerMethod
   }
 
   public Type[] getGenerics() {
+    Type[] generics = this.generics;
     if (generics == null) {
       generics = ClassUtils.getGenerics(returnType);
+      if (generics == null) {
+        generics = Constant.EMPTY_CLASS_ARRAY;
+      }
+      this.generics = generics;
     }
     return generics;
   }

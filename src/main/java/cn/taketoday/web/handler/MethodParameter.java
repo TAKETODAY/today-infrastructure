@@ -28,6 +28,7 @@ import java.util.Objects;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.AnnotationSupport;
 import cn.taketoday.context.AttributeAccessorSupport;
+import cn.taketoday.context.annotation.Required;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.NumberUtils;
@@ -79,6 +80,9 @@ public class MethodParameter
       this.required = attributes.getBoolean("required");
       this.defaultValue = attributes.getString("defaultValue");
     }
+    if (!this.required) { // @since 3.0 Required
+      this.required = ClassUtils.isAnnotationPresent(parameter, Required.class);
+    }
     if (StringUtils.isEmpty(defaultValue) && NumberUtils.isNumber(parameterClass)) {
       this.defaultValue = "0"; // fix default value
     }
@@ -122,7 +126,7 @@ public class MethodParameter
     return parameterClass.isInstance(obj);
   }
 
-  public Type getGenerics(final int index) {
+  public Type getGeneric(final int index) {
     final Type[] generics = getGenerics();
     if (generics != null && generics.length > index) {
       return generics[index];
@@ -131,7 +135,7 @@ public class MethodParameter
   }
 
   public boolean isGenericPresent(final Type requiredType, final int index) {
-    return requiredType.equals(getGenerics(index));
+    return requiredType.equals(getGeneric(index));
   }
 
   public boolean isGenericPresent(final Type requiredType) {
@@ -226,8 +230,13 @@ public class MethodParameter
   }
 
   public Type[] getGenerics() {
+    Type[] generics = this.generics;
     if (generics == null) {
-      this.generics = ClassUtils.getGenericTypes(parameter);
+      generics = ClassUtils.getGenericTypes(parameter);
+      if (generics == null) {
+        generics = Constant.EMPTY_CLASS_ARRAY;
+      }
+      this.generics = generics;
     }
     return generics;
   }

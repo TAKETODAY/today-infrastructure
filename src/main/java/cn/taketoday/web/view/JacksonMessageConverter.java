@@ -119,7 +119,7 @@ public class JacksonMessageConverter
   }
 
   protected Class<?> getValueType(MethodParameter parameter) {
-    final Type generics = parameter.getGenerics(0);
+    final Type generics = parameter.getGeneric(0);
     if (generics instanceof Class) {
       return (Class<?>) generics;
     }

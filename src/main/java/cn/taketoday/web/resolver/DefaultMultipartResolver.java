@@ -153,7 +153,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
             }
           }
           else {
-            target = (Class<?>) parameter.getGenerics(1);
+            target = (Class<?>) parameter.getGeneric(1);
           }
           return supportsMultipart(target);
         }

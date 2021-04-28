@@ -63,7 +63,7 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
   @Override
   public boolean supports(MethodParameter parameter) {
     if (parameter.isCollection()) {
-      final Type valueType = parameter.getGenerics(0);
+      final Type valueType = parameter.getGeneric(0);
       if (valueType instanceof Class) {
         return supportsSetProperties(valueType);
       }
@@ -123,7 +123,7 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
   }
 
   protected Class<?> getComponentType(MethodParameter parameter) {
-    return (Class<?>) parameter.getGenerics(0);
+    return (Class<?>) parameter.getGeneric(0);
   }
 
   public void setMaxValueIndex(int maxValueIndex) {
