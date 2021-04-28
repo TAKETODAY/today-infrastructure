@@ -36,6 +36,7 @@ import cn.taketoday.context.Constant;
  */
 public class AnnotatedElementAdapter
         extends AbstractAnnotatedElement implements AnnotatedElement {
+  private static final long serialVersionUID = 1L;
   private final Annotation[] annotations;
 
   public AnnotatedElementAdapter(Annotation[] annotations) {

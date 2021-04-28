@@ -29,6 +29,7 @@ import java.lang.reflect.AnnotatedElement;
  * @since 3.0
  */
 public abstract class AbstractAnnotatedElement implements AnnotatedElement, Serializable {
+  private static final long serialVersionUID = 1L;
 
   @Override
   public boolean isAnnotationPresent(Class<? extends Annotation> annotationClass) {

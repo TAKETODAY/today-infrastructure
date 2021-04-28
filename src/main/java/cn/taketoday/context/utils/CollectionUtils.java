@@ -43,10 +43,15 @@ import java.util.TreeSet;
 import cn.taketoday.context.Constant;
 
 /**
- * Factory for collections that is aware of common Java and Spring collection types.
+ * Factory for collections that is aware of common Java and Spring collection
+ * types.
  *
- * <p>Mainly for internal use within the framework.</p>
- * <p>From Spring</p>
+ * <p>
+ * Mainly for internal use within the framework.
+ * </p>
+ * <p>
+ * From Spring
+ * </p>
  *
  * @author TODAY 2019-12-29 23:39
  */
@@ -84,7 +89,7 @@ public abstract class CollectionUtils {
    * Otherwise, return {@code false}.
    *
    * @param collection
-   *         the Collection to check
+   *          the Collection to check
    *
    * @return whether the given Collection is empty
    */
@@ -97,7 +102,7 @@ public abstract class CollectionUtils {
    * return {@code false}.
    *
    * @param map
-   *         the Map to check
+   *          the Map to check
    *
    * @return whether the given Map is empty
    */
@@ -113,7 +118,7 @@ public abstract class CollectionUtils {
    * Create a hash set
    *
    * @param elements
-   *         Elements instance
+   *          Elements instance
    */
   @SafeVarargs
   public static <E> Set<E> newHashSet(E... elements) {
@@ -127,7 +132,7 @@ public abstract class CollectionUtils {
    * i.e. a type that {@link #createApproximateCollection} can approximate.
    *
    * @param collectionType
-   *         the collection type to check
+   *          the collection type to check
    *
    * @return {@code true} if the type is <em>approximable</em>
    *
@@ -139,19 +144,19 @@ public abstract class CollectionUtils {
 
   /**
    * Create the most approximate collection for the given collection.
-   * <p><strong>Warning</strong>: Since the parameterized type {@code E} is
-   * not bound to the type of elements contained in the supplied
-   * {@code collection}, type safety cannot be guaranteed if the supplied
-   * {@code collection} is an {@link EnumSet}. In such scenarios, the caller
-   * is responsible for ensuring that the element type for the supplied
-   * {@code collection} is an enum type matching type {@code E}. As an
-   * alternative, the caller may wish to treat the return value as a raw
-   * collection or collection of {@link Object}.
+   * <p>
+   * <strong>Warning</strong>: Since the parameterized type {@code E} is not bound
+   * to the type of elements contained in the supplied {@code collection}, type
+   * safety cannot be guaranteed if the supplied {@code collection} is an
+   * {@link EnumSet}. In such scenarios, the caller is responsible for ensuring
+   * that the element type for the supplied {@code collection} is an enum type
+   * matching type {@code E}. As an alternative, the caller may wish to treat the
+   * return value as a raw collection or collection of {@link Object}.
    *
    * @param collection
-   *         the original collection object, potentially {@code null}
+   *          the original collection object, potentially {@code null}
    * @param capacity
-   *         the initial capacity
+   *          the initial capacity
    *
    * @return a new, empty collection instance
    *
@@ -187,17 +192,18 @@ public abstract class CollectionUtils {
 
   /**
    * Create the most appropriate collection for the given collection type.
-   * <p>Delegates to {@link #createCollection(Class, Class, int)} with a
-   * {@code null} element type, and {@link Constant#DEFAULT_CAPACITY}.
+   * <p>
+   * Delegates to {@link #createCollection(Class, Class, int)} with a {@code null}
+   * element type, and {@link Constant#DEFAULT_CAPACITY}.
    *
    * @param collectionType
-   *         the desired type of the target collection (never {@code null})
+   *          the desired type of the target collection (never {@code null})
    *
    * @return a new collection instance
    *
    * @throws IllegalArgumentException
-   *         if the supplied {@code collectionType}
-   *         is {@code null} or of type {@link EnumSet}
+   *           if the supplied {@code collectionType} is {@code null} or of type
+   *           {@link EnumSet}
    * @since 3.0
    */
   public static <E> Collection<E> createCollection(Class<?> collectionType) {
@@ -206,19 +212,20 @@ public abstract class CollectionUtils {
 
   /**
    * Create the most appropriate collection for the given collection type.
-   * <p>Delegates to {@link #createCollection(Class, Class, int)} with a
-   * {@code null} element type.
+   * <p>
+   * Delegates to {@link #createCollection(Class, Class, int)} with a {@code null}
+   * element type.
    *
    * @param collectionType
-   *         the desired type of the target collection (never {@code null})
+   *          the desired type of the target collection (never {@code null})
    * @param capacity
-   *         the initial capacity
+   *          the initial capacity
    *
    * @return a new collection instance
    *
    * @throws IllegalArgumentException
-   *         if the supplied {@code collectionType}
-   *         is {@code null} or of type {@link EnumSet}
+   *           if the supplied {@code collectionType} is {@code null} or of type
+   *           {@link EnumSet}
    * @since 3.0
    */
   public static <E> Collection<E> createCollection(Class<?> collectionType, int capacity) {
@@ -227,28 +234,29 @@ public abstract class CollectionUtils {
 
   /**
    * Create the most appropriate collection for the given collection type.
-   * <p><strong>Warning</strong>: Since the parameterized type {@code E} is
-   * not bound to the supplied {@code elementType}, type safety cannot be
-   * guaranteed if the desired {@code collectionType} is {@link EnumSet}.
-   * In such scenarios, the caller is responsible for ensuring that the
-   * supplied {@code elementType} is an enum type matching type {@code E}.
-   * As an alternative, the caller may wish to treat the return value as a
-   * raw collection or collection of {@link Object}.
+   * <p>
+   * <strong>Warning</strong>: Since the parameterized type {@code E} is not bound
+   * to the supplied {@code elementType}, type safety cannot be guaranteed if the
+   * desired {@code collectionType} is {@link EnumSet}. In such scenarios, the
+   * caller is responsible for ensuring that the supplied {@code elementType} is
+   * an enum type matching type {@code E}. As an alternative, the caller may wish
+   * to treat the return value as a raw collection or collection of
+   * {@link Object}.
    *
    * @param collectionType
-   *         the desired type of the target collection (never {@code null})
+   *          the desired type of the target collection (never {@code null})
    * @param elementType
-   *         the collection's element type, or {@code null} if unknown
-   *         (note: only relevant for {@link EnumSet} creation)
+   *          the collection's element type, or {@code null} if unknown (note:
+   *          only relevant for {@link EnumSet} creation)
    * @param capacity
-   *         the initial capacity
+   *          the initial capacity
    *
    * @return a new collection instance
    *
    * @throws IllegalArgumentException
-   *         if the supplied {@code collectionType} is
-   *         {@code null}; or if the desired {@code collectionType} is {@link EnumSet} and
-   *         the supplied {@code elementType} is not a subtype of {@link Enum}
+   *           if the supplied {@code collectionType} is {@code null}; or if the
+   *           desired {@code collectionType} is {@link EnumSet} and the supplied
+   *           {@code elementType} is not a subtype of {@link Enum}
    * @see java.util.LinkedHashSet
    * @see java.util.ArrayList
    * @see java.util.TreeSet
@@ -286,17 +294,18 @@ public abstract class CollectionUtils {
       }
       catch (Throwable ex) {
         throw new IllegalArgumentException(
-                "Could not instantiate Collection type: " + collectionType.getName(), ex);
+                                           "Could not instantiate Collection type: " + collectionType.getName(),
+                                           ex);
       }
     }
   }
 
   /**
-   * Determine whether the given map type is an <em>approximable</em> type,
-   * i.e. a type that {@link #createApproximateMap} can approximate.
+   * Determine whether the given map type is an <em>approximable</em> type, i.e. a
+   * type that {@link #createApproximateMap} can approximate.
    *
    * @param mapType
-   *         the map type to check
+   *          the map type to check
    *
    * @return {@code true} if the type is <em>approximable</em>
    *
@@ -308,18 +317,19 @@ public abstract class CollectionUtils {
 
   /**
    * Create the most approximate map for the given map.
-   * <p><strong>Warning</strong>: Since the parameterized type {@code K} is
-   * not bound to the type of keys contained in the supplied {@code map},
-   * type safety cannot be guaranteed if the supplied {@code map} is an
-   * {@link EnumMap}. In such scenarios, the caller is responsible for
-   * ensuring that the key type in the supplied {@code map} is an enum type
-   * matching type {@code K}. As an alternative, the caller may wish to
-   * treat the return value as a raw map or map keyed by {@link Object}.
+   * <p>
+   * <strong>Warning</strong>: Since the parameterized type {@code K} is not bound
+   * to the type of keys contained in the supplied {@code map}, type safety cannot
+   * be guaranteed if the supplied {@code map} is an {@link EnumMap}. In such
+   * scenarios, the caller is responsible for ensuring that the key type in the
+   * supplied {@code map} is an enum type matching type {@code K}. As an
+   * alternative, the caller may wish to treat the return value as a raw map or
+   * map keyed by {@link Object}.
    * <p>
    * use default capacity {@link Constant#DEFAULT_CAPACITY}.
    *
    * @param map
-   *         the original map object, potentially {@code null}
+   *          the original map object, potentially {@code null}
    *
    * @return a new, empty map instance
    *
@@ -335,18 +345,19 @@ public abstract class CollectionUtils {
 
   /**
    * Create the most approximate map for the given map.
-   * <p><strong>Warning</strong>: Since the parameterized type {@code K} is
-   * not bound to the type of keys contained in the supplied {@code map},
-   * type safety cannot be guaranteed if the supplied {@code map} is an
-   * {@link EnumMap}. In such scenarios, the caller is responsible for
-   * ensuring that the key type in the supplied {@code map} is an enum type
-   * matching type {@code K}. As an alternative, the caller may wish to
-   * treat the return value as a raw map or map keyed by {@link Object}.
+   * <p>
+   * <strong>Warning</strong>: Since the parameterized type {@code K} is not bound
+   * to the type of keys contained in the supplied {@code map}, type safety cannot
+   * be guaranteed if the supplied {@code map} is an {@link EnumMap}. In such
+   * scenarios, the caller is responsible for ensuring that the key type in the
+   * supplied {@code map} is an enum type matching type {@code K}. As an
+   * alternative, the caller may wish to treat the return value as a raw map or
+   * map keyed by {@link Object}.
    *
    * @param map
-   *         the original map object, potentially {@code null}
+   *          the original map object, potentially {@code null}
    * @param capacity
-   *         the initial capacity
+   *          the initial capacity
    *
    * @return a new, empty map instance
    *
@@ -373,17 +384,18 @@ public abstract class CollectionUtils {
 
   /**
    * Create the most appropriate map for the given map type.
-   * <p>Delegates to {@link #createMap(Class, Class, int)} with a
-   * {@code null} key type, and default capacity {@link Constant#DEFAULT_CAPACITY}.
+   * <p>
+   * Delegates to {@link #createMap(Class, Class, int)} with a {@code null} key
+   * type, and default capacity {@link Constant#DEFAULT_CAPACITY}.
    *
    * @param mapType
-   *         the desired type of the target map
+   *          the desired type of the target map
    *
    * @return a new map instance
    *
    * @throws IllegalArgumentException
-   *         if the supplied {@code mapType} is
-   *         {@code null} or of type {@link EnumMap}
+   *           if the supplied {@code mapType} is {@code null} or of type
+   *           {@link EnumMap}
    * @since 3.0
    */
   public static <K, V> Map<K, V> createMap(Class<?> mapType) {
@@ -392,19 +404,20 @@ public abstract class CollectionUtils {
 
   /**
    * Create the most appropriate map for the given map type.
-   * <p>Delegates to {@link #createMap(Class, Class, int)} with a
-   * {@code null} key type.
+   * <p>
+   * Delegates to {@link #createMap(Class, Class, int)} with a {@code null} key
+   * type.
    *
    * @param mapType
-   *         the desired type of the target map
+   *          the desired type of the target map
    * @param capacity
-   *         the initial capacity
+   *          the initial capacity
    *
    * @return a new map instance
    *
    * @throws IllegalArgumentException
-   *         if the supplied {@code mapType} is
-   *         {@code null} or of type {@link EnumMap}
+   *           if the supplied {@code mapType} is {@code null} or of type
+   *           {@link EnumMap}
    * @since 3.0
    */
   public static <K, V> Map<K, V> createMap(Class<?> mapType, int capacity) {
@@ -413,29 +426,29 @@ public abstract class CollectionUtils {
 
   /**
    * Create the most appropriate map for the given map type.
-   * <p><strong>Warning</strong>: Since the parameterized type {@code K}
-   * is not bound to the supplied {@code keyType}, type safety cannot be
-   * guaranteed if the desired {@code mapType} is {@link EnumMap}. In such
-   * scenarios, the caller is responsible for ensuring that the {@code keyType}
-   * is an enum type matching type {@code K}. As an alternative, the caller
-   * may wish to treat the return value as a raw map or map keyed by
-   * {@link Object}. Similarly, type safety cannot be enforced if the
-   * desired {@code mapType} is {@link MultiValueMap}.
+   * <p>
+   * <strong>Warning</strong>: Since the parameterized type {@code K} is not bound
+   * to the supplied {@code keyType}, type safety cannot be guaranteed if the
+   * desired {@code mapType} is {@link EnumMap}. In such scenarios, the caller is
+   * responsible for ensuring that the {@code keyType} is an enum type matching
+   * type {@code K}. As an alternative, the caller may wish to treat the return
+   * value as a raw map or map keyed by {@link Object}. Similarly, type safety
+   * cannot be enforced if the desired {@code mapType} is {@link MultiValueMap}.
    *
    * @param mapType
-   *         the desired type of the target map (never {@code null})
+   *          the desired type of the target map (never {@code null})
    * @param keyType
-   *         the map's key type, or {@code null} if unknown
-   *         (note: only relevant for {@link EnumMap} creation)
+   *          the map's key type, or {@code null} if unknown (note: only relevant
+   *          for {@link EnumMap} creation)
    * @param capacity
-   *         the initial capacity
+   *          the initial capacity
    *
    * @return a new map instance
    *
    * @throws IllegalArgumentException
-   *         if the supplied {@code mapType} is
-   *         {@code null}; or if the desired {@code mapType} is {@link EnumMap} and
-   *         the supplied {@code keyType} is not a subtype of {@link Enum}
+   *           if the supplied {@code mapType} is {@code null}; or if the desired
+   *           {@code mapType} is {@link EnumMap} and the supplied {@code keyType}
+   *           is not a subtype of {@link Enum}
    * @see java.util.LinkedHashMap
    * @see java.util.TreeMap
    * @see DefaultMultiValueMap
@@ -478,8 +491,10 @@ public abstract class CollectionUtils {
 
   /**
    * Create a variant of {@link java.util.Properties} that automatically adapts
-   * non-String values to String representations in {@link Properties#getProperty}.
-   * <p>In addition, the returned {@code Properties} instance sorts properties
+   * non-String values to String representations in
+   * {@link Properties#getProperty}.
+   * <p>
+   * In addition, the returned {@code Properties} instance sorts properties
    * alphanumerically based on their keys.
    *
    * @return a new {@code Properties} instance
@@ -489,26 +504,33 @@ public abstract class CollectionUtils {
    * @since 3.0
    */
   public static Properties createStringAdaptingProperties() {
-    return new SortedProperties(false) {
+    final class SortedProperties0 extends SortedProperties {
+      private static final long serialVersionUID = 1L;
+      SortedProperties0() {
+        super(false);
+      }
+
       @Override
       public String getProperty(String key) {
         Object value = get(key);
         return (value != null ? value.toString() : null);
       }
-    };
+    }
+    return new SortedProperties0();
   }
 
   /**
    * Create a variant of {@link java.util.Properties} that sorts properties
    * alphanumerically based on their keys.
-   * <p>This can be useful when storing the {@link Properties} instance in a
+   * <p>
+   * This can be useful when storing the {@link Properties} instance in a
    * properties file, since it allows such files to be generated in a repeatable
    * manner with consistent ordering of properties. Comments in generated
    * properties files can also be optionally omitted.
    *
    * @param omitComments
-   *         {@code true} if comments should be omitted when
-   *         storing properties in a file
+   *          {@code true} if comments should be omitted when storing properties
+   *          in a file
    *
    * @return a new {@code Properties} instance
    *
@@ -523,20 +545,22 @@ public abstract class CollectionUtils {
   /**
    * Create a variant of {@link java.util.Properties} that sorts properties
    * alphanumerically based on their keys.
-   * <p>This can be useful when storing the {@code Properties} instance in a
+   * <p>
+   * This can be useful when storing the {@code Properties} instance in a
    * properties file, since it allows such files to be generated in a repeatable
    * manner with consistent ordering of properties. Comments in generated
    * properties files can also be optionally omitted.
-   * <p>The returned {@code Properties} instance will be populated with
-   * properties from the supplied {@code properties} object, but default
-   * properties from the supplied {@code properties} object will not be copied.
+   * <p>
+   * The returned {@code Properties} instance will be populated with properties
+   * from the supplied {@code properties} object, but default properties from the
+   * supplied {@code properties} object will not be copied.
    *
    * @param properties
-   *         the {@code Properties} object from which to copy the
-   *         initial properties
+   *          the {@code Properties} object from which to copy the initial
+   *          properties
    * @param omitComments
-   *         {@code true} if comments should be omitted when
-   *         storing properties in a file
+   *          {@code true} if comments should be omitted when storing properties
+   *          in a file
    *
    * @return a new {@code Properties} instance
    *
@@ -552,12 +576,12 @@ public abstract class CollectionUtils {
    * Cast the given type to a subtype of {@link Enum}.
    *
    * @param enumType
-   *         the enum type, never {@code null}
+   *          the enum type, never {@code null}
    *
    * @return the given type as subtype of {@link Enum}
    *
    * @throws IllegalArgumentException
-   *         if the given type is not a subtype of {@link Enum}
+   *           if the given type is not a subtype of {@link Enum}
    * @since 3.0
    */
   @SuppressWarnings("rawtypes")
@@ -570,22 +594,23 @@ public abstract class CollectionUtils {
   }
 
   /**
-   * Replaces the element at the specified position in this
-   * list with the specified element (optional operation).
+   * Replaces the element at the specified position in this list with the
+   * specified element (optional operation).
    *
    * @param list
-   *         target list
+   *          target list
    * @param index
-   *         new element's index
+   *          new element's index
    * @param element
-   *         element object
+   *          element object
    * @param <E>
-   *         Element type
+   *          Element type
    *
    * @throws IndexOutOfBoundsException
-   *         if the index is out of range (index < 0 || index >= size())
+   *           if the index is out of range (index < 0 || index >= size())
    * @throws NullPointerException
-   *         if the specified element is null and this list does not permit null elements
+   *           if the specified element is null and this list does not permit null
+   *           elements
    * @since 3.0
    */
   public static <E> void setValue(final List<E> list, final int index, final E element) {
