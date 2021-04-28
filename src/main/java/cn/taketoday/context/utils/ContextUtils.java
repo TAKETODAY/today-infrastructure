@@ -81,14 +81,6 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.expression.ExpressionProcessor;
 
-import static cn.taketoday.context.Constant.VALUE;
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
-import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
-import static cn.taketoday.context.utils.OrderUtils.reversedSort;
-import static cn.taketoday.context.utils.ReflectionUtils.makeAccessible;
-import static cn.taketoday.context.utils.ResourceUtils.getResource;
-import static java.util.Objects.requireNonNull;
-
 /**
  * This class provides el, {@link Properties} loading, {@link Parameter}
  * resolving
@@ -219,8 +211,7 @@ public abstract class ContextUtils {
    *         If any IO {@link Exception} occurred
    */
   public static InputStream getResourceAsStream(final String resource) throws IOException {
-
-    InputStream in = getResource(resource).getInputStream();
+    InputStream in = ResourceUtils.getResource(resource).getInputStream();
     if (in == null) {
       throw new IOException("Could not find resource " + resource);
     }
@@ -229,8 +220,7 @@ public abstract class ContextUtils {
 
   public static Properties getResourceAsProperties(final String resource) throws IOException {
     ConcurrentProperties props = new ConcurrentProperties();
-
-    try (InputStream in = getResource(StringUtils.checkPropertiesName(resource)).getInputStream()) {
+    try (InputStream in = ResourceUtils.getResource(StringUtils.checkPropertiesName(resource)).getInputStream()) {
       props.load(in);
     }
 
@@ -353,8 +343,7 @@ public abstract class ContextUtils {
     if (methods.isEmpty()) {
       return BeanDefinition.EMPTY_METHOD;
     }
-
-    reversedSort(methods);
+    OrderUtils.reversedSort(methods);
     return methods.toArray(new Method[methods.size()]);
   }
 
@@ -435,7 +424,8 @@ public abstract class ContextUtils {
     for (final Field declaredField : ReflectionUtils.getFields(type)) {
       final Object converted = resolveProps(declaredField, nested, prefixs, properties);
       if (converted != null) {
-        propertySetters.add(new DefaultPropertySetter(converted, makeAccessible(declaredField)));
+        propertySetters.add(
+                new DefaultPropertySetter(converted, ReflectionUtils.makeAccessible(declaredField)));
       }
     }
     return propertySetters;
@@ -553,7 +543,7 @@ public abstract class ContextUtils {
     for (final Field declaredField : ReflectionUtils.getFields(bean)) {
       final Object converted = resolveProps(declaredField, nested, prefixs, properties);
       if (converted != null) {
-        ReflectionUtils.setField(makeAccessible(declaredField), bean, converted);
+        ReflectionUtils.setField(ReflectionUtils.makeAccessible(declaredField), bean, converted);
       }
     }
     return bean;
@@ -570,13 +560,13 @@ public abstract class ContextUtils {
    * @since 2.1.5
    */
   public static Properties loadProps(final Props props, final Properties applicationProps) {
-
     final Properties ret = new ConcurrentProperties();
     final String[] fileNames = props.value();
 
     final Properties propertiesToUse;
     if (fileNames.length == 0) {
-      propertiesToUse = requireNonNull(applicationProps);
+      Assert.notNull(applicationProps, "Application properties must not be null");
+      propertiesToUse = applicationProps;
     }
     else {
       propertiesToUse = new ConcurrentProperties();
@@ -647,15 +637,16 @@ public abstract class ContextUtils {
    * @return If matched
    */
   public static boolean passCondition(final AnnotatedElement annotated, final ApplicationContext context) {
-    final AnnotationAttributes[] attributes = getAnnotationAttributesArray(annotated, Conditional.class);
+    final AnnotationAttributes[] attributes =
+            ClassUtils.getAnnotationAttributesArray(annotated, Conditional.class);
     if (ObjectUtils.isEmpty(attributes)) {
       return true;
     }
     if (attributes.length == 1) {
-      return passCondition(annotated, context, attributes[0].getClassArray(VALUE));
+      return passCondition(annotated, context, attributes[0].getClassArray(Constant.VALUE));
     }
-    for (final AnnotationAttributes conditional : reversedSort(attributes)) {
-      if (!passCondition(annotated, context, conditional.getClassArray(VALUE))) {
+    for (final AnnotationAttributes conditional : OrderUtils.reversedSort(attributes)) {
+      if (!passCondition(annotated, context, conditional.getClassArray(Constant.VALUE))) {
         return false; // can't match
       }
     }
@@ -694,11 +685,10 @@ public abstract class ContextUtils {
       if (StringUtils.isEmpty(standardDef.getDeclaringName())) {
         throw new ConfigurationException("Declaring name can't be null in: " + standardDef);
       }
-      nonNull(standardDef.getFactoryMethod(), "Factory Method can't be null");
+      ConfigurationException.nonNull(standardDef.getFactoryMethod(), "Factory Method can't be null");
     }
-
-    nonNull(def.getName(), "Definition's bean name can't be null");
-    nonNull(def.getBeanClass(), "Definition's bean class can't be null");
+    ConfigurationException.nonNull(def.getName(), "Definition's bean name can't be null");
+    ConfigurationException.nonNull(def.getBeanClass(), "Definition's bean class can't be null");
 
     if (def.getDestroyMethods() == null) {
       def.setDestroyMethods(Constant.EMPTY_STRING_ARRAY);
@@ -769,7 +759,7 @@ public abstract class ContextUtils {
               || method.isAnnotationPresent(PreDestroy.class)) // PreDestroy
               && method.getParameterCount() == 0) { // 一个参数
         // fix: can not access a member @since 2.1.6
-        makeAccessible(method).invoke(obj);
+        ReflectionUtils.makeAccessible(method).invoke(obj);
       }
     }
 
@@ -810,13 +800,14 @@ public abstract class ContextUtils {
           final BeanDefinitionLoader beanDefinitionLoader
   ) {
 
-    final AnnotationAttributes[] componentAttributes = getAnnotationAttributesArray(beanClass, Component.class);
+    final AnnotationAttributes[] componentAttributes =
+            ClassUtils.getAnnotationAttributesArray(beanClass, Component.class);
     if (ObjectUtils.isEmpty(componentAttributes)) {
       return Collections.singletonList(beanDefinitionLoader.createBeanDefinition(defaultName, beanClass));
     }
     final ArrayList<BeanDefinition> ret = new ArrayList<>(componentAttributes.length);
     for (final AnnotationAttributes attributes : componentAttributes) {
-      for (final String name : findNames(defaultName, attributes.getStringArray(VALUE))) {
+      for (final String name : findNames(defaultName, attributes.getStringArray(Constant.VALUE))) {
         ret.add(beanDefinitionLoader.createBeanDefinition(name, beanClass, attributes));
       }
     }
@@ -867,8 +858,9 @@ public abstract class ContextUtils {
    *         If any {@link IOException} occurred
    */
   public static Set<Class<?>> loadFromMetaInfo(final String resource) {
+    Assert.notNull(resource, "META-INF resource must not be null");
 
-    if (requireNonNull(resource).startsWith("META-INF")) {
+    if (resource.startsWith("META-INF")) {
 
       final Set<Class<?>> ret = new HashSet<>();
       final ClassLoader classLoader = ClassUtils.getClassLoader();
@@ -935,8 +927,9 @@ public abstract class ContextUtils {
   }
 
   public static void setParameterResolvers(ExecutableParameterResolver... resolvers) {
+    Assert.notNull(resolvers, "ExecutableParameterResolvers must not null");
     synchronized(ContextUtils.class) {
-      parameterResolvers = reversedSort(nonNull(resolvers, "ExecutableParameterResolver must not null"));
+      parameterResolvers = OrderUtils.reversedSort(resolvers);
     }
   }
 
