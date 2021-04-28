@@ -25,7 +25,8 @@ import java.util.Properties;
 
 import javax.validation.MessageInterpolator;
 
-import cn.taketoday.context.env.Environment;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.context.utils.ContextUtils;
 
 /**
@@ -33,14 +34,10 @@ import cn.taketoday.context.utils.ContextUtils;
  * @since 3.0
  */
 public class ContextMessageInterpolator implements MessageInterpolator {
-  private final Properties variables;
+  private final ExpressionEvaluator expressionEvaluator;
 
-  public ContextMessageInterpolator(Environment environment) {
-    this(environment.getProperties());
-  }
-
-  public ContextMessageInterpolator(Properties variables) {
-    this.variables = variables;
+  public ContextMessageInterpolator(ApplicationContext context) {
+    this.expressionEvaluator = new ExpressionEvaluator(context);
   }
 
   /**
@@ -51,7 +48,7 @@ public class ContextMessageInterpolator implements MessageInterpolator {
    */
   @Override
   public String interpolate(String messageTemplate, MessageInterpolator.Context context) {
-    return ContextUtils.resolveValue(messageTemplate, String.class, variables);
+    return expressionEvaluator.evaluate(messageTemplate, String.class);
   }
 
   /**
@@ -62,7 +59,7 @@ public class ContextMessageInterpolator implements MessageInterpolator {
    */
   @Override
   public String interpolate(String messageTemplate, Context context, Locale locale) {
-    return ContextUtils.resolveValue(messageTemplate, String.class, variables);
+    return expressionEvaluator.evaluate(messageTemplate, String.class);
   }
 
 }

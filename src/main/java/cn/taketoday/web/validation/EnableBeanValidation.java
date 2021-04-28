@@ -30,10 +30,10 @@ import javax.validation.Configuration;
 import javax.validation.Validation;
 import javax.validation.spi.ValidationProvider;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.condition.ConditionalOnClass;
-import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.web.resolver.ParameterResolvers;
 
@@ -58,12 +58,12 @@ class BeanValidationConfig {
   @MissingBean
   @SuppressWarnings({ "unchecked", "rawtypes" })
   @ConditionalOnClass("org.hibernate.validator.HibernateValidator")
-  DefaultJavaxValidator hibernateValidator(Environment environment) {
+  DefaultJavaxValidator hibernateValidator(ApplicationContext context) {
     final Class<ValidationProvider> aClass = ClassUtils.loadClass("org.hibernate.validator.HibernateValidator");
 
     final Configuration hibernateValidatorConfig = Validation.byProvider(aClass)
             .configure()
-            .messageInterpolator(new ContextMessageInterpolator(environment))
+            .messageInterpolator(new ContextMessageInterpolator(context))
             .parameterNameProvider(new ContextParameterNameProvider());
 
     return new DefaultJavaxValidator(hibernateValidatorConfig);
