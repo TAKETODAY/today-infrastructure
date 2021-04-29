@@ -61,7 +61,6 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.WeakHashMap;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.Constant;
@@ -517,7 +516,7 @@ public abstract class ClassUtils {
       final BeanProperty beanProperty = metadata.getBeanProperty(name);
       if (beanProperty == null) {
         throw new ContextException(
-                "You Must Specify A Field: [" + name + "] In Class: [" + implClass.getName() + "]");
+                "You must specify a field: [" + name + "] in class: [" + implClass.getName() + "]");
       }
       beanProperty.setValue(instance, source.get(name));
     }
@@ -907,9 +906,10 @@ public abstract class ClassUtils {
     }
 
     protected final Method[] getDeclaredMethods() {
-      final Method[] ret = this.declaredMethods;
+      Method[] ret = this.declaredMethods;
       if (ret == null) {
-        return this.declaredMethods = ReflectionUtils.getDeclaredMethods(annotationType);
+        ret = ReflectionUtils.getDeclaredMethods(annotationType);
+        this.declaredMethods = ret;
       }
       return ret;
     }
@@ -917,6 +917,7 @@ public abstract class ClassUtils {
     @Override
     public Object get(final Method targetMethod) {
       final String name = targetMethod.getName();
+      final Annotation annotation = this.annotation;
       // In general there isn't lots of Annotation Attributes
       for (final Method method : getDeclaredMethods()) {
         if (method.getName().equals(name)
@@ -1394,23 +1395,28 @@ public abstract class ClassUtils {
     public final Map<Method, String[]> apply(final Class<?> declaringClass) {
       final HashMap<Method, String[]> map = new HashMap<>();
 
-      try (InputStream resourceAsStream = getClassLoader()
-              .getResourceAsStream(declaringClass.getName()
-                                           .replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR)
-                                           .concat(Constant.CLASS_FILE_SUFFIX))) {
+      final String classFile = declaringClass.getName()
+              .replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR)
+              .concat(Constant.CLASS_FILE_SUFFIX);
+
+      try (InputStream resourceAsStream = classLoader.getResourceAsStream(classFile)) {
 
         final ClassNode classVisitor = new ClassNode();
         new ClassReader(resourceAsStream).accept(classVisitor, 0);
 
         for (final MethodNode methodNode : classVisitor.methodNodes) {
-
           final Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
-          final Class<?>[] argTypes = new Class<?>[argumentTypes.length];
-          int i = 0;
-          for (final Type argumentType : argumentTypes) {
-            argTypes[i++] = forName(argumentType.getClassName());
+          Class<?>[] argTypes;
+          if (argumentTypes.length == 0) {
+            argTypes = null;
           }
-
+          else {
+            argTypes = new Class<?>[argumentTypes.length];
+            int idx = 0;
+            for (final Type argumentType : argumentTypes) {
+              argTypes[idx++] = forName(argumentType.getClassName());
+            }
+          }
           final Method method = ReflectionUtils.findMethod(declaringClass, methodNode.name, argTypes);
           if (method == null) {
             throw new NoSuchMethodException(
@@ -1423,13 +1429,16 @@ public abstract class ClassUtils {
             map.put(method, Constant.EMPTY_STRING_ARRAY);
             continue;
           }
-
+          final String[] paramNames = new String[parameterCount];
           if (Modifier.isAbstract(method.getModifiers()) || method.isBridge() || method.isSynthetic()) {
-            map.put(method, Stream.of(method.getParameters()).map(Parameter::getName).toArray(String[]::new));
+            int idx = 0;
+            for (final Parameter parameter : method.getParameters()) {
+              paramNames[idx++] = parameter.getName();
+            }
+            map.put(method, paramNames);
             continue;
           }
 
-          final String[] paramNames = new String[parameterCount];
           final LinkedList<LocalVariable> localVariables = methodNode.localVariables;
           if (localVariables.size() >= parameterCount) {
             int offset = Modifier.isStatic(method.getModifiers()) ? 0 : 1;
@@ -1450,8 +1459,8 @@ public abstract class ClassUtils {
               }
             }
             else {
-              for (i = 0; i < parameterCount; i++) {
-                paramNames[i] = localVariables.get(i + offset).name;
+              for (int idx = 0; idx < parameterCount; idx++) {
+                paramNames[idx] = localVariables.get(idx + offset).name;
               }
             }
           }
