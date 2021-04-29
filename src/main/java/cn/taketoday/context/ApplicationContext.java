@@ -85,49 +85,9 @@ public interface ApplicationContext
    * @param locations
    *         packages to scan
    *
-   * @deprecated use {@link #load(String...)}
-   */
-  @Deprecated
-  void loadContext(String... locations);
-
-  /**
-   * Load Application Context.
-   *
-   * <p>
-   * First of all, it will load all the properties files in the given path. If you
-   * use <b>""</b> instead of a exact path like <b>/config</b> ,it will load all
-   * the properties files in the application.
-   * </p>
-   * <p>
-   * And then locations parameter decided where to load the beans.
-   * </p>
-   * <p>
-   * when all the bean definition stores in the {@link BeanDefinitionRegistry}.
-   * then resolve dependency
-   * </p>
-   * <p>
-   * Then It will find all the bean post processor,and initialize it. Last refresh
-   * context.
-   * </p>
-   *
-   * @param locations
-   *         packages to scan
-   *
    * @since 3.0
    */
   void load(String... locations);
-
-  /**
-   * load context from given classes
-   *
-   * @param candidates
-   *         class set
-   *
-   * @since 2.1.2
-   * @deprecated use {@link #load(Collection)}
-   */
-  @Deprecated
-  void loadContext(Collection<Class<?>> candidates);
 
   /**
    * load context from given classes

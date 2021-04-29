@@ -117,11 +117,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   @Override
-  public void loadContext(Collection<Class<?>> candidates) {
-    load(candidates);
-  }
-
-  @Override
   public void load(Collection<Class<?>> candidates) {
     final Set<Class<?>> candidateSet;
     if (candidates instanceof Set) {
@@ -134,17 +129,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     getCandidateComponentScanner().setCandidates(candidateSet);
 
     load((String[]) null);
-  }
-
-  /**
-   * Load class with given package locations in class path
-   *
-   * @param locations
-   *         Given packages
-   */
-  @Override
-  public void loadContext(String... locations) {
-    load(locations);
   }
 
   @Override
