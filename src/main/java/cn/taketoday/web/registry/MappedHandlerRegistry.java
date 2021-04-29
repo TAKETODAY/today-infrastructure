@@ -51,9 +51,9 @@ import cn.taketoday.web.handler.PatternHandler;
  */
 public class MappedHandlerRegistry extends AbstractHandlerRegistry {
   /** @since 3.0 */
-  static final String CACHE_NAME = MappedHandlerRegistry.class.getName() + "pattern-matching";
+  static final String CACHE_NAME = MappedHandlerRegistry.class.getName() + "-pattern-matching";
 
-  private final Map<String, Object> handlers = new HashMap<>();
+  private final HashMap<String, Object> handlers = new HashMap<>();
   private List<PatternHandler> patternHandlers;
 
   private PathMatcher pathMatcher = new AntPathMatcher();

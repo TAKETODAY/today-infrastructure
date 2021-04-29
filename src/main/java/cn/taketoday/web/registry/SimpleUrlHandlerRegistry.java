@@ -21,6 +21,7 @@ package cn.taketoday.web.registry;
 
 /**
  * @author TODAY 2020/12/23 17:21
+ * @since 3.0
  */
 public class SimpleUrlHandlerRegistry extends AbstractUrlHandlerRegistry {
 
