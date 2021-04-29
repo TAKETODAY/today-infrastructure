@@ -16,7 +16,7 @@
 <dependency>
     <groupId>cn.taketoday</groupId>
     <artifactId>today-context</artifactId>
-    <version>2.1.6.RELEASE</version>
+    <version>3.0.0.RELEASE</version>
 </dependency>
 ```
 - [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-context/2.1.6.RELEASE/jar)
