@@ -586,8 +586,8 @@ public abstract class ContextUtils {
     final String[] prefixs = props.prefix();
     final boolean replace = props.replace();
 
-    for (Entry<Object, Object> entry : propertiesToUse.entrySet()) {
-      Object key_ = entry.getKey();
+    for (final Entry<Object, Object> entry : propertiesToUse.entrySet()) {
+      final Object key_ = entry.getKey();
       if (!(key_ instanceof String)) {
         continue;
       }

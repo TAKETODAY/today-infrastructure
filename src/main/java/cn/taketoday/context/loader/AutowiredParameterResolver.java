@@ -31,10 +31,8 @@ import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.StringUtils;
-
-import static cn.taketoday.context.utils.ContextUtils.loadProps;
-import static cn.taketoday.context.utils.ContextUtils.resolveProps;
 
 /**
  * Resolve {@link Autowired} on {@link Parameter}
@@ -92,9 +90,9 @@ public class AutowiredParameterResolver
 
   protected Object resolvePropsInternal(final Parameter parameter, final Props props, final Object bean) {
     if (bean != null) {
-      return resolveProps(props, bean, loadProps(props, System.getProperties()));
+      return ContextUtils.resolveProps(props, bean, ContextUtils.loadProps(props, System.getProperties()));
     }
-    return resolveProps(props, parameter.getType(), loadProps(props, System.getProperties()));
+    return ContextUtils.resolveProps(props, parameter.getType(), ContextUtils.loadProps(props, System.getProperties()));
   }
 
 }
