@@ -160,13 +160,9 @@ public abstract class ResourceUtils {
    * apply at the same directory level: relative path "dir2" -> "C:/dir2".
    */
   public static String getRelativePath(final String path, final String relativePath) {
-
     final int separatorIndex = path.lastIndexOf(PATH_SEPARATOR);
-
     if (separatorIndex > 0) {
-
       final StringBuilder newPath = new StringBuilder(path.substring(0, separatorIndex));
-
       if (relativePath.charAt(0) != PATH_SEPARATOR) {
         newPath.append(PATH_SEPARATOR);
       }
