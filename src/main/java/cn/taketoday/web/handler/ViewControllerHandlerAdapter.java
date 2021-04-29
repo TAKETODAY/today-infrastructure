@@ -41,7 +41,6 @@ public class ViewControllerHandlerAdapter extends AbstractHandlerAdapter {
 
   @Override
   public Object handle(final RequestContext context, final Object handler) throws Throwable {
-
     final ViewController view = (ViewController) handler;
 
     applyHttpStatus(context, view);

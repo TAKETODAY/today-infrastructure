@@ -309,12 +309,12 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
     }
 
     if (StringUtils.isNotEmpty(resource)) {
-      final StringBuilder resourceSb = //
+      final StringBuilder resourceAppender = //
               new StringBuilder(prefix.length() + resource.length() + suffix.length())
                       .append(prefix)
                       .append(resource)
                       .append(suffix);
-      resource = resolveVariables(resourceSb.toString());
+      resource = resolveVariables(resourceAppender.toString());
     }
     mapping.setResource(resource);
     { // @since 2.3.3
