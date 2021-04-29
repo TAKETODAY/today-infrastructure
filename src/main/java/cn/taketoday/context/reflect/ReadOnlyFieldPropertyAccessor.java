@@ -33,9 +33,8 @@ public class ReadOnlyFieldPropertyAccessor extends ReadOnlyPropertyAccessor {
   private final Method readMethod;
 
   public ReadOnlyFieldPropertyAccessor(Field field, Method readMethod) {
-    field.setAccessible(true);
-    this.field = field;
     this.readMethod = readMethod;
+    this.field = ReflectionUtils.makeAccessible(field);
   }
 
   @Override
