@@ -543,12 +543,12 @@ public abstract class ReflectionUtils {
       boolean knownSignature = false;
       Method methodBeingOverriddenWithCovariantReturnType = null;
       for (Method existingMethod : methods) {
-        if (method.getName().equals(existingMethod.getName()) &&
-                method.getParameterCount() == existingMethod.getParameterCount() &&
-                Arrays.equals(method.getParameterTypes(), existingMethod.getParameterTypes())) {
+        if (method.getName().equals(existingMethod.getName())
+                && method.getParameterCount() == existingMethod.getParameterCount()
+                && Arrays.equals(method.getParameterTypes(), existingMethod.getParameterTypes())) {
           // Is this a covariant return type situation?
-          if (existingMethod.getReturnType() != method.getReturnType() &&
-                  existingMethod.getReturnType().isAssignableFrom(method.getReturnType())) {
+          if (existingMethod.getReturnType() != method.getReturnType()
+                  && existingMethod.getReturnType().isAssignableFrom(method.getReturnType())) {
             methodBeingOverriddenWithCovariantReturnType = existingMethod;
           }
           else {
@@ -696,8 +696,8 @@ public abstract class ReflectionUtils {
     while (Object.class != searchType && searchType != null) {
       Field[] fields = getDeclaredFields(searchType);
       for (Field field : fields) {
-        if ((name == null || name.equals(field.getName())) &&
-                (type == null || type.equals(field.getType()))) {
+        if ((name == null || name.equals(field.getName()))
+                && (type == null || type.equals(field.getType()))) {
           return field;
         }
       }

@@ -1406,7 +1406,7 @@ public abstract class ClassUtils {
 
         for (final MethodNode methodNode : classVisitor.methodNodes) {
           final Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
-          Class<?>[] argTypes;
+          final Class<?>[] argTypes;
           if (argumentTypes.length == 0) {
             argTypes = null;
           }

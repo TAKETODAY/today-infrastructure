@@ -934,15 +934,11 @@ public abstract class ContextUtils {
   }
 
   public static void addParameterResolvers(ExecutableParameterResolver... resolvers) {
-
     if (ObjectUtils.isNotEmpty(resolvers)) {
-
       final List<ExecutableParameterResolver> newResolvers = new ArrayList<>();
-
       if (getParameterResolvers() != null) {
         Collections.addAll(newResolvers, getParameterResolvers());
       }
-
       Collections.addAll(newResolvers, resolvers);
       setParameterResolvers(newResolvers.toArray(new ExecutableParameterResolver[newResolvers.size()]));
     }
