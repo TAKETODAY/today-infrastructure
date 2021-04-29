@@ -5,10 +5,9 @@
   <groupId>cn.taketoday</groupId>
   <artifactId>today-context</artifactId>
   <!--
-      <version>3.0.0.RELEASE</version>
+    <version>latest</version>
   -->
-  <version>latest</version>
-
+  <version>3.0.0.RELEASE</version>
   <name>Today Context</name>
   <description>A Java library for dependency injection and aspect oriented programing.</description>
 
@@ -278,13 +277,11 @@
             </configuration>
           </plugin>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.6</version>
+            <groupId>org.simplify4u.plugins</groupId>
+            <artifactId>sign-maven-plugin</artifactId>
+            <version>0.3.1</version>
             <executions>
               <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
                 <goals>
                   <goal>sign</goal>
                 </goals>
