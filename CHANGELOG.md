@@ -17,12 +17,24 @@
 </dependency>
 ```
 
-- [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-context/2.1.7.RELEASE/jar)
+- [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-context/3.0.0.RELEASE/jar)
 
 # 当前版本
 
 ## v3.0.0（v2.1.7）
 
+>  2021-4-29
+- :sparkles: 新增 `BeanProperty` `BeanMetadata` 提供高性能访问对象属性
+- :zap: EL表达式 新增 handlePropertyNotResolved 极大的提高了扩展性
+- :hammer: 重构 Aop 引入了 Spring API
+- :sparkles: 对泛型的支持
+- :sparkles: `DataBinder` 
+- :sparkles: 添加 `BeanPropertyAccessor` 支持对对象属性的访问和设置
+- :hammer: 重构了整个转换器机制,引入 `ConversionService`
+- :hammer: 重构了 bean 初始化逻辑，提升了性能
+
+
+> ?
 - :bug: fix: loadBeanDefinition can't be catch exception
 - :bug: fix: ContextUtils#loadProps() only support String
 - :bug: fix: #11 JarEntryResource#getJarFilePath(String) jar file not found 
