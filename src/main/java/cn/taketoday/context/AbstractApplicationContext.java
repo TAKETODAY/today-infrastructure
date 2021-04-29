@@ -990,9 +990,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder(ObjectUtils.toHexString(this));
-    sb.append(": defining beans [");
-    sb.append(StringUtils.collectionToString(getBeanDefinitions().keySet()));
-    sb.append("], state: [");
+    sb.append(": state: [");
     sb.append(state);
     sb.append("], on startup date: ");
     sb.append(formatStartupDate());
