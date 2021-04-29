@@ -28,6 +28,7 @@ import java.util.Objects;
 
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.reflect.MethodInvoker;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
@@ -53,22 +54,22 @@ import cn.taketoday.web.view.ResultHandlers;
 public class HandlerMethod
         extends InterceptableRequestHandler implements HandlerAdapter, ResultHandler {
 
-  private Object bean; // controller bean
+  private final Object bean; // controller bean
   /** action **/
-  private Method method;
+  private final Method method;
   /** @since 2.3.7 */
-  private Class<?> returnType;
+  private final Class<?> returnType;
   private ResultHandler resultHandler;
   /** return type generic @since 2.3.7 */
   private Type[] generics;
-  private MethodInvoker handlerInvoker;
+  private final MethodInvoker handlerInvoker;
   /** parameter list **/
   private MethodParameter[] parameters;
 
   /** @since 3.0 */
   private ResponseStatus responseStatus;
 
-  /** @since 3.0 */
+  /** @since 3.0 @Produce */
   private String contentType;
 
   /** @since 3.0 */
@@ -83,19 +84,19 @@ public class HandlerMethod
   }
 
   public HandlerMethod(Object bean, Method method, List<HandlerInterceptor> interceptors) {
+    Assert.notNull(bean);
+    Assert.notNull(method);
     this.bean = bean;
     this.method = method;
     setInterceptors(interceptors);
 
-    if (method != null) {
-      this.returnType = method.getReturnType();
-      this.handlerInvoker = MethodInvoker.create(method);
-      setOrder(OrderUtils.getOrder(method) + OrderUtils.getOrder(bean));
-      // @since 3.0
-      final Produce produce = getMethodAnnotation(Produce.class);
-      if (produce != null) {
-        setContentType(produce.value());
-      }
+    this.returnType = method.getReturnType();
+    this.handlerInvoker = MethodInvoker.create(method);
+    setOrder(OrderUtils.getOrder(method) + OrderUtils.getOrder(bean));
+    // @since 3.0
+    final Produce produce = getMethodAnnotation(Produce.class);
+    if (produce != null) {
+      setContentType(produce.value());
     }
 
     setResponseStatus(WebUtils.getResponseStatus(this));
@@ -139,9 +140,14 @@ public class HandlerMethod
   public Type[] getGenerics() {
     Type[] generics = this.generics;
     if (generics == null) {
-      generics = ClassUtils.getGenerics(returnType);
-      if (generics == null) {
+      if (returnType == null) {
         generics = Constant.EMPTY_CLASS_ARRAY;
+      }
+      else {
+        generics = ClassUtils.getGenerics(returnType);
+        if (generics == null) {
+          generics = Constant.EMPTY_CLASS_ARRAY;
+        }
       }
       this.generics = generics;
     }
@@ -218,10 +224,6 @@ public class HandlerMethod
     return method;
   }
 
-  public void setMethod(Method method) {
-    this.method = method;
-  }
-
   public MethodParameter[] getParameters() {
     return parameters;
   }
@@ -234,19 +236,11 @@ public class HandlerMethod
     return returnType;
   }
 
-  public void setReturnType(Class<?> returnType) {
-    this.returnType = returnType;
-  }
-
   /**
    * Get The {@link Controller} object
    */
   public Object getBean() {
     return bean;
-  }
-
-  public void setBean(Object bean) {
-    this.bean = bean;
   }
 
   public ResponseStatus getResponseStatus() {
@@ -259,10 +253,6 @@ public class HandlerMethod
 
   public MethodInvoker getHandlerInvoker() {
     return handlerInvoker;
-  }
-
-  public void setHandlerInvoker(MethodInvoker handlerInvoker) {
-    this.handlerInvoker = handlerInvoker;
   }
 
   public void setGenerics(Type[] generics) {
@@ -306,16 +296,16 @@ public class HandlerMethod
 
   @Override
   protected Object handleInternal(final RequestContext context) throws Throwable {
-    final MethodParameter[] parameters = getParameters();
+    final MethodParameter[] parameters = this.parameters;
     if (ObjectUtils.isEmpty(parameters)) {
-      return handlerInvoker.invoke(getBean(), null);
+      return handlerInvoker.invoke(bean, null);
     }
     final Object[] args = new Object[parameters.length];
     int i = 0;
     for (final MethodParameter parameter : parameters) {
       args[i++] = parameter.resolveParameter(context);
     }
-    return handlerInvoker.invoke(getBean(), args);
+    return handlerInvoker.invoke(bean, args);
   }
 
   @Override
@@ -356,9 +346,6 @@ public class HandlerMethod
 
   @Override
   public String toString() {
-    if (method == null) {
-      return super.toString();
-    }
     final Class<?> declaringClass = method.getDeclaringClass();
     final String simpleName = declaringClass.getSimpleName();
 
