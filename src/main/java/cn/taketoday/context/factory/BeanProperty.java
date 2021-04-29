@@ -96,12 +96,14 @@ public class BeanProperty extends AbstractAnnotatedElement {
    * @return new object
    */
   public Object newInstance(final Object[] args) {
+    ConstructorAccessor constructor = this.constructor;
     if (constructor == null) {
       final Class<?> fieldType = this.fieldType;
       if (ClassUtils.primitiveTypes.contains(fieldType)) {
         throw new BeanInstantiationException(fieldType, "Cannot be instantiated a simple type");
       }
       constructor = ReflectionUtils.newConstructorAccessor(fieldType);
+      this.constructor = constructor;
     }
     return constructor.newInstance(args);
   }
@@ -141,9 +143,11 @@ public class BeanProperty extends AbstractAnnotatedElement {
     return conversionService.convert(value, requiredType);
   }
 
-  PropertyAccessor obtainAccessor() {
+  private PropertyAccessor obtainAccessor() {
+    PropertyAccessor propertyAccessor = this.propertyAccessor;
     if (propertyAccessor == null) {
       propertyAccessor = ReflectionUtils.newPropertyAccessor(field);
+      this.propertyAccessor = propertyAccessor;
     }
     return propertyAccessor;
   }
@@ -175,8 +179,10 @@ public class BeanProperty extends AbstractAnnotatedElement {
   //
 
   public Type[] getGenerics() {
+    Type[] genericClass = this.genericClass;
     if (genericClass == null) {
-      this.genericClass = ClassUtils.getGenericTypes(field);
+      genericClass = ClassUtils.getGenericTypes(field);
+      this.genericClass = genericClass;
     }
     return genericClass;
   }
