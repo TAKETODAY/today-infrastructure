@@ -21,6 +21,8 @@ package cn.taketoday.context.reflect;
 
 import java.util.function.Supplier;
 
+import cn.taketoday.context.utils.SingletonSupplier;
+
 /**
  * @author TODAY
  * 2020/9/20 20:41
@@ -31,7 +33,7 @@ public class MethodAccessorBeanConstructor<T>
   private final Supplier<Object> obj;
 
   public MethodAccessorBeanConstructor(MethodAccessor accessor, Object obj) {
-    this(accessor, () -> obj);
+    this(accessor, SingletonSupplier.of(obj));
   }
 
   public MethodAccessorBeanConstructor(MethodAccessor accessor, Supplier<Object> obj) {
