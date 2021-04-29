@@ -61,11 +61,8 @@ import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
+import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.StringUtils;
-
-import static cn.taketoday.context.utils.ContextUtils.resolveParameter;
-import static cn.taketoday.context.utils.ReflectionUtils.makeAccessible;
-import static java.util.Objects.requireNonNull;
 
 /**
  * @author TODAY <br>
@@ -440,7 +437,8 @@ public abstract class AbstractBeanFactory
       for (final Method method : def.getInitMethods()) { /*never be null*/
         try {
           //method.setAccessible(true); // fix: can not access a member
-          final Object[] args = resolveParameter(makeAccessible(method), this);
+          ReflectionUtils.makeAccessible(method);
+          final Object[] args = ContextUtils.resolveParameter(method, this);
           method.invoke(bean, args);
         }
         catch (Exception e) {
@@ -931,11 +929,11 @@ public abstract class AbstractBeanFactory
    * Reflective InvocationHandler for lazy access to the current target object.
    */
   public static class ObjectFactoryDelegatingHandler implements InvocationHandler {
-
     private final ObjectFactory<?> objectFactory;
 
     public ObjectFactoryDelegatingHandler(ObjectFactory<?> objectFactory) {
-      this.objectFactory = requireNonNull(objectFactory);
+      Assert.notNull(objectFactory, "objectFactory must not be null");
+      this.objectFactory = objectFactory;
     }
 
     @Override

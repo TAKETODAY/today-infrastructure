@@ -185,16 +185,6 @@ public abstract class ClassUtils {
     return classLoader;
   }
 
-  /**
-   * get all classes loaded in class path
-   *
-   * @deprecated Deprecated in 2.1.7 High scan performance without caching
-   */
-  @Deprecated
-  public static Set<Class<?>> getClassCache() {
-    return scan(Constant.BLANK);
-  }
-
   // ------------------------------------------ Class Scan
 
   /**
@@ -1253,54 +1243,6 @@ public abstract class ClassUtils {
   }
 
   // --------------------------------- Field
-
-  /**
-   * Get bean instance's {@link Field}
-   *
-   * @param target
-   *         target instance
-   *
-   * @return all {@link Field}
-   *
-   * @since 2.1.5
-   * @deprecated use {@link ReflectionUtils#getFields(Object)}
-   */
-  @Deprecated
-  public static Collection<Field> getFields(Object target) {
-    return ReflectionUtils.getFields(target);
-  }
-
-  /**
-   * Get all {@link Field} list
-   *
-   * @param targetClass
-   *         target class
-   *
-   * @return get all the {@link Field}
-   *
-   * @since 2.1.2
-   * @deprecated use {@link ReflectionUtils#getFields(Class)}
-   */
-  @Deprecated
-  public static Collection<Field> getFields(Class<?> targetClass) {
-    return ReflectionUtils.getFields(targetClass);
-  }
-
-  /**
-   * Get all {@link Field} array
-   *
-   * @param targetClass
-   *         target class
-   *
-   * @return get all the {@link Field} array
-   *
-   * @since 2.1.2
-   * @deprecated use {@link ReflectionUtils#getFieldArray(Class)}
-   */
-  @Deprecated
-  public static Field[] getFieldArray(Class<?> targetClass) {
-    return ReflectionUtils.getFieldArray(targetClass);
-  }
 
   // Generics
 
