@@ -78,6 +78,8 @@ import cn.taketoday.context.exception.BeanInstantiationException;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
+import cn.taketoday.context.factory.BeanMetadata;
+import cn.taketoday.context.factory.BeanProperty;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 
@@ -508,16 +510,16 @@ public abstract class ClassUtils {
   public static <A> A injectAttributes(final AnnotationAttributes source,
                                        final Class<?> annotationClass, final A instance) {
     final Class<?> implClass = instance.getClass();
+    final BeanMetadata metadata = BeanMetadata.ofClass(implClass);
     for (final Method method : annotationClass.getDeclaredMethods()) {
       // method name must == field name
       final String name = method.getName();
-      final Field field = ReflectionUtils.findField(implClass, name);
-      if (field == null) {
+      final BeanProperty beanProperty = metadata.getBeanProperty(name);
+      if (beanProperty == null) {
         throw new ContextException(
                 "You Must Specify A Field: [" + name + "] In Class: [" + implClass.getName() + "]");
       }
-      ReflectionUtils.makeAccessible(field);
-      ReflectionUtils.setField(field, instance, source.get(name));
+      beanProperty.setValue(instance, source.get(name));
     }
     return instance;
   }
