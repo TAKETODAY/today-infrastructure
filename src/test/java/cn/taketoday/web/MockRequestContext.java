@@ -83,8 +83,9 @@ public class MockRequestContext extends RequestContext {
     return null;
   }
 
-  @Override public String getContentType() {
-    return null;
+  @Override
+  public String getContentType() {
+    return responseHeaders().getContentType().toString();
   }
 
   @Override protected HttpHeaders createRequestHeaders() {
