@@ -78,6 +78,7 @@ import cn.taketoday.framework.config.ErrorPage;
 import cn.taketoday.framework.config.JspServletConfiguration;
 import cn.taketoday.framework.config.MimeMappings;
 import cn.taketoday.framework.config.WebDocumentConfiguration;
+import cn.taketoday.web.session.SessionConfiguration;
 import cn.taketoday.web.session.SessionCookieConfiguration;
 import lombok.Getter;
 import lombok.Setter;
@@ -479,7 +480,11 @@ public class TomcatServer extends AbstractServletWebServer {
     for (MimeMappings.Mapping mapping : mimeMappings) {
       context.addMimeMapping(mapping.getExtension(), mapping.getMimeType());
     }
-    configureSession(context);
+    // internal servlet HttpSession settings
+    final SessionConfiguration sessionConfig = getSessionConfig();
+    if (sessionConfig != null && sessionConfig.isEnableHttpSession()) {
+      configureSession(context, sessionConfig);
+    }
   }
 
   protected void configureWelcomePages(Context context) {
@@ -512,9 +517,9 @@ public class TomcatServer extends AbstractServletWebServer {
     }
   }
 
-  protected void configureSession(Context context) {
-    context.setSessionTimeout(getSessionTimeoutInMinutes());
-    final SessionCookieConfiguration cookieConfig = getSessionConfig().getCookieConfig();
+  protected void configureSession(Context context, SessionConfiguration sessionConfig) {
+    context.setSessionTimeout(getSessionTimeoutInMinutes(sessionConfig));
+    final SessionCookieConfiguration cookieConfig = sessionConfig.getCookieConfig();
     if (cookieConfig != null) {
       context.setUseHttpOnly(cookieConfig.isHttpOnly());
     }
@@ -528,7 +533,7 @@ public class TomcatServer extends AbstractServletWebServer {
       context.setManager(manager);
     }
 
-    if (getSessionConfig().isPersistent()) {
+    if (sessionConfig.isPersistent()) {
       configurePersistSession(manager);
     }
     else {
@@ -544,8 +549,8 @@ public class TomcatServer extends AbstractServletWebServer {
     }
   }
 
-  protected int getSessionTimeoutInMinutes() {
-    Duration sessionTimeout = getSessionConfig().getTimeout();
+  protected int getSessionTimeoutInMinutes(SessionConfiguration sessionConfig) {
+    Duration sessionTimeout = sessionConfig.getTimeout();
     if (isZeroOrLess(sessionTimeout)) {
       return 0;
     }
