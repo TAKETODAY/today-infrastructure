@@ -22,11 +22,9 @@ package cn.taketoday.web.session;
 import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
 
-import cn.taketoday.web.Constant;
-
 /**
  * @author TODAY <br>
- *         2019-09-28 10:31
+ * 2019-09-28 10:31
  */
 public class RedissonSessionStorage
         extends AbstractWebSessionStorage implements WebSessionStorage {
@@ -41,7 +39,7 @@ public class RedissonSessionStorage
   }
 
   public RedissonSessionStorage(RedissonClient redisson) {
-    this(3600_000, Constant.BLANK, redisson.getMapCache("sessions"));
+    this(3600_000, null, redisson.getMapCache("sessions"));
   }
 
   public RedissonSessionStorage(long expire) {
@@ -56,6 +54,10 @@ public class RedissonSessionStorage
 
   @Override
   protected String computeId(String id) {
+    final String prefix = this.prefix;
+    if (prefix == null) {
+      return id;
+    }
     return prefix.concat(id);
   }
 
