@@ -23,16 +23,19 @@ package cn.taketoday.web.handler;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.Required;
 import cn.taketoday.context.utils.MediaType;
 import cn.taketoday.web.MockRequestContext;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Produce;
-import cn.taketoday.web.annotation.RequestParam;
+import cn.taketoday.web.annotation.ResponseStatus;
+import cn.taketoday.web.http.HttpStatus;
+import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resolver.ParameterResolvers;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import cn.taketoday.web.view.ResultHandlers;
@@ -55,11 +58,8 @@ public class HandlerMethodTests {
 
   }
 
-  public void isRequired(@Required String name, @RequestParam(value = "myAge", required = true) int age) {
-
-  }
-
-  public void getGenerics(List<String> names, Map<String, Integer> map, String name) {
+  @ResponseStatus(HttpStatus.CREATED)
+  public void responseStatus() {
 
   }
 
@@ -77,6 +77,20 @@ public class HandlerMethodTests {
   }
 
   @Test
+  public void testResponseStatus() throws Throwable {
+    final Method method = HandlerMethodTests.class.getDeclaredMethod("responseStatus");
+    final HandlerMethod handlerMethod = HandlerMethod.create(new HandlerMethodTests(), method);
+    final HandlerMethodRequestContext context = new HandlerMethodRequestContext(null);
+
+    final StandardApplicationContext applicationContext = getApplicationContext();
+    setResultHandlers(handlerMethod, applicationContext);
+
+    handlerMethod.handleResult(context, handlerMethod, null);
+    final int status = context.getStatus();
+    assertThat(status).isEqualTo(HttpStatus.CREATED.value());
+  }
+
+  @Test
   public void testSimple() throws Throwable {
     final Method method = HandlerMethodTests.class.getDeclaredMethod("method", String.class);
     final HandlerMethod handlerMethod = HandlerMethod.create(new HandlerMethodTests(), method);
@@ -86,15 +100,16 @@ public class HandlerMethodTests {
     assertThat(handlerMethod.getHandlerInvoker()).isNotNull();
     assertThat(handlerMethod.getReturnType()).isEqualTo(method.getReturnType()).isEqualTo(void.class);
     assertThat(handlerMethod.getContentType()).isNull();
+    assertThat(handlerMethod.getInterceptors()).isNull();
 
     // produce
     final Method produce = HandlerMethodTests.class.getDeclaredMethod("produce", String.class);
-    final HandlerMethod produceMethod = HandlerMethod.create(new HandlerMethodTests(), produce);
+    final HandlerMethodTests bean = new HandlerMethodTests();
+    final HandlerMethod produceMethod = HandlerMethod.create(bean, produce);
     assertThat(produceMethod.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
 
     final Map<String, String[]> params = new HashMap<String, String[]>() {
       {
-        put("age", "20");
         put("name", "TODAY");
       }
 
@@ -105,8 +120,7 @@ public class HandlerMethodTests {
 
     final HandlerMethodRequestContext context = new HandlerMethodRequestContext(params);
 
-    final StandardApplicationContext applicationContext = new StandardWebServletApplicationContext();
-    applicationContext.load("cn.taketoday.web.handler");
+    final StandardApplicationContext applicationContext = getApplicationContext();
 
     final MethodParameterBuilder methodParameterBuilder = new MethodParameterBuilder();
     final ParameterResolvers parameterResolvers = methodParameterBuilder.getParameterResolvers();
@@ -117,18 +131,64 @@ public class HandlerMethodTests {
     produceMethod.setParameters(parameters);
 
     final Object retValue = produceMethod.handle(context, null);
+    produceMethod.invokeHandler(context);
+
+    setResultHandlers(produceMethod, applicationContext);
+
+    produceMethod.handleResult(context, null, retValue); // apply content-type
     assertThat(retValue).isNull();
 
+    final String contentType = context.getContentType();
+    assertThat(contentType).isEqualTo(produceMethod.getContentType());
+
+    //
+    assertThat(bean).isEqualTo(produceMethod.getBean());
+    assertThat(produceMethod).isNotEqualTo(handlerMethod);
+
+    //
+
+    List<String> testList = new ArrayList<>();
+    produceMethod.setInterceptors(new HandlerInterceptor0(testList));
+    produceMethod.handle(context, null);
+    assertThat(testList).hasSize(1);
+    assertThat(testList.get(0)).isEqualTo(produceMethod.getContentType());
+
+    //
+    assertThat(produceMethod).hasToString("HandlerMethodTests#produce(String name)");
+  }
+
+  private StandardApplicationContext getApplicationContext() {
+    final StandardApplicationContext applicationContext = new StandardWebServletApplicationContext();
+    applicationContext.load("cn.taketoday.web.handler");
+    return applicationContext;
+  }
+
+  private void setResultHandlers(HandlerMethod produceMethod, StandardApplicationContext applicationContext) {
     final ResultHandlers resultHandlers = new ResultHandlers();
     final DefaultTemplateViewResolver viewResolver = new DefaultTemplateViewResolver();
     resultHandlers.setApplicationContext(applicationContext);
     resultHandlers.registerDefaultResultHandlers(viewResolver);
     produceMethod.setResultHandlers(resultHandlers);
-
-    produceMethod.handleResult(context, null, retValue);
-
-    final String contentType = context.getContentType();
-
-    assertThat(contentType).isEqualTo(produceMethod.getContentType());
   }
+
+  static class HandlerInterceptor0 implements HandlerInterceptor {
+
+    final List<String> testList;
+
+    HandlerInterceptor0(List<String> testList) {
+      this.testList = testList;
+    }
+
+    @Override
+    public boolean beforeProcess(RequestContext context, Object handler) throws Throwable {
+      testList.add(context.getContentType());
+      return true;
+    }
+
+    @Override
+    public void afterProcess(RequestContext context, Object handler, Object result) throws Throwable {
+
+    }
+  }
+
 }
