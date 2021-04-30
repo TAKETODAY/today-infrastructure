@@ -521,7 +521,7 @@ public class JettyServer
     private ServletWebServerApplicationLoader starter;
 
     public ServletContextInitializerConfiguration(final Supplier<List<WebApplicationInitializer>> initializersSupplier) {
-      this.starter = new ServletWebServerApplicationLoader(initializersSupplier);
+      this.starter = new ServletWebServerApplicationLoader(obtainApplicationContext(), initializersSupplier);
     }
 
     @Override
@@ -539,7 +539,6 @@ public class JettyServer
 
       @Override
       protected void doStart() {
-        starter.setApplicationContext(obtainApplicationContext());
 
         final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(this.context.getClassLoader());

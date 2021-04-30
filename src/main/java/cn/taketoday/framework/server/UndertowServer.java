@@ -183,8 +183,7 @@ public class UndertowServer
   protected DeploymentManager createDeploymentManager() {
     final DeploymentInfo deployment = Servlets.deployment();
     final ServletWebServerApplicationLoader starter = //
-            new ServletWebServerApplicationLoader(this::getMergedInitializers);
-    starter.setApplicationContext(obtainApplicationContext());
+            new ServletWebServerApplicationLoader(obtainApplicationContext(), this::getMergedInitializers);
     // 添加 ApplicationLoader
     deployment.addServletContainerInitializer(
             new ServletContainerInitializerInfo(ServletWebServerApplicationLoader.class,

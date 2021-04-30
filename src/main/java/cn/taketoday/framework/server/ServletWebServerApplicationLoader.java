@@ -22,6 +22,7 @@ package cn.taketoday.framework.server;
 import java.util.List;
 import java.util.function.Supplier;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.servlet.WebServletApplicationLoader;
@@ -34,8 +35,9 @@ public class ServletWebServerApplicationLoader extends WebServletApplicationLoad
 
   private Supplier<List<WebApplicationInitializer>> initializersSupplier;
 
-  public ServletWebServerApplicationLoader(Supplier<List<WebApplicationInitializer>> initializersSupplier) {
+  public ServletWebServerApplicationLoader(ApplicationContext context, Supplier<List<WebApplicationInitializer>> initializersSupplier) {
     this.initializersSupplier = initializersSupplier;
+    setApplicationContext(context);
   }
 
   @Override
