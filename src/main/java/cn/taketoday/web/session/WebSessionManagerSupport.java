@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,44 +17,38 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.session;
 
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.OrderedSupport;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.ParameterResolver;
 
 /**
- * @author TODAY <br>
- * 2019-09-27 22:36
+ * @author TODAY 2021/4/30 23:01
+ * @since 3.0
  */
-public class WebSessionParameterResolver
-        extends WebSessionManagerSupport implements ParameterResolver, Ordered {
+public class WebSessionManagerSupport {
+  private final WebSessionManager sessionManager;
 
-  private final OrderedSupport ordered = new OrderedSupport();
-
-  public WebSessionParameterResolver(WebSessionManager sessionManager) {
-    super(sessionManager);
+  public WebSessionManagerSupport(WebSessionManager sessionManager) {
+    Assert.notNull(sessionManager, "sessionManager must not be null");
+    this.sessionManager = sessionManager;
   }
 
-  @Override
-  public boolean supports(MethodParameter parameter) {
-    return parameter.isAssignableTo(WebSession.class);
+  public WebSessionManager getSessionManager() {
+    return sessionManager;
   }
 
-  @Override
-  public Object resolveParameter(RequestContext context, MethodParameter parameter) {
-    return getSession(context);
+  public WebSession getSession(RequestContext context) {
+    return getSessionManager().getSession(context);
   }
 
-  @Override
-  public int getOrder() {
-    return ordered.getOrder();
+  public Object getAttribute(WebSession session, String name) {
+    return session.getAttribute(name);
   }
 
-  public void setOrder(int order) {
-    ordered.setOrder(order);
+  public Object getAttribute(RequestContext context, String name) {
+    return getAttribute(getSession(context), name);
   }
 
 }

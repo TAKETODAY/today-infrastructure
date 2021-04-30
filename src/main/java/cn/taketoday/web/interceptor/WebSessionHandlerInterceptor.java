@@ -19,37 +19,17 @@
  */
 package cn.taketoday.web.interceptor;
 
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.session.WebSession;
 import cn.taketoday.web.session.WebSessionManager;
+import cn.taketoday.web.session.WebSessionManagerSupport;
 
 /**
  * @author TODAY <br>
  * 2020-04-20 20:58
  */
-public abstract class WebSessionHandlerInterceptor implements HandlerInterceptor {
-  private final WebSessionManager sessionManager;
+public abstract class WebSessionHandlerInterceptor extends WebSessionManagerSupport implements HandlerInterceptor {
 
   public WebSessionHandlerInterceptor(WebSessionManager sessionManager) {
-    Assert.notNull(sessionManager, "sessionManager must not be null");
-    this.sessionManager = sessionManager;
-  }
-
-  public WebSessionManager getSessionManager() {
-    return sessionManager;
-  }
-
-  public WebSession getSession(RequestContext context) {
-    return getSessionManager().getSession(context);
-  }
-
-  public Object getAttribute(WebSession session, String name) {
-    return session.getAttribute(name);
-  }
-
-  public Object getAttribute(RequestContext context, String name) {
-    return getAttribute(getSession(context), name);
+    super(sessionManager);
   }
 
 }
