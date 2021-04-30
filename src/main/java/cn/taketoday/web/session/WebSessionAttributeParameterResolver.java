@@ -30,7 +30,7 @@ import cn.taketoday.web.resolver.OrderedParameterResolver;
  * @author TODAY <br>
  * 2019-09-27 22:42
  */
-public class WebSessionAttributeParameterResolver
+public final class WebSessionAttributeParameterResolver
         extends AbstractParameterResolver implements OrderedParameterResolver {
 
   private final WebSessionManager sessionManager;
@@ -46,7 +46,7 @@ public class WebSessionAttributeParameterResolver
   }
 
   @Override
-  protected final Object resolveInternal(
+  protected Object resolveInternal(
           final RequestContext context, final MethodParameter parameter) throws Throwable {
     final WebSession session = sessionManager.getSession(context, false);
     if (session == null) {
