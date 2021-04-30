@@ -30,7 +30,10 @@ import cn.taketoday.context.io.Resource;
  */
 public class SessionConfiguration {
 
-  private boolean enable = true;
+  /**
+   * enable {@link javax.servlet.http.HttpSession}?
+   */
+  private boolean enableHttpSession = false;
   private boolean persistent = true;
 
   /** Directory used to store session data. */
@@ -46,8 +49,8 @@ public class SessionConfiguration {
     this.cookieConfig = cookieConfig;
   }
 
-  public boolean isEnable() {
-    return enable;
+  public boolean isEnableHttpSession() {
+    return enableHttpSession;
   }
 
   public boolean isPersistent() {
@@ -58,8 +61,8 @@ public class SessionConfiguration {
     this.cookieConfig = cookieConfig;
   }
 
-  public void setEnable(boolean enable) {
-    this.enable = enable;
+  public void setEnableHttpSession(boolean enableHttpSession) {
+    this.enableHttpSession = enableHttpSession;
   }
 
   public void setPersistent(boolean persistent) {
