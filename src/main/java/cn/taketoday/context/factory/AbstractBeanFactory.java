@@ -903,6 +903,7 @@ public abstract class AbstractBeanFactory
   }
 
   protected Object createObjectFactoryDependencyProxy(final Class<?> type, final ObjectFactory<?> objectFactory) {
+    // fixed @since 3.0.1
     final ProxyFactory proxyFactory = createProxyFactory();
     proxyFactory.setTargetSource(new ObjectFactoryTargetSource(objectFactory, type));
     proxyFactory.addAdvice(NOP);

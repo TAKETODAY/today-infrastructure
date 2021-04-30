@@ -101,7 +101,7 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
 
     // current method start
     int modifiers = method.getModifiers();
-    if (Modifier.isAbstract(modifiers)) {
+    if (Modifier.isAbstract(modifiers)) { // fixed @since 3.0.1
       modifiers = modifiers - Modifier.ABSTRACT;
     }
     final CodeEmitter codeEmitter = EmitUtils.beginMethod(classEmitter, methodInfo, modifiers);
