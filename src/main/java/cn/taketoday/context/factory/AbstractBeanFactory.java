@@ -19,11 +19,11 @@
  */
 package cn.taketoday.context.factory;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,6 +37,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import cn.taketoday.aop.TargetSource;
+import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Component;
@@ -94,6 +96,8 @@ public abstract class AbstractBeanFactory
 
   /** Indicates whether any InstantiationAwareBeanPostProcessors have been registered.  @since 3.0 */
   private boolean hasInstantiationAwareBeanPostProcessors;
+  /** @since 3.0 */
+  private static final MethodInterceptor NOP = MethodInvocation::proceed;
 
   @Override
   public Object getBean(final String name) {
@@ -899,8 +903,39 @@ public abstract class AbstractBeanFactory
   }
 
   protected Object createObjectFactoryDependencyProxy(final Class<?> type, final ObjectFactory<?> objectFactory) {
-    return Proxy.newProxyInstance(type.getClassLoader(), new Class[] { type },
-                                  new ObjectFactoryDelegatingHandler(objectFactory));
+    final ProxyFactory proxyFactory = createProxyFactory();
+    proxyFactory.setTargetSource(new ObjectFactoryTargetSource(objectFactory, type));
+    proxyFactory.addAdvice(NOP);
+    return proxyFactory.getProxy(type.getClassLoader());
+  }
+
+  protected ProxyFactory createProxyFactory() {
+    return new ProxyFactory();
+  }
+
+  static class ObjectFactoryTargetSource implements TargetSource {
+    private final ObjectFactory<?> objectFactory;
+    final Class<?> targetType;
+
+    ObjectFactoryTargetSource(ObjectFactory<?> objectFactory, Class<?> targetType) {
+      this.targetType = targetType;
+      this.objectFactory = objectFactory;
+    }
+
+    @Override
+    public Class<?> getTargetClass() {
+      return targetType;
+    }
+
+    @Override
+    public boolean isStatic() {
+      return true;
+    }
+
+    @Override
+    public Object getTarget() throws Exception {
+      return objectFactory.getObject();
+    }
   }
 
   /**
@@ -923,40 +958,6 @@ public abstract class AbstractBeanFactory
 
   public void setObjectFactories(Map<Class<?>, Object> objectFactories) {
     this.objectFactories = objectFactories;
-  }
-
-  /**
-   * Reflective InvocationHandler for lazy access to the current target object.
-   */
-  public static class ObjectFactoryDelegatingHandler implements InvocationHandler {
-    private final ObjectFactory<?> objectFactory;
-
-    public ObjectFactoryDelegatingHandler(ObjectFactory<?> objectFactory) {
-      Assert.notNull(objectFactory, "objectFactory must not be null");
-      this.objectFactory = objectFactory;
-    }
-
-    @Override
-    public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-      switch (method.getName()) {
-        case "equals":
-          // Only consider equal when proxies are identical.
-          return (proxy == args[0]);
-        case "hashCode":
-          // Use hashCode of proxy.
-          return System.identityHashCode(proxy);
-        case "toString":
-          return this.objectFactory.toString();
-        default:
-          break;
-      }
-      try {
-        return method.invoke(objectFactory.getObject(), args);
-      }
-      catch (InvocationTargetException ex) {
-        throw ex.getTargetException();
-      }
-    }
   }
 
   // ---------------------------------------

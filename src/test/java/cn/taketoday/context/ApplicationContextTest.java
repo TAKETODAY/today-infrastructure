@@ -69,9 +69,7 @@ public class ApplicationContextTest {
 
   static String toString(AbstractApplicationContext context) {
     StringBuilder sb = new StringBuilder(ObjectUtils.toHexString(context));
-    sb.append(": defining beans [");
-    sb.append(StringUtils.collectionToString(context.getBeanDefinitions().keySet()));
-    sb.append("], state: [");
+    sb.append(": state: [");
     sb.append(context.getState());
     sb.append("], on startup date: ");
     sb.append(context.formatStartupDate());
