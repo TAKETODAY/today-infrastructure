@@ -35,12 +35,16 @@ public class WebSessionManagerSupport {
     this.sessionManager = sessionManager;
   }
 
-  public WebSessionManager getSessionManager() {
+  public final WebSessionManager getSessionManager() {
     return sessionManager;
   }
 
   public WebSession getSession(RequestContext context) {
-    return getSessionManager().getSession(context);
+    return sessionManager.getSession(context);
+  }
+
+  public WebSession getSession(RequestContext context, boolean create) {
+    return sessionManager.getSession(context, create);
   }
 
   public Object getAttribute(WebSession session, String name) {
@@ -48,7 +52,11 @@ public class WebSessionManagerSupport {
   }
 
   public Object getAttribute(RequestContext context, String name) {
-    return getAttribute(getSession(context), name);
+    final WebSession session = getSession(context, false);
+    if (session != null) {
+      return getAttribute(session, name);
+    }
+    return null;
   }
 
 }
