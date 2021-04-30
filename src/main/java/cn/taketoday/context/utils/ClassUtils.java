@@ -1350,7 +1350,7 @@ public abstract class ClassUtils {
           final Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
           final Class<?>[] argTypes;
           if (argumentTypes.length == 0) {
-            argTypes = null;
+            argTypes = Constant.EMPTY_CLASS_ARRAY;
           }
           else {
             argTypes = new Class<?>[argumentTypes.length];
