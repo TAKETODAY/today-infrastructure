@@ -22,7 +22,6 @@ package cn.taketoday.web.handler;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,7 +32,6 @@ import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.Produce;
@@ -60,8 +58,6 @@ public class HandlerMethod
   /** @since 2.3.7 */
   private final Class<?> returnType;
   private ResultHandler resultHandler;
-  /** return type generic @since 2.3.7 */
-  private Type[] generics;
   private final MethodInvoker handlerInvoker;
   /** parameter list **/
   private MethodParameter[] parameters;
@@ -109,7 +105,6 @@ public class HandlerMethod
     this.bean = other.bean;
     setOrder(other.getOrder()); // fix update order
     this.method = other.method;
-    this.generics = other.generics;
     this.returnType = other.returnType;
     this.contentType = other.contentType; // @since 3.0
     this.resultHandler = other.resultHandler;
@@ -135,47 +130,6 @@ public class HandlerMethod
 
   public boolean is(final Class<?> returnType) {
     return returnType == this.returnType;
-  }
-
-  public Type[] getGenerics() {
-    Type[] generics = this.generics;
-    if (generics == null) {
-      if (returnType == null) {
-        generics = Constant.EMPTY_CLASS_ARRAY;
-      }
-      else {
-        generics = ClassUtils.getGenerics(returnType);
-        if (generics == null) {
-          generics = Constant.EMPTY_CLASS_ARRAY;
-        }
-      }
-      this.generics = generics;
-    }
-    return generics;
-  }
-
-  public Type getGeneric(final int index) {
-    final Type[] generics = getGenerics();
-    if (generics != null && generics.length > index) {
-      return generics[index];
-    }
-    return null;
-  }
-
-  public boolean isGenericPresent(final Type requiredType, final int index) {
-    return requiredType.equals(getGeneric(index));
-  }
-
-  public boolean isGenericPresent(final Type requiredType) {
-    final Type[] generics = getGenerics();
-    if (generics != null) {
-      for (final Type type : generics) {
-        if (type.equals(requiredType)) {
-          return true;
-        }
-      }
-    }
-    return false;
   }
 
   public boolean isDeclaringClassPresent(final Class<? extends Annotation> annotationClass) {
@@ -253,10 +207,6 @@ public class HandlerMethod
 
   public MethodInvoker getHandlerInvoker() {
     return handlerInvoker;
-  }
-
-  public void setGenerics(Type[] generics) {
-    this.generics = generics;
   }
 
   // handleRequest

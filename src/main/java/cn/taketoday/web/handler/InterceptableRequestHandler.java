@@ -86,7 +86,7 @@ public abstract class InterceptableRequestHandler
   }
 
   public void setInterceptors(HandlerInterceptor... interceptors) {
-    if (interceptors != null) {
+    if (interceptors != null && interceptors.length > 1) {
       OrderUtils.reversedSort(interceptors);
     }
     this.interceptors = interceptors;
