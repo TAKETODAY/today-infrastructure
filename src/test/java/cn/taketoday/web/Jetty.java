@@ -59,7 +59,7 @@ import lombok.Setter;
 
 /**
  * @author TODAY <br>
- *         2020-04-28 11:21
+ * 2020-04-28 11:21
  */
 @Setter
 @Getter
@@ -68,7 +68,7 @@ public class Jetty {
   private static final Logger log = LoggerFactory.getLogger(Jetty.class);
 
   private Server server;
-  private int port = 60000;
+  private int port = 81;
   private String host = "localhost";
   private String contextPath = Constant.BLANK;
   private boolean autoStart = true;
@@ -166,7 +166,7 @@ public class Jetty {
           if (connector instanceof NetworkConnector) {
             log.error("The port: [{}] is already in use", ((NetworkConnector) connector).getPort(), ex);
           }
-          throw ex;
+          return;
         }
       }
       getStarted().set(true);
