@@ -28,6 +28,7 @@ import java.util.Map;
 
 import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.multipart.MultipartFile;
 
 /**
@@ -38,6 +39,7 @@ public class MockRequestContext extends RequestContext {
   @Override protected String doGetQueryString() {
     return null;
   }
+
   @Override
   protected String doGetRequestPath() {
     return null;
@@ -104,16 +106,21 @@ public class MockRequestContext extends RequestContext {
 
   }
 
-  @Override public void setStatus(int sc) {
-
+  @Override
+  public void setStatus(int sc) {
+    this.status = HttpStatus.valueOf(sc);
   }
 
-  @Override public void setStatus(int status, String message) {
-
+  @Override
+  public void setStatus(int status, String message) {
+    this.status = HttpStatus.valueOf(status);
   }
 
-  @Override public int getStatus() {
-    return 0;
+  protected HttpStatus status = HttpStatus.OK;
+
+  @Override
+  public int getStatus() {
+    return status.value();
   }
 
   @Override public void sendError(int sc) throws IOException {
