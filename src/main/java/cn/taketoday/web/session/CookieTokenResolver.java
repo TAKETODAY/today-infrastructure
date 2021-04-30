@@ -27,7 +27,7 @@ import cn.taketoday.web.RequestContext;
 
 /**
  * @author TODAY <br>
- *         2019-10-03 10:56
+ * 2019-10-03 10:56
  */
 public class CookieTokenResolver implements TokenResolver {
 
@@ -68,14 +68,17 @@ public class CookieTokenResolver implements TokenResolver {
 
   @Override
   public void saveToken(RequestContext context, WebSession session) {
-
-    final HttpCookie cookie = (HttpCookie) getSessionCookie().clone();
+    final HttpCookie cookie = cloneSessionCookie();
     cookie.setValue(session.getId());
     context.addCookie(cookie);
   }
 
   public HttpCookie getSessionCookie() {
     return sessionCookie;
+  }
+
+  public HttpCookie cloneSessionCookie() {
+    return (HttpCookie) sessionCookie.clone();
   }
 
   public void setSessionCookie(HttpCookie sessionCookie) {

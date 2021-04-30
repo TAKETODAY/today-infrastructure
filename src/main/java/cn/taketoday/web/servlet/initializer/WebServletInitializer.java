@@ -51,7 +51,7 @@ public class WebServletInitializer<T extends Servlet> extends WebComponentInitia
   @Override
   protected Dynamic addRegistration(ServletContext servletContext) {
     final T servlet = getServlet();
-    Assert.state(servlet != null, "filter can't be null");
+    Assert.state(servlet != null, "servlet can't be null");
     return servletContext.addServlet(getName(), servlet);
   }
 
@@ -64,7 +64,6 @@ public class WebServletInitializer<T extends Servlet> extends WebComponentInitia
    */
   @Override
   protected void configureRegistration(Dynamic registration) {
-
     LoggerFactory.getLogger(WebServletInitializer.class).debug("Configure servlet registration: [{}]", this);
     registration.setLoadOnStartup(this.loadOnStartup);
 

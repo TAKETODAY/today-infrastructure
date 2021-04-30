@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpCookie;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.context.utils.MultiValueMap;
@@ -53,15 +55,29 @@ public class MockRequestContext extends RequestContext {
     return null;
   }
 
-  @Override protected HttpCookie[] doGetCookies() {
-    return new HttpCookie[0];
+  @Override
+  protected HttpCookie[] doGetCookies() {
+    return requestCookies.toArray(new HttpCookie[0]);
   }
 
-  @Override public void addCookie(HttpCookie cookie) {
+  final List<HttpCookie> requestCookies = new ArrayList<>();
+  final List<HttpCookie> responseCookies = new ArrayList<>();
 
+  public List<HttpCookie> getRequestCookies() {
+    return requestCookies;
   }
 
-  @Override public Map<String, String[]> doGetParameters() {
+  public List<HttpCookie> getResponseCookies() {
+    return responseCookies;
+  }
+
+  @Override
+  public void addCookie(HttpCookie cookie) {
+    responseCookies.add(cookie);
+  }
+
+  @Override
+  public Map<String, String[]> doGetParameters() {
     return null;
   }
 

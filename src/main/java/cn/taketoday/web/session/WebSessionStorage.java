@@ -21,7 +21,7 @@ package cn.taketoday.web.session;
 
 /**
  * @author TODAY <br>
- *         2019-09-28 10:26
+ * 2019-09-28 10:26
  */
 public interface WebSessionStorage {
 
@@ -29,7 +29,7 @@ public interface WebSessionStorage {
 
   WebSession remove(String id);
 
-  default WebSession remove(WebSession session){
+  default WebSession remove(WebSession session) {
     return remove(session.getId());
   }
 
