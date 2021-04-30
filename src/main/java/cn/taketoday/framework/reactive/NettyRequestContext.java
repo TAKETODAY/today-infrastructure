@@ -337,10 +337,6 @@ public class NettyRequestContext extends RequestContext {
     // obtain response object
     FullHttpResponse response = this.response;
     if (response == null) {
-      // flush writer's content to responseBody
-      if (writer != null) {
-        writer.flush();
-      }
       ByteBuf responseBody = this.responseBody;
       if (responseBody == null) {
         responseBody = Unpooled.EMPTY_BUFFER;
@@ -356,10 +352,6 @@ public class NettyRequestContext extends RequestContext {
     else {
       // apply HTTP status
       response.setStatus(status);
-      // flush writer
-      if (writer != null) {
-        writer.flush();
-      }
     }
     // set Content-Length header
     final HttpHeaders responseHeaders = originalResponseHeaders(); // never null
