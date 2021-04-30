@@ -146,8 +146,8 @@ public abstract class AbstractServletWebServer
       }
     });
 
-    final SessionConfiguration sessionConfiguration = getSessionConfig();
-    if (sessionConfiguration != null && sessionConfiguration.isEnable()) {
+    final SessionConfiguration sessionConfig = getSessionConfig();
+    if (sessionConfig != null && sessionConfig.isEnableHttpSession()) {
       contextInitializers.add(new OrderedServletContextInitializer() {
 
         @Override

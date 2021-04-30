@@ -45,6 +45,7 @@ import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.framework.config.ErrorPage;
 import cn.taketoday.framework.config.MimeMappings;
 import cn.taketoday.framework.config.WebDocumentConfiguration;
+import cn.taketoday.web.session.SessionConfiguration;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.Undertow.Builder;
@@ -224,11 +225,15 @@ public class UndertowServer
     }
     else {
       manager.deploy();
-      // not support persistent
-      sessionManager = manager.getDeployment().getSessionManager();
-      Duration timeoutDuration = getSessionConfig().getTimeout();
-      int sessionTimeout = (isZeroOrLess(timeoutDuration) ? -1 : (int) timeoutDuration.getSeconds());
-      sessionManager.setDefaultSessionTimeout(sessionTimeout);
+      final SessionConfiguration sessionConfig = getSessionConfig();
+      if (sessionConfig != null && sessionConfig.isEnableHttpSession()) { // enable http session
+        // not support persistent
+        sessionManager = manager.getDeployment().getSessionManager();
+        // http session timeout settings
+        Duration timeoutDuration = sessionConfig.getTimeout();
+        int sessionTimeout = (isZeroOrLess(timeoutDuration) ? -1 : (int) timeoutDuration.getSeconds());
+        sessionManager.setDefaultSessionTimeout(sessionTimeout);
+      }
     }
     return manager;
   }
