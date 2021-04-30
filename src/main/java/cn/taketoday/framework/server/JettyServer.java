@@ -320,7 +320,12 @@ public class JettyServer
     final Configuration[] configurations = getWebAppContextConfigurations(context);
     context.setConfigurations(configurations);
     context.setThrowUnavailableOnStartupException(true);
-    configureSession(context);
+
+    // http session config
+    final SessionConfiguration sessionConfig = getSessionConfig();
+    if (sessionConfig != null && sessionConfig.isEnableHttpSession()) {
+      configureSession(context, sessionConfig);
+    }
   }
 
   protected void configureWelcomePages(WebAppContext context) {
@@ -417,10 +422,11 @@ public class JettyServer
    *
    * @param context
    *         jetty web app context
+   * @param sessionConfig
+   *         SessionConfiguration
    */
-  protected void configureSession(final WebAppContext context) {
+  protected void configureSession(final WebAppContext context, SessionConfiguration sessionConfig) {
     final SessionHandler sessionHandler = context.getSessionHandler();
-    final SessionConfiguration sessionConfig = getSessionConfig();
     final Duration sessionTimeout = sessionConfig.getTimeout();
     sessionHandler.setMaxInactiveInterval(isNegative(sessionTimeout)
                                           ? -1
