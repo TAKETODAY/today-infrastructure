@@ -76,7 +76,12 @@ public class DataBinderParameterResolver
     for (final Map.Entry<String, String[]> entry : parameters.entrySet()) {
       final String[] value = entry.getValue();
       if (ObjectUtils.isNotEmpty(value)) {
-        dataBinder.addPropertyValue(entry.getKey(), value[0]);
+        if (value.length == 1) {
+          dataBinder.addPropertyValue(entry.getKey(), value[0]);
+        }
+        else {
+          dataBinder.addPropertyValue(entry.getKey(), value);
+        }
       }
     }
 
