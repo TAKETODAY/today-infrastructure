@@ -21,6 +21,7 @@
 package cn.taketoday.aop.proxy.std;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.List;
 
 import cn.taketoday.aop.TargetSource;
@@ -99,7 +100,11 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
     MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method);
 
     // current method start
-    final CodeEmitter codeEmitter = EmitUtils.beginMethod(classEmitter, methodInfo, method.getModifiers());
+    int modifiers = method.getModifiers();
+//    if (Modifier.isAbstract(modifiers)) {
+//      modifiers = modifiers - Modifier.ABSTRACT;
+//    }
+    final CodeEmitter codeEmitter = EmitUtils.beginMethod(classEmitter, methodInfo, modifiers);
 
     // method proxy content
     generateProxyMethod(method, targetInvField, context, codeEmitter);
