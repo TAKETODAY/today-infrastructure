@@ -36,7 +36,6 @@ import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.config.WebApplicationInitializer;
-import cn.taketoday.web.resolver.ParameterResolvers;
 import cn.taketoday.web.utils.WebUtils;
 
 /**
@@ -146,18 +145,19 @@ public class DefaultExceptionHandler
   @Override
   public void onStartup(final WebApplicationContext beanFactory) {
     log.info("Initialize @ExceptionHandler");
-    final ParameterResolvers resolvers = beanFactory.getBean(ParameterResolvers.class);
-    final MethodParameterBuilder builder = new MethodParameterBuilder(resolvers);
+    HandlerMethodBuilder<ThrowableHandlerMethod> handlerBuilder = new HandlerMethodBuilder<>(beanFactory);
+    handlerBuilder.setHandlerMethodClass(ThrowableHandlerMethod.class);
 
     // get all error handlers
     final List<Object> errorHandlers = beanFactory.getAnnotatedBeans(ControllerAdvice.class);
     for (final Object errorHandler : errorHandlers) {
       for (final Method method : ReflectionUtils.getDeclaredMethods(errorHandler.getClass())) {
         if (method.isAnnotationPresent(ExceptionHandler.class)) {
-          final MethodParameter[] parameters = builder.build(method);
           final Class<? extends Throwable>[] catchExClasses = getCatchThrowableClasses(method);
           for (Class<? extends Throwable> exceptionClass : catchExClasses) {
-            exceptionHandlers.put(exceptionClass, new ThrowableHandlerMethod(errorHandler, method, parameters));
+            // @since 3.0
+            ThrowableHandlerMethod handlerMethod = handlerBuilder.build(errorHandler, method);
+            exceptionHandlers.put(exceptionClass, handlerMethod);
           }
         }
       }
@@ -202,9 +202,8 @@ public class DefaultExceptionHandler
 
   protected static class ThrowableHandlerMethod extends HandlerMethod {
 
-    public ThrowableHandlerMethod(Object handler, Method method, MethodParameter[] parameters) {
+    public ThrowableHandlerMethod(Object handler, Method method) {
       super(handler, method, null);
-      setParameters(parameters);
     }
 
     @Override

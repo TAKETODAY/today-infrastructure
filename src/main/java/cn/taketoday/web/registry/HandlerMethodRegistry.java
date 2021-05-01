@@ -57,12 +57,10 @@ import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.annotation.RootController;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.handler.HandlerMethodBuilder;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.handler.MethodParameterBuilder;
 import cn.taketoday.web.handler.PathVariableMethodParameter;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.resolver.ParameterResolvers;
-import cn.taketoday.web.view.ResultHandlers;
 
 import static cn.taketoday.context.utils.CollectionUtils.newHashSet;
 import static cn.taketoday.context.utils.StringUtils.checkUrl;
@@ -80,10 +78,8 @@ public class HandlerMethodRegistry
   private ConfigurableBeanFactory beanFactory;
   private BeanDefinitionLoader beanDefinitionLoader;
 
-  // @since 3.0
-  protected MethodParameterBuilder parameterBuilder;
-  // @since 3.0
-  private ResultHandlers resultHandlers;
+  /** @since 3.0 */
+  private HandlerMethodBuilder<HandlerMethod> handlerBuilder;
 
   public HandlerMethodRegistry() {
     setOrder(HIGHEST_PRECEDENCE);
@@ -122,9 +118,8 @@ public class HandlerMethodRegistry
       }
     }
     setBeanDefinitionLoader(beanDefinitionLoader);
-    this.resultHandlers = context.getBean(ResultHandlers.class);
-    Assert.notNull(resultHandlers, "No ResultHandlers");
-    setParameterBuilder(new MethodParameterBuilder(context.getBean(ParameterResolvers.class)));
+
+    setHandlerBuilder(new HandlerMethodBuilder<>(context));
     super.initApplicationContext(context);
   }
 
@@ -372,16 +367,8 @@ public class HandlerMethodRegistry
       throw new ConfigurationException(
               "An unexpected exception occurred: [Can't get bean with given type: [" + beanClass.getName() + "]]");
     }
-    final HandlerMethod handler = new HandlerMethod(handlerBean, method, getInterceptors(beanClass, method));
-    final MethodParameter[] parameters = parameterBuilder.build(handler.getMethod());
-    handler.setParameters(parameters);
-    handler.setResultHandlers(resultHandlers); // @since 3.0
-    if (ObjectUtils.isNotEmpty(parameters)) {
-      for (MethodParameter parameter : parameters) {
-        parameter.setHandlerMethod(handler);
-      }
-    }
-    return handler;
+    final List<HandlerInterceptor> interceptors = getInterceptors(beanClass, method);
+    return handlerBuilder.build(handlerBean, method, interceptors);
   }
 
   /**
@@ -482,10 +469,6 @@ public class HandlerMethodRegistry
     this.beanFactory = beanFactory;
   }
 
-  public void setParameterBuilder(MethodParameterBuilder parameterBuilder) {
-    this.parameterBuilder = parameterBuilder;
-  }
-
   public void setBeanDefinitionLoader(BeanDefinitionLoader beanDefinitionLoader) {
     this.beanDefinitionLoader = beanDefinitionLoader;
   }
@@ -494,11 +477,15 @@ public class HandlerMethodRegistry
     return beanFactory;
   }
 
-  public MethodParameterBuilder getParameterBuilder() {
-    return parameterBuilder;
-  }
-
   public BeanDefinitionLoader getBeanDefinitionLoader() {
     return beanDefinitionLoader;
+  }
+
+  public void setHandlerBuilder(HandlerMethodBuilder<HandlerMethod> handlerBuilder) {
+    this.handlerBuilder = handlerBuilder;
+  }
+
+  public HandlerMethodBuilder<HandlerMethod> getHandlerBuilder() {
+    return handlerBuilder;
   }
 }
