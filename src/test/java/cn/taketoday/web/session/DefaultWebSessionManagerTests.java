@@ -59,7 +59,7 @@ public class DefaultWebSessionManagerTests {
 
       // CookieTokenResolver
       final CookieTokenResolver cookieTokenResolver = applicationContext.getBean(CookieTokenResolver.class);
-      final List<HttpCookie> responseCookies = context.getResponseCookies();
+      final List<HttpCookie> responseCookies = context.responseCookies();
       final HttpCookie sessionCookie = cookieTokenResolver.cloneSessionCookie();
       final String sessionId = createdSession.getId();
       sessionCookie.setValue(sessionId);
