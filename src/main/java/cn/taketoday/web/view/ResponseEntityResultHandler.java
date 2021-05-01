@@ -51,14 +51,12 @@ public class ResponseEntityResultHandler
   }
 
   @Override
-  protected void handleInternal(final RequestContext context,
-                                final HandlerMethod handler, final Object result) throws Throwable {
-
+  protected void handleInternal(
+          RequestContext context, HandlerMethod handler, Object result) throws Throwable {
     final ResponseEntity<?> response = (ResponseEntity<?>) result;
     context.setStatus(response.getStatusCode());
-
-    handleObject(context, response.getBody());
     // apply headers
     context.responseHeaders().addAll(response.getHeaders());
+    handleObject(context, response.getBody());
   }
 }

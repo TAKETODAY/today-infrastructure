@@ -896,18 +896,6 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
     obtainModel().clear();
   }
 
-  /**
-   * If {@link #responseHeaders} is not null
-   */
-  public void applyHeaders() {
-    final HttpHeaders responseHeaders = this.responseHeaders;
-    if (!CollectionUtils.isEmpty(responseHeaders)) {
-      doApplyHeaders(responseHeaders);
-    }
-  }
-
-  protected void doApplyHeaders(HttpHeaders responseHeaders) { }
-
   protected void resetResponseHeader() {
     if (responseHeaders != null) {
       responseHeaders.clear();
@@ -916,7 +904,16 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
 
   @Override
   public void flush() throws IOException {
-    // no-op
+    final PrintWriter writer = this.writer;
+    if (writer != null) {
+      writer.flush();
+    }
+    else {
+      final OutputStream outputStream = this.outputStream;
+      if (outputStream != null) {
+        outputStream.flush();
+      }
+    }
   }
 
   public void cleanupMultipartFiles() {

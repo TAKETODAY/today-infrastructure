@@ -165,15 +165,9 @@ public class DispatcherHandler extends WebApplicationContextSupport {
       handleException(handler, e, context);
     }
     finally {
-      postHandle(context);
+      // @since 3.0 cleanup MultipartFiles
+      context.cleanupMultipartFiles();
     }
-  }
-
-  protected void postHandle(RequestContext context) {
-    // @since 3.0 flush exception headers
-    context.applyHeaders();
-    // @since 3.0 cleanup MultipartFiles
-    context.cleanupMultipartFiles();
   }
 
   /**

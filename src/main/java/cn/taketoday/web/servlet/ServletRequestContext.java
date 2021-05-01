@@ -277,6 +277,69 @@ public class ServletRequestContext extends RequestContext {
   }
 
   @Override
+  protected HttpHeaders createResponseHeaders() {
+    return new ServletResponseHttpHeaders(response);
+  }
+
+  static final class ServletResponseHttpHeaders extends DefaultHttpHeaders {
+    private final HttpServletResponse response;
+
+    ServletResponseHttpHeaders(HttpServletResponse response) {
+      this.response = response;
+    }
+
+    @Override
+    public void set(String headerName, String headerValue) {
+      super.set(headerName, headerValue);
+      response.setHeader(headerName, headerValue);
+    }
+
+    @Override
+    public void add(String headerName, String headerValue) {
+      super.add(headerName, headerValue);
+      response.addHeader(headerName, headerValue);
+    }
+
+    @Override
+    public void addAll(String key, List<? extends String> values) {
+      for (final String value : values) {
+        add(key, value);
+      }
+    }
+
+    @Override
+    public void addAll(MultiValueMap<String, String> values) {
+      values.forEach(this::addAll);
+    }
+
+    @Override
+    public void setAll(Map<String, String> values) {
+      values.forEach(this::set);
+    }
+
+    @Override
+    public List<String> put(String key, List<String> values) {
+      doPut(key, values, response);
+      return super.put(key, values);
+    }
+
+    private static void doPut(String key, List<String> values, HttpServletResponse response) {
+      for (final String value : values) {
+        response.addHeader(key, value);
+      }
+    }
+
+    @Override
+    public void putAll(Map<? extends String, ? extends List<String>> map) {
+      super.putAll(map);
+      final HttpServletResponse response = this.response;
+      for (final Entry<? extends String, ? extends List<String>> entry : map.entrySet()) {
+        doPut(entry.getKey(), entry.getValue(), response);
+      }
+    }
+  }
+
+  @Override
   public void sendError(int sc) throws IOException {
     response.sendError(sc);
   }
@@ -307,18 +370,8 @@ public class ServletRequestContext extends RequestContext {
   }
 
   @Override
-  protected void doApplyHeaders(final HttpHeaders responseHeaders) {
-    final HttpServletResponse response = this.response;
-    for (final Map.Entry<String, List<String>> entry : responseHeaders.entrySet()) {
-      final String headerName = entry.getKey();
-      for (final String value : entry.getValue()) {
-        response.addHeader(headerName, value);
-      }
-    }
-  }
-
-  @Override
   public void flush() throws IOException {
+    super.flush();
     response.flushBuffer();
   }
 
