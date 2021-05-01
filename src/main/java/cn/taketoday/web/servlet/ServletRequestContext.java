@@ -282,6 +282,7 @@ public class ServletRequestContext extends RequestContext {
   }
 
   static final class ServletResponseHttpHeaders extends DefaultHttpHeaders {
+    private static final long serialVersionUID = 1L;
     private final HttpServletResponse response;
 
     ServletResponseHttpHeaders(HttpServletResponse response) {
@@ -383,6 +384,8 @@ public class ServletRequestContext extends RequestContext {
   }
 
   private final class ServletRequestModel extends ModelAttributes {
+    private static final long serialVersionUID = 1L;
+
     // auto flush to request attributes
     @Override
     public void setAttribute(String name, Object value) {
