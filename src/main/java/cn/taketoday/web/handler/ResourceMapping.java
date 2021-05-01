@@ -52,10 +52,6 @@ public class ResourceMapping implements Serializable, Ordered, HandlerIntercepto
 
   private CacheControl cacheControl;
 
-  private boolean gzip = false;
-
-  private long gzipMinLength = -1;
-
   private int bufferSize = DEFAULT_BUFFER_SIZE;
 
   private long expires = -1;
@@ -101,16 +97,6 @@ public class ResourceMapping implements Serializable, Ordered, HandlerIntercepto
   }
 
   /**
-   * Enables gZip compression.
-   *
-   * @return {@code this}
-   */
-  public ResourceMapping enableGzip() {
-    gzip = true;
-    return this;
-  }
-
-  /**
    * Sets the size of used buffers.
    *
    * @param bufferSize
@@ -142,21 +128,6 @@ public class ResourceMapping implements Serializable, Ordered, HandlerIntercepto
       throw new IllegalArgumentException("count must be greater than zero");
     }
     this.expires = unit.toMillis(count);
-    return this;
-  }
-
-  /**
-   * Sets the minimum required content length for gzip compression. Requires
-   * enabled gzip compression with {@code #gZip}.
-   *
-   * @param minLength
-   *         required minimum content length
-   *
-   * @return {@code this}
-   */
-  public ResourceMapping gzipMinLength(long minLength) {
-    enableGzip();
-    this.gzipMinLength = minLength;
     return this;
   }
 

@@ -126,13 +126,8 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
       return;
     }
 
-    if (isGZipEnabled(resource, resourceMapping, contentType)) {
-      writeCompressed(resource, context, resourceMapping);
-    }
-    else {
-      write(resource, context, resourceMapping);
-      context.flush();
-    }
+    write(resource, context, resourceMapping);
+    context.flush();
   }
 
   protected String getContentType(final WebResource resource) {
@@ -145,29 +140,6 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
 
   private String getContentTypeInternal(WebResource resource) {
     return null;
-  }
-
-  /**
-   * Whether gZip enable
-   *
-   * @return whether gZip enable
-   *
-   * @throws IOException
-   *         If any IO exception occurred
-   */
-  protected boolean isGZipEnabled(final WebResource resource,
-                                  final ResourceMapping mapping,
-                                  final String contentType) throws IOException //
-  {
-    return mapping.isGzip()
-            && isContentCompressible(contentType)
-            && resource.contentLength() > mapping.getGzipMinLength();
-  }
-
-  protected boolean isContentCompressible(final String contentType) {
-    return "image/svg+xml".equals(contentType)
-            || !contentType.startsWith("image")
-            && !contentType.startsWith("video");
   }
 
   /**
