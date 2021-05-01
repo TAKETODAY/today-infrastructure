@@ -7,12 +7,12 @@
   <artifactId>today-web</artifactId>
 
   <!--
-      <version>3.0.0.RELEASE</version>
+    <version>latest</version>
    -->
 
-  <version>latest</version>
+  <version>3.0.0.RELEASE</version>
 
-  <name>Today Web Framework</name>
+  <name>TODAY Web Framework</name>
 
   <description>A Java library for building high-performance web applications.</description>
 
@@ -89,7 +89,7 @@
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-context</artifactId>
-      <version>latest</version>
+      <version>3.0.1.RELEASE</version>
     </dependency>
 
     <dependency>
@@ -205,19 +205,19 @@
       <scope>test</scope>
     </dependency>
 
-<!--
-    <dependency>
-      <groupId>cn.taketoday</groupId>
-      <artifactId>today-framework</artifactId>
-      <version>latest</version>
-      <exclusions>
-        <exclusion>
+    <!--
+        <dependency>
           <groupId>cn.taketoday</groupId>
-          <artifactId>today-web</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
--->
+          <artifactId>today-framework</artifactId>
+          <version>latest</version>
+          <exclusions>
+            <exclusion>
+              <groupId>cn.taketoday</groupId>
+              <artifactId>today-web</artifactId>
+            </exclusion>
+          </exclusions>
+        </dependency>
+    -->
 
   </dependencies>
 
@@ -248,6 +248,9 @@
               <execution>
                 <id>sign-artifacts</id>
                 <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
               </execution>
             </executions>
           </plugin>
