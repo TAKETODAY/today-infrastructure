@@ -176,11 +176,6 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  public void applyHeaders() {
-    // noop; netty auto apply headers
-  }
-
-  @Override
   public String getContentType() {
     return request.headers().get(HttpHeaderNames.CONTENT_TYPE);
   }
@@ -304,7 +299,8 @@ public class NettyRequestContext extends RequestContext {
   private boolean isKeepAlive() {
     Boolean keepAlive = this.keepAlive;
     if (keepAlive == null) {
-      return this.keepAlive = HttpUtil.isKeepAlive(request);
+      keepAlive = HttpUtil.isKeepAlive(request);
+      this.keepAlive = keepAlive;
     }
     return keepAlive;
   }
