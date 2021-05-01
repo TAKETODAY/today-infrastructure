@@ -188,7 +188,8 @@ public class MethodParameter
   @Override
   public boolean equals(Object obj) {
     return obj == this || (obj instanceof MethodParameter
-            && Objects.equals(parameter, ((MethodParameter) obj).parameter));
+            && Objects.equals(parameter, ((MethodParameter) obj).parameter)
+    );
   }
 
   // Getter Setter
