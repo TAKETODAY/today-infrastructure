@@ -74,7 +74,6 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
  * 2019-07-04 21:24
  */
 public class NettyRequestContext extends RequestContext {
-//    private static final Logger log = LoggerFactory.getLogger(NettyRequestContext.class);
 
   private String remoteAddress;
 
@@ -355,16 +354,16 @@ public class NettyRequestContext extends RequestContext {
       responseHeaders.setInt(HttpHeaderNames.CONTENT_LENGTH, readableBytes());
     }
     // write response
-    final ChannelHandlerContext context = this.channelContext;
     if (isKeepAlive()) {
       responseHeaders.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-      context.writeAndFlush(response);
+      channelContext.writeAndFlush(response);
     }
     else {
-      context.writeAndFlush(response)
+      channelContext.writeAndFlush(response)
               .addListener(ChannelFutureListener.CLOSE);
     }
 
+    final InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
     if (requestDecoder != null) {
       requestDecoder.destroy();
     }
@@ -411,15 +410,15 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public void addCookie(HttpCookie cookie) {
-    final Cookie c = new DefaultCookie(cookie.getName(), cookie.getValue());
-    c.setPath(cookie.getPath());
-    c.setDomain(cookie.getDomain());
-    c.setMaxAge(cookie.getMaxAge());
-    c.setSecure(cookie.getSecure());
-    c.setHttpOnly(cookie.isHttpOnly());
+    final DefaultCookie nettyCookie = new DefaultCookie(cookie.getName(), cookie.getValue());
+    nettyCookie.setPath(cookie.getPath());
+    nettyCookie.setDomain(cookie.getDomain());
+    nettyCookie.setMaxAge(cookie.getMaxAge());
+    nettyCookie.setSecure(cookie.getSecure());
+    nettyCookie.setHttpOnly(cookie.isHttpOnly());
 
     originalResponseHeaders().add(
-            HttpHeaderNames.SET_COOKIE, config.getCookieEncoder().encode(c));
+            HttpHeaderNames.SET_COOKIE, config.getCookieEncoder().encode(nettyCookie));
   }
 
   @Override
