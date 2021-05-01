@@ -410,6 +410,8 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public void addCookie(HttpCookie cookie) {
+    super.addCookie(cookie);
+
     final DefaultCookie nettyCookie = new DefaultCookie(cookie.getName(), cookie.getValue());
     nettyCookie.setPath(cookie.getPath());
     nettyCookie.setDomain(cookie.getDomain());
