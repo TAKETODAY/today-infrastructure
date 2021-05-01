@@ -222,9 +222,9 @@ public class ServletRequestContext extends RequestContext {
 
   @Override
   public void addCookie(final HttpCookie cookie) {
+    super.addCookie(cookie);
 
     final Cookie servletCookie = new Cookie(cookie.getName(), cookie.getValue());
-
     servletCookie.setPath(cookie.getPath());
     if (cookie.getDomain() != null) {
       servletCookie.setDomain(cookie.getDomain());

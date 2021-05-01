@@ -61,19 +61,9 @@ public class MockRequestContext extends RequestContext {
   }
 
   final List<HttpCookie> requestCookies = new ArrayList<>();
-  final List<HttpCookie> responseCookies = new ArrayList<>();
 
   public List<HttpCookie> getRequestCookies() {
     return requestCookies;
-  }
-
-  public List<HttpCookie> getResponseCookies() {
-    return responseCookies;
-  }
-
-  @Override
-  public void addCookie(HttpCookie cookie) {
-    responseCookies.add(cookie);
   }
 
   @Override

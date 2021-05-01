@@ -20,6 +20,7 @@
 package cn.taketoday.web.session;
 
 import java.net.HttpCookie;
+import java.util.LinkedList;
 
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.web.Constant;
@@ -59,8 +60,15 @@ public class CookieTokenResolver implements TokenResolver {
 
   @Override
   public String getToken(RequestContext context) {
+    final String cookieName = this.cookieName;
     final HttpCookie cookie = context.getCookie(cookieName);
     if (cookie == null) {
+      final LinkedList<HttpCookie> httpCookies = context.responseCookies();
+      for (final HttpCookie httpCookie : httpCookies) {
+        if (cookieName.equals(httpCookie.getName())) {
+          return httpCookie.getValue();
+        }
+      }
       return null;
     }
     return cookie.getValue();

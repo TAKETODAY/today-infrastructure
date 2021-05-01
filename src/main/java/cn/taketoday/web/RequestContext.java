@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpCookie;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -89,6 +90,9 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   protected Map<String, String[]> parameters;
   /** @since 3.0 */
   protected String queryString;
+
+  /** @since 3.0 */
+  protected LinkedList<HttpCookie> responseCookies;
 
   // --- request
 
@@ -230,7 +234,18 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * @param cookie
    *         the Cookie to return to the client
    */
-  public abstract void addCookie(HttpCookie cookie);
+  public void addCookie(HttpCookie cookie) {
+    responseCookies().add(cookie);
+  }
+
+  public LinkedList<HttpCookie> responseCookies() {
+    LinkedList<HttpCookie> responseCookies = this.responseCookies;
+    if (responseCookies == null) {
+      responseCookies = new LinkedList<>();
+      this.responseCookies = responseCookies;
+    }
+    return responseCookies;
+  }
 
   /**
    * Returns a java.util.Map of the parameters of this request.
