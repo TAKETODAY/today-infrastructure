@@ -47,10 +47,10 @@ public class ParameterResolverMethodParameter extends MethodParameter {
 
   @Override
   protected Object resolveParameter(final RequestContext request) throws Throwable {
-    return getResolver().resolveParameter(request, this);
+    return obtainResolver().resolveParameter(request, this);
   }
 
-  public final ParameterResolver getResolver() {
+  public final ParameterResolver obtainResolver() {
     ParameterResolver resolver = this.resolver;
     if (resolver == null) {
       resolver = resolvers.obtainResolver(this);
