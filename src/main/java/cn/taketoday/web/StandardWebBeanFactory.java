@@ -55,9 +55,11 @@ public class StandardWebBeanFactory extends StandardBeanFactory {
       WebSessionManager sessionManager;
 
       private WebSessionManager obtainWebSessionManager() {
+        WebSessionManager sessionManager = this.sessionManager;
         if (sessionManager == null) {
           sessionManager = getBean(WebSessionManager.class);
           Assert.state(sessionManager != null, "You must enable web session -> @EnableWebSession");
+          this.sessionManager = sessionManager;
         }
         return sessionManager;
       }
