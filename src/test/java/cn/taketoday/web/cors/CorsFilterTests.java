@@ -104,7 +104,6 @@ public class CorsFilterTests {
 
     FilterChain filterChain = (filterRequest, filterResponse) -> {
       final RequestContext context = ServletUtils.getRequestContext(request, response);
-      context.applyHeaders();
       assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isEqualTo("https://domain2.com");
       final String header = response.getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS);
       assertThat(header).isEqualTo("header3, header4");
