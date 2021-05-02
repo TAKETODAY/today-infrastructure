@@ -73,6 +73,7 @@ public class WebApplicationLoader
     onStartup(obtainApplicationContext());
   }
 
+  @Override
   public void onStartup(WebApplicationContext context) throws Throwable {
     final WebMvcConfiguration mvcConfiguration = getWebMvcConfiguration(context);
 
@@ -455,7 +456,7 @@ public class WebApplicationLoader
   }
 
   protected DispatcherHandler createDispatcher(WebApplicationContext context) {
-    return null;
+    return new DispatcherHandler(context);
   }
 
   public void setDispatcher(DispatcherHandler dispatcherHandler) {
