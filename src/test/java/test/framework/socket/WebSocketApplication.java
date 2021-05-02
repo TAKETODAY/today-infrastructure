@@ -17,81 +17,81 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-
-package test.framework.socket;
-
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.framework.WebApplication;
-import cn.taketoday.framework.annotation.EnableTomcatHandling;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.annotation.GET;
-import cn.taketoday.web.socket.EnableWebSocket;
-import cn.taketoday.web.socket.Message;
-import cn.taketoday.web.socket.WebSocketConfiguration;
-import cn.taketoday.web.socket.WebSocketHandler;
-import cn.taketoday.web.socket.WebSocketHandlerRegistry;
-import cn.taketoday.web.socket.WebSocketSession;
-
-/**
- * @author TODAY 2021/4/5 13:03
- */
-@Configuration
-@Import(WebSocketApplication.AppConfig.class)
-@EnableWebSocket
-@EnableTomcatHandling
-public class WebSocketApplication {
-
-  public static void main(String[] args) {
-    WebApplication.run(WebSocketApplication.class, args);
-  }
-
-  @GET("/")
-  public String hello() {
-    return "Hello";
-  }
-
-  @Configuration
-  static class AppConfig implements WebSocketConfiguration {
-
-    @Override
-    public void configureWebSocketHandlers(WebSocketHandlerRegistry registry) {
-      registry.registerHandler(new WebSocket0(), "/endpoint");
-    }
-  }
-
-
-  static class WebSocket0 implements WebSocketHandler {
-
-    @Override
-    public void handshake(RequestContext context) {
-
-    }
-
-    @Override
-    public void onOpen(WebSocketSession session) {
-
-    }
-
-    @Override
-    public void handleMessage(WebSocketSession session, Message<?> message) {
-
-    }
-
-    @Override
-    public void onClose(WebSocketSession session) {
-
-    }
-
-    @Override
-    public void onError(WebSocketSession session) {
-
-    }
-
-    @Override
-    public boolean supportPartialMessage() {
-      return false;
-    }
-  }
-
-}
+//
+//package test.framework.socket;
+//
+//import cn.taketoday.context.annotation.Configuration;
+//import cn.taketoday.context.annotation.Import;
+//import cn.taketoday.framework.WebApplication;
+//import cn.taketoday.framework.annotation.EnableTomcatHandling;
+//import cn.taketoday.web.RequestContext;
+//import cn.taketoday.web.annotation.GET;
+//import cn.taketoday.web.socket.EnableWebSocket;
+//import cn.taketoday.web.socket.Message;
+//import cn.taketoday.web.socket.WebSocketConfiguration;
+//import cn.taketoday.web.socket.WebSocketHandler;
+//import cn.taketoday.web.socket.WebSocketHandlerRegistry;
+//import cn.taketoday.web.socket.WebSocketSession;
+//
+///**
+// * @author TODAY 2021/4/5 13:03
+// */
+//@Configuration
+//@Import(WebSocketApplication.AppConfig.class)
+//@EnableWebSocket
+//@EnableTomcatHandling
+//public class WebSocketApplication {
+//
+//  public static void main(String[] args) {
+//    WebApplication.run(WebSocketApplication.class, args);
+//  }
+//
+//  @GET("/")
+//  public String hello() {
+//    return "Hello";
+//  }
+//
+//  @Configuration
+//  static class AppConfig implements WebSocketConfiguration {
+//
+//    @Override
+//    public void configureWebSocketHandlers(WebSocketHandlerRegistry registry) {
+//      registry.registerHandler(new WebSocket0(), "/endpoint");
+//    }
+//  }
+//
+//
+//  static class WebSocket0 implements WebSocketHandler {
+//
+//    @Override
+//    public void handshake(RequestContext context) {
+//
+//    }
+//
+//    @Override
+//    public void onOpen(WebSocketSession session) {
+//
+//    }
+//
+//    @Override
+//    public void handleMessage(WebSocketSession session, Message<?> message) {
+//
+//    }
+//
+//    @Override
+//    public void onClose(WebSocketSession session) {
+//
+//    }
+//
+//    @Override
+//    public void onError(WebSocketSession session) {
+//
+//    }
+//
+//    @Override
+//    public boolean supportPartialMessage() {
+//      return false;
+//    }
+//  }
+//
+//}

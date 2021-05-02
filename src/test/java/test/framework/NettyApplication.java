@@ -14,7 +14,6 @@ import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.annotation.RestControllerAdvice;
 import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.registry.EnableRequestPathMapping;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 @RestControllerAdvice
-@EnableRequestPathMapping
+//@EnableRequestPathMapping
 @Import(NettyApplication.AppConfig.class)
 public class NettyApplication {
 
