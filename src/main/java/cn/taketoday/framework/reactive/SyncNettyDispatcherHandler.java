@@ -13,13 +13,17 @@ import io.netty.channel.ChannelHandlerContext;
  * @see cn.taketoday.web.handler.DispatcherHandler
  * @see cn.taketoday.web.servlet.DispatcherServlet
  */
-public class SyncNettyDispatcherHandler extends DispatcherHandler implements NettyDispatcher {
+public class SyncNettyDispatcherHandler extends NettyDispatcher {
+
+  public SyncNettyDispatcherHandler(DispatcherHandler dispatcherHandler) {
+    super(dispatcherHandler);
+  }
 
   @Override
   public void dispatch(ChannelHandlerContext ctx, final NettyRequestContext nettyContext) throws Throwable {
     RequestContextHolder.prepareContext(nettyContext);
     try {
-      handle(nettyContext); // handling HTTP request
+      dispatcherHandler.handle(nettyContext); // handling HTTP request
       nettyContext.sendIfNotCommitted();
     }
     finally {

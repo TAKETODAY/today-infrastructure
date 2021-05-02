@@ -31,6 +31,7 @@ import cn.taketoday.context.loader.AnnotationBeanDefinitionRegistrar;
 import cn.taketoday.framework.reactive.server.NettyServerInitializer;
 import cn.taketoday.framework.reactive.server.NettyWebServer;
 import cn.taketoday.web.RequestContextHolder;
+import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.session.EnableWebSession;
 
 import static java.lang.annotation.ElementType.METHOD;
@@ -70,6 +71,11 @@ class NettyConfig implements AnnotationBeanDefinitionRegistrar<EnableNettyHandli
   ReactiveChannelHandler reactiveChannelHandler(
           NettyDispatcher nettyDispatcher, NettyRequestContextConfig contextConfig) {
     return new ReactiveChannelHandler(nettyDispatcher, contextConfig);
+  }
+
+  @MissingBean(type = DispatcherHandler.class)
+  DispatcherHandler dispatcherHandler() {
+    return new DispatcherHandler();
   }
 
   /**

@@ -30,10 +30,10 @@ import cn.taketoday.framework.StandardWebServerApplicationContext;
 import cn.taketoday.framework.WebServerApplicationContext;
 import cn.taketoday.framework.WebServerException;
 import cn.taketoday.framework.reactive.NettyRequestContextConfig;
-import cn.taketoday.framework.reactive.NettyWebServerApplicationLoader;
 import cn.taketoday.framework.reactive.ReactiveChannelHandler;
 import cn.taketoday.framework.server.AbstractWebServer;
 import cn.taketoday.framework.server.WebServer;
+import cn.taketoday.framework.server.WebServerApplicationLoader;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -120,10 +120,12 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
   @Override
   protected void contextInitialized() {
     super.contextInitialized();
-
+    final WebServerApplicationContext context = obtainApplicationContext();
     try {
-      new NettyWebServerApplicationLoader(this::getMergedInitializers)
-              .onStartup(obtainApplicationContext());
+      final WebServerApplicationLoader loader
+              = new WebServerApplicationLoader(this::getMergedInitializers);
+      loader.setApplicationContext(context);
+      loader.onStartup(context);
     }
     catch (Throwable e) {
       throw new ConfigurationException(e);

@@ -40,10 +40,6 @@ public class ReactiveChannelHandler implements ChannelInboundHandler {
   private NettyDispatcher nettyDispatcher;
   private NettyRequestContextConfig contextConfig;
 
-  public ReactiveChannelHandler() {
-    this(new AsyncNettyDispatcherHandler());
-  }
-
   public ReactiveChannelHandler(NettyDispatcher nettyDispatcher) {
     this(nettyDispatcher, new NettyRequestContextConfig());
   }

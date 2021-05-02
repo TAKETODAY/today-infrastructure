@@ -19,7 +19,11 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
  * @see cn.taketoday.web.handler.DispatcherHandler
  * @see cn.taketoday.web.servlet.DispatcherServlet
  */
-public class AsyncNettyDispatcherHandler extends DispatcherHandler implements NettyDispatcher {
+public class AsyncNettyDispatcherHandler extends NettyDispatcher {
+
+  public AsyncNettyDispatcherHandler(DispatcherHandler dispatcherHandler) {
+    super(dispatcherHandler);
+  }
 
   @Override
   public void dispatch(final ChannelHandlerContext ctx, final NettyRequestContext nettyContext) {
@@ -28,7 +32,7 @@ public class AsyncNettyDispatcherHandler extends DispatcherHandler implements Ne
       public Object apply(final Object handler) {
         RequestContextHolder.prepareContext(nettyContext);
         try {
-          handle(handler, nettyContext);
+          dispatcherHandler.handle(handler, nettyContext);
         }
         catch (Throwable e) {
           ctx.fireExceptionCaught(e);
@@ -49,7 +53,7 @@ public class AsyncNettyDispatcherHandler extends DispatcherHandler implements Ne
 
     final Executor executor = ctx.executor();
     completedFuture(nettyContext)
-            .thenApplyAsync(this::lookupHandler, executor)
+            .thenApplyAsync(dispatcherHandler::lookupHandler, executor)
             .thenApplyAsync(new AsyncHandler(), executor)
             .thenAcceptAsync(new AsyncSender(), executor);
   }
