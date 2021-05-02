@@ -23,7 +23,6 @@ import java.util.Map;
 
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.view.template.AbstractFreeMarkerTemplateViewResolver;
 import cn.taketoday.web.view.template.RequestContextParametersHashModel;
 import freemarker.template.Configuration;
@@ -38,8 +37,7 @@ import freemarker.template.utility.ObjectWrapperWithAPISupport;
  * 2019-11-22 13:25
  */
 @Props(prefix = "web.mvc.view.")
-public class ReactiveFreeMarkerTemplateViewResolver
-        extends AbstractFreeMarkerTemplateViewResolver implements WebMvcConfiguration {
+public class ReactiveFreeMarkerTemplateViewResolver extends AbstractFreeMarkerTemplateViewResolver  {
 
   public static final String KEY_REQUEST_PARAMETERS = "RequestParameters";
 
