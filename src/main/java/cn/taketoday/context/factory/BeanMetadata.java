@@ -66,8 +66,10 @@ public class BeanMetadata {
   }
 
   public ConstructorAccessor getConstructor() {
+    ConstructorAccessor constructor = this.constructor;
     if (constructor == null) {
       constructor = ReflectionUtils.newConstructorAccessor(beanClass);
+      this.constructor = constructor;
     }
     return constructor;
   }
