@@ -29,7 +29,8 @@ import cn.taketoday.web.Constant;
  * @author TODAY <br>
  * 2018-06-26 11:58:24
  */
-public abstract class AbstractTemplateViewResolver extends OrderedSupport implements TemplateViewResolver {
+public abstract class AbstractTemplateViewResolver
+        extends OrderedSupport implements TemplateViewResolver {
 
   protected Locale locale = Locale.CHINA;
   protected String suffix = Constant.BLANK;
