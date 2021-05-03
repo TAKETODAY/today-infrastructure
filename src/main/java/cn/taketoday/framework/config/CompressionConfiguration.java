@@ -33,7 +33,7 @@ import lombok.Setter;
 public class CompressionConfiguration {
 
   private String level = "on";
-  private boolean enable = false;
+  private boolean enable = true;
 
   private String[] excludePaths;
   private String[] includedPaths;

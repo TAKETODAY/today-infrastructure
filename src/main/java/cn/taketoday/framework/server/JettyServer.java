@@ -58,7 +58,6 @@ import java.util.function.Supplier;
 
 import javax.servlet.Servlet;
 
-import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.io.ClassPathResource;
@@ -90,7 +89,6 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-@Props(prefix = { "server.", "server.jetty." })
 public class JettyServer
         extends AbstractServletWebServer implements WebServer, DisposableBean {
 

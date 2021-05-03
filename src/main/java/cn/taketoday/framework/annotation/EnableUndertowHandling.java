@@ -4,6 +4,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.framework.server.UndertowServer;
 
 import static java.lang.annotation.ElementType.METHOD;
@@ -15,7 +17,17 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Retention(RUNTIME)
 @Target({ TYPE, METHOD })
-@Import(UndertowServer.class)
+@Import(UndertowConfig.class)
 public @interface EnableUndertowHandling {
+
+}
+
+class UndertowConfig {
+
+  @MissingBean
+  @Props(prefix = { "server.", "server.undertow." })
+  UndertowServer undertowServer() {
+    return new UndertowServer();
+  }
 
 }

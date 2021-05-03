@@ -66,7 +66,6 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletContainerInitializer;
 
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.ClassUtils;
@@ -89,7 +88,6 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-@Props(prefix = { "server.", "server.tomcat." })
 public class TomcatServer extends AbstractServletWebServer {
 
   // connector

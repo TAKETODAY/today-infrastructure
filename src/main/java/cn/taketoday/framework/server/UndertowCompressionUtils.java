@@ -71,11 +71,9 @@ public abstract class UndertowCompressionUtils {
   }
 
   private static Predicate[] getCompressionPredicates(CompressionConfiguration compression) {
-
     final List<Predicate> predicates = new ArrayList<>();
 
     predicates.add(Predicates.maxContentSize(compression.getMinResponseSize().toBytes()));
-
     if (compression.getIncludeMethods() != null //
             || compression.getExcludeMethods() != null//
             || compression.getIncludedPaths() != null//
@@ -107,11 +105,8 @@ public abstract class UndertowCompressionUtils {
   }
 
   private static class UserAgentPredicate implements Predicate {
-
     private final String[] excludeUserAgents;
-
     private final Pattern[] excludeAgentPatterns;
-
     private final Pattern[] includeAgentPatterns;
 
     private UserAgentPredicate(final CompressionConfiguration compression) {
@@ -184,7 +179,6 @@ public abstract class UndertowCompressionUtils {
 
     @Override
     public boolean resolve(final HttpServerExchange serverExchange) {
-
       final HttpString requestMethod = serverExchange.getRequestMethod();
       final String requestPath = serverExchange.getRequestPath();
 
@@ -203,7 +197,6 @@ public abstract class UndertowCompressionUtils {
   }
 
   private static class MimeTypesPredicate implements Predicate {
-
     private final String[] mimeTypes;
 
     private MimeTypesPredicate(String... mimeTypes) {
@@ -213,7 +206,6 @@ public abstract class UndertowCompressionUtils {
     @Override
     public boolean resolve(HttpServerExchange httpServerExchange) {
       final String contentType = httpServerExchange.getResponseHeaders().getFirst(Constant.CONTENT_TYPE);
-
       if (StringUtils.isNotEmpty(contentType)) {
         for (String mimeType : this.mimeTypes) {
           if (matches(mimeType, contentType)) {

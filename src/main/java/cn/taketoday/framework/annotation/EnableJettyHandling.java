@@ -4,6 +4,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.framework.server.JettyServer;
 
 import static java.lang.annotation.ElementType.METHOD;
@@ -15,7 +17,17 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Retention(RUNTIME)
 @Target({ TYPE, METHOD })
-@Import(JettyServer.class)
+@Import(JettyConfig.class)
 public @interface EnableJettyHandling {
+
+}
+
+class JettyConfig {
+
+  @MissingBean
+  @Props(prefix = { "server.", "server.jetty." })
+  JettyServer jettyServer() {
+    return new JettyServer();
+  }
 
 }

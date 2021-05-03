@@ -33,7 +33,6 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.io.ClassPathResource;
 import cn.taketoday.context.io.FileBasedResource;
@@ -69,7 +68,6 @@ import io.undertow.servlet.util.ImmediateInstanceFactory;
  * @author TODAY <br>
  * 2019-01-12 17:28
  */
-@Props(prefix = { "server.", "server.undertow." })
 public class UndertowServer
         extends AbstractServletWebServer implements WebServer {
 

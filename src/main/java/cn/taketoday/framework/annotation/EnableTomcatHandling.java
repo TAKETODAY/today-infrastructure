@@ -4,6 +4,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.framework.server.TomcatServer;
 
 import static java.lang.annotation.ElementType.METHOD;
@@ -15,7 +17,16 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Retention(RUNTIME)
 @Target({ TYPE, METHOD })
-@Import(TomcatServer.class)
+@Import(TomcatConfig.class)
 public @interface EnableTomcatHandling {
 
+}
+
+class TomcatConfig {
+
+  @MissingBean
+  @Props(prefix = { "server.", "server.tomcat." })
+  TomcatServer tomcatServer() {
+    return new TomcatServer();
+  }
 }

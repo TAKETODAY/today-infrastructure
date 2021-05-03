@@ -23,6 +23,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.framework.config.CompressionConfiguration;
 
 import static java.lang.annotation.ElementType.METHOD;
@@ -30,12 +32,20 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * @author TODAY <br>
- *         2020-08-16 12:45
+ * @author TODAY 2020-08-16 12:45
  */
 @Retention(RUNTIME)
 @Target({ TYPE, METHOD })
-@Import(CompressionConfiguration.class)
-public @interface EnableCompressionConfiguration {
+@Import(CompressionConfig.class)
+public @interface EnableCompression {
 
+}
+
+class CompressionConfig {
+
+  @MissingBean
+  @Props(prefix = "compression.")
+  CompressionConfiguration compressionConfiguration() {
+    return new CompressionConfiguration();
+  }
 }
