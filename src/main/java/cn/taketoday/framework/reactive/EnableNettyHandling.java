@@ -28,8 +28,6 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.AnnotationBeanDefinitionRegistrar;
-import cn.taketoday.framework.reactive.server.NettyServerInitializer;
-import cn.taketoday.framework.reactive.server.NettyWebServer;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.session.EnableWebSession;

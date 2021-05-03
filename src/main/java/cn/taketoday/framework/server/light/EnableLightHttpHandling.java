@@ -34,6 +34,8 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
+ * 还没有写完功能残缺
+ *
  * @author TODAY 2021/4/13 19:30
  */
 @Retention(RUNTIME)

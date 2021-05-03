@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.framework.reactive.server;
+package cn.taketoday.framework.reactive;
 
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.framework.reactive.ReactiveChannelHandler;
