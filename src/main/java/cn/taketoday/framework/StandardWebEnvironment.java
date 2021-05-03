@@ -34,6 +34,7 @@ import cn.taketoday.context.env.StandardEnvironment;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.annotation.PropertiesSource;
@@ -131,7 +132,6 @@ public class StandardWebEnvironment extends StandardEnvironment {
    *         When access to the resource if any {@link IOException} occurred
    */
   protected void replaceProperties(Set<String> locations) throws IOException {
-
     // replace
     final String[] activeProfiles = getActiveProfiles();
     for (final String profile : activeProfiles) {
@@ -150,9 +150,13 @@ public class StandardWebEnvironment extends StandardEnvironment {
 
   @Override
   protected void loadProperties(Resource resource) throws IOException {
-
     if (isYamlProperties(resource.getName())) {
-      loadFromYmal(getProperties(), resource);
+      if (SnakeyamlDelegate.isPresent) {
+        loadFromYmal(getProperties(), resource);
+      }
+      else {
+        log.warn("'org.yaml.snakeyaml.Yaml' does not exist in your classpath, yaml config file will be ignored");
+      }
     }
     else {
       super.loadProperties(resource);
@@ -161,22 +165,31 @@ public class StandardWebEnvironment extends StandardEnvironment {
 
   protected void loadFromYmal(final Properties properties, final Resource yamlResource) throws IOException {
     log.info("Found Yaml Properties Resource: [{}]", yamlResource.getLocation());
-    doMapping(properties, new Yaml(new CompactConstructor()).load(yamlResource.getInputStream()), null);
+    SnakeyamlDelegate.doMapping(properties, yamlResource);
   }
 
-  @SuppressWarnings("unchecked")
-  protected static void doMapping(final Properties properties, final Map<String, Object> base, final String prefix) {
+  static class SnakeyamlDelegate {
+    static boolean isPresent = ClassUtils.isPresent("org.yaml.snakeyaml.Yaml");
 
-    for (final Entry<String, Object> entry : base.entrySet()) {
-      String key = entry.getKey();
-      final Object value = entry.getValue();
-      key = prefix == null ? key : (prefix + '.' + key);
-      if (value instanceof Map) {
-        doMapping(properties, (Map<String, Object>) value, key);
-      }
-      else {
-        properties.put(key, value);
+    protected static void doMapping(final Properties properties, Resource yamlResource) throws IOException {
+      final Map<String, Object> base = new Yaml(new CompactConstructor()).load(yamlResource.getInputStream());
+      SnakeyamlDelegate.doMapping(properties, base, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected static void doMapping(final Properties properties, final Map<String, Object> base, final String prefix) {
+      for (final Entry<String, Object> entry : base.entrySet()) {
+        String key = entry.getKey();
+        final Object value = entry.getValue();
+        key = prefix == null ? key : (prefix + '.' + key);
+        if (value instanceof Map) {
+          doMapping(properties, (Map<String, Object>) value, key);
+        }
+        else {
+          properties.put(key, value);
+        }
       }
     }
   }
+
 }
