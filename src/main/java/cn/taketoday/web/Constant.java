@@ -192,7 +192,9 @@ public interface Constant extends cn.taketoday.context.Constant {
 	String	SEC_WEBSOCKET_ORIGIN				= "Sec-WebSocket-Origin";
 	String	SEC_WEBSOCKET_ACCEPT				= "Sec-WebSocket-Accept";
 	String	SEC_WEBSOCKET_VERSION				= "Sec-WebSocket-Version";
-	String	SEC_WEBSOCKET_PROTOCOL				= "Sec-WebSocket-Protocol";
+	String	SEC_WEBSOCKET_PROTOCOL			= "Sec-WebSocket-Protocol";
+	String  SEC_WEBSOCKET_EXTENSIONS		= "Sec-WebSocket-Extensions";
+
 	String	SEC_WEBSOCKET_LOCATION				= "Sec-WebSocket-Location";
 	String	ACCESS_CONTROL_MAX_AGE				= "Access-Control-Max-Age";
 	String	CONTENT_TRANSFER_ENCODING			= "Content-Transfer-Encoding";
