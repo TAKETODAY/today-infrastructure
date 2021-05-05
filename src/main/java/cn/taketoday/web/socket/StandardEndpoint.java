@@ -38,7 +38,7 @@ public class StandardEndpoint extends Endpoint {
   private final WebSocketHandler webSocketHandler;
   private final DefaultWebSocketSession session;
 
-  StandardEndpoint(WebSocketHandler webSocketHandler, DefaultWebSocketSession session) {
+  public StandardEndpoint(WebSocketHandler webSocketHandler, DefaultWebSocketSession session) {
     this.webSocketHandler = webSocketHandler;
     this.session = session;
   }

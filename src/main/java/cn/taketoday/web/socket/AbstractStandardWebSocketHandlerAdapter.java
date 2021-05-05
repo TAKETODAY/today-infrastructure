@@ -29,6 +29,7 @@ import javax.websocket.server.ServerEndpointConfig;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.web.http.HttpStatus;
 
 /**
  * javax.websocket
@@ -37,15 +38,21 @@ import cn.taketoday.web.http.HttpHeaders;
  */
 public abstract class AbstractStandardWebSocketHandlerAdapter extends AbstractWebSocketHandlerAdapter {
 
+  protected ServerContainer serverContainer;
+
+  protected ServerContainer getServerContainer() {
+    return serverContainer;
+  }
+
   @Override
   protected WebSocketSession createSession(RequestContext context, WebSocketHandler handler) {
     return new DefaultWebSocketSession(context, handler);
   }
 
   @Override
-  protected void upgrade(RequestContext context, WebSocketSession ses, WebSocketHandler handler)
+  protected void doHandshake(RequestContext context, WebSocketSession ses, WebSocketHandler handler)
           throws HandshakeFailedException, IOException {
-    super.upgrade(context, ses, handler);
+    super.doHandshake(context, ses, handler);
 
     final HttpHeaders requestHeaders = context.requestHeaders();
     final HttpHeaders responseHeaders = context.responseHeaders();
@@ -60,16 +67,16 @@ public abstract class AbstractStandardWebSocketHandlerAdapter extends AbstractWe
     }
 
     final DefaultWebSocketSession session = (DefaultWebSocketSession) ses;
-    final ServerContainer webSocketContainer = getServerContainer();
-//    ContainerProvider.getWebSocketContainer();
-    doUpgrade(webSocketContainer, context, session, handler, subProtocol);
+
+    doUpgrade(context, session, handler, subProtocol);
 
     handler.handshake(context);
+    // Output required by RFC2616. Protocol specific headers should have
+    // already been set.
+    context.setStatus(HttpStatus.SWITCHING_PROTOCOLS);
   }
 
-  protected abstract ServerContainer getServerContainer();
-
-  protected abstract void doUpgrade(ServerContainer webSocketContainer, RequestContext context, DefaultWebSocketSession session,
+  protected abstract void doUpgrade(RequestContext context, DefaultWebSocketSession session,
                                     WebSocketHandler handler, String subProtocol);
 
 }

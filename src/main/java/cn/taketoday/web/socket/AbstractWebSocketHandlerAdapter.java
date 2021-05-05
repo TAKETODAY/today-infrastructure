@@ -49,13 +49,13 @@ public abstract class AbstractWebSocketHandlerAdapter extends AbstractHandlerAda
 
   protected Object handleInternal(RequestContext context, WebSocketHandler handler) throws Throwable {
     WebSocketSession session = createSession(context, handler);
-    upgrade(context, session, handler);
+    doHandshake(context, session, handler);
     return NONE_RETURN_VALUE;
   }
 
   protected abstract WebSocketSession createSession(RequestContext context, WebSocketHandler handler);
 
-  protected void upgrade(
+  protected void doHandshake(
           RequestContext context, WebSocketSession session, WebSocketHandler handler) throws HandshakeFailedException, IOException {
 
     // Validate the rest of the headers and reject the request if that validation fails
@@ -81,7 +81,6 @@ public abstract class AbstractWebSocketHandlerAdapter extends AbstractHandlerAda
     responseHeaders.setUpgrade(HttpHeaders.WEBSOCKET);
     responseHeaders.setConnection(HttpHeaders.UPGRADE);
     responseHeaders.set(HttpHeaders.SEC_WEBSOCKET_ACCEPT, UpgradeUtils.getWebSocketAccept(key));
-
 
   }
 

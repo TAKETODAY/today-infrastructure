@@ -18,14 +18,11 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.socket;
+package cn.taketoday.web.socket.tomcat;
 
 import org.apache.tomcat.websocket.Transformation;
 import org.apache.tomcat.websocket.TransformationFactory;
 import org.apache.tomcat.websocket.WsHandshakeResponse;
-import org.apache.tomcat.websocket.server.WsHandshakeRequest;
-import org.apache.tomcat.websocket.server.WsHttpUpgradeHandler;
-import org.apache.tomcat.websocket.server.WsServerContainer;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,7 +34,6 @@ import java.util.Map;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.websocket.Extension;
-import javax.websocket.server.ServerContainer;
 import javax.websocket.server.ServerEndpointConfig;
 
 import cn.taketoday.context.utils.Assert;
@@ -45,6 +41,13 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletContextAware;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.socket.AbstractStandardWebSocketHandlerAdapter;
+import cn.taketoday.web.socket.DefaultWebSocketSession;
+import cn.taketoday.web.socket.HandshakeFailedException;
+import cn.taketoday.web.socket.StandardEndpoint;
+import cn.taketoday.web.socket.StandardExtension;
+import cn.taketoday.web.socket.UpgradeUtils;
+import cn.taketoday.web.socket.WebSocketHandler;
 
 /**
  * Tomcat WebSocket HandlerAdapter
@@ -70,17 +73,14 @@ public class TomcatWebSocketHandlerAdapter extends AbstractStandardWebSocketHand
     }
   }
 
-  private TomcatServerContainer serverContainer;
-
   @Override
-  protected ServerContainer getServerContainer() {
-    return serverContainer;
+  protected TomcatServerContainer getServerContainer() {
+    return (TomcatServerContainer) super.getServerContainer();
   }
 
   @Override
-  protected void doUpgrade(
-          ServerContainer webSocketContainer, RequestContext context,
-          DefaultWebSocketSession session, WebSocketHandler handler, String subProtocol) {
+  protected void doUpgrade(RequestContext context,
+                           DefaultWebSocketSession session, WebSocketHandler handler, String subProtocol) {
 
     final ServerEndpointConfig endpointConfig = handler.getEndpointConfig();
     // Negotiation phase 1. By default this simply filters out the
@@ -144,6 +144,7 @@ public class TomcatWebSocketHandlerAdapter extends AbstractStandardWebSocketHand
     // Now we have the full pipeline, validate the use of the RSV bits.
     if (transformation != null && !transformation.validateRsvBits(0)) {
       // Extensions were specified that have incompatible RSV bit usage
+      // TODO ex
     }
     if (!transformations.isEmpty()) {
       context.responseHeaders().set(HttpHeaders.SEC_WEBSOCKET_EXTENSIONS, responseHeaderExtensions.toString());
@@ -155,11 +156,10 @@ public class TomcatWebSocketHandlerAdapter extends AbstractStandardWebSocketHand
     final HttpServletRequest request = ((ServletRequestContext) context).getRequest();
 
     WsHandshakeResponse handshakeResponse = new WsHandshakeResponse();
-    WsHandshakeRequest handshakeRequest = new WsHandshakeRequest(request, Collections.emptyMap());
+    TomcatHandshakeRequest handshakeRequest = new TomcatHandshakeRequest(request, requestHeaders);
 
     endpointConfig.getConfigurator().modifyHandshake(endpointConfig, handshakeRequest, handshakeResponse);
-
-//    handshakeRequest.finished();
+    handshakeRequest.finished();
 
     final HttpHeaders responseHeaders = context.responseHeaders();
     // Add any additional headers
@@ -170,10 +170,17 @@ public class TomcatWebSocketHandlerAdapter extends AbstractStandardWebSocketHand
     }
 
     try {
-      WsHttpUpgradeHandler wsHandler = request.upgrade(WsHttpUpgradeHandler.class);
-      wsHandler.preInit(endpoint, endpointConfig, (WsServerContainer) webSocketContainer, handshakeRequest,
-                        negotiatedExtensionsPhase2, subProtocol, transformation, Collections.emptyMap(),
-                        request.isSecure());
+      TomcatHttpUpgradeHandler wsHandler = request.upgrade(TomcatHttpUpgradeHandler.class);
+
+      TomcatServerContainer webSocketContainer = getServerContainer();
+      wsHandler.setEndpoint(endpoint);
+      wsHandler.setSecure(request.isSecure());
+      wsHandler.setServerEndpointConfig(endpointConfig);
+      wsHandler.setWebSocketContainer(webSocketContainer);
+      wsHandler.setHandshakeRequest(handshakeRequest);
+      wsHandler.setNegotiatedExtensions(negotiatedExtensionsPhase2);
+      wsHandler.setSubProtocol(subProtocol);
+      wsHandler.setTransformation(transformation);
     }
     catch (Exception e) {
       throw new HandshakeFailedException(e);
@@ -228,6 +235,6 @@ public class TomcatWebSocketHandlerAdapter extends AbstractStandardWebSocketHand
 
   @Override
   public void setServletContext(ServletContext servletContext) {
-    serverContainer = new TomcatServerContainer(servletContext);
+    this.serverContainer = new TomcatServerContainer(servletContext);
   }
 }

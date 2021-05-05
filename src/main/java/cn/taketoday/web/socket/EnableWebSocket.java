@@ -28,6 +28,7 @@ import java.util.List;
 
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.web.socket.tomcat.TomcatWebSocketHandlerAdapter;
 
 /**
  * @author TODAY 2021/4/5 12:14

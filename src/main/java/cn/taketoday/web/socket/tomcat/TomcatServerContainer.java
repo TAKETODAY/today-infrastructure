@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.socket;
+package cn.taketoday.web.socket.tomcat;
 
 import org.apache.tomcat.InstanceManager;
 import org.apache.tomcat.websocket.WsSession;
@@ -26,7 +26,6 @@ import org.apache.tomcat.websocket.WsWebSocketContainer;
 import org.apache.tomcat.websocket.pojo.PojoMethodMapping;
 import org.apache.tomcat.websocket.server.Constants;
 import org.apache.tomcat.websocket.server.UriTemplate;
-import org.apache.tomcat.websocket.server.WsWriteTimeout;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -54,14 +53,14 @@ public class TomcatServerContainer extends WsWebSocketContainer implements Serve
                           "This connection was established under an authenticated " +
                                   "HTTP session that has ended.");
 
-  private final WsWriteTimeout wsWriteTimeout = new WsWriteTimeout();
+  private final TomcatWriteTimeout wsWriteTimeout = new TomcatWriteTimeout();
 
   private final ServletContext servletContext;
   private final Map<String, ExactPathMatch> configExactMatchMap = new ConcurrentHashMap<>();
-  private final Map<Integer, ConcurrentSkipListMap<String, TemplatePathMatch>> configTemplateMatchMap =
-          new ConcurrentHashMap<>();
-  private volatile boolean enforceNoAddAfterHandshake =
-          org.apache.tomcat.websocket.Constants.STRICT_SPEC_COMPLIANCE;
+  private final Map<Integer, ConcurrentSkipListMap<String, TemplatePathMatch>>
+          configTemplateMatchMap = new ConcurrentHashMap<>();
+
+  private volatile boolean enforceNoAddAfterHandshake = org.apache.tomcat.websocket.Constants.STRICT_SPEC_COMPLIANCE;
   private volatile boolean addAllowed = true;
   private final Map<String, Set<WsSession>> authenticatedSessions = new ConcurrentHashMap<>();
   private volatile boolean endpointsRegistered = false;
@@ -212,7 +211,6 @@ public class TomcatServerContainer extends WsWebSocketContainer implements Serve
   }
 
   void addEndpoint(Class<?> pojo, boolean fromAnnotatedPojo) throws DeploymentException {
-
     if (deploymentFailed) {
       throw new DeploymentException(
               String.format(
@@ -222,7 +220,6 @@ public class TomcatServerContainer extends WsWebSocketContainer implements Serve
     }
 
     ServerEndpointConfig sec;
-
     try {
       ServerEndpoint annotation = pojo.getAnnotation(ServerEndpoint.class);
       if (annotation == null) {
@@ -358,7 +355,7 @@ public class TomcatServerContainer extends WsWebSocketContainer implements Serve
     this.enforceNoAddAfterHandshake = enforceNoAddAfterHandshake;
   }
 
-  protected WsWriteTimeout getTimeout() {
+  public TomcatWriteTimeout getTimeout() {
     return wsWriteTimeout;
   }
 
@@ -368,7 +365,7 @@ public class TomcatServerContainer extends WsWebSocketContainer implements Serve
    * Overridden to make it visible to other classes in this package.
    */
   @Override
-  protected void registerSession(Object key, WsSession wsSession) {
+  public void registerSession(Object key, WsSession wsSession) {
     super.registerSession(key, wsSession);
     if (wsSession.isOpen() &&
             wsSession.getUserPrincipal() != null &&
@@ -403,8 +400,8 @@ public class TomcatServerContainer extends WsWebSocketContainer implements Serve
     wsSessions.add(wsSession);
   }
 
-  private void unregisterAuthenticatedSession(WsSession wsSession,
-                                              String httpSessionId) {
+  private void unregisterAuthenticatedSession(
+          WsSession wsSession, String httpSessionId) {
     Set<WsSession> wsSessions = authenticatedSessions.get(httpSessionId);
     // wsSessions will be null if the HTTP session has ended
     if (wsSessions != null) {
