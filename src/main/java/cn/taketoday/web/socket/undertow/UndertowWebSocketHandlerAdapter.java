@@ -116,17 +116,21 @@ public class UndertowWebSocketHandlerAdapter
 
       Handshake handshaking = getHandshake(context, facade, handler);
       if (handshaking != null) {
-        if (serverContainer.isClosed()) {
+        if (obtainContainer().isClosed()) {
           throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE);
         }
 
         facade.putAttachment(HandshakeUtil.PATH_PARAMS, Collections.emptyMap());
 //        facade.putAttachment(HandshakeUtil.PRINCIPAL, req.getUserPrincipal());
-        final Handshake selected = handshaking;
         ServletRequestContext src = ServletRequestContext.requireCurrent();
         final HttpSessionImpl session = src.getCurrentServletContext().getSession(src.getExchange(), false);
 
         final class HttpUpgradeListener0 implements HttpUpgradeListener {
+          final Handshake selected;
+
+          HttpUpgradeListener0(Handshake selected) {
+            this.selected = selected;
+          }
 
           @Override
           public void handleUpgrade(StreamConnection streamConnection, HttpServerExchange exchange) {
@@ -169,8 +173,7 @@ public class UndertowWebSocketHandlerAdapter
           }
         }
 
-        facade.upgradeChannel(new HttpUpgradeListener0());
-
+        facade.upgradeChannel(new HttpUpgradeListener0(handshaking));
         handshaking.handshake(facade);
       }
     }
@@ -207,6 +210,12 @@ public class UndertowWebSocketHandlerAdapter
     handshakes.add(new JsrHybi08Handshake(configured));
     handshakes.add(new JsrHybi07Handshake(configured));
     return handshakes;
+  }
+
+  private ServerWebSocketContainer obtainContainer() {
+    ServerWebSocketContainer serverContainer = this.serverContainer;
+    Assert.state(serverContainer != null, "serverContainer has not been initialized");
+    return serverContainer;
   }
 
   @Override
