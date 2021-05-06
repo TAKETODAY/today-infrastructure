@@ -43,7 +43,7 @@ public @interface EnableWebSocket {
 
 class WebSocketConfig {
 
-  @MissingBean
+  @MissingBean(type = AbstractWebSocketHandlerAdapter.class)
   TomcatWebSocketHandlerAdapter webSocketHandlerAdapter() {
     return new TomcatWebSocketHandlerAdapter();
   }

@@ -37,10 +37,11 @@ import cn.taketoday.context.AttributeAccessorSupport;
  */
 public class StandardServerEndpointConfig extends AttributeAccessorSupport implements ServerEndpointConfig {
   private final String path;
-  private Configurator configurator;
+  private final Configurator configurator;
 
-  public StandardServerEndpointConfig(String path) {
+  public StandardServerEndpointConfig(String path, Configurator configurator) {
     this.path = path;
+    this.configurator = configurator;
   }
 
   @Override
@@ -66,10 +67,6 @@ public class StandardServerEndpointConfig extends AttributeAccessorSupport imple
   @Override
   public Configurator getConfigurator() {
     return configurator;
-  }
-
-  public void setConfigurator(Configurator configurator) {
-    this.configurator = configurator;
   }
 
   @Override

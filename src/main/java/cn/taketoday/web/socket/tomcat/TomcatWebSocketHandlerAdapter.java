@@ -23,6 +23,7 @@ package cn.taketoday.web.socket.tomcat;
 import org.apache.tomcat.websocket.Transformation;
 import org.apache.tomcat.websocket.TransformationFactory;
 import org.apache.tomcat.websocket.WsHandshakeResponse;
+import org.apache.tomcat.websocket.server.DefaultServerEndpointConfigurator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,9 +74,10 @@ public class TomcatWebSocketHandlerAdapter
     }
   }
 
-  @Override
+  protected TomcatServerContainer serverContainer;
+
   protected TomcatServerContainer getServerContainer() {
-    return (TomcatServerContainer) super.getServerContainer();
+    return serverContainer;
   }
 
   @Override
@@ -222,6 +224,7 @@ public class TomcatWebSocketHandlerAdapter
 
   @Override
   public void setServletContext(ServletContext servletContext) {
+    this.configurator = new DefaultServerEndpointConfigurator();
     this.serverContainer = new TomcatServerContainer(servletContext);
   }
 }

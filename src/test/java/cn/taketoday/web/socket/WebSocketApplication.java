@@ -21,9 +21,11 @@ package cn.taketoday.web.socket;
 
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.framework.WebApplication;
-import cn.taketoday.framework.annotation.EnableTomcatHandling;
+import cn.taketoday.framework.annotation.EnableUndertowHandling;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.socket.undertow.UndertowWebSocketHandlerAdapter;
 
 /**
  * @author TODAY 2021/4/5 13:03
@@ -31,7 +33,8 @@ import cn.taketoday.web.RequestContext;
 @Configuration
 @Import(WebSocketApplication.AppConfig.class)
 @EnableWebSocket
-@EnableTomcatHandling
+//@EnableTomcatHandling
+@EnableUndertowHandling
 public class WebSocketApplication {
 
   public static void main(String[] args) {
@@ -45,6 +48,12 @@ public class WebSocketApplication {
     public void configureWebSocketHandlers(WebSocketHandlerRegistry registry) {
       registry.registerHandler(new WebSocket0(), "/endpoint");
     }
+
+    @Singleton
+    UndertowWebSocketHandlerAdapter webSocketHandlerAdapter() {
+      return new UndertowWebSocketHandlerAdapter();
+    }
+
   }
 
   static class WebSocket0 extends AbstractWebSocketHandler implements WebSocketHandler {

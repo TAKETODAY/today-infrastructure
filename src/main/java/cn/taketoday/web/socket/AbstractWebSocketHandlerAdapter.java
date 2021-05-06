@@ -112,6 +112,7 @@ public abstract class AbstractWebSocketHandlerAdapter extends AbstractHandlerAda
     List<WebSocketExtension> supportedExtensions = getNegotiatedExtensions(installedExtensions, requestedExtensions);
     doUpgrade(context, handler, subProtocol, supportedExtensions);
 
+    // call afterHandshake
     handler.afterHandshake(context);
   }
 

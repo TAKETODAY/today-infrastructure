@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.socket;
 
-import javax.websocket.server.ServerContainer;
 import javax.websocket.server.ServerEndpointConfig;
 
 import cn.taketoday.web.RequestContext;
@@ -31,18 +30,13 @@ import cn.taketoday.web.RequestContext;
  * @author TODAY 2021/5/3 23:17
  */
 public abstract class AbstractStandardWebSocketHandlerAdapter extends AbstractWebSocketHandlerAdapter {
-
-  protected ServerContainer serverContainer;
-
-  protected ServerContainer getServerContainer() {
-    return serverContainer;
-  }
+  protected ServerEndpointConfig.Configurator configurator;
 
   protected ServerEndpointConfig getServerEndpointConfig(RequestContext context, WebSocketHandler handler) {
     if (handler instanceof StandardWebSocketHandler) {
       return ((StandardWebSocketHandler) handler).getEndpointConfig(context);
     }
-    return new StandardServerEndpointConfig(context.getRequestPath());
+    return new StandardServerEndpointConfig(context.getRequestPath(), configurator);
   }
 
 }
