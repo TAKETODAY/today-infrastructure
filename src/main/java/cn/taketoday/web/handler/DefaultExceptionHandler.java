@@ -36,6 +36,8 @@ import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.config.WebApplicationInitializer;
+import cn.taketoday.web.exception.HttpStatusCapable;
+import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.utils.WebUtils;
 
 /**
@@ -211,7 +213,11 @@ public class DefaultExceptionHandler
       final ResponseStatus status = getResponseStatus();
       if (status == null) {
         final Object attribute = context.getAttribute(Constant.KEY_THROWABLE);
-        if (attribute instanceof Throwable) {
+        if (attribute instanceof HttpStatusCapable) { // @since 3.0.1
+          final HttpStatus httpStatus = ((HttpStatusCapable) attribute).getHttpStatus();
+          context.setStatus(httpStatus);
+        }
+        else if (attribute instanceof Throwable) {
           final ResponseStatus runtimeErrorStatus = WebUtils.getResponseStatus((Throwable) attribute);
           applyResponseStatus(context, runtimeErrorStatus);
         }

@@ -34,6 +34,8 @@ import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.exception.HttpStatusCapable;
+import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.TemplateResultHandler;
@@ -170,6 +172,10 @@ public class SimpleExceptionHandler
   }
 
   public int getErrorStatusValue(Throwable ex) {
+    if (ex instanceof HttpStatusCapable) { // @since 3.0.1
+      final HttpStatus httpStatus = ((HttpStatusCapable) ex).getHttpStatus();
+      return httpStatus.value();
+    }
     return WebUtils.getStatusValue(ex);
   }
 
