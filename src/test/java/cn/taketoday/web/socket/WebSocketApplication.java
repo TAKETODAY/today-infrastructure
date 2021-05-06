@@ -67,12 +67,12 @@ public class WebSocketApplication {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
-      System.out.println(message);
+      System.out.println("handleTextMessage" + message);
     }
 
     @Override
     protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
-      System.out.println(message);
+      System.out.println("handleBinaryMessage" + message);
     }
 
     @Override

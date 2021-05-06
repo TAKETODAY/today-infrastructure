@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.socket.jetty;
 
-import org.eclipse.jetty.websocket.api.WebSocketListener;
+import org.eclipse.jetty.websocket.api.WebSocketPartialListener;
 
 import java.nio.ByteBuffer;
 
@@ -29,23 +29,26 @@ import cn.taketoday.web.socket.TextMessage;
 import cn.taketoday.web.socket.WebSocketHandler;
 
 /**
- * @author TODAY 2021/5/6 23:16
+ * @author TODAY 2021/5/6 21:59
  * @since 3.0.1
  */
-public class JettyWebSocketConnectionListener
-        extends AbstractWebSocketConnectionListener implements WebSocketListener {
+public class JettyPartialWebSocketConnectionListener
+        extends AbstractWebSocketConnectionListener implements WebSocketPartialListener {
 
-  public JettyWebSocketConnectionListener(WebSocketHandler handler) {
+  public JettyPartialWebSocketConnectionListener(WebSocketHandler handler) {
     super(handler);
   }
 
+  // Partial
+
   @Override
-  public void onWebSocketBinary(byte[] payload, int offset, int len) {
-    handler.handleMessage(session, new BinaryMessage(ByteBuffer.wrap(payload, offset, len)));
+  public void onWebSocketPartialBinary(ByteBuffer payload, boolean last) {
+    handler.handleMessage(session, new BinaryMessage(payload, last));
   }
 
   @Override
-  public void onWebSocketText(String message) {
-    handler.handleMessage(session, new TextMessage(message));
+  public void onWebSocketPartialText(String payload, boolean last) {
+    handler.handleMessage(session, new TextMessage(payload, last));
   }
+
 }

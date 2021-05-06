@@ -66,6 +66,9 @@ public class JettyWebSocketHandlerAdapter
 
       @Override
       public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
+        if (handler.supportPartialMessage()) {
+          return new JettyPartialWebSocketConnectionListener(handler);
+        }
         return new JettyWebSocketConnectionListener(handler);
       }
     }
