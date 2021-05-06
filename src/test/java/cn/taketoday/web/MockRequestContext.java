@@ -42,6 +42,10 @@ public class MockRequestContext extends RequestContext {
     return null;
   }
 
+  @Override public String getScheme() {
+    return null;
+  }
+
   @Override
   protected String doGetRequestPath() {
     return null;

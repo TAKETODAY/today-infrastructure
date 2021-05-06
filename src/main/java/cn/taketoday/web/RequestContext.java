@@ -97,6 +97,20 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   // --- request
 
   /**
+   * Returns the name of the scheme used to make this request,
+   * for example,
+   * <code>http</code>, <code>https</code>, or <code>ftp</code>.
+   * Different schemes have different rules for constructing URLs,
+   * as noted in RFC 1738.
+   *
+   * @return a <code>String</code> containing the name
+   * of the scheme used to make this request
+   *
+   * @since 3.0.1
+   */
+  public abstract String getScheme();
+
+  /**
    * Returns the portion of the request URI that indicates the context of the
    * request. The context path always comes first in a request URI. The path
    * starts with a "" character but does not end with a "" character. The

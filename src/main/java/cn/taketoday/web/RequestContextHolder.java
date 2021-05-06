@@ -92,6 +92,11 @@ public abstract class RequestContextHolder {
   static class ApplicationNotStartedContext extends RequestContext implements Serializable {
 
     @Override
+    public String getScheme() {
+      return null;
+    }
+
+    @Override
     protected String doGetRequestPath() {
       return null;
     }

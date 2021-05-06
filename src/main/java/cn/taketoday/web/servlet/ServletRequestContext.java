@@ -73,6 +73,11 @@ public class ServletRequestContext extends RequestContext {
   }
 
   @Override
+  public String getScheme() {
+    return request.getScheme();
+  }
+
+  @Override
   protected String doGetContextPath() {
     return request.getContextPath();
   }
