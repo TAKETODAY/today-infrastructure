@@ -20,11 +20,18 @@
 
 package cn.taketoday.web.socket;
 
+import cn.taketoday.web.RequestContext;
+
 /**
  * @author TODAY 2021/4/5 12:57
  * @since 3.0
  */
 public abstract class AbstractWebSocketHandler implements WebSocketHandler {
+
+  @Override
+  public void afterHandshake(RequestContext context) {
+    // no-op
+  }
 
   @Override
   public final void handleMessage(WebSocketSession session, Message<?> message) {
@@ -34,12 +41,26 @@ public abstract class AbstractWebSocketHandler implements WebSocketHandler {
     else if (message instanceof BinaryMessage) {
       handleBinaryMessage(session, (BinaryMessage) message);
     }
+    else if (message instanceof PingMessage) {
+      handlePingMessage(session, (PingMessage) message);
+    }
+    else if (message instanceof PongMessage) {
+      handlePongMessage(session, (PongMessage) message);
+    }
     else {
-      handleMessageInternal(session, message);
+      throwNotSupportMessage(message);
     }
   }
 
-  protected void handleMessageInternal(WebSocketSession session, Message<?> message) {
+  protected void throwNotSupportMessage(Message<?> message) {
+    throw new IllegalArgumentException("Not support message: " + message);
+  }
+
+  protected void handlePingMessage(WebSocketSession session, PingMessage message) {
+    // no-op
+  }
+
+  protected void handlePongMessage(WebSocketSession session, PongMessage message) {
     // no-op
   }
 
@@ -64,6 +85,7 @@ public abstract class AbstractWebSocketHandler implements WebSocketHandler {
 
   @Override
   public boolean supportPartialMessage() {
-    return true;
+    return false;
   }
+
 }

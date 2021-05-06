@@ -42,6 +42,7 @@ import javax.websocket.Encoder;
 import javax.websocket.server.ServerContainer;
 import javax.websocket.server.ServerEndpoint;
 import javax.websocket.server.ServerEndpointConfig;
+import javax.websocket.server.ServerEndpointConfig.Configurator;
 
 /**
  * @author TODAY 2021/5/4 23:40
@@ -139,8 +140,7 @@ public class TomcatServerContainer extends WsWebSocketContainer implements Serve
       UriTemplate uriTemplate = new UriTemplate(path);
       if (uriTemplate.hasParameters()) {
         Integer key = uriTemplate.getSegmentCount();
-        ConcurrentSkipListMap<String, TemplatePathMatch> templateMatches
-                = configTemplateMatchMap.get(key);
+        ConcurrentSkipListMap<String, TemplatePathMatch> templateMatches = configTemplateMatchMap.get(key);
         if (templateMatches == null) {
           // Ensure that if concurrent threads execute this block they
           // all end up using the same ConcurrentSkipListMap instance
@@ -210,7 +210,7 @@ public class TomcatServerContainer extends WsWebSocketContainer implements Serve
     addEndpoint(pojo, false);
   }
 
-  void addEndpoint(Class<?> pojo, boolean fromAnnotatedPojo) throws DeploymentException {
+  private void addEndpoint(Class<?> pojo, boolean fromAnnotatedPojo) throws DeploymentException {
     if (deploymentFailed) {
       throw new DeploymentException(
               String.format(
@@ -232,10 +232,9 @@ public class TomcatServerContainer extends WsWebSocketContainer implements Serve
       validateEncoders(annotation.encoders());
 
       // ServerEndpointConfig
-      Class<? extends ServerEndpointConfig.Configurator> configuratorClazz =
-              annotation.configurator();
-      ServerEndpointConfig.Configurator configurator = null;
-      if (!configuratorClazz.equals(ServerEndpointConfig.Configurator.class)) {
+      Class<? extends Configurator> configuratorClazz = annotation.configurator();
+      Configurator configurator = null;
+      if (!configuratorClazz.equals(Configurator.class)) {
         try {
           configurator = annotation.configurator().getConstructor().newInstance();
         }
@@ -246,12 +245,12 @@ public class TomcatServerContainer extends WsWebSocketContainer implements Serve
                   annotation.configurator().getName(), pojo.getName()), e);
         }
       }
-      sec = ServerEndpointConfig.Builder.create(pojo, path).
-              decoders(Arrays.asList(annotation.decoders())).
-              encoders(Arrays.asList(annotation.encoders())).
-              subprotocols(Arrays.asList(annotation.subprotocols())).
-              configurator(configurator).
-              build();
+      sec = ServerEndpointConfig.Builder.create(pojo, path)
+              .decoders(Arrays.asList(annotation.decoders()))
+              .encoders(Arrays.asList(annotation.encoders()))
+              .subprotocols(Arrays.asList(annotation.subprotocols()))
+              .configurator(configurator)
+              .build();
     }
     catch (DeploymentException de) {
       failDeployment();
@@ -274,11 +273,11 @@ public class TomcatServerContainer extends WsWebSocketContainer implements Serve
     return endpointsRegistered;
   }
 
-  static class WsMappingResult {
+  static class WebSocketMappingResult {
     private final ServerEndpointConfig config;
     private final Map<String, String> pathParams;
 
-    WsMappingResult(ServerEndpointConfig config, Map<String, String> pathParams) {
+    WebSocketMappingResult(ServerEndpointConfig config, Map<String, String> pathParams) {
       this.config = config;
       this.pathParams = pathParams;
     }
@@ -292,18 +291,16 @@ public class TomcatServerContainer extends WsWebSocketContainer implements Serve
     }
   }
 
-  public WsMappingResult findMapping(String path) {
-
+  public WebSocketMappingResult findMapping(String path) {
     // Prevent registering additional endpoints once the first attempt has
     // been made to use one
     if (addAllowed) {
       addAllowed = false;
     }
-
     // Check an exact match. Simple case as there are no templates.
     ExactPathMatch match = configExactMatchMap.get(path);
     if (match != null) {
-      return new WsMappingResult(match.getConfig(), Collections.<String, String>emptyMap());
+      return new WebSocketMappingResult(match.getConfig(), Collections.emptyMap());
     }
 
     // No exact match. Need to look for template matches.
@@ -343,7 +340,7 @@ public class TomcatServerContainer extends WsWebSocketContainer implements Serve
       return null;
     }
 
-    return new WsMappingResult(sec, pathParams);
+    return new WebSocketMappingResult(sec, pathParams);
   }
 
   public boolean isEnforceNoAddAfterHandshake() {

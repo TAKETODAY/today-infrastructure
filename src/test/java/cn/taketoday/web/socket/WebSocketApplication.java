@@ -19,8 +19,6 @@
  */
 package cn.taketoday.web.socket;
 
-import javax.websocket.server.ServerEndpointConfig;
-
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.framework.WebApplication;
@@ -62,14 +60,13 @@ public class WebSocketApplication {
     }
 
     @Override
-    public void handshake(RequestContext context) {
-      System.out.println("handshake");
+    public void afterHandshake(RequestContext context) {
+      System.out.println("afterHandshake");
     }
 
     @Override
-    public ServerEndpointConfig getEndpointConfig() {
-      return ServerEndpointConfig.Builder.create(StandardEndpoint.class, "/endpoint")
-              .build();
+    public void onClose(WebSocketSession session, CloseStatus status) {
+
     }
   }
 

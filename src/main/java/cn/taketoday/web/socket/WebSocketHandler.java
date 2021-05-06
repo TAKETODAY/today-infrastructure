@@ -20,8 +20,6 @@
 
 package cn.taketoday.web.socket;
 
-import javax.websocket.server.ServerEndpointConfig;
-
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -30,18 +28,65 @@ import cn.taketoday.web.RequestContext;
  */
 public interface WebSocketHandler {
 
-  void handshake(RequestContext context);
+  /**
+   * called after Handshake
+   */
+  void afterHandshake(RequestContext context);
 
+  /**
+   * Developers must implement this method to be notified when a new conversation has
+   * just begun.
+   *
+   * @param session
+   *         the session that has just been activated.
+   */
   void onOpen(WebSocketSession session);
 
+  /**
+   * Called when the message has been fully received.
+   *
+   * @param message
+   *         the message data.
+   */
   void handleMessage(WebSocketSession session, Message<?> message);
 
-  void onClose(WebSocketSession session);
+  default void onClose(WebSocketSession session) {
+    onClose(session, CloseStatus.NORMAL);
+  }
 
+  /**
+   * This method is called immediately prior to the session with the remote
+   * peer being closed. It is called whether the session is being closed
+   * because the remote peer initiated a close and sent a close frame, or
+   * whether the local websocket container or this endpoint requests to close
+   * the session. The developer may take this last opportunity to retrieve
+   * session attributes such as the ID, or any application data it holds before
+   * it becomes unavailable after the completion of the method. Developers should
+   * not attempt to modify the session from within this method, or send new
+   * messages from this call as the underlying
+   * connection will not be able to send them at this stage.
+   *
+   * @param session
+   *         the session about to be closed.
+   * @param status
+   *         the reason the session was closed.
+   */
+  void onClose(WebSocketSession session, CloseStatus status);
+
+  /**
+   * Developers may implement this method when the web socket session
+   * creates some kind of error that is not modeled in the web socket
+   * protocol. This may for example be a notification that an incoming
+   * message is too big to handle, or that the incoming message could
+   * not be encoded.
+   *
+   * @param session
+   *         the session in use when the error occurs.
+   * @param throwable
+   *         the throwable representing the problem.
+   */
   void onError(WebSocketSession session, Throwable throwable);
 
   boolean supportPartialMessage();
-
-  ServerEndpointConfig getEndpointConfig();
 
 }

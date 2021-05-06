@@ -21,8 +21,15 @@
 package cn.taketoday.web.socket;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 
+import cn.taketoday.context.utils.CollectionUtils;
+import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.exception.BadRequestException;
 import cn.taketoday.web.handler.AbstractHandlerAdapter;
@@ -48,15 +55,12 @@ public abstract class AbstractWebSocketHandlerAdapter extends AbstractHandlerAda
   }
 
   protected Object handleInternal(RequestContext context, WebSocketHandler handler) throws Throwable {
-    WebSocketSession session = createSession(context, handler);
-    doHandshake(context, session, handler);
+    doHandshake(context, handler);
     return NONE_RETURN_VALUE;
   }
 
-  protected abstract WebSocketSession createSession(RequestContext context, WebSocketHandler handler);
-
   protected void doHandshake(
-          RequestContext context, WebSocketSession session, WebSocketHandler handler) throws HandshakeFailedException, IOException {
+          RequestContext context, WebSocketHandler handler) throws HandshakeFailedException, IOException {
 
     // Validate the rest of the headers and reject the request if that validation fails
     final List<String> connection = context.requestHeaders().getConnection();
@@ -82,6 +86,109 @@ public abstract class AbstractWebSocketHandlerAdapter extends AbstractHandlerAda
     responseHeaders.setConnection(HttpHeaders.UPGRADE);
     responseHeaders.set(HttpHeaders.SEC_WEBSOCKET_ACCEPT, UpgradeUtils.getWebSocketAccept(key));
 
+    // Sub-protocols
+    List<String> requested = UpgradeUtils.getTokensFromHeader(requestHeaders, HttpHeaders.SEC_WEBSOCKET_PROTOCOL);
+    List<String> supported = getSupportedSubProtocols(context);
+    String subProtocol = getNegotiatedSubProtocol(supported, requested);
+    if (StringUtils.isNotEmpty(subProtocol)) {
+      // RFC6455 4.2.2 explicitly states "" is not valid here
+      responseHeaders.set(HttpHeaders.SEC_WEBSOCKET_PROTOCOL, subProtocol);
+    }
+
+    // Output required by RFC2616. Protocol specific headers should have
+    // already been set.
+    context.setStatus(HttpStatus.SWITCHING_PROTOCOLS);
+
+    // Extensions
+    List<WebSocketExtension> installedExtensions = getInstalledExtensions();
+    // Should normally only be one header but handle the case of multiple headers
+    List<WebSocketExtension> requestedExtensions = new ArrayList<>();
+    List<String> extHeaders = requestHeaders.get(HttpHeaders.SEC_WEBSOCKET_EXTENSIONS);
+    if (extHeaders != null) {
+      for (final String extHeader : extHeaders) {
+        UpgradeUtils.parseExtensionHeader(requestedExtensions, extHeader);
+      }
+    }
+    List<WebSocketExtension> supportedExtensions = getNegotiatedExtensions(installedExtensions, requestedExtensions);
+    doUpgrade(context, handler, subProtocol, supportedExtensions);
+
+    handler.afterHandshake(context);
+  }
+
+  protected List<WebSocketExtension> getInstalledExtensions() {
+    return Collections.emptyList();
+  }
+
+  protected abstract void doUpgrade(
+          RequestContext context, WebSocketHandler handler, String subProtocol,
+          List<WebSocketExtension> supportedExtensions);
+
+  protected List<String> getSupportedSubProtocols(RequestContext context) {
+    return Collections.emptyList();
+  }
+
+  /**
+   * Return the subprotocol the server endpoint has chosen from the requested
+   * list supplied by a client who wishes to connect, or none if there wasn't one
+   * this server endpoint liked. See
+   * <a href="http://tools.ietf.org/html/rfc6455#section-4.2.2">Sending the
+   * Server's Opening Handshake</a>. Subclasses may provide custom algorithms
+   * based on other factors.
+   *
+   * <p>The default platform implementation of this method returns the first
+   * subprotocol in the list sent by the client that the server supports,
+   * or the empty string if there isn't one.
+   *
+   * @param requested
+   *         the requested subprotocols from the client endpoint
+   * @param supported
+   *         the subprotocols supported by the server endpoint
+   *
+   * @return the negotiated subprotocol or the empty string if there isn't one.
+   */
+  public String getNegotiatedSubProtocol(
+          final List<String> supported, final List<String> requested) {
+    if (!CollectionUtils.isEmpty(supported)) {
+      for (final String request : requested) {
+        if (supported.contains(request)) {
+          return request;
+        }
+      }
+    }
+    return Constant.BLANK;
+  }
+
+  /**
+   * Return the ordered list of extensions that t server endpoint will support
+   * given the requested extension list passed in, the empty list if none. See
+   * <a href="http://tools.ietf.org/html/rfc6455#section-9.1">Negotiating Extensions</a>
+   *
+   * <p>The default platform implementation of this method returns a list
+   * containing all of the requested extensions passed to this method that
+   * it supports, using the order in the requested extensions, the empty
+   * list if none.
+   *
+   * @param installed
+   *         the installed extensions on the implementation.
+   * @param requested
+   *         the requested extensions, in the order they were
+   *         requested by the client
+   *
+   * @return the list of extensions negotiated, the empty list if none.
+   */
+  public List<WebSocketExtension> getNegotiatedExtensions(
+          final List<WebSocketExtension> installed, final List<WebSocketExtension> requested) {
+    final LinkedHashSet<String> installedNames = new LinkedHashSet<>();
+    for (final WebSocketExtension e : installed) {
+      installedNames.add(e.getName());
+    }
+    final LinkedList<WebSocketExtension> result = new LinkedList<>();
+    for (final WebSocketExtension request : requested) {
+      if (installedNames.contains(request.getName())) {
+        result.add(request);
+      }
+    }
+    return result;
   }
 
 }

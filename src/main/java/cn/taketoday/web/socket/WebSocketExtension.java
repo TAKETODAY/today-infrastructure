@@ -20,46 +20,45 @@
 
 package cn.taketoday.web.socket;
 
-import cn.taketoday.web.RequestContext;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * @author TODAY 2021/4/5 12:29
- * @since 3.0
+ * A simple representation of a websocket extension
+ * as a name and map of extension parameters.
+ *
+ * @author TODAY 2021/5/6 16:40
+ * @since 3.0.1
  */
-public class AnnotationWebSocketHandler implements WebSocketHandler {
+public class WebSocketExtension {
+  private final String name;
+  private final Map<String, String> parameters;
 
-  @Override
-  public void afterHandshake(RequestContext context) {
-
+  public WebSocketExtension(String name) {
+    this(name, new HashMap<>());
   }
 
-  @Override
-  public void onOpen(WebSocketSession session) {
-
+  public WebSocketExtension(String name, Map<String, String> parameters) {
+    this.name = name;
+    this.parameters = parameters;
   }
 
-  @Override
-  public void handleMessage(WebSocketSession session, Message message) {
-
+  public String getName() {
+    return name;
   }
 
-  @Override
-  public void onClose(WebSocketSession session) {
-
+  public Map<String, String> getParameters() {
+    return parameters;
   }
 
-  @Override public void onClose(WebSocketSession session, CloseStatus status) {
-
-  }
-
-  @Override
-  public void onError(WebSocketSession session, Throwable thr) {
-
-  }
-
-  @Override
-  public boolean supportPartialMessage() {
-    return false;
+  /**
+   * @param name
+   *         the name of the extension parameter.
+   * @param value
+   *         the value of the extension parameter.
+   */
+  public void addParameter(String name, String value) {
+    parameters.put(name, value);
   }
 
 }

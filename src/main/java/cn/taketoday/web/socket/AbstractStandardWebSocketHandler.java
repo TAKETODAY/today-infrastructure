@@ -20,46 +20,11 @@
 
 package cn.taketoday.web.socket;
 
-import cn.taketoday.web.RequestContext;
-
 /**
- * @author TODAY 2021/4/5 12:29
- * @since 3.0
+ * @author TODAY 2021/5/6 18:13
+ * @since 3.0.1
  */
-public class AnnotationWebSocketHandler implements WebSocketHandler {
-
-  @Override
-  public void afterHandshake(RequestContext context) {
-
-  }
-
-  @Override
-  public void onOpen(WebSocketSession session) {
-
-  }
-
-  @Override
-  public void handleMessage(WebSocketSession session, Message message) {
-
-  }
-
-  @Override
-  public void onClose(WebSocketSession session) {
-
-  }
-
-  @Override public void onClose(WebSocketSession session, CloseStatus status) {
-
-  }
-
-  @Override
-  public void onError(WebSocketSession session, Throwable thr) {
-
-  }
-
-  @Override
-  public boolean supportPartialMessage() {
-    return false;
-  }
+public abstract class AbstractStandardWebSocketHandler
+        extends AbstractWebSocketHandler implements StandardWebSocketHandler {
 
 }

@@ -55,7 +55,7 @@ import cn.taketoday.web.exception.WebNestedRuntimeException;
  * @author TODAY 2021/5/5 0:16
  * @since 3.0.1
  */
-final class TomcatHttpUpgradeHandler implements InternalHttpUpgradeHandler {
+public final class TomcatHttpUpgradeHandler implements InternalHttpUpgradeHandler {
   private static final Logger log = LoggerFactory.getLogger(TomcatHttpUpgradeHandler.class);
   private static final MethodInvoker notifyDataAvailable;
 

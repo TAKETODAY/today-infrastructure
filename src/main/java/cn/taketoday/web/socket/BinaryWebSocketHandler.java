@@ -20,34 +20,15 @@
 
 package cn.taketoday.web.socket;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.websocket.Extension;
-
 /**
- * @author TODAY 2021/5/4 20:14
+ * @author TODAY 2021/5/6 18:16
  * @since 3.0.1
  */
-public class StandardExtension implements Extension {
-  private final String name;
-  private final List<Parameter> parameters = new ArrayList<>();
-
-  public StandardExtension(String name) {
-    this.name = name;
-  }
-
-  public void addParameter(Parameter parameter) {
-    parameters.add(parameter);
-  }
+public abstract class BinaryWebSocketHandler extends AbstractWebSocketHandler {
 
   @Override
-  public String getName() {
-    return name;
+  protected final void handleTextMessage(WebSocketSession session, TextMessage message) {
+    throwNotSupportMessage(message);
   }
 
-  @Override
-  public List<Parameter> getParameters() {
-    return parameters;
-  }
 }

@@ -27,8 +27,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
-import javax.websocket.Extension;
-
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
@@ -124,7 +122,7 @@ public abstract class UpgradeUtils {
     return Base64.getEncoder().encodeToString(md.digest());
   }
 
-  public static void parseExtensionHeader(List<Extension> extensions, String header) {
+  public static void parseExtensionHeader(List<WebSocketExtension> extensions, String header) {
     // The relevant ABNF for the Sec-WebSocket-Extensions is as follows:
     //      extension-list = 1#extension
     //      extension = extension-token *( ";" extension-param )
@@ -145,20 +143,21 @@ public abstract class UpgradeUtils {
     for (String unparsedExtension : unparsedExtensions) {
       // Step two, split the extension into the registered name and
       // parameter/value pairs using ';' as a separator
-      String[] unparsedParameters = unparsedExtension.split(";");
-      StandardExtension extension = new StandardExtension(unparsedParameters[0].trim());
+      final String[] unparsedParameters = unparsedExtension.split(";");
+      final WebSocketExtension extension = new WebSocketExtension(unparsedParameters[0].trim());
 
       for (int i = 1; i < unparsedParameters.length; i++) {
-        int equalsPos = unparsedParameters[i].indexOf('=');
+        final String unparsedParameter = unparsedParameters[i];
+        int equalsPos = unparsedParameter.indexOf('=');
         String name;
         String value;
         if (equalsPos == -1) {
-          name = unparsedParameters[i].trim();
+          name = unparsedParameter.trim();
           value = null;
         }
         else {
-          name = unparsedParameters[i].substring(0, equalsPos).trim();
-          value = unparsedParameters[i].substring(equalsPos + 1).trim();
+          name = unparsedParameter.substring(0, equalsPos).trim();
+          value = unparsedParameter.substring(equalsPos + 1).trim();
           int len = value.length();
           if (len > 1) {
             if (value.charAt(0) == '\"' && value.charAt(len - 1) == '\"') {
@@ -168,7 +167,7 @@ public abstract class UpgradeUtils {
         }
         // Make sure value doesn't contain any of the delimiters since
         // that would indicate something went wrong
-        if (containsDelims(name) || containsDelims(value)) {
+        if (containsDelimiters(name) || containsDelimiters(value)) {
           // An illegal extension parameter was specified with name [{0}] and value [{1}]
           throw new IllegalArgumentException(
                   String.format("An illegal extension parameter was specified with name  [%s] and value [{%s]", name, value));
@@ -178,27 +177,25 @@ public abstract class UpgradeUtils {
                         value.indexOf('\"') > -1 || value.indexOf('=') > -1)) {
           throw new IllegalArgumentException(value);
         }
-        extension.addParameter(new ExtensionParameter(name, value));
+        extension.addParameter(name, value);
       }
       extensions.add(extension);
     }
   }
 
-  private static boolean containsDelims(String input) {
-    if (input == null || input.length() == 0) {
-      return false;
-    }
-    for (char c : input.toCharArray()) {
-      switch (c) {
-        case ',':
-        case ';':
-        case '\"':
-        case '=':
-          return true;
-        default:
-          // NO_OP
+  private static boolean containsDelimiters(String input) {
+    if (StringUtils.isNotEmpty(input)) {
+      for (char c : input.toCharArray()) {
+        switch (c) {
+          case ',':
+          case ';':
+          case '\"':
+          case '=':
+            return true;
+          default:
+            // NO_OP
+        }
       }
-
     }
     return false;
   }

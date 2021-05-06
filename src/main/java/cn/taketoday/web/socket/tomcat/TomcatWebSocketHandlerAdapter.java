@@ -27,9 +27,9 @@ import org.apache.tomcat.websocket.WsHandshakeResponse;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -45,8 +45,8 @@ import cn.taketoday.web.socket.AbstractStandardWebSocketHandlerAdapter;
 import cn.taketoday.web.socket.DefaultWebSocketSession;
 import cn.taketoday.web.socket.HandshakeFailedException;
 import cn.taketoday.web.socket.StandardEndpoint;
-import cn.taketoday.web.socket.StandardExtension;
-import cn.taketoday.web.socket.UpgradeUtils;
+import cn.taketoday.web.socket.StandardWebSocketExtension;
+import cn.taketoday.web.socket.WebSocketExtension;
 import cn.taketoday.web.socket.WebSocketHandler;
 
 /**
@@ -55,8 +55,8 @@ import cn.taketoday.web.socket.WebSocketHandler;
  * @author TODAY 2021/4/5 14:20
  * @since 3.0
  */
-public class TomcatWebSocketHandlerAdapter extends AbstractStandardWebSocketHandlerAdapter
-        implements ServletContextAware {
+public class TomcatWebSocketHandlerAdapter
+        extends AbstractStandardWebSocketHandlerAdapter implements ServletContextAware {
 
   static final boolean DISABLE_BUILTIN_EXTENSIONS = Boolean.getBoolean("websocket.DISABLE_BUILTIN_EXTENSIONS");
 
@@ -68,7 +68,7 @@ public class TomcatWebSocketHandlerAdapter extends AbstractStandardWebSocketHand
     }
     else {
       List<Extension> installed = new ArrayList<>(1);
-      installed.add(new StandardExtension("permessage-deflate"));
+      installed.add(new StandardWebSocketExtension("permessage-deflate"));
       INSTALLED_EXTENSIONS = Collections.unmodifiableList(installed);
     }
   }
@@ -79,31 +79,16 @@ public class TomcatWebSocketHandlerAdapter extends AbstractStandardWebSocketHand
   }
 
   @Override
-  protected void doUpgrade(RequestContext context,
-                           DefaultWebSocketSession session, WebSocketHandler handler, String subProtocol) {
+  protected void doUpgrade(
+          RequestContext context, WebSocketHandler handler,
+          String subProtocol, List<WebSocketExtension> supportedExtensions) {
 
-    final ServerEndpointConfig endpointConfig = handler.getEndpointConfig();
     // Negotiation phase 1. By default this simply filters out the
     // extensions that the server does not support but applications could
     // use a custom configurator to do more than this.
-    LinkedList<Extension> installedExtensions = new LinkedList<>(INSTALLED_EXTENSIONS);
-    if (!endpointConfig.getExtensions().isEmpty()) {
-      installedExtensions.addAll(endpointConfig.getExtensions());
-    }
-
-    // Extensions
-    // Should normally only be one header but handle the case of multiple
-    // headers
-    final HttpHeaders requestHeaders = context.requestHeaders();
-    List<Extension> extensionsRequested = new ArrayList<>();
-    List<String> extHeaders = requestHeaders.get(HttpHeaders.SEC_WEBSOCKET_EXTENSIONS);
-    if (extHeaders != null) {
-      for (final String extHeader : extHeaders) {
-        UpgradeUtils.parseExtensionHeader(extensionsRequested, extHeader);
-      }
-    }
-    List<Extension> negotiatedExtensionsPhase1
-            = endpointConfig.getConfigurator().getNegotiatedExtensions(installedExtensions, extensionsRequested);
+    final List<Extension> negotiatedExtensionsPhase1 = supportedExtensions.stream()
+            .map(StandardWebSocketExtension::from)
+            .collect(Collectors.toList());
 
     // Negotiation phase 2. Create the Transformations that will be applied
     // to this connection. Note than an extension may be dropped at this
@@ -144,21 +129,22 @@ public class TomcatWebSocketHandlerAdapter extends AbstractStandardWebSocketHand
     // Now we have the full pipeline, validate the use of the RSV bits.
     if (transformation != null && !transformation.validateRsvBits(0)) {
       // Extensions were specified that have incompatible RSV bit usage
-      // TODO ex
+      throw new HandshakeFailedException("Extensions were specified that have incompatible RSV bit usage");
     }
     if (!transformations.isEmpty()) {
       context.responseHeaders().set(HttpHeaders.SEC_WEBSOCKET_EXTENSIONS, responseHeaderExtensions.toString());
     }
 
+    final DefaultWebSocketSession session = new DefaultWebSocketSession(context, handler);
     StandardEndpoint endpoint = new StandardEndpoint(handler, session);
 
     Assert.isInstanceOf(ServletRequestContext.class, context, "Not in tomcat servlet");
     final HttpServletRequest request = ((ServletRequestContext) context).getRequest();
 
     WsHandshakeResponse handshakeResponse = new WsHandshakeResponse();
-    TomcatHandshakeRequest handshakeRequest = new TomcatHandshakeRequest(request, requestHeaders);
+    TomcatHandshakeRequest handshakeRequest = new TomcatHandshakeRequest(request, context.requestHeaders());
 
-    endpointConfig.getConfigurator().modifyHandshake(endpointConfig, handshakeRequest, handshakeResponse);
+//    endpointConfig.getConfigurator().modifyHandshake(endpointConfig, handshakeRequest, handshakeResponse);
     handshakeRequest.finished();
 
     final HttpHeaders responseHeaders = context.responseHeaders();
@@ -169,6 +155,7 @@ public class TomcatWebSocketHandlerAdapter extends AbstractStandardWebSocketHand
       }
     }
 
+    final ServerEndpointConfig endpointConfig = getServerEndpointConfig(context, handler);
     try {
       TomcatHttpUpgradeHandler wsHandler = request.upgrade(TomcatHttpUpgradeHandler.class);
 

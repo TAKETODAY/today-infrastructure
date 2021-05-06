@@ -26,11 +26,11 @@ import javax.websocket.Extension;
  * @author TODAY 2021/5/4 20:22
  * @since 3.0.1
  */
-public class ExtensionParameter implements Extension.Parameter {
+public class StandardExtensionParameter implements Extension.Parameter {
   private final String name;
   private final String value;
 
-  public ExtensionParameter(String name, String value) {
+  public StandardExtensionParameter(String name, String value) {
     this.name = name;
     this.value = value;
   }

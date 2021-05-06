@@ -20,16 +20,10 @@
 
 package cn.taketoday.web.socket;
 
-import java.io.IOException;
-import java.util.List;
-
 import javax.websocket.server.ServerContainer;
 import javax.websocket.server.ServerEndpointConfig;
 
-import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.http.HttpStatus;
 
 /**
  * javax.websocket
@@ -44,39 +38,11 @@ public abstract class AbstractStandardWebSocketHandlerAdapter extends AbstractWe
     return serverContainer;
   }
 
-  @Override
-  protected WebSocketSession createSession(RequestContext context, WebSocketHandler handler) {
-    return new DefaultWebSocketSession(context, handler);
-  }
-
-  @Override
-  protected void doHandshake(RequestContext context, WebSocketSession ses, WebSocketHandler handler)
-          throws HandshakeFailedException, IOException {
-    super.doHandshake(context, ses, handler);
-
-    final HttpHeaders requestHeaders = context.requestHeaders();
-    final HttpHeaders responseHeaders = context.responseHeaders();
-    final ServerEndpointConfig endpointConfig = handler.getEndpointConfig();
-
-    // Sub-protocols
-    List<String> subProtocols = UpgradeUtils.getTokensFromHeader(requestHeaders, HttpHeaders.SEC_WEBSOCKET_PROTOCOL);
-    String subProtocol = endpointConfig.getConfigurator().getNegotiatedSubprotocol(endpointConfig.getSubprotocols(), subProtocols);
-    if (StringUtils.isNotEmpty(subProtocol)) {
-      // RFC6455 4.2.2 explicitly states "" is not valid here
-      responseHeaders.set(HttpHeaders.SEC_WEBSOCKET_PROTOCOL, subProtocol);
+  protected ServerEndpointConfig getServerEndpointConfig(RequestContext context, WebSocketHandler handler) {
+    if (handler instanceof StandardWebSocketHandler) {
+      return ((StandardWebSocketHandler) handler).getEndpointConfig(context);
     }
-
-    final DefaultWebSocketSession session = (DefaultWebSocketSession) ses;
-
-    doUpgrade(context, session, handler, subProtocol);
-
-    handler.handshake(context);
-    // Output required by RFC2616. Protocol specific headers should have
-    // already been set.
-    context.setStatus(HttpStatus.SWITCHING_PROTOCOLS);
+    return new StandardServerEndpointConfig(context.getRequestPath());
   }
-
-  protected abstract void doUpgrade(RequestContext context, DefaultWebSocketSession session,
-                                    WebSocketHandler handler, String subProtocol);
 
 }
