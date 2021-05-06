@@ -20,14 +20,10 @@
 
 package cn.taketoday.web.socket.tomcat;
 
-import org.apache.juli.logging.Log;
-import org.apache.juli.logging.LogFactory;
 import org.apache.tomcat.util.net.SocketWrapperBase;
 import org.apache.tomcat.util.net.SocketWrapperBase.BlockingMode;
-import org.apache.tomcat.util.res.StringManager;
 import org.apache.tomcat.websocket.Transformation;
 import org.apache.tomcat.websocket.WsRemoteEndpointImplBase;
-import org.apache.tomcat.websocket.server.WsRemoteEndpointImplServer;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -40,14 +36,18 @@ import java.util.concurrent.TimeUnit;
 import javax.websocket.SendHandler;
 import javax.websocket.SendResult;
 
-/**
- * @author TODAY 2021/5/5 22:11
- */
-public class TomcatRemoteEndpointImplServer extends WsRemoteEndpointImplBase {
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 
-  private static final StringManager sm =
-          StringManager.getManager(WsRemoteEndpointImplServer.class);
-  private final Log log = LogFactory.getLog(WsRemoteEndpointImplServer.class); // must not be static
+/**
+ * This is the server side {@link javax.websocket.RemoteEndpoint} implementation
+ * - i.e. what the server uses to send data to the client.
+ *
+ * @author TODAY 2021/5/5 22:11
+ * @since 3.0.1
+ */
+final class TomcatRemoteEndpointImplServer extends WsRemoteEndpointImplBase {
+  private static final Logger log = LoggerFactory.getLogger(TomcatRemoteEndpointImplServer.class);
 
   private final SocketWrapperBase<?> socketWrapper;
   private final TomcatWriteTimeout wsWriteTimeout;
@@ -69,10 +69,11 @@ public class TomcatRemoteEndpointImplServer extends WsRemoteEndpointImplBase {
 
   @Override
   protected void doWrite(
-          SendHandler handler, long blockingWriteTimeoutExpiry, ByteBuffer... buffers) {
+          final SendHandler handler, final long blockingWriteTimeoutExpiry, final ByteBuffer... buffers) {
+    final SocketWrapperBase<?> socketWrapper = this.socketWrapper;
     if (socketWrapper.hasAsyncIO()) {
       final boolean block = (blockingWriteTimeoutExpiry != -1);
-      long timeout = -1;
+      long timeout;
       if (block) {
         timeout = blockingWriteTimeoutExpiry - System.currentTimeMillis();
         if (timeout <= 0) {
@@ -179,6 +180,7 @@ public class TomcatRemoteEndpointImplServer extends WsRemoteEndpointImplBase {
       return;
     }
     boolean complete = false;
+    final SocketWrapperBase<?> socketWrapper = this.socketWrapper;
     try {
       socketWrapper.flush(false);
       // If this is false there will be a call back when it is true

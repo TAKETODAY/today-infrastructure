@@ -50,12 +50,13 @@ import cn.taketoday.context.reflect.MethodInvoker;
 import cn.taketoday.web.exception.WebNestedRuntimeException;
 
 /**
+ * Servlet 3.1 HTTP upgrade handler for WebSocket connections.
+ *
  * @author TODAY 2021/5/5 0:16
  * @since 3.0.1
  */
-public class TomcatHttpUpgradeHandler implements InternalHttpUpgradeHandler {
+final class TomcatHttpUpgradeHandler implements InternalHttpUpgradeHandler {
   private static final Logger log = LoggerFactory.getLogger(TomcatHttpUpgradeHandler.class);
-
   private static final MethodInvoker notifyDataAvailable;
 
   static {

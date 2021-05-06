@@ -24,7 +24,6 @@ import org.apache.tomcat.websocket.BackgroundProcess;
 import org.apache.tomcat.websocket.BackgroundProcessManager;
 
 import java.util.Comparator;
-import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -32,9 +31,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author TODAY 2021/5/5 22:24
  * @since 3.0.1
  */
-public class TomcatWriteTimeout implements BackgroundProcess {
+final class TomcatWriteTimeout implements BackgroundProcess {
 
-  private final Set<TomcatRemoteEndpointImplServer> endpoints = new ConcurrentSkipListSet<>(new EndpointComparator());
+  private final ConcurrentSkipListSet<TomcatRemoteEndpointImplServer>
+          endpoints = new ConcurrentSkipListSet<>(new EndpointComparator());
   private final AtomicInteger count = new AtomicInteger(0);
   private int backgroundProcessCount = 0;
   private volatile int processPeriod = 1;
@@ -81,8 +81,7 @@ public class TomcatWriteTimeout implements BackgroundProcess {
   }
 
   public void register(TomcatRemoteEndpointImplServer endpoint) {
-    boolean result = endpoints.add(endpoint);
-    if (result) {
+    if (endpoints.add(endpoint)) {
       int newCount = count.incrementAndGet();
       if (newCount == 1) {
         BackgroundProcessManager.getInstance().register(this);
@@ -91,8 +90,7 @@ public class TomcatWriteTimeout implements BackgroundProcess {
   }
 
   public void unregister(TomcatRemoteEndpointImplServer endpoint) {
-    boolean result = endpoints.remove(endpoint);
-    if (result) {
+    if (endpoints.remove(endpoint)) {
       int newCount = count.decrementAndGet();
       if (newCount == 0) {
         BackgroundProcessManager.getInstance().unregister(this);
@@ -103,8 +101,8 @@ public class TomcatWriteTimeout implements BackgroundProcess {
   /**
    * Note: this comparator imposes orderings that are inconsistent with equals
    */
-  private static class EndpointComparator implements
-                                          Comparator<TomcatRemoteEndpointImplServer> {
+  static class EndpointComparator
+          implements Comparator<TomcatRemoteEndpointImplServer> {
 
     @Override
     public int compare(TomcatRemoteEndpointImplServer o1,
@@ -112,16 +110,7 @@ public class TomcatWriteTimeout implements BackgroundProcess {
 
       long t1 = o1.getTimeoutExpiry();
       long t2 = o2.getTimeoutExpiry();
-
-      if (t1 < t2) {
-        return -1;
-      }
-      else if (t1 == t2) {
-        return 0;
-      }
-      else {
-        return 1;
-      }
+      return Long.compare(t1, t2);
     }
   }
 }

@@ -29,7 +29,7 @@ import org.apache.tomcat.websocket.server.WsFrameServer;
  * @author TODAY 2021/5/5 22:12
  * @since 3.0.1
  */
-public class TomcatFrameServer extends WsFrameServer {
+final class TomcatFrameServer extends WsFrameServer {
 
   public TomcatFrameServer(SocketWrapperBase<?> socketWrapper, WsSession wsSession,
                            Transformation transformation, ClassLoader applicationClassLoader) {
@@ -37,12 +37,12 @@ public class TomcatFrameServer extends WsFrameServer {
   }
 
   @Override
-  public Transformation getTransformation() {
+  protected Transformation getTransformation() {
     return super.getTransformation();
   }
 
   @Override
-  public boolean isOpen() {
+  protected boolean isOpen() {
     return super.isOpen();
   }
 }
