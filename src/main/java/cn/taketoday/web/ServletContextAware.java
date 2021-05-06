@@ -31,8 +31,6 @@ import cn.taketoday.context.aware.Aware;
 public interface ServletContextAware extends Aware {
 
   /**
-   *
-   * @param servletContext
    */
   void setServletContext(ServletContext servletContext);
 }

@@ -122,7 +122,7 @@ public abstract class AbstractWebSocketHandlerAdapter extends AbstractHandlerAda
 
   protected abstract void doUpgrade(
           RequestContext context, WebSocketHandler handler, String subProtocol,
-          List<WebSocketExtension> supportedExtensions);
+          List<WebSocketExtension> supportedExtensions) throws IOException;
 
   protected List<String> getSupportedSubProtocols(RequestContext context) {
     return Collections.emptyList();

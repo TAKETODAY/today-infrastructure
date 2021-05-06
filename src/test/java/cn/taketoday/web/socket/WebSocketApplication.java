@@ -23,9 +23,9 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.framework.WebApplication;
-import cn.taketoday.framework.annotation.EnableUndertowHandling;
+import cn.taketoday.framework.annotation.EnableJettyHandling;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.socket.undertow.UndertowWebSocketHandlerAdapter;
+import cn.taketoday.web.socket.jetty.JettyWebSocketHandlerAdapter;
 
 /**
  * @author TODAY 2021/4/5 13:03
@@ -34,7 +34,8 @@ import cn.taketoday.web.socket.undertow.UndertowWebSocketHandlerAdapter;
 @Import(WebSocketApplication.AppConfig.class)
 @EnableWebSocket
 //@EnableTomcatHandling
-@EnableUndertowHandling
+@EnableJettyHandling
+//@EnableUndertowHandling
 public class WebSocketApplication {
 
   public static void main(String[] args) {
@@ -50,9 +51,15 @@ public class WebSocketApplication {
     }
 
     @Singleton
-    UndertowWebSocketHandlerAdapter webSocketHandlerAdapter() {
-      return new UndertowWebSocketHandlerAdapter();
+    JettyWebSocketHandlerAdapter webSocketHandlerAdapter() {
+      return new JettyWebSocketHandlerAdapter();
     }
+
+//
+//    @Singleton
+//    UndertowWebSocketHandlerAdapter webSocketHandlerAdapter() {
+//      return new UndertowWebSocketHandlerAdapter();
+//    }
 
   }
 
@@ -80,3 +87,4 @@ public class WebSocketApplication {
   }
 
 }
+
