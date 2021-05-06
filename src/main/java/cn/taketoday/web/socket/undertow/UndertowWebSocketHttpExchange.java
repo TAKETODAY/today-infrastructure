@@ -39,8 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
-
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.utils.ServletUtils;
@@ -206,19 +204,12 @@ public class UndertowWebSocketHttpExchange implements WebSocketHttpExchange {
 
   @Override
   public Principal getUserPrincipal() {
-    return getRequest().getUserPrincipal();
-  }
-
-  private HttpServletRequest getRequest() {
-    if (context instanceof cn.taketoday.web.servlet.ServletRequestContext) {
-      return ((cn.taketoday.web.servlet.ServletRequestContext) context).getRequest();
-    }
-    throw new IllegalStateException("Not in servlet");
+    return ServletUtils.getServletRequest(context).getUserPrincipal();
   }
 
   @Override
   public boolean isUserInRole(String role) {
-    return getRequest().isUserInRole(role);
+    return ServletUtils.getServletRequest(context).isUserInRole(role);
   }
 
   @Override

@@ -128,4 +128,18 @@ public abstract class ServletUtils {
     return null;
   }
 
+  public static HttpServletRequest getServletRequest(RequestContext context) {
+    if (context instanceof ServletRequestContext) {
+      return ((ServletRequestContext) context).getRequest();
+    }
+    throw new IllegalStateException("Not run in servlet");
+  }
+
+  public static HttpServletResponse getServletResponse(RequestContext context) {
+    if (context instanceof ServletRequestContext) {
+      return ((ServletRequestContext) context).getResponse();
+    }
+    throw new IllegalStateException("Not run in servlet");
+  }
+
 }

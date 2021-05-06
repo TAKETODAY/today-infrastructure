@@ -72,6 +72,10 @@ public class ServletRequestContext extends RequestContext {
     return request;
   }
 
+  public HttpServletResponse getResponse() {
+    return response;
+  }
+
   @Override
   public String getScheme() {
     return request.getScheme();
