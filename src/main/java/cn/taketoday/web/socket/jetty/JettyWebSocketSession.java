@@ -27,93 +27,96 @@ import java.nio.ByteBuffer;
 
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
+import cn.taketoday.web.socket.NativeWebSocketSession;
 import cn.taketoday.web.socket.PingMessage;
 import cn.taketoday.web.socket.PongMessage;
-import cn.taketoday.web.socket.WebSocketSession;
 
 /**
+ * Jetty WebSocketSession
+ *
  * @author TODAY 2021/5/6 21:40
  * @since 3.0.1
  */
-public class JettySession extends WebSocketSession {
-  private final Session session;
+public class JettyWebSocketSession extends NativeWebSocketSession {
 
-  public JettySession(Session session) {
-    this.session = session;
+  @Override
+  public Session obtainNativeSession() {
+    return (Session) super.obtainNativeSession();
   }
 
   @Override
   public void sendText(String text) throws IOException {
-    session.getRemote().sendString(text);
+    obtainNativeSession().getRemote().sendString(text);
   }
 
   @Override
   public void sendPartialText(String partialMessage, boolean isLast) throws IOException {
-    session.getRemote().sendPartialString(partialMessage, isLast);
+    obtainNativeSession().getRemote().sendPartialString(partialMessage, isLast);
   }
 
   @Override
   public void sendBinary(BinaryMessage data) throws IOException {
-    session.getRemote().sendBytes(data.getPayload());
+    obtainNativeSession().getRemote().sendBytes(data.getPayload());
   }
 
   @Override
   public void sendPartialBinary(ByteBuffer partialByte, boolean isLast) throws IOException {
-    session.getRemote().sendPartialBytes(partialByte, isLast);
+    obtainNativeSession().getRemote().sendPartialBytes(partialByte, isLast);
   }
 
   @Override
   public void sendPing(PingMessage message) throws IOException {
-    session.getRemote().sendPing(message.getPayload());
+    obtainNativeSession().getRemote().sendPing(message.getPayload());
   }
 
   @Override
   public void sendPong(PongMessage message) throws IOException {
-    session.getRemote().sendPong(message.getPayload());
+    obtainNativeSession().getRemote().sendPong(message.getPayload());
   }
 
   @Override
   public boolean isSecure() {
-    return session.isSecure();
+    return obtainNativeSession().isSecure();
   }
 
   @Override
   public boolean isOpen() {
-    return session.isOpen();
+    return obtainNativeSession().isOpen();
   }
 
   @Override
   public long getMaxIdleTimeout() {
-    return session.getPolicy().getIdleTimeout();
+    return obtainNativeSession().getPolicy().getIdleTimeout();
   }
 
   @Override
   public void setMaxIdleTimeout(long timeout) {
-    session.getPolicy().setIdleTimeout(timeout);
+    obtainNativeSession().getPolicy().setIdleTimeout(timeout);
   }
 
   @Override
   public void setMaxBinaryMessageBufferSize(int max) {
-    session.getPolicy().setMaxBinaryMessageBufferSize(max);
+    obtainNativeSession().getPolicy().setMaxBinaryMessageBufferSize(max);
   }
 
   @Override
   public int getMaxBinaryMessageBufferSize() {
-    return session.getPolicy().getMaxBinaryMessageBufferSize();
+    return obtainNativeSession().getPolicy().getMaxBinaryMessageBufferSize();
   }
 
   @Override
   public void setMaxTextMessageBufferSize(int max) {
-    session.getPolicy().setMaxTextMessageBufferSize(max);
+    obtainNativeSession().getPolicy().setMaxTextMessageBufferSize(max);
   }
 
   @Override
   public int getMaxTextMessageBufferSize() {
-    return session.getPolicy().getMaxTextMessageBufferSize();
+    return obtainNativeSession().getPolicy().getMaxTextMessageBufferSize();
   }
 
   @Override
   public void close(CloseStatus status) throws IOException {
-    session.close(status.getCode(), status.getReason());
+    obtainNativeSession().close(status.getCode(), status.getReason());
   }
+
 }

@@ -19,12 +19,19 @@
  */
 package cn.taketoday.web.socket;
 
+import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.framework.WebApplication;
 import cn.taketoday.framework.annotation.EnableJettyHandling;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.socket.annotation.AfterHandshake;
+import cn.taketoday.web.socket.annotation.EndpointMapping;
+import cn.taketoday.web.socket.annotation.OnClose;
+import cn.taketoday.web.socket.annotation.OnError;
+import cn.taketoday.web.socket.annotation.OnMessage;
+import cn.taketoday.web.socket.annotation.OnOpen;
 import cn.taketoday.web.socket.jetty.JettyWebSocketHandlerAdapter;
 
 /**
@@ -63,7 +70,46 @@ public class WebSocketApplication {
 
   }
 
-  static class WebSocket0 extends WebSocketHandler implements WebSocketHandler {
+  @Component
+  @EndpointMapping("/annotation-endpoint")
+  static class AnnotationSocketHandler {
+
+    @OnMessage
+    public void handleTextMessage(WebSocketSession session, TextMessage message) {
+      System.out.println("handleTextMessage" + message);
+    }
+
+    @OnOpen
+    public void onOpen(WebSocketSession session) {
+      System.out.println("onOpen");
+    }
+
+    @OnError
+    public void onError(WebSocketSession session) {
+      System.out.println("onError");
+    }
+
+    @OnClose
+    public void onClose(WebSocketSession session) {
+      System.out.println("OnClose");
+    }
+
+    /**
+     * <li>optional {@link javax.websocket.Session} parameter</li>
+     * <li>optional {@link javax.websocket.EndpointConfig} parameter</li>
+     * <li>optional {@link cn.taketoday.web.socket.WebSocketSession} parameter</li>
+     * <li>parameters annotated with the {@link javax.websocket.server.PathParam} annotation.</li>
+     * <li>parameters annotated with the {@link cn.taketoday.web.annotation.PathVariable} annotation.</li>
+     */
+    @AfterHandshake
+    public void afterHandshake(RequestContext context, WebSocketSession session, int q) {
+      System.out.println("afterHandshake");
+      System.out.println("q=" + q);
+    }
+
+  }
+
+  static class WebSocket0 extends WebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
@@ -76,7 +122,7 @@ public class WebSocketApplication {
     }
 
     @Override
-    public void afterHandshake(RequestContext context) {
+    public void afterHandshake(RequestContext context, WebSocketSession session) {
       System.out.println("afterHandshake");
     }
 

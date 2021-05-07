@@ -46,8 +46,10 @@ import cn.taketoday.web.socket.AbstractStandardWebSocketHandlerAdapter;
 import cn.taketoday.web.socket.HandshakeFailedException;
 import cn.taketoday.web.socket.StandardEndpoint;
 import cn.taketoday.web.socket.StandardWebSocketExtension;
+import cn.taketoday.web.socket.StandardWebSocketSession;
 import cn.taketoday.web.socket.WebSocketExtension;
 import cn.taketoday.web.socket.WebSocketHandler;
+import cn.taketoday.web.socket.WebSocketSession;
 
 /**
  * Tomcat WebSocket HandlerAdapter
@@ -81,7 +83,7 @@ public class TomcatWebSocketHandlerAdapter
 
   @Override
   protected void doUpgrade(
-          RequestContext context, WebSocketHandler handler,
+          RequestContext context, WebSocketSession session, WebSocketHandler handler,
           String subProtocol, List<WebSocketExtension> supportedExtensions) {
 
     // Negotiation phase 1. By default this simply filters out the
@@ -136,7 +138,7 @@ public class TomcatWebSocketHandlerAdapter
       context.responseHeaders().set(HttpHeaders.SEC_WEBSOCKET_EXTENSIONS, responseHeaderExtensions.toString());
     }
 
-    StandardEndpoint endpoint = new StandardEndpoint(handler);
+    StandardEndpoint endpoint = new StandardEndpoint((StandardWebSocketSession) session, handler);
     Assert.isInstanceOf(ServletRequestContext.class, context, "Not in tomcat servlet");
     final HttpServletRequest request = ((ServletRequestContext) context).getRequest();
 

@@ -28,9 +28,6 @@ import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
 import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
 
-import java.io.IOException;
-import java.util.List;
-
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,9 +37,8 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletContextAware;
 import cn.taketoday.web.exception.WebNestedRuntimeException;
 import cn.taketoday.web.socket.AbstractWebSocketHandlerAdapter;
-import cn.taketoday.web.socket.HandshakeFailedException;
-import cn.taketoday.web.socket.WebSocketExtension;
 import cn.taketoday.web.socket.WebSocketHandler;
+import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.utils.ServletUtils;
 
 /**
@@ -58,30 +54,27 @@ public class JettyWebSocketHandlerAdapter
   private ByteBufferPool bufferPool;
 
   @Override
-  protected void doHandshake(RequestContext context, WebSocketHandler handler) throws HandshakeFailedException, IOException {
+  protected void doHandshake(
+          RequestContext context, final WebSocketSession session, WebSocketHandler handler) throws Throwable {
     final HttpServletRequest servletRequest = ServletUtils.getServletRequest(context);
     final HttpServletResponse servletResponse = ServletUtils.getServletResponse(context);
 
     final class WebSocketCreator0 implements WebSocketCreator {
-
       @Override
       public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
         if (handler.supportPartialMessage()) {
-          return new JettyPartialWebSocketConnectionListener(handler);
+          return new JettyPartialWebSocketConnectionListener((JettyWebSocketSession) session, handler);
         }
-        return new JettyWebSocketConnectionListener(handler);
+        return new JettyWebSocketConnectionListener((JettyWebSocketSession) session, handler);
       }
     }
 
     webSocketServerFactory.acceptWebSocket(new WebSocketCreator0(), servletRequest, servletResponse);
-    // call afterHandshake
-    handler.afterHandshake(context);
   }
 
   @Override
-  protected void doUpgrade(RequestContext context, WebSocketHandler handler, String subProtocol,
-                           List<WebSocketExtension> supportedExtensions) throws IOException {
-
+  protected WebSocketSession createSession(RequestContext context, WebSocketHandler handler) {
+    return new JettyWebSocketSession();
   }
 
   @Override

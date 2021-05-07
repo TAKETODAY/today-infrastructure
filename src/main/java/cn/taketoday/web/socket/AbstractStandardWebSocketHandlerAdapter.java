@@ -39,4 +39,8 @@ public abstract class AbstractStandardWebSocketHandlerAdapter extends AbstractWe
     return new StandardServerEndpointConfig(context.getRequestPath(), configurator);
   }
 
+  @Override
+  protected WebSocketSession createSession(RequestContext context, WebSocketHandler handler) {
+    return new StandardWebSocketSession(handler);
+  }
 }

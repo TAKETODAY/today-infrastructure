@@ -59,7 +59,7 @@ public abstract class WebSocketHandler {
   /**
    * called after Handshake
    */
-  public void afterHandshake(RequestContext context) {
+  public void afterHandshake(RequestContext context, WebSocketSession session) throws Throwable {
     // no-op
   }
 

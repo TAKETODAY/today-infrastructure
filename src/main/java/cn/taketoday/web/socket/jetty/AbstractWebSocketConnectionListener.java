@@ -39,9 +39,10 @@ public abstract class AbstractWebSocketConnectionListener
         implements WebSocketConnectionListener, WebSocketPingPongListener {
 
   protected final WebSocketHandler handler;
-  protected JettySession session;
+  protected final JettyWebSocketSession session;
 
-  public AbstractWebSocketConnectionListener(WebSocketHandler handler) {
+  public AbstractWebSocketConnectionListener(JettyWebSocketSession session, WebSocketHandler handler) {
+    this.session = session;
     this.handler = handler;
   }
 
@@ -52,7 +53,7 @@ public abstract class AbstractWebSocketConnectionListener
 
   @Override
   public void onWebSocketConnect(Session session) {
-    this.session = new JettySession(session);
+    this.session.initializeNativeSession(session);
   }
 
   @Override
@@ -70,5 +71,9 @@ public abstract class AbstractWebSocketConnectionListener
   @Override
   public void onWebSocketPong(ByteBuffer payload) {
     handler.handleMessage(session, new PongMessage(payload));
+  }
+
+  public final JettyWebSocketSession getSession() {
+    return session;
   }
 }

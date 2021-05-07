@@ -35,8 +35,8 @@ import cn.taketoday.web.socket.WebSocketHandler;
 public class JettyPartialWebSocketConnectionListener
         extends AbstractWebSocketConnectionListener implements WebSocketPartialListener {
 
-  public JettyPartialWebSocketConnectionListener(WebSocketHandler handler) {
-    super(handler);
+  public JettyPartialWebSocketConnectionListener(JettyWebSocketSession session, WebSocketHandler handler) {
+    super(session, handler);
   }
 
   // Partial

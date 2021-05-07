@@ -35,18 +35,19 @@ import javax.websocket.Session;
  * @since 3.0.1
  */
 public class StandardEndpoint extends Endpoint {
-  private final WebSocketHandler webSocketHandler;
-  private StandardWebSocketSession session;
+  private final WebSocketHandler socketHandler;
+  private final StandardWebSocketSession session;
 
-  public StandardEndpoint(WebSocketHandler handler) {
-    this.webSocketHandler = handler;
+  public StandardEndpoint(StandardWebSocketSession session, WebSocketHandler handler) {
+    this.session = session;
+    this.socketHandler = handler;
   }
 
   @Override
   public void onOpen(Session stdSession, EndpointConfig config) {
-    this.session = new StandardWebSocketSession(stdSession, webSocketHandler);
+    session.initializeNativeSession(stdSession);
 
-    final WebSocketHandler socketHandler = this.webSocketHandler;
+    final WebSocketHandler socketHandler = this.socketHandler;
     socketHandler.onOpen(session);
 
     if (socketHandler.supportPartialMessage()) {
@@ -92,11 +93,11 @@ public class StandardEndpoint extends Endpoint {
 
   @Override
   public void onClose(Session stdSession, CloseReason closeReason) {
-    webSocketHandler.onClose(session);
+    socketHandler.onClose(session);
   }
 
   @Override
   public void onError(Session stdSession, Throwable thr) {
-    webSocketHandler.onError(session, thr);
+    socketHandler.onError(session, thr);
   }
 }

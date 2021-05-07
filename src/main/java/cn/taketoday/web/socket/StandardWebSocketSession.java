@@ -27,21 +27,21 @@ import javax.websocket.CloseReason;
 import javax.websocket.CloseReason.CloseCodes;
 import javax.websocket.Session;
 
-import cn.taketoday.context.utils.Assert;
-
 /**
  * Standard javax.websocket.Session WebSocketSession
  *
  * @author TODAY 2021/4/5 14:25
  * @since 3.0
  */
-public class StandardWebSocketSession extends WebSocketSession {
-  private final Session session;
+public class StandardWebSocketSession extends NativeWebSocketSession {
 
-  public StandardWebSocketSession(Session session, WebSocketHandler handler) {
-    Assert.notNull(session, "javax.websocket.Session must not be null");
-    this.session = session;
+  public StandardWebSocketSession(WebSocketHandler handler) {
     super.socketHandler = handler;
+  }
+
+  @Override
+  public Session obtainNativeSession() {
+    return (Session) super.obtainNativeSession();
   }
 
   @Override
@@ -56,11 +56,12 @@ public class StandardWebSocketSession extends WebSocketSession {
 
   @Override
   public void sendBinary(BinaryMessage data) throws IOException {
+    obtainNativeSession().getBasicRemote().sendBinary(data.getPayload());
   }
 
   @Override
   public void sendPartialBinary(ByteBuffer partialByte, boolean isLast) throws IOException {
-
+    obtainNativeSession().getBasicRemote().sendBinary(partialByte, isLast);
   }
 
   @Override
@@ -125,9 +126,4 @@ public class StandardWebSocketSession extends WebSocketSession {
     obtainNativeSession().close(closeReason);
   }
 
-  public Session obtainNativeSession() {
-    final Session session = this.session;
-    Assert.state(session != null, "No javax.websocket.Session");
-    return session;
-  }
 }

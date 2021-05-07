@@ -55,12 +55,16 @@ public abstract class AbstractWebSocketHandlerAdapter extends AbstractHandlerAda
   }
 
   protected Object handleInternal(RequestContext context, WebSocketHandler handler) throws Throwable {
-    doHandshake(context, handler);
+    WebSocketSession session = createSession(context, handler);
+    // do handshake
+    doHandshake(context, session, handler);
+    // call afterHandshake
+    handler.afterHandshake(context, session);
     return NONE_RETURN_VALUE;
   }
 
   protected void doHandshake(
-          RequestContext context, WebSocketHandler handler) throws HandshakeFailedException, IOException {
+          RequestContext context, WebSocketSession session, WebSocketHandler handler) throws Throwable {
 
     // Validate the rest of the headers and reject the request if that validation fails
     final List<String> connection = context.requestHeaders().getConnection();
@@ -110,19 +114,20 @@ public abstract class AbstractWebSocketHandlerAdapter extends AbstractHandlerAda
       }
     }
     List<WebSocketExtension> supportedExtensions = getNegotiatedExtensions(installedExtensions, requestedExtensions);
-    doUpgrade(context, handler, subProtocol, supportedExtensions);
-
-    // call afterHandshake
-    handler.afterHandshake(context);
+    doUpgrade(context, session, handler, subProtocol, supportedExtensions);
   }
+
+  protected abstract WebSocketSession createSession(RequestContext context, WebSocketHandler handler);
 
   protected List<WebSocketExtension> getInstalledExtensions() {
     return Collections.emptyList();
   }
 
-  protected abstract void doUpgrade(
-          RequestContext context, WebSocketHandler handler, String subProtocol,
-          List<WebSocketExtension> supportedExtensions) throws IOException;
+  protected void doUpgrade(
+          RequestContext context, WebSocketSession session, WebSocketHandler handler, String subProtocol,
+          List<WebSocketExtension> supportedExtensions) throws IOException {
+
+  }
 
   protected List<String> getSupportedSubProtocols(RequestContext context) {
     return Collections.emptyList();

@@ -45,8 +45,10 @@ import cn.taketoday.web.exception.ResponseStatusException;
 import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.socket.AbstractStandardWebSocketHandlerAdapter;
 import cn.taketoday.web.socket.StandardEndpoint;
+import cn.taketoday.web.socket.StandardWebSocketSession;
 import cn.taketoday.web.socket.WebSocketExtension;
 import cn.taketoday.web.socket.WebSocketHandler;
+import cn.taketoday.web.socket.WebSocketSession;
 import io.undertow.connector.ByteBufferPool;
 import io.undertow.server.DefaultByteBufferPool;
 import io.undertow.server.HttpServerExchange;
@@ -109,12 +111,12 @@ public class UndertowWebSocketHandlerAdapter
   @Override
   @SuppressWarnings("unchecked")
   protected void doUpgrade(
-          RequestContext context, WebSocketHandler handler,
+          RequestContext context, WebSocketSession session, WebSocketHandler handler,
           String subProtocol, List<WebSocketExtension> supportedExtensions) {
     {
       final UndertowWebSocketHttpExchange facade = new UndertowWebSocketHttpExchange(context, peerConnections);
 
-      Handshake handshaking = getHandshake(context, facade, handler);
+      Handshake handshaking = getHandshake(context, session, facade, handler);
       if (handshaking != null) {
         if (obtainContainer().isClosed()) {
           throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE);
@@ -123,8 +125,7 @@ public class UndertowWebSocketHandlerAdapter
         facade.putAttachment(HandshakeUtil.PATH_PARAMS, Collections.emptyMap());
 //        facade.putAttachment(HandshakeUtil.PRINCIPAL, req.getUserPrincipal());
         ServletRequestContext src = ServletRequestContext.requireCurrent();
-        final HttpSessionImpl session = src.getCurrentServletContext().getSession(src.getExchange(), false);
-
+        final HttpSessionImpl httpSession = src.getCurrentServletContext().getSession(src.getExchange(), false);
         final class HttpUpgradeListener0 implements HttpUpgradeListener {
           final Handshake selected;
 
@@ -136,13 +137,13 @@ public class UndertowWebSocketHandlerAdapter
           public void handleUpgrade(StreamConnection streamConnection, HttpServerExchange exchange) {
             WebSocketChannel channel = selected.createChannel(facade, streamConnection, facade.getBufferPool());
             peerConnections.add(channel);
-            if (session != null) {
+            if (httpSession != null) {
               final Session underlying;
               if (System.getSecurityManager() == null) {
-                underlying = session.getSession();
+                underlying = httpSession.getSession();
               }
               else {
-                underlying = AccessController.doPrivileged(new HttpSessionImpl.UnwrapSessionAction(session));
+                underlying = AccessController.doPrivileged(new HttpSessionImpl.UnwrapSessionAction(httpSession));
               }
               List<WebSocketChannel> connections;
               synchronized(underlying) {
@@ -180,14 +181,15 @@ public class UndertowWebSocketHandlerAdapter
 
   }
 
-  protected Handshake getHandshake(RequestContext context, UndertowWebSocketHttpExchange facade, WebSocketHandler handler) {
+  protected Handshake getHandshake(
+          RequestContext context, WebSocketSession session, UndertowWebSocketHttpExchange facade, WebSocketHandler handler) {
     final ServerEndpointConfig endpointConfig = getServerEndpointConfig(context, handler);
     // StandardEndpoint
     final class StandardEndpointInstanceFactory implements InstanceFactory<StandardEndpoint> {
 
       @Override
       public InstanceHandle<StandardEndpoint> createInstance() {
-        return new ImmediateInstanceHandle<>(new StandardEndpoint(handler));
+        return new ImmediateInstanceHandle<>(new StandardEndpoint((StandardWebSocketSession) session, handler));
       }
     }
 

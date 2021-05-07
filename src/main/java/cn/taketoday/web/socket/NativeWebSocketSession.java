@@ -18,34 +18,25 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.socket.jetty;
+package cn.taketoday.web.socket;
 
-import org.eclipse.jetty.websocket.api.WebSocketListener;
-
-import java.nio.ByteBuffer;
-
-import cn.taketoday.web.socket.BinaryMessage;
-import cn.taketoday.web.socket.TextMessage;
-import cn.taketoday.web.socket.WebSocketHandler;
+import cn.taketoday.context.utils.Assert;
 
 /**
- * @author TODAY 2021/5/6 23:16
+ * @author TODAY 2021/5/7 23:03
  * @since 3.0.1
  */
-public class JettyWebSocketConnectionListener
-        extends AbstractWebSocketConnectionListener implements WebSocketListener {
+public abstract class NativeWebSocketSession extends WebSocketSession {
+  protected Object nativeSession;
 
-  public JettyWebSocketConnectionListener(JettyWebSocketSession session, WebSocketHandler handler) {
-    super(session, handler);
+  public void initializeNativeSession(Object nativeSession) {
+    this.nativeSession = nativeSession;
   }
 
-  @Override
-  public void onWebSocketBinary(byte[] payload, int offset, int len) {
-    handler.handleMessage(session, new BinaryMessage(ByteBuffer.wrap(payload, offset, len)));
+  public Object obtainNativeSession() {
+    final Object session = this.nativeSession;
+    Assert.state(session != null, "No native session");
+    return session;
   }
 
-  @Override
-  public void onWebSocketText(String message) {
-    handler.handleMessage(session, new TextMessage(message));
-  }
 }
