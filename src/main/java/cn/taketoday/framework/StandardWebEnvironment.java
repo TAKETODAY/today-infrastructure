@@ -47,6 +47,7 @@ import static cn.taketoday.context.utils.ClassUtils.getAnnotation;
  * 2019-06-17 22:34
  */
 public class StandardWebEnvironment extends StandardEnvironment {
+  static boolean snakeyamlIsPresent = ClassUtils.isPresent("org.yaml.snakeyaml.Yaml");
 
   private static final Logger log = LoggerFactory.getLogger(StandardWebEnvironment.class);
 
@@ -151,7 +152,7 @@ public class StandardWebEnvironment extends StandardEnvironment {
   @Override
   protected void loadProperties(Resource resource) throws IOException {
     if (isYamlProperties(resource.getName())) {
-      if (SnakeyamlDelegate.isPresent) {
+      if (snakeyamlIsPresent) {
         loadFromYmal(getProperties(), resource);
       }
       else {
@@ -169,7 +170,6 @@ public class StandardWebEnvironment extends StandardEnvironment {
   }
 
   static class SnakeyamlDelegate {
-    static boolean isPresent = ClassUtils.isPresent("org.yaml.snakeyaml.Yaml");
 
     protected static void doMapping(final Properties properties, Resource yamlResource) throws IOException {
       final Map<String, Object> base = new Yaml(new CompactConstructor()).load(yamlResource.getInputStream());
