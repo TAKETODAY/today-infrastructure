@@ -27,8 +27,36 @@ import java.lang.annotation.Target;
 import cn.taketoday.web.Constant;
 
 /**
- * @author TODAY<br>
- *         2018-06-29 16:27:12
+ * This annotation may be used to annotate method parameters on request mappings
+ * where a URI-template has been used in the path-mapping of the {@link ActionMapping}
+ * annotation. The method parameter may be of type String, any Java primitive
+ * type or any boxed version thereof.
+ *
+ * <p>For example:-
+ * <pre><code>
+ * &#64;RequestMapping("/bookings/{guest-id}")
+ * public class BookingController {
+ *
+ *     &#64;RequestMapping
+ *     public void processBookingRequest(@PathVariable("guest-id") String guestID) {
+ *         // process booking from the given guest here
+ *     }
+ * }
+ * </code></pre>
+ *
+ * <p>For example:-
+ * <pre><code>
+ * &#64;RequestMapping("/rewards/{vip-level}")
+ * public class RewardController {
+ *
+ *     &#64;RequestMapping
+ *     public void processReward(@PathVariable("vip-level") Integer vipLevel) {
+ *         // process reward here
+ *     }
+ * }
+ * </code></pre>
+ *
+ * @author TODAY 2018-06-29 16:27:12
  */
 @RequestParam
 @Target({ ElementType.PARAMETER })
