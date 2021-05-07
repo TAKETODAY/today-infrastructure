@@ -36,21 +36,15 @@ import javax.websocket.Session;
  */
 public class StandardEndpoint extends Endpoint {
   private final WebSocketHandler webSocketHandler;
-  private final DefaultWebSocketSession session;
+  private StandardWebSocketSession session;
 
   public StandardEndpoint(WebSocketHandler handler) {
     this.webSocketHandler = handler;
-    this.session = new DefaultWebSocketSession(handler);
-  }
-
-  public StandardEndpoint(WebSocketHandler webSocketHandler, DefaultWebSocketSession session) {
-    this.webSocketHandler = webSocketHandler;
-    this.session = session;
   }
 
   @Override
   public void onOpen(Session stdSession, EndpointConfig config) {
-    session.initializeNativeSession(stdSession);
+    this.session = new StandardWebSocketSession(stdSession, webSocketHandler);
 
     final WebSocketHandler socketHandler = this.webSocketHandler;
     socketHandler.onOpen(session);

@@ -30,19 +30,18 @@ import javax.websocket.Session;
 import cn.taketoday.context.utils.Assert;
 
 /**
+ * Standard javax.websocket.Session WebSocketSession
+ *
  * @author TODAY 2021/4/5 14:25
  * @since 3.0
  */
-public class DefaultWebSocketSession extends WebSocketSession {
+public class StandardWebSocketSession extends WebSocketSession {
+  private final Session session;
 
-  private Session session;
-
-  public DefaultWebSocketSession(WebSocketHandler handler) {
-    super.socketHandler = handler;
-  }
-
-  public void initializeNativeSession(Session session) {
+  public StandardWebSocketSession(Session session, WebSocketHandler handler) {
+    Assert.notNull(session, "javax.websocket.Session must not be null");
     this.session = session;
+    super.socketHandler = handler;
   }
 
   @Override

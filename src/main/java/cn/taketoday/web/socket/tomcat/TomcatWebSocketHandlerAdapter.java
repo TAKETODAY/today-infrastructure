@@ -43,7 +43,6 @@ import cn.taketoday.web.ServletContextAware;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.socket.AbstractStandardWebSocketHandlerAdapter;
-import cn.taketoday.web.socket.DefaultWebSocketSession;
 import cn.taketoday.web.socket.HandshakeFailedException;
 import cn.taketoday.web.socket.StandardEndpoint;
 import cn.taketoday.web.socket.StandardWebSocketExtension;
@@ -137,9 +136,7 @@ public class TomcatWebSocketHandlerAdapter
       context.responseHeaders().set(HttpHeaders.SEC_WEBSOCKET_EXTENSIONS, responseHeaderExtensions.toString());
     }
 
-    final DefaultWebSocketSession session = new DefaultWebSocketSession(handler);
-    StandardEndpoint endpoint = new StandardEndpoint(handler, session);
-
+    StandardEndpoint endpoint = new StandardEndpoint(handler);
     Assert.isInstanceOf(ServletRequestContext.class, context, "Not in tomcat servlet");
     final HttpServletRequest request = ((ServletRequestContext) context).getRequest();
 
