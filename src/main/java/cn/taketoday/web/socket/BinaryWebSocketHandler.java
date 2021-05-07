@@ -24,7 +24,7 @@ package cn.taketoday.web.socket;
  * @author TODAY 2021/5/6 18:16
  * @since 3.0.1
  */
-public abstract class BinaryWebSocketHandler extends AbstractWebSocketHandler {
+public abstract class BinaryWebSocketHandler extends WebSocketHandler {
 
   @Override
   protected final void handleTextMessage(WebSocketSession session, TextMessage message) {

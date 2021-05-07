@@ -21,24 +21,23 @@
 package cn.taketoday.web.socket;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import javax.websocket.CloseReason;
+import javax.websocket.CloseReason.CloseCodes;
 import javax.websocket.Session;
 
 import cn.taketoday.context.utils.Assert;
-import cn.taketoday.web.RequestContext;
 
 /**
  * @author TODAY 2021/4/5 14:25
  * @since 3.0
  */
-public class DefaultWebSocketSession extends AbstractWebSocketSession {
+public class DefaultWebSocketSession extends WebSocketSession {
 
   private Session session;
-  private final RequestContext context;
 
-  public DefaultWebSocketSession(RequestContext context, WebSocketHandler handler) {
-    this.context = context;
+  public DefaultWebSocketSession(WebSocketHandler handler) {
     super.socketHandler = handler;
   }
 
@@ -47,23 +46,32 @@ public class DefaultWebSocketSession extends AbstractWebSocketSession {
   }
 
   @Override
-  protected void sendText(String text) throws IOException {
+  public void sendText(String text) throws IOException {
     obtainNativeSession().getBasicRemote().sendText(text);
   }
 
   @Override
-  protected void sendText(String partialMessage, boolean isLast) throws IOException {
+  public void sendPartialText(String partialMessage, boolean isLast) throws IOException {
     obtainNativeSession().getBasicRemote().sendText(partialMessage, isLast);
   }
 
   @Override
-  protected void sendBinary(BinaryMessage data) throws IOException {
+  public void sendBinary(BinaryMessage data) throws IOException {
+  }
+
+  @Override
+  public void sendPartialBinary(ByteBuffer partialByte, boolean isLast) throws IOException {
 
   }
 
   @Override
-  protected void sendBinary(BinaryMessage partialByte, boolean isLast) throws IOException {
+  public void sendPing(PingMessage message) throws IOException {
+    obtainNativeSession().getBasicRemote().sendPing(message.getPayload());
+  }
 
+  @Override
+  public void sendPong(PongMessage message) throws IOException {
+    obtainNativeSession().getBasicRemote().sendPong(message.getPayload());
   }
 
   @Override
@@ -114,7 +122,7 @@ public class DefaultWebSocketSession extends AbstractWebSocketSession {
   @Override
   public void close(final CloseStatus status) throws IOException {
     final CloseReason closeReason = new CloseReason(
-            CloseReason.CloseCodes.getCloseCode(status.getCode()), status.getReason());
+            CloseCodes.getCloseCode(status.getCode()), status.getReason());
     obtainNativeSession().close(closeReason);
   }
 

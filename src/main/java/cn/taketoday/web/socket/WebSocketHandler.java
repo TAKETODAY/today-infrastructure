@@ -23,15 +23,45 @@ package cn.taketoday.web.socket;
 import cn.taketoday.web.RequestContext;
 
 /**
+ * The Web Socket Handler represents an object that can handle websocket conversations.
+ * Developers may extend this class in order to implement a programmatic websocket
+ * handler. The handler class holds lifecycle methods that may be
+ * overridden to intercept websocket open, error and close events. By implementing
+ * the {@link WebSocketHandler#onOpen(WebSocketSession) onOpen} method
+ *
+ * <p>It will be instantiated once for all the connections to the server.
+ *
+ * <p>Here is an example of a simple endpoint that echoes any incoming text message back to the sender.
+ * <pre><code>
+ * public class EchoWebSocketHandler implements WebSocketHandler {
+ *
+ *     public void onOpen(Session session, EndpointConfig config) {
+ *         final RemoteEndpoint remote = session.getBasicRemote();
+ *         session.addMessageHandler(String.class, new MessageHandler.Whole&lt;String>() {
+ *             public void onMessage(String text) {
+ *                 try {
+ *                     remote.sendString("Got your message (" + text + "). Thanks !");
+ *                 } catch (IOException ioe) {
+ *                     // handle send failure here
+ *                 }
+ *             }
+ *         });
+ *     }
+ *
+ * }
+ * </code></pre>
+ *
  * @author TODAY 2021/4/3 13:41
  * @since 3.0
  */
-public interface WebSocketHandler {
+public abstract class WebSocketHandler {
 
   /**
    * called after Handshake
    */
-  void afterHandshake(RequestContext context);
+  public void afterHandshake(RequestContext context) {
+    // no-op
+  }
 
   /**
    * Developers must implement this method to be notified when a new conversation has
@@ -40,7 +70,9 @@ public interface WebSocketHandler {
    * @param session
    *         the session that has just been activated.
    */
-  void onOpen(WebSocketSession session);
+  public void onOpen(WebSocketSession session) {
+    // no-op
+  }
 
   /**
    * Called when the message has been fully received.
@@ -48,9 +80,25 @@ public interface WebSocketHandler {
    * @param message
    *         the message data.
    */
-  void handleMessage(WebSocketSession session, Message<?> message);
+  public final void handleMessage(WebSocketSession session, Message<?> message) {
+    if (message instanceof TextMessage) {
+      handleTextMessage(session, (TextMessage) message);
+    }
+    else if (message instanceof BinaryMessage) {
+      handleBinaryMessage(session, (BinaryMessage) message);
+    }
+    else if (message instanceof PingMessage) {
+      handlePingMessage(session, (PingMessage) message);
+    }
+    else if (message instanceof PongMessage) {
+      handlePongMessage(session, (PongMessage) message);
+    }
+    else {
+      throwNotSupportMessage(message);
+    }
+  }
 
-  default void onClose(WebSocketSession session) {
+  public void onClose(WebSocketSession session) {
     onClose(session, CloseStatus.NORMAL);
   }
 
@@ -71,7 +119,9 @@ public interface WebSocketHandler {
    * @param status
    *         the reason the session was closed.
    */
-  void onClose(WebSocketSession session, CloseStatus status);
+  public void onClose(WebSocketSession session, CloseStatus status) {
+    // no-op
+  }
 
   /**
    * Developers may implement this method when the web socket session
@@ -85,8 +135,27 @@ public interface WebSocketHandler {
    * @param throwable
    *         the throwable representing the problem.
    */
-  void onError(WebSocketSession session, Throwable throwable);
+  public void onError(WebSocketSession session, Throwable throwable) {
+    // no-op
+  }
 
-  boolean supportPartialMessage();
+  protected void throwNotSupportMessage(Message<?> message) {
+    throw new IllegalArgumentException("Not support message: " + message);
+  }
 
+  protected void handlePingMessage(WebSocketSession session, PingMessage message) {
+    // no-op
+  }
+
+  protected void handlePongMessage(WebSocketSession session, PongMessage message) {
+    // no-op
+  }
+
+  protected abstract void handleTextMessage(WebSocketSession session, TextMessage message);
+
+  protected abstract void handleBinaryMessage(WebSocketSession session, BinaryMessage message);
+
+  public boolean supportPartialMessage() {
+    return false;
+  }
 }

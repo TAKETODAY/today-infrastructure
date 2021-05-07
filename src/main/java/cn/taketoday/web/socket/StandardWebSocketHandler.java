@@ -25,14 +25,17 @@ import javax.websocket.server.ServerEndpointConfig;
 import cn.taketoday.web.RequestContext;
 
 /**
+ * javax.websocket
+ *
  * @author TODAY 2021/5/6 17:42
  * @since 3.0.1
  */
-public interface StandardWebSocketHandler extends WebSocketHandler {
+public abstract class StandardWebSocketHandler extends WebSocketHandler {
 
-  default ServerEndpointConfig getEndpointConfig(RequestContext context) {
+  public ServerEndpointConfig getEndpointConfig(RequestContext context) {
     return ServerEndpointConfig.Builder
             .create(StandardEndpoint.class, context.getRequestPath())
             .build();
   }
+
 }

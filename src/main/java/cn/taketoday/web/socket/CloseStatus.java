@@ -40,6 +40,9 @@ import cn.taketoday.context.utils.Assert;
  * </p>
  * <p>See <a href="https://tools.ietf.org/html/rfc6455#section-7.4.1">RFC 6455, Section 7.4.1
  * "Defined Status Codes"</a>.
+ * <p>
+ * From Spring
+ * </p>
  *
  * @author Rossen Stoyanchev
  * @author TODAY 2021/4/5 17:53

@@ -137,7 +137,7 @@ public class TomcatWebSocketHandlerAdapter
       context.responseHeaders().set(HttpHeaders.SEC_WEBSOCKET_EXTENSIONS, responseHeaderExtensions.toString());
     }
 
-    final DefaultWebSocketSession session = new DefaultWebSocketSession(context, handler);
+    final DefaultWebSocketSession session = new DefaultWebSocketSession(handler);
     StandardEndpoint endpoint = new StandardEndpoint(handler, session);
 
     Assert.isInstanceOf(ServletRequestContext.class, context, "Not in tomcat servlet");

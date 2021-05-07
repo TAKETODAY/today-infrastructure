@@ -187,7 +187,7 @@ public class UndertowWebSocketHandlerAdapter
 
       @Override
       public InstanceHandle<StandardEndpoint> createInstance() {
-        return new ImmediateInstanceHandle<>(new StandardEndpoint(context, handler));
+        return new ImmediateInstanceHandle<>(new StandardEndpoint(handler));
       }
     }
 

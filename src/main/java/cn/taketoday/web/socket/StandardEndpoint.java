@@ -28,8 +28,6 @@ import javax.websocket.EndpointConfig;
 import javax.websocket.MessageHandler;
 import javax.websocket.Session;
 
-import cn.taketoday.web.RequestContext;
-
 /**
  * Websocket Main Endpoint
  *
@@ -40,9 +38,9 @@ public class StandardEndpoint extends Endpoint {
   private final WebSocketHandler webSocketHandler;
   private final DefaultWebSocketSession session;
 
-  public StandardEndpoint(RequestContext context, WebSocketHandler handler) {
+  public StandardEndpoint(WebSocketHandler handler) {
     this.webSocketHandler = handler;
-    this.session = new DefaultWebSocketSession(context, handler);
+    this.session = new DefaultWebSocketSession(handler);
   }
 
   public StandardEndpoint(WebSocketHandler webSocketHandler, DefaultWebSocketSession session) {

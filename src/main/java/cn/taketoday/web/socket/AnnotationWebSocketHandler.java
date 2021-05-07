@@ -26,7 +26,7 @@ import cn.taketoday.web.RequestContext;
  * @author TODAY 2021/4/5 12:29
  * @since 3.0
  */
-public class AnnotationWebSocketHandler implements WebSocketHandler {
+public class AnnotationWebSocketHandler extends WebSocketHandler {
 
   @Override
   public void afterHandshake(RequestContext context) {
@@ -35,11 +35,6 @@ public class AnnotationWebSocketHandler implements WebSocketHandler {
 
   @Override
   public void onOpen(WebSocketSession session) {
-
-  }
-
-  @Override
-  public void handleMessage(WebSocketSession session, Message message) {
 
   }
 
@@ -54,6 +49,14 @@ public class AnnotationWebSocketHandler implements WebSocketHandler {
 
   @Override
   public void onError(WebSocketSession session, Throwable thr) {
+
+  }
+
+  @Override protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+
+  }
+
+  @Override protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
 
   }
 

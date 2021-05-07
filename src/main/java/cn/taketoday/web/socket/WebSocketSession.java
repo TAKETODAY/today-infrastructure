@@ -21,75 +21,39 @@
 package cn.taketoday.web.socket;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.nio.ByteBuffer;
 
 import cn.taketoday.context.AttributeAccessor;
+import cn.taketoday.context.AttributeAccessorSupport;
 
 /**
- * @author TODAY 2021/4/5 11:48
+ * @author TODAY 2021/4/5 14:16
  * @since 3.0
  */
-public interface WebSocketSession extends AttributeAccessor {
+public abstract class WebSocketSession
+        extends AttributeAccessorSupport implements Serializable, AttributeAccessor {
+  private static final long serialVersionUID = 1L;
+
+  private String id;
+  protected WebSocketHandler socketHandler;
+
+  public void setId(String id) {
+    this.id = id;
+  }
 
   /**
    * Session Id
    */
-  String getId();
-
-  boolean isSecure();
-
-  boolean isOpen();
+  public String getId() {
+    return id;
+  }
 
   /**
-   * Get the idle timeout for this session.
-   *
-   * @return The current idle timeout for this session in milliseconds. Zero
-   * or negative values indicate an infinite timeout.
-   */
-  long getMaxIdleTimeout();
-
-  /**
-   * Set the idle timeout for this session.
-   *
-   * @param timeout
-   *         The new idle timeout for this session in milliseconds.
-   *         Zero or negative values indicate an infinite timeout.
-   */
-  void setMaxIdleTimeout(long timeout);
-
-  /**
-   * Set the current maximum buffer size for binary messages.
-   *
-   * @param max
-   *         The new maximum buffer size in bytes
-   */
-  void setMaxBinaryMessageBufferSize(int max);
-
-  /**
-   * Get the current maximum buffer size for binary messages.
-   *
-   * @return The current maximum buffer size in bytes
-   */
-  int getMaxBinaryMessageBufferSize();
-
-  /**
-   * Set the maximum buffer size for text messages.
-   *
-   * @param max
-   *         The new maximum buffer size in characters.
-   */
-  void setMaxTextMessageBufferSize(int max);
-
-  /**
-   * Get the maximum buffer size for text messages.
-   *
-   * @return The maximum buffer size in characters.
-   */
-  int getMaxTextMessageBufferSize();
-
-  /**
-   * Send a message in parts, blocking until all of the message has been transmitted. The runtime
-   * reads the message in order. Non-final parts of the message are sent with isLast set to false. The final part
-   * must be sent with isLast set to true.
+   * Send a message in parts, blocking until all of the message has
+   * been transmitted. The runtime reads the message in order.
+   * Non-final parts of the message are sent with isLast set to false.
+   * The final part must be sent with isLast set to true.
    *
    * @param message
    *         Message
@@ -98,7 +62,181 @@ public interface WebSocketSession extends AttributeAccessor {
    *         if there is a problem delivering the message.
    * @see Message#isLast()
    */
-  void sendMessage(Message<?> message) throws IOException;
+  public void sendMessage(Message<?> message) throws IOException {
+    if (message instanceof TextMessage) {
+      sendText((String) message.getPayload());
+    }
+    else if (message instanceof BinaryMessage) {
+      sendBinary((BinaryMessage) message);
+    }
+    else if (message instanceof PingMessage) {
+      sendPing((PingMessage) message);
+    }
+    else if (message instanceof PongMessage) {
+      sendPong((PongMessage) message);
+    }
+    else {
+      throw new IllegalStateException("Unexpected WebSocketMessage type: " + message);
+    }
+  }
+
+  /**
+   * Send a message in parts, blocking until all of the message has
+   * been transmitted. The runtime reads the message in order.
+   * Non-final parts of the message are sent with isLast set to false.
+   * The final part must be sent with isLast set to true.
+   *
+   * @param message
+   *         Message
+   *
+   * @throws IOException
+   *         if there is a problem delivering the message.
+   * @see Message#isLast()
+   */
+  public void sendPartialMessage(Message<?> message) throws IOException {
+    if (message instanceof TextMessage) {
+      sendPartialText((TextMessage) message);
+    }
+    else if (message instanceof BinaryMessage) {
+      sendPartialBinary((BinaryMessage) message);
+    }
+    else if (message instanceof PingMessage) {
+      sendPing((PingMessage) message);
+    }
+    else if (message instanceof PongMessage) {
+      sendPong((PongMessage) message);
+    }
+    else {
+      throw new IllegalStateException("Unexpected WebSocketMessage type: " + message);
+    }
+  }
+
+  /**
+   * Send a text message, blocking until all of the message has been transmitted.
+   *
+   * @param text
+   *         the message to be sent.
+   *
+   * @throws IOException
+   *         if there is a problem delivering the message.
+   */
+  public abstract void sendText(String text) throws IOException;
+
+  /**
+   * Send a text message in parts, blocking until all of the message has been transmitted. The runtime
+   * reads the message in order. Non-final parts of the message are sent with isLast set to false. The final part
+   * must be sent with isLast set to true.
+   *
+   * @param partialMessage
+   *         the parts of the message being sent.
+   *
+   * @throws IOException
+   *         if there is a problem delivering the message fragment.
+   */
+  public void sendPartialText(TextMessage partialMessage) throws IOException {
+    sendPartialText(partialMessage.getPayload(), partialMessage.isLast());
+  }
+
+  /**
+   * Send a text message in parts, blocking until all of the message has been transmitted. The runtime
+   * reads the message in order. Non-final parts of the message are sent with isLast set to false. The final part
+   * must be sent with isLast set to true.
+   *
+   * @param partialMessage
+   *         the parts of the message being sent.
+   * @param isLast
+   *         Whether the partial message being sent is the last part of the message.
+   *
+   * @throws IOException
+   *         if there is a problem delivering the message fragment.
+   */
+  public abstract void sendPartialText(String partialMessage, boolean isLast) throws IOException;
+
+  /**
+   * Send a binary message, returning when all of the message has been transmitted.
+   *
+   * @param data
+   *         the message to be sent.
+   *
+   * @throws IOException
+   *         if there is a problem delivering the message.
+   */
+  public abstract void sendBinary(BinaryMessage data) throws IOException;
+
+  public void sendPartialBinary(BinaryMessage data) throws IOException {
+    sendPartialBinary(data.getPayload(), data.isLast());
+  }
+
+  /**
+   * Send a binary message in parts, blocking until all of the message has been transmitted. The runtime
+   * reads the message in order. Non-final parts are sent with isLast set to false. The final piece
+   * must be sent with isLast set to true.
+   *
+   * @param partialByte
+   *         the part of the message being sent.
+   * @param isLast
+   *         Whether the partial message being sent is the last part of the message.
+   *
+   * @throws IOException
+   *         if there is a problem delivering the partial message.
+   */
+  public abstract void sendPartialBinary(
+          ByteBuffer partialByte, boolean isLast) throws IOException;
+
+  public abstract void sendPing(PingMessage message) throws IOException;
+
+  public abstract void sendPong(PongMessage message) throws IOException;
+
+  public abstract boolean isSecure();
+
+  public abstract boolean isOpen();
+
+  /**
+   * Get the idle timeout for this session.
+   *
+   * @return The current idle timeout for this session in milliseconds. Zero
+   * or negative values indicate an infinite timeout.
+   */
+  public abstract long getMaxIdleTimeout();
+
+  /**
+   * Set the idle timeout for this session.
+   *
+   * @param timeout
+   *         The new idle timeout for this session in milliseconds.
+   *         Zero or negative values indicate an infinite timeout.
+   */
+  public abstract void setMaxIdleTimeout(long timeout);
+
+  /**
+   * Set the current maximum buffer size for binary messages.
+   *
+   * @param max
+   *         The new maximum buffer size in bytes
+   */
+  public abstract void setMaxBinaryMessageBufferSize(int max);
+
+  /**
+   * Get the current maximum buffer size for binary messages.
+   *
+   * @return The current maximum buffer size in bytes
+   */
+  public abstract int getMaxBinaryMessageBufferSize();
+
+  /**
+   * Set the maximum buffer size for text messages.
+   *
+   * @param max
+   *         The new maximum buffer size in characters.
+   */
+  public abstract void setMaxTextMessageBufferSize(int max);
+
+  /**
+   * Get the maximum buffer size for text messages.
+   *
+   * @return The maximum buffer size in characters.
+   */
+  public abstract int getMaxTextMessageBufferSize();
 
   /**
    * Close the current conversation with a normal status code and no reason phrase.
@@ -106,7 +244,7 @@ public interface WebSocketSession extends AttributeAccessor {
    * @throws IOException
    *         if there was a connection error closing the connection.
    */
-  default void close() throws IOException {
+  public void close() throws IOException {
     close(CloseStatus.NORMAL);
   }
 
@@ -127,6 +265,6 @@ public interface WebSocketSession extends AttributeAccessor {
    * @throws IOException
    *         if there was a connection error closing the connection
    */
-  void close(CloseStatus status) throws IOException;
+  public abstract void close(CloseStatus status) throws IOException;
 
 }

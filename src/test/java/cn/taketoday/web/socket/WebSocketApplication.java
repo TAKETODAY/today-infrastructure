@@ -63,7 +63,7 @@ public class WebSocketApplication {
 
   }
 
-  static class WebSocket0 extends AbstractWebSocketHandler implements WebSocketHandler {
+  static class WebSocket0 extends WebSocketHandler implements WebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
@@ -82,7 +82,7 @@ public class WebSocketApplication {
 
     @Override
     public void onClose(WebSocketSession session, CloseStatus status) {
-
+      System.out.println("onClose " + status);
     }
   }
 

@@ -23,16 +23,19 @@ package cn.taketoday.web.socket.jetty;
 import org.eclipse.jetty.websocket.api.Session;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
-import cn.taketoday.web.socket.AbstractWebSocketSession;
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
+import cn.taketoday.web.socket.PingMessage;
+import cn.taketoday.web.socket.PongMessage;
+import cn.taketoday.web.socket.WebSocketSession;
 
 /**
  * @author TODAY 2021/5/6 21:40
  * @since 3.0.1
  */
-public class JettySession extends AbstractWebSocketSession {
+public class JettySession extends WebSocketSession {
   private final Session session;
 
   public JettySession(Session session) {
@@ -40,23 +43,33 @@ public class JettySession extends AbstractWebSocketSession {
   }
 
   @Override
-  protected void sendText(String text) throws IOException {
+  public void sendText(String text) throws IOException {
     session.getRemote().sendString(text);
   }
 
   @Override
-  protected void sendText(String partialMessage, boolean isLast) throws IOException {
+  public void sendPartialText(String partialMessage, boolean isLast) throws IOException {
     session.getRemote().sendPartialString(partialMessage, isLast);
   }
 
   @Override
-  protected void sendBinary(BinaryMessage data) throws IOException {
+  public void sendBinary(BinaryMessage data) throws IOException {
     session.getRemote().sendBytes(data.getPayload());
   }
 
   @Override
-  protected void sendBinary(BinaryMessage partialByte, boolean isLast) throws IOException {
-    session.getRemote().sendPartialBytes(partialByte.getPayload(), isLast);
+  public void sendPartialBinary(ByteBuffer partialByte, boolean isLast) throws IOException {
+    session.getRemote().sendPartialBytes(partialByte, isLast);
+  }
+
+  @Override
+  public void sendPing(PingMessage message) throws IOException {
+    session.getRemote().sendPing(message.getPayload());
+  }
+
+  @Override
+  public void sendPong(PongMessage message) throws IOException {
+    session.getRemote().sendPong(message.getPayload());
   }
 
   @Override
