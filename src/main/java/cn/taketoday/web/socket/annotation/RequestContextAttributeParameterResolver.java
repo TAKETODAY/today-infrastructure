@@ -18,24 +18,33 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.socket;
-
-import javax.websocket.server.ServerEndpointConfig;
+package cn.taketoday.web.socket.annotation;
 
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.resolver.AbstractParameterResolver;
 
 /**
- * javax.websocket
- *
- * @author TODAY 2021/5/6 17:42
+ * @author TODAY 2021/5/7 21:52
  * @since 3.0.1
  */
-public interface StandardWebSocketHandler {
+public class RequestContextAttributeParameterResolver extends AbstractParameterResolver {
+  private final String attributeName;
+  private final Class<?> parameterType;
 
-  default ServerEndpointConfig getEndpointConfig(RequestContext context) {
-    return ServerEndpointConfig.Builder
-            .create(StandardEndpoint.class, context.getRequestPath())
-            .build();
+  public RequestContextAttributeParameterResolver(String attributeName, Class<?> parameterType) {
+    this.attributeName = attributeName;
+    this.parameterType = parameterType;
+  }
+
+  @Override
+  public boolean supports(MethodParameter parameter) {
+    return parameter.is(parameterType);
+  }
+
+  @Override
+  protected Object resolveInternal(RequestContext context, MethodParameter parameter) throws Throwable {
+    return context.getAttribute(attributeName);
   }
 
 }

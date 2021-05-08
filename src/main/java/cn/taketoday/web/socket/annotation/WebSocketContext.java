@@ -18,51 +18,16 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.socket;
+package cn.taketoday.web.socket.annotation;
 
-import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.socket.WebSocketSession;
 
 /**
- * @author TODAY 2021/4/5 12:29
- * @since 3.0
+ * @author TODAY 2021/5/7 21:58
+ * @since 3.0.1
  */
-public class AnnotationWebSocketHandler extends WebSocketHandler {
+public class WebSocketContext {
 
-  @Override
-  public void afterHandshake(RequestContext context) {
-
-  }
-
-  @Override
-  public void onOpen(WebSocketSession session) {
-
-  }
-
-  @Override
-  public void onClose(WebSocketSession session) {
-
-  }
-
-  @Override public void onClose(WebSocketSession session, CloseStatus status) {
-
-  }
-
-  @Override
-  public void onError(WebSocketSession session, Throwable thr) {
-
-  }
-
-  @Override protected void handleTextMessage(WebSocketSession session, TextMessage message) {
-
-  }
-
-  @Override protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
-
-  }
-
-  @Override
-  public boolean supportPartialMessage() {
-    return false;
-  }
+  private WebSocketSession session;
 
 }

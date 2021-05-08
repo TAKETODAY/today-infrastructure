@@ -18,24 +18,19 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.socket;
+package cn.taketoday.web.socket.annotation;
 
-import javax.websocket.server.ServerEndpointConfig;
-
-import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.socket.WebSocketSession;
 
 /**
- * javax.websocket
- *
- * @author TODAY 2021/5/6 17:42
+ * @author TODAY 2021/5/7 22:11
  * @since 3.0.1
  */
-public interface StandardWebSocketHandler {
+public interface EndpointParameterResolver {
 
-  default ServerEndpointConfig getEndpointConfig(RequestContext context) {
-    return ServerEndpointConfig.Builder
-            .create(StandardEndpoint.class, context.getRequestPath())
-            .build();
-  }
+  boolean supports(MethodParameter parameter);
+
+  Object resolve(WebSocketSession session, MethodParameter parameter);
 
 }

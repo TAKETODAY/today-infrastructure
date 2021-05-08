@@ -34,6 +34,9 @@ import cn.taketoday.context.AttributeAccessorSupport;
 public abstract class WebSocketSession
         extends AttributeAccessorSupport implements Serializable, AttributeAccessor {
   private static final long serialVersionUID = 1L;
+  public static final String WEBSOCKET_SESSION_KEY = WebSocketSession.class.getName() + "-WebSocketSession";
+  public static final String JAVAX_WEBSOCKET_SESSION_KEY = "javax.websocket.Session";
+  public static final String JAVAX_ENDPOINT_CONFIG_KEY = "javax.websocket.EndpointConfig";
 
   private String id;
   protected WebSocketHandler socketHandler;

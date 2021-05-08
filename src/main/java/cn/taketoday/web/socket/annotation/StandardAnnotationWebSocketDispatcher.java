@@ -18,24 +18,41 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.socket;
+package cn.taketoday.web.socket.annotation;
 
 import javax.websocket.server.ServerEndpointConfig;
 
+import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.socket.StandardWebSocketHandler;
 
 /**
- * javax.websocket
- *
- * @author TODAY 2021/5/6 17:42
+ * @author TODAY 2021/5/8 22:18
  * @since 3.0.1
  */
-public interface StandardWebSocketHandler {
+public class StandardAnnotationWebSocketDispatcher
+        extends AnnotationWebSocketDispatcher implements StandardWebSocketHandler {
 
-  default ServerEndpointConfig getEndpointConfig(RequestContext context) {
-    return ServerEndpointConfig.Builder
-            .create(StandardEndpoint.class, context.getRequestPath())
-            .build();
+  private ServerEndpointConfig endpointConfig;
+
+  public StandardAnnotationWebSocketDispatcher(AnnotationWebSocketHandler socketHandler, BeanFactory beanFactory) {
+    super(socketHandler, beanFactory);
+  }
+
+  @Override
+  public ServerEndpointConfig getEndpointConfig(RequestContext context) {
+    if (endpointConfig != null) {
+      return endpointConfig;
+    }
+    return StandardWebSocketHandler.super.getEndpointConfig(context);
+  }
+
+  public void setEndpointConfig(ServerEndpointConfig endpointConfig) {
+    this.endpointConfig = endpointConfig;
+  }
+
+  public ServerEndpointConfig getEndpointConfig() {
+    return endpointConfig;
   }
 
 }

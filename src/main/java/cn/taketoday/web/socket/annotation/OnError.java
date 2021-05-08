@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
  *
  * <p>The method may only take the following parameters:-
  * <ul>
- * <li>a {@link java.lang.Throwable}  parameter</li>
+ * <li>a {@link java.lang.Throwable} parameter</li>
  * <li>optional {@link javax.websocket.Session} parameter</li>
  * <li>optional {@link javax.websocket.EndpointConfig} parameter</li>
  * <li>optional {@link cn.taketoday.web.socket.WebSocketSession} parameter</li>

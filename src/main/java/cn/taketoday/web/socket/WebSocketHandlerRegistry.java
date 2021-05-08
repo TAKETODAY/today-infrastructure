@@ -20,10 +20,7 @@
 
 package cn.taketoday.web.socket;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -32,14 +29,21 @@ import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.factory.Prototypes;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.WebApplicationInitializer;
+import cn.taketoday.web.config.WebMvcConfiguration;
+import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.handler.HandlerMethodBuilder;
+import cn.taketoday.web.handler.MethodParameterBuilder;
 import cn.taketoday.web.registry.AbstractUrlHandlerRegistry;
+import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.socket.annotation.AfterHandshake;
 import cn.taketoday.web.socket.annotation.AnnotationWebSocketDispatcher;
+import cn.taketoday.web.socket.annotation.AnnotationWebSocketHandler;
 import cn.taketoday.web.socket.annotation.EndpointMapping;
 import cn.taketoday.web.socket.annotation.OnClose;
 import cn.taketoday.web.socket.annotation.OnError;
 import cn.taketoday.web.socket.annotation.OnMessage;
 import cn.taketoday.web.socket.annotation.OnOpen;
+import cn.taketoday.web.socket.annotation.RequestContextAttributeParameterResolver;
 import cn.taketoday.web.socket.annotation.WebSocketHandlerMethod;
 
 /**
@@ -48,53 +52,26 @@ import cn.taketoday.web.socket.annotation.WebSocketHandlerMethod;
  * @author TODAY 2021/4/5 12:12
  * @since 3.0
  */
-public class WebSocketHandlerRegistry extends AbstractUrlHandlerRegistry implements WebApplicationInitializer {
+public class WebSocketHandlerRegistry
+        extends AbstractUrlHandlerRegistry implements WebApplicationInitializer, WebMvcConfiguration {
 
-  protected final List<Class<? extends Annotation>> eventClass = new LinkedList<>();
-
-  public WebSocketHandlerRegistry() {
-    eventClass.add(OnError.class);
-    eventClass.add(OnOpen.class);
-    eventClass.add(OnClose.class);
-    eventClass.add(OnMessage.class);
-    eventClass.add(AfterHandshake.class);
-  }
-
-  @SafeVarargs
-  public final void addEventClass(Class<? extends Annotation>... classes) {
-    Collections.addAll(eventClass, classes);
+  @Override
+  public void configureParameterResolver(List<ParameterResolver> parameterResolvers) {
+    parameterResolvers.add(new RequestContextAttributeParameterResolver(
+            WebSocketSession.WEBSOCKET_SESSION_KEY, WebSocketSession.class));
   }
 
   @Override
   public void onStartup(WebApplicationContext context) throws Throwable {
     final Map<String, BeanDefinition> beanDefinitions = context.getBeanDefinitions();
 
-    final List<Class<? extends Annotation>> eventClass = this.eventClass;
     for (final Map.Entry<String, BeanDefinition> entry : beanDefinitions.entrySet()) {
       final BeanDefinition definition = entry.getValue();
       if (isEndpoint(definition)) {
-        final Class<?> endpointClass = definition.getBeanClass();
-        final EndpointMapping endpointMapping = definition.getAnnotation(EndpointMapping.class);
-        final String[] path = endpointMapping.value();
-
-        AnnotationWebSocketDispatcher dispatcher = new AnnotationWebSocketDispatcher();
-        final Method[] declaredMethods = endpointClass.getDeclaredMethods();
-
-        final Object handlerBean = createHandler(definition, context);
-        for (final Method declaredMethod : declaredMethods) {
-          for (final Class<? extends Annotation> aClass : eventClass) {
-            if (declaredMethod.isAnnotationPresent(aClass)) {
-              WebSocketHandlerMethod handlerMethod = new WebSocketHandlerMethod(handlerBean, declaredMethod);
-
-            }
-          }
-        }
-
-        registerHandler(dispatcher, path);
+        registerEndpoint(definition, context);
       }
     }
   }
-
 
   /**
    * Create a handler bean instance
@@ -114,38 +91,54 @@ public class WebSocketHandlerRegistry extends AbstractUrlHandlerRegistry impleme
     return definition.isAnnotationPresent(EndpointMapping.class);
   }
 
-  protected void registerEndpoint(BeanDefinition definition) {
+  protected void registerEndpoint(BeanDefinition definition, WebApplicationContext context) {
+    final Object handlerBean = createHandler(definition, context);
 
     final Class<?> endpointClass = definition.getBeanClass();
     final EndpointMapping endpointMapping = definition.getAnnotation(EndpointMapping.class);
     final String[] path = endpointMapping.value();
 
-    WebSocketHandler handler = new AnnotationWebSocketDispatcher();
     final Method[] declaredMethods = endpointClass.getDeclaredMethods();
+
+    HandlerMethod afterHandshake = null;
+    WebSocketHandlerMethod onOpen = null;
+    WebSocketHandlerMethod onClose = null;
+    WebSocketHandlerMethod onError = null;
+    WebSocketHandlerMethod onMessage = null;
+
+    HandlerMethodBuilder<HandlerMethod> handlerMethodBuilder = new HandlerMethodBuilder<>(context);
+    final MethodParameterBuilder parameterBuilder = handlerMethodBuilder.getParameterBuilder();
     for (final Method declaredMethod : declaredMethods) {
-
-//      if (isOnOpenHandler(declaredMethod, definition)) {
-//        onOpen(declaredMethod, definition);
-//      }
-//      else if (isOnCloseHandler(declaredMethod, definition)) {
-//        onClose(declaredMethod, definition);
-//      }
-//      else if (isAfterHandshakeHandler(declaredMethod, definition)) {
-//        afterHandshake(declaredMethod, definition);
-//      }
-//      else if (isOnErrorHandler(declaredMethod, definition)) {
-//        onError(declaredMethod, definition);
-//      }
-//      else if (isOnMessageHandler(declaredMethod, definition)) {
-//        onMessage(declaredMethod, definition);
-//      }
+      if (isOnOpenHandler(declaredMethod, definition)) {
+        onOpen = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterBuilder);
+      }
+      else if (isOnCloseHandler(declaredMethod, definition)) {
+        onClose = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterBuilder);
+      }
+      else if (isAfterHandshakeHandler(declaredMethod, definition)) {
+        afterHandshake = handlerMethodBuilder.build(handlerBean, declaredMethod);
+      }
+      else if (isOnErrorHandler(declaredMethod, definition)) {
+        onError = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterBuilder);
+      }
+      else if (isOnMessageHandler(declaredMethod, definition)) {
+        onMessage = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterBuilder);
+      }
     }
-
+    final AnnotationWebSocketHandler annotationHandler
+            = new AnnotationWebSocketHandler(onOpen, onClose, onError, onMessage, afterHandshake);
+    WebSocketHandler handler = createWebSocketHandler(definition, context, annotationHandler);
     registerHandler(handler, path);
   }
 
+  protected WebSocketHandler createWebSocketHandler(BeanDefinition definition,
+                                                    WebApplicationContext context,
+                                                    AnnotationWebSocketHandler annotationHandler) {
+    return new AnnotationWebSocketDispatcher(annotationHandler, context.getBeanFactory());
+  }
+
   protected boolean isOnMessageHandler(Method declaredMethod, BeanDefinition definition) {
-    return declaredMethod.isAnnotationPresent(OnError.class);
+    return declaredMethod.isAnnotationPresent(OnMessage.class);
   }
 
   protected boolean isOnErrorHandler(Method declaredMethod, BeanDefinition definition) {
@@ -163,28 +156,5 @@ public class WebSocketHandlerRegistry extends AbstractUrlHandlerRegistry impleme
   protected boolean isOnOpenHandler(Method declaredMethod, BeanDefinition definition) {
     return declaredMethod.isAnnotationPresent(OnOpen.class);
   }
-
-  protected WebSocketHandler onOpen(Method declaredMethod, BeanDefinition definition) {
-
-    return null;
-  }
-
-  protected WebSocketHandler onMessage(Method declaredMethod, BeanDefinition definition) {
-
-    return null;
-  }
-
-  protected WebSocketHandler onError(Method declaredMethod, BeanDefinition definition) {
-    return null;
-  }
-
-  protected WebSocketHandler onClose(Method declaredMethod, BeanDefinition definition) {
-    return null;
-  }
-
-  protected WebSocketHandler afterHandshake(Method declaredMethod, BeanDefinition definition) {
-    return null;
-  }
-  // ServerEndpointDelegate
 
 }
