@@ -22,10 +22,7 @@ package cn.taketoday.web.socket.annotation;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.List;
 
-import javax.websocket.EndpointConfig;
-import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import javax.websocket.server.ServerEndpointConfig;
 import javax.websocket.server.ServerEndpointConfig.Configurator;
@@ -33,11 +30,9 @@ import javax.websocket.server.ServerEndpointConfig.Configurator;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.socket.StandardEndpoint;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketHandlerRegistry;
-import cn.taketoday.web.socket.WebSocketSession;
 
 /**
  * javax.websocket.*
@@ -48,14 +43,12 @@ import cn.taketoday.web.socket.WebSocketSession;
 public class StandardWebSocketHandlerRegistry extends WebSocketHandlerRegistry {
 
   @Override
-  public void configureParameterResolver(List<ParameterResolver> parameterResolvers) {
-    super.configureParameterResolver(parameterResolvers);
+  public void onStartup(WebApplicationContext context) throws Throwable {
+    super.onStartup(context);
 
-    parameterResolvers.add(new RequestContextAttributeParameterResolver(
-            WebSocketSession.JAVAX_WEBSOCKET_SESSION_KEY, Session.class));
-
-    parameterResolvers.add(new RequestContextAttributeParameterResolver(
-            WebSocketSession.JAVAX_ENDPOINT_CONFIG_KEY, EndpointConfig.class));
+    resolvers.add(new PathParamEndpointParameterResolver());
+    resolvers.add(new EndpointConfigEndpointParameterResolver());
+    resolvers.add(new StandardSessionEndpointParameterResolver());
   }
 
   @Override
@@ -92,7 +85,7 @@ public class StandardWebSocketHandlerRegistry extends WebSocketHandlerRegistry {
                                                     WebApplicationContext context,
                                                     AnnotationWebSocketHandler annotationHandler) {
     final StandardAnnotationWebSocketDispatcher socketDispatcher
-            = new StandardAnnotationWebSocketDispatcher(annotationHandler);
+            = new StandardAnnotationWebSocketDispatcher(annotationHandler, resolvers);
     final ServerEndpoint serverEndpoint = definition.getAnnotation(ServerEndpoint.class);
     if (serverEndpoint != null) {
       Configurator configuratorObject = null;

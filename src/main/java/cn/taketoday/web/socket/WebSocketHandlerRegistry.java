@@ -21,30 +21,33 @@
 package cn.taketoday.web.socket;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.factory.Prototypes;
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.WebApplicationInitializer;
-import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.HandlerMethodBuilder;
-import cn.taketoday.web.handler.MethodParameterBuilder;
+import cn.taketoday.web.handler.MethodParametersBuilder;
 import cn.taketoday.web.registry.AbstractUrlHandlerRegistry;
-import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.socket.annotation.AfterHandshake;
 import cn.taketoday.web.socket.annotation.AnnotationWebSocketDispatcher;
 import cn.taketoday.web.socket.annotation.AnnotationWebSocketHandler;
 import cn.taketoday.web.socket.annotation.EndpointMapping;
+import cn.taketoday.web.socket.annotation.EndpointParameterResolver;
+import cn.taketoday.web.socket.annotation.JettySessionEndpointParameterResolver;
 import cn.taketoday.web.socket.annotation.OnClose;
 import cn.taketoday.web.socket.annotation.OnError;
 import cn.taketoday.web.socket.annotation.OnMessage;
 import cn.taketoday.web.socket.annotation.OnOpen;
-import cn.taketoday.web.socket.annotation.RequestContextAttributeParameterResolver;
+import cn.taketoday.web.socket.annotation.PathVariableEndpointParameterResolver;
 import cn.taketoday.web.socket.annotation.WebSocketHandlerMethod;
+import cn.taketoday.web.socket.annotation.WebSocketSessionEndpointParameterResolver;
 
 /**
  * {@link WebSocketHandler} registry
@@ -53,13 +56,10 @@ import cn.taketoday.web.socket.annotation.WebSocketHandlerMethod;
  * @since 3.0
  */
 public class WebSocketHandlerRegistry
-        extends AbstractUrlHandlerRegistry implements WebApplicationInitializer, WebMvcConfiguration {
+        extends AbstractUrlHandlerRegistry implements WebApplicationInitializer {
+  protected static boolean isJettyPresent = ClassUtils.isPresent("org.eclipse.jetty.websocket.api.Session");
 
-  @Override
-  public void configureParameterResolver(List<ParameterResolver> parameterResolvers) {
-    parameterResolvers.add(new RequestContextAttributeParameterResolver(
-            WebSocketSession.WEBSOCKET_SESSION_KEY, WebSocketSession.class));
-  }
+  protected final List<EndpointParameterResolver> resolvers = new ArrayList<>();
 
   @Override
   public void onStartup(WebApplicationContext context) throws Throwable {
@@ -71,6 +71,12 @@ public class WebSocketHandlerRegistry
         registerEndpoint(definition, context);
       }
     }
+
+    if (isJettyPresent) {
+      resolvers.add(new JettySessionEndpointParameterResolver());
+    }
+    resolvers.add(new PathVariableEndpointParameterResolver());
+    resolvers.add(new WebSocketSessionEndpointParameterResolver());
   }
 
   /**
@@ -106,8 +112,8 @@ public class WebSocketHandlerRegistry
     WebSocketHandlerMethod onError = null;
     WebSocketHandlerMethod onMessage = null;
 
+    final MethodParametersBuilder parameterBuilder = new MethodParametersBuilder();
     HandlerMethodBuilder<HandlerMethod> handlerMethodBuilder = new HandlerMethodBuilder<>(context);
-    final MethodParameterBuilder parameterBuilder = handlerMethodBuilder.getParameterBuilder();
     for (final Method declaredMethod : declaredMethods) {
       if (isOnOpenHandler(declaredMethod, definition)) {
         onOpen = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterBuilder);
@@ -137,7 +143,7 @@ public class WebSocketHandlerRegistry
   protected WebSocketHandler createWebSocketHandler(BeanDefinition definition,
                                                     WebApplicationContext context,
                                                     AnnotationWebSocketHandler annotationHandler) {
-    return new AnnotationWebSocketDispatcher(annotationHandler);
+    return new AnnotationWebSocketDispatcher(annotationHandler, resolvers);
   }
 
   protected boolean isOnMessageHandler(Method declaredMethod, BeanDefinition definition) {

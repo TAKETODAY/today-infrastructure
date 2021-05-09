@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 
 import cn.taketoday.context.reflect.MethodInvoker;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.handler.MethodParameterBuilder;
+import cn.taketoday.web.handler.MethodParametersBuilder;
 
 /**
  * @author TODAY 2021/5/7 15:32
@@ -39,7 +39,7 @@ public class WebSocketHandlerMethod {
 
   private final MethodParameter[] parameters;
 
-  public WebSocketHandlerMethod(Object bean, Method method, MethodParameterBuilder parameterBuilder) {
+  public WebSocketHandlerMethod(Object bean, Method method, MethodParametersBuilder parameterBuilder) {
     this.bean = bean;
     this.method = method;
     this.handlerInvoker = MethodInvoker.create(method);

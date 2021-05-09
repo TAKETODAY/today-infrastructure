@@ -20,10 +20,13 @@
 
 package cn.taketoday.web.socket.annotation;
 
+import java.util.List;
+
 import javax.websocket.server.ServerEndpointConfig;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.socket.StandardWebSocketHandler;
+import cn.taketoday.web.socket.WebSocketSession;
 
 /**
  * @author TODAY 2021/5/8 22:18
@@ -34,24 +37,28 @@ public class StandardAnnotationWebSocketDispatcher
 
   private ServerEndpointConfig endpointConfig;
 
-  public StandardAnnotationWebSocketDispatcher(AnnotationWebSocketHandler socketHandler) {
-    super(socketHandler);
+  public StandardAnnotationWebSocketDispatcher(AnnotationWebSocketHandler socketHandler,
+                                               List<EndpointParameterResolver> resolvers) {
+    super(socketHandler, resolvers);
   }
 
   @Override
-  public ServerEndpointConfig getEndpointConfig(RequestContext context) {
+  public ServerEndpointConfig getEndpointConfig() {
     if (endpointConfig != null) {
       return endpointConfig;
     }
-    return StandardWebSocketHandler.super.getEndpointConfig(context);
+    return StandardWebSocketHandler.super.getEndpointConfig();
   }
 
   public void setEndpointConfig(ServerEndpointConfig endpointConfig) {
     this.endpointConfig = endpointConfig;
   }
 
-  public ServerEndpointConfig getEndpointConfig() {
-    return endpointConfig;
+  @Override
+  public void afterHandshake(RequestContext context, WebSocketSession session) throws Throwable {
+    super.afterHandshake(context, session);
+    final ServerEndpointConfig endpointConfig = getEndpointConfig();
+    session.setAttribute(WebSocketSession.JAVAX_ENDPOINT_CONFIG_KEY, endpointConfig);
   }
 
 }

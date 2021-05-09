@@ -156,7 +156,7 @@ public class TomcatWebSocketHandlerAdapter
       }
     }
 
-    final ServerEndpointConfig endpointConfig = getServerEndpointConfig(context, handler);
+    final ServerEndpointConfig endpointConfig = getServerEndpointConfig(handler);
     try {
       TomcatHttpUpgradeHandler wsHandler = request.upgrade(TomcatHttpUpgradeHandler.class);
 

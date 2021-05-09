@@ -23,6 +23,7 @@ package cn.taketoday.web.socket;
 import javax.websocket.server.ServerEndpointConfig;
 
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextHolder;
 
 /**
  * javax.websocket
@@ -32,10 +33,11 @@ import cn.taketoday.web.RequestContext;
 public abstract class AbstractStandardWebSocketHandlerAdapter extends AbstractWebSocketHandlerAdapter {
   protected ServerEndpointConfig.Configurator configurator;
 
-  protected ServerEndpointConfig getServerEndpointConfig(RequestContext context, WebSocketHandler handler) {
+  protected ServerEndpointConfig getServerEndpointConfig(WebSocketHandler handler) {
     if (handler instanceof StandardWebSocketHandler) {
-      return ((StandardWebSocketHandler) handler).getEndpointConfig(context);
+      return ((StandardWebSocketHandler) handler).getEndpointConfig();
     }
+    final RequestContext context = RequestContextHolder.currentContext();
     return new StandardServerEndpointConfig(context.getRequestPath(), configurator);
   }
 

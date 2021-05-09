@@ -22,9 +22,8 @@ package cn.taketoday.web.socket;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.framework.WebApplication;
-import cn.taketoday.framework.annotation.EnableJettyHandling;
+import cn.taketoday.framework.annotation.EnableTomcatHandling;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.socket.annotation.AfterHandshake;
 import cn.taketoday.web.socket.annotation.EndpointMapping;
@@ -32,7 +31,6 @@ import cn.taketoday.web.socket.annotation.OnClose;
 import cn.taketoday.web.socket.annotation.OnError;
 import cn.taketoday.web.socket.annotation.OnMessage;
 import cn.taketoday.web.socket.annotation.OnOpen;
-import cn.taketoday.web.socket.jetty.JettyWebSocketHandlerAdapter;
 
 /**
  * @author TODAY 2021/4/5 13:03
@@ -40,8 +38,8 @@ import cn.taketoday.web.socket.jetty.JettyWebSocketHandlerAdapter;
 @Configuration
 @Import(WebSocketApplication.AppConfig.class)
 @EnableWebSocket
-//@EnableTomcatHandling
-@EnableJettyHandling
+@EnableTomcatHandling
+//@EnableJettyHandling
 //@EnableUndertowHandling
 public class WebSocketApplication {
 
@@ -57,10 +55,10 @@ public class WebSocketApplication {
       registry.registerHandler(new WebSocket0(), "/endpoint");
     }
 
-    @Singleton
-    JettyWebSocketHandlerAdapter webSocketHandlerAdapter() {
-      return new JettyWebSocketHandlerAdapter();
-    }
+//    @Singleton
+//    JettyWebSocketHandlerAdapter webSocketHandlerAdapter() {
+//      return new JettyWebSocketHandlerAdapter();
+//    }
 
 //
 //    @Singleton
@@ -102,9 +100,9 @@ public class WebSocketApplication {
      * <li>parameters annotated with the {@link cn.taketoday.web.annotation.PathVariable} annotation.</li>
      */
     @AfterHandshake
-    public void afterHandshake(RequestContext context, WebSocketSession session, int q) {
+    public void afterHandshake(RequestContext context/*, WebSocketSession session, int q*/) {
       System.out.println("afterHandshake");
-      System.out.println("q=" + q);
+//      System.out.println("q=" + q);
     }
 
   }

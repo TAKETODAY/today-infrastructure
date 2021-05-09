@@ -28,6 +28,8 @@ import java.util.List;
 
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.web.socket.annotation.StandardWebSocketHandlerRegistry;
 import cn.taketoday.web.socket.tomcat.TomcatWebSocketHandlerAdapter;
 
 /**
@@ -50,7 +52,14 @@ class WebSocketConfig {
 
   @MissingBean
   WebSocketHandlerRegistry webSocketHandlerRegistry(final List<WebSocketConfiguration> configurers) {
-    final WebSocketHandlerRegistry handlerRegistry = new WebSocketHandlerRegistry();
+    WebSocketHandlerRegistry handlerRegistry;
+    if (ClassUtils.isPresent("javax.websocket.Session")) {
+      handlerRegistry = new StandardWebSocketHandlerRegistry();
+    }
+    else {
+      handlerRegistry = new WebSocketHandlerRegistry();
+    }
+
     for (final WebSocketConfiguration configurer : configurers) {
       configurer.configureWebSocketHandlers(handlerRegistry);
     }

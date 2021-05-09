@@ -183,7 +183,7 @@ public class UndertowWebSocketHandlerAdapter
 
   protected Handshake getHandshake(
           RequestContext context, WebSocketSession session, UndertowWebSocketHttpExchange facade, WebSocketHandler handler) {
-    final ServerEndpointConfig endpointConfig = getServerEndpointConfig(context, handler);
+    final ServerEndpointConfig endpointConfig = getServerEndpointConfig(handler);
     // StandardEndpoint
     final class StandardEndpointInstanceFactory implements InstanceFactory<StandardEndpoint> {
 

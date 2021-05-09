@@ -26,7 +26,7 @@ import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.socket.WebSocketSession;
 
 /**
- * @author TODAY 2021/5/9 23:19
+ * @author TODAY 2021/5/10 0:02
  * @since 3.0.1
  */
 public class EndpointConfigEndpointParameterResolver implements EndpointParameterResolver {
@@ -38,7 +38,6 @@ public class EndpointConfigEndpointParameterResolver implements EndpointParamete
 
   @Override
   public Object resolve(WebSocketSession session, MethodParameter parameter) {
-    return null;
+    return session.getAttribute(WebSocketSession.JAVAX_ENDPOINT_CONFIG_KEY);
   }
-
 }

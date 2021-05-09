@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.socket.annotation;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -43,13 +42,14 @@ import cn.taketoday.web.socket.WebSocketSession;
  * @since 3.0
  */
 public class AnnotationWebSocketDispatcher extends WebSocketHandler {
-  private final AnnotationWebSocketHandler socketHandler;
+  protected final AnnotationWebSocketHandler socketHandler;
+  protected final List<EndpointParameterResolver> resolvers;
 
-  public AnnotationWebSocketDispatcher(AnnotationWebSocketHandler socketHandler) {
+  public AnnotationWebSocketDispatcher(AnnotationWebSocketHandler socketHandler,
+                                       List<EndpointParameterResolver> resolvers) {
     this.socketHandler = socketHandler;
+    this.resolvers = resolvers;
   }
-
-  private List<EndpointParameterResolver> resolvers = new LinkedList<>();
 
   @Override
   public void afterHandshake(RequestContext context, WebSocketSession session) throws Throwable {
@@ -130,15 +130,6 @@ public class AnnotationWebSocketDispatcher extends WebSocketHandler {
   @Override
   protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
     handle(socketHandler.onMessage, session, message);
-  }
-
-  @Override
-  public boolean supportPartialMessage() {
-    return false;
-  }
-
-  public static class Builder {
-
   }
 
 }
