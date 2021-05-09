@@ -43,13 +43,12 @@ import cn.taketoday.context.factory.BeanProperty;
  */
 public class GenericDescriptor implements Serializable {
   private static final long serialVersionUID = 1L;
-
-  private static final Map<Class<?>, GenericDescriptor> commonTypesCache = new HashMap<>(32);
-
+  private static final HashMap<Class<?>, GenericDescriptor> commonTypesCache = new HashMap<>(32);
   private static final Class<?>[] CACHED_COMMON_TYPES = {
           boolean.class, Boolean.class, byte.class, Byte.class, char.class, Character.class,
           double.class, Double.class, float.class, Float.class, int.class, Integer.class,
-          long.class, Long.class, short.class, Short.class, String.class, Object.class };
+          long.class, Long.class, short.class, Short.class, String.class, Object.class
+  };
 
   static {
     for (Class<?> preCachedClass : CACHED_COMMON_TYPES) {
@@ -715,8 +714,7 @@ public class GenericDescriptor implements Serializable {
    */
   public static GenericDescriptor ofParameter(Parameter parameter) {
     final ResolvableType resolvableType = ResolvableType.forParameter(parameter);
-    final Class<?> type = parameter.getType();
-    return new GenericDescriptor(resolvableType, type, parameter);
+    return new GenericDescriptor(resolvableType, parameter.getType(), parameter);
   }
 
   /**
