@@ -22,13 +22,12 @@ package cn.taketoday.web.handler;
 import java.util.Objects;
 
 import cn.taketoday.context.PathMatcher;
+import cn.taketoday.context.conversion.support.DefaultConversionService;
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.resolver.MissingPathVariableParameterException;
 import cn.taketoday.web.resolver.ParameterConversionException;
-
-import static cn.taketoday.context.utils.ConvertUtils.convert;
 
 /**
  * @author TODAY <br>
@@ -53,7 +52,6 @@ public class PathVariableMethodParameter extends MethodParameter {
 
   @Override
   protected Object resolveParameter(final RequestContext request) throws Throwable {
-
     String[] pathVariables = request.pathVariables();
     if (pathVariables == null) {
       String requestURI = StringUtils.decodeUrl(request.getRequestPath());
@@ -63,7 +61,8 @@ public class PathVariableMethodParameter extends MethodParameter {
       }
     }
     try {
-      return convert(pathVariables[variableIndex], getParameterClass());
+      return DefaultConversionService.getSharedInstance()
+              .convert(pathVariables[variableIndex], getGenericDescriptor());
     }
     catch (ConversionException e) {
       throw new ParameterConversionException(this, pathVariables[variableIndex], e);

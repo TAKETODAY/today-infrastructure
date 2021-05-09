@@ -31,6 +31,7 @@ import cn.taketoday.context.AttributeAccessorSupport;
 import cn.taketoday.context.annotation.Required;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
+import cn.taketoday.context.utils.GenericDescriptor;
 import cn.taketoday.context.utils.NumberUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
@@ -56,6 +57,10 @@ public class MethodParameter
   private String defaultValue;
   private Type[] generics;
   private HandlerMethod handlerMethod;
+  /**
+   * @since 3.0.1
+   */
+  protected GenericDescriptor genericDescriptor;
 
   public MethodParameter(HandlerMethod handlerMethod, MethodParameter other) {
     this.name = other.name;
@@ -67,6 +72,7 @@ public class MethodParameter
     this.parameterClass = other.parameterClass;
 
     this.handlerMethod = handlerMethod;
+    this.genericDescriptor = other.genericDescriptor; // @since 3.0.1
   }
 
   public MethodParameter(int index, Parameter parameter) {
@@ -253,4 +259,19 @@ public class MethodParameter
   public void setHandlerMethod(HandlerMethod handlerMethod) {
     this.handlerMethod = handlerMethod;
   }
+
+  //
+
+  /**
+   * @since 3.0.1
+   */
+  public GenericDescriptor getGenericDescriptor() {
+    GenericDescriptor genericDescriptor = this.genericDescriptor;
+    if (genericDescriptor == null) {
+      genericDescriptor = GenericDescriptor.ofParameter(parameter);
+      this.genericDescriptor = genericDescriptor;
+    }
+    return genericDescriptor;
+  }
+
 }
