@@ -36,6 +36,8 @@ import java.util.stream.Stream;
 import cn.taketoday.context.factory.BeanProperty;
 
 /**
+ * Generic Descriptor
+ *
  * @author TODAY 2021/3/22 20:37
  * @since 3.0
  */
@@ -678,8 +680,8 @@ public class GenericDescriptor implements Serializable {
         nested = nested.getNested(2);
       }
       // else {
-        // Could be a collection type but we don't know about its element type,
-        // so let's just assume there is an element type of type Object...
+      // Could be a collection type but we don't know about its element type,
+      // so let's just assume there is an element type of type Object...
       // }
     }
     if (nested == ResolvableType.NONE) {
@@ -699,14 +701,19 @@ public class GenericDescriptor implements Serializable {
     return new GenericDescriptor(beanProperty);
   }
 
-  /**
-   */
   public static GenericDescriptor ofProperty(BeanProperty beanProperty) {
     return new GenericDescriptor(beanProperty);
   }
 
   public static GenericDescriptor ofParameter(final Executable executable, int parameterIndex) {
-    final Parameter parameter =  ClassUtils.getParameter(executable, parameterIndex);
+    final Parameter parameter = ClassUtils.getParameter(executable, parameterIndex);
+    return ofParameter(parameter);
+  }
+
+  /**
+   * @since 3.0.2
+   */
+  public static GenericDescriptor ofParameter(Parameter parameter) {
     final ResolvableType resolvableType = ResolvableType.forParameter(parameter);
     final Class<?> type = parameter.getType();
     return new GenericDescriptor(resolvableType, type, parameter);

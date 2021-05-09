@@ -26,7 +26,7 @@ import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ObjectUtils;
 
 /**
- * Copy the property values
+ * Bean properties utils
  *
  * @author TODAY 2021/5/2 22:14
  * @since 3.0.2
