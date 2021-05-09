@@ -20,44 +20,28 @@
 
 package cn.taketoday.web.handler;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.web.resolver.ParameterResolvers;
 
 /**
- * Build {@link MethodParameter} array
+ * ParameterResolvers MethodParametersBuilder
  *
- * @author TODAY 2021/3/21 13:58
- * @since 3.0
+ * @author TODAY 2021/5/9 23:28
+ * @since 3.0.1
  */
-public class MethodParameterBuilder {
+public class ParameterResolversMethodParameterBuilder extends MethodParametersBuilder {
   private ParameterResolvers parameterResolvers;
 
-  public MethodParameterBuilder() {
+  public ParameterResolversMethodParameterBuilder() {
     this(new ParameterResolvers());
   }
 
-  public MethodParameterBuilder(ParameterResolvers parameterResolvers) {
+  public ParameterResolversMethodParameterBuilder(ParameterResolvers parameterResolvers) {
     this.parameterResolvers = parameterResolvers;
   }
 
-  public MethodParameter[] build(Method method) {
-    final int length = method.getParameterCount();
-    if (length == 0) {
-      return null;
-    }
-
-    final MethodParameter[] ret = new MethodParameter[length];
-    final String[] methodArgsNames = ClassUtils.getMethodArgsNames(method);
-    final Parameter[] parameters = method.getParameters();
-    for (int i = 0; i < length; i++) {
-      ret[i] = createParameter(methodArgsNames[i], parameters[i], i);
-    }
-    return ret;
-  }
-
+  @Override
   protected MethodParameter createParameter(String methodArgsName, Parameter parameter, int index) {
     return new ParameterResolverMethodParameter(index, parameter, methodArgsName, parameterResolvers);
   }
@@ -68,5 +52,6 @@ public class MethodParameterBuilder {
 
   public ParameterResolvers getParameterResolvers() {
     return parameterResolvers;
+
   }
 }

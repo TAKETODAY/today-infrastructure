@@ -122,7 +122,8 @@ public class HandlerMethodTests {
 
     final StandardApplicationContext applicationContext = getApplicationContext();
 
-    final MethodParameterBuilder methodParameterBuilder = new MethodParameterBuilder();
+    final ParameterResolversMethodParameterBuilder methodParameterBuilder
+            = new ParameterResolversMethodParameterBuilder();
     final ParameterResolvers parameterResolvers = methodParameterBuilder.getParameterResolvers();
     parameterResolvers.setApplicationContext(applicationContext);
 

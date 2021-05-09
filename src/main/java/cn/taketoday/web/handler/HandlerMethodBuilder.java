@@ -44,7 +44,7 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
 
   private ResultHandlers resultHandlers;
   private ParameterResolvers parameterResolvers;
-  private MethodParameterBuilder parameterBuilder;
+  private MethodParametersBuilder parametersBuilder;
 
   private ConstructorAccessor constructor;
 
@@ -54,20 +54,20 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
     Assert.notNull(context, "ApplicationContext must not be null");
     ParameterResolvers parameterResolvers = context.getBean(ParameterResolvers.class);
     Assert.state(parameterResolvers != null, "No ParameterResolvers");
-    setParameterBuilder(new MethodParameterBuilder(parameterResolvers));
     setParameterResolvers(parameterResolvers);
     setResultHandlers(context.getBean(ResultHandlers.class));
+    setParametersBuilder(new ParameterResolversMethodParameterBuilder(parameterResolvers));
   }
 
   public HandlerMethodBuilder(ParameterResolvers resolvers,
                               ResultHandlers resultHandlers) {
-    this(resolvers, resultHandlers, new MethodParameterBuilder(resolvers));
+    this(resolvers, resultHandlers, new ParameterResolversMethodParameterBuilder(resolvers));
   }
 
   public HandlerMethodBuilder(ParameterResolvers resolvers,
                               ResultHandlers resultHandlers,
-                              MethodParameterBuilder builder) {
-    setParameterBuilder(builder);
+                              MethodParametersBuilder builder) {
+    setParametersBuilder(builder);
     setParameterResolvers(resolvers);
     setResultHandlers(resultHandlers);
   }
@@ -95,10 +95,10 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
   @SuppressWarnings("unchecked")
   public T build(Object handlerBean, Method method) {
     Assert.state(resultHandlers != null, "No ResultHandlers");
-    Assert.state(parameterBuilder != null, "No MethodParameterBuilder");
+    Assert.state(parametersBuilder != null, "No MethodParameterBuilder");
 
     final T handlerMethod = (T) getConstructor().newInstance(new Object[] { handlerBean, method });
-    final MethodParameter[] parameters = parameterBuilder.build(method);
+    final MethodParameter[] parameters = parametersBuilder.build(method);
     handlerMethod.setParameters(parameters);
     handlerMethod.setResultHandlers(resultHandlers);
 
@@ -131,12 +131,12 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
     this.constructor = constructor;
   }
 
-  public void setParameterBuilder(MethodParameterBuilder parameterBuilder) {
-    this.parameterBuilder = parameterBuilder;
+  public void setParametersBuilder(MethodParametersBuilder parameterBuilder) {
+    this.parametersBuilder = parameterBuilder;
   }
 
-  public MethodParameterBuilder getParameterBuilder() {
-    return parameterBuilder;
+  public MethodParametersBuilder getParameterBuilder() {
+    return parametersBuilder;
   }
 
   public ParameterResolvers getParameterResolvers() {
