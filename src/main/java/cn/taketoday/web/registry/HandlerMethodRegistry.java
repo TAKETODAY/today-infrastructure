@@ -24,9 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -327,14 +325,10 @@ public class HandlerMethodRegistry
    * Mapping path variable.
    */
   protected void mappingPathVariable(final String pathPattern, final HandlerMethod handler) {
-
-    final List<MethodParameter> parameters = new LinkedList<>();
-    final Map<String, MethodParameter> parameterMapping = new HashMap<>();
-
+    final HashMap<String, MethodParameter> parameterMapping = new HashMap<>();
     final MethodParameter[] methodParameters = handler.getParameters();
     for (MethodParameter methodParameter : methodParameters) {
       parameterMapping.put(methodParameter.getName(), methodParameter);
-      parameters.add(methodParameter);
     }
 
     int i = 0;
@@ -346,7 +340,7 @@ public class HandlerMethodRegistry
                 "There isn't a variable named: [" + variable +
                         "] in the parameter list at method: [" + handler.getMethod() + "]");
       }
-      methodParameters[parameters.indexOf(parameter)] = //
+      methodParameters[parameter.getParameterIndex()] = //
               new PathVariableMethodParameter(i++, pathPattern, handler, parameter, pathMatcher);
     }
   }
