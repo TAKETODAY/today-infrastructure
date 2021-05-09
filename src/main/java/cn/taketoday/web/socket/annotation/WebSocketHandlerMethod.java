@@ -23,7 +23,6 @@ package cn.taketoday.web.socket.annotation;
 import java.lang.reflect.Method;
 
 import cn.taketoday.context.reflect.MethodInvoker;
-import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.handler.MethodParameterBuilder;
 
@@ -45,10 +44,6 @@ public class WebSocketHandlerMethod {
     this.method = method;
     this.handlerInvoker = MethodInvoker.create(method);
     this.parameters = parameterBuilder.build(method);
-  }
-
-  public Object handle(RequestContext context) {
-
   }
 
   public void invoke(Object[] args) {

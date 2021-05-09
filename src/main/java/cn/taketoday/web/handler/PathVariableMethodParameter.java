@@ -51,7 +51,7 @@ public class PathVariableMethodParameter extends MethodParameter {
   }
 
   @Override
-  protected Object resolveParameter(final RequestContext request) throws Throwable {
+  public Object resolveParameter(final RequestContext request) throws Throwable {
     String[] pathVariables = request.pathVariables();
     if (pathVariables == null) {
       String requestURI = StringUtils.decodeUrl(request.getRequestPath());

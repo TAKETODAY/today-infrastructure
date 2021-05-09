@@ -20,38 +20,24 @@
 
 package cn.taketoday.web.socket.annotation;
 
-import javax.websocket.server.ServerEndpointConfig;
+import javax.websocket.server.PathParam;
 
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.socket.StandardWebSocketHandler;
+import cn.taketoday.web.handler.MethodParameter;
 
 /**
- * @author TODAY 2021/5/8 22:18
+ * @author TODAY 2021/5/9 22:25
  * @since 3.0.1
  */
-public class StandardAnnotationWebSocketDispatcher
-        extends AnnotationWebSocketDispatcher implements StandardWebSocketHandler {
+public class PathParamEndpointParameterResolver extends PathVariableEndpointParameterResolver {
 
-  private ServerEndpointConfig endpointConfig;
-
-  public StandardAnnotationWebSocketDispatcher(AnnotationWebSocketHandler socketHandler) {
-    super(socketHandler);
+  @Override
+  public boolean supports(MethodParameter parameter) {
+    return parameter.isAnnotationPresent(PathParam.class);
   }
 
   @Override
-  public ServerEndpointConfig getEndpointConfig(RequestContext context) {
-    if (endpointConfig != null) {
-      return endpointConfig;
-    }
-    return StandardWebSocketHandler.super.getEndpointConfig(context);
-  }
-
-  public void setEndpointConfig(ServerEndpointConfig endpointConfig) {
-    this.endpointConfig = endpointConfig;
-  }
-
-  public ServerEndpointConfig getEndpointConfig() {
-    return endpointConfig;
+  protected String resolveName(MethodParameter parameter) {
+    return parameter.getAnnotation(PathParam.class).value();
   }
 
 }

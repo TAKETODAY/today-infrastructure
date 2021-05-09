@@ -92,7 +92,7 @@ public class StandardWebSocketHandlerRegistry extends WebSocketHandlerRegistry {
                                                     WebApplicationContext context,
                                                     AnnotationWebSocketHandler annotationHandler) {
     final StandardAnnotationWebSocketDispatcher socketDispatcher
-            = new StandardAnnotationWebSocketDispatcher(annotationHandler, context.getBeanFactory());
+            = new StandardAnnotationWebSocketDispatcher(annotationHandler);
     final ServerEndpoint serverEndpoint = definition.getAnnotation(ServerEndpoint.class);
     if (serverEndpoint != null) {
       Configurator configuratorObject = null;

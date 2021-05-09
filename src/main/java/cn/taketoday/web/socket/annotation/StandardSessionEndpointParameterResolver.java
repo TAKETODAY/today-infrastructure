@@ -20,38 +20,23 @@
 
 package cn.taketoday.web.socket.annotation;
 
-import javax.websocket.server.ServerEndpointConfig;
-
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.socket.StandardWebSocketHandler;
+import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.socket.WebSocketSession;
 
 /**
- * @author TODAY 2021/5/8 22:18
+ * @author TODAY 2021/5/9 22:33
  * @since 3.0.1
  */
-public class StandardAnnotationWebSocketDispatcher
-        extends AnnotationWebSocketDispatcher implements StandardWebSocketHandler {
+public class StandardSessionEndpointParameterResolver implements EndpointParameterResolver {
 
-  private ServerEndpointConfig endpointConfig;
-
-  public StandardAnnotationWebSocketDispatcher(AnnotationWebSocketHandler socketHandler) {
-    super(socketHandler);
+  @Override
+  public boolean supports(MethodParameter parameter) {
+    return parameter.is(javax.websocket.Session.class);
   }
 
   @Override
-  public ServerEndpointConfig getEndpointConfig(RequestContext context) {
-    if (endpointConfig != null) {
-      return endpointConfig;
-    }
-    return StandardWebSocketHandler.super.getEndpointConfig(context);
-  }
-
-  public void setEndpointConfig(ServerEndpointConfig endpointConfig) {
-    this.endpointConfig = endpointConfig;
-  }
-
-  public ServerEndpointConfig getEndpointConfig() {
-    return endpointConfig;
+  public Object resolve(WebSocketSession session, MethodParameter parameter) {
+    return WebSocketSessionEndpointParameterResolver.getNativeSessionSession(session, parameter);
   }
 
 }

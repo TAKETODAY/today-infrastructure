@@ -125,16 +125,19 @@ public class WebSocketHandlerRegistry
         onMessage = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterBuilder);
       }
     }
-    final AnnotationWebSocketHandler annotationHandler
-            = new AnnotationWebSocketHandler(onOpen, onClose, onError, onMessage, afterHandshake);
-    WebSocketHandler handler = createWebSocketHandler(definition, context, annotationHandler);
-    registerHandler(handler, path);
+
+    for (final String pathPattern : path) {
+      final AnnotationWebSocketHandler annotationHandler
+              = new AnnotationWebSocketHandler(pathPattern, onOpen, onClose, onError, onMessage, afterHandshake);
+      WebSocketHandler handler = createWebSocketHandler(definition, context, annotationHandler);
+      registerHandler(pathPattern, handler);
+    }
   }
 
   protected WebSocketHandler createWebSocketHandler(BeanDefinition definition,
                                                     WebApplicationContext context,
                                                     AnnotationWebSocketHandler annotationHandler) {
-    return new AnnotationWebSocketDispatcher(annotationHandler, context.getBeanFactory());
+    return new AnnotationWebSocketDispatcher(annotationHandler);
   }
 
   protected boolean isOnMessageHandler(Method declaredMethod, BeanDefinition definition) {

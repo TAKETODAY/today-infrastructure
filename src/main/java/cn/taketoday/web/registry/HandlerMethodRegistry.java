@@ -317,7 +317,7 @@ public class HandlerMethodRegistry
    *
    * @return If contains '{' and '}'
    */
-  protected boolean containsPathVariable(final String path) {
+  public static boolean containsPathVariable(final String path) {
     return path.indexOf('{') > -1 && path.indexOf('}') > -1;
   }
 

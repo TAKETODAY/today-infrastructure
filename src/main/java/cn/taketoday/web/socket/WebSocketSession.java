@@ -38,6 +38,10 @@ public abstract class WebSocketSession
   public static final String JAVAX_WEBSOCKET_SESSION_KEY = "javax.websocket.Session";
   public static final String JAVAX_ENDPOINT_CONFIG_KEY = "javax.websocket.EndpointConfig";
 
+  public static final String Throwable = "Throwable";
+  public static final String PARAMETERS = "Parameters";
+  public static final String URI_TEMPLATE_VARIABLES = "UriTemplateVariables";
+
   private String id;
   protected WebSocketHandler socketHandler;
 
