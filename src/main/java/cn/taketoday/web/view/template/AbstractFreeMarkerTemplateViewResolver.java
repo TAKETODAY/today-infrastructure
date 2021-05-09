@@ -29,10 +29,10 @@ import javax.annotation.PostConstruct;
 
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.conversion.support.DefaultConversionService;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
@@ -294,7 +294,8 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
       if (parameter.isRequired()) {
         throw new ConfigurationException("There is no shared variable named: ".concat(parameter.getName()));
       }
-      return ConvertUtils.convert(parameter.getDefaultValue(), parameter.getParameterClass());
+      return DefaultConversionService.getSharedInstance()
+              .convert(parameter.getDefaultValue(), parameter.getGenericDescriptor());
     }
   }
 
