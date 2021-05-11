@@ -197,7 +197,7 @@ public class DateConverter implements Converter<String, Date> {
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Web-Configuration PUBLIC 
 		"-//TODAY BLOG//Web - Configuration DTD 2.0//CN"
-			"https://taketoday.cn/framework/web/dtd/web-configuration-2.3.3.dtd">
+			"https://taketoday.cn/framework/web/dtd/web-configuration-2.3.7.dtd">
 
 <Web-Configuration>
 
