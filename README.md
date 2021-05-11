@@ -182,13 +182,142 @@ public void configureResourceHandler(ResourceHandlerRegistry registry) {
 ### 自定义参数转换器
 
 ```java
-@Component 
+
+@Singleton
+public class UserSessionParameterResolver implements OrderedParameterResolver {
+  private final WebSessionManager sessionManager;
+
+  public UserSessionParameterResolver(WebSessionManager sessionManager) {
+    this.sessionManager = sessionManager;
+  }
+
+  @Override
+  public boolean supports(MethodParameter parameter) {
+    return parameter.isAnnotationPresent(UserSession.class);
+  }
+
+  @Override
+  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+    final WebSession session = sessionManager.getSession(context, false);
+    if (session != null) {
+      final Object attribute = session.getAttribute(Constant.USER_INFO);
+      if (attribute != null) {
+        return attribute;
+      }
+    }
+    throw new UnauthorizedException();
+  }
+
+  @Override
+  public int getOrder() {
+    return HIGHEST_PRECEDENCE;
+  }
+
+}
+
+@Singleton
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class PageableMethodArgumentResolver implements ParameterResolver {
+
+  private static final String PARAMETER_SIZE = "size";
+  private static final String PARAMETER_CURRENT = "page";
+
+  private int maxListSize;
+  private int defaultListSize;
+
+  @Override
+  public boolean supports(MethodParameter parameter) {
+    return parameter.isAssignableTo(Pageable.class);
+  }
+
+  @Override
+  public Object resolveParameter(RequestContext request, MethodParameter parameter) throws Throwable {
+    return new RequestContextPageable(request, defaultListSize, maxListSize);
+  }
+
+  public int getMaxListSize() {
+    return maxListSize;
+  }
+
+  public void setMaxListSize(int maxListSize) {
+    this.maxListSize = maxListSize;
+  }
+
+  public int getDefaultListSize() {
+    return defaultListSize;
+  }
+
+  public void setDefaultListSize(int listSize) {
+    this.defaultListSize = listSize;
+  }
+
+  public final static class RequestContextPageable implements Pageable {
+
+    private final int maxListSize;
+    private final int defaultListSize;
+
+    private Integer size;
+    private Integer current;
+    private final RequestContext request;
+
+    public RequestContextPageable(RequestContext request, int listSize, int maxListSize) {
+      this.request = request;
+      this.defaultListSize = listSize;
+      this.maxListSize = maxListSize;
+    }
+
+    @Override
+    public int getCurrent() {
+
+      if (current == null) {
+        final String parameter = request.getParameter(PARAMETER_CURRENT);
+        if (StringUtils.isEmpty(parameter)) {
+          current = 1;
+        }
+        else if ((current = Integer.valueOf(parameter)) <= 0) {
+          throw new IllegalArgumentException("only 'page > 0'");
+        }
+      }
+      return current.intValue();
+    }
+
+    @Override
+    public int getSize() {
+      if (size == null) {
+        int s;
+        final String parameter = request.getParameter(PARAMETER_SIZE);
+        if (StringUtils.isEmpty(parameter)) {
+          s = defaultListSize;
+        }
+        else {
+          s = Integer.parseInt(parameter);
+          if (s <= 0) {
+            throw new IllegalArgumentException("only 'size > 0'");
+          }
+          if (s > maxListSize) {
+            throw DemoUtils.accessForbidden();
+          }
+        }
+        return size = s;
+      }
+      return size.intValue();
+    }
+
+  }
+
+}
+
+@Component
 public class DateConverter implements Converter<String, Date> {
     @Override
     public Date convert(String source) throws ConversionException {
         ...
     }
 }
+
+
+
+
 ```
 
 ### 也可以通过xml文件配置简单视图
