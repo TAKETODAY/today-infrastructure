@@ -29,6 +29,7 @@ import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.factory.Prototypes;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.HandlerMethod;
@@ -166,4 +167,17 @@ public class WebSocketHandlerRegistry
     return declaredMethod.isAnnotationPresent(OnOpen.class);
   }
 
+  //
+
+  /**
+   * apply {@link cn.taketoday.context.PathMatcher}
+   */
+  @Override
+  protected Object lookupInternal(RequestContext context) {
+    final Object handler = super.lookupInternal(context);
+    if (handler != null) {
+      context.setAttribute(WebSocketSession.PATH_MATCHER, getPathMatcher());
+    }
+    return handler;
+  }
 }
