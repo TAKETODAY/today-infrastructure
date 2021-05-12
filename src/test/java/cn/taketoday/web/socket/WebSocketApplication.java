@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.socket;
 
+import javax.websocket.Session;
+
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
@@ -78,8 +80,11 @@ public class WebSocketApplication {
     }
 
     @OnOpen
-    public void onOpen(WebSocketSession session) {
+    public void onOpen(WebSocketSession session, Session stdSession) {
       System.out.println("onOpen");
+      if (session instanceof NativeWebSocketSession) {
+        System.out.println(stdSession == ((NativeWebSocketSession) session).obtainNativeSession());
+      }
     }
 
     @OnError

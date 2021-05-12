@@ -35,10 +35,6 @@ import javax.websocket.Session;
  */
 public class StandardWebSocketSession extends NativeWebSocketSession {
 
-  public StandardWebSocketSession(WebSocketHandler handler) {
-    super.socketHandler = handler;
-  }
-
   @Override
   public Session obtainNativeSession() {
     return (Session) super.obtainNativeSession();
