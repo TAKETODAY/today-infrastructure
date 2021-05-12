@@ -29,6 +29,11 @@ import java.util.List;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.config.WebApplicationInitializer;
+import cn.taketoday.web.socket.annotation.AnnotationWebSocketHandlerBuilder;
+import cn.taketoday.web.socket.annotation.EndpointParameterResolver;
+import cn.taketoday.web.socket.annotation.StandardAnnotationWebSocketHandlerBuilder;
 import cn.taketoday.web.socket.annotation.StandardWebSocketHandlerRegistry;
 import cn.taketoday.web.socket.annotation.WebSocketSessionParameterResolver;
 import cn.taketoday.web.socket.tomcat.TomcatWebSocketHandlerAdapter;
@@ -44,7 +49,7 @@ public @interface EnableWebSocket {
 
 }
 
-class WebSocketConfig {
+class WebSocketConfig implements WebApplicationInitializer {
 
   @MissingBean(type = AbstractWebSocketHandlerAdapter.class)
   TomcatWebSocketHandlerAdapter webSocketHandlerAdapter() {
@@ -52,19 +57,11 @@ class WebSocketConfig {
   }
 
   @MissingBean
-  WebSocketHandlerRegistry webSocketHandlerRegistry(final List<WebSocketConfiguration> configurers) {
-    WebSocketHandlerRegistry handlerRegistry;
+  WebSocketHandlerRegistry webSocketHandlerRegistry(AnnotationWebSocketHandlerBuilder handlerBuilder) {
     if (ClassUtils.isPresent("javax.websocket.Session")) {
-      handlerRegistry = new StandardWebSocketHandlerRegistry();
+      return new StandardWebSocketHandlerRegistry(handlerBuilder);
     }
-    else {
-      handlerRegistry = new WebSocketHandlerRegistry();
-    }
-
-    for (final WebSocketConfiguration configurer : configurers) {
-      configurer.configureWebSocketHandlers(handlerRegistry);
-    }
-    return handlerRegistry;
+    return new WebSocketHandlerRegistry(handlerBuilder);
   }
 
   @MissingBean
@@ -72,4 +69,34 @@ class WebSocketConfig {
     return new WebSocketSessionParameterResolver();
   }
 
+  @MissingBean(type = AnnotationWebSocketHandlerBuilder.class)
+  AnnotationWebSocketHandlerBuilder annotationWebSocketHandlerBuilder() {
+    final AnnotationWebSocketHandlerBuilder handlerBuilder;
+    if (ClassUtils.isPresent("javax.websocket.Session")) {
+      handlerBuilder = new StandardAnnotationWebSocketHandlerBuilder();
+    }
+    else {
+      handlerBuilder = new AnnotationWebSocketHandlerBuilder();
+    }
+    handlerBuilder.registerDefaultResolvers();
+    return handlerBuilder;
+  }
+
+  @Override
+  public void onStartup(WebApplicationContext context) throws Throwable {
+    WebSocketHandlerRegistry handlerRegistry = context.getBean(WebSocketHandlerRegistry.class);
+    List<WebSocketConfiguration> configurers = context.getBeans(WebSocketConfiguration.class);
+    List<EndpointParameterResolver> resolvers = context.getBeans(EndpointParameterResolver.class);
+
+    // configure WebSocketHandlers
+    for (final WebSocketConfiguration configurer : configurers) {
+      configurer.configureWebSocketHandlers(handlerRegistry);
+    }
+
+    // configure EndpointParameterResolver
+    for (final WebSocketConfiguration configurer : configurers) {
+      configurer.configureEndpointParameterResolvers(resolvers);
+    }
+
+  }
 }

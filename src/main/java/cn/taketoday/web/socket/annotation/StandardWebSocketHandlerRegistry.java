@@ -21,17 +21,10 @@
 package cn.taketoday.web.socket.annotation;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 import javax.websocket.server.ServerEndpoint;
-import javax.websocket.server.ServerEndpointConfig;
-import javax.websocket.server.ServerEndpointConfig.Configurator;
 
 import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.socket.StandardEndpoint;
-import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketHandlerRegistry;
 
 /**
@@ -42,13 +35,10 @@ import cn.taketoday.web.socket.WebSocketHandlerRegistry;
  */
 public class StandardWebSocketHandlerRegistry extends WebSocketHandlerRegistry {
 
-  @Override
-  public void onStartup(WebApplicationContext context) throws Throwable {
-    super.onStartup(context);
+  public StandardWebSocketHandlerRegistry() { }
 
-    resolvers.add(new PathParamEndpointParameterResolver());
-    resolvers.add(new EndpointConfigEndpointParameterResolver());
-    resolvers.add(new StandardSessionEndpointParameterResolver());
+  public StandardWebSocketHandlerRegistry(AnnotationWebSocketHandlerBuilder annotationHandlerBuilder) {
+    super(annotationHandlerBuilder);
   }
 
   @Override
@@ -80,29 +70,4 @@ public class StandardWebSocketHandlerRegistry extends WebSocketHandlerRegistry {
     return super.isEndpoint(definition) || definition.isAnnotationPresent(ServerEndpoint.class);
   }
 
-  @Override
-  protected WebSocketHandler createWebSocketHandler(BeanDefinition definition,
-                                                    WebApplicationContext context,
-                                                    AnnotationWebSocketHandler annotationHandler) {
-    final StandardAnnotationWebSocketDispatcher socketDispatcher
-            = new StandardAnnotationWebSocketDispatcher(annotationHandler, resolvers);
-    final ServerEndpoint serverEndpoint = definition.getAnnotation(ServerEndpoint.class);
-    if (serverEndpoint != null) {
-      Configurator configuratorObject = null;
-      final Class<? extends Configurator> configurator = serverEndpoint.configurator();
-      if (!configurator.equals(Configurator.class)) {
-        configuratorObject = ClassUtils.newInstance(configurator);
-      }
-      ServerEndpointConfig endpointConfig = ServerEndpointConfig.Builder
-              .create(StandardEndpoint.class, serverEndpoint.value())
-              .decoders(Arrays.asList(serverEndpoint.decoders()))
-              .encoders(Arrays.asList(serverEndpoint.encoders()))
-              .subprotocols(Arrays.asList(serverEndpoint.subprotocols()))
-              .configurator(configuratorObject)
-              .build();
-
-      socketDispatcher.setEndpointConfig(endpointConfig);
-    }
-    return socketDispatcher;
-  }
 }

@@ -21,14 +21,12 @@
 package cn.taketoday.web.socket;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.factory.Prototypes;
-import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.WebApplicationInitializer;
@@ -37,18 +35,14 @@ import cn.taketoday.web.handler.HandlerMethodBuilder;
 import cn.taketoday.web.handler.MethodParametersBuilder;
 import cn.taketoday.web.registry.AbstractUrlHandlerRegistry;
 import cn.taketoday.web.socket.annotation.AfterHandshake;
-import cn.taketoday.web.socket.annotation.AnnotationWebSocketDispatcher;
 import cn.taketoday.web.socket.annotation.AnnotationWebSocketHandler;
+import cn.taketoday.web.socket.annotation.AnnotationWebSocketHandlerBuilder;
 import cn.taketoday.web.socket.annotation.EndpointMapping;
-import cn.taketoday.web.socket.annotation.EndpointParameterResolver;
-import cn.taketoday.web.socket.annotation.JettySessionEndpointParameterResolver;
 import cn.taketoday.web.socket.annotation.OnClose;
 import cn.taketoday.web.socket.annotation.OnError;
 import cn.taketoday.web.socket.annotation.OnMessage;
 import cn.taketoday.web.socket.annotation.OnOpen;
-import cn.taketoday.web.socket.annotation.PathVariableEndpointParameterResolver;
 import cn.taketoday.web.socket.annotation.WebSocketHandlerMethod;
-import cn.taketoday.web.socket.annotation.WebSocketSessionEndpointParameterResolver;
 
 /**
  * {@link WebSocketHandler} registry
@@ -58,26 +52,27 @@ import cn.taketoday.web.socket.annotation.WebSocketSessionEndpointParameterResol
  */
 public class WebSocketHandlerRegistry
         extends AbstractUrlHandlerRegistry implements WebApplicationInitializer {
-  protected static boolean isJettyPresent = ClassUtils.isPresent("org.eclipse.jetty.websocket.api.Session");
+  protected AnnotationWebSocketHandlerBuilder annotationHandlerBuilder;
 
-  protected final List<EndpointParameterResolver> resolvers = new ArrayList<>();
+  public WebSocketHandlerRegistry() { }
+
+  public WebSocketHandlerRegistry(AnnotationWebSocketHandlerBuilder annotationHandlerBuilder) {
+    this.annotationHandlerBuilder = annotationHandlerBuilder;
+  }
 
   @Override
   public void onStartup(WebApplicationContext context) throws Throwable {
-    final Map<String, BeanDefinition> beanDefinitions = context.getBeanDefinitions();
+    if (annotationHandlerBuilder == null) {
+      annotationHandlerBuilder = context.getBean(AnnotationWebSocketHandlerBuilder.class);
+    }
 
+    final Map<String, BeanDefinition> beanDefinitions = context.getBeanDefinitions();
     for (final Map.Entry<String, BeanDefinition> entry : beanDefinitions.entrySet()) {
       final BeanDefinition definition = entry.getValue();
       if (isEndpoint(definition)) {
         registerEndpoint(definition, context);
       }
     }
-
-    if (isJettyPresent) {
-      resolvers.add(new JettySessionEndpointParameterResolver());
-    }
-    resolvers.add(new PathVariableEndpointParameterResolver());
-    resolvers.add(new WebSocketSessionEndpointParameterResolver());
   }
 
   /**
@@ -132,19 +127,14 @@ public class WebSocketHandlerRegistry
         onMessage = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterBuilder);
       }
     }
-
+    AnnotationWebSocketHandlerBuilder handlerBuilder = getAnnotationHandlerBuilder();
+    Assert.state(handlerBuilder != null, "No annotationHandlerBuilder in this registry");
     for (final String pathPattern : path) {
       final AnnotationWebSocketHandler annotationHandler
               = new AnnotationWebSocketHandler(pathPattern, onOpen, onClose, onError, onMessage, afterHandshake);
-      WebSocketHandler handler = createWebSocketHandler(definition, context, annotationHandler);
+      WebSocketHandler handler = handlerBuilder.build(definition, context, annotationHandler);
       registerHandler(pathPattern, handler);
     }
-  }
-
-  protected WebSocketHandler createWebSocketHandler(BeanDefinition definition,
-                                                    WebApplicationContext context,
-                                                    AnnotationWebSocketHandler annotationHandler) {
-    return new AnnotationWebSocketDispatcher(annotationHandler, resolvers);
   }
 
   protected boolean isOnMessageHandler(Method declaredMethod, BeanDefinition definition) {
@@ -180,4 +170,13 @@ public class WebSocketHandlerRegistry
     }
     return handler;
   }
+
+  public void setAnnotationHandlerBuilder(AnnotationWebSocketHandlerBuilder annotationHandlerBuilder) {
+    this.annotationHandlerBuilder = annotationHandlerBuilder;
+  }
+
+  public AnnotationWebSocketHandlerBuilder getAnnotationHandlerBuilder() {
+    return annotationHandlerBuilder;
+  }
+
 }

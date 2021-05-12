@@ -26,6 +26,7 @@ import java.nio.ByteBuffer;
 
 import cn.taketoday.context.AttributeAccessor;
 import cn.taketoday.context.AttributeAccessorSupport;
+import cn.taketoday.context.PathMatcher;
 
 /**
  * @author TODAY 2021/4/5 14:16
@@ -37,7 +38,7 @@ public abstract class WebSocketSession
   public static final String WEBSOCKET_SESSION_KEY = WebSocketSession.class.getName() + "-WebSocketSession";
   public static final String JAVAX_ENDPOINT_CONFIG_KEY = "javax.websocket.EndpointConfig";
 
-  public static final String PARAMETERS = "Parameters";
+  public static final String PATH_MATCHER = PathMatcher.class + "-PathMatcher";
   public static final String URI_TEMPLATE_VARIABLES = "UriTemplateVariables";
 
   private String id;

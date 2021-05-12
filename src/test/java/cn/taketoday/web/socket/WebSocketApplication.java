@@ -105,9 +105,10 @@ public class WebSocketApplication {
      * <li>parameters annotated with the {@link cn.taketoday.web.annotation.PathVariable} annotation.</li>
      */
     @AfterHandshake
-    public void afterHandshake(RequestContext context/*, WebSocketSession session, int q*/) {
+    public void afterHandshake(RequestContext context, int q, WebSocketSession session) {
       System.out.println("afterHandshake");
-//      System.out.println("q=" + q);
+      System.out.println("q=" + q);
+      System.out.println("session=" + session);
     }
 
   }

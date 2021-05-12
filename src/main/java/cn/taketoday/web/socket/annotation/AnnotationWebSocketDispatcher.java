@@ -23,7 +23,6 @@ package cn.taketoday.web.socket.annotation;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.context.AntPathMatcher;
 import cn.taketoday.context.PathMatcher;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
@@ -57,12 +56,11 @@ public class AnnotationWebSocketDispatcher extends WebSocketHandler {
     socketHandler.afterHandshake(context);
 
     if (socketHandler.containsPathVariable) {
+      final PathMatcher pathMatcher = (PathMatcher) context.getAttribute(WebSocketSession.PATH_MATCHER);
       final String requestPath = context.getRequestPath();
-      PathMatcher pathMatcher = new AntPathMatcher();
       final Map<String, String> variables = pathMatcher.extractUriTemplateVariables(socketHandler.pathPattern, requestPath);
       session.setAttribute(WebSocketSession.URI_TEMPLATE_VARIABLES, variables);
     }
-    session.setAttribute(WebSocketSession.PARAMETERS, context.getParameters());
   }
 
   @Override

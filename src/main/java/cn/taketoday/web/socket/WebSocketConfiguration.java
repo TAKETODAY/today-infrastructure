@@ -20,6 +20,10 @@
 
 package cn.taketoday.web.socket;
 
+import java.util.List;
+
+import cn.taketoday.web.socket.annotation.EndpointParameterResolver;
+
 /**
  * @author TODAY 2021/4/5 19:44
  * @since 3.0
@@ -27,6 +31,10 @@ package cn.taketoday.web.socket;
 public interface WebSocketConfiguration {
 
   default void configureWebSocketHandlers(WebSocketHandlerRegistry registry) {
+    // no-op
+  }
+
+  default void configureEndpointParameterResolvers(List<EndpointParameterResolver> resolvers) {
     // no-op
   }
 
