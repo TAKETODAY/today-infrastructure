@@ -30,6 +30,7 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.web.socket.annotation.StandardWebSocketHandlerRegistry;
+import cn.taketoday.web.socket.annotation.WebSocketSessionParameterResolver;
 import cn.taketoday.web.socket.tomcat.TomcatWebSocketHandlerAdapter;
 
 /**
@@ -64,6 +65,11 @@ class WebSocketConfig {
       configurer.configureWebSocketHandlers(handlerRegistry);
     }
     return handlerRegistry;
+  }
+
+  @MissingBean
+  WebSocketSessionParameterResolver webSocketSessionParameterResolver() {
+    return new WebSocketSessionParameterResolver();
   }
 
 }

@@ -56,9 +56,8 @@ public class StandardAnnotationWebSocketDispatcher
 
   @Override
   public void afterHandshake(RequestContext context, WebSocketSession session) throws Throwable {
+    session.setAttribute(WebSocketSession.JAVAX_ENDPOINT_CONFIG_KEY, getEndpointConfig());
     super.afterHandshake(context, session);
-    final ServerEndpointConfig endpointConfig = getEndpointConfig();
-    session.setAttribute(WebSocketSession.JAVAX_ENDPOINT_CONFIG_KEY, endpointConfig);
   }
 
 }
