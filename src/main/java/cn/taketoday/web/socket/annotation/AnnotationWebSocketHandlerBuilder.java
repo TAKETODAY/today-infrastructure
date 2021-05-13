@@ -20,10 +20,12 @@
 
 package cn.taketoday.web.socket.annotation;
 
+import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import cn.taketoday.context.conversion.support.StringToBytesConverter;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
@@ -46,6 +48,9 @@ public class AnnotationWebSocketHandlerBuilder {
     if (isJettyPresent) {
       resolvers.add(new JettySessionEndpointParameterResolver());
     }
+    resolvers.add(new MessageEndpointParameterResolver(String.class));
+    resolvers.add(new MessageEndpointParameterResolver(byte[].class, new StringToBytesConverter()));
+    resolvers.add(new MessageEndpointParameterResolver(ByteBuffer.class));
     resolvers.add(new PathVariableEndpointParameterResolver());
     resolvers.add(new WebSocketSessionEndpointParameterResolver());
   }
@@ -53,6 +58,11 @@ public class AnnotationWebSocketHandlerBuilder {
   public void addResolvers(EndpointParameterResolver... resolvers) {
     Assert.notNull(resolvers, "EndpointParameterResolvers must not be null");
     Collections.addAll(this.resolvers, resolvers);
+  }
+
+  public void addResolvers(List<EndpointParameterResolver> resolvers) {
+    Assert.notNull(resolvers, "EndpointParameterResolvers must not be null");
+    this.resolvers.addAll(resolvers);
   }
 
   public void setResolvers(EndpointParameterResolver... resolvers) {

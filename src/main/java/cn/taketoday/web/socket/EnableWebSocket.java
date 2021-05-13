@@ -70,7 +70,7 @@ class WebSocketConfig implements WebApplicationInitializer {
   }
 
   @MissingBean(type = AnnotationWebSocketHandlerBuilder.class)
-  AnnotationWebSocketHandlerBuilder annotationWebSocketHandlerBuilder() {
+  AnnotationWebSocketHandlerBuilder annotationWebSocketHandlerBuilder(List<EndpointParameterResolver> resolvers) {
     final AnnotationWebSocketHandlerBuilder handlerBuilder;
     if (ClassUtils.isPresent("javax.websocket.Session")) {
       handlerBuilder = new StandardAnnotationWebSocketHandlerBuilder();
@@ -79,6 +79,7 @@ class WebSocketConfig implements WebApplicationInitializer {
       handlerBuilder = new AnnotationWebSocketHandlerBuilder();
     }
     handlerBuilder.registerDefaultResolvers();
+    handlerBuilder.addResolvers(resolvers);
     return handlerBuilder;
   }
 

@@ -29,6 +29,7 @@ import cn.taketoday.framework.annotation.EnableTomcatHandling;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.socket.annotation.AfterHandshake;
 import cn.taketoday.web.socket.annotation.EndpointMapping;
+import cn.taketoday.web.socket.annotation.Message;
 import cn.taketoday.web.socket.annotation.OnClose;
 import cn.taketoday.web.socket.annotation.OnError;
 import cn.taketoday.web.socket.annotation.OnMessage;
@@ -74,9 +75,13 @@ public class WebSocketApplication {
   @EndpointMapping("/annotation-endpoint")
   static class AnnotationSocketHandler {
 
+    // @javax.websocket.OnMessage
     @OnMessage
-    public void handleTextMessage(WebSocketSession session, TextMessage message) {
+    public void handleTextMessage(
+            WebSocketSession session, TextMessage message, @Message String text, @Message byte[] bytes) {
       System.out.println("handleTextMessage" + message);
+      System.out.println(text == message.getPayload());
+      System.out.println(new String(bytes));
     }
 
     @OnOpen
@@ -88,13 +93,14 @@ public class WebSocketApplication {
     }
 
     @OnError
-    public void onError(WebSocketSession session) {
+    public void onError(WebSocketSession session, Throwable thr) {
       System.out.println("onError");
+      thr.printStackTrace();
     }
 
     @OnClose
-    public void onClose(WebSocketSession session) {
-      System.out.println("OnClose");
+    public void onClose(WebSocketSession session, CloseStatus status) {
+      System.out.println("OnClose->" + status);
     }
 
     /**

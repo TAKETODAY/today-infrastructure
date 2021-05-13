@@ -66,11 +66,11 @@ public class AnnotationWebSocketDispatcher extends WebSocketHandler {
 
   @Override
   public void onOpen(WebSocketSession session) {
-    handle(socketHandler.onOpen, session);
+    handle(socketHandler.onOpen, session, null);
   }
 
   protected Object[] resolveParameters(
-          WebSocketSession session, WebSocketHandlerMethod handler, Object... providedArgs) {
+          WebSocketSession session, WebSocketHandlerMethod handler, Message<?> message, Object... providedArgs) {
     final MethodParameter[] parameters = handler.getParameters();
     if (parameters == null) {
       return null;
@@ -82,7 +82,7 @@ public class AnnotationWebSocketDispatcher extends WebSocketHandler {
       if (argument == null) {
         for (final EndpointParameterResolver resolver : resolvers) {
           if (resolver.supports(parameter)) {
-            argument = resolver.resolve(session, parameter);
+            argument = resolver.resolve(session, message, parameter);
             break;
           }
         }
@@ -104,26 +104,27 @@ public class AnnotationWebSocketDispatcher extends WebSocketHandler {
     return null;
   }
 
-  protected void handle(WebSocketHandlerMethod handler, WebSocketSession session, Object... providedArgs) {
+  protected void handle(
+          WebSocketHandlerMethod handler, WebSocketSession session, Message<?> message, Object... providedArgs) {
     if (handler != null) {
-      final Object[] parameters = resolveParameters(session, handler, providedArgs);
+      final Object[] parameters = resolveParameters(session, handler, message, providedArgs);
       handler.invoke(parameters);
     }
   }
 
   @Override
   public void onClose(WebSocketSession session, CloseStatus status) {
-    handle(socketHandler.onClose, session, status);
+    handle(socketHandler.onClose, session, null, status);
   }
 
   @Override
   public void onError(WebSocketSession session, Throwable thr) {
-    handle(socketHandler.onError, session, thr);
+    handle(socketHandler.onError, session, null, thr);
   }
 
   @Override
   public void handleMessage(WebSocketSession session, Message<?> message) {
-    handle(socketHandler.onMessage, session, message);
+    handle(socketHandler.onMessage, session, message, message);
   }
 
   @Override

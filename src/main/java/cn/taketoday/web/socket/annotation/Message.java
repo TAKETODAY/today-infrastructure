@@ -20,24 +20,17 @@
 
 package cn.taketoday.web.socket.annotation;
 
-import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.socket.Message;
-import cn.taketoday.web.socket.WebSocketSession;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * @author TODAY 2021/5/7 22:11
+ * @author TODAY 2021/5/13 21:15
  * @since 3.0.1
  */
-public interface EndpointParameterResolver {
-
-  boolean supports(MethodParameter parameter);
-
-  default Object resolve(WebSocketSession session, MethodParameter parameter) {
-    return null;
-  }
-
-  default Object resolve(WebSocketSession session, Message<?> message, MethodParameter parameter) {
-    return resolve(session, parameter);
-  }
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
+public @interface Message {
 
 }
