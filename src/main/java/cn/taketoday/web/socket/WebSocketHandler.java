@@ -80,7 +80,7 @@ public abstract class WebSocketHandler {
    * @param message
    *         the message data.
    */
-  public final void handleMessage(WebSocketSession session, Message<?> message) {
+  public void handleMessage(WebSocketSession session, Message<?> message) {
     if (message instanceof TextMessage) {
       handleTextMessage(session, (TextMessage) message);
     }
@@ -151,11 +151,16 @@ public abstract class WebSocketHandler {
     // no-op
   }
 
-  protected abstract void handleTextMessage(WebSocketSession session, TextMessage message);
+  protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+    // no-op
+  }
 
-  protected abstract void handleBinaryMessage(WebSocketSession session, BinaryMessage message);
+  protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
+    // no-op
+  }
 
   public boolean supportPartialMessage() {
     return false;
   }
+
 }

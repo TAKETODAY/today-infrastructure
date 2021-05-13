@@ -26,9 +26,8 @@ import java.util.Map;
 import cn.taketoday.context.PathMatcher;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
-import cn.taketoday.web.socket.TextMessage;
+import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
 
@@ -41,13 +40,15 @@ import cn.taketoday.web.socket.WebSocketSession;
  * @since 3.0
  */
 public class AnnotationWebSocketDispatcher extends WebSocketHandler {
-  protected final AnnotationWebSocketHandler socketHandler;
+  protected final AnnotationHandlerDelegate socketHandler;
   protected final List<EndpointParameterResolver> resolvers;
+  private final boolean supportPartialMessage;
 
-  public AnnotationWebSocketDispatcher(AnnotationWebSocketHandler socketHandler,
-                                       List<EndpointParameterResolver> resolvers) {
-    this.socketHandler = socketHandler;
+  public AnnotationWebSocketDispatcher(
+          AnnotationHandlerDelegate socketHandler, List<EndpointParameterResolver> resolvers, boolean supportPartialMessage) {
     this.resolvers = resolvers;
+    this.socketHandler = socketHandler;
+    this.supportPartialMessage = supportPartialMessage;
   }
 
   @Override
@@ -121,13 +122,13 @@ public class AnnotationWebSocketDispatcher extends WebSocketHandler {
   }
 
   @Override
-  protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+  public void handleMessage(WebSocketSession session, Message<?> message) {
     handle(socketHandler.onMessage, session, message);
   }
 
   @Override
-  protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
-    handle(socketHandler.onMessage, session, message);
+  public boolean supportPartialMessage() {
+    return supportPartialMessage;
   }
 
 }

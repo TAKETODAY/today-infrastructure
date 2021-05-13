@@ -37,9 +37,9 @@ public class StandardAnnotationWebSocketDispatcher
 
   private ServerEndpointConfig endpointConfig;
 
-  public StandardAnnotationWebSocketDispatcher(AnnotationWebSocketHandler socketHandler,
-                                               List<EndpointParameterResolver> resolvers) {
-    super(socketHandler, resolvers);
+  public StandardAnnotationWebSocketDispatcher(
+          AnnotationHandlerDelegate socketHandler, List<EndpointParameterResolver> resolvers, boolean supportPartialMessage) {
+    super(socketHandler, resolvers, supportPartialMessage);
   }
 
   @Override

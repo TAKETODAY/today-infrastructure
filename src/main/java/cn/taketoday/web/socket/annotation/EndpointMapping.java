@@ -38,7 +38,7 @@ import java.lang.annotation.Target;
  *
  * <p>For example:
  * <pre><code>
- * &#64;ServerEndpoint("/hello");
+ * &#64;EndpointMapping("/hello");
  * public class HelloServer {
  *
  *     &#64;OnMessage

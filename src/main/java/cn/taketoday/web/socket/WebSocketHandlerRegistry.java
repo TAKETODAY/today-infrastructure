@@ -35,7 +35,7 @@ import cn.taketoday.web.handler.HandlerMethodBuilder;
 import cn.taketoday.web.handler.MethodParametersBuilder;
 import cn.taketoday.web.registry.AbstractUrlHandlerRegistry;
 import cn.taketoday.web.socket.annotation.AfterHandshake;
-import cn.taketoday.web.socket.annotation.AnnotationWebSocketHandler;
+import cn.taketoday.web.socket.annotation.AnnotationHandlerDelegate;
 import cn.taketoday.web.socket.annotation.AnnotationWebSocketHandlerBuilder;
 import cn.taketoday.web.socket.annotation.EndpointMapping;
 import cn.taketoday.web.socket.annotation.OnClose;
@@ -130,8 +130,8 @@ public class WebSocketHandlerRegistry
     AnnotationWebSocketHandlerBuilder handlerBuilder = getAnnotationHandlerBuilder();
     Assert.state(handlerBuilder != null, "No annotationHandlerBuilder in this registry");
     for (final String pathPattern : path) {
-      final AnnotationWebSocketHandler annotationHandler
-              = new AnnotationWebSocketHandler(pathPattern, onOpen, onClose, onError, onMessage, afterHandshake);
+      final AnnotationHandlerDelegate annotationHandler
+              = new AnnotationHandlerDelegate(pathPattern, onOpen, onClose, onError, onMessage, afterHandshake);
       WebSocketHandler handler = handlerBuilder.build(definition, context, annotationHandler);
       registerHandler(pathPattern, handler);
     }

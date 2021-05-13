@@ -37,6 +37,7 @@ import cn.taketoday.web.socket.WebSocketHandler;
 public class AnnotationWebSocketHandlerBuilder {
   protected static boolean isJettyPresent = ClassUtils.isPresent("org.eclipse.jetty.websocket.api.Session");
   protected final LinkedList<EndpointParameterResolver> resolvers = new LinkedList<>();
+  protected boolean supportPartialMessage;
 
   /**
    * register default resolvers
@@ -67,8 +68,15 @@ public class AnnotationWebSocketHandlerBuilder {
   }
 
   public WebSocketHandler build(
-          BeanDefinition definition, WebApplicationContext context, AnnotationWebSocketHandler annotationHandler) {
-    return new AnnotationWebSocketDispatcher(annotationHandler, resolvers);
+          BeanDefinition definition, WebApplicationContext context, AnnotationHandlerDelegate annotationHandler) {
+    return new AnnotationWebSocketDispatcher(annotationHandler, resolvers, supportPartialMessage);
   }
 
+  public void setSupportPartialMessage(boolean supportPartialMessage) {
+    this.supportPartialMessage = supportPartialMessage;
+  }
+
+  public boolean isSupportPartialMessage() {
+    return supportPartialMessage;
+  }
 }

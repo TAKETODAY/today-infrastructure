@@ -23,12 +23,15 @@ package cn.taketoday.web.socket.annotation;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.registry.HandlerMethodRegistry;
+import cn.taketoday.web.socket.WebSocketHandler;
 
 /**
+ * Annotation {@link WebSocketHandler} Delegate
+ *
  * @author TODAY 2021/5/8 22:43
  * @since 3.0.1
  */
-public class AnnotationWebSocketHandler {
+public class AnnotationHandlerDelegate {
 
   protected final String pathPattern;
   protected final HandlerMethod afterHandshake;
@@ -39,12 +42,12 @@ public class AnnotationWebSocketHandler {
 
   protected final boolean containsPathVariable;
 
-  public AnnotationWebSocketHandler(String pathPattern,
-                                    WebSocketHandlerMethod onOpen,
-                                    WebSocketHandlerMethod onClose,
-                                    WebSocketHandlerMethod onError,
-                                    WebSocketHandlerMethod onMessage,
-                                    HandlerMethod afterHandshake) {
+  public AnnotationHandlerDelegate(String pathPattern,
+                                   WebSocketHandlerMethod onOpen,
+                                   WebSocketHandlerMethod onClose,
+                                   WebSocketHandlerMethod onError,
+                                   WebSocketHandlerMethod onMessage,
+                                   HandlerMethod afterHandshake) {
     this.pathPattern = pathPattern;
     this.onOpen = onOpen;
     this.onClose = onClose;
