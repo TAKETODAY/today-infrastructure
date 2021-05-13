@@ -20,19 +20,36 @@
 
 package cn.taketoday.context.conversion.support;
 
-import cn.taketoday.context.conversion.TypeConverter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 import cn.taketoday.context.utils.GenericDescriptor;
 
 /**
- * @author TODAY 2021/3/22 12:52
- * @since 3.0
+ * convert String to byte array
+ *
+ * @author TODAY 2021/5/13 22:18
+ * @since 3.0.1
  */
-public abstract class ToArrayConverter implements TypeConverter {
+public final class StringToBytesConverter extends ToArrayConverter {
+  private final Charset charset;
 
-  @Override
-  public final boolean supports(final GenericDescriptor targetType, final Class<?> sourceType) {
-    return targetType.isArray() && supportsInternal(targetType, sourceType);
+  public StringToBytesConverter() {
+    this(StandardCharsets.UTF_8);
   }
 
-  protected abstract boolean supportsInternal(GenericDescriptor targetType, Class<?> sourceType);
+  public StringToBytesConverter(Charset charset) {
+    this.charset = charset;
+  }
+
+  @Override
+  public Object convert(GenericDescriptor targetType, Object source) {
+    // convert String to byte array
+    return ((String) source).getBytes(charset);
+  }
+
+  @Override
+  protected boolean supportsInternal(GenericDescriptor targetType, Class<?> sourceType) {
+    return sourceType == String.class && targetType.is(byte[].class);
+  }
 }
