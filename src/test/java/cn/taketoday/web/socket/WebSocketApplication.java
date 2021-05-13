@@ -27,6 +27,7 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.framework.WebApplication;
 import cn.taketoday.framework.annotation.EnableTomcatHandling;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.socket.annotation.AfterHandshake;
 import cn.taketoday.web.socket.annotation.EndpointMapping;
 import cn.taketoday.web.socket.annotation.Message;
@@ -34,6 +35,9 @@ import cn.taketoday.web.socket.annotation.OnClose;
 import cn.taketoday.web.socket.annotation.OnError;
 import cn.taketoday.web.socket.annotation.OnMessage;
 import cn.taketoday.web.socket.annotation.OnOpen;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author TODAY 2021/4/5 13:03
@@ -71,14 +75,23 @@ public class WebSocketApplication {
 
   }
 
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  static class Body {
+    String name;
+    int age;
+  }
+
   @Component
   @EndpointMapping("/annotation-endpoint")
   static class AnnotationSocketHandler {
 
     // @javax.websocket.OnMessage
     @OnMessage
-    public void handleTextMessage(
-            WebSocketSession session, TextMessage message, @Message String text, @Message byte[] bytes) {
+    public void handleTextMessage(WebSocketSession session, TextMessage message,
+                                  @Message String text, @Message byte[] bytes,
+                                  @Message @RequestBody Body body) {
       System.out.println("handleTextMessage" + message);
       System.out.println(text == message.getPayload());
       System.out.println(new String(bytes));

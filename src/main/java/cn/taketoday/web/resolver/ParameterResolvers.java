@@ -58,6 +58,23 @@ import static cn.taketoday.web.resolver.ConverterParameterResolver.convert;
 public class ParameterResolvers extends WebApplicationContextSupport {
   private final LinkedList<ParameterResolver> resolvers = new LinkedList<>();
 
+  /**
+   * @since 3.0.1
+   */
+  private MessageConverter messageConverter;
+  /**
+   * @since 3.0.1
+   */
+  private RedirectModelManager redirectModelManager;
+  /**
+   * @since 3.0.1
+   */
+  private MultipartConfiguration multipartConfig;
+  /**
+   * @since 3.0.1
+   */
+  private ExpressionEvaluator expressionEvaluator;
+
   public void addResolver(ParameterResolver... resolver) {
     Collections.addAll(resolvers, resolver);
     sort();
@@ -138,7 +155,10 @@ public class ParameterResolvers extends WebApplicationContextSupport {
     // --------------------------------------------
 
     final WebApplicationContext context = obtainApplicationContext();
-    final ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(context);
+    ExpressionEvaluator expressionEvaluator = getExpressionEvaluator();
+    if (expressionEvaluator == null) {
+      expressionEvaluator = new ExpressionEvaluator(context);
+    }
 
     resolvers.add(new RequestAttributeParameterResolver());
     resolvers.add(new EnvParameterResolver(expressionEvaluator));
@@ -155,18 +175,21 @@ public class ParameterResolvers extends WebApplicationContextSupport {
 
     // For multipart
     // -------------------------------------------
-    final MultipartConfiguration multipartConfig = context.getBean(MultipartConfiguration.class);
+    MultipartConfiguration multipartConfig = getMultipartConfig();
+    if (multipartConfig == null) {
+      multipartConfig = context.getBean(MultipartConfiguration.class);
+    }
     Assert.state(multipartConfig != null, "MultipartConfiguration Can't be null");
 
-    resolvers.add(new DefaultMultipartResolver(multipartConfig));
-    resolvers.add(new DefaultMultipartResolver.ArrayMultipartResolver(multipartConfig));
-    resolvers.add(new DefaultMultipartResolver.CollectionMultipartResolver(multipartConfig));
-    resolvers.add(new DefaultMultipartResolver.MapMultipartParameterResolver(multipartConfig));
+    DefaultMultipartResolver.registerDefaultMultipartResolvers(resolvers, multipartConfig);
 
     // Header
     resolvers.add(new HeaderParameterResolver());
+    RedirectModelManager modelManager = getRedirectModelManager();
+    if (modelManager == null) {
+      modelManager = context.getBean(RedirectModelManager.class);
+    }
 
-    RedirectModelManager modelManager = context.getBean(RedirectModelManager.class);
     if (modelManager == null) {
       log.info("RedirectModel disabled");
       modelManager = RedirectModelManager.NOP;
@@ -177,8 +200,10 @@ public class ParameterResolvers extends WebApplicationContextSupport {
     resolvers.add(new ModelParameterResolver(modelManager));
     resolvers.add(new SimpleArrayParameterResolver());
     resolvers.add(new StreamParameterResolver());
-
-    final MessageConverter messageConverter = context.getBean(MessageConverter.class);
+    MessageConverter messageConverter = getMessageConverter();
+    if (messageConverter == null) {
+      messageConverter = context.getBean(MessageConverter.class);
+    }
     resolvers.add(new RequestBodyParameterResolver(messageConverter));
     resolvers.add(new ThrowableHandlerParameterResolver());
 
@@ -230,6 +255,42 @@ public class ParameterResolvers extends WebApplicationContextSupport {
     }
     return false;
   }
+
+  //
+
+  public void setMessageConverter(MessageConverter messageConverter) {
+    this.messageConverter = messageConverter;
+  }
+
+  public MessageConverter getMessageConverter() {
+    return messageConverter;
+  }
+
+  public void setRedirectModelManager(RedirectModelManager redirectModelManager) {
+    this.redirectModelManager = redirectModelManager;
+  }
+
+  public RedirectModelManager getRedirectModelManager() {
+    return redirectModelManager;
+  }
+
+  public void setMultipartConfig(MultipartConfiguration multipartConfig) {
+    this.multipartConfig = multipartConfig;
+  }
+
+  public MultipartConfiguration getMultipartConfig() {
+    return multipartConfig;
+  }
+
+  public void setExpressionEvaluator(ExpressionEvaluator expressionEvaluator) {
+    this.expressionEvaluator = expressionEvaluator;
+  }
+
+  public ExpressionEvaluator getExpressionEvaluator() {
+    return expressionEvaluator;
+  }
+
+  // ParameterResolver
 
   static final class SupportsFunction0 implements ParameterResolver.SupportsFunction {
     final Class<?> one;

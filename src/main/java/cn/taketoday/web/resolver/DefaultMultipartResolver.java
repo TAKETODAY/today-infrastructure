@@ -63,11 +63,19 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
     return files.get(0);
   }
 
+  public static void registerDefaultMultipartResolvers(
+          List<ParameterResolver> resolvers, MultipartConfiguration multipartConfig) {
+    resolvers.add(new DefaultMultipartResolver(multipartConfig));
+    resolvers.add(new ArrayMultipartResolver(multipartConfig));
+    resolvers.add(new CollectionMultipartResolver(multipartConfig));
+    resolvers.add(new MapMultipartParameterResolver(multipartConfig));
+  }
+
   /**
    * @author TODAY <br>
    * 2019-07-12 18:18
    */
-  public static class CollectionMultipartResolver extends AbstractMultipartResolver {
+  static class CollectionMultipartResolver extends AbstractMultipartResolver {
 
     @Autowired
     public CollectionMultipartResolver(MultipartConfiguration multipartConfiguration) {
@@ -103,7 +111,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
    * @author TODAY <br>
    * 2019-07-12 17:43
    */
-  public static class ArrayMultipartResolver extends AbstractMultipartResolver {
+  static class ArrayMultipartResolver extends AbstractMultipartResolver {
 
     @Autowired
     public ArrayMultipartResolver(MultipartConfiguration configuration) {
@@ -132,7 +140,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
    * @author TODAY <br>
    * 2019-07-11 23:35
    */
-  public static class MapMultipartParameterResolver
+  static class MapMultipartParameterResolver
           extends AbstractMultipartResolver implements ParameterResolver, Ordered {
 
     @Autowired
