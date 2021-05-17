@@ -20,35 +20,24 @@
 
 package cn.taketoday.web.view;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.IOException;
-import java.util.Collection;
 
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.JacksonObjectNotationProcessor;
 import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.ObjectNotationProcessor;
 
 /**
- * support {@link JsonNode} {@link Collection}, POJO, Array
+ * ObjectNotationProcessor MessageConverter
  *
- * @author TODAY 2021/3/10 11:36
- * @since 3.0
+ * @author TODAY 2021/5/17 16:40
+ * @since 3.0.1
  */
-public class JacksonMessageConverter extends MessageConverter {
+public final class ObjectNotationProcessorMessageConverter extends MessageConverter {
+  private final ObjectNotationProcessor notationProcessor;
 
-  final JacksonObjectNotationProcessor notationProcessor;
-
-  public JacksonMessageConverter() {
-    this(new JacksonObjectNotationProcessor(new ObjectMapper()));
-  }
-
-  public JacksonMessageConverter(ObjectMapper mapper) {
-    this(new JacksonObjectNotationProcessor(mapper));
-  }
-
-  public JacksonMessageConverter(JacksonObjectNotationProcessor notationProcessor) {
+  public ObjectNotationProcessorMessageConverter(ObjectNotationProcessor notationProcessor) {
+    Assert.notNull(notationProcessor, "ObjectNotationProcessor must not be null");
     this.notationProcessor = notationProcessor;
   }
 

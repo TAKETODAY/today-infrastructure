@@ -24,13 +24,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.condition.ConditionalOnClass;
+import cn.taketoday.context.aware.ApplicationContextSupport;
+import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.web.handler.JacksonObjectNotationProcessor;
 import cn.taketoday.web.handler.ObjectNotationProcessor;
-import cn.taketoday.web.view.JacksonMessageConverter;
 import cn.taketoday.web.view.MessageConverter;
+import cn.taketoday.web.view.ObjectNotationProcessorMessageConverter;
 
 /**
  * @author TODAY 2021/3/26 20:16
@@ -38,17 +41,12 @@ import cn.taketoday.web.view.MessageConverter;
  */
 @Configuration
 @ConditionalOnClass("com.fasterxml.jackson.databind.ObjectMapper")
-public class JacksonConfiguration {
+public class JacksonConfiguration
+        extends ApplicationContextSupport implements InitializingBean {
 
   @MissingBean(type = MessageConverter.class)
-  JacksonMessageConverter jacksonMessageConverter(
-          ObjectMapper objectMapper, List<ObjectMapperCustomizer> customizers) {
-
-    for (final ObjectMapperCustomizer customizer : customizers) {
-      customizer.customize(objectMapper);
-    }
-
-    return new JacksonMessageConverter(objectMapper);
+  ObjectNotationProcessorMessageConverter jacksonMessageConverter(ObjectNotationProcessor processor) {
+    return new ObjectNotationProcessorMessageConverter(processor);
   }
 
   protected ObjectMapper createObjectMapper() {
@@ -65,4 +63,14 @@ public class JacksonConfiguration {
     return new JacksonObjectNotationProcessor(mapper);
   }
 
+  @Override
+  public void afterPropertiesSet() {
+    final ApplicationContext context = obtainApplicationContext();
+    final ObjectMapper objectMapper = context.getBean(ObjectMapper.class);
+    final List<ObjectMapperCustomizer> mapperCustomizers = context.getBeans(ObjectMapperCustomizer.class);
+    for (final ObjectMapperCustomizer customizer : mapperCustomizers) {
+      customizer.customize(objectMapper);
+    }
+
+  }
 }

@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.socket;
 
+import java.io.IOException;
+
 import javax.websocket.Session;
 
 import cn.taketoday.context.annotation.Component;
@@ -91,11 +93,13 @@ public class WebSocketApplication {
     @OnMessage
     public void handleTextMessage(WebSocketSession session, TextMessage message,
                                   @Message String text, @Message byte[] bytes,
-                                  @MessageBody Body body) {
+                                  @MessageBody Body body) throws IOException {
       System.out.println("handleTextMessage" + message);
       System.out.println(text == message.getPayload());
       System.out.println(new String(bytes));
       System.out.println(body);
+
+      session.sendMessage(message);
     }
 
     @OnOpen

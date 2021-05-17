@@ -39,7 +39,6 @@ import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.GenericDescriptor;
-import cn.taketoday.web.resolver.RequestBodyParsingException;
 
 /**
  * @author TODAY 2021/5/17 13:24
@@ -69,13 +68,8 @@ public class JacksonObjectNotationProcessor extends ObjectNotationProcessor {
   @Override
   public Object read(String message, GenericDescriptor descriptor) throws IOException {
     final ObjectMapper mapper = obtainMapper();
-    try {
-      final JsonNode body = mapper.readTree(message);
-      return readInternal(mapper, body, descriptor);
-    }
-    catch (JsonParseException e) {
-      throw new RequestBodyParsingException("Request body read failed", e);
-    }
+    final JsonNode body = mapper.readTree(message);
+    return readInternal(mapper, body, descriptor);
   }
 
   /**
@@ -86,73 +80,59 @@ public class JacksonObjectNotationProcessor extends ObjectNotationProcessor {
   @Override
   public Object read(InputStream source, GenericDescriptor descriptor) throws IOException {
     final ObjectMapper mapper = obtainMapper();
-    try {
-      final JsonNode body = mapper.readTree(source);
-      return readInternal(mapper, body, descriptor);
-    }
-    catch (JsonParseException e) {
-      throw new RequestBodyParsingException("Request body read failed", e);
-    }
+    final JsonNode body = mapper.readTree(source);
+    return readInternal(mapper, body, descriptor);
   }
 
   @Override
   public Object read(Reader source, GenericDescriptor descriptor) throws IOException {
     final ObjectMapper mapper = obtainMapper();
-    try {
-      final JsonNode body = mapper.readTree(source);
-      return readInternal(mapper, body, descriptor);
-    }
-    catch (JsonParseException e) {
-      throw new RequestBodyParsingException("Request body read failed", e);
-    }
+    final JsonNode body = mapper.readTree(source);
+    return readInternal(mapper, body, descriptor);
   }
 
-  private Object readInternal(ObjectMapper mapper, JsonNode body, GenericDescriptor descriptor) {
+  private Object readInternal(
+          ObjectMapper mapper, JsonNode body, GenericDescriptor descriptor) throws JsonProcessingException {
     if (body != null) {
       // Json node
       if (descriptor.is(JsonNode.class)) {
         return body;
       }
 
-      try {
-        // style: [{"name":"today","age":21},{"name":"YHJ","age":22}]
-        if (body.isArray()) {
-          if (descriptor.isCollection()) {
-            final Collection<Object> ret = CollectionUtils.createCollection(descriptor.getType(), body.size());
-            final Class<?> valueType = getCollectionValueType(descriptor);
-            for (final JsonNode node : body) {
-              final Object value = mapper.treeToValue(node, valueType);
-              ret.add(value);
-            }
-            return ret;
+      // style: [{"name":"today","age":21},{"name":"YHJ","age":22}]
+      if (body.isArray()) {
+        if (descriptor.isCollection()) {
+          final Collection<Object> ret = CollectionUtils.createCollection(descriptor.getType(), body.size());
+          final Class<?> valueType = getCollectionValueType(descriptor);
+          for (final JsonNode node : body) {
+            final Object value = mapper.treeToValue(node, valueType);
+            ret.add(value);
           }
-          if (descriptor.isArray()) {
-            List<Object> objects = new ArrayList<>();
-            final Class<?> valueType = descriptor.getComponentType();
-            for (final JsonNode node : body) {
-              final Object value = mapper.treeToValue(node, valueType);
-              objects.add(value);
-            }
+          return ret;
+        }
+        if (descriptor.isArray()) {
+          List<Object> objects = new ArrayList<>();
+          final Class<?> valueType = descriptor.getComponentType();
+          for (final JsonNode node : body) {
+            final Object value = mapper.treeToValue(node, valueType);
+            objects.add(value);
+          }
 
-            final Object[] original = objects.toArray();
-            final Object ret = Array.newInstance(valueType, objects.size());
-            System.arraycopy(original, 0, ret, 0, objects.size());
-            return ret;
-          }
-          // fallback to first one
-          final JsonNode jsonNode = body.get(0);
-          if (jsonNode != null) {
-            return mapper.treeToValue(jsonNode, descriptor.getType());
-          }
-          // null
+          final Object[] original = objects.toArray();
+          final Object ret = Array.newInstance(valueType, objects.size());
+          System.arraycopy(original, 0, ret, 0, objects.size());
+          return ret;
         }
-        else {
-          // TODO 类型判断
-          return mapper.treeToValue(body, descriptor.getType());
+        // fallback to first one
+        final JsonNode jsonNode = body.get(0);
+        if (jsonNode != null) {
+          return mapper.treeToValue(jsonNode, descriptor.getType());
         }
+        // null
       }
-      catch (JsonProcessingException e) {
-        throw new RequestBodyParsingException("Request body read failed", e);
+      else {
+        // TODO 类型判断
+        return mapper.treeToValue(body, descriptor.getType());
       }
     }
     return null;
