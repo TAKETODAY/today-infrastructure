@@ -21,7 +21,6 @@ package cn.taketoday.web.view;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
@@ -35,7 +34,6 @@ import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.RequestBodyParsingException;
 
 /**
  * support {@link JSONArray}, {@link JSONObject},
@@ -81,19 +79,14 @@ public class FastJSONMessageConverter extends MessageConverter {
     else if (body instanceof JSONObject) {
       return fromJSONObject(parameter, (JSONObject) body);
     }
-    throw new RequestBodyParsingException("Cannot determine request-body");
+    throw new IllegalStateException("Cannot determine request-body");
   }
 
-  protected Object getBody(RequestContext context) {
+  protected Object getBody(RequestContext context) throws IOException {
     Object requestBody = context.requestBody();
     if (requestBody == null) {
       final StringBuilder builder = new StringBuilder((int) (context.getContentLength() + 16));
-      try {
-        StringUtils.appendLine(context.getReader(), builder);
-      }
-      catch (IOException e) {
-        throw new RequestBodyParsingException("Request body read failed", e);
-      }
+      StringUtils.appendLine(context.getReader(), builder);
       if (builder.length() == 0) {
         return null;
       }
@@ -132,16 +125,11 @@ public class FastJSONMessageConverter extends MessageConverter {
       return requestBody;
     }
 
-    try {
-      final List<?> list = requestBody.toJavaList(parameter.getParameterClass());
-      if (!CollectionUtils.isEmpty(list)) {
-        return list.get(0);
-      }
-      return null;
+    final List<?> list = requestBody.toJavaList(parameter.getParameterClass());
+    if (!CollectionUtils.isEmpty(list)) {
+      return list.get(0);
     }
-    catch (JSONException e) {
-      throw new RequestBodyParsingException("Request body read failed", e);
-    }
+    return null;
   }
 
   protected Object fromJSONObject(final MethodParameter parameter, final JSONObject requestBody) {
