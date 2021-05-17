@@ -24,10 +24,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.condition.ConditionalOnClass;
+import cn.taketoday.web.handler.JacksonObjectNotationProcessor;
+import cn.taketoday.web.handler.ObjectNotationProcessor;
 import cn.taketoday.web.view.JacksonMessageConverter;
 import cn.taketoday.web.view.MessageConverter;
 
@@ -41,11 +42,7 @@ public class JacksonConfiguration {
 
   @MissingBean(type = MessageConverter.class)
   JacksonMessageConverter jacksonMessageConverter(
-          @Autowired(required = false) ObjectMapper objectMapper, final List<ObjectMapperCustomizer> customizers) {
-
-    if (objectMapper == null) {
-      objectMapper = createObjectMapper();
-    }
+          ObjectMapper objectMapper, List<ObjectMapperCustomizer> customizers) {
 
     for (final ObjectMapperCustomizer customizer : customizers) {
       customizer.customize(objectMapper);
@@ -56,6 +53,16 @@ public class JacksonConfiguration {
 
   protected ObjectMapper createObjectMapper() {
     return new ObjectMapper();
+  }
+
+  @MissingBean
+  ObjectMapper objectMapper() {
+    return createObjectMapper();
+  }
+
+  @MissingBean(type = ObjectNotationProcessor.class)
+  JacksonObjectNotationProcessor jacksonObjectNotationProcessor(ObjectMapper mapper) {
+    return new JacksonObjectNotationProcessor(mapper);
   }
 
 }

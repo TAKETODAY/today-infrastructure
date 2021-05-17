@@ -27,10 +27,10 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.framework.WebApplication;
 import cn.taketoday.framework.annotation.EnableTomcatHandling;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.socket.annotation.AfterHandshake;
 import cn.taketoday.web.socket.annotation.EndpointMapping;
 import cn.taketoday.web.socket.annotation.Message;
+import cn.taketoday.web.socket.annotation.MessageBody;
 import cn.taketoday.web.socket.annotation.OnClose;
 import cn.taketoday.web.socket.annotation.OnError;
 import cn.taketoday.web.socket.annotation.OnMessage;
@@ -91,10 +91,11 @@ public class WebSocketApplication {
     @OnMessage
     public void handleTextMessage(WebSocketSession session, TextMessage message,
                                   @Message String text, @Message byte[] bytes,
-                                  @Message @RequestBody Body body) {
+                                  @MessageBody Body body) {
       System.out.println("handleTextMessage" + message);
       System.out.println(text == message.getPayload());
       System.out.println(new String(bytes));
+      System.out.println(body);
     }
 
     @OnOpen

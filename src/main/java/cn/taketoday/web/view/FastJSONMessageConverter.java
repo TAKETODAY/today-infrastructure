@@ -43,7 +43,7 @@ import cn.taketoday.web.resolver.RequestBodyParsingException;
  *
  * @author TODAY 2019-07-17 20:17
  */
-public class FastJSONMessageConverter extends AbstractMessageConverter implements MessageConverter {
+public class FastJSONMessageConverter extends MessageConverter {
 
   private SerializerFeature[] serializeFeatures = new SerializerFeature[] {
           SerializerFeature.WriteMapNullValue,
@@ -84,7 +84,7 @@ public class FastJSONMessageConverter extends AbstractMessageConverter implement
     throw new RequestBodyParsingException("Cannot determine request-body");
   }
 
-  Object getBody(RequestContext context) {
+  protected Object getBody(RequestContext context) {
     Object requestBody = context.requestBody();
     if (requestBody == null) {
       final StringBuilder builder = new StringBuilder((int) (context.getContentLength() + 16));

@@ -20,25 +20,15 @@
 
 package cn.taketoday.web.view;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.NullNode;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.handler.JacksonObjectNotationProcessor;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.RequestBodyParsingException;
 
 /**
  * support {@link JsonNode} {@link Collection}, POJO, Array
@@ -46,124 +36,30 @@ import cn.taketoday.web.resolver.RequestBodyParsingException;
  * @author TODAY 2021/3/10 11:36
  * @since 3.0
  */
-public class JacksonMessageConverter
-        extends AbstractMessageConverter implements MessageConverter {
+public class JacksonMessageConverter extends MessageConverter {
 
-  private ObjectMapper mapper;
+  final JacksonObjectNotationProcessor notationProcessor;
 
   public JacksonMessageConverter() {
-    this(new ObjectMapper());
+    this(new JacksonObjectNotationProcessor(new ObjectMapper()));
   }
 
   public JacksonMessageConverter(ObjectMapper mapper) {
-    this.mapper = mapper;
+    this(new JacksonObjectNotationProcessor(mapper));
+  }
+
+  public JacksonMessageConverter(JacksonObjectNotationProcessor notationProcessor) {
+    this.notationProcessor = notationProcessor;
   }
 
   @Override
   protected void writeInternal(RequestContext context, Object noneNullMessage) throws IOException {
-    mapper.writeValue(context.getOutputStream(), noneNullMessage);
+    notationProcessor.write(context.getOutputStream(), noneNullMessage);
   }
 
   @Override
   public Object read(RequestContext context, MethodParameter parameter) throws IOException {
-    final ObjectMapper mapper = obtainMapper();
-
-    final JsonNode body = getBody(context, mapper);
-    if (body != null) {
-      // Json node
-      if (parameter.is(JsonNode.class)) {
-        return body;
-      }
-
-      try {
-        // style: [{"name":"today","age":21},{"name":"YHJ","age":22}]
-        if (body.isArray()) {
-          if (parameter.isCollection()) {
-            final Collection<Object> ret = CollectionUtils.createCollection(parameter.getParameterClass(), body.size());
-            final Class<?> valueType = getValueType(parameter);
-            for (final JsonNode node : body) {
-              final Object value = mapper.treeToValue(node, valueType);
-              ret.add(value);
-            }
-            return ret;
-          }
-          if (parameter.isArray()) {
-            List<Object> objects = new ArrayList<>();
-            final Class<?> valueType = parameter.getComponentType();
-            for (final JsonNode node : body) {
-              final Object value = mapper.treeToValue(node, valueType);
-              objects.add(value);
-            }
-
-            final Object[] original = objects.toArray();
-            final Object ret = Array.newInstance(valueType, objects.size());
-            System.arraycopy(original, 0, ret, 0, objects.size());
-            return ret;
-          }
-          final JsonNode jsonNode = body.get(0);
-          if (jsonNode != null) {
-            return mapper.treeToValue(jsonNode, parameter.getParameterClass());
-          }
-          // null
-        }
-        else {
-          // TODO 类型判断
-          return mapper.treeToValue(body, parameter.getParameterClass());
-        }
-      }
-      catch (JsonProcessingException e) {
-        throw new RequestBodyParsingException("Request body read failed", e);
-      }
-    }
-    return null;
+    return notationProcessor.read(context.getInputStream(), parameter.getGenericDescriptor());
   }
 
-  protected Class<?> getValueType(MethodParameter parameter) {
-    final Type generics = parameter.getGeneric(0);
-    if (generics instanceof Class) {
-      return (Class<?>) generics;
-    }
-    throw new ConfigurationException("Not support " + parameter);
-  }
-
-  private JsonNode getBody(RequestContext context, ObjectMapper mapper) throws IOException {
-    final Object body = context.requestBody();
-    if (body == null) {
-      try {
-        final JsonNode jsonNode = mapper.readTree(context.getInputStream());
-        if (jsonNode == null) {
-          // cache json node
-          context.setRequestBody(NullNode.instance);
-          return null;
-        }
-        // cache json node
-        context.setRequestBody(jsonNode);
-        return jsonNode;
-      }
-      catch (JsonParseException e) {
-        throw new RequestBodyParsingException("Request body read failed", e);
-      }
-    }
-    else if (body != NullNode.instance) {
-      return (JsonNode) body;
-    }
-    return null;
-  }
-
-  /**
-   * @return {@link ObjectMapper} must not be null
-   */
-  private ObjectMapper obtainMapper() {
-    final ObjectMapper mapper = getMapper();
-    Assert.state(mapper != null, "No ObjectMapper.");
-    return mapper;
-  }
-
-  public void setMapper(ObjectMapper mapper) {
-    this.mapper = mapper;
-  }
-
-  public ObjectMapper getMapper() {
-    return mapper;
-  }
 }

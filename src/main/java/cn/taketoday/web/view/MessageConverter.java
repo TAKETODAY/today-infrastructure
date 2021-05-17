@@ -20,7 +20,10 @@
 package cn.taketoday.web.view;
 
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.ui.JsonSequence;
@@ -30,7 +33,10 @@ import cn.taketoday.web.ui.JsonSequence;
  * 2019-07-17 13:31
  * @see JsonSequence
  */
-public interface MessageConverter {
+public abstract class MessageConverter {
+
+  /** for write string */
+  private Charset charset = Constant.DEFAULT_CHARSET;
 
   /**
    * Write message to client
@@ -43,7 +49,48 @@ public interface MessageConverter {
    * @throws IOException
    *         If any input output exception occurred
    */
-  void write(RequestContext context, Object message) throws IOException;
+  public void write(RequestContext context, Object message) throws IOException {
+    if (message != null) {
+      if (message instanceof CharSequence) {
+        writeStringInternal(context, message.toString());
+      }
+      else {
+        if (message instanceof JsonSequence) {
+          message = ((JsonSequence) message).getJSON();
+        }
+        applyContentType(context);
+        writeInternal(context, message);
+      }
+    }
+    else {
+      writeNullInternal(context);
+    }
+  }
+
+  protected void applyContentType(RequestContext context) {
+    context.setContentType(Constant.CONTENT_TYPE_JSON);
+  }
+
+  protected void writeStringInternal(RequestContext context, String message) throws IOException {
+    final OutputStreamWriter writer = new OutputStreamWriter(context.getOutputStream(), charset);
+    writer.write(message);
+    writer.flush();
+  }
+
+  protected void writeNullInternal(RequestContext context) throws IOException { }
+
+  /**
+   * Write none null message
+   */
+  abstract void writeInternal(RequestContext context, Object noneNullMessage) throws IOException;
+
+  public void setCharset(Charset charset) {
+    this.charset = charset;
+  }
+
+  public Charset getCharset() {
+    return charset;
+  }
 
   /**
    * Read The request body and convert it to Target object
@@ -58,6 +105,6 @@ public interface MessageConverter {
    * @throws IOException
    *         If any input output exception occurred
    */
-  Object read(RequestContext context, MethodParameter parameter) throws IOException;
+  public abstract Object read(RequestContext context, MethodParameter parameter) throws IOException;
 
 }
