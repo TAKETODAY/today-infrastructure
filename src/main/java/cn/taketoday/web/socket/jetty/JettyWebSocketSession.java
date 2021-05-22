@@ -37,12 +37,7 @@ import cn.taketoday.web.socket.PongMessage;
  * @author TODAY 2021/5/6 21:40
  * @since 3.0.1
  */
-public class JettyWebSocketSession extends NativeWebSocketSession {
-
-  @Override
-  public Session obtainNativeSession() {
-    return (Session) super.obtainNativeSession();
-  }
+public class JettyWebSocketSession extends NativeWebSocketSession<Session> {
 
   @Override
   public void sendText(String text) throws IOException {

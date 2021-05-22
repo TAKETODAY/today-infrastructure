@@ -155,7 +155,8 @@ public abstract class WebSocketSession
    * @throws IOException
    *         if there is a problem delivering the message fragment.
    */
-  public abstract void sendPartialText(String partialMessage, boolean isLast) throws IOException;
+  public abstract void sendPartialText(String partialMessage, boolean isLast)
+          throws IOException;
 
   /**
    * Send a binary message, returning when all of the message has been transmitted.
@@ -185,8 +186,8 @@ public abstract class WebSocketSession
    * @throws IOException
    *         if there is a problem delivering the partial message.
    */
-  public abstract void sendPartialBinary(
-          ByteBuffer partialByte, boolean isLast) throws IOException;
+  public abstract void sendPartialBinary(ByteBuffer partialByte, boolean isLast)
+          throws IOException;
 
   public abstract void sendPing(PingMessage message) throws IOException;
 

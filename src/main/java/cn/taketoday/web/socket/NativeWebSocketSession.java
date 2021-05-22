@@ -26,15 +26,15 @@ import cn.taketoday.context.utils.Assert;
  * @author TODAY 2021/5/7 23:03
  * @since 3.0.1
  */
-public abstract class NativeWebSocketSession extends WebSocketSession {
-  protected Object nativeSession;
+public abstract class NativeWebSocketSession<T> extends WebSocketSession {
+  protected T nativeSession;
 
-  public void initializeNativeSession(Object nativeSession) {
+  public void initializeNativeSession(T nativeSession) {
     this.nativeSession = nativeSession;
   }
 
-  public Object obtainNativeSession() {
-    final Object session = this.nativeSession;
+  public final T obtainNativeSession() {
+    final T session = this.nativeSession;
     Assert.state(session != null, "No native session");
     return session;
   }

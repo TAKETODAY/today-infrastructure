@@ -42,7 +42,7 @@ public class WebSocketSessionEndpointParameterResolver implements EndpointParame
 
   static Object getNativeSessionSession(WebSocketSession session, MethodParameter parameter) {
     if (session instanceof NativeWebSocketSession) {
-      final Object nativeSession = ((NativeWebSocketSession) session).obtainNativeSession();
+      final Object nativeSession = ((NativeWebSocketSession<?>) session).obtainNativeSession();
       if (parameter.isInstance(nativeSession)) {
         return nativeSession;
       }

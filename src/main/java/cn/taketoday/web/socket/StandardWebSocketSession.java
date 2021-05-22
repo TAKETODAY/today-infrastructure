@@ -33,12 +33,7 @@ import javax.websocket.Session;
  * @author TODAY 2021/4/5 14:25
  * @since 3.0
  */
-public class StandardWebSocketSession extends NativeWebSocketSession {
-
-  @Override
-  public Session obtainNativeSession() {
-    return (Session) super.obtainNativeSession();
-  }
+public class StandardWebSocketSession extends NativeWebSocketSession<Session> {
 
   @Override
   public void sendText(String text) throws IOException {
