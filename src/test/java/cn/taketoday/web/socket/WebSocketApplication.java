@@ -93,11 +93,12 @@ public class WebSocketApplication {
     @OnMessage
     public void handleTextMessage(WebSocketSession session, TextMessage message,
                                   @Message String text, @Message byte[] bytes,
-                                  @MessageBody Body body) throws IOException {
+                                  @MessageBody Body body, boolean last) throws IOException {
       System.out.println("handleTextMessage" + message);
       System.out.println(text == message.getPayload());
       System.out.println(new String(bytes));
       System.out.println(body);
+      System.out.println(last);
 
       session.sendMessage(message);
     }

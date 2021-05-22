@@ -48,6 +48,7 @@ public class AnnotationWebSocketHandlerBuilder {
     if (isJettyPresent) {
       resolvers.add(new JettySessionEndpointParameterResolver());
     }
+    resolvers.add(new IsLastEndpointParameterResolver());
     resolvers.add(new MessageEndpointParameterResolver(String.class));
     resolvers.add(new MessageEndpointParameterResolver(byte[].class, new StringToBytesConverter()));
     resolvers.add(new MessageEndpointParameterResolver(ByteBuffer.class));
