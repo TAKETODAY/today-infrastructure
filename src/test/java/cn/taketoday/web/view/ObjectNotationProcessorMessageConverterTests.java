@@ -42,8 +42,8 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.User;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.exception.WebNestedRuntimeException;
+import cn.taketoday.web.handler.JacksonObjectNotationProcessor;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.RequestBodyParsingException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -51,7 +51,7 @@ import static org.junit.Assert.fail;
 /**
  * @author TODAY 2021/3/10 14:58
  */
-public class JacksonMessageConverterTests {
+public class ObjectNotationProcessorMessageConverterTests {
 
   void test(User user) { }
 
@@ -73,11 +73,11 @@ public class JacksonMessageConverterTests {
 
   static {
     try {
-      final Method test = JacksonMessageConverterTests.class.getDeclaredMethod("test", User.class);
-      final Method testJsonNodeMethod = JacksonMessageConverterTests.class.getDeclaredMethod("test", JsonNode.class);
-      final Method testList = JacksonMessageConverterTests.class
+      final Method test = ObjectNotationProcessorMessageConverterTests.class.getDeclaredMethod("test", User.class);
+      final Method testJsonNodeMethod = ObjectNotationProcessorMessageConverterTests.class.getDeclaredMethod("test", JsonNode.class);
+      final Method testList = ObjectNotationProcessorMessageConverterTests.class
               .getDeclaredMethod("test", List.class, JsonNode.class, User[].class, Set.class);
-      final Method testRequiredM = JacksonMessageConverterTests.class.getDeclaredMethod("testRequired", User.class);
+      final Method testRequiredM = ObjectNotationProcessorMessageConverterTests.class.getDeclaredMethod("testRequired", User.class);
 
       testUser = new MethodParameter(0, test, "user");
       testJsonNode = new MethodParameter(0, testJsonNodeMethod, "node");
@@ -118,7 +118,8 @@ public class JacksonMessageConverterTests {
     final ObjectMapper mapper = new ObjectMapper();
 
     final RequestContext context = new JacksonMockRequestContext("");
-    final JacksonMessageConverter converter = new JacksonMessageConverter();
+    final ObjectNotationProcessorMessageConverter converter
+            = new ObjectNotationProcessorMessageConverter(new JacksonObjectNotationProcessor());
 
     converter.write(context, today);
 
@@ -146,15 +147,20 @@ public class JacksonMessageConverterTests {
     final RequestContext contextList = new JacksonMockRequestContext(jsonList);
     final RequestContext contextEmptyJson = new JacksonMockRequestContext(emptyJson);
 
-    final JacksonMessageConverter converter = new JacksonMessageConverter();
+    final ObjectNotationProcessorMessageConverter converter
+            = new ObjectNotationProcessorMessageConverter(new JacksonObjectNotationProcessor());
 
     final Object user = converter.read(context, testUser);
+    context.getInputStream().reset();
     final Object jsonNode = converter.read(context, testJsonNode);
 
+    final InputStream inputStream = contextList.getInputStream();
     final Object userList = converter.read(contextList, testListUsers);
+    inputStream.reset();
     final Object userArray = converter.read(contextList, testUserArray);
+    inputStream.reset();
     final Object jsonNodeInList = converter.read(contextList, testJsonNodeInList);
-
+    inputStream.reset();
     // object in list
     final Object userInList = converter.read(contextList, testUser);
 
@@ -179,8 +185,8 @@ public class JacksonMessageConverterTests {
       converter.read(jsonProcessing, testRequired);
       fail("Exception");
     }
-    catch (RequestBodyParsingException e) {
-      assertThat(e.getMessage()).startsWith("Request body read failed");
+    catch (IOException e) {
+      assertThat(e.getMessage()).startsWith("Unexpected end-of-input in field name");
     }
   }
 }
