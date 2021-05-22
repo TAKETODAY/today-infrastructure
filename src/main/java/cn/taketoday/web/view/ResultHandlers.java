@@ -42,28 +42,44 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
 @MissingBean
 public class ResultHandlers extends WebApplicationContextSupport {
   private final LinkedList<ResultHandler> handlers = new LinkedList<>();
-
+  /**
+   * @since 3.0.1
+   */
   private int downloadFileBufferSize = 10240;
+  /**
+   * @since 3.0.1
+   */
   private MessageConverter messageConverter;
+  /**
+   * @since 3.0.1
+   */
   private RedirectModelManager redirectModelManager;
+  /**
+   * @since 3.0.1
+   */
+  private TemplateViewResolver templateViewResolver;
 
   public void addHandlers(ResultHandler... handlers) {
     Assert.notNull(handlers, "handler must not be null");
     Collections.addAll(this.handlers, handlers);
-    OrderUtils.reversedSort(this.handlers);
+    sort();
   }
 
   public void addHandlers(List<ResultHandler> handlers) {
     Assert.notNull(handlers, "handler must not be null");
     this.handlers.addAll(handlers);
-    OrderUtils.reversedSort(this.handlers);
+    sort();
   }
 
   public void setHandlers(List<ResultHandler> handlers) {
     Assert.notNull(handlers, "handler must not be null");
     this.handlers.clear();
     this.handlers.addAll(handlers);
-    OrderUtils.reversedSort(this.handlers);
+    sort();
+  }
+
+  public void sort() {
+    OrderUtils.reversedSort(handlers);
   }
 
   public List<ResultHandler> getHandlers() {
@@ -121,12 +137,16 @@ public class ResultHandlers extends WebApplicationContextSupport {
     }
   }
 
+  public void registerDefaultResultHandlers() {
+    registerDefaultResultHandlers(this.templateViewResolver);
+  }
+
   /**
    * register default {@link ResultHandler}s
    *
    * @since 3.0
    */
-  public void registerDefaultResultHandlers(TemplateViewResolver viewResolver) {
+  public void registerDefaultResultHandlers(TemplateViewResolver templateViewResolver) {
     final List<ResultHandler> handlers = getHandlers();
     final int bufferSize = getDownloadFileBufferSize();
     final MessageConverter messageConverter = getMessageConverter();
@@ -135,14 +155,14 @@ public class ResultHandlers extends WebApplicationContextSupport {
     final RedirectModelManager modelManager = getRedirectModelManager();
 
     VoidResultHandler voidResultHandler
-            = new VoidResultHandler(viewResolver, messageConverter, bufferSize);
+            = new VoidResultHandler(templateViewResolver, messageConverter, bufferSize);
     ObjectResultHandler objectResultHandler
-            = new ObjectResultHandler(viewResolver, messageConverter, bufferSize);
+            = new ObjectResultHandler(templateViewResolver, messageConverter, bufferSize);
     ModelAndViewResultHandler modelAndViewResultHandler
-            = new ModelAndViewResultHandler(viewResolver, messageConverter, bufferSize);
+            = new ModelAndViewResultHandler(templateViewResolver, messageConverter, bufferSize);
     ResponseEntityResultHandler responseEntityResultHandler
-            = new ResponseEntityResultHandler(viewResolver, messageConverter, bufferSize);
-    TemplateResultHandler templateResultHandler = new TemplateResultHandler(viewResolver);
+            = new ResponseEntityResultHandler(templateViewResolver, messageConverter, bufferSize);
+    TemplateResultHandler templateResultHandler = new TemplateResultHandler(templateViewResolver);
 
     if (modelManager != null) {
       voidResultHandler.setModelManager(modelManager);
@@ -163,6 +183,9 @@ public class ResultHandlers extends WebApplicationContextSupport {
 
     handlers.add(new ResponseBodyResultHandler(messageConverter));
     handlers.add(new HttpStatusResultHandler());
+
+    // ordering
+    sort();
   }
 
   //
@@ -189,6 +212,14 @@ public class ResultHandlers extends WebApplicationContextSupport {
 
   public int getDownloadFileBufferSize() {
     return downloadFileBufferSize;
+  }
+
+  public void setTemplateViewResolver(TemplateViewResolver templateViewResolver) {
+    this.templateViewResolver = templateViewResolver;
+  }
+
+  public TemplateViewResolver getTemplateViewResolver() {
+    return templateViewResolver;
   }
 
 }

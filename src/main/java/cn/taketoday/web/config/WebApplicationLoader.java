@@ -269,8 +269,12 @@ public class WebApplicationLoader
     final ResultHandlers resultHandlers = context.getBean(ResultHandlers.class);
     Assert.state(resultHandlers != null, "No ResultHandlers");
     // @since 3.0
-    final TemplateViewResolver viewResolver = getTemplateViewResolver(mvcConfiguration);
-    resultHandlers.registerDefaultResultHandlers(viewResolver);
+    TemplateViewResolver viewResolver = resultHandlers.getTemplateViewResolver();
+    if (viewResolver == null) {
+      viewResolver = getTemplateViewResolver(mvcConfiguration);
+      resultHandlers.setTemplateViewResolver(viewResolver);
+    }
+    resultHandlers.registerDefaultResultHandlers();
 
     // 自定义
     mvcConfiguration.configureResultHandler(handlers);

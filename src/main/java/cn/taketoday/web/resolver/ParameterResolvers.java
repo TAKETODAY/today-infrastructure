@@ -181,7 +181,7 @@ public class ParameterResolvers extends WebApplicationContextSupport {
     }
     Assert.state(multipartConfig != null, "MultipartConfiguration Can't be null");
 
-    DefaultMultipartResolver.registerDefaultMultipartResolvers(resolvers, multipartConfig);
+    DefaultMultipartResolver.registerParameterResolver(resolvers, multipartConfig);
 
     // Header
     resolvers.add(new HeaderParameterResolver());
