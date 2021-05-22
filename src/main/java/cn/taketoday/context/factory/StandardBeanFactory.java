@@ -483,8 +483,8 @@ public class StandardBeanFactory
   }
 
   @Override
-  public void loadBeanDefinitions(final Collection<Class<?>> beans) {
-    for (Class<?> clazz : beans) {
+  public void loadBeanDefinitions(final Collection<Class<?>> candidates) {
+    for (Class<?> clazz : candidates) {
       loadBeanDefinition(clazz);
     }
   }
@@ -579,7 +579,7 @@ public class StandardBeanFactory
   /**
    * @since 3.0
    */
-  BeanDefinition transformBeanDefinition(String name, BeanDefinition def) {
+  protected BeanDefinition transformBeanDefinition(String name, BeanDefinition def) {
     final Class<?> beanClass = def.getBeanClass();
 
     BeanDefinition missedDef = null;

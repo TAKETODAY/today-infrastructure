@@ -69,13 +69,13 @@ public interface BeanDefinitionLoader {
   /**
    * Load bean definitions with given bean collection.
    *
-   * @param beans
-   *         Beans collection
+   * @param candidates
+   *         candidates beans collection
    *
    * @throws BeanDefinitionStoreException
    *         If BeanDefinition could not be store
    */
-  void loadBeanDefinitions(Collection<Class<?>> beans) throws BeanDefinitionStoreException;
+  void loadBeanDefinitions(Collection<Class<?>> candidates) throws BeanDefinitionStoreException;
 
   /**
    * Load bean definition with given bean class.

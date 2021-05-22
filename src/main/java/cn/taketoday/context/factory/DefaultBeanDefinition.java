@@ -356,8 +356,10 @@ public class DefaultBeanDefinition
   }
 
   public BeanConstructor<?> getConstructor(BeanFactory factory) {
+    BeanConstructor<?> constructor = this.constructor;
     if (constructor == null) {
       constructor = createConstructor(factory);
+      this.constructor = constructor;
     }
     return constructor;
   }
@@ -367,8 +369,10 @@ public class DefaultBeanDefinition
   }
 
   public Executable getExecutable() {
+    Executable executable = this.executable;
     if (executable == null) {
       executable = ClassUtils.getSuitableConstructor(getBeanClass());
+      this.executable = executable;
     }
     return executable;
   }

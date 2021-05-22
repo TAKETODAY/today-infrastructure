@@ -207,12 +207,12 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    *
    * @param beanFactory
    *         Bean factory
-   * @param beanClasses
-   *         Bean classes
+   * @param candidates
+   *         candidates bean classes
    */
-  protected void loadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> beanClasses) {
+  protected void loadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> candidates) {
     // load from given class set
-    beanFactory.getBeanDefinitionLoader().loadBeanDefinitions(beanClasses);
+    beanFactory.getBeanDefinitionLoader().loadBeanDefinitions(candidates);
   }
 
   /**
