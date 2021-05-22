@@ -38,7 +38,9 @@ import cn.taketoday.web.socket.annotation.MessageBodyEndpointParameterResolver;
 import cn.taketoday.web.socket.annotation.StandardAnnotationWebSocketHandlerBuilder;
 import cn.taketoday.web.socket.annotation.StandardWebSocketHandlerRegistry;
 import cn.taketoday.web.socket.annotation.WebSocketSessionParameterResolver;
+import cn.taketoday.web.socket.jetty.JettyWebSocketHandlerAdapter;
 import cn.taketoday.web.socket.tomcat.TomcatWebSocketHandlerAdapter;
+import cn.taketoday.web.socket.undertow.UndertowWebSocketHandlerAdapter;
 
 /**
  * @author TODAY 2021/4/5 12:14
@@ -54,8 +56,17 @@ public @interface EnableWebSocket {
 class WebSocketConfig implements WebApplicationInitializer {
 
   @MissingBean(type = AbstractWebSocketHandlerAdapter.class)
-  TomcatWebSocketHandlerAdapter webSocketHandlerAdapter() {
-    return new TomcatWebSocketHandlerAdapter();
+  AbstractWebSocketHandlerAdapter webSocketHandlerAdapter() {
+    if (ClassUtils.isPresent("org.apache.tomcat.websocket.WsHandshakeResponse")) {
+      return new TomcatWebSocketHandlerAdapter();
+    }
+    if (ClassUtils.isPresent("io.undertow.websockets.core.protocol.Handshake")) {
+      return new UndertowWebSocketHandlerAdapter();
+    }
+    if (ClassUtils.isPresent("org.eclipse.jetty.websocket.servlet.WebSocketCreator")) {
+      return new JettyWebSocketHandlerAdapter();
+    }
+    throw new IllegalStateException("No AbstractWebSocketHandlerAdapter");
   }
 
   @MissingBean
