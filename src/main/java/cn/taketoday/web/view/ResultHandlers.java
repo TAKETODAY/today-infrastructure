@@ -24,8 +24,10 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
+import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.Constant;
@@ -40,6 +42,10 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
 @MissingBean
 public class ResultHandlers extends WebApplicationContextSupport {
   private final LinkedList<ResultHandler> handlers = new LinkedList<>();
+
+  private int downloadFileBufferSize = 10240;
+  private MessageConverter messageConverter;
+  private RedirectModelManager redirectModelManager;
 
   public void addHandlers(ResultHandler... handlers) {
     Assert.notNull(handlers, "handler must not be null");
@@ -71,7 +77,7 @@ public class ResultHandlers extends WebApplicationContextSupport {
         ret.add((RuntimeResultHandler) handler);
       }
     }
-    return ret.toArray(new RuntimeResultHandler[ret.size()]);
+    return ret.toArray(new RuntimeResultHandler[0]);
   }
 
   public ResultHandler getHandler(final Object handler) {
@@ -99,21 +105,34 @@ public class ResultHandlers extends WebApplicationContextSupport {
   //
 
   /**
+   * init handlers
+   */
+  @PostConstruct
+  protected void initHandlers(WebApplicationContext context,
+                              @Env(Constant.DOWNLOAD_BUFF_SIZE) Integer bufferSize) {
+    if (bufferSize != null) {
+      setDownloadFileBufferSize(bufferSize);
+    }
+    if (messageConverter == null) {
+      messageConverter = context.getBean(MessageConverter.class);
+    }
+    if (redirectModelManager == null) {
+      redirectModelManager = context.getBean(RedirectModelManager.class);
+    }
+  }
+
+  /**
    * register default {@link ResultHandler}s
    *
    * @since 3.0
    */
   public void registerDefaultResultHandlers(TemplateViewResolver viewResolver) {
     final List<ResultHandler> handlers = getHandlers();
-    final WebApplicationContext context = obtainApplicationContext();
-
-    final Environment environment = context.getEnvironment();
-    int bufferSize = Integer.parseInt(environment.getProperty(Constant.DOWNLOAD_BUFF_SIZE, "10240"));
-
-    final MessageConverter messageConverter = context.getBean(MessageConverter.class);
+    final int bufferSize = getDownloadFileBufferSize();
+    final MessageConverter messageConverter = getMessageConverter();
     Assert.state(messageConverter != null, "No MessageConverter in this web application");
 
-    final RedirectModelManager modelManager = context.getBean(RedirectModelManager.class);
+    final RedirectModelManager modelManager = getRedirectModelManager();
 
     VoidResultHandler voidResultHandler
             = new VoidResultHandler(viewResolver, messageConverter, bufferSize);
@@ -144,6 +163,32 @@ public class ResultHandlers extends WebApplicationContextSupport {
 
     handlers.add(new ResponseBodyResultHandler(messageConverter));
     handlers.add(new HttpStatusResultHandler());
+  }
+
+  //
+
+  public void setRedirectModelManager(RedirectModelManager redirectModelManager) {
+    this.redirectModelManager = redirectModelManager;
+  }
+
+  public RedirectModelManager getRedirectModelManager() {
+    return redirectModelManager;
+  }
+
+  public void setMessageConverter(MessageConverter messageConverter) {
+    this.messageConverter = messageConverter;
+  }
+
+  public MessageConverter getMessageConverter() {
+    return messageConverter;
+  }
+
+  public void setDownloadFileBufferSize(int downloadFileBufferSize) {
+    this.downloadFileBufferSize = downloadFileBufferSize;
+  }
+
+  public int getDownloadFileBufferSize() {
+    return downloadFileBufferSize;
   }
 
 }
