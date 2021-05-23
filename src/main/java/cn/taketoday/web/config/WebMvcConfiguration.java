@@ -104,7 +104,8 @@ public interface WebMvcConfiguration {
    * Configure Freemarker's {@link freemarker.cache.TemplateLoader} s
    *
    * @param loaders
-   *         TemplateLoaders
+   *         {@link freemarker.cache.TemplateLoader}
+   *         beans in application context
    *
    * @since 2.3.7
    */
