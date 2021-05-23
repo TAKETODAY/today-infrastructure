@@ -187,6 +187,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
     }
 
     if (matchedPatterns.isEmpty()) { // none matched
+      // match in map of handlers
       for (final Map.Entry<String, Object> entry : handlers.entrySet()) {
         final String pattern = entry.getKey();
         if (matchingPattern(pathMatcher, pattern, handlerKey)) {
@@ -194,7 +195,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
         }
       }
       if (matchedPatterns.isEmpty()) {
-        return null;
+        return null; // none matched
       }
     }
 
