@@ -26,6 +26,7 @@ import java.util.List;
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
@@ -34,8 +35,7 @@ import cn.taketoday.web.interceptor.HandlerInterceptorsCapable;
 import static cn.taketoday.context.utils.ObjectUtils.isEmpty;
 
 /**
- * @author TODAY <br>
- * 2019-12-25 16:19
+ * @author TODAY 2019-12-25 16:19
  */
 public abstract class InterceptableRequestHandler
         extends OrderedSupport implements RequestHandler, HandlerInterceptorsCapable {
@@ -99,7 +99,7 @@ public abstract class InterceptableRequestHandler
    * @since 3.0.1
    */
   public void setInterceptors(HandlerInterceptor... interceptors) {
-    if (interceptors != null && interceptors.length > 1) {
+    if (ObjectUtils.isNotEmpty(interceptors)) {
       sort(interceptors);
     }
     this.interceptors = interceptors;
