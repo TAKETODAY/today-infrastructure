@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpCookie;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,6 +41,7 @@ import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContextHolder.ApplicationNotStartedContext;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.http.DefaultHttpHeaders;
@@ -49,6 +51,7 @@ import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.ui.Model;
 import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.ui.ModelAttributes;
+import cn.taketoday.web.utils.WebUtils;
 
 import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
 
@@ -281,7 +284,19 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
     return parameters;
   }
 
-  protected abstract Map<String, String[]> doGetParameters();
+  protected Map<String, String[]> doGetParameters() {
+    final String queryString = StringUtils.decodeUrl(getQueryString());
+    final MultiValueMap<String, String> parameters = WebUtils.parseParameters(queryString);
+    postGetParameters(parameters);
+    if (!parameters.isEmpty()) {
+      return parameters.toArrayMap(String[]::new);
+    }
+    return Collections.emptyMap();
+  }
+
+  protected void postGetParameters(MultiValueMap<String, String> parameters) {
+    // no-op
+  }
 
   /**
    * Returns an <code>Iterator</code> of <code>String</code> objects containing
