@@ -43,7 +43,7 @@ public class ProxyConfig implements Serializable {
   private boolean optimize = false;
   private boolean proxyTargetClass = false;
 
-  private boolean usingCglib = false;
+  private boolean usingCglib = false; //@since 3.0
 
   /**
    * Set whether to proxy the target class directly, instead of just proxying
