@@ -102,13 +102,18 @@ public class HandlerMethodRegistry
 
   @Override
   protected void initApplicationContext(ApplicationContext context) {
-    setBeanFactory(context.getBean(ConfigurableBeanFactory.class));
+    final BeanFactory factory = context.getBeanFactory();
+    if (factory instanceof ConfigurableBeanFactory) {
+      setBeanFactory((ConfigurableBeanFactory) factory);
+    }
+    else {
+      setBeanFactory(context.getBean(ConfigurableBeanFactory.class));
+    }
 
     final Environment environment = context.getEnvironment();
     BeanDefinitionLoader beanDefinitionLoader = environment.getBeanDefinitionLoader();
     if (beanDefinitionLoader == null) {
-      final BeanFactory beanFactory = context.getBeanFactory();
-      if (beanFactory instanceof BeanDefinitionLoader) {
+      if (factory instanceof BeanDefinitionLoader) {
         beanDefinitionLoader = (BeanDefinitionLoader) beanFactory;
       }
       else {
