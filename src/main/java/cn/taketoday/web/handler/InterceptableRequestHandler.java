@@ -148,13 +148,8 @@ public abstract class InterceptableRequestHandler
   }
 
   @Override
-  public final HandlerInterceptor[] getInterceptors() {
+  public HandlerInterceptor[] getInterceptors() {
     return interceptors;
-  }
-
-  @Override
-  public final boolean hasInterceptor() {
-    return interceptors != null;
   }
 
 }
