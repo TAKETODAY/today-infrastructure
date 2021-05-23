@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.registry;
 
-import java.util.List;
+import java.util.Collection;
 
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.OrderUtils;
@@ -38,7 +38,7 @@ public class CompositeHandlerCustomizer implements HandlerCustomizer {
     this.customizers = OrderUtils.reversedSort(customizers);
   }
 
-  public CompositeHandlerCustomizer(final List<HandlerCustomizer> customizers) {
+  public CompositeHandlerCustomizer(final Collection<HandlerCustomizer> customizers) {
     this(requireNonNull(customizers).toArray(new HandlerCustomizer[customizers.size()]));
   }
 

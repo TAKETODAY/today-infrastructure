@@ -25,11 +25,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.ConcurrentMapCache;
 import cn.taketoday.context.AntPathMatcher;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.EmptyObject;
 import cn.taketoday.context.PathMatcher;
 import cn.taketoday.context.utils.Assert;
@@ -62,9 +61,16 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
   /** @since 3.0 */
   private Cache patternMatchingCache;
 
-  @PostConstruct
-  public void initHandlerRegistry(List<HandlerCustomizer> customizers) {
-    this.handlerCustomizer = new CompositeHandlerCustomizer(customizers);
+  /**
+   * @since 3.0.1 init {@link #handlerCustomizer} delete initHandlerRegistry()
+   */
+  @Override
+  protected void initApplicationContext(ApplicationContext context) {
+    super.initApplicationContext(context);
+    List<HandlerCustomizer> customizers = context.getBeans(HandlerCustomizer.class);
+    if (!CollectionUtils.isEmpty(customizers)) {
+      this.handlerCustomizer = new CompositeHandlerCustomizer(customizers);
+    }
   }
 
   @Override
