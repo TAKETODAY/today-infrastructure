@@ -29,6 +29,7 @@ import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
+import cn.taketoday.web.interceptor.HandlerInterceptorsCapable;
 
 import static cn.taketoday.context.utils.ObjectUtils.isEmpty;
 
@@ -37,10 +38,10 @@ import static cn.taketoday.context.utils.ObjectUtils.isEmpty;
  * 2019-12-25 16:19
  */
 public abstract class InterceptableRequestHandler
-        extends OrderedSupport implements RequestHandler {
+        extends OrderedSupport implements RequestHandler, HandlerInterceptorsCapable {
   private static final Logger log = LoggerFactory.getLogger(InterceptableRequestHandler.class);
 
-  /** 拦截器 */
+  /** interceptors array */
   private HandlerInterceptor[] interceptors;
 
   public InterceptableRequestHandler() {}
@@ -49,6 +50,17 @@ public abstract class InterceptableRequestHandler
     setInterceptors(interceptors);
   }
 
+  /**
+   * perform {@link HandlerInterceptor} on this handler
+   *
+   * @param context
+   *         Current request context
+   *
+   * @return handler's result
+   *
+   * @throws Throwable
+   *         any exception occurred in this request context
+   */
   @Override
   public Object handleRequest(final RequestContext context) throws Throwable {
     final HandlerInterceptor[] interceptors = getInterceptors();
@@ -73,10 +85,60 @@ public abstract class InterceptableRequestHandler
     return handleInternal(context);
   }
 
+  /**
+   * perform this handler' behavior internal
+   */
   protected abstract Object handleInternal(final RequestContext context) throws Throwable;
 
-  public HandlerInterceptor[] getInterceptors() {
-    return interceptors;
+  /**
+   * replace interceptors
+   *
+   * @param interceptors
+   *         interceptors to add
+   *
+   * @since 3.0.1
+   */
+  public void setInterceptors(HandlerInterceptor... interceptors) {
+    if (interceptors != null && interceptors.length > 1) {
+      sort(interceptors);
+    }
+    this.interceptors = interceptors;
+  }
+
+  protected void sort(HandlerInterceptor[] interceptors) {
+    OrderUtils.reversedSort(interceptors);
+  }
+
+  /**
+   * add interceptors at end of the {@link #interceptors}
+   *
+   * @param interceptors
+   *         interceptors to add
+   */
+  public void addInterceptors(HandlerInterceptor... interceptors) {
+    final ArrayList<HandlerInterceptor> objects = new ArrayList<>();
+    if (this.interceptors != null) {
+      Collections.addAll(objects, this.interceptors);
+    }
+    Collections.addAll(objects, interceptors);
+    setInterceptors(objects);
+  }
+
+  /**
+   * add interceptors at end of the {@link #interceptors}
+   *
+   * @param interceptors
+   *         interceptors to add
+   *
+   * @since 3.0.1
+   */
+  public void addInterceptors(List<HandlerInterceptor> interceptors) {
+    final ArrayList<HandlerInterceptor> objects = new ArrayList<>();
+    if (this.interceptors != null) {
+      Collections.addAll(objects, this.interceptors);
+    }
+    objects.addAll(interceptors);
+    setInterceptors(objects);
   }
 
   public void setInterceptors(List<HandlerInterceptor> interceptors) {
@@ -85,20 +147,14 @@ public abstract class InterceptableRequestHandler
                     : interceptors.toArray(new HandlerInterceptor[interceptors.size()]));
   }
 
-  public void setInterceptors(HandlerInterceptor... interceptors) {
-    if (interceptors != null && interceptors.length > 1) {
-      OrderUtils.reversedSort(interceptors);
-    }
-    this.interceptors = interceptors;
+  @Override
+  public final HandlerInterceptor[] getInterceptors() {
+    return interceptors;
   }
 
-  public void addInterceptors(HandlerInterceptor... interceptors) {
-    final ArrayList<HandlerInterceptor> objects = new ArrayList<>();
-    if (this.interceptors != null) {
-      Collections.addAll(objects, this.interceptors);
-    }
-    Collections.addAll(objects, interceptors);
-    setInterceptors(objects);
+  @Override
+  public final boolean hasInterceptor() {
+    return interceptors != null;
   }
 
 }
