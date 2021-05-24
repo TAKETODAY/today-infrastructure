@@ -60,7 +60,7 @@ class WebSocketConfig implements WebApplicationInitializer {
     if (ClassUtils.isPresent("org.apache.tomcat.websocket.WsHandshakeResponse")) {
       return new TomcatWebSocketHandlerAdapter();
     }
-    if (ClassUtils.isPresent("io.undertow.websockets.core.protocol.Handshake")) {
+    if (ClassUtils.isPresent("io.undertow.websockets.jsr.handshake.HandshakeUtil")) {
       return new UndertowWebSocketHandlerAdapter();
     }
     if (ClassUtils.isPresent("org.eclipse.jetty.websocket.servlet.WebSocketCreator")) {
