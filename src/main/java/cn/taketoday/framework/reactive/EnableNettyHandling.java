@@ -22,15 +22,19 @@ package cn.taketoday.framework.reactive;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.AnnotationBeanDefinitionRegistrar;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.session.EnableWebSession;
+import cn.taketoday.web.socket.AbstractWebSocketHandlerAdapter;
+import cn.taketoday.web.socket.WebSocketHandlerRegistry;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
@@ -67,8 +71,18 @@ class NettyConfig implements AnnotationBeanDefinitionRegistrar<EnableNettyHandli
 
   @MissingBean(type = ReactiveChannelHandler.class)
   ReactiveChannelHandler reactiveChannelHandler(
-          NettyDispatcher nettyDispatcher, NettyRequestContextConfig contextConfig) {
+          NettyDispatcher nettyDispatcher,
+          NettyRequestContextConfig contextConfig,
+          @Autowired(required = false) WebSocketHandlerRegistry registry) {
+    if (registry != null) {
+      return new WebSocketReactiveChannelHandler(nettyDispatcher, contextConfig);
+    }
     return new ReactiveChannelHandler(nettyDispatcher, contextConfig);
+  }
+
+  @Singleton
+  NettyWebSocketHandlerAdapter webSocketHandlerAdapter() {
+    return new NettyWebSocketHandlerAdapter();
   }
 
   @MissingBean(type = DispatcherHandler.class)

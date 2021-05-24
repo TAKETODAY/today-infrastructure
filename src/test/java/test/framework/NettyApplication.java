@@ -14,7 +14,16 @@ import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.annotation.RestControllerAdvice;
 import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.web.socket.BinaryMessage;
+import cn.taketoday.web.socket.CloseStatus;
+import cn.taketoday.web.socket.EnableWebSocket;
+import cn.taketoday.web.socket.TextMessage;
+import cn.taketoday.web.socket.WebSocketConfiguration;
+import cn.taketoday.web.socket.WebSocketHandler;
+import cn.taketoday.web.socket.WebSocketHandlerRegistry;
+import cn.taketoday.web.socket.WebSocketSession;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
@@ -80,10 +89,15 @@ public class NettyApplication {
   }
 
   @Configuration
+  @EnableWebSocket
   @EnableNettyHandling
-//  @EnableTomcatHandling
   @EnableMethodEventDriven
-  static class AppConfig {
+  static class AppConfig implements WebSocketConfiguration {
+
+    @Override
+    public void configureWebSocketHandlers(WebSocketHandlerRegistry registry) {
+      registry.registerHandler(new WebSocket0(), "/endpoint");
+    }
 
     @EventListener(MyEvent.class)
     public void event(MyEvent event) {
@@ -103,6 +117,31 @@ public class NettyApplication {
   @ExceptionHandler(Throwable.class)
   public void throwable(Throwable throwable) {
     throwable.printStackTrace();
+  }
+
+  static class WebSocket0 extends WebSocketHandler {
+
+    @SneakyThrows
+    @Override
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+      System.out.println("handleTextMessage" + message);
+      session.sendMessage(message);
+    }
+
+    @Override
+    protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
+      System.out.println("handleBinaryMessage" + message);
+    }
+
+    @Override
+    public void afterHandshake(RequestContext context, WebSocketSession session) {
+      System.out.println("afterHandshake");
+    }
+
+    @Override
+    public void onClose(WebSocketSession session, CloseStatus status) {
+      System.out.println("onClose " + status);
+    }
   }
 
 }

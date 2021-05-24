@@ -138,7 +138,7 @@ public class WebDocumentConfiguration {
         path = ((JarURLConnection) connection).getJarFile().getName();
       }
       else {
-        path = location.toURI().getPath();
+        path = location.getPath();
       }
       int index = path.indexOf("!/");
       if (index != -1) {

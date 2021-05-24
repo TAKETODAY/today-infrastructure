@@ -62,6 +62,11 @@ public class LightRequestContext extends RequestContext {
   }
 
   @Override
+  public String getScheme() {
+    return null; // TODO
+  }
+
+  @Override
   protected String doGetRequestPath() {
     return request.getRequestURI();
   }

@@ -25,7 +25,6 @@ import java.io.OutputStream;
 import java.net.HttpCookie;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,13 +36,11 @@ import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.DefaultMultiValueMap;
 import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.http.DefaultHttpHeaders;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.resolver.ParameterReadFailedException;
-import cn.taketoday.web.utils.WebUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
@@ -110,6 +107,11 @@ public class NettyRequestContext extends RequestContext {
     String uri = request.uri();
     this.uri = uri;
     this.queryStringIndex = uri.indexOf('?');
+  }
+
+  @Override // TODO getScheme
+  public String getScheme() {
+    return null;
   }
 
   @Override
@@ -225,9 +227,9 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  protected Map<String, String[]> doGetParameters() {
-    final String queryString = StringUtils.decodeUrl(getQueryString());
-    final MultiValueMap<String, String> parameters = WebUtils.parseParameters(queryString);
+  protected void postGetParameters(MultiValueMap<String, String> parameters) {
+    super.postGetParameters(parameters);
+
     final List<InterfaceHttpData> bodyHttpData = getRequestDecoder().getBodyHttpDatas();
     for (final InterfaceHttpData data : bodyHttpData) {
       if (data instanceof Attribute) {
@@ -240,10 +242,6 @@ public class NettyRequestContext extends RequestContext {
         }
       }
     }
-    if (!parameters.isEmpty()) {
-      return parameters.toArrayMap(String[]::new);
-    }
-    return Collections.emptyMap();
   }
 
   private InterfaceHttpPostRequestDecoder getRequestDecoder() {
@@ -474,7 +472,7 @@ public class NettyRequestContext extends RequestContext {
     return request;
   }
 
-  private HttpHeaders originalResponseHeaders() {
+  public HttpHeaders originalResponseHeaders() {
     HttpHeaders originalResponseHeaders = this.originalResponseHeaders;
     if (originalResponseHeaders == null) {
       final NettyRequestContextConfig config = this.config;
@@ -510,7 +508,7 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  public void flush() throws IOException {
+  public void flush() {
     channelContext.flush();
   }
 
@@ -529,6 +527,10 @@ public class NettyRequestContext extends RequestContext {
 
   public void setCommitted(boolean committed) {
     this.committed = committed;
+  }
+
+  public ChannelHandlerContext getChannelContext() {
+    return channelContext;
   }
 
   @Override

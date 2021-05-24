@@ -36,8 +36,8 @@ import lombok.Data;
  * @author TODAY 2021/4/8 20:02
  * @since 3.0
  */
-@EnableTomcatHandling
-@RestController
+//@EnableTomcatHandling
+//@RestController
 public class DataBinderApplication {
 
   public static void main(String[] args) {

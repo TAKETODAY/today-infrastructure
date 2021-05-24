@@ -65,8 +65,15 @@ public class ReactiveChannelHandler implements ChannelInboundHandler {
       }
     }
     else {
-      ctx.fireChannelRead(msg);
+      readExceptHttp(ctx, msg);
     }
+  }
+
+  /**
+   * read other msg
+   */
+  protected void readExceptHttp(ChannelHandlerContext ctx, Object msg) {
+    ctx.fireChannelRead(msg);
   }
 
   @Override

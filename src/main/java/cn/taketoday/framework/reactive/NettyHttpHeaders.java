@@ -20,9 +20,9 @@ import cn.taketoday.web.http.HttpHeaders;
  */
 final class NettyHttpHeaders extends HttpHeaders {
 
-  private final io.netty.handler.codec.http.HttpHeaders headers;
+  final io.netty.handler.codec.http.HttpHeaders headers;
 
-  public NettyHttpHeaders(io.netty.handler.codec.http.HttpHeaders headers) {
+  NettyHttpHeaders(io.netty.handler.codec.http.HttpHeaders headers) {
     this.headers = headers;
   }
 

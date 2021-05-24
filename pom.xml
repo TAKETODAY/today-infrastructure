@@ -92,7 +92,8 @@
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-web</artifactId>
-      <version>3.0.0.RELEASE</version>
+      <version>latest</version>
+<!--      <version>3.0.0.RELEASE</version>-->
     </dependency>
 
     <dependency>
@@ -168,12 +169,6 @@
     </dependency>
 
     <dependency>
-      <groupId>io.undertow</groupId>
-      <artifactId>undertow-websockets-jsr</artifactId>
-      <version>${undertow.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>org.freemarker</groupId>
       <artifactId>freemarker</artifactId>
       <version>2.3.29</version>
@@ -184,6 +179,13 @@
       <groupId>io.netty</groupId>
       <artifactId>netty-all</artifactId>
       <version>${netty.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-web</artifactId>
+      <version>4.0.3</version>
       <scope>provided</scope>
     </dependency>
 
