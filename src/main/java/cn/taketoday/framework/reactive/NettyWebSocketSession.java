@@ -10,8 +10,10 @@ import cn.taketoday.web.socket.PingMessage;
 import cn.taketoday.web.socket.PongMessage;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -40,24 +42,24 @@ public class NettyWebSocketSession extends NativeWebSocketSession<ChannelHandler
   }
 
   @Override
-  public void sendBinary(BinaryMessage data) throws IOException {
+  public void sendBinary(BinaryMessage data) {
     final ByteBuffer payload = data.getPayload();
     Unpooled.wrappedBuffer(payload);
     channel.write(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(payload)));
   }
 
   @Override
-  public void sendPartialBinary(ByteBuffer partialByte, boolean isLast) throws IOException {
+  public void sendPartialBinary(ByteBuffer partialByte, boolean isLast) {
     channel.write(new BinaryWebSocketFrame(isLast, 0, Unpooled.wrappedBuffer(partialByte)));
   }
 
   @Override
-  public void sendPing(PingMessage message) throws IOException {
+  public void sendPing(PingMessage message) {
     channel.write(new PingWebSocketFrame(Unpooled.wrappedBuffer(message.getPayload())));
   }
 
   @Override
-  public void sendPong(PongMessage message) throws IOException {
+  public void sendPong(PongMessage message) {
     channel.write(new PongWebSocketFrame(Unpooled.wrappedBuffer(message.getPayload())));
   }
 
@@ -66,35 +68,44 @@ public class NettyWebSocketSession extends NativeWebSocketSession<ChannelHandler
     return false;
   }
 
-  @Override public boolean isOpen() {
-    return false;
+  @Override
+  public boolean isOpen() {
+    return channel.isOpen();
   }
 
-  @Override public long getMaxIdleTimeout() {
+  @Override
+  public long getMaxIdleTimeout() {
     return 0;
   }
 
-  @Override public void setMaxIdleTimeout(long timeout) {
+  @Override
+  public void setMaxIdleTimeout(long timeout) {
 
   }
 
-  @Override public void setMaxBinaryMessageBufferSize(int max) {
+  @Override
+  public void setMaxBinaryMessageBufferSize(int max) {
 
   }
 
-  @Override public int getMaxBinaryMessageBufferSize() {
+  @Override
+  public int getMaxBinaryMessageBufferSize() {
     return 0;
   }
 
-  @Override public void setMaxTextMessageBufferSize(int max) {
+  @Override
+  public void setMaxTextMessageBufferSize(int max) {
 
   }
 
-  @Override public int getMaxTextMessageBufferSize() {
+  @Override
+  public int getMaxTextMessageBufferSize() {
     return 0;
   }
 
-  @Override public void close(CloseStatus status) throws IOException {
-
+  @Override
+  public void close(CloseStatus status) throws IOException {
+    channel.writeAndFlush(new CloseWebSocketFrame(status.getCode(), status.getReason()))
+            .addListener(ChannelFutureListener.CLOSE);
   }
 }
