@@ -25,9 +25,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.condition.ConditionalOnClass;
+import cn.taketoday.context.annotation.condition.ConditionalOnMissingClass;
 import cn.taketoday.web.Constant;
 
 /**
@@ -44,9 +48,20 @@ public @interface EnableFreeMarker {
 class FreeMarkerConfig {
 
   @Props(prefix = "web.mvc.view.")
+  @Order(Ordered.LOWEST_PRECEDENCE - 100)
+  @MissingBean(type = AbstractFreeMarkerTemplateViewResolver.class)
   @ConditionalOnClass({ Constant.ENV_SERVLET, "freemarker.template.Configuration" })
   FreeMarkerTemplateViewResolver freeMarkerTemplateViewResolver() {
     return new FreeMarkerTemplateViewResolver();
+  }
+
+  @Props(prefix = "web.mvc.view.")
+  @Order(Ordered.LOWEST_PRECEDENCE - 100)
+  @ConditionalOnMissingClass(Constant.ENV_SERVLET)
+  @ConditionalOnClass("io.netty.channel.ChannelInboundHandler")
+  @MissingBean(type = AbstractFreeMarkerTemplateViewResolver.class)
+  ReactiveFreeMarkerTemplateViewResolver reactiveFreeMarkerTemplateViewResolver() {
+    return new ReactiveFreeMarkerTemplateViewResolver();
   }
 
 }
