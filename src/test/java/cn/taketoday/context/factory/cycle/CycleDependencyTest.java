@@ -29,7 +29,6 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Order;
-import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 
@@ -66,15 +65,15 @@ public class CycleDependencyTest {
     }
   }
 
-  //  @Singleton
-  @Prototype
+  @Singleton
+//  @Prototype
   public static class BeanA {
     @Autowired
     BeanB beanB;
   }
 
-  //  @Singleton
-  @Prototype
+  @Singleton
+//  @Prototype
   public static class BeanB {
 
     @Autowired
@@ -83,8 +82,8 @@ public class CycleDependencyTest {
     BeanB beanB;
   }
 
-  //  @Singleton
-  @Prototype
+  @Singleton
+//  @Prototype
   public static class BeanC {
 
     int order;
