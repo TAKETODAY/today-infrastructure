@@ -61,8 +61,8 @@ public class CycleDependencyTest {
       final ConstructorCycleDependency1 one = applicationContext.getBean(ConstructorCycleDependency1.class);
       final ConstructorCycleDependency2 two = applicationContext.getBean(ConstructorCycleDependency2.class);
 
-//      assertEquals(two, one.two);
-//      assertEquals(one, two.one.get());
+      assertEquals(two, one.two);
+      assertEquals(one, two.one.get());
     }
   }
 
@@ -102,8 +102,8 @@ public class CycleDependencyTest {
     @Order(2)
     @PostConstruct
     public void init2(BeanA beanA) {
-//      assertEquals(this.beanA, beanA);
-//      assertEquals(order, 2);
+      assertEquals(this.beanA, beanA);
+      assertEquals(order, 2);
       order = 3;
     }
 
