@@ -134,6 +134,9 @@ public class StandardBeanFactory
     }
   }
 
+  /**
+   * Preventing Cycle Dependency expected {@link cn.taketoday.context.annotation.Prototype} beans
+   */
   @Override
   public Object initializeBean(final Object bean, final BeanDefinition def) {
     if (def.isPrototype()) {
