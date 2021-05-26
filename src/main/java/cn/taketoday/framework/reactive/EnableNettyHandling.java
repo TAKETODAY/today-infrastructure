@@ -33,7 +33,6 @@ import cn.taketoday.context.loader.AnnotationBeanDefinitionRegistrar;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.session.EnableWebSession;
-import cn.taketoday.web.socket.AbstractWebSocketHandlerAdapter;
 import cn.taketoday.web.socket.WebSocketHandlerRegistry;
 
 import static java.lang.annotation.ElementType.METHOD;
