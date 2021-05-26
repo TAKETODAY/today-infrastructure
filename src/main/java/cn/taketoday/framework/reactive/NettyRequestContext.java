@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpCookie;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
@@ -109,9 +110,16 @@ public class NettyRequestContext extends RequestContext {
     this.queryStringIndex = uri.indexOf('?');
   }
 
-  @Override // TODO getScheme
+  @Override
   public String getScheme() {
-    return null;
+    final SocketAddress socketAddress = channelContext.channel().localAddress();
+    if (socketAddress instanceof InetSocketAddress) {
+      final int port = ((InetSocketAddress) socketAddress).getPort();
+      if (port == 443) {
+        return Constant.HTTPS;
+      }
+    }
+    return Constant.HTTP;
   }
 
   @Override
@@ -139,7 +147,7 @@ public class NettyRequestContext extends RequestContext {
   @Override
   public String getRequestURL() {
     final String host = request.headers().get(Constant.HOST);
-    return "http://" + host + getRequestPath();
+    return getScheme() + "://" + host + getRequestPath();
   }
 
   @Override

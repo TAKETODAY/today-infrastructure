@@ -73,6 +73,7 @@ public class NettyApplication {
     final String queryString = context.getQueryString();
     System.out.println(requestURL);
     System.out.println(queryString);
+    System.out.println(context.remoteAddress());
 
     return queryString;
   }
