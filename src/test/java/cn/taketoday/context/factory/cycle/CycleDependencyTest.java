@@ -29,6 +29,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Order;
+import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 
@@ -60,18 +61,20 @@ public class CycleDependencyTest {
       final ConstructorCycleDependency1 one = applicationContext.getBean(ConstructorCycleDependency1.class);
       final ConstructorCycleDependency2 two = applicationContext.getBean(ConstructorCycleDependency2.class);
 
-      assertEquals(two, one.two);
-      assertEquals(one, two.one.get());
+//      assertEquals(two, one.two);
+//      assertEquals(one, two.one.get());
     }
   }
 
-  @Singleton
+  //  @Singleton
+  @Prototype
   public static class BeanA {
     @Autowired
     BeanB beanB;
   }
 
-  @Singleton
+  //  @Singleton
+  @Prototype
   public static class BeanB {
 
     @Autowired
@@ -80,7 +83,8 @@ public class CycleDependencyTest {
     BeanB beanB;
   }
 
-  @Singleton
+  //  @Singleton
+  @Prototype
   public static class BeanC {
 
     int order;
@@ -98,8 +102,8 @@ public class CycleDependencyTest {
     @Order(2)
     @PostConstruct
     public void init2(BeanA beanA) {
-      assertEquals(this.beanA, beanA);
-      assertEquals(order, 2);
+//      assertEquals(this.beanA, beanA);
+//      assertEquals(order, 2);
       order = 3;
     }
 

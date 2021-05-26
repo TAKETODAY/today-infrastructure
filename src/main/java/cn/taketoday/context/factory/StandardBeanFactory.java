@@ -136,14 +136,17 @@ public class StandardBeanFactory
 
   @Override
   public Object initializeBean(final Object bean, final BeanDefinition def) {
-    final String name = def.getName();
-    if (currentInitializingBeanName.contains(name)) {
-      return bean;
+    if (def.isSingleton()) {
+      final String name = def.getName();
+      if (currentInitializingBeanName.contains(name)) {
+        return bean;
+      }
+      currentInitializingBeanName.add(name);
+      final Object initializingBean = super.initializeBean(bean, def);
+      currentInitializingBeanName.remove(name);
+      return initializingBean;
     }
-    currentInitializingBeanName.add(name);
-    final Object initializingBean = super.initializeBean(bean, def);
-    currentInitializingBeanName.remove(name);
-    return initializingBean;
+    return super.initializeBean(bean, def);
   }
 
   // -----------------------------------------
