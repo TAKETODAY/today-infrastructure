@@ -35,8 +35,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletContextAware;
 
 /**
- * @author TODAY <br>
- * 2018-06-26 11:26:01
+ * @author TODAY 2018-06-26 11:26:01
  */
 public class ThymeleafTemplateViewResolver
         extends AbstractTemplateViewResolver implements InitializingBean, ServletContextAware {
@@ -58,9 +57,10 @@ public class ThymeleafTemplateViewResolver
    * Init Thymeleaf View Resolver.
    */
   @Override
-  public void afterPropertiesSet() throws Exception {
+  public void afterPropertiesSet() {
 
-    final ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(servletContext);
+    final ServletContextTemplateResolver templateResolver
+            = new ServletContextTemplateResolver(servletContext);
 
     templateResolver.setPrefix(prefix);
     templateResolver.setSuffix(suffix);
@@ -92,4 +92,19 @@ public class ThymeleafTemplateViewResolver
     this.servletContext = servletContext;
   }
 
+  public ServletContext getServletContext() {
+    return servletContext;
+  }
+
+  public void setCacheable(boolean cacheable) {
+    this.cacheable = cacheable;
+  }
+
+  public boolean isCacheable() {
+    return cacheable;
+  }
+
+  public TemplateEngine getTemplateEngine() {
+    return templateEngine;
+  }
 }
