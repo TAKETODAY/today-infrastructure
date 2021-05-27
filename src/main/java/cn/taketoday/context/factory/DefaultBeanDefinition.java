@@ -472,7 +472,7 @@ public class DefaultBeanDefinition
     copyAttributesFrom(newDef);
   }
 
-  Class<?> obtainBeanClass() {
+  protected Class<?> obtainBeanClass() {
     final Class<?> beanClass = getBeanClass();
     Assert.state(beanClass != null, "Bean Class is Null");
     return beanClass;
