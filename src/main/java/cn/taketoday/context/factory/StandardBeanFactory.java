@@ -433,7 +433,9 @@ public class StandardBeanFactory
       if (StringUtils.isArrayNotEmpty(imports)) {
         for (final String select : imports) {
           final Class<Object> beanClass = ClassUtils.loadClass(select);
-          ConfigurationException.nonNull(beanClass, "Bean class not in class-path: " + select);
+          if (beanClass == null) {
+            throw new ConfigurationException("Bean class not in class-path: " + select);
+          }
           register(createBeanDefinition(beanClass));
         }
       }
