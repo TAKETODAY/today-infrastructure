@@ -870,12 +870,19 @@ public abstract class AbstractBeanFactory
     if (!CollectionUtils.isEmpty(objectFactories)) {
       final Object objectFactory = objectFactories.get(ref.getReferenceClass());
       if (objectFactory != null) {
-        return new DefaultBeanDefinition(ref.getName(), ref.getReferenceClass()) {
+        final class DependencyBeanDefinition extends DefaultBeanDefinition {
+
+          public DependencyBeanDefinition(String name, Class<?> beanClass) {
+            super(name, beanClass);
+          }
+
           @Override
           public Object newInstance(final BeanFactory factory) {
             return createDependencyInstance(getBeanClass(), objectFactory);
           }
-        };
+        }
+
+        return new DependencyBeanDefinition(ref.getName(), ref.getReferenceClass());
       }
     }
 
