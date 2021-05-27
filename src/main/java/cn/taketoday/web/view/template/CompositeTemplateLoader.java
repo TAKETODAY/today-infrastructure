@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 
 import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ConcurrentCache;
 import cn.taketoday.context.utils.OrderUtils;
 import freemarker.cache.StatefulTemplateLoader;
@@ -99,17 +100,17 @@ public class CompositeTemplateLoader implements TemplateLoader {
    * @return This object
    */
   public CompositeTemplateLoader addTemplateLoaders(final TemplateLoader... values) {
-
+    Assert.notNull(values, "TemplateLoaders must not be null");
     if (loaders == null) {
       return setTemplateLoaders(values);
     }
 
-    final List<TemplateLoader> list = new ArrayList<>(loaders.length + Objects.requireNonNull(values).length);
+    final List<TemplateLoader> list = new ArrayList<>(loaders.length + values.length);
 
     Collections.addAll(list, values);
     Collections.addAll(list, loaders);
 
-    OrderUtils.reversedSort(list);
+    sort(list);
 
     return setTemplateLoaders(list.toArray(new TemplateLoader[list.size()]));
   }
@@ -123,10 +124,11 @@ public class CompositeTemplateLoader implements TemplateLoader {
    * @return This object
    */
   public CompositeTemplateLoader addTemplateLoaders(final Collection<TemplateLoader> loaders) {
+    Assert.notNull(loaders, "TemplateLoaders must not be null");
 
     final List<TemplateLoader> list;
     if (this.loaders == null) {
-      if (Objects.requireNonNull(loaders) instanceof List) {
+      if (loaders instanceof List) {
         list = (List<TemplateLoader>) loaders;
       }
       else {
@@ -134,7 +136,7 @@ public class CompositeTemplateLoader implements TemplateLoader {
       }
     }
     else {
-      if (Objects.requireNonNull(loaders) instanceof List) {
+      if (loaders instanceof List) {
         list = (List<TemplateLoader>) loaders;
       }
       else {
@@ -144,9 +146,12 @@ public class CompositeTemplateLoader implements TemplateLoader {
       Collections.addAll(list, this.loaders);
     }
 
-    OrderUtils.reversedSort(list);
-
+    sort(list);
     return setTemplateLoaders(list.toArray(new TemplateLoader[list.size()]));
+  }
+
+  protected void sort(List<TemplateLoader> list) {
+    OrderUtils.reversedSort(list);
   }
 
   /**
@@ -162,7 +167,6 @@ public class CompositeTemplateLoader implements TemplateLoader {
    *         If any {@link IOException} coourred
    */
   protected TemplateLoader getTemplateLoader(String name) throws IOException {
-
     final TemplateLoader ret = cache.get(name);
     if (ret == null) {
       for (final TemplateLoader loader : loaders) {
