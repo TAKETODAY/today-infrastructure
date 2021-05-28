@@ -1211,16 +1211,20 @@ public abstract class ReflectionUtils {
 
   public static GetterMethod newGetterMethod(final Field field) {
     Assert.notNull(field, "field must not be null");
-    try {
-      return newGetterMethod(field.getName(), field.getType(), field.getDeclaringClass());
-    }
-    catch (ReflectionException e) {
+    final Method readMethod = getReadMethod(field);
+    if (readMethod == null) {
       return new FieldGetterMethod(field);
     }
+    return newGetterMethod(readMethod);
   }
 
+  @Deprecated
   public static GetterMethod newGetterMethod(final String name, final Class<?> type, final Class<?> declaringClass) {
-    return newGetterMethod(obtainMethod(getterPropertyName(name, type), declaringClass, type));
+    final Method readMethod = getReadMethod(declaringClass, type, name);
+    if (readMethod == null) {
+      throw new ReflectionException("No such read method named: " + name + " in class: " + declaringClass.getName());
+    }
+    return newGetterMethod(readMethod);
   }
 
   private static String getterPropertyName(final String name, final Class<?> type) {
@@ -1235,17 +1239,20 @@ public abstract class ReflectionUtils {
   // ----------------------
 
   public static SetterMethod newSetterMethod(final Field field) {
-    try {
-      return newSetterMethod(field.getName(), field.getType(), field.getDeclaringClass());
-    }
-    catch (ReflectionException e) {
+    final Method writeMethod = getWriteMethod(field);
+    if (writeMethod == null) {
       return new FieldSetterMethod(field);
     }
+    return newSetterMethod(writeMethod);
   }
 
+  @Deprecated
   public static SetterMethod newSetterMethod(final String name, final Class<?> type, final Class<?> declaringClass) {
-    final Method setMethod = obtainMethod("set".concat(StringUtils.capitalize(name)), declaringClass, type);
-    return newSetterMethod(setMethod, type);
+    final Method writeMethod = getWriteMethod(declaringClass, type, name);
+    if (writeMethod == null) {
+      throw new ReflectionException("No such write method : " + name + " in class: " + declaringClass);
+    }
+    return newSetterMethod(writeMethod, type);
   }
 
   public static SetterMethod newSetterMethod(final Method method) {
