@@ -22,6 +22,8 @@ package cn.taketoday.context.reflect;
 
 import java.lang.reflect.Method;
 
+import cn.taketoday.context.factory.PropertyReadOnlyException;
+
 /**
  * Fast call bean's setter Method {@link java.lang.reflect.Method Method}
  *
@@ -40,10 +42,15 @@ public interface SetterMethod {
    *         Target obj
    * @param value
    *         property value
+   *
+   * @throws PropertyReadOnlyException
+   *         If this property is read only
    */
   void set(Object obj, Object value);
 
   /**
+   * @throws PropertyReadOnlyException
+   *         If this property is read only
    * @since 3.0
    */
   default Method getWriteMethod() {
