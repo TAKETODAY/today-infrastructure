@@ -212,7 +212,7 @@ public abstract class ReflectionUtils {
    * @return the Method object, or {@code null} if none found
    */
   public static Method findMethod(Class<?> clazz, String name) {
-    return findMethod(clazz, name, null);
+    return findMethod(clazz, name, (Class<?>[]) null);
   }
 
   /**
@@ -1036,26 +1036,73 @@ public abstract class ReflectionUtils {
   // Accessor
   // --------------------------------
 
+  /**
+   * find getter method
+   *
+   * @since 3.0.2
+   */
+  public static Method getReadMethod(Field field) {
+    final Class<?> type = field.getType();
+    final String propertyName = field.getName();
+    return getReadMethod(field.getDeclaringClass(), type, propertyName);
+  }
+
+  /**
+   * find getter method
+   *
+   * @since 3.0.2
+   */
+  public static Method getReadMethod(Class<?> declaredClass, Class<?> type, String name) {
+    final String getterName = getterPropertyName(StringUtils.capitalize(name), type);
+    for (final Method declaredMethod : declaredClass.getDeclaredMethods()) {
+      if (declaredMethod.getName().equals(getterName)
+              && declaredMethod.getParameterCount() == 0 && declaredMethod.getReturnType() == type) {
+        return declaredMethod;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * find setter method
+   *
+   * @since 3.0.2
+   */
+  public static Method getWriteMethod(Field field) {
+    final Class<?> type = field.getType();
+    final String propertyName = field.getName();
+    return getWriteMethod(field.getDeclaringClass(), type, propertyName);
+  }
+
+  /**
+   * find setter method
+   *
+   * @since 3.0.2
+   */
+  public static Method getWriteMethod(Class<?> declaredClass, Class<?> type, String name) {
+    final String setterName = "set".concat(StringUtils.capitalize(name));
+    for (final Method declaredMethod : declaredClass.getDeclaredMethods()) {
+      if (declaredMethod.getName().equals(setterName)) {
+        final Class<?>[] parameterTypes = declaredMethod.getParameterTypes();
+        if (parameterTypes.length == 1 && parameterTypes[0] == type) {
+          return declaredMethod;
+        }
+      }
+    }
+    return null;
+  }
+
   public static PropertyAccessor newPropertyAccessor(final Field field) {
     Assert.notNull(field, "field must not be null");
-
-    final String propertyName = field.getName();
-    final String capitalizeProperty = StringUtils.capitalize(propertyName);
-    final Class<?> type = field.getType();
-    final Class<?> declaringClass = field.getDeclaringClass();
-
-    final Method readMethod = findMethod(declaringClass, getterPropertyName(capitalizeProperty, type));
-
+    final Method readMethod = getReadMethod(field);
     final boolean isReadOnly = Modifier.isFinal(field.getModifiers());
     if (isReadOnly && readMethod != null) {
       return new ReadOnlyMethodAccessorPropertyAccessor(newMethodAccessor(readMethod));
     }
-
-    Method writeMethod = findMethod(declaringClass, "set".concat(capitalizeProperty), type);
+    final Method writeMethod = getWriteMethod(field);
     if (writeMethod != null && readMethod != null) {
-      return new MethodAccessorPropertyAccessor(type.isPrimitive(), writeMethod, readMethod);
+      return new MethodAccessorPropertyAccessor(field.getType().isPrimitive(), writeMethod, readMethod);
     }
-
     if (writeMethod != null) {
       final MethodInvoker accessor = newMethodAccessor(writeMethod);
       makeAccessible(field);
