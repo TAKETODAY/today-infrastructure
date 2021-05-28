@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -15,35 +15,31 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.exception;
 
-import cn.taketoday.context.NestedRuntimeException;
+package cn.taketoday.context.factory;
+
+import cn.taketoday.context.exception.PropertyValueException;
 
 /**
- * Application Context Exception
- *
- * @author TODAY <br>
- * 2018-10-05 21:33
+ * @author TODAY 2021/5/28 22:46
+ * @since 3.0.2
  */
-public class ContextException extends NestedRuntimeException {
-
+public class PropertyReadOnlyException extends PropertyValueException {
   private static final long serialVersionUID = 1L;
 
-  public ContextException() {
-    super();
-  }
+  public PropertyReadOnlyException() {}
 
-  public ContextException(String message) {
+  public PropertyReadOnlyException(String message) {
     super(message);
   }
 
-  public ContextException(Throwable cause) {
+  public PropertyReadOnlyException(Throwable cause) {
     super(cause);
   }
 
-  public ContextException(String message, Throwable cause) {
+  public PropertyReadOnlyException(String message, Throwable cause) {
     super(message, cause);
   }
 

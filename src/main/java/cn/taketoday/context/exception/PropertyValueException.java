@@ -19,12 +19,15 @@
  */
 package cn.taketoday.context.exception;
 
+import cn.taketoday.context.NestedRuntimeException;
+
 /**
+ * for java property
+ *
  * @author TODAY <br>
  * 2020-02-18 19:03
  */
-public class PropertyValueException extends ContextException {
-
+public class PropertyValueException extends NestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
   public PropertyValueException() {}

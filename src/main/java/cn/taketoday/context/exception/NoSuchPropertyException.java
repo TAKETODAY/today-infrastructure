@@ -23,8 +23,8 @@ package cn.taketoday.context.exception;
  * @author TODAY <br>
  * 2018-08-05 10:08
  */
-@SuppressWarnings("serial")
-public class NoSuchPropertyException extends ContextException {
+public class NoSuchPropertyException extends PropertyValueException {
+  private static final long serialVersionUID = 1L;
 
   public NoSuchPropertyException() {}
 
@@ -40,8 +40,8 @@ public class NoSuchPropertyException extends ContextException {
     super(message);
   }
 
-  public static NoSuchPropertyException noSuchProperty(Class<?> target, String name) {
-    return new NoSuchPropertyException("No such property: '" + name + "' in class: " + target);
+  public NoSuchPropertyException(Class<?> target, String name) {
+    super("No such property: '" + name + "' in class: " + target);
   }
 
 }
