@@ -24,6 +24,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -131,6 +132,13 @@ public class BeanProperty extends AbstractAnnotatedElement {
     obtainAccessor().set(obj, convertIfNecessary(fieldType, value));
   }
 
+  /**
+   * @since 3.0.2
+   */
+  public final void setDirectly(Object obj, Object value) {
+    obtainAccessor().set(obj, value);
+  }
+
   protected Object convertIfNecessary(final Class<?> requiredType, Object value) {
     if (requiredType.isInstance(value)) {
       return value;
@@ -143,13 +151,20 @@ public class BeanProperty extends AbstractAnnotatedElement {
     return conversionService.convert(value, requiredType);
   }
 
-  private PropertyAccessor obtainAccessor() {
+  public PropertyAccessor obtainAccessor() {
     PropertyAccessor propertyAccessor = this.propertyAccessor;
     if (propertyAccessor == null) {
-      propertyAccessor = ReflectionUtils.newPropertyAccessor(field);
+      propertyAccessor = createAccessor();
       this.propertyAccessor = propertyAccessor;
     }
     return propertyAccessor;
+  }
+
+  /**
+   * @since 3.0.2
+   */
+  protected PropertyAccessor createAccessor() {
+    return ReflectionUtils.newPropertyAccessor(field);
   }
 
   /**
@@ -341,12 +356,21 @@ public class BeanProperty extends AbstractAnnotatedElement {
     });
   }
 
+  //
+
+  /**
+   * @since 3.0.2
+   */
+  public boolean isReadOnly() {
+    return Modifier.isFinal(field.getModifiers());
+  }
+
   // static
 
   public static BeanProperty of(Class<?> targetClass, String name) {
     final Field field = ReflectionUtils.findField(targetClass, name);
     if (field == null) {
-      throw NoSuchPropertyException.noSuchProperty(targetClass, name);
+      throw new NoSuchPropertyException(targetClass, name);
     }
     return new BeanProperty(field);
   }

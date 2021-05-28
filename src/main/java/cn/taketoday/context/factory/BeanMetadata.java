@@ -68,10 +68,14 @@ public class BeanMetadata {
   public ConstructorAccessor getConstructor() {
     ConstructorAccessor constructor = this.constructor;
     if (constructor == null) {
-      constructor = ReflectionUtils.newConstructorAccessor(beanClass);
+      constructor = createAccessor();
       this.constructor = constructor;
     }
     return constructor;
+  }
+
+  protected ConstructorAccessor createAccessor() {
+    return ReflectionUtils.newConstructorAccessor(beanClass);
   }
 
   /**
@@ -122,7 +126,7 @@ public class BeanMetadata {
   public BeanProperty obtainBeanProperty(final String propertyName) {
     final BeanProperty beanProperty = getBeanProperty(propertyName);
     if (beanProperty == null) {
-      throw NoSuchPropertyException.noSuchProperty(beanClass, propertyName);
+      throw new NoSuchPropertyException(beanClass, propertyName);
     }
     return beanProperty;
   }

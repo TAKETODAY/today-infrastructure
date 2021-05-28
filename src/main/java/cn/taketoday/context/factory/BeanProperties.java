@@ -22,6 +22,7 @@ package cn.taketoday.context.factory;
 
 import java.util.Map;
 
+import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ObjectUtils;
 
@@ -112,16 +113,31 @@ public class BeanProperties {
     return (T) destinationInstance;
   }
 
+  @SuppressWarnings("unchecked")
   private static void copy(
           Object source, BeanMetadata destinationMetadata, Object destinationInstance, String[] ignoreProperties) {
-    final BeanMetadata sourceMetadata = BeanMetadata.ofObject(source);
-    for (final Map.Entry<String, BeanProperty> entry : sourceMetadata.getBeanProperties().entrySet()) {
-      final String propertyName = entry.getKey();
-      if (allowCopy(ignoreProperties, propertyName)) {
-        final BeanProperty beanProperty = destinationMetadata.getBeanProperty(propertyName);
-        if (beanProperty != null) {
-          final Object value = entry.getValue().getValue(source);
-          beanProperty.setValue(destinationInstance, value);
+    if (source instanceof Map) {
+      for (final Map.Entry<String, Object> entry : ((Map<String, Object>) source).entrySet()) {
+        final String propertyName = entry.getKey();
+        if (allowCopy(ignoreProperties, propertyName)) {
+          final BeanProperty beanProperty = destinationMetadata.getBeanProperty(propertyName);
+          if (beanProperty != null) {
+            final Object value = entry.getValue();
+            beanProperty.setValue(destinationInstance, value);
+          }
+        }
+      }
+    }
+    else {
+      final BeanMetadata sourceMetadata = BeanMetadata.ofObject(source);
+      for (final Map.Entry<String, BeanProperty> entry : sourceMetadata.getBeanProperties().entrySet()) {
+        final String propertyName = entry.getKey();
+        if (allowCopy(ignoreProperties, propertyName)) {
+          final BeanProperty beanProperty = destinationMetadata.getBeanProperty(propertyName);
+          if (beanProperty != null) {
+            final Object value = entry.getValue().getValue(source);
+            beanProperty.setValue(destinationInstance, value);
+          }
         }
       }
     }
@@ -136,6 +152,86 @@ public class BeanProperties {
       }
     }
     return true;
+  }
+
+  //
+
+  /**
+   * <p>Populate the JavaBeans properties of the specified bean, based on
+   * the specified name/value pairs.  This method uses Java reflection APIs
+   * to identify corresponding "property setter" method names, and deals
+   * with setter arguments of type <code>String</code>, <code>boolean</code>,
+   * <code>int</code>, <code>long</code>, <code>float</code>, and
+   * <code>double</code>.  In addition, array setters for these types (or the
+   * corresponding primitive types) can also be identified.</p>
+   *
+   * <p>The particular setter method to be called for each property is
+   * determined using the usual JavaBeans introspection mechanisms.  Thus,
+   * you may identify custom setter methods using a BeanInfo class that is
+   * associated with the class of the bean itself.  If no such BeanInfo
+   * class is available, the standard method name conversion ("set" plus
+   * the capitalized name of the property in question) is used.</p>
+   *
+   * <p>
+   * default is ignoreUnknownProperty
+   * </p>
+   *
+   * @param bean
+   *         JavaBean whose properties are being populated
+   * @param properties
+   *         Map keyed by property name, with the
+   *         corresponding (String or String[]) value(s) to be set
+   *
+   * @throws NoSuchPropertyException
+   *         If no such property
+   * @throws InvalidPropertyValueException
+   *         Invalid property value
+   */
+  public static void populate(final Object bean, final Map<String, Object> properties) {
+    populate(bean, properties, true);
+  }
+
+  /**
+   * <p>Populate the JavaBeans properties of the specified bean, based on
+   * the specified name/value pairs. This method uses Java reflection APIs
+   * to identify corresponding "property setter" method names, and deals
+   * with setter arguments of type <code>String</code>, <code>boolean</code>,
+   * <code>int</code>, <code>long</code>, <code>float</code>, and
+   * <code>double</code>.  In addition, array setters for these types (or the
+   * corresponding primitive types) can also be identified.</p>
+   *
+   * <p>The particular setter method to be called for each property is
+   * determined using the usual JavaBeans introspection mechanisms.  Thus,
+   * you may identify custom setter methods using a BeanInfo class that is
+   * associated with the class of the bean itself.  If no such BeanInfo
+   * class is available, the standard method name conversion ("set" plus
+   * the capitalized name of the property in question) is used.</p>
+   *
+   * @param bean
+   *         JavaBean whose properties are being populated
+   * @param properties
+   *         Map keyed by property name, with the
+   *         corresponding (String or String[]) value(s) to be set
+   * @param ignoreUnknownProperty
+   *         {@link BeanPropertyAccessor#ignoreUnknownProperty}
+   *
+   * @throws NoSuchPropertyException
+   *         If no such property
+   * @throws InvalidPropertyValueException
+   *         Invalid property value
+   * @see BeanPropertyAccessor
+   */
+  public static void populate(
+          final Object bean, final Map<String, Object> properties, final boolean ignoreUnknownProperty) {
+    Assert.notNull(bean, "target bean must not be null");
+    Assert.notNull(properties, "properties must not be null");
+    final BeanPropertyAccessor accessor = new BeanPropertyAccessor(bean);
+    accessor.setIgnoreUnknownProperty(ignoreUnknownProperty);
+    for (final Map.Entry<String, Object> entry : properties.entrySet()) {
+      final Object value = entry.getValue();
+      final String key = entry.getKey();
+      accessor.setProperty(key, value);
+    }
   }
 
 }

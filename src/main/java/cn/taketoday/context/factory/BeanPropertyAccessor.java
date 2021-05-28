@@ -48,6 +48,13 @@ public class BeanPropertyAccessor {
    * ignore unknown properties when {@code setProperty}
    */
   private boolean ignoreUnknownProperty = true;
+  /**
+   * throws a PropertyReadOnlyException when set a read-only property
+   *
+   * @see #setProperty(String, Object)
+   * @since 3.0.2
+   */
+  private boolean throwsWhenReadOnly = true;
 
   private ConversionService conversionService;
 
@@ -343,11 +350,14 @@ public class BeanPropertyAccessor {
    * @param value
    *         Property value
    *
+   * @throws PropertyReadOnlyException
+   *         property is read-only
    * @throws NoSuchPropertyException
    *         If no such property
    * @throws InvalidPropertyValueException
    *         Invalid property value
    * @see #ignoreUnknownProperty
+   * @see #throwsWhenReadOnly
    */
   public void setProperty(
           final Object root, final BeanMetadata metadata, final String propertyPath, final Object value) {
@@ -359,6 +369,9 @@ public class BeanPropertyAccessor {
       if (propertyPath.charAt(index - 1) == ']') { // xxx[0].list[0]
         final int signIndex = propertyPath.indexOf('['); // array,list: [0]; map: [key]
         final BeanProperty beanProperty = getBeanProperty(metadata, propertyPath, signIndex);
+        if (beanProperty == null) { // @since 3.0.2
+          return;
+        }
         final Class<?> componentType = beanProperty.getComponentClass();
 
         propertyType = componentType != null ? componentType : root.getClass();
@@ -383,6 +396,9 @@ public class BeanPropertyAccessor {
       }
       else {
         final BeanProperty beanProperty = getBeanProperty(metadata, propertyPath, index);
+        if (beanProperty == null) {
+          return;
+        }
         propertyType = beanProperty.getType();
         subValue = getSubValue(root, beanProperty);
       }
@@ -395,35 +411,47 @@ public class BeanPropertyAccessor {
       // do set property operation
       final int signIndex = propertyPath.indexOf('['); // array,list: [0]; map: [key]
       if (signIndex < 0) {
-        try {
-          final BeanProperty beanProperty = metadata.obtainBeanProperty(propertyPath);
-          beanProperty.setValue(root, convertIfNecessary(value, beanProperty));
-        }
-        catch (NoSuchPropertyException e) {
-          if (!ignoreUnknownProperty) {
-            throw e;
-          }
+        final BeanProperty beanProperty = getBeanProperty(metadata, propertyPath);
+        if (beanProperty != null) {
+          setValue(root, beanProperty, value);
         }
       }
       else {
-        try {
-          final BeanProperty beanProperty = getBeanProperty(metadata, propertyPath, signIndex);
+        final BeanProperty beanProperty = getBeanProperty(metadata, propertyPath, signIndex);
+        if (beanProperty != null) {
           final Object subValue = getSubValue(root, beanProperty);
           final String key = getKey(propertyPath, signIndex);
           setKeyedProperty(root, beanProperty, subValue, key, value, propertyPath);
-        }
-        catch (NoSuchPropertyException e) {
-          if (!ignoreUnknownProperty) {
-            throw e;
-          }
         }
       }
     }
   }
 
-  static BeanProperty getBeanProperty(BeanMetadata metadata, String propertyPath, int index) {
+  /**
+   * @since 3.0.2
+   */
+  private void setValue(Object root, BeanProperty beanProperty, Object value) {
+    if (beanProperty.isReadOnly() && throwsWhenReadOnly) {
+      throw new PropertyReadOnlyException(
+              root + " has a property: '" + beanProperty.getName() + "' that is read-only");
+    }
+    beanProperty.setDirectly(root, convertIfNecessary(value, beanProperty));
+  }
+
+  private BeanProperty getBeanProperty(BeanMetadata metadata, String propertyPath, int index) {
     final String property = propertyPath.substring(0, index);
-    return metadata.obtainBeanProperty(property);
+    return getBeanProperty(metadata, property);
+  }
+
+  /**
+   * @since 3.0.2
+   */
+  private BeanProperty getBeanProperty(final BeanMetadata metadata, final String propertyPath) {
+    final BeanProperty beanProperty = metadata.getBeanProperty(propertyPath);
+    if (beanProperty == null && !ignoreUnknownProperty) {
+      throw new NoSuchPropertyException(metadata.getType(), propertyPath);
+    }
+    return beanProperty;
   }
 
   protected Object getComponentValue(
@@ -438,13 +466,13 @@ public class BeanPropertyAccessor {
     return propertyPath.substring(signIndex + 1, propertyPath.indexOf(']'));
   }
 
-  static Object setNewValue(Object root, BeanProperty beanProperty) {
+  private Object setNewValue(Object root, BeanProperty beanProperty) {
     final Object subValue = beanProperty.newInstance();
-    beanProperty.setValue(root, subValue);
+    setValue(root, beanProperty, subValue);
     return subValue;
   }
 
-  protected static Object getSubValue(final Object object, final BeanProperty beanProperty) {
+  private Object getSubValue(final Object object, final BeanProperty beanProperty) {
     // check if it has value
     Object subValue = beanProperty.getValue(object);
     if (subValue == null) {
@@ -507,7 +535,7 @@ public class BeanPropertyAccessor {
           Object newArray = Array.newInstance(componentType, arrayIndex + 1);
           System.arraycopy(propValue, 0, newArray, 0, length);
           propValue = newArray;
-          beanProperty.setValue(root, propValue);
+          setValue(root, beanProperty, propValue);
         }
 
         Array.set(propValue, arrayIndex, convertIfNecessary(value, componentType));
@@ -635,6 +663,14 @@ public class BeanPropertyAccessor {
 
   public boolean isIgnoreUnknownProperty() {
     return ignoreUnknownProperty;
+  }
+
+  public void setThrowsWhenReadOnly(boolean throwsWhenReadOnly) {
+    this.throwsWhenReadOnly = throwsWhenReadOnly;
+  }
+
+  public boolean isThrowsWhenReadOnly() {
+    return throwsWhenReadOnly;
   }
 
   // static
