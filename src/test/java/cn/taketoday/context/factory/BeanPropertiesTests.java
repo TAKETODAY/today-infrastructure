@@ -197,9 +197,7 @@ public class BeanPropertiesTests {
 
     // Validate the results for scalar properties
     assertFalse("Copied boolean property", bean.getBooleanProperty());
-    assertEquals("Copied byte property",
-                 (byte) 111,
-                 bean.getByteProperty());
+    assertEquals("Copied byte property", (byte) 111, bean.getByteProperty());
     assertEquals("Copied double property",
                  333.33,
                  bean.getDoubleProperty(),

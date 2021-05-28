@@ -113,6 +113,9 @@ public class BeanProperties {
     return (T) destinationInstance;
   }
 
+  /**
+   * Ignore read-only properties
+   */
   @SuppressWarnings("unchecked")
   private static void copy(
           Object source, BeanMetadata destinationMetadata, Object destinationInstance, String[] ignoreProperties) {
@@ -121,7 +124,7 @@ public class BeanProperties {
         final String propertyName = entry.getKey();
         if (allowCopy(ignoreProperties, propertyName)) {
           final BeanProperty beanProperty = destinationMetadata.getBeanProperty(propertyName);
-          if (beanProperty != null) {
+          if (beanProperty != null && !beanProperty.isReadOnly()) {
             final Object value = entry.getValue();
             beanProperty.setValue(destinationInstance, value);
           }
@@ -134,7 +137,7 @@ public class BeanProperties {
         final String propertyName = entry.getKey();
         if (allowCopy(ignoreProperties, propertyName)) {
           final BeanProperty beanProperty = destinationMetadata.getBeanProperty(propertyName);
-          if (beanProperty != null) {
+          if (beanProperty != null && !beanProperty.isReadOnly()) {
             final Object value = entry.getValue().getValue(source);
             beanProperty.setValue(destinationInstance, value);
           }
@@ -227,6 +230,7 @@ public class BeanProperties {
     Assert.notNull(properties, "properties must not be null");
     final BeanPropertyAccessor accessor = new BeanPropertyAccessor(bean);
     accessor.setIgnoreUnknownProperty(ignoreUnknownProperty);
+    accessor.setThrowsWhenReadOnly(false);
     for (final Map.Entry<String, Object> entry : properties.entrySet()) {
       final Object value = entry.getValue();
       final String key = entry.getKey();
