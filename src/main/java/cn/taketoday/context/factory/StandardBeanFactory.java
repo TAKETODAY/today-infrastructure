@@ -43,6 +43,7 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.IgnoreDuplicates;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.MissingBean;
@@ -441,10 +442,12 @@ public class StandardBeanFactory
       }
     }
     if (BeanDefinitionImporter.class.isAssignableFrom(importClass)) {
-      createImporter(importDef, BeanDefinitionImporter.class).registerBeanDefinitions(annotated, this);
+      createImporter(importDef, BeanDefinitionImporter.class)
+              .registerBeanDefinitions(annotated, this);
     }
     if (ApplicationListener.class.isAssignableFrom(importClass)) {
-      getApplicationContext().addApplicationListener(createImporter(importDef, ApplicationListener.class));
+      getApplicationContext()
+              .addApplicationListener(createImporter(importDef, ApplicationListener.class));
     }
   }
 
@@ -553,12 +556,16 @@ public class StandardBeanFactory
     final Class<?> beanClass = def.getBeanClass();
 
     if (containsBeanDefinition(name) && !def.hasAttribute(MissingBeanMetadata)) {
+      // has same name
       final BeanDefinition existBeanDef = getBeanDefinition(name);
-      Class<?> existClass = existBeanDef.getBeanClass();
+      final Class<?> existClass = existBeanDef.getBeanClass();
+      if (beanClass == existClass && existBeanDef.isAnnotationPresent(IgnoreDuplicates.class)) { // @since 3.0.2
+        return; // ignore registering
+      }
+
       log.info("=====================|repeat bean definition START|=====================");
       log.info("There is already a bean called: [{}], its bean definition: [{}].", name, existBeanDef);
-
-      if (beanClass.equals(existClass)) {
+      if (beanClass == existClass) {
         log.warn("They have same bean class: [{}]. We will override it.", beanClass);
       }
       else {
