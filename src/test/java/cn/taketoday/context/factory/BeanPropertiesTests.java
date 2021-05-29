@@ -359,8 +359,7 @@ public class BeanPropertiesTests {
 
     BeanProperties.populate(bean, map);
 
-    assertTrue("booleanProperty is false",
-               !bean.getNested().getBooleanProperty());
+    assertFalse("booleanProperty is false", bean.getNested().getBooleanProperty());
     assertTrue("booleanSecond is true",
                bean.getNested().isBooleanSecond());
     assertEquals("doubleProperty is 432.0",
@@ -411,7 +410,7 @@ public class BeanPropertiesTests {
 
     BeanProperties.populate(bean, map);
 
-    assertTrue("booleanProperty is false", !bean.getBooleanProperty());
+    assertFalse("booleanProperty is false", bean.getBooleanProperty());
     assertTrue("booleanSecond is true", bean.isBooleanSecond());
     assertEquals("byteProperty is 111",
                  (byte) 111, bean.getByteProperty());
