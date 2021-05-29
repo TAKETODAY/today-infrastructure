@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Objects;
 
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.factory.PropertyReadOnlyException;
 import cn.taketoday.context.objects.TestObject;
 import cn.taketoday.context.reflect.GetterMethod;
 import cn.taketoday.context.reflect.PropertyAccessor;
@@ -434,7 +435,7 @@ public class ReflectionUtilsTest extends TestCase {
     try {
       finalProAccessor.set(null, 101);
     }
-    catch (ReflectionException e) {
+    catch (PropertyReadOnlyException e) {
       assertEquals(finalProAccessor.get(propertyBean), 10L);
     }
     final Field staticFinalProField = PropertyBean.class.getDeclaredField("staticFinalPro");
@@ -444,7 +445,7 @@ public class ReflectionUtilsTest extends TestCase {
     try {
       staticFinalProAccessor.set(null, 101);
     }
-    catch (ReflectionException e) {
+    catch (PropertyReadOnlyException e) {
       assertEquals(staticFinalProAccessor.get(propertyBean), (short) 100);
     }
 

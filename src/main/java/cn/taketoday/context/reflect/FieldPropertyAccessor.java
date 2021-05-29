@@ -28,14 +28,13 @@ import cn.taketoday.context.utils.ReflectionUtils;
 /**
  * @author TODAY 2020/9/11 17:56
  */
-public class FieldPropertyAccessor extends SetterSupport implements PropertyAccessor {
+public class FieldPropertyAccessor implements PropertyAccessor {
   private final Field field;
 
   private final Method readMethod;
   private final Method writeMethod;
 
   public FieldPropertyAccessor(Field field, Method readMethod, Method writeMethod) {
-    super(field.getType().isPrimitive());
     this.field = ReflectionUtils.makeAccessible(field);
     this.readMethod = readMethod;
     this.writeMethod = writeMethod;
@@ -47,7 +46,7 @@ public class FieldPropertyAccessor extends SetterSupport implements PropertyAcce
   }
 
   @Override
-  protected void setInternal(Object obj, Object value) {
+  public void set(Object obj, Object value) {
     ReflectionUtils.setField(field, obj, value);
   }
 

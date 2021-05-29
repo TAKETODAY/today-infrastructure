@@ -1101,7 +1101,7 @@ public abstract class ReflectionUtils {
     }
     final Method writeMethod = getWriteMethod(field);
     if (writeMethod != null && readMethod != null) {
-      return new MethodAccessorPropertyAccessor(field.getType().isPrimitive(), writeMethod, readMethod);
+      return new MethodAccessorPropertyAccessor(writeMethod, readMethod);
     }
     if (writeMethod != null) {
       final MethodInvoker accessor = newMethodAccessor(writeMethod);

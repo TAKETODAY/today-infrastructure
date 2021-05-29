@@ -28,24 +28,19 @@ import cn.taketoday.context.utils.ReflectionUtils;
 /**
  * @author TODAY 2020/9/11 15:54
  */
-public class MethodAccessorPropertyAccessor
-        extends SetterSupport implements PropertyAccessor {
+public final class MethodAccessorPropertyAccessor implements PropertyAccessor {
 
   private final MethodAccessor writeAccessor;
   private final MethodAccessor readAccessor;
 
-  public MethodAccessorPropertyAccessor(boolean primitive, Method setMethod, Method getMethod) {
-    super(primitive);
+  public MethodAccessorPropertyAccessor(Method setMethod, Method getMethod) {
     Assert.notNull(setMethod, "setMethod must not be null");
     Assert.notNull(getMethod, "getMethod must not be null");
-
-    this.writeAccessor = ReflectionUtils.newMethodAccessor(setMethod);
     this.readAccessor = ReflectionUtils.newMethodAccessor(getMethod);
+    this.writeAccessor = ReflectionUtils.newMethodAccessor(setMethod);
   }
 
-  public MethodAccessorPropertyAccessor(
-          boolean primitive, MethodAccessor writeAccessor, MethodAccessor readAccessor) {
-    super(primitive);
+  public MethodAccessorPropertyAccessor(MethodAccessor writeAccessor, MethodAccessor readAccessor) {
     Assert.notNull(writeAccessor, "writeAccessor must not be null");
     Assert.notNull(readAccessor, "readAccessor must not be null");
     this.readAccessor = readAccessor;
@@ -58,7 +53,7 @@ public class MethodAccessorPropertyAccessor
   }
 
   @Override
-  protected void setInternal(Object obj, Object value) {
+  public void set(Object obj, Object value) {
     writeAccessor.invoke(obj, new Object[] { value });
   }
 

@@ -26,16 +26,15 @@ import cn.taketoday.context.utils.ReflectionUtils;
 /**
  * @author TODAY 2020/9/19 22:38
  */
-public class FieldSetterMethod extends SetterSupport {
+public final class FieldSetterMethod implements SetterMethod {
   private final Field field;
 
   public FieldSetterMethod(final Field field) {
-    super(field.getType().isPrimitive());
     this.field = field;
   }
 
   @Override
-  protected void setInternal(Object obj, Object value) {
+  public void set(Object obj, Object value) {
     ReflectionUtils.setField(field, obj, value);
   }
 }

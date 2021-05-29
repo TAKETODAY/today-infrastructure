@@ -232,8 +232,8 @@ public class BeanProperties {
     accessor.setIgnoreUnknownProperty(ignoreUnknownProperty);
     accessor.setThrowsWhenReadOnly(false);
     for (final Map.Entry<String, Object> entry : properties.entrySet()) {
-      final Object value = entry.getValue();
       final String key = entry.getKey();
+      final Object value = entry.getValue();
       accessor.setProperty(key, value);
     }
   }

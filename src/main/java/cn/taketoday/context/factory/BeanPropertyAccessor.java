@@ -431,11 +431,15 @@ public class BeanPropertyAccessor {
    * @since 3.0.2
    */
   private void setValue(Object root, BeanProperty beanProperty, Object value) {
-    if (beanProperty.isReadOnly() && throwsWhenReadOnly) {
-      throw new PropertyReadOnlyException(
-              root + " has a property: '" + beanProperty.getName() + "' that is read-only");
+    if (beanProperty.isReadOnly()) {
+      if (throwsWhenReadOnly) {
+        throw new PropertyReadOnlyException(
+                root + " has a property: '" + beanProperty.getName() + "' that is read-only");
+      }
     }
-    beanProperty.setDirectly(root, convertIfNecessary(value, beanProperty));
+    else {
+      beanProperty.setDirectly(root, convertIfNecessary(value, beanProperty));
+    }
   }
 
   private BeanProperty getBeanProperty(BeanMetadata metadata, String propertyPath, int index) {
@@ -556,7 +560,7 @@ public class BeanPropertyAccessor {
    *         conversion failed
    */
   protected Object convertIfNecessary(final Object value, final BeanProperty beanProperty) {
-    if (beanProperty.isInstance(value)) {
+    if (value == null || beanProperty.isInstance(value)) {
       return value;
     }
     return doConvertInternal(value, beanProperty);
@@ -571,7 +575,7 @@ public class BeanPropertyAccessor {
    *         conversion failed
    */
   protected Object convertIfNecessary(final Object value, final Class<?> requiredType) {
-    if (requiredType.isInstance(value)) {
+    if (value == null || requiredType.isInstance(value)) {
       return value;
     }
     return doConvertInternal(value, GenericDescriptor.valueOf(requiredType));

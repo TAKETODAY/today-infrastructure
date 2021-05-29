@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.conversion;
 
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.GenericDescriptor;
 
 /**
@@ -92,8 +93,9 @@ public interface ConversionService {
 
   TypeConverter getConverter(Class<?> sourceType, GenericDescriptor targetType);
 
-  default TypeConverter getConverter(Object object, GenericDescriptor targetType) {
-    return getConverter(object.getClass(), targetType);
+  default TypeConverter getConverter(Object sourceObject, GenericDescriptor targetType) {
+    Assert.notNull(sourceObject, "source object must not be null");
+    return getConverter(sourceObject.getClass(), targetType);
   }
 
   /**
