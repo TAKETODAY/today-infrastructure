@@ -141,6 +141,8 @@ public class BeanMetadata {
    * @param value
    *         new value to set
    *
+   * @throws PropertyReadOnlyException
+   *         If this property is read only
    * @throws NoSuchPropertyException
    *         If no such property
    * @see #obtainBeanProperty(String)

@@ -34,7 +34,7 @@ public class TestBeanMap extends cn.taketoday.context.cglib.CodeGenTestCase {
         private String foo;
     }
 
-    public static class TestBean {
+    public static class TestBeanMapBean {
         private String foo;
         private String bar = "x";
         protected String baz;
@@ -76,7 +76,7 @@ public class TestBeanMap extends cn.taketoday.context.cglib.CodeGenTestCase {
     }
 
     public void testBeanMap() {
-        TestBean bean = new TestBean();
+        TestBeanMapBean bean = new TestBeanMapBean();
         BeanMap map = BeanMap.create(bean);
         BeanMap map2 = BeanMap.create(bean);
         assertEquals("BeanMap.create should use exactly the same bean class when called multiple times",
@@ -100,17 +100,17 @@ public class TestBeanMap extends cn.taketoday.context.cglib.CodeGenTestCase {
     }
 
     public void testEntrySet() {
-        TestBean bean = new TestBean();
+        TestBeanMapBean bean = new TestBeanMapBean();
         BeanMap map = BeanMap.create(bean);
         assertTrue(map.entrySet().size() == map.size());
     }
 
     public void testNoUnderlyingBean() {
         BeanMap.Generator gen = new BeanMap.Generator();
-        gen.setBeanClass(TestBean.class);
+        gen.setBeanClass(TestBeanMapBean.class);
         BeanMap map = gen.create();
 
-        TestBean bean = new TestBean();
+        TestBeanMapBean bean = new TestBeanMapBean();
         assertTrue(bean.getFoo() == null);
         assertTrue(map.put(bean, "foo", "FOO") == null);
         assertTrue(bean.getFoo().equals("FOO"));
@@ -118,16 +118,16 @@ public class TestBeanMap extends cn.taketoday.context.cglib.CodeGenTestCase {
     }
 
     public void testMixinMapIntoBean() {
-        Object bean = new TestBean();
+        Object bean = new TestBeanMapBean();
         bean = mixinMapIntoBean(bean);
-        ((TestBean) bean).setFoo("hello");
+        ((TestBeanMapBean) bean).setFoo("hello");
         assertTrue(bean instanceof Map);
         assertTrue(((Map) bean).get("foo").equals("hello"));
     }
 
     public void testRequire() {
         BeanMap.Generator gen = new BeanMap.Generator();
-        gen.setBeanClass(TestBean.class);
+        gen.setBeanClass(TestBeanMapBean.class);
         gen.setRequire(BeanMap.REQUIRE_GETTER);
         BeanMap map = gen.create();
         assertTrue(map.containsKey("foo"));
@@ -138,7 +138,7 @@ public class TestBeanMap extends cn.taketoday.context.cglib.CodeGenTestCase {
     // testContainsValue
     // -------------------------------------------
 
-    public static class TestBeanFullGetters extends TestBean {
+    public static class TestBeanFullGetters extends TestBeanMapBean {
         public String getBaz() {
             return baz;
         }

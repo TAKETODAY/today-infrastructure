@@ -16,11 +16,11 @@
 package cn.taketoday.context.cglib.beans;
 
 import java.security.ProtectionDomain;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -41,7 +41,7 @@ import cn.taketoday.context.utils.Assert;
  * @author Chris Nokleberg
  */
 @SuppressWarnings("all")
-abstract public class BeanMap implements Map {
+public abstract class BeanMap extends AbstractMap implements Map {
   /**
    * Limit the properties reflected in the key set of the map to readable
    * properties.
@@ -325,22 +325,4 @@ abstract public class BeanMap implements Map {
     return Collections.unmodifiableCollection(values);
   }
 
-  /*
-   * @see java.util.AbstractMap#toString
-   */
-  public String toString() {
-    StringBuffer sb = new StringBuffer();
-    sb.append('{');
-    for (Iterator it = keySet().iterator(); it.hasNext(); ) {
-      Object key = it.next();
-      sb.append(key);
-      sb.append('=');
-      sb.append(get(key));
-      if (it.hasNext()) {
-        sb.append(", ");
-      }
-    }
-    sb.append('}');
-    return sb.toString();
-  }
 }

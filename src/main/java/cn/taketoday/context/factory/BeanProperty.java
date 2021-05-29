@@ -128,11 +128,19 @@ public class BeanProperty extends AbstractAnnotatedElement {
     return convertIfNecessary(requiredType, getValue(object));
   }
 
+  /**
+   * @throws PropertyReadOnlyException
+   *         If this property is read only
+   * @see cn.taketoday.context.reflect.SetterMethod#set(Object, Object)
+   */
   public void setValue(Object obj, Object value) {
     obtainAccessor().set(obj, convertIfNecessary(fieldType, value));
   }
 
   /**
+   * @throws PropertyReadOnlyException
+   *         If this property is read only
+   * @see cn.taketoday.context.reflect.SetterMethod#set(Object, Object)
    * @since 3.0.2
    */
   public final void setDirectly(Object obj, Object value) {
