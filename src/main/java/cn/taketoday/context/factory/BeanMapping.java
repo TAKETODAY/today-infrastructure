@@ -32,12 +32,12 @@ import cn.taketoday.context.utils.Assert;
 
 /**
  * A <code>Map</code>-based view of a JavaBean. The default set of keys is the
- * union of all property names (getters or setters). An attempt to set a
- * read-only property will be ignored, and write-only properties will be
- * returned as <code>null</code>. Removal of objects is not a supported (the key
- * set is fixed).
+ * union of all property names. if ignoreReadOnly == true, an attempt to set a
+ * read-only property will be ignored. Removal of objects is not a supported
+ * (the key set is fixed).
  *
  * @author TODAY 2021/5/28 21:15
+ * @see #ignoreReadOnly
  * @since 3.0.2
  */
 public final class BeanMapping<T> extends AbstractMap<String, Object> implements Map<String, Object> {
