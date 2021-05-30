@@ -20,6 +20,7 @@
 package cn.taketoday.context.event;
 
 import java.text.SimpleDateFormat;
+import java.util.Map;
 
 import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.ApplicationContext;
@@ -59,20 +60,25 @@ public class ContextCloseListener
     for (final String name : context.getBeanDefinitions().keySet()) {
       try {
         context.destroyBean(name);
+        // remove bean in this context
+        context.removeBean(name);
       }
       catch (final Throwable e) {
         log.error(e.getMessage(), e);
       }
     }
-    for (final Object bean : context.getSingletons().values()) {
+    final Map<String, Object> singletons = context.getSingletons();
+    for (final Map.Entry<String, Object> entry : singletons.entrySet()) {
       try {
-        destroyBean(bean);
+        destroyBean(entry.getValue());
       }
       catch (Throwable e) {
         e = unwrapThrowable(e);
         log.error(e.getMessage(), e);
       }
     }
+    // remove bean in this context
+    singletons.clear();
 
     if (context instanceof AbstractApplicationContext) {
       AbstractBeanFactory beanFactory = ((AbstractApplicationContext) context).getBeanFactory();

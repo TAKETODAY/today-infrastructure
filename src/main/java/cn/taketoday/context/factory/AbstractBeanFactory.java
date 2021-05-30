@@ -1192,9 +1192,8 @@ public abstract class AbstractBeanFactory
       ContextUtils.destroyBean(beanInstance, def, getPostProcessors());
     }
     catch (Throwable e) {
-      removeBean(def.getName());
-      log.error("An Exception Occurred When Destroy a bean: [{}], With Msg: [{}]",
-                def.getName(), e.toString(), e);
+      log.warn("An Exception Occurred When Destroy a bean: [{}], With Msg: [{}]",
+               def.getName(), e.toString(), e);
     }
   }
 
@@ -1212,7 +1211,6 @@ public abstract class AbstractBeanFactory
       def = getBeanDefinition(factoryBeanName);
       if (def != null) {
         destroyBean(getSingleton(factoryBeanName), def);
-        removeBean(factoryBeanName);
       }
     }
 
@@ -1220,7 +1218,6 @@ public abstract class AbstractBeanFactory
       def = getPrototypeBeanDefinition(ClassUtils.getUserClass(beanInstance));
     }
     destroyBean(beanInstance, def);
-    removeBean(name);
   }
 
   @Override
