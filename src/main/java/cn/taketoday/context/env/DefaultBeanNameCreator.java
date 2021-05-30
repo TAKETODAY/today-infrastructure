@@ -21,7 +21,6 @@ package cn.taketoday.context.env;
 
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.utils.Assert;
 
 import static cn.taketoday.context.Constant.KEY_USE_SIMPLE_NAME;
@@ -40,14 +39,13 @@ public class DefaultBeanNameCreator implements BeanNameCreator {
     this(true);
   }
 
-  public DefaultBeanNameCreator(
-          @Env(value = KEY_USE_SIMPLE_NAME, defaultValue = "true") boolean useSimpleName) {
+  public DefaultBeanNameCreator(boolean useSimpleName) {
     this.useSimpleName = useSimpleName;
   }
 
   @Autowired
   public DefaultBeanNameCreator(Environment environment) {
-    this(environment.getProperty(KEY_USE_SIMPLE_NAME, boolean.class, true));
+    this(environment.getFlag(KEY_USE_SIMPLE_NAME, true));
   }
 
   @Override
