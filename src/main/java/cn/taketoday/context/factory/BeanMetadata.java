@@ -38,8 +38,7 @@ import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
- * @author TODAY
- * 2021/1/27 22:26
+ * @author TODAY 2021/1/27 22:26
  * @since 3.0
  */
 public class BeanMetadata {

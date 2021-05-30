@@ -62,7 +62,7 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
       if (ClassUtils.isAnnotationPresent(declaredMethod, EventListener.class)) {
         final AnnotationAttributes[] attributes = ClassUtils.getAnnotationAttributesArray(declaredMethod, EventListener.class);
         for (final AnnotationAttributes attribute : attributes) {
-          Class<?>[] eventTypes = getEventTypes(attribute, declaredMethod);
+          final Class<?>[] eventTypes = getEventTypes(attribute, declaredMethod);
 
           // use ContextUtils#resolveParameter to resolve method arguments
           addListener(bean, beanFactory, declaredMethod, eventTypes);
@@ -73,7 +73,7 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
     return bean;
   }
 
-  Class<?>[] getEventTypes(AnnotationAttributes attribute, Method declaredMethod) {
+  protected Class<?>[] getEventTypes(AnnotationAttributes attribute, Method declaredMethod) {
     final Class<?>[] eventTypes = attribute.getClassArray(Constant.VALUE);
 
     if (ObjectUtils.isNotEmpty(eventTypes)) {
@@ -104,7 +104,8 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
     }
   }
 
-  void addListener(Object bean, ConfigurableBeanFactory beanFactory, Method declaredMethod, Class<?>... eventTypes) {
+  protected void addListener(
+          Object bean, ConfigurableBeanFactory beanFactory, Method declaredMethod, Class<?>... eventTypes) {
     final MethodApplicationListener listener
             = new MethodApplicationListener(bean, declaredMethod, eventTypes, beanFactory);
 
@@ -127,7 +128,7 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
     }
 
     @Override
-    public void onApplicationEvent(final Object event) {
+    public void onApplicationEvent(final Object event) { // any event type
       final Object[] parameter = ContextUtils.resolveParameter(targetMethod, beanFactory, new Object[] { event });
       // native invoke public,protected,default method
       methodInvoker.invoke(bean, parameter);
