@@ -21,7 +21,7 @@ package cn.taketoday.context.loader;
 
 import java.lang.reflect.Field;
 
-import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.exception.PropertyValueException;
 import cn.taketoday.context.factory.PropertySetter;
 
 /**
@@ -47,9 +47,7 @@ public interface PropertyValueResolver {
    *         bean's field
    *
    * @return property value
-   *
-   * @throws ContextException
    */
-  PropertySetter resolveProperty(Field field) throws ContextException;
+  PropertySetter resolveProperty(Field field) throws PropertyValueException;
 
 }

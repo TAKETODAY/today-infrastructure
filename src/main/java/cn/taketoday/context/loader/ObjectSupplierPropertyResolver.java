@@ -26,7 +26,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.exception.PropertyValueException;
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.AbstractPropertySetter;
 import cn.taketoday.context.factory.ObjectSupplier;
@@ -58,14 +58,15 @@ public class ObjectSupplierPropertyResolver
   }
 
   @Override
-  public PropertySetter resolveProperty(final Field field) throws ContextException {
+  public PropertySetter resolveProperty(final Field field) {
     final ResolvableType resolvableType = ResolvableType.forField(field);
     if (resolvableType.hasGenerics()) {
       final ResolvableType generic = resolvableType.getGeneric(0);
       final Class<?> aClass = generic.toClass();
       return new ObjectSupplierPropertySetter(field, aClass);
     }
-    throw new UnsupportedOperationException("Unsupported '" + field + "' In -> " + field.getDeclaringClass());
+    // Usage error
+    throw new PropertyValueException("Unsupported '" + field + "' In -> " + field.getDeclaringClass());
   }
 
   /**
