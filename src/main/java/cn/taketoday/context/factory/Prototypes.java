@@ -19,12 +19,8 @@
  */
 package cn.taketoday.context.factory;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-
-import cn.taketoday.context.cglib.proxy.Enhancer;
-import cn.taketoday.context.cglib.proxy.MethodInterceptor;
+import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.target.PrototypeTargetSource;
 
 /**
  * The helper class achieve the effect of the prototype
@@ -33,29 +29,6 @@ import cn.taketoday.context.cglib.proxy.MethodInterceptor;
  * 2019-09-03 21:20
  */
 public final class Prototypes {
-
-  private final BeanDefinition def;
-  private final ConfigurableBeanFactory factory;
-
-  private Prototypes(ConfigurableBeanFactory factory, BeanDefinition def) {
-    this.def = def;
-    this.factory = factory;
-  }
-
-  private Object handle(final Method method, final Object[] a) throws Throwable {
-    final Object bean = factory.getBean(def);
-    try {
-      return method.invoke(bean, a);
-    }
-    catch (InvocationTargetException e) {
-      throw e.getTargetException();
-    }
-    finally {
-      if (factory.isFullLifecycle()) {
-        factory.destroyBean(bean, def); // destroyBean after every call
-      }
-    }
-  }
 
   /**
    * if a property is prototype bean this bean-factory
@@ -87,21 +60,14 @@ public final class Prototypes {
                                         ConfigurableBeanFactory factory,
                                         boolean proxyTargetClass) //
   {
-    final Prototypes handler = new Prototypes(factory, def);
-    if (!proxyTargetClass && refType.isInterface()) { // Use Jdk Proxy
-      return Proxy.newProxyInstance(
-              refType.getClassLoader(),
-              def.getBeanClass().getInterfaces(),
-              (final Object p, final Method m, final Object[] a) -> handler.handle(m, a)
-      );
-    }
-    return new Enhancer()
-            .setUseCache(true)
-            .setSuperclass(refType)
-            .setInterfaces(refType.getInterfaces())
-            .setClassLoader(refType.getClassLoader())
-            .setCallback((MethodInterceptor) (obj, m, a, proxy) -> handler.handle(m, a))
-            .create();
+    final ProxyFactory proxyFactory = new ProxyFactory();
+    proxyFactory.setProxyTargetClass(proxyTargetClass);
+
+    final PrototypeTargetSource prototypeTargetSource = new PrototypeTargetSource();
+    prototypeTargetSource.setTargetBeanDefinition(def);
+    prototypeTargetSource.setBeanFactory(factory);
+    proxyFactory.setTargetSource(prototypeTargetSource);
+    return proxyFactory.getProxy(refType.getClassLoader());
   }
 
 }

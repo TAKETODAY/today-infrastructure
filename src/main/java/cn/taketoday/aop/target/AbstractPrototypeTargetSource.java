@@ -25,7 +25,6 @@ import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 
-import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.factory.DisposableBean;
@@ -49,18 +48,6 @@ import cn.taketoday.context.factory.DisposableBean;
  */
 public abstract class AbstractPrototypeTargetSource extends AbstractBeanFactoryTargetSource {
 
-  @Override
-  public void setBeanFactory(BeanFactory beanFactory) {
-    super.setBeanFactory(beanFactory);
-
-    // Check whether the target bean is defined as prototype.
-    if (!beanFactory.isPrototype(getTargetBeanName())) {
-      throw new BeanDefinitionStoreException(
-              "Cannot use prototype-based TargetSource against non-prototype bean with name '" +
-                      getTargetBeanName() + "': instances would not be independent");
-    }
-  }
-
   /**
    * Subclasses should call this method to create a new prototype instance.
    */
@@ -68,7 +55,7 @@ public abstract class AbstractPrototypeTargetSource extends AbstractBeanFactoryT
     if (logger.isDebugEnabled()) {
       logger.debug("Creating new instance of bean '{}'", getTargetBeanName());
     }
-    return getBeanFactory().getBean(getTargetBeanName());
+    return getBeanFactory().getBean(getTargetBeanDefinition());
   }
 
   /**
@@ -81,16 +68,18 @@ public abstract class AbstractPrototypeTargetSource extends AbstractBeanFactoryT
     if (logger.isDebugEnabled()) {
       logger.debug("Destroying instance of bean '{}'", getTargetBeanName());
     }
-    final BeanFactory beanFactory = getBeanFactory();
-    if (beanFactory instanceof ConfigurableBeanFactory) {
-      ((ConfigurableBeanFactory) beanFactory).destroyBean(getTargetBeanName(), target);
-    }
-    else if (target instanceof DisposableBean) {
-      try {
-        ((DisposableBean) target).destroy();
+    final BeanFactory factory = getBeanFactory();
+    if (factory != null && factory.isFullLifecycle()) {
+      if (factory instanceof ConfigurableBeanFactory) {
+        ((ConfigurableBeanFactory) factory).destroyBean(target, getTargetBeanDefinition());
       }
-      catch (Throwable ex) {
-        logger.warn("Destroy method on bean with name '{}' threw an exception", getTargetBeanName(), ex);
+      else if (target instanceof DisposableBean) {
+        try {
+          ((DisposableBean) target).destroy();
+        }
+        catch (Throwable ex) {
+          logger.warn("Destroy method on bean with name '{}' threw an exception", getTargetBeanName(), ex);
+        }
       }
     }
   }
