@@ -24,6 +24,7 @@ import java.lang.reflect.Field;
 import java.util.Objects;
 
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.utils.Assert;
 
 /**
  * Use BeanReference to resolve value
@@ -32,22 +33,33 @@ import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
  * @since 3.0
  */
 public class BeanReferencePropertySetter extends AbstractPropertySetter {
-  private final BeanReference reference;
+  /** reference name */
+  private final String referenceName;
+  /** property is required? **/
+  private final boolean required;
+  /** record reference type @since v2.1.2 */
+  private final Class<?> referenceClass;
+  /** record if property is prototype @since v2.1.6 */
+  private boolean prototype = false;
+  /** @since 3.0.2 */
+  private BeanDefinition reference;
 
-  public BeanReferencePropertySetter(BeanReference value, Field field) {
+  /** @since 3.0.2 */
+  public BeanReferencePropertySetter(String referenceName, boolean required, Field field) {
     super(field);
-    this.reference = value;
+    Assert.notNull(referenceName, "Bean name can't be null");
+    this.referenceName = referenceName;
+    this.required = required;
+    this.referenceClass = field.getType();
   }
 
   @Override
   protected Object resolveValue(AbstractBeanFactory beanFactory) {
-    // reference bean
-    final BeanReference reference = this.reference;
     // fix: same name of bean
-    final Object value = resolveBeanReference(beanFactory, reference);
+    final Object value = resolveBeanReference(beanFactory);
     if (value == null) {
-      if (reference.isRequired()) {
-        throw new NoSuchBeanDefinitionException(reference.getName(), reference.getReferenceClass());
+      if (required) {
+        throw new NoSuchBeanDefinitionException(reference.getName(), referenceClass);
       }
       return DO_NOT_SET; // if reference bean is null and it is not required ,do nothing,default value
     }
@@ -57,22 +69,19 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
   /**
    * Resolve reference {@link PropertySetter}
    *
-   * @param ref
-   *         {@link BeanReference} record a reference of bean
-   *
    * @return A {@link PropertySetter} bean or a proxy
    *
    * @see ConfigurableBeanFactory#isFullLifecycle()
    * @see ConfigurableBeanFactory#isFullPrototype()
    */
-  protected Object resolveBeanReference(AbstractBeanFactory beanFactory, BeanReference ref) {
-    final String name = ref.getName();
-    final Class<?> type = ref.getReferenceClass();
+  protected Object resolveBeanReference(AbstractBeanFactory beanFactory) {
+    final String name = referenceName;
+    final Class<?> type = getReferenceClass();
 
-    if (beanFactory.isFullPrototype() && ref.isPrototype() && beanFactory.containsBeanDefinition(name)) {
+    if (beanFactory.isFullPrototype() && prototype && beanFactory.containsBeanDefinition(name)) {
       return Prototypes.newProxyInstance(type, beanFactory.getBeanDefinition(name), beanFactory);
     }
-    final BeanDefinition reference = ref.getReference();
+    final BeanDefinition reference = getReference();
     if (reference != null) {
       return beanFactory.getBean(reference);
     }
@@ -80,8 +89,43 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
     return bean != null ? bean : beanFactory.doGetBeanForType(type);
   }
 
-  public BeanReference getReference() {
+  /** @since 3.0.2 */
+  public boolean isRequired() {
+    return required;
+  }
+
+  /** @since 3.0.2 */
+  public Class<?> getReferenceClass() {
+    return referenceClass;
+  }
+
+  public String getReferenceName() {
+    return referenceName;
+  }
+
+  /** @since 3.0.2 */
+  public void applyPrototype() {
+    this.prototype = true;
+  }
+
+  /** @since 3.0.2 */
+  public boolean isPrototype() {
+    return prototype;
+  }
+
+  /** @since 3.0.2 */
+  public void setPrototype(boolean prototype) {
+    this.prototype = prototype;
+  }
+
+  /** @since 3.0.2 */
+  public BeanDefinition getReference() {
     return reference;
+  }
+
+  /** @since 3.0.2 */
+  public void setReference(BeanDefinition reference) {
+    this.reference = reference;
   }
 
   @Override

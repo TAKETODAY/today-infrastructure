@@ -31,7 +31,6 @@ import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.aware.OrderedApplicationContextSupport;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.factory.BeanReference;
 import cn.taketoday.context.factory.BeanReferencePropertySetter;
 import cn.taketoday.context.factory.PropertySetter;
 import cn.taketoday.context.utils.ClassUtils;
@@ -96,7 +95,8 @@ public class AutowiredPropertyResolver
     }
     // @since 3.0
     final boolean required = AutowiredParameterResolver.isRequired(field, autowired);
-    return new BeanReferencePropertySetter(new BeanReference(name, required, field), field);
+//    return new BeanReferencePropertySetter(new BeanReference(name, required, field), field);
+    return new BeanReferencePropertySetter(name, required, field);
   }
 
   /**

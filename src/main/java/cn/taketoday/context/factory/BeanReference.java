@@ -22,8 +22,7 @@ package cn.taketoday.context.factory;
 import java.lang.reflect.Field;
 import java.util.Objects;
 
-import cn.taketoday.context.exception.ContextException;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.context.utils.Assert;
 
 /***
  * Reference to a bean
@@ -31,6 +30,7 @@ import cn.taketoday.context.utils.StringUtils;
  * @author TODAY <br>
  *         2018-06-23 11:27:30
  */
+@Deprecated
 public final class BeanReference {
 
   /** reference name */
@@ -47,9 +47,7 @@ public final class BeanReference {
   private BeanDefinition reference;
 
   public BeanReference(String name, boolean required, Field field) {
-    if (StringUtils.isEmpty(name)) {
-      throw new ContextException("Bean name can't be empty");
-    }
+    Assert.notNull(name, "Bean name can't be null");
     this.name = name;
     this.field = field;
     this.required = required;

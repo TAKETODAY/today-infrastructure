@@ -409,7 +409,7 @@ public abstract class AbstractBeanFactory
    *         If any {@link Exception} occurred when apply
    *         {@link PropertySetter}
    * @throws NoSuchBeanDefinitionException
-   *         If {@link BeanReference} is required and there isn't a bean in
+   *         If BeanReference is required and there isn't a bean in
    *         this {@link BeanFactory}
    */
   protected void applyPropertyValues(final Object bean, final BeanDefinition def) {
@@ -765,25 +765,24 @@ public abstract class AbstractBeanFactory
    * Handle abstract dependencies
    */
   public void handleDependency() {
-    for (final BeanReferencePropertySetter propertyValue : getDependencies()) {
-      final BeanReference ref = propertyValue.getReference();
-      final String beanName = ref.getName();
+    for (final BeanReferencePropertySetter reference : getDependencies()) {
+      final String beanName = reference.getReferenceName();
       // fix: #2 when handle dependency some bean definition has already exist
       if (containsBeanDefinition(beanName)) {
-        ref.setReference(getBeanDefinition(beanName));
+        reference.setReference(getBeanDefinition(beanName));
         continue;
       }
       // handle dependency which is special bean like List<?> or Set<?>...
       // ----------------------------------------------------------------
-      final BeanDefinition handleDef = handleDependency(ref);
+      final BeanDefinition handleDef = handleDependency(reference);
       if (handleDef != null) {
         registerBeanDefinition(beanName, handleDef);
-        ref.setReference(handleDef);
+        reference.setReference(handleDef);
         continue;
       }
       // handle dependency which is interface and parent object
       // --------------------------------------------------------
-      final Class<?> propertyType = ref.getReferenceClass();
+      final Class<?> propertyType = reference.getReferenceClass();
       // find child beans
       final List<BeanDefinition> childDefs = doGetChildDefinition(beanName, propertyType);
       if (!CollectionUtils.isEmpty(childDefs)) {
@@ -793,11 +792,11 @@ public abstract class AbstractBeanFactory
         }
         DefaultBeanDefinition def = new DefaultBeanDefinition(beanName, childDef);
         registerBeanDefinition(beanName, def);
-        ref.setReference(def);
+        reference.setReference(def);
         continue;
       }
-      if (ref.isRequired()) {
-        throw new ConfigurationException("Context does not exist for this reference:[" + ref + "] of bean");
+      if (reference.isRequired()) {
+        throw new ConfigurationException("Context does not exist for this reference:[" + reference + "] of bean");
       }
     }
   }
@@ -864,7 +863,7 @@ public abstract class AbstractBeanFactory
    *
    * @return Dependency {@link BeanDefinition}
    */
-  protected BeanDefinition handleDependency(final BeanReference ref) {
+  protected BeanDefinition handleDependency(final BeanReferencePropertySetter ref) {
     // from objectFactories
     final Map<Class<?>, Object> objectFactories = getObjectFactories();
     if (!CollectionUtils.isEmpty(objectFactories)) {

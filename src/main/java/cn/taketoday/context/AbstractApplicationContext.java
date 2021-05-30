@@ -54,7 +54,6 @@ import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.BeanFactoryPostProcessor;
 import cn.taketoday.context.factory.BeanPostProcessor;
-import cn.taketoday.context.factory.BeanReference;
 import cn.taketoday.context.factory.BeanReferencePropertySetter;
 import cn.taketoday.context.factory.ObjectSupplier;
 import cn.taketoday.context.factory.ValueExpressionContext;
@@ -345,11 +344,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     beanFactory.registerBeanPostProcessors();
 
     if (beanFactory.isFullPrototype()) {
-      for (BeanReferencePropertySetter propertyValue : beanFactory.getDependencies()) {
-        final BeanReference ref = propertyValue.getReference();
-        final BeanDefinition def = beanFactory.getBeanDefinition(ref.getName());
+      for (BeanReferencePropertySetter reference : beanFactory.getDependencies()) {
+        final BeanDefinition def = beanFactory.getBeanDefinition(reference.getReferenceName());
         if (def != null && def.isPrototype()) {
-          ref.applyPrototype();
+          reference.applyPrototype();
         }
       }
     }
