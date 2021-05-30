@@ -24,7 +24,7 @@ package cn.taketoday.context.reflect;
  * @author TODAY 2021/2/12 12:23
  * @since 3.0
  */
-@Deprecated
+@Deprecated // @since 3.0.2
 public abstract class SetterSupport implements SetterMethod {
   private boolean primitive;
 
