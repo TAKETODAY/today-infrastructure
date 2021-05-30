@@ -27,8 +27,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * @author TODAY <br>
- * 2018-11-10 13:14
+ * @author TODAY 2018-11-10 13:14
  * @see TargetInvocation
  */
 public class StandardMethodInvocation
@@ -41,7 +40,7 @@ public class StandardMethodInvocation
   /**
    * a flag show that current index of advice
    */
-  int currentAdviceIndex = 0;
+  protected int currentAdviceIndex = 0;
 
   public StandardMethodInvocation(Object bean, TargetInvocation target, Object[] arguments) {
     this.bean = bean;
