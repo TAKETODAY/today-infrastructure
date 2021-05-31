@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -359,7 +359,8 @@ public abstract class AbstractBeanFactory
       final String name = def.getName();
       Object bean = getSingleton(name);
       if (bean == null) {
-        registerSingleton(name, bean = createBeanInstance(def));
+        bean = createBeanInstance(def);
+        registerSingleton(name, bean);
       }
       return bean;
     }
@@ -1401,8 +1402,12 @@ public abstract class AbstractBeanFactory
    * @return {@link BeanNameCreator}
    */
   public BeanNameCreator getBeanNameCreator() {
-    final BeanNameCreator ret = this.beanNameCreator;
-    return ret == null ? this.beanNameCreator = createBeanNameCreator() : ret;
+    BeanNameCreator ret = this.beanNameCreator;
+    if (ret == null) {
+      ret = createBeanNameCreator();
+      this.beanNameCreator = ret;
+    }
+    return ret;
   }
 
   /**
@@ -1560,10 +1565,9 @@ public abstract class AbstractBeanFactory
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder(ObjectUtils.toHexString(this));
-    sb.append(": defining beans [");
-    sb.append(StringUtils.collectionToString(this.beanDefinitionMap.keySet()));
-    sb.append("]");
-    return sb.toString();
+    return new StringBuilder(ObjectUtils.toHexString(this))
+            .append(": defining beans [")
+            .append(StringUtils.collectionToString(this.beanDefinitionMap.keySet()))
+            .append("]").toString();
   }
 }

@@ -49,7 +49,6 @@ public abstract class AbstractPropertySetter implements PropertySetter {
     this.accessor = ReflectionUtils.newSetterMethod(field);
   }
 
-
   @Override
   public void applyValue(Object bean, AbstractBeanFactory beanFactory) {
     final Object property = resolveValue(beanFactory);
