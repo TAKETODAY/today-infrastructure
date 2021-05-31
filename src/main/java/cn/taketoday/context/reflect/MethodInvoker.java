@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context.reflect;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Objects;
@@ -31,6 +32,7 @@ import cn.taketoday.context.cglib.core.ClassGenerator;
 import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.MethodInfo;
+import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
@@ -45,10 +47,7 @@ import static cn.taketoday.context.cglib.core.CglibReflectUtils.getMethodInfo;
  * 2019-10-18 22:35
  */
 public abstract class MethodInvoker implements MethodAccessor, Invoker {
-
-  private Method method;
-
-  public MethodInvoker() { }
+  private final Method method;
 
   public MethodInvoker(final Method method) {
     Assert.notNull(method, "method must not be null");
@@ -61,10 +60,6 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
   @Override
   public Method getMethod() {
     return method;
-  }
-
-  private void setMethod(Method method) {
-    this.method = method;
   }
 
   /**
@@ -131,6 +126,10 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
 
     private static final MethodInfo invokeInfo;
 
+    /** @since 3.0.2 */
+    private static final Signature SIG_CONSTRUCTOR
+            = new Signature(Constant.CONSTRUCTOR_NAME, "(Ljava/lang/reflect/Method;)V");
+
     static {
       try {
         invokeInfo = getMethodInfo(MethodInvoker.class.getDeclaredMethod("invoke", Object.class, Object[].class));
@@ -148,13 +147,6 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
       super(targetClass);
       Assert.notNull(method, "method must not be null");
       this.targetMethod = ClassUtils.getMostSpecificMethod(method, targetClass);
-    }
-
-    @Override
-    public MethodInvoker create() {
-      final MethodInvoker methodInvoker = super.create();
-      methodInvoker.setMethod(targetMethod);
-      return methodInvoker;
     }
 
     @Override
@@ -179,6 +171,30 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
       codeEmitter.end_method();
 
       classEmitter.endClass();
+    }
+
+    /**
+     * @since 3.0.2
+     */
+    @Override
+    protected void generateConstructor(ClassEmitter ce) {
+      CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, SIG_CONSTRUCTOR);
+      e.load_this();
+      e.load_arg(0);
+      e.super_invoke_constructor(SIG_CONSTRUCTOR);
+      e.return_value();
+      e.end_method();
+    }
+
+    /**
+     * @throws NoSuchMethodException
+     *         handle in fallback {@link #fallback(Exception)}
+     * @since 3.0.2
+     */
+    @Override
+    protected MethodInvoker newInstance(Class<MethodInvoker> accessorClass) throws NoSuchMethodException {
+      final Constructor<MethodInvoker> constructor = accessorClass.getDeclaredConstructor(Method.class);
+      return ClassUtils.newInstance(constructor, new Object[] { targetMethod });
     }
 
     @Override

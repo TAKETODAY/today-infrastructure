@@ -24,10 +24,10 @@ package cn.taketoday.context.reflect;
  * @author TODAY
  * 2021/1/7 17:39
  */
-public class MethodAccessorGetterMethod implements GetterMethod {
-  private final MethodAccessor accessor;
+public final class MethodAccessorGetterMethod implements GetterMethod {
+  private final MethodInvoker accessor;
 
-  public MethodAccessorGetterMethod(MethodAccessor accessor) {
+  public MethodAccessorGetterMethod(MethodInvoker accessor) {
     this.accessor = accessor;
   }
 

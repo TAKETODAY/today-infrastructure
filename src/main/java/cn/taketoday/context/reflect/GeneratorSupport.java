@@ -104,8 +104,14 @@ public abstract class GeneratorSupport<T extends Accessor> {
     if (cannotAccess()) {
       return fallbackInstance();
     }
-    final ClassLoader classLoader = getClassLoader();
-    final Class<T> accessorClass = generateIfNecessary(classLoader);
+    final Class<T> accessorClass = generateIfNecessary(getClassLoader());
+    return newInstance(accessorClass);
+  }
+
+  /**
+   * @since 3.0.2
+   */
+  protected T newInstance(Class<T> accessorClass) throws Exception {
     final Constructor<T> constructor = ClassUtils.obtainConstructor(accessorClass);
     return ClassUtils.newInstance(constructor, null);
   }
@@ -208,8 +214,15 @@ public abstract class GeneratorSupport<T extends Accessor> {
   protected ClassEmitter beginClass(ClassVisitor v) {
     final ClassEmitter ce = new ClassEmitter(v);
     ce.beginClass(ACC_PUBLIC | ACC_FINAL, getClassName().replace('.', '/'), getSuperType(), getInterfaces());
-    EmitUtils.nullConstructor(ce);
+    generateConstructor(ce);
     return ce;
+  }
+
+  /**
+   * @since 3.0.2
+   */
+  protected void generateConstructor(ClassEmitter ce) {
+    EmitUtils.nullConstructor(ce);
   }
 
   protected String[] getInterfaces() {

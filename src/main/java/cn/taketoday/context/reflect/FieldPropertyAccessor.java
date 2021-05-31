@@ -26,9 +26,11 @@ import java.lang.reflect.Method;
 import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
+ * java reflect {@link Field} implementation
+ *
  * @author TODAY 2020/9/11 17:56
  */
-public class FieldPropertyAccessor implements PropertyAccessor {
+public final class FieldPropertyAccessor implements PropertyAccessor {
   private final Field field;
 
   private final Method readMethod;

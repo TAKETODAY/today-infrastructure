@@ -25,7 +25,10 @@ import java.lang.reflect.Method;
 import cn.taketoday.context.factory.PropertyReadOnlyException;
 
 /**
+ * read-only PropertyAccessor
+ *
  * @author TODAY 2020/9/12 15:22
+ * @see PropertyReadOnlyException
  */
 public abstract class ReadOnlyPropertyAccessor implements PropertyAccessor {
 

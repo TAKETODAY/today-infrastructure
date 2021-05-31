@@ -1097,14 +1097,14 @@ public abstract class ReflectionUtils {
     final Method readMethod = getReadMethod(field);
     final boolean isReadOnly = Modifier.isFinal(field.getModifiers());
     if (isReadOnly && readMethod != null) {
-      return new ReadOnlyMethodAccessorPropertyAccessor(newMethodAccessor(readMethod));
+      return new ReadOnlyMethodAccessorPropertyAccessor(MethodInvoker.create(readMethod));
     }
     final Method writeMethod = getWriteMethod(field);
     if (writeMethod != null && readMethod != null) {
       return new MethodAccessorPropertyAccessor(writeMethod, readMethod);
     }
     if (writeMethod != null) {
-      final MethodInvoker accessor = newMethodAccessor(writeMethod);
+      final MethodInvoker accessor = MethodInvoker.create(writeMethod);
       makeAccessible(field);
       return new PropertyAccessor() {
         @Override
@@ -1126,7 +1126,7 @@ public abstract class ReflectionUtils {
 
     if (readMethod != null) {
       makeAccessible(field);
-      final MethodInvoker accessor = newMethodAccessor(readMethod);
+      final MethodInvoker accessor = MethodInvoker.create(readMethod);
       return new PropertyAccessor() {
         @Override
         public Object get(Object obj) {
@@ -1158,7 +1158,10 @@ public abstract class ReflectionUtils {
    *         Target method
    *
    * @return MethodAccessor to access Method
+   *
+   * @deprecated since 3.0.2 use {@link MethodInvoker#create(Method)} instead
    */
+  @Deprecated
   public static MethodInvoker newMethodAccessor(final Method method) {
     return MethodInvoker.create(method);
   }
@@ -1252,17 +1255,12 @@ public abstract class ReflectionUtils {
     if (writeMethod == null) {
       throw new ReflectionException("No such write method : " + name + " in class: " + declaringClass);
     }
-    return newSetterMethod(writeMethod, type);
+    return newSetterMethod(writeMethod);
   }
 
   public static SetterMethod newSetterMethod(final Method method) {
-    return newSetterMethod(method, method.getParameterTypes()[0]);
-  }
-
-  public static SetterMethod newSetterMethod(final Method method, Class<?> type) {
     final MethodInvoker accessor = MethodInvoker.create(method);
-    final boolean primitive = type.isPrimitive();
-    return new MethodAccessorSetterMethod(primitive, accessor);
+    return new MethodAccessorSetterMethod(accessor);
   }
 
   /**

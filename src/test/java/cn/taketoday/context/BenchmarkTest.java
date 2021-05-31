@@ -115,7 +115,7 @@ public class BenchmarkTest {
     public void testMethod() throws Throwable {
 
         Method test = ReflectionUtils.findMethod(ITest.class, "test", String.class);
-        MethodAccessor methodAccessor = ReflectionUtils.newMethodAccessor(test);
+        MethodAccessor methodAccessor = MethodInvoker.create(test);
 
         final ITest testBean = new MethodTestBean();
 

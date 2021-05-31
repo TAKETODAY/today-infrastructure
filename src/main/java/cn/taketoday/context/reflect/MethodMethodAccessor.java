@@ -24,8 +24,9 @@ import java.lang.reflect.Method;
 import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
- * @author TODAY
- * 2020/9/20 21:49
+ * java reflect {@link Method} implementation
+ *
+ * @author TODAY  2020/9/20 21:49
  */
 public class MethodMethodAccessor extends MethodInvoker implements MethodAccessor {
 

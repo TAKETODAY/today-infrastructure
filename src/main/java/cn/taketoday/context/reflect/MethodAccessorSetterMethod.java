@@ -25,9 +25,9 @@ package cn.taketoday.context.reflect;
  * @since 3.0
  */
 public final class MethodAccessorSetterMethod implements SetterMethod {
-  private final MethodAccessor accessor;
+  private final MethodInvoker accessor;
 
-  public MethodAccessorSetterMethod(boolean primitive, MethodAccessor accessor) {
+  public MethodAccessorSetterMethod(MethodInvoker accessor) {
     this.accessor = accessor;
   }
 

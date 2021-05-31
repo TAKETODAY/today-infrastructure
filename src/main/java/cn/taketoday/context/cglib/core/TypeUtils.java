@@ -145,8 +145,8 @@ public abstract class TypeUtils {
 
   public static int getStackSize(Type[] types) {
     int size = 0;
-    for (int i = 0; i < types.length; i++) {
-      size += types[i].getSize();
+    for (final Type type : types) {
+      size += type.getSize();
     }
     return size;
   }
@@ -199,8 +199,8 @@ public abstract class TypeUtils {
   public static Signature parseConstructor(Type... types) {
     final StringBuilder sb = new StringBuilder();
     sb.append('(');
-    for (int i = 0; i < types.length; i++) {
-      sb.append(types[i].getDescriptor());
+    for (final Type type : types) {
+      sb.append(type.getDescriptor());
     }
     sb.append(')');
     sb.append('V');
@@ -212,7 +212,7 @@ public abstract class TypeUtils {
   }
 
   private static List<String> parseTypes(String s, int mark, int end) {
-    List<String> types = new ArrayList<>(5);
+    ArrayList<String> types = new ArrayList<>(5);
     for (; ; ) {
       int next = s.indexOf(',', mark);
       if (next < 0) {
