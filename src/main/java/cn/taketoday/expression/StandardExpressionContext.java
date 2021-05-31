@@ -213,7 +213,7 @@ public class StandardExpressionContext extends ExpressionContext {
     private final Map<String, Method> functions;
 
     DefaultFunctionMapper(Map<String, Method> initMap) {
-      functions = (initMap == null) ? new HashMap<String, Method>(16, 1.0f) : initMap;
+      functions = (initMap == null) ? new HashMap<>(16, 1.0f) : initMap;
     }
 
     @Override

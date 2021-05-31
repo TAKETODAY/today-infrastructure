@@ -28,8 +28,6 @@ import cn.taketoday.context.DecoratingProxy;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Order;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * @author TODAY <br>
  * 2018-11-08 19:02
@@ -45,7 +43,8 @@ public abstract class OrderUtils {
    * @return The order
    */
   public static int getOrder(final AnnotatedElement annotated) {
-    final Order order = requireNonNull(annotated).getAnnotation(Order.class);
+    Assert.notNull(annotated, "AnnotatedElement must not be null");
+    final Order order = annotated.getAnnotation(Order.class);
     if (order != null) {
       return order.value();
     }
@@ -91,7 +90,7 @@ public abstract class OrderUtils {
    * @since 2.1.7
    */
   public static Comparator<Object> getComparator() {
-    return (c1, c2) -> Integer.compare(getOrder(c1), getOrder(c2));
+    return Comparator.comparingInt(OrderUtils::getOrder);
   }
 
   /**
@@ -101,7 +100,8 @@ public abstract class OrderUtils {
    *         Input list
    */
   public static <T> List<T> reversedSort(List<T> list) {
-    requireNonNull(list).sort(getReversedComparator());
+    Assert.notNull(list, "List must not be null");
+    list.sort(getReversedComparator());
     return list;
   }
 
@@ -114,7 +114,8 @@ public abstract class OrderUtils {
    * @since 2.1.7
    */
   public static <T> List<T> sort(List<T> list) {
-    requireNonNull(list).sort(getComparator());
+    Assert.notNull(list, "List must not be null");
+    list.sort(getComparator());
     return list;
   }
 
@@ -127,6 +128,7 @@ public abstract class OrderUtils {
    * @since 2.1.7
    */
   public static <T> T[] sort(T[] array) {
+    Assert.notNull(array, "array must not be null");
     Arrays.sort(array, getComparator());
     return array;
   }
@@ -138,6 +140,7 @@ public abstract class OrderUtils {
    *         Input list
    */
   public static <T> T[] reversedSort(T[] array) {
+    Assert.notNull(array, "array must not be null");
     Arrays.sort(array, getReversedComparator());
     return array;
   }
