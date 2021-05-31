@@ -52,6 +52,5 @@ public class ParameterResolversMethodParameterBuilder extends MethodParametersBu
 
   public ParameterResolvers getParameterResolvers() {
     return parameterResolvers;
-
   }
 }

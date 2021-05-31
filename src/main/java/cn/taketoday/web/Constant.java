@@ -50,11 +50,10 @@ public interface Constant extends cn.taketoday.context.Constant {
   String DOWNLOAD_BUFF_SIZE = "download.buff.size";
   String ENABLE_WEB_STARTED_LOG = "enable.started.log";
 
-  String RESOURCE_MATCH_RESULT = ResourceMatchResult.class.getName();
-
   /**********************************************************
    * Framework Attribute Keys
    */
+  String RESOURCE_MATCH_RESULT = ResourceMatchResult.class.getName() + "-match-result";
   String KEY_THROWABLE = HandlerExceptionHandler.class.getName() + "-context-throwable";
   String VALIDATION_ERRORS = ParameterResolver.class.getName() + "-context-validation-errors";
 
@@ -67,9 +66,7 @@ public interface Constant extends cn.taketoday.context.Constant {
 	String[]	DEFAULT_MAPPINGS					= { DISPATCHER_SERVLET_MAPPING };
 	String	DISPATCHER_SERVLET					= "dispatcherServlet";
 	// Resolver
-	String	EXCEPTION_HANDLER						= "exceptionHandler";
-	String	TEMPLATE_VIEW_RESOLVER			= "templateViewResolver";
-	
+
 	// the dtd
 	String	DTD_NAME										= "web-configuration";
 	String	WEB_MVC_CONFIG_LOCATION			= "WebMvcConfigLocation";

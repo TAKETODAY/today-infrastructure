@@ -61,7 +61,6 @@ import cn.taketoday.web.servlet.initializer.WebFilterInitializer;
 import cn.taketoday.web.servlet.initializer.WebListenerInitializer;
 import cn.taketoday.web.servlet.initializer.WebServletInitializer;
 import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
-import cn.taketoday.web.view.template.FreeMarkerTemplateViewResolver;
 import cn.taketoday.web.view.template.ResolversSupplier;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
@@ -230,10 +229,9 @@ public class WebServletApplicationLoader
   @Override
   protected void checkFrameWorkComponents(WebApplicationContext context) {
     if (!context.containsBeanDefinition(TemplateViewResolver.class)) {
-      // use freemarker view resolver
-      context.registerBean(Constant.TEMPLATE_VIEW_RESOLVER, FreeMarkerTemplateViewResolver.class);
-      context.refresh(Constant.TEMPLATE_VIEW_RESOLVER);
-      log.info("Use default view resolver: [{}].", FreeMarkerTemplateViewResolver.class);
+      // use default view resolver
+      context.registerBean(DefaultTemplateViewResolver.class);
+      log.info("Use default view resolver: [{}].", context.getBean(DefaultTemplateViewResolver.class));
     }
     super.checkFrameWorkComponents(context);
   }
