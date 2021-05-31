@@ -987,12 +987,12 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder(ObjectUtils.toHexString(this));
-    sb.append(": state: [");
-    sb.append(state);
-    sb.append("], on startup date: ");
-    sb.append(formatStartupDate());
-    return sb.toString();
+    return new StringBuilder(ObjectUtils.toHexString(this))
+            .append(": state: [")
+            .append(state)
+            .append("], on startup date: ")
+            .append(formatStartupDate())
+            .toString();
   }
 
   public String formatStartupDate() {
