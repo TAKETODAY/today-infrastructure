@@ -223,9 +223,9 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
    * @since 3.0.2
    */
   static int excludeAbstractModifiers(Method method) {
-    int modifiers = method.getModifiers();
+    final int modifiers = method.getModifiers();
     if (Modifier.isAbstract(modifiers)) {
-      modifiers -= Modifier.ABSTRACT;
+      return Modifier.PUBLIC;
     }
     return modifiers;
   }
