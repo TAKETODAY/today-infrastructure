@@ -68,7 +68,7 @@ public class TestAddClassInit extends AbstractTransformTest {
 
             public ClassTransformer newInstance() {
                 try {
-                    return new AddStaticInitTransformer(TestAddClassInit.class.getMethod("register", new Class[] { Class.class }));
+                    return new AddStaticInitTransformer(TestAddClassInit.class.getMethod("register", Class.class));
                 }
                 catch (Exception e) {
                     throw new CodeGenerationException(e);

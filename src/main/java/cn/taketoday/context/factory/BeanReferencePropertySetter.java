@@ -128,17 +128,41 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
     this.reference = reference;
   }
 
+  //
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof BeanReferencePropertySetter)) return false;
     if (!super.equals(o)) return false;
     final BeanReferencePropertySetter that = (BeanReferencePropertySetter) o;
-    return Objects.equals(reference, that.reference);
+    return required == that.required
+            && prototype == that.prototype
+            && Objects.equals(referenceName, that.referenceName)
+            && Objects.equals(referenceClass, that.referenceClass)
+            && Objects.equals(reference, that.reference);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(super.hashCode(), reference);
+    return Objects.hash(super.hashCode(), referenceName, required, referenceClass, prototype, reference);
   }
+
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("{\n\t\"referenceName\":\"");
+    builder.append(referenceName);
+    builder.append("\",\n\t\"required\":\"");
+    builder.append(required);
+    builder.append("\",\n\t\"referenceClass\":\"");
+    builder.append(referenceClass);
+    builder.append("\",\n\t\"field\":\"");
+    builder.append(field);
+    builder.append("\",\n\t\"prototype\":\"");
+    builder.append(isPrototype());
+    builder.append("\"\n}");
+    return builder.toString();
+  }
+
 }
