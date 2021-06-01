@@ -97,13 +97,9 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
     final ClassEmitter classEmitter = context.getClassEmitter();
     classEmitter.declare_field(getStaticAccess(), targetInvField, targetInvocationType, null);
 
-    MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method);
-
+    final int modifiers = excludeAbstractModifiers(method); // fixed @since 3.0.1
+    final MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method, modifiers);
     // current method start
-    int modifiers = method.getModifiers();
-    if (Modifier.isAbstract(modifiers)) { // fixed @since 3.0.1
-      modifiers = modifiers - Modifier.ABSTRACT;
-    }
     final CodeEmitter codeEmitter = EmitUtils.beginMethod(classEmitter, methodInfo, modifiers);
 
     // method proxy content
@@ -219,6 +215,19 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
     else {
       codeEmitter.create_arg_array(); // args
     }
+  }
+
+  // static
+
+  /**
+   * @since 3.0.2
+   */
+  static int excludeAbstractModifiers(Method method) {
+    int modifiers = method.getModifiers();
+    if (Modifier.isAbstract(modifiers)) {
+      modifiers -= Modifier.ABSTRACT;
+    }
+    return modifiers;
   }
 
 }

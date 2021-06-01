@@ -36,6 +36,8 @@ import cn.taketoday.context.cglib.core.MethodInfo;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.utils.ObjectUtils;
 
+import static cn.taketoday.aop.proxy.std.DefaultProxyMethodGenerator.excludeAbstractModifiers;
+
 /**
  * @author TODAY 2021/3/7 20:19
  * @since 3.0
@@ -81,7 +83,8 @@ public class NoneProxyMethodGenerator implements ProxyMethodGenerator {
    */
   protected void invokeStaticTarget(Method method, GeneratorContext context) {
     final ClassEmitter emitter = context.getClassEmitter();
-    MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method);
+    final int modifiers = excludeAbstractModifiers(method); // fixed @since 3.0.2
+    final MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method, modifiers);
     final CodeEmitter codeEmitter = EmitUtils.beginMethod(emitter, methodInfo, method.getModifiers());
 
     codeEmitter.load_this();
@@ -105,7 +108,8 @@ public class NoneProxyMethodGenerator implements ProxyMethodGenerator {
    */
   protected void invokeTargetFromTargetSource(Method method, GeneratorContext context) {
     final ClassEmitter emitter = context.getClassEmitter();
-    MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method);
+    final int modifiers = excludeAbstractModifiers(method); // fixed @since 3.0.2
+    final MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method, modifiers);
     final CodeEmitter codeEmitter = EmitUtils.beginMethod(emitter, methodInfo, method.getModifiers());
 
     // this.targetSource.getTarget()
