@@ -85,7 +85,7 @@ public class NoneProxyMethodGenerator implements ProxyMethodGenerator {
     final ClassEmitter emitter = context.getClassEmitter();
     final int modifiers = excludeAbstractModifiers(method); // fixed @since 3.0.2
     final MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method, modifiers);
-    final CodeEmitter codeEmitter = EmitUtils.beginMethod(emitter, methodInfo, method.getModifiers());
+    final CodeEmitter codeEmitter = EmitUtils.beginMethod(emitter, methodInfo, modifiers);
 
     codeEmitter.load_this();
 
@@ -110,7 +110,7 @@ public class NoneProxyMethodGenerator implements ProxyMethodGenerator {
     final ClassEmitter emitter = context.getClassEmitter();
     final int modifiers = excludeAbstractModifiers(method); // fixed @since 3.0.2
     final MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method, modifiers);
-    final CodeEmitter codeEmitter = EmitUtils.beginMethod(emitter, methodInfo, method.getModifiers());
+    final CodeEmitter codeEmitter = EmitUtils.beginMethod(emitter, methodInfo, modifiers);
 
     // this.targetSource.getTarget()
 
