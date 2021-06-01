@@ -19,9 +19,6 @@
  */
 package cn.taketoday.context.factory;
 
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -96,8 +93,6 @@ public abstract class AbstractBeanFactory
 
   /** Indicates whether any InstantiationAwareBeanPostProcessors have been registered.  @since 3.0 */
   private boolean hasInstantiationAwareBeanPostProcessors;
-  /** @since 3.0 */
-  private static final MethodInterceptor NOP = MethodInvocation::proceed;
 
   @Override
   public Object getBean(final String name) {
@@ -913,7 +908,7 @@ public abstract class AbstractBeanFactory
     // fixed @since 3.0.1
     final ProxyFactory proxyFactory = createProxyFactory();
     proxyFactory.setTargetSource(new ObjectFactoryTargetSource(objectFactory, type));
-    proxyFactory.addAdvice(NOP);
+    proxyFactory.setOpaque(true);
     return proxyFactory.getProxy(type.getClassLoader());
   }
 
@@ -921,9 +916,9 @@ public abstract class AbstractBeanFactory
     return new ProxyFactory();
   }
 
-  static class ObjectFactoryTargetSource implements TargetSource {
+  static final class ObjectFactoryTargetSource implements TargetSource {
+    private final Class<?> targetType;
     private final ObjectFactory<?> objectFactory;
-    final Class<?> targetType;
 
     ObjectFactoryTargetSource(ObjectFactory<?> objectFactory, Class<?> targetType) {
       this.targetType = targetType;
@@ -937,7 +932,7 @@ public abstract class AbstractBeanFactory
 
     @Override
     public boolean isStatic() {
-      return true;
+      return false;
     }
 
     @Override
