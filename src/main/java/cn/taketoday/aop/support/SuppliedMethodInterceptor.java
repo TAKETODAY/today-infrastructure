@@ -30,7 +30,7 @@ import cn.taketoday.context.utils.Assert;
  * @author TODAY 2021/3/6 15:55
  * @since 3.0
  */
-public class SuppliedMethodInterceptor implements MethodInterceptor {
+public final class SuppliedMethodInterceptor implements MethodInterceptor {
   final ObjectSupplier<MethodInterceptor> supplier;
 
   public SuppliedMethodInterceptor(ObjectSupplier<MethodInterceptor> interceptorSupplier) {
@@ -38,14 +38,10 @@ public class SuppliedMethodInterceptor implements MethodInterceptor {
     this.supplier = interceptorSupplier;
   }
 
-  MethodInterceptor obtainInterceptor() {
-    final MethodInterceptor ret = supplier.getIfAvailable();
-    Assert.state(ret != null, "No MethodInterceptor");
-    return ret;
-  }
-
   @Override
   public Object invoke(MethodInvocation invocation) throws Throwable {
-    return obtainInterceptor().invoke(invocation);
+    final MethodInterceptor interceptor = supplier.getIfAvailable();
+    Assert.state(interceptor != null, "No MethodInterceptor");
+    return interceptor.invoke(invocation);
   }
 }
