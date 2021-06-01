@@ -23,12 +23,17 @@ import java.io.IOException;
 
 import javax.websocket.Session;
 
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.IgnoreDuplicates;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.framework.WebApplication;
 import cn.taketoday.framework.annotation.EnableTomcatHandling;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.annotation.GET;
+import cn.taketoday.web.annotation.RequestMapping;
+import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.socket.annotation.AfterHandshake;
 import cn.taketoday.web.socket.annotation.EndpointMapping;
 import cn.taketoday.web.socket.annotation.Message;
@@ -48,12 +53,25 @@ import lombok.NoArgsConstructor;
 @Import(WebSocketApplication.AppConfig.class)
 @EnableWebSocket
 @EnableTomcatHandling
+@IgnoreDuplicates
+@RequestMapping
 //@EnableJettyHandling
 //@EnableUndertowHandling
 public class WebSocketApplication {
 
   public static void main(String[] args) {
     WebApplication.run(WebSocketApplication.class, args);
+  }
+
+  @Autowired
+  protected RequestContext context;
+
+  @GET("/hello")
+  @ResponseBody
+  public String hello() {
+    final String requestPath = context.getRequestPath();
+    System.out.println(requestPath);
+    return "Hello";
   }
 
   @Configuration

@@ -21,7 +21,7 @@
 <dependency>
     <groupId>cn.taketoday</groupId>
     <artifactId>today-web</artifactId>
-    <version>2.3.6.RELEASE</version>
+    <version>3.0.0.RELEASE</version>
 </dependency>
 ```
 - [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-web/2.3.6.RELEASE/jar)
@@ -85,6 +85,7 @@
 - :zap: 取消自动使用DispatcherServletInitializer注册DispatcherServlet
 - :hammer: 重构ExceptionResolver 修改ExceptionResolver为HandlerExceptionHandler更正设计错误
 
+- :sparkles: 加入 WebSocket
 
 ## v2.3.6
 - add new today-context version
