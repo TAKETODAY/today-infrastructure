@@ -310,7 +310,7 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   public Iterator<String> getParameterNames() {
     final Map<String, String[]> parameters = getParameters();
     if (CollectionUtils.isEmpty(parameters)) {
-      return null;
+      return Collections.emptyIterator();
     }
     return parameters.keySet().iterator();
   }
