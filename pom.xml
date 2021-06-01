@@ -7,10 +7,9 @@
   <artifactId>today-web</artifactId>
 
   <!--
-      <version>latest</version>
+    <version>3.0.1.RELEASE</version>
    -->
-  <version>3.0.1.RELEASE</version>
-
+  <version>latest</version>
   <name>TODAY Web Framework</name>
 
   <description>A Java library for building high-performance web applications.</description>
@@ -88,7 +87,7 @@
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-context</artifactId>
-      <version>3.0.2.RELEASE</version>
+      <version>latest</version>
     </dependency>
 
     <dependency>
