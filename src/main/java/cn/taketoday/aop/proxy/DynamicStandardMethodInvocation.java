@@ -27,7 +27,8 @@ import org.aopalliance.intercept.MethodInvocation;
  * @author TODAY 2021/3/8 13:03
  * @since 3.0
  */
-public class DynamicStandardMethodInvocation extends StandardMethodInvocation implements MethodInvocation {
+public final class DynamicStandardMethodInvocation
+        extends StandardMethodInvocation implements MethodInvocation {
 
   private final int adviceLength;
   private final MethodInterceptor[] advices;
