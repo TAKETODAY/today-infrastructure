@@ -20,6 +20,30 @@
 - [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-context/3.0.0.RELEASE/jar)
 
 # 当前版本
+## v3.0.2
+- :sparkles: 新增 `BeanProperties` 工具类
+- :sparkles: 新增 `StringToBytesConverter`
+- :sparkles: 新增  `GenericDescriptor#ofParameter`
+- :zap: 解决 原型Bean 依赖循环 initializeBean
+- :zap: 解决 其他scope Bean 依赖循环 initializeBean
+- :sparkles: 新增 IgnoreDuplicates 忽略重复注册 bean
+- :zap: 添加 新特性 BeanPropertyAccessor#throwsWhenReadOnly
+- :zap: 重新设计property 异常体系
+- :sparkles: 添加 `FunctionConstructor`,`SupplierConstructor`
+- :zap: 反射工具类新增 获取getter setter方法 修复newPropertyAccessor
+- :zap: 添加 BeanMapping 相当于 `BeanMap`
+- :zap: 修复 bean destroy 逻辑
+- :fire: Deprecated SetterSupport
+- :fire: Deprecated BeanReference
+- :zap: 大量优化 `AbstractBeanFactory`
+- :zap: 大量优化 反射体系
+- :bug: 修复 Aop 在没有拦截器模式下生成的子类错误问题
+
+
+## v3.0.1
+:bug: 修复 createObjectFactoryDependencyProxy 非接口的问题
+:fire: delete Deprecated method
+:bug: 修复 ParameterFunction
 
 ## v3.0.0（v2.1.7）
 
