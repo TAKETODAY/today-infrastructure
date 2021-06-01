@@ -87,7 +87,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * Interfaces to be implemented by the proxy. Held in List to keep the order
    * of registration, to create JDK proxy with specified order of interfaces.
    */
-  private List<Class<?>> interfaces = new ArrayList<>();
+  private ArrayList<Class<?>> interfaces = new ArrayList<>();
 
   /**
    * List of Advisors. If an Advice is added, it will be wrapped
@@ -406,8 +406,9 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   @Override
   public int indexOf(Advice advice) {
     Assert.notNull(advice, "Advice must not be null");
-    for (int i = 0; i < this.advisors.size(); i++) {
-      Advisor advisor = this.advisors.get(i);
+    final ArrayList<Advisor> advisors = this.advisors;
+    for (int i = 0; i < advisors.size(); i++) {
+      Advisor advisor = advisors.get(i);
       if (advisor.getAdvice() == advice) {
         return i;
       }
