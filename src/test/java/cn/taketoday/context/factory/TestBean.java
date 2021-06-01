@@ -359,7 +359,7 @@ public class TestBean implements Serializable {
       mappedIntProperty.put("Two", 2);
     }
     final Integer x = mappedIntProperty.get(key);
-    return x == null ? 0 : x.intValue();
+    return x == null ? 0 : x;
   }
 
   public void setMappedIntProperty(final String key, final int value) {
