@@ -22,7 +22,6 @@ package cn.taketoday.jdbc.result;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import cn.taketoday.jdbc.ResultSetHandler;
 import cn.taketoday.jdbc.reflection.JdbcBeanMetadata;
 
 /**

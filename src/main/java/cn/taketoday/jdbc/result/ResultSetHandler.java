@@ -17,25 +17,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.jdbc.result;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import cn.taketoday.jdbc.type.TypeHandler;
-
 /**
- * @author TODAY 2021/1/7 22:52
+ * User: dimzon Date: 4/7/14 Time: 12:01 AM
+ * @author TODAY
  */
-public class TypeHandlerResultSetHandler<T> implements ResultSetHandler<T> {
-  final TypeHandler<T> typeHandler;
+public interface ResultSetHandler<T> {
 
-  public TypeHandlerResultSetHandler(TypeHandler<T> typeHandler) {
-    this.typeHandler = typeHandler;
-  }
-
-  @Override
-  public T handle(ResultSet resultSet) throws SQLException {
-    return typeHandler.getResult(resultSet, 1);
-  }
+  T handle(ResultSet resultSet) throws SQLException;
 }

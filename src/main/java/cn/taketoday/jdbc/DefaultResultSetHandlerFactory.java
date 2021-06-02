@@ -11,6 +11,7 @@ import cn.taketoday.jdbc.reflection.JdbcBeanMetadata;
 import cn.taketoday.jdbc.reflection.Pojo;
 import cn.taketoday.jdbc.result.JdbcPropertyAccessor;
 import cn.taketoday.jdbc.result.ObjectResultHandler;
+import cn.taketoday.jdbc.result.ResultSetHandler;
 import cn.taketoday.jdbc.result.TypeHandlerPropertyAccessor;
 import cn.taketoday.jdbc.result.TypeHandlerResultSetHandler;
 import cn.taketoday.jdbc.type.TypeHandler;

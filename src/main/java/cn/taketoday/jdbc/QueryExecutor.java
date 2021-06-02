@@ -120,7 +120,7 @@ public class QueryExecutor extends Executor implements QueryOperation, QueryOpti
         if (rs.next()) {
           final ResultSetMetaData metaData = rs.getMetaData();
           final ResultSetHandlerFactory<T> factory = newFactory(requiredType);
-          final cn.taketoday.jdbc.ResultSetHandler<T> resultSetHandler = factory.newResultSetHandler(metaData);
+          final cn.taketoday.jdbc.result.ResultSetHandler<T> resultSetHandler = factory.newResultSetHandler(metaData);
 
           return resultSetHandler.handle(rs);
         }
@@ -150,7 +150,7 @@ public class QueryExecutor extends Executor implements QueryOperation, QueryOpti
 
         final ResultSetMetaData metaData = result.getMetaData();
         final ResultSetHandlerFactory<T> factory = newFactory(elementType);
-        final cn.taketoday.jdbc.ResultSetHandler<T> resultSetHandler = factory.newResultSetHandler(metaData);
+        final cn.taketoday.jdbc.result.ResultSetHandler<T> resultSetHandler = factory.newResultSetHandler(metaData);
 
         while (result.next()) {
           ret.add(resultSetHandler.handle(result));

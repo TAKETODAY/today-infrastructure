@@ -17,42 +17,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.jdbc;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import cn.taketoday.jdbc.result.ResultSetHandler;
-
 /**
- * Iterator for a {@link ResultSet}. Tricky part here is getting
- * {@link #hasNext()} to work properly, meaning it can be called multiple times
- * without calling {@link #next()}.
- *
- * @author aldenquimby@gmail.com
- * @author TODAY
+ * @author TODAY 2021/6/2 21:34
  */
-public class ResultSetHandlerIterator<T> extends AbstractResultSetIterator<T> {
-  private final ResultSetHandler<T> handler;
+@FunctionalInterface
+public interface ResultSetExtractor<T> {
 
-  public ResultSetHandlerIterator(ResultSet rs, ResultSetHandler<T> handler) {
-    super(rs);
-    this.handler = handler;
-  }
-
-  public ResultSetHandlerIterator(ResultSet rs, ResultSetHandlerFactory<T> factory) {
-    super(rs);
-    try {
-      this.handler = factory.newResultSetHandler(rs.getMetaData());
-    }
-    catch (SQLException e) {
-      throw new PersistenceException("Database error: " + e.getMessage(), e);
-    }
-  }
-
-  @Override
-  protected T readNext() throws SQLException {
-    return handler.handle(rs);
-  }
+  /**
+   * Implementations must implement this method to process the entire ResultSet.
+   *
+   * @param rs
+   *            ResultSet to extract data from. Implementations should not close
+   *            this: it will be closed by the calling JdbcTemplate.
+   * @return an arbitrary result object, or {@code null} if none (the extractor
+   *         will typically be stateful in the latter case).
+   * @throws SQLException
+   *             if a SQLException is encountered getting column values or
+   *             navigating (that is, there's no need to catch SQLException)
+   * @throws SQLException
+   *             in case of custom exceptions
+   */
+  T extractData(final ResultSet rs) throws SQLException;
 
 }

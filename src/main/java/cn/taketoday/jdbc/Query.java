@@ -26,6 +26,7 @@ import cn.taketoday.jdbc.data.Row;
 import cn.taketoday.jdbc.data.Table;
 import cn.taketoday.jdbc.data.TableResultSetIterator;
 import cn.taketoday.jdbc.reflection.ReadableProperty;
+import cn.taketoday.jdbc.result.ResultSetHandler;
 import cn.taketoday.jdbc.type.ObjectTypeHandler;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
@@ -35,7 +36,6 @@ import cn.taketoday.jdbc.utils.JdbcUtils;
  * Represents a sql2o statement. With sql2o, all statements are instances of the
  * Query class.
  */
-@SuppressWarnings("UnusedDeclaration")
 public class Query implements AutoCloseable {
 
   private static final Logger log = LoggerFactory.getLogger(Query.class);

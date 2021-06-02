@@ -19,8 +19,6 @@
  */
 package cn.taketoday.jdbc;
 
-import java.sql.SQLException;
-
 /**
  * Fatal exception thrown when we can't connect to an RDBMS using JDBC.
  *
@@ -35,7 +33,7 @@ public class CannotGetJdbcConnectionException extends DataAccessException {
     super(msg);
   }
 
-  public CannotGetJdbcConnectionException(String msg, SQLException ex) {
+  public CannotGetJdbcConnectionException(String msg, Throwable ex) {
     super(msg, ex);
   }
 

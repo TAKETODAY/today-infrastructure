@@ -1,4 +1,4 @@
-/*
+/**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -15,27 +15,18 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.jdbc.result;
+package cn.taketoday.jdbc;
 
-import java.sql.ResultSet;
+import java.sql.CallableStatement;
 import java.sql.SQLException;
 
-import cn.taketoday.jdbc.type.TypeHandler;
-
 /**
- * @author TODAY 2021/1/7 22:52
+ * @author TODAY 2021/6/2 21:23
  */
-public class TypeHandlerResultSetHandler<T> implements ResultSetHandler<T> {
-  final TypeHandler<T> typeHandler;
+@FunctionalInterface
+public interface CallableStatementCallback<T> {
 
-  public TypeHandlerResultSetHandler(TypeHandler<T> typeHandler) {
-    this.typeHandler = typeHandler;
-  }
-
-  @Override
-  public T handle(ResultSet resultSet) throws SQLException {
-    return typeHandler.getResult(resultSet, 1);
-  }
+  T doInCallableStatement(final CallableStatement cs) throws SQLException;
 }

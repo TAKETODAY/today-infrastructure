@@ -29,17 +29,15 @@ import javax.sql.DataSource;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.jdbc.utils.DataSourceUtils;
 
 /**
  * @author TODAY <br>
- *         2019-08-18 20:39
+ * 2019-08-18 20:39
  */
 public abstract class Executor implements BasicOperation {
-
-  protected static final Logger log = LoggerFactory.getLogger("cn.taketoday.jdbc.Executor");
-
-  protected static final boolean DEBUG_ENABLED = log.isDebugEnabled();
+  protected final Logger log = LoggerFactory.getLogger(getClass());
 
   private DataSource dataSource; //data source
 
@@ -58,9 +56,7 @@ public abstract class Executor implements BasicOperation {
 
   public final DataSource obtainDataSource() {
     final DataSource dataSource = getDataSource();
-    if (dataSource == null) {
-      throw new ConfigurationException("Data source is required");
-    }
+    Assert.state(dataSource != null, "Data source is required");
     return dataSource;
   }
 
@@ -68,7 +64,8 @@ public abstract class Executor implements BasicOperation {
    * Setting {@link DataSource} to this {@link Executor}
    *
    * @param dataSource
-   *            Target {@link DataSource}
+   *         Target {@link DataSource}
+   *
    * @return This {@link Executor}
    */
   public Executor setDataSource(DataSource dataSource) {
@@ -83,7 +80,8 @@ public abstract class Executor implements BasicOperation {
    * zero, then the hint is ignored. The default value is zero.
    *
    * @param fetchSize
-   *            the number of rows to fetch
+   *         the number of rows to fetch
+   *
    * @see java.sql.Statement#setFetchSize
    */
   public Executor setFetchSize(final Integer fetchSize) {
@@ -110,7 +108,7 @@ public abstract class Executor implements BasicOperation {
    * given number. If the limit is exceeded, the excess rows are silently dropped.
    *
    * @param maxRows
-   *            the new max rows limit; zero means there is no limit
+   *         the new max rows limit; zero means there is no limit
    *
    * @see java.sql.Statement#setMaxRows
    */
@@ -125,8 +123,9 @@ public abstract class Executor implements BasicOperation {
    * exceeded, the excess rows are silently dropped.
    *
    * @return the current maximum number of rows for a <code>ResultSet</code>
-   *         object produced by this <code>Statement</code> object; zero means
-   *         there is no limit
+   * object produced by this <code>Statement</code> object; zero means
+   * there is no limit
+   *
    * @see #setMaxRows
    */
   public Integer getMaxRows() {
@@ -152,8 +151,9 @@ public abstract class Executor implements BasicOperation {
    * vendor documentation for details).
    *
    * @param queryTimeout
-   *            the new query timeout limit in seconds; zero means there is no
-   *            limit
+   *         the new query timeout limit in seconds; zero means there is no
+   *         limit
+   *
    * @see java.sql.Statement#setQueryTimeout
    */
   public Executor setQueryTimeout(final Integer queryTimeout) {
@@ -167,7 +167,8 @@ public abstract class Executor implements BasicOperation {
    * <code>SQLException</code> is thrown.
    *
    * @return the current query timeout limit in seconds; zero means there is no
-   *         limit
+   * limit
+   *
    * @see #setQueryTimeout
    */
   public Integer getQueryTimeout() {
@@ -178,33 +179,36 @@ public abstract class Executor implements BasicOperation {
    * Setting the Statement's settings
    *
    * @param stmt
-   *            Target {@link Statement}
+   *         Target {@link Statement}
+   *
    * @throws SQLException
-   *             If a database access error occurs
+   *         If a database access error occurs
    */
   protected void applyStatementSettings(final Statement stmt) throws SQLException {
 
     final Integer fetchSize = getFetchSize();
     if (fetchSize != null) {
-      stmt.setFetchSize(fetchSize.intValue());
+      stmt.setFetchSize(fetchSize);
     }
 
     final Integer maxRows = getMaxRows();
     if (maxRows != null) {
-      stmt.setMaxRows(maxRows.intValue());
+      stmt.setMaxRows(maxRows);
     }
 
     DataSourceUtils.applyTimeout(stmt, obtainDataSource(), getQueryTimeout());
   }
 
-  protected void applyParameters(final PreparedStatement ps, final Object[] args) throws SQLException {
+  protected void applyParameters(
+          final PreparedStatement ps, final Object[] args) throws SQLException {
     int i = 1;
     for (final Object o : args) {
       ps.setObject(i++, o);
     }
   }
 
-  protected void applyStatementSettings(final PreparedStatement stmt, final Object[] args) throws SQLException {
+  protected void applyStatementSettings(
+          final PreparedStatement stmt, final Object[] args) throws SQLException {
     applyStatementSettings(stmt);
     if (args != null) {
       applyParameters(stmt, args);
@@ -216,9 +220,7 @@ public abstract class Executor implements BasicOperation {
 
   @Override
   public <T> T execute(final ConnectionCallback<T> action) throws SQLException {
-
     final DataSource dataSource = obtainDataSource();
-
     final Connection con = DataSourceUtils.getConnection(dataSource);
     try {
       return action.doInConnection(con);
@@ -255,7 +257,7 @@ public abstract class Executor implements BasicOperation {
   @Override
   public void execute(final String sql) throws SQLException {
 
-    if (DEBUG_ENABLED) {
+    if (log.isDebugEnabled()) {
       log.debug("Executing SQL statement [{}]", sql);
     }
 

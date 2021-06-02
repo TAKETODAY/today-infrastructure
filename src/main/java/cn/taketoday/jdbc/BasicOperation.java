@@ -19,11 +19,7 @@
  */
 package cn.taketoday.jdbc;
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * @author TODAY <br>
@@ -115,30 +111,5 @@ public interface BasicOperation {
    * any problem
    */
   <T> T execute(String sql, CallableStatementCallback<T> action) throws SQLException;
-
-  @FunctionalInterface
-  public interface StatementCallback<T> {
-
-    T doInStatement(final Statement stmt) throws SQLException;
-
-  }
-
-  @FunctionalInterface
-  public interface CallableStatementCallback<T> {
-
-    T doInCallableStatement(final CallableStatement cs) throws SQLException;
-  }
-
-  @FunctionalInterface
-  public interface ConnectionCallback<T> {
-
-    T doInConnection(final Connection con) throws SQLException;
-  }
-
-  @FunctionalInterface
-  public interface PreparedStatementCallback<T> {
-
-    T doInPreparedStatement(final PreparedStatement ps) throws SQLException;
-  }
 
 }

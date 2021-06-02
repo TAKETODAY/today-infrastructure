@@ -27,13 +27,11 @@ import javax.sql.DataSource;
 
 /**
  * @author TODAY <br>
- *         2019-08-18 20:21
+ * 2019-08-18 20:21
  */
 public class UpdateExecutor extends Executor implements UpdateOperation {
 
-  public UpdateExecutor() {
-
-  }
+  public UpdateExecutor() { }
 
   public UpdateExecutor(final DataSource dataSource) {
     setDataSource(dataSource);
@@ -42,13 +40,13 @@ public class UpdateExecutor extends Executor implements UpdateOperation {
   @Override
   public int update(final String sql) throws SQLException {
 
-    if (DEBUG_ENABLED) {
+    if (log.isDebugEnabled()) {
       log.debug("Executing SQL update [{}]", sql);
     }
 
     return execute((StatementCallback<Integer>) (stmt) -> {
       final int rows = stmt.executeUpdate(sql);
-      if (DEBUG_ENABLED) {
+      if (log.isDebugEnabled()) {
         log.debug("SQL update affected {} rows", rows);
       }
       return rows;
@@ -58,11 +56,10 @@ public class UpdateExecutor extends Executor implements UpdateOperation {
   @Override
   public int update(final String sql, final Object[] args) throws SQLException {
 
-    if (DEBUG_ENABLED) {
+    if (log.isDebugEnabled()) {
       log.debug("Executing SQL update [{}]", sql);
     }
     return execute(sql, (PreparedStatementCallback<Integer>) (ps) -> {
-
       applyParameters(ps, args);
       return ps.executeUpdate();
     });
@@ -71,7 +68,7 @@ public class UpdateExecutor extends Executor implements UpdateOperation {
   @Override
   public int[] batchUpdate(final String... sql) throws SQLException {
 
-    if (DEBUG_ENABLED) {
+    if (log.isDebugEnabled()) {
       log.debug("Executing SQL batch update of [{}] statements", sql.length);
     }
 

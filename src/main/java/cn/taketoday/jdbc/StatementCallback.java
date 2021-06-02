@@ -17,25 +17,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.jdbc.result;
 
-import java.sql.ResultSet;
+package cn.taketoday.jdbc;
+
 import java.sql.SQLException;
-
-import cn.taketoday.jdbc.type.TypeHandler;
+import java.sql.Statement;
 
 /**
- * @author TODAY 2021/1/7 22:52
+ * @author TODAY 2021/6/2 21:25
  */
-public class TypeHandlerResultSetHandler<T> implements ResultSetHandler<T> {
-  final TypeHandler<T> typeHandler;
+@FunctionalInterface
+public interface StatementCallback<T> {
 
-  public TypeHandlerResultSetHandler(TypeHandler<T> typeHandler) {
-    this.typeHandler = typeHandler;
-  }
+  T doInStatement(final Statement stmt) throws SQLException;
 
-  @Override
-  public T handle(ResultSet resultSet) throws SQLException {
-    return typeHandler.getResult(resultSet, 1);
-  }
 }

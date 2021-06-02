@@ -3,6 +3,8 @@ package cn.taketoday.jdbc;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import cn.taketoday.jdbc.result.ResultSetHandler;
+
 /**
  * User: dimzon Date: 4/7/14 Time: 11:06 PM
  */
