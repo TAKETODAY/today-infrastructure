@@ -37,8 +37,7 @@ import java.util.HashMap;
  * @author Clinton Begin
  */
 public class ArrayTypeHandler extends BaseTypeHandler<Object> {
-
-  private static final HashMap<Class<?>, String> STANDARD_MAPPING;
+  public static final HashMap<Class<?>, String> STANDARD_MAPPING;
 
   static {
     STANDARD_MAPPING = new HashMap<>();

@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.jdbc.AbstractResultSetIterator;
+import cn.taketoday.jdbc.result.AbstractResultSetIterator;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.utils.JdbcUtils;
 

@@ -1,6 +1,7 @@
 package cn.taketoday.jdbc;
 
 import java.io.InputStream;
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -74,13 +75,13 @@ public class Query implements AutoCloseable {
     this.connection = connection;
     this.columnNames = columnNames;
     this.returnGeneratedKeys = returnGeneratedKeys;
-    this.setColumnMappings(connection.getSql2o().getDefaultColumnMappings());
-    this.caseSensitive = connection.getSql2o().isDefaultCaseSensitive();
+    this.setColumnMappings(connection.getSession().getDefaultColumnMappings());
+    this.caseSensitive = connection.getSession().isDefaultCaseSensitive();
 
     paramNameToIdxMap = new HashMap<>();
     parameters = new HashMap<>();
 
-    parsedQuery = connection.getSql2o()
+    parsedQuery = connection.getSession()
             .getParsingStrategy()
             .parseSql(queryText, paramNameToIdxMap);
   }
@@ -149,9 +150,10 @@ public class Query implements AutoCloseable {
   // ------------------------------------------------
 
   public void addParameter(String name, ParameterSetter parameterSetter) {
-    if (!this.getParamNameToIdxMap().containsKey(name)) {
-      throw new PersistenceException("Failed to add parameter with name '" + name
-                                             + "'. No parameter with that name is declared in the sql.");
+    if (!getParamNameToIdxMap().containsKey(name)) {
+      throw new PersistenceException(
+              "Failed to add parameter with name '"
+                      + name + "'. No parameter with that name is declared in the sql.");
     }
     parameters.put(name, parameterSetter);
   }
@@ -263,11 +265,11 @@ public class Query implements AutoCloseable {
 
   public Query bind(final Object pojo) {
     Class<?> clazz = pojo.getClass();
-    final Map<String, List<Integer>> paramNameToIdxMap = this.getParamNameToIdxMap();
+    final Map<String, List<Integer>> paramNameToIdxMap = getParamNameToIdxMap();
     for (ReadableProperty property : ReadableProperty.readableProperties(clazz).values()) {
       try {
         if (paramNameToIdxMap.containsKey(property.name)) {
-          this.addParameter(property.name, (Class<Object>) property.type, property.get(pojo));
+          addParameter(property.name, (Class<Object>) property.type, property.get(pojo));
         }
       }
       catch (IllegalArgumentException ex) {
@@ -277,11 +279,13 @@ public class Query implements AutoCloseable {
     return this;
   }
 
+  @Override
   public void close() {
-    if (preparedStatement != null) {
-      connection.removeStatement(preparedStatement);
+    final PreparedStatement prepared = this.preparedStatement;
+    if (prepared != null) {
+      connection.removeStatement(prepared);
       try {
-        JdbcUtils.close(preparedStatement);
+        JdbcUtils.close(prepared);
       }
       catch (SQLException ex) {
         log.warn("Could not close statement.", ex);
@@ -345,7 +349,7 @@ public class Query implements AutoCloseable {
       return connection.prepareStatement(parsedQuery);
     }
     catch (SQLException ex) {
-      throw new PersistenceException(String.format("Error preparing statement - %s", ex.getMessage()), ex);
+      throw new PersistenceException("Error preparing statement - " + ex.getMessage(), ex);
     }
   }
 
@@ -596,7 +600,7 @@ public class Query implements AutoCloseable {
   }
 
   public TypeHandlerRegistry getTypeHandlerRegistry() {
-    return this.connection.getSql2o().getTypeHandlerRegistry();
+    return this.connection.getSession().getTypeHandlerRegistry();
   }
 
   public <V> V executeScalar(Class<V> returnType) {
@@ -831,16 +835,19 @@ public class Query implements AutoCloseable {
 
     @Override
     public void setParameter(final PreparedStatement statement, int paramIdx) throws SQLException {
-      if (values.length == 0) {
-        getTypeHandlerRegistry().getObjectTypeHandler()
-                .setParameter(statement, paramIdx, null);
-      }
-      else {
-        final TypeHandler<Object> typeHandler = getTypeHandlerRegistry().getUnknownTypeHandler();
-        for (final Object value : values) {
-          typeHandler.setParameter(statement, paramIdx++, value);
-        }
-      }
+      Array array = statement.getConnection().createArrayOf("", values);
+      statement.setArray(paramIdx, array);
+
+//      if (values.length == 0) {
+//        getTypeHandlerRegistry().getObjectTypeHandler()
+//                .setParameter(statement, paramIdx, null);
+//      }
+//      else {
+//        final TypeHandler<Object> typeHandler = getTypeHandlerRegistry().getUnknownTypeHandler();
+//        for (final Object value : values) {
+//          typeHandler.setParameter(statement, paramIdx++, value);
+//        }
+//      }
     }
   }
 

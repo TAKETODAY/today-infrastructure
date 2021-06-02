@@ -38,7 +38,6 @@ public class JdbcConnection implements AutoCloseable, Closeable {
   private boolean rollbackOnClose = true;
   private boolean rollbackOnException = true;
 
-
   JdbcConnection(DefaultSession sql2o, boolean autoClose) {
     this(sql2o, null, autoClose);
   }
@@ -97,7 +96,8 @@ public class JdbcConnection implements AutoCloseable, Closeable {
   }
 
   public DefaultSession rollback() {
-    return this.rollback(true).sql2o;
+    this.rollback(true);
+    return sql2o;
   }
 
   public JdbcConnection rollback(boolean closeConnection) {
@@ -332,7 +332,7 @@ public class JdbcConnection implements AutoCloseable, Closeable {
     return jdbcConnection;
   }
 
-  public DefaultSession getSql2o() {
+  public DefaultSession getSession() {
     return sql2o;
   }
 

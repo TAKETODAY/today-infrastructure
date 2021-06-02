@@ -7,6 +7,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * <pre>
+ *     createQuery("SELECT * FROM user WHERE id IN(:ids)")
+ *      .addParameter("ids", 4, 5, 6)
+ *      .executeAndFetch(...)
+ * </pre> will generate the query :
+ * <code>SELECT * FROM user WHERE id IN(4,5,6)</code><br>
+ * <br>
+ */
 class ArrayParameters {
 
   static class ArrayParameter implements Comparable<ArrayParameter> {
@@ -44,11 +53,14 @@ class ArrayParameters {
    * Update both the query and the parameter indexes to include the array
    * parameters.
    */
-  static String updateQueryAndParametersIndexes(String parsedQuery,
-                                                Map<String, List<Integer>> parameterNamesToIndexes,
-                                                Map<String, ParameterSetter> parameters,
-                                                boolean allowArrayParameters) {
-    List<ArrayParameter> arrayParametersSortedAsc = arrayParametersSortedAsc(parameterNamesToIndexes, parameters, allowArrayParameters);
+  static String updateQueryAndParametersIndexes(
+          String parsedQuery,
+          Map<String, List<Integer>> parameterNamesToIndexes,
+          Map<String, ParameterSetter> parameters,
+          boolean allowArrayParameters
+  ) {
+    List<ArrayParameter> arrayParametersSortedAsc
+            = arrayParametersSortedAsc(parameterNamesToIndexes, parameters, allowArrayParameters);
     if (arrayParametersSortedAsc.isEmpty()) {
       return parsedQuery;
     }
@@ -61,8 +73,10 @@ class ArrayParameters {
   /**
    * Update the indexes of each query parameter
    */
-  static Map<String, List<Integer>> updateParameterNamesToIndexes(Map<String, List<Integer>> parametersNameToIndex,
-                                                                  List<ArrayParameter> arrayParametersSortedAsc) {
+  static Map<String, List<Integer>> updateParameterNamesToIndexes(
+          Map<String, List<Integer>> parametersNameToIndex,
+          List<ArrayParameter> arrayParametersSortedAsc
+  ) {
     for (Map.Entry<String, List<Integer>> parameterNameToIndexes : parametersNameToIndex.entrySet()) {
       List<Integer> newParameterIndex = new ArrayList<>(parameterNameToIndexes.getValue().size());
       for (Integer parameterIndex : parameterNameToIndexes.getValue()) {
@@ -96,10 +110,12 @@ class ArrayParameters {
    * array parameter below 1 parameter will not change the text query nor the
    * parameter indexes.
    */
-  private static List<ArrayParameter> arrayParametersSortedAsc(Map<String, List<Integer>> parameterNamesToIndexes,
-                                                               Map<String, ParameterSetter> parameters,
-                                                               boolean allowArrayParameters) {
-    List<ArrayParameter> arrayParameters = new ArrayList<>();
+  private static List<ArrayParameter> arrayParametersSortedAsc(
+          Map<String, List<Integer>> parameterNamesToIndexes,
+          Map<String, ParameterSetter> parameters,
+          boolean allowArrayParameters
+  ) {
+    ArrayList<ArrayParameter> arrayParameters = new ArrayList<>();
     for (Map.Entry<String, ParameterSetter> parameter : parameters.entrySet()) {
       final int parameterCount = parameter.getValue().getParameterCount();
       if (parameterCount > 1) {
@@ -112,7 +128,6 @@ class ArrayParameters {
       }
     }
     Collections.sort(arrayParameters);
-
     return arrayParameters;
   }
 
@@ -120,7 +135,9 @@ class ArrayParameters {
    * Change the query to replace ? at each arrayParametersSortedAsc.parameterIndex
    * with ?,?,?.. multiple arrayParametersSortedAsc.parameterCount
    */
-  static String updateQueryWithArrayParameters(String parsedQuery, List<ArrayParameter> arrayParametersSortedAsc) {
+  static String updateQueryWithArrayParameters(
+          String parsedQuery, List<ArrayParameter> arrayParametersSortedAsc
+  ) {
     if (arrayParametersSortedAsc.isEmpty()) {
       return parsedQuery;
     }

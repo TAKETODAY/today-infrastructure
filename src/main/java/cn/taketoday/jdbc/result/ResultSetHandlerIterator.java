@@ -22,7 +22,6 @@ package cn.taketoday.jdbc.result;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import cn.taketoday.jdbc.AbstractResultSetIterator;
 import cn.taketoday.jdbc.PersistenceException;
 
 /**

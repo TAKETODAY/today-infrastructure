@@ -4,6 +4,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
+ * Parameter Setter
+ *
  * @author TODAY 2021/1/7 15:09
  */
 @FunctionalInterface
