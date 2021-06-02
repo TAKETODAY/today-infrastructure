@@ -26,7 +26,6 @@ import java.sql.Statement;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
@@ -232,46 +231,56 @@ public abstract class Executor implements BasicOperation {
 
   @Override
   public <T> T execute(final StatementCallback<T> action) throws SQLException {
-
-    return execute((ConnectionCallback<T>) (con) -> {
-
-      try (final Statement statement = con.createStatement()) {
-        applyStatementSettings(statement);
-        return action.doInStatement(statement);
+    final class StatementConnectionCallback implements ConnectionCallback<T> {
+      @Override
+      public T doInConnection(final Connection con) throws SQLException {
+        try (final Statement statement = con.createStatement()) {
+          applyStatementSettings(statement);
+          return action.doInStatement(statement);
+        }
       }
-    });
+    }
+
+    return execute(new StatementConnectionCallback());
   }
 
   @Override
   public <T> T execute(final String sql, final PreparedStatementCallback<T> action) throws SQLException {
-
-    return execute((ConnectionCallback<T>) (conn) -> {
-
-      try (final PreparedStatement statement = conn.prepareStatement(sql)) {
-        applyStatementSettings(statement);
-        return action.doInPreparedStatement(statement);
+    final class PreparedConnectionCallback implements ConnectionCallback<T> {
+      @Override
+      public T doInConnection(final Connection con) throws SQLException {
+        try (final PreparedStatement statement = con.prepareStatement(sql)) {
+          applyStatementSettings(statement);
+          return action.doInPreparedStatement(statement);
+        }
       }
-    });
+    }
+    return execute(new PreparedConnectionCallback());
   }
 
   @Override
   public void execute(final String sql) throws SQLException {
-
     if (log.isDebugEnabled()) {
       log.debug("Executing SQL statement [{}]", sql);
     }
-
-    execute((StatementCallback<Object>) (s) -> {
-      return s.execute(sql);
-    });
+    final class ExecuteStatementCallback implements StatementCallback<Object> {
+      @Override
+      public Object doInStatement(Statement stmt) throws SQLException {
+        return stmt.execute(sql);
+      }
+    }
+    execute(new ExecuteStatementCallback());
   }
 
   @Override
   public <T> T execute(final String sql, final CallableStatementCallback<T> action) throws SQLException {
-
-    return execute((ConnectionCallback<T>) (conn) -> {
-      return action.doInCallableStatement(conn.prepareCall(sql));
-    });
+    final class CallableConnectionCallback implements ConnectionCallback<T> {
+      @Override
+      public T doInConnection(final Connection con) throws SQLException {
+        return action.doInCallableStatement(con.prepareCall(sql));
+      }
+    }
+    return execute(new CallableConnectionCallback());
   }
 
 }

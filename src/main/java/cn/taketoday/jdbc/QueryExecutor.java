@@ -54,7 +54,8 @@ public class QueryExecutor extends Executor implements QueryOperation, QueryOpti
   }
 
   @Override
-  public <T> List<T> queryList(final String sql, final Object[] args, final RowMapper<T> rowMapper) throws SQLException {
+  public <T> List<T> queryList(
+          final String sql, final Object[] args, final RowMapper<T> rowMapper) throws SQLException {
     final class QueryListResultSetExtractor implements ResultSetExtractor<List<T>> {
       @Override
       public List<T> extractData(ResultSet result) throws SQLException {
@@ -71,7 +72,8 @@ public class QueryExecutor extends Executor implements QueryOperation, QueryOpti
   }
 
   @Override
-  public <T> T query(final String sql, final Object[] args, final ResultSetExtractor<T> rse) throws SQLException {
+  public <T> T query(
+          final String sql, final Object[] args, final ResultSetExtractor<T> rse) throws SQLException {
     final class ExecuteConnectionCallback implements ConnectionCallback<T> {
 
       @Override
@@ -111,7 +113,8 @@ public class QueryExecutor extends Executor implements QueryOperation, QueryOpti
   }
 
   @Override
-  public <T> T query(final String sql, final Object[] args, final Class<T> requiredType) throws SQLException {
+  public <T> T query(
+          final String sql, final Object[] args, final Class<T> requiredType) throws SQLException {
     final class QueryResultSetExtractor implements ResultSetExtractor<T> {
 
       @Override
@@ -142,7 +145,8 @@ public class QueryExecutor extends Executor implements QueryOperation, QueryOpti
   }
 
   @Override
-  public <T> List<T> queryList(final String sql, final Object[] args, final Class<T> elementType) throws SQLException {
+  public <T> List<T> queryList(
+          final String sql, final Object[] args, final Class<T> elementType) throws SQLException {
     final class QueryListResultSetExtractor implements ResultSetExtractor<List<T>> {
       @Override
       public List<T> extractData(ResultSet result) throws SQLException {

@@ -116,7 +116,7 @@ public interface QueryOperation {
    *
    * @throws SQLException
    *         if there is any problem executing the query
-   * @see #queryList(String, Object[], ResultSetHandler)
+   * @see #query(String, Object[], ResultSetHandler)
    */
   default void query(String sql, ResultSetHandler rch) throws SQLException {
     query(sql, null, rch);
