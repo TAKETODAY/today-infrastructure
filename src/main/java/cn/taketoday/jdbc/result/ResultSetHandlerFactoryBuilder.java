@@ -1,6 +1,6 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,19 +17,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.jdbc;
 
-import cn.taketoday.jdbc.utils.CamelCaseToUnderscore;
+package cn.taketoday.jdbc.result;
+
+import java.util.Map;
 
 /**
- * @author TODAY <br>
- * 2019-08-30 21:33
+ * Created with IntelliJ IDEA. User: dimzon Date: 4/7/14 Time: 4:28 AM To change
+ * this template use File | Settings | File Templates.
  */
-public class DefaultFieldColumnConverter implements FieldColumnConverter {
+public interface ResultSetHandlerFactoryBuilder {
+  boolean isCaseSensitive();
 
-  @Override
-  public String convert(String field) {
-    return CamelCaseToUnderscore.convert(field);
-  }
+  void setCaseSensitive(boolean caseSensitive);
 
+  boolean isAutoDeriveColumnNames();
+
+  void setAutoDeriveColumnNames(boolean autoDeriveColumnNames);
+
+  boolean isThrowOnMappingError();
+
+  void throwOnMappingError(boolean throwOnMappingError);
+
+  Map<String, String> getColumnMappings();
+
+  void setColumnMappings(Map<String, String> columnMappings);
+
+  <E> ResultSetHandlerFactory<E> newFactory(Class<E> clazz);
 }

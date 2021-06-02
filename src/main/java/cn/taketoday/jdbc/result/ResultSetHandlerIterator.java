@@ -17,12 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.jdbc;
+package cn.taketoday.jdbc.result;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import cn.taketoday.jdbc.result.ResultSetHandler;
+import cn.taketoday.jdbc.AbstractResultSetIterator;
+import cn.taketoday.jdbc.PersistenceException;
 
 /**
  * Iterator for a {@link ResultSet}. Tricky part here is getting

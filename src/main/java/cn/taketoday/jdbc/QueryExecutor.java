@@ -32,6 +32,8 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import cn.taketoday.jdbc.reflection.JdbcBeanMetadata;
+import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;
+import cn.taketoday.jdbc.result.ResultSetHandlerFactory;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.JdbcUtils;
 
@@ -42,15 +44,15 @@ import cn.taketoday.jdbc.utils.JdbcUtils;
 public class QueryExecutor extends Executor implements QueryOperation, QueryOptionalOperation {
 
   private TypeHandlerRegistry registry = TypeHandlerRegistry.getSharedInstance();
+  private boolean caseSensitive;
+  private boolean throwOnMappingError;
+  private boolean autoDeriveColumnNames;
+  private Map<String, String> columnMappings;
 
   public QueryExecutor() { }
 
   public QueryExecutor(final DataSource dataSource) {
     setDataSource(dataSource);
-  }
-
-  public void setRegistry(TypeHandlerRegistry registry) {
-    this.registry = registry;
   }
 
   @Override
@@ -134,11 +136,6 @@ public class QueryExecutor extends Executor implements QueryOperation, QueryOpti
     return query(sql, args, new QueryResultSetExtractor());
   }
 
-  private boolean caseSensitive;
-  private boolean throwOnMappingError;
-  private boolean autoDeriveColumnNames;
-  private Map<String, String> columnMappings;
-
   public <T> ResultSetHandlerFactory<T> newFactory(Class<T> clazz) {
     JdbcBeanMetadata pojoMetadata = new JdbcBeanMetadata(clazz, caseSensitive, autoDeriveColumnNames, columnMappings, throwOnMappingError);
     return new DefaultResultSetHandlerFactory<>(pojoMetadata, registry);
@@ -208,4 +205,45 @@ public class QueryExecutor extends Executor implements QueryOperation, QueryOpti
     return query(sql, args, new MapResultSetExtractor());
   }
 
+  //
+
+  public void setRegistry(TypeHandlerRegistry registry) {
+    this.registry = registry;
+  }
+
+  public TypeHandlerRegistry getRegistry() {
+    return registry;
+  }
+
+  public void setAutoDeriveColumnNames(boolean autoDeriveColumnNames) {
+    this.autoDeriveColumnNames = autoDeriveColumnNames;
+  }
+
+  public boolean isAutoDeriveColumnNames() {
+    return autoDeriveColumnNames;
+  }
+
+  public void setThrowOnMappingError(boolean throwOnMappingError) {
+    this.throwOnMappingError = throwOnMappingError;
+  }
+
+  public boolean isThrowOnMappingError() {
+    return throwOnMappingError;
+  }
+
+  public boolean isCaseSensitive() {
+    return caseSensitive;
+  }
+
+  public void setCaseSensitive(boolean caseSensitive) {
+    this.caseSensitive = caseSensitive;
+  }
+
+  public void setColumnMappings(Map<String, String> columnMappings) {
+    this.columnMappings = columnMappings;
+  }
+
+  public Map<String, String> getColumnMappings() {
+    return columnMappings;
+  }
 }

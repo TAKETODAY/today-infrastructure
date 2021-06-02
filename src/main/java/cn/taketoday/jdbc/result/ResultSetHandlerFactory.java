@@ -1,6 +1,6 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,14 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.jdbc;
+
+package cn.taketoday.jdbc.result;
+
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 
 /**
- * @author TODAY <br>
- *         2019-08-28 21:00
+ * User: dimzon Date: 4/7/14 Time: 12:02 AM
  */
-@FunctionalInterface
-public interface FieldColumnConverter {
+public interface ResultSetHandlerFactory<T> {
 
-  String convert(String field);
+  ResultSetHandler<T> newResultSetHandler(ResultSetMetaData resultSetMetaData) throws SQLException;
 }

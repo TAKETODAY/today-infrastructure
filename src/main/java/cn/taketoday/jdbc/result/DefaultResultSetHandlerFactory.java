@@ -1,4 +1,24 @@
-package cn.taketoday.jdbc;
+/*
+ * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ */
+
+package cn.taketoday.jdbc.result;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -7,13 +27,9 @@ import java.sql.SQLException;
 import cn.taketoday.context.factory.BeanProperty;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.Mappings;
+import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.reflection.JdbcBeanMetadata;
 import cn.taketoday.jdbc.reflection.Pojo;
-import cn.taketoday.jdbc.result.JdbcPropertyAccessor;
-import cn.taketoday.jdbc.result.ObjectResultHandler;
-import cn.taketoday.jdbc.result.ResultSetHandler;
-import cn.taketoday.jdbc.result.TypeHandlerPropertyAccessor;
-import cn.taketoday.jdbc.result.TypeHandlerResultSetHandler;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.JdbcUtils;
