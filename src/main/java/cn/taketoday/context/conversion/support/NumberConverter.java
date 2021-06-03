@@ -53,7 +53,7 @@ public class NumberConverter
     else if (source instanceof String) {
       final String stringSource = (String) source;
       if (stringSource.isEmpty()) {
-        return null;
+        return convertNull(); // fix @since 3.0.4
       }
       try {
         return convertString(stringSource);
