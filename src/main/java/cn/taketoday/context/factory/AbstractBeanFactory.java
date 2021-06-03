@@ -761,6 +761,7 @@ public abstract class AbstractBeanFactory
    * Handle abstract dependencies
    */
   public void handleDependency() {
+    // @since 3.0.3 fix ConcurrentModificationException
     final LinkedHashSet<BeanReferencePropertySetter> dependencies = new LinkedHashSet<>(getDependencies());
     for (final BeanReferencePropertySetter reference : dependencies) {
       final String beanName = reference.getReferenceName();

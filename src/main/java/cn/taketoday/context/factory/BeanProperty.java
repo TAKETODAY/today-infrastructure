@@ -44,6 +44,7 @@ import cn.taketoday.context.reflect.PropertyAccessor;
 import cn.taketoday.context.utils.AbstractAnnotatedElement;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.GenericDescriptor;
 import cn.taketoday.context.utils.Mappings;
 import cn.taketoday.context.utils.ReflectionUtils;
 
@@ -72,6 +73,9 @@ public class BeanProperty extends AbstractAnnotatedElement {
   private ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
   private Annotation[] annotations;
+
+  /** @since 3.0.4 */
+  private GenericDescriptor typeDescriptor;
 
   public BeanProperty(Field field) {
     Assert.notNull(field, "field must not be null");
@@ -125,29 +129,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
   }
 
   public Object getValue(Object object, Class<?> requiredType) {
-    return convertIfNecessary(requiredType, getValue(object));
-  }
-
-  /**
-   * @throws PropertyReadOnlyException
-   *         If this property is read only
-   * @see cn.taketoday.context.reflect.SetterMethod#set(Object, Object)
-   */
-  public void setValue(Object obj, Object value) {
-    obtainAccessor().set(obj, convertIfNecessary(fieldType, value));
-  }
-
-  /**
-   * @throws PropertyReadOnlyException
-   *         If this property is read only
-   * @see cn.taketoday.context.reflect.SetterMethod#set(Object, Object)
-   * @since 3.0.2
-   */
-  public final void setDirectly(Object obj, Object value) {
-    obtainAccessor().set(obj, value);
-  }
-
-  protected Object convertIfNecessary(final Class<?> requiredType, Object value) {
+    final Object value = getValue(object);
     if (requiredType.isInstance(value)) {
       return value;
     }
@@ -158,6 +140,47 @@ public class BeanProperty extends AbstractAnnotatedElement {
     }
     return conversionService.convert(value, requiredType);
   }
+
+  /**
+   * @throws PropertyReadOnlyException
+   *         If this property is read only
+   * @see cn.taketoday.context.reflect.SetterMethod#set(Object, Object)
+   */
+  public final void setValue(final Object obj, Object value) {
+    if (!fieldType.isInstance(value)) {
+      ConversionService conversionService = getConversionService();
+      if (conversionService == null) {
+        conversionService = DefaultConversionService.getSharedInstance();
+        setConversionService(conversionService);
+      }
+      GenericDescriptor typeDescriptor = getTypeDescriptor();
+      if (typeDescriptor == null) {
+        typeDescriptor = GenericDescriptor.ofProperty(this);
+        this.typeDescriptor = typeDescriptor;
+      }
+      value = conversionService.convert(value, typeDescriptor);
+    }
+    setDirectly(obj, value);
+  }
+
+  /**
+   * @throws PropertyReadOnlyException
+   *         If this property is read only
+   * @see cn.taketoday.context.reflect.SetterMethod#set(Object, Object)
+   * @since 3.0.2
+   */
+  public final void setDirectly(final Object obj, final Object value) {
+    obtainAccessor().set(obj, value);
+  }
+
+  /**
+   * @since 3.0.4
+   */
+  public GenericDescriptor getTypeDescriptor() {
+    return typeDescriptor;
+  }
+
+  // PropertyAccessor
 
   public PropertyAccessor obtainAccessor() {
     PropertyAccessor propertyAccessor = this.propertyAccessor;
