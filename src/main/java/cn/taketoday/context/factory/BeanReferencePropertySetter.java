@@ -137,15 +137,13 @@ public class BeanReferencePropertySetter extends AbstractPropertySetter {
     if (!super.equals(o)) return false;
     final BeanReferencePropertySetter that = (BeanReferencePropertySetter) o;
     return required == that.required
-            && prototype == that.prototype
             && Objects.equals(referenceName, that.referenceName)
-            && Objects.equals(referenceClass, that.referenceClass)
-            && Objects.equals(reference, that.reference);
+            && Objects.equals(referenceClass, that.referenceClass);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(super.hashCode(), referenceName, required, referenceClass, prototype, reference);
+    return Objects.hash(super.hashCode(), referenceName, required, referenceClass);
   }
 
   @Override

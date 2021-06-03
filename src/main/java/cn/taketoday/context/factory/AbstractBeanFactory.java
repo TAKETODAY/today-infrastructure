@@ -761,7 +761,8 @@ public abstract class AbstractBeanFactory
    * Handle abstract dependencies
    */
   public void handleDependency() {
-    for (final BeanReferencePropertySetter reference : getDependencies()) {
+    final LinkedHashSet<BeanReferencePropertySetter> dependencies = new LinkedHashSet<>(getDependencies());
+    for (final BeanReferencePropertySetter reference : dependencies) {
       final String beanName = reference.getReferenceName();
       // fix: #2 when handle dependency some bean definition has already exist
       if (containsBeanDefinition(beanName)) {
@@ -1155,9 +1156,10 @@ public abstract class AbstractBeanFactory
   protected void postProcessRegisterBeanDefinition(final BeanDefinition targetDef) {
     final PropertySetter[] propertySetters = targetDef.getPropertySetters();
     if (ObjectUtils.isNotEmpty(propertySetters)) {
+      final HashSet<BeanReferencePropertySetter> dependencies = this.dependencies;
       for (final PropertySetter propertySetter : propertySetters) {
-        if (propertySetter instanceof BeanReferencePropertySetter) {
-          this.dependencies.add((BeanReferencePropertySetter) propertySetter);
+        if (propertySetter instanceof BeanReferencePropertySetter && !dependencies.contains(propertySetter)) {
+          dependencies.add((BeanReferencePropertySetter) propertySetter);
         }
       }
     }

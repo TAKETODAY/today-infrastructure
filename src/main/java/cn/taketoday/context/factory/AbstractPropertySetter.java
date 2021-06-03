@@ -85,8 +85,7 @@ public abstract class AbstractPropertySetter implements PropertySetter {
   public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof AbstractPropertySetter)) return false;
-    final AbstractPropertySetter that = (AbstractPropertySetter) o;
-    return Objects.equals(field, that.field);
+    return Objects.equals(field, ((AbstractPropertySetter) o).field);
   }
 
   @Override
