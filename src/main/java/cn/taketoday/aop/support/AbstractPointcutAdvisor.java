@@ -20,10 +20,10 @@
 
 package cn.taketoday.aop.support;
 
-import org.aopalliance.aop.Advice;
-
 import java.io.Serializable;
 import java.util.Objects;
+
+import org.aopalliance.aop.Advice;
 
 import cn.taketoday.aop.PointcutAdvisor;
 import cn.taketoday.context.Ordered;
@@ -41,7 +41,8 @@ import cn.taketoday.context.OrderedSupport;
  */
 public abstract class AbstractPointcutAdvisor
         extends OrderedSupport implements PointcutAdvisor, Serializable {
-
+  private static final long serialVersionUID = 1L;
+  
   private Advice advice = EMPTY_ADVICE;
 
   @Override

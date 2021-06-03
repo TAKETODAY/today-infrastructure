@@ -130,6 +130,8 @@ public abstract class MethodMatchers {
    * MethodMatcher implementation for a union of two given MethodMatchers.
    */
   static class UnionMethodMatcher implements MethodMatcher, Serializable {
+    private static final long serialVersionUID = 1L;
+
     protected final MethodMatcher mm1;
     protected final MethodMatcher mm2;
 
@@ -193,6 +195,7 @@ public abstract class MethodMatchers {
    */
   static class UnionIntroductionAwareMethodMatcher
           extends UnionMethodMatcher implements IntroductionAwareMethodMatcher {
+    private static final long serialVersionUID = 1L;
 
     public UnionIntroductionAwareMethodMatcher(MethodMatcher mm1, MethodMatcher mm2) {
       super(mm1, mm2);
@@ -210,6 +213,8 @@ public abstract class MethodMatchers {
    * supporting an associated ClassFilter per MethodMatcher.
    */
   static class ClassFilterAwareUnionMethodMatcher extends UnionMethodMatcher {
+    private static final long serialVersionUID = 1L;
+
     private final ClassFilter cf1;
     private final ClassFilter cf2;
 
@@ -266,6 +271,7 @@ public abstract class MethodMatchers {
    */
   static class ClassFilterAwareUnionIntroductionAwareMethodMatcher
           extends ClassFilterAwareUnionMethodMatcher implements IntroductionAwareMethodMatcher {
+    private static final long serialVersionUID = 1L;
 
     public ClassFilterAwareUnionIntroductionAwareMethodMatcher(
             MethodMatcher mm1, ClassFilter cf1, MethodMatcher mm2, ClassFilter cf2) {
@@ -284,6 +290,8 @@ public abstract class MethodMatchers {
    * MethodMatcher implementation for an intersection of two given MethodMatchers.
    */
   static class IntersectionMethodMatcher implements MethodMatcher, Serializable {
+    private static final long serialVersionUID = 1L;
+
     protected final MethodMatcher mm1;
     protected final MethodMatcher mm2;
 
@@ -342,6 +350,7 @@ public abstract class MethodMatchers {
    */
   static class IntersectionIntroductionAwareMethodMatcher
           extends IntersectionMethodMatcher implements IntroductionAwareMethodMatcher {
+    private static final long serialVersionUID = 1L;
 
     public IntersectionIntroductionAwareMethodMatcher(MethodMatcher mm1, MethodMatcher mm2) {
       super(mm1, mm2);

@@ -41,6 +41,7 @@ import cn.taketoday.context.utils.ObjectUtils;
  */
 public class ProxyFactoryBean
         extends ProxyCreatorSupport implements FactoryBean<Object>, BeanFactoryAware, BeanClassLoaderAware {
+  private static final long serialVersionUID = 1L;
 
   private String targetName;
   private String[] interceptorNames;

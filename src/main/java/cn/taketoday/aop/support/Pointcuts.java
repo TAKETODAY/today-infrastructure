@@ -143,6 +143,8 @@ public abstract class Pointcuts {
    */
   static class SetterPointcut
           extends StaticMethodMatcherPointcut implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     public static final SetterPointcut INSTANCE = new SetterPointcut();
 
     @Override
@@ -167,6 +169,8 @@ public abstract class Pointcuts {
    */
   static class GetterPointcut
           extends StaticMethodMatcherPointcut implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     public static final GetterPointcut INSTANCE = new GetterPointcut();
 
     @Override

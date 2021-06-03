@@ -41,6 +41,7 @@ import java.util.function.Function;
  */
 public class ConcurrentProperties
         extends Properties implements ConcurrentMap<Object, Object> {
+  private static final long serialVersionUID = 1L;
 
   private final ConcurrentHashMap<Object, Object> map = new ConcurrentHashMap<>();
 

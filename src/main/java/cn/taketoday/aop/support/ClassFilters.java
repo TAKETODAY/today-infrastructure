@@ -106,6 +106,7 @@ public abstract class ClassFilters {
    * ClassFilter implementation for a union of the given ClassFilters.
    */
   static class UnionClassFilter implements ClassFilter, Serializable {
+    private static final long serialVersionUID = 1L;
     private final ClassFilter[] filters;
 
     UnionClassFilter(ClassFilter[] filters) {
@@ -144,6 +145,8 @@ public abstract class ClassFilters {
    * ClassFilter implementation for an intersection of the given ClassFilters.
    */
   static class IntersectionClassFilter implements ClassFilter, Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final ClassFilter[] filters;
 
     IntersectionClassFilter(ClassFilter[] filters) {
