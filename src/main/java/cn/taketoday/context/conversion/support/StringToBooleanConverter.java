@@ -21,7 +21,8 @@ package cn.taketoday.context.conversion.support;
 
 import java.util.HashSet;
 
-import cn.taketoday.context.conversion.Converter;
+import cn.taketoday.context.conversion.TypeConverter;
+import cn.taketoday.context.utils.GenericDescriptor;
 
 /**
  * Converts String to a Boolean.
@@ -31,40 +32,45 @@ import cn.taketoday.context.conversion.Converter;
  * @author TODAY
  * @since 3.0
  */
-final class StringToBooleanConverter implements Converter<String, Boolean> {
+public final class StringToBooleanConverter extends StringSourceTypeConverter implements TypeConverter {
+  public static final HashSet<String> trueValues = new HashSet<>(8);
+  public static final HashSet<String> falseValues = new HashSet<>(8);
 
-	private static final HashSet<String> trueValues = new HashSet<>(8);
-	private static final HashSet<String> falseValues = new HashSet<>(8);
+  static {
+    trueValues.add("true");
+    trueValues.add("on");
+    trueValues.add("yes");
+    trueValues.add("1");
 
-	static {
-		trueValues.add("true");
-		trueValues.add("on");
-		trueValues.add("yes");
-		trueValues.add("1");
+    falseValues.add("false");
+    falseValues.add("off");
+    falseValues.add("no");
+    falseValues.add("0");
+  }
 
-		falseValues.add("false");
-		falseValues.add("off");
-		falseValues.add("no");
-		falseValues.add("0");
-	}
+  @Override
+  public boolean supportsInternal(GenericDescriptor targetType, Class<?> sourceType) {
+    return targetType.is(boolean.class) || targetType.is(Boolean.class);
+  }
 
-
-	@Override
-	public Boolean convert(String source) {
-		String value = source.trim();
-		if (value.isEmpty()) {
-			return null;
-		}
-		value = value.toLowerCase();
-		if (trueValues.contains(value)) {
-			return Boolean.TRUE;
-		}
-		else if (falseValues.contains(value)) {
-			return Boolean.FALSE;
-		}
-		else {
-			throw new IllegalArgumentException("Invalid boolean value '" + source + "'");
-		}
-	}
-
+  @Override
+  protected Object convertInternal(final GenericDescriptor targetType, final String source) {
+    String value = source.trim();
+    if (value.isEmpty()) {
+      if (targetType.is(Boolean.class)) {
+        return null;
+      }
+      return Boolean.FALSE;
+    }
+    value = value.toLowerCase();
+    if (trueValues.contains(value)) {
+      return Boolean.TRUE;
+    }
+    else if (falseValues.contains(value)) {
+      return Boolean.FALSE;
+    }
+    else {
+      throw new IllegalArgumentException("Invalid boolean value '" + source + "'");
+    }
+  }
 }

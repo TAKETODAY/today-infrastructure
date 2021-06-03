@@ -116,7 +116,8 @@ public class DefaultConversionServiceTests {
 
   @Test
   public void stringToBooleanEmptyString() {
-    assertThat(conversionService.convert("", Boolean.class)).isEqualTo(null);
+    assertThat(conversionService.convert("", Boolean.class)).isNull();
+    assertThat(conversionService.convert("", boolean.class)).isEqualTo(false);
   }
 
   @Test
@@ -219,7 +220,9 @@ public class DefaultConversionServiceTests {
 
   @Test
   public void stringToNumberEmptyString() {
-    assertThat(conversionService.convert("", Number.class)).isEqualTo(null);
+    assertThat(conversionService.convert("", Number.class)).isNull();
+    assertThat(conversionService.convert("", int.class)).isZero();
+    assertThat(conversionService.convert("", Integer.class)).isNull();
   }
 
   @Test
@@ -264,7 +267,7 @@ public class DefaultConversionServiceTests {
   public void enumToInteger() {
 
     assertThat(conversionService.convert(Foo.BAR, Integer.class))
-            .isEqualTo((int) Integer.valueOf(0));
+            .isEqualTo((int) 0);
   }
 
   @Test

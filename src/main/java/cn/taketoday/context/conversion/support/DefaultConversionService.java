@@ -347,26 +347,27 @@ public class DefaultConversionService implements ConfigurableConversionService {
   public static void addCollectionConverters(ConverterRegistry registry) {
     ConversionService conversionService = (ConversionService) registry;
 
-    registry.addConverters(new ArrayToCollectionConverter(conversionService));
-    registry.addConverters(new CollectionToArrayConverter(conversionService));
+    registry.addConverters(new ArrayToCollectionConverter(conversionService),
+                           new CollectionToArrayConverter(conversionService),
 
-    registry.addConverters(new ArrayToArrayConverter(conversionService));
-    registry.addConverters(new CollectionToCollectionConverter(conversionService));
-    registry.addConverters(new MapToMapConverter(conversionService));
+                           new ArrayToArrayConverter(conversionService),
+                           new CollectionToCollectionConverter(conversionService),
+                           new MapToMapConverter(conversionService),
 
-    registry.addConverters(new ArrayToStringConverter(conversionService));
-    registry.addConverters(new StringToArrayConverter(conversionService));
+                           new ArrayToStringConverter(conversionService),
+                           new StringToArrayConverter(conversionService),
 
-    registry.addConverters(new ArrayToObjectConverter(conversionService));
-    registry.addConverters(new ObjectToArrayConverter(conversionService));
+                           new ArrayToObjectConverter(conversionService),
+                           new ObjectToArrayConverter(conversionService),
 
-    registry.addConverters(new CollectionToStringConverter(conversionService));
-    registry.addConverters(new StringToCollectionConverter(conversionService));
+                           new CollectionToStringConverter(conversionService),
+                           new StringToCollectionConverter(conversionService),
 
-    registry.addConverters(new CollectionToObjectConverter(conversionService));
-    registry.addConverters(new ObjectToCollectionConverter(conversionService));
+                           new CollectionToObjectConverter(conversionService),
+                           new ObjectToCollectionConverter(conversionService),
 
-    registry.addConverters(new StreamConverter(conversionService));
+                           new StreamConverter(conversionService));
+
   }
 
   private static void addScalarConverters(ConverterRegistry registry) {
@@ -404,9 +405,7 @@ public class DefaultConversionService implements ConfigurableConversionService {
 
     registry.addConverter(new NumberToCharacterConverter());
 
-    final StringToBooleanConverter converter = new StringToBooleanConverter();
-    registry.addConverter(boolean.class, String.class, converter);
-    registry.addConverter(Boolean.class, String.class, converter);
+    registry.addConverter(new StringToBooleanConverter());
 
     registry.addConverter(String.class, Boolean.class, ObjectToStringConverter.INSTANCE);
 
@@ -432,7 +431,6 @@ public class DefaultConversionService implements ConfigurableConversionService {
   }
 
   // TypeConverter
-
 
   /**
    * @author TODAY <br>
