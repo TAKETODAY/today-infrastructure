@@ -224,7 +224,7 @@ public class GenericDescriptor implements Serializable {
    * Is this type a primitive type?
    */
   public boolean isPrimitive() {
-    return getType().isPrimitive();
+    return type.isPrimitive();
   }
 
   /**
@@ -505,7 +505,7 @@ public class GenericDescriptor implements Serializable {
 
   @Override
   public int hashCode() {
-    return getType().hashCode();
+    return Objects.hash(type, resolvableType, annotatedElement);
   }
 
   @Override

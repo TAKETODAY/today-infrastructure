@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Currency;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -69,6 +70,20 @@ public class DefaultConversionService implements ConfigurableConversionService {
 
   private final LinkedList<TypeConverter> converters = new LinkedList<>();
   private final ConverterMappings converterMappings = new ConverterMappings();
+  /** @since 3.0.4 */
+  private final HashMap<Class<?>, Object> nullMappings = new HashMap<>();
+
+  public DefaultConversionService() {
+    addNullValue(Optional.class, Optional.empty());
+    addNullValue(boolean.class, false);
+    addNullValue(int.class, 0);
+    addNullValue(char.class, (char) 0);
+    addNullValue(long.class, 0L);
+    addNullValue(short.class, (short) 0);
+    addNullValue(byte.class, (byte) 0);
+    addNullValue(float.class, 0f);
+    addNullValue(double.class, 0D);
+  }
 
   @Override
   public boolean canConvert(Class<?> sourceType, GenericDescriptor targetType) {
@@ -107,10 +122,24 @@ public class DefaultConversionService implements ConfigurableConversionService {
 
   @SuppressWarnings("unchecked")
   protected <T> T convertNull(final GenericDescriptor targetType) {
-    if (targetType.is(Optional.class)) {
-      return (T) Optional.empty();
-    }
-    return null;
+    return (T) nullMappings.get(targetType.getType());
+  }
+
+  /**
+   * add null value mapping
+   *
+   * @see #convertNull(GenericDescriptor)
+   * @since 3.0.4
+   */
+  public <T> void addNullValue(Class<T> type, T value) {
+    nullMappings.put(type, value);
+  }
+
+  /**
+   * @since 3.0.4
+   */
+  public void removeNullValue(Class<?> type) {
+    nullMappings.remove(type);
   }
 
   /**

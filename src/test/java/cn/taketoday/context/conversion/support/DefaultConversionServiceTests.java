@@ -723,9 +723,9 @@ public class DefaultConversionServiceTests {
     final GenericDescriptor descriptor = GenericDescriptor.ofProperty(genericList);
 
     List<Integer> bar = conversionService.convert(foo, descriptor);
-    assertThat((int) bar.get(0)).isEqualTo((int) Integer.valueOf(1));
-    assertThat((int) bar.get(1)).isEqualTo((int) Integer.valueOf(2));
-    assertThat((int) bar.get(2)).isEqualTo((int) Integer.valueOf(3));
+    assertThat((int) bar.get(0)).isEqualTo(1);
+    assertThat((int) bar.get(1)).isEqualTo(2);
+    assertThat((int) bar.get(2)).isEqualTo(3);
   }
 
   @Test
@@ -979,7 +979,6 @@ public class DefaultConversionServiceTests {
 
   @Test
   public void convertObjectToOptionalNull() {
-
     assertThat(conversionService.convert(null, Optional.class)).isSameAs(Optional.empty());
     assertThat((Object) conversionService.convert(null, Optional.class)).isSameAs(Optional.empty());
   }
