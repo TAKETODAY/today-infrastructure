@@ -6,6 +6,7 @@ import java.util.List;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.jdbc.config.RepositoryConfig;
 import test.jdbc.model.User;
 
 /**
