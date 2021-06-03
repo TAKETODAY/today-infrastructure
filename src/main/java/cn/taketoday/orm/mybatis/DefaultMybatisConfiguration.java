@@ -33,6 +33,7 @@ import javax.sql.DataSource;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.BeanNameCreator;
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Env;
@@ -42,13 +43,16 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Repository;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.LoadingMissingBeanEvent;
+import cn.taketoday.context.factory.DefaultBeanDefinition;
 import cn.taketoday.context.factory.FactoryBeanDefinition;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.SingletonSupplier;
 import cn.taketoday.context.utils.StringUtils;
 
 import static cn.taketoday.context.utils.ContextUtils.getResourceAsStream;
+import static cn.taketoday.context.utils.ContextUtils.resolveInitMethod;
 
 /**
  * @author TODAY <br>
@@ -86,7 +90,10 @@ public class DefaultMybatisConfiguration implements ApplicationListener<LoadingM
   }
 
   protected FactoryBeanDefinition<?> createBeanDefinition(final Class<?> beanClass, final String name) {
-    return new FactoryBeanDefinition<>(name, MapperFactoryBean.class, new MapperFactoryBean<>(beanClass));
+    final DefaultBeanDefinition ret = new DefaultBeanDefinition(name, beanClass);
+    ret.setDestroyMethods(Constant.EMPTY_STRING_ARRAY)
+            .setInitMethods(resolveInitMethod(null, beanClass));
+    return new FactoryBeanDefinition<>(ret, SingletonSupplier.of(new MapperFactoryBean<>(beanClass)));
   }
 
   @MissingBean
