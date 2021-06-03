@@ -835,19 +835,16 @@ public class Query implements AutoCloseable {
 
     @Override
     public void setParameter(final PreparedStatement statement, int paramIdx) throws SQLException {
-      Array array = statement.getConnection().createArrayOf("", values);
-      statement.setArray(paramIdx, array);
-
-//      if (values.length == 0) {
-//        getTypeHandlerRegistry().getObjectTypeHandler()
-//                .setParameter(statement, paramIdx, null);
-//      }
-//      else {
-//        final TypeHandler<Object> typeHandler = getTypeHandlerRegistry().getUnknownTypeHandler();
-//        for (final Object value : values) {
-//          typeHandler.setParameter(statement, paramIdx++, value);
-//        }
-//      }
+      if (values.length == 0) {
+        getTypeHandlerRegistry().getObjectTypeHandler()
+                .setParameter(statement, paramIdx, null);
+      }
+      else {
+        final TypeHandler<Object> typeHandler = getTypeHandlerRegistry().getUnknownTypeHandler();
+        for (final Object value : values) {
+          typeHandler.setParameter(statement, paramIdx++, value);
+        }
+      }
     }
   }
 

@@ -23,18 +23,18 @@ import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 
-import cn.taketoday.context.annotation.Autowired;
+import javax.annotation.PostConstruct;
+
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.FactoryBean;
-import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 
 /**
  * @author TODAY <br>
- *         2018-10-06 14:56
+ * 2018-10-06 14:56
  */
-public class MapperFactoryBean<T> implements FactoryBean<T>, InitializingBean {
+public class MapperFactoryBean<T> implements FactoryBean<T> {
 
   private SqlSession sqlSession;
 
@@ -52,11 +52,33 @@ public class MapperFactoryBean<T> implements FactoryBean<T>, InitializingBean {
   }
 
   @Override
-  public void afterPropertiesSet() {
+  public final Class<T> getBeanClass() {
+    if (mapperInterface == null) {
+      throw new ConfigurationException("Mapper interface must not be null");
+    }
+    return mapperInterface;
+  }
 
-    final Class<T> mapperInterface = this.getBeanClass();
+  public SqlSession getSqlSession() {
+    if (sqlSession == null) {
+      throw new ConfigurationException("Sql Session must not be null");
+    }
+    return sqlSession;
+  }
 
-    final Configuration configuration = getSqlSession().getConfiguration();
+  public void setSqlSession(SqlSession sqlSession) {
+    this.sqlSession = sqlSession;
+  }
+
+  public void setMapperInterface(Class<T> mapperInterface) {
+    this.mapperInterface = mapperInterface;
+  }
+
+  @PostConstruct
+  public void afterPropertiesSet(SqlSession sqlSession) {
+    setSqlSession(sqlSession);
+    final Class<T> mapperInterface = getBeanClass();
+    final Configuration configuration = sqlSession.getConfiguration();
 
     if (configuration.hasMapper(mapperInterface)) {
       return;
@@ -76,29 +98,4 @@ public class MapperFactoryBean<T> implements FactoryBean<T>, InitializingBean {
     }
   }
 
-  @Override
-  public final Class<T> getBeanClass() {
-    if (mapperInterface == null) {
-      throw new ConfigurationException("Mapper interface must not be null");
-    }
-    return mapperInterface;
-  }
-
-  public MapperFactoryBean<T> setMapperInterface(Class<T> mapperInterface) {
-    this.mapperInterface = mapperInterface;
-    return this;
-  }
-
-  public SqlSession getSqlSession() {
-    if (sqlSession == null) {
-      throw new ConfigurationException("Sql Session must not be null");
-    }
-    return sqlSession;
-  }
-
-  @Autowired
-  public MapperFactoryBean<T> setSqlSession(SqlSession sqlSession) {
-    this.sqlSession = sqlSession;
-    return this;
-  }
 }

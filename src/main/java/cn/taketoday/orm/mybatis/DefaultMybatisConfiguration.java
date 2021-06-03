@@ -27,6 +27,7 @@ import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
 import org.apache.ibatis.transaction.TransactionFactory;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -47,12 +48,12 @@ import cn.taketoday.context.factory.DefaultBeanDefinition;
 import cn.taketoday.context.factory.FactoryBeanDefinition;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.SingletonSupplier;
 import cn.taketoday.context.utils.StringUtils;
 
 import static cn.taketoday.context.utils.ContextUtils.getResourceAsStream;
-import static cn.taketoday.context.utils.ContextUtils.resolveInitMethod;
 
 /**
  * @author TODAY <br>
@@ -62,10 +63,10 @@ import static cn.taketoday.context.utils.ContextUtils.resolveInitMethod;
 public class DefaultMybatisConfiguration implements ApplicationListener<LoadingMissingBeanEvent> {
 
   public static final String DEFAULT_CONFIG_LOCATION = "classpath:mybatis.xml";
+  public static final Method[] initMethods = ContextUtils.resolveInitMethod(null, MapperFactoryBean.class);
 
   @Override
   public void onApplicationEvent(LoadingMissingBeanEvent event) {
-
     final Logger log = LoggerFactory.getLogger(getClass());
     log.info("Loading Mybatis Mapper Bean Definitions");
 
@@ -92,7 +93,7 @@ public class DefaultMybatisConfiguration implements ApplicationListener<LoadingM
   protected FactoryBeanDefinition<?> createBeanDefinition(final Class<?> beanClass, final String name) {
     final DefaultBeanDefinition ret = new DefaultBeanDefinition(name, beanClass);
     ret.setDestroyMethods(Constant.EMPTY_STRING_ARRAY)
-            .setInitMethods(resolveInitMethod(null, beanClass));
+            .setInitMethods(initMethods);
     return new FactoryBeanDefinition<>(ret, SingletonSupplier.of(new MapperFactoryBean<>(beanClass)));
   }
 

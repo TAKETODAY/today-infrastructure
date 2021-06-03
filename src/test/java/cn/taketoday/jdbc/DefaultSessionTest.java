@@ -659,7 +659,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
                     .executeAndFetchFirst(StringConversionPojo.class);
 
     assertEquals((Integer) 1, pojo.val1);
-    assertEquals(2l, pojo.val2);
+    assertEquals(2L, pojo.val2);
     assertNull(pojo.val3);
     assertEquals(0, pojo.val4);
     assertNull(pojo.val5);

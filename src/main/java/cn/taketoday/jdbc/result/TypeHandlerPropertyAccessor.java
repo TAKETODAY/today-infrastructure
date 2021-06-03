@@ -63,7 +63,7 @@ public class TypeHandlerPropertyAccessor implements JdbcPropertyAccessor {
    * @throws SQLException
    *         If {@link ResultSet#getObject(int)} failed
    */
-  Object getResult(ResultSet resultSet, int columnIndex) throws SQLException {
+  private Object getResult(ResultSet resultSet, int columnIndex) throws SQLException {
     try {
       return typeHandler.getResult(resultSet, columnIndex);
     }
