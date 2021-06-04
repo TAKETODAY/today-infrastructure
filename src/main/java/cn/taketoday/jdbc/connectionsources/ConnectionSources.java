@@ -24,12 +24,7 @@ public class ConnectionSources {
    * @return a connection wrapper that represent a nested connection
    */
   public static ConnectionSource join(final Connection connection) {
-    return new ConnectionSource() {
-      @Override
-      public Connection getConnection() {
-        return new NestedConnection(connection);
-      }
-    };
+    return () -> new NestedConnection(connection);
   }
 
 }

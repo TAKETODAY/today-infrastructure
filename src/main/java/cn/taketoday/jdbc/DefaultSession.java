@@ -28,6 +28,7 @@ import javax.sql.DataSource;
 
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.jdbc.connectionsources.ConnectionSource;
+import cn.taketoday.jdbc.connectionsources.ConnectionSources;
 import cn.taketoday.jdbc.connectionsources.DataSourceConnectionSource;
 import cn.taketoday.jdbc.conversion.ClobToStringConverter;
 import cn.taketoday.jdbc.conversion.OffsetTimeToSQLTimeConverter;
@@ -108,14 +109,14 @@ public class DefaultSession {
    *         The DataSource Sql2o uses to acquire connections to the database.
    */
   public DefaultSession(DataSource dataSource) {
-    this.connectionSource = new DataSourceConnectionSource(dataSource);
+    this.connectionSource = DataSourceConnectionSource.of(dataSource);
     this.defaultColumnMappings = new HashMap<>();
   }
 
   public DefaultSession(DataSource dataSource, boolean generatedKeys) {
     this.generatedKeys = generatedKeys;
     this.defaultColumnMappings = new HashMap<>();
-    this.connectionSource = new DataSourceConnectionSource(dataSource);
+    this.connectionSource = DataSourceConnectionSource.of(dataSource);
   }
 
   /**
@@ -127,7 +128,6 @@ public class DefaultSession {
    * @deprecated use {@link #getConnectionSource()} as more general connection
    * provider
    */
-  @Deprecated
   public DataSource getDataSource() {
     if (connectionSource instanceof DataSourceConnectionSource)
       return ((DataSourceConnectionSource) connectionSource).getDataSource();
@@ -191,8 +191,6 @@ public class DefaultSession {
    * Sets a value indicating if this instance of Sql2o is case sensitive when
    * mapping between columns names and property names. This should almost always
    * be false, because most relational databases are not case sensitive.
-   *
-   * @param defaultCaseSensitive
    */
   public void setDefaultCaseSensitive(boolean defaultCaseSensitive) {
     this.defaultCaseSensitive = defaultCaseSensitive;
@@ -240,7 +238,7 @@ public class DefaultSession {
    * </code>
    */
   public Query createQuery(String query, boolean returnGeneratedKeys) {
-    return new JdbcConnection(this, true).createQuery(query, returnGeneratedKeys);
+    return open(true).createQuery(query, returnGeneratedKeys);
   }
 
   /**
@@ -261,9 +259,37 @@ public class DefaultSession {
    *  </pre>
    */
   public Query createQuery(String query) {
+    return open(true).createQuery(query);
+  }
 
-    JdbcConnection connection = new JdbcConnection(this, true);
-    return connection.createQuery(query);
+  /**
+   * Opens a connection to the database
+   *
+   * @return instance of the {@link JdbcConnection} class.
+   */
+  public JdbcConnection open() {
+    return open(false);
+  }
+
+  /**
+   * Opens a connection to the database
+   *
+   * @return instance of the {@link JdbcConnection} class.
+   */
+  public JdbcConnection open(boolean autoClose) {
+    return new JdbcConnection(this, connectionSource, autoClose);
+  }
+
+  /**
+   * Opens a connection to the database
+   *
+   * @param connection
+   *         the {@link Connection}
+   *
+   * @return instance of the {@link JdbcConnection} class.
+   */
+  public JdbcConnection open(Connection connection) {
+    return new JdbcConnection(this, connection, false);
   }
 
   /**
@@ -280,22 +306,9 @@ public class DefaultSession {
   }
 
   /**
-   * Opens a connection to the database
-   *
-   * @return instance of the {@link JdbcConnection} class.
-   */
-  public JdbcConnection open() {
-    return new JdbcConnection(this, false);
-  }
-
-  /**
    * Invokes the run method on the {@link StatementRunnableWithResult}
    * instance. This method guarantees that the connection is closed properly, when
    * either the run method completes or if an exception occurs.
-   *
-   * @param runnable
-   * @param argument
-   * @param <V>
    */
   public <V> V withConnection(StatementRunnableWithResult<V> runnable, Object argument) {
     try (JdbcConnection connection = open()) {
@@ -310,11 +323,6 @@ public class DefaultSession {
    * Invokes the run method on the {@link StatementRunnableWithResult}
    * instance. This method guarantees that the connection is closed properly, when
    * either the run method completes or if an exception occurs.
-   *
-   * @param runnable
-   * @param <V>
-   *
-   * @return
    */
   public <V> V withConnection(StatementRunnableWithResult<V> runnable) {
     return withConnection(runnable, null);
@@ -324,8 +332,6 @@ public class DefaultSession {
    * Invokes the run method on the {@link StatementRunnableWithResult}
    * instance. This method guarantees that the connection is closed properly, when
    * either the run method completes or if an exception occurs.
-   *
-   * @param runnable
    */
   public void withConnection(StatementRunnable runnable) {
     withConnection(runnable, null);
@@ -335,9 +341,6 @@ public class DefaultSession {
    * Invokes the run method on the {@link StatementRunnableWithResult}
    * instance. This method guarantees that the connection is closed properly, when
    * either the run method completes or if an exception occurs.
-   *
-   * @param runnable
-   * @param argument
    */
   public void withConnection(StatementRunnable runnable, Object argument) {
     try (JdbcConnection connection = open()) {
@@ -385,12 +388,11 @@ public class DefaultSession {
    */
   public JdbcConnection beginTransaction(ConnectionSource connectionSource, int isolationLevel) {
     JdbcConnection connection = new JdbcConnection(this, connectionSource, false);
-
     boolean success = false;
     try {
-      final Connection conn = connection.getJdbcConnection();
-      conn.setAutoCommit(false);
-      conn.setTransactionIsolation(isolationLevel);
+      final Connection root = connection.getJdbcConnection();
+      root.setAutoCommit(false);
+      root.setTransactionIsolation(isolationLevel);
       success = true;
     }
     catch (SQLException e) {
@@ -418,7 +420,7 @@ public class DefaultSession {
    * transaction.
    */
   public JdbcConnection beginTransaction() {
-    return this.beginTransaction(Connection.TRANSACTION_READ_COMMITTED);
+    return beginTransaction(Connection.TRANSACTION_READ_COMMITTED);
   }
 
   /**
@@ -438,7 +440,26 @@ public class DefaultSession {
    * transaction.
    */
   public JdbcConnection beginTransaction(ConnectionSource connectionSource) {
-    return this.beginTransaction(connectionSource, Connection.TRANSACTION_READ_COMMITTED);
+    return beginTransaction(connectionSource, Connection.TRANSACTION_READ_COMMITTED);
+  }
+
+  /**
+   * Begins a transaction with isolation level
+   * {@link Connection#TRANSACTION_READ_COMMITTED}. Every statement
+   * executed on the return {@link JdbcConnection} instance, will be executed in the
+   * transaction. It is very important to always call either the
+   * {@link JdbcConnection#commit()} method or the
+   * {@link JdbcConnection#rollback()} method to close the transaction. Use
+   * proper try-catch logic.
+   *
+   * @param connection
+   *         the {@link Connection}
+   *
+   * @return the {@link JdbcConnection} instance to use to run statements in the
+   * transaction.
+   */
+  public JdbcConnection beginTransaction(Connection connection) {
+    return beginTransaction(ConnectionSources.join(connection), Connection.TRANSACTION_READ_COMMITTED);
   }
 
   /**
@@ -507,7 +528,7 @@ public class DefaultSession {
    */
   public void runInTransaction(StatementRunnable runnable, Object argument, int isolationLevel) {
 
-    JdbcConnection connection = this.beginTransaction(isolationLevel);
+    JdbcConnection connection = beginTransaction(isolationLevel);
     connection.setRollbackOnException(false);
 
     try {
@@ -529,7 +550,7 @@ public class DefaultSession {
   }
 
   public <V> V runInTransaction(StatementRunnableWithResult<V> runnableWithResult, Object argument, int isolationLevel) {
-    JdbcConnection connection = this.beginTransaction(isolationLevel);
+    JdbcConnection connection = beginTransaction(isolationLevel);
     V result;
 
     try {

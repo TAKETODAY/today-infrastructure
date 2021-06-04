@@ -7,10 +7,9 @@ import javax.sql.DataSource;
 
 /**
  * The default implementation of {@link ConnectionSource}, Simply delegates all
- * calls to specified {@link DataSource } Created by nickl on 09.01.17.
+ * calls to specified {@link DataSource }
  */
-public class DataSourceConnectionSource implements ConnectionSource {
-
+public final class DataSourceConnectionSource implements ConnectionSource {
   private final DataSource dataSource;
 
   /**
@@ -31,5 +30,11 @@ public class DataSourceConnectionSource implements ConnectionSource {
 
   public DataSource getDataSource() {
     return dataSource;
+  }
+
+  // static
+
+  public static DataSourceConnectionSource of(DataSource source) {
+    return new DataSourceConnectionSource(source);
   }
 }

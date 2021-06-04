@@ -16,18 +16,19 @@ import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.jdbc.connectionsources.ConnectionSource;
+import cn.taketoday.jdbc.connectionsources.ConnectionSources;
 import cn.taketoday.jdbc.utils.JdbcUtils;
 
 /**
  * Represents a connection to the database with a transaction.
  */
-public class JdbcConnection implements AutoCloseable, Closeable {
+public class JdbcConnection implements Closeable {
   private static final Logger log = LoggerFactory.getLogger(JdbcConnection.class);
 
-  private final DefaultSession sql2o;
+  private final DefaultSession session;
   private final ConnectionSource connectionSource;
 
-  private Connection jdbcConnection;
+  private Connection root;
   private Integer result = null;
   private int[] batchResult = null;
   private List<Object> keys;
@@ -38,32 +39,39 @@ public class JdbcConnection implements AutoCloseable, Closeable {
   private boolean rollbackOnClose = true;
   private boolean rollbackOnException = true;
 
-  JdbcConnection(DefaultSession sql2o, boolean autoClose) {
-    this(sql2o, null, autoClose);
+  JdbcConnection(DefaultSession session, boolean autoClose) {
+    this(session, session.getConnectionSource(), autoClose);
   }
 
-  JdbcConnection(DefaultSession sql2o, ConnectionSource connectionSource, boolean autoClose) {
-    this.connectionSource = connectionSource != null ? connectionSource : sql2o.getConnectionSource();
+  JdbcConnection(DefaultSession session, ConnectionSource connectionSource, boolean autoClose) {
+    this.session = session;
     this.autoClose = autoClose;
-    this.sql2o = sql2o;
+    this.connectionSource = connectionSource;
     createConnection();
+  }
+
+  JdbcConnection(DefaultSession session, Connection connection, boolean autoClose) {
+    this.session = session;
+    this.root = connection;
+    this.autoClose = autoClose;
+    this.connectionSource = ConnectionSources.join(connection);
   }
 
   void onException() {
     if (isRollbackOnException()) {
-      rollback(this.autoClose);
+      rollback(autoClose);
     }
   }
 
   public Query createQuery(String queryText) {
-    boolean returnGeneratedKeys = this.sql2o.isGeneratedKeys();
+    boolean returnGeneratedKeys = session.isGeneratedKeys();
     return createQuery(queryText, returnGeneratedKeys);
   }
 
   public Query createQuery(String queryText, boolean returnGeneratedKeys) {
 
     try {
-      if (jdbcConnection.isClosed()) {
+      if (root.isClosed()) {
         createConnection();
       }
     }
@@ -76,7 +84,7 @@ public class JdbcConnection implements AutoCloseable, Closeable {
 
   public Query createQuery(String queryText, String... columnNames) {
     try {
-      if (jdbcConnection.isClosed()) {
+      if (root.isClosed()) {
         createConnection();
       }
     }
@@ -96,49 +104,50 @@ public class JdbcConnection implements AutoCloseable, Closeable {
   }
 
   public DefaultSession rollback() {
-    this.rollback(true);
-    return sql2o;
+    rollback(true);
+    return session;
   }
 
   public JdbcConnection rollback(boolean closeConnection) {
     try {
-      jdbcConnection.rollback();
+      root.rollback();
     }
     catch (SQLException e) {
       log.warn("Could not roll back transaction. message: {}", e);
     }
     finally {
       if (closeConnection) {
-        this.closeConnection();
+        closeConnection();
       }
     }
     return this;
   }
 
   public DefaultSession commit() {
-    return this.commit(true).sql2o;
+    commit(true);
+    return session;
   }
 
   public JdbcConnection commit(boolean closeConnection) {
     try {
-      jdbcConnection.commit();
+      root.commit();
     }
     catch (SQLException e) {
       throw new PersistenceException(e);
     }
     finally {
       if (closeConnection) {
-        this.closeConnection();
+        closeConnection();
       }
     }
     return this;
   }
 
   public int getResult() {
-    if (this.result == null) {
+    if (result == null) {
       throw new PersistenceException("It is required to call executeUpdate() method before calling getResult().");
     }
-    return this.result;
+    return result;
   }
 
   void setResult(int result) {
@@ -146,10 +155,10 @@ public class JdbcConnection implements AutoCloseable, Closeable {
   }
 
   public int[] getBatchResult() {
-    if (this.batchResult == null) {
+    if (batchResult == null) {
       throw new PersistenceException("It is required to call executeBatch() method before calling getBatchResult().");
     }
-    return this.batchResult;
+    return batchResult;
   }
 
   void setBatchResult(int[] value) {
@@ -209,8 +218,8 @@ public class JdbcConnection implements AutoCloseable, Closeable {
 
     if (this.keys != null) {
       try {
-        List<V> convertedKeys = new ArrayList<>(this.keys.size());
-        for (Object key : this.keys) {
+        List<V> convertedKeys = new ArrayList<>(keys.size());
+        for (Object key : keys) {
           convertedKeys.add(ConvertUtils.convert(returnType, key));
         }
         return convertedKeys;
@@ -240,7 +249,7 @@ public class JdbcConnection implements AutoCloseable, Closeable {
   public void close() {
     boolean connectionIsClosed;
     try {
-      connectionIsClosed = jdbcConnection.isClosed();
+      connectionIsClosed = root.isClosed();
     }
     catch (SQLException e) {
       throw new PersistenceException("Sql2o encountered a problem while trying to determine whether the connection is closed.", e);
@@ -260,7 +269,7 @@ public class JdbcConnection implements AutoCloseable, Closeable {
       boolean rollback = rollbackOnClose;
       if (rollback) {
         try {
-          rollback = !jdbcConnection.getAutoCommit();
+          rollback = !root.getAutoCommit();
         }
         catch (SQLException e) {
           log.warn("Could not determine connection auto commit mode.", e);
@@ -269,28 +278,29 @@ public class JdbcConnection implements AutoCloseable, Closeable {
 
       // if in transaction, rollback, otherwise just close
       if (rollback) {
-        this.rollback(true);
+        rollback(true);
       }
       else {
-        this.closeConnection();
+        closeConnection();
       }
     }
   }
 
   private void createConnection() {
     try {
-      this.jdbcConnection = connectionSource.getConnection();
-      this.originalAutoCommit = jdbcConnection.getAutoCommit();
+      this.root = connectionSource.getConnection();
+      this.originalAutoCommit = root.getAutoCommit();
     }
     catch (Exception ex) {
-      throw new PersistenceException("Could not acquire a connection from DataSource - " + ex.getMessage(), ex);
+      throw new PersistenceException(
+              "Could not acquire a connection from DataSource - " + ex.getMessage(), ex);
     }
   }
 
   private void closeConnection() {
     resetAutoCommitState();
     try {
-      jdbcConnection.close();
+      root.close();
     }
     catch (SQLException e) {
       log.warn("Could not close connection. message: {}", e);
@@ -301,7 +311,7 @@ public class JdbcConnection implements AutoCloseable, Closeable {
     // resets the AutoCommit state to make sure that the connection has been reset before reuse (if a connection pool is used)
     if (originalAutoCommit != null) {
       try {
-        this.jdbcConnection.setAutoCommit(originalAutoCommit);
+        this.root.setAutoCommit(originalAutoCommit);
       }
       catch (SQLException e) {
         log.warn("Could not reset autocommit state for connection to {}.", originalAutoCommit, e);
@@ -329,11 +339,11 @@ public class JdbcConnection implements AutoCloseable, Closeable {
   }
 
   public Connection getJdbcConnection() {
-    return jdbcConnection;
+    return root;
   }
 
   public DefaultSession getSession() {
-    return sql2o;
+    return session;
   }
 
 }

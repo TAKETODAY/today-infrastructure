@@ -27,8 +27,6 @@ import java.util.Map;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-import cn.taketoday.context.reflect.BeanConstructor;
-import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.jdbc.data.LazyTable;
 import cn.taketoday.jdbc.data.Row;
@@ -43,13 +41,11 @@ import cn.taketoday.jdbc.type.EnumOrdinalTypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.IOUtils;
 
-import static cn.taketoday.jdbc.connectionsources.ConnectionSources.join;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.CoreMatchers.startsWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -957,7 +953,6 @@ public class DefaultSessionTest extends BaseMemDbTest {
     handlerRegistry.register(InputStream.class, new BytesInputStreamTypeHandler());
     defaultSession.setTypeHandlerRegistry(handlerRegistry);
 
-
     BlobPOJO2 pojo2 = defaultSession.createQuery(sql)
             .executeAndFetchFirst(BlobPOJO2.class);
 
@@ -1280,25 +1275,25 @@ public class DefaultSessionTest extends BaseMemDbTest {
     try (JdbcConnection globalConnection = defaultSession.beginTransaction()) {
       java.sql.Connection globalTransaction = globalConnection.getJdbcConnection();
 
-      try (JdbcConnection connection = defaultSession.beginTransaction(join(globalTransaction))) {
+      try (JdbcConnection connection = defaultSession.beginTransaction(globalTransaction)) {
         String sql = "insert into testExternalTransactionCommit(id, val) values (:id, :val);";
         connection.createQuery(sql).addParameter("id", 1).addParameter("val", "foo").executeUpdate();
         connection.commit();
       }
 
-      try (JdbcConnection connection2 = defaultSession.open(join(globalTransaction))) {
+      try (JdbcConnection connection2 = defaultSession.open(globalTransaction)) {
         int count = connection2.createQuery("select count(*) from testExternalTransactionCommit").executeAndFetchFirst(
                 Integer.class);
         assertThat(count, is(equalTo(1)));
       }
 
-      try (JdbcConnection connection = defaultSession.beginTransaction(join(globalTransaction))) {
+      try (JdbcConnection connection = defaultSession.beginTransaction(globalTransaction)) {
         String sql = "insert into testExternalTransactionCommit(id, val) values (:id, :val);";
         connection.createQuery(sql).addParameter("id", 2).addParameter("val", "bar").executeUpdate();
         connection.commit();
       }
 
-      try (JdbcConnection connection2 = defaultSession.open(join(globalTransaction))) {
+      try (JdbcConnection connection2 = defaultSession.open(globalTransaction)) {
         int count = connection2.createQuery("select count(*) from testExternalTransactionCommit").executeAndFetchFirst(
                 Integer.class);
         assertThat(count, is(equalTo(2)));
@@ -1326,25 +1321,25 @@ public class DefaultSessionTest extends BaseMemDbTest {
     try (JdbcConnection globalConnection = defaultSession.beginTransaction()) {
       java.sql.Connection globalTransaction = globalConnection.getJdbcConnection();
 
-      try (JdbcConnection connection = defaultSession.beginTransaction(join(globalTransaction))) {
+      try (JdbcConnection connection = defaultSession.beginTransaction(globalTransaction)) {
         String sql = "insert into testExternalTransactionRollback(id, val) values (:id, :val);";
         connection.createQuery(sql).addParameter("id", 1).addParameter("val", "foo").executeUpdate();
         connection.commit();
       }
 
-      try (JdbcConnection connection2 = defaultSession.open(join(globalTransaction))) {
+      try (JdbcConnection connection2 = defaultSession.open(globalTransaction)) {
         int count = connection2.createQuery("select count(*) from testExternalTransactionRollback").executeAndFetchFirst(
                 Integer.class);
         assertThat(count, is(equalTo(1)));
       }
 
-      try (JdbcConnection connection = defaultSession.beginTransaction(join(globalTransaction))) {
+      try (JdbcConnection connection = defaultSession.beginTransaction(globalTransaction)) {
         String sql = "insert into testExternalTransactionRollback(id, val) values (:id, :val);";
         connection.createQuery(sql).addParameter("id", 2).addParameter("val", "bar").executeUpdate();
         connection.commit();
       }
 
-      try (JdbcConnection connection2 = defaultSession.open(join(globalTransaction))) {
+      try (JdbcConnection connection2 = defaultSession.open(globalTransaction)) {
         int count = connection2.createQuery("select count(*) from testExternalTransactionRollback").executeAndFetchFirst(
                 Integer.class);
         assertThat(count, is(equalTo(2)));
