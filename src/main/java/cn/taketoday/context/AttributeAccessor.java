@@ -130,7 +130,7 @@ public interface AttributeAccessor {
     if (value == null) {
       value = computeFunction.apply(name);
       if (value == null) {
-        throw new IllegalStateException("Compute function must not return null for attribute named '" + name + '\'')
+        throw new IllegalStateException("Compute function must not return null for attribute named '" + name + '\'');
       }
       setAttribute(name, value);
     }
