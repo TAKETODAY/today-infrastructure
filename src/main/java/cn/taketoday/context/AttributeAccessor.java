@@ -116,6 +116,8 @@ public interface AttributeAccessor {
    *
    * @return the existing value or newly computed value for the named attribute
    *
+   * @throws IllegalStateException
+   *         If computeFunction returns {@code null}
    * @see #getAttribute(String)
    * @see #setAttribute(String, Object)
    * @since 3.0
@@ -127,8 +129,9 @@ public interface AttributeAccessor {
     Object value = getAttribute(name);
     if (value == null) {
       value = computeFunction.apply(name);
-      Assert.state(value != null,
-                   () -> String.format("Compute function must not return null for attribute named '%s'", name));
+      if (value == null) {
+        throw new IllegalStateException("Compute function must not return null for attribute named '" + name + '\'')
+      }
       setAttribute(name, value);
     }
     return (T) value;
