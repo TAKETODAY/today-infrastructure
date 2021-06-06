@@ -8,7 +8,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.logger.Logger;
@@ -39,6 +38,8 @@ public class JdbcConnection implements Closeable {
   private boolean rollbackOnClose = true;
   private boolean rollbackOnException = true;
 
+  private final HashSet<Statement> statements = new HashSet<>();
+
   JdbcConnection(DefaultSession session, boolean autoClose) {
     this(session, session.getConnectionSource(), autoClose);
   }
@@ -57,7 +58,7 @@ public class JdbcConnection implements Closeable {
     this.connectionSource = ConnectionSources.join(connection);
   }
 
-  void onException() {
+  protected void onException() {
     if (isRollbackOnException()) {
       rollback(autoClose);
     }
@@ -69,7 +70,6 @@ public class JdbcConnection implements Closeable {
   }
 
   public Query createQuery(String queryText, boolean returnGeneratedKeys) {
-
     try {
       if (root.isClosed()) {
         createConnection();
@@ -161,11 +161,11 @@ public class JdbcConnection implements Closeable {
     return batchResult;
   }
 
-  void setBatchResult(int[] value) {
+  protected void setBatchResult(int[] value) {
     this.batchResult = value;
   }
 
-  void setKeys(ResultSet rs) throws SQLException {
+  protected void setKeys(ResultSet rs) throws SQLException {
     if (rs == null) {
       this.keys = null;
       return;
@@ -234,8 +234,6 @@ public class JdbcConnection implements Closeable {
   void setCanGetKeys(boolean canGetKeys) {
     this.canGetKeys = canGetKeys;
   }
-
-  private final Set<Statement> statements = new HashSet<>();
 
   void registerStatement(Statement statement) {
     statements.add(statement);
@@ -325,18 +323,16 @@ public class JdbcConnection implements Closeable {
     return rollbackOnException;
   }
 
-  public JdbcConnection setRollbackOnException(boolean rollbackOnException) {
+  public void setRollbackOnException(boolean rollbackOnException) {
     this.rollbackOnException = rollbackOnException;
-    return this;
   }
 
   public boolean isRollbackOnClose() {
     return rollbackOnClose;
   }
 
-  public JdbcConnection setRollbackOnClose(boolean rollbackOnClose) {
+  public void setRollbackOnClose(boolean rollbackOnClose) {
     this.rollbackOnClose = rollbackOnClose;
-    return this;
   }
 
   public Connection getJdbcConnection() {
