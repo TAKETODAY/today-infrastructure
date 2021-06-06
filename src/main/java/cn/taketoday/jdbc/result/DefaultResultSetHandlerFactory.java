@@ -65,31 +65,30 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
      * Fallback to executeScalar if converter exists, we're selecting 1 column, and
      * no property setter exists for the column.
      */
+    final JdbcBeanMetadata metadata = this.metadata;
     final boolean useExecuteScalar = ClassUtils.isSimpleType(metadata.getType()) && columnCount == 1;
 
     if (useExecuteScalar) {
       final TypeHandler typeHandler = registry.getTypeHandler(metadata.getType());
       return new TypeHandlerResultSetHandler<>(typeHandler);
     }
-
+    final boolean throwOnMappingFailure = metadata.isThrowOnMappingFailure();
     final JdbcPropertyAccessor[] accessors = new JdbcPropertyAccessor[columnCount];
-
     for (int i = 1; i <= columnCount; i++) {
       final String colName = JdbcUtils.getColumnName(meta, i);
-
-      accessors[i - 1] = getPropertyAccessor(colName, metadata);
-
+      final JdbcPropertyAccessor accessor = getAccessor(colName, metadata);
       // If more than 1 column is fetched (we cannot fall back to executeScalar),
       // and the setter doesn't exist, throw exception.
-      if (this.metadata.throwOnMappingFailure && accessors[i - 1] == null && columnCount > 1) {
+      if (throwOnMappingFailure && accessor == null && columnCount > 1) {
         throw new PersistenceException("Could not map " + colName + " to any property.");
       }
+      accessors[i - 1] = accessor;
     }
 
     return new ObjectResultHandler<>(metadata, accessors, columnCount);
   }
 
-  private JdbcPropertyAccessor getPropertyAccessor(final String propertyPath, final JdbcBeanMetadata metadata) {
+  private JdbcPropertyAccessor getAccessor(final String propertyPath, final JdbcBeanMetadata metadata) {
     int index = propertyPath.indexOf('.');
 
     if (index <= 0) {
@@ -108,7 +107,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
     // TODO
     final TypeHandler<?> typeHandler = registry.getTypeHandler(metadata.getType());
 
-    class PropertyPathPropertyAccessor implements JdbcPropertyAccessor {
+    class PropertyPathPropertyAccessor extends JdbcPropertyAccessor {
 
       @Override
       public Object get(final Object obj) {

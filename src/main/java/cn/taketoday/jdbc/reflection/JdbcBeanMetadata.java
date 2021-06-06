@@ -37,7 +37,7 @@ public class JdbcBeanMetadata extends BeanMetadata {
   private final Map<String, String> columnMappings;
 
   private final boolean caseSensitive;
-  public final boolean throwOnMappingFailure;
+  private final boolean throwOnMappingFailure;
   private final boolean autoDeriveColumnNames;
 
   public JdbcBeanMetadata(
@@ -96,6 +96,10 @@ public class JdbcBeanMetadata extends BeanMetadata {
                                 autoDeriveColumnNames,
                                 columnMappings,
                                 throwOnMappingFailure);
+  }
+
+  public boolean isThrowOnMappingFailure() {
+    return throwOnMappingFailure;
   }
 
   @Override

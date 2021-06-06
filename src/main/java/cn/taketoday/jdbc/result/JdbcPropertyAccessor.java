@@ -6,10 +6,11 @@ import java.sql.SQLException;
 /**
  * @author TODAY 2021/1/7 22:49
  */
-public interface JdbcPropertyAccessor {
+public abstract class JdbcPropertyAccessor {
 
-  Object get(Object obj);
+  public abstract Object get(Object obj);
 
-  void set(Object obj, ResultSet resultSet, int columnIndex) throws SQLException;
+  public abstract void set(
+          Object obj, ResultSet resultSet, int columnIndex) throws SQLException;
 
 }

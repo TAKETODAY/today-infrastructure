@@ -1,7 +1,6 @@
 package cn.taketoday.jdbc;
 
 import java.io.InputStream;
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -26,11 +25,11 @@ import cn.taketoday.jdbc.data.LazyTable;
 import cn.taketoday.jdbc.data.Row;
 import cn.taketoday.jdbc.data.Table;
 import cn.taketoday.jdbc.data.TableResultSetIterator;
+import cn.taketoday.jdbc.reflection.JdbcBeanMetadata;
 import cn.taketoday.jdbc.reflection.ReadableProperty;
-import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactoryBuilder;
+import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;
 import cn.taketoday.jdbc.result.ResultSetHandler;
 import cn.taketoday.jdbc.result.ResultSetHandlerFactory;
-import cn.taketoday.jdbc.result.ResultSetHandlerFactoryBuilder;
 import cn.taketoday.jdbc.result.ResultSetHandlerIterator;
 import cn.taketoday.jdbc.type.ObjectTypeHandler;
 import cn.taketoday.jdbc.type.TypeHandler;
@@ -42,7 +41,6 @@ import cn.taketoday.jdbc.utils.JdbcUtils;
  * Query class.
  */
 public class Query implements AutoCloseable {
-
   private static final Logger log = LoggerFactory.getLogger(Query.class);
 
   private final JdbcConnection connection;
@@ -61,7 +59,7 @@ public class Query implements AutoCloseable {
   private int maxBatchRecords = 0;
   private int currentBatchRecords = 0;
 
-  private ResultSetHandlerFactoryBuilder resultSetHandlerFactoryBuilder;
+  private TypeHandlerRegistry typeHandlerRegistry;
 
   public Query(JdbcConnection connection, String queryText, boolean returnGeneratedKeys) {
     this(connection, queryText, returnGeneratedKeys, null);
@@ -128,17 +126,6 @@ public class Query implements AutoCloseable {
   public Query setName(String name) {
     this.name = name;
     return this;
-  }
-
-  public ResultSetHandlerFactoryBuilder getResultSetHandlerFactoryBuilder() {
-    if (resultSetHandlerFactoryBuilder == null) {
-      resultSetHandlerFactoryBuilder = new DefaultResultSetHandlerFactoryBuilder(getTypeHandlerRegistry());
-    }
-    return resultSetHandlerFactoryBuilder;
-  }
-
-  public void setResultSetHandlerFactoryBuilder(ResultSetHandlerFactoryBuilder resultSetHandlerFactoryBuilder) {
-    this.resultSetHandlerFactoryBuilder = resultSetHandlerFactoryBuilder;
   }
 
   public Map<String, List<Integer>> getParamNameToIdxMap() {
@@ -390,7 +377,7 @@ public class Query implements AutoCloseable {
         throw new PersistenceException("Error closing ResultSet.", ex);
       }
       finally {
-        if (this.isAutoCloseConnection()) {
+        if (isAutoCloseConnection()) {
           connection.close();
         }
         else {
@@ -422,17 +409,13 @@ public class Query implements AutoCloseable {
    * @return iterable results
    */
   public <T> ResultSetIterable<T> executeAndFetchLazy(final Class<T> returnType) {
-    final ResultSetHandlerFactory<T> handlerFactory = newResultSetHandlerFactory(returnType);
-    return executeAndFetchLazy(handlerFactory);
+    return executeAndFetchLazy(newResultSetHandlerFactory(returnType));
   }
 
-  private <T> ResultSetHandlerFactory<T> newResultSetHandlerFactory(Class<T> returnType) {
-    ResultSetHandlerFactoryBuilder builder = getResultSetHandlerFactoryBuilder();
-    builder.setAutoDeriveColumnNames(this.autoDeriveColumnNames);
-    builder.setCaseSensitive(this.caseSensitive);
-    builder.setColumnMappings(this.getColumnMappings());
-    builder.throwOnMappingError(this.throwOnMappingFailure);
-    return builder.newFactory(returnType);
+  private <T> ResultSetHandlerFactory<T> newResultSetHandlerFactory(final Class<T> returnType) {
+    final JdbcBeanMetadata pojoMetadata = new JdbcBeanMetadata(
+            returnType, caseSensitive, autoDeriveColumnNames, columnMappings, throwOnMappingFailure);
+    return new DefaultResultSetHandlerFactory<>(pojoMetadata, getTypeHandlerRegistry());
   }
 
   /**
@@ -600,7 +583,12 @@ public class Query implements AutoCloseable {
   }
 
   public TypeHandlerRegistry getTypeHandlerRegistry() {
-    return this.connection.getSession().getTypeHandlerRegistry();
+    TypeHandlerRegistry ret = this.typeHandlerRegistry;
+    if (ret == null) {
+      ret = this.connection.getSession().getTypeHandlerRegistry();
+      this.typeHandlerRegistry = ret;
+    }
+    return ret;
   }
 
   public <V> V executeScalar(Class<V> returnType) {

@@ -31,20 +31,20 @@ public class ObjectResultHandler<T> implements ResultSetHandler<T> {
 
   final int columnCount;
   final JdbcBeanMetadata metadata;
-  final JdbcPropertyAccessor[] propertyAccessors;
+  final JdbcPropertyAccessor[] accessors;
 
   public ObjectResultHandler(final JdbcBeanMetadata metadata, final JdbcPropertyAccessor[] accessors, int columnCount) {
     this.metadata = metadata;
     this.columnCount = columnCount;
-    this.propertyAccessors = accessors;
+    this.accessors = accessors;
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public T handle(final ResultSet resultSet) throws SQLException {
     // otherwise we want executeAndFetch with object mapping
-    Object pojo = metadata.newInstance();
-    final JdbcPropertyAccessor[] accessors = propertyAccessors;
+    final Object pojo = metadata.newInstance();
+    final JdbcPropertyAccessor[] accessors = this.accessors;
     for (int colIdx = 1; colIdx <= columnCount; colIdx++) {
       final JdbcPropertyAccessor setter = accessors[colIdx - 1];
       if (setter != null) {

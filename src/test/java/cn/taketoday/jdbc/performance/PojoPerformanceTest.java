@@ -25,6 +25,7 @@ import org.jooq.ResultQuery;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
@@ -68,6 +69,7 @@ import cn.taketoday.orm.hibernate5.EnableDefaultHibernate;
  * <p>
  * TODO: must read 10-100 rows instead 1
  */
+@Ignore
 public class PojoPerformanceTest {
 
   private final static String DRIVER_CLASS = "org.h2.Driver";

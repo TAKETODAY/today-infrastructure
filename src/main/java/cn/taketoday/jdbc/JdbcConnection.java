@@ -252,7 +252,8 @@ public class JdbcConnection implements Closeable {
       connectionIsClosed = root.isClosed();
     }
     catch (SQLException e) {
-      throw new PersistenceException("Sql2o encountered a problem while trying to determine whether the connection is closed.", e);
+      throw new PersistenceException(
+              "encountered a problem while trying to determine whether the connection is closed.", e);
     }
 
     if (!connectionIsClosed) {
