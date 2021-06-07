@@ -22,6 +22,7 @@ package cn.taketoday.jdbc;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -33,8 +34,8 @@ import cn.taketoday.jdbc.connectionsources.DataSourceConnectionSource;
 import cn.taketoday.jdbc.conversion.ClobToStringConverter;
 import cn.taketoday.jdbc.conversion.OffsetTimeToSQLTimeConverter;
 import cn.taketoday.jdbc.conversion.TimeToJodaLocalTimeConverter;
-import cn.taketoday.jdbc.parsing.SqlParameterParsingStrategy;
-import cn.taketoday.jdbc.parsing.impl.DefaultSqlParameterParsingStrategy;
+import cn.taketoday.jdbc.parsing.SqlParameterParser;
+import cn.taketoday.jdbc.parsing.impl.DefaultSqlParameterParser;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.FeatureDetector;
 
@@ -65,7 +66,7 @@ public class DefaultSession {
   private boolean generatedKeys = true;
   private ConnectionSource connectionSource;
   private Map<String, String> defaultColumnMappings;
-  private SqlParameterParsingStrategy parsingStrategy = new DefaultSqlParameterParsingStrategy();
+  private SqlParameterParser sqlParameterParser = new DefaultSqlParameterParser();
 
   static {
     final ClobToStringConverter stringConverter = new ClobToStringConverter();
@@ -208,12 +209,16 @@ public class DefaultSession {
     return generatedKeys;
   }
 
-  public void setParsingStrategy(SqlParameterParsingStrategy parsingStrategy) {
-    this.parsingStrategy = parsingStrategy;
+  public void setSqlParameterParser(SqlParameterParser sqlParameterParser) {
+    this.sqlParameterParser = sqlParameterParser;
   }
 
-  public SqlParameterParsingStrategy getParsingStrategy() {
-    return parsingStrategy;
+  public SqlParameterParser getSqlParameterParser() {
+    return sqlParameterParser;
+  }
+
+  String parse(String sql, Map<String, List<Integer>> paramNameToIdxMap) {
+    return sqlParameterParser.parse(sql, paramNameToIdxMap);
   }
 
   //

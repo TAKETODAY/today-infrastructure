@@ -23,7 +23,6 @@ import java.util.concurrent.Executor;
  * Simple {@link Connection wrapper} Created by nickl on 09.01.17.
  */
 public class WrappedConnection implements Connection {
-
   private final Connection source;
 
   public WrappedConnection(Connection source) {

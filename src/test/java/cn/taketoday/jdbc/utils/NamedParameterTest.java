@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.jdbc.parsing.SqlParameterParsingStrategy;
-import cn.taketoday.jdbc.parsing.impl.DefaultSqlParameterParsingStrategy;
+import cn.taketoday.jdbc.parsing.SqlParameterParser;
+import cn.taketoday.jdbc.parsing.impl.DefaultSqlParameterParser;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -18,7 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 public class NamedParameterTest extends TestCase {
 
-  private SqlParameterParsingStrategy sqlParameterParsingStrategy = new DefaultSqlParameterParsingStrategy();
+  private SqlParameterParser sqlParameterParsingStrategy = new DefaultSqlParameterParser();
 
   /*
    A type cast specifies a conversion from one data type to another.
@@ -28,20 +28,20 @@ public class NamedParameterTest extends TestCase {
    */
   public void testPostgresSqlCastSyntax() throws Exception {
     Map<String, List<Integer>> map = new HashMap<String, List<Integer>>();
-    String preparedQuery = sqlParameterParsingStrategy.parseSql("select :foo", map);
+    String preparedQuery = sqlParameterParsingStrategy.parse("select :foo", map);
     assertEquals("select ?", preparedQuery);
     assertThat(map.size(), is(equalTo(1)));
     assertThat(map.get("foo").size(), is(equalTo(1)));
     assertThat(map.get("foo").get(0), is(equalTo(1)));
 
     map.clear();
-    preparedQuery = sqlParameterParsingStrategy.parseSql("select (:foo)::uuid", map);
+    preparedQuery = sqlParameterParsingStrategy.parse("select (:foo)::uuid", map);
     assertEquals("select (?)::uuid", preparedQuery);
   }
 
   public void testStringConstant() throws Exception {
     Map<String, List<Integer>> map = new HashMap<String, List<Integer>>();
-    String preparedQuery = sqlParameterParsingStrategy.parseSql("select ':foo'", map);
+    String preparedQuery = sqlParameterParsingStrategy.parse("select ':foo'", map);
     assertEquals("select ':foo'", preparedQuery);
   }
 }

@@ -1277,34 +1277,88 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
       JdbcConnection connection = defaultSession.beginTransaction(globalTransaction);
       String sql = "insert into testExternalTransactionCommit(id, val) values (:id, :val);";
-      connection.createQuery(sql).addParameter("id", 1).addParameter("val", "foo").executeUpdate();
-      connection.commit();
+      connection.createQuery(sql)
+              .addParameter("id", 1)
+              .addParameter("val", "foo")
+              .executeUpdate();
+//      connection.commit();
 
-      JdbcConnection connection2 = defaultSession.open(globalTransaction);
-      int count = connection2.createQuery("select count(*) from testExternalTransactionCommit").executeAndFetchFirst(
-              Integer.class);
+      int count = globalConnection.createQuery("select count(*) from testExternalTransactionCommit")
+              .executeAndFetchFirst(Integer.class);
       assertThat(count, is(equalTo(1)));
 
       JdbcConnection connection3 = defaultSession.beginTransaction(globalTransaction);
       String sql1 = "insert into testExternalTransactionCommit(id, val) values (:id, :val);";
-      connection3.createQuery(sql1).addParameter("id", 2).addParameter("val", "bar").executeUpdate();
+      connection3.createQuery(sql1)
+              .addParameter("id", 2)
+              .addParameter("val", "bar")
+              .executeUpdate();
       connection3.commit();
 
-      JdbcConnection connection4 = defaultSession.open(globalTransaction);
-      int count1 = connection4.createQuery("select count(*) from testExternalTransactionCommit").executeAndFetchFirst(
-              Integer.class);
+      int count1 = globalConnection.createQuery("select count(*) from testExternalTransactionCommit")
+              .executeAndFetchFirst(Integer.class);
       assertThat(count1, is(equalTo(2)));
 
       globalConnection.commit();
     }
 
     try (JdbcConnection connection2 = defaultSession.open()) {
-      int count = connection2.createQuery("select count(*) from testExternalTransactionCommit").executeAndFetchFirst(Integer.class);
+      int count = connection2.createQuery("select count(*) from testExternalTransactionCommit")
+              .executeAndFetchFirst(Integer.class);
 
       assertThat(count, is(equalTo(2)));
     }
 
   }
+//  @Test
+//  public void testExternalTransactionCommit() {
+//
+//    try (JdbcConnection connection1 = defaultSession.open()) {
+//      connection1.createQuery("create table testExternalTransactionCommit(id int primary key, val varchar(20) not null)")
+//              .executeUpdate();
+//    }
+//
+//    try (JdbcConnection globalConnection = defaultSession.beginTransaction()) {
+//      java.sql.Connection globalTransaction = globalConnection.getJdbcConnection();
+//
+//      JdbcConnection connection = defaultSession.beginTransaction(globalTransaction);
+//      String sql = "insert into testExternalTransactionCommit(id, val) values (:id, :val);";
+//      connection.createQuery(sql)
+//              .addParameter("id", 1)
+//              .addParameter("val", "foo").executeUpdate();
+//      connection.commit();
+//
+//      JdbcConnection connection2 = defaultSession.open(globalTransaction);
+//      int count = connection2.createQuery("select count(*) from testExternalTransactionCommit")
+//              .executeAndFetchFirst(Integer.class);
+//      assertThat(count, is(equalTo(1)));
+//
+//      JdbcConnection connection3 = defaultSession.beginTransaction(globalTransaction);
+//      String sql1 = "insert into testExternalTransactionCommit(id, val) values (:id, :val);";
+//      connection3.createQuery(sql1)
+//              .addParameter("id", 2)
+//              .addParameter("val", "bar")
+//              .executeUpdate();
+//      connection3.commit();
+//
+//      JdbcConnection connection4 = defaultSession.open(globalTransaction);
+//      int count1 = connection4.createQuery("select count(*) from testExternalTransactionCommit")
+//              .executeAndFetchFirst(Integer.class);
+//      assertThat(count1, is(equalTo(2)));
+//
+//      globalConnection.commit();
+//    }
+//
+//    try (JdbcConnection connection2 = defaultSession.open()) {
+//      int count = connection2.createQuery("select count(*) from testExternalTransactionCommit")
+//              .executeAndFetchFirst(Integer.class);
+//
+//      assertThat(count, is(equalTo(2)));
+//    }
+//
+//  }
+
+
 //  @Test
 //  public void testExternalTransactionCommit() {
 //
