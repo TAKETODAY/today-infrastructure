@@ -66,6 +66,8 @@ public class Query implements AutoCloseable {
   private Map<String, String> columnMappings;
   private Map<String, String> caseSensitiveColumnMappings;
 
+  private boolean hasArrayParameter = false;
+
   public Query(JdbcConnection connection, String queryText, boolean returnGeneratedKeys) {
     this(connection, queryText, returnGeneratedKeys, null);
   }
@@ -237,6 +239,7 @@ public class Query implements AutoCloseable {
    */
   public Query addParameters(String name, final Object... values) {
     addParameter(name, new ArrayParameterSetter(values));
+    this.hasArrayParameter = true;
     return this;
   }
 
@@ -246,6 +249,7 @@ public class Query implements AutoCloseable {
    */
   public Query addParameter(String name, final Collection<?> values) {
     addParameter(name, new ArrayParameterSetter(values));
+    this.hasArrayParameter = true;
     return this;
   }
 
@@ -289,15 +293,17 @@ public class Query implements AutoCloseable {
   }
 
   private PreparedStatement buildPreparedStatement(boolean allowArrayParameters) {
-    // array parameter handling
-    final Map<String, ParameterSetter> parameters = this.parameters;
-    final Map<String, List<Integer>> paramNameToIdxMap = this.paramNameToIdxMap;
-    this.parsedQuery = ArrayParameters.updateQueryAndParametersIndexes(
-            parsedQuery,
-            paramNameToIdxMap,
-            parameters,
-            allowArrayParameters
-    );
+    final HashMap<String, ParameterSetter> parameters = this.parameters;
+    final HashMap<String, List<Integer>> paramNameToIdxMap = this.paramNameToIdxMap;
+    if (hasArrayParameter) {
+      // array parameter handling
+      this.parsedQuery = ArrayParameters.updateQueryAndParametersIndexes(
+              parsedQuery,
+              paramNameToIdxMap,
+              parameters,
+              allowArrayParameters
+      );
+    }
 
     // prepare statement creation
     PreparedStatement statement = this.preparedStatement;
@@ -317,8 +323,7 @@ public class Query implements AutoCloseable {
       }
       catch (SQLException e) {
         throw new PersistenceException(
-                String.format("Error adding parameter '%s' - %s",
-                              parameter.getKey(), e.getMessage()), e);
+                "Error adding parameter '" + parameter.getKey() + "' - " + e.getMessage(), e);
       }
     }
     // the parameters need to be cleared, so in case of batch,

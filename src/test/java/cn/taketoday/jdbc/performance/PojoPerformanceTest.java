@@ -69,7 +69,7 @@ import cn.taketoday.orm.hibernate5.EnableDefaultHibernate;
  * <p>
  * TODO: must read 10-100 rows instead 1
  */
-@Ignore
+//@Ignore
 public class PojoPerformanceTest {
 
   private final static String DRIVER_CLASS = "org.h2.Driver";

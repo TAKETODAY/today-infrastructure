@@ -1667,7 +1667,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
               .addParameters("ids", 1, 2, 3)
               .executeAndFetch(User.class);
 
-      assertTrue(result.size() == 3);
+      assertEquals(3, result.size());
     }
 
     try (JdbcConnection connection = defaultSession.open()) {
@@ -1681,7 +1681,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
               .addParameter("text", "some text")
               .executeAndFetch(User.class);
 
-      assertTrue(result.size() == 3);
+      assertEquals(3, result.size());
     }
 
     try (JdbcConnection connection = defaultSession.open()) {
@@ -1695,7 +1695,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
               .addParameter("text", "some text")
               .executeAndFetch(User.class);
 
-      assertTrue(result.size() == 0);
+      assertEquals(0, result.size());
     }
 
     try (JdbcConnection connection = defaultSession.open()) {
@@ -1709,7 +1709,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
               .addParameter("text", "some text")
               .executeAndFetch(User.class);
 
-      assertTrue(result.size() == 1);
+      assertEquals(1, result.size());
     }
 
     try (JdbcConnection connection = defaultSession.open()) {
@@ -1719,13 +1719,13 @@ public class DefaultSessionTest extends BaseMemDbTest {
                                    " and text = :text" +
                                    " and id in(:ids)" +
                                    " and text = :text" +
-                                   " and id in(:ids)")
+                                   " and id in(?,?,?)")
               .addParameter("email", "%email.com")
               .addParameters("ids", 1, 2, 3)
               .addParameter("text", "some text")
               .executeAndFetch(User.class);
 
-      assertTrue(result.size() == 3);
+      assertEquals(3, result.size());
     }
 
     try (JdbcConnection connection = defaultSession.open()) {
@@ -1744,7 +1744,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
                       { 1, 2, 3 })
               .executeAndFetch(User.class);
 
-      assertTrue(result.size() == 3);
+      assertEquals(3, result.size());
     }
 
     try (JdbcConnection connection = defaultSession.open()) {
@@ -1753,7 +1753,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
               .addParameter("ids", (Object) ImmutableList.of(1, 2, 3))
               .executeAndFetch(User.class);
 
-      assertTrue(result.size() == 3);
+      assertEquals(3, result.size());
     }
   }
 
