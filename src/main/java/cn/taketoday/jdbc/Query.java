@@ -19,6 +19,7 @@ import java.util.Map;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
+import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.jdbc.data.LazyTable;
@@ -44,22 +45,26 @@ public class Query implements AutoCloseable {
   private static final Logger log = LoggerFactory.getLogger(Query.class);
 
   private final JdbcConnection connection;
-  private Map<String, String> caseSensitiveColumnMappings;
-  private Map<String, String> columnMappings;
-  private PreparedStatement preparedStatement = null;
-  private boolean caseSensitive;
-  private boolean autoDeriveColumnNames;
-  private boolean throwOnMappingFailure = true;
-  private String name;
-  private final boolean returnGeneratedKeys;
+
   private final String[] columnNames;
-  private final Map<String, List<Integer>> paramNameToIdxMap;
-  private final Map<String, ParameterSetter> parameters;
+  private final boolean returnGeneratedKeys;
+  private final HashMap<String, ParameterSetter> parameters = new HashMap<>();
+  private final HashMap<String, List<Integer>> paramNameToIdxMap = new HashMap<>();
+
+  private String name;
   private String parsedQuery;
   private int maxBatchRecords = 0;
   private int currentBatchRecords = 0;
 
+  private boolean caseSensitive;
+  private boolean autoDeriveColumnNames;
+  private boolean throwOnMappingFailure = true;
+  private PreparedStatement preparedStatement = null;
+
   private TypeHandlerRegistry typeHandlerRegistry;
+
+  private Map<String, String> columnMappings;
+  private Map<String, String> caseSensitiveColumnMappings;
 
   public Query(JdbcConnection connection, String queryText, boolean returnGeneratedKeys) {
     this(connection, queryText, returnGeneratedKeys, null);
@@ -73,15 +78,9 @@ public class Query implements AutoCloseable {
     this.connection = connection;
     this.columnNames = columnNames;
     this.returnGeneratedKeys = returnGeneratedKeys;
-    this.setColumnMappings(connection.getSession().getDefaultColumnMappings());
+    setColumnMappings(connection.getSession().getDefaultColumnMappings());
     this.caseSensitive = connection.getSession().isDefaultCaseSensitive();
-
-    paramNameToIdxMap = new HashMap<>();
-    parameters = new HashMap<>();
-
-    parsedQuery = connection.getSession()
-            .getParsingStrategy()
-            .parseSql(queryText, paramNameToIdxMap);
+    parsedQuery = connection.getSession().parse(queryText, paramNameToIdxMap);
   }
 
   // ------------------------------------------------
@@ -291,22 +290,25 @@ public class Query implements AutoCloseable {
 
   private PreparedStatement buildPreparedStatement(boolean allowArrayParameters) {
     // array parameter handling
+    final Map<String, ParameterSetter> parameters = this.parameters;
     final Map<String, List<Integer>> paramNameToIdxMap = this.paramNameToIdxMap;
-    parsedQuery = ArrayParameters.updateQueryAndParametersIndexes(parsedQuery,
-                                                                  paramNameToIdxMap,
-                                                                  parameters,
-                                                                  allowArrayParameters);
+    this.parsedQuery = ArrayParameters.updateQueryAndParametersIndexes(
+            parsedQuery,
+            paramNameToIdxMap,
+            parameters,
+            allowArrayParameters
+    );
 
     // prepare statement creation
     PreparedStatement statement = this.preparedStatement;
     if (statement == null) {
-      statement = getPreparedStatement(this.connection.getJdbcConnection());
+      statement = getPreparedStatement(connection.getJdbcConnection());
       this.preparedStatement = statement; // update
       connection.registerStatement(statement);
     }
 
     // parameters assignation to query
-    for (Map.Entry<String, ParameterSetter> parameter : parameters.entrySet()) {
+    for (final Map.Entry<String, ParameterSetter> parameter : parameters.entrySet()) {
       final ParameterSetter setter = parameter.getValue();
       try {
         for (final int paramIdx : paramNameToIdxMap.get(parameter.getKey())) {
@@ -704,9 +706,10 @@ public class Query implements AutoCloseable {
   }
 
   public JdbcConnection executeBatch() {
-    long start = System.currentTimeMillis();
+    logExecution();
+    final long start = System.currentTimeMillis();
+    final JdbcConnection connection = this.connection;
     try {
-      logExecution();
       PreparedStatement statement = buildPreparedStatement();
       connection.setBatchResult(statement.executeBatch());
       this.currentBatchRecords = 0;
@@ -722,7 +725,7 @@ public class Query implements AutoCloseable {
       }
     }
     catch (Throwable e) {
-      this.connection.onException();
+      connection.onException();
       throw new PersistenceException("Error while executing batch operation: " + e.getMessage(), e);
     }
     finally {
@@ -730,39 +733,42 @@ public class Query implements AutoCloseable {
     }
     if (log.isDebugEnabled()) {
       log.debug("total: {} ms; executed batch [{}]",
-                System.currentTimeMillis() - start, this.getName() == null ? "No name" : this.getName());
+                System.currentTimeMillis() - start, getName() == null ? "No name" : getName());
     }
-    return this.connection;
+    return connection;
   }
 
   /*********** column mapping ****************/
 
   public Map<String, String> getColumnMappings() {
-    if (this.isCaseSensitive()) {
-      return this.caseSensitiveColumnMappings;
+    if (isCaseSensitive()) {
+      return caseSensitiveColumnMappings;
     }
     else {
-      return this.columnMappings;
+      return columnMappings;
     }
   }
 
-  public Query setColumnMappings(Map<String, String> mappings) {
-
-    this.caseSensitiveColumnMappings = new HashMap<>();
-    this.columnMappings = new HashMap<>();
-
-    for (Map.Entry<String, String> entry : mappings.entrySet()) {
-      this.caseSensitiveColumnMappings.put(entry.getKey(), entry.getValue());
-      this.columnMappings.put(entry.getKey().toLowerCase(), entry.getValue().toLowerCase());
+  public void setColumnMappings(Map<String, String> mappings) {
+    if (!CollectionUtils.isEmpty(mappings)) {
+      final HashMap<String, String> columnMappings = new HashMap<>();
+      final HashMap<String, String> caseSensitiveColumnMappings = new HashMap<>();
+      for (Map.Entry<String, String> entry : mappings.entrySet()) {
+        caseSensitiveColumnMappings.put(entry.getKey(), entry.getValue());
+        columnMappings.put(entry.getKey().toLowerCase(), entry.getValue().toLowerCase());
+      }
+      this.columnMappings = columnMappings;
+      this.caseSensitiveColumnMappings = caseSensitiveColumnMappings;
     }
-
-    return this;
   }
 
   public Query addColumnMapping(String columnName, String propertyName) {
+    if (columnMappings == null) {
+      this.columnMappings = new HashMap<>();
+      this.caseSensitiveColumnMappings = new HashMap<>();
+    }
     this.caseSensitiveColumnMappings.put(columnName, propertyName);
     this.columnMappings.put(columnName.toLowerCase(), propertyName.toLowerCase());
-
     return this;
   }
 
@@ -781,7 +787,7 @@ public class Query implements AutoCloseable {
 
   private void logExecution() {
     if (log.isDebugEnabled()) {
-      log.debug("Executing query:{}{}", System.lineSeparator(), this.parsedQuery);
+      log.debug("Executing query:{}{}", System.lineSeparator(), parsedQuery);
     }
   }
 
