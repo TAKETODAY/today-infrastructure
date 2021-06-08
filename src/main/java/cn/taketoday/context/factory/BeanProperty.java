@@ -27,8 +27,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -372,7 +372,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
 
   private Annotation[] resolveAnnotations() {
     return annotationsCache.get(this, k -> {
-      final LinkedList<Annotation> annotations = new LinkedList<>();
+      final ArrayList<Annotation> annotations = new ArrayList<>();
       final Method readMethod = obtainAccessor().getReadMethod();
       final Method writeMethod = obtainAccessor().getWriteMethod();
 

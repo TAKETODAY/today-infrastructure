@@ -126,7 +126,7 @@ public abstract class StringUtils {
     if (source.isEmpty()) {
       return new String[] { source };
     }
-    final LinkedList<String> list = new LinkedList<>();
+    final ArrayList<String> list = new ArrayList<>();
 
     int idx = 0;
     int start = 0;

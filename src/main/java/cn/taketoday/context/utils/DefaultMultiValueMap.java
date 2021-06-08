@@ -20,6 +20,7 @@
 package cn.taketoday.context.utils;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -56,7 +57,7 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
   static final Function default_mapping_function = new Function() {
     @Override
     public Object apply(Object k) {
-      return new LinkedList<>();
+      return new ArrayList<>();
     }
   };
 

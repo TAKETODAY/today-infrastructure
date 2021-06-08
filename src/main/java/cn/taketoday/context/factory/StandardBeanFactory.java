@@ -24,11 +24,11 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -98,12 +98,12 @@ public class StandardBeanFactory
   static final String ImportAnnotatedMetadata = Import.class.getName() + "-Metadata"; // @since 3.0
 
   private final ConfigurableApplicationContext context;
-  private final LinkedList<AnnotatedElement> componentScanned = new LinkedList<>();
+  private final ArrayList<AnnotatedElement> componentScanned = new ArrayList<>();
 
   /**
    * @since 3.0 Resolve {@link PropertySetter}
    */
-  private final LinkedList<PropertyValueResolver> propertyResolvers = new LinkedList<>();
+  private final ArrayList<PropertyValueResolver> propertyResolvers = new ArrayList<>(4);
 
   /**
    * @since 2.1.7 Preventing repeated initialization of beans(Prevent duplicate
@@ -769,7 +769,7 @@ public class StandardBeanFactory
    * @see Constant#META_INFO_property_resolvers
    * @since 3.0
    */
-  public LinkedList<PropertyValueResolver> getPropertyValueResolvers() {
+  public ArrayList<PropertyValueResolver> getPropertyValueResolvers() {
     if (propertyResolvers.isEmpty()) {
       final ConfigurableApplicationContext context = getApplicationContext();
       final Set<PropertyValueResolver> objects =

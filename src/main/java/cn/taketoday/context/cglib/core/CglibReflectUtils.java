@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -60,7 +59,7 @@ public abstract class CglibReflectUtils {
 
   private static final Method defineClass;
 
-  private static final LinkedList<Method> OBJECT_METHODS = new LinkedList<>();
+  private static final ArrayList<Method> OBJECT_METHODS;
 
   private static final String[] CGLIB_PACKAGES = { "java.lang" };
 
@@ -78,7 +77,10 @@ public abstract class CglibReflectUtils {
     catch (NoSuchMethodException e) {
       throw new CodeGenerationException(e);
     }
-    for (Method method : Object.class.getDeclaredMethods()) {
+
+    final Method[] declaredMethods = Object.class.getDeclaredMethods();
+    OBJECT_METHODS = new ArrayList<>(declaredMethods.length);
+    for (Method method : declaredMethods) {
       if ("finalize".equals(method.getName()) || (method.getModifiers() & (FINAL | STATIC)) > 0) {
         continue;
       }

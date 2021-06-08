@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -91,7 +90,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   /** @since 2.1.7 Scan candidates */
   private CandidateComponentScanner candidateComponentScanner;
 
-  private LinkedList<BeanFactoryPostProcessor> factoryPostProcessors;
+  private ArrayList<BeanFactoryPostProcessor> factoryPostProcessors;
 
   /**
    * Construct with a {@link ConfigurableEnvironment}
@@ -973,9 +972,9 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   public final List<BeanFactoryPostProcessor> getFactoryPostProcessors() {
-    final LinkedList<BeanFactoryPostProcessor> processors = this.factoryPostProcessors;
+    final ArrayList<BeanFactoryPostProcessor> processors = this.factoryPostProcessors;
     if (processors == null) {
-      return this.factoryPostProcessors = new LinkedList<>();
+      return this.factoryPostProcessors = new ArrayList<>();
     }
     return processors;
   }

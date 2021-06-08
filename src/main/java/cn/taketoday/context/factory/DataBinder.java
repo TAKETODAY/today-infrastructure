@@ -21,8 +21,8 @@
 package cn.taketoday.context.factory;
 
 import java.beans.PropertyEditor;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +36,7 @@ import cn.taketoday.context.conversion.ConversionService;
  * @since 3.0
  */
 public class DataBinder extends BeanPropertyAccessor {
-  protected final LinkedList<PropertyValue> propertyValues = new LinkedList<>();
+  protected final ArrayList<PropertyValue> propertyValues = new ArrayList<>();
 
   public DataBinder() { }
 

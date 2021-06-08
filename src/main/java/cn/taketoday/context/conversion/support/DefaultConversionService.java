@@ -22,10 +22,10 @@ package cn.taketoday.context.conversion.support;
 
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -68,7 +68,7 @@ public class DefaultConversionService implements ConfigurableConversionService {
     addDefaultConverters(sharedInstance);
   }
 
-  private final LinkedList<TypeConverter> converters = new LinkedList<>();
+  private final ArrayList<TypeConverter> converters = new ArrayList<>();
   private final ConverterMappings converterMappings = new ConverterMappings();
   /** @since 3.0.4 */
   private final HashMap<Class<?>, Object> nullMappings = new HashMap<>();

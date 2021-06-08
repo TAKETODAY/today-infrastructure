@@ -44,6 +44,7 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.net.URL;
 import java.time.temporal.Temporal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -51,7 +52,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -779,7 +779,7 @@ public abstract class ClassUtils {
       }
       else {
         final Class<T> annotationClass = key.annotationClass;
-        final LinkedList<AnnotationAttributes> result = new LinkedList<>(); // for the order
+        final ArrayList<AnnotationAttributes> result = new ArrayList<>(); // for the order
         for (final Annotation annotation : annotations) {
           final List<AnnotationAttributes> attr = getAnnotationAttributes(annotation, annotationClass);
           if (!attr.isEmpty()) {
@@ -857,7 +857,7 @@ public abstract class ClassUtils {
     }
     // find the default value of annotation
     // -----------------------------------------
-    final LinkedList<AnnotationAttributes> ret = new LinkedList<>();
+    final ArrayList<AnnotationAttributes> ret = new ArrayList<>();
 
     findTargetAttributes(annotationType, target, ret,
                          new TransformTarget(annotation, annotationType), IGNORE_ANNOTATION_CLASS);
@@ -956,7 +956,7 @@ public abstract class ClassUtils {
   static <T extends Annotation> void findTargetAttributes(
           final Class<?> source,
           final Class<T> targetType,
-          final List<AnnotationAttributes> attributes,
+          final ArrayList<AnnotationAttributes> attributes,
           final AnnotationAttributesTransformer transformer,
           final Set<Class<? extends Annotation>> ignoreAnnotation
   ) {
@@ -1335,18 +1335,17 @@ public abstract class ClassUtils {
 
     @Override
     public final Map<Method, String[]> apply(final Class<?> declaringClass) {
-      final HashMap<Method, String[]> map = new HashMap<>();
-
       final String classFile = declaringClass.getName()
               .replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR)
               .concat(Constant.CLASS_FILE_SUFFIX);
 
       try (InputStream resourceAsStream = classLoader.getResourceAsStream(classFile)) {
-
         final ClassNode classVisitor = new ClassNode();
         new ClassReader(resourceAsStream).accept(classVisitor, 0);
 
-        for (final MethodNode methodNode : classVisitor.methodNodes) {
+        final ArrayList<MethodNode> methodNodes = classVisitor.methodNodes;
+        final HashMap<Method, String[]> map = new HashMap<>(methodNodes.size());
+        for (final MethodNode methodNode : methodNodes) {
           final Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
           final Class<?>[] argTypes;
           if (argumentTypes.length == 0) {
@@ -1381,7 +1380,7 @@ public abstract class ClassUtils {
             continue;
           }
 
-          final LinkedList<LocalVariable> localVariables = methodNode.localVariables;
+          final ArrayList<LocalVariable> localVariables = methodNode.localVariables;
           if (localVariables.size() >= parameterCount) {
             int offset = Modifier.isStatic(method.getModifiers()) ? 0 : 1;
             if (enableParamNameTypeChecking) { // enable check params types
@@ -1406,19 +1405,26 @@ public abstract class ClassUtils {
               }
             }
           }
+          // @since 3.0.4 for gc
+          localVariables.clear();
+          methodNode.localVariables = null;
+
           map.put(method, paramNames);
         }
+        // @since 3.0.4 for gc
+        methodNodes.clear();
+        classVisitor.methodNodes = null;
+        return map;
       }
       catch (IOException | ClassNotFoundException | NoSuchMethodException | IndexOutOfBoundsException e) {
         throw new ContextException("When visit declaring class: [" + declaringClass.getName() + ']', e);
       }
-      return map;
     }
 
   }
 
   static final class ClassNode extends ClassVisitor {
-    private final LinkedList<MethodNode> methodNodes = new LinkedList<>();
+    private ArrayList<MethodNode> methodNodes = new ArrayList<>();
 
     @Override
     public MethodVisitor visitMethod(int access,
@@ -1445,7 +1451,7 @@ public abstract class ClassUtils {
   static final class MethodNode extends MethodVisitor {
     private final String name;
     private final String desc;
-    private final LinkedList<LocalVariable> localVariables = new LinkedList<>();
+    private ArrayList<LocalVariable> localVariables = new ArrayList<>();
 
     MethodNode(final String name, final String desc) {
       this.name = name;
