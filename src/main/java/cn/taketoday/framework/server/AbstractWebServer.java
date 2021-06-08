@@ -22,9 +22,9 @@ package cn.taketoday.framework.server;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -79,7 +79,7 @@ public abstract class AbstractWebServer
   private CompressionConfiguration compression;
   private Set<String> welcomePages = new LinkedHashSet<>();
   private Set<ErrorPage> errorPages = new LinkedHashSet<>();
-  private List<WebApplicationInitializer> contextInitializers = new LinkedList<>();
+  private List<WebApplicationInitializer> contextInitializers = new ArrayList<>();
   private final MimeMappings mimeMappings = new MimeMappings(MimeMappings.DEFAULT);
 
   @Autowired(required = false)
