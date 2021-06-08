@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 
 import cn.taketoday.context.utils.CollectionUtils;
@@ -188,7 +187,7 @@ public abstract class AbstractWebSocketHandlerAdapter extends AbstractHandlerAda
     for (final WebSocketExtension e : installed) {
       installedNames.add(e.getName());
     }
-    final LinkedList<WebSocketExtension> result = new LinkedList<>();
+    final ArrayList<WebSocketExtension> result = new ArrayList<>();
     for (final WebSocketExtension request : requested) {
       if (installedNames.contains(request.getName())) {
         result.add(request);

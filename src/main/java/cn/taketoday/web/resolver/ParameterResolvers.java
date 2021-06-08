@@ -19,8 +19,8 @@
  */
 package cn.taketoday.web.resolver;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
@@ -56,7 +56,7 @@ import static cn.taketoday.web.resolver.ConverterParameterResolver.convert;
  */
 @MissingBean
 public class ParameterResolvers extends WebApplicationContextSupport {
-  private final LinkedList<ParameterResolver> resolvers = new LinkedList<>();
+  private final ArrayList<ParameterResolver> resolvers = new ArrayList<>(36);
 
   /**
    * @since 3.0.1

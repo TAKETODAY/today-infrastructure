@@ -21,8 +21,8 @@
 package cn.taketoday.web.socket.annotation;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import cn.taketoday.context.conversion.support.StringToBytesConverter;
@@ -38,7 +38,7 @@ import cn.taketoday.web.socket.WebSocketHandler;
  */
 public class AnnotationWebSocketHandlerBuilder {
   protected static boolean isJettyPresent = ClassUtils.isPresent("org.eclipse.jetty.websocket.api.Session");
-  protected final LinkedList<EndpointParameterResolver> resolvers = new LinkedList<>();
+  protected final ArrayList<EndpointParameterResolver> resolvers = new ArrayList<>(16);
   protected boolean supportPartialMessage;
 
   /**

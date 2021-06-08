@@ -21,7 +21,6 @@ package cn.taketoday.web.view;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -41,7 +40,7 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
  */
 @MissingBean
 public class ResultHandlers extends WebApplicationContextSupport {
-  private final LinkedList<ResultHandler> handlers = new LinkedList<>();
+  private final ArrayList<ResultHandler> handlers = new ArrayList<>(8);
   /**
    * @since 3.0.1
    */

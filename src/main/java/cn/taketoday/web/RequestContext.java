@@ -27,9 +27,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpCookie;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -95,7 +95,7 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   protected String queryString;
 
   /** @since 3.0 */
-  protected LinkedList<HttpCookie> responseCookies;
+  protected ArrayList<HttpCookie> responseCookies;
 
   // --- request
 
@@ -255,10 +255,10 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
     responseCookies().add(cookie);
   }
 
-  public LinkedList<HttpCookie> responseCookies() {
-    LinkedList<HttpCookie> responseCookies = this.responseCookies;
+  public ArrayList<HttpCookie> responseCookies() {
+    ArrayList<HttpCookie> responseCookies = this.responseCookies;
     if (responseCookies == null) {
-      responseCookies = new LinkedList<>();
+      responseCookies = new ArrayList<>();
       this.responseCookies = responseCookies;
     }
     return responseCookies;

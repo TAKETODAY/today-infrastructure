@@ -21,8 +21,8 @@
 package cn.taketoday.web.registry;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -205,7 +205,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
     }
     else if (existMappingInfo instanceof AnnotationMappingInfo) {
       // ActionMappingInfo
-      final LinkedList<AnnotationMappingInfo> mappingInfo = new LinkedList<>();
+      final ArrayList<AnnotationMappingInfo> mappingInfo = new ArrayList<>();
       mappingInfo.add(handler);
       mappingInfo.add((AnnotationMappingInfo) existMappingInfo);
       sort(mappingInfo);
