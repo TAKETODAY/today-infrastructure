@@ -747,7 +747,15 @@ else */
    *         Input url
    */
   public static String checkUrl(String url) {
-    return StringUtils.isEmpty(url) ? Constant.BLANK : (url.charAt(0) == '/' ? url : '/' + url);
+    if (StringUtils.isEmpty(url)) {
+      return Constant.BLANK;
+    }
+    else {
+      if (url.charAt(0) == '/') {
+        return url;
+      }
+      return '/' + url;
+    }
   }
 
   /**
@@ -1483,7 +1491,7 @@ else */
    */
   public static TimeZone parseTimeZoneString(String timeZoneString) {
     TimeZone timeZone = TimeZone.getTimeZone(timeZoneString);
-    if ("GMT" .equals(timeZone.getID()) && !timeZoneString.startsWith("GMT")) {
+    if ("GMT".equals(timeZone.getID()) && !timeZoneString.startsWith("GMT")) {
       // We don't want that GMT fallback...
       throw new IllegalArgumentException("Invalid time zone specification '" + timeZoneString + "'");
     }
