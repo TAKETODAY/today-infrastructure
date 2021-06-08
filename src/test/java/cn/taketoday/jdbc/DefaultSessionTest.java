@@ -1719,7 +1719,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
                                    " and text = :text" +
                                    " and id in(:ids)" +
                                    " and text = :text" +
-                                   " and id in(?,?,?)")
+                                   " and id in(:ids)")
               .addParameter("email", "%email.com")
               .addParameters("ids", 1, 2, 3)
               .addParameter("text", "some text")

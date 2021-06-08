@@ -78,9 +78,10 @@ class ArrayParameters {
           List<ArrayParameter> arrayParametersSortedAsc
   ) {
     for (Map.Entry<String, List<Integer>> parameterNameToIndexes : parametersNameToIndex.entrySet()) {
-      List<Integer> newParameterIndex = new ArrayList<>(parameterNameToIndexes.getValue().size());
-      for (Integer parameterIndex : parameterNameToIndexes.getValue()) {
-        newParameterIndex.add(computeNewIndex(parameterIndex, arrayParametersSortedAsc));
+      ArrayList<Integer> newParameterIndex = new ArrayList<>(parameterNameToIndexes.getValue().size());
+      for (int parameterIndex : parameterNameToIndexes.getValue()) {
+        final int newIdx = computeNewIndex(parameterIndex, arrayParametersSortedAsc);
+        newParameterIndex.add(newIdx);
       }
       parameterNameToIndexes.setValue(newParameterIndex);
     }
@@ -119,16 +120,20 @@ class ArrayParameters {
     for (Map.Entry<String, ParameterSetter> parameter : parameters.entrySet()) {
       final ParameterSetter setter = parameter.getValue();
       if (setter instanceof Query.ArrayParameterSetter) {
-        if (!allowArrayParameters) {
-          throw new PersistenceException("Array parameters are not allowed in batch mode");
-        }
         final int parameterCount = ((Query.ArrayParameterSetter) setter).getParameterCount();
-        for (int i : parameterNamesToIndexes.get(parameter.getKey())) {
-          arrayParameters.add(new ArrayParameter(i, parameterCount));
+        if (parameterCount > 1) {
+          if (!allowArrayParameters) {
+            throw new PersistenceException("Array parameters are not allowed in batch mode");
+          }
+          for (int i : parameterNamesToIndexes.get(parameter.getKey())) {
+            arrayParameters.add(new ArrayParameter(i, parameterCount));
+          }
         }
       }
     }
-    Collections.sort(arrayParameters);
+    if (arrayParameters.size() > 1) {
+      Collections.sort(arrayParameters);
+    }
     return arrayParameters;
   }
 
