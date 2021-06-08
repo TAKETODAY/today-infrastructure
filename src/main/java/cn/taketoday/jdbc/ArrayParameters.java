@@ -117,11 +117,12 @@ class ArrayParameters {
   ) {
     ArrayList<ArrayParameter> arrayParameters = new ArrayList<>();
     for (Map.Entry<String, ParameterSetter> parameter : parameters.entrySet()) {
-      final int parameterCount = parameter.getValue().getParameterCount();
-      if (parameterCount > 1) {
+      final ParameterSetter setter = parameter.getValue();
+      if (setter instanceof Query.ArrayParameterSetter) {
         if (!allowArrayParameters) {
           throw new PersistenceException("Array parameters are not allowed in batch mode");
         }
+        final int parameterCount = ((Query.ArrayParameterSetter) setter).getParameterCount();
         for (int i : parameterNamesToIndexes.get(parameter.getKey())) {
           arrayParameters.add(new ArrayParameter(i, parameterCount));
         }

@@ -1,6 +1,7 @@
 package cn.taketoday.jdbc;
 
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -156,13 +157,18 @@ public class Query implements AutoCloseable {
     if (Collection.class.isAssignableFrom(parameterClass)) {
       return addParameter(name, (Collection<?>) value);
     }
-
     final TypeHandler<T> typeHandler = getTypeHandlerRegistry().getTypeHandler(parameterClass);
-    addParameter(name, new TypeHandlerParameterSetter<>(value, typeHandler));
+    final class TypeHandlerParameterSetter extends ParameterSetter {
+      @Override
+      public void setParameter(PreparedStatement statement, int paramIdx) throws SQLException {
+        typeHandler.setParameter(statement, paramIdx, value);
+      }
+    }
+    addParameter(name, new TypeHandlerParameterSetter());
     return this;
   }
 
-  public Query withParams(Object... paramValues) {
+  public Query withParams(final Object... paramValues) {
     int i = 0;
     for (Object paramValue : paramValues) {
       addParameter("p" + (++i), paramValue);
@@ -171,49 +177,93 @@ public class Query implements AutoCloseable {
   }
 
   @SuppressWarnings("unchecked")
-  public Query addParameter(String name, Object value) {
+  public Query addParameter(final String name, final Object value) {
     return value == null
            ? addNullParameter(name)
            : addParameter(name, (Class<Object>) value.getClass(), value);
   }
 
-  public Query addNullParameter(String name) {
+  public Query addNullParameter(final String name) {
     addParameter(name, ParameterSetter.null_setter);
     return this;
   }
 
-  public Query addParameter(String name, final InputStream value) {
-    addParameter(name, new BinaryStreamParameterSetter(value));
+  public Query addParameter(final String name, final InputStream value) {
+    final class BinaryStreamParameterSetter extends ParameterSetter {
+      @Override
+      public void setParameter(PreparedStatement statement, int paramIdx) throws SQLException {
+        statement.setBinaryStream(paramIdx, value);
+      }
+    }
+    addParameter(name, new BinaryStreamParameterSetter());
     return this;
   }
 
-  public Query addParameter(String name, final int value) {
-    addParameter(name, (statement, paramIdx) -> statement.setInt(paramIdx, value));
+  public Query addParameter(final String name, final int value) {
+    final class IntegerParameterSetter extends ParameterSetter {
+      @Override
+      public void setParameter(PreparedStatement statement, int paramIdx) throws SQLException {
+        statement.setInt(paramIdx, value);
+      }
+    }
+    addParameter(name, new IntegerParameterSetter());
     return this;
   }
 
-  public Query addParameter(String name, final long value) {
-    addParameter(name, (statement, paramIdx) -> statement.setLong(paramIdx, value));
+  public Query addParameter(final String name, final long value) {
+    final class LongParameterSetter extends ParameterSetter {
+      @Override
+      public void setParameter(PreparedStatement statement, int paramIdx) throws SQLException {
+        statement.setLong(paramIdx, value);
+      }
+    }
+    addParameter(name, new LongParameterSetter());
     return this;
   }
 
-  public Query addParameter(String name, final String value) {
-    addParameter(name, new StringParameterSetter(value));
+  public Query addParameter(final String name, final String value) {
+    final class StringParameterSetter extends ParameterSetter {
+      @Override
+      public void setParameter(PreparedStatement statement, int paramIdx) throws SQLException {
+        statement.setString(paramIdx, value);
+      }
+    }
+    addParameter(name, new StringParameterSetter());
     return this;
   }
 
-  public Query addParameter(String name, final Timestamp value) {
-    addParameter(name, new TimestampParameterSetter(value));
+  public Query addParameter(final String name, final Timestamp value) {
+    final class TimestampParameterSetter extends ParameterSetter {
+      @Override
+      public void setParameter(PreparedStatement statement, int paramIdx) throws SQLException {
+        statement.setTimestamp(paramIdx, value);
+      }
+    }
+    addParameter(name, new TimestampParameterSetter());
     return this;
   }
 
-  public Query addParameter(String name, final Time value) {
-    addParameter(name, new TimeParameterSetter(value));
+  public Query addParameter(final String name, final Time value) {
+    final class TimeParameterSetter extends ParameterSetter {
+      @Override
+      public void setParameter(PreparedStatement statement, int paramIdx) throws SQLException {
+        statement.setTime(paramIdx, value);
+      }
+    }
+
+    addParameter(name, new TimeParameterSetter());
     return this;
   }
 
-  public Query addParameter(String name, final boolean value) {
-    addParameter(name, new BooleanParameterSetter(value));
+  public Query addParameter(final String name, final boolean value) {
+    final class BooleanParameterSetter extends ParameterSetter {
+
+      @Override
+      public void setParameter(PreparedStatement statement, int paramIdx) throws SQLException {
+        statement.setBoolean(paramIdx, value);
+      }
+    }
+    addParameter(name, new BooleanParameterSetter());
     return this;
   }
 
@@ -677,14 +727,13 @@ public class Query implements AutoCloseable {
       buildPreparedStatement(false).addBatch();
       if (this.maxBatchRecords > 0) {
         if (++this.currentBatchRecords % this.maxBatchRecords == 0) {
-          this.executeBatch();
+          executeBatch();
         }
       }
     }
     catch (SQLException e) {
       throw new PersistenceException("Error while adding statement to batch", e);
     }
-
     return this;
   }
 
@@ -700,7 +749,7 @@ public class Query implements AutoCloseable {
    * <code>getCurrentBatchRecords()</code> method.
    */
   public <A> List<A> addToBatchGetKeys(Class<A> klass) {
-    this.addToBatch();
+    addToBatch();
 
     if (this.currentBatchRecords == 0) {
       return this.connection.getKeys(klass);
@@ -797,12 +846,14 @@ public class Query implements AutoCloseable {
   }
 
   // from http://stackoverflow.com/questions/5606338/cast-primitive-type-array-into-object-array-in-java
-  static Object[] toObjectArray(Object val) {
-    if (val instanceof Object[]) return (Object[]) val;
-    int arrayLength = java.lang.reflect.Array.getLength(val);
-    Object[] outputArray = new Object[arrayLength];
+  static Object[] toObjectArray(final Object val) {
+    if (val instanceof Object[]) {
+      return (Object[]) val;
+    }
+    final int arrayLength = Array.getLength(val);
+    final Object[] outputArray = new Object[arrayLength];
     for (int i = 0; i < arrayLength; ++i) {
-      outputArray[i] = java.lang.reflect.Array.get(val, i);
+      outputArray[i] = Array.get(val, i);
     }
     return outputArray;
   }
@@ -814,7 +865,7 @@ public class Query implements AutoCloseable {
 
   // ParameterSetter
 
-  class ArrayParameterSetter implements ParameterSetter {
+  final class ArrayParameterSetter extends ParameterSetter {
     final Object[] values;
 
     ArrayParameterSetter(Collection<?> values) {
@@ -827,7 +878,6 @@ public class Query implements AutoCloseable {
       this.values = values;
     }
 
-    @Override
     public int getParameterCount() {
       return values.length;
     }
@@ -844,91 +894,6 @@ public class Query implements AutoCloseable {
           typeHandler.setParameter(statement, paramIdx++, value);
         }
       }
-    }
-  }
-
-  // ValuedParameterSetter
-
-  abstract static class ValuedParameterSetter<T> implements ParameterSetter {
-    final T value;
-
-    protected ValuedParameterSetter(T value) {
-      this.value = value;
-    }
-  }
-
-  static class BinaryStreamParameterSetter extends ValuedParameterSetter<InputStream> {
-
-    BinaryStreamParameterSetter(InputStream value) {
-      super(value);
-    }
-
-    @Override
-    public void setParameter(PreparedStatement statement, int paramIdx) throws SQLException {
-      statement.setBinaryStream(paramIdx, value);
-    }
-  }
-
-  static class StringParameterSetter extends ValuedParameterSetter<String> {
-
-    StringParameterSetter(String value) {
-      super(value);
-    }
-
-    @Override
-    public void setParameter(PreparedStatement statement, int paramIdx) throws SQLException {
-      statement.setString(paramIdx, value);
-    }
-  }
-
-  static class BooleanParameterSetter extends ValuedParameterSetter<Boolean> {
-
-    BooleanParameterSetter(boolean value) {
-      super(value);
-    }
-
-    @Override
-    public void setParameter(PreparedStatement statement, int paramIdx) throws SQLException {
-      statement.setBoolean(paramIdx, value);
-    }
-  }
-
-  static class TimeParameterSetter extends ValuedParameterSetter<Time> {
-
-    TimeParameterSetter(Time value) {
-      super(value);
-    }
-
-    @Override
-    public void setParameter(PreparedStatement statement, int paramIdx) throws SQLException {
-      statement.setTime(paramIdx, value);
-    }
-  }
-
-  static class TimestampParameterSetter extends ValuedParameterSetter<Timestamp> {
-
-    TimestampParameterSetter(Timestamp value) {
-      super(value);
-    }
-
-    @Override
-    public void setParameter(PreparedStatement statement, int paramIdx) throws SQLException {
-      statement.setTimestamp(paramIdx, value);
-    }
-  }
-
-  static class TypeHandlerParameterSetter<T> extends ValuedParameterSetter<T> {
-
-    final TypeHandler<T> typeHandler;
-
-    TypeHandlerParameterSetter(T value, TypeHandler<T> typeHandler) {
-      super(value);
-      this.typeHandler = typeHandler;
-    }
-
-    @Override
-    public void setParameter(PreparedStatement statement, int paramIdx) throws SQLException {
-      typeHandler.setParameter(statement, paramIdx, value);
     }
   }
 
