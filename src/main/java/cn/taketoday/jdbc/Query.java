@@ -1,3 +1,23 @@
+/*
+ * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ */
+
 package cn.taketoday.jdbc;
 
 import java.io.InputStream;
@@ -27,6 +47,7 @@ import cn.taketoday.jdbc.data.LazyTable;
 import cn.taketoday.jdbc.data.Row;
 import cn.taketoday.jdbc.data.Table;
 import cn.taketoday.jdbc.data.TableResultSetIterator;
+import cn.taketoday.jdbc.parsing.ParameterApplier;
 import cn.taketoday.jdbc.reflection.JdbcBeanMetadata;
 import cn.taketoday.jdbc.reflection.ReadableProperty;
 import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;
@@ -50,7 +71,7 @@ public class Query implements AutoCloseable {
   private final String[] columnNames;
   private final boolean returnGeneratedKeys;
   private final HashMap<String, ParameterSetter> parameters = new HashMap<>();
-  private final HashMap<String, List<Integer>> paramNameToIdxMap = new HashMap<>();
+  private final HashMap<String, ParameterApplier> paramNameToIdxMap = new HashMap<>();
 
   private String name;
   private String parsedQuery;
@@ -130,7 +151,7 @@ public class Query implements AutoCloseable {
     return this;
   }
 
-  public Map<String, List<Integer>> getParamNameToIdxMap() {
+  public Map<String, ParameterApplier> getParamNameToIdxMap() {
     return paramNameToIdxMap;
   }
 
@@ -305,7 +326,7 @@ public class Query implements AutoCloseable {
 
   public Query bind(final Object pojo) {
     Class<?> clazz = pojo.getClass();
-    final Map<String, List<Integer>> paramNameToIdxMap = getParamNameToIdxMap();
+    final Map<String, ParameterApplier> paramNameToIdxMap = getParamNameToIdxMap();
     for (ReadableProperty property : ReadableProperty.readableProperties(clazz).values()) {
       try {
         if (paramNameToIdxMap.containsKey(property.name)) {
@@ -344,7 +365,7 @@ public class Query implements AutoCloseable {
 
   private PreparedStatement buildPreparedStatement(boolean allowArrayParameters) {
     final HashMap<String, ParameterSetter> parameters = this.parameters;
-    final HashMap<String, List<Integer>> paramNameToIdxMap = this.paramNameToIdxMap;
+    final HashMap<String, ParameterApplier> paramNameToIdxMap = this.paramNameToIdxMap;
     if (hasArrayParameter) {
       // array parameter handling
       this.parsedQuery = ArrayParameters.updateQueryAndParametersIndexes(
@@ -367,9 +388,7 @@ public class Query implements AutoCloseable {
     for (final Map.Entry<String, ParameterSetter> parameter : parameters.entrySet()) {
       final ParameterSetter setter = parameter.getValue();
       try {
-        for (final int paramIdx : paramNameToIdxMap.get(parameter.getKey())) {
-          setter.setParameter(statement, paramIdx);
-        }
+        paramNameToIdxMap.get(parameter.getKey()).apply(setter, statement);
       }
       catch (SQLException e) {
         throw new PersistenceException(

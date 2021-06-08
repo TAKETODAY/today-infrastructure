@@ -34,8 +34,9 @@ import cn.taketoday.jdbc.connectionsources.DataSourceConnectionSource;
 import cn.taketoday.jdbc.conversion.ClobToStringConverter;
 import cn.taketoday.jdbc.conversion.OffsetTimeToSQLTimeConverter;
 import cn.taketoday.jdbc.conversion.TimeToJodaLocalTimeConverter;
+import cn.taketoday.jdbc.parsing.ParameterApplier;
 import cn.taketoday.jdbc.parsing.SqlParameterParser;
-import cn.taketoday.jdbc.parsing.impl.DefaultSqlParameterParser;
+import cn.taketoday.jdbc.parsing.DefaultSqlParameterParser;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.FeatureDetector;
 
@@ -217,7 +218,7 @@ public class DefaultSession {
     return sqlParameterParser;
   }
 
-  String parse(String sql, Map<String, List<Integer>> paramNameToIdxMap) {
+  String parse(String sql, Map<String, ParameterApplier> paramNameToIdxMap) {
     return sqlParameterParser.parse(sql, paramNameToIdxMap);
   }
 

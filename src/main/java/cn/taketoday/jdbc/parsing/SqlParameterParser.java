@@ -1,6 +1,5 @@
 package cn.taketoday.jdbc.parsing;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -8,5 +7,5 @@ import java.util.Map;
  */
 public abstract class SqlParameterParser {
 
-  public abstract String parse(String sqlToParse, Map<String, List<Integer>> mapToFill);
+  public abstract String parse(String sqlToParse, Map<String, ParameterApplier> mapToFill);
 }

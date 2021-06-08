@@ -2,12 +2,14 @@ package cn.taketoday.jdbc.utils;
 
 import junit.framework.TestCase;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.jdbc.parsing.DefaultSqlParameterParser;
+import cn.taketoday.jdbc.parsing.ParameterApplier;
 import cn.taketoday.jdbc.parsing.SqlParameterParser;
-import cn.taketoday.jdbc.parsing.impl.DefaultSqlParameterParser;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -27,12 +29,16 @@ public class NamedParameterTest extends TestCase {
    expression::type
    */
   public void testPostgresSqlCastSyntax() throws Exception {
-    Map<String, List<Integer>> map = new HashMap<String, List<Integer>>();
+    Map<String, ParameterApplier> map = new HashMap<>();
     String preparedQuery = sqlParameterParsingStrategy.parse("select :foo", map);
     assertEquals("select ?", preparedQuery);
     assertThat(map.size(), is(equalTo(1)));
-    assertThat(map.get("foo").size(), is(equalTo(1)));
-    assertThat(map.get("foo").get(0), is(equalTo(1)));
+    final ParameterApplier parameterApplier = map.get("foo");
+
+    List<Integer> integers = new ArrayList<>();
+    parameterApplier.forEach(integers::add);
+    assertThat(integers.size(), is(equalTo(1)));
+    assertThat(integers.get(0), is(equalTo(1)));
 
     map.clear();
     preparedQuery = sqlParameterParsingStrategy.parse("select (:foo)::uuid", map);
@@ -40,7 +46,7 @@ public class NamedParameterTest extends TestCase {
   }
 
   public void testStringConstant() throws Exception {
-    Map<String, List<Integer>> map = new HashMap<String, List<Integer>>();
+    Map<String, ParameterApplier> map = new HashMap<>();
     String preparedQuery = sqlParameterParsingStrategy.parse("select ':foo'", map);
     assertEquals("select ':foo'", preparedQuery);
   }

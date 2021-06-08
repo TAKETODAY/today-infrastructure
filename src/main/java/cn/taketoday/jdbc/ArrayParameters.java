@@ -1,3 +1,23 @@
+/*
+ * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ */
+
 package cn.taketoday.jdbc;
 
 import java.util.ArrayList;
@@ -6,6 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import cn.taketoday.jdbc.parsing.ParameterApplier;
 
 /**
  * <pre>
@@ -55,7 +77,7 @@ class ArrayParameters {
    */
   static String updateQueryAndParametersIndexes(
           String parsedQuery,
-          Map<String, List<Integer>> parameterNamesToIndexes,
+          Map<String, ParameterApplier> parameterNamesToIndexes,
           Map<String, ParameterSetter> parameters,
           boolean allowArrayParameters
   ) {
@@ -73,17 +95,25 @@ class ArrayParameters {
   /**
    * Update the indexes of each query parameter
    */
-  static Map<String, List<Integer>> updateParameterNamesToIndexes(
-          Map<String, List<Integer>> parametersNameToIndex,
+  static Map<String, ParameterApplier> updateParameterNamesToIndexes(
+          Map<String, ParameterApplier> parametersNameToIndex,
           List<ArrayParameter> arrayParametersSortedAsc
   ) {
-    for (Map.Entry<String, List<Integer>> parameterNameToIndexes : parametersNameToIndex.entrySet()) {
-      ArrayList<Integer> newParameterIndex = new ArrayList<>(parameterNameToIndexes.getValue().size());
-      for (int parameterIndex : parameterNameToIndexes.getValue()) {
+    for (Map.Entry<String, ParameterApplier> parameterNameToIndexes : parametersNameToIndex.entrySet()) {
+      final ParameterApplier parameterApplier = parameterNameToIndexes.getValue();
+      ArrayList<Integer> newParameterIndex = new ArrayList<>();
+
+      parameterApplier.forEach((parameterIndex) -> {
         final int newIdx = computeNewIndex(parameterIndex, arrayParametersSortedAsc);
         newParameterIndex.add(newIdx);
+      });
+
+      if (newParameterIndex.size() > 1) {
+        parameterNameToIndexes.setValue(ParameterApplier.valueOf(newParameterIndex));
       }
-      parameterNameToIndexes.setValue(newParameterIndex);
+      else {
+        parameterNameToIndexes.setValue(ParameterApplier.valueOf(newParameterIndex.get(0)));
+      }
     }
 
     return parametersNameToIndex;
@@ -112,11 +142,11 @@ class ArrayParameters {
    * parameter indexes.
    */
   private static List<ArrayParameter> arrayParametersSortedAsc(
-          Map<String, List<Integer>> parameterNamesToIndexes,
+          Map<String, ParameterApplier> parameterNamesToIndexes,
           Map<String, ParameterSetter> parameters,
           boolean allowArrayParameters
   ) {
-    ArrayList<ArrayParameter> arrayParameters = new ArrayList<>();
+    final ArrayList<ArrayParameter> arrayParameters = new ArrayList<>();
     for (Map.Entry<String, ParameterSetter> parameter : parameters.entrySet()) {
       final ParameterSetter setter = parameter.getValue();
       if (setter instanceof Query.ArrayParameterSetter) {
@@ -125,9 +155,8 @@ class ArrayParameters {
           if (!allowArrayParameters) {
             throw new PersistenceException("Array parameters are not allowed in batch mode");
           }
-          for (int i : parameterNamesToIndexes.get(parameter.getKey())) {
-            arrayParameters.add(new ArrayParameter(i, parameterCount));
-          }
+          final ParameterApplier parameterApplier = parameterNamesToIndexes.get(parameter.getKey());
+          parameterApplier.forEach((index) -> arrayParameters.add(new ArrayParameter(index, parameterCount)));
         }
       }
     }

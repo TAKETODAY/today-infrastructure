@@ -7,7 +7,8 @@ import com.google.common.collect.Maps;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.List;
+
+import cn.taketoday.jdbc.parsing.ParameterApplier;
 
 import static junit.framework.TestCase.assertEquals;
 
@@ -15,19 +16,19 @@ public class ArrayParametersTest {
 
   @Test
   public void testUpdateParameterNamesToIndexes() {
+    final ImmutableList<Integer> of = ImmutableList.of(3, 5);
     assertEquals(
-            ImmutableMap.of("paramName", ImmutableList.of(3, 5)),
+            ImmutableMap.of("paramName", ParameterApplier.valueOf(ImmutableList.of(3, 5))),
             ArrayParameters.updateParameterNamesToIndexes(
-                    Maps.newHashMap(ImmutableMap.of("paramName",
-                                                    (List<Integer>) ImmutableList.of(3, 5))),
+                    Maps.newHashMap(ImmutableMap.of("paramName", ParameterApplier.valueOf(of))),
                     ImmutableList.of(
                             new ArrayParameters.ArrayParameter(6, 3))));
 
     assertEquals(
-            ImmutableMap.of("paramName", ImmutableList.of(3, 9)),
+            ImmutableMap.of("paramName", ParameterApplier.valueOf(ImmutableList.of(3, 9))),
             ArrayParameters.updateParameterNamesToIndexes(
                     Maps.newHashMap(ImmutableMap.of("paramName",
-                                                    (List<Integer>) ImmutableList.of(3, 7))),
+                                                    ParameterApplier.valueOf(ImmutableList.of(3, 7)))),
                     ImmutableList.of(
                             new ArrayParameters.ArrayParameter(6, 3))));
   }

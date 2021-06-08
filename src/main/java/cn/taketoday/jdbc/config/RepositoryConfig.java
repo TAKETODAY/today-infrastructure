@@ -20,7 +20,6 @@
 
 package cn.taketoday.jdbc.config;
 
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -49,6 +48,7 @@ import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.jdbc.DefaultSession;
 import cn.taketoday.jdbc.SqlType;
 import cn.taketoday.jdbc.annotation.Query;
+import cn.taketoday.jdbc.parsing.ParameterApplier;
 
 /**
  * @author TODAY 2021/3/17 18:24
@@ -119,9 +119,8 @@ public class RepositoryConfig
 
             }
             else {
-              final Map<String, List<Integer>> paramNameToIdxMap = query.getParamNameToIdxMap();
+              final Map<String, ParameterApplier> paramNameToIdxMap = query.getParamNameToIdxMap();
               final Set<String> strings = paramNameToIdxMap.keySet();
-
 
             }
 
