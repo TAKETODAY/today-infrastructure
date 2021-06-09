@@ -801,14 +801,15 @@ public final class Query implements AutoCloseable {
       connection.setBatchResult(statement.executeBatch());
       this.currentBatchRecords = 0;
       try {
-        connection.setKeys(this.returnGeneratedKeys ? statement.getGeneratedKeys() : null);
-        connection.setCanGetKeys(this.returnGeneratedKeys);
+        connection.setKeys(returnGeneratedKeys ? statement.getGeneratedKeys() : null);
+        connection.setCanGetKeys(returnGeneratedKeys);
       }
       catch (SQLException sqlex) {
         throw new PersistenceException(
-                "Error while trying to fetch generated keys from database. If you are not expecting any generated keys, " +
-                        "fix this error by setting the fetchGeneratedKeys parameter in the createQuery() method to 'false'",
-                sqlex);
+                "Error while trying to fetch generated keys from database. " +
+                        "If you are not expecting any generated keys, fix this" +
+                        " error by setting the fetchGeneratedKeys parameter in" +
+                        " the createQuery() method to 'false'", sqlex);
       }
     }
     catch (Throwable e) {
@@ -879,7 +880,7 @@ public final class Query implements AutoCloseable {
   }
 
   // from http://stackoverflow.com/questions/5606338/cast-primitive-type-array-into-object-array-in-java
-  static Object[] toObjectArray(final Object val) {
+  private static Object[] toObjectArray(final Object val) {
     if (val instanceof Object[]) {
       return (Object[]) val;
     }

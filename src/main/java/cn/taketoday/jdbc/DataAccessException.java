@@ -21,10 +21,10 @@ package cn.taketoday.jdbc;
 
 /**
  * @author TODAY <br>
- *         2019-11-09 14:51
+ * 2019-11-09 14:51
  */
-@SuppressWarnings("serial")
 public class DataAccessException extends RuntimeException {
+  private static final long serialVersionUID = 1L;
 
   public DataAccessException() {}
 

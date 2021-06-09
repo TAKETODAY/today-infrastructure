@@ -26,7 +26,6 @@ package cn.taketoday.jdbc;
  *         2019-11-09 14:53
  */
 public class CannotGetJdbcConnectionException extends DataAccessException {
-
   private static final long serialVersionUID = 1L;
 
   public CannotGetJdbcConnectionException(String msg) {
