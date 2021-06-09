@@ -46,8 +46,8 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
   @Override
   @SuppressWarnings("unchecked")
   public ResultSetHandler<T> newResultSetHandler(final ResultSetMetaData meta) throws SQLException {
-    final StringBuilder builder = new StringBuilder();
     final int columnCount = meta.getColumnCount();
+    final StringBuilder builder = new StringBuilder(columnCount * 10);
     for (int i = 1; i <= columnCount; i++) {
       builder.append(JdbcUtils.getColumnName(meta, i))
               .append('\n');
