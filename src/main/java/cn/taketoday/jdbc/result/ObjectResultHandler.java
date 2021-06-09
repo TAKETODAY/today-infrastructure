@@ -25,22 +25,23 @@ import java.sql.SQLException;
 /**
  * @author TODAY 2021/1/2 18:28
  */
-public class ObjectResultHandler<T> implements ResultSetHandler<T> {
+public final class ObjectResultHandler<T> extends ResultSetHandler<T> {
+  private final int columnCount;
+  private final JdbcBeanMetadata metadata;
+  private final JdbcPropertyAccessor[] accessors;
 
-  final int columnCount;
-  final JdbcBeanMetadata metadata;
-  final JdbcPropertyAccessor[] accessors;
-
-  public ObjectResultHandler(final JdbcBeanMetadata metadata, final JdbcPropertyAccessor[] accessors, int columnCount) {
+  public ObjectResultHandler(
+          final JdbcBeanMetadata metadata, final JdbcPropertyAccessor[] accessors, int columnCount) {
     this.metadata = metadata;
-    this.columnCount = columnCount;
     this.accessors = accessors;
+    this.columnCount = columnCount;
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public T handle(final ResultSet resultSet) throws SQLException {
     // otherwise we want executeAndFetch with object mapping
+    final int columnCount = this.columnCount;
     final Object pojo = metadata.newInstance();
     final JdbcPropertyAccessor[] accessors = this.accessors;
     for (int colIdx = 1; colIdx <= columnCount; colIdx++) {

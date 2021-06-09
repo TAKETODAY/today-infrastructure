@@ -24,10 +24,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * User: dimzon Date: 4/7/14 Time: 12:01 AM
  * @author TODAY
  */
-public interface ResultSetHandler<T> {
+public abstract class ResultSetHandler<T> {
 
-  T handle(ResultSet resultSet) throws SQLException;
+  public abstract T handle(ResultSet resultSet) throws SQLException;
+
 }

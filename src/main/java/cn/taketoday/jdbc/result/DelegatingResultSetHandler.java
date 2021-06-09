@@ -26,7 +26,7 @@ import java.sql.SQLException;
 /**
  * User: dimzon Date: 4/7/14 Time: 11:06 PM
  */
-public class DelegatingResultSetHandler<E> implements ResultSetHandler<E> {
+public class DelegatingResultSetHandler<E> extends ResultSetHandler<E> {
   private volatile ResultSetHandler<E> inner = null;
   private final ResultSetHandlerFactory<E> factory;
 

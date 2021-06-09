@@ -27,7 +27,7 @@ import cn.taketoday.jdbc.type.TypeHandler;
 /**
  * @author TODAY 2021/1/7 22:52
  */
-public class TypeHandlerResultSetHandler<T> implements ResultSetHandler<T> {
+public final class TypeHandlerResultSetHandler<T> extends ResultSetHandler<T> {
   final TypeHandler<T> typeHandler;
 
   public TypeHandlerResultSetHandler(TypeHandler<T> typeHandler) {
