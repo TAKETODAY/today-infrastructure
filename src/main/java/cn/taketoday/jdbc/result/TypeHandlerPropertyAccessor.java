@@ -28,7 +28,7 @@ import cn.taketoday.jdbc.type.TypeHandler;
 /**
  * @author TODAY 2021/1/7 22:50
  */
-public class TypeHandlerPropertyAccessor extends JdbcPropertyAccessor {
+public final class TypeHandlerPropertyAccessor extends JdbcPropertyAccessor {
   private final TypeHandler<?> typeHandler;
   private final BeanProperty beanProperty;
 

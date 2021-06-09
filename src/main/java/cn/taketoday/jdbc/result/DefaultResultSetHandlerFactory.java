@@ -25,11 +25,10 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 import cn.taketoday.context.factory.BeanProperty;
+import cn.taketoday.context.factory.BeanPropertyAccessor;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.Mappings;
 import cn.taketoday.jdbc.PersistenceException;
-import cn.taketoday.jdbc.reflection.JdbcBeanMetadata;
-import cn.taketoday.jdbc.reflection.Pojo;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.JdbcUtils;
@@ -107,21 +106,20 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
     // TODO
     final TypeHandler<?> typeHandler = registry.getTypeHandler(metadata.getType());
 
-    class PropertyPathPropertyAccessor extends JdbcPropertyAccessor {
+    final class PropertyPathPropertyAccessor extends JdbcPropertyAccessor {
 
       @Override
       public Object get(final Object obj) {
-        Pojo pojo = new Pojo(metadata, obj);
-        return pojo.getProperty(propertyPath);
-//        return BeanPropertyAccessor.getProperty(obj, metadata, propertyPath);
+        return BeanPropertyAccessor.getProperty(obj, metadata, propertyPath);
       }
 
       @Override
       public void set(final Object obj, final ResultSet resultSet, final int columnIndex) throws SQLException {
         final Object result = typeHandler.getResult(resultSet, columnIndex);
-        Pojo pojo = new Pojo(metadata, obj);
-        pojo.setProperty(propertyPath, result);
-//        BeanPropertyAccessor.setProperty(obj, metadata, propertyPath, result);
+//        Pojo pojo = new Pojo(metadata, obj);
+//        pojo.setProperty(propertyPath, result);
+        final BeanPropertyAccessor accessor = new BeanPropertyAccessor(metadata, obj);
+        accessor.setProperty(propertyPath, result);
       }
     }
 

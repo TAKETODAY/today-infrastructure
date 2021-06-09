@@ -39,6 +39,8 @@ import java.util.Map;
 
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.support.DefaultConversionService;
+import cn.taketoday.context.factory.BeanMetadata;
+import cn.taketoday.context.factory.BeanProperty;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
@@ -50,9 +52,8 @@ import cn.taketoday.jdbc.data.Row;
 import cn.taketoday.jdbc.data.Table;
 import cn.taketoday.jdbc.data.TableResultSetIterator;
 import cn.taketoday.jdbc.parsing.ParameterApplier;
-import cn.taketoday.jdbc.reflection.JdbcBeanMetadata;
-import cn.taketoday.jdbc.reflection.ReadableProperty;
 import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;
+import cn.taketoday.jdbc.result.JdbcBeanMetadata;
 import cn.taketoday.jdbc.result.ResultSetHandler;
 import cn.taketoday.jdbc.result.ResultSetHandlerFactory;
 import cn.taketoday.jdbc.result.ResultSetHandlerIterator;
@@ -325,13 +326,17 @@ public final class Query implements AutoCloseable {
     return this;
   }
 
+  @SuppressWarnings("unchecked")
   public Query bind(final Object pojo) {
-    Class<?> clazz = pojo.getClass();
-    final Map<String, ParameterApplier> paramNameToIdxMap = getParamNameToIdxMap();
-    for (ReadableProperty property : ReadableProperty.readableProperties(clazz).values()) {
+    final Map<String, ParameterApplier> idxMap = getParamNameToIdxMap();
+    final Map<String, BeanProperty> beanProperties = BeanMetadata.ofObject(pojo).getBeanProperties();
+    for (final Map.Entry<String, BeanProperty> entry : beanProperties.entrySet()) {
+      final BeanProperty property = entry.getValue();
+      final String name = property.getName();
+      final Class<?> type = property.getType();
       try {
-        if (paramNameToIdxMap.containsKey(property.name)) {
-          addParameter(property.name, (Class<Object>) property.type, property.get(pojo));
+        if (idxMap.containsKey(name)) {
+          addParameter(name, (Class<Object>) type, property.getValue(pojo));
         }
       }
       catch (IllegalArgumentException ex) {

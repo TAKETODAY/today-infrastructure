@@ -22,8 +22,6 @@ package cn.taketoday.jdbc.result;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import cn.taketoday.jdbc.reflection.JdbcBeanMetadata;
-
 /**
  * @author TODAY 2021/1/2 18:28
  */
