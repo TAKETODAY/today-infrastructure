@@ -10,7 +10,7 @@ import javax.sql.DataSource;
 import cn.taketoday.jdbc.DefaultSession;
 import cn.taketoday.jdbc.JdbcConnection;
 import cn.taketoday.jdbc.Query;
-import cn.taketoday.jdbc.data.Table;
+import cn.taketoday.jdbc.result.Table;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;

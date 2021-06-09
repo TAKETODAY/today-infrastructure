@@ -14,8 +14,8 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ConvertUtils;
-import cn.taketoday.jdbc.connectionsources.ConnectionSource;
-import cn.taketoday.jdbc.connectionsources.ConnectionSources;
+import cn.taketoday.jdbc.support.ConnectionSource;
+import cn.taketoday.jdbc.support.ConnectionSources;
 import cn.taketoday.jdbc.utils.JdbcUtils;
 
 /**

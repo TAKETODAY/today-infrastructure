@@ -28,9 +28,9 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.jdbc.data.LazyTable;
-import cn.taketoday.jdbc.data.Row;
-import cn.taketoday.jdbc.data.Table;
+import cn.taketoday.jdbc.result.LazyTable;
+import cn.taketoday.jdbc.result.Row;
+import cn.taketoday.jdbc.result.Table;
 import cn.taketoday.jdbc.pojos.BigDecimalPojo;
 import cn.taketoday.jdbc.pojos.ComplexEntity;
 import cn.taketoday.jdbc.pojos.EntityWithPrivateFields;
