@@ -23,9 +23,10 @@ package cn.taketoday.jdbc.parsing;
 /**
  * Created by lars on 22.09.2014.
  */
-public interface CharParser {
+public abstract class CharParser {
 
-  boolean supports(char c, String sql, int idx);
+  public abstract boolean supports(char c, String sql, int idx);
 
-  int parse(char c, int idx, StringBuilder parsedSql, String sql, int length);
+  public abstract int parse(char c, int idx, StringBuilder parsedSql, String sql, int length);
+
 }

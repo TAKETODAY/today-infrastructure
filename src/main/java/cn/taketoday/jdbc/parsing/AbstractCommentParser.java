@@ -23,7 +23,7 @@ package cn.taketoday.jdbc.parsing;
 /**
  * Created by lars on 22.09.2014.
  */
-public abstract class AbstractCommentParser implements CharParser {
+public abstract class AbstractCommentParser extends CharParser {
 
   protected void startParsing() {}
 

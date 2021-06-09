@@ -104,7 +104,7 @@ public class Query implements AutoCloseable {
     this.returnGeneratedKeys = returnGeneratedKeys;
     setColumnMappings(connection.getSession().getDefaultColumnMappings());
     this.caseSensitive = connection.getSession().isDefaultCaseSensitive();
-    parsedQuery = connection.getSession().parse(queryText, paramNameToIdxMap);
+    this.parsedQuery = connection.getSession().parse(queryText, paramNameToIdxMap);
   }
 
   // ------------------------------------------------

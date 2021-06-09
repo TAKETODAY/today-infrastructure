@@ -23,7 +23,7 @@ package cn.taketoday.jdbc.parsing;
 /**
  * Created by lars on 22.09.2014.
  */
-public class QuoteParser implements CharParser {
+public class QuoteParser extends CharParser {
 
   @Override
   public boolean supports(char c, String sql, int idx) {

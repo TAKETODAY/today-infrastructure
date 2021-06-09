@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * Created by lars on 22.09.2014.
  */
-public class ParameterParser implements CharParser {
+public class ParameterParser extends CharParser {
 
   private final Map<String, ParameterApplier> parameterMap;
   int paramIdx = 1;
