@@ -8,8 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.jdbc.result.AbstractResultSetIterator;
+import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.jdbc.PersistenceException;
+import cn.taketoday.jdbc.result.AbstractResultSetIterator;
 import cn.taketoday.jdbc.utils.JdbcUtils;
 
 /**
@@ -17,50 +18,51 @@ import cn.taketoday.jdbc.utils.JdbcUtils;
  */
 public class TableResultSetIterator extends AbstractResultSetIterator<Row> {
   private final List<Column> columns;
-  protected boolean isCaseSensitive;
-  protected ResultSetMetaData meta;
+  protected final boolean isCaseSensitive;
+  private final ConversionService conversionService;
   private final Map<String, Integer> columnNameToIdxMap;
 
-  public TableResultSetIterator(ResultSet rs, boolean isCaseSensitive, LazyTable lt) {
+  public TableResultSetIterator(
+          ResultSet rs, boolean isCaseSensitive, LazyTable lt, ConversionService conversionService) {
     super(rs);
     this.isCaseSensitive = isCaseSensitive;
-    this.columnNameToIdxMap = new HashMap<>();
-    this.columns = new ArrayList<>();
+    this.conversionService = conversionService;
+    final ResultSetMetaData meta = JdbcUtils.getMetaData(rs);
 
-    try {
-      meta = rs.getMetaData();
-    }
-    catch (SQLException ex) {
-      throw new PersistenceException("Database error: " + ex.getMessage(), ex);
-    }
+    final ArrayList<Column> columns = new ArrayList<>();
+    final HashMap<String, Integer> columnNameToIdxMap = new HashMap<>();
     try {
       lt.setName(meta.getTableName(1));
+      lt.setColumns(columns);
 
       final int columnCount = meta.getColumnCount();
       for (int colIdx = 1; colIdx <= columnCount; colIdx++) {
-        String colName = getColumnName(colIdx);
+        String colName = getColumnName(meta, colIdx);
         String colType = meta.getColumnTypeName(colIdx);
         columns.add(new Column(colName, colIdx - 1, colType));
 
         String colMapName = isCaseSensitive ? colName : colName.toLowerCase();
         columnNameToIdxMap.put(colMapName, colIdx - 1);
       }
+      this.columns = columns;
+      this.columnNameToIdxMap = columnNameToIdxMap;
     }
     catch (SQLException e) {
       throw new PersistenceException("Error while reading metadata from database", e);
     }
-    lt.setColumns(columns);
   }
 
-  protected String getColumnName(int colIdx) throws SQLException {
+  protected String getColumnName(ResultSetMetaData meta, int colIdx) throws SQLException {
     return JdbcUtils.getColumnName(meta, colIdx);
   }
 
   @Override
   protected Row readNext() throws SQLException {
-    Row row = new Row(columnNameToIdxMap, columns.size(), isCaseSensitive);
+    final ResultSet rs = this.rs;
+    final Row row = new Row(columnNameToIdxMap, columns.size(), isCaseSensitive, conversionService);
     for (Column column : columns) {
-      row.addValue(column.getIndex(), rs.getObject(column.getIndex() + 1));
+      final int index = column.getIndex();
+      row.addValue(index, rs.getObject(index + 1));
     }
     return row;
   }

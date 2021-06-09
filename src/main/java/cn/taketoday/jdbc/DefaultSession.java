@@ -22,7 +22,6 @@ package cn.taketoday.jdbc;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -34,9 +33,9 @@ import cn.taketoday.jdbc.connectionsources.DataSourceConnectionSource;
 import cn.taketoday.jdbc.conversion.ClobToStringConverter;
 import cn.taketoday.jdbc.conversion.OffsetTimeToSQLTimeConverter;
 import cn.taketoday.jdbc.conversion.TimeToJodaLocalTimeConverter;
+import cn.taketoday.jdbc.parsing.DefaultSqlParameterParser;
 import cn.taketoday.jdbc.parsing.ParameterApplier;
 import cn.taketoday.jdbc.parsing.SqlParameterParser;
-import cn.taketoday.jdbc.parsing.DefaultSqlParameterParser;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.FeatureDetector;
 
@@ -126,9 +125,6 @@ public class DefaultSession {
    * connections.
    *
    * @return The DataSource instance
-   *
-   * @deprecated use {@link #getConnectionSource()} as more general connection
-   * provider
    */
   public DataSource getDataSource() {
     if (connectionSource instanceof DataSourceConnectionSource)
@@ -226,7 +222,17 @@ public class DefaultSession {
 
   /**
    * Creates a {@link Query}
-   *
+   * <p>
+   * better to use :
+   * create queries with {@link JdbcConnection} class instead,
+   * using try-with-resource blocks
+   * <pre>
+   * try (Connection con = sql2o.open()) {
+   *    return sql2o.createQuery(query, name, returnGeneratedKeys)
+   *                .fetch(Pojo.class);
+   * }
+   * </pre>
+   *</p>
    * @param query
    *         the sql query string
    * @param returnGeneratedKeys
@@ -234,14 +240,6 @@ public class DefaultSession {
    *         generated keys.
    *
    * @return the {@link Query} instance
-   *
-   * better to use :
-   * create queries with {@link JdbcConnection} class instead,
-   * using try-with-resource blocks <code>
-   * try (Connection con = sql2o.open()) {
-   * return sql2o.createQuery(query, name, returnGeneratedKeys).executeAndFetch(Pojo.class);
-   * }
-   * </code>
    */
   public Query createQuery(String query, boolean returnGeneratedKeys) {
     return open(true).createQuery(query, returnGeneratedKeys);
@@ -260,7 +258,7 @@ public class DefaultSession {
    * using try-with-resource blocks
    * <pre>
    *     try (Connection con = sql2o.open()) {
-   *         return sql2o.createQuery(query, name).executeAndFetch(Pojo.class);
+   *         return sql2o.createQuery(query, name).fetch(Pojo.class);
    *     }
    *  </pre>
    */
@@ -533,7 +531,6 @@ public class DefaultSession {
    *         The isolation level of the transaction
    */
   public void runInTransaction(StatementRunnable runnable, Object argument, int isolationLevel) {
-
     JdbcConnection connection = beginTransaction(isolationLevel);
     connection.setRollbackOnException(false);
 
@@ -558,15 +555,14 @@ public class DefaultSession {
   public <V> V runInTransaction(StatementRunnableWithResult<V> runnableWithResult, Object argument, int isolationLevel) {
     JdbcConnection connection = beginTransaction(isolationLevel);
     V result;
-
     try {
       result = runnableWithResult.run(connection, argument);
     }
-    catch (Throwable throwable) {
+    catch (Throwable e) {
       connection.rollback();
-      throw new PersistenceException("An error occurred while executing StatementRunnableWithResult. Transaction rolled back.", throwable);
+      throw new PersistenceException(
+              "An error occurred while executing StatementRunnableWithResult. Transaction rolled back.", e);
     }
-
     connection.commit();
     return result;
   }

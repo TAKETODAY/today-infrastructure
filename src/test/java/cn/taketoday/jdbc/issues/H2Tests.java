@@ -73,7 +73,7 @@ public class H2Tests {
       insQuery.addParameter("id", uuid1).addParameter("val", uuid2).executeUpdate();
       insQuery.addParameter("id", uuid3).addParameter("val", uuid4).executeUpdate();
 
-      Table table = connection.createQuery("select * from uuidtest").executeAndFetchTable();
+      Table table = connection.createQuery("select * from uuidtest").fetchTable();
 
       assertThat((UUID) table.rows().get(0).getObject("id"), is(equalTo(uuid1)));
       assertThat((UUID) table.rows().get(0).getObject("val"), is(equalTo(uuid2)));

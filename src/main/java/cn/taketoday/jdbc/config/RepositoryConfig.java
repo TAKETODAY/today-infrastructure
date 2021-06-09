@@ -127,10 +127,10 @@ public class RepositoryConfig
             final Class<?> returnType = method.getReturnType();
             if (CollectionUtils.isCollection(returnType)) {
               final Class<?> typeArgument = GenericTypeResolver.resolveReturnTypeArgument(method, List.class);
-              return query.executeAndFetch(typeArgument);
+              return query.fetch(typeArgument);
             }
             else {
-              return query.executeAndFetchFirst(returnType);
+              return query.fetchFirst(returnType);
             }
           }
         case UPDATE:

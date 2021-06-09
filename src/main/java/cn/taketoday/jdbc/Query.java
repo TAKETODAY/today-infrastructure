@@ -37,6 +37,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.context.conversion.ConversionService;
+import cn.taketoday.context.conversion.support.DefaultConversionService;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
@@ -60,10 +62,9 @@ import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.JdbcUtils;
 
 /**
- * Represents a sql2o statement. With sql2o, all statements are instances of the
- * Query class.
+ * Represents a sql statement.
  */
-public class Query implements AutoCloseable {
+public final class Query implements AutoCloseable {
   private static final Logger log = LoggerFactory.getLogger(Query.class);
 
   private final JdbcConnection connection;
@@ -160,7 +161,7 @@ public class Query implements AutoCloseable {
   // ------------------------------------------------
 
   public void addParameter(String name, ParameterSetter parameterSetter) {
-    if (!getParamNameToIdxMap().containsKey(name)) {
+    if (!paramNameToIdxMap.containsKey(name)) {
       throw new PersistenceException(
               "Failed to add parameter with name '"
                       + name + "'. No parameter with that name is declared in the sql.");
@@ -293,7 +294,7 @@ public class Query implements AutoCloseable {
    * For example: <pre>
    *     createQuery("SELECT * FROM user WHERE id IN(:ids)")
    *      .addParameter("ids", 4, 5, 6)
-   *      .executeAndFetch(...)
+   *      .fetch(...)
    * </pre> will generate the query :
    * <code>SELECT * FROM user WHERE id IN(4,5,6)</code><br>
    * <br>
@@ -419,14 +420,14 @@ public class Query implements AutoCloseable {
   /**
    * Iterable {@link ResultSet} that wraps {@link ResultSetHandlerIterator}.
    */
-  private abstract class ResultSetIterableBase<T> implements ResultSetIterable<T> {
+  private abstract class AbstractResultSetIterable<T> implements ResultSetIterable<T> {
     private final long start;
     private final long afterExecQuery;
     protected ResultSet rs;
 
     boolean autoCloseConnection = false;
 
-    public ResultSetIterableBase() {
+    AbstractResultSetIterable() {
       try {
         start = System.currentTimeMillis();
         logExecution();
@@ -484,8 +485,8 @@ public class Query implements AutoCloseable {
    *
    * @return iterable results
    */
-  public <T> ResultSetIterable<T> executeAndFetchLazy(final Class<T> returnType) {
-    return executeAndFetchLazy(newResultSetHandlerFactory(returnType));
+  public <T> ResultSetIterable<T> fetchLazily(final Class<T> returnType) {
+    return fetchLazily(newResultSetHandlerFactory(returnType));
   }
 
   private <T> ResultSetHandlerFactory<T> newResultSetHandlerFactory(final Class<T> returnType) {
@@ -505,12 +506,16 @@ public class Query implements AutoCloseable {
    *
    * @return iterable results
    */
-  public <T> ResultSetIterable<T> executeAndFetchLazy(final ResultSetHandlerFactory<T> resultSetHandlerFactory) {
-    return new ResultSetIterableBase<T>() {
+  public <T> ResultSetIterable<T> fetchLazily(
+          final ResultSetHandlerFactory<T> resultSetHandlerFactory) {
+
+    final class FactoryResultSetIterable extends AbstractResultSetIterable<T> {
+      @Override
       public Iterator<T> iterator() {
         return new ResultSetHandlerIterator<>(rs, resultSetHandlerFactory);
       }
-    };
+    }
+    return new FactoryResultSetIterable();
   }
 
   /**
@@ -524,31 +529,33 @@ public class Query implements AutoCloseable {
    *
    * @return iterable results
    */
-  public <T> ResultSetIterable<T> executeAndFetchLazy(final ResultSetHandler<T> resultSetHandler) {
-    return new ResultSetIterableBase<T>() {
+  public <T> ResultSetIterable<T> fetchLazily(final ResultSetHandler<T> resultSetHandler) {
+    final class HandlerResultSetIterable extends AbstractResultSetIterable<T> {
+      @Override
       public Iterator<T> iterator() {
         return new ResultSetHandlerIterator<>(rs, resultSetHandler);
       }
-    };
+    }
+    return new HandlerResultSetIterable();
   }
 
-  public <T> List<T> executeAndFetch(Class<T> returnType) {
-    return executeAndFetch(newResultSetHandlerFactory(returnType));
+  public <T> List<T> fetch(Class<T> returnType) {
+    return fetch(newResultSetHandlerFactory(returnType));
   }
 
-  public <T> List<T> executeAndFetch(ResultSetHandler<T> handler) {
-    try (ResultSetIterable<T> iterable = executeAndFetchLazy(handler)) {
-      return executeAndFetch(iterable);
+  public <T> List<T> fetch(ResultSetHandler<T> handler) {
+    try (ResultSetIterable<T> iterable = fetchLazily(handler)) {
+      return fetch(iterable);
     }
   }
 
-  public <T> List<T> executeAndFetch(ResultSetHandlerFactory<T> factory) {
-    try (ResultSetIterable<T> iterable = executeAndFetchLazy(factory)) {
-      return executeAndFetch(iterable);
+  public <T> List<T> fetch(ResultSetHandlerFactory<T> factory) {
+    try (ResultSetIterable<T> iterable = fetchLazily(factory)) {
+      return fetch(iterable);
     }
   }
 
-  public <T> List<T> executeAndFetch(ResultSetIterable<T> iterable) {
+  public <T> List<T> fetch(ResultSetIterable<T> iterable) {
     List<T> list = new ArrayList<>();
     for (T item : iterable) {
       list.add(item);
@@ -556,42 +563,50 @@ public class Query implements AutoCloseable {
     return list;
   }
 
-  public <T> T executeAndFetchFirst(Class<T> returnType) {
-    return executeAndFetchFirst(newResultSetHandlerFactory(returnType));
+  public <T> T fetchFirst(Class<T> returnType) {
+    return fetchFirst(newResultSetHandlerFactory(returnType));
   }
 
-  public <T> T executeAndFetchFirst(ResultSetHandler<T> handler) {
-    try (ResultSetIterable<T> iterable = executeAndFetchLazy(handler)) {
-      return executeAndFetchFirst(iterable);
+  public <T> T fetchFirst(ResultSetHandler<T> handler) {
+    try (ResultSetIterable<T> iterable = fetchLazily(handler)) {
+      return fetchFirst(iterable);
     }
   }
 
-  public <T> T executeAndFetchFirst(ResultSetHandlerFactory<T> factory) {
-    try (ResultSetIterable<T> iterable = executeAndFetchLazy(factory)) {
-      return executeAndFetchFirst(iterable);
+  public <T> T fetchFirst(ResultSetHandlerFactory<T> factory) {
+    try (ResultSetIterable<T> iterable = fetchLazily(factory)) {
+      return fetchFirst(iterable);
     }
   }
 
-  public <T> T executeAndFetchFirst(ResultSetIterable<T> iterable) {
+  public <T> T fetchFirst(ResultSetIterable<T> iterable) {
     Iterator<T> iterator = iterable.iterator();
     return iterator.hasNext() ? iterator.next() : null;
   }
 
-  public LazyTable executeAndFetchTableLazy() {
-    final LazyTable lt = new LazyTable();
+  public LazyTable fetchLazyTable() {
+    return fetchLazyTable(DefaultConversionService.getSharedInstance());
+  }
 
-    lt.setRows(new ResultSetIterableBase<Row>() {
+  public LazyTable fetchLazyTable(ConversionService conversionService) {
+    final LazyTable lt = new LazyTable();
+    final class RowResultSetIterable extends AbstractResultSetIterable<Row> {
+      @Override
       public Iterator<Row> iterator() {
-        return new TableResultSetIterator(rs, isCaseSensitive(), lt);
+        return new TableResultSetIterator(rs, isCaseSensitive(), lt, conversionService);
       }
-    });
+    }
+    lt.setRows(new RowResultSetIterable());
     return lt;
   }
 
-  public Table executeAndFetchTable() {
-    List<Row> rows = new ArrayList<>();
+  public Table fetchTable() {
+    return fetchTable(DefaultConversionService.getSharedInstance());
+  }
 
-    try (LazyTable lt = executeAndFetchTableLazy()) {
+  public Table fetchTable(ConversionService conversionService) {
+    final ArrayList<Row> rows = new ArrayList<>();
+    try (LazyTable lt = fetchLazyTable(conversionService)) {
       for (Row item : lt.rows()) {
         rows.add(item);
       }
@@ -605,12 +620,12 @@ public class Query implements AutoCloseable {
     try {
       logExecution();
       PreparedStatement statement = buildPreparedStatement();
-      this.connection.setResult(statement.executeUpdate());
-      this.connection.setKeys(this.returnGeneratedKeys ? statement.getGeneratedKeys() : null);
+      connection.setResult(statement.executeUpdate());
+      connection.setKeys(this.returnGeneratedKeys ? statement.getGeneratedKeys() : null);
       connection.setCanGetKeys(this.returnGeneratedKeys);
     }
     catch (SQLException ex) {
-      this.connection.onException();
+      connection.onException();
       throw new PersistenceException("Error in executeUpdate, " + ex.getMessage(), ex);
     }
     finally {
@@ -622,12 +637,11 @@ public class Query implements AutoCloseable {
       log.debug("total: {} ms; executed update [{}]",
                 end - start, this.getName() == null ? "No name" : this.getName());
     }
-    return this.connection;
+    return connection;
   }
 
   public Object executeScalar(TypeHandler<?> typeHandler) {
     long start = System.currentTimeMillis();
-
     logExecution();
     try (final PreparedStatement ps = buildPreparedStatement();
             final ResultSet rs = ps.executeQuery()) {
@@ -636,7 +650,7 @@ public class Query implements AutoCloseable {
         final Object ret = typeHandler.getResult(rs, 1);
         if (log.isDebugEnabled()) {
           log.debug("total: {} ms; executed scalar [{}]",
-                    System.currentTimeMillis() - start, this.getName() == null ? "No name" : getName());
+                    System.currentTimeMillis() - start, getName() == null ? "No name" : getName());
         }
         return ret;
       }
@@ -673,7 +687,7 @@ public class Query implements AutoCloseable {
   }
 
   public <T> List<T> executeScalarList(final Class<T> returnType) {
-    return executeAndFetch(newScalarResultSetHandler(returnType));
+    return fetch(newScalarResultSetHandler(returnType));
   }
 
   private <T> ResultSetHandler<T> newScalarResultSetHandler(final Class<T> returnType) {

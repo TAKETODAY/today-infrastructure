@@ -32,7 +32,7 @@ public class QueryArrayTest {
             final Query query = connection.createQuery("SELECT * FROM FOO WHERE BAR IN (:bars)")) {
 
       final List<Foo> foos = query.addParameters("bars", 1, 2)
-              .executeAndFetch(Foo.class);
+              .fetch(Foo.class);
 
       assertThat(foos.size(), equalTo(2));
     }
@@ -46,7 +46,7 @@ public class QueryArrayTest {
             final Query query = connection.createQuery("SELECT * FROM FOO WHERE BAR IN (:bars)")) {
 
       final List<Foo> noFoos = query.addParameters("bars", new Integer[] {})
-              .executeAndFetch(Foo.class);
+              .fetch(Foo.class);
       assertThat(noFoos.size(), equalTo(0));
     }
   }

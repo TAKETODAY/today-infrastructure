@@ -8,9 +8,9 @@ import java.util.Map;
  * Represents an offline result set with columns and rows and data.
  */
 public class Table {
-  private String name;
-  private List<Row> rows;
-  private List<Column> columns;
+  private final String name;
+  private final List<Row> rows;
+  private final List<Column> columns;
 
   public Table(String name, List<Row> rows, List<Column> columns) {
     this.name = name;

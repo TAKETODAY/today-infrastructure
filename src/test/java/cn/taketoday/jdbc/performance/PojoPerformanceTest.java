@@ -212,7 +212,7 @@ public class PojoPerformanceTest {
     @Override
     public void run(int input) {
       query.addParameter("id", input)
-              .executeAndFetchFirst(Post.class);
+              .fetchFirst(Post.class);
     }
 
     @Override
@@ -235,7 +235,7 @@ public class PojoPerformanceTest {
     @Override
     public void run(int input) {
       query.addParameter("id", input)
-              .executeAndFetchFirst(Post.class);
+              .fetchFirst(Post.class);
     }
 
     @Override

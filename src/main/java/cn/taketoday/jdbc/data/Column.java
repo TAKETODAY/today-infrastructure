@@ -6,10 +6,10 @@ package cn.taketoday.jdbc.data;
 public class Column {
 
   private final String name;
-  private final Integer index;
+  private final int index;
   private final String type;
 
-  public Column(String name, Integer index, String type) {
+  public Column(String name, int index, String type) {
     this.name = name;
     this.index = index;
     this.type = type;
@@ -19,7 +19,7 @@ public class Column {
     return name;
   }
 
-  public Integer getIndex() {
+  public int getIndex() {
     return index;
   }
 

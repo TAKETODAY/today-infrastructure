@@ -34,14 +34,27 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.jdbc.PersistenceException;
 
 /**
  * @author TODAY <br>
  * 2019-08-19 07:42
  */
 public abstract class JdbcUtils {
-
   private static final Logger log = LoggerFactory.getLogger(JdbcUtils.class);
+
+  /**
+   * @throws PersistenceException
+   *         if a database access error occurs or this method is called on a closed result set
+   */
+  public static ResultSetMetaData getMetaData(final ResultSet rs) {
+    try {
+      return rs.getMetaData();
+    }
+    catch (SQLException ex) {
+      throw new PersistenceException("Database error: " + ex.getMessage(), ex);
+    }
+  }
 
   public static String getColumnName(ResultSetMetaData resultSetMetaData, int index) throws SQLException {
     final String name = resultSetMetaData.getColumnLabel(index);

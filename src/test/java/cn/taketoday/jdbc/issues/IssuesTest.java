@@ -83,7 +83,7 @@ public class IssuesTest {
   public void testSetterPriority() {
     DefaultSession sql2o = new DefaultSession(url, user, pass);
     Issue1Pojo pojo = sql2o.createQuery("select 1 val from (values(0))")
-            .executeAndFetchFirst(Issue1Pojo.class);
+            .fetchFirst(Issue1Pojo.class);
 
     assertEquals(2, pojo.val);
   }
@@ -98,7 +98,7 @@ public class IssuesTest {
     DefaultSession sql2o = new DefaultSession(url, user, pass);
 
     try {
-      KeyValueEntity pojo = sql2o.createQuery("select 1 id, 'something' foo from (values(0))").executeAndFetchFirst(
+      KeyValueEntity pojo = sql2o.createQuery("select 1 id, 'something' foo from (values(0))").fetchFirst(
               KeyValueEntity.class);
     }
     catch (PersistenceException ex) {
@@ -122,7 +122,7 @@ public class IssuesTest {
             .addParameter("val", "hello").addToBatch()
             .executeBatch();
 
-    Table table = sql2o.createQuery("select * from issue4table").executeAndFetchTable();
+    Table table = sql2o.createQuery("select * from issue4table").fetchTable();
 
     Row row0 = table.rows().get(0);
     String row0Val = row0.getString("vAl");
@@ -175,10 +175,10 @@ public class IssuesTest {
     sql2o.createQuery("insert into issue5table(val) values (:val)").addParameter("val", (Object) null).executeUpdate();
 
     List<Issue5POJO> list1 = sql2o.createQuery("select * from issue5table")
-            .executeAndFetch(Issue5POJO.class);
+            .fetch(Issue5POJO.class);
 
     List<Issue5POJO2> list2 = sql2o.createQuery("select * from issue5table")
-            .executeAndFetch(Issue5POJO2.class);
+            .fetch(Issue5POJO2.class);
 
     assertEquals(1, list1.size());
     assertEquals(1, list2.size());
@@ -209,7 +209,7 @@ public class IssuesTest {
     sql2o.createQuery(insertSql).addParameter("val", "something else").executeUpdate();
     sql2o.createQuery(insertSql).addParameter("val", "something third").executeUpdate();
 
-    List<Issue9Pojo> pojos = sql2o.createQuery("select id, val theVal from issue9Test").executeAndFetch(Issue9Pojo.class);
+    List<Issue9Pojo> pojos = sql2o.createQuery("select id, val theVal from issue9Test").fetch(Issue9Pojo.class);
 
     assertEquals(3, pojos.size());
     assertEquals("something", pojos.get(0).theVal);
@@ -275,7 +275,7 @@ public class IssuesTest {
       try {
         // This is expected to fail to map columns and throw an exception.
         LocalPojo p = connection.createQuery("select * from testErrorWhenFieldDoesntExist")
-                .executeAndFetchFirst(LocalPojo.class);
+                .fetchFirst(LocalPojo.class);
       }
       catch (Exception e) {
         ex = e;
@@ -309,9 +309,9 @@ public class IssuesTest {
     ThePojo p;
     Table t;
     try (JdbcConnection connection = sql2o.open()) {
-      p = connection.createQuery(sql).executeAndFetchFirst(ThePojo.class);
+      p = connection.createQuery(sql).fetchFirst(ThePojo.class);
 
-      t = connection.createQuery(sql).executeAndFetchTable();
+      t = connection.createQuery(sql).fetchTable();
     }
 
     assertEquals(11, p.id);
@@ -359,7 +359,7 @@ public class IssuesTest {
 
       List<TheIgnoreSqlCommentPojo> resultList = connection.createQuery(fetchQuery)
               .addParameter("param", 5)
-              .executeAndFetch(TheIgnoreSqlCommentPojo.class);
+              .fetch(TheIgnoreSqlCommentPojo.class);
 
       assertEquals(10, resultList.size());
     }

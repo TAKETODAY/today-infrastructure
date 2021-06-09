@@ -47,7 +47,7 @@ public class DefaultSessionDataSourceTest extends TestCase {
       }
     });
 
-    List<Entity> fetched = sql2o.createQuery("select * from testExecWithNullsTbl").executeAndFetch(Entity.class);
+    List<Entity> fetched = sql2o.createQuery("select * from testExecWithNullsTbl").fetch(Entity.class);
 
     assertTrue(fetched.size() == 5);
     assertNull(fetched.get(2).text);

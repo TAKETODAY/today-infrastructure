@@ -56,7 +56,7 @@ public class BidirectionalConverterTest {
     }
 
     List<UUIDWrapper> converted = sql2o.createQuery("select * from uuid_wrapper")
-            .executeAndFetch(UUIDWrapper.class);
+            .fetch(UUIDWrapper.class);
 
     converted.sort(comparator);
     // if conversion from database worked, should have the list we inserted

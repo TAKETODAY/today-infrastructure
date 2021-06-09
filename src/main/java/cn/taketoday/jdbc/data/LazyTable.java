@@ -36,6 +36,7 @@ public class LazyTable implements AutoCloseable {
     this.columns = columns;
   }
 
+  @Override
   public void close() {
     this.rows.close();
   }
