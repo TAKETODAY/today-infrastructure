@@ -46,7 +46,7 @@ import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.GenericTypeResolver;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.jdbc.JdbcOperations;
-import cn.taketoday.jdbc.SqlType;
+import cn.taketoday.jdbc.annotation.SqlType;
 import cn.taketoday.jdbc.annotation.Query;
 import cn.taketoday.jdbc.parsing.ParameterApplier;
 

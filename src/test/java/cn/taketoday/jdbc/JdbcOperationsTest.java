@@ -59,13 +59,13 @@ import static org.junit.Assert.fail;
  * tests are in this class.
  */
 @RunWith(Parameterized.class)
-public class DefaultSessionTest extends BaseMemDbTest {
+public class JdbcOperationsTest extends BaseMemDbTest {
 
   private static final int NUMBER_OF_USERS_IN_THE_TEST = 10000;
 
   private int insertIntoUsers = 0;
 
-  public DefaultSessionTest(DbType dbType, String testName) {
+  public JdbcOperationsTest(DbType dbType, String testName) {
     super(dbType, testName);
   }
 

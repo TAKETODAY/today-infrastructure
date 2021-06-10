@@ -19,8 +19,6 @@
  */
 package cn.taketoday.jdbc;
 
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.jdbc.parsing.DefaultSqlParameterParser;
 import cn.taketoday.jdbc.parsing.ParameterApplier;
@@ -52,7 +50,6 @@ import java.util.Map;
  * @author TODAY
  */
 public class JdbcOperations {
-  private static final Logger log = LoggerFactory.getLogger(JdbcOperations.class);
 
   private TypeHandlerRegistry typeHandlerRegistry = TypeHandlerRegistry.getSharedInstance();
 

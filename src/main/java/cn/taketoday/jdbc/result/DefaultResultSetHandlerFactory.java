@@ -103,11 +103,8 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
 
     // dot path - long way
     // i'm too lazy now to rewrite this case so I just call old unoptimized code...
-    // TODO
     final TypeHandler<?> typeHandler = registry.getTypeHandler(metadata.getType());
-
     final class PropertyPathPropertyAccessor extends JdbcPropertyAccessor {
-
       @Override
       public Object get(final Object obj) {
         return BeanPropertyAccessor.getProperty(obj, metadata, propertyPath);
@@ -116,8 +113,6 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
       @Override
       public void set(final Object obj, final ResultSet resultSet, final int columnIndex) throws SQLException {
         final Object result = typeHandler.getResult(resultSet, columnIndex);
-//        Pojo pojo = new Pojo(metadata, obj);
-//        pojo.setProperty(propertyPath, result);
         final BeanPropertyAccessor accessor = new BeanPropertyAccessor(metadata, obj);
         accessor.setProperty(propertyPath, result);
       }

@@ -25,8 +25,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.jdbc.SqlType;
-
 /**
  * @author TODAY <br>
  *         2018-08-31 20:08

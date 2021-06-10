@@ -21,7 +21,6 @@ package cn.taketoday.jdbc.annotation;
 
 import java.lang.annotation.Annotation;
 
-import cn.taketoday.jdbc.SqlType;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 

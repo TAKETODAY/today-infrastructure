@@ -244,15 +244,10 @@ public abstract class SqlSessionUtils {
       // TodayManagedTransaction will no-op the commit over the jdbc connection
       // TODO This updates 2nd level caches but the tx may be rolledback later on!
       if (metaData.isActualActive()) {
-        try {
-          if (debugEnabled) {
-            log.debug("Transaction synchronization committing SqlSession [{}]", this.holder.getSqlSession());
-          }
-          this.holder.getSqlSession().commit();
+        if (debugEnabled) {
+          log.debug("Transaction synchronization committing SqlSession [{}]", this.holder.getSqlSession());
         }
-        catch (PersistenceException p) {
-          throw p;
-        }
+        this.holder.getSqlSession().commit();
       }
     }
 
