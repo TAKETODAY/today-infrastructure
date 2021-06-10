@@ -20,12 +20,12 @@
 
 package cn.taketoday.jdbc.result;
 
+import cn.taketoday.jdbc.PersistenceException;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-
-import cn.taketoday.jdbc.PersistenceException;
 
 /**
  * Iterator for a {@link ResultSet}. Tricky part here is getting
@@ -36,10 +36,10 @@ import cn.taketoday.jdbc.PersistenceException;
  */
 public abstract class AbstractResultSetIterator<T> implements Iterator<T> {
   // fields needed to read result set
-  protected ResultSet rs;
+  protected final ResultSet resultSet;
 
   protected AbstractResultSetIterator(ResultSet rs) {
-    this.rs = rs;
+    this.resultSet = rs;
   }
 
   // fields needed to properly implement
@@ -79,7 +79,7 @@ public abstract class AbstractResultSetIterator<T> implements Iterator<T> {
 
   private ResultSetValue<T> safeReadNext() {
     try {
-      return rs.next() ? new ResultSetValue<>(readNext()) : null;
+      return resultSet.next() ? new ResultSetValue<>(readNext()) : null;
     }
     catch (SQLException ex) {
       throw new PersistenceException("Database error: " + ex.getMessage(), ex);

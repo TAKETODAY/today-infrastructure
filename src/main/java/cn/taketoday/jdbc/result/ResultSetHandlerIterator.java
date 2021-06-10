@@ -19,10 +19,10 @@
  */
 package cn.taketoday.jdbc.result;
 
+import cn.taketoday.jdbc.PersistenceException;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import cn.taketoday.jdbc.PersistenceException;
 
 /**
  * Iterator for a {@link ResultSet}. Tricky part here is getting
@@ -52,7 +52,7 @@ public class ResultSetHandlerIterator<T> extends AbstractResultSetIterator<T> {
 
   @Override
   protected T readNext() throws SQLException {
-    return handler.handle(rs);
+    return handler.handle(resultSet);
   }
 
 }
