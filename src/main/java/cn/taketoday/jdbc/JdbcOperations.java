@@ -40,22 +40,18 @@ import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.FeatureDetector;
 
 /**
- * DefaultSession is the main class for the today-jdbc library.
+ * JdbcOperations is the main class for the today-jdbc library.
  * <p>
- * An <code>Sql2o</code> instance represents a way of connecting to one specific
+ * An <code>JdbcOperations</code> instance represents a way of connecting to one specific
  * database. To create a new instance, one need to specify either jdbc-url,
  * username and password for the database or a data source.
  * <p>
- * Internally the Sql2o instance uses a data source to create jdbc connections
+ * Internally the JdbcOperations instance uses a data source to create jdbc connections
  * to the database. If url, username and password was specified in the
  * constructor, a simple data source is created, which works as a simple wrapper
  * around the jdbc driver.
  * <p>
- * Some jdbc implementations have quirks, therefore it may be necessary to use a
- * constructor with the quirks parameter. When quirks are specified, Sql2o will
- * use workarounds to avoid these quirks.
  *
- * @author Lars Aaberg
  * @author TODAY
  */
 public class JdbcOperations {
