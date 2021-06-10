@@ -42,9 +42,9 @@ class ArrayParameters {
 
   static class ArrayParameter implements Comparable<ArrayParameter> {
     // the index of the parameter array
-    int parameterIndex;
+    final int parameterIndex;
     // the number of parameters to put in the query placeholder
-    int parameterCount;
+    final int parameterCount;
 
     ArrayParameter(int parameterIndex, int parameterCount) {
       this.parameterIndex = parameterIndex;
@@ -81,15 +81,15 @@ class ArrayParameters {
           Map<String, ParameterSetter> parameters,
           boolean allowArrayParameters
   ) {
-    List<ArrayParameter> arrayParametersSortedAsc
-            = arrayParametersSortedAsc(parameterNamesToIndexes, parameters, allowArrayParameters);
-    if (arrayParametersSortedAsc.isEmpty()) {
+    List<ArrayParameter> arrayParameters
+            = sortedArrayParameters(parameterNamesToIndexes, parameters, allowArrayParameters);
+    if (arrayParameters.isEmpty()) {
       return parsedQuery;
     }
 
-    updateParameterNamesToIndexes(parameterNamesToIndexes, arrayParametersSortedAsc);
+    updateParameterNamesToIndexes(parameterNamesToIndexes, arrayParameters);
 
-    return updateQueryWithArrayParameters(parsedQuery, arrayParametersSortedAsc);
+    return updateQueryWithArrayParameters(parsedQuery, arrayParameters);
   }
 
   /**
@@ -101,9 +101,9 @@ class ArrayParameters {
   ) {
     for (Map.Entry<String, ParameterApplier> parameterNameToIndexes : parametersNameToIndex.entrySet()) {
       final ParameterApplier parameterApplier = parameterNameToIndexes.getValue();
-      ArrayList<Integer> newParameterIndex = new ArrayList<>();
+      final ArrayList<Integer> newParameterIndex = new ArrayList<>();
 
-      parameterApplier.forEach((parameterIndex) -> {
+      parameterApplier.forEach(parameterIndex -> {
         final int newIdx = computeNewIndex(parameterIndex, arrayParametersSortedAsc);
         newParameterIndex.add(newIdx);
       });
@@ -141,7 +141,7 @@ class ArrayParameters {
    * array parameter below 1 parameter will not change the text query nor the
    * parameter indexes.
    */
-  private static List<ArrayParameter> arrayParametersSortedAsc(
+  private static List<ArrayParameter> sortedArrayParameters(
           Map<String, ParameterApplier> parameterNamesToIndexes,
           Map<String, ParameterSetter> parameters,
           boolean allowArrayParameters
@@ -156,7 +156,7 @@ class ArrayParameters {
             throw new PersistenceException("Array parameters are not allowed in batch mode");
           }
           final ParameterApplier parameterApplier = parameterNamesToIndexes.get(parameter.getKey());
-          parameterApplier.forEach((index) -> arrayParameters.add(new ArrayParameter(index, parameterCount)));
+          parameterApplier.forEach(index -> arrayParameters.add(new ArrayParameter(index, parameterCount)));
         }
       }
     }

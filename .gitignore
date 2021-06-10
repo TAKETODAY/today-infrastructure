@@ -10,3 +10,5 @@
 /.sts4-cache
 /today-jdbc.iml
 /.idea/
+/sh.exe.stackdump
+/bash.exe.stackdump
