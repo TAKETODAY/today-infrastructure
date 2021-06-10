@@ -49,7 +49,7 @@ public class H2Tests {
     JdbcOperations sql2o = new JdbcOperations(ds);
 
     try (JdbcConnection connection = sql2o.open()) {
-      int val = connection.createQuery("select 42").executeScalar(Integer.class);
+      int val = connection.createQuery("select 42").fetchScalar(Integer.class);
 
       assertThat(val, is(equalTo(42)));
     }

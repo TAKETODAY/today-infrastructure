@@ -48,7 +48,7 @@ public class BidirectionalConverterTest {
   @Test
   public void toDatabase_fromDatabase_doExecute() {
     List<String> notConverted = sql2o.createQuery("select text from uuid_wrapper")
-            .executeScalarList(String.class);
+            .fetchScalars(String.class);
 
     // if conversion to database worked, all "-" from UUID were replaced with "!"
     for (String s : notConverted) {

@@ -119,7 +119,7 @@ public class RepositoryConfig
 
             }
             else {
-              final Map<String, ParameterApplier> paramNameToIdxMap = query.getParamNameToIdxMap();
+              final Map<String, ParameterApplier> paramNameToIdxMap = query.getIndexMap();
               final Set<String> strings = paramNameToIdxMap.keySet();
 
             }

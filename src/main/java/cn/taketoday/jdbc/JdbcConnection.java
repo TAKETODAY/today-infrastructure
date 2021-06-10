@@ -9,11 +9,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import cn.taketoday.context.conversion.ConversionService;
+import cn.taketoday.context.conversion.support.DefaultConversionService;
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.jdbc.support.ConnectionSource;
 import cn.taketoday.jdbc.support.ConnectionSources;
 import cn.taketoday.jdbc.utils.JdbcUtils;
@@ -21,7 +22,7 @@ import cn.taketoday.jdbc.utils.JdbcUtils;
 /**
  * Represents a connection to the database with a transaction.
  */
-public class JdbcConnection implements Closeable {
+public final class JdbcConnection implements Closeable {
   private static final Logger log = LoggerFactory.getLogger(JdbcConnection.class);
 
   private final JdbcOperations session;
@@ -165,70 +166,84 @@ public class JdbcConnection implements Closeable {
     this.batchResult = value;
   }
 
+  // --------------------------
+  // keys
+
   protected void setKeys(ResultSet rs) throws SQLException {
     if (rs == null) {
       this.keys = null;
       return;
     }
-    this.keys = new ArrayList<>();
+    final ArrayList<Object> keys = new ArrayList<>();
     while (rs.next()) {
-      this.keys.add(rs.getObject(1));
+      keys.add(rs.getObject(1));
     }
+    this.keys = keys;
   }
 
   public Object getKey() {
-    if (!this.canGetKeys) {
-      throw new PersistenceException(
-              "Keys were not fetched from database. Please set the returnGeneratedKeys parameter in the createQuery() method to enable fetching of generated keys.");
-    }
+    assertCanGetKeys();
     if (!CollectionUtils.isEmpty(keys)) {
       return keys.get(0);
     }
     return null;
   }
 
-  @SuppressWarnings("unchecked")
-  public <V> V getKey(Class<?> returnType) {
+  public <V> V getKey(Class<V> returnType) {
+    return getKey(returnType, DefaultConversionService.getSharedInstance());
+  }
+
+  public <V> V getKey(Class<V> returnType, ConversionService conversionService) {
     Object key = getKey();
     try {
-      return (V) ConvertUtils.convert(returnType, key);
+      return conversionService.convert(key, returnType);
     }
     catch (ConversionException e) {
-      throw new PersistenceException("Exception occurred while converting value from database to type " + returnType.toString(), e);
+      throw new PersistenceException(
+              "Exception occurred while converting value from database to type " + returnType.toString(), e);
     }
   }
 
   public Object[] getKeys() {
-    if (!this.canGetKeys) {
-      throw new PersistenceException(
-              "Keys where not fetched from database. Please set the returnGeneratedKeys parameter in the createQuery() method to enable fetching of generated keys.");
-    }
-    if (this.keys != null) {
-      return this.keys.toArray();
+    assertCanGetKeys();
+    final List<Object> keys = this.keys;
+    if (keys != null) {
+      return keys.toArray();
     }
     return null;
   }
 
-  // need to change Convert
   public <V> List<V> getKeys(Class<V> returnType) {
-    if (!this.canGetKeys) {
-      throw new PersistenceException(
-              "Keys where not fetched from database. Please set the returnGeneratedKeys parameter in the createQuery() method to enable fetching of generated keys.");
-    }
+    return getKeys(returnType, DefaultConversionService.getSharedInstance());
+  }
 
-    if (this.keys != null) {
+  public <V> List<V> getKeys(Class<V> returnType, ConversionService conversionService) {
+    assertCanGetKeys();
+    final List<Object> keys = this.keys;
+    if (keys != null) {
       try {
-        List<V> convertedKeys = new ArrayList<>(keys.size());
-        for (Object key : keys) {
-          convertedKeys.add(ConvertUtils.convert(returnType, key));
+        final ArrayList<V> convertedKeys = new ArrayList<>(keys.size());
+        for (final Object key : keys) {
+          convertedKeys.add(conversionService.convert(key, returnType));
         }
         return convertedKeys;
       }
       catch (ConversionException e) {
-        throw new PersistenceException("Exception occurred while converting value from database to type " + returnType.toString(), e);
+        throw new PersistenceException(
+                "Exception occurred while converting value from database to type " + returnType, e);
       }
     }
     return null;
+  }
+
+  private void assertCanGetKeys() {
+    if (!canGetKeys) {
+      throw new PersistenceException(
+              "Keys where not fetched from database." +
+                      " Please set the returnGeneratedKeys parameter " +
+                      "in the createQuery() method to enable fetching of generated keys.");
+    }
+
   }
 
   void setCanGetKeys(boolean canGetKeys) {
@@ -242,6 +257,8 @@ public class JdbcConnection implements Closeable {
   void removeStatement(Statement statement) {
     statements.remove(statement);
   }
+
+  // Closeable
 
   @Override
   public void close() {

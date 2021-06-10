@@ -19,11 +19,13 @@
  */
 package cn.taketoday.jdbc;
 
+import cn.taketoday.context.NestedRuntimeException;
+
 /**
  * @author TODAY <br>
  * 2019-11-09 14:51
  */
-public class DataAccessException extends RuntimeException {
+public class DataAccessException extends NestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
   public DataAccessException() {}

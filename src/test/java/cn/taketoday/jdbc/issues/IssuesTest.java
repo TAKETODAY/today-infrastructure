@@ -13,13 +13,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import cn.taketoday.jdbc.JdbcOperations;
 import cn.taketoday.jdbc.JdbcConnection;
+import cn.taketoday.jdbc.JdbcOperations;
 import cn.taketoday.jdbc.PersistenceException;
-import cn.taketoday.jdbc.result.Row;
-import cn.taketoday.jdbc.result.Table;
 import cn.taketoday.jdbc.issues.pojos.Issue1Pojo;
 import cn.taketoday.jdbc.issues.pojos.KeyValueEntity;
+import cn.taketoday.jdbc.result.Row;
+import cn.taketoday.jdbc.result.Table;
 import lombok.Setter;
 
 import static org.junit.Assert.assertEquals;
@@ -384,7 +384,7 @@ public class IssuesTest {
 
       int cnt = connection.createQuery("select count(*) from testIssue166OneCharacterParameterFail where id = :p")
               .addParameter("p", 1)
-              .executeScalar(Integer.class);
+              .fetchScalar(Integer.class);
 
       assertEquals(1, cnt);
     }

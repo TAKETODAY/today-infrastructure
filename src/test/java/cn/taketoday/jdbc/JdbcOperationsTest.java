@@ -1,8 +1,5 @@
 package cn.taketoday.jdbc;
 
-import cn.taketoday.jdbc.result.ResultSetIterable;
-import cn.taketoday.jdbc.support.StatementRunnable;
-import cn.taketoday.jdbc.support.StatementRunnableWithResult;
 import com.google.common.collect.ImmutableList;
 
 import org.hsqldb.jdbc.JDBCDataSource;
@@ -31,14 +28,17 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.jdbc.result.LazyTable;
-import cn.taketoday.jdbc.result.Row;
-import cn.taketoday.jdbc.result.Table;
 import cn.taketoday.jdbc.pojos.BigDecimalPojo;
 import cn.taketoday.jdbc.pojos.ComplexEntity;
 import cn.taketoday.jdbc.pojos.EntityWithPrivateFields;
 import cn.taketoday.jdbc.pojos.StringConversionPojo;
 import cn.taketoday.jdbc.pojos.SuperPojo;
+import cn.taketoday.jdbc.result.LazyTable;
+import cn.taketoday.jdbc.result.ResultSetIterable;
+import cn.taketoday.jdbc.result.Row;
+import cn.taketoday.jdbc.result.Table;
+import cn.taketoday.jdbc.support.StatementRunnable;
+import cn.taketoday.jdbc.support.StatementRunnableWithResult;
 import cn.taketoday.jdbc.type.BytesInputStreamTypeHandler;
 import cn.taketoday.jdbc.type.EnumOrdinalTypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
@@ -199,10 +199,10 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   public void testExecuteScalar() {
     createAndFillUserTable();
 
-    Object o = jdbcOperations.createQuery("select text from User where id = 2").executeScalar();
+    Object o = jdbcOperations.createQuery("select text from User where id = 2").fetchScalar();
     assertTrue(o.getClass().equals(String.class));
 
-    Object o2 = jdbcOperations.createQuery("select 10").executeScalar();
+    Object o2 = jdbcOperations.createQuery("select 10").fetchScalar();
     assertEquals(o2, 10);
 
     deleteUserTable();
@@ -300,7 +300,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   public void testExecuteAndFetchResultSet() throws SQLException {
     List<Integer> list = jdbcOperations.createQuery(
             "select 1 val from (values(0)) union select 2 from (values(0)) union select 3 from (values(0))")
-            .executeScalarList(Integer.class);
+            .fetchScalars(Integer.class);
 
     assertEquals((int) list.get(0), 1);
     assertEquals((int) list.get(1), 2);
@@ -309,13 +309,14 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testExecuteScalarListWithNulls() throws SQLException {
-    List<String> list = jdbcOperations.createQuery("select val from ( " +
-                                                           "select 1 ord, null val from (values(0)) union " +
-                                                           "select 2 ord, 'one' from (values(0)) union " +
-                                                           "select 3 ord, null from (values(0)) union " +
-                                                           "select 4 ord, 'two' from (values(0)) " +
-                                                           ") order by ord") // explicit ordering since nulls seem to mess with ordering
-            .executeScalarList(String.class);
+    List<String> list = jdbcOperations.createQuery(
+            "select val from ( " +
+                    "select 1 ord, null val from (values(0)) union " +
+                    "select 2 ord, 'one' from (values(0)) union " +
+                    "select 3 ord, null from (values(0)) union " +
+                    "select 4 ord, 'two' from (values(0)) " +
+                    ") order by ord" // explicit ordering since nulls seem to mess with ordering
+    ).fetchScalars(String.class);
 
     assertEquals(4, list.size());
 
@@ -331,10 +332,16 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     jdbcOperations.createQuery("create table testjoda(id int primary key, joda1 datetime, joda2 datetime)").executeUpdate();
 
     jdbcOperations.createQuery("insert into testjoda(id, joda1, joda2) values(:id, :joda1, :joda2)")
-            .addParameter("id", 1).addParameter("joda1", new DateTime()).addParameter("joda2", new DateTime().plusDays(-1)).addToBatch()
-            .addParameter("id", 2).addParameter("joda1", new DateTime().plusYears(1)).addParameter("joda2", new DateTime().plusDays(-2))
+            .addParameter("id", 1)
+            .addParameter("joda1", new DateTime()).addParameter("joda2", new DateTime().plusDays(-1))
             .addToBatch()
-            .addParameter("id", 3).addParameter("joda1", new DateTime().plusYears(2)).addParameter("joda2", new DateTime().plusDays(-3))
+            .addParameter("id", 2)
+            .addParameter("joda1", new DateTime().plusYears(1))
+            .addParameter("joda2", new DateTime().plusDays(-2))
+            .addToBatch()
+            .addParameter("id", 3)
+            .addParameter("joda1", new DateTime().plusYears(2))
+            .addParameter("joda2", new DateTime().plusDays(-3))
             .addToBatch()
             .executeBatch();
 
@@ -422,7 +429,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
             .addParameter("id", 1)
             .addParameter("date", (Date) null).executeUpdate();
 
-    Date d = (Date) jdbcOperations.createQuery("select somedate from nullDateTest where id = 1").executeScalar();
+    Date d = (Date) jdbcOperations.createQuery("select somedate from nullDateTest where id = 1").fetchScalar();
     assertNull(d);
   }
 
@@ -534,7 +541,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
             .addParameter("val", "something to rollback")
             .executeUpdate()
             .rollback();
-    long rowCount = (Long) jdbcOperations.createQuery("select count(*) from test_rollback_table").executeScalar();
+    long rowCount = (Long) jdbcOperations.createQuery("select count(*) from test_rollback_table").fetchScalar();
 
     assertEquals(1, rowCount);
   }
@@ -734,7 +741,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     }
 
     assertTrue(failed);
-    long rowCount = (Long) jdbcOperations.createQuery("select count(*) from runinsidetransactiontable").executeScalar();
+    long rowCount = (Long) jdbcOperations.createQuery("select count(*) from runinsidetransactiontable").fetchScalar();
     assertEquals(0, rowCount);
 
     jdbcOperations.runInTransaction(new StatementRunnable() {
@@ -744,7 +751,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       }
     });
 
-    rowCount = (Long) jdbcOperations.createQuery("select count(*) from runinsidetransactiontable").executeScalar();
+    rowCount = (Long) jdbcOperations.createQuery("select count(*) from runinsidetransactiontable").fetchScalar();
     assertEquals(1, rowCount);
 
     String argument = "argument test";
@@ -758,12 +765,12 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
         String insertedValue = connection.createQuery("select value from runinsidetransactiontable where id = :id")
                 .addParameter("id", id)
-                .executeScalar(String.class);
+                .fetchScalar(String.class);
         assertEquals("argument test", insertedValue);
       }
     }, argument);
 
-    rowCount = (Long) jdbcOperations.createQuery("select count(*) from runinsidetransactiontable").executeScalar();
+    rowCount = (Long) jdbcOperations.createQuery("select count(*) from runinsidetransactiontable").fetchScalar();
     assertEquals(2, rowCount);
   }
 
@@ -793,14 +800,14 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testDynamicExecuteScalar() {
-    Object origVal = jdbcOperations.createQuery("select 1").executeScalar();
+    Object origVal = jdbcOperations.createQuery("select 1").fetchScalar();
     assertTrue(Integer.class.equals(origVal.getClass()));
     assertEquals(1, origVal);
 
-    Long intVal = jdbcOperations.createQuery("select 1").executeScalar(Long.class);
+    Long intVal = jdbcOperations.createQuery("select 1").fetchScalar(Long.class);
     assertEquals((Long) 1l, intVal);
 
-    Short shortVal = jdbcOperations.createQuery("select 2").executeScalar(Short.class);
+    Short shortVal = jdbcOperations.createQuery("select 2").fetchScalar(Short.class);
     Short expected = 2;
     assertEquals(expected, shortVal);
   }
@@ -838,7 +845,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     }
 
-    int c = jdbcOperations.createQuery("select count(*) from testExceptionInRunnable").executeScalar(Integer.class);
+    int c = jdbcOperations.createQuery("select count(*) from testExceptionInRunnable").fetchScalar(Integer.class);
     assertEquals(0, c);
 
     jdbcOperations.runInTransaction(new StatementRunnable() {
@@ -858,7 +865,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       }
     });
 
-    c = jdbcOperations.createQuery("select count(*) from testExceptionInRunnable").executeScalar(Integer.class);
+    c = jdbcOperations.createQuery("select count(*) from testExceptionInRunnable").fetchScalar(Integer.class);
     assertEquals(1, c);
 
   }
@@ -882,11 +889,11 @@ public class JdbcOperationsTest extends BaseMemDbTest {
             .addParameter("val", TestEnum.WORLD).addParameter("val2", TestEnum.WORLD.ordinal()).addToBatch().executeBatch();
 
     TestEnum testEnum = jdbcOperations.createQuery("select 'HELLO' from (values(0))")
-            .executeScalar(TestEnum.class);
+            .fetchScalar(TestEnum.class);
     assertThat(testEnum, is(TestEnum.HELLO));
 
     TestEnum testEnum2 = jdbcOperations.createQuery("select NULL from (values(0))")
-            .executeScalar(TestEnum.class);
+            .fetchScalar(TestEnum.class);
     assertThat(testEnum2, is(nullValue()));
 
     final TypeHandlerRegistry handlerRegistry = new TypeHandlerRegistry();
@@ -1000,7 +1007,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   public void testTimeConverter() {
     String sql = "select current_time as col1 from (values(0))";
 
-    Time sqlTime = jdbcOperations.createQuery(sql).executeScalar(Time.class);
+    Time sqlTime = jdbcOperations.createQuery(sql).fetchScalar(Time.class);
 
     Period p = new Period(new LocalTime(sqlTime), new LocalTime());
 
@@ -1008,11 +1015,11 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     assertTrue(p.getMinutes() == 0);
 
     Date date = jdbcOperations.createQuery(sql)
-            .executeScalar(Date.class);
+            .fetchScalar(Date.class);
     assertThat(date, is(notNullValue()));
 
     LocalTime jodaTime = jdbcOperations.createQuery(sql)
-            .executeScalar(LocalTime.class);
+            .fetchScalar(LocalTime.class);
     assertTrue(jodaTime.getMillisOfDay() > 0);
     assertThat(jodaTime.getHourOfDay(), is(equalTo(new LocalTime().getHourOfDay())));
   }
@@ -1118,7 +1125,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   public void testExecuteAndFetchLazy() {
     createAndFillUserTable();
 
-    ResultSetIterable<User> allUsers = jdbcOperations.createQuery("select * from User").fetchLazily(User.class);
+    ResultSetIterable<User> allUsers = jdbcOperations.createQuery("select * from User").fetchIterable(User.class);
 
     // read in batches, because maybe we are bulk exporting and can't fit them all into a list
     int totalSize = 0;
@@ -1143,7 +1150,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   public void testResultSetIterator_multipleHasNextWorks() {
     createAndFillUserTable();
 
-    ResultSetIterable<User> allUsers = jdbcOperations.createQuery("select * from User").fetchLazily(User.class);
+    ResultSetIterable<User> allUsers = jdbcOperations.createQuery("select * from User").fetchIterable(User.class);
 
     Iterator<User> usersIterator = allUsers.iterator();
 
@@ -1191,7 +1198,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     JdbcConnection con = jdbcOperations.open();
 
     try (ResultSetIterable<User> userIterable = con.createQuery("select * from User")
-            .fetchLazily(User.class)) {
+            .fetchIterable(User.class)) {
 
       userIterable.setAutoCloseConnection(true);
 
@@ -1360,7 +1367,6 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 //    }
 //
 //  }
-
 
 //  @Test
 //  public void testExternalTransactionCommit() {
@@ -1644,7 +1650,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
       String val = connection.createQuery("select val from testClob where id = :id")
               .addParameter("id", 1)
-              .executeScalar(String.class);
+              .fetchScalar(String.class);
 
       assertThat(val, is(equalTo("something")));
     }

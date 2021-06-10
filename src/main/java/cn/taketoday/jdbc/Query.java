@@ -20,6 +20,23 @@
 
 package cn.taketoday.jdbc;
 
+import java.io.InputStream;
+import java.lang.reflect.Array;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.support.DefaultConversionService;
 import cn.taketoday.context.factory.BeanMetadata;
@@ -28,20 +45,23 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.jdbc.parsing.ParameterApplier;
+import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;
+import cn.taketoday.jdbc.result.JdbcBeanMetadata;
+import cn.taketoday.jdbc.result.LazyTable;
 import cn.taketoday.jdbc.result.ResultSetHandler;
-import cn.taketoday.jdbc.result.*;
+import cn.taketoday.jdbc.result.ResultSetHandlerFactory;
+import cn.taketoday.jdbc.result.ResultSetHandlerIterator;
+import cn.taketoday.jdbc.result.ResultSetIterable;
+import cn.taketoday.jdbc.result.Row;
+import cn.taketoday.jdbc.result.Table;
+import cn.taketoday.jdbc.result.TableResultSetIterator;
+import cn.taketoday.jdbc.result.TypeHandlerResultSetHandler;
 import cn.taketoday.jdbc.type.ObjectTypeHandler;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.JdbcUtils;
-
-import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.sql.*;
-import java.util.*;
 
 /**
  * Represents a sql statement.
@@ -54,7 +74,8 @@ public final class Query implements AutoCloseable {
   private final String[] columnNames;
   private final boolean returnGeneratedKeys;
   private final HashMap<String, ParameterSetter> parameters = new HashMap<>();
-  private final HashMap<String, ParameterApplier> paramNameToIdxMap = new HashMap<>();
+  /** parameter name to parameter index */
+  private final HashMap<String, ParameterApplier> indexMap = new HashMap<>();
 
   private String name;
   private String parsedQuery;
@@ -87,7 +108,7 @@ public final class Query implements AutoCloseable {
     this.returnGeneratedKeys = returnGeneratedKeys;
     setColumnMappings(connection.getSession().getDefaultColumnMappings());
     this.caseSensitive = connection.getSession().isDefaultCaseSensitive();
-    this.parsedQuery = connection.getSession().parse(queryText, paramNameToIdxMap);
+    this.parsedQuery = connection.getSession().parse(queryText, indexMap);
   }
 
   // ------------------------------------------------
@@ -134,8 +155,8 @@ public final class Query implements AutoCloseable {
     return this;
   }
 
-  public Map<String, ParameterApplier> getParamNameToIdxMap() {
-    return paramNameToIdxMap;
+  public Map<String, ParameterApplier> getIndexMap() {
+    return indexMap;
   }
 
   // ------------------------------------------------
@@ -143,7 +164,7 @@ public final class Query implements AutoCloseable {
   // ------------------------------------------------
 
   public void addParameter(String name, ParameterSetter parameterSetter) {
-    if (!paramNameToIdxMap.containsKey(name)) {
+    if (!indexMap.containsKey(name)) {
       throw new PersistenceException(
               "Failed to add parameter with name '"
                       + name + "'. No parameter with that name is declared in the sql.");
@@ -183,8 +204,8 @@ public final class Query implements AutoCloseable {
   @SuppressWarnings("unchecked")
   public Query addParameter(final String name, final Object value) {
     return value == null
-            ? addNullParameter(name)
-            : addParameter(name, (Class<Object>) value.getClass(), value);
+           ? addNullParameter(name)
+           : addParameter(name, (Class<Object>) value.getClass(), value);
   }
 
   public Query addNullParameter(final String name) {
@@ -324,15 +345,14 @@ public final class Query implements AutoCloseable {
 
   @SuppressWarnings("unchecked")
   public Query bind(final Object pojo) {
-    final Map<String, ParameterApplier> idxMap = getParamNameToIdxMap();
+    final HashMap<String, ParameterApplier> indexMap = this.indexMap;
     final Map<String, BeanProperty> beanProperties = BeanMetadata.ofObject(pojo).getBeanProperties();
     for (final Map.Entry<String, BeanProperty> entry : beanProperties.entrySet()) {
       final BeanProperty property = entry.getValue();
       final String name = property.getName();
-      final Class<?> type = property.getType();
       try {
-        if (idxMap.containsKey(name)) {
-          addParameter(name, (Class<Object>) type, property.getValue(pojo));
+        if (indexMap.containsKey(name)) {
+          addParameter(name, (Class<Object>) property.getType(), property.getValue(pojo));
         }
       }
       catch (IllegalArgumentException ex) {
@@ -367,7 +387,7 @@ public final class Query implements AutoCloseable {
 
   private PreparedStatement buildPreparedStatement(boolean allowArrayParameters) {
     final HashMap<String, ParameterSetter> parameters = this.parameters;
-    final HashMap<String, ParameterApplier> paramNameToIdxMap = this.paramNameToIdxMap;
+    final HashMap<String, ParameterApplier> paramNameToIdxMap = this.indexMap;
     if (hasArrayParameter) {
       // array parameter handling
       this.parsedQuery = ArrayParameters.updateQueryAndParametersIndexes(
@@ -448,8 +468,8 @@ public final class Query implements AutoCloseable {
         if (log.isDebugEnabled()) {
           long afterClose = System.currentTimeMillis();
           log.debug("total: {} ms, execution: {} ms, reading and parsing: {} ms; executed [{}]",
-                  afterClose - start, afterExecQuery - start,
-                  afterClose - afterExecQuery, name);
+                    afterClose - start, afterExecQuery - start,
+                    afterClose - afterExecQuery, name);
         }
       }
       catch (SQLException ex) {
@@ -487,8 +507,8 @@ public final class Query implements AutoCloseable {
    *
    * @return iterable results
    */
-  public <T> ResultSetIterable<T> fetchLazily(final Class<T> returnType) {
-    return fetchLazily(createHandlerFactory(returnType));
+  public <T> ResultSetIterable<T> fetchIterable(final Class<T> returnType) {
+    return fetchIterable(createHandlerFactory(returnType));
   }
 
   private <T> ResultSetHandlerFactory<T> createHandlerFactory(final Class<T> returnType) {
@@ -508,9 +528,8 @@ public final class Query implements AutoCloseable {
    *
    * @return iterable results
    */
-  public <T> ResultSetIterable<T> fetchLazily(
+  public <T> ResultSetIterable<T> fetchIterable(
           final ResultSetHandlerFactory<T> resultSetHandlerFactory) {
-
     final class FactoryResultSetIterable extends AbstractResultSetIterable<T> {
       @Override
       public Iterator<T> iterator() {
@@ -526,16 +545,16 @@ public final class Query implements AutoCloseable {
    * memory issues. You MUST call {@link ResultSetIterable#close()} when
    * you are done iterating.
    *
-   * @param resultSetHandler
+   * @param handler
    *         ResultSetHandler
    *
    * @return iterable results
    */
-  public <T> ResultSetIterable<T> fetchLazily(final ResultSetHandler<T> resultSetHandler) {
+  public <T> ResultSetIterable<T> fetchIterable(final ResultSetHandler<T> handler) {
     final class HandlerResultSetIterable extends AbstractResultSetIterable<T> {
       @Override
       public Iterator<T> iterator() {
-        return new ResultSetHandlerIterator<>(rs, resultSetHandler);
+        return new ResultSetHandlerIterator<>(rs, handler);
       }
     }
     return new HandlerResultSetIterable();
@@ -546,13 +565,13 @@ public final class Query implements AutoCloseable {
   }
 
   public <T> List<T> fetch(ResultSetHandler<T> handler) {
-    try (ResultSetIterable<T> iterable = fetchLazily(handler)) {
+    try (ResultSetIterable<T> iterable = fetchIterable(handler)) {
       return fetch(iterable);
     }
   }
 
   public <T> List<T> fetch(ResultSetHandlerFactory<T> factory) {
-    try (ResultSetIterable<T> iterable = fetchLazily(factory)) {
+    try (ResultSetIterable<T> iterable = fetchIterable(factory)) {
       return fetch(iterable);
     }
   }
@@ -570,13 +589,13 @@ public final class Query implements AutoCloseable {
   }
 
   public <T> T fetchFirst(ResultSetHandler<T> handler) {
-    try (ResultSetIterable<T> iterable = fetchLazily(handler)) {
+    try (ResultSetIterable<T> iterable = fetchIterable(handler)) {
       return fetchFirst(iterable);
     }
   }
 
   public <T> T fetchFirst(ResultSetHandlerFactory<T> factory) {
-    try (ResultSetIterable<T> iterable = fetchLazily(factory)) {
+    try (ResultSetIterable<T> iterable = fetchIterable(factory)) {
       return fetchFirst(iterable);
     }
   }
@@ -635,43 +654,9 @@ public final class Query implements AutoCloseable {
     }
 
     if (log.isDebugEnabled()) {
-      long end = System.currentTimeMillis();
-      log.debug("total: {} ms; executed update [{}]",
-              end - start, this.getName() == null ? "No name" : this.getName());
+      log.debug("total: {} ms; executed update [{}]", System.currentTimeMillis() - start, obtainName());
     }
     return connection;
-  }
-
-  public Object executeScalar(TypeHandler<?> typeHandler) {
-    long start = System.currentTimeMillis();
-    logExecution();
-    try (final PreparedStatement ps = buildPreparedStatement();
-         final ResultSet rs = ps.executeQuery()) {
-
-      if (rs.next()) {
-        final Object ret = typeHandler.getResult(rs, 1);
-        if (log.isDebugEnabled()) {
-          log.debug("total: {} ms; executed scalar [{}]",
-                  System.currentTimeMillis() - start, getName() == null ? "No name" : getName());
-        }
-        return ret;
-      }
-      else {
-        return null;
-      }
-    }
-    catch (SQLException e) {
-      this.connection.onException();
-      throw new PersistenceException(
-              "Database error occurred while running executeScalar: " + e.getMessage(), e);
-    }
-    finally {
-      closeConnectionIfNecessary();
-    }
-  }
-
-  public Object executeScalar() {
-    return executeScalar(ObjectTypeHandler.getSharedInstance());
   }
 
   public TypeHandlerRegistry getTypeHandlerRegistry() {
@@ -683,22 +668,52 @@ public final class Query implements AutoCloseable {
     return ret;
   }
 
-  public <V> V executeScalar(Class<V> returnType) {
-    final Object source = executeScalar(getTypeHandlerRegistry().getTypeHandler(returnType));
-    return ConvertUtils.convert(returnType, source);
+  public void setTypeHandlerRegistry(TypeHandlerRegistry typeHandlerRegistry) {
+    this.typeHandlerRegistry = typeHandlerRegistry;
   }
 
-  public <T> List<T> executeScalarList(final Class<T> returnType) {
-    return fetch(newScalarResultSetHandler(returnType));
+  public Object fetchScalar() {
+    return fetchScalar(ObjectTypeHandler.getSharedInstance());
   }
 
-  private <T> ResultSetHandler<T> newScalarResultSetHandler(final Class<T> returnType) {
+  public <V> V fetchScalar(Class<V> returnType) {
+    return fetchScalar(getTypeHandlerRegistry().getTypeHandler(returnType));
+  }
+
+  public <T> List<T> fetchScalars(final Class<T> returnType) {
     final TypeHandler<T> typeHandler = getTypeHandlerRegistry().getTypeHandler(returnType);
-    return new ResultSetHandler<T>() {
-      public T handle(ResultSet resultSet) throws SQLException {
-        return typeHandler.getResult(resultSet, 1);
+    return fetch(new TypeHandlerResultSetHandler<>(typeHandler));
+  }
+
+  public <T> T fetchScalar(final TypeHandler<T> typeHandler) {
+    logExecution();
+    final long start = System.currentTimeMillis();
+    try (final PreparedStatement ps = buildPreparedStatement();
+            final ResultSet rs = ps.executeQuery()) {
+
+      if (rs.next()) {
+        final T ret = typeHandler.getResult(rs, 1);
+        if (log.isDebugEnabled()) {
+          log.debug("total: {} ms; executed scalar [{}]", System.currentTimeMillis() - start, obtainName());
+        }
+        return ret;
       }
-    };
+      else {
+        return null;
+      }
+    }
+    catch (SQLException e) {
+      connection.onException();
+      throw new PersistenceException(
+              "Database error occurred while running executeScalar: " + e.getMessage(), e);
+    }
+    finally {
+      closeConnectionIfNecessary();
+    }
+  }
+
+  private String obtainName() {
+    return name == null ? "No name" : name;
   }
 
   //************** batch stuff *******************/
@@ -822,8 +837,7 @@ public final class Query implements AutoCloseable {
       closeConnectionIfNecessary();
     }
     if (log.isDebugEnabled()) {
-      log.debug("total: {} ms; executed batch [{}]",
-              System.currentTimeMillis() - start, getName() == null ? "No name" : getName());
+      log.debug("total: {} ms; executed batch [{}]", System.currentTimeMillis() - start, obtainName());
     }
     return connection;
   }
