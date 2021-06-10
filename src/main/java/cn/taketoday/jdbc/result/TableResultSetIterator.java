@@ -20,6 +20,10 @@
 
 package cn.taketoday.jdbc.result;
 
+import cn.taketoday.context.conversion.ConversionService;
+import cn.taketoday.jdbc.PersistenceException;
+import cn.taketoday.jdbc.utils.JdbcUtils;
+
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -27,10 +31,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import cn.taketoday.context.conversion.ConversionService;
-import cn.taketoday.jdbc.PersistenceException;
-import cn.taketoday.jdbc.utils.JdbcUtils;
 
 /**
  * @author aldenquimby@gmail.com
@@ -77,11 +77,11 @@ public class TableResultSetIterator extends AbstractResultSetIterator<Row> {
 
   @Override
   protected Row readNext() throws SQLException {
-    final ResultSet rs = this.resultSet;
+    final ResultSet resultSet = this.resultSet;
     final Row row = new Row(columnNameToIdxMap, columns.size(), isCaseSensitive, conversionService);
     for (Column column : columns) {
       final int index = column.getIndex();
-      row.addValue(index, rs.getObject(index + 1));
+      row.addValue(index, resultSet.getObject(index + 1));
     }
     return row;
   }
