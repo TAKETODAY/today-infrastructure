@@ -83,7 +83,7 @@ public final class Query implements AutoCloseable {
   private int currentBatchRecords = 0;
 
   private boolean caseSensitive;
-  private boolean autoDeriveColumnNames;
+  private boolean autoDerivingColumns;
   private boolean throwOnMappingFailure = true;
   private PreparedStatement preparedStatement = null;
 
@@ -124,12 +124,12 @@ public final class Query implements AutoCloseable {
     return this;
   }
 
-  public boolean isAutoDeriveColumnNames() {
-    return autoDeriveColumnNames;
+  public boolean isAutoDerivingColumns() {
+    return autoDerivingColumns;
   }
 
-  public Query setAutoDeriveColumnNames(boolean autoDeriveColumnNames) {
-    this.autoDeriveColumnNames = autoDeriveColumnNames;
+  public Query setAutoDerivingColumns(boolean autoDerivingColumns) {
+    this.autoDerivingColumns = autoDerivingColumns;
     return this;
   }
 
@@ -511,10 +511,11 @@ public final class Query implements AutoCloseable {
     return fetchIterable(createHandlerFactory(returnType));
   }
 
-  private <T> ResultSetHandlerFactory<T> createHandlerFactory(final Class<T> returnType) {
-    final JdbcBeanMetadata pojoMetadata = new JdbcBeanMetadata(
-            returnType, caseSensitive, autoDeriveColumnNames, columnMappings, throwOnMappingFailure);
-    return new DefaultResultSetHandlerFactory<>(pojoMetadata, getTypeHandlerRegistry());
+  public <T> ResultSetHandlerFactory<T> createHandlerFactory(final Class<T> returnType) {
+    return new DefaultResultSetHandlerFactory<>(
+            getTypeHandlerRegistry(),
+            new JdbcBeanMetadata(returnType, caseSensitive, autoDerivingColumns, columnMappings, throwOnMappingFailure)
+    );
   }
 
   /**
@@ -523,17 +524,16 @@ public final class Query implements AutoCloseable {
    * memory issues. You MUST call {@link ResultSetIterable#close()} when
    * you are done iterating.
    *
-   * @param resultSetHandlerFactory
+   * @param factory
    *         factory to provide ResultSetHandler
    *
    * @return iterable results
    */
-  public <T> ResultSetIterable<T> fetchIterable(
-          final ResultSetHandlerFactory<T> resultSetHandlerFactory) {
+  public <T> ResultSetIterable<T> fetchIterable(final ResultSetHandlerFactory<T> factory) {
     final class FactoryResultSetIterable extends AbstractResultSetIterable<T> {
       @Override
       public Iterator<T> iterator() {
-        return new ResultSetHandlerIterator<>(rs, resultSetHandlerFactory);
+        return new ResultSetHandlerIterator<>(rs, factory);
       }
     }
     return new FactoryResultSetIterable();

@@ -58,8 +58,8 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.jdbc.JdbcOperations;
 import cn.taketoday.jdbc.JdbcConnection;
+import cn.taketoday.jdbc.JdbcOperations;
 import cn.taketoday.jdbc.Query;
 import cn.taketoday.jdbc.utils.FeatureDetector;
 import cn.taketoday.orm.hibernate5.EnableDefaultHibernate;
@@ -80,13 +80,13 @@ public class PojoPerformanceTest {
   private final static SQLDialect JOOQ_DIALECT = SQLDialect.H2;
   private final int ITERATIONS = 5000;
 
-  private JdbcOperations session;
+  private JdbcOperations operations;
 
   @Before
   public void setup() {
     Logger.getLogger("org.hibernate").setLevel(Level.OFF);
 
-    session = new JdbcOperations(DB_URL, DB_USER, DB_PASSWORD);
+    operations = new JdbcOperations(DB_URL, DB_USER, DB_PASSWORD);
 
     createPostTable();
 
@@ -95,29 +95,29 @@ public class PojoPerformanceTest {
   }
 
   private void createPostTable() {
-    session.createQuery("DROP TABLE IF EXISTS post").executeUpdate();
+    operations.createQuery("DROP TABLE IF EXISTS post").executeUpdate();
 
-    session.createQuery("\n CREATE TABLE post" +
-                                "\n (" +
-                                "\n     id INT NOT NULL IDENTITY PRIMARY KEY" +
-                                "\n   , text VARCHAR(255)" +
-                                "\n   , creation_date DATETIME" +
-                                "\n   , last_change_date DATETIME" +
-                                "\n   , counter1 INT" +
-                                "\n   , counter2 INT" +
-                                "\n   , counter3 INT" +
-                                "\n   , counter4 INT" +
-                                "\n   , counter5 INT" +
-                                "\n   , counter6 INT" +
-                                "\n   , counter7 INT" +
-                                "\n   , counter8 INT" +
-                                "\n   , counter9 INT" +
-                                "\n )" +
-                                "\n;").executeUpdate();
+    operations.createQuery("\n CREATE TABLE post" +
+                                   "\n (" +
+                                   "\n     id INT NOT NULL IDENTITY PRIMARY KEY" +
+                                   "\n   , text VARCHAR(255)" +
+                                   "\n   , creation_date DATETIME" +
+                                   "\n   , last_change_date DATETIME" +
+                                   "\n   , counter1 INT" +
+                                   "\n   , counter2 INT" +
+                                   "\n   , counter3 INT" +
+                                   "\n   , counter4 INT" +
+                                   "\n   , counter5 INT" +
+                                   "\n   , counter6 INT" +
+                                   "\n   , counter7 INT" +
+                                   "\n   , counter8 INT" +
+                                   "\n   , counter9 INT" +
+                                   "\n )" +
+                                   "\n;").executeUpdate();
 
     Random r = new Random();
 
-    Query insQuery = session.createQuery(
+    Query insQuery = operations.createQuery(
             "insert into post (text, creation_date, last_change_date, counter1, counter2, counter3, counter4, counter5, counter6, counter7, counter8, counter9) values (:text, :creation_date, :last_change_date, :counter1, :counter2, :counter3, :counter4, :counter5, :counter6, :counter7, :counter8, :counter9)");
     for (int idx = 0; idx < ITERATIONS; idx++) {
       insQuery.addParameter("text", "a name " + idx)
@@ -205,8 +205,9 @@ public class PojoPerformanceTest {
 
     @Override
     public void init() {
-      conn = session.open();
+      conn = operations.open();
       query = conn.createQuery(SELECT_OPTIMAL + " WHERE id = :id");
+      query.setAutoDerivingColumns(true);
     }
 
     @Override
@@ -227,9 +228,9 @@ public class PojoPerformanceTest {
 
     @Override
     public void init() {
-      conn = session.open();
+      conn = operations.open();
       query = conn.createQuery(SELECT_TYPICAL + " WHERE id = :id")
-              .setAutoDeriveColumnNames(true);
+              .setAutoDerivingColumns(true);
     }
 
     @Override
@@ -244,9 +245,10 @@ public class PojoPerformanceTest {
     }
   }
 
-  class BeeSelect extends PerformanceTestBase {
+  static class BeeSelect extends PerformanceTestBase {
     Suid suid;
     BeeSql beeSql;
+
     @Override
     public void init() {
       suid = BeeFactory.getHoneyFactory().getSuid();
@@ -385,7 +387,7 @@ public class PojoPerformanceTest {
     @Override
     public void init() {
       try {
-        conn = session.open().getJdbcConnection();
+        conn = operations.open().getJdbcConnection();
         stmt = conn.prepareStatement(SELECT_TYPICAL + " WHERE id = ?");
       }
       catch (SQLException se) {
@@ -461,7 +463,7 @@ public class PojoPerformanceTest {
 
   @EnableDefaultHibernate
   @Configuration
-  static class HibernateConfig {
+  static class DataSourceConfig {
 
     @Primary
     @Singleton(destroyMethods = "close")
@@ -541,7 +543,7 @@ public class PojoPerformanceTest {
     public void init() {
       runner = new QueryRunner();
       rsHandler = new BeanHandler<>(Post.class, new BasicRowProcessor(new IgnoreUnderscoreBeanProcessor()));
-      conn = session.open().getJdbcConnection();
+      conn = operations.open().getJdbcConnection();
     }
 
     @Override
@@ -569,13 +571,15 @@ public class PojoPerformanceTest {
    * It appears executing raw SQL is not possible with MyBatis. Therefore
    * "typical" = "optimized", there is no difference.
    */
-  class MyBatisSelect extends PerformanceTestBase {
+  static class MyBatisSelect extends PerformanceTestBase {
     private SqlSession session;
 
     @Override
     public void init() {
       TransactionFactory transactionFactory = new JdbcTransactionFactory();
-      Environment environment = new Environment("development", transactionFactory, PojoPerformanceTest.this.session.getDataSource());
+      final DataSource dataSource = new DataSourceConfig().h2DataSource();
+
+      Environment environment = new Environment("development", transactionFactory, dataSource);
       org.apache.ibatis.session.Configuration config = new org.apache.ibatis.session.Configuration(environment);
       config.addMapper(MyBatisPostMapper.class);
       SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(config);
@@ -599,8 +603,8 @@ public class PojoPerformanceTest {
   interface MyBatisPostMapper {
     @Select(SELECT_TYPICAL + " WHERE id = #{id}")
     @Results({ @Result(property = "creationDate", column = "creation_date"), @Result(property = "lastChangeDate",
-            column = "last_change_date")
-    })
+                                                                                     column = "last_change_date")
+             })
     Post selectPost(int id);
   }
 
@@ -609,7 +613,8 @@ public class PojoPerformanceTest {
 
     @Override
     public void init() {
-      jdbcTemplate = new NamedParameterJdbcTemplate(session.getDataSource());
+      final DataSource dataSource = new DataSourceConfig().h2DataSource();
+      jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
     @Override

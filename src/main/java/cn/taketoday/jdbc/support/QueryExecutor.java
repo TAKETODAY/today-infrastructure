@@ -31,8 +31,8 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.jdbc.result.JdbcBeanMetadata;
 import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;
+import cn.taketoday.jdbc.result.JdbcBeanMetadata;
 import cn.taketoday.jdbc.result.ResultSetHandlerFactory;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.JdbcUtils;
@@ -138,7 +138,7 @@ public class QueryExecutor extends Executor implements QueryOperation, QueryOpti
 
   public <T> ResultSetHandlerFactory<T> newFactory(Class<T> clazz) {
     JdbcBeanMetadata pojoMetadata = new JdbcBeanMetadata(clazz, caseSensitive, autoDeriveColumnNames, columnMappings, throwOnMappingError);
-    return new DefaultResultSetHandlerFactory<>(pojoMetadata, registry);
+    return new DefaultResultSetHandlerFactory<>(registry, pojoMetadata);
   }
 
   @Override

@@ -20,8 +20,8 @@
 package cn.taketoday.jdbc.result;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 import cn.taketoday.context.factory.BeanMetadata;
 import cn.taketoday.context.factory.BeanProperty;
@@ -49,9 +49,9 @@ public class JdbcBeanMetadata extends BeanMetadata {
   ) {
     super(clazz);
     this.caseSensitive = caseSensitive;
-    this.autoDeriveColumnNames = autoDeriveColumnNames;
-    this.columnMappings = columnMappings == null ? Collections.emptyMap() : columnMappings;
+    this.columnMappings = columnMappings;
     this.throwOnMappingFailure = throwOnMappingError;
+    this.autoDeriveColumnNames = autoDeriveColumnNames;
   }
 
   public Map<String, String> getColumnMappings() {
@@ -70,8 +70,9 @@ public class JdbcBeanMetadata extends BeanMetadata {
   public BeanProperty getBeanProperty(final String propertyName) {
     String name = this.caseSensitive ? propertyName : propertyName.toLowerCase();
 
-    if (this.columnMappings.containsKey(name)) {
-      name = this.columnMappings.get(name);
+    final Map<String, String> columnMappings = this.columnMappings;
+    if (columnMappings != null && columnMappings.containsKey(name)) {
+      name = columnMappings.get(name);
     }
 
     if (autoDeriveColumnNames) {
@@ -112,7 +113,7 @@ public class JdbcBeanMetadata extends BeanMetadata {
     return autoDeriveColumnNames == that.autoDeriveColumnNames
             && caseSensitive == that.caseSensitive
             && super.equals(that)
-            && columnMappings.equals(that.columnMappings);
+            && Objects.equals(columnMappings, that.columnMappings);
   }
 
   @Override

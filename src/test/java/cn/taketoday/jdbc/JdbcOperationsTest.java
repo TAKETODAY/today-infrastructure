@@ -1625,7 +1625,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       assertNotNull(ex);
 
       LocalPojo p = con.createQuery(selectSql)
-              .setAutoDeriveColumnNames(true)
+              .setAutoDerivingColumns(true)
               .fetchFirst(LocalPojo.class);
 
       assertNotNull(p);

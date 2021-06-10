@@ -31,7 +31,13 @@ public interface ConnectionSource {
    * @return a connection wrapper that represent a nested connection
    */
   static ConnectionSource join(final Connection connection) {
-    return () -> new NestedConnection(connection);
+    final class NestedConnectionSource implements ConnectionSource {
+      @Override
+      public Connection getConnection() throws SQLException {
+        return new NestedConnection(connection);
+      }
+    }
+    return new NestedConnectionSource();
   }
 
   /**

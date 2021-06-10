@@ -38,7 +38,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
   private final JdbcBeanMetadata metadata;
   private final TypeHandlerRegistry registry;
 
-  public DefaultResultSetHandlerFactory(JdbcBeanMetadata pojoMetadata, TypeHandlerRegistry registry) {
+  public DefaultResultSetHandlerFactory(TypeHandlerRegistry registry, JdbcBeanMetadata pojoMetadata) {
     this.metadata = pojoMetadata;
     this.registry = registry;
   }
