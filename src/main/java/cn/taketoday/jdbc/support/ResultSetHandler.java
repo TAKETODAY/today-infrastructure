@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc;
+package cn.taketoday.jdbc.support;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

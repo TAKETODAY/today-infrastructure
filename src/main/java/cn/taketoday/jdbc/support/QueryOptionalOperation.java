@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.jdbc;
+package cn.taketoday.jdbc.support;
 
 import java.sql.SQLException;
 import java.util.List;

@@ -1,4 +1,7 @@
-package cn.taketoday.jdbc;
+package cn.taketoday.jdbc.support;
+
+import cn.taketoday.jdbc.JdbcConnection;
+import cn.taketoday.jdbc.JdbcOperations;
 
 /**
  * Represents a method with a {@link JdbcConnection} and an optional argument.

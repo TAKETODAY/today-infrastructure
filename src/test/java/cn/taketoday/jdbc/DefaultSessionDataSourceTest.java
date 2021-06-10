@@ -1,5 +1,6 @@
 package cn.taketoday.jdbc;
 
+import cn.taketoday.jdbc.support.StatementRunnable;
 import junit.framework.TestCase;
 
 import org.h2.jdbcx.JdbcConnectionPool;

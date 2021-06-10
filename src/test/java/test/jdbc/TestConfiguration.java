@@ -29,7 +29,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.jdbc.JdbcExecutor;
+import cn.taketoday.jdbc.support.JdbcExecutor;
 import cn.taketoday.jdbc.annotation.EnableJdbcDataAccess;
 import cn.taketoday.transaction.DataSourceTransactionManager;
 import cn.taketoday.transaction.TransactionDefinition;

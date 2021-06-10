@@ -1,4 +1,4 @@
-package cn.taketoday.jdbc;
+package cn.taketoday.jdbc.result;
 
 import java.io.Closeable;
 

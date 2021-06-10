@@ -22,8 +22,6 @@ package cn.taketoday.jdbc.result;
 
 import java.util.List;
 
-import cn.taketoday.jdbc.ResultSetIterable;
-
 /**
  * @author aldenquimby@gmail.com
  */

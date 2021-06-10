@@ -32,7 +32,7 @@ import java.util.Map;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.jdbc.JdbcExecutor;
+import cn.taketoday.jdbc.support.JdbcExecutor;
 import cn.taketoday.jdbc.utils.JdbcUtils;
 import test.jdbc.model.User;
 

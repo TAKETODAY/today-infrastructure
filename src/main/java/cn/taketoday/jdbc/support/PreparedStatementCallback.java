@@ -18,31 +18,16 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc;
+package cn.taketoday.jdbc.support;
 
-import java.sql.ResultSet;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- * @author TODAY 2021/6/2 21:34
+ * @author TODAY 2021/6/2 21:26
  */
 @FunctionalInterface
-public interface ResultSetExtractor<T> {
+public interface PreparedStatementCallback<T> {
 
-  /**
-   * Implementations must implement this method to process the entire ResultSet.
-   *
-   * @param rs
-   *            ResultSet to extract data from. Implementations should not close
-   *            this: it will be closed by the calling JdbcTemplate.
-   * @return an arbitrary result object, or {@code null} if none (the extractor
-   *         will typically be stateful in the latter case).
-   * @throws SQLException
-   *             if a SQLException is encountered getting column values or
-   *             navigating (that is, there's no need to catch SQLException)
-   * @throws SQLException
-   *             in case of custom exceptions
-   */
-  T extractData(final ResultSet rs) throws SQLException;
-
+  T doInPreparedStatement(final PreparedStatement ps) throws SQLException;
 }

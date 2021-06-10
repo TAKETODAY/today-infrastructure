@@ -18,16 +18,17 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc;
+package cn.taketoday.jdbc.support;
 
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
- * @author TODAY 2021/6/2 21:26
+ * @author TODAY 2021/6/2 21:25
  */
 @FunctionalInterface
-public interface PreparedStatementCallback<T> {
+public interface StatementCallback<T> {
 
-  T doInPreparedStatement(final PreparedStatement ps) throws SQLException;
+  T doInStatement(final Statement stmt) throws SQLException;
+
 }
