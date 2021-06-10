@@ -29,7 +29,6 @@ import cn.taketoday.transaction.SynchronizationManager.SynchronizationMetaData;
 import cn.taketoday.transaction.TransactionDefinition;
 import cn.taketoday.transaction.TransactionSynchronization;
 
-import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
@@ -418,13 +417,14 @@ public abstract class DataSourceUtils {
     public void suspend(final SynchronizationMetaData metaData) {
       if (this.holderActive) {
         metaData.unbindResource(this.dataSource);
-        if (this.connectionHolder.hasConnection() && !this.connectionHolder.isOpen()) {
+        final ConnectionHolder connectionHolder = this.connectionHolder;
+        if (connectionHolder.hasConnection() && !connectionHolder.isOpen()) {
           // Release Connection on suspend if the application doesn't keep
           // a handle to it anymore. We will fetch a fresh Connection if the
           // application accesses the ConnectionHolder again after resume,
           // assuming that it will participate in the same transaction.
-          releaseConnection(this.connectionHolder.getConnection(), this.dataSource);
-          this.connectionHolder.setConnection(null);
+          releaseConnection(connectionHolder.getConnection(), this.dataSource);
+          connectionHolder.setConnection(null);
         }
       }
     }
@@ -443,11 +443,12 @@ public abstract class DataSourceUtils {
       // that has its own cleanup via transaction synchronization),
       // to avoid issues with strict JTA implementations that expect
       // the close call before transaction completion.
-      if (!this.connectionHolder.isOpen()) {
+      final ConnectionHolder connectionHolder = this.connectionHolder;
+      if (!connectionHolder.isOpen()) {
         metaData.unbindResource(this.dataSource);
         this.holderActive = false;
-        if (this.connectionHolder.hasConnection()) {
-          releaseConnection(this.connectionHolder.getConnection(), this.dataSource);
+        if (connectionHolder.hasConnection()) {
+          releaseConnection(connectionHolder.getConnection(), this.dataSource);
         }
       }
     }
@@ -458,18 +459,19 @@ public abstract class DataSourceUtils {
       // If we haven't closed the Connection in beforeCompletion,
       // close it now. The holder might have been used for other
       // cleanup in the meantime, for example by a Hibernate Session.
+      final ConnectionHolder connectionHolder = this.connectionHolder;
       if (this.holderActive) {
         // The thread-bound ConnectionHolder might not be available anymore,
         // since afterCompletion might get called from a different thread.
         metaData.unbindResourceIfPossible(this.dataSource);
         this.holderActive = false;
-        if (this.connectionHolder.hasConnection()) {
-          releaseConnection(this.connectionHolder.getConnection(), this.dataSource);
+        if (connectionHolder.hasConnection()) {
+          releaseConnection(connectionHolder.getConnection(), this.dataSource);
           // Reset the ConnectionHolder: It might remain bound to the thread.
-          this.connectionHolder.setConnection(null);
+          connectionHolder.setConnection(null);
         }
       }
-      this.connectionHolder.reset();
+      connectionHolder.reset();
     }
   }
 
