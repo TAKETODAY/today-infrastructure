@@ -34,7 +34,7 @@ import cn.taketoday.jdbc.support.ConnectionSource;
 import cn.taketoday.jdbc.support.DataSourceConnectionSource;
 import cn.taketoday.jdbc.support.OffsetTimeToSQLTimeConverter;
 import cn.taketoday.jdbc.support.StatementRunnable;
-import cn.taketoday.jdbc.support.StatementRunnableWithResult;
+import cn.taketoday.jdbc.support.ResultStatementRunnable;
 import cn.taketoday.jdbc.support.TimeToJodaLocalTimeConverter;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.DataSourceUtils;
@@ -244,11 +244,6 @@ public class JdbcOperations {
   /**
    * Creates a {@link Query}
    *
-   * @param query
-   *         the sql query string
-   *
-   * @return the {@link Query} instance
-   *
    * better to use :
    * create queries with {@link JdbcConnection} class instead,
    * using try-with-resource blocks
@@ -257,6 +252,11 @@ public class JdbcOperations {
    *         return JdbcOperations.createQuery(query, name).fetch(Pojo.class);
    *     }
    *  </pre>
+   *
+   * @param query
+   *         the sql query string
+   *
+   * @return the {@link Query} instance
    */
   public Query createQuery(String query) {
     return open(true).createQuery(query);
@@ -308,11 +308,11 @@ public class JdbcOperations {
   }
 
   /**
-   * Invokes the run method on the {@link StatementRunnableWithResult}
+   * Invokes the run method on the {@link ResultStatementRunnable}
    * instance. This method guarantees that the connection is closed properly, when
    * either the run method completes or if an exception occurs.
    */
-  public <V> V withConnection(StatementRunnableWithResult<V> runnable, Object argument) {
+  public <V> V withConnection(ResultStatementRunnable<V> runnable, Object argument) {
     try (JdbcConnection connection = open()) {
       return runnable.run(connection, argument);
     }
@@ -322,16 +322,16 @@ public class JdbcOperations {
   }
 
   /**
-   * Invokes the run method on the {@link StatementRunnableWithResult}
+   * Invokes the run method on the {@link ResultStatementRunnable}
    * instance. This method guarantees that the connection is closed properly, when
    * either the run method completes or if an exception occurs.
    */
-  public <V> V withConnection(StatementRunnableWithResult<V> runnable) {
+  public <V> V withConnection(ResultStatementRunnable<V> runnable) {
     return withConnection(runnable, null);
   }
 
   /**
-   * Invokes the run method on the {@link StatementRunnableWithResult}
+   * Invokes the run method on the {@link ResultStatementRunnable}
    * instance. This method guarantees that the connection is closed properly, when
    * either the run method completes or if an exception occurs.
    */
@@ -340,7 +340,7 @@ public class JdbcOperations {
   }
 
   /**
-   * Invokes the run method on the {@link StatementRunnableWithResult}
+   * Invokes the run method on the {@link ResultStatementRunnable}
    * instance. This method guarantees that the connection is closed properly, when
    * either the run method completes or if an exception occurs.
    */
@@ -379,7 +379,7 @@ public class JdbcOperations {
    * {@link JdbcConnection#rollback()} method to close the transaction. Use
    * proper try-catch logic.
    *
-   * @param connectionSource
+   * @param source
    *         the {@link ConnectionSource} implementation substitution, that
    *         will be used instead of one from {@link JdbcOperations} instance.
    * @param isolationLevel
@@ -388,8 +388,8 @@ public class JdbcOperations {
    * @return the {@link JdbcConnection} instance to use to run statements in the
    * transaction.
    */
-  public JdbcConnection beginTransaction(ConnectionSource connectionSource, int isolationLevel) {
-    JdbcConnection connection = new JdbcConnection(this, connectionSource, false);
+  public JdbcConnection beginTransaction(ConnectionSource source, int isolationLevel) {
+    JdbcConnection connection = new JdbcConnection(this, source, false);
     boolean success = false;
     try {
       final Connection root = connection.getJdbcConnection();
@@ -434,15 +434,15 @@ public class JdbcOperations {
    * {@link JdbcConnection#rollback()} method to close the transaction. Use
    * proper try-catch logic.
    *
-   * @param connectionSource
+   * @param source
    *         the {@link ConnectionSource} implementation substitution, that
    *         will be used instead of one from {@link JdbcOperations} instance.
    *
    * @return the {@link JdbcConnection} instance to use to run statements in the
    * transaction.
    */
-  public JdbcConnection beginTransaction(ConnectionSource connectionSource) {
-    return beginTransaction(connectionSource, Connection.TRANSACTION_READ_COMMITTED);
+  public JdbcConnection beginTransaction(ConnectionSource source) {
+    return beginTransaction(source, Connection.TRANSACTION_READ_COMMITTED);
   }
 
   /**
@@ -542,19 +542,19 @@ public class JdbcOperations {
     connection.commit();
   }
 
-  public <V> V runInTransaction(StatementRunnableWithResult<V> runnableWithResult) {
-    return runInTransaction(runnableWithResult, null);
+  public <V> V runInTransaction(ResultStatementRunnable<V> runnable) {
+    return runInTransaction(runnable, null);
   }
 
-  public <V> V runInTransaction(StatementRunnableWithResult<V> runnableWithResult, Object argument) {
-    return runInTransaction(runnableWithResult, argument, Connection.TRANSACTION_READ_COMMITTED);
+  public <V> V runInTransaction(ResultStatementRunnable<V> runnable, Object argument) {
+    return runInTransaction(runnable, argument, Connection.TRANSACTION_READ_COMMITTED);
   }
 
-  public <V> V runInTransaction(StatementRunnableWithResult<V> runnableWithResult, Object argument, int isolationLevel) {
+  public <V> V runInTransaction(ResultStatementRunnable<V> runnable, Object argument, int isolationLevel) {
     JdbcConnection connection = beginTransaction(isolationLevel);
     V result;
     try {
-      result = runnableWithResult.run(connection, argument);
+      result = runnable.run(connection, argument);
     }
     catch (Throwable e) {
       connection.rollback();

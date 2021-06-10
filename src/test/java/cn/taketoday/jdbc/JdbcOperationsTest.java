@@ -37,8 +37,8 @@ import cn.taketoday.jdbc.result.LazyTable;
 import cn.taketoday.jdbc.result.ResultSetIterable;
 import cn.taketoday.jdbc.result.Row;
 import cn.taketoday.jdbc.result.Table;
+import cn.taketoday.jdbc.support.ResultStatementRunnable;
 import cn.taketoday.jdbc.support.StatementRunnable;
-import cn.taketoday.jdbc.support.StatementRunnableWithResult;
 import cn.taketoday.jdbc.type.BytesInputStreamTypeHandler;
 import cn.taketoday.jdbc.type.EnumOrdinalTypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
@@ -781,7 +781,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   }
 
-  private static class runnerWithResultTester implements StatementRunnableWithResult<List<Integer>> {
+  private static class runnerWithResultTester implements ResultStatementRunnable<List<Integer>> {
 
     public List<Integer> run(JdbcConnection connection, Object argument) throws Throwable {
       String[] vals = (String[]) argument;
@@ -1532,28 +1532,26 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     final String insertsql = "insert into User(name, email, text) values (:name, :email, :text)";
 
-    jdbcOperations.withConnection(new StatementRunnable() {
-      public void run(JdbcConnection connection, Object argument) throws Throwable {
+    jdbcOperations.withConnection((connection, argument) -> {
 
-        connection.createQuery(insertsql)
-                .addParameter("name", "Sql2o")
-                .addParameter("email", "sql2o@sql2o.org")
-                .addParameter("text", "bla bla")
-                .executeUpdate();
+      connection.createQuery(insertsql)
+              .addParameter("name", "Sql2o")
+              .addParameter("email", "sql2o@sql2o.org")
+              .addParameter("text", "bla bla")
+              .executeUpdate();
 
-        connection.createQuery(insertsql)
-                .addParameter("name", "Sql2o2")
-                .addParameter("email", "sql2o@sql2o.org")
-                .addParameter("text", "bla bla")
-                .executeUpdate();
+      connection.createQuery(insertsql)
+              .addParameter("name", "Sql2o2")
+              .addParameter("email", "sql2o@sql2o.org")
+              .addParameter("text", "bla bla")
+              .executeUpdate();
 
-        connection.createQuery(insertsql)
-                .addParameter("name", "Sql2o3")
-                .addParameter("email", "sql2o@sql2o.org")
-                .addParameter("text", "bla bla")
-                .executeUpdate();
+      connection.createQuery(insertsql)
+              .addParameter("name", "Sql2o3")
+              .addParameter("email", "sql2o@sql2o.org")
+              .addParameter("text", "bla bla")
+              .executeUpdate();
 
-      }
     });
 
     List<User> users = jdbcOperations.withConnection((connection, argument) -> {
