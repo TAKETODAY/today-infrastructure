@@ -30,7 +30,7 @@ public class ConnectionTest extends TestCase {
     PreparedStatement ps = mock(PreparedStatement.class);
     when(jdbcConnection.prepareStatement(anyString())).thenReturn(ps);
 
-    DefaultSession sql2o = new DefaultSession(dataSource);
+    JdbcOperations sql2o = new JdbcOperations(dataSource);
 
     sql2o.setGeneratedKeys(false);
     JdbcConnection cn = new JdbcConnection(sql2o, false);
@@ -57,7 +57,7 @@ public class ConnectionTest extends TestCase {
     doThrow(MyException.class).when(ps).setInt(anyInt(), anyInt());
     when(jdbcConnection.prepareStatement(anyString())).thenReturn(ps);
 
-    DefaultSession sql2o = new DefaultSession(dataSource, false);
+    JdbcOperations sql2o = new JdbcOperations(dataSource, false);
     try (JdbcConnection cn = sql2o.open()) {
       cn.createQueryWithParams("select :p1 name, :p2 age", "Dmitry Alexandrov", 35).buildPreparedStatement();
       fail("exception not thrown");

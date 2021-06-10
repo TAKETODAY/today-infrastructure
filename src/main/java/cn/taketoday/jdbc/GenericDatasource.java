@@ -10,7 +10,7 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 /**
- * Used internally by sql2o, if the {@link DefaultSession#DefaultSession(String, String, String)}
+ * Used internally by sql2o, if the {@link JdbcOperations#JdbcOperations(String, String, String)}
  * constructor overload.
  */
 public class GenericDatasource implements DataSource {

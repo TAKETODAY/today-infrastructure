@@ -24,7 +24,7 @@ import cn.taketoday.jdbc.utils.JdbcUtils;
 public class JdbcConnection implements Closeable {
   private static final Logger log = LoggerFactory.getLogger(JdbcConnection.class);
 
-  private final DefaultSession session;
+  private final JdbcOperations session;
   private final ConnectionSource connectionSource;
 
   private Connection root;
@@ -40,18 +40,18 @@ public class JdbcConnection implements Closeable {
 
   private final HashSet<Statement> statements = new HashSet<>();
 
-  JdbcConnection(DefaultSession session, boolean autoClose) {
+  JdbcConnection(JdbcOperations session, boolean autoClose) {
     this(session, session.getConnectionSource(), autoClose);
   }
 
-  JdbcConnection(DefaultSession session, ConnectionSource connectionSource, boolean autoClose) {
+  JdbcConnection(JdbcOperations session, ConnectionSource connectionSource, boolean autoClose) {
     this.session = session;
     this.autoClose = autoClose;
     this.connectionSource = connectionSource;
     createConnection();
   }
 
-  JdbcConnection(DefaultSession session, Connection connection, boolean autoClose) {
+  JdbcConnection(JdbcOperations session, Connection connection, boolean autoClose) {
     this.session = session;
     this.root = connection;
     this.autoClose = autoClose;
@@ -103,7 +103,7 @@ public class JdbcConnection implements Closeable {
             .withParams(paramValues);
   }
 
-  public DefaultSession rollback() {
+  public JdbcOperations rollback() {
     rollback(true);
     return session;
   }
@@ -123,7 +123,7 @@ public class JdbcConnection implements Closeable {
     return this;
   }
 
-  public DefaultSession commit() {
+  public JdbcOperations commit() {
     commit(true);
     return session;
   }
@@ -339,7 +339,7 @@ public class JdbcConnection implements Closeable {
     return root;
   }
 
-  public DefaultSession getSession() {
+  public JdbcOperations getSession() {
     return session;
   }
 

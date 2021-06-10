@@ -36,7 +36,7 @@ import cn.taketoday.jdbc.utils.JdbcUtils;
 public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactory<T> {
 
   private final JdbcBeanMetadata metadata;
-  final TypeHandlerRegistry registry;
+  private final TypeHandlerRegistry registry;
 
   public DefaultResultSetHandlerFactory(JdbcBeanMetadata pojoMetadata, TypeHandlerRegistry registry) {
     this.metadata = pojoMetadata;

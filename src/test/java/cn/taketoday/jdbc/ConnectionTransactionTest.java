@@ -30,7 +30,7 @@ public class ConnectionTransactionTest {
     when(connectionMock.getAutoCommit()).thenReturn(true);
     when(connectionMock.isClosed()).thenReturn(false);
 
-    final DefaultSession sql2o = new DefaultSession(dataSource);
+    final JdbcOperations sql2o = new JdbcOperations(dataSource);
     final JdbcConnection sql2oConnection = sql2o.beginTransaction();
     sql2oConnection.close();
 

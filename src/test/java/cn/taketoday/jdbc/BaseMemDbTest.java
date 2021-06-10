@@ -44,14 +44,14 @@ public abstract class BaseMemDbTest {
   }
 
   protected final DbType dbType;
-  protected final DefaultSession defaultSession;
+  protected final JdbcOperations jdbcOperations;
 
   public BaseMemDbTest(DbType dbType, String testName) {
     this.dbType = dbType;
-    this.defaultSession = new DefaultSession(dbType.url, dbType.user, dbType.pass);
+    this.jdbcOperations = new JdbcOperations(dbType.url, dbType.user, dbType.pass);
 
     if (dbType == DbType.HyperSQL) {
-      try (JdbcConnection con = defaultSession.open()) {
+      try (JdbcConnection con = jdbcOperations.open()) {
         con.createQuery("set database sql syntax MSS true").executeUpdate();
       }
     }

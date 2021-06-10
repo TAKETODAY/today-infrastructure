@@ -58,7 +58,7 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.jdbc.DefaultSession;
+import cn.taketoday.jdbc.JdbcOperations;
 import cn.taketoday.jdbc.JdbcConnection;
 import cn.taketoday.jdbc.Query;
 import cn.taketoday.jdbc.utils.FeatureDetector;
@@ -80,13 +80,13 @@ public class PojoPerformanceTest {
   private final static SQLDialect JOOQ_DIALECT = SQLDialect.H2;
   private final int ITERATIONS = 5000;
 
-  private DefaultSession session;
+  private JdbcOperations session;
 
   @Before
   public void setup() {
     Logger.getLogger("org.hibernate").setLevel(Level.OFF);
 
-    session = new DefaultSession(DB_URL, DB_USER, DB_PASSWORD);
+    session = new JdbcOperations(DB_URL, DB_USER, DB_PASSWORD);
 
     createPostTable();
 

@@ -491,10 +491,10 @@ public final class Query implements AutoCloseable {
    * @return iterable results
    */
   public <T> ResultSetIterable<T> fetchLazily(final Class<T> returnType) {
-    return fetchLazily(newResultSetHandlerFactory(returnType));
+    return fetchLazily(createHandlerFactory(returnType));
   }
 
-  private <T> ResultSetHandlerFactory<T> newResultSetHandlerFactory(final Class<T> returnType) {
+  private <T> ResultSetHandlerFactory<T> createHandlerFactory(final Class<T> returnType) {
     final JdbcBeanMetadata pojoMetadata = new JdbcBeanMetadata(
             returnType, caseSensitive, autoDeriveColumnNames, columnMappings, throwOnMappingFailure);
     return new DefaultResultSetHandlerFactory<>(pojoMetadata, getTypeHandlerRegistry());
@@ -545,7 +545,7 @@ public final class Query implements AutoCloseable {
   }
 
   public <T> List<T> fetch(Class<T> returnType) {
-    return fetch(newResultSetHandlerFactory(returnType));
+    return fetch(createHandlerFactory(returnType));
   }
 
   public <T> List<T> fetch(ResultSetHandler<T> handler) {
@@ -569,7 +569,7 @@ public final class Query implements AutoCloseable {
   }
 
   public <T> T fetchFirst(Class<T> returnType) {
-    return fetchFirst(newResultSetHandlerFactory(returnType));
+    return fetchFirst(createHandlerFactory(returnType));
   }
 
   public <T> T fetchFirst(ResultSetHandler<T> handler) {
@@ -704,7 +704,7 @@ public final class Query implements AutoCloseable {
     };
   }
 
-  /************** batch stuff *******************/
+  //************** batch stuff *******************/
 
   /**
    * Sets the number of batched commands this Query allows to be added before

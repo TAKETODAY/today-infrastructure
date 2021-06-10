@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.jdbc.DefaultSession;
+import cn.taketoday.jdbc.JdbcOperations;
 import cn.taketoday.jdbc.JdbcConnection;
 import cn.taketoday.jdbc.Query;
 import cn.taketoday.jdbc.result.Table;
@@ -46,7 +46,7 @@ public class H2Tests {
   @Test
   public void testIssue155() {
 
-    DefaultSession sql2o = new DefaultSession(ds);
+    JdbcOperations sql2o = new JdbcOperations(ds);
 
     try (JdbcConnection connection = sql2o.open()) {
       int val = connection.createQuery("select 42").executeScalar(Integer.class);
@@ -61,7 +61,7 @@ public class H2Tests {
   @Test
   public void testUUID() {
 
-    try (JdbcConnection connection = new DefaultSession(ds).beginTransaction()) {
+    try (JdbcConnection connection = new JdbcOperations(ds).beginTransaction()) {
       connection.createQuery("create table uuidtest(id uuid primary key, val uuid null)").executeUpdate();
 
       UUID uuid1 = UUID.randomUUID();

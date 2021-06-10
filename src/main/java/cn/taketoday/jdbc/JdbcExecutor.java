@@ -29,7 +29,7 @@ import javax.sql.DataSource;
  * @author TODAY <br>
  *         2019-08-18 19:20
  */
-public class JdbcExecutor implements JdbcOperations {
+public class JdbcExecutor implements BasicOperation, QueryOperation, UpdateOperation, QueryOptionalOperation {
 
   private final BasicOperation basicOperation;
   private final UpdateOperation updateOperation;

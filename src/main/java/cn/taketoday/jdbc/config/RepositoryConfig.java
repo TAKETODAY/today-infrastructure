@@ -45,7 +45,7 @@ import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.GenericTypeResolver;
 import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.jdbc.DefaultSession;
+import cn.taketoday.jdbc.JdbcOperations;
 import cn.taketoday.jdbc.SqlType;
 import cn.taketoday.jdbc.annotation.Query;
 import cn.taketoday.jdbc.parsing.ParameterApplier;
@@ -102,7 +102,7 @@ public class RepositoryConfig
         return null;
       }
       final ApplicationContext context = obtainApplicationContext();
-      final DefaultSession session = new DefaultSession(context.getBean(DataSource.class));
+      final JdbcOperations session = new JdbcOperations(context.getBean(DataSource.class));
 
       final String sql = attributes.getString(Constant.VALUE);
       final SqlType sqlType = attributes.getEnum("sqlType");

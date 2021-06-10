@@ -9,7 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-import cn.taketoday.jdbc.DefaultSession;
+import cn.taketoday.jdbc.JdbcOperations;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.Query;
 
@@ -18,7 +18,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class BidirectionalConverterTest {
 
-  private DefaultSession sql2o;
+  private JdbcOperations sql2o;
   private List<UUIDWrapper> wrappers;
 
   static class UUIDWrapperComparator implements Comparator<UUIDWrapper> {
@@ -33,7 +33,7 @@ public class BidirectionalConverterTest {
 
   @Before
   public void setUp() {
-    this.sql2o = new DefaultSession("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "");
+    this.sql2o = new JdbcOperations("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "");
     this.wrappers = randomWrappers();
 
     wrappers.sort(comparator);

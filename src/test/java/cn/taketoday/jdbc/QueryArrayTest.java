@@ -27,7 +27,7 @@ public class QueryArrayTest {
 
   @Test
   public void arrayTest() throws Exception {
-    final DefaultSession database = new DefaultSession(databaseRule.getDataSource());
+    final JdbcOperations database = new JdbcOperations(databaseRule.getDataSource());
     try (final JdbcConnection connection = database.open();
             final Query query = connection.createQuery("SELECT * FROM FOO WHERE BAR IN (:bars)")) {
 
@@ -40,7 +40,7 @@ public class QueryArrayTest {
 
   @Test
   public void emptyArrayTest() throws Exception {
-    final DefaultSession database = new DefaultSession(databaseRule.getDataSource());
+    final JdbcOperations database = new JdbcOperations(databaseRule.getDataSource());
 
     try (final JdbcConnection connection = database.open();
             final Query query = connection.createQuery("SELECT * FROM FOO WHERE BAR IN (:bars)")) {

@@ -31,7 +31,7 @@ public class QueryFilterStaticFieldsTest {
 
   @Test
   public void dontTouchTheStaticFieldTest() throws Exception {
-    final DefaultSession dataBase = new DefaultSession(databaseRule.getDataSource());
+    final JdbcOperations dataBase = new JdbcOperations(databaseRule.getDataSource());
     try (final JdbcConnection connection = dataBase.open();
             final Query query = connection.createQuery("SELECT * FROM TEST WHERE ver=1")) {
       final Entity entity = query.fetchFirst(Entity.class);

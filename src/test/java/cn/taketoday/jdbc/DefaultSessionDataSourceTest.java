@@ -14,7 +14,7 @@ import javax.sql.DataSource;
  */
 public class DefaultSessionDataSourceTest extends TestCase {
 
-  private DefaultSession sql2o;
+  private JdbcOperations sql2o;
 
   private String url = "jdbc:h2:mem:test2;DB_CLOSE_DELAY=-1";
   private String user = "sa";
@@ -24,7 +24,7 @@ public class DefaultSessionDataSourceTest extends TestCase {
   protected void setUp() throws Exception {
     DataSource ds = JdbcConnectionPool.create(url, user, pass);
 
-    sql2o = new DefaultSession(ds);
+    sql2o = new JdbcOperations(ds);
   }
 
   public void testExecuteAndFetchWithNulls() {

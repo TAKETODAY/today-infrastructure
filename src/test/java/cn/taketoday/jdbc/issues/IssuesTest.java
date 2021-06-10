@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import cn.taketoday.jdbc.DefaultSession;
+import cn.taketoday.jdbc.JdbcOperations;
 import cn.taketoday.jdbc.JdbcConnection;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.result.Row;
@@ -42,7 +42,7 @@ public class IssuesTest {
                     });
   }
 
-  private DefaultSession sql2o;
+  private JdbcOperations sql2o;
   private String url;
   private String user;
   private String pass;
@@ -57,7 +57,7 @@ public class IssuesTest {
       }
     }
 
-    this.sql2o = new DefaultSession(url, user, pass);
+    this.sql2o = new JdbcOperations(url, user, pass);
 
     this.url = url;
     this.user = user;
@@ -81,7 +81,7 @@ public class IssuesTest {
    */
   @Test
   public void testSetterPriority() {
-    DefaultSession sql2o = new DefaultSession(url, user, pass);
+    JdbcOperations sql2o = new JdbcOperations(url, user, pass);
     Issue1Pojo pojo = sql2o.createQuery("select 1 val from (values(0))")
             .fetchFirst(Issue1Pojo.class);
 
@@ -95,7 +95,7 @@ public class IssuesTest {
    */
   @Test
   public void testForFieldDoesNotExistException() {
-    DefaultSession sql2o = new DefaultSession(url, user, pass);
+    JdbcOperations sql2o = new JdbcOperations(url, user, pass);
 
     try {
       KeyValueEntity pojo = sql2o.createQuery("select 1 id, 'something' foo from (values(0))").fetchFirst(

@@ -89,7 +89,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
     System.out.println("Datasource initialized.");
 
-    DefaultSession jndiSql2o = new DefaultSession("Sql2o");
+    JdbcOperations jndiSql2o = new JdbcOperations("Sql2o");
 
     assertTrue(jndiSql2o != null);
   }
@@ -98,7 +98,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
   public void testExecuteAndFetch() {
     createAndFillUserTable();
 
-    try (JdbcConnection con = defaultSession.open()) {
+    try (JdbcConnection con = jdbcOperations.open()) {
 
       Date before = new Date();
       List<User> allUsers = con.createQuery("select * from User").fetch(User.class);
@@ -129,10 +129,10 @@ public class DefaultSessionTest extends BaseMemDbTest {
             "text varchar(255), " +
             "aNumber int, " +
             "aLongNumber bigint)";
-    try (JdbcConnection con = defaultSession.open()) {
+    try (JdbcConnection con = jdbcOperations.open()) {
       con.createQuery(sql, "testExecuteAndFetchWithNulls").executeUpdate();
 
-      JdbcConnection connection = defaultSession.beginTransaction();
+      JdbcConnection connection = jdbcOperations.beginTransaction();
       Query insQuery = connection.createQuery(
               "insert into testExecWithNullsTbl (text, aNumber, aLongNumber) values(:text, :number, :lnum)");
       insQuery.addParameter("text", "some text").addParameter("number", 2).addParameter("lnum", 10L).executeUpdate();
@@ -165,7 +165,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
   @Test
   public void testBatch() {
-    defaultSession.createQuery(
+    jdbcOperations.createQuery(
             "create table User(\n" +
                     "id int identity primary key,\n" +
                     "name varchar(20),\n" +
@@ -174,7 +174,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
     String insQuery = "insert into User(name, email, text) values (:name, :email, :text)";
 
-    JdbcConnection con = defaultSession.beginTransaction();
+    JdbcConnection con = jdbcOperations.beginTransaction();
     int[] inserted = con.createQuery(insQuery).addParameter("name", "test").addParameter("email", "test@test.com").addParameter("text",
                                                                                                                                 "something exciting")
             .addToBatch()
@@ -196,10 +196,10 @@ public class DefaultSessionTest extends BaseMemDbTest {
   public void testExecuteScalar() {
     createAndFillUserTable();
 
-    Object o = defaultSession.createQuery("select text from User where id = 2").executeScalar();
+    Object o = jdbcOperations.createQuery("select text from User where id = 2").executeScalar();
     assertTrue(o.getClass().equals(String.class));
 
-    Object o2 = defaultSession.createQuery("select 10").executeScalar();
+    Object o2 = jdbcOperations.createQuery("select 10").executeScalar();
     assertEquals(o2, 10);
 
     deleteUserTable();
@@ -208,7 +208,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
   @Test
   public void testBatchNoTransaction() {
 
-    defaultSession.createQuery(
+    jdbcOperations.createQuery(
             "create table User(\n" +
                     "id int identity primary key,\n" +
                     "name varchar(20),\n" +
@@ -217,7 +217,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
     String insQuery = "insert into User(name, email, text) values (:name, :email, :text)";
 
-    defaultSession.createQuery(insQuery)
+    jdbcOperations.createQuery(insQuery)
             .addParameter("name", "test")
             .addParameter("email", "test@test.com")
             .addParameter("text", "something exciting")
@@ -240,11 +240,11 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
   @Test
   public void testCaseInsensitive() {
-    defaultSession
+    jdbcOperations
             .createQuery("create table testCI(id2 int primary key, value2 varchar(20), sometext varchar(20), valwithgetter varchar(20))")
             .executeUpdate();
 
-    Query query = defaultSession.createQuery(
+    Query query = jdbcOperations.createQuery(
             "insert into testCI(id2, value2, sometext, valwithgetter) values(:id, :value, :someText, :valwithgetter)");
     for (int i = 0; i < 20; i++) {
       query.addParameter("id", i).addParameter("value", "some text " + i).addParameter("someText", "whatever " + i).addParameter(
@@ -254,19 +254,19 @@ public class DefaultSessionTest extends BaseMemDbTest {
     }
     query.executeBatch();
 
-    List<CIEntity> ciEntities = defaultSession.createQuery("select * from testCI").setCaseSensitive(false).fetch(CIEntity.class);
+    List<CIEntity> ciEntities = jdbcOperations.createQuery("select * from testCI").setCaseSensitive(false).fetch(CIEntity.class);
 
     assertTrue(ciEntities.size() == 20);
 
     // test defaultCaseSensitive;
-    defaultSession.setDefaultCaseSensitive(false);
-    List<CIEntity> ciEntities2 = defaultSession.createQuery("select * from testCI").fetch(CIEntity.class);
+    jdbcOperations.setDefaultCaseSensitive(false);
+    List<CIEntity> ciEntities2 = jdbcOperations.createQuery("select * from testCI").fetch(CIEntity.class);
     assertTrue(ciEntities2.size() == 20);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testSetMaxBatchRecords() {
-    try (JdbcConnection conn = this.defaultSession.open()) {
+    try (JdbcConnection conn = this.jdbcOperations.open()) {
       Query q = conn.createQuery("select 'test'");
       q.setMaxBatchRecords(20);
       assertTrue(q.getMaxBatchRecords() == 20);
@@ -280,14 +280,14 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
   @Test
   public void testBatchWithMaxBatchRecords() {
-    try (JdbcConnection connection = defaultSession.open()) {
+    try (JdbcConnection connection = jdbcOperations.open()) {
       createAndFillUserTable(connection, true, 50);
       genericTestOnUserData(connection);
     }
 
     //also test with an odd number
 
-    try (JdbcConnection connection = defaultSession.open()) {
+    try (JdbcConnection connection = jdbcOperations.open()) {
       createAndFillUserTable(connection, true, 29);
       genericTestOnUserData(connection);
     }
@@ -295,7 +295,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
   @Test
   public void testExecuteAndFetchResultSet() throws SQLException {
-    List<Integer> list = defaultSession.createQuery(
+    List<Integer> list = jdbcOperations.createQuery(
             "select 1 val from (values(0)) union select 2 from (values(0)) union select 3 from (values(0))")
             .executeScalarList(Integer.class);
 
@@ -306,7 +306,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
   @Test
   public void testExecuteScalarListWithNulls() throws SQLException {
-    List<String> list = defaultSession.createQuery("select val from ( " +
+    List<String> list = jdbcOperations.createQuery("select val from ( " +
                                                            "select 1 ord, null val from (values(0)) union " +
                                                            "select 2 ord, 'one' from (values(0)) union " +
                                                            "select 3 ord, null from (values(0)) union " +
@@ -325,9 +325,9 @@ public class DefaultSessionTest extends BaseMemDbTest {
   @Test
   public void testJodaTime() {
 
-    defaultSession.createQuery("create table testjoda(id int primary key, joda1 datetime, joda2 datetime)").executeUpdate();
+    jdbcOperations.createQuery("create table testjoda(id int primary key, joda1 datetime, joda2 datetime)").executeUpdate();
 
-    defaultSession.createQuery("insert into testjoda(id, joda1, joda2) values(:id, :joda1, :joda2)")
+    jdbcOperations.createQuery("insert into testjoda(id, joda1, joda2) values(:id, :joda1, :joda2)")
             .addParameter("id", 1).addParameter("joda1", new DateTime()).addParameter("joda2", new DateTime().plusDays(-1)).addToBatch()
             .addParameter("id", 2).addParameter("joda1", new DateTime().plusYears(1)).addParameter("joda2", new DateTime().plusDays(-2))
             .addToBatch()
@@ -335,7 +335,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
             .addToBatch()
             .executeBatch();
 
-    List<JodaEntity> list = defaultSession.createQuery("select * from testjoda").fetch(JodaEntity.class);
+    List<JodaEntity> list = jdbcOperations.createQuery("select * from testjoda").fetch(JodaEntity.class);
 
     assertTrue(list.size() == 3);
     assertTrue(list.get(0).getJoda2().isBeforeNow());
@@ -344,7 +344,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
   @Test
   public void testColumnAnnotation() {
-    try (JdbcConnection connection = defaultSession.open()) {
+    try (JdbcConnection connection = jdbcOperations.open()) {
       connection.createQuery("create table test_column_annotation(id int primary key, text_col varchar(20))").executeUpdate();
 
       connection.createQuery("insert into test_column_annotation(id, text_col) values(:id, :text)")
@@ -365,17 +365,17 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
   @Test
   public void testUtilDate() {
-    defaultSession.createQuery("create table testutildate(id int primary key, d1 datetime, d2 timestamp, d3 date)").executeUpdate();
+    jdbcOperations.createQuery("create table testutildate(id int primary key, d1 datetime, d2 timestamp, d3 date)").executeUpdate();
 
     Date now = new Date();
 
-    defaultSession.createQuery("insert into testutildate(id, d1, d2, d3) values(:id, :d1, :d2, :d3)")
+    jdbcOperations.createQuery("insert into testutildate(id, d1, d2, d3) values(:id, :d1, :d2, :d3)")
             .addParameter("id", 1).addParameter("d1", now).addParameter("d2", now).addParameter("d3", now).addToBatch()
             .addParameter("id", 2).addParameter("d1", now).addParameter("d2", now).addParameter("d3", now).addToBatch()
             .addParameter("id", 3).addParameter("d1", now).addParameter("d2", now).addParameter("d3", now).addToBatch()
             .executeBatch();
 
-    List<UtilDateEntity> list = defaultSession.createQuery("select * from testutildate").fetch(UtilDateEntity.class);
+    List<UtilDateEntity> list = jdbcOperations.createQuery("select * from testutildate").fetch(UtilDateEntity.class);
 
     assertTrue(list.size() == 3);
 
@@ -392,7 +392,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
   public void testConversion() {
 
     String sql = "select cast(1 as smallint) as val1, 2 as val2 from (values(0)) union select cast(3 as smallint) as val1, 4 as val2 from (values(0))";
-    List<TypeConvertEntity> entities = defaultSession.createQuery(sql).fetch(TypeConvertEntity.class);
+    List<TypeConvertEntity> entities = jdbcOperations.createQuery(sql).fetch(TypeConvertEntity.class);
 
     assertTrue(entities.size() == 2);
   }
@@ -400,12 +400,12 @@ public class DefaultSessionTest extends BaseMemDbTest {
   @Test
   public void testUpdateNoTransaction() throws SQLException {
     String ddlQuery = "create table testUpdateNoTransaction(id int primary key, value varchar(50))";
-    JdbcConnection connection = defaultSession.createQuery(ddlQuery).executeUpdate();
+    JdbcConnection connection = jdbcOperations.createQuery(ddlQuery).executeUpdate();
 
     assertTrue(connection.getJdbcConnection().isClosed());
 
     String insQuery = "insert into testUpdateNoTransaction(id, value) values (:id, :value)";
-    defaultSession.createQuery(insQuery).addParameter("id", 1).addParameter("value", "test1").executeUpdate()
+    jdbcOperations.createQuery(insQuery).addParameter("id", 1).addParameter("value", "test1").executeUpdate()
             .createQuery(insQuery).addParameter("id", 2).addParameter("value", "val2").executeUpdate();
 
     assertTrue(connection.getJdbcConnection().isClosed());
@@ -413,27 +413,27 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
   @Test
   public void testNullDate() {
-    defaultSession.createQuery("create table nullDateTest(id integer primary key, somedate datetime)").executeUpdate();
+    jdbcOperations.createQuery("create table nullDateTest(id integer primary key, somedate datetime)").executeUpdate();
 
-    defaultSession.createQuery("insert into nullDateTest(id, somedate) values(:id, :date)")
+    jdbcOperations.createQuery("insert into nullDateTest(id, somedate) values(:id, :date)")
             .addParameter("id", 1)
             .addParameter("date", (Date) null).executeUpdate();
 
-    Date d = (Date) defaultSession.createQuery("select somedate from nullDateTest where id = 1").executeScalar();
+    Date d = (Date) jdbcOperations.createQuery("select somedate from nullDateTest where id = 1").executeScalar();
     assertNull(d);
   }
 
   @Test
   public void testGetResult() {
 
-    defaultSession.createQuery("create table get_result_test(id integer primary key, value varchar(20))").executeUpdate();
+    jdbcOperations.createQuery("create table get_result_test(id integer primary key, value varchar(20))").executeUpdate();
 
     String insertSql = "insert into get_result_test(id, value) " +
             "select 1, 'hello' from (values(0)) union " +
             "select 2, 'hello2' from (values(0)) union " +
             "select 3, 'hello3' from (values(0))";
 
-    int result = defaultSession.createQuery(insertSql).executeUpdate().getResult();
+    int result = jdbcOperations.createQuery(insertSql).executeUpdate().getResult();
 
     assertEquals(3, result);
   }
@@ -441,7 +441,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
   @Test
   public void testGetKeys() {
 
-    defaultSession.createQuery("create table get_keys_test(id integer identity primary key, value varchar(20))").executeUpdate();
+    jdbcOperations.createQuery("create table get_keys_test(id integer identity primary key, value varchar(20))").executeUpdate();
 
     String insertSql = "insert into get_keys_test(value) values(:val)";
 //        try{
@@ -452,13 +452,13 @@ public class DefaultSessionTest extends BaseMemDbTest {
 //            assertTrue(ex.getMessage().contains("executeUpdate(true)"));
 //        }
 
-    Integer key = (Integer) defaultSession.createQuery(insertSql).addParameter("val", "something").executeUpdate().getKey();
+    Integer key = (Integer) jdbcOperations.createQuery(insertSql).addParameter("val", "something").executeUpdate().getKey();
 
     assertNotNull(key);
     assertTrue(key >= 0);
 
     String multiInsertSql = "insert into get_keys_test(value) select 'a val' col1 from (values(0)) union select 'another val' col1 from (values(0))";
-    Object[] keys = defaultSession.createQuery(multiInsertSql).executeUpdate().getKeys();
+    Object[] keys = jdbcOperations.createQuery(multiInsertSql).executeUpdate().getKeys();
 
     assertNotNull(keys);
 
@@ -475,7 +475,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
   @Test
   public void testExecuteBatchGetKeys() {
-    defaultSession.createQuery("create table get_keys_test2(id integer identity primary key, value varchar(20))").executeUpdate();
+    jdbcOperations.createQuery("create table get_keys_test2(id integer identity primary key, value varchar(20))").executeUpdate();
 
     String insertSql = "insert into get_keys_test2(value) values(:val)";
 
@@ -487,7 +487,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
       }
     };
 
-    Query query = defaultSession.createQuery(insertSql, true);
+    Query query = jdbcOperations.createQuery(insertSql, true);
 
     for (String val : vals) {
       query.addParameter("val", val);
@@ -515,9 +515,9 @@ public class DefaultSessionTest extends BaseMemDbTest {
   @Test
   public void testRollback() {
 
-    defaultSession.createQuery("create table test_rollback_table(id integer identity primary key, value varchar(25))").executeUpdate();
+    jdbcOperations.createQuery("create table test_rollback_table(id integer identity primary key, value varchar(25))").executeUpdate();
 
-    defaultSession
+    jdbcOperations
             //first insert something, and commit it.
             .beginTransaction()
             .createQuery("insert into test_rollback_table(value) values (:val)")
@@ -531,7 +531,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
             .addParameter("val", "something to rollback")
             .executeUpdate()
             .rollback();
-    long rowCount = (Long) defaultSession.createQuery("select count(*) from test_rollback_table").executeScalar();
+    long rowCount = (Long) jdbcOperations.createQuery("select count(*) from test_rollback_table").executeScalar();
 
     assertEquals(1, rowCount);
   }
@@ -539,15 +539,15 @@ public class DefaultSessionTest extends BaseMemDbTest {
   @Test
   public void testBigDecimals() {
 
-    defaultSession.createQuery("create table bigdectesttable (id integer identity primary key, val1 numeric(5,3), val2 integer)")
+    jdbcOperations.createQuery("create table bigdectesttable (id integer identity primary key, val1 numeric(5,3), val2 integer)")
             .executeUpdate();
 
-    defaultSession.createQuery("insert into bigdectesttable(val1, val2) values(:val1, :val2)")
+    jdbcOperations.createQuery("insert into bigdectesttable(val1, val2) values(:val1, :val2)")
             .addParameter("val1", 1.256)
             .addParameter("val2", 4)
             .executeUpdate();
 
-    BigDecimalPojo pojo = defaultSession.createQuery("select * from bigdectesttable")
+    BigDecimalPojo pojo = jdbcOperations.createQuery("select * from bigdectesttable")
             .fetchFirst(BigDecimalPojo.class);
 
     assertEquals(new BigDecimal("1.256"), pojo.val1);
@@ -556,7 +556,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
   @Test
   public void testQueryDbMappings() {
-    Entity entity = defaultSession
+    Entity entity = jdbcOperations
             .createQuery("select 1 as id, 'something' as caption, cast('2011-01-01' as date) as theTime from (values(0))")
             .addColumnMapping("caption", "text")
             .addColumnMapping("theTime", "time")
@@ -569,7 +569,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
   @Test
   public void testGlobalDbMappings() {
-    DefaultSession sql2o1 = new DefaultSession(dbType.url, dbType.user, dbType.pass);
+    JdbcOperations sql2o1 = new JdbcOperations(dbType.url, dbType.user, dbType.pass);
 
     Map<String, String> defaultColMaps = new HashMap<>();
     defaultColMaps.put("caption", "text");
@@ -588,7 +588,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
   @Test
   public void testSetPrivateFields() {
-    EntityWithPrivateFields entity = defaultSession.createQuery("select 1 id, 'hello' value from (values(0))")
+    EntityWithPrivateFields entity = jdbcOperations.createQuery("select 1 id, 'hello' value from (values(0))")
             .fetchFirst(EntityWithPrivateFields.class);
 
     assertEquals(1, entity.getId());
@@ -597,13 +597,13 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
   @Test
   public void testFetchTable() {
-    defaultSession.createQuery("create table tabletest(id integer identity primary key, value varchar(20), value2 decimal(5,1))")
+    jdbcOperations.createQuery("create table tabletest(id integer identity primary key, value varchar(20), value2 decimal(5,1))")
             .executeUpdate();
-    defaultSession.createQuery("insert into tabletest(value,value2) values (:value, :value2)")
+    jdbcOperations.createQuery("insert into tabletest(value,value2) values (:value, :value2)")
             .addParameter("value", "something").addParameter("value2", new BigDecimal("3.4")).addToBatch()
             .addParameter("value", "bla").addParameter("value2", new BigDecimal("5.5")).addToBatch().executeBatch();
 
-    Table table = defaultSession.createQuery("select * from tabletest order by id").fetchTable();
+    Table table = jdbcOperations.createQuery("select * from tabletest order by id").fetchTable();
 
     assertEquals(3, table.columns().size());
     assertEquals("ID", table.columns().get(0).getName());
@@ -629,7 +629,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
     createAndFillUserTable();
 
     List<Map<String, Object>> rows;
-    try (JdbcConnection con = defaultSession.open()) {
+    try (JdbcConnection con = jdbcOperations.open()) {
       Table table = con.createQuery("select * from user").fetchTable();
 
       rows = table.asList();
@@ -651,7 +651,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
   @Test
   public void testStringConversion() {
     StringConversionPojo pojo =
-            defaultSession.createQuery("select '1' val1, '2  ' val2, '' val3, '' val4, null val5 from (values(0))")
+            jdbcOperations.createQuery("select '1' val1, '2  ' val2, '' val3, '' val4, null val5 from (values(0))")
                     .fetchFirst(StringConversionPojo.class);
 
     assertEquals((Integer) 1, pojo.val1);
@@ -663,7 +663,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
   @Test
   public void testSuperPojo() {
-    SuperPojo pojo = defaultSession.createQuery("select 1 id, 'something' value from (values(0))")
+    SuperPojo pojo = jdbcOperations.createQuery("select 1 id, 'something' value from (values(0))")
             .fetchFirst(SuperPojo.class);
 
     assertEquals(1, pojo.getId());
@@ -672,7 +672,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
   @Test
   public void testComplexTypes() {
-    ComplexEntity pojo = defaultSession.createQuery("select 1 id, 1 \"entity.id\", 'something' \"entity.value\" from (values(0))").setName(
+    ComplexEntity pojo = jdbcOperations.createQuery("select 1 id, 1 \"entity.id\", 'something' \"entity.value\" from (values(0))").setName(
             "testComplexTypes")
             .fetchFirst(ComplexEntity.class);
 
@@ -711,12 +711,12 @@ public class DefaultSessionTest extends BaseMemDbTest {
   @Test
   public void testRunInsideTransaction() {
 
-    defaultSession.createQuery("create table runinsidetransactiontable(id integer identity primary key, value varchar(50))")
+    jdbcOperations.createQuery("create table runinsidetransactiontable(id integer identity primary key, value varchar(50))")
             .executeUpdate();
     boolean failed = false;
 
     try {
-      defaultSession.runInTransaction(new StatementRunnable() {
+      jdbcOperations.runInTransaction(new StatementRunnable() {
         public void run(JdbcConnection connection, Object argument) throws Throwable {
           connection.createQuery("insert into runinsidetransactiontable(value) values(:value)")
                   .addParameter("value", "test").executeUpdate();
@@ -731,22 +731,22 @@ public class DefaultSessionTest extends BaseMemDbTest {
     }
 
     assertTrue(failed);
-    long rowCount = (Long) defaultSession.createQuery("select count(*) from runinsidetransactiontable").executeScalar();
+    long rowCount = (Long) jdbcOperations.createQuery("select count(*) from runinsidetransactiontable").executeScalar();
     assertEquals(0, rowCount);
 
-    defaultSession.runInTransaction(new StatementRunnable() {
+    jdbcOperations.runInTransaction(new StatementRunnable() {
       public void run(JdbcConnection connection, Object argument) throws Throwable {
         connection.createQuery("insert into runinsidetransactiontable(value) values(:value)")
                 .addParameter("value", "test").executeUpdate();
       }
     });
 
-    rowCount = (Long) defaultSession.createQuery("select count(*) from runinsidetransactiontable").executeScalar();
+    rowCount = (Long) jdbcOperations.createQuery("select count(*) from runinsidetransactiontable").executeScalar();
     assertEquals(1, rowCount);
 
     String argument = "argument test";
 
-    defaultSession.runInTransaction(new StatementRunnable() {
+    jdbcOperations.runInTransaction(new StatementRunnable() {
       public void run(JdbcConnection connection, Object argument) {
         Integer id = connection.createQuery("insert into runinsidetransactiontable(value) values(:value)")
                 .addParameter("value", argument)
@@ -760,13 +760,13 @@ public class DefaultSessionTest extends BaseMemDbTest {
       }
     }, argument);
 
-    rowCount = (Long) defaultSession.createQuery("select count(*) from runinsidetransactiontable").executeScalar();
+    rowCount = (Long) jdbcOperations.createQuery("select count(*) from runinsidetransactiontable").executeScalar();
     assertEquals(2, rowCount);
   }
 
   @Test
   public void testRunInsideTransactionWithResult() {
-    defaultSession.createQuery("create table testRunInsideTransactionWithResultTable(id integer identity primary key, value varchar(50))")
+    jdbcOperations.createQuery("create table testRunInsideTransactionWithResultTable(id integer identity primary key, value varchar(50))")
             .executeUpdate();
 
   }
@@ -790,25 +790,25 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
   @Test
   public void testDynamicExecuteScalar() {
-    Object origVal = defaultSession.createQuery("select 1").executeScalar();
+    Object origVal = jdbcOperations.createQuery("select 1").executeScalar();
     assertTrue(Integer.class.equals(origVal.getClass()));
     assertEquals(1, origVal);
 
-    Long intVal = defaultSession.createQuery("select 1").executeScalar(Long.class);
+    Long intVal = jdbcOperations.createQuery("select 1").executeScalar(Long.class);
     assertEquals((Long) 1l, intVal);
 
-    Short shortVal = defaultSession.createQuery("select 2").executeScalar(Short.class);
+    Short shortVal = jdbcOperations.createQuery("select 2").executeScalar(Short.class);
     Short expected = 2;
     assertEquals(expected, shortVal);
   }
 
   @Test
   public void testUpdateWithNulls() {
-    defaultSession.createQuery("create table testUpdateWithNulls_2(id integer identity primary key, value integer)").executeUpdate();
+    jdbcOperations.createQuery("create table testUpdateWithNulls_2(id integer identity primary key, value integer)").executeUpdate();
 
     Integer nullInt = null;
 
-    defaultSession
+    jdbcOperations
             .createQuery("insert into testUpdateWithNulls_2(value) values(:val)").addParameter("val", 2).addToBatch().addParameter("val",
                                                                                                                                    nullInt)
             .addToBatch().executeBatch();
@@ -816,10 +816,10 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
   @Test
   public void testExceptionInRunnable() {
-    defaultSession.createQuery("create table testExceptionInRunnable(id integer primary key, value varchar(20))").executeUpdate();
+    jdbcOperations.createQuery("create table testExceptionInRunnable(id integer primary key, value varchar(20))").executeUpdate();
 
     try {
-      defaultSession.runInTransaction(new StatementRunnable() {
+      jdbcOperations.runInTransaction(new StatementRunnable() {
         public void run(JdbcConnection connection, Object argument) throws Throwable {
           connection.createQuery("insert into testExceptionInRunnable(id, value) values(:id, :val)")
                   .addParameter("id", 1)
@@ -835,10 +835,10 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
     }
 
-    int c = defaultSession.createQuery("select count(*) from testExceptionInRunnable").executeScalar(Integer.class);
+    int c = jdbcOperations.createQuery("select count(*) from testExceptionInRunnable").executeScalar(Integer.class);
     assertEquals(0, c);
 
-    defaultSession.runInTransaction(new StatementRunnable() {
+    jdbcOperations.runInTransaction(new StatementRunnable() {
       public void run(JdbcConnection connection, Object argument) throws Throwable {
         connection.createQuery("insert into testExceptionInRunnable(id, value) values(:id, :val)")
                 .addParameter("id", 1)
@@ -855,7 +855,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
       }
     });
 
-    c = defaultSession.createQuery("select count(*) from testExceptionInRunnable").executeScalar(Integer.class);
+    c = jdbcOperations.createQuery("select count(*) from testExceptionInRunnable").executeScalar(Integer.class);
     assertEquals(1, c);
 
   }
@@ -872,25 +872,25 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
   @Test
   public void testEnums() {
-    defaultSession.createQuery("create table EnumTest(id int identity primary key, enum_val varchar(10), enum_val2 int) ").executeUpdate();
+    jdbcOperations.createQuery("create table EnumTest(id int identity primary key, enum_val varchar(10), enum_val2 int) ").executeUpdate();
 
-    defaultSession.createQuery("insert into EnumTest(enum_val, enum_val2) values (:val, :val2)")
+    jdbcOperations.createQuery("insert into EnumTest(enum_val, enum_val2) values (:val, :val2)")
             .addParameter("val", TestEnum.HELLO).addParameter("val2", TestEnum.HELLO.ordinal()).addToBatch()
             .addParameter("val", TestEnum.WORLD).addParameter("val2", TestEnum.WORLD.ordinal()).addToBatch().executeBatch();
 
-    TestEnum testEnum = defaultSession.createQuery("select 'HELLO' from (values(0))")
+    TestEnum testEnum = jdbcOperations.createQuery("select 'HELLO' from (values(0))")
             .executeScalar(TestEnum.class);
     assertThat(testEnum, is(TestEnum.HELLO));
 
-    TestEnum testEnum2 = defaultSession.createQuery("select NULL from (values(0))")
+    TestEnum testEnum2 = jdbcOperations.createQuery("select NULL from (values(0))")
             .executeScalar(TestEnum.class);
     assertThat(testEnum2, is(nullValue()));
 
     final TypeHandlerRegistry handlerRegistry = new TypeHandlerRegistry();
     handlerRegistry.setDefaultEnumTypeHandler(EnumOrdinalTypeHandler.class);
-    defaultSession.setTypeHandlerRegistry(handlerRegistry);
+    jdbcOperations.setTypeHandlerRegistry(handlerRegistry);
 
-    List<EntityWithEnum> list = defaultSession.createQuery("select id, enum_val val, enum_val2 val2 from EnumTest")
+    List<EntityWithEnum> list = jdbcOperations.createQuery("select id, enum_val val, enum_val2 val2 from EnumTest")
             .fetch(EntityWithEnum.class);
 
     assertThat(list.get(0).val, is(TestEnum.HELLO));
@@ -909,17 +909,17 @@ public class DefaultSessionTest extends BaseMemDbTest {
   public void testBooleanConverter() {
     String sql = "select true as val1, false as val2 from (values(0))";
 
-    BooleanPOJO pojo = defaultSession.createQuery(sql).fetchFirst(BooleanPOJO.class);
+    BooleanPOJO pojo = jdbcOperations.createQuery(sql).fetchFirst(BooleanPOJO.class);
     assertTrue(pojo.val1);
     assertFalse(pojo.val2);
 
     String sql2 = "select null as val1, null as val2 from (values(0))";
-    BooleanPOJO pojo2 = defaultSession.createQuery(sql2).fetchFirst(BooleanPOJO.class);
+    BooleanPOJO pojo2 = jdbcOperations.createQuery(sql2).fetchFirst(BooleanPOJO.class);
     assertFalse(pojo2.val1);
     assertNull(pojo2.val2);
 
     String sql3 = "select 'false' as val1, 'true' as val2 from (values(0))";
-    BooleanPOJO pojo3 = defaultSession.createQuery(sql3).fetchFirst(BooleanPOJO.class);
+    BooleanPOJO pojo3 = jdbcOperations.createQuery(sql3).fetchFirst(BooleanPOJO.class);
     assertFalse(pojo3.val1);
     assertTrue(pojo3.val2);
   }
@@ -937,23 +937,23 @@ public class DefaultSessionTest extends BaseMemDbTest {
   @Test
   public void testBlob() throws IOException {
     String createSql = "create table blobtbl2(id int identity primary key, data blob)";
-    defaultSession.createQuery(createSql).executeUpdate();
+    jdbcOperations.createQuery(createSql).executeUpdate();
 
     String dataString = "test";
     byte[] data = dataString.getBytes();
     String insertSql = "insert into blobtbl2(data) values(:data)";
-    defaultSession.createQuery(insertSql).addParameter("data", data).executeUpdate();
+    jdbcOperations.createQuery(insertSql).addParameter("data", data).executeUpdate();
 
     // select
     String sql = "select id, data from blobtbl2";
-    BlobPOJO1 pojo1 = defaultSession.createQuery(sql)
+    BlobPOJO1 pojo1 = jdbcOperations.createQuery(sql)
             .fetchFirst(BlobPOJO1.class);
 
     final TypeHandlerRegistry handlerRegistry = new TypeHandlerRegistry();
     handlerRegistry.register(InputStream.class, new BytesInputStreamTypeHandler());
-    defaultSession.setTypeHandlerRegistry(handlerRegistry);
+    jdbcOperations.setTypeHandlerRegistry(handlerRegistry);
 
-    BlobPOJO2 pojo2 = defaultSession.createQuery(sql)
+    BlobPOJO2 pojo2 = jdbcOperations.createQuery(sql)
             .fetchFirst(BlobPOJO2.class);
 
     String pojo1DataString = new String(pojo1.data);
@@ -970,7 +970,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
   @Test
   public void testInputStream() throws IOException {
     String createSql = "create table blobtbl(id int identity primary key, data blob)";
-    defaultSession.createQuery(createSql).executeUpdate();
+    jdbcOperations.createQuery(createSql).executeUpdate();
 
     String dataString = "test";
     byte[] data = dataString.getBytes();
@@ -978,12 +978,12 @@ public class DefaultSessionTest extends BaseMemDbTest {
     InputStream inputStream = new ByteArrayInputStream(data);
 
     String insertSql = "insert into blobtbl(data) values(:data)";
-    defaultSession.createQuery(insertSql).addParameter("data", inputStream).executeUpdate();
+    jdbcOperations.createQuery(insertSql).addParameter("data", inputStream).executeUpdate();
 
     // select
     String sql = "select id, data from blobtbl";
-    BlobPOJO1 pojo1 = defaultSession.createQuery(sql).fetchFirst(BlobPOJO1.class);
-    BlobPOJO2 pojo2 = defaultSession.createQuery(sql).fetchFirst(BlobPOJO2.class);
+    BlobPOJO1 pojo1 = jdbcOperations.createQuery(sql).fetchFirst(BlobPOJO1.class);
+    BlobPOJO2 pojo2 = jdbcOperations.createQuery(sql).fetchFirst(BlobPOJO2.class);
 
     String pojo1DataString = new String(pojo1.data);
     assertThat(dataString, is(equalTo(pojo1DataString)));
@@ -997,18 +997,18 @@ public class DefaultSessionTest extends BaseMemDbTest {
   public void testTimeConverter() {
     String sql = "select current_time as col1 from (values(0))";
 
-    Time sqlTime = defaultSession.createQuery(sql).executeScalar(Time.class);
+    Time sqlTime = jdbcOperations.createQuery(sql).executeScalar(Time.class);
 
     Period p = new Period(new LocalTime(sqlTime), new LocalTime());
 
     assertThat(sqlTime, is(notNullValue()));
     assertTrue(p.getMinutes() == 0);
 
-    Date date = defaultSession.createQuery(sql)
+    Date date = jdbcOperations.createQuery(sql)
             .executeScalar(Date.class);
     assertThat(date, is(notNullValue()));
 
-    LocalTime jodaTime = defaultSession.createQuery(sql)
+    LocalTime jodaTime = jdbcOperations.createQuery(sql)
             .executeScalar(LocalTime.class);
     assertTrue(jodaTime.getMillisOfDay() > 0);
     assertThat(jodaTime.getHourOfDay(), is(equalTo(new LocalTime().getHourOfDay())));
@@ -1063,7 +1063,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
   @Test
   public void testBindPojo() {
     String createSql = "create table bindtbl(id int identity primary key, data1 varchar(10), data2 timestamp, data3 bigint)";
-    defaultSession.createQuery(createSql).executeUpdate();
+    jdbcOperations.createQuery(createSql).executeUpdate();
 
     // Anonymous class inherits POJO
     BindablePojo pojo1 = new BindablePojo() {
@@ -1077,12 +1077,12 @@ public class DefaultSessionTest extends BaseMemDbTest {
     };
 
     String insertSql = "insert into bindtbl(data1, data2, data3) values(:data1, :data2, :data3)";
-    defaultSession.createQuery(insertSql)
+    jdbcOperations.createQuery(insertSql)
             .bind(pojo1)
             .executeUpdate();
 
     String selectSql = "select data1, data2, data3 from bindtbl";
-    BindablePojo pojo2 = defaultSession.createQuery(selectSql)
+    BindablePojo pojo2 = jdbcOperations.createQuery(selectSql)
             .fetchFirst(BindablePojo.class);
 
     assertTrue(pojo1.equals(pojo2));
@@ -1091,7 +1091,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
   @Test
   public void testRowGetObjectWithConverters() {
     String sql = "select 1 col1, '23' col2 from (values(0))";
-    Table t = defaultSession.createQuery(sql).fetchTable();
+    Table t = jdbcOperations.createQuery(sql).fetchTable();
     Row r = t.rows().get(0);
 
     String col1AsString = r.getObject("col1", String.class);
@@ -1115,7 +1115,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
   public void testExecuteAndFetchLazy() {
     createAndFillUserTable();
 
-    ResultSetIterable<User> allUsers = defaultSession.createQuery("select * from User").fetchLazily(User.class);
+    ResultSetIterable<User> allUsers = jdbcOperations.createQuery("select * from User").fetchLazily(User.class);
 
     // read in batches, because maybe we are bulk exporting and can't fit them all into a list
     int totalSize = 0;
@@ -1140,7 +1140,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
   public void testResultSetIterator_multipleHasNextWorks() {
     createAndFillUserTable();
 
-    ResultSetIterable<User> allUsers = defaultSession.createQuery("select * from User").fetchLazily(User.class);
+    ResultSetIterable<User> allUsers = jdbcOperations.createQuery("select * from User").fetchLazily(User.class);
 
     Iterator<User> usersIterator = allUsers.iterator();
 
@@ -1166,7 +1166,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
     createAndFillUserTable();
 
     // this should NOT fallback to executeScalar
-    List<User> users = defaultSession.createQuery("select name from User").fetch(User.class);
+    List<User> users = jdbcOperations.createQuery("select name from User").fetch(User.class);
 
     // only the name should be set
     for (User u : users) {
@@ -1174,7 +1174,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
     }
 
     // this SHOULD fallback to executeScalar
-    List<String> userNames = defaultSession.createQuery("select name from User").fetch(String.class);
+    List<String> userNames = jdbcOperations.createQuery("select name from User").fetch(String.class);
 
     assertEquals(users.size(), userNames.size());
 
@@ -1185,7 +1185,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
   public void testExecuteAndFetchWithAutoclose() throws SQLException {
     createAndFillUserTable();
 
-    JdbcConnection con = defaultSession.open();
+    JdbcConnection con = jdbcOperations.open();
 
     try (ResultSetIterable<User> userIterable = con.createQuery("select * from User")
             .fetchLazily(User.class)) {
@@ -1205,7 +1205,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
   public void testLazyTable() throws SQLException {
     createAndFillUserTable();
 
-    Query q = defaultSession.createQuery("select * from User");
+    Query q = jdbcOperations.createQuery("select * from User");
     LazyTable lt = null;
     try {
       lt = q.fetchLazyTable();
@@ -1230,11 +1230,11 @@ public class DefaultSessionTest extends BaseMemDbTest {
   @Test
   public void testTransactionAutoClosable() {
 
-    defaultSession.createQuery("create table testTransactionAutoClosable(id int primary key, val varchar(20) not null)").executeUpdate();
+    jdbcOperations.createQuery("create table testTransactionAutoClosable(id int primary key, val varchar(20) not null)").executeUpdate();
 
     JdbcConnection connection = null;
     try {
-      connection = defaultSession.beginTransaction();
+      connection = jdbcOperations.beginTransaction();
       String sql = "insert into testTransactionAutoClosable(id, val) values (:id, :val);";
       connection.createQuery(sql).addParameter("id", 1).addParameter("val", "foo").executeUpdate();
     }
@@ -1243,12 +1243,12 @@ public class DefaultSessionTest extends BaseMemDbTest {
       connection.close();
     }
 
-    int count = defaultSession.createQuery("select count(*) from testTransactionAutoClosable").fetchFirst(Integer.class);
+    int count = jdbcOperations.createQuery("select count(*) from testTransactionAutoClosable").fetchFirst(Integer.class);
     assertThat(count, is(equalTo(0)));
 
     connection = null;
     try {
-      connection = defaultSession.beginTransaction();
+      connection = jdbcOperations.beginTransaction();
       String sql = "insert into testTransactionAutoClosable(id, val) values (:id, :val);";
       connection.createQuery(sql).addParameter("id", 1).addParameter("val", "foo").executeUpdate();
 
@@ -1259,7 +1259,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
       connection.close();
     }
 
-    count = defaultSession.createQuery("select count(*) from testTransactionAutoClosable").fetchFirst(Integer.class);
+    count = jdbcOperations.createQuery("select count(*) from testTransactionAutoClosable").fetchFirst(Integer.class);
     assertThat(count, is(equalTo(1)));
 
   }
@@ -1267,15 +1267,15 @@ public class DefaultSessionTest extends BaseMemDbTest {
   @Test
   public void testExternalTransactionCommit() {
 
-    try (JdbcConnection connection1 = defaultSession.open()) {
+    try (JdbcConnection connection1 = jdbcOperations.open()) {
       connection1.createQuery("create table testExternalTransactionCommit(id int primary key, val varchar(20) not null)")
               .executeUpdate();
     }
 
-    try (JdbcConnection globalConnection = defaultSession.beginTransaction()) {
+    try (JdbcConnection globalConnection = jdbcOperations.beginTransaction()) {
       java.sql.Connection globalTransaction = globalConnection.getJdbcConnection();
 
-      JdbcConnection connection = defaultSession.beginTransaction(globalTransaction);
+      JdbcConnection connection = jdbcOperations.beginTransaction(globalTransaction);
       String sql = "insert into testExternalTransactionCommit(id, val) values (:id, :val);";
       connection.createQuery(sql)
               .addParameter("id", 1)
@@ -1287,7 +1287,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
               .fetchFirst(Integer.class);
       assertThat(count, is(equalTo(1)));
 
-      JdbcConnection connection3 = defaultSession.beginTransaction(globalTransaction);
+      JdbcConnection connection3 = jdbcOperations.beginTransaction(globalTransaction);
       String sql1 = "insert into testExternalTransactionCommit(id, val) values (:id, :val);";
       connection3.createQuery(sql1)
               .addParameter("id", 2)
@@ -1302,7 +1302,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
       globalConnection.commit();
     }
 
-    try (JdbcConnection connection2 = defaultSession.open()) {
+    try (JdbcConnection connection2 = jdbcOperations.open()) {
       int count = connection2.createQuery("select count(*) from testExternalTransactionCommit")
               .fetchFirst(Integer.class);
 
@@ -1408,25 +1408,25 @@ public class DefaultSessionTest extends BaseMemDbTest {
   @Test
   public void testExternalTransactionRollback() {
 
-    try (JdbcConnection connection1 = defaultSession.open()) {
+    try (JdbcConnection connection1 = jdbcOperations.open()) {
       connection1.createQuery("create table testExternalTransactionRollback(id int primary key, val varchar(20) not null)")
               .executeUpdate();
     }
 
-    try (JdbcConnection globalConnection = defaultSession.beginTransaction()) {
+    try (JdbcConnection globalConnection = jdbcOperations.beginTransaction()) {
       java.sql.Connection globalTransaction = globalConnection.getJdbcConnection();
 
-      JdbcConnection connection = defaultSession.beginTransaction(globalTransaction);
+      JdbcConnection connection = jdbcOperations.beginTransaction(globalTransaction);
       String sql = "insert into testExternalTransactionRollback(id, val) values (:id, :val);";
       connection.createQuery(sql).addParameter("id", 1).addParameter("val", "foo").executeUpdate();
       connection.commit();
 
-      JdbcConnection connection2 = defaultSession.open(globalTransaction);
+      JdbcConnection connection2 = jdbcOperations.open(globalTransaction);
       int count = connection2.createQuery("select count(*) from testExternalTransactionRollback")
               .fetchFirst(Integer.class);
       assertThat(count, is(equalTo(1)));
 
-      JdbcConnection connection3 = defaultSession.beginTransaction(globalTransaction);
+      JdbcConnection connection3 = jdbcOperations.beginTransaction(globalTransaction);
       String sql2 = "insert into testExternalTransactionRollback(id, val) values (:id, :val);";
       connection3.createQuery(sql2)
               .addParameter("id", 2)
@@ -1434,14 +1434,14 @@ public class DefaultSessionTest extends BaseMemDbTest {
               .executeUpdate();
       connection3.commit();
 
-      JdbcConnection connection4 = defaultSession.open(globalTransaction);
+      JdbcConnection connection4 = jdbcOperations.open(globalTransaction);
       int count1 = connection4.createQuery("select count(*) from testExternalTransactionRollback")
               .fetchFirst(Integer.class);
       assertThat(count1, is(equalTo(2)));
       globalConnection.rollback();
     }
 
-    try (JdbcConnection connection2 = defaultSession.open()) {
+    try (JdbcConnection connection2 = jdbcOperations.open()) {
       int count = connection2.createQuery("select count(*) from testExternalTransactionRollback").fetchFirst(Integer.class);
 
       assertThat(count, is(equalTo(0)));
@@ -1500,7 +1500,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
   @Test
   public void testOpenConnection() throws SQLException {
 
-    JdbcConnection connection = defaultSession.open();
+    JdbcConnection connection = jdbcOperations.open();
 
     createAndFillUserTable(connection);
 
@@ -1523,7 +1523,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
     final String insertsql = "insert into User(name, email, text) values (:name, :email, :text)";
 
-    defaultSession.withConnection(new StatementRunnable() {
+    jdbcOperations.withConnection(new StatementRunnable() {
       public void run(JdbcConnection connection, Object argument) throws Throwable {
 
         connection.createQuery(insertsql)
@@ -1547,14 +1547,14 @@ public class DefaultSessionTest extends BaseMemDbTest {
       }
     });
 
-    List<User> users = defaultSession.withConnection((connection, argument) -> {
-      return defaultSession.createQuery("select * from User").fetch(User.class);
+    List<User> users = jdbcOperations.withConnection((connection, argument) -> {
+      return jdbcOperations.createQuery("select * from User").fetch(User.class);
     });
 
     assertThat(users.size(), is(equalTo(10003)));
 
     try {
-      defaultSession.withConnection(new StatementRunnable() {
+      jdbcOperations.withConnection(new StatementRunnable() {
         public void run(JdbcConnection connection, Object argument) throws Throwable {
 
           connection.createQuery(insertsql)
@@ -1572,7 +1572,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
       // ignore. expected
     }
 
-    List<User> users2 = defaultSession.createQuery("select * from User").fetch(User.class);
+    List<User> users2 = jdbcOperations.createQuery("select * from User").fetch(User.class);
 
     // expect that that the last insert was committed, as this should not be run in a transaction.
     assertThat(users2.size(), is(equalTo(10004)));
@@ -1602,7 +1602,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
     String insertSql = "insert into testAutoDeriveColumnNames values (:id, :val)";
     String selectSql = "select * from testAutoDeriveColumnNames";
 
-    try (JdbcConnection con = defaultSession.open()) {
+    try (JdbcConnection con = jdbcOperations.open()) {
       con.createQuery(createTableSql).executeUpdate();
       con.createQuery(insertSql).addParameter("id", 1).addParameter("val", "test1").executeUpdate();
 
@@ -1630,7 +1630,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
   @Test
   public void testClob() {
-    try (JdbcConnection connection = defaultSession.open()) {
+    try (JdbcConnection connection = jdbcOperations.open()) {
       connection.createQuery("create table testClob(id integer primary key, val clob)")
               .executeUpdate();
 
@@ -1650,7 +1650,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
 
   @Test
   public void testBindInIteration() {
-    try (JdbcConnection connection = defaultSession.open()) {
+    try (JdbcConnection connection = jdbcOperations.open()) {
       createAndFillUserTable(connection, true);
       genericTestOnUserData(connection);
     }
@@ -1661,7 +1661,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
   public void testArrayParameter() {
     createAndFillUserTable();
 
-    try (JdbcConnection connection = defaultSession.open()) {
+    try (JdbcConnection connection = jdbcOperations.open()) {
       List<User> result = connection
               .createQuery("select * from user where id in(:ids)")
               .addParameters("ids", 1, 2, 3)
@@ -1670,7 +1670,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
       assertEquals(3, result.size());
     }
 
-    try (JdbcConnection connection = defaultSession.open()) {
+    try (JdbcConnection connection = jdbcOperations.open()) {
       List<User> result = connection
               .createQuery("select * from user where" +
                                    " email like :email" +
@@ -1684,7 +1684,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
       assertEquals(3, result.size());
     }
 
-    try (JdbcConnection connection = defaultSession.open()) {
+    try (JdbcConnection connection = jdbcOperations.open()) {
       List<User> result = connection
               .createQuery("select * from user where" +
                                    " email like :email" +
@@ -1698,7 +1698,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
       assertEquals(0, result.size());
     }
 
-    try (JdbcConnection connection = defaultSession.open()) {
+    try (JdbcConnection connection = jdbcOperations.open()) {
       List<User> result = connection
               .createQuery("select * from user where" +
                                    " email like :email" +
@@ -1712,7 +1712,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
       assertEquals(1, result.size());
     }
 
-    try (JdbcConnection connection = defaultSession.open()) {
+    try (JdbcConnection connection = jdbcOperations.open()) {
       List<User> result = connection
               .createQuery("select * from user where" +
                                    " email like :email" +
@@ -1728,7 +1728,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
       assertEquals(3, result.size());
     }
 
-    try (JdbcConnection connection = defaultSession.open()) {
+    try (JdbcConnection connection = jdbcOperations.open()) {
       connection.createQuery("insert into user (id, text_col) values(:id, :text)")
               .addParameters("id", 1, 2, 3).addParameter("text", "test1").addToBatch();
       fail("Batch with array parameter is not supported");
@@ -1737,7 +1737,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
       // as expected
     }
 
-    try (JdbcConnection connection = defaultSession.open()) {
+    try (JdbcConnection connection = jdbcOperations.open()) {
       List<User> result = connection
               .createQuery("select * from user where id in(:ids)")
               .addParameter("ids", new int[]
@@ -1747,7 +1747,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
       assertEquals(3, result.size());
     }
 
-    try (JdbcConnection connection = defaultSession.open()) {
+    try (JdbcConnection connection = jdbcOperations.open()) {
       List<User> result = connection
               .createQuery("select * from user where id in(:ids)")
               .addParameter("ids", (Object) ImmutableList.of(1, 2, 3))
@@ -1760,7 +1760,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
   /************** Helper stuff ******************/
 
   private void createAndFillUserTable() {
-    JdbcConnection connection = defaultSession.open();
+    JdbcConnection connection = jdbcOperations.open();
 
     createAndFillUserTable(connection);
 
@@ -1830,7 +1830,7 @@ public class DefaultSessionTest extends BaseMemDbTest {
   }
 
   private void deleteUserTable() {
-    defaultSession.createQuery("drop table User").executeUpdate();
+    jdbcOperations.createQuery("drop table User").executeUpdate();
     insertIntoUsers = 0;
   }
 }
