@@ -33,7 +33,7 @@ import cn.taketoday.jdbc.parsing.ParameterApplier;
  * <pre>
  *     createQuery("SELECT * FROM user WHERE id IN(:ids)")
  *      .addParameter("ids", 4, 5, 6)
- *      .executeAndFetch(...)
+ *      .fetch(...)
  * </pre> will generate the query :
  * <code>SELECT * FROM user WHERE id IN(4,5,6)</code><br>
  * <br>
