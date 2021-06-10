@@ -19,12 +19,6 @@
  */
 package cn.taketoday.jdbc.utils;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-
-import javax.sql.DataSource;
-
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
@@ -34,6 +28,14 @@ import cn.taketoday.transaction.SynchronizationManager;
 import cn.taketoday.transaction.SynchronizationManager.SynchronizationMetaData;
 import cn.taketoday.transaction.TransactionDefinition;
 import cn.taketoday.transaction.TransactionSynchronization;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * @author TODAY <br>
@@ -471,4 +473,24 @@ public abstract class DataSourceUtils {
     }
   }
 
+  public static DataSource getJndiDatasource(String jndiLookup) {
+    InitialContext ctx = null;
+    try {
+      ctx = new InitialContext();
+      return (DataSource) ctx.lookup(jndiLookup);
+    }
+    catch (NamingException e) {
+      throw new RuntimeException(e);
+    }
+    finally {
+      if (ctx != null) {
+        try {
+          ctx.close();
+        }
+        catch (Throwable e) {
+          log.warn("error closing context", e);
+        }
+      }
+    }
+  }
 }

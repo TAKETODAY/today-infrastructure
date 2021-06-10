@@ -19,25 +19,22 @@
  */
 package cn.taketoday.jdbc;
 
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.ConvertUtils;
+import cn.taketoday.jdbc.parsing.DefaultSqlParameterParser;
+import cn.taketoday.jdbc.parsing.ParameterApplier;
+import cn.taketoday.jdbc.parsing.SqlParameterParser;
+import cn.taketoday.jdbc.support.*;
+import cn.taketoday.jdbc.type.TypeHandlerRegistry;
+import cn.taketoday.jdbc.utils.DataSourceUtils;
+import cn.taketoday.jdbc.utils.FeatureDetector;
+
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.sql.DataSource;
-
-import cn.taketoday.context.utils.ConvertUtils;
-import cn.taketoday.jdbc.support.ConnectionSource;
-import cn.taketoday.jdbc.support.ConnectionSources;
-import cn.taketoday.jdbc.support.DataSourceConnectionSource;
-import cn.taketoday.jdbc.support.ClobToStringConverter;
-import cn.taketoday.jdbc.support.OffsetTimeToSQLTimeConverter;
-import cn.taketoday.jdbc.support.TimeToJodaLocalTimeConverter;
-import cn.taketoday.jdbc.parsing.DefaultSqlParameterParser;
-import cn.taketoday.jdbc.parsing.ParameterApplier;
-import cn.taketoday.jdbc.parsing.SqlParameterParser;
-import cn.taketoday.jdbc.type.TypeHandlerRegistry;
-import cn.taketoday.jdbc.utils.FeatureDetector;
 
 /**
  * JdbcOperations is the main class for the today-jdbc library.
@@ -55,6 +52,7 @@ import cn.taketoday.jdbc.utils.FeatureDetector;
  * @author TODAY
  */
 public class JdbcOperations {
+  private static final Logger log = LoggerFactory.getLogger(JdbcOperations.class);
 
   private TypeHandlerRegistry typeHandlerRegistry = TypeHandlerRegistry.getSharedInstance();
 
@@ -78,7 +76,7 @@ public class JdbcOperations {
   }
 
   public JdbcOperations(String jndiLookup) {
-    this(JndiDataSource.getJndiDatasource(jndiLookup));
+    this(DataSourceUtils.getJndiDatasource(jndiLookup));
   }
 
   /**
@@ -228,7 +226,8 @@ public class JdbcOperations {
    *                .fetch(Pojo.class);
    * }
    * </pre>
-   *</p>
+   * </p>
+   *
    * @param query
    *         the sql query string
    * @param returnGeneratedKeys
