@@ -20,23 +20,6 @@
 
 package cn.taketoday.jdbc;
 
-import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.support.DefaultConversionService;
 import cn.taketoday.context.factory.BeanMetadata;
@@ -47,20 +30,18 @@ import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.jdbc.result.LazyTable;
-import cn.taketoday.jdbc.result.Row;
-import cn.taketoday.jdbc.result.Table;
-import cn.taketoday.jdbc.result.TableResultSetIterator;
 import cn.taketoday.jdbc.parsing.ParameterApplier;
-import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;
-import cn.taketoday.jdbc.result.JdbcBeanMetadata;
 import cn.taketoday.jdbc.result.ResultSetHandler;
-import cn.taketoday.jdbc.result.ResultSetHandlerFactory;
-import cn.taketoday.jdbc.result.ResultSetHandlerIterator;
+import cn.taketoday.jdbc.result.*;
 import cn.taketoday.jdbc.type.ObjectTypeHandler;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.JdbcUtils;
+
+import java.io.InputStream;
+import java.lang.reflect.Array;
+import java.sql.*;
+import java.util.*;
 
 /**
  * Represents a sql statement.
@@ -202,8 +183,8 @@ public final class Query implements AutoCloseable {
   @SuppressWarnings("unchecked")
   public Query addParameter(final String name, final Object value) {
     return value == null
-           ? addNullParameter(name)
-           : addParameter(name, (Class<Object>) value.getClass(), value);
+            ? addNullParameter(name)
+            : addParameter(name, (Class<Object>) value.getClass(), value);
   }
 
   public Query addNullParameter(final String name) {
@@ -310,9 +291,24 @@ public final class Query implements AutoCloseable {
    * @throws IllegalArgumentException
    *         if values parameter is null
    */
-  public Query addParameters(String name, final Object... values) {
+  public Query addParameters(final String name, final Object... values) {
     addParameter(name, new ArrayParameterSetter(values));
     this.hasArrayParameter = true;
+    return this;
+  }
+
+  /**
+   * add map of parameters
+   *
+   * @param parameters
+   *         map of parameters
+   *
+   * @see #addParameter(String, Object)
+   */
+  public Query addParameters(final Map<String, Object> parameters) {
+    for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+      addParameter(entry.getKey(), entry.getValue());
+    }
     return this;
   }
 
@@ -320,7 +316,7 @@ public final class Query implements AutoCloseable {
    * Set an array parameter.<br>
    * See {@link #addParameters(String, Object...)} for details
    */
-  public Query addParameter(String name, final Collection<?> values) {
+  public Query addParameter(final String name, final Collection<?> values) {
     addParameter(name, new ArrayParameterSetter(values));
     this.hasArrayParameter = true;
     return this;
@@ -394,7 +390,8 @@ public final class Query implements AutoCloseable {
     for (final Map.Entry<String, ParameterSetter> parameter : parameters.entrySet()) {
       final ParameterSetter setter = parameter.getValue();
       try {
-        paramNameToIdxMap.get(parameter.getKey()).apply(setter, statement);
+        paramNameToIdxMap.get(parameter.getKey())
+                .apply(setter, statement);
       }
       catch (SQLException e) {
         throw new PersistenceException(
@@ -451,8 +448,8 @@ public final class Query implements AutoCloseable {
         if (log.isDebugEnabled()) {
           long afterClose = System.currentTimeMillis();
           log.debug("total: {} ms, execution: {} ms, reading and parsing: {} ms; executed [{}]",
-                    afterClose - start, afterExecQuery - start,
-                    afterClose - afterExecQuery, name);
+                  afterClose - start, afterExecQuery - start,
+                  afterClose - afterExecQuery, name);
         }
       }
       catch (SQLException ex) {
@@ -640,7 +637,7 @@ public final class Query implements AutoCloseable {
     if (log.isDebugEnabled()) {
       long end = System.currentTimeMillis();
       log.debug("total: {} ms; executed update [{}]",
-                end - start, this.getName() == null ? "No name" : this.getName());
+              end - start, this.getName() == null ? "No name" : this.getName());
     }
     return connection;
   }
@@ -649,13 +646,13 @@ public final class Query implements AutoCloseable {
     long start = System.currentTimeMillis();
     logExecution();
     try (final PreparedStatement ps = buildPreparedStatement();
-            final ResultSet rs = ps.executeQuery()) {
+         final ResultSet rs = ps.executeQuery()) {
 
       if (rs.next()) {
         final Object ret = typeHandler.getResult(rs, 1);
         if (log.isDebugEnabled()) {
           log.debug("total: {} ms; executed scalar [{}]",
-                    System.currentTimeMillis() - start, getName() == null ? "No name" : getName());
+                  System.currentTimeMillis() - start, getName() == null ? "No name" : getName());
         }
         return ret;
       }
@@ -826,7 +823,7 @@ public final class Query implements AutoCloseable {
     }
     if (log.isDebugEnabled()) {
       log.debug("total: {} ms; executed batch [{}]",
-                System.currentTimeMillis() - start, getName() == null ? "No name" : getName());
+              System.currentTimeMillis() - start, getName() == null ? "No name" : getName());
     }
     return connection;
   }
