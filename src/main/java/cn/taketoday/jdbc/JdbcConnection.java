@@ -16,7 +16,6 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.jdbc.support.ConnectionSource;
-import cn.taketoday.jdbc.support.ConnectionSources;
 import cn.taketoday.jdbc.utils.JdbcUtils;
 
 /**
@@ -56,7 +55,7 @@ public final class JdbcConnection implements Closeable {
     this.session = session;
     this.root = connection;
     this.autoClose = autoClose;
-    this.connectionSource = ConnectionSources.join(connection);
+    this.connectionSource = ConnectionSource.join(connection);
   }
 
   protected void onException() {
@@ -71,31 +70,29 @@ public final class JdbcConnection implements Closeable {
   }
 
   public Query createQuery(String queryText, boolean returnGeneratedKeys) {
-    try {
-      if (root.isClosed()) {
-        createConnection();
-      }
-    }
-    catch (SQLException e) {
-      throw new PersistenceException("Error creating connection", e);
-    }
-
+    createConnectionIfNecessary();
     return new Query(this, queryText, returnGeneratedKeys);
   }
 
   public Query createQuery(String queryText, String... columnNames) {
+    createConnectionIfNecessary();
+    return new Query(this, queryText, columnNames);
+  }
+
+  private void createConnectionIfNecessary() {
     try {
       if (root.isClosed()) {
         createConnection();
       }
     }
     catch (SQLException e) {
-      throw new PersistenceException("Error creating connection", e);
+      throw new PersistenceException("Database access error occurs", e);
     }
-
-    return new Query(this, queryText, columnNames);
   }
 
+  /**
+   * use :p1, :p2, :p3 as the parameter name
+   */
   public Query createQueryWithParams(String queryText, Object... paramValues) {
     // due to #146, creating a query will not create a statement anymore;
     // the PreparedStatement will only be created once the query needs to be executed
@@ -134,7 +131,7 @@ public final class JdbcConnection implements Closeable {
       root.commit();
     }
     catch (SQLException e) {
-      throw new PersistenceException(e);
+      throw new PersistenceException("Commit error", e);
     }
     finally {
       if (closeConnection) {
@@ -166,8 +163,9 @@ public final class JdbcConnection implements Closeable {
     this.batchResult = value;
   }
 
-  // --------------------------
-  // keys
+  // ------------------------------------------------
+  // -------------------- Keys ----------------------
+  // ------------------------------------------------
 
   protected void setKeys(ResultSet rs) throws SQLException {
     if (rs == null) {
@@ -272,6 +270,7 @@ public final class JdbcConnection implements Closeable {
     }
 
     if (!connectionIsClosed) {
+      final HashSet<Statement> statements = this.statements;
       for (Statement statement : statements) {
         try {
           JdbcUtils.close(statement);
@@ -307,24 +306,16 @@ public final class JdbcConnection implements Closeable {
       this.root = connectionSource.getConnection();
       this.originalAutoCommit = root.getAutoCommit();
     }
-    catch (Exception ex) {
+    catch (SQLException ex) {
       throw new PersistenceException(
               "Could not acquire a connection from DataSource - " + ex.getMessage(), ex);
     }
   }
 
   private void closeConnection() {
-    resetAutoCommitState();
-    try {
-      root.close();
-    }
-    catch (SQLException e) {
-      log.warn("Could not close connection. message: {}", e);
-    }
-  }
-
-  private void resetAutoCommitState() {
-    // resets the AutoCommit state to make sure that the connection has been reset before reuse (if a connection pool is used)
+    // resets the AutoCommit state to make sure that the connection
+    // has been reset before reuse (if a connection pool is used)
+    final Boolean originalAutoCommit = this.originalAutoCommit;
     if (originalAutoCommit != null) {
       try {
         this.root.setAutoCommit(originalAutoCommit);
@@ -332,6 +323,12 @@ public final class JdbcConnection implements Closeable {
       catch (SQLException e) {
         log.warn("Could not reset autocommit state for connection to {}.", originalAutoCommit, e);
       }
+    }
+    try {
+      root.close();
+    }
+    catch (SQLException e) {
+      log.warn("Could not close connection. message: {}", e);
     }
   }
 

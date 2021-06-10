@@ -19,20 +19,26 @@
  */
 package cn.taketoday.jdbc;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Map;
+
+import javax.sql.DataSource;
+
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.jdbc.parsing.DefaultSqlParameterParser;
 import cn.taketoday.jdbc.parsing.ParameterApplier;
 import cn.taketoday.jdbc.parsing.SqlParameterParser;
-import cn.taketoday.jdbc.support.*;
+import cn.taketoday.jdbc.support.ClobToStringConverter;
+import cn.taketoday.jdbc.support.ConnectionSource;
+import cn.taketoday.jdbc.support.DataSourceConnectionSource;
+import cn.taketoday.jdbc.support.OffsetTimeToSQLTimeConverter;
+import cn.taketoday.jdbc.support.StatementRunnable;
+import cn.taketoday.jdbc.support.StatementRunnableWithResult;
+import cn.taketoday.jdbc.support.TimeToJodaLocalTimeConverter;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.DataSourceUtils;
 import cn.taketoday.jdbc.utils.FeatureDetector;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * JdbcOperations is the main class for the today-jdbc library.
@@ -77,10 +83,8 @@ public class JdbcOperations {
   }
 
   /**
-   * Creates a new instance of the Sql2o class. Internally this constructor will
-   * create a {@link GenericDatasource}, and call the
-   * {@link JdbcOperations#JdbcOperations(DataSource)} constructor which takes a
-   * DataSource as parameter.
+   * Creates a new instance of the JdbcOperations class.
+   * Internally this constructor will create a GenericConnectionSource
    *
    * @param url
    *         JDBC database url
@@ -88,31 +92,31 @@ public class JdbcOperations {
    *         database username
    * @param pass
    *         database password
+   *
+   * @see cn.taketoday.jdbc.support.GenericConnectionSource
    */
   public JdbcOperations(String url, String user, String pass) {
-    this(new GenericDatasource(url, user, pass));
+    this.connectionSource = ConnectionSource.from(url, user, pass);
   }
 
   /**
-   * Creates a new instance of the Sql2o class, which uses the given DataSource to
+   * Creates a new instance of the JdbcOperations class, which uses the given DataSource to
    * acquire connections to the database.
    *
    * @param dataSource
-   *         The DataSource Sql2o uses to acquire connections to the database.
+   *         The DataSource JdbcOperations uses to acquire connections to the database.
    */
   public JdbcOperations(DataSource dataSource) {
-    this.connectionSource = DataSourceConnectionSource.of(dataSource);
-    this.defaultColumnMappings = new HashMap<>();
+    this.connectionSource = ConnectionSource.fromDataSource(dataSource);
   }
 
   public JdbcOperations(DataSource dataSource, boolean generatedKeys) {
     this.generatedKeys = generatedKeys;
-    this.defaultColumnMappings = new HashMap<>();
-    this.connectionSource = DataSourceConnectionSource.of(dataSource);
+    this.connectionSource = ConnectionSource.fromDataSource(dataSource);
   }
 
   /**
-   * Gets the DataSource that Sql2o uses internally to acquire database
+   * Gets the DataSource that JdbcOperations uses internally to acquire database
    * connections.
    *
    * @return The DataSource instance
@@ -125,7 +129,7 @@ public class JdbcOperations {
   }
 
   /**
-   * Gets the {@link ConnectionSource} that Sql2o uses internally to acquire
+   * Gets the {@link ConnectionSource} that JdbcOperations uses internally to acquire
    * database connections.
    *
    * @return The ConnectionSource instance
@@ -135,7 +139,7 @@ public class JdbcOperations {
   }
 
   /**
-   * Sets the {@link ConnectionSource} that Sql2o uses internally to acquire
+   * Sets the {@link ConnectionSource} that JdbcOperations uses internally to acquire
    * database connections.
    *
    * @param connectionSource
@@ -147,10 +151,10 @@ public class JdbcOperations {
 
   /**
    * Gets the default column mappings Map. column mappings added to this Map are
-   * always available when Sql2o attempts to map between result sets and object
+   * always available when JdbcOperations attempts to map between result sets and object
    * instances.
    *
-   * @return The {@link Map<String,String>} instance, which Sql2o internally uses
+   * @return The {@link Map<String,String>} instance, which JdbcOperations internally uses
    * to map column names with property names.
    */
   public Map<String, String> getDefaultColumnMappings() {
@@ -161,7 +165,7 @@ public class JdbcOperations {
    * Sets the default column mappings Map.
    *
    * @param defaultColumnMappings
-   *         A {@link Map} instance Sql2o uses internally to map between column
+   *         A {@link Map} instance JdbcOperations uses internally to map between column
    *         names and property names.
    */
   public void setDefaultColumnMappings(Map<String, String> defaultColumnMappings) {
@@ -169,7 +173,7 @@ public class JdbcOperations {
   }
 
   /**
-   * Gets value indicating if this instance of Sql2o is case sensitive when
+   * Gets value indicating if this instance of JdbcOperations is case sensitive when
    * mapping between columns names and property names.
    */
   public boolean isDefaultCaseSensitive() {
@@ -177,7 +181,7 @@ public class JdbcOperations {
   }
 
   /**
-   * Sets a value indicating if this instance of Sql2o is case sensitive when
+   * Sets a value indicating if this instance of JdbcOperations is case sensitive when
    * mapping between columns names and property names. This should almost always
    * be false, because most relational databases are not case sensitive.
    */
@@ -209,7 +213,7 @@ public class JdbcOperations {
     return sqlParameterParser.parse(sql, paramNameToIdxMap);
   }
 
-  //
+  // Query
 
   /**
    * Creates a {@link Query}
@@ -218,8 +222,8 @@ public class JdbcOperations {
    * create queries with {@link JdbcConnection} class instead,
    * using try-with-resource blocks
    * <pre>
-   * try (Connection con = sql2o.open()) {
-   *    return sql2o.createQuery(query, name, returnGeneratedKeys)
+   * try (Connection con = JdbcOperations.open()) {
+   *    return JdbcOperations.createQuery(query, name, returnGeneratedKeys)
    *                .fetch(Pojo.class);
    * }
    * </pre>
@@ -249,14 +253,16 @@ public class JdbcOperations {
    * create queries with {@link JdbcConnection} class instead,
    * using try-with-resource blocks
    * <pre>
-   *     try (Connection con = sql2o.open()) {
-   *         return sql2o.createQuery(query, name).fetch(Pojo.class);
+   *     try (Connection con = JdbcOperations.open()) {
+   *         return JdbcOperations.createQuery(query, name).fetch(Pojo.class);
    *     }
    *  </pre>
    */
   public Query createQuery(String query) {
     return open(true).createQuery(query);
   }
+
+  // JdbcConnection
 
   /**
    * Opens a connection to the database
@@ -455,7 +461,7 @@ public class JdbcOperations {
    * transaction.
    */
   public JdbcConnection beginTransaction(Connection connection) {
-    return beginTransaction(ConnectionSources.join(connection), Connection.TRANSACTION_READ_COMMITTED);
+    return beginTransaction(ConnectionSource.join(connection), Connection.TRANSACTION_READ_COMMITTED);
   }
 
   /**

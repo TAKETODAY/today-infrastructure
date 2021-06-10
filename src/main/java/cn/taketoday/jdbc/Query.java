@@ -94,18 +94,18 @@ public final class Query implements AutoCloseable {
 
   private boolean hasArrayParameter = false;
 
-  public Query(JdbcConnection connection, String queryText, boolean returnGeneratedKeys) {
-    this(connection, queryText, returnGeneratedKeys, null);
+  public Query(JdbcConnection connection, String queryText, boolean generatedKeys) {
+    this(connection, queryText, generatedKeys, null);
   }
 
   public Query(JdbcConnection connection, String queryText, String[] columnNames) {
     this(connection, queryText, false, columnNames);
   }
 
-  private Query(JdbcConnection connection, String queryText, boolean returnGeneratedKeys, String[] columnNames) {
+  private Query(JdbcConnection connection, String queryText, boolean generatedKeys, String[] columnNames) {
     this.connection = connection;
     this.columnNames = columnNames;
-    this.returnGeneratedKeys = returnGeneratedKeys;
+    this.returnGeneratedKeys = generatedKeys;
     setColumnMappings(connection.getSession().getDefaultColumnMappings());
     this.caseSensitive = connection.getSession().isDefaultCaseSensitive();
     this.parsedQuery = connection.getSession().parse(queryText, indexMap);
@@ -800,9 +800,8 @@ public final class Query implements AutoCloseable {
    */
   public <A> List<A> addToBatchGetKeys(Class<A> klass) {
     addToBatch();
-
     if (this.currentBatchRecords == 0) {
-      return this.connection.getKeys(klass);
+      return connection.getKeys(klass);
     }
     else {
       return Collections.emptyList();
@@ -821,12 +820,12 @@ public final class Query implements AutoCloseable {
         connection.setKeys(returnGeneratedKeys ? statement.getGeneratedKeys() : null);
         connection.setCanGetKeys(returnGeneratedKeys);
       }
-      catch (SQLException sqlex) {
+      catch (SQLException e) {
         throw new PersistenceException(
                 "Error while trying to fetch generated keys from database. " +
                         "If you are not expecting any generated keys, fix this" +
                         " error by setting the fetchGeneratedKeys parameter in" +
-                        " the createQuery() method to 'false'", sqlex);
+                        " the createQuery() method to 'false'", e);
       }
     }
     catch (Throwable e) {

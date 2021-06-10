@@ -1,6 +1,5 @@
 package cn.taketoday.jdbc.support;
 
-
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -8,11 +7,10 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 
 /**
- * Created by nickl on 09.01.17.
+ * @author TODAY
  */
-class NestedConnection extends WrappedConnection {
-
-  private final static Logger logger = LoggerFactory.getLogger(NestedConnection.class);
+final class NestedConnection extends WrappedConnection {
+  private final static Logger log = LoggerFactory.getLogger(NestedConnection.class);
 
   private boolean autocommit = true;
 
@@ -31,7 +29,7 @@ class NestedConnection extends WrappedConnection {
   @Override
   public void rollback() throws SQLException {
     if (!commited) {
-      logger.warn("rollback of nested transaction leads to rollback of parent transaction. Maybe it is not wat you want.");
+      log.warn("rollback of nested transaction leads to rollback of parent transaction. Maybe it is not wat you want.");
       super.rollback(); //probably it's worth to use savepoints
     }
   }
