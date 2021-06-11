@@ -13,7 +13,7 @@
 <dependency>
     <groupId>cn.taketoday</groupId>
     <artifactId>today-context</artifactId>
-    <version>3.0.0.RELEASE</version>
+    <version>3.0.4.RELEASE</version>
 </dependency>
 ```
 
@@ -22,6 +22,8 @@
 # 当前版本
 
 ## v3.0.3
+- :bug: fix handleDependency 并发修改
+
 
 ## v3.0.2
 - :sparkles: 新增 `BeanProperties` 工具类
