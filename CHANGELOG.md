@@ -24,7 +24,6 @@
 ## v3.0.3
 - :bug: fix handleDependency 并发修改
 
-
 ## v3.0.2
 - :sparkles: 新增 `BeanProperties` 工具类
 - :sparkles: 新增 `StringToBytesConverter`
@@ -51,7 +50,6 @@
 :bug: 修复 ParameterFunction
 
 ## v3.0.0（v2.1.7）
-
 >  2021-4-29
 - :sparkles: 新增 `BeanProperty` `BeanMetadata` 提供高性能访问对象属性
 - :zap: EL表达式 新增 handlePropertyNotResolved 极大的提高了扩展性
