@@ -61,8 +61,6 @@
 - :sparkles: 添加 `BeanPropertyAccessor` 支持对对象属性的访问和设置
 - :hammer: 重构了整个转换器机制,引入 `ConversionService`
 - :hammer: 重构了 bean 初始化逻辑，提升了性能
-
-
 > ?
 - :bug: fix: loadBeanDefinition can't be catch exception
 - :bug: fix: ContextUtils#loadProps() only support String
@@ -72,7 +70,7 @@
 - :hammer: 重构BeanFactory获取Bean的逻辑
 - :sparkles: 利用cglib构建了真正的原型实例
 - :sparkles: 增加导入配置(@Import)功能
-
+- 
 - :sparkles: 去除ClassUtils的classesCache，在应用环境下可能会使用到相同class
 - :sparkles: ConfigurableBeanFactory添加registerBean(BeanDefinition)方法
 - :sparkles: ContextUtils添加loadFromMetaInfo(String)统一加载META-INF下的类
@@ -113,18 +111,17 @@
 - :sparkles: 增加Assert,MultiValueMap
 - :sparkles: 新增ImportAware
 - :sparkles: 将aop整合进来
-
+- 
 - :hammer: 重大重构: 大量代码优化，重构，更正测试代码
 - :sparkles: 新增AbstractFactoryBean
 - :sparkles: 新增Spring AttributeAccessor
 - :sparkles: 新增BeanClassLoaderAware
 - :hammer: 重构Condition
 - :sparkles: 新增BeanFactoryPostProcessor
-
+- 
 - :fire: 除去MessageFactory
 - :sparkles: 新的反射API
-
-
+- 
 - :bug: 修复ResourceUtils#getResource文件路径带有转义字符时的错误
 - :zap: 优化AutoProxyCreator, CandidateComponentScanner, AbstractApplicationContext, PropertyValueResolver, ExecutableParameterResolver, StandardBeanFactory, AbstractCacheInterceptor, AspectsDestroyListener
 - :zap: 新增Environment#getFlag
@@ -145,8 +142,6 @@
 - :bug: 修复findTargetAttributes死循环
 - :sparkles: 新的AutowireCapableBeanFactory接口
 -:zap: 新ReflectionUtils反射API
-
-
 
 ## v2.1.6
 - :sparkles: feat: add `Environment` new api to get property
