@@ -19,33 +19,6 @@
  */
 package cn.taketoday.context.utils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConcurrentProperties;
@@ -81,6 +54,32 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.expression.ExpressionProcessor;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+
 /**
  * This class provides el, {@link Properties} loading, {@link Parameter}
  * resolving
@@ -103,12 +102,12 @@ public abstract class ContextUtils {
 
   static {
     setParameterResolvers(new MapParameterResolver(),
-                          new ArrayParameterResolver(),
-                          new CollectionParameterResolver(),
-                          new ObjectSupplierParameterResolver(),
-                          new EnvExecutableParameterResolver(),
-                          new ValueExecutableParameterResolver(),
-                          new AutowiredParameterResolver()
+            new ArrayParameterResolver(),
+            new CollectionParameterResolver(),
+            new ObjectSupplierParameterResolver(),
+            new EnvExecutableParameterResolver(),
+            new ValueExecutableParameterResolver(),
+            new AutowiredParameterResolver()
     );
 
   }
@@ -326,17 +325,34 @@ public abstract class ContextUtils {
   }
 
   /**
+   * Add a method which annotated with {@link PostConstruct}
+   *
    * @param beanClass
    *         Bean class
    * @param initMethods
-   *         Init Method s
+   *         Init Method name
    *
    * @since 2.1.7
    */
   public static Method[] resolveInitMethod(String[] initMethods, Class<?> beanClass) {
     final ArrayList<Method> methods = new ArrayList<>(2);
+    final boolean initMethodsNotEmpty = StringUtils.isArrayNotEmpty(initMethods);
     do {
-      addInitMethod(methods, beanClass, initMethods);
+      for (final Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
+        if (ClassUtils.isAnnotationPresent(method, PostConstruct.class)
+                || AutowiredPropertyResolver.isInjectable(method)) { // method Injection
+          methods.add(method);
+          continue;
+        }
+        if (initMethodsNotEmpty) {
+          final String name = method.getName();
+          for (final String initMethod : initMethods) {
+            if (initMethod.equals(name)) { // equals
+              methods.add(method);
+            }
+          }
+        }
+      }
     }
     while ((beanClass = beanClass.getSuperclass()) != null && beanClass != Object.class); // all methods
 
@@ -345,39 +361,6 @@ public abstract class ContextUtils {
     }
     OrderUtils.reversedSort(methods);
     return methods.toArray(new Method[methods.size()]);
-  }
-
-  /**
-   * Add a method which annotated with {@link PostConstruct}
-   *
-   * @param methods
-   *         Method list
-   * @param beanClass
-   *         Bean class
-   * @param initMethods
-   *         Init Method name
-   *
-   * @since 2.1.2
-   */
-  private static void addInitMethod(
-          final List<Method> methods, final Class<?> beanClass, final String[] initMethods
-  ) {
-    final boolean initMethodsNotEmpty = StringUtils.isArrayNotEmpty(initMethods);
-    for (final Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
-      if (ClassUtils.isAnnotationPresent(method, PostConstruct.class)
-              || AutowiredPropertyResolver.isInjectable(method)) { // method Injection
-        methods.add(method);
-        continue;
-      }
-      if (initMethodsNotEmpty) {
-        final String name = method.getName();
-        for (final String initMethod : initMethods) {
-          if (initMethod.equals(name)) { // equals
-            methods.add(method);
-          }
-        }
-      }
-    }
   }
 
   /**
