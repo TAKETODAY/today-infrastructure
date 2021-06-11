@@ -62,7 +62,7 @@ public class JdbcAutoConfiguration implements ApplicationListener<LoadingMissing
    * @author TODAY <br>
    * 2019-08-24 13:27
    */
-  protected static class CompositeJdbcConfiguration implements JdbcConfiguration {
+  protected static class CompositeJdbcConfiguration {
 
     private final List<JdbcConfiguration> jdbcConfigurations;
 
