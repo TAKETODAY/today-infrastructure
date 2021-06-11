@@ -29,7 +29,7 @@ import javax.persistence.PersistenceException;
  * @author TODAY <br>
  *         2018-09-15 15:24
  */
-public interface JdbcOperations<T> extends UpdateOperation<T>, QueryOperation<T> {
+public interface HibernateOperations<T> extends HibernateUpdateOperations<T>, HibernateQueryOperations<T> {
 
   void flush() throws PersistenceException;
 

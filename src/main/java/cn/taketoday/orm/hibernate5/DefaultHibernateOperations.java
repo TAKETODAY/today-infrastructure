@@ -32,7 +32,6 @@ import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
 import java.io.Serializable;
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -42,17 +41,15 @@ import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.GenericTypeResolver;
 import cn.taketoday.jdbc.PersistenceException;
 
 /**
  * @author TODAY <br>
  * 2018-09-15 15:31
  */
-public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean {
-
-  private static final Logger log = LoggerFactory.getLogger(DefaultRepository.class);
+public class DefaultHibernateOperations<T> implements HibernateOperations<T>, InitializingBean {
+  private static final Logger log = LoggerFactory.getLogger(DefaultHibernateOperations.class);
 
   @Autowired
   private SessionFactory sessionFactory;
@@ -64,19 +61,17 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
   private String queryCacheRegion;
 
   private Class<T> beanClass;
+  /** Bean class simple name */
   private String beanClassName;
 
   @SuppressWarnings("unchecked")
-  public DefaultRepository() {
+  public DefaultHibernateOperations() {
+    final Class<?> type = GenericTypeResolver.resolveTypeArgument(getClass(), DefaultHibernateOperations.class);
+    setBeanClass((Class<T>) type);
+  }
 
-    final Type[] actualTypeArguments = ClassUtils.getGenerics(getClass(), DefaultRepository.class);
-    if (ObjectUtils.isNotEmpty(actualTypeArguments)) {
-      final Type type = actualTypeArguments[0];
-      if (type instanceof Class) {
-        beanClass = (Class<T>) type;
-        beanClassName = beanClass.getSimpleName();
-      }
-    }
+  public DefaultHibernateOperations(Class<T> beanClass) {
+    setBeanClass(beanClass);
   }
 
   @Override
@@ -101,9 +96,7 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
   }
 
   protected <H> H doExecute(HibernateCallback<H> action) throws PersistenceException {
-
     final Session session = obtainSession(sessionFactory);
-
     Transaction transaction = null;
     try {
       transaction = session.beginTransaction();
@@ -351,15 +344,13 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
 
   @Override
   public Long getTotalRecord(Object[] params, String condition) {
-    return execute(session -> setParameter(//
-                                           session.createQuery(
-                                                   new StringBuilder("select count(*) from ")//
-                                                           .append(beanClassName)//
-                                                           .append(" where ")//
-                                                           .append(condition)//
-                                                           .toString(),
-                                                   Long.class),
-                                           params).setCacheable(true).uniqueResult()//
+    return execute(session -> setParameter(session.createQuery(
+            new StringBuilder("select count(*) from ")//
+                    .append(beanClassName)//
+                    .append(" where ")//
+                    .append(condition)//
+                    .toString(),
+            Long.class), params).setCacheable(true).uniqueResult()//
     );
   }
 
@@ -367,15 +358,15 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
   public Integer update(String columnNames, Object[] params, String primaryKey) {
 
     return execute(session -> {
-      Query<?> query = session.createQuery(//
-                                           new StringBuilder("update ")//
-                                                   .append(beanClassName)//
-                                                   .append(" set ")//
-                                                   .append(columnNames)//
-                                                   .append(" where ")//
-                                                   .append(primaryKey)//
-                                                   .append("=:primaryKey")//
-                                                   .toString()//
+      Query<?> query = session.createQuery(
+              new StringBuilder("update ")
+                      .append(beanClassName)
+                      .append(" set ")
+                      .append(columnNames)
+                      .append(" where ")
+                      .append(primaryKey)
+                      .append("=:primaryKey")
+                      .toString()
       );
 
       for (int i = 0; i < params.length - 1; i++) {
@@ -455,21 +446,23 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
 
   @Override
   public T uniqueCondition(Object[] params, String condition) {
-    return execute(session -> setParameter(prepareQuery(session.createQuery(where(condition), beanClass)), params//
-    ).uniqueResult());
+    return execute(session -> setParameter(prepareQuery(session.createQuery(where(condition), beanClass)), params)
+            .uniqueResult());
   }
 
   @Override
   public Integer updateOne(Object[] params, String sql) {
-    return execute(session -> setParameter(session.createNativeQuery(sql, Integer.class), params)//
-            .executeUpdate()//
+    return execute(session -> setParameter(session.createNativeQuery(sql, Integer.class), params)
+            .executeUpdate()
     );
   }
 
   @Override
   public List<T> orderBy(int pageNow, int pageSize, Object[] params, String by) {
-    return execute(session -> setParameter(session.createQuery(orderBy(by), beanClass),
-                                           params).setFirstResult((pageNow - 1) * pageSize).setMaxResults(pageSize).list());
+    return execute(session -> setParameter(session.createQuery(orderBy(by), beanClass), params)
+            .setFirstResult((pageNow - 1) * pageSize)
+            .setMaxResults(pageSize).list()
+    );
   }
 
   protected final String where(String condition) {
@@ -490,62 +483,56 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
 
   // -------------------------------
 
-  public final SessionFactory getSessionFactory() {
+  public SessionFactory getSessionFactory() {
     return sessionFactory;
   }
 
-  public DefaultRepository<T> setSessionFactory(SessionFactory sessionFactory) {
+  public void setSessionFactory(SessionFactory sessionFactory) {
     this.sessionFactory = sessionFactory;
-    return this;
   }
 
   public final Integer getFetchSize() {
     return fetchSize;
   }
 
-  public final DefaultRepository<T> setFetchSize(Integer fetchSize) {
+  public void setFetchSize(Integer fetchSize) {
     this.fetchSize = fetchSize;
-    return this;
   }
 
-  public final Integer getMaxResults() {
+  public Integer getMaxResults() {
     return maxResults;
   }
 
-  public final DefaultRepository<T> setMaxResults(Integer maxResults) {
+  public void setMaxResults(Integer maxResults) {
     this.maxResults = maxResults;
-    return this;
   }
 
-  public final boolean isCacheable() {
+  public boolean isCacheable() {
     return cacheable;
   }
 
-  public final DefaultRepository<T> setCacheable(boolean cacheable) {
+  public void setCacheable(boolean cacheable) {
     this.cacheable = cacheable;
-    return this;
   }
 
-  public final String getQueryCacheRegion() {
+  public String getQueryCacheRegion() {
     return queryCacheRegion;
   }
 
-  public final DefaultRepository<T> setQueryCacheRegion(String queryCacheRegion) {
+  public void setQueryCacheRegion(String queryCacheRegion) {
     this.queryCacheRegion = queryCacheRegion;
-    return this;
   }
 
   public Class<T> getBeanClass() {
     return beanClass;
   }
 
-  public final DefaultRepository<T> setBeanClass(Class<T> beanClass) {
+  public void setBeanClass(Class<T> beanClass) {
     this.beanClass = beanClass;
     this.beanClassName = beanClass.getSimpleName();
-    return this;
   }
 
-  public final String getBeanClassName() {
+  public String getBeanClassName() {
     return beanClassName;
   }
 }

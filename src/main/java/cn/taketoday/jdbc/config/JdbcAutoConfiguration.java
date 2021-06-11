@@ -21,19 +21,20 @@ package cn.taketoday.jdbc.config;
 
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.Order;
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.LoadingMissingBeanEvent;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.OrderUtils;
+import cn.taketoday.jdbc.JdbcOperations;
 
 /**
  * @author TODAY <br>
  * 2019-08-24 12:01
  */
-@Order(Ordered.HIGHEST_PRECEDENCE)
 public class JdbcAutoConfiguration implements ApplicationListener<LoadingMissingBeanEvent> {
 
   @Override
@@ -50,6 +51,11 @@ public class JdbcAutoConfiguration implements ApplicationListener<LoadingMissing
 
   protected JdbcConfiguration getJdbcConfiguration(ApplicationContext applicationContext) {
     return new CompositeJdbcConfiguration(applicationContext.getBeans(JdbcConfiguration.class));
+  }
+
+  @MissingBean
+  JdbcOperations jdbcOperations(DataSource dataSource) {
+    return new JdbcOperations(dataSource);
   }
 
   /**
