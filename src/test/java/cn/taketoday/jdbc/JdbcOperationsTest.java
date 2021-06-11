@@ -119,7 +119,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       span = after.getTime() - before.getTime();
       System.out.println(String.format("Again Fetched %s user: %s ms", insertIntoUsers, span));
 
-      assertTrue(allUsers.size() == insertIntoUsers);
+      assertEquals(allUsers.size(), insertIntoUsers);
 
     }
     deleteUserTable();
@@ -178,13 +178,24 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     String insQuery = "insert into User(name, email, text) values (:name, :email, :text)";
 
     JdbcConnection con = jdbcOperations.beginTransaction();
-    int[] inserted = con.createQuery(insQuery).addParameter("name", "test").addParameter("email", "test@test.com").addParameter("text",
-                                                                                                                                "something exciting")
+    int[] inserted = con.createQuery(insQuery)
+            .addParameter("name", "test")
+            .addParameter("email", "test@test.com")
+            .addParameter("text", "something exciting")
             .addToBatch()
-            .addParameter("name", "test2").addParameter("email", "test2@test.com").addParameter("text", "something exciting too")
+
+            .addParameter("name", "test2")
+            .addParameter("email", "test2@test.com")
+            .addParameter("text", "something exciting too")
             .addToBatch()
-            .addParameter("name", "test3").addParameter("email", "test3@test.com").addParameter("text", "blablabla").addToBatch()
-            .executeBatch().getBatchResult();
+
+            .addParameter("name", "test3")
+            .addParameter("email", "test3@test.com")
+            .addParameter("text", "blablabla")
+            .addToBatch()
+
+            .executeBatch()
+            .getBatchResult();
     con.commit();
 
     assertEquals(3, inserted.length);

@@ -10,6 +10,77 @@
 [![GitHub CI](https://github.com/TAKETODAY/today-jdbc/workflows/GitHub%20CI/badge.svg)](https://github.com/TAKETODAY/today-jdbc/actions)
 
 
+#### 使用实例
+
+```java
+  @Test
+  public void testFetch() {
+    createAndFillUserTable();
+
+    try (JdbcConnection con = jdbcOperations.open()) {
+
+      Date before = new Date();
+      List<User> allUsers = con.createQuery("select * from User").fetch(User.class);
+
+      assertNotNull(allUsers);
+
+      Date after = new Date();
+      long span = after.getTime() - before.getTime();
+      System.out.println(String.format("Fetched %s user: %s ms", insertIntoUsers, span));
+
+      // repeat this
+      before = new Date();
+      allUsers = con.createQuery("select * from User").fetch(User.class);
+      after = new Date();
+      span = after.getTime() - before.getTime();
+      System.out.println(String.format("Again Fetched %s user: %s ms", insertIntoUsers, span));
+
+      assertEquals(allUsers.size(), insertIntoUsers);
+    }
+    deleteUserTable();
+  }@Test
+  public void testBatch() {
+    jdbcOperations.createQuery(
+            "create table User(\n" +
+            "id int identity primary key,\n" +
+            "name varchar(20),\n" +
+            "email varchar(255),\n" +
+            "text varchar(100))").executeUpdate();
+
+    String insQuery = "insert into User(name, email, text) values (:name, :email, :text)";
+
+    JdbcConnection con = jdbcOperations.beginTransaction();
+    int[] inserted = con.createQuery(insQuery)
+            .addParameter("name", "test")
+            .addParameter("email", "test@test.com")
+            .addParameter("text", "something exciting")
+            .addToBatch()
+
+            .addParameter("name", "test2")
+            .addParameter("email", "test2@test.com")
+            .addParameter("text", "something exciting too")
+            .addToBatch()
+
+            .addParameter("name", "test3")
+            .addParameter("email", "test3@test.com")
+            .addParameter("text", "blablabla")
+            .addToBatch()
+
+            .executeBatch()
+            .getBatchResult();
+    con.commit();
+
+    assertEquals(3, inserted.length);
+    for (int i : inserted) {
+      assertEquals(1, i);
+    }
+
+    deleteUserTable();
+  }
+  
+```
+
+
 #### Performance of SELECT
 
 Execute 5000 SELECT statements against a DB and map the data returned to a POJO.
