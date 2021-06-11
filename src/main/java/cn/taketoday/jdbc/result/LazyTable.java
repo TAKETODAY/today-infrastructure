@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * @author aldenquimby@gmail.com
  */
-public class LazyTable implements AutoCloseable {
+public final class LazyTable implements AutoCloseable {
   private String name;
   private ResultSetIterable<Row> rows;
   private List<Column> columns;

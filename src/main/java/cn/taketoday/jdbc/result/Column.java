@@ -23,7 +23,7 @@ package cn.taketoday.jdbc.result;
 /**
  * Represents a result set column
  */
-public class Column {
+public final class Column {
 
   private final String name;
   private final int index;

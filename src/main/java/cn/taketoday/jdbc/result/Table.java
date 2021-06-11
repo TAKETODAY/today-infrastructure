@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * Represents an offline result set with columns and rows and data.
  */
-public class Table {
+public final class Table {
   private final String name;
   private final List<Row> rows;
   private final List<Column> columns;
