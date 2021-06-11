@@ -13,7 +13,7 @@
 <dependency>
     <groupId>cn.taketoday</groupId>
     <artifactId>today-context</artifactId>
-    <version>3.0.4.RELEASE</version>
+    <version>3.0.3.RELEASE</version>
 </dependency>
 ```
 
