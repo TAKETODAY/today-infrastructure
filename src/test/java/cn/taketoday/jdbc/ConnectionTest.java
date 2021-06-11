@@ -2,10 +2,9 @@ package cn.taketoday.jdbc;
 
 import junit.framework.TestCase;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-
-import javax.sql.DataSource;
 
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -30,10 +29,10 @@ public class ConnectionTest extends TestCase {
     PreparedStatement ps = mock(PreparedStatement.class);
     when(jdbcConnection.prepareStatement(anyString())).thenReturn(ps);
 
-    JdbcOperations sql2o = new JdbcOperations(dataSource);
+    JdbcOperations operations = new JdbcOperations(dataSource);
 
-    sql2o.setGeneratedKeys(false);
-    JdbcConnection cn = new JdbcConnection(sql2o, false);
+    operations.setGeneratedKeys(false);
+    JdbcConnection cn = new JdbcConnection(operations, false);
     cn.createQueryWithParams("select :p1 name, :p2 age", "Dmitry Alexandrov", 35).buildPreparedStatement();
 
     verify(dataSource, times(1)).getConnection();

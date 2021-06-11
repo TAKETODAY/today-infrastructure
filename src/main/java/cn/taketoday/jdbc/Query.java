@@ -106,9 +106,9 @@ public final class Query implements AutoCloseable {
     this.connection = connection;
     this.columnNames = columnNames;
     this.returnGeneratedKeys = generatedKeys;
-    setColumnMappings(connection.getSession().getDefaultColumnMappings());
-    this.caseSensitive = connection.getSession().isDefaultCaseSensitive();
-    this.parsedQuery = connection.getSession().parse(queryText, indexMap);
+    setColumnMappings(connection.getOperations().getDefaultColumnMappings());
+    this.caseSensitive = connection.getOperations().isDefaultCaseSensitive();
+    this.parsedQuery = connection.getOperations().parse(queryText, indexMap);
   }
 
   // ------------------------------------------------
@@ -662,7 +662,7 @@ public final class Query implements AutoCloseable {
   public TypeHandlerRegistry getTypeHandlerRegistry() {
     TypeHandlerRegistry ret = this.typeHandlerRegistry;
     if (ret == null) {
-      ret = this.connection.getSession().getTypeHandlerRegistry();
+      ret = this.connection.getOperations().getTypeHandlerRegistry();
       this.typeHandlerRegistry = ret;
     }
     return ret;

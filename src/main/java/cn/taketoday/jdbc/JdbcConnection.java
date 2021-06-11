@@ -1,14 +1,5 @@
 package cn.taketoday.jdbc;
 
-import java.io.Closeable;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.support.DefaultConversionService;
 import cn.taketoday.context.exception.ConversionException;
@@ -18,13 +9,22 @@ import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.jdbc.support.ConnectionSource;
 import cn.taketoday.jdbc.utils.JdbcUtils;
 
+import java.io.Closeable;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
 /**
  * Represents a connection to the database with a transaction.
  */
 public final class JdbcConnection implements Closeable {
   private static final Logger log = LoggerFactory.getLogger(JdbcConnection.class);
 
-  private final JdbcOperations session;
+  private final JdbcOperations operations;
   private final ConnectionSource connectionSource;
 
   private Connection root;
@@ -40,21 +40,21 @@ public final class JdbcConnection implements Closeable {
 
   private final HashSet<Statement> statements = new HashSet<>();
 
-  JdbcConnection(JdbcOperations session, boolean autoClose) {
-    this(session, session.getConnectionSource(), autoClose);
+  JdbcConnection(JdbcOperations operations, boolean autoClose) {
+    this(operations, operations.getConnectionSource(), autoClose);
   }
 
-  JdbcConnection(JdbcOperations session, ConnectionSource connectionSource, boolean autoClose) {
-    this.session = session;
+  JdbcConnection(JdbcOperations operations, ConnectionSource connectionSource, boolean autoClose) {
     this.autoClose = autoClose;
+    this.operations = operations;
     this.connectionSource = connectionSource;
     createConnection();
   }
 
-  JdbcConnection(JdbcOperations session, Connection connection, boolean autoClose) {
-    this.session = session;
+  JdbcConnection(JdbcOperations operations, Connection connection, boolean autoClose) {
     this.root = connection;
     this.autoClose = autoClose;
+    this.operations = operations;
     this.connectionSource = ConnectionSource.join(connection);
   }
 
@@ -65,7 +65,7 @@ public final class JdbcConnection implements Closeable {
   }
 
   public Query createQuery(String queryText) {
-    boolean returnGeneratedKeys = session.isGeneratedKeys();
+    boolean returnGeneratedKeys = operations.isGeneratedKeys();
     return createQuery(queryText, returnGeneratedKeys);
   }
 
@@ -94,7 +94,7 @@ public final class JdbcConnection implements Closeable {
    * use :p1, :p2, :p3 as the parameter name
    */
   public Query createQueryWithParams(String queryText, Object... paramValues) {
-    // due to #146, creating a query will not create a statement anymore;
+    // due to #146, creating a query will not create a statement anymore
     // the PreparedStatement will only be created once the query needs to be executed
     // => there is no need to handle the query closing here anymore since there is nothing to close
     return createQuery(queryText)
@@ -103,7 +103,7 @@ public final class JdbcConnection implements Closeable {
 
   public JdbcOperations rollback() {
     rollback(true);
-    return session;
+    return operations;
   }
 
   public JdbcConnection rollback(boolean closeConnection) {
@@ -123,7 +123,7 @@ public final class JdbcConnection implements Closeable {
 
   public JdbcOperations commit() {
     commit(true);
-    return session;
+    return operations;
   }
 
   public JdbcConnection commit(boolean closeConnection) {
@@ -353,8 +353,8 @@ public final class JdbcConnection implements Closeable {
     return root;
   }
 
-  public JdbcOperations getSession() {
-    return session;
+  public JdbcOperations getOperations() {
+    return operations;
   }
 
 }

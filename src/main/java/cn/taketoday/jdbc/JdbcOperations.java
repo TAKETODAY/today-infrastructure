@@ -19,12 +19,6 @@
  */
 package cn.taketoday.jdbc;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.jdbc.parsing.DefaultSqlParameterParser;
 import cn.taketoday.jdbc.parsing.ParameterApplier;
@@ -33,12 +27,17 @@ import cn.taketoday.jdbc.support.ClobToStringConverter;
 import cn.taketoday.jdbc.support.ConnectionSource;
 import cn.taketoday.jdbc.support.DataSourceConnectionSource;
 import cn.taketoday.jdbc.support.OffsetTimeToSQLTimeConverter;
-import cn.taketoday.jdbc.support.StatementRunnable;
 import cn.taketoday.jdbc.support.ResultStatementRunnable;
+import cn.taketoday.jdbc.support.StatementRunnable;
 import cn.taketoday.jdbc.support.TimeToJodaLocalTimeConverter;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.DataSourceUtils;
 import cn.taketoday.jdbc.utils.FeatureDetector;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Map;
 
 /**
  * JdbcOperations is the main class for the today-jdbc library.
@@ -249,7 +248,8 @@ public class JdbcOperations {
    * using try-with-resource blocks
    * <pre>
    *     try (Connection con = JdbcOperations.open()) {
-   *         return JdbcOperations.createQuery(query, name).fetch(Pojo.class);
+   *         return JdbcOperations.createQuery(query, name)
+   *                      .fetch(Pojo.class);
    *     }
    *  </pre>
    *
