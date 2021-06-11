@@ -27,7 +27,6 @@ import javax.sql.DataSource;
 
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.support.DefaultConversionService;
-import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.jdbc.parsing.DefaultSqlParameterParser;
 import cn.taketoday.jdbc.parsing.ParameterApplier;
 import cn.taketoday.jdbc.parsing.SqlParameterParser;
@@ -67,20 +66,7 @@ public class JdbcOperations {
   private Map<String, String> defaultColumnMappings;
   private SqlParameterParser sqlParameterParser = new DefaultSqlParameterParser();
 
-  private ConversionService conversionService = DefaultConversionService.getSharedInstance();
-
-  static {
-    final ClobToStringConverter stringConverter = new ClobToStringConverter();
-
-    ConvertUtils.addConverter(stringConverter);
-
-    if (FeatureDetector.isJodaTimeAvailable()) {
-      final TimeToJodaLocalTimeConverter jodaLocalTimeConverter = new TimeToJodaLocalTimeConverter();
-      ConvertUtils.addConverter(jodaLocalTimeConverter);
-    }
-
-    ConvertUtils.addConverter(new OffsetTimeToSQLTimeConverter());
-  }
+  private ConversionService conversionService;
 
   public JdbcOperations(String jndiLookup) {
     this(DataSourceUtils.getJndiDatasource(jndiLookup));
@@ -100,7 +86,7 @@ public class JdbcOperations {
    * @see cn.taketoday.jdbc.support.GenericConnectionSource
    */
   public JdbcOperations(String url, String user, String pass) {
-    this.connectionSource = ConnectionSource.from(url, user, pass);
+    this(ConnectionSource.from(url, user, pass));
   }
 
   /**
@@ -111,12 +97,28 @@ public class JdbcOperations {
    *         The DataSource JdbcOperations uses to acquire connections to the database.
    */
   public JdbcOperations(DataSource dataSource) {
-    this.connectionSource = ConnectionSource.fromDataSource(dataSource);
+    this(ConnectionSource.fromDataSource(dataSource));
   }
 
   public JdbcOperations(DataSource dataSource, boolean generatedKeys) {
+    this(ConnectionSource.fromDataSource(dataSource));
     this.generatedKeys = generatedKeys;
-    this.connectionSource = ConnectionSource.fromDataSource(dataSource);
+  }
+
+  public JdbcOperations(ConnectionSource source) {
+    this.connectionSource = source;
+    final DefaultConversionService sharedInstance = DefaultConversionService.getSharedInstance();
+    sharedInstance.addConverters(new ClobToStringConverter(),
+                                 new OffsetTimeToSQLTimeConverter());
+    if (FeatureDetector.isJodaTimeAvailable()) {
+      sharedInstance.addConverter(new TimeToJodaLocalTimeConverter());
+    }
+    this.conversionService = sharedInstance;
+  }
+
+  public JdbcOperations(ConnectionSource source, ConversionService conversionService) {
+    this.connectionSource = source;
+    this.conversionService = conversionService;
   }
 
   /**
