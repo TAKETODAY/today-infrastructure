@@ -35,9 +35,9 @@ import java.util.Map;
 /**
  * @author aldenquimby@gmail.com
  */
-public class TableResultSetIterator extends AbstractResultSetIterator<Row> {
+public final class TableResultSetIterator extends AbstractResultSetIterator<Row> {
   private final List<Column> columns;
-  protected final boolean isCaseSensitive;
+  private final boolean isCaseSensitive;
   private final ConversionService conversionService;
   private final Map<String, Integer> columnNameToIdxMap;
 

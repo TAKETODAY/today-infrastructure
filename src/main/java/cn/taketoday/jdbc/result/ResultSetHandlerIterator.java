@@ -32,7 +32,7 @@ import java.sql.SQLException;
  * @author aldenquimby@gmail.com
  * @author TODAY
  */
-public class ResultSetHandlerIterator<T> extends AbstractResultSetIterator<T> {
+public final class ResultSetHandlerIterator<T> extends AbstractResultSetIterator<T> {
   private final ResultSetHandler<T> handler;
 
   public ResultSetHandlerIterator(ResultSet rs, ResultSetHandler<T> handler) {
