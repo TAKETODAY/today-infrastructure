@@ -19,7 +19,7 @@
     <version>3.0.3.RELEASE</version>
 </dependency>
 ```
-- [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-context/3.0.1.RELEASE/jar)
+- [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-context/3.0.3.RELEASE/jar)
 
 ## 🎉 前言
 
