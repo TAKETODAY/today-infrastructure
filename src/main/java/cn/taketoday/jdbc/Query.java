@@ -205,8 +205,8 @@ public final class Query implements AutoCloseable {
   @SuppressWarnings("unchecked")
   public Query addParameter(final String name, final Object value) {
     return value == null
-           ? addNullParameter(name)
-           : addParameter(name, (Class<Object>) value.getClass(), value);
+            ? addNullParameter(name)
+            : addParameter(name, (Class<Object>) value.getClass(), value);
   }
 
   public Query addNullParameter(final String name) {
@@ -469,8 +469,8 @@ public final class Query implements AutoCloseable {
         if (log.isDebugEnabled()) {
           long afterClose = System.currentTimeMillis();
           log.debug("total: {} ms, execution: {} ms, reading and parsing: {} ms; executed [{}]",
-                    afterClose - start, afterExecQuery - start,
-                    afterClose - afterExecQuery, name);
+                  afterClose - start, afterExecQuery - start,
+                  afterClose - afterExecQuery, name);
         }
       }
       catch (SQLException ex) {
@@ -690,7 +690,7 @@ public final class Query implements AutoCloseable {
     logExecution();
     final long start = System.currentTimeMillis();
     try (final PreparedStatement ps = buildPreparedStatement();
-            final ResultSet rs = ps.executeQuery()) {
+         final ResultSet rs = ps.executeQuery()) {
 
       if (rs.next()) {
         final T ret = typeHandler.getResult(rs, 1);
