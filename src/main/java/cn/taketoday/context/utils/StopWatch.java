@@ -57,7 +57,7 @@ public class StopWatch {
 
   private boolean keepTaskList = true;
 
-  private final List<TaskInfo> taskList = new ArrayList<>(1);
+  private final ArrayList<TaskInfo> taskList = new ArrayList<>(1);
 
   /** Start time of the current task. */
   private long startTimeNanos;
