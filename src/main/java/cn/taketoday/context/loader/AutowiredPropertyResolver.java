@@ -95,7 +95,6 @@ public class AutowiredPropertyResolver
     }
     // @since 3.0
     final boolean required = AutowiredParameterResolver.isRequired(field, autowired);
-//    return new BeanReferencePropertySetter(new BeanReference(name, required, field), field);
     return new BeanReferencePropertySetter(name, required, field);
   }
 

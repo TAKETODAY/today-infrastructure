@@ -546,6 +546,7 @@ public abstract class ContextUtils {
     final Properties ret = new ConcurrentProperties();
     final String[] fileNames = props.value();
 
+    // choose properties to use
     final Properties propertiesToUse;
     if (fileNames.length == 0) {
       Assert.notNull(applicationProps, "Application properties must not be null");
@@ -566,6 +567,9 @@ public abstract class ContextUtils {
         }
       }
     }
+
+    // process -----------------
+
     final String[] prefixs = props.prefix();
     final boolean replace = props.replace();
 
