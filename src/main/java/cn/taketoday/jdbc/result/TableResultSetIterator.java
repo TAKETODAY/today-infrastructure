@@ -20,10 +20,6 @@
 
 package cn.taketoday.jdbc.result;
 
-import cn.taketoday.context.conversion.ConversionService;
-import cn.taketoday.jdbc.PersistenceException;
-import cn.taketoday.jdbc.utils.JdbcUtils;
-
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -31,6 +27,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import cn.taketoday.context.conversion.ConversionService;
+import cn.taketoday.context.conversion.support.DefaultConversionService;
+import cn.taketoday.jdbc.PersistenceException;
+import cn.taketoday.jdbc.utils.JdbcUtils;
 
 /**
  * @author aldenquimby@gmail.com
@@ -45,7 +46,8 @@ public final class TableResultSetIterator extends AbstractResultSetIterator<Row>
           ResultSet rs, boolean isCaseSensitive, LazyTable lt, ConversionService conversionService) {
     super(rs);
     this.isCaseSensitive = isCaseSensitive;
-    this.conversionService = conversionService;
+    this.conversionService =
+            conversionService == null ? DefaultConversionService.getSharedInstance() : conversionService;
     final ResultSetMetaData meta = JdbcUtils.getMetaData(rs);
 
     final ArrayList<Column> columns = new ArrayList<>();

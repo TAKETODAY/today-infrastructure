@@ -19,6 +19,14 @@
  */
 package cn.taketoday.jdbc;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Map;
+
+import javax.sql.DataSource;
+
+import cn.taketoday.context.conversion.ConversionService;
+import cn.taketoday.context.conversion.support.DefaultConversionService;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.jdbc.parsing.DefaultSqlParameterParser;
 import cn.taketoday.jdbc.parsing.ParameterApplier;
@@ -33,11 +41,6 @@ import cn.taketoday.jdbc.support.TimeToJodaLocalTimeConverter;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.DataSourceUtils;
 import cn.taketoday.jdbc.utils.FeatureDetector;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Map;
 
 /**
  * JdbcOperations is the main class for the today-jdbc library.
@@ -63,6 +66,8 @@ public class JdbcOperations {
   private ConnectionSource connectionSource;
   private Map<String, String> defaultColumnMappings;
   private SqlParameterParser sqlParameterParser = new DefaultSqlParameterParser();
+
+  private ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
   static {
     final ClobToStringConverter stringConverter = new ClobToStringConverter();
@@ -574,4 +579,13 @@ public class JdbcOperations {
   public TypeHandlerRegistry getTypeHandlerRegistry() {
     return typeHandlerRegistry;
   }
+
+  public void setConversionService(ConversionService conversionService) {
+    this.conversionService = conversionService;
+  }
+
+  public ConversionService getConversionService() {
+    return conversionService;
+  }
+
 }

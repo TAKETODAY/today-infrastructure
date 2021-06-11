@@ -38,13 +38,9 @@ public class JdbcAutoConfiguration implements ApplicationListener<LoadingMissing
 
   @Override
   public void onApplicationEvent(LoadingMissingBeanEvent event) {
-
     LoggerFactory.getLogger(getClass()).info("Preparing TODAY Jdbc Environment");
-
     final ApplicationContext applicationContext = event.getApplicationContext();
-
     final JdbcConfiguration jdbcConfiguration = getJdbcConfiguration(applicationContext);
-
     configureResultResolver(applicationContext, jdbcConfiguration);
   }
 
@@ -62,7 +58,7 @@ public class JdbcAutoConfiguration implements ApplicationListener<LoadingMissing
    * @author TODAY <br>
    * 2019-08-24 13:27
    */
-  protected static class CompositeJdbcConfiguration {
+  protected static class CompositeJdbcConfiguration implements JdbcConfiguration {
 
     private final List<JdbcConfiguration> jdbcConfigurations;
 

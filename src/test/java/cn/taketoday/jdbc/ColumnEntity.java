@@ -1,11 +1,11 @@
 package cn.taketoday.jdbc;
 
-import cn.taketoday.jdbc.annotation.Column;
+import cn.taketoday.context.annotation.Property;
 
 public class ColumnEntity {
 
   private int id;
-  @Column("text_col")
+  @Property("text_col")
   private String text;
 
   public int getId() {

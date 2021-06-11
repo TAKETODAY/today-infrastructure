@@ -1,14 +1,5 @@
 package cn.taketoday.jdbc;
 
-import cn.taketoday.context.conversion.ConversionService;
-import cn.taketoday.context.conversion.support.DefaultConversionService;
-import cn.taketoday.context.exception.ConversionException;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.jdbc.support.ConnectionSource;
-import cn.taketoday.jdbc.utils.JdbcUtils;
-
 import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -17,6 +8,15 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
+import cn.taketoday.context.conversion.ConversionService;
+import cn.taketoday.context.exception.ConversionException;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.Assert;
+import cn.taketoday.context.utils.CollectionUtils;
+import cn.taketoday.jdbc.support.ConnectionSource;
+import cn.taketoday.jdbc.utils.JdbcUtils;
 
 /**
  * Represents a connection to the database with a transaction.
@@ -187,12 +187,21 @@ public final class JdbcConnection implements Closeable {
     return null;
   }
 
-  public <V> V getKey(Class<V> returnType) {
-    return getKey(returnType, DefaultConversionService.getSharedInstance());
+  /**
+   * @throws IllegalArgumentException
+   *         If conversionService is null
+   */
+  public <V> V getKey(final Class<V> returnType) {
+    return getKey(returnType, operations.getConversionService());
   }
 
-  public <V> V getKey(Class<V> returnType, ConversionService conversionService) {
-    Object key = getKey();
+  /**
+   * @throws IllegalArgumentException
+   *         If conversionService is null
+   */
+  public <V> V getKey(final Class<V> returnType, final ConversionService conversionService) {
+    Assert.notNull(conversionService, "conversionService must not be null");
+    final Object key = getKey();
     try {
       return conversionService.convert(key, returnType);
     }
@@ -211,14 +220,23 @@ public final class JdbcConnection implements Closeable {
     return null;
   }
 
+  /**
+   * @throws IllegalArgumentException
+   *         If conversionService is null
+   */
   public <V> List<V> getKeys(Class<V> returnType) {
-    return getKeys(returnType, DefaultConversionService.getSharedInstance());
+    return getKeys(returnType, operations.getConversionService());
   }
 
+  /**
+   * @throws IllegalArgumentException
+   *         If conversionService is null
+   */
   public <V> List<V> getKeys(Class<V> returnType, ConversionService conversionService) {
     assertCanGetKeys();
     final List<Object> keys = this.keys;
     if (keys != null) {
+      Assert.notNull(conversionService, "conversionService must not be null");
       try {
         final ArrayList<V> convertedKeys = new ArrayList<>(keys.size());
         for (final Object key : keys) {

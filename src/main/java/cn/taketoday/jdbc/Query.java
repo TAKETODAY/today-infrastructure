@@ -607,7 +607,7 @@ public final class Query implements AutoCloseable {
   }
 
   public LazyTable fetchLazyTable() {
-    return fetchLazyTable(DefaultConversionService.getSharedInstance());
+    return fetchLazyTable(connection.getOperations().getConversionService());
   }
 
   public LazyTable fetchLazyTable(ConversionService conversionService) {
@@ -623,7 +623,7 @@ public final class Query implements AutoCloseable {
   }
 
   public Table fetchTable() {
-    return fetchTable(DefaultConversionService.getSharedInstance());
+    return fetchTable(connection.getOperations().getConversionService());
   }
 
   public Table fetchTable(ConversionService conversionService) {
