@@ -1,16 +1,15 @@
 package cn.taketoday.jdbc.support;
 
+import cn.taketoday.jdbc.JdbcConnection;
+
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import javax.sql.DataSource;
-
-import cn.taketoday.jdbc.JdbcConnection;
-
 /**
  * An abstraction layer for providing jdbc connection to use from
- * {@link JdbcConnection} Created by nickl on 09.01.17.
+ * {@link JdbcConnection}
  */
 public interface ConnectionSource {
 
@@ -91,7 +90,7 @@ public interface ConnectionSource {
    *         JDBC database url
    * @param user
    *         database username
-   * @param pass
+   * @param password
    *         database password
    *
    * @return GenericConnectionSource

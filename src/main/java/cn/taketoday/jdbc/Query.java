@@ -20,23 +20,6 @@
 
 package cn.taketoday.jdbc;
 
-import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.support.DefaultConversionService;
 import cn.taketoday.context.factory.BeanMetadata;
@@ -62,6 +45,23 @@ import cn.taketoday.jdbc.type.ObjectTypeHandler;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.JdbcUtils;
+
+import java.io.InputStream;
+import java.lang.reflect.Array;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a sql statement.
@@ -106,9 +106,10 @@ public final class Query implements AutoCloseable {
     this.connection = connection;
     this.columnNames = columnNames;
     this.returnGeneratedKeys = generatedKeys;
-    setColumnMappings(connection.getOperations().getDefaultColumnMappings());
-    this.caseSensitive = connection.getOperations().isDefaultCaseSensitive();
-    this.parsedQuery = connection.getOperations().parse(queryText, indexMap);
+    final JdbcOperations operations = connection.getOperations();
+    setColumnMappings(operations.getDefaultColumnMappings());
+    this.caseSensitive = operations.isDefaultCaseSensitive();
+    this.parsedQuery = operations.parse(queryText, indexMap);
   }
 
   // ------------------------------------------------

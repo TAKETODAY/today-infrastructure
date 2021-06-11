@@ -7,5 +7,14 @@ import java.util.Map;
  */
 public abstract class SqlParameterParser {
 
-  public abstract String parse(String sqlToParse, Map<String, ParameterApplier> mapToFill);
+  /**
+   * @param statement
+   *         sql to parse
+   * @param paramMap
+   *         ParameterApplier mapping
+   *
+   * @return parsed sql
+   */
+  public abstract String parse(String statement, Map<String, ParameterApplier> paramMap);
+
 }
