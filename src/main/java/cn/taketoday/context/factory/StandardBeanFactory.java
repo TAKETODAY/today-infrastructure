@@ -696,9 +696,7 @@ public class StandardBeanFactory
   public BeanDefinition createBeanDefinition(
           final String beanName, final Class<?> beanClass, final AnnotationAttributes attributes
   ) {
-
     final DefaultBeanDefinition ret = new DefaultBeanDefinition(beanName, beanClass);
-
     if (attributes == null) {
       ret.setDestroyMethods(Constant.EMPTY_STRING_ARRAY)
               .setInitMethods(resolveInitMethod(null, beanClass));

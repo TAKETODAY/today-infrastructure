@@ -55,9 +55,8 @@ public interface BeanDefinitionLoader {
   /**
    * @since 3.0
    */
-  BeanDefinition createBeanDefinition(String beanName,
-                                      Class<?> beanClass,
-                                      AnnotationAttributes attributes);
+  BeanDefinition createBeanDefinition(
+          String beanName, Class<?> beanClass, AnnotationAttributes attributes);
 
   /**
    * Get registered bean definition registry
@@ -88,7 +87,7 @@ public interface BeanDefinitionLoader {
    *
    * @throws BeanDefinitionStoreException
    *         If BeanDefinition could not be store
-   * @see{@link #register(Class)}
+   * @see #register(Class)
    */
   void loadBeanDefinition(Class<?> candidate) throws BeanDefinitionStoreException;
 
@@ -125,7 +124,8 @@ public interface BeanDefinitionLoader {
    *         package locations
    *
    * @throws BeanDefinitionStoreException
-   * @see {@link #loadBeanDefinition(Class)}
+   *         If BeanDefinition could not be store
+   * @see #loadBeanDefinition(Class)
    * @since 2.1.7
    */
   void loadBeanDefinition(String... locations) throws BeanDefinitionStoreException;
