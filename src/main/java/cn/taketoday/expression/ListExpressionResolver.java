@@ -113,9 +113,8 @@ public class ListExpressionResolver extends ExpressionResolver {
    *         cause property of this exception, if available.
    */
   public Class<?> getType(ExpressionContext context, Object base, Object property) {
-
     if (base instanceof List) {
-      Objects.requireNonNull(context).setPropertyResolved(true);
+      context.setPropertyResolved(true);
       final int index = toInteger(property);
       if (index < 0 || index >= ((List<?>) base).size()) {
         throw new PropertyNotFoundException();
@@ -164,9 +163,8 @@ public class ListExpressionResolver extends ExpressionResolver {
    *         cause property of this exception, if available.
    */
   public Object getValue(ExpressionContext context, Object base, Object property) {
-
     if (base instanceof List) {
-      Objects.requireNonNull(context).setPropertyResolved(base, property);
+      context.setPropertyResolved(base, property);
       final int index = toInteger(property);
       final List<?> list = (List<?>) base;
       if (index < 0 || index >= list.size()) {
@@ -241,7 +239,7 @@ public class ListExpressionResolver extends ExpressionResolver {
   public void setValue(ExpressionContext context, Object base, Object property, Object val) {
 
     if (base instanceof List) {
-      Objects.requireNonNull(context).setPropertyResolved(base, property);
+      context.setPropertyResolved(base, property);
       int index = toInteger(property);
       if (isReadOnly) {
         throw new PropertyNotWritableException();
@@ -315,10 +313,8 @@ public class ListExpressionResolver extends ExpressionResolver {
    *         cause property of this exception, if available.
    */
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
-
     if (base instanceof List) {
-      Objects.requireNonNull(context).setPropertyResolved(true);
-
+      context.setPropertyResolved(true);
       final List<?> list = (List<?>) base;
       final int index = toInteger(property);
       if (index < 0 || index >= list.size()) {

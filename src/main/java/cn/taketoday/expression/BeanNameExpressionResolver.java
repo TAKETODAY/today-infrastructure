@@ -117,7 +117,7 @@ public class BeanNameExpressionResolver extends ExpressionResolver {
     if (base == null && property instanceof String) {
       final BeanNameResolver beanNameResolver = this.beanNameResolver;
       if (beanNameResolver.isNameResolved((String) property)) {
-        Objects.requireNonNull(context).setPropertyResolved(base, property);
+        context.setPropertyResolved(base, property);
         return beanNameResolver.getBean((String) property);
       }
     }
@@ -162,7 +162,7 @@ public class BeanNameExpressionResolver extends ExpressionResolver {
       final BeanNameResolver beanNameResolver = this.beanNameResolver;
       if (beanNameResolver.isNameResolved(beanName) || beanNameResolver.canCreateBean(beanName)) {
         beanNameResolver.setBeanValue(beanName, value);
-        Objects.requireNonNull(context).setPropertyResolved(base, property);
+        context.setPropertyResolved(base, property);
       }
     }
   }
@@ -201,7 +201,7 @@ public class BeanNameExpressionResolver extends ExpressionResolver {
   public Class<?> getType(ExpressionContext context, Object base, Object property) {
 
     if (base == null && property instanceof String && beanNameResolver.isNameResolved((String) property)) {
-      Objects.requireNonNull(context).setPropertyResolved(true);
+      context.setPropertyResolved(true);
       return beanNameResolver.getBean((String) property).getClass();
     }
     return null;
@@ -243,7 +243,7 @@ public class BeanNameExpressionResolver extends ExpressionResolver {
 
     if (base == null && property instanceof String) {
       if (beanNameResolver.isNameResolved((String) property)) {
-        Objects.requireNonNull(context).setPropertyResolved(true);
+        context.setPropertyResolved(true);
         return beanNameResolver.isReadOnly((String) property);
       }
     }

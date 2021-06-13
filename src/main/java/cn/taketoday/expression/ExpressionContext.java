@@ -22,8 +22,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Stack;
 
+import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.TypeConverter;
-import cn.taketoday.context.utils.ConvertUtils;
+import cn.taketoday.context.conversion.support.DefaultConversionService;
 import cn.taketoday.context.utils.GenericDescriptor;
 import cn.taketoday.expression.lang.EvaluationContext;
 
@@ -100,6 +101,9 @@ public abstract class ExpressionContext {
    */
   private Locale locale;
 
+  /** @since 3.0.4 */
+  private ConversionService conversionService = DefaultConversionService.getSharedInstance();
+
   /**
    * Called to indicate that a <code>ELResolver</code> has successfully resolved a
    * given (base, property) pair. Use {@link #setPropertyResolved(Object, Object)}
@@ -137,7 +141,8 @@ public abstract class ExpressionContext {
    * @since EL 3.0
    */
   public void setPropertyResolved(Object base, Object property) {
-    setPropertyResolved(true); // Don't set the variable here, for 2.2 users ELContext may be overridden or delegated.
+    // Don't set the variable here, for 2.2 users ELContext may be overridden or delegated.
+    setPropertyResolved(true);
   }
 
   /**
@@ -410,9 +415,11 @@ public abstract class ExpressionContext {
       if (targetType.isInstance(obj)) {
         return obj;
       }
-      final TypeConverter typeConverter = ConvertUtils.getConverter(obj, targetType);
+      // @since 3.0.4
+      final GenericDescriptor targetDescriptor = GenericDescriptor.valueOf(targetType);
+      final TypeConverter typeConverter = conversionService.getConverter(obj.getClass(), targetDescriptor);
       if (typeConverter != null) {
-        return typeConverter.convert(GenericDescriptor.valueOf(targetType), obj);
+        return typeConverter.convert(targetDescriptor, obj);
       }
       final ExpressionResolver elResolver = getResolver();
       if (elResolver != null) {
@@ -436,6 +443,27 @@ public abstract class ExpressionContext {
       throw new PropertyNotFoundException("ELResolver cannot handle a null base Object with identifier ''" + property + "''");
     }
     throw new PropertyNotFoundException("ELResolver did not handle type: " + base.getClass() + " with property of ''" + property + "''");
+  }
+
+  /**
+   * set conversionService If input conversionService is null
+   * use the default {@link DefaultConversionService}
+   *
+   * @see DefaultConversionService
+   * @since 3.0.4
+   */
+  public void setConversionService(ConversionService conversionService) {
+    if (conversionService == null) {
+      conversionService = DefaultConversionService.getSharedInstance();
+    }
+    this.conversionService = conversionService;
+  }
+
+  /**
+   * @since 3.0.4
+   */
+  public ConversionService getConversionService() {
+    return conversionService;
   }
 
 }

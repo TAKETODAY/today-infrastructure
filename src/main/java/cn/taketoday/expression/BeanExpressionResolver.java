@@ -22,7 +22,6 @@ import cn.taketoday.context.factory.BeanProperty;
 
 import static cn.taketoday.expression.util.ReflectionUtil.findMethod;
 import static cn.taketoday.expression.util.ReflectionUtil.invokeMethod;
-import static java.util.Objects.requireNonNull;
 
 /**
  * Defines property resolution behavior on objects using the JavaBeans component
@@ -141,7 +140,7 @@ public class BeanExpressionResolver extends ExpressionResolver {
     }
 
     final BeanProperty beanProperty = getProperty(base, property);
-    requireNonNull(context).setPropertyResolved(true);
+    context.setPropertyResolved(true);
     return beanProperty.getType();
   }
 
@@ -194,7 +193,7 @@ public class BeanExpressionResolver extends ExpressionResolver {
     final BeanProperty beanProperty = getProperty(base, property);
     try {
       final Object value = beanProperty.getValue(base);
-      requireNonNull(context).setPropertyResolved(base, property);
+      context.setPropertyResolved(base, property);
       return value;
     }
     catch (Exception ex) {
@@ -262,11 +261,11 @@ public class BeanExpressionResolver extends ExpressionResolver {
     final BeanProperty beanProperty = getProperty(base, property);
     try {
       beanProperty.setValue(base, val);
-      requireNonNull(context).setPropertyResolved(base, property);
+      context.setPropertyResolved(base, property);
     }
     catch (Exception ex) {
       final StringBuilder message = new StringBuilder("Can't set property '")//
-              .append(property.toString())//
+              .append(property)//
               .append("' on class '")//
               .append(base.getClass().getName())//
               .append("' to value '")//
@@ -348,8 +347,7 @@ public class BeanExpressionResolver extends ExpressionResolver {
       return null;
     }
 
-    final Object ret = invokeMethod(requireNonNull(context),
-                                    findMethod(base.getClass(), method.toString(), paramTypes, params, false),
+    final Object ret = invokeMethod(context, findMethod(base.getClass(), method.toString(), paramTypes, params, false),
                                     base,
                                     params);
 
@@ -412,7 +410,7 @@ public class BeanExpressionResolver extends ExpressionResolver {
       return false;
     }
 
-    requireNonNull(context).setPropertyResolved(true);
+    context.setPropertyResolved(true);
     return isReadOnly;
   }
 

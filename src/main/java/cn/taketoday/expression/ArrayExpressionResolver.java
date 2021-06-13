@@ -18,7 +18,6 @@
 package cn.taketoday.expression;
 
 import java.lang.reflect.Array;
-import java.util.Objects;
 
 /**
  * Defines property resolution behavior on arrays.
@@ -114,7 +113,7 @@ public class ArrayExpressionResolver extends ExpressionResolver {
       final Class<?> beanClass = base.getClass();
       if (beanClass.isArray()) {
 
-        Objects.requireNonNull(context).setPropertyResolved(true);
+        context.setPropertyResolved(true);
         final int index = toInteger(property);
         if (index < 0 || index >= Array.getLength(base)) {
           throw new PropertyNotFoundException();
@@ -164,11 +163,8 @@ public class ArrayExpressionResolver extends ExpressionResolver {
    *         cause property of this exception, if available.
    */
   public Object getValue(ExpressionContext context, Object base, Object property) {
-
-    Objects.requireNonNull(context);
-
     if (base != null && base.getClass().isArray()) {
-      Objects.requireNonNull(context).setPropertyResolved(base, property);
+      context.setPropertyResolved(base, property);
 
       final int index = toInteger(property);
       if (index >= 0 && index < Array.getLength(base)) {
@@ -232,7 +228,7 @@ public class ArrayExpressionResolver extends ExpressionResolver {
     if (base != null) {
       final Class<?> beanClass = base.getClass();
       if (beanClass.isArray()) {
-        Objects.requireNonNull(context).setPropertyResolved(base, property);
+        context.setPropertyResolved(base, property);
         if (isReadOnly) {
           throw new PropertyNotWritableException();
         }
@@ -294,7 +290,7 @@ public class ArrayExpressionResolver extends ExpressionResolver {
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
 
     if (base != null && base.getClass().isArray()) {
-      Objects.requireNonNull(context).setPropertyResolved(true);
+      context.setPropertyResolved(true);
       int index = toInteger(property);
       if (index < 0 || index >= Array.getLength(base)) {
         throw new PropertyNotFoundException();
@@ -306,13 +302,13 @@ public class ArrayExpressionResolver extends ExpressionResolver {
   private int toInteger(Object p) {
 
     if (p instanceof Integer) {
-      return ((Integer) p).intValue();
+      return (Integer) p;
     }
     if (p instanceof Character) {
-      return ((Character) p).charValue();
+      return (Character) p;
     }
     if (p instanceof Boolean) {
-      return ((Boolean) p).booleanValue() ? 1 : 0;
+      return (Boolean) p ? 1 : 0;
     }
     if (p instanceof Number) {
       return ((Number) p).intValue();

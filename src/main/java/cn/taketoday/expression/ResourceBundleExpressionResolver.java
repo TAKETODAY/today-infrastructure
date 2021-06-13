@@ -18,7 +18,6 @@
 package cn.taketoday.expression;
 
 import java.util.MissingResourceException;
-import java.util.Objects;
 import java.util.ResourceBundle;
 
 /**
@@ -89,7 +88,7 @@ public class ResourceBundleExpressionResolver extends ExpressionResolver {
   public Object getValue(ExpressionContext context, Object base, Object property) {
 
     if (base instanceof ResourceBundle) {
-      Objects.requireNonNull(context).setPropertyResolved(true);
+      context.setPropertyResolved(true);
       if (property != null) {
         try {
           return ((ResourceBundle) base).getObject(property.toString());
@@ -131,7 +130,7 @@ public class ResourceBundleExpressionResolver extends ExpressionResolver {
   public Class<?> getType(ExpressionContext context, Object base, Object property) {
 
     if (base instanceof ResourceBundle) {
-      Objects.requireNonNull(context).setPropertyResolved(true);
+      context.setPropertyResolved(true);
     }
     return null;
   }
@@ -158,7 +157,7 @@ public class ResourceBundleExpressionResolver extends ExpressionResolver {
   public void setValue(ExpressionContext context, Object base, Object property, Object value) {
 
     if (base instanceof ResourceBundle) {
-      Objects.requireNonNull(context).setPropertyResolved(true);
+      context.setPropertyResolved(true);
       throw new PropertyNotWritableException("ResourceBundles are immutable");
     }
   }
@@ -183,9 +182,8 @@ public class ResourceBundleExpressionResolver extends ExpressionResolver {
    *         if context is <code>null</code>
    */
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
-
     if (base instanceof ResourceBundle) {
-      Objects.requireNonNull(context).setPropertyResolved(true);
+      context.setPropertyResolved(true);
       return true;
     }
     return false;

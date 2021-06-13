@@ -50,8 +50,6 @@ import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionResolver;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * This ELResolver intercepts method calls to a Collections, to provide support
  * for collection operations.
@@ -63,7 +61,7 @@ public class StreamExpressionResolver extends ExpressionResolver {
 
   private static final StreamExpressionResolver INSTANCE = new StreamExpressionResolver();
 
-  public final static StreamExpressionResolver getInstance() {
+  public static StreamExpressionResolver getInstance() {
     return INSTANCE;
   }
 
@@ -84,7 +82,7 @@ public class StreamExpressionResolver extends ExpressionResolver {
 //            return new Stream(arrayIterator(base));
 //        }
     if ("stream".equals(method) && ObjectUtils.isEmpty(params)) {
-      requireNonNull(context).setPropertyResolved(true);
+      context.setPropertyResolved(true);
       if (base.getClass().isArray()) {
         return new Stream(arrayIterator(base));
       }

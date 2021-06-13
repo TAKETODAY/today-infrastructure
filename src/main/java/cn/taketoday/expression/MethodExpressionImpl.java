@@ -82,8 +82,8 @@ import cn.taketoday.expression.parser.Node;
  * @see cn.taketoday.expression.ExpressionFactory
  * @see cn.taketoday.expression.MethodExpression
  */
-@SuppressWarnings("serial")
 public final class MethodExpressionImpl extends MethodExpression {
+  private static final long serialVersionUID = 1L;
 
   private Node node;
   private final String expr;
@@ -95,7 +95,6 @@ public final class MethodExpressionImpl extends MethodExpression {
   }
 
   public MethodExpressionImpl(String expr, Node node, Class<?>[] paramTypes, Class<?> expectedType) {
-    super();
     this.expr = expr;
     this.node = node;
     this.paramTypes = paramTypes;
@@ -150,13 +149,11 @@ public final class MethodExpressionImpl extends MethodExpression {
    *         property of this exception, if available.
    * @see cn.taketoday.expression.MethodExpression#getMethodInfo(cn.taketoday.expression.ExpressionContext)
    */
-  public MethodInfo getMethodInfo(ExpressionContext context)
-          throws PropertyNotFoundException, MethodNotFoundException, ExpressionException//
-  {
+  public MethodInfo getMethodInfo(ExpressionContext context) {
     return getNode().getMethodInfo(new EvaluationContext(context), this.paramTypes);
   }
 
-  private final Node getNode() throws ExpressionException {
+  private Node getNode() throws ExpressionException {
     final Node node = this.node;
     if (node == null) {
       return this.node = ExpressionFactory.createNode(this.expr);
@@ -215,13 +212,10 @@ public final class MethodExpressionImpl extends MethodExpression {
    *         is an <code>InvocationTargetException</code>, extract its
    *         <code>cause</code> and pass it to the <code>ELException</code>
    *         constructor.
-   * @see cn.taketoday.expression.MethodExpression#invoke(cn.taketoday.expression.ExpressionContext,
-   * java.lang.Object[])
+   * @see MethodExpression#invoke(ExpressionContext, Object[])
    */
-  public Object invoke(final ExpressionContext context, Object[] params) throws PropertyNotFoundException, //
-                                                                                MethodNotFoundException, ExpressionException //
-  {
-    Object value = this.getNode().invoke(new EvaluationContext(context), this.paramTypes, params);
+  public Object invoke(final ExpressionContext context, Object[] params) {
+    Object value = getNode().invoke(new EvaluationContext(context), this.paramTypes, params);
 
     final Class<?> expectedType = this.expectedType;
     if (value != null && expectedType != null && !expectedType.isInstance(value)) {

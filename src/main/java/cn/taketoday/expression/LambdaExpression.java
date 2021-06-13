@@ -133,10 +133,8 @@ public class LambdaExpression {
    */
   public Object invoke(ExpressionContext elContext, Object... args) throws ExpressionException {
     int i = 0;
-    final Map<String, Object> lambdaArgs = new HashMap<String, Object>();
-
     // First get arguments injected from the outter lambda, if any
-    lambdaArgs.putAll(envirArgs);
+    final HashMap<String, Object> lambdaArgs = new HashMap<>(envirArgs);
 
     for (String fParam : formalParameters) {
       if (i >= args.length) {

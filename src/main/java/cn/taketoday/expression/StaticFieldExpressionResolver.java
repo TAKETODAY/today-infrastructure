@@ -105,7 +105,7 @@ public class StaticFieldExpressionResolver extends ExpressionResolver {
   public Object getValue(ExpressionContext context, Object base, Object property) {
     if (base instanceof Class && property instanceof String) {
 
-      Objects.requireNonNull(context).setPropertyResolved(base, property);
+      context.setPropertyResolved(base, property);
       final Field field = ReflectionUtils.findField((Class<?>) base, (String) property);
       if (field == null) {
         throw new PropertyNotFoundException(
@@ -217,9 +217,6 @@ public class StaticFieldExpressionResolver extends ExpressionResolver {
     if (!(base instanceof Class && method instanceof String)) {
       return null;
     }
-
-    Objects.requireNonNull(context);
-
     Class<?> klass = ((Class<?>) base);
     String name = (String) method;
 
@@ -275,7 +272,7 @@ public class StaticFieldExpressionResolver extends ExpressionResolver {
     if (base instanceof Class && property instanceof String) {
       try {
 
-        Objects.requireNonNull(context).setPropertyResolved(true);
+        context.setPropertyResolved(true);
         final Field field = ((Class<?>) base).getField((String) property);
         return field.getType();
       }
@@ -320,7 +317,7 @@ public class StaticFieldExpressionResolver extends ExpressionResolver {
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
 
     if (base instanceof Class && property instanceof String) {
-      Objects.requireNonNull(context).setPropertyResolved(true);
+      context.setPropertyResolved(true);
     }
     return true;
   }

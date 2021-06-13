@@ -42,6 +42,7 @@ package cn.taketoday.expression.parser;
 
 import java.lang.reflect.Method;
 
+import cn.taketoday.context.reflect.MethodInvoker;
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.ExpressionResolver;
 import cn.taketoday.expression.ImportHandler;
@@ -59,20 +60,6 @@ import cn.taketoday.expression.util.ReflectionUtil;
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
 public final class AstValue extends SimpleNode {
-
-  protected static class Target {
-    protected Object base;
-    protected Node suffixNode;
-
-    Target(Object base, Node suffixNode) {
-      this.base = base;
-      this.suffixNode = suffixNode;
-    }
-
-    boolean isMethodCall() {
-      return getArguments(suffixNode) != null;
-    }
-  }
 
   public AstValue(int id) {
     super(id);
@@ -139,14 +126,15 @@ public final class AstValue extends SimpleNode {
     return value;
   }
 
-  private final Object getBase(EvaluationContext ctx) {
+  private Object getBase(EvaluationContext ctx) {
+    final Node child = this.children[0];
     try {
-      return this.children[0].getValue(ctx);
+      return child.getValue(ctx);
     }
     catch (PropertyNotFoundException ex) {
       // Next check if the base is an imported class
-      if (this.children[0] instanceof AstIdentifier) {
-        String name = ((AstIdentifier) this.children[0]).image;
+      if (child instanceof AstIdentifier) {
+        String name = ((AstIdentifier) child).image;
         ImportHandler importHandler = ctx.getImportHandler();
         if (importHandler != null) {
           Class<?> c = importHandler.resolveClass(name);
@@ -159,7 +147,7 @@ public final class AstValue extends SimpleNode {
     }
   }
 
-  private final Target getTarget(EvaluationContext ctx) throws ExpressionException {
+  private Target getTarget(EvaluationContext ctx) throws ExpressionException {
     // evaluate expr-a to value-a
     Object base = getBase(ctx);
 
@@ -169,36 +157,39 @@ public final class AstValue extends SimpleNode {
     }
 
     // set up our start/end
-    Object property = null;
     int propCount = this.jjtGetNumChildren() - 1;
     int i = 1;
 
     // evaluate any properties before our target
+    final Node[] children = this.children;
     if (propCount > 1) {
       while (base != null && i < propCount) {
-        base = getValue(base, this.children[i], ctx);
+        base = getValue(base, children[i], ctx);
         i++;
       }
       // if we are in this block, we have more properties to resolve,
       // but our base was null
       if (base == null) {
-        throw new PropertyNotFoundException("Target Unreachable, ''" + property + "'' returned null");
+        throw new PropertyNotFoundException("Target Unreachable, returned null");
       }
     }
-    return new Target(base, this.children[propCount]);
+    return new Target(base, children[propCount]);
   }
 
+  @Override
   public Object getValue(EvaluationContext ctx) throws ExpressionException {
     Object base = getBase(ctx);
     int propCount = this.jjtGetNumChildren();
     int i = 1;
+    final Node[] children = this.children;
     while (base != null && i < propCount) {
-      base = getValue(base, this.children[i], ctx);
+      base = getValue(base, children[i], ctx);
       i++;
     }
     return base;
   }
 
+  @Override
   public boolean isReadOnly(EvaluationContext ctx) throws ExpressionException {
     Target t = getTarget(ctx);
     if (t.isMethodCall()) {
@@ -213,6 +204,7 @@ public final class AstValue extends SimpleNode {
     return ret;
   }
 
+  @Override
   public void setValue(EvaluationContext ctx, Object value) throws ExpressionException {
     Target t = getTarget(ctx);
     if (t.isMethodCall()) {
@@ -249,6 +241,7 @@ public final class AstValue extends SimpleNode {
     }
   }
 
+  @Override
   public MethodInfo getMethodInfo(EvaluationContext ctx, Class<?>[] paramTypes) throws ExpressionException {
     Target t = getTarget(ctx);
     if (t.isMethodCall()) {
@@ -259,6 +252,7 @@ public final class AstValue extends SimpleNode {
     return new MethodInfo(m.getName(), m.getReturnType(), m.getParameterTypes());
   }
 
+  @Override
   public Object invoke(EvaluationContext ctx, Class<?>[] paramTypes, Object[] paramValues) throws ExpressionException {
     Target t = getTarget(ctx);
     if (t.isMethodCall()) {
@@ -273,13 +267,38 @@ public final class AstValue extends SimpleNode {
       ExpressionResolver resolver = ctx.getResolver();
       return resolver.invoke(ctx, t.base, method, paramTypes, params);
     }
-    Object property = t.suffixNode.getValue(ctx);
-    Method m = ReflectionUtil.findMethod(t.base.getClass(), property.toString(), paramTypes, paramValues);
-    return ReflectionUtil.invokeMethod(ctx, m, t.base, paramValues);
+
+    // @since 3.0.4
+    MethodInvoker targetInvoker = this.targetInvoker;
+    if (targetInvoker == null) {
+      final Object property = t.suffixNode.getValue(ctx); // maybe this property can dynamic
+      final Method method = ReflectionUtil.findMethod(t.base.getClass(), property.toString(), paramTypes, paramValues);
+      targetInvoker = MethodInvoker.create(method);
+      this.targetInvoker = targetInvoker;
+    }
+    return ReflectionUtil.invokeMethod(ctx, targetInvoker, t.base, paramValues);
   }
+
+  /** @since 3.0.4 native invoke target method */
+  private MethodInvoker targetInvoker;
 
   @Override
   public boolean isParametersProvided() {
     return getArguments(this.children[this.jjtGetNumChildren() - 1]) != null;
   }
+
+  static class Target {
+    public Object base;
+    public Node suffixNode;
+
+    Target(Object base, Node suffixNode) {
+      this.base = base;
+      this.suffixNode = suffixNode;
+    }
+
+    boolean isMethodCall() {
+      return getArguments(suffixNode) != null;
+    }
+  }
+
 }

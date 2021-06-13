@@ -241,8 +241,8 @@ public class ExpressionFactory implements NodeVisitor {
    * @throws NullPointerException
    *         if paramTypes is <code>null</code>.
    */
-  public MethodExpression createMethodExpression(ExpressionContext context, String expression, Class<?> expectedReturnType, //
-                                                 Class<?>[] expectedParamTypes)//
+  public MethodExpression createMethodExpression(
+          ExpressionContext context, String expression, Class<?> expectedReturnType, Class<?>[] expectedParamTypes)//
   {
     MethodExpression methodExpression;
 

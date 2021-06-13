@@ -20,7 +20,6 @@ package cn.taketoday.expression;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Defines property resolution behavior on instances of {@link java.util.Map}.
@@ -108,9 +107,6 @@ public class MapExpressionResolver extends ExpressionResolver {
    *         cause property of this exception, if available.
    */
   public Class<?> getType(ExpressionContext context, Object base, Object property) {
-
-    Objects.requireNonNull(context);
-
     if (base instanceof Map) {
       context.setPropertyResolved(true);
       return Object.class;
@@ -165,7 +161,7 @@ public class MapExpressionResolver extends ExpressionResolver {
   public Object getValue(ExpressionContext context, Object base, Object property) {
 
     if (base instanceof Map) {
-      Objects.requireNonNull(context).setPropertyResolved(base, property);
+      context.setPropertyResolved(base, property);
       return ((Map) base).get(property);
     }
     return null;
@@ -227,8 +223,6 @@ public class MapExpressionResolver extends ExpressionResolver {
    *         operation is not supported by the underlying map.
    */
   public void setValue(ExpressionContext context, Object base, Object property, Object val) {
-
-    Objects.requireNonNull(context);
 
     if (base instanceof Map) {
       context.setPropertyResolved(base, property);
@@ -296,9 +290,6 @@ public class MapExpressionResolver extends ExpressionResolver {
    */
   @SuppressWarnings("rawtypes")
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
-
-    Objects.requireNonNull(context);
-
     if (base instanceof Map) {
       context.setPropertyResolved(true);
       return isReadOnly || ((Map) base).getClass() == theUnmodifiableMapClass;

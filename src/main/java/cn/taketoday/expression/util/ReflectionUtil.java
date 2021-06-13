@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.reflect.MethodInvoker;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.MethodNotFoundException;
@@ -79,6 +80,18 @@ public abstract class ReflectionUtil {
     }
     catch (InvocationTargetException ite) {
       throw new ExpressionException(ite.getCause());
+    }
+  }
+
+  public static Object invokeMethod(
+          ExpressionContext context, MethodInvoker invoker, Object base, Object[] params) {
+    final Method method = invoker.getMethod();
+    Object[] parameters = buildParameters(context, method.getParameterTypes(), method.isVarArgs(), params);
+    try {
+      return invoker.invoke(base, parameters);
+    }
+    catch (Throwable throwable) {
+      throw new ExpressionException(throwable);
     }
   }
 
@@ -118,11 +131,12 @@ public abstract class ReflectionUtil {
    * This method duplicates code in javax.el.ELUtil. When making changes keep the
    * code in sync.
    */
-  public static Method findMethod(Class<?> clazz, String methodName,
-                                  Class<?>[] paramTypes, Object[] paramValues) {
+  public static Method findMethod(
+          Class<?> clazz, String methodName, Class<?>[] paramTypes, Object[] paramValues) {
 
     if (clazz == null || methodName == null) {
-      throw new MethodNotFoundException("Method not found: " + clazz + "." + methodName + "(" + paramString(paramTypes) + ")");
+      throw new MethodNotFoundException(
+              "Method not found: " + clazz + "." + methodName + "(" + paramString(paramTypes) + ")");
     }
 
     if (paramTypes == null) {
@@ -130,11 +144,8 @@ public abstract class ReflectionUtil {
     }
 
     Method[] methods = clazz.getMethods();
-
     List<Wrapper> wrappers = Wrapper.wrap(methods, methodName);
-
     Wrapper result = findWrapper(clazz, wrappers, methodName, paramTypes, paramValues);
-
     return result == null ? null : getMethod(clazz, result.unwrap());
   }
 
@@ -148,10 +159,6 @@ public abstract class ReflectionUtil {
     return m;
   }
 
-  /**
-   * This method duplicates code in javax.el.ELUtil. When making changes keep the
-   * code in sync.
-   */
   private static Wrapper findWrapper(Class<?> clazz,
                                      List<Wrapper> wrappers,
                                      String name,
@@ -250,6 +257,10 @@ public abstract class ReflectionUtil {
       }
     }
 
+    if (assignableCandidates.size() == 1) {
+      return assignableCandidates.get(0);
+    }
+
     if (!assignableCandidates.isEmpty()) {
       return findMostSpecificWrapper(assignableCandidates, paramTypes, false, errorMsg(clazz, name, paramTypes));
     }
@@ -309,8 +320,8 @@ public abstract class ReflectionUtil {
    * This method duplicates code in javax.el.ELUtil. When making changes keep the
    * code in sync.
    */
-  private static int isMoreSpecific(Wrapper wrapper1, Wrapper wrapper2,
-                                    Class<?>[] matchingTypes, boolean elSpecific) {
+  private static int isMoreSpecific(
+          Wrapper wrapper1, Wrapper wrapper2, Class<?>[] matchingTypes, boolean elSpecific) {
     Class<?>[] paramTypes1 = wrapper1.getParameterTypes();
     Class<?>[] paramTypes2 = wrapper2.getParameterTypes();
 
@@ -453,15 +464,15 @@ public abstract class ReflectionUtil {
    * This method duplicates code in javax.el.ELUtil. When making changes keep the
    * code in sync.
    */
-  private static final String paramString(Class<?>[] types) {
+  private static String paramString(Class<?>[] types) {
     if (types != null) {
       StringBuilder sb = new StringBuilder();
-      for (int i = 0; i < types.length; i++) {
-        if (types[i] == null) {
+      for (final Class<?> type : types) {
+        if (type == null) {
           sb.append("null, ");
         }
         else {
-          sb.append(types[i].getName()).append(", ");
+          sb.append(type.getName()).append(", ");
         }
       }
       if (sb.length() > 2) {
@@ -540,9 +551,9 @@ public abstract class ReflectionUtil {
     }
     Class<?>[] inf = type.getInterfaces();
     Method mp = null;
-    for (int i = 0; i < inf.length; i++) {
+    for (final Class<?> aClass : inf) {
       try {
-        mp = inf[i].getMethod(m.getName(), m.getParameterTypes());
+        mp = aClass.getMethod(m.getName(), m.getParameterTypes());
         mp = getMethod(mp.getDeclaringClass(), mp);
         if (mp != null) {
           return mp;
@@ -587,8 +598,8 @@ public abstract class ReflectionUtil {
     return null;
   }
 
-  static Object[] buildParameters(ExpressionContext context, Class<?>[] parameterTypes,
-                                  boolean isVarArgs, Object[] params) {
+  static Object[] buildParameters(
+          ExpressionContext context, Class<?>[] parameterTypes, boolean isVarArgs, Object[] params) {
     Object[] parameters = null;
     if (parameterTypes.length > 0) {
       parameters = new Object[parameterTypes.length];
@@ -597,8 +608,7 @@ public abstract class ReflectionUtil {
         int varArgIndex = parameterTypes.length - 1;
         // First argCount-1 parameters are standard
         for (int i = 0; (i < varArgIndex && i < paramCount); i++) {
-          parameters[i] = context.convertToType(params[i],
-                                                parameterTypes[i]);
+          parameters[i] = context.convertToType(params[i], parameterTypes[i]);
         }
         // Last parameter is the varargs
         if (parameterTypes.length == paramCount && parameterTypes[varArgIndex] == params[varArgIndex].getClass()) {
@@ -653,6 +663,9 @@ public abstract class ReflectionUtil {
     public abstract boolean isVarArgs();
 
     public abstract boolean isBridge();
+
+//    public abstract Object invoke();
+
   }
 
   private static class MethodWrapper extends Wrapper {
