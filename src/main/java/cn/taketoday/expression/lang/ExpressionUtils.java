@@ -195,13 +195,13 @@ public abstract class ExpressionUtils {
   public static Character coerceToCharacter(final Object obj) throws IllegalArgumentException {
 
     if (obj == null || BLANK.equals(obj)) {
-      return Character.valueOf((char) 0);
+      return (char) 0;
     }
     if (obj instanceof String) {
-      return Character.valueOf(((String) obj).charAt(0));
+      return ((String) obj).charAt(0);
     }
     if (ExpressionArithmetic.isNumber(obj)) {
-      return Character.valueOf((char) ((Number) obj).shortValue());
+      return (char) ((Number) obj).shortValue();
     }
     if (obj instanceof Character) {
       return (Character) obj;

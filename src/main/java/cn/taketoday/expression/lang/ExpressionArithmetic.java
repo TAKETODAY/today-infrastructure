@@ -54,20 +54,11 @@ import static cn.taketoday.context.Constant.BLANK;
  * @author Jacob Hookom [jacob@hookom.net]
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
-public abstract class ExpressionArithmetic extends ExpressionUtils {
-
-  public static final LongDelegate LONG = new LongDelegate();
-  public static final DoubleDelegate DOUBLE = new DoubleDelegate();
-  public static final BigDecimalDelegate BIGDECIMAL = new BigDecimalDelegate();
-  public static final BigIntegerDelegate BIGINTEGER = new BigIntegerDelegate();
+public abstract class ExpressionArithmetic {
 
   private static final ExpressionArithmetic[] EXPRESSION_ARITHMETICS = new ExpressionArithmetic[] { //
-          BIGDECIMAL, DOUBLE, BIGINTEGER
+          BigDecimalDelegate.INSTANCE, DoubleDelegate.INSTANCE, BigIntegerDelegate.INSTANCE
   };
-
-  protected ExpressionArithmetic() {
-    super();
-  }
 
   public static Number add(final Object obj0, final Object obj1) {
     return operation(obj0, obj1, ExpressionArithmetic::addInternal);
@@ -87,13 +78,18 @@ public abstract class ExpressionArithmetic extends ExpressionUtils {
 
   public static Number divide(final Object obj0, final Object obj1) {
     if (obj0 == null && obj1 == null) {
-      return ZERO;
+      return ExpressionUtils.ZERO;
     }
     final ExpressionArithmetic delegate;
-    if (BIGDECIMAL.matches(obj0, obj1)) delegate = BIGDECIMAL;
-    else if (BIGINTEGER.matches(obj0, obj1)) delegate = BIGDECIMAL;
-    else
-      delegate = DOUBLE;
+    if (BigDecimalDelegate.INSTANCE.matches(obj0, obj1)) {
+      delegate = BigDecimalDelegate.INSTANCE;
+    }
+    else if (BigIntegerDelegate.INSTANCE.matches(obj0, obj1)) {
+      delegate = BigIntegerDelegate.INSTANCE;
+    }
+    else {
+      delegate = DoubleDelegate.INSTANCE;
+    }
     return delegate.divideInternal(delegate.convert(obj0), delegate.convert(obj1));
   }
 
@@ -107,16 +103,17 @@ public abstract class ExpressionArithmetic extends ExpressionUtils {
 
   protected static Number operation(final Object obj0, final Object obj1, final Operation operation) {
     if (obj0 == null && obj1 == null) {
-      return ZERO;
+      return ExpressionUtils.ZERO;
     }
     for (final ExpressionArithmetic arithmetic : EXPRESSION_ARITHMETICS) {
       if (arithmetic.matches(obj0, obj1)) {
         return operation.apply(arithmetic, arithmetic.convert(obj0), arithmetic.convert(obj1));
       }
     }
-    final ExpressionArithmetic arithmetic = LONG;
+    final ExpressionArithmetic arithmetic = LongDelegate.INSTANCE;
     return operation.apply(arithmetic, arithmetic.convert(obj0), arithmetic.convert(obj1));
   }
+
   //@off
   protected abstract Number convert(final Number num);
   protected abstract Number convert(final String str);
@@ -131,7 +128,7 @@ public abstract class ExpressionArithmetic extends ExpressionUtils {
   protected final Number convert(final Object obj) {
 
     if (obj == null) {
-      return convert(ZERO);
+      return convert(ExpressionUtils.ZERO);
     }
 
     if (isNumber(obj)) {
@@ -139,18 +136,25 @@ public abstract class ExpressionArithmetic extends ExpressionUtils {
     }
 
     if (obj instanceof String) {
-      return BLANK.equals(obj) ? convert(ZERO) : convert((String) obj);
+      return BLANK.equals(obj) ? convert(ExpressionUtils.ZERO) : convert((String) obj);
     }
 
-    final Class<?> objType = obj.getClass();
-    if (objType == Character.class || objType == Character.TYPE) {
-      return convert(Short.valueOf((short) ((Character) obj).charValue()));
+    if (obj instanceof Character) {
+      return convert((short) ((Character) obj).charValue());
     }
 
-    throw new IllegalArgumentException("Cannot convert " + obj + " of type " + objType + " to Number");
+    final Class<?> aClass = obj.getClass();
+    if (aClass == Character.TYPE) {
+      return convert((short) obj);
+    }
+    throw new IllegalArgumentException("Cannot convert " + obj + " of type " + aClass + " to Number");
   }
 
+  // sub classes
+
   static final class BigDecimalDelegate extends ExpressionArithmetic {
+    static final BigDecimalDelegate INSTANCE = new BigDecimalDelegate();
+
     @Override
     protected Number addInternal(Number num0, Number num1) {
       return ((BigDecimal) num0).add((BigDecimal) num1);
@@ -197,6 +201,8 @@ public abstract class ExpressionArithmetic extends ExpressionUtils {
   }
 
   static class BigIntegerDelegate extends ExpressionArithmetic {
+    static final BigIntegerDelegate INSTANCE = new BigIntegerDelegate();
+
     @Override
     protected Number addInternal(Number num0, Number num1) {
       return ((BigInteger) num0).add((BigInteger) num1);
@@ -240,6 +246,8 @@ public abstract class ExpressionArithmetic extends ExpressionUtils {
   }
 
   static class DoubleDelegate extends ExpressionArithmetic {
+    static final DoubleDelegate INSTANCE = new DoubleDelegate();
+
     @Override
     protected Number addInternal(Number num0, Number num1) {
       // could only be one of these
@@ -312,7 +320,9 @@ public abstract class ExpressionArithmetic extends ExpressionUtils {
     }
   }
 
-  public static final class LongDelegate extends ExpressionArithmetic {
+  static final class LongDelegate extends ExpressionArithmetic {
+    static final LongDelegate INSTANCE = new LongDelegate();
+
     @Override
     protected Number addInternal(Number num0, Number num1) {
       return num0.longValue() + num1.longValue();
