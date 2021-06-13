@@ -212,7 +212,8 @@ public class StaticFieldExpressionResolver extends ExpressionResolver {
    *         constructor.
    */
   @Override
-  public Object invoke(ExpressionContext context, Object base, Object method, Class<?>[] paramTypes, Object[] params) {
+  public Object invoke(
+          ExpressionContext context, Object base, Object method, Class<?>[] paramTypes, Object[] params) {
 
     if (!(base instanceof Class && method instanceof String)) {
       return null;

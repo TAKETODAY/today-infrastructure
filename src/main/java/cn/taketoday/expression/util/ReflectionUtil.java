@@ -108,20 +108,12 @@ public abstract class ReflectionUtil {
   }
 
   public static Constructor<?> findConstructor(Class<?> klass, Class<?>[] paramTypes, Object[] params) {
-
-    if (klass == null) {
-      throw new MethodNotFoundException(
-              "Method not found: " + klass + '.' + Constant.CONSTRUCTOR_NAME + '(' + paramString(paramTypes) + ')');
-    }
-
     if (paramTypes == null) {
       paramTypes = getTypesFromValues(params);
     }
 
     Constructor<?>[] constructors = klass.getConstructors();
-
     List<Wrapper> wrappers = Wrapper.wrap(constructors);
-
     final String methodName = Constant.CONSTRUCTOR_NAME;
     Wrapper result = findWrapper(klass, wrappers, methodName, paramTypes, params);
     return result == null ? null : getConstructor(klass, result.unwrap());
@@ -152,7 +144,7 @@ public abstract class ReflectionUtil {
   public static Method findMethod(Class<?> klass, String method, Class<?>[] paramTypes, Object[] params, boolean staticOnly) {
 
     Method m = findMethod(klass, method, paramTypes, params);
-    if (staticOnly && !Modifier.isStatic(m.getModifiers())) {
+    if (m == null || (staticOnly && !Modifier.isStatic(m.getModifiers()))) {
       throw new MethodNotFoundException("Method " + method + "for class " + klass + " not found or accessible");
     }
 
@@ -169,23 +161,11 @@ public abstract class ReflectionUtil {
     ArrayList<Wrapper> coercibleCandidates = new ArrayList<>();
     ArrayList<Wrapper> assignableCandidates = new ArrayList<>();
 
-    int paramCount;
-    if (paramTypes == null) {
-      paramCount = 0;
-    }
-    else {
-      paramCount = paramTypes.length;
-    }
+    final int paramCount = paramTypes == null ? 0 : paramTypes.length;
 
     for (Wrapper w : wrappers) {
       Class<?>[] mParamTypes = w.getParameterTypes();
-      int mParamCount;
-      if (mParamTypes == null) {
-        mParamCount = 0;
-      }
-      else {
-        mParamCount = mParamTypes.length;
-      }
+      int mParamCount = mParamTypes.length;
 
       // Check the number of parameters
       if (!(paramCount == mParamCount || (w.isVarArgs() && paramCount >= mParamCount - 1))) {
@@ -257,6 +237,7 @@ public abstract class ReflectionUtil {
       }
     }
 
+    // @since 3.0.4 just returns assignable candidate
     if (assignableCandidates.size() == 1) {
       return assignableCandidates.get(0);
     }
