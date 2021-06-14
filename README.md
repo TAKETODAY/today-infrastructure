@@ -38,7 +38,9 @@
       assertEquals(allUsers.size(), insertIntoUsers);
     }
     deleteUserTable();
-  }@Test
+  }
+  
+  @Test
   public void testBatch() {
     jdbcOperations.createQuery(
             "create table User(\n" +

@@ -87,7 +87,7 @@ class ArrayParameters {
       return parsedQuery;
     }
 
-    updateParameterNamesToIndexes(parameterNamesToIndexes, arrayParameters);
+    updateMap(parameterNamesToIndexes, arrayParameters);
 
     return updateQueryWithArrayParameters(parsedQuery, arrayParameters);
   }
@@ -95,12 +95,12 @@ class ArrayParameters {
   /**
    * Update the indexes of each query parameter
    */
-  static Map<String, ParameterApplier> updateParameterNamesToIndexes(
-          Map<String, ParameterApplier> parametersNameToIndex,
+  static Map<String, ParameterApplier> updateMap(
+          Map<String, ParameterApplier> indexesMap,
           List<ArrayParameter> arrayParametersSortedAsc
   ) {
-    for (Map.Entry<String, ParameterApplier> parameterNameToIndexes : parametersNameToIndex.entrySet()) {
-      final ParameterApplier parameterApplier = parameterNameToIndexes.getValue();
+    for (Map.Entry<String, ParameterApplier> entry : indexesMap.entrySet()) {
+      final ParameterApplier parameterApplier = entry.getValue();
       final ArrayList<Integer> newParameterIndex = new ArrayList<>();
 
       parameterApplier.forEach(parameterIndex -> {
@@ -109,14 +109,14 @@ class ArrayParameters {
       });
 
       if (newParameterIndex.size() > 1) {
-        parameterNameToIndexes.setValue(ParameterApplier.valueOf(newParameterIndex));
+        entry.setValue(ParameterApplier.valueOf(newParameterIndex));
       }
       else {
-        parameterNameToIndexes.setValue(ParameterApplier.valueOf(newParameterIndex.get(0)));
+        entry.setValue(ParameterApplier.valueOf(newParameterIndex.get(0)));
       }
     }
 
-    return parametersNameToIndex;
+    return indexesMap;
   }
 
   /**

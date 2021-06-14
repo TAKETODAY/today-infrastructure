@@ -19,14 +19,14 @@ public class ArrayParametersTest {
     final ImmutableList<Integer> of = ImmutableList.of(3, 5);
     assertEquals(
             ImmutableMap.of("paramName", ParameterApplier.valueOf(ImmutableList.of(3, 5))),
-            ArrayParameters.updateParameterNamesToIndexes(
+            ArrayParameters.updateMap(
                     Maps.newHashMap(ImmutableMap.of("paramName", ParameterApplier.valueOf(of))),
                     ImmutableList.of(
                             new ArrayParameters.ArrayParameter(6, 3))));
 
     assertEquals(
             ImmutableMap.of("paramName", ParameterApplier.valueOf(ImmutableList.of(3, 9))),
-            ArrayParameters.updateParameterNamesToIndexes(
+            ArrayParameters.updateMap(
                     Maps.newHashMap(ImmutableMap.of("paramName",
                                                     ParameterApplier.valueOf(ImmutableList.of(3, 7)))),
                     ImmutableList.of(
