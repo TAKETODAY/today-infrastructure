@@ -44,7 +44,6 @@ public class NettyWebSocketSession extends NativeWebSocketSession<ChannelHandler
   @Override
   public void sendBinary(BinaryMessage data) {
     final ByteBuffer payload = data.getPayload();
-    Unpooled.wrappedBuffer(payload);
     channel.write(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(payload)));
   }
 
