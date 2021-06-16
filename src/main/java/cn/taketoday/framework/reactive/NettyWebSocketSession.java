@@ -23,11 +23,11 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
  * @since 1.0.1
  */
 public class NettyWebSocketSession extends NativeWebSocketSession<ChannelHandlerContext> {
-  private final ChannelHandlerContext ctx;
   private final Channel channel;
+  private final boolean secure;
 
-  public NettyWebSocketSession(ChannelHandlerContext ctx) {
-    this.ctx = ctx;
+  public NettyWebSocketSession(boolean secure, ChannelHandlerContext ctx) {
+    this.secure = secure;
     this.channel = ctx.channel();
   }
 
@@ -65,7 +65,7 @@ public class NettyWebSocketSession extends NativeWebSocketSession<ChannelHandler
 
   @Override
   public boolean isSecure() {
-    return false;
+    return secure;
   }
 
   @Override
@@ -75,32 +75,33 @@ public class NettyWebSocketSession extends NativeWebSocketSession<ChannelHandler
 
   @Override
   public long getMaxIdleTimeout() {
-    return 0;
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void setMaxIdleTimeout(long timeout) {
-
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void setMaxBinaryMessageBufferSize(int max) {
-
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public int getMaxBinaryMessageBufferSize() {
-    return 0;
+    throw new UnsupportedOperationException();
+
   }
 
   @Override
   public void setMaxTextMessageBufferSize(int max) {
-
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public int getMaxTextMessageBufferSize() {
-    return 0;
+    throw new UnsupportedOperationException();
   }
 
   @Override

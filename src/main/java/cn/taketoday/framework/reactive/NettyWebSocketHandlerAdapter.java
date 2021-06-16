@@ -1,5 +1,6 @@
 package cn.taketoday.framework.reactive;
 
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.socket.AbstractWebSocketHandlerAdapter;
@@ -27,7 +28,9 @@ public class NettyWebSocketHandlerAdapter extends AbstractWebSocketHandlerAdapte
     }
     final NettyRequestContext nettyContext = (NettyRequestContext) context;
     final ChannelHandlerContext channelContext = nettyContext.getChannelContext();
-    return new NettyWebSocketSession(channelContext);
+    final String scheme = nettyContext.getScheme();
+    return new NettyWebSocketSession(
+            Constant.HTTPS.equals(scheme) || "wss".equals(scheme), channelContext);
   }
 
   @Override
