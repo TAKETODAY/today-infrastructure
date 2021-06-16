@@ -1,28 +1,48 @@
 package cn.taketoday.framework.reactive;
 
 import cn.taketoday.context.utils.Assert;
+import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.handler.DispatcherHandler;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
+ * default implementation is Synchronous Netty
+ * {@link cn.taketoday.web.handler.DispatcherHandler}
+ * like {@link cn.taketoday.web.servlet.DispatcherServlet}
+ *
+ * @author TODAY 2021/3/20 12:06
  * @author TODAY 2021/3/20 12:05
+ * @see AsyncNettyDispatcherHandler
+ * @see cn.taketoday.web.handler.DispatcherHandler
+ * @see cn.taketoday.web.servlet.DispatcherServlet
  */
-public abstract class NettyDispatcher {
+public class NettyDispatcher {
   protected final DispatcherHandler dispatcherHandler;
 
-  protected NettyDispatcher(DispatcherHandler dispatcherHandler) {
+  public NettyDispatcher(DispatcherHandler dispatcherHandler) {
     Assert.notNull(dispatcherHandler, "DispatcherHandler must not be null");
     this.dispatcherHandler = dispatcherHandler;
   }
 
   /**
    * dispatch request in netty
+   * <p>
+   * default is using Synchronous
+   * </p>
    *
    * @param ctx
    *         netty channel handler context
    * @param nettyContext
    *         netty request context
    */
-  public abstract void dispatch(
-          ChannelHandlerContext ctx, NettyRequestContext nettyContext) throws Throwable;
+  public void dispatch(final ChannelHandlerContext ctx, final NettyRequestContext nettyContext) throws Throwable {
+    RequestContextHolder.prepareContext(nettyContext);
+    try {
+      dispatcherHandler.handle(nettyContext); // handling HTTP request
+      nettyContext.sendIfNotCommitted();
+    }
+    finally {
+      RequestContextHolder.resetContext();
+    }
+  }
 }

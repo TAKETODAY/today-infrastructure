@@ -90,7 +90,6 @@ public class NettyWebSocketSession extends NativeWebSocketSession<ChannelHandler
   @Override
   public int getMaxBinaryMessageBufferSize() {
     throw new UnsupportedOperationException();
-
   }
 
   @Override

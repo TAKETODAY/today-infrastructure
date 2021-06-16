@@ -131,7 +131,7 @@ class NettyConfig implements AnnotationBeanDefinitionRegistrar<EnableNettyHandli
         registry.registerBean(AsyncNettyDispatcherHandler.class);
       }
       else {
-        registry.registerBean(SyncNettyDispatcherHandler.class);
+        registry.registerBean(NettyDispatcher.class);
       }
     }
 

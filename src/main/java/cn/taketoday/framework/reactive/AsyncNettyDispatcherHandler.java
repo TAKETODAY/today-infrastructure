@@ -15,11 +15,10 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
  * implementation like {@link cn.taketoday.web.servlet.DispatcherServlet}
  *
  * @author TODAY 2021/3/20 12:05
- * @see SyncNettyDispatcherHandler
  * @see cn.taketoday.web.handler.DispatcherHandler
  * @see cn.taketoday.web.servlet.DispatcherServlet
  */
-public class AsyncNettyDispatcherHandler extends NettyDispatcher {
+public final class AsyncNettyDispatcherHandler extends NettyDispatcher {
 
   public AsyncNettyDispatcherHandler(DispatcherHandler dispatcherHandler) {
     super(dispatcherHandler);
