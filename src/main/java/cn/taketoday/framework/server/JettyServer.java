@@ -112,6 +112,12 @@ public class JettyServer
 
   private boolean sendVersion;
 
+  /**
+   * @see WebAppContext#setThrowUnavailableOnStartupException(boolean)
+   * @since 1.0.1
+   */
+  private boolean throwUnavailableOnStartupException = true;
+
   @Override
   protected synchronized void contextInitialized() {
     super.contextInitialized();
@@ -317,7 +323,7 @@ public class JettyServer
 
     final Configuration[] configurations = getWebAppContextConfigurations(context);
     context.setConfigurations(configurations);
-    context.setThrowUnavailableOnStartupException(true);
+    context.setThrowUnavailableOnStartupException(throwUnavailableOnStartupException);
 
     // http session config
     final SessionConfiguration sessionConfig = getSessionConfig();

@@ -196,6 +196,9 @@ public abstract class AbstractWebServer
     return (WebServerApplicationContext) super.obtainApplicationContext();
   }
 
+  /**
+   * get session store directory
+   */
   public File getStoreDirectory(Class<?> startupClass) throws IOException {
     Assert.state(sessionConfig != null, "Please enable web session");
     final Resource storeDirectory = sessionConfig.getStoreDirectory();

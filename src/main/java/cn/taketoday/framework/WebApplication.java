@@ -25,6 +25,7 @@ import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
+import cn.taketoday.framework.server.WebServer;
 
 /**
  * Web Application Runner
@@ -102,8 +103,9 @@ public class WebApplication {
         context.load(startupClass.getPackage().getName());
       }
 
-      Assert.state(context.getWebServer() != null, "No Web server.");
-      context.getWebServer().start();
+      final WebServer webServer = context.getWebServer();
+      Assert.state(webServer != null, "No Web server.");
+      webServer.start();
 
       log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
                System.currentTimeMillis() - context.getStartupDate()//
