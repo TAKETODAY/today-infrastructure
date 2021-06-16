@@ -76,7 +76,7 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
    *
    * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
    */
-  private int parentThreadCount = 4;
+  private int parentThreadCount = 2;
 
   private EventLoopGroup childGroup;
   private EventLoopGroup parentGroup;
@@ -192,6 +192,12 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
     }
   }
 
+  /**
+   * before bootstrap
+   *
+   * @param bootstrap
+   *         netty ServerBootstrap
+   */
   protected void preBootstrap(ServerBootstrap bootstrap) {
     ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
     // adjust context path
@@ -218,6 +224,12 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
     }
   }
 
+  /**
+   * after bootstrap
+   *
+   * @param bootstrap
+   *         netty ServerBootstrap
+   */
   protected void postBootstrap(ServerBootstrap bootstrap) {
     log.info("Netty web server started on port: [{}] with context path '{}'", getPort(), getContextPath());
 
