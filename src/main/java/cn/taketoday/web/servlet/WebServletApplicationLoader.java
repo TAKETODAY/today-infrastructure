@@ -55,7 +55,7 @@ import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.event.WebApplicationFailedEvent;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.resolver.ParameterResolver;
-import cn.taketoday.web.resolver.ServletParameterResolver;
+import cn.taketoday.web.resolver.ServletParameterResolvers;
 import cn.taketoday.web.servlet.initializer.DispatcherServletInitializer;
 import cn.taketoday.web.servlet.initializer.WebFilterInitializer;
 import cn.taketoday.web.servlet.initializer.WebListenerInitializer;
@@ -207,22 +207,8 @@ public class WebServletApplicationLoader
 
   @Override
   protected void configureParameterResolver(List<ParameterResolver> resolvers, WebMvcConfiguration mvcConfiguration) {
-    // Servlet cookies parameter
-    // ----------------------------
-    resolvers.add(new ServletParameterResolver.ServletCookieParameterResolver());
-    resolvers.add(new ServletParameterResolver.ServletCookieArrayParameterResolver());
-    resolvers.add(new ServletParameterResolver.ServletCookieCollectionParameterResolver());
-    // Servlet components parameter
-    // ----------------------------
-    resolvers.add(new ServletParameterResolver.HttpSessionParameterResolver());
-    resolvers.add(new ServletParameterResolver.ServletRequestParameterResolver());
-    resolvers.add(new ServletParameterResolver.ServletResponseParameterResolver());
-    resolvers.add(new ServletParameterResolver.ServletContextParameterResolver(getServletContext()));
-    // Attributes
-    // ------------------------
-    resolvers.add(new ServletParameterResolver.HttpSessionAttributeParameterResolver());
-    resolvers.add(new ServletParameterResolver.ServletContextAttributeParameterResolver(getServletContext()));
-
+    // register servlet env resolvers
+    ServletParameterResolvers.register(resolvers, getServletContext());
     super.configureParameterResolver(resolvers, mvcConfiguration);
   }
 

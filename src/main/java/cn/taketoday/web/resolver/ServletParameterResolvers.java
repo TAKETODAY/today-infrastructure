@@ -40,9 +40,27 @@ import cn.taketoday.web.utils.ServletUtils;
  * @author TODAY <br>
  * 2019-07-12 18:04
  */
-public class ServletParameterResolver {
+public class ServletParameterResolvers {
 
-  public static class ServletRequestParameterResolver implements ParameterResolver {
+  public static void register(List<ParameterResolver> resolvers, ServletContext context) {
+    // Servlet cookies parameter
+    // ----------------------------
+    resolvers.add(new ServletCookieParameterResolver());
+    resolvers.add(new ServletCookieArrayParameterResolver());
+    resolvers.add(new ServletCookieCollectionParameterResolver());
+    // Servlet components parameter
+    // ----------------------------
+    resolvers.add(new HttpSessionParameterResolver());
+    resolvers.add(new ServletRequestParameterResolver());
+    resolvers.add(new ServletResponseParameterResolver());
+    resolvers.add(new ServletContextParameterResolver(context));
+    // Attributes
+    // ------------------------
+    resolvers.add(new HttpSessionAttributeParameterResolver());
+    resolvers.add(new ServletContextAttributeParameterResolver(context));
+  }
+
+  static class ServletRequestParameterResolver implements ParameterResolver {
 
     @Override
     public boolean supports(final MethodParameter parameter) {
@@ -55,7 +73,7 @@ public class ServletParameterResolver {
     }
   }
 
-  public static class ServletResponseParameterResolver implements ParameterResolver {
+  static class ServletResponseParameterResolver implements ParameterResolver {
 
     @Override
     public boolean supports(final MethodParameter parameter) {
@@ -68,7 +86,7 @@ public class ServletParameterResolver {
     }
   }
 
-  public static class HttpSessionParameterResolver implements ParameterResolver {
+  static class HttpSessionParameterResolver implements ParameterResolver {
 
     @Override
     public boolean supports(final MethodParameter parameter) {
@@ -82,7 +100,7 @@ public class ServletParameterResolver {
     }
   }
 
-  public static class HttpSessionAttributeParameterResolver implements ParameterResolver {
+  static class HttpSessionAttributeParameterResolver implements ParameterResolver {
 
     @Override
     public boolean supports(MethodParameter parameter) {
@@ -99,7 +117,7 @@ public class ServletParameterResolver {
     }
   }
 
-  public static class ServletContextParameterResolver implements ParameterResolver {
+  static class ServletContextParameterResolver implements ParameterResolver {
 
     private final ServletContext servletContext;
 
@@ -120,7 +138,7 @@ public class ServletParameterResolver {
 
   // ------------- cookie
 
-  public static class ServletCookieParameterResolver implements ParameterResolver {
+  static class ServletCookieParameterResolver implements ParameterResolver {
 
     @Override
     public boolean supports(final MethodParameter parameter) {
@@ -144,7 +162,7 @@ public class ServletParameterResolver {
     }
   }
 
-  public static class ServletCookieCollectionParameterResolver
+  static class ServletCookieCollectionParameterResolver
           extends CollectionParameterResolver implements ParameterResolver {
 
     @Override
@@ -162,7 +180,7 @@ public class ServletParameterResolver {
     }
   }
 
-  public static class ServletCookieArrayParameterResolver implements ParameterResolver {
+  static class ServletCookieArrayParameterResolver implements ParameterResolver {
 
     @Override
     public boolean supports(MethodParameter parameter) {
@@ -175,8 +193,7 @@ public class ServletParameterResolver {
     }
   }
 
-  public static class ServletContextAttributeParameterResolver implements ParameterResolver {
-
+  static class ServletContextAttributeParameterResolver implements ParameterResolver {
     private final ServletContext servletContext;
 
     public ServletContextAttributeParameterResolver(ServletContext servletContext) {
