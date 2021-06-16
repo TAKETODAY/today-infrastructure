@@ -30,7 +30,7 @@ import cn.taketoday.context.utils.OrderUtils;
  * @author TODAY <br>
  * 2019-12-25 14:51
  */
-public class PatternHandler implements Serializable, Ordered {
+public final class PatternHandler implements Serializable, Ordered {
   private static final long serialVersionUID = 1L;
 
   private final String pattern;

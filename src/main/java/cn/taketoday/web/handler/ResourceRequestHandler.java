@@ -73,7 +73,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
     return HandlerAdapter.NONE_RETURN_VALUE;
   }
 
-  ResourceMatchResult getResourceMatchResult(RequestContext context) {
+  private ResourceMatchResult getResourceMatchResult(RequestContext context) {
     final Object attribute = context.getAttribute(RESOURCE_MATCH_RESULT);
     if (attribute == null) {
       throw new NotFoundException("Resource Not Found");
