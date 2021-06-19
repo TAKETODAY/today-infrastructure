@@ -26,7 +26,6 @@ import java.net.URLConnection;
 import java.security.CodeSource;
 import java.util.Locale;
 
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.logger.Logger;
@@ -35,24 +34,20 @@ import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.framework.WebServerApplicationContext;
 
 /**
- *
- * @author TODAY <br>
- *         2019-02-05 13:09
+ * @author TODAY 2019-02-05 13:09
  */
 @Props(prefix = "server.docs.")
 public class WebDocumentConfiguration {
-
   private static final Logger log = LoggerFactory.getLogger(WebDocumentConfiguration.class);
 
-  private static final String[] COMMON_DOC_ROOTS = { //
-          "src/main/webapp", "src/main/resources", "public", "static", "assets" //
+  private static final String[] COMMON_DOC_ROOTS = {
+          "src/main/webapp", "src/main/resources", "public", "static", "assets"
   };
 
   private Resource directory;
 
   private final Class<?> startupClass;
 
-  @Autowired
   public WebDocumentConfiguration(WebServerApplicationContext context) {
     this.startupClass = context.getStartupClass() == null ? WebDocumentConfiguration.class : context.getStartupClass();
   }

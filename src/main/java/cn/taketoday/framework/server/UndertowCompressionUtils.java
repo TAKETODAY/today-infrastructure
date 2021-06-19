@@ -65,7 +65,8 @@ public abstract class UndertowCompressionUtils {
 
     ContentEncodingRepository repository = new ContentEncodingRepository();
 
-    repository.addEncodingHandler(Constant.GZIP, new GzipEncodingProvider(), 50, Predicates.and(getCompressionPredicates(compression)));
+    repository.addEncodingHandler(
+            Constant.GZIP, new GzipEncodingProvider(), 50, Predicates.and(getCompressionPredicates(compression)));
 
     return new EncodingHandler(repository).setNext(httpHandler);
   }
@@ -74,16 +75,16 @@ public abstract class UndertowCompressionUtils {
     final List<Predicate> predicates = new ArrayList<>();
 
     predicates.add(Predicates.maxContentSize(compression.getMinResponseSize().toBytes()));
-    if (compression.getIncludeMethods() != null //
-            || compression.getExcludeMethods() != null//
-            || compression.getIncludedPaths() != null//
+    if (compression.getIncludeMethods() != null
+            || compression.getExcludeMethods() != null
+            || compression.getIncludedPaths() != null
             || compression.getExcludePaths() != null) //
     {
       predicates.add(new RequestPathAndMethodPredicate(compression));
     }
 
-    if (compression.getIncludeAgentPatterns() != null //
-            || compression.getExcludeUserAgents() != null//
+    if (compression.getIncludeAgentPatterns() != null
+            || compression.getExcludeUserAgents() != null
             || compression.getExcludeAgentPatterns() != null) //
     {
       predicates.add(new UserAgentPredicate(compression));
@@ -153,7 +154,7 @@ public abstract class UndertowCompressionUtils {
     private boolean testIncludeUserAgents(final String userAgent) {
 
       if (includeAgentPatterns != null) {
-        return contains(includeAgentPatterns, //
+        return contains(includeAgentPatterns,
                         includeAgentPattern -> includeAgentPattern.matcher(userAgent).matches());
       }
       return true;
