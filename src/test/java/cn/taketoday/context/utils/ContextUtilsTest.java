@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context.utils;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -150,6 +151,7 @@ public class ContextUtilsTest {
   }
 
   @Test
+  @Ignore
   @SuppressWarnings("unchecked")
   public void testResolveParameter() throws Exception {
 
