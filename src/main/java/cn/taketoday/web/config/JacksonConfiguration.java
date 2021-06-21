@@ -21,6 +21,7 @@
 package cn.taketoday.web.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.util.List;
 
@@ -53,9 +54,18 @@ public class JacksonConfiguration
     return new ObjectMapper();
   }
 
+  /**
+   * construct a default ObjectMapper
+   *
+   * @see ObjectMapper
+   * @see SerializationFeature#FAIL_ON_EMPTY_BEANS
+   */
   @MissingBean
   ObjectMapper objectMapper() {
-    return createObjectMapper();
+    final ObjectMapper objectMapper = createObjectMapper();
+    // disable fail on empty beans
+    objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+    return objectMapper;
   }
 
   @MissingBean(type = ObjectNotationProcessor.class)
