@@ -27,6 +27,7 @@ import java.util.List;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.IgnoreDuplicates;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.condition.ConditionalOnClass;
 import cn.taketoday.context.aware.ApplicationContextSupport;
@@ -41,6 +42,7 @@ import cn.taketoday.web.view.ObjectNotationProcessorMessageConverter;
  * @since 3.0
  */
 @Configuration
+@IgnoreDuplicates
 @ConditionalOnClass("com.fasterxml.jackson.databind.ObjectMapper")
 public class JacksonConfiguration
         extends ApplicationContextSupport implements InitializingBean {
