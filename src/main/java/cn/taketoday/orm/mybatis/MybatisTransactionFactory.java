@@ -28,14 +28,14 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-public class DefaultTransactionFactory implements TransactionFactory {
+public class MybatisTransactionFactory implements TransactionFactory {
 
   /**
    * {@inheritDoc}
    */
   @Override
   public Transaction newTransaction(DataSource dataSource, TransactionIsolationLevel level, boolean autoCommit) {
-    return new DefaultTransaction(dataSource).setAutoCommit(autoCommit);
+    return new MybatisTransaction(dataSource).setAutoCommit(autoCommit);
   }
 
   /**

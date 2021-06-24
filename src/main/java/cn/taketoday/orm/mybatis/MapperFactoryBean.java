@@ -19,14 +19,15 @@
  */
 package cn.taketoday.orm.mybatis;
 
+import org.apache.ibatis.executor.ErrorContext;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.SqlSession;
+
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.FactoryBean;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import org.apache.ibatis.executor.ErrorContext;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.SqlSession;
 
 /**
  * @author TODAY <br>

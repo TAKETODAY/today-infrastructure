@@ -28,7 +28,7 @@ import cn.taketoday.transaction.AbstractResourceHolder;
  * @author TODAY <br>
  * 2018-10-09 11:24
  */
-public class SqlSessionHolder extends AbstractResourceHolder {
+public final class SqlSessionHolder extends AbstractResourceHolder {
 
   private final SqlSession sqlSession;
   private final ExecutorType executorType;

@@ -64,7 +64,7 @@ public class SessionFactoryBean extends Configuration //
 
     if (this.hibernateProperties != null) {
       hibernateProperties.put(AvailableSettings.DATASOURCE, dataSource);
-      hibernateProperties.put(AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, SessionContext.class.getName());
+      hibernateProperties.put(AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, HibernateSessionContext.class.getName());
       hibernateProperties.put(AvailableSettings.CLASSLOADERS, Collections.singleton(ClassUtils.getClassLoader()));
 
       addProperties(this.hibernateProperties);

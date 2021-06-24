@@ -68,8 +68,9 @@ public abstract class SqlSessionUtils {
    * @param executorType
    *         The executor type of the SqlSession to create
    */
-  public static SqlSession getSqlSession(final SynchronizationMetaData metaData,
-                                         final SqlSessionFactory sessionFactory, final ExecutorType executorType) {
+  public static SqlSession getSqlSession(
+          final SynchronizationMetaData metaData,
+          final SqlSessionFactory sessionFactory, final ExecutorType executorType) {
 
     SqlSession session = sessionHolder(executorType, (SqlSessionHolder) metaData.getResource(sessionFactory));
     if (session == null) {
@@ -99,9 +100,10 @@ public abstract class SqlSessionUtils {
    * @param session
    *         sqlSession used for registration.
    */
-  private static void registerSessionHolder(final SynchronizationMetaData metaData,
-                                            final SqlSessionFactory sessionFactory,
-                                            final ExecutorType executorType, final SqlSession session) //
+  private static void registerSessionHolder(
+          final SynchronizationMetaData metaData,
+          final SqlSessionFactory sessionFactory,
+          final ExecutorType executorType, final SqlSession session) //
   {
     if (metaData.isActive()) {
       if (debugEnabled) {
@@ -153,8 +155,9 @@ public abstract class SqlSessionUtils {
    * updates the reference counter and lets Today call the close callback when the
    * managed transaction ends
    */
-  public static void closeSqlSession(final SynchronizationMetaData metaData,
-                                     final SqlSession session, final SqlSessionFactory sessionFactory) {
+  public static void closeSqlSession(
+          final SynchronizationMetaData metaData,
+          final SqlSession session, final SqlSessionFactory sessionFactory) {
 
     final Object resource = metaData.getResource(sessionFactory);
     if (resource instanceof SqlSessionHolder) {
@@ -174,7 +177,8 @@ public abstract class SqlSessionUtils {
     }
   }
 
-  public static boolean isSqlSessionTransactional(final SqlSession session, final SqlSessionFactory sessionFactory) {
+  public static boolean isSqlSessionTransactional(
+          final SqlSession session, final SqlSessionFactory sessionFactory) {
     return isSqlSessionTransactional(SynchronizationManager.getMetaData(), session, sessionFactory);
   }
 
@@ -189,8 +193,9 @@ public abstract class SqlSessionUtils {
    *
    * @return true if session is transactional, otherwise false
    */
-  public static boolean isSqlSessionTransactional(final SynchronizationMetaData metaData,
-                                                  final SqlSession session, final SqlSessionFactory sessionFactory) {
+  public static boolean isSqlSessionTransactional(
+          final SynchronizationMetaData metaData,
+          final SqlSession session, final SqlSessionFactory sessionFactory) {
     SqlSessionHolder holder = (SqlSessionHolder) metaData.getResource(sessionFactory);
     return (holder != null) && (holder.getSqlSession() == session);
   }

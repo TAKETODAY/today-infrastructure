@@ -44,7 +44,7 @@ import lombok.Getter;
 
 /**
  * @author TODAY <br>
- *         2018-10-06 14:36
+ * 2018-10-06 14:36
  */
 @Getter
 public class SessionTemplate implements SqlSession, DisposableBean {
@@ -56,10 +56,10 @@ public class SessionTemplate implements SqlSession, DisposableBean {
   public SessionTemplate(SqlSessionFactory sqlSessionFactory) {
     this.configuration = sqlSessionFactory.getConfiguration();
     final ExecutorType executorType = configuration.getDefaultExecutorType();
-    this.proxy = SqlSession.class.cast(Proxy.newProxyInstance(ClassUtils.getClassLoader(),
-                                                              new Class[]
-                                                                      { SqlSession.class },
-                                                              new SqlSessionInterceptor(executorType, sqlSessionFactory)));
+    this.proxy = (SqlSession) Proxy.newProxyInstance(
+            ClassUtils.getClassLoader(),
+            new Class[] { SqlSession.class },
+            new SqlSessionInterceptor(executorType, sqlSessionFactory));
   }
 
   @Override

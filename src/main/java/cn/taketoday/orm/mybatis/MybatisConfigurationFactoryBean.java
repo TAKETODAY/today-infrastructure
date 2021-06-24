@@ -22,6 +22,7 @@ package cn.taketoday.orm.mybatis;
 import org.apache.ibatis.builder.xml.XMLConfigBuilder;
 import org.apache.ibatis.session.Configuration;
 
+import java.io.InputStream;
 import java.util.Properties;
 
 import cn.taketoday.context.annotation.Env;
@@ -33,7 +34,7 @@ import cn.taketoday.context.utils.ContextUtils;
 
 /**
  * @author TODAY <br>
- *         2018-10-09 20:32
+ * 2018-10-09 20:32
  */
 public class MybatisConfigurationFactoryBean implements FactoryBean<Configuration>, InitializingBean {
 
@@ -48,8 +49,10 @@ public class MybatisConfigurationFactoryBean implements FactoryBean<Configuratio
   @Override
   public void afterPropertiesSet() throws Exception {
     if (configuration == null) {
-      setConfiguration(new XMLConfigBuilder(ContextUtils.getResourceAsStream(getConfigLocation()), "TODAY-MYBATIS", getProperties())//
-                               .parse());
+      final InputStream resourceAsStream = ContextUtils.getResourceAsStream(getConfigLocation());
+      final Configuration configuration
+              = new XMLConfigBuilder(resourceAsStream, "TODAY-MYBATIS", getProperties()).parse();
+      setConfiguration(configuration);
     }
   }
 

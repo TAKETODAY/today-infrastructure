@@ -26,6 +26,7 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.GenericTypeResolver;
 import cn.taketoday.jdbc.PersistenceException;
+
 import org.hibernate.Criteria;
 import org.hibernate.Filter;
 import org.hibernate.FlushMode;
@@ -47,8 +48,8 @@ import java.util.List;
  * @author TODAY <br>
  * 2018-09-15 15:31
  */
-public class DefaultHibernateOperations<T> implements HibernateOperations<T>, InitializingBean {
-  private static final Logger log = LoggerFactory.getLogger(DefaultHibernateOperations.class);
+public class HibernateOperationsSupport<T> implements HibernateOperations<T>, InitializingBean {
+  private static final Logger log = LoggerFactory.getLogger(HibernateOperationsSupport.class);
 
   @Autowired
   private SessionFactory sessionFactory;
@@ -64,12 +65,12 @@ public class DefaultHibernateOperations<T> implements HibernateOperations<T>, In
   private String beanClassName;
 
   @SuppressWarnings("unchecked")
-  public DefaultHibernateOperations() {
-    final Class<?> type = GenericTypeResolver.resolveTypeArgument(getClass(), DefaultHibernateOperations.class);
+  public HibernateOperationsSupport() {
+    final Class<?> type = GenericTypeResolver.resolveTypeArgument(getClass(), HibernateOperationsSupport.class);
     setBeanClass((Class<T>) type);
   }
 
-  public DefaultHibernateOperations(Class<T> beanClass) {
+  public HibernateOperationsSupport(Class<T> beanClass) {
     setBeanClass(beanClass);
   }
 
@@ -158,11 +159,10 @@ public class DefaultHibernateOperations<T> implements HibernateOperations<T>, In
   @Override
   @SuppressWarnings({ "unchecked", "deprecation" })
   public List<T> findAll() {
-    return execute(session -> {
-      return prepareCriteria(session.createCriteria(beanClass)//
-                                     .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY))//
-              .list();
-    });
+    return execute(session -> prepareCriteria(
+            session.createCriteria(beanClass).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+                   ).list()
+    );
   }
 
   @Override

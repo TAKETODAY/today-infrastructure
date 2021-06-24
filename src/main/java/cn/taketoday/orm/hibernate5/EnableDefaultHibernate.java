@@ -34,7 +34,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * @author TODAY <br>
  *         2019-11-06 00:35
  */
-@Import(DefaultHibernateConfiguration.class)
+@Import(HibernateConfiguration.class)
 public @interface EnableDefaultHibernate {
 
 }

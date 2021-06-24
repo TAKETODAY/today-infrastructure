@@ -76,7 +76,7 @@ public class MybatisSessionFactoryBean implements FactoryBean<SqlSessionFactory>
 
   public TransactionFactory getTransactionFactory() {
     if (transactionFactory == null) {
-      transactionFactory = new DefaultTransactionFactory();
+      transactionFactory = new MybatisTransactionFactory();
     }
     return transactionFactory;
 

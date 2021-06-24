@@ -34,7 +34,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * @author TODAY <br>
  *         2019-11-06 00:35
  */
-@Import(DefaultMybatisConfiguration.class)
+@Import(MybatisConfiguration.class)
 public @interface EnableDefaultMybatis {
 
 }

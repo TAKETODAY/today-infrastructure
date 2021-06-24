@@ -52,13 +52,13 @@ import cn.taketoday.context.logger.LoggerFactory;
  *         2018-09-18 13:17
  */
 @SuppressWarnings("all")
-public final class SessionContext extends AbstractCurrentSessionContext {
-
-  private static final Logger log = LoggerFactory.getLogger(SessionContext.class);
+public final class HibernateSessionContext extends AbstractCurrentSessionContext {
+  private static final Logger log = LoggerFactory.getLogger(HibernateSessionContext.class);
 
   private static final long serialVersionUID = 8140326831060650585L;
 
-  private static final Class<?>[] SESSION_PROXY_INTERFACES = new Class[] { Session.class, SessionImplementor.class, EventSource.class, LobCreationContext.class };
+  private static final Class<?>[] SESSION_PROXY_INTERFACES
+          = new Class[] { Session.class, SessionImplementor.class, EventSource.class, LobCreationContext.class };
 
   private static final ThreadLocal<Map> CONTEXT_TL = new ThreadLocal<Map>();
 
@@ -68,7 +68,7 @@ public final class SessionContext extends AbstractCurrentSessionContext {
    * @param factory
    *            The factory this context will service
    */
-  public SessionContext(SessionFactoryImplementor factory) {
+  public HibernateSessionContext(SessionFactoryImplementor factory) {
     super(factory);
   }
 

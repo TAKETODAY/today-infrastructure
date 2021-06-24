@@ -60,7 +60,7 @@ import static cn.taketoday.context.utils.ContextUtils.getResourceAsStream;
  * 2018-10-05 19:03
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class DefaultMybatisConfiguration implements ApplicationListener<LoadingMissingBeanEvent> {
+public class MybatisConfiguration implements ApplicationListener<LoadingMissingBeanEvent> {
 
   public static final String DEFAULT_CONFIG_LOCATION = "classpath:mybatis.xml";
   public static final Method[] initMethods = ContextUtils.resolveInitMethod(null, MapperFactoryBean.class);
@@ -98,11 +98,12 @@ public class DefaultMybatisConfiguration implements ApplicationListener<LoadingM
   }
 
   @MissingBean
-  public SqlSession sqlSession(@Env("mybatis.env") String envId,
-                               @Env("mybatis.config") String configLocation,
-                               @Autowired DataSource dataSource,
-                               @Autowired(required = false) TransactionFactory transactionFactory,
-                               @Props(prefix = "mybatis.", replace = true) Properties properties) throws IOException //
+  public SqlSession sqlSession(
+          @Autowired DataSource dataSource,
+          @Env("mybatis.env") String envId,
+          @Env("mybatis.config") String configLocation,
+          @Autowired(required = false) TransactionFactory transactionFactory,
+          @Props(prefix = "mybatis.", replace = true) Properties properties) throws IOException //
   {
 
     if (StringUtils.isEmpty(envId)) {
@@ -113,11 +114,11 @@ public class DefaultMybatisConfiguration implements ApplicationListener<LoadingM
       configLocation = DEFAULT_CONFIG_LOCATION;
     }
 
-    final Configuration configuration = new XMLConfigBuilder(getResourceAsStream(configLocation),
-                                                             envId,
-                                                             properties).parse();
+    final Configuration configuration = new XMLConfigBuilder(
+            getResourceAsStream(configLocation), envId, properties).parse();
+
     if (transactionFactory == null) {
-      transactionFactory = new DefaultTransactionFactory();
+      transactionFactory = new MybatisTransactionFactory();
     }
     configuration.setEnvironment(new Environment(envId, transactionFactory, dataSource));
     return new SessionTemplate(new DefaultSqlSessionFactory(configuration));

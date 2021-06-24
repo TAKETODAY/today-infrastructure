@@ -38,16 +38,16 @@ import lombok.Setter;
  *         2018-10-09 11:58
  */
 @Setter
-public class DefaultTransaction implements Transaction {
+public class MybatisTransaction implements Transaction {
 
-  private static final Logger log = LoggerFactory.getLogger(DefaultTransaction.class);
+  private static final Logger log = LoggerFactory.getLogger(MybatisTransaction.class);
   public static boolean debugEnabled = log.isDebugEnabled();
 
   private boolean autoCommit;
   private Connection connection;
   private final DataSource dataSource;
 
-  public DefaultTransaction(DataSource dataSource) {
+  public MybatisTransaction(DataSource dataSource) {
     this.dataSource = dataSource;
   }
 
