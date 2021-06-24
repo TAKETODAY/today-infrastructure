@@ -12,3 +12,5 @@
 /.idea/
 /sh.exe.stackdump
 /bash.exe.stackdump
+
+.DS_Store
