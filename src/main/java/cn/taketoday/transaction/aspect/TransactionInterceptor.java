@@ -65,10 +65,12 @@ public class TransactionInterceptor implements MethodInterceptor {
   private final ObjectSupplier<TransactionManager> transactionManager; // lazy load
 
   private static final Map<Object, TransactionDefinition> DEF_CACHE = new HashMap<>(1024);
-  private static final ThreadLocal<TransactionStatus> TRANSACTION = new NamedThreadLocal<>("Current Transaction Status");
+  private static final ThreadLocal<TransactionStatus> TRANSACTION
+          = new NamedThreadLocal<>("Current Transaction Status");
 
   @Autowired
-  public TransactionInterceptor(ObjectSupplier<TransactionManager> transactionManager, BeanFactory beanFactory) {
+  public TransactionInterceptor(
+          ObjectSupplier<TransactionManager> transactionManager, BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
     this.transactionManager = transactionManager;
   }

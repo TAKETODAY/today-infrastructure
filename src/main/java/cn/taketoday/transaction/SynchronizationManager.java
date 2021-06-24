@@ -51,9 +51,9 @@ public abstract class SynchronizationManager {
 
     private Integer isolationLevel;
 
-    private Map<Object, Object> resources;
+    private transient Map<Object, Object> resources;
 
-    private List<TransactionSynchronization> synchronizations;
+    private transient List<TransactionSynchronization> synchronizations;
 
     // ------------------------------------------------
 
@@ -106,9 +106,7 @@ public abstract class SynchronizationManager {
       final Object value = doGetResource(key);
       if (value != null && log.isTraceEnabled()) {
         log.trace("Retrieved value [{}] for key [{}] bound to thread: [{}]",
-                  value,
-                  key,
-                  Thread.currentThread().getName());
+                  value, key, Thread.currentThread().getName());
       }
       return value;
     }
@@ -117,7 +115,6 @@ public abstract class SynchronizationManager {
      * Actually check the value of the resource that is bound for the given key.
      */
     private Object doGetResource(final Object key) {
-
       final Map<Object, Object> map = this.resources;
 
       if (map == null) {
@@ -150,7 +147,6 @@ public abstract class SynchronizationManager {
      * @see ResourceTransactionManager#getResourceFactory()
      */
     public void bindResource(Object key, Object value) {
-
       Map<Object, Object> map = resources;
       if (map == null) {
         resources = map = new HashMap<>(8);
@@ -161,8 +157,9 @@ public abstract class SynchronizationManager {
         oldValue = null;
       }
       if (oldValue != null) {
-        throw new IllegalStateException("Already value [" + oldValue + "] for key [" + key + "] bound to thread ["
-                                                + Thread.currentThread().getName() + "]");
+        throw new IllegalStateException(
+                "Already value [" + oldValue + "] for key [" + key + "] bound to thread ["
+                        + Thread.currentThread().getName() + "]");
       }
     }
 
@@ -181,8 +178,8 @@ public abstract class SynchronizationManager {
     public Object unbindResource(Object key) {
       Object value = doUnbindResource(key);
       if (value == null) {
-        throw new IllegalStateException("No value for key [" + key + "] bound to thread [" + Thread.currentThread().getName()
-                                                + "]");
+        throw new IllegalStateException(
+                "No value for key [" + key + "] bound to thread [" + Thread.currentThread().getName() + "]");
       }
       return value;
     }
@@ -203,7 +200,6 @@ public abstract class SynchronizationManager {
      * Actually remove the value of the resource that is bound for the given key.
      */
     private Object doUnbindResource(final Object key) {
-
       final Map<Object, Object> map = resources;
 
       if (ObjectUtils.isEmpty(map)) {

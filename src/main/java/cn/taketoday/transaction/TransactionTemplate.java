@@ -36,7 +36,7 @@ public class TransactionTemplate extends DefaultTransactionDefinition implements
   private final TransactionManager transactionManager;
 
   @Autowired
-  public TransactionTemplate(@Autowired(required = true) TransactionManager transactionManager) {
+  public TransactionTemplate(@Autowired TransactionManager transactionManager) {
     this.transactionManager = transactionManager;
   }
 
@@ -49,7 +49,6 @@ public class TransactionTemplate extends DefaultTransactionDefinition implements
 
   @Override
   public <T> T execute(TransactionCallback<T> action) throws TransactionException {
-
     final TransactionManager transactionManager = getTransactionManager();
     final TransactionStatus status = transactionManager.getTransaction(this);
 
