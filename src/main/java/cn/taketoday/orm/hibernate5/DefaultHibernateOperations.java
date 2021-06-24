@@ -19,6 +19,13 @@
  */
 package cn.taketoday.orm.hibernate5;
 
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.factory.InitializingBean;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.GenericTypeResolver;
+import cn.taketoday.jdbc.PersistenceException;
 import org.hibernate.Criteria;
 import org.hibernate.Filter;
 import org.hibernate.FlushMode;
@@ -35,14 +42,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.factory.InitializingBean;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.GenericTypeResolver;
-import cn.taketoday.jdbc.PersistenceException;
 
 /**
  * @author TODAY <br>
@@ -415,13 +414,15 @@ public class DefaultHibernateOperations<T> implements HibernateOperations<T>, In
   @Override
   public List<T> find(int pageNow, int pageSize, Object[] params, String condition) {
     return execute(session -> setParameter(session.createQuery(where(condition), beanClass), params)
-            .setFirstResult((pageNow - 1) * pageSize).setMaxResults(pageSize).list());
+            .setFirstResult((pageNow - 1) * pageSize)
+            .setMaxResults(pageSize)
+            .list()
+    );
   }
 
   @Override
   public List<T> findCondition(Object[] params, String condition) {
-    return execute(session -> setParameter(session.createQuery(where(condition), beanClass),
-                                           params).list());
+    return execute(session -> setParameter(session.createQuery(where(condition), beanClass), params).list());
   }
 
   @Override
