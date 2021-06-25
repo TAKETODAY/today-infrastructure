@@ -1,6 +1,6 @@
 # TODAY Context CHANGE LOG
 
-:apple:  today-context is a lightweight dependency injection framework.    
+🍎 A Java library for dependency injection and aspect oriented programing
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3ad5eed64065496fba9244d149820f67)](https://www.codacy.com/app/TAKETODAY/today-context?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TAKETODAY/today-context&amp;utm_campaign=Badge_Grade)
 
