@@ -9,6 +9,15 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/b5b336564b304eaba40a39a211c2dd45)](https://www.codacy.com/gh/TAKETODAY/today-jdbc/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TAKETODAY/today-jdbc&amp;utm_campaign=Badge_Grade)
 [![GitHub CI](https://github.com/TAKETODAY/today-jdbc/workflows/GitHub%20CI/badge.svg)](https://github.com/TAKETODAY/today-jdbc/actions)
 
+## 🛠️ 安装
+
+```xml
+<dependency>
+  <groupId>cn.taketoday</groupId>
+  <artifactId>today-jdbc</artifactId>
+  <version>1.0.0.RELEASE</version>
+</dependency>
+```
 
 #### 使用实例
 
