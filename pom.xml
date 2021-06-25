@@ -4,16 +4,15 @@
 
   <groupId>cn.taketoday</groupId>
   <artifactId>today-jdbc</artifactId>
-
-  <version>latest</version>
-
   <!--
-      <version>1.0.0.RELEASE</version>
-  -->
+  <version>latest</version>
+ -->
+
+  <version>1.0.0.RELEASE</version>
 
   <name>TODAY Jdbc</name>
 
-  <description>Today Jdbc</description>
+  <description>TODAY Jdbc</description>
 
   <licenses>
     <license>
@@ -49,7 +48,7 @@
   </issueManagement>
 
   <properties>
-<!--    <skipTests>true</skipTests>-->
+    <!--    <skipTests>true</skipTests>-->
 
     <maven.compiler.source>8</maven.compiler.source>
     <maven.compiler.target>8</maven.compiler.target>
@@ -75,7 +74,7 @@
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-context</artifactId>
-      <version>latest</version>
+      <version>3.0.4.RELEASE</version>
     </dependency>
 
     <!-- provided -->
@@ -310,6 +309,9 @@
               <execution>
                 <id>sign-artifacts</id>
                 <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
               </execution>
             </executions>
           </plugin>
