@@ -11,15 +11,27 @@
 
 ```xml
 <dependency>
-    <groupId>cn.taketoday</groupId>
-    <artifactId>today-context</artifactId>
-    <version>3.0.3.RELEASE</version>
+  <groupId>cn.taketoday</groupId>
+  <artifactId>today-context</artifactId>
+  <version>3.0.4.RELEASE</version>
 </dependency>
 ```
 
-- [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-context/3.0.0.RELEASE/jar)
+- [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-context/3.0.4.RELEASE/jar)
 
 # 当前版本
+
+## v3.0.5
+
+
+## v3.0.4
+:zap: 优化 `BeanProperty` 添加 `GenericDescriptor`
+:bug: 修复 `NumberConverter` stringSource 为空时 null 转换问题
+:zap: 优化 布尔 转换问题 `StringToBooleanConverter`
+:zap: 优化 `DefaultConversionService` 添加 对 null 值的处理
+:zap: 优化 ContextUtils#resolveInitMethod
+:zap: 优化 EL 表达式性能
+
 
 ## v3.0.3
 - :bug: fix handleDependency 并发修改
