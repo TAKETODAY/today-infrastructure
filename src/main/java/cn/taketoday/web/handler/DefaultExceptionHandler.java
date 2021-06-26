@@ -223,7 +223,8 @@ public class DefaultExceptionHandler
         }
       }
       else {
-        super.applyResponseStatus(context);
+         // Annotated with @ResponseStatus
+        super.applyResponseStatus(context, status);
       }
     }
   }
