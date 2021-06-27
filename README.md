@@ -5,6 +5,16 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3fc111bcdf694f96bbf1a063058eea36)](https://app.codacy.com/app/TAKETODAY/today-framework?utm_source=github.com&utm_medium=referral&utm_content=TAKETODAY/today-framework&utm_campaign=Badge_Grade_Settings)
 
 
+## 安装
+
+```xml
+<dependency>
+  <groupId>cn.taketoday</groupId>
+  <artifactId>today-framework</artifactId>
+  <version>1.0.1.RELEASE</version>
+</dependency>
+```
+
 ## 开始
 
 只需要
@@ -106,8 +116,6 @@ public class NettyApplication {
 @Slf4j
 @Configuration
 @RequestMapping
-@ContextListener
-@EnableHotReload
 @EnableDefaultMybatis
 @EnableRedissonCaching
 @EnableTomcatHandling
