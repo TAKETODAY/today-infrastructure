@@ -22,8 +22,9 @@ package cn.taketoday.web.handler;
 import cn.taketoday.web.RequestContext;
 
 /**
- * @author TODAY <br>
- *         2019-12-23 21:50
+ * Adapt RequestHandler to handle request
+ *
+ * @author TODAY 2019-12-23 21:50
  */
 public class RequestHandlerAdapter extends AbstractHandlerAdapter {
 

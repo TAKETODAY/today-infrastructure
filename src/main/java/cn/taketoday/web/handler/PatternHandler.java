@@ -27,14 +27,15 @@ import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.OrderUtils;
 
 /**
- * @author TODAY <br>
- * 2019-12-25 14:51
+ * Pattern handler match in runtime
+ *
+ * @author TODAY 2019-12-25 14:51
  */
 public final class PatternHandler implements Serializable, Ordered {
   private static final long serialVersionUID = 1L;
 
-  private final String pattern;
-  private final Object handler;
+  private final String pattern; // path pattern
+  private final Object handler; // real handler
 
   public PatternHandler(String pattern, Object handler) {
     Assert.notNull(pattern, "pattern must not be null");

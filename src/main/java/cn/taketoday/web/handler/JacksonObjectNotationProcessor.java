@@ -41,7 +41,10 @@ import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.GenericDescriptor;
 
 /**
+ * jackson {@link ObjectNotationProcessor} implementation
+ *
  * @author TODAY 2021/5/17 13:24
+ * @see ObjectMapper
  * @since 3.0.1
  */
 public class JacksonObjectNotationProcessor extends ObjectNotationProcessor {
@@ -155,6 +158,9 @@ public class JacksonObjectNotationProcessor extends ObjectNotationProcessor {
     return mapper;
   }
 
+  /**
+   * Set a ObjectMapper
+   */
   public void setMapper(ObjectMapper mapper) {
     this.mapper = mapper;
   }

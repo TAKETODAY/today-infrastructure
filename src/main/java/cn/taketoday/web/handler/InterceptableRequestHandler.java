@@ -88,7 +88,8 @@ public abstract class InterceptableRequestHandler
   /**
    * perform this handler' behavior internal
    */
-  protected abstract Object handleInternal(final RequestContext context) throws Throwable;
+  protected abstract Object handleInternal(final RequestContext context)
+          throws Throwable;
 
   /**
    * replace interceptors

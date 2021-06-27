@@ -72,12 +72,26 @@ public class SimpleExceptionHandler
     }
   }
 
+  /**
+   * record exception log occurred in target request handler
+   *
+   * @param target
+   *         Throwable occurred in target request handler
+   */
   protected void logCatchThrowable(final Throwable target) {
     if (log.isDebugEnabled()) {
       log.debug("Catch Throwable: [{}]", target.toString(), target);
     }
   }
 
+  /**
+   * record log when a exception occurred in this exception handler
+   *
+   * @param target
+   *         Throwable that occurred in request handler
+   * @param handlerException
+   *         Throwable occurred in this exception handler
+   */
   protected void logResultedInException(Throwable target, Throwable handlerException) {
     log.error("Handling of [{}] resulted in Exception: [{}]",
               target.getClass().getName(),
@@ -156,6 +170,14 @@ public class SimpleExceptionHandler
     return NONE_RETURN_VALUE;
   }
 
+  /**
+   * Write error message to request context, default is write json
+   *
+   * @param ex
+   *         Throwable that occurred in request handler
+   * @param context
+   *         current request context
+   */
   protected void writeErrorMessage(Throwable ex, RequestContext context) throws IOException {
     context.setContentType(Constant.CONTENT_TYPE_JSON);
     final PrintWriter writer = context.getWriter();
@@ -171,6 +193,15 @@ public class SimpleExceptionHandler
             .toString();
   }
 
+  /**
+   * Get error http status value, if target throwable is {@link HttpStatusCapable}
+   * its return from {@link HttpStatusCapable#getHttpStatus()}
+   *
+   * @param ex
+   *         Throwable that occurred in request handler
+   *
+   * @return Http status code
+   */
   public int getErrorStatusValue(Throwable ex) {
     if (ex instanceof HttpStatusCapable) { // @since 3.0.1
       final HttpStatus httpStatus = ((HttpStatusCapable) ex).getHttpStatus();
@@ -187,7 +218,8 @@ public class SimpleExceptionHandler
    * @param context
    *         Current request context
    */
-  public Object handleExceptionInternal(final Throwable ex, final RequestContext context) throws IOException {
+  public Object handleExceptionInternal(
+          final Throwable ex, final RequestContext context) throws IOException {
     context.sendError(getErrorStatusValue(ex), ex.getMessage());
     return NONE_RETURN_VALUE;
   }
@@ -195,7 +227,8 @@ public class SimpleExceptionHandler
   /**
    * resolve image
    */
-  public BufferedImage resolveImageException(final Throwable ex, final RequestContext context) throws IOException {
+  public BufferedImage resolveImageException(
+          final Throwable ex, final RequestContext context) throws IOException {
     final URL resource = ClassUtils.getClassLoader()
             .getResource(new StringBuilder()
                                  .append("/error/")

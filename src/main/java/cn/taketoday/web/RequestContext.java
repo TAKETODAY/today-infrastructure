@@ -960,6 +960,9 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
     }
   }
 
+  /**
+   * cleanup multipart in this request context
+   */
   public void cleanupMultipartFiles() {
     final MultiValueMap<String, MultipartFile> multipartFiles = this.multipartFiles;
     if (!CollectionUtils.isEmpty(multipartFiles)) {

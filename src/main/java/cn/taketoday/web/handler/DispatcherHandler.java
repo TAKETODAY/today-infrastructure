@@ -235,15 +235,15 @@ public class DispatcherHandler extends WebApplicationContextSupport {
     log.info(msg);
   }
 
-  public final HandlerAdapter[] getHandlerAdapters() {
+  public HandlerAdapter[] getHandlerAdapters() {
     return handlerAdapters;
   }
 
-  public final RuntimeResultHandler[] getResultHandlers() {
+  public RuntimeResultHandler[] getResultHandlers() {
     return resultHandlers;
   }
 
-  public final HandlerRegistry getHandlerRegistry() {
+  public HandlerRegistry getHandlerRegistry() {
     return handlerRegistry;
   }
 

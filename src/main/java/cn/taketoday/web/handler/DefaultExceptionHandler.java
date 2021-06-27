@@ -41,10 +41,12 @@ import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.utils.WebUtils;
 
 /**
- * Handle {@link ExceptionHandler}
+ * Handle {@link ExceptionHandler} annotated method
+ * <p>
+ * this method indicates that is a exception handler
+ * </p>
  *
- * @author TODAY <br>
- * 2019-06-22 19:17
+ * @author TODAY 2019-06-22 19:17
  * @since 2.3.7
  */
 public class DefaultExceptionHandler
@@ -223,7 +225,7 @@ public class DefaultExceptionHandler
         }
       }
       else {
-         // Annotated with @ResponseStatus
+        // Annotated with @ResponseStatus
         super.applyResponseStatus(context, status);
       }
     }

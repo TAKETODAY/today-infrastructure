@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.util.zip.GZIPOutputStream;
 
 import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
@@ -37,7 +38,6 @@ import cn.taketoday.web.resource.WebResource;
 import cn.taketoday.web.resource.WebResourceResolver;
 import cn.taketoday.web.utils.WebUtils;
 
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import static cn.taketoday.web.Constant.RESOURCE_MATCH_RESULT;
 import static cn.taketoday.web.utils.WebUtils.writeToOutputStream;
 
@@ -50,8 +50,10 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
   private final WebResourceResolver resourceResolver;
 
   public ResourceRequestHandler(ResourceMapping mapping, WebResourceResolver resourceResolver) {
-    this.mapping = nonNull(mapping, "resource metadata must not be null");
-    this.resourceResolver = nonNull(resourceResolver, "resource resolver must not be null");
+    Assert.notNull(mapping, "resource metadata must not be null");
+    Assert.notNull(resourceResolver, "resource resolver must not be null");
+    this.mapping = mapping;
+    this.resourceResolver = resourceResolver;
   }
 
   @Override
