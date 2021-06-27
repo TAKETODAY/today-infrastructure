@@ -68,8 +68,7 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 
 /**
- * @author TODAY <br>
- * 2019-07-04 21:24
+ * @author TODAY 2019-07-04 21:24
  */
 public class NettyRequestContext extends RequestContext {
 
@@ -408,6 +407,12 @@ public class NettyRequestContext extends RequestContext {
     status = HttpResponseStatus.OK;
   }
 
+  /**
+   * assert that response is committed?
+   *
+   * @throws IllegalStateException
+   *         if response is committed
+   */
   private void assertNotCommitted() {
     if (committed) {
       throw new IllegalStateException("The response has been committed");
@@ -522,8 +527,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   protected MultiValueMap<String, MultipartFile> parseMultipartFiles() {
-    final MultiValueMap<String, MultipartFile> multipartFiles = new DefaultMultiValueMap<>();
-
+    DefaultMultiValueMap<String, MultipartFile> multipartFiles = new DefaultMultiValueMap<>();
     for (InterfaceHttpData data : getRequestDecoder().getBodyHttpDatas()) {
       if (data instanceof FileUpload) {
         final String name = data.getName();

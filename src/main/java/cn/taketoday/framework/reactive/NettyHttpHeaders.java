@@ -16,6 +16,8 @@ import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.web.http.HttpHeaders;
 
 /**
+ * Netty HttpHeaders
+ *
  * @author TODAY 2021/3/30 18:30
  */
 final class NettyHttpHeaders extends HttpHeaders {

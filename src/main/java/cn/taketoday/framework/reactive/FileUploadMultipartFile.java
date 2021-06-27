@@ -29,8 +29,10 @@ import cn.taketoday.web.multipart.MultipartFile;
 import io.netty.handler.codec.http.multipart.FileUpload;
 
 /**
- * @author TODAY <br>
- *         2019-11-14 13:11
+ * Netty MultipartFile
+ *
+ * @author TODAY 2019-11-14 13:11
+ * @see FileUpload
  */
 final class FileUploadMultipartFile
         extends AbstractMultipartFile implements MultipartFile {

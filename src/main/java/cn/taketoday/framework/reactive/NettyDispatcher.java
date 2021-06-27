@@ -10,7 +10,6 @@ import io.netty.channel.ChannelHandlerContext;
  * {@link cn.taketoday.web.handler.DispatcherHandler}
  * like {@link cn.taketoday.web.servlet.DispatcherServlet}
  *
- * @author TODAY 2021/3/20 12:06
  * @author TODAY 2021/3/20 12:05
  * @see AsyncNettyDispatcherHandler
  * @see cn.taketoday.web.handler.DispatcherHandler
