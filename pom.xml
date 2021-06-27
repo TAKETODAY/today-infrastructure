@@ -6,9 +6,9 @@
   <groupId>cn.taketoday</groupId>
   <artifactId>today-framework</artifactId>
 
-<!--
-  <version>latest</version>
--->
+  <!--
+    <version>latest</version>
+  -->
 
   <version>1.0.1.RELEASE</version>
 
@@ -69,6 +69,12 @@
   <dependencies>
 
     <dependency>
+      <groupId>cn.taketoday</groupId>
+      <artifactId>today-web</artifactId>
+      <version>3.0.1.RELEASE</version>
+    </dependency>
+
+    <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
       <version>4.0.1</version>
@@ -87,13 +93,6 @@
       <artifactId>commons-fileupload</artifactId>
       <version>1.3.3</version>
       <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>cn.taketoday</groupId>
-      <artifactId>today-web</artifactId>
-      <version>latest</version>
-<!--      <version>3.0.0.RELEASE</version>-->
     </dependency>
 
     <dependency>
