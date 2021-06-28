@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.cache.annotation.CacheConfig;
@@ -36,7 +35,7 @@ import cn.taketoday.context.utils.ObjectUtils;
  */
 public class CompositeCacheManager implements CacheManager {
 
-  private final List<CacheManager> cacheManagers = new ArrayList<>();
+  private final ArrayList<CacheManager> cacheManagers = new ArrayList<>();
 
   public CompositeCacheManager() {}
 

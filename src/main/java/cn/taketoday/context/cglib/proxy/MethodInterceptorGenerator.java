@@ -46,7 +46,7 @@ import static cn.taketoday.context.asm.Type.array;
  * @author TODAY <br>
  * 2019-09-03 19:29
  */
-class MethodInterceptorGenerator implements CallbackGenerator {
+final class MethodInterceptorGenerator implements CallbackGenerator {
 
   public static final MethodInterceptorGenerator INSTANCE = new MethodInterceptorGenerator();
 
@@ -99,8 +99,7 @@ class MethodInterceptorGenerator implements CallbackGenerator {
 
   @Override
   public void generate(final ClassEmitter ce, final Context context, final List<MethodInfo> methods) {
-
-    final Map<String, String> sigMap = new HashMap<>();
+    final HashMap<String, String> sigMap = new HashMap<>();
 
     for (final MethodInfo method : methods) {
       final Signature sig = method.getSignature();
@@ -152,7 +151,7 @@ class MethodInterceptorGenerator implements CallbackGenerator {
 
   private static void superHelper(CodeEmitter e, MethodInfo method, Context context) {
     if (Modifier.isAbstract(method.getModifiers())) {
-      e.throw_exception(ABSTRACT_METHOD_ERROR, method.toString() + " is abstract");
+      e.throw_exception(ABSTRACT_METHOD_ERROR, method + " is abstract");
     }
     else {
       e.load_this();
@@ -180,7 +179,8 @@ class MethodInterceptorGenerator implements CallbackGenerator {
     EmitUtils.loadClassThis(e);
     e.store_local(thisClass);
 
-    final Map<ClassInfo, List<MethodInfo>> methodsByClass = CglibCollectionUtils.bucket(methods, METHOD_TO_CLASS);
+    final Map<ClassInfo, List<MethodInfo>> methodsByClass
+            = CglibCollectionUtils.bucket(methods, METHOD_TO_CLASS);
 
     for (final Entry<ClassInfo, List<MethodInfo>> entry : methodsByClass.entrySet()) {
 
