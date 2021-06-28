@@ -61,7 +61,9 @@ public class ErrorsParameterResolver
     }
 
     @Override
-    public void addError(ObjectError error) { }
+    public void addError(ObjectError error) {
+      // empty implementation
+    }
   };
 
   @Override

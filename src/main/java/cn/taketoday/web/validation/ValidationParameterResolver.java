@@ -34,6 +34,7 @@ import cn.taketoday.web.resolver.ParameterResolvers;
 
 /**
  * @author TODAY 2019-07-20 17:00
+ * @see javax.validation.Valid
  */
 public class ValidationParameterResolver
         extends OrderedSupport implements ParameterResolver {
@@ -153,7 +154,10 @@ public class ValidationParameterResolver
 
   private ParameterResolver obtainResolver(final MethodParameter parameter) {
     final ParameterResolver resolver = getResolver(parameter);
-    Assert.state(resolver != null, "target parameter resolver must not be null");
+    if (resolver == null) {
+      throw new IllegalStateException(
+              "There is not a parameter resolver in [" + resolvers + "] to resolve " + parameter);
+    }
     return resolver;
   }
 

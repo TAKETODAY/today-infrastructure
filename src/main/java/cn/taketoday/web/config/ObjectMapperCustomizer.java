@@ -29,5 +29,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @FunctionalInterface
 public interface ObjectMapperCustomizer {
 
+  /**
+   * Customize ObjectMapper
+   */
   void customize(ObjectMapper mapper);
 }

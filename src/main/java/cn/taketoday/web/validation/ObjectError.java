@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.validation;
 
+import java.util.Objects;
+
 /**
  * @author TODAY <br>
  *         2019-07-21 14:30
@@ -52,4 +54,16 @@ public class ObjectError {
     return builder.toString();
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof ObjectError)) return false;
+    final ObjectError that = (ObjectError) o;
+    return Objects.equals(field, that.field) && Objects.equals(message, that.message);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(field, message);
+  }
 }

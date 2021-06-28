@@ -21,13 +21,11 @@
 package cn.taketoday.web.validation;
 
 import java.util.Locale;
-import java.util.Properties;
 
 import javax.validation.MessageInterpolator;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ExpressionEvaluator;
-import cn.taketoday.context.utils.ContextUtils;
 
 /**
  * @author TODAY 2019-07-21 20:17
@@ -43,7 +41,7 @@ public class ContextMessageInterpolator implements MessageInterpolator {
   /**
    * EL processing
    * <p>
-   * use {@link ContextUtils#resolveValue(String, Class, Properties)}
+   * use {@link ExpressionEvaluator#evaluate(String, Class)}
    * </p>
    */
   @Override
@@ -54,7 +52,7 @@ public class ContextMessageInterpolator implements MessageInterpolator {
   /**
    * EL processing
    * <p>
-   * use {@link ContextUtils#resolveValue(String, Class, Properties)}
+   * use {@link ExpressionEvaluator#evaluate(String, Class)}
    * </p>
    */
   @Override

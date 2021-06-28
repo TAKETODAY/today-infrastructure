@@ -61,8 +61,7 @@ import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
- * @author TODAY <br>
- * 2019-07-10 23:12
+ * @author TODAY 2019-07-10 23:12
  */
 public class WebApplicationLoader
         extends WebApplicationContextSupport implements WebApplicationInitializer {
