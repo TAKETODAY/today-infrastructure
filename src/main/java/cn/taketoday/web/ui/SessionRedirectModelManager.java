@@ -60,7 +60,7 @@ public class SessionRedirectModelManager implements RedirectModelManager {
     }
     else {
       final WebSession session = sessionManager.getSession(context);
-      Assert.state(session!=null, "WebSession cannot obtained for current request");
+      Assert.state(session != null, "WebSession cannot obtained for current request");
       session.setAttribute(KEY_REDIRECT_MODEL, redirectModel);
     }
   }

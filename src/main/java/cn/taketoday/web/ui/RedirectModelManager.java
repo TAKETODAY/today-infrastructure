@@ -56,7 +56,7 @@ public interface RedirectModelManager {
 
     @Override
     public void applyModel(RequestContext context, RedirectModel redirectModel) {
-
+      // no-op
     }
 
     @Override
