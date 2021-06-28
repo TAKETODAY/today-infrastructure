@@ -20,6 +20,7 @@
 package cn.taketoday.web.session;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import cn.taketoday.context.AttributeAccessorSupport;
 
@@ -56,4 +57,26 @@ public class DefaultSession extends AttributeAccessorSupport implements WebSessi
     storage.remove(this);
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof DefaultSession)) return false;
+    if (!super.equals(o)) return false;
+    final DefaultSession that = (DefaultSession) o;
+    return creationTime == that.creationTime && Objects.equals(id, that.id) && Objects.equals(storage, that.storage);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, creationTime, storage);
+  }
+
+  @Override
+  public String toString() {
+    return "DefaultSession{" +
+            "id='" + id + '\'' +
+            ", creationTime=" + creationTime +
+            ", storage=" + storage +
+            '}';
+  }
 }

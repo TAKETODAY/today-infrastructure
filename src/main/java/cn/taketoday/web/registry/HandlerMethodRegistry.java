@@ -400,7 +400,7 @@ public class HandlerMethodRegistry
   protected List<HandlerInterceptor> getInterceptors(final Class<?> controllerClass, final Method action) {
     final ArrayList<HandlerInterceptor> ret = new ArrayList<>();
 
-    // 设置类拦截器
+    // get interceptor on class
     final Interceptor[] controllerInterceptors = ClassUtils.getAnnotationArray(controllerClass, Interceptor.class);
     if (controllerInterceptors != null) {
       for (final Interceptor controllerInterceptor : controllerInterceptors) {

@@ -63,7 +63,9 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
   }
 
   @Override
-  protected void logMapping(String handlerKey, Object handler) { }
+  protected void logMapping(String handlerKey, Object handler) {
+    // no-op
+  }
 
   @Override
   protected void logHandlerReplaced(String handlerKey, Object oldHandler, Object newHandler) {

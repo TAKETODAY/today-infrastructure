@@ -53,8 +53,8 @@ import cn.taketoday.web.handler.MethodParameter;
  * </pre>
  *
  * @author TODAY 2021/4/8 14:33
- * @since 3.0
  * @see <a href='https://taketoday.cn/articles/1616819014712'>TODAY Context 之 BeanPropertyAccessor</a>
+ * @since 3.0
  */
 public class DataBinderCollectionParameterResolver extends AbstractDataBinderParameterResolver {
 
@@ -81,6 +81,7 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
    * @see #createCollection(MultiValueMap, MethodParameter)
    */
   @Override
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   protected Object doBind(MultiValueMap<String, PropertyValue> propertyValues, MethodParameter parameter) {
     final Collection<Object> collection = createCollection(propertyValues, parameter);
     final boolean isList = collection instanceof List;

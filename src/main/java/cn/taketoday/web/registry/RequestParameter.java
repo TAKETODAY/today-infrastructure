@@ -30,7 +30,7 @@ import cn.taketoday.context.utils.StringUtils;
  * @see AnnotationMappingInfo
  * @since 3.0
  */
-class RequestParameter {
+final class RequestParameter {
   private final String name;
   private final String value;
 

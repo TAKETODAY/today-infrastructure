@@ -40,7 +40,7 @@ import cn.taketoday.web.handler.HandlerMethod;
  * @author TODAY 2021/4/21 23:57
  * @since 3.0
  */
-class AnnotationMappingInfo implements Ordered {
+final class AnnotationMappingInfo implements Ordered {
 
   private final String[] value;
 //  private final String[] produces;
@@ -141,7 +141,7 @@ class AnnotationMappingInfo implements Ordered {
   public String toString() {
     final StringBuilder builder = new StringBuilder();
 
-    appendString(builder, "", method);
+    appendString(builder, Constant.BLANK, method);
     appendString(builder, "consumes: ", consumes);
     appendString(builder, "produces: ", produces);
     appendString(builder, "params: ", params);
@@ -150,9 +150,9 @@ class AnnotationMappingInfo implements Ordered {
     return builder.toString();
   }
 
-  private static void appendString(StringBuilder builder, String perfix, Object[] array) {
+  private static void appendString(StringBuilder builder, String prefix, Object[] array) {
     if (array != null) {
-      builder.append(perfix)
+      builder.append(prefix)
               .append(Arrays.toString(array));
     }
   }

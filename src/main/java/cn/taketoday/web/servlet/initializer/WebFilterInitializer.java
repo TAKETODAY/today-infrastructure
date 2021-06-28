@@ -41,7 +41,8 @@ import cn.taketoday.web.Constant;
  * @author TODAY <br>
  * 2019-02-03 13:22
  */
-public class WebFilterInitializer<T extends Filter> extends WebComponentInitializer<FilterRegistration.Dynamic> {
+public class WebFilterInitializer<T extends Filter>
+        extends WebComponentInitializer<FilterRegistration.Dynamic> {
 
   private T filter;
   private boolean matchAfter;
