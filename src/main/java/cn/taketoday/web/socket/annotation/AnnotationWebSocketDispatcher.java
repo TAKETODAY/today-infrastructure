@@ -54,9 +54,11 @@ public class AnnotationWebSocketDispatcher extends WebSocketHandler {
   @Override
   public void afterHandshake(RequestContext context, WebSocketSession session) throws Throwable {
     context.setAttribute(WebSocketSession.WEBSOCKET_SESSION_KEY, session);
+    // invoke after handshake callback
     socketHandler.afterHandshake(context);
 
     if (socketHandler.containsPathVariable) {
+      // for path variables handling
       final PathMatcher pathMatcher = (PathMatcher) context.getAttribute(WebSocketSession.PATH_MATCHER);
       final String requestPath = context.getRequestPath();
       final Map<String, String> variables = pathMatcher.extractUriTemplateVariables(socketHandler.pathPattern, requestPath);
