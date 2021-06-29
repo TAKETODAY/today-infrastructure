@@ -19,21 +19,14 @@
  */
 package cn.taketoday.web.multipart;
 
-import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.annotation.Props;
+import java.util.Objects;
+
 import cn.taketoday.context.utils.DataSize;
 import cn.taketoday.web.Constant;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
- * @author TODAY <br>
- * 2019-07-11 22:47
+ * @author TODAY 2019-07-11 22:47
  */
-@Setter
-@Getter
-@MissingBean
-@Props(prefix = "multipart.")
 public class MultipartConfiguration {
 
   /*** temp file upload location */
@@ -48,6 +41,46 @@ public class MultipartConfiguration {
   private DataSize maxRequestSize = DataSize.ofGigabytes(1); // total size in every single request
   private DataSize fileSizeThreshold = DataSize.ofGigabytes(1); // cache
 
+  public void setEncoding(String encoding) {
+    this.encoding = encoding;
+  }
+
+  public void setFileSizeThreshold(DataSize fileSizeThreshold) {
+    this.fileSizeThreshold = fileSizeThreshold;
+  }
+
+  public void setLocation(String location) {
+    this.location = location;
+  }
+
+  public void setMaxFileSize(DataSize maxFileSize) {
+    this.maxFileSize = maxFileSize;
+  }
+
+  public void setMaxRequestSize(DataSize maxRequestSize) {
+    this.maxRequestSize = maxRequestSize;
+  }
+
+  public String getLocation() {
+    return location;
+  }
+
+  public String getEncoding() {
+    return encoding;
+  }
+
+  public DataSize getMaxRequestSize() {
+    return maxRequestSize;
+  }
+
+  public DataSize getMaxFileSize() {
+    return maxFileSize;
+  }
+
+  public DataSize getFileSizeThreshold() {
+    return fileSizeThreshold;
+  }
+
   @Override
   public String toString() {
     return new StringBuilder()
@@ -59,4 +92,18 @@ public class MultipartConfiguration {
             .append("]").toString();
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof MultipartConfiguration)) return false;
+    final MultipartConfiguration that = (MultipartConfiguration) o;
+    return Objects.equals(location, that.location) && Objects.equals(encoding, that.encoding) && Objects
+            .equals(maxFileSize, that.maxFileSize) && Objects.equals(maxRequestSize, that.maxRequestSize) && Objects
+            .equals(fileSizeThreshold, that.fileSizeThreshold);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(location, encoding, maxFileSize, maxRequestSize, fileSizeThreshold);
+  }
 }

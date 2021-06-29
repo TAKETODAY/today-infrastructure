@@ -26,7 +26,6 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import cn.taketoday.context.annotation.Env;
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.Constant;
@@ -38,7 +37,6 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
 /**
  * @author TODAY 2019-12-28 13:47
  */
-@MissingBean
 public class ResultHandlers extends WebApplicationContextSupport {
   private final ArrayList<ResultHandler> handlers = new ArrayList<>(8);
   /**

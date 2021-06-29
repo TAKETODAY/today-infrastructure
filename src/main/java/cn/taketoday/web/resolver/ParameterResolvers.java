@@ -26,7 +26,6 @@ import java.util.Properties;
 
 import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.context.annotation.Env;
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.factory.DataBinder;
@@ -54,7 +53,6 @@ import static cn.taketoday.web.resolver.ConverterParameterResolver.convert;
  * @author TODAY 2019-07-07 23:24
  * @since 3.0
  */
-@MissingBean
 public class ParameterResolvers extends WebApplicationContextSupport {
   private final ArrayList<ParameterResolver> resolvers = new ArrayList<>(36);
 

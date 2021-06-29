@@ -1,6 +1,1 @@
-cn.taketoday.web.multipart.MultipartConfiguration
-cn.taketoday.web.handler.NotFoundRequestAdapter
-cn.taketoday.web.registry.HandlerMethodRegistry
-cn.taketoday.web.resolver.ParameterResolvers
-cn.taketoday.web.config.JacksonConfiguration
-cn.taketoday.web.view.ResultHandlers
+cn.taketoday.web.config.WebMvcAutoConfiguration

@@ -31,7 +31,6 @@ import java.util.Set;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.PathMatcher;
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
@@ -69,7 +68,6 @@ import static cn.taketoday.context.utils.StringUtils.checkUrl;
  * @author TODAY <br>
  * 2018-07-1 20:47:06
  */
-@MissingBean
 public class HandlerMethodRegistry
         extends AbstractUrlHandlerRegistry implements HandlerRegistry, WebApplicationInitializer {
 

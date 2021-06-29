@@ -21,7 +21,6 @@ package cn.taketoday.web.handler;
 
 import java.io.IOException;
 
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.web.RequestContext;
@@ -32,7 +31,6 @@ import cn.taketoday.web.RequestContext;
  * @author TODAY <br>
  * 2019-12-20 19:15
  */
-@MissingBean(type = NotFoundRequestAdapter.class)
 public class NotFoundRequestAdapter extends AbstractHandlerAdapter {
   private static final Logger log = LoggerFactory.getLogger(NotFoundRequestAdapter.class);
 
