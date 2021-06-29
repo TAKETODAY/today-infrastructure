@@ -173,17 +173,17 @@ public class StandardBeanFactory
   /**
    * Load {@link Configuration} beans from input bean class
    *
-   * @param def
+   * @param declaringDef
    *         current {@link Configuration} bean
    *
    * @since 2.1.7
    */
-  protected void loadConfigurationBeans(final BeanDefinition def) {
+  protected void loadConfigurationBeans(final BeanDefinition declaringDef) {
 
     final ConfigurableApplicationContext context = getApplicationContext();
     final BeanNameCreator beanNameCreator = getBeanNameCreator();
 
-    for (final Method method : ReflectionUtils.getDeclaredMethods(def.getBeanClass())) {
+    for (final Method method : ReflectionUtils.getDeclaredMethods(declaringDef.getBeanClass())) {
       final AnnotationAttributes[] components = getAnnotationAttributesArray(method, Component.class);
       if (ObjectUtils.isEmpty(components)) {
         // detect missed bean
@@ -201,10 +201,15 @@ public class StandardBeanFactory
                           .setDeclaringName(beanNameCreator.create(method.getDeclaringClass()));
 
           registerMissingBean(attributes, stdDef);
+
+          // @since 3.0.5
+          if (stdDef.isAnnotationPresent(Configuration.class)) {
+            loadConfigurationBeans(stdDef);
+          }
         }
-      }
+      } // is a Component
       else if (ContextUtils.passCondition(method, context)) { // pass the condition
-        registerConfigurationBean(def, method, components);
+        registerConfigurationBean(declaringDef, method, components);
       }
     }
   }
@@ -218,7 +223,7 @@ public class StandardBeanFactory
    *         {@link AnnotationAttributes}
    */
   protected void registerConfigurationBean(
-          final BeanDefinition def, final Method method, final AnnotationAttributes[] components
+          final BeanDefinition declaringDef, final Method method, final AnnotationAttributes[] components
   ) {
     final Class<?> returnType = method.getReturnType();
 
@@ -226,7 +231,7 @@ public class StandardBeanFactory
     final Properties properties = environment.getProperties();
     //final String defaultBeanName = beanNameCreator.create(returnType); // @Deprecated in v2.1.7, use method name instead
     final String defaultBeanName = method.getName(); // @since v2.1.7
-    final String declaringBeanName = def.getName(); // @since v2.1.7
+    final String declaringBeanName = declaringDef.getName(); // @since v2.1.7
 
     for (final AnnotationAttributes component : components) {
       final String scope = component.getString(Constant.SCOPE);
@@ -248,6 +253,10 @@ public class StandardBeanFactory
         // resolve @Props on a bean
         stdDef.addPropertySetter(resolveProps(stdDef, properties));
         register(name, stdDef);
+        // @since 3.0.5
+        if (stdDef.isAnnotationPresent(Configuration.class)) {
+          loadConfigurationBeans(stdDef);
+        }
       }
     }
   }
