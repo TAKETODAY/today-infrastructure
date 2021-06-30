@@ -303,23 +303,26 @@ public class StandardBeanFactory
    *
    * @since 3.0
    */
-  boolean isMissedBean(final AnnotationAttributes missingBean,
-                       final AnnotatedElement annotated, final ApplicationContext context) {
-    if (missingBean == null || !ContextUtils.passCondition(annotated, context)) { // use current application context
-      return false;
-    }
+  private boolean isMissedBean(
+          final AnnotationAttributes missingBean,
+          final AnnotatedElement annotated, final ApplicationContext context) {
 
-    final String beanName = missingBean.getString(VALUE);
-    if (StringUtils.isNotEmpty(beanName) && containsBeanDefinition(beanName)) {
-      return false;
+    if (missingBean != null && ContextUtils.passCondition(annotated, context)) {
+      // find by bean name
+      final String beanName = missingBean.getString(VALUE);
+      if (StringUtils.isNotEmpty(beanName) && containsBeanDefinition(beanName)) {
+        return false;
+      }
+      // find by type
+      final Class<?> type = missingBean.getClass("type");
+      if (type != void.class) {
+        return !containsBeanDefinition(type, missingBean.getBoolean("equals"));
+      }
+      else {
+        return !containsBeanDefinition(ContextUtils.getBeanClass(annotated));
+      }
     }
-    final Class<?> type = missingBean.getClass("type");
-    if (type != void.class) {
-      return !containsBeanDefinition(type, missingBean.getBoolean("equals"));
-    }
-    else {
-      return !containsBeanDefinition(ContextUtils.getBeanClass(annotated));
-    }
+    return false;
   }
 
   /**
