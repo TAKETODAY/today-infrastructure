@@ -21,7 +21,6 @@
 package cn.taketoday.web.config;
 
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.IgnoreDuplicates;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
@@ -34,6 +33,9 @@ import cn.taketoday.web.resolver.ParameterResolvers;
 import cn.taketoday.web.view.ResultHandler;
 import cn.taketoday.web.view.ResultHandlers;
 
+/**
+ *
+ */
 @Configuration
 public class WebMvcAutoConfiguration {
 
@@ -72,7 +74,6 @@ public class WebMvcAutoConfiguration {
   }
 
   @MissingBean
-  @IgnoreDuplicates
   @ConditionalOnClass("com.fasterxml.jackson.databind.ObjectMapper")
   JacksonConfiguration jacksonConfiguration() {
     return new JacksonConfiguration();
