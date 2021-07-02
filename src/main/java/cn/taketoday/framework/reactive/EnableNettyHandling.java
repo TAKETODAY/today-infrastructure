@@ -54,7 +54,6 @@ public @interface EnableNettyHandling {
    * determine using which  {@link NettyDispatcher}
    *
    * @see AsyncNettyDispatcherHandler
-   * @see SyncNettyDispatcherHandler
    */
   boolean async() default true;
 
