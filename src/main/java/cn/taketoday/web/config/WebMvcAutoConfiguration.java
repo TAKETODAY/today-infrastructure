@@ -34,7 +34,10 @@ import cn.taketoday.web.view.ResultHandler;
 import cn.taketoday.web.view.ResultHandlers;
 
 /**
- *
+ * Web MVC auto configuration
+ * <p>
+ * config framework
+ * </p>
  */
 @Configuration
 public class WebMvcAutoConfiguration {

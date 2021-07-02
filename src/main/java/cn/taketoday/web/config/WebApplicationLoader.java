@@ -80,13 +80,13 @@ public class WebApplicationLoader
     configureResourceHandler(context, mvcConfiguration);
     configureFunctionHandler(context, mvcConfiguration);
     configureViewControllerHandler(context, mvcConfiguration);
-    configureExceptionHandler(context.getBeans(HandlerExceptionHandler.class), mvcConfiguration);
+    configureExceptionHandler(context, mvcConfiguration);
+    configureResultHandler(context, mvcConfiguration);
+    configureConversionService(context, mvcConfiguration);
+    configureHandlerAdapter(context, mvcConfiguration);
+    configureParameterResolver(context, mvcConfiguration);
+    configureHandlerRegistry(context, mvcConfiguration);
 
-    configureResultHandler(context.getBeans(ResultHandler.class), mvcConfiguration);
-    configureConversionService(context.getBeans(TypeConverter.class), mvcConfiguration);
-    configureHandlerAdapter(context.getBeans(HandlerAdapter.class), mvcConfiguration);
-    configureParameterResolver(context.getBeans(ParameterResolver.class), mvcConfiguration);
-    configureHandlerRegistry(context.getBeans(HandlerRegistry.class), mvcConfiguration);//fix
     // @since 3.0
     configureValidators(context, mvcConfiguration);
 
@@ -110,6 +110,10 @@ public class WebApplicationLoader
     }
   }
 
+  private void configureHandlerRegistry(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
+    configureHandlerRegistry(context.getBeans(HandlerRegistry.class), mvcConfiguration); //fix
+  }
+
   protected void configureHandlerRegistry(List<HandlerRegistry> registries, WebMvcConfiguration mvcConfiguration) {
     final DispatcherHandler obtainDispatcher = obtainDispatcher();
     final HandlerRegistry handlerRegistry = obtainDispatcher.getHandlerRegistry();
@@ -122,6 +126,11 @@ public class WebApplicationLoader
     obtainDispatcher.setHandlerRegistry(registries.size() == 1
                                         ? registries.get(0)
                                         : new CompositeHandlerRegistry(registries));
+  }
+
+  private void configureHandlerAdapter(
+          final WebApplicationContext context, final WebMvcConfiguration mvcConfiguration) {
+    configureHandlerAdapter(context.getBeans(HandlerAdapter.class), mvcConfiguration);
   }
 
   /**
@@ -183,6 +192,11 @@ public class WebApplicationLoader
   /**
    * configure HandlerExceptionHandler
    */
+  private void configureExceptionHandler(
+          WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
+    configureExceptionHandler(context.getBeans(HandlerExceptionHandler.class), mvcConfiguration);
+  }
+
   protected void configureExceptionHandler(
           List<HandlerExceptionHandler> handlers, WebMvcConfiguration mvcConfiguration) {
 
@@ -196,6 +210,7 @@ public class WebApplicationLoader
     mvcConfiguration.configureExceptionHandlers(handlers);
 
     if (handlers.isEmpty()) {
+      // register default
       final WebApplicationContext context = obtainApplicationContext();
       DefaultExceptionHandler defaultHandler = context.getBean(DefaultExceptionHandler.class);
       if (defaultHandler == null) {
@@ -234,6 +249,10 @@ public class WebApplicationLoader
     }
   }
 
+  private void configureConversionService(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
+    configureConversionService(context.getBeans(TypeConverter.class), mvcConfiguration);
+  }
+
   /**
    * Configure {@link TypeConverter} to resolve convert request parameters
    *
@@ -242,10 +261,14 @@ public class WebApplicationLoader
    * @param mvcConfiguration
    *         All {@link WebMvcConfiguration} object
    */
-  protected void configureConversionService(List<TypeConverter> typeConverters, WebMvcConfiguration mvcConfiguration) {
+  protected void configureConversionService(
+          List<TypeConverter> typeConverters, WebMvcConfiguration mvcConfiguration) {
     mvcConfiguration.configureConversionService(typeConverters);
-
     ConvertUtils.addConverter(typeConverters);
+  }
+
+  private void configureResultHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
+    configureResultHandler(context.getBeans(ResultHandler.class), mvcConfiguration);
   }
 
   /**
@@ -309,6 +332,11 @@ public class WebApplicationLoader
     }
   }
 
+  private void configureParameterResolver(
+          WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
+    configureParameterResolver(context.getBeans(ParameterResolver.class), mvcConfiguration);
+  }
+
   /**
    * Configure {@link ParameterResolver}s to resolve handler method arguments
    *
@@ -317,7 +345,8 @@ public class WebApplicationLoader
    * @param mvcConfiguration
    *         All {@link WebMvcConfiguration} object
    */
-  protected void configureParameterResolver(List<ParameterResolver> resolvers, WebMvcConfiguration mvcConfiguration) {
+  protected void configureParameterResolver(
+          List<ParameterResolver> resolvers, WebMvcConfiguration mvcConfiguration) {
     final WebApplicationContext context = obtainApplicationContext();
     final ParameterResolvers parameterResolvers = context.getBean(ParameterResolvers.class);
     Assert.state(parameterResolvers != null, "No ParameterResolvers");
@@ -356,7 +385,7 @@ public class WebApplicationLoader
   protected void configureValidators(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
     final WebValidator webValidator = context.getBean(WebValidator.class);
     if (webValidator != null) {
-      log.info("Enable Bean Validation");
+      log.info("Enable Bean Validation using web validator: {}", webValidator);
       // user Manual config
       mvcConfiguration.configureValidators(webValidator);
     }
