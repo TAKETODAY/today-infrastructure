@@ -97,6 +97,9 @@ public class ReactiveChannelHandler implements ChannelInboundHandler {
     return nettyDispatcher;
   }
 
+  /**
+   * Get Netty RequestContext config
+   */
   public NettyRequestContextConfig getContextConfig() {
     return contextConfig;
   }
@@ -104,10 +107,14 @@ public class ReactiveChannelHandler implements ChannelInboundHandler {
   //
 
   @Override
-  public void handlerAdded(ChannelHandlerContext ctx) {}
+  public void handlerAdded(ChannelHandlerContext ctx) {
+    // no-op
+  }
 
   @Override
-  public void handlerRemoved(ChannelHandlerContext ctx) {}
+  public void handlerRemoved(ChannelHandlerContext ctx) {
+    // no-op
+  }
 
   @Override
   public void channelRegistered(ChannelHandlerContext ctx) {

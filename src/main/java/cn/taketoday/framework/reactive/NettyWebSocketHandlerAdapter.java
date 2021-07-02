@@ -14,6 +14,8 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.util.AttributeKey;
 
 /**
+ * The Netty websocket handler adapter
+ *
  * @author TODAY 2021/5/24 21:02
  * @since 1.0.1
  */

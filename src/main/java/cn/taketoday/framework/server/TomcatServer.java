@@ -83,8 +83,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * @author TODAY <br>
- * 2018-10-15 20:44
+ * Tomcat Servlet web server
+ *
+ * @author TODAY 2018-10-15 20:44
  */
 @Setter
 @Getter
@@ -353,7 +354,7 @@ public class TomcatServer extends AbstractServletWebServer {
   protected void doPrepareContext(Host host) {
     try {
       final ServletWebServerApplicationLoader starter = //
-              new ServletWebServerApplicationLoader(obtainApplicationContext(),this::getMergedInitializers);
+              new ServletWebServerApplicationLoader(obtainApplicationContext(), this::getMergedInitializers);
       TomcatEmbeddedContext context = new TomcatEmbeddedContext(sessionIdGenerator);
       context.setFailCtxIfServletStartFails(true);
 

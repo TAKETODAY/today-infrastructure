@@ -52,8 +52,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * @author TODAY <br>
- * 2019-01-26 11:08
+ * For servlet web server
+ *
+ * @author TODAY 2019-01-26 11:08
  */
 @Getter
 @Setter

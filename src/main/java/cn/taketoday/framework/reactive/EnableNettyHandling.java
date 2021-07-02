@@ -65,7 +65,7 @@ public @interface EnableNettyHandling {
 
 }
 
-class NettyConfig implements AnnotationBeanDefinitionRegistrar<EnableNettyHandling> {
+final class NettyConfig implements AnnotationBeanDefinitionRegistrar<EnableNettyHandling> {
 
   @MissingBean(type = ReactiveChannelHandler.class)
   ReactiveChannelHandler reactiveChannelHandler(

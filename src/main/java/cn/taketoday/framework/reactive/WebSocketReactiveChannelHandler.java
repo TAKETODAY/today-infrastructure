@@ -23,6 +23,8 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 
 /**
+ * Handle websocket request and http request
+ *
  * @author TODAY 2021/5/24 21:22
  * @since 1.0.1
  */
@@ -75,6 +77,14 @@ public class WebSocketReactiveChannelHandler extends ReactiveChannelHandler {
     }
   }
 
+  /**
+   * Adapt WebSocketFrame to {@link Message}
+   *
+   * @param frame
+   *         WebSocketFrame
+   *
+   * @return websocket message
+   */
   private Message<?> getMessage(WebSocketFrame frame) {
     final ByteBuf content = frame.content();
     if (frame instanceof PingWebSocketFrame) {

@@ -65,8 +65,9 @@ import io.undertow.servlet.handlers.DefaultServlet;
 import io.undertow.servlet.util.ImmediateInstanceFactory;
 
 /**
- * @author TODAY <br>
- * 2019-01-12 17:28
+ * Undertow Servlet web server
+ *
+ * @author TODAY 2019-01-12 17:28
  */
 public class UndertowServer
         extends AbstractServletWebServer implements WebServer {

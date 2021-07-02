@@ -56,8 +56,7 @@ import cn.taketoday.web.config.WebApplicationLoader;
 import cn.taketoday.web.session.SessionConfiguration;
 
 /**
- * @author TODAY <br>
- * 2019-01-26 11:08
+ * @author TODAY 2019-01-26 11:08
  */
 public abstract class AbstractWebServer
         extends WebApplicationContextSupport implements ConfigurableWebServer {

@@ -289,20 +289,52 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
     this.socketChannel = socketChannel;
   }
 
+  /**
+   * set the number of threads that will be used by
+   * {@link io.netty.util.concurrent.MultithreadEventExecutorGroup}
+   *
+   * For parent {@link EventLoopGroup}
+   *
+   * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
+   */
   public void setParentThreadCount(int parentThreadCount) {
     this.parentThreadCount = parentThreadCount;
   }
 
+  /**
+   * get the number of threads that will be used by
+   * {@link io.netty.util.concurrent.MultithreadEventExecutorGroup}
+   *
+   * For parent {@link EventLoopGroup}
+   *
+   * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
+   */
+  public int getParentThreadCount() {
+    return parentThreadCount;
+  }
+
+  /**
+   * set the number of threads that will be used by
+   * {@link io.netty.util.concurrent.MultithreadEventExecutorGroup}
+   *
+   * For child {@link EventLoopGroup}
+   *
+   * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
+   */
   public void setChildThreadCount(int childThreadCount) {
     this.childThreadCount = childThreadCount;
   }
 
+  /**
+   * get the number of threads that will be used by
+   * {@link io.netty.util.concurrent.MultithreadEventExecutorGroup}
+   *
+   * For child {@link EventLoopGroup}
+   *
+   * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
+   */
   public int getChildThreadCount() {
     return childThreadCount;
-  }
-
-  public int getParentThreadCount() {
-    return parentThreadCount;
   }
 
   public void setNettyServerInitializer(NettyServerInitializer nettyServerInitializer) {
@@ -326,6 +358,13 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
     this.loggingLevel = loggingLevel;
   }
 
+  /**
+   * Get {@link LoggingHandler} logging Level
+   *
+   * @see LogLevel
+   * @see LoggingHandler
+   * @see ServerBootstrap#handler
+   */
   public LogLevel getLoggingLevel() {
     return loggingLevel;
   }

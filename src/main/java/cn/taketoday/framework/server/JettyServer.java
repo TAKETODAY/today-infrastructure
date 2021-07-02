@@ -76,7 +76,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Jetty web server.
+ * Jetty Servlet web server.
  *
  * @author Phillip Webb
  * @author Dave Syer

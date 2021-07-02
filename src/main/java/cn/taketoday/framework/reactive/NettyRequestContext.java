@@ -271,7 +271,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public void sendRedirect(String location) {
-    status = HttpResponseStatus.FOUND;
+    this.status = HttpResponseStatus.FOUND;
     originalResponseHeaders().set(HttpHeaderNames.LOCATION, location);
     send();
   }
@@ -436,7 +436,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public void setStatus(final int sc) {
-    status = HttpResponseStatus.valueOf(sc);
+    this.status = HttpResponseStatus.valueOf(sc);
   }
 
   @Override
@@ -451,13 +451,13 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public void sendError(int sc) {
-    status = HttpResponseStatus.valueOf(sc);
+    this.status = HttpResponseStatus.valueOf(sc);
     send();
   }
 
   @Override
   public void sendError(int sc, String msg) {
-    status = HttpResponseStatus.valueOf(sc, msg);
+    this.status = HttpResponseStatus.valueOf(sc, msg);
     send();
   }
 

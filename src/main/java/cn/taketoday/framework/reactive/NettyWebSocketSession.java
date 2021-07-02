@@ -2,6 +2,7 @@ package cn.taketoday.framework.reactive;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
@@ -106,5 +107,29 @@ public class NettyWebSocketSession extends NativeWebSocketSession<ChannelHandler
   public void close(CloseStatus status) throws IOException {
     channel.writeAndFlush(new CloseWebSocketFrame(status.getCode(), status.getReason()))
             .addListener(ChannelFutureListener.CLOSE);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof NettyWebSocketSession)) return false;
+    if (!super.equals(o)) return false;
+    final NettyWebSocketSession that = (NettyWebSocketSession) o;
+    return secure == that.secure && Objects.equals(channel, that.channel);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(channel, secure);
+  }
+
+  @Override
+  public String toString() {
+    return "NettyWebSocketSession{" +
+            "channel=" + channel +
+            ", secure=" + secure +
+            ", nativeSession=" + nativeSession +
+            ", attributes=" + attributes +
+            '}';
   }
 }
