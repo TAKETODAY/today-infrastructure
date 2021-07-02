@@ -2,6 +2,7 @@ package cn.taketoday.framework.reactive;
 
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 import cn.taketoday.web.RequestContextHolder;
@@ -50,9 +51,16 @@ public final class AsyncNettyDispatcherHandler extends NettyDispatcher {
       }
     }
 
+    final class HandlerFinder implements Function<NettyRequestContext, Object> {
+      @Override
+      public Object apply(NettyRequestContext path) {
+        return dispatcherHandler.lookupHandler(path);
+      }
+    }
+
     final Executor executor = ctx.executor();
     completedFuture(nettyContext)
-            .thenApplyAsync(dispatcherHandler::lookupHandler, executor)
+            .thenApplyAsync(new HandlerFinder(), executor)
             .thenApplyAsync(new AsyncHandler(), executor)
             .thenAcceptAsync(new AsyncSender(), executor);
   }
