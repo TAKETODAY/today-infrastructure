@@ -27,6 +27,16 @@
 - [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-web/2.3.6.RELEASE/jar)
 
 
+
+## v3.0.2
+- :zap: 使用 WebMvcAutoConfiguration 自动配置 以前在 beans 文件的组件
+- :zap: 优化异常处理器 applyResponseStatus
+- :bug: fix #15 JacksonConfiguration 重复实例
+- :bug: fix #14 JacksonConfiguration ObjectMapper fails on empty beans
+- :zap: 访问控制
+- :zap: 优化 servlet 参数注册部分
+- :arrow_up: Bump hibernate-validator from 6.1.0.Final to 6.1.5.Final dependabot[bot]* 2021/6/5, 05:54
+
 ## v3.0.0(v2.3.7)
 - :sparkles: feat: allow rebuild Controllers
 - :sparkles: :zap: add WebUtils api
