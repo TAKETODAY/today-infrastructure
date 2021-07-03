@@ -19,7 +19,7 @@
 # 当前版本
 
 ## v3.0.5
-
+- :bug: 修复 Configuration 遗漏配置问题
 
 ## v3.0.4
 :zap: 优化 `BeanProperty` 添加 `GenericDescriptor`
