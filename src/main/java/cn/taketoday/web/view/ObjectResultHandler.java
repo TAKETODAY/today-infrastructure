@@ -20,6 +20,7 @@
 package cn.taketoday.web.view;
 
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
@@ -44,10 +45,31 @@ public class ObjectResultHandler extends HandlerMethodResultHandler {
   }
 
   @Override
-  public void handleResult(final RequestContext context, final Object handler, final Object result) throws Throwable {
-    if (result != null) {
+  protected void handleInternal(RequestContext context, HandlerMethod handler, Object result) throws Throwable {
+    if (isResponseBody(handler)) {// @since 3.0.5 fix response body error (github #16)
+      handleResponseBody(context, result);
+    }
+    else {
       handleObject(context, result);
     }
+  }
+
+  /**
+   * determine this handler is write message to response body?
+   *
+   * @param handlerMethod
+   *         target handler
+   *
+   * @since 3.0.3
+   */
+  private boolean isResponseBody(HandlerMethod handlerMethod) {
+    if (handlerMethod.isMethodPresent(ResponseBody.class)) {
+      return !handlerMethod.getMethodAnnotation(ResponseBody.class).value();
+    }
+    else if (handlerMethod.isDeclaringClassPresent(ResponseBody.class)) {
+      return !handlerMethod.getDeclaringClassAnnotation(ResponseBody.class).value();
+    }
+    return true;
   }
 
   @Override
