@@ -10,11 +10,9 @@
 <dependency>
   <groupId>cn.taketoday</groupId>
   <artifactId>today-context</artifactId>
-  <version>3.0.4.RELEASE</version>
+  <version>3.0.5.RELEASE</version>
 </dependency>
 ```
-
-- [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-context/3.0.4.RELEASE/jar)
 
 # 当前版本
 
