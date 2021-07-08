@@ -27,12 +27,11 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.annotation.Component;
 
 /**
- * @author TODAY <br>
- *         2019-06-18 14:27
+ * @author TODAY 2019-06-18 14:27
  * @since 2.3.7
  */
 @Component
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ControllerAdvice {
 

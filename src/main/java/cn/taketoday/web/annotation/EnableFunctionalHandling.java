@@ -43,7 +43,7 @@ public @interface EnableFunctionalHandling {
 /**
  * @since 3.0
  */
-class FunctionalConfig {
+final class FunctionalConfig {
 
   @MissingBean
   FunctionHandlerRegistry functionHandlerRegistry() {

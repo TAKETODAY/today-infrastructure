@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
  */
 @ResponseBody
 @ControllerAdvice
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RestControllerAdvice {
 
