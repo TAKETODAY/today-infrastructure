@@ -133,7 +133,7 @@ public class HandlerMethodRegistry
     for (final Entry<String, BeanDefinition> entry : beanFactory.getBeanDefinitions().entrySet()) {
       final BeanDefinition def = entry.getValue();
       if (!def.isAbstract() && isController(def)) { // ActionMapping on the class is ok
-        buildHandlerMethod(def.getBeanClass());
+        buildHandlerMethod(def);
       }
     }
   }
@@ -159,13 +159,31 @@ public class HandlerMethodRegistry
    *
    * @since 2.3.7
    */
+  @Deprecated
   public void buildHandlerMethod(final Class<?> beanClass) {
     // find mapping on class
     final AnnotationAttributes controllerMapping
             = ClassUtils.getAnnotationAttributes(ActionMapping.class, beanClass);
+    buildHandlerMethod(beanClass, controllerMapping);
+  }
+
+  private void buildHandlerMethod(Class<?> beanClass, AnnotationAttributes controllerMapping) {
     for (final Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
       buildHandlerMethod(method, beanClass, controllerMapping);
     }
+  }
+
+  /**
+   * @param def
+   *         the definition of the bean
+   *
+   * @since 3.0.3
+   */
+  public void buildHandlerMethod(final BeanDefinition def) {
+    // find mapping on BeanDefinition
+    final AnnotationAttributes controllerMapping
+            = ClassUtils.getAnnotationAttributes(ActionMapping.class, def);
+    buildHandlerMethod(def.getBeanClass(), controllerMapping);
   }
 
   /**
@@ -225,7 +243,8 @@ public class HandlerMethodRegistry
       final Set<RequestMethod> requestMethods = // http request method on method(action/handler)
               newHashSet(handlerMethodMapping.getAttribute("method", RequestMethod[].class));
 
-      if (addClassRequestMethods) requestMethods.addAll(classRequestMethods);
+      if (addClassRequestMethods)
+        requestMethods.addAll(classRequestMethods);
 
       for (final String urlOnMethod : handlerMethodMapping.getStringArray("value")) { // url on method
         final String checkedUrl = checkUrl(urlOnMethod);
