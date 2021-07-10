@@ -25,6 +25,7 @@ package cn.taketoday.framework;
  */
 public interface Constant extends cn.taketoday.web.Constant {
 
+  String DEFAULT_YML_FILE = CLASS_PATH_PREFIX + "application.yml"; // @since 1.0.2
   String DEFAULT_YAML_FILE = CLASS_PATH_PREFIX + "application.yaml";
 
   String DEFAULT_PROPERTIES_FILE = CLASS_PATH_PREFIX + "application.properties";

@@ -24,23 +24,23 @@ import org.yaml.snakeyaml.extensions.compactnotation.CompactConstructor;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
+import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.env.StandardEnvironment;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.annotation.PropertiesSource;
 import cn.taketoday.framework.utils.ApplicationUtils;
-
-import static cn.taketoday.context.utils.ClassUtils.getAnnotation;
 
 /**
  * @author TODAY <br>
@@ -65,52 +65,61 @@ public class StandardWebEnvironment extends StandardEnvironment {
 
   @Override
   public void loadProperties() throws IOException {
-
     // load default properties source : application.yaml or application.properties
-    final Set<String> locations = new HashSet<>(8);
-    final Resource propertiesResource = getPropertiesResource(locations);
+    LinkedHashSet<String> locations = new LinkedHashSet<>(8);
+    loadDefaultResources(locations);
 
-    if (propertiesResource.exists()) { // load
-      loadProperties(propertiesResource);
-    }
-    else {
+    if (locations.isEmpty()) {
       super.loadProperties(Constant.BLANK); // scan class path properties files
     }
 
     // load properties from starter class annotated @PropertiesSource
-    final Class<?> applicationClass = this.applicationClass;
-    final PropertiesSource propertiesSource = getAnnotation(PropertiesSource.class, applicationClass);
-    if (propertiesSource != null) {
-      for (final String propertiesLocation : StringUtils.split(propertiesSource.value())) {
-
-        if (!locations.contains(propertiesLocation)) {
-          loadProperties(propertiesLocation);
-          locations.add(propertiesLocation);
+    if (applicationClass != null) {
+      AnnotationAttributes[] attributes =
+              ClassUtils.getAnnotationAttributesArray(applicationClass, PropertiesSource.class);
+      if (ObjectUtils.isNotEmpty(attributes)) {
+        for (AnnotationAttributes attribute : attributes) {
+          for (String propertiesLocation : StringUtils.split(attribute.getString(Constant.VALUE))) {
+            if (!locations.contains(propertiesLocation)) {
+              loadProperties(propertiesLocation);
+              locations.add(propertiesLocation);
+            }
+          }
         }
       }
     }
 
     // arguments
-
     getProperties().putAll(ApplicationUtils.parseCommandArguments(arguments));
 
     refreshActiveProfiles();
     replaceProperties(locations);
   }
 
-  protected Resource getPropertiesResource(final Set<String> locations) {
-    Resource propertiesResource = ResourceUtils.getResource(Constant.DEFAULT_PROPERTIES_FILE);
+  /**
+   * load default properties files
+   *
+   * @param locations
+   *         loaded files
+   *
+   * @throws IOException
+   *         If load error
+   */
+  protected void loadDefaultResources(final Set<String> locations) throws IOException {
+    final String[] defaultLocations = new String[] {
+            Constant.DEFAULT_YML_FILE,
+            Constant.DEFAULT_YAML_FILE,
+            Constant.DEFAULT_PROPERTIES_FILE
+    };
 
-    if (propertiesResource.exists()) {
-      setPropertiesLocation(Constant.DEFAULT_PROPERTIES_FILE);
-      locations.add(Constant.DEFAULT_PROPERTIES_FILE);
+    for (final String location : defaultLocations) {
+      final Resource propertiesResource = ResourceUtils.getResource(location);
+      if (propertiesResource.exists()) {
+        loadProperties(propertiesResource); // loading
+        setPropertiesLocation(location);// can override
+        locations.add(location);
+      }
     }
-    else {
-      propertiesResource = ResourceUtils.getResource(Constant.DEFAULT_YAML_FILE);
-      setPropertiesLocation(Constant.DEFAULT_YAML_FILE);
-      locations.add(Constant.DEFAULT_YAML_FILE);
-    }
-    return propertiesResource;
   }
 
   /**
@@ -120,7 +129,7 @@ public class StandardWebEnvironment extends StandardEnvironment {
    *         location
    */
   protected boolean isYamlProperties(String propertiesLocation) {
-    return propertiesLocation.contains(".yaml") || propertiesLocation.contains(".yml");
+    return propertiesLocation.endsWith(".yaml") || propertiesLocation.endsWith(".yml");
   }
 
   /**
