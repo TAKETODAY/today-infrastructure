@@ -206,16 +206,14 @@ public class WebApplicationLoader
    */
   protected void configureExceptionHandler(
           List<HandlerExceptionHandler> handlers, WebMvcConfiguration mvcConfiguration) {
-
     final DispatcherHandler dispatcherHandler = obtainDispatcher();
     HandlerExceptionHandler exceptionHandler = dispatcherHandler.getExceptionHandler();
     if (exceptionHandler != null) {
       handlers.add(exceptionHandler);
     }
-
     // user config
     mvcConfiguration.configureExceptionHandlers(handlers);
-
+    // at least one exception-handler
     if (handlers.size() == 1) {
       exceptionHandler = handlers.get(0);
     }
