@@ -126,10 +126,12 @@ public class ParameterResolvers extends WebApplicationContextSupport {
    */
   public ParameterResolver obtainResolver(final MethodParameter parameter) {
     final ParameterResolver resolver = getResolver(parameter);
-    Assert.state(resolver != null,
-                 () -> "There isn't have a parameter resolver to resolve parameter: ["
-                         + parameter.getParameterClass() + "] called: ["
-                         + parameter.getName() + "] on " + parameter.getHandlerMethod());
+    if (resolver == null) {
+      throw new IllegalStateException(
+              "There isn't have a parameter resolver to resolve parameter: ["
+                      + parameter.getParameterClass() + "] called: ["
+                      + parameter.getName() + "] on " + parameter.getHandlerMethod());
+    }
     return resolver;
   }
 
@@ -137,6 +139,8 @@ public class ParameterResolvers extends WebApplicationContextSupport {
    * register default {@link ParameterResolver}s
    */
   public void registerDefaultParameterResolvers() {
+    log.info("Registering default parameter-resolvers");
+
     // Use ConverterParameterResolver to resolve primitive types
     // --------------------------------------------------------------------------
     final List<ParameterResolver> resolvers = getResolvers();
@@ -190,7 +194,6 @@ public class ParameterResolvers extends WebApplicationContextSupport {
 
     if (modelManager == null) {
       log.info("RedirectModel disabled");
-      modelManager = RedirectModelManager.NOP;
     }
     // @since 3.0
     configureDataBinder(resolvers);

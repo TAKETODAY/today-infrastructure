@@ -21,7 +21,6 @@ package cn.taketoday.web.resolver;
 
 import java.util.Map;
 
-import cn.taketoday.context.utils.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.http.HttpHeaders;
@@ -43,7 +42,6 @@ public class ModelParameterResolver implements ParameterResolver {
   private final RedirectModelManager modelManager;
 
   public ModelParameterResolver(RedirectModelManager modelManager) {
-    Assert.notNull(modelManager, "RedirectModelManager must not be null");
     this.modelManager = modelManager;
   }
 
@@ -64,20 +62,21 @@ public class ModelParameterResolver implements ParameterResolver {
   @Override
   public Object resolveParameter(final RequestContext context,
                                  final MethodParameter parameter) throws Throwable {
-
     if (parameter.isAssignableTo(RedirectModel.class)) { // RedirectModel
       final RedirectModelAttributes redirectModel = new RedirectModelAttributes();
-      modelManager.applyModel(context, redirectModel);
+      final RedirectModelManager modelManager = getModelManager();
+      if (modelManager != null) {
+        modelManager.applyModel(context, redirectModel);
+      }
       return redirectModel;
     }
     if (parameter.isAssignableTo(ModelAndView.class)) {
       return context.modelAndView();
     }
 
-    { // @since 3.0
-      if (parameter.is(HttpHeaders.class)) {
-        return context.requestHeaders();
-      }
+    // @since 3.0
+    if (parameter.is(HttpHeaders.class)) {
+      return context.requestHeaders();
     }
 
     if (parameter.is(Map.class)) {
