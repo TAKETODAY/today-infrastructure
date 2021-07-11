@@ -46,7 +46,7 @@ public class DataBinderMapParameterResolver
   }
 
   @Override
-  public boolean supports(final MethodParameter parameter) {
+  public boolean supportsInternal(final MethodParameter parameter) {
     if (isMap(parameter)) {
       final Type valueType = parameter.getGeneric(1);
       if (valueType instanceof Class) {

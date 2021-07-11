@@ -61,7 +61,7 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
   private int maxValueIndex = 500;
 
   @Override
-  public boolean supports(MethodParameter parameter) {
+  protected boolean supportsInternal(MethodParameter parameter) {
     if (parameter.isCollection()) {
       final Type valueType = parameter.getGeneric(0);
       if (valueType instanceof Class) {

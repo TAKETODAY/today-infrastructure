@@ -36,7 +36,7 @@ import cn.taketoday.web.handler.MethodParameter;
 public class DataBinderArrayParameterResolver extends DataBinderCollectionParameterResolver {
 
   @Override
-  public boolean supports(MethodParameter parameter) {
+  protected boolean supportsInternal(MethodParameter parameter) {
     return parameter.isArray() && supportsSetProperties(parameter.getComponentType());
   }
 

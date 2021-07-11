@@ -30,6 +30,7 @@ import cn.taketoday.context.utils.DefaultMultiValueMap;
 import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**
@@ -38,6 +39,16 @@ import cn.taketoday.web.handler.MethodParameter;
  * @since 3.0
  */
 public abstract class AbstractDataBinderParameterResolver extends OrderedAbstractParameterResolver {
+
+  @Override
+  public final boolean supports(MethodParameter parameter) {
+    return !parameter.isAnnotationPresent(RequestBody.class) && supportsInternal(parameter);
+  }
+
+  /**
+   * @since 3.0.3 fix request body
+   */
+  protected abstract boolean supportsInternal(MethodParameter parameter);
 
   @Override
   protected Object resolveInternal(RequestContext context, MethodParameter parameter) throws Throwable {

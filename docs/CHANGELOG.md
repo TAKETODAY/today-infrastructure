@@ -26,7 +26,8 @@
 ```
 - [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-web/2.3.6.RELEASE/jar)
 
-
+## v3.0.3
+- fix request body and data-binder
 
 ## v3.0.2
 - :zap: 使用 WebMvcAutoConfiguration 自动配置 以前在 beans 文件的组件
