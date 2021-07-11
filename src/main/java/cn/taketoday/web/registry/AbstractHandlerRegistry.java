@@ -19,7 +19,11 @@
  */
 package cn.taketoday.web.registry;
 
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.context.Ordered;
+import cn.taketoday.context.utils.Assert;
+import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 
@@ -36,6 +40,9 @@ public abstract class AbstractHandlerRegistry
   private Object defaultHandler;
 
   private int order = Ordered.LOWEST_PRECEDENCE;
+
+  /** @since 3.0.3 */
+  private ExpressionEvaluator expressionEvaluator = ContextUtils.getExpressionEvaluator();
 
   /**
    * Look up a handler for the given request, falling back to the default
@@ -87,6 +94,28 @@ public abstract class AbstractHandlerRegistry
   @Override
   public int getOrder() {
     return order;
+  }
+
+  @Override
+  protected void initApplicationContext(ApplicationContext context) {
+    super.initApplicationContext(context);
+    this.expressionEvaluator = new ExpressionEvaluator(context);
+  }
+
+  /** @since 3.0.3 */
+  public String resolveVariables(final String expression) {
+    return expressionEvaluator.evaluate(expression, String.class);
+  }
+
+  /** @since 3.0.3 */
+  public void setExpressionEvaluator(ExpressionEvaluator expressionEvaluator) {
+    Assert.notNull(expressionEvaluator, "ExpressionEvaluator must not be null");
+    this.expressionEvaluator = expressionEvaluator;
+  }
+
+  /** @since 3.0.3 */
+  public ExpressionEvaluator getExpressionEvaluator() {
+    return expressionEvaluator;
   }
 
 }

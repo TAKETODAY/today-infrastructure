@@ -19,11 +19,7 @@
  */
 package cn.taketoday.web.registry;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.context.PathMatcher;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -35,8 +31,6 @@ public abstract class AbstractUrlHandlerRegistry extends MappedHandlerRegistry {
   private Object rootHandler;
 
   private boolean useTrailingSlashMatch = true;
-  /** @since 3.0 */
-  private ExpressionEvaluator expressionEvaluator = ContextUtils.getExpressionEvaluator();
 
   /**
    * Set the root handler for this handler mapping, that is,
@@ -101,22 +95,4 @@ public abstract class AbstractUrlHandlerRegistry extends MappedHandlerRegistry {
     return false;
   }
 
-  @Override
-  protected void initApplicationContext(ApplicationContext context) {
-    super.initApplicationContext(context);
-    this.expressionEvaluator = new ExpressionEvaluator(context);
-  }
-
-  public String resolveVariables(final String expression) {
-    return expressionEvaluator.evaluate(expression, String.class);
-  }
-
-  public void setExpressionEvaluator(ExpressionEvaluator expressionEvaluator) {
-    Assert.notNull(expressionEvaluator, "ExpressionEvaluator must not be null");
-    this.expressionEvaluator = expressionEvaluator;
-  }
-
-  public ExpressionEvaluator getExpressionEvaluator() {
-    return expressionEvaluator;
-  }
 }
