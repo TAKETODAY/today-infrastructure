@@ -71,8 +71,8 @@ public class StandardWebServerApplicationContext
   }
 
   @Override
-  protected void registerFrameworkBeans(ConfigurableEnvironment env, BeanNameCreator beanNameCreator) {
-    super.registerFrameworkBeans(env, beanNameCreator);
+  protected void registerFrameworkBeans(ConfigurableEnvironment env, BeanNameCreator nameCreator) {
+    super.registerFrameworkBeans(env, nameCreator);
     registerSingleton(this);
   }
 

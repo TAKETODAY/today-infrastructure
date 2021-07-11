@@ -95,6 +95,7 @@ public class WebApplication {
     try {
       context.registerSingleton(this);
       final Class<?> startupClass = context.getStartupClass();
+      context.importBeans(startupClass); // @since 1.0.2 import startup class
       if (startupClass == null) {
         log.info("There isn't a Startup Class");
         context.load(); // load from all classpath
