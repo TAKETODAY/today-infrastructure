@@ -32,6 +32,7 @@ import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.utils.WebUtils;
@@ -61,7 +62,8 @@ public class DataBinderParameterResolver
 
   @Override
   public boolean supports(MethodParameter parameter) {
-    return !ClassUtils.isSimpleType(parameter.getParameterClass());
+    return !parameter.isAnnotationPresent(RequestBody.class) // @since 3.0.3 #17
+            && !ClassUtils.isSimpleType(parameter.getParameterClass());
   }
 
   /**
