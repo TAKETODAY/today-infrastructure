@@ -53,10 +53,10 @@ public class CompositeHandlerExceptionHandler
   }
 
   @Override
-  public Object handleException(final RequestContext context,
-                                final Throwable exception, final Object handler) throws Throwable {
-
-    if (this.handlers != null) {
+  public Object handleException(
+          final RequestContext context, final Throwable exception, final Object handler) throws Throwable {
+    final List<HandlerExceptionHandler> handlers = getExceptionHandlers();
+    if (handlers != null) {
       for (final HandlerExceptionHandler exceptionHandler : handlers) {
         final Object view = exceptionHandler.handleException(context, exception, handler);
         if (view != null) {

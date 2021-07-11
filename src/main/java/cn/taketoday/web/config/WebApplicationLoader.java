@@ -37,7 +37,6 @@ import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.event.WebApplicationStartedEvent;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
-import cn.taketoday.web.handler.DefaultExceptionHandler;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
@@ -199,6 +198,12 @@ public class WebApplicationLoader
     configureExceptionHandler(context.getBeans(HandlerExceptionHandler.class), mvcConfiguration);
   }
 
+  /**
+   * configure HandlerExceptionHandler
+   *
+   * @param handlers
+   *         handlers in application-context {@link #obtainApplicationContext()}
+   */
   protected void configureExceptionHandler(
           List<HandlerExceptionHandler> handlers, WebMvcConfiguration mvcConfiguration) {
 
@@ -211,16 +216,6 @@ public class WebApplicationLoader
     // user config
     mvcConfiguration.configureExceptionHandlers(handlers);
 
-    if (handlers.isEmpty()) {
-      // register default
-      final WebApplicationContext context = obtainApplicationContext();
-      DefaultExceptionHandler defaultHandler = context.getBean(DefaultExceptionHandler.class);
-      if (defaultHandler == null) {
-        context.registerBean(DefaultExceptionHandler.class);
-        defaultHandler = context.getBean(DefaultExceptionHandler.class);
-      }
-      handlers.add(defaultHandler);
-    }
     if (handlers.size() == 1) {
       exceptionHandler = handlers.get(0);
     }

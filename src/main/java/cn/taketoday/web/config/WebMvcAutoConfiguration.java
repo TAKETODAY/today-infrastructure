@@ -26,6 +26,8 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.condition.ConditionalOnClass;
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.handler.DefaultExceptionHandler;
+import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.NotFoundRequestAdapter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.HandlerMethodRegistry;
@@ -96,6 +98,14 @@ public class WebMvcAutoConfiguration {
     resultHandlers.initHandlers(context);
     resultHandlers.registerDefaultResultHandlers();
     return resultHandlers;
+  }
+
+  /**
+   * default {@link HandlerExceptionHandler}
+   */
+  @MissingBean(type = HandlerExceptionHandler.class)
+  DefaultExceptionHandler defaultExceptionHandler() {
+    return new DefaultExceptionHandler();
   }
 
 }
