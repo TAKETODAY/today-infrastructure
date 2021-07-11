@@ -54,11 +54,11 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
   private ResolversSupplier resolversSupplier;
 
   public DefaultTemplateViewResolver() {
-    this(ContextUtils.getExpressionProcessor().getManager(), new ResolversSupplier());
+    this(ContextUtils.getExpressionProcessor().getManager());
   }
 
   public DefaultTemplateViewResolver(ExpressionManager elManager) {
-    this(elManager, new ResolversSupplier());
+    this(elManager, ResolversSupplier.getInstance());
   }
 
   public DefaultTemplateViewResolver(ExpressionManager elManager, ResolversSupplier resolversSupplier) {

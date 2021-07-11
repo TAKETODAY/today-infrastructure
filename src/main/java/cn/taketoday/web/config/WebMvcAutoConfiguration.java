@@ -25,6 +25,7 @@ import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.condition.ConditionalOnClass;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.NotFoundRequestAdapter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.HandlerMethodRegistry;
@@ -72,8 +73,12 @@ public class WebMvcAutoConfiguration {
    * default {@link ParameterResolver} registry
    */
   @MissingBean
-  ParameterResolvers parameterResolvers() {
-    return new ParameterResolvers();
+  ParameterResolvers parameterResolvers(WebApplicationContext context) {
+    final ParameterResolvers parameterResolvers = new ParameterResolvers();
+    parameterResolvers.setApplicationContext(context);
+    // @since 3.0
+    parameterResolvers.registerDefaultParameterResolvers();
+    return parameterResolvers;
   }
 
   @MissingBean
@@ -86,8 +91,11 @@ public class WebMvcAutoConfiguration {
    * default {@link ResultHandler} registry
    */
   @MissingBean
-  ResultHandlers resultHandlers() {
-    return new ResultHandlers();
+  ResultHandlers resultHandlers(WebApplicationContext context) {
+    ResultHandlers resultHandlers = new ResultHandlers();
+    resultHandlers.initHandlers(context);
+    resultHandlers.registerDefaultResultHandlers();
+    return resultHandlers;
   }
 
 }

@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web;
 
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.ResourceMatchResult;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
@@ -36,6 +37,8 @@ public interface Constant extends cn.taketoday.context.Constant {
   String X_REQUIRED_AUTHORIZATION = "X-Required-Authorization";
 
   String ENV_SERVLET = "javax.servlet.Servlet";
+
+  boolean RUN_IN_SERVLET = ClassUtils.isPresent(ENV_SERVLET); // @since 3.0.3
 
   HandlerInterceptor[] EMPTY_HANDLER_INTERCEPTOR = {};
 

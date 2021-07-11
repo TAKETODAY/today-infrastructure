@@ -56,9 +56,6 @@ import cn.taketoday.web.validation.WebValidator;
 import cn.taketoday.web.view.ResultHandler;
 import cn.taketoday.web.view.ResultHandlers;
 import cn.taketoday.web.view.RuntimeResultHandler;
-import cn.taketoday.web.view.template.AbstractTemplateViewResolver;
-import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
-import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
  * @author TODAY 2019-07-10 23:12
@@ -172,9 +169,14 @@ public class WebApplicationLoader
     // 用户自定义
     mvcConfiguration.configureHandlerAdapter(adapters);
     // 排序
-    OrderUtils.reversedSort(adapters);
+    sort(adapters);
     // apply request handler
     obtainDispatcher.setHandlerAdapters(adapters.toArray(new HandlerAdapter[adapters.size()]));
+  }
+
+  /** @since sort objects 3.0.3 */
+  protected void sort(List<?> adapters) {
+    OrderUtils.reversedSort(adapters);
   }
 
   protected void configureViewControllerHandler(
@@ -223,6 +225,7 @@ public class WebApplicationLoader
       exceptionHandler = handlers.get(0);
     }
     else {
+      sort(handlers); // @since 3.0.3 exception handlers order
       exceptionHandler = new CompositeHandlerExceptionHandler(handlers);
     }
     // set
@@ -286,50 +289,15 @@ public class WebApplicationLoader
       Collections.addAll(handlers, existingHandlers);
     }
     final WebApplicationContext context = obtainApplicationContext();
-
     // @since 3.0
     final ResultHandlers resultHandlers = context.getBean(ResultHandlers.class);
     Assert.state(resultHandlers != null, "No ResultHandlers");
-    // @since 3.0
-    TemplateViewResolver viewResolver = resultHandlers.getTemplateViewResolver();
-    if (viewResolver == null) {
-      viewResolver = getTemplateViewResolver(mvcConfiguration);
-      resultHandlers.setTemplateViewResolver(viewResolver);
-    }
-    resultHandlers.registerDefaultResultHandlers();
-
-    // 自定义
+    // user config
     mvcConfiguration.configureResultHandler(handlers);
 
     resultHandlers.addHandlers(handlers);
-
     // apply result handler
     obtainDispatcher.setResultHandlers(resultHandlers.getRuntimeHandlers());
-  }
-
-  protected TemplateViewResolver getTemplateViewResolver(final WebMvcConfiguration mvcConfiguration) {
-    final WebApplicationContext context = obtainApplicationContext();
-    TemplateViewResolver templateViewResolver = context.getBean(TemplateViewResolver.class);
-
-    if (templateViewResolver == null) {
-      context.registerBean(DefaultTemplateViewResolver.class);
-      templateViewResolver = context.getBean(TemplateViewResolver.class);
-    }
-
-    configureTemplateViewResolver(templateViewResolver, mvcConfiguration);
-    return templateViewResolver;
-  }
-
-  /**
-   * @param templateResolver
-   *         {@link TemplateViewResolver} object
-   * @param mvcConfiguration
-   *         All {@link WebMvcConfiguration} object
-   */
-  protected void configureTemplateViewResolver(TemplateViewResolver templateResolver, WebMvcConfiguration mvcConfiguration) {
-    if (templateResolver instanceof AbstractTemplateViewResolver) {
-      mvcConfiguration.configureTemplateViewResolver((AbstractTemplateViewResolver) templateResolver);
-    }
   }
 
   private void configureParameterResolver(
@@ -351,8 +319,6 @@ public class WebApplicationLoader
     final ParameterResolvers parameterResolvers = context.getBean(ParameterResolvers.class);
     Assert.state(parameterResolvers != null, "No ParameterResolvers");
 
-    // @since 3.0
-    parameterResolvers.registerDefaultParameterResolvers();
     // user customize multipartConfig
     final MultipartConfiguration multipartConfig = context.getBean(MultipartConfiguration.class);
     mvcConfiguration.configureMultipart(multipartConfig);
@@ -423,7 +389,7 @@ public class WebApplicationLoader
    */
   protected void configureInitializer(List<WebApplicationInitializer> initializers, WebMvcConfiguration config) {
     config.configureInitializer(initializers);
-    OrderUtils.reversedSort(initializers);
+    sort(initializers);
   }
 
   /**

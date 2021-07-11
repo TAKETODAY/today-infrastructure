@@ -23,15 +23,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-
-import cn.taketoday.context.annotation.Env;
+import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
+import cn.taketoday.web.config.CompositeWebMvcConfiguration;
+import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.ui.RedirectModelManager;
+import cn.taketoday.web.view.template.AbstractTemplateViewResolver;
+import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
@@ -111,7 +113,9 @@ public class ResultHandlers extends WebApplicationContextSupport {
    */
   public ResultHandler obtainHandler(final Object handler) {
     final ResultHandler resultHandler = getHandler(handler);
-    Assert.state(resultHandler != null, () -> "There isn't have a result resolver to resolve : [" + handler + "]");
+    if (resultHandler == null) {
+      throw new IllegalStateException("There isn't have a result resolver to resolve : [" + handler + "]");
+    }
     return resultHandler;
   }
 
@@ -120,20 +124,42 @@ public class ResultHandlers extends WebApplicationContextSupport {
   /**
    * init handlers
    */
-  @PostConstruct
-  protected void initHandlers(WebApplicationContext context,
-                              @Env(Constant.DOWNLOAD_BUFF_SIZE) Integer bufferSize) {
+  public void initHandlers(WebApplicationContext context) {
+    final Environment environment = context.getEnvironment();
+    final Integer bufferSize = environment.getProperty(Constant.DOWNLOAD_BUFF_SIZE, Integer.class);
     if (bufferSize != null) {
       setDownloadFileBufferSize(bufferSize);
     }
+    // @since 3.0.3
     if (messageConverter == null) {
-      messageConverter = context.getBean(MessageConverter.class);
+      setMessageConverter(context.getBean(MessageConverter.class));
     }
     if (redirectModelManager == null) {
-      redirectModelManager = context.getBean(RedirectModelManager.class);
+      setRedirectModelManager(context.getBean(RedirectModelManager.class));
+    }
+    if (templateViewResolver == null) {
+      WebMvcConfiguration mvcConfiguration
+              = new CompositeWebMvcConfiguration(context.getBeans(WebMvcConfiguration.class));
+      setTemplateViewResolver(getTemplateResolver(context, mvcConfiguration));
     }
   }
 
+  protected TemplateViewResolver getTemplateResolver(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
+    TemplateViewResolver templateResolver = context.getBean(TemplateViewResolver.class);
+    if (templateResolver == null) {
+      context.registerBean(DefaultTemplateViewResolver.class);
+      templateResolver = context.getBean(TemplateViewResolver.class);
+    }
+
+    if (templateResolver instanceof AbstractTemplateViewResolver) {
+      mvcConfiguration.configureTemplateViewResolver((AbstractTemplateViewResolver) templateResolver);
+    }
+    return templateResolver;
+  }
+
+  /**
+   * register default result-handlers
+   */
   public void registerDefaultResultHandlers() {
     registerDefaultResultHandlers(this.templateViewResolver);
   }
@@ -144,6 +170,8 @@ public class ResultHandlers extends WebApplicationContextSupport {
    * @since 3.0
    */
   public void registerDefaultResultHandlers(TemplateViewResolver templateViewResolver) {
+    log.info("Registering default result-handlers");
+
     final List<ResultHandler> handlers = getHandlers();
     final int bufferSize = getDownloadFileBufferSize();
     final MessageConverter messageConverter = getMessageConverter();
@@ -161,13 +189,11 @@ public class ResultHandlers extends WebApplicationContextSupport {
             = new ResponseEntityResultHandler(templateViewResolver, messageConverter, bufferSize);
     TemplateResultHandler templateResultHandler = new TemplateResultHandler(templateViewResolver);
 
-    if (modelManager != null) {
-      voidResultHandler.setModelManager(modelManager);
-      objectResultHandler.setModelManager(modelManager);
-      templateResultHandler.setModelManager(modelManager);
-      modelAndViewResultHandler.setModelManager(modelManager);
-      responseEntityResultHandler.setModelManager(modelManager);
-    }
+    voidResultHandler.setModelManager(modelManager);
+    objectResultHandler.setModelManager(modelManager);
+    templateResultHandler.setModelManager(modelManager);
+    modelAndViewResultHandler.setModelManager(modelManager);
+    responseEntityResultHandler.setModelManager(modelManager);
 
     handlers.add(new ImageResultHandler());
     handlers.add(new ResourceResultHandler(bufferSize));
@@ -215,7 +241,7 @@ public class ResultHandlers extends WebApplicationContextSupport {
     this.templateViewResolver = templateViewResolver;
   }
 
-  public TemplateViewResolver getTemplateViewResolver() {
+  public TemplateViewResolver getTemplateResolver() {
     return templateViewResolver;
   }
 

@@ -65,6 +65,7 @@ public class ModelParameterResolver implements ParameterResolver {
     if (parameter.isAssignableTo(RedirectModel.class)) { // RedirectModel
       final RedirectModelAttributes redirectModel = new RedirectModelAttributes();
       final RedirectModelManager modelManager = getModelManager();
+      // @since 3.0.3 checking model manager
       if (modelManager != null) {
         modelManager.applyModel(context, redirectModel);
       }

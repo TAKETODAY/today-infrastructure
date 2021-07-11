@@ -51,7 +51,7 @@ public abstract class AbstractResultHandler
   /** Template view resolver */
   private TemplateViewResolver templateViewResolver;
   /** @since 3.0 */
-  private RedirectModelManager modelManager = RedirectModelManager.NOP;
+  private RedirectModelManager modelManager;
 
   protected AbstractResultHandler() {}
 
@@ -146,10 +146,13 @@ public abstract class AbstractResultHandler
       handleResponseBody(context, resource.substring(5));
     }
     else {
-      final RedirectModel redirectModel = modelManager.getModel(context);
-      if (redirectModel != null) {
-        context.setAttributes(redirectModel.asMap());
-        modelManager.applyModel(context, null);
+      final RedirectModelManager modelManager = getModelManager();
+      if (modelManager != null) { // @since 3.0.3 checking model manager
+        final RedirectModel redirectModel = modelManager.getModel(context);
+        if (redirectModel != null) {
+          context.setAttributes(redirectModel.asMap());
+          modelManager.applyModel(context, null);
+        }
       }
       getTemplateViewResolver().resolveView(resource, context);
     }

@@ -23,6 +23,8 @@ package cn.taketoday.web.ui;
 import cn.taketoday.web.RequestContext;
 
 /**
+ * RedirectModel saving strategy
+ *
  * @author TODAY 2021/4/2 21:52
  * @since 3.0
  */
@@ -47,21 +49,4 @@ public interface RedirectModelManager {
    */
   void applyModel(RequestContext context, RedirectModel redirectModel);
 
-  RedirectModelManager NOP = new RedirectModelManager() {
-
-    @Override
-    public RedirectModel getModel(RequestContext context) {
-      return null;
-    }
-
-    @Override
-    public void applyModel(RequestContext context, RedirectModel redirectModel) {
-      // no-op
-    }
-
-    @Override
-    public String toString() {
-      return "RedirectModel disabled";
-    }
-  };
 }
