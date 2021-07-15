@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.ApplicationContext;
@@ -502,45 +503,98 @@ public class StandardBeanFactory
   @Override
   public void loadBeanDefinition(final Class<?> candidate) {
     // don't load abstract class
-    if (!Modifier.isAbstract(candidate.getModifiers()) && ContextUtils.passCondition(candidate, context)) {
-      register(candidate);
-    }
+    load(candidate);
   }
 
   @Override
   public void loadBeanDefinitions(final Collection<Class<?>> candidates) {
-    for (Class<?> clazz : candidates) {
-      loadBeanDefinition(clazz);
-    }
+    load(candidates);
   }
 
   @Override
   public void loadBeanDefinition(final String name, final Class<?> beanClass) {
-    final AnnotationAttributes[] annotationAttributes = getAnnotationAttributesArray(beanClass, Component.class);
-
-    if (ObjectUtils.isEmpty(annotationAttributes)) {
-      register(name, createBeanDefinition(name, beanClass, null));
-    }
-    else {
-      for (final AnnotationAttributes attributes : annotationAttributes) {
-        register(name, createBeanDefinition(name, beanClass, attributes));
-      }
-    }
+    load(name, beanClass);
   }
 
   @Override
   public void loadBeanDefinition(final String... locations) {
-    loadBeanDefinitions(new CandidateComponentScanner().scan(locations));
+    load(locations);
   }
 
   @Override
-  public void register(final Class<?> candidate) {
+  public List<BeanDefinition> load(final Class<?> candidate) {
+    // don't load abstract class
+    if (canRegister(candidate, getApplicationContext())) {
+      return register(candidate);
+    }
+    return null;
+  }
+
+  @Override
+  public void load(final Collection<Class<?>> candidates) {
+    final ConfigurableApplicationContext context = getApplicationContext();
+    for (Class<?> candidate : candidates) {
+      // don't load abstract class
+      if (canRegister(candidate, context)) {
+        register(candidate, null);
+      }
+    }
+  }
+
+  private boolean canRegister(Class<?> candidate, ConfigurableApplicationContext context) {
+    return !Modifier.isAbstract(candidate.getModifiers()) && ContextUtils.passCondition(candidate, context);
+  }
+
+  @Override
+  public void load(String... locations) throws BeanDefinitionStoreException {
+    load(new CandidateComponentScanner().scan(locations));
+  }
+
+  @Override
+  public List<BeanDefinition> load(final String name, final Class<?> beanClass) {
+    return Collections.singletonList(getRegistered(name, beanClass, null));
+  }
+
+  @Override
+  public List<BeanDefinition> load(String name, Class<?> beanClass, boolean ignoreAnnotation)
+          throws BeanDefinitionStoreException {
+    if (ignoreAnnotation) {
+      return Collections.singletonList(getRegistered(name, beanClass, null));
+    }
+    final AnnotationAttributes[] annotationAttributes = getAnnotationAttributesArray(beanClass, Component.class);
+    if (ObjectUtils.isEmpty(annotationAttributes)) {
+      return Collections.singletonList(getRegistered(name, beanClass, null));
+    }
+    final ArrayList<BeanDefinition> definitions = new ArrayList<>();
+    for (final AnnotationAttributes attributes : annotationAttributes) {
+      final BeanDefinition registered = getRegistered(name, beanClass, attributes);
+      definitions.add(registered);
+    }
+    return definitions;
+  }
+
+  private BeanDefinition getRegistered(String name, Class<?> beanClass, AnnotationAttributes attributes) {
+    final BeanDefinition newDef = createBeanDefinition(name, beanClass, attributes);
+    return register(name, newDef);
+  }
+
+  @Override
+  public List<BeanDefinition> register(final Class<?> candidate) {
+    final ArrayList<BeanDefinition> defs = new ArrayList<>();
+    register(candidate, defs::add);
+    return defs;
+  }
+
+  private void register(Class<?> candidate, Consumer<BeanDefinition> registeredConsumer) {
     final AnnotationAttributes[] annotationAttributes = getAnnotationAttributesArray(candidate, Component.class);
     if (ObjectUtils.isNotEmpty(annotationAttributes)) {
       final String defaultBeanName = getBeanNameCreator().create(candidate);
       for (final AnnotationAttributes attributes : annotationAttributes) {
         for (final String name : findNames(defaultBeanName, attributes.getStringArray(VALUE))) {
-          register(name, createBeanDefinition(name, candidate, attributes));
+          final BeanDefinition registered = getRegistered(name, candidate, attributes);
+          if (registered != null && registeredConsumer != null) { // none null BeanDefinition
+            registeredConsumer.accept(registered);
+          }
         }
       }
     }
@@ -558,10 +612,10 @@ public class StandardBeanFactory
    *         If can't store bean
    */
   @Override
-  public void register(final String name, BeanDefinition def) {
+  public BeanDefinition register(final String name, BeanDefinition def) {
     def = transformBeanDefinition(name, def);
     if (def == null) {
-      return;
+      return null;
     }
 
     ContextUtils.validateBeanDefinition(def);
@@ -573,7 +627,7 @@ public class StandardBeanFactory
       final BeanDefinition existBeanDef = getBeanDefinition(name);
       final Class<?> existClass = existBeanDef.getBeanClass();
       if (beanClass == existClass && existBeanDef.isAnnotationPresent(IgnoreDuplicates.class)) { // @since 3.0.2
-        return; // ignore registering
+        return null; // ignore registering
       }
 
       log.info("=====================|repeat bean definition START|=====================");
@@ -591,12 +645,8 @@ public class StandardBeanFactory
     }
 
     try {
-      if (FactoryBean.class.isAssignableFrom(beanClass)) { // process FactoryBean
-        registerFactoryBean(nameToUse, def);
-      }
-      else {
-        registerBeanDefinition(nameToUse, def);
-      }
+      registerBeanDefinition(nameToUse, def);
+      return def;
     }
     catch (Throwable ex) {
       ex = ExceptionUtils.unwrapThrowable(ex);
@@ -627,6 +677,16 @@ public class StandardBeanFactory
     }
     // nothing
     return def;
+  }
+
+  @Override
+  public void registerBeanDefinition(String beanName, BeanDefinition def) {
+    if (FactoryBean.class.isAssignableFrom(def.getBeanClass())) { // process FactoryBean
+      registerFactoryBean(beanName, def);
+    }
+    else {
+      super.registerBeanDefinition(beanName, def);
+    }
   }
 
   @Override
@@ -670,7 +730,7 @@ public class StandardBeanFactory
     if (!componentScanned.contains(source)) {
       componentScanned.add(source);
       for (final AnnotationAttributes attribute : getAnnotationAttributesArray(source, ComponentScan.class)) {
-        loadBeanDefinition(attribute.getStringArray(VALUE));
+        load(attribute.getStringArray(VALUE));
       }
     }
   }
