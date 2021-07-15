@@ -20,6 +20,7 @@
 package cn.taketoday.context.loader;
 
 import java.util.Collection;
+import java.util.List;
 
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.ApplicationContext;
@@ -74,6 +75,7 @@ public interface BeanDefinitionLoader {
    * @throws BeanDefinitionStoreException
    *         If BeanDefinition could not be store
    */
+  @Deprecated
   void loadBeanDefinitions(Collection<Class<?>> candidates) throws BeanDefinitionStoreException;
 
   /**
@@ -89,6 +91,7 @@ public interface BeanDefinitionLoader {
    *         If BeanDefinition could not be store
    * @see #register(Class)
    */
+  @Deprecated
   void loadBeanDefinition(Class<?> candidate) throws BeanDefinitionStoreException;
 
   /**
@@ -110,6 +113,7 @@ public interface BeanDefinitionLoader {
    * @throws BeanDefinitionStoreException
    *         If BeanDefinition could not be store
    */
+  @Deprecated
   void loadBeanDefinition(String name, Class<?> beanClass) throws BeanDefinitionStoreException;
 
   /**
@@ -128,6 +132,7 @@ public interface BeanDefinitionLoader {
    * @see #loadBeanDefinition(Class)
    * @since 2.1.7
    */
+  @Deprecated
   void loadBeanDefinition(String... locations) throws BeanDefinitionStoreException;
 
   /**
@@ -142,11 +147,15 @@ public interface BeanDefinitionLoader {
    * @param candidate
    *         Candidate bean class
    *
+   * @return returns a new BeanDefinition
+   * if {@link cn.taketoday.context.factory.StandardBeanFactory#transformBeanDefinition} transformed,
+   * If returns {@code null} or empty list indicates that none register to the registry
+   *
    * @throws BeanDefinitionStoreException
    *         If BeanDefinition could not be store
    * @see #register(String, BeanDefinition)
    */
-  void register(Class<?> candidate) throws BeanDefinitionStoreException;
+  List<BeanDefinition> register(Class<?> candidate) throws BeanDefinitionStoreException;
 
   /**
    * Register bean definition with given name and {@link BeanDefinition}
@@ -156,10 +165,14 @@ public interface BeanDefinitionLoader {
    * @param beanDefinition
    *         Bean definition instance
    *
+   * @return returns a new BeanDefinition
+   * if {@link cn.taketoday.context.factory.StandardBeanFactory#transformBeanDefinition} transformed,
+   * If returns {@code null} indicates that none register to the registry
+   *
    * @throws BeanDefinitionStoreException
    *         If BeanDefinition could not be store
    */
-  void register(String name, BeanDefinition beanDefinition) throws BeanDefinitionStoreException;
+  BeanDefinition register(String name, BeanDefinition beanDefinition) throws BeanDefinitionStoreException;
 
   /**
    * Register bean definition with {@link BeanDefinition#getName()}
@@ -171,8 +184,8 @@ public interface BeanDefinitionLoader {
    *         If BeanDefinition could not be store
    * @since 2.1.6
    */
-  default void register(BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
-    register(beanDefinition.getName(), beanDefinition);
+  default BeanDefinition register(BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
+    return register(beanDefinition.getName(), beanDefinition);
   }
 
   /**
@@ -181,4 +194,108 @@ public interface BeanDefinitionLoader {
    * @since 3.0
    */
   ApplicationContext getApplicationContext();
+
+  /**
+   * Load bean definitions with given bean collection.
+   *
+   * @param candidates
+   *         candidates beans collection
+   *
+   * @throws BeanDefinitionStoreException
+   *         If BeanDefinition could not be store
+   */
+  void load(Collection<Class<?>> candidates) throws BeanDefinitionStoreException;
+
+  /**
+   * Load bean definition with given bean class.
+   * <p>
+   * The candidate bean class can't be abstract and must pass the condition which
+   * {@link Conditional} is annotated.
+   *
+   * @param candidate
+   *         Candidate bean class the class will be load
+   *
+   * @return returns a new BeanDefinition
+   * if {@link cn.taketoday.context.factory.StandardBeanFactory#transformBeanDefinition} transformed,
+   * If returns {@code null} or empty list indicates that none register to the registry
+   *
+   * @throws BeanDefinitionStoreException
+   *         If BeanDefinition could not be store
+   * @see #register(Class)
+   */
+  List<BeanDefinition> load(Class<?> candidate) throws BeanDefinitionStoreException;
+
+  /**
+   * Load bean definition with given bean class and bean name.
+   * <p>
+   * If the provided bean class annotated {@link Component} annotation will
+   * register beans with given {@link Component} metadata.
+   * <p>
+   * Otherwise register a bean will given default metadata: use the default bean
+   * name creator create the default bean name, use default bean scope
+   * {@link Scope#SINGLETON} , empty initialize method ,empty property value and
+   * empty destroy method.
+   *
+   * @param name
+   *         Bean name
+   * @param beanClass
+   *         Bean class
+   *
+   * @return returns a new BeanDefinition
+   * if {@link cn.taketoday.context.factory.StandardBeanFactory#transformBeanDefinition} transformed,
+   * If returns {@code null} or empty list indicates that none register to the registry
+   *
+   * @throws BeanDefinitionStoreException
+   *         If BeanDefinition could not be store
+   * @since 3.0.6
+   */
+  List<BeanDefinition> load(String name, Class<?> beanClass) throws BeanDefinitionStoreException;
+
+  /**
+   * Load bean definition with given bean class and bean name.
+   * <p>
+   * If the provided bean class annotated {@link Component} annotation will
+   * register beans with given {@link Component} metadata.
+   * <p>
+   * Otherwise register a bean will given default metadata: use the default bean
+   * name creator create the default bean name, use default bean scope
+   * {@link Scope#SINGLETON} , empty initialize method ,empty property value and
+   * empty destroy method.
+   *
+   * @param name
+   *         Bean name
+   * @param beanClass
+   *         Bean class
+   * @param ignoreAnnotation
+   *         ignore {@link cn.taketoday.context.annotation.Component} scanning
+   *
+   * @return returns a new BeanDefinition
+   * if {@link cn.taketoday.context.factory.StandardBeanFactory#transformBeanDefinition} transformed,
+   * If returns {@code null} or empty list indicates that none register to the registry
+   *
+   * @throws BeanDefinitionStoreException
+   *         If BeanDefinition could not be store
+   * @since 3.0.6
+   */
+  List<BeanDefinition> load(String name, Class<?> beanClass, boolean ignoreAnnotation)
+          throws BeanDefinitionStoreException;
+
+  /**
+   * Load {@link BeanDefinition}s from input package locations
+   *
+   * <p>
+   * {@link CandidateComponentScanner} will scan the classes from given package
+   * locations. And register the {@link BeanDefinition}s using
+   * loadBeanDefinition(Class)
+   *
+   * @param locations
+   *         package locations
+   *
+   * @throws BeanDefinitionStoreException
+   *         If BeanDefinition could not be store
+   * @see #load(Class)
+   * @since 3.0.6
+   */
+  void load(String... locations) throws BeanDefinitionStoreException;
+
 }
