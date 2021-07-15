@@ -19,15 +19,22 @@
  */
 package cn.taketoday.context.factory.cycle;
 
+import org.aopalliance.intercept.Joinpoint;
 import org.junit.Test;
 
 import java.util.function.Supplier;
 
 import javax.annotation.PostConstruct;
 
+import cn.taketoday.aop.EnableAspectAutoProxy;
+import cn.taketoday.aop.Logger;
+import cn.taketoday.aop.support.annotation.Around;
+import cn.taketoday.aop.support.annotation.Aspect;
+import cn.taketoday.aop.support.annotation.JoinPoint;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.loader.CandidateComponentScanner;
@@ -130,6 +137,103 @@ public class CycleDependencyTest {
     ConstructorCycleDependency2(Supplier<ConstructorCycleDependency1> one) {
       this.one = one;
     }
+  }
+
+  // proxy
+
+  @Test
+  public void testProxyCycleDependency() {
+    CandidateComponentScanner.getSharedInstance().clear();
+
+    try (ApplicationContext applicationContext = new StandardApplicationContext()) {
+
+      applicationContext.importBeans(LoggingAspect.class);
+      applicationContext.load("cn.taketoday.context.factory.cycle");
+
+      final LoggingBeanA beanA = applicationContext.getBean(LoggingBeanA.class);
+      final LoggingBeanB beanB = applicationContext.getBean(LoggingBeanB.class);
+      applicationContext.getBean(LoggingBeanC.class);
+
+      System.out.println(beanA.getClass());
+      System.out.println(beanB.getClass());
+
+      beanA.doSomething();
+      beanB.doSomething();
+
+    }
+  }
+
+  @Singleton
+//  @Prototype
+
+  @Lazy
+  public static class LoggingBeanA {
+    @Autowired
+    LoggingBeanB beanB;
+    @Logger
+    void doSomething() {
+
+    }
+  }
+
+  @Singleton
+//  @Prototype
+  @Lazy
+  public static class LoggingBeanB {
+
+    @Autowired
+    LoggingBeanA beanA;
+    @Autowired
+    LoggingBeanB beanB;
+    @Logger
+    void doSomething() {
+
+    }
+  }
+
+  @Singleton
+//  @Prototype
+  public static class LoggingBeanC {
+
+    int order;
+    LoggingBeanA beanA;
+    LoggingBeanB beanB;
+
+    @Order(3)
+    @PostConstruct
+    public void init(LoggingBeanA beanA, LoggingBeanB beanB) {
+      this.beanA = beanA;
+      this.beanB = beanB;
+      order = 2;
+    }
+
+    @Order(2)
+    @PostConstruct
+    @Logger
+    public void init2(LoggingBeanA beanA) {
+      assertEquals(this.beanA, beanA);
+      assertEquals(order, 2);
+      order = 3;
+    }
+
+    @Order(1)
+    @PostConstruct
+    public void init3(LoggingBeanC beanC) {
+      assertEquals(this, beanC);
+      assertEquals(order, 3);
+    }
+  }
+
+  @Aspect
+  @EnableAspectAutoProxy
+  static class LoggingAspect {
+
+    @Around(Logger.class)
+    Object around(@JoinPoint Joinpoint joinPoint) throws Throwable {
+      System.out.println("before: " + joinPoint);
+      return joinPoint.proceed();
+    }
+
   }
 
 }
