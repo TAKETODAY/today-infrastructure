@@ -383,6 +383,10 @@ public class DefaultBeanDefinition
   /** @since 3.0 */
   @Override
   public Object newInstance(final BeanFactory factory) {
+    final Supplier<?> instanceSupplier = this.instanceSupplier;
+    if (instanceSupplier != null) {
+      return instanceSupplier.get();
+    }
     final BeanConstructor<?> target = getConstructor(factory);
     final Object[] args = resolveParameter(getExecutable(), factory);
     return target.newInstance(args);

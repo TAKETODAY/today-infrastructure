@@ -1052,8 +1052,10 @@ public abstract class AbstractBeanFactory
     final BeanDefinitionLoader definitionLoader = getBeanDefinitionLoader();
     final List<BeanDefinition> loaded = definitionLoader.load(name, clazz, ignoreAnnotation);
 
-    for (final BeanDefinition def : loaded) {
-      def.setSupplier(supplier);
+    if (!CollectionUtils.isEmpty(loaded)) {
+      for (final BeanDefinition def : loaded) {
+        def.setSupplier(supplier);
+      }
     }
   }
 

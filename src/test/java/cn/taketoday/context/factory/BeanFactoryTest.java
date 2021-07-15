@@ -170,7 +170,8 @@ public class BeanFactoryTest extends BaseTest {
     try {
       beanFactory.isPrototype("today");
     }
-    catch (NoSuchBeanDefinitionException e) {}
+    catch (NoSuchBeanDefinitionException e) {
+    }
   }
 
   @Test
@@ -293,6 +294,8 @@ public class BeanFactoryTest extends BaseTest {
             .isNotNull();
 
     beanFactory.removeBean("registerBean");
+
+    // @since 3.0.6
 
   }
 

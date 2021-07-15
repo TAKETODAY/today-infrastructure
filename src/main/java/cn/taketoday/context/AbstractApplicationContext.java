@@ -602,6 +602,12 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   @Override
+  public <T> void registerBean(Class<T> clazz, Supplier<T> supplier, boolean prototype, boolean ignoreAnnotation)
+          throws BeanDefinitionStoreException {
+    getBeanFactory().registerBean(clazz, supplier, prototype, ignoreAnnotation);
+  }
+
+  @Override
   public void destroyBean(String name) {
     getBeanFactory().destroyBean(name);
   }
