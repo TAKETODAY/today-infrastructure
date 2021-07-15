@@ -31,7 +31,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 
@@ -398,7 +397,9 @@ public class StandardBeanFactory
 
   @Override
   public void importBeans(final Class<?>... beans) {
-    for (final Class<?> bean : Objects.requireNonNull(beans)) {
+    Assert.notNull(beans, "Cannot import null beans");
+
+    for (final Class<?> bean : beans) {
       final BeanDefinition def = createBeanDefinition(bean);
       importAnnotated(def);
       register(def);
