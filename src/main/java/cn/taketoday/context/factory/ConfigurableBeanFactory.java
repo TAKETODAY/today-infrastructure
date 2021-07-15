@@ -20,6 +20,7 @@
 package cn.taketoday.context.factory;
 
 import java.util.Set;
+import java.util.function.Supplier;
 
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.Scope;
@@ -84,9 +85,9 @@ public interface ConfigurableBeanFactory
    * Register a bean with the given name and bean instance
    *
    * @param name
-   *         bean name
+   *         bean name (must not be null)
    * @param obj
-   *         bean instance
+   *         bean instance (must not be null)
    *
    * @throws BeanDefinitionStoreException
    *         If can't store a bean
@@ -131,6 +132,72 @@ public interface ConfigurableBeanFactory
    *         If can't store a bean
    */
   void registerBean(Set<Class<?>> classes) throws BeanDefinitionStoreException;
+
+  /**
+   * Register a bean with the given type and instance supplier
+   * <p>
+   * This method will use {@link BeanNameCreator} create a bean name and register
+   * it
+   * <p>
+   * default register as singleton
+   * </p>
+   *
+   * @param clazz
+   *         bean class
+   * @param supplier
+   *         bean instance supplier
+   *
+   * @throws BeanDefinitionStoreException
+   *         If can't store a bean
+   * @since 3.0.6
+   */
+  default <T> void registerBean(Class<T> clazz, Supplier<T> supplier) throws BeanDefinitionStoreException {
+    registerBean(clazz, supplier, false);
+  }
+
+  /**
+   * Register a bean with the given type and instance supplier
+   * <p>
+   * This method will use {@link BeanNameCreator} create a bean name and register
+   * it
+   *
+   * @param clazz
+   *         bean class
+   * @param supplier
+   *         bean instance supplier
+   * @param prototype
+   *         register as prototype?
+   *
+   * @throws BeanDefinitionStoreException
+   *         If can't store a bean
+   * @since 3.0.6
+   */
+  default <T> void registerBean(
+          Class<T> clazz, Supplier<T> supplier, boolean prototype) throws BeanDefinitionStoreException {
+    registerBean(clazz, supplier, prototype, true);
+  }
+
+  /**
+   * Register a bean with the given type and instance supplier
+   * <p>
+   * This method will use {@link BeanNameCreator} create a bean name and register
+   * it
+   *
+   * @param clazz
+   *         bean class
+   * @param supplier
+   *         bean instance supplier
+   * @param prototype
+   *         register as prototype?
+   * @param ignoreAnnotation
+   *         ignore {@link cn.taketoday.context.annotation.Component} scanning
+   *
+   * @throws BeanDefinitionStoreException
+   *         If can't store a bean
+   * @since 3.0.6
+   */
+  <T> void registerBean(Class<T> clazz, Supplier<T> supplier, boolean prototype, boolean ignoreAnnotation)
+          throws BeanDefinitionStoreException;
 
   /**
    * Destroy bean with given name

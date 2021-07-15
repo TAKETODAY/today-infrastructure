@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.env.Environment;
@@ -44,6 +45,7 @@ import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.context.event.DependenciesHandledEvent;
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.context.event.ObjectRefreshedEvent;
+import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.BeanInitializingException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ContextException;
@@ -210,7 +212,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    */
   protected void loadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> candidates) {
     // load from given class set
-    beanFactory.getBeanDefinitionLoader().loadBeanDefinitions(candidates);
+    beanFactory.getBeanDefinitionLoader().load(candidates);
   }
 
   /**
@@ -591,6 +593,12 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   @Override
   public void registerBean(String name, Object obj) {
     getBeanFactory().registerBean(name, obj);
+  }
+
+  @Override
+  public <T> void registerBean(Class<T> clazz, Supplier<T> supplier, boolean prototype)
+          throws BeanDefinitionStoreException {
+    getBeanFactory().registerBean(clazz, supplier, prototype);
   }
 
   @Override

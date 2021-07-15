@@ -31,6 +31,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,6 +47,7 @@ import cn.taketoday.context.aware.BeanClassLoaderAware;
 import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.context.env.DefaultBeanNameCreator;
+import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.BeanInitializingException;
 import cn.taketoday.context.exception.BeanInstantiationException;
 import cn.taketoday.context.exception.ConfigurationException;
@@ -1015,7 +1017,7 @@ public abstract class AbstractBeanFactory
 
   @Override
   public void registerBean(String name, Class<?> clazz) {
-    getBeanDefinitionLoader().loadBeanDefinition(name, clazz);
+    getBeanDefinitionLoader().load(name, clazz);
   }
 
   @Override
@@ -1030,17 +1032,28 @@ public abstract class AbstractBeanFactory
 
   @Override
   public void registerBean(final String name, final Object obj) {
-    Assert.notNull(obj, "bean instance must not be null");
+    Assert.notNull(name, "bean-name must not be null");
+    Assert.notNull(obj, "bean-instance must not be null");
 
-    String nameToUse = name;
-    final Class<?> beanClass = obj.getClass();
-    if (StringUtils.isEmpty(nameToUse)) {
-      nameToUse = getBeanNameCreator().create(beanClass);
+    final List<BeanDefinition> loaded = getBeanDefinitionLoader().load(name, obj.getClass());
+    for (final BeanDefinition def : loaded) {
+      if (def.isSingleton()) {
+        registerSingleton(name, obj);
+      }
     }
-    getBeanDefinitionLoader().loadBeanDefinition(nameToUse, beanClass);
-    final BeanDefinition def = getBeanDefinition(name);
-    if (def.isSingleton()) {
-      registerSingleton(name, obj);
+  }
+
+  @Override
+  public <T> void registerBean(Class<T> clazz, Supplier<T> supplier, boolean prototype, boolean ignoreAnnotation)
+          throws BeanDefinitionStoreException {
+    Assert.notNull(clazz, "bean-class must not be null");
+    Assert.notNull(supplier, "bean-instance-supplier must not be null");
+    final String name = getBeanNameCreator().create(clazz);
+    final BeanDefinitionLoader definitionLoader = getBeanDefinitionLoader();
+    final List<BeanDefinition> loaded = definitionLoader.load(name, clazz, ignoreAnnotation);
+
+    for (final BeanDefinition def : loaded) {
+      def.setSupplier(supplier);
     }
   }
 
