@@ -23,6 +23,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.function.Supplier;
 
 import cn.taketoday.context.AttributeAccessor;
 import cn.taketoday.context.Constant;
@@ -320,4 +321,15 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    */
   void copy(BeanDefinition newDef);
 
+  /**
+   * Set a bean instance supplier
+   *
+   * @param supplier
+   *         bean instance supplier (can be null)
+   * @param <T>
+   *         target bean type
+   *
+   * @since 3.0.6
+   */
+  <T> void setSupplier(Supplier<T> supplier);
 }

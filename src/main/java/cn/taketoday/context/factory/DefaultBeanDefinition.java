@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.AttributeAccessorSupport;
@@ -112,6 +113,8 @@ public class DefaultBeanDefinition
   private Boolean lazyInit;
   /** @since 3.0 fast invoke init methods */
   private MethodInvoker[] methodInvokers;
+  /** @since 3.0 bean instance supplier */
+  private Supplier<?> instanceSupplier;
 
   public DefaultBeanDefinition(String name, Class<?> beanClass) {
     setName(name);
@@ -470,6 +473,11 @@ public class DefaultBeanDefinition
     setInitialized(newDef.isInitialized());
 
     copyAttributesFrom(newDef);
+  }
+
+  @Override
+  public <T> void setSupplier(Supplier<T> instanceSupplier) {
+    this.instanceSupplier = instanceSupplier;
   }
 
   protected Class<?> obtainBeanClass() {

@@ -259,6 +259,11 @@ public class FactoryBeanDefinition<T>
     factoryDef.setLazyInit(lazyInit);
   }
 
+  @Override
+  public <T> void setSupplier(Supplier<T> supplier) {
+    factoryDef.setSupplier(supplier);
+  }
+
   public Supplier<FactoryBean<T>> getFactorySupplier() {
     return factorySupplier;
   }
