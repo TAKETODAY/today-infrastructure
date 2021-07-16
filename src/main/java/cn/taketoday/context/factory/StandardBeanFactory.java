@@ -536,7 +536,7 @@ public class StandardBeanFactory
     for (Class<?> candidate : candidates) {
       // don't load abstract class
       if (canRegister(candidate, context)) {
-        register(candidate, null);
+        doRegister(candidate, null);
       }
     }
   }
@@ -567,8 +567,7 @@ public class StandardBeanFactory
     }
     final ArrayList<BeanDefinition> definitions = new ArrayList<>();
     for (final AnnotationAttributes attributes : annotationAttributes) {
-      final BeanDefinition registered = getRegistered(name, beanClass, attributes);
-      definitions.add(registered);
+      doRegister(beanClass, name, attributes, definitions::add);
     }
     return definitions;
   }
@@ -581,21 +580,26 @@ public class StandardBeanFactory
   @Override
   public List<BeanDefinition> register(final Class<?> candidate) {
     final ArrayList<BeanDefinition> defs = new ArrayList<>();
-    register(candidate, defs::add);
+    doRegister(candidate, defs::add);
     return defs;
   }
 
-  private void register(Class<?> candidate, Consumer<BeanDefinition> registeredConsumer) {
+  private void doRegister(Class<?> candidate, Consumer<BeanDefinition> registeredConsumer) {
     final AnnotationAttributes[] annotationAttributes = getAnnotationAttributesArray(candidate, Component.class);
     if (ObjectUtils.isNotEmpty(annotationAttributes)) {
       final String defaultBeanName = getBeanNameCreator().create(candidate);
       for (final AnnotationAttributes attributes : annotationAttributes) {
-        for (final String name : findNames(defaultBeanName, attributes.getStringArray(VALUE))) {
-          final BeanDefinition registered = getRegistered(name, candidate, attributes);
-          if (registered != null && registeredConsumer != null) { // none null BeanDefinition
-            registeredConsumer.accept(registered);
-          }
-        }
+        doRegister(candidate, defaultBeanName, attributes, registeredConsumer);
+      }
+    }
+  }
+
+  private void doRegister(Class<?> candidate, String defaultBeanName,
+                          AnnotationAttributes attributes, Consumer<BeanDefinition> registeredConsumer) {
+    for (final String name : findNames(defaultBeanName, attributes.getStringArray(VALUE))) {
+      final BeanDefinition registered = getRegistered(name, candidate, attributes);
+      if (registered != null && registeredConsumer != null) { // none null BeanDefinition
+        registeredConsumer.accept(registered);
       }
     }
   }

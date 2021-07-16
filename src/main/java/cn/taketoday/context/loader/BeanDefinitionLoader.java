@@ -263,7 +263,7 @@ public interface BeanDefinitionLoader {
    * empty destroy method.
    *
    * @param name
-   *         Bean name
+   *         default bean name
    * @param beanClass
    *         Bean class
    * @param ignoreAnnotation
