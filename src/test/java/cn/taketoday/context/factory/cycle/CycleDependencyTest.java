@@ -54,7 +54,7 @@ public class CycleDependencyTest {
 
     try (ApplicationContext applicationContext = new StandardApplicationContext()) {
       applicationContext.load("cn.taketoday.context.factory.cycle");
-      assertEquals(5, applicationContext.getBeanDefinitionCount());
+      assertEquals(8, applicationContext.getBeanDefinitionCount());
 
       final BeanA beanA = applicationContext.getBean(BeanA.class);
       final BeanB beanB = applicationContext.getBean(BeanB.class);
@@ -165,12 +165,12 @@ public class CycleDependencyTest {
 
   @Singleton
 //  @Prototype
-
+  @Logger
   @Lazy
   public static class LoggingBeanA {
     @Autowired
     LoggingBeanB beanB;
-    @Logger
+
     void doSomething() {
 
     }
@@ -179,13 +179,13 @@ public class CycleDependencyTest {
   @Singleton
 //  @Prototype
   @Lazy
+  @Logger
   public static class LoggingBeanB {
 
     @Autowired
     LoggingBeanA beanA;
     @Autowired
     LoggingBeanB beanB;
-    @Logger
     void doSomething() {
 
     }
