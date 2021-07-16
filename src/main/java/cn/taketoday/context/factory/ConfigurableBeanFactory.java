@@ -68,6 +68,16 @@ public interface ConfigurableBeanFactory
   void removeBean(String name);
 
   /**
+   * Remove bean with the given bean class
+   *
+   * @param beanClass
+   *         bean type
+   *
+   * @since 3.0.6
+   */
+  void removeBean(Class<?> beanClass);
+
+  /**
    * Register a bean with the given name and type
    *
    * @param name
@@ -198,6 +208,24 @@ public interface ConfigurableBeanFactory
    */
   <T> void registerBean(Class<T> clazz, Supplier<T> supplier, boolean prototype, boolean ignoreAnnotation)
           throws BeanDefinitionStoreException;
+
+  /**
+   * Register a bean with the given bean name and instance supplier
+   *
+   * <p>
+   * register as singleton or prototype defined in your supplier
+   * </p>
+   *
+   * @param name
+   *         bean name
+   * @param supplier
+   *         bean instance supplier
+   *
+   * @throws BeanDefinitionStoreException
+   *         If can't store a bean
+   * @since 3.0.6
+   */
+  <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException;
 
   /**
    * Destroy bean with given name
