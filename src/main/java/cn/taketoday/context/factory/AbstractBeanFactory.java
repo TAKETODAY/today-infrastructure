@@ -1055,6 +1055,9 @@ public abstract class AbstractBeanFactory
     if (!CollectionUtils.isEmpty(loaded)) {
       for (final BeanDefinition def : loaded) {
         def.setSupplier(supplier);
+        if (prototype) {
+          def.setScope(Scope.PROTOTYPE);
+        }
       }
     }
   }
