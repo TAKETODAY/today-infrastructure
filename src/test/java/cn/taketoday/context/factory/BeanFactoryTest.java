@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.context.BeanNameCreator;
+import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.annotation.Value;
@@ -296,6 +297,61 @@ public class BeanFactoryTest extends BaseTest {
     beanFactory.removeBean("registerBean");
 
     // @since 3.0.6
+
+    // name
+    final RegisterBeanSupplier registerBeanSupplier = new RegisterBeanSupplier();
+
+    beanFactory.registerBean("registerBeanSupplier-singleton", () -> registerBeanSupplier);
+    beanFactory.registerBean("registerBeanSupplier-prototype", RegisterBeanSupplier::new);
+
+    assertThat(registerBeanSupplier)
+            .isEqualTo(beanFactory.getBean("registerBeanSupplier-singleton"))
+            .isNotNull()
+            .isNotEqualTo(beanFactory.getBean("registerBeanSupplier-prototype"))
+            .isNotNull();
+
+    assertThat(beanFactory.getBean("registerBeanSupplier-prototype"))
+            .isNotNull()
+            .isNotEqualTo(beanFactory.getBean("registerBeanSupplier-prototype"))
+            .isNotNull();
+
+    // type
+
+    beanFactory.registerBean(RegisterBeanSupplier.class, RegisterBeanSupplier::new, true);
+    final RegisterBeanSupplier prototypeBean = beanFactory.getBean(RegisterBeanSupplier.class);
+
+    assertThat(prototypeBean)
+            .isNotNull()
+            .isNotEqualTo(beanFactory.getBean(RegisterBeanSupplier.class));
+
+    beanFactory.registerBean(RegisterBeanSupplier.class, RegisterBeanSupplier::new);
+    final RegisterBeanSupplier bean = beanFactory.getBean(RegisterBeanSupplier.class);
+    assertThat(bean)
+            .isNotNull()
+            .isEqualTo(beanFactory.getBean(RegisterBeanSupplier.class));
+
+    // Annotation
+    beanFactory.registerBean(AnnotationRegisterBeanSupplier.class, AnnotationRegisterBeanSupplier::new, false, true);
+
+    assertThat(beanFactory.getBean(AnnotationRegisterBeanSupplier.class))
+            .isNotNull()
+            .isEqualTo(beanFactory.getBean("annotationRegisterBeanSupplier"));
+
+    beanFactory.removeBean(AnnotationRegisterBeanSupplier.class);
+
+    beanFactory.registerBean(AnnotationRegisterBeanSupplier.class, AnnotationRegisterBeanSupplier::new, false, false);
+
+    assertThat(beanFactory.getBean(AnnotationRegisterBeanSupplier.class))
+            .isNotNull()
+            .isEqualTo(beanFactory.getBean("AnnotationBean"));
+  }
+
+  static class RegisterBeanSupplier {
+
+  }
+
+  @Component("AnnotationBean")
+  static class AnnotationRegisterBeanSupplier {
 
   }
 
