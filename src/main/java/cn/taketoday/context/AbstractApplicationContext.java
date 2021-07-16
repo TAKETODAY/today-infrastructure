@@ -571,6 +571,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   @Override
+  public void removeBean(Class<?> beanClass) {
+    getBeanFactory().removeBean(beanClass);
+  }
+
+  @Override
   public void registerBean(String name, Class<?> clazz) {
     getBeanFactory().registerBean(name, clazz);
   }
@@ -605,6 +610,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   public <T> void registerBean(Class<T> clazz, Supplier<T> supplier, boolean prototype, boolean ignoreAnnotation)
           throws BeanDefinitionStoreException {
     getBeanFactory().registerBean(clazz, supplier, prototype, ignoreAnnotation);
+  }
+
+  @Override
+  public <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException {
+    getBeanFactory().registerBean(name, supplier);
   }
 
   @Override

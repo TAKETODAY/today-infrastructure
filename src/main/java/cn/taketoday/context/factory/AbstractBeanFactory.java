@@ -95,12 +95,26 @@ public abstract class AbstractBeanFactory
 
   /** Indicates whether any InstantiationAwareBeanPostProcessors have been registered.  @since 3.0 */
   private boolean hasInstantiationAwareBeanPostProcessors;
+  /** @since 3.0.6 */
+  private final ConcurrentHashMap<String, Supplier<?>> beanSupplier = new ConcurrentHashMap<>();
 
   @Override
   public Object getBean(final String name) {
     final BeanDefinition def = getBeanDefinition(name);
+    if (def != null) {
+      return getBean(def);
+    }
     // if not exits a bean definition return a bean may exits in singletons cache
-    return def != null ? getBean(def) : getSingleton(name);
+    final Object singleton = getSingleton(name);
+    if (singleton != null) {
+      return singleton;
+    }
+    // may exits in bean supplier
+    final Supplier<?> supplier = beanSupplier.get(name);
+    if (supplier != null) {
+      return supplier.get();
+    }
+    return null;
   }
 
   /**
@@ -1048,9 +1062,9 @@ public abstract class AbstractBeanFactory
           throws BeanDefinitionStoreException {
     Assert.notNull(clazz, "bean-class must not be null");
     Assert.notNull(supplier, "bean-instance-supplier must not be null");
-    final String name = getBeanNameCreator().create(clazz);
+    final String defaultName = getBeanNameCreator().create(clazz);
     final BeanDefinitionLoader definitionLoader = getBeanDefinitionLoader();
-    final List<BeanDefinition> loaded = definitionLoader.load(name, clazz, ignoreAnnotation);
+    final List<BeanDefinition> loaded = definitionLoader.load(defaultName, clazz, ignoreAnnotation);
 
     if (!CollectionUtils.isEmpty(loaded)) {
       for (final BeanDefinition def : loaded) {
@@ -1060,6 +1074,13 @@ public abstract class AbstractBeanFactory
         }
       }
     }
+  }
+
+  @Override
+  public <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException {
+    Assert.notNull(name, "bean-name must not be null");
+    Assert.notNull(supplier, "bean-instance-supplier must not be null");
+    beanSupplier.put(name, supplier);
   }
 
   @Override
@@ -1152,6 +1173,14 @@ public abstract class AbstractBeanFactory
   public void removeBean(String name) {
     removeBeanDefinition(name);
     removeSingleton(name);
+  }
+
+  @Override
+  public void removeBean(Class<?> beanClass) {
+    final Map<String, ?> beansOfType = getBeansOfType(beanClass, true, true);
+    for (final String name : beansOfType.keySet()) {
+      removeBean(name);
+    }
   }
 
   @Override
