@@ -21,13 +21,17 @@
 package cn.taketoday.context.loader;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
 
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.DefaultMultiValueMap;
 import cn.taketoday.context.utils.MultiValueMap;
 
@@ -64,18 +68,57 @@ public class StrategiesLoader {
   public <T> List<T> getStrategies(Class<T> strategyClass) {
     Assert.notNull(strategyClass, "strategy-class must not be nul");
     // get class list by class full name
-    final List<String> strategies = getStrategies(strategyClass.getName());
+    final ArrayList<T> strategiesObject = new ArrayList<>();
+    consumeStrategyClasses(strategyClass.getName(), strategy -> {
+      final Object instance = ClassUtils.newInstance(strategy, beanFactory);
+      if (strategyClass.isInstance(instance)) {
+        strategiesObject.add((T) instance);
+      }
+    });
+    return strategiesObject;
+  }
+
+  public Set<Class<?>> getStrategyClasses(String strategyKey) {
+    // get class list by class full name
+    final LinkedHashSet<Class<?>> strategies = new LinkedHashSet<>();
+    consumeStrategyClasses(strategyKey, strategies::add);
+    return strategies;
+  }
+
+  public void consumeStrategyClasses(String strategyKey, Consumer<Class<?>> consumer) {
+    Assert.notNull(strategyKey, "strategy-key must not be nul");
+    consumeStrategies(strategyKey, strategy -> {
+      final Class<?> aClass = loadClass(classLoader, strategy);
+      if (aClass != null) {
+        consumer.accept(aClass);
+      }
+    });
+  }
+
+  public void consumeStrategies(String strategyKey, Consumer<String> consumer) {
+    Assert.notNull(strategyKey, "strategy-key must not be nul");
+    // get class list by class full name
+    final List<String> strategies = getStrategies(strategyKey);
+    if (!CollectionUtils.isEmpty(strategies)) {
+      for (final String strategy : strategies) {
+        consumer.accept(strategy);
+      }
+    }
+  }
+
+  public List<?> consumeStrategies(String strategyKey) {
+    Assert.notNull(strategyKey, "strategy-key must not be nul");
+    // get class list by class full name
+    final List<String> strategies = getStrategies(strategyKey);
     final BeanFactory beanFactory = getBeanFactory();
     final ClassLoader classLoader = getClassLoader();
-    final ArrayList<T> strategiesObject = new ArrayList<>();
+    final ArrayList<Object> strategiesObject = new ArrayList<>();
 
     for (final String strategy : strategies) {
       final Class<?> aClass = loadClass(classLoader, strategy);
       if (aClass != null) {
         final Object instance = ClassUtils.newInstance(aClass, beanFactory);
-        if (strategyClass.isInstance(instance)) {
-          strategiesObject.add((T) instance);
-        }
+        strategiesObject.add(instance);
       }
     }
     return strategiesObject;
