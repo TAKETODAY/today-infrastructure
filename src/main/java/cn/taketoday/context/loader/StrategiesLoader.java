@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import cn.taketoday.context.conversion.Converter;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
@@ -66,7 +67,7 @@ public class StrategiesLoader {
 
   @SuppressWarnings("unchecked")
   public <T> List<T> getStrategies(Class<T> strategyClass) {
-    Assert.notNull(strategyClass, "strategy-class must not be nul");
+    Assert.notNull(strategyClass, "strategy-class must not be null");
     // get class list by class full name
     final ArrayList<T> strategiesObject = new ArrayList<>();
     consumeStrategyClasses(strategyClass.getName(), strategy -> {
@@ -80,13 +81,10 @@ public class StrategiesLoader {
 
   public Set<Class<?>> getStrategyClasses(String strategyKey) {
     // get class list by class full name
-    final LinkedHashSet<Class<?>> strategies = new LinkedHashSet<>();
-    consumeStrategyClasses(strategyKey, strategies::add);
-    return strategies;
+    return getStrategies(strategyKey, strategy -> loadClass(classLoader, strategy));
   }
 
   public void consumeStrategyClasses(String strategyKey, Consumer<Class<?>> consumer) {
-    Assert.notNull(strategyKey, "strategy-key must not be nul");
     consumeStrategies(strategyKey, strategy -> {
       final Class<?> aClass = loadClass(classLoader, strategy);
       if (aClass != null) {
@@ -96,7 +94,6 @@ public class StrategiesLoader {
   }
 
   public void consumeStrategies(String strategyKey, Consumer<String> consumer) {
-    Assert.notNull(strategyKey, "strategy-key must not be nul");
     // get class list by class full name
     final List<String> strategies = getStrategies(strategyKey);
     if (!CollectionUtils.isEmpty(strategies)) {
@@ -106,22 +103,14 @@ public class StrategiesLoader {
     }
   }
 
-  public List<?> consumeStrategies(String strategyKey) {
-    Assert.notNull(strategyKey, "strategy-key must not be nul");
-    // get class list by class full name
-    final List<String> strategies = getStrategies(strategyKey);
-    final BeanFactory beanFactory = getBeanFactory();
-    final ClassLoader classLoader = getClassLoader();
-    final ArrayList<Object> strategiesObject = new ArrayList<>();
-
-    for (final String strategy : strategies) {
+  public Set<?> getStrategiesObject(String strategyKey) {
+    return getStrategies(strategyKey, strategy -> {
       final Class<?> aClass = loadClass(classLoader, strategy);
       if (aClass != null) {
-        final Object instance = ClassUtils.newInstance(aClass, beanFactory);
-        strategiesObject.add(instance);
+        return ClassUtils.newInstance(aClass, beanFactory);
       }
-    }
-    return strategiesObject;
+      return null;
+    });
   }
 
   private Class<?> loadClass(ClassLoader classLoader, String className) {
@@ -139,9 +128,22 @@ public class StrategiesLoader {
     return null;
   }
 
-  public List<String> getStrategies(String key) {
+  public <T> Set<T> getStrategies(String strategyKey, Converter<String, T> converter) {
+    final List<String> strategies = getStrategies(strategyKey);
+    final LinkedHashSet<T> ret = new LinkedHashSet<>(strategies.size());
+    for (final String string : strategies) {
+      final T convert = converter.convert(string);
+      if (convert != null) {
+        ret.add(convert);
+      }
+    }
+    return ret;
+  }
+
+  public List<String> getStrategies(String strategyKey) {
+    Assert.notNull(strategyKey, "strategy-key must not be null");
     loadStrategies();
-    return strategies.get(key);
+    return strategies.get(strategyKey);
   }
 
   public MultiValueMap<String, String> getStrategies() {
