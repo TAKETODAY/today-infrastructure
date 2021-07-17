@@ -109,7 +109,7 @@ public abstract class AbstractBeanFactory
     if (singleton != null) {
       return singleton;
     }
-    // may exits in bean supplier
+    // may exits in bean supplier @since 3.0.6
     final Supplier<?> supplier = beanSupplier.get(name);
     if (supplier != null) {
       return supplier.get();

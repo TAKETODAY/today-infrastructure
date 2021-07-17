@@ -1,0 +1,3 @@
+cn.taketoday.context.loader.PropertyValueResolver=\
+111111, 22222, 333333,\
+cn.taketoday.context.loader.StrategiesLoaderTests$MyPropertyValueResolver
