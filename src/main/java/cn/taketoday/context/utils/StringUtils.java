@@ -28,6 +28,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -123,28 +124,47 @@ public abstract class StringUtils {
     if (source == null) {
       return Constant.EMPTY_STRING_ARRAY;
     }
-    if (source.isEmpty()) {
-      return new String[] { source };
+    final List<String> splitList = splitAsList(source);
+    return splitList.toArray(new String[splitList.size()]);
+  }
+
+  /**
+   * Split with {@link Constant#SPLIT_REGEXP}
+   *
+   * @param source
+   *         source string
+   *
+   * @return if source is null this will returns
+   * {@link Constant#EMPTY_STRING_ARRAY}
+   *
+   * @since 3.0.6
+   */
+  public static List<String> splitAsList(String source) {
+    if (source == null) {
+      return Collections.emptyList();
     }
-    final ArrayList<String> list = new ArrayList<>();
+    if (source.isEmpty()) {
+      return Collections.singletonList(source);
+    }
+    final ArrayList<String> splitList = new ArrayList<>();
 
     int idx = 0;
     int start = 0;
     final char[] chars = source.toCharArray();
     for (final char c : chars) {
       if (isSplitable(c)) {
-        list.add(new String(chars, start, idx - start));
+        splitList.add(new String(chars, start, idx - start));
         start = idx + 1;
       }
       idx++;
     }
     if (idx != start && idx == source.length()) { // 最后一次分割
-      list.add(new String(chars, start, idx - start));
+      splitList.add(new String(chars, start, idx - start));
     }
-    else if (list.isEmpty()) {
-      return new String[] { source };
+    else if (splitList.isEmpty()) {
+      return Collections.singletonList(source);
     }
-    return list.toArray(new String[list.size()]);
+    return splitList;
   }
 
 //  public static String[] split(String source) {

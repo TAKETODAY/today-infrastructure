@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
@@ -116,20 +117,28 @@ public class StandardEnvironment implements ConfigurableEnvironment {
   // ---ConfigurableEnvironment
 
   @Override
-  public void setActiveProfiles(String... profiles) {
-    Collections.addAll(activeProfiles, profiles);
-    log.info("Active profiles: {}", activeProfiles);
-  }
-
-  @Override
   public void setProperty(String key, String value) {
     properties.setProperty(key, value);
   }
 
   @Override
+  public void setActiveProfiles(String... profiles) {
+    activeProfiles.clear();
+    Collections.addAll(activeProfiles, profiles);
+    log.info("Set new active profiles: {}", activeProfiles);
+  }
+
+  @Override
+  @Deprecated
   public void addActiveProfile(String profile) {
-    log.info("Add active profile: [{}]", profile);
+    log.info("Add active profile: {}", profile);
     activeProfiles.add(profile);
+  }
+
+  @Override
+  public void addActiveProfile(String... profiles) {
+    log.info("Add active profile: {}", Arrays.toString(profiles));
+    Collections.addAll(activeProfiles, profiles);
   }
 
   /**
@@ -175,8 +184,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
    */
   @Override
   public void loadProperties() throws IOException {
-
-    for (final String propertiesLocation : StringUtils.split(propertiesLocation)) {
+    for (final String propertiesLocation : StringUtils.splitAsList(propertiesLocation)) {
       loadProperties(propertiesLocation);
     }
 
@@ -187,11 +195,10 @@ public class StandardEnvironment implements ConfigurableEnvironment {
    * Set active profiles from properties
    */
   protected void refreshActiveProfiles() {
-
     final String profiles = getProperty(Constant.KEY_ACTIVE_PROFILES);
 
     if (StringUtils.isNotEmpty(profiles)) {
-      setActiveProfiles(StringUtils.split(profiles));
+      activeProfiles.addAll(StringUtils.splitAsList(profiles));
     }
   }
 

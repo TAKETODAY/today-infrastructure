@@ -20,6 +20,7 @@
 package cn.taketoday.context.conversion.support;
 
 import java.lang.reflect.Array;
+import java.util.List;
 
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.utils.GenericDescriptor;
@@ -32,7 +33,7 @@ import cn.taketoday.context.utils.StringUtils;
  * @author Keith Donald
  * @author Juergen Hoeller
  * @author TODAY
- * @see StringUtils#split(String)
+ * @see StringUtils#splitAsList(String)
  * @since 3.0
  */
 final class StringToArrayConverter extends ToArrayConverter {
@@ -51,15 +52,16 @@ final class StringToArrayConverter extends ToArrayConverter {
   @Override
   public Object convert(final GenericDescriptor targetType, final Object source) {
     final String string = (String) source;
-    final String[] fields = StringUtils.split(string);
+    final List<String> fields = StringUtils.splitAsList(string);
 
     final Class<?> targetElementType = targetType.getComponentType();
-    final Object target = Array.newInstance(targetElementType, fields.length);
+    final Object target = Array.newInstance(targetElementType, fields.size());
     final ConversionService conversionService = this.conversionService;
-    for (int i = 0; i < fields.length; i++) {
-      String sourceElement = fields[i];
+
+    int i = 0;
+    for (final String sourceElement : fields) {
       Object targetElement = conversionService.convert(sourceElement.trim(), targetElementType);
-      Array.set(target, i, targetElement);
+      Array.set(target, i++, targetElement);
     }
     return target;
   }

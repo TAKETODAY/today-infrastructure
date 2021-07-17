@@ -20,6 +20,7 @@
 package cn.taketoday.context.conversion.support;
 
 import java.util.Collection;
+import java.util.List;
 
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.utils.CollectionUtils;
@@ -34,7 +35,7 @@ import cn.taketoday.context.utils.StringUtils;
  * @author Keith Donald
  * @author Juergen Hoeller
  * @author TODAY
- * @see StringUtils#split(String)
+ * @see StringUtils#splitAsList(String)
  * @since 3.0
  */
 final class StringToCollectionConverter extends StringSourceTypeConverter {
@@ -52,11 +53,10 @@ final class StringToCollectionConverter extends StringSourceTypeConverter {
 
   @Override
   protected Object convertInternal(GenericDescriptor targetType, String string) {
-    String[] fields = StringUtils.split(string);
+    final List<String> fields = StringUtils.splitAsList(string);
     final GenericDescriptor elementType = targetType.getGeneric(Collection.class);
-
-    Collection<Object> target = CollectionUtils.createCollection(
-            targetType.getType(), elementType != null ? elementType.getType() : null, fields.length);
+    final Collection<Object> target = CollectionUtils.createCollection(
+            targetType.getType(), elementType != null ? elementType.getType() : null, fields.size());
     if (elementType == null) {
       for (String field : fields) {
         target.add(field.trim());
