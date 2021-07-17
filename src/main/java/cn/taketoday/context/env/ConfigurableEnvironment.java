@@ -47,8 +47,21 @@ public interface ConfigurableEnvironment extends Environment {
    *
    * @param profile
    *         Add a active profile
+   *
+   * @deprecated since 3.0.6
    */
+  @Deprecated
   void addActiveProfile(String profile);
+
+  /**
+   * Add profiles to the current set of active profiles.
+   *
+   * @param profiles
+   *         Add active profiles
+   *
+   * @since 3.0.6
+   */
+  void addActiveProfile(String... profiles);
 
   /**
    * Load properties configuration file. No specific name required.
