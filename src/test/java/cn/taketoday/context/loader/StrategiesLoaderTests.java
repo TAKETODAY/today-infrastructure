@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import cn.taketoday.context.exception.PropertyValueException;
@@ -51,7 +52,7 @@ public class StrategiesLoaderTests {
             .containsKey("cn.taketoday.context.loader.PropertyValueResolver")
             .hasSize(1);
 
-    final List<String> strategies = loader.getStrategies("cn.taketoday.context.loader.PropertyValueResolver");
+    final Collection<String> strategies = loader.getStrategies("cn.taketoday.context.loader.PropertyValueResolver");
 
     assertThat(strategies)
             .hasSize(4);

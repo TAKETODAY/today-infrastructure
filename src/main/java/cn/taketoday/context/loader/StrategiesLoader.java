@@ -56,6 +56,12 @@ public class StrategiesLoader {
 
   private final DefaultMultiValueMap<String, String> strategies = new DefaultMultiValueMap<>();
 
+  public StrategiesLoader() {}
+
+  public StrategiesLoader(BeanFactory beanFactory) {
+    this.beanFactory = beanFactory;
+  }
+
   /**
    * load if strategies is empty
    */
@@ -76,6 +82,21 @@ public class StrategiesLoader {
     return getStrategies(strategyClass, beanFactory);
   }
 
+  /**
+   * get none repeatable strategies by given class
+   * <p>
+   * strategies must be instance of given strategy class
+   * </p>
+   *
+   * @param strategyClass
+   *         strategy class
+   * @param beanFactory
+   *         bean factory (supports constructor parameters injection)
+   * @param <T>
+   *         target type
+   *
+   * @return returns none repeatable strategies by given class
+   */
   @SuppressWarnings("unchecked")
   public <T> List<T> getStrategies(Class<T> strategyClass, BeanFactory beanFactory) {
     Assert.notNull(strategyClass, "strategy-class must not be null");
@@ -113,7 +134,7 @@ public class StrategiesLoader {
    *         string consumer
    */
   public void consumeStrategies(String strategyKey, Consumer<String> consumer) {
-    final List<String> strategies = getStrategies(strategyKey);
+    final Collection<String> strategies = getStrategies(strategyKey);
     if (!CollectionUtils.isEmpty(strategies)) {
       for (final String strategy : strategies) {
         consumer.accept(strategy);
@@ -136,7 +157,7 @@ public class StrategiesLoader {
     return null;
   }
 
-  public Collection<Class<?>> getTypes(String strategyKey) {
+  public List<Class<?>> getTypes(String strategyKey) {
     return getStrategies(strategyKey, strategy -> loadClass(classLoader, strategy));
   }
 
@@ -151,7 +172,7 @@ public class StrategiesLoader {
    *
    * @return list of objects
    */
-  public Collection<?> getObjects(String strategyKey) {
+  public List getObjects(String strategyKey) {
     return getObjects(strategyKey, beanFactory);
   }
 
@@ -165,7 +186,7 @@ public class StrategiesLoader {
    *
    * @return list of objects
    */
-  public Collection<?> getObjects(String strategyKey, BeanFactory beanFactory) {
+  public List getObjects(String strategyKey, BeanFactory beanFactory) {
     return getStrategies(strategyKey, strategy -> {
       final Class<?> aClass = loadClass(classLoader, strategy);
       if (aClass != null) {
@@ -187,10 +208,10 @@ public class StrategiesLoader {
    *
    * @return collection of strategies
    */
-  public <T> Collection<T> getStrategies(String strategyKey, Converter<String, T> converter) {
+  public <T> List<T> getStrategies(String strategyKey, Converter<String, T> converter) {
     Assert.notNull(converter, "converter must not be null");
-    final List<String> strategies = getStrategies(strategyKey);
-    final Collection<T> ret = createCollection(strategies.size());
+    final Collection<String> strategies = getStrategies(strategyKey);
+    final ArrayList<T> ret = new ArrayList<>(strategies.size());
     for (final String strategy : strategies) {
       final T convert = converter.convert(strategy);
       if (convert != null) {
@@ -201,24 +222,32 @@ public class StrategiesLoader {
   }
 
   /**
-   * create a collection to copy strategies
-   */
-  protected <T> Collection<T> createCollection(int size) {
-    return new LinkedHashSet<>(size);
-  }
-
-  /**
    * get list of strategies by key
+   * <p>
+   * filter repeat strategies
+   * </p>
    *
    * @param strategyKey
    *         key
    *
    * @return list of strategies
    */
-  public List<String> getStrategies(String strategyKey) {
+  public Collection<String> getStrategies(String strategyKey) {
+    return getStrategies(strategyKey, true);
+  }
+
+  /**
+   * @param filterRepeat
+   *         filter repeat strategies
+   */
+  public Collection<String> getStrategies(String strategyKey, boolean filterRepeat) {
     Assert.notNull(strategyKey, "strategy-key must not be null");
     loadStrategies();
-    return this.strategies.get(strategyKey);
+    final List<String> strategies = this.strategies.get(strategyKey);
+    if (filterRepeat) {
+      return new LinkedHashSet<>(strategies);
+    }
+    return strategies;
   }
 
   /**
