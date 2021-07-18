@@ -22,6 +22,7 @@ package cn.taketoday.context.loader;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.Consumer;
@@ -38,6 +39,9 @@ import cn.taketoday.context.utils.MultiValueMap;
 
 /**
  * Strategies Loader
+ * <p>
+ * Get keyed strategies
+ * </p>
  *
  * @author TODAY 2021/7/17 21:59
  * @since 3.1.0
@@ -157,8 +161,18 @@ public class StrategiesLoader {
     return null;
   }
 
+  public List<Class<?>> getTypes(Class<?> strategyClass) {
+    Assert.notNull(strategyClass, "strategy-class must not be null");
+    return getStrategies(strategyClass.getName(), strategy -> loadClass(classLoader, strategy));
+  }
+
   public List<Class<?>> getTypes(String strategyKey) {
     return getStrategies(strategyKey, strategy -> loadClass(classLoader, strategy));
+  }
+
+  public List getObjects(Class<?> strategyClass) {
+    Assert.notNull(strategyClass, "strategy-class must not be null");
+    return getObjects(strategyClass.getName(), beanFactory);
   }
 
   /**
@@ -244,6 +258,9 @@ public class StrategiesLoader {
     Assert.notNull(strategyKey, "strategy-key must not be null");
     loadStrategies();
     final List<String> strategies = this.strategies.get(strategyKey);
+    if (strategies == null) {
+      return Collections.emptyList();
+    }
     if (filterRepeat) {
       return new LinkedHashSet<>(strategies);
     }
