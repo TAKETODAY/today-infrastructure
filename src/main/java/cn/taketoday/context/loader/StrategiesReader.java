@@ -62,6 +62,7 @@ public abstract class StrategiesReader {
    */
   public void read(String strategiesLocation, MultiValueMap<String, String> strategies) {
     Assert.notNull(strategiesLocation, "file-location must not be null");
+    log.info("Detecting strategies location '{}'", strategiesLocation);
     try {
       final Resource[] resources = ResourceUtils.getResources(strategiesLocation);
       for (final Resource resource : resources) {
@@ -78,6 +79,7 @@ public abstract class StrategiesReader {
    *
    */
   protected void read(Resource resource, MultiValueMap<String, String> strategies) throws IOException {
+    log.info("Reading strategies file '{}'", resource.getLocation());
     try (InputStream inputStream = resource.getInputStream()) {
       readInternal(inputStream, strategies);
     }

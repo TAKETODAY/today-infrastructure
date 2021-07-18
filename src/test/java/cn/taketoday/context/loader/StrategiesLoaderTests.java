@@ -65,4 +65,14 @@ public class StrategiesLoaderTests {
       return null;
     }
   }
+
+
+  public static class MyPropertyValueResolver1 implements PropertyValueResolver {
+
+    @Override
+    public PropertySetter resolveProperty(Field field) throws PropertyValueException {
+      return null;
+    }
+  }
+
 }

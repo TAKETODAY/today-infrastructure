@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import cn.taketoday.context.conversion.Converter;
+import cn.taketoday.context.factory.AutowireCapableBeanFactory;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
@@ -48,7 +49,7 @@ import cn.taketoday.context.utils.MultiValueMap;
  */
 public class StrategiesLoader {
   private static final Logger log = LoggerFactory.getLogger(StrategiesLoader.class);
-  public static final String DEFAULT_STRATEGIES_LOCATION = "classpath:META-INF/today.strategies";
+  public static final String DEFAULT_STRATEGIES_LOCATION = "classpath*:META-INF/today.strategies";
 
   /** strategies file location */
   private String strategiesLocation = DEFAULT_STRATEGIES_LOCATION;
@@ -71,6 +72,7 @@ public class StrategiesLoader {
    */
   public void loadStrategies() {
     if (strategies.isEmpty()) {
+      log.debug("Loading strategies files");
       loadStrategies(strategiesLocation);
     }
   }
@@ -107,12 +109,21 @@ public class StrategiesLoader {
     // get class list by class full name
     final ArrayList<T> strategiesObject = new ArrayList<>();
     consumeTypes(strategyClass.getName(), strategy -> {
-      final Object instance = ClassUtils.newInstance(strategy, beanFactory);
-      if (strategyClass.isInstance(instance)) {
+      if (strategyClass.isAssignableFrom(strategy)) {
+        final Object instance = createInstance(strategy, beanFactory);
         strategiesObject.add((T) instance);
       }
     });
     return strategiesObject;
+  }
+
+  private static Object createInstance(Class<?> strategy, BeanFactory factory) {
+    final Object instance = ClassUtils.newInstance(strategy, factory);
+    if (factory instanceof AutowireCapableBeanFactory) {
+      // autowire, dont apply bean post processor
+      ((AutowireCapableBeanFactory) factory).autowireBean(strategy);
+    }
+    return instance;
   }
 
   public void consumeTypes(Class<?> strategyClass, Consumer<Class<?>> consumer) {
@@ -204,7 +215,7 @@ public class StrategiesLoader {
     return getStrategies(strategyKey, strategy -> {
       final Class<?> aClass = loadClass(classLoader, strategy);
       if (aClass != null) {
-        return ClassUtils.newInstance(aClass, beanFactory);
+        return createInstance(aClass, beanFactory);
       }
       return null;
     });
