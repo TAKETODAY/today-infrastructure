@@ -23,12 +23,15 @@ package cn.taketoday.context.loader;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
 
 import cn.taketoday.context.exception.PropertyValueException;
 import cn.taketoday.context.factory.PropertySetter;
 import cn.taketoday.context.loader.PropertyValueResolver;
 import cn.taketoday.context.loader.StrategiesLoader;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author TODAY 2021/7/17 22:17
@@ -40,13 +43,21 @@ public class StrategiesLoaderTests {
 
     final StrategiesLoader loader = new StrategiesLoader();
     final List<PropertyValueResolver> strategy = loader.getStrategies(PropertyValueResolver.class);
-    System.out.println(loader.getStrategies());
-    System.out.println(strategy);
 
+    assertThat(strategy)
+            .hasSize(1);
 
+    assertThat(loader.getStrategies())
+            .containsKey("cn.taketoday.context.loader.PropertyValueResolver")
+            .hasSize(1);
+
+    final List<String> strategies = loader.getStrategies("cn.taketoday.context.loader.PropertyValueResolver");
+
+    assertThat(strategies)
+            .hasSize(4);
   }
 
-  public static class MyPropertyValueResolver implements PropertyValueResolver{
+  public static class MyPropertyValueResolver implements PropertyValueResolver {
 
     @Override
     public PropertySetter resolveProperty(Field field) throws PropertyValueException {
