@@ -59,6 +59,7 @@ import cn.taketoday.context.factory.BeanReferencePropertySetter;
 import cn.taketoday.context.factory.ObjectSupplier;
 import cn.taketoday.context.factory.ValueExpressionContext;
 import cn.taketoday.context.loader.CandidateComponentScanner;
+import cn.taketoday.context.loader.StrategiesLoader;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
@@ -93,6 +94,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   private CandidateComponentScanner candidateComponentScanner;
 
   private ArrayList<BeanFactoryPostProcessor> factoryPostProcessors;
+  /**
+   * @since 3.1
+   */
+  private StrategiesLoader strategiesLoader;
 
   /**
    * Construct with a {@link ConfigurableEnvironment}
@@ -310,20 +315,22 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   /**
    * Register Framework Beans
    */
-  protected void registerFrameworkBeans(ConfigurableEnvironment env, final BeanNameCreator beanNameCreator) {
+  protected void registerFrameworkBeans(ConfigurableEnvironment env, final BeanNameCreator nameCreator) {
     final ExpressionProcessor elProcessor = env.getExpressionProcessor();
 
     // register ELManager @since 2.1.5
     // fix @since 2.1.6 elManager my be null
-    registerSingleton(beanNameCreator.create(ExpressionManager.class), elProcessor.getManager());
+    registerSingleton(nameCreator.create(ExpressionManager.class), elProcessor.getManager());
 
-    registerSingleton(beanNameCreator.create(ExpressionProcessor.class), elProcessor);
+    registerSingleton(nameCreator.create(ExpressionProcessor.class), elProcessor);
     // register Environment
-    registerSingleton(beanNameCreator.create(Environment.class), env);
+    registerSingleton(nameCreator.create(Environment.class), env);
     // register ApplicationContext
-    registerSingleton(beanNameCreator.create(ApplicationContext.class), this);
+    registerSingleton(nameCreator.create(ApplicationContext.class), this);
     // register BeanFactory @since 2.1.7
-    registerSingleton(beanNameCreator.create(BeanFactory.class), getBeanFactory());
+    registerSingleton(nameCreator.create(BeanFactory.class), getBeanFactory());
+    // @since 3.1.0 StrategiesLoader
+    registerSingleton(nameCreator.create(StrategiesLoader.class), getStrategiesLoader());
   }
 
   /**
@@ -474,10 +481,15 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    *         {@link ApplicationListener} cache
    */
   protected void postProcessRegisterListener(Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners) {
-
     addApplicationListener(new ContextCloseListener());
 
-    for (final Class<?> listener : loadMetaInfoListeners()) {
+    final Set<Class<?>> listeners = loadMetaInfoListeners();
+    // load from strategy files
+    log.info("Loading listeners from strategies files");
+    final StrategiesLoader strategiesLoader = getStrategiesLoader();
+    listeners.addAll(strategiesLoader.getTypes(ApplicationListener.class));
+
+    for (final Class<?> listener : listeners) {
       registerListener(listener);
     }
   }
@@ -1006,6 +1018,20 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   @Override
   public void registerScope(String name, Scope scope) {
     getBeanFactory().registerScope(name, scope);
+  }
+
+  @Override
+  public StrategiesLoader getStrategiesLoader() {
+    StrategiesLoader strategiesLoader = this.strategiesLoader;
+    if (strategiesLoader == null) {
+      strategiesLoader = createStrategiesLoader(this);
+      this.strategiesLoader = strategiesLoader;
+    }
+    return strategiesLoader;
+  }
+
+  protected StrategiesLoader createStrategiesLoader(ConfigurableApplicationContext context) {
+    return new StrategiesLoader(context);
   }
 
   @Override
