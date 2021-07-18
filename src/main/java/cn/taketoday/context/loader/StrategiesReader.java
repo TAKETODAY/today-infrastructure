@@ -26,6 +26,7 @@ import java.io.InputStream;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.DefaultMultiValueMap;
 import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.context.utils.ResourceUtils;
@@ -60,6 +61,7 @@ public abstract class StrategiesReader {
    *         file location
    */
   public void read(String strategiesLocation, MultiValueMap<String, String> strategies) {
+    Assert.notNull(strategiesLocation, "file-location must not be null");
     try {
       final Resource[] resources = ResourceUtils.getResources(strategiesLocation);
       for (final Resource resource : resources) {
