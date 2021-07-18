@@ -1516,7 +1516,7 @@ public abstract class AbstractBeanFactory
     else {
       defToUse = getPrototypeBeanDefinition(beanClass);
     }
-    return (T) getBean(defToUse);
+    return (T) createPrototype(defToUse);
   }
 
   @Override
