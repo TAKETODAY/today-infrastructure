@@ -303,7 +303,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
    * @return a mutable Set of matching Resource instances
    */
   protected Set<Resource> doFindAllClassPathResources(String path) throws IOException {
-    Set<Resource> result = new LinkedHashSet<>();
+    LinkedHashSet<Resource> result = new LinkedHashSet<>();
     final ClassLoader cl = getClassLoader();
     final Enumeration<URL> resourceUrls = (cl != null ? cl.getResources(path) : ClassLoader.getSystemResources(path));
     while (resourceUrls.hasMoreElements()) {
@@ -456,11 +456,12 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
     }
     final String duplicatePath = filePath.startsWith("/") ? filePath.substring(1) : "/".concat(filePath);
     try {
-      return result.contains(new JarEntryResource(new StringBuilder(duplicatePath.length()
-                                                                            + 11) //@off
-                                                                .append(Constant.JAR_ENTRY_URL_PREFIX)
-                                                                .append(duplicatePath)
-                                                                .append(Constant.JAR_URL_SEPARATOR).toString())); //@on
+      return result.contains(new JarEntryResource(
+              new StringBuilder(duplicatePath.length() + 11)
+                      .append(Constant.JAR_ENTRY_URL_PREFIX)
+                      .append(duplicatePath)
+                      .append(Constant.JAR_URL_SEPARATOR).toString())
+      );
     }
     catch (IOException ex) {
       return false; // Ignore: just for testing against duplicate.
@@ -488,7 +489,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
     final String rootDirPath = determineRootDir(locationPattern);
     final String subPattern = locationPattern.substring(rootDirPath.length());
     final Resource[] rootDirResources = getResources(rootDirPath);
-    final Set<Resource> result = new LinkedHashSet<>();
+    final LinkedHashSet<Resource> result = new LinkedHashSet<>();
 
     for (final Resource rootDirResource : rootDirResources) {
       rootDirResource(subPattern, result, rootDirResource);
@@ -556,8 +557,8 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
    * @see java.net.JarURLConnection
    * @see PathMatcher
    */
-  protected Set<Resource> doFindPathMatchingJarResources(final JarResource rootDirResource,
-                                                         final String subPattern) throws IOException {
+  protected Set<Resource> doFindPathMatchingJarResources(
+          final JarResource rootDirResource, final String subPattern) throws IOException {
 
     final URL rootDirURL = rootDirResource.getLocation();
 
@@ -583,7 +584,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
 
       final PathMatcher pathMatcher = getPathMatcher();
 
-      final Set<Resource> result = new LinkedHashSet<>(8);
+      final LinkedHashSet<Resource> result = new LinkedHashSet<>(8);
       final Enumeration<JarEntry> entries = jarFile.entries();
 
       while (entries.hasMoreElements()) {
@@ -658,7 +659,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
       log.trace("Looking for matching resources in directory tree [{}]", rootDir.getPath());
     }
     final Set<File> matchingFiles = retrieveMatchingFiles(rootDir, subPattern);
-    final Set<Resource> result = new LinkedHashSet<>(matchingFiles.size());
+    final LinkedHashSet<Resource> result = new LinkedHashSet<>(matchingFiles.size());
     for (final File file : matchingFiles) {
       result.add(new FileBasedResource(file));
     }
@@ -696,9 +697,8 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
     }
     if (!rootDir.canRead()) {
       if (log.isInfoEnabled()) {
-        log.info(
-                "Skipping search for matching files underneath directory [{}] because the application is not allowed to read the directory",
-                rootDir.getAbsolutePath());
+        log.info("Skipping search for matching files underneath directory [{}] because the application is not allowed to read the directory",
+                 rootDir.getAbsolutePath());
       }
       return Collections.emptySet();
     }
@@ -709,7 +709,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
     }
     fullPattern = fullPattern + StringUtils.replace(pattern, File.separator, "/");
 
-    Set<File> result = new LinkedHashSet<>(8);
+    LinkedHashSet<File> result = new LinkedHashSet<>(8);
     doRetrieveMatchingFiles(fullPattern, rootDir, result);
     return result;
   }
@@ -768,7 +768,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
       if (log.isInfoEnabled()) {
         log.info("Could not retrieve contents of directory [{}]", dir.getAbsolutePath());
       }
-      return new File[0];
+      return Constant.EMPTY_FILE_ARRAY;
     }
     Arrays.sort(files, Comparator.comparing(File::getName));
     return files;

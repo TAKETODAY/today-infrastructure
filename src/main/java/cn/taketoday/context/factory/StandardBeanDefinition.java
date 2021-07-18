@@ -91,6 +91,7 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
     return this;
   }
 
+  @Override
   public Executable getExecutable() {
     return obtainFactoryMethod();
   }
@@ -190,10 +191,10 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
     }
 
     if (ObjectUtils.isNotEmpty(classAnns)) {
-      final Set<Annotation> rets = new HashSet<>(); //@off
-            final Set<Class<?>> clazz = Stream.of(methodAnns)
-                                                .map(Annotation::annotationType)
-                                                .collect(Collectors.toSet()); //@on
+      final Set<Annotation> rets = new HashSet<>();
+      final Set<Class<?>> clazz = Stream.of(methodAnns)
+              .map(Annotation::annotationType)
+              .collect(Collectors.toSet());
 
       Collections.addAll(rets, methodAnns);
 

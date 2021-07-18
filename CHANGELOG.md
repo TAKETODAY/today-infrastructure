@@ -17,6 +17,8 @@
 # 当前版本
 
 ## v3.1.0
+- :sparkles: 添加 策略加载器 `StrategiesLoader` 代替 load META-INFO
+
 
 
 ## v3.0.6

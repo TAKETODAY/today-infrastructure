@@ -63,6 +63,7 @@ import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.context.loader.ObjectSupplierPropertyResolver;
 import cn.taketoday.context.loader.PropertyValueResolver;
 import cn.taketoday.context.loader.PropsPropertyResolver;
+import cn.taketoday.context.loader.StrategiesLoader;
 import cn.taketoday.context.loader.ValuePropertyResolver;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
@@ -363,6 +364,9 @@ public class StandardBeanFactory
     // Load the META-INF/beans @since 2.1.6
     // ---------------------------------------------------
     final Set<Class<?>> beans = ContextUtils.loadFromMetaInfo(Constant.META_INFO_beans);
+    // @since 3.1.0 load from StrategiesLoader strategy file
+    beans.addAll(getStrategiesLoader().getTypes(MissingBean.class));
+
     final BeanNameCreator beanNameCreator = getBeanNameCreator();
     for (final Class<?> beanClass : beans) {
       final AnnotationAttributes missingBean = getAnnotationAttributes(MissingBean.class, beanClass);
@@ -495,6 +499,10 @@ public class StandardBeanFactory
   @Override
   public final BeanDefinitionLoader getBeanDefinitionLoader() {
     return this;
+  }
+
+  public StrategiesLoader getStrategiesLoader() {
+    return context.getStrategiesLoader();
   }
 
   // BeanDefinitionLoader @since 2.1.7
@@ -841,22 +849,22 @@ public class StandardBeanFactory
   }
 
   /**
-   * @see Constant#META_INFO_property_resolvers
    * @since 3.0
    */
   public ArrayList<PropertyValueResolver> getPropertyValueResolvers() {
+    final ArrayList<PropertyValueResolver> propertyResolvers = this.propertyResolvers;
     if (propertyResolvers.isEmpty()) {
       final ConfigurableApplicationContext context = getApplicationContext();
-      final Set<PropertyValueResolver> objects =
-              ContextUtils.loadBeansFromMetaInfo(Constant.META_INFO_property_resolvers, this);
-      // un-ordered
-      propertyResolvers.addAll(objects);
-
       addPropertyValueResolvers(new ValuePropertyResolver(context),
                                 new PropsPropertyResolver(context),
                                 new ObjectSupplierPropertyResolver(),
                                 new AutowiredPropertyResolver(context));
 
+      final List<PropertyValueResolver> strategies =
+              getStrategiesLoader().getStrategies(PropertyValueResolver.class);
+      // un-ordered
+      propertyResolvers.addAll(strategies); // @since 3.1.0
+      OrderUtils.reversedSort(propertyResolvers);
     }
     return propertyResolvers;
   }

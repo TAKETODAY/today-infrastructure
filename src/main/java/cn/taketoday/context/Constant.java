@@ -44,11 +44,10 @@ public interface Constant extends Opcodes, Serializable {
 
   String META_INFO_beans = "META-INF/beans";
   String META_INFO_listeners = "META-INF/listeners";
-  String META_INFO_property_resolvers = "META-INF/property-resolvers";
 
   int DEFAULT_CAPACITY = 0; // @since 3.0
 
-  String CONTEXT_VERSION = "3.0";
+  String CONTEXT_VERSION = "3.1";
 
   String KEY_ROOT = "root";
   String KEY_RESULT = "result";
@@ -62,7 +61,6 @@ public interface Constant extends Opcodes, Serializable {
   Resource[] EMPTY_RESOURCE_ARRAY = {};
   PropertySetter[] EMPTY_PROPERTY_VALUE = {};
   Annotation[] EMPTY_ANNOTATION_ARRAY = new Annotation[0];
-
 
   AnnotationAttributes[] EMPTY_ANNOTATION_ATTRIBUTES = {};
 
@@ -80,7 +78,7 @@ public interface Constant extends Opcodes, Serializable {
 
   Type TYPE_TYPE = Type.getType(Type.class);
   Type TYPE_ERROR = parseType("Error");
-//  Type TYPE_SYSTEM = parseType("System");
+  //  Type TYPE_SYSTEM = parseType("System");
   Type TYPE_LONG = parseType("Long");
   Type TYPE_BYTE = parseType("Byte");
   Type TYPE_CLASS = parseType("Class");
@@ -94,7 +92,7 @@ public interface Constant extends Opcodes, Serializable {
   Type TYPE_INTEGER = parseType("Integer");
   Type TYPE_CHARACTER = parseType("Character");
   Type TYPE_THROWABLE = parseType("Throwable");
-//  Type TYPE_CLASS_LOADER = parseType("ClassLoader");
+  //  Type TYPE_CLASS_LOADER = parseType("ClassLoader");
   Type TYPE_STRING_BUFFER = parseType("StringBuffer");
   Type TYPE_BIG_INTEGER = parseType("java.math.BigInteger");
   Type TYPE_BIG_DECIMAL = parseType("java.math.BigDecimal");
