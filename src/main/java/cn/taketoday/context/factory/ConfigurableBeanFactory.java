@@ -73,7 +73,7 @@ public interface ConfigurableBeanFactory
    * @param beanClass
    *         bean type
    *
-   * @since 3.0.6
+   * @since 3.1.0
    */
   void removeBean(Class<?> beanClass);
 
@@ -159,7 +159,7 @@ public interface ConfigurableBeanFactory
    *
    * @throws BeanDefinitionStoreException
    *         If can't store a bean
-   * @since 3.0.6
+   * @since 3.1.0
    */
   default <T> void registerBean(Class<T> clazz, Supplier<T> supplier) throws BeanDefinitionStoreException {
     registerBean(clazz, supplier, false);
@@ -180,7 +180,7 @@ public interface ConfigurableBeanFactory
    *
    * @throws BeanDefinitionStoreException
    *         If can't store a bean
-   * @since 3.0.6
+   * @since 3.1.0
    */
   default <T> void registerBean(
           Class<T> clazz, Supplier<T> supplier, boolean prototype) throws BeanDefinitionStoreException {
@@ -204,7 +204,7 @@ public interface ConfigurableBeanFactory
    *
    * @throws BeanDefinitionStoreException
    *         If can't store a bean
-   * @since 3.0.6
+   * @since 3.1.0
    */
   <T> void registerBean(Class<T> clazz, Supplier<T> supplier, boolean prototype, boolean ignoreAnnotation)
           throws BeanDefinitionStoreException;
@@ -223,7 +223,7 @@ public interface ConfigurableBeanFactory
    *
    * @throws BeanDefinitionStoreException
    *         If can't store a bean
-   * @since 3.0.6
+   * @since 3.1.0
    */
   <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException;
 

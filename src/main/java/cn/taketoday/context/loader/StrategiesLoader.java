@@ -40,7 +40,7 @@ import cn.taketoday.context.utils.MultiValueMap;
  * Strategies Loader
  *
  * @author TODAY 2021/7/17 21:59
- * @since 3.0.6
+ * @since 3.1.0
  */
 public class StrategiesLoader {
   private static final Logger log = LoggerFactory.getLogger(StrategiesLoader.class);

@@ -329,7 +329,7 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
    * @param <T>
    *         target bean type
    *
-   * @since 3.0.6
+   * @since 3.1.0
    */
   <T> void setSupplier(Supplier<T> supplier);
 }

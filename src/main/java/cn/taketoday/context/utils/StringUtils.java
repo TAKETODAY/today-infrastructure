@@ -137,7 +137,7 @@ public abstract class StringUtils {
    * @return if source is null this will returns
    * {@link Constant#EMPTY_STRING_ARRAY}
    *
-   * @since 3.0.6
+   * @since 3.1.0
    */
   public static List<String> splitAsList(String source) {
     if (source == null) {

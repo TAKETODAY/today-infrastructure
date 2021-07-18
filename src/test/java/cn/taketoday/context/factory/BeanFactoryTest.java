@@ -296,7 +296,7 @@ public class BeanFactoryTest extends BaseTest {
 
     beanFactory.removeBean("registerBean");
 
-    // @since 3.0.6
+    // @since 3.1.0
 
     // name
     final RegisterBeanSupplier registerBeanSupplier = new RegisterBeanSupplier();
