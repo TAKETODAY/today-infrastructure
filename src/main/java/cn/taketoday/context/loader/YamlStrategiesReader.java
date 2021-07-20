@@ -30,7 +30,24 @@ import java.util.Map;
 import cn.taketoday.context.utils.MultiValueMap;
 
 /**
+ * Yaml files reader
+ * <p>
+ * read as {@link MultiValueMap}
+ *
+ * <pre>
+ *  cn:
+ *   taketoday:
+ *     context:
+ *       loader:
+ *         PropertyValueResolver:
+ *           - 111111
+ *           - 222222
+ *           - 333333
+ *           - cn.taketoday.context.loader.StrategiesDetectorTests$MyPropertyValueResolver
+ *   </pre>
+ *
  * @author TODAY 2021/7/17 22:42
+ * @see MultiValueMap
  * @since 3.1.0
  */
 public class YamlStrategiesReader extends StrategiesReader {

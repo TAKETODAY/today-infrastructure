@@ -74,6 +74,11 @@ public class StrategiesDetector {
     setStrategiesReader(reader);
   }
 
+  public StrategiesDetector(StrategiesReader reader, String strategiesLocation) {
+    setStrategiesReader(reader);
+    setStrategiesLocation(strategiesLocation);
+  }
+
   /**
    * load if strategies is empty
    */

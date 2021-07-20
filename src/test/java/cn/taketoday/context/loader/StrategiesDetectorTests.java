@@ -28,6 +28,7 @@ import java.util.List;
 
 import cn.taketoday.context.exception.PropertyValueException;
 import cn.taketoday.context.factory.PropertySetter;
+import cn.taketoday.context.utils.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -55,6 +56,29 @@ public class StrategiesDetectorTests {
             .hasSize(4);
   }
 
+  @Test
+  public void testYaml() {
+    final StrategiesDetector loader = new StrategiesDetector(
+            new YamlStrategiesReader(), "classpath:META-INF/today.strategies.yaml");
+    loader.loadStrategies();
+    final MultiValueMap<String, String> strategies = loader.getStrategies();
+
+    final List<PropertyValueResolver> strategy = loader.getStrategies(PropertyValueResolver.class);
+
+    assertThat(strategy)
+            .hasSize(1);
+
+    assertThat(strategies)
+            .hasSize(1)
+            .containsKey("cn.taketoday.context.loader.PropertyValueResolver");
+
+    final List<String> strings = strategies.get("cn.taketoday.context.loader.PropertyValueResolver");
+
+    assertThat(strings)
+            .hasSize(4)
+            .contains("cn.taketoday.context.loader.StrategiesDetectorTests$MyPropertyValueResolver");
+  }
+
   public static class MyPropertyValueResolver implements PropertyValueResolver {
 
     @Override
@@ -62,7 +86,6 @@ public class StrategiesDetectorTests {
       return null;
     }
   }
-
 
   public static class MyPropertyValueResolver1 implements PropertyValueResolver {
 
