@@ -30,7 +30,7 @@ import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.loader.CandidateComponentScannerCapable;
-import cn.taketoday.context.loader.StrategiesLoader;
+import cn.taketoday.context.loader.StrategiesDetector;
 
 /**
  * @author TODAY <br>
@@ -146,10 +146,12 @@ public interface ApplicationContext
   }
 
   /**
-   * get StrategiesLoader for framework internal component
+   * get {@link StrategiesDetector} for framework internal component
    *
-   * @return StrategiesLoader
+   * @return StrategiesDetector
+   *
+   * @see StrategiesDetector
    */
-  StrategiesLoader getStrategiesLoader();
+  StrategiesDetector getStrategiesDetector();
 
 }

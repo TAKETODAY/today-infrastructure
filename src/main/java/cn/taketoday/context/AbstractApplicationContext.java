@@ -59,7 +59,7 @@ import cn.taketoday.context.factory.BeanReferencePropertySetter;
 import cn.taketoday.context.factory.ObjectSupplier;
 import cn.taketoday.context.factory.ValueExpressionContext;
 import cn.taketoday.context.loader.CandidateComponentScanner;
-import cn.taketoday.context.loader.StrategiesLoader;
+import cn.taketoday.context.loader.StrategiesDetector;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
@@ -97,7 +97,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   /**
    * @since 3.1
    */
-  private StrategiesLoader strategiesLoader;
+  private StrategiesDetector strategiesDetector;
 
   /**
    * Construct with a {@link ConfigurableEnvironment}
@@ -330,7 +330,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     // register BeanFactory @since 2.1.7
     registerSingleton(nameCreator.create(BeanFactory.class), getBeanFactory());
     // @since 3.1.0 StrategiesLoader
-    registerSingleton(nameCreator.create(StrategiesLoader.class), getStrategiesLoader());
+    registerSingleton(nameCreator.create(StrategiesDetector.class), getStrategiesDetector());
   }
 
   /**
@@ -486,8 +486,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     final Set<Class<?>> listeners = loadMetaInfoListeners();
     // load from strategy files
     log.info("Loading listeners from strategies files");
-    final StrategiesLoader strategiesLoader = getStrategiesLoader();
-    listeners.addAll(strategiesLoader.getTypes(ApplicationListener.class));
+    final StrategiesDetector strategiesDetector = getStrategiesDetector();
+    listeners.addAll(strategiesDetector.getTypes(ApplicationListener.class));
 
     for (final Class<?> listener : listeners) {
       registerListener(listener);
@@ -1021,17 +1021,17 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   @Override
-  public StrategiesLoader getStrategiesLoader() {
-    StrategiesLoader strategiesLoader = this.strategiesLoader;
-    if (strategiesLoader == null) {
-      strategiesLoader = createStrategiesLoader(this);
-      this.strategiesLoader = strategiesLoader;
+  public StrategiesDetector getStrategiesDetector() {
+    StrategiesDetector strategiesDetector = this.strategiesDetector;
+    if (strategiesDetector == null) {
+      strategiesDetector = createStrategiesLoader(this);
+      this.strategiesDetector = strategiesDetector;
     }
-    return strategiesLoader;
+    return strategiesDetector;
   }
 
-  protected StrategiesLoader createStrategiesLoader(ConfigurableApplicationContext context) {
-    return new StrategiesLoader(context);
+  protected StrategiesDetector createStrategiesLoader(ConfigurableApplicationContext context) {
+    return new StrategiesDetector(context);
   }
 
   @Override

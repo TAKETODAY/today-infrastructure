@@ -39,7 +39,7 @@ import cn.taketoday.context.utils.DefaultMultiValueMap;
 import cn.taketoday.context.utils.MultiValueMap;
 
 /**
- * Strategies Loader
+ * Strategies Detector
  * <p>
  * Get keyed strategies
  * </p>
@@ -47,13 +47,13 @@ import cn.taketoday.context.utils.MultiValueMap;
  * @author TODAY 2021/7/17 21:59
  * @since 3.1.0
  */
-public class StrategiesLoader {
-  private static final Logger log = LoggerFactory.getLogger(StrategiesLoader.class);
+public class StrategiesDetector {
+  private static final Logger log = LoggerFactory.getLogger(StrategiesDetector.class);
   public static final String DEFAULT_STRATEGIES_LOCATION = "classpath*:META-INF/today.strategies";
 
   /** strategies file location */
   private String strategiesLocation = DEFAULT_STRATEGIES_LOCATION;
-  private StrategiesReader strategiesReader = new DefaultStrategiesReader();
+  private StrategiesReader strategiesReader;
 
   private ClassLoader classLoader = ClassUtils.getClassLoader();
   private BeanFactory beanFactory;
@@ -61,10 +61,17 @@ public class StrategiesLoader {
 
   private final DefaultMultiValueMap<String, String> strategies = new DefaultMultiValueMap<>();
 
-  public StrategiesLoader() {}
+  public StrategiesDetector() {
+    this(new DefaultStrategiesReader());
+  }
 
-  public StrategiesLoader(BeanFactory beanFactory) {
+  public StrategiesDetector(BeanFactory beanFactory) {
+    this(new DefaultStrategiesReader());
     this.beanFactory = beanFactory;
+  }
+
+  public StrategiesDetector(StrategiesReader reader) {
+    setStrategiesReader(reader);
   }
 
   /**

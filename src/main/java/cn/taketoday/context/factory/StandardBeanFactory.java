@@ -63,7 +63,7 @@ import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.context.loader.ObjectSupplierPropertyResolver;
 import cn.taketoday.context.loader.PropertyValueResolver;
 import cn.taketoday.context.loader.PropsPropertyResolver;
-import cn.taketoday.context.loader.StrategiesLoader;
+import cn.taketoday.context.loader.StrategiesDetector;
 import cn.taketoday.context.loader.ValuePropertyResolver;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
@@ -365,7 +365,7 @@ public class StandardBeanFactory
     // ---------------------------------------------------
     final Set<Class<?>> beans = ContextUtils.loadFromMetaInfo(Constant.META_INFO_beans);
     // @since 3.1.0 load from StrategiesLoader strategy file
-    beans.addAll(getStrategiesLoader().getTypes(MissingBean.class));
+    beans.addAll(getStrategiesDetector().getTypes(MissingBean.class));
 
     final BeanNameCreator beanNameCreator = getBeanNameCreator();
     for (final Class<?> beanClass : beans) {
@@ -501,8 +501,8 @@ public class StandardBeanFactory
     return this;
   }
 
-  public StrategiesLoader getStrategiesLoader() {
-    return context.getStrategiesLoader();
+  public StrategiesDetector getStrategiesDetector() {
+    return context.getStrategiesDetector();
   }
 
   // BeanDefinitionLoader @since 2.1.7
@@ -861,7 +861,7 @@ public class StandardBeanFactory
                                 new AutowiredPropertyResolver(context));
 
       final List<PropertyValueResolver> strategies =
-              getStrategiesLoader().getStrategies(PropertyValueResolver.class);
+              getStrategiesDetector().getStrategies(PropertyValueResolver.class);
       // un-ordered
       propertyResolvers.addAll(strategies); // @since 3.1.0
       OrderUtils.reversedSort(propertyResolvers);

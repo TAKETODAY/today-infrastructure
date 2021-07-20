@@ -23,26 +23,23 @@ package cn.taketoday.context.loader;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import cn.taketoday.context.exception.PropertyValueException;
 import cn.taketoday.context.factory.PropertySetter;
-import cn.taketoday.context.loader.PropertyValueResolver;
-import cn.taketoday.context.loader.StrategiesLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author TODAY 2021/7/17 22:17
  */
-public class StrategiesLoaderTests {
+public class StrategiesDetectorTests {
 
   @Test
   public void load() {
 
-    final StrategiesLoader loader = new StrategiesLoader();
+    final StrategiesDetector loader = new StrategiesDetector();
     final List<PropertyValueResolver> strategy = loader.getStrategies(PropertyValueResolver.class);
 
     assertThat(strategy)

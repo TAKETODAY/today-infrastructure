@@ -50,12 +50,14 @@ import cn.taketoday.context.loader.CollectionParameterResolver;
 import cn.taketoday.context.loader.ExecutableParameterResolver;
 import cn.taketoday.context.loader.MapParameterResolver;
 import cn.taketoday.context.loader.ObjectSupplierParameterResolver;
+import cn.taketoday.context.loader.StrategiesDetector;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.expression.ExpressionProcessor;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -81,6 +83,9 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
+ * ApplicationContext Utils
+ * <p>
+ *
  * This class provides el, {@link Properties} loading, {@link Parameter}
  * resolving
  *
@@ -101,7 +106,8 @@ public abstract class ContextUtils {
   private static ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator();
 
   static {
-    setParameterResolvers(new MapParameterResolver(),
+    setParameterResolvers(
+            new MapParameterResolver(),
             new ArrayParameterResolver(),
             new CollectionParameterResolver(),
             new ObjectSupplierParameterResolver(),
@@ -110,6 +116,11 @@ public abstract class ContextUtils {
             new AutowiredParameterResolver()
     );
 
+    final StrategiesDetector strategiesDetector = new StrategiesDetector();
+    final List<ExecutableParameterResolver> strategies = strategiesDetector.getStrategies(ExecutableParameterResolver.class);
+    if (!strategies.isEmpty()) {
+      addParameterResolvers(strategies);
+    }
   }
 
   /**
@@ -927,6 +938,17 @@ public abstract class ContextUtils {
         Collections.addAll(newResolvers, getParameterResolvers());
       }
       Collections.addAll(newResolvers, resolvers);
+      setParameterResolvers(newResolvers.toArray(new ExecutableParameterResolver[newResolvers.size()]));
+    }
+  }
+
+  public static void addParameterResolvers(List<ExecutableParameterResolver> resolvers) {
+    if (!CollectionUtils.isEmpty(resolvers)) {
+      final List<ExecutableParameterResolver> newResolvers = new ArrayList<>();
+      if (getParameterResolvers() != null) {
+        Collections.addAll(newResolvers, getParameterResolvers());
+      }
+      newResolvers.addAll(resolvers);
       setParameterResolvers(newResolvers.toArray(new ExecutableParameterResolver[newResolvers.size()]));
     }
   }
