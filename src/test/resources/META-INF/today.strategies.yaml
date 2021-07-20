@@ -1,0 +1,10 @@
+cn:
+  taketoday:
+    context:
+      loader:
+        PropertyValueResolver:
+          - 111111
+          - 222222
+          - 333333
+          - cn.taketoday.context.loader.StrategiesDetectorTests$MyPropertyValueResolver
+

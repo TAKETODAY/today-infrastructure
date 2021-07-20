@@ -20,8 +20,12 @@
 
 package cn.taketoday.context.loader;
 
-import java.io.IOException;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.extensions.compactnotation.CompactConstructor;
+
 import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.context.utils.MultiValueMap;
 
@@ -32,7 +36,30 @@ import cn.taketoday.context.utils.MultiValueMap;
 public class YamlStrategiesReader extends StrategiesReader {
 
   @Override
-  protected void readInternal(InputStream inputStream, MultiValueMap<String, String> properties) throws IOException {
-
+  protected void readInternal(InputStream yamlStream, MultiValueMap<String, String> properties) {
+    final Map<String, Object> base = new Yaml(new CompactConstructor()).load(yamlStream);
+    doMapping(properties, base, null);
   }
+
+  @SuppressWarnings("unchecked")
+  static void doMapping(final MultiValueMap<String, String> properties, final Map<String, Object> base, final String prefix) {
+    for (final Map.Entry<String, Object> entry : base.entrySet()) {
+      String key = entry.getKey();
+      final Object value = entry.getValue();
+      key = prefix == null ? key : (prefix + '.' + key);
+      if (value instanceof Map) {
+        doMapping(properties, (Map<String, Object>) value, key);
+      }
+      else if (value instanceof List) {
+        properties.addAll(key, (List<? extends String>) value);
+      }
+      else if (value instanceof String) {
+        properties.add(key, value.toString());
+      }
+      else {
+        log.warn("not support value: '{}' map to properties", value);
+      }
+    }
+  }
+
 }
