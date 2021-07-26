@@ -1031,7 +1031,9 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   protected StrategiesDetector createStrategiesLoader(ConfigurableApplicationContext context) {
-    return new StrategiesDetector(context);
+    final StrategiesDetector detector = StrategiesDetector.getSharedInstance();
+    detector.setBeanFactory(context);
+    return detector;
   }
 
   @Override

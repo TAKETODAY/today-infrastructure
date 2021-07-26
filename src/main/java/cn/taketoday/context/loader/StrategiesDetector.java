@@ -27,6 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.Consumer;
 
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.conversion.Converter;
 import cn.taketoday.context.factory.AutowireCapableBeanFactory;
 import cn.taketoday.context.factory.BeanFactory;
@@ -50,6 +51,10 @@ import cn.taketoday.context.utils.MultiValueMap;
 public class StrategiesDetector {
   private static final Logger log = LoggerFactory.getLogger(StrategiesDetector.class);
   public static final String DEFAULT_STRATEGIES_LOCATION = "classpath*:META-INF/today.strategies";
+  public static final String KEY_STRATEGIES_LOCATION = "strategies.file.location";
+  public static final String KEY_STRATEGIES_FILE_TYPE = "strategies.file.type";
+
+  private static final StrategiesDetector sharedInstance;
 
   /** strategies file location */
   private String strategiesLocation = DEFAULT_STRATEGIES_LOCATION;
@@ -60,6 +65,27 @@ public class StrategiesDetector {
   private boolean throwWhenClassNotFound = false;
 
   private final DefaultMultiValueMap<String, String> strategies = new DefaultMultiValueMap<>();
+
+  static {
+    final String strategiesFileType = System.getProperty(KEY_STRATEGIES_FILE_TYPE, Constant.DEFAULT);// default yaml
+    final String strategiesLocation = System.getProperty(KEY_STRATEGIES_LOCATION, DEFAULT_STRATEGIES_LOCATION);
+    StrategiesReader strategiesReader;
+    if (Constant.DEFAULT.equals(strategiesFileType)) {
+      strategiesReader = new DefaultStrategiesReader();
+    }
+    else if ("yaml".equals(strategiesFileType) || "yml".equals(strategiesFileType)) {
+      strategiesReader = new YamlStrategiesReader();// org.yaml.snakeyaml.Yaml must present
+    }
+    else {
+      try {
+        strategiesReader = ClassUtils.newInstance(strategiesFileType);
+      }
+      catch (ClassNotFoundException e) {
+        throw new UnsupportedOperationException("Unsupported strategies file type");
+      }
+    }
+    sharedInstance = new StrategiesDetector(strategiesReader, strategiesLocation);
+  }
 
   public StrategiesDetector() {
     this(new DefaultStrategiesReader());
@@ -343,4 +369,11 @@ public class StrategiesDetector {
   public BeanFactory getBeanFactory() {
     return beanFactory;
   }
+
+  // static
+
+  public static StrategiesDetector getSharedInstance() {
+    return sharedInstance;
+  }
+
 }

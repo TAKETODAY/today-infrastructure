@@ -116,8 +116,9 @@ public abstract class ContextUtils {
             new AutowiredParameterResolver()
     );
 
-    final StrategiesDetector strategiesDetector = new StrategiesDetector();
-    final List<ExecutableParameterResolver> strategies = strategiesDetector.getStrategies(ExecutableParameterResolver.class);
+    final StrategiesDetector strategiesDetector = StrategiesDetector.getSharedInstance();
+    final List<ExecutableParameterResolver> strategies
+            = strategiesDetector.getStrategies(ExecutableParameterResolver.class);
     if (!strategies.isEmpty()) {
       addParameterResolvers(strategies);
     }
