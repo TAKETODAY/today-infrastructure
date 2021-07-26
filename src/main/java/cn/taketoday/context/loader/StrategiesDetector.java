@@ -50,6 +50,7 @@ import cn.taketoday.context.utils.MultiValueMap;
  */
 public class StrategiesDetector {
   private static final Logger log = LoggerFactory.getLogger(StrategiesDetector.class);
+
   public static final String DEFAULT_STRATEGIES_LOCATION = "classpath*:META-INF/today.strategies";
   public static final String KEY_STRATEGIES_LOCATION = "strategies.file.location";
   public static final String KEY_STRATEGIES_FILE_TYPE = "strategies.file.type";

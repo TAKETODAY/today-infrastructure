@@ -22,6 +22,7 @@ package cn.taketoday.context.loader;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.logger.Logger;
@@ -30,6 +31,7 @@ import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.DefaultMultiValueMap;
 import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.context.utils.ResourceUtils;
+import cn.taketoday.context.utils.StringUtils;
 
 /**
  * Strategies file reader
@@ -58,15 +60,19 @@ public abstract class StrategiesReader {
    * read a key multi-value map
    *
    * @param strategiesLocation
-   *         file location
+   *         file location supports multiple files:
+   *         <p> classpath*:META-INF/today.strategies,classpath*:META-INF/my.strategies
    */
   public void read(String strategiesLocation, MultiValueMap<String, String> strategies) {
     Assert.notNull(strategiesLocation, "file-location must not be null");
-    log.info("Detecting strategies location '{}'", strategiesLocation);
     try {
-      final Resource[] resources = ResourceUtils.getResources(strategiesLocation);
-      for (final Resource resource : resources) {
-        read(resource, strategies);
+      final List<String> strategiesLocations = StringUtils.splitAsList(strategiesLocation);
+      for (final String location : strategiesLocations) {
+        log.info("Detecting strategies location '{}'", location);
+        final Resource[] resources = ResourceUtils.getResources(location);
+        for (final Resource resource : resources) {
+          read(resource, strategies);
+        }
       }
     }
     catch (IOException e) {
