@@ -847,7 +847,8 @@ public abstract class ClassUtils {
       return Collections.emptyList();
     }
     final Class<? extends Annotation> annotationType = annotation.annotationType();
-    if (annotationType == target) {// 如果等于对象注解就直接添加
+    if (annotationType == target) {
+      // 如果等于对象注解就直接添加
       return Collections.singletonList(getAnnotationAttributes(annotationType, annotation));
     }
     // filter some annotation classes
@@ -966,6 +967,7 @@ public abstract class ClassUtils {
         continue;
       }
       if (candidateType == targetType) {
+        // found target annotation
         attributes.add(getAnnotationAttributes(current, candidateType, transformer)); // found it
       }
       else {
