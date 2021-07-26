@@ -48,7 +48,7 @@ public class StrategiesDetectorTests {
 
     assertThat(loader.getStrategies())
             .containsKey("cn.taketoday.context.loader.PropertyValueResolver")
-            .hasSize(1);
+            .hasSize(2);
 
     final Collection<String> strategies = loader.getStrategies("cn.taketoday.context.loader.PropertyValueResolver");
 

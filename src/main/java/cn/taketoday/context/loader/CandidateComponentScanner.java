@@ -59,7 +59,8 @@ import static cn.taketoday.context.Constant.PATH_SEPARATOR;
  * @author TODAY 2019-11-26 20:02
  */
 public class CandidateComponentScanner {
-
+  // @since 3.1.0
+  public static final String KEY_STRATEGIES_IGNORE_JAR_PREFIX = "ignore-jar-prefix";
   private static final Logger log = LoggerFactory.getLogger(CandidateComponentScanner.class);
 
   private Set<Class<?>> candidates;
@@ -92,8 +93,18 @@ public class CandidateComponentScanner {
     // --------------------------------------------------------------
     final HashSet<String> ignoreScanJars = new HashSet<>(64);
 
-    try { // @since 2.1.6
+    readFromMetaInfoIgnore(ignoreScanJars);
+    // @since 3.1.0 read from strategies file
+    final StrategiesDetector strategiesDetector = StrategiesDetector.getSharedInstance();
+    final Collection<String> strategies = strategiesDetector.getStrategies(KEY_STRATEGIES_IGNORE_JAR_PREFIX);
+    ignoreScanJars.addAll(strategies);
 
+    return defaultIgnoreScanJarPrefixs = ignoreScanJars.toArray(new String[ignoreScanJars.size()]);
+  }
+
+  @Deprecated
+  private static void readFromMetaInfoIgnore(HashSet<String> ignoreScanJars) {
+    try { // @since 2.1.6
       final Enumeration<URL> resources = ClassUtils.getClassLoader().getResources("META-INF/ignore/jar-prefix");
       final Charset charset = Constant.DEFAULT_CHARSET;
 
@@ -109,7 +120,6 @@ public class CandidateComponentScanner {
           }
         }
       }
-      return defaultIgnoreScanJarPrefixs = ignoreScanJars.toArray(new String[ignoreScanJars.size()]);
     }
     catch (IOException e) {
       throw new ContextException("IOException occurred when load 'META-INF/ignore/jar-prefix'", e);
@@ -356,7 +366,8 @@ public class CandidateComponentScanner {
           final String className = nameToUse.substring(0, nameToUse.lastIndexOf(PACKAGE_SEPARATOR));
           getScanningCandidates().add(getClassLoader().loadClass(className));
         }
-        catch (ClassNotFoundException | Error ignored) {}
+        catch (ClassNotFoundException | Error ignored) {
+        }
       }
     }
   }
@@ -392,7 +403,8 @@ public class CandidateComponentScanner {
         try {
           candidates.add(classLoader.loadClass(ClassUtils.getClassName(resource)));
         }
-        catch (ClassNotFoundException | Error ignored) {}
+        catch (ClassNotFoundException | Error ignored) {
+        }
       }
     }
   }
