@@ -106,22 +106,20 @@ public abstract class ContextUtils {
   private static ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator();
 
   static {
-    setParameterResolvers(
-            new MapParameterResolver(),
-            new ArrayParameterResolver(),
-            new CollectionParameterResolver(),
-            new ObjectSupplierParameterResolver(),
-            new EnvExecutableParameterResolver(),
-            new ValueExecutableParameterResolver(),
-            new AutowiredParameterResolver()
-    );
-
     final StrategiesDetector strategiesDetector = StrategiesDetector.getSharedInstance();
     final List<ExecutableParameterResolver> strategies
             = strategiesDetector.getStrategies(ExecutableParameterResolver.class);
-    if (!strategies.isEmpty()) {
-      addParameterResolvers(strategies);
-    }
+
+    Collections.addAll(strategies,
+                       new MapParameterResolver(),
+                       new ArrayParameterResolver(),
+                       new CollectionParameterResolver(),
+                       new ObjectSupplierParameterResolver(),
+                       new EnvExecutableParameterResolver(),
+                       new ValueExecutableParameterResolver(),
+                       new AutowiredParameterResolver()
+    );
+    setParameterResolvers(strategies);
   }
 
   /**
@@ -398,16 +396,13 @@ public abstract class ContextUtils {
    * @throws ConfigurationException
    *         If not support {@link AnnotatedElement}
    */
-  public static List<PropertySetter> resolveProps(final AnnotatedElement annotated,
-                                                  final Properties properties) {
+  public static List<PropertySetter> resolveProps(
+          final AnnotatedElement annotated, final Properties properties) {
     Assert.notNull(annotated, "AnnotatedElement must not be null");
-
     final Props props = annotated.getAnnotation(Props.class);
-
     if (props == null) {
       return Collections.emptyList();
     }
-
     final Class<?> type = getBeanClass(annotated);
     if (log.isDebugEnabled()) {
       log.debug("Loading Properties For: [{}]", type.getName());
@@ -927,30 +922,46 @@ public abstract class ContextUtils {
 
   public static void setParameterResolvers(ExecutableParameterResolver... resolvers) {
     Assert.notNull(resolvers, "ExecutableParameterResolvers must not null");
-    synchronized(ContextUtils.class) {
-      parameterResolvers = OrderUtils.reversedSort(resolvers);
-    }
+    parameterResolvers = OrderUtils.reversedSort(resolvers);
+  }
+
+  /**
+   * @since 3.1.0
+   */
+  public static void setParameterResolvers(List<ExecutableParameterResolver> resolvers) {
+    Assert.notNull(resolvers, "ExecutableParameterResolvers must not null");
+    ExecutableParameterResolver[] array = resolvers.toArray(new ExecutableParameterResolver[0]);
+    parameterResolvers = OrderUtils.reversedSort(array);
   }
 
   public static void addParameterResolvers(ExecutableParameterResolver... resolvers) {
     if (ObjectUtils.isNotEmpty(resolvers)) {
-      final List<ExecutableParameterResolver> newResolvers = new ArrayList<>();
-      if (getParameterResolvers() != null) {
-        Collections.addAll(newResolvers, getParameterResolvers());
+      if (parameterResolvers != null) {
+        List<ExecutableParameterResolver> newResolvers = new ArrayList<>();
+        Collections.addAll(newResolvers, parameterResolvers);
+        Collections.addAll(newResolvers, resolvers);
+        setParameterResolvers(newResolvers);
       }
-      Collections.addAll(newResolvers, resolvers);
-      setParameterResolvers(newResolvers.toArray(new ExecutableParameterResolver[newResolvers.size()]));
+      else {
+        setParameterResolvers(resolvers);
+      }
     }
   }
 
+  /**
+   * @since 3.1.0
+   */
   public static void addParameterResolvers(List<ExecutableParameterResolver> resolvers) {
     if (!CollectionUtils.isEmpty(resolvers)) {
-      final List<ExecutableParameterResolver> newResolvers = new ArrayList<>();
-      if (getParameterResolvers() != null) {
-        Collections.addAll(newResolvers, getParameterResolvers());
+      if (parameterResolvers != null) {
+        List<ExecutableParameterResolver> newResolvers = new ArrayList<>();
+        Collections.addAll(newResolvers, parameterResolvers);
+        newResolvers.addAll(resolvers);
+        setParameterResolvers(newResolvers);
       }
-      newResolvers.addAll(resolvers);
-      setParameterResolvers(newResolvers.toArray(new ExecutableParameterResolver[newResolvers.size()]));
+      else {
+        setParameterResolvers(resolvers);
+      }
     }
   }
 
@@ -984,25 +995,25 @@ public abstract class ContextUtils {
    *
    * @since 3.0
    */
-  public static Object[] resolveParameter(final Executable executable, final BeanFactory beanFactory, Object[] providedArgs) {
+  public static Object[] resolveParameter(
+          final Executable executable, final BeanFactory beanFactory, Object[] providedArgs) {
     Assert.notNull(executable, "Executable must not be null");
-
     final int parameterLength = executable.getParameterCount();
-    if (parameterLength == 0) {
-      return null;
-    }
-    Assert.notNull(beanFactory, "BeanFactory must not be null");
-    // parameter list
-    final Object[] args = new Object[parameterLength];
-    int i = 0;
-    for (final Parameter parameter : executable.getParameters()) {
-      Object argument = findProvidedArgument(parameter, providedArgs);
-      if (argument == null) {
-        argument = getParameterResolver(parameter).resolve(parameter, beanFactory);
+    if (parameterLength != 0) {
+      Assert.notNull(beanFactory, "BeanFactory must not be null");
+      // parameter list
+      final Object[] args = new Object[parameterLength];
+      int i = 0;
+      for (final Parameter parameter : executable.getParameters()) {
+        Object argument = findProvidedArgument(parameter, providedArgs);
+        if (argument == null) {
+          argument = getParameterResolver(parameter).resolve(parameter, beanFactory);
+        }
+        args[i++] = argument;
       }
-      args[i++] = argument;
+      return args;
     }
-    return args;
+    return null;
   }
 
   protected static Object findProvidedArgument(Parameter parameter, Object[] providedArgs) {
@@ -1019,8 +1030,7 @@ public abstract class ContextUtils {
   }
 
   public static ExecutableParameterResolver getParameterResolver(final Parameter parameter) {
-
-    for (final ExecutableParameterResolver resolver : getParameterResolvers()) {
+    for (final ExecutableParameterResolver resolver : parameterResolvers) {
       if (resolver.supports(parameter)) {
         return resolver;
       }
