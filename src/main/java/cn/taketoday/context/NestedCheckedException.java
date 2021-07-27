@@ -87,14 +87,11 @@ public abstract class NestedCheckedException extends Exception {
   /**
    * Return the detail message, including the message from the nested exception
    * if there is one.
+   *
+   * @since 3.1.0
    */
-  @Override
-  public String getMessage() {
-    return buildMessage(super.getMessage());
-  }
-
-  protected String buildMessage(String message) {
-    return ExceptionUtils.buildMessage(message, getCause());
+  public String getNestedMessage() {
+    return ExceptionUtils.buildMessage(super.getMessage(), getCause());
   }
 
   /**
