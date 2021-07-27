@@ -52,18 +52,16 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
   }
 
   @Override
-  public Object postProcessAfterInitialization(Object bean, BeanDefinition def) {
-
+  public Object postProcessAfterInitialization(final Object bean, final BeanDefinition def) {
     final Class<?> beanClass = def.getBeanClass();
     final ConfigurableBeanFactory beanFactory = context.getBeanFactory();
     final Method[] declaredMethods = ReflectionUtils.getDeclaredMethods(beanClass);
-
     for (final Method declaredMethod : declaredMethods) {
       if (ClassUtils.isAnnotationPresent(declaredMethod, EventListener.class)) {
-        final AnnotationAttributes[] attributes = ClassUtils.getAnnotationAttributesArray(declaredMethod, EventListener.class);
+        final AnnotationAttributes[] attributes
+                = ClassUtils.getAnnotationAttributesArray(declaredMethod, EventListener.class);
         for (final AnnotationAttributes attribute : attributes) {
           final Class<?>[] eventTypes = getEventTypes(attribute, declaredMethod);
-
           // use ContextUtils#resolveParameter to resolve method arguments
           addListener(bean, beanFactory, declaredMethod, eventTypes);
         }
@@ -80,7 +78,6 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
       return eventTypes;
     }
     final Class<?>[] parameterTypes = declaredMethod.getParameterTypes();
-
     if (parameterTypes.length == 0) {
       throw new ConfigurationException("cannot determine event type on method: " + declaredMethod);
     }
@@ -112,14 +109,16 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
     context.addApplicationListener(listener);
   }
 
-  static class MethodApplicationListener implements ApplicationListener<Object>, ApplicationEventCapable {
+  static final class MethodApplicationListener
+          implements ApplicationListener<Object>, ApplicationEventCapable {
     final Object bean;
     final Method targetMethod;
     final Class<?>[] eventTypes;
     final BeanFactory beanFactory;
     final MethodInvoker methodInvoker;
 
-    MethodApplicationListener(Object bean, Method targetMethod, Class<?>[] eventTypes, BeanFactory beanFactory) {
+    MethodApplicationListener(
+            Object bean, Method targetMethod, Class<?>[] eventTypes, BeanFactory beanFactory) {
       this.bean = bean;
       this.eventTypes = eventTypes;
       this.beanFactory = beanFactory;
@@ -129,7 +128,8 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
 
     @Override
     public void onApplicationEvent(final Object event) { // any event type
-      final Object[] parameter = ContextUtils.resolveParameter(targetMethod, beanFactory, new Object[] { event });
+      final Object[] parameter
+              = ContextUtils.resolveParameter(targetMethod, beanFactory, new Object[] { event });
       // native invoke public,protected,default method
       methodInvoker.invoke(bean, parameter);
     }
