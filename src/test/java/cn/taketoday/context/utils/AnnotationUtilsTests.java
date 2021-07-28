@@ -50,13 +50,13 @@ import cn.taketoday.context.utils.AnnotationUtils.MapAnnotationVisitor;
 public class AnnotationUtilsTests {
   private static final Logger log = LoggerFactory.getLogger(AnnotationUtilsTests.class);
 
-  @Service
   @Component0(
           value = "annotationVisitorBean",
           scope = "singleton",
           test = TestEnum.TEST1,
           double0 = 100,
-          classes = { AnnotationVisitorBean.class, AnnotationUtilsTests.class }
+          classes = { AnnotationVisitorBean.class, AnnotationUtilsTests.class },
+          service = @Service("name")
   )
   public static class AnnotationVisitorBean {
 
@@ -79,6 +79,8 @@ public class AnnotationUtilsTests {
     String[] destroyMethods() default {};
 
     Class<?>[] classes() default {};
+
+    Service service() default @Service;
   }
 
   public enum TestEnum {

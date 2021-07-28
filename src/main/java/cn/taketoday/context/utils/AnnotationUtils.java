@@ -748,7 +748,9 @@ public abstract class AnnotationUtils {
     @Override
     public AnnotationVisitor visitAnnotation(String name, String descriptor) {
       log.info("visitAnnotation, name: {},descriptor: {}", name, descriptor);
-      return super.visitAnnotation(name, descriptor);
+      final MapAnnotationVisitor mapAnnotationVisitor = new MapAnnotationVisitor();
+      this.attributes.put(name, mapAnnotationVisitor.getAttributes());
+      return mapAnnotationVisitor;
     }
 
     public String getDescriptor() {
