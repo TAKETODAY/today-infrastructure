@@ -21,12 +21,15 @@ package cn.taketoday.context;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import cn.taketoday.context.support.AnnotationValueCapable;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.OrderUtils;
 
@@ -91,6 +94,26 @@ public class AnnotationAttributes
     return this.annotationType;
   }
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public void add(String name, Object attribute) {
+    final Object exist = get(name);
+    if (exist != null) {
+      final ArrayList values;
+      if (exist instanceof List) {
+        // more than two values
+        values = (ArrayList) exist;
+      }
+      else {
+        values = new ArrayList<>();
+        values.add(exist);
+      }
+
+      values.add(attribute);
+      attribute = values;
+    }
+    put(name, attribute);
+  }
+
   //
   // ---------------------------------------
 
@@ -141,11 +164,37 @@ public class AnnotationAttributes
    *
    * @return T
    */
+  @SuppressWarnings({ "unchecked" })
   public <T> T getAttribute(String attributeName, Class<T> expectedType) {
     Assert.notNull(attributeName, "'attributeName' must not be null or empty");
     Object value = get(attributeName); // get value
-    assertAttributePresence(attributeName, value);
 
+    // @since 3.1.0
+    if (value instanceof List) {
+      // more than two values
+      final List<T> list = (List<T>) value;
+      if (expectedType.isArray()) {
+        // target return type is array
+        final Object[] array = (Object[]) Array.newInstance(expectedType.getComponentType(), list.size());
+        int i = 0;
+        for (final Object target : list) {
+          array[i++] = getRealValue(target);
+        }
+        put(attributeName, array); // replace
+        return (T) array;
+      }
+      else {
+        // single value
+        final T ret = (T) getRealValue(list.get(0));
+        list.set(0, ret);
+        return ret;
+      }
+    }
+
+    // @since 3.1.0
+    value = getRealValue(value);
+
+    assertAttributePresence(attributeName, value);
     if (!expectedType.isInstance(value) && expectedType.isArray() && expectedType.getComponentType().isInstance(value)) {
       Object array = Array.newInstance(expectedType.getComponentType(), 1);
       Array.set(array, 0, value);
@@ -153,6 +202,13 @@ public class AnnotationAttributes
     }
     assertAttributeType(attributeName, value, expectedType);
     return expectedType.cast(value);
+  }
+
+  private Object getRealValue(Object target) {
+    if (target instanceof AnnotationValueCapable) {
+      target = ((AnnotationValueCapable) target).getAnnotationValue();
+    }
+    return target;
   }
 
   private void assertAttributePresence(String attributeName, Object attributeValue) {
