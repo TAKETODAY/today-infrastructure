@@ -148,6 +148,13 @@ public class AnnotationUtilsTests {
       attributesMap.entrySet()
               .forEach(System.out::println);
 
+      final AnnotationAttributes service = attributes.getAttribute("service", AnnotationAttributes.class);
+      System.err.println(service);
+
+      service.entrySet()
+              .forEach(System.err::println);
+
+
     }
   }
 
