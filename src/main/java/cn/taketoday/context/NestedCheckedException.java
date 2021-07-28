@@ -25,7 +25,7 @@ import cn.taketoday.context.utils.ExceptionUtils;
  * Handy class for wrapping checked {@code Exceptions} with a root cause.
  *
  * <p>This class is {@code abstract} to force the programmer to extend
- * the class. {@code getMessage} will include nested exception
+ * the class. {@code getNestedMessage} will include nested exception
  * information; {@code printStackTrace} and other like methods will
  * delegate to the wrapped exception, if any.
  *
