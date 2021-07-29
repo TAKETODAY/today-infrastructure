@@ -706,6 +706,7 @@ public abstract class AnnotationUtils {
   public static class MapAnnotationVisitor extends AnnotationVisitor {
     private String name; // for array
     private String descriptor;
+    private Class<?> annotationType;
     private final AnnotationAttributes attributes;
 
     public MapAnnotationVisitor() {
@@ -719,6 +720,11 @@ public abstract class AnnotationUtils {
 
     public MapAnnotationVisitor(AnnotationAttributes attributes) {
       this.attributes = attributes;
+    }
+
+    public MapAnnotationVisitor(String descriptor) {
+      this(new AnnotationAttributes());
+      this.descriptor = descriptor;
     }
 
     @Override
@@ -748,9 +754,17 @@ public abstract class AnnotationUtils {
     @Override
     public AnnotationVisitor visitAnnotation(String name, String descriptor) {
       log.info("visitAnnotation, name: {},descriptor: {}", name, descriptor);
-      final MapAnnotationVisitor mapAnnotationVisitor = new MapAnnotationVisitor();
+      final MapAnnotationVisitor mapAnnotationVisitor = new MapAnnotationVisitor(descriptor);
       this.attributes.put(name, mapAnnotationVisitor.getAttributes());
       return mapAnnotationVisitor;
+    }
+
+
+    public Class<?> getAnnotationType() {
+      if (annotationType == null && descriptor != null) {
+        annotationType = new ClassDescriptor(Type.getType(descriptor)).getAnnotationValue();
+      }
+      return annotationType;
     }
 
     public String getDescriptor() {

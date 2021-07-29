@@ -28,6 +28,9 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -90,7 +93,7 @@ public class AnnotationUtilsTests {
   }
 
   @Test
-  public void testMapAnnotationVisitor() throws IOException {
+  public void testMapAnnotationVisitor() throws Throwable {
 
     ClassLoader classLoader = ClassUtils.getClassLoader();
     String classFile = AnnotationVisitorBean.class.getName()
@@ -154,7 +157,16 @@ public class AnnotationUtilsTests {
       service.entrySet()
               .forEach(System.err::println);
 
+      final Class<Component0> component0Class = Component0.class;
 
+      final Method[] declaredMethods = component0Class.getDeclaredMethods();
+
+      Arrays.stream(declaredMethods)
+              .forEach(System.err::println);
+
+      for (final Method declaredMethod : declaredMethods) {
+
+      }
     }
   }
 

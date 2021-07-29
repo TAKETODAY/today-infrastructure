@@ -64,6 +64,10 @@ public class AnnotationAttributes
     this.displayName = UNKNOWN;
   }
 
+  public AnnotationAttributes(Class<? extends Annotation> annotationType) {
+    this(annotationType, 16);
+  }
+
   public AnnotationAttributes(Class<? extends Annotation> annotationType, int initialCapacity) {
     super(initialCapacity, 0.75f);
     Assert.notNull(annotationType, "'annotationType' must not be null");
@@ -81,13 +85,6 @@ public class AnnotationAttributes
     super(other);
     this.annotationType = other.annotationType;
     this.displayName = other.displayName;
-  }
-
-  public AnnotationAttributes(Class<? extends Annotation> annotationType) {
-    Assert.notNull(annotationType, "'annotationType' must not be null");
-
-    this.annotationType = annotationType;
-    this.displayName = annotationType.getName();
   }
 
   public Class<? extends Annotation> annotationType() {
