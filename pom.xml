@@ -5,9 +5,9 @@
   <groupId>cn.taketoday</groupId>
   <artifactId>today-context</artifactId>
   <!--
-    3.1.0
+   latest  4.0.0
   -->
-  <version>3.1.0</version>
+  <version>latest</version>
   <name>TODAY Context</name>
   <description>A Java library for dependency injection and aspect oriented programing.</description>
 

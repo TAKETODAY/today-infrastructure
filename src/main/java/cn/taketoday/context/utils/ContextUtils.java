@@ -926,7 +926,7 @@ public abstract class ContextUtils {
   }
 
   /**
-   * @since 3.1.0
+   * @since 4.0
    */
   public static void setParameterResolvers(List<ExecutableParameterResolver> resolvers) {
     Assert.notNull(resolvers, "ExecutableParameterResolvers must not null");
@@ -949,7 +949,7 @@ public abstract class ContextUtils {
   }
 
   /**
-   * @since 3.1.0
+   * @since 4.0
    */
   public static void addParameterResolvers(List<ExecutableParameterResolver> resolvers) {
     if (!CollectionUtils.isEmpty(resolvers)) {

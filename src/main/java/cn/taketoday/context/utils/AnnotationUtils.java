@@ -53,7 +53,7 @@ import cn.taketoday.context.support.EnumDescriptor;
 
 /**
  * @author TODAY 2021/7/28 21:15
- * @since 3.1.0
+ * @since 4.0
  */
 public abstract class AnnotationUtils {
   private static final Logger log = LoggerFactory.getLogger(AnnotationUtils.class);
