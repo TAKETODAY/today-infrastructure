@@ -20,7 +20,7 @@
 
 package cn.taketoday.context.support;
 
-import cn.taketoday.context.asm.Type;
+import cn.taketoday.asm.Type;
 import cn.taketoday.context.utils.ClassUtils;
 
 /**

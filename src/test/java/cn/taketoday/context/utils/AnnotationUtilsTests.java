@@ -22,15 +22,11 @@ package cn.taketoday.context.utils;
 
 import org.junit.Test;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.invoke.MethodHandles;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -38,11 +34,11 @@ import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Service;
-import cn.taketoday.context.asm.AnnotationVisitor;
-import cn.taketoday.context.asm.Attribute;
-import cn.taketoday.context.asm.ClassReader;
-import cn.taketoday.context.asm.ClassVisitor;
-import cn.taketoday.context.asm.TypePath;
+import cn.taketoday.asm.AnnotationVisitor;
+import cn.taketoday.asm.Attribute;
+import cn.taketoday.asm.ClassReader;
+import cn.taketoday.asm.ClassVisitor;
+import cn.taketoday.asm.TypePath;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.AnnotationUtils.MapAnnotationVisitor;
@@ -156,17 +152,6 @@ public class AnnotationUtilsTests {
 
       service.entrySet()
               .forEach(System.err::println);
-
-      final Class<Component0> component0Class = Component0.class;
-
-      final Method[] declaredMethods = component0Class.getDeclaredMethods();
-
-      Arrays.stream(declaredMethods)
-              .forEach(System.err::println);
-
-      for (final Method declaredMethod : declaredMethods) {
-
-      }
     }
   }
 

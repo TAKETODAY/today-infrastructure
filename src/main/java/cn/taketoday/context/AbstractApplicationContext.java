@@ -31,8 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import cn.taketoday.context.env.ConfigurableEnvironment;
-import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.event.ApplicationEventCapable;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.BeanDefinitionLoadedEvent;

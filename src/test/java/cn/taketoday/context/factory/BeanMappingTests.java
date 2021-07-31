@@ -25,10 +25,10 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import cn.taketoday.context.cglib.beans.BeanMap;
-import cn.taketoday.context.cglib.proxy.CallbackFilter;
-import cn.taketoday.context.cglib.proxy.Dispatcher;
-import cn.taketoday.context.cglib.proxy.Enhancer;
+import cn.taketoday.cglib.beans.BeanMap;
+import cn.taketoday.cglib.proxy.CallbackFilter;
+import cn.taketoday.cglib.proxy.Dispatcher;
+import cn.taketoday.cglib.proxy.Enhancer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;

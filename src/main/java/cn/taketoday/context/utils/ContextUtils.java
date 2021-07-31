@@ -19,45 +19,6 @@
  */
 package cn.taketoday.context.utils;
 
-import cn.taketoday.context.AnnotationAttributes;
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ConcurrentProperties;
-import cn.taketoday.context.Condition;
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.ExpressionEvaluator;
-import cn.taketoday.context.annotation.Component;
-import cn.taketoday.context.annotation.Conditional;
-import cn.taketoday.context.annotation.DefaultProps;
-import cn.taketoday.context.annotation.Env;
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.annotation.Value;
-import cn.taketoday.context.env.Environment;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.exception.ContextException;
-import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.factory.BeanPostProcessor;
-import cn.taketoday.context.factory.DefaultPropertySetter;
-import cn.taketoday.context.factory.DestructionBeanPostProcessor;
-import cn.taketoday.context.factory.DisposableBean;
-import cn.taketoday.context.factory.PropertySetter;
-import cn.taketoday.context.factory.StandardBeanDefinition;
-import cn.taketoday.context.loader.ArrayParameterResolver;
-import cn.taketoday.context.loader.AutowiredParameterResolver;
-import cn.taketoday.context.loader.AutowiredPropertyResolver;
-import cn.taketoday.context.loader.BeanDefinitionLoader;
-import cn.taketoday.context.loader.CollectionParameterResolver;
-import cn.taketoday.context.loader.ExecutableParameterResolver;
-import cn.taketoday.context.loader.MapParameterResolver;
-import cn.taketoday.context.loader.ObjectSupplierParameterResolver;
-import cn.taketoday.context.loader.StrategiesDetector;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.expression.ExpressionProcessor;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -81,6 +42,45 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
+import cn.taketoday.context.AnnotationAttributes;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ConcurrentProperties;
+import cn.taketoday.context.Condition;
+import cn.taketoday.context.Constant;
+import cn.taketoday.context.Environment;
+import cn.taketoday.context.ExpressionEvaluator;
+import cn.taketoday.context.annotation.Component;
+import cn.taketoday.context.annotation.Conditional;
+import cn.taketoday.context.annotation.DefaultProps;
+import cn.taketoday.context.annotation.Env;
+import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.annotation.Value;
+import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.factory.BeanDefinition;
+import cn.taketoday.context.factory.BeanFactory;
+import cn.taketoday.context.factory.BeanPostProcessor;
+import cn.taketoday.context.factory.DefaultPropertySetter;
+import cn.taketoday.context.factory.DestructionBeanPostProcessor;
+import cn.taketoday.context.factory.DisposableBean;
+import cn.taketoday.context.factory.PropertySetter;
+import cn.taketoday.context.factory.StandardBeanDefinition;
+import cn.taketoday.context.loader.ArrayParameterResolver;
+import cn.taketoday.context.loader.AutowiredParameterResolver;
+import cn.taketoday.context.loader.AutowiredPropertyResolver;
+import cn.taketoday.context.loader.BeanDefinitionLoader;
+import cn.taketoday.context.loader.CollectionParameterResolver;
+import cn.taketoday.context.loader.ExecutableParameterResolver;
+import cn.taketoday.context.loader.MapParameterResolver;
+import cn.taketoday.context.loader.ObjectSupplierParameterResolver;
+import cn.taketoday.context.loader.StrategiesDetector;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.expression.ExpressionProcessor;
 
 /**
  * ApplicationContext Utils
@@ -751,7 +751,7 @@ public abstract class ContextUtils {
     for (final Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
       if (((destroyMethods != null && destroyMethods.contains(method.getName()))
               || method.isAnnotationPresent(PreDestroy.class)) // PreDestroy
-              && method.getParameterCount() == 0) { // 一个参数
+              && method.getParameterCount() == 0) { // 0参数
         // fix: can not access a member @since 2.1.6
         ReflectionUtils.makeAccessible(method).invoke(obj);
       }

@@ -37,16 +37,16 @@ import java.util.stream.Stream;
 
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.asm.Type;
 import cn.taketoday.context.BeanNameCreator;
+import cn.taketoday.context.DefaultBeanNameCreator;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Primary;
-import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.aware.Aware;
 import cn.taketoday.context.aware.BeanClassLoaderAware;
 import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.context.aware.BeanNameAware;
-import cn.taketoday.context.env.DefaultBeanNameCreator;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.BeanInitializingException;
 import cn.taketoday.context.exception.BeanInstantiationException;

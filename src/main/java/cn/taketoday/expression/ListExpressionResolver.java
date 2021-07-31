@@ -20,7 +20,6 @@ package cn.taketoday.expression;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Defines property resolution behavior on instances of {@link java.util.List}.

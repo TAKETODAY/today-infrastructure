@@ -20,11 +20,11 @@
 
 package cn.taketoday.context.utils;
 
-import cn.taketoday.context.Constant;
-
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+
+import cn.taketoday.context.Constant;
 
 /**
  * Simple stop watch, allowing for timing of a number of tasks, exposing total

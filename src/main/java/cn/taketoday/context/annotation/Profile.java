@@ -25,7 +25,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.env.ProfileCondition;
+import cn.taketoday.context.ProfileCondition;
 
 /**
  * @author Today <br>

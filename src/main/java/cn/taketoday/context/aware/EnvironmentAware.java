@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.aware;
 
-import cn.taketoday.context.env.Environment;
+import cn.taketoday.context.Environment;
 
 /**
  * {@link Environment} Injection

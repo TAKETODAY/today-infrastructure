@@ -814,7 +814,7 @@ public class LifecycleBean implements InitializingBean, DisposableBean {
 2019-07-25 23:14:37.929  INFO - [            main] test.context.LifecycleBean                 59 - setBeanName: lifecycleBean
 2019-07-25 23:14:37.930  INFO - [            main] test.context.LifecycleBean                 69 - setBeanFactory: cn.taketoday.context.factory.StandardBeanFactory@5ce81285
 2019-07-25 23:14:37.930  INFO - [            main] test.context.LifecycleBean                 74 - setApplicationContext: cn.taketoday.context.StandardApplicationContext@78c03f1f
-2019-07-25 23:14:37.930  INFO - [            main] test.context.LifecycleBean                 64 - setEnvironment: cn.taketoday.context.env.StandardEnvironment@5ec0a365
+2019-07-25 23:14:37.930  INFO - [            main] test.context.LifecycleBean                 64 - setEnvironment: cn.taketoday.context.StandardEnvironment@5ec0a365
 2019-07-25 23:14:37.931  INFO - [            main] test.context.LifecycleBean                 79 - @PostConstruct
 2019-07-25 23:14:37.931  INFO - [            main] test.context.LifecycleBean                 84 - afterPropertiesSet
 2019-07-25 23:14:37.931 DEBUG - [            main] c.t.context.factory.AbstractBeanFactory   511 - Singleton bean is being stored in the name of [lifecycleBean]

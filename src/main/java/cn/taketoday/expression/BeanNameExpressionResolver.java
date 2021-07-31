@@ -39,8 +39,6 @@
  */
 package cn.taketoday.expression;
 
-import java.util.Objects;
-
 /**
  * <p>
  * An <code>ELResolver</code> for resolving user or container managed beans.

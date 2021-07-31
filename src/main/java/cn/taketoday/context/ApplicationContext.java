@@ -22,7 +22,6 @@ package cn.taketoday.context;
 import java.io.Closeable;
 import java.util.Collection;
 
-import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.factory.AutowireCapableBeanFactory;

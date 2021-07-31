@@ -45,7 +45,7 @@ import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.annotation.Value;
-import cn.taketoday.context.env.Environment;
+import cn.taketoday.context.Environment;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;

@@ -28,7 +28,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.function.Function;
 
-import cn.taketoday.context.cglib.core.CodeGenerationException;
+import cn.taketoday.cglib.core.CodeGenerationException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;

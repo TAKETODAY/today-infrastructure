@@ -27,14 +27,14 @@ import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import cn.taketoday.context.asm.Opcodes;
-import cn.taketoday.context.asm.Type;
-import cn.taketoday.context.cglib.core.Signature;
-import cn.taketoday.context.cglib.core.TypeUtils;
+import cn.taketoday.asm.Opcodes;
+import cn.taketoday.asm.Type;
+import cn.taketoday.cglib.core.Signature;
+import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.context.factory.PropertySetter;
 import cn.taketoday.context.io.Resource;
 
-import static cn.taketoday.context.cglib.core.TypeUtils.parseType;
+import static cn.taketoday.cglib.core.TypeUtils.parseType;
 
 /**
  * @author TODAY <br>
