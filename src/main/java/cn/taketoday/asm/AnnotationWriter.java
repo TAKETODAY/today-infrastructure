@@ -319,6 +319,7 @@ final class AnnotationWriter extends AnnotationVisitor {
     // Case of an element_value with an array_value field.
     // https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.1
     ++numElementValuePairs;
+    ByteVector annotation = this.annotation;
     if (useNamedValues) {
       annotation.putShort(symbolTable.addConstantUtf8(name));
     }

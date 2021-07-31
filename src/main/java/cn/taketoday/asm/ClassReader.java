@@ -94,16 +94,6 @@ public class ClassReader {
   /** The size of the temporary byte array used to read class input streams chunk by chunk. */
   private static final int INPUT_STREAM_DATA_CHUNK_SIZE = 4096;
 
-  /**
-   * A byte array containing the JVMS ClassFile structure to be parsed.
-   *
-   * @deprecated Use {@link #readByte(int)} and the other read methods instead. This field will
-   * eventually be deleted.
-   */
-  @Deprecated
-  // DontCheck(MemberName): can't be renamed (for backward binary compatibility).
-  public final byte[] b;
-
   /** The offset in bytes of the ClassFile's access_flags field. */
   public final int header;
 
@@ -195,10 +185,8 @@ public class ClassReader {
    * @param checkClassVersion
    *         whether to check the class version or not.
    */
-  ClassReader(
-          final byte[] classFileBuffer, final int classFileOffset, final boolean checkClassVersion) {
+  ClassReader(final byte[] classFileBuffer, final int classFileOffset, final boolean checkClassVersion) {
     this.classFileBuffer = classFileBuffer;
-    this.b = classFileBuffer;
     // Check the class' major_version. This field is after the magic and minor_version fields, which
     // use 4 and 2 bytes respectively.
     if (checkClassVersion && readShort(classFileOffset + 6) > Opcodes.V18) {
@@ -208,7 +196,8 @@ public class ClassReader {
     // Create the constant pool arrays. The constant_pool_count field is after the magic,
     // minor_version and major_version fields, which use 4, 2 and 2 bytes respectively.
     int constantPoolCount = readUnsignedShort(classFileOffset + 8);
-    cpInfoOffsets = new int[constantPoolCount];
+    int[] cpInfoOffsets = new int[constantPoolCount];
+    this.cpInfoOffsets = cpInfoOffsets;
     constantUtf8Values = new String[constantPoolCount];
     // Compute the offset of each constant pool entry, as well as a conservative estimate of the
     // maximum length of the constant pool strings. The first constant pool entry is after the
@@ -308,9 +297,8 @@ public class ClassReader {
    *         if an exception occurs during reading.
    */
   public ClassReader(final String className) throws IOException {
-    this(
-            readStream(
-                    ClassLoader.getSystemResourceAsStream(className.replace('.', '/') + ".class"), true));
+    this(readStream(
+            ClassLoader.getSystemResourceAsStream(className.replace('.', '/') + ".class"), true));
   }
 
   /**
@@ -1634,7 +1622,7 @@ public class ClassReader {
     final int maxLocals = readUnsignedShort(currentOffset + 2);
     final int codeLength = readInt(currentOffset + 4);
     currentOffset += 8;
-    if (codeLength > classFileBuffer.length - currentOffset) {
+    if (codeLength > classBuffer.length - currentOffset) {
       throw new IllegalArgumentException();
     }
 
@@ -1940,6 +1928,7 @@ public class ClassReader {
     // referenced instruction, and to make methodVisitor visit the corresponding try catch blocks.
     int exceptionTableLength = readUnsignedShort(currentOffset);
     currentOffset += 2;
+    final int[] cpInfoOffsets = this.cpInfoOffsets;
     while (exceptionTableLength-- > 0) {
       Label start = createLabel(readUnsignedShort(currentOffset), labels);
       Label end = createLabel(readUnsignedShort(currentOffset + 2), labels);
@@ -2415,10 +2404,9 @@ public class ClassReader {
           // where <L> designates the instruction just after the GOTO_W.
           // First, change the ASM specific opcodes ASM_IFEQ ... ASM_JSR, ASM_IFNULL and
           // ASM_IFNONNULL to IFEQ ... JSR, IFNULL and IFNONNULL.
-          opcode =
-                  opcode < Constants.ASM_IFNULL
-                  ? opcode - Constants.ASM_OPCODE_DELTA
-                  : opcode - Constants.ASM_IFNULL_OPCODE_DELTA;
+          opcode = opcode < Constants.ASM_IFNULL
+                   ? opcode - Constants.ASM_OPCODE_DELTA
+                   : opcode - Constants.ASM_IFNULL_OPCODE_DELTA;
           Label target = labels[currentBytecodeOffset + readUnsignedShort(currentOffset + 1)];
           if (opcode == Opcodes.GOTO || opcode == Opcodes.JSR) {
             // Replace GOTO with GOTO_W and JSR with JSR_W.
@@ -2848,6 +2836,8 @@ public class ClassReader {
           final int runtimeTypeAnnotationsOffset,
           final boolean visible) {
     char[] charBuffer = context.charBuffer;
+    byte[] classFileBuffer = this.classFileBuffer;
+
     int currentOffset = runtimeTypeAnnotationsOffset;
     // Read the num_annotations field and create an array to store the type_annotation offsets.
     int[] typeAnnotationsOffsets = new int[readUnsignedShort(currentOffset)];
@@ -3156,6 +3146,7 @@ public class ClassReader {
           final String elementName,
           final char[] charBuffer) {
     int currentOffset = elementValueOffset;
+    byte[] classFileBuffer = this.classFileBuffer;
     if (annotationVisitor == null) {
       switch (classFileBuffer[currentOffset] & 0xFF) {
         case 'e': // enum_const_value
@@ -3168,6 +3159,7 @@ public class ClassReader {
           return currentOffset + 3;
       }
     }
+    int[] cpInfoOffsets = this.cpInfoOffsets;
     switch (classFileBuffer[currentOffset++] & 0xFF) {
       case 'B': // const_value_index, CONSTANT_Integer
         annotationVisitor.visit(
