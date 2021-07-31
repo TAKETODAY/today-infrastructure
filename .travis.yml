@@ -4,17 +4,13 @@ jdk:
   - openjdk8
   - openjdk11
   - openjdk-ea
-  - oraclejdk8
-  - oraclejdk-ea
 os:
   - linux
   - osx
 
 matrix:
   allow_failures:
-    - jdk:
-        - openjdk-ea
-        - oraclejdk-ea
+    - jdk: openjdk-ea
 
 jobs:
   exclude:
