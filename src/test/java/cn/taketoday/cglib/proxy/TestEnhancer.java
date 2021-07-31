@@ -44,6 +44,8 @@ import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.NamingPolicy;
 import cn.taketoday.cglib.reflect.FastClass;
+import cn.taketoday.context.io.ClassPathResource;
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 
 import static org.junit.Assert.assertTrue;
@@ -257,13 +259,13 @@ public class TestEnhancer extends CodeGenTestCase {
 
     Object source = enhance(null, null, TEST_INTERCEPTOR, custom);
     source.toString();
-    assertTrue("Custom classLoader", source.getClass().getClassLoader() == custom);
+    assertSame("Custom classLoader", source.getClass().getClassLoader(), custom);
 
     custom = new ClassLoader() { };
 
     source = enhance(null, null, TEST_INTERCEPTOR, custom);
     source.toString();
-    assertTrue("Custom classLoader", source.getClass().getClassLoader() == custom);
+    assertSame("Custom classLoader", source.getClass().getClassLoader(), custom);
 
   }
 
@@ -324,7 +326,7 @@ public class TestEnhancer extends CodeGenTestCase {
 
           try {
             InputStream classStream = ResourceUtils.getResource(
-                    "classpath:cn/taketoday/context/cglib/proxy/EA.class")
+                    "classpath:cn/taketoday/cglib/proxy/EA.class")
                     .getInputStream();
             byte[] classBytes = toByteArray(classStream);
             return this.defineClass("cn.taketoday.cglib.proxy.EA", classBytes, 0, classBytes.length);
