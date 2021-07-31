@@ -73,9 +73,7 @@ public class AnnotationNode extends AnnotationVisitor {
 
   @Override
   public void visit(final String name, final Object value) {
-    if (values == null) {
-      values = new ArrayList<>(this.desc != null ? 2 : 1);
-    }
+    List<Object> values = getValues();
     if (this.desc != null) {
       values.add(name);
     }
@@ -110,9 +108,7 @@ public class AnnotationNode extends AnnotationVisitor {
 
   @Override
   public void visitEnum(final String name, final String descriptor, final String value) {
-    if (values == null) {
-      values = new ArrayList<>(this.desc != null ? 2 : 1);
-    }
+    List<Object> values = getValues();
     if (this.desc != null) {
       values.add(name);
     }
@@ -121,9 +117,7 @@ public class AnnotationNode extends AnnotationVisitor {
 
   @Override
   public AnnotationVisitor visitAnnotation(final String name, final String descriptor) {
-    if (values == null) {
-      values = new ArrayList<>(this.desc != null ? 2 : 1);
-    }
+    List<Object> values = getValues();
     if (this.desc != null) {
       values.add(name);
     }
@@ -132,15 +126,22 @@ public class AnnotationNode extends AnnotationVisitor {
     return annotation;
   }
 
-  @Override
-  public AnnotationVisitor visitArray(final String name) {
+  private List<Object> getValues() {
+    List<Object> values = this.values;
     if (values == null) {
       values = new ArrayList<>(this.desc != null ? 2 : 1);
+      this.values = values;
     }
+    return values;
+  }
+
+  @Override
+  public AnnotationVisitor visitArray(final String name) {
+    List<Object> values = getValues();
     if (this.desc != null) {
       values.add(name);
     }
-    List<Object> array = new ArrayList<>();
+    ArrayList<Object> array = new ArrayList<>();
     values.add(array);
     return new AnnotationNode(array);
   }
@@ -162,6 +163,7 @@ public class AnnotationNode extends AnnotationVisitor {
    */
   public void accept(final AnnotationVisitor annotationVisitor) {
     if (annotationVisitor != null) {
+      final List<Object> values = this.values;
       if (values != null) {
         for (int i = 0, n = values.size(); i < n; i += 2) {
           String name = (String) values.get(i);
@@ -198,8 +200,8 @@ public class AnnotationNode extends AnnotationVisitor {
         AnnotationVisitor arrayAnnotationVisitor = annotationVisitor.visitArray(name);
         if (arrayAnnotationVisitor != null) {
           List<?> arrayValue = (List<?>) value;
-          for (int i = 0, n = arrayValue.size(); i < n; ++i) {
-            accept(arrayAnnotationVisitor, null, arrayValue.get(i));
+          for (Object o : arrayValue) {
+            accept(arrayAnnotationVisitor, null, o);
           }
           arrayAnnotationVisitor.visitEnd();
         }
