@@ -1,4 +1,4 @@
-*.class
+#*.class
 
 *.jar
 *.war
@@ -13,3 +13,4 @@
 /.idea/
 /coverage-error.log
 .DS_Store
+

@@ -97,11 +97,16 @@ public abstract class AsmTest {
 
   /** JDK version with the corresponding ASM version. */
   enum JdkVersion {
-    JDK7(7, Api.ASM4),
-    JDK8(8, Api.ASM5),
-    JDK9(9, Api.ASM6),
-    JDK11(11, Api.ASM7),
-    JDK14(14, Api.ASM8),
+//    JDK7(7, Api.ASM4),
+//    JDK8(8, Api.ASM5),
+//    JDK9(9, Api.ASM6),
+//    JDK11(11, Api.ASM7),
+//    JDK14(14, Api.ASM8),
+    JDK7(7, Api.ASM9),
+    JDK8(8, Api.ASM9),
+    JDK9(9, Api.ASM9),
+    JDK11(11, Api.ASM9),
+    JDK14(14, Api.ASM9),
     JDK15(15, Api.ASM9);
 
     private final int majorVersion;
@@ -303,11 +308,11 @@ public abstract class AsmTest {
 
   /** An ASM API version. */
   public enum Api {
-    ASM4("ASM4", 4 << 16),
-    ASM5("ASM5", 5 << 16),
-    ASM6("ASM6", 6 << 16),
-    ASM7("ASM7", 7 << 16),
-    ASM8("ASM8", 8 << 16),
+//    ASM4("ASM4", 4 << 16),
+//    ASM5("ASM5", 5 << 16),
+//    ASM6("ASM6", 6 << 16),
+//    ASM7("ASM7", 7 << 16),
+//    ASM8("ASM8", 8 << 16),
     ASM9("ASM9", 9 << 16),
     ;
 
