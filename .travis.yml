@@ -3,15 +3,11 @@ jdk:
   - oraclejdk11
   - openjdk8
   - openjdk11
-  - openjdk-ea
 os:
   - linux
   - osx
 
-
 jobs:
-  allow_failures:
-    - jdk: openjdk-ea
   exclude:
   - language: java
     jdk: openjdk8
