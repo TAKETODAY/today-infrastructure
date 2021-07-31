@@ -1,0 +1,103 @@
+// class version 52.0 (52)
+// access flags 0x20
+class jdk8/AllInstructions {
+
+  // compiled from: AllInstructions.java
+  // access flags 0x19
+  public final static INNERCLASS java/lang/invoke/MethodHandles$Lookup java/lang/invoke/MethodHandles Lookup
+
+  // access flags 0x0
+  <init>()V
+   L0
+    LINENUMBER 10 L0
+    ALOAD 0
+    INVOKESPECIAL java/lang/Object.<init> ()V
+    RETURN
+   L1
+    LOCALVARIABLE this Ljdk8/AllInstructions; L0 L1 0
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x1
+  // signature (Ljava/util/List<Ljava/lang/String;>;)V
+  // declaration: void invokedynamic(java.util.List<java.lang.String>)
+  public invokedynamic(Ljava/util/List;)V
+    // parameter  strings
+   L0
+    LINENUMBER 12 L0
+    ICONST_3
+    ANEWARRAY java/lang/String
+    DUP
+    ICONST_0
+    LDC "a"
+    AASTORE
+    DUP
+    ICONST_1
+    LDC "b"
+    AASTORE
+    DUP
+    ICONST_2
+    LDC "c"
+    AASTORE
+    INVOKESTATIC java/util/Arrays.asList ([Ljava/lang/Object;)Ljava/util/List;
+    ASTORE 2
+   L1
+    LINENUMBER 13 L1
+    ALOAD 1
+    ALOAD 2
+    INVOKEDYNAMIC accept(Ljava/util/List;)Ljava/util/function/Consumer; [
+      // handle kind 0x6 : INVOKESTATIC
+      java/lang/invoke/LambdaMetafactory.metafactory(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
+      // arguments:
+      (Ljava/lang/Object;)V, 
+      // handle kind 0x6 : INVOKESTATIC
+      jdk8/AllInstructions.lambda$invokedynamic$0(Ljava/util/List;Ljava/lang/String;)V, 
+      (Ljava/lang/String;)V
+    ]
+    INVOKEINTERFACE java/util/List.forEach (Ljava/util/function/Consumer;)V (itf)
+   L2
+    LINENUMBER 17 L2
+    RETURN
+   L3
+    LOCALVARIABLE this Ljdk8/AllInstructions; L0 L3 0
+    LOCALVARIABLE strings Ljava/util/List; L0 L3 1
+    // signature Ljava/util/List<Ljava/lang/String;>;
+    // declaration: strings extends java.util.List<java.lang.String>
+    LOCALVARIABLE validStrings Ljava/util/List; L1 L3 2
+    // signature Ljava/util/List<Ljava/lang/String;>;
+    // declaration: validStrings extends java.util.List<java.lang.String>
+    MAXSTACK = 4
+    MAXLOCALS = 3
+
+  // access flags 0x100A
+  private static synthetic lambda$invokedynamic$0(Ljava/util/List;Ljava/lang/String;)V
+    // parameter final synthetic  validStrings
+    // parameter synthetic  s
+   L0
+    LINENUMBER 14 L0
+    ALOAD 0
+    ALOAD 1
+    INVOKEINTERFACE java/util/List.contains (Ljava/lang/Object;)Z (itf)
+    IFNE L1
+   L2
+    LINENUMBER 15 L2
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    LDC "Invalid string %s\n"
+    ICONST_1
+    ANEWARRAY java/lang/Object
+    DUP
+    ICONST_0
+    ALOAD 1
+    AASTORE
+    INVOKEVIRTUAL java/io/PrintStream.printf (Ljava/lang/String;[Ljava/lang/Object;)Ljava/io/PrintStream;
+    POP
+   L1
+    LINENUMBER 16 L1
+   FRAME SAME
+    RETURN
+   L3
+    LOCALVARIABLE validStrings Ljava/util/List; L0 L3 0
+    LOCALVARIABLE s Ljava/lang/String; L0 L3 1
+    MAXSTACK = 6
+    MAXLOCALS = 2
+}

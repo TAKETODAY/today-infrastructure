@@ -1,0 +1,297 @@
+// class version 49.0 (49)
+// DEPRECATED
+// access flags 0x20020
+// signature <U0:Ljava/lang/Object;U1:Ljava/lang/Number;U2::Ljava/util/List<Ljava/lang/String;>;U3::Ljava/util/List<*>;U4::Ljava/util/List<+Ljava/lang/Number;>;U5::Ljava/util/List<-Ljava/lang/Number;>;U6:Ljava/lang/Number;:Ljava/lang/Runnable;:Ljava/lang/Cloneable;>Ljava/lang/Object;Ljava/util/Comparator<Ljava/lang/Integer;>;
+// declaration: jdk5/AllStructures<U0, U1 extends java.lang.Number, U2 extends java.util.List<java.lang.String>, U3 extends java.util.List<?>, U4 extends java.util.List<? extends java.lang.Number>, U5 extends java.util.List<? super java.lang.Number>, U6 extends java.lang.Number extends java.lang.Runnable, java.lang.Cloneable> implements java.util.Comparator<java.lang.Integer>
+class jdk5/AllStructures implements java/util/Comparator {
+
+  // compiled from: AllStructures.java
+
+  @Ljava/lang/Deprecated;()
+
+  @Ljdk5/AllStructures$InvisibleAnnotation;(byteValue=(byte)0, charValue=(char)0, booleanValue=false, intValue=0, shortValue=(short)0, longValue=0L, floatValue=0.0F, doubleValue=0.0D, stringValue="0", classValue=jdk5.AllStructures.class, enumValue=Ljdk5/AllStructures$EnumClass;.VALUE0, annotationValue=@Ljava/lang/Deprecated;(), byteArrayValue={(byte)0}, charArrayValue={(char)48}, booleanArrayValue={false}, intArrayValue={0}, shortArrayValue={(short)0}, longArrayValue={0L}, floatArrayValue={0.0F}, doubleArrayValue={0.0D}, stringArrayValue={"0"}, classArrayValue={jdk5.AllStructures.class, int.class, int[].class}, enumArrayValue={Ljdk5/AllStructures$EnumClass;.VALUE0}, annotationArrayValue={@Ljava/lang/Deprecated;()}, otherArrayValue={}) // invisible
+  // access flags 0x0
+  INNERCLASS jdk5/AllStructures$GenericInnerClass jdk5/AllStructures GenericInnerClass
+  // access flags 0x0
+  INNERCLASS jdk5/AllStructures$InnerClass jdk5/AllStructures InnerClass
+  // access flags 0x4018
+  final static enum INNERCLASS jdk5/AllStructures$EnumClass jdk5/AllStructures EnumClass
+  // access flags 0x2608
+  static abstract INNERCLASS jdk5/AllStructures$InvisibleAnnotation jdk5/AllStructures InvisibleAnnotation
+  // access flags 0x0
+  INNERCLASS jdk5/AllStructures$1LocalClass null LocalClass
+
+  // DEPRECATED
+  // access flags 0x20001
+  public I f
+  @Ljava/lang/Deprecated;()
+  @Ljdk5/AllStructures$InvisibleAnnotation;(otherArrayValue={2}) // invisible
+
+  // access flags 0x2
+  // signature TU0;
+  // declaration: f0 extends U0
+  private Ljava/lang/Object; f0
+
+  // access flags 0x2
+  // signature TU1;
+  // declaration: f1 extends U1
+  private Ljava/lang/Number; f1
+
+  // access flags 0x2
+  // signature TU2;
+  // declaration: f2 extends U2
+  private Ljava/util/List; f2
+
+  // access flags 0x2
+  // signature TU3;
+  // declaration: f3 extends U3
+  private Ljava/util/List; f3
+
+  // access flags 0x2
+  // signature TU4;
+  // declaration: f4 extends U4
+  private Ljava/util/List; f4
+
+  // access flags 0x2
+  // signature TU5;
+  // declaration: f5 extends U5
+  private Ljava/util/List; f5
+
+  // access flags 0x2
+  // signature TU6;
+  // declaration: f6 extends U6
+  private Ljava/lang/Number; f6
+
+  // access flags 0x0
+  <init>()V
+   L0
+    LINENUMBER 69 L0
+    ALOAD 0
+    INVOKESPECIAL java/lang/Object.<init> ()V
+   L1
+    LINENUMBER 225 L1
+    RETURN
+   L2
+    LOCALVARIABLE this Ljdk5/AllStructures; L0 L2 0
+    // signature Ljdk5/AllStructures<TU0;TU1;TU2;TU3;TU4;TU5;TU6;>;
+    // declaration: this extends jdk5.AllStructures<U0, U1, U2, U3, U4, U5, U6>
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // DEPRECATED
+  // access flags 0x20001
+  public m()I
+  @Ljava/lang/Deprecated;()
+  @Ljdk5/AllStructures$InvisibleAnnotation;(otherArrayValue={3}) // invisible
+   L0
+    LINENUMBER 94 L0
+    ALOAD 0
+    GETFIELD jdk5/AllStructures.f : I
+    IRETURN
+   L1
+    LOCALVARIABLE this Ljdk5/AllStructures; L0 L1 0
+    // signature Ljdk5/AllStructures<TU0;TU1;TU2;TU3;TU4;TU5;TU6;>;
+    // declaration: this extends jdk5.AllStructures<U0, U1, U2, U3, U4, U5, U6>
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x1
+  public n(IFFJD)I
+    // annotable parameter count: 5 (visible)
+    @Ljava/lang/Deprecated;() // parameter 1
+    @Ljava/lang/Deprecated;() // parameter 2
+    // annotable parameter count: 5 (invisible)
+    @Ljdk5/AllStructures$InvisibleAnnotation;(otherArrayValue={4}) // invisible, parameter 1
+    @Ljdk5/AllStructures$InvisibleAnnotation;(otherArrayValue={5}) // invisible, parameter 4
+   L0
+    LINENUMBER 103 L0
+    ALOAD 0
+    GETFIELD jdk5/AllStructures.f : I
+    IRETURN
+   L1
+    LOCALVARIABLE this Ljdk5/AllStructures; L0 L1 0
+    // signature Ljdk5/AllStructures<TU0;TU1;TU2;TU3;TU4;TU5;TU6;>;
+    // declaration: this extends jdk5.AllStructures<U0, U1, U2, U3, U4, U5, U6>
+    LOCALVARIABLE p0 I L0 L1 1
+    LOCALVARIABLE p1 F L0 L1 2
+    LOCALVARIABLE p2 F L0 L1 3
+    LOCALVARIABLE p3 J L0 L1 4
+    LOCALVARIABLE p4 D L0 L1 6
+    MAXSTACK = 1
+    MAXLOCALS = 8
+
+  // access flags 0x1
+  // signature ()TU0;
+  // declaration: U0 o()
+  public o()Ljava/lang/Object;
+   L0
+    LINENUMBER 107 L0
+    ALOAD 0
+    GETFIELD jdk5/AllStructures.f0 : Ljava/lang/Object;
+    ARETURN
+   L1
+    LOCALVARIABLE this Ljdk5/AllStructures; L0 L1 0
+    // signature Ljdk5/AllStructures<TU0;TU1;TU2;TU3;TU4;TU5;TU6;>;
+    // declaration: this extends jdk5.AllStructures<U0, U1, U2, U3, U4, U5, U6>
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x0
+  // signature <U0:Ljava/lang/Object;U1:Ljava/lang/Number;U2::Ljava/util/List<Ljava/lang/String;>;U3::Ljava/util/List<*>;U4::Ljava/util/List<+Ljava/lang/Number;>;U5::Ljava/util/List<-Ljava/lang/Number;>;U6:Ljava/lang/Number;:Ljava/lang/Runnable;:Ljava/lang/Cloneable;U7:Ljava/lang/Exception;U8:Ljava/io/IOException;>(Ljava/util/List<TU0;>;Ljava/util/List<[TU1;>;Ljava/util/List<[[TU2;>;Ljava/util/List<TU3;>;Ljava/util/List<TU4;>;Ljava/util/List<TU5;>;Ljava/util/List<TU6;>;Ljdk5/AllStructures<TU0;TU1;TU2;TU3;TU4;TU5;TU6;>.InnerClass;Ljdk5/AllStructures<TU0;TU1;TU2;TU3;TU4;TU5;TU6;>.GenericInnerClass<TU1;>;)V^TU7;^TU8;
+  // declaration: void genericMethod<U0, U1 extends java.lang.Number, U2 extends java.util.List<java.lang.String>, U3 extends java.util.List<?>, U4 extends java.util.List<? extends java.lang.Number>, U5 extends java.util.List<? super java.lang.Number>, U6 extends java.lang.Number extends java.lang.Runnable, java.lang.Cloneable, U7 extends java.lang.Exception, U8 extends java.io.IOException>(java.util.List<U0>, java.util.List<U1[]>, java.util.List<U2[][]>, java.util.List<U3>, java.util.List<U4>, java.util.List<U5>, java.util.List<U6>, jdk5.AllStructures<U0, U1, U2, U3, U4, U5, U6>.InnerClass, jdk5.AllStructures<U0, U1, U2, U3, U4, U5, U6>.GenericInnerClass<U1>) throws U7, U8
+  genericMethod(Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljdk5/AllStructures$InnerClass;Ljdk5/AllStructures$GenericInnerClass;)V throws java/lang/Exception java/io/IOException 
+   L0
+    LINENUMBER 130 L0
+    RETURN
+   L1
+    LOCALVARIABLE this Ljdk5/AllStructures; L0 L1 0
+    // signature Ljdk5/AllStructures<TU0;TU1;TU2;TU3;TU4;TU5;TU6;>;
+    // declaration: this extends jdk5.AllStructures<U0, U1, U2, U3, U4, U5, U6>
+    LOCALVARIABLE p0 Ljava/util/List; L0 L1 1
+    // signature Ljava/util/List<TU0;>;
+    // declaration: p0 extends java.util.List<U0>
+    LOCALVARIABLE p1 Ljava/util/List; L0 L1 2
+    // signature Ljava/util/List<[TU1;>;
+    // declaration: p1 extends java.util.List<U1[]>
+    LOCALVARIABLE p2 Ljava/util/List; L0 L1 3
+    // signature Ljava/util/List<[[TU2;>;
+    // declaration: p2 extends java.util.List<U2[][]>
+    LOCALVARIABLE p3 Ljava/util/List; L0 L1 4
+    // signature Ljava/util/List<TU3;>;
+    // declaration: p3 extends java.util.List<U3>
+    LOCALVARIABLE p4 Ljava/util/List; L0 L1 5
+    // signature Ljava/util/List<TU4;>;
+    // declaration: p4 extends java.util.List<U4>
+    LOCALVARIABLE p5 Ljava/util/List; L0 L1 6
+    // signature Ljava/util/List<TU5;>;
+    // declaration: p5 extends java.util.List<U5>
+    LOCALVARIABLE p6 Ljava/util/List; L0 L1 7
+    // signature Ljava/util/List<TU6;>;
+    // declaration: p6 extends java.util.List<U6>
+    LOCALVARIABLE p7 Ljdk5/AllStructures$InnerClass; L0 L1 8
+    // signature Ljdk5/AllStructures<TU0;TU1;TU2;TU3;TU4;TU5;TU6;>.InnerClass;
+    // declaration: p7 extends jdk5.AllStructures<U0, U1, U2, U3, U4, U5, U6>.InnerClass
+    LOCALVARIABLE p8 Ljdk5/AllStructures$GenericInnerClass; L0 L1 9
+    // signature Ljdk5/AllStructures<TU0;TU1;TU2;TU3;TU4;TU5;TU6;>.GenericInnerClass<TU1;>;
+    // declaration: p8 extends jdk5.AllStructures<U0, U1, U2, U3, U4, U5, U6>.GenericInnerClass<U1>
+    MAXSTACK = 0
+    MAXLOCALS = 10
+
+  // access flags 0x80
+  varargs varArgsAutoBoxingAndForLoop([I)I
+   L0
+    LINENUMBER 133 L0
+    ICONST_0
+    ISTORE 2
+   L1
+    LINENUMBER 134 L1
+    ALOAD 1
+    ASTORE 3
+   L2
+    ALOAD 3
+    ARRAYLENGTH
+    ISTORE 4
+   L3
+    ICONST_0
+    ISTORE 5
+   L4
+    ILOAD 5
+    ILOAD 4
+    IF_ICMPGE L5
+    ALOAD 3
+    ILOAD 5
+    IALOAD
+    ISTORE 6
+   L6
+    LINENUMBER 135 L6
+    ILOAD 2
+    ILOAD 6
+    IADD
+    ISTORE 2
+   L7
+    LINENUMBER 134 L7
+    IINC 5 1
+    GOTO L4
+   L5
+    LINENUMBER 137 L5
+    ILOAD 2
+    IRETURN
+   L8
+    LOCALVARIABLE arg I L6 L7 6
+    LOCALVARIABLE arr$ [I L2 L5 3
+    LOCALVARIABLE len$ I L3 L5 4
+    LOCALVARIABLE i$ I L4 L5 5
+    LOCALVARIABLE this Ljdk5/AllStructures; L0 L8 0
+    // signature Ljdk5/AllStructures<TU0;TU1;TU2;TU3;TU4;TU5;TU6;>;
+    // declaration: this extends jdk5.AllStructures<U0, U1, U2, U3, U4, U5, U6>
+    LOCALVARIABLE args [I L0 L8 1
+    LOCALVARIABLE total I L1 L8 2
+    MAXSTACK = 2
+    MAXLOCALS = 7
+
+  // access flags 0x0
+  localClassConstructor(Ljava/lang/String;)V
+   L0
+    LINENUMBER 146 L0
+    NEW jdk5/AllStructures$1LocalClass
+    DUP
+    ALOAD 0
+    BIPUSH 42
+    ALOAD 1
+    INVOKESPECIAL jdk5/AllStructures$1LocalClass.<init> (Ljdk5/AllStructures;ILjava/lang/String;)V
+    POP
+   L1
+    LINENUMBER 147 L1
+    RETURN
+   L2
+    LOCALVARIABLE this Ljdk5/AllStructures; L0 L2 0
+    // signature Ljdk5/AllStructures<TU0;TU1;TU2;TU3;TU4;TU5;TU6;>;
+    // declaration: this extends jdk5.AllStructures<U0, U1, U2, U3, U4, U5, U6>
+    LOCALVARIABLE name Ljava/lang/String; L0 L2 1
+    MAXSTACK = 5
+    MAXLOCALS = 2
+
+  // access flags 0x1
+  public compare(Ljava/lang/Integer;Ljava/lang/Integer;)I
+   L0
+    LINENUMBER 151 L0
+    ALOAD 1
+    INVOKEVIRTUAL java/lang/Integer.intValue ()I
+    ALOAD 2
+    INVOKEVIRTUAL java/lang/Integer.intValue ()I
+    IF_ICMPGE L1
+    ICONST_M1
+    GOTO L2
+   L1
+    ICONST_1
+   L2
+    IRETURN
+   L3
+    LOCALVARIABLE this Ljdk5/AllStructures; L0 L3 0
+    // signature Ljdk5/AllStructures<TU0;TU1;TU2;TU3;TU4;TU5;TU6;>;
+    // declaration: this extends jdk5.AllStructures<U0, U1, U2, U3, U4, U5, U6>
+    LOCALVARIABLE a Ljava/lang/Integer; L0 L3 1
+    LOCALVARIABLE b Ljava/lang/Integer; L0 L3 2
+    MAXSTACK = 2
+    MAXLOCALS = 3
+
+  // access flags 0x1041
+  public synthetic bridge compare(Ljava/lang/Object;Ljava/lang/Object;)I
+   L0
+    LINENUMBER 69 L0
+    ALOAD 0
+    ALOAD 1
+    CHECKCAST java/lang/Integer
+    ALOAD 2
+    CHECKCAST java/lang/Integer
+    INVOKEVIRTUAL jdk5/AllStructures.compare (Ljava/lang/Integer;Ljava/lang/Integer;)I
+    IRETURN
+   L1
+    LOCALVARIABLE this Ljdk5/AllStructures; L0 L1 0
+    // signature Ljdk5/AllStructures<TU0;TU1;TU2;TU3;TU4;TU5;TU6;>;
+    // declaration: this extends jdk5.AllStructures<U0, U1, U2, U3, U4, U5, U6>
+    LOCALVARIABLE x0 Ljava/lang/Object; L0 L1 1
+    LOCALVARIABLE x1 Ljava/lang/Object; L0 L1 2
+    MAXSTACK = 3
+    MAXLOCALS = 3
+}

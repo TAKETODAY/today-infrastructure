@@ -1,0 +1,136 @@
+// class version 49.0 (49)
+// access flags 0x4030
+// signature Ljava/lang/Enum<Ljdk5/AllStructures$EnumClass;>;
+// declaration: jdk5/AllStructures$EnumClass extends java.lang.Enum<jdk5.AllStructures$EnumClass>
+final enum jdk5/AllStructures$EnumClass extends java/lang/Enum {
+
+  // compiled from: AllStructures.java
+  // access flags 0x4018
+  final static enum INNERCLASS jdk5/AllStructures$EnumClass jdk5/AllStructures EnumClass
+
+  // access flags 0x4019
+  public final static enum Ljdk5/AllStructures$EnumClass; VALUE0
+
+  // access flags 0x4019
+  public final static enum Ljdk5/AllStructures$EnumClass; VALUE1
+
+  // access flags 0x4019
+  public final static enum Ljdk5/AllStructures$EnumClass; VALUE2
+
+  // access flags 0x2
+  private I value
+
+  // access flags 0x101A
+  private final static synthetic [Ljdk5/AllStructures$EnumClass; $VALUES
+
+  // access flags 0x19
+  public final static values()[Ljdk5/AllStructures$EnumClass;
+   L0
+    LINENUMBER 200 L0
+    GETSTATIC jdk5/AllStructures$EnumClass.$VALUES : [Ljdk5/AllStructures$EnumClass;
+    INVOKEVIRTUAL [Ljdk5/AllStructures$EnumClass;.clone ()Ljava/lang/Object;
+    CHECKCAST [Ljdk5/AllStructures$EnumClass;
+    ARETURN
+    MAXSTACK = 1
+    MAXLOCALS = 0
+
+  // access flags 0x9
+  public static valueOf(Ljava/lang/String;)Ljdk5/AllStructures$EnumClass;
+   L0
+    LINENUMBER 200 L0
+    LDC Ljdk5/AllStructures$EnumClass;.class
+    ALOAD 0
+    INVOKESTATIC java/lang/Enum.valueOf (Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Enum;
+    CHECKCAST jdk5/AllStructures$EnumClass
+    ARETURN
+   L1
+    LOCALVARIABLE name Ljava/lang/String; L0 L1 0
+    MAXSTACK = 2
+    MAXLOCALS = 1
+
+  // access flags 0x2
+  // signature (I)V
+  // declaration: void <init>(int)
+  private <init>(Ljava/lang/String;II)V
+   L0
+    LINENUMBER 207 L0
+    ALOAD 0
+    ALOAD 1
+    ILOAD 2
+    INVOKESPECIAL java/lang/Enum.<init> (Ljava/lang/String;I)V
+   L1
+    LINENUMBER 208 L1
+    ALOAD 0
+    ILOAD 3
+    PUTFIELD jdk5/AllStructures$EnumClass.value : I
+   L2
+    LINENUMBER 209 L2
+    RETURN
+   L3
+    LOCALVARIABLE this Ljdk5/AllStructures$EnumClass; L0 L3 0
+    LOCALVARIABLE value I L0 L3 3
+    MAXSTACK = 3
+    MAXLOCALS = 4
+
+  // access flags 0x1
+  public getValue()I
+   L0
+    LINENUMBER 212 L0
+    ALOAD 0
+    GETFIELD jdk5/AllStructures$EnumClass.value : I
+    IRETURN
+   L1
+    LOCALVARIABLE this Ljdk5/AllStructures$EnumClass; L0 L1 0
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x8
+  static <clinit>()V
+   L0
+    LINENUMBER 201 L0
+    NEW jdk5/AllStructures$EnumClass
+    DUP
+    LDC "VALUE0"
+    ICONST_0
+    ICONST_0
+    INVOKESPECIAL jdk5/AllStructures$EnumClass.<init> (Ljava/lang/String;II)V
+    PUTSTATIC jdk5/AllStructures$EnumClass.VALUE0 : Ljdk5/AllStructures$EnumClass;
+   L1
+    LINENUMBER 202 L1
+    NEW jdk5/AllStructures$EnumClass
+    DUP
+    LDC "VALUE1"
+    ICONST_1
+    ICONST_1
+    INVOKESPECIAL jdk5/AllStructures$EnumClass.<init> (Ljava/lang/String;II)V
+    PUTSTATIC jdk5/AllStructures$EnumClass.VALUE1 : Ljdk5/AllStructures$EnumClass;
+   L2
+    LINENUMBER 203 L2
+    NEW jdk5/AllStructures$EnumClass
+    DUP
+    LDC "VALUE2"
+    ICONST_2
+    ICONST_2
+    INVOKESPECIAL jdk5/AllStructures$EnumClass.<init> (Ljava/lang/String;II)V
+    PUTSTATIC jdk5/AllStructures$EnumClass.VALUE2 : Ljdk5/AllStructures$EnumClass;
+   L3
+    LINENUMBER 200 L3
+    ICONST_3
+    ANEWARRAY jdk5/AllStructures$EnumClass
+    DUP
+    ICONST_0
+    GETSTATIC jdk5/AllStructures$EnumClass.VALUE0 : Ljdk5/AllStructures$EnumClass;
+    AASTORE
+    DUP
+    ICONST_1
+    GETSTATIC jdk5/AllStructures$EnumClass.VALUE1 : Ljdk5/AllStructures$EnumClass;
+    AASTORE
+    DUP
+    ICONST_2
+    GETSTATIC jdk5/AllStructures$EnumClass.VALUE2 : Ljdk5/AllStructures$EnumClass;
+    AASTORE
+    PUTSTATIC jdk5/AllStructures$EnumClass.$VALUES : [Ljdk5/AllStructures$EnumClass;
+    RETURN
+    MAXSTACK = 5
+    MAXLOCALS = 0
+}

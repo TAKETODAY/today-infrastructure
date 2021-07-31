@@ -1,0 +1,56 @@
+// class version 52.0 (52)
+// access flags 0x21
+public class jdk8/Artificial$()$Structures {
+
+
+  // access flags 0x1
+  public I value
+
+  // access flags 0x1
+  public <init>(I)V
+    ALOAD 0
+    INVOKESPECIAL java/lang/Object.<init> ()V
+    ALOAD 0
+    ILOAD 1
+    PUTFIELD jdk8/Artificial$()$Structures.value : I
+    RETURN
+    MAXSTACK = 2
+    MAXLOCALS = 2
+
+  // access flags 0x2
+  private <init>(Ljdk8/Artificial$()$Structures;)V
+    ALOAD 0
+    INVOKESPECIAL java/lang/Object.<init> ()V
+    ALOAD 0
+    ALOAD 1
+    IFNULL L0
+    ALOAD 1
+    GETFIELD jdk8/Artificial$()$Structures.value : I
+    GOTO L1
+   L0
+   FRAME FULL [jdk8/Artificial$()$Structures jdk8/Artificial$()$Structures] [jdk8/Artificial$()$Structures]
+    ICONST_0
+   L1
+   FRAME FULL [jdk8/Artificial$()$Structures jdk8/Artificial$()$Structures] [jdk8/Artificial$()$Structures I]
+    PUTFIELD jdk8/Artificial$()$Structures.value : I
+    RETURN
+    MAXSTACK = 2
+    MAXLOCALS = 2
+
+  // access flags 0x1
+  public clone()Ljdk8/Artificial$()$Structures;
+    NEW jdk8/Artificial$()$Structures
+    DUP
+    ALOAD 0
+    INVOKESPECIAL jdk8/Artificial$()$Structures.<init> (Ljdk8/Artificial$()$Structures;)V
+    ARETURN
+    MAXSTACK = 3
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static methodType()Ljava/lang/invoke/MethodType;
+    LDC (I)I.class
+    ARETURN
+    MAXSTACK = 1
+    MAXLOCALS = 0
+}

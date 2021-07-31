@@ -1,0 +1,15 @@
+// class version 55.0 (55)
+// access flags 0x21
+public class jdk11/AllStructures {
+
+  // compiled from: AllStructures.jasm
+  NESTMEMBER jdk11/AllStructures$Nested
+
+  // access flags 0x1
+  public <init>()V
+    ALOAD 0
+    INVOKESPECIAL java/lang/Object.<init> ()V
+    RETURN
+    MAXSTACK = 1
+    MAXLOCALS = 1
+}

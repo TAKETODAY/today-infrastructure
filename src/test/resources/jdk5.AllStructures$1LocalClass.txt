@@ -1,0 +1,55 @@
+// class version 49.0 (49)
+// access flags 0x20
+class jdk5/AllStructures$1LocalClass {
+
+  // compiled from: AllStructures.java
+  OUTERCLASS jdk5/AllStructures localClassConstructor (Ljava/lang/String;)V
+  // access flags 0x0
+  INNERCLASS jdk5/AllStructures$1LocalClass null LocalClass
+
+  // access flags 0x1010
+  final synthetic Ljava/lang/String; val$name
+
+  // access flags 0x1010
+  final synthetic Ljdk5/AllStructures; this$0
+
+  // access flags 0x0
+  // signature (I)V
+  // declaration: void <init>(int)
+  <init>(Ljdk5/AllStructures;ILjava/lang/String;)V
+    // annotable parameter count: 1 (visible)
+    @Ljava/lang/Deprecated;() // parameter 0
+   L0
+    LINENUMBER 140 L0
+    ALOAD 0
+    ALOAD 1
+    PUTFIELD jdk5/AllStructures$1LocalClass.this$0 : Ljdk5/AllStructures;
+    ALOAD 0
+    ALOAD 3
+    PUTFIELD jdk5/AllStructures$1LocalClass.val$name : Ljava/lang/String;
+    ALOAD 0
+    INVOKESPECIAL java/lang/Object.<init> ()V
+   L1
+    LINENUMBER 141 L1
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    NEW java/lang/StringBuilder
+    DUP
+    INVOKESPECIAL java/lang/StringBuilder.<init> ()V
+    ALOAD 0
+    GETFIELD jdk5/AllStructures$1LocalClass.val$name : Ljava/lang/String;
+    INVOKEVIRTUAL java/lang/StringBuilder.append (Ljava/lang/String;)Ljava/lang/StringBuilder;
+    ILOAD 2
+    INVOKEVIRTUAL java/lang/StringBuilder.append (I)Ljava/lang/StringBuilder;
+    INVOKEVIRTUAL java/lang/StringBuilder.toString ()Ljava/lang/String;
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+   L2
+    LINENUMBER 142 L2
+    RETURN
+   L3
+    LOCALVARIABLE this Ljdk5/AllStructures$1LocalClass; L0 L3 0
+    // signature Ljdk5/AllStructures.1LocalClass;
+    // declaration: this extends jdk5.AllStructures.1LocalClass
+    LOCALVARIABLE value I L0 L3 2
+    MAXSTACK = 3
+    MAXLOCALS = 4
+}

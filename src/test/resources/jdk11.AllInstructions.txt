@@ -1,0 +1,57 @@
+// class version 55.0 (55)
+// access flags 0x21
+public class jdk11/AllInstructions {
+
+  // compiled from: AllInstructions.jasm
+  // access flags 0x19
+  public final static INNERCLASS java/lang/invoke/MethodHandles$Lookup java/lang/invoke/MethodHandles Lookup
+
+  // access flags 0x1
+  public <init>()V
+    ALOAD 0
+    INVOKESPECIAL java/lang/Object.<init> ()V
+    RETURN
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x1
+  public m()Ljava/lang/Object;
+    LDC name : Ljava/lang/Object; jdk11/HandleOwner.handleField(Ljava/lang/Object;)Ljava/lang/Object; (6) [argumentName : Ljava/lang/Object; jdk11/ArgumentHandleOwner.argumentHandleNameLjava/lang/Object; (2) []]
+    ARETURN
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static primitiveExample()J
+    LDC test : J jdk11/AllInstructions.bsm(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;)J (6) []
+    LRETURN
+    MAXSTACK = 2
+    MAXLOCALS = 0
+
+  // access flags 0xA
+  private static bsm(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;)J
+    BIPUSH 42
+    I2L
+    LRETURN
+    MAXSTACK = 2
+    MAXLOCALS = 3
+
+  // access flags 0x9
+  public static main([Ljava/lang/String;)V
+    LDC run : Ljava/lang/Runnable; java/lang/invoke/LambdaMetafactory.metafactory(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/Object; (6) [()V, jdk11/AllInstructions.lambda$main$0()V (6), ()V]
+    ASTORE 1
+    ALOAD 1
+    INVOKEINTERFACE java/lang/Runnable.run ()V (itf)
+    RETURN
+    MAXSTACK = 1
+    MAXLOCALS = 2
+
+  // access flags 0x100A
+  private static synthetic lambda$main$0()V
+    GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+    LDC "hello condy"
+    INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+    RETURN
+    MAXSTACK = 2
+    MAXLOCALS = 0
+}

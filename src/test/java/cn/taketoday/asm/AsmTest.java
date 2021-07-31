@@ -64,7 +64,7 @@ import java.util.stream.Stream;
  *   &#64;MethodSource(ALL_CLASSES_AND_ALL_APIS)
  *   public void testSomeFeature(PrecompiledClass classParameter, Api apiParameter) {
  *     byte[] b = classParameter.getBytes();
- *     ClassWriter classWriter = new ClassWriter(apiParameter.value(), 0);
+ *     ClassWriter classWriter = new ClassWriter( 0);
  *     ...
  *   }
  * }

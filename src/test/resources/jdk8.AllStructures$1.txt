@@ -1,0 +1,75 @@
+// class version 52.0 (52)
+// access flags 0x20
+class jdk8/AllStructures$1 implements java/lang/Runnable {
+
+  // compiled from: AllStructures.java
+  OUTERCLASS jdk8/AllStructures anonymousInnerClass ()Ljava/lang/Runnable;
+  // access flags 0x0
+  INNERCLASS jdk8/AllStructures$1 null null
+  // access flags 0x2
+  private INNERCLASS jdk8/AllStructures$InnerClass jdk8/AllStructures InnerClass
+
+  // access flags 0x1010
+  final synthetic Ljdk8/AllStructures; this$0
+
+  // access flags 0x0
+  <init>(Ljdk8/AllStructures;)V
+    // parameter final mandated  this$0
+   L0
+    LINENUMBER 99 L0
+    ALOAD 0
+    ALOAD 1
+    PUTFIELD jdk8/AllStructures$1.this$0 : Ljdk8/AllStructures;
+    ALOAD 0
+    INVOKESPECIAL java/lang/Object.<init> ()V
+    RETURN
+   L1
+    LOCALVARIABLE this Ljdk8/AllStructures$1; L0 L1 0
+    // signature Ljdk8/AllStructures$1;
+    // declaration: this extends jdk8.AllStructures$1
+    LOCALVARIABLE this$0 Ljdk8/AllStructures; L0 L1 1
+    MAXSTACK = 2
+    MAXLOCALS = 2
+
+  // access flags 0x1
+  public run()V
+   L0
+    LINENUMBER 103 L0
+    NEW jdk8/AllStructures$InnerClass
+    DUP
+    ALOAD 0
+    GETFIELD jdk8/AllStructures$1.this$0 : Ljdk8/AllStructures;
+    ALOAD 0
+    GETFIELD jdk8/AllStructures$1.this$0 : Ljdk8/AllStructures;
+    INVOKESTATIC jdk8/AllStructures.access$000 (Ljdk8/AllStructures;)D
+    ALOAD 0
+    GETFIELD jdk8/AllStructures$1.this$0 : Ljdk8/AllStructures;
+    INVOKESTATIC jdk8/AllStructures.access$100 (Ljdk8/AllStructures;)D
+    DADD
+    ACONST_NULL
+    INVOKESPECIAL jdk8/AllStructures$InnerClass.<init> (Ljdk8/AllStructures;DLjdk8/AllStructures$1;)V
+    INVOKESTATIC jdk8/AllStructures$InnerClass.access$300 (Ljdk8/AllStructures$InnerClass;)D
+    DSTORE 1
+   L1
+    LINENUMBER 104 L1
+    NEW jdk8/AllStructures$InnerClass
+    DUP
+    ALOAD 0
+    GETFIELD jdk8/AllStructures$1.this$0 : Ljdk8/AllStructures;
+    DLOAD 1
+    ACONST_NULL
+    INVOKESPECIAL jdk8/AllStructures$InnerClass.<init> (Ljdk8/AllStructures;DLjdk8/AllStructures$1;)V
+    POP
+   L2
+    LINENUMBER 105 L2
+    RETURN
+   L3
+    LOCALVARIABLE this Ljdk8/AllStructures$1; L0 L3 0
+    // signature Ljdk8/AllStructures$1;
+    // declaration: this extends jdk8.AllStructures$1
+    LOCALVARIABLE f D L1 L3 1
+    LOCALVARIABLE @Lannotations/VTUA;(v=0) : LOCAL_VARIABLE, null [ L1 - L3 - 1 ]
+    LOCALVARIABLE @Lannotations/ITUA;(v=1) : LOCAL_VARIABLE, null [ L1 - L3 - 1 ] // invisible
+    MAXSTACK = 7
+    MAXLOCALS = 3
+}

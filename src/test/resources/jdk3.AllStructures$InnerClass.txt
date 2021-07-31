@@ -1,0 +1,69 @@
+// class version 45.3 (196653)
+// access flags 0x20
+class jdk3/AllStructures$InnerClass {
+
+  // compiled from: AllStructures.java
+  // access flags 0x2
+  private INNERCLASS jdk3/AllStructures$InnerClass jdk3/AllStructures InnerClass
+  // access flags 0x0
+  INNERCLASS jdk3/AllStructures$1 null null
+
+  // access flags 0x12
+  private final D f0
+
+  // access flags 0x1012
+  private final synthetic Ljdk3/AllStructures; this$0
+
+  // access flags 0x2
+  private <init>(Ljdk3/AllStructures;D)V
+   L0
+    LINENUMBER 49 L0
+    ALOAD 0
+    INVOKESPECIAL java/lang/Object.<init> ()V
+    ALOAD 0
+    ALOAD 1
+    PUTFIELD jdk3/AllStructures$InnerClass.this$0 : Ljdk3/AllStructures;
+   L1
+    LINENUMBER 50 L1
+    ALOAD 0
+    DLOAD 2
+    PUTFIELD jdk3/AllStructures$InnerClass.f0 : D
+   L2
+    LINENUMBER 51 L2
+    RETURN
+   L3
+    LOCALVARIABLE this Ljdk3/AllStructures$InnerClass; L0 L3 0
+    LOCALVARIABLE this$0 Ljdk3/AllStructures; L0 L3 1
+    LOCALVARIABLE f0 D L0 L3 2
+    MAXSTACK = 3
+    MAXLOCALS = 4
+
+  // access flags 0x1000
+  synthetic <init>(Ljdk3/AllStructures;DLjdk3/AllStructures$1;)V
+   L0
+    LINENUMBER 47 L0
+    ALOAD 0
+    ALOAD 1
+    DLOAD 2
+    INVOKESPECIAL jdk3/AllStructures$InnerClass.<init> (Ljdk3/AllStructures;D)V
+    RETURN
+   L1
+    LOCALVARIABLE this Ljdk3/AllStructures$InnerClass; L0 L1 0
+    LOCALVARIABLE x0 Ljdk3/AllStructures; L0 L1 1
+    LOCALVARIABLE x1 D L0 L1 2
+    LOCALVARIABLE x2 Ljdk3/AllStructures$1; L0 L1 4
+    MAXSTACK = 4
+    MAXLOCALS = 5
+
+  // access flags 0x1008
+  static synthetic access$300(Ljdk3/AllStructures$InnerClass;)D
+   L0
+    LINENUMBER 47 L0
+    ALOAD 0
+    GETFIELD jdk3/AllStructures$InnerClass.f0 : D
+    DRETURN
+   L1
+    LOCALVARIABLE x0 Ljdk3/AllStructures$InnerClass; L0 L1 0
+    MAXSTACK = 2
+    MAXLOCALS = 1
+}

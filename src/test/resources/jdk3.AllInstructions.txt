@@ -1,0 +1,1714 @@
+// class version 45.3 (196653)
+// access flags 0x20
+class jdk3/AllInstructions {
+
+  // compiled from: AllInstructions.java
+
+  // access flags 0x2
+  private I f
+
+  // access flags 0x2
+  private J g
+
+  // access flags 0x2
+  private Ljdk3/AllInstructions; field
+
+  // access flags 0xA
+  private static Ljdk3/AllInstructions; staticField
+
+  // access flags 0x0
+  <init>()V
+   L0
+    LINENUMBER 41 L0
+    ALOAD 0
+    INVOKESPECIAL java/lang/Object.<init> ()V
+    RETURN
+   L1
+    LOCALVARIABLE this Ljdk3/AllInstructions; L0 L1 0
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x0
+  <init>(IFJDLjava/lang/Object;)V
+   L0
+    LINENUMBER 43 L0
+    ALOAD 0
+    INVOKESPECIAL java/lang/Object.<init> ()V
+    RETURN
+   L1
+    LOCALVARIABLE this Ljdk3/AllInstructions; L0 L1 0
+    LOCALVARIABLE v0 I L0 L1 1
+    LOCALVARIABLE v1 F L0 L1 2
+    LOCALVARIABLE v2 J L0 L1 3
+    LOCALVARIABLE v3 D L0 L1 5
+    LOCALVARIABLE v4 Ljava/lang/Object; L0 L1 7
+    MAXSTACK = 1
+    MAXLOCALS = 8
+
+  // access flags 0x9
+  public static intInstructions(IIIIIIIII)I
+   L0
+    LINENUMBER 47 L0
+    ILOAD 0
+    ICONST_M1
+    IF_ICMPGE L1
+    ICONST_1
+    GOTO L2
+   L1
+    ICONST_0
+   L2
+    ISTORE 9
+   L3
+    LINENUMBER 48 L3
+    ILOAD 1
+    ICONST_1
+    IF_ICMPLE L4
+    ICONST_1
+    GOTO L5
+   L4
+    ICONST_0
+   L5
+    ISTORE 10
+   L6
+    LINENUMBER 49 L6
+    ILOAD 2
+    ICONST_2
+    IF_ICMPGT L7
+    ICONST_1
+    GOTO L8
+   L7
+    ICONST_0
+   L8
+    ISTORE 11
+   L9
+    LINENUMBER 50 L9
+    ILOAD 3
+    ICONST_3
+    IF_ICMPLT L10
+    ICONST_1
+    GOTO L11
+   L10
+    ICONST_0
+   L11
+    ISTORE 12
+   L12
+    LINENUMBER 51 L12
+    ILOAD 4
+    ICONST_4
+    IF_ICMPNE L13
+    ICONST_1
+    GOTO L14
+   L13
+    ICONST_0
+   L14
+    ISTORE 13
+   L15
+    LINENUMBER 52 L15
+    ILOAD 5
+    ICONST_5
+    IF_ICMPEQ L16
+    ICONST_1
+    GOTO L17
+   L16
+    ICONST_0
+   L17
+    ISTORE 14
+   L18
+    LINENUMBER 53 L18
+    ILOAD 9
+    IFEQ L19
+    ILOAD 6
+    ICONST_5
+    IADD
+    GOTO L20
+   L19
+    ILOAD 6
+    ICONST_5
+    ISUB
+   L20
+    ISTORE 0
+   L21
+    LINENUMBER 54 L21
+    ILOAD 10
+    IFEQ L22
+    ILOAD 7
+    BIPUSH 100
+    IMUL
+    GOTO L23
+   L22
+    ILOAD 7
+    BIPUSH 100
+    IDIV
+   L23
+    ISTORE 1
+   L24
+    LINENUMBER 55 L24
+    ILOAD 11
+    IFEQ L25
+    ILOAD 8
+    SIPUSH 10000
+    IREM
+    GOTO L26
+   L25
+    ILOAD 8
+    ICONST_M1
+    IXOR
+   L26
+    ISTORE 2
+   L27
+    LINENUMBER 56 L27
+    ILOAD 12
+    IFEQ L28
+    ILOAD 0
+    LDC 1000000
+    IAND
+    GOTO L29
+   L28
+    ILOAD 0
+    LDC 1000000
+    IOR
+   L29
+    ISTORE 3
+   L30
+    LINENUMBER 57 L30
+    ILOAD 13
+    IFEQ L31
+    ILOAD 1
+    ILOAD 2
+    IXOR
+    GOTO L32
+   L31
+    ILOAD 1
+    ILOAD 2
+    ISHL
+   L32
+    ISTORE 4
+   L33
+    LINENUMBER 58 L33
+    ILOAD 14
+    IFEQ L34
+    ILOAD 2
+    ILOAD 3
+    ISHR
+    GOTO L35
+   L34
+    ILOAD 2
+    ILOAD 3
+    IUSHR
+   L35
+    ISTORE 5
+   L36
+    LINENUMBER 59 L36
+    IINC 6 1
+   L37
+    LINENUMBER 60 L37
+    ILOAD 6
+    IFGE L38
+    ILOAD 6
+    INEG
+    GOTO L39
+   L38
+    ILOAD 6
+   L39
+    ISTORE 7
+   L40
+    LINENUMBER 61 L40
+    ILOAD 0
+    IFGE L41
+    ILOAD 1
+    GOTO L42
+   L41
+    ILOAD 2
+   L42
+    ISTORE 1
+   L43
+    LINENUMBER 62 L43
+    ILOAD 1
+    IFLE L44
+    ILOAD 2
+    GOTO L45
+   L44
+    ILOAD 3
+   L45
+    ISTORE 2
+   L46
+    LINENUMBER 63 L46
+    ILOAD 2
+    IFGT L47
+    ILOAD 3
+    GOTO L48
+   L47
+    ILOAD 4
+   L48
+    ISTORE 3
+   L49
+    LINENUMBER 64 L49
+    ILOAD 3
+    IFLT L50
+    ILOAD 4
+    GOTO L51
+   L50
+    ILOAD 5
+   L51
+    ISTORE 4
+   L52
+    LINENUMBER 65 L52
+    ILOAD 4
+    IFNE L53
+    ILOAD 5
+    GOTO L54
+   L53
+    ILOAD 6
+   L54
+    ISTORE 5
+   L55
+    LINENUMBER 66 L55
+    ILOAD 5
+    IFEQ L56
+    ILOAD 6
+    GOTO L57
+   L56
+    ILOAD 7
+   L57
+    ISTORE 6
+   L58
+    LINENUMBER 67 L58
+    ILOAD 0
+    ILOAD 1
+    IADD
+    ILOAD 2
+    IADD
+    ILOAD 3
+    IADD
+    ILOAD 4
+    IADD
+    ILOAD 5
+    IADD
+    ILOAD 6
+    IADD
+    ILOAD 7
+    IADD
+    ILOAD 8
+    IADD
+    IRETURN
+   L59
+    LOCALVARIABLE v0 I L0 L59 0
+    LOCALVARIABLE v1 I L0 L59 1
+    LOCALVARIABLE v2 I L0 L59 2
+    LOCALVARIABLE v3 I L0 L59 3
+    LOCALVARIABLE v4 I L0 L59 4
+    LOCALVARIABLE v5 I L0 L59 5
+    LOCALVARIABLE v6 I L0 L59 6
+    LOCALVARIABLE v7 I L0 L59 7
+    LOCALVARIABLE v8 I L0 L59 8
+    LOCALVARIABLE b0 Z L3 L59 9
+    LOCALVARIABLE b1 Z L6 L59 10
+    LOCALVARIABLE b2 Z L9 L59 11
+    LOCALVARIABLE b3 Z L12 L59 12
+    LOCALVARIABLE b4 Z L15 L59 13
+    LOCALVARIABLE b5 Z L18 L59 14
+    MAXSTACK = 2
+    MAXLOCALS = 15
+
+  // access flags 0x9
+  public static longInstructions(JJJJJJJJJ)J
+   L0
+    LINENUMBER 72 L0
+    LLOAD 0
+    LDC -1
+    LCMP
+    IFGE L1
+    ICONST_1
+    GOTO L2
+   L1
+    ICONST_0
+   L2
+    ISTORE 18
+   L3
+    LINENUMBER 73 L3
+    LLOAD 2
+    LCONST_1
+    LCMP
+    IFLE L4
+    ICONST_1
+    GOTO L5
+   L4
+    ICONST_0
+   L5
+    ISTORE 19
+   L6
+    LINENUMBER 74 L6
+    LLOAD 4
+    LDC 2
+    LCMP
+    IFGT L7
+    ICONST_1
+    GOTO L8
+   L7
+    ICONST_0
+   L8
+    ISTORE 20
+   L9
+    LINENUMBER 75 L9
+    LLOAD 6
+    LDC 3
+    LCMP
+    IFLT L10
+    ICONST_1
+    GOTO L11
+   L10
+    ICONST_0
+   L11
+    ISTORE 21
+   L12
+    LINENUMBER 76 L12
+    LLOAD 8
+    LDC 4
+    LCMP
+    IFNE L13
+    ICONST_1
+    GOTO L14
+   L13
+    ICONST_0
+   L14
+    ISTORE 22
+   L15
+    LINENUMBER 77 L15
+    LLOAD 10
+    LDC 5
+    LCMP
+    IFEQ L16
+    ICONST_1
+    GOTO L17
+   L16
+    ICONST_0
+   L17
+    ISTORE 23
+   L18
+    LINENUMBER 78 L18
+    ILOAD 18
+    IFEQ L19
+    LLOAD 12
+    LDC 5
+    LADD
+    GOTO L20
+   L19
+    LLOAD 12
+    LDC 5
+    LSUB
+   L20
+    LSTORE 0
+   L21
+    LINENUMBER 79 L21
+    ILOAD 19
+    IFEQ L22
+    LLOAD 14
+    LDC 100
+    LMUL
+    GOTO L23
+   L22
+    LLOAD 14
+    LDC 100
+    LDIV
+   L23
+    LSTORE 2
+   L24
+    LINENUMBER 80 L24
+    ILOAD 20
+    IFEQ L25
+    LLOAD 16
+    LDC 10000
+    LREM
+    GOTO L26
+   L25
+    LLOAD 16
+    LDC -1
+    LXOR
+   L26
+    LSTORE 4
+   L27
+    LINENUMBER 81 L27
+    ILOAD 21
+    IFEQ L28
+    LLOAD 0
+    LDC 1000000
+    LAND
+    GOTO L29
+   L28
+    LLOAD 0
+    LDC 1000000
+    LOR
+   L29
+    LSTORE 6
+   L30
+    LINENUMBER 82 L30
+    ILOAD 22
+    IFEQ L31
+    LLOAD 2
+    LLOAD 4
+    LXOR
+    GOTO L32
+   L31
+    LLOAD 2
+    LLOAD 4
+    L2I
+    LSHL
+   L32
+    LSTORE 8
+   L33
+    LINENUMBER 83 L33
+    ILOAD 23
+    IFEQ L34
+    LLOAD 4
+    LLOAD 6
+    L2I
+    LSHR
+    GOTO L35
+   L34
+    LLOAD 4
+    LLOAD 6
+    L2I
+    LUSHR
+   L35
+    LSTORE 10
+   L36
+    LINENUMBER 84 L36
+    LLOAD 12
+    LCONST_1
+    LADD
+    LSTORE 12
+   L37
+    LINENUMBER 85 L37
+    LLOAD 12
+    LCONST_0
+    LCMP
+    IFGE L38
+    LLOAD 12
+    LNEG
+    GOTO L39
+   L38
+    LLOAD 12
+   L39
+    LSTORE 14
+   L40
+    LINENUMBER 86 L40
+    LLOAD 0
+    LLOAD 2
+    LADD
+    LLOAD 4
+    LADD
+    LLOAD 6
+    LADD
+    LLOAD 8
+    LADD
+    LLOAD 10
+    LADD
+    LLOAD 12
+    LADD
+    LLOAD 14
+    LADD
+    LLOAD 16
+    LADD
+    LRETURN
+   L41
+    LOCALVARIABLE v0 J L0 L41 0
+    LOCALVARIABLE v1 J L0 L41 2
+    LOCALVARIABLE v2 J L0 L41 4
+    LOCALVARIABLE v3 J L0 L41 6
+    LOCALVARIABLE v4 J L0 L41 8
+    LOCALVARIABLE v5 J L0 L41 10
+    LOCALVARIABLE v6 J L0 L41 12
+    LOCALVARIABLE v7 J L0 L41 14
+    LOCALVARIABLE v8 J L0 L41 16
+    LOCALVARIABLE b0 Z L3 L41 18
+    LOCALVARIABLE b1 Z L6 L41 19
+    LOCALVARIABLE b2 Z L9 L41 20
+    LOCALVARIABLE b3 Z L12 L41 21
+    LOCALVARIABLE b4 Z L15 L41 22
+    LOCALVARIABLE b5 Z L18 L41 23
+    MAXSTACK = 4
+    MAXLOCALS = 24
+
+  // access flags 0x9
+  public static floatInstructions(FFFFFFFFF)F
+   L0
+    LINENUMBER 91 L0
+    FLOAD 0
+    LDC -1.0
+    FCMPG
+    IFGE L1
+    ICONST_1
+    GOTO L2
+   L1
+    ICONST_0
+   L2
+    ISTORE 9
+   L3
+    LINENUMBER 92 L3
+    FLOAD 1
+    FCONST_1
+    FCMPL
+    IFLE L4
+    ICONST_1
+    GOTO L5
+   L4
+    ICONST_0
+   L5
+    ISTORE 10
+   L6
+    LINENUMBER 93 L6
+    FLOAD 2
+    FCONST_2
+    FCMPG
+    IFGT L7
+    ICONST_1
+    GOTO L8
+   L7
+    ICONST_0
+   L8
+    ISTORE 11
+   L9
+    LINENUMBER 94 L9
+    FLOAD 3
+    LDC 3.0
+    FCMPL
+    IFLT L10
+    ICONST_1
+    GOTO L11
+   L10
+    ICONST_0
+   L11
+    ISTORE 12
+   L12
+    LINENUMBER 95 L12
+    FLOAD 4
+    LDC 4.0
+    FCMPL
+    IFNE L13
+    ICONST_1
+    GOTO L14
+   L13
+    ICONST_0
+   L14
+    ISTORE 13
+   L15
+    LINENUMBER 96 L15
+    FLOAD 5
+    LDC 5.0
+    FCMPL
+    IFEQ L16
+    ICONST_1
+    GOTO L17
+   L16
+    ICONST_0
+   L17
+    ISTORE 14
+   L18
+    LINENUMBER 97 L18
+    ILOAD 9
+    IFEQ L19
+    FLOAD 6
+    LDC 5.0
+    FADD
+    GOTO L20
+   L19
+    FLOAD 6
+    LDC 5.0
+    FSUB
+   L20
+    FSTORE 0
+   L21
+    LINENUMBER 98 L21
+    ILOAD 10
+    IFEQ L22
+    FLOAD 7
+    LDC 100.0
+    FMUL
+    GOTO L23
+   L22
+    FLOAD 7
+    LDC 100.0
+    FDIV
+   L23
+    FSTORE 1
+   L24
+    LINENUMBER 99 L24
+    ILOAD 11
+    IFEQ L25
+    FLOAD 8
+    LDC 10000.0
+    FREM
+    GOTO L26
+   L25
+    FLOAD 8
+   L26
+    FSTORE 2
+   L27
+    LINENUMBER 100 L27
+    ILOAD 12
+    IFEQ L28
+    FLOAD 3
+    FNEG
+    GOTO L29
+   L28
+    FLOAD 3
+   L29
+    FSTORE 3
+   L30
+    LINENUMBER 101 L30
+    ILOAD 13
+    IFEQ L31
+    FLOAD 4
+    FNEG
+    GOTO L32
+   L31
+    FLOAD 4
+   L32
+    FSTORE 4
+   L33
+    LINENUMBER 102 L33
+    ILOAD 14
+    IFEQ L34
+    FLOAD 5
+    FNEG
+    GOTO L35
+   L34
+    FLOAD 5
+   L35
+    FSTORE 5
+   L36
+    LINENUMBER 103 L36
+    FLOAD 6
+    FCONST_1
+    FADD
+    FSTORE 6
+   L37
+    LINENUMBER 104 L37
+    FLOAD 6
+    FCONST_0
+    FCMPG
+    IFGE L38
+    FLOAD 6
+    FNEG
+    GOTO L39
+   L38
+    FLOAD 6
+   L39
+    FSTORE 7
+   L40
+    LINENUMBER 105 L40
+    FLOAD 7
+    FSTORE 8
+   L41
+    LINENUMBER 106 L41
+    FLOAD 0
+    FLOAD 1
+    FADD
+    FLOAD 2
+    FADD
+    FLOAD 3
+    FADD
+    FLOAD 4
+    FADD
+    FLOAD 5
+    FADD
+    FLOAD 6
+    FADD
+    FLOAD 7
+    FADD
+    FLOAD 8
+    FADD
+    FRETURN
+   L42
+    LOCALVARIABLE v0 F L0 L42 0
+    LOCALVARIABLE v1 F L0 L42 1
+    LOCALVARIABLE v2 F L0 L42 2
+    LOCALVARIABLE v3 F L0 L42 3
+    LOCALVARIABLE v4 F L0 L42 4
+    LOCALVARIABLE v5 F L0 L42 5
+    LOCALVARIABLE v6 F L0 L42 6
+    LOCALVARIABLE v7 F L0 L42 7
+    LOCALVARIABLE v8 F L0 L42 8
+    LOCALVARIABLE b0 Z L3 L42 9
+    LOCALVARIABLE b1 Z L6 L42 10
+    LOCALVARIABLE b2 Z L9 L42 11
+    LOCALVARIABLE b3 Z L12 L42 12
+    LOCALVARIABLE b4 Z L15 L42 13
+    LOCALVARIABLE b5 Z L18 L42 14
+    MAXSTACK = 2
+    MAXLOCALS = 15
+
+  // access flags 0x9
+  public static doubleInstructions(DDDDDDDDD)D
+   L0
+    LINENUMBER 119 L0
+    DLOAD 0
+    LDC -1.0
+    DCMPG
+    IFGE L1
+    ICONST_1
+    GOTO L2
+   L1
+    ICONST_0
+   L2
+    ISTORE 18
+   L3
+    LINENUMBER 120 L3
+    DLOAD 2
+    DCONST_1
+    DCMPL
+    IFLE L4
+    ICONST_1
+    GOTO L5
+   L4
+    ICONST_0
+   L5
+    ISTORE 19
+   L6
+    LINENUMBER 121 L6
+    DLOAD 4
+    LDC 2.0
+    DCMPG
+    IFGT L7
+    ICONST_1
+    GOTO L8
+   L7
+    ICONST_0
+   L8
+    ISTORE 20
+   L9
+    LINENUMBER 122 L9
+    DLOAD 6
+    LDC 3.0
+    DCMPL
+    IFLT L10
+    ICONST_1
+    GOTO L11
+   L10
+    ICONST_0
+   L11
+    ISTORE 21
+   L12
+    LINENUMBER 123 L12
+    DLOAD 8
+    LDC 4.0
+    DCMPL
+    IFNE L13
+    ICONST_1
+    GOTO L14
+   L13
+    ICONST_0
+   L14
+    ISTORE 22
+   L15
+    LINENUMBER 124 L15
+    DLOAD 10
+    LDC 5.0
+    DCMPL
+    IFEQ L16
+    ICONST_1
+    GOTO L17
+   L16
+    ICONST_0
+   L17
+    ISTORE 23
+   L18
+    LINENUMBER 125 L18
+    ILOAD 18
+    IFEQ L19
+    DLOAD 12
+    LDC 5.0
+    DADD
+    GOTO L20
+   L19
+    DLOAD 12
+    LDC 5.0
+    DSUB
+   L20
+    DSTORE 0
+   L21
+    LINENUMBER 126 L21
+    ILOAD 19
+    IFEQ L22
+    DLOAD 14
+    LDC 100.0
+    DMUL
+    GOTO L23
+   L22
+    DLOAD 14
+    LDC 100.0
+    DDIV
+   L23
+    DSTORE 2
+   L24
+    LINENUMBER 127 L24
+    ILOAD 20
+    IFEQ L25
+    DLOAD 16
+    LDC 10000.0
+    DREM
+    GOTO L26
+   L25
+    DLOAD 16
+   L26
+    DSTORE 4
+   L27
+    LINENUMBER 128 L27
+    ILOAD 21
+    IFEQ L28
+    DLOAD 6
+    DNEG
+    GOTO L29
+   L28
+    DLOAD 6
+   L29
+    DSTORE 6
+   L30
+    LINENUMBER 129 L30
+    ILOAD 22
+    IFEQ L31
+    DLOAD 8
+    DNEG
+    GOTO L32
+   L31
+    DLOAD 8
+   L32
+    DSTORE 8
+   L33
+    LINENUMBER 130 L33
+    ILOAD 23
+    IFEQ L34
+    DLOAD 10
+    DNEG
+    GOTO L35
+   L34
+    DLOAD 10
+   L35
+    DSTORE 10
+   L36
+    LINENUMBER 131 L36
+    DLOAD 12
+    DCONST_1
+    DADD
+    DSTORE 12
+   L37
+    LINENUMBER 132 L37
+    DLOAD 12
+    DCONST_0
+    DCMPG
+    IFGE L38
+    DLOAD 12
+    DNEG
+    GOTO L39
+   L38
+    DLOAD 12
+   L39
+    DSTORE 14
+   L40
+    LINENUMBER 133 L40
+    DLOAD 0
+    DLOAD 2
+    DADD
+    DLOAD 4
+    DADD
+    DLOAD 6
+    DADD
+    DLOAD 8
+    DADD
+    DLOAD 10
+    DADD
+    DLOAD 12
+    DADD
+    DLOAD 14
+    DADD
+    DLOAD 16
+    DADD
+    DRETURN
+   L41
+    LOCALVARIABLE v0 D L0 L41 0
+    LOCALVARIABLE v1 D L0 L41 2
+    LOCALVARIABLE v2 D L0 L41 4
+    LOCALVARIABLE v3 D L0 L41 6
+    LOCALVARIABLE v4 D L0 L41 8
+    LOCALVARIABLE v5 D L0 L41 10
+    LOCALVARIABLE v6 D L0 L41 12
+    LOCALVARIABLE v7 D L0 L41 14
+    LOCALVARIABLE v8 D L0 L41 16
+    LOCALVARIABLE b0 Z L3 L41 18
+    LOCALVARIABLE b1 Z L6 L41 19
+    LOCALVARIABLE b2 Z L9 L41 20
+    LOCALVARIABLE b3 Z L12 L41 21
+    LOCALVARIABLE b4 Z L15 L41 22
+    LOCALVARIABLE b5 Z L18 L41 23
+    MAXSTACK = 4
+    MAXLOCALS = 24
+
+  // access flags 0x9
+  public static castInstructions(IJJ)D
+   L0
+    LINENUMBER 137 L0
+    ILOAD 0
+    I2B
+    ISTORE 5
+   L1
+    LINENUMBER 138 L1
+    LLOAD 1
+    L2I
+    I2C
+    ISTORE 6
+   L2
+    LINENUMBER 139 L2
+    LLOAD 3
+    L2I
+    I2S
+    ISTORE 7
+   L3
+    LINENUMBER 140 L3
+    ILOAD 5
+    I2L
+    LSTORE 8
+   L4
+    LINENUMBER 141 L4
+    ILOAD 6
+    I2F
+    FSTORE 10
+   L5
+    LINENUMBER 142 L5
+    ILOAD 7
+    I2D
+    DSTORE 11
+   L6
+    LINENUMBER 143 L6
+    LLOAD 8
+    LSTORE 1
+   L7
+    LINENUMBER 144 L7
+    LLOAD 1
+    LSTORE 3
+   L8
+    LINENUMBER 145 L8
+    DLOAD 11
+    D2L
+    LSTORE 8
+   L9
+    LINENUMBER 146 L9
+    ILOAD 0
+    I2L
+    LLOAD 1
+    LADD
+    LLOAD 3
+    LADD
+    ILOAD 5
+    I2L
+    LADD
+    ILOAD 6
+    I2L
+    LADD
+    ILOAD 7
+    I2L
+    LADD
+    LLOAD 8
+    LADD
+    L2F
+    FLOAD 10
+    FADD
+    F2D
+    DLOAD 11
+    DADD
+    DRETURN
+   L10
+    LOCALVARIABLE v0 I L0 L10 0
+    LOCALVARIABLE v1 J L0 L10 1
+    LOCALVARIABLE v2 J L0 L10 3
+    LOCALVARIABLE v3 B L1 L10 5
+    LOCALVARIABLE v4 C L2 L10 6
+    LOCALVARIABLE v5 S L3 L10 7
+    LOCALVARIABLE v6 J L4 L10 8
+    LOCALVARIABLE v7 F L5 L10 10
+    LOCALVARIABLE v8 D L6 L10 11
+    MAXSTACK = 4
+    MAXLOCALS = 13
+
+  // access flags 0x9
+  public static castInstructions(FDD)F
+   L0
+    LINENUMBER 150 L0
+    FLOAD 0
+    F2I
+    I2B
+    ISTORE 5
+   L1
+    LINENUMBER 151 L1
+    DLOAD 1
+    D2I
+    I2C
+    ISTORE 6
+   L2
+    LINENUMBER 152 L2
+    DLOAD 3
+    D2I
+    I2S
+    ISTORE 7
+   L3
+    LINENUMBER 153 L3
+    ILOAD 5
+    I2L
+    LSTORE 8
+   L4
+    LINENUMBER 154 L4
+    ILOAD 6
+    I2F
+    FSTORE 10
+   L5
+    LINENUMBER 155 L5
+    ILOAD 7
+    I2D
+    DSTORE 11
+   L6
+    LINENUMBER 156 L6
+    LLOAD 8
+    L2D
+    DSTORE 1
+   L7
+    LINENUMBER 157 L7
+    DLOAD 1
+    DSTORE 3
+   L8
+    LINENUMBER 158 L8
+    FLOAD 10
+    F2L
+    LSTORE 8
+   L9
+    LINENUMBER 159 L9
+    FLOAD 0
+    F2D
+    DLOAD 1
+    DADD
+    DLOAD 3
+    DADD
+    ILOAD 5
+    I2D
+    DADD
+    ILOAD 6
+    I2D
+    DADD
+    ILOAD 7
+    I2D
+    DADD
+    LLOAD 8
+    L2D
+    DADD
+    FLOAD 10
+    F2D
+    DADD
+    DLOAD 11
+    DADD
+    D2F
+    FRETURN
+   L10
+    LOCALVARIABLE v0 F L0 L10 0
+    LOCALVARIABLE v1 D L0 L10 1
+    LOCALVARIABLE v2 D L0 L10 3
+    LOCALVARIABLE v3 B L1 L10 5
+    LOCALVARIABLE v4 C L2 L10 6
+    LOCALVARIABLE v5 S L3 L10 7
+    LOCALVARIABLE v6 J L4 L10 8
+    LOCALVARIABLE v7 F L5 L10 10
+    LOCALVARIABLE v8 D L6 L10 11
+    MAXSTACK = 4
+    MAXLOCALS = 13
+
+  // access flags 0x9
+  public static objectInstructions(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   L0
+    LINENUMBER 163 L0
+    ALOAD 0
+    ALOAD 1
+    IF_ACMPNE L1
+    ICONST_1
+    GOTO L2
+   L1
+    ICONST_0
+   L2
+    ISTORE 5
+   L3
+    LINENUMBER 164 L3
+    ALOAD 1
+    ALOAD 2
+    IF_ACMPEQ L4
+    ICONST_1
+    GOTO L5
+   L4
+    ICONST_0
+   L5
+    ISTORE 6
+   L6
+    LINENUMBER 165 L6
+    ALOAD 2
+    IFNONNULL L7
+    ICONST_1
+    GOTO L8
+   L7
+    ICONST_0
+   L8
+    ISTORE 7
+   L9
+    LINENUMBER 166 L9
+    ALOAD 3
+    IFNULL L10
+    ICONST_1
+    GOTO L11
+   L10
+    ICONST_0
+   L11
+    ISTORE 8
+   L12
+    LINENUMBER 167 L12
+    ALOAD 4
+    INSTANCEOF java/lang/String
+    ISTORE 9
+   L13
+    LINENUMBER 168 L13
+    ILOAD 5
+    IFEQ L14
+    ACONST_NULL
+    GOTO L15
+   L14
+    ALOAD 0
+   L15
+    ASTORE 0
+   L16
+    LINENUMBER 169 L16
+    ILOAD 6
+    IFEQ L17
+    ALOAD 1
+    GOTO L18
+   L17
+    ALOAD 0
+   L18
+    ASTORE 1
+   L19
+    LINENUMBER 170 L19
+    ILOAD 7
+    IFEQ L20
+    ALOAD 2
+    GOTO L21
+   L20
+    ALOAD 1
+   L21
+    ASTORE 2
+   L22
+    LINENUMBER 171 L22
+    ILOAD 8
+    IFEQ L23
+    ALOAD 3
+    GOTO L24
+   L23
+    ALOAD 2
+   L24
+    ASTORE 3
+   L25
+    LINENUMBER 172 L25
+    ILOAD 9
+    IFEQ L26
+    NEW java/lang/Integer
+    DUP
+    ALOAD 4
+    CHECKCAST java/lang/String
+    INVOKEVIRTUAL java/lang/String.length ()I
+    INVOKESPECIAL java/lang/Integer.<init> (I)V
+    GOTO L27
+   L26
+    ALOAD 3
+   L27
+    ASTORE 4
+   L28
+    LINENUMBER 173 L28
+    ALOAD 4
+    ARETURN
+   L29
+    LOCALVARIABLE v0 Ljava/lang/Object; L0 L29 0
+    LOCALVARIABLE v1 Ljava/lang/Object; L0 L29 1
+    LOCALVARIABLE v2 Ljava/lang/Object; L0 L29 2
+    LOCALVARIABLE v3 Ljava/lang/Object; L0 L29 3
+    LOCALVARIABLE v4 Ljava/lang/Object; L0 L29 4
+    LOCALVARIABLE b0 Z L3 L29 5
+    LOCALVARIABLE b1 Z L6 L29 6
+    LOCALVARIABLE b2 Z L9 L29 7
+    LOCALVARIABLE b3 Z L12 L29 8
+    LOCALVARIABLE b4 Z L13 L29 9
+    MAXSTACK = 3
+    MAXLOCALS = 10
+
+  // access flags 0x9
+  public static arrayInstructions([B[C[S[I[J[F[D[Ljava/lang/Object;)[Ljava/lang/Object;
+   L0
+    LINENUMBER 178 L0
+    ALOAD 0
+    ICONST_1
+    ALOAD 0
+    ICONST_0
+    BALOAD
+    BASTORE
+   L1
+    LINENUMBER 179 L1
+    ALOAD 1
+    ICONST_1
+    ALOAD 1
+    ICONST_0
+    CALOAD
+    CASTORE
+   L2
+    LINENUMBER 180 L2
+    ALOAD 2
+    ICONST_1
+    ALOAD 2
+    ICONST_0
+    SALOAD
+    SASTORE
+   L3
+    LINENUMBER 181 L3
+    ALOAD 3
+    ICONST_1
+    ALOAD 3
+    ICONST_0
+    IALOAD
+    IASTORE
+   L4
+    LINENUMBER 182 L4
+    ALOAD 4
+    ICONST_1
+    ALOAD 4
+    ICONST_0
+    LALOAD
+    LASTORE
+   L5
+    LINENUMBER 183 L5
+    ALOAD 5
+    ICONST_1
+    ALOAD 5
+    ICONST_0
+    FALOAD
+    FASTORE
+   L6
+    LINENUMBER 184 L6
+    ALOAD 6
+    ICONST_1
+    ALOAD 6
+    ICONST_0
+    DALOAD
+    DASTORE
+   L7
+    LINENUMBER 185 L7
+    ALOAD 7
+    ICONST_1
+    ALOAD 7
+    ICONST_0
+    AALOAD
+    AASTORE
+   L8
+    LINENUMBER 186 L8
+    ALOAD 7
+    ARRAYLENGTH
+    ANEWARRAY java/lang/Object
+    ASTORE 8
+   L9
+    LINENUMBER 187 L9
+    ALOAD 8
+    ICONST_0
+    ICONST_4
+    BIPUSH 8
+    BIPUSH 16
+    MULTIANEWARRAY [[[I 3
+    AASTORE
+   L10
+    LINENUMBER 188 L10
+    ALOAD 8
+    ARETURN
+   L11
+    LOCALVARIABLE v0 [B L0 L11 0
+    LOCALVARIABLE v1 [C L0 L11 1
+    LOCALVARIABLE v2 [S L0 L11 2
+    LOCALVARIABLE v3 [I L0 L11 3
+    LOCALVARIABLE v4 [J L0 L11 4
+    LOCALVARIABLE v5 [F L0 L11 5
+    LOCALVARIABLE v6 [D L0 L11 6
+    LOCALVARIABLE v7 [Ljava/lang/Object; L0 L11 7
+    LOCALVARIABLE v8 [Ljava/lang/Object; L9 L11 8
+    MAXSTACK = 5
+    MAXLOCALS = 9
+
+  // access flags 0x1
+  public fieldInstructions()V
+   L0
+    LINENUMBER 192 L0
+    ALOAD 0
+    GETFIELD jdk3/AllInstructions.field : Ljdk3/AllInstructions;
+    ASTORE 1
+   L1
+    LINENUMBER 193 L1
+    ALOAD 0
+    GETSTATIC jdk3/AllInstructions.staticField : Ljdk3/AllInstructions;
+    PUTFIELD jdk3/AllInstructions.field : Ljdk3/AllInstructions;
+   L2
+    LINENUMBER 194 L2
+    ALOAD 1
+    PUTSTATIC jdk3/AllInstructions.staticField : Ljdk3/AllInstructions;
+   L3
+    LINENUMBER 195 L3
+    RETURN
+   L4
+    LOCALVARIABLE this Ljdk3/AllInstructions; L0 L4 0
+    LOCALVARIABLE c Ljdk3/AllInstructions; L1 L3 1
+    MAXSTACK = 2
+    MAXLOCALS = 2
+
+  // access flags 0x1
+  public methodInstructions(Ljava/lang/Runnable;)V
+   L0
+    LINENUMBER 198 L0
+    NEW jdk3/AllInstructions
+    DUP
+    INVOKESPECIAL jdk3/AllInstructions.<init> ()V
+    ASTORE 2
+   L1
+    LINENUMBER 199 L1
+    ALOAD 2
+    INVOKEVIRTUAL jdk3/AllInstructions.fieldInstructions ()V
+   L2
+    LINENUMBER 200 L2
+    ALOAD 2
+    INVOKESTATIC jdk3/AllInstructions.monitorInstructions (Ljava/lang/Object;)Ljava/lang/String;
+    POP
+   L3
+    LINENUMBER 201 L3
+    ALOAD 1
+    INVOKEINTERFACE java/lang/Runnable.run ()V (itf)
+   L4
+    LINENUMBER 202 L4
+    RETURN
+   L5
+    LOCALVARIABLE this Ljdk3/AllInstructions; L0 L5 0
+    LOCALVARIABLE v0 Ljava/lang/Runnable; L0 L5 1
+    LOCALVARIABLE c Ljdk3/AllInstructions; L1 L4 2
+    MAXSTACK = 2
+    MAXLOCALS = 3
+
+  // access flags 0x9
+  public static lookupSwitchInstruction(I)I
+   L0
+    LINENUMBER 205 L0
+    ILOAD 0
+    LOOKUPSWITCH
+      1000: L1
+      10000: L2
+      100000: L3
+      default: L4
+   L1
+    LINENUMBER 207 L1
+    ICONST_1
+    IRETURN
+   L2
+    LINENUMBER 209 L2
+    ICONST_2
+    IRETURN
+   L3
+    LINENUMBER 211 L3
+    ICONST_3
+    IRETURN
+   L4
+    LINENUMBER 213 L4
+    ICONST_M1
+    IRETURN
+   L5
+    LOCALVARIABLE v0 I L0 L5 0
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static tableSwitchInstruction(I)I
+   L0
+    LINENUMBER 218 L0
+    ILOAD 0
+    TABLESWITCH
+      0: L1
+      1: L2
+      2: L3
+      default: L4
+   L1
+    LINENUMBER 220 L1
+    ICONST_1
+    IRETURN
+   L2
+    LINENUMBER 222 L2
+    ICONST_2
+    IRETURN
+   L3
+    LINENUMBER 224 L3
+    ICONST_3
+    IRETURN
+   L4
+    LINENUMBER 226 L4
+    ICONST_M1
+    IRETURN
+   L5
+    LOCALVARIABLE v0 I L0 L5 0
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static monitorInstructions(Ljava/lang/Object;)Ljava/lang/String;
+    TRYCATCHBLOCK L0 L1 L1 null
+   L2
+    LINENUMBER 231 L2
+    ALOAD 0
+    ASTORE 1
+    ALOAD 1
+    MONITORENTER
+   L0
+    LINENUMBER 232 L0
+    ALOAD 0
+    INVOKEVIRTUAL java/lang/Object.toString ()Ljava/lang/String;
+    ASTORE 2
+    ALOAD 1
+    MONITOREXIT
+    ALOAD 2
+    ARETURN
+   L1
+    LINENUMBER 233 L1
+    ASTORE 3
+    ALOAD 1
+    MONITOREXIT
+    ALOAD 3
+    ATHROW
+   L3
+    LOCALVARIABLE v0 Ljava/lang/Object; L2 L3 0
+    MAXSTACK = 1
+    MAXLOCALS = 4
+
+  // access flags 0x1
+  public dupX1Instruction()I
+   L0
+    LINENUMBER 237 L0
+    ALOAD 0
+    DUP
+    GETFIELD jdk3/AllInstructions.f : I
+    DUP_X1
+    ICONST_1
+    IADD
+    PUTFIELD jdk3/AllInstructions.f : I
+    IRETURN
+   L1
+    LOCALVARIABLE this Ljdk3/AllInstructions; L0 L1 0
+    MAXSTACK = 4
+    MAXLOCALS = 1
+
+  // access flags 0x1
+  public dup2Instruction([JII)V
+   L0
+    LINENUMBER 241 L0
+    ALOAD 1
+    ILOAD 2
+    DUP2
+    LALOAD
+    LCONST_1
+    ILOAD 3
+    LSHL
+    LOR
+    LASTORE
+   L1
+    LINENUMBER 242 L1
+    RETURN
+   L2
+    LOCALVARIABLE this Ljdk3/AllInstructions; L0 L2 0
+    LOCALVARIABLE v0 [J L0 L2 1
+    LOCALVARIABLE i I L0 L2 2
+    LOCALVARIABLE j I L0 L2 3
+    MAXSTACK = 7
+    MAXLOCALS = 4
+
+  // access flags 0x1
+  public dup2X1Instruction()J
+   L0
+    LINENUMBER 245 L0
+    ALOAD 0
+    DUP
+    GETFIELD jdk3/AllInstructions.g : J
+    DUP2_X1
+    LCONST_1
+    LADD
+    PUTFIELD jdk3/AllInstructions.g : J
+    LRETURN
+   L1
+    LOCALVARIABLE this Ljdk3/AllInstructions; L0 L1 0
+    MAXSTACK = 7
+    MAXLOCALS = 1
+
+  // access flags 0x1
+  public dup2X1InstructionVariant([Ljava/lang/String;ILjava/lang/Object;)V
+   L0
+    LINENUMBER 249 L0
+    NEW java/lang/StringBuffer
+    DUP
+    INVOKESPECIAL java/lang/StringBuffer.<init> ()V
+    ALOAD 1
+    ILOAD 2
+    DUP2_X1
+    AALOAD
+    INVOKEVIRTUAL java/lang/StringBuffer.append (Ljava/lang/String;)Ljava/lang/StringBuffer;
+    LDC " "
+    INVOKEVIRTUAL java/lang/StringBuffer.append (Ljava/lang/String;)Ljava/lang/StringBuffer;
+    ALOAD 3
+    INVOKEVIRTUAL java/lang/Object.toString ()Ljava/lang/String;
+    INVOKEVIRTUAL java/lang/StringBuffer.append (Ljava/lang/String;)Ljava/lang/StringBuffer;
+    INVOKEVIRTUAL java/lang/StringBuffer.toString ()Ljava/lang/String;
+    AASTORE
+   L1
+    LINENUMBER 250 L1
+    RETURN
+   L2
+    LOCALVARIABLE this Ljdk3/AllInstructions; L0 L2 0
+    LOCALVARIABLE v0 [Ljava/lang/String; L0 L2 1
+    LOCALVARIABLE i I L0 L2 2
+    LOCALVARIABLE o Ljava/lang/Object; L0 L2 3
+    MAXSTACK = 5
+    MAXLOCALS = 4
+
+  // access flags 0x1
+  public dupX2Instruction([I[I)V
+   L0
+    LINENUMBER 253 L0
+    ALOAD 1
+    ICONST_0
+    ALOAD 2
+    ICONST_0
+    ICONST_0
+    DUP_X2
+    IASTORE
+    IASTORE
+   L1
+    LINENUMBER 254 L1
+    RETURN
+   L2
+    LOCALVARIABLE this Ljdk3/AllInstructions; L0 L2 0
+    LOCALVARIABLE v0 [I L0 L2 1
+    LOCALVARIABLE v1 [I L0 L2 2
+    MAXSTACK = 6
+    MAXLOCALS = 3
+
+  // access flags 0x1
+  public dup2X2Instruction([J[J)V
+   L0
+    LINENUMBER 257 L0
+    ALOAD 1
+    ICONST_0
+    ALOAD 2
+    ICONST_0
+    LCONST_0
+    DUP2_X2
+    LASTORE
+    LASTORE
+   L1
+    LINENUMBER 258 L1
+    RETURN
+   L2
+    LOCALVARIABLE this Ljdk3/AllInstructions; L0 L2 0
+    LOCALVARIABLE v0 [J L0 L2 1
+    LOCALVARIABLE v1 [J L0 L2 2
+    MAXSTACK = 8
+    MAXLOCALS = 3
+
+  // access flags 0x1
+  public popInstructions()V
+   L0
+    LINENUMBER 261 L0
+    ALOAD 0
+    INVOKEVIRTUAL jdk3/AllInstructions.dupX1Instruction ()I
+    POP
+   L1
+    LINENUMBER 262 L1
+    ALOAD 0
+    INVOKEVIRTUAL jdk3/AllInstructions.dup2X1Instruction ()J
+    POP2
+   L2
+    LINENUMBER 263 L2
+    RETURN
+   L3
+    LOCALVARIABLE this Ljdk3/AllInstructions; L0 L3 0
+    MAXSTACK = 2
+    MAXLOCALS = 1
+
+  // access flags 0x1
+  public jsrAndRetInstructions(I)I throws java/lang/Exception 
+    TRYCATCHBLOCK L0 L1 L2 java/lang/Throwable
+    TRYCATCHBLOCK L0 L3 L3 null
+   L4
+    LINENUMBER 266 L4
+    ILOAD 1
+    ICONST_1
+    IADD
+    ISTORE 2
+   L0
+    LINENUMBER 268 L0
+    ALOAD 0
+    ILOAD 2
+    INVOKEVIRTUAL jdk3/AllInstructions.jsrAndRetInstructions (I)I
+    ISTORE 2
+   L1
+    JSR L5
+    GOTO L6
+   L2
+    LINENUMBER 270 L2
+    ASTORE 3
+    ICONST_M1
+    ISTORE 4
+    JSR L5
+    ILOAD 4
+    IRETURN
+   L3
+    LINENUMBER 272 L3
+    ASTORE 5
+    JSR L5
+    ALOAD 5
+    ATHROW
+   L5
+    ASTORE 6
+    IINC 2 1
+    RET 6
+   L6
+    LINENUMBER 274 L6
+    ILOAD 2
+    IRETURN
+   L7
+    LOCALVARIABLE this Ljdk3/AllInstructions; L4 L7 0
+    LOCALVARIABLE v0 I L4 L7 1
+    LOCALVARIABLE u0 I L0 L7 2
+    LOCALVARIABLE t Ljava/lang/Throwable; L2 L6 3
+    MAXSTACK = 2
+    MAXLOCALS = 7
+
+  // access flags 0x1
+  public readNullArray()Ljava/lang/Object;
+    TRYCATCHBLOCK L0 L1 L1 java/lang/NullPointerException
+   L2
+    LINENUMBER 278 L2
+    ACONST_NULL
+    ASTORE 1
+   L0
+    LINENUMBER 280 L0
+    ALOAD 1
+    ICONST_0
+    AALOAD
+    ARETURN
+   L1
+    LINENUMBER 282 L1
+    ASTORE 2
+    ACONST_NULL
+    ARETURN
+   L3
+    LOCALVARIABLE this Ljdk3/AllInstructions; L2 L3 0
+    LOCALVARIABLE array [Ljava/lang/Object; L0 L3 1
+    LOCALVARIABLE e Ljava/lang/NullPointerException; L1 L3 2
+    MAXSTACK = 2
+    MAXLOCALS = 3
+}

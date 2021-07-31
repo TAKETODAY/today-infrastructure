@@ -1,0 +1,951 @@
+// class version 52.0 (52)
+// access flags 0x21
+public class jdk8/AllFrames {
+
+  // compiled from: AllFrames.java
+
+  // access flags 0x0
+  Ljava/lang/Object; o
+
+  // access flags 0x0
+  Ljava/lang/String; s
+
+  // access flags 0x0
+  I f
+
+  // access flags 0x1
+  public <init>(Ljava/lang/Object;Ljava/lang/String;)V
+    // parameter  o
+    // parameter  s
+   L0
+    LINENUMBER 42 L0
+    ALOAD 0
+    INVOKESPECIAL java/lang/Object.<init> ()V
+   L1
+    LINENUMBER 43 L1
+    ALOAD 0
+    ALOAD 1
+    PUTFIELD jdk8/AllFrames.o : Ljava/lang/Object;
+   L2
+    LINENUMBER 44 L2
+    ALOAD 0
+    ALOAD 2
+    PUTFIELD jdk8/AllFrames.s : Ljava/lang/String;
+   L3
+    LINENUMBER 45 L3
+    RETURN
+   L4
+    LOCALVARIABLE this Ljdk8/AllFrames; L0 L4 0
+    LOCALVARIABLE o Ljava/lang/Object; L0 L4 1
+    LOCALVARIABLE s Ljava/lang/String; L0 L4 2
+    MAXSTACK = 2
+    MAXLOCALS = 3
+
+  // access flags 0x1
+  public <init>(Z)V
+    // parameter  b
+   L0
+    LINENUMBER 50 L0
+    ALOAD 0
+    ACONST_NULL
+    ILOAD 1
+    IFEQ L1
+    LDC "true"
+    GOTO L2
+   L1
+   FRAME FULL [U I] [U N]
+    LDC "false"
+   L2
+   FRAME FULL [U I] [U N java/lang/String]
+    INVOKESPECIAL jdk8/AllFrames.<init> (Ljava/lang/Object;Ljava/lang/String;)V
+   L3
+    LINENUMBER 51 L3
+    RETURN
+   L4
+    LOCALVARIABLE this Ljdk8/AllFrames; L0 L4 0
+    LOCALVARIABLE b Z L0 L4 1
+    MAXSTACK = 3
+    MAXLOCALS = 2
+
+  // access flags 0x9
+  public static create(Ljava/lang/String;)Ljdk8/AllFrames;
+    // parameter  s
+   L0
+    LINENUMBER 56 L0
+    NEW jdk8/AllFrames
+    DUP
+    ACONST_NULL
+    ALOAD 0
+    IFNONNULL L1
+    LDC ""
+    GOTO L2
+   L1
+   FRAME FULL [java/lang/String] [L0 L0 N]
+    ALOAD 0
+   L2
+   FRAME FULL [java/lang/String] [L0 L0 N java/lang/String]
+    INVOKESPECIAL jdk8/AllFrames.<init> (Ljava/lang/Object;Ljava/lang/String;)V
+    ARETURN
+   L3
+    LOCALVARIABLE s Ljava/lang/String; L0 L3 0
+    MAXSTACK = 4
+    MAXLOCALS = 1
+
+  // access flags 0x1
+  public m0(ZBCSIFJDLjava/lang/Object;[Ljava/lang/Object;[[Ljava/lang/Object;)I
+    // parameter  b
+    // parameter  y
+    // parameter  c
+    // parameter  s
+    // parameter  i
+    // parameter  f
+    // parameter  l
+    // parameter  d
+    // parameter  o
+    // parameter  p
+    // parameter  q
+   L0
+    LINENUMBER 73 L0
+    ILOAD 1
+    IFEQ L1
+    ALOAD 0
+    ILOAD 1
+    IFNE L2
+    ICONST_1
+    GOTO L3
+   L2
+   FRAME SAME1 jdk8/AllFrames
+    ICONST_0
+   L3
+   FRAME FULL [jdk8/AllFrames I I I I I F J D java/lang/Object [Ljava/lang/Object; [[Ljava/lang/Object;] [jdk8/AllFrames I]
+    ILOAD 2
+    ILOAD 3
+    ILOAD 4
+    ILOAD 5
+    ICONST_1
+    ISUB
+    FLOAD 6
+    FCONST_1
+    FSUB
+    LLOAD 7
+    LCONST_1
+    LSUB
+    DLOAD 9
+    DCONST_1
+    DSUB
+    ALOAD 11
+    ALOAD 12
+    ALOAD 13
+   L4
+    LINENUMBER 74 L4
+    INVOKEVIRTUAL jdk8/AllFrames.m0 (ZBCSIFJDLjava/lang/Object;[Ljava/lang/Object;[[Ljava/lang/Object;)I
+    GOTO L5
+   L1
+   FRAME SAME
+    ALOAD 0
+    ILOAD 1
+    IFNE L6
+    ICONST_1
+    GOTO L7
+   L6
+   FRAME SAME1 jdk8/AllFrames
+    ICONST_0
+   L7
+   FRAME FULL [jdk8/AllFrames I I I I I F J D java/lang/Object [Ljava/lang/Object; [[Ljava/lang/Object;] [jdk8/AllFrames I]
+    ILOAD 2
+    ILOAD 3
+    ILOAD 4
+    ILOAD 5
+    ICONST_1
+    IADD
+    FLOAD 6
+    FCONST_1
+    FADD
+    LLOAD 7
+    LCONST_1
+    LADD
+    DLOAD 9
+    DCONST_1
+    DADD
+    ALOAD 11
+    ALOAD 12
+    ALOAD 13
+   L8
+    LINENUMBER 75 L8
+    INVOKEVIRTUAL jdk8/AllFrames.m0 (ZBCSIFJDLjava/lang/Object;[Ljava/lang/Object;[[Ljava/lang/Object;)I
+   L5
+    LINENUMBER 73 L5
+   FRAME SAME1 I
+    IRETURN
+   L9
+    LOCALVARIABLE this Ljdk8/AllFrames; L0 L9 0
+    LOCALVARIABLE b Z L0 L9 1
+    LOCALVARIABLE y B L0 L9 2
+    LOCALVARIABLE c C L0 L9 3
+    LOCALVARIABLE s S L0 L9 4
+    LOCALVARIABLE i I L0 L9 5
+    LOCALVARIABLE f F L0 L9 6
+    LOCALVARIABLE l J L0 L9 7
+    LOCALVARIABLE d D L0 L9 9
+    LOCALVARIABLE o Ljava/lang/Object; L0 L9 11
+    LOCALVARIABLE p [Ljava/lang/Object; L0 L9 12
+    LOCALVARIABLE q [[Ljava/lang/Object; L0 L9 13
+    MAXSTACK = 14
+    MAXLOCALS = 14
+
+  // access flags 0x1
+  public m0([BZ)Ljava/lang/String;
+    // parameter  bytes
+    // parameter  b
+    TRYCATCHBLOCK L0 L1 L2 java/io/UnsupportedEncodingException
+   L0
+    LINENUMBER 81 L0
+    ALOAD 1
+    IFNONNULL L3
+    ACONST_NULL
+    GOTO L1
+   L3
+   FRAME SAME
+    NEW java/lang/String
+    DUP
+    ALOAD 1
+    ILOAD 2
+    IFEQ L4
+    LDC "a"
+    GOTO L5
+   L4
+   FRAME FULL [jdk8/AllFrames [B I] [L3 L3 [B]
+    LDC "b"
+   L5
+   FRAME FULL [jdk8/AllFrames [B I] [L3 L3 [B java/lang/String]
+    INVOKESPECIAL java/lang/String.<init> ([BLjava/lang/String;)V
+   L1
+   FRAME SAME1 java/lang/String
+    ARETURN
+   L2
+    LINENUMBER 82 L2
+   FRAME SAME1 java/io/UnsupportedEncodingException
+    ASTORE 3
+   L6
+    LINENUMBER 83 L6
+    ACONST_NULL
+    ARETURN
+   L7
+    LOCALVARIABLE e Ljava/io/UnsupportedEncodingException; L6 L7 3
+    LOCALVARIABLE this Ljdk8/AllFrames; L0 L7 0
+    LOCALVARIABLE bytes [B L0 L7 1
+    LOCALVARIABLE b Z L0 L7 2
+    MAXSTACK = 4
+    MAXLOCALS = 4
+
+  // access flags 0x1
+  public m1(II)V
+    // parameter  i
+    // parameter  j
+   L0
+    LINENUMBER 91 L0
+    ILOAD 2
+    ISTORE 4
+   L1
+    LINENUMBER 92 L1
+    ILOAD 1
+    IFGE L2
+   L3
+    LINENUMBER 93 L3
+    ILOAD 1
+    INEG
+    ISTORE 1
+   L2
+    LINENUMBER 95 L2
+   FRAME APPEND [T I]
+    RETURN
+   L4
+    LOCALVARIABLE this Ljdk8/AllFrames; L0 L4 0
+    LOCALVARIABLE i I L0 L4 1
+    LOCALVARIABLE j I L0 L4 2
+    LOCALVARIABLE l I L1 L4 4
+    MAXSTACK = 1
+    MAXLOCALS = 5
+
+  // access flags 0x1
+  public m2(IZ)J
+    // parameter  n
+    // parameter  b
+   L0
+    LINENUMBER 99 L0
+    LCONST_0
+    LSTORE 3
+   L1
+    LINENUMBER 100 L1
+    ILOAD 2
+    IFEQ L2
+   L3
+    LINENUMBER 101 L3
+    ICONST_0
+    ISTORE 5
+   L4
+    LINENUMBER 103 L4
+   FRAME APPEND [J I]
+    LLOAD 3
+    ILOAD 5
+    IINC 5 1
+    I2L
+    LADD
+    LSTORE 3
+   L5
+    LINENUMBER 104 L5
+    ILOAD 5
+    ILOAD 1
+    IF_ICMPLT L4
+   L6
+    LINENUMBER 105 L6
+    GOTO L7
+   L2
+    LINENUMBER 106 L2
+   FRAME CHOP 1
+    LCONST_0
+    LSTORE 5
+   L8
+    LINENUMBER 108 L8
+   FRAME APPEND [J]
+    LLOAD 3
+    LLOAD 5
+    DUP2
+    LCONST_1
+    LADD
+    LSTORE 5
+    LADD
+    LSTORE 3
+   L9
+    LINENUMBER 109 L9
+    LLOAD 5
+    ILOAD 1
+    I2L
+    LCMP
+    IFLT L8
+   L7
+    LINENUMBER 111 L7
+   FRAME CHOP 1
+    LLOAD 3
+    LRETURN
+   L10
+    LOCALVARIABLE i I L4 L6 5
+    LOCALVARIABLE i J L8 L7 5
+    LOCALVARIABLE this Ljdk8/AllFrames; L0 L10 0
+    LOCALVARIABLE n I L0 L10 1
+    LOCALVARIABLE b Z L0 L10 2
+    LOCALVARIABLE total J L1 L10 3
+    MAXSTACK = 8
+    MAXLOCALS = 7
+
+  // access flags 0x1
+  public m3(I)I
+    // parameter  i
+   L0
+    LINENUMBER 116 L0
+    ILOAD 1
+    IFGE L1
+   L2
+    LINENUMBER 117 L2
+    ILOAD 1
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ISTORE 1
+   L3
+    LINENUMBER 118 L3
+    ILOAD 1
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ISTORE 1
+   L1
+    LINENUMBER 120 L1
+   FRAME SAME
+    ILOAD 1
+    IRETURN
+   L4
+    LOCALVARIABLE this Ljdk8/AllFrames; L0 L4 0
+    LOCALVARIABLE i I L0 L4 1
+    MAXSTACK = 2
+    MAXLOCALS = 2
+
+  // access flags 0x1
+  public m4(I)V
+    // parameter  i
+   L0
+    LINENUMBER 125 L0
+    ILOAD 1
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ISTORE 1
+   L1
+    LINENUMBER 126 L1
+    ILOAD 1
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ILOAD 1
+    IADD
+    ISTORE 1
+   L2
+    LINENUMBER 127 L2
+    ALOAD 0
+    ILOAD 1
+    IFNE L3
+    LDC "true"
+    GOTO L4
+   L3
+   FRAME SAME1 jdk8/AllFrames
+    LDC "false"
+   L4
+   FRAME FULL [jdk8/AllFrames I] [jdk8/AllFrames java/lang/String]
+    PUTFIELD jdk8/AllFrames.s : Ljava/lang/String;
+   L5
+    LINENUMBER 128 L5
+    RETURN
+   L6
+    LOCALVARIABLE this Ljdk8/AllFrames; L0 L6 0
+    LOCALVARIABLE i I L0 L6 1
+    MAXSTACK = 2
+    MAXLOCALS = 2
+
+  // access flags 0x9
+  public static m5(Z)Ljava/lang/Number;
+    // parameter  b
+   L0
+    LINENUMBER 132 L0
+    ILOAD 0
+    IFEQ L1
+    NEW java/lang/Integer
+    DUP
+    ICONST_1
+    INVOKESPECIAL java/lang/Integer.<init> (I)V
+    INVOKEVIRTUAL java/lang/Integer.intValue ()I
+    I2F
+    GOTO L2
+   L1
+   FRAME SAME
+    NEW java/lang/Float
+    DUP
+    FCONST_1
+    INVOKESPECIAL java/lang/Float.<init> (F)V
+    INVOKEVIRTUAL java/lang/Float.floatValue ()F
+   L2
+   FRAME SAME1 F
+    INVOKESTATIC java/lang/Float.valueOf (F)Ljava/lang/Float;
+    ARETURN
+   L3
+    LOCALVARIABLE b Z L0 L3 0
+    MAXSTACK = 3
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static m6(Z)[Ljava/lang/Number;
+    // parameter  b
+   L0
+    LINENUMBER 137 L0
+    ILOAD 0
+    IFEQ L1
+    ICONST_1
+    ANEWARRAY java/lang/Integer
+    GOTO L2
+   L1
+   FRAME SAME
+    ICONST_1
+    ANEWARRAY java/lang/Float
+   L2
+   FRAME SAME1 [Ljava/lang/Number;
+    ARETURN
+   L3
+    LOCALVARIABLE b Z L0 L3 0
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static m7(Z)[[Ljava/lang/Number;
+    // parameter  b
+   L0
+    LINENUMBER 142 L0
+    ILOAD 0
+    IFEQ L1
+    ICONST_1
+    ICONST_1
+    MULTIANEWARRAY [[Ljava/lang/Integer; 2
+    GOTO L2
+   L1
+   FRAME SAME
+    ICONST_1
+    ICONST_1
+    MULTIANEWARRAY [[Ljava/lang/Float; 2
+   L2
+   FRAME SAME1 [[Ljava/lang/Number;
+    ARETURN
+   L3
+    LOCALVARIABLE b Z L0 L3 0
+    MAXSTACK = 2
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static m8(Z)[Ljava/lang/Object;
+    // parameter  b
+   L0
+    LINENUMBER 147 L0
+    ILOAD 0
+    IFEQ L1
+    ICONST_1
+    ICONST_1
+    MULTIANEWARRAY [[B 2
+    CHECKCAST [Ljava/lang/Object;
+    GOTO L2
+   L1
+   FRAME SAME
+    ICONST_1
+    ICONST_1
+    MULTIANEWARRAY [[S 2
+    CHECKCAST [Ljava/lang/Object;
+   L2
+   FRAME SAME1 [Ljava/lang/Object;
+    ARETURN
+   L3
+    LOCALVARIABLE b Z L0 L3 0
+    MAXSTACK = 2
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static m9(Z)Ljava/lang/Object;
+    // parameter  b
+   L0
+    LINENUMBER 152 L0
+    ILOAD 0
+    IFEQ L1
+    ICONST_1
+    NEWARRAY T_BYTE
+    GOTO L2
+   L1
+   FRAME SAME
+    ICONST_1
+    ANEWARRAY java/lang/Float
+   L2
+   FRAME SAME1 java/lang/Object
+    ARETURN
+   L3
+    LOCALVARIABLE b Z L0 L3 0
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static m10(Z)[Ljava/lang/Object;
+    // parameter  b
+   L0
+    LINENUMBER 157 L0
+    ILOAD 0
+    IFEQ L1
+    ICONST_1
+    ICONST_1
+    MULTIANEWARRAY [[B 2
+    CHECKCAST [Ljava/lang/Object;
+    GOTO L2
+   L1
+   FRAME SAME
+    ICONST_1
+    ANEWARRAY [Ljava/lang/Float;
+    CHECKCAST [Ljava/lang/Object;
+   L2
+   FRAME SAME1 [Ljava/lang/Object;
+    ARETURN
+   L3
+    LOCALVARIABLE b Z L0 L3 0
+    MAXSTACK = 2
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static m11(Z)Ljava/lang/Object;
+    // parameter  b
+   L0
+    LINENUMBER 162 L0
+    ILOAD 0
+    IFEQ L1
+    ICONST_1
+    NEWARRAY T_BYTE
+    GOTO L2
+   L1
+   FRAME SAME
+    ICONST_1
+    ICONST_1
+    MULTIANEWARRAY [[B 2
+   L2
+   FRAME SAME1 java/lang/Object
+    ARETURN
+   L3
+    LOCALVARIABLE b Z L0 L3 0
+    MAXSTACK = 2
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static m12(Z)[Ljava/lang/Object;
+    // parameter  b
+   L0
+    LINENUMBER 167 L0
+    ILOAD 0
+    IFEQ L1
+    ICONST_1
+    ANEWARRAY java/lang/Object
+    GOTO L2
+   L1
+   FRAME SAME
+    ICONST_1
+    ICONST_1
+    MULTIANEWARRAY [[B 2
+   L2
+   FRAME SAME1 [Ljava/lang/Object;
+    ARETURN
+   L3
+    LOCALVARIABLE b Z L0 L3 0
+    MAXSTACK = 2
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static m13(Z)[Ljava/lang/Object;
+    // parameter  b
+   L0
+    LINENUMBER 172 L0
+    ILOAD 0
+    IFEQ L1
+    ICONST_1
+    ICONST_1
+    MULTIANEWARRAY [[B 2
+    CHECKCAST [Ljava/lang/Object;
+    GOTO L2
+   L1
+   FRAME SAME
+    ICONST_1
+    ICONST_1
+    ICONST_1
+    MULTIANEWARRAY [[[B 3
+    CHECKCAST [Ljava/lang/Object;
+   L2
+   FRAME SAME1 [Ljava/lang/Object;
+    ARETURN
+   L3
+    LOCALVARIABLE b Z L0 L3 0
+    MAXSTACK = 3
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static m14(Z)[[Ljava/lang/Object;
+    // parameter  b
+   L0
+    LINENUMBER 177 L0
+    ILOAD 0
+    IFEQ L1
+    ICONST_1
+    ICONST_1
+    ICONST_1
+    MULTIANEWARRAY [[[B 3
+    CHECKCAST [[Ljava/lang/Object;
+    GOTO L2
+   L1
+   FRAME SAME
+    ICONST_1
+    ICONST_1
+    ICONST_1
+    ICONST_1
+    MULTIANEWARRAY [[[[B 4
+    CHECKCAST [[Ljava/lang/Object;
+   L2
+   FRAME SAME1 [[Ljava/lang/Object;
+    ARETURN
+   L3
+    LOCALVARIABLE b Z L0 L3 0
+    MAXSTACK = 4
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static m15(Z)Ljava/lang/Object;
+    // parameter  b
+   L0
+    LINENUMBER 182 L0
+    ILOAD 0
+    IFEQ L1
+    NEW java/lang/Integer
+    DUP
+    ICONST_1
+    INVOKESPECIAL java/lang/Integer.<init> (I)V
+    GOTO L2
+   L1
+   FRAME SAME
+    ICONST_1
+    NEWARRAY T_CHAR
+   L2
+   FRAME SAME1 java/lang/Object
+    ARETURN
+   L3
+    LOCALVARIABLE b Z L0 L3 0
+    MAXSTACK = 3
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static m16(Z)Ljava/lang/Object;
+    // parameter  b
+   L0
+    LINENUMBER 187 L0
+    ILOAD 0
+    IFEQ L1
+    NEW java/lang/Integer
+    DUP
+    ICONST_1
+    INVOKESPECIAL java/lang/Integer.<init> (I)V
+    GOTO L2
+   L1
+   FRAME SAME
+    ICONST_1
+    ANEWARRAY java/lang/Float
+   L2
+   FRAME SAME1 java/lang/Object
+    ARETURN
+   L3
+    LOCALVARIABLE b Z L0 L3 0
+    MAXSTACK = 3
+    MAXLOCALS = 1
+
+  // access flags 0x1
+  public m17(Z)Ljava/lang/Object;
+    // parameter  b
+   L0
+    LINENUMBER 192 L0
+    ILOAD 1
+    IFEQ L1
+    ICONST_0
+    NEWARRAY T_INT
+    GOTO L2
+   L1
+   FRAME SAME
+    ICONST_0
+    NEWARRAY T_BOOLEAN
+   L2
+   FRAME SAME1 java/lang/Object
+    ARETURN
+   L3
+    LOCALVARIABLE this Ljdk8/AllFrames; L0 L3 0
+    LOCALVARIABLE b Z L0 L3 1
+    MAXSTACK = 1
+    MAXLOCALS = 2
+
+  // access flags 0x1
+  public m18(Z)Ljava/lang/Object;
+    // parameter  b
+   L0
+    LINENUMBER 197 L0
+    ILOAD 1
+    IFEQ L1
+    ICONST_0
+    NEWARRAY T_SHORT
+    GOTO L2
+   L1
+   FRAME SAME
+    ICONST_0
+    NEWARRAY T_FLOAT
+   L2
+   FRAME SAME1 java/lang/Object
+    ARETURN
+   L3
+    LOCALVARIABLE this Ljdk8/AllFrames; L0 L3 0
+    LOCALVARIABLE b Z L0 L3 1
+    MAXSTACK = 1
+    MAXLOCALS = 2
+
+  // access flags 0x1
+  public m19(Z)Ljava/lang/Object;
+    // parameter  b
+   L0
+    LINENUMBER 202 L0
+    ILOAD 1
+    IFEQ L1
+    ICONST_0
+    NEWARRAY T_DOUBLE
+    GOTO L2
+   L1
+   FRAME SAME
+    ICONST_0
+    NEWARRAY T_LONG
+   L2
+   FRAME SAME1 java/lang/Object
+    ARETURN
+   L3
+    LOCALVARIABLE this Ljdk8/AllFrames; L0 L3 0
+    LOCALVARIABLE b Z L0 L3 1
+    MAXSTACK = 1
+    MAXLOCALS = 2
+
+  // access flags 0x9
+  public static m20(Z)Ljava/lang/Object;
+    // parameter  b
+   L0
+    LINENUMBER 207 L0
+    ILOAD 0
+    IFEQ L1
+    ACONST_NULL
+    GOTO L2
+   L1
+   FRAME SAME
+    NEW java/lang/Integer
+    DUP
+    ICONST_1
+    INVOKESPECIAL java/lang/Integer.<init> (I)V
+   L2
+   FRAME SAME1 java/lang/Integer
+    ARETURN
+   L3
+    LOCALVARIABLE b Z L0 L3 0
+    MAXSTACK = 3
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static m21(Z)Ljava/lang/Object;
+    // parameter  b
+   L0
+    LINENUMBER 212 L0
+    ILOAD 0
+    IFEQ L1
+    NEW java/lang/Integer
+    DUP
+    ICONST_1
+    INVOKESPECIAL java/lang/Integer.<init> (I)V
+    GOTO L2
+   L1
+   FRAME SAME
+    ACONST_NULL
+   L2
+   FRAME SAME1 java/lang/Integer
+    ARETURN
+   L3
+    LOCALVARIABLE b Z L0 L3 0
+    MAXSTACK = 3
+    MAXLOCALS = 1
+
+  // access flags 0x9
+  public static m23()I
+   L0
+    LINENUMBER 218 L0
+    ACONST_NULL
+    ASTORE 0
+   L1
+    LINENUMBER 219 L1
+    ALOAD 0
+    ICONST_0
+    AALOAD
+    INVOKEVIRTUAL java/lang/Integer.intValue ()I
+    IRETURN
+   L2
+    LOCALVARIABLE array [Ljava/lang/Integer; L1 L2 0
+    MAXSTACK = 2
+    MAXLOCALS = 1
+}

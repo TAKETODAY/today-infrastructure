@@ -1,0 +1,71 @@
+// class version 58.65535 (-65478)
+// RECORD
+// access flags 0x10030
+final class jdk14/AllStructures$EmptyRecord extends java/lang/Record {
+
+  // compiled from: AllStructures.java
+  NESTHOST jdk14/AllStructures
+  // access flags 0x18
+  final static INNERCLASS jdk14/AllStructures$EmptyRecord jdk14/AllStructures EmptyRecord
+  // access flags 0x19
+  public final static INNERCLASS java/lang/invoke/MethodHandles$Lookup java/lang/invoke/MethodHandles Lookup
+
+  // access flags 0x1
+  public <init>()V
+   L0
+    LINENUMBER 44 L0
+    ALOAD 0
+    INVOKESPECIAL java/lang/Record.<init> ()V
+    RETURN
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x1
+  public toString()Ljava/lang/String;
+   L0
+    LINENUMBER 44 L0
+    ALOAD 0
+    INVOKEDYNAMIC toString(Ljdk14/AllStructures$EmptyRecord;)Ljava/lang/String; [
+      // handle kind 0x6 : INVOKESTATIC
+      java/lang/runtime/ObjectMethods.bootstrap(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;
+      // arguments:
+      jdk14.AllStructures$EmptyRecord.class, 
+      ""
+    ]
+    ARETURN
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x11
+  public final hashCode()I
+   L0
+    LINENUMBER 44 L0
+    ALOAD 0
+    INVOKEDYNAMIC hashCode(Ljdk14/AllStructures$EmptyRecord;)I [
+      // handle kind 0x6 : INVOKESTATIC
+      java/lang/runtime/ObjectMethods.bootstrap(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;
+      // arguments:
+      jdk14.AllStructures$EmptyRecord.class, 
+      ""
+    ]
+    IRETURN
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x11
+  public final equals(Ljava/lang/Object;)Z
+   L0
+    LINENUMBER 44 L0
+    ALOAD 0
+    ALOAD 1
+    INVOKEDYNAMIC equals(Ljdk14/AllStructures$EmptyRecord;Ljava/lang/Object;)Z [
+      // handle kind 0x6 : INVOKESTATIC
+      java/lang/runtime/ObjectMethods.bootstrap(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;
+      // arguments:
+      jdk14.AllStructures$EmptyRecord.class, 
+      ""
+    ]
+    IRETURN
+    MAXSTACK = 2
+    MAXLOCALS = 2
+}

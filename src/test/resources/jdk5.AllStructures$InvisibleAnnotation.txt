@@ -1,0 +1,111 @@
+// class version 49.0 (49)
+// access flags 0x2600
+abstract @interface jdk5/AllStructures$InvisibleAnnotation implements java/lang/annotation/Annotation {
+
+  // compiled from: AllStructures.java
+
+  @Ljava/lang/annotation/Retention;(value=Ljava/lang/annotation/RetentionPolicy;.CLASS)
+  // access flags 0x4018
+  final static enum INNERCLASS jdk5/AllStructures$EnumClass jdk5/AllStructures EnumClass
+  // access flags 0x2608
+  static abstract INNERCLASS jdk5/AllStructures$InvisibleAnnotation jdk5/AllStructures InvisibleAnnotation
+
+  // access flags 0x401
+  public abstract byteValue()B
+    default=(byte)1
+
+  // access flags 0x401
+  public abstract charValue()C
+    default=(char)49
+
+  // access flags 0x401
+  public abstract booleanValue()Z
+    default=true
+
+  // access flags 0x401
+  public abstract intValue()I
+    default=1
+
+  // access flags 0x401
+  public abstract shortValue()S
+    default=(short)1
+
+  // access flags 0x401
+  public abstract longValue()J
+    default=1L
+
+  // access flags 0x401
+  public abstract floatValue()F
+    default=1.0F
+
+  // access flags 0x401
+  public abstract doubleValue()D
+    default=1.0D
+
+  // access flags 0x401
+  public abstract stringValue()Ljava/lang/String;
+    default="1"
+
+  // access flags 0x401
+  public abstract classValue()Ljava/lang/Class;
+    default=java.lang.Object.class
+
+  // access flags 0x401
+  public abstract enumValue()Ljdk5/AllStructures$EnumClass;
+    default=Ljdk5/AllStructures$EnumClass;.VALUE1
+
+  // access flags 0x401
+  public abstract annotationValue()Ljava/lang/Deprecated;
+    default=@Ljava/lang/Deprecated;()
+
+  // access flags 0x401
+  public abstract byteArrayValue()[B
+    default={(byte)1}
+
+  // access flags 0x401
+  public abstract charArrayValue()[C
+    default={(char)49}
+
+  // access flags 0x401
+  public abstract booleanArrayValue()[Z
+    default={true}
+
+  // access flags 0x401
+  public abstract intArrayValue()[I
+    default={1}
+
+  // access flags 0x401
+  public abstract shortArrayValue()[S
+    default={(short)1}
+
+  // access flags 0x401
+  public abstract longArrayValue()[J
+    default={1L}
+
+  // access flags 0x401
+  public abstract floatArrayValue()[F
+    default={1.0F}
+
+  // access flags 0x401
+  public abstract doubleArrayValue()[D
+    default={1.0D}
+
+  // access flags 0x401
+  public abstract stringArrayValue()[Ljava/lang/String;
+    default={"1"}
+
+  // access flags 0x401
+  public abstract classArrayValue()[Ljava/lang/Class;
+    default={java.lang.Object.class}
+
+  // access flags 0x401
+  public abstract enumArrayValue()[Ljdk5/AllStructures$EnumClass;
+    default={Ljdk5/AllStructures$EnumClass;.VALUE1}
+
+  // access flags 0x401
+  public abstract annotationArrayValue()[Ljava/lang/Deprecated;
+    default={@Ljava/lang/Deprecated;()}
+
+  // access flags 0x401
+  public abstract otherArrayValue()[I
+}

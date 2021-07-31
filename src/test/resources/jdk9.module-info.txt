@@ -1,0 +1,27 @@
+  // compiled from: module-info.java
+module pkg { // 1.0
+
+  // main class pkg/A
+  // package pkg/internal
+  // package pkg
+  requires java.compiler;// access flags 0x0
+  // version 9
+  requires java.base;// access flags 0x8000
+  // version 9
+  requires static java.naming;// access flags 0x40
+  // version 9
+  requires transitive java.prefs;// access flags 0x20
+  // version 9
+  exports pkg to// access flags 0x0
+    java.naming,
+    java.compiler;
+  exports pkg/internal to// access flags 0x0
+    java.prefs;
+  opens pkg/internal to// access flags 0x0
+    java.naming,
+    pkg;
+  uses pkg/A;
+  uses java/lang/Integer;
+  provides pkg/A with
+    pkg/internal/AImpl;
+}

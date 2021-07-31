@@ -1,0 +1,6 @@
+// class version 45.0 (45)
+// access flags 0x600
+abstract interface DefaultPackage {
+
+  // compiled from: DefaultPackage.java
+}

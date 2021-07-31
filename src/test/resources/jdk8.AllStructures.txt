@@ -1,0 +1,294 @@
+// class version 52.0 (52)
+// access flags 0x421
+// signature <U0:Ljava/lang/Object;U1::Ljava/util/List<TU0;>;U2::Ljava/util/Collection<TU0;>;>Ljava/util/HashMap<TU0;TU1;>;Ljava/util/concurrent/Callable<TU0;>;Ljava/util/concurrent/Future<TU1;>;
+// declaration: jdk8/AllStructures<U0, U1 extends java.util.List<U0>, U2 extends java.util.Collection<U0>> extends java.util.HashMap<U0, U1> implements java.util.concurrent.Callable<U0>, java.util.concurrent.Future<U1>
+public abstract class jdk8/AllStructures extends java/util/HashMap implements java/util/concurrent/Callable java/util/concurrent/Future {
+
+  // compiled from: AllStructures.java
+
+  @Lannotations/VTA;(v=0)
+
+  @Lannotations/ITA;(v=1) // invisible
+
+  @Lannotations/VTUA;(v=14) : CLASS_EXTENDS -1, null
+
+  @Lannotations/VTUA;(v=16) : CLASS_EXTENDS -1, 0;
+
+  @Lannotations/VTUA;(v=18) : CLASS_EXTENDS -1, 1;
+
+  @Lannotations/VTUA;(v=20) : CLASS_EXTENDS 0, null
+
+  @Lannotations/VTUA;(v=22) : CLASS_EXTENDS 0, 0;
+
+  @Lannotations/VTUA;(v=24) : CLASS_EXTENDS 1, null
+
+  @Lannotations/VTUA;(v=26) : CLASS_EXTENDS 1, 0;
+
+  @Lannotations/VTPA;(v=2) : CLASS_TYPE_PARAMETER 0, null
+
+  @Lannotations/VTPA;(v=4) : CLASS_TYPE_PARAMETER 1, null
+
+  @Lannotations/VTUA;(v=6) : CLASS_TYPE_PARAMETER_BOUND 1, 1, null
+
+  @Lannotations/VTPA;(v=8) : CLASS_TYPE_PARAMETER 2, null
+
+  @Lannotations/VTUA;(v=10) : CLASS_TYPE_PARAMETER_BOUND 2, 1, null
+
+  @Lannotations/VTUA;(v=12) : CLASS_TYPE_PARAMETER_BOUND 2, 1, 0;
+
+  @Lannotations/ITUA;(v=15) : CLASS_EXTENDS -1, null // invisible
+
+  @Lannotations/ITUA;(v=17) : CLASS_EXTENDS -1, 0; // invisible
+
+  @Lannotations/ITUA;(v=19) : CLASS_EXTENDS -1, 1; // invisible
+
+  @Lannotations/ITUA;(v=21) : CLASS_EXTENDS 0, null // invisible
+
+  @Lannotations/ITUA;(v=23) : CLASS_EXTENDS 0, 0; // invisible
+
+  @Lannotations/ITUA;(v=25) : CLASS_EXTENDS 1, null // invisible
+
+  @Lannotations/ITUA;(v=27) : CLASS_EXTENDS 1, 0; // invisible
+
+  @Lannotations/ITPA;(v=3) : CLASS_TYPE_PARAMETER 0, null // invisible
+
+  @Lannotations/ITPA;(v=5) : CLASS_TYPE_PARAMETER 1, null // invisible
+
+  @Lannotations/ITUA;(v=7) : CLASS_TYPE_PARAMETER_BOUND 1, 1, null // invisible
+
+  @Lannotations/ITPA;(v=9) : CLASS_TYPE_PARAMETER 2, null // invisible
+
+  @Lannotations/ITUA;(v=11) : CLASS_TYPE_PARAMETER_BOUND 2, 1, null // invisible
+
+  @Lannotations/ITUA;(v=13) : CLASS_TYPE_PARAMETER_BOUND 2, 1, 0; // invisible
+  // access flags 0x2
+  private INNERCLASS jdk8/AllStructures$𝔻 jdk8/AllStructures 𝔻
+  // access flags 0x2
+  private INNERCLASS jdk8/AllStructures$InnerClass jdk8/AllStructures InnerClass
+  // access flags 0x0
+  INNERCLASS jdk8/AllStructures$1 null null
+
+  // access flags 0x1
+  // signature Ljava/util/HashMap<TU0;TU1;>;
+  // declaration: f extends java.util.HashMap<U0, U1>
+  public Ljava/util/HashMap; f
+  @Lannotations/VFA;(v=28)
+  @Lannotations/IFA;(v=29) // invisible
+  @Lannotations/VTUA;(v=30) : FIELD, 0;
+  @Lannotations/VTUA;(v=32) : FIELD, 1;
+  @Lannotations/ITUA;(v=31) : FIELD, 0; // invisible
+  @Lannotations/ITUA;(v=33) : FIELD, 1; // invisible
+
+  // access flags 0x2
+  private D g
+
+  // access flags 0x1
+  public <init>()V
+  @Lannotations/VCA;(v=34)
+  @Lannotations/ICA;(v=35) // invisible
+   L0
+    LINENUMBER 80 L0
+    ALOAD 0
+    INVOKESPECIAL java/util/HashMap.<init> ()V
+    RETURN
+   L1
+    LOCALVARIABLE this Ljdk8/AllStructures; L0 L1 0
+    // signature Ljdk8/AllStructures<TU0;TU1;TU2;>;
+    // declaration: this extends jdk8.AllStructures<U0, U1, U2>
+    MAXSTACK = 1
+    MAXLOCALS = 1
+
+  // access flags 0x1
+  // signature <V0:TU0;V1:TU1;>(TV0;TV1;Ljava/util/Map<+TV0;+TV1;>;)Ljava/util/Map<+TV0;+TV1;>;
+  // declaration: java.util.Map<? extends V0, ? extends V1> m<V0 extends U0, V1 extends U1>(V0, V1, java.util.Map<? extends V0, ? extends V1>)
+  public m(Ljava/lang/Object;Ljava/util/List;Ljava/util/Map;)Ljava/util/Map; throws java/lang/IllegalStateException java/lang/IllegalArgumentException 
+    // parameter  p0
+    // parameter  p1
+    // parameter  p2
+  @Lannotations/VMA;(v=36)
+  @Lannotations/IMA;(v=37) // invisible
+  @Lannotations/VTUA;(v=48) : METHOD_RETURN, 0;
+  @Lannotations/VTUA;(v=50) : METHOD_RETURN, 1;
+  @Lannotations/VTPA;(v=38) : METHOD_TYPE_PARAMETER 0, null
+  @Lannotations/VTUA;(v=40) : METHOD_TYPE_PARAMETER_BOUND 0, 0, null
+  @Lannotations/VTUA;(v=42) : METHOD_TYPE_PARAMETER 1, null
+  @Lannotations/VTUA;(v=44) : METHOD_TYPE_PARAMETER_BOUND 1, 0, null
+  @Lannotations/VTUA;(v=62) : THROWS 0, null
+  @Lannotations/VTUA;(v=64) : THROWS 1, null
+  @Lannotations/VTUA;(v=46) : METHOD_RETURN, null
+  @Lannotations/VTUA;(v=58) : METHOD_FORMAL_PARAMETER 2, 0;
+  @Lannotations/VTUA;(v=60) : METHOD_FORMAL_PARAMETER 2, 1;
+  @Lannotations/ITUA;(v=49) : METHOD_RETURN, 0; // invisible
+  @Lannotations/ITUA;(v=51) : METHOD_RETURN, 1; // invisible
+  @Lannotations/ITPA;(v=39) : METHOD_TYPE_PARAMETER 0, null // invisible
+  @Lannotations/ITUA;(v=41) : METHOD_TYPE_PARAMETER_BOUND 0, 0, null // invisible
+  @Lannotations/ITUA;(v=43) : METHOD_TYPE_PARAMETER 1, null // invisible
+  @Lannotations/ITUA;(v=45) : METHOD_TYPE_PARAMETER_BOUND 1, 0, null // invisible
+  @Lannotations/ITUA;(v=63) : THROWS 0, null // invisible
+  @Lannotations/ITUA;(v=65) : THROWS 1, null // invisible
+  @Lannotations/ITUA;(v=47) : METHOD_RETURN, null // invisible
+  @Lannotations/ITUA;(v=59) : METHOD_FORMAL_PARAMETER 2, 0; // invisible
+  @Lannotations/ITUA;(v=61) : METHOD_FORMAL_PARAMETER 2, 1; // invisible
+    // annotable parameter count: 3 (visible)
+    @Lannotations/VPA;(v=52) // parameter 0
+    @Lannotations/VPA;(v=54) // parameter 1
+    @Lannotations/VPA;(v=56) // parameter 2
+    // annotable parameter count: 3 (invisible)
+    @Lannotations/IPA;(v=53) // invisible, parameter 0
+    @Lannotations/IPA;(v=55) // invisible, parameter 1
+    @Lannotations/IPA;(v=57) // invisible, parameter 2
+    TRYCATCHBLOCK L0 L1 L2 java/lang/IllegalStateException
+    TRYCATCHBLOCK L0 L1 L2 java/lang/IllegalArgumentException
+    TRYCATCHBLOCK @Lannotations/VTUA;(v=80) : EXCEPTION_PARAMETER 1, null
+    TRYCATCHBLOCK @Lannotations/VTUA;(v=78) : EXCEPTION_PARAMETER 0, null
+    TRYCATCHBLOCK @Lannotations/ITUA;(v=81) : EXCEPTION_PARAMETER 1, null // invisible
+    TRYCATCHBLOCK @Lannotations/ITUA;(v=79) : EXCEPTION_PARAMETER 0, null // invisible
+   L3
+    LINENUMBER 100 L3
+    ALOAD 2
+    ASTORE 4
+   L4
+    LINENUMBER 103 L4
+    ALOAD 3
+    ASTORE 5
+   L5
+    LINENUMBER 106 L5
+    ALOAD 4
+  @Lannotations/VTUA;(v=76) : CAST 0, null
+  @Lannotations/ITUA;(v=77) : CAST 0, null // invisible
+    CHECKCAST java/util/ArrayList
+    ASTORE 6
+   L0
+    LINENUMBER 108 L0
+    ALOAD 0
+    ALOAD 1
+    ALOAD 2
+    ALOAD 3
+    INVOKEVIRTUAL jdk8/AllStructures.m (Ljava/lang/Object;Ljava/util/List;Ljava/util/Map;)Ljava/util/Map;
+    POP
+   L1
+    LINENUMBER 113 L1
+    GOTO L6
+   L2
+    LINENUMBER 109 L2
+   FRAME FULL [jdk8/AllStructures java/lang/Object java/util/List java/util/Map java/util/List java/util/Map java/util/ArrayList] [java/lang/RuntimeException]
+    ASTORE 7
+   L6
+    LINENUMBER 114 L6
+   FRAME SAME
+    ALOAD 5
+  @Lannotations/VTUA;(v=82) : INSTANCEOF, null
+  @Lannotations/ITUA;(v=83) : INSTANCEOF, null // invisible
+    INSTANCEOF java/util/HashMap
+    IFEQ L7
+   L8
+    LINENUMBER 115 L8
+    ALOAD 5
+    ARETURN
+   L7
+    LINENUMBER 117 L7
+   FRAME SAME
+    INVOKESTATIC jdk8/AllStructures.m ()V
+  @Lannotations/VTUA;(v=84) : METHOD_INVOCATION_TYPE_ARGUMENT 0, null
+  @Lannotations/ITUA;(v=85) : METHOD_INVOCATION_TYPE_ARGUMENT 1, null // invisible
+   L9
+    LINENUMBER 118 L9
+    NEW java/util/HashMap
+  @Lannotations/VTUA;(v=86) : NEW, null
+  @Lannotations/VTUA;(v=88) : NEW, 0;
+  @Lannotations/ITUA;(v=87) : NEW, null // invisible
+  @Lannotations/ITUA;(v=89) : NEW, 1; // invisible
+    DUP
+    INVOKESPECIAL java/util/HashMap.<init> ()V
+    ARETURN
+   L10
+    LOCALVARIABLE this Ljdk8/AllStructures; L3 L10 0
+    // signature Ljdk8/AllStructures<TU0;TU1;TU2;>;
+    // declaration: this extends jdk8.AllStructures<U0, U1, U2>
+    LOCALVARIABLE p0 Ljava/lang/Object; L3 L10 1
+    // signature TV0;
+    // declaration: p0 extends V0
+    LOCALVARIABLE p1 Ljava/util/List; L3 L10 2
+    // signature TV1;
+    // declaration: p1 extends V1
+    LOCALVARIABLE p2 Ljava/util/Map; L3 L10 3
+    // signature Ljava/util/Map<+TV0;+TV1;>;
+    // declaration: p2 extends java.util.Map<? extends V0, ? extends V1>
+    LOCALVARIABLE l1 Ljava/util/List; L4 L10 4
+    // signature TV1;
+    // declaration: l1 extends V1
+    LOCALVARIABLE l2 Ljava/util/Map; L5 L10 5
+    // signature Ljava/util/Map<+TV0;+TV1;>;
+    // declaration: l2 extends java.util.Map<? extends V0, ? extends V1>
+    LOCALVARIABLE l3 Ljava/util/ArrayList; L0 L10 6
+    LOCALVARIABLE @Lannotations/VTUA;(v=70) : LOCAL_VARIABLE, 0; [ L5 - L10 - 5 ]
+    LOCALVARIABLE @Lannotations/VTUA;(v=72) : LOCAL_VARIABLE, 1; [ L5 - L10 - 5 ]
+    LOCALVARIABLE @Lannotations/ITUA;(v=71) : LOCAL_VARIABLE, 0; [ L5 - L10 - 5 ] // invisible
+    LOCALVARIABLE @Lannotations/ITUA;(v=73) : LOCAL_VARIABLE, 1; [ L5 - L10 - 5 ] // invisible
+    MAXSTACK = 4
+    MAXLOCALS = 8
+
+  // access flags 0xA
+  // signature <U:Ljava/lang/Object;V:Ljava/lang/Object;>()V
+  // declaration: void m<U, V>()
+  private static m()V
+   L0
+    LINENUMBER 121 L0
+    RETURN
+    MAXSTACK = 0
+    MAXLOCALS = 0
+
+  // access flags 0x2
+  private n()D
+   L0
+    LINENUMBER 126 L0
+    ALOAD 0
+    GETFIELD jdk8/AllStructures.g : D
+    DRETURN
+   L1
+    LOCALVARIABLE this Ljdk8/AllStructures; L0 L1 0
+    // signature Ljdk8/AllStructures<TU0;TU1;TU2;>;
+    // declaration: this extends jdk8.AllStructures<U0, U1, U2>
+    MAXSTACK = 2
+    MAXLOCALS = 1
+
+  // access flags 0x2
+  private anonymousInnerClass()Ljava/lang/Runnable; throws java/lang/Exception 
+   L0
+    LINENUMBER 130 L0
+    NEW jdk8/AllStructures$1
+    DUP
+    ALOAD 0
+    INVOKESPECIAL jdk8/AllStructures$1.<init> (Ljdk8/AllStructures;)V
+    ARETURN
+   L1
+    LOCALVARIABLE this Ljdk8/AllStructures; L0 L1 0
+    // signature Ljdk8/AllStructures<TU0;TU1;TU2;>;
+    // declaration: this extends jdk8.AllStructures<U0, U1, U2>
+    MAXSTACK = 3
+    MAXLOCALS = 1
+
+  // access flags 0x1008
+  static synthetic access$000(Ljdk8/AllStructures;)D
+   L0
+    LINENUMBER 64 L0
+    ALOAD 0
+    GETFIELD jdk8/AllStructures.g : D
+    DRETURN
+   L1
+    LOCALVARIABLE x0 Ljdk8/AllStructures; L0 L1 0
+    MAXSTACK = 2
+    MAXLOCALS = 1
+
+  // access flags 0x1008
+  static synthetic access$100(Ljdk8/AllStructures;)D
+   L0
+    LINENUMBER 64 L0
+    ALOAD 0
+    INVOKESPECIAL jdk8/AllStructures.n ()D
+    DRETURN
+   L1
+    LOCALVARIABLE x0 Ljdk8/AllStructures; L0 L1 0
+    MAXSTACK = 2
+    MAXLOCALS = 1
+}
