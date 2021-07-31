@@ -69,7 +69,7 @@ public class TestTransformingLoader extends cn.taketoday.cglib.CodeGenTestCase {
         Method m = CglibReflectUtils.findMethod("cn.taketoday.cglib.transform.impl.TestTransformingLoader.initStatic(Class)");
         ClassTransformer t = new AddStaticInitTransformer(m);
         // t = new ClassTransformerChain(new ClassTransformer[]{ t, new
-        // ClassTransformerTee(new org.objectweb.asm.util.TraceClassVisitor(null, new
+        // ClassTransformerTee(new cn.taketoday.asm.util.TraceClassVisitor(null, new
         // java.io.PrintWriter(System.out))) });
         Class loaded = loadHelper(t, Example.class);
         Object obj = loaded.newInstance();
