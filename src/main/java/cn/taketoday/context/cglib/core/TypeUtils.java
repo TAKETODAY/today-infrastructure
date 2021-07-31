@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.utils.ObjectUtils;
 
@@ -63,11 +64,11 @@ public abstract class TypeUtils {
   }
 
   public static boolean isSynthetic(int access) {
-    return (Constant.ACC_SYNTHETIC & access) != 0;
+    return (Opcodes.ACC_SYNTHETIC & access) != 0;
   }
 
   public static boolean isBridge(int access) {
-    return (Constant.ACC_BRIDGE & access) != 0;
+    return (Opcodes.ACC_BRIDGE & access) != 0;
   }
 
   // getPackage returns null on JDK 1.2
@@ -340,13 +341,13 @@ public abstract class TypeUtils {
   public static int iconst(int value) {
     switch (value) //@off
         { 
-            case -1 :   return Constant.ICONST_M1;
-            case 0 :    return Constant.ICONST_0;
-            case 1 :    return Constant.ICONST_1;
-            case 2 :    return Constant.ICONST_2;
-            case 3 :    return Constant.ICONST_3;
-            case 4 :    return Constant.ICONST_4;
-            case 5 :    return Constant.ICONST_5;
+            case -1 :   return Opcodes.ICONST_M1;
+            case 0 :    return Opcodes.ICONST_0;
+            case 1 :    return Opcodes.ICONST_1;
+            case 2 :    return Opcodes.ICONST_2;
+            case 3 :    return Opcodes.ICONST_3;
+            case 4 :    return Opcodes.ICONST_4;
+            case 5 :    return Opcodes.ICONST_5;
             default:
               return -1; // error @on
         }
@@ -354,47 +355,47 @@ public abstract class TypeUtils {
 
   public static int lconst(long value) {
     if (value == 0L) {
-      return Constant.LCONST_0;
+      return Opcodes.LCONST_0;
     }
     if (value == 1L) {
-      return Constant.LCONST_1;
+      return Opcodes.LCONST_1;
     }
     return -1; // error
   }
 
   public static int fconst(float value) {
     if (value == 0f) {
-      return Constant.FCONST_0;
+      return Opcodes.FCONST_0;
     }
     if (value == 1f) {
-      return Constant.FCONST_1;
+      return Opcodes.FCONST_1;
     }
     if (value == 2f) {
-      return Constant.FCONST_2;
+      return Opcodes.FCONST_2;
     }
     return -1; // error
   }
 
   public static int dconst(double value) {
     if (value == 0d) {
-      return Constant.DCONST_0;
+      return Opcodes.DCONST_0;
     }
     if (value == 1d) {
-      return Constant.DCONST_1;
+      return Opcodes.DCONST_1;
     }
     return -1; // error
   }
 
   public static int newArray(Type type) {
     switch (type.getSort()) { //@off
-            case Type.BYTE :    return Constant.T_BYTE;
-            case Type.CHAR :    return Constant.T_CHAR;
-            case Type.DOUBLE :  return Constant.T_DOUBLE;
-            case Type.FLOAT :   return Constant.T_FLOAT;
-            case Type.INT :     return Constant.T_INT;
-            case Type.LONG :    return Constant.T_LONG;
-            case Type.SHORT :   return Constant.T_SHORT;
-            case Type.BOOLEAN : return Constant.T_BOOLEAN;
+            case Type.BYTE :    return Opcodes.T_BYTE;
+            case Type.CHAR :    return Opcodes.T_CHAR;
+            case Type.DOUBLE :  return Opcodes.T_DOUBLE;
+            case Type.FLOAT :   return Opcodes.T_FLOAT;
+            case Type.INT :     return Opcodes.T_INT;
+            case Type.LONG :    return Opcodes.T_LONG;
+            case Type.SHORT :   return Opcodes.T_SHORT;
+            case Type.BOOLEAN : return Opcodes.T_BOOLEAN;
             default:
               return -1; // error @on
     }

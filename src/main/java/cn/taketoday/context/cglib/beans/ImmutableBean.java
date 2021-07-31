@@ -21,6 +21,7 @@ import java.security.ProtectionDomain;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
@@ -40,7 +41,7 @@ public abstract class ImmutableBean {
   private static final Type ILLEGAL_STATE_EXCEPTION = TypeUtils.parseType("IllegalStateException");
   private static final Signature CSTRUCT_OBJECT = TypeUtils.parseConstructor("Object");
   private static final Class[] OBJECT_CLASSES = { Object.class };
-  private static final String FIELD_NAME = "TODAY$RWBean";
+  private static final String FIELD_NAME = "today$RWbean";
 
   public static Object create(Object bean) {
     Generator gen = new Generator();
@@ -78,11 +79,11 @@ public abstract class ImmutableBean {
     public void generateClass(ClassVisitor v) {
       Type targetType = Type.getType(target);
       ClassEmitter ce = new ClassEmitter(v);
-      ce.beginClass(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, getClassName(), targetType, null, Constant.SOURCE_FILE);
+      ce.beginClass(Opcodes.JAVA_VERSION, Opcodes.ACC_PUBLIC, getClassName(), targetType, null, Constant.SOURCE_FILE);
 
-      ce.declare_field(Constant.ACC_FINAL | Constant.ACC_PRIVATE, FIELD_NAME, targetType, null);
+      ce.declare_field(Opcodes.ACC_FINAL | Opcodes.ACC_PRIVATE, FIELD_NAME, targetType, null);
 
-      CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, CSTRUCT_OBJECT);
+      CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, CSTRUCT_OBJECT);
       e.load_this();
       e.super_invoke_constructor();
       e.load_this();
@@ -98,7 +99,7 @@ public abstract class ImmutableBean {
 
       for (int i = 0; i < getters.length; i++) {
         MethodInfo getter = CglibReflectUtils.getMethodInfo(getters[i]);
-        e = EmitUtils.beginMethod(ce, getter, Constant.ACC_PUBLIC);
+        e = EmitUtils.beginMethod(ce, getter, Opcodes.ACC_PUBLIC);
         e.load_this();
         e.getfield(FIELD_NAME);
         e.invoke(getter);
@@ -108,7 +109,7 @@ public abstract class ImmutableBean {
 
       for (int i = 0; i < setters.length; i++) {
         MethodInfo setter = CglibReflectUtils.getMethodInfo(setters[i]);
-        e = EmitUtils.beginMethod(ce, setter, Constant.ACC_PUBLIC);
+        e = EmitUtils.beginMethod(ce, setter, Opcodes.ACC_PUBLIC);
         e.throw_exception(ILLEGAL_STATE_EXCEPTION, "Bean is immutable");
         e.end_method();
       }

@@ -29,6 +29,7 @@ import java.util.Set;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.Label;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.internal.CustomizerRegistry;
 
@@ -73,7 +74,7 @@ public abstract class EmitUtils {
 
   public static void factoryMethod(ClassEmitter ce, Signature sig) {
 
-    CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, sig);
+    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, sig);
     e.new_instance_this();
     e.dup();
     e.load_args();
@@ -83,7 +84,7 @@ public abstract class EmitUtils {
   }
 
   public static void nullConstructor(ClassEmitter ce) {
-    CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, CSTRUCT_NULL);
+    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, CSTRUCT_NULL);
     e.load_this();
     e.super_invoke_constructor();
     e.return_value();
@@ -341,7 +342,7 @@ public abstract class EmitUtils {
 
       // TODO: can end up with duplicated field names when using chained transformers;
       // incorporate static hook # somehow
-      String fieldName = "TODAY$load_class$".concat(TypeUtils.escapeType(typeName));
+      String fieldName = "TODAY$LoadClass$".concat(TypeUtils.escapeType(typeName));
       if (!ce.isFieldDeclared(fieldName)) {
         ce.declare_field(Constant.PRIVATE_FINAL_STATIC, fieldName, TYPE_CLASS, null);
         CodeEmitter hook = ce.getStaticHook();
@@ -919,7 +920,7 @@ public abstract class EmitUtils {
   public static void addProperties(ClassEmitter ce, String[] names, Type[] types) {
     for (int i = 0; i < names.length; i++) {
       String fieldName = "$today_prop_" + names[i];
-      ce.declare_field(Constant.ACC_PRIVATE, fieldName, types[i], null);
+      ce.declare_field(Opcodes.ACC_PRIVATE, fieldName, types[i], null);
       EmitUtils.addProperty(ce, names[i], types[i], fieldName);
     }
   }
@@ -927,13 +928,13 @@ public abstract class EmitUtils {
   public static void addProperty(ClassEmitter ce, String name, Type type, String fieldName) {
     String property = TypeUtils.upperFirst(name);
     CodeEmitter e;
-    e = ce.beginMethod(Constant.ACC_PUBLIC, new Signature("get" + property, type, Constant.TYPES_EMPTY_ARRAY));
+    e = ce.beginMethod(Opcodes.ACC_PUBLIC, new Signature("get" + property, type, Constant.TYPES_EMPTY_ARRAY));
     e.load_this();
     e.getfield(fieldName);
     e.return_value();
     e.end_method();
 
-    e = ce.beginMethod(Constant.ACC_PUBLIC, new Signature("set" + property, Type.VOID_TYPE, new Type[] { type }));
+    e = ce.beginMethod(Opcodes.ACC_PUBLIC, new Signature("set" + property, Type.VOID_TYPE, new Type[] { type }));
     e.load_this();
     e.load_arg(0);
     e.putfield(fieldName);

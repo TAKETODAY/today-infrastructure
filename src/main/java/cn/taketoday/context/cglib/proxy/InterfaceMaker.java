@@ -21,6 +21,7 @@ import java.util.Map;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
@@ -115,15 +116,15 @@ public class InterfaceMaker extends AbstractClassGenerator<Object> {
   public void generateClass(ClassVisitor v) throws Exception {
     ClassEmitter ce = new ClassEmitter(v);
     ce.beginClass(//
-                  Constant.JAVA_VERSION, //
-                  Constant.ACC_PUBLIC | Constant.ACC_INTERFACE | Constant.ACC_ABSTRACT, //
+                  Opcodes.JAVA_VERSION, //
+                  Opcodes.ACC_PUBLIC | Opcodes.ACC_INTERFACE | Opcodes.ACC_ABSTRACT, //
                   getClassName(), //
                   null, //
                   null, //
                   Constant.SOURCE_FILE//
     );
 
-    final int access = Constant.ACC_PUBLIC | Constant.ACC_ABSTRACT;
+    final int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT;
     for (final Map.Entry<Signature, Type[]> entry : signatures.entrySet()) {
       ce.beginMethod(access, entry.getKey(), entry.getValue()).end_method();
     }

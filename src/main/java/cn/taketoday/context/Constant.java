@@ -40,7 +40,7 @@ import static cn.taketoday.context.cglib.core.TypeUtils.parseType;
  * @author TODAY <br>
  * 2018-01-16 10:56
  */
-public interface Constant extends Opcodes, Serializable {
+public interface Constant extends Serializable {
 
   String META_INFO_beans = "META-INF/beans";
   String META_INFO_listeners = "META-INF/listeners";
@@ -104,7 +104,7 @@ public interface Constant extends Opcodes, Serializable {
   String AOP_SOURCE_FILE = "<aopGenerated>";
   String SUID_FIELD_NAME = "serialVersionUID";
 
-  int PRIVATE_FINAL_STATIC = ACC_PRIVATE | ACC_FINAL | ACC_STATIC;
+  int PRIVATE_FINAL_STATIC = Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL | Opcodes.ACC_STATIC;
 
   int SWITCH_STYLE_TRIE = 0;
   int SWITCH_STYLE_HASH = 1;

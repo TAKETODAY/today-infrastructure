@@ -26,6 +26,7 @@ import java.util.Objects;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.ClassEmitter;
 import cn.taketoday.context.cglib.core.ClassGenerator;
@@ -156,7 +157,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
 
       final CodeEmitter codeEmitter = EmitUtils.beginMethod(classEmitter, invokeInfo, ACC_PUBLIC | ACC_FINAL);
       if (!Modifier.isStatic(target.getModifiers())) {
-        codeEmitter.visitVarInsn(Constant.ALOAD, 1);
+        codeEmitter.visitVarInsn(Opcodes.ALOAD, 1);
         codeEmitter.checkcast(Type.getType(targetClass));
         // codeEmitter.dup();
       }
@@ -178,7 +179,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
      */
     @Override
     protected void generateConstructor(ClassEmitter ce) {
-      CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, SIG_CONSTRUCTOR);
+      CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, SIG_CONSTRUCTOR);
       e.load_this();
       e.load_arg(0);
       e.super_invoke_constructor(SIG_CONSTRUCTOR);

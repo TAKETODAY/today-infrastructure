@@ -23,6 +23,7 @@ import java.util.Map;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Label;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.ClassEmitter;
@@ -53,7 +54,7 @@ class BeanMapEmitter extends ClassEmitter {
   public BeanMapEmitter(final ClassVisitor v, final String className, final Class type, final int require) {
     super(v);
 
-    beginClass(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, className, BEAN_MAP, null, Constant.SOURCE_FILE);
+    beginClass(Opcodes.JAVA_VERSION, Opcodes.ACC_PUBLIC, className, BEAN_MAP, null, Constant.SOURCE_FILE);
     EmitUtils.nullConstructor(this);
     EmitUtils.factoryMethod(this, NEW_INSTANCE);
     generateConstructor();
@@ -98,7 +99,7 @@ class BeanMapEmitter extends ClassEmitter {
   }
 
   private void generateConstructor() {
-    CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, CSTRUCT_OBJECT);
+    CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, CSTRUCT_OBJECT);
     e.load_this();
     e.load_arg(0);
     e.super_invoke_constructor(CSTRUCT_OBJECT);
@@ -107,7 +108,7 @@ class BeanMapEmitter extends ClassEmitter {
   }
 
   private void generateGet(Class type, final Map getters) {
-    final CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, BEAN_MAP_GET);
+    final CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, BEAN_MAP_GET);
     e.load_arg(0);
     e.checkcast(Type.getType(type));
     e.load_arg(1);
@@ -130,7 +131,7 @@ class BeanMapEmitter extends ClassEmitter {
   }
 
   private void generatePut(Class type, final Map setters) {
-    final CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, BEAN_MAP_PUT);
+    final CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, BEAN_MAP_PUT);
     e.load_arg(0);
     e.checkcast(Type.getType(type));
     e.load_arg(1);
@@ -166,7 +167,7 @@ class BeanMapEmitter extends ClassEmitter {
 
   private void generateKeySet(String[] allNames) {
     // static initializer
-    declare_field(Constant.ACC_STATIC | Constant.ACC_PRIVATE, "keys", FIXED_KEY_SET, null);
+    declare_field(Opcodes.ACC_STATIC | Opcodes.ACC_PRIVATE, "keys", FIXED_KEY_SET, null);
 
     CodeEmitter e = begin_static();
     e.new_instance(FIXED_KEY_SET);
@@ -178,7 +179,7 @@ class BeanMapEmitter extends ClassEmitter {
     e.end_method();
 
     // keySet
-    e = beginMethod(Constant.ACC_PUBLIC, KEY_SET);
+    e = beginMethod(Opcodes.ACC_PUBLIC, KEY_SET);
     e.load_this();
     e.getfield("keys");
     e.return_value();
@@ -186,7 +187,7 @@ class BeanMapEmitter extends ClassEmitter {
   }
 
   private void generateGetPropertyType(final Map allProps, String[] allNames) {
-    final CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, GET_PROPERTY_TYPE);
+    final CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, GET_PROPERTY_TYPE);
     e.load_arg(0);
     EmitUtils.stringSwitch(e, allNames, Constant.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
       public void processCase(Object key, Label end) {

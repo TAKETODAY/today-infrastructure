@@ -86,7 +86,7 @@ public class TestEnhancer extends CodeGenTestCase {
             new Class[]
                     { java.util.List.class }, TEST_INTERCEPTOR);
 
-    assertTrue("Cache failed", vector1.getClass() == vector2.getClass());
+    assertSame("Cache failed", vector1.getClass(), vector2.getClass());
   }
 
   public void testMethods() throws Throwable {
@@ -135,7 +135,7 @@ public class TestEnhancer extends CodeGenTestCase {
             Source.class,
             null, TEST_INTERCEPTOR);
 
-    TestCase.assertTrue("enhance", Source.class != source.getClass());
+    TestCase.assertNotSame("enhance", Source.class, source.getClass());
 
   }
 
@@ -189,7 +189,7 @@ public class TestEnhancer extends CodeGenTestCase {
     EA obj = new EA();
     obj.setName("herby");
     mi.delegate = obj;
-    assertTrue(proxy.getName().equals("herby"));
+    assertEquals("herby", proxy.getName());
   }
 
   public void testTypes() throws Throwable {
@@ -197,10 +197,10 @@ public class TestEnhancer extends CodeGenTestCase {
     Source source = (Source) Enhancer.create(
             Source.class,
             null, TEST_INTERCEPTOR);
-    TestCase.assertTrue("intType", 1 == source.intType(1));
-    TestCase.assertTrue("longType", 1L == source.longType(1L));
-    TestCase.assertTrue("floatType", 1.1f == source.floatType(1.1f));
-    TestCase.assertTrue("doubleType", 1.1 == source.doubleType(1.1));
+    TestCase.assertEquals("intType", 1, source.intType(1));
+    TestCase.assertEquals("longType", 1L, source.longType(1L));
+    TestCase.assertEquals("floatType", 1.1f, source.floatType(1.1f));
+    TestCase.assertEquals("doubleType", 1.1, source.doubleType(1.1));
     TestCase.assertEquals("objectType", "1", source.objectType("1"));
     TestCase.assertEquals("objectType", "", source.toString());
     source.arrayType(new int[] {});
@@ -285,7 +285,7 @@ public class TestEnhancer extends CodeGenTestCase {
           return 0;
         }
       });
-      enhancer.setInterfaces(new Class[] { Serializable.class });
+      enhancer.setInterfaces(Serializable.class);
       enhancer.setCallback(new InvocationHandler() {
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
           if (method.getDeclaringClass() != Object.class && method.getReturnType() == String.class) {
@@ -337,7 +337,7 @@ public class TestEnhancer extends CodeGenTestCase {
       }
     };
 
-    PhantomReference<ClassLoader> clRef = new PhantomReference<ClassLoader>(custom, new ReferenceQueue<ClassLoader>());
+    PhantomReference<ClassLoader> clRef = new PhantomReference<>(custom, new ReferenceQueue<>());
 
     buildAdvised(custom);
     custom = null;
@@ -1153,7 +1153,7 @@ public class TestEnhancer extends CodeGenTestCase {
 
   void assertThreadLocalCallbacks(Class<?> cls) throws Exception {
 
-    Field field = cls.getDeclaredField("TODAY$THREAD_CALLBACKS");
+    Field field = cls.getDeclaredField("today$ThreadCallbacks");
     field.setAccessible(true);
 
     assertNull(((ThreadLocal<?>) field.get(null)).get());
@@ -1227,7 +1227,7 @@ public class TestEnhancer extends CodeGenTestCase {
         return method.getDeclaringClass() != Object.class ? 0 : 1;
       }
     });
-    e.setCallbacks(new Callback[] { interceptor, NoOp.INSTANCE });
+    e.setCallbacks(interceptor, NoOp.INSTANCE);
     // We expect the bridge ('ret') to be called & forward us to the non-bridge
     // 'erased'
     Interface intf = (Interface) e.create();
@@ -1606,22 +1606,21 @@ public class TestEnhancer extends CodeGenTestCase {
 
     Enhancer e = new Enhancer();
     e.setClassLoader(classLoader);
-    e.setInterfaces(new Class[] { classLoader.loadClass("B") });
+    e.setInterfaces(classLoader.loadClass("B"));
     e.setCallbackFilter(
             new CallbackFilter() {
               public int accept(Method method) {
                 return method.isBridge() ? 1 : 0;
               }
             });
-    e.setCallbacks(new Callback[] { new MethodInterceptor() {
+    e.setCallbacks(new MethodInterceptor() {
       public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) {
         if (method.getParameterTypes().length > 0) {
           paramTypes.add(method.getParameterTypes()[0]);
         }
         return null;
       }
-    }, NoOp.INSTANCE
-    });
+    }, NoOp.INSTANCE);
 
     Object c = e.create();
 

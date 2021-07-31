@@ -19,6 +19,7 @@ import java.lang.reflect.Modifier;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.Label;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.Local;
@@ -54,16 +55,16 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
     if (!Modifier.isInterface(access)) {
       super.beginClass(version, access, className, superType, TypeUtils.add(interfaces, ENABLED), sourceFile);
 
-      super.declare_field(Constant.ACC_PRIVATE | Constant.ACC_TRANSIENT, CALLBACK_FIELD, CALLBACK, null);
+      super.declare_field(Opcodes.ACC_PRIVATE | Opcodes.ACC_TRANSIENT, CALLBACK_FIELD, CALLBACK, null);
 
       CodeEmitter e;
-      e = super.beginMethod(Constant.ACC_PUBLIC, ENABLED_GET);
+      e = super.beginMethod(Opcodes.ACC_PUBLIC, ENABLED_GET);
       e.load_this();
       e.getfield(CALLBACK_FIELD);
       e.return_value();
       e.end_method();
 
-      e = super.beginMethod(Constant.ACC_PUBLIC, ENABLED_SET);
+      e = super.beginMethod(Opcodes.ACC_PUBLIC, ENABLED_SET);
       e.load_this();
       e.load_arg(0);
       e.putfield(CALLBACK_FIELD);
@@ -88,7 +89,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
   }
 
   private void addReadMethod(String name, Type type) {
-    CodeEmitter e = super.beginMethod(Constant.ACC_PUBLIC, readMethodSig(name, type.getDescriptor()));
+    CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, readMethodSig(name, type.getDescriptor()));
     e.load_this();
     e.getfield(name);
     e.load_this();
@@ -114,7 +115,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
   }
 
   private void addWriteMethod(String name, Type type) {
-    CodeEmitter e = super.beginMethod(Constant.ACC_PUBLIC, writeMethodSig(name, type.getDescriptor()));
+    CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, writeMethodSig(name, type.getDescriptor()));
     e.load_this();
     e.dup();
     e.invoke_interface(ENABLED, ENABLED_GET);
@@ -151,13 +152,13 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
       public void visitFieldInsn(int opcode, String owner, String name, String desc) {
         Type towner = TypeUtils.fromInternalName(owner);
         switch (opcode) {
-          case Constant.GETFIELD:
+          case Opcodes.GETFIELD:
             if (filter.acceptRead(towner, name)) {
               helper(towner, readMethodSig(name, desc));
               return;
             }
             break;
-          case Constant.PUTFIELD:
+          case Opcodes.PUTFIELD:
             if (filter.acceptWrite(towner, name)) {
               helper(towner, writeMethodSig(name, desc));
               return;

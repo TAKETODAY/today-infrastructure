@@ -25,6 +25,7 @@ import java.util.List;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Label;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.Block;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
@@ -75,10 +76,10 @@ class FastClassEmitter extends ClassEmitter {
     super(v);
 
     Type base = Type.getType(type);
-    beginClass(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, className, FAST_CLASS, null, Constant.SOURCE_FILE);
+    beginClass(Opcodes.JAVA_VERSION, Opcodes.ACC_PUBLIC, className, FAST_CLASS, null, Constant.SOURCE_FILE);
 
     // constructor
-    CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, CSTRUCT_CLASS);
+    CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, CSTRUCT_CLASS);
     e.load_this();
     e.load_args();
     e.super_invoke_constructor(CSTRUCT_CLASS);
@@ -101,14 +102,14 @@ class FastClassEmitter extends ClassEmitter {
     emitIndexByClassArray(methods);
 
     // getIndex(Class[])
-    e = beginMethod(Constant.ACC_PUBLIC, CONSTRUCTOR_GET_INDEX);
+    e = beginMethod(Opcodes.ACC_PUBLIC, CONSTRUCTOR_GET_INDEX);
     e.load_args();
     List<MethodInfo> info = CglibCollectionUtils.transform(constructors, MethodInfoTransformer.getInstance());
     EmitUtils.constructorSwitch(e, info, new GetIndexCallback(e, info));
     e.end_method();
 
     // invoke(int, Object, Object[])
-    e = beginMethod(Constant.ACC_PUBLIC, INVOKE, INVOCATION_TARGET_EXCEPTION_ARRAY);
+    e = beginMethod(Opcodes.ACC_PUBLIC, INVOKE, INVOCATION_TARGET_EXCEPTION_ARRAY);
     e.load_arg(1);
     e.checkcast(base);
     e.load_arg(0);
@@ -116,7 +117,7 @@ class FastClassEmitter extends ClassEmitter {
     e.end_method();
 
     // newInstance(int, Object[])
-    e = beginMethod(Constant.ACC_PUBLIC, NEW_INSTANCE, INVOCATION_TARGET_EXCEPTION_ARRAY);
+    e = beginMethod(Opcodes.ACC_PUBLIC, NEW_INSTANCE, INVOCATION_TARGET_EXCEPTION_ARRAY);
     e.new_instance(base);
     e.dup();
     e.load_arg(0);
@@ -124,7 +125,7 @@ class FastClassEmitter extends ClassEmitter {
     e.end_method();
 
     // getMaxIndex()
-    e = beginMethod(Constant.ACC_PUBLIC, GET_MAX_INDEX);
+    e = beginMethod(Opcodes.ACC_PUBLIC, GET_MAX_INDEX);
     e.push(methods.size() - 1);
     e.return_value();
     e.end_method();
@@ -134,7 +135,7 @@ class FastClassEmitter extends ClassEmitter {
 
   // TODO: support constructor indices ("<init>")
   private void emitIndexBySignature(List<Method> methods) {
-    CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, SIGNATURE_GET_INDEX);
+    CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, SIGNATURE_GET_INDEX);
     List<String> signatures = CglibCollectionUtils.transform(methods, new Transformer<Method, String>() {
       public String transform(Method obj) {
         return CglibReflectUtils.getSignature(obj).toString();
@@ -149,7 +150,7 @@ class FastClassEmitter extends ClassEmitter {
   private static final int TOO_MANY_METHODS = 100; // TODO
 
   private void emitIndexByClassArray(List methods) {
-    CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, METHOD_GET_INDEX);
+    CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, METHOD_GET_INDEX);
     if (methods.size() > TOO_MANY_METHODS) {
       // hack for big classes
       List<String> signatures = CglibCollectionUtils.transform(methods, new Transformer<Method, String>() {

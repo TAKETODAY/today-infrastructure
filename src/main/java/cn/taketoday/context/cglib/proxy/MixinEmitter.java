@@ -20,6 +20,7 @@ import java.util.HashSet;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.ClassEmitter;
@@ -42,7 +43,7 @@ import static cn.taketoday.context.asm.Type.array;
  */
 class MixinEmitter extends ClassEmitter {
 
-  private static final String FIELD_NAME = "TODAY$DELEGATES";
+  private static final String FIELD_NAME = "today$Delegates";
   private static final Type MIXIN = TypeUtils.parseType(Mixin.class);
   private static final Signature CSTRUCT_OBJECT_ARRAY = TypeUtils.parseConstructor("Object[]");
 
@@ -55,7 +56,7 @@ class MixinEmitter extends ClassEmitter {
     EmitUtils.nullConstructor(this);
     EmitUtils.factoryMethod(this, NEW_INSTANCE);
 
-    declare_field(Constant.ACC_PRIVATE, FIELD_NAME, TYPE_OBJECT_ARRAY, null);
+    declare_field(Opcodes.ACC_PRIVATE, FIELD_NAME, TYPE_OBJECT_ARRAY, null);
 
     CodeEmitter e = beginMethod(ACC_PUBLIC, CSTRUCT_OBJECT_ARRAY);
     e.load_this();
@@ -67,7 +68,7 @@ class MixinEmitter extends ClassEmitter {
     e.end_method();
 
     final HashSet<Object> unique = new HashSet<>();
-    final int accVarargs = Constant.ACC_VARARGS;
+    final int accVarargs = Opcodes.ACC_VARARGS;
 
     for (int i = 0; i < classes.length; i++) {
       Method[] methods = getMethods(classes[i]);

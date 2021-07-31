@@ -64,13 +64,5 @@ public abstract class CglibCollectionUtils {
     return result;
   }
 
-  public static <T> Map<T, Integer> getIndexMap(List<T> list) {
-    final Map<T, Integer> indexes = new HashMap<>();
-    int index = 0;
-    for (final T obj : list) {
-      indexes.put(obj, index++);
-    }
-    return indexes;
-  }
 
 }

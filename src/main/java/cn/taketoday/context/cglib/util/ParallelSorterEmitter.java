@@ -17,6 +17,7 @@ package cn.taketoday.context.cglib.util;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.ClassEmitter;
 import cn.taketoday.context.cglib.core.CodeEmitter;
@@ -60,7 +61,7 @@ class ParallelSorterEmitter extends ClassEmitter {
     e.super_putfield("a", TYPE_OBJECT_ARRAY);
     for (int i = 0; i < arrays.length; i++) {
       Type type = Type.getType(arrays[i].getClass());
-      declare_field(Constant.ACC_PRIVATE, getFieldName(i), type, null);
+      declare_field(Opcodes.ACC_PRIVATE, getFieldName(i), type, null);
       e.load_this();
       e.load_arg(0);
       e.push(i);

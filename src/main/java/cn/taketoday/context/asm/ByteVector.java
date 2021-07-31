@@ -28,17 +28,14 @@
 package cn.taketoday.context.asm;
 
 /**
- * A dynamically extensible vector of bytes. This class is roughly equivalent to
- * a DataOutputStream on top of a ByteArrayOutputStream, but is more efficient.
+ * A dynamically extensible vector of bytes. This class is roughly equivalent to a DataOutputStream
+ * on top of a ByteArrayOutputStream, but is more efficient.
  *
  * @author Eric Bruneton
  */
 public class ByteVector {
 
-  /**
-   * The content of this vector. Only the first {@link #length} bytes contain real
-   * data.
-   */
+  /** The content of this vector. Only the first {@link #length} bytes contain real data. */
   byte[] data;
 
   /** The actual number of bytes in this vector. */
@@ -71,8 +68,7 @@ public class ByteVector {
   }
 
   /**
-   * Puts a byte into this byte vector. The byte vector is automatically enlarged
-   * if necessary.
+   * Puts a byte into this byte vector. The byte vector is automatically enlarged if necessary.
    *
    * @param byteValue
    *         a byte.
@@ -90,8 +86,7 @@ public class ByteVector {
   }
 
   /**
-   * Puts two bytes into this byte vector. The byte vector is automatically
-   * enlarged if necessary.
+   * Puts two bytes into this byte vector. The byte vector is automatically enlarged if necessary.
    *
    * @param byteValue1
    *         a byte.
@@ -113,8 +108,7 @@ public class ByteVector {
   }
 
   /**
-   * Puts a short into this byte vector. The byte vector is automatically enlarged
-   * if necessary.
+   * Puts a short into this byte vector. The byte vector is automatically enlarged if necessary.
    *
    * @param shortValue
    *         a short.
@@ -134,8 +128,8 @@ public class ByteVector {
   }
 
   /**
-   * Puts a byte and a short into this byte vector. The byte vector is
-   * automatically enlarged if necessary.
+   * Puts a byte and a short into this byte vector. The byte vector is automatically enlarged if
+   * necessary.
    *
    * @param byteValue
    *         a byte.
@@ -158,8 +152,8 @@ public class ByteVector {
   }
 
   /**
-   * Puts two bytes and a short into this byte vector. The byte vector is
-   * automatically enlarged if necessary.
+   * Puts two bytes and a short into this byte vector. The byte vector is automatically enlarged if
+   * necessary.
    *
    * @param byteValue1
    *         a byte.
@@ -185,8 +179,7 @@ public class ByteVector {
   }
 
   /**
-   * Puts an int into this byte vector. The byte vector is automatically enlarged
-   * if necessary.
+   * Puts an int into this byte vector. The byte vector is automatically enlarged if necessary.
    *
    * @param intValue
    *         an int.
@@ -208,8 +201,8 @@ public class ByteVector {
   }
 
   /**
-   * Puts one byte and two shorts into this byte vector. The byte vector is
-   * automatically enlarged if necessary.
+   * Puts one byte and two shorts into this byte vector. The byte vector is automatically enlarged
+   * if necessary.
    *
    * @param byteValue
    *         a byte.
@@ -236,8 +229,7 @@ public class ByteVector {
   }
 
   /**
-   * Puts a long into this byte vector. The byte vector is automatically enlarged
-   * if necessary.
+   * Puts a long into this byte vector. The byte vector is automatically enlarged if necessary.
    *
    * @param longValue
    *         a long.
@@ -265,16 +257,15 @@ public class ByteVector {
   }
 
   /**
-   * Puts an UTF8 string into this byte vector. The byte vector is automatically
-   * enlarged if necessary.
+   * Puts an UTF8 string into this byte vector. The byte vector is automatically enlarged if
+   * necessary.
    *
    * @param stringValue
    *         a String whose UTF8 encoded length must be less than 65536.
    *
    * @return this byte vector.
    */
-  // DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary
-  // compatibility).
+  // DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
   public ByteVector putUTF8(final String stringValue) {
     int charLength = stringValue.length();
     if (charLength > 65535) {
@@ -285,14 +276,10 @@ public class ByteVector {
       enlarge(2 + charLength);
     }
     byte[] currentData = data;
-    // Optimistic algorithm: instead of computing the byte length and then
-    // serializing the string
-    // (which requires two loops), we assume the byte length is equal to char length
-    // (which is the
-    // most frequent case), and we start serializing the string right away. During
-    // the
-    // serialization, if we find that this assumption is wrong, we continue with the
-    // general method.
+    // Optimistic algorithm: instead of computing the byte length and then serializing the string
+    // (which requires two loops), we assume the byte length is equal to char length (which is the
+    // most frequent case), and we start serializing the string right away. During the
+    // serialization, if we find that this assumption is wrong, we continue with the general method.
     currentData[currentLength++] = (byte) (charLength >>> 8);
     currentData[currentLength++] = (byte) charLength;
     for (int i = 0; i < charLength; ++i) {
@@ -310,20 +297,18 @@ public class ByteVector {
   }
 
   /**
-   * Puts an UTF8 string into this byte vector. The byte vector is automatically
-   * enlarged if necessary. The string length is encoded in two bytes before the
-   * encoded characters, if there is space for that (i.e. if this.length - offset
-   * - 2 &gt;= 0).
+   * Puts an UTF8 string into this byte vector. The byte vector is automatically enlarged if
+   * necessary. The string length is encoded in two bytes before the encoded characters, if there is
+   * space for that (i.e. if this.length - offset - 2 &gt;= 0).
    *
    * @param stringValue
    *         the String to encode.
    * @param offset
-   *         the index of the first character to encode. The previous
-   *         characters are supposed to have already been encoded, using only
-   *         one byte per character.
+   *         the index of the first character to encode. The previous characters are supposed
+   *         to have already been encoded, using only one byte per character.
    * @param maxByteLength
-   *         the maximum byte length of the encoded string, including the
-   *         already encoded characters.
+   *         the maximum byte length of the encoded string, including the already
+   *         encoded characters.
    *
    * @return this byte vector.
    */
@@ -345,8 +330,7 @@ public class ByteVector {
     if (byteLength > maxByteLength) {
       throw new IllegalArgumentException("UTF8 string too large");
     }
-    // Compute where 'byteLength' must be stored in 'data', and store it at this
-    // location.
+    // Compute where 'byteLength' must be stored in 'data', and store it at this location.
     int byteLengthOffset = length - offset - 2;
     if (byteLengthOffset >= 0) {
       data[byteLengthOffset] = (byte) (byteLength >>> 8);
@@ -376,12 +360,12 @@ public class ByteVector {
   }
 
   /**
-   * Puts an array of bytes into this byte vector. The byte vector is
-   * automatically enlarged if necessary.
+   * Puts an array of bytes into this byte vector. The byte vector is automatically enlarged if
+   * necessary.
    *
    * @param byteArrayValue
-   *         an array of bytes. May be {@literal null} to put
-   *         {@code byteLength} null bytes into this byte vector.
+   *         an array of bytes. May be {@literal null} to put {@code byteLength} null
+   *         bytes into this byte vector.
    * @param byteOffset
    *         index of the first byte of byteArrayValue that must be copied.
    * @param byteLength
@@ -389,7 +373,8 @@ public class ByteVector {
    *
    * @return this byte vector.
    */
-  public ByteVector putByteArray(final byte[] byteArrayValue, final int byteOffset, final int byteLength) {
+  public ByteVector putByteArray(
+          final byte[] byteArrayValue, final int byteOffset, final int byteLength) {
     if (length + byteLength > data.length) {
       enlarge(byteLength);
     }
@@ -404,13 +389,12 @@ public class ByteVector {
    * Enlarges this byte vector so that it can receive 'size' more bytes.
    *
    * @param size
-   *         number of additional bytes that this byte vector should be able to
-   *         receive.
+   *         number of additional bytes that this byte vector should be able to receive.
    */
   private void enlarge(final int size) {
     int doubleCapacity = 2 * data.length;
     int minimalCapacity = length + size;
-    byte[] newData = new byte[Math.max(doubleCapacity, minimalCapacity)];
+    byte[] newData = new byte[doubleCapacity > minimalCapacity ? doubleCapacity : minimalCapacity];
     System.arraycopy(data, 0, newData, 0, length);
     data = newData;
   }

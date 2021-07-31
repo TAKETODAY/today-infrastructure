@@ -46,8 +46,8 @@ public final class ConstantDynamic {
   private final Handle bootstrapMethod;
 
   /**
-   * The arguments to pass to the bootstrap method, in order to compute the
-   * constant value at runtime.
+   * The arguments to pass to the bootstrap method, in order to compute the constant value at
+   * runtime.
    */
   private final Object[] bootstrapMethodArguments;
 
@@ -59,14 +59,16 @@ public final class ConstantDynamic {
    * @param descriptor
    *         the constant type (must be a field descriptor).
    * @param bootstrapMethod
-   *         the bootstrap method to use to compute the constant value at
-   *         runtime.
+   *         the bootstrap method to use to compute the constant value at runtime.
    * @param bootstrapMethodArguments
-   *         the arguments to pass to the bootstrap method, in order to compute
-   *         the constant value at runtime.
+   *         the arguments to pass to the bootstrap method, in order to
+   *         compute the constant value at runtime.
    */
-  public ConstantDynamic(final String name, final String descriptor, final Handle bootstrapMethod,
-                         final Object... bootstrapMethodArguments) {
+  public ConstantDynamic(
+          final String name,
+          final String descriptor,
+          final Handle bootstrapMethod,
+          final Object... bootstrapMethodArguments) {
     this.name = name;
     this.descriptor = descriptor;
     this.bootstrapMethod = bootstrapMethod;
@@ -101,23 +103,23 @@ public final class ConstantDynamic {
   }
 
   /**
-   * Returns the number of arguments passed to the bootstrap method, in order to
-   * compute the value of this constant.
+   * Returns the number of arguments passed to the bootstrap method, in order to compute the value
+   * of this constant.
    *
-   * @return the number of arguments passed to the bootstrap method, in order to
-   * compute the value of this constant.
+   * @return the number of arguments passed to the bootstrap method, in order to compute the value
+   * of this constant.
    */
   public int getBootstrapMethodArgumentCount() {
     return bootstrapMethodArguments.length;
   }
 
   /**
-   * Returns an argument passed to the bootstrap method, in order to compute the
-   * value of this constant.
+   * Returns an argument passed to the bootstrap method, in order to compute the value of this
+   * constant.
    *
    * @param index
-   *         an argument index, between 0 and
-   *         {@link #getBootstrapMethodArgumentCount()} (exclusive).
+   *         an argument index, between 0 and {@link #getBootstrapMethodArgumentCount()}
+   *         (exclusive).
    *
    * @return the argument passed to the bootstrap method, with the given index.
    */
@@ -126,12 +128,11 @@ public final class ConstantDynamic {
   }
 
   /**
-   * Returns the arguments to pass to the bootstrap method, in order to compute
-   * the value of this constant. WARNING: this array must not be modified, and
-   * must not be returned to the user.
+   * Returns the arguments to pass to the bootstrap method, in order to compute the value of this
+   * constant. WARNING: this array must not be modified, and must not be returned to the user.
    *
-   * @return the arguments to pass to the bootstrap method, in order to compute
-   * the value of this constant.
+   * @return the arguments to pass to the bootstrap method, in order to compute the value of this
+   * constant.
    */
   Object[] getBootstrapMethodArgumentsUnsafe() {
     return bootstrapMethodArguments;
@@ -140,8 +141,7 @@ public final class ConstantDynamic {
   /**
    * Returns the size of this constant.
    *
-   * @return the size of this constant, i.e., 2 for {@code long} and
-   * {@code double}, 1 otherwise.
+   * @return the size of this constant, i.e., 2 for {@code long} and {@code double}, 1 otherwise.
    */
   public int getSize() {
     char firstCharOfDescriptor = descriptor.charAt(0);
@@ -157,19 +157,28 @@ public final class ConstantDynamic {
       return false;
     }
     ConstantDynamic constantDynamic = (ConstantDynamic) object;
-    return name.equals(constantDynamic.name) && descriptor.equals(constantDynamic.descriptor) && bootstrapMethod.equals(
-            constantDynamic.bootstrapMethod) && Arrays.equals(bootstrapMethodArguments, constantDynamic.bootstrapMethodArguments);
+    return name.equals(constantDynamic.name)
+            && descriptor.equals(constantDynamic.descriptor)
+            && bootstrapMethod.equals(constantDynamic.bootstrapMethod)
+            && Arrays.equals(bootstrapMethodArguments, constantDynamic.bootstrapMethodArguments);
   }
 
   @Override
   public int hashCode() {
-    return name.hashCode() ^ Integer.rotateLeft(descriptor.hashCode(), 8) ^ Integer.rotateLeft(bootstrapMethod.hashCode(),
-                                                                                               16) ^ Integer
-            .rotateLeft(Arrays.hashCode(bootstrapMethodArguments), 24);
+    return name.hashCode()
+            ^ Integer.rotateLeft(descriptor.hashCode(), 8)
+            ^ Integer.rotateLeft(bootstrapMethod.hashCode(), 16)
+            ^ Integer.rotateLeft(Arrays.hashCode(bootstrapMethodArguments), 24);
   }
 
   @Override
   public String toString() {
-    return name + " : " + descriptor + ' ' + bootstrapMethod + ' ' + Arrays.toString(bootstrapMethodArguments);
+    return name
+            + " : "
+            + descriptor
+            + ' '
+            + bootstrapMethod
+            + ' '
+            + Arrays.toString(bootstrapMethodArguments);
   }
 }

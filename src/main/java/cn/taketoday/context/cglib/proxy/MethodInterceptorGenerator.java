@@ -24,6 +24,7 @@ import java.util.Map.Entry;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.Label;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.ClassEmitter;
@@ -50,7 +51,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
 
   public static final MethodInterceptorGenerator INSTANCE = new MethodInterceptorGenerator();
 
-  static final String FIND_PROXY_NAME = "TODAY$findMethodProxy";
+  static final String FIND_PROXY_NAME = "today$FindMethodProxy";
 
   static final Class<?>[] FIND_PROXY_TYPES = { Signature.class };
 
@@ -113,7 +114,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
       ce.declare_field(PRIVATE_FINAL_STATIC, methodProxyField, METHOD_PROXY, null);
 
       // access method
-      CodeEmitter codeEmitter = ce.beginMethod(Constant.ACC_FINAL, impl, method.getExceptionTypes());
+      CodeEmitter codeEmitter = ce.beginMethod(Opcodes.ACC_FINAL, impl, method.getExceptionTypes());
       superHelper(codeEmitter, method, context);
       codeEmitter.return_value();
       codeEmitter.end_method();
@@ -231,7 +232,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
 
   public void generateFindProxy(final ClassEmitter ce, final Map<String, String> sigMap) {
 
-    final CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC | Constant.ACC_STATIC, FIND_PROXY);
+    final CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, FIND_PROXY);
     e.load_arg(0);
     e.invoke_virtual(Constant.TYPE_OBJECT, TO_STRING);
 

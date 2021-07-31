@@ -29,53 +29,37 @@
 package cn.taketoday.context.asm;
 
 /**
- * The path to a type argument, wildcard bound, array element type, or static
- * inner type within an enclosing type.
+ * The path to a type argument, wildcard bound, array element type, or static inner type within an
+ * enclosing type.
  *
  * @author Eric Bruneton
  */
 public final class TypePath {
 
-  /**
-   * A type path step that steps into the element type of an array type. See
-   * {@link #getStep}.
-   */
+  /** A type path step that steps into the element type of an array type. See {@link #getStep}. */
   public static final int ARRAY_ELEMENT = 0;
 
-  /**
-   * A type path step that steps into the nested type of a class type. See
-   * {@link #getStep}.
-   */
+  /** A type path step that steps into the nested type of a class type. See {@link #getStep}. */
   public static final int INNER_TYPE = 1;
 
-  /**
-   * A type path step that steps into the bound of a wildcard type. See
-   * {@link #getStep}.
-   */
+  /** A type path step that steps into the bound of a wildcard type. See {@link #getStep}. */
   public static final int WILDCARD_BOUND = 2;
 
-  /**
-   * A type path step that steps into a type argument of a generic type. See
-   * {@link #getStep}.
-   */
+  /** A type path step that steps into a type argument of a generic type. See {@link #getStep}. */
   public static final int TYPE_ARGUMENT = 3;
 
   /**
-   * The byte array where the 'type_path' structure - as defined in the Java
-   * Virtual Machine Specification (JVMS) - corresponding to this TypePath is
-   * stored. The first byte of the structure in this array is given by
-   * {@link #typePathOffset}.
+   * The byte array where the 'type_path' structure - as defined in the Java Virtual Machine
+   * Specification (JVMS) - corresponding to this TypePath is stored. The first byte of the
+   * structure in this array is given by {@link #typePathOffset}.
    *
-   * @see <a href=
-   * "https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.2">JVMS
+   * @see <a
+   * href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.2">JVMS
    * 4.7.20.2</a>
    */
   private final byte[] typePathContainer;
 
-  /**
-   * The offset of the first byte of the type_path JVMS structure in
-   * {@link #typePathContainer}.
-   */
+  /** The offset of the first byte of the type_path JVMS structure in {@link #typePathContainer}. */
   private final int typePathOffset;
 
   /**
@@ -108,8 +92,8 @@ public final class TypePath {
    * @param index
    *         an index between 0 and {@link #getLength()}, exclusive.
    *
-   * @return one of {@link #ARRAY_ELEMENT}, {@link #INNER_TYPE},
-   * {@link #WILDCARD_BOUND}, or {@link #TYPE_ARGUMENT}.
+   * @return one of {@link #ARRAY_ELEMENT}, {@link #INNER_TYPE}, {@link #WILDCARD_BOUND}, or {@link
+   * #TYPE_ARGUMENT}.
    */
   public int getStep(final int index) {
     // Returns the type_path_kind of the path element of the given index.
@@ -117,9 +101,8 @@ public final class TypePath {
   }
 
   /**
-   * Returns the index of the type argument that the given step is stepping into.
-   * This method should only be used for steps whose value is
-   * {@link #TYPE_ARGUMENT}.
+   * Returns the index of the type argument that the given step is stepping into. This method should
+   * only be used for steps whose value is {@link #TYPE_ARGUMENT}.
    *
    * @param index
    *         an index between 0 and {@link #getLength()}, exclusive.
@@ -132,15 +115,14 @@ public final class TypePath {
   }
 
   /**
-   * Converts a type path in string form, in the format used by
-   * {@link #toString()}, into a TypePath object.
+   * Converts a type path in string form, in the format used by {@link #toString()}, into a TypePath
+   * object.
    *
    * @param typePath
-   *         a type path in string form, in the format used by
-   *         {@link #toString()}. May be {@literal null} or empty.
+   *         a type path in string form, in the format used by {@link #toString()}. May be
+   *         {@literal null} or empty.
    *
-   * @return the corresponding TypePath object, or {@literal null} if the path is
-   * empty.
+   * @return the corresponding TypePath object, or {@literal null} if the path is empty.
    */
   public static TypePath fromString(final String typePath) {
     if (typePath == null || typePath.length() == 0) {
@@ -186,10 +168,9 @@ public final class TypePath {
   }
 
   /**
-   * Returns a string representation of this type path. {@link #ARRAY_ELEMENT}
-   * steps are represented with '[', {@link #INNER_TYPE} steps with '.',
-   * {@link #WILDCARD_BOUND} steps with '*' and {@link #TYPE_ARGUMENT} steps with
-   * their type argument index in decimal form followed by ';'.
+   * Returns a string representation of this type path. {@link #ARRAY_ELEMENT} steps are represented
+   * with '[', {@link #INNER_TYPE} steps with '.', {@link #WILDCARD_BOUND} steps with '*' and {@link
+   * #TYPE_ARGUMENT} steps with their type argument index in decimal form followed by ';'.
    */
   @Override
   public String toString() {
@@ -217,8 +198,8 @@ public final class TypePath {
   }
 
   /**
-   * Puts the type_path JVMS structure corresponding to the given TypePath into
-   * the given ByteVector.
+   * Puts the type_path JVMS structure corresponding to the given TypePath into the given
+   * ByteVector.
    *
    * @param typePath
    *         a TypePath instance, or {@literal null} for empty paths.

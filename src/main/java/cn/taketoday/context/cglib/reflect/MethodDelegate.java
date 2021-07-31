@@ -22,6 +22,7 @@ import java.util.Objects;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
@@ -241,7 +242,7 @@ abstract public class MethodDelegate {
       ClassEmitter ce = new ClassEmitter(v);
       CodeEmitter e;
 
-      ce.beginClass(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, getClassName(), METHOD_DELEGATE,
+      ce.beginClass(Opcodes.JAVA_VERSION, Opcodes.ACC_PUBLIC, getClassName(), METHOD_DELEGATE,
                     Type.array(Type.getType(iface)), Constant.SOURCE_FILE);
 
       ce.declare_field(Constant.PRIVATE_FINAL_STATIC, "eqMethod", Constant.TYPE_STRING, null);
@@ -249,9 +250,9 @@ abstract public class MethodDelegate {
 
       // generate proxied method
       MethodInfo proxied = CglibReflectUtils.getMethodInfo(iface.getDeclaredMethods()[0]);
-      int modifiers = Constant.ACC_PUBLIC;
-      if ((proxied.getModifiers() & Constant.ACC_VARARGS) == Constant.ACC_VARARGS) {
-        modifiers |= Constant.ACC_VARARGS;
+      int modifiers = Opcodes.ACC_PUBLIC;
+      if ((proxied.getModifiers() & Opcodes.ACC_VARARGS) == Opcodes.ACC_VARARGS) {
+        modifiers |= Opcodes.ACC_VARARGS;
       }
       e = EmitUtils.beginMethod(ce, proxied, modifiers);
       e.load_this();
@@ -263,7 +264,7 @@ abstract public class MethodDelegate {
       e.end_method();
 
       // newInstance
-      e = ce.beginMethod(Constant.ACC_PUBLIC, NEW_INSTANCE);
+      e = ce.beginMethod(Opcodes.ACC_PUBLIC, NEW_INSTANCE);
       e.new_instance_this();
       e.dup();
       e.dup2();

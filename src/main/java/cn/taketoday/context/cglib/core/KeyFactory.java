@@ -24,6 +24,7 @@ import java.util.List;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Label;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.internal.CustomizerRegistry;
 
@@ -242,8 +243,8 @@ abstract public class KeyFactory {
       }
 
       Type[] parameterTypes = TypeUtils.getTypes(newInstance.getParameterTypes());
-      ce.beginClass(Constant.JAVA_VERSION, //
-                    Constant.ACC_PUBLIC, //
+      ce.beginClass(Opcodes.JAVA_VERSION, //
+                    Opcodes.ACC_PUBLIC, //
                     getClassName(), //
                     KEY_FACTORY, //
                     array(Type.getType(keyInterface)), //
@@ -254,7 +255,7 @@ abstract public class KeyFactory {
       EmitUtils.factoryMethod(ce, CglibReflectUtils.getSignature(newInstance));
 
       int seed = 0;
-      CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, TypeUtils.parseConstructor(parameterTypes));
+      CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, TypeUtils.parseConstructor(parameterTypes));
       e.load_this();
       e.super_invoke_constructor();
       e.load_this();
@@ -266,7 +267,7 @@ abstract public class KeyFactory {
           fieldType = customizer.getOutType(i, fieldType);
         }
         seed += fieldType.hashCode();
-        ce.declare_field(Constant.ACC_PRIVATE | Constant.ACC_FINAL, getFieldName(i), fieldType, null);
+        ce.declare_field(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL, getFieldName(i), fieldType, null);
         e.dup();
         e.load_arg(i);
         for (FieldTypeCustomizer customizer : fieldTypeCustomizers) {
@@ -278,7 +279,7 @@ abstract public class KeyFactory {
       e.end_method();
 
       // hash code
-      e = ce.beginMethod(Constant.ACC_PUBLIC, HASH_CODE);
+      e = ce.beginMethod(Opcodes.ACC_PUBLIC, HASH_CODE);
       int hc = (constant != 0) ? constant : PRIMES[(int) (Math.abs(seed) % PRIMES.length)];
       int hm = (multiplier != 0) ? multiplier : PRIMES[(int) (Math.abs(seed * 13) % PRIMES.length)];
       e.push(hc);
@@ -291,7 +292,7 @@ abstract public class KeyFactory {
       e.end_method();
 
       // equals
-      e = ce.beginMethod(Constant.ACC_PUBLIC, EQUALS);
+      e = ce.beginMethod(Opcodes.ACC_PUBLIC, EQUALS);
       Label fail = e.make_label();
       e.load_arg(0);
       e.instance_of_this();
@@ -312,7 +313,7 @@ abstract public class KeyFactory {
       e.end_method();
 
       // toString
-      e = ce.beginMethod(Constant.ACC_PUBLIC, TO_STRING);
+      e = ce.beginMethod(Opcodes.ACC_PUBLIC, TO_STRING);
       e.new_instance(Constant.TYPE_STRING_BUFFER);
       e.dup();
       e.invoke_constructor(Constant.TYPE_STRING_BUFFER);

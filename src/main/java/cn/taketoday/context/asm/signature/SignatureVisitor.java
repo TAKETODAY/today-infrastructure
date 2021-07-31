@@ -1,52 +1,39 @@
-// ASM: a very small and fast Java bytecode manipulation framework
-// Copyright (c) 2000-2011 INRIA, France Telecom
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-// 1. Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-// 3. Neither the name of the copyright holders nor the names of its
-//    contributors may be used to endorse or promote products derived from
-//    this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
-// THE POSSIBILITY OF SUCH DAMAGE.
-package cn.taketoday.context.asm;
+/*
+ * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ */
+package cn.taketoday.context.asm.signature;
+
+import cn.taketoday.context.asm.Opcodes;
 
 /**
- * A visitor to visit a generic signature. The methods of this interface must be
- * called in one of the three following orders (the last one is the only valid
- * order for a {@link SignatureVisitor} that is returned by a method of this
- * interface):
+ * A visitor to visit a generic signature. The methods of this interface must be called in one of
+ * the three following orders (the last one is the only valid order for a {@link SignatureVisitor}
+ * that is returned by a method of this interface):
  *
  * <ul>
- * <li><i>ClassSignature</i> = ( {@code visitFormalTypeParameter}
- * {@code visitClassBound}? {@code
- *       visitInterfaceBound}* )* ({@code visitSuperclass}
- * {@code visitInterface}* )
- * <li><i>MethodSignature</i> = ( {@code visitFormalTypeParameter}
- * {@code visitClassBound}? {@code
- *       visitInterfaceBound}* )* ({@code visitParameterType}*
- * {@code visitReturnType} {@code
+ *   <li><i>ClassSignature</i> = ( {@code visitFormalTypeParameter} {@code visitClassBound}? {@code
+ *       visitInterfaceBound}* )* ({@code visitSuperclass} {@code visitInterface}* )
+ *   <li><i>MethodSignature</i> = ( {@code visitFormalTypeParameter} {@code visitClassBound}? {@code
+ *       visitInterfaceBound}* )* ({@code visitParameterType}* {@code visitReturnType} {@code
  *       visitExceptionType}* )
- * <li><i>TypeSignature</i> = {@code visitBaseType} | {@code visitTypeVariable}
- * | {@code
- *       visitArrayType} | ( {@code visitClassType} {@code visitTypeArgument}* (
- * {@code
+ *   <li><i>TypeSignature</i> = {@code visitBaseType} | {@code visitTypeVariable} | {@code
+ *       visitArrayType} | ( {@code visitClassType} {@code visitTypeArgument}* ( {@code
  *       visitInnerClassType} {@code visitTypeArgument}* )* {@code visitEnd} ) )
  * </ul>
  *
@@ -67,9 +54,7 @@ public abstract class SignatureVisitor {
   /**
    * Constructs a new {@link SignatureVisitor}.
    */
-  public SignatureVisitor() {
-
-  }
+  public SignatureVisitor() { }
 
   /**
    * Visits a formal type parameter.
@@ -77,8 +62,7 @@ public abstract class SignatureVisitor {
    * @param name
    *         the name of the formal parameter.
    */
-  public void visitFormalTypeParameter(final String name) {
-  }
+  public void visitFormalTypeParameter(final String name) { }
 
   /**
    * Visits the class bound of the last visited formal type parameter.
@@ -149,8 +133,7 @@ public abstract class SignatureVisitor {
    * @param descriptor
    *         the descriptor of the primitive type, or 'V' for {@code void} .
    */
-  public void visitBaseType(final char descriptor) {
-  }
+  public void visitBaseType(final char descriptor) { }
 
   /**
    * Visits a signature corresponding to a type variable.
@@ -158,8 +141,7 @@ public abstract class SignatureVisitor {
    * @param name
    *         the name of the type variable.
    */
-  public void visitTypeVariable(final String name) {
-  }
+  public void visitTypeVariable(final String name) { }
 
   /**
    * Visits a signature corresponding to an array type.
@@ -176,8 +158,7 @@ public abstract class SignatureVisitor {
    * @param name
    *         the internal name of the class or interface.
    */
-  public void visitClassType(final String name) {
-  }
+  public void visitClassType(final String name) { }
 
   /**
    * Visits an inner class.
@@ -185,15 +166,10 @@ public abstract class SignatureVisitor {
    * @param name
    *         the local name of the inner class in its enclosing class.
    */
-  public void visitInnerClassType(final String name) {
-  }
+  public void visitInnerClassType(final String name) { }
 
-  /**
-   * Visits an unbounded type argument of the last visited class or inner class
-   * type.
-   */
-  public void visitTypeArgument() {
-  }
+  /** Visits an unbounded type argument of the last visited class or inner class type. */
+  public void visitTypeArgument() { }
 
   /**
    * Visits a type argument of the last visited class or inner class type.
@@ -208,6 +184,5 @@ public abstract class SignatureVisitor {
   }
 
   /** Ends the visit of a signature corresponding to a class or interface type. */
-  public void visitEnd() {
-  }
+  public void visitEnd() { }
 }

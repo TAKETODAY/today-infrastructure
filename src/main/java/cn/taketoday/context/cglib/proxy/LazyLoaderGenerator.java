@@ -67,7 +67,7 @@ class LazyLoaderGenerator implements CallbackGenerator {
 
     for (final int index : indexes) {
 
-      final String delegate = "TODAY$LAZY_LOADER_" + index;
+      final String delegate = "today$LazyLoader" + index;
 
       ce.declare_field(ACC_PRIVATE, delegate, Constant.TYPE_OBJECT, null);
 
@@ -91,7 +91,7 @@ class LazyLoaderGenerator implements CallbackGenerator {
   }
 
   private Signature loadMethod(int index) {
-    return new Signature("TODAY$LOAD_PRIVATE_" + index, Constant.TYPE_OBJECT, Constant.TYPES_EMPTY_ARRAY);
+    return new Signature("today$LoadPrivate" + index, Constant.TYPE_OBJECT, Constant.TYPES_EMPTY_ARRAY);
   }
 
   public void generateStatic(CodeEmitter e, Context context, List<MethodInfo> methods) {}

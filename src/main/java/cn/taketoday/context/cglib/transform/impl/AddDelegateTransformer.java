@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.CodeEmitter;
@@ -70,7 +71,7 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
       Type[] all = TypeUtils.add(interfaces, TypeUtils.getTypes(delegateIf));
       super.beginClass(version, access, className, superType, all, sourceFile);
 
-      declare_field(Constant.ACC_PRIVATE | Constant.ACC_TRANSIENT, DELEGATE, delegateType, null);
+      declare_field(Opcodes.ACC_PRIVATE | Opcodes.ACC_TRANSIENT, DELEGATE, delegateType, null);
 
       for (int i = 0; i < delegateIf.length; i++) {
         Method[] methods = delegateIf[i].getMethods();
@@ -95,7 +96,7 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
         @Override
         public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
           super.visitMethodInsn(opcode, owner, name, desc, itf);
-          if (transformInit && opcode == Constant.INVOKESPECIAL) {
+          if (transformInit && opcode == Opcodes.INVOKESPECIAL) {
             load_this();
             new_instance(delegateType);
             dup();
@@ -124,7 +125,7 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
 
     final Signature sig = CglibReflectUtils.getSignature(m);
     Type[] exceptions = TypeUtils.getTypes(m.getExceptionTypes());
-    CodeEmitter e = super.beginMethod(Constant.ACC_PUBLIC, sig, exceptions);
+    CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, sig, exceptions);
     e.load_this();
     e.getfield(DELEGATE);
     e.load_args();

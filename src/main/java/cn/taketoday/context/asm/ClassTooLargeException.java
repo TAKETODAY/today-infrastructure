@@ -28,8 +28,8 @@
 package cn.taketoday.context.asm;
 
 /**
- * Exception thrown when the constant pool of a class produced by a
- * {@link ClassWriter} is too large.
+ * Exception thrown when the constant pool of a class produced by a {@link ClassWriter} is too
+ * large.
  *
  * @author Jason Zaugg
  */

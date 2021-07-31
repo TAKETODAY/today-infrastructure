@@ -18,6 +18,7 @@ package cn.taketoday.context.cglib.transform.impl;
 import java.lang.reflect.Method;
 
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.CodeEmitter;
@@ -49,7 +50,7 @@ public class AddInitTransformer extends ClassEmitterTransformer {
       return new CodeEmitter(emitter) {
         @Override
         public void visitInsn(int opcode) {
-          if (opcode == Constant.RETURN) {
+          if (opcode == Opcodes.RETURN) {
             load_this();
             invoke(info);
           }

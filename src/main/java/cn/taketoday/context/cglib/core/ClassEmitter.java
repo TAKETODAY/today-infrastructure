@@ -23,6 +23,7 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.FieldVisitor;
 import cn.taketoday.context.asm.MethodVisitor;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.transform.ClassTransformer;
 
@@ -72,7 +73,7 @@ public class ClassEmitter extends ClassTransformer {
   public void beginClass(final int access,
                          final String className,
                          final Class<?> superType, final Class<?>... interfaces) {
-    beginClass(Constant.JAVA_VERSION, access, className, getType(superType), array(interfaces), Constant.SOURCE_FILE);
+    beginClass(Opcodes.JAVA_VERSION, access, className, getType(superType), array(interfaces), Constant.SOURCE_FILE);
   }
 
   public void beginClass(final int access,
@@ -80,7 +81,7 @@ public class ClassEmitter extends ClassTransformer {
                          final Class<?> superType,
                          final String source, final Class<?>... interfaces) {
 
-    beginClass(Constant.JAVA_VERSION, access, className, getType(superType), array(interfaces), source);
+    beginClass(Opcodes.JAVA_VERSION, access, className, getType(superType), array(interfaces), source);
   }
 
   public void beginClass(final int version,
@@ -137,7 +138,7 @@ public class ClassEmitter extends ClassTransformer {
                          final String superName,
                          final String... interfaces) //
   {
-    beginClass(Constant.JAVA_VERSION, access, name, superName, interfaces);
+    beginClass(Opcodes.JAVA_VERSION, access, name, superName, interfaces);
   }
 
   public void beginClass(final int version,
@@ -195,8 +196,8 @@ public class ClassEmitter extends ClassTransformer {
       throw new IllegalStateException("static hook is invalid for this class");
     }
     if (staticHook == null) {
-      staticHookSig = new Signature("TODAY$STATICHOOK" + getNextHook(), "()V");
-      staticHook = beginMethod(Constant.ACC_STATIC, staticHookSig);
+      staticHookSig = new Signature("today$StaticHook" + getNextHook(), "()V");
+      staticHook = beginMethod(Opcodes.ACC_STATIC, staticHookSig);
       if (staticInit != null) {
         staticInit.invoke_static_this(staticHookSig);
       }
@@ -228,7 +229,7 @@ public class ClassEmitter extends ClassTransformer {
         staticHook.return_value();
         staticHook.end_method();
       }
-      rawStaticInit.visitInsn(Constant.RETURN);
+      rawStaticInit.visitInsn(Opcodes.RETURN);
       rawStaticInit.visitMaxs(0, 0);
       staticInit = staticHook = null;
       staticHookSig = null;
@@ -265,7 +266,7 @@ public class ClassEmitter extends ClassTransformer {
 
   public CodeEmitter begin_static(boolean hook) {
     final Signature sigStatic = Constant.SIG_STATIC;
-    return begin_static(hook, cv.visitMethod(Constant.ACC_STATIC,
+    return begin_static(hook, cv.visitMethod(Opcodes.ACC_STATIC,
                                              sigStatic.getName(),
                                              sigStatic.getDescriptor(), null, null));
   }
@@ -276,12 +277,12 @@ public class ClassEmitter extends ClassTransformer {
       public void visitMaxs(int maxStack, int maxLocals) {}
 
       public void visitInsn(int insn) {
-        if (insn != Constant.RETURN) {
+        if (insn != Opcodes.RETURN) {
           super.visitInsn(insn);
         }
       }
     };
-    staticInit = new CodeEmitter(this, wrapped, Constant.ACC_STATIC, Constant.SIG_STATIC, null);
+    staticInit = new CodeEmitter(this, wrapped, Opcodes.ACC_STATIC, Constant.SIG_STATIC, null);
     if (hook) {
       if (staticHook == null) {
         getStaticHook(); // force static hook creation

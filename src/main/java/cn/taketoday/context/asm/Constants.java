@@ -28,15 +28,13 @@
 package cn.taketoday.context.asm;
 
 /**
- * Defines additional JVM opcodes, access flags and constants which are not part
- * of the ASM public API.
+ * Defines additional JVM opcodes, access flags and constants which are not part of the ASM public
+ * API.
  *
  * @author Eric Bruneton
- * @see <a href=
- * "https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-6.html">JVMS
- * 6</a>
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-6.html">JVMS 6</a>
  */
-abstract class Constants implements Opcodes {
+final class Constants {
 
   // The ClassFile attribute names, in the order they are defined in
   // https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-4.html#jvms-4.7-300.
@@ -58,7 +56,8 @@ abstract class Constants implements Opcodes {
   static final String RUNTIME_VISIBLE_ANNOTATIONS = "RuntimeVisibleAnnotations";
   static final String RUNTIME_INVISIBLE_ANNOTATIONS = "RuntimeInvisibleAnnotations";
   static final String RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS = "RuntimeVisibleParameterAnnotations";
-  static final String RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS = "RuntimeInvisibleParameterAnnotations";
+  static final String RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS =
+          "RuntimeInvisibleParameterAnnotations";
   static final String RUNTIME_VISIBLE_TYPE_ANNOTATIONS = "RuntimeVisibleTypeAnnotations";
   static final String RUNTIME_INVISIBLE_TYPE_ANNOTATIONS = "RuntimeInvisibleTypeAnnotations";
   static final String ANNOTATION_DEFAULT = "AnnotationDefault";
@@ -69,12 +68,12 @@ abstract class Constants implements Opcodes {
   static final String MODULE_MAIN_CLASS = "ModuleMainClass";
   static final String NEST_HOST = "NestHost";
   static final String NEST_MEMBERS = "NestMembers";
+  static final String PERMITTED_SUBCLASSES = "PermittedSubclasses";
+  static final String RECORD = "Record";
 
   // ASM specific access flags.
-  // WARNING: the 16 least significant bits must NOT be used, to avoid conflicts
-  // with standard
-  // access flags, and also to make sure that these flags are automatically
-  // filtered out when
+  // WARNING: the 16 least significant bits must NOT be used, to avoid conflicts with standard
+  // access flags, and also to make sure that these flags are automatically filtered out when
   // written in class files (because access flags are stored using 16 bits only).
 
   static final int ACC_CONSTRUCTOR = 0x40000; // method access flag.
@@ -82,13 +81,12 @@ abstract class Constants implements Opcodes {
   // ASM specific stack map frame types, used in {@link ClassVisitor#visitFrame}.
 
   /**
-   * A frame inserted between already existing frames. This internal stack map
-   * frame type (in addition to the ones declared in {@link Opcodes}) can only be
-   * used if the frame content can be computed from the previous existing frame
-   * and from the instructions between this existing frame and the inserted one,
-   * without any knowledge of the type hierarchy. This kind of frame is only used
-   * when an unconditional jump is inserted in a method while expanding an ASM
-   * specific instruction. Keep in sync with Opcodes.java.
+   * A frame inserted between already existing frames. This internal stack map frame type (in
+   * addition to the ones declared in {@link Opcodes}) can only be used if the frame content can be
+   * computed from the previous existing frame and from the instructions between this existing frame
+   * and the inserted one, without any knowledge of the type hierarchy. This kind of frame is only
+   * used when an unconditional jump is inserted in a method while expanding an ASM specific
+   * instruction. Keep in sync with Opcodes.java.
    */
   static final int F_INSERT = 256;
 
@@ -144,40 +142,39 @@ abstract class Constants implements Opcodes {
   // Constants to convert between normal and wide jump instructions.
 
   // The delta between the GOTO_W and JSR_W opcodes and GOTO and JUMP.
-  static final int WIDE_JUMP_OPCODE_DELTA = GOTO_W - GOTO;
+  static final int WIDE_JUMP_OPCODE_DELTA = GOTO_W - Opcodes.GOTO;
 
-  // Constants to convert JVM opcodes to the equivalent ASM specific opcodes, and
-  // vice versa.
+  // Constants to convert JVM opcodes to the equivalent ASM specific opcodes, and vice versa.
 
-  // The delta between the ASM_IFEQ, ..., ASM_IF_ACMPNE, ASM_GOTO and ASM_JSR
-  // opcodes
+  // The delta between the ASM_IFEQ, ..., ASM_IF_ACMPNE, ASM_GOTO and ASM_JSR opcodes
   // and IFEQ, ..., IF_ACMPNE, GOTO and JSR.
   static final int ASM_OPCODE_DELTA = 49;
 
-  // The delta between the ASM_IFNULL and ASM_IFNONNULL opcodes and IFNULL and
-  // IFNONNULL.
+  // The delta between the ASM_IFNULL and ASM_IFNONNULL opcodes and IFNULL and IFNONNULL.
   static final int ASM_IFNULL_OPCODE_DELTA = 20;
 
   // ASM specific opcodes, used for long forward jump instructions.
 
-  static final int ASM_IFEQ = IFEQ + ASM_OPCODE_DELTA;
-  static final int ASM_IFNE = IFNE + ASM_OPCODE_DELTA;
-  static final int ASM_IFLT = IFLT + ASM_OPCODE_DELTA;
-  static final int ASM_IFGE = IFGE + ASM_OPCODE_DELTA;
-  static final int ASM_IFGT = IFGT + ASM_OPCODE_DELTA;
-  static final int ASM_IFLE = IFLE + ASM_OPCODE_DELTA;
-  static final int ASM_IF_ICMPEQ = IF_ICMPEQ + ASM_OPCODE_DELTA;
-  static final int ASM_IF_ICMPNE = IF_ICMPNE + ASM_OPCODE_DELTA;
-  static final int ASM_IF_ICMPLT = IF_ICMPLT + ASM_OPCODE_DELTA;
-  static final int ASM_IF_ICMPGE = IF_ICMPGE + ASM_OPCODE_DELTA;
-  static final int ASM_IF_ICMPGT = IF_ICMPGT + ASM_OPCODE_DELTA;
-  static final int ASM_IF_ICMPLE = IF_ICMPLE + ASM_OPCODE_DELTA;
-  static final int ASM_IF_ACMPEQ = IF_ACMPEQ + ASM_OPCODE_DELTA;
-  static final int ASM_IF_ACMPNE = IF_ACMPNE + ASM_OPCODE_DELTA;
-  static final int ASM_GOTO = GOTO + ASM_OPCODE_DELTA;
-  static final int ASM_JSR = JSR + ASM_OPCODE_DELTA;
-  static final int ASM_IFNULL = IFNULL + ASM_IFNULL_OPCODE_DELTA;
-  static final int ASM_IFNONNULL = IFNONNULL + ASM_IFNULL_OPCODE_DELTA;
+  static final int ASM_IFEQ = Opcodes.IFEQ + ASM_OPCODE_DELTA;
+  static final int ASM_IFNE = Opcodes.IFNE + ASM_OPCODE_DELTA;
+  static final int ASM_IFLT = Opcodes.IFLT + ASM_OPCODE_DELTA;
+  static final int ASM_IFGE = Opcodes.IFGE + ASM_OPCODE_DELTA;
+  static final int ASM_IFGT = Opcodes.IFGT + ASM_OPCODE_DELTA;
+  static final int ASM_IFLE = Opcodes.IFLE + ASM_OPCODE_DELTA;
+  static final int ASM_IF_ICMPEQ = Opcodes.IF_ICMPEQ + ASM_OPCODE_DELTA;
+  static final int ASM_IF_ICMPNE = Opcodes.IF_ICMPNE + ASM_OPCODE_DELTA;
+  static final int ASM_IF_ICMPLT = Opcodes.IF_ICMPLT + ASM_OPCODE_DELTA;
+  static final int ASM_IF_ICMPGE = Opcodes.IF_ICMPGE + ASM_OPCODE_DELTA;
+  static final int ASM_IF_ICMPGT = Opcodes.IF_ICMPGT + ASM_OPCODE_DELTA;
+  static final int ASM_IF_ICMPLE = Opcodes.IF_ICMPLE + ASM_OPCODE_DELTA;
+  static final int ASM_IF_ACMPEQ = Opcodes.IF_ACMPEQ + ASM_OPCODE_DELTA;
+  static final int ASM_IF_ACMPNE = Opcodes.IF_ACMPNE + ASM_OPCODE_DELTA;
+  static final int ASM_GOTO = Opcodes.GOTO + ASM_OPCODE_DELTA;
+  static final int ASM_JSR = Opcodes.JSR + ASM_OPCODE_DELTA;
+  static final int ASM_IFNULL = Opcodes.IFNULL + ASM_IFNULL_OPCODE_DELTA;
+  static final int ASM_IFNONNULL = Opcodes.IFNONNULL + ASM_IFNULL_OPCODE_DELTA;
   static final int ASM_GOTO_W = 220;
+
+  private Constants() { }
 
 }

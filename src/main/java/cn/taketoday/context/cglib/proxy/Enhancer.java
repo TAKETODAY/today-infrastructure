@@ -40,13 +40,14 @@ import cn.taketoday.context.asm.ClassReader;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Label;
 import cn.taketoday.context.asm.MethodVisitor;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
+import cn.taketoday.context.cglib.core.CglibCollectionUtils;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.ClassEmitter;
 import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.CodeGenerationException;
-import cn.taketoday.context.cglib.core.CglibCollectionUtils;
 import cn.taketoday.context.cglib.core.DuplicatesPredicate;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.GeneratorStrategy;
@@ -125,13 +126,13 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
   private static final EnhancerKey KEY_FACTORY = KeyFactory.create(EnhancerKey.class, KeyFactory.HASH_ASM_TYPE, null);
 
-  private static final String BOUND_FIELD = "TODAY$BOUND";
-  private static final String CONSTRUCTED_FIELD = "TODAY$CONSTRUCTED";
-  private static final String FACTORY_DATA_FIELD = "TODAY$FACTORY_DATA";
-  private static final String THREAD_CALLBACKS_FIELD = "TODAY$THREAD_CALLBACKS";
-  private static final String STATIC_CALLBACKS_FIELD = "TODAY$STATIC_CALLBACKS";
-  private static final String SET_THREAD_CALLBACKS_NAME = "TODAY$SET_THREAD_CALLBACKS";
-  private static final String SET_STATIC_CALLBACKS_NAME = "TODAY$SET_STATIC_CALLBACKS";
+  private static final String BOUND_FIELD = "today$Bound";
+  private static final String CONSTRUCTED_FIELD = "today$Constructed";
+  private static final String FACTORY_DATA_FIELD = "today$FactoryData";
+  private static final String THREAD_CALLBACKS_FIELD = "today$ThreadCallbacks";
+  private static final String STATIC_CALLBACKS_FIELD = "today$StaticCallbacks";
+  private static final String SET_THREAD_CALLBACKS_NAME = "today$SetThreadCallbacks";
+  private static final String SET_STATIC_CALLBACKS_NAME = "today$SetStaticCallbacks";
 
   /**
    * {@link cn.taketoday.context.cglib.core.AbstractClassGenerator.ClassLoaderData#generatedClasses}
@@ -146,7 +147,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * that
    * </p>
    */
-  private static final String CALLBACK_FILTER_FIELD = "TODAY$CALLBACK_FILTER";
+  private static final String CALLBACK_FILTER_FIELD = "today$CallbackFilter";
 
   private static final Type OBJECT_TYPE = TYPE_OBJECT;
   private static final Type FACTORY = parseType(Factory.class);
@@ -174,7 +175,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   private static final Signature GET_CALLBACKS = new Signature("getCallbacks", CALLBACK_ARRAY, new Type[0]);
   private static final Signature THREAD_LOCAL_GET = parseSignature("Object get()");
   private static final Signature THREAD_LOCAL_SET = parseSignature("void set(Object)");
-  private static final Signature BIND_CALLBACKS = parseSignature("void TODAY$BIND_CALLBACKS(Object)");
+  private static final Signature BIND_CALLBACKS = parseSignature("void today$BindCallbacks(Object)");
 
   private EnhancerFactoryData currentData;
   private Object currentKey;
@@ -646,7 +647,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   }
 
   private Signature rename(Signature sig, int index) {
-    return new Signature("TODAY$" + sig.getName() + '$' + index, sig.getDescriptor());
+    return new Signature("today$" + sig.getName() + '$' + index, sig.getDescriptor());
   }
 
   /**
@@ -695,7 +696,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     CglibCollectionUtils.filter(methods, new RejectModifierPredicate(ACC_STATIC));
     CglibCollectionUtils.filter(methods, new VisibilityPredicate(superclass, true));
     CglibCollectionUtils.filter(methods, new DuplicatesPredicate(methods));
-    CglibCollectionUtils.filter(methods, new RejectModifierPredicate(Constant.ACC_FINAL));
+    CglibCollectionUtils.filter(methods, new RejectModifierPredicate(Opcodes.ACC_FINAL));
   }
 
   @Override
@@ -721,21 +722,21 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
     final List<MethodInfo> methods = CglibCollectionUtils.transform(actualMethods, (Method method) -> {
 
-      int modifiers = Constant.ACC_FINAL | (method.getModifiers() //
-              & ~Constant.ACC_ABSTRACT //
-              & ~Constant.ACC_NATIVE //
-              & ~Constant.ACC_SYNCHRONIZED//
+      int modifiers = Opcodes.ACC_FINAL | (method.getModifiers() //
+              & ~Opcodes.ACC_ABSTRACT //
+              & ~Opcodes.ACC_NATIVE //
+              & ~Opcodes.ACC_SYNCHRONIZED//
       );
 
       if (forcePublic.contains(MethodWrapper.create(method))) {
-        modifiers = (modifiers & ~Constant.ACC_PROTECTED) | ACC_PUBLIC;
+        modifiers = (modifiers & ~Opcodes.ACC_PROTECTED) | ACC_PUBLIC;
       }
       return CglibReflectUtils.getMethodInfo(method, modifiers);
     });
 
     final ClassEmitter e = new ClassEmitter(v);
     if (currentData == null) {
-      e.beginClass(Constant.JAVA_VERSION, //
+      e.beginClass(Opcodes.JAVA_VERSION, //
                    ACC_PUBLIC, //
                    getClassName(), //
                    Type.getType(sc), //
@@ -744,7 +745,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       );
     }
     else {
-      e.beginClass(Constant.JAVA_VERSION, //
+      e.beginClass(Opcodes.JAVA_VERSION, //
                    ACC_PUBLIC, //
                    getClassName(), //
                    null, //
@@ -812,7 +813,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    */
   protected void filterConstructors(Class sc, List constructors) {
     CglibCollectionUtils.filter(constructors, new VisibilityPredicate(sc, true));
-    if (constructors.size() == 0) throw new IllegalArgumentException("No visible constructors in " + sc);
+    if (constructors.size() == 0)
+      throw new IllegalArgumentException("No visible constructors in " + sc);
   }
 
   /**
@@ -1107,7 +1109,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       e.end_method();
     }
     if (!classOnly && !seenNull && arguments
-            == null) throw new IllegalArgumentException("Superclass has no null constructors but no arguments were given");
+            == null)
+      throw new IllegalArgumentException("Superclass has no null constructors but no arguments were given");
   }
 
   private int[] getCallbackKeys() {
@@ -1280,17 +1283,15 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     final Type[] callbackTypes = this.callbackTypes;
     final CallbackGenerator[] generators = CallbackInfo.getGenerators(callbackTypes);
 
-    final Map<CallbackGenerator, List<MethodInfo>> groups = new HashMap<>();
-    final Map<MethodInfo, Integer> indexes = new HashMap<>();
-    final Map<MethodInfo, Integer> originalModifiers = new HashMap<>();
-    final Map<MethodInfo, Integer> positions = CglibCollectionUtils.getIndexMap(methods);
-    final Map<Class<?>, Set<Signature>> declToBridge = new HashMap<>();
+    final HashMap<MethodInfo, Integer> indexes = new HashMap<>();
+    final HashMap<MethodInfo, Integer> originalModifiers = new HashMap<>();
+    final HashMap<MethodInfo, Integer> positions = getIndexMap(methods);
+    final HashMap<Class<?>, Set<Signature>> declToBridge = new HashMap<>();
+    final HashMap<CallbackGenerator, List<MethodInfo>> groups = new HashMap<>();
 
-    Iterator<MethodInfo> it1 = methods.iterator();
-    Iterator<Method> it2 = (actualMethods != null) ? actualMethods.iterator() : null;
+    final Iterator<Method> it2 = (actualMethods != null) ? actualMethods.iterator() : null;
 
-    while (it1.hasNext()) {
-      final MethodInfo method = it1.next();
+    for (final MethodInfo method : methods) {
       final Method actualMethod = (it2 != null) ? it2.next() : null;
       int index = filter.accept(actualMethod);
 
@@ -1316,9 +1317,6 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       }
     }
 
-    final Map<Signature, Signature> bridgeToTarget = //
-            BridgeMethodResolver.resolve(getClassLoader(), declToBridge);
-
     final Set seenGen = new HashSet<>();
     final CodeEmitter se = ce.getStaticHook();
 
@@ -1328,6 +1326,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     se.putfield(THREAD_CALLBACKS_FIELD);
 
     final CallbackGenerator.Context context = new CallbackGenerator.Context() {
+      Map<Signature, Signature> bridgeToTarget = null;
 
       @Override
       public ClassLoader getClassLoader() {
@@ -1356,11 +1355,13 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
       @Override
       public void emitLoadArgsAndInvoke(CodeEmitter e, MethodInfo method) {
-
         // If this is a bridge and we know the target was called from invokespecial,
         // then we need to invoke_virtual w/ the bridge target instead of doing
         // a super, because super may itself be using super, which would bypass
         // any proxies on the target.
+        if (bridgeToTarget == null) {
+          bridgeToTarget = BridgeMethodResolver.resolve(getClassLoader(), declToBridge);
+        }
         final Signature bridgeTarget = bridgeToTarget.get(method.getSignature());
         if (bridgeTarget != null) {
           // checkcast each argument against the target's argument types
@@ -1434,6 +1435,15 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     }
     se.return_value();
     se.end_method();
+  }
+
+  static <T> HashMap<T, Integer> getIndexMap(List<T> list) {
+    final HashMap<T, Integer> indexes = new HashMap<>(list.size());
+    int index = 0;
+    for (final T obj : list) {
+      indexes.put(obj, index++);
+    }
+    return indexes;
   }
 
   private void emitSetThreadCallbacks(ClassEmitter ce) {
@@ -1514,7 +1524,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   }
 
   private static String getCallbackField(int index) {
-    return "TODAY$CALLBACK_" + index;
+    return "today$Callback_" + index;
   }
 
   /**
@@ -1536,8 +1546,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
      * Finds all bridge methods that are being called with invokespecial & returns
      * them.
      */
-    public static Map<Signature, Signature> resolve(ClassLoader classLoader, //
-                                                    Map<Class<?>, Set<Signature>> declToBridge) //
+    public static Map<Signature, Signature> resolve(
+            ClassLoader classLoader, Map<Class<?>, Set<Signature>> declToBridge) //
     {
 
       final Map<Signature, Signature> resolved = new HashMap<>();
@@ -1558,7 +1568,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
             is.close();
           }
         }
-        catch (IOException ignored) {}
+        catch (IOException ignored) {
+        }
       }
       return resolved;
     }
@@ -1577,24 +1588,20 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
       @Override
       public void visit(int version, int access, String name, //
-                        String signature, String superName, String[] interfaces) {}
+                        String signature, String superName, String[] interfaces) { }
 
       @Override
       public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-
         final Signature sig = new Signature(name, desc);
-
         if (!eligibleMethods.remove(sig)) {
           return null;
         }
 
-        currentMethod = sig;
-        return new MethodVisitor() {
+        final class BridgedFinderMethodVisitor extends MethodVisitor {
 
           @Override
           public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
             if ((opcode == INVOKESPECIAL || (itf && opcode == INVOKEINTERFACE)) && currentMethod != null) {
-
               final Signature target = new Signature(name, desc);
               // If the target signature is the same as the current,
               // we shouldn't change our bridge becaues invokespecial
@@ -1608,7 +1615,10 @@ public class Enhancer extends AbstractClassGenerator<Object> {
               currentMethod = null;
             }
           }
-        };
+        }
+
+        currentMethod = sig;
+        return new BridgedFinderMethodVisitor();
       }
     }
 

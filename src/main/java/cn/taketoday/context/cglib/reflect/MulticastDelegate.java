@@ -21,6 +21,7 @@ import java.util.List;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
@@ -117,7 +118,7 @@ abstract public class MulticastDelegate implements Cloneable {
 
       ClassEmitter ce = new ClassEmitter(cv);
 
-      ce.beginClass(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, getClassName(), MULTICAST_DELEGATE,
+      ce.beginClass(Opcodes.JAVA_VERSION, Opcodes.ACC_PUBLIC, getClassName(), MULTICAST_DELEGATE,
                     Type.array(Type.getType(iface)), Constant.SOURCE_FILE);
 
       EmitUtils.nullConstructor(ce);
@@ -126,7 +127,7 @@ abstract public class MulticastDelegate implements Cloneable {
       emitProxy(ce, method);
 
       // newInstance
-      CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, NEW_INSTANCE);
+      CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, NEW_INSTANCE);
       e.new_instance_this();
       e.dup();
       e.invoke_constructor_this();
@@ -134,7 +135,7 @@ abstract public class MulticastDelegate implements Cloneable {
       e.end_method();
 
       // add
-      e = ce.beginMethod(Constant.ACC_PUBLIC, ADD_DELEGATE);
+      e = ce.beginMethod(Opcodes.ACC_PUBLIC, ADD_DELEGATE);
       e.load_this();
       e.load_arg(0);
       e.checkcast(Type.getType(iface));
@@ -146,9 +147,9 @@ abstract public class MulticastDelegate implements Cloneable {
     }
 
     private void emitProxy(ClassEmitter ce, final MethodInfo method) {
-      int modifiers = Constant.ACC_PUBLIC;
-      if ((method.getModifiers() & Constant.ACC_VARARGS) == Constant.ACC_VARARGS) {
-        modifiers |= Constant.ACC_VARARGS;
+      int modifiers = Opcodes.ACC_PUBLIC;
+      if ((method.getModifiers() & Opcodes.ACC_VARARGS) == Opcodes.ACC_VARARGS) {
+        modifiers |= Opcodes.ACC_VARARGS;
       }
       final CodeEmitter e = EmitUtils.beginMethod(ce, method, modifiers);
       Type returnType = method.getSignature().getReturnType();

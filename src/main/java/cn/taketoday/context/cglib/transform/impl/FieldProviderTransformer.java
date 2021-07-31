@@ -21,6 +21,7 @@ import java.util.Map;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.Label;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.CodeGenerationException;
@@ -34,8 +35,8 @@ import cn.taketoday.context.cglib.transform.ClassEmitterTransformer;
 @SuppressWarnings("all")
 public class FieldProviderTransformer extends ClassEmitterTransformer {
 
-  private static final String FIELD_NAMES = "TODAY$FIELD_NAMES";
-  private static final String FIELD_TYPES = "TODAY$FIELD_TYPES";
+  private static final String FIELD_NAMES = "today$FieldNames";
+  private static final String FIELD_TYPES = "today$FieldTypes";
 
   private static final Type FIELD_PROVIDER = TypeUtils.parseType(FieldProvider.class);
   private static final Type ILLEGAL_ARGUMENT_EXCEPTION = TypeUtils.parseType("IllegalArgumentException");
@@ -123,21 +124,21 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
   }
 
   private void getNames() {
-    CodeEmitter e = super.beginMethod(Constant.ACC_PUBLIC, PROVIDER_GET_NAMES);
+    CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, PROVIDER_GET_NAMES);
     e.getstatic(getClassType(), FIELD_NAMES, Constant.TYPE_STRING_ARRAY);
     e.return_value();
     e.end_method();
   }
 
   private void getTypes() {
-    CodeEmitter e = super.beginMethod(Constant.ACC_PUBLIC, PROVIDER_GET_TYPES);
+    CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, PROVIDER_GET_TYPES);
     e.getstatic(getClassType(), FIELD_TYPES, Constant.TYPE_CLASS_ARRAY);
     e.return_value();
     e.end_method();
   }
 
   private void setByIndex(final String[] names, final int[] indexes) throws Exception {
-    final CodeEmitter e = super.beginMethod(Constant.ACC_PUBLIC, PROVIDER_SET_BY_INDEX);
+    final CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, PROVIDER_SET_BY_INDEX);
     e.load_this();
     e.load_arg(1);
     e.load_arg(0);
@@ -158,7 +159,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
 
   private void getByIndex(final String[] names, final int[] indexes) throws Exception {
 
-    final CodeEmitter e = super.beginMethod(Constant.ACC_PUBLIC, PROVIDER_GET_BY_INDEX);
+    final CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, PROVIDER_GET_BY_INDEX);
     e.load_this();
     e.load_arg(0);
     e.process_switch(indexes, new ProcessSwitchCallback() {
@@ -179,7 +180,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
   // TODO: if this is used to enhance class files SWITCH_STYLE_TRIE should be used
   // to avoid JVM hashcode implementation incompatibilities
   private void getField(String[] names) throws Exception {
-    final CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, PROVIDER_GET);
+    final CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, PROVIDER_GET);
     e.load_this();
     e.load_arg(0);
     EmitUtils.stringSwitch(e, names, Constant.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
@@ -198,7 +199,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
   }
 
   private void setField(String[] names) throws Exception {
-    final CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, PROVIDER_SET);
+    final CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, PROVIDER_SET);
     e.load_this();
     e.load_arg(1);
     e.load_arg(0);

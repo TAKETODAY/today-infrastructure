@@ -31,8 +31,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 /**
- * A Java field or method type. This class can be used to make it easier to
- * manipulate type and method descriptors.
+ * A Java field or method type. This class can be used to make it easier to manipulate type and
+ * method descriptors.
  *
  * @author Eric Bruneton
  * @author Chris Nokleberg
@@ -75,10 +75,7 @@ public final class Type {
   /** The sort of method types. See {@link #getSort}. */
   public static final int METHOD = 11;
 
-  /**
-   * The (private) sort of object reference types represented with an internal
-   * name.
-   */
+  /** The (private) sort of object reference types represented with an internal name. */
   private static final int INTERNAL = 12;
 
   /** The descriptors of the primitive types. */
@@ -88,7 +85,8 @@ public final class Type {
   public static final Type VOID_TYPE = new Type(VOID, PRIMITIVE_DESCRIPTORS, VOID, VOID + 1);
 
   /** The {@code boolean} type. */
-  public static final Type BOOLEAN_TYPE = new Type(BOOLEAN, PRIMITIVE_DESCRIPTORS, BOOLEAN, BOOLEAN + 1);
+  public static final Type BOOLEAN_TYPE =
+          new Type(BOOLEAN, PRIMITIVE_DESCRIPTORS, BOOLEAN, BOOLEAN + 1);
 
   /** The {@code char} type. */
   public static final Type CHAR_TYPE = new Type(CHAR, PRIMITIVE_DESCRIPTORS, CHAR, CHAR + 1);
@@ -109,45 +107,42 @@ public final class Type {
   public static final Type LONG_TYPE = new Type(LONG, PRIMITIVE_DESCRIPTORS, LONG, LONG + 1);
 
   /** The {@code double} type. */
-  public static final Type DOUBLE_TYPE = new Type(DOUBLE, PRIMITIVE_DESCRIPTORS, DOUBLE, DOUBLE + 1);
+  public static final Type DOUBLE_TYPE =
+          new Type(DOUBLE, PRIMITIVE_DESCRIPTORS, DOUBLE, DOUBLE + 1);
 
   // -----------------------------------------------------------------------------------------------
   // Fields
   // -----------------------------------------------------------------------------------------------
 
   /**
-   * The sort of this type. Either {@link #VOID}, {@link #BOOLEAN}, {@link #CHAR},
-   * {@link #BYTE}, {@link #SHORT}, {@link #INT}, {@link #FLOAT}, {@link #LONG},
-   * {@link #DOUBLE}, {@link #ARRAY}, {@link #OBJECT}, {@link #METHOD} or
-   * {@link #INTERNAL}.
+   * The sort of this type. Either {@link #VOID}, {@link #BOOLEAN}, {@link #CHAR}, {@link #BYTE},
+   * {@link #SHORT}, {@link #INT}, {@link #FLOAT}, {@link #LONG}, {@link #DOUBLE}, {@link #ARRAY},
+   * {@link #OBJECT}, {@link #METHOD} or {@link #INTERNAL}.
    */
   private final int sort;
 
   /**
-   * A buffer containing the value of this field or method type. This value is an
-   * internal name for {@link #OBJECT} and {@link #INTERNAL} types, and a field or
-   * method descriptor in the other cases.
+   * A buffer containing the value of this field or method type. This value is an internal name for
+   * {@link #OBJECT} and {@link #INTERNAL} types, and a field or method descriptor in the other
+   * cases.
    *
-   * <p>
-   * For {@link #OBJECT} types, this field also contains the descriptor: the
-   * characters in [{@link #valueBegin},{@link #valueEnd}) contain the internal
-   * name, and those in [{@link #valueBegin} - 1, {@link #valueEnd} + 1) contain
-   * the descriptor.
+   * <p>For {@link #OBJECT} types, this field also contains the descriptor: the characters in
+   * [{@link #valueBegin},{@link #valueEnd}) contain the internal name, and those in [{@link
+   * #valueBegin} - 1, {@link #valueEnd} + 1) contain the descriptor.
    */
   private final String valueBuffer;
 
   /**
-   * The beginning index, inclusive, of the value of this Java field or method
-   * type in {@link #valueBuffer}. This value is an internal name for
-   * {@link #OBJECT} and {@link #INTERNAL} types, and a field or method descriptor
-   * in the other cases.
+   * The beginning index, inclusive, of the value of this Java field or method type in {@link
+   * #valueBuffer}. This value is an internal name for {@link #OBJECT} and {@link #INTERNAL} types,
+   * and a field or method descriptor in the other cases.
    */
   private final int valueBegin;
 
   /**
-   * The end index, exclusive, of the value of this Java field or method type in
-   * {@link #valueBuffer}. This value is an internal name for {@link #OBJECT} and
-   * {@link #INTERNAL} types, and a field or method descriptor in the other cases.
+   * The end index, exclusive, of the value of this Java field or method type in {@link
+   * #valueBuffer}. This value is an internal name for {@link #OBJECT} and {@link #INTERNAL} types,
+   * and a field or method descriptor in the other cases.
    */
   private final int valueEnd;
 
@@ -159,11 +154,11 @@ public final class Type {
    * @param valueBuffer
    *         a buffer containing the value of this field or method type.
    * @param valueBegin
-   *         the beginning index, inclusive, of the value of this field or
-   *         method type in valueBuffer.
+   *         the beginning index, inclusive, of the value of this field or method type in
+   *         valueBuffer.
    * @param valueEnd
-   *         the end index, exclusive, of the value of this field or method
-   *         type in valueBuffer.
+   *         the end index, exclusive, of the value of this field or method type in
+   *         valueBuffer.
    */
   private Type(final int sort, final String valueBuffer, final int valueBegin, final int valueEnd) {
     this.sort = sort;
@@ -173,8 +168,7 @@ public final class Type {
   }
 
   // -----------------------------------------------------------------------------------------------
-  // Methods to get Type(s) from a descriptor, a reflected Method or Constructor,
-  // other types, etc.
+  // Methods to get Type(s) from a descriptor, a reflected Method or Constructor, other types, etc.
   // -----------------------------------------------------------------------------------------------
 
   /**
@@ -226,9 +220,13 @@ public final class Type {
       else if (clazz == Long.TYPE) {
         return LONG_TYPE;
       }
-      throw new AssertionError();
+      else {
+        throw new AssertionError();
+      }
     }
-    return getType(getDescriptor(clazz));
+    else {
+      return getType(getDescriptor(clazz));
+    }
   }
 
   /**
@@ -256,8 +254,8 @@ public final class Type {
   }
 
   /**
-   * Returns the type of the elements of this array type. This method should only
-   * be used for an array type.
+   * Returns the type of the elements of this array type. This method should only be used for an
+   * array type.
    *
    * @return Returns the type of the elements of this array type.
    */
@@ -275,12 +273,12 @@ public final class Type {
    * @return the {@link Type} corresponding to the given internal name.
    */
   public static Type getObjectType(final String internalName) {
-    return new Type(internalName.charAt(0) == '[' ? ARRAY : INTERNAL, internalName, 0, internalName.length());
+    return new Type(
+            internalName.charAt(0) == '[' ? ARRAY : INTERNAL, internalName, 0, internalName.length());
   }
 
   /**
-   * Returns the {@link Type} corresponding to the given method descriptor.
-   * Equivalent to <code>
+   * Returns the {@link Type} corresponding to the given method descriptor. Equivalent to <code>
    * Type.getType(methodDescriptor)</code>.
    *
    * @param methodDescriptor
@@ -293,24 +291,22 @@ public final class Type {
   }
 
   /**
-   * Returns the method {@link Type} corresponding to the given argument and
-   * return types.
+   * Returns the method {@link Type} corresponding to the given argument and return types.
    *
    * @param returnType
    *         the return type of the method.
    * @param argumentTypes
    *         the argument types of the method.
    *
-   * @return the method {@link Type} corresponding to the given argument and
-   * return types.
+   * @return the method {@link Type} corresponding to the given argument and return types.
    */
   public static Type getMethodType(final Type returnType, final Type... argumentTypes) {
     return getType(getMethodDescriptor(returnType, argumentTypes));
   }
 
   /**
-   * Returns the argument types of methods of this type. This method should only
-   * be used for method types.
+   * Returns the argument types of methods of this type. This method should only be used for method
+   * types.
    *
    * @return the argument types of methods of this type.
    */
@@ -319,14 +315,14 @@ public final class Type {
   }
 
   /**
-   * Returns the {@link Type} values corresponding to the argument types of the
-   * given method descriptor.
+   * Returns the {@link Type} values corresponding to the argument types of the given method
+   * descriptor.
    *
    * @param methodDescriptor
    *         a method descriptor.
    *
-   * @return the {@link Type} values corresponding to the argument types of the
-   * given method descriptor.
+   * @return the {@link Type} values corresponding to the argument types of the given method
+   * descriptor.
    */
   public static Type[] getArgumentTypes(final String methodDescriptor) {
     // First step: compute the number of argument types in methodDescriptor.
@@ -340,7 +336,8 @@ public final class Type {
       }
       if (methodDescriptor.charAt(currentOffset++) == 'L') {
         // Skip the argument descriptor content.
-        currentOffset = methodDescriptor.indexOf(';', currentOffset) + 1;
+        int semiColumnOffset = methodDescriptor.indexOf(';', currentOffset);
+        currentOffset = Math.max(currentOffset, semiColumnOffset + 1);
       }
       ++numArgumentTypes;
     }
@@ -358,23 +355,22 @@ public final class Type {
       }
       if (methodDescriptor.charAt(currentOffset++) == 'L') {
         // Skip the argument descriptor content.
-        currentOffset = methodDescriptor.indexOf(';', currentOffset) + 1;
+        int semiColumnOffset = methodDescriptor.indexOf(';', currentOffset);
+        currentOffset = Math.max(currentOffset, semiColumnOffset + 1);
       }
-      argumentTypes[currentArgumentTypeIndex++] = //
+      argumentTypes[currentArgumentTypeIndex++] =
               getTypeInternal(methodDescriptor, currentArgumentTypeOffset, currentOffset);
     }
     return argumentTypes;
   }
 
   /**
-   * Returns the {@link Type} values corresponding to the argument types of the
-   * given method.
+   * Returns the {@link Type} values corresponding to the argument types of the given method.
    *
    * @param method
    *         a method.
    *
-   * @return the {@link Type} values corresponding to the argument types of the
-   * given method.
+   * @return the {@link Type} values corresponding to the argument types of the given method.
    */
   public static Type[] getArgumentTypes(final Method method) {
     Class<?>[] classes = method.getParameterTypes();
@@ -386,8 +382,8 @@ public final class Type {
   }
 
   /**
-   * Returns the return type of methods of this type. This method should only be
-   * used for method types.
+   * Returns the return type of methods of this type. This method should only be used for method
+   * types.
    *
    * @return the return type of methods of this type.
    */
@@ -396,16 +392,39 @@ public final class Type {
   }
 
   /**
-   * Returns the {@link Type} corresponding to the return type of the given method
-   * descriptor.
+   * Returns the {@link Type} corresponding to the return type of the given method descriptor.
    *
    * @param methodDescriptor
    *         a method descriptor.
    *
-   * @return the {@link Type} corresponding to the return type of the given method
-   * descriptor.
+   * @return the {@link Type} corresponding to the return type of the given method descriptor.
    */
   public static Type getReturnType(final String methodDescriptor) {
+    return getTypeInternal(
+            methodDescriptor, getReturnTypeOffset(methodDescriptor), methodDescriptor.length());
+  }
+
+  /**
+   * Returns the {@link Type} corresponding to the return type of the given method.
+   *
+   * @param method
+   *         a method.
+   *
+   * @return the {@link Type} corresponding to the return type of the given method.
+   */
+  public static Type getReturnType(final Method method) {
+    return getType(method.getReturnType());
+  }
+
+  /**
+   * Returns the start index of the return type of the given method descriptor.
+   *
+   * @param methodDescriptor
+   *         a method descriptor.
+   *
+   * @return the start index of the return type of the given method descriptor.
+   */
+  static int getReturnTypeOffset(final String methodDescriptor) {
     // Skip the first character, which is always a '('.
     int currentOffset = 1;
     // Skip the argument types, one at a each loop iteration.
@@ -415,44 +434,29 @@ public final class Type {
       }
       if (methodDescriptor.charAt(currentOffset++) == 'L') {
         // Skip the argument descriptor content.
-        currentOffset = methodDescriptor.indexOf(';', currentOffset) + 1;
+        int semiColumnOffset = methodDescriptor.indexOf(';', currentOffset);
+        currentOffset = Math.max(currentOffset, semiColumnOffset + 1);
       }
     }
-    return getTypeInternal(methodDescriptor, currentOffset + 1, methodDescriptor.length());
+    return currentOffset + 1;
   }
 
   /**
-   * Returns the {@link Type} corresponding to the return type of the given
-   * method.
-   *
-   * @param method
-   *         a method.
-   *
-   * @return the {@link Type} corresponding to the return type of the given
-   * method.
-   */
-  public static Type getReturnType(final Method method) {
-    return getType(method.getReturnType());
-  }
-
-  /**
-   * Returns the {@link Type} corresponding to the given field or method
-   * descriptor.
+   * Returns the {@link Type} corresponding to the given field or method descriptor.
    *
    * @param descriptorBuffer
    *         a buffer containing the field or method descriptor.
    * @param descriptorBegin
-   *         the beginning index, inclusive, of the field or method descriptor
-   *         in descriptorBuffer.
+   *         the beginning index, inclusive, of the field or method descriptor in
+   *         descriptorBuffer.
    * @param descriptorEnd
    *         the end index, exclusive, of the field or method descriptor in
    *         descriptorBuffer.
    *
    * @return the {@link Type} corresponding to the given type descriptor.
    */
-  private static Type getTypeInternal(final String descriptorBuffer, //
-                                      final int descriptorBegin, final int descriptorEnd) //
-  {
+  private static Type getTypeInternal(
+          final String descriptorBuffer, final int descriptorBegin, final int descriptorEnd) {
     switch (descriptorBuffer.charAt(descriptorBegin)) {
       case 'V':
         return VOID_TYPE;
@@ -488,8 +492,8 @@ public final class Type {
   // -----------------------------------------------------------------------------------------------
 
   /**
-   * Returns the binary name of the class corresponding to this type. This method
-   * must not be used on method types.
+   * Returns the binary name of the class corresponding to this type. This method must not be used
+   * on method types.
    *
    * @return the binary name of the class corresponding to this type.
    */
@@ -528,10 +532,9 @@ public final class Type {
   }
 
   /**
-   * Returns the internal name of the class corresponding to this object or array
-   * type. The internal name of a class is its fully qualified name (as returned
-   * by Class.getName(), where '.' are replaced by '/'). This method should only
-   * be used for an object or array type.
+   * Returns the internal name of the class corresponding to this object or array type. The internal
+   * name of a class is its fully qualified name (as returned by Class.getName(), where '.' are
+   * replaced by '/'). This method should only be used for an object or array type.
    *
    * @return the internal name of the class corresponding to this object type.
    */
@@ -540,9 +543,8 @@ public final class Type {
   }
 
   /**
-   * Returns the internal name of the given class. The internal name of a class is
-   * its fully qualified name, as returned by Class.getName(), where '.' are
-   * replaced by '/'.
+   * Returns the internal name of the given class. The internal name of a class is its fully
+   * qualified name, as returned by Class.getName(), where '.' are replaced by '/'.
    *
    * @param clazz
    *         an object or array class.
@@ -562,14 +564,12 @@ public final class Type {
     if (sort == OBJECT) {
       return valueBuffer.substring(valueBegin - 1, valueEnd + 1);
     }
-    if (sort == INTERNAL) {
-      return new StringBuilder()//
-              .append('L')//
-              .append(valueBuffer, valueBegin, valueEnd)//
-              .append(';')//
-              .toString();
+    else if (sort == INTERNAL) {
+      return 'L' + valueBuffer.substring(valueBegin, valueEnd) + ';';
     }
-    return valueBuffer.substring(valueBegin, valueEnd);
+    else {
+      return valueBuffer.substring(valueBegin, valueEnd);
+    }
   }
 
   /**
@@ -712,36 +712,28 @@ public final class Type {
       stringBuilder.append(descriptor);
     }
     else {
-      stringBuilder.append('L');
-      String name = currentClass.getName();
-      int nameLength = name.length();
-      for (int i = 0; i < nameLength; ++i) {
-        char car = name.charAt(i);
-        stringBuilder.append(car == '.' ? '/' : car);
-      }
-      stringBuilder.append(';');
+      stringBuilder.append('L').append(getInternalName(currentClass)).append(';');
     }
   }
 
   // -----------------------------------------------------------------------------------------------
-  // Methods to get the sort, dimension, size, and opcodes corresponding to a Type
-  // or descriptor.
+  // Methods to get the sort, dimension, size, and opcodes corresponding to a Type or descriptor.
   // -----------------------------------------------------------------------------------------------
 
   /**
    * Returns the sort of this type.
    *
-   * @return {@link #VOID}, {@link #BOOLEAN}, {@link #CHAR}, {@link #BYTE},
-   * {@link #SHORT}, {@link #INT}, {@link #FLOAT}, {@link #LONG},
-   * {@link #DOUBLE}, {@link #ARRAY}, {@link #OBJECT} or {@link #METHOD}.
+   * @return {@link #VOID}, {@link #BOOLEAN}, {@link #CHAR}, {@link #BYTE}, {@link #SHORT}, {@link
+   * #INT}, {@link #FLOAT}, {@link #LONG}, {@link #DOUBLE}, {@link #ARRAY}, {@link #OBJECT} or
+   * {@link #METHOD}.
    */
   public int getSort() {
     return sort == INTERNAL ? OBJECT : sort;
   }
 
   /**
-   * Returns the number of dimensions of this array type. This method should only
-   * be used for an array type.
+   * Returns the number of dimensions of this array type. This method should only be used for an
+   * array type.
    *
    * @return the number of dimensions of this array type.
    */
@@ -754,11 +746,10 @@ public final class Type {
   }
 
   /**
-   * Returns the size of values of this type. This method must not be used for
-   * method types.
+   * Returns the size of values of this type. This method must not be used for method types.
    *
-   * @return the size of values of this type, i.e., 2 for {@code long} and
-   * {@code double}, 0 for {@code void} and 1 otherwise.
+   * @return the size of values of this type, i.e., 2 for {@code long} and {@code double}, 0 for
+   * {@code void} and 1 otherwise.
    */
   public int getSize() {
     switch (sort) {
@@ -783,14 +774,12 @@ public final class Type {
   }
 
   /**
-   * Returns the size of the arguments and of the return value of methods of this
-   * type. This method should only be used for method types.
+   * Returns the size of the arguments and of the return value of methods of this type. This method
+   * should only be used for method types.
    *
-   * @return the size of the arguments of the method (plus one for the implicit
-   * this argument), argumentsSize, and the size of its return value,
-   * returnSize, packed into a single int i =
-   * {@code (argumentsSize &lt;&lt; 2) | returnSize} (argumentsSize is
-   * therefore equal to {@code
+   * @return the size of the arguments of the method (plus one for the implicit this argument),
+   * argumentsSize, and the size of its return value, returnSize, packed into a single int i =
+   * {@code (argumentsSize &lt;&lt; 2) | returnSize} (argumentsSize is therefore equal to {@code
    * i &gt;&gt; 2}, and returnSize to {@code i &amp; 0x03}).
    */
   public int getArgumentsAndReturnSizes() {
@@ -803,11 +792,9 @@ public final class Type {
    * @param methodDescriptor
    *         a method descriptor.
    *
-   * @return the size of the arguments of the method (plus one for the implicit
-   * this argument), argumentsSize, and the size of its return value,
-   * returnSize, packed into a single int i =
-   * {@code (argumentsSize &lt;&lt; 2) | returnSize} (argumentsSize is
-   * therefore equal to {@code
+   * @return the size of the arguments of the method (plus one for the implicit this argument),
+   * argumentsSize, and the size of its return value, returnSize, packed into a single int i =
+   * {@code (argumentsSize &lt;&lt; 2) | returnSize} (argumentsSize is therefore equal to {@code
    * i &gt;&gt; 2}, and returnSize to {@code i &amp; 0x03}).
    */
   public static int getArgumentsAndReturnSizes(final String methodDescriptor) {
@@ -815,8 +802,7 @@ public final class Type {
     // Skip the first character, which is always a '('.
     int currentOffset = 1;
     int currentChar = methodDescriptor.charAt(currentOffset);
-    // Parse the argument types and compute their size, one at a each loop
-    // iteration.
+    // Parse the argument types and compute their size, one at a each loop iteration.
     while (currentChar != ')') {
       if (currentChar == 'J' || currentChar == 'D') {
         currentOffset++;
@@ -828,7 +814,8 @@ public final class Type {
         }
         if (methodDescriptor.charAt(currentOffset++) == 'L') {
           // Skip the argument descriptor content.
-          currentOffset = methodDescriptor.indexOf(';', currentOffset) + 1;
+          int semiColumnOffset = methodDescriptor.indexOf(';', currentOffset);
+          currentOffset = Math.max(currentOffset, semiColumnOffset + 1);
         }
         argumentsSize += 1;
       }
@@ -845,17 +832,17 @@ public final class Type {
   }
 
   /**
-   * Returns a JVM instruction opcode adapted to this {@link Type}. This method
-   * must not be used for method types.
+   * Returns a JVM instruction opcode adapted to this {@link Type}. This method must not be used for
+   * method types.
    *
    * @param opcode
-   *         a JVM instruction opcode. This opcode must be one of ILOAD,
-   *         ISTORE, IALOAD, IASTORE, IADD, ISUB, IMUL, IDIV, IREM, INEG, ISHL,
-   *         ISHR, IUSHR, IAND, IOR, IXOR and IRETURN.
+   *         a JVM instruction opcode. This opcode must be one of ILOAD, ISTORE, IALOAD,
+   *         IASTORE, IADD, ISUB, IMUL, IDIV, IREM, INEG, ISHL, ISHR, IUSHR, IAND, IOR, IXOR and
+   *         IRETURN.
    *
-   * @return an opcode that is similar to the given opcode, but adapted to this
-   * {@link Type}. For example, if this type is {@code float} and
-   * {@code opcode} is IRETURN, this method returns FRETURN.
+   * @return an opcode that is similar to the given opcode, but adapted to this {@link Type}. For
+   * example, if this type is {@code float} and {@code opcode} is IRETURN, this method returns
+   * FRETURN.
    */
   public int getOpcode(final int opcode) {
     if (opcode == Opcodes.IALOAD || opcode == Opcodes.IASTORE) {

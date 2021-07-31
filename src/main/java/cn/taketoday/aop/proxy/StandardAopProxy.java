@@ -33,8 +33,8 @@ import cn.taketoday.aop.proxy.std.DefaultProxyMethodGenerator;
 import cn.taketoday.aop.proxy.std.GeneratorContext;
 import cn.taketoday.aop.proxy.std.NoneProxyMethodGenerator;
 import cn.taketoday.aop.proxy.std.ProxyMethodGenerator;
-import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
@@ -102,7 +102,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
 
   static class StandardProxyGenerator extends AbstractClassGenerator<Object> {
 
-    static final int field_access = Constant.ACC_PRIVATE | Constant.ACC_FINAL;
+    static final int field_access = Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL;
 
     private static final Signature getTarget;
 
@@ -287,7 +287,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
     }
 
     protected boolean shouldGenerate(Method method) {
-      if(method.getName().equals("finalize")) {
+      if (method.getName().equals("finalize")) {
         return false;
       }
       final int modifiers = method.getModifiers();

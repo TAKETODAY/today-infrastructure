@@ -81,7 +81,7 @@ public abstract class ReflectionUtils {
    *
    * @see #isCglibRenamedMethod
    */
-  private static final String CGLIB_RENAMED_METHOD_PREFIX = "TODAY$";
+  private static final String CGLIB_RENAMED_METHOD_PREFIX = "today$";
   private static final Field[] EMPTY_FIELD_ARRAY = Constant.EMPTY_FIELD_ARRAY;
   private static final Method[] EMPTY_METHOD_ARRAY = Constant.EMPTY_METHOD_ARRAY;
   private static final Object[] EMPTY_OBJECT_ARRAY = Constant.EMPTY_OBJECT_ARRAY;

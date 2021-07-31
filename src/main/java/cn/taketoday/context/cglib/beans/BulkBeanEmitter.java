@@ -20,6 +20,7 @@ import java.lang.reflect.Modifier;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.Block;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
@@ -55,7 +56,7 @@ class BulkBeanEmitter extends ClassEmitter {
     Method[] setters = new Method[setterNames.length];
     validate(target, getterNames, setterNames, types, getters, setters);
 
-    beginClass(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, className, BULK_BEAN, null, Constant.SOURCE_FILE);
+    beginClass(Opcodes.JAVA_VERSION, Opcodes.ACC_PUBLIC, className, BULK_BEAN, null, Constant.SOURCE_FILE);
     EmitUtils.nullConstructor(this);
     generateGet(target, getters);
     generateSet(target, setters);
@@ -63,7 +64,7 @@ class BulkBeanEmitter extends ClassEmitter {
   }
 
   private void generateGet(final Class target, final Method[] getters) {
-    CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, GET_PROPERTY_VALUES);
+    CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, GET_PROPERTY_VALUES);
     if (getters.length > 0) {
       e.load_arg(0);
       e.checkcast(Type.getType(target));
@@ -87,7 +88,7 @@ class BulkBeanEmitter extends ClassEmitter {
 
   private void generateSet(final Class target, final Method[] setters) {
     // setPropertyValues
-    CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, SET_PROPERTY_VALUES);
+    CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, SET_PROPERTY_VALUES);
     if (setters.length > 0) {
       Local index = e.make_local(Type.INT_TYPE);
       e.push(0);

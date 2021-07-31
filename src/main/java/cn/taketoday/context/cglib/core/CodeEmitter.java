@@ -22,6 +22,7 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.Attribute;
 import cn.taketoday.context.asm.Label;
 import cn.taketoday.context.asm.MethodVisitor;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 
 /**
@@ -39,23 +40,23 @@ public class CodeEmitter extends LocalVariablesSorter {
   private static final Signature DOUBLE_VALUE = TypeUtils.parseSignature("double doubleValue()");
   private static final Signature BOOLEAN_VALUE = TypeUtils.parseSignature("boolean booleanValue()");
 
-  public static final int ADD = Constant.IADD;
-  public static final int MUL = Constant.IMUL;
-  public static final int XOR = Constant.IXOR;
-  public static final int USHR = Constant.IUSHR;
-  public static final int SUB = Constant.ISUB;
-  public static final int DIV = Constant.IDIV;
-  public static final int NEG = Constant.INEG;
-  public static final int REM = Constant.IREM;
-  public static final int AND = Constant.IAND;
-  public static final int OR = Constant.IOR;
+  public static final int ADD = Opcodes.IADD;
+  public static final int MUL = Opcodes.IMUL;
+  public static final int XOR = Opcodes.IXOR;
+  public static final int USHR = Opcodes.IUSHR;
+  public static final int SUB = Opcodes.ISUB;
+  public static final int DIV = Opcodes.IDIV;
+  public static final int NEG = Opcodes.INEG;
+  public static final int REM = Opcodes.IREM;
+  public static final int AND = Opcodes.IAND;
+  public static final int OR = Opcodes.IOR;
 
-  public static final int GT = Constant.IFGT;
-  public static final int LT = Constant.IFLT;
-  public static final int GE = Constant.IFGE;
-  public static final int LE = Constant.IFLE;
-  public static final int NE = Constant.IFNE;
-  public static final int EQ = Constant.IFEQ;
+  public static final int GT = Opcodes.IFGT;
+  public static final int LT = Opcodes.IFLT;
+  public static final int GE = Opcodes.IFGE;
+  public static final int LE = Opcodes.IFLE;
+  public static final int NE = Opcodes.IFNE;
+  public static final int EQ = Opcodes.IFEQ;
 
   private ClassEmitter ce;
   private State state;
@@ -148,15 +149,15 @@ public class CodeEmitter extends LocalVariablesSorter {
   }
 
   public void goTo(Label label) {
-    mv.visitJumpInsn(Constant.GOTO, label);
+    mv.visitJumpInsn(Opcodes.GOTO, label);
   }
 
   public void ifnull(Label label) {
-    mv.visitJumpInsn(Constant.IFNULL, label);
+    mv.visitJumpInsn(Opcodes.IFNULL, label);
   }
 
   public void ifnonnull(Label label) {
-    mv.visitJumpInsn(Constant.IFNONNULL, label);
+    mv.visitJumpInsn(Opcodes.IFNONNULL, label);
   }
 
   public void if_jump(int mode, Label label) {
@@ -180,42 +181,42 @@ public class CodeEmitter extends LocalVariablesSorter {
     }
     switch (type.getSort()) {
       case Type.LONG:
-        mv.visitInsn(Constant.LCMP);
+        mv.visitInsn(Opcodes.LCMP);
         break;
       case Type.DOUBLE:
-        mv.visitInsn(Constant.DCMPG);
+        mv.visitInsn(Opcodes.DCMPG);
         break;
       case Type.FLOAT:
-        mv.visitInsn(Constant.FCMPG);
+        mv.visitInsn(Opcodes.FCMPG);
         break;
       case Type.ARRAY:
       case Type.OBJECT:
         switch (mode) {
           case EQ:
-            mv.visitJumpInsn(Constant.IF_ACMPEQ, label);
+            mv.visitJumpInsn(Opcodes.IF_ACMPEQ, label);
             return;
           case NE:
-            mv.visitJumpInsn(Constant.IF_ACMPNE, label);
+            mv.visitJumpInsn(Opcodes.IF_ACMPNE, label);
             return;
         }
         throw new IllegalArgumentException("Bad comparison for type " + type);
       default:
         switch (mode) {
           case EQ:
-            intOp = Constant.IF_ICMPEQ;
+            intOp = Opcodes.IF_ICMPEQ;
             break;
           case NE:
-            intOp = Constant.IF_ICMPNE;
+            intOp = Opcodes.IF_ICMPNE;
             break;
           case GE:
             swap(); /* fall through */
           case LT:
-            intOp = Constant.IF_ICMPLT;
+            intOp = Opcodes.IF_ICMPLT;
             break;
           case LE:
             swap(); /* fall through */
           case GT:
-            intOp = Constant.IF_ICMPGT;
+            intOp = Opcodes.IF_ICMPGT;
             break;
         }
         mv.visitJumpInsn(intOp, label);
@@ -225,43 +226,43 @@ public class CodeEmitter extends LocalVariablesSorter {
   }
 
   public void pop() {
-    mv.visitInsn(Constant.POP);
+    mv.visitInsn(Opcodes.POP);
   }
 
   public void pop2() {
-    mv.visitInsn(Constant.POP2);
+    mv.visitInsn(Opcodes.POP2);
   }
 
   public void dup() {
-    mv.visitInsn(Constant.DUP);
+    mv.visitInsn(Opcodes.DUP);
   }
 
   public void dup2() {
-    mv.visitInsn(Constant.DUP2);
+    mv.visitInsn(Opcodes.DUP2);
   }
 
   public void dup_x1() {
-    mv.visitInsn(Constant.DUP_X1);
+    mv.visitInsn(Opcodes.DUP_X1);
   }
 
   public void dup_x2() {
-    mv.visitInsn(Constant.DUP_X2);
+    mv.visitInsn(Opcodes.DUP_X2);
   }
 
   public void dup2_x1() {
-    mv.visitInsn(Constant.DUP2_X1);
+    mv.visitInsn(Opcodes.DUP2_X1);
   }
 
   public void dup2_x2() {
-    mv.visitInsn(Constant.DUP2_X2);
+    mv.visitInsn(Opcodes.DUP2_X2);
   }
 
   public void swap() {
-    mv.visitInsn(Constant.SWAP);
+    mv.visitInsn(Opcodes.SWAP);
   }
 
   public void aconst_null() {
-    mv.visitInsn(Constant.ACONST_NULL);
+    mv.visitInsn(Opcodes.ACONST_NULL);
   }
 
   public void swap(Type prev, Type type) {
@@ -287,11 +288,11 @@ public class CodeEmitter extends LocalVariablesSorter {
   }
 
   public void monitorenter() {
-    mv.visitInsn(Constant.MONITORENTER);
+    mv.visitInsn(Opcodes.MONITORENTER);
   }
 
   public void monitorexit() {
-    mv.visitInsn(Constant.MONITOREXIT);
+    mv.visitInsn(Opcodes.MONITOREXIT);
   }
 
   public void math(int op, Type type) {
@@ -299,11 +300,11 @@ public class CodeEmitter extends LocalVariablesSorter {
   }
 
   public void array_load(Type type) {
-    mv.visitInsn(type.getOpcode(Constant.IALOAD));
+    mv.visitInsn(type.getOpcode(Opcodes.IALOAD));
   }
 
   public void array_store(Type type) {
-    mv.visitInsn(type.getOpcode(Constant.IASTORE));
+    mv.visitInsn(type.getOpcode(Opcodes.IASTORE));
   }
 
   /**
@@ -313,58 +314,58 @@ public class CodeEmitter extends LocalVariablesSorter {
     if (from != to) {
       if (from == Type.DOUBLE_TYPE) {
         if (to == Type.FLOAT_TYPE) {
-          mv.visitInsn(Constant.D2F);
+          mv.visitInsn(Opcodes.D2F);
         }
         else if (to == Type.LONG_TYPE) {
-          mv.visitInsn(Constant.D2L);
+          mv.visitInsn(Opcodes.D2L);
         }
         else {
-          mv.visitInsn(Constant.D2I);
+          mv.visitInsn(Opcodes.D2I);
           cast_numeric(Type.INT_TYPE, to);
         }
       }
       else if (from == Type.FLOAT_TYPE) {
         if (to == Type.DOUBLE_TYPE) {
-          mv.visitInsn(Constant.F2D);
+          mv.visitInsn(Opcodes.F2D);
         }
         else if (to == Type.LONG_TYPE) {
-          mv.visitInsn(Constant.F2L);
+          mv.visitInsn(Opcodes.F2L);
         }
         else {
-          mv.visitInsn(Constant.F2I);
+          mv.visitInsn(Opcodes.F2I);
           cast_numeric(Type.INT_TYPE, to);
         }
       }
       else if (from == Type.LONG_TYPE) {
         if (to == Type.DOUBLE_TYPE) {
-          mv.visitInsn(Constant.L2D);
+          mv.visitInsn(Opcodes.L2D);
         }
         else if (to == Type.FLOAT_TYPE) {
-          mv.visitInsn(Constant.L2F);
+          mv.visitInsn(Opcodes.L2F);
         }
         else {
-          mv.visitInsn(Constant.L2I);
+          mv.visitInsn(Opcodes.L2I);
           cast_numeric(Type.INT_TYPE, to);
         }
       }
       else {
         if (to == Type.BYTE_TYPE) {
-          mv.visitInsn(Constant.I2B);
+          mv.visitInsn(Opcodes.I2B);
         }
         else if (to == Type.CHAR_TYPE) {
-          mv.visitInsn(Constant.I2C);
+          mv.visitInsn(Opcodes.I2C);
         }
         else if (to == Type.DOUBLE_TYPE) {
-          mv.visitInsn(Constant.I2D);
+          mv.visitInsn(Opcodes.I2D);
         }
         else if (to == Type.FLOAT_TYPE) {
-          mv.visitInsn(Constant.I2F);
+          mv.visitInsn(Opcodes.I2F);
         }
         else if (to == Type.LONG_TYPE) {
-          mv.visitInsn(Constant.I2L);
+          mv.visitInsn(Opcodes.I2L);
         }
         else if (to == Type.SHORT_TYPE) {
-          mv.visitInsn(Constant.I2S);
+          mv.visitInsn(Opcodes.I2S);
         }
       }
     }
@@ -378,10 +379,10 @@ public class CodeEmitter extends LocalVariablesSorter {
       mv.visitInsn(TypeUtils.iconst(i));
     }
     else if (i <= Byte.MAX_VALUE) {
-      mv.visitIntInsn(Constant.BIPUSH, i);
+      mv.visitIntInsn(Opcodes.BIPUSH, i);
     }
     else if (i <= Short.MAX_VALUE) {
-      mv.visitIntInsn(Constant.SIPUSH, i);
+      mv.visitIntInsn(Opcodes.SIPUSH, i);
     }
     else {
       mv.visitLdcInsn(Integer.valueOf(i));
@@ -425,22 +426,22 @@ public class CodeEmitter extends LocalVariablesSorter {
 
   public void newArray(Type type) {
     if (TypeUtils.isPrimitive(type)) {
-      mv.visitIntInsn(Constant.NEWARRAY, TypeUtils.newArray(type));
+      mv.visitIntInsn(Opcodes.NEWARRAY, TypeUtils.newArray(type));
     }
     else {
-      emit_type(Constant.ANEWARRAY, type);
+      emit_type(Opcodes.ANEWARRAY, type);
     }
   }
 
   public void arraylength() {
-    mv.visitInsn(Constant.ARRAYLENGTH);
+    mv.visitInsn(Opcodes.ARRAYLENGTH);
   }
 
   public void load_this() {
     if (Modifier.isStatic(state.access)) {
       throw new IllegalStateException("no 'this' pointer within static method");
     }
-    mv.visitVarInsn(Constant.ALOAD, 0);
+    mv.visitVarInsn(Opcodes.ALOAD, 0);
   }
 
   /**
@@ -480,12 +481,12 @@ public class CodeEmitter extends LocalVariablesSorter {
 
   private void load_local(Type t, int pos) {
     // TODO: make t == null ok?
-    mv.visitVarInsn(t.getOpcode(Constant.ILOAD), pos);
+    mv.visitVarInsn(t.getOpcode(Opcodes.ILOAD), pos);
   }
 
   private void store_local(Type t, int pos) {
     // TODO: make t == null ok?
-    mv.visitVarInsn(t.getOpcode(Constant.ISTORE), pos);
+    mv.visitVarInsn(t.getOpcode(Opcodes.ISTORE), pos);
   }
 
   public void iinc(Local local, int amount) {
@@ -501,51 +502,51 @@ public class CodeEmitter extends LocalVariablesSorter {
   }
 
   public void return_value() {
-    mv.visitInsn(state.sig.getReturnType().getOpcode(Constant.IRETURN));
+    mv.visitInsn(state.sig.getReturnType().getOpcode(Opcodes.IRETURN));
   }
 
   public void getfield(String name) {
     ClassEmitter.FieldInfo info = ce.getFieldInfo(name);
-    int opcode = Modifier.isStatic(info.access) ? Constant.GETSTATIC : Constant.GETFIELD;
+    int opcode = Modifier.isStatic(info.access) ? Opcodes.GETSTATIC : Opcodes.GETFIELD;
     emit_field(opcode, ce.getClassType(), name, info.type);
   }
 
   public void putfield(String name) {
     ClassEmitter.FieldInfo info = ce.getFieldInfo(name);
-    int opcode = Modifier.isStatic(info.access) ? Constant.PUTSTATIC : Constant.PUTFIELD;
+    int opcode = Modifier.isStatic(info.access) ? Opcodes.PUTSTATIC : Opcodes.PUTFIELD;
     emit_field(opcode, ce.getClassType(), name, info.type);
   }
 
   public void super_getfield(String name, Type type) {
-    emit_field(Constant.GETFIELD, ce.getSuperType(), name, type);
+    emit_field(Opcodes.GETFIELD, ce.getSuperType(), name, type);
   }
 
   public void super_putfield(String name, Type type) {
-    emit_field(Constant.PUTFIELD, ce.getSuperType(), name, type);
+    emit_field(Opcodes.PUTFIELD, ce.getSuperType(), name, type);
   }
 
   public void super_getstatic(String name, Type type) {
-    emit_field(Constant.GETSTATIC, ce.getSuperType(), name, type);
+    emit_field(Opcodes.GETSTATIC, ce.getSuperType(), name, type);
   }
 
   public void super_putstatic(String name, Type type) {
-    emit_field(Constant.PUTSTATIC, ce.getSuperType(), name, type);
+    emit_field(Opcodes.PUTSTATIC, ce.getSuperType(), name, type);
   }
 
   public void getfield(Type owner, String name, Type type) {
-    emit_field(Constant.GETFIELD, owner, name, type);
+    emit_field(Opcodes.GETFIELD, owner, name, type);
   }
 
   public void putfield(Type owner, String name, Type type) {
-    emit_field(Constant.PUTFIELD, owner, name, type);
+    emit_field(Opcodes.PUTFIELD, owner, name, type);
   }
 
   public void getstatic(Type owner, String name, Type type) {
-    emit_field(Constant.GETSTATIC, owner, name, type);
+    emit_field(Opcodes.GETSTATIC, owner, name, type);
   }
 
   public void putstatic(Type owner, String name, Type type) {
-    emit_field(Constant.PUTSTATIC, owner, name, type);
+    emit_field(Opcodes.PUTSTATIC, owner, name, type);
   }
 
   // package-protected for EmitUtils, try to fix
@@ -558,7 +559,7 @@ public class CodeEmitter extends LocalVariablesSorter {
   }
 
   public void super_invoke(Signature sig) {
-    emit_invoke(Constant.INVOKESPECIAL, ce.getSuperType(), sig, false);
+    emit_invoke(Opcodes.INVOKESPECIAL, ce.getSuperType(), sig, false);
   }
 
   public void invoke_constructor(Type type) {
@@ -575,8 +576,8 @@ public class CodeEmitter extends LocalVariablesSorter {
 
   private void emit_invoke(int opcode, Type type, Signature sig, boolean isInterface) {
 
-//      if (sig.getName().equals(Constant.CONSTRUCTOR_NAME)
-//            && ((opcode == Constant.INVOKEVIRTUAL) || (opcode == Constant.INVOKESTATIC))) {
+//      if (sig.getName().equals(Opcodes.CONSTRUCTOR_NAME)
+//            && ((opcode == Opcodes.INVOKEVIRTUAL) || (opcode == Opcodes.INVOKESTATIC))) {
 //          TODO: error
 //      }
     mv.visitMethodInsn(opcode,
@@ -588,19 +589,19 @@ public class CodeEmitter extends LocalVariablesSorter {
   }
 
   public void invoke_interface(Type owner, Signature sig) {
-    emit_invoke(Constant.INVOKEINTERFACE, owner, sig, true);
+    emit_invoke(Opcodes.INVOKEINTERFACE, owner, sig, true);
   }
 
   public void invoke_virtual(Type owner, Signature sig) {
-    emit_invoke(Constant.INVOKEVIRTUAL, owner, sig, false);
+    emit_invoke(Opcodes.INVOKEVIRTUAL, owner, sig, false);
   }
 
   public void invoke_static(Type owner, Signature sig) {
-    emit_invoke(Constant.INVOKESTATIC, owner, sig, false);
+    emit_invoke(Opcodes.INVOKESTATIC, owner, sig, false);
   }
 
   public void invoke_static(Type owner, Signature sig, boolean isInterface) {
-    emit_invoke(Constant.INVOKESTATIC, owner, sig, isInterface);
+    emit_invoke(Opcodes.INVOKESTATIC, owner, sig, isInterface);
   }
 
   public void invoke_virtual_this(Signature sig) {
@@ -612,7 +613,7 @@ public class CodeEmitter extends LocalVariablesSorter {
   }
 
   public void invoke_constructor(Type type, Signature sig) {
-    emit_invoke(Constant.INVOKESPECIAL, type, sig, false);
+    emit_invoke(Opcodes.INVOKESPECIAL, type, sig, false);
   }
 
   public void invoke_constructor_this(Signature sig) {
@@ -628,7 +629,7 @@ public class CodeEmitter extends LocalVariablesSorter {
   }
 
   public void new_instance(Type type) {
-    emit_type(Constant.NEW, type);
+    emit_type(Opcodes.NEW, type);
   }
 
   private void emit_type(int opcode, Type type) {
@@ -641,15 +642,15 @@ public class CodeEmitter extends LocalVariablesSorter {
   }
 
   public void aaload() {
-    mv.visitInsn(Constant.AALOAD);
+    mv.visitInsn(Opcodes.AALOAD);
   }
 
   public void aastore() {
-    mv.visitInsn(Constant.AASTORE);
+    mv.visitInsn(Opcodes.AASTORE);
   }
 
   public void athrow() {
-    mv.visitInsn(Constant.ATHROW);
+    mv.visitInsn(Opcodes.ATHROW);
   }
 
   public Label make_label() {
@@ -670,12 +671,12 @@ public class CodeEmitter extends LocalVariablesSorter {
 
   public void checkcast(Type type) {
     if (!type.equals(Constant.TYPE_OBJECT)) {
-      emit_type(Constant.CHECKCAST, type);
+      emit_type(Opcodes.CHECKCAST, type);
     }
   }
 
   public void instance_of(Type type) {
-    emit_type(Constant.INSTANCEOF, type);
+    emit_type(Opcodes.INSTANCEOF, type);
   }
 
   public void instance_of_this() {
@@ -802,7 +803,7 @@ public class CodeEmitter extends LocalVariablesSorter {
       else {
         Type boxed = TypeUtils.getBoxedType(type);
 
-        visitMethodInsn(Constant.INVOKESTATIC,
+        visitMethodInsn(Opcodes.INVOKESTATIC,
                         boxed.getInternalName(),
                         "valueOf",
                         Type.getMethodDescriptor(boxed, Type.array(type)),
