@@ -720,7 +720,7 @@ public class Frame<V extends Value> {
     if (insn.getOpcode() != Opcodes.INVOKESTATIC && insn.getOpcode() != Opcodes.INVOKEDYNAMIC) {
       valueList.add(0, pop());
     }
-    if (Type.getReturnType(methodDescriptor) == Type.VOID_TYPE) {
+    if (Type.fromReturnType(methodDescriptor) == Type.VOID_TYPE) {
       interpreter.naryOperation(insn, valueList);
     }
     else {

@@ -71,7 +71,7 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
     if (props.containsKey(name)) {
       throw new IllegalArgumentException("Duplicate property name \"" + name + "\"");
     }
-    props.put(name, Type.getType(type));
+    props.put(name, Type.fromClass(type));
   }
 
   @Override
@@ -121,7 +121,7 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
     ClassEmitter ce = new ClassEmitter(v);
 
     ce.beginClass(JAVA_VERSION, ACC_PUBLIC, getClassName(),
-                  superclass != null ? Type.getType(superclass) : TYPE_OBJECT, null);
+                  superclass != null ? Type.fromClass(superclass) : TYPE_OBJECT, null);
 
     EmitUtils.nullConstructor(ce);
 

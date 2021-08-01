@@ -31,10 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
-
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -64,23 +61,23 @@ public class SimpleVerifierTest {
   })
   public void testMerge_objectTypes(
           final String internalName1, final String internalName2, final String expectedInternalName) {
-    BasicValue value1 = new BasicValue(Type.getObjectType(internalName1));
-    BasicValue value2 = new BasicValue(Type.getObjectType(internalName2));
+    BasicValue value1 = new BasicValue(Type.fromInternalName(internalName1));
+    BasicValue value2 = new BasicValue(Type.fromInternalName(internalName2));
     SimpleVerifier verifier = new SimpleVerifier();
 
     BasicValue merge1 = verifier.merge(value1, value2);
     BasicValue merge2 = verifier.merge(value2, value1);
 
-    BasicValue expectedValue = new BasicValue(Type.getObjectType(expectedInternalName));
+    BasicValue expectedValue = new BasicValue(Type.fromInternalName(expectedInternalName));
     assertEquals(expectedValue, merge1);
     assertEquals(expectedValue, merge2);
   }
 
   @Test
   public void testIsAssignableFrom_subclassWithInterfaces() {
-    Type baseType = Type.getObjectType("C");
-    Type superType = Type.getObjectType("D");
-    Type interfaceType = Type.getObjectType("I");
+    Type baseType = Type.fromInternalName("C");
+    Type superType = Type.fromInternalName("D");
+    Type interfaceType = Type.fromInternalName("I");
     SimpleVerifier simpleVerifier =
             new SimpleVerifier(
                     baseType,
@@ -116,19 +113,19 @@ public class SimpleVerifierTest {
 
   @Test
   public void testIsAssignableFrom_interface() {
-    Type baseType = Type.getObjectType("C");
-    Type interfaceType = Type.getObjectType("I");
+    Type baseType = Type.fromInternalName("C");
+    Type interfaceType = Type.fromInternalName("I");
     SimpleVerifier simpleVerifier =
             new SimpleVerifier(interfaceType, null, true) {
 
               @Override
               protected Type getSuperClass(final Type type) {
-                return Type.getObjectType("java/lang/Object");
+                return Type.fromInternalName("java/lang/Object");
               }
             };
 
     assertTrue(simpleVerifier.isAssignableFrom(interfaceType, baseType));
-    assertTrue(simpleVerifier.isAssignableFrom(interfaceType, Type.getObjectType("[I")));
+    assertTrue(simpleVerifier.isAssignableFrom(interfaceType, Type.fromInternalName("[I")));
     assertFalse(simpleVerifier.isAssignableFrom(interfaceType, Type.INT_TYPE));
   }
 }

@@ -40,7 +40,7 @@ class CallbackInfo {
   private CallbackInfo(Class<?> cls, CallbackGenerator generator) {
     this.cls = cls;
     this.generator = generator;
-    type = Type.getType(cls);
+    type = Type.fromClass(cls);
   }
 
   private static Type determineType(Callback callback, boolean checkAll) {

@@ -47,7 +47,7 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
       delegateImpl.getConstructor(new Class[] { Object.class });
       this.delegateIf = delegateIf;
       this.delegateImpl = delegateImpl;
-      delegateType = Type.getType(delegateImpl);
+      delegateType = Type.fromClass(delegateImpl);
     }
     catch (NoSuchMethodException e) {
       throw new CodeGenerationException(e);

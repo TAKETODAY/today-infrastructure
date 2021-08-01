@@ -119,7 +119,7 @@ abstract public class MulticastDelegate implements Cloneable {
       ClassEmitter ce = new ClassEmitter(cv);
 
       ce.beginClass(Opcodes.JAVA_VERSION, Opcodes.ACC_PUBLIC, getClassName(), MULTICAST_DELEGATE,
-                    Type.array(Type.getType(iface)), Constant.SOURCE_FILE);
+                    Type.array(Type.fromClass(iface)), Constant.SOURCE_FILE);
 
       EmitUtils.nullConstructor(ce);
 
@@ -138,7 +138,7 @@ abstract public class MulticastDelegate implements Cloneable {
       e = ce.beginMethod(Opcodes.ACC_PUBLIC, ADD_DELEGATE);
       e.load_this();
       e.load_arg(0);
-      e.checkcast(Type.getType(iface));
+      e.checkcast(Type.fromClass(iface));
       e.invoke_virtual_this(ADD_HELPER);
       e.return_value();
       e.end_method();
@@ -165,7 +165,7 @@ abstract public class MulticastDelegate implements Cloneable {
       final Local result2 = result;
       EmitUtils.processArray(e, Constant.TYPE_OBJECT_ARRAY, new ProcessArrayCallback() {
         public void processElement(Type type) {
-          e.checkcast(Type.getType(iface));
+          e.checkcast(Type.fromClass(iface));
           e.load_args();
           e.invoke(method);
           if (returns) {

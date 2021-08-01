@@ -71,12 +71,12 @@ public interface Constant extends Serializable {
 
   Signature SIG_STATIC = TypeUtils.parseSignature("void <clinit>()");
 
-  Type TYPE_CONSTANT = Type.getType(Constant.class);
+  Type TYPE_CONSTANT = Type.fromClass(Constant.class);
   Type TYPE_OBJECT_ARRAY = parseType("Object[]");
   Type TYPE_CLASS_ARRAY = parseType("Class[]");
   Type TYPE_STRING_ARRAY = parseType("String[]");
 
-  Type TYPE_TYPE = Type.getType(Type.class);
+  Type TYPE_TYPE = Type.fromClass(Type.class);
   Type TYPE_ERROR = parseType("Error");
   //  Type TYPE_SYSTEM = parseType("System");
   Type TYPE_LONG = parseType("Long");

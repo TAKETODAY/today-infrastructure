@@ -49,7 +49,7 @@ import static cn.taketoday.asm.Opcodes.INVOKESTATIC;
  */
 public abstract class GeneratorSupport<T extends Accessor> {
 
-  static final Type GENERATOR_SUPPORT_TYPE = Type.getType(GeneratorSupport.class);
+  static final Type GENERATOR_SUPPORT_TYPE = Type.fromClass(GeneratorSupport.class);
   static final String GENERATOR_SUPPORT_TYPE_INTERNAL_NAME = GENERATOR_SUPPORT_TYPE.getInternalName();
 
   static final String DEFAULT_SUPER = "Ljava/lang/Object;";
@@ -194,7 +194,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
       codeEmitter.aaload(i);
 
       Class<?> parameterClass = parameterTypes[i];
-      final Type parameterType = Type.getType(parameterClass);
+      final Type parameterType = Type.fromClass(parameterClass);
       if (parameterClass.isPrimitive()) {
         final Type boxedType = TypeUtils.getBoxedType(parameterType); // java.lang.Long ...
         codeEmitter.checkcast(boxedType);

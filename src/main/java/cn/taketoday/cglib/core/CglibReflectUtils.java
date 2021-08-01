@@ -442,8 +442,8 @@ public abstract class CglibReflectUtils {
   }
 
   public static ClassInfo getClassInfo(final Class clazz) {
-    final Type type = Type.getType(clazz);
-    final Type sc = (clazz.getSuperclass() == null) ? null : Type.getType(clazz.getSuperclass());
+    final Type type = Type.fromClass(clazz);
+    final Type sc = (clazz.getSuperclass() == null) ? null : Type.fromClass(clazz.getSuperclass());
     return new ClassInfo() {
       public Type getType() {
         return type;

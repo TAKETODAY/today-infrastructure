@@ -110,7 +110,7 @@ class BeanMapEmitter extends ClassEmitter {
   private void generateGet(Class type, final Map getters) {
     final CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, BEAN_MAP_GET);
     e.load_arg(0);
-    e.checkcast(Type.getType(type));
+    e.checkcast(Type.fromClass(type));
     e.load_arg(1);
     e.checkcast(Constant.TYPE_STRING);
     EmitUtils.stringSwitch(e, getNames(getters), Constant.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
@@ -133,7 +133,7 @@ class BeanMapEmitter extends ClassEmitter {
   private void generatePut(Class type, final Map setters) {
     final CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, BEAN_MAP_PUT);
     e.load_arg(0);
-    e.checkcast(Type.getType(type));
+    e.checkcast(Type.fromClass(type));
     e.load_arg(1);
     e.checkcast(Constant.TYPE_STRING);
     EmitUtils.stringSwitch(e, getNames(setters), Constant.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
@@ -192,7 +192,7 @@ class BeanMapEmitter extends ClassEmitter {
     EmitUtils.stringSwitch(e, allNames, Constant.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
       public void processCase(Object key, Label end) {
         PropertyDescriptor pd = (PropertyDescriptor) allProps.get(key);
-        EmitUtils.loadClass(e, Type.getType(pd.getPropertyType()));
+        EmitUtils.loadClass(e, Type.fromClass(pd.getPropertyType()));
         e.return_value();
       }
 

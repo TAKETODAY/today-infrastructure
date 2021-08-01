@@ -292,10 +292,10 @@ public class Analyzer<V extends Value> implements Opcodes {
           for (TryCatchBlockNode tryCatchBlock : insnHandlers) {
             Type catchType;
             if (tryCatchBlock.type == null) {
-              catchType = Type.getObjectType("java/lang/Throwable");
+              catchType = Type.fromInternalName("java/lang/Throwable");
             }
             else {
-              catchType = Type.getObjectType(tryCatchBlock.type);
+              catchType = Type.fromInternalName(tryCatchBlock.type);
             }
             if (newControlFlowExceptionEdge(insnIndex, tryCatchBlock)) {
               Frame<V> handler = newFrame(oldFrame);
@@ -503,7 +503,7 @@ public class Analyzer<V extends Value> implements Opcodes {
     int currentLocal = 0;
     boolean isInstanceMethod = (method.access & ACC_STATIC) == 0;
     if (isInstanceMethod) {
-      Type ownerType = Type.getObjectType(owner);
+      Type ownerType = Type.fromInternalName(owner);
       frame.setLocal(
               currentLocal, interpreter.newParameterValue(isInstanceMethod, currentLocal, ownerType));
       currentLocal++;
@@ -523,7 +523,7 @@ public class Analyzer<V extends Value> implements Opcodes {
       frame.setLocal(currentLocal, interpreter.newEmptyValue(currentLocal));
       currentLocal++;
     }
-    frame.setReturn(interpreter.newReturnTypeValue(Type.getReturnType(method.desc)));
+    frame.setReturn(interpreter.newReturnTypeValue(Type.fromReturnType(method.desc)));
     return frame;
   }
 

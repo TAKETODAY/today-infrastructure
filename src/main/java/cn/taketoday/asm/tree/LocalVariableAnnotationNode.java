@@ -95,16 +95,19 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
    *         {@literal true} if the annotation is visible at runtime.
    */
   public void accept(final MethodVisitor methodVisitor, final boolean visible) {
-    Label[] startLabels = new Label[this.start.size()];
-    Label[] endLabels = new Label[this.end.size()];
-    int[] indices = new int[this.index.size()];
+    List<LabelNode> end = this.end;
+    List<Integer> index = this.index;
+    List<LabelNode> start = this.start;
+
+    Label[] startLabels = new Label[start.size()];
+    Label[] endLabels = new Label[end.size()];
+    int[] indices = new int[index.size()];
     for (int i = 0, n = startLabels.length; i < n; ++i) {
-      startLabels[i] = this.start.get(i).getLabel();
-      endLabels[i] = this.end.get(i).getLabel();
-      indices[i] = this.index.get(i);
+      startLabels[i] = start.get(i).getLabel();
+      endLabels[i] = end.get(i).getLabel();
+      indices[i] = index.get(i);
     }
-    accept(
-            methodVisitor.visitLocalVariableAnnotation(
-                    typeRef, typePath, startLabels, endLabels, indices, desc, visible));
+    accept(methodVisitor.visitLocalVariableAnnotation(
+            typeRef, typePath, startLabels, endLabels, indices, desc, visible));
   }
 }

@@ -287,7 +287,7 @@ class Frame {
       return CONSTANT_KIND | ((Integer) type).intValue();
     }
     else if (type instanceof String) {
-      String descriptor = Type.getObjectType((String) type).getDescriptor();
+      String descriptor = Type.fromInternalName((String) type).getDescriptor();
       return getAbstractTypeFromDescriptor(symbolTable, descriptor, 0);
     }
     else {

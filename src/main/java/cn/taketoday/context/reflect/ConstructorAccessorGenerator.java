@@ -79,12 +79,12 @@ public class ConstructorAccessorGenerator
     final ClassEmitter classEmitter = beginClass(v);
 
     final CodeEmitter codeEmitter = EmitUtils.beginMethod(classEmitter, newInstanceInfo, ACC_PUBLIC | ACC_FINAL);
-    codeEmitter.new_instance(Type.getType(targetClass));
+    codeEmitter.new_instance(Type.fromClass(targetClass));
     codeEmitter.dup();
 
     prepareParameters(codeEmitter, this.targetConstructor);
 
-    final Type type = Type.getType(targetClass);
+    final Type type = Type.fromClass(targetClass);
     Signature signature = new Signature(this.targetConstructor);
     codeEmitter.invoke_constructor(type, signature);
 

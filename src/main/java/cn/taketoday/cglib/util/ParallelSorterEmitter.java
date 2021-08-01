@@ -59,7 +59,7 @@ class ParallelSorterEmitter extends ClassEmitter {
     e.load_arg(0);
     e.super_putfield("a", TYPE_OBJECT_ARRAY);
     for (int i = 0; i < arrays.length; i++) {
-      Type type = Type.getType(arrays[i].getClass());
+      Type type = Type.fromClass(arrays[i].getClass());
       declare_field(Opcodes.ACC_PRIVATE, getFieldName(i), type, null);
       e.load_this();
       e.load_arg(0);
@@ -75,7 +75,7 @@ class ParallelSorterEmitter extends ClassEmitter {
   private void generateSwap(final Object[] arrays) {
     CodeEmitter e = beginMethod(ACC_PUBLIC, SWAP);
     for (int i = 0; i < arrays.length; i++) {
-      Type type = Type.getType(arrays[i].getClass());
+      Type type = Type.fromClass(arrays[i].getClass());
       Type component = TypeUtils.getComponentType(type);
       Local T = e.make_local(type);
 

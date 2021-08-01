@@ -67,7 +67,7 @@ public class CheckAnnotationAdapterTest extends AsmTest implements Opcodes {
   public void testVisit_illegalAnnotationValue2() {
     CheckAnnotationAdapter checkAnnotationAdapter = new CheckAnnotationAdapter(null);
 
-    Executable visit = () -> checkAnnotationAdapter.visit("name", Type.getMethodType("()V"));
+    Executable visit = () -> checkAnnotationAdapter.visit("name", Type.fromMethod("()V"));
 
     Exception exception = assertThrows(IllegalArgumentException.class, visit);
     assertEquals("Invalid annotation value", exception.getMessage());

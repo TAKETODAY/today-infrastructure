@@ -155,8 +155,8 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
     Analyzer<BasicValue> analyzer =
         new Analyzer<BasicValue>(
             new SimpleVerifier(
-                Type.getObjectType(classNode.name),
-                Type.getObjectType(classNode.superName),
+                Type.fromInternalName(classNode.name),
+                Type.fromInternalName(classNode.superName),
                 (classNode.access & Opcodes.ACC_INTERFACE) != 0));
 
     for (MethodNode methodNode : classNode.methods) {
@@ -197,6 +197,6 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
 
   private static Analyzer<BasicValue> newAnalyzer() {
     return new Analyzer<>(
-        new SimpleVerifier(Type.getType("LC;"), Type.getType("Ljava/lang/Number;"), false));
+        new SimpleVerifier(Type.fromDescriptor("LC;"), Type.fromDescriptor("Ljava/lang/Number;"), false));
   }
 }

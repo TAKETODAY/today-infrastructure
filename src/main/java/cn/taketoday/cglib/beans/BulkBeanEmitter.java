@@ -67,7 +67,7 @@ class BulkBeanEmitter extends ClassEmitter {
     CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, GET_PROPERTY_VALUES);
     if (getters.length > 0) {
       e.load_arg(0);
-      e.checkcast(Type.getType(target));
+      e.checkcast(Type.fromClass(target));
       Local bean = e.make_local();
       e.store_local(bean);
       for (int i = 0; i < getters.length; i++) {
@@ -94,7 +94,7 @@ class BulkBeanEmitter extends ClassEmitter {
       e.push(0);
       e.store_local(index);
       e.load_arg(0);
-      e.checkcast(Type.getType(target));
+      e.checkcast(Type.fromClass(target));
       e.load_arg(1);
       Block handler = e.begin_block();
       int lastIndex = 0;

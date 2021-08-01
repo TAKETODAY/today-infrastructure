@@ -59,7 +59,7 @@ public class Signature {
   }
 
   public Type getReturnType() {
-    return Type.getReturnType(desc);
+    return Type.fromReturnType(desc);
   }
 
   public Type[] getArgumentTypes() {

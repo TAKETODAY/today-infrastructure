@@ -77,7 +77,7 @@ public abstract class ImmutableBean {
     }
 
     public void generateClass(ClassVisitor v) {
-      Type targetType = Type.getType(target);
+      Type targetType = Type.fromClass(target);
       ClassEmitter ce = new ClassEmitter(v);
       ce.beginClass(Opcodes.JAVA_VERSION, Opcodes.ACC_PUBLIC, getClassName(), targetType, null, Constant.SOURCE_FILE);
 

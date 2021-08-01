@@ -48,7 +48,7 @@ import cn.taketoday.asm.TypePath;
 public class LocalVariablesSorter extends MethodVisitor {
 
   /** The type of the java.lang.Object class. */
-  private static final Type OBJECT_TYPE = Type.getObjectType("java/lang/Object");
+  private static final Type OBJECT_TYPE = Type.fromInternalName("java/lang/Object");
 
   /**
    * The mapping from old to new local variable indices. A local variable at index i of size 1 is
@@ -141,7 +141,7 @@ public class LocalVariablesSorter extends MethodVisitor {
           final Label start,
           final Label end,
           final int index) {
-    int remappedIndex = remap(index, Type.getType(descriptor));
+    int remappedIndex = remap(index, Type.fromDescriptor(descriptor));
     super.visitLocalVariable(name, descriptor, signature, start, end, remappedIndex);
   }
 
@@ -154,7 +154,7 @@ public class LocalVariablesSorter extends MethodVisitor {
           final int[] index,
           final String descriptor,
           final boolean visible) {
-    Type type = Type.getType(descriptor);
+    Type type = Type.fromDescriptor(descriptor);
     int[] remappedIndex = new int[index.length];
     for (int i = 0; i < remappedIndex.length; ++i) {
       remappedIndex[i] = remap(index[i], type);
@@ -201,7 +201,7 @@ public class LocalVariablesSorter extends MethodVisitor {
           varType = Type.DOUBLE_TYPE;
         }
         else if (localType instanceof String) {
-          varType = Type.getObjectType((String) localType);
+          varType = Type.fromInternalName((String) localType);
         }
         setFrameLocal(remap(oldVar, varType), localType);
       }

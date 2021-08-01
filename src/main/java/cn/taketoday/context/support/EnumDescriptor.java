@@ -48,7 +48,7 @@ public final class EnumDescriptor implements AnnotationValueCapable {
   @Override
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public Enum getAnnotationValue() {
-    final String className = Type.getType(descriptor).getClassName();
+    final String className = Type.fromDescriptor(descriptor).getClassName();
     final Class<Enum> enumClass = ClassUtils.loadClass(className);
     return Enum.valueOf(enumClass, value);
   }

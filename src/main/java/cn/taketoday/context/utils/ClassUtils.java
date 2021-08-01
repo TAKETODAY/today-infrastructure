@@ -1391,7 +1391,7 @@ public abstract class ClassUtils {
               int start = 0; // loop control
               while (start < parameterCount) {
                 final Type argument = argumentTypes[start];
-                if (!argument.equals(Type.getType(localVariables.get(idx++).descriptor))) {
+                if (!argument.equals(Type.fromDescriptor(localVariables.get(idx++).descriptor))) {
                   idx = ++offset;
                   start = 0; //reset
                 }

@@ -85,25 +85,25 @@ public class GeneratorAdapter extends LocalVariablesSorter {
 
   private static final String CLASS_DESCRIPTOR = "Ljava/lang/Class;";
 
-  private static final Type BYTE_TYPE = Type.getObjectType("java/lang/Byte");
+  private static final Type BYTE_TYPE = Type.fromInternalName("java/lang/Byte");
 
-  private static final Type BOOLEAN_TYPE = Type.getObjectType("java/lang/Boolean");
+  private static final Type BOOLEAN_TYPE = Type.fromInternalName("java/lang/Boolean");
 
-  private static final Type SHORT_TYPE = Type.getObjectType("java/lang/Short");
+  private static final Type SHORT_TYPE = Type.fromInternalName("java/lang/Short");
 
-  private static final Type CHARACTER_TYPE = Type.getObjectType("java/lang/Character");
+  private static final Type CHARACTER_TYPE = Type.fromInternalName("java/lang/Character");
 
-  private static final Type INTEGER_TYPE = Type.getObjectType("java/lang/Integer");
+  private static final Type INTEGER_TYPE = Type.fromInternalName("java/lang/Integer");
 
-  private static final Type FLOAT_TYPE = Type.getObjectType("java/lang/Float");
+  private static final Type FLOAT_TYPE = Type.fromInternalName("java/lang/Float");
 
-  private static final Type LONG_TYPE = Type.getObjectType("java/lang/Long");
+  private static final Type LONG_TYPE = Type.fromInternalName("java/lang/Long");
 
-  private static final Type DOUBLE_TYPE = Type.getObjectType("java/lang/Double");
+  private static final Type DOUBLE_TYPE = Type.fromInternalName("java/lang/Double");
 
-  private static final Type NUMBER_TYPE = Type.getObjectType("java/lang/Number");
+  private static final Type NUMBER_TYPE = Type.fromInternalName("java/lang/Number");
 
-  private static final Type OBJECT_TYPE = Type.getObjectType("java/lang/Object");
+  private static final Type OBJECT_TYPE = Type.fromInternalName("java/lang/Object");
 
   private static final Method BOOLEAN_VALUE = Method.getMethod("boolean booleanValue()");
 
@@ -209,7 +209,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     super(access, descriptor, methodVisitor);
     this.access = access;
     this.name = name;
-    this.returnType = Type.getReturnType(descriptor);
+    this.returnType = Type.fromReturnType(descriptor);
     this.argumentTypes = Type.getArgumentTypes(descriptor);
   }
 

@@ -464,7 +464,7 @@ public class AnalyzerAdapter extends MethodVisitor {
   private void pushDescriptor(final String fieldOrMethodDescriptor) {
     String descriptor =
             fieldOrMethodDescriptor.charAt(0) == '('
-            ? Type.getReturnType(fieldOrMethodDescriptor).getDescriptor()
+            ? Type.fromReturnType(fieldOrMethodDescriptor).getDescriptor()
             : fieldOrMethodDescriptor;
     switch (descriptor.charAt(0)) {
       case 'V':
@@ -884,11 +884,11 @@ public class AnalyzerAdapter extends MethodVisitor {
         break;
       case Opcodes.ANEWARRAY:
         pop();
-        pushDescriptor("[" + Type.getObjectType(stringArg));
+        pushDescriptor("[" + Type.fromInternalName(stringArg));
         break;
       case Opcodes.CHECKCAST:
         pop();
-        pushDescriptor(Type.getObjectType(stringArg).getDescriptor());
+        pushDescriptor(Type.fromInternalName(stringArg).getDescriptor());
         break;
       case Opcodes.MULTIANEWARRAY:
         pop(intArg);

@@ -28,7 +28,6 @@ import cn.taketoday.cglib.transform.ClassTransformer;
 import cn.taketoday.context.Constant;
 
 import static cn.taketoday.asm.Type.array;
-import static cn.taketoday.asm.Type.getType;
 
 /**
  * @author Juozas Baliuka, Chris Nokleberg
@@ -73,7 +72,7 @@ public class ClassEmitter extends ClassTransformer {
   public void beginClass(final int access,
                          final String className,
                          final Class<?> superType, final Class<?>... interfaces) {
-    beginClass(Opcodes.JAVA_VERSION, access, className, getType(superType), array(interfaces), Constant.SOURCE_FILE);
+    beginClass(Opcodes.JAVA_VERSION, access, className, Type.fromClass(superType), array(interfaces), Constant.SOURCE_FILE);
   }
 
   public void beginClass(final int access,
@@ -81,7 +80,7 @@ public class ClassEmitter extends ClassTransformer {
                          final Class<?> superType,
                          final String source, final Class<?>... interfaces) {
 
-    beginClass(Opcodes.JAVA_VERSION, access, className, getType(superType), array(interfaces), source);
+    beginClass(Opcodes.JAVA_VERSION, access, className, Type.fromClass(superType), array(interfaces), source);
   }
 
   public void beginClass(final int version,
@@ -90,7 +89,7 @@ public class ClassEmitter extends ClassTransformer {
                          final Class<?> superType,
                          final String source, final Class<?>... interfaces) {
 
-    beginClass(version, access, className, getType(superType), array(interfaces), source);
+    beginClass(version, access, className, Type.fromClass(superType), array(interfaces), source);
   }
 
   public void beginClass(final int version,
@@ -108,7 +107,7 @@ public class ClassEmitter extends ClassTransformer {
                          final Type superType,
                          final Type[] interfaces, String source) //
   {
-    final Type classType = getType('L' + className.replace('.', '/') + ';');
+    final Type classType = Type.fromDescriptor('L' + className.replace('.', '/') + ';');
     classInfo = new ClassInfo() {
       public Type getType() {
         return classType;
@@ -161,9 +160,9 @@ public class ClassEmitter extends ClassTransformer {
                          final String superName, // typeDescriptor
                          final String... interfaces) //typeDescriptor
   {
-    Type superType = Type.getType(superName);
+    Type superType = Type.fromDescriptor(superName);
     final Type[] array = Type.array(interfaces);
-    Type type = Type.getType('L' + name.replace('.', '/') + ';');
+    Type type = Type.fromDescriptor('L' + name.replace('.', '/') + ';');
 
     classInfo = new ClassInfo() {
 
@@ -370,7 +369,7 @@ public class ClassEmitter extends ClassTransformer {
 
   @Override
   public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-    declare_field(access, name, getType(desc), value);
+    declare_field(access, name, Type.fromDescriptor(desc), value);
     return null; // TODO
   }
 

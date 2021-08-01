@@ -155,7 +155,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   private static final Type ILLEGAL_ARGUMENT_EXCEPTION = parseType("IllegalArgumentException");
   private static final Type THREAD_LOCAL = parseType("ThreadLocal");
   private static final Type CALLBACK = parseType(Callback.class);
-  private static final Type CALLBACK_ARRAY = Type.getType(Callback[].class);
+  private static final Type CALLBACK_ARRAY = Type.fromClass(Callback[].class);
 
   private static final Signature CSTRUCT_NULL = TypeUtils.parseConstructor(Constant.BLANK);
 
@@ -739,7 +739,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       e.beginClass(Opcodes.JAVA_VERSION, //
                    ACC_PUBLIC, //
                    getClassName(), //
-                   Type.getType(sc), //
+                   Type.fromClass(sc), //
                    (useFactory ? TypeUtils.add(TypeUtils.getTypes(interfaces), FACTORY) : TypeUtils.getTypes(interfaces)), //
                    Constant.SOURCE_FILE//
       );
@@ -1207,7 +1207,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       return e.getClassEmitter().getClassType();
     }
     else {
-      return Type.getType(currentData.generatedClass);
+      return Type.fromClass(currentData.generatedClass);
     }
   }
 

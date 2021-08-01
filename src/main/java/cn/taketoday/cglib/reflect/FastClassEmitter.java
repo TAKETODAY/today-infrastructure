@@ -75,7 +75,7 @@ class FastClassEmitter extends ClassEmitter {
   public FastClassEmitter(ClassVisitor v, String className, Class type) {
     super(v);
 
-    Type base = Type.getType(type);
+    Type base = Type.fromClass(type);
     beginClass(Opcodes.JAVA_VERSION, Opcodes.ACC_PUBLIC, className, FAST_CLASS, null, Constant.SOURCE_FILE);
 
     // constructor

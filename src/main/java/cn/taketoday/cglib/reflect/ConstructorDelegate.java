@@ -32,7 +32,6 @@ import cn.taketoday.cglib.core.TypeUtils;
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.asm.Opcodes.JAVA_VERSION;
 import static cn.taketoday.asm.Type.array;
-import static cn.taketoday.asm.Type.getType;
 import static cn.taketoday.context.Constant.SOURCE_FILE;
 
 /**
@@ -106,9 +105,9 @@ abstract public class ConstructorDelegate {
       }
 
       ClassEmitter ce = new ClassEmitter(v);
-      ce.beginClass(JAVA_VERSION, ACC_PUBLIC, getClassName(), CONSTRUCTOR_DELEGATE, array(getType(iface)), SOURCE_FILE);
+      ce.beginClass(JAVA_VERSION, ACC_PUBLIC, getClassName(), CONSTRUCTOR_DELEGATE, array(Type.fromClass(iface)), SOURCE_FILE);
 
-      Type declaring = getType(constructor.getDeclaringClass());
+      Type declaring = Type.fromClass(constructor.getDeclaringClass());
       EmitUtils.nullConstructor(ce);
       CodeEmitter e = ce.beginMethod(ACC_PUBLIC, CglibReflectUtils.getSignature(newInstance),
                                      CglibReflectUtils.getExceptionTypes(newInstance));

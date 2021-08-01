@@ -171,7 +171,7 @@ public class LocalVariablesSorterTest extends AsmTest {
     LocalVariablesSorter localVariablesSorter =
             new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
 
-    localVariablesSorter.newLocal(Type.getObjectType("pkg/Class"));
+    localVariablesSorter.newLocal(Type.fromInternalName("pkg/Class"));
 
     assertEquals(1, localVariablesSorter.nextLocal);
   }
@@ -181,7 +181,7 @@ public class LocalVariablesSorterTest extends AsmTest {
     LocalVariablesSorter localVariablesSorter =
             new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
 
-    localVariablesSorter.newLocal(Type.getType("[I"));
+    localVariablesSorter.newLocal(Type.fromDescriptor("[I"));
 
     assertEquals(1, localVariablesSorter.nextLocal);
   }

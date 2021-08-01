@@ -22,28 +22,19 @@ package cn.taketoday.context.utils;
 
 import org.junit.Test;
 
-import java.io.InputStream;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Arrays;
-import java.util.HashMap;
 
 import cn.taketoday.asm.tree.ClassNode;
 import cn.taketoday.context.AnnotationAttributes;
-import cn.taketoday.context.Constant;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Service;
-import cn.taketoday.asm.AnnotationVisitor;
-import cn.taketoday.asm.Attribute;
-import cn.taketoday.asm.ClassReader;
-import cn.taketoday.asm.ClassVisitor;
-import cn.taketoday.asm.TypePath;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.support.ClassMetaReader;
-import cn.taketoday.context.utils.AnnotationUtils.MapAnnotationVisitor;
 
 /**
  * @author TODAY 2021/7/28 21:41
@@ -59,6 +50,7 @@ public class AnnotationUtilsTests {
           classes = { AnnotationVisitorBean.class, AnnotationUtilsTests.class },
           service = @Service("name")
   )
+  @Service
   public static class AnnotationVisitorBean {
 
   }
@@ -92,16 +84,15 @@ public class AnnotationUtilsTests {
 
   @Test
   public void testMapAnnotationVisitor() throws Throwable {
-
     ClassNode classNode = ClassMetaReader.read(AnnotationVisitorBean.class);
 
     System.out.println(classNode);
 
-//    HashMap<String, AnnotationAttributes> attributesMap = new HashMap<>();
-//
-//    attributesMap.entrySet()
-//            .forEach(System.out::println);
-//
+    AnnotationAttributes[] annotationAttributes = ClassMetaReader.readAnnotations(classNode);
+
+    Arrays.stream(annotationAttributes)
+            .forEach(System.out::println);
+
 //    final AnnotationAttributes attributes = attributesMap.get("Lcn/taketoday/context/utils/AnnotationUtilsTests$Component0;");
 //
 //    final String[] values = attributes.getStringArray("value");

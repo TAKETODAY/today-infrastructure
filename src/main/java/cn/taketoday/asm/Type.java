@@ -179,7 +179,7 @@ public final class Type {
    *
    * @return the {@link Type} corresponding to the given type descriptor.
    */
-  public static Type getType(final String typeDescriptor) {
+  public static Type fromDescriptor(final String typeDescriptor) {
     return getTypeInternal(typeDescriptor, 0, typeDescriptor.length());
   }
 
@@ -191,7 +191,7 @@ public final class Type {
    *
    * @return the {@link Type} corresponding to the given class.
    */
-  public static Type getType(final Class<?> clazz) {
+  public static Type fromClass(final Class<?> clazz) {
     if (clazz.isPrimitive()) {
       if (clazz == Integer.TYPE) {
         return INT_TYPE;
@@ -225,7 +225,7 @@ public final class Type {
       }
     }
     else {
-      return getType(getDescriptor(clazz));
+      return fromDescriptor(getDescriptor(clazz));
     }
   }
 
@@ -237,8 +237,8 @@ public final class Type {
    *
    * @return the method {@link Type} corresponding to the given constructor.
    */
-  public static Type getType(final Constructor<?> constructor) {
-    return getType(getConstructorDescriptor(constructor));
+  public static Type fromConstructor(final Constructor<?> constructor) {
+    return fromDescriptor(getConstructorDescriptor(constructor));
   }
 
   /**
@@ -249,8 +249,8 @@ public final class Type {
    *
    * @return the method {@link Type} corresponding to the given method.
    */
-  public static Type getType(final Method method) {
-    return getType(getMethodDescriptor(method));
+  public static Type fromMethod(final Method method) {
+    return fromDescriptor(getMethodDescriptor(method));
   }
 
   /**
@@ -272,7 +272,7 @@ public final class Type {
    *
    * @return the {@link Type} corresponding to the given internal name.
    */
-  public static Type getObjectType(final String internalName) {
+  public static Type fromInternalName(final String internalName) {
     return new Type(
             internalName.charAt(0) == '[' ? ARRAY : INTERNAL, internalName, 0, internalName.length());
   }
@@ -292,7 +292,7 @@ public final class Type {
     Type[] ret = new Type[internalNames.length];
     int i = 0;
     for (final String internalName : internalNames) {
-      ret[i++] = getObjectType(internalName);
+      ret[i++] = fromInternalName(internalName);
     }
     return ret;
   }
@@ -306,7 +306,7 @@ public final class Type {
    *
    * @return the {@link Type} corresponding to the given method descriptor.
    */
-  public static Type getMethodType(final String methodDescriptor) {
+  public static Type fromMethod(final String methodDescriptor) {
     return new Type(METHOD, methodDescriptor, 0, methodDescriptor.length());
   }
 
@@ -320,8 +320,8 @@ public final class Type {
    *
    * @return the method {@link Type} corresponding to the given argument and return types.
    */
-  public static Type getMethodType(final Type returnType, final Type... argumentTypes) {
-    return getType(getMethodDescriptor(returnType, argumentTypes));
+  public static Type fromMethod(final Type returnType, final Type... argumentTypes) {
+    return fromDescriptor(getMethodDescriptor(returnType, argumentTypes));
   }
 
   /**
@@ -396,7 +396,7 @@ public final class Type {
     Class<?>[] classes = method.getParameterTypes();
     Type[] types = new Type[classes.length];
     for (int i = classes.length - 1; i >= 0; --i) {
-      types[i] = getType(classes[i]);
+      types[i] = fromClass(classes[i]);
     }
     return types;
   }
@@ -408,7 +408,7 @@ public final class Type {
    * @return the return type of methods of this type.
    */
   public Type getReturnType() {
-    return getReturnType(getDescriptor());
+    return fromReturnType(getDescriptor());
   }
 
   /**
@@ -419,7 +419,7 @@ public final class Type {
    *
    * @return the {@link Type} corresponding to the return type of the given method descriptor.
    */
-  public static Type getReturnType(final String methodDescriptor) {
+  public static Type fromReturnType(final String methodDescriptor) {
     return getTypeInternal(
             methodDescriptor, getReturnTypeOffset(methodDescriptor), methodDescriptor.length());
   }
@@ -432,8 +432,8 @@ public final class Type {
    *
    * @return the {@link Type} corresponding to the return type of the given method.
    */
-  public static Type getReturnType(final Method method) {
-    return getType(method.getReturnType());
+  public static Type fromReturnType(final Method method) {
+    return fromClass(method.getReturnType());
   }
 
   /**
@@ -946,7 +946,7 @@ public final class Type {
     int i = 0;
     Type[] ret = new Type[items.length];
     for (final Class<?> item : items) {
-      ret[i++] = getType(item);
+      ret[i++] = fromClass(item);
     }
     return ret;
   }
@@ -958,7 +958,7 @@ public final class Type {
     int i = 0;
     Type[] ret = new Type[items.length];
     for (final String item : items) {
-      ret[i++] = getType(item);
+      ret[i++] = fromDescriptor(item);
     }
     return ret;
   }

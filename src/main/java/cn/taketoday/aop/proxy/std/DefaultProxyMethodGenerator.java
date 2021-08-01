@@ -52,8 +52,8 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
   private static final Signature dynamicExposeProceed;
   private static final Signature dynamicAdvisedProceed;
 
-  private static final Type stdProxyInvoker = Type.getType(StandardProxyInvoker.class);
-  private static final Type targetInvocationType = Type.getType(TargetInvocation.class);
+  private static final Type stdProxyInvoker = Type.fromClass(StandardProxyInvoker.class);
+  private static final Type targetInvocationType = Type.fromClass(TargetInvocation.class);
 
   static {
     try {
@@ -114,7 +114,7 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
 
     if (returnLocal != null) {
       codeEmitter.load_local(returnLocal);
-      codeEmitter.unbox_or_zero(Type.getType(method.getReturnType()));
+      codeEmitter.unbox_or_zero(Type.fromClass(method.getReturnType()));
     }
 
     codeEmitter.return_value();

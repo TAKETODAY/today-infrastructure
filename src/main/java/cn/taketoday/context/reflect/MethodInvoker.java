@@ -156,7 +156,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
       final CodeEmitter codeEmitter = EmitUtils.beginMethod(classEmitter, invokeInfo, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
       if (!Modifier.isStatic(target.getModifiers())) {
         codeEmitter.visitVarInsn(Opcodes.ALOAD, 1);
-        codeEmitter.checkcast(Type.getType(targetClass));
+        codeEmitter.checkcast(Type.fromClass(targetClass));
         // codeEmitter.dup();
       }
 
@@ -164,7 +164,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
 
       final MethodInfo methodInfo = getMethodInfo(target);
       codeEmitter.invoke(methodInfo);
-      codeEmitter.box(Type.getType(target.getReturnType()));
+      codeEmitter.box(Type.fromClass(target.getReturnType()));
 
       codeEmitter.return_value();
       codeEmitter.end_method();

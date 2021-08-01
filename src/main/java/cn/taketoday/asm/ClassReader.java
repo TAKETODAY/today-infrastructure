@@ -3205,7 +3205,7 @@ public class ClassReader {
         currentOffset += 4;
         break;
       case 'c': // class_info
-        annotationVisitor.visit(elementName, Type.getType(readUTF8(currentOffset, charBuffer)));
+        annotationVisitor.visit(elementName, Type.fromDescriptor(readUTF8(currentOffset, charBuffer)));
         currentOffset += 2;
         break;
       case '@': // annotation_value
@@ -4018,6 +4018,7 @@ public class ClassReader {
    */
   public Object readConst(final int constantPoolEntryIndex, final char[] charBuffer) {
     int cpInfoOffset = cpInfoOffsets[constantPoolEntryIndex];
+    byte[] classFileBuffer = this.classFileBuffer;
     switch (classFileBuffer[cpInfoOffset - 1]) {
       case Symbol.CONSTANT_INTEGER_TAG:
         return readInt(cpInfoOffset);
@@ -4028,11 +4029,11 @@ public class ClassReader {
       case Symbol.CONSTANT_DOUBLE_TAG:
         return Double.longBitsToDouble(readLong(cpInfoOffset));
       case Symbol.CONSTANT_CLASS_TAG:
-        return Type.getObjectType(readUTF8(cpInfoOffset, charBuffer));
+        return Type.fromInternalName(readUTF8(cpInfoOffset, charBuffer));
       case Symbol.CONSTANT_STRING_TAG:
         return readUTF8(cpInfoOffset, charBuffer);
       case Symbol.CONSTANT_METHOD_TYPE_TAG:
-        return Type.getMethodType(readUTF8(cpInfoOffset, charBuffer));
+        return Type.fromMethod(readUTF8(cpInfoOffset, charBuffer));
       case Symbol.CONSTANT_METHOD_HANDLE_TAG:
         int referenceKind = readByte(cpInfoOffset);
         int referenceCpInfoOffset = cpInfoOffsets[readUnsignedShort(cpInfoOffset + 1)];

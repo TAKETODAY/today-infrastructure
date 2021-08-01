@@ -672,6 +672,8 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitParameter(final String parameterName, final int access) {
+    StringBuilder stringBuilder = this.stringBuilder;
+
     stringBuilder.setLength(0);
     stringBuilder.append(name).append(".visitParameter(");
     appendString(stringBuilder, parameterName);
@@ -708,6 +710,7 @@ public class ASMifier extends Printer {
 
   @Override
   public ASMifier visitAnnotableParameterCount(final int parameterCount, final boolean visible) {
+
     stringBuilder.setLength(0);
     stringBuilder
             .append(name)
@@ -723,6 +726,8 @@ public class ASMifier extends Printer {
   @Override
   public ASMifier visitParameterAnnotation(
           final int parameter, final String descriptor, final boolean visible) {
+    StringBuilder stringBuilder = this.stringBuilder;
+
     stringBuilder.setLength(0);
     stringBuilder
             .append("{\n")
@@ -757,6 +762,8 @@ public class ASMifier extends Printer {
           final Object[] local,
           final int numStack,
           final Object[] stack) {
+    StringBuilder stringBuilder = this.stringBuilder;
+
     stringBuilder.setLength(0);
     switch (type) {
       case Opcodes.F_NEW:
@@ -812,6 +819,8 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitInsn(final int opcode) {
+    StringBuilder stringBuilder = this.stringBuilder;
+
     stringBuilder.setLength(0);
     stringBuilder.append(name).append(".visitInsn(").append(OPCODES[opcode]).append(");\n");
     text.add(stringBuilder.toString());
@@ -819,6 +828,8 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitIntInsn(final int opcode, final int operand) {
+    StringBuilder stringBuilder = this.stringBuilder;
+
     stringBuilder.setLength(0);
     stringBuilder
             .append(name)
@@ -832,6 +843,8 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitVarInsn(final int opcode, final int var) {
+    StringBuilder stringBuilder = this.stringBuilder;
+
     stringBuilder.setLength(0);
     stringBuilder
             .append(name)
@@ -845,6 +858,8 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitTypeInsn(final int opcode, final String type) {
+    StringBuilder stringBuilder = this.stringBuilder;
+
     stringBuilder.setLength(0);
     stringBuilder.append(name).append(".visitTypeInsn(").append(OPCODES[opcode]).append(", ");
     appendConstant(type);
@@ -855,6 +870,8 @@ public class ASMifier extends Printer {
   @Override
   public void visitFieldInsn(
           final int opcode, final String owner, final String name, final String descriptor) {
+    StringBuilder stringBuilder = this.stringBuilder;
+
     stringBuilder.setLength(0);
     stringBuilder.append(this.name).append(".visitFieldInsn(").append(OPCODES[opcode]).append(", ");
     appendConstant(owner);
@@ -945,6 +962,8 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitIincInsn(final int var, final int increment) {
+    StringBuilder stringBuilder = this.stringBuilder;
+
     stringBuilder.setLength(0);
     stringBuilder
             .append(name)
@@ -959,6 +978,8 @@ public class ASMifier extends Printer {
   @Override
   public void visitTableSwitchInsn(
           final int min, final int max, final Label dflt, final Label... labels) {
+    StringBuilder stringBuilder = this.stringBuilder;
+
     stringBuilder.setLength(0);
     for (Label label : labels) {
       declareLabel(label);
@@ -984,6 +1005,8 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitLookupSwitchInsn(final Label dflt, final int[] keys, final Label[] labels) {
+    StringBuilder stringBuilder = this.stringBuilder;
+
     stringBuilder.setLength(0);
     for (Label label : labels) {
       declareLabel(label);
@@ -1007,6 +1030,8 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitMultiANewArrayInsn(final String descriptor, final int numDimensions) {
+    StringBuilder stringBuilder = this.stringBuilder;
+
     stringBuilder.setLength(0);
     stringBuilder.append(name).append(".visitMultiANewArrayInsn(");
     appendConstant(descriptor);
@@ -1023,6 +1048,8 @@ public class ASMifier extends Printer {
   @Override
   public void visitTryCatchBlock(
           final Label start, final Label end, final Label handler, final String type) {
+    StringBuilder stringBuilder = this.stringBuilder;
+
     stringBuilder.setLength(0);
     declareLabel(start);
     declareLabel(end);
@@ -1053,6 +1080,8 @@ public class ASMifier extends Printer {
           final Label start,
           final Label end,
           final int index) {
+    StringBuilder stringBuilder = this.stringBuilder;
+
     stringBuilder.setLength(0);
     stringBuilder.append(this.name).append(".visitLocalVariable(");
     appendConstant(name);
@@ -1077,6 +1106,8 @@ public class ASMifier extends Printer {
           final int[] index,
           final String descriptor,
           final boolean visible) {
+    StringBuilder stringBuilder = this.stringBuilder;
+
     stringBuilder.setLength(0);
     stringBuilder
             .append("{\n")
@@ -1116,6 +1147,8 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitLineNumber(final int line, final Label start) {
+    StringBuilder stringBuilder = this.stringBuilder;
+
     stringBuilder.setLength(0);
     stringBuilder.append(name).append(".visitLineNumber(").append(line).append(", ");
     appendLabel(start);
@@ -1125,6 +1158,8 @@ public class ASMifier extends Printer {
 
   @Override
   public void visitMaxs(final int maxStack, final int maxLocals) {
+    StringBuilder stringBuilder = this.stringBuilder;
+
     stringBuilder.setLength(0);
     stringBuilder
             .append(name)
@@ -1219,6 +1254,8 @@ public class ASMifier extends Printer {
           final TypePath typePath,
           final String descriptor,
           final boolean visible) {
+    StringBuilder stringBuilder = this.stringBuilder;
+
     stringBuilder.setLength(0);
     stringBuilder
             .append("{\n")
@@ -1250,6 +1287,8 @@ public class ASMifier extends Printer {
    *         an attribute.
    */
   public void visitAttribute(final Attribute attribute) {
+    StringBuilder stringBuilder = this.stringBuilder;
+
     stringBuilder.setLength(0);
     stringBuilder.append("// ATTRIBUTE ").append(attribute.type).append('\n');
     if (attribute instanceof ASMifierSupport) {
@@ -1298,6 +1337,7 @@ public class ASMifier extends Printer {
    *         some access flags.
    */
   private void appendAccessFlags(final int accessFlags) {
+    StringBuilder stringBuilder = this.stringBuilder;
     boolean isEmpty = true;
     if ((accessFlags & Opcodes.ACC_PUBLIC) != 0) {
       stringBuilder.append("ACC_PUBLIC");
@@ -1473,6 +1513,7 @@ public class ASMifier extends Printer {
    *         or an array of primitive values. May be {@literal null}.
    */
   protected void appendConstant(final Object value) {
+    StringBuilder stringBuilder = this.stringBuilder;
     if (value == null) {
       stringBuilder.append("null");
     }
@@ -1480,7 +1521,7 @@ public class ASMifier extends Printer {
       appendString(stringBuilder, (String) value);
     }
     else if (value instanceof Type) {
-      stringBuilder.append("Type.getType(\"");
+      stringBuilder.append("Type.fromDescriptor(\"");
       stringBuilder.append(((Type) value).getDescriptor());
       stringBuilder.append("\")");
     }

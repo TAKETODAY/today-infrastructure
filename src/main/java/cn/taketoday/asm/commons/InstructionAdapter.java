@@ -43,7 +43,7 @@ import cn.taketoday.asm.Type;
 public class InstructionAdapter extends MethodVisitor {
 
   /** The type of the java.lang.Object class. */
-  public static final Type OBJECT_TYPE = Type.getType("Ljava/lang/Object;");
+  public static final Type OBJECT_TYPE = Type.fromDescriptor("Ljava/lang/Object;");
 
   /**
    * Constructs a new {@link InstructionAdapter}.
@@ -454,7 +454,7 @@ public class InstructionAdapter extends MethodVisitor {
 
   @Override
   public void visitTypeInsn(final int opcode, final String type) {
-    Type objectType = Type.getObjectType(type);
+    Type objectType = Type.fromInternalName(type);
     switch (opcode) {
       case Opcodes.NEW:
         anew(objectType);

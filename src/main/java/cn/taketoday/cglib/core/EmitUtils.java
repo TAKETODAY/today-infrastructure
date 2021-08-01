@@ -356,7 +356,7 @@ public abstract class EmitUtils {
 
   public static void pushArray(CodeEmitter e, Object[] array) {
     e.push(array.length);
-    e.newArray(Type.getType(remapComponentType(array.getClass().getComponentType())));
+    e.newArray(Type.fromClass(remapComponentType(array.getClass().getComponentType())));
 
     for (int i = 0; i < array.length; i++) {
       e.dup();
@@ -386,7 +386,7 @@ public abstract class EmitUtils {
         loadClass(e, (Type) obj);
       }
       else if (obj instanceof Class) {
-        loadClass(e, Type.getType((Class) obj));
+        loadClass(e, Type.fromClass((Class) obj));
       }
       else if (obj instanceof BigInteger) {
         e.new_instance(Constant.TYPE_BIG_INTEGER);

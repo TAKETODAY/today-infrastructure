@@ -650,7 +650,7 @@ public class ClassVisitorTest extends AsmTest {
             final String[] exceptions) {
       List<Type> argumentTypes = new ArrayList<>(Arrays.asList(Type.getArgumentTypes(descriptor)));
       argumentTypes.add(Type.INT_TYPE);
-      Type returnType = Type.getReturnType(descriptor);
+      Type returnType = Type.fromReturnType(descriptor);
       return super.visitMethod(
               access,
               name,

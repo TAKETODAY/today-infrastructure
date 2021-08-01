@@ -168,7 +168,7 @@ public class InstructionAdapterTest extends AsmTest {
     instructionAdapter.visitLdcInsn(Float.valueOf(7.0f));
     instructionAdapter.visitLdcInsn(Double.valueOf(8.0));
     instructionAdapter.visitLdcInsn("9");
-    instructionAdapter.visitLdcInsn(Type.getObjectType("pkg/Class"));
+    instructionAdapter.visitLdcInsn(Type.fromInternalName("pkg/Class"));
     instructionAdapter.visitLdcInsn(
             new Handle(Opcodes.H_GETFIELD, "pkg/Class", "name", "I", /* isInterface= */ false));
 

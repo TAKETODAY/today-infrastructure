@@ -106,9 +106,9 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
 
     private static final Signature getTarget;
 
-    private static final Type targetSourceType = Type.getType(TargetSource.class);
-    private static final Type advisedSupportType = Type.getType(AdvisedSupport.class);
-    private static final Type targetInvocationType = Type.getType(TargetInvocation.class);
+    private static final Type targetSourceType = Type.fromClass(TargetSource.class);
+    private static final Type advisedSupportType = Type.fromClass(AdvisedSupport.class);
+    private static final Type targetInvocationType = Type.fromClass(TargetInvocation.class);
 
     static {
       try {
@@ -373,7 +373,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
       codeEmitter.invoke(methodInfo);
       codeEmitter.return_value();
 
-      codeEmitter.unbox_or_zero(Type.getType(method.getReturnType()));
+      codeEmitter.unbox_or_zero(Type.fromClass(method.getReturnType()));
       codeEmitter.end_method();
     }
 

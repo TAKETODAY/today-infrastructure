@@ -60,7 +60,7 @@ public abstract class TypeUtils {
   }
 
   public static Type getType(String className) {
-    return Type.getType('L' + className.replace('.', '/') + ';');
+    return Type.fromDescriptor('L' + className.replace('.', '/') + ';');
   }
 
   public static boolean isSynthetic(int access) {
@@ -130,7 +130,7 @@ public abstract class TypeUtils {
 
   public static Type fromInternalName(String name) {
     // TODO; primitives?
-    return Type.getType('L' + name + ';');
+    return Type.fromDescriptor('L' + name + ';');
   }
 
   public static Type[] fromInternalNames(String[] names) {
@@ -181,18 +181,18 @@ public abstract class TypeUtils {
   }
 
   public static Type parseType(Class<?> type) {
-    return Type.getType(map(type.getName()));
+    return Type.fromDescriptor(map(type.getName()));
   }
 
   public static Type parseType(String s) {
-    return Type.getType(map(s));
+    return Type.fromDescriptor(map(s));
   }
 
   public static Type[] parseTypes(String s) {
     List<String> names = parseTypes(s, 0, s.length());
     Type[] types = new Type[names.size()];
     for (int i = 0; i < types.length; i++) {
-      types[i] = Type.getType(names.get(i));
+      types[i] = Type.fromDescriptor(names.get(i));
     }
     return types;
   }
@@ -301,7 +301,7 @@ public abstract class TypeUtils {
 
   public static Type getComponentType(Type type) {
     if (isArray(type)) {
-      return Type.getType(type.getDescriptor().substring(1));
+      return Type.fromDescriptor(type.getDescriptor().substring(1));
     }
     throw new IllegalArgumentException("Type " + type + " is not an array");
   }
@@ -333,7 +333,7 @@ public abstract class TypeUtils {
     }
     Type[] types = new Type[classes.length];
     for (int i = 0; i < classes.length; i++) {
-      types[i] = Type.getType(classes[i]);
+      types[i] = Type.fromClass(classes[i]);
     }
     return types;
   }

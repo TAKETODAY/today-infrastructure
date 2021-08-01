@@ -54,7 +54,7 @@ public class BasicValue implements Value {
 
   /** An object or array reference value. */
   public static final BasicValue REFERENCE_VALUE =
-          new BasicValue(Type.getObjectType("java/lang/Object"));
+          new BasicValue(Type.fromInternalName("java/lang/Object"));
 
   /** A return address value (produced by a jsr instruction). */
   public static final BasicValue RETURNADDRESS_VALUE = new BasicValue(Type.VOID_TYPE);

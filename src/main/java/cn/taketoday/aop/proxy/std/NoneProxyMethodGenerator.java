@@ -45,7 +45,7 @@ import static cn.taketoday.aop.proxy.std.DefaultProxyMethodGenerator.excludeAbst
 public class NoneProxyMethodGenerator implements ProxyMethodGenerator {
 
   static final Signature targetSourceGetTarget;
-  static final Type targetSourceType = Type.getType(TargetSource.class);
+  static final Type targetSourceType = Type.fromClass(TargetSource.class);
 
   static {
     try {
@@ -95,7 +95,7 @@ public class NoneProxyMethodGenerator implements ProxyMethodGenerator {
     codeEmitter.invoke(methodInfo);
     codeEmitter.return_value();
 
-    codeEmitter.unbox_or_zero(Type.getType(method.getReturnType()));
+    codeEmitter.unbox_or_zero(Type.fromClass(method.getReturnType()));
     codeEmitter.end_method();
   }
 
@@ -125,7 +125,7 @@ public class NoneProxyMethodGenerator implements ProxyMethodGenerator {
     codeEmitter.invoke(methodInfo);
     codeEmitter.return_value();
 
-    codeEmitter.unbox_or_zero(Type.getType(method.getReturnType()));
+    codeEmitter.unbox_or_zero(Type.fromClass(method.getReturnType()));
     codeEmitter.end_method();
   }
 }

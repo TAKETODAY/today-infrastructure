@@ -20,8 +20,6 @@
 package cn.taketoday.asm.tree;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.asm.AnnotationVisitor;
@@ -33,9 +31,6 @@ import cn.taketoday.asm.ModuleVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.RecordComponentVisitor;
 import cn.taketoday.asm.TypePath;
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.context.utils.ObjectUtils;
 
 /**
  * A node that represents a class.

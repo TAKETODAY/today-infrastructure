@@ -54,7 +54,7 @@ public abstract class Remapper {
    * descriptor is returned as is).
    */
   public String mapDesc(final String descriptor) {
-    return mapType(Type.getType(descriptor)).getDescriptor();
+    return mapType(Type.fromDescriptor(descriptor)).getDescriptor();
   }
 
   /**
@@ -77,12 +77,12 @@ public abstract class Remapper {
           remappedDescriptor.append('[');
         }
         remappedDescriptor.append(mapType(type.getElementType()).getDescriptor());
-        return Type.getType(remappedDescriptor.toString());
+        return Type.fromDescriptor(remappedDescriptor.toString());
       case Type.OBJECT:
         String remappedInternalName = map(type.getInternalName());
-        return remappedInternalName != null ? Type.getObjectType(remappedInternalName) : type;
+        return remappedInternalName != null ? Type.fromInternalName(remappedInternalName) : type;
       case Type.METHOD:
-        return Type.getMethodType(mapMethodDesc(type.getDescriptor()));
+        return Type.fromMethod(mapMethodDesc(type.getDescriptor()));
       default:
         return type;
     }
@@ -100,7 +100,7 @@ public abstract class Remapper {
     if (internalName == null) {
       return null;
     }
-    return mapType(Type.getObjectType(internalName)).getInternalName();
+    return mapType(Type.fromInternalName(internalName)).getInternalName();
   }
 
   /**
@@ -145,7 +145,7 @@ public abstract class Remapper {
     for (Type argumentType : Type.getArgumentTypes(methodDescriptor)) {
       stringBuilder.append(mapType(argumentType).getDescriptor());
     }
-    Type returnType = Type.getReturnType(methodDescriptor);
+    Type returnType = Type.fromReturnType(methodDescriptor);
     if (returnType == Type.VOID_TYPE) {
       stringBuilder.append(")V");
     }

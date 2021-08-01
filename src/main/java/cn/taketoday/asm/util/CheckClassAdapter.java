@@ -31,7 +31,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +56,6 @@ import cn.taketoday.asm.tree.analysis.AnalyzerException;
 import cn.taketoday.asm.tree.analysis.BasicValue;
 import cn.taketoday.asm.tree.analysis.Frame;
 import cn.taketoday.asm.tree.analysis.SimpleVerifier;
-import cn.taketoday.context.utils.ObjectUtils;
 
 /**
  * A {@link ClassVisitor} that checks that its methods are properly used. More precisely this class
@@ -1109,29 +1107,27 @@ public class CheckClassAdapter extends ClassVisitor {
             new CheckClassAdapter(classNode, false) { },
             ClassReader.SKIP_DEBUG);
 
-    Type syperType = classNode.superName == null ? null : Type.getObjectType(classNode.superName);
+    Type syperType = classNode.superName == null ? null : Type.fromInternalName(classNode.superName);
     List<MethodNode> methods = classNode.methods;
-    if (methods != null) {
-      for (MethodNode method : methods) {
-        SimpleVerifier verifier =
-                new SimpleVerifier(
-                        Type.getObjectType(classNode.name),
-                        syperType,
-                        (classNode.access & Opcodes.ACC_INTERFACE) != 0,
-                        Type.getObjectTypes(classNode.interfaces));
-        Analyzer<BasicValue> analyzer = new Analyzer<>(verifier);
-        if (loader != null) {
-          verifier.setClassLoader(loader);
-        }
-        try {
-          analyzer.analyze(classNode.name, method);
-        }
-        catch (AnalyzerException e) {
-          e.printStackTrace(printWriter);
-        }
-        if (printResults) {
-          printAnalyzerResult(method, analyzer, printWriter);
-        }
+    for (MethodNode method : methods) {
+      SimpleVerifier verifier =
+              new SimpleVerifier(
+                      Type.fromInternalName(classNode.name),
+                      syperType,
+                      (classNode.access & Opcodes.ACC_INTERFACE) != 0,
+                      Type.getObjectTypes(classNode.interfaces));
+      Analyzer<BasicValue> analyzer = new Analyzer<>(verifier);
+      if (loader != null) {
+        verifier.setClassLoader(loader);
+      }
+      try {
+        analyzer.analyze(classNode.name, method);
+      }
+      catch (AnalyzerException e) {
+        e.printStackTrace(printWriter);
+      }
+      if (printResults) {
+        printAnalyzerResult(method, analyzer, printWriter);
       }
     }
     printWriter.flush();

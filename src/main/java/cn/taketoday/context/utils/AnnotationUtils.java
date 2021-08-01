@@ -762,7 +762,7 @@ public abstract class AnnotationUtils {
 
     public Class<?> getAnnotationType() {
       if (annotationType == null && descriptor != null) {
-        annotationType = new ClassDescriptor(Type.getType(descriptor)).getAnnotationValue();
+        annotationType = new ClassDescriptor(Type.fromDescriptor(descriptor)).getAnnotationValue();
       }
       return annotationType;
     }

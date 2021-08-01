@@ -27,8 +27,6 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package cn.taketoday.asm.tree.analysis;
 
-import java.util.List;
-
 import cn.taketoday.asm.Type;
 
 /**
@@ -141,7 +139,7 @@ public class SimpleVerifier extends BasicVerifier {
           descriptor.append('[');
         }
         descriptor.append(value.getType().getDescriptor());
-        value = new BasicValue(Type.getType(descriptor.toString()));
+        value = new BasicValue(Type.fromDescriptor(descriptor.toString()));
       }
       else {
         value = new BasicValue(type);
@@ -161,7 +159,7 @@ public class SimpleVerifier extends BasicVerifier {
     Type arrayType = objectArrayValue.getType();
     if (arrayType != null) {
       if (arrayType.getSort() == Type.ARRAY) {
-        return newValue(Type.getType(arrayType.getDescriptor().substring(1)));
+        return newValue(Type.fromDescriptor(arrayType.getDescriptor().substring(1)));
       }
       else if (arrayType.equals(NULL_TYPE)) {
         return objectArrayValue;
@@ -241,7 +239,7 @@ public class SimpleVerifier extends BasicVerifier {
         }
         while (true) {
           if (type1 == null || isInterface(type1)) {
-            return newArrayValue(Type.getObjectType("java/lang/Object"), numDimensions);
+            return newArrayValue(Type.fromInternalName("java/lang/Object"), numDimensions);
           }
           type1 = getSuperClass(type1);
           if (isAssignableFrom(type1, type2)) {
@@ -264,7 +262,7 @@ public class SimpleVerifier extends BasicVerifier {
         descriptor.append('[');
       }
       descriptor.append(type.getDescriptor());
-      return newValue(Type.getType(descriptor.toString()));
+      return newValue(Type.fromDescriptor(descriptor.toString()));
     }
   }
 
@@ -300,7 +298,7 @@ public class SimpleVerifier extends BasicVerifier {
       return currentSuperClass;
     }
     Class<?> superClass = getClass(type).getSuperclass();
-    return superClass == null ? null : Type.getType(superClass);
+    return superClass == null ? null : Type.fromClass(superClass);
   }
 
   /**

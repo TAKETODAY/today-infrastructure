@@ -54,7 +54,7 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
    * Special type used for the {@literal null} literal. This is an object reference type with
    * descriptor 'Lnull;'.
    */
-  public static final Type NULL_TYPE = Type.getObjectType("null");
+  public static final Type NULL_TYPE = Type.fromInternalName("null");
 
   /**
    * Constructs a new {@link BasicInterpreter}.
@@ -130,25 +130,25 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
           return BasicValue.DOUBLE_VALUE;
         }
         else if (value instanceof String) {
-          return newValue(Type.getObjectType("java/lang/String"));
+          return newValue(Type.fromInternalName("java/lang/String"));
         }
         else if (value instanceof Type) {
           int sort = ((Type) value).getSort();
           if (sort == Type.OBJECT || sort == Type.ARRAY) {
-            return newValue(Type.getObjectType("java/lang/Class"));
+            return newValue(Type.fromInternalName("java/lang/Class"));
           }
           else if (sort == Type.METHOD) {
-            return newValue(Type.getObjectType("java/lang/invoke/MethodType"));
+            return newValue(Type.fromInternalName("java/lang/invoke/MethodType"));
           }
           else {
             throw new AnalyzerException(insn, "Illegal LDC value " + value);
           }
         }
         else if (value instanceof Handle) {
-          return newValue(Type.getObjectType("java/lang/invoke/MethodHandle"));
+          return newValue(Type.fromInternalName("java/lang/invoke/MethodHandle"));
         }
         else if (value instanceof ConstantDynamic) {
-          return newValue(Type.getType(((ConstantDynamic) value).getDescriptor()));
+          return newValue(Type.fromDescriptor(((ConstantDynamic) value).getDescriptor()));
         }
         else {
           throw new AnalyzerException(insn, "Illegal LDC value " + value);
@@ -156,9 +156,9 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
       case JSR:
         return BasicValue.RETURNADDRESS_VALUE;
       case GETSTATIC:
-        return newValue(Type.getType(((FieldInsnNode) insn).desc));
+        return newValue(Type.fromDescriptor(((FieldInsnNode) insn).desc));
       case NEW:
-        return newValue(Type.getObjectType(((TypeInsnNode) insn).desc));
+        return newValue(Type.fromInternalName(((TypeInsnNode) insn).desc));
       default:
         throw new AssertionError();
     }
@@ -214,37 +214,37 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
       case PUTSTATIC:
         return null;
       case GETFIELD:
-        return newValue(Type.getType(((FieldInsnNode) insn).desc));
+        return newValue(Type.fromDescriptor(((FieldInsnNode) insn).desc));
       case NEWARRAY:
         switch (((IntInsnNode) insn).operand) {
           case T_BOOLEAN:
-            return newValue(Type.getType("[Z"));
+            return newValue(Type.fromDescriptor("[Z"));
           case T_CHAR:
-            return newValue(Type.getType("[C"));
+            return newValue(Type.fromDescriptor("[C"));
           case T_BYTE:
-            return newValue(Type.getType("[B"));
+            return newValue(Type.fromDescriptor("[B"));
           case T_SHORT:
-            return newValue(Type.getType("[S"));
+            return newValue(Type.fromDescriptor("[S"));
           case T_INT:
-            return newValue(Type.getType("[I"));
+            return newValue(Type.fromDescriptor("[I"));
           case T_FLOAT:
-            return newValue(Type.getType("[F"));
+            return newValue(Type.fromDescriptor("[F"));
           case T_DOUBLE:
-            return newValue(Type.getType("[D"));
+            return newValue(Type.fromDescriptor("[D"));
           case T_LONG:
-            return newValue(Type.getType("[J"));
+            return newValue(Type.fromDescriptor("[J"));
           default:
             break;
         }
         throw new AnalyzerException(insn, "Invalid array type");
       case ANEWARRAY:
-        return newValue(Type.getType("[" + Type.getObjectType(((TypeInsnNode) insn).desc)));
+        return newValue(Type.fromDescriptor("[" + Type.fromInternalName(((TypeInsnNode) insn).desc)));
       case ARRAYLENGTH:
         return BasicValue.INT_VALUE;
       case ATHROW:
         return null;
       case CHECKCAST:
-        return newValue(Type.getObjectType(((TypeInsnNode) insn).desc));
+        return newValue(Type.fromInternalName(((TypeInsnNode) insn).desc));
       case INSTANCEOF:
         return BasicValue.INT_VALUE;
       case MONITORENTER:
@@ -344,13 +344,13 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
           throws AnalyzerException {
     int opcode = insn.getOpcode();
     if (opcode == MULTIANEWARRAY) {
-      return newValue(Type.getType(((MultiANewArrayInsnNode) insn).desc));
+      return newValue(Type.fromDescriptor(((MultiANewArrayInsnNode) insn).desc));
     }
     else if (opcode == INVOKEDYNAMIC) {
-      return newValue(Type.getReturnType(((InvokeDynamicInsnNode) insn).desc));
+      return newValue(Type.fromReturnType(((InvokeDynamicInsnNode) insn).desc));
     }
     else {
-      return newValue(Type.getReturnType(((MethodInsnNode) insn).desc));
+      return newValue(Type.fromReturnType(((MethodInsnNode) insn).desc));
     }
   }
 

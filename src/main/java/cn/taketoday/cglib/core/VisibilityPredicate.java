@@ -37,7 +37,7 @@ public class VisibilityPredicate implements Predicate<Executable> {
     // we are
     // generating classes in the same classloader
     this.samePackageOk = source.getClassLoader() != null;
-    pkg = TypeUtils.getPackageName(Type.getType(source));
+    pkg = TypeUtils.getPackageName(Type.fromClass(source));
   }
 
   public boolean test(Executable member) {
@@ -52,6 +52,6 @@ public class VisibilityPredicate implements Predicate<Executable> {
     // protected/package private if the member is in the same package as the source
     // class
     // and we are generating into the same classloader.
-    return samePackageOk && pkg.equals(TypeUtils.getPackageName(Type.getType(member.getDeclaringClass())));
+    return samePackageOk && pkg.equals(TypeUtils.getPackageName(Type.fromClass(member.getDeclaringClass())));
   }
 }

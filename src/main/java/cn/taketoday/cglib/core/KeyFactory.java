@@ -247,7 +247,7 @@ abstract public class KeyFactory {
                     Opcodes.ACC_PUBLIC, //
                     getClassName(), //
                     KEY_FACTORY, //
-                    array(Type.getType(keyInterface)), //
+                    array(Type.fromClass(keyInterface)), //
                     Constant.SOURCE_FILE//
       );
 

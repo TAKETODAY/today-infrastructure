@@ -37,7 +37,7 @@ public class UndeclaredThrowableTransformer extends ClassEmitterTransformer {
   private final Type wrapper;
 
   public UndeclaredThrowableTransformer(Class wrapper) {
-    this.wrapper = Type.getType(wrapper);
+    this.wrapper = Type.fromClass(wrapper);
     boolean found = false;
     Constructor[] cstructs = wrapper.getConstructors();
     for (final Constructor cstruct : cstructs) {

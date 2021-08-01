@@ -45,7 +45,7 @@ public class BasicValueTest {
   @Test
   public void testIsReference() {
     assertTrue(BasicValue.REFERENCE_VALUE.isReference());
-    assertTrue(new BasicValue(Type.getObjectType("[I")).isReference());
+    assertTrue(new BasicValue(Type.fromInternalName("[I")).isReference());
     assertFalse(BasicValue.UNINITIALIZED_VALUE.isReference());
     assertFalse(BasicValue.INT_VALUE.isReference());
   }
@@ -75,6 +75,6 @@ public class BasicValueTest {
     assertEquals(".", BasicValue.UNINITIALIZED_VALUE.toString());
     assertEquals("A", BasicValue.RETURNADDRESS_VALUE.toString());
     assertEquals("R", BasicValue.REFERENCE_VALUE.toString());
-    assertEquals("LI;", new BasicValue(Type.getObjectType("I")).toString());
+    assertEquals("LI;", new BasicValue(Type.fromInternalName("I")).toString());
   }
 }

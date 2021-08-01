@@ -104,8 +104,8 @@ abstract public class BeanCopier {
 
     @Override
     public void generateClass(ClassVisitor v) {
-      Type sourceType = Type.getType(source);
-      Type targetType = Type.getType(target);
+      Type sourceType = Type.fromClass(source);
+      Type targetType = Type.fromClass(target);
       ClassEmitter ce = new ClassEmitter(v);
 
       ce.beginClass(JAVA_VERSION, ACC_PUBLIC, getClassName(), BEAN_COPIER, null, SOURCE_FILE);

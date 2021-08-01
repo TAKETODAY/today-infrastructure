@@ -613,7 +613,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.version = Opcodes.V1_1;
     checkMethodAdapter.visitCode();
 
-    Executable visitLdcInsn = () -> checkMethodAdapter.visitLdcInsn(Type.getType("I"));
+    Executable visitLdcInsn = () -> checkMethodAdapter.visitLdcInsn(Type.fromDescriptor("I"));
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitLdcInsn);
     assertEquals("Illegal LDC constant value", exception.getMessage());
@@ -624,7 +624,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.version = Opcodes.V1_1;
     checkMethodAdapter.visitCode();
 
-    Executable visitLdcInsn = () -> checkMethodAdapter.visitLdcInsn(Type.getObjectType("I"));
+    Executable visitLdcInsn = () -> checkMethodAdapter.visitLdcInsn(Type.fromInternalName("I"));
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitLdcInsn);
     assertEquals("ldc of a constant class requires at least version 1.5", exception.getMessage());
@@ -635,7 +635,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.version = Opcodes.V1_1;
     checkMethodAdapter.visitCode();
 
-    Executable visitLdcInsn = () -> checkMethodAdapter.visitLdcInsn(Type.getMethodType("()V"));
+    Executable visitLdcInsn = () -> checkMethodAdapter.visitLdcInsn(Type.fromMethod("()V"));
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitLdcInsn);
     assertEquals("ldc of a method type requires at least version 1.7", exception.getMessage());
