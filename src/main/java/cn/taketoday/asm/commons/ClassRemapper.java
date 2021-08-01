@@ -88,6 +88,7 @@ public class ClassRemapper extends ClassVisitor {
           final String superName,
           final String[] interfaces) {
     this.className = name;
+    Remapper remapper = this.remapper;
     super.visit(
             version,
             access,
@@ -125,9 +126,12 @@ public class ClassRemapper extends ClassVisitor {
   @Override
   public void visitAttribute(final Attribute attribute) {
     if (attribute instanceof ModuleHashesAttribute) {
+      Remapper remapper = this.remapper;
+
       ModuleHashesAttribute moduleHashesAttribute = (ModuleHashesAttribute) attribute;
       List<String> modules = moduleHashesAttribute.modules;
-      for (int i = 0; i < modules.size(); ++i) {
+      int size = modules.size();
+      for (int i = 0; i < size; ++i) {
         modules.set(i, remapper.mapModuleName(modules.get(i)));
       }
     }
@@ -137,6 +141,8 @@ public class ClassRemapper extends ClassVisitor {
   @Override
   public RecordComponentVisitor visitRecordComponent(
           final String name, final String descriptor, final String signature) {
+    Remapper remapper = this.remapper;
+
     RecordComponentVisitor recordComponentVisitor =
             super.visitRecordComponent(
                     remapper.mapRecordComponentName(className, name, descriptor),
@@ -154,6 +160,7 @@ public class ClassRemapper extends ClassVisitor {
           final String descriptor,
           final String signature,
           final Object value) {
+    Remapper remapper = this.remapper;
     FieldVisitor fieldVisitor =
             super.visitField(
                     access,
@@ -171,6 +178,8 @@ public class ClassRemapper extends ClassVisitor {
           final String descriptor,
           final String signature,
           final String[] exceptions) {
+    Remapper remapper = this.remapper;
+
     String remappedDescriptor = remapper.mapMethodDesc(descriptor);
     MethodVisitor methodVisitor =
             super.visitMethod(
@@ -185,6 +194,8 @@ public class ClassRemapper extends ClassVisitor {
   @Override
   public void visitInnerClass(
           final String name, final String outerName, final String innerName, final int access) {
+    Remapper remapper = this.remapper;
+
     super.visitInnerClass(
             remapper.mapType(name),
             outerName == null ? null : remapper.mapType(outerName),
@@ -194,6 +205,8 @@ public class ClassRemapper extends ClassVisitor {
 
   @Override
   public void visitOuterClass(final String owner, final String name, final String descriptor) {
+    Remapper remapper = this.remapper;
+
     super.visitOuterClass(
             remapper.mapType(owner),
             name == null ? null : remapper.mapMethodName(owner, name, descriptor),
