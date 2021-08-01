@@ -339,14 +339,17 @@ public class Label {
       this.lineNumber = (short) lineNumber;
     }
     else {
+      int[] otherLineNumbers = this.otherLineNumbers;
       if (otherLineNumbers == null) {
         otherLineNumbers = new int[LINE_NUMBERS_CAPACITY_INCREMENT];
+        this.otherLineNumbers = otherLineNumbers;
       }
       int otherLineNumberIndex = ++otherLineNumbers[0];
       if (otherLineNumberIndex >= otherLineNumbers.length) {
         int[] newLineNumbers = new int[otherLineNumbers.length + LINE_NUMBERS_CAPACITY_INCREMENT];
         System.arraycopy(otherLineNumbers, 0, newLineNumbers, 0, otherLineNumbers.length);
-        otherLineNumbers = newLineNumbers;
+        otherLineNumbers = newLineNumbers; // update
+        this.otherLineNumbers = newLineNumbers;
       }
       otherLineNumbers[otherLineNumberIndex] = lineNumber;
     }
@@ -364,6 +367,7 @@ public class Label {
     methodVisitor.visitLabel(this);
     if (visitLineNumbers && lineNumber != 0) {
       methodVisitor.visitLineNumber(lineNumber & 0xFFFF, this);
+      int[] otherLineNumbers = this.otherLineNumbers;
       if (otherLineNumbers != null) {
         for (int i = 1; i <= otherLineNumbers[0]; ++i) {
           methodVisitor.visitLineNumber(otherLineNumbers[i], this);
@@ -429,13 +433,16 @@ public class Label {
    */
   private void addForwardReference(
           final int sourceInsnBytecodeOffset, final int referenceType, final int referenceHandle) {
+    int[] forwardReferences = this.forwardReferences;
     if (forwardReferences == null) {
       forwardReferences = new int[FORWARD_REFERENCES_CAPACITY_INCREMENT];
+      this.forwardReferences = forwardReferences;
     }
     int lastElementIndex = forwardReferences[0];
     if (lastElementIndex + 2 >= forwardReferences.length) {
       int[] newValues = new int[forwardReferences.length + FORWARD_REFERENCES_CAPACITY_INCREMENT];
       System.arraycopy(forwardReferences, 0, newValues, 0, forwardReferences.length);
+      this.forwardReferences = newValues;
       forwardReferences = newValues;
     }
     forwardReferences[++lastElementIndex] = sourceInsnBytecodeOffset;
@@ -463,6 +470,7 @@ public class Label {
   final boolean resolve(final byte[] code, final int bytecodeOffset) {
     this.flags |= FLAG_RESOLVED;
     this.bytecodeOffset = bytecodeOffset;
+    int[] forwardReferences = this.forwardReferences;
     if (forwardReferences == null) {
       return false;
     }
