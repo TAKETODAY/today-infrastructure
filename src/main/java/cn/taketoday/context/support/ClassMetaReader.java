@@ -22,12 +22,14 @@ package cn.taketoday.context.support;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
 
 import cn.taketoday.asm.ClassReader;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.tree.AnnotationNode;
 import cn.taketoday.asm.tree.ClassNode;
+import cn.taketoday.asm.tree.MethodNode;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.utils.ClassUtils;
@@ -37,22 +39,26 @@ import cn.taketoday.context.utils.ClassUtils;
  * @since 4.0
  */
 public class ClassMetaReader {
+  private static final HashMap<Class<?>, ClassNode> classNodeCache = new HashMap<>(128);
+  private static final HashMap<Class<?>, AnnotationAttributes> annotationDefaultCache = new HashMap<>(128);
 
   public static ClassNode read(Class<?> classToRead) {
     return read(classToRead, ClassUtils.getClassLoader());
   }
 
-  public static ClassNode read(Class<?> classToRead, ClassLoader classLoader) {
-    String classFile = getClassFile(classToRead);
-    try (InputStream resourceAsStream = classLoader.getResourceAsStream(classFile)) {
-      final ClassReader classReader = new ClassReader(resourceAsStream);
-      ClassNode classNode = new ClassNode();
-      classReader.accept(classNode, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG);
-      return classNode;
-    }
-    catch (IOException e) {
-      throw new IllegalStateException("'" + classFile + "' read failed", e);
-    }
+  public static ClassNode read(Class<?> key, ClassLoader classLoader) {
+    return classNodeCache.computeIfAbsent(key, classToRead -> {
+      String classFile = getClassFile(classToRead);
+      try (InputStream resourceAsStream = classLoader.getResourceAsStream(classFile)) {
+        final ClassReader classReader = new ClassReader(resourceAsStream);
+        ClassNode classNode = new ClassNode();
+        classReader.accept(classNode, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG);
+        return classNode;
+      }
+      catch (IOException e) {
+        throw new IllegalStateException("'" + classFile + "' read failed", e);
+      }
+    });
   }
 
   public static String getClassFile(Class<?> classToRead) {
@@ -65,19 +71,51 @@ public class ClassMetaReader {
     if (annotationNode != null) {
       String desc = annotationNode.desc;
       Type type = Type.fromDescriptor(desc);
+      // Annotation type
       Class aClass = ClassUtils.loadClass(type.getClassName());
       AnnotationAttributes attributes = new AnnotationAttributes(aClass);
+
+      // read default values
+      applyDefaults(attributes, aClass);
+
+      // override default values
       List<Object> values = annotationNode.values;
       if (values != null) {
         for (int i = 0, n = values.size(); i < n; i += 2) {
           String name = (String) values.get(i);
           Object value = values.get(i + 1);
+          if (value instanceof AnnotationNode) {
+            value = readAnnotation((AnnotationNode) value);
+          }
           attributes.put(name, value);
         }
       }
+
       return attributes;
     }
     return null;
+  }
+
+  private static void applyDefaults(AnnotationAttributes attributes, Class<?> aClass) {
+    attributes.putAll(readDefaultAttributes(aClass));
+  }
+
+  public static AnnotationAttributes readDefaultAttributes(Class<?> aClass) {
+    return annotationDefaultCache.computeIfAbsent(aClass, annotationType -> {
+      ClassNode classNode = read(annotationType);
+      AnnotationAttributes defaultAttributes = new AnnotationAttributes();
+      for (final MethodNode method : classNode.methods) {
+        Object defaultValue = method.annotationDefault;
+        if (defaultValue != null) {
+          // must not be null
+          if (defaultValue instanceof AnnotationNode) {
+            defaultValue = readAnnotation((AnnotationNode) defaultValue);
+          }
+          defaultAttributes.put(method.name, defaultValue);
+        }
+      }
+      return defaultAttributes;
+    });
   }
 
   /**

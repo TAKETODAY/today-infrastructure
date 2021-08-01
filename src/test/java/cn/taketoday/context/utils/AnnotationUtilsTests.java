@@ -61,7 +61,7 @@ public class AnnotationUtilsTests {
 
     int int0() default 10;
 
-    double double0() default 10;
+    double[] double0() default 10;
 
     String[] value() default {};
 
