@@ -20,7 +20,7 @@
 
 package cn.taketoday.aop;
 
-import cn.taketoday.context.ContextException;
+import cn.taketoday.context.ApplicationContextException;
 
 /**
  * Exception that gets thrown when an AOP invocation failed
@@ -30,7 +30,7 @@ import cn.taketoday.context.ContextException;
  * @author TODAY 2021/2/1 18:52
  * @since 3.0
  */
-public class AopInvocationException extends ContextException {
+public class AopInvocationException extends ApplicationContextException {
   private static final long serialVersionUID = 1L;
 
   /**

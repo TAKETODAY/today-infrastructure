@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.ThrowableSupplier;
-import cn.taketoday.context.ContextException;
+import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.io.FileBasedResource;
 import cn.taketoday.context.io.JarEntryResource;
 import cn.taketoday.context.io.Resource;
@@ -122,7 +122,7 @@ public class CandidateComponentScanner {
       }
     }
     catch (IOException e) {
-      throw new ContextException("IOException occurred when load 'META-INF/ignore/jar-prefix'", e);
+      throw new ApplicationContextException("IOException occurred when load 'META-INF/ignore/jar-prefix'", e);
     }
   }
 
@@ -263,7 +263,7 @@ public class CandidateComponentScanner {
       return getScanningCandidates();
     }
     catch (IOException e) {
-      throw new ContextException("IO exception occur With Msg: [" + e + ']', e);
+      throw new ApplicationContextException("IO exception occur With Msg: [" + e + ']', e);
     }
   }
 
@@ -340,7 +340,7 @@ public class CandidateComponentScanner {
       return getScanningCandidates();
     }
     catch (IOException e) {
-      throw new ContextException("IO exception occur When scan all the classpath classes, With Msg: [" + e + ']', e);
+      throw new ApplicationContextException("IO exception occur When scan all the classpath classes, With Msg: [" + e + ']', e);
     }
   }
 

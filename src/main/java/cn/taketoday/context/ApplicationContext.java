@@ -59,7 +59,7 @@ public interface ApplicationContext
    *
    * @since 2.0.1
    */
-  void refresh() throws ContextException;
+  void refresh() throws ApplicationContextException;
 
   /**
    * Load Application Context.

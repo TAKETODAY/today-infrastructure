@@ -22,7 +22,7 @@ package cn.taketoday.context.factory;
 import java.util.Set;
 
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.ContextException;
+import cn.taketoday.context.ApplicationContextException;
 
 /**
  * @author TODAY
@@ -46,7 +46,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    *
    * @return the new bean instance
    *
-   * @throws ContextException
+   * @throws ApplicationContextException
    *         if instantiation or wiring failed
    */
   default <T> T createBean(Class<T> beanClass) {
@@ -70,7 +70,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    *
    * @return the new bean instance
    *
-   * @throws ContextException
+   * @throws ApplicationContextException
    *         if instantiation or wiring failed
    */
   <T> T createBean(Class<T> beanClass, boolean cacheBeanDef);
@@ -86,7 +86,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @param existingBean
    *         the existing bean instance
    *
-   * @throws ContextException
+   * @throws ApplicationContextException
    *         if wiring failed
    */
   void autowireBean(Object existingBean);
@@ -100,7 +100,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @param existingBean
    *         the existing bean instance
    *
-   * @throws ContextException
+   * @throws ApplicationContextException
    *         if wiring failed
    */
   void autowireBeanProperties(Object existingBean);

@@ -74,7 +74,7 @@ import cn.taketoday.context.EmptyObject;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.factory.BeanInstantiationException;
-import cn.taketoday.context.ContextException;
+import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.BeanMetadata;
@@ -492,7 +492,7 @@ public abstract class ClassUtils {
    *
    * @return target instance
    *
-   * @throws ContextException
+   * @throws ApplicationContextException
    *         if any {@link Exception} occurred
    * @since 2.1.5
    */
@@ -505,7 +505,7 @@ public abstract class ClassUtils {
       final String name = method.getName();
       final BeanProperty beanProperty = metadata.getBeanProperty(name);
       if (beanProperty == null) {
-        throw new ContextException(
+        throw new ApplicationContextException(
                 "You must specify a field: [" + name + "] in class: [" + implClass.getName() + "]");
       }
       beanProperty.setValue(instance, source.get(name));
@@ -552,7 +552,7 @@ public abstract class ClassUtils {
     }
     catch (Throwable ex) {
       ex = ExceptionUtils.unwrapThrowable(ex);
-      throw new ContextException("An Exception Occurred When Getting Annotation Attributes", ex);
+      throw new ApplicationContextException("An Exception Occurred When Getting Annotation Attributes", ex);
     }
   }
 
@@ -1315,7 +1315,7 @@ public abstract class ClassUtils {
    *
    * @return method parameter list
    *
-   * @throws ContextException
+   * @throws ApplicationContextException
    *         when could not access to the class file
    * @since 2.1.6
    */
@@ -1419,7 +1419,7 @@ public abstract class ClassUtils {
         return map;
       }
       catch (IOException | ClassNotFoundException | NoSuchMethodException | IndexOutOfBoundsException e) {
-        throw new ContextException("When visit declaring class: [" + declaringClass.getName() + ']', e);
+        throw new ApplicationContextException("When visit declaring class: [" + declaringClass.getName() + ']', e);
       }
     }
 

@@ -35,7 +35,7 @@ import cn.taketoday.aop.TestBean;
 import cn.taketoday.aop.mixin.LockMixinAdvisor;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
-import cn.taketoday.context.ContextException;
+import cn.taketoday.context.ApplicationContextException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -337,7 +337,7 @@ public class CglibAopProxyTests extends AbstractAopProxyTests implements Seriali
       proxy.doTest();
     }
     catch (Exception ex) {
-      assertThat(ex instanceof ContextException).as("Invalid exception class").isTrue();
+      assertThat(ex instanceof ApplicationContextException).as("Invalid exception class").isTrue();
     }
 
     assertThat(proxy.isCatchInvoked()).as("Catch was not invoked").isTrue();
@@ -445,7 +445,7 @@ public class CglibAopProxyTests extends AbstractAopProxyTests implements Seriali
 
     public void doTest() throws Exception {
       try {
-        throw new ContextException("foo");
+        throw new ApplicationContextException("foo");
       }
       catch (Exception ex) {
         catchInvoked = true;

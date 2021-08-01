@@ -31,7 +31,7 @@ import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.Signature;
-import cn.taketoday.context.ContextException;
+import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
 
@@ -55,7 +55,7 @@ public class ConstructorAccessorGenerator
       newInstanceInfo = getMethodInfo(ConstructorAccessor.class.getDeclaredMethod("newInstance", Object[].class));
     }
     catch (NoSuchMethodException | SecurityException e) {
-      throw new ContextException(e);
+      throw new ApplicationContextException(e);
     }
   }
 

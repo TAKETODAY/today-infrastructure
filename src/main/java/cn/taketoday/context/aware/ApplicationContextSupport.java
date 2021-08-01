@@ -20,7 +20,7 @@
 package cn.taketoday.context.aware;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ContextException;
+import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
@@ -42,7 +42,7 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
     }
     else if (this.applicationContext != context) {
       // Ignore reinitialization if same context passed in.
-      throw new ContextException(
+      throw new ApplicationContextException(
               "Cannot reinitialize with different application context: current one is [" +
                       this.applicationContext + "], passed-in one is [" + context + "]");
     }
@@ -62,7 +62,7 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
    * @param context
    *         the containing ApplicationContext
    *
-   * @throws ContextException
+   * @throws ApplicationContextException
    *         if thrown by ApplicationContext methods
    * @see #setApplicationContext
    */
@@ -76,7 +76,7 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
    * The default implementation is empty. Called by
    * {@link #initApplicationContext(ApplicationContext)}.
    *
-   * @throws ContextException
+   * @throws ApplicationContextException
    *         if thrown by ApplicationContext methods
    * @see #setApplicationContext
    */

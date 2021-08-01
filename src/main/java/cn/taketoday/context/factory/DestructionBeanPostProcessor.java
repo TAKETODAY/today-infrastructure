@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.factory;
 
-import cn.taketoday.context.ContextException;
+import cn.taketoday.context.ApplicationContextException;
 
 /**
  * Subinterface of {@link BeanPostProcessor} that adds a before-destruction
@@ -49,11 +49,11 @@ public interface DestructionBeanPostProcessor extends BeanPostProcessor {
    * @param def
    *         the BeanDefinition of the bean , BeanDefinition may be null
    *
-   * @throws ContextException
+   * @throws ApplicationContextException
    *         in case of errors
    * @see DisposableBean#destroy()
    */
-  void postProcessBeforeDestruction(Object bean, BeanDefinition def) throws ContextException;
+  void postProcessBeforeDestruction(Object bean, BeanDefinition def) throws ApplicationContextException;
 
   /**
    * Determine whether the given bean instance requires destruction by this

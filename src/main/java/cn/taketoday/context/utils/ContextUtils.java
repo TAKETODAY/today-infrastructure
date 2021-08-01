@@ -60,7 +60,7 @@ import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.ConfigurationException;
-import cn.taketoday.context.ContextException;
+import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.BeanPostProcessor;
@@ -570,7 +570,7 @@ public abstract class ContextUtils {
           propertiesToUse.load(inputStream);
         }
         catch (IOException e) {
-          throw new ContextException("IO exception occurred", e);
+          throw new ApplicationContextException("IO exception occurred", e);
         }
       }
     }
@@ -848,7 +848,7 @@ public abstract class ContextUtils {
    *
    * @return Class set from META-INF/xxx
    *
-   * @throws ContextException
+   * @throws ApplicationContextException
    *         If any {@link IOException} occurred
    */
   public static Set<Class<?>> loadFromMetaInfo(final String resource) {
@@ -880,7 +880,7 @@ public abstract class ContextUtils {
         return ret;
       }
       catch (IOException e) {
-        throw new ContextException("Exception occurred when load from '" + resource + '\'', e);
+        throw new ApplicationContextException("Exception occurred when load from '" + resource + '\'', e);
       }
     }
     throw new ConfigurationException("Resource must start with 'META-INF'");
@@ -894,7 +894,7 @@ public abstract class ContextUtils {
    *
    * @return bean set from META-INF/xxx
    *
-   * @throws ContextException
+   * @throws ApplicationContextException
    *         If any {@link IOException} occurred
    * @since 3.0
    */

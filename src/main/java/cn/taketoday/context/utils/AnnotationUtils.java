@@ -43,7 +43,7 @@ import cn.taketoday.asm.Type;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.EmptyObject;
-import cn.taketoday.context.ContextException;
+import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.factory.BeanMetadata;
 import cn.taketoday.context.factory.BeanProperty;
 import cn.taketoday.context.logger.Logger;
@@ -181,7 +181,7 @@ public abstract class AnnotationUtils {
    *
    * @return target instance
    *
-   * @throws ContextException
+   * @throws ApplicationContextException
    *         if any {@link Exception} occurred
    * @since 2.1.5
    */
@@ -194,7 +194,7 @@ public abstract class AnnotationUtils {
       final String name = method.getName();
       final BeanProperty beanProperty = metadata.getBeanProperty(name);
       if (beanProperty == null) {
-        throw new ContextException(
+        throw new ApplicationContextException(
                 "You must specify a field: [" + name + "] in class: [" + implClass.getName() + "]");
       }
       beanProperty.setValue(instance, source.get(name));
@@ -241,7 +241,7 @@ public abstract class AnnotationUtils {
     }
     catch (Throwable ex) {
       ex = ExceptionUtils.unwrapThrowable(ex);
-      throw new ContextException("An Exception Occurred When Getting Annotation Attributes", ex);
+      throw new ApplicationContextException("An Exception Occurred When Getting Annotation Attributes", ex);
     }
   }
 
