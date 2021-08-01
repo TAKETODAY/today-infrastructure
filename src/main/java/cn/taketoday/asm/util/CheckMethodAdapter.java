@@ -420,7 +420,7 @@ public class CheckMethodAdapter extends MethodVisitor {
            private void throwError(final Analyzer<BasicValue> analyzer, final Exception e) {
              StringWriter stringWriter = new StringWriter();
              PrintWriter printWriter = new PrintWriter(stringWriter, true);
-             cn.taketoday.asm.util.CheckClassAdapter.printAnalyzerResult(this, analyzer, printWriter);
+             CheckClassAdapter.printAnalyzerResult(this, analyzer, printWriter);
              printWriter.close();
              throw new IllegalArgumentException(e.getMessage() + ' ' + stringWriter.toString(), e);
            }
@@ -434,7 +434,7 @@ public class CheckMethodAdapter extends MethodVisitor {
     if (name != null) {
       checkUnqualifiedName(version, name, "name");
     }
-    cn.taketoday.asm.util.CheckClassAdapter.checkAccess(
+    CheckClassAdapter.checkAccess(
             access, Opcodes.ACC_FINAL | Opcodes.ACC_MANDATED | Opcodes.ACC_SYNTHETIC);
     super.visitParameter(name, access);
   }
@@ -443,7 +443,7 @@ public class CheckMethodAdapter extends MethodVisitor {
   public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
     checkVisitEndNotCalled();
     checkDescriptor(version, descriptor, false);
-    return new cn.taketoday.asm.util.CheckAnnotationAdapter(super.visitAnnotation(descriptor, visible));
+    return new CheckAnnotationAdapter(super.visitAnnotation(descriptor, visible));
   }
 
   @Override
@@ -459,16 +459,16 @@ public class CheckMethodAdapter extends MethodVisitor {
             && sort != TypeReference.THROWS) {
       throw new IllegalArgumentException(INVALID_TYPE_REFERENCE + Integer.toHexString(sort));
     }
-    cn.taketoday.asm.util.CheckClassAdapter.checkTypeRef(typeRef);
+    CheckClassAdapter.checkTypeRef(typeRef);
     CheckMethodAdapter.checkDescriptor(version, descriptor, false);
-    return new cn.taketoday.asm.util.CheckAnnotationAdapter(
+    return new CheckAnnotationAdapter(
             super.visitTypeAnnotation(typeRef, typePath, descriptor, visible));
   }
 
   @Override
   public AnnotationVisitor visitAnnotationDefault() {
     checkVisitEndNotCalled();
-    return new cn.taketoday.asm.util.CheckAnnotationAdapter(super.visitAnnotationDefault(), false);
+    return new CheckAnnotationAdapter(super.visitAnnotationDefault(), false);
   }
 
   @Override
@@ -496,7 +496,7 @@ public class CheckMethodAdapter extends MethodVisitor {
       throw new IllegalArgumentException("Invalid parameter index");
     }
     checkDescriptor(version, descriptor, false);
-    return new cn.taketoday.asm.util.CheckAnnotationAdapter(
+    return new CheckAnnotationAdapter(
             super.visitParameterAnnotation(parameter, descriptor, visible));
   }
 
@@ -834,9 +834,9 @@ public class CheckMethodAdapter extends MethodVisitor {
             && sort != TypeReference.METHOD_REFERENCE_TYPE_ARGUMENT) {
       throw new IllegalArgumentException(INVALID_TYPE_REFERENCE + Integer.toHexString(sort));
     }
-    cn.taketoday.asm.util.CheckClassAdapter.checkTypeRef(typeRef);
+    CheckClassAdapter.checkTypeRef(typeRef);
     CheckMethodAdapter.checkDescriptor(version, descriptor, false);
-    return new cn.taketoday.asm.util.CheckAnnotationAdapter(
+    return new CheckAnnotationAdapter(
             super.visitInsnAnnotation(typeRef, typePath, descriptor, visible));
   }
 
@@ -848,6 +848,7 @@ public class CheckMethodAdapter extends MethodVisitor {
     checkLabel(start, false, START_LABEL);
     checkLabel(end, false, END_LABEL);
     checkLabel(handler, false, "handler label");
+    Map<Label, Integer> labelInsnIndices = this.labelInsnIndices;
     if (labelInsnIndices.get(start) != null
             || labelInsnIndices.get(end) != null
             || labelInsnIndices.get(handler) != null) {
@@ -870,9 +871,9 @@ public class CheckMethodAdapter extends MethodVisitor {
     if (sort != TypeReference.EXCEPTION_PARAMETER) {
       throw new IllegalArgumentException(INVALID_TYPE_REFERENCE + Integer.toHexString(sort));
     }
-    cn.taketoday.asm.util.CheckClassAdapter.checkTypeRef(typeRef);
+    CheckClassAdapter.checkTypeRef(typeRef);
     CheckMethodAdapter.checkDescriptor(version, descriptor, false);
-    return new cn.taketoday.asm.util.CheckAnnotationAdapter(
+    return new CheckAnnotationAdapter(
             super.visitTryCatchAnnotation(typeRef, typePath, descriptor, visible));
   }
 
@@ -889,13 +890,13 @@ public class CheckMethodAdapter extends MethodVisitor {
     checkUnqualifiedName(version, name, "name");
     checkDescriptor(version, descriptor, false);
     if (signature != null) {
-      cn.taketoday.asm.util.CheckClassAdapter.checkFieldSignature(signature);
+      CheckClassAdapter.checkFieldSignature(signature);
     }
     checkLabel(start, true, START_LABEL);
     checkLabel(end, true, END_LABEL);
     checkUnsignedShort(index, INVALID_LOCAL_VARIABLE_INDEX);
-    int startInsnIndex = labelInsnIndices.get(start).intValue();
-    int endInsnIndex = labelInsnIndices.get(end).intValue();
+    int startInsnIndex = labelInsnIndices.get(start);
+    int endInsnIndex = labelInsnIndices.get(end);
     if (endInsnIndex < startInsnIndex) {
       throw new IllegalArgumentException(
               "Invalid start and end labels (end must be greater than start)");
@@ -918,7 +919,7 @@ public class CheckMethodAdapter extends MethodVisitor {
     if (sort != TypeReference.LOCAL_VARIABLE && sort != TypeReference.RESOURCE_VARIABLE) {
       throw new IllegalArgumentException(INVALID_TYPE_REFERENCE + Integer.toHexString(sort));
     }
-    cn.taketoday.asm.util.CheckClassAdapter.checkTypeRef(typeRef);
+    CheckClassAdapter.checkTypeRef(typeRef);
     checkDescriptor(version, descriptor, false);
     if (start == null
             || end == null
