@@ -34,7 +34,6 @@ import cn.taketoday.context.factory.DefaultPropertySetter;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtils;
 
-import static cn.taketoday.context.utils.ClassUtils.isAnnotationPresent;
 
 /**
  * @author TODAY <br>
@@ -56,8 +55,8 @@ public class ValuePropertyResolver
 
   @Override
   public boolean supportsProperty(final Field field) {
-    return isAnnotationPresent(field, Value.class)
-            || isAnnotationPresent(field, Env.class);
+    return ClassUtils.isAnnotationPresent(field, Value.class)
+            || ClassUtils.isAnnotationPresent(field, Env.class);
   }
 
   @Override

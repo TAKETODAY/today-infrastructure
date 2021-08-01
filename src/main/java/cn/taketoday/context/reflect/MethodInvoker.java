@@ -39,8 +39,6 @@ import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 
-import static cn.taketoday.asm.Opcodes.ACC_FINAL;
-import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.cglib.core.CglibReflectUtils.getMethodInfo;
 
 /**
@@ -155,7 +153,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
       final Method target = this.targetMethod;
       final ClassEmitter classEmitter = beginClass(v);
 
-      final CodeEmitter codeEmitter = EmitUtils.beginMethod(classEmitter, invokeInfo, ACC_PUBLIC | ACC_FINAL);
+      final CodeEmitter codeEmitter = EmitUtils.beginMethod(classEmitter, invokeInfo, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
       if (!Modifier.isStatic(target.getModifiers())) {
         codeEmitter.visitVarInsn(Opcodes.ALOAD, 1);
         codeEmitter.checkcast(Type.getType(targetClass));
@@ -258,8 +256,10 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof MethodInvokerCacheKey)) return false;
+      if (this == o)
+        return true;
+      if (!(o instanceof MethodInvokerCacheKey))
+        return false;
       final MethodInvokerCacheKey that = (MethodInvokerCacheKey) o;
       return Objects.equals(targetMethod, that.targetMethod) && Objects.equals(targetClass, that.targetClass);
     }
