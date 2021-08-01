@@ -42,7 +42,8 @@ public final class TraceAnnotationVisitor extends AnnotationVisitor {
   /**
    * Constructs a new {@link TraceAnnotationVisitor}.
    *
-   * @param printer the printer to convert the visited annotation into text.
+   * @param printer
+   *         the printer to convert the visited annotation into text.
    */
   public TraceAnnotationVisitor(final Printer printer) {
     this(null, printer);
@@ -51,12 +52,14 @@ public final class TraceAnnotationVisitor extends AnnotationVisitor {
   /**
    * Constructs a new {@link TraceAnnotationVisitor}.
    *
-   * @param annotationVisitor the annotation visitor to which to delegate calls. May be {@literal
-   *     null}.
-   * @param printer the printer to convert the visited annotation into text.
+   * @param annotationVisitor
+   *         the annotation visitor to which to delegate calls. May be {@literal
+   *         null}.
+   * @param printer
+   *         the printer to convert the visited annotation into text.
    */
   public TraceAnnotationVisitor(final AnnotationVisitor annotationVisitor, final Printer printer) {
-    super( annotationVisitor);
+    super(annotationVisitor);
     this.printer = printer;
   }
 

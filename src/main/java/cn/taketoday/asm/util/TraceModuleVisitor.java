@@ -43,7 +43,8 @@ public final class TraceModuleVisitor extends ModuleVisitor {
   /**
    * Constructs a new {@link TraceModuleVisitor}.
    *
-   * @param printer the printer to convert the visited module into text.
+   * @param printer
+   *         the printer to convert the visited module into text.
    */
   public TraceModuleVisitor(final Printer printer) {
     this(null, printer);
@@ -52,11 +53,13 @@ public final class TraceModuleVisitor extends ModuleVisitor {
   /**
    * Constructs a new {@link TraceModuleVisitor}.
    *
-   * @param moduleVisitor the module visitor to which to delegate calls. May be {@literal null}.
-   * @param printer the printer to convert the visited module into text.
+   * @param moduleVisitor
+   *         the module visitor to which to delegate calls. May be {@literal null}.
+   * @param printer
+   *         the printer to convert the visited module into text.
    */
   public TraceModuleVisitor(final ModuleVisitor moduleVisitor, final Printer printer) {
-    super( moduleVisitor);
+    super(moduleVisitor);
     this.p = printer;
   }
 

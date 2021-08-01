@@ -47,7 +47,8 @@ public final class ModuleTargetAttribute extends Attribute {
   /**
    * Constructs a new {@link ModuleTargetAttribute}.
    *
-   * @param platform the name of the platform on which the module can run.
+   * @param platform
+   *         the name of the platform on which the module can run.
    */
   public ModuleTargetAttribute(final String platform) {
     super("ModuleTarget");
@@ -64,22 +65,22 @@ public final class ModuleTargetAttribute extends Attribute {
 
   @Override
   protected Attribute read(
-      final ClassReader classReader,
-      final int offset,
-      final int length,
-      final char[] charBuffer,
-      final int codeOffset,
-      final Label[] labels) {
+          final ClassReader classReader,
+          final int offset,
+          final int length,
+          final char[] charBuffer,
+          final int codeOffset,
+          final Label[] labels) {
     return new ModuleTargetAttribute(classReader.readUTF8(offset, charBuffer));
   }
 
   @Override
   protected ByteVector write(
-      final ClassWriter classWriter,
-      final byte[] code,
-      final int codeLength,
-      final int maxStack,
-      final int maxLocals) {
+          final ClassWriter classWriter,
+          final byte[] code,
+          final int codeLength,
+          final int maxStack,
+          final int maxLocals) {
     ByteVector byteVector = new ByteVector();
     byteVector.putShort(platform == null ? 0 : classWriter.newUTF8(platform));
     return byteVector;

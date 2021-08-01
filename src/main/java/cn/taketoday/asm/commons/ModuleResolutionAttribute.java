@@ -71,9 +71,10 @@ public final class ModuleResolutionAttribute extends Attribute {
   /**
    * Constructs a new {@link ModuleResolutionAttribute}.
    *
-   * @param resolution the resolution state of the module. Must be one of {@link
-   *     #RESOLUTION_WARN_DEPRECATED}, {@link #RESOLUTION_WARN_DEPRECATED_FOR_REMOVAL}, and {@link
-   *     #RESOLUTION_WARN_INCUBATING}.
+   * @param resolution
+   *         the resolution state of the module. Must be one of {@link
+   *         #RESOLUTION_WARN_DEPRECATED}, {@link #RESOLUTION_WARN_DEPRECATED_FOR_REMOVAL}, and {@link
+   *         #RESOLUTION_WARN_INCUBATING}.
    */
   public ModuleResolutionAttribute(final int resolution) {
     super("ModuleResolution");
@@ -90,22 +91,22 @@ public final class ModuleResolutionAttribute extends Attribute {
 
   @Override
   protected Attribute read(
-      final ClassReader classReader,
-      final int offset,
-      final int length,
-      final char[] charBuffer,
-      final int codeOffset,
-      final Label[] labels) {
+          final ClassReader classReader,
+          final int offset,
+          final int length,
+          final char[] charBuffer,
+          final int codeOffset,
+          final Label[] labels) {
     return new ModuleResolutionAttribute(classReader.readUnsignedShort(offset));
   }
 
   @Override
   protected ByteVector write(
-      final ClassWriter classWriter,
-      final byte[] code,
-      final int codeLength,
-      final int maxStack,
-      final int maxLocals) {
+          final ClassWriter classWriter,
+          final byte[] code,
+          final int codeLength,
+          final int maxStack,
+          final int maxLocals) {
     ByteVector byteVector = new ByteVector();
     byteVector.putShort(resolution);
     return byteVector;

@@ -45,7 +45,9 @@ import cn.taketoday.asm.tree.VarInsnNode;
  * operand stack. Warning: long and double values are represented with <i>two</i> slots in local
  * variables, and with <i>one</i> slot in the operand stack.
  *
- * @param <V> type of the Value used for the analysis.
+ * @param <V>
+ *         type of the Value used for the analysis.
+ *
  * @author Eric Bruneton
  */
 public class Frame<V extends Value> {
@@ -87,10 +89,12 @@ public class Frame<V extends Value> {
   /**
    * Constructs a new frame with the given size.
    *
-   * @param numLocals the number of local variables of the frame. Long and double values are
-   *     represented with two elements.
-   * @param maxStack the maximum number of elements in the operand stack, or -1 if there is no
-   *     maximum value. Long and double values are represented with a single element.
+   * @param numLocals
+   *         the number of local variables of the frame. Long and double values are
+   *         represented with two elements.
+   * @param maxStack
+   *         the maximum number of elements in the operand stack, or -1 if there is no
+   *         maximum value. Long and double values are represented with a single element.
    */
   @SuppressWarnings("unchecked")
   public Frame(final int numLocals, final int maxStack) {
@@ -103,7 +107,8 @@ public class Frame<V extends Value> {
   /**
    * Constructs a copy of the given Frame.
    *
-   * @param frame a frame.
+   * @param frame
+   *         a frame.
    */
   public Frame(final Frame<? extends V> frame) {
     this(frame.numLocals, frame.values.length - frame.numLocals);
@@ -113,14 +118,17 @@ public class Frame<V extends Value> {
   /**
    * Copies the state of the given frame into this frame.
    *
-   * @param frame a frame.
+   * @param frame
+   *         a frame.
+   *
    * @return this frame.
    */
   public Frame<V> init(final Frame<? extends V> frame) {
     returnValue = frame.returnValue;
     if (values.length < frame.values.length) {
       values = frame.values.clone();
-    } else {
+    }
+    else {
       System.arraycopy(frame.values, 0, values, 0, frame.values.length);
     }
     numLocals = frame.numLocals;
@@ -140,12 +148,14 @@ public class Frame<V extends Value> {
    * <p>Overriding this method and changing the frame values allows implementing branch-sensitive
    * analyses.
    *
-   * @param opcode the opcode of the jump instruction. Can be IFEQ, IFNE, IFLT, IFGE, IFGT, IFLE,
-   *     IF_ICMPEQ, IF_ICMPNE, IF_ICMPLT, IF_ICMPGE, IF_ICMPGT, IF_ICMPLE, IF_ACMPEQ, IF_ACMPNE,
-   *     GOTO, JSR, IFNULL, IFNONNULL, TABLESWITCH or LOOKUPSWITCH.
-   * @param target a target of the jump instruction this frame corresponds to, or {@literal null} if
-   *     this frame corresponds to the successor of the jump instruction (i.e. the next instruction
-   *     in the instructions sequence).
+   * @param opcode
+   *         the opcode of the jump instruction. Can be IFEQ, IFNE, IFLT, IFGE, IFGT, IFLE,
+   *         IF_ICMPEQ, IF_ICMPNE, IF_ICMPLT, IF_ICMPGE, IF_ICMPGT, IF_ICMPLE, IF_ACMPEQ, IF_ACMPNE,
+   *         GOTO, JSR, IFNULL, IFNONNULL, TABLESWITCH or LOOKUPSWITCH.
+   * @param target
+   *         a target of the jump instruction this frame corresponds to, or {@literal null} if
+   *         this frame corresponds to the successor of the jump instruction (i.e. the next instruction
+   *         in the instructions sequence).
    */
   public void initJumpTarget(final int opcode, final LabelNode target) {
     // Does nothing by default.
@@ -154,8 +164,9 @@ public class Frame<V extends Value> {
   /**
    * Sets the expected return type of the analyzed method.
    *
-   * @param v the expected return type of the analyzed method, or {@literal null} if the method
-   *     returns void.
+   * @param v
+   *         the expected return type of the analyzed method, or {@literal null} if the method
+   *         returns void.
    */
   public void setReturn(final V v) {
     returnValue = v;
@@ -185,9 +196,13 @@ public class Frame<V extends Value> {
    * Returns the value of the given local variable. Long and double values are represented with two
    * variables.
    *
-   * @param index a local variable index.
+   * @param index
+   *         a local variable index.
+   *
    * @return the value of the given local variable.
-   * @throws IndexOutOfBoundsException if the variable does not exist.
+   *
+   * @throws IndexOutOfBoundsException
+   *         if the variable does not exist.
    */
   public V getLocal(final int index) {
     if (index >= numLocals) {
@@ -200,9 +215,13 @@ public class Frame<V extends Value> {
    * Sets the value of the given local variable. Long and double values are represented with two
    * variables.
    *
-   * @param index a local variable index.
-   * @param value the new value of this local variable.
-   * @throws IndexOutOfBoundsException if the variable does not exist.
+   * @param index
+   *         a local variable index.
+   * @param value
+   *         the new value of this local variable.
+   *
+   * @throws IndexOutOfBoundsException
+   *         if the variable does not exist.
    */
   public void setLocal(final int index, final V value) {
     if (index >= numLocals) {
@@ -224,9 +243,13 @@ public class Frame<V extends Value> {
   /**
    * Returns the value of the given operand stack slot.
    *
-   * @param index the index of an operand stack slot.
+   * @param index
+   *         the index of an operand stack slot.
+   *
    * @return the value of the given operand stack slot.
-   * @throws IndexOutOfBoundsException if the operand stack slot does not exist.
+   *
+   * @throws IndexOutOfBoundsException
+   *         if the operand stack slot does not exist.
    */
   public V getStack(final int index) {
     return values[numLocals + index];
@@ -235,9 +258,13 @@ public class Frame<V extends Value> {
   /**
    * Sets the value of the given stack slot.
    *
-   * @param index the index of an operand stack slot.
-   * @param value the new value of the stack slot.
-   * @throws IndexOutOfBoundsException if the stack slot does not exist.
+   * @param index
+   *         the index of an operand stack slot.
+   * @param value
+   *         the new value of the stack slot.
+   *
+   * @throws IndexOutOfBoundsException
+   *         if the stack slot does not exist.
    */
   public void setStack(final int index, final V value) {
     values[numLocals + index] = value;
@@ -252,7 +279,9 @@ public class Frame<V extends Value> {
    * Pops a value from the operand stack of this frame.
    *
    * @return the value that has been popped from the stack.
-   * @throws IndexOutOfBoundsException if the operand stack is empty.
+   *
+   * @throws IndexOutOfBoundsException
+   *         if the operand stack is empty.
    */
   public V pop() {
     if (numStack == 0) {
@@ -264,8 +293,11 @@ public class Frame<V extends Value> {
   /**
    * Pushes a value into the operand stack of this frame.
    *
-   * @param value the value that must be pushed into the stack.
-   * @throws IndexOutOfBoundsException if the operand stack is full.
+   * @param value
+   *         the value that must be pushed into the stack.
+   *
+   * @throws IndexOutOfBoundsException
+   *         if the operand stack is full.
    */
   @SuppressWarnings("unchecked")
   public void push(final V value) {
@@ -283,13 +315,17 @@ public class Frame<V extends Value> {
   /**
    * Simulates the execution of the given instruction on this execution stack frame.
    *
-   * @param insn the instruction to execute.
-   * @param interpreter the interpreter to use to compute values from other values.
-   * @throws AnalyzerException if the instruction cannot be executed on this execution frame (e.g. a
-   *     POP on an empty operand stack).
+   * @param insn
+   *         the instruction to execute.
+   * @param interpreter
+   *         the interpreter to use to compute values from other values.
+   *
+   * @throws AnalyzerException
+   *         if the instruction cannot be executed on this execution frame (e.g. a
+   *         POP on an empty operand stack).
    */
   public void execute(final AbstractInsnNode insn, final Interpreter<V> interpreter)
-      throws AnalyzerException {
+          throws AnalyzerException {
     V value1;
     V value2;
     V value3;
@@ -402,7 +438,8 @@ public class Frame<V extends Value> {
             push(interpreter.copyOperation(insn, value1));
             break;
           }
-        } else {
+        }
+        else {
           push(value1);
           push(interpreter.copyOperation(insn, value1));
           break;
@@ -423,7 +460,8 @@ public class Frame<V extends Value> {
               break;
             }
           }
-        } else {
+        }
+        else {
           value2 = pop();
           if (value2.getSize() == 1) {
             push(interpreter.copyOperation(insn, value1));
@@ -450,7 +488,8 @@ public class Frame<V extends Value> {
                 push(value1);
                 break;
               }
-            } else {
+            }
+            else {
               push(interpreter.copyOperation(insn, value2));
               push(interpreter.copyOperation(insn, value1));
               push(value3);
@@ -459,7 +498,8 @@ public class Frame<V extends Value> {
               break;
             }
           }
-        } else if (executeDupX2(insn, value1, interpreter)) {
+        }
+        else if (executeDupX2(insn, value1, interpreter)) {
           break;
         }
         throw new AnalyzerException(insn, "Illegal use of DUP2_X2");
@@ -648,8 +688,8 @@ public class Frame<V extends Value> {
   }
 
   private boolean executeDupX2(
-      final AbstractInsnNode insn, final V value1, final Interpreter<V> interpreter)
-      throws AnalyzerException {
+          final AbstractInsnNode insn, final V value1, final Interpreter<V> interpreter)
+          throws AnalyzerException {
     V value2 = pop();
     if (value2.getSize() == 1) {
       V value3 = pop();
@@ -660,7 +700,8 @@ public class Frame<V extends Value> {
         push(value1);
         return true;
       }
-    } else {
+    }
+    else {
       push(interpreter.copyOperation(insn, value1));
       push(value2);
       push(value1);
@@ -670,8 +711,8 @@ public class Frame<V extends Value> {
   }
 
   private void executeInvokeInsn(
-      final AbstractInsnNode insn, final String methodDescriptor, final Interpreter<V> interpreter)
-      throws AnalyzerException {
+          final AbstractInsnNode insn, final String methodDescriptor, final Interpreter<V> interpreter)
+          throws AnalyzerException {
     ArrayList<V> valueList = new ArrayList<>();
     for (int i = Type.getArgumentTypes(methodDescriptor).length; i > 0; --i) {
       valueList.add(0, pop());
@@ -681,7 +722,8 @@ public class Frame<V extends Value> {
     }
     if (Type.getReturnType(methodDescriptor) == Type.VOID_TYPE) {
       interpreter.naryOperation(insn, valueList);
-    } else {
+    }
+    else {
       push(interpreter.naryOperation(insn, valueList));
     }
   }
@@ -689,14 +731,19 @@ public class Frame<V extends Value> {
   /**
    * Merges the given frame into this frame.
    *
-   * @param frame a frame. This frame is left unchanged by this method.
-   * @param interpreter the interpreter used to merge values.
+   * @param frame
+   *         a frame. This frame is left unchanged by this method.
+   * @param interpreter
+   *         the interpreter used to merge values.
+   *
    * @return {@literal true} if this frame has been changed as a result of the merge operation, or
-   *     {@literal false} otherwise.
-   * @throws AnalyzerException if the frames have incompatible sizes.
+   * {@literal false} otherwise.
+   *
+   * @throws AnalyzerException
+   *         if the frames have incompatible sizes.
    */
   public boolean merge(final Frame<? extends V> frame, final Interpreter<V> interpreter)
-      throws AnalyzerException {
+          throws AnalyzerException {
     if (numStack != frame.numStack) {
       throw new AnalyzerException(null, "Incompatible stack heights");
     }
@@ -715,12 +762,15 @@ public class Frame<V extends Value> {
    * Merges the given frame into this frame (case of a subroutine). The operand stacks are not
    * merged, and only the local variables that have not been used by the subroutine are merged.
    *
-   * @param frame a frame. This frame is left unchanged by this method.
-   * @param localsUsed the local variables that are read or written by the subroutine. The i-th
-   *     element is true if and only if the local variable at index i is read or written by the
-   *     subroutine.
+   * @param frame
+   *         a frame. This frame is left unchanged by this method.
+   * @param localsUsed
+   *         the local variables that are read or written by the subroutine. The i-th
+   *         element is true if and only if the local variable at index i is read or written by the
+   *         subroutine.
+   *
    * @return {@literal true} if this frame has been changed as a result of the merge operation, or
-   *     {@literal false} otherwise.
+   * {@literal false} otherwise.
    */
   public boolean merge(final Frame<? extends V> frame, final boolean[] localsUsed) {
     boolean changed = false;

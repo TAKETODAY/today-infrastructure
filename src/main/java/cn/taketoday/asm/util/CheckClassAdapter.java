@@ -1105,7 +1105,7 @@ public class CheckClassAdapter extends ClassVisitor {
           final PrintWriter printWriter) {
     ClassNode classNode = new ClassNode();
     classReader.accept(
-            new CheckClassAdapter( classNode, false) { },
+            new CheckClassAdapter(classNode, false) { },
             ClassReader.SKIP_DEBUG);
 
     Type syperType = classNode.superName == null ? null : Type.getObjectType(classNode.superName);

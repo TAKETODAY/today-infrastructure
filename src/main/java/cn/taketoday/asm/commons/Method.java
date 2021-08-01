@@ -67,8 +67,10 @@ public class Method {
   /**
    * Constructs a new {@link Method}.
    *
-   * @param name the method's name.
-   * @param descriptor the method's descriptor.
+   * @param name
+   *         the method's name.
+   * @param descriptor
+   *         the method's descriptor.
    */
   public Method(final String name, final String descriptor) {
     this.name = name;
@@ -78,9 +80,12 @@ public class Method {
   /**
    * Constructs a new {@link Method}.
    *
-   * @param name the method's name.
-   * @param returnType the method's return type.
-   * @param argumentTypes the method's argument types.
+   * @param name
+   *         the method's name.
+   * @param returnType
+   *         the method's return type.
+   * @param argumentTypes
+   *         the method's argument types.
    */
   public Method(final String name, final Type returnType, final Type[] argumentTypes) {
     this(name, Type.getMethodDescriptor(returnType, argumentTypes));
@@ -89,7 +94,9 @@ public class Method {
   /**
    * Creates a new {@link Method}.
    *
-   * @param method a java.lang.reflect method descriptor
+   * @param method
+   *         a java.lang.reflect method descriptor
+   *
    * @return a {@link Method} corresponding to the given Java method declaration.
    */
   public static Method getMethod(final java.lang.reflect.Method method) {
@@ -99,7 +106,9 @@ public class Method {
   /**
    * Creates a new {@link Method}.
    *
-   * @param constructor a java.lang.reflect constructor descriptor
+   * @param constructor
+   *         a java.lang.reflect constructor descriptor
+   *
    * @return a {@link Method} corresponding to the given Java constructor declaration.
    */
   public static Method getMethod(final java.lang.reflect.Constructor<?> constructor) {
@@ -109,12 +118,16 @@ public class Method {
   /**
    * Returns a {@link Method} corresponding to the given Java method declaration.
    *
-   * @param method a Java method declaration, without argument names, of the form "returnType name
-   *     (argumentType1, ... argumentTypeN)", where the types are in plain Java (e.g. "int",
-   *     "float", "java.util.List", ...). Classes of the java.lang package can be specified by their
-   *     unqualified name; all other classes names must be fully qualified.
+   * @param method
+   *         a Java method declaration, without argument names, of the form "returnType name
+   *         (argumentType1, ... argumentTypeN)", where the types are in plain Java (e.g. "int",
+   *         "float", "java.util.List", ...). Classes of the java.lang package can be specified by their
+   *         unqualified name; all other classes names must be fully qualified.
+   *
    * @return a {@link Method} corresponding to the given Java method declaration.
-   * @throws IllegalArgumentException if <code>method</code> could not get parsed.
+   *
+   * @throws IllegalArgumentException
+   *         if <code>method</code> could not get parsed.
    */
   public static Method getMethod(final String method) {
     return getMethod(method, false);
@@ -123,16 +136,21 @@ public class Method {
   /**
    * Returns a {@link Method} corresponding to the given Java method declaration.
    *
-   * @param method a Java method declaration, without argument names, of the form "returnType name
-   *     (argumentType1, ... argumentTypeN)", where the types are in plain Java (e.g. "int",
-   *     "float", "java.util.List", ...). Classes of the java.lang package may be specified by their
-   *     unqualified name, depending on the defaultPackage argument; all other classes names must be
-   *     fully qualified.
-   * @param defaultPackage true if unqualified class names belong to the default package, or false
-   *     if they correspond to java.lang classes. For instance "Object" means "Object" if this
-   *     option is true, or "java.lang.Object" otherwise.
+   * @param method
+   *         a Java method declaration, without argument names, of the form "returnType name
+   *         (argumentType1, ... argumentTypeN)", where the types are in plain Java (e.g. "int",
+   *         "float", "java.util.List", ...). Classes of the java.lang package may be specified by their
+   *         unqualified name, depending on the defaultPackage argument; all other classes names must be
+   *         fully qualified.
+   * @param defaultPackage
+   *         true if unqualified class names belong to the default package, or false
+   *         if they correspond to java.lang classes. For instance "Object" means "Object" if this
+   *         option is true, or "java.lang.Object" otherwise.
+   *
    * @return a {@link Method} corresponding to the given Java method declaration.
-   * @throws IllegalArgumentException if <code>method</code> could not get parsed.
+   *
+   * @throws IllegalArgumentException
+   *         if <code>method</code> could not get parsed.
    */
   public static Method getMethod(final String method, final boolean defaultPackage) {
     final int spaceIndex = method.indexOf(' ');
@@ -143,7 +161,7 @@ public class Method {
     }
     final String returnType = method.substring(0, spaceIndex);
     final String methodName =
-        method.substring(spaceIndex + 1, currentArgumentStartIndex - 1).trim();
+            method.substring(spaceIndex + 1, currentArgumentStartIndex - 1).trim();
     StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.append('(');
     int currentArgumentEndIndex;
@@ -152,17 +170,19 @@ public class Method {
       currentArgumentEndIndex = method.indexOf(',', currentArgumentStartIndex);
       if (currentArgumentEndIndex == -1) {
         argumentDescriptor =
-            getDescriptorInternal(
-                method.substring(currentArgumentStartIndex, endIndex).trim(), defaultPackage);
-      } else {
+                getDescriptorInternal(
+                        method.substring(currentArgumentStartIndex, endIndex).trim(), defaultPackage);
+      }
+      else {
         argumentDescriptor =
-            getDescriptorInternal(
-                method.substring(currentArgumentStartIndex, currentArgumentEndIndex).trim(),
-                defaultPackage);
+                getDescriptorInternal(
+                        method.substring(currentArgumentStartIndex, currentArgumentEndIndex).trim(),
+                        defaultPackage);
         currentArgumentStartIndex = currentArgumentEndIndex + 1;
       }
       stringBuilder.append(argumentDescriptor);
-    } while (currentArgumentEndIndex != -1);
+    }
+    while (currentArgumentEndIndex != -1);
     stringBuilder.append(')').append(getDescriptorInternal(returnType, defaultPackage));
     return new Method(methodName, stringBuilder.toString());
   }
@@ -170,10 +190,13 @@ public class Method {
   /**
    * Returns the descriptor corresponding to the given type name.
    *
-   * @param type a Java type name.
-   * @param defaultPackage true if unqualified class names belong to the default package, or false
-   *     if they correspond to java.lang classes. For instance "Object" means "Object" if this
-   *     option is true, or "java.lang.Object" otherwise.
+   * @param type
+   *         a Java type name.
+   * @param defaultPackage
+   *         true if unqualified class names belong to the default package, or false
+   *         if they correspond to java.lang classes. For instance "Object" means "Object" if this
+   *         option is true, or "java.lang.Object" otherwise.
+   *
    * @return the descriptor corresponding to the given type name.
    */
   private static String getDescriptorInternal(final String type, final boolean defaultPackage) {
@@ -191,14 +214,16 @@ public class Method {
     String descriptor = PRIMITIVE_TYPE_DESCRIPTORS.get(elementType);
     if (descriptor != null) {
       stringBuilder.append(descriptor);
-    } else {
+    }
+    else {
       stringBuilder.append('L');
       if (elementType.indexOf('.') < 0) {
         if (!defaultPackage) {
           stringBuilder.append("java/lang/");
         }
         stringBuilder.append(elementType);
-      } else {
+      }
+      else {
         stringBuilder.append(elementType.replace('.', '/'));
       }
       stringBuilder.append(';');

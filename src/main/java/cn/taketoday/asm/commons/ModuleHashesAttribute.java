@@ -56,12 +56,15 @@ public final class ModuleHashesAttribute extends Attribute {
   /**
    * Constructs a new {@link ModuleHashesAttribute}.
    *
-   * @param algorithm the name of the hashing algorithm.
-   * @param modules a list of module names.
-   * @param hashes the hash of the modules in 'modules'. The two lists must have the same size.
+   * @param algorithm
+   *         the name of the hashing algorithm.
+   * @param modules
+   *         a list of module names.
+   * @param hashes
+   *         the hash of the modules in 'modules'. The two lists must have the same size.
    */
   public ModuleHashesAttribute(
-      final String algorithm, final List<String> modules, final List<byte[]> hashes) {
+          final String algorithm, final List<String> modules, final List<byte[]> hashes) {
     super("ModuleHashes");
     this.algorithm = algorithm;
     this.modules = modules;
@@ -78,12 +81,12 @@ public final class ModuleHashesAttribute extends Attribute {
 
   @Override
   protected Attribute read(
-      final ClassReader classReader,
-      final int offset,
-      final int length,
-      final char[] charBuffer,
-      final int codeAttributeOffset,
-      final Label[] labels) {
+          final ClassReader classReader,
+          final int offset,
+          final int length,
+          final char[] charBuffer,
+          final int codeAttributeOffset,
+          final Label[] labels) {
     int currentOffset = offset;
 
     String hashAlgorithm = classReader.readUTF8(currentOffset, charBuffer);
@@ -114,25 +117,26 @@ public final class ModuleHashesAttribute extends Attribute {
 
   @Override
   protected ByteVector write(
-      final ClassWriter classWriter,
-      final byte[] code,
-      final int codeLength,
-      final int maxStack,
-      final int maxLocals) {
+          final ClassWriter classWriter,
+          final byte[] code,
+          final int codeLength,
+          final int maxStack,
+          final int maxLocals) {
     ByteVector byteVector = new ByteVector();
     byteVector.putShort(classWriter.newUTF8(algorithm));
     if (modules == null) {
       byteVector.putShort(0);
-    } else {
+    }
+    else {
       int numModules = modules.size();
       byteVector.putShort(numModules);
       for (int i = 0; i < numModules; ++i) {
         String module = modules.get(i);
         byte[] hash = hashes.get(i);
         byteVector
-            .putShort(classWriter.newModule(module))
-            .putShort(hash.length)
-            .putByteArray(hash, 0, hash.length);
+                .putShort(classWriter.newModule(module))
+                .putShort(hash.length)
+                .putByteArray(hash, 0, hash.length);
       }
     }
     return byteVector;

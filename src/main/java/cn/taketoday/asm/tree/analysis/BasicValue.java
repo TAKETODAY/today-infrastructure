@@ -54,7 +54,7 @@ public class BasicValue implements Value {
 
   /** An object or array reference value. */
   public static final BasicValue REFERENCE_VALUE =
-      new BasicValue(Type.getObjectType("java/lang/Object"));
+          new BasicValue(Type.getObjectType("java/lang/Object"));
 
   /** A return address value (produced by a jsr instruction). */
   public static final BasicValue RETURNADDRESS_VALUE = new BasicValue(Type.VOID_TYPE);
@@ -65,7 +65,8 @@ public class BasicValue implements Value {
   /**
    * Constructs a new {@link BasicValue} of the given type.
    *
-   * @param type the value type.
+   * @param type
+   *         the value type.
    */
   public BasicValue(final Type type) {
     this.type = type;
@@ -98,13 +99,16 @@ public class BasicValue implements Value {
   public boolean equals(final Object value) {
     if (value == this) {
       return true;
-    } else if (value instanceof BasicValue) {
+    }
+    else if (value instanceof BasicValue) {
       if (type == null) {
         return ((BasicValue) value).type == null;
-      } else {
+      }
+      else {
         return type.equals(((BasicValue) value).type);
       }
-    } else {
+    }
+    else {
       return false;
     }
   }
@@ -118,11 +122,14 @@ public class BasicValue implements Value {
   public String toString() {
     if (this == UNINITIALIZED_VALUE) {
       return ".";
-    } else if (this == RETURNADDRESS_VALUE) {
+    }
+    else if (this == RETURNADDRESS_VALUE) {
       return "A";
-    } else if (this == REFERENCE_VALUE) {
+    }
+    else if (this == REFERENCE_VALUE) {
       return "R";
-    } else {
+    }
+    else {
       return type.getDescriptor();
     }
   }
