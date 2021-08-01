@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.function.Supplier;
 
 import cn.taketoday.context.AttributeAccessorSupport;
-import cn.taketoday.context.exception.NoSuchPropertyException;
+import cn.taketoday.context.loader.NoSuchPropertyException;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.SingletonSupplier;
 

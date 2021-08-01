@@ -23,7 +23,7 @@ package cn.taketoday.context.loader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 
-import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.ConfigurationException;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.GenericTypeResolver;

@@ -24,7 +24,6 @@ import java.util.function.Supplier;
 
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.Scope;
-import cn.taketoday.context.exception.BeanDefinitionStoreException;
 
 /**
  * @author TODAY <br>

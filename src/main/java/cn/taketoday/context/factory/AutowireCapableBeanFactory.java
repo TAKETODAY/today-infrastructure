@@ -22,8 +22,7 @@ package cn.taketoday.context.factory;
 import java.util.Set;
 
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.exception.BeanInitializingException;
-import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.ContextException;
 
 /**
  * @author TODAY

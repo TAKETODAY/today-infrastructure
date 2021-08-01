@@ -35,8 +35,8 @@ import java.time.temporal.ChronoUnit;
 
 import cn.taketoday.context.conversion.ConversionFailedException;
 import cn.taketoday.context.conversion.TypeConverter;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.exception.ConversionException;
+import cn.taketoday.context.ConfigurationException;
+import cn.taketoday.context.conversion.ConversionException;
 import cn.taketoday.context.io.Resource;
 
 import static cn.taketoday.context.utils.ConvertUtils.convert;

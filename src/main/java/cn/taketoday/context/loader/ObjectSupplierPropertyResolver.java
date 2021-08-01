@@ -26,7 +26,6 @@ import java.util.function.Supplier;
 
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.exception.PropertyValueException;
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.AbstractPropertySetter;
 import cn.taketoday.context.factory.ObjectSupplier;

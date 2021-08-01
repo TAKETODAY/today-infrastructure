@@ -499,6 +499,7 @@ public class ConstantsTest {
       case "ASM_IFNULL_OPCODE_DELTA":
       case "SOURCE_DEPRECATED":
       case "SOURCE_MASK":
+      case "__$lineHits$__s":
         return ConstantType.OTHER;
       default:
         throw new IllegalArgumentException("Unknown constant " + field.getName());

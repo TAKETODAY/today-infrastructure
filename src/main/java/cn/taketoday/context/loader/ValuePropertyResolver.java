@@ -29,7 +29,7 @@ import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.Required;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.aware.OrderedApplicationContextSupport;
-import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.ConfigurationException;
 import cn.taketoday.context.factory.DefaultPropertySetter;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtils;

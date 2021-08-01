@@ -22,7 +22,7 @@ package cn.taketoday.context.utils;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import cn.taketoday.context.exception.ConversionException;
+import cn.taketoday.context.conversion.ConversionException;
 
 /**
  * @author TODAY <br>

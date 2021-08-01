@@ -26,7 +26,7 @@ import java.util.Collection;
 import cn.taketoday.context.conversion.AbstractTypeCapable;
 import cn.taketoday.context.conversion.Converter;
 import cn.taketoday.context.conversion.TypeCapable;
-import cn.taketoday.context.exception.ConversionException;
+import cn.taketoday.context.conversion.ConversionException;
 
 /**
  * @author TODAY 2021/1/6 23:18

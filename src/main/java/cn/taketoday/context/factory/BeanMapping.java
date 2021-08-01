@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import cn.taketoday.context.exception.NoSuchPropertyException;
+import cn.taketoday.context.loader.NoSuchPropertyException;
 import cn.taketoday.context.utils.Assert;
 
 /**

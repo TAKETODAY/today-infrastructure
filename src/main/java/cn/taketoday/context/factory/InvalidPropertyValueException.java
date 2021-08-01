@@ -20,7 +20,7 @@
 
 package cn.taketoday.context.factory;
 
-import cn.taketoday.context.exception.PropertyValueException;
+import cn.taketoday.context.loader.PropertyValueException;
 
 /**
  * Invalid property value

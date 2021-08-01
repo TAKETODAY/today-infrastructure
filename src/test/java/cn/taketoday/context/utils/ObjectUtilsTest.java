@@ -26,8 +26,8 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.Collections;
 
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.exception.ConversionException;
+import cn.taketoday.context.ConfigurationException;
+import cn.taketoday.context.conversion.ConversionException;
 
 import static org.junit.Assert.assertEquals;
 

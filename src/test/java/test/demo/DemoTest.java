@@ -20,18 +20,13 @@
 package test.demo;
 
 import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.junit.Test;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.exception.BeanDefinitionStoreException;
-import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
-import cn.taketoday.context.factory.BeanDefinition;
+import cn.taketoday.context.factory.BeanDefinitionStoreException;
+import cn.taketoday.context.factory.NoSuchBeanDefinitionException;
 import test.demo.config.User;
 import test.demo.repository.UserRepository;
 import test.demo.repository.impl.DefaultUserRepository;

@@ -30,7 +30,7 @@ import java.util.Set;
 import cn.taketoday.context.conversion.ConversionService;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.conversion.support.DefaultConversionService;
-import cn.taketoday.context.exception.NoSuchPropertyException;
+import cn.taketoday.context.loader.NoSuchPropertyException;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.GenericDescriptor;

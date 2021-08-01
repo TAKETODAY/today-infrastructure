@@ -32,7 +32,7 @@ import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.cglib.proxy.Enhancer;
 import cn.taketoday.cglib.proxy.MethodInterceptor;
 import cn.taketoday.cglib.proxy.MethodProxy;
-import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.ContextException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Bean.C;

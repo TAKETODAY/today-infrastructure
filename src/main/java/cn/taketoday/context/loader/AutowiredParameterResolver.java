@@ -27,7 +27,7 @@ import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Required;
-import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;

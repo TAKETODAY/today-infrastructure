@@ -27,7 +27,6 @@ import java.util.Set;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Scope;
-import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 
 /**
  * Bean factory

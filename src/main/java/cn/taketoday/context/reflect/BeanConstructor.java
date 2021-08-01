@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context.reflect;
 
+import cn.taketoday.context.factory.BeanInstantiationException;
+
 /**
  * Fast call bean's {@link java.lang.reflect.Constructor Constructor}
  *
@@ -34,7 +36,7 @@ public interface BeanConstructor<T> {
    *
    * @return returns T
    *
-   * @throws cn.taketoday.context.exception.BeanInstantiationException
+   * @throws BeanInstantiationException
    *         cannot instantiate a bean
    */
   default T newInstance() {
@@ -46,7 +48,7 @@ public interface BeanConstructor<T> {
    *
    * @return returns T
    *
-   * @throws cn.taketoday.context.exception.BeanInstantiationException
+   * @throws BeanInstantiationException
    *         cannot instantiate a bean
    */
   T newInstance(Object[] args);

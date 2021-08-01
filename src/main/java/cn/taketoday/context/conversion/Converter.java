@@ -19,8 +19,6 @@
  */
 package cn.taketoday.context.conversion;
 
-import cn.taketoday.context.exception.ConversionException;
-
 /**
  * A {@link Converter}
  *

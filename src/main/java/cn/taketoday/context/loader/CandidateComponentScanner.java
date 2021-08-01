@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.ThrowableSupplier;
-import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.ContextException;
 import cn.taketoday.context.io.FileBasedResource;
 import cn.taketoday.context.io.JarEntryResource;
 import cn.taketoday.context.io.Resource;

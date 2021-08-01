@@ -36,7 +36,7 @@ import cn.taketoday.context.AttributeAccessorSupport;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.Scope;
-import cn.taketoday.context.exception.NoSuchPropertyException;
+import cn.taketoday.context.loader.NoSuchPropertyException;
 import cn.taketoday.context.reflect.BeanConstructor;
 import cn.taketoday.context.reflect.MethodInvoker;
 import cn.taketoday.context.utils.Assert;

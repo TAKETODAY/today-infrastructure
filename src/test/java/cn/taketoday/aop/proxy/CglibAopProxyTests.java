@@ -35,7 +35,7 @@ import cn.taketoday.aop.TestBean;
 import cn.taketoday.aop.mixin.LockMixinAdvisor;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
-import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.ContextException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

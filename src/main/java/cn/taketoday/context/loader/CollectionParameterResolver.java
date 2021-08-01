@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.ConfigurationException;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ResolvableType;

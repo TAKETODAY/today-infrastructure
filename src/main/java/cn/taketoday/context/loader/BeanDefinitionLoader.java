@@ -27,7 +27,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Conditional;
-import cn.taketoday.context.exception.BeanDefinitionStoreException;
+import cn.taketoday.context.factory.BeanDefinitionStoreException;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 

@@ -41,7 +41,7 @@ import cn.taketoday.context.conversion.ConverterNotFoundException;
 import cn.taketoday.context.conversion.ConverterRegistry;
 import cn.taketoday.context.conversion.TypeCapable;
 import cn.taketoday.context.conversion.TypeConverter;
-import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.ConfigurationException;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.GenericDescriptor;
 import cn.taketoday.context.utils.GenericTypeResolver;

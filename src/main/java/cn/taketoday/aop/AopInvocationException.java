@@ -20,7 +20,7 @@
 
 package cn.taketoday.aop;
 
-import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.ContextException;
 
 /**
  * Exception that gets thrown when an AOP invocation failed

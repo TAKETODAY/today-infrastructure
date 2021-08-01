@@ -29,7 +29,7 @@ import cn.taketoday.context.AttributeAccessor;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.exception.NoSuchPropertyException;
+import cn.taketoday.context.loader.NoSuchPropertyException;
 
 /**
  * Bean definition

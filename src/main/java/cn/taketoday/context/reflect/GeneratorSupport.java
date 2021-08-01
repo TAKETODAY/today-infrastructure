@@ -33,7 +33,7 @@ import cn.taketoday.cglib.core.CodeGenerationException;
 import cn.taketoday.cglib.core.DefaultGeneratorStrategy;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.TypeUtils;
-import cn.taketoday.context.exception.BeanInstantiationException;
+import cn.taketoday.context.factory.BeanInstantiationException;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.Mappings;

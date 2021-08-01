@@ -27,7 +27,6 @@ import java.util.Arrays;
 
 import cn.taketoday.context.aware.BeanClassLoaderAware;
 import cn.taketoday.context.aware.BeanFactoryAware;
-import cn.taketoday.context.exception.BeanInstantiationException;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 

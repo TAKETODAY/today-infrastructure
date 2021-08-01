@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -15,33 +15,31 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.exception;
+package cn.taketoday.context.factory;
+
+import cn.taketoday.context.factory.BeansException;
 
 /**
  * @author TODAY <br>
- * 2018-08-05 10:08
+ * 2020-02-18 19:10
  */
-public class NoSuchPropertyException extends PropertyValueException {
+public class BeanInitializingException extends BeansException {
   private static final long serialVersionUID = 1L;
 
-  public NoSuchPropertyException() {}
+  public BeanInitializingException() {}
 
-  public NoSuchPropertyException(Throwable cause) {
-    super(cause);
-  }
-
-  public NoSuchPropertyException(String message, Throwable cause) {
-    super(message, cause);
-  }
-
-  public NoSuchPropertyException(String message) {
+  public BeanInitializingException(String message) {
     super(message);
   }
 
-  public NoSuchPropertyException(Class<?> target, String name) {
-    super("No such property: '" + name + "' in class: " + target);
+  public BeanInitializingException(Throwable cause) {
+    super(cause);
+  }
+
+  public BeanInitializingException(String message, Throwable cause) {
+    super(message, cause);
   }
 
 }

@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.factory;
 
-import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.ContextException;
 
 /**
  * Subinterface of {@link BeanPostProcessor} that adds a before-destruction

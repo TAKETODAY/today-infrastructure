@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -15,38 +15,33 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.context.loader;
 
-import java.lang.reflect.Field;
-
-import cn.taketoday.context.factory.PropertySetter;
-
 /**
- * Resolve field property
- *
  * @author TODAY <br>
- * 2018-08-04 15:04
+ * 2018-08-05 10:08
  */
-@FunctionalInterface
-public interface PropertyValueResolver {
+public class NoSuchPropertyException extends PropertyValueException {
+  private static final long serialVersionUID = 1L;
 
-  /**
-   * Whether the given field is supported by this resolver.
-   */
-  default boolean supportsProperty(Field field) {
-    return false;
+  public NoSuchPropertyException() {}
+
+  public NoSuchPropertyException(Throwable cause) {
+    super(cause);
   }
 
-  /**
-   * Resolve {@link PropertySetter}.
-   *
-   * @param field
-   *         bean's field
-   *
-   * @return property value
-   */
-  PropertySetter resolveProperty(Field field) throws PropertyValueException;
+  public NoSuchPropertyException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
+  public NoSuchPropertyException(String message) {
+    super(message);
+  }
+
+  public NoSuchPropertyException(Class<?> target, String name) {
+    super("No such property: '" + name + "' in class: " + target);
+  }
 
 }

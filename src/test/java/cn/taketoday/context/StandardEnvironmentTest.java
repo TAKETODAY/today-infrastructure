@@ -26,16 +26,8 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Properties;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.BeanNameCreator;
-import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.ConfigurableEnvironment;
-import cn.taketoday.context.Environment;
-import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.StandardEnvironment;
-import cn.taketoday.context.exception.BeanDefinitionStoreException;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.factory.BeanDefinitionStoreException;
+import cn.taketoday.context.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.utils.ClassUtils;
 
 import static org.junit.Assert.assertEquals;

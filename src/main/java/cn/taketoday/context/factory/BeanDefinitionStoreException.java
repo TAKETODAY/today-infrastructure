@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -15,31 +15,35 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.exception;
+package cn.taketoday.context.factory;
 
 import cn.taketoday.context.factory.BeansException;
 
 /**
  * @author TODAY <br>
- * 2020-02-18 19:10
+ * 2018-07-08 19:54:46
  */
-public class BeanInitializingException extends BeansException {
+public class BeanDefinitionStoreException extends BeansException {
   private static final long serialVersionUID = 1L;
 
-  public BeanInitializingException() {}
+  public BeanDefinitionStoreException() {}
 
-  public BeanInitializingException(String message) {
-    super(message);
+  public BeanDefinitionStoreException(Class<?> beanClass, Throwable cause) {
+    super("Can't store: [" + beanClass.getName() + "]", cause);
   }
 
-  public BeanInitializingException(Throwable cause) {
+  public BeanDefinitionStoreException(Throwable cause) {
     super(cause);
   }
 
-  public BeanInitializingException(String message, Throwable cause) {
+  public BeanDefinitionStoreException(String message, Throwable cause) {
     super(message, cause);
+  }
+
+  public BeanDefinitionStoreException(String message) {
+    super(message);
   }
 
 }

@@ -26,15 +26,14 @@ import java.util.Map;
 
 import cn.taketoday.context.ApplicationContextTest.RequiredTest.Bean1;
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.exception.BeanDefinitionStoreException;
-import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.factory.BeanDefinitionStoreException;
+import cn.taketoday.context.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.factory.PropertySetter;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.StringUtils;
 import test.demo.config.Config;
 import test.demo.config.ConfigFactoryBean;
 import test.demo.config.ConfigurationBean;

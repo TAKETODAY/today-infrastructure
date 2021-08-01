@@ -20,7 +20,7 @@
 package cn.taketoday.context.aware;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.ContextException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;

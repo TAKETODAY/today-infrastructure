@@ -43,7 +43,7 @@ import cn.taketoday.asm.Type;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.EmptyObject;
-import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.ContextException;
 import cn.taketoday.context.factory.BeanMetadata;
 import cn.taketoday.context.factory.BeanProperty;
 import cn.taketoday.context.logger.Logger;

@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import cn.taketoday.context.annotation.Property;
-import cn.taketoday.context.exception.NoSuchPropertyException;
+import cn.taketoday.context.loader.NoSuchPropertyException;
 import cn.taketoday.context.reflect.ConstructorAccessor;
 import cn.taketoday.context.reflect.PropertyAccessor;
 import cn.taketoday.context.utils.ClassUtils;

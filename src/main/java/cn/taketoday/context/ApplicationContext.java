@@ -23,7 +23,6 @@ import java.io.Closeable;
 import java.util.Collection;
 
 import cn.taketoday.context.event.ApplicationEventPublisher;
-import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.factory.AutowireCapableBeanFactory;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.factory.BeanFactory;
