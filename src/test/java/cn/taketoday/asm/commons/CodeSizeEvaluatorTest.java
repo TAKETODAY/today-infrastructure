@@ -63,32 +63,26 @@ public class CodeSizeEvaluatorTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testAllMethods_precompiledClass(
-      final PrecompiledClass classParameter, final Api apiParameter) {
+  public void testAllMethods_precompiledClass(final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
     ArrayList<CodeSizeEvaluation> evaluations = new ArrayList<>();
     ClassVisitor codeSizesEvaluator =
-        new CodeSizesEvaluator( classWriter, evaluations);
+            new CodeSizesEvaluator(classWriter, evaluations);
 
     Executable accept = () -> classReader.accept(codeSizesEvaluator, attributes(), 0);
 
-    if (classParameter.isMoreRecentThan(apiParameter)) {
-      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
-      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
-    } else {
-      assertDoesNotThrow(accept);
-      for (CodeSizeEvaluation evaluation : evaluations) {
-        assertTrue(evaluation.actualSize >= evaluation.minSize);
-        assertTrue(evaluation.actualSize <= evaluation.maxSize);
-      }
-      assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
+    assertDoesNotThrow(accept);
+    for (CodeSizeEvaluation evaluation : evaluations) {
+      assertTrue(evaluation.actualSize >= evaluation.minSize);
+      assertTrue(evaluation.actualSize <= evaluation.maxSize);
     }
+    assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
   }
 
   private static Attribute[] attributes() {
-    return new Attribute[] {new Comment(), new CodeComment()};
+    return new Attribute[] { new Comment(), new CodeComment() };
   }
 
   static class CodeSizeEvaluation {
@@ -109,40 +103,41 @@ public class CodeSizeEvaluatorTest extends AsmTest {
     private final ArrayList<CodeSizeEvaluation> evaluations;
 
     CodeSizesEvaluator(
-        
-        final ClassWriter classWriter,
-        final ArrayList<CodeSizeEvaluation> evaluations) {
+
+            final ClassWriter classWriter,
+            final ArrayList<CodeSizeEvaluation> evaluations) {
       super(classWriter);
       this.evaluations = evaluations;
     }
 
     @Override
     public MethodVisitor visitMethod(
-        final int access,
-        final String name,
-        final String descriptor,
-        final String signature,
-        final String[] exceptions) {
+            final int access,
+            final String name,
+            final String descriptor,
+            final String signature,
+            final String[] exceptions) {
       MethodVisitor methodVisitor =
-          super.visitMethod(access, name, descriptor, signature, exceptions);
+              super.visitMethod(access, name, descriptor, signature, exceptions);
       return new CodeSizeEvaluator(methodVisitor) {
 
         @Override
         public void visitLdcInsn(final Object value) {
           if (value instanceof Boolean
-              || value instanceof Byte
-              || value instanceof Short
-              || value instanceof Character
-              || value instanceof Integer
-              || value instanceof Long
-              || value instanceof Double
-              || value instanceof Float
-              || value instanceof String
-              || value instanceof Type
-              || value instanceof Handle
-              || value instanceof ConstantDynamic) {
+                  || value instanceof Byte
+                  || value instanceof Short
+                  || value instanceof Character
+                  || value instanceof Integer
+                  || value instanceof Long
+                  || value instanceof Double
+                  || value instanceof Float
+                  || value instanceof String
+                  || value instanceof Type
+                  || value instanceof Handle
+                  || value instanceof ConstantDynamic) {
             super.visitLdcInsn(value);
-          } else {
+          }
+          else {
             // If this happens, add support for the new type in
             // CodeSizeEvaluator.visitLdcInsn(), if needed.
             throw new IllegalArgumentException("Unsupported type of value: " + value);

@@ -57,7 +57,7 @@ public class TryCatchBlockSorterTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testAllMethods_precompileClass(
-      final PrecompiledClass classParameter, final Api apiParameter) {
+      final PrecompiledClass classParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);
     ClassVisitor classVisitor =

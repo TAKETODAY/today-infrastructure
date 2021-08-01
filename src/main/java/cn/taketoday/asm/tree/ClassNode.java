@@ -20,6 +20,8 @@
 package cn.taketoday.asm.tree;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.asm.AnnotationVisitor;
@@ -31,6 +33,9 @@ import cn.taketoday.asm.ModuleVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.RecordComponentVisitor;
 import cn.taketoday.asm.TypePath;
+import cn.taketoday.context.Constant;
+import cn.taketoday.context.utils.CollectionUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 
 /**
  * A node that represents a class.
@@ -67,8 +72,9 @@ public class ClassNode extends ClassVisitor {
   /**
    * The internal names of the interfaces directly implemented by this class (see {@link
    * cn.taketoday.asm.Type#getInternalName}).
+   * Map be {@literal null}. there is no interfaces.
    */
-  public List<String> interfaces;
+  public String[] interfaces;
 
   /** The name of the source file from which this class was compiled. May be {@literal null}. */
   public String sourceFile;
@@ -111,7 +117,7 @@ public class ClassNode extends ClassVisitor {
   /** The non standard attributes of this class. May be {@literal null}. */
   public List<Attribute> attrs;
 
-  /** The inner classes of this class. */
+  /** The inner classes of this class. May be {@literal null} if there is not any inner class */
   public List<InnerClassNode> innerClasses;
 
   /** The internal name of the nest host class of this class. May be {@literal null}. */
@@ -127,20 +133,10 @@ public class ClassNode extends ClassVisitor {
   public List<RecordComponentNode> recordComponents;
 
   /** The fields of this class. */
-  public List<FieldNode> fields;
+  public ArrayList<FieldNode> fields = new ArrayList<>();
 
   /** The methods of this class. */
-  public List<MethodNode> methods;
-
-  /**
-   * Constructs a new {@link ClassNode}.
-   */
-  public ClassNode() {
-    this.interfaces = new ArrayList<>();
-    this.innerClasses = new ArrayList<>();
-    this.fields = new ArrayList<>();
-    this.methods = new ArrayList<>();
-  }
+  public ArrayList<MethodNode> methods = new ArrayList<>();
 
   // -----------------------------------------------------------------------------------------------
   // Implementation of the ClassVisitor abstract class
@@ -159,7 +155,7 @@ public class ClassNode extends ClassVisitor {
     this.name = name;
     this.signature = signature;
     this.superName = superName;
-    this.interfaces = Util.asArrayList(interfaces);
+    this.interfaces = interfaces;
   }
 
   @Override
@@ -230,6 +226,9 @@ public class ClassNode extends ClassVisitor {
   public void visitInnerClass(
           final String name, final String outerName, final String innerName, final int access) {
     InnerClassNode innerClass = new InnerClassNode(name, outerName, innerName, access);
+    if (innerClasses == null) {
+      innerClasses = new ArrayList<>();
+    }
     innerClasses.add(innerClass);
   }
 
@@ -282,9 +281,7 @@ public class ClassNode extends ClassVisitor {
    */
   public void accept(final ClassVisitor classVisitor) {
     // Visit the header.
-    String[] interfacesArray = new String[this.interfaces.size()];
-    this.interfaces.toArray(interfacesArray);
-    classVisitor.visit(version, access, name, signature, superName, interfacesArray);
+    classVisitor.visit(version, access, name, signature, superName, interfaces);
     // Visit the source.
     if (sourceFile != null || sourceDebug != null) {
       classVisitor.visitSource(sourceFile, sourceDebug);
@@ -345,8 +342,10 @@ public class ClassNode extends ClassVisitor {
       }
     }
     // Visit the inner classes.
-    for (InnerClassNode innerClass : innerClasses) {
-      innerClass.accept(classVisitor);
+    if (innerClasses != null) {
+      for (InnerClassNode innerClass : innerClasses) {
+        innerClass.accept(classVisitor);
+      }
     }
     // Visit the record components.
     if (recordComponents != null) {

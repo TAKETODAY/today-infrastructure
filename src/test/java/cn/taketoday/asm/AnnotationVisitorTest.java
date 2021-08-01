@@ -57,7 +57,7 @@ public class AnnotationVisitorTest extends AsmTest {
   @ParameterizedTest
   @MethodSource("allClassesAndAllApis")
   public void testReadAndWrite_removeOrDeleteAnnotations(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter removedAnnotationsClassWriter = new ClassWriter(0);
     ClassWriter deletedAnnotationsClassWriter = new ClassWriter(0);

@@ -73,7 +73,7 @@ public class TextifierTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testTextify_precompiledClass(
-      final PrecompiledClass classParameter, final Api apiParameter) throws IOException {
+      final PrecompiledClass classParameter) throws IOException {
     byte[] classFile = classParameter.getBytes();
     StringWriter output = new StringWriter();
     assumeTrue(classFile.length < 32768);

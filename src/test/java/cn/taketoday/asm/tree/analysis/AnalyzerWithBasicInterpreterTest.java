@@ -84,7 +84,7 @@ public class AnalyzerWithBasicInterpreterTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testAnalyze_basicInterpreter(
-      final PrecompiledClass classParameter, final Api apiParameter) throws AnalyzerException {
+      final PrecompiledClass classParameter) throws AnalyzerException {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);
     Analyzer<BasicValue> analyzer =
@@ -121,7 +121,7 @@ public class AnalyzerWithBasicInterpreterTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testAnalyzeAndComputeMaxs_basicInterpreter(
-      final PrecompiledClass classParameter, final Api apiParameter) throws AnalyzerException {
+      final PrecompiledClass classParameter) throws AnalyzerException {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);
     ArrayList<MethodMaxs> methodMaxs = new ArrayList<>();

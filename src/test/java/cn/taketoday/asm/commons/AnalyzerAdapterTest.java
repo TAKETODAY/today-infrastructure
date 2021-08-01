@@ -94,7 +94,7 @@ public class AnalyzerAdapterTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testAllMethods_precompiledClass(
-          final PrecompiledClass classParameter, final Api apiParameter) throws Exception {
+          final PrecompiledClass classParameter) throws Exception {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -107,10 +107,6 @@ public class AnalyzerAdapterTest extends AsmTest {
             || classParameter == PrecompiledClass.JDK3_LARGE_METHOD) {
       Exception exception = assertThrows(IllegalArgumentException.class, accept);
       assertEquals("JSR/RET are not supported", exception.getMessage());
-    }
-    else if (classParameter.isMoreRecentThan(apiParameter)) {
-      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
-      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
     }
     else {
       assertDoesNotThrow(accept);

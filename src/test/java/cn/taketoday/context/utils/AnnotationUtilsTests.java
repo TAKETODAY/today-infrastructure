@@ -30,6 +30,7 @@ import java.lang.annotation.Target;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import cn.taketoday.asm.tree.ClassNode;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Scope;
@@ -41,6 +42,7 @@ import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.TypePath;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.support.ClassMetaReader;
 import cn.taketoday.context.utils.AnnotationUtils.MapAnnotationVisitor;
 
 /**
@@ -91,68 +93,38 @@ public class AnnotationUtilsTests {
   @Test
   public void testMapAnnotationVisitor() throws Throwable {
 
-    ClassLoader classLoader = ClassUtils.getClassLoader();
-    String classFile = AnnotationVisitorBean.class.getName()
-            .replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR)
-            .concat(Constant.CLASS_FILE_SUFFIX);
+    ClassNode classNode = ClassMetaReader.read(AnnotationVisitorBean.class);
 
-    try (InputStream resourceAsStream = classLoader.getResourceAsStream(classFile)) {
+    System.out.println(classNode);
 
-      HashMap<String, AnnotationAttributes> attributesMap = new HashMap<>();
-
-      final ClassReader classReader = new ClassReader(resourceAsStream);
-
-      classReader.accept(new ClassVisitor() {
-
-        @Override
-        public void visitAttribute(Attribute attribute) {
-          super.visitAttribute(attribute);
-          log.info("visitAttribute: attribute: {}", attribute);
-        }
-
-        @Override
-        public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
-          log.info("visitAnnotation: descriptor: {}", descriptor);
-          final MapAnnotationVisitor visitor = new MapAnnotationVisitor();
-          visitor.setDescriptor(descriptor);
-          attributesMap.put(descriptor, visitor.getAttributes());
-          return visitor;
-        }
-
-        @Override
-        public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String descriptor, boolean visible) {
-          log.info("visitTypeAnnotation: descriptor: {}, typePath: {}, visible: {}", descriptor, typePath, visible);
-          return super.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
-        }
-      }, ClassReader.SKIP_CODE);
-
-      attributesMap.entrySet()
-              .forEach(System.out::println);
-
-      final AnnotationAttributes attributes = attributesMap.get("Lcn/taketoday/context/utils/AnnotationUtilsTests$Component0;");
-
-      final String[] values = attributes.getStringArray("value");
-      final TestEnum test = attributes.getEnum("test");
-
-      final Class<?> clazz = attributes.getClass("classes");
-      System.out.println(clazz);
-      final Class<?>[] classes = attributes.getClassArray("classes");
-      final Class<?>[] classes1 = attributes.getClassArray("classes");
-
-      System.out.println(Arrays.toString(values));
-      System.out.println(Arrays.toString(classes));
-      System.out.println(Arrays.toString(classes1));
-      System.out.println(test);
-
-      attributesMap.entrySet()
-              .forEach(System.out::println);
-
-      final AnnotationAttributes service = attributes.getAttribute("service", AnnotationAttributes.class);
-      System.err.println(service);
-
-      service.entrySet()
-              .forEach(System.err::println);
-    }
+//    HashMap<String, AnnotationAttributes> attributesMap = new HashMap<>();
+//
+//    attributesMap.entrySet()
+//            .forEach(System.out::println);
+//
+//    final AnnotationAttributes attributes = attributesMap.get("Lcn/taketoday/context/utils/AnnotationUtilsTests$Component0;");
+//
+//    final String[] values = attributes.getStringArray("value");
+//    final TestEnum test = attributes.getEnum("test");
+//
+//    final Class<?> clazz = attributes.getClass("classes");
+//    System.out.println(clazz);
+//    final Class<?>[] classes = attributes.getClassArray("classes");
+//    final Class<?>[] classes1 = attributes.getClassArray("classes");
+//
+//    System.out.println(Arrays.toString(values));
+//    System.out.println(Arrays.toString(classes));
+//    System.out.println(Arrays.toString(classes1));
+//    System.out.println(test);
+//
+//    attributesMap.entrySet()
+//            .forEach(System.out::println);
+//
+//    final AnnotationAttributes service = attributes.getAttribute("service", AnnotationAttributes.class);
+//    System.err.println(service);
+//
+//    service.entrySet()
+//            .forEach(System.err::println);
   }
 
 }

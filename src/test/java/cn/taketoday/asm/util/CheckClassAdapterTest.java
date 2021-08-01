@@ -440,7 +440,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testVisitMethods_precompiledClass(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -448,20 +448,14 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
 
     Executable accept = () -> classReader.accept(classVisitor, attributes(), 0);
 
-    if (classParameter.isMoreRecentThan(apiParameter)) {
-      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
-      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
-    }
-    else {
       classReader.accept(classVisitor, attributes(), 0);
       assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
-    }
   }
 
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testVisitMethods_noDelegate_precompiledClass(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassVisitor classVisitor = new CheckClassAdapter(null, true) { };
@@ -474,7 +468,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testVisitMethods_noMemberDelegate_precompiledClass(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassVisitor classVisitor =
@@ -488,7 +482,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testVerify_precompiledClass(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     StringWriter logger = new StringWriter();
 

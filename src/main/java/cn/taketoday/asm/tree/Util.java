@@ -20,7 +20,6 @@
 package cn.taketoday.asm.tree;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.context.utils.CollectionUtils;
@@ -147,7 +146,7 @@ final class Util {
   }
 
   static <T> List<T> asArrayList(final int length, final T[] array) {
-    List<T> list = new ArrayList<>(length);
+    ArrayList<T> list = new ArrayList<>(length);
     for (int i = 0; i < length; ++i) {
       list.add(array[i]); // NOPMD(UseArraysAsList): we convert a part of the array.
     }

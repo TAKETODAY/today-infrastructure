@@ -53,6 +53,7 @@ import cn.taketoday.asm.TypePath;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -67,8 +68,8 @@ public class ClassNodeTest extends AsmTest {
   public void testConstructor() {
     ClassNode classNode = new ClassNode();
 
-    assertTrue(classNode.interfaces.isEmpty());
-    assertTrue(classNode.innerClasses.isEmpty());
+    assertNull(classNode.interfaces);
+    assertNull(classNode.innerClasses);
     assertTrue(classNode.fields.isEmpty());
     assertTrue(classNode.methods.isEmpty());
   }
@@ -76,7 +77,7 @@ public class ClassNodeTest extends AsmTest {
   /** Tests that classes are unchanged with a ClassReader->ClassNode->ClassWriter transform. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testVisitAndAccept(final PrecompiledClass classParameter, final Api apiParameter) {
+  public void testVisitAndAccept(final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassNode classNode = new ClassNode() { };
@@ -95,7 +96,7 @@ public class ClassNodeTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testVisitAndAccept_cloneInstructions(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassNode classNode = new ClassNode() { };
@@ -114,7 +115,7 @@ public class ClassNodeTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testVisitAndAccept_removeMembersVisitor(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassNode classNode = new ClassNode() { };

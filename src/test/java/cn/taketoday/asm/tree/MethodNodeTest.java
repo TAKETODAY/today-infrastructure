@@ -66,7 +66,7 @@ public class MethodNodeTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testVisitAndAccept_withUninitializedMethodNode(
-      final PrecompiledClass classParameter, final Api apiParameter) {
+      final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassNode classNode =

@@ -278,6 +278,26 @@ public final class Type {
   }
 
   /**
+   * Returns the {@link Type}s corresponding to the given internal name.
+   *
+   * @param internalNames
+   *         internal name. if null returns null
+   *
+   * @return the {@link Type}s corresponding to the given internal name.
+   */
+  public static Type[] getObjectTypes(final String[] internalNames) {
+    if (internalNames == null) {
+      return null;
+    }
+    Type[] ret = new Type[internalNames.length];
+    int i = 0;
+    for (final String internalName : internalNames) {
+      ret[i++] = getObjectType(internalName);
+    }
+    return ret;
+  }
+
+  /**
    * Returns the {@link Type} corresponding to the given method descriptor. Equivalent to <code>
    * Type.getType(methodDescriptor)</code>.
    *

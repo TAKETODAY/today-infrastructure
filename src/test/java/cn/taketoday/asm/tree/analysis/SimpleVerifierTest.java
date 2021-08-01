@@ -30,6 +30,7 @@ package cn.taketoday.asm.tree.analysis;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 
@@ -55,14 +56,14 @@ public class SimpleVerifierTest {
 
   @ParameterizedTest
   @CsvSource({
-    "java/lang/String, java/lang/Number, java/lang/Object",
-    "java/lang/Integer, java/lang/Number, java/lang/Number",
-    "java/lang/Float, java/lang/Integer, java/lang/Number",
-    "java/lang/Long, java/util/List, java/lang/Object",
-    "java/util/Map, java/util/List, java/lang/Object"
+          "java/lang/String, java/lang/Number, java/lang/Object",
+          "java/lang/Integer, java/lang/Number, java/lang/Number",
+          "java/lang/Float, java/lang/Integer, java/lang/Number",
+          "java/lang/Long, java/util/List, java/lang/Object",
+          "java/util/Map, java/util/List, java/lang/Object"
   })
   public void testMerge_objectTypes(
-      final String internalName1, final String internalName2, final String expectedInternalName) {
+          final String internalName1, final String internalName2, final String expectedInternalName) {
     BasicValue value1 = new BasicValue(Type.getObjectType(internalName1));
     BasicValue value2 = new BasicValue(Type.getObjectType(internalName2));
     SimpleVerifier verifier = new SimpleVerifier();
@@ -81,33 +82,32 @@ public class SimpleVerifierTest {
     Type superType = Type.getObjectType("D");
     Type interfaceType = Type.getObjectType("I");
     SimpleVerifier simpleVerifier =
-        new SimpleVerifier(
+            new SimpleVerifier(
+                    baseType,
+                    superType,
+                    false,
+                    interfaceType) {
 
-            baseType,
-            superType,
-            Arrays.asList(interfaceType),
-            false) {
+              @Override
+              public boolean isAssignableFrom(final Type type1, final Type type2) {
+                return super.isAssignableFrom(type1, type2);
+              }
 
-          @Override
-          public boolean isAssignableFrom(final Type type1, final Type type2) {
-            return super.isAssignableFrom(type1, type2);
-          }
-
-          @Override
-          protected Class<?> getClass(final Type type) {
-            // Return dummy classes, to make sure isAssignable in test() does not rely on them.
-            if (type == baseType) {
-              return int.class;
-            }
-            if (type == superType) {
-              return float.class;
-            }
-            if (type == interfaceType) {
-              return double.class;
-            }
-            return super.getClass(type);
-          }
-        };
+              @Override
+              protected Class<?> getClass(final Type type) {
+                // Return dummy classes, to make sure isAssignable in test() does not rely on them.
+                if (type == baseType) {
+                  return int.class;
+                }
+                if (type == superType) {
+                  return float.class;
+                }
+                if (type == interfaceType) {
+                  return double.class;
+                }
+                return super.getClass(type);
+              }
+            };
 
     assertTrue(simpleVerifier.isAssignableFrom(baseType, baseType));
     assertTrue(simpleVerifier.isAssignableFrom(superType, baseType));
@@ -119,14 +119,13 @@ public class SimpleVerifierTest {
     Type baseType = Type.getObjectType("C");
     Type interfaceType = Type.getObjectType("I");
     SimpleVerifier simpleVerifier =
-        new SimpleVerifier(
-             interfaceType, null, null, true) {
+            new SimpleVerifier(interfaceType, null, true) {
 
-          @Override
-          protected Type getSuperClass(final Type type) {
-            return Type.getObjectType("java/lang/Object");
-          }
-        };
+              @Override
+              protected Type getSuperClass(final Type type) {
+                return Type.getObjectType("java/lang/Object");
+              }
+            };
 
     assertTrue(simpleVerifier.isAssignableFrom(interfaceType, baseType));
     assertTrue(simpleVerifier.isAssignableFrom(interfaceType, Type.getObjectType("[I")));

@@ -60,7 +60,7 @@ public class ClassVisitorTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testReadAndWrite_emptyVisitor(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -68,14 +68,8 @@ public class ClassVisitorTest extends AsmTest {
 
     Executable transform = () -> classReader.accept(classAdapter, attributes(), 0);
 
-    if (classParameter.isMoreRecentThan(apiParameter)) {
-      Exception exception = assertThrows(UnsupportedOperationException.class, transform);
-      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
-    }
-    else {
       assertDoesNotThrow(transform);
       assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
-    }
   }
 
   /**
@@ -85,7 +79,7 @@ public class ClassVisitorTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testReadAndWrite_copyPool_changeMethodExceptions(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -106,7 +100,7 @@ public class ClassVisitorTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testReadAndWrite_copyPool_changeMethodDeprecatedFlag(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -128,7 +122,7 @@ public class ClassVisitorTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testReadAndWrite_copyPool_changeMethodSyntheticFlag(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);

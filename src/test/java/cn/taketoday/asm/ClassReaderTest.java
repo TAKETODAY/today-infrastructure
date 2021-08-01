@@ -122,7 +122,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testByteArrayConstructor(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
 
     assertNotEquals(0, classReader.getAccess());
@@ -140,7 +140,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testByteArrayConstructor_withOffset(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     byte[] byteBuffer = new byte[classFile.length + 1];
     System.arraycopy(classFile, 0, byteBuffer, 1, classFile.length);
@@ -193,7 +193,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   /** Tests {@link ClassReader#ClassReader(String)} and the basic ClassReader accessors. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testStringConstructor(final PrecompiledClass classParameter, final Api apiParameter)
+  public void testStringConstructor(final PrecompiledClass classParameter)
           throws IOException {
     ClassReader classReader = new ClassReader(classParameter.getName());
 
@@ -213,7 +213,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testStreamConstructor(final PrecompiledClass classParameter, final Api apiParameter)
+  public void testStreamConstructor(final PrecompiledClass classParameter)
           throws IOException {
     ClassReader classReader;
     try (InputStream inputStream =
@@ -271,57 +271,24 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     }
   }
 
-  /** Tests the ClassReader accept method with an empty visitor. */
-  @ParameterizedTest
-  @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testAccept_emptyVisitor(
-          final PrecompiledClass classParameter, final Api apiParameter) {
-    ClassReader classReader = new ClassReader(classParameter.getBytes());
-    ClassVisitor classVisitor = new EmptyClassVisitor();
-
-    Executable accept = () -> classReader.accept(classVisitor, 0);
-
-    if (classParameter.isMoreRecentThan(apiParameter)) {
-      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
-      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
-    }
-    else {
-      assertDoesNotThrow(accept);
-    }
-  }
-
   /** Tests the ClassReader accept method with an empty visitor and SKIP_DEBUG. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testAccept_emptyVisitor_skipDebug(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassVisitor classVisitor = new EmptyClassVisitor();
 
     Executable accept = () -> classReader.accept(classVisitor, ClassReader.SKIP_DEBUG);
 
-    // The following jdk8 classes contain MethodParameters attributes which require ASM5. Here we
-    // skip these attributes with SKIP_DEBUG, and these classes contain no other features requiring
-    // ASM5 or more, so they can be read with ASM4.
-    if (classParameter.isMoreRecentThan(apiParameter)
-            && classParameter != PrecompiledClass.JDK8_ALL_FRAMES
-            && classParameter != PrecompiledClass.JDK8_ALL_STRUCTURES
-            && classParameter != PrecompiledClass.JDK8_ANONYMOUS_INNER_CLASS
-            && classParameter != PrecompiledClass.JDK8_INNER_CLASS
-            && classParameter != PrecompiledClass.JDK8_LARGE_METHOD) {
-      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
-      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
-    }
-    else {
-      assertDoesNotThrow(accept);
-    }
+    assertDoesNotThrow(accept);
   }
 
   /** Tests the ClassReader accept method with an empty visitor and EXPAND_FRAMES. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testAccept_emptyVisitor_expandFrames(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassVisitor classVisitor = new EmptyClassVisitor();
 
@@ -334,26 +301,20 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testAccept_emptyVisitor_skipFrames(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassVisitor classVisitor = new EmptyClassVisitor();
 
     Executable accept = () -> classReader.accept(classVisitor, ClassReader.SKIP_FRAMES);
 
-    if (classParameter.isMoreRecentThan(apiParameter)) {
-      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
-      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
-    }
-    else {
-      assertDoesNotThrow(accept);
-    }
+    assertDoesNotThrow(accept);
   }
 
   /** Tests the ClassReader accept method with an empty visitor and SKIP_CODE. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testAccept_emptyVisitor_skipCode(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassVisitor classVisitor = new EmptyClassVisitor();
 
@@ -362,15 +323,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     // jdk8.ArtificialStructures contains structures which require ASM5, but only inside the method
     // code. Here we skip the code, so this class can be read with ASM4. Likewise for
     // jdk11.AllInstructions.
-    if (classParameter.isMoreRecentThan(apiParameter)
-            && classParameter != PrecompiledClass.JDK8_ARTIFICIAL_STRUCTURES
-            && classParameter != PrecompiledClass.JDK11_ALL_INSTRUCTIONS) {
-      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
-      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
-    }
-    else {
-      assertDoesNotThrow(accept);
-    }
+    assertDoesNotThrow(accept);
   }
 
   /**
@@ -380,7 +333,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testAccept_emptyVisitor_skipFieldMethodAndModuleContent(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassVisitor classVisitor =
             new EmptyClassVisitor() {
@@ -472,7 +425,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testAccept_defaultAnnotationFieldMethodAndModuleVisitors(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassVisitor classVisitor =
             new EmptyClassVisitor() {
@@ -543,15 +496,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
 
     Executable accept = () -> classReader.accept(classVisitor, 0);
 
-    if (classParameter.isMoreRecentThan(apiParameter)) {
-      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
-      if (!exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN)) {
-        throw new AssertionError("invalid error message");
-      }
-    }
-    else {
-      assertDoesNotThrow(accept);
-    }
+    assertDoesNotThrow(accept);
   }
 
   @Test

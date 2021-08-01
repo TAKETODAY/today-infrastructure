@@ -148,7 +148,7 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testAnalyze_simpleVerifier(
-      final PrecompiledClass classParameter, final Api apiParameter) {
+      final PrecompiledClass classParameter) {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);
     assumeFalse(classNode.methods.isEmpty());

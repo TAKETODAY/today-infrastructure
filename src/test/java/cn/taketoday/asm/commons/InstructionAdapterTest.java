@@ -226,7 +226,7 @@ public class InstructionAdapterTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testAllMethods_precompiledClass(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -235,14 +235,8 @@ public class InstructionAdapterTest extends AsmTest {
 
     Executable accept = () -> classReader.accept(instructionClassAdapter, attributes(), 0);
 
-    if (classParameter.isMoreRecentThan(apiParameter)) {
-      Exception exception = assertThrows(RuntimeException.class, accept);
-      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
-    }
-    else {
-      assertDoesNotThrow(accept);
-      assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
-    }
+    assertDoesNotThrow(accept);
+    assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
   }
 
   private static Attribute[] attributes() {

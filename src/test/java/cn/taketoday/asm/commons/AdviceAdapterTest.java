@@ -637,7 +637,7 @@ public class AdviceAdapterTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testAllMethods_precompiledClass(
-          final PrecompiledClass classParameter, final Api apiParameter) throws Exception {
+          final PrecompiledClass classParameter) throws Exception {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);
     ClassVisitor adviceClassAdapter =
@@ -645,11 +645,6 @@ public class AdviceAdapterTest extends AsmTest {
 
     Executable accept = () -> classReader.accept(adviceClassAdapter, ClassReader.EXPAND_FRAMES);
 
-    if (classParameter.isMoreRecentThan(apiParameter)) {
-      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
-      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
-      return;
-    }
     assertDoesNotThrow(accept);
     ClassWriter expectedClassWriter = new ClassWriter(0);
     ClassVisitor expectedClassVisitor =

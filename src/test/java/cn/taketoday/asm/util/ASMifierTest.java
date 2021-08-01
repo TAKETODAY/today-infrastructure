@@ -87,7 +87,7 @@ public class ASMifierTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testAsmify_precompiledClass(
-          final PrecompiledClass classParameter, final Api apiParameter) throws Exception {
+          final PrecompiledClass classParameter) throws Exception {
     byte[] classFile = classParameter.getBytes();
     assumeTrue(classFile.length < Short.MAX_VALUE);
     StringWriter output = new StringWriter();

@@ -491,7 +491,7 @@ public class ClassWriterTest extends AsmTest {
   /** Tests that a ClassReader -> ClassWriter transform leaves classes unchanged. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
-  public void testReadAndWrite(final PrecompiledClass classParameter, final Api apiParameter) {
+  public void testReadAndWrite(final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -508,7 +508,7 @@ public class ClassWriterTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testReadAndWrite_skipCode(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -528,7 +528,7 @@ public class ClassWriterTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testReadAndWrite_copyPool(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(classReader, 0);
@@ -545,7 +545,7 @@ public class ClassWriterTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testReadAndWrite_expandFrames(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -563,7 +563,7 @@ public class ClassWriterTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testReadAndWrite_computeMaxs(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
@@ -580,7 +580,7 @@ public class ClassWriterTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testReadAndWrite_computeMaxs_newInstance(
-          final PrecompiledClass classParameter, final Api apiParameter) throws Exception {
+          final PrecompiledClass classParameter) throws Exception {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
@@ -603,7 +603,7 @@ public class ClassWriterTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testReadAndWrite_computeFrames(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     assumeFalse(hasJsrOrRetInstructions(classParameter));
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
@@ -684,9 +684,8 @@ public class ClassWriterTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testReadAndWrite_computeFramesAndDeadCode(
-          final PrecompiledClass classParameter, final Api apiParameter) {
-    assumeFalse(
-            hasJsrOrRetInstructions(classParameter) || classParameter.isMoreRecentThan(apiParameter));
+          final PrecompiledClass classParameter) {
+    assumeFalse(hasJsrOrRetInstructions(classParameter));
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
@@ -713,10 +712,9 @@ public class ClassWriterTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testReadAndWrite_largeMethod(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
-    assumeFalse(
-            classFile.length > Short.MAX_VALUE || classParameter.isMoreRecentThan(apiParameter));
+    assumeFalse(classFile.length > Short.MAX_VALUE);
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriterWithoutGetCommonSuperClass();
     ForwardJumpNopInserter forwardJumpNopInserter =

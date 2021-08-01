@@ -48,7 +48,7 @@ public class SimpleVerifier extends BasicVerifier {
   private final Type currentSuperClass;
 
   /** The types of the interfaces directly implemented by the class that is verified. */
-  private final List<Type> currentClassInterfaces;
+  private final Type[] currentClassInterfaces;
 
   /** Whether the class that is verified is an interface. */
   private final boolean isInterface;
@@ -75,7 +75,7 @@ public class SimpleVerifier extends BasicVerifier {
    */
   public SimpleVerifier(
           final Type currentClass, final Type currentSuperClass, final boolean isInterface) {
-    this(currentClass, currentSuperClass, null, isInterface);
+    this(currentClass, currentSuperClass, isInterface, (Type[]) null);
   }
 
   /**
@@ -95,8 +95,8 @@ public class SimpleVerifier extends BasicVerifier {
   public SimpleVerifier(
           final Type currentClass,
           final Type currentSuperClass,
-          final List<Type> currentClassInterfaces,
-          final boolean isInterface) {
+          final boolean isInterface,
+          final Type... currentClassInterfaces) {
     this.currentClass = currentClass;
     this.currentSuperClass = currentSuperClass;
     this.currentClassInterfaces = currentClassInterfaces;
@@ -157,7 +157,7 @@ public class SimpleVerifier extends BasicVerifier {
   }
 
   @Override
-  protected BasicValue getElementValue(final BasicValue objectArrayValue) throws AnalyzerException {
+  protected BasicValue getElementValue(final BasicValue objectArrayValue) {
     Type arrayType = objectArrayValue.getType();
     if (arrayType != null) {
       if (arrayType.getSort() == Type.ARRAY) {

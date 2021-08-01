@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
 import cn.taketoday.asm.ClassReader;
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.ClassWriter;
@@ -66,7 +67,7 @@ public class LocalVariablesSorterTest extends AsmTest {
   @Test
   public void testVisitFrame_emptyFrame() {
     LocalVariablesSorter localVariablesSorter =
-        new LocalVariablesSorter(Opcodes.ACC_PUBLIC, "()V", new MethodNode());
+            new LocalVariablesSorter(Opcodes.ACC_PUBLIC, "()V", new MethodNode());
 
     Executable visitFrame = () -> localVariablesSorter.visitFrame(Opcodes.F_NEW, 0, null, 0, null);
 
@@ -76,20 +77,20 @@ public class LocalVariablesSorterTest extends AsmTest {
   @Test
   public void testVisitFrame_invalidFrameType() {
     LocalVariablesSorter localVariablesSorter =
-        new LocalVariablesSorter(Opcodes.ACC_PUBLIC, "()V", new MethodNode());
+            new LocalVariablesSorter(Opcodes.ACC_PUBLIC, "()V", new MethodNode());
 
     Executable visitFrame = () -> localVariablesSorter.visitFrame(Opcodes.F_FULL, 0, null, 0, null);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitFrame);
     assertEquals(
-        "LocalVariablesSorter only accepts expanded frames (see ClassReader.EXPAND_FRAMES)",
-        exception.getMessage());
+            "LocalVariablesSorter only accepts expanded frames (see ClassReader.EXPAND_FRAMES)",
+            exception.getMessage());
   }
 
   @Test
   public void testNewLocal_boolean() {
     LocalVariablesSorter localVariablesSorter =
-        new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
+            new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
 
     localVariablesSorter.newLocal(Type.BOOLEAN_TYPE);
 
@@ -99,7 +100,7 @@ public class LocalVariablesSorterTest extends AsmTest {
   @Test
   public void testNewLocal_byte() {
     LocalVariablesSorter localVariablesSorter =
-        new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
+            new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
 
     localVariablesSorter.newLocal(Type.BYTE_TYPE);
 
@@ -109,7 +110,7 @@ public class LocalVariablesSorterTest extends AsmTest {
   @Test
   public void testNewLocal_char() {
     LocalVariablesSorter localVariablesSorter =
-        new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
+            new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
 
     localVariablesSorter.newLocal(Type.CHAR_TYPE);
 
@@ -119,7 +120,7 @@ public class LocalVariablesSorterTest extends AsmTest {
   @Test
   public void testNewLocal_short() {
     LocalVariablesSorter localVariablesSorter =
-        new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
+            new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
 
     localVariablesSorter.newLocal(Type.SHORT_TYPE);
 
@@ -129,7 +130,7 @@ public class LocalVariablesSorterTest extends AsmTest {
   @Test
   public void testNewLocal_int() {
     LocalVariablesSorter localVariablesSorter =
-        new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
+            new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
 
     localVariablesSorter.newLocal(Type.INT_TYPE);
 
@@ -139,7 +140,7 @@ public class LocalVariablesSorterTest extends AsmTest {
   @Test
   public void testNewLocal_float() {
     LocalVariablesSorter localVariablesSorter =
-        new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
+            new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
 
     localVariablesSorter.newLocal(Type.FLOAT_TYPE);
 
@@ -149,7 +150,7 @@ public class LocalVariablesSorterTest extends AsmTest {
   @Test
   public void testNewLocal_long() {
     LocalVariablesSorter localVariablesSorter =
-        new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
+            new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
 
     localVariablesSorter.newLocal(Type.LONG_TYPE);
     assertEquals(2, localVariablesSorter.nextLocal);
@@ -158,7 +159,7 @@ public class LocalVariablesSorterTest extends AsmTest {
   @Test
   public void testNewLocal_double() {
     LocalVariablesSorter localVariablesSorter =
-        new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
+            new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
 
     localVariablesSorter.newLocal(Type.DOUBLE_TYPE);
 
@@ -168,7 +169,7 @@ public class LocalVariablesSorterTest extends AsmTest {
   @Test
   public void testNewLocal_object() {
     LocalVariablesSorter localVariablesSorter =
-        new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
+            new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
 
     localVariablesSorter.newLocal(Type.getObjectType("pkg/Class"));
 
@@ -178,7 +179,7 @@ public class LocalVariablesSorterTest extends AsmTest {
   @Test
   public void testNewLocal_array() {
     LocalVariablesSorter localVariablesSorter =
-        new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
+            new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
 
     localVariablesSorter.newLocal(Type.getType("[I"));
 
@@ -188,35 +189,31 @@ public class LocalVariablesSorterTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testAllMethods_precompiledClass(
-      final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);
     ClassVisitor localVariablesSorter =
-        new LocalVariablesSorterClassAdapter( classWriter);
+            new LocalVariablesSorterClassAdapter(classWriter);
 
     Executable accept = () -> classReader.accept(localVariablesSorter, ClassReader.EXPAND_FRAMES);
 
-    if (classParameter.isMoreRecentThan(apiParameter)) {
-      Exception exception = assertThrows(UnsupportedOperationException.class, accept);
-      assertTrue(exception.getMessage().matches(UNSUPPORTED_OPERATION_MESSAGE_PATTERN));
-    } else {
-      assertDoesNotThrow(accept);
-      Executable newInstance = () -> new ClassFile(classWriter.toByteArray()).newInstance();
-      if (classParameter.isNotCompatibleWithCurrentJdk()) {
-        assertThrows(UnsupportedClassVersionError.class, newInstance);
-      } else {
-        assertDoesNotThrow(newInstance);
-      }
+    assertDoesNotThrow(accept);
+    Executable newInstance = () -> new ClassFile(classWriter.toByteArray()).newInstance();
+    if (classParameter.isNotCompatibleWithCurrentJdk()) {
+      assertThrows(UnsupportedClassVersionError.class, newInstance);
+    }
+    else {
+      assertDoesNotThrow(newInstance);
     }
   }
 
   @Test
   public void testAllMethods_issue317586() throws FileNotFoundException, IOException {
     ClassReader classReader =
-        new ClassReader(Files.newInputStream(Paths.get("src/test/resources/Issue317586.class")));
+            new ClassReader(Files.newInputStream(Paths.get("src/test/resources/Issue317586.class")));
     ClassWriter classWriter = new ClassWriter(0);
     ClassVisitor localVariablesSorter =
-        new LocalVariablesSorterClassAdapter( classWriter);
+            new LocalVariablesSorterClassAdapter(classWriter);
 
     classReader.accept(localVariablesSorter, ClassReader.EXPAND_FRAMES);
 
@@ -225,20 +222,20 @@ public class LocalVariablesSorterTest extends AsmTest {
 
   static class LocalVariablesSorterClassAdapter extends ClassVisitor {
 
-    LocalVariablesSorterClassAdapter( final ClassVisitor classVisitor) {
+    LocalVariablesSorterClassAdapter(final ClassVisitor classVisitor) {
       super(classVisitor);
     }
 
     @Override
     public MethodVisitor visitMethod(
-        final int access,
-        final String name,
-        final String descriptor,
-        final String signature,
-        final String[] exceptions) {
+            final int access,
+            final String name,
+            final String descriptor,
+            final String signature,
+            final String[] exceptions) {
       MethodVisitor methodVisitor =
-          super.visitMethod(access, name, descriptor, signature, exceptions);
-      return new LocalVariablesSorter(access, descriptor, methodVisitor) {};
+              super.visitMethod(access, name, descriptor, signature, exceptions);
+      return new LocalVariablesSorter(access, descriptor, methodVisitor) { };
     }
   }
 }

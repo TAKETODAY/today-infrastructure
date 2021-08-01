@@ -57,6 +57,7 @@ import cn.taketoday.asm.tree.analysis.AnalyzerException;
 import cn.taketoday.asm.tree.analysis.BasicValue;
 import cn.taketoday.asm.tree.analysis.Frame;
 import cn.taketoday.asm.tree.analysis.SimpleVerifier;
+import cn.taketoday.context.utils.ObjectUtils;
 
 /**
  * A {@link ClassVisitor} that checks that its methods are properly used. More precisely this class
@@ -1110,31 +1111,27 @@ public class CheckClassAdapter extends ClassVisitor {
 
     Type syperType = classNode.superName == null ? null : Type.getObjectType(classNode.superName);
     List<MethodNode> methods = classNode.methods;
-
-    List<Type> interfaces = new ArrayList<>();
-    for (String interfaceName : classNode.interfaces) {
-      interfaces.add(Type.getObjectType(interfaceName));
-    }
-
-    for (MethodNode method : methods) {
-      SimpleVerifier verifier =
-              new SimpleVerifier(
-                      Type.getObjectType(classNode.name),
-                      syperType,
-                      interfaces,
-                      (classNode.access & Opcodes.ACC_INTERFACE) != 0);
-      Analyzer<BasicValue> analyzer = new Analyzer<>(verifier);
-      if (loader != null) {
-        verifier.setClassLoader(loader);
-      }
-      try {
-        analyzer.analyze(classNode.name, method);
-      }
-      catch (AnalyzerException e) {
-        e.printStackTrace(printWriter);
-      }
-      if (printResults) {
-        printAnalyzerResult(method, analyzer, printWriter);
+    if (methods != null) {
+      for (MethodNode method : methods) {
+        SimpleVerifier verifier =
+                new SimpleVerifier(
+                        Type.getObjectType(classNode.name),
+                        syperType,
+                        (classNode.access & Opcodes.ACC_INTERFACE) != 0,
+                        Type.getObjectTypes(classNode.interfaces));
+        Analyzer<BasicValue> analyzer = new Analyzer<>(verifier);
+        if (loader != null) {
+          verifier.setClassLoader(loader);
+        }
+        try {
+          analyzer.analyze(classNode.name, method);
+        }
+        catch (AnalyzerException e) {
+          e.printStackTrace(printWriter);
+        }
+        if (printResults) {
+          printAnalyzerResult(method, analyzer, printWriter);
+        }
       }
     }
     printWriter.flush();

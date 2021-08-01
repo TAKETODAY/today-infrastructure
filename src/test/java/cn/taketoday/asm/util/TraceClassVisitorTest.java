@@ -60,7 +60,7 @@ public class TraceClassVisitorTest extends AsmTest {
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
-  public void testVisitMethods(final PrecompiledClass classParameter, final Api apiParameter) {
+  public void testVisitMethods(final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
@@ -76,7 +76,7 @@ public class TraceClassVisitorTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testVisitMethods_noDelegate(
-      final PrecompiledClass classParameter, final Api apiParameter) {
+      final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     StringWriter output = new StringWriter();
@@ -93,7 +93,7 @@ public class TraceClassVisitorTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testVisitMethods_noNestedDelegate(
-      final PrecompiledClass classParameter, final Api apiParameter) {
+      final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
 
