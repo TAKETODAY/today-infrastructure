@@ -27,11 +27,11 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package cn.taketoday.asm.tree.analysis;
 
-import cn.taketoday.asm.tree.JumpInsnNode;
-import cn.taketoday.asm.tree.LabelNode;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import cn.taketoday.asm.tree.JumpInsnNode;
+import cn.taketoday.asm.tree.LabelNode;
 
 /**
  * A method subroutine (corresponds to a JSR instruction).
@@ -87,15 +87,17 @@ final class Subroutine {
    */
   public boolean merge(final Subroutine subroutine) {
     boolean changed = false;
+    boolean[] localsUsed = this.localsUsed;
+    boolean[] subroutineLocalsUsed = subroutine.localsUsed;
     for (int i = 0; i < localsUsed.length; ++i) {
-      if (subroutine.localsUsed[i] && !localsUsed[i]) {
+      if (subroutineLocalsUsed[i] && !localsUsed[i]) {
         localsUsed[i] = true;
         changed = true;
       }
     }
     if (subroutine.start == start) {
-      for (int i = 0; i < subroutine.callers.size(); ++i) {
-        JumpInsnNode caller = subroutine.callers.get(i);
+      List<JumpInsnNode> callers = this.callers;
+      for (JumpInsnNode caller : subroutine.callers) {
         if (!callers.contains(caller)) {
           callers.add(caller);
           changed = true;

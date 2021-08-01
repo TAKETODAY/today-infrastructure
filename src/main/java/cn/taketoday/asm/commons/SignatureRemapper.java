@@ -28,10 +28,9 @@
 
 package cn.taketoday.asm.commons;
 
-import cn.taketoday.asm.Opcodes;
-import cn.taketoday.asm.signature.SignatureVisitor;
-
 import java.util.ArrayList;
+
+import cn.taketoday.asm.signature.SignatureVisitor;
 
 /**
  * A {@link SignatureVisitor} that remaps types with a {@link Remapper}.

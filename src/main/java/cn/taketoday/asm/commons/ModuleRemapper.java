@@ -29,7 +29,6 @@
 package cn.taketoday.asm.commons;
 
 import cn.taketoday.asm.ModuleVisitor;
-import cn.taketoday.asm.Opcodes;
 
 /**
  * A {@link ModuleVisitor} that remaps types with a {@link Remapper}.

@@ -19,9 +19,9 @@
  */
 package cn.taketoday.asm.tree;
 
-import cn.taketoday.asm.MethodVisitor;
-
 import java.util.Map;
+
+import cn.taketoday.asm.MethodVisitor;
 
 /**
  * A node that represents an instruction with a single int operand.

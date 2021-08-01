@@ -27,9 +27,9 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package cn.taketoday.asm.tree.analysis;
 
-import cn.taketoday.asm.tree.AbstractInsnNode;
-
 import java.util.Set;
+
+import cn.taketoday.asm.tree.AbstractInsnNode;
 
 /**
  * A {@link Value} which keeps track of the bytecode instructions that can produce it.

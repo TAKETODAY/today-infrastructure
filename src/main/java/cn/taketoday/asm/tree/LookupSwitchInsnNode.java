@@ -19,12 +19,12 @@
  */
 package cn.taketoday.asm.tree;
 
+import java.util.List;
+import java.util.Map;
+
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * A node that represents a LOOKUPSWITCH instruction.

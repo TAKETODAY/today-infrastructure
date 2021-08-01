@@ -19,10 +19,10 @@
  */
 package cn.taketoday.asm.tree;
 
+import java.util.Map;
+
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.MethodVisitor;
-
-import java.util.Map;
 
 /** An {@link AbstractInsnNode} that encapsulates a {@link Label}. */
 public class LabelNode extends AbstractInsnNode {

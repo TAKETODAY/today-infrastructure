@@ -19,14 +19,13 @@
  */
 package cn.taketoday.asm.tree;
 
+import java.util.List;
+
 import cn.taketoday.asm.AnnotationVisitor;
 import cn.taketoday.asm.Attribute;
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.FieldVisitor;
-import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.TypePath;
-
-import java.util.List;
 
 /**
  * A node that represents a field.

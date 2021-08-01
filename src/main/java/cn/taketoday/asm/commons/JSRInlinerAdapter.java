@@ -27,6 +27,15 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package cn.taketoday.asm.commons;
 
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
@@ -40,15 +49,6 @@ import cn.taketoday.asm.tree.LookupSwitchInsnNode;
 import cn.taketoday.asm.tree.MethodNode;
 import cn.taketoday.asm.tree.TableSwitchInsnNode;
 import cn.taketoday.asm.tree.TryCatchBlockNode;
-
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * A {@link cn.taketoday.asm.MethodVisitor} that removes JSR instructions and inlines the

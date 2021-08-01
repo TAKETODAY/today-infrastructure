@@ -32,7 +32,6 @@ import cn.taketoday.asm.AnnotationVisitor;
 import cn.taketoday.asm.Handle;
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.MethodVisitor;
-import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.TypePath;
 
 /**

@@ -29,7 +29,6 @@
 package cn.taketoday.asm.commons;
 
 import cn.taketoday.asm.AnnotationVisitor;
-import cn.taketoday.asm.Opcodes;
 
 /**
  * An {@link AnnotationVisitor} that remaps types with a {@link Remapper}.
@@ -48,22 +47,6 @@ public class AnnotationRemapper extends AnnotationVisitor {
   protected final Remapper remapper;
 
   /**
-   * Constructs a new {@link AnnotationRemapper}. <i>Subclasses must not use this constructor</i>.
-   * Instead, they must use the {@link #AnnotationRemapper(int, AnnotationVisitor, Remapper)} version.
-   *
-   * @param annotationVisitor
-   *         the annotation visitor this remapper must delegate to.
-   * @param remapper
-   *         the remapper to use to remap the types in the visited annotation.
-   *
-   * @deprecated use {@link #AnnotationRemapper(String, AnnotationVisitor, Remapper)} instead.
-   */
-  @Deprecated
-  public AnnotationRemapper(final AnnotationVisitor annotationVisitor, final Remapper remapper) {
-    this(/* descriptor = */ null, annotationVisitor, remapper);
-  }
-
-  /**
    * Constructs a new {@link AnnotationRemapper}.
    *
    * @param descriptor
@@ -73,7 +56,7 @@ public class AnnotationRemapper extends AnnotationVisitor {
    * @param remapper
    *         the remapper to use to remap the types in the visited annotation.
    */
-  protected AnnotationRemapper(
+  public AnnotationRemapper(
           final String descriptor,
           final AnnotationVisitor annotationVisitor,
           final Remapper remapper) {
@@ -123,22 +106,6 @@ public class AnnotationRemapper extends AnnotationVisitor {
    * Constructs a new remapper for annotations. The default implementation of this method returns a
    * new {@link AnnotationRemapper}.
    *
-   * @param annotationVisitor
-   *         the AnnotationVisitor the remapper must delegate to.
-   *
-   * @return the newly created remapper.
-   *
-   * @deprecated use {@link #createAnnotationRemapper(String, AnnotationVisitor)} instead.
-   */
-  @Deprecated
-  protected AnnotationVisitor createAnnotationRemapper(final AnnotationVisitor annotationVisitor) {
-    return new AnnotationRemapper(/* descriptor = */ null, annotationVisitor, remapper);
-  }
-
-  /**
-   * Constructs a new remapper for annotations. The default implementation of this method returns a
-   * new {@link AnnotationRemapper}.
-   *
    * @param descriptor
    *         the descriptor of the visited annotation.
    * @param annotationVisitor
@@ -149,7 +116,7 @@ public class AnnotationRemapper extends AnnotationVisitor {
   protected AnnotationVisitor createAnnotationRemapper(
           final String descriptor, final AnnotationVisitor annotationVisitor) {
     return new AnnotationRemapper(descriptor, annotationVisitor, remapper)
-            .orDeprecatedValue(createAnnotationRemapper(annotationVisitor));
+            .orDeprecatedValue(annotationVisitor);
   }
 
   /**

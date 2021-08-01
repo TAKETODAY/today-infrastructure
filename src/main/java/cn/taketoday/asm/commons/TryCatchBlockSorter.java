@@ -28,14 +28,13 @@
 
 package cn.taketoday.asm.commons;
 
+import java.util.Comparator;
+import java.util.List;
+
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.tree.MethodNode;
 import cn.taketoday.asm.tree.TryCatchBlockNode;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 /**
  * A {@link MethodVisitor} adapter to sort the exception handlers. The handlers are sorted in a

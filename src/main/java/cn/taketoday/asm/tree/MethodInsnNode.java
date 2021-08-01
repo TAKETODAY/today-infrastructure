@@ -19,10 +19,10 @@
  */
 package cn.taketoday.asm.tree;
 
+import java.util.Map;
+
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
-
-import java.util.Map;
 
 /**
  * A node that represents a method instruction. A method instruction is an instruction that invokes

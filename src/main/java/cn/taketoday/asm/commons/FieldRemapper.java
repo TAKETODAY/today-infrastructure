@@ -30,7 +30,6 @@ package cn.taketoday.asm.commons;
 
 import cn.taketoday.asm.AnnotationVisitor;
 import cn.taketoday.asm.FieldVisitor;
-import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.TypePath;
 
 /**

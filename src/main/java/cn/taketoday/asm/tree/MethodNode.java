@@ -19,19 +19,18 @@
  */
 package cn.taketoday.asm.tree;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.taketoday.asm.AnnotationVisitor;
 import cn.taketoday.asm.Attribute;
 import cn.taketoday.asm.ClassVisitor;
-import cn.taketoday.asm.ConstantDynamic;
 import cn.taketoday.asm.Handle;
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.TypePath;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A node that represents a method.

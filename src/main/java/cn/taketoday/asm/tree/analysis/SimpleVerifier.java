@@ -27,9 +27,9 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package cn.taketoday.asm.tree.analysis;
 
-import cn.taketoday.asm.Type;
-
 import java.util.List;
+
+import cn.taketoday.asm.Type;
 
 /**
  * An extended {@link BasicVerifier} that performs more precise verifications. This verifier

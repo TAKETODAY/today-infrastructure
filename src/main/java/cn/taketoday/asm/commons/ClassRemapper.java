@@ -28,17 +28,16 @@
 
 package cn.taketoday.asm.commons;
 
+import java.util.List;
+
 import cn.taketoday.asm.AnnotationVisitor;
 import cn.taketoday.asm.Attribute;
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.FieldVisitor;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.ModuleVisitor;
-import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.RecordComponentVisitor;
 import cn.taketoday.asm.TypePath;
-
-import java.util.List;
 
 /**
  * A {@link ClassVisitor} that remaps types with a {@link Remapper}.

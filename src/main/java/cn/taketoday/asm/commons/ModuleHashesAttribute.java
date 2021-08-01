@@ -28,14 +28,14 @@
 
 package cn.taketoday.asm.commons;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.taketoday.asm.Attribute;
 import cn.taketoday.asm.ByteVector;
 import cn.taketoday.asm.ClassReader;
 import cn.taketoday.asm.ClassWriter;
 import cn.taketoday.asm.Label;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A ModuleHashes attribute. This attribute is specific to the OpenJDK and may change in the future.

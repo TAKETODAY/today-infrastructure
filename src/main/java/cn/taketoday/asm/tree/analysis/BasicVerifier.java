@@ -27,13 +27,13 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package cn.taketoday.asm.tree.analysis;
 
+import java.util.List;
+
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.tree.AbstractInsnNode;
 import cn.taketoday.asm.tree.FieldInsnNode;
 import cn.taketoday.asm.tree.InvokeDynamicInsnNode;
 import cn.taketoday.asm.tree.MethodInsnNode;
-
-import java.util.List;
 
 /**
  * An extended {@link BasicInterpreter} that checks that bytecode instructions are correctly used.
@@ -46,8 +46,7 @@ public class BasicVerifier extends BasicInterpreter {
   /**
    * Constructs a new {@link BasicVerifier} for the latest ASM API version.
    */
-  public BasicVerifier() {
-  }
+  public BasicVerifier() { }
 
   @Override
   public BasicValue copyOperation(final AbstractInsnNode insn, final BasicValue value)
@@ -386,7 +385,8 @@ public class BasicVerifier extends BasicInterpreter {
               ? ((InvokeDynamicInsnNode) insn).desc
               : ((MethodInsnNode) insn).desc;
       Type[] args = Type.getArgumentTypes(methodDescriptor);
-      while (i < values.size()) {
+      int size = values.size();
+      while (i < size) {
         BasicValue expected = newValue(args[j++]);
         BasicValue actual = values.get(i++);
         if (!isSubTypeOf(actual, expected)) {

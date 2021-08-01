@@ -27,6 +27,10 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package cn.taketoday.asm.tree.analysis;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.tree.AbstractInsnNode;
@@ -34,10 +38,6 @@ import cn.taketoday.asm.tree.FieldInsnNode;
 import cn.taketoday.asm.tree.InvokeDynamicInsnNode;
 import cn.taketoday.asm.tree.LdcInsnNode;
 import cn.taketoday.asm.tree.MethodInsnNode;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * An {@link Interpreter} for {@link SourceValue} values.

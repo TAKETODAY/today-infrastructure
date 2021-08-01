@@ -27,11 +27,6 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package cn.taketoday.asm.commons;
 
-import cn.taketoday.asm.ClassVisitor;
-import cn.taketoday.asm.FieldVisitor;
-import cn.taketoday.asm.MethodVisitor;
-import cn.taketoday.asm.Opcodes;
-
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
@@ -41,6 +36,11 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+
+import cn.taketoday.asm.ClassVisitor;
+import cn.taketoday.asm.FieldVisitor;
+import cn.taketoday.asm.MethodVisitor;
+import cn.taketoday.asm.Opcodes;
 
 /**
  * A {@link ClassVisitor} that adds a serial version unique identifier to a class if missing. A

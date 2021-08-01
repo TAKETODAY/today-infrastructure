@@ -19,9 +19,9 @@
  */
 package cn.taketoday.asm.tree;
 
-import cn.taketoday.asm.ModuleVisitor;
-
 import java.util.List;
+
+import cn.taketoday.asm.ModuleVisitor;
 
 /**
  * A node that represents a service and its implementation provided by the current module.

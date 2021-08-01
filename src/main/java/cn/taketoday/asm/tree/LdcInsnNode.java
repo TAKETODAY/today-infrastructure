@@ -19,13 +19,13 @@
  */
 package cn.taketoday.asm.tree;
 
+import java.util.Map;
+
 import cn.taketoday.asm.ConstantDynamic;
 import cn.taketoday.asm.Handle;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
-
-import java.util.Map;
 
 /**
  * A node that represents an LDC instruction.

@@ -27,6 +27,10 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package cn.taketoday.asm.commons;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.ConstantDynamic;
 import cn.taketoday.asm.Handle;
@@ -34,10 +38,6 @@ import cn.taketoday.asm.Label;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * A {@link MethodVisitor} with convenient methods to generate code. For example, using this

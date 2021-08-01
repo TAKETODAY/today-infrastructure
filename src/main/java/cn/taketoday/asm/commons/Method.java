@@ -27,10 +27,10 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package cn.taketoday.asm.commons;
 
-import cn.taketoday.asm.Type;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import cn.taketoday.asm.Type;
 
 /**
  * A named method descriptor.
