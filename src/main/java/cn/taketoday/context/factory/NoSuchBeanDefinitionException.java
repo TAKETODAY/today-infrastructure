@@ -19,8 +19,6 @@
  */
 package cn.taketoday.context.factory;
 
-import cn.taketoday.context.factory.BeansException;
-
 /**
  * @author TODAY <br>
  * 2018-07-3 20:24:18

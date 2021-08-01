@@ -634,7 +634,7 @@ public class ClassWriterTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testReadAndWrite_computeFrames_jsrInstructions(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     assumeTrue(hasJsrOrRetInstructions(classParameter));
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
@@ -653,7 +653,7 @@ public class ClassWriterTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testReadAndWrite_skipAndComputeFrames(
-          final PrecompiledClass classParameter, final Api apiParameter) {
+          final PrecompiledClass classParameter) {
     assumeFalse(hasJsrOrRetInstructions(classParameter));
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);

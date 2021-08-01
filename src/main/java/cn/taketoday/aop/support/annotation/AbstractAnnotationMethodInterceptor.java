@@ -31,9 +31,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.context.AttributeAccessor;
+import cn.taketoday.context.ConfigurationException;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
-import cn.taketoday.context.ConfigurationException;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.ObjectSupplier;

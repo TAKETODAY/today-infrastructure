@@ -25,8 +25,8 @@ import java.util.EventObject;
 
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.Constant;
 import cn.taketoday.context.ConfigurationException;
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.BeanPostProcessor;

@@ -22,9 +22,6 @@ package cn.taketoday.context.factory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.factory.BeansException;
-
 /**
  * Exception thrown when instantiation of a bean failed. Carries the offending
  * bean class.
