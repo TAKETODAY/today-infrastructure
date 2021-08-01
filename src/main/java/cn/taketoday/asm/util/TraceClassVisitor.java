@@ -43,7 +43,7 @@ import cn.taketoday.asm.TypePath;
  * visitor can be used in the middle of a class visitor chain to trace the class that is visited at
  * a given point in this chain. This may be useful for debugging purposes.
  *
- * <p>When used with a {@link cn.taketoday.asm.util.Textifier}, the trace printed when visiting the {@code Hello} class is
+ * <p>When used with a {@link Textifier}, the trace printed when visiting the {@code Hello} class is
  * the following:
  *
  * <pre>
@@ -110,7 +110,7 @@ public final class TraceClassVisitor extends ClassVisitor {
    *         the print writer to be used to print the class. May be {@literal null}.
    */
   public TraceClassVisitor(final ClassVisitor classVisitor, final PrintWriter printWriter) {
-    this(classVisitor, new cn.taketoday.asm.util.Textifier(), printWriter);
+    this(classVisitor, new Textifier(), printWriter);
   }
 
   /**
@@ -151,7 +151,7 @@ public final class TraceClassVisitor extends ClassVisitor {
   @Override
   public ModuleVisitor visitModule(final String name, final int flags, final String version) {
     Printer modulePrinter = p.visitModule(name, flags, version);
-    return new cn.taketoday.asm.util.TraceModuleVisitor(super.visitModule(name, flags, version), modulePrinter);
+    return new TraceModuleVisitor(super.visitModule(name, flags, version), modulePrinter);
   }
 
   @Override
@@ -169,7 +169,7 @@ public final class TraceClassVisitor extends ClassVisitor {
   @Override
   public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
     Printer annotationPrinter = p.visitClassAnnotation(descriptor, visible);
-    return new cn.taketoday.asm.util.TraceAnnotationVisitor(
+    return new TraceAnnotationVisitor(
             super.visitAnnotation(descriptor, visible), annotationPrinter);
   }
 
@@ -177,7 +177,7 @@ public final class TraceClassVisitor extends ClassVisitor {
   public AnnotationVisitor visitTypeAnnotation(
           final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     Printer annotationPrinter = p.visitClassTypeAnnotation(typeRef, typePath, descriptor, visible);
-    return new cn.taketoday.asm.util.TraceAnnotationVisitor(
+    return new TraceAnnotationVisitor(
             super.visitTypeAnnotation(typeRef, typePath, descriptor, visible), annotationPrinter);
   }
 
@@ -210,7 +210,7 @@ public final class TraceClassVisitor extends ClassVisitor {
   public RecordComponentVisitor visitRecordComponent(
           final String name, final String descriptor, final String signature) {
     Printer recordComponentPrinter = p.visitRecordComponent(name, descriptor, signature);
-    return new cn.taketoday.asm.util.TraceRecordComponentVisitor(
+    return new TraceRecordComponentVisitor(
             super.visitRecordComponent(name, descriptor, signature), recordComponentPrinter);
   }
 
@@ -222,7 +222,7 @@ public final class TraceClassVisitor extends ClassVisitor {
           final String signature,
           final Object value) {
     Printer fieldPrinter = p.visitField(access, name, descriptor, signature, value);
-    return new cn.taketoday.asm.util.TraceFieldVisitor(
+    return new TraceFieldVisitor(
             super.visitField(access, name, descriptor, signature, value), fieldPrinter);
   }
 

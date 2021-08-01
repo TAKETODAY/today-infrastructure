@@ -98,7 +98,7 @@ public class ASMifierTest extends AsmTest {
                     new PrintWriter(output, true));
 
     new ClassReader(classFile)
-            .accept(asmifier, new Attribute[] { new cn.taketoday.asm.util.Comment(), new cn.taketoday.asm.util.CodeComment() }, 0);
+            .accept(asmifier, new Attribute[] { new Comment(), new CodeComment() }, 0);
 
     // Janino can't compile JDK9 modules.
     assumeTrue(classParameter != PrecompiledClass.JDK9_MODULE);

@@ -77,7 +77,7 @@ public final class TraceMethodVisitor extends MethodVisitor {
   @Override
   public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
     Printer annotationPrinter = p.visitMethodAnnotation(descriptor, visible);
-    return new cn.taketoday.asm.util.TraceAnnotationVisitor(
+    return new TraceAnnotationVisitor(
             super.visitAnnotation(descriptor, visible), annotationPrinter);
   }
 
@@ -85,7 +85,7 @@ public final class TraceMethodVisitor extends MethodVisitor {
   public AnnotationVisitor visitTypeAnnotation(
           final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     Printer annotationPrinter = p.visitMethodTypeAnnotation(typeRef, typePath, descriptor, visible);
-    return new cn.taketoday.asm.util.TraceAnnotationVisitor(
+    return new TraceAnnotationVisitor(
             super.visitTypeAnnotation(typeRef, typePath, descriptor, visible), annotationPrinter);
   }
 
@@ -98,7 +98,7 @@ public final class TraceMethodVisitor extends MethodVisitor {
   @Override
   public AnnotationVisitor visitAnnotationDefault() {
     Printer annotationPrinter = p.visitAnnotationDefault();
-    return new cn.taketoday.asm.util.TraceAnnotationVisitor(super.visitAnnotationDefault(), annotationPrinter);
+    return new TraceAnnotationVisitor(super.visitAnnotationDefault(), annotationPrinter);
   }
 
   @Override
@@ -111,7 +111,7 @@ public final class TraceMethodVisitor extends MethodVisitor {
   public AnnotationVisitor visitParameterAnnotation(
           final int parameter, final String descriptor, final boolean visible) {
     Printer annotationPrinter = p.visitParameterAnnotation(parameter, descriptor, visible);
-    return new cn.taketoday.asm.util.TraceAnnotationVisitor(
+    return new TraceAnnotationVisitor(
             super.visitParameterAnnotation(parameter, descriptor, visible), annotationPrinter);
   }
 
@@ -234,7 +234,7 @@ public final class TraceMethodVisitor extends MethodVisitor {
   public AnnotationVisitor visitInsnAnnotation(
           final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     Printer annotationPrinter = p.visitInsnAnnotation(typeRef, typePath, descriptor, visible);
-    return new cn.taketoday.asm.util.TraceAnnotationVisitor(
+    return new TraceAnnotationVisitor(
             super.visitInsnAnnotation(typeRef, typePath, descriptor, visible), annotationPrinter);
   }
 
@@ -249,7 +249,7 @@ public final class TraceMethodVisitor extends MethodVisitor {
   public AnnotationVisitor visitTryCatchAnnotation(
           final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     Printer annotationPrinter = p.visitTryCatchAnnotation(typeRef, typePath, descriptor, visible);
-    return new cn.taketoday.asm.util.TraceAnnotationVisitor(
+    return new TraceAnnotationVisitor(
             super.visitTryCatchAnnotation(typeRef, typePath, descriptor, visible), annotationPrinter);
   }
 
@@ -276,7 +276,7 @@ public final class TraceMethodVisitor extends MethodVisitor {
           final boolean visible) {
     Printer annotationPrinter =
             p.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, descriptor, visible);
-    return new cn.taketoday.asm.util.TraceAnnotationVisitor(
+    return new TraceAnnotationVisitor(
             super.visitLocalVariableAnnotation(
                     typeRef, typePath, start, end, index, descriptor, visible),
             annotationPrinter);

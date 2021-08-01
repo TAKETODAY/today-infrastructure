@@ -91,7 +91,7 @@ import cn.taketoday.asm.tree.analysis.SimpleVerifier;
  * <pre>
  * cn.taketoday.asm.tree.analysis.AnalyzerException: Error at instruction 71: Expected I, but found .
  *   at cn.taketoday.asm.tree.analysis.Analyzer.analyze(Analyzer.java:...)
- *   at cn.taketoday.asm.util.CheckClassAdapter.verify(CheckClassAdapter.java:...)
+ *   at CheckClassAdapter.verify(CheckClassAdapter.java:...)
  * ...
  * remove()V
  * 00000 LinkedBlockingQueue$Itr . . . . . . . .  : ICONST_0
@@ -373,7 +373,7 @@ public class CheckClassAdapter extends ClassVisitor {
     if (signature != null) {
       checkFieldSignature(signature);
     }
-    return new cn.taketoday.asm.util.CheckRecordComponentAdapter(super.visitRecordComponent(name, descriptor, signature));
+    return new CheckRecordComponentAdapter(super.visitRecordComponent(name, descriptor, signature));
   }
 
   @Override
@@ -405,7 +405,7 @@ public class CheckClassAdapter extends ClassVisitor {
     if (value != null) {
       CheckMethodAdapter.checkConstant(value);
     }
-    return new cn.taketoday.asm.util.CheckFieldAdapter(super.visitField(access, name, descriptor, signature, value));
+    return new CheckFieldAdapter(super.visitField(access, name, descriptor, signature, value));
   }
 
   @Override
@@ -470,7 +470,7 @@ public class CheckClassAdapter extends ClassVisitor {
   public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
     checkState();
     CheckMethodAdapter.checkDescriptor(version, descriptor, false);
-    return new cn.taketoday.asm.util.CheckAnnotationAdapter(super.visitAnnotation(descriptor, visible));
+    return new CheckAnnotationAdapter(super.visitAnnotation(descriptor, visible));
   }
 
   @Override
@@ -486,7 +486,7 @@ public class CheckClassAdapter extends ClassVisitor {
     }
     checkTypeRef(typeRef);
     CheckMethodAdapter.checkDescriptor(version, descriptor, false);
-    return new cn.taketoday.asm.util.CheckAnnotationAdapter(
+    return new CheckAnnotationAdapter(
             super.visitTypeAnnotation(typeRef, typePath, descriptor, visible));
   }
 
@@ -1142,7 +1142,7 @@ public class CheckClassAdapter extends ClassVisitor {
 
   static void printAnalyzerResult(
           final MethodNode method, final Analyzer<BasicValue> analyzer, final PrintWriter printWriter) {
-    cn.taketoday.asm.util.Textifier textifier = new cn.taketoday.asm.util.Textifier();
+    Textifier textifier = new Textifier();
     TraceMethodVisitor traceMethodVisitor = new TraceMethodVisitor(textifier);
 
     printWriter.println(method.name + method.desc);

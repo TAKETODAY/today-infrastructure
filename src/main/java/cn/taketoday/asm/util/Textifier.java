@@ -1446,8 +1446,9 @@ public class Textifier extends Printer {
    *         a class, field or method signature.
    */
   private void appendJavaDeclaration(final String name, final String signature) {
-    cn.taketoday.asm.util.TraceSignatureVisitor traceSignatureVisitor = new cn.taketoday.asm.util.TraceSignatureVisitor(access);
+    TraceSignatureVisitor traceSignatureVisitor = new TraceSignatureVisitor(access);
     new SignatureReader(signature).accept(traceSignatureVisitor);
+    StringBuilder stringBuilder = this.stringBuilder;
     stringBuilder.append("// declaration: ");
     if (traceSignatureVisitor.getReturnType() != null) {
       stringBuilder.append(traceSignatureVisitor.getReturnType());
