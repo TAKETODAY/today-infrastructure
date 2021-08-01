@@ -37,7 +37,7 @@ import cn.taketoday.context.utils.StringUtils;
  * Strategies file reader
  *
  * @author TODAY 2021/7/17 22:36
- * @since 3.1.0
+ * @since 4.0
  */
 public abstract class StrategiesReader {
   public static final Logger log = LoggerFactory.getLogger(StrategiesReader.class);

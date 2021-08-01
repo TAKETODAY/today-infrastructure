@@ -325,7 +325,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     registerSingleton(nameCreator.create(ApplicationContext.class), this);
     // register BeanFactory @since 2.1.7
     registerSingleton(nameCreator.create(BeanFactory.class), getBeanFactory());
-    // @since 3.1.0 StrategiesLoader
+    // @since 4.0 StrategiesLoader
     registerSingleton(nameCreator.create(StrategiesDetector.class), getStrategiesDetector());
   }
 

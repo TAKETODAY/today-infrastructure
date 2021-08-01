@@ -247,7 +247,7 @@ public interface BeanDefinitionLoader {
    *
    * @throws BeanDefinitionStoreException
    *         If BeanDefinition could not be store
-   * @since 3.1.0
+   * @since 4.0
    */
   List<BeanDefinition> load(String name, Class<?> beanClass) throws BeanDefinitionStoreException;
 
@@ -275,7 +275,7 @@ public interface BeanDefinitionLoader {
    *
    * @throws BeanDefinitionStoreException
    *         If BeanDefinition could not be store
-   * @since 3.1.0
+   * @since 4.0
    */
   List<BeanDefinition> load(String name, Class<?> beanClass, boolean ignoreAnnotation)
           throws BeanDefinitionStoreException;
@@ -294,7 +294,7 @@ public interface BeanDefinitionLoader {
    * @throws BeanDefinitionStoreException
    *         If BeanDefinition could not be store
    * @see #load(Class)
-   * @since 3.1.0
+   * @since 4.0
    */
   void load(String... locations) throws BeanDefinitionStoreException;
 

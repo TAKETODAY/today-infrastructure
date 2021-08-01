@@ -166,7 +166,7 @@ public class AnnotationAttributes
     Assert.notNull(attributeName, "'attributeName' must not be null or empty");
     Object value = get(attributeName); // get value
 
-    // @since 3.1.0
+    // @since 4.0
     if (value instanceof List) {
       // more than two values
       final List<T> list = (List<T>) value;
@@ -188,7 +188,7 @@ public class AnnotationAttributes
       }
     }
 
-    // @since 3.1.0
+    // @since 4.0
     value = getRealValue(value);
 
     assertAttributePresence(attributeName, value);

@@ -25,7 +25,7 @@ import cn.taketoday.context.utils.ClassUtils;
 
 /**
  * @author TODAY 2021/7/28 22:41
- * @since 3.1.0
+ * @since 4.0
  */
 public final class EnumDescriptor implements AnnotationValueCapable {
 

@@ -48,7 +48,7 @@ import cn.taketoday.context.utils.MultiValueMap;
  *
  * @author TODAY 2021/7/17 22:42
  * @see MultiValueMap
- * @since 3.1.0
+ * @since 4.0
  */
 public class YamlStrategiesReader extends StrategiesReader {
 

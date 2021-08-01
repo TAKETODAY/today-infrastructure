@@ -59,7 +59,7 @@ import static cn.taketoday.context.Constant.PATH_SEPARATOR;
  * @author TODAY 2019-11-26 20:02
  */
 public class CandidateComponentScanner {
-  // @since 3.1.0
+  // @since 4.0
   public static final String KEY_STRATEGIES_IGNORE_JAR_PREFIX = "ignore-jar-prefix";
   private static final Logger log = LoggerFactory.getLogger(CandidateComponentScanner.class);
 
@@ -94,7 +94,7 @@ public class CandidateComponentScanner {
     final HashSet<String> ignoreScanJars = new HashSet<>(64);
 
     readFromMetaInfoIgnore(ignoreScanJars);
-    // @since 3.1.0 read from strategies file
+    // @since 4.0 read from strategies file
     final StrategiesDetector strategiesDetector = StrategiesDetector.getSharedInstance();
     final Collection<String> strategies = strategiesDetector.getStrategies(KEY_STRATEGIES_IGNORE_JAR_PREFIX);
     ignoreScanJars.addAll(strategies);

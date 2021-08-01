@@ -46,7 +46,7 @@ import cn.taketoday.context.utils.MultiValueMap;
  * </p>
  *
  * @author TODAY 2021/7/17 21:59
- * @since 3.1.0
+ * @since 4.0
  */
 public class StrategiesDetector {
   private static final Logger log = LoggerFactory.getLogger(StrategiesDetector.class);

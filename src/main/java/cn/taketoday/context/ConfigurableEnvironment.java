@@ -47,7 +47,7 @@ public interface ConfigurableEnvironment extends Environment {
    * @param profile
    *         Add a active profile
    *
-   * @deprecated since 3.1.0
+   * @deprecated since 4.0
    */
   @Deprecated
   void addActiveProfile(String profile);
@@ -58,7 +58,7 @@ public interface ConfigurableEnvironment extends Environment {
    * @param profiles
    *         Add active profiles
    *
-   * @since 3.1.0
+   * @since 4.0
    */
   void addActiveProfile(String... profiles);
 

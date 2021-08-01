@@ -91,7 +91,7 @@ public abstract class AbstractBeanFactory
 
   /** Indicates whether any InstantiationAwareBeanPostProcessors have been registered.  @since 3.0 */
   private boolean hasInstantiationAwareBeanPostProcessors;
-  /** @since 3.1.0 */
+  /** @since 4.0 */
   private final ConcurrentHashMap<String, Supplier<?>> beanSupplier = new ConcurrentHashMap<>();
 
   @Override
@@ -105,7 +105,7 @@ public abstract class AbstractBeanFactory
     if (singleton != null) {
       return singleton;
     }
-    // may exits in bean supplier @since 3.1.0
+    // may exits in bean supplier @since 4.0
     final Supplier<?> supplier = beanSupplier.get(name);
     if (supplier != null) {
       return supplier.get();

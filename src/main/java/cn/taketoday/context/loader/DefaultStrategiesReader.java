@@ -36,7 +36,7 @@ import cn.taketoday.context.utils.StringUtils;
  * </p>
  *
  * @author TODAY 2021/7/17 22:47
- * @since 3.1.0
+ * @since 4.0
  */
 public class DefaultStrategiesReader extends StrategiesReader {
 

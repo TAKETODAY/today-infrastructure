@@ -22,7 +22,7 @@ package cn.taketoday.context;
 
 /**
  * @author TODAY 2021/7/27 20:50
- * @since 3.1.0
+ * @since 4.0
  */
 public class NoStackTraceRuntimeException extends NestedRuntimeException {
   private static final long serialVersionUID = 1L;

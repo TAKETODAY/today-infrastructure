@@ -363,7 +363,7 @@ public class StandardBeanFactory
     // Load the META-INF/beans @since 2.1.6
     // ---------------------------------------------------
     final Set<Class<?>> beans = ContextUtils.loadFromMetaInfo(Constant.META_INFO_beans);
-    // @since 3.1.0 load from StrategiesLoader strategy file
+    // @since 4.0 load from StrategiesLoader strategy file
     beans.addAll(getStrategiesDetector().getTypes(MissingBean.class));
 
     final BeanNameCreator beanNameCreator = getBeanNameCreator();
@@ -862,7 +862,7 @@ public class StandardBeanFactory
       final List<PropertyValueResolver> strategies =
               getStrategiesDetector().getStrategies(PropertyValueResolver.class);
       // un-ordered
-      propertyResolvers.addAll(strategies); // @since 3.1.0
+      propertyResolvers.addAll(strategies); // @since 4.0
       OrderUtils.reversedSort(propertyResolvers);
     }
     return propertyResolvers;
