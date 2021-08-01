@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import cn.taketoday.context.ConfigurationException;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
@@ -62,6 +63,9 @@ public abstract class StrategiesReader {
    * @param strategiesLocation
    *         file location supports multiple files:
    *         <p> classpath*:META-INF/today.strategies,classpath*:META-INF/my.strategies
+   *
+   * @throws ConfigurationException
+   *         strategiesLocation load failed
    */
   public void read(String strategiesLocation, MultiValueMap<String, String> strategies) {
     Assert.notNull(strategiesLocation, "file-location must not be null");
@@ -77,7 +81,7 @@ public abstract class StrategiesReader {
     }
     catch (IOException e) {
       log.error("'{}' load failed", strategiesLocation, e);
-      throw new IllegalStateException("'" + strategiesLocation + "' load failed", e);
+      throw new ConfigurationException("'" + strategiesLocation + "' load failed", e);
     }
   }
 
