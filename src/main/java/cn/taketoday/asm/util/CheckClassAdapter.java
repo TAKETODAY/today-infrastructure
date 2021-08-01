@@ -1163,9 +1163,12 @@ public class CheckClassAdapter extends ClassVisitor {
       printWriter.print(
               " " + stringBuilder + " : " + textifier.text.get(textifier.text.size() - 1));
     }
-    for (TryCatchBlockNode tryCatchBlock : method.tryCatchBlocks) {
-      tryCatchBlock.accept(traceMethodVisitor);
-      printWriter.print(" " + textifier.text.get(textifier.text.size() - 1));
+    List<TryCatchBlockNode> tryCatchBlocks = method.tryCatchBlocks;
+    if (tryCatchBlocks != null) {
+      for (TryCatchBlockNode tryCatchBlock : tryCatchBlocks) {
+        tryCatchBlock.accept(traceMethodVisitor);
+        printWriter.print(" " + textifier.text.get(textifier.text.size() - 1));
+      }
     }
     printWriter.println();
   }

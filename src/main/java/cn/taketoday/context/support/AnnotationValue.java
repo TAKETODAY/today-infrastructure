@@ -23,10 +23,10 @@ package cn.taketoday.context.support;
 /**
  * @author TODAY 2021/7/28 22:43
  */
-public interface AnnotationValueCapable {
+public interface AnnotationValue {
 
   /**
    * get annotation-value
    */
-  Object getAnnotationValue();
+  Object get();
 }

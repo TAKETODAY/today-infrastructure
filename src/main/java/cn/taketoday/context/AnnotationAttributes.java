@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import cn.taketoday.context.support.AnnotationValueCapable;
+import cn.taketoday.context.support.AnnotationValue;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.OrderUtils;
 
@@ -43,6 +43,7 @@ import static java.lang.String.format;
  * 2018-12-14 13:45
  * @since 2.1.1
  */
+@SuppressWarnings("rawtypes")
 public class AnnotationAttributes
         extends LinkedHashMap<String, Object> implements Ordered {
 
@@ -51,7 +52,7 @@ public class AnnotationAttributes
   private static final String UNKNOWN = "unknown";
 
   private final String displayName;
-  private final Class<? extends Annotation> annotationType;
+  private final Class annotationType;
 
   public AnnotationAttributes() {
     this.annotationType = null;
@@ -64,11 +65,11 @@ public class AnnotationAttributes
     this.displayName = UNKNOWN;
   }
 
-  public AnnotationAttributes(Class<? extends Annotation> annotationType) {
+  public AnnotationAttributes(Class annotationType) {
     this(annotationType, 16);
   }
 
-  public AnnotationAttributes(Class<? extends Annotation> annotationType, int initialCapacity) {
+  public AnnotationAttributes(Class annotationType, int initialCapacity) {
     super(initialCapacity, 0.75f);
     Assert.notNull(annotationType, "'annotationType' must not be null");
     this.annotationType = annotationType;
@@ -87,6 +88,7 @@ public class AnnotationAttributes
     this.displayName = other.displayName;
   }
 
+  @SuppressWarnings("unchecked")
   public Class<? extends Annotation> annotationType() {
     return this.annotationType;
   }
@@ -202,8 +204,8 @@ public class AnnotationAttributes
   }
 
   private Object getRealValue(Object target) {
-    if (target instanceof AnnotationValueCapable) {
-      target = ((AnnotationValueCapable) target).getAnnotationValue();
+    if (target instanceof AnnotationValue) {
+      target = ((AnnotationValue) target).get();
     }
     return target;
   }

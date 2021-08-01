@@ -20,36 +20,23 @@
 
 package cn.taketoday.context.support;
 
-import cn.taketoday.asm.Type;
-import cn.taketoday.context.utils.ClassUtils;
-
 /**
  * @author TODAY 2021/7/28 22:41
  * @since 4.0
  */
-public final class EnumDescriptor implements AnnotationValueCapable {
+public final class EnumValue implements AnnotationValue {
 
   final String value;
   final String descriptor;
 
-  public EnumDescriptor(String value, String descriptor) {
+  public EnumValue(String value, String descriptor) {
     this.value = value;
     this.descriptor = descriptor;
   }
 
-  public String getValue() {
-    return value;
-  }
-
-  public String getDescriptor() {
-    return descriptor;
-  }
-
-  @Override
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public Enum getAnnotationValue() {
-    final String className = Type.fromDescriptor(descriptor).getClassName();
-    final Class<Enum> enumClass = ClassUtils.loadClass(className);
+  public Enum get() {
+    final Class enumClass = ClassValue.fromDescriptor(descriptor).get();
     return Enum.valueOf(enumClass, value);
   }
 

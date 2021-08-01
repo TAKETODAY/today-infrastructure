@@ -135,10 +135,10 @@ public class AnnotationNode extends AnnotationVisitor {
   public AnnotationVisitor visitArray(final String name) {
     ArrayList<Object> values = createIfNecessary();
     if (this.desc != null) {
-      values.add(name);
+      values.add(name); // key
     }
     ArrayList<Object> array = new ArrayList<>();
-    values.add(array);
+    values.add(array); // array value
     return new AnnotationNode(array);
   }
 
@@ -158,27 +158,27 @@ public class AnnotationNode extends AnnotationVisitor {
   /**
    * Makes the given visitor visit this annotation.
    *
-   * @param annotationVisitor
+   * @param visitor
    *         an annotation visitor. Maybe {@literal null}.
    */
-  public void accept(final AnnotationVisitor annotationVisitor) {
-    if (annotationVisitor != null) {
+  public void accept(final AnnotationVisitor visitor) {
+    if (visitor != null) {
       final ArrayList<Object> values = this.values;
       if (values != null) {
         for (int i = 0, n = values.size(); i < n; i += 2) {
           String name = (String) values.get(i);
           Object value = values.get(i + 1);
-          accept(annotationVisitor, name, value);
+          accept(visitor, name, value);
         }
       }
-      annotationVisitor.visitEnd();
+      visitor.visitEnd();
     }
   }
 
   /**
    * Makes the given visitor visit a given annotation value.
    *
-   * @param annotationVisitor
+   * @param visitor
    *         an annotation visitor. Maybe {@literal null}.
    * @param name
    *         the value name.
@@ -186,28 +186,28 @@ public class AnnotationNode extends AnnotationVisitor {
    *         the actual value.
    */
   static void accept(
-          final AnnotationVisitor annotationVisitor, final String name, final Object value) {
-    if (annotationVisitor != null) {
+          final AnnotationVisitor visitor, final String name, final Object value) {
+    if (visitor != null) {
       if (value instanceof String[]) {
         String[] typeValue = (String[]) value;
-        annotationVisitor.visitEnum(name, typeValue[0], typeValue[1]);
+        visitor.visitEnum(name, typeValue[0], typeValue[1]);
       }
       else if (value instanceof AnnotationNode) {
         AnnotationNode annotationValue = (AnnotationNode) value;
-        annotationValue.accept(annotationVisitor.visitAnnotation(name, annotationValue.desc));
+        annotationValue.accept(visitor.visitAnnotation(name, annotationValue.desc));
       }
       else if (value instanceof ArrayList) {
-        AnnotationVisitor arrayAnnotationVisitor = annotationVisitor.visitArray(name);
-        if (arrayAnnotationVisitor != null) {
+        AnnotationVisitor arrayVisitor = visitor.visitArray(name);
+        if (arrayVisitor != null) {
           ArrayList<?> arrayValue = (ArrayList<?>) value;
           for (Object o : arrayValue) {
-            accept(arrayAnnotationVisitor, null, o);
+            accept(arrayVisitor, null, o);
           }
-          arrayAnnotationVisitor.visitEnd();
+          arrayVisitor.visitEnd();
         }
       }
       else {
-        annotationVisitor.visit(name, value);
+        visitor.visit(name, value);
       }
     }
   }

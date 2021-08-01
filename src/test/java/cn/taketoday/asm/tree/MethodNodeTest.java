@@ -84,7 +84,7 @@ public class MethodNodeTest extends AsmTest {
             method.name = name;
             method.desc = descriptor;
             method.signature = signature;
-            method.exceptions = exceptions == null ? null : Arrays.asList(exceptions);
+            method.exceptions = exceptions;
             methods.add(method);
             return method;
           }

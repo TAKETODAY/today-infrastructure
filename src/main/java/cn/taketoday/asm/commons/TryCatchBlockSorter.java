@@ -85,25 +85,27 @@ public class TryCatchBlockSorter extends MethodNode {
   public void visitEnd() {
     // Sort the TryCatchBlockNode elements by the length of their "try" block.
     final List<TryCatchBlockNode> tryCatchBlocks = this.tryCatchBlocks;
-    tryCatchBlocks.sort(new Comparator<TryCatchBlockNode>() {
+    if (tryCatchBlocks != null) {
+      tryCatchBlocks.sort(new Comparator<TryCatchBlockNode>() {
+        @Override
+        public int compare(
+                final TryCatchBlockNode tryCatchBlockNode1,
+                final TryCatchBlockNode tryCatchBlockNode2) {
+          return blockLength(tryCatchBlockNode1) - blockLength(tryCatchBlockNode2);
+        }
 
-      @Override
-      public int compare(
-              final TryCatchBlockNode tryCatchBlockNode1,
-              final TryCatchBlockNode tryCatchBlockNode2) {
-        return blockLength(tryCatchBlockNode1) - blockLength(tryCatchBlockNode2);
-      }
+        private int blockLength(final TryCatchBlockNode tryCatchBlockNode) {
+          int startIndex = instructions.indexOf(tryCatchBlockNode.start);
+          int endIndex = instructions.indexOf(tryCatchBlockNode.end);
+          return endIndex - startIndex;
+        }
+      });
 
-      private int blockLength(final TryCatchBlockNode tryCatchBlockNode) {
-        int startIndex = instructions.indexOf(tryCatchBlockNode.start);
-        int endIndex = instructions.indexOf(tryCatchBlockNode.end);
-        return endIndex - startIndex;
+      // Update the 'target' of each try catch block annotation.
+      final int size = tryCatchBlocks.size();
+      for (int i = 0; i < size; ++i) {
+        tryCatchBlocks.get(i).updateIndex(i);
       }
-    });
-    // Update the 'target' of each try catch block annotation.
-    final int size = tryCatchBlocks.size();
-    for (int i = 0; i < size; ++i) {
-      tryCatchBlocks.get(i).updateIndex(i);
     }
     if (mv != null) {
       accept(mv);

@@ -163,24 +163,28 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
     findReachableInsns(startInsnIndex, subroutineInsns, visitedInsns);
 
     // Then find the instructions reachable via the applicable exception handlers.
+    InsnList instructions = this.instructions;
+    List<TryCatchBlockNode> tryCatchBlocks = this.tryCatchBlocks;
     while (true) {
       boolean applicableHandlerFound = false;
-      for (TryCatchBlockNode tryCatchBlockNode : tryCatchBlocks) {
-        // If the handler has already been processed, skip it.
-        int handlerIndex = instructions.indexOf(tryCatchBlockNode.handler);
-        if (subroutineInsns.get(handlerIndex)) {
-          continue;
-        }
+      if (tryCatchBlocks != null) {
+        for (TryCatchBlockNode tryCatchBlockNode : tryCatchBlocks) {
+          // If the handler has already been processed, skip it.
+          int handlerIndex = instructions.indexOf(tryCatchBlockNode.handler);
+          if (subroutineInsns.get(handlerIndex)) {
+            continue;
+          }
 
-        // If an instruction in the exception handler range belongs to the subroutine, the handler
-        // can be reached from the routine, and its instructions must be added to the subroutine.
-        int startIndex = instructions.indexOf(tryCatchBlockNode.start);
-        int endIndex = instructions.indexOf(tryCatchBlockNode.end);
-        int firstSubroutineInsnAfterTryCatchStart = subroutineInsns.nextSetBit(startIndex);
-        if (firstSubroutineInsnAfterTryCatchStart >= startIndex
-                && firstSubroutineInsnAfterTryCatchStart < endIndex) {
-          findReachableInsns(handlerIndex, subroutineInsns, visitedInsns);
-          applicableHandlerFound = true;
+          // If an instruction in the exception handler range belongs to the subroutine, the handler
+          // can be reached from the routine, and its instructions must be added to the subroutine.
+          int startIndex = instructions.indexOf(tryCatchBlockNode.start);
+          int endIndex = instructions.indexOf(tryCatchBlockNode.end);
+          int firstSubroutineInsnAfterTryCatchStart = subroutineInsns.nextSetBit(startIndex);
+          if (firstSubroutineInsnAfterTryCatchStart >= startIndex
+                  && firstSubroutineInsnAfterTryCatchStart < endIndex) {
+            findReachableInsns(handlerIndex, subroutineInsns, visitedInsns);
+            applicableHandlerFound = true;
+          }
         }
       }
       // If an applicable exception handler has been found, other handlers may become applicable, so
@@ -321,6 +325,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
           final List<TryCatchBlockNode> newTryCatchBlocks,
           final List<LocalVariableNode> newLocalVariables) {
     LabelNode previousLabelNode = null;
+    InsnList instructions = this.instructions;
     for (int i = 0; i < instructions.size(); ++i) {
       AbstractInsnNode insnNode = instructions.get(i);
       if (insnNode.getType() == AbstractInsnNode.LABEL) {
@@ -380,19 +385,20 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
     }
 
     // Emit the try/catch blocks that are relevant for this instantiation.
-    for (TryCatchBlockNode tryCatchBlockNode : tryCatchBlocks) {
-      final LabelNode start = instantiation.getClonedLabel(tryCatchBlockNode.start);
-      final LabelNode end = instantiation.getClonedLabel(tryCatchBlockNode.end);
-      if (start != end) {
-        final LabelNode handler =
-                instantiation.getClonedLabelForJumpInsn(tryCatchBlockNode.handler);
-        if (start == null || end == null || handler == null) {
-          throw new AssertionError("Internal error!");
+    if (tryCatchBlocks != null) {
+      for (TryCatchBlockNode tryCatchBlockNode : tryCatchBlocks) {
+        final LabelNode start = instantiation.getClonedLabel(tryCatchBlockNode.start);
+        final LabelNode end = instantiation.getClonedLabel(tryCatchBlockNode.end);
+        if (start != end) {
+          final LabelNode handler =
+                  instantiation.getClonedLabelForJumpInsn(tryCatchBlockNode.handler);
+          if (start == null || end == null || handler == null) {
+            throw new AssertionError("Internal error!");
+          }
+          newTryCatchBlocks.add(new TryCatchBlockNode(start, end, handler, tryCatchBlockNode.type));
         }
-        newTryCatchBlocks.add(new TryCatchBlockNode(start, end, handler, tryCatchBlockNode.type));
       }
     }
-
     // Emit the local variable nodes that are relevant for this instantiation.
     for (LocalVariableNode localVariableNode : localVariables) {
       final LabelNode start = instantiation.getClonedLabel(localVariableNode.start);

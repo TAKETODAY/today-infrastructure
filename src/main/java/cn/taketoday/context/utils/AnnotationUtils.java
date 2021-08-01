@@ -48,8 +48,8 @@ import cn.taketoday.context.factory.BeanMetadata;
 import cn.taketoday.context.factory.BeanProperty;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.support.ClassDescriptor;
-import cn.taketoday.context.support.EnumDescriptor;
+import cn.taketoday.context.support.ClassValue;
+import cn.taketoday.context.support.EnumValue;
 
 /**
  * @author TODAY 2021/7/28 21:15
@@ -733,7 +733,7 @@ public abstract class AnnotationUtils {
         name = this.name;
       }
       if (value instanceof Type) {
-        value = new ClassDescriptor((Type) value);
+        value = new ClassValue((Type) value);
       }
 
       attributes.add(name, value);
@@ -743,7 +743,7 @@ public abstract class AnnotationUtils {
     @Override
     public void visitEnum(String name, String descriptor, String value) {
       log.info("name: {},descriptor: {}, value: {}", name, descriptor, value);
-      attributes.add(name, new EnumDescriptor(value, descriptor));
+      attributes.add(name, new EnumValue(value, descriptor));
     }
 
     @Override
@@ -762,7 +762,7 @@ public abstract class AnnotationUtils {
 
     public Class<?> getAnnotationType() {
       if (annotationType == null && descriptor != null) {
-        annotationType = new ClassDescriptor(Type.fromDescriptor(descriptor)).getAnnotationValue();
+        annotationType = new ClassValue(descriptor).get();
       }
       return annotationType;
     }

@@ -128,16 +128,19 @@ public class Analyzer<V extends Value> implements Opcodes {
 
     // For each exception handler, and each instruction within its range, record in 'handlers' the
     // fact that execution can flow from this instruction to the exception handler.
-    for (TryCatchBlockNode tryCatchBlock : method.tryCatchBlocks) {
-      int startIndex = insnList.indexOf(tryCatchBlock.start);
-      int endIndex = insnList.indexOf(tryCatchBlock.end);
-      for (int j = startIndex; j < endIndex; ++j) {
-        List<TryCatchBlockNode> insnHandlers = handlers[j];
-        if (insnHandlers == null) {
-          insnHandlers = new ArrayList<>();
-          handlers[j] = insnHandlers;
+    List<TryCatchBlockNode> tryCatchBlocks = method.tryCatchBlocks;
+    if (tryCatchBlocks != null) {
+      for (TryCatchBlockNode tryCatchBlock : tryCatchBlocks) {
+        int startIndex = insnList.indexOf(tryCatchBlock.start);
+        int endIndex = insnList.indexOf(tryCatchBlock.end);
+        for (int j = startIndex; j < endIndex; ++j) {
+          List<TryCatchBlockNode> insnHandlers = handlers[j];
+          if (insnHandlers == null) {
+            insnHandlers = new ArrayList<>();
+            handlers[j] = insnHandlers;
+          }
+          insnHandlers.add(tryCatchBlock);
         }
-        insnHandlers.add(tryCatchBlock);
       }
     }
 

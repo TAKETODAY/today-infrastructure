@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import cn.taketoday.asm.ClassReader;
-import cn.taketoday.asm.Type;
 import cn.taketoday.asm.tree.AnnotationNode;
 import cn.taketoday.asm.tree.ClassNode;
 import cn.taketoday.asm.tree.MethodNode;
@@ -70,13 +69,12 @@ public class ClassMetaReader {
   public static AnnotationAttributes readAnnotation(AnnotationNode annotationNode) {
     if (annotationNode != null) {
       String desc = annotationNode.desc;
-      Type type = Type.fromDescriptor(desc);
       // Annotation type
-      Class aClass = ClassUtils.loadClass(type.getClassName());
-      AnnotationAttributes attributes = new AnnotationAttributes(aClass);
+      Class<?> annotationValue = ClassValue.fromDescriptor(desc).get();
+      AnnotationAttributes attributes = new AnnotationAttributes(annotationValue);
 
       // read default values
-      applyDefaults(attributes, aClass);
+      applyDefaults(attributes, annotationValue);
 
       // override default values
       List<Object> values = annotationNode.values;

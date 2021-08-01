@@ -26,16 +26,35 @@ import cn.taketoday.context.utils.ClassUtils;
 /**
  * @author TODAY 2021/7/28 23:06
  */
-public final class ClassDescriptor implements AnnotationValueCapable {
+public final class ClassValue implements AnnotationValue {
   private final Type descriptor;
+  private volatile Class<?> type;
 
-  public ClassDescriptor(Type descriptor) {
+  public ClassValue(String descriptor) {
+    this.descriptor = Type.fromDescriptor(descriptor);
+  }
+
+  public ClassValue(Type descriptor) {
     this.descriptor = descriptor;
   }
 
   @Override
-  public Class<?> getAnnotationValue() {
-    return ClassUtils.loadClass(descriptor.getClassName());
+  public Class<?> get() {
+    Class<?> type = this.type;
+    if (type == null) {
+      synchronized(this) {
+        type = this.type;
+        if (type == null) {
+          type = ClassUtils.loadClass(descriptor.getClassName());
+          this.type = type;
+        }
+      }
+    }
+    return type;
+  }
+
+  public static ClassValue fromDescriptor(final String typeDescriptor) {
+    return new ClassValue(typeDescriptor);
   }
 
 }

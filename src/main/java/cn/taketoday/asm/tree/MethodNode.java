@@ -31,6 +31,7 @@ import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.TypePath;
+import cn.taketoday.context.utils.ObjectUtils;
 
 /**
  * A node that represents a method.
@@ -55,7 +56,7 @@ public class MethodNode extends MethodVisitor {
   public String signature;
 
   /** The internal names of the method's exception classes (see {@link Type#getInternalName()}). */
-  public List<String> exceptions;
+  public String[] exceptions;
 
   /** The method parameter info (access flags and name). */
   public List<ParameterNode> parameters;
@@ -169,15 +170,16 @@ public class MethodNode extends MethodVisitor {
           final String descriptor,
           final String signature,
           final String[] exceptions) {
-    this.access = access;
     this.name = name;
+    this.access = access;
     this.desc = descriptor;
     this.signature = signature;
-    this.exceptions = Util.asArrayList(exceptions);
+    if (ObjectUtils.isNotEmpty(exceptions)) {
+      this.exceptions = exceptions;
+    }
     if ((access & Opcodes.ACC_ABSTRACT) == 0) {
       this.localVariables = new ArrayList<>(5);
     }
-    this.tryCatchBlocks = new ArrayList<>();
     this.instructions = new InsnList();
   }
 
@@ -520,11 +522,9 @@ public class MethodNode extends MethodVisitor {
    *         a class visitor.
    */
   public void accept(final ClassVisitor classVisitor) {
-    String[] exceptionsArray = exceptions == null ? null : exceptions.toArray(new String[0]);
-    MethodVisitor methodVisitor =
-            classVisitor.visitMethod(access, name, desc, signature, exceptionsArray);
-    if (methodVisitor != null) {
-      accept(methodVisitor);
+    MethodVisitor visitor = classVisitor.visitMethod(access, name, desc, signature, exceptions);
+    if (visitor != null) {
+      accept(visitor);
     }
   }
 
