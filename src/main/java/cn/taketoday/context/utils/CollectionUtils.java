@@ -629,4 +629,46 @@ public abstract class CollectionUtils {
     }
   }
 
+  /**
+   * Adds all of the specified elements to the specified collection.
+   * Elements to be added may be specified individually or as an array.
+   * The behavior of this convenience method is identical to that of
+   * <tt>c.addAll(Arrays.asList(elements))</tt>, but this method is likely
+   * to run significantly faster under most implementations.
+   *
+   * <p>When elements are specified individually, this method provides a
+   * convenient way to add a few elements to an existing collection:
+   * <pre>
+   *     CollectionUtils.addAll(flavors, "Peaches 'n Plutonium", "Rocky Racoon");
+   * </pre>
+   *
+   * @param <T>
+   *         the class of the elements to add and of the collection
+   * @param c
+   *         the collection into which <tt>elements</tt> are to be inserted
+   * @param elements
+   *         the elements to insert into <tt>c</tt>
+   *
+   * @return <tt>true</tt> if the collection changed as a result of the call
+   *
+   * @throws UnsupportedOperationException
+   *         if <tt>c</tt> does not support
+   *         the <tt>add</tt> operation
+   * @throws NullPointerException
+   *         if <tt>elements</tt> contains one or more
+   *         null values and <tt>c</tt> does not permit null elements, or
+   *         if <tt>c</tt> or <tt>elements</tt> are <tt>null</tt>
+   * @throws IllegalArgumentException
+   *         if some property of a value in
+   *         <tt>elements</tt> prevents it from being added to <tt>c</tt>
+   * @see Collection#addAll(Collection)
+   * @since 4.0
+   */
+  @SuppressWarnings("all")
+  public static void addAll(Collection c, Object[] elements) {
+    for (Object element : elements) {
+      c.add(element);
+    }
+  }
+
 }

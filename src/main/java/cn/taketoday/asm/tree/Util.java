@@ -20,7 +20,10 @@
 package cn.taketoday.asm.tree;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import cn.taketoday.context.utils.CollectionUtils;
 
 /**
  * Utility methods to convert an array of primitive or object values to a mutable ArrayList, not
@@ -51,9 +54,7 @@ final class Util {
       return new ArrayList<>();
     }
     ArrayList<T> list = new ArrayList<>(array.length);
-    for (T t : array) {
-      list.add(t);
-    }
+    CollectionUtils.addAll(list, array);
     return list;
   }
 

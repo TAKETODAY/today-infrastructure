@@ -149,24 +149,26 @@ public class FrameNode extends AbstractInsnNode {
   public AbstractInsnNode clone(final Map<LabelNode, LabelNode> clonedLabels) {
     FrameNode clone = new FrameNode();
     clone.type = type;
+    List<Object> local = this.local;
     if (local != null) {
-      clone.local = new ArrayList<>();
-      for (int i = 0, n = local.size(); i < n; ++i) {
-        Object localElement = local.get(i);
+      ArrayList<Object> cloneLocal = new ArrayList<>();
+      clone.local = cloneLocal;
+      for (Object localElement : local) {
         if (localElement instanceof LabelNode) {
           localElement = clonedLabels.get(localElement);
         }
-        clone.local.add(localElement);
+        cloneLocal.add(localElement);
       }
     }
+    List<Object> stack = this.stack;
     if (stack != null) {
-      clone.stack = new ArrayList<>();
-      for (int i = 0, n = stack.size(); i < n; ++i) {
-        Object stackElement = stack.get(i);
+      ArrayList<Object> cloneStack = new ArrayList<>();
+      clone.stack = cloneStack;
+      for (Object stackElement : stack) {
         if (stackElement instanceof LabelNode) {
           stackElement = clonedLabels.get(stackElement);
         }
-        clone.stack.add(stackElement);
+        cloneStack.add(stackElement);
       }
     }
     return clone;

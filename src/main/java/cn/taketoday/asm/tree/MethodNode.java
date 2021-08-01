@@ -194,7 +194,6 @@ public class MethodNode extends MethodVisitor {
   }
 
   @Override
-  @SuppressWarnings("serial")
   public AnnotationVisitor visitAnnotationDefault() {
     return new AnnotationNode(
             new ArrayList<Object>(0) {
