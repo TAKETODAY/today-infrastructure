@@ -20,7 +20,6 @@
 package cn.taketoday.asm.tree;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import cn.taketoday.asm.AnnotationVisitor;
 
@@ -39,19 +38,16 @@ public class AnnotationNode extends AnnotationVisitor {
    * elements in the list. The name is a {@link String}, and the value may be a {@link Byte}, {@link
    * Boolean}, {@link Character}, {@link Short}, {@link Integer}, {@link Long}, {@link Float},
    * {@link Double}, {@link String} or {@link cn.taketoday.asm.Type}, or a two elements String
-   * array (for enumeration values), an {@link AnnotationNode}, or a {@link List} of values of one
+   * array (for enumeration values), an {@link AnnotationNode}, or a {@link ArrayList} of values of one
    * of the preceding types. The list may be {@literal null} if there is no name value pair.
    */
-  public List<Object> values;
+  public ArrayList<Object> values;
 
   /**
    * Constructs a new {@link AnnotationNode}
    *
    * @param descriptor
    *         the class descriptor of the annotation class.
-   *
-   * @throws IllegalStateException
-   *         If a subclass calls this constructor.
    */
   public AnnotationNode(final String descriptor) {
     this.desc = descriptor;
@@ -63,7 +59,7 @@ public class AnnotationNode extends AnnotationVisitor {
    * @param values
    *         where the visited values must be stored.
    */
-  AnnotationNode(final List<Object> values) {
+  AnnotationNode(final ArrayList<Object> values) {
     this.values = values;
   }
 
@@ -73,7 +69,7 @@ public class AnnotationNode extends AnnotationVisitor {
 
   @Override
   public void visit(final String name, final Object value) {
-    List<Object> values = getValues();
+    ArrayList<Object> values = createIfNecessary();
     if (this.desc != null) {
       values.add(name);
     }
@@ -108,7 +104,7 @@ public class AnnotationNode extends AnnotationVisitor {
 
   @Override
   public void visitEnum(final String name, final String descriptor, final String value) {
-    List<Object> values = getValues();
+    ArrayList<Object> values = createIfNecessary();
     if (this.desc != null) {
       values.add(name);
     }
@@ -117,7 +113,7 @@ public class AnnotationNode extends AnnotationVisitor {
 
   @Override
   public AnnotationVisitor visitAnnotation(final String name, final String descriptor) {
-    List<Object> values = getValues();
+    ArrayList<Object> values = createIfNecessary();
     if (this.desc != null) {
       values.add(name);
     }
@@ -126,8 +122,8 @@ public class AnnotationNode extends AnnotationVisitor {
     return annotation;
   }
 
-  private List<Object> getValues() {
-    List<Object> values = this.values;
+  private ArrayList<Object> createIfNecessary() {
+    ArrayList<Object> values = this.values;
     if (values == null) {
       values = new ArrayList<>(this.desc != null ? 2 : 1);
       this.values = values;
@@ -137,7 +133,7 @@ public class AnnotationNode extends AnnotationVisitor {
 
   @Override
   public AnnotationVisitor visitArray(final String name) {
-    List<Object> values = getValues();
+    ArrayList<Object> values = createIfNecessary();
     if (this.desc != null) {
       values.add(name);
     }
@@ -149,6 +145,10 @@ public class AnnotationNode extends AnnotationVisitor {
   @Override
   public void visitEnd() {
     // Nothing to do.
+    ArrayList<Object> values = this.values;
+    if (values != null) {
+      values.trimToSize();
+    }
   }
 
   // ------------------------------------------------------------------------
@@ -163,7 +163,7 @@ public class AnnotationNode extends AnnotationVisitor {
    */
   public void accept(final AnnotationVisitor annotationVisitor) {
     if (annotationVisitor != null) {
-      final List<Object> values = this.values;
+      final ArrayList<Object> values = this.values;
       if (values != null) {
         for (int i = 0, n = values.size(); i < n; i += 2) {
           String name = (String) values.get(i);
@@ -196,10 +196,10 @@ public class AnnotationNode extends AnnotationVisitor {
         AnnotationNode annotationValue = (AnnotationNode) value;
         annotationValue.accept(annotationVisitor.visitAnnotation(name, annotationValue.desc));
       }
-      else if (value instanceof List) {
+      else if (value instanceof ArrayList) {
         AnnotationVisitor arrayAnnotationVisitor = annotationVisitor.visitArray(name);
         if (arrayAnnotationVisitor != null) {
-          List<?> arrayValue = (List<?>) value;
+          ArrayList<?> arrayValue = (ArrayList<?>) value;
           for (Object o : arrayValue) {
             accept(arrayAnnotationVisitor, null, o);
           }

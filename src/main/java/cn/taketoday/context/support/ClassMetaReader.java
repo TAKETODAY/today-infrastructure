@@ -50,7 +50,7 @@ public class ClassMetaReader {
     return classNodeCache.computeIfAbsent(key, classToRead -> {
       String classFile = getClassFile(classToRead);
       try (InputStream resourceAsStream = classLoader.getResourceAsStream(classFile)) {
-        final ClassReader classReader = new ClassReader(resourceAsStream);
+        ClassReader classReader = new ClassReader(resourceAsStream);
         ClassNode classNode = new ClassNode();
         classReader.accept(classNode, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG);
         return classNode;
@@ -90,7 +90,6 @@ public class ClassMetaReader {
           attributes.put(name, value);
         }
       }
-
       return attributes;
     }
     return null;
