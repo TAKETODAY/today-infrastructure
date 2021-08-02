@@ -43,8 +43,8 @@ public class SignatureWriterTest extends AsmTest {
 
   @ParameterizedTest
   @MethodSource({
-    "cn.taketoday.asm.signature.SignaturesProviders#classSignatures",
-    "cn.taketoday.asm.signature.SignaturesProviders#methodSignatures"
+          "cn.taketoday.asm.signature.SignaturesProviders#classSignatures",
+          "cn.taketoday.asm.signature.SignaturesProviders#methodSignatures"
   })
   public void testReadAndWrite_classOrMethodSignature(final String signature) {
     SignatureWriter signatureWriter = new SignatureWriter();

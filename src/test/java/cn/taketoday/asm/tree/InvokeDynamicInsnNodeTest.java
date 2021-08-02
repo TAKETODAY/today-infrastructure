@@ -45,10 +45,10 @@ public class InvokeDynamicInsnNodeTest extends AsmTest {
   @Test
   public void testConstructor() {
     Handle handle = new Handle(Opcodes.H_INVOKESTATIC, "owner", "name", "()V", false);
-    Object[] bootstrapMethodArguments = new Object[] {"s"};
+    Object[] bootstrapMethodArguments = new Object[] { "s" };
 
     InvokeDynamicInsnNode invokeDynamicInsnNode =
-        new InvokeDynamicInsnNode("name", "()V", handle, bootstrapMethodArguments);
+            new InvokeDynamicInsnNode("name", "()V", handle, bootstrapMethodArguments);
 
     assertEquals(Opcodes.INVOKEDYNAMIC, invokeDynamicInsnNode.getOpcode());
     assertEquals(AbstractInsnNode.INVOKE_DYNAMIC_INSN, invokeDynamicInsnNode.getType());

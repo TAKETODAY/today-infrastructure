@@ -12,7 +12,7 @@ import java.util.StringTokenizer;
  */
 final class Util {
 
-  private Util() {}
+  private Util() { }
 
   static int getMajorJavaVersion() {
     String javaVersion = System.getProperty("java.version");
@@ -35,11 +35,14 @@ final class Util {
       Method getInputArguments = runtimeMxBeanClass.getMethod("getInputArguments");
       List<?> argumentList = (List<?>) getInputArguments.invoke(runtimeMxBean);
       return argumentList.contains("--enable-preview");
-    } catch (ClassNotFoundException e) { // JMX may be not available
+    }
+    catch (ClassNotFoundException e) { // JMX may be not available
       return false;
-    } catch (NoSuchMethodException | IllegalAccessException e) {
+    }
+    catch (NoSuchMethodException | IllegalAccessException e) {
       throw new AssertionError(e);
-    } catch (InvocationTargetException e) {
+    }
+    catch (InvocationTargetException e) {
       Throwable cause = e.getCause();
       if (cause instanceof RuntimeException) {
         throw (RuntimeException) cause;

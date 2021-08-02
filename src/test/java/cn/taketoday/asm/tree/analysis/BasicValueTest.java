@@ -28,6 +28,7 @@
 package cn.taketoday.asm.tree.analysis;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.asm.Type;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -53,7 +54,7 @@ public class BasicValueTest {
   @Test
   public void testEquals() {
     boolean equalsSameUninitializedValue =
-        new BasicValue(null).equals(BasicValue.UNINITIALIZED_VALUE);
+            new BasicValue(null).equals(BasicValue.UNINITIALIZED_VALUE);
     boolean equalsSameValue = new BasicValue(Type.INT_TYPE).equals(BasicValue.INT_VALUE);
     boolean equalsThis = BasicValue.INT_VALUE.equals(BasicValue.INT_VALUE);
     boolean equalsDifferentClass = BasicValue.INT_VALUE.equals(new Object());

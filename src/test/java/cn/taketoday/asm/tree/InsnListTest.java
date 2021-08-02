@@ -112,12 +112,12 @@ public class InsnListTest {
     InsnList dstInsnList = new InsnList();
 
     insnList.accept(
-        new MethodVisitor() {
-          @Override
-          public void visitInsn(final int opcode) {
-            dstInsnList.add(new InsnNode(opcode));
-          }
-        });
+            new MethodVisitor() {
+              @Override
+              public void visitInsn(final int opcode) {
+                dstInsnList.add(new InsnNode(opcode));
+              }
+            });
 
     assertEquals(2, dstInsnList.size());
     assertEquals(55, dstInsnList.get(0).opcode);
@@ -177,7 +177,7 @@ public class InsnListTest {
 
     insnList.iterator().add(insn);
 
-    assertArrayEquals(new AbstractInsnNode[] {insn}, insnList.toArray());
+    assertArrayEquals(new AbstractInsnNode[] { insn }, insnList.toArray());
   }
 
   @Test
@@ -188,7 +188,7 @@ public class InsnListTest {
 
     iterator.add(insn);
 
-    assertArrayEquals(new AbstractInsnNode[] {insn1, insn, insn2}, insnList.toArray());
+    assertArrayEquals(new AbstractInsnNode[] { insn1, insn, insn2 }, insnList.toArray());
   }
 
   @Test
@@ -209,7 +209,7 @@ public class InsnListTest {
 
     iterator.remove();
 
-    assertArrayEquals(new AbstractInsnNode[] {insn1}, insnList.toArray());
+    assertArrayEquals(new AbstractInsnNode[] { insn1 }, insnList.toArray());
   }
 
   @Test
@@ -220,7 +220,7 @@ public class InsnListTest {
 
     iterator.remove();
 
-    assertArrayEquals(new AbstractInsnNode[] {insn2}, insnList.toArray());
+    assertArrayEquals(new AbstractInsnNode[] { insn2 }, insnList.toArray());
   }
 
   @Test
@@ -231,7 +231,7 @@ public class InsnListTest {
 
     iterator.add(insn);
 
-    assertArrayEquals(new AbstractInsnNode[] {insn1, insn2, insn}, insnList.toArray());
+    assertArrayEquals(new AbstractInsnNode[] { insn1, insn2, insn }, insnList.toArray());
   }
 
   @Test
@@ -254,7 +254,7 @@ public class InsnListTest {
 
     iterator.set(insn);
 
-    assertArrayEquals(new AbstractInsnNode[] {insn1, insn}, insnList.toArray());
+    assertArrayEquals(new AbstractInsnNode[] { insn1, insn }, insnList.toArray());
   }
 
   @Test
@@ -266,7 +266,7 @@ public class InsnListTest {
 
     iterator.set(insn);
 
-    assertArrayEquals(new AbstractInsnNode[] {insn, insn2}, insnList.toArray());
+    assertArrayEquals(new AbstractInsnNode[] { insn, insn2 }, insnList.toArray());
   }
 
   @Test
@@ -287,7 +287,7 @@ public class InsnListTest {
 
     AbstractInsnNode[] insnArray = insnList.toArray();
 
-    assertArrayEquals(new AbstractInsnNode[] {insn1, insn2}, insnArray);
+    assertArrayEquals(new AbstractInsnNode[] { insn1, insn2 }, insnArray);
   }
 
   @Test
@@ -357,7 +357,7 @@ public class InsnListTest {
     assertEquals(insn, insnList.get(0));
     assertTrue(insnList.contains(insn));
     assertEquals(0, insnList.indexOf(insn));
-    assertArrayEquals(new AbstractInsnNode[] {insn}, insnList.toArray());
+    assertArrayEquals(new AbstractInsnNode[] { insn }, insnList.toArray());
     assertEquals(null, insn.getPrevious());
     assertEquals(null, insn.getNext());
   }
@@ -412,7 +412,7 @@ public class InsnListTest {
     assertTrue(insnList.contains(insn2));
     assertEquals(0, insnList.indexOf(insn1));
     assertEquals(1, insnList.indexOf(insn2));
-    assertArrayEquals(new AbstractInsnNode[] {insn1, insn2}, insnList.toArray());
+    assertArrayEquals(new AbstractInsnNode[] { insn1, insn2 }, insnList.toArray());
   }
 
   @Test
@@ -433,7 +433,7 @@ public class InsnListTest {
     assertEquals(0, insnList.indexOf(insn));
     assertEquals(1, insnList.indexOf(insn1));
     assertEquals(2, insnList.indexOf(insn2));
-    assertArrayEquals(new AbstractInsnNode[] {insn, insn1, insn2}, insnList.toArray());
+    assertArrayEquals(new AbstractInsnNode[] { insn, insn1, insn2 }, insnList.toArray());
   }
 
   @Test
@@ -459,7 +459,7 @@ public class InsnListTest {
     assertEquals(insn, insnList.get(0));
     assertTrue(insnList.contains(insn));
     assertEquals(0, insnList.indexOf(insn));
-    assertArrayEquals(new AbstractInsnNode[] {insn}, insnList.toArray());
+    assertArrayEquals(new AbstractInsnNode[] { insn }, insnList.toArray());
   }
 
   @Test
@@ -512,7 +512,7 @@ public class InsnListTest {
     assertTrue(insnList.contains(insn2));
     assertEquals(0, insnList.indexOf(insn1));
     assertEquals(1, insnList.indexOf(insn2));
-    assertArrayEquals(new AbstractInsnNode[] {insn1, insn2}, insnList.toArray());
+    assertArrayEquals(new AbstractInsnNode[] { insn1, insn2 }, insnList.toArray());
   }
 
   @Test
@@ -533,7 +533,7 @@ public class InsnListTest {
     assertEquals(0, insnList.indexOf(insn1));
     assertEquals(1, insnList.indexOf(insn2));
     assertEquals(2, insnList.indexOf(insn));
-    assertArrayEquals(new AbstractInsnNode[] {insn1, insn2, insn}, insnList.toArray());
+    assertArrayEquals(new AbstractInsnNode[] { insn1, insn2, insn }, insnList.toArray());
   }
 
   @Test
@@ -558,7 +558,7 @@ public class InsnListTest {
     assertEquals(insn1, insnList.get(0));
     assertTrue(insnList.contains(insn));
     assertEquals(2, insnList.indexOf(insn));
-    assertArrayEquals(new AbstractInsnNode[] {insn1, insn2, insn}, insnList.toArray());
+    assertArrayEquals(new AbstractInsnNode[] { insn1, insn2, insn }, insnList.toArray());
   }
 
   @Test
@@ -574,7 +574,7 @@ public class InsnListTest {
     assertEquals(insn1, insnList.get(0));
     assertTrue(insnList.contains(insn));
     assertEquals(1, insnList.indexOf(insn));
-    assertArrayEquals(new AbstractInsnNode[] {insn1, insn, insn2}, insnList.toArray());
+    assertArrayEquals(new AbstractInsnNode[] { insn1, insn, insn2 }, insnList.toArray());
   }
 
   @Test
@@ -597,7 +597,7 @@ public class InsnListTest {
     assertEquals(1, insnList.size());
     assertEquals(insn, insnList.getFirst());
     assertEquals(insn, insnList.getLast());
-    assertArrayEquals(new AbstractInsnNode[] {insn}, insnList.toArray());
+    assertArrayEquals(new AbstractInsnNode[] { insn }, insnList.toArray());
   }
 
   @Test
@@ -618,7 +618,7 @@ public class InsnListTest {
     assertEquals(0, insnList.indexOf(insn));
     assertEquals(1, insnList.indexOf(insn1));
     assertEquals(2, insnList.indexOf(insn2));
-    assertArrayEquals(new AbstractInsnNode[] {insn, insn1, insn2}, insnList.toArray());
+    assertArrayEquals(new AbstractInsnNode[] { insn, insn1, insn2 }, insnList.toArray());
   }
 
   @Test
@@ -663,7 +663,7 @@ public class InsnListTest {
     assertEquals(insn, insnList.get(0));
     assertTrue(insnList.contains(insn));
     assertEquals(0, insnList.indexOf(insn));
-    assertArrayEquals(new AbstractInsnNode[] {insn, insn1, insn2}, insnList.toArray());
+    assertArrayEquals(new AbstractInsnNode[] { insn, insn1, insn2 }, insnList.toArray());
   }
 
   @Test
@@ -679,7 +679,7 @@ public class InsnListTest {
     assertEquals(insn, insnList.get(1));
     assertTrue(insnList.contains(insn));
     assertEquals(1, insnList.indexOf(insn));
-    assertArrayEquals(new AbstractInsnNode[] {insn1, insn, insn2}, insnList.toArray());
+    assertArrayEquals(new AbstractInsnNode[] { insn1, insn, insn2 }, insnList.toArray());
   }
 
   @Test
@@ -702,7 +702,7 @@ public class InsnListTest {
     assertEquals(1, insnList.size());
     assertEquals(insn, insnList.getFirst());
     assertEquals(insn, insnList.getLast());
-    assertArrayEquals(new AbstractInsnNode[] {insn}, insnList.toArray());
+    assertArrayEquals(new AbstractInsnNode[] { insn }, insnList.toArray());
   }
 
   @Test
@@ -723,7 +723,7 @@ public class InsnListTest {
     assertEquals(2, insnList.indexOf(insn));
     assertEquals(0, insnList.indexOf(insn1));
     assertEquals(1, insnList.indexOf(insn2));
-    assertArrayEquals(new AbstractInsnNode[] {insn1, insn2, insn}, insnList.toArray());
+    assertArrayEquals(new AbstractInsnNode[] { insn1, insn2, insn }, insnList.toArray());
   }
 
   @Test

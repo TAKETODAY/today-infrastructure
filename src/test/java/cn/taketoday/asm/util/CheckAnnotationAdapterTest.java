@@ -29,6 +29,7 @@ package cn.taketoday.asm.util;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.AsmTest;
@@ -82,7 +83,7 @@ public class CheckAnnotationAdapterTest extends AsmTest implements Opcodes {
 
     Exception exception = assertThrows(IllegalStateException.class, visit);
     assertEquals(
-        "Cannot call a visit method after visitEnd has been called", exception.getMessage());
+            "Cannot call a visit method after visitEnd has been called", exception.getMessage());
   }
 
   @Test

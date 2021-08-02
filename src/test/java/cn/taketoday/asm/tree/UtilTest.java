@@ -67,7 +67,7 @@ public class UtilTest {
 
   @Test
   public void testAsArrayList_withLengthAndArray() {
-    List<Integer> ints = Util.asArrayList(3, new Integer[] {1, 2, 3, 4, 5});
+    List<Integer> ints = Util.asArrayList(3, new Integer[] { 1, 2, 3, 4, 5 });
 
     assertEquals(3, ints.size());
     assertEquals(Integer.valueOf(1), ints.get(0));

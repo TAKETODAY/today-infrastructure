@@ -29,6 +29,7 @@ package cn.taketoday.asm.util;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+
 import cn.taketoday.asm.Opcodes;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -53,12 +54,12 @@ public class CheckModuleAdapterTest {
     checkModuleAdapter.classVersion = Opcodes.V10;
 
     Executable visitRequire =
-        () -> checkModuleAdapter.visitRequire("java.base", Opcodes.ACC_TRANSITIVE, null);
+            () -> checkModuleAdapter.visitRequire("java.base", Opcodes.ACC_TRANSITIVE, null);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitRequire);
     assertEquals(
-        "Invalid access flags: 32 java.base can not be declared ACC_TRANSITIVE or ACC_STATIC_PHASE",
-        exception.getMessage());
+            "Invalid access flags: 32 java.base can not be declared ACC_TRANSITIVE or ACC_STATIC_PHASE",
+            exception.getMessage());
   }
 
   @Test // see issue #317804
@@ -67,12 +68,12 @@ public class CheckModuleAdapterTest {
     checkModuleAdapter.classVersion = Opcodes.V10;
 
     Executable visitRequire =
-        () -> checkModuleAdapter.visitRequire("java.base", Opcodes.ACC_STATIC_PHASE, null);
+            () -> checkModuleAdapter.visitRequire("java.base", Opcodes.ACC_STATIC_PHASE, null);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitRequire);
     assertEquals(
-        "Invalid access flags: 64 java.base can not be declared ACC_TRANSITIVE or ACC_STATIC_PHASE",
-        exception.getMessage());
+            "Invalid access flags: 64 java.base can not be declared ACC_TRANSITIVE or ACC_STATIC_PHASE",
+            exception.getMessage());
   }
 
   @Test // see issue #317804
@@ -81,14 +82,14 @@ public class CheckModuleAdapterTest {
     checkModuleAdapter.classVersion = Opcodes.V10;
 
     Executable visitRequire =
-        () ->
-            checkModuleAdapter.visitRequire(
-                "java.base", Opcodes.ACC_TRANSITIVE | Opcodes.ACC_STATIC_PHASE, null);
+            () ->
+                    checkModuleAdapter.visitRequire(
+                            "java.base", Opcodes.ACC_TRANSITIVE | Opcodes.ACC_STATIC_PHASE, null);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitRequire);
     assertEquals(
-        "Invalid access flags: 96 java.base can not be declared ACC_TRANSITIVE or ACC_STATIC_PHASE",
-        exception.getMessage());
+            "Invalid access flags: 96 java.base can not be declared ACC_TRANSITIVE or ACC_STATIC_PHASE",
+            exception.getMessage());
   }
 
   @Test // see issue #317804
@@ -97,9 +98,9 @@ public class CheckModuleAdapterTest {
     checkModuleAdapter.classVersion = Opcodes.V9;
 
     Executable visitRequire =
-        () ->
-            checkModuleAdapter.visitRequire(
-                "java.base", Opcodes.ACC_TRANSITIVE | Opcodes.ACC_STATIC_PHASE, null);
+            () ->
+                    checkModuleAdapter.visitRequire(
+                            "java.base", Opcodes.ACC_TRANSITIVE | Opcodes.ACC_STATIC_PHASE, null);
 
     assertDoesNotThrow(visitRequire);
   }
@@ -152,7 +153,7 @@ public class CheckModuleAdapterTest {
 
     Exception exception = assertThrows(IllegalStateException.class, visitUse);
     assertEquals(
-        "Cannot call a visit method after visitEnd has been called", exception.getMessage());
+            "Cannot call a visit method after visitEnd has been called", exception.getMessage());
   }
 
   @Test

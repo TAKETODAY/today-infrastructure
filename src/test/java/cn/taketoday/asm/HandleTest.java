@@ -75,15 +75,15 @@ public class HandleTest {
     final boolean equalsSame = handle1.equals(handle2);
     final boolean equalsNull = handle1.equals(nullHandle);
     final boolean equalsHandleWithDifferentTag =
-        handle1.equals(new Handle(Opcodes.H_PUTFIELD, "owner", "name", "descriptor", false));
+            handle1.equals(new Handle(Opcodes.H_PUTFIELD, "owner", "name", "descriptor", false));
     final boolean equalsHandleWithDifferentOwner =
-        handle1.equals(new Handle(Opcodes.H_GETFIELD, "o", "name", "descriptor", false));
+            handle1.equals(new Handle(Opcodes.H_GETFIELD, "o", "name", "descriptor", false));
     final boolean equalsHandleWithDifferentName =
-        handle1.equals(new Handle(Opcodes.H_GETFIELD, "owner", "n", "descriptor", false));
+            handle1.equals(new Handle(Opcodes.H_GETFIELD, "owner", "n", "descriptor", false));
     final boolean equalsHandleWithDifferentDescriptor =
-        handle1.equals(new Handle(Opcodes.H_GETFIELD, "owner", "name", "d", false));
+            handle1.equals(new Handle(Opcodes.H_GETFIELD, "owner", "name", "d", false));
     final boolean equalsHandleWithDifferentIsInterface =
-        handle1.equals(new Handle(Opcodes.H_GETFIELD, "owner", "n", "descriptor", true));
+            handle1.equals(new Handle(Opcodes.H_GETFIELD, "owner", "n", "descriptor", true));
 
     assertTrue(equalsThis);
     assertTrue(equalsSame);

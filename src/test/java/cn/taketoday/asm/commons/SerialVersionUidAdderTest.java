@@ -30,6 +30,7 @@ package cn.taketoday.asm.commons;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
 import cn.taketoday.asm.ClassReader;
 import cn.taketoday.asm.ClassWriter;
 import cn.taketoday.asm.Opcodes;
@@ -118,12 +119,12 @@ public class SerialVersionUidAdderTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testAllMethods_precompiledClass(
-      final PrecompiledClass classParameter) {
+          final PrecompiledClass classParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);
 
     classReader.accept(
-        new SerialVersionUIDAdder( classWriter) {}, 0);
+            new SerialVersionUIDAdder(classWriter) { }, 0);
 
     if ((classReader.getAccess() & Opcodes.ACC_ENUM) == 0) {
       assertTrue(new ClassFile(classWriter.toByteArray()).toString().contains("serialVersionUID"));

@@ -30,6 +30,7 @@ package cn.taketoday.asm.util;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
 import cn.taketoday.asm.AnnotationVisitor;
 import cn.taketoday.asm.Attribute;
 import cn.taketoday.asm.ClassReader;
@@ -65,9 +66,9 @@ public class TraceClassVisitorTest extends AsmTest {
     ClassReader classReader = new ClassReader(classFile);
     ClassWriter classWriter = new ClassWriter(0);
     ClassVisitor traceClassVisitor =
-        new TraceClassVisitor(classWriter, new PrintWriter(new StringWriter()));
+            new TraceClassVisitor(classWriter, new PrintWriter(new StringWriter()));
 
-    classReader.accept(traceClassVisitor, new Attribute[] {new Comment(), new CodeComment()}, 0);
+    classReader.accept(traceClassVisitor, new Attribute[] { new Comment(), new CodeComment() }, 0);
 
     assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
   }
@@ -76,7 +77,7 @@ public class TraceClassVisitorTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testVisitMethods_noDelegate(
-      final PrecompiledClass classParameter) {
+          final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     StringWriter output = new StringWriter();
@@ -93,48 +94,48 @@ public class TraceClassVisitorTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testVisitMethods_noNestedDelegate(
-      final PrecompiledClass classParameter) {
+          final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
 
     Executable accept =
-        () ->
-            classReader.accept(
-                new ClassVisitor() {
+            () ->
+                    classReader.accept(
+                            new ClassVisitor() {
 
-                  @Override
-                  public ModuleVisitor visitModule(
-                      final String name, final int access, final String version) {
-                    return new TraceModuleVisitor(new Textifier());
-                  }
+                              @Override
+                              public ModuleVisitor visitModule(
+                                      final String name, final int access, final String version) {
+                                return new TraceModuleVisitor(new Textifier());
+                              }
 
-                  @Override
-                  public AnnotationVisitor visitAnnotation(
-                      final String descriptor, final boolean visible) {
-                    return new TraceAnnotationVisitor(new Textifier());
-                  }
+                              @Override
+                              public AnnotationVisitor visitAnnotation(
+                                      final String descriptor, final boolean visible) {
+                                return new TraceAnnotationVisitor(new Textifier());
+                              }
 
-                  @Override
-                  public FieldVisitor visitField(
-                      final int access,
-                      final String name,
-                      final String descriptor,
-                      final String signature,
-                      final Object value) {
-                    return new TraceFieldVisitor(new Textifier());
-                  }
+                              @Override
+                              public FieldVisitor visitField(
+                                      final int access,
+                                      final String name,
+                                      final String descriptor,
+                                      final String signature,
+                                      final Object value) {
+                                return new TraceFieldVisitor(new Textifier());
+                              }
 
-                  @Override
-                  public MethodVisitor visitMethod(
-                      final int access,
-                      final String name,
-                      final String descriptor,
-                      final String signature,
-                      final String[] exceptions) {
-                    return new TraceMethodVisitor(new Textifier());
-                  }
-                },
-                0);
+                              @Override
+                              public MethodVisitor visitMethod(
+                                      final int access,
+                                      final String name,
+                                      final String descriptor,
+                                      final String signature,
+                                      final String[] exceptions) {
+                                return new TraceMethodVisitor(new Textifier());
+                              }
+                            },
+                            0);
 
     assertDoesNotThrow(accept);
   }

@@ -44,7 +44,7 @@ public class LabelTest {
   @Test
   public void testGetOffset() {
     MethodVisitor methodVisitor =
-        new ClassWriter(0).visitMethod(Opcodes.ACC_PUBLIC, "m", "()V", null, null);
+            new ClassWriter(0).visitMethod(Opcodes.ACC_PUBLIC, "m", "()V", null, null);
     methodVisitor.visitCode();
     methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
     Label label = new Label();

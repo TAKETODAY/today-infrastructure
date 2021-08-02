@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
 import cn.taketoday.asm.ClassReader;
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
@@ -57,32 +58,32 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
   @Test
   public void testAnalyze_invalidInvokevirtual() {
     MethodNode methodNode =
-        new MethodNodeBuilder()
-            .insn(Opcodes.ACONST_NULL)
-            .typeInsn(Opcodes.CHECKCAST, "java/lang/Object")
-            .methodInsn(Opcodes.INVOKEVIRTUAL, "java/util/ArrayList", "size", "()I", false)
-            .vreturn()
-            .build();
+            new MethodNodeBuilder()
+                    .insn(Opcodes.ACONST_NULL)
+                    .typeInsn(Opcodes.CHECKCAST, "java/lang/Object")
+                    .methodInsn(Opcodes.INVOKEVIRTUAL, "java/util/ArrayList", "size", "()I", false)
+                    .vreturn()
+                    .build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
     String message = assertThrows(AnalyzerException.class, analyze).getMessage();
     assertTrue(
-        message.contains(
-            "Method owner: expected Ljava/util/ArrayList;, but found Ljava/lang/Object;"));
+            message.contains(
+                    "Method owner: expected Ljava/util/ArrayList;, but found Ljava/lang/Object;"));
   }
 
   @Test
   public void testAnalyze_invalidInvokeinterface() {
     MethodNode methodNode =
-        new MethodNodeBuilder()
-            .insn(Opcodes.ACONST_NULL)
-            .typeInsn(Opcodes.CHECKCAST, "java/util/List")
-            .insn(Opcodes.FCONST_0)
-            .methodInsn(
-                Opcodes.INVOKEINTERFACE, "java/util/List", "get", "(I)Ljava/lang/Object;", true)
-            .vreturn()
-            .build();
+            new MethodNodeBuilder()
+                    .insn(Opcodes.ACONST_NULL)
+                    .typeInsn(Opcodes.CHECKCAST, "java/util/List")
+                    .insn(Opcodes.FCONST_0)
+                    .methodInsn(
+                            Opcodes.INVOKEINTERFACE, "java/util/List", "get", "(I)Ljava/lang/Object;", true)
+                    .vreturn()
+                    .build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -94,15 +95,15 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
   public void testAnalyze_classNotFound() {
     Label loopLabel = new Label();
     MethodNode methodNode =
-        new MethodNodeBuilder()
-            .aload(0)
-            .astore(1)
-            .label(loopLabel)
-            .aconst_null()
-            .typeInsn(Opcodes.CHECKCAST, "D")
-            .astore(1)
-            .go(loopLabel)
-            .build();
+            new MethodNodeBuilder()
+                    .aload(0)
+                    .astore(1)
+                    .label(loopLabel)
+                    .aconst_null()
+                    .typeInsn(Opcodes.CHECKCAST, "D")
+                    .astore(1)
+                    .go(loopLabel)
+                    .build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -114,25 +115,25 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
   public void testAnalyze_mergeStackFrames() throws AnalyzerException {
     Label loopLabel = new Label();
     MethodNode methodNode =
-        new MethodNodeBuilder(1, 4)
-            .aload(0)
-            .astore(1)
-            .aconst_null()
-            .typeInsn(Opcodes.CHECKCAST, "java/lang/Number")
-            .astore(2)
-            .aload(0)
-            .astore(3)
-            .label(loopLabel)
-            .aconst_null()
-            .typeInsn(Opcodes.CHECKCAST, "java/lang/Number")
-            .astore(1)
-            .aload(0)
-            .astore(2)
-            .aconst_null()
-            .typeInsn(Opcodes.CHECKCAST, "java/lang/Integer")
-            .astore(3)
-            .go(loopLabel)
-            .build();
+            new MethodNodeBuilder(1, 4)
+                    .aload(0)
+                    .astore(1)
+                    .aconst_null()
+                    .typeInsn(Opcodes.CHECKCAST, "java/lang/Number")
+                    .astore(2)
+                    .aload(0)
+                    .astore(3)
+                    .label(loopLabel)
+                    .aconst_null()
+                    .typeInsn(Opcodes.CHECKCAST, "java/lang/Number")
+                    .astore(1)
+                    .aload(0)
+                    .astore(2)
+                    .aconst_null()
+                    .typeInsn(Opcodes.CHECKCAST, "java/lang/Integer")
+                    .astore(3)
+                    .go(loopLabel)
+                    .build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -143,21 +144,22 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
   /**
    * Tests that the precompiled classes can be successfully analyzed with a SimpleVerifier.
    *
-   * @throws AnalyzerException if the test class can't be analyzed.
+   * @throws AnalyzerException
+   *         if the test class can't be analyzed.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testAnalyze_simpleVerifier(
-      final PrecompiledClass classParameter) {
+          final PrecompiledClass classParameter) {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);
     assumeFalse(classNode.methods.isEmpty());
     Analyzer<BasicValue> analyzer =
-        new Analyzer<BasicValue>(
-            new SimpleVerifier(
-                Type.fromInternalName(classNode.name),
-                Type.fromInternalName(classNode.superName),
-                (classNode.access & Opcodes.ACC_INTERFACE) != 0));
+            new Analyzer<BasicValue>(
+                    new SimpleVerifier(
+                            Type.fromInternalName(classNode.name),
+                            Type.fromInternalName(classNode.superName),
+                            (classNode.access & Opcodes.ACC_INTERFACE) != 0));
 
     for (MethodNode methodNode : classNode.methods) {
       assertDoesNotThrow(() -> analyzer.analyze(classNode.name, methodNode));
@@ -170,24 +172,25 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
    * algorithm, due to multiple interface inheritance), but the subtyping check is relaxed if the
    * super type is an interface type.
    *
-   * @throws AnalyzerException if the test class can't be analyzed.
+   * @throws AnalyzerException
+   *         if the test class can't be analyzed.
    */
   @Test
   public void testIsAssignableFrom_interface() throws AnalyzerException {
     Label elseLabel = new Label();
     Label endIfLabel = new Label();
     MethodNode methodNode =
-        new MethodNodeBuilder(
-                "(Ljava/util/ArrayList;Ljava/sql/SQLException;)Ljava/lang/Iterable;", 1, 3)
-            .aload(1)
-            .ifnonnull(elseLabel)
-            .aload(1)
-            .go(endIfLabel)
-            .label(elseLabel)
-            .aload(2)
-            .label(endIfLabel)
-            .areturn()
-            .build();
+            new MethodNodeBuilder(
+                    "(Ljava/util/ArrayList;Ljava/sql/SQLException;)Ljava/lang/Iterable;", 1, 3)
+                    .aload(1)
+                    .ifnonnull(elseLabel)
+                    .aload(1)
+                    .go(endIfLabel)
+                    .label(elseLabel)
+                    .aload(2)
+                    .label(endIfLabel)
+                    .areturn()
+                    .build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -197,6 +200,6 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
 
   private static Analyzer<BasicValue> newAnalyzer() {
     return new Analyzer<>(
-        new SimpleVerifier(Type.fromDescriptor("LC;"), Type.fromDescriptor("Ljava/lang/Number;"), false));
+            new SimpleVerifier(Type.fromDescriptor("LC;"), Type.fromDescriptor("Ljava/lang/Number;"), false));
   }
 }

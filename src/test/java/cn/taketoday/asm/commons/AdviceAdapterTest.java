@@ -649,7 +649,7 @@ public class AdviceAdapterTest extends AsmTest {
     ClassWriter expectedClassWriter = new ClassWriter(0);
     ClassVisitor expectedClassVisitor =
             new LocalVariablesSorterTest.LocalVariablesSorterClassAdapter(
-                     expectedClassWriter);
+                    expectedClassWriter);
     classReader.accept(expectedClassVisitor, ClassReader.EXPAND_FRAMES);
     assertEquals(
             new ClassFile(expectedClassWriter.toByteArray()), new ClassFile(classWriter.toByteArray()));

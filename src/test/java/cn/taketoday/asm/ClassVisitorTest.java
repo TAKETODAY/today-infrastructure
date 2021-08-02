@@ -68,8 +68,8 @@ public class ClassVisitorTest extends AsmTest {
 
     Executable transform = () -> classReader.accept(classAdapter, attributes(), 0);
 
-      assertDoesNotThrow(transform);
-      assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
+    assertDoesNotThrow(transform);
+    assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
   }
 
   /**

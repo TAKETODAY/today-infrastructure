@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,7 +39,6 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for {@link AsmTest}.
@@ -82,11 +82,11 @@ public class AsmTestTest extends AsmTest {
     List<Arguments> allArguments = allClassesAndAllApis().collect(Collectors.toList());
 
     assertEquals(
-        new HashSet<Object>(Arrays.asList(PrecompiledClass.values())),
-        allArguments.stream().map(arg -> arg.get()[0]).collect(Collectors.toSet()));
+            new HashSet<Object>(Arrays.asList(PrecompiledClass.values())),
+            allArguments.stream().map(arg -> arg.get()[0]).collect(Collectors.toSet()));
     assertEquals(
-        new HashSet<Object>(Arrays.asList(Api.values())),
-        allArguments.stream().map(arg -> arg.get()[1]).collect(Collectors.toSet()));
+            new HashSet<Object>(Arrays.asList(Api.values())),
+            allArguments.stream().map(arg -> arg.get()[1]).collect(Collectors.toSet()));
   }
 
   @Test
@@ -94,10 +94,10 @@ public class AsmTestTest extends AsmTest {
     List<Arguments> allArguments = allClassesAndLatestApi().collect(Collectors.toList());
 
     assertEquals(
-        new HashSet<Object>(Arrays.asList(PrecompiledClass.values())),
-        allArguments.stream().map(arg -> arg.get()[0]).collect(Collectors.toSet()));
+            new HashSet<Object>(Arrays.asList(PrecompiledClass.values())),
+            allArguments.stream().map(arg -> arg.get()[0]).collect(Collectors.toSet()));
     assertEquals(
-        new HashSet<Object>(Arrays.asList(Api.ASM9)),
-        allArguments.stream().map(arg -> arg.get()[1]).collect(Collectors.toSet()));
+            new HashSet<Object>(Collections.singletonList(Api.ASM9)),
+            allArguments.stream().map(arg -> arg.get()[1]).collect(Collectors.toSet()));
   }
 }

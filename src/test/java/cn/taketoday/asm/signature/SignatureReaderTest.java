@@ -47,13 +47,13 @@ public class SignatureReaderTest extends AsmTest {
 
   @ParameterizedTest
   @MethodSource({
-    "cn.taketoday.asm.signature.SignaturesProviders#classSignatures",
-    "cn.taketoday.asm.signature.SignaturesProviders#methodSignatures"
+          "cn.taketoday.asm.signature.SignaturesProviders#classSignatures",
+          "cn.taketoday.asm.signature.SignaturesProviders#methodSignatures"
   })
   public void testAccept_validClassOrMethodSignature(final String signature) {
     SignatureReader signatureReader = new SignatureReader(signature);
     SignatureVisitor signatureVisitor =
-        new SignatureVisitor() {};
+            new SignatureVisitor() { };
 
     Executable acceptVisitor = () -> signatureReader.accept(signatureVisitor);
 
@@ -65,7 +65,7 @@ public class SignatureReaderTest extends AsmTest {
   public void testAccept_validFieldSignature(final String signature) {
     SignatureReader signatureReader = new SignatureReader(signature);
     SignatureVisitor signatureVisitor =
-        new SignatureVisitor() {};
+            new SignatureVisitor() { };
 
     Executable acceptVisitor = () -> signatureReader.acceptType(signatureVisitor);
 
@@ -77,7 +77,7 @@ public class SignatureReaderTest extends AsmTest {
     String invalidSignature = "-";
     SignatureReader signatureReader = new SignatureReader(invalidSignature);
     SignatureVisitor signatureVisitor =
-        new SignatureVisitor() {};
+            new SignatureVisitor() { };
 
     Executable acceptVisitor = () -> signatureReader.accept(signatureVisitor);
 

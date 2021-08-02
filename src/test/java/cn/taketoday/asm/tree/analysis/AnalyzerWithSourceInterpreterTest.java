@@ -30,6 +30,7 @@ package cn.taketoday.asm.tree.analysis;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
 import cn.taketoday.asm.ClassReader;
 import cn.taketoday.asm.AsmTest;
 import cn.taketoday.asm.tree.ClassNode;
@@ -53,12 +54,13 @@ public class AnalyzerWithSourceInterpreterTest extends AsmTest {
   /**
    * Tests that the precompiled classes can be successfully analyzed with a SourceInterpreter.
    *
-   * @throws AnalyzerException if the test class can't be analyzed.
+   * @throws AnalyzerException
+   *         if the test class can't be analyzed.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testAnalyze_sourceInterpreter(
-      final PrecompiledClass classParameter) {
+          final PrecompiledClass classParameter) {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);
     Analyzer<SourceValue> analyzer = new Analyzer<>(new SourceInterpreter());

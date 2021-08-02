@@ -28,6 +28,7 @@
 package cn.taketoday.asm.tree.analysis;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.tree.InsnNode;
 
@@ -54,7 +55,7 @@ public class SourceValueTest {
 
     boolean equalsSame = new SourceValue(1).equals(new SourceValue(1));
     boolean equalsValueWithDifferentSource =
-        new SourceValue(1).equals(new SourceValue(1, new InsnNode(Opcodes.NOP)));
+            new SourceValue(1).equals(new SourceValue(1, new InsnNode(Opcodes.NOP)));
     boolean equalsValueWithDifferentValue = new SourceValue(1).equals(new SourceValue(2));
     boolean equalsNull = new SourceValue(1).equals(nullValue);
 

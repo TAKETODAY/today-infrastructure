@@ -28,6 +28,7 @@
 package cn.taketoday.asm.commons;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.asm.Type;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -51,18 +52,18 @@ public class MethodTest {
     assertEquals("name", method.getName());
     assertEquals("(I)J", method.getDescriptor());
     assertEquals(Type.LONG_TYPE, method.getReturnType());
-    assertArrayEquals(new Type[] {Type.INT_TYPE}, method.getArgumentTypes());
+    assertArrayEquals(new Type[] { Type.INT_TYPE }, method.getArgumentTypes());
     assertEquals("name(I)J", method.toString());
   }
 
   @Test
   public void testConstructor_fromTypes() {
-    Method method = new Method("name", Type.LONG_TYPE, new Type[] {Type.INT_TYPE});
+    Method method = new Method("name", Type.LONG_TYPE, new Type[] { Type.INT_TYPE });
 
     assertEquals("name", method.getName());
     assertEquals("(I)J", method.getDescriptor());
     assertEquals(Type.LONG_TYPE, method.getReturnType());
-    assertArrayEquals(new Type[] {Type.INT_TYPE}, method.getArgumentTypes());
+    assertArrayEquals(new Type[] { Type.INT_TYPE }, method.getArgumentTypes());
     assertEquals("name(I)J", method.toString());
   }
 
@@ -85,8 +86,8 @@ public class MethodTest {
   @Test
   public void testGetMethod_fromDescriptor() {
     Method method =
-        Method.getMethod(
-            "boolean name(byte, char, short, int, float, long, double, pkg.Class, pkg.Class[])");
+            Method.getMethod(
+                    "boolean name(byte, char, short, int, float, long, double, pkg.Class, pkg.Class[])");
 
     assertEquals("name", method.getName());
     assertEquals("(BCSIFJDLpkg/Class;[Lpkg/Class;)Z", method.getDescriptor());
@@ -102,7 +103,7 @@ public class MethodTest {
   @Test
   public void testGetMethod_withDefaultPackage() {
     Method withoutDefaultPackage =
-        Method.getMethod("void name(Object)", /* defaultPackage= */ false);
+            Method.getMethod("void name(Object)", /* defaultPackage= */ false);
     Method withDefaultPackage = Method.getMethod("void name(Object)", /* defaultPackage= */ true);
 
     assertEquals("(Ljava/lang/Object;)V", withoutDefaultPackage.getDescriptor());
@@ -115,9 +116,9 @@ public class MethodTest {
 
     boolean equalsNull = new Method("name", "()V").equals(nullMethod);
     boolean equalsMethodWithDifferentName =
-        new Method("name", "()V").equals(new Method("other", "()V"));
+            new Method("name", "()V").equals(new Method("other", "()V"));
     boolean equalsMethodWithDifferentDescriptor =
-        new Method("name", "()V").equals(new Method("name", "(I)J"));
+            new Method("name", "()V").equals(new Method("name", "(I)J"));
     boolean equalsSame = new Method("name", "()V").equals(Method.getMethod("void name()"));
 
     assertFalse(equalsNull);

@@ -30,6 +30,7 @@ package cn.taketoday.asm.tree.analysis;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
@@ -88,7 +89,7 @@ public class AnalyzerTest extends AsmTest {
   @Test
   public void testAnalyze_invalidPop() {
     MethodNode methodNode =
-        new MethodNodeBuilder().insn(Opcodes.LCONST_0).insn(Opcodes.POP).vreturn().build();
+            new MethodNodeBuilder().insn(Opcodes.LCONST_0).insn(Opcodes.POP).vreturn().build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -99,12 +100,12 @@ public class AnalyzerTest extends AsmTest {
   @Test
   public void testAnalyze_invalidPop2() {
     MethodNode methodNode =
-        new MethodNodeBuilder()
-            .insn(Opcodes.LCONST_0)
-            .insn(Opcodes.ICONST_0)
-            .insn(Opcodes.POP2)
-            .vreturn()
-            .build();
+            new MethodNodeBuilder()
+                    .insn(Opcodes.LCONST_0)
+                    .insn(Opcodes.ICONST_0)
+                    .insn(Opcodes.POP2)
+                    .vreturn()
+                    .build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -115,7 +116,7 @@ public class AnalyzerTest extends AsmTest {
   @Test
   public void testAnalyze_invalidDup() {
     MethodNode methodNode =
-        new MethodNodeBuilder().insn(Opcodes.LCONST_0).insn(Opcodes.DUP).vreturn().build();
+            new MethodNodeBuilder().insn(Opcodes.LCONST_0).insn(Opcodes.DUP).vreturn().build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -126,12 +127,12 @@ public class AnalyzerTest extends AsmTest {
   @Test
   public void testAnalyze_invalidDupx1() {
     MethodNode methodNode =
-        new MethodNodeBuilder()
-            .insn(Opcodes.LCONST_0)
-            .insn(Opcodes.ICONST_0)
-            .insn(Opcodes.DUP_X1)
-            .vreturn()
-            .build();
+            new MethodNodeBuilder()
+                    .insn(Opcodes.LCONST_0)
+                    .insn(Opcodes.ICONST_0)
+                    .insn(Opcodes.DUP_X1)
+                    .vreturn()
+                    .build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -142,13 +143,13 @@ public class AnalyzerTest extends AsmTest {
   @Test
   public void testAnalyze_invalidDupx2() {
     MethodNode methodNode =
-        new MethodNodeBuilder()
-            .insn(Opcodes.LCONST_0)
-            .insn(Opcodes.ICONST_0)
-            .insn(Opcodes.ICONST_0)
-            .insn(Opcodes.DUP_X2)
-            .vreturn()
-            .build();
+            new MethodNodeBuilder()
+                    .insn(Opcodes.LCONST_0)
+                    .insn(Opcodes.ICONST_0)
+                    .insn(Opcodes.ICONST_0)
+                    .insn(Opcodes.DUP_X2)
+                    .vreturn()
+                    .build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -159,12 +160,12 @@ public class AnalyzerTest extends AsmTest {
   @Test
   public void testAnalyze_invalidDup2() {
     MethodNode methodNode =
-        new MethodNodeBuilder()
-            .insn(Opcodes.LCONST_0)
-            .insn(Opcodes.ICONST_0)
-            .insn(Opcodes.DUP2)
-            .vreturn()
-            .build();
+            new MethodNodeBuilder()
+                    .insn(Opcodes.LCONST_0)
+                    .insn(Opcodes.ICONST_0)
+                    .insn(Opcodes.DUP2)
+                    .vreturn()
+                    .build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -175,13 +176,13 @@ public class AnalyzerTest extends AsmTest {
   @Test
   public void testAnalyze_invalidDup2x1() {
     MethodNode methodNode =
-        new MethodNodeBuilder()
-            .insn(Opcodes.LCONST_0)
-            .insn(Opcodes.ICONST_0)
-            .insn(Opcodes.ICONST_0)
-            .insn(Opcodes.DUP2_X1)
-            .vreturn()
-            .build();
+            new MethodNodeBuilder()
+                    .insn(Opcodes.LCONST_0)
+                    .insn(Opcodes.ICONST_0)
+                    .insn(Opcodes.ICONST_0)
+                    .insn(Opcodes.DUP2_X1)
+                    .vreturn()
+                    .build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -192,14 +193,14 @@ public class AnalyzerTest extends AsmTest {
   @Test
   public void testAnalyze_invalidDup2x2() {
     MethodNode methodNode =
-        new MethodNodeBuilder()
-            .insn(Opcodes.LCONST_0)
-            .insn(Opcodes.ICONST_0)
-            .insn(Opcodes.ICONST_0)
-            .insn(Opcodes.ICONST_0)
-            .insn(Opcodes.DUP2_X2)
-            .vreturn()
-            .build();
+            new MethodNodeBuilder()
+                    .insn(Opcodes.LCONST_0)
+                    .insn(Opcodes.ICONST_0)
+                    .insn(Opcodes.ICONST_0)
+                    .insn(Opcodes.ICONST_0)
+                    .insn(Opcodes.DUP2_X2)
+                    .vreturn()
+                    .build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -210,12 +211,12 @@ public class AnalyzerTest extends AsmTest {
   @Test
   public void testAnalyze_invalidSwap() {
     MethodNode methodNode =
-        new MethodNodeBuilder()
-            .insn(Opcodes.LCONST_0)
-            .insn(Opcodes.ICONST_0)
-            .insn(Opcodes.SWAP)
-            .vreturn()
-            .build();
+            new MethodNodeBuilder()
+                    .insn(Opcodes.LCONST_0)
+                    .insn(Opcodes.ICONST_0)
+                    .insn(Opcodes.SWAP)
+                    .vreturn()
+                    .build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -256,7 +257,7 @@ public class AnalyzerTest extends AsmTest {
   @Test
   public void testAnalyze_invalidPushOnFullStack() {
     MethodNode methodNode =
-        new MethodNodeBuilder(3, 3).iconst_0().iconst_0().iconst_0().iconst_0().vreturn().build();
+            new MethodNodeBuilder(3, 3).iconst_0().iconst_0().iconst_0().iconst_0().vreturn().build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -268,13 +269,13 @@ public class AnalyzerTest extends AsmTest {
   public void testAnalyze_inconsistentStackHeights() {
     Label ifLabel = new Label();
     MethodNode methodNode =
-        new MethodNodeBuilder()
-            .iconst_0()
-            .ifne(ifLabel)
-            .iconst_0()
-            .label(ifLabel)
-            .vreturn()
-            .build();
+            new MethodNodeBuilder()
+                    .iconst_0()
+                    .ifne(ifLabel)
+                    .iconst_0()
+                    .label(ifLabel)
+                    .vreturn()
+                    .build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -307,14 +308,14 @@ public class AnalyzerTest extends AsmTest {
     Label gotoLabel = new Label();
     Label jsrLabel = new Label();
     MethodNode methodNode =
-        new MethodNodeBuilder()
-            .go(gotoLabel)
-            .label(jsrLabel)
-            .astore(1)
-            .ret(1)
-            .label(gotoLabel)
-            .jsr(jsrLabel)
-            .build();
+            new MethodNodeBuilder()
+                    .go(gotoLabel)
+                    .label(jsrLabel)
+                    .astore(1)
+                    .ret(1)
+                    .label(gotoLabel)
+                    .jsr(jsrLabel)
+                    .build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -331,18 +332,18 @@ public class AnalyzerTest extends AsmTest {
     Label subroutine2Label = new Label();
     Label endSubroutineLabel = new Label();
     MethodNode methodNode =
-        new MethodNodeBuilder()
-            .jsr(subroutine1Label)
-            .jsr(subroutine2Label)
-            .vreturn()
-            .label(subroutine1Label)
-            .astore(1)
-            .go(endSubroutineLabel)
-            .label(subroutine2Label)
-            .astore(1)
-            .label(endSubroutineLabel)
-            .ret(1)
-            .build();
+            new MethodNodeBuilder()
+                    .jsr(subroutine1Label)
+                    .jsr(subroutine2Label)
+                    .vreturn()
+                    .label(subroutine1Label)
+                    .astore(1)
+                    .go(endSubroutineLabel)
+                    .label(subroutine2Label)
+                    .astore(1)
+                    .label(endSubroutineLabel)
+                    .ret(1)
+                    .build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -363,41 +364,42 @@ public class AnalyzerTest extends AsmTest {
    * }
    * </pre>
    *
-   * @throws AnalyzerException if the test fails
+   * @throws AnalyzerException
+   *         if the test fails
    */
   @Test
   public void testAnalyze_basicTryFinally() throws AnalyzerException {
     MethodNode methodNode =
-        new MethodNodeBuilder(4, 4)
-            .iconst_0()
-            .istore(1)
-            // Body of try block.
-            .label(label0)
-            .iinc(1, 1)
-            .go(label3)
-            // Exception handler.
-            .label(label1)
-            .astore(3)
-            .jsr(label2)
-            .aload(3)
-            .athrow()
-            // Subroutine.
-            .label(label2)
-            .astore(2)
-            .iinc(1, -1)
-            .push()
-            .push()
-            .ret(2)
-            // Non-exceptional exit from try block.
-            .label(label3)
-            .jsr(label2)
-            .push()
-            .push()
-            .label(label4)
-            .vreturn()
-            .trycatch(label0, label1, label1)
-            .trycatch(label3, label4, label1)
-            .build();
+            new MethodNodeBuilder(4, 4)
+                    .iconst_0()
+                    .istore(1)
+                    // Body of try block.
+                    .label(label0)
+                    .iinc(1, 1)
+                    .go(label3)
+                    // Exception handler.
+                    .label(label1)
+                    .astore(3)
+                    .jsr(label2)
+                    .aload(3)
+                    .athrow()
+                    // Subroutine.
+                    .label(label2)
+                    .astore(2)
+                    .iinc(1, -1)
+                    .push()
+                    .push()
+                    .ret(2)
+                    // Non-exceptional exit from try block.
+                    .label(label3)
+                    .jsr(label2)
+                    .push()
+                    .push()
+                    .label(label4)
+                    .vreturn()
+                    .trycatch(label0, label1, label1)
+                    .trycatch(label3, label4, label1)
+                    .build();
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -425,47 +427,48 @@ public class AnalyzerTest extends AsmTest {
    * }
    * </pre>
    *
-   * @throws AnalyzerException if the test fails
+   * @throws AnalyzerException
+   *         if the test fails
    */
   @Test
   public void testAnalyze_ifElseInFinally() throws AnalyzerException {
     MethodNode methodNode =
-        new MethodNodeBuilder(5, 4)
-            .iconst_0()
-            .istore(1)
-            // Body of try block.
-            .label(label0)
-            .iinc(1, 1)
-            .go(label5)
-            // Exception handler.
-            .label(label1)
-            .astore(3)
-            .jsr(label2)
-            .push()
-            .push()
-            .aload(3)
-            .athrow()
-            // Subroutine.
-            .label(label2)
-            .astore(2)
-            .push()
-            .push()
-            .iload(1)
-            .ifne(label3)
-            .iinc(1, 2)
-            .go(label4)
-            .label(label3)
-            .iinc(1, 3)
-            .label(label4)
-            .ret(2)
-            // Non-exceptional exit from try block.
-            .label(label5)
-            .jsr(label2)
-            .label(label6)
-            .vreturn()
-            .trycatch(label0, label1, label1)
-            .trycatch(label5, label6, label1)
-            .build();
+            new MethodNodeBuilder(5, 4)
+                    .iconst_0()
+                    .istore(1)
+                    // Body of try block.
+                    .label(label0)
+                    .iinc(1, 1)
+                    .go(label5)
+                    // Exception handler.
+                    .label(label1)
+                    .astore(3)
+                    .jsr(label2)
+                    .push()
+                    .push()
+                    .aload(3)
+                    .athrow()
+                    // Subroutine.
+                    .label(label2)
+                    .astore(2)
+                    .push()
+                    .push()
+                    .iload(1)
+                    .ifne(label3)
+                    .iinc(1, 2)
+                    .go(label4)
+                    .label(label3)
+                    .iinc(1, 3)
+                    .label(label4)
+                    .ret(2)
+                    // Non-exceptional exit from try block.
+                    .label(label5)
+                    .jsr(label2)
+                    .label(label6)
+                    .vreturn()
+                    .trycatch(label0, label1, label1)
+                    .trycatch(label5, label6, label1)
+                    .build();
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -493,52 +496,53 @@ public class AnalyzerTest extends AsmTest {
    * }
    * </pre>
    *
-   * @throws AnalyzerException if the test fails
+   * @throws AnalyzerException
+   *         if the test fails
    */
   @Test
   public void testAnalyze_simpleNestedFinally() throws AnalyzerException {
     MethodNode methodNode =
-        new MethodNodeBuilder(5, 6)
-            .iconst_0()
-            .istore(1)
-            // Body of try block.
-            .label(label0)
-            .iinc(1, 1)
-            .jsr(label2)
-            .go(label5)
-            // First exception handler.
-            .label(label1)
-            .astore(4)
-            .jsr(label2)
-            .aload(4)
-            .athrow()
-            // First subroutine.
-            .label(label2)
-            .astore(2)
-            .iinc(1, 2)
-            .jsr(label4)
-            .push()
-            .push()
-            .ret(2)
-            // Second exception handler.
-            .label(label3)
-            .astore(5)
-            .jsr(label4)
-            .aload(5)
-            .athrow()
-            // Second subroutine.
-            .label(label4)
-            .astore(3)
-            .push()
-            .push()
-            .iinc(1, 3)
-            .ret(3)
-            // On normal exit, try block jumps here.
-            .label(label5)
-            .vreturn()
-            .trycatch(label0, label1, label1)
-            .trycatch(label2, label3, label3)
-            .build();
+            new MethodNodeBuilder(5, 6)
+                    .iconst_0()
+                    .istore(1)
+                    // Body of try block.
+                    .label(label0)
+                    .iinc(1, 1)
+                    .jsr(label2)
+                    .go(label5)
+                    // First exception handler.
+                    .label(label1)
+                    .astore(4)
+                    .jsr(label2)
+                    .aload(4)
+                    .athrow()
+                    // First subroutine.
+                    .label(label2)
+                    .astore(2)
+                    .iinc(1, 2)
+                    .jsr(label4)
+                    .push()
+                    .push()
+                    .ret(2)
+                    // Second exception handler.
+                    .label(label3)
+                    .astore(5)
+                    .jsr(label4)
+                    .aload(5)
+                    .athrow()
+                    // Second subroutine.
+                    .label(label4)
+                    .astore(3)
+                    .push()
+                    .push()
+                    .iinc(1, 3)
+                    .ret(3)
+                    // On normal exit, try block jumps here.
+                    .label(label5)
+                    .vreturn()
+                    .trycatch(label0, label1, label1)
+                    .trycatch(label2, label3, label3)
+                    .build();
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -553,18 +557,18 @@ public class AnalyzerTest extends AsmTest {
     Label subroutine1Label = new Label();
     Label subroutine2Label = new Label();
     MethodNode methodNode =
-        new MethodNodeBuilder(1, 3)
-            .jsr(subroutine1Label)
-            .vreturn()
-            .label(subroutine1Label)
-            .astore(1)
-            .jsr(subroutine2Label)
-            .jsr(subroutine2Label)
-            .ret(1)
-            .label(subroutine2Label)
-            .astore(2)
-            .ret(2)
-            .build();
+            new MethodNodeBuilder(1, 3)
+                    .jsr(subroutine1Label)
+                    .vreturn()
+                    .label(subroutine1Label)
+                    .astore(1)
+                    .jsr(subroutine2Label)
+                    .jsr(subroutine2Label)
+                    .ret(1)
+                    .label(subroutine2Label)
+                    .astore(2)
+                    .ret(2)
+                    .build();
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -595,39 +599,40 @@ public class AnalyzerTest extends AsmTest {
    * }
    * </pre>
    *
-   * @throws AnalyzerException if the test fails
+   * @throws AnalyzerException
+   *         if the test fails
    */
   @Test
   public void testAnalyze_subroutineWithNoRet() throws AnalyzerException {
     MethodNode methodNode =
-        new MethodNodeBuilder(1, 4)
-            .iconst_0()
-            .istore(1)
-            // While loop header/try block.
-            .label(label0)
-            .iinc(1, 1)
-            .jsr(label2)
-            .go(label3)
-            // Implicit catch block.
-            .label(label1)
-            .astore(2)
-            .jsr(label2)
-            .push()
-            .push()
-            .aload(2)
-            .athrow()
-            // Subroutine which does not return.
-            .label(label2)
-            .astore(3)
-            .iinc(1, 2)
-            .go(label4)
-            // End of the loop, goes back to the top.
-            .label(label3)
-            .go(label0)
-            .label(label4)
-            .vreturn()
-            .trycatch(label0, label1, label1)
-            .build();
+            new MethodNodeBuilder(1, 4)
+                    .iconst_0()
+                    .istore(1)
+                    // While loop header/try block.
+                    .label(label0)
+                    .iinc(1, 1)
+                    .jsr(label2)
+                    .go(label3)
+                    // Implicit catch block.
+                    .label(label1)
+                    .astore(2)
+                    .jsr(label2)
+                    .push()
+                    .push()
+                    .aload(2)
+                    .athrow()
+                    // Subroutine which does not return.
+                    .label(label2)
+                    .astore(3)
+                    .iinc(1, 2)
+                    .go(label4)
+                    // End of the loop, goes back to the top.
+                    .label(label3)
+                    .go(label0)
+                    .label(label4)
+                    .vreturn()
+                    .trycatch(label0, label1, label1)
+                    .build();
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -649,22 +654,23 @@ public class AnalyzerTest extends AsmTest {
    *   return
    * </pre>
    *
-   * @throws AnalyzerException if the test fails
+   * @throws AnalyzerException
+   *         if the test fails
    */
   @Test
   public void testAnalyze_subroutineWithNoRet2() throws AnalyzerException {
     MethodNode methodNode =
-        new MethodNodeBuilder(2, 2)
-            .aconst_null()
-            .jsr(label0)
-            .nop()
-            .label(label0)
-            .astore(0)
-            .astore(0)
-            .vreturn()
-            .label(label1)
-            .localVariable("i", "I", null, label0, label1, 1)
-            .build();
+            new MethodNodeBuilder(2, 2)
+                    .aconst_null()
+                    .jsr(label0)
+                    .nop()
+                    .label(label0)
+                    .astore(0)
+                    .astore(0)
+                    .vreturn()
+                    .label(label1)
+                    .localVariable("i", "I", null, label0, label1, 1)
+                    .build();
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -681,31 +687,31 @@ public class AnalyzerTest extends AsmTest {
     Label exceptionHandler2Label = new Label();
     Label subroutineLabel = new Label();
     MethodNode methodNode =
-        new MethodNodeBuilder(1, 5)
-            .label(startLabel)
-            .jsr(subroutineLabel)
-            .vreturn()
-            .label(exceptionHandler1Label)
-            .astore(1)
-            .jsr(subroutineLabel)
-            .aload(1)
-            .athrow()
-            .label(subroutineLabel)
-            .astore(2)
-            .aconst_null()
-            .astore(3)
-            .ret(2)
-            .label(exceptionHandler2Label)
-            .astore(4)
-            .aload(4)
-            .athrow()
-            .trycatch(startLabel, exceptionHandler1Label, exceptionHandler1Label)
-            .trycatch(
-                startLabel,
-                exceptionHandler2Label,
-                exceptionHandler2Label,
-                "java/lang/RuntimeException")
-            .build();
+            new MethodNodeBuilder(1, 5)
+                    .label(startLabel)
+                    .jsr(subroutineLabel)
+                    .vreturn()
+                    .label(exceptionHandler1Label)
+                    .astore(1)
+                    .jsr(subroutineLabel)
+                    .aload(1)
+                    .athrow()
+                    .label(subroutineLabel)
+                    .astore(2)
+                    .aconst_null()
+                    .astore(3)
+                    .ret(2)
+                    .label(exceptionHandler2Label)
+                    .astore(4)
+                    .aload(4)
+                    .athrow()
+                    .trycatch(startLabel, exceptionHandler1Label, exceptionHandler1Label)
+                    .trycatch(
+                            startLabel,
+                            exceptionHandler2Label,
+                            exceptionHandler2Label,
+                            "java/lang/RuntimeException")
+                    .build();
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -737,43 +743,44 @@ public class AnalyzerTest extends AsmTest {
    * }
    * </pre>
    *
-   * @throws AnalyzerException if the test fails
+   * @throws AnalyzerException
+   *         if the test fails
    */
   @Test
   public void testAnalyze_implicitExit() throws AnalyzerException {
     MethodNode methodNode =
-        new MethodNodeBuilder(1, 4)
-            .iconst_0()
-            .istore(1)
-            // While loop header.
-            .label(label0)
-            .aconst_null()
-            .ifnonnull(label5)
-            // Try block.
-            .label(label1)
-            .iinc(1, 1)
-            .jsr(label3)
-            .go(label4)
-            // Implicit catch block.
-            .label(label2)
-            .astore(2)
-            .jsr(label3)
-            .aload(2)
-            .push()
-            .push()
-            .athrow()
-            // Subroutine which does not return.
-            .label(label3)
-            .astore(3)
-            .iinc(1, 2)
-            .go(label5)
-            // End of the loop, goes back to the top.
-            .label(label4)
-            .go(label1)
-            .label(label5)
-            .vreturn()
-            .trycatch(label1, label2, label2)
-            .build();
+            new MethodNodeBuilder(1, 4)
+                    .iconst_0()
+                    .istore(1)
+                    // While loop header.
+                    .label(label0)
+                    .aconst_null()
+                    .ifnonnull(label5)
+                    // Try block.
+                    .label(label1)
+                    .iinc(1, 1)
+                    .jsr(label3)
+                    .go(label4)
+                    // Implicit catch block.
+                    .label(label2)
+                    .astore(2)
+                    .jsr(label3)
+                    .aload(2)
+                    .push()
+                    .push()
+                    .athrow()
+                    // Subroutine which does not return.
+                    .label(label3)
+                    .astore(3)
+                    .iinc(1, 2)
+                    .go(label5)
+                    // End of the loop, goes back to the top.
+                    .label(label4)
+                    .go(label1)
+                    .label(label5)
+                    .vreturn()
+                    .trycatch(label1, label2, label2)
+                    .build();
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -809,60 +816,61 @@ public class AnalyzerTest extends AsmTest {
    * <p>This example is from the paper, "Subroutine Inlining and Bytecode Abstraction to Simplify
    * Static and Dynamic Analysis" by Cyrille Artho and Armin Biere.
    *
-   * @throws AnalyzerException if the test fails
+   * @throws AnalyzerException
+   *         if the test fails
    */
   @Test
   public void testAnalyze_implicitExitToAnotherSubroutine() throws AnalyzerException {
     MethodNode methodNode =
-        new MethodNodeBuilder(5, 6)
-            .iconst_0()
-            .istore(1)
-            // First try.
-            .label(label0)
-            .jsr(label2)
-            .vreturn()
-            // Exception handler for first try.
-            .label(label1)
-            .astore(LOCAL2)
-            .jsr(label2)
-            .push()
-            .push()
-            .aload(LOCAL2)
-            .athrow()
-            // First finally handler.
-            .label(label2)
-            .astore(LOCAL4)
-            .push()
-            .push()
-            .go(label6)
-            // Body of while loop, also second try.
-            .label(label3)
-            .jsr(label5)
-            .vreturn()
-            // Exception handler for second try.
-            .label(label4)
-            .astore(LOCAL3)
-            .push()
-            .push()
-            .jsr(label5)
-            .aload(LOCAL3)
-            .athrow()
-            // Second finally handler.
-            .label(label5)
-            .astore(LOCAL5)
-            .iload(LOCAL1)
-            .ifne(label7)
-            .ret(LOCAL5)
-            // Test for the while loop.
-            .label(label6)
-            .iload(LOCAL1)
-            .ifne(label3)
-            // Exit from finally block.
-            .label(label7)
-            .ret(LOCAL4)
-            .trycatch(label0, label1, label1)
-            .trycatch(label3, label4, label4)
-            .build();
+            new MethodNodeBuilder(5, 6)
+                    .iconst_0()
+                    .istore(1)
+                    // First try.
+                    .label(label0)
+                    .jsr(label2)
+                    .vreturn()
+                    // Exception handler for first try.
+                    .label(label1)
+                    .astore(LOCAL2)
+                    .jsr(label2)
+                    .push()
+                    .push()
+                    .aload(LOCAL2)
+                    .athrow()
+                    // First finally handler.
+                    .label(label2)
+                    .astore(LOCAL4)
+                    .push()
+                    .push()
+                    .go(label6)
+                    // Body of while loop, also second try.
+                    .label(label3)
+                    .jsr(label5)
+                    .vreturn()
+                    // Exception handler for second try.
+                    .label(label4)
+                    .astore(LOCAL3)
+                    .push()
+                    .push()
+                    .jsr(label5)
+                    .aload(LOCAL3)
+                    .athrow()
+                    // Second finally handler.
+                    .label(label5)
+                    .astore(LOCAL5)
+                    .iload(LOCAL1)
+                    .ifne(label7)
+                    .ret(LOCAL5)
+                    // Test for the while loop.
+                    .label(label6)
+                    .iload(LOCAL1)
+                    .ifne(label3)
+                    // Exit from finally block.
+                    .label(label7)
+                    .ret(LOCAL4)
+                    .trycatch(label0, label1, label1)
+                    .trycatch(label3, label4, label4)
+                    .build();
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -875,23 +883,23 @@ public class AnalyzerTest extends AsmTest {
   @Test
   public void testanalyze_implicitExitToAnotherSubroutine2() throws AnalyzerException {
     MethodNode methodNode =
-        new MethodNodeBuilder(1, 4)
-            .iconst_0()
-            .istore(1)
-            .jsr(label0)
-            .vreturn()
-            .label(label0)
-            .astore(2)
-            .jsr(label1)
-            .go(label2)
-            .label(label1)
-            .astore(3)
-            .iload(1)
-            .ifne(label2)
-            .ret(3)
-            .label(label2)
-            .ret(2)
-            .build();
+            new MethodNodeBuilder(1, 4)
+                    .iconst_0()
+                    .istore(1)
+                    .jsr(label0)
+                    .vreturn()
+                    .label(label0)
+                    .astore(2)
+                    .jsr(label1)
+                    .go(label2)
+                    .label(label1)
+                    .astore(3)
+                    .iload(1)
+                    .ifne(label2)
+                    .ret(3)
+                    .label(label2)
+                    .ret(2)
+                    .build();
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -907,37 +915,38 @@ public class AnalyzerTest extends AsmTest {
    *
    * <p>This would not normally be produced by a java compiler.
    *
-   * @throws AnalyzerException if the test fails
+   * @throws AnalyzerException
+   *         if the test fails
    */
   @Test
   public void testAnalyze_interleavedCode() throws AnalyzerException {
     MethodNode methodNode =
-        new MethodNodeBuilder(4, 3)
-            .iconst_0()
-            .istore(1)
-            .jsr(label0)
-            .go(label1)
-            // Subroutine 1.
-            .label(label0)
-            .astore(2)
-            .iinc(1, 1)
-            .go(label2)
-            // Second part of main subroutine.
-            .label(label1)
-            .iinc(1, 2)
-            .go(label3)
-            // Second part of subroutine 1.
-            .label(label2)
-            .iinc(1, 4)
-            .push()
-            .push()
-            .ret(2)
-            // Third part of main subroutine.
-            .label(label3)
-            .push()
-            .push()
-            .vreturn()
-            .build();
+            new MethodNodeBuilder(4, 3)
+                    .iconst_0()
+                    .istore(1)
+                    .jsr(label0)
+                    .go(label1)
+                    // Subroutine 1.
+                    .label(label0)
+                    .astore(2)
+                    .iinc(1, 1)
+                    .go(label2)
+                    // Second part of main subroutine.
+                    .label(label1)
+                    .iinc(1, 2)
+                    .go(label3)
+                    // Second part of subroutine 1.
+                    .label(label2)
+                    .iinc(1, 4)
+                    .push()
+                    .push()
+                    .ret(2)
+                    // Third part of main subroutine.
+                    .label(label3)
+                    .push()
+                    .push()
+                    .vreturn()
+                    .build();
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -975,63 +984,64 @@ public class AnalyzerTest extends AsmTest {
    * }
    * </pre>
    *
-   * @throws AnalyzerException if the test fails
+   * @throws AnalyzerException
+   *         if the test fails
    */
   @Test
   public void testAnalyze_implicitExitInTryCatch() throws AnalyzerException {
     MethodNode methodNode =
-        new MethodNodeBuilder(4, 6)
-            .iconst_0()
-            .istore(1)
-            // First try.
-            .label(label0)
-            .jsr(label2)
-            .vreturn()
-            // Exception handler for first try.
-            .label(label1)
-            .astore(LOCAL2)
-            .jsr(label2)
-            .aload(LOCAL2)
-            .athrow()
-            // First finally handler.
-            .label(label2)
-            .astore(LOCAL4)
-            .go(label6)
-            // Body of while loop, also second try.
-            .label(label3)
-            .jsr(label5)
-            .push()
-            .push()
-            .vreturn()
-            // Exception handler for second try.
-            .label(label4)
-            .astore(LOCAL3)
-            .jsr(label5)
-            .aload(LOCAL3)
-            .athrow()
-            // Second finally handler.
-            .label(label5)
-            .astore(LOCAL5)
-            .iload(LOCAL1)
-            .ifne(label7)
-            .push()
-            .push()
-            .ret(LOCAL5)
-            // Test for the while loop.
-            .label(label6)
-            .iload(LOCAL1)
-            .ifne(label3)
-            // Exit from finally{} block.
-            .label(label7)
-            .ret(LOCAL4)
-            // Outermost catch.
-            .label(label8)
-            .iinc(LOCAL1, 3)
-            .vreturn()
-            .trycatch(label0, label1, label1)
-            .trycatch(label3, label4, label4)
-            .trycatch(label0, label8, label8)
-            .build();
+            new MethodNodeBuilder(4, 6)
+                    .iconst_0()
+                    .istore(1)
+                    // First try.
+                    .label(label0)
+                    .jsr(label2)
+                    .vreturn()
+                    // Exception handler for first try.
+                    .label(label1)
+                    .astore(LOCAL2)
+                    .jsr(label2)
+                    .aload(LOCAL2)
+                    .athrow()
+                    // First finally handler.
+                    .label(label2)
+                    .astore(LOCAL4)
+                    .go(label6)
+                    // Body of while loop, also second try.
+                    .label(label3)
+                    .jsr(label5)
+                    .push()
+                    .push()
+                    .vreturn()
+                    // Exception handler for second try.
+                    .label(label4)
+                    .astore(LOCAL3)
+                    .jsr(label5)
+                    .aload(LOCAL3)
+                    .athrow()
+                    // Second finally handler.
+                    .label(label5)
+                    .astore(LOCAL5)
+                    .iload(LOCAL1)
+                    .ifne(label7)
+                    .push()
+                    .push()
+                    .ret(LOCAL5)
+                    // Test for the while loop.
+                    .label(label6)
+                    .iload(LOCAL1)
+                    .ifne(label3)
+                    // Exit from finally{} block.
+                    .label(label7)
+                    .ret(LOCAL4)
+                    // Outermost catch.
+                    .label(label8)
+                    .iinc(LOCAL1, 3)
+                    .vreturn()
+                    .trycatch(label0, label1, label1)
+                    .trycatch(label3, label4, label4)
+                    .trycatch(label0, label8, label8)
+                    .build();
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -1044,7 +1054,8 @@ public class AnalyzerTest extends AsmTest {
   /**
    * Tests that Analyzer works correctly on classes with many labels.
    *
-   * @throws AnalyzerException if the test fails
+   * @throws AnalyzerException
+   *         if the test fails
    */
   @Test
   public void testAnalyze_manyLabels() throws AnalyzerException {
@@ -1068,60 +1079,61 @@ public class AnalyzerTest extends AsmTest {
    * Tests an example coming from distilled down version of
    * com/sun/corba/ee/impl/protocol/CorbaClientDelegateImpl from GlassFish 2. See issue #317823.
    *
-   * @throws AnalyzerException if the test fails
+   * @throws AnalyzerException
+   *         if the test fails
    */
   @Test
   public void testAnalyze_glassFish2CorbaClientDelegateImplExample() throws AnalyzerException {
     MethodNode methodNode =
-        new MethodNodeBuilder(3, 3)
-            .label(label0)
-            .jsr(label4)
-            .label(label1)
-            .go(label5)
-            .label(label2)
-            .pop()
-            .jsr(label4)
-            .label(label3)
-            .aconst_null()
-            .athrow()
-            .label(label4)
-            .astore(1)
-            .ret(1)
-            .label(label5)
-            .aconst_null()
-            .aconst_null()
-            .aconst_null()
-            .pop()
-            .pop()
-            .pop()
-            .label(label6)
-            .go(label8)
-            .label(label7)
-            .pop()
-            .go(label8)
-            .aconst_null()
-            .athrow()
-            .label(label8)
-            .iconst_0()
-            .ifne(label0)
-            .jsr(label12)
-            .label(label9)
-            .vreturn()
-            .label(label10)
-            .pop()
-            .jsr(label12)
-            .label(label11)
-            .aconst_null()
-            .athrow()
-            .label(label12)
-            .astore(2)
-            .ret(2)
-            .trycatch(label0, label1, label2)
-            .trycatch(label2, label3, label2)
-            .trycatch(label0, label6, label7)
-            .trycatch(label0, label9, label10)
-            .trycatch(label10, label11, label10)
-            .build();
+            new MethodNodeBuilder(3, 3)
+                    .label(label0)
+                    .jsr(label4)
+                    .label(label1)
+                    .go(label5)
+                    .label(label2)
+                    .pop()
+                    .jsr(label4)
+                    .label(label3)
+                    .aconst_null()
+                    .athrow()
+                    .label(label4)
+                    .astore(1)
+                    .ret(1)
+                    .label(label5)
+                    .aconst_null()
+                    .aconst_null()
+                    .aconst_null()
+                    .pop()
+                    .pop()
+                    .pop()
+                    .label(label6)
+                    .go(label8)
+                    .label(label7)
+                    .pop()
+                    .go(label8)
+                    .aconst_null()
+                    .athrow()
+                    .label(label8)
+                    .iconst_0()
+                    .ifne(label0)
+                    .jsr(label12)
+                    .label(label9)
+                    .vreturn()
+                    .label(label10)
+                    .pop()
+                    .jsr(label12)
+                    .label(label11)
+                    .aconst_null()
+                    .athrow()
+                    .label(label12)
+                    .astore(2)
+                    .ret(2)
+                    .trycatch(label0, label1, label2)
+                    .trycatch(label2, label3, label2)
+                    .trycatch(label0, label6, label7)
+                    .trycatch(label0, label9, label10)
+                    .trycatch(label10, label11, label10)
+                    .build();
 
     Frame<?>[] frames = newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -1239,28 +1251,28 @@ public class AnalyzerTest extends AsmTest {
 
     @Override
     public MockValue binaryOperation(
-        final AbstractInsnNode insn, final MockValue value1, final MockValue value2) {
+            final AbstractInsnNode insn, final MockValue value1, final MockValue value2) {
       throw new UnsupportedOperationException();
     }
 
     @Override
     public MockValue ternaryOperation(
-        final AbstractInsnNode insn,
-        final MockValue value1,
-        final MockValue value2,
-        final MockValue value3) {
+            final AbstractInsnNode insn,
+            final MockValue value1,
+            final MockValue value2,
+            final MockValue value3) {
       throw new UnsupportedOperationException();
     }
 
     @Override
     public MockValue naryOperation(
-        final AbstractInsnNode insn, final List<? extends MockValue> values) {
+            final AbstractInsnNode insn, final List<? extends MockValue> values) {
       throw new UnsupportedOperationException();
     }
 
     @Override
     public void returnOperation(
-        final AbstractInsnNode insn, final MockValue value, final MockValue expected) {
+            final AbstractInsnNode insn, final MockValue value, final MockValue expected) {
       // Nothing to do.
     }
 

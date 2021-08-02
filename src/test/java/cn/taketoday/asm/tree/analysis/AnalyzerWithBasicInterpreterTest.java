@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
 import cn.taketoday.asm.ClassReader;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.AsmTest;
@@ -66,10 +67,10 @@ public class AnalyzerWithBasicInterpreterTest extends AsmTest {
   @Test
   public void testAnalyze_invalidNewArray() {
     MethodNode methodNode =
-        new MethodNodeBuilder().iconst_0().intInsn(Opcodes.NEWARRAY, -1).vreturn().build();
+            new MethodNodeBuilder().iconst_0().intInsn(Opcodes.NEWARRAY, -1).vreturn().build();
 
     Executable analyze =
-        () -> new Analyzer<BasicValue>(new BasicInterpreter()).analyze(CLASS_NAME, methodNode);
+            () -> new Analyzer<BasicValue>(new BasicInterpreter()).analyze(CLASS_NAME, methodNode);
 
     String message = assertThrows(AnalyzerException.class, analyze).getMessage();
     assertTrue(message.contains("Invalid array type"));
@@ -79,26 +80,27 @@ public class AnalyzerWithBasicInterpreterTest extends AsmTest {
    * Tests that the precompiled classes can be successfully analyzed with a BasicInterpreter, and
    * that Analyzer can be subclassed to use custom frames.
    *
-   * @throws AnalyzerException if the test class can't be analyzed.
+   * @throws AnalyzerException
+   *         if the test class can't be analyzed.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testAnalyze_basicInterpreter(
-      final PrecompiledClass classParameter) throws AnalyzerException {
+          final PrecompiledClass classParameter) throws AnalyzerException {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);
     Analyzer<BasicValue> analyzer =
-        new Analyzer<BasicValue>(new BasicInterpreter()) {
-          @Override
-          protected Frame<BasicValue> newFrame(final int numLocals, final int numStack) {
-            return new CustomFrame(numLocals, numStack);
-          }
+            new Analyzer<BasicValue>(new BasicInterpreter()) {
+              @Override
+              protected Frame<BasicValue> newFrame(final int numLocals, final int numStack) {
+                return new CustomFrame(numLocals, numStack);
+              }
 
-          @Override
-          protected Frame<BasicValue> newFrame(final Frame<? extends BasicValue> src) {
-            return new CustomFrame(src);
-          }
-        };
+              @Override
+              protected Frame<BasicValue> newFrame(final Frame<? extends BasicValue> src) {
+                return new CustomFrame(src);
+              }
+            };
 
     ArrayList<Frame<? extends BasicValue>[]> methodFrames = new ArrayList<>();
     for (MethodNode methodNode : classNode.methods) {
@@ -116,12 +118,13 @@ public class AnalyzerWithBasicInterpreterTest extends AsmTest {
    * Tests that the precompiled classes can be successfully analyzed with a BasicInterpreter, even
    * if the method node's max locals and max stack size are not set.
    *
-   * @throws AnalyzerException if the test class can't be analyzed.
+   * @throws AnalyzerException
+   *         if the test class can't be analyzed.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testAnalyzeAndComputeMaxs_basicInterpreter(
-      final PrecompiledClass classParameter) throws AnalyzerException {
+          final PrecompiledClass classParameter) throws AnalyzerException {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);
     ArrayList<MethodMaxs> methodMaxs = new ArrayList<>();
@@ -149,20 +152,21 @@ public class AnalyzerWithBasicInterpreterTest extends AsmTest {
    * does not follow its required contract (namely that if the merge result is equal to the first
    * argument, the first argument should be returned - see #316326).
    *
-   * @throws AnalyzerException if the test class can't be analyzed.
+   * @throws AnalyzerException
+   *         if the test class can't be analyzed.
    */
   @Test
   public void testAnalyze_badInterpreter() {
     ClassNode classNode = new ClassNode();
     new ClassReader(PrecompiledClass.JDK8_ALL_FRAMES.getBytes()).accept(classNode, 0);
     Analyzer<BasicValue> analyzer =
-        new Analyzer<BasicValue>(
-            new BasicInterpreter() {
-              @Override
-              public BasicValue merge(final BasicValue value1, final BasicValue value2) {
-                return new BasicValue(super.merge(value1, value2).getType());
-              }
-            });
+            new Analyzer<BasicValue>(
+                    new BasicInterpreter() {
+                      @Override
+                      public BasicValue merge(final BasicValue value1, final BasicValue value2) {
+                        return new BasicValue(super.merge(value1, value2).getType());
+                      }
+                    });
 
     ArrayList<Executable> analyses = new ArrayList<>();
     for (MethodNode methodNode : classNode.methods) {
@@ -178,14 +182,16 @@ public class AnalyzerWithBasicInterpreterTest extends AsmTest {
    * Tests that stack map frames are correctly merged when a JSR instruction can be reached from two
    * different control flow paths, with different local variable types (#316204).
    *
-   * @throws IOException if the test class can't be loaded.
-   * @throws AnalyzerException if the test class can't be analyzed.
+   * @throws IOException
+   *         if the test class can't be loaded.
+   * @throws AnalyzerException
+   *         if the test class can't be analyzed.
    */
   @Test
   public void testAnalyze_mergeWithJsrReachableFromTwoDifferentPaths()
-      throws IOException, AnalyzerException {
+          throws IOException, AnalyzerException {
     ClassReader classReader =
-        new ClassReader(Files.newInputStream(Paths.get("src/test/resources/Issue316204.class")));
+            new ClassReader(Files.newInputStream(Paths.get("src/test/resources/Issue316204.class")));
     ClassNode classNode = new ClassNode();
     classReader.accept(classNode, 0);
     Analyzer<BasicValue> analyzer = new Analyzer<>(new BasicInterpreter());

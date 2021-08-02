@@ -30,6 +30,7 @@ package cn.taketoday.asm.commons;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
 import cn.taketoday.asm.ClassReader;
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.ClassWriter;
@@ -51,41 +52,42 @@ public class TryCatchBlockSorterTest extends AsmTest {
   @Test
   public void testConstructor() {
     assertDoesNotThrow(
-        () -> new TryCatchBlockSorter(null, Opcodes.ACC_PUBLIC, "name", "()V", null, null));
+            () -> new TryCatchBlockSorter(null, Opcodes.ACC_PUBLIC, "name", "()V", null, null));
   }
 
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testAllMethods_precompileClass(
-      final PrecompiledClass classParameter) {
+          final PrecompiledClass classParameter) {
     ClassReader classReader = new ClassReader(classParameter.getBytes());
     ClassWriter classWriter = new ClassWriter(0);
     ClassVisitor classVisitor =
-        new ClassVisitor( classWriter) {
-          @Override
-          public MethodVisitor visitMethod(
-              final int access,
-              final String name,
-              final String descriptor,
-              final String signature,
-              final String[] exceptions) {
-            return new TryCatchBlockSorter(
-                super.visitMethod(access, name, descriptor, signature, exceptions),
-                access,
-                name,
-                descriptor,
-                signature,
-                exceptions);
-          }
-        };
+            new ClassVisitor(classWriter) {
+              @Override
+              public MethodVisitor visitMethod(
+                      final int access,
+                      final String name,
+                      final String descriptor,
+                      final String signature,
+                      final String[] exceptions) {
+                return new TryCatchBlockSorter(
+                        super.visitMethod(access, name, descriptor, signature, exceptions),
+                        access,
+                        name,
+                        descriptor,
+                        signature,
+                        exceptions);
+              }
+            };
 
     classReader.accept(classVisitor, 0);
 
     if (classParameter.isNotCompatibleWithCurrentJdk()) {
       assertThrows(
-          UnsupportedClassVersionError.class,
-          () -> new ClassFile(classWriter.toByteArray()).newInstance());
-    } else {
+              UnsupportedClassVersionError.class,
+              () -> new ClassFile(classWriter.toByteArray()).newInstance());
+    }
+    else {
       assertDoesNotThrow(() -> new ClassFile(classWriter.toByteArray()).newInstance());
     }
   }

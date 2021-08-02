@@ -29,6 +29,7 @@ package cn.taketoday.asm.util;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.TypeReference;
 import cn.taketoday.asm.AsmTest;
@@ -54,9 +55,9 @@ public class CheckFieldAdapterTest extends AsmTest implements Opcodes {
     CheckFieldAdapter checkFieldAdapter = new CheckFieldAdapter(null);
 
     Executable visitTypeAnnotation =
-        () ->
-            checkFieldAdapter.visitTypeAnnotation(
-                TypeReference.newFormalParameterReference(0).getValue(), null, "LA;", true);
+            () ->
+                    checkFieldAdapter.visitTypeAnnotation(
+                            TypeReference.newFormalParameterReference(0).getValue(), null, "LA;", true);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitTypeAnnotation);
     assertEquals("Invalid type reference sort 0x16", exception.getMessage());
@@ -81,6 +82,6 @@ public class CheckFieldAdapterTest extends AsmTest implements Opcodes {
 
     Exception exception = assertThrows(IllegalStateException.class, visitAttribute);
     assertEquals(
-        "Cannot call a visit method after visitEnd has been called", exception.getMessage());
+            "Cannot call a visit method after visitEnd has been called", exception.getMessage());
   }
 }

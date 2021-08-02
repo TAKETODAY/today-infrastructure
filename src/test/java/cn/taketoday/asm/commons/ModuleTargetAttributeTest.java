@@ -28,6 +28,7 @@
 package cn.taketoday.asm.commons;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.asm.Attribute;
 import cn.taketoday.asm.ClassReader;
 import cn.taketoday.asm.ClassVisitor;
@@ -50,18 +51,18 @@ public class ModuleTargetAttributeTest {
 
     ModuleTargetAttribute moduleTargetAttribute = new ModuleTargetAttribute();
     new ClassReader(classWriter.toByteArray())
-        .accept(
-            new ClassVisitor() {
+            .accept(
+                    new ClassVisitor() {
 
-              @Override
-              public void visitAttribute(final Attribute attribute) {
-                if (attribute instanceof ModuleTargetAttribute) {
-                  moduleTargetAttribute.platform = ((ModuleTargetAttribute) attribute).platform;
-                }
-              }
-            },
-            new Attribute[] {new ModuleTargetAttribute()},
-            0);
+                      @Override
+                      public void visitAttribute(final Attribute attribute) {
+                        if (attribute instanceof ModuleTargetAttribute) {
+                          moduleTargetAttribute.platform = ((ModuleTargetAttribute) attribute).platform;
+                        }
+                      }
+                    },
+                    new Attribute[] { new ModuleTargetAttribute() },
+                    0);
 
     assertEquals("platform", moduleTargetAttribute.platform);
   }

@@ -33,8 +33,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for {@link AnnotationVisitor}.
@@ -42,13 +40,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Eric Bruneton
  */
 public class AnnotationVisitorTest extends AsmTest {
-
-  @org.junit.jupiter.api.Test
-  public void testConstructor_validApi() {
-    Executable constructor = () -> new AnnotationVisitor() { };
-
-    assertDoesNotThrow(constructor);
-  }
 
   /**
    * Tests that ClassReader accepts visitor which return null AnnotationVisitor, and that returning

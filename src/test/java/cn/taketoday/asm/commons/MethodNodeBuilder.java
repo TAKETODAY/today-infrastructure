@@ -50,7 +50,7 @@ final class MethodNodeBuilder {
   }
 
   MethodNodeBuilder(
-      final String name, final String descriptor, final int maxStack, final int maxLocals) {
+          final String name, final String descriptor, final int maxStack, final int maxLocals) {
     methodNode = new MethodNode(Opcodes.ACC_PUBLIC, name, descriptor, null, null);
     methodNode.maxStack = maxStack;
     methodNode.maxLocals = maxLocals;
@@ -78,17 +78,17 @@ final class MethodNodeBuilder {
   }
 
   MethodNodeBuilder fieldInsn(
-      final int opcode, final String owner, final String name, final String descriptor) {
+          final int opcode, final String owner, final String name, final String descriptor) {
     methodNode.visitFieldInsn(opcode, owner, name, descriptor);
     return this;
   }
 
   MethodNodeBuilder methodInsn(
-      final int opcode,
-      final String owner,
-      final String name,
-      final String descriptor,
-      final boolean isInterface) {
+          final int opcode,
+          final String owner,
+          final String name,
+          final String descriptor,
+          final boolean isInterface) {
     methodNode.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
     return this;
   }
@@ -189,20 +189,22 @@ final class MethodNodeBuilder {
   }
 
   MethodNodeBuilder switchto(
-      final Label defaultLabel, final int key, final Label target, final boolean useTableSwitch) {
+          final Label defaultLabel, final int key, final Label target, final boolean useTableSwitch) {
     if (useTableSwitch) {
-      methodNode.visitTableSwitchInsn(key, key, defaultLabel, new Label[] {target});
-    } else {
-      methodNode.visitLookupSwitchInsn(defaultLabel, new int[] {key}, new Label[] {target});
+      methodNode.visitTableSwitchInsn(key, key, defaultLabel, new Label[] { target });
+    }
+    else {
+      methodNode.visitLookupSwitchInsn(defaultLabel, new int[] { key }, new Label[] { target });
     }
     return this;
   }
 
   MethodNodeBuilder switchto(final Label label0, final Label label1, final boolean useTableSwitch) {
     if (useTableSwitch) {
-      methodNode.visitTableSwitchInsn(0, 1, label0, new Label[] {label0, label1});
-    } else {
-      methodNode.visitLookupSwitchInsn(label0, new int[] {1}, new Label[] {label1});
+      methodNode.visitTableSwitchInsn(0, 1, label0, new Label[] { label0, label1 });
+    }
+    else {
+      methodNode.visitLookupSwitchInsn(label0, new int[] { 1 }, new Label[] { label1 });
     }
     return this;
   }
@@ -223,11 +225,11 @@ final class MethodNodeBuilder {
   }
 
   MethodNodeBuilder localvar(
-      final String name,
-      final String descriptor,
-      final int index,
-      final Label start,
-      final Label end) {
+          final String name,
+          final String descriptor,
+          final int index,
+          final Label start,
+          final Label end) {
     methodNode.visitLocalVariable(name, descriptor, null, start, end, index);
     return this;
   }
@@ -253,11 +255,11 @@ final class MethodNodeBuilder {
     classWriter.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
     classWriter.visitField(Opcodes.ACC_STATIC, "f", "[[I", null, null);
     MethodVisitor methodVisitor =
-        classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+            classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
     methodVisitor.visitCode();
     methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
     methodVisitor.visitMethodInsn(
-        Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+            Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
     methodVisitor.visitInsn(Opcodes.RETURN);
     methodVisitor.visitMaxs(1, 1);
     methodVisitor.visitEnd();

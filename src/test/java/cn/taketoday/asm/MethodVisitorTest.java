@@ -163,7 +163,6 @@ public class MethodVisitorTest extends AsmTest {
             log.toString());
   }
 
-
   /** Tests the ASM5 visitMethodInsn on an ASM4 visitor, with isInterface set to false. */
   @Test
   public void testVisitMethodInsn_asm4Visitor_isNotInterface() {
@@ -233,7 +232,6 @@ public class MethodVisitorTest extends AsmTest {
             "LogMethodVisitor:m()V;TraceMethodVisitor:m()V;UserTraceMethodVisitor5:m()V;",
             log.toString());
   }
-
 
   /** An ASM4 {@link MethodVisitor} which does not override the ASM4 visitMethodInsn method. */
   private static class MethodVisitor4 extends MethodVisitor {

@@ -28,6 +28,7 @@
 package cn.taketoday.asm.commons;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.asm.Attribute;
 import cn.taketoday.asm.ClassReader;
 import cn.taketoday.asm.ClassVisitor;
@@ -46,34 +47,34 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class ModuleHashesAttributeTest {
 
-  private static final byte[] HASH1 = {0x1, 0x2, 0x3};
-  private static final byte[] HASH2 = {0x4, 0x5, 0x6};
+  private static final byte[] HASH1 = { 0x1, 0x2, 0x3 };
+  private static final byte[] HASH2 = { 0x4, 0x5, 0x6 };
 
   @Test
   public void testWriteAndRead() {
     ClassWriter classWriter = new ClassWriter(0);
     classWriter.visitAttribute(
-        new ModuleHashesAttribute(
-            "algorithm",
-            Arrays.asList(new String[] {"module1", "module2"}),
-            Arrays.asList(new byte[][] {HASH1, HASH2})));
+            new ModuleHashesAttribute(
+                    "algorithm",
+                    Arrays.asList(new String[] { "module1", "module2" }),
+                    Arrays.asList(new byte[][] { HASH1, HASH2 })));
 
     ModuleHashesAttribute moduleHashesAttribute = new ModuleHashesAttribute();
     new ClassReader(classWriter.toByteArray())
-        .accept(
-            new ClassVisitor() {
+            .accept(
+                    new ClassVisitor() {
 
-              @Override
-              public void visitAttribute(final Attribute attribute) {
-                if (attribute instanceof ModuleHashesAttribute) {
-                  moduleHashesAttribute.algorithm = ((ModuleHashesAttribute) attribute).algorithm;
-                  moduleHashesAttribute.modules = ((ModuleHashesAttribute) attribute).modules;
-                  moduleHashesAttribute.hashes = ((ModuleHashesAttribute) attribute).hashes;
-                }
-              }
-            },
-            new Attribute[] {new ModuleHashesAttribute()},
-            0);
+                      @Override
+                      public void visitAttribute(final Attribute attribute) {
+                        if (attribute instanceof ModuleHashesAttribute) {
+                          moduleHashesAttribute.algorithm = ((ModuleHashesAttribute) attribute).algorithm;
+                          moduleHashesAttribute.modules = ((ModuleHashesAttribute) attribute).modules;
+                          moduleHashesAttribute.hashes = ((ModuleHashesAttribute) attribute).hashes;
+                        }
+                      }
+                    },
+                    new Attribute[] { new ModuleHashesAttribute() },
+                    0);
 
     assertEquals("algorithm", moduleHashesAttribute.algorithm);
     assertEquals(2, moduleHashesAttribute.modules.size());

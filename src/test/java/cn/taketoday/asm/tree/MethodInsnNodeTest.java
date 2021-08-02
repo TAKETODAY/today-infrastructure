@@ -47,9 +47,9 @@ public class MethodInsnNodeTest extends AsmTest {
   @SuppressWarnings("deprecation")
   public void testDeprecatedConstructor() {
     MethodInsnNode methodInsnNode1 =
-        new MethodInsnNode(Opcodes.INVOKESTATIC, "owner", "name", "()I");
+            new MethodInsnNode(Opcodes.INVOKESTATIC, "owner", "name", "()I");
     MethodInsnNode methodInsnNode2 =
-        new MethodInsnNode(Opcodes.INVOKEINTERFACE, "owner", "name", "()I");
+            new MethodInsnNode(Opcodes.INVOKEINTERFACE, "owner", "name", "()I");
 
     assertEquals(AbstractInsnNode.METHOD_INSN, methodInsnNode1.getType());
     assertEquals(AbstractInsnNode.METHOD_INSN, methodInsnNode2.getType());
@@ -62,7 +62,7 @@ public class MethodInsnNodeTest extends AsmTest {
   @Test
   public void testConstrutor() {
     MethodInsnNode methodInsnNode =
-        new MethodInsnNode(Opcodes.INVOKESTATIC, "owner", "name", "()I", false);
+            new MethodInsnNode(Opcodes.INVOKESTATIC, "owner", "name", "()I", false);
 
     assertEquals(AbstractInsnNode.METHOD_INSN, methodInsnNode.getType());
     assertEquals(Opcodes.INVOKESTATIC, methodInsnNode.getOpcode());
@@ -75,7 +75,7 @@ public class MethodInsnNodeTest extends AsmTest {
   @Test
   public void testSetOpcode() {
     MethodInsnNode methodInsnNode =
-        new MethodInsnNode(Opcodes.INVOKESTATIC, "owner", "name", "()I", false);
+            new MethodInsnNode(Opcodes.INVOKESTATIC, "owner", "name", "()I", false);
 
     methodInsnNode.setOpcode(Opcodes.INVOKESPECIAL);
 

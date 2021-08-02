@@ -34,14 +34,15 @@ public class ClassFileTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testNewInstance_validClass(
-      final PrecompiledClass classParameter) {
+          final PrecompiledClass classParameter) {
     ClassFile classFile = new ClassFile(classParameter.getBytes());
 
     Executable newInstance = () -> classFile.newInstance();
 
     if (classParameter.isNotCompatibleWithCurrentJdk()) {
       assertThrows(UnsupportedClassVersionError.class, newInstance);
-    } else {
+    }
+    else {
       assertDoesNotThrow(newInstance);
     }
   }

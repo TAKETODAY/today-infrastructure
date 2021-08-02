@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
 import cn.taketoday.asm.ClassReader;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.AsmTest;
@@ -89,11 +90,11 @@ public class AnalyzerWithBasicVerifierTest extends AsmTest {
   @Test
   public void testAnalyze_invalidCheckcast() {
     MethodNode methodNode =
-        new MethodNodeBuilder()
-            .iconst_0()
-            .typeInsn(Opcodes.CHECKCAST, "java/lang/String")
-            .vreturn()
-            .build();
+            new MethodNodeBuilder()
+                    .iconst_0()
+                    .typeInsn(Opcodes.CHECKCAST, "java/lang/String")
+                    .vreturn()
+                    .build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -104,7 +105,7 @@ public class AnalyzerWithBasicVerifierTest extends AsmTest {
   @Test
   public void testAnalyze_invalidArraylength() {
     MethodNode methodNode =
-        new MethodNodeBuilder().iconst_0().insn(Opcodes.ARRAYLENGTH).vreturn().build();
+            new MethodNodeBuilder().iconst_0().insn(Opcodes.ARRAYLENGTH).vreturn().build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -115,7 +116,7 @@ public class AnalyzerWithBasicVerifierTest extends AsmTest {
   @Test
   public void testAnalyze_invalidAthrow() {
     MethodNode methodNode =
-        new MethodNodeBuilder().iconst_0().insn(Opcodes.ATHROW).vreturn().build();
+            new MethodNodeBuilder().iconst_0().insn(Opcodes.ATHROW).vreturn().build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -126,7 +127,7 @@ public class AnalyzerWithBasicVerifierTest extends AsmTest {
   @Test
   public void testAnalyze_invalidIneg() {
     MethodNode methodNode =
-        new MethodNodeBuilder().insn(Opcodes.FCONST_0).insn(Opcodes.INEG).vreturn().build();
+            new MethodNodeBuilder().insn(Opcodes.FCONST_0).insn(Opcodes.INEG).vreturn().build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -137,12 +138,12 @@ public class AnalyzerWithBasicVerifierTest extends AsmTest {
   @Test
   public void testAnalyze_invalidIadd() {
     MethodNode methodNode =
-        new MethodNodeBuilder()
-            .insn(Opcodes.FCONST_0)
-            .insn(Opcodes.ICONST_0)
-            .insn(Opcodes.IADD)
-            .vreturn()
-            .build();
+            new MethodNodeBuilder()
+                    .insn(Opcodes.FCONST_0)
+                    .insn(Opcodes.ICONST_0)
+                    .insn(Opcodes.IADD)
+                    .vreturn()
+                    .build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -153,14 +154,14 @@ public class AnalyzerWithBasicVerifierTest extends AsmTest {
   @Test
   public void testAnalyze_invalidIastore() {
     MethodNode methodNode =
-        new MethodNodeBuilder()
-            .insn(Opcodes.ICONST_1)
-            .intInsn(Opcodes.NEWARRAY, Opcodes.T_INT)
-            .insn(Opcodes.FCONST_0)
-            .insn(Opcodes.ICONST_0)
-            .insn(Opcodes.IASTORE)
-            .vreturn()
-            .build();
+            new MethodNodeBuilder()
+                    .insn(Opcodes.ICONST_1)
+                    .intInsn(Opcodes.NEWARRAY, Opcodes.T_INT)
+                    .insn(Opcodes.FCONST_0)
+                    .insn(Opcodes.ICONST_0)
+                    .insn(Opcodes.IASTORE)
+                    .vreturn()
+                    .build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -171,14 +172,14 @@ public class AnalyzerWithBasicVerifierTest extends AsmTest {
   @Test
   public void testAnalyze_invalidFastore() {
     MethodNode methodNode =
-        new MethodNodeBuilder()
-            .insn(Opcodes.ICONST_1)
-            .intInsn(Opcodes.NEWARRAY, Opcodes.T_FLOAT)
-            .insn(Opcodes.ICONST_0)
-            .insn(Opcodes.ICONST_0)
-            .insn(Opcodes.FASTORE)
-            .vreturn()
-            .build();
+            new MethodNodeBuilder()
+                    .insn(Opcodes.ICONST_1)
+                    .intInsn(Opcodes.NEWARRAY, Opcodes.T_FLOAT)
+                    .insn(Opcodes.ICONST_0)
+                    .insn(Opcodes.ICONST_0)
+                    .insn(Opcodes.FASTORE)
+                    .vreturn()
+                    .build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -189,13 +190,13 @@ public class AnalyzerWithBasicVerifierTest extends AsmTest {
   @Test
   public void testAnalyze_invalidLastore() {
     MethodNode methodNode =
-        new MethodNodeBuilder()
-            .insn(Opcodes.ICONST_1)
-            .insn(Opcodes.ICONST_0)
-            .insn(Opcodes.LCONST_0)
-            .insn(Opcodes.LASTORE)
-            .vreturn()
-            .build();
+            new MethodNodeBuilder()
+                    .insn(Opcodes.ICONST_1)
+                    .insn(Opcodes.ICONST_0)
+                    .insn(Opcodes.LCONST_0)
+                    .insn(Opcodes.LASTORE)
+                    .vreturn()
+                    .build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -206,12 +207,12 @@ public class AnalyzerWithBasicVerifierTest extends AsmTest {
   @Test
   public void testAnalyze_invalidMultianewarray() {
     MethodNode methodNode =
-        new MethodNodeBuilder()
-            .insn(Opcodes.FCONST_1)
-            .insn(Opcodes.ICONST_2)
-            .multiANewArrayInsn("[[I", 2)
-            .vreturn()
-            .build();
+            new MethodNodeBuilder()
+                    .insn(Opcodes.FCONST_1)
+                    .insn(Opcodes.ICONST_2)
+                    .multiANewArrayInsn("[[I", 2)
+                    .vreturn()
+                    .build();
 
     Executable analyze = () -> newAnalyzer().analyze(CLASS_NAME, methodNode);
 
@@ -222,12 +223,13 @@ public class AnalyzerWithBasicVerifierTest extends AsmTest {
   /**
    * Tests that the precompiled classes can be successfully analyzed with a BasicVerifier.
    *
-   * @throws AnalyzerException if the test class can't be analyzed.
+   * @throws AnalyzerException
+   *         if the test class can't be analyzed.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testAnalyze_basicVerifier(
-      final PrecompiledClass classParameter) {
+          final PrecompiledClass classParameter) {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);
     Analyzer<BasicValue> analyzer = newAnalyzer();

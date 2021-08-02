@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
 import cn.taketoday.asm.ClassReader;
 import cn.taketoday.asm.AsmTest;
 
@@ -57,8 +58,8 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 public class TextifierTest extends AsmTest {
 
   private static final String EXPECTED_USAGE =
-      "Prints a disassembled view of the given class.\n"
-          + "Usage: Textifier [-nodebug] <fully qualified class name or class file name>\n";
+          "Prints a disassembled view of the given class.\n"
+                  + "Usage: Textifier [-nodebug] <fully qualified class name or class file name>\n";
 
   @Test
   public void testConstructor() {
@@ -68,28 +69,29 @@ public class TextifierTest extends AsmTest {
   /**
    * Tests that the text produced with a Textifier is equal to the expected text.
    *
-   * @throws IOException if the expected text can't be read from disk.
+   * @throws IOException
+   *         if the expected text can't be read from disk.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testTextify_precompiledClass(
-      final PrecompiledClass classParameter) throws IOException {
+          final PrecompiledClass classParameter) throws IOException {
     byte[] classFile = classParameter.getBytes();
     StringWriter output = new StringWriter();
     assumeTrue(classFile.length < 32768);
 
     new ClassReader(classFile)
-        .accept(
-            new TraceClassVisitor(
-                null, new Textifier() {}, new PrintWriter(output)),
-            0);
+            .accept(
+                    new TraceClassVisitor(
+                            null, new Textifier() { }, new PrintWriter(output)),
+                    0);
 
     String expectedText =
-        new String(
-                Files.readAllBytes(
-                    Paths.get("src/test/resources/" + classParameter.getName() + ".txt")),
-                StandardCharsets.UTF_8)
-            .replace("\r", "");
+            new String(
+                    Files.readAllBytes(
+                            Paths.get("src/test/resources/" + classParameter.getName() + ".txt")),
+                    StandardCharsets.UTF_8)
+                    .replace("\r", "");
 
     assertEquals(expectedText, output.toString());
   }
@@ -110,7 +112,7 @@ public class TextifierTest extends AsmTest {
   public void testMain_missingClassName_withNodebug() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
-    String[] args = {"-nodebug"};
+    String[] args = { "-nodebug" };
 
     Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
@@ -122,7 +124,7 @@ public class TextifierTest extends AsmTest {
   public void testMain_tooManyArguments() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
-    String[] args = {"-nodebug", getClass().getName(), "extraArgument"};
+    String[] args = { "-nodebug", getClass().getName(), "extraArgument" };
 
     Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
@@ -134,10 +136,10 @@ public class TextifierTest extends AsmTest {
   public void testMain_classFileNotFound() {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
-    String[] args = {"DoNotExist.class"};
+    String[] args = { "DoNotExist.class" };
 
     Executable main =
-        () -> Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
+            () -> Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
     assertThrows(IOException.class, main);
     assertEquals("", output.toString());
@@ -148,10 +150,10 @@ public class TextifierTest extends AsmTest {
   public void testMain_classNotFound() {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
-    String[] args = {"do\\not\\exist"};
+    String[] args = { "do\\not\\exist" };
 
     Executable main =
-        () -> Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
+            () -> Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
     assertThrows(IOException.class, main);
     assertEquals("", output.toString());
@@ -162,7 +164,7 @@ public class TextifierTest extends AsmTest {
   public void testMain_className() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
-    String[] args = {getClass().getName()};
+    String[] args = { getClass().getName() };
 
     Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
@@ -176,7 +178,7 @@ public class TextifierTest extends AsmTest {
   public void testMain_className_withNoebug() throws IOException {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
-    String[] args = {"-nodebug", getClass().getName()};
+    String[] args = { "-nodebug", getClass().getName() };
 
     Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
@@ -191,7 +193,7 @@ public class TextifierTest extends AsmTest {
     StringWriter output = new StringWriter();
     StringWriter logger = new StringWriter();
     String[] args = {
-      ClassLoader.getSystemResource(getClass().getName().replace('.', '/') + ".class").getPath()
+            ClassLoader.getSystemResource(getClass().getName().replace('.', '/') + ".class").getPath()
     };
 
     Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));

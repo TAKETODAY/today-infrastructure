@@ -49,7 +49,7 @@ public class TypeReferenceTest {
   @Test
   public void testNewTypeParameterReference() {
     TypeReference typeReference =
-        TypeReference.newTypeParameterReference(TypeReference.CLASS_TYPE_PARAMETER, 3);
+            TypeReference.newTypeParameterReference(TypeReference.CLASS_TYPE_PARAMETER, 3);
 
     assertEquals(TypeReference.CLASS_TYPE_PARAMETER, typeReference.getSort());
     assertEquals(3, typeReference.getTypeParameterIndex());
@@ -58,7 +58,7 @@ public class TypeReferenceTest {
   @Test
   public void testNewTypeParameterBoundReference() {
     TypeReference typeReference =
-        TypeReference.newTypeParameterBoundReference(TypeReference.CLASS_TYPE_PARAMETER, 3, 7);
+            TypeReference.newTypeParameterBoundReference(TypeReference.CLASS_TYPE_PARAMETER, 3, 7);
 
     assertEquals(TypeReference.CLASS_TYPE_PARAMETER, typeReference.getSort());
     assertEquals(3, typeReference.getTypeParameterIndex());

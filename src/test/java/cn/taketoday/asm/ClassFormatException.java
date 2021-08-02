@@ -12,7 +12,8 @@ public class ClassFormatException extends RuntimeException {
   /**
    * Constructs a new ClassFormatException instance.
    *
-   * @param message the detailed message of this exception.
+   * @param message
+   *         the detailed message of this exception.
    */
   public ClassFormatException(final String message) {
     super(message);
@@ -21,8 +22,10 @@ public class ClassFormatException extends RuntimeException {
   /**
    * Constructs a new ClassFormatException instance.
    *
-   * @param message the detailed message of this exception.
-   * @param cause the cause of this exception.
+   * @param message
+   *         the detailed message of this exception.
+   * @param cause
+   *         the cause of this exception.
    */
   public ClassFormatException(final String message, final Throwable cause) {
     super(message, cause);

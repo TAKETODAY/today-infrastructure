@@ -29,6 +29,7 @@ package cn.taketoday.asm.util;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+
 import cn.taketoday.asm.Handle;
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.MethodVisitor;
@@ -61,7 +62,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
   @Test
   public void testVisitTypeAnnotation_illegalTypeRef() {
     Executable visitTypeAnnotation =
-        () -> checkMethodAdapter.visitTypeAnnotation(0xFFFFFFFF, null, "LA;", true);
+            () -> checkMethodAdapter.visitTypeAnnotation(0xFFFFFFFF, null, "LA;", true);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitTypeAnnotation);
     assertEquals("Invalid type reference sort 0xff", exception.getMessage());
@@ -72,7 +73,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitAnnotableParameterCount(1, false);
 
     Executable visitParameterAnnotation =
-        () -> checkMethodAdapter.visitParameterAnnotation(1, "LA;", false);
+            () -> checkMethodAdapter.visitParameterAnnotation(1, "LA;", false);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitParameterAnnotation);
     assertEquals("Invalid parameter index", exception.getMessage());
@@ -83,7 +84,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitAnnotableParameterCount(2, true);
 
     Executable visitParameterAnnotation =
-        () -> checkMethodAdapter.visitParameterAnnotation(2, "LA;", true);
+            () -> checkMethodAdapter.visitParameterAnnotation(2, "LA;", true);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitParameterAnnotation);
     assertEquals("Invalid parameter index", exception.getMessage());
@@ -92,7 +93,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
   @Test
   public void testVisitParameterAnnotation_illegalDescriptor() {
     Executable visitParameterAnnotation =
-        () -> checkMethodAdapter.visitParameterAnnotation(0, "'", true);
+            () -> checkMethodAdapter.visitParameterAnnotation(0, "'", true);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitParameterAnnotation);
     assertEquals("Invalid descriptor: '", exception.getMessage());
@@ -119,7 +120,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
   @Test
   public void testVisitCode_abstractMethod() {
     CheckMethodAdapter checkAbstractMethodAdapter =
-        new CheckMethodAdapter(Opcodes.ACC_ABSTRACT, "m", "()V", null, new HashMap<>());
+            new CheckMethodAdapter(Opcodes.ACC_ABSTRACT, "m", "()V", null, new HashMap<>());
 
     Executable visitCode = () -> checkAbstractMethodAdapter.visitCode();
 
@@ -142,7 +143,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitFrame =
-        () -> checkMethodAdapter.visitFrame(F_SAME, 1, new Object[] {INTEGER}, 0, null);
+            () -> checkMethodAdapter.visitFrame(F_SAME, 1, new Object[] { INTEGER }, 0, null);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitFrame);
     assertEquals("Invalid numLocal=1 for frame type 3", exception.getMessage());
@@ -153,7 +154,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitFrame =
-        () -> checkMethodAdapter.visitFrame(F_SAME, 0, null, 1, new Object[] {INTEGER});
+            () -> checkMethodAdapter.visitFrame(F_SAME, 0, null, 1, new Object[] { INTEGER });
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitFrame);
     assertEquals("Invalid numStack=1 for frame type 3", exception.getMessage());
@@ -164,7 +165,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitFrame =
-        () -> checkMethodAdapter.visitFrame(F_APPEND, 1, new Object[0], 0, null);
+            () -> checkMethodAdapter.visitFrame(F_APPEND, 1, new Object[0], 0, null);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitFrame);
     assertEquals("Array local[] is shorter than numLocal", exception.getMessage());
@@ -185,12 +186,12 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitFrame =
-        () -> checkMethodAdapter.visitFrame(F_FULL, 1, new Object[] {"LC;"}, 0, null);
+            () -> checkMethodAdapter.visitFrame(F_FULL, 1, new Object[] { "LC;" }, 0, null);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitFrame);
     assertEquals(
-        "Invalid Invalid stack frame value (must be an internal class name): LC;",
-        exception.getMessage());
+            "Invalid Invalid stack frame value (must be an internal class name): LC;",
+            exception.getMessage());
   }
 
   @Test
@@ -198,10 +199,10 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
     checkMethodAdapter.visitInsn(NOP);
     Integer invalidFrameValue =
-        new Integer(0); // NOPMD(IntegerInstantiation): needed to build an invalid value.
+            new Integer(0); // NOPMD(IntegerInstantiation): needed to build an invalid value.
 
     Executable visitFrame =
-        () -> checkMethodAdapter.visitFrame(F_FULL, 1, new Object[] {invalidFrameValue}, 0, null);
+            () -> checkMethodAdapter.visitFrame(F_FULL, 1, new Object[] { invalidFrameValue }, 0, null);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitFrame);
     assertEquals("Invalid stack frame value: 0", exception.getMessage());
@@ -213,7 +214,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitInsn(NOP);
 
     Executable visitFrame =
-        () -> checkMethodAdapter.visitFrame(F_FULL, 1, new Object[] {new Float(0.0f)}, 0, null);
+            () -> checkMethodAdapter.visitFrame(F_FULL, 1, new Object[] { new Float(0.0f) }, 0, null);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitFrame);
     assertEquals("Invalid stack frame value: 0.0", exception.getMessage());
@@ -237,7 +238,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
 
     Exception exception = assertThrows(IllegalStateException.class, visitInsn);
     assertEquals(
-        "Cannot visit instructions before visitCode has been called.", exception.getMessage());
+            "Cannot visit instructions before visitCode has been called.", exception.getMessage());
   }
 
   @Test
@@ -249,7 +250,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
 
     Exception exception = assertThrows(IllegalStateException.class, visitInsn);
     assertEquals(
-        "Cannot visit instructions after visitMaxs has been called.", exception.getMessage());
+            "Cannot visit instructions after visitMaxs has been called.", exception.getMessage());
   }
 
   @Test
@@ -300,7 +301,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitVarInsn);
     assertEquals(
-        "Invalid local variable index (must be an unsigned short): -1", exception.getMessage());
+            "Invalid local variable index (must be an unsigned short): -1", exception.getMessage());
   }
 
   @Test
@@ -439,7 +440,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitMethodInsn =
-        () -> checkMethodAdapter.visitMethodInsn(42, "o", "m", "()V", false);
+            () -> checkMethodAdapter.visitMethodInsn(42, "o", "m", "()V", false);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitMethodInsn);
     assertEquals("Invalid opcode: 42", exception.getMessage());
@@ -450,7 +451,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitMethodInsn =
-        () -> checkMethodAdapter.visitMethodInsn(INVOKEVIRTUAL, "C", null, "()V", false);
+            () -> checkMethodAdapter.visitMethodInsn(INVOKEVIRTUAL, "C", null, "()V", false);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitMethodInsn);
     assertEquals("Invalid name (must not be null or empty)", exception.getMessage());
@@ -461,12 +462,12 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitMethodInsn =
-        () -> checkMethodAdapter.visitMethodInsn(INVOKEVIRTUAL, "C", "-", "()V", false);
+            () -> checkMethodAdapter.visitMethodInsn(INVOKEVIRTUAL, "C", "-", "()V", false);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitMethodInsn);
     assertEquals(
-        "Invalid name (must be a '<init>', '<clinit>' or a valid Java identifier): -",
-        exception.getMessage());
+            "Invalid name (must be a '<init>', '<clinit>' or a valid Java identifier): -",
+            exception.getMessage());
   }
 
   @Test
@@ -474,12 +475,12 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitMethodInsn =
-        () -> checkMethodAdapter.visitMethodInsn(INVOKEVIRTUAL, "C", "a-", "()V", false);
+            () -> checkMethodAdapter.visitMethodInsn(INVOKEVIRTUAL, "C", "a-", "()V", false);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitMethodInsn);
     assertEquals(
-        "Invalid name (must be a '<init>', '<clinit>' or a valid Java identifier): a-",
-        exception.getMessage());
+            "Invalid name (must be a '<init>', '<clinit>' or a valid Java identifier): a-",
+            exception.getMessage());
   }
 
   @Test
@@ -487,7 +488,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitMethodInsn =
-        () -> checkMethodAdapter.visitMethodInsn(INVOKEVIRTUAL, "C", "m", null, false);
+            () -> checkMethodAdapter.visitMethodInsn(INVOKEVIRTUAL, "C", "m", null, false);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitMethodInsn);
     assertEquals("Invalid method descriptor (must not be null or empty)", exception.getMessage());
@@ -498,7 +499,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitMethodInsn =
-        () -> checkMethodAdapter.visitMethodInsn(INVOKEVIRTUAL, "C", "m", "I", false);
+            () -> checkMethodAdapter.visitMethodInsn(INVOKEVIRTUAL, "C", "m", "I", false);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitMethodInsn);
     assertEquals("Invalid descriptor: I", exception.getMessage());
@@ -509,7 +510,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitMethodInsn =
-        () -> checkMethodAdapter.visitMethodInsn(INVOKEVIRTUAL, "C", "m", "(V)V", false);
+            () -> checkMethodAdapter.visitMethodInsn(INVOKEVIRTUAL, "C", "m", "(V)V", false);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitMethodInsn);
     assertEquals("Invalid descriptor: (V)V", exception.getMessage());
@@ -520,7 +521,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitMethodInsn =
-        () -> checkMethodAdapter.visitMethodInsn(INVOKEVIRTUAL, "C", "m", "()VV", false);
+            () -> checkMethodAdapter.visitMethodInsn(INVOKEVIRTUAL, "C", "m", "()VV", false);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitMethodInsn);
     assertEquals("Invalid descriptor: ()VV", exception.getMessage());
@@ -531,7 +532,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitMethodInsn =
-        () -> checkMethodAdapter.visitMethodInsn(INVOKEINTERFACE, "C", "m", "()V", false);
+            () -> checkMethodAdapter.visitMethodInsn(INVOKEINTERFACE, "C", "m", "()V", false);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitMethodInsn);
     assertEquals("INVOKEINTERFACE can't be used with classes", exception.getMessage());
@@ -542,7 +543,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitMethodInsn =
-        () -> checkMethodAdapter.visitMethodInsn(INVOKEVIRTUAL, "C", "m", "()V", true);
+            () -> checkMethodAdapter.visitMethodInsn(INVOKEVIRTUAL, "C", "m", "()V", true);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitMethodInsn);
     assertEquals("INVOKEVIRTUAL can't be used with interfaces", exception.getMessage());
@@ -554,11 +555,11 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitMethodInsn =
-        () -> checkMethodAdapter.visitMethodInsn(INVOKESPECIAL, "C", "m", "()V", true);
+            () -> checkMethodAdapter.visitMethodInsn(INVOKESPECIAL, "C", "m", "()V", true);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitMethodInsn);
     assertEquals(
-        "INVOKESPECIAL can't be used with interfaces prior to Java 8", exception.getMessage());
+            "INVOKESPECIAL can't be used with interfaces prior to Java 8", exception.getMessage());
   }
 
   @Test
@@ -567,7 +568,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitMethodInsn =
-        () -> checkMethodAdapter.visitMethodInsn(INVOKESPECIAL, "C", "m", "()V", true);
+            () -> checkMethodAdapter.visitMethodInsn(INVOKESPECIAL, "C", "m", "()V", true);
 
     assertDoesNotThrow(visitMethodInsn);
   }
@@ -577,9 +578,9 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitInvokeDynamicInsn =
-        () ->
-            checkMethodAdapter.visitInvokeDynamicInsn(
-                "m", "()V", new Handle(Opcodes.GETFIELD, "o", "m", "()V", false));
+            () ->
+                    checkMethodAdapter.visitInvokeDynamicInsn(
+                            "m", "()V", new Handle(Opcodes.GETFIELD, "o", "m", "()V", false));
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitInvokeDynamicInsn);
     assertEquals("invalid handle tag 180", exception.getMessage());
@@ -647,7 +648,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitLdcInsn =
-        () -> checkMethodAdapter.visitLdcInsn(new Handle(Opcodes.GETFIELD, "o", "m", "()V", false));
+            () -> checkMethodAdapter.visitLdcInsn(new Handle(Opcodes.GETFIELD, "o", "m", "()V", false));
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitLdcInsn);
     assertEquals("ldc of a Handle requires at least version 1.7", exception.getMessage());
@@ -659,7 +660,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitLdcInsn =
-        () -> checkMethodAdapter.visitLdcInsn(new Handle(-1, "o", "m", "()V", false));
+            () -> checkMethodAdapter.visitLdcInsn(new Handle(-1, "o", "m", "()V", false));
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitLdcInsn);
     assertEquals("invalid handle tag -1", exception.getMessage());
@@ -671,9 +672,9 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitLdcInsn =
-        () ->
-            checkMethodAdapter.visitLdcInsn(
-                new Handle(Opcodes.H_NEWINVOKESPECIAL, "o", "<init>", "()V", false));
+            () ->
+                    checkMethodAdapter.visitLdcInsn(
+                            new Handle(Opcodes.H_NEWINVOKESPECIAL, "o", "<init>", "()V", false));
 
     assertDoesNotThrow(visitLdcInsn);
   }
@@ -684,13 +685,13 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitLdcInsn =
-        () ->
-            checkMethodAdapter.visitLdcInsn(
-                new Handle(Opcodes.H_INVOKEVIRTUAL, "o", "<init>", "()V", false));
+            () ->
+                    checkMethodAdapter.visitLdcInsn(
+                            new Handle(Opcodes.H_INVOKEVIRTUAL, "o", "<init>", "()V", false));
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitLdcInsn);
     assertEquals(
-        "Invalid handle name (must be a valid unqualified name): <init>", exception.getMessage());
+            "Invalid handle name (must be a valid unqualified name): <init>", exception.getMessage());
   }
 
   @Test
@@ -698,7 +699,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitTableSwitchInsn =
-        () -> checkMethodAdapter.visitTableSwitchInsn(1, 0, new Label(), new Label[0]);
+            () -> checkMethodAdapter.visitTableSwitchInsn(1, 0, new Label(), new Label[0]);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitTableSwitchInsn);
     assertEquals("Max = 0 must be greater than or equal to min = 1", exception.getMessage());
@@ -709,7 +710,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitTableSwitchInsn =
-        () -> checkMethodAdapter.visitTableSwitchInsn(0, 1, null, new Label[0]);
+            () -> checkMethodAdapter.visitTableSwitchInsn(0, 1, null, new Label[0]);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitTableSwitchInsn);
     assertEquals("Invalid default label (must not be null)", exception.getMessage());
@@ -720,7 +721,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitTableSwitchInsn =
-        () -> checkMethodAdapter.visitTableSwitchInsn(0, 1, new Label(), (Label[]) null);
+            () -> checkMethodAdapter.visitTableSwitchInsn(0, 1, new Label(), (Label[]) null);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitTableSwitchInsn);
     assertEquals("There must be max - min + 1 labels", exception.getMessage());
@@ -731,7 +732,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitTableSwitchInsn =
-        () -> checkMethodAdapter.visitTableSwitchInsn(0, 1, new Label(), new Label[0]);
+            () -> checkMethodAdapter.visitTableSwitchInsn(0, 1, new Label(), new Label[0]);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitTableSwitchInsn);
     assertEquals("There must be max - min + 1 labels", exception.getMessage());
@@ -742,7 +743,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitLookupSwitchInsn =
-        () -> checkMethodAdapter.visitLookupSwitchInsn(new Label(), null, new Label[0]);
+            () -> checkMethodAdapter.visitLookupSwitchInsn(new Label(), null, new Label[0]);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitLookupSwitchInsn);
     assertEquals("There must be the same number of keys and labels", exception.getMessage());
@@ -753,7 +754,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitLookupSwitchInsn =
-        () -> checkMethodAdapter.visitLookupSwitchInsn(new Label(), new int[0], null);
+            () -> checkMethodAdapter.visitLookupSwitchInsn(new Label(), new int[0], null);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitLookupSwitchInsn);
     assertEquals("There must be the same number of keys and labels", exception.getMessage());
@@ -764,7 +765,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitLookupSwitchInsn =
-        () -> checkMethodAdapter.visitLookupSwitchInsn(new Label(), new int[0], new Label[1]);
+            () -> checkMethodAdapter.visitLookupSwitchInsn(new Label(), new int[0], new Label[1]);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitLookupSwitchInsn);
     assertEquals("There must be the same number of keys and labels", exception.getMessage());
@@ -778,7 +779,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitMultiANewArrayInsn);
     assertEquals(
-        "Invalid descriptor (must be an array type descriptor): I", exception.getMessage());
+            "Invalid descriptor (must be an array type descriptor): I", exception.getMessage());
   }
 
   @Test
@@ -799,8 +800,8 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitMultiANewArrayInsn);
     assertEquals(
-        "Invalid dimensions (must not be greater than numDimensions(descriptor)): 3",
-        exception.getMessage());
+            "Invalid dimensions (must not be greater than numDimensions(descriptor)): 3",
+            exception.getMessage());
   }
 
   @Test
@@ -808,9 +809,9 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitInsnAnnotation =
-        () ->
-            checkMethodAdapter.visitInsnAnnotation(
-                TypeReference.newSuperTypeReference(0).getValue(), null, "LA;", true);
+            () ->
+                    checkMethodAdapter.visitInsnAnnotation(
+                            TypeReference.newSuperTypeReference(0).getValue(), null, "LA;", true);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitInsnAnnotation);
     assertEquals("Invalid type reference sort 0x10", exception.getMessage());
@@ -824,7 +825,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitLabel(label0);
 
     Executable visitTryCatchBlock =
-        () -> checkMethodAdapter.visitTryCatchBlock(label0, label1, label1, null);
+            () -> checkMethodAdapter.visitTryCatchBlock(label0, label1, label1, null);
 
     Exception exception = assertThrows(IllegalStateException.class, visitTryCatchBlock);
     assertEquals("Try catch blocks must be visited before their labels", exception.getMessage());
@@ -838,7 +839,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitLabel(label0);
 
     Executable visitTryCatchBlock =
-        () -> checkMethodAdapter.visitTryCatchBlock(label1, label0, label1, null);
+            () -> checkMethodAdapter.visitTryCatchBlock(label1, label0, label1, null);
 
     Exception exception = assertThrows(IllegalStateException.class, visitTryCatchBlock);
     assertEquals("Try catch blocks must be visited before their labels", exception.getMessage());
@@ -852,7 +853,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitLabel(label0);
 
     Executable visitTryCatchBlock =
-        () -> checkMethodAdapter.visitTryCatchBlock(label1, label1, label0, null);
+            () -> checkMethodAdapter.visitTryCatchBlock(label1, label1, label0, null);
 
     Exception exception = assertThrows(IllegalStateException.class, visitTryCatchBlock);
     assertEquals("Try catch blocks must be visited before their labels", exception.getMessage());
@@ -863,9 +864,9 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitTryCatchAnnotation =
-        () ->
-            checkMethodAdapter.visitTryCatchAnnotation(
-                TypeReference.newSuperTypeReference(0).getValue(), null, "LA;", true);
+            () ->
+                    checkMethodAdapter.visitTryCatchAnnotation(
+                            TypeReference.newSuperTypeReference(0).getValue(), null, "LA;", true);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitTryCatchAnnotation);
     assertEquals("Invalid type reference sort 0x10", exception.getMessage());
@@ -881,11 +882,11 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitLabel(endLabel);
 
     Executable visitLocalVariable =
-        () -> checkMethodAdapter.visitLocalVariable("i", "I", null, endLabel, startLabel, 0);
+            () -> checkMethodAdapter.visitLocalVariable("i", "I", null, endLabel, startLabel, 0);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitLocalVariable);
     assertEquals(
-        "Invalid start and end labels (end must be greater than start)", exception.getMessage());
+            "Invalid start and end labels (end must be greater than start)", exception.getMessage());
   }
 
   @Test
@@ -893,18 +894,18 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitLocalVariableAnnotation =
-        () ->
-            checkMethodAdapter.visitLocalVariableAnnotation(
-                TypeReference.newSuperTypeReference(0).getValue(),
-                null,
-                new Label[0],
-                new Label[0],
-                new int[0],
-                "LA;",
-                true);
+            () ->
+                    checkMethodAdapter.visitLocalVariableAnnotation(
+                            TypeReference.newSuperTypeReference(0).getValue(),
+                            null,
+                            new Label[0],
+                            new Label[0],
+                            new int[0],
+                            "LA;",
+                            true);
 
     Exception exception =
-        assertThrows(IllegalArgumentException.class, visitLocalVariableAnnotation);
+            assertThrows(IllegalArgumentException.class, visitLocalVariableAnnotation);
     assertEquals("Invalid type reference sort 0x10", exception.getMessage());
   }
 
@@ -913,21 +914,21 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitLocalVariableAnnotation =
-        () ->
-            checkMethodAdapter.visitLocalVariableAnnotation(
-                TypeReference.LOCAL_VARIABLE << 24,
-                null,
-                null,
-                new Label[0],
-                new int[0],
-                "LA;",
-                true);
+            () ->
+                    checkMethodAdapter.visitLocalVariableAnnotation(
+                            TypeReference.LOCAL_VARIABLE << 24,
+                            null,
+                            null,
+                            new Label[0],
+                            new int[0],
+                            "LA;",
+                            true);
 
     Exception exception =
-        assertThrows(IllegalArgumentException.class, visitLocalVariableAnnotation);
+            assertThrows(IllegalArgumentException.class, visitLocalVariableAnnotation);
     assertEquals(
-        "Invalid start, end and index arrays (must be non null and of identical length",
-        exception.getMessage());
+            "Invalid start, end and index arrays (must be non null and of identical length",
+            exception.getMessage());
   }
 
   @Test
@@ -935,21 +936,21 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitLocalVariableAnnotation =
-        () ->
-            checkMethodAdapter.visitLocalVariableAnnotation(
-                TypeReference.LOCAL_VARIABLE << 24,
-                null,
-                new Label[0],
-                null,
-                new int[0],
-                "LA;",
-                true);
+            () ->
+                    checkMethodAdapter.visitLocalVariableAnnotation(
+                            TypeReference.LOCAL_VARIABLE << 24,
+                            null,
+                            new Label[0],
+                            null,
+                            new int[0],
+                            "LA;",
+                            true);
 
     Exception exception =
-        assertThrows(IllegalArgumentException.class, visitLocalVariableAnnotation);
+            assertThrows(IllegalArgumentException.class, visitLocalVariableAnnotation);
     assertEquals(
-        "Invalid start, end and index arrays (must be non null and of identical length",
-        exception.getMessage());
+            "Invalid start, end and index arrays (must be non null and of identical length",
+            exception.getMessage());
   }
 
   @Test
@@ -957,21 +958,21 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitLocalVariableAnnotation =
-        () ->
-            checkMethodAdapter.visitLocalVariableAnnotation(
-                TypeReference.LOCAL_VARIABLE << 24,
-                null,
-                new Label[0],
-                new Label[1],
-                new int[0],
-                "LA;",
-                true);
+            () ->
+                    checkMethodAdapter.visitLocalVariableAnnotation(
+                            TypeReference.LOCAL_VARIABLE << 24,
+                            null,
+                            new Label[0],
+                            new Label[1],
+                            new int[0],
+                            "LA;",
+                            true);
 
     Exception exception =
-        assertThrows(IllegalArgumentException.class, visitLocalVariableAnnotation);
+            assertThrows(IllegalArgumentException.class, visitLocalVariableAnnotation);
     assertEquals(
-        "Invalid start, end and index arrays (must be non null and of identical length",
-        exception.getMessage());
+            "Invalid start, end and index arrays (must be non null and of identical length",
+            exception.getMessage());
   }
 
   @Test
@@ -979,21 +980,21 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitCode();
 
     Executable visitLocalVariableAnnotation =
-        () ->
-            checkMethodAdapter.visitLocalVariableAnnotation(
-                TypeReference.RESOURCE_VARIABLE << 24,
-                null,
-                new Label[0],
-                new Label[0],
-                new int[1],
-                "LA;",
-                true);
+            () ->
+                    checkMethodAdapter.visitLocalVariableAnnotation(
+                            TypeReference.RESOURCE_VARIABLE << 24,
+                            null,
+                            new Label[0],
+                            new Label[0],
+                            new int[1],
+                            "LA;",
+                            true);
 
     Exception exception =
-        assertThrows(IllegalArgumentException.class, visitLocalVariableAnnotation);
+            assertThrows(IllegalArgumentException.class, visitLocalVariableAnnotation);
     assertEquals(
-        "Invalid start, end and index arrays (must be non null and of identical length",
-        exception.getMessage());
+            "Invalid start, end and index arrays (must be non null and of identical length",
+            exception.getMessage());
   }
 
   @Test
@@ -1006,20 +1007,20 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.visitLabel(endLabel);
 
     Executable visitLocalVariableAnnotation =
-        () ->
-            checkMethodAdapter.visitLocalVariableAnnotation(
-                TypeReference.RESOURCE_VARIABLE << 24,
-                null,
-                new Label[] {endLabel},
-                new Label[] {startLabel},
-                new int[1],
-                "LA;",
-                true);
+            () ->
+                    checkMethodAdapter.visitLocalVariableAnnotation(
+                            TypeReference.RESOURCE_VARIABLE << 24,
+                            null,
+                            new Label[] { endLabel },
+                            new Label[] { startLabel },
+                            new int[1],
+                            "LA;",
+                            true);
 
     Exception exception =
-        assertThrows(IllegalArgumentException.class, visitLocalVariableAnnotation);
+            assertThrows(IllegalArgumentException.class, visitLocalVariableAnnotation);
     assertEquals(
-        "Invalid start and end labels (end must be greater than start)", exception.getMessage());
+            "Invalid start and end labels (end must be greater than start)", exception.getMessage());
   }
 
   @Test
@@ -1081,7 +1082,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
   @Test
   public void testVisitEnd_invalidDataFlow() {
     MethodVisitor dataFlowCheckMethodAdapter =
-        new CheckMethodAdapter(ACC_PUBLIC, "m", "(I)I", null, new HashMap<>());
+            new CheckMethodAdapter(ACC_PUBLIC, "m", "(I)I", null, new HashMap<>());
     dataFlowCheckMethodAdapter.visitCode();
     dataFlowCheckMethodAdapter.visitInsn(RETURN);
     dataFlowCheckMethodAdapter.visitMaxs(0, 2);
@@ -1090,15 +1091,15 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitEnd);
     assertTrue(
-        exception
-            .getMessage()
-            .startsWith("Error at instruction 0: Incompatible return type m(I)I"));
+            exception
+                    .getMessage()
+                    .startsWith("Error at instruction 0: Incompatible return type m(I)I"));
   }
 
   @Test
   public void testVisitEnd_invalidReturnType() {
     MethodVisitor dataFlowCheckMethodAdapter =
-        new CheckMethodAdapter(ACC_PUBLIC, "m", "(I)V", null, new HashMap<>());
+            new CheckMethodAdapter(ACC_PUBLIC, "m", "(I)V", null, new HashMap<>());
     dataFlowCheckMethodAdapter.visitCode();
     dataFlowCheckMethodAdapter.visitVarInsn(ILOAD, 1);
     dataFlowCheckMethodAdapter.visitInsn(IRETURN);
@@ -1108,16 +1109,16 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitEnd);
     assertTrue(
-        exception
-            .getMessage()
-            .startsWith(
-                "Error at instruction 1: Incompatible return type: expected null, but found I m(I)V"));
+            exception
+                    .getMessage()
+                    .startsWith(
+                            "Error at instruction 1: Incompatible return type: expected null, but found I m(I)V"));
   }
 
   @Test
   public void testVisitEnd_dataflowCheckRequiresMaxLocalsAndMaxStack() {
     CheckMethodAdapter dataFlowCheckMethodAdapter =
-        new CheckMethodAdapter(0, "m", "()V", null, new HashMap<>());
+            new CheckMethodAdapter(0, "m", "()V", null, new HashMap<>());
     dataFlowCheckMethodAdapter.visitCode();
     dataFlowCheckMethodAdapter.visitVarInsn(ALOAD, 0);
     dataFlowCheckMethodAdapter.visitInsn(RETURN);
@@ -1127,7 +1128,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitEnd);
     assertEquals(
-        "Data flow checking option requires valid, non zero maxLocals and maxStack.",
-        exception.getMessage());
+            "Data flow checking option requires valid, non zero maxLocals and maxStack.",
+            exception.getMessage());
   }
 }

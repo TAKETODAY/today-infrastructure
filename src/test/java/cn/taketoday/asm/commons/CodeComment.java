@@ -56,29 +56,29 @@ public class CodeComment extends Attribute {
 
   @Override
   protected Attribute read(
-      final ClassReader classReader,
-      final int offset,
-      final int length,
-      final char[] charBuffer,
-      final int codeOffset,
-      final Label[] labels) {
+          final ClassReader classReader,
+          final int offset,
+          final int length,
+          final char[] charBuffer,
+          final int codeOffset,
+          final Label[] labels) {
 
     return new CodeComment();
   }
 
   @Override
   protected ByteVector write(
-      final ClassWriter classWriter,
-      final byte[] code,
-      final int codeLength,
-      final int maxStack,
-      final int maxLocals) {
+          final ClassWriter classWriter,
+          final byte[] code,
+          final int codeLength,
+          final int maxStack,
+          final int maxLocals) {
     return new ByteVector();
   }
 
   @Override
   protected Label[] getLabels() {
     super.getLabels();
-    return new Label[] {new Label()};
+    return new Label[] { new Label() };
   }
 }

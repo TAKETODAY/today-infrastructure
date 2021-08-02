@@ -45,22 +45,22 @@ public class Comment extends Attribute {
 
   @Override
   protected Attribute read(
-      final ClassReader classReader,
-      final int offset,
-      final int length,
-      final char[] charBuffer,
-      final int codeAttributeOffset,
-      final Label[] labels) {
+          final ClassReader classReader,
+          final int offset,
+          final int length,
+          final char[] charBuffer,
+          final int codeAttributeOffset,
+          final Label[] labels) {
     return new Comment();
   }
 
   @Override
   protected ByteVector write(
-      final ClassWriter classWriter,
-      final byte[] code,
-      final int codeLength,
-      final int maxStack,
-      final int maxLocals) {
+          final ClassWriter classWriter,
+          final byte[] code,
+          final int codeLength,
+          final int maxStack,
+          final int maxLocals) {
     return new ByteVector();
   }
 }

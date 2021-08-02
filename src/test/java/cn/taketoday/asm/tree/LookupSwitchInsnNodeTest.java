@@ -45,14 +45,14 @@ public class LookupSwitchInsnNodeTest extends AsmTest {
   @Test
   public void testConstructor() {
     LabelNode dflt = new LabelNode();
-    int[] keys = new int[] {1};
-    LabelNode[] labels = new LabelNode[] {new LabelNode()};
+    int[] keys = new int[] { 1 };
+    LabelNode[] labels = new LabelNode[] { new LabelNode() };
 
     LookupSwitchInsnNode lookupSwitchInsnNode = new LookupSwitchInsnNode(dflt, keys, labels);
 
     assertEquals(AbstractInsnNode.LOOKUPSWITCH_INSN, lookupSwitchInsnNode.getType());
     assertEquals(dflt, lookupSwitchInsnNode.dflt);
-    assertEquals(Arrays.asList(new Integer[] {1}), lookupSwitchInsnNode.keys);
+    assertEquals(Arrays.asList(new Integer[] { 1 }), lookupSwitchInsnNode.keys);
     assertEquals(Arrays.asList(labels), lookupSwitchInsnNode.labels);
   }
 }

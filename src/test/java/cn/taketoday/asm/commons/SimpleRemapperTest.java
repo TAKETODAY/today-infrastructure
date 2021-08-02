@@ -56,7 +56,7 @@ public class SimpleRemapperTest {
   public void testMapSignature_remapChildOnly_nestedClassExtends() {
     String inputSignature = "LOuter<Ljava/lang/Object;>.Inner;";
     Remapper remapper =
-        new SimpleRemapper(Collections.singletonMap("Outer$Inner", "Outer$RenamedInner"));
+            new SimpleRemapper(Collections.singletonMap("Outer$Inner", "Outer$RenamedInner"));
 
     String remappedSignature = remapper.mapSignature(inputSignature, false);
 
@@ -67,7 +67,7 @@ public class SimpleRemapperTest {
   public void testMapSignature_remapChildOnly_nestedClassExtends_identifiersWithDollarSign() {
     String inputSignature = "LOuter<Ljava/lang/Object;>.Inner$1;";
     Remapper remapper =
-        new SimpleRemapper(Collections.singletonMap("Outer$Inner$1", "Outer$RenamedInner$1"));
+            new SimpleRemapper(Collections.singletonMap("Outer$Inner$1", "Outer$RenamedInner$1"));
 
     String remappedSignature = remapper.mapSignature(inputSignature, false);
 

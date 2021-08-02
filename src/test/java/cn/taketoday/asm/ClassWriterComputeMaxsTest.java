@@ -88,7 +88,7 @@ public class ClassWriterComputeMaxsTest {
    * </pre>
    */
   @ParameterizedTest
-  @ValueSource(ints = {1, 31, 32, 33})
+  @ValueSource(ints = { 1, 31, 32, 33 })
   public void testVisitMaxs_basic(final int numSubroutines) {
     TestCaseBuilder testCase = new TestCaseBuilder();
     for (int i = 0; i < numSubroutines; ++i) {
@@ -98,34 +98,34 @@ public class ClassWriterComputeMaxsTest {
       Label k3 = new Label();
       Label k4 = new Label();
       testCase
-          .iconst_0() // N0
-          .istore(1)
-          // Body of try block.
-          .label(k0) // N2
-          .iinc(1, 1)
-          .go(k3)
-          // Exception handler.
-          .label(k1) // N8
-          .astore(3)
-          .jsr(k2)
-          .aload(3) // N12
-          .athrow()
-          // Subroutine.
-          .label(k2) // N14
-          .astore(2)
-          .iinc(1, -1)
-          .push()
-          .push()
-          .ret(2)
-          // Non-exceptional exit from try block.
-          .label(k3) // N22
-          .jsr(k2)
-          .push() // N25
-          .push()
-          .label(k4) // N27
-          .vreturn()
-          .trycatch(k0, k1, k1)
-          .trycatch(k3, k4, k1);
+              .iconst_0() // N0
+              .istore(1)
+              // Body of try block.
+              .label(k0) // N2
+              .iinc(1, 1)
+              .go(k3)
+              // Exception handler.
+              .label(k1) // N8
+              .astore(3)
+              .jsr(k2)
+              .aload(3) // N12
+              .athrow()
+              // Subroutine.
+              .label(k2) // N14
+              .astore(2)
+              .iinc(1, -1)
+              .push()
+              .push()
+              .ret(2)
+              // Non-exceptional exit from try block.
+              .label(k3) // N22
+              .jsr(k2)
+              .push() // N25
+              .push()
+              .label(k4) // N27
+              .vreturn()
+              .trycatch(k0, k1, k1)
+              .trycatch(k3, k4, k1);
     }
 
     Map<String, Set<String>> controlFlowGraph = testCase.visitMaxs();
@@ -136,15 +136,15 @@ public class ClassWriterComputeMaxsTest {
     assertEquals(4, methodInfo.maxLocals);
     if (numSubroutines == 1) {
       Map<String, Set<String>> expectedControlFlowGraph =
-          controlFlowGraph(
-              "N0=N2",
-              "N2=N22,N8",
-              "N8=N14",
-              "N12=",
-              "N14=N12,N25",
-              "N22=N14,N8",
-              "N25=N27,N8",
-              "N27=");
+              controlFlowGraph(
+                      "N0=N2",
+                      "N2=N22,N8",
+                      "N8=N14",
+                      "N12=",
+                      "N14=N12,N25",
+                      "N22=N14,N8",
+                      "N25=N27,N8",
+                      "N27=");
       assertEquals(expectedControlFlowGraph, controlFlowGraph);
     }
     assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
@@ -171,41 +171,41 @@ public class ClassWriterComputeMaxsTest {
   @Test
   public void testVisitMaxs_ifElseInFinally() {
     TestCaseBuilder testCase =
-        new TestCaseBuilder()
-            .iconst_0() // N0
-            .istore(1)
-            // Body of try block.
-            .label(label0) // N2
-            .iinc(1, 1)
-            .go(label5)
-            // Exception handler.
-            .label(label1) // N8
-            .astore(3)
-            .jsr(label2)
-            .push() // N12
-            .push()
-            .aload(3)
-            .athrow()
-            // Subroutine.
-            .label(label2) // N16
-            .astore(2)
-            .push()
-            .push()
-            .iload(1)
-            .ifne(label3)
-            .iinc(1, 2)
-            .go(label4)
-            .label(label3) // N29
-            .iinc(1, 3)
-            .label(label4) // N32, common exit.
-            .ret(2)
-            // Non-exceptional exit from try block.
-            .label(label5) // N34
-            .jsr(label2)
-            .label(label6) // N37
-            .vreturn()
-            .trycatch(label0, label1, label1)
-            .trycatch(label5, label6, label1);
+            new TestCaseBuilder()
+                    .iconst_0() // N0
+                    .istore(1)
+                    // Body of try block.
+                    .label(label0) // N2
+                    .iinc(1, 1)
+                    .go(label5)
+                    // Exception handler.
+                    .label(label1) // N8
+                    .astore(3)
+                    .jsr(label2)
+                    .push() // N12
+                    .push()
+                    .aload(3)
+                    .athrow()
+                    // Subroutine.
+                    .label(label2) // N16
+                    .astore(2)
+                    .push()
+                    .push()
+                    .iload(1)
+                    .ifne(label3)
+                    .iinc(1, 2)
+                    .go(label4)
+                    .label(label3) // N29
+                    .iinc(1, 3)
+                    .label(label4) // N32, common exit.
+                    .ret(2)
+                    // Non-exceptional exit from try block.
+                    .label(label5) // N34
+                    .jsr(label2)
+                    .label(label6) // N37
+                    .vreturn()
+                    .trycatch(label0, label1, label1)
+                    .trycatch(label5, label6, label1);
 
     Map<String, Set<String>> controlFlowGraph = testCase.visitMaxs();
     byte[] classFile = testCase.build();
@@ -214,16 +214,16 @@ public class ClassWriterComputeMaxsTest {
     assertEquals(5, methodInfo.maxStack);
     assertEquals(4, methodInfo.maxLocals);
     Map<String, Set<String>> expectedControlFlowGraph =
-        controlFlowGraph(
-            "N0=N2",
-            "N2=N34,N8",
-            "N8=N16",
-            "N12=",
-            "N16=N29,N32",
-            "N29=N32",
-            "N32=N37,N12",
-            "N34=N16,N8",
-            "N37=");
+            controlFlowGraph(
+                    "N0=N2",
+                    "N2=N34,N8",
+                    "N8=N16",
+                    "N12=",
+                    "N16=N29,N32",
+                    "N29=N32",
+                    "N32=N37,N12",
+                    "N34=N16,N8",
+                    "N37=");
     assertEquals(expectedControlFlowGraph, controlFlowGraph);
     assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
   }
@@ -249,46 +249,46 @@ public class ClassWriterComputeMaxsTest {
   @Test
   public void testVisitMaxs_simpleNestedFinally() {
     TestCaseBuilder testCase =
-        new TestCaseBuilder()
-            .iconst_0() // N0
-            .istore(1)
-            // Body of try block.
-            .label(label0) // N2
-            .iinc(1, 1)
-            .jsr(label2)
-            .go(label5) // N8
-            // First exception handler.
-            .label(label1) // N11
-            .astore(4)
-            .jsr(label2)
-            .aload(4) // N16
-            .athrow()
-            // First subroutine.
-            .label(label2) // N19
-            .astore(2)
-            .iinc(1, 2)
-            .jsr(label4)
-            .push() // N26
-            .push()
-            .ret(2)
-            // Second exception handler.
-            .label(label3) // N30
-            .astore(5)
-            .jsr(label4)
-            .aload(5) // N35
-            .athrow()
-            // Second subroutine.
-            .label(label4) // N38
-            .astore(3)
-            .push()
-            .push()
-            .iinc(1, 3)
-            .ret(3)
-            // On normal exit, try block jumps here.
-            .label(label5) // N46
-            .vreturn()
-            .trycatch(label0, label1, label1)
-            .trycatch(label2, label3, label3);
+            new TestCaseBuilder()
+                    .iconst_0() // N0
+                    .istore(1)
+                    // Body of try block.
+                    .label(label0) // N2
+                    .iinc(1, 1)
+                    .jsr(label2)
+                    .go(label5) // N8
+                    // First exception handler.
+                    .label(label1) // N11
+                    .astore(4)
+                    .jsr(label2)
+                    .aload(4) // N16
+                    .athrow()
+                    // First subroutine.
+                    .label(label2) // N19
+                    .astore(2)
+                    .iinc(1, 2)
+                    .jsr(label4)
+                    .push() // N26
+                    .push()
+                    .ret(2)
+                    // Second exception handler.
+                    .label(label3) // N30
+                    .astore(5)
+                    .jsr(label4)
+                    .aload(5) // N35
+                    .athrow()
+                    // Second subroutine.
+                    .label(label4) // N38
+                    .astore(3)
+                    .push()
+                    .push()
+                    .iinc(1, 3)
+                    .ret(3)
+                    // On normal exit, try block jumps here.
+                    .label(label5) // N46
+                    .vreturn()
+                    .trycatch(label0, label1, label1)
+                    .trycatch(label2, label3, label3);
 
     Map<String, Set<String>> controlFlowGraph = testCase.visitMaxs();
     byte[] classFile = testCase.build();
@@ -297,18 +297,18 @@ public class ClassWriterComputeMaxsTest {
     assertEquals(5, methodInfo.maxStack);
     assertEquals(6, methodInfo.maxLocals);
     Map<String, Set<String>> expectedControlFlowGraph =
-        controlFlowGraph(
-            "N0=N2",
-            "N2=N11,N19",
-            "N8=N11,N46",
-            "N11=N19",
-            "N16=",
-            "N19=N30,N38",
-            "N26=N16,N30,N8",
-            "N30=N38",
-            "N35=",
-            "N38=N26,N35",
-            "N46=");
+            controlFlowGraph(
+                    "N0=N2",
+                    "N2=N11,N19",
+                    "N8=N11,N46",
+                    "N11=N19",
+                    "N16=",
+                    "N19=N30,N38",
+                    "N26=N16,N30,N8",
+                    "N30=N38",
+                    "N35=",
+                    "N38=N26,N35",
+                    "N46=");
     assertEquals(expectedControlFlowGraph, controlFlowGraph);
     assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
   }
@@ -337,33 +337,33 @@ public class ClassWriterComputeMaxsTest {
   @Test
   public void testVisitMaxs_subroutineWithNoRet() {
     TestCaseBuilder testCase =
-        new TestCaseBuilder()
-            .iconst_0() // N0
-            .istore(1)
-            // While loop header/try block.
-            .label(label0) // N2
-            .iinc(1, 1)
-            .jsr(label2)
-            .go(label3) // N8
-            // Implicit catch block.
-            .label(label1) // N11
-            .astore(2)
-            .jsr(label2)
-            .push() // N15
-            .push()
-            .aload(2)
-            .athrow()
-            // Subroutine which does not return.
-            .label(label2) // N19
-            .astore(3)
-            .iinc(1, 2)
-            .go(label4)
-            // End of the loop, goes back to the top.
-            .label(label3) // N26
-            .go(label0)
-            .label(label4) // N29
-            .vreturn()
-            .trycatch(label0, label1, label1);
+            new TestCaseBuilder()
+                    .iconst_0() // N0
+                    .istore(1)
+                    // While loop header/try block.
+                    .label(label0) // N2
+                    .iinc(1, 1)
+                    .jsr(label2)
+                    .go(label3) // N8
+                    // Implicit catch block.
+                    .label(label1) // N11
+                    .astore(2)
+                    .jsr(label2)
+                    .push() // N15
+                    .push()
+                    .aload(2)
+                    .athrow()
+                    // Subroutine which does not return.
+                    .label(label2) // N19
+                    .astore(3)
+                    .iinc(1, 2)
+                    .go(label4)
+                    // End of the loop, goes back to the top.
+                    .label(label3) // N26
+                    .go(label0)
+                    .label(label4) // N29
+                    .vreturn()
+                    .trycatch(label0, label1, label1);
 
     Map<String, Set<String>> controlFlowGraph = testCase.visitMaxs();
     byte[] classFile = testCase.build();
@@ -372,8 +372,8 @@ public class ClassWriterComputeMaxsTest {
     assertEquals(1, methodInfo.maxStack);
     assertEquals(4, methodInfo.maxLocals);
     Map<String, Set<String>> expectedControlFlowGraph =
-        controlFlowGraph(
-            "N0=N2", "N2=N11,N19", "N8=N11,N26", "N11=N19", "N15=", "N19=N29", "N26=N2", "N29=");
+            controlFlowGraph(
+                    "N0=N2", "N2=N11,N19", "N8=N11,N26", "N11=N19", "N15=", "N19=N29", "N26=N2", "N29=");
     assertEquals(expectedControlFlowGraph, controlFlowGraph);
     assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
   }
@@ -393,16 +393,16 @@ public class ClassWriterComputeMaxsTest {
   @Test
   public void testVisitMaxs_subroutineWithNoRet2() {
     TestCaseBuilder testCase =
-        new TestCaseBuilder()
-            .aconst_null() // N0
-            .jsr(label0)
-            .nop() // N4
-            .label(label0) // N5
-            .astore(0)
-            .astore(0)
-            .vreturn()
-            .label(label1) // N8
-            .localVariable("i", "I", null, label0, label1, 1);
+            new TestCaseBuilder()
+                    .aconst_null() // N0
+                    .jsr(label0)
+                    .nop() // N4
+                    .label(label0) // N5
+                    .astore(0)
+                    .astore(0)
+                    .vreturn()
+                    .label(label1) // N8
+                    .localVariable("i", "I", null, label0, label1, 1);
 
     Map<String, Set<String>> controlFlowGraph = testCase.visitMaxs();
     byte[] classFile = testCase.build();
@@ -411,7 +411,7 @@ public class ClassWriterComputeMaxsTest {
     assertEquals(2, methodInfo.maxStack);
     assertEquals(2, methodInfo.maxLocals);
     Map<String, Set<String>> expectedControlFlowGraph =
-        controlFlowGraph("N0=N5", "N4=N5", "N5=", "N8=");
+            controlFlowGraph("N0=N5", "N4=N5", "N5=", "N8=");
     assertEquals(expectedControlFlowGraph, controlFlowGraph);
     assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
   }
@@ -441,37 +441,37 @@ public class ClassWriterComputeMaxsTest {
   @Test
   public void testVisitMaxs_implicitExit() {
     TestCaseBuilder testCase =
-        new TestCaseBuilder()
-            .iconst_0() // N0
-            .istore(1)
-            // While loop header.
-            .label(label0) // N2
-            .aconst_null()
-            .ifnonnull(label5)
-            // Try block.
-            .label(label1) // N6
-            .iinc(1, 1)
-            .jsr(label3)
-            .go(label4) // N12
-            // Implicit catch block.
-            .label(label2) // N15
-            .astore(2)
-            .jsr(label3)
-            .aload(2) // N19
-            .push()
-            .push()
-            .athrow()
-            // Subroutine which does not return.
-            .label(label3) // N23
-            .astore(3)
-            .iinc(1, 2)
-            .go(label5)
-            // End of the loop, goes back to the top.
-            .label(label4) // N30
-            .go(label1)
-            .label(label5) // N33
-            .vreturn()
-            .trycatch(label1, label2, label2);
+            new TestCaseBuilder()
+                    .iconst_0() // N0
+                    .istore(1)
+                    // While loop header.
+                    .label(label0) // N2
+                    .aconst_null()
+                    .ifnonnull(label5)
+                    // Try block.
+                    .label(label1) // N6
+                    .iinc(1, 1)
+                    .jsr(label3)
+                    .go(label4) // N12
+                    // Implicit catch block.
+                    .label(label2) // N15
+                    .astore(2)
+                    .jsr(label3)
+                    .aload(2) // N19
+                    .push()
+                    .push()
+                    .athrow()
+                    // Subroutine which does not return.
+                    .label(label3) // N23
+                    .astore(3)
+                    .iinc(1, 2)
+                    .go(label5)
+                    // End of the loop, goes back to the top.
+                    .label(label4) // N30
+                    .go(label1)
+                    .label(label5) // N33
+                    .vreturn()
+                    .trycatch(label1, label2, label2);
 
     Map<String, Set<String>> controlFlowGraph = testCase.visitMaxs();
     byte[] classFile = testCase.build();
@@ -480,16 +480,16 @@ public class ClassWriterComputeMaxsTest {
     assertEquals(1, methodInfo.maxStack);
     assertEquals(4, methodInfo.maxLocals);
     Map<String, Set<String>> expectedControlFlowGraph =
-        controlFlowGraph(
-            "N0=N2",
-            "N2=N6,N33",
-            "N6=N23,N15",
-            "N12=N30,N15",
-            "N15=N23",
-            "N19=",
-            "N23=N33",
-            "N30=N6",
-            "N33=");
+            controlFlowGraph(
+                    "N0=N2",
+                    "N2=N6,N33",
+                    "N6=N23,N15",
+                    "N12=N30,N15",
+                    "N15=N23",
+                    "N19=",
+                    "N23=N33",
+                    "N30=N6",
+                    "N33=");
     assertEquals(expectedControlFlowGraph, controlFlowGraph);
     assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
   }
@@ -523,54 +523,54 @@ public class ClassWriterComputeMaxsTest {
   @Test
   public void testVisitMaxs_implicitExitToAnotherSubroutine() {
     TestCaseBuilder testCase =
-        new TestCaseBuilder()
-            .iconst_0() // N0
-            .istore(1)
-            // First try.
-            .label(label0) // N2
-            .jsr(label2)
-            .vreturn() // N5
-            // Exception handler for first try.
-            .label(label1) // N6
-            .astore(LOCAL2)
-            .jsr(label2)
-            .push() // N10
-            .push()
-            .aload(LOCAL2)
-            .athrow()
-            // First finally handler.
-            .label(label2) // N14
-            .astore(LOCAL4)
-            .push()
-            .push()
-            .go(label6)
-            // Body of while loop, also second try.
-            .label(label3) // N21
-            .jsr(label5)
-            .vreturn() // N24
-            // Exception handler for second try.
-            .label(label4) // N25
-            .astore(LOCAL3)
-            .push()
-            .push()
-            .jsr(label5)
-            .aload(LOCAL3) // N31
-            .athrow()
-            // Second finally handler.
-            .label(label5) // N33
-            .astore(LOCAL5)
-            .iload(LOCAL1)
-            .ifne(label7)
-            .ret(LOCAL5)
-            // Test for the while loop.
-            .label(label6) // N41
-            .iload(LOCAL1)
-            .ifne(label3) // falls through to X.
-            // Exit from finally block.
-            .label(label7) // N45
-            .ret(LOCAL4)
-            .trycatch(label0, label1, label1)
-            .trycatch(label3, label4, label4);
+            new TestCaseBuilder()
+                    .iconst_0() // N0
+                    .istore(1)
+                    // First try.
+                    .label(label0) // N2
+                    .jsr(label2)
+                    .vreturn() // N5
+                    // Exception handler for first try.
+                    .label(label1) // N6
+                    .astore(LOCAL2)
+                    .jsr(label2)
+                    .push() // N10
+                    .push()
+                    .aload(LOCAL2)
+                    .athrow()
+                    // First finally handler.
+                    .label(label2) // N14
+                    .astore(LOCAL4)
+                    .push()
+                    .push()
+                    .go(label6)
+                    // Body of while loop, also second try.
+                    .label(label3) // N21
+                    .jsr(label5)
+                    .vreturn() // N24
+                    // Exception handler for second try.
+                    .label(label4) // N25
+                    .astore(LOCAL3)
+                    .push()
+                    .push()
+                    .jsr(label5)
+                    .aload(LOCAL3) // N31
+                    .athrow()
+                    // Second finally handler.
+                    .label(label5) // N33
+                    .astore(LOCAL5)
+                    .iload(LOCAL1)
+                    .ifne(label7)
+                    .ret(LOCAL5)
+                    // Test for the while loop.
+                    .label(label6) // N41
+                    .iload(LOCAL1)
+                    .ifne(label3) // falls through to X.
+                    // Exit from finally block.
+                    .label(label7) // N45
+                    .ret(LOCAL4)
+                    .trycatch(label0, label1, label1)
+                    .trycatch(label3, label4, label4);
 
     Map<String, Set<String>> controlFlowGraph = testCase.visitMaxs();
     byte[] classFile = testCase.build();
@@ -579,20 +579,20 @@ public class ClassWriterComputeMaxsTest {
     assertEquals(5, methodInfo.maxStack);
     assertEquals(6, methodInfo.maxLocals);
     Map<String, Set<String>> expectedControlFlowGraph =
-        controlFlowGraph(
-            "N0=N2",
-            "N2=N6,N14",
-            "N5=N6",
-            "N6=N14",
-            "N10=",
-            "N14=N41",
-            "N21=N25,N33",
-            "N24=N25",
-            "N25=N33",
-            "N31=",
-            "N33=N31,N45,N24",
-            "N41=N45,N21",
-            "N45=N5,N10");
+            controlFlowGraph(
+                    "N0=N2",
+                    "N2=N6,N14",
+                    "N5=N6",
+                    "N6=N14",
+                    "N10=",
+                    "N14=N41",
+                    "N21=N25,N33",
+                    "N24=N25",
+                    "N25=N33",
+                    "N31=",
+                    "N33=N31,N45,N24",
+                    "N41=N45,N21",
+                    "N45=N5,N10");
     assertEquals(expectedControlFlowGraph, controlFlowGraph);
     assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
   }
@@ -600,22 +600,22 @@ public class ClassWriterComputeMaxsTest {
   @Test
   public void testVisitMaxs_implicitExitToAnotherSubroutine2() {
     TestCaseBuilder testCase =
-        new TestCaseBuilder()
-            .iconst_0() // N0
-            .istore(1)
-            .jsr(label0)
-            .vreturn() // N5
-            .label(label0) // N6
-            .astore(2)
-            .jsr(label1)
-            .go(label2) // N10
-            .label(label1) // N13
-            .astore(3)
-            .iload(1)
-            .ifne(label2)
-            .ret(3)
-            .label(label2) // N20
-            .ret(2);
+            new TestCaseBuilder()
+                    .iconst_0() // N0
+                    .istore(1)
+                    .jsr(label0)
+                    .vreturn() // N5
+                    .label(label0) // N6
+                    .astore(2)
+                    .jsr(label1)
+                    .go(label2) // N10
+                    .label(label1) // N13
+                    .astore(3)
+                    .iload(1)
+                    .ifne(label2)
+                    .ret(3)
+                    .label(label2) // N20
+                    .ret(2);
 
     Map<String, Set<String>> controlFlowGraph = testCase.visitMaxs();
     byte[] classFile = testCase.build();
@@ -624,7 +624,7 @@ public class ClassWriterComputeMaxsTest {
     assertEquals(1, methodInfo.maxStack);
     assertEquals(4, methodInfo.maxLocals);
     Map<String, Set<String>> expectedControlFlowGraph =
-        controlFlowGraph("N0=N6", "N5=", "N6=N13", "N10=N20", "N13=N20,N10", "N20=N5");
+            controlFlowGraph("N0=N6", "N5=", "N6=N13", "N10=N20", "N13=N20,N10", "N20=N5");
     assertEquals(expectedControlFlowGraph, controlFlowGraph);
     assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
   }
@@ -638,31 +638,31 @@ public class ClassWriterComputeMaxsTest {
   @Test
   public void testVisitMaxs_interleavedCode() {
     TestCaseBuilder testCase =
-        new TestCaseBuilder()
-            .iconst_0() // N0
-            .istore(1)
-            .jsr(label0)
-            .go(label1) // N5
-            // Subroutine 1.
-            .label(label0) // N8
-            .astore(2)
-            .iinc(1, 1)
-            .go(label2)
-            // Second part of main subroutine.
-            .label(label1) // N15
-            .iinc(1, 2)
-            .go(label3)
-            // Second part of subroutine 1.
-            .label(label2) // N21
-            .iinc(1, 4)
-            .push()
-            .push()
-            .ret(2)
-            // Third part of main subroutine.
-            .label(label3) // N28
-            .push()
-            .push()
-            .vreturn();
+            new TestCaseBuilder()
+                    .iconst_0() // N0
+                    .istore(1)
+                    .jsr(label0)
+                    .go(label1) // N5
+                    // Subroutine 1.
+                    .label(label0) // N8
+                    .astore(2)
+                    .iinc(1, 1)
+                    .go(label2)
+                    // Second part of main subroutine.
+                    .label(label1) // N15
+                    .iinc(1, 2)
+                    .go(label3)
+                    // Second part of subroutine 1.
+                    .label(label2) // N21
+                    .iinc(1, 4)
+                    .push()
+                    .push()
+                    .ret(2)
+                    // Third part of main subroutine.
+                    .label(label3) // N28
+                    .push()
+                    .push()
+                    .vreturn();
 
     Map<String, Set<String>> controlFlowGraph = testCase.visitMaxs();
     byte[] classFile = testCase.build();
@@ -671,7 +671,7 @@ public class ClassWriterComputeMaxsTest {
     assertEquals(4, methodInfo.maxStack);
     assertEquals(3, methodInfo.maxLocals);
     Map<String, Set<String>> expectedControlFlowGraph =
-        controlFlowGraph("N0=N8", "N5=N15", "N8=N21", "N15=N28", "N21=N5", "N28=");
+            controlFlowGraph("N0=N8", "N5=N15", "N8=N21", "N15=N28", "N21=N5", "N28=");
     assertEquals(expectedControlFlowGraph, controlFlowGraph);
     assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
   }
@@ -707,57 +707,57 @@ public class ClassWriterComputeMaxsTest {
   @Test
   public void testVisitMaxs_implicitExitInTryCatch() {
     TestCaseBuilder testCase =
-        new TestCaseBuilder()
-            .iconst_0() // N0
-            .istore(1)
-            // First try.
-            .label(label0) // N2
-            .jsr(label2)
-            .vreturn() // N5
-            // Exception handler for first try.
-            .label(label1) // N6
-            .astore(LOCAL2)
-            .jsr(label2)
-            .aload(LOCAL2) // N10
-            .athrow()
-            // First finally handler.
-            .label(label2) // N12
-            .astore(LOCAL4)
-            .go(label6)
-            // Body of while loop, also second try.
-            .label(label3) // N17
-            .jsr(label5)
-            .push() // N20
-            .push()
-            .vreturn()
-            // Exception handler for second try.
-            .label(label4) // N23
-            .astore(LOCAL3)
-            .jsr(label5)
-            .aload(LOCAL3) // N27
-            .athrow()
-            // Second finally handler.
-            .label(label5) // N29
-            .astore(LOCAL5)
-            .iload(LOCAL1)
-            .ifne(label7)
-            .push()
-            .push()
-            .ret(LOCAL5)
-            // Test for the while loop.
-            .label(label6) // N39
-            .iload(LOCAL1)
-            .ifne(label3) // Falls through.
-            // Exit from finally block.
-            .label(label7) // N43
-            .ret(LOCAL4)
-            // Outermost catch.
-            .label(label8) // N45
-            .iinc(LOCAL1, 3)
-            .vreturn()
-            .trycatch(label0, label1, label1)
-            .trycatch(label3, label4, label4)
-            .trycatch(label0, label8, label8);
+            new TestCaseBuilder()
+                    .iconst_0() // N0
+                    .istore(1)
+                    // First try.
+                    .label(label0) // N2
+                    .jsr(label2)
+                    .vreturn() // N5
+                    // Exception handler for first try.
+                    .label(label1) // N6
+                    .astore(LOCAL2)
+                    .jsr(label2)
+                    .aload(LOCAL2) // N10
+                    .athrow()
+                    // First finally handler.
+                    .label(label2) // N12
+                    .astore(LOCAL4)
+                    .go(label6)
+                    // Body of while loop, also second try.
+                    .label(label3) // N17
+                    .jsr(label5)
+                    .push() // N20
+                    .push()
+                    .vreturn()
+                    // Exception handler for second try.
+                    .label(label4) // N23
+                    .astore(LOCAL3)
+                    .jsr(label5)
+                    .aload(LOCAL3) // N27
+                    .athrow()
+                    // Second finally handler.
+                    .label(label5) // N29
+                    .astore(LOCAL5)
+                    .iload(LOCAL1)
+                    .ifne(label7)
+                    .push()
+                    .push()
+                    .ret(LOCAL5)
+                    // Test for the while loop.
+                    .label(label6) // N39
+                    .iload(LOCAL1)
+                    .ifne(label3) // Falls through.
+                    // Exit from finally block.
+                    .label(label7) // N43
+                    .ret(LOCAL4)
+                    // Outermost catch.
+                    .label(label8) // N45
+                    .iinc(LOCAL1, 3)
+                    .vreturn()
+                    .trycatch(label0, label1, label1)
+                    .trycatch(label3, label4, label4)
+                    .trycatch(label0, label8, label8);
 
     Map<String, Set<String>> controlFlowGraph = testCase.visitMaxs();
     byte[] classFile = testCase.build();
@@ -766,21 +766,21 @@ public class ClassWriterComputeMaxsTest {
     assertEquals(4, methodInfo.maxStack);
     assertEquals(6, methodInfo.maxLocals);
     Map<String, Set<String>> expectedControlFlowGraph =
-        controlFlowGraph(
-            "N0=N2",
-            "N2=N6,N45,N12",
-            "N5=N6,N45",
-            "N6=N45,N12",
-            "N10=N45",
-            "N12=N39,N45",
-            "N17=N23,N45,N29",
-            "N20=N23,N45",
-            "N23=N45,N29",
-            "N27=N45",
-            "N29=N43,N45,N20,N27",
-            "N39=N43,N45,N17",
-            "N43=N45,N5,N10",
-            "N45=");
+            controlFlowGraph(
+                    "N0=N2",
+                    "N2=N6,N45,N12",
+                    "N5=N6,N45",
+                    "N6=N45,N12",
+                    "N10=N45",
+                    "N12=N39,N45",
+                    "N17=N23,N45,N29",
+                    "N20=N23,N45",
+                    "N23=N45,N29",
+                    "N27=N45",
+                    "N29=N43,N45,N20,N27",
+                    "N39=N43,N45,N17",
+                    "N43=N45,N5,N10",
+                    "N45=");
     assertEquals(expectedControlFlowGraph, controlFlowGraph);
     assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
   }
@@ -792,54 +792,54 @@ public class ClassWriterComputeMaxsTest {
   @Test
   public void testVisitMaxs_glassFish2CorbaClientDelegateImplExample() {
     TestCaseBuilder testCase =
-        new TestCaseBuilder()
-            .label(label0) // N0
-            .jsr(label4)
-            .label(label1) // N3
-            .go(label5)
-            .label(label2) // N6
-            .pop()
-            .jsr(label4)
-            .label(label3) // N10
-            .aconst_null()
-            .athrow()
-            .label(label4) // N12
-            .astore(1)
-            .ret(1)
-            .label(label5) // N15
-            .aconst_null()
-            .aconst_null()
-            .aconst_null()
-            .pop()
-            .pop()
-            .pop()
-            .label(label6) // N21
-            .go(label8)
-            .label(label7) // N24
-            .pop()
-            .go(label8)
-            .aconst_null()
-            .athrow()
-            .label(label8) // N30
-            .iconst_0()
-            .ifne(label0)
-            .jsr(label12)
-            .label(label9) // N37
-            .vreturn()
-            .label(label10) // N38
-            .pop()
-            .jsr(label12)
-            .label(label11) // N42
-            .aconst_null()
-            .athrow()
-            .label(label12) // N44
-            .astore(2)
-            .ret(2)
-            .trycatch(label0, label1, label2)
-            .trycatch(label2, label3, label2)
-            .trycatch(label0, label6, label7)
-            .trycatch(label0, label9, label10)
-            .trycatch(label10, label11, label10);
+            new TestCaseBuilder()
+                    .label(label0) // N0
+                    .jsr(label4)
+                    .label(label1) // N3
+                    .go(label5)
+                    .label(label2) // N6
+                    .pop()
+                    .jsr(label4)
+                    .label(label3) // N10
+                    .aconst_null()
+                    .athrow()
+                    .label(label4) // N12
+                    .astore(1)
+                    .ret(1)
+                    .label(label5) // N15
+                    .aconst_null()
+                    .aconst_null()
+                    .aconst_null()
+                    .pop()
+                    .pop()
+                    .pop()
+                    .label(label6) // N21
+                    .go(label8)
+                    .label(label7) // N24
+                    .pop()
+                    .go(label8)
+                    .aconst_null()
+                    .athrow()
+                    .label(label8) // N30
+                    .iconst_0()
+                    .ifne(label0)
+                    .jsr(label12)
+                    .label(label9) // N37
+                    .vreturn()
+                    .label(label10) // N38
+                    .pop()
+                    .jsr(label12)
+                    .label(label11) // N42
+                    .aconst_null()
+                    .athrow()
+                    .label(label12) // N44
+                    .astore(2)
+                    .ret(2)
+                    .trycatch(label0, label1, label2)
+                    .trycatch(label2, label3, label2)
+                    .trycatch(label0, label6, label7)
+                    .trycatch(label0, label9, label10)
+                    .trycatch(label10, label11, label10);
 
     Map<String, Set<String>> controlFlowGraph = testCase.visitMaxs();
     byte[] classFile = testCase.build();
@@ -848,20 +848,20 @@ public class ClassWriterComputeMaxsTest {
     assertEquals(3, methodInfo.maxStack);
     assertEquals(3, methodInfo.maxLocals);
     Map<String, Set<String>> expectedControlFlowGraph =
-        controlFlowGraph(
-            "N0=N6,N12,N24,N38",
-            "N3=N15,N24,N38",
-            "N6=N6,N12,N24,N38",
-            "N10=N24,N38",
-            "N12=N3,N10,N24,N38",
-            "N15=N21,N24,N38",
-            "N21=N30,N38",
-            "N24=N30,N38",
-            "N30=N0,N38,N44",
-            "N37=",
-            "N38=N38,N44",
-            "N42=",
-            "N44=N37,N42");
+            controlFlowGraph(
+                    "N0=N6,N12,N24,N38",
+                    "N3=N15,N24,N38",
+                    "N6=N6,N12,N24,N38",
+                    "N10=N24,N38",
+                    "N12=N3,N10,N24,N38",
+                    "N15=N21,N24,N38",
+                    "N21=N30,N38",
+                    "N24=N30,N38",
+                    "N30=N0,N38,N44",
+                    "N37=",
+                    "N38=N38,N44",
+                    "N42=",
+                    "N44=N37,N42");
     assertEquals(expectedControlFlowGraph, controlFlowGraph);
     assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
   }
@@ -873,28 +873,28 @@ public class ClassWriterComputeMaxsTest {
   @Test
   public void testVisitMaxs_implicitExitToAnotherSubroutineInverted() {
     TestCaseBuilder testCase =
-        new TestCaseBuilder()
-            .go(label3) // N0
-            // Second subroutine, returns to caller of first subroutine.
-            .label(label0) // N3
-            .astore(2)
-            .label(label1) // N4
-            .ret(1)
-            // First subroutine.
-            .label(label2) // N6
-            .astore(1)
-            .aload(0)
-            .ifnonnull(label1)
-            .jsr(label0) // This JSR never returns, the following code is unreachable.
-            .aconst_null() // N14
-            .aconst_null()
-            .aconst_null()
-            .vreturn()
-            // Main "subroutine".
-            .label(label3) // N18
-            .jsr(label2)
-            .label(label4) // N21
-            .vreturn();
+            new TestCaseBuilder()
+                    .go(label3) // N0
+                    // Second subroutine, returns to caller of first subroutine.
+                    .label(label0) // N3
+                    .astore(2)
+                    .label(label1) // N4
+                    .ret(1)
+                    // First subroutine.
+                    .label(label2) // N6
+                    .astore(1)
+                    .aload(0)
+                    .ifnonnull(label1)
+                    .jsr(label0) // This JSR never returns, the following code is unreachable.
+                    .aconst_null() // N14
+                    .aconst_null()
+                    .aconst_null()
+                    .vreturn()
+                    // Main "subroutine".
+                    .label(label3) // N18
+                    .jsr(label2)
+                    .label(label4) // N21
+                    .vreturn();
 
     Map<String, Set<String>> controlFlowGraph = testCase.visitMaxs();
     byte[] classFile = testCase.build();
@@ -903,7 +903,7 @@ public class ClassWriterComputeMaxsTest {
     assertEquals(1, methodInfo.maxStack);
     assertEquals(3, methodInfo.maxLocals);
     Map<String, Set<String>> expectedControlFlowGraph =
-        controlFlowGraph("N0=N18", "N3=N4", "N4=N21", "N6=N3,N4", "N14=", "N18=N6", "N21=");
+            controlFlowGraph("N0=N18", "N3=N4", "N4=N21", "N6=N3,N4", "N14=", "N18=N6", "N21=");
     assertEquals(expectedControlFlowGraph, controlFlowGraph);
     assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
   }
@@ -915,18 +915,18 @@ public class ClassWriterComputeMaxsTest {
   @Test
   public void testVisitMaxs_framesWithDeadCode() {
     TestCaseBuilder testCase =
-        new TestCaseBuilder(Opcodes.V1_7)
-            .vreturn()
-            // With the default compute maxs algorithm, this dead code block is not considered for
-            // the maximum stack size, which works fine for classes up to V1_6. Starting with V1_7,
-            // stack map frames are mandatory, even for dead code, and the maximum stack size must
-            // take dead code into account. Hopefully it can be computed from the stack map frames,
-            // and the instructions in between (without any control flow graph construction or
-            // algorithm).
-            .label(label0)
-            .frame(Opcodes.F_SAME, 0, null, 0, null)
-            .aconst_null()
-            .vreturn();
+            new TestCaseBuilder(Opcodes.V1_7)
+                    .vreturn()
+                    // With the default compute maxs algorithm, this dead code block is not considered for
+                    // the maximum stack size, which works fine for classes up to V1_6. Starting with V1_7,
+                    // stack map frames are mandatory, even for dead code, and the maximum stack size must
+                    // take dead code into account. Hopefully it can be computed from the stack map frames,
+                    // and the instructions in between (without any control flow graph construction or
+                    // algorithm).
+                    .label(label0)
+                    .frame(Opcodes.F_SAME, 0, null, 0, null)
+                    .aconst_null()
+                    .vreturn();
 
     testCase.visitMaxs();
     byte[] classFile = testCase.build();
@@ -939,13 +939,13 @@ public class ClassWriterComputeMaxsTest {
   @Test
   public void testVisitMaxs_frameWithLong() {
     TestCaseBuilder testCase =
-        new TestCaseBuilder(Opcodes.V1_7)
-            .push2()
-            .go(label0)
-            .label(label0)
-            .frame(Opcodes.F_NEW, 0, null, 1, new Object[] {Opcodes.LONG})
-            .aconst_null()
-            .vreturn();
+            new TestCaseBuilder(Opcodes.V1_7)
+                    .push2()
+                    .go(label0)
+                    .label(label0)
+                    .frame(Opcodes.F_NEW, 0, null, 1, new Object[] { Opcodes.LONG })
+                    .aconst_null()
+                    .vreturn();
 
     testCase.visitMaxs();
     byte[] classFile = testCase.build();
@@ -959,27 +959,28 @@ public class ClassWriterComputeMaxsTest {
     AtomicReference<MethodInfo> methodInfo = new AtomicReference<>();
     ClassReader classReader = new ClassReader(classFile);
     classReader.accept(
-        new ClassVisitor() {
-          @Override
-          public MethodVisitor visitMethod(
-              final int access,
-              final String name,
-              final String descriptor,
-              final String signature,
-              final String[] exceptions) {
-            if (name.equals("m")) {
-              return new MethodVisitor() {
-                @Override
-                public void visitMaxs(final int maxStack, final int maxLocals) {
-                  methodInfo.set(new MethodInfo(maxStack, maxLocals));
+            new ClassVisitor() {
+              @Override
+              public MethodVisitor visitMethod(
+                      final int access,
+                      final String name,
+                      final String descriptor,
+                      final String signature,
+                      final String[] exceptions) {
+                if (name.equals("m")) {
+                  return new MethodVisitor() {
+                    @Override
+                    public void visitMaxs(final int maxStack, final int maxLocals) {
+                      methodInfo.set(new MethodInfo(maxStack, maxLocals));
+                    }
+                  };
                 }
-              };
-            } else {
-              return null;
-            }
-          }
-        },
-        0);
+                else {
+                  return null;
+                }
+              }
+            },
+            0);
     return methodInfo.get();
   }
 
@@ -1022,11 +1023,11 @@ public class ClassWriterComputeMaxsTest {
       classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
       classWriter.visit(classVersion, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
       MethodVisitor constructor =
-          classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+              classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
       constructor.visitCode();
       constructor.visitVarInsn(Opcodes.ALOAD, 0);
       constructor.visitMethodInsn(
-          Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+              Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
       constructor.visitInsn(Opcodes.RETURN);
       constructor.visitMaxs(1, 1);
       constructor.visitEnd();
@@ -1112,11 +1113,11 @@ public class ClassWriterComputeMaxsTest {
     }
 
     TestCaseBuilder frame(
-        final int type,
-        final int numLocal,
-        final Object[] local,
-        final int numStack,
-        final Object[] stack) {
+            final int type,
+            final int numLocal,
+            final Object[] local,
+            final int numStack,
+            final Object[] stack) {
       methodVisitor.visitFrame(type, numLocal, local, numStack, stack);
       return this;
     }
@@ -1147,12 +1148,12 @@ public class ClassWriterComputeMaxsTest {
     }
 
     TestCaseBuilder localVariable(
-        final String name,
-        final String descriptor,
-        final String signature,
-        final Label start,
-        final Label end,
-        final int index) {
+            final String name,
+            final String descriptor,
+            final String signature,
+            final Label start,
+            final Label end,
+            final int index) {
       methodVisitor.visitLocalVariable(name, descriptor, signature, start, end, index);
       return this;
     }

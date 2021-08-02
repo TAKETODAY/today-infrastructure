@@ -45,7 +45,7 @@ public class TableSwitchInsnNodeTest extends AsmTest {
   @Test
   public void testConstructor() {
     LabelNode dflt = new LabelNode();
-    LabelNode[] labels = new LabelNode[] {new LabelNode()};
+    LabelNode[] labels = new LabelNode[] { new LabelNode() };
 
     TableSwitchInsnNode tableSwitchInsnNode = new TableSwitchInsnNode(0, 1, dflt, labels);
 

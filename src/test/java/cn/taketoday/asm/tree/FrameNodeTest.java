@@ -47,8 +47,8 @@ public class FrameNodeTest extends AsmTest {
 
   @Test
   public void testConstructor() {
-    Object[] locals = new Object[] {"l"};
-    Object[] stack = new Object[] {"s", "t"};
+    Object[] locals = new Object[] { "l" };
+    Object[] stack = new Object[] { "s", "t" };
 
     FrameNode frameNode = new FrameNode(Opcodes.F_FULL, 1, locals, 2, stack);
 

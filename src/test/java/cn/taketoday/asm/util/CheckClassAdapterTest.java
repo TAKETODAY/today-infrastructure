@@ -448,8 +448,8 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
 
     Executable accept = () -> classReader.accept(classVisitor, attributes(), 0);
 
-      classReader.accept(classVisitor, attributes(), 0);
-      assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
+    classReader.accept(classVisitor, attributes(), 0);
+    assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
   }
 
   @ParameterizedTest

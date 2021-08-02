@@ -66,32 +66,32 @@ public class MethodNodeTest extends AsmTest {
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testVisitAndAccept_withUninitializedMethodNode(
-      final PrecompiledClass classParameter) {
+          final PrecompiledClass classParameter) {
     byte[] classFile = classParameter.getBytes();
     ClassReader classReader = new ClassReader(classFile);
     ClassNode classNode =
-        new ClassNode() {
+            new ClassNode() {
 
-          @Override
-          public MethodVisitor visitMethod(
-              final int access,
-              final String name,
-              final String descriptor,
-              final String signature,
-              final String[] exceptions) {
-            MethodNode method = new MethodNode();
-            method.access = access;
-            method.name = name;
-            method.desc = descriptor;
-            method.signature = signature;
-            method.exceptions = exceptions;
-            methods.add(method);
-            return method;
-          }
-        };
+              @Override
+              public MethodVisitor visitMethod(
+                      final int access,
+                      final String name,
+                      final String descriptor,
+                      final String signature,
+                      final String[] exceptions) {
+                MethodNode method = new MethodNode();
+                method.access = access;
+                method.name = name;
+                method.desc = descriptor;
+                method.signature = signature;
+                method.exceptions = exceptions;
+                methods.add(method);
+                return method;
+              }
+            };
     ClassWriter classWriter = new ClassWriter(0);
 
-    classReader.accept(classNode, new Attribute[] {new Comment(), new CodeComment()}, 0);
+    classReader.accept(classNode, new Attribute[] { new Comment(), new CodeComment() }, 0);
     classNode.accept(classWriter);
 
     assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));

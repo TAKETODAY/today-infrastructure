@@ -74,11 +74,11 @@ final class MethodNodeBuilder {
   }
 
   MethodNodeBuilder methodInsn(
-      final int opcode,
-      final String owner,
-      final String name,
-      final String descriptor,
-      final boolean isInterface) {
+          final int opcode,
+          final String owner,
+          final String name,
+          final String descriptor,
+          final boolean isInterface) {
     methodNode.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
     return this;
   }
@@ -188,18 +188,18 @@ final class MethodNodeBuilder {
   }
 
   MethodNodeBuilder trycatch(
-      final Label start, final Label end, final Label handler, final String type) {
+          final Label start, final Label end, final Label handler, final String type) {
     methodNode.visitTryCatchBlock(start, end, handler, type);
     return this;
   }
 
   MethodNodeBuilder localVariable(
-      final String name,
-      final String descriptor,
-      final String signature,
-      final Label start,
-      final Label end,
-      final int index) {
+          final String name,
+          final String descriptor,
+          final String signature,
+          final Label start,
+          final Label end,
+          final int index) {
     methodNode.visitLocalVariable(name, descriptor, signature, start, end, index);
     return this;
   }
@@ -213,11 +213,11 @@ final class MethodNodeBuilder {
     ClassWriter classWriter = new ClassWriter(0);
     classWriter.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
     MethodVisitor methodVisitor =
-        classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+            classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
     methodVisitor.visitCode();
     methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
     methodVisitor.visitMethodInsn(
-        Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+            Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
     methodVisitor.visitInsn(Opcodes.RETURN);
     methodVisitor.visitMaxs(1, 1);
     methodVisitor.visitEnd();

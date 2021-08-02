@@ -123,7 +123,7 @@ public class SmallSetTest {
 
     assertEquals(union1, union2);
     assertEquals(
-        union1, new HashSet<Object>(Arrays.asList(ELEMENT1, ELEMENT2, ELEMENT3, ELEMENT4)));
+            union1, new HashSet<Object>(Arrays.asList(ELEMENT1, ELEMENT2, ELEMENT3, ELEMENT4)));
   }
 
   @Test

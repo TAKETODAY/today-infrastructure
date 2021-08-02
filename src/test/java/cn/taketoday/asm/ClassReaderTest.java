@@ -95,7 +95,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     ClassReader objectClassReader = new ClassReader(Object.class.getName());
 
     assertEquals(AsmTest.class.getName().replace('.', '/'), thisClassReader.getSuperName());
-    assertEquals(null, objectClassReader.getSuperName());
+    assertNull(objectClassReader.getSuperName());
   }
 
   @Test
@@ -221,9 +221,6 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
                     classParameter.getName().replace('.', '/') + ".class")) {
       classReader = new ClassReader(inputStream);
     }
-    catch (IOException ioe) {
-      throw ioe;
-    }
 
     assertNotEquals(0, classReader.getAccess());
     assertEquals(classParameter.getInternalName(), classReader.getClassName());
@@ -251,12 +248,12 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
             new InputStream() {
 
               @Override
-              public int available() throws IOException {
+              public int available() {
                 return 0;
               }
 
               @Override
-              public int read() throws IOException {
+              public int read() {
                 return -1;
               }
             }) {
@@ -265,9 +262,6 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
       assertTimeoutPreemptively(
               Duration.ofMillis(100),
               () -> assertThrows(ArrayIndexOutOfBoundsException.class, streamConstructor));
-    }
-    catch (IOException ioe) {
-      throw ioe;
     }
   }
 
@@ -412,7 +406,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
             || invalidClass == InvalidClass.INVALID_BYTECODE_OFFSET) {
       Exception exception = assertThrows(ArrayIndexOutOfBoundsException.class, accept);
       Matcher matcher = Pattern.compile("\\d+").matcher(exception.getMessage());
-      assertTrue(matcher.find() && Integer.valueOf(matcher.group()) > 0);
+      assertTrue(matcher.find() && Integer.parseInt(matcher.group()) > 0);
     }
     else {
       assertThrows(IllegalArgumentException.class, accept);
