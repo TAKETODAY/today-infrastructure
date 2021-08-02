@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.asm.ClassReader;
 import cn.taketoday.asm.tree.AnnotationNode;
@@ -39,7 +40,8 @@ import cn.taketoday.context.utils.ClassUtils;
  */
 public class ClassMetaReader {
   private static final HashMap<Class<?>, ClassNode> classNodeCache = new HashMap<>(128);
-  private static final HashMap<Class<?>, AnnotationAttributes> annotationDefaultCache = new HashMap<>(128);
+  private static final ConcurrentHashMap<Class<?>, AnnotationAttributes> annotationDefaultCache
+          = new ConcurrentHashMap<>(128);
 
   public static ClassNode read(Class<?> classToRead) {
     return read(classToRead, ClassUtils.getClassLoader());
