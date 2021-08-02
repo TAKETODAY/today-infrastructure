@@ -36,7 +36,7 @@ public final class EnumValue implements AnnotationValue {
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public Enum get() {
-    final Class enumClass = ClassValue.fromDescriptor(descriptor).get();
+    Class enumClass = ClassValue.fromDescriptor(descriptor).get();
     return Enum.valueOf(enumClass, value);
   }
 

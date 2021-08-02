@@ -283,17 +283,20 @@ public class ClassWriter extends ClassVisitor {
           final String[] interfaces) {
     this.version = version;
     this.accessFlags = access;
+    SymbolTable symbolTable = this.symbolTable;
     this.thisClass = symbolTable.setMajorVersionAndClassName(version & 0xFFFF, name);
     if (signature != null) {
       this.signatureIndex = symbolTable.addConstantUtf8(signature);
     }
     this.superClass = superName == null ? 0 : symbolTable.addConstantClass(superName).index;
     if (interfaces != null && interfaces.length > 0) {
-      interfaceCount = interfaces.length;
-      this.interfaces = new int[interfaceCount];
+      int interfaceCount = interfaces.length;
+      this.interfaceCount = interfaceCount;
+      int[] interfaces_ = new int[interfaceCount];
       for (int i = 0; i < interfaceCount; ++i) {
-        this.interfaces[i] = symbolTable.addConstantClass(interfaces[i]).index;
+        interfaces_[i] = symbolTable.addConstantClass(interfaces[i]).index;
       }
+      this.interfaces = interfaces_;
     }
     if (compute == MethodWriter.COMPUTE_MAX_STACK_AND_LOCAL && (version & 0xFFFF) >= Opcodes.V1_7) {
       compute = MethodWriter.COMPUTE_MAX_STACK_AND_LOCAL_FROM_FRAMES;
@@ -390,8 +393,10 @@ public class ClassWriter extends ClassVisitor {
   @Override
   public final void visitInnerClass(
           final String name, final String outerName, final String innerName, final int access) {
+    ByteVector innerClasses = this.innerClasses;
     if (innerClasses == null) {
       innerClasses = new ByteVector();
+      this.innerClasses = innerClasses;
     }
     // Section 4.7.6 of the JVMS states "Every CONSTANT_Class_info entry in the constant_pool table
     // which represents a class or interface C that is not a package member must have exactly one
@@ -399,6 +404,7 @@ public class ClassWriter extends ClassVisitor {
     // field of the Symbol of each CONSTANT_Class_info entry C whether an inner class entry has
     // already been added for C. If so, we store the index of this inner class entry (plus one) in
     // the info field. This trick allows duplicate detection in O(1) time.
+    SymbolTable symbolTable = this.symbolTable;
     Symbol nameSymbol = symbolTable.addConstantClass(name);
     if (nameSymbol.info == 0) {
       ++numberOfInnerClasses;
@@ -486,6 +492,7 @@ public class ClassWriter extends ClassVisitor {
     // The magic field uses 4 bytes, 10 mandatory fields (minor_version, major_version,
     // constant_pool_count, access_flags, this_class, super_class, interfaces_count, fields_count,
     // methods_count and attributes_count) use 2 bytes each, and each interface uses 2 bytes too.
+    int interfaceCount = this.interfaceCount;
     int size = 24 + 2 * interfaceCount;
     int fieldsCount = 0;
     FieldWriter fieldWriter = firstField;
@@ -504,16 +511,21 @@ public class ClassWriter extends ClassVisitor {
 
     // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
     int attributesCount = 0;
+    ByteVector innerClasses = this.innerClasses;
+    SymbolTable symbolTable = this.symbolTable;
     if (innerClasses != null) {
       ++attributesCount;
       size += 8 + innerClasses.length;
       symbolTable.addConstantUtf8(Constants.INNER_CLASSES);
     }
+    int enclosingClassIndex = this.enclosingClassIndex;
     if (enclosingClassIndex != 0) {
       ++attributesCount;
       size += 10;
       symbolTable.addConstantUtf8(Constants.ENCLOSING_METHOD);
     }
+    int version = this.version;
+    int accessFlags = this.accessFlags;
     if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0 && (version & 0xFFFF) < Opcodes.V1_5) {
       ++attributesCount;
       size += 6;
@@ -541,32 +553,29 @@ public class ClassWriter extends ClassVisitor {
     }
     if (lastRuntimeVisibleAnnotation != null) {
       ++attributesCount;
-      size +=
-              lastRuntimeVisibleAnnotation.computeAnnotationsSize(
-                      Constants.RUNTIME_VISIBLE_ANNOTATIONS);
+      size += lastRuntimeVisibleAnnotation.computeAnnotationsSize(
+              Constants.RUNTIME_VISIBLE_ANNOTATIONS);
     }
     if (lastRuntimeInvisibleAnnotation != null) {
       ++attributesCount;
-      size +=
-              lastRuntimeInvisibleAnnotation.computeAnnotationsSize(
-                      Constants.RUNTIME_INVISIBLE_ANNOTATIONS);
+      size += lastRuntimeInvisibleAnnotation.computeAnnotationsSize(
+              Constants.RUNTIME_INVISIBLE_ANNOTATIONS);
     }
     if (lastRuntimeVisibleTypeAnnotation != null) {
       ++attributesCount;
-      size +=
-              lastRuntimeVisibleTypeAnnotation.computeAnnotationsSize(
-                      Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS);
+      size += lastRuntimeVisibleTypeAnnotation.computeAnnotationsSize(
+              Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS);
     }
     if (lastRuntimeInvisibleTypeAnnotation != null) {
       ++attributesCount;
-      size +=
-              lastRuntimeInvisibleTypeAnnotation.computeAnnotationsSize(
-                      Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
+      size += lastRuntimeInvisibleTypeAnnotation.computeAnnotationsSize(
+              Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
     }
     if (symbolTable.computeBootstrapMethodsSize() > 0) {
       ++attributesCount;
       size += symbolTable.computeBootstrapMethodsSize();
     }
+    ModuleWriter moduleWriter = this.moduleWriter;
     if (moduleWriter != null) {
       attributesCount += moduleWriter.getAttributeCount();
       size += moduleWriter.computeAttributesSize();
@@ -576,11 +585,13 @@ public class ClassWriter extends ClassVisitor {
       size += 8;
       symbolTable.addConstantUtf8(Constants.NEST_HOST);
     }
+    ByteVector nestMemberClasses = this.nestMemberClasses;
     if (nestMemberClasses != null) {
       ++attributesCount;
       size += 8 + nestMemberClasses.length;
       symbolTable.addConstantUtf8(Constants.NEST_MEMBERS);
     }
+    ByteVector permittedSubclasses = this.permittedSubclasses;
     if (permittedSubclasses != null) {
       ++attributesCount;
       size += 8 + permittedSubclasses.length;
@@ -599,6 +610,7 @@ public class ClassWriter extends ClassVisitor {
       size += 8 + recordSize;
       symbolTable.addConstantUtf8(Constants.RECORD);
     }
+    Attribute firstAttribute = this.firstAttribute;
     if (firstAttribute != null) {
       attributesCount += firstAttribute.getAttributeCount();
       size += firstAttribute.computeAttributesSize(symbolTable);
@@ -619,6 +631,7 @@ public class ClassWriter extends ClassVisitor {
     int mask = (version & 0xFFFF) < Opcodes.V1_5 ? Opcodes.ACC_SYNTHETIC : 0;
     result.putShort(accessFlags & ~mask).putShort(thisClass).putShort(superClass);
     result.putShort(interfaceCount);
+    int[] interfaces = this.interfaces;
     for (int i = 0; i < interfaceCount; ++i) {
       result.putShort(interfaces[i]);
     }
@@ -641,15 +654,13 @@ public class ClassWriter extends ClassVisitor {
     // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
     result.putShort(attributesCount);
     if (innerClasses != null) {
-      result
-              .putShort(symbolTable.addConstantUtf8(Constants.INNER_CLASSES))
+      result.putShort(symbolTable.addConstantUtf8(Constants.INNER_CLASSES))
               .putInt(innerClasses.length + 2)
               .putShort(numberOfInnerClasses)
               .putByteArray(innerClasses.data, 0, innerClasses.length);
     }
     if (enclosingClassIndex != 0) {
-      result
-              .putShort(symbolTable.addConstantUtf8(Constants.ENCLOSING_METHOD))
+      result.putShort(symbolTable.addConstantUtf8(Constants.ENCLOSING_METHOD))
               .putInt(4)
               .putShort(enclosingClassIndex)
               .putShort(enclosingMethodIndex);
@@ -658,21 +669,18 @@ public class ClassWriter extends ClassVisitor {
       result.putShort(symbolTable.addConstantUtf8(Constants.SYNTHETIC)).putInt(0);
     }
     if (signatureIndex != 0) {
-      result
-              .putShort(symbolTable.addConstantUtf8(Constants.SIGNATURE))
+      result.putShort(symbolTable.addConstantUtf8(Constants.SIGNATURE))
               .putInt(2)
               .putShort(signatureIndex);
     }
     if (sourceFileIndex != 0) {
-      result
-              .putShort(symbolTable.addConstantUtf8(Constants.SOURCE_FILE))
+      result.putShort(symbolTable.addConstantUtf8(Constants.SOURCE_FILE))
               .putInt(2)
               .putShort(sourceFileIndex);
     }
     if (debugExtension != null) {
       int length = debugExtension.length;
-      result
-              .putShort(symbolTable.addConstantUtf8(Constants.SOURCE_DEBUG_EXTENSION))
+      result.putShort(symbolTable.addConstantUtf8(Constants.SOURCE_DEBUG_EXTENSION))
               .putInt(length)
               .putByteArray(debugExtension.data, 0, length);
     }
@@ -691,28 +699,24 @@ public class ClassWriter extends ClassVisitor {
       moduleWriter.putAttributes(result);
     }
     if (nestHostClassIndex != 0) {
-      result
-              .putShort(symbolTable.addConstantUtf8(Constants.NEST_HOST))
+      result.putShort(symbolTable.addConstantUtf8(Constants.NEST_HOST))
               .putInt(2)
               .putShort(nestHostClassIndex);
     }
     if (nestMemberClasses != null) {
-      result
-              .putShort(symbolTable.addConstantUtf8(Constants.NEST_MEMBERS))
+      result.putShort(symbolTable.addConstantUtf8(Constants.NEST_MEMBERS))
               .putInt(nestMemberClasses.length + 2)
               .putShort(numberOfNestMemberClasses)
               .putByteArray(nestMemberClasses.data, 0, nestMemberClasses.length);
     }
     if (permittedSubclasses != null) {
-      result
-              .putShort(symbolTable.addConstantUtf8(Constants.PERMITTED_SUBCLASSES))
+      result.putShort(symbolTable.addConstantUtf8(Constants.PERMITTED_SUBCLASSES))
               .putInt(permittedSubclasses.length + 2)
               .putShort(numberOfPermittedSubclasses)
               .putByteArray(permittedSubclasses.data, 0, permittedSubclasses.length);
     }
     if ((accessFlags & Opcodes.ACC_RECORD) != 0 || firstRecordComponent != null) {
-      result
-              .putShort(symbolTable.addConstantUtf8(Constants.RECORD))
+      result.putShort(symbolTable.addConstantUtf8(Constants.RECORD))
               .putInt(recordSize + 2)
               .putShort(recordComponentCount);
       RecordComponentWriter recordComponentWriter = firstRecordComponent;
@@ -768,8 +772,7 @@ public class ClassWriter extends ClassVisitor {
     firstAttribute = null;
     compute = hasFrames ? MethodWriter.COMPUTE_INSERTED_FRAMES : MethodWriter.COMPUTE_NOTHING;
     new ClassReader(classFile, 0, /* checkClassVersion = */ false)
-            .accept(
-                    this,
+            .accept(this,
                     attributes,
                     (hasFrames ? ClassReader.EXPAND_FRAMES : 0) | ClassReader.EXPAND_ASM_INSNS);
     return toByteArray();
