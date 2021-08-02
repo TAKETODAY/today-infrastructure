@@ -19,15 +19,15 @@
  */
 package cn.taketoday.context;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 
 import cn.taketoday.context.support.AnnotationValue;
 import cn.taketoday.context.utils.Assert;
@@ -45,22 +45,27 @@ import static java.lang.String.format;
  */
 @SuppressWarnings("rawtypes")
 public class AnnotationAttributes
-        extends LinkedHashMap<String, Object> implements Ordered {
-
+        /*extends LinkedHashMap<String, Object>*/ implements Ordered, Serializable {
   private static final long serialVersionUID = 1L;
 
   private static final String UNKNOWN = "unknown";
 
-  private final String displayName;
-  private final Class annotationType;
+  /** key - value */
+  private final ArrayList<Object> values;//= new ArrayList<>();
+
+  private String displayName;
+  private Class annotationType;
+
+  private int size = 0;
 
   public AnnotationAttributes() {
+    this(new ArrayList<>());
     this.annotationType = null;
     this.displayName = UNKNOWN;
   }
 
   public AnnotationAttributes(int initialCapacity) {
-    super(initialCapacity, 0.75f);
+    this(new ArrayList<>(initialCapacity));
     this.annotationType = null;
     this.displayName = UNKNOWN;
   }
@@ -70,20 +75,24 @@ public class AnnotationAttributes
   }
 
   public AnnotationAttributes(Class annotationType, int initialCapacity) {
-    super(initialCapacity, 0.75f);
+    this(new ArrayList<>(initialCapacity));
     Assert.notNull(annotationType, "'annotationType' must not be null");
     this.annotationType = annotationType;
     this.displayName = annotationType.getName();
   }
 
   public AnnotationAttributes(Map<String, Object> map) {
-    super(map);
+    this(new ArrayList<>());
     this.annotationType = null;
     this.displayName = UNKNOWN;
   }
 
+  AnnotationAttributes(ArrayList<Object> values) {
+    this.values = values;
+  }
+
   public AnnotationAttributes(AnnotationAttributes other) {
-    super(other);
+    this.values = new ArrayList<>(other.values);
     this.annotationType = other.annotationType;
     this.displayName = other.displayName;
   }
@@ -93,27 +102,7 @@ public class AnnotationAttributes
     return this.annotationType;
   }
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  public void add(String name, Object attribute) {
-    final Object exist = get(name);
-    if (exist != null) {
-      final ArrayList values;
-      if (exist instanceof List) {
-        // more than two values
-        values = (ArrayList) exist;
-      }
-      else {
-        values = new ArrayList<>();
-        values.add(exist);
-      }
-
-      values.add(attribute);
-      attribute = values;
-    }
-    put(name, attribute);
-  }
-
-  //
+  // Get
   // ---------------------------------------
 
   public String getString(String attributeName) {
@@ -232,16 +221,149 @@ public class AnnotationAttributes
     }
   }
 
+  public Object get(String name) {
+    ArrayList<Object> values = this.values;
+    int size = values.size();
+    // key - value
+    for (int i = 0; i < size; i += 2) {
+      Object key = values.get(i);
+      if (Objects.equals(key, name)) {
+        return values.get(i + 1);
+      }
+    }
+    return null;
+  }
+
+  // put
+
+  //  @Override
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public void put(String key, Object value) {
+    ArrayList<Object> values = this.values;
+    int size = values.size();
+    // key - value
+    for (int i = 0; i < size; i += 2) {
+      if (Objects.equals(values.get(i), key)) {
+        List list;
+        Object exist = values.get(i + 1);
+        if (exist instanceof List) {
+          // more than two values
+          list = (List) exist;
+        }
+        else {
+          list = new ArrayList<>();
+        }
+        list.add(value);
+        values.set(i, list);
+        return;
+      }
+    }
+    this.size++;
+    values.add(key);
+    values.add(value);
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public void add(String name, Object attribute) {
+    final Object exist = get(name);
+    if (exist != null) {
+      final ArrayList values;
+      if (exist instanceof List) {
+        // more than two values
+        values = (ArrayList) exist;
+      }
+      else {
+        values = new ArrayList<>();
+        values.add(exist);
+      }
+
+      values.add(attribute);
+      attribute = values;
+    }
+    put(name, attribute);
+  }
+
+  public void putAll(Map<String, Object> attributes) {
+
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public void putAll(AnnotationAttributes attributes) {
+    ArrayList<Object> thisValues = this.values;
+    ArrayList<Object> otherValues = attributes.values;
+    int thisSize = thisValues.size();
+    if (thisSize != 0) {
+      for (int i = 0; i < thisSize; i++) {
+        Object thisName = thisValues.get(i++);
+        int otherSize = otherValues.size();
+        for (int j = 0; j < otherSize; j++) {
+          Object name = otherValues.get(j++);
+          if (Objects.equals(name, thisName)) {
+            Object value = otherValues.get(j);
+            Object thisValue = thisValues.get(i);
+            if (thisValue instanceof List) {
+              ((List) thisValue).add(value);
+            }
+            else {
+              ArrayList<Object> list = new ArrayList<>();
+              list.add(thisValue);
+              list.add(value);
+
+              thisValues.set(i, list);
+            }
+            // mark
+            otherValues.remove(j);
+            otherValues.remove(j + 1);
+            break;
+          }
+        }
+      }
+      // match complete
+    }
+
+    thisValues.addAll(otherValues);
+  }
+
+  public void remove(String name) {
+    ArrayList<Object> values = this.values;
+    int size = values.size();
+    for (int i = 0; i < size; i += 2) {
+      Object key = values.get(i);
+      if (Objects.equals(key, name)) {
+        values.set(i + 1, null);
+      }
+    }
+  }
+
+  public void forEach(BiConsumer<String, Object> consumer) {
+    ArrayList<Object> values = this.values;
+    int size = values.size();
+    for (int i = 0; i < size; i++) {
+      consumer.accept((String) values.get(i++), values.get(i));
+    }
+  }
+
+  public Iterable<? extends Map.Entry<String, Object>> entrySet() {
+    return null;
+  }
+
+  public int size() {
+    return size;
+  }
+
   @Override
   public String toString() {
-    final Iterator<Map.Entry<String, Object>> entries = entrySet().iterator();
-    final StringBuilder sb = new StringBuilder("{");
-    while (entries.hasNext()) {
-      Map.Entry<String, Object> entry = entries.next();
-      sb.append(entry.getKey());
+    StringBuilder sb = new StringBuilder("{");
+    ArrayList<Object> values = this.values;
+    int size = values.size();
+    for (int i = 0; i < size; i++) {
+      String name = (String) values.get(i++);
+      Object value = values.get(i);
+
+      sb.append(name);
       sb.append('=');
-      sb.append(valueToString(entry.getValue()));
-      sb.append(entries.hasNext() ? ", " : "");
+      sb.append(valueToString(value));
+      sb.append(i < size ? ", " : "");
     }
     sb.append("}");
     return sb.toString();

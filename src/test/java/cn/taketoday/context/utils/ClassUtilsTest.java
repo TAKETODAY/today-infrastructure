@@ -137,7 +137,7 @@ public class ClassUtilsTest {
     assert !clone.equals(new AnnotationAttributes((Map<String, Object>) next));
     assert !annotation.equals(ClassUtils.getAnnotationProxy(C.class, clone));
 
-    final AnnotationAttributes fromMap = AnnotationAttributes.fromMap(clone);
+    final AnnotationAttributes fromMap = new AnnotationAttributes(clone);
     assert fromMap.equals(clone);
     assert !fromMap.equals(new AnnotationAttributes());
     assert !fromMap.equals(new AnnotationAttributes(1));

@@ -687,6 +687,11 @@ public abstract class ClassUtils {
     }
     final Class<?> targetClass = proxy.getClass();
     if (targetClass.isInstance(object)) {
+
+      attributes.forEach((name, attribute) -> {
+
+      });
+
       for (Entry<String, Object> entry : attributes.entrySet()) {
         final String key = entry.getKey(); // method name
         final Method method = ReflectionUtils.findMethod(targetClass, key);
