@@ -24,6 +24,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -36,6 +37,8 @@ import cn.taketoday.context.utils.OrderUtils;
 import static java.lang.String.format;
 
 /**
+ * single or multi - value map
+ *
  * @author Chris Beams
  * @author Sam Brannen
  * @author Juergen Hoeller
@@ -82,9 +85,10 @@ public class AnnotationAttributes
   }
 
   public AnnotationAttributes(Map<String, Object> map) {
-    this(new ArrayList<>());
+    this(new ArrayList<>(map.size() * 2));
     this.annotationType = null;
     this.displayName = UNKNOWN;
+    putAll(map);
   }
 
   AnnotationAttributes(ArrayList<Object> values) {
@@ -95,6 +99,7 @@ public class AnnotationAttributes
     this.values = new ArrayList<>(other.values);
     this.annotationType = other.annotationType;
     this.displayName = other.displayName;
+    this.size = other.size;
   }
 
   @SuppressWarnings("unchecked")
@@ -237,24 +242,14 @@ public class AnnotationAttributes
   // put
 
   //  @Override
-  @SuppressWarnings({ "unchecked", "rawtypes" })
   public void put(String key, Object value) {
     ArrayList<Object> values = this.values;
     int size = values.size();
     // key - value
     for (int i = 0; i < size; i += 2) {
       if (Objects.equals(values.get(i), key)) {
-        List list;
-        Object exist = values.get(i + 1);
-        if (exist instanceof List) {
-          // more than two values
-          list = (List) exist;
-        }
-        else {
-          list = new ArrayList<>();
-        }
-        list.add(value);
-        values.set(i, list);
+        // replace
+        values.set(i + 1, value);
         return;
       }
     }
@@ -265,30 +260,79 @@ public class AnnotationAttributes
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public void add(String name, Object attribute) {
-    final Object exist = get(name);
-    if (exist != null) {
-      final ArrayList values;
-      if (exist instanceof List) {
-        // more than two values
-        values = (ArrayList) exist;
+    ArrayList<Object> values = this.values;
+    int size = values.size();
+    // key - value
+    for (int i = 0; i < size; i += 2) {
+      if (Objects.equals(values.get(i), name)) {
+        List list;
+        Object exist = values.get(i + 1);
+        if (exist instanceof List) {
+          // more than two values
+          list = (List) exist;
+        }
+        else {
+          list = new ArrayList<>();
+          list.add(exist);
+        }
+        list.add(attribute);
+        values.set(i + 1, list);
+        return;
       }
-      else {
-        values = new ArrayList<>();
-        values.add(exist);
-      }
-
-      values.add(attribute);
-      attribute = values;
     }
-    put(name, attribute);
+    this.size++;
+    values.add(name);
+    values.add(attribute);
   }
 
   public void putAll(Map<String, Object> attributes) {
+    ArrayList<Object> thisValues = this.values;
+    for (final Map.Entry<String, Object> entry : attributes.entrySet()) {
+      thisValues.add(entry.getKey());
+      thisValues.add(entry.getValue());
+    }
+  }
 
+  public void putAll(AnnotationAttributes attributes) {
+    ArrayList<Object> thisValues = this.values;
+    ArrayList<Object> otherValues = new ArrayList<>(attributes.values);
+    int thisSize = thisValues.size();
+    if (thisSize != 0) {
+      for (int i = 0; i < thisSize; i++) {
+        Object thisName = thisValues.get(i++);
+        int otherSize = otherValues.size();
+        for (int j = 0; j < otherSize; j++) {
+          Object name = otherValues.get(j++);
+          if (Objects.equals(name, thisName)) {
+            Object otherValue = otherValues.get(j);
+            // just override value
+            thisValues.set(i, otherValue);
+            // mark
+            otherValues.remove(j); // j is current otherValue's value index
+            otherValues.remove(j - 1); // remove key
+            break;
+          }
+        }
+      }
+      // match complete
+      if (otherValues.isEmpty()) {
+        return;
+      }
+    }
+    this.size += otherValues.size() / 2;
+    thisValues.addAll(otherValues);
+  }
+
+  public void addAll(Map<String, Object> attributes) {
+    ArrayList<Object> thisValues = this.values;
+    for (final Map.Entry<String, Object> entry : attributes.entrySet()) {
+      thisValues.add(entry.getKey());
+      thisValues.add(entry.getValue());
+    }
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public void putAll(AnnotationAttributes attributes) {
+  public void addAll(AnnotationAttributes attributes) {
     ArrayList<Object> thisValues = this.values;
     ArrayList<Object> otherValues = attributes.values;
     int thisSize = thisValues.size();
@@ -299,38 +343,59 @@ public class AnnotationAttributes
         for (int j = 0; j < otherSize; j++) {
           Object name = otherValues.get(j++);
           if (Objects.equals(name, thisName)) {
-            Object value = otherValues.get(j);
+            Object otherValue = otherValues.get(j);
             Object thisValue = thisValues.get(i);
             if (thisValue instanceof List) {
-              ((List) thisValue).add(value);
+              if (otherValue instanceof List) {
+                ((List) thisValue).addAll((List) otherValue);
+              }
+              else {
+                ((List) thisValue).add(otherValue);
+              }
             }
             else {
               ArrayList<Object> list = new ArrayList<>();
+              if (otherValue instanceof List) {
+                list.addAll(((List) otherValue));
+              }
+              else {
+                list.add(otherValue);
+              }
               list.add(thisValue);
-              list.add(value);
-
               thisValues.set(i, list);
             }
             // mark
-            otherValues.remove(j);
-            otherValues.remove(j + 1);
+            otherValues.remove(j); // j is current otherValue's value index
+            otherValues.remove(j - 1); // remove key
             break;
           }
         }
       }
       // match complete
+      if (otherValues.isEmpty()) {
+        return;
+      }
     }
-
+    this.size += otherValues.size() / 2;
     thisValues.addAll(otherValues);
   }
 
+  /**
+   * remove an attribute by given name
+   *
+   * @param name
+   *         attribute-name
+   */
   public void remove(String name) {
     ArrayList<Object> values = this.values;
     int size = values.size();
     for (int i = 0; i < size; i += 2) {
       Object key = values.get(i);
       if (Objects.equals(key, name)) {
-        values.set(i + 1, null);
+        values.remove(i);
+        values.remove(i + 1);
+        this.size--;
+        return;
       }
     }
   }
@@ -343,8 +408,22 @@ public class AnnotationAttributes
     }
   }
 
-  public Iterable<? extends Map.Entry<String, Object>> entrySet() {
-    return null;
+  public Iterable<Map.Entry<String, Object>> entrySet() {
+    return toMap().entrySet();
+  }
+
+  public Map<String, Object> toMap() {
+    HashMap<String, Object> map = new HashMap<>();
+    copyToMap(map);
+    return map;
+  }
+
+  public void copyToMap(Map<String, Object> map) {
+    ArrayList<Object> values = this.values;
+    int size = values.size();
+    for (int i = 0; i < size; i++) {
+      map.put((String) values.get(i++), values.get(i));
+    }
   }
 
   public int size() {
@@ -357,15 +436,14 @@ public class AnnotationAttributes
     ArrayList<Object> values = this.values;
     int size = values.size();
     for (int i = 0; i < size; i++) {
-      String name = (String) values.get(i++);
-      Object value = values.get(i);
-
-      sb.append(name);
+      sb.append(values.get(i++));
       sb.append('=');
-      sb.append(valueToString(value));
-      sb.append(i < size ? ", " : "");
+      sb.append(valueToString(values.get(i)));
+      if (i + 1 != size) {
+        sb.append(", ");
+      }
     }
-    sb.append("}");
+    sb.append('}');
     return sb.toString();
   }
 
