@@ -38,8 +38,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-import cn.taketoday.asm.AnnotationVisitor;
-import cn.taketoday.asm.Type;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.Constant;
@@ -48,8 +46,6 @@ import cn.taketoday.context.factory.BeanMetadata;
 import cn.taketoday.context.factory.BeanProperty;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.support.ClassValue;
-import cn.taketoday.context.support.EnumValue;
 
 /**
  * @author TODAY 2021/7/28 21:15
@@ -699,86 +695,6 @@ public abstract class AnnotationUtils {
     return annType != null && element != null
             && (element.isAnnotationPresent(annType)
             || ObjectUtils.isNotEmpty(getAnnotationAttributesArray(element, annType)));
-  }
-
-  // asm
-
-  public static class MapAnnotationVisitor extends AnnotationVisitor {
-    private String name; // for array
-    private String descriptor;
-    private Class<?> annotationType;
-    private final AnnotationAttributes attributes;
-
-    public MapAnnotationVisitor() {
-      this(new AnnotationAttributes());
-    }
-
-    public MapAnnotationVisitor(String name, AnnotationAttributes attributes) {
-      this(attributes);
-      this.name = name;
-    }
-
-    public MapAnnotationVisitor(AnnotationAttributes attributes) {
-      this.attributes = attributes;
-    }
-
-    public MapAnnotationVisitor(String descriptor) {
-      this(new AnnotationAttributes());
-      this.descriptor = descriptor;
-    }
-
-    @Override
-    public void visit(String name, Object value) {
-      if (name == null) {
-        name = this.name;
-      }
-      if (value instanceof Type) {
-        value = new ClassValue((Type) value);
-      }
-
-      attributes.add(name, value);
-      log.info("visit, name: {}, value:{}, value-type: {}", name, value, value.getClass());
-    }
-
-    @Override
-    public void visitEnum(String name, String descriptor, String value) {
-      log.info("name: {},descriptor: {}, value: {}", name, descriptor, value);
-      attributes.add(name, new EnumValue(value, descriptor));
-    }
-
-    @Override
-    public AnnotationVisitor visitArray(String name) {
-      return new MapAnnotationVisitor(name, attributes);
-    }
-
-    @Override
-    public AnnotationVisitor visitAnnotation(String name, String descriptor) {
-      log.info("visitAnnotation, name: {},descriptor: {}", name, descriptor);
-      final MapAnnotationVisitor mapAnnotationVisitor = new MapAnnotationVisitor(descriptor);
-      this.attributes.put(name, mapAnnotationVisitor.getAttributes());
-      return mapAnnotationVisitor;
-    }
-
-
-    public Class<?> getAnnotationType() {
-      if (annotationType == null && descriptor != null) {
-        annotationType = new ClassValue(descriptor).get();
-      }
-      return annotationType;
-    }
-
-    public String getDescriptor() {
-      return descriptor;
-    }
-
-    public void setDescriptor(String descriptor) {
-      this.descriptor = descriptor;
-    }
-
-    public AnnotationAttributes getAttributes() {
-      return attributes;
-    }
-
   }
 
 }

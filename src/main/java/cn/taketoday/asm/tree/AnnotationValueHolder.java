@@ -18,15 +18,24 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.support;
+package cn.taketoday.asm.tree;
 
 /**
  * @author TODAY 2021/7/28 22:43
  */
-public interface AnnotationValue {
+public abstract class AnnotationValueHolder {
+  protected Object value;
 
   /**
    * get annotation-value
    */
-  Object get();
+  public Object getValue() {
+    if (value == null) {
+      value = getInternal();
+    }
+    return value;
+  }
+
+  protected abstract Object getInternal();
+
 }

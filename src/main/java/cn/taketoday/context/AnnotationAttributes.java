@@ -33,7 +33,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-import cn.taketoday.context.support.AnnotationValue;
+import cn.taketoday.asm.tree.AnnotationValueHolder;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.OrderUtils;
 
@@ -201,8 +201,8 @@ public class AnnotationAttributes
   }
 
   private Object getRealValue(Object target) {
-    if (target instanceof AnnotationValue) {
-      target = ((AnnotationValue) target).get();
+    if (target instanceof AnnotationValueHolder) {
+      target = ((AnnotationValueHolder) target).getValue();
     }
     return target;
   }
@@ -350,7 +350,6 @@ public class AnnotationAttributes
   /**
    * @since 4.0
    */
-
   public void addAll(Map<String, Object> attributes) {
     ArrayList<Object> thisValues = this.values;
     for (final Map.Entry<String, Object> entry : attributes.entrySet()) {

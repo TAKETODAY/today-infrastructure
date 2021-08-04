@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.support;
+package cn.taketoday.asm.tree;
 
 import cn.taketoday.asm.Type;
 import cn.taketoday.context.utils.ClassUtils;
@@ -26,35 +26,29 @@ import cn.taketoday.context.utils.ClassUtils;
 /**
  * @author TODAY 2021/7/28 23:06
  */
-public final class ClassValue implements AnnotationValue {
+public final class ClassValueHolder extends AnnotationValueHolder {
   private final Type descriptor;
-  private volatile Class<?> type;
 
-  public ClassValue(String descriptor) {
+  public ClassValueHolder(String descriptor) {
     this.descriptor = Type.fromDescriptor(descriptor);
   }
 
-  public ClassValue(Type descriptor) {
+  public ClassValueHolder(Type descriptor) {
     this.descriptor = descriptor;
   }
 
   @Override
-  public Class<?> get() {
-    Class<?> type = this.type;
-    if (type == null) {
-      synchronized(this) {
-        type = this.type;
-        if (type == null) {
-          type = ClassUtils.loadClass(descriptor.getClassName());
-          this.type = type;
-        }
-      }
-    }
-    return type;
+  public Class<?> getInternal() {
+    return ClassUtils.loadClass(descriptor.getClassName());
   }
 
-  public static ClassValue fromDescriptor(final String typeDescriptor) {
-    return new ClassValue(typeDescriptor);
+  @Override
+  public Class<?> getValue() {
+    return (Class<?>) super.getValue();
+  }
+
+  public static ClassValueHolder fromDescriptor(final String typeDescriptor) {
+    return new ClassValueHolder(typeDescriptor);
   }
 
 }

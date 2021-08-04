@@ -18,25 +18,26 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.support;
+package cn.taketoday.asm.tree;
 
 /**
  * @author TODAY 2021/7/28 22:41
  * @since 4.0
  */
-public final class EnumValue implements AnnotationValue {
+final class EnumValue extends AnnotationValueHolder {
 
   final String value;
   final String descriptor;
 
-  public EnumValue(String value, String descriptor) {
+  EnumValue(String descriptor, String value) {
     this.value = value;
     this.descriptor = descriptor;
   }
 
+  @Override
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public Enum get() {
-    Class enumClass = ClassValue.fromDescriptor(descriptor).get();
+  protected Object getInternal() {
+    Class enumClass = ClassValueHolder.fromDescriptor(descriptor).getValue();
     return Enum.valueOf(enumClass, value);
   }
 

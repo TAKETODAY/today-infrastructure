@@ -22,6 +22,7 @@ package cn.taketoday.asm.tree;
 import java.util.ArrayList;
 
 import cn.taketoday.asm.AnnotationVisitor;
+import cn.taketoday.asm.Type;
 
 /**
  * A node that represents an annotation.
@@ -37,8 +38,8 @@ public class AnnotationNode extends AnnotationVisitor {
    * The name value pairs of this annotation. Each name value pair is stored as two consecutive
    * elements in the list. The name is a {@link String}, and the value may be a {@link Byte}, {@link
    * Boolean}, {@link Character}, {@link Short}, {@link Integer}, {@link Long}, {@link Float},
-   * {@link Double}, {@link String} or {@link cn.taketoday.asm.Type}, or a two elements String
-   * array (for enumeration values), an {@link AnnotationNode}, or a {@link ArrayList} of values of one
+   * {@link Double}, {@link String}, or a{@link EnumValue} (for enumeration values),
+   * any {@link AnnotationValueHolder} an {@link AnnotationNode}, or a {@link ArrayList} of values of one
    * of the preceding types. The list may be {@literal null} if there is no name value pair.
    */
   public ArrayList<Object> values;
@@ -68,7 +69,7 @@ public class AnnotationNode extends AnnotationVisitor {
   // ------------------------------------------------------------------------
 
   @Override
-  public void visit(final String name, final Object value) {
+  public void visit(final String name, Object value) {
     ArrayList<Object> values = createIfNecessary();
     if (this.desc != null) {
       values.add(name);
@@ -98,6 +99,9 @@ public class AnnotationNode extends AnnotationVisitor {
       values.add(Util.asArrayList((double[]) value));
     }
     else {
+      if (value instanceof Type) {
+        value = new ClassValueHolder((Type) value);
+      }
       values.add(value);
     }
   }
@@ -108,7 +112,7 @@ public class AnnotationNode extends AnnotationVisitor {
     if (this.desc != null) {
       values.add(name);
     }
-    values.add(new String[] { descriptor, value });
+    values.add(new EnumValue(descriptor, value));
   }
 
   @Override
