@@ -24,10 +24,13 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
 import cn.taketoday.context.support.AnnotationValue;
@@ -48,7 +51,7 @@ import static java.lang.String.format;
  */
 @SuppressWarnings("rawtypes")
 public class AnnotationAttributes
-        /*extends LinkedHashMap<String, Object>*/ implements Ordered, Serializable {
+        /*extends LinkedHashMap<String, Object>*/ implements Ordered, Serializable, Map<String, Object> {
   private static final long serialVersionUID = 1L;
 
   private static final String UNKNOWN = "unknown";
@@ -226,7 +229,8 @@ public class AnnotationAttributes
     }
   }
 
-  public Object get(String name) {
+  @Override
+  public Object get(Object name) {
     ArrayList<Object> values = this.values;
     int size = values.size();
     // key - value
@@ -241,21 +245,23 @@ public class AnnotationAttributes
 
   // put
 
-  //  @Override
-  public void put(String key, Object value) {
+  @Override
+  public Object put(String key, Object value) {
     ArrayList<Object> values = this.values;
     int size = values.size();
     // key - value
     for (int i = 0; i < size; i += 2) {
       if (Objects.equals(values.get(i), key)) {
         // replace
+        Object old = values.get(i + 1);
         values.set(i + 1, value);
-        return;
+        return old;
       }
     }
     this.size++;
     values.add(key);
     values.add(value);
+    return null;
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -285,9 +291,10 @@ public class AnnotationAttributes
     values.add(attribute);
   }
 
-  public void putAll(Map<String, Object> attributes) {
+  @Override
+  public void putAll(Map<? extends String, ?> attributes) {
     ArrayList<Object> thisValues = this.values;
-    for (final Map.Entry<String, Object> entry : attributes.entrySet()) {
+    for (final Map.Entry<? extends String, ?> entry : attributes.entrySet()) {
       thisValues.add(entry.getKey());
       thisValues.add(entry.getValue());
     }
@@ -386,29 +393,34 @@ public class AnnotationAttributes
    * @param name
    *         attribute-name
    */
-  public void remove(String name) {
+  @Override
+  public Object remove(Object name) {
     ArrayList<Object> values = this.values;
     int size = values.size();
     for (int i = 0; i < size; i += 2) {
       Object key = values.get(i);
       if (Objects.equals(key, name)) {
+        Object ret = values.get(i + 1);
         values.remove(i);
-        values.remove(i + 1);
+        values.remove(i);
         this.size--;
-        return;
+        return ret;
       }
     }
+    return null;
   }
 
-  public void forEach(BiConsumer<String, Object> consumer) {
+  @Override
+  public void forEach(BiConsumer<? super String, ? super Object> action) {
     ArrayList<Object> values = this.values;
     int size = values.size();
     for (int i = 0; i < size; i++) {
-      consumer.accept((String) values.get(i++), values.get(i));
+      action.accept((String) values.get(i++), values.get(i));
     }
   }
 
-  public Iterable<Map.Entry<String, Object>> entrySet() {
+  @Override
+  public Set<Entry<String, Object>> entrySet() {
     return toMap().entrySet();
   }
 
@@ -428,6 +440,49 @@ public class AnnotationAttributes
 
   public int size() {
     return size;
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return size == 0;
+  }
+
+  @Override
+  public boolean containsKey(Object key) {
+    return get(key) != null;
+  }
+
+  @Override
+  public boolean containsValue(Object value) {
+    return false;
+  }
+
+  @Override
+  public void clear() {
+    values.clear();
+    size = 0;
+  }
+
+  @Override
+  public Set<String> keySet() {
+    LinkedHashSet<String> ketSet = new LinkedHashSet<>();
+    ArrayList<Object> thisValues = this.values;
+    int size = thisValues.size();
+    for (int i = 0; i < size; i += 2) {
+      ketSet.add((String) thisValues.get(i));
+    }
+    return ketSet;
+  }
+
+  @Override
+  public Collection<Object> values() {
+    ArrayList<Object> values = new ArrayList<>();
+    ArrayList<Object> thisValues = this.values;
+    int size = thisValues.size();
+    for (int i = 0; i < size; i += 2) {
+      values.add(thisValues.get(i + 1));
+    }
+    return values;
   }
 
   @Override
@@ -476,7 +531,7 @@ public class AnnotationAttributes
       final AnnotationAttributes other = (AnnotationAttributes) object;
       return Objects.equals(annotationType, other.annotationType)
               && Objects.equals(displayName, other.displayName)
-              && super.equals(object);
+              && Objects.equals(values, other.values);
     }
     return false;
   }
