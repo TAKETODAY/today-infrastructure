@@ -229,6 +229,9 @@ public class AnnotationAttributes
     }
   }
 
+  /**
+   * @since 4.0
+   */
   @Override
   public Object get(Object name) {
     ArrayList<Object> values = this.values;
@@ -245,6 +248,9 @@ public class AnnotationAttributes
 
   // put
 
+  /**
+   * @since 4.0
+   */
   @Override
   public Object put(String key, Object value) {
     ArrayList<Object> values = this.values;
@@ -264,6 +270,11 @@ public class AnnotationAttributes
     return null;
   }
 
+  /**
+   * append values if exist
+   *
+   * @since 4.0
+   */
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public void add(String name, Object attribute) {
     ArrayList<Object> values = this.values;
@@ -291,6 +302,9 @@ public class AnnotationAttributes
     values.add(attribute);
   }
 
+  /**
+   * @since 4.0
+   */
   @Override
   public void putAll(Map<? extends String, ?> attributes) {
     ArrayList<Object> thisValues = this.values;
@@ -300,6 +314,9 @@ public class AnnotationAttributes
     }
   }
 
+  /**
+   * @since 4.0
+   */
   public void putAll(AnnotationAttributes attributes) {
     ArrayList<Object> thisValues = this.values;
     ArrayList<Object> otherValues = new ArrayList<>(attributes.values);
@@ -330,6 +347,10 @@ public class AnnotationAttributes
     thisValues.addAll(otherValues);
   }
 
+  /**
+   * @since 4.0
+   */
+
   public void addAll(Map<String, Object> attributes) {
     ArrayList<Object> thisValues = this.values;
     for (final Map.Entry<String, Object> entry : attributes.entrySet()) {
@@ -338,6 +359,9 @@ public class AnnotationAttributes
     }
   }
 
+  /**
+   * @since 4.0
+   */
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public void addAll(AnnotationAttributes attributes) {
     ArrayList<Object> thisValues = this.values;
@@ -410,6 +434,9 @@ public class AnnotationAttributes
     return null;
   }
 
+  /**
+   * @since 4.0
+   */
   @Override
   public void forEach(BiConsumer<? super String, ? super Object> action) {
     ArrayList<Object> values = this.values;
@@ -419,17 +446,26 @@ public class AnnotationAttributes
     }
   }
 
+  /**
+   * @since 4.0
+   */
   @Override
   public Set<Entry<String, Object>> entrySet() {
     return toMap().entrySet();
   }
 
+  /**
+   * @since 4.0
+   */
   public Map<String, Object> toMap() {
     HashMap<String, Object> map = new HashMap<>();
     copyToMap(map);
     return map;
   }
 
+  /**
+   * @since 4.0
+   */
   public void copyToMap(Map<String, Object> map) {
     ArrayList<Object> values = this.values;
     int size = values.size();
@@ -438,31 +474,67 @@ public class AnnotationAttributes
     }
   }
 
+  /**
+   * Trims the capacity of this <tt>ArrayList</tt> instance to be the
+   * list's current size.  An application can use this operation to minimize
+   * the storage of an <tt>ArrayList</tt> instance.
+   *
+   * @since 4.0
+   */
+  public void trimToSize() {
+    values.trimToSize();
+  }
+
+  /**
+   * @since 4.0
+   */
   public int size() {
     return size;
   }
 
+  /**
+   * @since 4.0
+   */
   @Override
   public boolean isEmpty() {
     return size == 0;
   }
 
+  /**
+   * @since 4.0
+   */
   @Override
   public boolean containsKey(Object key) {
     return get(key) != null;
   }
 
+  /**
+   * @since 4.0
+   */
   @Override
   public boolean containsValue(Object value) {
+    ArrayList<Object> thisValues = this.values;
+    int size = thisValues.size();
+    for (int i = 0; i < size; i += 2) {
+      if (Objects.equals(thisValues.get(i + 1), value)) {
+        return true;
+      }
+    }
     return false;
   }
 
+  /**
+   * @since 4.0
+   */
   @Override
   public void clear() {
     values.clear();
     size = 0;
   }
 
+  /**
+   * @since 4.0
+   */
   @Override
   public Set<String> keySet() {
     LinkedHashSet<String> ketSet = new LinkedHashSet<>();
@@ -474,6 +546,9 @@ public class AnnotationAttributes
     return ketSet;
   }
 
+  /**
+   * @since 4.0
+   */
   @Override
   public Collection<Object> values() {
     ArrayList<Object> values = new ArrayList<>();
