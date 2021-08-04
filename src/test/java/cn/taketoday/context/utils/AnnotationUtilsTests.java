@@ -36,6 +36,8 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.support.ClassMetaReader;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author TODAY 2021/7/28 21:41
  */
@@ -93,21 +95,32 @@ public class AnnotationUtilsTests {
     Arrays.stream(annotationAttributes)
             .forEach(System.out::println);
 
+    AnnotationAttributes attributes = annotationAttributes[0];
 //    final AnnotationAttributes attributes = attributesMap.get("Lcn/taketoday/context/utils/AnnotationUtilsTests$Component0;");
 //
-//    final String[] values = attributes.getStringArray("value");
-//    final TestEnum test = attributes.getEnum("test");
-//
-//    final Class<?> clazz = attributes.getClass("classes");
+    final String[] values = attributes.getStringArray("value");
+    final TestEnum test = attributes.getEnum("test");
+
+    final Class<?> clazz = attributes.getClass("classes");
 //    System.out.println(clazz);
-//    final Class<?>[] classes = attributes.getClassArray("classes");
-//    final Class<?>[] classes1 = attributes.getClassArray("classes");
-//
+    final Class<?>[] classes = attributes.getClassArray("classes");
+    final Class<?>[] classes1 = attributes.getClassArray("classes");
+
 //    System.out.println(Arrays.toString(values));
 //    System.out.println(Arrays.toString(classes));
 //    System.out.println(Arrays.toString(classes1));
 //    System.out.println(test);
-//
+
+    assertThat(test).isEqualTo(TestEnum.TEST1);
+
+    assertThat(clazz).isEqualTo(AnnotationVisitorBean.class);
+    assertThat(classes).hasSize(2).isEqualTo(classes1);
+    assertThat(classes[0]).isEqualTo(AnnotationVisitorBean.class);
+    assertThat(classes[1]).isEqualTo(AnnotationUtilsTests.class);
+    assertThat(attributes.getNumber("double0").doubleValue()).isEqualTo(100D);
+    assertThat(attributes.getStringArray("destroyMethods")).isEmpty();
+    assertThat(attributes.getString("scope")).isEqualTo("singleton");
+
 //    attributesMap.entrySet()
 //            .forEach(System.out::println);
 //
