@@ -18,33 +18,47 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.asm.tree;
+package cn.taketoday.asm;
 
 /**
  * @author TODAY 2021/7/28 22:41
  * @since 4.0
  */
-final class EnumValue extends AnnotationValueHolder {
+public final class EnumValueHolder extends AnnotationValueHolder {
 
-  final String value;
+  final String name;
   final String descriptor;
 
-  EnumValue(String descriptor, String value) {
-    this.value = value;
+  public EnumValueHolder(String descriptor, String name) {
+    this.name = name;
     this.descriptor = descriptor;
   }
 
   @Override
   @SuppressWarnings({ "rawtypes", "unchecked" })
   protected Object getInternal() {
-    Class enumClass = ClassValueHolder.fromDescriptor(descriptor).getValue();
-    return Enum.valueOf(enumClass, value);
+    Class enumClass = ClassValueHolder.fromDescriptor(descriptor).read();
+    return Enum.valueOf(enumClass, name);
+  }
+
+  @Override
+  public void write(ByteVector annotation, SymbolTable symbolTable) {
+    annotation.put12('e', symbolTable.addConstantUtf8(descriptor))
+            .putShort(symbolTable.addConstantUtf8(name));
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public String getDescriptor() {
+    return descriptor;
   }
 
   @Override
   public String toString() {
-    return "EnumDescriptor{" +
-            "value='" + value + '\'' +
+    return "EnumValueHolder{" +
+            "value='" + name + '\'' +
             ", descriptor='" + descriptor + '\'' +
             '}';
   }

@@ -35,6 +35,7 @@ import cn.taketoday.asm.Type;
 import cn.taketoday.asm.signature.SignatureReader;
 import cn.taketoday.asm.signature.SignatureVisitor;
 import cn.taketoday.asm.signature.SignatureWriter;
+import cn.taketoday.asm.ClassValueHolder;
 
 /**
  * A class responsible for remapping types and names.
@@ -170,6 +171,9 @@ public abstract class Remapper {
   public Object mapValue(final Object value) {
     if (value instanceof Type) {
       return mapType((Type) value);
+    }
+    if (value instanceof ClassValueHolder) {
+      return mapType(((ClassValueHolder) value).getDescriptor());
     }
     if (value instanceof Handle) {
       Handle handle = (Handle) value;

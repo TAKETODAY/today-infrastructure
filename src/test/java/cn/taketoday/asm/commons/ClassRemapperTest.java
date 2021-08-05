@@ -46,6 +46,7 @@ import cn.taketoday.asm.Handle;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.AnnotationValueHolder;
 import cn.taketoday.asm.tree.ClassNode;
 import cn.taketoday.asm.tree.LdcInsnNode;
 import cn.taketoday.asm.util.CheckMethodAdapter;
@@ -53,7 +54,6 @@ import cn.taketoday.asm.util.CheckMethodAdapter;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for {@link ClassRemapper}.
@@ -347,6 +347,7 @@ public class ClassRemapperTest extends AsmTest {
               || value instanceof String
               || value instanceof Type
               || value instanceof Handle
+              || value instanceof AnnotationValueHolder
               || value instanceof ConstantDynamic
               || value.getClass().isArray()) {
         return super.mapValue(value);

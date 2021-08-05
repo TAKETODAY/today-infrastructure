@@ -21,7 +21,10 @@ package cn.taketoday.asm.tree;
 
 import java.util.ArrayList;
 
+import cn.taketoday.asm.AnnotationValueHolder;
 import cn.taketoday.asm.AnnotationVisitor;
+import cn.taketoday.asm.ClassValueHolder;
+import cn.taketoday.asm.EnumValueHolder;
 import cn.taketoday.asm.Type;
 
 /**
@@ -38,7 +41,7 @@ public class AnnotationNode extends AnnotationVisitor {
    * The name value pairs of this annotation. Each name value pair is stored as two consecutive
    * elements in the list. The name is a {@link String}, and the value may be a {@link Byte}, {@link
    * Boolean}, {@link Character}, {@link Short}, {@link Integer}, {@link Long}, {@link Float},
-   * {@link Double}, {@link String}, or a{@link EnumValue} (for enumeration values),
+   * {@link Double}, {@link String}, or a{@link EnumValueHolder} (for enumeration values),
    * any {@link AnnotationValueHolder} an {@link AnnotationNode}, or a {@link ArrayList} of values of one
    * of the preceding types. The list may be {@literal null} if there is no name value pair.
    */
@@ -112,7 +115,7 @@ public class AnnotationNode extends AnnotationVisitor {
     if (this.desc != null) {
       values.add(name);
     }
-    values.add(new EnumValue(descriptor, value));
+    values.add(new EnumValueHolder(descriptor, value));
   }
 
   @Override

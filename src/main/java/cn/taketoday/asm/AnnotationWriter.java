@@ -204,6 +204,8 @@ final class AnnotationWriter extends AnnotationVisitor {
     // Case of an element_value with a const_value_index, class_info_index or array_index field.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.1.
     ++numElementValuePairs;
+    ByteVector annotation = this.annotation;
+    SymbolTable symbolTable = this.symbolTable;
     if (useNamedValues) {
       annotation.putShort(symbolTable.addConstantUtf8(name));
     }
@@ -211,17 +213,17 @@ final class AnnotationWriter extends AnnotationVisitor {
       annotation.put12('s', symbolTable.addConstantUtf8((String) value));
     }
     else if (value instanceof Byte) {
-      annotation.put12('B', symbolTable.addConstantInteger(((Byte) value).byteValue()).index);
+      annotation.put12('B', symbolTable.addConstantInteger((Byte) value).index);
     }
     else if (value instanceof Boolean) {
-      int booleanValue = ((Boolean) value).booleanValue() ? 1 : 0;
+      int booleanValue = (boolean) value ? 1 : 0;
       annotation.put12('Z', symbolTable.addConstantInteger(booleanValue).index);
     }
     else if (value instanceof Character) {
-      annotation.put12('C', symbolTable.addConstantInteger(((Character) value).charValue()).index);
+      annotation.put12('C', symbolTable.addConstantInteger((Character) value).index);
     }
     else if (value instanceof Short) {
-      annotation.put12('S', symbolTable.addConstantInteger(((Short) value).shortValue()).index);
+      annotation.put12('S', symbolTable.addConstantInteger((Short) value).index);
     }
     else if (value instanceof Type) {
       annotation.put12('c', symbolTable.addConstantUtf8(((Type) value).getDescriptor()));
@@ -282,6 +284,9 @@ final class AnnotationWriter extends AnnotationVisitor {
         annotation.put12('D', symbolTable.addConstantDouble(doubleValue).index);
       }
     }
+    else if (value instanceof AnnotationValueHolder) {
+      ((AnnotationValueHolder) value).write(annotation, symbolTable);
+    }
     else {
       Symbol symbol = symbolTable.addConstant(value);
       annotation.put12(".s.IFJDCS".charAt(symbol.tag), symbol.index);
@@ -293,11 +298,11 @@ final class AnnotationWriter extends AnnotationVisitor {
     // Case of an element_value with an enum_const_value field.
     // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.1.
     ++numElementValuePairs;
+    ByteVector annotation = this.annotation;
     if (useNamedValues) {
       annotation.putShort(symbolTable.addConstantUtf8(name));
     }
-    annotation
-            .put12('e', symbolTable.addConstantUtf8(descriptor))
+    annotation.put12('e', symbolTable.addConstantUtf8(descriptor))
             .putShort(symbolTable.addConstantUtf8(value));
   }
 
@@ -336,6 +341,7 @@ final class AnnotationWriter extends AnnotationVisitor {
 
   @Override
   public void visitEnd() {
+    int numElementValuePairsOffset = this.numElementValuePairsOffset;
     if (numElementValuePairsOffset != -1) {
       byte[] data = annotation.data;
       data[numElementValuePairsOffset] = (byte) (numElementValuePairs >>> 8);
@@ -406,24 +412,20 @@ final class AnnotationWriter extends AnnotationVisitor {
           final AnnotationWriter lastRuntimeInvisibleTypeAnnotation) {
     int size = 0;
     if (lastRuntimeVisibleAnnotation != null) {
-      size +=
-              lastRuntimeVisibleAnnotation.computeAnnotationsSize(
-                      Constants.RUNTIME_VISIBLE_ANNOTATIONS);
+      size += lastRuntimeVisibleAnnotation.computeAnnotationsSize(
+              Constants.RUNTIME_VISIBLE_ANNOTATIONS);
     }
     if (lastRuntimeInvisibleAnnotation != null) {
-      size +=
-              lastRuntimeInvisibleAnnotation.computeAnnotationsSize(
-                      Constants.RUNTIME_INVISIBLE_ANNOTATIONS);
+      size += lastRuntimeInvisibleAnnotation.computeAnnotationsSize(
+              Constants.RUNTIME_INVISIBLE_ANNOTATIONS);
     }
     if (lastRuntimeVisibleTypeAnnotation != null) {
-      size +=
-              lastRuntimeVisibleTypeAnnotation.computeAnnotationsSize(
-                      Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS);
+      size += lastRuntimeVisibleTypeAnnotation.computeAnnotationsSize(
+              Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS);
     }
     if (lastRuntimeInvisibleTypeAnnotation != null) {
-      size +=
-              lastRuntimeInvisibleTypeAnnotation.computeAnnotationsSize(
-                      Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
+      size += lastRuntimeInvisibleTypeAnnotation.computeAnnotationsSize(
+              Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
     }
     return size;
   }

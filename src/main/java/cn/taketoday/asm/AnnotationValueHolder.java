@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.asm.tree;
+package cn.taketoday.asm;
 
 /**
  * @author TODAY 2021/7/28 22:43
@@ -29,13 +29,17 @@ public abstract class AnnotationValueHolder {
   /**
    * get annotation-value
    */
-  public Object getValue() {
+  public Object read() {
+    Object value = this.value;
     if (value == null) {
       value = getInternal();
+      this.value = value;
     }
     return value;
   }
 
   protected abstract Object getInternal();
+
+  public abstract void write(ByteVector annotation, SymbolTable symbolTable);
 
 }

@@ -18,9 +18,8 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.asm.tree;
+package cn.taketoday.asm;
 
-import cn.taketoday.asm.Type;
 import cn.taketoday.context.utils.ClassUtils;
 
 /**
@@ -43,12 +42,27 @@ public final class ClassValueHolder extends AnnotationValueHolder {
   }
 
   @Override
-  public Class<?> getValue() {
-    return (Class<?>) super.getValue();
+  public Class<?> read() {
+    return (Class<?>) super.read();
+  }
+
+  @Override
+  public void write(ByteVector annotation, SymbolTable symbolTable) {
+    annotation.put12('c', symbolTable.addConstantUtf8(descriptor.getDescriptor()));
   }
 
   public static ClassValueHolder fromDescriptor(final String typeDescriptor) {
     return new ClassValueHolder(typeDescriptor);
   }
 
+  public Type getDescriptor() {
+    return descriptor;
+  }
+
+  @Override
+  public String toString() {
+    return "ClassValueHolder{" +
+            "descriptor=" + descriptor +
+            '}';
+  }
 }

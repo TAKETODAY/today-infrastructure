@@ -33,7 +33,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-import cn.taketoday.asm.tree.AnnotationValueHolder;
+import cn.taketoday.asm.AnnotationValueHolder;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.OrderUtils;
 
@@ -202,7 +202,7 @@ public class AnnotationAttributes
 
   private Object getRealValue(Object target) {
     if (target instanceof AnnotationValueHolder) {
-      target = ((AnnotationValueHolder) target).getValue();
+      target = ((AnnotationValueHolder) target).read();
     }
     return target;
   }

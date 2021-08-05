@@ -27,14 +27,11 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package cn.taketoday.asm.tree;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import cn.taketoday.asm.AnnotationVisitor;
@@ -51,10 +48,8 @@ import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.RecordComponentVisitor;
 import cn.taketoday.asm.TypePath;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -108,7 +103,7 @@ public class ClassNodeTest extends AsmTest {
     }
     classNode.accept(classWriter);
 
-    Assertions.assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
+    assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
   }
 
   /** Tests that ClassNode accepts visitors that remove class elements. */
@@ -134,18 +129,15 @@ public class ClassNodeTest extends AsmTest {
     return new Attribute[] { new Comment(), new CodeComment() };
   }
 
-  @SuppressWarnings("serial")
   private static void cloneInstructions(final MethodNode methodNode) {
-    Map<LabelNode, LabelNode> labelCloneMap =
-            new HashMap<LabelNode, LabelNode>() {
-              @Override
-              public LabelNode get(final Object o) {
-                return (LabelNode) o;
-              }
-            };
-    Iterator<AbstractInsnNode> insnIterator = methodNode.instructions.iterator();
-    while (insnIterator.hasNext()) {
-      AbstractInsnNode insn = insnIterator.next();
+    Map<LabelNode, LabelNode> labelCloneMap = new HashMap<LabelNode, LabelNode>() {
+      @Override
+      public LabelNode get(final Object o) {
+        return (LabelNode) o;
+      }
+    };
+
+    for (AbstractInsnNode insn : methodNode.instructions) {
       methodNode.instructions.set(insn, insn.clone(labelCloneMap));
     }
   }

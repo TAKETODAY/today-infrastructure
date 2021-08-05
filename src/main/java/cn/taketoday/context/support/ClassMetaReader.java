@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import cn.taketoday.asm.ClassReader;
 import cn.taketoday.asm.tree.AnnotationNode;
 import cn.taketoday.asm.tree.ClassNode;
-import cn.taketoday.asm.tree.ClassValueHolder;
+import cn.taketoday.asm.ClassValueHolder;
 import cn.taketoday.asm.tree.MethodNode;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.Constant;
@@ -77,7 +77,7 @@ public class ClassMetaReader {
         return null;
       }
       // Annotation type
-      Class<?> annotationValue = ClassValueHolder.fromDescriptor(desc).getValue();
+      Class<?> annotationValue = ClassValueHolder.fromDescriptor(desc).read();
       AnnotationAttributes attributes = new AnnotationAttributes(annotationValue);
 
       // read default values

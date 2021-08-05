@@ -485,7 +485,7 @@ final class SymbolTable {
       return addConstantInteger(((Short) value).intValue());
     }
     else if (value instanceof Boolean) {
-      return addConstantInteger((Boolean) value ? 1 : 0);
+      return addConstantInteger((boolean) value ? 1 : 0);
     }
     else if (value instanceof Float) {
       return addConstantFloat((Float) value);
