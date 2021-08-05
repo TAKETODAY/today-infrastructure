@@ -90,8 +90,10 @@ public class InsnList implements Iterable<AbstractInsnNode> {
     if (index < 0 || index >= size) {
       throw new IndexOutOfBoundsException();
     }
+    AbstractInsnNode[] cache = this.cache;
     if (cache == null) {
       cache = toArray();
+      this.cache = cache;
     }
     return cache[index];
   }
