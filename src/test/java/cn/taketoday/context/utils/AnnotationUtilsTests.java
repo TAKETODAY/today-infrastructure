@@ -26,8 +26,10 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
 
+import cn.taketoday.asm.AnnotationVisitor;
 import cn.taketoday.asm.tree.ClassNode;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.Scope;
@@ -54,11 +56,32 @@ public class AnnotationUtilsTests {
   )
   @Service
   public static class AnnotationVisitorBean {
+    @Component0(
+            value = "null-CONSTRUCTOR",
+            test = TestEnum.TEST2,
+            double0 = 122,
+            classes = { AnnotationVisitorBean.class, AnnotationUtilsTests.class },
+            service = @Service("name")
+    )
+    public AnnotationVisitorBean() {
 
+    }
+
+    @Component0(
+            value = "annotationVisitorBean",
+            scope = "singleton",
+            test = TestEnum.TEST1,
+            double0 = 100,
+            classes = { AnnotationVisitorBean.class, AnnotationUtilsTests.class },
+            service = @Service("name")
+    )
+    public AnnotationVisitorBean(int i) {
+
+    }
   }
 
   @Retention(RetentionPolicy.RUNTIME)
-  @Target({ ElementType.TYPE, ElementType.METHOD })
+  @Target({ ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR })
   public @interface Component0 {
 
     int int0() default 10;
@@ -129,6 +152,24 @@ public class AnnotationUtilsTests {
 //
 //    service.entrySet()
 //            .forEach(System.err::println);
+  }
+
+  @Test
+  public void testReadAnnotation_onConstructors() throws Exception {
+    // null
+    Constructor<AnnotationVisitorBean> declaredConstructor = AnnotationVisitorBean.class.getDeclaredConstructor();
+    AnnotationAttributes[] annotationAttributes = ClassMetaReader.readAnnotation(declaredConstructor);
+
+    Arrays.stream(annotationAttributes)
+            .forEach(System.out::println);
+
+    Constructor<AnnotationVisitorBean> declaredConstructor1 = AnnotationVisitorBean.class.getDeclaredConstructor(int.class);
+
+    annotationAttributes = ClassMetaReader.readAnnotation(declaredConstructor1);
+
+    Arrays.stream(annotationAttributes)
+            .forEach(System.out::println);
+
   }
 
 }

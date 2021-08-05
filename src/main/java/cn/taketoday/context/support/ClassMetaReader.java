@@ -22,14 +22,20 @@ package cn.taketoday.context.support;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.asm.ClassReader;
+import cn.taketoday.asm.ClassValueHolder;
+import cn.taketoday.asm.Type;
 import cn.taketoday.asm.tree.AnnotationNode;
 import cn.taketoday.asm.tree.ClassNode;
-import cn.taketoday.asm.ClassValueHolder;
 import cn.taketoday.asm.tree.MethodNode;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.Constant;
@@ -142,6 +148,56 @@ public class ClassMetaReader {
       }
     }
     return null;
+  }
+
+  public static AnnotationAttributes[] readAnnotation(AnnotatedElement annotated) {
+    List<AnnotationNode> annotationNode = getAnnotationNode(annotated);
+    if (annotationNode == null) {
+      // TODO
+    }
+    AnnotationAttributes[] annotationAttributes = new AnnotationAttributes[annotationNode.size()];
+    int i = 0;
+    for (final AnnotationNode node : annotationNode) {
+      annotationAttributes[i++] = readAnnotation(node);
+    }
+    return annotationAttributes;
+  }
+
+  public static List<AnnotationNode> getAnnotationNode(AnnotatedElement annotated) {
+    if (annotated instanceof Class) {
+      ClassNode classNode = read((Class<?>) annotated);
+      return classNode.visibleAnnotations;
+    }
+
+    if (annotated instanceof Executable) {
+      Executable executable = (Executable) annotated;
+      Class<?> declaringClass = executable.getDeclaringClass();
+      ClassNode classNode = read(declaringClass);
+
+      boolean isConstructor = annotated instanceof Constructor;
+      String name = isConstructor ? "<init>" : executable.getName();
+
+      for (final MethodNode method : classNode.methods) {
+        if (Objects.equals(name, method.name)) {
+          String descriptor = getDescriptor(annotated, isConstructor);
+          if (Objects.equals(method.desc, descriptor)) {
+            return method.visibleAnnotations;
+          }
+        }
+      }
+      throw new IllegalStateException("cannot read annotations");
+    }
+
+    return null;
+  }
+
+  private static String getDescriptor(AnnotatedElement annotated, boolean isConstructor) {
+    if (isConstructor) {
+      return Type.getConstructorDescriptor((Constructor<?>) annotated);
+    }
+    else {
+      return Type.getMethodDescriptor((Method) annotated);
+    }
   }
 
 }

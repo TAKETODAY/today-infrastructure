@@ -3842,6 +3842,7 @@ public class ClassReader {
    * @return the String corresponding to the specified CONSTANT_Utf8 entry.
    */
   final String readUtf(final int constantPoolEntryIndex, final char[] charBuffer) {
+    String[] constantUtf8Values = this.constantUtf8Values;
     String value = constantUtf8Values[constantPoolEntryIndex];
     if (value != null) {
       return value;
