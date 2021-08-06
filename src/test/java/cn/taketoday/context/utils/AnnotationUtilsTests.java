@@ -27,9 +27,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 
-import cn.taketoday.asm.AnnotationVisitor;
 import cn.taketoday.asm.tree.ClassNode;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.Scope;
@@ -61,7 +61,8 @@ public class AnnotationUtilsTests {
             test = TestEnum.TEST2,
             double0 = 122,
             classes = { AnnotationVisitorBean.class, AnnotationUtilsTests.class },
-            service = @Service("name")
+            service = @Service("name"),
+            destroyMethods = { "1", "2" }
     )
     public AnnotationVisitorBean() {
 
@@ -81,7 +82,7 @@ public class AnnotationUtilsTests {
   }
 
   @Retention(RetentionPolicy.RUNTIME)
-  @Target({ ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR })
+  @Target({ ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.PARAMETER })
   public @interface Component0 {
 
     int int0() default 10;
@@ -111,12 +112,11 @@ public class AnnotationUtilsTests {
   public void testMapAnnotationVisitor() throws Throwable {
     ClassNode classNode = ClassMetaReader.read(AnnotationVisitorBean.class);
 
-    System.out.println(classNode);
+//    System.out.println(classNode);
 
     AnnotationAttributes[] annotationAttributes = ClassMetaReader.readAnnotations(classNode);
-
-    Arrays.stream(annotationAttributes)
-            .forEach(System.out::println);
+//    Arrays.stream(annotationAttributes)
+//            .forEach(System.out::println);
 
     AnnotationAttributes attributes = annotationAttributes[0];
 //    final AnnotationAttributes attributes = attributesMap.get("Lcn/taketoday/context/utils/AnnotationUtilsTests$Component0;");
@@ -134,8 +134,8 @@ public class AnnotationUtilsTests {
 //    System.out.println(Arrays.toString(classes1));
 //    System.out.println(test);
 
+    assertThat(values).hasSize(1).contains("annotationVisitorBean");
     assertThat(test).isEqualTo(TestEnum.TEST1);
-
     assertThat(clazz).isEqualTo(AnnotationVisitorBean.class);
     assertThat(classes).hasSize(2).isEqualTo(classes1);
     assertThat(classes[0]).isEqualTo(AnnotationVisitorBean.class);
@@ -165,10 +165,127 @@ public class AnnotationUtilsTests {
 
     Constructor<AnnotationVisitorBean> declaredConstructor1 = AnnotationVisitorBean.class.getDeclaredConstructor(int.class);
 
-    annotationAttributes = ClassMetaReader.readAnnotation(declaredConstructor1);
+    // assert
 
-    Arrays.stream(annotationAttributes)
-            .forEach(System.out::println);
+    AnnotationAttributes attributes = annotationAttributes[0];
+
+    //
+    String[] values = attributes.getStringArray("value");
+    TestEnum testEnum = attributes.getEnum("test");
+
+    Class<?> clazz = attributes.getClass("classes"); // first value
+    Class<?>[] classes = attributes.getClassArray("classes"); // full value
+    Class<?>[] classes1 = attributes.getClassArray("classes");
+
+    assertThat(values).hasSize(1).contains("null-CONSTRUCTOR");
+    assertThat(testEnum).isEqualTo(TestEnum.TEST2);
+    assertThat(clazz).isEqualTo(AnnotationVisitorBean.class);
+    assertThat(classes).hasSize(2).isEqualTo(classes1);
+    assertThat(classes[0]).isEqualTo(AnnotationVisitorBean.class);
+    assertThat(classes[1]).isEqualTo(AnnotationUtilsTests.class);
+    assertThat(attributes.getNumber("double0").doubleValue()).isEqualTo(122);
+    assertThat(attributes.getStringArray("destroyMethods")).hasSize(2).contains("1", "2");
+    assertThat(attributes.getString("scope")).isEqualTo("singleton");
+
+    // read new one
+    annotationAttributes = ClassMetaReader.readAnnotation(declaredConstructor1);
+    attributes = annotationAttributes[0];
+
+    values = attributes.getStringArray("value");
+    testEnum = attributes.getEnum("test");
+
+    clazz = attributes.getClass("classes"); // first value
+    classes = attributes.getClassArray("classes"); // full value
+    classes1 = attributes.getClassArray("classes");
+
+    assertThat(values).hasSize(1).contains("annotationVisitorBean");
+    assertThat(testEnum).isEqualTo(TestEnum.TEST1);
+    assertThat(clazz).isEqualTo(AnnotationVisitorBean.class);
+    assertThat(classes).hasSize(2).isEqualTo(classes1);
+    assertThat(classes[0]).isEqualTo(AnnotationVisitorBean.class);
+    assertThat(classes[1]).isEqualTo(AnnotationUtilsTests.class);
+    assertThat(attributes.getNumber("double0").doubleValue()).isEqualTo(100);
+    assertThat(attributes.getStringArray("destroyMethods")).isEmpty();
+    assertThat(attributes.getString("scope")).isEqualTo("singleton");
+
+  }
+
+  static class OnFields {
+
+    @Component0(
+            value = "OnFields-test",
+            scope = "singleton2",
+            test = TestEnum.TEST1,
+            double0 = 1010,
+            classes = { OnFields.class, AnnotationUtilsTests.class },
+            service = @Service("name2")
+    )
+    int test;
+
+    @Component0(
+            value = "OnFields-test1",
+            scope = "singleton1",
+            test = TestEnum.TEST,
+            double0 = 1001,
+            classes = { AnnotationVisitorBean.class, OnFields.class },
+            service = @Service("name1")
+    )
+    double test1;
+
+  }
+
+  @Test
+  public void testReadAnnotation_onFields() throws Exception {
+    // null
+
+    Field test = OnFields.class.getDeclaredField("test");
+
+    Field test1 = OnFields.class.getDeclaredField("test1");
+
+    AnnotationAttributes[] annotationAttributes = ClassMetaReader.readAnnotation(test);
+
+    AnnotationAttributes attributes = annotationAttributes[0];
+
+    //
+    String[] values = attributes.getStringArray("value");
+    TestEnum testEnum = attributes.getEnum("test");
+
+    Class<?> clazz = attributes.getClass("classes"); // first value
+    Class<?>[] classes = attributes.getClassArray("classes"); // full value
+    Class<?>[] classes1 = attributes.getClassArray("classes");
+
+    // assert
+
+    assertThat(values).hasSize(1).contains("OnFields-test");
+    assertThat(testEnum).isEqualTo(TestEnum.TEST1);
+    assertThat(clazz).isEqualTo(OnFields.class);
+    assertThat(classes).hasSize(2).isEqualTo(classes1);
+    assertThat(classes[0]).isEqualTo(OnFields.class);
+    assertThat(classes[1]).isEqualTo(AnnotationUtilsTests.class);
+    assertThat(attributes.getNumber("double0").doubleValue()).isEqualTo(1010);
+    assertThat(attributes.getStringArray("destroyMethods")).isEmpty();
+    assertThat(attributes.getString("scope")).isEqualTo("singleton2");
+
+    // read new one
+    annotationAttributes = ClassMetaReader.readAnnotation(test1);
+    attributes = annotationAttributes[0];
+
+    values = attributes.getStringArray("value");
+    testEnum = attributes.getEnum("test");
+
+    clazz = attributes.getClass("classes"); // first value
+    classes = attributes.getClassArray("classes"); // full value
+    classes1 = attributes.getClassArray("classes");
+
+    assertThat(values).hasSize(1).contains("OnFields-test1");
+    assertThat(testEnum).isEqualTo(TestEnum.TEST);
+    assertThat(clazz).isEqualTo(AnnotationVisitorBean.class);
+    assertThat(classes).hasSize(2).isEqualTo(classes1);
+    assertThat(classes[0]).isEqualTo(AnnotationVisitorBean.class);
+    assertThat(classes[1]).isEqualTo(OnFields.class);
+    assertThat(attributes.getNumber("double0").doubleValue()).isEqualTo(1001);
+    assertThat(attributes.getStringArray("destroyMethods")).isEmpty();
+    assertThat(attributes.getString("scope")).isEqualTo("singleton1");
 
   }
 

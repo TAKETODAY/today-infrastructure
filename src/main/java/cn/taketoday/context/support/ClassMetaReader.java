@@ -22,9 +22,11 @@ package cn.taketoday.context.support;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -36,9 +38,11 @@ import cn.taketoday.asm.ClassValueHolder;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.tree.AnnotationNode;
 import cn.taketoday.asm.tree.ClassNode;
+import cn.taketoday.asm.tree.FieldNode;
 import cn.taketoday.asm.tree.MethodNode;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.utils.AnnotationUtils;
 import cn.taketoday.context.utils.ClassUtils;
 
 /**
@@ -153,7 +157,14 @@ public class ClassMetaReader {
   public static AnnotationAttributes[] readAnnotation(AnnotatedElement annotated) {
     List<AnnotationNode> annotationNode = getAnnotationNode(annotated);
     if (annotationNode == null) {
-      // TODO
+      // read from java reflect API
+      Annotation[] annotations = annotated.getDeclaredAnnotations();
+      AnnotationAttributes[] annotationAttributes = new AnnotationAttributes[annotations.length];
+      int i = 0;
+      for (final Annotation annotation : annotations) {
+        annotationAttributes[i++] = AnnotationUtils.getAnnotationAttributes(annotation);
+      }
+      return annotationAttributes;
     }
     AnnotationAttributes[] annotationAttributes = new AnnotationAttributes[annotationNode.size()];
     int i = 0;
@@ -186,6 +197,23 @@ public class ClassMetaReader {
         }
       }
       throw new IllegalStateException("cannot read annotations");
+    }
+    if (annotated instanceof Field) {
+      // java reflect field
+      Field field = (Field) annotated;
+      Class<?> declaringClass = field.getDeclaringClass();
+      String descriptor = null;
+      ClassNode classNode = read(declaringClass);
+      for (final FieldNode fieldNode : classNode.fields) {
+        if (Objects.equals(field.getName(), fieldNode.name)) {
+          if (descriptor == null) {
+            descriptor = Type.getDescriptor(field.getType());
+          }
+          if (Objects.equals(fieldNode.desc, descriptor)) {
+            return fieldNode.visibleAnnotations;
+          }
+        }
+      }
     }
 
     return null;
