@@ -28,6 +28,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 
 import cn.taketoday.asm.tree.ClassNode;
@@ -289,4 +291,49 @@ public class AnnotationUtilsTests {
 
   }
 
+  static class OnParameters {
+
+    void test(
+            @Component0(
+                    value = "OnParameters-test1",
+                    scope = "singleton1",
+                    test = TestEnum.TEST,
+                    double0 = 1001,
+                    classes = { AnnotationVisitorBean.class, OnFields.class },
+                    service = @Service("name1")
+            ) int test) {
+
+    }
+  }
+
+  @Test
+  public void testReadAnnotation_onParameters() throws Exception {
+    Method test = OnParameters.class.getDeclaredMethod("test", int.class);
+    Parameter[] parameters = test.getParameters();
+    Parameter parameter = parameters[0];
+
+    AnnotationAttributes[] annotationAttributes = ClassMetaReader.readAnnotation(parameter);
+
+
+    AnnotationAttributes attributes = annotationAttributes[0];
+
+    //
+    String[] values = attributes.getStringArray("value");
+    TestEnum testEnum = attributes.getEnum("test");
+
+    Class<?> clazz = attributes.getClass("classes"); // first value
+    Class<?>[] classes = attributes.getClassArray("classes"); // full value
+    Class<?>[] classes1 = attributes.getClassArray("classes");
+
+
+    assertThat(values).hasSize(1).contains("OnParameters-test1");
+    assertThat(testEnum).isEqualTo(TestEnum.TEST);
+    assertThat(clazz).isEqualTo(AnnotationVisitorBean.class);
+    assertThat(classes).hasSize(2).isEqualTo(classes1);
+    assertThat(classes[0]).isEqualTo(AnnotationVisitorBean.class);
+    assertThat(classes[1]).isEqualTo(OnFields.class);
+    assertThat(attributes.getNumber("double0").doubleValue()).isEqualTo(1001);
+    assertThat(attributes.getStringArray("destroyMethods")).isEmpty();
+    assertThat(attributes.getString("scope")).isEqualTo("singleton1");
+  }
 }

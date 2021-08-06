@@ -28,6 +28,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -179,24 +180,9 @@ public class ClassMetaReader {
       ClassNode classNode = read((Class<?>) annotated);
       return classNode.visibleAnnotations;
     }
-
     if (annotated instanceof Executable) {
-      Executable executable = (Executable) annotated;
-      Class<?> declaringClass = executable.getDeclaringClass();
-      ClassNode classNode = read(declaringClass);
-
-      boolean isConstructor = annotated instanceof Constructor;
-      String name = isConstructor ? "<init>" : executable.getName();
-
-      for (final MethodNode method : classNode.methods) {
-        if (Objects.equals(name, method.name)) {
-          String descriptor = getDescriptor(annotated, isConstructor);
-          if (Objects.equals(method.desc, descriptor)) {
-            return method.visibleAnnotations;
-          }
-        }
-      }
-      throw new IllegalStateException("cannot read annotations");
+      MethodNode methodNode = getMethodNode((Executable) annotated);
+      return methodNode.visibleAnnotations;
     }
     if (annotated instanceof Field) {
       // java reflect field
@@ -215,8 +201,28 @@ public class ClassMetaReader {
         }
       }
     }
-
+    if (annotated instanceof Parameter) {
+      Parameter parameter = (Parameter) annotated;
+      MethodNode methodNode = getMethodNode(parameter.getDeclaringExecutable());
+      List<AnnotationNode>[] annotations = methodNode.visibleParameterAnnotations;
+      return annotations[ClassUtils.getParameterIndex(parameter)];
+    }
     return null;
+  }
+
+  private static MethodNode getMethodNode(Executable executable) {
+    ClassNode classNode = read(executable.getDeclaringClass());
+    boolean isConstructor = executable instanceof Constructor;
+    String name = isConstructor ? "<init>" : executable.getName();
+    for (final MethodNode method : classNode.methods) {
+      if (Objects.equals(name, method.name)) {
+        String descriptor = getDescriptor(executable, isConstructor);
+        if (Objects.equals(method.desc, descriptor)) {
+          return method;
+        }
+      }
+    }
+    throw new IllegalStateException("cannot read executable annotations");
   }
 
   private static String getDescriptor(AnnotatedElement annotated, boolean isConstructor) {
