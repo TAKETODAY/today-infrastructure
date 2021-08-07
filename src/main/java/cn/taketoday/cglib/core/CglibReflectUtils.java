@@ -64,28 +64,32 @@ public abstract class CglibReflectUtils {
   private static final String[] CGLIB_PACKAGES = { "java.lang" };
 
   static {
-    final Class<ClassLoader> loader = ClassLoader.class;
     try {
-      defineClass = loader.getDeclaredMethod("defineClass",
-                                             String.class,
-                                             byte[].class,
-                                             Integer.TYPE,
-                                             Integer.TYPE,
-                                             ProtectionDomain.class);
+      defineClass = ClassLoader.class.getDeclaredMethod(
+              "defineClass",
+              String.class,
+              byte[].class,
+              Integer.TYPE,
+              Integer.TYPE,
+              ProtectionDomain.class
+      );
       ReflectionUtils.makeAccessible(defineClass);
     }
     catch (NoSuchMethodException e) {
       throw new CodeGenerationException(e);
     }
 
-    final Method[] declaredMethods = Object.class.getDeclaredMethods();
-    OBJECT_METHODS = new ArrayList<>(declaredMethods.length);
+    Method[] declaredMethods = Object.class.getDeclaredMethods();
+    ArrayList<Method> objectMethods = new ArrayList<>(declaredMethods.length);
     for (Method method : declaredMethods) {
       if ("finalize".equals(method.getName()) || (method.getModifiers() & (FINAL | STATIC)) > 0) {
         continue;
       }
-      OBJECT_METHODS.add(method);
+      objectMethods.add(method);
     }
+    // @since 4.0
+    objectMethods.trimToSize();
+    OBJECT_METHODS = objectMethods;
   }
 
   static {
@@ -213,7 +217,7 @@ public abstract class CglibReflectUtils {
                                    .append(suffix)
                                    .toString(), false, loader);
     }
-    catch (ClassNotFoundException ignore) {}
+    catch (ClassNotFoundException ignore) { }
     for (int i = 0; i < packages.length; i++) {
       try {
         return Class.forName(new StringBuilder(prefix)
@@ -222,7 +226,7 @@ public abstract class CglibReflectUtils {
                                      .append(className)
                                      .append(suffix).toString(), false, loader);
       }
-      catch (ClassNotFoundException ignore) {}
+      catch (ClassNotFoundException ignore) { }
     }
     if (dimensions == 0) {
       Class c = primitives.get(className);
@@ -236,7 +240,7 @@ public abstract class CglibReflectUtils {
         try {
           return Class.forName(brackets.append(transform).toString(), false, loader);
         }
-        catch (ClassNotFoundException ignore) {}
+        catch (ClassNotFoundException ignore) { }
       }
     }
     throw new ClassNotFoundException(save);
@@ -415,7 +419,8 @@ public abstract class CglibReflectUtils {
       private ClassInfo ci;
 
       public ClassInfo getClassInfo() {
-        if (ci == null) ci = CglibReflectUtils.getClassInfo(member.getDeclaringClass());
+        if (ci == null)
+          ci = CglibReflectUtils.getClassInfo(member.getDeclaringClass());
         return ci;
       }
 

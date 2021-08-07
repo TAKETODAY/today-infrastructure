@@ -101,15 +101,18 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    *
    * @return {@link MethodInvoker} sub object
    *
-   * @throws NoSuchMethodException
+   * @throws ReflectionException
    *         Thrown when a particular method cannot be found.
    */
   public static MethodInvoker create(final Class<?> beanClass,
-                                     final String name, final Class<?>... parameters) throws NoSuchMethodException {
-
-    final Method targetMethod = beanClass.getDeclaredMethod(name, parameters);
-
-    return new MethodInvokerGenerator(targetMethod, beanClass).create();
+                                     final String name, final Class<?>... parameters) {
+    try {
+      Method targetMethod = beanClass.getDeclaredMethod(name, parameters);
+      return new MethodInvokerGenerator(targetMethod, beanClass).create();
+    }
+    catch (NoSuchMethodException e) {
+      throw new ReflectionException("No such method", e);
+    }
   }
 
   // MethodInvoker object generator
@@ -207,7 +210,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
     @Override
     protected MethodInvoker fallback(Exception exception) {
       LoggerFactory.getLogger(MethodInvokerGenerator.class)
-              .warn("Cannot access a Method: [{}]", targetMethod, exception);
+              .warn("Cannot access a Method: [{}], using fallback instance", targetMethod, exception);
       return super.fallback(exception);
     }
 

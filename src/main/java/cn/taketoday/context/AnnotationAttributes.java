@@ -34,7 +34,10 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 import cn.taketoday.asm.AnnotationValueHolder;
+import cn.taketoday.cglib.proxy.Mixin;
+import cn.taketoday.context.reflect.GeneratorSupport;
 import cn.taketoday.context.utils.Assert;
+import cn.taketoday.context.utils.NumberUtils;
 import cn.taketoday.context.utils.OrderUtils;
 
 import static java.lang.String.format;
@@ -91,6 +94,13 @@ public class AnnotationAttributes
     this(new ArrayList<>(map.size() * 2));
     this.annotationType = null;
     this.displayName = UNKNOWN;
+    putAll(map);
+  }
+
+  public AnnotationAttributes(Map<String, Object> map, Class annotationType) {
+    this(new ArrayList<>(map.size() * 2));
+    this.annotationType = annotationType;
+    this.displayName = annotationType.getName();
     putAll(map);
   }
 
@@ -163,12 +173,12 @@ public class AnnotationAttributes
   @SuppressWarnings({ "unchecked" })
   public <T> T getAttribute(String attributeName, Class<T> expectedType) {
     Assert.notNull(attributeName, "'attributeName' must not be null or empty");
-    Object value = get(attributeName); // get value
+    Object attributeValue = get(attributeName); // get value
 
     // @since 4.0
-    if (value instanceof List) {
+    if (attributeValue instanceof List) {
       // more than two values
-      final List<T> list = (List<T>) value;
+      final List<T> list = (List<T>) attributeValue;
       if (expectedType.isArray()) {
         // target return type is array
         final Object[] array = (Object[]) Array.newInstance(expectedType.getComponentType(), list.size());
@@ -188,26 +198,7 @@ public class AnnotationAttributes
     }
 
     // @since 4.0
-    value = getRealValue(value);
-
-    assertAttributePresence(attributeName, value);
-    if (!expectedType.isInstance(value) && expectedType.isArray() && expectedType.getComponentType().isInstance(value)) {
-      Object array = Array.newInstance(expectedType.getComponentType(), 1);
-      Array.set(array, 0, value);
-      value = array;
-    }
-    assertAttributeType(attributeName, value, expectedType);
-    return expectedType.cast(value);
-  }
-
-  private Object getRealValue(Object target) {
-    if (target instanceof AnnotationValueHolder) {
-      target = ((AnnotationValueHolder) target).read();
-    }
-    return target;
-  }
-
-  private void assertAttributePresence(String attributeName, Object attributeValue) {
+    attributeValue = getRealValue(attributeValue);
     if (attributeValue == null) {
       throw new NullPointerException(
               format("Attribute '%s' not found in attributes for annotation [%s]",
@@ -215,9 +206,36 @@ public class AnnotationAttributes
                      this.displayName)
       );
     }
-  }
 
-  private void assertAttributeType(String attributeName, Object attributeValue, Class<?> expectedType) {
+    if (!expectedType.isInstance(attributeValue)) {
+      // is not a target instance
+      if (expectedType.isArray()) {
+        // return type is array but target attr is not an array
+        if (expectedType.getComponentType().isInstance(attributeValue)) {
+          Object array = Array.newInstance(expectedType.getComponentType(), 1);
+          Array.set(array, 0, attributeValue);
+          attributeValue = array;
+        }
+      }
+      else {
+        // return type is not an array but target attr is an array, use first element
+        Class<?> valueClass = attributeValue.getClass();
+        if (valueClass.isArray()) {
+          Class<?> componentType = valueClass.getComponentType();
+          if (expectedType.isAssignableFrom(componentType)) {
+            attributeValue = Array.get(attributeValue, 0);
+          }
+          else if (componentType.isPrimitive()) {
+            attributeValue = Array.get(attributeValue, 0);
+            attributeValue = GeneratorSupport.convert(attributeValue);
+          }
+        }
+        else if (valueClass.isPrimitive()) {
+          attributeValue = GeneratorSupport.convert(attributeValue);
+        }
+      }
+    }
+
     if (!expectedType.isInstance(attributeValue)) {
       throw new IllegalArgumentException(
               format("Attribute '%s' is of type [%s], but [%s] was expected in attributes for annotation [%s]",
@@ -227,6 +245,14 @@ public class AnnotationAttributes
                      this.displayName)
       );
     }
+    return (T) attributeValue;
+  }
+
+  private Object getRealValue(Object target) {
+    if (target instanceof AnnotationValueHolder) {
+      target = ((AnnotationValueHolder) target).read();
+    }
+    return target;
   }
 
   /**

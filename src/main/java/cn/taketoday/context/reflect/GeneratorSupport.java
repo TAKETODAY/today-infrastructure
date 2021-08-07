@@ -33,6 +33,7 @@ import cn.taketoday.cglib.core.CodeGenerationException;
 import cn.taketoday.cglib.core.DefaultGeneratorStrategy;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.TypeUtils;
+import cn.taketoday.context.NestedRuntimeException;
 import cn.taketoday.context.factory.BeanInstantiationException;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
@@ -90,6 +91,10 @@ public abstract class GeneratorSupport<T extends Accessor> {
     else if (exception instanceof SecurityException) {
       return fallbackInstance();
     }
+    else if (exception instanceof NestedRuntimeException &&
+            ((NestedRuntimeException) exception).getRootCause() instanceof SecurityException) {
+      return fallbackInstance();
+    }
     throw new CodeGenerationException(exception);
   }
 
@@ -121,7 +126,8 @@ public abstract class GeneratorSupport<T extends Accessor> {
     try {
       return (Class<T>) classLoader.loadClass(getClassName());
     }
-    catch (ClassNotFoundException ignored) {}
+    catch (ClassNotFoundException ignored) {
+    }
     final byte[] bytes = DefaultGeneratorStrategy.INSTANCE.generate(getClassGenerator());
     return CglibReflectUtils.defineClass(
             getClassName(), bytes, classLoader, CglibReflectUtils.getProtectionDomain(targetClass));
@@ -271,4 +277,31 @@ public abstract class GeneratorSupport<T extends Accessor> {
     return value == null ? 0 : value;
   }
 
+  public static Object convert(Object value) {
+    if (value instanceof Long) {
+      return convert((Long) value);
+    }
+    else if (value instanceof Integer) {
+      return convert((Integer) value);
+    }
+    else if (value instanceof Short) {
+      return convert((Short) value);
+    }
+    else if (value instanceof Byte) {
+      return convert((Byte) value);
+    }
+    else if (value instanceof Float) {
+      return convert((Float) value);
+    }
+    else if (value instanceof Double) {
+      return (double)convert((Double) value);
+    }
+    else if (value instanceof Boolean) {
+      return convert((Boolean) value);
+    }
+    else if (value instanceof Character) {
+      return convert((Character) value);
+    }
+    return null;
+  }
 }

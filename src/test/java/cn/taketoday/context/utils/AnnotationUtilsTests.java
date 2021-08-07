@@ -22,6 +22,7 @@ package cn.taketoday.context.utils;
 
 import org.junit.Test;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -38,6 +39,7 @@ import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Service;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.support.AnnotationParser;
 import cn.taketoday.context.support.ClassMetaReader;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -314,7 +316,6 @@ public class AnnotationUtilsTests {
 
     AnnotationAttributes[] annotationAttributes = ClassMetaReader.readAnnotation(parameter);
 
-
     AnnotationAttributes attributes = annotationAttributes[0];
 
     //
@@ -325,7 +326,6 @@ public class AnnotationUtilsTests {
     Class<?>[] classes = attributes.getClassArray("classes"); // full value
     Class<?>[] classes1 = attributes.getClassArray("classes");
 
-
     assertThat(values).hasSize(1).contains("OnParameters-test1");
     assertThat(testEnum).isEqualTo(TestEnum.TEST);
     assertThat(clazz).isEqualTo(AnnotationVisitorBean.class);
@@ -335,5 +335,55 @@ public class AnnotationUtilsTests {
     assertThat(attributes.getNumber("double0").doubleValue()).isEqualTo(1001);
     assertThat(attributes.getStringArray("destroyMethods")).isEmpty();
     assertThat(attributes.getString("scope")).isEqualTo("singleton1");
+  }
+
+  static class OnMethod {
+
+    @Component0(
+            value = "OnMethod-test",
+            scope = "OnMethod",
+            test = TestEnum.TEST,
+            double0 = 1001,
+            classes = { OnMethod.class, OnFields.class },
+            service = @Service("name1")
+    )
+    void test() {
+
+    }
+
+  }
+
+  @Test
+  public void testReadAnnotation_AnnotationParser() throws Exception {
+    Method test = OnMethod.class.getDeclaredMethod("test");
+
+    AnnotationAttributes[] annotationAttributes = AnnotationParser.readAnnotations(test);
+    AnnotationAttributes attributes = annotationAttributes[0];
+
+    Component0 annotation = AnnotationParser.annotationForMap(Component0.class, attributes);
+
+    //
+    String[] values = attributes.getStringArray("value");
+    TestEnum testEnum = attributes.getEnum("test");
+
+    Class<?> clazz = attributes.getClass("classes"); // first value
+    Class<?>[] classes = attributes.getClassArray("classes"); // full value
+    Class<?>[] classes1 = attributes.getClassArray("classes");
+
+    assertThat(values).hasSize(1).contains("OnMethod-test");
+    assertThat(testEnum).isEqualTo(TestEnum.TEST);
+    assertThat(clazz).isEqualTo(OnMethod.class);
+    assertThat(classes).hasSize(2).isEqualTo(classes1);
+    assertThat(classes[0]).isEqualTo(OnMethod.class);
+    assertThat(classes[1]).isEqualTo(OnFields.class);
+    assertThat(attributes.getNumber("double0").doubleValue()).isEqualTo(1001);
+    assertThat(attributes.getStringArray("destroyMethods")).isEmpty();
+    assertThat(attributes.getString("scope")).isEqualTo("OnMethod");
+
+    assertThat(annotation.classes())
+            .isEqualTo(classes);
+    assertThat(annotation.double0()[0])
+            .isEqualTo(attributes.getNumber("double0").doubleValue());
+
   }
 }

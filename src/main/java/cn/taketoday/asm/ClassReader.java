@@ -198,7 +198,7 @@ public class ClassReader {
     int constantPoolCount = readUnsignedShort(classFileOffset + 8);
     int[] cpInfoOffsets = new int[constantPoolCount];
     this.cpInfoOffsets = cpInfoOffsets;
-    constantUtf8Values = new String[constantPoolCount];
+    this.constantUtf8Values = new String[constantPoolCount];
     // Compute the offset of each constant pool entry, as well as a conservative estimate of the
     // maximum length of the constant pool strings. The first constant pool entry is after the
     // magic, minor_version, major_version and constant_pool_count fields, which use 4, 2, 2 and 2
@@ -461,10 +461,9 @@ public class ClassReader {
     Context context = new Context();
     context.attributePrototypes = attributePrototypes;
     context.parsingOptions = parsingOptions;
-    context.charBuffer = new char[maxStringLength];
-
     // Read the access_flags, this_class, super_class, interface_count and interfaces fields.
-    char[] charBuffer = context.charBuffer;
+    char[] charBuffer = new char[maxStringLength];
+    context.charBuffer = charBuffer;
     int currentOffset = header;
     int accessFlags = readUnsignedShort(currentOffset);
     String thisClass = readClass(currentOffset + 2, charBuffer);

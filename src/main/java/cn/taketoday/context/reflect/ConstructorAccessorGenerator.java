@@ -96,7 +96,7 @@ public class ConstructorAccessorGenerator
   @Override
   protected ConstructorAccessor fallback(Exception exception) {
     LoggerFactory.getLogger(ConstructorAccessorGenerator.class)
-            .warn("Cannot access a Constructor: [{}]", targetConstructor, exception);
+            .warn("Cannot access a Constructor: [{}], using fallback instance", targetConstructor, exception);
     return super.fallback(exception);
   }
 
