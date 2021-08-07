@@ -215,9 +215,9 @@ public class AnnotationAttributes
         }
       }
       else {
-        // return type is not an array but target attr is an array, use first element
-        Class<?> valueClass = attributeValue.getClass();
-        if (valueClass.isArray()) {
+        // return type is not an array but target attr is an array
+        if (attributeValue.getClass().isArray()) {
+          // use first element
           attributeValue = Array.get(attributeValue, 0);
         }
       }

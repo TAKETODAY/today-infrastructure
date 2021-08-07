@@ -105,7 +105,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
    *         cannot create a {@link Accessor}
    * @see ClassUtils#newInstance(Constructor, Object[])
    */
-  protected T createInternal() throws Exception {
+  private T createInternal() throws Exception {
     if (cannotAccess()) {
       return fallbackInstance();
     }
