@@ -34,10 +34,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 import cn.taketoday.asm.AnnotationValueHolder;
-import cn.taketoday.cglib.proxy.Mixin;
-import cn.taketoday.context.reflect.GeneratorSupport;
 import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.NumberUtils;
 import cn.taketoday.context.utils.OrderUtils;
 
 import static java.lang.String.format;
@@ -221,17 +218,7 @@ public class AnnotationAttributes
         // return type is not an array but target attr is an array, use first element
         Class<?> valueClass = attributeValue.getClass();
         if (valueClass.isArray()) {
-          Class<?> componentType = valueClass.getComponentType();
-          if (expectedType.isAssignableFrom(componentType)) {
-            attributeValue = Array.get(attributeValue, 0);
-          }
-          else if (componentType.isPrimitive()) {
-            attributeValue = Array.get(attributeValue, 0);
-            attributeValue = GeneratorSupport.convert(attributeValue);
-          }
-        }
-        else if (valueClass.isPrimitive()) {
-          attributeValue = GeneratorSupport.convert(attributeValue);
+          attributeValue = Array.get(attributeValue, 0);
         }
       }
     }

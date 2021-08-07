@@ -277,31 +277,4 @@ public abstract class GeneratorSupport<T extends Accessor> {
     return value == null ? 0 : value;
   }
 
-  public static Object convert(Object value) {
-    if (value instanceof Long) {
-      return convert((Long) value);
-    }
-    else if (value instanceof Integer) {
-      return convert((Integer) value);
-    }
-    else if (value instanceof Short) {
-      return convert((Short) value);
-    }
-    else if (value instanceof Byte) {
-      return convert((Byte) value);
-    }
-    else if (value instanceof Float) {
-      return convert((Float) value);
-    }
-    else if (value instanceof Double) {
-      return (double)convert((Double) value);
-    }
-    else if (value instanceof Boolean) {
-      return convert((Boolean) value);
-    }
-    else if (value instanceof Character) {
-      return convert((Character) value);
-    }
-    return null;
-  }
 }
