@@ -59,45 +59,44 @@ public class AnnotationAttributes
   /** key - value */
   private final ArrayList<Object> values;//= new ArrayList<>();
 
-  private String displayName;
   private Class annotationType;
+  private String annotationName = UNKNOWN;
 
   private int size = 0;
 
   public AnnotationAttributes() {
     this(new ArrayList<>());
-    this.annotationType = null;
-    this.displayName = UNKNOWN;
   }
 
   public AnnotationAttributes(int initialCapacity) {
     this(new ArrayList<>(initialCapacity));
-    this.annotationType = null;
-    this.displayName = UNKNOWN;
   }
 
   public AnnotationAttributes(Class annotationType) {
     this(annotationType, 16);
   }
 
+  public AnnotationAttributes(String annotationName) {
+    this(16);
+    this.annotationName = annotationName;
+  }
+
   public AnnotationAttributes(Class annotationType, int initialCapacity) {
     this(new ArrayList<>(initialCapacity));
     Assert.notNull(annotationType, "'annotationType' must not be null");
     this.annotationType = annotationType;
-    this.displayName = annotationType.getName();
+    this.annotationName = annotationType.getName();
   }
 
   public AnnotationAttributes(Map<String, Object> map) {
     this(new ArrayList<>(map.size() * 2));
-    this.annotationType = null;
-    this.displayName = UNKNOWN;
     putAll(map);
   }
 
   public AnnotationAttributes(Map<String, Object> map, Class annotationType) {
     this(new ArrayList<>(map.size() * 2));
     this.annotationType = annotationType;
-    this.displayName = annotationType.getName();
+    this.annotationName = annotationType.getName();
     putAll(map);
   }
 
@@ -108,12 +107,18 @@ public class AnnotationAttributes
   public AnnotationAttributes(AnnotationAttributes other) {
     this.values = new ArrayList<>(other.values);
     this.annotationType = other.annotationType;
-    this.displayName = other.displayName;
+    this.annotationName = other.annotationName;
     this.size = other.size;
   }
 
   @SuppressWarnings("unchecked")
   public Class<? extends Annotation> annotationType() {
+    if (annotationType == null && !Objects.equals(annotationName, UNKNOWN)) {
+      try {
+        annotationType = Class.forName(annotationName);
+      }
+      catch (ClassNotFoundException ignored) { }
+    }
     return this.annotationType;
   }
 
@@ -200,7 +205,7 @@ public class AnnotationAttributes
       throw new NullPointerException(
               format("Attribute '%s' not found in attributes for annotation [%s]",
                      attributeName,
-                     this.displayName)
+                     this.annotationName)
       );
     }
 
@@ -229,7 +234,7 @@ public class AnnotationAttributes
                      attributeName,
                      attributeValue.getClass().getName(),
                      expectedType.getName(),
-                     this.displayName)
+                     this.annotationName)
       );
     }
     return (T) attributeValue;
@@ -321,16 +326,22 @@ public class AnnotationAttributes
   @Override
   public void putAll(Map<? extends String, ?> attributes) {
     ArrayList<Object> thisValues = this.values;
+    int addSize = 0;
     for (final Map.Entry<? extends String, ?> entry : attributes.entrySet()) {
       thisValues.add(entry.getKey());
       thisValues.add(entry.getValue());
+      addSize++;
     }
+    this.size += addSize;
   }
 
   /**
    * @since 4.0
    */
   public void putAll(AnnotationAttributes attributes) {
+    if (attributes.isEmpty()) {
+      return;
+    }
     ArrayList<Object> thisValues = this.values;
     ArrayList<Object> otherValues = new ArrayList<>(attributes.values);
     int thisSize = thisValues.size();
@@ -617,7 +628,7 @@ public class AnnotationAttributes
     if (object instanceof AnnotationAttributes) {
       final AnnotationAttributes other = (AnnotationAttributes) object;
       return Objects.equals(annotationType, other.annotationType)
-              && Objects.equals(displayName, other.displayName)
+              && Objects.equals(annotationName, other.annotationName)
               && Objects.equals(values, other.values);
     }
     return false;
