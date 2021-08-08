@@ -26,7 +26,8 @@ import cn.taketoday.web.session.WebSessionManagerSupport;
  * @author TODAY <br>
  * 2020-04-20 20:58
  */
-public abstract class WebSessionHandlerInterceptor extends WebSessionManagerSupport implements HandlerInterceptor {
+public abstract class WebSessionHandlerInterceptor
+        extends WebSessionManagerSupport implements HandlerInterceptor {
 
   public WebSessionHandlerInterceptor(WebSessionManager sessionManager) {
     super(sessionManager);

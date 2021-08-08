@@ -107,4 +107,45 @@ public class WebSessionManagerSupport {
     return null;
   }
 
+  /**
+   * Set the attribute defined by {@code name} to the supplied {@code value}. If
+   * {@code value} is {@code null}, the attribute is {@link #removeAttribute
+   * removed}.
+   * <p>
+   * In general, users should take care to prevent overlaps with other metadata
+   * attributes by using fully-qualified names, perhaps using class or package
+   * names as prefix.
+   *
+   * @param name
+   *         the unique attribute key
+   * @param attribute
+   *         the attribute value to be attached
+   *
+   * @since 4.0
+   */
+  public void setAttribute(RequestContext context, String name, Object attribute) {
+    final WebSession session = getSession(context, false);
+    if (session != null) {
+      session.setAttribute(name, attribute);
+    }
+  }
+
+  /**
+   * Remove the attribute identified by {@code name} and return its value. Return
+   * {@code null} if no attribute under {@code name} is found.
+   *
+   * @param name
+   *         the unique attribute key
+   *
+   * @return the last value of the attribute, if any
+   *
+   * @since 4.0
+   */
+  public Object removeAttribute(RequestContext context, String name) {
+    final WebSession session = getSession(context, false);
+    if (session != null) {
+      return session.removeAttribute(name);
+    }
+    return null;
+  }
 }
