@@ -22,8 +22,6 @@ package cn.taketoday.context.support;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InvalidObjectException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.AnnotationFormatError;
@@ -44,7 +42,6 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -61,7 +58,6 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.utils.AnnotationUtils;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
-import sun.reflect.annotation.AnnotationType;
 
 /**
  * @author TODAY 2021/8/1 18:00
@@ -307,6 +303,7 @@ public class ClassMetaReader {
       this.attributes = attributes;
     }
 
+    @Override
     public Object invoke(Object proxy, Method method, Object[] args) {
       String member = method.getName();
       Class<?>[] paramTypes = method.getParameterTypes();
@@ -677,74 +674,6 @@ public class ClassMetaReader {
       return Arrays.hashCode((Object[]) value);
     }
 
-    private void readObject(java.io.ObjectInputStream s)
-            throws java.io.IOException, ClassNotFoundException {
-      ObjectInputStream.GetField fields = s.readFields();
-
-      @SuppressWarnings("unchecked")
-      Class<? extends Annotation> t = (Class<? extends Annotation>) fields.get("type", null);
-      @SuppressWarnings("unchecked")
-      Map<String, Object> streamVals = (Map<String, Object>) fields.get("attributes", null);
-
-      // Check to make sure that types have not evolved incompatibly
-
-      AnnotationType annotationType = null;
-      try {
-        annotationType = AnnotationType.getInstance(t);
-      }
-      catch (IllegalArgumentException e) {
-        // Class is no longer an annotation type; time to punch out
-        throw new InvalidObjectException("Non-annotation type in annotation serial stream");
-      }
-
-      Map<String, Class<?>> memberTypes = annotationType.memberTypes();
-      // consistent with runtime Map type
-      Map<String, Object> mv = new LinkedHashMap<>();
-
-      // If there are annotation members without values, that
-      // situation is handled by the invoke method.
-      for (Map.Entry<String, Object> memberValue : streamVals.entrySet()) {
-        String name = memberValue.getKey();
-        Object value = null;
-        Class<?> memberType = memberTypes.get(name);
-        if (memberType != null) {  // i.e. member still exists
-          value = memberValue.getValue();
-        }
-        mv.put(name, value);
-      }
-
-      UnsafeAccessor.setType(this, t);
-      UnsafeAccessor.setMemberValues(this, mv);
-    }
-
-    private static class UnsafeAccessor {
-      private static final sun.misc.Unsafe unsafe;
-      private static final long typeOffset;
-      private static final long memberValuesOffset;
-
-      static {
-        try {
-          unsafe = sun.misc.Unsafe.getUnsafe();
-          typeOffset = unsafe.objectFieldOffset
-                  (AnnotationInvocationHandler.class.getDeclaredField("type"));
-          memberValuesOffset = unsafe.objectFieldOffset
-                  (AnnotationInvocationHandler.class.getDeclaredField("attributes"));
-        }
-        catch (Exception ex) {
-          throw new ExceptionInInitializerError(ex);
-        }
-      }
-
-      static void setType(AnnotationInvocationHandler o,
-                          Class<? extends Annotation> type) {
-        unsafe.putObject(o, typeOffset, type);
-      }
-
-      static void setMemberValues(AnnotationInvocationHandler o,
-                                  Map<String, Object> memberValues) {
-        unsafe.putObject(o, memberValuesOffset, memberValues);
-      }
-    }
   }
 
 }
