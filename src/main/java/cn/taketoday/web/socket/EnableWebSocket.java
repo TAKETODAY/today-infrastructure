@@ -53,7 +53,7 @@ public @interface EnableWebSocket {
 
 }
 
-class WebSocketConfig implements WebApplicationInitializer {
+final class WebSocketConfig implements WebApplicationInitializer {
 
   @MissingBean(type = AbstractWebSocketHandlerAdapter.class)
   AbstractWebSocketHandlerAdapter webSocketHandlerAdapter() {
@@ -83,7 +83,8 @@ class WebSocketConfig implements WebApplicationInitializer {
   }
 
   @MissingBean(type = AnnotationWebSocketHandlerBuilder.class)
-  AnnotationWebSocketHandlerBuilder annotationWebSocketHandlerBuilder(List<EndpointParameterResolver> resolvers) {
+  AnnotationWebSocketHandlerBuilder annotationWebSocketHandlerBuilder(
+          List<EndpointParameterResolver> resolvers) {
     final AnnotationWebSocketHandlerBuilder handlerBuilder;
     if (ClassUtils.isPresent("javax.websocket.Session")) {
       handlerBuilder = new StandardAnnotationWebSocketHandlerBuilder();
@@ -97,7 +98,8 @@ class WebSocketConfig implements WebApplicationInitializer {
   }
 
   @MissingBean
-  MessageBodyEndpointParameterResolver messageBodyEndpointParameterResolver(ObjectNotationProcessor notationProcessor) {
+  MessageBodyEndpointParameterResolver messageBodyEndpointParameterResolver(
+          ObjectNotationProcessor notationProcessor) {
     return new MessageBodyEndpointParameterResolver(notationProcessor);
   }
 
