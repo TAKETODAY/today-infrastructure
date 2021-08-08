@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.view;
 
-import cn.taketoday.web.exception.WebNestedRuntimeException;
+import cn.taketoday.web.WebNestedRuntimeException;
 
 /**
  * For Framework Configuration errors

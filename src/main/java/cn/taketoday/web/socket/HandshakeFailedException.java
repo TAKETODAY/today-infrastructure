@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.socket;
 
-import cn.taketoday.web.exception.WebNestedRuntimeException;
+import cn.taketoday.web.WebNestedRuntimeException;
 
 /**
  * @author TODAY 2021/4/5 23:05

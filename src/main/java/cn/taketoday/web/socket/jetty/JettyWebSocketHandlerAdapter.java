@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletContextAware;
-import cn.taketoday.web.exception.WebNestedRuntimeException;
+import cn.taketoday.web.WebNestedRuntimeException;
 import cn.taketoday.web.socket.AbstractWebSocketHandlerAdapter;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;

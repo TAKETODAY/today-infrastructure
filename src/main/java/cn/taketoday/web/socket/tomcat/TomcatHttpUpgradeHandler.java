@@ -47,7 +47,7 @@ import javax.websocket.server.ServerEndpointConfig;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.reflect.MethodInvoker;
-import cn.taketoday.web.exception.WebNestedRuntimeException;
+import cn.taketoday.web.WebNestedRuntimeException;
 
 /**
  * Servlet 3.1 HTTP upgrade handler for WebSocket connections.

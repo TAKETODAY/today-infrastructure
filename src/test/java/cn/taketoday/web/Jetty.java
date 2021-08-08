@@ -50,7 +50,7 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.exception.WebNestedRuntimeException;
+import cn.taketoday.framework.server.ServletWebServerApplicationLoader;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import cn.taketoday.web.servlet.WebServletApplicationLoader;
 import cn.taketoday.web.servlet.initializer.ServletContextInitializer;

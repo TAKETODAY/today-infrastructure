@@ -38,7 +38,7 @@ import cn.taketoday.context.utils.DefaultMultiValueMap;
 import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.web.MockMultipartFile;
 import cn.taketoday.web.MockRequestContext;
-import cn.taketoday.web.exception.WebNestedRuntimeException;
+import cn.taketoday.web.WebNestedRuntimeException;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.multipart.MultipartFile;
 import lombok.Data;

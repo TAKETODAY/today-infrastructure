@@ -30,9 +30,9 @@ import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.exception.BadRequestException;
 import cn.taketoday.web.handler.AbstractHandlerAdapter;
 import cn.taketoday.web.handler.HandlerAdapter;
+import cn.taketoday.web.http.BadRequestException;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpStatus;
 

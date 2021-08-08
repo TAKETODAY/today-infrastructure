@@ -36,8 +36,8 @@ import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.config.WebApplicationInitializer;
-import cn.taketoday.web.exception.HttpStatusCapable;
 import cn.taketoday.web.http.HttpStatus;
+import cn.taketoday.web.http.HttpStatusCapable;
 import cn.taketoday.web.utils.WebUtils;
 
 /**

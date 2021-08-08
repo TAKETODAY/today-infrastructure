@@ -21,8 +21,8 @@ package cn.taketoday.web.validation;
 
 import java.util.Set;
 
+import cn.taketoday.web.WebNestedRuntimeException;
 import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.exception.WebNestedRuntimeException;
 import cn.taketoday.web.http.HttpStatus;
 
 /**

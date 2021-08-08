@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.web.exception.WebNestedRuntimeException;
+import cn.taketoday.web.WebNestedRuntimeException;
 
 /**
  * Parameter read failed
