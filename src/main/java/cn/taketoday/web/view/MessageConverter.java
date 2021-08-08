@@ -26,7 +26,6 @@ import java.nio.charset.Charset;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.ui.JsonSequence;
 
 /**
  * @author TODAY <br>

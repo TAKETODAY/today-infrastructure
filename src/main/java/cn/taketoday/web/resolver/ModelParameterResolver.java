@@ -24,11 +24,11 @@ import java.util.Map;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.ui.Model;
-import cn.taketoday.web.ui.ModelAndView;
-import cn.taketoday.web.ui.RedirectModel;
-import cn.taketoday.web.ui.RedirectModelAttributes;
-import cn.taketoday.web.ui.RedirectModelManager;
+import cn.taketoday.web.view.Model;
+import cn.taketoday.web.view.ModelAndView;
+import cn.taketoday.web.view.RedirectModel;
+import cn.taketoday.web.view.RedirectModelAttributes;
+import cn.taketoday.web.view.RedirectModelManager;
 
 /**
  * Supports {@link Model}, {@link RedirectModel}, HTTP request headers,

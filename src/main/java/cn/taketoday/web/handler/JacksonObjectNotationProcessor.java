@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.ConfigurationException;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.GenericDescriptor;

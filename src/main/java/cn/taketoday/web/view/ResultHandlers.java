@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import cn.taketoday.context.env.Environment;
+import cn.taketoday.context.Environment;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.Constant;
@@ -31,7 +31,6 @@ import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.config.CompositeWebMvcConfiguration;
 import cn.taketoday.web.config.WebMvcConfiguration;
-import cn.taketoday.web.ui.RedirectModelManager;
 import cn.taketoday.web.view.template.AbstractTemplateViewResolver;
 import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
 import cn.taketoday.web.view.template.TemplateViewResolver;

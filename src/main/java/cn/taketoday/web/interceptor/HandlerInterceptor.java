@@ -20,40 +20,62 @@
 package cn.taketoday.web.interceptor;
 
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.handler.HandlerAdapter;
 
 /**
  * Handler process around Handler.
  *
- * @author TODAY <br>
- *         2018-06-25 20:06:11
+ * @author TODAY 2018-06-25 20:06:11
  */
-@FunctionalInterface
 public interface HandlerInterceptor {
+  Object NONE_RETURN_VALUE = HandlerAdapter.NONE_RETURN_VALUE;
 
   /**
    * Before Handler process.
    *
    * @param context
-   *            Current request Context
+   *         Current request Context
    * @param handler
-   *            Request handler
+   *         Request handler
+   *
    * @return If is it possible to execute the target handler
+   *
    * @throws Throwable
-   *             If any exception occurred
+   *         If any exception occurred
    */
-  boolean beforeProcess(RequestContext context, Object handler) throws Throwable;
+  default boolean beforeProcess(RequestContext context, Object handler) throws Throwable {
+    return true;
+  }
 
   /**
    * After Handler processed.
    *
    * @param context
-   *            Current request Context
+   *         Current request Context
    * @param handler
-   *            Request handler
+   *         Request handler
    * @param result
-   *            Handler returned value
+   *         Handler returned value
+   *
    * @throws Throwable
-   *             If any exception occurred
+   *         If any exception occurred
    */
-  default void afterProcess(RequestContext context, Object handler, Object result) throws Throwable {}
+  default void afterProcess(RequestContext context, Object handler, Object result) throws Throwable { }
+
+  /**
+   * handler's interceptor intercept entrance
+   *
+   * @return return value is target handler's result
+   *
+   * @since 4.0
+   */
+  default Object intercept(RequestContext context, Object handler, InterceptorChain chain) throws Throwable {
+    if (beforeProcess(context, handler)) {
+      Object result = chain.proceed(context, handler);
+      afterProcess(context, handler, result);
+      return result;
+    }
+    return NONE_RETURN_VALUE;
+  }
+
 }

@@ -27,10 +27,10 @@ import java.util.Properties;
 
 import javax.annotation.PostConstruct;
 
+import cn.taketoday.context.ConfigurationException;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.conversion.support.DefaultConversionService;
-import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ObjectUtils;

@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -15,31 +15,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.annotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import cn.taketoday.web.interceptor.HandlerInterceptor;
+package cn.taketoday.web.view;
 
 /**
  * @author TODAY <br>
- * 2018-11-17 21:23
+ *         2019-11-19 18:58
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.METHOD })
-public @interface Interceptor {
-
-  /** 配置拦截器 执行的先后顺序由拦截器的位置有关 */
-  Class<? extends HandlerInterceptor>[] value() default {};
+public interface JsonSequence {
 
   /**
-   * Exclude {@link HandlerInterceptor}
+   * Returns JSON object
    */
-  Class<? extends HandlerInterceptor>[] exclude() default {};
+  Object getJSON();
 
 }

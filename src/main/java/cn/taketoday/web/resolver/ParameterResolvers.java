@@ -43,8 +43,8 @@ import cn.taketoday.web.resolver.date.DateParameterResolver;
 import cn.taketoday.web.resolver.date.LocalDateParameterResolver;
 import cn.taketoday.web.resolver.date.LocalDateTimeParameterResolver;
 import cn.taketoday.web.resolver.date.LocalTimeParameterResolver;
-import cn.taketoday.web.ui.RedirectModelManager;
 import cn.taketoday.web.view.MessageConverter;
+import cn.taketoday.web.view.RedirectModelManager;
 
 import static cn.taketoday.context.utils.ContextUtils.resolveProps;
 import static cn.taketoday.web.resolver.ConverterParameterResolver.convert;

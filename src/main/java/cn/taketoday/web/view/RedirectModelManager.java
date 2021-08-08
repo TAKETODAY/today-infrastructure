@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -15,31 +15,38 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.annotation;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package cn.taketoday.web.view;
 
-import cn.taketoday.web.interceptor.HandlerInterceptor;
+import cn.taketoday.web.RequestContext;
 
 /**
- * @author TODAY <br>
- * 2018-11-17 21:23
+ * RedirectModel saving strategy
+ *
+ * @author TODAY 2021/4/2 21:52
+ * @since 3.0
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.METHOD })
-public @interface Interceptor {
-
-  /** 配置拦截器 执行的先后顺序由拦截器的位置有关 */
-  Class<? extends HandlerInterceptor>[] value() default {};
+public interface RedirectModelManager {
+  String KEY_REDIRECT_MODEL = RedirectModelManager.class.getName() + ".redirect-model";
 
   /**
-   * Exclude {@link HandlerInterceptor}
+   * Get RedirectModel if exist
+   *
+   * @param context
+   *         Current request context
    */
-  Class<? extends HandlerInterceptor>[] exclude() default {};
+  RedirectModel getModel(RequestContext context);
+
+  /**
+   * Set a {@link RedirectModel} to current request context
+   *
+   * @param context
+   *         current request context
+   * @param redirectModel
+   *         value
+   */
+  void applyModel(RequestContext context, RedirectModel redirectModel);
 
 }

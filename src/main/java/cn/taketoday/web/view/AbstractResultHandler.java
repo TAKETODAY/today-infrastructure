@@ -32,9 +32,6 @@ import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ui.ModelAndView;
-import cn.taketoday.web.ui.RedirectModel;
-import cn.taketoday.web.ui.RedirectModelManager;
 import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 

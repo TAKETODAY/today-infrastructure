@@ -26,7 +26,7 @@ import java.util.Map;
 
 import javax.servlet.ServletContext;
 
-import cn.taketoday.web.ui.Model;
+import cn.taketoday.web.view.Model;
 
 /**
  * @author TODAY 2021/4/15 21:01

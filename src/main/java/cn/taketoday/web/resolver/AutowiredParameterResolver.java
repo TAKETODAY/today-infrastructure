@@ -21,7 +21,7 @@
 package cn.taketoday.web.resolver;
 
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;

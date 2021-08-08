@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -15,31 +15,37 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.annotation;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package cn.taketoday.web.view;
 
-import cn.taketoday.web.interceptor.HandlerInterceptor;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import cn.taketoday.context.AttributeAccessorSupport;
 
 /**
- * @author TODAY <br>
- * 2018-11-17 21:23
+ * @author TODAY 2021/4/1 15:56
+ * @since 3.0
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.METHOD })
-public @interface Interceptor {
+public class ModelAttributes extends AttributeAccessorSupport implements Model, Serializable {
+  private static final long serialVersionUID = 1L;
 
-  /** 配置拦截器 执行的先后顺序由拦截器的位置有关 */
-  Class<? extends HandlerInterceptor>[] value() default {};
+  @Override
+  public boolean containsAttribute(String name) {
+    return super.hasAttribute(name);
+  }
 
-  /**
-   * Exclude {@link HandlerInterceptor}
-   */
-  Class<? extends HandlerInterceptor>[] exclude() default {};
+  @Override
+  public Map<String, Object> asMap() {
+    return getAttributes();
+  }
 
+  @Override
+  protected HashMap<String, Object> createAttributes() {
+    return new LinkedHashMap<>();
+  }
 }

@@ -279,8 +279,10 @@ public class HandlerMethod
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof HandlerMethod)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof HandlerMethod))
+      return false;
     final HandlerMethod that = (HandlerMethod) o;
     return Objects.equals(bean, that.bean)
             && Objects.equals(method, that.method)

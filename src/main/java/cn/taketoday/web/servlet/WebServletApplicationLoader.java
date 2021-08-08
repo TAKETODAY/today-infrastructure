@@ -43,7 +43,7 @@ import javax.servlet.annotation.WebListener;
 import javax.servlet.annotation.WebServlet;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.ConfigurationException;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.StringUtils;

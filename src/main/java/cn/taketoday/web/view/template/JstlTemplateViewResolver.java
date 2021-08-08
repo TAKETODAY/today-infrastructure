@@ -27,7 +27,7 @@ import javax.servlet.ServletRegistration;
 import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.http.HttpServletRequest;
 
-import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.ConfigurationException;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.web.RequestContext;

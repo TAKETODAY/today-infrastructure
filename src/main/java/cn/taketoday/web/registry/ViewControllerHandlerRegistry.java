@@ -32,7 +32,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import cn.taketoday.context.AntPathMatcher;
-import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.ConfigurationException;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
@@ -45,7 +45,7 @@ import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.ViewController;
 
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+import static cn.taketoday.context.ConfigurationException.nonNull;
 
 /**
  * @author TODAY <br>
@@ -317,10 +317,9 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
       resource = resolveVariables(resourceAppender.toString());
     }
     mapping.setResource(resource);
-    { // @since 2.3.3
-      if (StringUtils.isNotEmpty(contentType)) {
-        mapping.setContentType(contentType);
-      }
+    // @since 2.3.3
+    if (StringUtils.isNotEmpty(contentType)) {
+      mapping.setContentType(contentType);
     }
 
     name = resolveVariables(getContextPath().concat(StringUtils.checkUrl(name)));

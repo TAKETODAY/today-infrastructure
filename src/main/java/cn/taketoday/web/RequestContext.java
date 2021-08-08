@@ -48,10 +48,10 @@ import cn.taketoday.web.http.DefaultHttpHeaders;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.ui.Model;
-import cn.taketoday.web.ui.ModelAndView;
-import cn.taketoday.web.ui.ModelAttributes;
 import cn.taketoday.web.utils.WebUtils;
+import cn.taketoday.web.view.Model;
+import cn.taketoday.web.view.ModelAndView;
+import cn.taketoday.web.view.ModelAttributes;
 
 import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
 

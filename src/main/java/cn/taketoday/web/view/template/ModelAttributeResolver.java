@@ -23,7 +23,7 @@ package cn.taketoday.web.view.template;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionResolver;
-import cn.taketoday.web.ui.Model;
+import cn.taketoday.web.view.Model;
 
 /**
  * For the {@link Model} attribute

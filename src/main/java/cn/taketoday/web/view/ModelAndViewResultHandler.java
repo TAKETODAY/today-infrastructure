@@ -21,7 +21,6 @@ package cn.taketoday.web.view;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**

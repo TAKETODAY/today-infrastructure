@@ -39,7 +39,7 @@ import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resource.DefaultResourceResolver;
 import cn.taketoday.web.resource.WebResourceResolver;
 
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+import static cn.taketoday.context.ConfigurationException.nonNull;
 
 /**
  * @author TODAY <br>

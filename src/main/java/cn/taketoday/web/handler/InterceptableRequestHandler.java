@@ -24,13 +24,12 @@ import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.interceptor.HandlerInterceptorsCapable;
+import cn.taketoday.web.interceptor.InterceptorChain;
 
 import static cn.taketoday.context.utils.ObjectUtils.isEmpty;
 
@@ -39,12 +38,11 @@ import static cn.taketoday.context.utils.ObjectUtils.isEmpty;
  */
 public abstract class InterceptableRequestHandler
         extends OrderedSupport implements RequestHandler, HandlerInterceptorsCapable {
-  private static final Logger log = LoggerFactory.getLogger(InterceptableRequestHandler.class);
 
   /** interceptors array */
   private HandlerInterceptor[] interceptors;
 
-  public InterceptableRequestHandler() {}
+  public InterceptableRequestHandler() { }
 
   public InterceptableRequestHandler(HandlerInterceptor... interceptors) {
     setInterceptors(interceptors);
@@ -63,26 +61,12 @@ public abstract class InterceptableRequestHandler
    */
   @Override
   public Object handleRequest(final RequestContext context) throws Throwable {
-    final HandlerInterceptor[] interceptors = getInterceptors();
-    if (interceptors != null) {
-      // before
-      for (final HandlerInterceptor interceptor : interceptors) {
-        if (!interceptor.beforeProcess(context, this)) {
-          if (log.isDebugEnabled()) {
-            log.debug("Interceptor: [{}] return false", interceptor);
-          }
-          return HandlerAdapter.NONE_RETURN_VALUE;
-        }
-      }
-      // handle
-      final Object result = handleInternal(context);
-      // after
-      for (final HandlerInterceptor interceptor : interceptors) {
-        interceptor.afterProcess(context, this, result);
-      }
-      return result;
+    HandlerInterceptor[] interceptors = getInterceptors();
+    if (interceptors == null) {
+      return handleInternal(context);
     }
-    return handleInternal(context);
+    // @since 4.0
+    return new DefaultInterceptorChain(interceptors).proceed(context, this);
   }
 
   /**
@@ -151,6 +135,18 @@ public abstract class InterceptableRequestHandler
   @Override
   public HandlerInterceptor[] getInterceptors() {
     return interceptors;
+  }
+
+  private final class DefaultInterceptorChain extends InterceptorChain {
+
+    private DefaultInterceptorChain(HandlerInterceptor[] interceptors) {
+      super(interceptors);
+    }
+
+    @Override
+    protected Object proceedTarget(RequestContext context, Object handler) throws Throwable {
+      return handleInternal(context);
+    }
   }
 
 }

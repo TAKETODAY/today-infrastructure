@@ -36,8 +36,8 @@ import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.exception.HttpStatusCapable;
 import cn.taketoday.web.http.HttpStatus;
-import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.utils.WebUtils;
+import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.TemplateResultHandler;
 
 /**
