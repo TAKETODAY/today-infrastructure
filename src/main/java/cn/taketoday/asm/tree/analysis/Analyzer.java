@@ -526,7 +526,7 @@ public class Analyzer<V extends Value> implements Opcodes {
       frame.setLocal(currentLocal, interpreter.newEmptyValue(currentLocal));
       currentLocal++;
     }
-    frame.setReturn(interpreter.newReturnTypeValue(Type.fromReturnType(method.desc)));
+    frame.setReturn(interpreter.newReturnTypeValue(Type.forReturnType(method.desc)));
     return frame;
   }
 

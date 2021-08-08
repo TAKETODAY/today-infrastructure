@@ -28,7 +28,7 @@ import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.aware.OrderedApplicationContextSupport;
 import cn.taketoday.context.factory.DefaultPropertySetter;
-import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.AnnotationUtils;
 import cn.taketoday.context.utils.ContextUtils;
 
 /**
@@ -49,7 +49,7 @@ public class PropsPropertyResolver
 
   @Override
   public boolean supportsProperty(Field field) {
-    return ClassUtils.isAnnotationPresent(field, Props.class);
+    return AnnotationUtils.isPresent(field, Props.class);
   }
 
   /**
@@ -58,7 +58,7 @@ public class PropsPropertyResolver
   @Override
   public DefaultPropertySetter resolveProperty(Field field) {
 
-    Props props = ClassUtils.getAnnotation(Props.class, field);
+    Props props = AnnotationUtils.getAnnotation(Props.class, field);
 
     Properties properties =
             ContextUtils.loadProps(props, obtainApplicationContext().getEnvironment().getProperties());

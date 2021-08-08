@@ -44,6 +44,7 @@ import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.ObjectSupplier;
+import cn.taketoday.context.utils.AnnotationUtils;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
@@ -175,7 +176,7 @@ public class AspectAutoProxyCreator
     }
 
     // exist in bean factory ?
-    if (ClassUtils.isAnnotationPresent(interceptor, Component.class)) {
+    if (AnnotationUtils.isPresent(interceptor, Component.class)) {
       if (beanFactory instanceof BeanDefinitionRegistry) {
         final BeanDefinition interceptorDef = ((BeanDefinitionRegistry) beanFactory).getBeanDefinition(interceptor);
         if (interceptorDef != null) {
@@ -213,7 +214,7 @@ public class AspectAutoProxyCreator
   }
 
   private AnnotationAttributes[] getAdviceAttributes(AnnotatedElement annotated) {
-    return ClassUtils.getAnnotationAttributesArray(annotated, Advice.class);
+    return AnnotationUtils.getAttributesArray(annotated, Advice.class);
   }
 
 }

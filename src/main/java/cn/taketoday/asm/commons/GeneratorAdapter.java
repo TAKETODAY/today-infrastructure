@@ -209,7 +209,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     super(access, descriptor, methodVisitor);
     this.access = access;
     this.name = name;
-    this.returnType = Type.fromReturnType(descriptor);
+    this.returnType = Type.forReturnType(descriptor);
     this.argumentTypes = Type.getArgumentTypes(descriptor);
   }
 

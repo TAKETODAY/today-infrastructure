@@ -24,6 +24,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 
 import cn.taketoday.aop.ClassFilter;
+import cn.taketoday.context.utils.AnnotationUtils;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 
@@ -71,7 +72,7 @@ public class AnnotationClassFilter implements ClassFilter {
   @Override
   public boolean matches(Class<?> clazz) {
     return (this.checkInherited
-            ? ClassUtils.isAnnotationPresent(clazz, this.annotationType)
+            ? AnnotationUtils.isPresent(clazz, this.annotationType)
             : clazz.isAnnotationPresent(this.annotationType));
   }
 

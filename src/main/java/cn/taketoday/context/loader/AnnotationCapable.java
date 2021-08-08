@@ -24,6 +24,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 
 import cn.taketoday.context.ConfigurationException;
+import cn.taketoday.context.utils.AnnotationUtils;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.GenericTypeResolver;
@@ -46,7 +47,7 @@ public interface AnnotationCapable<A extends Annotation> {
 
     Class<A> generic = GenericTypeResolver.resolveTypeArgument(getClass(), AnnotationCapable.class);
     if (generic != null) {
-      return ClassUtils.getAnnotation(generic, annotated);
+      return AnnotationUtils.getAnnotation(generic, annotated);
     }
     throw new ConfigurationException("Cannot get target annotation on " + annotated);
   }

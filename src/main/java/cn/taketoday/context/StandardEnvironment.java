@@ -36,6 +36,7 @@ import cn.taketoday.context.io.ResourceFilter;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.expression.ExpressionProcessor;
@@ -173,7 +174,9 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
   @Override
   public void loadProperties(String propertiesLocation) throws IOException {
-    loadProperties(ResourceUtils.getResource(Objects.requireNonNull(propertiesLocation, "Properties dir can't be null")));
+    Assert.notNull(propertiesLocation, "Properties dir can't be null");
+    Resource resource = ResourceUtils.getResource(propertiesLocation);
+    loadProperties(resource);
   }
 
   /**

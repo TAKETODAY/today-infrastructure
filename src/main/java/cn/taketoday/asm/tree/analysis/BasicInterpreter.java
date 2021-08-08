@@ -347,10 +347,10 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
       return newValue(Type.fromDescriptor(((MultiANewArrayInsnNode) insn).desc));
     }
     else if (opcode == INVOKEDYNAMIC) {
-      return newValue(Type.fromReturnType(((InvokeDynamicInsnNode) insn).desc));
+      return newValue(Type.forReturnType(((InvokeDynamicInsnNode) insn).desc));
     }
     else {
-      return newValue(Type.fromReturnType(((MethodInsnNode) insn).desc));
+      return newValue(Type.forReturnType(((MethodInsnNode) insn).desc));
     }
   }
 

@@ -146,7 +146,7 @@ public abstract class Remapper {
     for (Type argumentType : Type.getArgumentTypes(methodDescriptor)) {
       stringBuilder.append(mapType(argumentType).getDescriptor());
     }
-    Type returnType = Type.fromReturnType(methodDescriptor);
+    Type returnType = Type.forReturnType(methodDescriptor);
     if (returnType == Type.VOID_TYPE) {
       stringBuilder.append(")V");
     }

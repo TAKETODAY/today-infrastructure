@@ -30,7 +30,7 @@ import cn.taketoday.context.annotation.Required;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.AnnotationUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.StringUtils;
 
@@ -77,7 +77,7 @@ public class AutowiredParameterResolver
   // @since 3.0 Required
   static boolean isRequired(AnnotatedElement element, Autowired autowired) {
     return (autowired == null || autowired.required())
-            || ClassUtils.isAnnotationPresent(element, Required.class);
+            || AnnotationUtils.isPresent(element, Required.class);
   }
 
   protected Object resolveBean(final String name, final Class<?> type, final BeanFactory beanFactory) {

@@ -37,8 +37,6 @@ import cn.taketoday.asm.AnnotationValueHolder;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.OrderUtils;
 
-import static java.lang.String.format;
-
 /**
  * single or multi - value map
  *
@@ -122,6 +120,10 @@ public class AnnotationAttributes
     return this.annotationType;
   }
 
+  public String annotationName() {
+    return annotationName;
+  }
+
   // Get
   // ---------------------------------------
 
@@ -183,32 +185,39 @@ public class AnnotationAttributes
       final List<T> list = (List<T>) attributeValue;
       if (expectedType.isArray()) {
         // target return type is array
-        final Object[] array = (Object[]) Array.newInstance(expectedType.getComponentType(), list.size());
+        Class<?> expectedComponentType = expectedType.getComponentType();
+        final Object[] array = (Object[]) Array.newInstance(expectedComponentType, list.size());
         int i = 0;
         for (final Object target : list) {
-          array[i++] = getRealValue(target);
+          Object realValue = getRealValue(target);
+          if (expectedComponentType.isInstance(realValue)) {
+            array[i++] = realValue;
+          }
+          else {
+            return null;
+          }
         }
         put(attributeName, array); // replace
         return (T) array;
       }
-      else {
+      else if (!expectedType.isInstance(attributeValue)) {
         // single value
         final T ret = (T) getRealValue(list.get(0));
-        list.set(0, ret);
-        return ret;
+        if (expectedType.isInstance(ret)) {
+          list.set(0, ret);
+          return ret;
+        }
+        // not a target value
+        return null;
       }
+    }
+
+    if (attributeValue == null) {
+      return null;
     }
 
     // @since 4.0
     attributeValue = getRealValue(attributeValue);
-    if (attributeValue == null) {
-      throw new NullPointerException(
-              format("Attribute '%s' not found in attributes for annotation [%s]",
-                     attributeName,
-                     this.annotationName)
-      );
-    }
-
     if (!expectedType.isInstance(attributeValue)) {
       // is not a target instance
       if (expectedType.isArray()) {
@@ -226,16 +235,6 @@ public class AnnotationAttributes
           attributeValue = Array.get(attributeValue, 0);
         }
       }
-    }
-
-    if (!expectedType.isInstance(attributeValue)) {
-      throw new IllegalArgumentException(
-              format("Attribute '%s' is of type [%s], but [%s] was expected in attributes for annotation [%s]",
-                     attributeName,
-                     attributeValue.getClass().getName(),
-                     expectedType.getName(),
-                     this.annotationName)
-      );
     }
     return (T) attributeValue;
   }
@@ -585,7 +584,7 @@ public class AnnotationAttributes
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("{");
+    StringBuilder sb = new StringBuilder(annotationName + " {");
     ArrayList<Object> values = this.values;
     int size = values.size();
     for (int i = 0; i < size; i++) {

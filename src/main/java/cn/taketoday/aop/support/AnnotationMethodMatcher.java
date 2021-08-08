@@ -25,6 +25,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
+import cn.taketoday.context.utils.AnnotationUtils;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 
@@ -88,7 +89,7 @@ public class AnnotationMethodMatcher extends StaticMethodMatcher {
 
   private boolean matchesMethod(Method method) {
     return (this.checkInherited
-            ? ClassUtils.isAnnotationPresent(method, this.annotationType)
+            ? AnnotationUtils.isPresent(method, this.annotationType)
             : method.isAnnotationPresent(this.annotationType));
   }
 

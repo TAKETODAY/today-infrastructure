@@ -66,6 +66,7 @@ import cn.taketoday.context.loader.StrategiesDetector;
 import cn.taketoday.context.loader.ValuePropertyResolver;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.AnnotationUtils;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
@@ -76,8 +77,8 @@ import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 import static cn.taketoday.context.Constant.VALUE;
-import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributes;
-import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
+import static cn.taketoday.context.utils.AnnotationUtils.getAttributes;
+import static cn.taketoday.context.utils.AnnotationUtils.getAttributesArray;
 import static cn.taketoday.context.utils.ContextUtils.findNames;
 import static cn.taketoday.context.utils.ContextUtils.resolveInitMethod;
 import static cn.taketoday.context.utils.ContextUtils.resolveProps;
@@ -184,10 +185,10 @@ public class StandardBeanFactory
     final BeanNameCreator beanNameCreator = getBeanNameCreator();
 
     for (final Method method : ReflectionUtils.getDeclaredMethods(declaringDef.getBeanClass())) {
-      final AnnotationAttributes[] components = getAnnotationAttributesArray(method, Component.class);
+      final AnnotationAttributes[] components = getAttributesArray(method, Component.class);
       if (ObjectUtils.isEmpty(components)) {
         // detect missed bean
-        final AnnotationAttributes attributes = getAnnotationAttributes(MissingBean.class, method);
+        final AnnotationAttributes attributes = AnnotationUtils.getAttributes(MissingBean.class, method);
         if (isMissedBean(attributes, method, context)) {
           // register directly @since 3.0
           final Class<?> beanClass = method.getReturnType();
@@ -276,7 +277,7 @@ public class StandardBeanFactory
     context.publishEvent(new LoadingMissingBeanEvent(context, candidates));
 
     for (final Class<?> beanClass : candidates) {
-      final AnnotationAttributes attributes = getAnnotationAttributes(MissingBean.class, beanClass);
+      final AnnotationAttributes attributes = AnnotationUtils.getAttributes(MissingBean.class, beanClass);
       if (isMissedBean(attributes, beanClass, context)) {
         String beanName = attributes.getString(VALUE);
         if (StringUtils.isEmpty(beanName)) {
@@ -368,7 +369,7 @@ public class StandardBeanFactory
 
     final BeanNameCreator beanNameCreator = getBeanNameCreator();
     for (final Class<?> beanClass : beans) {
-      final AnnotationAttributes missingBean = getAnnotationAttributes(MissingBean.class, beanClass);
+      final AnnotationAttributes missingBean = AnnotationUtils.getAttributes(MissingBean.class, beanClass);
       if (missingBean != null) {
         if (isMissedBean(missingBean, beanClass, context)) {
           // MissingBean in 'META-INF/beans' @since 3.0
@@ -422,7 +423,7 @@ public class StandardBeanFactory
   @Override
   public void importAnnotated(final BeanDefinition annotated) {
 
-    for (final AnnotationAttributes attr : getAnnotationAttributesArray(annotated, Import.class)) {
+    for (final AnnotationAttributes attr : getAttributesArray(annotated, Import.class)) {
       for (final Class<?> importClass : attr.getAttribute(VALUE, Class[].class)) {
         if (!containsBeanDefinition(importClass, true)) {
           doImport(annotated, importClass);
@@ -568,7 +569,7 @@ public class StandardBeanFactory
     if (ignoreAnnotation) {
       return Collections.singletonList(getRegistered(name, beanClass, null));
     }
-    final AnnotationAttributes[] annotationAttributes = getAnnotationAttributesArray(beanClass, Component.class);
+    final AnnotationAttributes[] annotationAttributes = getAttributesArray(beanClass, Component.class);
     if (ObjectUtils.isEmpty(annotationAttributes)) {
       return Collections.singletonList(getRegistered(name, beanClass, null));
     }
@@ -592,7 +593,7 @@ public class StandardBeanFactory
   }
 
   private void doRegister(Class<?> candidate, Consumer<BeanDefinition> registeredConsumer) {
-    final AnnotationAttributes[] annotationAttributes = getAnnotationAttributesArray(candidate, Component.class);
+    final AnnotationAttributes[] annotationAttributes = getAttributesArray(candidate, Component.class);
     if (ObjectUtils.isNotEmpty(annotationAttributes)) {
       final String defaultBeanName = getBeanNameCreator().create(candidate);
       for (final AnnotationAttributes attributes : annotationAttributes) {
@@ -740,7 +741,7 @@ public class StandardBeanFactory
   protected void componentScan(final AnnotatedElement source) {
     if (!componentScanned.contains(source)) {
       componentScanned.add(source);
-      for (final AnnotationAttributes attribute : getAnnotationAttributesArray(source, ComponentScan.class)) {
+      for (final AnnotationAttributes attribute : getAttributesArray(source, ComponentScan.class)) {
         load(attribute.getStringArray(VALUE));
       }
     }
@@ -773,7 +774,7 @@ public class StandardBeanFactory
   public BeanDefinition createBeanDefinition(final Class<?> beanClass) {
     return createBeanDefinition(getBeanNameCreator().create(beanClass),
                                 beanClass,
-                                getAnnotationAttributes(Component.class, beanClass));
+                                AnnotationUtils.getAttributes(Component.class, beanClass));
   }
 
   @Override

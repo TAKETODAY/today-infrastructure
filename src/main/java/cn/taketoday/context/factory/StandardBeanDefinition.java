@@ -35,8 +35,8 @@ import cn.taketoday.context.reflect.BeanConstructor;
 import cn.taketoday.context.reflect.MethodAccessorBeanConstructor;
 import cn.taketoday.context.reflect.MethodInvoker;
 import cn.taketoday.context.reflect.StaticMethodAccessorBeanConstructor;
+import cn.taketoday.context.utils.AnnotationUtils;
 import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 
@@ -162,12 +162,12 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
 
   @Override
   public boolean isAnnotationPresent(Class<? extends Annotation> annotation) {
-    return ClassUtils.isAnnotationPresent(getFactoryMethod(), annotation) || super.isAnnotationPresent(annotation);
+    return AnnotationUtils.isPresent(getFactoryMethod(), annotation) || super.isAnnotationPresent(annotation);
   }
 
   @Override
   public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-    final T ret = ClassUtils.getAnnotation(annotationClass, getFactoryMethod());
+    final T ret = AnnotationUtils.getAnnotation(annotationClass, getFactoryMethod());
     if (ret == null) {
       return super.getAnnotation(annotationClass);
     }

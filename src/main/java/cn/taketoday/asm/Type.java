@@ -408,7 +408,7 @@ public final class Type {
    * @return the return type of methods of this type.
    */
   public Type getReturnType() {
-    return fromReturnType(getDescriptor());
+    return forReturnType(getDescriptor());
   }
 
   /**
@@ -419,7 +419,7 @@ public final class Type {
    *
    * @return the {@link Type} corresponding to the return type of the given method descriptor.
    */
-  public static Type fromReturnType(final String methodDescriptor) {
+  public static Type forReturnType(final String methodDescriptor) {
     return getTypeInternal(
             methodDescriptor, getReturnTypeOffset(methodDescriptor), methodDescriptor.length());
   }
@@ -432,7 +432,7 @@ public final class Type {
    *
    * @return the {@link Type} corresponding to the return type of the given method.
    */
-  public static Type fromReturnType(final Method method) {
+  public static Type forReturnType(final Method method) {
     return fromClass(method.getReturnType());
   }
 

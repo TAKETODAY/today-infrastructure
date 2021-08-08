@@ -483,7 +483,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
           break;
       }
 
-      Type returnType = Type.fromReturnType(descriptor);
+      Type returnType = Type.forReturnType(descriptor);
       if (returnType != Type.VOID_TYPE) {
         pushValue(OTHER);
         if (returnType.getSize() == 2) {

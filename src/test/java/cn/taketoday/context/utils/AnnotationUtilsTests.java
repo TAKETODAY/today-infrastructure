@@ -36,10 +36,10 @@ import cn.taketoday.asm.tree.ClassNode;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Service;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.support.ClassMetaReader;
-import sun.reflect.annotation.AnnotationParser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -161,7 +161,7 @@ public class AnnotationUtilsTests {
   public void testReadAnnotation_onConstructors() throws Exception {
     // null
     Constructor<AnnotationVisitorBean> declaredConstructor = AnnotationVisitorBean.class.getDeclaredConstructor();
-    AnnotationAttributes[] annotationAttributes = ClassMetaReader.readAnnotation(declaredConstructor);
+    AnnotationAttributes[] annotationAttributes = ClassMetaReader.readAnnotations(declaredConstructor);
 
     Arrays.stream(annotationAttributes)
             .forEach(System.out::println);
@@ -191,7 +191,7 @@ public class AnnotationUtilsTests {
     assertThat(attributes.getString("scope")).isEqualTo("singleton");
 
     // read new one
-    annotationAttributes = ClassMetaReader.readAnnotation(declaredConstructor1);
+    annotationAttributes = ClassMetaReader.readAnnotations(declaredConstructor1);
     attributes = annotationAttributes[0];
 
     values = attributes.getStringArray("value");
@@ -245,7 +245,7 @@ public class AnnotationUtilsTests {
 
     Field test1 = OnFields.class.getDeclaredField("test1");
 
-    AnnotationAttributes[] annotationAttributes = ClassMetaReader.readAnnotation(test);
+    AnnotationAttributes[] annotationAttributes = ClassMetaReader.readAnnotations(test);
 
     AnnotationAttributes attributes = annotationAttributes[0];
 
@@ -270,7 +270,7 @@ public class AnnotationUtilsTests {
     assertThat(attributes.getString("scope")).isEqualTo("singleton2");
 
     // read new one
-    annotationAttributes = ClassMetaReader.readAnnotation(test1);
+    annotationAttributes = ClassMetaReader.readAnnotations(test1);
     attributes = annotationAttributes[0];
 
     values = attributes.getStringArray("value");
@@ -313,7 +313,7 @@ public class AnnotationUtilsTests {
     Parameter[] parameters = test.getParameters();
     Parameter parameter = parameters[0];
 
-    AnnotationAttributes[] annotationAttributes = ClassMetaReader.readAnnotation(parameter);
+    AnnotationAttributes[] annotationAttributes = ClassMetaReader.readAnnotations(parameter);
 
     AnnotationAttributes attributes = annotationAttributes[0];
 
@@ -351,4 +351,14 @@ public class AnnotationUtilsTests {
     }
 
   }
+
+  @Test
+  public void testIsAnnotationPresent() {
+
+    assert AnnotationUtils.isPresent(ClassUtilsTest.AutowiredOnConstructor.class, Singleton.class);
+    assert AnnotationUtils.isPresent(ClassUtilsTest.AutowiredOnConstructor.class, ClassUtilsTest.MySingleton.class);
+
+    assert ClassUtils.loadClass("") == null;
+  }
+
 }

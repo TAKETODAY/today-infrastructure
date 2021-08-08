@@ -19,13 +19,16 @@
  */
 package cn.taketoday.context;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
+import java.io.IOException;
+
+import cn.taketoday.context.annotation.Conditional;
+import cn.taketoday.context.annotation.Profile;
+import cn.taketoday.context.annotation.Prototype;
+import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.annotation.condition.WindowsCondition;
 import test.demo.config.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,47 +36,64 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Today <br>
  *
- *         2018-11-15 19:59
+ * 2018-11-15 19:59
  */
 public class ProfileTest {
 
-    private long start;
+  static class ProfileTestConfig {
 
-    @Before
-    public void start() {
-        start = System.currentTimeMillis();
+    @Profile("test")
+    @Prototype("user")
+    public User testUser() {
+      return new User().setUserName("TEST");
     }
 
-    @After
-    public void end() {
-        System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
+    @Profile("prod")
+    @Singleton("user")
+    public User prodUser() {
+      return new User().setUserName("PROD");
     }
 
-    @Test
-    public void testProfile() {
-
-        try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.demo.config")) {
-
-            User user = applicationContext.getBean("user", User.class);
-            System.out.println(user);
-            assert "TEST".equals(user.getUserName());
-        }
+    @Singleton("yhj")
+    @Profile("!test")
+    public User yhj() {
+      return new User().setUserName("yhj");
     }
 
-    @Test
-    public void testConditional() {
-
-        try (ApplicationContext context = new StandardApplicationContext("", "test.demo.config")) {
-            User yhj = context.getBean("yhj", User.class);
-            Assert.assertNull(yhj);
-
-            String system = context.getEnvironment().getProperty("os.name");
-            if (system != null && system.contains("Windows")) {
-                User user = context.getBean("user_windows", User.class);
-                assert "Windows".equals(user.getUserName());
-            }
-            assertThat(context.getEnvironment().getActiveProfiles()).hasSize(2);
-        }
+    @Singleton("user_windows")
+    @Conditional(WindowsCondition.class)
+    public User windowsUser() {
+      return new User().setUserName("Windows");
     }
+  }
+
+  @Test
+  public void testProfile() throws IOException {
+    try (StandardApplicationContext context = new StandardApplicationContext("info.properties")) {
+      ConfigurableEnvironment environment = context.getEnvironment();
+      environment.loadProperties();// 刷新 profiles
+      context.importBeans(ProfileTestConfig.class);
+
+      User user = context.getBean("user", User.class);
+      System.out.println(user);
+      assert "TEST".equals(user.getUserName());
+    }
+  }
+
+  @Test
+  public void testConditional() {
+
+    try (ApplicationContext context = new StandardApplicationContext("info.properties", "test.demo.config")) {
+      User yhj = context.getBean("yhj", User.class);
+      Assert.assertNull(yhj);
+
+      String system = context.getEnvironment().getProperty("os.name");
+      if (system != null && system.contains("Windows")) {
+        User user = context.getBean("user_windows", User.class);
+        assert "Windows".equals(user.getUserName());
+      }
+      assertThat(context.getEnvironment().getActiveProfiles()).hasSize(2);
+    }
+  }
 
 }

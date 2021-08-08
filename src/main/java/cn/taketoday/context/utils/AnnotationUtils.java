@@ -22,11 +22,14 @@ package cn.taketoday.context.utils;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Repeatable;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -44,22 +47,32 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.EmptyObject;
 import cn.taketoday.context.factory.BeanMetadata;
 import cn.taketoday.context.factory.BeanProperty;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.support.AnnotationDescriptor;
+import cn.taketoday.context.support.ClassMetaReader;
 
 /**
  * @author TODAY 2021/7/28 21:15
  * @since 4.0
  */
 public abstract class AnnotationUtils {
-  private static final Logger log = LoggerFactory.getLogger(AnnotationUtils.class);
-
   /** @since 2.1.1 */
   static final HashSet<Class<? extends Annotation>> IGNORE_ANNOTATION_CLASS = new HashSet<>();
 
   static final WeakHashMap<AnnotationKey<?>, Object> ANNOTATIONS = new WeakHashMap<>(128);
-  static final ConcurrentCache<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = ConcurrentCache.create(64);
   static final WeakHashMap<AnnotationKey<?>, AnnotationAttributes[]> ANNOTATION_ATTRIBUTES = new WeakHashMap<>(128);
+
+  static {
+    // Add ignore annotation
+    addIgnoreAnnotationClass(Target.class);
+    addIgnoreAnnotationClass(Inherited.class);
+    addIgnoreAnnotationClass(Retention.class);
+    addIgnoreAnnotationClass(Repeatable.class);
+    addIgnoreAnnotationClass(Documented.class);
+  }
+
+  public static void addIgnoreAnnotationClass(Class<? extends Annotation> annotationClass) {
+    IGNORE_ANNOTATION_CLASS.add(annotationClass);
+  }
 
   /**
    * Get the array of {@link Annotation} instance
@@ -87,7 +100,7 @@ public abstract class AnnotationUtils {
     final AnnotationKey<T> key = new AnnotationKey<>(element, annotationClass);
     Object ret = ANNOTATIONS.get(key);
     if (ret == null) {
-      final AnnotationAttributes[] annAttributes = getAnnotationAttributesArray(key);
+      final AnnotationAttributes[] annAttributes = getAttributesArray(key);
       if (ObjectUtils.isEmpty(annAttributes)) {
         ret = EmptyObject.INSTANCE;
       }
@@ -127,7 +140,7 @@ public abstract class AnnotationUtils {
     final AnnotationKey<T> key = new AnnotationKey<>(element, targetClass);
     Object ret = ANNOTATIONS.get(key);
     if (ret == null) {
-      final AnnotationAttributes[] annAttributes = getAnnotationAttributesArray(key);
+      final AnnotationAttributes[] annAttributes = getAttributesArray(key);
       if (ObjectUtils.isEmpty(annAttributes)) {
         ret = EmptyObject.INSTANCE;
       }
@@ -208,8 +221,8 @@ public abstract class AnnotationUtils {
    *
    * @since 2.1.1
    */
-  public static AnnotationAttributes getAnnotationAttributes(final Annotation annotation) {
-    return getAnnotationAttributes(annotation.annotationType(), annotation);
+  public static AnnotationAttributes getAttributes(final Annotation annotation) {
+    return getAttributes(annotation.annotationType(), annotation);
   }
 
   /**
@@ -224,7 +237,7 @@ public abstract class AnnotationUtils {
    *
    * @since 2.1.7
    */
-  public static AnnotationAttributes getAnnotationAttributes(
+  public static AnnotationAttributes getAttributes(
           final Class<? extends Annotation> annotationType, final Object annotation
   ) {
     try {
@@ -313,9 +326,8 @@ public abstract class AnnotationUtils {
    *
    * @since 2.1.7
    */
-  public static <T extends Annotation> T getAnnotation(final Class<T> annotationClass,
-                                                       final AnnotatedElement annotatedElement) {
-
+  public static <T extends Annotation> T getAnnotation(
+          final Class<T> annotationClass, final AnnotatedElement annotatedElement) {
     final T[] annotationArray = getAnnotationArray(annotatedElement, annotationClass);
     return ObjectUtils.isEmpty(annotationArray) ? null : annotationArray[0];
   }
@@ -329,63 +341,12 @@ public abstract class AnnotationUtils {
    *         The annotation attributes key-value
    *
    * @return the target {@link Annotation} instance
-   * @off
+   *
    * @since 2.1.1
    */
   public static <T extends Annotation> T getAnnotationProxy(
-          final Class<T> annotationClass, final AnnotationAttributes attributes
-  ) {
-    return annotationClass.cast(
-            Proxy.newProxyInstance(ClassUtils.getClassLoader(), new Class[] { annotationClass, Annotation.class },
-                                   (Object proxy, Method method, Object[] args) -> {
-                                     // The switch statement compares the String object in its expression with the expressions
-                                     // associated with each case label as if it were using the String.equals method;
-                                     // consequently, the comparison of String objects in switch statements is case sensitive.
-                                     // The Java compiler generates generally more efficient bytecode from switch statements
-                                     // that use String objects than from chained if-then-else statements.
-                                     switch (method.getName())
-                                     {
-                                       case Constant.EQUALS : 			return eq(proxy, attributes, args[0]);
-                                       case Constant.HASH_CODE :		return attributes.hashCode();
-                                       case Constant.TO_STRING :		return attributes.toString();
-                                       case Constant.ANNOTATION_TYPE :	return annotationClass;
-                                       default :                    return attributes.get(method.getName());
-                                     }
-                                   }//
-            ));
-  }
-  //@on
-
-  /**
-   * Equals
-   *
-   * @param attributes
-   *         key-value attributes
-   *
-   * @since 2.1.1
-   */
-  private static Object eq(final Object proxy, final AnnotationAttributes attributes, final Object object)//
-          throws IllegalAccessException, InvocationTargetException //
-  {
-    if (proxy == object) {
-      return true;
-    }
-    final Class<?> targetClass = proxy.getClass();
-    if (targetClass.isInstance(object)) {
-      for (Map.Entry<String, Object> entry : attributes.entrySet()) {
-        final String key = entry.getKey(); // method name
-        final Method method = ReflectionUtils.findMethod(targetClass, key);
-        if (method == null) {
-          return false;
-        }
-        if (method.getReturnType() == void.class //
-                || !Objects.deepEquals(method.invoke(object), entry.getValue())) {
-          return false;
-        }
-      }
-      return true;
-    }
-    return false;
+          final Class<T> annotationClass, final AnnotationAttributes attributes) {
+    return ClassMetaReader.getAnnotation(annotationClass, attributes);
   }
 
   /**
@@ -400,10 +361,10 @@ public abstract class AnnotationUtils {
    *
    * @since 2.1.1
    */
-  public static <T extends Annotation> List<AnnotationAttributes> getAnnotationAttributes(
+  public static <T extends Annotation> List<AnnotationAttributes> getAttributes(
           final AnnotatedElement element, final Class<T> annotationClass
   ) {
-    return Arrays.asList(getAnnotationAttributesArray(element, annotationClass));
+    return Arrays.asList(getAttributesArray(element, annotationClass));
   }
 
   /**
@@ -418,10 +379,10 @@ public abstract class AnnotationUtils {
    *
    * @since 2.1.7
    */
-  public static <T extends Annotation> AnnotationAttributes getAnnotationAttributes(
+  public static <T extends Annotation> AnnotationAttributes getAttributes(
           final Class<T> annotationClass, final AnnotatedElement element
   ) {
-    final AnnotationAttributes[] array = getAnnotationAttributesArray(element, annotationClass);
+    final AnnotationAttributes[] array = getAttributesArray(element, annotationClass);
     return ObjectUtils.isEmpty(array) ? null : array[0];
   }
 
@@ -437,13 +398,13 @@ public abstract class AnnotationUtils {
    *
    * @since 2.1.1
    */
-  public static <T extends Annotation> AnnotationAttributes[] getAnnotationAttributesArray(
+  public static <T extends Annotation> AnnotationAttributes[] getAttributesArray(
           final AnnotatedElement element, final Class<T> targetClass
   ) {
     if (targetClass == null) {
       return Constant.EMPTY_ANNOTATION_ATTRIBUTES;
     }
-    return getAnnotationAttributesArray(new AnnotationKey<>(element, targetClass));
+    return getAttributesArray(new AnnotationKey<>(element, targetClass));
   }
 
   /**
@@ -453,20 +414,20 @@ public abstract class AnnotationUtils {
    *
    * @since 2.1.7
    */
-  public static <T extends Annotation> AnnotationAttributes[] getAnnotationAttributesArray(
+  public static <T extends Annotation> AnnotationAttributes[] getAttributesArray(
           final AnnotationKey<T> key
   ) {
     AnnotationAttributes[] ret = ANNOTATION_ATTRIBUTES.get(key);
     if (ret == null) {
-      final Annotation[] annotations = key.element.getAnnotations();
+      AnnotationAttributes[] annotations = ClassMetaReader.readAnnotations(key.element);
       if (ObjectUtils.isEmpty(annotations)) {
         ret = Constant.EMPTY_ANNOTATION_ATTRIBUTES;
       }
       else {
         final Class<T> annotationClass = key.annotationClass;
         final ArrayList<AnnotationAttributes> result = new ArrayList<>(); // for the order
-        for (final Annotation annotation : annotations) {
-          final List<AnnotationAttributes> attr = getAnnotationAttributes(annotation, annotationClass);
+        for (final AnnotationAttributes annotation : annotations) {
+          final List<AnnotationAttributes> attr = getAttributes(annotation, annotationClass);
           if (!attr.isEmpty()) {
             result.addAll(attr);
           }
@@ -513,6 +474,84 @@ public abstract class AnnotationUtils {
     }
   }
 
+  public static <T extends Annotation> List<AnnotationAttributes> getAttributes(
+          final AnnotationAttributes annotation, final Class<T> target
+  ) {
+    if (annotation == null) {
+      return Collections.emptyList();
+    }
+    final Class<? extends Annotation> source = annotation.annotationType();
+    if (source == target) {
+      // return
+      return Collections.singletonList(annotation);
+    }
+    // filter some annotation classes
+    // -----------------------------------------
+    if (IGNORE_ANNOTATION_CLASS.contains(source)) {
+      return Collections.emptyList();
+    }
+    // find the default value of annotation
+    // -----------------------------------------
+    final ArrayList<AnnotationAttributes> ret = new ArrayList<>();
+
+    findTargetAttributes(source, target, annotation, ret, IGNORE_ANNOTATION_CLASS);
+    return ret;
+  }
+
+  static <T extends Annotation> void findTargetAttributes(
+          final Class<?> source,
+          final Class<T> targetType,
+          final AnnotationAttributes annotation,
+          final ArrayList<AnnotationAttributes> attributes,
+          final Set<Class<? extends Annotation>> ignoreAnnotation
+  ) {
+    AnnotationAttributes[] sourceAttributes = ClassMetaReader.readAnnotations(source);
+    for (final AnnotationAttributes current : sourceAttributes) {
+      final Class<? extends Annotation> candidateType = current.annotationType();
+      if (candidateType == source || ignoreAnnotation.contains(candidateType)) {
+        continue;
+      }
+      if (candidateType == targetType) {// TODO 优化 匹配方式
+        // found target annotation
+//        AnnotationAttributes found = new AnnotationAttributes(current, candidateType);
+//        found.putAll(annotation);
+        AnnotationAttributes found = getAttributes(current, annotation, candidateType);
+        attributes.add(found); // found it
+      }
+      else {
+        findTargetAttributes(candidateType, targetType, annotation, attributes, ignoreAnnotation);
+      }
+    }
+  }
+
+  static AnnotationAttributes getAttributes(
+          final AnnotationAttributes current,
+          final AnnotationAttributes annotation,
+          final Class<? extends Annotation> candidateType
+  ) {
+    AnnotationDescriptor descriptor = ClassMetaReader.readDefault(candidateType);
+    Map<String, String> annotationTypes = descriptor.annotationTypes; // method-name to return-type string
+    AnnotationAttributes found = new AnnotationAttributes(descriptor.defaultAttributes, candidateType);
+
+    AnnotationDescriptor candidateDescriptor = ClassMetaReader.readDefault(current.annotationName());
+    Map<String, String> candidateAnnotationTypes = candidateDescriptor.annotationTypes;
+    for (final Map.Entry<String, String> entry : annotationTypes.entrySet()) {
+      String method = entry.getKey(); // attribute-name
+      String returnType = entry.getValue();// return-type
+      Object value;
+      if (Objects.equals(returnType, candidateAnnotationTypes.get(method))) {
+        value = current.getAttribute(method, ClassUtils.loadClass(returnType));
+      }
+      else {
+        value = annotation.getAttribute(method, ClassUtils.loadClass(returnType));
+      }
+      if (value != null) {
+        found.put(method, value);
+      }
+    }
+    return found;
+  }
+
   /**
    * Get target {@link AnnotationAttributes} on input annotation
    *
@@ -525,7 +564,7 @@ public abstract class AnnotationUtils {
    *
    * @since 2.1.7
    */
-  public static <T extends Annotation> List<AnnotationAttributes> getAnnotationAttributes(
+  public static <T extends Annotation> List<AnnotationAttributes> getAttributes(
           final Annotation annotation, final Class<T> target
   ) {
     if (annotation == null) {
@@ -534,7 +573,7 @@ public abstract class AnnotationUtils {
     final Class<? extends Annotation> annotationType = annotation.annotationType();
     if (annotationType == target) {
       // 如果等于对象注解就直接添加
-      return Collections.singletonList(getAnnotationAttributes(annotationType, annotation));
+      return Collections.singletonList(getAttributes(annotationType, annotation));
     }
     // filter some annotation classes
     // -----------------------------------------
@@ -653,7 +692,7 @@ public abstract class AnnotationUtils {
       }
       if (candidateType == targetType) {
         // found target annotation
-        attributes.add(getAnnotationAttributes(current, candidateType, transformer)); // found it
+        attributes.add(getAttributes(current, candidateType, transformer)); // found it
       }
       else {
         findTargetAttributes(candidateType, targetType, attributes, transformer, ignoreAnnotation);
@@ -661,7 +700,7 @@ public abstract class AnnotationUtils {
     }
   }
 
-  public static AnnotationAttributes getAnnotationAttributes(
+  public static AnnotationAttributes getAttributes(
           final Annotation current,
           final Class<? extends Annotation> candidateType,
           final AnnotationAttributesTransformer transformer
@@ -690,11 +729,18 @@ public abstract class AnnotationUtils {
    *
    * @return Whether it's present
    */
-  public static <A extends Annotation> boolean isAnnotationPresent(final AnnotatedElement element,
-                                                                   final Class<A> annType) {
+  public static <A extends Annotation> boolean isPresent(final AnnotatedElement element, final Class<A> annType) {
     return annType != null && element != null
             && (element.isAnnotationPresent(annType)
-            || ObjectUtils.isNotEmpty(getAnnotationAttributesArray(element, annType)));
+            || ObjectUtils.isNotEmpty(getAttributesArray(element, annType)));
+  }
+
+  /**
+   * clear cache
+   */
+  public static void clearCache() {
+    ANNOTATIONS.clear();
+    ANNOTATION_ATTRIBUTES.clear();
   }
 
 }

@@ -97,7 +97,7 @@ public class ClassUtilsTest {
     setProcess("getAnnotation");
 
     // test: use reflect build the annotation
-    Collection<Component> classAnntation = ClassUtils.getAnnotation(Config.class, Component.class, DefaultComponent.class);
+    Collection<Component> classAnntation = AnnotationUtils.getAnnotation(Config.class, Component.class, DefaultComponent.class);
 
     for (Component component : classAnntation) {
       log.info("component: [{}]", component);
@@ -109,11 +109,11 @@ public class ClassUtilsTest {
       }
     }
     // use proxy
-    Collection<C> annotations = ClassUtils.getAnnotation(Bean.class, C.class);
+    Collection<C> annotations = AnnotationUtils.getAnnotation(Bean.class, C.class);
 
-    List<AnnotationAttributes> attributes = ClassUtils.getAnnotationAttributes(Bean.class.getAnnotation(S.class), C.class);
+    List<AnnotationAttributes> attributes = AnnotationUtils.getAttributes(Bean.class.getAnnotation(S.class), C.class);
     final AnnotationAttributes next = attributes.iterator().next();
-    C annotation = ClassUtils.getAnnotationProxy(C.class, next);
+    C annotation = AnnotationUtils.getAnnotationProxy(C.class, next);
     System.err.println(annotation);
     annotation.hashCode();
     assert annotation.annotationType() == C.class;
@@ -123,7 +123,7 @@ public class ClassUtilsTest {
     assert !annotation.equals(null);
     assert annotation.equals(annotation);
 
-    assert annotation.equals(ClassUtils.getAnnotationProxy(C.class, next));
+    assert annotation.equals(AnnotationUtils.getAnnotationProxy(C.class, next));
 
     final AnnotationAttributes clone = new AnnotationAttributes(next);
 
@@ -135,7 +135,7 @@ public class ClassUtilsTest {
     clone.remove("value");
     assert !clone.equals(next);
     assert !clone.equals(new AnnotationAttributes((Map<String, Object>) next));
-    assert !annotation.equals(ClassUtils.getAnnotationProxy(C.class, clone));
+    assert !annotation.equals(AnnotationUtils.getAnnotationProxy(C.class, clone));
 
     final AnnotationAttributes fromMap = new AnnotationAttributes(clone);
     assert fromMap.equals(clone);
@@ -145,7 +145,7 @@ public class ClassUtilsTest {
 
     try {
 
-      ClassUtils.getAnnotationAttributes(null);
+      AnnotationUtils.getAttributes(null);
 
       assert false;
     }
@@ -153,7 +153,7 @@ public class ClassUtilsTest {
       assert true;
     }
     try {
-      ClassUtils.injectAttributes(next, null, next);
+      AnnotationUtils.injectAttributes(next, null, next);
       assert false;
     }
     catch (Exception e) {
@@ -167,14 +167,14 @@ public class ClassUtilsTest {
 
     setProcess("test_GetAnnotationAttributes");
     S annotation = Bean.class.getAnnotation(S.class);
-    AnnotationAttributes annotationAttributes_ = ClassUtils.getAnnotationAttributes(annotation);
+    AnnotationAttributes annotationAttributes_ = AnnotationUtils.getAttributes(annotation);
 
     log.info("annotationAttributes: [{}]", annotationAttributes_);
     assertEquals(annotationAttributes_.getStringArray("value").length, 1);
     log.info("annotationType: [{}]", annotationAttributes_.annotationType());
     assertEquals(annotationAttributes_.annotationType(), S.class);
 
-    List<AnnotationAttributes> annotationAttributes = ClassUtils.getAnnotationAttributes(Bean.class, C.class);
+    List<AnnotationAttributes> annotationAttributes = AnnotationUtils.getAttributes(Bean.class, C.class);
     log.info("annotationAttributes: [{}]", annotationAttributes);
     for (AnnotationAttributes attributes : annotationAttributes) {
       log.info("annotationType: [{}]", attributes.annotationType());
@@ -187,7 +187,7 @@ public class ClassUtilsTest {
       }
     }
 
-    final AnnotationAttributes attr = ClassUtils.getAnnotationAttributes(C.class, Bean.class);
+    final AnnotationAttributes attr = AnnotationUtils.getAttributes(C.class, Bean.class);
 
     assertEquals(attr.getString("scope"), Scope.SINGLETON);
   }
@@ -197,7 +197,7 @@ public class ClassUtilsTest {
     setProcess("getAnnotations");
 
     // test: use reflect build the annotation
-    Collection<Component> components = ClassUtils.getAnnotation(Config.class, Component.class, DefaultComponent.class);
+    Collection<Component> components = AnnotationUtils.getAnnotation(Config.class, Component.class, DefaultComponent.class);
 
     for (Component component : components) {
       System.err.println(component);
@@ -209,9 +209,9 @@ public class ClassUtilsTest {
     setProcess("getAnnotationArray");
 
     // test: use reflect build the annotation
-    Component[] components = ClassUtils.getAnnotationArray(Config.class, Component.class, DefaultComponent.class);
+    Component[] components = AnnotationUtils.getAnnotationArray(Config.class, Component.class, DefaultComponent.class);
 
-    final Component[] annotationArray = ClassUtils.getAnnotationArray(Config.class, Component.class);
+    final Component[] annotationArray = AnnotationUtils.getAnnotationArray(Config.class, Component.class);
     assert components.length > 0;
     assert annotationArray.length > 0;
     assert annotationArray.length == annotationArray.length;
@@ -246,6 +246,8 @@ public class ClassUtilsTest {
     assert ClassUtils.forName("java.lang.String[]") == String[].class;
     assert ClassUtils.forName("[Ljava.lang.String;") == String[].class;
     assert ClassUtils.forName("[[Ljava.lang.String;") == String[][].class;
+
+    Class<?> aClass = ClassUtils.getClassLoader().loadClass("[Ljava.lang.String;");
 
     try {
       ClassUtils.forName("Float");
@@ -294,16 +296,6 @@ public class ClassUtilsTest {
   }
 
   @Test
-  public void testIsAnnotationPresent() {
-    setProcess("isAnnotationPresent");
-
-    assert ClassUtils.isAnnotationPresent(AutowiredOnConstructor.class, Singleton.class);
-    assert ClassUtils.isAnnotationPresent(AutowiredOnConstructor.class, MySingleton.class);
-
-    assert ClassUtils.loadClass("") == null;
-  }
-
-  @Test
   public void testOther() throws NoSuchMethodException, SecurityException, ClassNotFoundException {
     setProcess("invokeMethod");
 
@@ -333,7 +325,7 @@ public class ClassUtilsTest {
 
   @MySingleton
   @SuppressWarnings("unused")
-  private static class AutowiredOnConstructor {
+  public static class AutowiredOnConstructor {
 
     @Autowired
     private AutowiredOnConstructor(ApplicationContext context) {
@@ -352,7 +344,8 @@ public class ClassUtilsTest {
   @Singleton
   @Inherited
   @Retention(RetentionPolicy.RUNTIME)
-  @Target({ ElementType.TYPE, ElementType.METHOD }) @interface MySingleton {
+  @Target({ ElementType.TYPE, ElementType.METHOD })
+  public @interface MySingleton {
 
   }
 

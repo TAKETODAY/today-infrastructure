@@ -17,31 +17,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context;
 
-import java.lang.reflect.AnnotatedElement;
+package cn.taketoday.context.support;
 
-import cn.taketoday.context.annotation.Profile;
-import cn.taketoday.context.utils.AnnotationUtils;
+import java.util.Map;
+
+import cn.taketoday.context.AnnotationAttributes;
 
 /**
- * Resolve {@link Profile} {@link Condition}
- *
- * @author TODAY <br>
- * 2018-11-14 18:52
+ * @author TODAY 2021/8/8 22:18
  */
-public class ProfileCondition implements Condition {
+public class AnnotationDescriptor {
 
-  @Override
-  public boolean matches(final ApplicationContext context, final AnnotatedElement annotated) {
-    final Environment environment = context.getEnvironment();
+  public final AnnotationAttributes defaultAttributes;
+  public final Map<String, String> annotationTypes;
 
-    for (final AnnotationAttributes attributes : AnnotationUtils.getAttributesArray(annotated, Profile.class)) {
-      if (environment.acceptsProfiles(attributes.getStringArray(Constant.VALUE))) {
-        return true;
-      }
-    }
-    return false;
+  AnnotationDescriptor(AnnotationAttributes defaultAttributes, Map<String, String> annotationTypes) {
+    this.defaultAttributes = defaultAttributes;
+    this.annotationTypes = annotationTypes;
   }
 
 }

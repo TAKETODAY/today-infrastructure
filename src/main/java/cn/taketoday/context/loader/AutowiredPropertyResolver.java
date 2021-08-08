@@ -33,10 +33,11 @@ import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.BeanReferencePropertySetter;
 import cn.taketoday.context.factory.PropertySetter;
+import cn.taketoday.context.utils.AnnotationUtils;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtils;
 
-import static cn.taketoday.context.utils.ClassUtils.isAnnotationPresent;
+import static cn.taketoday.context.utils.AnnotationUtils.isPresent;
 
 /**
  * This {@link PropertyValueResolver} supports field that annotated
@@ -68,10 +69,10 @@ public class AutowiredPropertyResolver
   }
 
   public static boolean isInjectable(final AnnotatedElement element) {
-    return isAnnotationPresent(element, Autowired.class)
-            || isAnnotationPresent(element, RESOURCE_CLASS)
-            || isAnnotationPresent(element, NAMED_CLASS)
-            || isAnnotationPresent(element, INJECT_CLASS);
+    return isPresent(element, Autowired.class)
+            || isPresent(element, RESOURCE_CLASS)
+            || isPresent(element, NAMED_CLASS)
+            || isPresent(element, INJECT_CLASS);
   }
 
   @Override
@@ -83,11 +84,11 @@ public class AutowiredPropertyResolver
     if (autowired != null) {
       name = autowired.value();
     }
-    else if (isAnnotationPresent(field, RESOURCE_CLASS)) { // @Resource
-      name = ClassUtils.getAnnotationAttributes(RESOURCE_CLASS, field).getString("name");
+    else if (isPresent(field, RESOURCE_CLASS)) { // @Resource
+      name = AnnotationUtils.getAttributes(RESOURCE_CLASS, field).getString("name");
     }
-    else if (isAnnotationPresent(field, NAMED_CLASS)) {// @Named
-      name = ClassUtils.getAnnotationAttributes(NAMED_CLASS, field).getString(Constant.VALUE);
+    else if (isPresent(field, NAMED_CLASS)) {// @Named
+      name = AnnotationUtils.getAttributes(NAMED_CLASS, field).getString(Constant.VALUE);
     } // @Inject or name is empty
 
     if (StringUtils.isEmpty(name)) {

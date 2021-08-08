@@ -58,6 +58,7 @@ import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.context.loader.StrategiesDetector;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.AnnotationUtils;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
@@ -383,7 +384,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     log.info("Loading Application Listeners.");
 
     for (final Class<?> candidateListener : candidates) {
-      if (ClassUtils.isAnnotationPresent(candidateListener, EventListener.class)) {
+      if (AnnotationUtils.isPresent(candidateListener, EventListener.class)) {
         registerListener(candidateListener);
       }
     }

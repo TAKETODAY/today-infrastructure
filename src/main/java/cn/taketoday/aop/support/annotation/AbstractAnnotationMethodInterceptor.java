@@ -38,6 +38,7 @@ import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.ObjectSupplier;
 import cn.taketoday.context.reflect.MethodInvoker;
+import cn.taketoday.context.utils.AnnotationUtils;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
@@ -236,9 +237,9 @@ public abstract class AbstractAnnotationMethodInterceptor implements Advice, Met
   @SuppressWarnings({ "unchecked", "rawtypes" })
   private Object resolveAnnotation(MethodInvocation methodInvocation, Class annotationClass) {
     final Method method = methodInvocation.getMethod();
-    Annotation annotation = ClassUtils.getAnnotation(annotationClass, method);
+    Annotation annotation = AnnotationUtils.getAnnotation(annotationClass, method);
     if (annotation == null) {
-      annotation = ClassUtils.getAnnotation(annotationClass, method.getDeclaringClass());
+      annotation = AnnotationUtils.getAnnotation(annotationClass, method.getDeclaringClass());
     }
     return annotation;
   }

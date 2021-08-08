@@ -247,7 +247,7 @@ public class GenericDescriptor implements Serializable {
    * @return <tt>true</tt> if the annotation is present
    */
   public boolean hasAnnotation(Class<? extends Annotation> annotationType) {
-    return ClassUtils.isAnnotationPresent(this.annotatedElement, annotationType);
+    return AnnotationUtils.isPresent(this.annotatedElement, annotationType);
   }
 
   /**
@@ -260,7 +260,7 @@ public class GenericDescriptor implements Serializable {
    * @return the annotation, or {@code null} if no such annotation exists on this type descriptor
    */
   public <T extends Annotation> T getAnnotation(Class<T> annotationType) {
-    return ClassUtils.getAnnotation(annotationType, this.annotatedElement);
+    return AnnotationUtils.getAnnotation(annotationType, this.annotatedElement);
   }
 
   /**

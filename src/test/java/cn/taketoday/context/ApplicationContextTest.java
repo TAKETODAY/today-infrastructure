@@ -22,6 +22,7 @@ package cn.taketoday.context;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 
 import cn.taketoday.context.ApplicationContextTest.RequiredTest.Bean1;
@@ -143,7 +144,7 @@ public class ApplicationContextTest {
   public void testLoadFromCollection() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
 
     try (ApplicationContext applicationContext = //
-            new StandardApplicationContext(Arrays.asList(ConfigurationBean.class))) {
+            new StandardApplicationContext(Collections.singletonList(ConfigurationBean.class))) {
 
       long start = System.currentTimeMillis();
 

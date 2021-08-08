@@ -32,8 +32,8 @@ import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.BeanPostProcessor;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.reflect.MethodInvoker;
+import cn.taketoday.context.utils.AnnotationUtils;
 import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
@@ -57,9 +57,9 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
     final ConfigurableBeanFactory beanFactory = context.getBeanFactory();
     final Method[] declaredMethods = ReflectionUtils.getDeclaredMethods(beanClass);
     for (final Method declaredMethod : declaredMethods) {
-      if (ClassUtils.isAnnotationPresent(declaredMethod, EventListener.class)) {
+      if (AnnotationUtils.isPresent(declaredMethod, EventListener.class)) {
         final AnnotationAttributes[] attributes
-                = ClassUtils.getAnnotationAttributesArray(declaredMethod, EventListener.class);
+                = AnnotationUtils.getAttributesArray(declaredMethod, EventListener.class);
         for (final AnnotationAttributes attribute : attributes) {
           final Class<?>[] eventTypes = getEventTypes(attribute, declaredMethod);
           // use ContextUtils#resolveParameter to resolve method arguments

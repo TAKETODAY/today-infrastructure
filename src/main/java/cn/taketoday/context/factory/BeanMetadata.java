@@ -32,6 +32,7 @@ import cn.taketoday.context.annotation.Property;
 import cn.taketoday.context.loader.NoSuchPropertyException;
 import cn.taketoday.context.reflect.ConstructorAccessor;
 import cn.taketoday.context.reflect.PropertyAccessor;
+import cn.taketoday.context.utils.AnnotationUtils;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.Mappings;
 import cn.taketoday.context.utils.ReflectionUtils;
@@ -214,7 +215,7 @@ public class BeanMetadata {
   }
 
   protected String getAnnotatedPropertyName(AnnotatedElement propertyElement) {
-    final Property property = ClassUtils.getAnnotation(Property.class, propertyElement);
+    final Property property = AnnotationUtils.getAnnotation(Property.class, propertyElement);
     if (property != null) {
       final String name = property.value();
       if (StringUtils.isNotEmpty(name)) {

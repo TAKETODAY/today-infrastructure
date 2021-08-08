@@ -54,28 +54,5 @@ public class ConfigurationBean {
         return new User().setId(12);
     }
 
-    @Profile("test")
-    @Prototype("user")
-    public User testUser() {
-        return new User().setUserName("TEST");
-    }
-
-    @Profile("prod")
-    @Singleton("user")
-    public User prodUser() {
-        return new User().setUserName("PROD");
-    }
-
-    @Singleton("yhj")
-    @Profile("!test")
-    public User yhj() {
-        return new User().setUserName("yhj");
-    }
-
-    @Singleton("user_windows")
-    @Conditional(WindowsCondition.class)
-    public User windowsUser() {
-        return new User().setUserName("Windows");
-    }
 
 }

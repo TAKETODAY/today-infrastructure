@@ -255,7 +255,7 @@ public class Method {
    * @return the return type of the method described by this object.
    */
   public Type getReturnType() {
-    return Type.fromReturnType(descriptor);
+    return Type.forReturnType(descriptor);
   }
 
   /**

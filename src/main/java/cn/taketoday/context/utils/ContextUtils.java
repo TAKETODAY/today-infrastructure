@@ -349,7 +349,7 @@ public abstract class ContextUtils {
     final boolean initMethodsNotEmpty = StringUtils.isArrayNotEmpty(initMethods);
     do {
       for (final Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
-        if (ClassUtils.isAnnotationPresent(method, PostConstruct.class)
+        if (AnnotationUtils.isPresent(method, PostConstruct.class)
                 || AutowiredPropertyResolver.isInjectable(method)) { // method Injection
           methods.add(method);
           continue;
@@ -632,7 +632,7 @@ public abstract class ContextUtils {
    */
   public static boolean passCondition(final AnnotatedElement annotated, final ApplicationContext context) {
     final AnnotationAttributes[] attributes =
-            ClassUtils.getAnnotationAttributesArray(annotated, Conditional.class);
+            AnnotationUtils.getAttributesArray(annotated, Conditional.class);
     if (ObjectUtils.isEmpty(attributes)) {
       return true;
     }
@@ -795,7 +795,7 @@ public abstract class ContextUtils {
   ) {
 
     final AnnotationAttributes[] componentAttributes =
-            ClassUtils.getAnnotationAttributesArray(beanClass, Component.class);
+            AnnotationUtils.getAttributesArray(beanClass, Component.class);
     if (ObjectUtils.isEmpty(componentAttributes)) {
       return Collections.singletonList(beanDefinitionLoader.createBeanDefinition(defaultName, beanClass));
     }

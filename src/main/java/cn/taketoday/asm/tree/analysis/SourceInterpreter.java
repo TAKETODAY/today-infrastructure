@@ -162,10 +162,10 @@ public class SourceInterpreter extends Interpreter<SourceValue> implements Opcod
       size = 1;
     }
     else if (opcode == INVOKEDYNAMIC) {
-      size = Type.fromReturnType(((InvokeDynamicInsnNode) insn).desc).getSize();
+      size = Type.forReturnType(((InvokeDynamicInsnNode) insn).desc).getSize();
     }
     else {
-      size = Type.fromReturnType(((MethodInsnNode) insn).desc).getSize();
+      size = Type.forReturnType(((MethodInsnNode) insn).desc).getSize();
     }
     return new SourceValue(size, insn);
   }

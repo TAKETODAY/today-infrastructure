@@ -39,6 +39,7 @@ import cn.taketoday.context.Scope;
 import cn.taketoday.context.loader.NoSuchPropertyException;
 import cn.taketoday.context.reflect.BeanConstructor;
 import cn.taketoday.context.reflect.MethodInvoker;
+import cn.taketoday.context.utils.AnnotationUtils;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
@@ -340,12 +341,12 @@ public class DefaultBeanDefinition
 
   @Override
   public boolean isAnnotationPresent(Class<? extends Annotation> annotation) {
-    return ClassUtils.isAnnotationPresent(getBeanClass(), annotation);
+    return AnnotationUtils.isPresent(getBeanClass(), annotation);
   }
 
   @Override
   public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-    return ClassUtils.getAnnotation(annotationClass, getBeanClass());
+    return AnnotationUtils.getAnnotation(annotationClass, getBeanClass());
   }
 
   @Override

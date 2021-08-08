@@ -220,7 +220,7 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
             name = field.getAnnotation(Resource.class).name(); // Resource.class
         }
         else if (NAMED_CLASS != null && field.isAnnotationPresent(NAMED_CLASS)) {// @Named
-            name = ClassUtils.getAnnotationAttributes(NAMED_CLASS, field).getString(Constant.VALUE);
+            name = AnnotationUtils.getAnnotationAttributes(NAMED_CLASS, field).getString(Constant.VALUE);
         } // @Inject or name is empty
     
         if (StringUtils.isEmpty(name)) {

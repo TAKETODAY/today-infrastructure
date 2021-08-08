@@ -31,7 +31,7 @@ import cn.taketoday.context.annotation.Required;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.aware.OrderedApplicationContextSupport;
 import cn.taketoday.context.factory.DefaultPropertySetter;
-import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.AnnotationUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 
@@ -55,8 +55,8 @@ public class ValuePropertyResolver
 
   @Override
   public boolean supportsProperty(final Field field) {
-    return ClassUtils.isAnnotationPresent(field, Value.class)
-            || ClassUtils.isAnnotationPresent(field, Env.class);
+    return AnnotationUtils.isPresent(field, Value.class)
+            || AnnotationUtils.isPresent(field, Env.class);
   }
 
   @Override
@@ -71,12 +71,12 @@ public class ValuePropertyResolver
   @Override
   public DefaultPropertySetter resolveProperty(final Field field) {
     String expression;
-    final Value value = ClassUtils.getAnnotation(Value.class, field);
+    final Value value = AnnotationUtils.getAnnotation(Value.class, field);
     if (value != null) {
       expression = value.value();
     }
     else {
-      final Env env = ClassUtils.getAnnotation(Env.class, field);
+      final Env env = AnnotationUtils.getAnnotation(Env.class, field);
       expression = env.value();
       if (StringUtils.isNotEmpty(expression)) {
         expression = new StringBuilder(expression.length() + 3)//
@@ -111,15 +111,15 @@ public class ValuePropertyResolver
                                          final String expression,
                                          ConfigurationException e) {
     boolean required;
-    final Env env = ClassUtils.getAnnotation(Env.class, field);
+    final Env env = AnnotationUtils.getAnnotation(Env.class, field);
     if (env == null) {
-      final Value value = ClassUtils.getAnnotation(Value.class, field);
+      final Value value = AnnotationUtils.getAnnotation(Value.class, field);
       required = value.required();
     }
     else {
       required = env.required();
     }
-    if (required || ClassUtils.isAnnotationPresent(field, Required.class)) {
+    if (required || AnnotationUtils.isPresent(field, Required.class)) {
       throw new ConfigurationException("Can't resolve field: [" + field + "] -> [" + expression + "].", e);
     }
     return null;

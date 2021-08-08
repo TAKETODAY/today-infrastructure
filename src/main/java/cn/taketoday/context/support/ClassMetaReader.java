@@ -41,6 +41,7 @@ import java.lang.reflect.Proxy;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +58,7 @@ import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.utils.AnnotationUtils;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
@@ -65,8 +67,11 @@ import cn.taketoday.context.utils.ReflectionUtils;
  */
 public class ClassMetaReader {
   private static final HashMap<String, ClassNode> classNodeCache = new HashMap<>(128); // class-name to ClassNode
-  private static final ConcurrentHashMap<String, AnnotationAttributes> annotationDefaultCache // class-name to AnnotationAttributes
+  //  private static final ConcurrentHashMap<String, AnnotationAttributes> annotationDefaultCache // class-name to AnnotationAttributes
+//          = new ConcurrentHashMap<>(128);
+  private static final ConcurrentHashMap<String, AnnotationDescriptor> annotationDefaultCache // class-name to AnnotationAttributes
           = new ConcurrentHashMap<>(128);
+  private static final HashMap<AnnotatedElement, AnnotationAttributes[]> attributesMap = new HashMap<>(128);
 
   public static ClassNode read(Class<?> classToRead) {
     return read(classToRead, ClassUtils.getClassLoader());
@@ -112,6 +117,7 @@ public class ClassMetaReader {
         // exclude array
         return null;
       }
+
       String className = desc.substring(1, desc.length() - 1).replace('/', '.');
       AnnotationAttributes attributes = new AnnotationAttributes(className);
       // read default values
@@ -144,8 +150,17 @@ public class ClassMetaReader {
   }
 
   public static AnnotationAttributes readDefaultAttributes(String className) {
+    return readDefault(className).defaultAttributes;
+  }
+
+  public static AnnotationDescriptor readDefault(Class<?> aClass) {
+    return readDefault(aClass.getName());
+  }
+
+  public static AnnotationDescriptor readDefault(String className) {
     return annotationDefaultCache.computeIfAbsent(className, annotationType -> {
       ClassNode classNode = read(annotationType);
+      HashMap<String, String> annotationTypes = new HashMap<>();
       AnnotationAttributes defaultAttributes = new AnnotationAttributes();
       for (final MethodNode method : classNode.methods) {
         Object defaultValue = method.annotationDefault;
@@ -156,8 +171,11 @@ public class ClassMetaReader {
           }
           defaultAttributes.put(method.name, defaultValue);
         }
+
+        Type type = Type.forReturnType(method.desc);
+        annotationTypes.put(method.name, type.getClassName());
       }
-      return defaultAttributes;
+      return new AnnotationDescriptor(defaultAttributes, annotationTypes);
     });
   }
 
@@ -182,34 +200,42 @@ public class ClassMetaReader {
     return null;
   }
 
-  public static AnnotationAttributes[] readAnnotation(AnnotatedElement annotated) {
-    List<AnnotationNode> annotationNode = getAnnotationNode(annotated);
-    if (annotationNode == null) {
-      // read from java reflect API
-      Annotation[] annotations = annotated.getDeclaredAnnotations();
-      AnnotationAttributes[] annotationAttributes = new AnnotationAttributes[annotations.length];
+  public static AnnotationAttributes[] readAnnotations(AnnotatedElement annotated) {
+    return attributesMap.computeIfAbsent(annotated, target -> {
+      List<AnnotationNode> annotationNode = getAnnotationNode(target);
+      if (annotationNode == null) {
+        // read from java reflect API
+        Annotation[] annotations = target.getDeclaredAnnotations();
+        if (ObjectUtils.isNotEmpty(annotations)) {
+          AnnotationAttributes[] annotationAttributes = new AnnotationAttributes[annotations.length];
+          int i = 0;
+          for (final Annotation annotation : annotations) {
+            annotationAttributes[i++] = AnnotationUtils.getAttributes(annotation);
+          }
+          return annotationAttributes;
+        }
+        return Constant.EMPTY_ANNOTATION_ATTRIBUTES;
+      }
+      if (annotationNode.isEmpty()) {
+        return Constant.EMPTY_ANNOTATION_ATTRIBUTES;
+      }
+      AnnotationAttributes[] annotationAttributes = new AnnotationAttributes[annotationNode.size()];
       int i = 0;
-      for (final Annotation annotation : annotations) {
-        annotationAttributes[i++] = AnnotationUtils.getAnnotationAttributes(annotation);
+      for (final AnnotationNode node : annotationNode) {
+        annotationAttributes[i++] = readAnnotation(node);
       }
       return annotationAttributes;
-    }
-    AnnotationAttributes[] annotationAttributes = new AnnotationAttributes[annotationNode.size()];
-    int i = 0;
-    for (final AnnotationNode node : annotationNode) {
-      annotationAttributes[i++] = readAnnotation(node);
-    }
-    return annotationAttributes;
+    });
   }
 
   public static List<AnnotationNode> getAnnotationNode(AnnotatedElement annotated) {
     if (annotated instanceof Class) {
       ClassNode classNode = read((Class<?>) annotated);
-      return classNode.visibleAnnotations;
+      return warpEmpty(classNode.visibleAnnotations);
     }
     if (annotated instanceof Executable) {
       MethodNode methodNode = getMethodNode((Executable) annotated);
-      return methodNode.visibleAnnotations;
+      return warpEmpty(methodNode.visibleAnnotations);
     }
     if (annotated instanceof Field) {
       // java reflect field
@@ -223,7 +249,7 @@ public class ClassMetaReader {
             descriptor = Type.getDescriptor(field.getType());
           }
           if (Objects.equals(fieldNode.desc, descriptor)) {
-            return fieldNode.visibleAnnotations;
+            return warpEmpty(fieldNode.visibleAnnotations);
           }
         }
       }
@@ -232,9 +258,13 @@ public class ClassMetaReader {
       Parameter parameter = (Parameter) annotated;
       MethodNode methodNode = getMethodNode(parameter.getDeclaringExecutable());
       List<AnnotationNode>[] annotations = methodNode.visibleParameterAnnotations;
-      return annotations[ClassUtils.getParameterIndex(parameter)];
+      return warpEmpty(annotations[ClassUtils.getParameterIndex(parameter)]);
     }
     return null;
+  }
+
+  private static List<AnnotationNode> warpEmpty(List<AnnotationNode> visibleAnnotations) {
+    return visibleAnnotations == null ? Collections.emptyList() : visibleAnnotations;
   }
 
   private static MethodNode getMethodNode(Executable executable) {
@@ -261,10 +291,25 @@ public class ClassMetaReader {
     }
   }
 
+  public static <T extends Annotation>
+  AnnotationAttributes selectAttributes(AnnotatedElement element, Class<T> targetClass) {
+    return selectAttributes(readAnnotations(element), targetClass);
+  }
+
+  public static <T extends Annotation>
+  AnnotationAttributes selectAttributes(AnnotationAttributes[] attributes, Class<T> targetClass) {
+    for (final AnnotationAttributes attribute : attributes) {
+      if (attribute.annotationType() == targetClass) {
+        return attribute;
+      }
+    }
+    return null;
+  }
+
   // proxy
 
   public static <T extends Annotation> T getAnnotation(Class<T> type, AnnotatedElement annotated) {
-    AnnotationAttributes[] annotationAttributes = readAnnotation(annotated);
+    AnnotationAttributes[] annotationAttributes = readAnnotations(annotated);
     AnnotationAttributes attributes = null;
     for (final AnnotationAttributes attribute : annotationAttributes) {
       if (attribute.annotationType() == type) {
@@ -279,7 +324,7 @@ public class ClassMetaReader {
   }
 
   @SuppressWarnings("unchecked")
-  public static <T extends Annotation> T getAnnotation(Class<T> type, Map<String, Object> attributes) {
+  public static <T extends Annotation> T getAnnotation(Class<T> type, AnnotationAttributes attributes) {
     return (T) Proxy.newProxyInstance(
             type.getClassLoader(), new Class<?>[] { type },
             new AnnotationInvocationHandler(type, attributes));
@@ -296,9 +341,9 @@ public class ClassMetaReader {
   static final class AnnotationInvocationHandler implements InvocationHandler, Serializable {
     private static final long serialVersionUID = 1L;
     private final Class<? extends Annotation> type;
-    private final Map<String, Object> attributes;
+    private final AnnotationAttributes attributes;
 
-    AnnotationInvocationHandler(Class<? extends Annotation> type, Map<String, Object> attributes) {
+    AnnotationInvocationHandler(Class<? extends Annotation> type, AnnotationAttributes attributes) {
       this.type = type;
       this.attributes = attributes;
     }
@@ -327,7 +372,7 @@ public class ClassMetaReader {
       }
 
       // Handle annotation member accessors
-      Object result = attributes.get(member);
+      Object result = attributes.getAttribute(member, method.getReturnType());
 
       if (result == null) {
         throw new IncompleteAnnotationException(type, member);

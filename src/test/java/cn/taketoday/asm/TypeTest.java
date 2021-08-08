@@ -171,7 +171,7 @@ public class TypeTest implements Opcodes {
           })
   public void testGetArgumentTypesGetReturnTypeAndGetMethodType(final String methodDescriptor) {
     Type[] argumentTypes = Type.getArgumentTypes(methodDescriptor);
-    Type returnType = Type.fromReturnType(methodDescriptor);
+    Type returnType = Type.forReturnType(methodDescriptor);
     Type methodType = Type.fromMethod(returnType, argumentTypes);
 
     assertEquals(Type.METHOD, methodType.getSort());
@@ -190,8 +190,8 @@ public class TypeTest implements Opcodes {
 
   @Test
   public void testGetReturnTypeFromDescriptor() {
-    assertEquals(Type.INT_TYPE, Type.fromReturnType("()I"));
-    assertEquals(Type.INT_TYPE, Type.fromReturnType("(Lpkg/classMethod();)I"));
+    assertEquals(Type.INT_TYPE, Type.forReturnType("()I"));
+    assertEquals(Type.INT_TYPE, Type.forReturnType("(Lpkg/classMethod();)I"));
   }
 
   @Test
@@ -234,7 +234,7 @@ public class TypeTest implements Opcodes {
   @Test
   public void testGetReturnTypeFromMethod() throws NoSuchMethodException, SecurityException {
     Type returnType =
-            Type.fromReturnType(Arrays.class.getMethod("binarySearch", byte[].class, byte.class));
+            Type.forReturnType(Arrays.class.getMethod("binarySearch", byte[].class, byte.class));
 
     assertEquals(Type.INT_TYPE, returnType);
   }

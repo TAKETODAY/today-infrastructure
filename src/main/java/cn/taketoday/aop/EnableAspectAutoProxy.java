@@ -34,8 +34,8 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionImporter;
+import cn.taketoday.context.utils.AnnotationUtils;
 import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 
 /**
@@ -85,7 +85,7 @@ class AutoProxyConfiguration implements BeanDefinitionImporter {
     Assert.state(proxyCreatorDef != null, "No ProxyCreator bean definition.");
 
     if (ProxyConfig.class.isAssignableFrom(proxyCreatorDef.getBeanClass())) {
-      final AnnotationAttributes aspectAutoProxy = ClassUtils.getAnnotationAttributes(EnableAspectAutoProxy.class, annotatedMetadata);
+      final AnnotationAttributes aspectAutoProxy = AnnotationUtils.getAttributes(EnableAspectAutoProxy.class, annotatedMetadata);
       if (aspectAutoProxy != null) {
         proxyCreatorDef.addPropertyValue("exposeProxy", aspectAutoProxy.getBoolean("exposeProxy"));
         proxyCreatorDef.addPropertyValue("proxyTargetClass", aspectAutoProxy.getBoolean("proxyTargetClass"));

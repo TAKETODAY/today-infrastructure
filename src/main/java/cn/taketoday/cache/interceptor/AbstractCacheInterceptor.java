@@ -44,6 +44,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.OrderedSupport;
+import cn.taketoday.context.utils.AnnotationUtils;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ConcurrentCache;
@@ -161,19 +162,19 @@ public abstract class AbstractCacheInterceptor
       final Class<? extends Annotation> annClass = target.annotationClass;
 
       // Find target method [annClass] AnnotationAttributes
-      AnnotationAttributes attributes = ClassUtils.getAnnotationAttributes(annClass, method);
+      AnnotationAttributes attributes = AnnotationUtils.getAttributes(annClass, method);
       final Class<?> declaringClass = method.getDeclaringClass();
       if (attributes == null) {
-        attributes = ClassUtils.getAnnotationAttributes(annClass, declaringClass);
+        attributes = AnnotationUtils.getAttributes(annClass, declaringClass);
         if (attributes == null) {
           throw new IllegalStateException("Unexpected exception has occurred, may be it's a bug");
         }
       }
 
       final CacheConfiguration configuration = //
-              ClassUtils.injectAttributes(attributes, annClass, new CacheConfiguration(annClass));
+              AnnotationUtils.injectAttributes(attributes, annClass, new CacheConfiguration(annClass));
 
-      final CacheConfig cacheConfig = ClassUtils.getAnnotation(CacheConfig.class, declaringClass);
+      final CacheConfig cacheConfig = AnnotationUtils.getAnnotation(CacheConfig.class, declaringClass);
       if (cacheConfig != null) {
         configuration.mergeCacheConfigAttributes(cacheConfig);
       }

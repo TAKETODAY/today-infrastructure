@@ -23,7 +23,7 @@ package cn.taketoday.context;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 
-import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.AnnotationUtils;
 
 /**
  * @author TODAY 2021/3/20 22:59
@@ -35,12 +35,12 @@ public interface AnnotationSupport extends AnnotatedElement {
 
   @Override
   default boolean isAnnotationPresent(final Class<? extends Annotation> annotationClass) {
-    return ClassUtils.isAnnotationPresent(getAnnotationSource(), annotationClass);
+    return AnnotationUtils.isPresent(getAnnotationSource(), annotationClass);
   }
 
   @Override
   default <A extends Annotation> A getAnnotation(final Class<A> annotationClass) {
-    return ClassUtils.getAnnotation(annotationClass, getAnnotationSource());
+    return AnnotationUtils.getAnnotation(annotationClass, getAnnotationSource());
   }
 
   // AnnotatedElement @since 3.0
