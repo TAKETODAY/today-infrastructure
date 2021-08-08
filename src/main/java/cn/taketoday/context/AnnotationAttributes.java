@@ -639,4 +639,14 @@ public class AnnotationAttributes
     return OrderUtils.getOrder(annotationType);
   }
 
+  // package
+
+  void setAnnotationType(Class annotationType) {
+    this.annotationType = annotationType;
+  }
+
+  void setAnnotationName(String annotationName) {
+    this.annotationName = annotationName;
+  }
+
 }
