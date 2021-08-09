@@ -29,8 +29,8 @@ import cn.taketoday.aop.MethodBeforeAdvice;
 import cn.taketoday.aop.ThrowsAdvice;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import lombok.ToString;
 
 /**

@@ -28,8 +28,8 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.factory.AbstractBeanFactory;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 
 import static cn.taketoday.context.utils.ContextUtils.destroyBean;

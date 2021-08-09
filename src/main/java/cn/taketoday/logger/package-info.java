@@ -20,4 +20,4 @@
 /**
  * Logging System Adapter
  */
-package cn.taketoday.context.logger;
+package cn.taketoday.logger;

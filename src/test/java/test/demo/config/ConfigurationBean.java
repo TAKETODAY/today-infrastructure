@@ -21,14 +21,11 @@ package test.demo.config;
 
 import javax.annotation.PostConstruct;
 
-import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.Profile;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.annotation.condition.WindowsCondition;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 
 /**
  * @author Today <br>

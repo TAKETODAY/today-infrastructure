@@ -25,8 +25,8 @@ import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.factory.InitializingBean;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 
 /**
  * @author TODAY <br>

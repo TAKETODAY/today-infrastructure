@@ -30,8 +30,8 @@ import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.annotation.Value;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import lombok.ToString;
 
 import static org.assertj.core.api.Assertions.assertThat;

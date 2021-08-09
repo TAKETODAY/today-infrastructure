@@ -20,8 +20,8 @@
 package cn.taketoday.context.factory;
 
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 
 /**
  * @author Today <br>

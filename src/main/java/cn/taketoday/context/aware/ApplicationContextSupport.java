@@ -21,8 +21,8 @@ package cn.taketoday.context.aware;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
 
 /**

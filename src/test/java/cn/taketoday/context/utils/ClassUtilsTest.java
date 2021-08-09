@@ -20,8 +20,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.cglib.proxy.Enhancer;
+import cn.taketoday.cglib.proxy.MethodInterceptor;
+import cn.taketoday.cglib.proxy.MethodProxy;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
@@ -29,12 +33,8 @@ import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.DefaultComponent;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.cglib.proxy.Enhancer;
-import cn.taketoday.cglib.proxy.MethodInterceptor;
-import cn.taketoday.cglib.proxy.MethodProxy;
-import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.context.utils.Bean.C;
 import cn.taketoday.context.utils.Bean.S;
 import lombok.ToString;
@@ -247,17 +247,15 @@ public class ClassUtilsTest {
     assert ClassUtils.forName("[Ljava.lang.String;") == String[].class;
     assert ClassUtils.forName("[[Ljava.lang.String;") == String[][].class;
 
-    Class<?> aClass = ClassUtils.getClassLoader().loadClass("[Ljava.lang.String;");
-
     try {
       ClassUtils.forName("Float");
     }
-    catch (ClassNotFoundException e) {}
+    catch (ClassNotFoundException e) { }
     assert ClassUtils.forName("cn.taketoday.context.utils.ClassUtilsTest.INNER") == INNER.class;
     try {
       ClassUtils.forName("cn.taketoday.context.utils.ClassUtilsTest.INNERs");//
     }
-    catch (ClassNotFoundException e) {}
+    catch (ClassNotFoundException e) { }
 
   }
 

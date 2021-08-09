@@ -26,8 +26,8 @@ import java.util.List;
 
 import cn.taketoday.context.ConfigurationException;
 import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.DefaultMultiValueMap;
 import cn.taketoday.context.utils.MultiValueMap;

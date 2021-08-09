@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,26 +15,33 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.factory;
-
-import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
+package cn.taketoday.logger;
 
 /**
- * @author Today <br>
- * 
- *         2019-01-22 19:41
+ * @author TODAY <br>
+ * 2019-11-03 20:29
  */
-@Singleton
-public class Implements3 implements Interface {
-    private static final Logger log = LoggerFactory.getLogger(Implements3.class);
+public enum Level {
+  /** for tracing messages that are very verbose */
+  TRACE(1),
+  /** messages suitable for debugging purposes */
+  DEBUG(2),
+  /** information messages */
+  INFO(3),
+  /** warning messages */
+  WARN(4),
+  /** error messages */
+  ERROR(5);
 
-    @Override
-    public void test() {
-        log.debug("Implements3");
-    }
+  private final int level;
 
+  private Level(int level) {
+    this.level = level;
+  }
+
+  public boolean isEnabled(Level otherLevel) {
+    return level <= otherLevel.level;
+  }
 }

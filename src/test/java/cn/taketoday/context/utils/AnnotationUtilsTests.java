@@ -37,8 +37,8 @@ import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Service;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.context.support.ClassMetaReader;
 
 import static org.assertj.core.api.Assertions.assertThat;

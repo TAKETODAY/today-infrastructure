@@ -28,8 +28,8 @@ import javax.annotation.PreDestroy;
 
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.aware.BeanNameAware;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import test.demo.config.User;
 import test.demo.repository.UserRepository;
 

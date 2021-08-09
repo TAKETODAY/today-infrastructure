@@ -21,7 +21,6 @@ package cn.taketoday.context;
 
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
@@ -32,8 +31,8 @@ import cn.taketoday.context.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.factory.PropertySetter;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.context.utils.ObjectUtils;
 import test.demo.config.Config;
 import test.demo.config.ConfigFactoryBean;

@@ -30,7 +30,7 @@
     </encoder>
   </appender>
 
-  <logger name="cn.taketoday.context.logger" level="TRACE">
+  <logger name="cn.taketoday.logger" level="TRACE">
     <appender-ref ref="STDOUT" />
   </logger>
 

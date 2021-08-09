@@ -29,8 +29,8 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.factory.FactoryBean;
 import cn.taketoday.context.factory.InitializingBean;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import lombok.Getter;
 
 /**

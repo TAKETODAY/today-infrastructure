@@ -21,8 +21,8 @@ package cn.taketoday.context;
 
 import java.util.function.Supplier;
 
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 
 /**
  * Configuration exception

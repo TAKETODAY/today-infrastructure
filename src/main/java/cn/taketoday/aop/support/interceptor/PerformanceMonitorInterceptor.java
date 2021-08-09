@@ -21,7 +21,7 @@ package cn.taketoday.aop.support.interceptor;
 
 import org.aopalliance.intercept.MethodInvocation;
 
-import cn.taketoday.context.logger.Logger;
+import cn.taketoday.logger.Logger;
 import cn.taketoday.context.utils.StopWatch;
 
 /**

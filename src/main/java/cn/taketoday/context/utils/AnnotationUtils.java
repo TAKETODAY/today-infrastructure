@@ -540,16 +540,25 @@ public abstract class AnnotationUtils {
       String returnType = entry.getValue();// return-type
       Object value;
       if (Objects.equals(returnType, candidateAnnotationTypes.get(method))) {
-        value = current.getAttribute(method, ClassUtils.loadClass(returnType));
+        value = current.getAttribute(method, getExpectedType(returnType));
       }
       else {
-        value = annotation.getAttribute(method, ClassUtils.loadClass(returnType));
+        value = annotation.getAttribute(method, getExpectedType(returnType));
       }
       if (value != null) {
         found.put(method, value);
       }
     }
     return found;
+  }
+
+  private static Class<?> getExpectedType(String returnType) {
+    try {
+      return ClassUtils.forName(returnType);
+    }
+    catch (ClassNotFoundException e) {
+      return null;
+    }
   }
 
   /**

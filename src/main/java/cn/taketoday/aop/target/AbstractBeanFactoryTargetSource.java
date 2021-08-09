@@ -28,8 +28,8 @@ import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
 
 /**
