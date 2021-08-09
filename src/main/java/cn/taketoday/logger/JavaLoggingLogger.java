@@ -25,13 +25,12 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import cn.taketoday.context.io.ClassPathResource;
-import cn.taketoday.context.io.Resource;
 
 /**
  * @author TODAY <br>
  * 2019-11-03 14:45
  */
-public class JavaLoggingLogger extends AbstractLogger {
+final class JavaLoggingLogger extends cn.taketoday.logger.Logger {
 
   private final Logger logger;
 
@@ -69,7 +68,7 @@ public class JavaLoggingLogger extends AbstractLogger {
     return logger.isLoggable(java.util.logging.Level.SEVERE);
   }
 
-  private final java.util.logging.Level levelToJavaLevel(Level level) {
+  private java.util.logging.Level levelToJavaLevel(Level level) {
     switch (level) {
       case TRACE:
         return java.util.logging.Level.FINEST;
@@ -85,7 +84,7 @@ public class JavaLoggingLogger extends AbstractLogger {
     }
   }
 
-  protected static final String thisFQCN = JavaLoggingLogger.class.getName();
+  private static final String thisFQCN = JavaLoggingLogger.class.getName();
 
   @Override
   protected void logInternal(Level level, String format, Throwable t, Object[] args) {
@@ -95,7 +94,7 @@ public class JavaLoggingLogger extends AbstractLogger {
     if (logger.isLoggable(levelToJavaLevel)) {
 
       // millis and thread are filled by the constructor
-      final LogRecord record = new LogRecord(levelToJavaLevel, MessageFormatter.format(format, args));
+      LogRecord record = new LogRecord(levelToJavaLevel, MessageFormatter.format(format, args));
 
       record.setLoggerName(getName());
       record.setThrown(t);
@@ -144,11 +143,10 @@ public class JavaLoggingLogger extends AbstractLogger {
   }
 }
 
-class JavaLoggingFactory extends LoggerFactory {
-
+final class JavaLoggingFactory extends LoggerFactory {
   static {
-    final Resource resource = new ClassPathResource("logging.properties",
-                                                    Thread.currentThread().getContextClassLoader());
+    ClassPathResource resource = new ClassPathResource(
+            "logging.properties", Thread.currentThread().getContextClassLoader());
     if (resource.exists()) {
       try {
         LogManager.getLogManager().readConfiguration(resource.getInputStream());

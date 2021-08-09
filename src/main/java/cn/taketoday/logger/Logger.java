@@ -25,21 +25,22 @@ package cn.taketoday.logger;
  * @author TODAY <br>
  * 2019-11-03 13:15
  */
-public interface Logger {
+public abstract class Logger {
+  protected static final String FQCN = Logger.class.getName();
 
   /**
    * Return the name of this <code>Logger</code> instance.
    *
    * @return name of this logger instance
    */
-  String getName();
+  public abstract String getName();
 
   /**
    * Is the logger instance enabled for the TRACE level?
    *
    * @return True if this Logger is enabled for the TRACE level, false otherwise.
    */
-  boolean isTraceEnabled();
+  public abstract boolean isTraceEnabled();
 
   /**
    * Log a message at the TRACE level.
@@ -47,7 +48,9 @@ public interface Logger {
    * @param msg
    *         the message string to be logged
    */
-  void trace(String msg);
+  public void trace(String msg) {
+    logInternal(Level.TRACE, msg);
+  }
 
   /**
    * Log a message at the TRACE level according to the specified format and
@@ -63,7 +66,9 @@ public interface Logger {
    * @param arg
    *         the argument
    */
-  void trace(String format, Object arg);
+  public void trace(String format, Object arg) {
+    logInternal(Level.TRACE, format, new Object[] { arg });
+  }
 
   /**
    * Log a message at the TRACE level according to the specified format and
@@ -81,7 +86,9 @@ public interface Logger {
    * @param arg2
    *         the second argument
    */
-  void trace(String format, Object arg1, Object arg2);
+  public void trace(String format, Object arg1, Object arg2) {
+    logInternal(Level.TRACE, format, new Object[] { arg1, arg2 });
+  }
 
   /**
    * Log a message at the TRACE level according to the specified format and
@@ -101,7 +108,9 @@ public interface Logger {
    * @param arguments
    *         a list of 3 or more arguments
    */
-  void trace(String format, Object... arguments);
+  public void trace(String format, Object... arguments) {
+    logInternal(Level.TRACE, format, arguments);
+  }
 
   /**
    * Log an exception (throwable) at the TRACE level with an accompanying message.
@@ -111,14 +120,16 @@ public interface Logger {
    * @param t
    *         the exception (throwable) to log
    */
-  void trace(String msg, Throwable t);
+  public void trace(String msg, Throwable t) {
+    logInternal(Level.TRACE, msg, t);
+  }
 
   /**
    * Is the logger instance enabled for the DEBUG level?
    *
    * @return True if this Logger is enabled for the DEBUG level, false otherwise.
    */
-  boolean isDebugEnabled();
+  public abstract boolean isDebugEnabled();
 
   /**
    * Log a message at the DEBUG level.
@@ -126,7 +137,9 @@ public interface Logger {
    * @param msg
    *         the message string to be logged
    */
-  void debug(String msg);
+  public void debug(String msg) {
+    logInternal(Level.DEBUG, msg);
+  }
 
   /**
    * Log a message at the DEBUG level according to the specified format and
@@ -142,7 +155,9 @@ public interface Logger {
    * @param arg
    *         the argument
    */
-  void debug(String format, Object arg);
+  public void debug(String format, Object arg) {
+    logInternal(Level.DEBUG, format, new Object[] { arg });
+  }
 
   /**
    * Log a message at the DEBUG level according to the specified format and
@@ -160,7 +175,9 @@ public interface Logger {
    * @param arg2
    *         the second argument
    */
-  void debug(String format, Object arg1, Object arg2);
+  public void debug(String format, Object arg1, Object arg2) {
+    logInternal(Level.DEBUG, format, new Object[] { arg1, arg2 });
+  }
 
   /**
    * Log a message at the DEBUG level according to the specified format and
@@ -180,7 +197,9 @@ public interface Logger {
    * @param arguments
    *         a list of 3 or more arguments
    */
-  void debug(String format, Object... arguments);
+  public void debug(String format, Object... arguments) {
+    logInternal(Level.DEBUG, format, arguments);
+  }
 
   /**
    * Log an exception (throwable) at the DEBUG level with an accompanying message.
@@ -190,14 +209,16 @@ public interface Logger {
    * @param t
    *         the exception (throwable) to log
    */
-  void debug(String msg, Throwable t);
+  public void debug(String msg, Throwable t) {
+    logInternal(Level.DEBUG, msg);
+  }
 
   /**
    * Is the logger instance enabled for the INFO level?
    *
    * @return True if this Logger is enabled for the INFO level, false otherwise.
    */
-  boolean isInfoEnabled();
+  public abstract boolean isInfoEnabled();
 
   /**
    * Log a message at the INFO level.
@@ -205,7 +226,9 @@ public interface Logger {
    * @param msg
    *         the message string to be logged
    */
-  void info(String msg);
+  public void info(String msg) {
+    logInternal(Level.INFO, msg);
+  }
 
   /**
    * Log a message at the INFO level according to the specified format and
@@ -221,7 +244,9 @@ public interface Logger {
    * @param arg
    *         the argument
    */
-  void info(String format, Object arg);
+  public void info(String format, Object arg) {
+    logInternal(Level.INFO, format, new Object[] { arg });
+  }
 
   /**
    * Log a message at the INFO level according to the specified format and
@@ -239,7 +264,9 @@ public interface Logger {
    * @param arg2
    *         the second argument
    */
-  void info(String format, Object arg1, Object arg2);
+  public void info(String format, Object arg1, Object arg2) {
+    logInternal(Level.INFO, format, new Object[] { arg1, arg2 });
+  }
 
   /**
    * Log a message at the INFO level according to the specified format and
@@ -259,7 +286,9 @@ public interface Logger {
    * @param arguments
    *         a list of 3 or more arguments
    */
-  void info(String format, Object... arguments);
+  public void info(String format, Object... arguments) {
+    logInternal(Level.INFO, format, arguments);
+  }
 
   /**
    * Log an exception (throwable) at the INFO level with an accompanying message.
@@ -269,14 +298,16 @@ public interface Logger {
    * @param t
    *         the exception (throwable) to log
    */
-  void info(String msg, Throwable t);
+  public void info(String msg, Throwable t) {
+    logInternal(Level.INFO, msg, t);
+  }
 
   /**
    * Is the logger instance enabled for the WARN level?
    *
    * @return True if this Logger is enabled for the WARN level, false otherwise.
    */
-  boolean isWarnEnabled();
+  public abstract boolean isWarnEnabled();
 
   /**
    * Log a message at the WARN level.
@@ -284,7 +315,9 @@ public interface Logger {
    * @param msg
    *         the message string to be logged
    */
-  void warn(String msg);
+  public void warn(String msg) {
+    logInternal(Level.WARN, msg);
+  }
 
   /**
    * Log a message at the WARN level according to the specified format and
@@ -300,7 +333,9 @@ public interface Logger {
    * @param arg
    *         the argument
    */
-  void warn(String format, Object arg);
+  public void warn(String format, Object arg) {
+    logInternal(Level.WARN, format, new Object[] { arg });
+  }
 
   /**
    * Log a message at the WARN level according to the specified format and
@@ -320,7 +355,9 @@ public interface Logger {
    * @param arguments
    *         a list of 3 or more arguments
    */
-  void warn(String format, Object... arguments);
+  public void warn(String format, Object... arguments) {
+    logInternal(Level.WARN, format, arguments);
+  }
 
   /**
    * Log a message at the WARN level according to the specified format and
@@ -338,7 +375,9 @@ public interface Logger {
    * @param arg2
    *         the second argument
    */
-  void warn(String format, Object arg1, Object arg2);
+  public void warn(String format, Object arg1, Object arg2) {
+    logInternal(Level.WARN, format, new Object[] { arg1, arg2 });
+  }
 
   /**
    * Log an exception (throwable) at the WARN level with an accompanying message.
@@ -348,14 +387,16 @@ public interface Logger {
    * @param t
    *         the exception (throwable) to log
    */
-  void warn(String msg, Throwable t);
+  public void warn(String msg, Throwable t) {
+    logInternal(Level.WARN, msg, t);
+  }
 
   /**
    * Is the logger instance enabled for the ERROR level?
    *
    * @return True if this Logger is enabled for the ERROR level, false otherwise.
    */
-  boolean isErrorEnabled();
+  public abstract boolean isErrorEnabled();
 
   /**
    * Log a message at the ERROR level.
@@ -363,7 +404,9 @@ public interface Logger {
    * @param msg
    *         the message string to be logged
    */
-  void error(String msg);
+  public void error(String msg) {
+    logInternal(Level.ERROR, msg);
+  }
 
   /**
    * Log a message at the ERROR level according to the specified format and
@@ -379,7 +422,9 @@ public interface Logger {
    * @param arg
    *         the argument
    */
-  void error(String format, Object arg);
+  public void error(String format, Object arg) {
+    logInternal(Level.ERROR, format, new Object[] { arg });
+  }
 
   /**
    * Log a message at the ERROR level according to the specified format and
@@ -397,7 +442,9 @@ public interface Logger {
    * @param arg2
    *         the second argument
    */
-  void error(String format, Object arg1, Object arg2);
+  public void error(String format, Object arg1, Object arg2) {
+    logInternal(Level.ERROR, format, new Object[] { arg1, arg2 });
+  }
 
   /**
    * Log a message at the ERROR level according to the specified format and
@@ -417,7 +464,9 @@ public interface Logger {
    * @param arguments
    *         a list of 3 or more arguments
    */
-  void error(String format, Object... arguments);
+  public void error(String format, Object... arguments) {
+    logInternal(Level.ERROR, format, arguments);
+  }
 
   /**
    * Log an exception (throwable) at the ERROR level with an accompanying message.
@@ -427,6 +476,34 @@ public interface Logger {
    * @param t
    *         the exception (throwable) to log
    */
-  void error(String msg, Throwable t);
+  public void error(String msg, Throwable t) {
+    logInternal(Level.ERROR, msg, t);
+  }
 
+  protected void logInternal(Level level, String msg) {
+    logInternal(level, msg, (Object[]) null);
+  }
+
+  protected void logInternal(Level level, String msg, Throwable t) {
+    logInternal(level, msg, t, null);
+  }
+
+  protected void logInternal(Level level, String msg, Object[] args) {
+    logInternal(level, msg, null, args);
+  }
+
+  protected abstract void logInternal(Level level, String msg, Throwable t, Object[] args);
+
+  /**
+   * Return if logging level is enabled.
+   */
+  public final boolean isLevelEnabled(Level level) {
+    switch (level) { //@off
+      case WARN :     return isWarnEnabled();
+      case TRACE :    return isTraceEnabled();
+      case DEBUG :    return isDebugEnabled();
+      case ERROR :    return isErrorEnabled();
+      default:        return isInfoEnabled();
+    } //@on
+  }
 }

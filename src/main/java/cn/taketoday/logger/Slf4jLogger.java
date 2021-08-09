@@ -25,7 +25,7 @@ import org.slf4j.spi.LocationAwareLogger;
  * @author TODAY <br>
  * 2019-11-03 13:55
  */
-public class Slf4jLogger extends AbstractLogger {
+final class Slf4jLogger extends Logger {
 
   private final org.slf4j.Logger target;
 
@@ -111,7 +111,7 @@ public class Slf4jLogger extends AbstractLogger {
 
 }
 
-class Slf4jLoggerFactory extends LoggerFactory {
+final class Slf4jLoggerFactory extends LoggerFactory {
 
   @Override
   protected Logger createLogger(String name) {

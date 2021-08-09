@@ -45,7 +45,7 @@ public abstract class LoggerFactory {
    */
   public static Logger getLogger(String name) {
     if (factory == null) {
-      synchronized (LoggerFactory.class) {
+      synchronized(LoggerFactory.class) {
         return fromFactory(name);
       }
     }
@@ -53,7 +53,6 @@ public abstract class LoggerFactory {
   }
 
   private static Logger fromFactory(String name) {
-
     final String type = System.getProperty(LOG_TYPE_SYSTEM_PROPERTY);
     if (type != null) {
       try {
@@ -62,8 +61,9 @@ public abstract class LoggerFactory {
       }
       catch (Throwable e) {
         e.printStackTrace();
-        System.err.println("Could not find valid log-type from system property '" +
-                                   LOG_TYPE_SYSTEM_PROPERTY + "', value '" + type + "'");
+        System.err.println(
+                "Could not find valid log-type from system property '" +
+                        LOG_TYPE_SYSTEM_PROPERTY + "', value '" + type + "'");
       }
     }
 
@@ -71,15 +71,13 @@ public abstract class LoggerFactory {
       factory = new Slf4jLoggerFactory();
       return factory.createLogger(name);
     }
-    catch (Throwable ignored) {}
+    catch (Throwable ignored) { }
     try {
       factory = new Log4j2LoggerFactory();
       return factory.createLogger(name);
     }
-    catch (Throwable ignored) {}
-
+    catch (Throwable ignored) { }
     factory = new JavaLoggingFactory();
-
     return factory.createLogger(name);
   }
 

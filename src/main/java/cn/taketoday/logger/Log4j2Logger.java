@@ -29,8 +29,7 @@ import org.apache.logging.log4j.util.StackLocatorUtil;
  * @author TODAY <br>
  * 2019-11-03 16:09
  */
-public class Log4j2Logger extends AbstractLogger {
-
+final class Log4j2Logger extends cn.taketoday.logger.Logger {
   private final Logger logger;
 
   public Log4j2Logger(String name) {
