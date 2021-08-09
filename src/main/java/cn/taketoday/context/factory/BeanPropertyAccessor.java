@@ -263,6 +263,7 @@ public class BeanPropertyAccessor {
    * @throws IndexOutOfBoundsException
    *         if the index is out of list range (<tt>index &lt; 0 || index &gt;= size()</tt>)
    */
+  @SuppressWarnings({ "rawtypes" })
   static Object getKeyedPropertyValue(Object propertyValue, String key) {
     if (propertyValue instanceof Map) {
       final Map map = (Map) propertyValue;
@@ -486,7 +487,7 @@ public class BeanPropertyAccessor {
     return subValue;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   protected void setKeyedProperty(
           final Object root, final BeanProperty beanProperty, Object propValue,
           final String key, final Object value, final String propertyPath
