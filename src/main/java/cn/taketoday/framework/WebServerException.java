@@ -19,7 +19,7 @@
  */
 package cn.taketoday.framework;
 
-import cn.taketoday.web.exception.WebNestedRuntimeException;
+import cn.taketoday.web.WebNestedRuntimeException;
 
 /**
  * @author TODAY <br>

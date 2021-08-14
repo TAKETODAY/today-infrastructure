@@ -32,10 +32,10 @@ import javax.servlet.FilterRegistration;
 import javax.servlet.FilterRegistration.Dynamic;
 import javax.servlet.ServletContext;
 
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.web.WebConstant;
 
 /**
  * @author TODAY <br>
@@ -81,7 +81,7 @@ public class WebFilterInitializer<T extends Filter>
     final Collection<String> urlMappings = getUrlMappings();
 
     if (servletNames.isEmpty() && urlMappings.isEmpty()) {
-      registration.addMappingForUrlPatterns(dispatcherTypes, this.matchAfter, Constant.DEFAULT_MAPPINGS);
+      registration.addMappingForUrlPatterns(dispatcherTypes, this.matchAfter, WebConstant.DEFAULT_MAPPINGS);
     }
     else {
       if (!servletNames.isEmpty()) {

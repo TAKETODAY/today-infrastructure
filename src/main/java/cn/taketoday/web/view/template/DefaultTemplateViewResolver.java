@@ -23,12 +23,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ContextUtils;
-import cn.taketoday.context.utils.ResourceUtils;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.context.Props;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.utils.ContextUtils;
+import cn.taketoday.core.utils.ResourceUtils;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
@@ -38,8 +38,8 @@ import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.expression.ValueExpression;
 import cn.taketoday.expression.VariableMapper;
 import cn.taketoday.expression.lang.EvaluationContext;
-import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebConstant;
 
 /**
  * @author TODAY <br>
@@ -174,7 +174,7 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
 
     @Override
     public Object handlePropertyNotResolved(Object base, Object property, EvaluationContext ctx) {
-      return Constant.BLANK;
+      return WebConstant.BLANK;
     }
 
   }

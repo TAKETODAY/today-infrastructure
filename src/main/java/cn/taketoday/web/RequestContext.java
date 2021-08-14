@@ -34,14 +34,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import cn.taketoday.context.EmptyObject;
-import cn.taketoday.context.io.Readable;
-import cn.taketoday.context.io.Writable;
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.context.utils.MultiValueMap;
-import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.core.EmptyObject;
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.io.Readable;
+import cn.taketoday.core.io.Writable;
+import cn.taketoday.core.utils.CollectionUtils;
+import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.web.RequestContextHolder.ApplicationNotStartedContext;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.http.DefaultHttpHeaders;
@@ -53,7 +53,7 @@ import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.ModelAttributes;
 
-import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
+import static cn.taketoday.core.Constant.DEFAULT_CHARSET;
 
 /**
  * Context holder for request-specific state.
@@ -132,7 +132,7 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   }
 
   protected String doGetContextPath() {
-    return Constant.BLANK;
+    return WebConstant.BLANK;
   }
 
   /**
@@ -808,7 +808,7 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    *         a <code>String</code> specifying the MIME type of the content
    */
   public void setContentType(String contentType) {
-    responseHeaders().set(Constant.CONTENT_TYPE, contentType);
+    responseHeaders().set(WebConstant.CONTENT_TYPE, contentType);
   }
 
   /**
@@ -856,7 +856,7 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   /**
    * Cache request body object
    * <p>
-   * If input body is {@code null} will cache {@link cn.taketoday.context.EmptyObject#INSTANCE}
+   * If input body is {@code null} will cache {@link cn.taketoday.core.EmptyObject#INSTANCE}
    * </p>
    *
    * @param body

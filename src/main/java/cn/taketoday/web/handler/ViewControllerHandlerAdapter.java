@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.handler;
 
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 
 /**

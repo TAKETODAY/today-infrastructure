@@ -24,8 +24,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestMethod;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.cors.CorsConfiguration;
 
 /**
@@ -129,7 +129,7 @@ public @interface CrossOrigin {
    * {@code Access-Control-Allow-Credentials} header is also not set and
    * credentials are therefore not allowed.
    */
-  String allowCredentials() default Constant.BLANK;
+  String allowCredentials() default WebConstant.BLANK;
 
   /**
    * The maximum age (in seconds) of the cache duration for preflight responses.

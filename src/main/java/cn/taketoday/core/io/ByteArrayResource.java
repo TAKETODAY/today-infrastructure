@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
-import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.Assert;
 
 /**
  * {@link Resource} implementation for a given byte array.

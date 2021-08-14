@@ -21,16 +21,16 @@ package cn.taketoday.web.servlet;
 
 import javax.servlet.Servlet;
 
-import cn.taketoday.context.annotation.condition.ConditionalOnClass;
-import cn.taketoday.web.Constant;
+import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.handler.AbstractHandlerAdapter;
 
 /**
  * @author TODAY <br>
  *         2019-12-24 22:01
  */
-@ConditionalOnClass(Constant.ENV_SERVLET)
+@ConditionalOnClass(WebConstant.ENV_SERVLET)
 public class ServletHandlerAdapter extends AbstractHandlerAdapter {
 
   public ServletHandlerAdapter() {}

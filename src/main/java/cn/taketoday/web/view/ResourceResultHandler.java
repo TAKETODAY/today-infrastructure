@@ -21,9 +21,9 @@ package cn.taketoday.web.view;
 
 import java.io.File;
 
-import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.utils.ResourceUtils;
+import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.utils.ResourceUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.utils.WebUtils;

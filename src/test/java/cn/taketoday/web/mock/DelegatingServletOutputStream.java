@@ -27,7 +27,7 @@ import java.io.OutputStream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.WriteListener;
 
-import cn.taketoday.context.utils.Assert;
+import cn.taketoday.core.Assert;
 
 /**
  * Delegating implementation of {@link javax.servlet.ServletOutputStream}.

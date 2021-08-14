@@ -24,8 +24,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 
-import cn.taketoday.context.io.Readable;
-import cn.taketoday.context.io.Writable;
+import cn.taketoday.core.io.Writable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.view.Model;

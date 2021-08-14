@@ -22,7 +22,7 @@ package cn.taketoday.core.reflect;
 
 import java.util.function.Supplier;
 
-import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.Assert;
 
 /**
  * Supplier

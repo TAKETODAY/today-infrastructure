@@ -22,7 +22,7 @@ package cn.taketoday.framework.annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.annotation.Import;
+import cn.taketoday.beans.Import;
 import cn.taketoday.framework.config.WebDocumentConfiguration;
 
 import static java.lang.annotation.ElementType.METHOD;

@@ -27,13 +27,13 @@ import java.util.Properties;
 
 import javax.annotation.PostConstruct;
 
-import cn.taketoday.context.ConfigurationException;
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.conversion.support.DefaultConversionService;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.Props;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.conversion.support.DefaultConversionService;
+import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.SharedVariable;

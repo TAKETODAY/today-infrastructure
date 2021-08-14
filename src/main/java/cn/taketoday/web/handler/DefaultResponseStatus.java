@@ -22,7 +22,7 @@ package cn.taketoday.web.handler;
 import java.lang.annotation.Annotation;
 import java.util.Objects;
 
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.http.HttpStatus;
 

@@ -19,13 +19,12 @@
  */
 package cn.taketoday.web.resource;
 
-import cn.taketoday.context.PathMatcher;
 import cn.taketoday.web.handler.ResourceMapping;
 import cn.taketoday.web.handler.ResourceMatchResult;
 
 /**
  * @author TODAY <br>
- *         2019-05-17 11:26
+ * 2019-05-17 11:26
  */
 @FunctionalInterface
 public interface WebResourceResolver {
@@ -34,8 +33,9 @@ public interface WebResourceResolver {
    * Resolve {@link WebResource}
    *
    * @param mappingMetaData
-   *            Contains requestPath, pathPattern, {@link PathMatcher},
-   *            {@link ResourceMapping}
+   *         Contains requestPath, pathPattern, {@link cn.taketoday.core.PathMatcher},
+   *         {@link ResourceMapping}
+   *
    * @return {@link WebResource}
    */
   WebResource resolveResource(ResourceMatchResult mappingMetaData);

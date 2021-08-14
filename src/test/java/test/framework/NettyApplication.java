@@ -1,8 +1,8 @@
 package test.framework;
 
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.Import;
+import cn.taketoday.beans.Autowired;
+import cn.taketoday.beans.Configuration;
+import cn.taketoday.beans.Import;
 import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.event.EnableMethodEventDriven;
 import cn.taketoday.context.event.EventListener;

@@ -23,8 +23,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
-import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**
@@ -35,7 +35,7 @@ import cn.taketoday.web.handler.MethodParameter;
 public abstract class MessageConverter {
 
   /** for write string */
-  private Charset charset = Constant.DEFAULT_CHARSET;
+  private Charset charset = WebConstant.DEFAULT_CHARSET;
 
   /**
    * Write message to client
@@ -67,7 +67,7 @@ public abstract class MessageConverter {
   }
 
   protected void applyContentType(RequestContext context) {
-    context.setContentType(Constant.CONTENT_TYPE_JSON);
+    context.setContentType(WebConstant.CONTENT_TYPE_JSON);
   }
 
   protected void writeStringInternal(RequestContext context, String message) throws IOException {

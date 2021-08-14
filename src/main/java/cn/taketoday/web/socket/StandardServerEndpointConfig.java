@@ -29,7 +29,7 @@ import javax.websocket.Encoder;
 import javax.websocket.Extension;
 import javax.websocket.server.ServerEndpointConfig;
 
-import cn.taketoday.context.AttributeAccessorSupport;
+import cn.taketoday.core.AttributeAccessorSupport;
 
 /**
  * @author TODAY 2021/5/6 17:36

@@ -25,8 +25,8 @@ import org.apache.catalina.SessionIdGenerator;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.session.ManagerBase;
 
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 
 /**
  * @author TODAY <br>

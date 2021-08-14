@@ -22,7 +22,7 @@ package cn.taketoday.core.reflect;
 
 import java.lang.reflect.Constructor;
 
-import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.utils.ReflectionUtils;
 
 /**

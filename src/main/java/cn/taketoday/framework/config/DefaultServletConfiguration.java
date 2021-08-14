@@ -24,8 +24,8 @@ import java.util.Map;
 
 import javax.servlet.Servlet;
 
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.annotation.condition.ConditionalOnClass;
+import cn.taketoday.context.Props;
+import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.framework.Constant;
 import lombok.Getter;
 import lombok.Setter;

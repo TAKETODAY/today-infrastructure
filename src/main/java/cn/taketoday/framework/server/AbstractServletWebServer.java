@@ -35,10 +35,10 @@ import javax.servlet.SessionCookieConfig;
 import javax.servlet.SessionTrackingMode;
 import javax.servlet.annotation.ServletSecurity;
 
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.beans.Autowired;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.framework.Constant;
 import cn.taketoday.framework.WebServerApplicationContext;
 import cn.taketoday.framework.config.DefaultServletConfiguration;
@@ -97,7 +97,7 @@ public abstract class AbstractServletWebServer
           }
         }
         catch (ClassNotFoundException e) {
-          throw new ConfigurationException(e);
+          throw new ConfigurationException("jsp servlet class not found", e);
         }
       }
     }

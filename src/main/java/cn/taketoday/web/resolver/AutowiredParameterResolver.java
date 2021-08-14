@@ -20,9 +20,9 @@
 
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.beans.Autowired;
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.MethodParameter;

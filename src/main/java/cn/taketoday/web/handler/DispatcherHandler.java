@@ -24,12 +24,12 @@ import java.text.SimpleDateFormat;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContext.State;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ExceptionUtils;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.utils.ExceptionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.view.HandlerAdapterNotFoundException;
 import cn.taketoday.web.view.ResultHandler;
@@ -212,7 +212,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
       if (state != State.CLOSING && state != State.CLOSED) {
         context.close();
 
-        final DateFormat dateFormat = new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT);
+        final DateFormat dateFormat = new SimpleDateFormat(WebConstant.DEFAULT_DATE_FORMAT);
         final String msg = new StringBuilder("Your application destroyed at: [")
                 .append(dateFormat.format(System.currentTimeMillis()))
                 .append("] on startup date: [")

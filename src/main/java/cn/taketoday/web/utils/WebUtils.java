@@ -27,18 +27,18 @@ import java.lang.reflect.Method;
 import java.net.URLConnection;
 import java.util.StringTokenizer;
 
-import cn.taketoday.context.conversion.ConversionException;
-import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.DefaultMultiValueMap;
-import cn.taketoday.context.utils.ExceptionUtils;
-import cn.taketoday.context.utils.MultiValueMap;
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.DefaultMultiValueMap;
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.conversion.ConversionException;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.utils.AnnotationUtils;
+import cn.taketoday.core.utils.ExceptionUtils;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.DefaultResponseStatus;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
@@ -109,9 +109,9 @@ public abstract class WebUtils {
     return new StringBuilder()
             .append("W/\"")
             .append(name)
-            .append(Constant.PATH_SEPARATOR)
+            .append(WebConstant.PATH_SEPARATOR)
             .append(size)
-            .append(Constant.PATH_SEPARATOR)
+            .append(WebConstant.PATH_SEPARATOR)
             .append(lastModified)
             .append('\"')
             .toString();
@@ -131,7 +131,7 @@ public abstract class WebUtils {
    * Is ajax request
    */
   public static boolean isAjax(HttpHeaders request) {
-    return Constant.XML_HTTP_REQUEST.equals(request.getFirst(Constant.X_REQUESTED_WITH));
+    return WebConstant.XML_HTTP_REQUEST.equals(request.getFirst(WebConstant.X_REQUESTED_WITH));
   }
 
   public static boolean isHeadRequest(RequestContext requestContext) {
@@ -162,14 +162,14 @@ public abstract class WebUtils {
                                   final Resource download, final int bufferSize) throws IOException //
   {
     context.setContentLength(download.contentLength());
-    context.setContentType(Constant.APPLICATION_FORCE_DOWNLOAD);
+    context.setContentType(WebConstant.APPLICATION_FORCE_DOWNLOAD);
     final HttpHeaders httpHeaders = context.responseHeaders();
 
-    httpHeaders.set(Constant.CONTENT_TRANSFER_ENCODING, Constant.BINARY);
-    httpHeaders.set(Constant.CONTENT_DISPOSITION,
-                    new StringBuilder(Constant.ATTACHMENT_FILE_NAME)
+    httpHeaders.set(WebConstant.CONTENT_TRANSFER_ENCODING, WebConstant.BINARY);
+    httpHeaders.set(WebConstant.CONTENT_DISPOSITION,
+                    new StringBuilder(WebConstant.ATTACHMENT_FILE_NAME)
                             .append(StringUtils.encodeUrl(download.getName()))
-                            .append(Constant.QUOTATION_MARKS)
+                            .append(WebConstant.QUOTATION_MARKS)
                             .toString()
     );
 
@@ -192,7 +192,7 @@ public abstract class WebUtils {
     if (ConversionException.class.isAssignableFrom(exceptionClass)) {
       return new DefaultResponseStatus(HttpStatus.BAD_REQUEST);
     }
-    final ResponseStatus status = ClassUtils.getAnnotation(ResponseStatus.class, exceptionClass);
+    final ResponseStatus status = AnnotationUtils.getAnnotation(ResponseStatus.class, exceptionClass);
     if (status != null) {
       return new DefaultResponseStatus(status);
     }
@@ -254,7 +254,7 @@ public abstract class WebUtils {
 
   protected static boolean matches(final String matchHeader, final String etag) {
     if (matchHeader != null && StringUtils.isNotEmpty(etag)) {
-      return "*" .equals(etag) || matchHeader.equals(etag);
+      return "*".equals(etag) || matchHeader.equals(etag);
     }
     return false;
   }
@@ -276,7 +276,7 @@ public abstract class WebUtils {
 
     // If-None-Match header should contain "*" or ETag. If so, then return 304
     final HttpHeaders requestHeaders = context.requestHeaders();
-    final String ifNoneMatch = requestHeaders.getFirst(Constant.IF_NONE_MATCH);
+    final String ifNoneMatch = requestHeaders.getFirst(WebConstant.IF_NONE_MATCH);
     if (matches(ifNoneMatch, eTag)) {
       context.responseHeaders().setETag(eTag); // 304.
       context.setStatus(HttpStatus.NOT_MODIFIED);
@@ -299,7 +299,7 @@ public abstract class WebUtils {
     // ----------------------------------------------------
 
     // If-Match header should contain "*" or ETag. If not, then return 412
-    final String ifMatch = requestHeaders.getFirst(Constant.IF_MATCH);
+    final String ifMatch = requestHeaders.getFirst(WebConstant.IF_MATCH);
     if (ifMatch != null && !matches(ifMatch, eTag)) {
 //      context.status(412);
       context.setStatus(HttpStatus.PRECONDITION_FAILED);
@@ -407,7 +407,7 @@ public abstract class WebUtils {
         }
       }
       else {
-        result.add(pair, Constant.BLANK);
+        result.add(pair, WebConstant.BLANK);
       }
     }
     return result;

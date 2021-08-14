@@ -21,8 +21,8 @@ package cn.taketoday.web.handler;
 
 import java.io.IOException;
 
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 
 /**

@@ -29,13 +29,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.context.utils.DataSize;
-import cn.taketoday.context.utils.DefaultMultiValueMap;
-import cn.taketoday.context.utils.MultiValueMap;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.DefaultMultiValueMap;
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.utils.CollectionUtils;
+import cn.taketoday.core.utils.DataSize;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.exception.FileSizeExceededException;
+import cn.taketoday.web.WebConstant;
+import cn.taketoday.web.http.FileSizeExceededException;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.multipart.MultipartConfiguration;
@@ -84,7 +84,7 @@ public class LightRequestContext extends RequestContext {
   @Override
   protected HttpCookie[] doGetCookies() {
     final HttpHeaders headers = request.getHeaders();
-    final List<String> allCookie = headers.get(Constant.COOKIE);
+    final List<String> allCookie = headers.get(WebConstant.COOKIE);
     if (CollectionUtils.isEmpty(allCookie)) {
       return EMPTY_COOKIES;
     }
@@ -95,7 +95,7 @@ public class LightRequestContext extends RequestContext {
   @Override
   public void addCookie(HttpCookie cookie) {
     final String header = cookie.toString();
-    responseHeaders().add(Constant.SET_COOKIE, header);
+    responseHeaders().add(WebConstant.SET_COOKIE, header);
   }
 
   @Override
@@ -194,7 +194,7 @@ public class LightRequestContext extends RequestContext {
 
   @Override
   public String getContentType() {
-    return request.getHeaders().getFirst(Constant.CONTENT_TYPE);
+    return request.getHeaders().getFirst(WebConstant.CONTENT_TYPE);
   }
 
   @Override

@@ -25,7 +25,7 @@ import java.io.Serializable;
 import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.MethodMatcher;
 import cn.taketoday.aop.Pointcut;
-import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.Assert;
 
 /**
  * Convenient class for building up pointcuts.

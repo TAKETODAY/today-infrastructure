@@ -22,8 +22,6 @@ package cn.taketoday.core;
 import java.util.Map;
 import java.util.function.Function;
 
-import cn.taketoday.core.utils.Assert;
-
 /**
  * Interface defining a generic contract for attaching and accessing metadata
  * to/from arbitrary objects.

@@ -25,8 +25,8 @@ import java.util.Arrays;
 import javax.websocket.server.ServerEndpoint;
 import javax.websocket.server.ServerEndpointConfig;
 
-import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.socket.StandardEndpoint;
 import cn.taketoday.web.socket.WebSocketHandler;

@@ -24,14 +24,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import cn.taketoday.beans.DataBinder;
+import cn.taketoday.context.Env;
 import cn.taketoday.context.ExpressionEvaluator;
-import cn.taketoday.context.annotation.Env;
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.annotation.Value;
-import cn.taketoday.context.factory.DataBinder;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.OrderUtils;
+import cn.taketoday.context.Props;
+import cn.taketoday.context.Value;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.core.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
@@ -46,7 +46,7 @@ import cn.taketoday.web.resolver.date.LocalTimeParameterResolver;
 import cn.taketoday.web.view.MessageConverter;
 import cn.taketoday.web.view.RedirectModelManager;
 
-import static cn.taketoday.context.utils.ContextUtils.resolveProps;
+import static cn.taketoday.core.utils.ContextUtils.resolveProps;
 import static cn.taketoday.web.resolver.ConverterParameterResolver.convert;
 
 /**

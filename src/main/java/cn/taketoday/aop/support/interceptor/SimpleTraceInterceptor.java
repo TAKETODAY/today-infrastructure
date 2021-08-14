@@ -21,7 +21,7 @@ package cn.taketoday.aop.support.interceptor;
 
 import org.aopalliance.intercept.MethodInvocation;
 
-import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.Assert;
 import cn.taketoday.logger.Logger;
 
 /**

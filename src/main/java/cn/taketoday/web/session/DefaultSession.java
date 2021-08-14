@@ -22,7 +22,7 @@ package cn.taketoday.web.session;
 import java.io.Serializable;
 import java.util.Objects;
 
-import cn.taketoday.context.AttributeAccessorSupport;
+import cn.taketoday.core.AttributeAccessorSupport;
 
 /**
  * @author TODAY <br>

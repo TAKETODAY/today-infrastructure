@@ -22,9 +22,9 @@ package cn.taketoday.web.validation;
 import java.util.Collections;
 import java.util.Set;
 
-import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.resolver.ParameterResolver;
 
@@ -73,7 +73,7 @@ public class ErrorsParameterResolver
 
   @Override
   public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-    final Object error = context.getAttribute(Constant.VALIDATION_ERRORS);
+    final Object error = context.getAttribute(WebConstant.VALIDATION_ERRORS);
     if (error == null) {
       return EMPTY;
     }

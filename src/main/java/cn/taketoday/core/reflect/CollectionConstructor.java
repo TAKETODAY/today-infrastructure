@@ -20,8 +20,8 @@
 
 package cn.taketoday.core.reflect;
 
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.Assert;
 import cn.taketoday.core.utils.CollectionUtils;
 
 /**

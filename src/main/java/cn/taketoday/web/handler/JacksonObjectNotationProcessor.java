@@ -35,10 +35,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import cn.taketoday.context.ConfigurationException;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.context.utils.GenericDescriptor;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.utils.CollectionUtils;
+import cn.taketoday.core.utils.GenericDescriptor;
 
 /**
  * jackson {@link ObjectNotationProcessor} implementation

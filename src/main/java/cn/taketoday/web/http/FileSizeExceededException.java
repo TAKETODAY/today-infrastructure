@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.http;
 
-import cn.taketoday.context.utils.DataSize;
+import cn.taketoday.core.utils.DataSize;
 import cn.taketoday.web.WebNestedRuntimeException;
 import cn.taketoday.web.annotation.ResponseStatus;
 

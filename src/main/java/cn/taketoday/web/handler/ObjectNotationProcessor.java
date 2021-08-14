@@ -29,7 +29,7 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import cn.taketoday.context.utils.GenericDescriptor;
+import cn.taketoday.core.utils.GenericDescriptor;
 
 /**
  * @author TODAY 2021/5/17 13:07

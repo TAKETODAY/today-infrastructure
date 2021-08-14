@@ -24,17 +24,17 @@ import java.util.List;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Environment;
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.conversion.TypeConverter;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ConvertUtils;
-import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.OrderUtils;
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.core.utils.ConvertUtils;
+import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.core.utils.OrderUtils;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.event.WebApplicationStartedEvent;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.DispatcherHandler;
@@ -99,7 +99,7 @@ public class WebApplicationLoader
   }
 
   protected void logStartup(WebApplicationContext context) {
-    if (context.getEnvironment().getFlag(Constant.ENABLE_WEB_STARTED_LOG, true)) {
+    if (context.getEnvironment().getFlag(WebConstant.ENABLE_WEB_STARTED_LOG, true)) {
       log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
                System.currentTimeMillis() - context.getStartupDate()//
       );
@@ -182,7 +182,7 @@ public class WebApplicationLoader
           WebApplicationContext context, WebMvcConfiguration mvcConfiguration) throws Throwable {
     ViewControllerHandlerRegistry registry = context.getBean(ViewControllerHandlerRegistry.class);
     final Environment environment = context.getEnvironment();
-    if (environment.getFlag(Constant.ENABLE_WEB_MVC_XML, true)) {
+    if (environment.getFlag(WebConstant.ENABLE_WEB_MVC_XML, true)) {
       registry = configViewControllerHandlerRegistry(registry);
     }
     if (registry != null) {
@@ -422,7 +422,7 @@ public class WebApplicationLoader
    * @see ViewControllerHandlerRegistry#configure(String)
    */
   protected String getWebMvcConfigLocation() {
-    return obtainApplicationContext().getEnvironment().getProperty(Constant.WEB_MVC_CONFIG_LOCATION);
+    return obtainApplicationContext().getEnvironment().getProperty(WebConstant.WEB_MVC_CONFIG_LOCATION);
   }
 
   /**

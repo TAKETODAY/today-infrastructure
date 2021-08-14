@@ -29,7 +29,7 @@ import java.util.WeakHashMap;
 import java.util.function.Function;
 
 import cn.taketoday.cglib.core.CodeGenerationException;
-import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;

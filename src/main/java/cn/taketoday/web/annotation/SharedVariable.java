@@ -24,7 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.web.Constant;
+import cn.taketoday.web.WebConstant;
 
 /**
  * @author TODAY <br>
@@ -36,7 +36,7 @@ import cn.taketoday.web.Constant;
 public @interface SharedVariable {
 
   /** Freemarker Configuration shared variable name */
-  String value() default Constant.BLANK;
+  String value() default WebConstant.BLANK;
 
   /**
    * If required == true when request parameter is null, will be return bad
@@ -45,5 +45,5 @@ public @interface SharedVariable {
   boolean required() default false;
 
   /** When required == false, and parameter == null. use default value. */
-  String defaultValue() default Constant.BLANK;
+  String defaultValue() default WebConstant.BLANK;
 }

@@ -22,9 +22,9 @@ package cn.taketoday.web.cors;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import cn.taketoday.context.AntPathMatcher;
-import cn.taketoday.context.PathMatcher;
-import cn.taketoday.context.utils.Assert;
+import cn.taketoday.core.AntPathMatcher;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.PathMatcher;
 import cn.taketoday.web.RequestContext;
 
 /**

@@ -27,7 +27,7 @@ import java.io.Serializable;
  * @author TODAY <br>
  * 2018-07-11 13:02:52
  */
-public interface MultipartFile extends Serializable, cn.taketoday.context.io.Readable {
+public interface MultipartFile extends Serializable, cn.taketoday.core.io.Readable {
 
   /**
    * Get upload file content type.

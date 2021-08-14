@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.http;
 
-import cn.taketoday.web.Constant;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.WebNestedRuntimeException;
 import cn.taketoday.web.annotation.ResponseStatus;
 
@@ -32,7 +32,7 @@ public class BadRequestException extends WebNestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
   public BadRequestException() {
-    this(Constant.BAD_REQUEST, null);
+    this(WebConstant.BAD_REQUEST, null);
   }
 
   public BadRequestException(String message) {
@@ -40,7 +40,7 @@ public class BadRequestException extends WebNestedRuntimeException {
   }
 
   public BadRequestException(Throwable cause) {
-    this(Constant.BAD_REQUEST, cause);
+    this(WebConstant.BAD_REQUEST, cause);
   }
 
   public BadRequestException(String message, Throwable cause) {

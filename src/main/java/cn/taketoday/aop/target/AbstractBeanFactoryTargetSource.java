@@ -28,7 +28,7 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.aware.BeanFactoryAware;
-import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.Assert;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 

@@ -24,10 +24,10 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
 
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.context.utils.MultiValueMap;
+import cn.taketoday.beans.Autowired;
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.utils.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.multipart.MultipartConfiguration;

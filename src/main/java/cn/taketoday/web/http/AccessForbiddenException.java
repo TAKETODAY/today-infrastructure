@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.http;
 
-import cn.taketoday.web.Constant;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.WebNestedRuntimeException;
 import cn.taketoday.web.annotation.ResponseStatus;
 
@@ -44,7 +44,7 @@ public class AccessForbiddenException extends WebNestedRuntimeException {
   }
 
   public AccessForbiddenException() {
-    super(Constant.ACCESS_FORBIDDEN);
+    super(WebConstant.ACCESS_FORBIDDEN);
   }
 
   public static NotFoundException failed() {

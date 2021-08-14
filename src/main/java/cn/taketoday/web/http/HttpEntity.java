@@ -21,7 +21,7 @@ package cn.taketoday.web.http;
 
 import java.util.Objects;
 
-import cn.taketoday.context.utils.MultiValueMap;
+import cn.taketoday.core.MultiValueMap;
 
 /**
  * Represents an HTTP request or response entity, consisting of headers and body.

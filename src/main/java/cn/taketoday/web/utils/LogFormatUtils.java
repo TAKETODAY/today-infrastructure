@@ -21,7 +21,7 @@ package cn.taketoday.web.utils;
 
 import java.util.function.Function;
 
-import cn.taketoday.context.logger.Logger;
+import cn.taketoday.logger.Logger;
 
 /**
  * Utility methods for formatting and logging messages.

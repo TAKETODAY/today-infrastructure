@@ -23,7 +23,7 @@ package cn.taketoday.core.io;
 import java.io.IOException;
 import java.io.InputStream;
 
-import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.Assert;
 
 /**
  * {@link Resource} implementation for a given {@link InputStream}.

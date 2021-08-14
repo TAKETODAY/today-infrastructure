@@ -21,8 +21,8 @@ package cn.taketoday.web.config;
 
 import java.util.List;
 
-import cn.taketoday.context.conversion.TypeConverter;
-import cn.taketoday.context.io.Resource;
+import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.core.io.Resource;
 import cn.taketoday.web.annotation.Multipart;
 import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.HandlerExceptionHandler;

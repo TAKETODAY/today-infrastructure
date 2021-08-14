@@ -22,7 +22,7 @@ package cn.taketoday.core.reflect;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.Assert;
 
 /**
  * MethodInvoker PropertyAccessor implementation

@@ -47,13 +47,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.MediaType;
-import cn.taketoday.context.utils.MultiValueMap;
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.utils.MediaType;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.web.RequestMethod;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.resource.CacheControl;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
@@ -83,7 +82,7 @@ import static java.util.Locale.US;
  * @since 3.0
  */
 public abstract class HttpHeaders
-        implements Constant, /*Iterable<String>,*/ MultiValueMap<String, String> {
+        implements WebConstant, /*Iterable<String>,*/ MultiValueMap<String, String> {
 
   /**
    * Pattern matching ETag multiple field values in headers such as "If-Match",
@@ -556,7 +555,7 @@ public abstract class HttpHeaders
    * <p>
    * Applications typically would not set this header directly but rather prepare
    * a {@code MultiValueMap<String, Object>}, containing an Object or a
-   * {@link Resource} for each part, and then pass that to the
+   * Resource for each part, and then pass that to the
    * {@code RestTemplate} or {@code WebClient}.
    *
    * @param name

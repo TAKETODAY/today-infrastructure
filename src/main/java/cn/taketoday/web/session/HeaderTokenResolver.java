@@ -19,9 +19,9 @@
  */
 package cn.taketoday.web.session;
 
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.http.HttpHeaders;
 
 /**
@@ -32,10 +32,10 @@ public class HeaderTokenResolver implements TokenResolver {
 
   private boolean exposeHeaders = true;
 
-  private String authorizationHeader = Constant.AUTHORIZATION;
+  private String authorizationHeader = WebConstant.AUTHORIZATION;
 
   // X-Required-Authorization
-  private String requiredAuthorizationHeader = Constant.X_REQUIRED_AUTHORIZATION;
+  private String requiredAuthorizationHeader = WebConstant.X_REQUIRED_AUTHORIZATION;
 
   public boolean isExposeHeaders() {
     return exposeHeaders;
@@ -78,7 +78,7 @@ public class HeaderTokenResolver implements TokenResolver {
     responseHeaders.set(requiredAuthorizationHeader, session.getId());
 
     if (isExposeHeaders()) {
-      responseHeaders.add(Constant.ACCESS_CONTROL_EXPOSE_HEADERS, requiredAuthorizationHeader);
+      responseHeaders.add(WebConstant.ACCESS_CONTROL_EXPOSE_HEADERS, requiredAuthorizationHeader);
     }
   }
 

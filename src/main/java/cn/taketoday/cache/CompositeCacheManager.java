@@ -26,7 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.cache.annotation.CacheConfig;
-import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.utils.ObjectUtils;
 
 /**

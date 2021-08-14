@@ -23,15 +23,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.OrderUtils;
+import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.core.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.interceptor.HandlerInterceptorsCapable;
 import cn.taketoday.web.interceptor.InterceptorChain;
-
-import static cn.taketoday.context.utils.ObjectUtils.isEmpty;
 
 /**
  * @author TODAY 2019-12-25 16:19
@@ -127,7 +125,7 @@ public abstract class InterceptableRequestHandler
   }
 
   public void setInterceptors(List<HandlerInterceptor> interceptors) {
-    setInterceptors(isEmpty(interceptors)
+    setInterceptors(ObjectUtils.isEmpty(interceptors)
                     ? null
                     : interceptors.toArray(new HandlerInterceptor[interceptors.size()]));
   }

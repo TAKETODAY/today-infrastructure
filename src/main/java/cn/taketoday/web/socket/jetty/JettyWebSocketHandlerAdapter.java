@@ -32,7 +32,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.taketoday.context.factory.DisposableBean;
+import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletContextAware;
 import cn.taketoday.web.WebNestedRuntimeException;

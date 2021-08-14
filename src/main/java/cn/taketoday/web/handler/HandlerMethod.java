@@ -25,13 +25,13 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
 
-import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.reflect.MethodInvoker;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.OrderUtils;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.reflect.MethodInvoker;
+import cn.taketoday.core.utils.AnnotationUtils;
+import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.core.utils.OrderUtils;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.Produce;
@@ -133,11 +133,11 @@ public class HandlerMethod
   }
 
   public boolean isDeclaringClassPresent(final Class<? extends Annotation> annotationClass) {
-    return ClassUtils.isAnnotationPresent(method.getDeclaringClass(), annotationClass);
+    return AnnotationUtils.isPresent(method.getDeclaringClass(), annotationClass);
   }
 
   public boolean isMethodPresent(final Class<? extends Annotation> annotationClass) {
-    return ClassUtils.isAnnotationPresent(method, annotationClass);
+    return AnnotationUtils.isPresent(method, annotationClass);
   }
 
   public <A extends Annotation> A getDeclaringClassAnnotation(final Class<A> annotation) {
@@ -149,7 +149,7 @@ public class HandlerMethod
   }
 
   public <A extends Annotation> A getAnnotation(final AnnotatedElement element, final Class<A> annotation) {
-    return ClassUtils.getAnnotation(annotation, element);
+    return AnnotationUtils.getAnnotation(annotation, element);
   }
 
   /**

@@ -34,8 +34,8 @@ import cn.taketoday.cglib.core.CodeGenerationException;
 import cn.taketoday.cglib.core.DefaultGeneratorStrategy;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.TypeUtils;
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.NestedRuntimeException;
-import cn.taketoday.core.utils.Assert;
 import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.core.utils.Mappings;
 

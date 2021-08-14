@@ -26,12 +26,12 @@ import java.net.URLConnection;
 import java.security.CodeSource;
 import java.util.Locale;
 
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.ResourceUtils;
+import cn.taketoday.context.Props;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.utils.ResourceUtils;
 import cn.taketoday.framework.WebServerApplicationContext;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 
 /**
  * @author TODAY 2019-02-05 13:09

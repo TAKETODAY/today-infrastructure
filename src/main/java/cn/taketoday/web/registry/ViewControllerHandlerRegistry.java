@@ -31,21 +31,21 @@ import java.lang.reflect.Method;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import cn.taketoday.context.AntPathMatcher;
-import cn.taketoday.context.ConfigurationException;
-import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ReflectionUtils;
-import cn.taketoday.context.utils.ResourceUtils;
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.AntPathMatcher;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.core.utils.ReflectionUtils;
+import cn.taketoday.core.utils.ResourceUtils;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.handler.ViewController;
 
-import static cn.taketoday.context.ConfigurationException.nonNull;
+import static cn.taketoday.core.ConfigurationException.nonNull;
 
 /**
  * @author TODAY <br>
@@ -123,7 +123,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
    */
   public ViewController addRedirectViewController(String pathPattern, String redirectUrl) {
     return addViewController(pathPattern)
-            .setResource(Constant.REDIRECT_URL_PREFIX.concat(redirectUrl));
+            .setResource(WebConstant.REDIRECT_URL_PREFIX.concat(redirectUrl));
   }
 
   /**
@@ -151,7 +151,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
     factory.setIgnoringComments(true);
     final DocumentBuilder builder = factory.newDocumentBuilder();
     builder.setEntityResolver((publicId, systemId) -> {
-      if (systemId.contains(Constant.DTD_NAME) || publicId.contains(Constant.DTD_NAME)) {
+      if (systemId.contains(WebConstant.DTD_NAME) || publicId.contains(WebConstant.DTD_NAME)) {
         return new InputSource(new ByteArrayInputStream("<?xml version=\"1.0\" encoding=\"UTF-8\"?>".getBytes()));
       }
       return null;
@@ -164,7 +164,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
       }
       try (final InputStream inputStream = resource.getInputStream()) {
         final Element root = builder.parse(inputStream).getDocumentElement();
-        if (Constant.ROOT_ELEMENT.equals(root.getNodeName())) { // root element
+        if (WebConstant.ROOT_ELEMENT.equals(root.getNodeName())) { // root element
 
           log.info("Found Configuration File: [{}].", resource);
           registerFromXml(root);
@@ -188,11 +188,11 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
 
         log.debug("Found Element: [{}]", nodeName);
 
-        if (Constant.ELEMENT_CONTROLLER.equals(nodeName)) {
+        if (WebConstant.ELEMENT_CONTROLLER.equals(nodeName)) {
           configController(ele);
         } // ELEMENT_RESOURCES // TODO
         else {
-          log.warn("This This element: [{}] is not supported in this version: [{}].", nodeName, Constant.WEB_VERSION);
+          log.warn("This This element: [{}] is not supported in this version: [{}].", nodeName, WebConstant.VERSION);
         }
       }
     }
@@ -210,10 +210,10 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
     Assert.notNull(controller, "'controller' element can't be null");
 
     // <controller/> element
-    final String name = controller.getAttribute(Constant.ATTR_NAME); // controller name
-    final String prefix = controller.getAttribute(Constant.ATTR_PREFIX); // prefix
-    final String suffix = controller.getAttribute(Constant.ATTR_SUFFIX); // suffix
-    final String className = controller.getAttribute(Constant.ATTR_CLASS); // class
+    final String name = controller.getAttribute(WebConstant.ATTR_NAME); // controller name
+    final String prefix = controller.getAttribute(WebConstant.ATTR_PREFIX); // prefix
+    final String suffix = controller.getAttribute(WebConstant.ATTR_SUFFIX); // suffix
+    final String className = controller.getAttribute(WebConstant.ATTR_CLASS); // class
 
     // @since 2.3.3
     final Object controllerBean = getControllerBean(name, className);
@@ -225,7 +225,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
       if (node instanceof Element) {
         String nodeName = node.getNodeName();
         // @since 2.3.3
-        if (nodeName.equals(Constant.ELEMENT_ACTION)) {// <action/>
+        if (nodeName.equals(WebConstant.ELEMENT_ACTION)) {// <action/>
           processAction(prefix, suffix, (Element) node, controllerBean);
         }
         else {
@@ -268,12 +268,12 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
                                final Object controller) //
   {
 
-    String name = action.getAttribute(Constant.ATTR_NAME); // action name
-    String order = action.getAttribute(Constant.ATTR_ORDER); // order
-    String method = action.getAttribute(Constant.ATTR_METHOD); // handler method
-    String resource = action.getAttribute(Constant.ATTR_RESOURCE); // resource
-    String contentType = action.getAttribute(Constant.ATTR_CONTENT_TYPE); // content type
-    final String status = action.getAttribute(Constant.ATTR_STATUS); // status
+    String name = action.getAttribute(WebConstant.ATTR_NAME); // action name
+    String order = action.getAttribute(WebConstant.ATTR_ORDER); // order
+    String method = action.getAttribute(WebConstant.ATTR_METHOD); // handler method
+    String resource = action.getAttribute(WebConstant.ATTR_RESOURCE); // resource
+    String contentType = action.getAttribute(WebConstant.ATTR_CONTENT_TYPE); // content type
+    final String status = action.getAttribute(WebConstant.ATTR_STATUS); // status
 
     if (StringUtils.isEmpty(name)) {
       throw new ConfigurationException(

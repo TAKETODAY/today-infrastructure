@@ -49,13 +49,13 @@ import javax.servlet.SessionCookieConfig;
 import javax.servlet.SessionTrackingMode;
 import javax.servlet.descriptor.JspConfigDescriptor;
 
-import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.MediaType;
-import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.ResourceUtils;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.core.utils.MediaType;
+import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.core.utils.ResourceUtils;
+import cn.taketoday.core.utils.StringUtils;
 
 /**
  * Mock implementation of the {@link javax.servlet.ServletContext} interface.

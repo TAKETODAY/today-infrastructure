@@ -24,9 +24,9 @@ import org.junit.Test;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.context.AnnotationAttributes;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.MediaType;
+import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.utils.AnnotationUtils;
+import cn.taketoday.core.utils.MediaType;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.annotation.ActionMapping;
 
@@ -56,8 +56,8 @@ public class RequestPathMappingHandlerMethodRegistryTests {
   public void mappingHandlerMethod() throws Exception {
     AnnotationAttributes mapping = new AnnotationAttributes();
     final Method method = TEST.class.getDeclaredMethod("mapping");
-    final AnnotationAttributes actionMapping = ClassUtils.getAnnotationAttributes(ActionMapping.class, method);
-    final AnnotationAttributes controllerMapping = ClassUtils.getAnnotationAttributes(ActionMapping.class, TEST.class);
+    final AnnotationAttributes actionMapping = AnnotationUtils.getAttributes(ActionMapping.class, method);
+    final AnnotationAttributes controllerMapping = AnnotationUtils.getAttributes(ActionMapping.class, TEST.class);
 
     final RequestPathMappingHandlerMethodRegistry registry = new RequestPathMappingHandlerMethodRegistry();
     registry.mergeMappingAttributes(mapping, actionMapping, controllerMapping);

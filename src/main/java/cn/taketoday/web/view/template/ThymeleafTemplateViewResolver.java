@@ -28,9 +28,9 @@ import java.io.IOException;
 
 import javax.servlet.ServletContext;
 
-import cn.taketoday.context.annotation.Value;
-import cn.taketoday.context.factory.InitializingBean;
-import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.context.Value;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletContextAware;
 

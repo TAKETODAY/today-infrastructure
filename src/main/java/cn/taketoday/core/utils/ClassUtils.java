@@ -63,6 +63,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.loader.CandidateComponentScanner;
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.io.Resource;

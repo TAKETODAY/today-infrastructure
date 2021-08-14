@@ -22,6 +22,8 @@ package cn.taketoday.core.utils;
 
 import java.util.function.Supplier;
 
+import cn.taketoday.core.Assert;
+
 /**
  * A {@link java.util.function.Supplier} decorator that caches a singleton result and
  * makes it available from {@link #get()} (nullable) and {@link #obtain()} (null-safe).

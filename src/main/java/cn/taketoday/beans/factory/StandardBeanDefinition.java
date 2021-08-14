@@ -31,12 +31,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.reflect.BeanConstructor;
 import cn.taketoday.core.reflect.MethodAccessorBeanConstructor;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.core.reflect.StaticMethodAccessorBeanConstructor;
 import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.Assert;
 import cn.taketoday.core.utils.ObjectUtils;
 import cn.taketoday.core.utils.OrderUtils;
 

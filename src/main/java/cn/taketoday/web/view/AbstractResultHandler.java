@@ -25,13 +25,13 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ResourceUtils;
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.utils.ResourceUtils;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
@@ -123,7 +123,7 @@ public abstract class AbstractResultHandler
   }
 
   public void handleRedirect(final String redirect, final RequestContext context) throws IOException {
-    if (StringUtils.isEmpty(redirect) || redirect.startsWith(Constant.HTTP)) {
+    if (StringUtils.isEmpty(redirect) || redirect.startsWith(WebConstant.HTTP)) {
       context.sendRedirect(redirect);
     }
     else {
@@ -132,14 +132,14 @@ public abstract class AbstractResultHandler
   }
 
   /**
-   * @see Constant#REDIRECT_URL_PREFIX
-   * @see Constant#RESPONSE_BODY_PREFIX
+   * @see WebConstant#REDIRECT_URL_PREFIX
+   * @see WebConstant#RESPONSE_BODY_PREFIX
    */
   public void handleString(final String resource, final RequestContext context) throws Throwable {
-    if (resource.startsWith(Constant.REDIRECT_URL_PREFIX)) {
+    if (resource.startsWith(WebConstant.REDIRECT_URL_PREFIX)) {
       handleRedirect(resource.substring(9), context);
     }
-    else if (resource.startsWith(Constant.RESPONSE_BODY_PREFIX)) {
+    else if (resource.startsWith(WebConstant.RESPONSE_BODY_PREFIX)) {
       handleResponseBody(context, resource.substring(5));
     }
     else {
@@ -169,7 +169,7 @@ public abstract class AbstractResultHandler
    */
   public void handleImageView(final RenderedImage image, final RequestContext context) throws IOException {
     // need set content type
-    ImageIO.write(image, Constant.IMAGE_PNG, context.getOutputStream());
+    ImageIO.write(image, WebConstant.IMAGE_PNG, context.getOutputStream());
   }
 
   public int getDownloadFileBufferSize() {

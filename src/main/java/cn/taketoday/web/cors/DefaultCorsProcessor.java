@@ -24,11 +24,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.utils.WebUtils;
@@ -55,9 +55,9 @@ public class DefaultCorsProcessor implements CorsProcessor {
   public boolean process(final CorsConfiguration config, final RequestContext context) throws IOException {
     final HttpHeaders responseHeaders = context.responseHeaders();
     responseHeaders.setVary(
-            Arrays.asList(Constant.ORIGIN,
-                          Constant.ACCESS_CONTROL_REQUEST_METHOD,
-                          Constant.ACCESS_CONTROL_REQUEST_HEADERS
+            Arrays.asList(WebConstant.ORIGIN,
+                          WebConstant.ACCESS_CONTROL_REQUEST_METHOD,
+                          WebConstant.ACCESS_CONTROL_REQUEST_HEADERS
             )
     );
 
@@ -65,7 +65,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
       return true;
     }
 
-    if (responseHeaders.containsKey(Constant.ACCESS_CONTROL_ALLOW_ORIGIN)) {
+    if (responseHeaders.containsKey(WebConstant.ACCESS_CONTROL_ALLOW_ORIGIN)) {
       log.trace("Skip: response already contains \"Access-Control-Allow-Origin\"");
       return true;
     }
@@ -88,7 +88,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
 
     context.setStatus(HttpStatus.FORBIDDEN);
     context.getOutputStream()
-            .write("Invalid CORS request".getBytes(Constant.DEFAULT_CHARSET));
+            .write("Invalid CORS request".getBytes(WebConstant.DEFAULT_CHARSET));
     context.flush();
   }
 
@@ -169,7 +169,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
   }
 
   private String getMethodToUse(RequestContext context, boolean isPreFlight) {
-    return isPreFlight ? context.requestHeaders().getFirst(Constant.ACCESS_CONTROL_REQUEST_METHOD) : context.getMethod();
+    return isPreFlight ? context.requestHeaders().getFirst(WebConstant.ACCESS_CONTROL_REQUEST_METHOD) : context.getMethod();
   }
 
   /**

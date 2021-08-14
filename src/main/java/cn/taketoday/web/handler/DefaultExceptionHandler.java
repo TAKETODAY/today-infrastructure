@@ -25,13 +25,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.ReflectionUtils;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.core.utils.ReflectionUtils;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.ResponseStatus;
@@ -65,7 +65,7 @@ public class DefaultExceptionHandler
   @Override
   public Object handleException(RequestContext context, Throwable target, Object handler) throws Throwable {
     // prepare context throwable
-    context.setAttribute(Constant.KEY_THROWABLE, target);
+    context.setAttribute(WebConstant.KEY_THROWABLE, target);
     // catch all handlers
     final ThrowableHandlerMethod exHandler = lookupExceptionHandler(target);
     if (exHandler == null) {
@@ -214,7 +214,7 @@ public class DefaultExceptionHandler
     protected void applyResponseStatus(final RequestContext context) {
       final ResponseStatus status = getResponseStatus();
       if (status == null) {
-        final Object attribute = context.getAttribute(Constant.KEY_THROWABLE);
+        final Object attribute = context.getAttribute(WebConstant.KEY_THROWABLE);
         if (attribute instanceof HttpStatusCapable) { // @since 3.0.1
           final HttpStatus httpStatus = ((HttpStatusCapable) attribute).getHttpStatus();
           context.setStatus(httpStatus);

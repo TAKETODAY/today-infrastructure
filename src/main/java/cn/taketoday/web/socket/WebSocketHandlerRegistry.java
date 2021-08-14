@@ -23,10 +23,10 @@ package cn.taketoday.web.socket;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.factory.ConfigurableBeanFactory;
-import cn.taketoday.context.factory.Prototypes;
-import cn.taketoday.context.utils.Assert;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.Prototypes;
+import cn.taketoday.core.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.WebApplicationInitializer;
@@ -160,7 +160,7 @@ public class WebSocketHandlerRegistry
   //
 
   /**
-   * apply {@link cn.taketoday.context.PathMatcher}
+   * apply {@link cn.taketoday.core.PathMatcher}
    */
   @Override
   protected Object lookupInternal(RequestContext context) {

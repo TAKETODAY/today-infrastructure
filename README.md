@@ -806,19 +806,19 @@ public class LifecycleBean implements InitializingBean, DisposableBean {
 2019-07-25 23:14:37.918 DEBUG - [            main] c.t.context.AbstractApplicationContext    480 - Publish event: [cn.taketoday.context.event.LoadingMissingBeanEvent]
 2019-07-25 23:14:37.921 DEBUG - [            main] c.t.context.AbstractApplicationContext    480 - Publish event: [cn.taketoday.context.event.BeanDefinitionLoadedEvent]
 2019-07-25 23:14:37.922 DEBUG - [            main] c.t.context.AbstractApplicationContext    480 - Publish event: [cn.taketoday.context.event.DependenciesHandledEvent]
-2019-07-25 23:14:37.923 DEBUG - [            main] c.t.context.factory.AbstractBeanFactory   581 - Start loading BeanPostProcessor.
+2019-07-25 23:14:37.923 DEBUG - [            main] c.t.beans.factory.AbstractBeanFactory   581 - Start loading BeanPostProcessor.
 2019-07-25 23:14:37.926 DEBUG - [            main] c.t.context.AbstractApplicationContext    480 - Publish event: [cn.taketoday.context.event.ContextPreRefreshEvent]
 2019-07-25 23:14:37.927 DEBUG - [            main] c.t.context.AbstractApplicationContext    480 - Publish event: [cn.taketoday.context.event.ContextRefreshEvent]
-2019-07-25 23:14:37.928 DEBUG - [            main] c.t.context.factory.AbstractBeanFactory  1002 - Initialization of singleton objects.
-2019-07-25 23:14:37.929 DEBUG - [            main] c.t.context.factory.AbstractBeanFactory   651 - Initializing bean named: [lifecycleBean].
+2019-07-25 23:14:37.928 DEBUG - [            main] c.t.beans.factory.AbstractBeanFactory  1002 - Initialization of singleton objects.
+2019-07-25 23:14:37.929 DEBUG - [            main] c.t.beans.factory.AbstractBeanFactory   651 - Initializing bean named: [lifecycleBean].
 2019-07-25 23:14:37.929  INFO - [            main] test.context.LifecycleBean                 59 - setBeanName: lifecycleBean
 2019-07-25 23:14:37.930  INFO - [            main] test.context.LifecycleBean                 69 - setBeanFactory: cn.taketoday.beans.factory.StandardBeanFactory@5ce81285
 2019-07-25 23:14:37.930  INFO - [            main] test.context.LifecycleBean                 74 - setApplicationContext: cn.taketoday.context.StandardApplicationContext@78c03f1f
 2019-07-25 23:14:37.930  INFO - [            main] test.context.LifecycleBean                 64 - setEnvironment: cn.taketoday.context.StandardEnvironment@5ec0a365
 2019-07-25 23:14:37.931  INFO - [            main] test.context.LifecycleBean                 79 - @PostConstruct
 2019-07-25 23:14:37.931  INFO - [            main] test.context.LifecycleBean                 84 - afterPropertiesSet
-2019-07-25 23:14:37.931 DEBUG - [            main] c.t.context.factory.AbstractBeanFactory   511 - Singleton bean is being stored in the name of [lifecycleBean]
-2019-07-25 23:14:37.932 DEBUG - [            main] c.t.context.factory.AbstractBeanFactory  1008 - The singleton objects are initialized.
+2019-07-25 23:14:37.931 DEBUG - [            main] c.t.beans.factory.AbstractBeanFactory   511 - Singleton bean is being stored in the name of [lifecycleBean]
+2019-07-25 23:14:37.932 DEBUG - [            main] c.t.beans.factory.AbstractBeanFactory  1008 - The singleton objects are initialized.
 2019-07-25 23:14:37.932 DEBUG - [            main] c.t.context.AbstractApplicationContext    480 - Publish event: [cn.taketoday.context.event.ContextStartedEvent]
 2019-07-25 23:14:37.941  INFO - [            main] c.t.context.AbstractApplicationContext    210 - Application Context Startup in 234ms
 {lifecycleBean={

@@ -23,9 +23,7 @@ package cn.taketoday.web.session;
 import java.net.HttpCookie;
 import java.time.Duration;
 
-import cn.taketoday.web.Constant;
-import lombok.Getter;
-import lombok.Setter;
+import cn.taketoday.web.WebConstant;
 
 /**
  * Session cookie properties.
@@ -33,11 +31,9 @@ import lombok.Setter;
  * @author TODAY(taketoday @ foxmail.com) https://taketoday.cn <br>
  * 2019-01-26 17:16
  */
-@Getter
-@Setter
 public class SessionCookieConfiguration {
 
-  private String name = Constant.AUTHORIZATION;
+  private String name = WebConstant.AUTHORIZATION;
   private String path = "/";
   private String domain;
   private String comment;
@@ -45,7 +41,6 @@ public class SessionCookieConfiguration {
   private Duration maxAge = Duration.ofMinutes(30);
   private boolean httpOnly = true;
   private int version = 1;    // Version=1 ... RFC 2965 style
-
 
   public HttpCookie toHttpCookie() {
     final HttpCookie httpCookie = new HttpCookie(name, null);
@@ -59,4 +54,67 @@ public class SessionCookieConfiguration {
     return httpCookie;
   }
 
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getPath() {
+    return path;
+  }
+
+  public void setPath(String path) {
+    this.path = path;
+  }
+
+  public String getDomain() {
+    return domain;
+  }
+
+  public void setDomain(String domain) {
+    this.domain = domain;
+  }
+
+  public String getComment() {
+    return comment;
+  }
+
+  public void setComment(String comment) {
+    this.comment = comment;
+  }
+
+  public boolean isSecure() {
+    return secure;
+  }
+
+  public void setSecure(boolean secure) {
+    this.secure = secure;
+  }
+
+  public Duration getMaxAge() {
+    return maxAge;
+  }
+
+  public void setMaxAge(Duration maxAge) {
+    this.maxAge = maxAge;
+  }
+
+  public boolean isHttpOnly() {
+    return httpOnly;
+  }
+
+  public void setHttpOnly(boolean httpOnly) {
+    this.httpOnly = httpOnly;
+  }
+
+  public int getVersion() {
+    return version;
+  }
+
+  public void setVersion(int version) {
+    this.version = version;
+  }
 }

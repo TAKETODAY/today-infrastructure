@@ -28,9 +28,9 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import cn.taketoday.web.Constant;
+import cn.taketoday.web.WebConstant;
 
-import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
+import static cn.taketoday.core.Constant.DEFAULT_CHARSET;
 
 /**
  * @author TODAY <br>
@@ -49,7 +49,7 @@ public abstract class HttpUtils {
    *         request body
    */
   public static HttpURLConnection getConnection(String method, String urlStr, byte[] body) throws IOException {
-    return getConnection(method, urlStr, Constant.CONTENT_TYPE_JSON, body);
+    return getConnection(method, urlStr, WebConstant.CONTENT_TYPE_JSON, body);
   }
 
   /**
@@ -65,7 +65,7 @@ public abstract class HttpUtils {
   public static HttpURLConnection getConnection(String method, String urlStr, String contentType, byte[] body) throws IOException {
     HttpURLConnection connection = getConnection(method, urlStr);
     if (contentType != null) {
-      connection.setRequestProperty(Constant.CONTENT_TYPE, contentType);
+      connection.setRequestProperty(WebConstant.CONTENT_TYPE, contentType);
     }
     if (body != null) {
       OutputStream outputStream = connection.getOutputStream();

@@ -22,7 +22,7 @@ package cn.taketoday.web.socket.annotation;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.context.reflect.MethodInvoker;
+import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.handler.MethodParametersBuilder;
 

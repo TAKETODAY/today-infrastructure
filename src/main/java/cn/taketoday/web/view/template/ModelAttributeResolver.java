@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.view.template;
 
-import cn.taketoday.context.utils.Assert;
+import cn.taketoday.core.Assert;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionResolver;
 import cn.taketoday.web.view.Model;

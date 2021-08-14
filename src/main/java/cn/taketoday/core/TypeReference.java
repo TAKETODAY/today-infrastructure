@@ -23,7 +23,6 @@ package cn.taketoday.core;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import cn.taketoday.core.utils.Assert;
 import cn.taketoday.core.utils.ResolvableType;
 
 /**

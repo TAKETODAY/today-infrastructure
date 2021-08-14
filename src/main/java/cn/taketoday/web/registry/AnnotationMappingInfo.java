@@ -25,14 +25,14 @@ import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
-import cn.taketoday.context.AnnotationAttributes;
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.utils.InvalidMediaTypeException;
-import cn.taketoday.context.utils.MediaType;
-import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.OrderUtils;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.utils.InvalidMediaTypeException;
+import cn.taketoday.core.utils.MediaType;
+import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.core.utils.OrderUtils;
 import cn.taketoday.web.RequestMethod;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.handler.HandlerMethod;
 
@@ -99,7 +99,7 @@ final class AnnotationMappingInfo implements Ordered {
    *         if the media type (consumes) value cannot be parsed
    */
   AnnotationMappingInfo(AnnotationAttributes attributes, HandlerMethod handler) {
-    this(attributes.getStringArray(Constant.VALUE), attributes.getStringArray("produces"),
+    this(attributes.getStringArray(WebConstant.VALUE), attributes.getStringArray("produces"),
          attributes.getStringArray("consumes"), attributes.getStringArray("params"),
          attributes.getAttribute("method", RequestMethod[].class), handler);
   }
@@ -141,7 +141,7 @@ final class AnnotationMappingInfo implements Ordered {
   public String toString() {
     final StringBuilder builder = new StringBuilder();
 
-    appendString(builder, Constant.BLANK, method);
+    appendString(builder, WebConstant.BLANK, method);
     appendString(builder, "consumes: ", consumes);
     appendString(builder, "produces: ", produces);
     appendString(builder, "params: ", params);

@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.servlet.initializer;
 
-import cn.taketoday.context.Ordered;
+import cn.taketoday.core.Ordered;
 
 /**
  * @author TODAY <br>

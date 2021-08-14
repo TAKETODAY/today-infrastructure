@@ -24,9 +24,9 @@ import java.util.Map;
 
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.aware.BeanClassLoaderAware;
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.core.utils.Assert;
 import cn.taketoday.core.utils.ClassUtils;
 
 /**

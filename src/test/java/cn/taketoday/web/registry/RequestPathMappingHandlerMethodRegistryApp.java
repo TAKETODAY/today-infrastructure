@@ -20,10 +20,10 @@
 
 package cn.taketoday.web.registry;
 
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.Import;
+import cn.taketoday.beans.Configuration;
+import cn.taketoday.beans.Import;
 import cn.taketoday.context.event.EnableMethodEventDriven;
-import cn.taketoday.context.utils.MediaType;
+import cn.taketoday.core.utils.MediaType;
 import cn.taketoday.framework.WebApplication;
 import cn.taketoday.framework.annotation.EnableTomcatHandling;
 import cn.taketoday.web.annotation.GET;

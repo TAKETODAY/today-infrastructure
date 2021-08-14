@@ -19,11 +19,13 @@
  */
 package cn.taketoday.framework;
 
+import cn.taketoday.web.WebConstant;
+
 /**
  * @author TODAY <br>
  * 2019-06-19 21:50
  */
-public interface Constant extends cn.taketoday.web.Constant {
+public interface Constant extends WebConstant {
 
   String DEFAULT_YML_FILE = CLASS_PATH_PREFIX + "application.yml"; // @since 1.0.2
   String DEFAULT_YAML_FILE = CLASS_PATH_PREFIX + "application.yaml";

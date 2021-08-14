@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.session;
 
-import cn.taketoday.context.AttributeAccessor;
+import cn.taketoday.core.AttributeAccessor;
 
 /**
  * @author TODAY <br>

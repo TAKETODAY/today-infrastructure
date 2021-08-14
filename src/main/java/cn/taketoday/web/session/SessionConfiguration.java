@@ -22,7 +22,7 @@ package cn.taketoday.web.session;
 
 import java.time.Duration;
 
-import cn.taketoday.context.io.Resource;
+import cn.taketoday.core.io.Resource;
 
 /**
  * @author TODAY 2021/4/27 23:03

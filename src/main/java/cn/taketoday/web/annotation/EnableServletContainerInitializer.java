@@ -31,13 +31,13 @@ import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.annotation.HandlesTypes;
 
+import cn.taketoday.beans.Import;
+import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.aware.AnnotationImportAware;
-import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.loader.CandidateComponentScanner;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.core.utils.AnnotationUtils;
+import cn.taketoday.core.utils.ObjectUtils;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
 
@@ -75,7 +75,7 @@ class ServletContainerInitializerConfig
     }
 
     for (final ServletContainerInitializer initializer : context.getBeans(ServletContainerInitializer.class)) {
-      final HandlesTypes handles = ClassUtils.getAnnotation(initializer, HandlesTypes.class);
+      final HandlesTypes handles = AnnotationUtils.getAnnotation(initializer, HandlesTypes.class);
 
       Set<Class<?>> c = null;
       if (handles != null) {

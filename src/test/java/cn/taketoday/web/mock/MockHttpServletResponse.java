@@ -46,11 +46,11 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.LinkedCaseInsensitiveMap;
-import cn.taketoday.context.utils.MediaType;
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.utils.LinkedCaseInsensitiveMap;
+import cn.taketoday.core.utils.MediaType;
+import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.http.HttpHeaders;
 
 /**
@@ -88,7 +88,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
   //	 * @see ServletRequest#getCharacterEncoding
   //	 */
   //	public static final String DEFAULT_CHARACTER_ENCODING = "ISO-8859-1";
-  private String characterEncoding = Constant.DEFAULT_ENCODING;
+  private String characterEncoding = WebConstant.DEFAULT_ENCODING;
 
   private boolean charset = false;
 

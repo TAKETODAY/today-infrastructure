@@ -31,7 +31,6 @@ import org.apache.tomcat.websocket.WsSession;
 import org.apache.tomcat.websocket.server.WsFrameServer;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,10 +43,9 @@ import javax.websocket.Endpoint;
 import javax.websocket.Extension;
 import javax.websocket.server.ServerEndpointConfig;
 
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.reflect.MethodInvoker;
-import cn.taketoday.web.WebNestedRuntimeException;
+import cn.taketoday.core.reflect.MethodInvoker;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 
 /**
  * Servlet 3.1 HTTP upgrade handler for WebSocket connections.
@@ -57,18 +55,7 @@ import cn.taketoday.web.WebNestedRuntimeException;
  */
 public final class TomcatHttpUpgradeHandler implements InternalHttpUpgradeHandler {
   private static final Logger log = LoggerFactory.getLogger(TomcatHttpUpgradeHandler.class);
-  private static final MethodInvoker notifyDataAvailable;
-
-  static {
-    final Method dataAvailable;
-    try {
-      dataAvailable = WsFrameServer.class.getDeclaredMethod("notifyDataAvailable");
-    }
-    catch (NoSuchMethodException e) {
-      throw new WebNestedRuntimeException(e);
-    }
-    notifyDataAvailable = MethodInvoker.create(dataAvailable);
-  }
+  private static final MethodInvoker notifyDataAvailable = MethodInvoker.create(WsFrameServer.class, "notifyDataAvailable");
 
   private final ClassLoader applicationClassLoader;
 

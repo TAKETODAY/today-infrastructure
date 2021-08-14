@@ -26,8 +26,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.factory.ObjectFactory;
+import cn.taketoday.beans.ObjectFactory;
+import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.ServletContextAware;
 import cn.taketoday.web.StandardWebBeanFactory;

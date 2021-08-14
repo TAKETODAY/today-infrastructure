@@ -34,8 +34,8 @@ import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.context.ApplicationContextException;
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.Assert;
 import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.logger.LoggerFactory;
 
@@ -111,7 +111,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
       return new MethodInvokerGenerator(targetMethod, beanClass).create();
     }
     catch (NoSuchMethodException e) {
-      throw new ReflectionException("No such method", e);
+      throw new ReflectionException("No such method: '" + name + "' in " + beanClass, e);
     }
   }
 

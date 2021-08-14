@@ -58,12 +58,12 @@ import java.util.function.Supplier;
 
 import javax.servlet.Servlet;
 
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.factory.DisposableBean;
-import cn.taketoday.context.io.ClassPathResource;
-import cn.taketoday.context.io.FileBasedResource;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.io.ClassPathResource;
+import cn.taketoday.core.io.FileBasedResource;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.framework.WebServerException;
 import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.framework.config.ErrorPage;
@@ -477,9 +477,9 @@ public class JettyServer
     }
   }
 
-  protected Resource getRootResource(final cn.taketoday.context.io.Resource validDocBase) throws IOException {
+  protected Resource getRootResource(final cn.taketoday.core.io.Resource validDocBase) throws IOException {
 
-    if (validDocBase instanceof cn.taketoday.context.io.JarResource) {
+    if (validDocBase instanceof cn.taketoday.core.io.JarResource) {
       return JarResource.newJarResource(Resource.newResource(validDocBase.getFile()));
     }
     if (validDocBase instanceof FileBasedResource) {

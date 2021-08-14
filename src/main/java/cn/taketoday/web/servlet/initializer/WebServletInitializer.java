@@ -26,10 +26,10 @@ import javax.servlet.ServletRegistration;
 import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.ServletSecurityElement;
 
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.web.WebConstant;
 
 /**
  * @author TODAY <br>
@@ -76,7 +76,7 @@ public class WebServletInitializer<T extends Servlet> extends WebComponentInitia
   protected void configureUrlMappings(Dynamic registration) {
 
     final String[] urlMappings = getUrlMappings().isEmpty()
-                                 ? Constant.DEFAULT_MAPPINGS
+                                 ? WebConstant.DEFAULT_MAPPINGS
                                  : StringUtils.toStringArray(getUrlMappings());
 
     registration.addMapping(urlMappings);

@@ -20,8 +20,8 @@
 
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.OrderedSupport;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.OrderedSupport;
 
 /**
  * @author TODAY 2021/3/10 20:30

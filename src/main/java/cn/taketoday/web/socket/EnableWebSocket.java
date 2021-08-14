@@ -26,9 +26,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
 
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.beans.Import;
+import cn.taketoday.beans.MissingBean;
+import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.ObjectNotationProcessor;

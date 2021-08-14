@@ -24,7 +24,7 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import cn.taketoday.aop.DynamicIntroductionAdvice;
 import cn.taketoday.aop.IntroductionInterceptor;
-import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.Assert;
 
 /**
  * Convenient implementation of the {@link IntroductionInterceptor} interface.

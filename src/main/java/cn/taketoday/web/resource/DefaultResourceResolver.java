@@ -25,17 +25,17 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 
-import cn.taketoday.context.PathMatcher;
-import cn.taketoday.context.io.PathMatchingResourcePatternResolver;
-import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.io.ResourceFilter;
-import cn.taketoday.context.io.ResourceResolver;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.MediaType;
-import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.ResourceUtils;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.core.PathMatcher;
+import cn.taketoday.core.io.PathMatchingResourcePatternResolver;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.ResourceFilter;
+import cn.taketoday.core.io.ResourceResolver;
+import cn.taketoday.core.utils.MediaType;
+import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.core.utils.ResourceUtils;
+import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.web.handler.ResourceMatchResult;
 import cn.taketoday.web.utils.WebUtils;
 

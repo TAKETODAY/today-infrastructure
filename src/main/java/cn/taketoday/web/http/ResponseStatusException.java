@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.http;
 
-import cn.taketoday.context.NoStackTraceRuntimeException;
+import cn.taketoday.core.NoStackTraceRuntimeException;
 
 /**
  * ResponseStatus

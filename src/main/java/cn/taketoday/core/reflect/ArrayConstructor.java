@@ -22,8 +22,8 @@ package cn.taketoday.core.reflect;
 
 import java.lang.reflect.Array;
 
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.Assert;
 
 /**
  * @author TODAY 2021/1/29 15:56

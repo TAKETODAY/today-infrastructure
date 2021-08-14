@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.context.utils.MediaType;
+import cn.taketoday.core.utils.MediaType;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.resource.CacheControl;
 

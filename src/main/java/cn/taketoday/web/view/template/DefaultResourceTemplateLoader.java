@@ -22,14 +22,14 @@ package cn.taketoday.web.view.template;
 import java.io.IOException;
 import java.io.Reader;
 
-import cn.taketoday.context.io.PathMatchingResourcePatternResolver;
-import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.io.ResourceResolver;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.ConcurrentCache;
-import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.io.PathMatchingResourcePatternResolver;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.ResourceResolver;
+import cn.taketoday.core.utils.ConcurrentCache;
+import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.web.WebConstant;
 import freemarker.cache.TemplateLoader;
 
 /**
@@ -48,7 +48,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
   public final ConcurrentCache<String, TemplateSource> cache;
 
   public DefaultResourceTemplateLoader() {
-    this(Constant.DEFAULT_TEMPLATE_PATH, Constant.BLANK, 128);
+    this(WebConstant.DEFAULT_TEMPLATE_PATH, WebConstant.BLANK, 128);
   }
 
   public DefaultResourceTemplateLoader(String prefix, String suffix) {

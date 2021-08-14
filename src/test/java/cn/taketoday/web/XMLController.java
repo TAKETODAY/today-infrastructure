@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web;
 
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.core.utils.StringUtils;
 
 /**
  * @author TODAY <br>

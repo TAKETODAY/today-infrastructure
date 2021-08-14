@@ -20,7 +20,7 @@
 
 package cn.taketoday.web;
 
-import cn.taketoday.context.NamedThreadLocal;
+import cn.taketoday.core.NamedThreadLocal;
 
 /**
  * @author TODAY 2021/4/2 16:53

@@ -21,7 +21,7 @@
 package cn.taketoday.aop.target;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.Assert;
 
 /**
  * Refreshable TargetSource that fetches fresh target beans from a BeanFactory.

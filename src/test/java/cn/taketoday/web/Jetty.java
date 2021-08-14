@@ -44,13 +44,13 @@ import java.util.function.Supplier;
 
 import javax.annotation.PreDestroy;
 
-import cn.taketoday.context.io.ClassPathResource;
-import cn.taketoday.context.io.FileBasedResource;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.ResourceUtils;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.core.io.ClassPathResource;
+import cn.taketoday.core.io.FileBasedResource;
+import cn.taketoday.core.utils.ResourceUtils;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.framework.server.ServletWebServerApplicationLoader;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import cn.taketoday.web.servlet.WebServletApplicationLoader;
 import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
@@ -70,7 +70,7 @@ public class Jetty {
   private Server server;
   private int port = 8081;
   private String host = "localhost";
-  private String contextPath = Constant.BLANK;
+  private String contextPath = WebConstant.BLANK;
   private boolean autoStart = true;
   private AtomicBoolean started = new AtomicBoolean(false);
 
@@ -260,11 +260,6 @@ public class Jetty {
    *
    * @param context
    *         the context to configure
-   * @param initializers
-   *         the set of initializers to apply
-   *
-   * @throws IOException
-   * @throws Throwable
    */
   protected void configureWebAppContext(final WebAppContext context) throws IOException {
     Objects.requireNonNull(context, "WebAppContext must not be null");
@@ -274,7 +269,7 @@ public class Jetty {
 
     // D:\Projects\Git\github\today-web\src\test\resources
 
-    final cn.taketoday.context.io.Resource resource = ResourceUtils.getResource("classpath:jetty-root/");
+    final cn.taketoday.core.io.Resource resource = ResourceUtils.getResource("classpath:jetty-root/");
 
     context.setBaseResource(getRootResource(resource));
 
@@ -288,9 +283,9 @@ public class Jetty {
     context.setThrowUnavailableOnStartupException(true);
   }
 
-  protected Resource getRootResource(final cn.taketoday.context.io.Resource validDocBase) throws IOException {
+  protected Resource getRootResource(final cn.taketoday.core.io.Resource validDocBase) throws IOException {
 
-    if (validDocBase instanceof cn.taketoday.context.io.JarResource) {
+    if (validDocBase instanceof cn.taketoday.core.io.JarResource) {
       return JarResource.newJarResource(Resource.newResource(validDocBase.getFile()));
     }
     if (validDocBase instanceof FileBasedResource) {
@@ -311,8 +306,6 @@ public class Jetty {
    *
    * @param webAppContext
    *         the Jetty {@link WebAppContext}
-   * @param initializers
-   *         the {@link ServletContextInitializer}s to apply
    *
    * @return configurations to apply
    */
@@ -332,8 +325,6 @@ public class Jetty {
    *
    * @param webAppContext
    *         the Jetty {@link WebAppContext}
-   * @param initializers
-   *         the {@link ServletContextInitializer}s to apply
    *
    * @return the {@link Configuration} instance
    */

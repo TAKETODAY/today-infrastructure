@@ -40,6 +40,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import cn.taketoday.core.Assert;
+
 /**
  * Miscellaneous {@link MimeType} utility methods.
  *

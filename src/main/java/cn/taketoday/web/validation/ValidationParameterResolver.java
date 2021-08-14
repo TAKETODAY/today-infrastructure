@@ -22,12 +22,12 @@ package cn.taketoday.web.validation;
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 
-import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.web.Constant;
+import cn.taketoday.beans.Autowired;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolvers;
@@ -86,7 +86,7 @@ public class ValidationParameterResolver
     final Object value = resolveValue(context, parameter);
 
     final DefaultErrors errors = new DefaultErrors();
-    context.setAttribute(Constant.VALIDATION_ERRORS, errors);
+    context.setAttribute(WebConstant.VALIDATION_ERRORS, errors);
 
     doValidate(getValidator(), value, errors);
 

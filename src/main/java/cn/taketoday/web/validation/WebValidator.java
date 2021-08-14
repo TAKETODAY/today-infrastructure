@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import cn.taketoday.context.utils.Assert;
+import cn.taketoday.core.Assert;
 
 /**
  * list of {@link Validator}

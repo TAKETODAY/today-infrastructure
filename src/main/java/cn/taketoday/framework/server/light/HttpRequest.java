@@ -31,12 +31,20 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Locale;
 
-import cn.taketoday.context.utils.MultiValueMap;
+import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.framework.Constant;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.utils.WebUtils;
 
-import static cn.taketoday.framework.server.light.Utils.*;
+import static cn.taketoday.framework.server.light.Utils.detectLocalHostName;
+import static cn.taketoday.framework.server.light.Utils.parseRange;
+import static cn.taketoday.framework.server.light.Utils.parseULong;
+import static cn.taketoday.framework.server.light.Utils.readHeaders;
+import static cn.taketoday.framework.server.light.Utils.readLine;
+import static cn.taketoday.framework.server.light.Utils.readToken;
+import static cn.taketoday.framework.server.light.Utils.split;
+import static cn.taketoday.framework.server.light.Utils.splitElements;
+import static cn.taketoday.framework.server.light.Utils.trimDuplicates;
 
 /**
  * The {@code Request} class encapsulates a single HTTP request.

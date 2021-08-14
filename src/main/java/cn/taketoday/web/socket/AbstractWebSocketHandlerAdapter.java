@@ -26,10 +26,10 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.utils.CollectionUtils;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.handler.AbstractHandlerAdapter;
 import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.http.BadRequestException;
@@ -160,7 +160,7 @@ public abstract class AbstractWebSocketHandlerAdapter extends AbstractHandlerAda
         }
       }
     }
-    return Constant.BLANK;
+    return WebConstant.BLANK;
   }
 
   /**

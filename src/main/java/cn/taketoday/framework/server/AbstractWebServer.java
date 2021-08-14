@@ -29,17 +29,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import cn.taketoday.beans.Autowired;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.env.ConfigurableEnvironment;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.OrderUtils;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.context.ConfigurableEnvironment;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.utils.AnnotationUtils;
+import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.core.utils.OrderUtils;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.framework.Constant;
 import cn.taketoday.framework.WebServerApplicationContext;
 import cn.taketoday.framework.annotation.Starter;
@@ -50,6 +49,7 @@ import cn.taketoday.framework.config.MimeMappings;
 import cn.taketoday.framework.config.WebApplicationConfiguration;
 import cn.taketoday.framework.config.WebDocumentConfiguration;
 import cn.taketoday.framework.utils.ApplicationUtils;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.config.WebApplicationLoader;
@@ -137,7 +137,7 @@ public abstract class AbstractWebServer
       if (StringUtils.isNotEmpty(webMvcConfigLocation)) {
         environment.setProperty(Constant.ENABLE_WEB_MVC_XML, Boolean.TRUE.toString());
       }
-      else if ((starter = ClassUtils.getAnnotation(Starter.class, context.getStartupClass())) != null) {
+      else if ((starter = AnnotationUtils.getAnnotation(Starter.class, context.getStartupClass())) != null) {
         // find webMvcConfigLocation
         webMvcConfigLocation = starter.webMvcConfigLocation();
         if (StringUtils.isNotEmpty(webMvcConfigLocation)) {

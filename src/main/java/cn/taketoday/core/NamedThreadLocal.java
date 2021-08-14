@@ -20,8 +20,6 @@
 
 package cn.taketoday.core;
 
-import cn.taketoday.core.utils.Assert;
-
 /**
  * {@link ThreadLocal} subclass that exposes a specified name
  * as {@link #toString()} result (allowing for introspection).

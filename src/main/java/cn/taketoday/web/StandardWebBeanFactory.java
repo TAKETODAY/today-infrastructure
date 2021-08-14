@@ -21,10 +21,10 @@ package cn.taketoday.web;
 
 import java.util.Map;
 
-import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.factory.ObjectFactory;
-import cn.taketoday.context.factory.StandardBeanFactory;
-import cn.taketoday.context.utils.Assert;
+import cn.taketoday.beans.ObjectFactory;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.core.Assert;
 import cn.taketoday.web.session.WebSession;
 import cn.taketoday.web.session.WebSessionManager;
 

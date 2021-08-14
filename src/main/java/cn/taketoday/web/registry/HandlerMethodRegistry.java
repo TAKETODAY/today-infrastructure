@@ -28,26 +28,26 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import cn.taketoday.context.AnnotationAttributes;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.Prototypes;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ConfigurationException;
 import cn.taketoday.context.Environment;
-import cn.taketoday.context.PathMatcher;
-import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.factory.BeanDefinitionStoreException;
-import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.factory.ConfigurableBeanFactory;
-import cn.taketoday.context.factory.Prototypes;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.ReflectionUtils;
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.PathMatcher;
+import cn.taketoday.core.utils.AnnotationUtils;
+import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.core.utils.ReflectionUtils;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.Interceptor;
 import cn.taketoday.web.annotation.PathVariable;
@@ -59,8 +59,8 @@ import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.handler.PathVariableMethodParameter;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
-import static cn.taketoday.context.utils.CollectionUtils.newHashSet;
-import static cn.taketoday.context.utils.StringUtils.checkUrl;
+import static cn.taketoday.core.utils.CollectionUtils.newHashSet;
+import static cn.taketoday.core.utils.StringUtils.checkUrl;
 
 /**
  * Store {@link HandlerMethod}
@@ -163,7 +163,7 @@ public class HandlerMethodRegistry
   public void buildHandlerMethod(final Class<?> beanClass) {
     // find mapping on class
     final AnnotationAttributes controllerMapping
-            = ClassUtils.getAnnotationAttributes(ActionMapping.class, beanClass);
+            = AnnotationUtils.getAttributes(ActionMapping.class, beanClass);
     buildHandlerMethod(beanClass, controllerMapping);
   }
 
@@ -182,7 +182,7 @@ public class HandlerMethodRegistry
   public void buildHandlerMethod(final BeanDefinition def) {
     // find mapping on BeanDefinition
     final AnnotationAttributes controllerMapping
-            = ClassUtils.getAnnotationAttributes(ActionMapping.class, def);
+            = AnnotationUtils.getAttributes(ActionMapping.class, def);
     buildHandlerMethod(def.getBeanClass(), controllerMapping);
   }
 
@@ -201,7 +201,7 @@ public class HandlerMethodRegistry
                                     final AnnotationAttributes controllerMapping) {
 
     final AnnotationAttributes[] actionMapping = // find mapping on method
-            ClassUtils.getAnnotationAttributesArray(method, ActionMapping.class);
+            AnnotationUtils.getAttributesArray(method, ActionMapping.class);
 
     if (ObjectUtils.isNotEmpty(actionMapping)) {
       // build HandlerMethod
@@ -230,7 +230,7 @@ public class HandlerMethodRegistry
     if (ObjectUtils.isNotEmpty(controllerMapping)) {
       namespaces = new LinkedHashSet<>(4, 1.0f); // name space
       classRequestMethods = new LinkedHashSet<>(8, 1.0f); // method
-      for (final String value : controllerMapping.getStringArray(Constant.VALUE)) {
+      for (final String value : controllerMapping.getStringArray(WebConstant.VALUE)) {
         namespaces.add(checkUrl(value));
       }
       Collections.addAll(classRequestMethods, controllerMapping.getAttribute("method", RequestMethod[].class));
@@ -418,14 +418,14 @@ public class HandlerMethodRegistry
     final ArrayList<HandlerInterceptor> ret = new ArrayList<>();
 
     // get interceptor on class
-    final Interceptor[] controllerInterceptors = ClassUtils.getAnnotationArray(controllerClass, Interceptor.class);
+    final Interceptor[] controllerInterceptors = AnnotationUtils.getAnnotationArray(controllerClass, Interceptor.class);
     if (controllerInterceptors != null) {
       for (final Interceptor controllerInterceptor : controllerInterceptors) {
         Collections.addAll(ret, getInterceptors(controllerInterceptor.value()));
       }
     }
     // HandlerInterceptor on a method
-    final Interceptor[] actionInterceptors = ClassUtils.getAnnotationArray(action, Interceptor.class);
+    final Interceptor[] actionInterceptors = AnnotationUtils.getAnnotationArray(action, Interceptor.class);
     if (actionInterceptors != null) {
       for (final Interceptor actionInterceptor : actionInterceptors) {
         Collections.addAll(ret, getInterceptors(actionInterceptor.value()));
@@ -448,7 +448,7 @@ public class HandlerMethodRegistry
    */
   public HandlerInterceptor[] getInterceptors(Class<? extends HandlerInterceptor>[] interceptors) {
     if (ObjectUtils.isEmpty(interceptors)) {
-      return Constant.EMPTY_HANDLER_INTERCEPTOR;
+      return WebConstant.EMPTY_HANDLER_INTERCEPTOR;
     }
     final ApplicationContext beanFactory = obtainApplicationContext();
 

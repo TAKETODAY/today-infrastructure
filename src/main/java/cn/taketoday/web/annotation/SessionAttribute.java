@@ -24,7 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.web.Constant;
+import cn.taketoday.web.WebConstant;
 
 /**
  * @author TODAY<br>
@@ -37,7 +37,7 @@ import cn.taketoday.web.Constant;
 public @interface SessionAttribute {
 
   /** Session attribute name */
-  String value() default Constant.BLANK;
+  String value() default WebConstant.BLANK;
 
   /**
    * If required == true when request parameter is null, will be throws exception

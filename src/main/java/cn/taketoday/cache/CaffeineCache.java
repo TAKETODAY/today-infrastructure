@@ -24,7 +24,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 
 import java.util.function.UnaryOperator;
 
-import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.Assert;
 
 /**
  * @author TODAY 2020-08-15 19:50

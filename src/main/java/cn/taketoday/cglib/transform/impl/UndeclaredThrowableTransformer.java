@@ -24,8 +24,8 @@ import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.Assert;
 
 /**
  * @author Today <br>

@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.handler;
 
-import cn.taketoday.context.EmptyObject;
+import cn.taketoday.core.EmptyObject;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -45,7 +45,7 @@ import cn.taketoday.web.RequestContext;
  *
  * <p>
  * Note: {@code HandlerAdapter} implementors may implement the
- * {@link cn.taketoday.context.Ordered Ordered} interface to be able to specify
+ * {@link cn.taketoday.core.Ordered Ordered} interface to be able to specify
  * a sorting order (and thus a priority) for getting applied by the
  * {@code DispatcherHandler}. Non-Ordered instances get treated as lowest
  * priority.

@@ -24,7 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.web.Constant;
+import cn.taketoday.web.WebConstant;
 
 /**
  * Annotation which indicates that a method parameter should be bound to a web
@@ -41,11 +41,11 @@ public @interface RequestHeader {
   boolean required() default false;
 
   /** Header name */
-  String value() default Constant.BLANK;
+  String value() default WebConstant.BLANK;
 
   /**
    * When required == false and parameter == null. use default value.
    */
-  String defaultValue() default Constant.BLANK;
+  String defaultValue() default WebConstant.BLANK;
 
 }

@@ -24,7 +24,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.core.utils.StringUtils;
 

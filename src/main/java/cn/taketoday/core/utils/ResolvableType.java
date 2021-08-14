@@ -39,6 +39,7 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
 
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.TypeReference;
 import cn.taketoday.core.utils.SerializableTypeWrapper.FieldTypeProvider;
 import cn.taketoday.core.utils.SerializableTypeWrapper.ParameterTypeProvider;

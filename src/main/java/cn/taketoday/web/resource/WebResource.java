@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.resource;
 
-import cn.taketoday.context.io.Resource;
+import cn.taketoday.core.io.Resource;
 
 /**
  * @author TODAY <br>

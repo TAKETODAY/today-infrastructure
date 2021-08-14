@@ -65,11 +65,11 @@ import javax.naming.NamingException;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContainerInitializer;
 
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.beans.Autowired;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.framework.Constant;
 import cn.taketoday.framework.WebServerException;
 import cn.taketoday.framework.config.CompressionConfiguration;

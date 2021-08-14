@@ -24,7 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.web.Constant;
+import cn.taketoday.web.WebConstant;
 
 /**
  * @author TODAY <br>
@@ -39,9 +39,9 @@ public @interface RequestParam {
   boolean required() default false;
 
   /** Parameter name. */
-  String value() default Constant.BLANK;
+  String value() default WebConstant.BLANK;
 
   /** When required == false, and parameter == null. use default value. */
-  String defaultValue() default Constant.BLANK;
+  String defaultValue() default WebConstant.BLANK;
 
 }

@@ -23,11 +23,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.GZIPOutputStream;
 
-import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.http.NotFoundException;
@@ -38,7 +38,7 @@ import cn.taketoday.web.resource.WebResource;
 import cn.taketoday.web.resource.WebResourceResolver;
 import cn.taketoday.web.utils.WebUtils;
 
-import static cn.taketoday.web.Constant.RESOURCE_MATCH_RESULT;
+import static cn.taketoday.web.WebConstant.RESOURCE_MATCH_RESULT;
 import static cn.taketoday.web.utils.WebUtils.writeToOutputStream;
 
 /**
@@ -160,7 +160,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
                                  final ResourceMapping resourceMapping) throws IOException //
   {
     final HttpHeaders requestHeaders = requestContext.requestHeaders();
-    requestHeaders.set(Constant.CONTENT_ENCODING, Constant.GZIP);
+    requestHeaders.set(WebConstant.CONTENT_ENCODING, WebConstant.GZIP);
 
     final int bufferSize = resourceMapping.getBufferSize();
 

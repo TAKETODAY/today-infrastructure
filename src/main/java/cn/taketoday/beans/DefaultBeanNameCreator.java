@@ -20,7 +20,7 @@
 package cn.taketoday.beans;
 
 import cn.taketoday.context.Environment;
-import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.Assert;
 
 import static cn.taketoday.core.Constant.KEY_USE_SIMPLE_NAME;
 

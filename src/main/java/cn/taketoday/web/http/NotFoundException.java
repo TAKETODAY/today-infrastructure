@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.http;
 
-import cn.taketoday.web.Constant;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.WebNestedRuntimeException;
 import cn.taketoday.web.annotation.ResponseStatus;
 
@@ -44,7 +44,7 @@ public class NotFoundException extends WebNestedRuntimeException {
   }
 
   public NotFoundException() {
-    super(Constant.NOT_FOUND);
+    super(WebConstant.NOT_FOUND);
   }
 
   public static NotFoundException notFound() {

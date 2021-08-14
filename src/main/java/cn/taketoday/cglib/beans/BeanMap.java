@@ -29,7 +29,7 @@ import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.KeyFactory;
-import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.Assert;
 
 /**
  * A <code>Map</code>-based view of a JavaBean. The default set of keys is the

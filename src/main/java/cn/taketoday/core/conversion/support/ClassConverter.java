@@ -20,8 +20,8 @@
 
 package cn.taketoday.core.conversion.support;
 
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.conversion.ConversionException;
-import cn.taketoday.core.utils.Assert;
 import cn.taketoday.core.utils.ClassUtils;
 
 /**

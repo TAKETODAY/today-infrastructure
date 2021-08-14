@@ -34,6 +34,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import cn.taketoday.beans.BeanProperty;
+import cn.taketoday.core.Assert;
 
 /**
  * Generic Descriptor

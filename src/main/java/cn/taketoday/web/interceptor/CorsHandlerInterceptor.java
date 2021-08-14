@@ -21,7 +21,7 @@ package cn.taketoday.web.interceptor;
 
 import java.io.IOException;
 
-import cn.taketoday.context.OrderedSupport;
+import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.cors.CorsConfigurationCapable;

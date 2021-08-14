@@ -30,11 +30,11 @@ import javax.validation.Configuration;
 import javax.validation.Validation;
 import javax.validation.spi.ValidationProvider;
 
+import cn.taketoday.beans.Import;
+import cn.taketoday.beans.MissingBean;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.annotation.condition.ConditionalOnClass;
-import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.condition.ConditionalOnClass;
+import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.web.resolver.ParameterResolvers;
 
 /**

@@ -45,6 +45,7 @@ import cn.taketoday.beans.BeanMetadata;
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.EmptyObject;
 import cn.taketoday.core.annotation.AnnotationDescriptor;

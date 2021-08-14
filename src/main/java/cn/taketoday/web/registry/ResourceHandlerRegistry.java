@@ -22,14 +22,14 @@ package cn.taketoday.web.registry;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.taketoday.beans.Autowired;
 import cn.taketoday.cache.ConcurrentMapCache;
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.OrderUtils;
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.core.utils.OrderUtils;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.PatternHandler;
 import cn.taketoday.web.handler.ResourceMapping;
@@ -39,7 +39,7 @@ import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resource.DefaultResourceResolver;
 import cn.taketoday.web.resource.WebResourceResolver;
 
-import static cn.taketoday.context.ConfigurationException.nonNull;
+import static cn.taketoday.core.ConfigurationException.nonNull;
 
 /**
  * @author TODAY <br>
@@ -94,12 +94,12 @@ public class ResourceHandlerRegistry
   protected Object lookupHandler(final String handlerKey, final RequestContext context) {
     final Object handler = super.lookupHandler(handlerKey, context);
     if (handler instanceof ResourceMatchResult) {
-      context.setAttribute(Constant.RESOURCE_MATCH_RESULT, handler);
+      context.setAttribute(WebConstant.RESOURCE_MATCH_RESULT, handler);
       return ((ResourceMatchResult) handler).getHandler();
     }
     else if (handler instanceof ResourceRequestHandler) {
       context.setAttribute(
-              Constant.RESOURCE_MATCH_RESULT,
+              WebConstant.RESOURCE_MATCH_RESULT,
               new ResourceMatchResult(handlerKey,
                                       handlerKey,
                                       getPathMatcher(),

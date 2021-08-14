@@ -27,9 +27,9 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.http.HttpHeaders;
 
 /**
@@ -58,7 +58,7 @@ public abstract class UpgradeUtils {
    * for the WebSocket protocol, otherwise <code>false</code>
    */
   public static boolean isWebSocketUpgradeRequest(RequestContext context) {
-    return "GET".equals(context.getMethod()) && headerContainsToken(context, Constant.UPGRADE, "websocket");
+    return "GET".equals(context.getMethod()) && headerContainsToken(context, WebConstant.UPGRADE, "websocket");
   }
 
   /*

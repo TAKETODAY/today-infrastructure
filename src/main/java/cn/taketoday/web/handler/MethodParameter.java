@@ -25,20 +25,20 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Objects;
 
-import cn.taketoday.context.AnnotationAttributes;
-import cn.taketoday.context.AnnotationSupport;
-import cn.taketoday.context.AttributeAccessorSupport;
-import cn.taketoday.context.annotation.Required;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.context.utils.GenericDescriptor;
-import cn.taketoday.context.utils.NumberUtils;
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.AnnotationSupport;
+import cn.taketoday.core.AttributeAccessorSupport;
+import cn.taketoday.core.Required;
+import cn.taketoday.core.utils.AnnotationUtils;
+import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.core.utils.CollectionUtils;
+import cn.taketoday.core.utils.GenericDescriptor;
+import cn.taketoday.core.utils.NumberUtils;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.annotation.RequestParam;
 
-import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributes;
 
 /**
  * @author TODAY
@@ -80,14 +80,14 @@ public class MethodParameter
     this.parameterIndex = index;
     this.parameterClass = parameter.getType();
 
-    AnnotationAttributes attributes = getAnnotationAttributes(RequestParam.class, parameter);
+    AnnotationAttributes attributes = AnnotationUtils.getAttributes(RequestParam.class, parameter);
     if (attributes != null) {
-      this.name = attributes.getString(Constant.VALUE);
+      this.name = attributes.getString(WebConstant.VALUE);
       this.required = attributes.getBoolean("required");
       this.defaultValue = attributes.getString("defaultValue");
     }
     if (!this.required) { // @since 3.0 Required
-      this.required = ClassUtils.isAnnotationPresent(parameter, Required.class);
+      this.required = AnnotationUtils.isPresent(parameter, Required.class);
     }
     if (StringUtils.isEmpty(defaultValue) && NumberUtils.isNumber(parameterClass)) {
       this.defaultValue = "0"; // fix default value
@@ -241,7 +241,7 @@ public class MethodParameter
     if (generics == null) {
       generics = ClassUtils.getGenericTypes(parameter);
       if (generics == null) {
-        generics = Constant.EMPTY_CLASS_ARRAY;
+        generics = WebConstant.EMPTY_CLASS_ARRAY;
       }
       this.generics = generics;
     }

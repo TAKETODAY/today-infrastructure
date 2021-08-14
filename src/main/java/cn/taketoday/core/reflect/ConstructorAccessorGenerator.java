@@ -32,7 +32,7 @@ import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.Assert;
 import cn.taketoday.logger.LoggerFactory;
 
 import static cn.taketoday.asm.Opcodes.ACC_FINAL;

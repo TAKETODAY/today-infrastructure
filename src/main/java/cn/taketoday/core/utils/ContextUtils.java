@@ -75,6 +75,7 @@ import cn.taketoday.context.loader.MapParameterResolver;
 import cn.taketoday.context.loader.ObjectSupplierParameterResolver;
 import cn.taketoday.context.loader.StrategiesDetector;
 import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConcurrentProperties;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;

@@ -22,7 +22,7 @@ package cn.taketoday.beans.factory;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.FactoryBean;
-import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.Assert;
 
 /**
  * {@link FactoryBean} {@link Supplier}

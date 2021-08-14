@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.socket.annotation;
 
-import cn.taketoday.context.utils.Assert;
+import cn.taketoday.core.Assert;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.handler.ObjectNotationProcessor;
 import cn.taketoday.web.resolver.ParameterReadFailedException;

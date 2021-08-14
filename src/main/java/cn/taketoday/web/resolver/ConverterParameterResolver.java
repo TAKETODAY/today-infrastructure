@@ -19,9 +19,9 @@
  */
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.conversion.Converter;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 

@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.interceptor.HandlerInterceptorsCapable;
 import cn.taketoday.web.resource.CacheControl;
@@ -178,7 +178,7 @@ public class ResourceMapping implements Serializable, Ordered, HandlerIntercepto
    */
   public ResourceMapping setPathPatterns(String... pathPatterns) {
     this.pathPatterns = pathPatterns == null
-                        ? this.pathPatterns = Constant.EMPTY_STRING_ARRAY
+                        ? this.pathPatterns = WebConstant.EMPTY_STRING_ARRAY
                         : pathPatterns;
     return this;
   }

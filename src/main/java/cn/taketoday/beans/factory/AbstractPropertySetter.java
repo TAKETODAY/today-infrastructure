@@ -23,8 +23,8 @@ package cn.taketoday.beans.factory;
 import java.lang.reflect.Field;
 import java.util.Objects;
 
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.reflect.SetterMethod;
-import cn.taketoday.core.utils.Assert;
 import cn.taketoday.core.utils.ReflectionUtils;
 
 /**

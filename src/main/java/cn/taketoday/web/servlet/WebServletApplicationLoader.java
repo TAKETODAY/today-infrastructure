@@ -43,12 +43,12 @@ import javax.servlet.annotation.WebListener;
 import javax.servlet.annotation.WebServlet;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ConfigurationException;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ExceptionUtils;
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.utils.ExceptionUtils;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.config.WebApplicationLoader;
 import cn.taketoday.web.config.WebMvcConfiguration;
@@ -73,9 +73,9 @@ public class WebServletApplicationLoader
         extends WebApplicationLoader implements ServletContainerInitializer {
 
   /** @since 3.0 */
-  private String requestCharacterEncoding = Constant.DEFAULT_ENCODING;
+  private String requestCharacterEncoding = WebConstant.DEFAULT_ENCODING;
   /** @since 3.0 */
-  private String responseCharacterEncoding = Constant.DEFAULT_ENCODING;
+  private String responseCharacterEncoding = WebConstant.DEFAULT_ENCODING;
 
   @Override
   protected ServletWebMvcConfiguration getWebMvcConfiguration(ApplicationContext applicationContext) {
@@ -91,7 +91,7 @@ public class WebServletApplicationLoader
   protected String getWebMvcConfigLocation() {
     String webMvcConfigLocation = super.getWebMvcConfigLocation();
     if (StringUtils.isEmpty(webMvcConfigLocation)) {
-      webMvcConfigLocation = getServletContext().getInitParameter(Constant.WEB_MVC_CONFIG_LOCATION);
+      webMvcConfigLocation = getServletContext().getInitParameter(WebConstant.WEB_MVC_CONFIG_LOCATION);
     }
     if (StringUtils.isEmpty(webMvcConfigLocation)) { // scan from '/'
       final String rootPath = getServletContext().getRealPath("/");
@@ -159,7 +159,7 @@ public class WebServletApplicationLoader
     if (ret == null) {
       final long startupDate = System.currentTimeMillis();
       log.info("Your application starts to be initialized at: [{}].",
-               new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(startupDate));
+               new SimpleDateFormat(WebConstant.DEFAULT_DATE_FORMAT).format(startupDate));
       final ConfigurableWebServletApplicationContext context = createContext();
       ret = context;
       context.setServletContext(servletContext);

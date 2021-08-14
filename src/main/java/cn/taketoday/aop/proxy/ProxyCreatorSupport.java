@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 import cn.taketoday.aop.AdvisedSupportListener;
 import cn.taketoday.aop.support.AopUtils;
-import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.Assert;
 
 /**
  * Base class for proxy factories.

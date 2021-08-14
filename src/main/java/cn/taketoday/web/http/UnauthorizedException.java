@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.http;
 
-import cn.taketoday.web.Constant;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.WebNestedRuntimeException;
 import cn.taketoday.web.annotation.ResponseStatus;
 
@@ -32,7 +32,7 @@ public class UnauthorizedException extends WebNestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
   public UnauthorizedException() {
-    super(Constant.UNAUTHORIZED);
+    super(WebConstant.UNAUTHORIZED);
   }
 
   public UnauthorizedException(String message) {

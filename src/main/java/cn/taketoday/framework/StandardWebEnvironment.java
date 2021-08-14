@@ -30,17 +30,18 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
-import cn.taketoday.context.AnnotationAttributes;
-import cn.taketoday.context.env.StandardEnvironment;
-import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.ResourceUtils;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.context.StandardEnvironment;
+import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.utils.AnnotationUtils;
+import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.core.utils.ResourceUtils;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.framework.annotation.PropertiesSource;
 import cn.taketoday.framework.utils.ApplicationUtils;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 
 /**
  * @author TODAY <br>
@@ -76,7 +77,7 @@ public class StandardWebEnvironment extends StandardEnvironment {
     // load properties from starter class annotated @PropertiesSource
     if (applicationClass != null) {
       AnnotationAttributes[] attributes =
-              ClassUtils.getAnnotationAttributesArray(applicationClass, PropertiesSource.class);
+              AnnotationUtils.getAttributesArray(applicationClass, PropertiesSource.class);
       if (ObjectUtils.isNotEmpty(attributes)) {
         for (AnnotationAttributes attribute : attributes) {
           for (String propertiesLocation : StringUtils.split(attribute.getString(Constant.VALUE))) {
@@ -153,7 +154,7 @@ public class StandardWebEnvironment extends StandardEnvironment {
         try {
           super.loadProperties(builder.toString());
         }
-        catch (FileNotFoundException ignored) {}
+        catch (FileNotFoundException ignored) { }
       }
     }
   }

@@ -26,10 +26,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ConcurrentCache;
-import cn.taketoday.context.utils.OrderUtils;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.utils.ConcurrentCache;
+import cn.taketoday.core.utils.OrderUtils;
 import freemarker.cache.StatefulTemplateLoader;
 import freemarker.cache.TemplateLoader;
 

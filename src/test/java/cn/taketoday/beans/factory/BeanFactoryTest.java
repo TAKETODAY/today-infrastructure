@@ -225,7 +225,7 @@ public class BeanFactoryTest extends BaseTest {
 
   @ToString
   @Prototype("testBean")
-  // @Singleton("test.context.factory.BeanFactoryTest.FactoryBeanTestBean")
+  // @Singleton("test.beans.factory.BeanFactoryTest.FactoryBeanTestBean")
   public static class FactoryBeanTestBean implements FactoryBean<TEST>, InitializingBean {
 
     @Value("${env['upload.maxFileSize']}")
