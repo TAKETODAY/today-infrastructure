@@ -95,12 +95,12 @@ public class ResourceTests {
 
   @Test
   public void classPathResource() throws IOException {
-    Resource resource = new ClassPathResource("cn/taketoday/context/io/Resource.class");
+    Resource resource = new ClassPathResource("cn/taketoday/core/io/Resource.class");
     doTestResource(resource);
-    Resource resource2 = new ClassPathResource("cn/taketoday/context/../context/io/./Resource.class");
+    Resource resource2 = new ClassPathResource("cn/taketoday/context/../core/io/./Resource.class");
     assertThat(resource2).isEqualTo(resource);
     Resource resource3 = new ClassPathResource("cn/taketoday/context/")
-            .createRelative("../context/io/./Resource.class");
+            .createRelative("../core/io/./Resource.class");
 
     assertThat(resource3).isEqualTo(resource);
 
@@ -113,9 +113,9 @@ public class ResourceTests {
 
   @Test
   public void classPathResourceWithClassLoader() throws IOException {
-    Resource resource = new ClassPathResource("cn/taketoday/context/io/Resource.class", getClass().getClassLoader());
+    Resource resource = new ClassPathResource("cn/taketoday/core/io/Resource.class", getClass().getClassLoader());
     doTestResource(resource);
-    assertThat(new ClassPathResource("cn/taketoday/context/../context/io/./Resource.class", getClass().getClassLoader()))
+    assertThat(new ClassPathResource("cn/taketoday/context/../core/io/./Resource.class", getClass().getClassLoader()))
             .isEqualTo(resource);
   }
 
@@ -153,8 +153,8 @@ public class ResourceTests {
 
   @Test
   public void FileBasedResourceWithPlainPath() {
-    Resource resource = new FileBasedResource("context/io/Resource.class");
-    assertThat(new FileBasedResource("context/../context/io/./Resource.class")).isEqualTo(resource);
+    Resource resource = new FileBasedResource("core/io/Resource.class");
+    assertThat(new FileBasedResource("context/../core/io/./Resource.class")).isEqualTo(resource);
   }
 
   @Test
@@ -163,8 +163,8 @@ public class ResourceTests {
     doTestResource(resource);
     assertThat(resource).isEqualTo(new UrlBasedResource(getClass().getResource("Resource.class")));
 
-    Resource resource2 = new UrlBasedResource("file:context/io/Resource.class");
-    assertThat(new UrlBasedResource("file:context/../context/io/./Resource.class")).isEqualTo(resource2);
+    Resource resource2 = new UrlBasedResource("file:core/io/Resource.class");
+    assertThat(new UrlBasedResource("file:context/../core/io/./Resource.class")).isEqualTo(resource2);
 
     assertThat(new UrlBasedResource("file:/dir/test.txt?argh").getName()).isEqualTo("test.txt");
     assertThat(new UrlBasedResource("file:\\dir\\test.txt?argh").getName()).isEqualTo("test.txt");

@@ -40,7 +40,7 @@ import cn.taketoday.framework.server.UndertowServer;
 @Retention(RetentionPolicy.RUNTIME)
 @Import(WebServerAutoConfiguration.class)
 @Target({ ElementType.TYPE, ElementType.METHOD })
-public @interface EnableWebServer {
+public @interface EnableWebServerAutoConfiguration {
 
 }
 

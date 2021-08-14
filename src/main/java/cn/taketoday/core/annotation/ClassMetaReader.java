@@ -258,7 +258,9 @@ public class ClassMetaReader {
       Parameter parameter = (Parameter) annotated;
       MethodNode methodNode = getMethodNode(parameter.getDeclaringExecutable());
       List<AnnotationNode>[] annotations = methodNode.visibleParameterAnnotations;
-      return warpEmpty(annotations[ClassUtils.getParameterIndex(parameter)]);
+      if (ObjectUtils.isNotEmpty(annotations)) {
+        return warpEmpty(annotations[ClassUtils.getParameterIndex(parameter)]);
+      }
     }
     return null;
   }

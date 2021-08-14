@@ -122,7 +122,7 @@ public class AnnotationUtilsTests {
 //            .forEach(System.out::println);
 
     AnnotationAttributes attributes = annotationAttributes[0];
-//    final AnnotationAttributes attributes = attributesMap.get("Lcn/taketoday/context/utils/AnnotationUtilsTests$Component0;");
+//    final AnnotationAttributes attributes = attributesMap.get("Lcn/taketoday/core/utils/AnnotationUtilsTests$Component0;");
 //
     final String[] values = attributes.getStringArray("value");
     final TestEnum test = attributes.getEnum("test");

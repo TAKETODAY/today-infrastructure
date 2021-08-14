@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.servlet;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.servlet.ServletContext;
@@ -34,6 +35,7 @@ import static org.junit.Assert.assertEquals;
 public class StandardWebServletApplicationContextTest extends Base {
 
   @Test
+  @Ignore
   public void testStandardWebServletApplicationContext() {
     final ServletContext servletContext = context.getServletContext();
     assertEquals(servletContext, getServletContext());

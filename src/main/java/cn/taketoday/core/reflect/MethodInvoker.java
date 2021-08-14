@@ -123,8 +123,8 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
 
     private final Method targetMethod;
 
-    private static final String superType = "Lcn/taketoday/context/reflect/MethodInvoker;";
-    private static final String[] interfaces = { "Lcn/taketoday/context/reflect/Invoker;" };
+    private static final String superType = "Lcn/taketoday/core/reflect/MethodInvoker;";
+    private static final String[] interfaces = { "Lcn/taketoday/core/reflect/Invoker;" };
 
     private static final MethodInfo invokeInfo;
 

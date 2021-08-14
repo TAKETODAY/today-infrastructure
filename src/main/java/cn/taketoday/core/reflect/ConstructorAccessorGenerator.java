@@ -47,7 +47,7 @@ public class ConstructorAccessorGenerator
         extends GeneratorSupport<ConstructorAccessor> implements ClassGenerator {
 
   private final Constructor<?> targetConstructor;
-  private static final String[] interfaces = { "Lcn/taketoday/context/reflect/ConstructorAccessor;" };
+  private static final String[] interfaces = { "Lcn/taketoday/core/reflect/ConstructorAccessor;" };
   private static final MethodInfo newInstanceInfo;
 
   static {

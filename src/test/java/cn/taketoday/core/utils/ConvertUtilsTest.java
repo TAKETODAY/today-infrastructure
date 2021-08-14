@@ -175,7 +175,7 @@ public class ConvertUtilsTest {
       assert e.getCause().getClass().equals(ConfigurationException.class);
     }
 
-    final Object convertUtilsTestResource = convert("cn/taketoday/context/utils/ConvertUtilsTest.class", Resource[].class);
+    final Object convertUtilsTestResource = convert("cn/taketoday/core/utils/ConvertUtilsTest.class", Resource[].class);
 
     assertTrue(convertUtilsTestResource instanceof Resource[]);
 
@@ -183,7 +183,7 @@ public class ConvertUtilsTest {
     assertEquals(1, resources.length);
     assertTrue(resources[0].exists());
 
-    Resource[] convertUtilsTestResources = convert(Resource[].class, "cn/taketoday/context/utils/ConvertUtilsTest.class");
+    Resource[] convertUtilsTestResources = convert(Resource[].class, "cn/taketoday/core/utils/ConvertUtilsTest.class");
 
     assertEquals(1, convertUtilsTestResources.length);
     assertTrue(convertUtilsTestResources[0].exists());

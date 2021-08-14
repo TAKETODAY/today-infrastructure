@@ -114,7 +114,8 @@ public class AnnotationAttributes
       try {
         annotationType = Class.forName(annotationName);
       }
-      catch (ClassNotFoundException ignored) { }
+      catch (ClassNotFoundException ignored) {
+      }
     }
     return this.annotationType;
   }
@@ -217,7 +218,7 @@ public class AnnotationAttributes
 
     // @since 4.0
     attributeValue = getRealValue(attributeValue);
-    if (!expectedType.isInstance(attributeValue)) {
+    if (attributeValue != null && !expectedType.isInstance(attributeValue)) {
       // is not a target instance
       if (expectedType.isArray()) {
         // return type is array but target attr is not an array
