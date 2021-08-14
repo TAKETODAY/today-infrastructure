@@ -12,7 +12,8 @@
   <version>latest</version>
   <name>TODAY Framework</name>
 
-  <description>A Java library for dependency injection and aspect oriented programing
+  <description>
+    A Java library for dependency injection and aspect oriented programing
     and building high-performance web applications.
   </description>
 
