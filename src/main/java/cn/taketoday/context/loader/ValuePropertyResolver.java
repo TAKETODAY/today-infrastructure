@@ -21,18 +21,18 @@ package cn.taketoday.context.loader;
 
 import java.lang.reflect.Field;
 
+import cn.taketoday.beans.factory.DefaultPropertySetter;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ConfigurationException;
-import cn.taketoday.context.Constant;
+import cn.taketoday.context.Env;
 import cn.taketoday.context.ExpressionEvaluator;
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.Env;
-import cn.taketoday.context.annotation.Required;
-import cn.taketoday.context.annotation.Value;
+import cn.taketoday.context.Value;
 import cn.taketoday.context.aware.OrderedApplicationContextSupport;
-import cn.taketoday.context.factory.DefaultPropertySetter;
-import cn.taketoday.context.utils.AnnotationUtils;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.Required;
+import cn.taketoday.core.utils.AnnotationUtils;
+import cn.taketoday.core.utils.StringUtils;
 
 
 /**

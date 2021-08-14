@@ -22,7 +22,7 @@ package cn.taketoday.asm.tree;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.context.utils.CollectionUtils;
+import cn.taketoday.core.utils.CollectionUtils;
 
 /**
  * Utility methods to convert an array of primitive or object values to a mutable ArrayList, not

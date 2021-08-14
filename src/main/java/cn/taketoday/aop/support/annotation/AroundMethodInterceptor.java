@@ -23,8 +23,8 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanFactory;
 
 /**
  * @author TODAY 2018-11-10 13:14

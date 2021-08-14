@@ -37,11 +37,11 @@ import cn.taketoday.cglib.core.ObjectSwitchCallback;
 import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.Transformer;
 import cn.taketoday.cglib.core.TypeUtils;
-import cn.taketoday.context.Constant;
+import cn.taketoday.core.Constant;
 
 import static cn.taketoday.asm.Type.array;
-import static cn.taketoday.context.Constant.PRIVATE_FINAL_STATIC;
-import static cn.taketoday.context.Constant.SWITCH_STYLE_HASH;
+import static cn.taketoday.core.Constant.PRIVATE_FINAL_STATIC;
+import static cn.taketoday.core.Constant.SWITCH_STYLE_HASH;
 
 /**
  * @author TODAY <br>

@@ -46,7 +46,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.core.utils.ClassUtils;
 
 /**
  * Handles imports of class names and package names. An imported package name

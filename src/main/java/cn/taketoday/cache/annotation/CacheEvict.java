@@ -25,7 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.cache.Cache;
-import cn.taketoday.context.Constant;
+import cn.taketoday.core.Constant;
 
 /**
  * {@link Cache} eviction

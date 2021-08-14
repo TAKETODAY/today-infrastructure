@@ -25,9 +25,10 @@ import org.junit.Test;
 
 import cn.taketoday.context.event.ContextCloseEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
-import cn.taketoday.context.factory.BeanDefinitionStoreException;
-import cn.taketoday.context.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.event.ApplicationListener;
+import cn.taketoday.core.Ordered;
 
 /**
  * 

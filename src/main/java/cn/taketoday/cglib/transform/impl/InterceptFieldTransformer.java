@@ -27,8 +27,8 @@ import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
 
 import static cn.taketoday.asm.Type.array;
-import static cn.taketoday.context.Constant.TYPE_OBJECT;
-import static cn.taketoday.context.Constant.TYPE_STRING;
+import static cn.taketoday.core.Constant.TYPE_OBJECT;
+import static cn.taketoday.core.Constant.TYPE_STRING;
 
 /**
  * @author Juozas Baliuka, Chris Nokleberg

@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.aware;
 
-import cn.taketoday.context.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactory;
 
 /**
  * {@link BeanFactory} Injection

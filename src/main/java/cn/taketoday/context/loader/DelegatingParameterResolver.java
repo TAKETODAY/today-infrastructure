@@ -21,9 +21,9 @@ package cn.taketoday.context.loader;
 
 import java.lang.reflect.Parameter;
 
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.OrderedSupport;
 
 /**
  * @author TODAY <br>

@@ -23,12 +23,12 @@ import java.util.Properties;
 
 import javax.annotation.PostConstruct;
 
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.Order;
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.annotation.Prototype;
-import cn.taketoday.context.factory.FactoryBean;
-import cn.taketoday.context.factory.InitializingBean;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.Order;
+import cn.taketoday.context.Props;
+import cn.taketoday.beans.Prototype;
+import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import lombok.Getter;

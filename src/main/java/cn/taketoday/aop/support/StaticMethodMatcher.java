@@ -23,7 +23,7 @@ package cn.taketoday.aop.support;
 import org.aopalliance.intercept.MethodInvocation;
 
 import cn.taketoday.aop.MethodMatcher;
-import cn.taketoday.context.OrderedSupport;
+import cn.taketoday.core.OrderedSupport;
 
 /**
  * Convenient abstract superclass for static method matchers, which don't care

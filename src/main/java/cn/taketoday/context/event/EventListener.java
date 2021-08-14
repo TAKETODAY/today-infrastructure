@@ -25,6 +25,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.core.Order;
+
 /**
  * Annotation that marks a method as a listener for application events.
  *
@@ -67,7 +69,7 @@ import java.lang.annotation.Target;
  * <h3>Ordering Listeners</h3>
  * <p>It is also possible to define the order in which listeners for a
  * certain event are to be invoked. To do so, add common
- * {@link cn.taketoday.context.annotation.Order @Order} annotation
+ * {@link Order @Order} annotation
  * alongside this event listener annotation.
  *
  * @author TODAY 2021/3/16 10:53

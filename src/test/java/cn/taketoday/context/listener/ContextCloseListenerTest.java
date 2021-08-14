@@ -24,9 +24,9 @@ import javax.annotation.PreDestroy;
 import org.junit.Test;
 
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.Import;
+import cn.taketoday.beans.Import;
 import cn.taketoday.context.event.ContextCloseListener;
-import cn.taketoday.context.factory.StandardBeanFactory;
+import cn.taketoday.beans.factory.StandardBeanFactory;
 
 /**
  * @author TODAY <br>

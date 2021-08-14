@@ -25,7 +25,7 @@ import org.junit.Test;
 import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.ITestBean;
 import cn.taketoday.aop.TestBean;
-import cn.taketoday.context.NestedRuntimeException;
+import cn.taketoday.core.NestedRuntimeException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

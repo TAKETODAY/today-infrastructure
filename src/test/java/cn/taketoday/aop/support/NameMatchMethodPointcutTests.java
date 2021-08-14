@@ -32,7 +32,6 @@ import cn.taketoday.aop.SerializableNopInterceptor;
 import cn.taketoday.aop.SerializationTestUtils;
 import cn.taketoday.aop.proxy.Advised;
 import cn.taketoday.aop.proxy.ProxyFactory;
-import cn.taketoday.context.utils.ObjectUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

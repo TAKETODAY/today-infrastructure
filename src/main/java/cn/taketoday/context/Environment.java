@@ -21,11 +21,12 @@ package cn.taketoday.context;
 
 import java.util.Properties;
 
-import cn.taketoday.context.conversion.Converter;
-import cn.taketoday.context.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.BeanNameCreator;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
-import cn.taketoday.context.utils.ConvertUtils;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.core.conversion.Converter;
+import cn.taketoday.core.utils.ConvertUtils;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.expression.ExpressionProcessor;
 
 /**

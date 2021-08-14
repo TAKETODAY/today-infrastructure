@@ -22,7 +22,7 @@ package cn.taketoday.context.objects;
 
 import java.util.List;
 
-import cn.taketoday.context.io.Resource;
+import cn.taketoday.core.io.Resource;
 
 /**
  * @author TODAY

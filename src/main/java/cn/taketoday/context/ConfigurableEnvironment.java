@@ -21,7 +21,8 @@ package cn.taketoday.context;
 
 import java.io.IOException;
 
-import cn.taketoday.context.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.BeanNameCreator;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.expression.ExpressionProcessor;
 

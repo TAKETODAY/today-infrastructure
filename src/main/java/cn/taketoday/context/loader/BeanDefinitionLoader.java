@@ -22,14 +22,14 @@ package cn.taketoday.context.loader;
 import java.util.Collection;
 import java.util.List;
 
-import cn.taketoday.context.AnnotationAttributes;
+import cn.taketoday.beans.Component;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.Conditional;
 import cn.taketoday.context.Scope;
-import cn.taketoday.context.annotation.Component;
-import cn.taketoday.context.annotation.Conditional;
-import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.factory.BeanDefinitionStoreException;
+import cn.taketoday.core.AnnotationAttributes;
 
 /**
  * Create bean definition
@@ -148,7 +148,7 @@ public interface BeanDefinitionLoader {
    *         Candidate bean class
    *
    * @return returns a new BeanDefinition
-   * if {@link cn.taketoday.context.factory.StandardBeanFactory#transformBeanDefinition} transformed,
+   * if {@link cn.taketoday.beans.factory.StandardBeanFactory#transformBeanDefinition} transformed,
    * If returns {@code null} or empty list indicates that none register to the registry
    *
    * @throws BeanDefinitionStoreException
@@ -166,7 +166,7 @@ public interface BeanDefinitionLoader {
    *         Bean definition instance
    *
    * @return returns a new BeanDefinition
-   * if {@link cn.taketoday.context.factory.StandardBeanFactory#transformBeanDefinition} transformed,
+   * if {@link cn.taketoday.beans.factory.StandardBeanFactory#transformBeanDefinition} transformed,
    * If returns {@code null} indicates that none register to the registry
    *
    * @throws BeanDefinitionStoreException
@@ -216,7 +216,7 @@ public interface BeanDefinitionLoader {
    *         Candidate bean class the class will be load
    *
    * @return returns a new BeanDefinition
-   * if {@link cn.taketoday.context.factory.StandardBeanFactory#transformBeanDefinition} transformed,
+   * if {@link cn.taketoday.beans.factory.StandardBeanFactory#transformBeanDefinition} transformed,
    * If returns {@code null} or empty list indicates that none register to the registry
    *
    * @throws BeanDefinitionStoreException
@@ -242,7 +242,7 @@ public interface BeanDefinitionLoader {
    *         Bean class
    *
    * @return returns a new BeanDefinition
-   * if {@link cn.taketoday.context.factory.StandardBeanFactory#transformBeanDefinition} transformed,
+   * if {@link cn.taketoday.beans.factory.StandardBeanFactory#transformBeanDefinition} transformed,
    * If returns {@code null} or empty list indicates that none register to the registry
    *
    * @throws BeanDefinitionStoreException
@@ -267,10 +267,10 @@ public interface BeanDefinitionLoader {
    * @param beanClass
    *         Bean class
    * @param ignoreAnnotation
-   *         ignore {@link cn.taketoday.context.annotation.Component} scanning
+   *         ignore {@link Component} scanning
    *
    * @return returns a new BeanDefinition
-   * if {@link cn.taketoday.context.factory.StandardBeanFactory#transformBeanDefinition} transformed,
+   * if {@link cn.taketoday.beans.factory.StandardBeanFactory#transformBeanDefinition} transformed,
    * If returns {@code null} or empty list indicates that none register to the registry
    *
    * @throws BeanDefinitionStoreException

@@ -24,7 +24,7 @@ import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
-import cn.taketoday.context.Constant;
+import cn.taketoday.core.Constant;
 
 /**
  * @author Mark Hobson

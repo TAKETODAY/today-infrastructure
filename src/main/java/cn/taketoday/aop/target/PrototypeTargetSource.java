@@ -26,7 +26,7 @@ package cn.taketoday.aop.target;
  * destroying each instance on release (after each request).
  *
  * <p>Obtains bean instances from its containing
- * {@link cn.taketoday.context.factory.BeanFactory}.
+ * {@link cn.taketoday.beans.factory.BeanFactory}.
  *
  * @author Rod Johnson
  * @author Juergen Hoeller

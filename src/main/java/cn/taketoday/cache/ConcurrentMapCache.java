@@ -21,8 +21,8 @@ package cn.taketoday.cache;
 
 import java.util.function.UnaryOperator;
 
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.utils.ConcurrentCache;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.utils.ConcurrentCache;
 
 /**
  * @author TODAY <br>

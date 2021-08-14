@@ -46,14 +46,14 @@ import cn.taketoday.cglib.core.KeyFactory;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
+import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.context.utils.ClassUtils;
 
 import static cn.taketoday.asm.Opcodes.ACC_FINAL;
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.asm.Opcodes.JAVA_VERSION;
-import static cn.taketoday.context.Constant.AOP_SOURCE_FILE;
+import static cn.taketoday.core.Constant.AOP_SOURCE_FILE;
 
 /**
  * Bytecode-based {@link AopProxy} implementation for the AOP framework.

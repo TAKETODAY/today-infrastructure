@@ -17,8 +17,8 @@
 
 package cn.taketoday.expression;
 
-import cn.taketoday.context.factory.BeanMetadata;
-import cn.taketoday.context.factory.BeanProperty;
+import cn.taketoday.beans.BeanMetadata;
+import cn.taketoday.beans.BeanProperty;
 
 import static cn.taketoday.expression.util.ReflectionUtil.findMethod;
 import static cn.taketoday.expression.util.ReflectionUtil.invokeMethod;

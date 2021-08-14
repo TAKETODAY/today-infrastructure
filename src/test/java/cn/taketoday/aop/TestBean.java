@@ -22,7 +22,7 @@ package cn.taketoday.aop;
 
 import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.context.aware.BeanNameAware;
-import cn.taketoday.context.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactory;
 
 public class TestBean implements ITestBean, BeanNameAware, BeanFactoryAware, IOther, Comparable<Object> {
   private int age;

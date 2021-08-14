@@ -21,7 +21,7 @@
 package cn.taketoday.aop.target;
 
 import cn.taketoday.aop.TargetSource;
-import cn.taketoday.context.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinition;
 
 /**
  * Implementations can create special target sources, such as pooling target

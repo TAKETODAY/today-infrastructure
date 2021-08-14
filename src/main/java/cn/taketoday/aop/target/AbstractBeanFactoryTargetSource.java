@@ -24,17 +24,17 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import cn.taketoday.aop.TargetSource;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.aware.BeanFactoryAware;
-import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.factory.BeanFactory;
+import cn.taketoday.core.utils.Assert;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.context.utils.Assert;
 
 /**
  * Base class for {@link cn.taketoday.aop.TargetSource} implementations that are
- * based on a {@link cn.taketoday.context.factory.BeanFactory}, delegating to
+ * based on a {@link cn.taketoday.beans.factory.BeanFactory}, delegating to
  * ioc-managed bean instances.
  *
  * <p>

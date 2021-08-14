@@ -19,7 +19,8 @@
  */
 package cn.taketoday.context;
 
-import cn.taketoday.context.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.core.Constant;
 
 /**
  * @author TODAY <br>

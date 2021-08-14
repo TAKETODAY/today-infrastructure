@@ -22,8 +22,8 @@ package cn.taketoday.cache.annotation;
 import java.lang.annotation.Annotation;
 import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.utils.StringUtils;
 
 /**
  * @author TODAY <br>

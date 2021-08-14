@@ -32,7 +32,7 @@ import cn.taketoday.cglib.core.KeyFactory;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
-import cn.taketoday.context.Constant;
+import cn.taketoday.core.Constant;
 
 // TODO: don't require exact match for return type
 

@@ -28,8 +28,8 @@ import cn.taketoday.aop.support.annotation.Aspect;
 import cn.taketoday.aop.support.annotation.Before;
 import cn.taketoday.aop.support.annotation.JoinPoint;
 import cn.taketoday.aop.support.annotation.Throwing;
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.Order;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.Order;
 import lombok.extern.slf4j.Slf4j;
 
 /**

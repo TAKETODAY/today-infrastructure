@@ -40,7 +40,7 @@
 
 package cn.taketoday.expression.parser;
 
-import cn.taketoday.context.Constant;
+import cn.taketoday.core.Constant;
 
 /**
  * This exception is thrown when parse errors are encountered. You can

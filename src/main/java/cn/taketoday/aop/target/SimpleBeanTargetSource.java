@@ -23,7 +23,7 @@ package cn.taketoday.aop.target;
 /**
  * Simple {@link cn.taketoday.aop.TargetSource} implementation,
  * freshly obtaining the specified target bean from its containing
- * {@link cn.taketoday.context.factory.BeanFactory}.
+ * {@link cn.taketoday.beans.factory.BeanFactory}.
  *
  * <p>Can obtain any kind of target bean: singleton, scoped, or prototype.
  * Typically used for scoped beans.

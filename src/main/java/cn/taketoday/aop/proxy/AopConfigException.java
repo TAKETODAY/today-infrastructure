@@ -20,7 +20,7 @@
 
 package cn.taketoday.aop.proxy;
 
-import cn.taketoday.context.NestedRuntimeException;
+import cn.taketoday.core.NestedRuntimeException;
 
 /**
  * Exception that gets thrown on illegal AOP configuration arguments.

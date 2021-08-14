@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.cglib.CodeGenTestCase;
-import cn.taketoday.context.utils.ResourceUtils;
+import cn.taketoday.core.utils.ResourceUtils;
 
 /**
  * @author Chris Nokleberg

@@ -31,7 +31,7 @@ import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.TypePath;
-import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.core.utils.ObjectUtils;
 
 /**
  * A node that represents a method.

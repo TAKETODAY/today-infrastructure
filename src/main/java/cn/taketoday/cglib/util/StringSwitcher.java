@@ -30,11 +30,11 @@ import cn.taketoday.cglib.core.KeyFactory;
 import cn.taketoday.cglib.core.ObjectSwitchCallback;
 import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
-import cn.taketoday.context.Constant;
+import cn.taketoday.core.Constant;
 
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.asm.Opcodes.JAVA_VERSION;
-import static cn.taketoday.context.Constant.SOURCE_FILE;
+import static cn.taketoday.core.Constant.SOURCE_FILE;
 
 /**
  * This class implements a simple String->int mapping for a fixed set of keys.

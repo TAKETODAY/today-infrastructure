@@ -29,7 +29,7 @@ import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.CacheValueRetrievalException;
 import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.Cacheable;
-import cn.taketoday.context.Ordered;
+import cn.taketoday.core.Ordered;
 
 import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.allowPutCache;
 import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.createKey;

@@ -10,12 +10,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import cn.taketoday.context.reflect.BeanConstructor;
-import cn.taketoday.context.reflect.MethodAccessor;
-import cn.taketoday.context.reflect.MethodInvoker;
-import cn.taketoday.context.reflect.PropertyAccessor;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ReflectionUtils;
+import cn.taketoday.core.reflect.BeanConstructor;
+import cn.taketoday.core.reflect.MethodAccessor;
+import cn.taketoday.core.reflect.MethodInvoker;
+import cn.taketoday.core.reflect.PropertyAccessor;
+import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.core.utils.ReflectionUtils;
 import lombok.Getter;
 import lombok.Setter;
 import test.demo.config.Config;

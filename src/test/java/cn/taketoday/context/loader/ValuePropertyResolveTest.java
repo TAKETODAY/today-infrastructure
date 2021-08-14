@@ -25,9 +25,9 @@ import java.util.Properties;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.Env;
-import cn.taketoday.context.annotation.Value;
-import cn.taketoday.context.factory.DefaultPropertySetter;
+import cn.taketoday.context.Env;
+import cn.taketoday.context.Value;
+import cn.taketoday.beans.factory.DefaultPropertySetter;
 
 /**
  * @author Today <br>

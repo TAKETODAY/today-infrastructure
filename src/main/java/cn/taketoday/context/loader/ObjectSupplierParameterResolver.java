@@ -23,11 +23,11 @@ package cn.taketoday.context.loader;
 import java.lang.reflect.Parameter;
 import java.util.function.Supplier;
 
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.factory.ObjectSupplier;
-import cn.taketoday.context.utils.ResolvableType;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.ObjectSupplier;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.core.utils.ResolvableType;
 
 /**
  * for {@link ObjectSupplier} ExecutableParameterResolver

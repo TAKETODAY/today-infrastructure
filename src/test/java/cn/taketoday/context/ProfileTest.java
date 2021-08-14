@@ -24,11 +24,9 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import cn.taketoday.context.annotation.Conditional;
-import cn.taketoday.context.annotation.Profile;
-import cn.taketoday.context.annotation.Prototype;
-import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.annotation.condition.WindowsCondition;
+import cn.taketoday.beans.Prototype;
+import cn.taketoday.beans.Singleton;
+import cn.taketoday.context.condition.WindowsCondition;
 import test.demo.config.User;
 
 import static org.assertj.core.api.Assertions.assertThat;

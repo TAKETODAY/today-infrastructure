@@ -26,8 +26,8 @@ import java.io.Serializable;
 
 import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
-import cn.taketoday.context.NamedThreadLocal;
-import cn.taketoday.context.Ordered;
+import cn.taketoday.core.NamedThreadLocal;
+import cn.taketoday.core.Ordered;
 
 /**
  * Interceptor that exposes the current {@link MethodInvocation}

@@ -23,7 +23,7 @@ import org.junit.Test;
 
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.el.ELFieldTest.User;
-import cn.taketoday.context.factory.BeanFactoryResolver;
+import cn.taketoday.beans.factory.BeanFactoryResolver;
 
 /**
  * @author TODAY <br>

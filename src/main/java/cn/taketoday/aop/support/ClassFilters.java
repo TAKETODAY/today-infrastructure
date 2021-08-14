@@ -24,7 +24,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 import cn.taketoday.aop.ClassFilter;
-import cn.taketoday.context.utils.Assert;
+import cn.taketoday.core.utils.Assert;
 
 /**
  * Static utility methods for composing {@link ClassFilter ClassFilters}.

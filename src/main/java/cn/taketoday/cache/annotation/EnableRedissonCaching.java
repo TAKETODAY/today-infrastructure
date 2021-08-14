@@ -24,8 +24,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.beans.Import;
 import cn.taketoday.cache.RedissonCacheManager;
-import cn.taketoday.context.annotation.Import;
 
 /**
  * @author TODAY <br>

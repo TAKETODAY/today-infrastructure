@@ -21,8 +21,8 @@ package cn.taketoday.context.event;
 
 import java.util.Set;
 
+import cn.taketoday.beans.factory.BeanReferencePropertySetter;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.factory.BeanReferencePropertySetter;
 
 /**
  * Handled all dependencies

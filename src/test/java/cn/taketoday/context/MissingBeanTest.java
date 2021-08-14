@@ -26,9 +26,9 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.factory.ConfigurableBeanFactory;
+import cn.taketoday.beans.Configuration;
+import cn.taketoday.beans.MissingBean;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import lombok.Getter;

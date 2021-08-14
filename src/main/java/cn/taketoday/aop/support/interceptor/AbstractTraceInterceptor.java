@@ -25,9 +25,9 @@ import org.aopalliance.intercept.MethodInvocation;
 import java.io.Serializable;
 
 import cn.taketoday.aop.support.AopUtils;
+import cn.taketoday.core.utils.Assert;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.context.utils.Assert;
 
 /**
  * Base {@code MethodInterceptor} implementation for tracing.

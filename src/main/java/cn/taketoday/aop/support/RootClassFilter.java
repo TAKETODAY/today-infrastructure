@@ -23,7 +23,7 @@ package cn.taketoday.aop.support;
 import java.io.Serializable;
 
 import cn.taketoday.aop.ClassFilter;
-import cn.taketoday.context.utils.Assert;
+import cn.taketoday.core.utils.Assert;
 
 /**
  * Simple ClassFilter implementation that passes classes (and optionally subclasses).

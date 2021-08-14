@@ -42,7 +42,7 @@ package cn.taketoday.expression.parser;
 
 import java.util.Objects;
 
-import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.core.utils.ObjectUtils;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.MethodInfo;
 import cn.taketoday.expression.PropertyNotWritableException;

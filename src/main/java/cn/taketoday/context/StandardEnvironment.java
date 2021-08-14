@@ -30,16 +30,20 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 
-import cn.taketoday.context.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.io.ResourceFilter;
+import cn.taketoday.beans.BeanNameCreator;
+import cn.taketoday.beans.DefaultBeanNameCreator;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
+import cn.taketoday.core.ConcurrentProperties;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.ResourceFilter;
+import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.utils.ResourceUtils;
+import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ResourceUtils;
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.expression.ExpressionProcessor;
 
 /**
  * Standard implementation of {@link Environment}

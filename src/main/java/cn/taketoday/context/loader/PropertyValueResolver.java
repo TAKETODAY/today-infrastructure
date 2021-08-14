@@ -21,7 +21,7 @@ package cn.taketoday.context.loader;
 
 import java.lang.reflect.Field;
 
-import cn.taketoday.context.factory.PropertySetter;
+import cn.taketoday.beans.factory.PropertySetter;
 
 /**
  * Resolve field property

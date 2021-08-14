@@ -28,12 +28,12 @@ import cn.taketoday.aop.proxy.AopConfigException;
 import cn.taketoday.aop.proxy.ProxyCreatorSupport;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.aop.target.SingletonTargetSource;
+import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.aware.BeanClassLoaderAware;
 import cn.taketoday.context.aware.BeanFactoryAware;
-import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.factory.FactoryBean;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.core.utils.ObjectUtils;
 
 /**
  * @author TODAY 2021/2/20 21:23

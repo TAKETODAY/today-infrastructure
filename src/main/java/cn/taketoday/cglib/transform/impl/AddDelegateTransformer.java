@@ -26,7 +26,7 @@ import cn.taketoday.cglib.core.CodeGenerationException;
 import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
-import cn.taketoday.context.Constant;
+import cn.taketoday.core.Constant;
 
 /**
  * @author Juozas Baliuka

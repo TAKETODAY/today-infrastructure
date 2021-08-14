@@ -19,8 +19,8 @@
  */
 package cn.taketoday.context.event;
 
+import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.factory.BeanDefinition;
 
 import static java.util.Objects.requireNonNull;
 

@@ -19,9 +19,9 @@
  */
 package cn.taketoday.context.loader;
 
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.Import;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 
 /**
  * @author TODAY <br>

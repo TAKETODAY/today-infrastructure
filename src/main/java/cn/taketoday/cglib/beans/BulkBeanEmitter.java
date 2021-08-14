@@ -30,8 +30,8 @@ import cn.taketoday.cglib.core.Local;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.utils.ReflectionUtils;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.utils.ReflectionUtils;
 
 @SuppressWarnings("all")
 class BulkBeanEmitter extends ClassEmitter {

@@ -30,18 +30,17 @@ import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.context.AttributeAccessor;
-import cn.taketoday.context.ConfigurationException;
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.factory.ObjectSupplier;
-import cn.taketoday.context.reflect.MethodInvoker;
-import cn.taketoday.context.utils.AnnotationUtils;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ExceptionUtils;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.ObjectSupplier;
+import cn.taketoday.core.AttributeAccessor;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.reflect.MethodInvoker;
+import cn.taketoday.core.utils.AnnotationUtils;
+import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.utils.ExceptionUtils;
 
 /**
  * @author TODAY 2018-11-10 11:26
@@ -59,7 +58,8 @@ public abstract class AbstractAnnotationMethodInterceptor implements Advice, Met
 //  final BeanDefinition aspectDef;
   final ObjectSupplier<Object> aspectSupplier;
 
-  public AbstractAnnotationMethodInterceptor(Method adviceMethod, BeanFactory beanFactory, BeanDefinition aspectDef) {
+  public AbstractAnnotationMethodInterceptor(
+          Method adviceMethod, BeanFactory beanFactory, BeanDefinition aspectDef) {
     Assert.notNull(beanFactory, "beanFactory must not be null");
     Assert.notNull(adviceMethod, "adviceMethod must not be null");
     Assert.notNull(aspectDef, "aspect bean definition must not be null");

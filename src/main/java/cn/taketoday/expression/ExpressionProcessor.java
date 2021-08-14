@@ -44,7 +44,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import cn.taketoday.context.Constant;
+import cn.taketoday.core.Constant;
 
 /**
  * <p>

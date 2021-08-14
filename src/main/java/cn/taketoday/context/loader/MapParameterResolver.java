@@ -23,14 +23,14 @@ import java.lang.reflect.Parameter;
 import java.util.Map;
 import java.util.Properties;
 
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.annotation.DefaultProps;
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.context.utils.ContextUtils;
-import cn.taketoday.context.utils.ResolvableType;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.context.DefaultProps;
+import cn.taketoday.context.Props;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.core.utils.CollectionUtils;
+import cn.taketoday.core.utils.ContextUtils;
+import cn.taketoday.core.utils.ResolvableType;
 
 /**
  * Resolve {@link Map}

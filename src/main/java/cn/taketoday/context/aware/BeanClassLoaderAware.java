@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.aware;
 
-import cn.taketoday.context.factory.InitializingBean;
+import cn.taketoday.beans.InitializingBean;
 
 /**
  * Callback that allows a bean to be aware of the bean {@link ClassLoader class

@@ -22,17 +22,17 @@ package cn.taketoday.context.loader;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Parameter;
 
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.annotation.Required;
-import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.beans.Autowired;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.context.Props;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.core.Required;
+import cn.taketoday.core.utils.AnnotationUtils;
+import cn.taketoday.core.utils.ContextUtils;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.context.utils.AnnotationUtils;
-import cn.taketoday.context.utils.ContextUtils;
-import cn.taketoday.context.utils.StringUtils;
 
 /**
  * Resolve {@link Autowired} on {@link Parameter}

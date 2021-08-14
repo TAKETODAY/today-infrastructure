@@ -26,7 +26,7 @@ import java.lang.reflect.Constructor;
 import java.util.function.Function;
 
 import cn.taketoday.aop.TargetSource;
-import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.core.utils.ClassUtils;
 
 /**
  * Factory for AOP proxies for programmatic use, rather than via declarative

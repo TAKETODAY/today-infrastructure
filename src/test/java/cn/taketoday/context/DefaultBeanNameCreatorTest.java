@@ -21,6 +21,8 @@ package cn.taketoday.context;
 
 import org.junit.Test;
 
+import cn.taketoday.beans.DefaultBeanNameCreator;
+
 import static org.junit.Assert.assertEquals;
 
 /**

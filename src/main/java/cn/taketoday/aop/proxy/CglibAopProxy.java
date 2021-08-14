@@ -46,11 +46,11 @@ import cn.taketoday.cglib.proxy.Factory;
 import cn.taketoday.cglib.proxy.MethodInterceptor;
 import cn.taketoday.cglib.proxy.MethodProxy;
 import cn.taketoday.cglib.proxy.NoOp;
+import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.core.utils.ReflectionUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
  * CGLIB-based {@link AopProxy} implementation for the AOP framework.

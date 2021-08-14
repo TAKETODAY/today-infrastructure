@@ -28,15 +28,15 @@ import javax.annotation.PreDestroy;
 
 import org.junit.Test;
 
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.beans.Singleton;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.context.aware.EnvironmentAware;
-import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.factory.DisposableBean;
-import cn.taketoday.context.factory.InitializingBean;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 

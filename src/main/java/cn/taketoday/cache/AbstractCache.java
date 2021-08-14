@@ -19,7 +19,7 @@
  */
 package cn.taketoday.cache;
 
-import cn.taketoday.context.EmptyObject;
+import cn.taketoday.core.EmptyObject;
 
 /**
  * @author TODAY <br>

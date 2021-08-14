@@ -31,16 +31,16 @@ import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.cglib.core.internal.CustomizerRegistry;
-import cn.taketoday.context.Constant;
+import cn.taketoday.core.Constant;
 
 import static cn.taketoday.cglib.core.CglibCollectionUtils.bucket;
 import static cn.taketoday.cglib.core.TypeUtils.parseConstructor;
 import static cn.taketoday.cglib.core.TypeUtils.parseSignature;
-import static cn.taketoday.context.Constant.SWITCH_STYLE_HASH;
-import static cn.taketoday.context.Constant.SWITCH_STYLE_HASHONLY;
-import static cn.taketoday.context.Constant.SWITCH_STYLE_TRIE;
-import static cn.taketoday.context.Constant.TYPE_CLASS;
-import static cn.taketoday.context.Constant.TYPE_STRING_BUFFER;
+import static cn.taketoday.core.Constant.SWITCH_STYLE_HASH;
+import static cn.taketoday.core.Constant.SWITCH_STYLE_HASHONLY;
+import static cn.taketoday.core.Constant.SWITCH_STYLE_TRIE;
+import static cn.taketoday.core.Constant.TYPE_CLASS;
+import static cn.taketoday.core.Constant.TYPE_STRING_BUFFER;
 
 @SuppressWarnings("all")
 public abstract class EmitUtils {

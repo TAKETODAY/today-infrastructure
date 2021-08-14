@@ -26,7 +26,7 @@ import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.cglib.core.internal.CustomizerRegistry;
-import cn.taketoday.context.Constant;
+import cn.taketoday.core.Constant;
 
 import static cn.taketoday.asm.Type.array;
 

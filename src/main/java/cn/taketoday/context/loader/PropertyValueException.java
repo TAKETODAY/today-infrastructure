@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.loader;
 
-import cn.taketoday.context.NestedRuntimeException;
+import cn.taketoday.core.NestedRuntimeException;
 
 /**
  * for java property

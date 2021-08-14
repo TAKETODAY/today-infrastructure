@@ -21,8 +21,9 @@ package cn.taketoday.context;
 
 import java.lang.reflect.AnnotatedElement;
 
-import cn.taketoday.context.annotation.Profile;
-import cn.taketoday.context.utils.AnnotationUtils;
+import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.utils.AnnotationUtils;
 
 /**
  * Resolve {@link Profile} {@link Condition}

@@ -21,7 +21,7 @@ package cn.taketoday.context.loader;
 
 import java.lang.reflect.Parameter;
 
-import cn.taketoday.context.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactory;
 
 /**
  * 构造器出入，方法注入，参数解析器

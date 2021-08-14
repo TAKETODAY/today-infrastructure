@@ -20,7 +20,7 @@
 
 package cn.taketoday.aop;
 
-import cn.taketoday.context.NestedRuntimeException;
+import cn.taketoday.core.NestedRuntimeException;
 
 /**
  * Exception that gets thrown when an AOP invocation failed

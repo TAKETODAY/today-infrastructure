@@ -20,7 +20,7 @@
 
 package cn.taketoday.aop.proxy;
 
-import cn.taketoday.context.NamedThreadLocal;
+import cn.taketoday.core.NamedThreadLocal;
 
 /**
  * Class containing static methods used to obtain information about the current AOP invocation.

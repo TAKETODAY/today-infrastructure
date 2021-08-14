@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.UnaryOperator;
 
-import cn.taketoday.context.Constant;
+import cn.taketoday.core.Constant;
 
 /**
  * @author TODAY <br>

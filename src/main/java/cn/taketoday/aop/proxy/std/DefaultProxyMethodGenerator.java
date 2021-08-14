@@ -37,8 +37,8 @@ import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.Local;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.Signature;
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.utils.StringUtils;
 
 /**
  * @author TODAY 2021/3/7 20:23

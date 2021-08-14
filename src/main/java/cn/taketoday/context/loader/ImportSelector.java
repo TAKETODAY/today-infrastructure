@@ -19,9 +19,9 @@
  */
 package cn.taketoday.context.loader;
 
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.factory.BeanDefinition;
+import cn.taketoday.beans.Configuration;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.core.Constant;
 
 /**
  * Import classes according to user's Configuration

@@ -24,8 +24,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import cn.taketoday.core.AnnotationAttributes;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author TODAY 2021/8/3 21:18

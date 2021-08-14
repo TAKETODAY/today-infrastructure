@@ -24,11 +24,11 @@ import java.lang.reflect.Parameter;
 import java.util.Collection;
 import java.util.Map;
 
-import cn.taketoday.context.ConfigurationException;
-import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.context.utils.ResolvableType;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.core.utils.CollectionUtils;
+import cn.taketoday.core.utils.ResolvableType;
 
 /**
  * @author TODAY

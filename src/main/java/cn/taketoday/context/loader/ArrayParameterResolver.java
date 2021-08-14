@@ -24,10 +24,10 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Parameter;
 import java.util.Map;
 
-import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.CollectionUtils;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.core.utils.CollectionUtils;
 
 /**
  * @author TODAY 2021/2/19 23:16

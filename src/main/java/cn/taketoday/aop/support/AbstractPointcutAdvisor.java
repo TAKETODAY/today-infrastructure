@@ -26,8 +26,8 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import cn.taketoday.aop.PointcutAdvisor;
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.OrderedSupport;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.OrderedSupport;
 
 /**
  * Abstract base class for {@link PointcutAdvisor}

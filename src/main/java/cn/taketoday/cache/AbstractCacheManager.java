@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.cache.annotation.CacheConfiguration;
-import cn.taketoday.context.utils.Assert;
+import cn.taketoday.core.utils.Assert;
 
 /**
  * Abstract {@link CacheManager} implementation

@@ -19,9 +19,9 @@
  */
 package cn.taketoday.context;
 
+import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.event.ApplicationListener;
-import cn.taketoday.context.factory.BeanFactoryPostProcessor;
-import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 
 /**

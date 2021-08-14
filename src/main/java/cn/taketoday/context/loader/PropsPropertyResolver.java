@@ -23,13 +23,13 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Properties;
 
+import cn.taketoday.beans.factory.DefaultPropertySetter;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.Props;
 import cn.taketoday.context.aware.OrderedApplicationContextSupport;
-import cn.taketoday.context.factory.DefaultPropertySetter;
-import cn.taketoday.context.utils.AnnotationUtils;
-import cn.taketoday.context.utils.ContextUtils;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.utils.AnnotationUtils;
+import cn.taketoday.core.utils.ContextUtils;
 
 /**
  * @author TODAY <br>

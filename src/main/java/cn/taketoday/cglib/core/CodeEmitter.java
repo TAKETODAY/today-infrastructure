@@ -23,7 +23,7 @@ import cn.taketoday.asm.Label;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
-import cn.taketoday.context.Constant;
+import cn.taketoday.core.Constant;
 
 /**
  * @author Juozas Baliuka, Chris Nokleberg

@@ -25,7 +25,7 @@ import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.cglib.transform.ClassTransformer;
-import cn.taketoday.context.Constant;
+import cn.taketoday.core.Constant;
 
 import static cn.taketoday.asm.Type.array;
 

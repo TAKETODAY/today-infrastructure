@@ -45,7 +45,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import cn.taketoday.context.utils.ReflectionUtils;
+import cn.taketoday.core.utils.ReflectionUtils;
 
 import static cn.taketoday.expression.util.ReflectionUtil.findConstructor;
 import static cn.taketoday.expression.util.ReflectionUtil.findMethod;

@@ -21,8 +21,8 @@ package cn.taketoday.aop.support.interceptor;
 
 import org.aopalliance.intercept.MethodInvocation;
 
+import cn.taketoday.core.utils.StopWatch;
 import cn.taketoday.logger.Logger;
-import cn.taketoday.context.utils.StopWatch;
 
 /**
  * Simple AOP Alliance {@code MethodInterceptor} for performance monitoring.

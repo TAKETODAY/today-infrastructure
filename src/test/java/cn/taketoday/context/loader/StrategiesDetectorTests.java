@@ -26,8 +26,8 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
 
-import cn.taketoday.context.factory.PropertySetter;
-import cn.taketoday.context.utils.MultiValueMap;
+import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.core.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

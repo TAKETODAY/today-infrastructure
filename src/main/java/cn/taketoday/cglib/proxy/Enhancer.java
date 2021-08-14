@@ -63,8 +63,8 @@ import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.cglib.core.VisibilityPredicate;
 import cn.taketoday.cglib.core.WeakCacheKey;
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.utils.ObjectUtils;
 
 import static cn.taketoday.asm.ClassReader.SKIP_DEBUG;
 import static cn.taketoday.asm.ClassReader.SKIP_FRAMES;
@@ -80,9 +80,9 @@ import static cn.taketoday.asm.Type.VOID_TYPE;
 import static cn.taketoday.asm.Type.array;
 import static cn.taketoday.cglib.core.TypeUtils.parseSignature;
 import static cn.taketoday.cglib.core.TypeUtils.parseType;
-import static cn.taketoday.context.Constant.PRIVATE_FINAL_STATIC;
-import static cn.taketoday.context.Constant.SUID_FIELD_NAME;
-import static cn.taketoday.context.Constant.TYPE_OBJECT;
+import static cn.taketoday.core.Constant.PRIVATE_FINAL_STATIC;
+import static cn.taketoday.core.Constant.SUID_FIELD_NAME;
+import static cn.taketoday.core.Constant.TYPE_OBJECT;
 
 /**
  * Generates dynamic subclasses to enable method interception. This class

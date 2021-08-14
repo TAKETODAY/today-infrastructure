@@ -28,8 +28,8 @@ import javax.inject.Named;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.factory.PropertySetter;
+import cn.taketoday.beans.Autowired;
+import cn.taketoday.beans.factory.PropertySetter;
 
 /**
  * @author Today <br>

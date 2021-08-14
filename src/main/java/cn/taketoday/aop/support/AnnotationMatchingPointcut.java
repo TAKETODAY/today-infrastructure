@@ -25,8 +25,8 @@ import java.lang.annotation.Annotation;
 import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.MethodMatcher;
 import cn.taketoday.aop.Pointcut;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.utils.ClassUtils;
 
 /**
  * Simple Pointcut that looks for a specific Java 5 annotation

@@ -26,9 +26,11 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Properties;
 
-import cn.taketoday.context.factory.BeanDefinitionStoreException;
-import cn.taketoday.context.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.beans.BeanNameCreator;
+import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.utils.ClassUtils;
 
 import static org.junit.Assert.assertEquals;
 

@@ -40,8 +40,8 @@
 
 package cn.taketoday.expression.parser;
 
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.utils.ObjectUtils;
 import cn.taketoday.expression.lang.EvaluationContext;
 
 /**

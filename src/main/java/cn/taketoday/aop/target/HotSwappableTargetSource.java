@@ -24,7 +24,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import cn.taketoday.aop.TargetSource;
-import cn.taketoday.context.utils.Assert;
+import cn.taketoday.core.utils.Assert;
 
 /**
  * {@link TargetSource} implementation that

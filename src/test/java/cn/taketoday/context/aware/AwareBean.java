@@ -20,9 +20,9 @@
 package cn.taketoday.context.aware;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.beans.Singleton;
 import cn.taketoday.context.Environment;
-import cn.taketoday.context.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactory;
 import lombok.Getter;
 
 /**

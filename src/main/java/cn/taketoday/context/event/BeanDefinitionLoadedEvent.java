@@ -21,8 +21,8 @@ package cn.taketoday.context.event;
 
 import java.util.Map;
 
+import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.factory.BeanDefinition;
 
 /**
  * {@link BeanDefinition} Loaded event

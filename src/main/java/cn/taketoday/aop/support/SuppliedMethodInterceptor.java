@@ -23,8 +23,8 @@ package cn.taketoday.aop.support;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
-import cn.taketoday.context.factory.ObjectSupplier;
-import cn.taketoday.context.utils.Assert;
+import cn.taketoday.beans.factory.ObjectSupplier;
+import cn.taketoday.core.utils.Assert;
 
 /**
  * @author TODAY 2021/3/6 15:55

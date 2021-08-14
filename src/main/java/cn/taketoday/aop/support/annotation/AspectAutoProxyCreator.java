@@ -33,22 +33,22 @@ import cn.taketoday.aop.proxy.DefaultAutoProxyCreator;
 import cn.taketoday.aop.support.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.SuppliedMethodInterceptor;
-import cn.taketoday.context.AnnotationAttributes;
-import cn.taketoday.context.ConfigurationException;
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.annotation.Component;
+import cn.taketoday.beans.Component;
+import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.ContextCloseEvent;
-import cn.taketoday.context.factory.AutowireCapableBeanFactory;
-import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.factory.ObjectSupplier;
-import cn.taketoday.context.utils.AnnotationUtils;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.OrderUtils;
-import cn.taketoday.context.utils.ReflectionUtils;
+import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.utils.AnnotationUtils;
+import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.core.utils.OrderUtils;
+import cn.taketoday.core.utils.ReflectionUtils;
 
 /**
  * @author TODAY 2021/2/19 23:55

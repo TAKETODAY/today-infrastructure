@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.core.utils.StringUtils;
 
 /**
  * Pointcut bean for simple method name matches, as an alternative to regexp patterns.

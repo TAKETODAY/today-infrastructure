@@ -43,8 +43,8 @@ package cn.taketoday.expression.parser;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.FunctionMapper;
 import cn.taketoday.expression.LambdaExpression;

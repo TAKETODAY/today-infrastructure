@@ -42,10 +42,10 @@ import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.target.EmptyTargetSource;
 import cn.taketoday.aop.target.SingletonTargetSource;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.CollectionUtils;
-import cn.taketoday.context.utils.OrderUtils;
+import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.core.utils.CollectionUtils;
+import cn.taketoday.core.utils.OrderUtils;
 
 /**
  * Base class for AOP proxy configuration managers.

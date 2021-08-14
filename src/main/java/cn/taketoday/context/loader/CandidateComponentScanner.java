@@ -37,21 +37,21 @@ import java.util.stream.Collectors;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.ThrowableSupplier;
-import cn.taketoday.context.io.FileBasedResource;
-import cn.taketoday.context.io.JarEntryResource;
-import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.io.ResourceFilter;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.ThrowableSupplier;
+import cn.taketoday.core.io.FileBasedResource;
+import cn.taketoday.core.io.JarEntryResource;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.ResourceFilter;
+import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.core.utils.ResourceUtils;
+import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ResourceUtils;
-import cn.taketoday.context.utils.StringUtils;
 
-import static cn.taketoday.context.Constant.PACKAGE_SEPARATOR;
-import static cn.taketoday.context.Constant.PATH_SEPARATOR;
+import static cn.taketoday.core.Constant.PACKAGE_SEPARATOR;
+import static cn.taketoday.core.Constant.PATH_SEPARATOR;
 
 /**
  * Candidate Component Scanner

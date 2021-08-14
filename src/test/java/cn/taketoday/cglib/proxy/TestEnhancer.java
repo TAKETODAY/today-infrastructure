@@ -44,9 +44,7 @@ import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.NamingPolicy;
 import cn.taketoday.cglib.reflect.FastClass;
-import cn.taketoday.context.io.ClassPathResource;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ResourceUtils;
+import cn.taketoday.core.utils.ResourceUtils;
 
 import static org.junit.Assert.assertTrue;
 

@@ -42,7 +42,7 @@ package cn.taketoday.expression.parser;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.context.reflect.MethodInvoker;
+import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.ExpressionResolver;
 import cn.taketoday.expression.ImportHandler;

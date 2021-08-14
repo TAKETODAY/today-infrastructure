@@ -25,8 +25,9 @@ import org.junit.Test;
 
 import java.lang.reflect.Type;
 
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ResolvableType;
+import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.core.utils.ResolvableType;
 
 /**
  * @author TODAY

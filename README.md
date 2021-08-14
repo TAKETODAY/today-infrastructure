@@ -747,10 +747,10 @@ import org.junit.Test;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.beans.Singleton;
 import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.context.factory.DisposableBean;
-import cn.taketoday.context.factory.InitializingBean;
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.InitializingBean;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -761,38 +761,38 @@ import lombok.extern.slf4j.Slf4j;
 @Singleton
 public class LifecycleBean implements InitializingBean, DisposableBean {
 
-    @PostConstruct
-    public void initData() {
-        log.info("@PostConstruct");
+  @PostConstruct
+  public void initData() {
+    log.info("@PostConstruct");
+  }
+
+  @Override
+  public void afterPropertiesSet() throws Exception {
+    log.info("afterPropertiesSet");
+  }
+
+  @PreDestroy
+  public void preDestroy() {
+    log.info("preDestroy");
+  }
+
+  @Override
+  public void destroy() throws Exception {
+    log.info("destroy");
+  }
+
+  @Test
+  public void testLifecycle() {
+
+    final Set<Class<?>> beans = new HashSet<>();
+    beans.add(LifecycleBean.class);
+
+    try (final ApplicationContext applicationContext = new StandardApplicationContext(beans)) {
+      Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitions();
+
+      System.out.println(beanDefinitionsMap);
     }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        log.info("afterPropertiesSet");
-    }
-
-    @PreDestroy
-    public void preDestroy() {
-        log.info("preDestroy");
-    }
-
-    @Override
-    public void destroy() throws Exception {
-        log.info("destroy");
-    }
-
-    @Test
-    public void testLifecycle() {
-
-        final Set<Class<?>> beans = new HashSet<>();
-        beans.add(LifecycleBean.class);
-
-        try (final ApplicationContext applicationContext = new StandardApplicationContext(beans)) {
-            Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitions();
-
-            System.out.println(beanDefinitionsMap);
-        }
-    }
+  }
 
 }
 ```
@@ -812,7 +812,7 @@ public class LifecycleBean implements InitializingBean, DisposableBean {
 2019-07-25 23:14:37.928 DEBUG - [            main] c.t.context.factory.AbstractBeanFactory  1002 - Initialization of singleton objects.
 2019-07-25 23:14:37.929 DEBUG - [            main] c.t.context.factory.AbstractBeanFactory   651 - Initializing bean named: [lifecycleBean].
 2019-07-25 23:14:37.929  INFO - [            main] test.context.LifecycleBean                 59 - setBeanName: lifecycleBean
-2019-07-25 23:14:37.930  INFO - [            main] test.context.LifecycleBean                 69 - setBeanFactory: cn.taketoday.context.factory.StandardBeanFactory@5ce81285
+2019-07-25 23:14:37.930  INFO - [            main] test.context.LifecycleBean                 69 - setBeanFactory: cn.taketoday.beans.factory.StandardBeanFactory@5ce81285
 2019-07-25 23:14:37.930  INFO - [            main] test.context.LifecycleBean                 74 - setApplicationContext: cn.taketoday.context.StandardApplicationContext@78c03f1f
 2019-07-25 23:14:37.930  INFO - [            main] test.context.LifecycleBean                 64 - setEnvironment: cn.taketoday.context.StandardEnvironment@5ec0a365
 2019-07-25 23:14:37.931  INFO - [            main] test.context.LifecycleBean                 79 - @PostConstruct

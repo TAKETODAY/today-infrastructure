@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.aware;
 
-import cn.taketoday.context.annotation.Component;
+import cn.taketoday.beans.Component;
 
 /**
  * Framework {@link Component} Injection

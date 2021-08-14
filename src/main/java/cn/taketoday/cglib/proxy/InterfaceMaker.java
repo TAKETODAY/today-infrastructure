@@ -26,7 +26,7 @@ import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.Signature;
-import cn.taketoday.context.Constant;
+import cn.taketoday.core.Constant;
 
 /**
  * Generates new interfaces at runtime. By passing a generated interface to the

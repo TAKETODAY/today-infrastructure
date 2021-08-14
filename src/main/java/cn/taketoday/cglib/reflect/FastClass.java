@@ -25,7 +25,7 @@ import cn.taketoday.asm.Type;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.Signature;
-import cn.taketoday.context.Constant;
+import cn.taketoday.core.Constant;
 
 /**
  * @author TODAY <br>

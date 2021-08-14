@@ -28,7 +28,7 @@ import java.lang.reflect.Method;
 import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.IntroductionAwareMethodMatcher;
 import cn.taketoday.aop.MethodMatcher;
-import cn.taketoday.context.utils.Assert;
+import cn.taketoday.core.utils.Assert;
 
 /**
  * Static utility methods for composing {@link MethodMatcher MethodMatchers}.

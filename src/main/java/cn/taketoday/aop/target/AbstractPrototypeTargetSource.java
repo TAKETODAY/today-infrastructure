@@ -25,9 +25,9 @@ import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 
-import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.factory.ConfigurableBeanFactory;
-import cn.taketoday.context.factory.DisposableBean;
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 
 /**
  * Base class for dynamic {@link cn.taketoday.aop.TargetSource} implementations

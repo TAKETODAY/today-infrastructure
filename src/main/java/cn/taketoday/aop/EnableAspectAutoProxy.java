@@ -28,15 +28,15 @@ import cn.taketoday.aop.proxy.ProxyConfig;
 import cn.taketoday.aop.proxy.ProxyCreator;
 import cn.taketoday.aop.support.annotation.AspectAutoProxyCreator;
 import cn.taketoday.aop.target.TargetSourceCreator;
-import cn.taketoday.context.AnnotationAttributes;
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.Import;
+import cn.taketoday.beans.MissingBean;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionImporter;
-import cn.taketoday.context.utils.AnnotationUtils;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.utils.AnnotationUtils;
+import cn.taketoday.core.utils.Assert;
+import cn.taketoday.core.utils.ObjectUtils;
 
 /**
  * Enable Aspect Oriented Programming

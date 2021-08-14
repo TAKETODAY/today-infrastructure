@@ -27,7 +27,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Set;
 
-import cn.taketoday.context.io.ClassPathResource;
+import cn.taketoday.core.io.ClassPathResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;

@@ -24,7 +24,7 @@ import java.io.Serializable;
 
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.AdvisedSupport;
-import cn.taketoday.context.utils.Assert;
+import cn.taketoday.core.utils.Assert;
 
 /**
  * Implementation of the {@link cn.taketoday.aop.TargetSource} interface

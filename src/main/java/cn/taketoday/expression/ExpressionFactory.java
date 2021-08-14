@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import cn.taketoday.context.utils.ConcurrentCache;
+import cn.taketoday.core.utils.ConcurrentCache;
 import cn.taketoday.expression.lang.ExpressionUtils;
 import cn.taketoday.expression.parser.AstDeferredExpression;
 import cn.taketoday.expression.parser.AstDynamicExpression;

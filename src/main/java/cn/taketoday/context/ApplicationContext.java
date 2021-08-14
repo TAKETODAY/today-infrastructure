@@ -22,11 +22,11 @@ package cn.taketoday.context;
 import java.io.Closeable;
 import java.util.Collection;
 
+import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.event.ApplicationEventPublisher;
-import cn.taketoday.context.factory.AutowireCapableBeanFactory;
-import cn.taketoday.context.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.loader.CandidateComponentScannerCapable;
 import cn.taketoday.context.loader.StrategiesDetector;
 

@@ -24,20 +24,20 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.Map.Entry;
 
+import cn.taketoday.beans.Autowired;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanReferencePropertySetter;
+import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.aware.OrderedApplicationContextSupport;
-import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.factory.BeanReferencePropertySetter;
-import cn.taketoday.context.factory.PropertySetter;
-import cn.taketoday.context.utils.AnnotationUtils;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.utils.AnnotationUtils;
+import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.core.utils.StringUtils;
 
-import static cn.taketoday.context.utils.AnnotationUtils.isPresent;
+import static cn.taketoday.core.utils.AnnotationUtils.isPresent;
 
 /**
  * This {@link PropertyValueResolver} supports field that annotated

@@ -44,9 +44,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 
-import cn.taketoday.context.utils.NumberUtils;
+import cn.taketoday.core.utils.NumberUtils;
 
-import static cn.taketoday.context.Constant.BLANK;
+import static cn.taketoday.core.Constant.BLANK;
 
 /**
  * A helper class of Arithmetic defined by the EL Specification

@@ -27,8 +27,8 @@ import cn.taketoday.cglib.core.TypeUtils;
 
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.asm.Opcodes.JAVA_VERSION;
-import static cn.taketoday.context.Constant.SOURCE_FILE;
-import static cn.taketoday.context.Constant.TYPE_OBJECT_ARRAY;
+import static cn.taketoday.core.Constant.SOURCE_FILE;
+import static cn.taketoday.core.Constant.TYPE_OBJECT_ARRAY;
 
 class ParallelSorterEmitter extends ClassEmitter {
 

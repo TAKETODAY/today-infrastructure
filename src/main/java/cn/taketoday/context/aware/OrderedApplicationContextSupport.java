@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.aware;
 
-import cn.taketoday.context.Ordered;
+import cn.taketoday.core.Ordered;
 
 /**
  * @author TODAY <br>

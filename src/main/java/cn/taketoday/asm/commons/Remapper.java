@@ -28,6 +28,7 @@
 
 package cn.taketoday.asm.commons;
 
+import cn.taketoday.asm.ClassValueHolder;
 import cn.taketoday.asm.ConstantDynamic;
 import cn.taketoday.asm.Handle;
 import cn.taketoday.asm.Opcodes;
@@ -35,7 +36,6 @@ import cn.taketoday.asm.Type;
 import cn.taketoday.asm.signature.SignatureReader;
 import cn.taketoday.asm.signature.SignatureVisitor;
 import cn.taketoday.asm.signature.SignatureWriter;
-import cn.taketoday.asm.ClassValueHolder;
 
 /**
  * A class responsible for remapping types and names.

@@ -24,7 +24,7 @@ import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import cn.taketoday.context.io.ClassPathResource;
+import cn.taketoday.core.io.ClassPathResource;
 
 /**
  * @author TODAY <br>

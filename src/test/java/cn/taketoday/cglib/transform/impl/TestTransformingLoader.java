@@ -20,7 +20,7 @@ import junit.framework.TestSuite;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.context.Constant;
+import cn.taketoday.core.Constant;
 import cn.taketoday.asm.Type;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.transform.ClassFilter;

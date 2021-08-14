@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context;
 
+import cn.taketoday.core.NestedRuntimeException;
+
 /**
  * Application Context Exception
  *

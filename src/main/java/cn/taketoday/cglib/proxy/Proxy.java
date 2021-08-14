@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import cn.taketoday.cglib.core.CodeGenerationException;
-import cn.taketoday.context.Constant;
+import cn.taketoday.core.Constant;
 
 /**
  * This class is meant to be used as replacement for

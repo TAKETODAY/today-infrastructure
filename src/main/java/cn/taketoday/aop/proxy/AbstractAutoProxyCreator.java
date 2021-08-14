@@ -35,22 +35,24 @@ import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.target.SingletonTargetSource;
 import cn.taketoday.aop.target.TargetSourceCreator;
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.InstantiationAwareBeanPostProcessor;
 import cn.taketoday.context.aware.Aware;
 import cn.taketoday.context.aware.BeanFactoryAware;
-import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.factory.DisposableBean;
-import cn.taketoday.context.factory.InitializingBean;
-import cn.taketoday.context.factory.InstantiationAwareBeanPostProcessor;
+import cn.taketoday.core.Order;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.core.utils.ContextUtils;
+import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.core.utils.OrderUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ContextUtils;
-import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.OrderUtils;
 
 /**
- * Abstract Auto Proxy Creator use {@link cn.taketoday.context.factory.BeanPostProcessor}
+ * Abstract Auto Proxy Creator use {@link cn.taketoday.beans.factory.BeanPostProcessor}
  * mechanism to replace original bean
  *
  * @author TODAY 2021/2/1 21:31
@@ -307,8 +309,8 @@ public abstract class AbstractAutoProxyCreator
    *
    * @return the sorted List of Advisors
    *
-   * @see cn.taketoday.context.Ordered
-   * @see cn.taketoday.context.annotation.Order
+   * @see Ordered
+   * @see Order
    * @see OrderUtils
    */
   protected List<Advisor> sortAdvisors(List<Advisor> advisors) {

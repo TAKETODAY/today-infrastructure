@@ -26,8 +26,8 @@ import org.junit.Test;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.factory.DefaultPropertySetter;
+import cn.taketoday.context.Props;
+import cn.taketoday.beans.factory.DefaultPropertySetter;
 
 /**
  * @author Today <br>

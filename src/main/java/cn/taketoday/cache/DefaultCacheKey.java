@@ -22,7 +22,7 @@ package cn.taketoday.cache;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import cn.taketoday.context.EmptyObject;
+import cn.taketoday.core.EmptyObject;
 
 /**
  * @author TODAY <br>

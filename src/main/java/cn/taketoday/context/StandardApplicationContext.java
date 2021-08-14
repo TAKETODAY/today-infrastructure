@@ -21,8 +21,9 @@ package cn.taketoday.context;
 
 import java.util.Collection;
 
-import cn.taketoday.context.factory.AbstractBeanFactory;
-import cn.taketoday.context.factory.StandardBeanFactory;
+import cn.taketoday.beans.factory.AbstractBeanFactory;
+import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.core.Constant;
 
 /**
  * Standard {@link ApplicationContext}

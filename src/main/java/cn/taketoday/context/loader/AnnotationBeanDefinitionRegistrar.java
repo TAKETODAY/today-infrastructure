@@ -22,8 +22,8 @@ package cn.taketoday.context.loader;
 
 import java.lang.annotation.Annotation;
 
-import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 
 /**
  * @author TODAY 2021/3/8 16:48
