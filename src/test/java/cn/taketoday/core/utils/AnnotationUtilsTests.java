@@ -31,17 +31,25 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.asm.tree.ClassNode;
+import cn.taketoday.beans.Component;
+import cn.taketoday.beans.DefaultComponent;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.context.Scope;
 import cn.taketoday.beans.Service;
 import cn.taketoday.beans.Singleton;
+import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.core.annotation.ClassMetaReader;
+import test.demo.config.Config;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author TODAY 2021/7/28 21:41
@@ -359,6 +367,175 @@ public class AnnotationUtilsTests {
     assert AnnotationUtils.isPresent(ClassUtilsTest.AutowiredOnConstructor.class, ClassUtilsTest.MySingleton.class);
 
     assert ClassUtils.loadClass("") == null;
+  }
+
+
+  // old code
+
+  @Test
+  @SuppressWarnings("unlikely-arg-type")
+  public void test_GetAnnotation() throws Exception {
+
+    // test: use reflect build the annotation
+    Collection<Component> classAnntation = AnnotationUtils.getAnnotation(Config.class, Component.class, DefaultComponent.class);
+
+    for (Component component : classAnntation) {
+      log.info("component: [{}]", component);
+      if (component.value().length != 0 && "prototype_config".equals(component.value()[0])) {
+        assert component.scope().equals(Scope.PROTOTYPE);
+      }
+      else {
+        assert component.scope().equals(Scope.SINGLETON);
+      }
+    }
+    // use proxy
+    Collection<Bean.C> annotations = AnnotationUtils.getAnnotation(Bean.class, Bean.C.class);
+
+    List<AnnotationAttributes> attributes = AnnotationUtils.getAttributes(Bean.class.getAnnotation(Bean.S.class), Bean.C.class);
+    final AnnotationAttributes next = attributes.iterator().next();
+    Bean.C annotation = AnnotationUtils.getAnnotationProxy(Bean.C.class, next);
+    System.err.println(annotation);
+    annotation.hashCode();
+    assert annotation.annotationType() == Bean.C.class;
+    assert annotation.scope().equals(Scope.SINGLETON);
+    assert annotations.size() == 2;
+
+    assert !annotation.equals(null);
+    assert annotation.equals(annotation);
+
+    assert annotation.equals(AnnotationUtils.getAnnotationProxy(Bean.C.class, next));
+
+    final AnnotationAttributes clone = new AnnotationAttributes(next);
+
+    assert !clone.equals(annotation);
+    assert !clone.equals(null);
+    assert clone.equals(clone);
+    assert clone.equals(next);
+
+    clone.remove("value");
+    assert !clone.equals(next);
+    assert !clone.equals(new AnnotationAttributes((Map<String, Object>) next));
+    assert !annotation.equals(AnnotationUtils.getAnnotationProxy(Bean.C.class, clone));
+
+    final AnnotationAttributes fromMap = new AnnotationAttributes(clone);
+    assert fromMap.equals(clone);
+    assert !fromMap.equals(new AnnotationAttributes());
+    assert !fromMap.equals(new AnnotationAttributes(1));
+    assert !fromMap.equals(new AnnotationAttributes(Bean.C.class));
+
+    try {
+
+      AnnotationUtils.getAttributes(null);
+
+      assert false;
+    }
+    catch (Exception e) {
+      assert true;
+    }
+    try {
+      AnnotationUtils.injectAttributes(next, null, next);
+      assert false;
+    }
+    catch (Exception e) {
+      assert true;
+    }
+
+  }
+
+  @Test
+  public void test_GetAnnotationAttributes() throws Exception {
+
+    Bean.S annotation = Bean.class.getAnnotation(Bean.S.class);
+    AnnotationAttributes annotationAttributes_ = AnnotationUtils.getAttributes(annotation);
+
+    log.info("annotationAttributes: [{}]", annotationAttributes_);
+    assertEquals(annotationAttributes_.getStringArray("value").length, 1);
+    log.info("annotationType: [{}]", annotationAttributes_.annotationType());
+    assertEquals(annotationAttributes_.annotationType(), Bean.S.class);
+
+    List<AnnotationAttributes> annotationAttributes = AnnotationUtils.getAttributes(Bean.class, Bean.C.class);
+    log.info("annotationAttributes: [{}]", annotationAttributes);
+    for (AnnotationAttributes attributes : annotationAttributes) {
+      log.info("annotationType: [{}]", attributes.annotationType());
+      assertEquals(attributes.annotationType(), Bean.C.class);
+      if ("s".equals(attributes.getStringArray("value")[0])) {
+        assertEquals(attributes.getString("scope"), Scope.SINGLETON);
+      }
+      if ("p".equals(attributes.getStringArray("value")[0])) {
+        assertEquals(attributes.getString("scope"), Scope.PROTOTYPE);
+      }
+    }
+
+    final AnnotationAttributes attr = AnnotationUtils.getAttributes(Bean.C.class, Bean.class);
+
+    assert attr != null;
+    assertEquals(attr.getString("scope"), Scope.SINGLETON);
+  }
+
+  @Test
+  public void test_GetAnnotations() throws Exception {
+
+    // test: use reflect build the annotation
+    Collection<Component> components = AnnotationUtils.getAnnotation(Config.class, Component.class, DefaultComponent.class);
+
+    for (Component component : components) {
+      System.err.println(component);
+    }
+  }
+
+  @Test
+  public void test_GetAnnotationArray() throws Exception {
+
+    // test: use reflect build the annotation
+    Component[] components = AnnotationUtils.getAnnotationArray(Config.class, Component.class, DefaultComponent.class);
+
+    final Component[] annotationArray = AnnotationUtils.getAnnotationArray(Config.class, Component.class);
+    assert components.length > 0;
+    assert annotationArray.length > 0;
+    assert annotationArray.length == annotationArray.length;
+
+  }
+
+  @Bean.S("s")
+  @Bean.P("p")
+  static class Bean {
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ ElementType.TYPE, ElementType.METHOD })
+    @C(scope = Scope.PROTOTYPE)
+    public @interface A {
+      String[] value() default {};
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ ElementType.TYPE, ElementType.METHOD })
+    @C(scope = Scope.SINGLETON)
+    public @interface S {
+      @AliasFor(type = C.class)
+      String[] value() default {};
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ ElementType.TYPE, ElementType.METHOD })
+    public @interface C {
+      String[] value() default {};
+
+      String scope() default Scope.SINGLETON;
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ ElementType.TYPE, ElementType.METHOD })
+    @A
+    public @interface D {
+      String[] value() default {};
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ ElementType.TYPE, ElementType.METHOD })
+    @D
+    public @interface P {
+      String[] value() default {};
+    }
   }
 
 }

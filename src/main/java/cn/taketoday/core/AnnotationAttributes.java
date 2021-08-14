@@ -79,7 +79,7 @@ public class AnnotationAttributes
   }
 
   public AnnotationAttributes(Class annotationType, int initialCapacity) {
-    this(new ArrayList<>(initialCapacity));
+    this(new ArrayList<>(initialCapacity * 2));
     Assert.notNull(annotationType, "'annotationType' must not be null");
     this.annotationType = annotationType;
     this.annotationName = annotationType.getName();
@@ -94,6 +94,12 @@ public class AnnotationAttributes
     this(new ArrayList<>(map.size() * 2));
     this.annotationType = annotationType;
     this.annotationName = annotationType.getName();
+    putAll(map);
+  }
+
+  public AnnotationAttributes(Map<String, Object> map, String annotationName) {
+    this(new ArrayList<>(map.size() * 2));
+    this.annotationName = annotationName;
     putAll(map);
   }
 
@@ -118,6 +124,30 @@ public class AnnotationAttributes
       }
     }
     return this.annotationType;
+  }
+
+  public boolean contains(Collection<Class<? extends Annotation>> annotationToScan) {
+    final String annotationName = annotationName();
+    if (annotationName != null) {
+      for (final Class<?> aClass : annotationToScan) {
+        if (annotationName.equals(aClass.getName())) {
+          return true;
+        }
+      }
+      return false;
+    }
+    else if (annotationType != null) {
+      return annotationToScan.contains(annotationType);
+    }
+    return false;
+  }
+
+  public boolean isTarget(Class<?> targetType) {
+    final String annotationName = annotationName();
+    if (annotationName != null) {
+      return annotationName.equals(targetType.getName());
+    }
+    return targetType == annotationType;
   }
 
   public String annotationName() {

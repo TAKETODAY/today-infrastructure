@@ -62,8 +62,6 @@ public interface Constant extends Serializable {
   PropertySetter[] EMPTY_PROPERTY_VALUE = {};
   Annotation[] EMPTY_ANNOTATION_ARRAY = new Annotation[0];
 
-  AnnotationAttributes[] EMPTY_ANNOTATION_ATTRIBUTES = {};
-
   Serializable EMPTY_OBJECT = EmptyObject.INSTANCE;
 
   //

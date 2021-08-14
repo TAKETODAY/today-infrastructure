@@ -32,20 +32,21 @@ import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+import cn.taketoday.asm.AsmTest;
 import cn.taketoday.asm.Attribute;
+import cn.taketoday.asm.ClassFile;
 import cn.taketoday.asm.ClassReader;
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.ClassWriter;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
-import cn.taketoday.asm.AsmTest;
-import cn.taketoday.asm.ClassFile;
 import cn.taketoday.asm.tree.analysis.AnalyzerException;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
+import static cn.taketoday.asm.util.ASMifierTest.assertTextEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -499,7 +500,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
 
     CheckClassAdapter.main(args, new PrintWriter(logger, true));
 
-    assertEquals(EXPECTED_USAGE, logger.toString());
+    assertTextEquals(EXPECTED_USAGE, logger.toString());
   }
 
   @Test
@@ -509,7 +510,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
 
     CheckClassAdapter.main(args, new PrintWriter(logger, true));
 
-    assertEquals(EXPECTED_USAGE, logger.toString());
+    assertTextEquals(EXPECTED_USAGE, logger.toString());
   }
 
   @Test
@@ -520,7 +521,7 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
     Executable main = () -> CheckClassAdapter.main(args, new PrintWriter(logger, true));
 
     assertThrows(IOException.class, main);
-    assertEquals("", logger.toString());
+    assertTextEquals("", logger.toString());
   }
 
   @Test

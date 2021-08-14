@@ -33,15 +33,12 @@ import org.codehaus.janino.IClassLoader;
 import org.codehaus.janino.Parser;
 import org.codehaus.janino.Scanner;
 import org.codehaus.janino.UnitCompiler;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.junit.jupiter.api.function.ThrowingSupplier;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import cn.taketoday.asm.Attribute;
-import cn.taketoday.asm.ClassReader;
-import cn.taketoday.asm.AsmTest;
-import cn.taketoday.asm.ClassFile;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -49,6 +46,11 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLClassLoader;
+
+import cn.taketoday.asm.AsmTest;
+import cn.taketoday.asm.Attribute;
+import cn.taketoday.asm.ClassFile;
+import cn.taketoday.asm.ClassReader;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -75,7 +77,7 @@ public class ASMifierTest extends AsmTest {
 
   @Test
   public void testConstructor() {
-    assertDoesNotThrow(() -> new ASMifier());
+    assertDoesNotThrow((ThrowingSupplier<ASMifier>) ASMifier::new);
   }
 
   /**
@@ -127,8 +129,8 @@ public class ASMifierTest extends AsmTest {
 
     ASMifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
-    assertEquals("", output.toString());
-    assertEquals(EXPECTED_USAGE, logger.toString());
+    assertTextEquals("", output.toString());
+    assertTextEquals(EXPECTED_USAGE, logger.toString());
   }
 
   @Test
@@ -139,8 +141,8 @@ public class ASMifierTest extends AsmTest {
 
     ASMifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
-    assertEquals("", output.toString());
-    assertEquals(EXPECTED_USAGE, logger.toString());
+    assertTextEquals("", output.toString());
+    assertTextEquals(EXPECTED_USAGE, logger.toString());
   }
 
   @Test
@@ -151,8 +153,14 @@ public class ASMifierTest extends AsmTest {
 
     ASMifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
-    assertEquals("", output.toString());
-    assertEquals(EXPECTED_USAGE, logger.toString());
+    assertTextEquals("", output.toString());
+    assertTextEquals(EXPECTED_USAGE, logger.toString());
+  }
+
+  static void assertTextEquals(String one, String two) {
+    two = two.replace("\r", "").replace("\n", "");
+    one = one.replace("\r", "").replace("\n", "");
+    assertEquals(one, two);
   }
 
   @Test

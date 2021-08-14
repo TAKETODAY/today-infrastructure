@@ -58,6 +58,7 @@ import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.utils.AnnotationUtils;
 import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.core.utils.CollectionUtils;
 import cn.taketoday.core.utils.ObjectUtils;
 import cn.taketoday.core.utils.ReflectionUtils;
 
@@ -66,12 +67,14 @@ import cn.taketoday.core.utils.ReflectionUtils;
  * @since 4.0
  */
 public class ClassMetaReader {
+  public static final AnnotationAttributes[] EMPTY_ANNOTATION_ATTRIBUTES = {};
+
   private static final HashMap<String, ClassNode> classNodeCache = new HashMap<>(128); // class-name to ClassNode
   //  private static final ConcurrentHashMap<String, AnnotationAttributes> annotationDefaultCache // class-name to AnnotationAttributes
 //          = new ConcurrentHashMap<>(128);
   private static final ConcurrentHashMap<String, AnnotationDescriptor> annotationDefaultCache // class-name to AnnotationAttributes
           = new ConcurrentHashMap<>(128);
-  private static final HashMap<AnnotatedElement, AnnotationAttributes[]> attributesMap = new HashMap<>(128);
+  private static final HashMap<Object, AnnotationAttributes[]> attributesMap = new HashMap<>(128);
 
   public static ClassNode read(Class<?> classToRead) {
     return read(classToRead, ClassUtils.getClassLoader());
@@ -189,46 +192,66 @@ public class ClassMetaReader {
     if (classNode != null) {
       List<AnnotationNode> visibleAnnotations = classNode.visibleAnnotations;
       if (visibleAnnotations != null) {
-        AnnotationAttributes[] annotationAttributes = new AnnotationAttributes[visibleAnnotations.size()];
-        int i = 0;
-        for (final AnnotationNode visibleAnnotation : visibleAnnotations) {
-          annotationAttributes[i++] = readAnnotation(visibleAnnotation);
-        }
-        return annotationAttributes;
+        return getAttributes(visibleAnnotations);
       }
     }
-    return null;
+    return EMPTY_ANNOTATION_ATTRIBUTES;
   }
 
-  public static AnnotationAttributes[] readAnnotations(AnnotatedElement annotated) {
+  private static AnnotationAttributes[] getAttributes(List<AnnotationNode> visibleAnnotations) {
+    if (!CollectionUtils.isEmpty(visibleAnnotations)) {
+      AnnotationAttributes[] annotationAttributes = new AnnotationAttributes[visibleAnnotations.size()];
+      int i = 0;
+      for (final AnnotationNode visibleAnnotation : visibleAnnotations) {
+        annotationAttributes[i++] = readAnnotation(visibleAnnotation);
+      }
+      return annotationAttributes;
+    }
+    return EMPTY_ANNOTATION_ATTRIBUTES;
+  }
+
+  /**
+   * @param annotated
+   *         AnnotatedElement or string (class-name)
+   *
+   * @return list of target input AnnotationNode
+   */
+  public static AnnotationAttributes[] readAnnotations(Object annotated) {
     return attributesMap.computeIfAbsent(annotated, target -> {
       List<AnnotationNode> annotationNode = getAnnotationNode(target);
       if (annotationNode == null) {
         // read from java reflect API
-        Annotation[] annotations = target.getDeclaredAnnotations();
-        if (ObjectUtils.isNotEmpty(annotations)) {
-          AnnotationAttributes[] annotationAttributes = new AnnotationAttributes[annotations.length];
-          int i = 0;
-          for (final Annotation annotation : annotations) {
-            annotationAttributes[i++] = AnnotationUtils.getAttributes(annotation);
+        if (target instanceof AnnotatedElement) {
+          Annotation[] annotations = ((AnnotatedElement) target).getDeclaredAnnotations();
+          if (ObjectUtils.isNotEmpty(annotations)) {
+            AnnotationAttributes[] annotationAttributes = new AnnotationAttributes[annotations.length];
+            int i = 0;
+            for (final Annotation annotation : annotations) {
+              annotationAttributes[i++] = AnnotationUtils.getAttributes(annotation);
+            }
+            return annotationAttributes;
           }
-          return annotationAttributes;
         }
-        return Constant.EMPTY_ANNOTATION_ATTRIBUTES;
+        return EMPTY_ANNOTATION_ATTRIBUTES;
       }
       if (annotationNode.isEmpty()) {
-        return Constant.EMPTY_ANNOTATION_ATTRIBUTES;
+        return EMPTY_ANNOTATION_ATTRIBUTES;
       }
-      AnnotationAttributes[] annotationAttributes = new AnnotationAttributes[annotationNode.size()];
-      int i = 0;
-      for (final AnnotationNode node : annotationNode) {
-        annotationAttributes[i++] = readAnnotation(node);
-      }
-      return annotationAttributes;
+      return getAttributes(annotationNode);
     });
   }
 
-  public static List<AnnotationNode> getAnnotationNode(AnnotatedElement annotated) {
+  /**
+   * @param annotated
+   *         AnnotatedElement or string (class-name)
+   *
+   * @return list of target input AnnotationNode
+   */
+  public static List<AnnotationNode> getAnnotationNode(Object annotated) {
+    if (annotated instanceof String) {
+      final ClassNode node = read((String) annotated);
+      return node.visibleAnnotations;
+    }
     if (annotated instanceof Class) {
       ClassNode classNode = read((Class<?>) annotated);
       return warpEmpty(classNode.visibleAnnotations);

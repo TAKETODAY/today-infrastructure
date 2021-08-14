@@ -130,6 +130,22 @@ public abstract class CollectionUtils {
     return ret;
   }
 
+  /**
+   * @param elements
+   *         elements array
+   * @param <E>
+   *         Element type
+   *
+   * @return ArrayLost of input elements
+   *
+   * @since 4.0
+   */
+  public static <E> ArrayList<E> newArrayList(E... elements) {
+    final ArrayList<E> ret = new ArrayList<>(elements.length);
+    Collections.addAll(ret, elements);
+    return ret;
+  }
+
   // CollectionFactory
 
   /**

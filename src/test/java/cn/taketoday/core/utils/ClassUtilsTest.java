@@ -15,30 +15,22 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.beans.Autowired;
+import cn.taketoday.beans.Prototype;
+import cn.taketoday.beans.Singleton;
 import cn.taketoday.cglib.proxy.Enhancer;
 import cn.taketoday.cglib.proxy.MethodInterceptor;
 import cn.taketoday.cglib.proxy.MethodProxy;
-import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.context.Scope;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.beans.Autowired;
-import cn.taketoday.beans.Component;
-import cn.taketoday.beans.DefaultComponent;
-import cn.taketoday.beans.Prototype;
-import cn.taketoday.beans.Singleton;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.core.utils.Bean.C;
-import cn.taketoday.core.utils.Bean.S;
 import lombok.ToString;
-import test.demo.config.Config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -89,133 +81,6 @@ public class ClassUtilsTest {
     assert "i".equals(methodArgsNames[1]) : "Can't get Method Args Names";
 
     log.info("names: {}", Arrays.toString(methodArgsNames));
-  }
-
-  @Test
-  @SuppressWarnings("unlikely-arg-type")
-  public void test_GetAnnotation() throws Exception {
-    setProcess("getAnnotation");
-
-    // test: use reflect build the annotation
-    Collection<Component> classAnntation = AnnotationUtils.getAnnotation(Config.class, Component.class, DefaultComponent.class);
-
-    for (Component component : classAnntation) {
-      log.info("component: [{}]", component);
-      if (component.value().length != 0 && "prototype_config".equals(component.value()[0])) {
-        assert component.scope().equals(Scope.PROTOTYPE);
-      }
-      else {
-        assert component.scope().equals(Scope.SINGLETON);
-      }
-    }
-    // use proxy
-    Collection<C> annotations = AnnotationUtils.getAnnotation(Bean.class, C.class);
-
-    List<AnnotationAttributes> attributes = AnnotationUtils.getAttributes(Bean.class.getAnnotation(S.class), C.class);
-    final AnnotationAttributes next = attributes.iterator().next();
-    C annotation = AnnotationUtils.getAnnotationProxy(C.class, next);
-    System.err.println(annotation);
-    annotation.hashCode();
-    assert annotation.annotationType() == C.class;
-    assert annotation.scope().equals(Scope.SINGLETON);
-    assert annotations.size() == 2;
-
-    assert !annotation.equals(null);
-    assert annotation.equals(annotation);
-
-    assert annotation.equals(AnnotationUtils.getAnnotationProxy(C.class, next));
-
-    final AnnotationAttributes clone = new AnnotationAttributes(next);
-
-    assert !clone.equals(annotation);
-    assert !clone.equals(null);
-    assert clone.equals(clone);
-    assert clone.equals(next);
-
-    clone.remove("value");
-    assert !clone.equals(next);
-    assert !clone.equals(new AnnotationAttributes((Map<String, Object>) next));
-    assert !annotation.equals(AnnotationUtils.getAnnotationProxy(C.class, clone));
-
-    final AnnotationAttributes fromMap = new AnnotationAttributes(clone);
-    assert fromMap.equals(clone);
-    assert !fromMap.equals(new AnnotationAttributes());
-    assert !fromMap.equals(new AnnotationAttributes(1));
-    assert !fromMap.equals(new AnnotationAttributes(C.class));
-
-    try {
-
-      AnnotationUtils.getAttributes(null);
-
-      assert false;
-    }
-    catch (Exception e) {
-      assert true;
-    }
-    try {
-      AnnotationUtils.injectAttributes(next, null, next);
-      assert false;
-    }
-    catch (Exception e) {
-      assert true;
-    }
-
-  }
-
-  @Test
-  public void test_GetAnnotationAttributes() throws Exception {
-
-    setProcess("test_GetAnnotationAttributes");
-    S annotation = Bean.class.getAnnotation(S.class);
-    AnnotationAttributes annotationAttributes_ = AnnotationUtils.getAttributes(annotation);
-
-    log.info("annotationAttributes: [{}]", annotationAttributes_);
-    assertEquals(annotationAttributes_.getStringArray("value").length, 1);
-    log.info("annotationType: [{}]", annotationAttributes_.annotationType());
-    assertEquals(annotationAttributes_.annotationType(), S.class);
-
-    List<AnnotationAttributes> annotationAttributes = AnnotationUtils.getAttributes(Bean.class, C.class);
-    log.info("annotationAttributes: [{}]", annotationAttributes);
-    for (AnnotationAttributes attributes : annotationAttributes) {
-      log.info("annotationType: [{}]", attributes.annotationType());
-      assertEquals(attributes.annotationType(), C.class);
-      if ("s".equals(attributes.getStringArray("value")[0])) {
-        assertEquals(attributes.getString("scope"), Scope.SINGLETON);
-      }
-      if ("p".equals(attributes.getStringArray("value")[0])) {
-        assertEquals(attributes.getString("scope"), Scope.PROTOTYPE);
-      }
-    }
-
-    final AnnotationAttributes attr = AnnotationUtils.getAttributes(C.class, Bean.class);
-
-    assertEquals(attr.getString("scope"), Scope.SINGLETON);
-  }
-
-  @Test
-  public void test_GetAnnotations() throws Exception {
-    setProcess("getAnnotations");
-
-    // test: use reflect build the annotation
-    Collection<Component> components = AnnotationUtils.getAnnotation(Config.class, Component.class, DefaultComponent.class);
-
-    for (Component component : components) {
-      System.err.println(component);
-    }
-  }
-
-  @Test
-  public void test_GetAnnotationArray() throws Exception {
-    setProcess("getAnnotationArray");
-
-    // test: use reflect build the annotation
-    Component[] components = AnnotationUtils.getAnnotationArray(Config.class, Component.class, DefaultComponent.class);
-
-    final Component[] annotationArray = AnnotationUtils.getAnnotationArray(Config.class, Component.class);
-    assert components.length > 0;
-    assert annotationArray.length > 0;
-    assert annotationArray.length == annotationArray.length;
-
   }
 
 //    public static void main(String[] args) {

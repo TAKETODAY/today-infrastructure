@@ -42,6 +42,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import static cn.taketoday.asm.util.ASMifierTest.assertTextEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -105,7 +106,7 @@ public class TextifierTest extends AsmTest {
     Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
     assertEquals("", output.toString());
-    assertEquals(EXPECTED_USAGE, logger.toString());
+    assertTextEquals(EXPECTED_USAGE, logger.toString());
   }
 
   @Test
@@ -117,7 +118,7 @@ public class TextifierTest extends AsmTest {
     Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
     assertEquals("", output.toString());
-    assertEquals(EXPECTED_USAGE, logger.toString());
+    assertTextEquals(EXPECTED_USAGE, logger.toString());
   }
 
   @Test
@@ -129,7 +130,7 @@ public class TextifierTest extends AsmTest {
     Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
     assertEquals("", output.toString());
-    assertEquals(EXPECTED_USAGE, logger.toString());
+    assertTextEquals(EXPECTED_USAGE, logger.toString());
   }
 
   @Test
