@@ -2,6 +2,14 @@
 
 🍎 A Java library for dependency injection and aspect oriented programing
 
+
+# TODAY Framework v1.0.1
+
+- :sparkles: 实现 WebSocket Netty 部分功能
+- :bug: 修复 `StandardWebEnvironment` yaml 依赖问题
+- :arrow_up: update undertow to 2.2.8
+- :sparkles: 添加 `WebServerAutoConfiguration` 实现 WebServer 自动配置
+
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3ad5eed64065496fba9244d149820f67)](https://www.codacy.com/app/TAKETODAY/today-context?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TAKETODAY/today-context&amp;utm_campaign=Badge_Grade)
 
 ## 安装

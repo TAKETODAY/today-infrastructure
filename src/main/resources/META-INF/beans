@@ -1,1 +1,2 @@
 cn.taketoday.web.config.WebMvcAutoConfiguration
+cn.taketoday.framework.config.WebServerAutoConfiguration
