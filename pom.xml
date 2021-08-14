@@ -14,7 +14,7 @@
 
   <description>
     A Java library for dependency injection and aspect oriented programing
-    and building high-performance web applications.
+    and building high-performance web applications like Spring Boot.
   </description>
 
   <properties>
@@ -224,13 +224,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.freemarker</groupId>
-      <artifactId>freemarker</artifactId>
-      <version>2.3.29</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
       <groupId>org.thymeleaf</groupId>
       <artifactId>thymeleaf</artifactId>
       <version>3.0.11.RELEASE</version>
@@ -248,13 +241,6 @@
       <groupId>org.hibernate.validator</groupId>
       <artifactId>hibernate-validator</artifactId>
       <version>6.1.5.Final</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.redisson</groupId>
-      <artifactId>redisson</artifactId>
-      <version>3.10.6</version>
       <scope>provided</scope>
     </dependency>
 
