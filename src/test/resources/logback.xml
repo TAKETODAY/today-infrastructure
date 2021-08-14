@@ -19,7 +19,7 @@
   -->
 
 <configuration>
-  <contextName>TODAY Context</contextName>
+  <contextName>TODAY Framework</contextName>
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
