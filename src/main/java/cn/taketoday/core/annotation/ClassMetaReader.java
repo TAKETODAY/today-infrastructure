@@ -56,6 +56,7 @@ import cn.taketoday.asm.tree.FieldNode;
 import cn.taketoday.asm.tree.MethodNode;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.NonNull;
 import cn.taketoday.core.utils.AnnotationUtils;
 import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.core.utils.CollectionUtils;
@@ -67,7 +68,6 @@ import cn.taketoday.core.utils.ReflectionUtils;
  * @since 4.0
  */
 public class ClassMetaReader {
-  public static final AnnotationAttributes[] EMPTY_ANNOTATION_ATTRIBUTES = {};
 
   private static final HashMap<String, ClassNode> classNodeCache = new HashMap<>(128); // class-name to ClassNode
   //  private static final ConcurrentHashMap<String, AnnotationAttributes> annotationDefaultCache // class-name to AnnotationAttributes
@@ -195,7 +195,7 @@ public class ClassMetaReader {
         return getAttributes(visibleAnnotations);
       }
     }
-    return EMPTY_ANNOTATION_ATTRIBUTES;
+    return AnnotationMetaReader.EMPTY_ANNOTATION_ATTRIBUTES;
   }
 
   private static AnnotationAttributes[] getAttributes(List<AnnotationNode> visibleAnnotations) {
@@ -207,7 +207,7 @@ public class ClassMetaReader {
       }
       return annotationAttributes;
     }
-    return EMPTY_ANNOTATION_ATTRIBUTES;
+    return AnnotationMetaReader.EMPTY_ANNOTATION_ATTRIBUTES;
   }
 
   /**
@@ -232,10 +232,10 @@ public class ClassMetaReader {
             return annotationAttributes;
           }
         }
-        return EMPTY_ANNOTATION_ATTRIBUTES;
+        return AnnotationMetaReader.EMPTY_ANNOTATION_ATTRIBUTES;
       }
       if (annotationNode.isEmpty()) {
-        return EMPTY_ANNOTATION_ATTRIBUTES;
+        return AnnotationMetaReader.EMPTY_ANNOTATION_ATTRIBUTES;
       }
       return getAttributes(annotationNode);
     });
@@ -349,6 +349,7 @@ public class ClassMetaReader {
   }
 
   @SuppressWarnings("unchecked")
+  @NonNull
   public static <T extends Annotation> T getAnnotation(Class<T> type, AnnotationAttributes attributes) {
     return (T) Proxy.newProxyInstance(
             type.getClassLoader(), new Class<?>[] { type },
@@ -574,7 +575,8 @@ public class ClassMetaReader {
         return Arrays.equals((Object[]) v1, (Object[]) v2);
 
       // Check for ill formed annotation(s)
-      if (v2.getClass() != type)
+
+      if (v2 == null || v2.getClass() != type)
         return false;
 
       // Deal with array of primitives

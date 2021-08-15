@@ -20,58 +20,27 @@
 
 package cn.taketoday.core.utils;
 
-import java.io.Serializable;
 import java.lang.annotation.Annotation;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Repeatable;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.WeakHashMap;
 
 import cn.taketoday.beans.BeanMetadata;
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.EmptyObject;
-import cn.taketoday.core.annotation.AnnotationDescriptor;
-import cn.taketoday.core.annotation.ClassMetaReader;
+import cn.taketoday.core.annotation.AnnotationKey;
+import cn.taketoday.core.annotation.AnnotationMetaReader;
+import cn.taketoday.core.annotation.ReflectiveAnnotationMetaReader;
 import cn.taketoday.core.reflect.ReflectionException;
+import cn.taketoday.core.utils.ObjectUtils;
 
 /**
  * @author TODAY 2021/7/28 21:15
  * @since 4.0
  */
 public abstract class AnnotationUtils {
-  /** @since 2.1.1 */
-  static final HashSet<Class<? extends Annotation>> IGNORE_ANNOTATION_CLASS = new HashSet<>();
-
-  static final WeakHashMap<AnnotationKey<?>, Object> ANNOTATIONS = new WeakHashMap<>(128);
-  static final WeakHashMap<AnnotationKey<?>, AnnotationAttributes[]> ANNOTATION_ATTRIBUTES = new WeakHashMap<>(128);
-
-  static {
-    // Add ignore annotation
-    addIgnoreAnnotationClass(Target.class);
-    addIgnoreAnnotationClass(Inherited.class);
-    addIgnoreAnnotationClass(Retention.class);
-    addIgnoreAnnotationClass(Repeatable.class);
-    addIgnoreAnnotationClass(Documented.class);
-  }
-
-  public static void addIgnoreAnnotationClass(Class<? extends Annotation> annotationClass) {
-    IGNORE_ANNOTATION_CLASS.add(annotationClass);
-  }
+  private static final AnnotationMetaReader annotationMetaReader = new ReflectiveAnnotationMetaReader();
 
   /**
    * Get the array of {@link Annotation} instance
@@ -87,33 +56,12 @@ public abstract class AnnotationUtils {
    *
    * @since 2.1.1
    */
-  @SuppressWarnings("unchecked")
   public static <T extends Annotation> T[] getAnnotationArray(
           final AnnotatedElement element,
           final Class<T> annotationClass,
           final Class<? extends T> implClass
   ) {
-    if (annotationClass == null) {
-      return null;
-    }
-    final AnnotationKey<T> key = new AnnotationKey<>(element, annotationClass);
-    Object ret = ANNOTATIONS.get(key);
-    if (ret == null) {
-      final AnnotationAttributes[] annAttributes = getAttributesArray(key);
-      if (ObjectUtils.isEmpty(annAttributes)) {
-        ret = EmptyObject.INSTANCE;
-      }
-      else {
-        int i = 0;
-        Assert.notNull(implClass, "Implementation class can't be null");
-        ret = Array.newInstance(annotationClass, annAttributes.length);
-        for (final AnnotationAttributes attributes : annAttributes) {
-          Array.set(ret, i++, injectAttributes(attributes, annotationClass, ClassUtils.newInstance(implClass)));
-        }
-      }
-      ANNOTATIONS.put(key, ret);
-    }
-    return ret == EmptyObject.INSTANCE ? null : (T[]) ret;
+    return annotationMetaReader.getAnnotationArray(element, annotationClass, implClass);
   }
 
   /**
@@ -129,30 +77,10 @@ public abstract class AnnotationUtils {
    *
    * @since 2.1.1
    */
-  @SuppressWarnings("unchecked")
   public static <T extends Annotation> T[] getAnnotationArray(
           final AnnotatedElement element, final Class<T> targetClass
   ) {
-    if (targetClass == null) {
-      return null;
-    }
-    final AnnotationKey<T> key = new AnnotationKey<>(element, targetClass);
-    Object ret = ANNOTATIONS.get(key);
-    if (ret == null) {
-      final AnnotationAttributes[] annAttributes = getAttributesArray(key);
-      if (ObjectUtils.isEmpty(annAttributes)) {
-        ret = EmptyObject.INSTANCE;
-      }
-      else {
-        int i = 0;
-        ret = Array.newInstance(targetClass, annAttributes.length);
-        for (final AnnotationAttributes attributes : annAttributes) {
-          Array.set(ret, i++, getAnnotationProxy(targetClass, attributes));
-        }
-      }
-      ANNOTATIONS.put(key, ret);
-    }
-    return ret == EmptyObject.INSTANCE ? null : (T[]) ret;
+    return annotationMetaReader.getAnnotationArray(element, targetClass);
   }
 
   /**
@@ -174,7 +102,7 @@ public abstract class AnnotationUtils {
           final Class<A> annotationClass,
           final Class<? extends A> implClass
   ) {
-    return CollectionUtils.newArrayList(getAnnotationArray(element, annotationClass, implClass));
+    return annotationMetaReader.getAnnotation(element, annotationClass, implClass);
   }
 
   /**
@@ -238,12 +166,7 @@ public abstract class AnnotationUtils {
    */
   public static AnnotationAttributes getAttributes(
           final Class<? extends Annotation> annotationType, final Object annotation) {
-    final Method[] declaredMethods = ReflectionUtils.getDeclaredMethods(annotationType);
-    final AnnotationAttributes attributes = new AnnotationAttributes(annotationType, declaredMethods.length);
-    for (final Method method : declaredMethods) {
-      attributes.put(method.getName(), ReflectionUtils.invokeMethod(method, annotation));
-    }
-    return attributes;
+    return annotationMetaReader.getAttributes(annotationType, annotation);
   }
 
   /**
@@ -262,7 +185,7 @@ public abstract class AnnotationUtils {
           final AnnotatedElement annotatedElement,
           final Class<T> annotationClass
   ) {
-    return CollectionUtils.newArrayList(getAnnotationArray(annotatedElement, annotationClass));
+    return annotationMetaReader.getAnnotation(annotatedElement, annotationClass);
   }
 
   /**
@@ -284,8 +207,7 @@ public abstract class AnnotationUtils {
           final Class<? extends T> implClass,
           final AnnotatedElement element
   ) {
-    final T[] array = getAnnotationArray(element, annotationClass, implClass);
-    return ObjectUtils.isEmpty(array) ? null : array[0];
+    return annotationMetaReader.getAnnotation(annotationClass, implClass, element);
   }
 
   /**
@@ -303,7 +225,7 @@ public abstract class AnnotationUtils {
   public static <T extends Annotation> T getAnnotation(
           final Object annotated, final Class<T> annotationClass
   ) {
-    return annotated == null ? null : getAnnotation(annotationClass, annotated.getClass());
+    return annotationMetaReader.getAnnotation(annotated, annotationClass);
   }
 
   /**
@@ -320,8 +242,7 @@ public abstract class AnnotationUtils {
    */
   public static <T extends Annotation> T getAnnotation(
           final Class<T> annotationClass, final AnnotatedElement annotatedElement) {
-    final T[] annotationArray = getAnnotationArray(annotatedElement, annotationClass);
-    return ObjectUtils.isEmpty(annotationArray) ? null : annotationArray[0];
+    return annotationMetaReader.getAnnotation(annotationClass, annotatedElement);
   }
 
   /**
@@ -338,7 +259,7 @@ public abstract class AnnotationUtils {
    */
   public static <T extends Annotation> T getAnnotationProxy(
           final Class<T> annotationClass, final AnnotationAttributes attributes) {
-    return ClassMetaReader.getAnnotation(annotationClass, attributes);
+    return annotationMetaReader.getAnnotationProxy(annotationClass, attributes);
   }
 
   /**
@@ -356,7 +277,7 @@ public abstract class AnnotationUtils {
   public static <T extends Annotation> List<AnnotationAttributes> getAttributes(
           final AnnotatedElement element, final Class<T> annotationClass
   ) {
-    return CollectionUtils.newArrayList(getAttributesArray(element, annotationClass));
+    return annotationMetaReader.getAttributes(element, annotationClass);
   }
 
   /**
@@ -374,8 +295,7 @@ public abstract class AnnotationUtils {
   public static <T extends Annotation> AnnotationAttributes getAttributes(
           final Class<T> annotationClass, final AnnotatedElement element
   ) {
-    final AnnotationAttributes[] array = getAttributesArray(element, annotationClass);
-    return ObjectUtils.isEmpty(array) ? null : array[0];
+    return annotationMetaReader.getAttributes(annotationClass, element);
   }
 
   /**
@@ -393,10 +313,7 @@ public abstract class AnnotationUtils {
   public static <T extends Annotation> AnnotationAttributes[] getAttributesArray(
           final AnnotatedElement element, final Class<T> targetClass
   ) {
-    if (targetClass == null) {
-      return ClassMetaReader.EMPTY_ANNOTATION_ATTRIBUTES;
-    }
-    return getAttributesArray(new AnnotationKey<>(element, targetClass));
+    return annotationMetaReader.getAttributesArray(element, targetClass);
   }
 
   /**
@@ -409,205 +326,13 @@ public abstract class AnnotationUtils {
   public static <T extends Annotation> AnnotationAttributes[] getAttributesArray(
           final AnnotationKey<T> key
   ) {
-    AnnotationAttributes[] ret = ANNOTATION_ATTRIBUTES.get(key);
-    if (ret == null) {
-      AnnotationAttributes[] annotations = ClassMetaReader.readAnnotations(key.element);
-      if (ObjectUtils.isEmpty(annotations)) {
-        ret = ClassMetaReader.EMPTY_ANNOTATION_ATTRIBUTES;
-      }
-      else {//scan target annotation on annotationClass
-        final Class<T> annotationClass = key.annotationClass;
-        final ArrayList<AnnotationAttributes> result = new ArrayList<>(); // for the order
-        for (final AnnotationAttributes annotation : annotations) {
-          final List<AnnotationAttributes> attr = getAttributes(annotation, annotationClass);
-          if (!attr.isEmpty()) {
-            result.addAll(attr);
-          }
-        }
-        ret = result.isEmpty()
-              ? ClassMetaReader.EMPTY_ANNOTATION_ATTRIBUTES
-              : result.toArray(new AnnotationAttributes[result.size()]);
-      }
-      ANNOTATION_ATTRIBUTES.putIfAbsent(key, ret);
-    }
-    return ret;
-  }
-
-  public static class AnnotationKey<T> implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    private final int hash;
-    private final Class<T> annotationClass;
-    private final AnnotatedElement element;
-
-    public AnnotationKey(AnnotatedElement element, Class<T> annotationClass) {
-      Assert.notNull(element, "AnnotatedElement can't be null");
-      this.element = element;
-      this.annotationClass = annotationClass;
-      this.hash = Objects.hash(element, annotationClass);
-    }
-
-    @Override
-    public int hashCode() {
-      return hash;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (obj instanceof AnnotationKey) {
-        final AnnotationKey<?> other = (AnnotationKey<?>) obj;
-        return Objects.equals(element, other.element) //
-                && Objects.equals(annotationClass, other.annotationClass);
-      }
-      return false;
-    }
+    return annotationMetaReader.getAttributesArray(key);
   }
 
   public static <T extends Annotation> List<AnnotationAttributes> getAttributes(
           final AnnotationAttributes annotation, final Class<T> target
   ) {
-    if (annotation == null) {
-      return Collections.emptyList();
-    }
-    final String nameToFind = annotation.annotationName();
-    if (Objects.equals(target.getName(), nameToFind)) {
-      // return
-      return Collections.singletonList(annotation);
-    }
-    // filter some annotation classes
-    // -----------------------------------------
-
-    if (ignorable(annotation, null)) {
-      return Collections.emptyList();
-    }
-
-    // find the default value of annotation
-    // -----------------------------------------
-    final ArrayList<AnnotationAttributes> ret = new ArrayList<>();
-    findTargetAttributes(nameToFind, target, annotation, ret);
-    return ret;
-  }
-
-  static <T extends Annotation> void findTargetAttributes(
-          final String nameToFind,
-          final Class<T> targetType,
-          final AnnotationAttributes annotation,
-          final ArrayList<AnnotationAttributes> attributes
-  ) {
-    AnnotationAttributes[] sourceAttributes = ClassMetaReader.readAnnotations(nameToFind);
-    for (final AnnotationAttributes current : sourceAttributes) {
-      if (ignorable(current, nameToFind)) {
-        continue;
-      }
-      if (current.isTarget(targetType)) {
-        // found target annotation
-        AnnotationAttributes found = getAttributes(current, annotation, targetType);
-        attributes.add(found); // found it
-      }
-      else { // next
-        findTargetAttributes(current.annotationName(), targetType, annotation, attributes);
-        if (!attributes.isEmpty()) {
-          AnnotationAttributes override = getAttributes(current, annotation, targetType);
-          for (final AnnotationAttributes attribute : attributes) {
-            if (attribute.isTarget(targetType)) {
-              attribute.putAll(override);
-            }
-          }
-        }
-      }
-    }
-  }
-
-  static AnnotationAttributes getAttributes(
-          final AnnotationAttributes current,// 当前的
-          final AnnotationAttributes annotation, // 最初的
-//          final String candidateType // 就是要找的 type
-          final Class<?> classToFind // 就是要找的 type
-  ) {
-    AnnotationDescriptor descriptor = ClassMetaReader.readDefault(classToFind);
-    Map<String, String> annotationTypes = descriptor.annotationTypes; // method-name to return-type string
-    AnnotationAttributes found = new AnnotationAttributes(descriptor.defaultAttributes, classToFind);
-
-    AnnotationDescriptor candidateDescriptor = ClassMetaReader.readDefault(current.annotationName());
-    Map<String, String> candidateAnnotationTypes = candidateDescriptor.annotationTypes;
-    for (final Map.Entry<String, String> entry : annotationTypes.entrySet()) {
-      String method = entry.getKey(); // attribute-name
-      String returnType = entry.getValue();// return-type
-      Object value;
-      if (Objects.equals(returnType, candidateAnnotationTypes.get(method))) {
-        value = current.getAttribute(method, getExpectedType(returnType));
-      }
-      else {
-        value = annotation.getAttribute(method, getExpectedType(returnType));
-      }
-      if (value != null) {
-        found.put(method, value);
-      }
-    }
-    return found;
-  }
-
-  static boolean ignorable(AnnotationAttributes current, String source) {
-    final String annotationName = current.annotationName();
-    if (annotationName != null) {
-      if (source != null && Objects.equals(source, annotationName)) {
-        return true;
-      }
-      for (final Class<?> aClass : IGNORE_ANNOTATION_CLASS) {
-        if (annotationName.equals(aClass.getName())) {
-          return true;
-        }
-      }
-      return false;
-    }
-    else {
-      final Class<? extends Annotation> annotationType = current.annotationType();
-      if (annotationType != null) {
-        return IGNORE_ANNOTATION_CLASS.contains(annotationType);
-      }
-    }
-    return false;
-
-  }
-//
-//  static AnnotationAttributes getAttributes(
-//          final AnnotationAttributes current,
-//          final AnnotationAttributes annotation,
-//          final Class<? extends Annotation> candidateType
-//  ) {
-//    AnnotationDescriptor descriptor = ClassMetaReader.readDefault(candidateType);
-//    Map<String, String> annotationTypes = descriptor.annotationTypes; // method-name to return-type string
-//    AnnotationAttributes found = new AnnotationAttributes(descriptor.defaultAttributes, candidateType);
-//
-//    AnnotationDescriptor candidateDescriptor = ClassMetaReader.readDefault(current.annotationName());
-//    Map<String, String> candidateAnnotationTypes = candidateDescriptor.annotationTypes;
-//    for (final Map.Entry<String, String> entry : annotationTypes.entrySet()) {
-//      String method = entry.getKey(); // attribute-name
-//      String returnType = entry.getValue();// return-type
-//      Object value;
-//      if (Objects.equals(returnType, candidateAnnotationTypes.get(method))) {
-//        value = current.getAttribute(method, getExpectedType(returnType));
-//      }
-//      else {
-//        value = annotation.getAttribute(method, getExpectedType(returnType));
-//      }
-//      if (value != null) {
-//        found.put(method, value);
-//      }
-//    }
-//    return found;
-//  }
-
-  private static Class<?> getExpectedType(String returnType) {
-    try {
-      return ClassUtils.forName(returnType);
-    }
-    catch (ClassNotFoundException e) {
-      return null;
-    }
+    return annotationMetaReader.searchAttributes(annotation, target);
   }
 
   /**
@@ -625,154 +350,7 @@ public abstract class AnnotationUtils {
   public static <T extends Annotation> List<AnnotationAttributes> getAttributes(
           final Annotation annotation, final Class<T> target
   ) {
-    if (annotation == null) {
-      return Collections.emptyList();
-    }
-    final Class<? extends Annotation> annotationType = annotation.annotationType();
-    if (annotationType == target) {
-      // 如果等于对象注解就直接添加
-      return Collections.singletonList(getAttributes(annotationType, annotation));
-    }
-    // filter some annotation classes
-    // -----------------------------------------
-    if (IGNORE_ANNOTATION_CLASS.contains(annotationType)) {
-      return Collections.emptyList();
-    }
-    // find the default value of annotation
-    // -----------------------------------------
-    final ArrayList<AnnotationAttributes> ret = new ArrayList<>();
-
-    findTargetAttributes(annotationType, target, ret,
-                         new TransformTarget(annotation, annotationType), IGNORE_ANNOTATION_CLASS);
-    return ret;
-  }
-
-  interface AnnotationAttributesTransformer {
-
-    Object get(Method method);
-
-    void transform(AnnotationAttributes attributes);
-  }
-
-  static final class TransformTarget implements AnnotationAttributesTransformer {
-
-    private Method[] declaredMethods;
-    private final Annotation annotation;
-    private final Class<?> annotationType;
-
-    public TransformTarget(Annotation annotation, Class<?> annotationType) {
-      this.annotation = annotation;
-      this.annotationType = annotationType;
-    }
-
-    @Override
-    public void transform(final AnnotationAttributes target) {
-      // found it and override same properties
-      // -------------------------------------
-      final Annotation annotation = this.annotation;
-      for (final Method method : getDeclaredMethods()) {
-        final Object value = target.get(method.getName());
-        if (value == null || eq(method.getReturnType(), value.getClass())) {
-          target.put(method.getName(), ReflectionUtils.invokeMethod(method, annotation)); // override
-        }
-      }
-    }
-
-    protected final Method[] getDeclaredMethods() {
-      Method[] ret = this.declaredMethods;
-      if (ret == null) {
-        ret = ReflectionUtils.getDeclaredMethods(annotationType);
-        this.declaredMethods = ret;
-      }
-      return ret;
-    }
-
-    @Override
-    public Object get(final Method targetMethod) {
-      final String name = targetMethod.getName();
-      final Annotation annotation = this.annotation;
-      // In general there isn't lots of Annotation Attributes
-      for (final Method method : getDeclaredMethods()) {
-        if (method.getName().equals(name)
-                && eq(method.getReturnType(), targetMethod.getReturnType())) {
-          return ReflectionUtils.invokeMethod(method, annotation);
-        }
-      }
-      return null;
-    }
-
-    private static boolean eq(Class<?> returnType, Class<?> clazz) {
-      if (returnType == clazz) {
-        return true;
-      }
-      if (returnType.isPrimitive()) {
-        switch (returnType.getName()) {//@off
-          case "int" :    return clazz == Integer.class;
-          case "long" :   return clazz == Long.class;
-          case "byte" :   return clazz == Byte.class;
-          case "char" :   return clazz == Character.class;
-          case "float" :  return clazz == Float.class;
-          case "double" : return clazz == Double.class;
-          case "short" :  return clazz == Short.class;
-          case "boolean" :return clazz == Boolean.class;
-          default:        return false;
-        } //@on
-      }
-      return false;
-    }
-  }
-
-  /**
-   * Use recursive to find the All target {@link AnnotationAttributes} instance
-   *
-   * @param targetType
-   *         Target {@link Annotation} class to find
-   * @param source
-   *         {@link Annotation} source
-   * @param attributes
-   *         All suitable {@link AnnotationAttributes}
-   * @param ignoreAnnotation
-   *         Ignore {@link Annotation}s
-   *
-   * @since 2.1.7
-   */
-  static <T extends Annotation> void findTargetAttributes(
-          final Class<?> source,
-          final Class<T> targetType,
-          final ArrayList<AnnotationAttributes> attributes,
-          final AnnotationAttributesTransformer transformer,
-          final Set<Class<? extends Annotation>> ignoreAnnotation
-  ) {
-    for (final Annotation current : source.getAnnotations()) {
-      final Class<? extends Annotation> candidateType = current.annotationType();
-      if (candidateType == source || ignoreAnnotation.contains(candidateType)) {
-        continue;
-      }
-      if (candidateType == targetType) {
-        // found target annotation
-        attributes.add(getAttributes(current, candidateType, transformer)); // found it
-      }
-      else {
-        findTargetAttributes(candidateType, targetType, attributes, transformer, ignoreAnnotation);
-      }
-    }
-  }
-
-  public static AnnotationAttributes getAttributes(
-          final Annotation current,
-          final Class<? extends Annotation> candidateType,
-          final AnnotationAttributesTransformer transformer
-  ) {
-    final Method[] declaredMethods = ReflectionUtils.getDeclaredMethods(candidateType);
-    final AnnotationAttributes target = new AnnotationAttributes(candidateType, declaredMethods.length);
-    for (final Method method : declaredMethods) {
-      Object value = transformer.get(method);
-      if (value == null) {
-        value = ReflectionUtils.invokeMethod(method, current);
-      }
-      target.put(method.getName(), value);
-    }
-    return target;
+    return annotationMetaReader.searchAttributes(annotation, target);
   }
 
   /**
@@ -797,8 +375,7 @@ public abstract class AnnotationUtils {
    * clear cache
    */
   public static void clearCache() {
-    ANNOTATIONS.clear();
-    ANNOTATION_ATTRIBUTES.clear();
+    annotationMetaReader.clearCache();
   }
 
 }
