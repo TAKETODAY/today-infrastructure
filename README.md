@@ -1,6 +1,6 @@
 # TODAY Context
 
-🍎 A Java library for dependency injection and aspect oriented programing
+🍎 A Java library for dependency injection and aspect oriented programing and building high-performance web applications like Spring Boot.
 
 ![Java8](https://img.shields.io/badge/JDK-8+-success.svg)
 [![GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
@@ -12,6 +12,8 @@
 
 ## 🛠️ 安装
 
+> 老版本 IOC
+
 ```xml
 <dependency>
   <groupId>cn.taketoday</groupId>
@@ -20,10 +22,6 @@
 </dependency>
 ```
 - [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-context/3.0.4.RELEASE/jar)
-
-## 🎉 前言
-
-today-web 框架2.0刚出来时没有 ioc 容器感觉不是很方便，所以想自己实现一个。之前有看过Spring源码但是发现我对Spring源码无从下手😰完全懵逼。之前学过怎么用Spring但是对他的底层完全不了解的我带着试一试的心态开始到处查资料，就这样我又开始造起了轮子。**如何扫描类文件**、**学习Java注解**、**Java字节码**、**动态代理**、**重新认识接口**、**一些设计模式**、**学习使用Git**、**渐渐明白了单元测试的重要性** 等。随着学习的深入框架经历了数次重构，自己也对依赖注入有了自己的看法。慢慢的我发现我居然能看得明白Spring源码了。感觉Spring真心强大😮👍 。如果他说他是轻量级，那我的就是超轻量级😄 。自己在造轮子的过程中学习到了很多知识，越学感觉自己越空，觉得Java是越学越多，永远都学不完。
 
 
 ## 📝 使用说明
