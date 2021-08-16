@@ -180,6 +180,10 @@ public class ParameterResolvers extends WebApplicationContextSupport {
     MultipartConfiguration multipartConfig = getMultipartConfig();
     if (multipartConfig == null) {
       multipartConfig = context.getBean(MultipartConfiguration.class);
+      if (multipartConfig == null) { // @since 4.0
+        multipartConfig = createMultipartConfig();
+        setMultipartConfig(multipartConfig);
+      }
     }
     Assert.state(multipartConfig != null, "MultipartConfiguration Can't be null");
 
@@ -216,6 +220,15 @@ public class ParameterResolvers extends WebApplicationContextSupport {
 
     // ordering
     sort();
+  }
+
+  /**
+   * create default MultipartConfiguration
+   *
+   * @since 4.0
+   */
+  protected MultipartConfiguration createMultipartConfig() {
+    return new MultipartConfiguration();
   }
 
   /**
