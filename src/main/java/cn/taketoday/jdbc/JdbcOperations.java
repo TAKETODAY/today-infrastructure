@@ -25,8 +25,8 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.context.conversion.ConversionService;
-import cn.taketoday.context.conversion.support.DefaultConversionService;
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.jdbc.parsing.DefaultSqlParameterParser;
 import cn.taketoday.jdbc.parsing.ParameterApplier;
 import cn.taketoday.jdbc.parsing.SqlParameterParser;

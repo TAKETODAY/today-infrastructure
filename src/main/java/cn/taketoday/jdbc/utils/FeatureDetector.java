@@ -1,6 +1,6 @@
 package cn.taketoday.jdbc.utils;
 
-import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.core.utils.ClassUtils;
 
 /**
  * Detects whether optional sql2o features are available.

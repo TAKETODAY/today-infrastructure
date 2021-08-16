@@ -20,7 +20,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import cn.taketoday.context.TypeReference;
+import cn.taketoday.core.TypeReference;
 
 /**
  * The base {@link TypeHandler} for references a generic type.

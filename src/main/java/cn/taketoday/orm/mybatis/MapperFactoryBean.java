@@ -23,11 +23,11 @@ import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.factory.FactoryBean;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.beans.Autowired;
+import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 
 /**
  * @author TODAY <br>

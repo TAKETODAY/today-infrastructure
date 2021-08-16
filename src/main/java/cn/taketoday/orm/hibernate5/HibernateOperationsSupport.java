@@ -19,12 +19,12 @@
  */
 package cn.taketoday.orm.hibernate5;
 
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.factory.InitializingBean;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.GenericTypeResolver;
+import cn.taketoday.beans.Autowired;
+import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.core.utils.GenericTypeResolver;
 import cn.taketoday.jdbc.PersistenceException;
 
 import org.hibernate.Criteria;

@@ -29,16 +29,16 @@ import java.util.Set;
 
 import javax.persistence.Entity;
 
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.factory.DisposableBean;
-import cn.taketoday.context.factory.FactoryBean;
-import cn.taketoday.context.factory.InitializingBean;
+import cn.taketoday.beans.Autowired;
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.context.Props;
 import cn.taketoday.context.loader.CandidateComponentScanner;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 
 /**
  * @author TODAY <br>

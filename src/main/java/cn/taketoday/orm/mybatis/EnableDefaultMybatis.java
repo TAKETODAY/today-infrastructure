@@ -22,7 +22,7 @@ package cn.taketoday.orm.mybatis;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.annotation.Import;
+import cn.taketoday.beans.Import;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;

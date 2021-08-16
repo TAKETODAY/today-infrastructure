@@ -32,28 +32,28 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.beans.Autowired;
+import cn.taketoday.beans.BeanNameCreator;
+import cn.taketoday.beans.MissingBean;
+import cn.taketoday.beans.Repository;
+import cn.taketoday.beans.factory.DefaultBeanDefinition;
+import cn.taketoday.beans.factory.FactoryBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.BeanNameCreator;
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Env;
-import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.annotation.Order;
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.annotation.Repository;
+import cn.taketoday.context.Env;
+import cn.taketoday.context.Props;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.LoadingMissingBeanEvent;
-import cn.taketoday.context.factory.DefaultBeanDefinition;
-import cn.taketoday.context.factory.FactoryBeanDefinition;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.ContextUtils;
-import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.SingletonSupplier;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.Order;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.utils.ContextUtils;
+import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.core.utils.SingletonSupplier;
+import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 
-import static cn.taketoday.context.utils.ContextUtils.getResourceAsStream;
+import static cn.taketoday.core.utils.ContextUtils.getResourceAsStream;
 
 /**
  * @author TODAY <br>

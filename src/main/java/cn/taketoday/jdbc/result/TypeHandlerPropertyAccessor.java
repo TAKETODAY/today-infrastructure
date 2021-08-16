@@ -22,7 +22,7 @@ package cn.taketoday.jdbc.result;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import cn.taketoday.context.factory.BeanProperty;
+import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.jdbc.type.TypeHandler;
 
 /**

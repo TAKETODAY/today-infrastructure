@@ -30,20 +30,20 @@ import java.util.Properties;
 import javax.persistence.Entity;
 import javax.sql.DataSource;
 
+import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.DefaultProps;
-import cn.taketoday.context.annotation.Order;
+import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.event.ApplicationContextEvent;
 import cn.taketoday.context.event.ApplicationEventCapable;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.ContextRefreshEvent;
 import cn.taketoday.context.event.LoadingMissingBeanEvent;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ContextUtils;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.Order;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.core.utils.ContextUtils;
 
 /**
  * @author TODAY <br>

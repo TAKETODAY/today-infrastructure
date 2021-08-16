@@ -26,7 +26,7 @@ import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
 import java.util.Properties;
 
-import cn.taketoday.context.ConcurrentProperties;
+import cn.taketoday.core.ConcurrentProperties;
 
 /**
  * use DriverManager to establish a connection

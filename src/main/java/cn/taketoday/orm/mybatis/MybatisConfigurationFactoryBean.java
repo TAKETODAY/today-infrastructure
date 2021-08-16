@@ -25,12 +25,12 @@ import org.apache.ibatis.session.Configuration;
 import java.io.InputStream;
 import java.util.Properties;
 
-import cn.taketoday.context.annotation.Env;
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.factory.FactoryBean;
-import cn.taketoday.context.factory.InitializingBean;
-import cn.taketoday.context.utils.ContextUtils;
+import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.context.Env;
+import cn.taketoday.context.Props;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.utils.ContextUtils;
 
 /**
  * @author TODAY <br>

@@ -19,7 +19,7 @@
  */
 package cn.taketoday.jdbc;
 
-import cn.taketoday.context.NestedRuntimeException;
+import cn.taketoday.core.NestedRuntimeException;
 
 /**
  * @author TODAY <br>

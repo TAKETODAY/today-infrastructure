@@ -21,7 +21,7 @@ package cn.taketoday.transaction;
 
 import java.io.Serializable;
 
-import cn.taketoday.context.AnnotationAttributes;
+import cn.taketoday.core.AnnotationAttributes;
 
 /**
  * @author TODAY <br>

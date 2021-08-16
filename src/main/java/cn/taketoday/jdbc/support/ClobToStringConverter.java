@@ -23,8 +23,8 @@ package cn.taketoday.jdbc.support;
 import java.sql.Clob;
 import java.sql.SQLException;
 
-import cn.taketoday.context.conversion.Converter;
-import cn.taketoday.context.exception.ConversionException;
+import cn.taketoday.core.conversion.ConversionException;
+import cn.taketoday.core.conversion.Converter;
 
 /**
  * @author TODAY 2021/1/8 22:00

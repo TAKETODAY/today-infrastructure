@@ -35,9 +35,9 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.factory.DisposableBean;
-import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.beans.Autowired;
+import cn.taketoday.beans.DisposableBean;
+import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.transaction.SynchronizationManager;
 import cn.taketoday.transaction.SynchronizationManager.SynchronizationMetaData;
 import lombok.Getter;

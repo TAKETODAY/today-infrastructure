@@ -28,20 +28,21 @@ import java.util.Map;
 
 import cn.taketoday.aop.support.annotation.Advice;
 import cn.taketoday.aop.support.annotation.Aspect;
-import cn.taketoday.context.AnnotationAttributes;
-import cn.taketoday.context.NamedThreadLocal;
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Order;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
-import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.factory.ObjectSupplier;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.beans.Autowired;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.beans.factory.ObjectSupplier;
+import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.NamedThreadLocal;
+import cn.taketoday.core.Order;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.utils.AnnotationUtils;
+import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.transaction.DefaultTransactionDefinition;
 import cn.taketoday.transaction.NoTransactionException;
 import cn.taketoday.transaction.TransactionDefinition;
@@ -193,9 +194,9 @@ public class TransactionInterceptor implements MethodInterceptor {
   }
 
   static TransactionDefinition getTransaction(Method method) {
-    AnnotationAttributes attributes = ClassUtils.getAnnotationAttributes(Transactional.class, method);
+    AnnotationAttributes attributes = AnnotationUtils.getAttributes(Transactional.class, method);
     if (attributes == null) {
-      attributes = ClassUtils.getAnnotationAttributes(Transactional.class, method.getDeclaringClass());
+      attributes = AnnotationUtils.getAttributes(Transactional.class, method.getDeclaringClass());
     }
     if (attributes == null) {
       throw new ConfigurationException(

@@ -27,10 +27,10 @@ import org.apache.ibatis.transaction.TransactionFactory;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.factory.FactoryBean;
-import cn.taketoday.context.factory.InitializingBean;
+import cn.taketoday.beans.Autowired;
+import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.core.ConfigurationException;
 
 /**
  * @author TODAY <br>

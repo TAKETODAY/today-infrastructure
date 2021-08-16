@@ -23,7 +23,7 @@ package cn.taketoday.jdbc;
  * @author TODAY <br>
  *         2018-08-28 17:57
  */
-public interface Constant extends cn.taketoday.context.Constant {
+public interface Constant extends cn.taketoday.core.Constant {
 
   String VERSION = "1.0.0.RELEASE";
 

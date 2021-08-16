@@ -1,6 +1,6 @@
 package cn.taketoday.jdbc;
 
-import cn.taketoday.context.annotation.Property;
+import cn.taketoday.beans.Property;
 
 public class ColumnEntity {
 

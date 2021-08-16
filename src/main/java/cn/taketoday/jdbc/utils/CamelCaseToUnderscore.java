@@ -1,7 +1,7 @@
 package cn.taketoday.jdbc.utils;
 
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.utils.StringUtils;
 
 /**
  * @author TODAY 2021/1/8 18:24

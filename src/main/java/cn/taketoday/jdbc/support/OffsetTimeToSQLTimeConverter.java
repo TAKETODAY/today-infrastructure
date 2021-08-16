@@ -23,7 +23,7 @@ package cn.taketoday.jdbc.support;
 import java.sql.Time;
 import java.time.OffsetTime;
 
-import cn.taketoday.context.conversion.Converter;
+import cn.taketoday.core.conversion.Converter;
 
 /**
  * @author TODAY 2021/2/12 14:12

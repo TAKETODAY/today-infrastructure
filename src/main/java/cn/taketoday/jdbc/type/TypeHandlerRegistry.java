@@ -36,9 +36,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import cn.taketoday.context.TypeReference;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ResolvableType;
+import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.utils.AnnotationUtils;
+import cn.taketoday.core.utils.ResolvableType;
 
 /**
  * @author Clinton Begin
@@ -181,7 +181,7 @@ public class TypeHandlerRegistry {
   @SuppressWarnings("unchecked")
   public <T> void register(TypeHandler<T> typeHandler) {
     boolean mappedTypeFound = false;
-    final MappedTypes mappedTypes = ClassUtils.getAnnotation(MappedTypes.class, typeHandler.getClass());
+    final MappedTypes mappedTypes = AnnotationUtils.getAnnotation(MappedTypes.class, typeHandler.getClass());
     if (mappedTypes != null) {
       for (Class<?> handledType : mappedTypes.value()) {
         register((Class<T>) handledType, typeHandler);

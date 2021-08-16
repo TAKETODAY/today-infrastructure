@@ -20,7 +20,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import cn.taketoday.context.utils.Assert;
+import cn.taketoday.core.Assert;
 
 /**
  * Use {@link Enum#ordinal()}

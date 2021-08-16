@@ -73,8 +73,8 @@
 
     <dependency>
       <groupId>cn.taketoday</groupId>
-      <artifactId>today-context</artifactId>
-      <version>3.0.4.RELEASE</version>
+      <artifactId>today-framework</artifactId>
+      <version>latest</version>
     </dependency>
 
     <!-- provided -->
@@ -280,6 +280,12 @@
       <artifactId>sql2o</artifactId>
       <version>1.6.0</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.25</version>
+      <scope>compile</scope>
     </dependency>
 
   </dependencies>

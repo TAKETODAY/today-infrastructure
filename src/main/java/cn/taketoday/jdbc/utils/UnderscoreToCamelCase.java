@@ -1,6 +1,6 @@
 package cn.taketoday.jdbc.utils;
 
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.core.utils.StringUtils;
 
 /**
  * Takes a string formatted like: 'my_string_variable' and returns it as:
