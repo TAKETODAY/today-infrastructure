@@ -25,12 +25,16 @@ import java.util.List;
 
 import cn.taketoday.context.Environment;
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.core.utils.OrderUtils;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.config.CompositeWebMvcConfiguration;
 import cn.taketoday.web.config.WebMvcConfiguration;
+import cn.taketoday.web.handler.JacksonObjectNotationProcessor;
 import cn.taketoday.web.view.template.AbstractTemplateViewResolver;
 import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
 import cn.taketoday.web.view.template.TemplateViewResolver;
@@ -39,6 +43,8 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
  * @author TODAY 2019-12-28 13:47
  */
 public class ResultHandlers extends WebApplicationContextSupport {
+  private static final Logger log = LoggerFactory.getLogger(ResultHandlers.class);
+
   private final ArrayList<ResultHandler> handlers = new ArrayList<>(8);
   /**
    * @since 3.0.1
@@ -173,7 +179,7 @@ public class ResultHandlers extends WebApplicationContextSupport {
 
     final List<ResultHandler> handlers = getHandlers();
     final int bufferSize = getDownloadFileBufferSize();
-    final MessageConverter messageConverter = getMessageConverter();
+    final MessageConverter messageConverter = obtainMessageConverter();
     Assert.state(messageConverter != null, "No MessageConverter in this web application");
 
     final RedirectModelManager modelManager = getRedirectModelManager();
@@ -225,6 +231,25 @@ public class ResultHandlers extends WebApplicationContextSupport {
   }
 
   public MessageConverter getMessageConverter() {
+    return messageConverter;
+  }
+
+  /**
+   * get MessageConverter or auto detect jackson and fast-json
+   */
+  private MessageConverter obtainMessageConverter() {
+    MessageConverter messageConverter = getMessageConverter();
+    if (messageConverter == null) {
+      if (ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper")) {
+        messageConverter = new ObjectNotationProcessorMessageConverter(new JacksonObjectNotationProcessor());
+      }
+      else if (ClassUtils.isPresent("com.alibaba.fastjson.JSON")) {
+        messageConverter = new FastJSONMessageConverter();
+      }
+      if (messageConverter != null) {
+        log.info("auto detect MessageConverter: [{}]", messageConverter);
+      }
+    }
     return messageConverter;
   }
 
