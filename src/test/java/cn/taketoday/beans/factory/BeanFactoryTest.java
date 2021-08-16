@@ -32,6 +32,7 @@ import cn.taketoday.beans.Component;
 import cn.taketoday.beans.Prototype;
 import cn.taketoday.beans.Singleton;
 import cn.taketoday.context.Value;
+import cn.taketoday.core.utils.DataSize;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import lombok.ToString;
@@ -219,7 +220,8 @@ public class BeanFactoryTest extends BaseTest {
 
   @ToString
   public static class TEST {
-    public int test;
+//    public int test;
+    private DataSize test;
 
   }
 
@@ -229,13 +231,13 @@ public class BeanFactoryTest extends BaseTest {
   public static class FactoryBeanTestBean implements FactoryBean<TEST>, InitializingBean {
 
     @Value("${env['upload.maxFileSize']}")
-    private int testInt;
+//    private int testInt;
+    private DataSize testInt;
 
     @Override
     public TEST getBean() {
       final TEST test = new TEST();
       test.test = testInt;
-
       return test;
     }
 

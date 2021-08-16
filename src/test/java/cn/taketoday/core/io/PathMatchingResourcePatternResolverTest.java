@@ -77,7 +77,7 @@ public class PathMatchingResourcePatternResolverTest {
 
     @Test
     public void singleResourceOnFileSystem() throws IOException {
-        Resource[] resources = resolver.getResources("cn/taketoday/context/io/PathMatchingResourcePatternResolverTest.class");
+        Resource[] resources = resolver.getResources("cn/taketoday/core/io/PathMatchingResourcePatternResolverTest.class");
         assertEquals(1, resources.length);
         assertTrue(resources[0].exists());
         assertProtocolAndFilenames(resources, "file", "PathMatchingResourcePatternResolverTest.class");
@@ -85,7 +85,7 @@ public class PathMatchingResourcePatternResolverTest {
         
         // ---------------------------------------
         
-        final Resource[] resources2 = ResourceUtils.getResources("cn/taketoday/context/io/PathMatchingResourcePatternResolverTest.class");
+        final Resource[] resources2 = ResourceUtils.getResources("cn/taketoday/core/io/PathMatchingResourcePatternResolverTest.class");
         assertEquals(1, resources2.length);
         assertTrue(resources2[0].exists());
         assertProtocolAndFilenames(resources2, "file", "PathMatchingResourcePatternResolverTest.class");
@@ -100,7 +100,7 @@ public class PathMatchingResourcePatternResolverTest {
 
     @Test
     public void classpathStarWithPatternOnFileSystem() throws IOException {
-        Resource[] resources = resolver.getResources("classpath*:cn/taketoday/context/io/*.class");
+        Resource[] resources = resolver.getResources("classpath*:cn/taketoday/core/io/*.class");
         // Have to exclude Clover-generated class files here,
         // as we might be running as part of a Clover test run.
         List<Resource> noCloverResources = new ArrayList<>();

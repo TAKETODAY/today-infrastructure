@@ -27,6 +27,7 @@ import java.util.List;
 
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.web.annotation.GET;
+import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.interceptor.CorsHandlerInterceptor;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
@@ -47,11 +48,17 @@ public class HandlerMethodBuilderTests {
     }
   }
 
+  @EnableWebMvc
+  static class AppConfig {
+
+  }
+
   @Test
   public void testBuild() throws NoSuchMethodException {
 
     try (StandardApplicationContext context = new StandardWebServletApplicationContext()) {
       context.load("cn.taketoday.web.handler");
+      context.importBeans(AppConfig.class);
 
       final HandlerMethodBuilder<HandlerMethod> handlerMethodBuilder = new HandlerMethodBuilder<>(context);
       HandlerMethod handlerMethod = handlerMethodBuilder.build(new MyController(), MyController.class.getMethod("get"));
