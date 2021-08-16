@@ -113,7 +113,8 @@ public class DefaultConversionService implements ConfigurableConversionService {
   }
 
   @SuppressWarnings("unchecked")
-  protected <T> T handleConverterNotFound(Object source, GenericDescriptor targetType) {
+  protected <T> T handleConverterNotFound(
+          Object source, GenericDescriptor targetType) throws ConverterNotFoundException {
     if (targetType.isInstance(source)) {
       return (T) source;
     }
@@ -191,8 +192,10 @@ public class DefaultConversionService implements ConfigurableConversionService {
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof ConverterKey)) return false;
+      if (this == o)
+        return true;
+      if (!(o instanceof ConverterKey))
+        return false;
       final ConverterKey that = (ConverterKey) o;
       return sourceType == that.sourceType
               && Objects.equals(targetType, that.targetType);
