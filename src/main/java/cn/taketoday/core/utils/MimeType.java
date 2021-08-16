@@ -578,12 +578,12 @@ public class MimeType implements Comparable<MimeType>, Serializable {
   }
 
   private void appendTo(Map<String, String> map, StringBuilder builder) {
-    map.forEach((key, val) -> {
+    for (final Map.Entry<String, String> entry : map.entrySet()) {
       builder.append(';');
-      builder.append(key);
+      builder.append(entry.getKey());
       builder.append('=');
-      builder.append(val);
-    });
+      builder.append(entry.getValue());
+    }
   }
 
   /**

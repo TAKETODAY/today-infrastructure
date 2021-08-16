@@ -33,7 +33,6 @@ import cn.taketoday.core.annotation.AnnotationKey;
 import cn.taketoday.core.annotation.AnnotationMetaReader;
 import cn.taketoday.core.annotation.ReflectiveAnnotationMetaReader;
 import cn.taketoday.core.reflect.ReflectionException;
-import cn.taketoday.core.utils.ObjectUtils;
 
 /**
  * @author TODAY 2021/7/28 21:15
