@@ -79,6 +79,7 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConcurrentProperties;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
@@ -337,17 +338,19 @@ public abstract class ContextUtils {
 
   /**
    * Add a method which annotated with {@link PostConstruct}
+   * or {@link cn.taketoday.beans.Autowired}
    *
    * @param beanClass
    *         Bean class
    * @param initMethods
    *         Init Method name
    *
+   * @see AutowiredPropertyResolver#isInjectable(AnnotatedElement)
    * @since 2.1.7
    */
-  public static Method[] resolveInitMethod(String[] initMethods, Class<?> beanClass) {
+  public static Method[] resolveInitMethod(@Nullable String[] initMethods, Class<?> beanClass) {
     final ArrayList<Method> methods = new ArrayList<>(2);
-    final boolean initMethodsNotEmpty = StringUtils.isArrayNotEmpty(initMethods);
+    final boolean initMethodsNotEmpty = ObjectUtils.isNotEmpty(initMethods);
     do {
       for (final Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
         if (AnnotationUtils.isPresent(method, PostConstruct.class)
