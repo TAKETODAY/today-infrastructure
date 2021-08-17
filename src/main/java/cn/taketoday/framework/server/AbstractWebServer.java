@@ -41,7 +41,7 @@ import cn.taketoday.core.utils.OrderUtils;
 import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.framework.Constant;
 import cn.taketoday.framework.WebServerApplicationContext;
-import cn.taketoday.framework.annotation.Starter;
+import cn.taketoday.framework.config.Starter;
 import cn.taketoday.framework.config.CompositeWebApplicationConfiguration;
 import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.framework.config.ErrorPage;

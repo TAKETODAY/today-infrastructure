@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,25 +17,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.framework.annotation;
+package cn.taketoday.framework.config;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import cn.taketoday.beans.Import;
-import cn.taketoday.framework.config.WebDocumentConfiguration;
+import cn.taketoday.beans.MissingBean;
+import cn.taketoday.context.Props;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * @author TODAY <br>
- *         2020-08-16 12:45
+ * @author TODAY 2020-08-16 12:45
  */
 @Retention(RUNTIME)
 @Target({ TYPE, METHOD })
-@Import(WebDocumentConfiguration.class)
-public @interface EnableWebDocumentConfiguration {
+@Import(CompressionConfig.class)
+public @interface EnableCompression {
 
+}
+
+class CompressionConfig {
+
+  @MissingBean
+  @Props(prefix = "compression.")
+  CompressionConfiguration compressionConfiguration() {
+    return new CompressionConfiguration();
+  }
 }

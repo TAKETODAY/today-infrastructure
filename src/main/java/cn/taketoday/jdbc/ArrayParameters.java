@@ -38,7 +38,7 @@ import cn.taketoday.jdbc.parsing.ParameterApplier;
  * <code>SELECT * FROM user WHERE id IN(4,5,6)</code><br>
  * <br>
  */
-class ArrayParameters {
+final class ArrayParameters {
 
   static class ArrayParameter implements Comparable<ArrayParameter> {
     // the index of the parameter array

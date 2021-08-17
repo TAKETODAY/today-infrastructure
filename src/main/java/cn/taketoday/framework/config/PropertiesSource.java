@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,35 +17,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.framework.annotation;
+package cn.taketoday.framework.config;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.Import;
-import cn.taketoday.beans.MissingBean;
-import cn.taketoday.context.Props;
-import cn.taketoday.framework.config.CompressionConfiguration;
-
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
 /**
- * @author TODAY 2020-08-16 12:45
+ * @author TODAY <br>
+ *         2019-06-17 20:25
  */
-@Retention(RUNTIME)
-@Target({ TYPE, METHOD })
-@Import(CompressionConfig.class)
-public @interface EnableCompression {
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface PropertiesSource {
 
-}
+  /**
+   * Indicate the resource location(s) of the properties file to be loaded.
+   */
+  String value();
 
-class CompressionConfig {
-
-  @MissingBean
-  @Props(prefix = "compression.")
-  CompressionConfiguration compressionConfiguration() {
-    return new CompressionConfiguration();
-  }
 }

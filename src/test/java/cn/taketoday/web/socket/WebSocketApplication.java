@@ -29,7 +29,7 @@ import cn.taketoday.beans.Configuration;
 import cn.taketoday.beans.IgnoreDuplicates;
 import cn.taketoday.beans.Import;
 import cn.taketoday.framework.WebApplication;
-import cn.taketoday.framework.annotation.EnableTomcatHandling;
+import cn.taketoday.framework.config.EnableTomcatHandling;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RequestMapping;

@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,24 +17,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.framework.annotation;
+package cn.taketoday.framework.config;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.framework.Constant;
+
 /**
  * @author TODAY <br>
- *         2019-06-17 20:25
+ *         2019-01-19 21:45
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface PropertiesSource {
+public @interface Starter {
 
-  /**
-   * Indicate the resource location(s) of the properties file to be loaded.
-   */
-  String value();
-
+  String webMvcConfigLocation() default Constant.BLANK;
 }

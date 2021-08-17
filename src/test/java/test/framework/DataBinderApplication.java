@@ -27,9 +27,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import cn.taketoday.framework.WebApplication;
-import cn.taketoday.framework.annotation.EnableTomcatHandling;
 import cn.taketoday.web.annotation.GET;
-import cn.taketoday.web.annotation.RestController;
 import lombok.Data;
 
 /**

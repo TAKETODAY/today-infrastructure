@@ -38,7 +38,7 @@ import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.core.utils.ObjectUtils;
 import cn.taketoday.core.utils.ResourceUtils;
 import cn.taketoday.core.utils.StringUtils;
-import cn.taketoday.framework.annotation.PropertiesSource;
+import cn.taketoday.framework.config.PropertiesSource;
 import cn.taketoday.framework.utils.ApplicationUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
