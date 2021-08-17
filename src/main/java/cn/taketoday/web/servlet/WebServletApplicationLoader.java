@@ -52,7 +52,7 @@ import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.config.WebApplicationLoader;
 import cn.taketoday.web.config.WebMvcConfiguration;
-import cn.taketoday.web.event.WebApplicationFailedEvent;
+import cn.taketoday.web.WebApplicationFailedEvent;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.resolver.ServletParameterResolvers;

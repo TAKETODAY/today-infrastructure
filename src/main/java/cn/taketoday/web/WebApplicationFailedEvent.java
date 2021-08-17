@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -15,29 +15,37 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.event;
+package cn.taketoday.web;
 
 import cn.taketoday.context.event.ApplicationEvent;
 import cn.taketoday.web.WebApplicationContext;
 
 /**
+ *
  * @author TODAY <br>
- *         2018-10-18 14:06
+ *         2019-05-17 10:14
  */
 @SuppressWarnings("serial")
-public class WebApplicationStartedEvent extends ApplicationEvent {
+public class WebApplicationFailedEvent extends ApplicationEvent {
 
   private final WebApplicationContext applicationContext;
 
-  public WebApplicationStartedEvent(WebApplicationContext applicationContext) {
+  private final Throwable cause;
+
+  public WebApplicationFailedEvent(WebApplicationContext applicationContext, Throwable cause) {
     super(applicationContext);
+    this.cause = cause;
     this.applicationContext = applicationContext;
   }
 
   public WebApplicationContext getApplicationContext() {
     return applicationContext;
+  }
+
+  public final Throwable getCause() {
+    return cause;
   }
 
 }

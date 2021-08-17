@@ -31,7 +31,10 @@ import javax.servlet.ServletException;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestMethod;
+import cn.taketoday.web.http.CorsConfiguration;
+import cn.taketoday.web.http.CorsFilter;
 import cn.taketoday.web.http.HttpHeaders;
+import cn.taketoday.web.http.UrlBasedCorsConfigurationSource;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.utils.ServletUtils;

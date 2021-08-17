@@ -35,7 +35,7 @@ import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.WebConstant;
-import cn.taketoday.web.event.WebApplicationStartedEvent;
+import cn.taketoday.web.WebApplicationStartedEvent;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.HandlerAdapter;

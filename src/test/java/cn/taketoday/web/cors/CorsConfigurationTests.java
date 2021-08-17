@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import cn.taketoday.web.RequestMethod;
+import cn.taketoday.web.http.CorsConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

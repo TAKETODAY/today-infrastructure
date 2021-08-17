@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebConstant;
-import cn.taketoday.web.cors.CorsConfiguration;
+import cn.taketoday.web.http.CorsConfiguration;
 
 /**
  * Annotation for permitting cross-origin requests on specific handler classes
