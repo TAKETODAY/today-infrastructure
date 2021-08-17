@@ -32,17 +32,18 @@ import java.util.Map;
 
 import cn.taketoday.context.ConfigurableEnvironment;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.utils.ObjectUtils;
 import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.framework.ConfigurableWebServerApplicationContext;
-import cn.taketoday.framework.Constant;
 import cn.taketoday.framework.server.AbstractWebServer;
 import cn.taketoday.framework.server.ConfigurableWebServer;
 import cn.taketoday.framework.server.WebServer;
+import cn.taketoday.web.WebConstant;
 
 /**
  * @author TODAY 2019-06-19 20:05
  */
-public abstract class ApplicationUtils {
+public abstract class WebApplicationUtils {
 
   /**
    * Obtain a {@link WebServer} form bean-factory
@@ -55,7 +56,7 @@ public abstract class ApplicationUtils {
   public static WebServer obtainWebServer(ConfigurableWebServerApplicationContext beanFactory) {
     ConfigurableEnvironment environment = beanFactory.getEnvironment();
     // disable web mvc xml
-    environment.setProperty(Constant.ENABLE_WEB_MVC_XML, "false");
+    environment.setProperty(WebConstant.ENABLE_WEB_MVC_XML, "false");
     // Get WebServer instance
     WebServer webServer = beanFactory.getBean(WebServer.class);
     if (webServer == null) {
@@ -195,18 +196,18 @@ public abstract class ApplicationUtils {
   // -------------------args
 
   /**
-   * Parse command arguments
+   * Parse command line arguments
    *
    * @param args
    *         arguments
    *
    * @return key-value
    */
-  public static Map<String, String> parseCommandArguments(final String... args) {
-    if (StringUtils.isArrayEmpty(args)) {
+  public static Map<String, String> parseCommandLineArguments(final String... args) {
+    if (ObjectUtils.isEmpty(args)) {
       return Collections.emptyMap();
     }
-    final Map<String, String> argsMap = new LinkedHashMap<>();
+    final LinkedHashMap<String, String> argsMap = new LinkedHashMap<>();
     for (final String arg : args) {
       if (arg.startsWith("--") && arg.indexOf('=') > -1) {
         final String[] param = arg.substring(2).split("=");

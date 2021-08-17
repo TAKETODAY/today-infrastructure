@@ -26,6 +26,7 @@ import cn.taketoday.core.utils.ExceptionUtils;
 import cn.taketoday.framework.server.WebServer;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.web.WebConstant;
 
 /**
  * Web Application Runner
@@ -43,7 +44,7 @@ public class WebApplication {
   }
 
   public WebApplication(Class<?> startupClass, String... args) {
-    context = ClassUtils.isPresent(Constant.ENV_SERVLET)
+    context = ClassUtils.isPresent(WebConstant.ENV_SERVLET)
               ? new ServletWebServerApplicationContext(startupClass, args)
               : new StandardWebServerApplicationContext(startupClass, args);
   }

@@ -67,10 +67,10 @@ import javax.servlet.ServletContainerInitializer;
 
 import cn.taketoday.beans.Autowired;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.core.utils.StringUtils;
-import cn.taketoday.framework.Constant;
 import cn.taketoday.framework.WebServerException;
 import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.framework.config.ErrorPage;

@@ -34,12 +34,12 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableEnvironment;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.utils.AnnotationUtils;
 import cn.taketoday.core.utils.ObjectUtils;
 import cn.taketoday.core.utils.OrderUtils;
 import cn.taketoday.core.utils.StringUtils;
-import cn.taketoday.framework.Constant;
 import cn.taketoday.framework.WebServerApplicationContext;
 import cn.taketoday.framework.config.Starter;
 import cn.taketoday.framework.config.CompositeWebApplicationConfiguration;
@@ -48,9 +48,10 @@ import cn.taketoday.framework.config.ErrorPage;
 import cn.taketoday.framework.config.MimeMappings;
 import cn.taketoday.framework.config.WebApplicationConfiguration;
 import cn.taketoday.framework.config.WebDocumentConfiguration;
-import cn.taketoday.framework.utils.ApplicationUtils;
+import cn.taketoday.framework.utils.WebApplicationUtils;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.web.WebApplicationContextSupport;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.config.WebApplicationLoader;
 import cn.taketoday.web.session.SessionConfiguration;
@@ -132,17 +133,17 @@ public abstract class AbstractWebServer
     if (context.getEnvironment() instanceof ConfigurableEnvironment) {
       final Starter starter;
       final ConfigurableEnvironment environment = (ConfigurableEnvironment) context.getEnvironment();
-      environment.setProperty(Constant.ENABLE_WEB_STARTED_LOG, Boolean.FALSE.toString());
-      String webMvcConfigLocation = environment.getProperty(Constant.WEB_MVC_CONFIG_LOCATION);
+      environment.setProperty(WebConstant.ENABLE_WEB_STARTED_LOG, Boolean.FALSE.toString());
+      String webMvcConfigLocation = environment.getProperty(WebConstant.WEB_MVC_CONFIG_LOCATION);
       if (StringUtils.isNotEmpty(webMvcConfigLocation)) {
-        environment.setProperty(Constant.ENABLE_WEB_MVC_XML, Boolean.TRUE.toString());
+        environment.setProperty(WebConstant.ENABLE_WEB_MVC_XML, Boolean.TRUE.toString());
       }
       else if ((starter = AnnotationUtils.getAnnotation(Starter.class, context.getStartupClass())) != null) {
         // find webMvcConfigLocation
         webMvcConfigLocation = starter.webMvcConfigLocation();
         if (StringUtils.isNotEmpty(webMvcConfigLocation)) {
-          environment.setProperty(Constant.ENABLE_WEB_MVC_XML, Boolean.TRUE.toString());
-          environment.setProperty(Constant.WEB_MVC_CONFIG_LOCATION, webMvcConfigLocation);
+          environment.setProperty(WebConstant.ENABLE_WEB_MVC_XML, Boolean.TRUE.toString());
+          environment.setProperty(WebConstant.WEB_MVC_CONFIG_LOCATION, webMvcConfigLocation);
         }
       }
     }
@@ -187,7 +188,7 @@ public abstract class AbstractWebServer
    * @return temporal directory with sub directory
    */
   protected File getTemporalDirectory(String dir) {
-    return ApplicationUtils.getTemporalDirectory(obtainApplicationContext().getStartupClass(), dir);
+    return WebApplicationUtils.getTemporalDirectory(obtainApplicationContext().getStartupClass(), dir);
   }
 
   @Override
@@ -202,7 +203,7 @@ public abstract class AbstractWebServer
     Assert.state(sessionConfig != null, "Please enable web session");
     final Resource storeDirectory = sessionConfig.getStoreDirectory();
     if (storeDirectory == null || !storeDirectory.exists()) {
-      return ApplicationUtils.getTemporalDirectory(startupClass, "web-app-sessions");
+      return WebApplicationUtils.getTemporalDirectory(startupClass, "web-app-sessions");
     }
 
     if (storeDirectory.isDirectory()) {

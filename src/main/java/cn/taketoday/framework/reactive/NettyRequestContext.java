@@ -33,12 +33,13 @@ import java.util.TreeSet;
 import java.util.function.Supplier;
 
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.utils.CollectionUtils;
 import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.framework.Constant;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.http.DefaultHttpHeaders;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.resolver.ParameterReadFailedException;
@@ -115,10 +116,10 @@ public class NettyRequestContext extends RequestContext {
     if (socketAddress instanceof InetSocketAddress) {
       final int port = ((InetSocketAddress) socketAddress).getPort();
       if (port == 443) {
-        return Constant.HTTPS;
+        return WebConstant.HTTPS;
       }
     }
-    return Constant.HTTP;
+    return WebConstant.HTTP;
   }
 
   @Override
@@ -145,7 +146,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public String getRequestURL() {
-    final String host = request.headers().get(Constant.HOST);
+    final String host = request.headers().get(WebConstant.HOST);
     return getScheme() + "://" + host + getRequestPath();
   }
 

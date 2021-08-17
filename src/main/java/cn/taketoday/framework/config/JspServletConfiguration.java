@@ -24,7 +24,7 @@ import java.util.Map;
 
 import cn.taketoday.context.Props;
 import cn.taketoday.context.condition.ConditionalOnClass;
-import cn.taketoday.framework.Constant;
+import cn.taketoday.web.WebConstant;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -37,7 +37,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Props(prefix = "server.servlet.jsp.")
-@ConditionalOnClass(Constant.ENV_SERVLET)
+@ConditionalOnClass(WebConstant.ENV_SERVLET)
 public class JspServletConfiguration {
 
   private boolean enable;

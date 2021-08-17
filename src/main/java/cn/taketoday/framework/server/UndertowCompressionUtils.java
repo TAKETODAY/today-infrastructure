@@ -23,9 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.utils.StringUtils;
-import cn.taketoday.framework.Constant;
 import cn.taketoday.framework.config.CompressionConfiguration;
+import cn.taketoday.web.WebConstant;
 import io.undertow.predicate.Predicate;
 import io.undertow.predicate.Predicates;
 import io.undertow.server.HttpHandler;
@@ -66,7 +67,7 @@ public abstract class UndertowCompressionUtils {
     ContentEncodingRepository repository = new ContentEncodingRepository();
 
     repository.addEncodingHandler(
-            Constant.GZIP, new GzipEncodingProvider(), 50, Predicates.and(getCompressionPredicates(compression)));
+            WebConstant.GZIP, new GzipEncodingProvider(), 50, Predicates.and(getCompressionPredicates(compression)));
 
     return new EncodingHandler(repository).setNext(httpHandler);
   }
@@ -206,7 +207,7 @@ public abstract class UndertowCompressionUtils {
 
     @Override
     public boolean resolve(HttpServerExchange httpServerExchange) {
-      final String contentType = httpServerExchange.getResponseHeaders().getFirst(Constant.CONTENT_TYPE);
+      final String contentType = httpServerExchange.getResponseHeaders().getFirst(WebConstant.CONTENT_TYPE);
       if (StringUtils.isNotEmpty(contentType)) {
         for (String mimeType : this.mimeTypes) {
           if (matches(mimeType, contentType)) {

@@ -24,11 +24,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.framework.Constant;
+import cn.taketoday.core.Constant;
 
 /**
  * @author TODAY <br>
- *         2019-01-19 21:45
+ * 2019-01-19 21:45
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
