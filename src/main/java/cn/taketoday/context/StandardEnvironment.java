@@ -19,6 +19,10 @@
  */
 package cn.taketoday.context;
 
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.extensions.compactnotation.CompactConstructor;
+
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.AccessController;
@@ -26,6 +30,8 @@ import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
@@ -39,6 +45,7 @@ import cn.taketoday.core.ConcurrentProperties;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceFilter;
+import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.core.utils.ResourceUtils;
 import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.expression.ExpressionProcessor;
@@ -53,6 +60,7 @@ import cn.taketoday.logger.LoggerFactory;
  */
 public class StandardEnvironment implements ConfigurableEnvironment {
   private static final Logger log = LoggerFactory.getLogger(StandardEnvironment.class);
+  static boolean snakeyamlIsPresent = ClassUtils.isPresent("org.yaml.snakeyaml.Yaml");
 
   private final HashSet<String> activeProfiles = new HashSet<>(4);
   private final ConcurrentProperties properties = new ConcurrentProperties();
@@ -153,27 +161,51 @@ public class StandardEnvironment implements ConfigurableEnvironment {
    *         When access to the resource if any {@link IOException} occurred
    */
   protected void loadProperties(final Resource propertiesResource) throws IOException {
-
-    if (!propertiesResource.exists()) {
-      log.warn("The resource: [{}] you provided that doesn't exist", propertiesResource);
-      return;
-    }
-
-    if (propertiesResource.isDirectory()) {
-      log.debug("Start scanning properties resource.");
-
-      final ResourceFilter propertiesFileFilter = (final Resource file) -> {
-        if (file.isDirectory()) {
-          return true;
-        }
-        final String name = file.getName();
-        return name.endsWith(Constant.PROPERTIES_SUFFIX) && !name.startsWith("pom"); // pom.properties
-      };
-      doLoadFromDirectory(propertiesResource, this.properties, propertiesFileFilter);
+    if (isYamlProperties(propertiesResource.getName())) {
+      if (snakeyamlIsPresent) {
+        // load yaml files
+        loadFromYmal(getProperties(), propertiesResource);
+      }
+      else {
+        log.warn("'org.yaml.snakeyaml.Yaml' does not exist in your classpath, yaml config file will be ignored");
+      }
     }
     else {
-      doLoad(this.properties, propertiesResource);
+      // load properties files
+      if (!propertiesResource.exists()) {
+        log.warn("The resource: [{}] you provided that doesn't exist", propertiesResource);
+        return;
+      }
+      if (propertiesResource.isDirectory()) {
+        log.debug("Start scanning properties resource.");
+        final ResourceFilter propertiesFileFilter = (final Resource file) -> {
+          if (file.isDirectory()) {
+            return true;
+          }
+          final String name = file.getName();
+          return name.endsWith(Constant.PROPERTIES_SUFFIX) && !name.startsWith("pom"); // pom.properties
+        };
+        doLoadFromDirectory(propertiesResource, this.properties, propertiesFileFilter);
+      }
+      else {
+        doLoad(this.properties, propertiesResource);
+      }
     }
+  }
+
+  /**
+   * Is yaml?
+   *
+   * @param propertiesLocation
+   *         location
+   */
+  private boolean isYamlProperties(String propertiesLocation) {
+    return propertiesLocation.endsWith(".yaml") || propertiesLocation.endsWith(".yml");
+  }
+
+  private void loadFromYmal(final Properties properties, final Resource yamlResource) throws IOException {
+    log.info("Found Yaml Properties Resource: [{}]", yamlResource.getLocation());
+    SnakeyamlDelegate.doMapping(properties, yamlResource);
   }
 
   @Override
@@ -188,11 +220,86 @@ public class StandardEnvironment implements ConfigurableEnvironment {
    */
   @Override
   public void loadProperties() throws IOException {
-    for (final String propertiesLocation : StringUtils.splitAsList(propertiesLocation)) {
-      loadProperties(propertiesLocation);
-    }
+    // load default properties source : application.yaml or application.properties
+    LinkedHashSet<String> locations = new LinkedHashSet<>(8); // loaded locations
+    loadDefaultResources(locations);
 
+    if (locations.isEmpty()) {
+      // scan class path properties files
+      for (final String propertiesLocation : StringUtils.splitAsList(propertiesLocation)) {
+        loadProperties(propertiesLocation);
+      }
+    }
+    // load other files
+    postLoadingProperties(locations);
+
+    // refresh active profiles
     refreshActiveProfiles();
+    // load
+    replaceProperties(locations);
+  }
+
+  /**
+   * subclasses load other files
+   *
+   * @param locations
+   *         loaded file locations
+   *
+   * @throws IOException
+   *         if any io exception occurred when loading properties files
+   */
+  protected void postLoadingProperties(Set<String> locations) throws IOException { }
+
+  /**
+   * load default properties files
+   *
+   * @param locations
+   *         loaded files
+   *
+   * @throws IOException
+   *         If load error
+   */
+  protected void loadDefaultResources(final Set<String> locations) throws IOException {
+    final String[] defaultLocations = new String[] {
+            DEFAULT_YML_FILE,
+            DEFAULT_YAML_FILE,
+            DEFAULT_PROPERTIES_FILE
+    };
+
+    for (final String location : defaultLocations) {
+      final Resource propertiesResource = ResourceUtils.getResource(location);
+      if (propertiesResource.exists()) {
+        loadProperties(propertiesResource); // loading
+        setPropertiesLocation(location);// can override
+        locations.add(location);
+      }
+    }
+  }
+
+  /**
+   * Replace the properties from current active profiles
+   *
+   * @param locations
+   *         loaded properties locations
+   *
+   * @throws IOException
+   *         When access to the resource if any {@link IOException} occurred
+   */
+  protected void replaceProperties(Set<String> locations) throws IOException {
+    // replace
+    final String[] activeProfiles = getActiveProfiles();
+    for (final String profile : activeProfiles) {
+
+      for (final String location : locations) {
+        final StringBuilder builder = new StringBuilder(location);
+        builder.insert(builder.indexOf("."), '-' + profile);
+
+        try {
+          loadProperties(builder.toString());
+        }
+        catch (FileNotFoundException ignored) { }
+      }
+    }
   }
 
   /**
@@ -327,6 +434,29 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
   public String getPropertiesLocation() {
     return propertiesLocation;
+  }
+
+  static class SnakeyamlDelegate {
+
+    protected static void doMapping(final Properties properties, Resource yamlResource) throws IOException {
+      final Map<String, Object> base = new Yaml(new CompactConstructor()).load(yamlResource.getInputStream());
+      SnakeyamlDelegate.doMapping(properties, base, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected static void doMapping(final Properties properties, final Map<String, Object> base, final String prefix) {
+      for (final Map.Entry<String, Object> entry : base.entrySet()) {
+        String key = entry.getKey();
+        final Object value = entry.getValue();
+        key = prefix == null ? key : (prefix + '.' + key);
+        if (value instanceof Map) {
+          doMapping(properties, (Map<String, Object>) value, key);
+        }
+        else {
+          properties.put(key, value);
+        }
+      }
+    }
   }
 
 }

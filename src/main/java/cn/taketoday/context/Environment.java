@@ -36,6 +36,10 @@ import cn.taketoday.expression.ExpressionProcessor;
  */
 public interface Environment {
 
+  String DEFAULT_YML_FILE = "classpath:application.yml"; // @since 1.0.2
+  String DEFAULT_YAML_FILE = "classpath:application.yaml";
+  String DEFAULT_PROPERTIES_FILE = "classpath:application.properties";
+
   /**
    * Get properties
    */
