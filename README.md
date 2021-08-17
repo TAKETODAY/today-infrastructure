@@ -21,6 +21,7 @@
   <version>3.0.5.RELEASE</version>
 </dependency>
 ```
+> 新版本正在加紧开发中
 
 ## 开始
 
