@@ -34,12 +34,13 @@ import cn.taketoday.logger.LoggerFactory;
  * 2018-10-06 14:56
  */
 public class MapperFactoryBean<T> implements FactoryBean<T> {
+  private static final Logger log = LoggerFactory.getLogger(MapperFactoryBean.class);
 
   private SqlSession sqlSession;
 
   private Class<T> mapperInterface;
 
-  public MapperFactoryBean() {}
+  public MapperFactoryBean() { }
 
   public MapperFactoryBean(Class<T> mapperInterface) {
     this.setMapperInterface(mapperInterface);
@@ -83,7 +84,6 @@ public class MapperFactoryBean<T> implements FactoryBean<T> {
       return;
     }
 
-    final Logger log = LoggerFactory.getLogger(mapperInterface);
     log.debug("Add Mapper: [{}] To [{}]", mapperInterface.getSimpleName(), configuration.getMapperRegistry());
     try {
       configuration.addMapper(mapperInterface);
