@@ -8,7 +8,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3ad5eed64065496fba9244d149820f67)](https://www.codacy.com/app/TAKETODAY/today-context?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TAKETODAY/today-context&amp;utm_campaign=Badge_Grade)
 [![GitHub CI](https://github.com/TAKETODAY/today-framework/workflows/GitHub%20CI/badge.svg)](https://github.com/TAKETODAY/today-framework/actions)
 [![Travis CI](https://travis-ci.org/TAKETODAY/today-context.svg?branch=master)](https://travis-ci.org/TAKETODAY/today-context)
-[![Coverage Status](https://coveralls.io/repos/github/TAKETODAY/today-context/badge.svg?branch=master)](https://coveralls.io/github/TAKETODAY/today-context?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3fc111bcdf694f96bbf1a063058eea36)](https://app.codacy.com/app/TAKETODAY/today-framework?utm_source=github.com&utm_medium=referral&utm_content=TAKETODAY/today-framework&utm_campaign=Badge_Grade_Settings)
 
 ## 🛠️ 安装
 
@@ -21,7 +21,167 @@
   <version>3.0.5.RELEASE</version>
 </dependency>
 ```
-- [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-context/3.0.4.RELEASE/jar)
+
+## 开始
+
+只需要
+```java
+@RestController
+public class DemoApplication {
+
+  @GET("/index/{q}")
+  public String index(String q) {
+    return q;
+  }
+
+  public static void main(String[] args) {
+    WebApplication.run(DemoApplication.class, args);
+  }
+}
+```
+
+# 在 Netty 里运行
+
+```java
+@Slf4j
+@RestController // rest 控制器
+@RestControllerAdvice
+@Import(NettyApplication.AppConfig.class) // 导入配置
+public class NettyApplication {
+
+  public static void main(String[] args) {
+    WebApplication.runReactive(NettyApplication.class, args);
+  }
+
+  @GET("/index")
+  public String index() {
+    return "Hello";
+  }
+
+  @GET("/body/{name}/{age}")
+  public Body index(String name, int age) {
+    return new Body(name, age);
+  }
+
+  @GET("/publish-event")
+  public void index(String name, @Autowired ApplicationEventPublisher publisher) {
+    publisher.publishEvent(new MyEvent(name));
+  }
+
+  @GET("/request-context")
+  public String context(RequestContext context) {
+    final String requestURL = context.requestURL();
+    final String queryString = context.queryString();
+    System.out.println(requestURL);
+    System.out.println(queryString);
+
+    return queryString;
+  }
+
+  @Getter
+  static class Body {
+    final String name;
+    final int age;
+
+    Body(String name, int age) {
+      this.name = name;
+      this.age = age;
+    }
+  }
+
+  @Configuration
+  @EnableNettyHandling
+  @EnableMethodEventDriven
+  static class AppConfig {
+
+    @EventListener(MyEvent.class)
+    public void event(MyEvent event) {
+      log.info("event :{}", event);
+    }
+  }
+
+  @ToString
+  static class MyEvent {
+    final String name;
+
+    MyEvent(String name) {
+      this.name = name;
+    }
+  }
+
+  @ExceptionHandler(Throwable.class)
+  public void throwable(Throwable throwable) {
+    throwable.printStackTrace();
+  }
+
+}
+
+```
+
+# 在 Servlet 容器里运行
+```java
+@Slf4j
+@Configuration
+@RequestMapping
+@EnableDefaultMybatis
+@EnableRedissonCaching
+@EnableTomcatHandling
+@ComponentScan("cn.taketoday.blog")
+@PropertiesSource("classpath:info.properties")
+@MultipartConfig(maxFileSize = 10240000, fileSizeThreshold = 1000000000, maxRequestSize = 1024000000)
+public class TestApplication implements WebMvcConfiguration, ApplicationListener<ContextStartedEvent> {
+
+  public static void main(String[] args) {
+    WebApplication.run(TestApplication.class, args);
+  }
+
+  @GET("index/{q}")
+  public String index(String q) {
+    return q;
+  }
+
+  @Singleton
+  @Profile("prod")
+  public ResourceHandlerRegistry prodResourceMappingRegistry() {
+
+    final ResourceHandlerRegistry registry = new ResourceHandlerRegistry();
+
+    registry.addResourceMapping(LoginInterceptor.class)//
+            .setPathPatterns("/assets/admin/**")//
+            .setOrder(Ordered.HIGHEST_PRECEDENCE)//
+            .addLocations("/assets/admin/");
+
+    return registry;
+  }
+
+  @Singleton
+  @Profile("dev")
+  public ResourceHandlerRegistry devRsourceMappingRegistry(@Env("site.uploadPath") String upload,
+                                                           @Env("site.assetsPath") String assetsPath) //
+  {
+    final ResourceHandlerRegistry registry = new ResourceHandlerRegistry();
+
+    registry.addResourceMapping("/assets/**")//
+            .addLocations(assetsPath);
+
+    registry.addResourceMapping("/upload/**")//
+            .addLocations(upload);
+
+    registry.addResourceMapping("/logo.png")//
+            .addLocations("file:///D:/dev/www.yhj.com/webapps/assets/images/logo.png");
+
+    registry.addResourceMapping("/favicon.ico")//
+            .addLocations("classpath:/favicon.ico");
+
+    return registry;
+  }
+
+  @Override
+  public void onApplicationEvent(ContextStartedEvent event) {
+    log.info("----------------Application Started------------------");
+  }
+}
+```
 
 
 ## 📝 使用说明
