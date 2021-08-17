@@ -19,21 +19,21 @@
  */
 package cn.taketoday.orm.mybatis;
 
-import org.apache.ibatis.executor.ErrorContext;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.SqlSession;
-
 import cn.taketoday.beans.Autowired;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import org.apache.ibatis.executor.ErrorContext;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.SqlSession;
 
 /**
  * @author TODAY <br>
  * 2018-10-06 14:56
  */
 public class MapperFactoryBean<T> implements FactoryBean<T> {
+  private static final Logger log = LoggerFactory.getLogger(MapperFactoryBean.class);
 
   private SqlSession sqlSession;
 
@@ -82,8 +82,6 @@ public class MapperFactoryBean<T> implements FactoryBean<T> {
     if (configuration.hasMapper(mapperInterface)) {
       return;
     }
-
-    final Logger log = LoggerFactory.getLogger(mapperInterface);
     log.debug("Add Mapper: [{}] To [{}]", mapperInterface.getSimpleName(), configuration.getMapperRegistry());
     try {
       configuration.addMapper(mapperInterface);
