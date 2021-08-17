@@ -20,20 +20,22 @@
 package cn.taketoday.web.servlet;
 
 import javax.servlet.Servlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.handler.AbstractHandlerAdapter;
+import cn.taketoday.web.utils.ServletUtils;
 
 /**
- * @author TODAY <br>
- *         2019-12-24 22:01
+ * @author TODAY 2019-12-24 22:01
  */
 @ConditionalOnClass(WebConstant.ENV_SERVLET)
 public class ServletHandlerAdapter extends AbstractHandlerAdapter {
 
-  public ServletHandlerAdapter() {}
+  public ServletHandlerAdapter() { }
 
   public ServletHandlerAdapter(int order) {
     setOrder(order);
@@ -46,7 +48,9 @@ public class ServletHandlerAdapter extends AbstractHandlerAdapter {
 
   @Override
   public Object handle(RequestContext context, Object handler) throws Throwable {
-    ((Servlet) handler).service(context.nativeRequest(), context.nativeResponse());
+    HttpServletRequest servletRequest = ServletUtils.getServletRequest(context);
+    HttpServletResponse servletResponse = ServletUtils.getServletResponse(context);
+    ((Servlet) handler).service(servletRequest, servletResponse);
     return NONE_RETURN_VALUE;
   }
 
