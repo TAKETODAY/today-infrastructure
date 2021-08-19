@@ -44,6 +44,8 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.NonNull;
+import cn.taketoday.core.Nullable;
 
 /**
  * Factory for collections that is aware of common Java and Spring collection
@@ -140,10 +142,16 @@ public abstract class CollectionUtils {
    *
    * @since 4.0
    */
-  public static <E> ArrayList<E> newArrayList(E... elements) {
-    final ArrayList<E> ret = new ArrayList<>(elements.length);
-    Collections.addAll(ret, elements);
-    return ret;
+  @SafeVarargs
+  public static <E> ArrayList<E> newArrayList(@Nullable E... elements) {
+    if (ObjectUtils.isNotEmpty(elements)) {
+      final ArrayList<E> ret = new ArrayList<>(elements.length);
+      Collections.addAll(ret, elements);
+      return ret;
+    }
+    else {
+      return new ArrayList<>();
+    }
   }
 
   // CollectionFactory
@@ -159,7 +167,7 @@ public abstract class CollectionUtils {
    *
    * @since 3.0
    */
-  public static boolean isApproximableCollectionType(Class<?> collectionType) {
+  public static boolean isApproximableCollectionType(@Nullable Class<?> collectionType) {
     return (collectionType != null && approximableCollectionTypes.contains(collectionType));
   }
 
@@ -332,7 +340,7 @@ public abstract class CollectionUtils {
    *
    * @since 3.0
    */
-  public static boolean isApproximableMapType(Class<?> mapType) {
+  public static boolean isApproximableMapType(@Nullable Class<?> mapType) {
     return (mapType != null && approximableMapTypes.contains(mapType));
   }
 
@@ -360,7 +368,7 @@ public abstract class CollectionUtils {
    * @see java.util.LinkedHashMap
    * @since 3.0
    */
-  public static <K, V> Map<K, V> createApproximateMap(Object map) {
+  public static <K, V> Map<K, V> createApproximateMap(@Nullable Object map) {
     return createApproximateMap(map, Constant.DEFAULT_CAPACITY);
   }
 
@@ -389,7 +397,7 @@ public abstract class CollectionUtils {
    * @since 3.0
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public static <K, V> Map<K, V> createApproximateMap(Object map, int capacity) {
+  public static <K, V> Map<K, V> createApproximateMap(@Nullable Object map, int capacity) {
     if (map instanceof EnumMap) {
       EnumMap enumMap = new EnumMap((EnumMap) map);
       enumMap.clear();
@@ -419,7 +427,7 @@ public abstract class CollectionUtils {
    *         {@link EnumMap}
    * @since 3.0
    */
-  public static <K, V> Map<K, V> createMap(Class<?> mapType) {
+  public static <K, V> Map<K, V> createMap(@NonNull Class<?> mapType) {
     return createMap(mapType, null, Constant.DEFAULT_CAPACITY);
   }
 

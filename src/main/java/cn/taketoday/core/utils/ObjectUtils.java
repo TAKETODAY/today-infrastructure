@@ -27,6 +27,8 @@ import java.util.Optional;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.NonNull;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.conversion.ConversionException;
 
 /**
@@ -44,7 +46,7 @@ public abstract class ObjectUtils {
    *
    * @since 3.0
    */
-  public static boolean isArray(Object obj) {
+  public static boolean isArray(@Nullable Object obj) {
     return (obj != null && obj.getClass().isArray());
   }
 
@@ -56,7 +58,7 @@ public abstract class ObjectUtils {
    *
    * @return If a object is a null or empty object
    */
-  public static boolean isEmpty(Object[] array) {
+  public static boolean isEmpty(@Nullable Object[] array) {
     return array == null || array.length == 0;
   }
 
@@ -68,7 +70,7 @@ public abstract class ObjectUtils {
    *
    * @return If a object is a null or empty object
    */
-  public static boolean isEmpty(Object obj) {
+  public static boolean isEmpty(@Nullable Object obj) {
     if (obj == null) {
       return true;
     }
@@ -87,11 +89,11 @@ public abstract class ObjectUtils {
     return obj.getClass().isArray() && Array.getLength(obj) == 0;
   }
 
-  public static boolean isNotEmpty(Object[] array) {
+  public static boolean isNotEmpty(@Nullable Object[] array) {
     return !isEmpty(array);
   }
 
-  public static boolean isNotEmpty(Object obj) {
+  public static boolean isNotEmpty(@Nullable Object obj) {
     return !isEmpty(obj);
   }
 
@@ -106,7 +108,7 @@ public abstract class ObjectUtils {
    *
    * @since 3.0
    */
-  public static Object unwrapOptional(Object obj) {
+  public static Object unwrapOptional(@Nullable Object obj) {
     if (obj instanceof Optional) {
       Optional<?> optional = (Optional<?>) obj;
       if (!optional.isPresent()) {
@@ -232,7 +234,7 @@ public abstract class ObjectUtils {
   // Convenience methods for toString output
   //---------------------------------------------------------------------
 
-  public static String toHexString(final Object obj) {
+  public static String toHexString(@Nullable final Object obj) {
     //        return getClass().getName() + "@" + Integer.toHexString(hashCode());
     return obj == null
            ? "null"
@@ -251,7 +253,7 @@ public abstract class ObjectUtils {
    * @return the object's identity as String representation,
    * or an empty String if the object was {@code null}
    */
-  public static String identityToString(Object obj) {
+  public static String identityToString(@Nullable Object obj) {
     if (obj == null) {
       return Constant.BLANK;
     }
@@ -268,7 +270,7 @@ public abstract class ObjectUtils {
    *
    * @return the object's identity code in hex notation
    */
-  public static String getIdentityHexString(Object obj) {
+  public static String getIdentityHexString(@Nullable Object obj) {
     return Integer.toHexString(System.identityHashCode(obj));
   }
 
@@ -285,7 +287,7 @@ public abstract class ObjectUtils {
    *
    * @since 3.0
    */
-  public static boolean containsElement(Object[] array, Object element) {
+  public static boolean containsElement(@Nullable Object[] array, Object element) {
     if (array == null) {
       return false;
     }
@@ -310,7 +312,8 @@ public abstract class ObjectUtils {
    *
    * @since 3.0
    */
-  public static <A, O extends A> A[] addObjectToArray(A[] array, O obj) {
+  @NonNull
+  public static <A, O extends A> A[] addObjectToArray(@Nullable A[] array, O obj) {
     Class<?> compType = Object.class;
     if (array != null) {
       compType = array.getClass().getComponentType();
@@ -343,7 +346,7 @@ public abstract class ObjectUtils {
    *         if the parameter is not an array
    * @since 3.0
    */
-  public static Object[] toObjectArray(Object source) {
+  public static Object[] toObjectArray(@Nullable Object source) {
     if (source instanceof Object[]) {
       return (Object[]) source;
     }

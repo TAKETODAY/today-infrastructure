@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.NonNull;
 import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.core.utils.ObjectUtils;
 
@@ -37,7 +38,7 @@ import cn.taketoday.core.utils.ObjectUtils;
 public class ClassReadingAnnotationMetaReader extends AnnotationMetaReader {
 
   @Override
-  protected <T extends Annotation> AnnotationAttributes[] createAttributesArray(AnnotationKey<T> key) {
+  protected <T extends Annotation> AnnotationAttributes[] createAttributesArray(@NonNull AnnotationKey<T> key) {
     AnnotationAttributes[] annotations = ClassMetaReader.readAnnotations(key.element);
     if (ObjectUtils.isEmpty(annotations)) {
       return EMPTY_ANNOTATION_ATTRIBUTES;

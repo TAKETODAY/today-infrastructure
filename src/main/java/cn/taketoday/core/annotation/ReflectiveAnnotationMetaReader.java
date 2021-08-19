@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.NonNull;
 import cn.taketoday.core.utils.ObjectUtils;
 import cn.taketoday.core.utils.ReflectionUtils;
 
@@ -40,7 +41,7 @@ import cn.taketoday.core.utils.ReflectionUtils;
 public class ReflectiveAnnotationMetaReader extends AnnotationMetaReader {
 
   @Override
-  protected <T extends Annotation> AnnotationAttributes[] createAttributesArray(AnnotationKey<T> key) {
+  protected <T extends Annotation> AnnotationAttributes[] createAttributesArray(@NonNull AnnotationKey<T> key) {
     final Annotation[] annotations = key.element.getAnnotations();
     if (ObjectUtils.isEmpty(annotations)) {
       return EMPTY_ANNOTATION_ATTRIBUTES;

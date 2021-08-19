@@ -67,6 +67,7 @@ import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.utils.AnnotationUtils;
 import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.core.utils.ContextUtils;
@@ -510,27 +511,6 @@ public class StandardBeanFactory
   // ---------------------------------------------
 
   @Override
-  public void loadBeanDefinition(final Class<?> candidate) {
-    // don't load abstract class
-    load(candidate);
-  }
-
-  @Override
-  public void loadBeanDefinitions(final Collection<Class<?>> candidates) {
-    load(candidates);
-  }
-
-  @Override
-  public void loadBeanDefinition(final String name, final Class<?> beanClass) {
-    load(name, beanClass);
-  }
-
-  @Override
-  public void loadBeanDefinition(final String... locations) {
-    load(locations);
-  }
-
-  @Override
   public List<BeanDefinition> load(final Class<?> candidate) {
     // don't load abstract class
     if (canRegister(candidate, getApplicationContext())) {
@@ -581,7 +561,9 @@ public class StandardBeanFactory
     return definitions;
   }
 
-  private BeanDefinition getRegistered(String name, Class<?> beanClass, AnnotationAttributes attributes) {
+  @Nullable
+  private BeanDefinition getRegistered(
+          String name, Class<?> beanClass, @Nullable AnnotationAttributes attributes) {
     final BeanDefinition newDef = createBeanDefinition(name, beanClass, attributes);
     return register(name, newDef);
   }
@@ -625,6 +607,7 @@ public class StandardBeanFactory
    *         If can't store bean
    */
   @Override
+  @Nullable
   public BeanDefinition register(final String name, BeanDefinition def) {
     def = transformBeanDefinition(name, def);
     if (def == null) {
@@ -780,7 +763,8 @@ public class StandardBeanFactory
 
   @Override
   public BeanDefinition createBeanDefinition(
-          final String beanName, final Class<?> beanClass, final AnnotationAttributes attributes
+          final String beanName, final Class<?> beanClass,
+          @Nullable final AnnotationAttributes attributes
   ) {
     final DefaultBeanDefinition ret = new DefaultBeanDefinition(beanName, beanClass);
     if (attributes == null) {

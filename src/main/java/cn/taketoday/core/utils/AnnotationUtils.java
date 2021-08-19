@@ -22,13 +22,12 @@ package cn.taketoday.core.utils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 
-import cn.taketoday.beans.BeanMetadata;
-import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.NonNull;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.annotation.AnnotationKey;
 import cn.taketoday.core.annotation.AnnotationMetaReader;
 import cn.taketoday.core.annotation.ReflectiveAnnotationMetaReader;
@@ -76,8 +75,9 @@ public abstract class AnnotationUtils {
    *
    * @since 2.1.1
    */
+  @Nullable
   public static <T extends Annotation> T[] getAnnotationArray(
-          final AnnotatedElement element, final Class<T> targetClass
+          final AnnotatedElement element, @Nullable final Class<T> targetClass
   ) {
     return annotationMetaReader.getAnnotationArray(element, targetClass);
   }
@@ -122,19 +122,7 @@ public abstract class AnnotationUtils {
    */
   public static <A> A injectAttributes(final AnnotationAttributes source,
                                        final Class<?> annotationClass, final A instance) {
-    final Class<?> implClass = instance.getClass();
-    final BeanMetadata metadata = BeanMetadata.ofClass(implClass);
-    for (final Method method : annotationClass.getDeclaredMethods()) {
-      // method name must == field name
-      final String name = method.getName();
-      final BeanProperty beanProperty = metadata.getBeanProperty(name);
-      if (beanProperty == null) {
-        throw new ReflectionException(
-                "You must specify a field: [" + name + "] in class: [" + implClass.getName() + "]");
-      }
-      beanProperty.setValue(instance, source.get(name));
-    }
-    return instance;
+    return annotationMetaReader.injectAttributes(source, annotationClass, instance);
   }
 
   /**
@@ -309,6 +297,7 @@ public abstract class AnnotationUtils {
    *
    * @since 2.1.1
    */
+  @NonNull
   public static <T extends Annotation> AnnotationAttributes[] getAttributesArray(
           final AnnotatedElement element, final Class<T> targetClass
   ) {
