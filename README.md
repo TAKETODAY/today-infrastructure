@@ -11,7 +11,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3fc111bcdf694f96bbf1a063058eea36)](https://app.codacy.com/app/TAKETODAY/today-framework?utm_source=github.com&utm_medium=referral&utm_content=TAKETODAY/today-framework&utm_campaign=Badge_Grade_Settings)
 
 
-**You ask me what elegant code looks like? Then I have to show it!**
+**You ask me what the elegant code looks like? Then I have to show it!**
 
 
 ## 🛠️ 安装
