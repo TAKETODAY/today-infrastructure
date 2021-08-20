@@ -30,8 +30,8 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 
-import cn.taketoday.core.utils.ConvertUtils;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.ConvertUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;

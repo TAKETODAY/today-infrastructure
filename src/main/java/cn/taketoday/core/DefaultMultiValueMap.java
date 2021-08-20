@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
-import cn.taketoday.core.utils.CollectionUtils;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Simple implementation of {@link MultiValueMap} that wraps a {@link Map},

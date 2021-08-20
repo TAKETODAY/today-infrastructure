@@ -19,7 +19,7 @@
  */
 package cn.taketoday.core;
 
-import cn.taketoday.core.utils.ExceptionUtils;
+import cn.taketoday.util.ExceptionUtils;
 
 /**
  * Handy class for wrapping checked {@code Exceptions} with a root cause.

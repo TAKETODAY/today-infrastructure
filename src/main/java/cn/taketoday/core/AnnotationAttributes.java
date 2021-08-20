@@ -34,7 +34,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 import cn.taketoday.asm.AnnotationValueHolder;
-import cn.taketoday.core.utils.OrderUtils;
+import cn.taketoday.util.OrderUtils;
 
 /**
  * single or multi - value map

@@ -26,8 +26,8 @@ import java.sql.SQLException;
 
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.BeanPropertyAccessor;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.Mappings;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.Mappings;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;

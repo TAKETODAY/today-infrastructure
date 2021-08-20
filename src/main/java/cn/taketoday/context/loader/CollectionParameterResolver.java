@@ -27,8 +27,8 @@ import java.util.Map;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.core.utils.CollectionUtils;
-import cn.taketoday.core.utils.ResolvableType;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ResolvableType;
 
 /**
  * @author TODAY

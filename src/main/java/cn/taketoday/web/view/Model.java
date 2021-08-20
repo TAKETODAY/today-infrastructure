@@ -21,7 +21,7 @@ package cn.taketoday.web.view;
 
 import java.util.Map;
 
-import cn.taketoday.core.utils.ConvertUtils;
+import cn.taketoday.util.ConvertUtils;
 
 /**
  * Model that defines a holder for model attributes.

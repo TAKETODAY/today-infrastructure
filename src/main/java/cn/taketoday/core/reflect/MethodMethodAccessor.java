@@ -21,7 +21,7 @@ package cn.taketoday.core.reflect;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.core.utils.ReflectionUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * java reflect {@link Method} implementation

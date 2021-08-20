@@ -25,8 +25,8 @@ import java.util.zip.GZIPOutputStream;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.utils.StreamUtils;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.StreamUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.WebUtils;

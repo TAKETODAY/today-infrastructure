@@ -29,7 +29,7 @@ import cn.taketoday.beans.BeanMetadata;
 import cn.taketoday.beans.DataBinder;
 import cn.taketoday.beans.factory.PropertyValue;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.utils.CollectionUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**

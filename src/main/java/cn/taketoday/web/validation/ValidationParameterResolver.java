@@ -25,7 +25,7 @@ import java.util.HashMap;
 import cn.taketoday.beans.Autowired;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.handler.MethodParameter;

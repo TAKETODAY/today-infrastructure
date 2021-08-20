@@ -21,7 +21,7 @@ package cn.taketoday.web.registry;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.annotation.CrossOrigin;
 import cn.taketoday.web.http.CorsConfiguration;
 import cn.taketoday.web.http.CorsProcessor;

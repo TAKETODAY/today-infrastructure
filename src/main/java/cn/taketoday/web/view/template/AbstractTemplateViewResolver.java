@@ -22,7 +22,7 @@ package cn.taketoday.web.view.template;
 import java.util.Locale;
 
 import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebConstant;
 
 /**

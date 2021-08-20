@@ -23,7 +23,7 @@ package cn.taketoday.aop.proxy;
 import java.lang.reflect.Constructor;
 import java.util.function.Function;
 
-import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * Delegate interface for a configured AOP proxy, allowing for the creation

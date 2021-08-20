@@ -35,7 +35,7 @@ import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionBindingListener;
 
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Mock implementation of the {@link javax.servlet.http.HttpSession} interface.

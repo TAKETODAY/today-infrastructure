@@ -25,7 +25,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.core.utils.OrderUtils;
+import cn.taketoday.util.OrderUtils;
 
 /**
  * @author TODAY 2021/3/6 14:10

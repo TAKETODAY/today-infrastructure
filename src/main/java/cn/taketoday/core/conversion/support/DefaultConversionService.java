@@ -43,12 +43,12 @@ import cn.taketoday.core.conversion.ConverterNotFoundException;
 import cn.taketoday.core.conversion.ConverterRegistry;
 import cn.taketoday.core.conversion.TypeCapable;
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.core.utils.GenericDescriptor;
-import cn.taketoday.core.utils.GenericTypeResolver;
-import cn.taketoday.core.utils.Mappings;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.OrderUtils;
-import cn.taketoday.core.utils.ResolvableType;
+import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.GenericTypeResolver;
+import cn.taketoday.util.Mappings;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.OrderUtils;
+import cn.taketoday.util.ResolvableType;
 
 /**
  * <p>Designed for direct instantiation but also exposes the static

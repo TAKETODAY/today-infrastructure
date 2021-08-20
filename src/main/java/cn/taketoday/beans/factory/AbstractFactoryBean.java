@@ -31,7 +31,7 @@ import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.aware.BeanClassLoaderAware;
 import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * Simple template superclass for {@link FactoryBean} implementations that

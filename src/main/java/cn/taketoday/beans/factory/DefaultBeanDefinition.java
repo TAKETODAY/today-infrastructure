@@ -42,16 +42,16 @@ import cn.taketoday.core.Constant;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.reflect.BeanConstructor;
 import cn.taketoday.core.reflect.MethodInvoker;
-import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.CollectionUtils;
-import cn.taketoday.core.utils.ContextUtils;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.OrderUtils;
-import cn.taketoday.core.utils.ReflectionUtils;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ContextUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.OrderUtils;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
 
-import static cn.taketoday.core.utils.ContextUtils.resolveParameter;
+import static cn.taketoday.util.ContextUtils.resolveParameter;
 
 /**
  * Default implementation of {@link BeanDefinition}

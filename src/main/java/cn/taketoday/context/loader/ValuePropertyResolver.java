@@ -31,8 +31,8 @@ import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.Required;
-import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.StringUtils;
 
 
 /**

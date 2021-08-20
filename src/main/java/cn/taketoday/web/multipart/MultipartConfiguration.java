@@ -21,7 +21,7 @@ package cn.taketoday.web.multipart;
 
 import java.util.Objects;
 
-import cn.taketoday.core.utils.DataSize;
+import cn.taketoday.util.DataSize;
 import cn.taketoday.web.WebConstant;
 
 /**

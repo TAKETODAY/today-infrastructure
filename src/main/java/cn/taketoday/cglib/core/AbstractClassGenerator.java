@@ -26,7 +26,7 @@ import java.util.function.Predicate;
 
 import cn.taketoday.cglib.core.internal.LoadingCache;
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.util.ClassUtils;
 
 import static cn.taketoday.cglib.core.CglibReflectUtils.defineClass;
 

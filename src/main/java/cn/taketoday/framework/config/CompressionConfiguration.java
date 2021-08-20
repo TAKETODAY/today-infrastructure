@@ -19,7 +19,7 @@
  */
 package cn.taketoday.framework.config;
 
-import cn.taketoday.core.utils.DataSize;
+import cn.taketoday.util.DataSize;
 import lombok.Getter;
 import lombok.Setter;
 

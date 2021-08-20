@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Default read strategy

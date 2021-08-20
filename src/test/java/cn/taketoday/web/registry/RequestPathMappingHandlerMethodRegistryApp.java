@@ -23,7 +23,7 @@ package cn.taketoday.web.registry;
 import cn.taketoday.beans.Configuration;
 import cn.taketoday.beans.Import;
 import cn.taketoday.context.event.EnableMethodEventDriven;
-import cn.taketoday.core.utils.MediaType;
+import cn.taketoday.util.MediaType;
 import cn.taketoday.framework.WebApplication;
 import cn.taketoday.framework.config.EnableTomcatHandling;
 import cn.taketoday.web.annotation.GET;

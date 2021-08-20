@@ -39,8 +39,8 @@ import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.reflect.MethodInvoker;
-import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.ExceptionUtils;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.ExceptionUtils;
 
 /**
  * @author TODAY 2018-11-10 11:26

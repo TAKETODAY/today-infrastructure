@@ -23,7 +23,7 @@ package cn.taketoday.core;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import cn.taketoday.core.utils.ResolvableType;
+import cn.taketoday.util.ResolvableType;
 
 /**
  * The purpose of this class is to enable capturing and passing a generic

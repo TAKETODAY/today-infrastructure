@@ -49,8 +49,8 @@ import java.util.stream.Collectors;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.utils.MediaType;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.resource.CacheControl;

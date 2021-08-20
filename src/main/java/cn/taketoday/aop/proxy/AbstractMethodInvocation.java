@@ -28,7 +28,7 @@ import java.util.HashMap;
 import cn.taketoday.aop.TargetClassAware;
 import cn.taketoday.aop.support.RuntimeMethodInterceptor;
 import cn.taketoday.core.AttributeAccessorSupport;
-import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * Implemented basic {@link #proceed()} logic

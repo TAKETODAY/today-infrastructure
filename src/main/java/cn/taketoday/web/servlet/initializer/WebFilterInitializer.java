@@ -33,7 +33,7 @@ import javax.servlet.FilterRegistration.Dynamic;
 import javax.servlet.ServletContext;
 
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.web.WebConstant;
 

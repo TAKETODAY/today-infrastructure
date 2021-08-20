@@ -24,7 +24,7 @@ import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.core.utils.GenericTypeResolver;
+import cn.taketoday.util.GenericTypeResolver;
 import cn.taketoday.jdbc.PersistenceException;
 
 import org.hibernate.Criteria;

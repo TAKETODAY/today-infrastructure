@@ -32,7 +32,7 @@ import cn.taketoday.beans.Component;
 import cn.taketoday.beans.Prototype;
 import cn.taketoday.beans.Singleton;
 import cn.taketoday.context.Value;
-import cn.taketoday.core.utils.DataSize;
+import cn.taketoday.util.DataSize;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import lombok.ToString;

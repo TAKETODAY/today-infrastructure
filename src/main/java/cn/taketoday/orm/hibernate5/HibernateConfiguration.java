@@ -42,8 +42,8 @@ import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.ContextUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ContextUtils;
 
 /**
  * @author TODAY <br>

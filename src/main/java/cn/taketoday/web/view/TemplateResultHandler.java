@@ -22,8 +22,8 @@ package cn.taketoday.web.view;
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Method;
 
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.ReflectionUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.handler.HandlerMethod;

@@ -30,7 +30,7 @@ import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.core.utils.ResolvableType;
+import cn.taketoday.util.ResolvableType;
 
 /**
  * for {@link ObjectSupplier} PropertyValueResolver

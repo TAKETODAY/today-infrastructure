@@ -29,8 +29,8 @@ import java.util.stream.Stream;
 
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.core.utils.CollectionUtils;
-import cn.taketoday.core.utils.GenericDescriptor;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.GenericDescriptor;
 
 /**
  * Converts a {@link Stream} to and from a collection or array,

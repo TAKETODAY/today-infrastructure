@@ -43,11 +43,11 @@ import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.reflect.ConstructorAccessor;
 import cn.taketoday.core.reflect.NullConstructor;
 import cn.taketoday.core.reflect.PropertyAccessor;
-import cn.taketoday.core.utils.AbstractAnnotatedElement;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.GenericDescriptor;
-import cn.taketoday.core.utils.Mappings;
-import cn.taketoday.core.utils.ReflectionUtils;
+import cn.taketoday.util.AbstractAnnotatedElement;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.Mappings;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * @author TODAY

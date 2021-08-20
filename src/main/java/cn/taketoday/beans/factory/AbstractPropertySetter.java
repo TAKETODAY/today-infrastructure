@@ -25,7 +25,7 @@ import java.util.Objects;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.reflect.SetterMethod;
-import cn.taketoday.core.utils.ReflectionUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * <p>

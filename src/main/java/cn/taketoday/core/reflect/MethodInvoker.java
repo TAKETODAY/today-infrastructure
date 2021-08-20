@@ -36,7 +36,7 @@ import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.logger.LoggerFactory;
 
 import static cn.taketoday.cglib.core.CglibReflectUtils.getMethodInfo;

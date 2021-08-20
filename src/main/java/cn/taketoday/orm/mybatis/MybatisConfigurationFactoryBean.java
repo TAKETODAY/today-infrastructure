@@ -30,7 +30,7 @@ import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.Env;
 import cn.taketoday.context.Props;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.utils.ContextUtils;
+import cn.taketoday.util.ContextUtils;
 
 /**
  * @author TODAY <br>

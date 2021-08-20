@@ -22,7 +22,7 @@ package cn.taketoday.core.reflect;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.CollectionUtils;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * @author TODAY 2021/1/29 15:56

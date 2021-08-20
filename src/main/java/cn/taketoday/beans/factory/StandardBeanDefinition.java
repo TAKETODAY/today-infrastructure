@@ -36,9 +36,9 @@ import cn.taketoday.core.reflect.BeanConstructor;
 import cn.taketoday.core.reflect.MethodAccessorBeanConstructor;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.core.reflect.StaticMethodAccessorBeanConstructor;
-import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.OrderUtils;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.OrderUtils;
 
 /**
  * Standard implementation of {@link BeanDefinition}

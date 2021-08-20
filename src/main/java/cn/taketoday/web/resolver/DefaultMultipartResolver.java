@@ -27,7 +27,7 @@ import java.util.List;
 import cn.taketoday.beans.Autowired;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.utils.CollectionUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.multipart.MultipartConfiguration;

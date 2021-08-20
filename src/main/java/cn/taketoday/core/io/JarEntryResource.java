@@ -35,7 +35,7 @@ import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.ResourceUtils;
+import cn.taketoday.util.ResourceUtils;
 
 /**
  * @author TODAY <br>

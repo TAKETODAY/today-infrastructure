@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.session;
 
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.http.HttpHeaders;

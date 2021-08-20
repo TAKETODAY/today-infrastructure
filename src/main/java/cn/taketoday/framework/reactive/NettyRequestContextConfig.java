@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.SingletonSupplier;
+import cn.taketoday.util.SingletonSupplier;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.EmptyHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;

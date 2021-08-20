@@ -25,7 +25,7 @@ import java.util.Stack;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
-import cn.taketoday.core.utils.GenericDescriptor;
+import cn.taketoday.util.GenericDescriptor;
 import cn.taketoday.expression.lang.EvaluationContext;
 
 /**

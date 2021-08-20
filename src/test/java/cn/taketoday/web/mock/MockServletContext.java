@@ -51,11 +51,11 @@ import javax.servlet.descriptor.JspConfigDescriptor;
 
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.MediaType;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.ResourceUtils;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Mock implementation of the {@link javax.servlet.ServletContext} interface.

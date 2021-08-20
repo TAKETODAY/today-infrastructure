@@ -28,7 +28,7 @@ import java.util.Locale;
 
 import cn.taketoday.context.Props;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.utils.ResourceUtils;
+import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.framework.WebServerApplicationContext;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;

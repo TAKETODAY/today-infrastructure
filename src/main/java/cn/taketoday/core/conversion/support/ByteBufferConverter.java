@@ -23,7 +23,7 @@ import java.nio.ByteBuffer;
 
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.core.utils.GenericDescriptor;
+import cn.taketoday.util.GenericDescriptor;
 
 /**
  * Converts a {@link ByteBuffer} directly to and from {@code byte[] ByteBuffer}

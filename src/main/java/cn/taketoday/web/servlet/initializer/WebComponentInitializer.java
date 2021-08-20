@@ -33,7 +33,7 @@ import javax.servlet.ServletContext;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Initialize {@link Filter}, {@link Servlet},Listener

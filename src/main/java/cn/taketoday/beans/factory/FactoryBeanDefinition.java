@@ -28,9 +28,9 @@ import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.context.loader.NoSuchPropertyException;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.AttributeAccessorSupport;
-import cn.taketoday.core.utils.SingletonSupplier;
+import cn.taketoday.util.SingletonSupplier;
 
-import static cn.taketoday.core.utils.ContextUtils.createBeanDefinition;
+import static cn.taketoday.util.ContextUtils.createBeanDefinition;
 
 /**
  * FactoryBean's BeanDefinition

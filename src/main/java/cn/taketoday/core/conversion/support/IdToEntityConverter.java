@@ -25,9 +25,9 @@ import java.lang.reflect.Modifier;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.GenericDescriptor;
-import cn.taketoday.core.utils.ReflectionUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Converts an entity identifier to a entity reference by calling a static finder method

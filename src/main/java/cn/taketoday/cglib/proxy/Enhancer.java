@@ -64,7 +64,7 @@ import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.cglib.core.VisibilityPredicate;
 import cn.taketoday.cglib.core.WeakCacheKey;
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.util.ObjectUtils;
 
 import static cn.taketoday.asm.ClassReader.SKIP_DEBUG;
 import static cn.taketoday.asm.ClassReader.SKIP_FRAMES;

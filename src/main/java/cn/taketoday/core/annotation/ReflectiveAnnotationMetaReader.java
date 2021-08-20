@@ -29,8 +29,8 @@ import java.util.Set;
 
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.NonNull;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.ReflectionUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Java Reflect AnnotationMetaReader

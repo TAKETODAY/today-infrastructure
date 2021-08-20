@@ -28,8 +28,8 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Props;
 import cn.taketoday.context.aware.OrderedApplicationContextSupport;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.ContextUtils;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.ContextUtils;
 
 /**
  * @author TODAY <br>

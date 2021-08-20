@@ -23,8 +23,8 @@ import java.lang.reflect.Array;
 import java.util.List;
 
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.utils.GenericDescriptor;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Converts a comma-delimited String to an Array.

@@ -21,7 +21,7 @@ package cn.taketoday.web.resolver;
 
 import java.util.Collection;
 
-import cn.taketoday.core.utils.CollectionUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 

@@ -27,7 +27,7 @@ import cn.taketoday.context.aware.BeanClassLoaderAware;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * Simple {@link BeanFactoryPostProcessor} implementation that registers custom

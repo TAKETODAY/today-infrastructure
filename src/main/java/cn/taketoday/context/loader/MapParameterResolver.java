@@ -28,9 +28,9 @@ import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.Props;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.core.utils.CollectionUtils;
-import cn.taketoday.core.utils.ContextUtils;
-import cn.taketoday.core.utils.ResolvableType;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ContextUtils;
+import cn.taketoday.util.ResolvableType;
 
 /**
  * Resolve {@link Map}

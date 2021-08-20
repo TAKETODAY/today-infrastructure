@@ -21,7 +21,7 @@ package cn.taketoday.core.reflect;
 
 import java.util.function.Supplier;
 
-import cn.taketoday.core.utils.SingletonSupplier;
+import cn.taketoday.util.SingletonSupplier;
 
 /**
  * @author TODAY

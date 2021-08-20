@@ -43,7 +43,7 @@ import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.interceptor.DebugInterceptor;
 import cn.taketoday.core.Order;
-import cn.taketoday.core.utils.OrderUtils;
+import cn.taketoday.util.OrderUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

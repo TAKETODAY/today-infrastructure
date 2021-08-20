@@ -22,7 +22,7 @@ package cn.taketoday.web.resolver;
 
 import cn.taketoday.beans.Autowired;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.MethodParameter;

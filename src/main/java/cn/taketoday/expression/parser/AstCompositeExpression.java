@@ -41,7 +41,7 @@
 package cn.taketoday.expression.parser;
 
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.expression.lang.EvaluationContext;
 
 /**

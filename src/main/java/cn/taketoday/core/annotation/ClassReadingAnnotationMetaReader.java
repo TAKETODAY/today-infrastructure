@@ -28,8 +28,8 @@ import java.util.Objects;
 
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.NonNull;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * @author TODAY 2021/8/15 22:43

@@ -25,7 +25,7 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 
 import cn.taketoday.core.DateTimeFormat;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**

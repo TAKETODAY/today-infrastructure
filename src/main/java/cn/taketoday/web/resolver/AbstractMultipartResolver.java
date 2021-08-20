@@ -22,7 +22,7 @@ package cn.taketoday.web.resolver;
 import java.util.List;
 
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.utils.DataSize;
+import cn.taketoday.util.DataSize;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.http.FileSizeExceededException;

@@ -32,11 +32,11 @@ import cn.taketoday.beans.factory.PropertyReadOnlyException;
 import cn.taketoday.context.loader.NoSuchPropertyException;
 import cn.taketoday.core.reflect.ConstructorAccessor;
 import cn.taketoday.core.reflect.PropertyAccessor;
-import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.Mappings;
-import cn.taketoday.core.utils.ReflectionUtils;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.Mappings;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY 2021/1/27 22:26

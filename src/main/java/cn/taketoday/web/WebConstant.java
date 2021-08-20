@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web;
 
-import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.ResourceMatchResult;
 import cn.taketoday.web.interceptor.HandlerInterceptor;

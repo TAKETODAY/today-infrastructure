@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.beans.Import;
 import cn.taketoday.beans.MissingBean;
 import cn.taketoday.context.Props;
-import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.framework.server.AbstractServletWebServer;
 import cn.taketoday.framework.server.JettyServer;
 import cn.taketoday.framework.server.TomcatServer;

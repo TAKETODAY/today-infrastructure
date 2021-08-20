@@ -31,14 +31,12 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.ExceptionUtils;
-import cn.taketoday.core.utils.MediaType;
-import cn.taketoday.core.utils.StreamUtils;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.util.StreamUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.DefaultResponseStatus;
-import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpStatus;
@@ -115,14 +113,6 @@ public abstract class WebUtils {
 
   public static boolean isHeadRequest(RequestContext requestContext) {
     return "HEAD".equalsIgnoreCase(requestContext.getMethod());
-  }
-
-  public static void handleException(final Object handler,
-                                     final Throwable exception,
-                                     final RequestContext context,
-                                     final HandlerExceptionHandler resolver) throws Throwable //
-  {
-    resolver.handleException(context, ExceptionUtils.unwrapThrowable(exception), handler);
   }
 
   /**

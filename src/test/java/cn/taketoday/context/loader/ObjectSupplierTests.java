@@ -31,7 +31,7 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.beans.Autowired;
 import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.util.ClassUtils;
 import lombok.ToString;
 
 import static org.assertj.core.api.Assertions.assertThat;

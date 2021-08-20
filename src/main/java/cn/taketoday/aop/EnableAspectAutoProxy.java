@@ -35,8 +35,8 @@ import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionImporter;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * Enable Aspect Oriented Programming

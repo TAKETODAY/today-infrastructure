@@ -40,10 +40,10 @@ import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.PathMatcher;
-import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.ReflectionUtils;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebApplicationContext;
@@ -59,8 +59,8 @@ import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.handler.PathVariableMethodParameter;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
-import static cn.taketoday.core.utils.CollectionUtils.newHashSet;
-import static cn.taketoday.core.utils.StringUtils.checkUrl;
+import static cn.taketoday.util.CollectionUtils.newHashSet;
+import static cn.taketoday.util.StringUtils.checkUrl;
 
 /**
  * Store {@link HandlerMethod}

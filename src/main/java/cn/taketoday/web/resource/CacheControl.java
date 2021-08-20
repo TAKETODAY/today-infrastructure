@@ -22,7 +22,7 @@ package cn.taketoday.web.resource;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * A builder for creating "Cache-Control" HTTP response headers.

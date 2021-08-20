@@ -35,8 +35,8 @@ import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.context.Props;
 import cn.taketoday.context.loader.CandidateComponentScanner;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 

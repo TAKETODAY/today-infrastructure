@@ -22,7 +22,7 @@ package cn.taketoday.core.conversion.support;
 import java.util.Locale;
 
 import cn.taketoday.core.conversion.Converter;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Converts from a String to a {@link Locale}.

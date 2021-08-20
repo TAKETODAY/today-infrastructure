@@ -24,9 +24,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import cn.taketoday.core.utils.DataSize;
-import cn.taketoday.core.utils.MediaType;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.DataSize;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.http.ContentDisposition;
 import cn.taketoday.web.http.FileSizeExceededException;
 import cn.taketoday.web.http.HttpHeaders;

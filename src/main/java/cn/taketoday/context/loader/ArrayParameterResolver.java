@@ -26,8 +26,8 @@ import java.util.Map;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.CollectionUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * @author TODAY 2021/2/19 23:16

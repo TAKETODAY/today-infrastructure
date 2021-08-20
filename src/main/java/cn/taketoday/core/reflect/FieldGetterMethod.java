@@ -21,7 +21,7 @@ package cn.taketoday.core.reflect;
 
 import java.lang.reflect.Field;
 
-import cn.taketoday.core.utils.ReflectionUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * @author TODAY

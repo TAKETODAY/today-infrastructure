@@ -24,7 +24,7 @@ import java.util.Map;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.util.ObjectUtils;
 
 import static cn.taketoday.core.Constant.BLANK;
 import static cn.taketoday.core.Constant.TYPE_BOOLEAN;

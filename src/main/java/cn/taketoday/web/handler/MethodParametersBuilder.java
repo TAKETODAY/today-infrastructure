@@ -23,7 +23,7 @@ package cn.taketoday.web.handler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * Build {@link MethodParameter} array

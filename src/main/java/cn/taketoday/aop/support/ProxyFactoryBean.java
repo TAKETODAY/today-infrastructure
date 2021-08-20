@@ -32,8 +32,8 @@ import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.aware.BeanClassLoaderAware;
 import cn.taketoday.context.aware.BeanFactoryAware;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * @author TODAY 2021/2/20 21:23

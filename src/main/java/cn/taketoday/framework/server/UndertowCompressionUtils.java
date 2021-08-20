@@ -23,8 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.web.WebConstant;
 import io.undertow.predicate.Predicate;

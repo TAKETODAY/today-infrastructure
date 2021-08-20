@@ -27,7 +27,7 @@ import java.util.WeakHashMap;
 
 import cn.taketoday.aop.DynamicIntroductionAdvice;
 import cn.taketoday.aop.IntroductionInterceptor;
-import cn.taketoday.core.utils.ReflectionUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Convenient implementation of the {@link IntroductionInterceptor} interface.
