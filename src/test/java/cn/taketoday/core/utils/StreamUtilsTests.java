@@ -23,7 +23,6 @@ package cn.taketoday.core.utils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
-import org.springframework.util.StreamUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -46,14 +45,14 @@ import static org.mockito.Mockito.verify;
  */
 class StreamUtilsTests {
 
-  private byte[] bytes = new byte[org.springframework.util.StreamUtils.BUFFER_SIZE + 10];
+  private byte[] bytes = new byte[StreamUtils.BUFFER_SIZE + 10];
 
   private String string = "";
 
   @BeforeEach
   void setup() {
     new Random().nextBytes(bytes);
-    while (string.length() < org.springframework.util.StreamUtils.BUFFER_SIZE + 10) {
+    while (string.length() < StreamUtils.BUFFER_SIZE + 10) {
       string += UUID.randomUUID().toString();
     }
   }
@@ -61,7 +60,7 @@ class StreamUtilsTests {
   @Test
   void copyToByteArray() throws Exception {
     InputStream inputStream = spy(new ByteArrayInputStream(bytes));
-    byte[] actual = org.springframework.util.StreamUtils.copyToByteArray(inputStream);
+    byte[] actual = StreamUtils.copyToByteArray(inputStream);
     assertThat(actual).isEqualTo(bytes);
     verify(inputStream, never()).close();
   }
@@ -70,7 +69,7 @@ class StreamUtilsTests {
   void copyToString() throws Exception {
     Charset charset = Charset.defaultCharset();
     InputStream inputStream = spy(new ByteArrayInputStream(string.getBytes(charset)));
-    String actual = org.springframework.util.StreamUtils.copyToString(inputStream, charset);
+    String actual = StreamUtils.copyToString(inputStream, charset);
     assertThat(actual).isEqualTo(string);
     verify(inputStream, never()).close();
   }
@@ -78,7 +77,7 @@ class StreamUtilsTests {
   @Test
   void copyBytes() throws Exception {
     ByteArrayOutputStream out = spy(new ByteArrayOutputStream());
-    org.springframework.util.StreamUtils.copy(bytes, out);
+    StreamUtils.copy(bytes, out);
     assertThat(out.toByteArray()).isEqualTo(bytes);
     verify(out, never()).close();
   }
@@ -87,7 +86,7 @@ class StreamUtilsTests {
   void copyString() throws Exception {
     Charset charset = Charset.defaultCharset();
     ByteArrayOutputStream out = spy(new ByteArrayOutputStream());
-    org.springframework.util.StreamUtils.copy(string, charset, out);
+    StreamUtils.copy(string, charset, out);
     assertThat(out.toByteArray()).isEqualTo(string.getBytes(charset));
     verify(out, never()).close();
   }
@@ -95,7 +94,7 @@ class StreamUtilsTests {
   @Test
   void copyStream() throws Exception {
     ByteArrayOutputStream out = spy(new ByteArrayOutputStream());
-    org.springframework.util.StreamUtils.copy(new ByteArrayInputStream(bytes), out);
+    StreamUtils.copy(new ByteArrayInputStream(bytes), out);
     assertThat(out.toByteArray()).isEqualTo(bytes);
     verify(out, never()).close();
   }
@@ -103,7 +102,7 @@ class StreamUtilsTests {
   @Test
   void copyRange() throws Exception {
     ByteArrayOutputStream out = spy(new ByteArrayOutputStream());
-    org.springframework.util.StreamUtils.copyRange(new ByteArrayInputStream(bytes), out, 0, 100);
+    StreamUtils.copyRange(new ByteArrayInputStream(bytes), out, 0, 100);
     byte[] range = Arrays.copyOfRange(bytes, 0, 101);
     assertThat(out.toByteArray()).isEqualTo(range);
     verify(out, never()).close();
@@ -112,7 +111,7 @@ class StreamUtilsTests {
   @Test
   void nonClosingInputStream() throws Exception {
     InputStream source = mock(InputStream.class);
-    InputStream nonClosing = org.springframework.util.StreamUtils.nonClosing(source);
+    InputStream nonClosing = StreamUtils.nonClosing(source);
     nonClosing.read();
     nonClosing.read(bytes);
     nonClosing.read(bytes, 1, 2);

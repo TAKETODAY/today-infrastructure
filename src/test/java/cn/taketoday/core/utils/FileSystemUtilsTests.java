@@ -22,7 +22,6 @@ package cn.taketoday.core.utils;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
 
@@ -49,7 +48,7 @@ class FileSystemUtilsTests {
     assertThat(grandchild.exists()).isTrue();
     assertThat(bar.exists()).isTrue();
 
-    org.springframework.util.FileSystemUtils.deleteRecursively(root);
+    FileSystemUtils.deleteRecursively(root);
 
     assertThat(root.exists()).isFalse();
     assertThat(child.exists()).isFalse();
@@ -74,12 +73,12 @@ class FileSystemUtilsTests {
     assertThat(bar).exists();
 
     File dest = new File("./dest");
-    org.springframework.util.FileSystemUtils.copyRecursively(src, dest);
+    FileSystemUtils.copyRecursively(src, dest);
 
     assertThat(dest).exists();
     assertThat(new File(dest, child.getName())).exists();
 
-    org.springframework.util.FileSystemUtils.deleteRecursively(src);
+    FileSystemUtils.deleteRecursively(src);
     assertThat(src).doesNotExist();
   }
 
@@ -87,7 +86,7 @@ class FileSystemUtilsTests {
   void tearDown() throws Exception {
     File tmp = new File("./tmp");
     if (tmp.exists()) {
-      org.springframework.util.FileSystemUtils.deleteRecursively(tmp);
+      FileSystemUtils.deleteRecursively(tmp);
     }
     File dest = new File("./dest");
     if (dest.exists()) {

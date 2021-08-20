@@ -21,7 +21,6 @@
 package cn.taketoday.core.utils;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.util.FileCopyUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -42,7 +41,7 @@ class FileCopyUtilsTests {
     byte[] content = "content".getBytes();
     ByteArrayInputStream in = new ByteArrayInputStream(content);
     ByteArrayOutputStream out = new ByteArrayOutputStream(content.length);
-    int count = org.springframework.util.FileCopyUtils.copy(in, out);
+    int count = FileCopyUtils.copy(in, out);
     assertThat(count).isEqualTo(content.length);
     assertThat(Arrays.equals(content, out.toByteArray())).isTrue();
   }
@@ -51,7 +50,7 @@ class FileCopyUtilsTests {
   void copyFromByteArray() throws IOException {
     byte[] content = "content".getBytes();
     ByteArrayOutputStream out = new ByteArrayOutputStream(content.length);
-    org.springframework.util.FileCopyUtils.copy(content, out);
+    FileCopyUtils.copy(content, out);
     assertThat(Arrays.equals(content, out.toByteArray())).isTrue();
   }
 
@@ -59,7 +58,7 @@ class FileCopyUtilsTests {
   void copyToByteArray() throws IOException {
     byte[] content = "content".getBytes();
     ByteArrayInputStream in = new ByteArrayInputStream(content);
-    byte[] result = org.springframework.util.FileCopyUtils.copyToByteArray(in);
+    byte[] result = FileCopyUtils.copyToByteArray(in);
     assertThat(Arrays.equals(content, result)).isTrue();
   }
 
@@ -68,7 +67,7 @@ class FileCopyUtilsTests {
     String content = "content";
     StringReader in = new StringReader(content);
     StringWriter out = new StringWriter();
-    int count = org.springframework.util.FileCopyUtils.copy(in, out);
+    int count = FileCopyUtils.copy(in, out);
     assertThat(count).isEqualTo(content.length());
     assertThat(out.toString()).hasToString(content);
   }
@@ -77,7 +76,7 @@ class FileCopyUtilsTests {
   void copyFromString() throws IOException {
     String content = "content";
     StringWriter out = new StringWriter();
-    org.springframework.util.FileCopyUtils.copy(content, out);
+    FileCopyUtils.copy(content, out);
     assertThat(out.toString()).hasToString(content);
   }
 

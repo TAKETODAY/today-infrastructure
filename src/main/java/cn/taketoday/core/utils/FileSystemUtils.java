@@ -88,7 +88,6 @@ public abstract class FileSystemUtils {
    *
    * @throws IOException
    *         in the case of I/O errors
-   * @since 5.0
    */
   public static boolean deleteRecursively(@Nullable Path root) throws IOException {
     if (root == null) {
@@ -143,7 +142,6 @@ public abstract class FileSystemUtils {
    *
    * @throws IOException
    *         in the case of I/O errors
-   * @since 5.0
    */
   public static void copyRecursively(Path src, Path dest) throws IOException {
     Assert.notNull(src, "Source Path must not be null");
