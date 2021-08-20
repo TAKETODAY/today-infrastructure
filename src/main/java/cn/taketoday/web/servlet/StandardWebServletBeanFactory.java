@@ -31,7 +31,6 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.ServletContextAware;
 import cn.taketoday.web.StandardWebBeanFactory;
-import cn.taketoday.web.utils.ServletUtils;
 
 /**
  * @author TODAY 2019-03-23 14:59

@@ -29,7 +29,7 @@ import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebConstant;
-import cn.taketoday.web.utils.WebUtils;
+import cn.taketoday.web.WebUtils;
 
 /**
  * The default implementation of {@link CorsProcessor}, as defined by the

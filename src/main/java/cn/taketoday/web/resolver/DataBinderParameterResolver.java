@@ -35,7 +35,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.utils.WebUtils;
+import cn.taketoday.web.WebUtils;
 
 /**
  * Resolve Bean

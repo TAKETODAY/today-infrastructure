@@ -37,7 +37,7 @@ import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.web.handler.ResourceMatchResult;
-import cn.taketoday.web.utils.WebUtils;
+import cn.taketoday.web.WebUtils;
 
 /**
  * @author TODAY <br>
@@ -166,7 +166,7 @@ public class DefaultResourceResolver implements WebResourceResolver {
     @Override
     public String getContentType() {
       if (contentType == null) {
-        final MediaType mediaType = MediaType.of(name);
+        final MediaType mediaType = MediaType.ofFileName(name);
         if (mediaType != null) {
           return this.contentType = mediaType.toString();
         }

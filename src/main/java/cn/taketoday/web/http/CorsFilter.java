@@ -31,8 +31,8 @@ import javax.servlet.ServletResponse;
 import cn.taketoday.core.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.utils.ServletUtils;
-import cn.taketoday.web.utils.WebUtils;
+import cn.taketoday.web.servlet.ServletUtils;
+import cn.taketoday.web.WebUtils;
 
 /**
  * {@link javax.servlet.Filter} that handles CORS preflight requests and intercepts

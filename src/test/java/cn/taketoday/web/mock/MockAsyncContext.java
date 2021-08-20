@@ -36,7 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.web.utils.ServletUtils;
+import cn.taketoday.web.servlet.ServletUtils;
 
 /**
  * Mock implementation of the {@link AsyncContext} interface.

@@ -27,7 +27,6 @@ import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.handler.AbstractHandlerAdapter;
-import cn.taketoday.web.utils.ServletUtils;
 
 /**
  * @author TODAY 2019-12-24 22:01

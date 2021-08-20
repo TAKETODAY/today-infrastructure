@@ -783,7 +783,8 @@ public class MediaType extends MimeType implements Serializable {
   /**
    * Comparator used by {@link #sortBySpecificity(List)}.
    */
-  public static final Comparator<MediaType> SPECIFICITY_COMPARATOR = new SpecificityComparator<MediaType>() {
+  public static final Comparator<MediaType>
+          SPECIFICITY_COMPARATOR = new SpecificityComparator<MediaType>() {
 
     @Override
     protected int compareParameters(MediaType mediaType1, MediaType mediaType2) {
@@ -850,8 +851,8 @@ public class MediaType extends MimeType implements Serializable {
    *
    * @return the corresponding media type, or {@code null} if none found
    */
-  public static MediaType of(Resource resource) {
-    return resource == null ? null : of(resource.getName());
+  public static MediaType ofResource(Resource resource) {
+    return resource == null ? null : ofFileName(resource.getName());
   }
 
   /**
@@ -862,7 +863,7 @@ public class MediaType extends MimeType implements Serializable {
    *
    * @return the corresponding media type, or {@code null} if none found
    */
-  public static MediaType of(String filename) {
+  public static MediaType ofFileName(String filename) {
     final String ext = StringUtils.getFilenameExtension(filename);
     return ext == null ? null : getFileExtensionMediaTypes().get(ext.toLowerCase(Locale.ENGLISH));
   }

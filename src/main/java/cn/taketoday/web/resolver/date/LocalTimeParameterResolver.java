@@ -25,7 +25,7 @@ import java.time.temporal.TemporalAccessor;
 
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.resolver.ParameterResolver;
-import cn.taketoday.web.utils.DateUtils;
+import cn.taketoday.core.utils.DateUtils;
 
 /**
  * for {@link LocalTime}

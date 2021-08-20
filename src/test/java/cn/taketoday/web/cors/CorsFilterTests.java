@@ -37,7 +37,7 @@ import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.UrlBasedCorsConfigurationSource;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
-import cn.taketoday.web.utils.ServletUtils;
+import cn.taketoday.web.servlet.ServletUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;

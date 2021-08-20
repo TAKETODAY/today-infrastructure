@@ -38,7 +38,7 @@ import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.http.HttpStatusCapable;
-import cn.taketoday.web.utils.WebUtils;
+import cn.taketoday.web.WebUtils;
 
 /**
  * Handle {@link ExceptionHandler} annotated method

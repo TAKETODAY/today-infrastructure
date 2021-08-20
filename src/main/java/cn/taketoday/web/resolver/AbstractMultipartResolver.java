@@ -28,7 +28,7 @@ import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.http.FileSizeExceededException;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.utils.WebUtils;
+import cn.taketoday.web.WebUtils;
 
 /**
  * For Multipart {@link MultipartFile}

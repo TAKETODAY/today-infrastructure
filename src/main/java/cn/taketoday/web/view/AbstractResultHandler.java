@@ -32,7 +32,7 @@ import cn.taketoday.core.utils.ResourceUtils;
 import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebConstant;
-import cn.taketoday.web.utils.WebUtils;
+import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**

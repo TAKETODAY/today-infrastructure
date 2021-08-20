@@ -231,7 +231,7 @@ public class MockServletContext implements ServletContext {
       return this.mimeTypes.get(extension).toString();
     }
     else {
-      final MediaType of = MediaType.of(filePath);
+      final MediaType of = MediaType.ofFileName(filePath);
       if (of == null) {
         return null;
       }

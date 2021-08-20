@@ -25,9 +25,11 @@ import java.util.zip.GZIPOutputStream;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.utils.StreamUtils;
 import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebConstant;
+import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.http.NotFoundException;
@@ -36,10 +38,8 @@ import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resource.CacheControl;
 import cn.taketoday.web.resource.WebResource;
 import cn.taketoday.web.resource.WebResourceResolver;
-import cn.taketoday.web.utils.WebUtils;
 
 import static cn.taketoday.web.WebConstant.RESOURCE_MATCH_RESULT;
-import static cn.taketoday.web.utils.WebUtils.writeToOutputStream;
 
 /**
  * @author TODAY 2019-12-25 16:12
@@ -173,8 +173,8 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
       // requestContext.contentLength(byteArray.length);
       // baos.writeTo(requestContext.getOutputStream());
 
-      writeToOutputStream(source,
-                          new GZIPOutputStream(requestContext.getOutputStream(), bufferSize), bufferSize);
+      StreamUtils.copy(
+              source, new GZIPOutputStream(requestContext.getOutputStream(), bufferSize), bufferSize);
     }
   }
 
@@ -196,7 +196,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
     context.setContentLength(resource.contentLength());
 
     try (final InputStream source = resource.getInputStream()) {
-      writeToOutputStream(source, context.getOutputStream(), resourceMapping.getBufferSize());
+      StreamUtils.copy(source, context.getOutputStream(), resourceMapping.getBufferSize());
     }
   }
 
@@ -209,14 +209,11 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
 
   /**
    * Apply the Content-Type, Last-Modified, ETag, Cache-Control, Expires
-   *
-   * @throws IOException
-   *         If last modify read error
    */
-  protected void applyHeaders(HttpHeaders responseHeaders,
-                              final long lastModified,
-                              final String eTag,
-                              final ResourceMapping resourceMapping) throws IOException //
+  protected void applyHeaders(
+          HttpHeaders responseHeaders,
+          final long lastModified,
+          final String eTag, final ResourceMapping resourceMapping)  //
   {
     if (lastModified > 0) {
       responseHeaders.setLastModified(lastModified);
