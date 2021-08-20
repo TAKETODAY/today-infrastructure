@@ -136,9 +136,9 @@ public class ClassUtilsTest {
       ClassUtils.forName("Float");
     }
     catch (ClassNotFoundException e) { }
-    assert ClassUtils.forName("cn.taketoday.core.utils.ClassUtilsTest.INNER") == INNER.class;
+    assert ClassUtils.forName("cn.taketoday.util.ClassUtilsTest.INNER") == INNER.class;
     try {
-      ClassUtils.forName("cn.taketoday.core.utils.ClassUtilsTest.INNERs");//
+      ClassUtils.forName("cn.taketoday.util.ClassUtilsTest.INNERs");//
     }
     catch (ClassNotFoundException e) { }
 

@@ -67,8 +67,6 @@ public abstract class DigestUtils {
    *         the InputStream to calculate the digest over
    *
    * @return the digest
-   *
-   * @since 4.2
    */
   public static byte[] md5Digest(InputStream inputStream) throws IOException {
     return digest(MD5_ALGORITHM_NAME, inputStream);
@@ -83,7 +81,7 @@ public abstract class DigestUtils {
    * @return a hexadecimal digest string
    */
   public static String md5DigestAsHex(byte[] bytes) {
-    return digestAsHexString(MD5_ALGORITHM_NAME, bytes);
+    return digestAsHexString(bytes);
   }
 
   /**
@@ -94,11 +92,9 @@ public abstract class DigestUtils {
    *         the InputStream to calculate the digest over
    *
    * @return a hexadecimal digest string
-   *
-   * @since 4.2
    */
   public static String md5DigestAsHex(InputStream inputStream) throws IOException {
-    return digestAsHexString(MD5_ALGORITHM_NAME, inputStream);
+    return digestAsHexString(inputStream);
   }
 
   /**
@@ -113,7 +109,7 @@ public abstract class DigestUtils {
    * @return the given string builder
    */
   public static StringBuilder appendMd5DigestAsHex(byte[] bytes, StringBuilder builder) {
-    return appendDigestAsHex(MD5_ALGORITHM_NAME, bytes, builder);
+    return appendDigestAsHex(bytes, builder);
   }
 
   /**
@@ -127,11 +123,10 @@ public abstract class DigestUtils {
    *         the string builder to append the digest to
    *
    * @return the given string builder
-   *
-   * @since 4.2
    */
-  public static StringBuilder appendMd5DigestAsHex(InputStream inputStream, StringBuilder builder) throws IOException {
-    return appendDigestAsHex(MD5_ALGORITHM_NAME, inputStream, builder);
+  public static StringBuilder appendMd5DigestAsHex(
+          InputStream inputStream, StringBuilder builder) throws IOException {
+    return appendDigestAsHex(inputStream, builder);
   }
 
   /**
@@ -167,25 +162,25 @@ public abstract class DigestUtils {
     }
   }
 
-  private static String digestAsHexString(String algorithm, byte[] bytes) {
-    char[] hexDigest = digestAsHexChars(algorithm, bytes);
+  private static String digestAsHexString(byte[] bytes) {
+    char[] hexDigest = digestAsHexChars(DigestUtils.MD5_ALGORITHM_NAME, bytes);
     return new String(hexDigest);
   }
 
-  private static String digestAsHexString(String algorithm, InputStream inputStream) throws IOException {
-    char[] hexDigest = digestAsHexChars(algorithm, inputStream);
+  private static String digestAsHexString(InputStream inputStream) throws IOException {
+    char[] hexDigest = digestAsHexChars(DigestUtils.MD5_ALGORITHM_NAME, inputStream);
     return new String(hexDigest);
   }
 
-  private static StringBuilder appendDigestAsHex(String algorithm, byte[] bytes, StringBuilder builder) {
-    char[] hexDigest = digestAsHexChars(algorithm, bytes);
+  private static StringBuilder appendDigestAsHex(byte[] bytes, StringBuilder builder) {
+    char[] hexDigest = digestAsHexChars(DigestUtils.MD5_ALGORITHM_NAME, bytes);
     return builder.append(hexDigest);
   }
 
-  private static StringBuilder appendDigestAsHex(String algorithm, InputStream inputStream, StringBuilder builder)
-          throws IOException {
+  private static StringBuilder appendDigestAsHex(
+          InputStream inputStream, StringBuilder builder) throws IOException {
 
-    char[] hexDigest = digestAsHexChars(algorithm, inputStream);
+    char[] hexDigest = digestAsHexChars(DigestUtils.MD5_ALGORITHM_NAME, inputStream);
     return builder.append(hexDigest);
   }
 

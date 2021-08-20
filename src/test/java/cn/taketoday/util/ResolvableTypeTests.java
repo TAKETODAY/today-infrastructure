@@ -1228,7 +1228,7 @@ public class ResolvableTypeTests {
   public void spr11219() throws Exception {
     ResolvableType type = ResolvableType.forField(BaseProvider.class.getField("stuff"), BaseProvider.class);
     assertThat(type.getNested(2).isAssignableFrom(ResolvableType.forClass(BaseImplementation.class))).isTrue();
-    assertThat(type.toString()).isEqualTo("java.util.Collection<cn.taketoday.core.utils.ResolvableTypeTests$IBase<?>>");
+    assertThat(type.toString()).isEqualTo("java.util.Collection<cn.taketoday.util.ResolvableTypeTests$IBase<?>>");
   }
 
   @Test

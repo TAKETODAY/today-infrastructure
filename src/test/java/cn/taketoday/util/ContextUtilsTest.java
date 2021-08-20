@@ -66,7 +66,7 @@ public class ContextUtilsTest {
   @Test
   public void test_FindInProperties() throws ConfigurationException {
 
-    try (ApplicationContext applicationContext = new StandardApplicationContext("", "cn.taketoday.core.utils")) {
+    try (ApplicationContext applicationContext = new StandardApplicationContext("", "cn.taketoday.util")) {
 
       Properties properties = applicationContext.getEnvironment().getProperties();
 
@@ -156,7 +156,7 @@ public class ContextUtilsTest {
   public void testResolveParameter() throws Exception {
 
     ClassUtils.clearCache();
-    try (ApplicationContext applicationContext = new StandardApplicationContext("", "cn.taketoday.core.utils")) {
+    try (ApplicationContext applicationContext = new StandardApplicationContext("", "cn.taketoday.util")) {
       final BeanFactory beanFactory = applicationContext.getBeanFactory();
       final Environment environment = applicationContext.getEnvironment();
       // placeHolder

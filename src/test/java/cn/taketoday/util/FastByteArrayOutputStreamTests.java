@@ -79,13 +79,13 @@ class FastByteArrayOutputStreamTests {
     this.os.write(this.helloBytes);
     assertByteArrayEqualsString(this.os);
     this.os.reset();
-    assertThat(this.os.size()).isEqualTo(0);
+    assertThat(this.os.size()).isZero();
     this.os.write(this.helloBytes);
     assertByteArrayEqualsString(this.os);
   }
 
   @Test
-  void close() throws Exception {
+  void close() {
     this.os.close();
     assertThatIOException().isThrownBy(() ->
                                                this.os.write(this.helloBytes));
@@ -154,7 +154,7 @@ class FastByteArrayOutputStreamTests {
     int bytesRead = inputStream.read(actual);
     assertThat(bytesRead).isEqualTo(this.helloBytes.length);
     assertThat(actual).isEqualTo(this.helloBytes);
-    assertThat(inputStream.available()).isEqualTo(0);
+    assertThat(inputStream.available()).isZero();
   }
 
   @Test
@@ -168,7 +168,7 @@ class FastByteArrayOutputStreamTests {
       assertThat(actual[i]).isEqualTo(this.helloBytes[i]);
     }
     assertThat(actual[this.helloBytes.length]).isEqualTo((byte) 0);
-    assertThat(inputStream.available()).isEqualTo(0);
+    assertThat(inputStream.available()).isZero();
   }
 
   @Test
@@ -186,7 +186,7 @@ class FastByteArrayOutputStreamTests {
     this.os.write(this.helloBytes);
     InputStream inputStream = this.os.getInputStream();
     assertThat(this.helloBytes.length).isEqualTo(inputStream.skip(1000));
-    assertThat(inputStream.available()).isEqualTo(0);
+    assertThat(inputStream.available()).isZero();
   }
 
   @Test

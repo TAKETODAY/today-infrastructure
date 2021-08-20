@@ -149,7 +149,7 @@ public class ObjectUtilsTest {
         // Object[]
         final Class<Class[]> clazz = Class[].class;
         final Object classArrayObject = ObjectUtils.toArrayObject(new String[] { //
-            "cn.taketoday.core.utils.NumberUtilsTest", "cn.taketoday.core.utils.ClassUtilsTest" //
+            "cn.taketoday.util.NumberUtilsTest", "cn.taketoday.util.ClassUtilsTest" //
         }, clazz);
 
         assert classArrayObject.getClass().equals(clazz);
