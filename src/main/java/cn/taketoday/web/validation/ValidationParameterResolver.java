@@ -27,7 +27,6 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolvers;
@@ -86,7 +85,7 @@ public class ValidationParameterResolver
     final Object value = resolveValue(context, parameter);
 
     final DefaultErrors errors = new DefaultErrors();
-    context.setAttribute(WebConstant.VALIDATION_ERRORS, errors);
+    context.setAttribute(Validator.KEY_VALIDATION_ERRORS, errors);
 
     doValidate(getValidator(), value, errors);
 

@@ -94,12 +94,12 @@ public class ResourceHandlerRegistry
   protected Object lookupHandler(final String handlerKey, final RequestContext context) {
     final Object handler = super.lookupHandler(handlerKey, context);
     if (handler instanceof ResourceMatchResult) {
-      context.setAttribute(WebConstant.RESOURCE_MATCH_RESULT, handler);
+      context.setAttribute(ResourceMatchResult.RESOURCE_MATCH_RESULT, handler);
       return ((ResourceMatchResult) handler).getHandler();
     }
     else if (handler instanceof ResourceRequestHandler) {
       context.setAttribute(
-              WebConstant.RESOURCE_MATCH_RESULT,
+              ResourceMatchResult.RESOURCE_MATCH_RESULT,
               new ResourceMatchResult(handlerKey,
                                       handlerKey,
                                       getPathMatcher(),

@@ -27,7 +27,7 @@ import cn.taketoday.web.servlet.WebServletApplicationContext;
 
 /**
  * @author TODAY <br>
- *         2019-01-15 19:28
+ * 2019-01-15 19:28
  */
 @FunctionalInterface
 public interface ServletContextInitializer extends WebApplicationInitializer {
@@ -45,9 +45,10 @@ public interface ServletContextInitializer extends WebApplicationInitializer {
    * listeners context-params and attributes necessary for initialization.
    *
    * @param servletContext
-   *            the {@code ServletContext} to initialize
+   *         the {@code ServletContext} to initialize
+   *
    * @throws Throwable
-   *             if any call {@link Throwable} occurred
+   *         if any call {@link Throwable} occurred
    */
   void onStartup(ServletContext servletContext) throws Throwable;
 }

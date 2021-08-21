@@ -34,8 +34,8 @@ import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.WebApplicationStartedEvent;
+import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.HandlerAdapter;
@@ -61,6 +61,8 @@ import cn.taketoday.web.view.RuntimeResultHandler;
  */
 public class WebApplicationLoader
         extends WebApplicationContextSupport implements WebApplicationInitializer {
+  public static final String ENABLE_WEB_STARTED_LOG = "enable.started.log";
+  public static final String ENABLE_WEB_MVC_XML = "enable.webmvc.xml";
 
   private DispatcherHandler dispatcher;
 
@@ -99,7 +101,7 @@ public class WebApplicationLoader
   }
 
   protected void logStartup(WebApplicationContext context) {
-    if (context.getEnvironment().getFlag(WebConstant.ENABLE_WEB_STARTED_LOG, true)) {
+    if (context.getEnvironment().getFlag(ENABLE_WEB_STARTED_LOG, true)) {
       log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
                System.currentTimeMillis() - context.getStartupDate()//
       );
@@ -182,7 +184,7 @@ public class WebApplicationLoader
           WebApplicationContext context, WebMvcConfiguration mvcConfiguration) throws Throwable {
     ViewControllerHandlerRegistry registry = context.getBean(ViewControllerHandlerRegistry.class);
     final Environment environment = context.getEnvironment();
-    if (environment.getFlag(WebConstant.ENABLE_WEB_MVC_XML, true)) {
+    if (environment.getFlag(ENABLE_WEB_MVC_XML, true)) {
       registry = configViewControllerHandlerRegistry(registry);
     }
     if (registry != null) {

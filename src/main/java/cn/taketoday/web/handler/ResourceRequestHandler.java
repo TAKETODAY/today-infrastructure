@@ -39,7 +39,6 @@ import cn.taketoday.web.resource.CacheControl;
 import cn.taketoday.web.resource.WebResource;
 import cn.taketoday.web.resource.WebResourceResolver;
 
-import static cn.taketoday.web.WebConstant.RESOURCE_MATCH_RESULT;
 
 /**
  * @author TODAY 2019-12-25 16:12
@@ -76,7 +75,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
   }
 
   private ResourceMatchResult getResourceMatchResult(RequestContext context) {
-    final Object attribute = context.getAttribute(RESOURCE_MATCH_RESULT);
+    final Object attribute = context.getAttribute(ResourceMatchResult.RESOURCE_MATCH_RESULT);
     if (attribute == null) {
       throw new NotFoundException("Resource Not Found");
     }
@@ -90,7 +89,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
 
   @Override
   protected Object handleInternal(final RequestContext context) {
-    return resourceResolver.resolveResource((ResourceMatchResult) context.getAttribute(RESOURCE_MATCH_RESULT));
+    return resourceResolver.resolveResource((ResourceMatchResult) context.getAttribute(ResourceMatchResult.RESOURCE_MATCH_RESULT));
   }
 
   /**

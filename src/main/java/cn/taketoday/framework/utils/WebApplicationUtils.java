@@ -32,13 +32,13 @@ import java.util.Map;
 
 import cn.taketoday.context.ConfigurableEnvironment;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.framework.ConfigurableWebServerApplicationContext;
 import cn.taketoday.framework.server.AbstractWebServer;
 import cn.taketoday.framework.server.ConfigurableWebServer;
 import cn.taketoday.framework.server.WebServer;
-import cn.taketoday.web.WebConstant;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.config.WebApplicationLoader;
 
 /**
  * @author TODAY 2019-06-19 20:05
@@ -56,7 +56,7 @@ public abstract class WebApplicationUtils {
   public static WebServer obtainWebServer(ConfigurableWebServerApplicationContext beanFactory) {
     ConfigurableEnvironment environment = beanFactory.getEnvironment();
     // disable web mvc xml
-    environment.setProperty(WebConstant.ENABLE_WEB_MVC_XML, "false");
+    environment.setProperty(WebApplicationLoader.ENABLE_WEB_MVC_XML, "false");
     // Get WebServer instance
     WebServer webServer = beanFactory.getBean(WebServer.class);
     if (webServer == null) {

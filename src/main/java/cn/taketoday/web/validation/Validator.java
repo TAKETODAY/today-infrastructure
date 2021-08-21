@@ -19,10 +19,13 @@
  */
 package cn.taketoday.web.validation;
 
+import cn.taketoday.web.resolver.ParameterResolver;
+
 /**
  * @author TODAY 2019-07-21 14:22
  */
 public interface Validator {
+  String KEY_VALIDATION_ERRORS = ParameterResolver.class.getName() + "-context-validation-errors";
 
   /**
    * supports input object?

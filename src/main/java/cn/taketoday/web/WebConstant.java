@@ -47,25 +47,6 @@ public interface WebConstant extends cn.taketoday.core.Constant {
   String METHOD_NOT_ALLOWED = "Method Not Allowed";
   String INTERNAL_SERVER_ERROR = "Internal Server Error";
 
-  String ENABLE_WEB_MVC_XML = "enable.webmvc.xml";
-  String DOWNLOAD_BUFF_SIZE = "download.buff.size";
-  String ENABLE_WEB_STARTED_LOG = "enable.started.log";
-
-  /**********************************************************
-   * Framework Attribute Keys
-   */
-  String RESOURCE_MATCH_RESULT = ResourceMatchResult.class.getName() + "-match-result";
-  String KEY_THROWABLE = HandlerExceptionHandler.class.getName() + "-context-throwable";
-  String VALIDATION_ERRORS = ParameterResolver.class.getName() + "-context-validation-errors";
-
-  //@off
-	/**
-	 * Framework Attribute Keys End
-	 **********************************************************/
-
-	String	DISPATCHER_SERVLET_MAPPING			= "/";
-	String[]	DEFAULT_MAPPINGS					= { DISPATCHER_SERVLET_MAPPING };
-	String	DISPATCHER_SERVLET					= "dispatcherServlet";
 	// Resolver
 
 	// the dtd

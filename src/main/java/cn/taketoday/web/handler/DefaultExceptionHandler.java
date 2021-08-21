@@ -65,7 +65,7 @@ public class DefaultExceptionHandler
   @Override
   public Object handleException(RequestContext context, Throwable target, Object handler) throws Throwable {
     // prepare context throwable
-    context.setAttribute(WebConstant.KEY_THROWABLE, target);
+    context.setAttribute(KEY_THROWABLE, target);
     // catch all handlers
     final ThrowableHandlerMethod exHandler = lookupExceptionHandler(target);
     if (exHandler == null) {
@@ -214,7 +214,7 @@ public class DefaultExceptionHandler
     protected void applyResponseStatus(final RequestContext context) {
       final ResponseStatus status = getResponseStatus();
       if (status == null) {
-        final Object attribute = context.getAttribute(WebConstant.KEY_THROWABLE);
+        final Object attribute = context.getAttribute(KEY_THROWABLE);
         if (attribute instanceof HttpStatusCapable) { // @since 3.0.1
           final HttpStatus httpStatus = ((HttpStatusCapable) attribute).getHttpStatus();
           context.setStatus(httpStatus);

@@ -29,6 +29,7 @@ import cn.taketoday.web.RequestContext;
  */
 @FunctionalInterface
 public interface HandlerExceptionHandler {
+  String KEY_THROWABLE = HandlerExceptionHandler.class.getName() + "-context-throwable";
 
   /**
    * This value indicates that the handler did not return a value, or the result

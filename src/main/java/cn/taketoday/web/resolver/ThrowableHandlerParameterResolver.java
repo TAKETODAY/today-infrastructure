@@ -21,7 +21,7 @@ package cn.taketoday.web.resolver;
 
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebConstant;
+import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**
@@ -46,7 +46,7 @@ public class ThrowableHandlerParameterResolver
 
   @Override
   public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-    return context.getAttribute(WebConstant.KEY_THROWABLE);
+    return context.getAttribute(HandlerExceptionHandler.KEY_THROWABLE);
   }
 
 }

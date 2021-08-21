@@ -39,10 +39,12 @@ import cn.taketoday.util.StringUtils;
  * Initialize {@link Filter}, {@link Servlet},Listener
  *
  * @author TODAY <br>
- *         2019-02-03 12:22
+ * 2019-02-03 12:22
  */
 public abstract class WebComponentInitializer<D extends Registration.Dynamic>
         extends OrderedSupport implements ServletContextInitializer {
+  public static final String DEFAULT_MAPPING = "/";
+  public static final String[] DEFAULT_MAPPINGS = { DEFAULT_MAPPING };
 
   private String name;
 

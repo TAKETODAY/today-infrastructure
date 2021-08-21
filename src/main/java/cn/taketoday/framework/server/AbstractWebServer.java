@@ -36,20 +36,20 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.util.AnnotationUtils;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.OrderUtils;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.framework.WebServerApplicationContext;
-import cn.taketoday.framework.config.Starter;
 import cn.taketoday.framework.config.CompositeWebApplicationConfiguration;
 import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.framework.config.ErrorPage;
 import cn.taketoday.framework.config.MimeMappings;
+import cn.taketoday.framework.config.Starter;
 import cn.taketoday.framework.config.WebApplicationConfiguration;
 import cn.taketoday.framework.config.WebDocumentConfiguration;
 import cn.taketoday.framework.utils.WebApplicationUtils;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.OrderUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.config.WebApplicationInitializer;
@@ -131,18 +131,18 @@ public abstract class AbstractWebServer
 
     final WebServerApplicationContext context = obtainApplicationContext();
     if (context.getEnvironment() instanceof ConfigurableEnvironment) {
-      final Starter starter;
-      final ConfigurableEnvironment environment = (ConfigurableEnvironment) context.getEnvironment();
-      environment.setProperty(WebConstant.ENABLE_WEB_STARTED_LOG, Boolean.FALSE.toString());
+      Starter starter;
+      ConfigurableEnvironment environment = (ConfigurableEnvironment) context.getEnvironment();
+      environment.setProperty(WebApplicationLoader.ENABLE_WEB_STARTED_LOG, Boolean.FALSE.toString());
       String webMvcConfigLocation = environment.getProperty(WebConstant.WEB_MVC_CONFIG_LOCATION);
       if (StringUtils.isNotEmpty(webMvcConfigLocation)) {
-        environment.setProperty(WebConstant.ENABLE_WEB_MVC_XML, Boolean.TRUE.toString());
+        environment.setProperty(WebApplicationLoader.ENABLE_WEB_MVC_XML, Boolean.TRUE.toString());
       }
       else if ((starter = AnnotationUtils.getAnnotation(Starter.class, context.getStartupClass())) != null) {
         // find webMvcConfigLocation
         webMvcConfigLocation = starter.webMvcConfigLocation();
         if (StringUtils.isNotEmpty(webMvcConfigLocation)) {
-          environment.setProperty(WebConstant.ENABLE_WEB_MVC_XML, Boolean.TRUE.toString());
+          environment.setProperty(WebApplicationLoader.ENABLE_WEB_MVC_XML, Boolean.TRUE.toString());
           environment.setProperty(WebConstant.WEB_MVC_CONFIG_LOCATION, webMvcConfigLocation);
         }
       }
