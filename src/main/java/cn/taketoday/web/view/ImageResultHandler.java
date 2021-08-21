@@ -24,7 +24,6 @@ import java.awt.image.RenderedImage;
 import javax.imageio.ImageIO;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.handler.HandlerMethod;
 
 /**

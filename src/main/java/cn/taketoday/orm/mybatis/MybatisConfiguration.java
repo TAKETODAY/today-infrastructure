@@ -46,12 +46,12 @@ import cn.taketoday.context.event.LoadingMissingBeanEvent;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ContextUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.SingletonSupplier;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
 
 import static cn.taketoday.util.ContextUtils.getResourceAsStream;
 

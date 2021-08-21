@@ -19,16 +19,17 @@
  */
 package cn.taketoday.jdbc.support;
 
-import cn.taketoday.core.Assert;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.jdbc.utils.DataSourceUtils;
-
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import javax.sql.DataSource;
+
+import cn.taketoday.core.Assert;
+import cn.taketoday.jdbc.utils.DataSourceUtils;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 
 /**
  * @author TODAY <br>

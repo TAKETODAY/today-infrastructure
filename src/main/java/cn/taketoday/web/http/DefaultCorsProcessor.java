@@ -24,11 +24,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.core.Constant;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.WebUtils;
 
 /**
@@ -86,7 +86,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
 
     context.setStatus(HttpStatus.FORBIDDEN);
     context.getOutputStream()
-            .write("Invalid CORS request".getBytes(WebConstant.DEFAULT_CHARSET));
+            .write("Invalid CORS request".getBytes(Constant.DEFAULT_CHARSET));
     context.flush();
   }
 

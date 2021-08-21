@@ -23,9 +23,9 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
+import cn.taketoday.core.Constant;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**
@@ -36,7 +36,7 @@ import cn.taketoday.web.handler.MethodParameter;
 public abstract class MessageConverter {
 
   /** for write string */
-  private Charset charset = WebConstant.DEFAULT_CHARSET;
+  private Charset charset = Constant.DEFAULT_CHARSET;
 
   /**
    * Write message to client

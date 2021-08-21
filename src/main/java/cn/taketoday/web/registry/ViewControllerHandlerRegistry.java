@@ -34,6 +34,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -42,7 +43,6 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.handler.ViewController;
 import cn.taketoday.web.view.ResultHandler;
 
@@ -218,7 +218,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
           configController(ele);
         } // ELEMENT_RESOURCES // TODO
         else {
-          log.warn("This This element: [{}] is not supported in this version: [{}].", nodeName, WebConstant.VERSION);
+          log.warn("This This element: [{}] is not supported in this version: [{}].", nodeName, Constant.VERSION);
         }
       }
     }

@@ -44,6 +44,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.PreDestroy;
 
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileBasedResource;
 import cn.taketoday.util.ResourceUtils;
@@ -70,7 +71,7 @@ public class Jetty {
   private Server server;
   private int port = 8081;
   private String host = "localhost";
-  private String contextPath = WebConstant.BLANK;
+  private String contextPath = Constant.BLANK;
   private boolean autoStart = true;
   private AtomicBoolean started = new AtomicBoolean(false);
 

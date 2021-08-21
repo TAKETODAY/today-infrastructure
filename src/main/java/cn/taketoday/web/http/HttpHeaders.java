@@ -51,7 +51,6 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.resource.CacheControl;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
@@ -81,7 +80,7 @@ import static java.util.Locale.US;
  * @since 3.0
  */
 public abstract class HttpHeaders
-        implements WebConstant, /*Iterable<String>,*/ MultiValueMap<String, String> {
+        implements  /*Iterable<String>,*/ MultiValueMap<String, String>, cn.taketoday.core.Constant {
 
   /**
    * The HTTP {@code Accept} header field name.

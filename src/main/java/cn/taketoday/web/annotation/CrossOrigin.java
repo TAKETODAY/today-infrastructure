@@ -24,9 +24,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.web.http.HttpMethod;
-import cn.taketoday.web.WebConstant;
+import cn.taketoday.core.Constant;
 import cn.taketoday.web.http.CorsConfiguration;
+import cn.taketoday.web.http.HttpMethod;
 
 /**
  * Annotation for permitting cross-origin requests on specific handler classes
@@ -129,7 +129,7 @@ public @interface CrossOrigin {
    * {@code Access-Control-Allow-Credentials} header is also not set and
    * credentials are therefore not allowed.
    */
-  String allowCredentials() default WebConstant.BLANK;
+  String allowCredentials() default Constant.BLANK;
 
   /**
    * The maximum age (in seconds) of the cache duration for preflight responses.

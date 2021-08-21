@@ -29,7 +29,6 @@ import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.PatternHandler;
 import cn.taketoday.web.handler.ResourceMapping;

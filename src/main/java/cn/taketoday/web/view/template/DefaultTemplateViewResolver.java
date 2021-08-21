@@ -25,10 +25,8 @@ import java.io.Writer;
 
 import cn.taketoday.context.Props;
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.util.ContextUtils;
-import cn.taketoday.util.ResourceUtils;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
@@ -38,8 +36,10 @@ import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.expression.ValueExpression;
 import cn.taketoday.expression.VariableMapper;
 import cn.taketoday.expression.lang.EvaluationContext;
+import cn.taketoday.util.ContextUtils;
+import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebConstant;
 
 /**
  * @author TODAY <br>
@@ -174,7 +174,7 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
 
     @Override
     public Object handlePropertyNotResolved(Object base, Object property, EvaluationContext ctx) {
-      return WebConstant.BLANK;
+      return Constant.BLANK;
     }
 
   }

@@ -23,10 +23,10 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.annotation.CrossOrigin;
+import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.http.CorsConfiguration;
 import cn.taketoday.web.http.CorsProcessor;
 import cn.taketoday.web.http.DefaultCorsProcessor;
-import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.interceptor.CorsHandlerInterceptor;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 

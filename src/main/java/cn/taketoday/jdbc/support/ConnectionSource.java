@@ -1,11 +1,12 @@
 package cn.taketoday.jdbc.support;
 
-import cn.taketoday.jdbc.JdbcConnection;
-
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
+
+import javax.sql.DataSource;
+
+import cn.taketoday.jdbc.JdbcConnection;
 
 /**
  * An abstraction layer for providing jdbc connection to use from

@@ -24,14 +24,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.taketoday.context.condition.ConditionalOnClass;
+import cn.taketoday.core.Constant;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.handler.AbstractHandlerAdapter;
 
 /**
  * @author TODAY 2019-12-24 22:01
  */
-@ConditionalOnClass(WebConstant.ENV_SERVLET)
+@ConditionalOnClass(Constant.ENV_SERVLET)
 public class ServletHandlerAdapter extends AbstractHandlerAdapter {
 
   public ServletHandlerAdapter() { }

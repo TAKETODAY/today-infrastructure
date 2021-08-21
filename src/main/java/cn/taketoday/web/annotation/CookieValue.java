@@ -25,7 +25,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.core.Constant;
-import cn.taketoday.web.WebConstant;
 
 /**
  * Annotation which indicates that a method parameter should be bound to an HTTP

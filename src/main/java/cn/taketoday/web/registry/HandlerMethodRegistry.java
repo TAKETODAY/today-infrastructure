@@ -39,6 +39,7 @@ import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ObjectUtils;
@@ -46,7 +47,6 @@ import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.Interceptor;
 import cn.taketoday.web.annotation.PathVariable;
@@ -230,7 +230,7 @@ public class HandlerMethodRegistry
     if (ObjectUtils.isNotEmpty(controllerMapping)) {
       namespaces = new LinkedHashSet<>(4, 1.0f); // name space
       classRequestMethods = new LinkedHashSet<>(8, 1.0f); // method
-      for (final String value : controllerMapping.getStringArray(WebConstant.VALUE)) {
+      for (final String value : controllerMapping.getStringArray(Constant.VALUE)) {
         namespaces.add(checkUrl(value));
       }
       Collections.addAll(classRequestMethods, controllerMapping.getAttribute("method", HttpMethod[].class));

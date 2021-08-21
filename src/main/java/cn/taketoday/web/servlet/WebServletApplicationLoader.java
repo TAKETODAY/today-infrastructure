@@ -45,16 +45,15 @@ import javax.servlet.annotation.WebServlet;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.Constant;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.WebConstant;
+import cn.taketoday.web.WebApplicationFailedEvent;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.config.WebApplicationLoader;
 import cn.taketoday.web.config.WebMvcConfiguration;
-import cn.taketoday.web.WebApplicationFailedEvent;
 import cn.taketoday.web.handler.DispatcherHandler;
-import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.resolver.ServletParameterResolvers;
 import cn.taketoday.web.servlet.initializer.DispatcherServletInitializer;
@@ -74,9 +73,9 @@ public class WebServletApplicationLoader
         extends WebApplicationLoader implements ServletContainerInitializer {
 
   /** @since 3.0 */
-  private String requestCharacterEncoding = WebConstant.DEFAULT_ENCODING;
+  private String requestCharacterEncoding = Constant.DEFAULT_ENCODING;
   /** @since 3.0 */
-  private String responseCharacterEncoding = WebConstant.DEFAULT_ENCODING;
+  private String responseCharacterEncoding = Constant.DEFAULT_ENCODING;
 
   @Override
   protected ServletWebMvcConfiguration getWebMvcConfiguration(ApplicationContext applicationContext) {
@@ -160,7 +159,7 @@ public class WebServletApplicationLoader
     if (ret == null) {
       final long startupDate = System.currentTimeMillis();
       log.info("Your application starts to be initialized at: [{}].",
-               new SimpleDateFormat(WebConstant.DEFAULT_DATE_FORMAT).format(startupDate));
+               new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(startupDate));
       final ConfigurableWebServletApplicationContext context = createContext();
       ret = context;
       context.setServletContext(servletContext);

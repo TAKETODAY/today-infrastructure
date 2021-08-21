@@ -24,7 +24,6 @@ import java.util.ArrayList;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.http.HttpHeaders;
 
 /**

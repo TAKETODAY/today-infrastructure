@@ -20,7 +20,6 @@
 package cn.taketoday.web;
 
 import cn.taketoday.context.event.ApplicationEvent;
-import cn.taketoday.web.WebApplicationContext;
 
 /**
  * @author TODAY <br>

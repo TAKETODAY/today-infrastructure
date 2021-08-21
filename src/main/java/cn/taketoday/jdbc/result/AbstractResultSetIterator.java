@@ -20,12 +20,12 @@
 
 package cn.taketoday.jdbc.result;
 
-import cn.taketoday.jdbc.PersistenceException;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+
+import cn.taketoday.jdbc.PersistenceException;
 
 /**
  * Iterator for a {@link ResultSet}. Tricky part here is getting

@@ -24,7 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.web.WebConstant;
+import cn.taketoday.core.Constant;
 
 /**
  * This annotation may be used to annotate method parameters on request mappings
@@ -64,6 +64,6 @@ import cn.taketoday.web.WebConstant;
 public @interface PathVariable {
 
   /** Request parameter name in path */
-  String value() default WebConstant.BLANK;
+  String value() default Constant.BLANK;
 
 }

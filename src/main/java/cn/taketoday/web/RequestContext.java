@@ -34,14 +34,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.EmptyObject;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.Readable;
 import cn.taketoday.core.io.Writable;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.web.RequestContextHolder.ApplicationNotStartedContext;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.http.DefaultHttpHeaders;
@@ -131,7 +132,7 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   }
 
   protected String doGetContextPath() {
-    return WebConstant.BLANK;
+    return Constant.BLANK;
   }
 
   /**

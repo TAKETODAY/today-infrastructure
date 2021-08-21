@@ -28,17 +28,17 @@ import java.util.Map;
 import java.util.Objects;
 
 import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.Constant;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.PatternHandler;
+import cn.taketoday.web.http.HttpMethod;
 
 /**
  * @author TODAY 2021/3/10 11:33
@@ -120,7 +120,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
       return;
     }
 
-    doMergeMapping(mapping, actionMapping, controllerMapping, WebConstant.VALUE, true);
+    doMergeMapping(mapping, actionMapping, controllerMapping, Constant.VALUE, true);
     doMergeMapping(mapping, actionMapping, controllerMapping, "params");
     doMergeMapping(mapping, actionMapping, controllerMapping, "produces");
     doMergeMapping(mapping, actionMapping, controllerMapping, "consumes");

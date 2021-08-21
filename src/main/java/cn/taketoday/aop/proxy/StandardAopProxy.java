@@ -46,9 +46,9 @@ import cn.taketoday.cglib.core.KeyFactory;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
 
 import static cn.taketoday.asm.Opcodes.ACC_FINAL;
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;

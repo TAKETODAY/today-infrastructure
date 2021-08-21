@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Objects;
 
 import cn.taketoday.core.Assert;
-import cn.taketoday.web.WebConstant;
+import cn.taketoday.core.Constant;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -188,7 +188,7 @@ public final class ContentDisposition {
    * Return an empty content disposition.
    */
   public static ContentDisposition empty() {
-    return new ContentDisposition(WebConstant.BLANK, null, null, null);
+    return new ContentDisposition(Constant.BLANK, null, null, null);
   }
 
   /**

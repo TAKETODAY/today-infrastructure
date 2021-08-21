@@ -28,6 +28,7 @@ import java.util.Objects;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.AnnotationSupport;
 import cn.taketoday.core.AttributeAccessorSupport;
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.Required;
 import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ClassUtils;
@@ -36,7 +37,6 @@ import cn.taketoday.util.GenericDescriptor;
 import cn.taketoday.util.NumberUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.annotation.RequestParam;
 
 
@@ -82,7 +82,7 @@ public class MethodParameter
 
     AnnotationAttributes attributes = AnnotationUtils.getAttributes(RequestParam.class, parameter);
     if (attributes != null) {
-      this.name = attributes.getString(WebConstant.VALUE);
+      this.name = attributes.getString(Constant.VALUE);
       this.required = attributes.getBoolean("required");
       this.defaultValue = attributes.getString("defaultValue");
     }
@@ -241,7 +241,7 @@ public class MethodParameter
     if (generics == null) {
       generics = ClassUtils.getGenericTypes(parameter);
       if (generics == null) {
-        generics = WebConstant.EMPTY_CLASS_ARRAY;
+        generics = Constant.EMPTY_CLASS_ARRAY;
       }
       this.generics = generics;
     }

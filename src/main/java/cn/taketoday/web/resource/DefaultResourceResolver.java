@@ -30,14 +30,14 @@ import cn.taketoday.core.io.PathMatchingResourcePatternResolver;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceFilter;
 import cn.taketoday.core.io.ResourceResolver;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.web.handler.ResourceMatchResult;
 import cn.taketoday.web.WebUtils;
+import cn.taketoday.web.handler.ResourceMatchResult;
 
 /**
  * @author TODAY <br>

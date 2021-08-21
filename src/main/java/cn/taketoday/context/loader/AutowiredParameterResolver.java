@@ -29,10 +29,10 @@ import cn.taketoday.context.Props;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.Required;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ContextUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.logger.LoggerFactory;
 
 /**
  * Resolve {@link Autowired} on {@link Parameter}

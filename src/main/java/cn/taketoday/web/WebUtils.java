@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import java.util.StringTokenizer;
 
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.Nullable;
@@ -87,9 +88,9 @@ public abstract class WebUtils {
     return new StringBuilder()
             .append("W/\"")
             .append(name)
-            .append(WebConstant.PATH_SEPARATOR)
+            .append(Constant.PATH_SEPARATOR)
             .append(size)
-            .append(WebConstant.PATH_SEPARATOR)
+            .append(Constant.PATH_SEPARATOR)
             .append(lastModified)
             .append('\"')
             .toString();
@@ -139,7 +140,7 @@ public abstract class WebUtils {
     httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION,
                     new StringBuilder(HttpHeaders.ATTACHMENT_FILE_NAME)
                             .append(StringUtils.encodeUrl(download.getName()))
-                            .append(WebConstant.QUOTATION_MARKS)
+                            .append(Constant.QUOTATION_MARKS)
                             .toString()
     );
 
@@ -378,7 +379,7 @@ public abstract class WebUtils {
         }
       }
       else {
-        result.add(pair, WebConstant.BLANK);
+        result.add(pair, Constant.BLANK);
       }
     }
     return result;

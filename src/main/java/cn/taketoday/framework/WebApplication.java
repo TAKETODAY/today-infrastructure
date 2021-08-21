@@ -21,12 +21,12 @@ package cn.taketoday.framework;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ExceptionUtils;
+import cn.taketoday.core.Constant;
 import cn.taketoday.framework.server.WebServer;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.web.WebConstant;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ExceptionUtils;
 
 /**
  * Web Application Runner
@@ -44,7 +44,7 @@ public class WebApplication {
   }
 
   public WebApplication(Class<?> startupClass, String... args) {
-    context = ClassUtils.isPresent(WebConstant.ENV_SERVLET)
+    context = ClassUtils.isPresent(Constant.ENV_SERVLET)
               ? new ServletWebServerApplicationContext(startupClass, args)
               : new StandardWebServerApplicationContext(startupClass, args);
   }

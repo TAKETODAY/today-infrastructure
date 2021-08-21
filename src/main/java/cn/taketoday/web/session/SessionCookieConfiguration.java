@@ -23,7 +23,6 @@ package cn.taketoday.web.session;
 import java.net.HttpCookie;
 import java.time.Duration;
 
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.http.HttpHeaders;
 
 /**

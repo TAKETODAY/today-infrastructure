@@ -23,12 +23,12 @@ import java.io.IOException;
 
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.http.CorsConfiguration;
 import cn.taketoday.web.http.CorsConfigurationCapable;
 import cn.taketoday.web.http.CorsConfigurationSource;
 import cn.taketoday.web.http.CorsProcessor;
 import cn.taketoday.web.http.DefaultCorsProcessor;
-import cn.taketoday.web.WebUtils;
 
 /**
  * @author TODAY 2020/12/10 22:49

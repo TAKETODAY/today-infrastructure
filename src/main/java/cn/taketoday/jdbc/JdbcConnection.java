@@ -12,11 +12,11 @@ import java.util.List;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.jdbc.support.ConnectionSource;
 import cn.taketoday.jdbc.utils.JdbcUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Represents a connection to the database with a transaction.

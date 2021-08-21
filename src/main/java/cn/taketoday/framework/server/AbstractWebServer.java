@@ -51,10 +51,8 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContextSupport;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.config.WebApplicationLoader;
-import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.session.SessionConfiguration;
 
 /**

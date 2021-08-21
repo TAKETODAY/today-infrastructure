@@ -24,7 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.web.WebConstant;
+import cn.taketoday.core.Constant;
 
 /**
  * @author TODAY <br>
@@ -38,6 +38,6 @@ public @interface Application {
   /**
    * Servlet Context attribute name
    */
-  String value() default WebConstant.BLANK;
+  String value() default Constant.BLANK;
 
 }

@@ -32,10 +32,10 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.WebUtils;
 
 /**
  * Resolve Bean

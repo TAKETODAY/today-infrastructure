@@ -29,7 +29,6 @@ import java.util.List;
 
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.http.HttpHeaders;
 
 /**

@@ -21,9 +21,9 @@ package cn.taketoday.web.view.template;
 
 import java.util.Locale;
 
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.WebConstant;
 
 /**
  * @author TODAY <br>
@@ -33,9 +33,9 @@ public abstract class AbstractTemplateViewResolver
         extends OrderedSupport implements TemplateViewResolver {
 
   protected Locale locale = Locale.CHINA;
-  protected String suffix = WebConstant.BLANK;
+  protected String suffix = Constant.BLANK;
   protected String prefix = DEFAULT_TEMPLATE_PATH;
-  protected String encoding = WebConstant.DEFAULT_ENCODING;
+  protected String encoding = Constant.DEFAULT_ENCODING;
 
   public AbstractTemplateViewResolver() { }
 
