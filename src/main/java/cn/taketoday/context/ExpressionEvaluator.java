@@ -52,6 +52,8 @@ import cn.taketoday.util.StringUtils;
 public class ExpressionEvaluator {
   public static final String ENV = "env";
   public static final String EL_PREFIX = "${";
+  public static final String PLACE_HOLDER_PREFIX = "#{";
+  public static final char PLACE_HOLDER_SUFFIX = '}';
 
   private static final Logger log = LoggerFactory.getLogger(ExpressionEvaluator.class);
 
@@ -102,7 +104,7 @@ public class ExpressionEvaluator {
   }
 
   public <T> T evaluate(final String expression, final Class<T> expectedType, final Map<Object, Object> variables) {
-    if (expression.contains(Constant.PLACE_HOLDER_PREFIX)) {
+    if (expression.contains(PLACE_HOLDER_PREFIX)) {
       final String replaced = resolvePlaceholder(variables, expression);
       return conversionService.convert(replaced, expectedType);
     }
@@ -120,7 +122,7 @@ public class ExpressionEvaluator {
   public <T> T evaluate(
           final String expression, final ExpressionContext context, final Class<T> expectedType) {
 
-    if (expression.contains(Constant.PLACE_HOLDER_PREFIX)) {
+    if (expression.contains(PLACE_HOLDER_PREFIX)) {
       final String replaced = resolvePlaceholder(variables, expression);
       return conversionService.convert(replaced, expectedType);
     }
@@ -151,7 +153,7 @@ public class ExpressionEvaluator {
    */
   public <T> T evaluate(final Env value, final Class<T> expectedType) {
     final T resolveValue = evaluate(
-            Constant.PLACE_HOLDER_PREFIX + value.value() + Constant.PLACE_HOLDER_SUFFIX, expectedType
+            PLACE_HOLDER_PREFIX + value.value() + PLACE_HOLDER_SUFFIX, expectedType
     );
     if (resolveValue != null) {
       return resolveValue;
@@ -224,8 +226,8 @@ public class ExpressionEvaluator {
     int suffixIndex;
 
     final StringBuilder builder = new StringBuilder();
-    while ((prefixIndex = input.indexOf(Constant.PLACE_HOLDER_PREFIX)) > -1 //
-            && (suffixIndex = input.indexOf(Constant.PLACE_HOLDER_SUFFIX)) > -1) {
+    while ((prefixIndex = input.indexOf(PLACE_HOLDER_PREFIX)) > -1 //
+            && (suffixIndex = input.indexOf(PLACE_HOLDER_SUFFIX)) > -1) {
 
       builder.append(input, 0, prefixIndex);
 

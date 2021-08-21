@@ -40,6 +40,7 @@ import cn.taketoday.core.Constant;
  * 2018-06-23 11:23:45
  */
 public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
+  String SCOPE = "scope";
   String INIT_METHODS = "initMethods";
   String DESTROY_METHODS = "destroyMethods";
 

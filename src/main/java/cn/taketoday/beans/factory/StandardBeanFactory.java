@@ -68,6 +68,8 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Nullable;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ContextUtils;
@@ -76,8 +78,6 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
 
 import static cn.taketoday.core.Constant.VALUE;
 import static cn.taketoday.util.AnnotationUtils.getAttributesArray;
@@ -237,7 +237,7 @@ public class StandardBeanFactory
     final String declaringBeanName = declaringDef.getName(); // @since v2.1.7
 
     for (final AnnotationAttributes component : components) {
-      final String scope = component.getString(Constant.SCOPE);
+      final String scope = component.getString(BeanDefinition.SCOPE);
       final String[] initMethods = component.getStringArray(BeanDefinition.INIT_METHODS);
       final String[] destroyMethods = component.getStringArray(BeanDefinition.DESTROY_METHODS);
 
@@ -772,7 +772,7 @@ public class StandardBeanFactory
               .setInitMethods(resolveInitMethod(null, beanClass));
     }
     else {
-      ret.setScope(attributes.getString(Constant.SCOPE))
+      ret.setScope(attributes.getString(BeanDefinition.SCOPE))
               .setDestroyMethods(attributes.getStringArray(BeanDefinition.DESTROY_METHODS))
               .setInitMethods(resolveInitMethod(attributes.getStringArray(BeanDefinition.INIT_METHODS), beanClass));
     }

@@ -183,7 +183,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
             return true;
           }
           final String name = file.getName();
-          return name.endsWith(Constant.PROPERTIES_SUFFIX) && !name.startsWith("pom"); // pom.properties
+          return name.endsWith(PROPERTIES_SUFFIX) && !name.startsWith("pom"); // pom.properties
         };
         doLoadFromDirectory(propertiesResource, this.properties, propertiesFileFilter);
       }

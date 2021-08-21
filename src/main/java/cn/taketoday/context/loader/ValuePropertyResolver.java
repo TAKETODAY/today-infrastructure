@@ -80,19 +80,19 @@ public class ValuePropertyResolver
       expression = env.value();
       if (StringUtils.isNotEmpty(expression)) {
         expression = new StringBuilder(expression.length() + 3)//
-                .append(Constant.PLACE_HOLDER_PREFIX)//
+                .append(ExpressionEvaluator.PLACE_HOLDER_PREFIX)//
                 .append(expression)//
-                .append(Constant.PLACE_HOLDER_SUFFIX).toString();
+                .append(ExpressionEvaluator.PLACE_HOLDER_SUFFIX).toString();
       }
     }
 
     if (StringUtils.isEmpty(expression)) {
       // use class full name and field name
-      expression = new StringBuilder(Constant.PLACE_HOLDER_PREFIX) //
+      expression = new StringBuilder(ExpressionEvaluator.PLACE_HOLDER_PREFIX) //
               .append(field.getDeclaringClass().getName())//
               .append(Constant.PACKAGE_SEPARATOR)//
               .append(field.getName())//
-              .append(Constant.PLACE_HOLDER_SUFFIX).toString();
+              .append(ExpressionEvaluator.PLACE_HOLDER_SUFFIX).toString();
     }
     Object resolved;
     try {

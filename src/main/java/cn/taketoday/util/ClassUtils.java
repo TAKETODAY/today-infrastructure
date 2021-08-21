@@ -82,6 +82,7 @@ public abstract class ClassUtils {
   public static final String INTERNAL_ARRAY_PREFIX = "[";
   /** Prefix for internal non-primitive array class names: {@code "[L"}. */
   public static final String NON_PRIMITIVE_ARRAY_PREFIX = "[L";
+  public static final String CLASS_FILE_SUFFIX = ".class";
 
 //    private static final Logger log = LoggerFactory.getLogger(ClassUtils.class);
 
@@ -676,10 +677,10 @@ public abstract class ClassUtils {
   static final class ParameterFunction implements Function<Class<?>, Map<Method, String[]>> {
 
     @Override
-    public final Map<Method, String[]> apply(final Class<?> declaringClass) {
+    public Map<Method, String[]> apply(final Class<?> declaringClass) {
       final String classFile = declaringClass.getName()
               .replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR)
-              .concat(Constant.CLASS_FILE_SUFFIX);
+              .concat(CLASS_FILE_SUFFIX);
 
       try (InputStream resourceAsStream = classLoader.getResourceAsStream(classFile)) {
         final ClassNode classVisitor = new ClassNode();

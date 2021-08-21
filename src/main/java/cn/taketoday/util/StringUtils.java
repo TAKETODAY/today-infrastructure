@@ -37,6 +37,7 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import cn.taketoday.context.Environment;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 
@@ -621,7 +622,7 @@ public abstract class StringUtils {
    * @return checked properties file name
    */
   public static String checkPropertiesName(final String fileName) {
-    return fileName.endsWith(Constant.PROPERTIES_SUFFIX) ? fileName : fileName + Constant.PROPERTIES_SUFFIX;
+    return fileName.endsWith(Environment.PROPERTIES_SUFFIX) ? fileName : fileName + Environment.PROPERTIES_SUFFIX;
   }
 
   /**

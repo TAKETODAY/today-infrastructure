@@ -110,7 +110,7 @@ public class ClassMetaReader {
   public static String getClassFile(String classNameToRead) {
     return classNameToRead
             .replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR)
-            .concat(Constant.CLASS_FILE_SUFFIX);
+            .concat(ClassUtils.CLASS_FILE_SUFFIX);
   }
 
   public static AnnotationAttributes readAnnotation(AnnotationNode annotationNode) {

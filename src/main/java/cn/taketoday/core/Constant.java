@@ -40,7 +40,7 @@ import static cn.taketoday.cglib.core.TypeUtils.parseType;
  * 2018-01-16 10:56
  */
 public interface Constant extends Serializable {
-
+  String VERSION = "4.0";
   String ENV_SERVLET = "javax.servlet.Servlet";
   boolean RUN_IN_SERVLET = ClassUtils.isPresent(ENV_SERVLET); // @since 3.0.3
 
@@ -56,8 +56,6 @@ public interface Constant extends Serializable {
   String META_INFO_listeners = "META-INF/listeners";
 
   int DEFAULT_CAPACITY = 0; // @since 3.0
-
-  String VERSION = "4.0";
 
   String KEY_ROOT = "root";
   String KEY_RESULT = "result";
@@ -135,14 +133,9 @@ public interface Constant extends Serializable {
   String DEFAULT_ENCODING = "UTF-8";
   Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
-  String PROPERTIES_SUFFIX = ".properties";
-  String PLACE_HOLDER_PREFIX = "#{";
-  char PLACE_HOLDER_SUFFIX = '}';
   String SPLIT_REGEXP = "[;|,]";
 
   String BLANK = "";
-  String CLASS_FILE_SUFFIX = ".class";
-  String SCOPE = "scope";
   String VALUE = "value";
   String EQUALS = "equals";
   String HASH_CODE = "hashCode";

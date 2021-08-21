@@ -35,6 +35,7 @@ import cn.taketoday.util.StringUtils;
  * @since 2.0.1
  */
 public interface Environment {
+  String PROPERTIES_SUFFIX = ".properties";
   String KEY_ACTIVE_PROFILES = "context.active.profiles";
   String DEFAULT_YML_FILE = "classpath:application.yml"; // @since 1.0.2
   String DEFAULT_YAML_FILE = "classpath:application.yaml";
