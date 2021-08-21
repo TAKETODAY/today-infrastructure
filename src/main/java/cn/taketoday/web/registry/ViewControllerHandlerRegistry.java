@@ -44,6 +44,7 @@ import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.handler.ViewController;
+import cn.taketoday.web.view.ResultHandler;
 
 import static cn.taketoday.core.ConfigurationException.nonNull;
 
@@ -123,7 +124,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
    */
   public ViewController addRedirectViewController(String pathPattern, String redirectUrl) {
     return addViewController(pathPattern)
-            .setResource(WebConstant.REDIRECT_URL_PREFIX.concat(redirectUrl));
+            .setResource(ResultHandler.REDIRECT_URL_PREFIX.concat(redirectUrl));
   }
 
   /**

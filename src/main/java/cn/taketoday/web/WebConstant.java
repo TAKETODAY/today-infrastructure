@@ -88,10 +88,7 @@ public interface WebConstant extends cn.taketoday.core.Constant {
 	String	IMAGE_PNG										= "png";
 	String	HTTP												= "http";
 	String	HTTPS												= "https";
-	String	RESPONSE_BODY_PREFIX				= "body:";
-	String	REDIRECT_URL_PREFIX					= "redirect:";
-	int		REDIRECT_URL_PREFIX_LENGTH			= REDIRECT_URL_PREFIX.length();
-	
+
 	/*****************************************************
 	 * default values
 	 */

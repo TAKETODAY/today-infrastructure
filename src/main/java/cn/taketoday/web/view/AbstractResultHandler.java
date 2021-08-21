@@ -132,14 +132,14 @@ public abstract class AbstractResultHandler
   }
 
   /**
-   * @see WebConstant#REDIRECT_URL_PREFIX
-   * @see WebConstant#RESPONSE_BODY_PREFIX
+   * @see #REDIRECT_URL_PREFIX
+   * @see #RESPONSE_BODY_PREFIX
    */
   public void handleString(final String resource, final RequestContext context) throws Throwable {
-    if (resource.startsWith(WebConstant.REDIRECT_URL_PREFIX)) {
+    if (resource.startsWith(REDIRECT_URL_PREFIX)) {
       handleRedirect(resource.substring(9), context);
     }
-    else if (resource.startsWith(WebConstant.RESPONSE_BODY_PREFIX)) {
+    else if (resource.startsWith(RESPONSE_BODY_PREFIX)) {
       handleResponseBody(context, resource.substring(5));
     }
     else {

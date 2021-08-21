@@ -33,6 +33,8 @@ import cn.taketoday.web.handler.HandlerExceptionHandler;
  */
 @FunctionalInterface
 public interface ResultHandler {
+  String RESPONSE_BODY_PREFIX = "body:";
+  String REDIRECT_URL_PREFIX = "redirect:";
 
   /**
    * If this {@link ResultHandler} supports the target handler
