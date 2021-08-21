@@ -44,9 +44,6 @@ public interface Constant extends Serializable {
   String ENV_SERVLET = "javax.servlet.Servlet";
   boolean RUN_IN_SERVLET = ClassUtils.isPresent(ENV_SERVLET); // @since 3.0.3
 
-  // default font
-  String DEFAULT_FONT = "Verdana";
-
   String HTTP = "http";
   String HTTPS = "https";
 
