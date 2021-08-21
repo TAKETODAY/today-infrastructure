@@ -35,7 +35,7 @@ public class HeaderTokenResolver implements TokenResolver {
   private String authorizationHeader = HttpHeaders.AUTHORIZATION;
 
   // X-Required-Authorization
-  private String requiredAuthorizationHeader = WebConstant.X_REQUIRED_AUTHORIZATION;
+  private String requiredAuthorizationHeader = X_REQUIRED_AUTHORIZATION;
 
   public boolean isExposeHeaders() {
     return exposeHeaders;

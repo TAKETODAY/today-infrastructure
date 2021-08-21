@@ -29,7 +29,6 @@ import cn.taketoday.web.interceptor.HandlerInterceptor;
 public interface WebConstant extends cn.taketoday.core.Constant {
 
   String DEFAULT_TEMPLATE_PATH = "classpath:templates/";
-  String X_REQUIRED_AUTHORIZATION = "X-Required-Authorization";
 
   String ENV_SERVLET = "javax.servlet.Servlet";
 
