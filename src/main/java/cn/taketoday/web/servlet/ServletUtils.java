@@ -29,7 +29,6 @@ import javax.servlet.http.HttpSession;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.servlet.ServletRequestContext;
 
 import static cn.taketoday.web.RequestContextHolder.prepareContext;
 

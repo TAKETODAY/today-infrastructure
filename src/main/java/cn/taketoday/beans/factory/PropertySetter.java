@@ -25,6 +25,7 @@ package cn.taketoday.beans.factory;
  * @author TODAY 2018-06-23 11:28:01
  */
 public interface PropertySetter {
+  PropertySetter[] EMPTY_ARRAY = {};
 
   /**
    * It shows that the value is not set

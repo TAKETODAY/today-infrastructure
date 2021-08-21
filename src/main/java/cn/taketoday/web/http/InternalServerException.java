@@ -20,7 +20,6 @@
 package cn.taketoday.web.http;
 
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.WebNestedRuntimeException;
 import cn.taketoday.web.annotation.ResponseStatus;
 
@@ -31,6 +30,7 @@ import cn.taketoday.web.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 public class InternalServerException extends WebNestedRuntimeException {
   private static final long serialVersionUID = 1L;
+  public static final String INTERNAL_SERVER_ERROR = "Internal Server Error";
 
   public InternalServerException(Throwable cause) {
     super(cause);
@@ -46,7 +46,7 @@ public class InternalServerException extends WebNestedRuntimeException {
   }
 
   public InternalServerException() {
-    super(WebConstant.INTERNAL_SERVER_ERROR);
+    super(INTERNAL_SERVER_ERROR);
   }
 
   public static InternalServerException failed() {

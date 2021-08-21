@@ -19,17 +19,17 @@
  */
 package cn.taketoday.web.http;
 
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.WebNestedRuntimeException;
 import cn.taketoday.web.annotation.ResponseStatus;
 
 /**
  * @author TODAY <br>
- *         2018-11-26 20:04
+ * 2018-11-26 20:04
  */
 @ResponseStatus(HttpStatus.NOT_FOUND)
 public class NotFoundException extends WebNestedRuntimeException {
   private static final long serialVersionUID = 1L;
+  public static final String NOT_FOUND = "Not Found";
 
   public NotFoundException(Throwable cause) {
     super(cause);
@@ -44,7 +44,7 @@ public class NotFoundException extends WebNestedRuntimeException {
   }
 
   public NotFoundException() {
-    super(WebConstant.NOT_FOUND);
+    super(NOT_FOUND);
   }
 
   public static NotFoundException notFound() {

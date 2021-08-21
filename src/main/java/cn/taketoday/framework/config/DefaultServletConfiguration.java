@@ -26,7 +26,7 @@ import javax.servlet.Servlet;
 
 import cn.taketoday.context.Props;
 import cn.taketoday.context.condition.ConditionalOnClass;
-import cn.taketoday.web.WebConstant;
+import cn.taketoday.core.Constant;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -36,7 +36,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@ConditionalOnClass(WebConstant.ENV_SERVLET)
+@ConditionalOnClass(Constant.ENV_SERVLET)
 @Props(prefix = "server.servlet.default.")
 public class DefaultServletConfiguration {
 

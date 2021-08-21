@@ -96,8 +96,8 @@ public final class HttpRequest {
     // if there is no such Transfer-Encoding, use Content-Length
     // if neither header exists, there is no body
     String header = requestHeaders.getFirst(HttpHeaders.TRANSFER_ENCODING);
-    if (header != null && !header.toLowerCase(Locale.US).equals(WebConstant.IDENTITY)) {
-      if (Arrays.asList(splitElements(header, true)).contains(WebConstant.CHUNKED))
+    if (header != null && !header.toLowerCase(Locale.US).equals(HttpHeaders.IDENTITY)) {
+      if (Arrays.asList(splitElements(header, true)).contains(HttpHeaders.CHUNKED))
         body = new ChunkedInputStream(in, requestHeaders, config);
       else
         body = in; // body ends when connection closes
@@ -234,7 +234,7 @@ public final class HttpRequest {
   public MultiValueMap<String, String> parseParameters() throws IOException {
     final MultiValueMap<String, String> parameters = WebUtils.parseParameters(uri.getRawQuery());
     final String ct = requestHeaders.getFirst(HttpHeaders.CONTENT_TYPE);
-    if (ct != null && ct.toLowerCase(Locale.US).startsWith(WebConstant.APPLICATION_X_WWW_FORM_URLENCODED)) {
+    if (ct != null && ct.toLowerCase(Locale.US).startsWith(HttpHeaders.APPLICATION_X_WWW_FORM_URLENCODED)) {
       final String bodyString = readToken(body, -1, StandardCharsets.UTF_8, 2097152); // 2MB limit
       WebUtils.parseParameters(parameters, bodyString);
     }

@@ -43,7 +43,7 @@ public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
 
   Method[] EMPTY_METHOD = Constant.EMPTY_METHOD_ARRAY;
 
-  PropertySetter[] EMPTY_PROPERTY_VALUE = Constant.EMPTY_PROPERTY_VALUE;
+  PropertySetter[] EMPTY_PROPERTY_SETTER = PropertySetter.EMPTY_ARRAY;
 
   /**
    * Get a property

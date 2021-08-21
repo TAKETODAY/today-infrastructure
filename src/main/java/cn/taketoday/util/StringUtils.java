@@ -41,10 +41,15 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 
 /**
- * @author TODAY <br>
- * 2018-06-26 21:19:09
+ * @author TODAY 2018-06-26 21:19:09
  */
 public abstract class StringUtils {
+
+  public static final String TOP_PATH = "..";
+  public static final String CURRENT_PATH = ".";
+  public static final String FOLDER_SEPARATOR = "/";
+  public static final String WINDOWS_FOLDER_SEPARATOR = "\\";
+  public static final char EXTENSION_SEPARATOR = Constant.PACKAGE_SEPARATOR;
 
   private static final int caseDiff = ('a' - 'A');
   private static final BitSet dontNeedEncoding;
@@ -683,7 +688,7 @@ public abstract class StringUtils {
     if (isEmpty(path)) {
       return path;
     }
-    String pathToUse = replace(path, Constant.WINDOWS_FOLDER_SEPARATOR, Constant.FOLDER_SEPARATOR);
+    String pathToUse = replace(path, WINDOWS_FOLDER_SEPARATOR, FOLDER_SEPARATOR);
 
     // Shortcut if there is no work to do
     if (pathToUse.indexOf('.') == -1) {
@@ -698,33 +703,33 @@ public abstract class StringUtils {
     String prefix = Constant.BLANK;
     if (prefixIndex != -1) {
       prefix = pathToUse.substring(0, prefixIndex + 1);
-      if (prefix.contains(Constant.FOLDER_SEPARATOR)) {
+      if (prefix.contains(FOLDER_SEPARATOR)) {
         prefix = Constant.BLANK;
       }
       else {
         pathToUse = pathToUse.substring(prefixIndex + 1);
       }
     }
-    if (pathToUse.startsWith(Constant.FOLDER_SEPARATOR)) {
-      prefix = prefix + Constant.FOLDER_SEPARATOR;
+    if (pathToUse.startsWith(FOLDER_SEPARATOR)) {
+      prefix = prefix + FOLDER_SEPARATOR;
       pathToUse = pathToUse.substring(1);
     }
 
-    String[] pathArray = delimitedListToStringArray(pathToUse, Constant.FOLDER_SEPARATOR);
+    String[] pathArray = delimitedListToStringArray(pathToUse, FOLDER_SEPARATOR);
     LinkedList<String> pathElements = new LinkedList<>();
     int tops = 0;
 
     for (int i = pathArray.length - 1; i >= 0; i--) {
       String element = pathArray[i];
-/*          if (Constant.CURRENT_PATH.equals(element)) {
+/*          if (CURRENT_PATH.equals(element)) {
      // Points to current directory - drop it.
 }
 else */
-      if (Constant.TOP_PATH.equals(element)) {
+      if (TOP_PATH.equals(element)) {
         // Registering top path found.
         tops++;
       }
-      else if (!Constant.CURRENT_PATH.equals(element)) {
+      else if (!CURRENT_PATH.equals(element)) {
         if (tops > 0) {
           // Merging path element with element corresponding to top path.
           tops--;
@@ -743,17 +748,17 @@ else */
 
     // Remaining top paths need to be retained.
     for (int i = 0; i < tops; i++) {
-      pathElements.add(0, Constant.TOP_PATH);
+      pathElements.add(0, TOP_PATH);
     }
     // If nothing else left, at least explicitly point to current path.
     if (pathElements.size() == 1
             && Constant.BLANK.equals(pathElements.getLast())
-            && !prefix.endsWith(Constant.FOLDER_SEPARATOR)) {
+            && !prefix.endsWith(FOLDER_SEPARATOR)) {
 
-      pathElements.add(0, Constant.CURRENT_PATH);
+      pathElements.add(0, CURRENT_PATH);
     }
 
-    return prefix.concat(collectionToString(pathElements, Constant.FOLDER_SEPARATOR));
+    return prefix.concat(collectionToString(pathElements, FOLDER_SEPARATOR));
   }
 
   /**
@@ -1060,7 +1065,7 @@ else */
     if (path == null) {
       return null;
     }
-    int separatorIndex = path.lastIndexOf(Constant.FOLDER_SEPARATOR);
+    int separatorIndex = path.lastIndexOf(FOLDER_SEPARATOR);
     return (separatorIndex != -1 ? path.substring(separatorIndex + 1) : path);
   }
 
@@ -1078,12 +1083,12 @@ else */
       return null;
     }
 
-    int extIndex = path.lastIndexOf(Constant.EXTENSION_SEPARATOR);
+    int extIndex = path.lastIndexOf(EXTENSION_SEPARATOR);
     if (extIndex == -1) {
       return null;
     }
 
-    int folderIndex = path.lastIndexOf(Constant.FOLDER_SEPARATOR);
+    int folderIndex = path.lastIndexOf(FOLDER_SEPARATOR);
     if (folderIndex > extIndex) {
       return null;
     }

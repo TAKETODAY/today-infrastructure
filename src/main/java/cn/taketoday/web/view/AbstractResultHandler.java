@@ -26,12 +26,12 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
@@ -41,6 +41,7 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
  */
 public abstract class AbstractResultHandler
         extends OrderedSupport implements ResultHandler, RuntimeResultHandler {
+  public static final String IMAGE_PNG = "png";
 
   private int downloadFileBuf;
   /** view resolver **/
@@ -50,7 +51,7 @@ public abstract class AbstractResultHandler
   /** @since 3.0 */
   private RedirectModelManager modelManager;
 
-  protected AbstractResultHandler() {}
+  protected AbstractResultHandler() { }
 
   protected AbstractResultHandler(TemplateViewResolver viewResolver,
                                   MessageConverter messageConverter,
@@ -123,7 +124,7 @@ public abstract class AbstractResultHandler
   }
 
   public void handleRedirect(final String redirect, final RequestContext context) throws IOException {
-    if (StringUtils.isEmpty(redirect) || redirect.startsWith(WebConstant.HTTP)) {
+    if (StringUtils.isEmpty(redirect) || redirect.startsWith(Constant.HTTP)) {
       context.sendRedirect(redirect);
     }
     else {
@@ -169,7 +170,7 @@ public abstract class AbstractResultHandler
    */
   public void handleImageView(final RenderedImage image, final RequestContext context) throws IOException {
     // need set content type
-    ImageIO.write(image, WebConstant.IMAGE_PNG, context.getOutputStream());
+    ImageIO.write(image, IMAGE_PNG, context.getOutputStream());
   }
 
   public int getDownloadFileBufferSize() {

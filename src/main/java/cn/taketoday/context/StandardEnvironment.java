@@ -45,12 +45,12 @@ import cn.taketoday.core.ConcurrentProperties;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceFilter;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ResourceUtils;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Standard implementation of {@link Environment}
@@ -306,7 +306,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
    * Set active profiles from properties
    */
   protected void refreshActiveProfiles() {
-    final String profiles = getProperty(Constant.KEY_ACTIVE_PROFILES);
+    final String profiles = getProperty(KEY_ACTIVE_PROFILES);
 
     if (StringUtils.isNotEmpty(profiles)) {
       activeProfiles.addAll(StringUtils.splitAsList(profiles));

@@ -40,9 +40,9 @@ import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.NonNull;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpStatus;
@@ -346,7 +346,7 @@ public class HTTPServer {
       if (serv != null)
         serv.close();
     }
-    catch (IOException ignore) {}
+    catch (IOException ignore) { }
     serv = null;
   }
 
@@ -373,7 +373,7 @@ public class HTTPServer {
       }
 
       @Override
-      public synchronized int read(byte[] b, int off, int len) throws IOException {
+      public synchronized int read(@NonNull byte[] b, int off, int len) throws IOException {
         final int read = super.read(b, off, len);
         inString.write(b, off, len);
         return read;
@@ -471,7 +471,7 @@ public class HTTPServer {
       // return a continue response before reading body
       String expect = reqHeaders.getFirst(HttpHeaders.EXPECT);
       if (expect != null) {
-        if (expect.equalsIgnoreCase(WebConstant.CONTINUE)) {
+        if (expect.equalsIgnoreCase(HttpHeaders.CONTINUE)) {
           HttpResponse tempResp = new HttpResponse(resp.getOutputStream());
           tempResp.send(HttpStatus.CONTINUE);
           resp.getOutputStream().flush();

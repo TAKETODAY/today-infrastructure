@@ -24,6 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.core.Constant;
 import cn.taketoday.web.WebConstant;
 
 /**
@@ -44,11 +45,11 @@ public @interface CookieValue {
   /**
    * The name of cookie.
    */
-  String value() default WebConstant.BLANK;
+  String value() default Constant.BLANK;
 
   /**
    * When required == false, and parameter == null. use default value.
    */
-  String defaultValue() default WebConstant.BLANK;
+  String defaultValue() default Constant.BLANK;
 
 }

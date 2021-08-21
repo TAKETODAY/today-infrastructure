@@ -45,7 +45,6 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.annotation.ActionMapping;
@@ -57,6 +56,7 @@ import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.HandlerMethodBuilder;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.handler.PathVariableMethodParameter;
+import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 import static cn.taketoday.util.CollectionUtils.newHashSet;
@@ -448,7 +448,7 @@ public class HandlerMethodRegistry
    */
   public HandlerInterceptor[] getInterceptors(Class<? extends HandlerInterceptor>[] interceptors) {
     if (ObjectUtils.isEmpty(interceptors)) {
-      return WebConstant.EMPTY_HANDLER_INTERCEPTOR;
+      return HandlerInterceptor.EMPTY_ARRAY;
     }
     final ApplicationContext beanFactory = obtainApplicationContext();
 

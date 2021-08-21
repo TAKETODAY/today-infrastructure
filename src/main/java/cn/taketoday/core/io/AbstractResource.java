@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import cn.taketoday.core.Constant;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.logger.Logger;
@@ -186,7 +185,7 @@ public abstract class AbstractResource implements Resource {
     final String[] names = list();
 
     if (StringUtils.isArrayEmpty(names)) {
-      return Constant.EMPTY_RESOURCE_ARRAY;
+      return EMPTY_ARRAY;
     }
 
     List<Resource> resources = new ArrayList<>();
@@ -197,7 +196,7 @@ public abstract class AbstractResource implements Resource {
       }
     }
     if (resources.isEmpty()) {
-      return Constant.EMPTY_RESOURCE_ARRAY;
+      return EMPTY_ARRAY;
     }
     return resources.toArray(new Resource[resources.size()]);
   }

@@ -85,7 +85,7 @@ public class DefaultBeanDefinition
   private String[] destroyMethods = Constant.EMPTY_STRING_ARRAY;
 
   /** property values */
-  private PropertySetter[] propertySetters = EMPTY_PROPERTY_VALUE;
+  private PropertySetter[] propertySetters = EMPTY_PROPERTY_SETTER;
 
   /**
    * <p>

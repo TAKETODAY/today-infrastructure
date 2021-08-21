@@ -67,7 +67,7 @@ public abstract class UndertowCompressionUtils {
     ContentEncodingRepository repository = new ContentEncodingRepository();
 
     repository.addEncodingHandler(
-            WebConstant.GZIP, new GzipEncodingProvider(), 50, Predicates.and(getCompressionPredicates(compression)));
+            HttpHeaders.GZIP, new GzipEncodingProvider(), 50, Predicates.and(getCompressionPredicates(compression)));
 
     return new EncodingHandler(repository).setNext(httpHandler);
   }

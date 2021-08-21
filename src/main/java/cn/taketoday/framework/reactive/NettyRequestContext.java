@@ -39,7 +39,6 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.http.DefaultHttpHeaders;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.resolver.ParameterReadFailedException;
@@ -116,10 +115,10 @@ public class NettyRequestContext extends RequestContext {
     if (socketAddress instanceof InetSocketAddress) {
       final int port = ((InetSocketAddress) socketAddress).getPort();
       if (port == 443) {
-        return WebConstant.HTTPS;
+        return Constant.HTTPS;
       }
     }
-    return WebConstant.HTTP;
+    return Constant.HTTP;
   }
 
   @Override

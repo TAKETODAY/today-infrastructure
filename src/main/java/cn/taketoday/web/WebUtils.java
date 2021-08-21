@@ -109,7 +109,7 @@ public abstract class WebUtils {
    * Is ajax request
    */
   public static boolean isAjax(HttpHeaders request) {
-    return WebConstant.XML_HTTP_REQUEST.equals(request.getFirst(HttpHeaders.X_REQUESTED_WITH));
+    return HttpHeaders.XML_HTTP_REQUEST.equals(request.getFirst(HttpHeaders.X_REQUESTED_WITH));
   }
 
   public static boolean isHeadRequest(RequestContext requestContext) {
@@ -132,12 +132,12 @@ public abstract class WebUtils {
                                   final Resource download, final int bufferSize) throws IOException //
   {
     context.setContentLength(download.contentLength());
-    context.setContentType(WebConstant.APPLICATION_FORCE_DOWNLOAD);
+    context.setContentType(HttpHeaders.APPLICATION_FORCE_DOWNLOAD);
     final HttpHeaders httpHeaders = context.responseHeaders();
 
-    httpHeaders.set(HttpHeaders.CONTENT_TRANSFER_ENCODING, WebConstant.BINARY);
+    httpHeaders.set(HttpHeaders.CONTENT_TRANSFER_ENCODING, HttpHeaders.BINARY);
     httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION,
-                    new StringBuilder(WebConstant.ATTACHMENT_FILE_NAME)
+                    new StringBuilder(HttpHeaders.ATTACHMENT_FILE_NAME)
                             .append(StringUtils.encodeUrl(download.getName()))
                             .append(WebConstant.QUOTATION_MARKS)
                             .toString()

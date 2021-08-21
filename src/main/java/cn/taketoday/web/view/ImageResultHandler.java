@@ -49,7 +49,7 @@ public class ImageResultHandler
     if (result != null) {
       context.setContentType("image/png");
       // sub classes can override this method to apply content type
-      ImageIO.write((RenderedImage) result, WebConstant.IMAGE_PNG, context.getOutputStream());
+      ImageIO.write((RenderedImage) result, IMAGE_PNG, context.getOutputStream());
     }
   }
 

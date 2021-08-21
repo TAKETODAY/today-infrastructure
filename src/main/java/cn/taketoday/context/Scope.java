@@ -20,7 +20,6 @@
 package cn.taketoday.context;
 
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.core.Constant;
 
 /**
  * @author TODAY <br>
@@ -28,10 +27,15 @@ import cn.taketoday.core.Constant;
  * @since 3.0
  */
 public interface Scope {
+  /**
+   * @since 2.1.7
+   */
+  String SINGLETON = "singleton";
 
-  String SINGLETON = Constant.SINGLETON;
-
-  String PROTOTYPE = Constant.PROTOTYPE;
+  /**
+   * @since 2.1.7
+   */
+  String PROTOTYPE = "prototype";
 
   /**
    * Return the object with the given {@link BeanDefinition} from the underlying

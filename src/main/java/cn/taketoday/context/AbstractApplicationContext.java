@@ -185,10 +185,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     postProcessLoadProperties(env);
 
     {// @since 2.1.6
-      if (env.getFlag(Constant.ENABLE_FULL_PROTOTYPE)) {
+      if (env.getFlag(ENABLE_FULL_PROTOTYPE)) {
         enableFullPrototype();
       }
-      if (env.getFlag(Constant.ENABLE_FULL_LIFECYCLE)) {
+      if (env.getFlag(ENABLE_FULL_LIFECYCLE)) {
         enableFullLifecycle();
       }
     }

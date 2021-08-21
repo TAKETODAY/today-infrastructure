@@ -38,15 +38,44 @@ import cn.taketoday.core.io.UrlBasedResource;
 import static cn.taketoday.core.Constant.BLANK;
 import static cn.taketoday.core.Constant.CLASS_PATH_PREFIX;
 import static cn.taketoday.core.Constant.PATH_SEPARATOR;
-import static cn.taketoday.core.Constant.PROTOCOL_FILE;
-import static cn.taketoday.core.Constant.PROTOCOL_JAR;
 
 /**
- * @author TODAY <br>
- * 2019-05-15 13:37
+ * @author TODAY 2019-05-15 13:37
  * @since 2.1.6
  */
 public abstract class ResourceUtils {
+
+  public static final String JAR_ENTRY_URL_PREFIX = "jar:file:";
+  public static final String JAR_SEPARATOR = "!/";
+  public static final String PROTOCOL_JAR = "jar";
+  public static final String PROTOCOL_FILE = "file";
+
+  /** URL prefix for loading from the file system: "file:". */
+  public static final String FILE_URL_PREFIX = "file:";
+  /** URL prefix for loading from a jar file: "jar:". */
+  public static final String JAR_URL_PREFIX = "jar:";
+  /** URL prefix for loading from a war file on Tomcat: "war:". */
+  public static final String WAR_URL_PREFIX = "war:";
+  /** URL protocol for a file in the file system: "file". */
+  public static final String URL_PROTOCOL_FILE = PROTOCOL_FILE;
+  /** URL protocol for an entry from a jar file: "jar". */
+  public static final String URL_PROTOCOL_JAR = PROTOCOL_JAR;
+  /** URL protocol for an entry from a war file: "war". */
+  public static final String URL_PROTOCOL_WAR = "war";
+  /** URL protocol for an entry from a zip file: "zip". */
+  public static final String URL_PROTOCOL_ZIP = "zip";
+  /** URL protocol for an entry from a WebSphere jar file: "wsjar". */
+  public static final String URL_PROTOCOL_WSJAR = "wsjar";
+  /** URL protocol for an entry from a JBoss jar file: "vfszip". */
+  public static final String URL_PROTOCOL_VFSZIP = "vfszip";
+  /** URL protocol for a JBoss file system resource: "vfsfile". */
+  public static final String URL_PROTOCOL_VFSFILE = "vfsfile";
+  /** File extension for a regular jar file: ".jar". */
+  public static final String JAR_FILE_EXTENSION = ".jar";
+  /** Separator between JAR URL and file path within the JAR: "!/". */
+  public static final String JAR_URL_SEPARATOR = JAR_SEPARATOR;
+  /** Special separator between WAR URL and jar part on Tomcat. */
+  public static final String WAR_URL_SEPARATOR = "*/";
 
   /**
    * Resolve the given location pattern into Resource objects.
@@ -184,7 +213,7 @@ public abstract class ResourceUtils {
    */
   public static boolean isFileURL(final URL url) {
     String protocol = url.getProtocol();
-    return (Constant.URL_PROTOCOL_FILE.equals(protocol) || Constant.URL_PROTOCOL_VFSFILE.equals(protocol));
+    return (URL_PROTOCOL_FILE.equals(protocol) || URL_PROTOCOL_VFSFILE.equals(protocol));
   }
 
   /**
@@ -198,11 +227,11 @@ public abstract class ResourceUtils {
    */
   public static boolean isJarURL(final URL url) {
     final String protocol = url.getProtocol();
-    return (Constant.URL_PROTOCOL_JAR.equals(protocol)
-            || Constant.URL_PROTOCOL_WAR.equals(protocol)
-            || Constant.URL_PROTOCOL_ZIP.equals(protocol)
-            || Constant.URL_PROTOCOL_VFSZIP.equals(protocol)
-            || Constant.URL_PROTOCOL_WSJAR.equals(protocol));
+    return (URL_PROTOCOL_JAR.equals(protocol)
+            || URL_PROTOCOL_WAR.equals(protocol)
+            || URL_PROTOCOL_ZIP.equals(protocol)
+            || URL_PROTOCOL_VFSZIP.equals(protocol)
+            || URL_PROTOCOL_WSJAR.equals(protocol));
   }
 
   /**
@@ -215,8 +244,8 @@ public abstract class ResourceUtils {
    * @return whether the URL has been identified as a JAR file URL
    */
   public static boolean isJarFileURL(final URL url) {
-    return (Constant.URL_PROTOCOL_FILE.equals(url.getProtocol()) &&
-            url.getPath().toLowerCase().endsWith(Constant.JAR_FILE_EXTENSION));
+    return (URL_PROTOCOL_FILE.equals(url.getProtocol()) &&
+            url.getPath().toLowerCase().endsWith(JAR_FILE_EXTENSION));
   }
 
   /**
@@ -233,7 +262,7 @@ public abstract class ResourceUtils {
    */
   public static URL extractJarFileURL(final URL jarUrl) throws MalformedURLException {
     String urlFile = jarUrl.getFile();
-    int separatorIndex = urlFile.indexOf(Constant.JAR_URL_SEPARATOR);
+    int separatorIndex = urlFile.indexOf(JAR_URL_SEPARATOR);
     if (separatorIndex != -1) {
       String jarFile = urlFile.substring(0, separatorIndex);
       try {
@@ -245,7 +274,7 @@ public abstract class ResourceUtils {
         if (!jarFile.startsWith("/")) {
           jarFile = '/' + jarFile;
         }
-        return new URL(Constant.FILE_URL_PREFIX.concat(jarFile));
+        return new URL(FILE_URL_PREFIX.concat(jarFile));
       }
     }
     else {
@@ -345,16 +374,16 @@ public abstract class ResourceUtils {
   public static URL extractArchiveURL(URL jarUrl) throws MalformedURLException {
     String urlFile = jarUrl.getFile();
 
-    int endIndex = urlFile.indexOf(Constant.WAR_URL_SEPARATOR);
+    int endIndex = urlFile.indexOf(WAR_URL_SEPARATOR);
     if (endIndex != -1) {
       // Tomcat's "war:file:...mywar.war*/WEB-INF/lib/myjar.jar!/myentry.txt"
       String warFile = urlFile.substring(0, endIndex);
-      if (Constant.URL_PROTOCOL_WAR.equals(jarUrl.getProtocol())) {
+      if (URL_PROTOCOL_WAR.equals(jarUrl.getProtocol())) {
         return new URL(warFile);
       }
-      int startIndex = warFile.indexOf(Constant.WAR_URL_PREFIX);
+      int startIndex = warFile.indexOf(WAR_URL_PREFIX);
       if (startIndex != -1) {
-        return new URL(warFile.substring(startIndex + Constant.WAR_URL_PREFIX.length()));
+        return new URL(warFile.substring(startIndex + WAR_URL_PREFIX.length()));
       }
     }
 

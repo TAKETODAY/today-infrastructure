@@ -28,6 +28,14 @@ import cn.taketoday.web.handler.HandlerAdapter;
  * @author TODAY 2018-06-25 20:06:11
  */
 public interface HandlerInterceptor {
+  /**
+   * empty HandlerInterceptor array
+   */
+  HandlerInterceptor[] EMPTY_ARRAY = {};
+
+  /**
+   * NONE_RETURN_VALUE
+   */
   Object NONE_RETURN_VALUE = HandlerAdapter.NONE_RETURN_VALUE;
 
   /**

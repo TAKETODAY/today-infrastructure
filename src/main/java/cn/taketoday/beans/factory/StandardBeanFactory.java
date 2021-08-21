@@ -811,7 +811,7 @@ public class StandardBeanFactory
     }
 
     return propertySetters.isEmpty()
-           ? BeanDefinition.EMPTY_PROPERTY_VALUE
+           ? BeanDefinition.EMPTY_PROPERTY_SETTER
            : propertySetters.toArray(new PropertySetter[propertySetters.size()]);
   }
 

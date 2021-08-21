@@ -38,6 +38,9 @@ import cn.taketoday.context.Scope;
  */
 public interface BeanFactory {
 
+  String ENABLE_FULL_PROTOTYPE = "enable.full.prototype";
+  String ENABLE_FULL_LIFECYCLE = "enable.full.lifecycle";
+
   /**
    * If a bean name start with this its a {@link FactoryBean}
    */
