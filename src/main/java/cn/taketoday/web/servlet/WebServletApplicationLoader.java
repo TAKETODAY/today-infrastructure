@@ -54,6 +54,7 @@ import cn.taketoday.web.config.WebApplicationLoader;
 import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.WebApplicationFailedEvent;
 import cn.taketoday.web.handler.DispatcherHandler;
+import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.resolver.ServletParameterResolvers;
 import cn.taketoday.web.servlet.initializer.DispatcherServletInitializer;
@@ -91,7 +92,7 @@ public class WebServletApplicationLoader
   protected String getWebMvcConfigLocation() {
     String webMvcConfigLocation = super.getWebMvcConfigLocation();
     if (StringUtils.isEmpty(webMvcConfigLocation)) {
-      webMvcConfigLocation = getServletContext().getInitParameter(WebConstant.WEB_MVC_CONFIG_LOCATION);
+      webMvcConfigLocation = getServletContext().getInitParameter(WEB_MVC_CONFIG_LOCATION);
     }
     if (StringUtils.isEmpty(webMvcConfigLocation)) { // scan from '/'
       final String rootPath = getServletContext().getRealPath("/");
@@ -194,7 +195,7 @@ public class WebServletApplicationLoader
         servletContext.setRequestCharacterEncoding(getRequestCharacterEncoding());
         servletContext.setResponseCharacterEncoding(getResponseCharacterEncoding());
       }
-      catch (Throwable ignored) {}
+      catch (Throwable ignored) { }
       onStartup(context);
     }
     catch (Throwable ex) {

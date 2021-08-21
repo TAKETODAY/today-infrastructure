@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
+import cn.taketoday.util.MediaType;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.handler.MethodParameter;
@@ -67,7 +68,7 @@ public abstract class MessageConverter {
   }
 
   protected void applyContentType(RequestContext context) {
-    context.setContentType(WebConstant.CONTENT_TYPE_JSON);
+    context.setContentType(MediaType.APPLICATION_JSON_VALUE);
   }
 
   protected void writeStringInternal(RequestContext context, String message) throws IOException {

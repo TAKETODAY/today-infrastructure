@@ -53,9 +53,9 @@ public class DefaultCorsProcessor implements CorsProcessor {
   public boolean process(final CorsConfiguration config, final RequestContext context) throws IOException {
     final HttpHeaders responseHeaders = context.responseHeaders();
     responseHeaders.setVary(
-            Arrays.asList(WebConstant.ORIGIN,
-                          WebConstant.ACCESS_CONTROL_REQUEST_METHOD,
-                          WebConstant.ACCESS_CONTROL_REQUEST_HEADERS
+            Arrays.asList(HttpHeaders.ORIGIN,
+                          HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD,
+                          HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS
             )
     );
 
@@ -63,7 +63,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
       return true;
     }
 
-    if (responseHeaders.containsKey(WebConstant.ACCESS_CONTROL_ALLOW_ORIGIN)) {
+    if (responseHeaders.containsKey(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)) {
       log.trace("Skip: response already contains \"Access-Control-Allow-Origin\"");
       return true;
     }
@@ -167,7 +167,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
   }
 
   private String getMethodToUse(RequestContext context, boolean isPreFlight) {
-    return isPreFlight ? context.requestHeaders().getFirst(WebConstant.ACCESS_CONTROL_REQUEST_METHOD) : context.getMethod();
+    return isPreFlight ? context.requestHeaders().getFirst(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD) : context.getMethod();
   }
 
   /**

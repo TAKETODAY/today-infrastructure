@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.web.WebConstant;
+import cn.taketoday.web.http.HttpHeaders;
 import io.undertow.predicate.Predicate;
 import io.undertow.predicate.Predicates;
 import io.undertow.server.HttpHandler;
@@ -206,7 +207,7 @@ public abstract class UndertowCompressionUtils {
 
     @Override
     public boolean resolve(HttpServerExchange httpServerExchange) {
-      final String contentType = httpServerExchange.getResponseHeaders().getFirst(WebConstant.CONTENT_TYPE);
+      final String contentType = httpServerExchange.getResponseHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
       if (StringUtils.isNotEmpty(contentType)) {
         for (String mimeType : this.mimeTypes) {
           if (matches(mimeType, contentType)) {

@@ -41,6 +41,7 @@ import static cn.taketoday.cglib.core.TypeUtils.parseType;
  * 2018-01-16 10:56
  */
 public interface Constant extends Serializable {
+  String QUOTATION_MARKS = "\"";
 
   String META_INFO_beans = "META-INF/beans";
   String META_INFO_listeners = "META-INF/listeners";

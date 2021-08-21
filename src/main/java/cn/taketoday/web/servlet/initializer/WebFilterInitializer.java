@@ -81,7 +81,7 @@ public class WebFilterInitializer<T extends Filter>
     final Collection<String> urlMappings = getUrlMappings();
 
     if (servletNames.isEmpty() && urlMappings.isEmpty()) {
-      registration.addMappingForUrlPatterns(dispatcherTypes, this.matchAfter, WebConstant.DEFAULT_MAPPINGS);
+      registration.addMappingForUrlPatterns(dispatcherTypes, this.matchAfter, DEFAULT_MAPPINGS);
     }
     else {
       if (!servletNames.isEmpty()) {

@@ -32,7 +32,7 @@ public class HeaderTokenResolver implements TokenResolver {
 
   private boolean exposeHeaders = true;
 
-  private String authorizationHeader = WebConstant.AUTHORIZATION;
+  private String authorizationHeader = HttpHeaders.AUTHORIZATION;
 
   // X-Required-Authorization
   private String requiredAuthorizationHeader = WebConstant.X_REQUIRED_AUTHORIZATION;
@@ -78,7 +78,7 @@ public class HeaderTokenResolver implements TokenResolver {
     responseHeaders.set(requiredAuthorizationHeader, session.getId());
 
     if (isExposeHeaders()) {
-      responseHeaders.add(WebConstant.ACCESS_CONTROL_EXPOSE_HEADERS, requiredAuthorizationHeader);
+      responseHeaders.add(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, requiredAuthorizationHeader);
     }
   }
 

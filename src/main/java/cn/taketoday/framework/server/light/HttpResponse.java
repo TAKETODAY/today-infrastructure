@@ -34,8 +34,8 @@ import java.util.Map;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPOutputStream;
 
+import cn.taketoday.util.MediaType;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.http.DefaultHttpHeaders;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpStatus;
@@ -171,7 +171,7 @@ public class HttpResponse implements Closeable {
       final byte[] content = text.getBytes(StandardCharsets.UTF_8);
       final DefaultHttpHeaders headers = this.headers;
       headers.setETag("W/\"" + Integer.toHexString(text.hashCode()) + "\"");
-      headers.set(WebConstant.CONTENT_TYPE, "text/html; charset=utf-8");
+      headers.set(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE);
       write(status, headers, ResponseOutputBuffer.ofBytes(content));
     }
     else {
@@ -242,7 +242,7 @@ public class HttpResponse implements Closeable {
     catch (URISyntaxException e) {
       throw new IOException("malformed URL: " + url);
     }
-    headers.add(WebConstant.LOCATION, url);
+    headers.add(HttpHeaders.LOCATION, url);
     // some user-agents expect a body, so we send it
     if (permanent)
       send(HttpStatus.PERMANENT_REDIRECT, "Permanently moved to " + url);
@@ -278,7 +278,7 @@ public class HttpResponse implements Closeable {
     int i = encoders.length - 1;
     encoders[i] = new FilterOutputStream(out) {
       @Override
-      public void close() {} // keep underlying connection stream open for now
+      public void close() { } // keep underlying connection stream open for now
 
       @Override // override the very inefficient default implementation
       public void write(byte[] b, int off, int len) throws IOException {
@@ -388,17 +388,17 @@ public class HttpResponse implements Closeable {
   }
 
   protected void prepareHttpHeaders(HttpHeaders headers, ResponseOutputBuffer responseBody) {
-    if (!headers.containsKey(WebConstant.DATE)) {
+    if (!headers.containsKey(HttpHeaders.DATE)) {
 //      final String date = DateTimeFormatter.RFC_1123_DATE_TIME.format(LocalDateTime.now());
 //      headers.add(Constant.DATE, date);
       headers.setDate(System.currentTimeMillis()); // todo
     }
     if (serverHeader != null) {
-      headers.add(WebConstant.SERVER, serverHeader);
+      headers.add(HttpHeaders.SERVER, serverHeader);
     }
-    if (!headers.containsKey(WebConstant.VARY)) {
+    if (!headers.containsKey(HttpHeaders.VARY)) {
       // RFC7231#7.1.4: Vary field should include headers
-      headers.add(WebConstant.VARY, WebConstant.ACCEPT_ENCODING); // that are used in selecting representation
+      headers.add(HttpHeaders.VARY, HttpHeaders.ACCEPT_ENCODING); // that are used in selecting representation
     }
     if (responseBody == null) {
       headers.setContentLength(0);

@@ -463,13 +463,13 @@ public class HTTPServer {
     // validate request
     String version = req.getVersion();
     if (version.equals("HTTP/1.1")) {
-      if (!reqHeaders.containsKey(WebConstant.HOST)) {
+      if (!reqHeaders.containsKey(HttpHeaders.HOST)) {
         // RFC2616#14.23: missing Host header gets 400
         resp.sendError(HttpStatus.BAD_REQUEST, "Missing required Host header");
         return false;
       }
       // return a continue response before reading body
-      String expect = reqHeaders.getFirst(WebConstant.EXPECT);
+      String expect = reqHeaders.getFirst(HttpHeaders.EXPECT);
       if (expect != null) {
         if (expect.equalsIgnoreCase(WebConstant.CONTINUE)) {
           HttpResponse tempResp = new HttpResponse(resp.getOutputStream());
@@ -485,7 +485,7 @@ public class HTTPServer {
     }
     else if (version.equals("HTTP/1.0") || version.equals("HTTP/0.9")) {
       // RFC2616#14.10 - remove connection headers from older versions
-      for (String token : splitElements(reqHeaders.getFirst(WebConstant.CONNECTION), false))
+      for (String token : splitElements(reqHeaders.getFirst(HttpHeaders.CONNECTION), false))
         reqHeaders.remove(token);
     }
     else {

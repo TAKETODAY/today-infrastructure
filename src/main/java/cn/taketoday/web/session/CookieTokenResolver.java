@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import cn.taketoday.core.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebConstant;
+import cn.taketoday.web.http.HttpHeaders;
 
 /**
  * @author TODAY <br>
@@ -36,7 +37,7 @@ public class CookieTokenResolver implements TokenResolver {
   private HttpCookie sessionCookie;
 
   public CookieTokenResolver() {
-    this(WebConstant.AUTHORIZATION);
+    this(HttpHeaders.AUTHORIZATION);
   }
 
   public CookieTokenResolver(String cookieName) {

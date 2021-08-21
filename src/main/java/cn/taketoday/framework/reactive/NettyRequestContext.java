@@ -146,7 +146,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public String getRequestURL() {
-    final String host = request.headers().get(WebConstant.HOST);
+    final String host = request.headers().get(HttpHeaderNames.HOST);
     return getScheme() + "://" + host + getRequestPath();
   }
 

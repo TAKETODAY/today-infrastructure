@@ -807,7 +807,7 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    *         a <code>String</code> specifying the MIME type of the content
    */
   public void setContentType(String contentType) {
-    responseHeaders().set(WebConstant.CONTENT_TYPE, contentType);
+    responseHeaders().set(HttpHeaders.CONTENT_TYPE, contentType);
   }
 
   /**

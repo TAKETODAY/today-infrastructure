@@ -84,7 +84,7 @@ public class LightRequestContext extends RequestContext {
   @Override
   protected HttpCookie[] doGetCookies() {
     final HttpHeaders headers = request.getHeaders();
-    final List<String> allCookie = headers.get(WebConstant.COOKIE);
+    final List<String> allCookie = headers.get(HttpHeaders.COOKIE);
     if (CollectionUtils.isEmpty(allCookie)) {
       return EMPTY_COOKIES;
     }
@@ -95,7 +95,7 @@ public class LightRequestContext extends RequestContext {
   @Override
   public void addCookie(HttpCookie cookie) {
     final String header = cookie.toString();
-    responseHeaders().add(WebConstant.SET_COOKIE, header);
+    responseHeaders().add(HttpHeaders.SET_COOKIE, header);
   }
 
   @Override
@@ -194,7 +194,7 @@ public class LightRequestContext extends RequestContext {
 
   @Override
   public String getContentType() {
-    return request.getHeaders().getFirst(WebConstant.CONTENT_TYPE);
+    return request.getHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
   }
 
   @Override

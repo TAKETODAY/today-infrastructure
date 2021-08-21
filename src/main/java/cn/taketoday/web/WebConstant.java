@@ -20,10 +20,7 @@
 package cn.taketoday.web;
 
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.web.handler.HandlerExceptionHandler;
-import cn.taketoday.web.handler.ResourceMatchResult;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.resolver.ParameterResolver;
 
 /**
  * @author TODAY  2018 1 ? - 2018 3 8
@@ -47,180 +44,144 @@ public interface WebConstant extends cn.taketoday.core.Constant {
   String METHOD_NOT_ALLOWED = "Method Not Allowed";
   String INTERNAL_SERVER_ERROR = "Internal Server Error";
 
-	// Resolver
+  // Resolver
 
-	// the dtd
-	String	DTD_NAME										= "web-configuration";
-	String	WEB_MVC_CONFIG_LOCATION			= "WebMvcConfigLocation";
 
-	// config
-	String	ATTR_ID									= "id";
-	String	ATTR_CLASS							= "class";
-	String	ATTR_RESOURCE						= "resource";
-	String	ATTR_NAME								= "name";
-	String	ATTR_VALUE							= VALUE;
-	String	ATTR_ORDER							= "order";
-	String	ATTR_METHOD							= "method";
-	String	ATTR_MAPPING						= "mapping";
-	/** resource location @since 2.3.7 */
-	String	ATTR_LOCATION						= "location";
-	String	ATTR_PREFIX							= "prefix";
-	String	ATTR_SUFFIX							= "suffix";
+  String IMAGE_PNG = "png";
+  String HTTP = "http";
+  String HTTPS = "https";
 
-	/**
-	 * The resoure's content type
-	 * @since 2.3.3
-	 */
-	String	ATTR_CONTENT_TYPE					= "content-type";
-	/** The response status @since 2.3.7 */
-	String	ATTR_STATUS							= "status";
+  /*****************************************************
+   * default values
+   */
+  // default font
+  String DEFAULT_FONT = "Verdana";
 
-	String  VALUE_FORWARD 						= "forward";
-	String  VALUE_REDIRECT 						= "redirect";
+  /**
+   * default values end
+   *******************************************************/
 
-	String	ELEMENT_ACTION						= "action";
-	String	ELEMENT_CONTROLLER					= "controller";
-	String	ROOT_ELEMENT						= "Web-Configuration";
+  // Headers
+  //-------------------------------------------------------
+/*
+  String TE = "TE";
+  String AGE = "Age";
+  String VIA = "Via";
+  String DATE = "Date";
+  String ETAG = "ETag";
+  String FROM = "From";
+  String VARY = "Vary";
+  String HOST = "Host";
+  String ALLOW = "Allow";
+  String RANGE = "Range";
+  String COOKIE = "Cookie";
+  String EXPECT = "Expect";
+  String ACCEPT = "Accept";
+  String PRAGMA = "Pragma";
+  String ORIGIN = "Origin";
+  String SERVER = "Server";
+  String EXPIRES = "Expires";
+  String REFERER = "Referer";
+  String TRAILER = "Trailer";
+  String UPGRADE = "Upgrade";
+  String WARNING = "Warning";
+  String IF_MATCH = "If-Match";
+  String IF_RANGE = "If-Range";
+  String LOCATION = "Location";
+  String CONNECTION = "Connection";
+  String SET_COOKIE = "Set-Cookie";
+  String USER_AGENT = "User-Agent";
+  String RETRY_AFTER = "Retry-After";
+  String SET_COOKIE2 = "Set-Cookie2";
+  String CONTENT_MD5 = "Content-MD5";
+  String CONTENT_BASE = "Content-Base";
+  String CONTENT_TYPE = "Content-Type";
+  String MAX_FORWARDS = "Max-Forwards";
+  String ACCEPT_PATCH = "Accept-Patch";
+  String AUTHORIZATION = "Authorization";
+  String CACHE_CONTROL = "Cache-Control";
+  String CONTENT_RANGE = "Content-Range";
+  String IF_NONE_MATCH = "If-None-Match";
+  String LAST_MODIFIED = "Last-Modified";
+  String ACCEPT_RANGES = "Accept-Ranges";
+  String CONTENT_LENGTH = "Content-Length";
+  String ACCEPT_CHARSET = "Accept-Charset";
+  String ACCEPT_ENCODING = "Accept-Encoding";
+  String ACCEPT_LANGUAGE = "Accept-Language";
+  String WEBSOCKET_ORIGIN = "WebSocket-Origin";
+  String X_REQUESTED_WITH = "X-Requested-With";
+  String WWW_AUTHENTICATE = "WWW-Authenticate";
+  String CONTENT_ENCODING = "Content-Encoding";
+  String CONTENT_LANGUAGE = "Content-Language";
+  String CONTENT_LOCATION = "Content-Location";
+  String TRANSFER_ENCODING = "Transfer-Encoding";
+  String SEC_WEBSOCKET_KEY = "Sec-WebSocket-Key";
+  String IF_MODIFIED_SINCE = "If-Modified-Since";
+  String WEBSOCKET_LOCATION = "WebSocket-Location";
+  String WEBSOCKET_PROTOCOL = "WebSocket-Protocol";
+  String PROXY_AUTHENTICATE = "Proxy-Authenticate";
+  String SEC_WEBSOCKET_KEY1 = "Sec-WebSocket-Key1";
+  String SEC_WEBSOCKET_KEY2 = "Sec-WebSocket-Key2";
+  String PROXY_AUTHORIZATION = "Proxy-Authorization";
+  String IF_UNMODIFIED_SINCE = "If-Unmodified-Since";
+  String CONTENT_DISPOSITION = "Content-Disposition";
+  String SEC_WEBSOCKET_ORIGIN = "Sec-WebSocket-Origin";
+  String SEC_WEBSOCKET_ACCEPT = "Sec-WebSocket-Accept";
+  String SEC_WEBSOCKET_VERSION = "Sec-WebSocket-Version";
+  String SEC_WEBSOCKET_PROTOCOL = "Sec-WebSocket-Protocol";
+  String SEC_WEBSOCKET_EXTENSIONS = "Sec-WebSocket-Extensions";
 
-	String	CONTENT_TYPE_IMAGE					= "image/jpeg";
+  String SEC_WEBSOCKET_LOCATION = "Sec-WebSocket-Location";
+  String ACCESS_CONTROL_MAX_AGE = "Access-Control-Max-Age";
+  String CONTENT_TRANSFER_ENCODING = "Content-Transfer-Encoding";
+  String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
+  String ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers";
+  String ACCESS_CONTROL_ALLOW_METHODS = "Access-Control-Allow-Methods";
+  String ACCESS_CONTROL_REQUEST_METHOD = "Access-Control-Request-Method";
+  String ACCESS_CONTROL_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
+  String ACCESS_CONTROL_REQUEST_HEADERS = "Access-Control-Request-Headers";
+  String ACCESS_CONTROL_ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials";
+*/
 
-	String	QUOTATION_MARKS							= "\"";
-	String	IMAGE_PNG										= "png";
-	String	HTTP												= "http";
-	String	HTTPS												= "https";
-
-	/*****************************************************
-	 * default values
-	 */
-	// default font
-	String	DEFAULT_FONT						= "Verdana";
-	/** @since 2.3.3 */
-	String 	DEFAULT_CONTENT_TYPE				= "text/html;charset=UTF-8";
-	String	CONTENT_TYPE_JSON					= "application/json;charset=UTF-8";
-	
-	/**
-	 * default values end
-	 *******************************************************/
-	
-	// Headers
-	//-------------------------------------------------------
-	String	TE									= "TE";
-	String	AGE									= "Age";
-	String	VIA									= "Via";
-	String	DATE								= "Date";
-	String	ETAG								= "ETag";
-	String	FROM								= "From";
-	String	VARY								= "Vary";
-	String	HOST								= "Host";
-	String	ALLOW								= "Allow";
-	String	RANGE								= "Range";
-	String	COOKIE								= "Cookie";
-	String	EXPECT								= "Expect";
-	String	ACCEPT								= "Accept";
-	String	PRAGMA								= "Pragma";
-	String	ORIGIN								= "Origin";
-	String	SERVER								= "Server";
-	String	EXPIRES								= "Expires";
-	String	REFERER								= "Referer";
-	String	TRAILER								= "Trailer";
-	String	UPGRADE								= "Upgrade";
-	String	WARNING								= "Warning";
-	String	IF_MATCH							= "If-Match";
-	String	IF_RANGE							= "If-Range";
-	String	LOCATION							= "Location";
-	String	CONNECTION							= "Connection";
-	String	SET_COOKIE							= "Set-Cookie";
-	String	USER_AGENT							= "User-Agent";
-	String	RETRY_AFTER							= "Retry-After";
-	String	SET_COOKIE2							= "Set-Cookie2";
-	String	CONTENT_MD5							= "Content-MD5";
-	String	CONTENT_BASE						= "Content-Base";
-	String	CONTENT_TYPE						= "Content-Type";
-	String	MAX_FORWARDS						= "Max-Forwards";
-	String	ACCEPT_PATCH						= "Accept-Patch";
-	String	AUTHORIZATION						= "Authorization";
-	String	CACHE_CONTROL						= "Cache-Control";
-	String	CONTENT_RANGE						= "Content-Range";
-	String	IF_NONE_MATCH						= "If-None-Match";
-	String	LAST_MODIFIED						= "Last-Modified";
-	String	ACCEPT_RANGES						= "Accept-Ranges";
-	String	CONTENT_LENGTH						= "Content-Length";
-	String	ACCEPT_CHARSET						= "Accept-Charset";
-	String	ACCEPT_ENCODING						= "Accept-Encoding";
-	String	ACCEPT_LANGUAGE						= "Accept-Language";
-	String	WEBSOCKET_ORIGIN					= "WebSocket-Origin";
-	String	X_REQUESTED_WITH					= "X-Requested-With";
-	String	WWW_AUTHENTICATE					= "WWW-Authenticate";
-	String	CONTENT_ENCODING					= "Content-Encoding";
-	String	CONTENT_LANGUAGE					= "Content-Language";
-	String	CONTENT_LOCATION					= "Content-Location";
-	String	TRANSFER_ENCODING					= "Transfer-Encoding";
-	String	SEC_WEBSOCKET_KEY					= "Sec-WebSocket-Key";
-	String	IF_MODIFIED_SINCE					= "If-Modified-Since";
-	String	WEBSOCKET_LOCATION					= "WebSocket-Location";
-	String	WEBSOCKET_PROTOCOL					= "WebSocket-Protocol";
-	String	PROXY_AUTHENTICATE					= "Proxy-Authenticate";
-	String	SEC_WEBSOCKET_KEY1					= "Sec-WebSocket-Key1";
-	String	SEC_WEBSOCKET_KEY2					= "Sec-WebSocket-Key2";
-	String	PROXY_AUTHORIZATION					= "Proxy-Authorization";
-	String	IF_UNMODIFIED_SINCE					= "If-Unmodified-Since";
-	String 	CONTENT_DISPOSITION					= "Content-Disposition";
-	String	SEC_WEBSOCKET_ORIGIN				= "Sec-WebSocket-Origin";
-	String	SEC_WEBSOCKET_ACCEPT				= "Sec-WebSocket-Accept";
-	String	SEC_WEBSOCKET_VERSION				= "Sec-WebSocket-Version";
-	String	SEC_WEBSOCKET_PROTOCOL			= "Sec-WebSocket-Protocol";
-	String  SEC_WEBSOCKET_EXTENSIONS		= "Sec-WebSocket-Extensions";
-
-	String	SEC_WEBSOCKET_LOCATION				= "Sec-WebSocket-Location";
-	String	ACCESS_CONTROL_MAX_AGE				= "Access-Control-Max-Age";
-	String	CONTENT_TRANSFER_ENCODING			= "Content-Transfer-Encoding";
-	String	ACCESS_CONTROL_ALLOW_ORIGIN			= "Access-Control-Allow-Origin";
-	String	ACCESS_CONTROL_ALLOW_HEADERS		= "Access-Control-Allow-Headers";
-	String	ACCESS_CONTROL_ALLOW_METHODS		= "Access-Control-Allow-Methods";
-	String	ACCESS_CONTROL_REQUEST_METHOD		= "Access-Control-Request-Method";
-	String	ACCESS_CONTROL_EXPOSE_HEADERS		= "Access-Control-Expose-Headers";
-	String	ACCESS_CONTROL_REQUEST_HEADERS		= "Access-Control-Request-Headers";
-	String	ACCESS_CONTROL_ALLOW_CREDENTIALS	= "Access-Control-Allow-Credentials";
-
-	// Values
-	//----------------------------------------------------
-	String	NONE								= "none";
-	String	GZIP								= "gzip";
-	String	BYTES								= "bytes";
-	String	CLOSE								= "close";
-	String	PUBLIC								= "public";
-	String	BASE64								= "base64";
-	String	BINARY								= "binary";
-	String	CHUNKED								= "chunked";
-	String	CHARSET								= "charset";
-	String	MAX_AGE								= "max-age";
-	String	DEFLATE								= "deflate";
-	String	PRIVATE								= "private";
-	String	BOUNDARY							= "boundary";
-	String	IDENTITY							= "identity";
-	String	NO_CACHE							= "no-cache";
-	String	NO_STORE							= "no-store";
-	String	S_MAXAGE							= "s-maxage";
-	String	TRAILERS							= "trailers";
-	String	COMPRESS							= "compress";
-	String	MAX_STALE							= "max-stale";
-	String	MIN_FRESH							= "min-fresh";
-	String	WEBSOCKET							= "WebSocket";
-	String	KEEP_ALIVE							= "keep-alive";
-	String	GZIP_DEFLATE						= "gzip,deflate";
-	String	CONTINUE							= "100-continue";
-	String	NO_TRANSFORM						= "no-transform";
-	String	ONLY_IF_CACHED						= "only-if-cached";
-	String	XML_HTTP_REQUEST					= "XMLHttpRequest";
-	String	MUST_REVALIDATE						= "must-revalidate";
-	String	PROXY_REVALIDATE					= "proxy-revalidate";
-	String	QUOTED_PRINTABLE					= "quoted-printable";
-	String	MULTIPART_FORM_DATA					= "multipart/form-data";
-	String 	INLINE_FILE_NAME					= "inline;filename=\"";
-	String 	ATTACHMENT_FILE_NAME				= "attachment;filename=\"";
-	String 	APPLICATION_OCTET_STREAM			= "application/octet-stream";
-	String 	APPLICATION_FORCE_DOWNLOAD  		= "application/force-download;";
-	String	APPLICATION_X_WWW_FORM_URLENCODED	= "application/x-www-form-urlencoded";
-	// @on
+  // Values
+  //----------------------------------------------------
+  String NONE = "none";
+  String GZIP = "gzip";
+  String BYTES = "bytes";
+  String CLOSE = "close";
+  String PUBLIC = "public";
+  String BASE64 = "base64";
+  String BINARY = "binary";
+  String CHUNKED = "chunked";
+  String CHARSET = "charset";
+  String MAX_AGE = "max-age";
+  String DEFLATE = "deflate";
+  String PRIVATE = "private";
+  String BOUNDARY = "boundary";
+  String IDENTITY = "identity";
+  String NO_CACHE = "no-cache";
+  String NO_STORE = "no-store";
+  String S_MAXAGE = "s-maxage";
+  String TRAILERS = "trailers";
+  String COMPRESS = "compress";
+  String MAX_STALE = "max-stale";
+  String MIN_FRESH = "min-fresh";
+  String WEBSOCKET = "WebSocket";
+  String KEEP_ALIVE = "keep-alive";
+  String GZIP_DEFLATE = "gzip,deflate";
+  String CONTINUE = "100-continue";
+  String NO_TRANSFORM = "no-transform";
+  String ONLY_IF_CACHED = "only-if-cached";
+  String XML_HTTP_REQUEST = "XMLHttpRequest";
+  String MUST_REVALIDATE = "must-revalidate";
+  String PROXY_REVALIDATE = "proxy-revalidate";
+  String QUOTED_PRINTABLE = "quoted-printable";
+  String MULTIPART_FORM_DATA = "multipart/form-data";
+  String INLINE_FILE_NAME = "inline;filename=\"";
+  String ATTACHMENT_FILE_NAME = "attachment;filename=\"";
+  String APPLICATION_OCTET_STREAM = "application/octet-stream";
+  String APPLICATION_FORCE_DOWNLOAD = "application/force-download;";
+  String APPLICATION_X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
+  // @on
 
 }

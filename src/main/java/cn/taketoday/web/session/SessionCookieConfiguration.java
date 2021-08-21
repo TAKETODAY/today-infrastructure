@@ -24,6 +24,7 @@ import java.net.HttpCookie;
 import java.time.Duration;
 
 import cn.taketoday.web.WebConstant;
+import cn.taketoday.web.http.HttpHeaders;
 
 /**
  * Session cookie properties.
@@ -33,7 +34,7 @@ import cn.taketoday.web.WebConstant;
  */
 public class SessionCookieConfiguration {
 
-  private String name = WebConstant.AUTHORIZATION;
+  private String name = HttpHeaders.AUTHORIZATION;
   private String path = "/";
   private String domain;
   private String comment;

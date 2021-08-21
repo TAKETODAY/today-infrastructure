@@ -54,6 +54,7 @@ import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.config.WebApplicationLoader;
+import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.session.SessionConfiguration;
 
 /**
@@ -134,7 +135,7 @@ public abstract class AbstractWebServer
       Starter starter;
       ConfigurableEnvironment environment = (ConfigurableEnvironment) context.getEnvironment();
       environment.setProperty(WebApplicationLoader.ENABLE_WEB_STARTED_LOG, Boolean.FALSE.toString());
-      String webMvcConfigLocation = environment.getProperty(WebConstant.WEB_MVC_CONFIG_LOCATION);
+      String webMvcConfigLocation = environment.getProperty(WebApplicationLoader.WEB_MVC_CONFIG_LOCATION);
       if (StringUtils.isNotEmpty(webMvcConfigLocation)) {
         environment.setProperty(WebApplicationLoader.ENABLE_WEB_MVC_XML, Boolean.TRUE.toString());
       }
@@ -143,7 +144,7 @@ public abstract class AbstractWebServer
         webMvcConfigLocation = starter.webMvcConfigLocation();
         if (StringUtils.isNotEmpty(webMvcConfigLocation)) {
           environment.setProperty(WebApplicationLoader.ENABLE_WEB_MVC_XML, Boolean.TRUE.toString());
-          environment.setProperty(WebConstant.WEB_MVC_CONFIG_LOCATION, webMvcConfigLocation);
+          environment.setProperty(WebApplicationLoader.WEB_MVC_CONFIG_LOCATION, webMvcConfigLocation);
         }
       }
     }

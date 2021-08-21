@@ -39,8 +39,8 @@ import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.DefaultResponseStatus;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.http.HttpMethod;
+import cn.taketoday.web.http.HttpStatus;
 
 /**
  * @author TODAY <br>
@@ -109,7 +109,7 @@ public abstract class WebUtils {
    * Is ajax request
    */
   public static boolean isAjax(HttpHeaders request) {
-    return WebConstant.XML_HTTP_REQUEST.equals(request.getFirst(WebConstant.X_REQUESTED_WITH));
+    return WebConstant.XML_HTTP_REQUEST.equals(request.getFirst(HttpHeaders.X_REQUESTED_WITH));
   }
 
   public static boolean isHeadRequest(RequestContext requestContext) {
@@ -135,8 +135,8 @@ public abstract class WebUtils {
     context.setContentType(WebConstant.APPLICATION_FORCE_DOWNLOAD);
     final HttpHeaders httpHeaders = context.responseHeaders();
 
-    httpHeaders.set(WebConstant.CONTENT_TRANSFER_ENCODING, WebConstant.BINARY);
-    httpHeaders.set(WebConstant.CONTENT_DISPOSITION,
+    httpHeaders.set(HttpHeaders.CONTENT_TRANSFER_ENCODING, WebConstant.BINARY);
+    httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION,
                     new StringBuilder(WebConstant.ATTACHMENT_FILE_NAME)
                             .append(StringUtils.encodeUrl(download.getName()))
                             .append(WebConstant.QUOTATION_MARKS)
@@ -247,7 +247,7 @@ public abstract class WebUtils {
 
     // If-None-Match header should contain "*" or ETag. If so, then return 304
     final HttpHeaders requestHeaders = context.requestHeaders();
-    final String ifNoneMatch = requestHeaders.getFirst(WebConstant.IF_NONE_MATCH);
+    final String ifNoneMatch = requestHeaders.getFirst(HttpHeaders.IF_NONE_MATCH);
     if (matches(ifNoneMatch, eTag)) {
       context.responseHeaders().setETag(eTag); // 304.
       context.setStatus(HttpStatus.NOT_MODIFIED);
@@ -270,7 +270,7 @@ public abstract class WebUtils {
     // ----------------------------------------------------
 
     // If-Match header should contain "*" or ETag. If not, then return 412
-    final String ifMatch = requestHeaders.getFirst(WebConstant.IF_MATCH);
+    final String ifMatch = requestHeaders.getFirst(HttpHeaders.IF_MATCH);
     if (ifMatch != null && !matches(ifMatch, eTag)) {
 //      context.status(412);
       context.setStatus(HttpStatus.PRECONDITION_FAILED);

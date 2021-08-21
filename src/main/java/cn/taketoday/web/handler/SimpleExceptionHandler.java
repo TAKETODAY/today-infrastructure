@@ -29,14 +29,15 @@ import javax.imageio.ImageIO;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.MediaType;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebConstant;
+import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.http.HttpStatusCapable;
-import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.TemplateResultHandler;
 
@@ -179,7 +180,7 @@ public class SimpleExceptionHandler
    *         current request context
    */
   protected void writeErrorMessage(Throwable ex, RequestContext context) throws IOException {
-    context.setContentType(WebConstant.CONTENT_TYPE_JSON);
+    context.setContentType(MediaType.APPLICATION_JSON_VALUE);
     final PrintWriter writer = context.getWriter();
     writer.write(buildDefaultErrorMessage(ex));
     writer.flush();
@@ -237,7 +238,7 @@ public class SimpleExceptionHandler
 
     Assert.state(resource != null, "System Error");
 
-    context.setContentType(WebConstant.CONTENT_TYPE_IMAGE);
+    context.setContentType(MediaType.IMAGE_JPEG_VALUE);
     return ImageIO.read(resource);
   }
 

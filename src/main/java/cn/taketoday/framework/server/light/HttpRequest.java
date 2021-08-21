@@ -95,7 +95,7 @@ public final class HttpRequest {
     // the body, and in any case ignore Content-Length.
     // if there is no such Transfer-Encoding, use Content-Length
     // if neither header exists, there is no body
-    String header = requestHeaders.getFirst(WebConstant.TRANSFER_ENCODING);
+    String header = requestHeaders.getFirst(HttpHeaders.TRANSFER_ENCODING);
     if (header != null && !header.toLowerCase(Locale.US).equals(WebConstant.IDENTITY)) {
       if (Arrays.asList(splitElements(header, true)).contains(WebConstant.CHUNKED))
         body = new ChunkedInputStream(in, requestHeaders, config);
@@ -103,7 +103,7 @@ public final class HttpRequest {
         body = in; // body ends when connection closes
     }
     else {
-      header = requestHeaders.getFirst(WebConstant.CONTENT_LENGTH);
+      header = requestHeaders.getFirst(HttpHeaders.CONTENT_LENGTH);
       long len = header == null ? 0 : parseULong(header, 10);
       body = new LimitedInputStream(in, len, false);
     }
@@ -198,7 +198,7 @@ public final class HttpRequest {
     // normalize host header
     String host = uri.getHost();
     if (host == null) {
-      host = requestHeaders.getFirst(WebConstant.HOST);
+      host = requestHeaders.getFirst(HttpHeaders.HOST);
       if (host == null) // missing in HTTP/1.0
         host = detectLocalHostName();
     }
@@ -233,7 +233,7 @@ public final class HttpRequest {
    */
   public MultiValueMap<String, String> parseParameters() throws IOException {
     final MultiValueMap<String, String> parameters = WebUtils.parseParameters(uri.getRawQuery());
-    final String ct = requestHeaders.getFirst(WebConstant.CONTENT_TYPE);
+    final String ct = requestHeaders.getFirst(HttpHeaders.CONTENT_TYPE);
     if (ct != null && ct.toLowerCase(Locale.US).startsWith(WebConstant.APPLICATION_X_WWW_FORM_URLENCODED)) {
       final String bodyString = readToken(body, -1, StandardCharsets.UTF_8, 2097152); // 2MB limit
       WebUtils.parseParameters(parameters, bodyString);
@@ -279,7 +279,7 @@ public final class HttpRequest {
    * is missing or invalid
    */
   public long[] getRange(long length) {
-    String header = requestHeaders.getFirst(WebConstant.RANGE);
+    String header = requestHeaders.getFirst(HttpHeaders.RANGE);
     return header == null || !header.startsWith("bytes=")
            ? null : parseRange(header.substring(6), length);
   }

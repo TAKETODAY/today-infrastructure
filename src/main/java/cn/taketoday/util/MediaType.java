@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import cn.taketoday.core.Constant;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 
@@ -99,31 +98,6 @@ public class MediaType extends MimeType implements Serializable {
    * @see #APPLICATION_JSON_UTF8_VALUE
    */
   public static final String APPLICATION_JSON_VALUE = "application/json";
-
-  /**
-   * Public constant media type for {@code application/json;charset=UTF-8}.
-   *
-   * @deprecated as of 5.2 in favor of {@link #APPLICATION_JSON} since major
-   * browsers like Chrome <a href=
-   * "https://bugs.chromium.org/p/chromium/issues/detail?id=438464">
-   * now comply with the specification</a> and interpret correctly
-   * UTF-8 special characters without requiring a
-   * {@code charset=UTF-8} parameter.
-   */
-  @Deprecated
-  public static final MediaType APPLICATION_JSON_UTF8;
-
-  /**
-   * A String equivalent of {@link MediaType#APPLICATION_JSON_UTF8}.
-   *
-   * @deprecated as of 5.2 in favor of {@link #APPLICATION_JSON_VALUE} since major
-   * browsers like Chrome <a href=
-   * "https://bugs.chromium.org/p/chromium/issues/detail?id=438464">
-   * now comply with the specification</a> and interpret correctly
-   * UTF-8 special characters without requiring a
-   * {@code charset=UTF-8} parameter.
-   */
-  @Deprecated
   public static final String APPLICATION_JSON_UTF8_VALUE = "application/json;charset=UTF-8";
 
   /** Public constant media type for {@code application/octet-stream}. */
@@ -148,34 +122,6 @@ public class MediaType extends MimeType implements Serializable {
 
   /** A String equivalent of {@link MediaType#APPLICATION_PROBLEM_JSON}. */
   public static final String APPLICATION_PROBLEM_JSON_VALUE = "application/problem+json";
-
-  /**
-   * Public constant media type for {@code application/problem+json}.
-   *
-   * @see <a href="https://tools.ietf.org/html/rfc7807#section-6.1"> Problem
-   * Details for HTTP APIs, 6.1. application/problem+json</a>
-   * @deprecated as of 5.2 in favor of {@link #APPLICATION_PROBLEM_JSON} since
-   * major browsers like Chrome <a href=
-   * "https://bugs.chromium.org/p/chromium/issues/detail?id=438464">
-   * now comply with the specification</a> and interpret correctly
-   * UTF-8 special characters without requiring a
-   * {@code charset=UTF-8} parameter.
-   */
-  @Deprecated
-  public static final MediaType APPLICATION_PROBLEM_JSON_UTF8;
-
-  /**
-   * A String equivalent of {@link MediaType#APPLICATION_PROBLEM_JSON_UTF8}.
-   *
-   * @deprecated as of 5.2 in favor of {@link #APPLICATION_PROBLEM_JSON_VALUE}
-   * since major browsers like Chrome <a href=
-   * "https://bugs.chromium.org/p/chromium/issues/detail?id=438464">
-   * now comply with the specification</a> and interpret correctly
-   * UTF-8 special characters without requiring a
-   * {@code charset=UTF-8} parameter.
-   */
-  @Deprecated
-  public static final String APPLICATION_PROBLEM_JSON_UTF8_VALUE = "application/problem+json;charset=UTF-8";
 
   /**
    * Public constant media type for {@code application/problem+xml}.
@@ -304,8 +250,6 @@ public class MediaType extends MimeType implements Serializable {
     APPLICATION_PROBLEM_JSON = new MediaType("application", "problem+json");
     APPLICATION_OCTET_STREAM = new MediaType("application", "octet-stream");
     APPLICATION_FORM_URLENCODED = new MediaType("application", "x-www-form-urlencoded");
-    APPLICATION_JSON_UTF8 = new MediaType("application", "json", Constant.DEFAULT_CHARSET);
-    APPLICATION_PROBLEM_JSON_UTF8 = new MediaType("application", "problem+json", Constant.DEFAULT_CHARSET);
   }
 
   /**

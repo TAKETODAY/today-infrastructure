@@ -159,7 +159,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
                                  final ResourceMapping resourceMapping) throws IOException //
   {
     final HttpHeaders requestHeaders = requestContext.requestHeaders();
-    requestHeaders.set(WebConstant.CONTENT_ENCODING, WebConstant.GZIP);
+    requestHeaders.set(HttpHeaders.CONTENT_ENCODING, WebConstant.GZIP);
 
     final int bufferSize = resourceMapping.getBufferSize();
 

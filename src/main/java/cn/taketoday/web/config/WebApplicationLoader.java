@@ -35,7 +35,6 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.WebApplicationStartedEvent;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.HandlerAdapter;
@@ -61,8 +60,9 @@ import cn.taketoday.web.view.RuntimeResultHandler;
  */
 public class WebApplicationLoader
         extends WebApplicationContextSupport implements WebApplicationInitializer {
-  public static final String ENABLE_WEB_STARTED_LOG = "enable.started.log";
   public static final String ENABLE_WEB_MVC_XML = "enable.webmvc.xml";
+  public static final String ENABLE_WEB_STARTED_LOG = "enable.started.log";
+  public static final String WEB_MVC_CONFIG_LOCATION = "WebMvcConfigLocation";
 
   private DispatcherHandler dispatcher;
 
@@ -424,7 +424,9 @@ public class WebApplicationLoader
    * @see ViewControllerHandlerRegistry#configure(String)
    */
   protected String getWebMvcConfigLocation() {
-    return obtainApplicationContext().getEnvironment().getProperty(WebConstant.WEB_MVC_CONFIG_LOCATION);
+    return obtainApplicationContext()
+            .getEnvironment()
+            .getProperty(WEB_MVC_CONFIG_LOCATION);
   }
 
   /**
