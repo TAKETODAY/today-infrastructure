@@ -73,6 +73,16 @@ import cn.taketoday.core.io.Resource;
  */
 public abstract class ClassUtils {
 
+  /** The CGLIB class separator: {@code "$$"}. */
+  public static final String CGLIB_CLASS_SEPARATOR = "$$";
+  public static final char INNER_CLASS_SEPARATOR = '$';
+  /** Suffix for array class names: {@code "[]"}. */
+  public static final String ARRAY_SUFFIX = "[]";
+  /** Prefix for internal array class names: {@code "["}. */
+  public static final String INTERNAL_ARRAY_PREFIX = "[";
+  /** Prefix for internal non-primitive array class names: {@code "[L"}. */
+  public static final String NON_PRIMITIVE_ARRAY_PREFIX = "[L";
+
 //    private static final Logger log = LoggerFactory.getLogger(ClassUtils.class);
 
   /** class loader **/
@@ -205,22 +215,22 @@ public abstract class ClassUtils {
     }
 
     // "java.lang.String[]" style arrays
-    if (name.endsWith(Constant.ARRAY_SUFFIX)) {
+    if (name.endsWith(ARRAY_SUFFIX)) {
       Class<?> elementClass = //
-              forName(name.substring(0, name.length() - Constant.ARRAY_SUFFIX.length()));
+              forName(name.substring(0, name.length() - ARRAY_SUFFIX.length()));
       return Array.newInstance(elementClass, 0).getClass();
     }
 
     // "[Ljava.lang.String;" style arrays
-    if (name.startsWith(Constant.NON_PRIMITIVE_ARRAY_PREFIX) && name.endsWith(";")) {
+    if (name.startsWith(NON_PRIMITIVE_ARRAY_PREFIX) && name.endsWith(";")) {
       Class<?> elementClass = //
-              forName(name.substring(Constant.NON_PRIMITIVE_ARRAY_PREFIX.length(), name.length() - 1));
+              forName(name.substring(NON_PRIMITIVE_ARRAY_PREFIX.length(), name.length() - 1));
       return Array.newInstance(elementClass, 0).getClass();
     }
 
     // "[[I" or "[[Ljava.lang.String;" style arrays
-    if (name.startsWith(Constant.INTERNAL_ARRAY_PREFIX)) {
-      Class<?> elementClass = forName(name.substring(Constant.INTERNAL_ARRAY_PREFIX.length()));
+    if (name.startsWith(INTERNAL_ARRAY_PREFIX)) {
+      Class<?> elementClass = forName(name.substring(INTERNAL_ARRAY_PREFIX.length()));
       return Array.newInstance(elementClass, 0).getClass();
     }
 
@@ -234,7 +244,7 @@ public abstract class ClassUtils {
       int lastDotIndex = name.lastIndexOf(Constant.PACKAGE_SEPARATOR);
       if (lastDotIndex != -1) {
         String innerClassName = name.substring(0, lastDotIndex) //
-                + Constant.INNER_CLASS_SEPARATOR //
+                + INNER_CLASS_SEPARATOR //
                 + name.substring(lastDotIndex + 1);
         try {
           return Class.forName(innerClassName, false, classLoader);
@@ -549,7 +559,7 @@ public abstract class ClassUtils {
    */
   @SuppressWarnings("unchecked")
   public static <T> Class<T> getUserClass(Class<T> syntheticClass) {
-    if (Objects.requireNonNull(syntheticClass).getName().lastIndexOf(Constant.CGLIB_CLASS_SEPARATOR) > -1) {
+    if (Objects.requireNonNull(syntheticClass).getName().lastIndexOf(CGLIB_CLASS_SEPARATOR) > -1) {
       Class<?> superclass = syntheticClass.getSuperclass();
       if (superclass != null && superclass != Object.class) {
         return (Class<T>) superclass;
@@ -570,7 +580,7 @@ public abstract class ClassUtils {
    * @since 2.1.7
    */
   public static <T> Class<T> getUserClass(String name) {
-    final int i = Objects.requireNonNull(name).indexOf(Constant.CGLIB_CLASS_SEPARATOR);
+    final int i = Objects.requireNonNull(name).indexOf(CGLIB_CLASS_SEPARATOR);
     return i > 0 ? loadClass(name.substring(0, i)) : loadClass(name);
   }
 
@@ -1359,12 +1369,12 @@ public abstract class ClassUtils {
   public static String getShortName(String className) {
     Assert.hasLength(className, "Class name must not be empty");
     int lastDotIndex = className.lastIndexOf(Constant.PACKAGE_SEPARATOR);
-    int nameEndIndex = className.indexOf(Constant.CGLIB_CLASS_SEPARATOR);
+    int nameEndIndex = className.indexOf(CGLIB_CLASS_SEPARATOR);
     if (nameEndIndex == -1) {
       nameEndIndex = className.length();
     }
     String shortName = className.substring(lastDotIndex + 1, nameEndIndex);
-    shortName = shortName.replace(Constant.INNER_CLASS_SEPARATOR, Constant.PACKAGE_SEPARATOR);
+    shortName = shortName.replace(INNER_CLASS_SEPARATOR, Constant.PACKAGE_SEPARATOR);
     return shortName;
   }
 
