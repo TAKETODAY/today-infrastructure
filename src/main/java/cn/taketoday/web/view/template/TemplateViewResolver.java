@@ -27,6 +27,7 @@ import cn.taketoday.web.RequestContext;
  */
 @FunctionalInterface
 public interface TemplateViewResolver {
+  String DEFAULT_TEMPLATE_PATH = "classpath:templates/";
 
   /**
    * Resolve template view.

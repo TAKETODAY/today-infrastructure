@@ -25,10 +25,10 @@ import java.io.Reader;
 import cn.taketoday.core.io.PathMatchingResourcePatternResolver;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceResolver;
-import cn.taketoday.util.ConcurrentCache;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ConcurrentCache;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.WebConstant;
 import freemarker.cache.TemplateLoader;
 
@@ -48,7 +48,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
   public final ConcurrentCache<String, TemplateSource> cache;
 
   public DefaultResourceTemplateLoader() {
-    this(WebConstant.DEFAULT_TEMPLATE_PATH, WebConstant.BLANK, 128);
+    this(TemplateViewResolver.DEFAULT_TEMPLATE_PATH, WebConstant.BLANK, 128);
   }
 
   public DefaultResourceTemplateLoader(String prefix, String suffix) {
@@ -88,7 +88,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
           }
         }
       }
-      catch (IOException ignored) {}
+      catch (IOException ignored) { }
       if (log.isDebugEnabled()) {
         log.debug("Template: [{}] Not found", template);
       }
@@ -117,7 +117,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
   }
 
   @Override
-  public void closeTemplateSource(final Object source) throws IOException {}
+  public void closeTemplateSource(final Object source) throws IOException { }
 
   public void setPathMatchingResolver(ResourceResolver pathMatchingResolver) {
     this.pathMatchingResolver = pathMatchingResolver;

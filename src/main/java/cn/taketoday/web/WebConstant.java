@@ -28,8 +28,6 @@ import cn.taketoday.web.interceptor.HandlerInterceptor;
  */
 public interface WebConstant extends cn.taketoday.core.Constant {
 
-  String DEFAULT_TEMPLATE_PATH = "classpath:templates/";
-
   String ENV_SERVLET = "javax.servlet.Servlet";
 
   boolean RUN_IN_SERVLET = ClassUtils.isPresent(ENV_SERVLET); // @since 3.0.3

@@ -34,10 +34,10 @@ public abstract class AbstractTemplateViewResolver
 
   protected Locale locale = Locale.CHINA;
   protected String suffix = WebConstant.BLANK;
-  protected String prefix = WebConstant.DEFAULT_TEMPLATE_PATH;
+  protected String prefix = DEFAULT_TEMPLATE_PATH;
   protected String encoding = WebConstant.DEFAULT_ENCODING;
 
-  public AbstractTemplateViewResolver() {}
+  public AbstractTemplateViewResolver() { }
 
   public AbstractTemplateViewResolver(int order) {
     super(order);
