@@ -120,51 +120,36 @@ public interface Constant extends Serializable {
   int SWITCH_STYLE_HASH = 1;
   int SWITCH_STYLE_HASHONLY = 2;
 
-  //@off
+  //@since 2.1.6
 
-    //@since 2.1.6
+  String CONSTRUCTOR_NAME = "<init>";
+  String STATIC_CLASS_INIT = STATIC_NAME;
 
-    String  CONSTRUCTOR_NAME 		= "<init>";
-    String  STATIC_CLASS_INIT 		= STATIC_NAME;
-    /** Suffix for array class names: {@code "[]"}. */
-    String  ARRAY_SUFFIX 			= "[]";
-    /** Prefix for internal array class names: {@code "["}. */
-    String  INTERNAL_ARRAY_PREFIX 	= "[";
-    /** Prefix for internal non-primitive array class names: {@code "[L"}. */
-    String  NON_PRIMITIVE_ARRAY_PREFIX = "[L";
-    /** The package separator character: {@code '.'}. */
-    char 	PACKAGE_SEPARATOR 		= '.';
-    /** The path separator character: {@code '/'}. */
-    char 	PATH_SEPARATOR 			= '/';
-    char 	WINDOWS_PATH_SEPARATOR 	= '\\';
-    char 	INNER_CLASS_SEPARATOR 	= '$';
-    String	ENV						= "env";
-    String 	EL_PREFIX 				= "${";
+  /** The package separator character: {@code '.'}. */
+  char PACKAGE_SEPARATOR = '.';
+  /** The path separator character: {@code '/'}. */
+  char PATH_SEPARATOR = '/';
 
-    String 	DEFAULT_DATE_FORMAT		= "yyyy-MM-dd HH:mm:ss.SSS";
+  String DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
 
-    /** The CGLIB class separator: {@code "$$"}. */
-    String 	CGLIB_CLASS_SEPARATOR 	= "$$";
-    char 	CGLIB_CHAR_SEPARATOR 	= INNER_CLASS_SEPARATOR;
+  String DEFAULT_ENCODING = "UTF-8";
+  Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
-    String 	DEFAULT_ENCODING 		= "UTF-8";
-    Charset DEFAULT_CHARSET 		= StandardCharsets.UTF_8;
+  String PROPERTIES_SUFFIX = ".properties";
+  String PLACE_HOLDER_PREFIX = "#{";
+  char PLACE_HOLDER_SUFFIX = '}';
+  String SPLIT_REGEXP = "[;|,]";
 
-    String 	PROPERTIES_SUFFIX 		= ".properties";
-    String 	PLACE_HOLDER_PREFIX 	= "#{";
-    char 	PLACE_HOLDER_SUFFIX 	= '}';
-    String 	SPLIT_REGEXP 			= "[;|,]";
+  String BLANK = "";
+  String CLASS_FILE_SUFFIX = ".class";
+  String SCOPE = "scope";
+  String VALUE = "value";
+  String EQUALS = "equals";
+  String HASH_CODE = "hashCode";
+  String TO_STRING = "toString";
+  String ANNOTATION_TYPE = "annotationType";
+  String DEFAULT = "default";
 
-    String	BLANK					= "";
-    String	CLASS_FILE_SUFFIX		= ".class";
-    String 	SCOPE 					= "scope";
-    String 	VALUE 					= "value";
-    String 	EQUALS 					= "equals";
-    String 	HASH_CODE 				= "hashCode";
-    String 	TO_STRING 				= "toString";
-    String 	ANNOTATION_TYPE 		= "annotationType";
-    String	DEFAULT					= "default";
-
-    String 	TYPE 					        = "type";
+  String TYPE = "type";
 
 }

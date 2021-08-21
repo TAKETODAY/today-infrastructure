@@ -60,6 +60,11 @@ import cn.taketoday.context.loader.StrategiesDetector;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
+import cn.taketoday.expression.ExpressionFactory;
+import cn.taketoday.expression.ExpressionManager;
+import cn.taketoday.expression.ExpressionProcessor;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
@@ -69,11 +74,6 @@ import cn.taketoday.util.GenericTypeResolver;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.expression.ExpressionFactory;
-import cn.taketoday.expression.ExpressionManager;
-import cn.taketoday.expression.ExpressionProcessor;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
 
 /**
  * @author TODAY <br>
@@ -288,7 +288,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     if (env.getExpressionProcessor() == null) {
       final ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
       final ValueExpressionContext elContext = new ValueExpressionContext(exprFactory, getBeanFactory());
-      elContext.defineBean(Constant.ENV, env.getProperties()); // @since 2.1.6
+      elContext.defineBean(ExpressionEvaluator.ENV, env.getProperties()); // @since 2.1.6
       env.setExpressionProcessor(new ExpressionProcessor(new ExpressionManager(elContext, exprFactory)));
     }
   }

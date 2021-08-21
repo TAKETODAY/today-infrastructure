@@ -32,8 +32,6 @@ import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
-import cn.taketoday.util.ContextUtils;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.ExpressionFactory;
@@ -42,6 +40,8 @@ import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ContextUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Expression Evaluator
@@ -50,6 +50,9 @@ import cn.taketoday.logger.LoggerFactory;
  * @since 3.0
  */
 public class ExpressionEvaluator {
+  public static final String ENV = "env";
+  public static final String EL_PREFIX = "${";
+
   private static final Logger log = LoggerFactory.getLogger(ExpressionEvaluator.class);
 
   private ConversionService conversionService = DefaultConversionService.getSharedInstance();
@@ -103,7 +106,7 @@ public class ExpressionEvaluator {
       final String replaced = resolvePlaceholder(variables, expression);
       return conversionService.convert(replaced, expectedType);
     }
-    if (expression.contains(Constant.EL_PREFIX)) {
+    if (expression.contains(EL_PREFIX)) {
       try {
         return obtainProcessor().getValue(expression, expectedType);
       }
@@ -121,7 +124,7 @@ public class ExpressionEvaluator {
       final String replaced = resolvePlaceholder(variables, expression);
       return conversionService.convert(replaced, expectedType);
     }
-    if (expression.contains(Constant.EL_PREFIX)) {
+    if (expression.contains(EL_PREFIX)) {
       try {
         return obtainProcessor().getValue(expression, context, expectedType);
       }
@@ -305,7 +308,7 @@ public class ExpressionEvaluator {
         globalContext = new ValueExpressionContext(exprFactory, (ConfigurableBeanFactory) beanFactory);
       }
 
-      globalContext.defineBean(Constant.ENV, variables);
+      globalContext.defineBean(ENV, variables);
       expressionProcessor = new ExpressionProcessor(new ExpressionManager(globalContext, exprFactory));
     }
     return expressionProcessor;
