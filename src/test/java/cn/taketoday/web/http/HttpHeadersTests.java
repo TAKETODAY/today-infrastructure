@@ -42,7 +42,6 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import cn.taketoday.util.MediaType;
-import cn.taketoday.web.resource.CacheControl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

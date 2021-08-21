@@ -29,7 +29,6 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.util.MediaType;
-import cn.taketoday.web.resource.CacheControl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

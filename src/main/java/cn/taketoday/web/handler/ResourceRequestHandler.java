@@ -34,7 +34,7 @@ import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.http.NotFoundException;
 import cn.taketoday.web.http.ResourceNotFoundException;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.resource.CacheControl;
+import cn.taketoday.web.http.CacheControl;
 import cn.taketoday.web.resource.WebResource;
 import cn.taketoday.web.resource.WebResourceResolver;
 

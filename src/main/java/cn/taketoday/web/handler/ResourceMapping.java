@@ -32,7 +32,7 @@ import cn.taketoday.core.Constant;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.interceptor.HandlerInterceptorsCapable;
-import cn.taketoday.web.resource.CacheControl;
+import cn.taketoday.web.http.CacheControl;
 import lombok.Getter;
 
 /**
