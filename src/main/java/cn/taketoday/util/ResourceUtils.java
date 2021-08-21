@@ -27,7 +27,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import cn.taketoday.core.Constant;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileBasedResource;
 import cn.taketoday.core.io.JarEntryResource;
@@ -36,8 +35,8 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.UrlBasedResource;
 
 import static cn.taketoday.core.Constant.BLANK;
-import static cn.taketoday.core.Constant.CLASS_PATH_PREFIX;
 import static cn.taketoday.core.Constant.PATH_SEPARATOR;
+import static cn.taketoday.core.io.ResourceResolver.CLASSPATH_URL_PREFIX;
 
 /**
  * @author TODAY 2019-05-15 13:37
@@ -127,8 +126,8 @@ public abstract class ResourceUtils {
     if (StringUtils.isEmpty(location)) {
       return new ClassPathResource(BLANK);
     }
-    if (location.startsWith(CLASS_PATH_PREFIX)) {
-      final String path = StringUtils.decodeUrl(location.substring(CLASS_PATH_PREFIX.length()));
+    if (location.startsWith(CLASSPATH_URL_PREFIX)) {
+      final String path = StringUtils.decodeUrl(location.substring(CLASSPATH_URL_PREFIX.length()));
       return new ClassPathResource(path.charAt(0) == PATH_SEPARATOR ? path.substring(1) : path);
     }
     try {
@@ -336,14 +335,14 @@ public abstract class ResourceUtils {
    *
    * @return whether the location qualifies as a URL
    *
-   * @see Constant#CLASS_PATH_PREFIX
+   * @see cn.taketoday.core.io.ResourceResolver#CLASSPATH_URL_PREFIX
    * @see java.net.URL
    */
   public static boolean isUrl(String resourceLocation) {
     if (resourceLocation == null) {
       return false;
     }
-    if (resourceLocation.startsWith(CLASS_PATH_PREFIX)) {
+    if (resourceLocation.startsWith(CLASSPATH_URL_PREFIX)) {
       return true;
     }
     try {

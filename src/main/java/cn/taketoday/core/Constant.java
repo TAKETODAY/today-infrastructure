@@ -121,14 +121,6 @@ public interface Constant extends Serializable {
   int SWITCH_STYLE_HASHONLY = 2;
 
   //@off
-    /** Bytes per Kilobyte.*/
-    long 	BYTES_PER_KB 			= 1024;
-    /** Bytes per Megabyte. */
-    long 	BYTES_PER_MB 			= BYTES_PER_KB * 1024;
-    /** Bytes per Gigabyte.*/
-    long 	BYTES_PER_GB 			= BYTES_PER_MB * 1024;
-    /** Bytes per Terabyte.*/
-    long 	BYTES_PER_TB 			= BYTES_PER_GB * 1024;
 
     //@since 2.1.6
 
@@ -173,28 +165,6 @@ public interface Constant extends Serializable {
     String 	ANNOTATION_TYPE 		= "annotationType";
     String	DEFAULT					= "default";
 
-    /**********************************************
-     * @since 2.1.2
-     */
-    String 	CLASS_PATH_PREFIX 		= "classpath:";
-    String	INIT_METHODS			    = "initMethods";
-    String	DESTROY_METHODS			  = "destroyMethods";
     String 	TYPE 					        = "type";
-    /**
-     **********************************************/ //@on
 
-  /* Indicates the ASM API version that is used throughout cglib */
-  //  int         ASM_API                 = ASM7;
-
-  /*************************************************
-   * Parameter Types
-   */
-  byte TYPE_NULL = 0x00;
-  byte TYPE_THROWING = 0x01;
-  byte TYPE_ARGUMENT = 0x02;
-  byte TYPE_ARGUMENTS = 0x03;
-  byte TYPE_RETURNING = 0x04;
-  byte TYPE_ANNOTATED = 0x05;
-  byte TYPE_JOIN_POINT = 0x06;
-  byte TYPE_ATTRIBUTE = 0x07;
 }

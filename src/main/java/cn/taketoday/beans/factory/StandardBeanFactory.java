@@ -238,8 +238,8 @@ public class StandardBeanFactory
 
     for (final AnnotationAttributes component : components) {
       final String scope = component.getString(Constant.SCOPE);
-      final String[] initMethods = component.getStringArray(Constant.INIT_METHODS);
-      final String[] destroyMethods = component.getStringArray(Constant.DESTROY_METHODS);
+      final String[] initMethods = component.getStringArray(BeanDefinition.INIT_METHODS);
+      final String[] destroyMethods = component.getStringArray(BeanDefinition.DESTROY_METHODS);
 
       for (final String name : findNames(defaultBeanName, component.getStringArray(VALUE))) {
 
@@ -773,8 +773,8 @@ public class StandardBeanFactory
     }
     else {
       ret.setScope(attributes.getString(Constant.SCOPE))
-              .setDestroyMethods(attributes.getStringArray(Constant.DESTROY_METHODS))
-              .setInitMethods(resolveInitMethod(attributes.getStringArray(Constant.INIT_METHODS), beanClass));
+              .setDestroyMethods(attributes.getStringArray(BeanDefinition.DESTROY_METHODS))
+              .setInitMethods(resolveInitMethod(attributes.getStringArray(BeanDefinition.INIT_METHODS), beanClass));
     }
 
     ret.setPropertyValues(resolvePropertyValue(beanClass));
