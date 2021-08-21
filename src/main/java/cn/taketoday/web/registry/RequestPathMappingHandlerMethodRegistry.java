@@ -33,7 +33,7 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestMethod;
+import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.annotation.ActionMapping;
@@ -124,7 +124,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
     doMergeMapping(mapping, actionMapping, controllerMapping, "params");
     doMergeMapping(mapping, actionMapping, controllerMapping, "produces");
     doMergeMapping(mapping, actionMapping, controllerMapping, "consumes");
-    doMergeMapping(mapping, actionMapping, controllerMapping, "method", RequestMethod[].class, false);
+    doMergeMapping(mapping, actionMapping, controllerMapping, "method", HttpMethod[].class, false);
   }
 
   private void doMergeMapping(AnnotationAttributes mapping,
@@ -273,11 +273,11 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
 
   protected boolean testMapping(final AnnotationMappingInfo mappingInfo, final RequestContext context) {
     // test request method
-    final RequestMethod[] supportedMethods = mappingInfo.method();
+    final HttpMethod[] supportedMethods = mappingInfo.method();
     if (supportedMethods != null) {
       final String requestMethod = context.getMethod();
       boolean matched = false;
-      for (final RequestMethod testMethod : supportedMethods) {
+      for (final HttpMethod testMethod : supportedMethods) {
         if (requestMethod.equals(testMethod.name())) {
           matched = true;
           break;

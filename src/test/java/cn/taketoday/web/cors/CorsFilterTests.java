@@ -30,7 +30,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestMethod;
+import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.http.CorsConfiguration;
 import cn.taketoday.web.http.CorsFilter;
 import cn.taketoday.web.http.HttpHeaders;
@@ -71,7 +71,7 @@ public class CorsFilterTests {
   @Test
   public void nonCorsRequest() throws ServletException, IOException {
 
-    MockHttpServletRequest request = new MockHttpServletRequest(RequestMethod.GET.name(), "/test.html");
+    MockHttpServletRequest request = new MockHttpServletRequest(HttpMethod.GET.name(), "/test.html");
     MockHttpServletResponse response = new MockHttpServletResponse();
 
     FilterChain filterChain = (filterRequest, filterResponse) -> {
@@ -83,7 +83,7 @@ public class CorsFilterTests {
 
   @Test
   public void sameOriginRequest() throws ServletException, IOException {
-    MockHttpServletRequest request = new MockHttpServletRequest(RequestMethod.GET.name(), "https://domain1.com/test.html");
+    MockHttpServletRequest request = new MockHttpServletRequest(HttpMethod.GET.name(), "https://domain1.com/test.html");
     request.addHeader(HttpHeaders.ORIGIN, "https://domain1.com");
     request.setScheme("https");
     request.setServerName("domain1.com");
@@ -100,7 +100,7 @@ public class CorsFilterTests {
   @Test
   public void validActualRequest() throws ServletException, IOException {
 
-    MockHttpServletRequest request = new MockHttpServletRequest(RequestMethod.GET.name(), "/test.html");
+    MockHttpServletRequest request = new MockHttpServletRequest(HttpMethod.GET.name(), "/test.html");
     request.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
     request.addHeader("header2", "foo");
     MockHttpServletResponse response = new MockHttpServletResponse();
@@ -117,7 +117,7 @@ public class CorsFilterTests {
   @Test
   public void invalidActualRequest() throws ServletException, IOException {
 
-    MockHttpServletRequest request = new MockHttpServletRequest(RequestMethod.DELETE.name(), "/test.html");
+    MockHttpServletRequest request = new MockHttpServletRequest(HttpMethod.DELETE.name(), "/test.html");
     request.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
     request.addHeader("header2", "foo");
     MockHttpServletResponse response = new MockHttpServletResponse();
@@ -131,9 +131,9 @@ public class CorsFilterTests {
   @Test
   public void validPreFlightRequest() throws ServletException, IOException {
 
-    MockHttpServletRequest request = new MockHttpServletRequest(RequestMethod.OPTIONS.name(), "/test.html");
+    MockHttpServletRequest request = new MockHttpServletRequest(HttpMethod.OPTIONS.name(), "/test.html");
     request.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
-    request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, RequestMethod.GET.name());
+    request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.GET.name());
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, "header1, header2");
     MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -150,9 +150,9 @@ public class CorsFilterTests {
   @Test
   public void invalidPreFlightRequest() throws ServletException, IOException {
 
-    MockHttpServletRequest request = new MockHttpServletRequest(RequestMethod.OPTIONS.name(), "/test.html");
+    MockHttpServletRequest request = new MockHttpServletRequest(HttpMethod.OPTIONS.name(), "/test.html");
     request.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
-    request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, RequestMethod.DELETE.name());
+    request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.DELETE.name());
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, "header1, header2");
     MockHttpServletResponse response = new MockHttpServletResponse();
 

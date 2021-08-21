@@ -26,14 +26,14 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.MediaType;
-import cn.taketoday.web.RequestMethod;
+import cn.taketoday.web.http.HttpMethod;
 
 /**
  * @author TODAY <br>
  * 2018-07-01 14:08:28
  */
 @Retention(RetentionPolicy.RUNTIME)
-@ActionMapping(method = RequestMethod.POST)
+@ActionMapping(method = HttpMethod.POST)
 @Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface POST {
 

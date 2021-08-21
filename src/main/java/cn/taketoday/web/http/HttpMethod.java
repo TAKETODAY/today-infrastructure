@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -15,30 +15,29 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.annotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import cn.taketoday.core.Constant;
-import cn.taketoday.web.http.HttpMethod;
+package cn.taketoday.web.http;
 
 /**
+ * HTTP Request Methods
+ *
  * @author TODAY <br>
- *         2018-11-17 21:24
+ *         2018-06-27 19:01:04
+ * @version 2.0.0
  */
-@Retention(RetentionPolicy.RUNTIME)
-@ActionMapping(method = HttpMethod.OPTIONS)
-@Target({ ElementType.METHOD, ElementType.TYPE })
-public @interface OPTIONS {
+public enum HttpMethod {
 
-  /** urls */
-  String[] value() default Constant.BLANK;
+  GET, POST, PUT, DELETE, PATCH, TRACE, HEAD, OPTIONS;
 
-  /** Exclude url on class */
-  boolean exclude() default false;
+  /**
+   * Determine whether this {@code RequestMethod} matches the given method value.
+   *
+   * @param method
+   *            the method value as a String. <b>Must Upper Case</b>
+   * @return {@code true} if it matches, {@code false} otherwise
+   */
+  public boolean matches(String method) {
+    return this == valueOf(method);
+  }
 }

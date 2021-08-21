@@ -25,14 +25,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.core.Constant;
-import cn.taketoday.web.RequestMethod;
+import cn.taketoday.web.http.HttpMethod;
 
 /**
  * @author TODAY <br>
  *         2018-12-11 20:03
  */
 @Retention(RetentionPolicy.RUNTIME)
-@ActionMapping(method = RequestMethod.HEAD)
+@ActionMapping(method = HttpMethod.HEAD)
 @Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface HEAD {
 

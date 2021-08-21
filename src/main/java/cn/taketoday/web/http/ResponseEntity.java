@@ -32,9 +32,7 @@ import java.util.function.Consumer;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.util.MediaType;
-import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.resource.CacheControl;
-import jodd.net.HttpMethod;
 
 /**
  * Extension of {@link HttpEntity} that adds a {@link HttpStatus} status code.
@@ -375,7 +373,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
     B headers(Consumer<HttpHeaders> headersConsumer);
 
     /**
-     * Set the set of allowed {@link HttpMethod HTTP methods}, as specified
+     * Set the set of allowed {@link jodd.net.HttpMethod HTTP methods}, as specified
      * by the {@code Allow} header.
      *
      * @param allowedMethods
@@ -385,7 +383,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
      *
      * @see HttpHeaders#setAllow(Set)
      */
-    B allow(RequestMethod... allowedMethods);
+    B allow(HttpMethod... allowedMethods);
 
     /**
      * Set the entity tag of the body, as specified by the {@code ETag} header.
@@ -566,7 +564,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
     }
 
     @Override
-    public BodyBuilder allow(RequestMethod... allowedMethods) {
+    public BodyBuilder allow(HttpMethod... allowedMethods) {
       this.headers.setAllow(new LinkedHashSet<>(Arrays.asList(allowedMethods)));
       return this;
     }

@@ -24,7 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.web.RequestMethod;
+import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.http.CorsConfiguration;
 
@@ -112,7 +112,7 @@ public @interface CrossOrigin {
    * By default the supported methods are the same as the ones to which a
    * controller method is mapped.
    */
-  RequestMethod[] methods() default {};
+  HttpMethod[] methods() default {};
 
   /**
    * Whether the browser should send credentials, such as cookies along with cross

@@ -40,6 +40,7 @@ import cn.taketoday.web.handler.DefaultResponseStatus;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpStatus;
+import cn.taketoday.web.http.HttpMethod;
 
 /**
  * @author TODAY <br>
@@ -211,7 +212,7 @@ public abstract class WebUtils {
    * CORS checks are not invoked here for performance reasons.
    */
   public static boolean isPreFlightRequest(final RequestContext request) {
-    if (RequestMethod.OPTIONS.name().equals(request.getMethod())) {
+    if (HttpMethod.OPTIONS.name().equals(request.getMethod())) {
       final HttpHeaders requestHeaders = request.requestHeaders();
       return requestHeaders.containsKey(HttpHeaders.ORIGIN)
               && requestHeaders.containsKey(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);

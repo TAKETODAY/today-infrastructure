@@ -34,7 +34,6 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ContextUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.annotation.CrossOrigin;
 
 
@@ -179,7 +178,7 @@ public class CorsConfiguration {
    * Return the allowed HTTP methods, or {@code null} in which case only
    * {@code "GET"} and {@code "HEAD"} allowed.
    *
-   * @see #addAllowedMethod(RequestMethod)
+   * @see #addAllowedMethod(HttpMethod)
    * @see #addAllowedMethod(String)
    * @see #setAllowedMethods(List)
    */
@@ -190,7 +189,7 @@ public class CorsConfiguration {
   /**
    * Add an HTTP method to allow.
    */
-  public void addAllowedMethod(RequestMethod method) {
+  public void addAllowedMethod(HttpMethod method) {
     addAllowedMethod(method.name());
   }
 
@@ -592,7 +591,7 @@ public class CorsConfiguration {
     for (String origin : annotation.value()) {
       addAllowedOrigin(resolveCorsValue(origin));
     }
-    for (RequestMethod method : annotation.methods()) {
+    for (HttpMethod method : annotation.methods()) {
       addAllowedMethod(method.name());
     }
     for (String header : annotation.allowedHeaders()) {

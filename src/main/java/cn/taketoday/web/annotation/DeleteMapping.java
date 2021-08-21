@@ -26,13 +26,13 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.MediaType;
-import cn.taketoday.web.RequestMethod;
+import cn.taketoday.web.http.HttpMethod;
 
 /**
  * @author TODAY 2020/12/8 21:47
  */
 @Retention(RetentionPolicy.RUNTIME)
-@ActionMapping(method = RequestMethod.DELETE)
+@ActionMapping(method = HttpMethod.DELETE)
 @Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface DeleteMapping {
 

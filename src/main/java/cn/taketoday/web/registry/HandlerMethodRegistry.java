@@ -45,7 +45,7 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestMethod;
+import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.annotation.ActionMapping;
@@ -226,22 +226,22 @@ public class HandlerMethodRegistry
     boolean emptyNamespaces = true;
     boolean addClassRequestMethods = false;
     Set<String> namespaces = Collections.emptySet();
-    Set<RequestMethod> classRequestMethods = Collections.emptySet();
+    Set<HttpMethod> classRequestMethods = Collections.emptySet();
     if (ObjectUtils.isNotEmpty(controllerMapping)) {
       namespaces = new LinkedHashSet<>(4, 1.0f); // name space
       classRequestMethods = new LinkedHashSet<>(8, 1.0f); // method
       for (final String value : controllerMapping.getStringArray(WebConstant.VALUE)) {
         namespaces.add(checkUrl(value));
       }
-      Collections.addAll(classRequestMethods, controllerMapping.getAttribute("method", RequestMethod[].class));
+      Collections.addAll(classRequestMethods, controllerMapping.getAttribute("method", HttpMethod[].class));
       emptyNamespaces = namespaces.isEmpty();
       addClassRequestMethods = !classRequestMethods.isEmpty();
     }
 
     for (final AnnotationAttributes handlerMethodMapping : annotationAttributes) {
       final boolean exclude = handlerMethodMapping.getBoolean("exclude"); // exclude name space on class ?
-      final Set<RequestMethod> requestMethods = // http request method on method(action/handler)
-              newHashSet(handlerMethodMapping.getAttribute("method", RequestMethod[].class));
+      final Set<HttpMethod> requestMethods = // http request method on method(action/handler)
+              newHashSet(handlerMethodMapping.getAttribute("method", HttpMethod[].class));
 
       if (addClassRequestMethods)
         requestMethods.addAll(classRequestMethods);
@@ -250,7 +250,7 @@ public class HandlerMethodRegistry
         final String checkedUrl = checkUrl(urlOnMethod);
         // splice urls and request methods
         // ---------------------------------
-        for (final RequestMethod requestMethod : requestMethods) {
+        for (final HttpMethod requestMethod : requestMethods) {
           if (exclude || emptyNamespaces) {
             mappingHandlerMethod(checkedUrl, requestMethod, handler);
           }
@@ -275,9 +275,9 @@ public class HandlerMethodRegistry
    * @param requestMethod
    *         HTTP request method
    *
-   * @see RequestMethod
+   * @see HttpMethod
    */
-  private void mappingHandlerMethod(String path, RequestMethod requestMethod, HandlerMethod handlerMethod) {
+  private void mappingHandlerMethod(String path, HttpMethod requestMethod, HandlerMethod handlerMethod) {
     // GET/blog/users/1 GET/blog/#{key}/1
     final String pathPattern = getRequestPathPattern(path);
     super.registerHandler(requestMethod.name().concat(pathPattern),

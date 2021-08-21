@@ -51,7 +51,6 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.resource.CacheControl;
 
@@ -255,13 +254,13 @@ public abstract class HttpHeaders
   /**
    * Return the value of the {@code Access-Control-Allow-Methods} response header.
    */
-  public List<RequestMethod> getAccessControlAllowMethods() {
-    List<RequestMethod> result = new ArrayList<>();
+  public List<HttpMethod> getAccessControlAllowMethods() {
+    List<HttpMethod> result = new ArrayList<>();
     String value = getFirst(ACCESS_CONTROL_ALLOW_METHODS);
     if (value != null) {
       String[] tokens = StringUtils.tokenizeToStringArray(value, ",");
       for (String token : tokens) {
-        result.add(RequestMethod.valueOf(token));
+        result.add(HttpMethod.valueOf(token));
       }
     }
     return result;
@@ -342,19 +341,19 @@ public abstract class HttpHeaders
    * Set the (new) value of the {@code Access-Control-Request-Method} request
    * header.
    */
-  public void setAccessControlRequestMethod(RequestMethod requestMethod) {
+  public void setAccessControlRequestMethod(HttpMethod requestMethod) {
     setOrRemove(ACCESS_CONTROL_REQUEST_METHOD, (requestMethod != null ? requestMethod.name() : null));
   }
 
   /**
    * Return the value of the {@code Access-Control-Request-Method} request header.
    */
-  public RequestMethod getAccessControlRequestMethod() {
+  public HttpMethod getAccessControlRequestMethod() {
     final String first = getFirst(ACCESS_CONTROL_REQUEST_METHOD);
     if (StringUtils.isEmpty(first)) {
       return null;
     }
-    return RequestMethod.valueOf(first);
+    return HttpMethod.valueOf(first);
   }
 
   /**
@@ -399,31 +398,31 @@ public abstract class HttpHeaders
   }
 
   /**
-   * Set the set of allowed {@link RequestMethod HTTP methods}, as specified by
+   * Set the set of allowed {@link HttpMethod HTTP methods}, as specified by
    * the {@code Allow} header.
    */
-  public void setAllow(Set<RequestMethod> allowedMethods) {
+  public void setAllow(Set<HttpMethod> allowedMethods) {
     set(ALLOW, StringUtils.collectionToString(allowedMethods)); // special case
   }
 
   /**
-   * Return the set of allowed {@link RequestMethod HTTP methods}, as specified by
+   * Return the set of allowed {@link HttpMethod HTTP methods}, as specified by
    * the {@code Allow} header.
    * <p>
    * Returns an empty set when the allowed methods are unspecified.
    */
-  public Set<RequestMethod> getAllow() {
+  public Set<HttpMethod> getAllow() {
     String value = getFirst(ALLOW);
     if (StringUtils.isNotEmpty(value)) {
       String[] tokens = StringUtils.tokenizeToStringArray(value, ",");
-      List<RequestMethod> result = new ArrayList<>(tokens.length);
+      List<HttpMethod> result = new ArrayList<>(tokens.length);
       for (String token : tokens) {
-        result.add(RequestMethod.valueOf(token));
+        result.add(HttpMethod.valueOf(token));
       }
       return EnumSet.copyOf(result);
     }
     else {
-      return EnumSet.noneOf(RequestMethod.class);
+      return EnumSet.noneOf(HttpMethod.class);
     }
   }
 

@@ -42,7 +42,6 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import cn.taketoday.util.MediaType;
-import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.resource.CacheControl;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -136,7 +135,7 @@ public class HttpHeadersTests {
 
   @Test
   public void allow() {
-    EnumSet<RequestMethod> methods = EnumSet.of(RequestMethod.GET, RequestMethod.POST);
+    EnumSet<HttpMethod> methods = EnumSet.of(HttpMethod.GET, HttpMethod.POST);
     headers.setAllow(methods);
     assertThat(headers.getAllow()).as("Invalid Allow header").isEqualTo(methods);
     assertThat(headers.getFirst("Allow")).as("Invalid Allow header").isEqualTo("GET,POST");
@@ -432,11 +431,11 @@ public class HttpHeadersTests {
 
   @Test
   public void accessControlAllowMethods() {
-    List<RequestMethod> allowedMethods = headers.getAccessControlAllowMethods();
+    List<HttpMethod> allowedMethods = headers.getAccessControlAllowMethods();
     assertThat(allowedMethods).isEmpty();
-    headers.setAccessControlAllowMethods(Arrays.asList(RequestMethod.GET, RequestMethod.POST));
+    headers.setAccessControlAllowMethods(Arrays.asList(HttpMethod.GET, HttpMethod.POST));
     allowedMethods = headers.getAccessControlAllowMethods();
-    assertThat(Arrays.asList(RequestMethod.GET, RequestMethod.POST)).isEqualTo(allowedMethods);
+    assertThat(Arrays.asList(HttpMethod.GET, HttpMethod.POST)).isEqualTo(allowedMethods);
   }
 
   @Test
@@ -474,8 +473,8 @@ public class HttpHeadersTests {
   @Test
   public void accessControlRequestMethod() {
     assertThat(headers.getAccessControlRequestMethod()).isNull();
-    headers.setAccessControlRequestMethod(RequestMethod.POST);
-    assertThat(headers.getAccessControlRequestMethod()).isEqualTo(RequestMethod.POST);
+    headers.setAccessControlRequestMethod(HttpMethod.POST);
+    assertThat(headers.getAccessControlRequestMethod()).isEqualTo(HttpMethod.POST);
   }
 
   @Test

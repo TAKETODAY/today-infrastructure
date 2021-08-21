@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -569,7 +569,7 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * Clears any data that exists in the buffer as well as the status code,
    * headers. The state of calling {@link #getWriter} or {@link #getOutputStream}
    * is also cleared. It is legal, for instance, to call {@link #getWriter},
-   * {@link #reset} and then {@link #getOutputStream}. If {@link #getWriter} or
+   * reset() and then {@link #getOutputStream}. If {@link #getWriter} or
    * {@link #getOutputStream} have been called before this method, then the
    * corresponding returned Writer or OutputStream will be staled and the
    * behavior of using the stale object is undefined. If the response has been

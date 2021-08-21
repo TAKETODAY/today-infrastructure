@@ -29,7 +29,7 @@ import cn.taketoday.beans.Import;
 import cn.taketoday.beans.Singleton;
 import cn.taketoday.framework.WebApplication;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestMethod;
+import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.POST;
@@ -51,7 +51,7 @@ public class LightWebApplication {
     WebApplication.runReactive(LightWebApplication.class);
   }
 
-  @ActionMapping(value = { "/", "/index", "/index.html" }, method = { RequestMethod.GET, RequestMethod.POST })
+  @ActionMapping(value = { "/", "/index", "/index.html" }, method = { HttpMethod.GET, HttpMethod.POST })
   public String index(RequestContext request, @RequestParam String arr) {
 
     String userId = request.getParameter("userId");
