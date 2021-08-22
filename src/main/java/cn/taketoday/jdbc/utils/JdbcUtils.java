@@ -151,15 +151,15 @@ public abstract class JdbcUtils {
 
       // Corresponding SQL types for JSR-310 / Joda-Time types, left up
       // to the caller to convert them (e.g. through a ConversionService).
-      String typeName = requiredType.getSimpleName();
-      if ("LocalDate".equals(typeName)) {
-        return rs.getDate(index);
-      }
-      else if ("LocalTime".equals(typeName)) {
-        return rs.getTime(index);
-      }
-      else if ("LocalDateTime".equals(typeName)) {
-        return rs.getTimestamp(index);
+      switch (requiredType.getSimpleName()) {
+        case "LocalDate":
+          return rs.getDate(index);
+        case "LocalTime":
+          return rs.getTime(index);
+        case "LocalDateTime":
+          return rs.getTimestamp(index);
+        default:
+          break;
       }
 
       // Fall back to getObject without type specification, again
@@ -267,8 +267,8 @@ public abstract class JdbcUtils {
     try {
       close(conn);
     }
-    catch (SQLException e) { // NOPMD
-      // quiet
+    catch (SQLException e) {
+      log.warn("Could not close connection. connection: {}", conn, e);
     }
   }
 
@@ -285,7 +285,6 @@ public abstract class JdbcUtils {
    *         ResultSet to close.
    */
   public static void closeQuietly(Connection conn, Statement stmt, ResultSet rs) {
-
     try {
       closeQuietly(rs);
     }
@@ -311,8 +310,8 @@ public abstract class JdbcUtils {
     try {
       close(rs);
     }
-    catch (SQLException e) { // NOPMD
-      // quiet
+    catch (SQLException e) {
+      log.warn("Could not close ResultSet. result-set: {}", rs, e);
     }
   }
 
@@ -327,8 +326,8 @@ public abstract class JdbcUtils {
     try {
       close(stmt);
     }
-    catch (SQLException e) { // NOPMD
-      // quiet
+    catch (SQLException e) {
+      log.warn("Could not close statement. statement: {}", stmt, e);
     }
   }
 
@@ -363,8 +362,8 @@ public abstract class JdbcUtils {
     try {
       commitAndClose(conn);
     }
-    catch (SQLException e) { // NOPMD
-      // quiet
+    catch (SQLException e) {
+      log.warn("Could not commit and close. Connection: {}", conn, e);
     }
   }
 
@@ -474,8 +473,8 @@ public abstract class JdbcUtils {
     try {
       rollbackAndClose(conn);
     }
-    catch (SQLException e) { // NOPMD
-      // quiet
+    catch (SQLException e) {
+      log.warn("Could not rollback and close. Connection: {}", conn, e);
     }
   }
 

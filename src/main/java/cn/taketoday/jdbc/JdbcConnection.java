@@ -79,6 +79,9 @@ public final class JdbcConnection implements Closeable {
     return new Query(this, queryText, columnNames);
   }
 
+  /**
+   * @throws PersistenceException
+   */
   private void createConnectionIfNecessary() {
     try {
       if (root.isClosed()) {
@@ -101,11 +104,35 @@ public final class JdbcConnection implements Closeable {
             .withParams(paramValues);
   }
 
+  /**
+   * Undoes all changes made in the current transaction
+   * and releases any database locks currently held
+   * by this <code>Connection</code> object. This method should be
+   * used only when auto-commit mode has been disabled.
+   *
+   * @throws PersistenceException
+   *         if a database access error occurs,
+   *         this method is called while participating in a distributed transaction,
+   *         this method is called on a closed connection or this
+   *         <code>Connection</code> object is in auto-commit mode
+   */
   public JdbcOperations rollback() {
     rollback(true);
     return operations;
   }
 
+  /**
+   * Undoes all changes made in the current transaction
+   * and releases any database locks currently held
+   * by this <code>Connection</code> object. This method should be
+   * used only when auto-commit mode has been disabled.
+   *
+   * @throws PersistenceException
+   *         if a database access error occurs,
+   *         this method is called while participating in a distributed transaction,
+   *         this method is called on a closed connection or this
+   *         <code>Connection</code> object is in auto-commit mode
+   */
   public JdbcConnection rollback(boolean closeConnection) {
     try {
       root.rollback();
@@ -121,11 +148,40 @@ public final class JdbcConnection implements Closeable {
     return this;
   }
 
+  /**
+   * Makes all changes made since the previous
+   * commit/rollback permanent and releases any database locks
+   * currently held by this <code>Connection</code> object.
+   * This method should be
+   * used only when auto-commit mode has been disabled.
+   *
+   * @throws PersistenceException
+   *         if a database access error occurs,
+   *         this method is called while participating in a distributed transaction,
+   *         if this method is called on a closed connection or this
+   *         <code>Connection</code> object is in auto-commit mode
+   */
   public JdbcOperations commit() {
     commit(true);
     return operations;
   }
 
+  /**
+   * Makes all changes made since the previous
+   * commit/rollback permanent and releases any database locks
+   * currently held by this <code>Connection</code> object.
+   * This method should be
+   * used only when auto-commit mode has been disabled.
+   *
+   * @param closeConnection
+   *         close connection
+   *
+   * @throws PersistenceException
+   *         if a database access error occurs,
+   *         this method is called while participating in a distributed transaction,
+   *         if this method is called on a closed connection or this
+   *         <code>Connection</code> object is in auto-commit mode
+   */
   public JdbcConnection commit(boolean closeConnection) {
     try {
       root.commit();
@@ -143,7 +199,8 @@ public final class JdbcConnection implements Closeable {
 
   public int getResult() {
     if (result == null) {
-      throw new PersistenceException("It is required to call executeUpdate() method before calling getResult().");
+      throw new PersistenceException(
+              "It is required to call executeUpdate() method before calling getResult().");
     }
     return result;
   }
@@ -154,7 +211,8 @@ public final class JdbcConnection implements Closeable {
 
   public int[] getBatchResult() {
     if (batchResult == null) {
-      throw new PersistenceException("It is required to call executeBatch() method before calling getBatchResult().");
+      throw new PersistenceException(
+              "It is required to call executeBatch() method before calling getBatchResult().");
     }
     return batchResult;
   }
@@ -322,11 +380,12 @@ public final class JdbcConnection implements Closeable {
   private void createConnection() {
     try {
       this.root = connectionSource.getConnection();
+      // if a database access error occurs or this method is called on a closed connection
       this.originalAutoCommit = root.getAutoCommit();
     }
     catch (SQLException ex) {
       throw new PersistenceException(
-              "Could not acquire a connection from DataSource - " + ex.getMessage(), ex);
+              "Could not acquire a connection from connection-source: " + connectionSource, ex);
     }
   }
 
@@ -342,12 +401,8 @@ public final class JdbcConnection implements Closeable {
         log.warn("Could not reset autocommit state for connection to {}.", originalAutoCommit, e);
       }
     }
-    try {
-      root.close();
-    }
-    catch (SQLException e) {
-      log.warn("Could not close connection. message: {}", e);
-    }
+
+    JdbcUtils.closeQuietly(root);
   }
 
   //
