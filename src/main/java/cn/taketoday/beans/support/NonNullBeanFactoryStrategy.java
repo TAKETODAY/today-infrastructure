@@ -29,6 +29,7 @@ import cn.taketoday.core.OrderedSupport;
 
 /**
  * @author TODAY 2021/8/22 22:47
+ * @since 4.0
  */
 public abstract class NonNullBeanFactoryStrategy
         extends OrderedSupport implements ArgumentsResolvingStrategy {

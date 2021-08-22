@@ -65,6 +65,8 @@ public class StrategiesDetector {
   private ClassLoader classLoader = ClassUtils.getClassLoader();
   private BeanFactory beanFactory;
   private boolean throwWhenClassNotFound = false;
+  // do log when class not found
+  private boolean logWhenClassNotFound = false;
 
   private final DefaultMultiValueMap<String, String> strategies = new DefaultMultiValueMap<>();
 
@@ -205,7 +207,7 @@ public class StrategiesDetector {
       if (throwWhenClassNotFound) {
         throw new IllegalStateException("class '" + className + "' not found", e);
       }
-      else {
+      else if (logWhenClassNotFound) {
         log.warn("class '{}' not found", className, e);
       }
     }
@@ -370,6 +372,14 @@ public class StrategiesDetector {
 
   public BeanFactory getBeanFactory() {
     return beanFactory;
+  }
+
+  public void setLogWhenClassNotFound(boolean logWhenClassNotFound) {
+    this.logWhenClassNotFound = logWhenClassNotFound;
+  }
+
+  public boolean isLogWhenClassNotFound() {
+    return logWhenClassNotFound;
   }
 
   // static
