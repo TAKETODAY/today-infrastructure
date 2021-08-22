@@ -39,7 +39,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import cn.taketoday.beans.support.ArgumentsResolver;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.Env;
 import cn.taketoday.context.Props;
@@ -175,7 +177,7 @@ public class ContextUtilsTest {
 //      System.err.println(properties.get("placeHolder"));
       ContextUtils.setLastStartupContext(applicationContext);
 
-      Object[] parameters = ContextUtils.resolveParameter(constructor, beanFactory);
+      Object[] parameters = ArgumentsResolver.sharedInstance.resolve(constructor, beanFactory);
 
       Config newInstance = constructor.newInstance(parameters);
 

@@ -33,7 +33,10 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.support.ArgumentsResolver;
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.loader.NoSuchPropertyException;
 import cn.taketoday.core.Assert;
@@ -43,15 +46,12 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.reflect.BeanConstructor;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.util.AnnotationUtils;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ContextUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
-import static cn.taketoday.util.ContextUtils.resolveParameter;
 
 /**
  * Default implementation of {@link BeanDefinition}
@@ -377,7 +377,7 @@ public class DefaultBeanDefinition
   public Executable getExecutable() {
     Executable executable = this.executable;
     if (executable == null) {
-      executable = ClassUtils.getSuitableConstructor(getBeanClass());
+      executable = BeanUtils.getSuitableConstructor(getBeanClass());
       this.executable = executable;
     }
     return executable;
@@ -391,7 +391,7 @@ public class DefaultBeanDefinition
       return instanceSupplier.get();
     }
     final BeanConstructor<?> target = getConstructor(factory);
-    final Object[] args = resolveParameter(getExecutable(), factory);
+    final Object[] args = ArgumentsResolver.sharedInstance.resolve(getExecutable(), factory);
     return target.newInstance(args);
   }
 
@@ -421,7 +421,8 @@ public class DefaultBeanDefinition
     final MethodInvoker[] methodInvokers = this.methodInvokers;
     if (ObjectUtils.isNotEmpty(methodInvokers)) {
       for (final MethodInvoker methodInvoker : methodInvokers) {
-        final Object[] args = resolveParameter(methodInvoker.getMethod(), beanFactory);
+        final Object[] args = ArgumentsResolver.sharedInstance.resolve(
+                methodInvoker.getMethod(), beanFactory);
         methodInvoker.invoke(bean, args);
       }
     }

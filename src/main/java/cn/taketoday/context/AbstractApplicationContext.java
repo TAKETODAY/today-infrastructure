@@ -43,6 +43,7 @@ import cn.taketoday.beans.factory.BeanReferencePropertySetter;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.ValueExpressionContext;
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.event.ApplicationEventCapable;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.BeanDefinitionLoadedEvent;
@@ -68,7 +69,6 @@ import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ContextUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.GenericTypeResolver;
 import cn.taketoday.util.ObjectUtils;
@@ -417,7 +417,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
       Object applicationListener = getSingleton(listenerClass);
       if (applicationListener == null) {
         // create bean instance
-        applicationListener = ClassUtils.newInstance(listenerClass, this);
+        applicationListener = BeanUtils.newInstance(listenerClass, this);
         registerSingleton(applicationListener);
       }
       addApplicationListener((ApplicationListener<?>) applicationListener);

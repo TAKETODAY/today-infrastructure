@@ -36,15 +36,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.WeakHashMap;
 
-import cn.taketoday.beans.BeanMetadata;
-import cn.taketoday.beans.BeanProperty;
+import cn.taketoday.beans.support.BeanMetadata;
+import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.EmptyObject;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.reflect.ReflectionException;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -110,7 +110,7 @@ public abstract class AnnotationMetaReader {
         Assert.notNull(implClass, "Implementation class can't be null");
         ret = Array.newInstance(annotationClass, annAttributes.length);
         for (final AnnotationAttributes attributes : annAttributes) {
-          Array.set(ret, i++, injectAttributes(attributes, annotationClass, ClassUtils.newInstance(implClass)));
+          Array.set(ret, i++, injectAttributes(attributes, annotationClass, BeanUtils.newInstance(implClass)));
         }
       }
       ANNOTATIONS.put(key, ret);

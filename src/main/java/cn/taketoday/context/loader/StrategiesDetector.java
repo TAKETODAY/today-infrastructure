@@ -29,6 +29,7 @@ import java.util.function.Consumer;
 
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.DefaultMultiValueMap;
@@ -79,7 +80,7 @@ public class StrategiesDetector {
     }
     else {
       try {
-        strategiesReader = ClassUtils.newInstance(strategiesFileType);
+        strategiesReader = BeanUtils.newInstance(strategiesFileType);
       }
       catch (ClassNotFoundException e) {
         throw new UnsupportedOperationException("Unsupported strategies file type");
@@ -157,7 +158,7 @@ public class StrategiesDetector {
   }
 
   private static Object createInstance(Class<?> strategy, BeanFactory factory) {
-    final Object instance = ClassUtils.newInstance(strategy, factory);
+    final Object instance = BeanUtils.newInstance(strategy, factory);
     if (factory instanceof AutowireCapableBeanFactory) {
       // autowire, dont apply bean post processor
       ((AutowireCapableBeanFactory) factory).autowireBean(strategy);

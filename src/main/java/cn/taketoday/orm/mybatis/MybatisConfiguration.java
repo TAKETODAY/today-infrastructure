@@ -39,6 +39,7 @@ import cn.taketoday.beans.Repository;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.beans.factory.FactoryBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.Env;
 import cn.taketoday.context.Props;
 import cn.taketoday.context.event.ApplicationListener;
@@ -48,12 +49,11 @@ import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.util.ContextUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.SingletonSupplier;
 import cn.taketoday.util.StringUtils;
 
-import static cn.taketoday.util.ContextUtils.getResourceAsStream;
+import static cn.taketoday.context.ContextUtils.getResourceAsStream;
 
 /**
  * @author TODAY <br>

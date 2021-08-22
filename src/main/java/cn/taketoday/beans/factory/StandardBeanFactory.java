@@ -48,6 +48,7 @@ import cn.taketoday.beans.Prototype;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.ConfigurableEnvironment;
+import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.aware.ImportAware;
@@ -72,18 +73,17 @@ import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ContextUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
+import static cn.taketoday.context.ContextUtils.findNames;
+import static cn.taketoday.context.ContextUtils.resolveInitMethod;
+import static cn.taketoday.context.ContextUtils.resolveProps;
 import static cn.taketoday.core.Constant.VALUE;
 import static cn.taketoday.util.AnnotationUtils.getAttributesArray;
-import static cn.taketoday.util.ContextUtils.findNames;
-import static cn.taketoday.util.ContextUtils.resolveInitMethod;
-import static cn.taketoday.util.ContextUtils.resolveProps;
 import static cn.taketoday.util.ReflectionUtils.makeAccessible;
 
 /**

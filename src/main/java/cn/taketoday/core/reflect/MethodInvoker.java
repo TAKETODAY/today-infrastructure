@@ -27,6 +27,7 @@ import java.util.Objects;
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.ClassGenerator;
 import cn.taketoday.cglib.core.CodeEmitter;
@@ -196,7 +197,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
     @Override
     protected MethodInvoker newInstance(Class<MethodInvoker> accessorClass) throws NoSuchMethodException {
       final Constructor<MethodInvoker> constructor = accessorClass.getDeclaredConstructor(Method.class);
-      return ClassUtils.newInstance(constructor, new Object[] { targetMethod });
+      return BeanUtils.newInstance(constructor, new Object[] { targetMethod });
     }
 
     @Override

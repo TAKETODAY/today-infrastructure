@@ -26,6 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Type;
 import cn.taketoday.beans.factory.BeanInstantiationException;
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.ClassGenerator;
@@ -103,7 +104,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
    *         cannot generate class
    * @throws BeanInstantiationException
    *         cannot create a {@link Accessor}
-   * @see ClassUtils#newInstance(Constructor, Object[])
+   * @see BeanUtils#newInstance(Constructor, Object[])
    */
   private T createInternal() throws Exception {
     if (cannotAccess()) {
@@ -117,8 +118,8 @@ public abstract class GeneratorSupport<T extends Accessor> {
    * @since 3.0.2
    */
   protected T newInstance(Class<T> accessorClass) throws Exception {
-    final Constructor<T> constructor = ClassUtils.obtainConstructor(accessorClass);
-    return ClassUtils.newInstance(constructor, null);
+    final Constructor<T> constructor = BeanUtils.obtainConstructor(accessorClass);
+    return BeanUtils.newInstance(constructor, null);
   }
 
   @SuppressWarnings("unchecked")

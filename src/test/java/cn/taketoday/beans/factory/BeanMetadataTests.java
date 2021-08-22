@@ -22,7 +22,7 @@ package cn.taketoday.beans.factory;
 
 import org.junit.Test;
 
-import cn.taketoday.beans.BeanMetadata;
+import cn.taketoday.beans.support.BeanMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

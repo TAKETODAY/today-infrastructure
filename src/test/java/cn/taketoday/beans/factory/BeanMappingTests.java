@@ -25,7 +25,7 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import cn.taketoday.beans.BeanMapping;
+import cn.taketoday.beans.support.BeanMapping;
 import cn.taketoday.cglib.beans.BeanMap;
 import cn.taketoday.cglib.proxy.CallbackFilter;
 import cn.taketoday.cglib.proxy.Dispatcher;

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 
+import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.Props;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
@@ -36,7 +37,6 @@ import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.expression.ValueExpression;
 import cn.taketoday.expression.VariableMapper;
 import cn.taketoday.expression.lang.EvaluationContext;
-import cn.taketoday.util.ContextUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;

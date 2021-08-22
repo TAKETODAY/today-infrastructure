@@ -25,11 +25,11 @@ import java.util.Properties;
 
 import cn.taketoday.beans.factory.DefaultPropertySetter;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.Props;
 import cn.taketoday.context.aware.OrderedApplicationContextSupport;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.util.AnnotationUtils;
-import cn.taketoday.util.ContextUtils;
 
 /**
  * @author TODAY <br>

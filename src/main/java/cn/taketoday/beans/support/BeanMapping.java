@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans;
+package cn.taketoday.beans.support;
 
 import java.util.AbstractMap;
 import java.util.Collections;
@@ -90,37 +90,36 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
       this.value = value;
     }
 
-    public final K getKey() { return key; }
+    public K getKey() { return key; }
 
-    public final V getValue() { return value; }
+    public V getValue() { return value; }
 
-    public final String toString() { return key + "=" + value; }
+    public String toString() { return key + "=" + value; }
 
-    public final int hashCode() {
+    public int hashCode() {
       return Objects.hashCode(key) ^ Objects.hashCode(value);
     }
 
-    public final V setValue(V newValue) {
+    public V setValue(V newValue) {
       V oldValue = value;
       value = newValue;
       return oldValue;
     }
 
-    public final boolean equals(Object o) {
+    public boolean equals(Object o) {
       if (o == this)
         return true;
       if (o instanceof Map.Entry) {
         Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
-        if (Objects.equals(key, e.getKey()) &&
-                Objects.equals(value, e.getValue()))
-          return true;
+        return Objects.equals(key, e.getKey()) &&
+                Objects.equals(value, e.getValue());
       }
       return false;
     }
   }
 
   @Override
-  public final Object get(Object key) {
+  public Object get(Object key) {
     if (key instanceof String) {
       return get(obtainTarget(), (String) key);
     }

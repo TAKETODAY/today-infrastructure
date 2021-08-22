@@ -38,7 +38,7 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.beans.Import;
 import cn.taketoday.beans.Singleton;
 import cn.taketoday.context.aware.ApplicationContextSupport;
-import cn.taketoday.util.ContextUtils;
+import cn.taketoday.context.ContextUtils;
 
 /**
  * @author Today <br>

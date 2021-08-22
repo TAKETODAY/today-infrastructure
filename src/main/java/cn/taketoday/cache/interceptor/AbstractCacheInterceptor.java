@@ -40,6 +40,7 @@ import cn.taketoday.cache.NoSuchCacheException;
 import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ContextUtils;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
@@ -50,7 +51,6 @@ import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentCache;
-import cn.taketoday.util.ContextUtils;
 import cn.taketoday.util.StringUtils;
 
 /**

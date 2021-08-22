@@ -26,7 +26,7 @@ import javax.websocket.server.ServerEndpoint;
 import javax.websocket.server.ServerEndpointConfig;
 
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.util.ClassUtils;
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.socket.StandardEndpoint;
 import cn.taketoday.web.socket.WebSocketHandler;
@@ -56,7 +56,7 @@ public class StandardAnnotationWebSocketHandlerBuilder extends AnnotationWebSock
       ServerEndpointConfig.Configurator configuratorObject = null;
       final Class<? extends ServerEndpointConfig.Configurator> configurator = serverEndpoint.configurator();
       if (!configurator.equals(ServerEndpointConfig.Configurator.class)) {
-        configuratorObject = ClassUtils.newInstance(configurator);
+        configuratorObject = BeanUtils.newInstance(configurator);
       }
       ServerEndpointConfig endpointConfig = ServerEndpointConfig.Builder
               .create(StandardEndpoint.class, serverEndpoint.value())

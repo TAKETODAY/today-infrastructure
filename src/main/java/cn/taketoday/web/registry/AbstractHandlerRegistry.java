@@ -20,10 +20,10 @@
 package cn.taketoday.web.registry;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.util.ContextUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 

@@ -32,7 +32,7 @@ import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 
-import static cn.taketoday.util.ContextUtils.destroyBean;
+import static cn.taketoday.context.ContextUtils.destroyBean;
 import static cn.taketoday.util.ExceptionUtils.unwrapThrowable;
 
 /**

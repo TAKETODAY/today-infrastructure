@@ -27,6 +27,7 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.beans.support.ArgumentsResolver;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
@@ -34,7 +35,6 @@ import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.util.AnnotationUtils;
-import cn.taketoday.util.ContextUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -129,7 +129,7 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
     @Override
     public void onApplicationEvent(final Object event) { // any event type
       final Object[] parameter
-              = ContextUtils.resolveParameter(targetMethod, beanFactory, new Object[] { event });
+              = ArgumentsResolver.sharedInstance.resolve(targetMethod, beanFactory, new Object[] { event });
       // native invoke public,protected,default method
       methodInvoker.invoke(bean, parameter);
     }

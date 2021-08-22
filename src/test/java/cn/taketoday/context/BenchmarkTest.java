@@ -10,6 +10,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.reflect.BeanConstructor;
 import cn.taketoday.core.reflect.MethodAccessor;
 import cn.taketoday.core.reflect.MethodInvoker;
@@ -73,7 +74,7 @@ public class BenchmarkTest {
     @Test
     public void testConstructor() throws Exception {
 
-        Constructor<ConstructorTestBean> constructor = ClassUtils.obtainConstructor(ConstructorTestBean.class);
+        Constructor<ConstructorTestBean> constructor = BeanUtils.obtainConstructor(ConstructorTestBean.class);
 
         BeanConstructor<ConstructorTestBean> beanConstructor = ReflectionUtils.newConstructor(ConstructorTestBean.class);
 

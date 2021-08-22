@@ -30,7 +30,7 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.util.SingletonSupplier;
 
-import static cn.taketoday.util.ContextUtils.createBeanDefinition;
+import static cn.taketoday.context.ContextUtils.createBeanDefinition;
 
 /**
  * FactoryBean's BeanDefinition

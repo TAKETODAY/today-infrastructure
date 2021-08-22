@@ -25,7 +25,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.beans.BeanProperties;
+import cn.taketoday.beans.support.BeanProperties;
 import lombok.Data;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.reflect.ArrayConstructor;
@@ -1203,7 +1204,7 @@ public abstract class ReflectionUtils {
    * @return {@link BeanConstructor}
    */
   public static <T> BeanConstructor<T> newConstructor(final Class<T> targetClass) {
-    final Constructor<T> suitableConstructor = ClassUtils.getSuitableConstructor(targetClass);
+    final Constructor<T> suitableConstructor = BeanUtils.getSuitableConstructor(targetClass);
     if (suitableConstructor == null) {
       throw new ReflectionException("No suitable constructor in class: " + targetClass);
     }

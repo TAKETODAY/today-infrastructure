@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import cn.taketoday.beans.BeanProperty;
+import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.Assert;
 
 /**

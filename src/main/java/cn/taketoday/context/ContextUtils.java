@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.util;
+package cn.taketoday.context;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,7 +26,6 @@ import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -55,25 +54,9 @@ import cn.taketoday.beans.factory.DefaultPropertySetter;
 import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.beans.factory.StandardBeanDefinition;
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.context.Condition;
-import cn.taketoday.context.Conditional;
-import cn.taketoday.context.DefaultProps;
-import cn.taketoday.context.Env;
-import cn.taketoday.context.Environment;
-import cn.taketoday.context.ExpressionEvaluator;
-import cn.taketoday.context.Props;
-import cn.taketoday.context.Value;
-import cn.taketoday.context.loader.ArrayParameterResolver;
-import cn.taketoday.context.loader.AutowiredParameterResolver;
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.loader.AutowiredPropertyResolver;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
-import cn.taketoday.context.loader.CollectionParameterResolver;
-import cn.taketoday.context.loader.ExecutableParameterResolver;
-import cn.taketoday.context.loader.MapParameterResolver;
-import cn.taketoday.context.loader.ObjectSupplierParameterResolver;
-import cn.taketoday.context.loader.StrategiesDetector;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConcurrentProperties;
@@ -83,6 +66,15 @@ import cn.taketoday.core.Nullable;
 import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ConvertUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.OrderUtils;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * ApplicationContext Utils
@@ -100,29 +92,10 @@ public abstract class ContextUtils {
   // @since 2.1.6 shared applicationContext
   private static ApplicationContext lastStartupContext;
 
-  private static ExecutableParameterResolver[] parameterResolvers;
-
   /**
    * @since 3.0
    */
   private static ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator();
-
-  static {
-    final StrategiesDetector strategiesDetector = StrategiesDetector.getSharedInstance();
-    final List<ExecutableParameterResolver> strategies
-            = strategiesDetector.getStrategies(ExecutableParameterResolver.class);
-
-    Collections.addAll(strategies,
-                       new MapParameterResolver(),
-                       new ArrayParameterResolver(),
-                       new CollectionParameterResolver(),
-                       new ObjectSupplierParameterResolver(),
-                       new EnvExecutableParameterResolver(),
-                       new ValueExecutableParameterResolver(),
-                       new AutowiredParameterResolver()
-    );
-    setParameterResolvers(strategies);
-  }
 
   /**
    * Get {@link ApplicationContext}
@@ -516,7 +489,7 @@ public abstract class ContextUtils {
    * @since 2.1.5
    */
   public static <T> T resolveProps(final Props props, final Class<T> beanClass, final Properties properties) {
-    return resolveProps(props, ClassUtils.newInstance(beanClass), properties);
+    return resolveProps(props, BeanUtils.newInstance(beanClass), properties);
   }
 
   /**
@@ -659,7 +632,7 @@ public abstract class ContextUtils {
     Assert.notNull(condition, "Condition Class must not be null");
 
     for (final Class<? extends Condition> conditionClass : condition) {
-      if (!ClassUtils.newInstance(conditionClass, context).matches(context, annotated)) {
+      if (!BeanUtils.newInstance(conditionClass, context).matches(context, annotated)) {
         return false; // can't match
       }
     }
@@ -911,162 +884,10 @@ public abstract class ContextUtils {
     final Set<Class<?>> classes = loadFromMetaInfo(resource);
     Set<T> ret = new HashSet<>();
     for (final Class<?> aClass : classes) {
-      final Object obj = ClassUtils.newInstance(aClass, beanFactory);
+      final Object obj = BeanUtils.newInstance(aClass, beanFactory);
       ret.add((T) obj);
     }
     return ret;
   }
 
-  // ExecutableParameterResolver @since 2.17
-  // ----------------------------------------------
-
-  public static ExecutableParameterResolver[] getParameterResolvers() {
-    return parameterResolvers;
-  }
-
-  public static void setParameterResolvers(ExecutableParameterResolver... resolvers) {
-    Assert.notNull(resolvers, "ExecutableParameterResolvers must not null");
-    parameterResolvers = OrderUtils.reversedSort(resolvers);
-  }
-
-  /**
-   * @since 4.0
-   */
-  public static void setParameterResolvers(List<ExecutableParameterResolver> resolvers) {
-    Assert.notNull(resolvers, "ExecutableParameterResolvers must not null");
-    ExecutableParameterResolver[] array = resolvers.toArray(new ExecutableParameterResolver[0]);
-    parameterResolvers = OrderUtils.reversedSort(array);
-  }
-
-  public static void addParameterResolvers(ExecutableParameterResolver... resolvers) {
-    if (ObjectUtils.isNotEmpty(resolvers)) {
-      if (parameterResolvers != null) {
-        List<ExecutableParameterResolver> newResolvers = new ArrayList<>();
-        Collections.addAll(newResolvers, parameterResolvers);
-        Collections.addAll(newResolvers, resolvers);
-        setParameterResolvers(newResolvers);
-      }
-      else {
-        setParameterResolvers(resolvers);
-      }
-    }
-  }
-
-  /**
-   * @since 4.0
-   */
-  public static void addParameterResolvers(List<ExecutableParameterResolver> resolvers) {
-    if (!CollectionUtils.isEmpty(resolvers)) {
-      if (parameterResolvers != null) {
-        List<ExecutableParameterResolver> newResolvers = new ArrayList<>();
-        Collections.addAll(newResolvers, parameterResolvers);
-        newResolvers.addAll(resolvers);
-        setParameterResolvers(newResolvers);
-      }
-      else {
-        setParameterResolvers(resolvers);
-      }
-    }
-  }
-
-  /**
-   * Resolve parameters list
-   *
-   * @param executable
-   *         Target executable instance {@link Method} or a {@link Constructor}
-   * @param beanFactory
-   *         Bean factory
-   *
-   * @return Parameter list objects
-   *
-   * @since 2.1.2
-   */
-  public static Object[] resolveParameter(final Executable executable, final BeanFactory beanFactory) {
-    return resolveParameter(executable, beanFactory, null);
-  }
-
-  /**
-   * Resolve parameters list
-   *
-   * @param executable
-   *         Target executable instance {@link Method} or a {@link Constructor}
-   * @param beanFactory
-   *         Bean factory
-   * @param providedArgs
-   *         provided args
-   *
-   * @return Parameter list objects
-   *
-   * @since 3.0
-   */
-  public static Object[] resolveParameter(
-          final Executable executable, final BeanFactory beanFactory, Object[] providedArgs) {
-    Assert.notNull(executable, "Executable must not be null");
-    final int parameterLength = executable.getParameterCount();
-    if (parameterLength != 0) {
-      Assert.notNull(beanFactory, "BeanFactory must not be null");
-      // parameter list
-      final Object[] args = new Object[parameterLength];
-      int i = 0;
-      for (final Parameter parameter : executable.getParameters()) {
-        Object argument = findProvidedArgument(parameter, providedArgs);
-        if (argument == null) {
-          argument = getParameterResolver(parameter).resolve(parameter, beanFactory);
-        }
-        args[i++] = argument;
-      }
-      return args;
-    }
-    return null;
-  }
-
-  protected static Object findProvidedArgument(Parameter parameter, Object[] providedArgs) {
-    if (ObjectUtils.isNotEmpty(providedArgs)) {
-      final Class<?> parameterType = parameter.getType();
-      for (final Object providedArg : providedArgs) {
-        if (parameterType.isInstance(providedArg)) {
-          return providedArg;
-        }
-      }
-    }
-
-    return null;
-  }
-
-  public static ExecutableParameterResolver getParameterResolver(final Parameter parameter) {
-    for (final ExecutableParameterResolver resolver : parameterResolvers) {
-      if (resolver.supports(parameter)) {
-        return resolver;
-      }
-    }
-    throw new ConfigurationException("Target parameter:[" + parameter + "] not supports in this context.");
-  }
-
-  // ExecutableParameterResolver
-
-  private static final class EnvExecutableParameterResolver implements ExecutableParameterResolver {
-
-    @Override
-    public boolean supports(Parameter parameter) {
-      return parameter.isAnnotationPresent(Env.class);
-    }
-
-    @Override
-    public Object resolve(Parameter parameter, BeanFactory beanFactory) {
-      return expressionEvaluator.evaluate(parameter.getAnnotation(Env.class), parameter.getType());
-    }
-  }
-
-  private static final class ValueExecutableParameterResolver implements ExecutableParameterResolver {
-
-    @Override
-    public boolean supports(Parameter parameter) {
-      return parameter.isAnnotationPresent(Value.class);
-    }
-
-    @Override
-    public Object resolve(Parameter parameter, BeanFactory beanFactory) {
-      return expressionEvaluator.evaluate(parameter.getAnnotation(Value.class), parameter.getType());
-    }
-  }
 }

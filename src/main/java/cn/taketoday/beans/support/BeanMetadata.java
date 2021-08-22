@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans;
+package cn.taketoday.beans.support;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import cn.taketoday.beans.Property;
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
 import cn.taketoday.context.loader.NoSuchPropertyException;
 import cn.taketoday.core.reflect.ConstructorAccessor;

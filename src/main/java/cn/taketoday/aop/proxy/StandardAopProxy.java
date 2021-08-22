@@ -36,6 +36,7 @@ import cn.taketoday.aop.proxy.std.ProxyMethodGenerator;
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
@@ -164,7 +165,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
     public Class<?>[] getParameterTypes() {
       if (parameterTypes == null) {
         if (constructor == null) {
-          constructor = ClassUtils.getSuitableConstructor(targetClass);
+          constructor = BeanUtils.getSuitableConstructor(targetClass);
           if (constructor == null) {
             throw new CodeGenerationException("No suitable constructor found in class: [" + targetClass + "]");
           }

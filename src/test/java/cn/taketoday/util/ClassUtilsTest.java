@@ -42,6 +42,7 @@ import java.util.Map;
 import cn.taketoday.beans.Autowired;
 import cn.taketoday.beans.Prototype;
 import cn.taketoday.beans.Singleton;
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.cglib.proxy.Enhancer;
 import cn.taketoday.cglib.proxy.MethodInterceptor;
 import cn.taketoday.cglib.proxy.MethodProxy;
@@ -185,10 +186,10 @@ public class ClassUtilsTest {
     final Method method = AutowiredOnConstructor.class.getDeclaredMethod("test");
     ReflectionUtils.accessInvokeMethod(method, new AutowiredOnConstructor(null));
 
-    assert ClassUtils.newInstance(ClassUtilsTest.class.getName()) != null;
+    assert BeanUtils.newInstance(ClassUtilsTest.class.getName()) != null;
 
     try {
-      ClassUtils.newInstance("not found");
+      BeanUtils.newInstance("not found");
       assert false;
     }
     catch (Exception e) {
@@ -294,7 +295,7 @@ public class ClassUtilsTest {
             .contains(Integer.class);
 
     // param
-    Constructor<Generic> constructor = ClassUtils.getSuitableConstructor(Generic.class);
+    Constructor<Generic> constructor = BeanUtils.getSuitableConstructor(Generic.class);
     Parameter[] parameters = constructor.getParameters();
 
     assertThat(ClassUtils.getGenericTypes(parameters[0]))
@@ -464,13 +465,13 @@ public class ClassUtilsTest {
   //
   @Test
   public void testNewInstance() {
-    final TestNewInstanceBean testNewInstanceBean = ClassUtils.newInstance(TestNewInstanceBean.class);
+    final TestNewInstanceBean testNewInstanceBean = BeanUtils.newInstance(TestNewInstanceBean.class);
 
     System.out.println(testNewInstanceBean);
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
 
-      final TestNewInstanceBeanProvidedArgs providedArgs = ClassUtils
+      final TestNewInstanceBeanProvidedArgs providedArgs = BeanUtils
               .newInstance(TestNewInstanceBeanProvidedArgs.class, context, new Object[] { 1, "TODAY" });
 
       System.out.println(providedArgs);

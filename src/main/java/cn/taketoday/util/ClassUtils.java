@@ -26,7 +26,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -57,10 +56,6 @@ import cn.taketoday.asm.Label;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
-import cn.taketoday.beans.Autowired;
-import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.core.Assert;
@@ -351,184 +346,6 @@ public abstract class ClassUtils {
 
   public static String getClassName(final InputStream inputStream) throws IOException {
     return getClassName(new ClassReader(inputStream));
-  }
-
-  // ----------------------------- new instance
-
-  /**
-   * Get instance with bean class use default {@link Constructor}
-   *
-   * @param beanClass
-   *         bean class
-   *
-   * @return the instance of target class
-   *
-   * @throws BeanInstantiationException
-   *         if any reflective operation exception occurred
-   * @since 2.1.2
-   */
-  public static <T> T newInstance(Class<T> beanClass) {
-    return newInstance(beanClass, ContextUtils.getLastStartupContext());
-  }
-
-  /**
-   * Get instance with bean class
-   *
-   * @param beanClassName
-   *         bean class name string
-   *
-   * @return the instance of target class
-   *
-   * @throws ClassNotFoundException
-   *         If the class was not found
-   * @since 2.1.2
-   */
-  @SuppressWarnings("unchecked")
-  public static <T> T newInstance(String beanClassName) throws ClassNotFoundException {
-    return (T) newInstance(classLoader.loadClass(beanClassName));
-  }
-
-  /**
-   * Use default {@link BeanDefinition#newInstance(BeanFactory)}
-   * to create bean instance.
-   *
-   * @param def
-   *         Target bean's definition
-   * @param beanFactory
-   *         Bean factory
-   *
-   * @return {@link BeanDefinition} 's instance
-   *
-   * @throws BeanInstantiationException
-   *         if any reflective operation exception occurred
-   * @since 2.1.5
-   */
-  public static Object newInstance(final BeanDefinition def, final BeanFactory beanFactory) {
-    return def.newInstance(beanFactory);
-  }
-
-  /**
-   * Use default {@link Constructor} or Annotated {@link Autowired}
-   * {@link Constructor} to create bean instance.
-   *
-   * @param beanClass
-   *         target bean class
-   * @param beanFactory
-   *         bean factory
-   *
-   * @return bean class 's instance
-   *
-   * @throws BeanInstantiationException
-   *         if any reflective operation exception occurred
-   */
-  public static <T> T newInstance(final Class<T> beanClass, final BeanFactory beanFactory) {
-    return newInstance(beanClass, beanFactory, null);
-  }
-
-  /**
-   * Use default {@link Constructor} or Annotated {@link Autowired}
-   * {@link Constructor} to create bean instance.
-   *
-   * @param beanClass
-   *         target bean class
-   * @param beanFactory
-   *         bean factory
-   * @param providedArgs
-   *         User provided arguments
-   *
-   * @return bean class 's instance
-   *
-   * @throws BeanInstantiationException
-   *         if any reflective operation exception occurred
-   */
-  public static <T> T newInstance(final Class<T> beanClass, final BeanFactory beanFactory, Object[] providedArgs) {
-    final Constructor<T> constructor = obtainConstructor(beanClass);
-    final Object[] parameter = ContextUtils.resolveParameter(constructor, beanFactory, providedArgs);
-    return newInstance(constructor, parameter);
-  }
-
-  public static <T> T newInstance(Constructor<T> constructor, Object[] parameter) {
-    try {
-      return constructor.newInstance(parameter);
-    }
-    catch (InstantiationException ex) {
-      throw new BeanInstantiationException(constructor, "Is it an abstract class?", ex);
-    }
-    catch (IllegalAccessException ex) {
-      throw new BeanInstantiationException(constructor, "Is the constructor accessible?", ex);
-    }
-    catch (IllegalArgumentException ex) {
-      throw new BeanInstantiationException(constructor, "Illegal arguments for constructor", ex);
-    }
-    catch (InvocationTargetException ex) {
-      throw new BeanInstantiationException(constructor, "Constructor threw exception", ex.getTargetException());
-    }
-  }
-
-  /**
-   * Obtain a suitable {@link Constructor}.
-   * <p>
-   * Look for the default constructor, if there is no default constructor, then
-   * get all the constructors, if there is only one constructor then use this
-   * constructor, if not more than one use the @Autowired constructor if there is
-   * no suitable {@link Constructor} will throw an exception
-   * <p>
-   *
-   * @param <T>
-   *         Target type
-   * @param beanClass
-   *         target bean class
-   *
-   * @return Suitable constructor
-   *
-   * @throws BeanInstantiationException
-   *         If there is no suitable constructor
-   * @since 2.1.7
-   */
-  public static <T> Constructor<T> obtainConstructor(Class<T> beanClass) {
-    final Constructor<T> ret = getSuitableConstructor(beanClass);
-    if (ret == null) {
-      throw new BeanInstantiationException(beanClass, "No suitable constructor found");
-    }
-    return ret;
-  }
-
-  /**
-   * Get a suitable {@link Constructor}.
-   * <p>
-   * Look for the default constructor, if there is no default constructor, then
-   * get all the constructors, if there is only one constructor then use this
-   * constructor, if not more than one use the @Autowired constructor if there is
-   * no suitable {@link Constructor} will throw an exception
-   * <p>
-   *
-   * @param <T>
-   *         Target type
-   * @param beanClass
-   *         target bean class
-   *
-   * @return Suitable constructor If there isn't a suitable {@link Constructor}
-   * returns null
-   *
-   * @since 2.1.7
-   */
-  public static <T> Constructor<T> getSuitableConstructor(Class<T> beanClass) {
-    try {
-      return ReflectionUtils.accessibleConstructor(beanClass);
-    }
-    catch (final NoSuchMethodException e) {
-      @SuppressWarnings("unchecked") //
-      final Constructor<T>[] constructors = (Constructor<T>[]) beanClass.getDeclaredConstructors();
-      if (constructors.length == 1) {
-        return ReflectionUtils.makeAccessible(constructors[0]);
-      }
-      for (final Constructor<T> constructor : constructors) {
-        if (constructor.isAnnotationPresent(Autowired.class)) {
-          return ReflectionUtils.makeAccessible(constructor);
-        }
-      }
-    }
-    return null;
   }
 
   /**
