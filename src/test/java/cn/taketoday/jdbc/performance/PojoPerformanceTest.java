@@ -155,7 +155,7 @@ public class PojoPerformanceTest {
 
     PerformanceTestList tests = new PerformanceTestList();
 
-    tests.add(new HibernateTypicalSelect());
+//    tests.add(new HibernateTypicalSelect());
 
     tests.add(new BeeSelect());
     tests.add(new TODAYTypicalSelect());

@@ -41,7 +41,7 @@ import cn.taketoday.beans.BeanMetadata;
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.jdbc.parsing.ParameterApplier;
+import cn.taketoday.jdbc.parsing.QueryParameter;
 import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;
 import cn.taketoday.jdbc.result.JdbcBeanMetadata;
 import cn.taketoday.jdbc.result.LazyTable;
@@ -72,9 +72,9 @@ public final class Query implements AutoCloseable {
 
   private final String[] columnNames;
   private final boolean returnGeneratedKeys;
-  private final HashMap<String, ParameterSetter> parameters = new HashMap<>();
-  /** parameter name to parameter index */
-  private final HashMap<String, ParameterApplier> indexMap = new HashMap<>();
+
+  /** parameter name to parameter index and setter */
+  private final HashMap<String, QueryParameter> queryParameters = new HashMap<>();
 
   private String name;
   private String parsedQuery;
@@ -108,7 +108,7 @@ public final class Query implements AutoCloseable {
     final JdbcOperations operations = connection.getOperations();
     setColumnMappings(operations.getDefaultColumnMappings());
     this.caseSensitive = operations.isDefaultCaseSensitive();
-    this.parsedQuery = operations.parse(queryText, indexMap);
+    this.parsedQuery = operations.parse(queryText, queryParameters);
   }
 
   // ------------------------------------------------
@@ -155,8 +155,8 @@ public final class Query implements AutoCloseable {
     return this;
   }
 
-  public Map<String, ParameterApplier> getIndexMap() {
-    return indexMap;
+  public HashMap<String, QueryParameter> getQueryParameters() {
+    return queryParameters;
   }
 
   // ------------------------------------------------
@@ -164,12 +164,13 @@ public final class Query implements AutoCloseable {
   // ------------------------------------------------
 
   public void addParameter(String name, ParameterSetter parameterSetter) {
-    if (!indexMap.containsKey(name)) {
+    QueryParameter queryParameter = queryParameters.get(name);
+    if (queryParameter == null) {
       throw new PersistenceException(
               "Failed to add parameter with name '"
                       + name + "'. No parameter with that name is declared in the sql.");
     }
-    parameters.put(name, parameterSetter);
+    queryParameter.setSetter(parameterSetter);
   }
 
   public <T> Query addParameter(String name, Class<T> parameterClass, T value) {
@@ -345,13 +346,13 @@ public final class Query implements AutoCloseable {
 
   @SuppressWarnings("unchecked")
   public Query bind(final Object pojo) {
-    final HashMap<String, ParameterApplier> indexMap = this.indexMap;
+    HashMap<String, QueryParameter> queryParameters = getQueryParameters();
     final Map<String, BeanProperty> beanProperties = BeanMetadata.ofObject(pojo).getBeanProperties();
     for (final Map.Entry<String, BeanProperty> entry : beanProperties.entrySet()) {
       final BeanProperty property = entry.getValue();
       final String name = property.getName();
       try {
-        if (indexMap.containsKey(name)) {
+        if (queryParameters.containsKey(name)) {
           addParameter(name, (Class<Object>) property.getType(), property.getValue(pojo));
         }
       }
@@ -386,14 +387,12 @@ public final class Query implements AutoCloseable {
   }
 
   private PreparedStatement buildPreparedStatement(boolean allowArrayParameters) {
-    final HashMap<String, ParameterSetter> parameters = this.parameters;
-    final HashMap<String, ParameterApplier> paramNameToIdxMap = this.indexMap;
+    HashMap<String, QueryParameter> queryParameters = getQueryParameters();
     if (hasArrayParameter) {
       // array parameter handling
       this.parsedQuery = ArrayParameters.updateQueryAndParametersIndexes(
               parsedQuery,
-              paramNameToIdxMap,
-              parameters,
+              queryParameters,
               allowArrayParameters
       );
     }
@@ -407,20 +406,18 @@ public final class Query implements AutoCloseable {
     }
 
     // parameters assignation to query
-    for (final Map.Entry<String, ParameterSetter> parameter : parameters.entrySet()) {
-      final ParameterSetter setter = parameter.getValue();
+    for (final QueryParameter parameter : queryParameters.values()) {
       try {
-        paramNameToIdxMap.get(parameter.getKey())
-                .apply(setter, statement);
+        parameter.apply(statement);
       }
       catch (SQLException e) {
         throw new PersistenceException(
-                "Error adding parameter '" + parameter.getKey() + "' - " + e.getMessage(), e);
+                "Error adding parameter '" + parameter.getName() + "' - " + e.getMessage(), e);
       }
     }
     // the parameters need to be cleared, so in case of batch,
     // only new parameters will be added
-    parameters.clear();
+//    parameters.clear(); TODO clear queryParameters setter
     return statement;
   }
 
@@ -445,7 +442,7 @@ public final class Query implements AutoCloseable {
   private abstract class AbstractResultSetIterable<T> implements ResultSetIterable<T> {
     private final long start;
     private final long afterExecQuery;
-    protected ResultSet rs;
+    protected final ResultSet rs;
 
     boolean autoCloseConnection = false;
 
@@ -638,6 +635,7 @@ public final class Query implements AutoCloseable {
 
   public JdbcConnection executeUpdate() {
     final long start = System.currentTimeMillis();
+    JdbcConnection connection = getConnection();
     try {
       logExecution();
       PreparedStatement statement = buildPreparedStatement();

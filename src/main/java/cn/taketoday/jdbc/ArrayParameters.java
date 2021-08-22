@@ -22,12 +22,15 @@ package cn.taketoday.jdbc;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import cn.taketoday.jdbc.Query.ArrayParameterSetter;
 import cn.taketoday.jdbc.parsing.ParameterApplier;
+import cn.taketoday.jdbc.parsing.QueryParameter;
 
 /**
  * <pre>
@@ -58,8 +61,10 @@ final class ArrayParameters {
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof ArrayParameter)) return false;
+      if (this == o)
+        return true;
+      if (!(o instanceof ArrayParameter))
+        return false;
       final ArrayParameter that = (ArrayParameter) o;
       return parameterIndex == that.parameterIndex
               && parameterCount == that.parameterCount;
@@ -77,30 +82,47 @@ final class ArrayParameters {
    */
   static String updateQueryAndParametersIndexes(
           String parsedQuery,
-          Map<String, ParameterApplier> parameterNamesToIndexes,
-          Map<String, ParameterSetter> parameters,
+          HashMap<String, QueryParameter> queryParameters,
           boolean allowArrayParameters
   ) {
     List<ArrayParameter> arrayParameters
-            = sortedArrayParameters(parameterNamesToIndexes, parameters, allowArrayParameters);
+            = sortedArrayParameters(queryParameters, allowArrayParameters);
     if (arrayParameters.isEmpty()) {
       return parsedQuery;
     }
 
-    updateMap(parameterNamesToIndexes, arrayParameters);
+    updateMap(queryParameters, arrayParameters);
 
     return updateQueryWithArrayParameters(parsedQuery, arrayParameters);
   }
 
+//  static String updateQueryAndParametersIndexes(
+//          String parsedQuery,
+//          Map<String, ParameterApplier> parameterNamesToIndexes,
+//          Map<String, ParameterSetter> parameters,
+//          boolean allowArrayParameters
+//  ) {
+//    List<ArrayParameter> arrayParameters
+//            = sortedArrayParameters(parameterNamesToIndexes, parameters, allowArrayParameters);
+//    if (arrayParameters.isEmpty()) {
+//      return parsedQuery;
+//    }
+//
+//    updateMap(parameterNamesToIndexes, arrayParameters);
+//
+//    return updateQueryWithArrayParameters(parsedQuery, arrayParameters);
+//  }
+
   /**
    * Update the indexes of each query parameter
    */
-  static Map<String, ParameterApplier> updateMap(
-          Map<String, ParameterApplier> indexesMap,
+  static Map<String, QueryParameter> updateMap(
+          HashMap<String, QueryParameter> queryParameters,
           List<ArrayParameter> arrayParametersSortedAsc
   ) {
-    for (Map.Entry<String, ParameterApplier> entry : indexesMap.entrySet()) {
-      final ParameterApplier parameterApplier = entry.getValue();
+
+    for (final QueryParameter parameter : queryParameters.values()) {
+      final ParameterApplier parameterApplier = parameter.getApplier();
       final ArrayList<Integer> newParameterIndex = new ArrayList<>();
 
       parameterApplier.forEach(parameterIndex -> {
@@ -109,15 +131,38 @@ final class ArrayParameters {
       });
 
       if (newParameterIndex.size() > 1) {
-        entry.setValue(ParameterApplier.valueOf(newParameterIndex));
+        parameter.setApplier(ParameterApplier.valueOf(newParameterIndex));
       }
       else {
-        entry.setValue(ParameterApplier.valueOf(newParameterIndex.get(0)));
+        parameter.setApplier(ParameterApplier.valueOf(newParameterIndex.get(0)));
       }
     }
 
-    return indexesMap;
+    return queryParameters;
   }
+//  static Map<String, ParameterApplier> updateMap(
+//          Map<String, ParameterApplier> indexesMap,
+//          List<ArrayParameter> arrayParametersSortedAsc
+//  ) {
+//    for (Map.Entry<String, ParameterApplier> entry : indexesMap.entrySet()) {
+//      final ParameterApplier parameterApplier = entry.getValue();
+//      final ArrayList<Integer> newParameterIndex = new ArrayList<>();
+//
+//      parameterApplier.forEach(parameterIndex -> {
+//        final int newIdx = computeNewIndex(parameterIndex, arrayParametersSortedAsc);
+//        newParameterIndex.add(newIdx);
+//      });
+//
+//      if (newParameterIndex.size() > 1) {
+//        entry.setValue(ParameterApplier.valueOf(newParameterIndex));
+//      }
+//      else {
+//        entry.setValue(ParameterApplier.valueOf(newParameterIndex.get(0)));
+//      }
+//    }
+//
+//    return indexesMap;
+//  }
 
   /**
    * Compute the new index of a parameter given the index positions of the array
@@ -142,20 +187,20 @@ final class ArrayParameters {
    * parameter indexes.
    */
   private static List<ArrayParameter> sortedArrayParameters(
-          Map<String, ParameterApplier> parameterNamesToIndexes,
-          Map<String, ParameterSetter> parameters,
+          HashMap<String, QueryParameter> queryParameters,
           boolean allowArrayParameters
   ) {
     final ArrayList<ArrayParameter> arrayParameters = new ArrayList<>();
-    for (Map.Entry<String, ParameterSetter> parameter : parameters.entrySet()) {
-      final ParameterSetter setter = parameter.getValue();
-      if (setter instanceof Query.ArrayParameterSetter) {
-        final int parameterCount = ((Query.ArrayParameterSetter) setter).getParameterCount();
+    for (final QueryParameter parameter : queryParameters.values()) {
+      final ParameterSetter setter = parameter.getSetter();
+      if (setter instanceof ArrayParameterSetter) {
+        final int parameterCount = ((ArrayParameterSetter) setter).getParameterCount();
         if (parameterCount > 1) {
           if (!allowArrayParameters) {
             throw new PersistenceException("Array parameters are not allowed in batch mode");
           }
-          final ParameterApplier parameterApplier = parameterNamesToIndexes.get(parameter.getKey());
+
+          final ParameterApplier parameterApplier = parameter.getApplier();
           parameterApplier.forEach(index -> arrayParameters.add(new ArrayParameter(index, parameterCount)));
         }
       }
@@ -165,6 +210,30 @@ final class ArrayParameters {
     }
     return arrayParameters;
   }
+//  private static List<ArrayParameter> sortedArrayParameters(
+//          Map<String, ParameterApplier> parameterNamesToIndexes,
+//          Map<String, ParameterSetter> parameters,
+//          boolean allowArrayParameters
+//  ) {
+//    final ArrayList<ArrayParameter> arrayParameters = new ArrayList<>();
+//    for (Map.Entry<String, ParameterSetter> parameter : parameters.entrySet()) {
+//      final ParameterSetter setter = parameter.getValue();
+//      if (setter instanceof Query.ArrayParameterSetter) {
+//        final int parameterCount = ((Query.ArrayParameterSetter) setter).getParameterCount();
+//        if (parameterCount > 1) {
+//          if (!allowArrayParameters) {
+//            throw new PersistenceException("Array parameters are not allowed in batch mode");
+//          }
+//          final ParameterApplier parameterApplier = parameterNamesToIndexes.get(parameter.getKey());
+//          parameterApplier.forEach(index -> arrayParameters.add(new ArrayParameter(index, parameterCount)));
+//        }
+//      }
+//    }
+//    if (arrayParameters.size() > 1) {
+//      Collections.sort(arrayParameters);
+//    }
+//    return arrayParameters;
+//  }
 
   /**
    * Change the query to replace ? at each arrayParametersSortedAsc.parameterIndex

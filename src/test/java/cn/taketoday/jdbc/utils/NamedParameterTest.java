@@ -7,8 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.jdbc.parsing.DefaultSqlParameterParser;
-import cn.taketoday.jdbc.parsing.ParameterApplier;
+import cn.taketoday.jdbc.parsing.QueryParameter;
 import cn.taketoday.jdbc.parsing.SqlParameterParser;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -20,7 +19,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 public class NamedParameterTest extends TestCase {
 
-  private SqlParameterParser sqlParameterParsingStrategy = new DefaultSqlParameterParser();
+  private SqlParameterParser sqlParameterParsingStrategy = new SqlParameterParser();
 
   /*
    A type cast specifies a conversion from one data type to another.
@@ -29,14 +28,14 @@ public class NamedParameterTest extends TestCase {
    expression::type
    */
   public void testPostgresSqlCastSyntax() throws Exception {
-    Map<String, ParameterApplier> map = new HashMap<>();
+    Map<String, QueryParameter> map = new HashMap<>();
     String preparedQuery = sqlParameterParsingStrategy.parse("select :foo", map);
     assertEquals("select ?", preparedQuery);
     assertThat(map.size(), is(equalTo(1)));
-    final ParameterApplier parameterApplier = map.get("foo");
+    final QueryParameter parameter = map.get("foo");
 
     List<Integer> integers = new ArrayList<>();
-    parameterApplier.forEach(integers::add);
+    parameter.getApplier().forEach(integers::add);
     assertThat(integers.size(), is(equalTo(1)));
     assertThat(integers.get(0), is(equalTo(1)));
 
@@ -46,7 +45,7 @@ public class NamedParameterTest extends TestCase {
   }
 
   public void testStringConstant() throws Exception {
-    Map<String, ParameterApplier> map = new HashMap<>();
+    Map<String, QueryParameter> map = new HashMap<>();
     String preparedQuery = sqlParameterParsingStrategy.parse("select ':foo'", map);
     assertEquals("select ':foo'", preparedQuery);
   }

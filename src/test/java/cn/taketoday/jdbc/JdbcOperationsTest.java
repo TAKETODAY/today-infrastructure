@@ -308,7 +308,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   }
 
   @Test
-  public void testExecuteAndFetchResultSet() throws SQLException {
+  public void testExecuteAndFetchResultSet() {
     List<Integer> list = jdbcOperations.createQuery(
             "select 1 val from (values(0)) union select 2 from (values(0)) union select 3 from (values(0))")
             .fetchScalars(Integer.class);

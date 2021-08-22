@@ -88,7 +88,7 @@ public abstract class AbstractResultSetIterator<T> implements Iterator<T> {
 
   protected abstract T readNext() throws SQLException;
 
-  static final class ResultSetValue<T> {
+  static final class ResultSetValue<T> { // TODO
     public final T value;
 
     public ResultSetValue(T value) {

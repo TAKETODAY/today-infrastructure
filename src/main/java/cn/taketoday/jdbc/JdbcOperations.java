@@ -25,10 +25,10 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
-import cn.taketoday.jdbc.parsing.DefaultSqlParameterParser;
-import cn.taketoday.jdbc.parsing.ParameterApplier;
+import cn.taketoday.jdbc.parsing.QueryParameter;
 import cn.taketoday.jdbc.parsing.SqlParameterParser;
 import cn.taketoday.jdbc.support.ClobToStringConverter;
 import cn.taketoday.jdbc.support.ConnectionSource;
@@ -64,7 +64,7 @@ public class JdbcOperations {
   private boolean generatedKeys = true;
   private ConnectionSource connectionSource;
   private Map<String, String> defaultColumnMappings;
-  private SqlParameterParser sqlParameterParser = new DefaultSqlParameterParser();
+  private SqlParameterParser sqlParameterParser = new SqlParameterParser();
 
   private ConversionService conversionService;
 
@@ -208,6 +208,7 @@ public class JdbcOperations {
   }
 
   public void setSqlParameterParser(SqlParameterParser sqlParameterParser) {
+    Assert.notNull(sqlParameterParser, "SqlParameterParser must not be null");
     this.sqlParameterParser = sqlParameterParser;
   }
 
@@ -215,7 +216,7 @@ public class JdbcOperations {
     return sqlParameterParser;
   }
 
-  String parse(String sql, Map<String, ParameterApplier> paramNameToIdxMap) {
+  protected String parse(String sql, Map<String, QueryParameter> paramNameToIdxMap) {
     return sqlParameterParser.parse(sql, paramNameToIdxMap);
   }
 

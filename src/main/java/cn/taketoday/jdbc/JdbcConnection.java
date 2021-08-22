@@ -64,16 +64,31 @@ public final class JdbcConnection implements Closeable {
     }
   }
 
+  /**
+   * @throws PersistenceException
+   *         Could not acquire a connection from connection-source
+   * @see ConnectionSource#getConnection()
+   */
   public Query createQuery(String queryText) {
     boolean returnGeneratedKeys = operations.isGeneratedKeys();
     return createQuery(queryText, returnGeneratedKeys);
   }
 
+  /**
+   * @throws PersistenceException
+   *         Could not acquire a connection from connection-source
+   * @see ConnectionSource#getConnection()
+   */
   public Query createQuery(String queryText, boolean returnGeneratedKeys) {
     createConnectionIfNecessary();
     return new Query(this, queryText, returnGeneratedKeys);
   }
 
+  /**
+   * @throws PersistenceException
+   *         Could not acquire a connection from connection-source
+   * @see ConnectionSource#getConnection()
+   */
   public Query createQuery(String queryText, String... columnNames) {
     createConnectionIfNecessary();
     return new Query(this, queryText, columnNames);
@@ -81,6 +96,8 @@ public final class JdbcConnection implements Closeable {
 
   /**
    * @throws PersistenceException
+   *         Could not acquire a connection from connection-source
+   * @see ConnectionSource#getConnection()
    */
   private void createConnectionIfNecessary() {
     try {
