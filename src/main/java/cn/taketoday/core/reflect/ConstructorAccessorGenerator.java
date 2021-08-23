@@ -47,8 +47,8 @@ public class ConstructorAccessorGenerator
         extends GeneratorSupport<ConstructorAccessor> implements ClassGenerator {
 
   private final Constructor<?> targetConstructor;
-  private static final String[] interfaces = { "Lcn/taketoday/core/reflect/ConstructorAccessor;" };
   private static final MethodInfo newInstanceInfo;
+  private static final String superType = "Lcn/taketoday/core/reflect/ConstructorAccessor;";
 
   static {
     try {
@@ -133,8 +133,7 @@ public class ConstructorAccessorGenerator
   }
 
   @Override
-  public String[] getInterfaces() {
-    return interfaces;
+  public String getSuperType() {
+    return superType;
   }
-
 }
