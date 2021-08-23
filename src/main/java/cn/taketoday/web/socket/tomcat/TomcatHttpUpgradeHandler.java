@@ -55,7 +55,7 @@ import cn.taketoday.logger.LoggerFactory;
  */
 public final class TomcatHttpUpgradeHandler implements InternalHttpUpgradeHandler {
   private static final Logger log = LoggerFactory.getLogger(TomcatHttpUpgradeHandler.class);
-  private static final MethodInvoker notifyDataAvailable = MethodInvoker.create(WsFrameServer.class, "notifyDataAvailable");
+  private static final MethodInvoker notifyDataAvailable = MethodInvoker.fromMethod(WsFrameServer.class, "notifyDataAvailable");
 
   private final ClassLoader applicationClassLoader;
 

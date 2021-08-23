@@ -240,7 +240,7 @@ public class DefaultBeanDefinition
       this.methodInvokers = new MethodInvoker[initMethods.length];
       int i = 0;
       for (final Method initMethod : initMethods) {
-        methodInvokers[i++] = MethodInvoker.create(initMethod);
+        methodInvokers[i++] = MethodInvoker.fromMethod(initMethod);
       }
     }
     else {

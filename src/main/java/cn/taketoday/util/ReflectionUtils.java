@@ -1092,14 +1092,14 @@ public abstract class ReflectionUtils {
     final Method readMethod = getReadMethod(field);
     final boolean isReadOnly = Modifier.isFinal(field.getModifiers());
     if (isReadOnly && readMethod != null) {
-      return new ReadOnlyMethodAccessorPropertyAccessor(MethodInvoker.create(readMethod));
+      return new ReadOnlyMethodAccessorPropertyAccessor(MethodInvoker.fromMethod(readMethod));
     }
     final Method writeMethod = getWriteMethod(field);
     if (writeMethod != null && readMethod != null) {
       return new MethodAccessorPropertyAccessor(writeMethod, readMethod);
     }
     if (writeMethod != null) {
-      final MethodInvoker accessor = MethodInvoker.create(writeMethod);
+      final MethodInvoker accessor = MethodInvoker.fromMethod(writeMethod);
       makeAccessible(field);
       return new PropertyAccessor() {
         @Override
@@ -1121,7 +1121,7 @@ public abstract class ReflectionUtils {
 
     if (readMethod != null) {
       makeAccessible(field);
-      final MethodInvoker accessor = MethodInvoker.create(readMethod);
+      final MethodInvoker accessor = MethodInvoker.fromMethod(readMethod);
       return new PropertyAccessor() {
         @Override
         public Object get(Object obj) {
@@ -1163,7 +1163,7 @@ public abstract class ReflectionUtils {
   }
 
   public static GetterMethod newGetterMethod(final Method method) {
-    return new MethodAccessorGetterMethod(MethodInvoker.create(method));
+    return new MethodAccessorGetterMethod(MethodInvoker.fromMethod(method));
   }
 
   // SetterMethod
@@ -1178,7 +1178,7 @@ public abstract class ReflectionUtils {
   }
 
   public static SetterMethod newSetterMethod(final Method method) {
-    final MethodInvoker accessor = MethodInvoker.create(method);
+    final MethodInvoker accessor = MethodInvoker.fromMethod(method);
     return new MethodAccessorSetterMethod(accessor);
   }
 

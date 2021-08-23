@@ -122,7 +122,7 @@ public abstract class BeanConstructor<T> {
    * @return BeanConstructor to construct target T
    */
   public static <T> BeanConstructor<T> fromMethod(Method method, Object obj) {
-    return fromMethod(MethodInvoker.create(method), obj);
+    return fromMethod(MethodInvoker.fromMethod(method), obj);
   }
 
   /**
@@ -152,7 +152,7 @@ public abstract class BeanConstructor<T> {
    * @return BeanConstructor to construct target T
    */
   public static <T> BeanConstructor<T> fromMethod(Method method, Supplier<Object> obj) {
-    return fromMethod(MethodInvoker.create(method), obj);
+    return fromMethod(MethodInvoker.fromMethod(method), obj);
   }
 
   /**
@@ -181,7 +181,7 @@ public abstract class BeanConstructor<T> {
    * @return BeanConstructor to construct target T
    */
   public static <T> BeanConstructor<T> fromStaticMethod(Method method) {
-    return fromStaticMethod(MethodInvoker.create(method));
+    return fromStaticMethod(MethodInvoker.fromMethod(method));
   }
 
   /**

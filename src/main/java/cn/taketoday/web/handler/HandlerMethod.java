@@ -87,7 +87,7 @@ public class HandlerMethod
     setInterceptors(interceptors);
 
     this.returnType = method.getReturnType();
-    this.handlerInvoker = MethodInvoker.create(method);
+    this.handlerInvoker = MethodInvoker.fromMethod(method);
     setOrder(OrderUtils.getOrder(method) + OrderUtils.getOrder(bean));
     // @since 3.0
     final Produce produce = getMethodAnnotation(Produce.class);

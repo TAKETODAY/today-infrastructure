@@ -273,7 +273,7 @@ public final class AstValue extends SimpleNode {
     if (targetInvoker == null) {
       final Object property = t.suffixNode.getValue(ctx); // maybe this property can dynamic
       final Method method = ReflectionUtil.findMethod(t.base.getClass(), property.toString(), paramTypes, paramValues);
-      targetInvoker = MethodInvoker.create(method);
+      targetInvoker = MethodInvoker.fromMethod(method);
       this.targetInvoker = targetInvoker;
     }
     return ReflectionUtil.invokeMethod(ctx, targetInvoker, t.base, paramValues);

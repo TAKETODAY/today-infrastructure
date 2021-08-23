@@ -42,7 +42,7 @@ public class WebSocketHandlerMethod {
   public WebSocketHandlerMethod(Object bean, Method method, MethodParametersBuilder parameterBuilder) {
     this.bean = bean;
     this.method = method;
-    this.handlerInvoker = MethodInvoker.create(method);
+    this.handlerInvoker = MethodInvoker.fromMethod(method);
     this.parameters = parameterBuilder.build(method);
   }
 

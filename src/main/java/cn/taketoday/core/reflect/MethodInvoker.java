@@ -70,7 +70,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    *
    * @return {@link MethodInvoker} sub object
    */
-  public static MethodInvoker create(Method executable) {
+  public static MethodInvoker fromMethod(Method executable) {
     return new MethodInvokerGenerator(executable).create();
   }
 
@@ -86,7 +86,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    *
    * @since 3.0
    */
-  public static MethodInvoker create(Method executable, Class<?> targetClass) {
+  public static MethodInvoker fromMethod(Method executable, Class<?> targetClass) {
     return new MethodInvokerGenerator(executable, targetClass).create();
   }
 
@@ -105,8 +105,8 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    * @throws ReflectionException
    *         Thrown when a particular method cannot be found.
    */
-  public static MethodInvoker create(final Class<?> beanClass,
-                                     final String name, final Class<?>... parameters) {
+  public static MethodInvoker fromMethod(final Class<?> beanClass,
+                                         final String name, final Class<?>... parameters) {
     try {
       Method targetMethod = beanClass.getDeclaredMethod(name, parameters);
       return new MethodInvokerGenerator(targetMethod, beanClass).create();

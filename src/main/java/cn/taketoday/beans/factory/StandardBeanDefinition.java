@@ -98,7 +98,7 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
   protected BeanConstructor<?> createConstructor(BeanFactory factory) {
     final Method factoryMethod = obtainFactoryMethod();
 
-    final MethodInvoker methodInvoker = MethodInvoker.create(factoryMethod);
+    final MethodInvoker methodInvoker = MethodInvoker.fromMethod(factoryMethod);
     if (Modifier.isStatic(factoryMethod.getModifiers())) {
       return BeanConstructor.fromStaticMethod(methodInvoker);
     }

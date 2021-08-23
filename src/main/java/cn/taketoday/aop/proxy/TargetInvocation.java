@@ -51,7 +51,7 @@ public class TargetInvocation implements TargetClassAware {
     this.method = method;
     this.config = config;
     this.targetClass = targetClass;
-    this.invoker = MethodInvoker.create(method, targetClass);
+    this.invoker = MethodInvoker.fromMethod(method, targetClass);
   }
 
   public Method getMethod() {

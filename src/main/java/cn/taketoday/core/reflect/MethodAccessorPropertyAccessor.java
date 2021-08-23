@@ -36,8 +36,8 @@ public final class MethodAccessorPropertyAccessor implements PropertyAccessor {
   public MethodAccessorPropertyAccessor(Method setMethod, Method getMethod) {
     Assert.notNull(setMethod, "setMethod must not be null");
     Assert.notNull(getMethod, "getMethod must not be null");
-    this.readAccessor = MethodInvoker.create(getMethod);
-    this.writeAccessor = MethodInvoker.create(setMethod);
+    this.readAccessor = MethodInvoker.fromMethod(getMethod);
+    this.writeAccessor = MethodInvoker.fromMethod(setMethod);
   }
 
   @Override

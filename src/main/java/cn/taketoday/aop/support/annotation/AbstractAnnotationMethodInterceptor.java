@@ -77,7 +77,7 @@ public abstract class AbstractAnnotationMethodInterceptor implements Advice, Met
 
     this.aspectSupplier = beanFactory.getBeanSupplier(aspectDef);
 
-    this.invoker = MethodInvoker.create(adviceMethod, aspectDef.getBeanClass());
+    this.invoker = MethodInvoker.fromMethod(adviceMethod, aspectDef.getBeanClass());
     this.adviceParameterLength = adviceMethod.getParameterCount();
     this.adviceParameters = new byte[adviceParameterLength];
     this.adviceParameterTypes = adviceMethod.getParameterTypes();

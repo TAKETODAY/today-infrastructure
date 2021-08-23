@@ -123,7 +123,7 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
       this.eventTypes = eventTypes;
       this.beanFactory = beanFactory;
       this.targetMethod = targetMethod;
-      this.methodInvoker = MethodInvoker.create(targetMethod);
+      this.methodInvoker = MethodInvoker.fromMethod(targetMethod);
     }
 
     @Override

@@ -116,7 +116,7 @@ public class BenchmarkTest {
     public void testMethod() throws Throwable {
 
         Method test = ReflectionUtils.findMethod(ITest.class, "test", String.class);
-        MethodAccessor methodAccessor = MethodInvoker.create(test);
+        MethodAccessor methodAccessor = MethodInvoker.fromMethod(test);
 
         final ITest testBean = new MethodTestBean();
 
@@ -244,10 +244,10 @@ public class BenchmarkTest {
         public void testMethodAccessor() throws Throwable {
 
             MethodInvoker[] ma = new MethodInvoker[] {
-              MethodInvoker.create(Bench1.class.getMethod("func0")),
-              MethodInvoker.create(Bench1.class.getMethod("func1")),
-              MethodInvoker.create(Bench1.class.getMethod("func2")),
-              MethodInvoker.create(Bench1.class.getMethod("func3")),
+              MethodInvoker.fromMethod(Bench1.class.getMethod("func0")),
+              MethodInvoker.fromMethod(Bench1.class.getMethod("func1")),
+              MethodInvoker.fromMethod(Bench1.class.getMethod("func2")),
+              MethodInvoker.fromMethod(Bench1.class.getMethod("func3")),
             };
             Bench1 self = this;
             long t = System.nanoTime();
@@ -303,7 +303,7 @@ public class BenchmarkTest {
 
         public void testMethodAccessor() throws Throwable {
 
-            MethodInvoker ma = MethodInvoker.create(Bench2.class.getMethod("func0"));
+            MethodInvoker ma = MethodInvoker.fromMethod(Bench2.class.getMethod("func0"));
 
             Bench2 self = this;
             long t = System.nanoTime();
