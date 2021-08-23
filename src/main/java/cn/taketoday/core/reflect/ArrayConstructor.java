@@ -27,9 +27,10 @@ import cn.taketoday.core.Constant;
 
 /**
  * @author TODAY 2021/1/29 15:56
+ * @see Array#newInstance(Class, int)
  * @since 3.0
  */
-public class ArrayConstructor implements ConstructorAccessor {
+public class ArrayConstructor extends ConstructorAccessor {
 
   private int capacity = Constant.DEFAULT_CAPACITY;
   private final Class<?> componentType;

@@ -34,6 +34,7 @@ import java.util.function.Supplier;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.support.ArgumentsResolver;
+import cn.taketoday.beans.support.BeanConstructor;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ContextUtils;
@@ -43,7 +44,6 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.reflect.BeanConstructor;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.CollectionUtils;
@@ -51,7 +51,6 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-
 
 /**
  * Default implementation of {@link BeanDefinition}
@@ -371,13 +370,13 @@ public class DefaultBeanDefinition
   }
 
   protected BeanConstructor<?> createConstructor(BeanFactory factory) {
-    return ReflectionUtils.newConstructor(getBeanClass());
+    return BeanConstructor.fromClass(getBeanClass());
   }
 
   public Executable getExecutable() {
     Executable executable = this.executable;
     if (executable == null) {
-      executable = BeanUtils.getSuitableConstructor(getBeanClass());
+      executable = BeanUtils.getConstructor(getBeanClass());
       this.executable = executable;
     }
     return executable;

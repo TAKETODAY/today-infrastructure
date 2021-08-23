@@ -74,6 +74,9 @@ public class ConstructorAccessorGenerator
     return 1;
   }
 
+  /**
+   * Fast call bean's {@link java.lang.reflect.Constructor Constructor}
+   */
   @Override
   public void generateClass(ClassVisitor v) {
     final ClassEmitter classEmitter = beginClass(v);
@@ -102,7 +105,7 @@ public class ConstructorAccessorGenerator
 
   @Override
   protected ConstructorAccessor fallbackInstance() {
-    return new ConstructorConstructorAccessor(targetConstructor);
+    return ConstructorAccessor.fromReflective(targetConstructor);
   }
 
   @Override

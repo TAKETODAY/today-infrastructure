@@ -11,11 +11,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.core.reflect.BeanConstructor;
+import cn.taketoday.beans.support.BeanConstructor;
 import cn.taketoday.core.reflect.MethodAccessor;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.core.reflect.PropertyAccessor;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -76,7 +75,8 @@ public class BenchmarkTest {
 
         Constructor<ConstructorTestBean> constructor = BeanUtils.obtainConstructor(ConstructorTestBean.class);
 
-        BeanConstructor<ConstructorTestBean> beanConstructor = ReflectionUtils.newConstructor(ConstructorTestBean.class);
+        BeanConstructor<ConstructorTestBean> beanConstructor
+                = BeanConstructor.fromClass(ConstructorTestBean.class);
 
         long start = System.currentTimeMillis();
         int times = 1_0000_0000;

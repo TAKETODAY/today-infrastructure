@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,32 +17,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.core.reflect;
 
-import java.util.function.Supplier;
+package cn.taketoday.beans.support;
 
-import cn.taketoday.util.SingletonSupplier;
+import cn.taketoday.beans.BeansException;
 
 /**
- * @author TODAY
- * 2020/9/20 20:41
+ * not a suitable Constructor found
+ *
+ * @author TODAY 2021/8/23 23:28
  */
-public class MethodAccessorBeanConstructor<T>
-        extends StaticMethodAccessorBeanConstructor<T> {
+public class NoConstructorFoundException extends BeansException {
+  private static final long serialVersionUID = 1L;
+  private final Class<?> beanClass;
 
-  private final Supplier<Object> obj;
-
-  public MethodAccessorBeanConstructor(MethodAccessor accessor, Object obj) {
-    this(accessor, SingletonSupplier.of(obj));
+  public NoConstructorFoundException(Class<?> beanClass) {
+    this(beanClass, "No suitable constructor in class: " + beanClass);
   }
 
-  public MethodAccessorBeanConstructor(MethodAccessor accessor, Supplier<Object> obj) {
-    super(accessor);
-    this.obj = obj;
+  public NoConstructorFoundException(Class<?> beanClass, String msg) {
+    super(msg);
+    this.beanClass = beanClass;
   }
 
-  @Override
-  protected final Object getObject() {
-    return obj.get();
+  public Class<?> getBeanClass() {
+    return beanClass;
   }
+  
 }

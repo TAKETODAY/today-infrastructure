@@ -26,9 +26,10 @@ import cn.taketoday.util.CollectionUtils;
 
 /**
  * @author TODAY 2021/1/29 15:56
+ * @see CollectionUtils#createMap(Class, Class, int)
  * @since 3.0
  */
-public class MapConstructor implements ConstructorAccessor {
+public class MapConstructor extends ConstructorAccessor {
 
   private int capacity = Constant.DEFAULT_CAPACITY;
   private Class<?> keyType;

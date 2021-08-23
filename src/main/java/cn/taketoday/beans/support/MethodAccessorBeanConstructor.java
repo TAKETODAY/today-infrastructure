@@ -17,29 +17,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+package cn.taketoday.beans.support;
 
-package cn.taketoday.core.reflect;
+import java.util.function.Supplier;
 
-import java.util.function.Function;
-
-import cn.taketoday.core.Assert;
+import cn.taketoday.core.reflect.MethodAccessor;
+import cn.taketoday.util.SingletonSupplier;
 
 /**
- * Function
- *
- * @author TODAY 2021/5/28 22:19
- * @since 3.0.2
+ * @author TODAY 2020/9/20 20:41
  */
-public final class FunctionConstructor<T> implements ConstructorAccessor {
-  private final Function<Object[], T> function;
+final class MethodAccessorBeanConstructor<T>
+        extends StaticMethodAccessorBeanConstructor<T> {
 
-  public FunctionConstructor(Function<Object[], T> function) {
-    Assert.notNull(function, "instance function must not be null");
-    this.function = function;
+  private final Supplier<Object> obj;
+
+  MethodAccessorBeanConstructor(MethodAccessor accessor, Object obj) {
+    this(accessor, SingletonSupplier.of(obj));
+  }
+
+  MethodAccessorBeanConstructor(MethodAccessor accessor, Supplier<Object> obj) {
+    super(accessor);
+    this.obj = obj;
   }
 
   @Override
-  public Object newInstance(Object[] args) {
-    return function.apply(args);
+  protected Object getObject() {
+    return obj.get();
   }
 }

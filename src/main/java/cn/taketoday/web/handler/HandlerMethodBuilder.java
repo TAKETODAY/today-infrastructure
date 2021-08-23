@@ -29,7 +29,6 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.reflect.ConstructorAccessor;
 import cn.taketoday.core.reflect.ReflectionException;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resolver.ParameterResolvers;
 import cn.taketoday.web.view.ResultHandlers;
@@ -81,7 +80,7 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
   public void setHandlerMethodClass(Class<?> handlerMethodClass) {
     try {
       final Constructor<?> declared = handlerMethodClass.getDeclaredConstructor(Object.class, Method.class);
-      this.constructor = ReflectionUtils.newConstructorAccessor(declared);
+      this.constructor = ConstructorAccessor.fromConstructor(declared);
     }
     catch (NoSuchMethodException e) {
       throw new ReflectionException("Target class: '" + handlerMethodClass + "‘ don't exist a suitable constructor");

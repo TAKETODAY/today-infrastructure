@@ -24,7 +24,7 @@ package cn.taketoday.core.reflect;
  * @author TODAY 2021/1/29 15:56
  * @since 3.0
  */
-public final class NullConstructor implements ConstructorAccessor {
+public final class NullConstructor extends ConstructorAccessor {
   public static final NullConstructor INSTANCE = new NullConstructor();
 
   @Override

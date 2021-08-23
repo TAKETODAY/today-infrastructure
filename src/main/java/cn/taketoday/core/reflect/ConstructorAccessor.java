@@ -19,18 +19,26 @@
  */
 package cn.taketoday.core.reflect;
 
+import java.lang.reflect.Constructor;
+import java.util.Collection;
+import java.util.Map;
+
+import cn.taketoday.core.Assert;
+import cn.taketoday.util.ReflectionUtils;
+
 /**
+ * Constructor accessor
+ *
  * @author TODAY 2020.08.26
  */
-@FunctionalInterface
-public interface ConstructorAccessor extends Accessor {
+public abstract class ConstructorAccessor implements Accessor {
 
   /**
    * Invoke default {@link java.lang.reflect.Constructor}
    *
    * @return returns Object
    */
-  default Object newInstance() {
+  public Object newInstance() {
     return newInstance(null);
   }
 
@@ -39,5 +47,47 @@ public interface ConstructorAccessor extends Accessor {
    *
    * @return returns Object
    */
-  Object newInstance(Object[] args);
+  public abstract Object newInstance(Object[] args);
+
+  // static factory
+
+  /**
+   * @param target
+   */
+  public static ConstructorAccessor fromClass(final Class<?> target) {
+    Assert.notNull(target, "target class must not be null");
+
+    if (target.isArray()) {
+      Class<?> componentType = target.getComponentType();
+      return new ArrayConstructor(componentType);
+    }
+    else if (Collection.class.isAssignableFrom(target)) {
+      return new CollectionConstructor(target);
+    }
+    else if (Map.class.isAssignableFrom(target)) {
+      return new MapConstructor(target);
+    }
+
+    try {
+      final Constructor<?> constructor = target.getDeclaredConstructor();
+      return fromConstructor(constructor);
+    }
+    catch (NoSuchMethodException e) {
+      throw new ReflectionException("Target class: '" + target + "‘ has no default constructor");
+    }
+  }
+
+  /**
+   * Fast call bean's {@link java.lang.reflect.Constructor Constructor}
+   */
+  public static ConstructorAccessor fromConstructor(final Constructor<?> constructor) {
+    return new ConstructorAccessorGenerator(constructor).create();
+  }
+
+  public static ConstructorAccessor fromReflective(Constructor<?> constructor) {
+    Assert.notNull(constructor, "constructor must not be null");
+    ReflectionUtils.makeAccessible(constructor);
+    return new ReflectiveConstructorAccessor(constructor);
+  }
+
 }

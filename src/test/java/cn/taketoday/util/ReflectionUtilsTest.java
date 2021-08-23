@@ -32,8 +32,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
+import cn.taketoday.beans.support.BeanConstructor;
+import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.objects.TestObject;
 import cn.taketoday.core.reflect.GetterMethod;
 import cn.taketoday.core.reflect.PropertyAccessor;
@@ -56,7 +57,7 @@ public class ReflectionUtilsTest extends TestCase {
   }
 
   public void testCreate() {
-    Object o = ReflectionUtils.newConstructor(POJO1.class).newInstance();
+    Object o = BeanConstructor.fromClass(POJO1.class).newInstance();
     assertNotNull(o);
     assertSame(POJO1.class, o.getClass());
   }
@@ -70,13 +71,13 @@ public class ReflectionUtilsTest extends TestCase {
   }
 
   public void testCallConstructor() {
-    POJO3 pojo3 = ReflectionUtils.newConstructor(POJO3.class).newInstance();
+    POJO3 pojo3 = BeanConstructor.fromClass(POJO3.class).newInstance();
     assertNotNull(pojo3);
     assertTrue(pojo3.constructorInvoked);
   }
 
   public void testCallParentConstructor() {
-    POJO4 pojo = ReflectionUtils.newConstructor(POJO4.class).newInstance();
+    POJO4 pojo = BeanConstructor.fromClass(POJO4.class).newInstance();
     assertNotNull(pojo);
     assertTrue(pojo.constructorInvoked);
     assertTrue(pojo.pojo4_constructorInvoked);
@@ -129,19 +130,29 @@ public class ReflectionUtilsTest extends TestCase {
 
       @Override
       public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+          return true;
+        if (o == null || getClass() != o.getClass())
+          return false;
 
         POJO1 pojo1 = (POJO1) o;
 
-        if (_boolean != pojo1._boolean) return false;
-        if (_byte != pojo1._byte) return false;
-        if (_char != pojo1._char) return false;
-        if (Double.compare(pojo1._double, _double) != 0) return false;
-        if (Float.compare(pojo1._float, _float) != 0) return false;
-        if (_int != pojo1._int) return false;
-        if (_long != pojo1._long) return false;
-        if (_short != pojo1._short) return false;
+        if (_boolean != pojo1._boolean)
+          return false;
+        if (_byte != pojo1._byte)
+          return false;
+        if (_char != pojo1._char)
+          return false;
+        if (Double.compare(pojo1._double, _double) != 0)
+          return false;
+        if (Float.compare(pojo1._float, _float) != 0)
+          return false;
+        if (_int != pojo1._int)
+          return false;
+        if (_long != pojo1._long)
+          return false;
+        if (_short != pojo1._short)
+          return false;
 
         return Objects.equals(_obj, pojo1._obj);
       }
@@ -221,7 +232,8 @@ public class ReflectionUtilsTest extends TestCase {
 
       Method[] methods = pojo1.getClass().getDeclaredMethods();
       for (Method method : methods) {
-        if (!method.getName().startsWith("set_")) continue;
+        if (!method.getName().startsWith("set_"))
+          continue;
         Field field = pojo1.getClass()
                 .getDeclaredField(method.getName().substring(3));
 
@@ -240,7 +252,8 @@ public class ReflectionUtilsTest extends TestCase {
       // let's reset all values to NULL
       // primitive fields will not be affected
       for (Method method : methods) {
-        if (!method.getName().startsWith("set_")) continue;
+        if (!method.getName().startsWith("set_"))
+          continue;
 
         Field field = pojo1.getClass().getDeclaredField(method.getName().substring(3));
         SetterMethod setter = ReflectionUtils.newSetterMethod(method);
@@ -313,19 +326,29 @@ public class ReflectionUtilsTest extends TestCase {
 
       @Override
       public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+          return true;
+        if (o == null || getClass() != o.getClass())
+          return false;
 
         POJO1 pojo1 = (POJO1) o;
 
-        if (_boolean != pojo1._boolean) return false;
-        if (_byte != pojo1._byte) return false;
-        if (_char != pojo1._char) return false;
-        if (Double.compare(pojo1._double, _double) != 0) return false;
-        if (Float.compare(pojo1._float, _float) != 0) return false;
-        if (_int != pojo1._int) return false;
-        if (_long != pojo1._long) return false;
-        if (_short != pojo1._short) return false;
+        if (_boolean != pojo1._boolean)
+          return false;
+        if (_byte != pojo1._byte)
+          return false;
+        if (_char != pojo1._char)
+          return false;
+        if (Double.compare(pojo1._double, _double) != 0)
+          return false;
+        if (Float.compare(pojo1._float, _float) != 0)
+          return false;
+        if (_int != pojo1._int)
+          return false;
+        if (_long != pojo1._long)
+          return false;
+        if (_short != pojo1._short)
+          return false;
 
         return Objects.equals(_obj, pojo1._obj);
       }
@@ -386,7 +409,8 @@ public class ReflectionUtilsTest extends TestCase {
 
       Method[] methods = pojo.getClass().getDeclaredMethods();
       for (Method method : methods) {
-        if (!method.getName().startsWith("get_")) continue;
+        if (!method.getName().startsWith("get_"))
+          continue;
 
         Field field = pojo.getClass().getDeclaredField(method.getName().substring(3));
 
@@ -757,13 +781,13 @@ public class ReflectionUtilsTest extends TestCase {
   private static class A {
 
     @SuppressWarnings("unused")
-    private void foo(Integer i) throws RemoteException {}
+    private void foo(Integer i) throws RemoteException { }
   }
 
   @SuppressWarnings("unused")
   private static class B extends A {
 
-    void bar(String s) throws IllegalArgumentException {}
+    void bar(String s) throws IllegalArgumentException { }
 
     int add(int... args) {
       int sum = 0;

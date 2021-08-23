@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,27 +17,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.core.reflect;
+package cn.taketoday.beans.support;
 
 /**
- * @author TODAY
- * 2020/9/20 20:35
+ * @author TODAY <br>
+ * 2020-08-13 20:23
  */
-public class StaticMethodAccessorBeanConstructor<T> implements BeanConstructor<T> {
+@FunctionalInterface
+public interface BeanConstructorFactory {
 
-  private final MethodAccessor accessor;
-
-  public StaticMethodAccessorBeanConstructor(final MethodAccessor accessor) {
-    this.accessor = accessor;
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public final T newInstance(final Object[] args) {
-    return (T) accessor.invoke(getObject(), args);
-  }
-
-  protected Object getObject() {
-    return null;
-  }
+  BeanConstructor<?> newConstructor(Class<?> cls);
 }

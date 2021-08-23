@@ -76,7 +76,7 @@ public class BeanMetadata {
   }
 
   protected ConstructorAccessor createAccessor() {
-    return ReflectionUtils.newConstructorAccessor(beanClass);
+    return ConstructorAccessor.fromClass(beanClass);
   }
 
   /**
@@ -228,8 +228,10 @@ public class BeanMetadata {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof BeanMetadata)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof BeanMetadata))
+      return false;
     final BeanMetadata that = (BeanMetadata) o;
     return Objects.equals(beanClass, that.beanClass);
   }

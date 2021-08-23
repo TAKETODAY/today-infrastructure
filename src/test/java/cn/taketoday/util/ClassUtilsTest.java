@@ -295,7 +295,7 @@ public class ClassUtilsTest {
             .contains(Integer.class);
 
     // param
-    Constructor<Generic> constructor = BeanUtils.getSuitableConstructor(Generic.class);
+    Constructor<Generic> constructor = BeanUtils.getConstructor(Generic.class);
     Parameter[] parameters = constructor.getParameters();
 
     assertThat(ClassUtils.getGenericTypes(parameters[0]))

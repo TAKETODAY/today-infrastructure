@@ -30,23 +30,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.reflect.ArrayConstructor;
-import cn.taketoday.core.reflect.BeanConstructor;
-import cn.taketoday.core.reflect.CollectionConstructor;
-import cn.taketoday.core.reflect.ConstructorAccessor;
-import cn.taketoday.core.reflect.ConstructorAccessorBeanConstructor;
-import cn.taketoday.core.reflect.ConstructorAccessorGenerator;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.reflect.FieldGetterMethod;
 import cn.taketoday.core.reflect.FieldPropertyAccessor;
 import cn.taketoday.core.reflect.FieldSetterMethod;
 import cn.taketoday.core.reflect.GetterMethod;
-import cn.taketoday.core.reflect.MapConstructor;
-import cn.taketoday.core.reflect.MethodAccessor;
 import cn.taketoday.core.reflect.MethodAccessorGetterMethod;
 import cn.taketoday.core.reflect.MethodAccessorPropertyAccessor;
 import cn.taketoday.core.reflect.MethodAccessorSetterMethod;
@@ -83,7 +74,7 @@ public abstract class ReflectionUtils {
    *
    * @see #isCglibRenamedMethod
    */
-  private static final String CGLIB_RENAMED_METHOD_PREFIX = "today$";
+  public static final String CGLIB_RENAMED_METHOD_PREFIX = "today$";
   private static final Field[] EMPTY_FIELD_ARRAY = Constant.EMPTY_FIELD_ARRAY;
   private static final Method[] EMPTY_METHOD_ARRAY = Constant.EMPTY_METHOD_ARRAY;
   private static final Object[] EMPTY_OBJECT_ARRAY = Constant.EMPTY_OBJECT_ARRAY;
@@ -418,7 +409,8 @@ public abstract class ReflectionUtils {
         throw new IllegalStateException("Not allowed to access method '" + method.getName() + "': " + ex);
       }
     }
-    if (clazz.getSuperclass() != null && (mf != USER_DECLARED_METHODS || clazz.getSuperclass() != Object.class)) {
+    if (clazz.getSuperclass() != null
+            && (mf != USER_DECLARED_METHODS || clazz.getSuperclass() != Object.class)) {
       doWithMethods(clazz.getSuperclass(), mc, mf);
     }
     else if (clazz.isInterface()) {
@@ -439,7 +431,7 @@ public abstract class ReflectionUtils {
    *         if introspection fails
    */
   public static Method[] getAllDeclaredMethods(Class<?> leafClass) {
-    final List<Method> methods = new ArrayList<>(32);
+    final ArrayList<Method> methods = new ArrayList<>(32);
     doWithMethods(leafClass, methods::add);
     return methods.toArray(new Method[methods.size()]);
   }
@@ -494,8 +486,9 @@ public abstract class ReflectionUtils {
     return (result.length == 0 || !defensive) ? result : result.clone();
   }
 
+  @Nullable
   private static List<Method> findConcreteMethodsOnInterfaces(Class<?> clazz) {
-    List<Method> result = null;
+    ArrayList<Method> result = null;
     for (Class<?> ifc : clazz.getInterfaces()) {
       for (Method ifcMethod : ifc.getMethods()) {
         if (!Modifier.isAbstract(ifcMethod.getModifiers())) {
@@ -540,7 +533,7 @@ public abstract class ReflectionUtils {
    *         if introspection fails
    */
   public static Method[] getUniqueDeclaredMethods(Class<?> leafClass, MethodFilter mf) {
-    final List<Method> methods = new ArrayList<>(32);
+    final ArrayList<Method> methods = new ArrayList<>(32);
     doWithMethods(leafClass, method -> {
       boolean knownSignature = false;
       Method methodBeingOverriddenWithCovariantReturnType = null;
@@ -1153,64 +1146,6 @@ public abstract class ReflectionUtils {
            : new FieldPropertyAccessor(field, null, null);
   }
 
-  /**
-   * Create a new {@link MethodAccessor}
-   *
-   * @param method
-   *         Target method
-   *
-   * @return MethodAccessor to access Method
-   *
-   * @deprecated since 3.0.2 use {@link MethodInvoker#create(Method)} instead
-   */
-  @Deprecated
-  public static MethodInvoker newMethodAccessor(final Method method) {
-    return MethodInvoker.create(method);
-  }
-
-  public static ConstructorAccessor newConstructorAccessor(final Class<?> target) {
-    Assert.notNull(target, "target class must not be null");
-
-    if (target.isArray()) {
-      Class<?> componentType = target.getComponentType();
-      return new ArrayConstructor(componentType);
-    }
-    else if (Collection.class.isAssignableFrom(target)) {
-      return new CollectionConstructor(target);
-    }
-    else if (Map.class.isAssignableFrom(target)) {
-      return new MapConstructor(target);
-    }
-
-    try {
-      final Constructor<?> constructor = target.getDeclaredConstructor();
-      return newConstructorAccessor(constructor);
-    }
-    catch (NoSuchMethodException e) {
-      throw new ReflectionException("Target class: '" + target + "‘ has no default constructor");
-    }
-  }
-
-  public static ConstructorAccessor newConstructorAccessor(final Constructor<?> constructor) {
-    return new ConstructorAccessorGenerator(constructor).create();
-  }
-
-  /**
-   * Get target class's {@link BeanConstructor}
-   *
-   * @param targetClass
-   *         Target class
-   *
-   * @return {@link BeanConstructor}
-   */
-  public static <T> BeanConstructor<T> newConstructor(final Class<T> targetClass) {
-    final Constructor<T> suitableConstructor = BeanUtils.getSuitableConstructor(targetClass);
-    if (suitableConstructor == null) {
-      throw new ReflectionException("No suitable constructor in class: " + targetClass);
-    }
-    return new ConstructorAccessorBeanConstructor<>(suitableConstructor);
-  }
-
   // GetterMethod
   // ---------------------
 
@@ -1219,15 +1154,6 @@ public abstract class ReflectionUtils {
     final Method readMethod = getReadMethod(field);
     if (readMethod == null) {
       return new FieldGetterMethod(field);
-    }
-    return newGetterMethod(readMethod);
-  }
-
-  @Deprecated
-  public static GetterMethod newGetterMethod(final String name, final Class<?> type, final Class<?> declaringClass) {
-    final Method readMethod = getReadMethod(declaringClass, type, name);
-    if (readMethod == null) {
-      throw new ReflectionException("No such read method named: " + name + " in class: " + declaringClass.getName());
     }
     return newGetterMethod(readMethod);
   }
@@ -1247,15 +1173,6 @@ public abstract class ReflectionUtils {
     final Method writeMethod = getWriteMethod(field);
     if (writeMethod == null) {
       return new FieldSetterMethod(field);
-    }
-    return newSetterMethod(writeMethod);
-  }
-
-  @Deprecated
-  public static SetterMethod newSetterMethod(final String name, final Class<?> type, final Class<?> declaringClass) {
-    final Method writeMethod = getWriteMethod(declaringClass, type, name);
-    if (writeMethod == null) {
-      throw new ReflectionException("No such write method : " + name + " in class: " + declaringClass);
     }
     return newSetterMethod(writeMethod);
   }

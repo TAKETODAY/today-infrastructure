@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,14 +17,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.core.reflect;
+
+package cn.taketoday.beans.support;
+
+import java.util.function.Function;
 
 /**
- * @author TODAY <br>
- * 2020-08-13 20:23
+ * use Function
+ *
+ * @author TODAY 2021/5/28 22:19
+ * @since 3.0.2
  */
-@FunctionalInterface
-public interface BeanConstructorFactory {
+final class FunctionConstructor<T> extends BeanConstructor<T> {
+  private final Function<Object[], T> function;
 
-  BeanConstructor<?> newConstructor(Class<?> cls);
+  FunctionConstructor(Function<Object[], T> function) {
+    this.function = function;
+  }
+
+  @Override
+  public T newInstance(Object[] args) {
+    return function.apply(args);
+  }
 }

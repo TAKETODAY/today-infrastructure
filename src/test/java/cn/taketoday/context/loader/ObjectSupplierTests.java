@@ -75,7 +75,7 @@ public class ObjectSupplierTests {
 
   @Test
   public void testParameter() {
-    final Constructor<TEST> constructor = BeanUtils.getSuitableConstructor(TEST.class);
+    final Constructor<TEST> constructor = BeanUtils.getConstructor(TEST.class);
     final Parameter[] parameters = constructor.getParameters();
 
     ObjectSupplierArgumentsResolver parameterResolver = new ObjectSupplierArgumentsResolver();

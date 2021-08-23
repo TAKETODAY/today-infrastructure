@@ -17,30 +17,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+package cn.taketoday.beans.support;
 
-package cn.taketoday.core.reflect;
-
-import java.util.function.Supplier;
-
-import cn.taketoday.core.Assert;
+import cn.taketoday.core.reflect.MethodAccessor;
 
 /**
- * Supplier
- *
- * @author TODAY 2021/5/28 22:16
- * @since 3.0.2
+ * @author TODAY 2020/9/20 20:35
  */
-public final class SupplierConstructor<T> implements ConstructorAccessor {
-  private final Supplier<T> supplier;
+class StaticMethodAccessorBeanConstructor<T> extends BeanConstructor<T> {
+  private final MethodAccessor accessor;
 
-  public SupplierConstructor(Supplier<T> supplier) {
-    Assert.notNull(supplier, "instance supplier must not be null");
-    this.supplier = supplier;
+  StaticMethodAccessorBeanConstructor(final MethodAccessor accessor) {
+    this.accessor = accessor;
   }
 
   @Override
-  public Object newInstance(Object[] args) {
-    return supplier.get();
+  @SuppressWarnings("unchecked")
+  public final T newInstance(final Object[] args) {
+    return (T) accessor.invoke(getObject(), args);
   }
 
+  protected Object getObject() {
+    return null;
+  }
 }

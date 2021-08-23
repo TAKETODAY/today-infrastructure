@@ -108,7 +108,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
       if (ClassUtils.primitiveTypes.contains(fieldType)) {
         throw new BeanInstantiationException(fieldType, "Cannot be instantiated a simple type");
       }
-      constructor = ReflectionUtils.newConstructorAccessor(fieldType);
+      constructor = ConstructorAccessor.fromClass(fieldType);
       this.constructor = constructor;
     }
     return constructor.newInstance(args);
@@ -218,7 +218,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
       final Class<?> componentClass = getComponentClass();
       componentConstructor = componentClass == null
                              ? NullConstructor.INSTANCE
-                             : ReflectionUtils.newConstructorAccessor(componentClass);
+                             : ConstructorAccessor.fromClass(componentClass);
     }
     return componentConstructor.newInstance(args);
   }
@@ -344,9 +344,12 @@ public class BeanProperty extends AbstractAnnotatedElement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof BeanProperty)) return false;
-    if (!super.equals(o)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof BeanProperty))
+      return false;
+    if (!super.equals(o))
+      return false;
     final BeanProperty that = (BeanProperty) o;
     return Objects.equals(field, that.field);
   }

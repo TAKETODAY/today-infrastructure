@@ -49,7 +49,6 @@ import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
 
 import static cn.taketoday.asm.Opcodes.ACC_FINAL;
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
@@ -165,7 +164,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
     public Class<?>[] getParameterTypes() {
       if (parameterTypes == null) {
         if (constructor == null) {
-          constructor = BeanUtils.getSuitableConstructor(targetClass);
+          constructor = BeanUtils.getConstructor(targetClass);
           if (constructor == null) {
             throw new CodeGenerationException("No suitable constructor found in class: [" + targetClass + "]");
           }

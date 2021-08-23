@@ -31,11 +31,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import cn.taketoday.beans.support.BeanConstructor;
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.reflect.BeanConstructor;
-import cn.taketoday.core.reflect.MethodAccessorBeanConstructor;
 import cn.taketoday.core.reflect.MethodInvoker;
-import cn.taketoday.core.reflect.StaticMethodAccessorBeanConstructor;
 import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.OrderUtils;
@@ -102,10 +100,10 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
 
     final MethodInvoker methodInvoker = MethodInvoker.create(factoryMethod);
     if (Modifier.isStatic(factoryMethod.getModifiers())) {
-      return new StaticMethodAccessorBeanConstructor<>(methodInvoker);
+      return BeanConstructor.fromStaticMethod(methodInvoker);
     }
     final Object bean = factory.getBean(getDeclaringName());
-    return new MethodAccessorBeanConstructor<>(methodInvoker, bean);
+    return BeanConstructor.fromMethod(methodInvoker, bean);
   }
 
   private Method obtainFactoryMethod() {

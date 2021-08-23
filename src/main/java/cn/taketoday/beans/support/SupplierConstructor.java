@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,39 +17,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.core.reflect;
 
-import cn.taketoday.beans.factory.BeanInstantiationException;
+package cn.taketoday.beans.support;
+
+import java.util.function.Supplier;
 
 /**
- * Fast call bean's {@link java.lang.reflect.Constructor Constructor}
+ * Supplier
  *
- * @author TODAY <br>
- * 2020-08-13 19:31
- * @see java.lang.reflect.Constructor
+ * @author TODAY 2021/5/28 22:16
+ * @since 3.0.2
  */
-@FunctionalInterface
-public interface BeanConstructor<T> {
+final class SupplierConstructor<T> extends BeanConstructor<T> {
+  private final Supplier<T> supplier;
 
-  /**
-   * Invoke default {@link java.lang.reflect.Constructor}
-   *
-   * @return returns T
-   *
-   * @throws BeanInstantiationException
-   *         cannot instantiate a bean
-   */
-  default T newInstance() {
-    return newInstance(null);
+  SupplierConstructor(Supplier<T> supplier) {
+    this.supplier = supplier;
   }
 
-  /**
-   * Invoke {@link java.lang.reflect.Constructor} with given args
-   *
-   * @return returns T
-   *
-   * @throws BeanInstantiationException
-   *         cannot instantiate a bean
-   */
-  T newInstance(Object[] args);
+  @Override
+  public T newInstance(Object[] args) {
+    return supplier.get();
+  }
+
 }

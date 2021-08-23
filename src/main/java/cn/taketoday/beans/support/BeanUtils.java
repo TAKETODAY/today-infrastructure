@@ -28,11 +28,13 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.context.ContextUtils;
+import cn.taketoday.core.Assert;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
  * @author TODAY 2021/8/22 21:51
+ * @since 4.0
  */
 public abstract class BeanUtils {
 
@@ -129,6 +131,13 @@ public abstract class BeanUtils {
     return newInstance(constructor, parameter);
   }
 
+  public static <T> T newInstance(
+          final Class<T> beanClass, ArgumentsResolver argumentsResolver, Object[] providedArgs) {
+    final Constructor<T> constructor = obtainConstructor(beanClass);
+    final Object[] parameter = argumentsResolver.resolve(constructor, providedArgs);
+    return newInstance(constructor, parameter);
+  }
+
   public static <T> T newInstance(Constructor<T> constructor, Object[] parameter) {
     try {
       return constructor.newInstance(parameter);
@@ -163,14 +172,14 @@ public abstract class BeanUtils {
    *
    * @return Suitable constructor
    *
-   * @throws BeanInstantiationException
+   * @throws NoConstructorFoundException
    *         If there is no suitable constructor
    * @since 2.1.7
    */
   public static <T> Constructor<T> obtainConstructor(Class<T> beanClass) {
-    final Constructor<T> ret = getSuitableConstructor(beanClass);
+    final Constructor<T> ret = getConstructor(beanClass);
     if (ret == null) {
-      throw new BeanInstantiationException(beanClass, "No suitable constructor found");
+      throw new NoConstructorFoundException(beanClass);
     }
     return ret;
   }
@@ -194,20 +203,17 @@ public abstract class BeanUtils {
    *
    * @since 2.1.7
    */
-  public static <T> Constructor<T> getSuitableConstructor(Class<T> beanClass) {
-    try {
-      return ReflectionUtils.accessibleConstructor(beanClass);
+  @SuppressWarnings("unchecked")
+  public static <T> Constructor<T> getConstructor(Class<T> beanClass) {
+    Assert.notNull(beanClass, "bean-class must not be null");
+    Constructor<T>[] constructors = (Constructor<T>[]) beanClass.getDeclaredConstructors();
+    if (constructors.length == 1) {
+      return ReflectionUtils.makeAccessible(constructors[0]);
     }
-    catch (final NoSuchMethodException e) {
-      @SuppressWarnings("unchecked") //
-      final Constructor<T>[] constructors = (Constructor<T>[]) beanClass.getDeclaredConstructors();
-      if (constructors.length == 1) {
-        return ReflectionUtils.makeAccessible(constructors[0]);
-      }
-      for (final Constructor<T> constructor : constructors) {
-        if (constructor.isAnnotationPresent(Autowired.class)) {
-          return ReflectionUtils.makeAccessible(constructor);
-        }
+    for (final Constructor<T> constructor : constructors) {
+      if (constructor.getParameterCount() == 0 // default constructor
+              || constructor.isAnnotationPresent(Autowired.class)) {
+        return ReflectionUtils.makeAccessible(constructor);
       }
     }
     return null;

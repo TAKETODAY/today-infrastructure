@@ -17,30 +17,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+package cn.taketoday.beans.support;
 
-package cn.taketoday.core.reflect;
-
-import java.lang.reflect.Constructor;
-
-import cn.taketoday.core.Assert;
-import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.core.reflect.ConstructorAccessor;
 
 /**
  * @author TODAY
- * 2020/9/20 21:55
+ * 2020/9/20 20:30
  */
-public class ConstructorConstructorAccessor implements ConstructorAccessor {
+final class ConstructorAccessorBeanConstructor<T> extends BeanConstructor<T> {
+  private final ConstructorAccessor accessor;
 
-  private final Constructor<?> constructor;
-
-  public ConstructorConstructorAccessor(Constructor<?> constructor) {
-    Assert.notNull(constructor, "constructor must not be null");
-    ReflectionUtils.makeAccessible(constructor);
-    this.constructor = constructor;
+  ConstructorAccessorBeanConstructor(ConstructorAccessor accessor) {
+    this.accessor = accessor;
   }
 
   @Override
-  public Object newInstance(final Object[] args) {
-    return ReflectionUtils.invokeConstructor(constructor, args);
+  @SuppressWarnings("unchecked")
+  public T newInstance(final Object[] args) {
+    return (T) accessor.newInstance(args);
   }
 }

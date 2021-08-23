@@ -121,7 +121,7 @@ public class DelegatePerTargetObjectIntroductionInterceptor
     return mi.proceed();
   }
 
-  Object getIntroductionDelegateFor(Object targetObject) {
+  private Object getIntroductionDelegateFor(Object targetObject) {
     synchronized (this.delegateMap) {
       if (this.delegateMap.containsKey(targetObject)) {
         return this.delegateMap.get(targetObject);
@@ -134,7 +134,7 @@ public class DelegatePerTargetObjectIntroductionInterceptor
     }
   }
 
-  Object createNewDelegate() {
+  private Object createNewDelegate() {
     try {
       return ReflectionUtils.accessibleConstructor(this.defaultImplType).newInstance();
     }

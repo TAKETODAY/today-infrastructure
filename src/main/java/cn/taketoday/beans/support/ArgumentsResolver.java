@@ -104,6 +104,10 @@ public class ArgumentsResolver {
     return resolve(executable, beanFactory, null);
   }
 
+  public Object[] resolve(final Executable executable, @Nullable Object[] providedArgs) {
+    return resolve(executable, beanFactory, providedArgs);
+  }
+
   /**
    * Resolve parameters list
    *
