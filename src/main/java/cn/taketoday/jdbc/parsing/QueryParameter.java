@@ -24,7 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Objects;
 
-import cn.taketoday.jdbc.ParameterSetter;
+import cn.taketoday.jdbc.ParameterBinder;
 
 /**
  * optimized Query-Parameter resolving
@@ -35,35 +35,45 @@ import cn.taketoday.jdbc.ParameterSetter;
 public final class QueryParameter {
   private final String name;
 
-  private ParameterSetter setter;
-  private ParameterApplier applier;
+  private ParameterBinder setter;
+  private ParameterIndexHolder applier;
 
-  public QueryParameter(String name, ParameterApplier parameterApplier) {
+  public QueryParameter(String name, ParameterIndexHolder indexHolder) {
     this.name = name;
-    this.applier = parameterApplier;
+    this.applier = indexHolder;
   }
 
-  public void apply(PreparedStatement statement) throws SQLException {
-    ParameterSetter setter = getSetter();
-    if (setter != null) {
-      applier.apply(setter, statement);
+  /**
+   * set value to given statement
+   *
+   * @param statement
+   *         statement
+   *
+   * @throws SQLException
+   *         any parameter setting error
+   */
+  public void setTo(final PreparedStatement statement) throws SQLException {
+    final ParameterBinder binder = setter;
+    if (binder != null) {
+      applier.bind(binder, statement);
     }
   }
 
-  public ParameterApplier getApplier() {
-    return applier;
-  }
 
-  public ParameterSetter getSetter() {
-    return setter;
-  }
-
-  public void setApplier(ParameterApplier applier) {
+  public void setHolder(ParameterIndexHolder applier) {
     this.applier = applier;
   }
 
-  public void setSetter(ParameterSetter setter) {
+  public void setSetter(ParameterBinder setter) {
     this.setter = setter;
+  }
+
+  public ParameterIndexHolder getHolder() {
+    return applier;
+  }
+
+  public ParameterBinder getBinder() {
+    return setter;
   }
 
   public String getName() {
@@ -77,7 +87,9 @@ public final class QueryParameter {
     if (!(o instanceof QueryParameter))
       return false;
     final QueryParameter parameter = (QueryParameter) o;
-    return Objects.equals(name, parameter.name) && Objects.equals(setter, parameter.setter) && Objects.equals(applier, parameter.applier);
+    return Objects.equals(name, parameter.name)
+            && Objects.equals(setter, parameter.setter)
+            && Objects.equals(applier, parameter.applier);
   }
 
   @Override

@@ -18,31 +18,30 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc.parsing;
-
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.function.IntConsumer;
-
-import cn.taketoday.jdbc.ParameterSetter;
+package cn.taketoday.jdbc;
 
 /**
- * @author TODAY 2021/6/8 23:51
+ * jdbc parameter bind failed exception
+ *
+ * @author TODAY 2021/8/25 22:19
+ * @since 4.0
  */
-public abstract class ParameterApplier {
+public class ParameterBindFailedException extends PersistenceException {
 
-  public abstract void apply(ParameterSetter parameterSetter, PreparedStatement statement)
-          throws SQLException;
+  private static final long serialVersionUID = 1L;
 
-  public abstract void forEach(IntConsumer action);
+  public ParameterBindFailedException() { }
 
-  public static ParameterApplier valueOf(int index) {
-    return new IndexParameterApplier(index);
+  public ParameterBindFailedException(String message) {
+    super(message);
   }
 
-  public static ParameterApplier valueOf(List<Integer> indices) {
-    return new ListIndexParameterApplier(indices);
+  public ParameterBindFailedException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
+  public ParameterBindFailedException(Throwable cause) {
+    super(cause);
   }
 
 }

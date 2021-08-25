@@ -35,7 +35,7 @@ public class NamedParameterTest extends TestCase {
     final QueryParameter parameter = map.get("foo");
 
     List<Integer> integers = new ArrayList<>();
-    parameter.getApplier().forEach(integers::add);
+    parameter.getHolder().forEach(integers::add);
     assertThat(integers.size(), is(equalTo(1)));
     assertThat(integers.get(0), is(equalTo(1)));
 

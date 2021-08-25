@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import cn.taketoday.jdbc.Query.ArrayParameterSetter;
-import cn.taketoday.jdbc.parsing.ParameterApplier;
+import cn.taketoday.jdbc.Query.ArrayParameterBinder;
+import cn.taketoday.jdbc.parsing.ParameterIndexHolder;
 import cn.taketoday.jdbc.parsing.QueryParameter;
 
 /**
@@ -79,6 +79,9 @@ final class ArrayParameters {
   /**
    * Update both the query and the parameter indexes to include the array
    * parameters.
+   *
+   * @throws ArrayParameterBindFailedException
+   *         array parameter bind failed
    */
   static String updateQueryAndParametersIndexes(
           String parsedQuery,
@@ -105,19 +108,19 @@ final class ArrayParameters {
   ) {
 
     for (final QueryParameter parameter : queryParameters.values()) {
-      final ParameterApplier parameterApplier = parameter.getApplier();
+      final ParameterIndexHolder indexHolder = parameter.getHolder();
       final ArrayList<Integer> newParameterIndex = new ArrayList<>();
 
-      parameterApplier.forEach(parameterIndex -> {
+      indexHolder.forEach(parameterIndex -> {
         final int newIdx = computeNewIndex(parameterIndex, arrayParametersSortedAsc);
         newParameterIndex.add(newIdx);
       });
 
       if (newParameterIndex.size() > 1) {
-        parameter.setApplier(ParameterApplier.valueOf(newParameterIndex));
+        parameter.setHolder(ParameterIndexHolder.valueOf(newParameterIndex));
       }
       else {
-        parameter.setApplier(ParameterApplier.valueOf(newParameterIndex.get(0)));
+        parameter.setHolder(ParameterIndexHolder.valueOf(newParameterIndex.get(0)));
       }
     }
 
@@ -145,6 +148,9 @@ final class ArrayParameters {
    * List all the array parameters that contains more that 1 parameters. Indeed,
    * array parameter below 1 parameter will not change the text query nor the
    * parameter indexes.
+   *
+   * @throws ArrayParameterBindFailedException
+   *         array parameter bind failed
    */
   private static List<ArrayParameter> sortedArrayParameters(
           HashMap<String, QueryParameter> queryParameters,
@@ -152,16 +158,16 @@ final class ArrayParameters {
   ) {
     final ArrayList<ArrayParameter> arrayParameters = new ArrayList<>();
     for (final QueryParameter parameter : queryParameters.values()) {
-      final ParameterSetter setter = parameter.getSetter();
-      if (setter instanceof ArrayParameterSetter) {
-        final int parameterCount = ((ArrayParameterSetter) setter).getParameterCount();
+      final ParameterBinder binder = parameter.getBinder();
+      if (binder instanceof ArrayParameterBinder) {
+        final int parameterCount = ((ArrayParameterBinder) binder).getParameterCount();
         if (parameterCount > 1) {
           if (!allowArrayParameters) {
-            throw new PersistenceException("Array parameters are not allowed in batch mode");
+            throw new ArrayParameterBindFailedException("Array parameters are not allowed in batch mode");
           }
 
-          final ParameterApplier parameterApplier = parameter.getApplier();
-          parameterApplier.forEach(index -> arrayParameters.add(new ArrayParameter(index, parameterCount)));
+          ParameterIndexHolder indexHolder = parameter.getHolder();
+          indexHolder.forEach(index -> arrayParameters.add(new ArrayParameter(index, parameterCount)));
         }
       }
     }

@@ -22,50 +22,57 @@ package cn.taketoday.jdbc.parsing;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.IntConsumer;
 
-import cn.taketoday.jdbc.ParameterSetter;
+import cn.taketoday.jdbc.ParameterBinder;
 
 /**
- * @author TODAY 2021/6/8 23:52
+ * @author TODAY 2021/6/8 23:53
  */
-final class IndexParameterApplier extends ParameterApplier {
-  final int index;
+final class ListParameterIndexApplier extends ParameterIndexHolder {
+  private final List<Integer> indices;
 
-  IndexParameterApplier(int index) {
-    this.index = index;
+  ListParameterIndexApplier(List<Integer> index) {
+    this.indices = index;
   }
 
   @Override
-  public void apply(ParameterSetter parameterSetter, PreparedStatement statement) throws SQLException {
-    parameterSetter.setParameter(statement, index);
+  public void bind(final ParameterBinder binder, final PreparedStatement statement) throws SQLException {
+    for (final int index : indices) {
+      binder.bind(statement, index);
+    }
   }
 
   @Override
-  public void forEach(IntConsumer action) {
-    action.accept(index);
+  public void forEach(final IntConsumer action) {
+    for (final Integer index : indices) {
+      action.accept(index);
+    }
   }
 
-  public int getIndex() {
-    return index;
+  public void addIndex(int index) {
+    indices.add(index);
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof IndexParameterApplier)) return false;
-    final IndexParameterApplier that = (IndexParameterApplier) o;
-    return index == that.index;
+    if (this == o)
+      return true;
+    if (!(o instanceof ListParameterIndexApplier))
+      return false;
+    final ListParameterIndexApplier applier = (ListParameterIndexApplier) o;
+    return Objects.equals(indices, applier.indices);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(index);
+    return Objects.hash(indices);
   }
 
   @Override
   public String toString() {
-    return "index=" + index;
+    return "indices=" + indices;
   }
 }

@@ -163,14 +163,14 @@ public final class Query implements AutoCloseable {
   // ------------- Add Parameters -------------------
   // ------------------------------------------------
 
-  public void addParameter(String name, ParameterSetter parameterSetter) {
+  public void addParameter(String name, ParameterBinder parameterBinder) {
     QueryParameter queryParameter = queryParameters.get(name);
     if (queryParameter == null) {
       throw new PersistenceException(
               "Failed to add parameter with name '"
                       + name + "'. No parameter with that name is declared in the sql.");
     }
-    queryParameter.setSetter(parameterSetter);
+    queryParameter.setSetter(parameterBinder);
   }
 
   public <T> Query addParameter(String name, Class<T> parameterClass, T value) {
@@ -184,13 +184,13 @@ public final class Query implements AutoCloseable {
       return addParameter(name, (Collection<?>) value);
     }
     final TypeHandler<T> typeHandler = getTypeHandlerRegistry().getTypeHandler(parameterClass);
-    final class TypeHandlerParameterSetter extends ParameterSetter {
+    final class TypeHandlerParameterBinder extends ParameterBinder {
       @Override
-      public void setParameter(PreparedStatement statement, int paramIdx) throws SQLException {
+      public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
         typeHandler.setParameter(statement, paramIdx, value);
       }
     }
-    addParameter(name, new TypeHandlerParameterSetter());
+    addParameter(name, new TypeHandlerParameterBinder());
     return this;
   }
 
@@ -210,86 +210,86 @@ public final class Query implements AutoCloseable {
   }
 
   public Query addNullParameter(final String name) {
-    addParameter(name, ParameterSetter.null_setter);
+    addParameter(name, ParameterBinder.null_binder);
     return this;
   }
 
   public Query addParameter(final String name, final InputStream value) {
-    final class BinaryStreamParameterSetter extends ParameterSetter {
+    final class BinaryStreamParameterBinder extends ParameterBinder {
       @Override
-      public void setParameter(PreparedStatement statement, int paramIdx) throws SQLException {
+      public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
         statement.setBinaryStream(paramIdx, value);
       }
     }
-    addParameter(name, new BinaryStreamParameterSetter());
+    addParameter(name, new BinaryStreamParameterBinder());
     return this;
   }
 
   public Query addParameter(final String name, final int value) {
-    final class IntegerParameterSetter extends ParameterSetter {
+    final class IntegerParameterBinder extends ParameterBinder {
       @Override
-      public void setParameter(PreparedStatement statement, int paramIdx) throws SQLException {
+      public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
         statement.setInt(paramIdx, value);
       }
     }
-    addParameter(name, new IntegerParameterSetter());
+    addParameter(name, new IntegerParameterBinder());
     return this;
   }
 
   public Query addParameter(final String name, final long value) {
-    final class LongParameterSetter extends ParameterSetter {
+    final class LongParameterBinder extends ParameterBinder {
       @Override
-      public void setParameter(PreparedStatement statement, int paramIdx) throws SQLException {
+      public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
         statement.setLong(paramIdx, value);
       }
     }
-    addParameter(name, new LongParameterSetter());
+    addParameter(name, new LongParameterBinder());
     return this;
   }
 
   public Query addParameter(final String name, final String value) {
-    final class StringParameterSetter extends ParameterSetter {
+    final class StringParameterBinder extends ParameterBinder {
       @Override
-      public void setParameter(PreparedStatement statement, int paramIdx) throws SQLException {
+      public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
         statement.setString(paramIdx, value);
       }
     }
-    addParameter(name, new StringParameterSetter());
+    addParameter(name, new StringParameterBinder());
     return this;
   }
 
   public Query addParameter(final String name, final Timestamp value) {
-    final class TimestampParameterSetter extends ParameterSetter {
+    final class TimestampParameterBinder extends ParameterBinder {
       @Override
-      public void setParameter(PreparedStatement statement, int paramIdx) throws SQLException {
+      public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
         statement.setTimestamp(paramIdx, value);
       }
     }
-    addParameter(name, new TimestampParameterSetter());
+    addParameter(name, new TimestampParameterBinder());
     return this;
   }
 
   public Query addParameter(final String name, final Time value) {
-    final class TimeParameterSetter extends ParameterSetter {
+    final class TimeParameterBinder extends ParameterBinder {
       @Override
-      public void setParameter(PreparedStatement statement, int paramIdx) throws SQLException {
+      public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
         statement.setTime(paramIdx, value);
       }
     }
 
-    addParameter(name, new TimeParameterSetter());
+    addParameter(name, new TimeParameterBinder());
     return this;
   }
 
   public Query addParameter(final String name, final boolean value) {
-    final class BooleanParameterSetter extends ParameterSetter {
+    final class BooleanParameterBinder extends ParameterBinder {
 
       @Override
-      public void setParameter(PreparedStatement statement, int paramIdx) throws SQLException {
+      public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
         statement.setBoolean(paramIdx, value);
       }
     }
-    addParameter(name, new BooleanParameterSetter());
+    addParameter(name, new BooleanParameterBinder());
     return this;
   }
 
@@ -314,7 +314,7 @@ public final class Query implements AutoCloseable {
    *         if values parameter is null
    */
   public Query addParameters(final String name, final Object... values) {
-    addParameter(name, new ArrayParameterSetter(values));
+    addParameter(name, new ArrayParameterBinder(values));
     this.hasArrayParameter = true;
     return this;
   }
@@ -339,7 +339,7 @@ public final class Query implements AutoCloseable {
    * See {@link #addParameters(String, Object...)} for details
    */
   public Query addParameter(final String name, final Collection<?> values) {
-    addParameter(name, new ArrayParameterSetter(values));
+    addParameter(name, new ArrayParameterBinder(values));
     this.hasArrayParameter = true;
     return this;
   }
@@ -386,7 +386,15 @@ public final class Query implements AutoCloseable {
     return buildPreparedStatement(true);
   }
 
-  private PreparedStatement buildPreparedStatement(boolean allowArrayParameters) {
+  /**
+   * @return PreparedStatement
+   *
+   * @throws ParameterBindFailedException
+   *         parameter bind failed
+   * @throws ArrayParameterBindFailedException
+   *         array parameter bind failed
+   */
+  private PreparedStatement buildPreparedStatement(final boolean allowArrayParameters) {
     HashMap<String, QueryParameter> queryParameters = getQueryParameters();
     if (hasArrayParameter) {
       // array parameter handling
@@ -400,6 +408,7 @@ public final class Query implements AutoCloseable {
     // prepare statement creation
     PreparedStatement statement = this.preparedStatement;
     if (statement == null) {
+      JdbcConnection connection = getConnection();
       statement = getPreparedStatement(connection.getJdbcConnection());
       this.preparedStatement = statement; // update
       connection.registerStatement(statement);
@@ -408,11 +417,11 @@ public final class Query implements AutoCloseable {
     // parameters assignation to query
     for (final QueryParameter parameter : queryParameters.values()) {
       try {
-        parameter.apply(statement);
+        parameter.setTo(statement);
       }
       catch (SQLException e) {
-        throw new PersistenceException(
-                "Error adding parameter '" + parameter.getName() + "' - " + e.getMessage(), e);
+        throw new ParameterBindFailedException(
+                "Error binding parameter '" + parameter.getName() + "' - " + e.getMessage(), e);
       }
     }
     // the parameters need to be cleared, so in case of batch,
@@ -640,8 +649,9 @@ public final class Query implements AutoCloseable {
       logExecution();
       PreparedStatement statement = buildPreparedStatement();
       connection.setResult(statement.executeUpdate());
-      connection.setKeys(this.returnGeneratedKeys ? statement.getGeneratedKeys() : null);
-      connection.setCanGetKeys(this.returnGeneratedKeys);
+      boolean generatedKeys = isReturnGeneratedKeys();
+      connection.setKeys(generatedKeys ? statement.getGeneratedKeys() : null);
+      connection.setCanGetKeys(generatedKeys);
     }
     catch (SQLException ex) {
       connection.onException();
@@ -664,6 +674,10 @@ public final class Query implements AutoCloseable {
       this.typeHandlerRegistry = ret;
     }
     return ret;
+  }
+
+  public boolean isReturnGeneratedKeys() {
+    return returnGeneratedKeys;
   }
 
   public void setTypeHandlerRegistry(TypeHandlerRegistry typeHandlerRegistry) {
@@ -912,15 +926,15 @@ public final class Query implements AutoCloseable {
 
   // ParameterSetter
 
-  final class ArrayParameterSetter extends ParameterSetter {
+  final class ArrayParameterBinder extends ParameterBinder {
     final Object[] values;
 
-    ArrayParameterSetter(Collection<?> values) {
+    ArrayParameterBinder(Collection<?> values) {
       Assert.notNull(values, "Array parameter cannot be null");
       this.values = values.toArray();
     }
 
-    ArrayParameterSetter(Object[] values) {
+    ArrayParameterBinder(Object[] values) {
       Assert.notNull(values, "Array parameter cannot be null");
       this.values = values;
     }
@@ -930,7 +944,7 @@ public final class Query implements AutoCloseable {
     }
 
     @Override
-    public void setParameter(final PreparedStatement statement, int paramIdx) throws SQLException {
+    public void bind(final PreparedStatement statement, int paramIdx) throws SQLException {
       if (values.length == 0) {
         getTypeHandlerRegistry().getObjectTypeHandler()
                 .setParameter(statement, paramIdx, null);

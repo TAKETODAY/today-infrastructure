@@ -56,25 +56,25 @@ public class ParameterParser extends CharParser {
     QueryParameter queryParameter = parameterMap.get(name);
 
     if (queryParameter == null) {
-      queryParameter = new QueryParameter(name, ParameterApplier.valueOf(paramIdx));
+      queryParameter = new QueryParameter(name, ParameterIndexHolder.valueOf(paramIdx));
       parameterMap.put(name, queryParameter);
     }
     else {
       // set ParameterApplier
-      ParameterApplier parameterApplier = queryParameter.getApplier();
-      if (parameterApplier == null) {
-        parameterApplier = ParameterApplier.valueOf(paramIdx);
-        queryParameter.setApplier(parameterApplier);
+      ParameterIndexHolder indexHolder = queryParameter.getHolder();
+      if (indexHolder == null) {
+        indexHolder = ParameterIndexHolder.valueOf(paramIdx);
+        queryParameter.setHolder(indexHolder);
       }
-      else if (parameterApplier instanceof ListIndexParameterApplier) {
-        ((ListIndexParameterApplier) parameterApplier).addIndex(paramIdx);
+      else if (indexHolder instanceof ListParameterIndexApplier) {
+        ((ListParameterIndexApplier) indexHolder).addIndex(paramIdx);
       }
-      else if (parameterApplier instanceof IndexParameterApplier) {
+      else if (indexHolder instanceof DefaultParameterIndexHolder) {
         ArrayList<Integer> indices = new ArrayList<>();
-        final int index = ((IndexParameterApplier) parameterApplier).getIndex();
+        final int index = ((DefaultParameterIndexHolder) indexHolder).getIndex();
         indices.add(index);
         indices.add(paramIdx);
-        queryParameter.setApplier(ParameterApplier.valueOf(indices));
+        queryParameter.setHolder(ParameterIndexHolder.valueOf(indices));
       }
     }
 

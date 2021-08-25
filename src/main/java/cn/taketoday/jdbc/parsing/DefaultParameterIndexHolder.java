@@ -22,55 +22,50 @@ package cn.taketoday.jdbc.parsing;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.IntConsumer;
 
-import cn.taketoday.jdbc.ParameterSetter;
+import cn.taketoday.jdbc.ParameterBinder;
 
 /**
- * @author TODAY 2021/6/8 23:53
+ * @author TODAY 2021/6/8 23:52
  */
-final class ListIndexParameterApplier extends ParameterApplier {
-  private final List<Integer> indices;
+final class DefaultParameterIndexHolder extends ParameterIndexHolder {
+  final int index;
 
-  ListIndexParameterApplier(List<Integer> index) {
-    this.indices = index;
+  DefaultParameterIndexHolder(int index) {
+    this.index = index;
   }
 
   @Override
-  public void apply(ParameterSetter parameterSetter, PreparedStatement statement) throws SQLException {
-    for (final Integer integer : indices) {
-      parameterSetter.setParameter(statement, integer);
-    }
+  public void bind(ParameterBinder binder, PreparedStatement statement) throws SQLException {
+    binder.bind(statement, index);
   }
 
   @Override
   public void forEach(IntConsumer action) {
-    for (final Integer index : indices) {
-      action.accept(index);
-    }
+    action.accept(index);
   }
 
-  public void addIndex(int index) {
-    indices.add(index);
+  public int getIndex() {
+    return index;
   }
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof ListIndexParameterApplier)) return false;
-    final ListIndexParameterApplier applier = (ListIndexParameterApplier) o;
-    return Objects.equals(indices, applier.indices);
+    if (!(o instanceof DefaultParameterIndexHolder)) return false;
+    final DefaultParameterIndexHolder that = (DefaultParameterIndexHolder) o;
+    return index == that.index;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(indices);
+    return Objects.hash(index);
   }
 
   @Override
   public String toString() {
-    return "indices=" + indices;
+    return "index=" + index;
   }
 }

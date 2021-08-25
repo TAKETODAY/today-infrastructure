@@ -9,7 +9,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Map;
 
-import cn.taketoday.jdbc.parsing.ParameterApplier;
+import cn.taketoday.jdbc.parsing.ParameterIndexHolder;
 import cn.taketoday.jdbc.parsing.QueryParameter;
 
 import static junit.framework.TestCase.assertEquals;
@@ -22,21 +22,21 @@ public class ArrayParametersTest {
     ImmutableList<ArrayParameters.ArrayParameter> arrayParametersSortedAsc =
             ImmutableList.of(new ArrayParameters.ArrayParameter(6, 3));
 
-    QueryParameter parameter = new QueryParameter("paramName", ParameterApplier.valueOf(of));
+    QueryParameter parameter = new QueryParameter("paramName", ParameterIndexHolder.valueOf(of));
 
     ImmutableMap<String, QueryParameter> paramName2 = ImmutableMap.of("paramName", parameter);
     Map<String, QueryParameter> paramName =
             ArrayParameters.updateMap(Maps.newHashMap(paramName2), arrayParametersSortedAsc);
 
-    assertEquals(ImmutableMap.of("paramName", new QueryParameter("paramName", ParameterApplier.valueOf(ImmutableList.of(3, 5)))),
+    assertEquals(ImmutableMap.of("paramName", new QueryParameter("paramName", ParameterIndexHolder.valueOf(ImmutableList.of(3, 5)))),
                  paramName);
 
-    parameter = new QueryParameter("paramName", ParameterApplier.valueOf(ImmutableList.of(3, 7)));
+    parameter = new QueryParameter("paramName", ParameterIndexHolder.valueOf(ImmutableList.of(3, 7)));
 
     ImmutableMap<String, QueryParameter> paramName1 = ImmutableMap.of("paramName", parameter);
 
     assertEquals(
-            ImmutableMap.of("paramName", new QueryParameter("paramName", ParameterApplier.valueOf(ImmutableList.of(3, 9)))),
+            ImmutableMap.of("paramName", new QueryParameter("paramName", ParameterIndexHolder.valueOf(ImmutableList.of(3, 9)))),
             ArrayParameters.updateMap(
                     Maps.newHashMap(paramName1),
                     ImmutableList.of(
