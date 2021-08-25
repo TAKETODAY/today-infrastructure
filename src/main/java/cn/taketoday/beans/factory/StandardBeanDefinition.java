@@ -95,7 +95,7 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
   }
 
   @Override
-  protected BeanConstructor<?> createConstructor(BeanFactory factory) {
+  protected BeanConstructor createConstructor(BeanFactory factory) {
     final Method factoryMethod = obtainFactoryMethod();
 
     final MethodInvoker methodInvoker = MethodInvoker.fromMethod(factoryMethod);

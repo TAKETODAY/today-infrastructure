@@ -24,7 +24,7 @@ import cn.taketoday.core.reflect.MethodAccessor;
 /**
  * @author TODAY 2020/9/20 20:35
  */
-class StaticMethodAccessorBeanConstructor<T> extends BeanConstructor<T> {
+class StaticMethodAccessorBeanConstructor extends BeanConstructor {
   private final MethodAccessor accessor;
 
   StaticMethodAccessorBeanConstructor(final MethodAccessor accessor) {
@@ -32,9 +32,8 @@ class StaticMethodAccessorBeanConstructor<T> extends BeanConstructor<T> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public final T newInstance(final Object[] args) {
-    return (T) accessor.invoke(getObject(), args);
+  public final Object newInstance(final Object[] args) {
+    return accessor.invoke(getObject(), args);
   }
 
   protected Object getObject() {

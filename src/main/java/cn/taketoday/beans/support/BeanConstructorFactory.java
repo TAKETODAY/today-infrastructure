@@ -26,5 +26,5 @@ package cn.taketoday.beans.support;
 @FunctionalInterface
 public interface BeanConstructorFactory {
 
-  BeanConstructor<?> newConstructor(Class<?> cls);
+  BeanConstructor newConstructor(Class<?> cls);
 }

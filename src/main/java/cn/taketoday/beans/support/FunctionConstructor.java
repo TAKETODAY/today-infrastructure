@@ -28,7 +28,7 @@ import java.util.function.Function;
  * @author TODAY 2021/5/28 22:19
  * @since 3.0.2
  */
-final class FunctionConstructor<T> extends BeanConstructor<T> {
+final class FunctionConstructor<T> extends BeanConstructor {
   private final Function<Object[], T> function;
 
   FunctionConstructor(Function<Object[], T> function) {

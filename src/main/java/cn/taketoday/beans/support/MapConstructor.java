@@ -18,44 +18,43 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.core.reflect;
-
-import java.lang.reflect.Array;
+package cn.taketoday.beans.support;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * @author TODAY 2021/1/29 15:56
- * @see Array#newInstance(Class, int)
+ * @see CollectionUtils#createMap(Class, Class, int)
  * @since 3.0
  */
-public class ArrayConstructor extends ConstructorAccessor {
+public class MapConstructor extends BeanConstructor {
 
   private int capacity = Constant.DEFAULT_CAPACITY;
-  private final Class<?> componentType;
+  private Class<?> keyType;
+  private final Class<?> mapType;
 
-  public ArrayConstructor(Class<?> componentType) {
-    Assert.notNull(componentType, "component type must not be null");
-    this.componentType = componentType;
+  public MapConstructor(Class<?> mapType) {
+    this(mapType, null);
+  }
+
+  public MapConstructor(Class<?> mapType, Class<?> keyType) {
+    Assert.notNull(mapType, "map type must not be null");
+    this.keyType = keyType;
+    this.mapType = mapType;
   }
 
   @Override
   public Object newInstance(final Object[] args) {
-    // TODO - only handles 2-dimensional arrays
-    final Class<?> componentType = this.componentType;
-    if (componentType.isArray()) {
-      Object array = Array.newInstance(componentType, 1);
-      Array.set(array, 0, Array.newInstance(componentType.getComponentType(), capacity));
-      return array;
-    }
-    else {
-      return Array.newInstance(componentType, capacity);
-    }
+    return CollectionUtils.createMap(mapType, keyType, capacity);
   }
 
   public void setCapacity(int capacity) {
     this.capacity = capacity;
   }
 
+  public void setKeyType(Class<?> keyType) {
+    this.keyType = keyType;
+  }
 }

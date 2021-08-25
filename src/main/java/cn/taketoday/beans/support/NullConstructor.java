@@ -17,24 +17,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.beans.support;
 
-import cn.taketoday.core.reflect.ConstructorAccessor;
-
 /**
- * @author TODAY
- * 2020/9/20 20:30
+ * @author TODAY 2021/1/29 15:56
+ * @since 3.0
  */
-final class ConstructorAccessorBeanConstructor<T> extends BeanConstructor<T> {
-  private final ConstructorAccessor accessor;
-
-  ConstructorAccessorBeanConstructor(ConstructorAccessor accessor) {
-    this.accessor = accessor;
-  }
+public final class NullConstructor extends BeanConstructor {
+  public static final NullConstructor INSTANCE = new NullConstructor();
 
   @Override
-  @SuppressWarnings("unchecked")
-  public T newInstance(final Object[] args) {
-    return (T) accessor.newInstance(args);
+  public Object newInstance(final Object[] args) {
+    return null;
   }
+
 }

@@ -21,6 +21,8 @@ package cn.taketoday.beans.support;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -30,6 +32,8 @@ import cn.taketoday.core.Nullable;
 import cn.taketoday.core.reflect.ConstructorAccessor;
 import cn.taketoday.core.reflect.MethodAccessor;
 import cn.taketoday.core.reflect.MethodInvoker;
+import cn.taketoday.core.reflect.ReflectionException;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * bean-constructor bean construct strategy
@@ -37,7 +41,7 @@ import cn.taketoday.core.reflect.MethodInvoker;
  * @author TODAY 2020-08-13 19:31
  * @see java.lang.reflect.Constructor
  */
-public abstract class BeanConstructor<T> {
+public abstract class BeanConstructor {
 
   /**
    * Invoke default {@link java.lang.reflect.Constructor}
@@ -47,7 +51,7 @@ public abstract class BeanConstructor<T> {
    * @throws BeanInstantiationException
    *         cannot instantiate a bean
    */
-  public T newInstance() {
+  public Object newInstance() {
     return newInstance(null);
   }
 
@@ -59,7 +63,7 @@ public abstract class BeanConstructor<T> {
    * @throws BeanInstantiationException
    *         cannot instantiate a bean
    */
-  public abstract T newInstance(@Nullable Object[] args);
+  public abstract Object newInstance(@Nullable Object[] args);
 
   // static
 
@@ -68,29 +72,11 @@ public abstract class BeanConstructor<T> {
    *
    * @param constructor
    *         java reflect Constructor
-   * @param <T>
-   *         target bean type
    *
    * @return BeanConstructor to construct target T
    */
-  public static <T> BeanConstructor<T> fromConstructor(Constructor<T> constructor) {
-    ConstructorAccessor accessor = ConstructorAccessor.fromConstructor(constructor);
-    return fromAccessor(accessor);
-  }
-
-  /**
-   * use ConstructorAccessor
-   *
-   * @param accessor
-   *         ConstructorAccessor
-   * @param <T>
-   *         target bean type
-   *
-   * @return BeanConstructor to construct target T
-   */
-  public static <T> BeanConstructor<T> fromAccessor(ConstructorAccessor accessor) {
-    Assert.notNull(accessor, "ConstructorAccessor must not be null");
-    return new ConstructorAccessorBeanConstructor<>(accessor);
+  public static BeanConstructor fromConstructor(Constructor<?> constructor) {
+    return ConstructorAccessor.fromConstructor(constructor);
   }
 
   /**
@@ -100,13 +86,11 @@ public abstract class BeanConstructor<T> {
    *         factory-method accessor
    * @param obj
    *         accessor object
-   * @param <T>
-   *         target bean type
    *
    * @return BeanConstructor to construct target T
    */
-  public static <T> BeanConstructor<T> fromMethod(MethodAccessor accessor, Object obj) {
-    return new MethodAccessorBeanConstructor<>(accessor, obj);
+  public static BeanConstructor fromMethod(MethodAccessor accessor, Object obj) {
+    return new MethodAccessorBeanConstructor(accessor, obj);
   }
 
   /**
@@ -116,12 +100,10 @@ public abstract class BeanConstructor<T> {
    *         java reflect method
    * @param obj
    *         accessor object
-   * @param <T>
-   *         target bean type
    *
    * @return BeanConstructor to construct target T
    */
-  public static <T> BeanConstructor<T> fromMethod(Method method, Object obj) {
+  public static BeanConstructor fromMethod(Method method, Object obj) {
     return fromMethod(MethodInvoker.fromMethod(method), obj);
   }
 
@@ -132,13 +114,11 @@ public abstract class BeanConstructor<T> {
    *         factory-method accessor
    * @param obj
    *         accessor object Supplier
-   * @param <T>
-   *         bean type
    *
    * @return BeanConstructor to construct target T
    */
-  public static <T> BeanConstructor<T> fromMethod(MethodAccessor accessor, Supplier<Object> obj) {
-    return new MethodAccessorBeanConstructor<>(accessor, obj);
+  public static BeanConstructor fromMethod(MethodAccessor accessor, Supplier<Object> obj) {
+    return new MethodAccessorBeanConstructor(accessor, obj);
   }
 
   /**
@@ -146,12 +126,10 @@ public abstract class BeanConstructor<T> {
    *
    * @param method
    *         factory-method
-   * @param <T>
-   *         target bean type
    *
    * @return BeanConstructor to construct target T
    */
-  public static <T> BeanConstructor<T> fromMethod(Method method, Supplier<Object> obj) {
+  public static BeanConstructor fromMethod(Method method, Supplier<Object> obj) {
     return fromMethod(MethodInvoker.fromMethod(method), obj);
   }
 
@@ -160,14 +138,12 @@ public abstract class BeanConstructor<T> {
    *
    * @param accessor
    *         static factory-method accessor
-   * @param <T>
-   *         target bean type
    *
    * @return BeanConstructor to construct target T
    */
-  public static <T> BeanConstructor<T> fromStaticMethod(MethodAccessor accessor) {
+  public static BeanConstructor fromStaticMethod(MethodAccessor accessor) {
     Assert.notNull(accessor, "MethodAccessor must not be null");
-    return new StaticMethodAccessorBeanConstructor<>(accessor);
+    return new StaticMethodAccessorBeanConstructor(accessor);
   }
 
   /**
@@ -175,12 +151,10 @@ public abstract class BeanConstructor<T> {
    *
    * @param method
    *         static factory-method
-   * @param <T>
-   *         target bean type
    *
    * @return BeanConstructor to construct target T
    */
-  public static <T> BeanConstructor<T> fromStaticMethod(Method method) {
+  public static BeanConstructor fromStaticMethod(Method method) {
     return fromStaticMethod(MethodInvoker.fromMethod(method));
   }
 
@@ -198,19 +172,50 @@ public abstract class BeanConstructor<T> {
    * @throws NoConstructorFoundException
    *         No suitable constructor
    */
-  public static <T> BeanConstructor<T> fromClass(final Class<T> targetClass) {
-    Constructor<T> suitableConstructor = BeanUtils.obtainConstructor(targetClass);
+  public static BeanConstructor fromClass(final Class<?> targetClass) {
+    Constructor<?> suitableConstructor = BeanUtils.obtainConstructor(targetClass);
     return fromConstructor(suitableConstructor);
   }
 
-  public static <T> BeanConstructor<T> fromFunction(Function<Object[], T> function) {
+  public static <T> FunctionConstructor<T> fromFunction(Function<Object[], T> function) {
     Assert.notNull(function, "instance function must not be null");
     return new FunctionConstructor<>(function);
   }
 
-  public static <T> BeanConstructor<T> fromSupplier(Supplier<T> supplier) {
+  public static <T> SupplierConstructor<T> fromSupplier(Supplier<T> supplier) {
     Assert.notNull(supplier, "instance supplier must not be null");
     return new SupplierConstructor<>(supplier);
+  }
+
+  /**
+   * @param target
+   */
+  public static <T> BeanConstructor fromDefaultConstructor(final Class<T> target) {
+    Assert.notNull(target, "target class must not be null");
+    if (target.isArray()) {
+      Class<?> componentType = target.getComponentType();
+      return new ArrayConstructor(componentType);
+    }
+    else if (Collection.class.isAssignableFrom(target)) {
+      return new CollectionConstructor(target);
+    }
+    else if (Map.class.isAssignableFrom(target)) {
+      return new MapConstructor(target);
+    }
+
+    try {
+      final Constructor<T> constructor = target.getDeclaredConstructor();
+      return fromConstructor(constructor);
+    }
+    catch (NoSuchMethodException e) {
+      throw new ReflectionException("Target class: '" + target + "‘ has no default constructor");
+    }
+  }
+
+  public static ConstructorAccessor fromReflective(Constructor<?> constructor) {
+    Assert.notNull(constructor, "constructor must not be null");
+    ReflectionUtils.makeAccessible(constructor);
+    return new ReflectiveConstructorAccessor(constructor);
   }
 
 }

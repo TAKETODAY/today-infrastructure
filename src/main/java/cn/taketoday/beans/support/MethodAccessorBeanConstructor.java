@@ -27,8 +27,8 @@ import cn.taketoday.util.SingletonSupplier;
 /**
  * @author TODAY 2020/9/20 20:41
  */
-final class MethodAccessorBeanConstructor<T>
-        extends StaticMethodAccessorBeanConstructor<T> {
+final class MethodAccessorBeanConstructor
+        extends StaticMethodAccessorBeanConstructor {
 
   private final Supplier<Object> obj;
 

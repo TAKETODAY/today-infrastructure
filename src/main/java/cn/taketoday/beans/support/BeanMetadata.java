@@ -31,7 +31,6 @@ import java.util.Objects;
 import cn.taketoday.beans.Property;
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
 import cn.taketoday.context.loader.NoSuchPropertyException;
-import cn.taketoday.core.reflect.ConstructorAccessor;
 import cn.taketoday.core.reflect.PropertyAccessor;
 import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ClassUtils;
@@ -50,7 +49,7 @@ public class BeanMetadata {
 
   private final Class<?> beanClass;
 
-  private ConstructorAccessor constructor;
+  private BeanConstructor constructor;
   private final Map<String, BeanProperty> beanProperties;
 
   private BeanMetadata(Object key) {
@@ -66,8 +65,8 @@ public class BeanMetadata {
     return this.beanClass;
   }
 
-  public ConstructorAccessor getConstructor() {
-    ConstructorAccessor constructor = this.constructor;
+  public BeanConstructor getConstructor() {
+    BeanConstructor constructor = this.constructor;
     if (constructor == null) {
       constructor = createAccessor();
       this.constructor = constructor;
@@ -75,8 +74,8 @@ public class BeanMetadata {
     return constructor;
   }
 
-  protected ConstructorAccessor createAccessor() {
-    return ConstructorAccessor.fromClass(beanClass);
+  protected BeanConstructor createAccessor() {
+    return BeanConstructor.fromDefaultConstructor(beanClass);
   }
 
   /**

@@ -18,18 +18,44 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.core.reflect;
+package cn.taketoday.beans.support;
+
+import java.lang.reflect.Array;
+
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.Constant;
 
 /**
  * @author TODAY 2021/1/29 15:56
+ * @see Array#newInstance(Class, int)
  * @since 3.0
  */
-public final class NullConstructor extends ConstructorAccessor {
-  public static final NullConstructor INSTANCE = new NullConstructor();
+public class ArrayConstructor extends BeanConstructor {
+
+  private int capacity = Constant.DEFAULT_CAPACITY;
+  private final Class<?> componentType;
+
+  public ArrayConstructor(Class<?> componentType) {
+    Assert.notNull(componentType, "component type must not be null");
+    this.componentType = componentType;
+  }
 
   @Override
   public Object newInstance(final Object[] args) {
-    return null;
+    // TODO - only handles 2-dimensional arrays
+    final Class<?> componentType = this.componentType;
+    if (componentType.isArray()) {
+      Object array = Array.newInstance(componentType, 1);
+      Array.set(array, 0, Array.newInstance(componentType.getComponentType(), capacity));
+      return array;
+    }
+    else {
+      return Array.newInstance(componentType, capacity);
+    }
+  }
+
+  public void setCapacity(int capacity) {
+    this.capacity = capacity;
   }
 
 }

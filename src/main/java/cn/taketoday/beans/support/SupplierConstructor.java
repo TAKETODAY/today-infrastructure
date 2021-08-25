@@ -28,7 +28,7 @@ import java.util.function.Supplier;
  * @author TODAY 2021/5/28 22:16
  * @since 3.0.2
  */
-final class SupplierConstructor<T> extends BeanConstructor<T> {
+final class SupplierConstructor<T> extends BeanConstructor {
   private final Supplier<T> supplier;
 
   SupplierConstructor(Supplier<T> supplier) {

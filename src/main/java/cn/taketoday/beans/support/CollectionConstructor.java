@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.core.reflect;
+package cn.taketoday.beans.support;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
@@ -29,7 +29,7 @@ import cn.taketoday.util.CollectionUtils;
  * @see CollectionUtils#createCollection(Class, Class, int)
  * @since 3.0
  */
-public class CollectionConstructor extends ConstructorAccessor {
+public class CollectionConstructor extends BeanConstructor {
 
   private int capacity = Constant.DEFAULT_CAPACITY;
   private Class<?> elementType;

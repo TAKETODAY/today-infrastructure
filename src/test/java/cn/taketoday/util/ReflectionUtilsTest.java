@@ -71,13 +71,13 @@ public class ReflectionUtilsTest extends TestCase {
   }
 
   public void testCallConstructor() {
-    POJO3 pojo3 = BeanConstructor.fromClass(POJO3.class).newInstance();
+    POJO3 pojo3 = (POJO3) BeanConstructor.fromClass(POJO3.class).newInstance();
     assertNotNull(pojo3);
     assertTrue(pojo3.constructorInvoked);
   }
 
   public void testCallParentConstructor() {
-    POJO4 pojo = BeanConstructor.fromClass(POJO4.class).newInstance();
+    POJO4 pojo = (POJO4) BeanConstructor.fromClass(POJO4.class).newInstance();
     assertNotNull(pojo);
     assertTrue(pojo.constructorInvoked);
     assertTrue(pojo.pojo4_constructorInvoked);

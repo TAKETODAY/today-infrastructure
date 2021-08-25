@@ -110,7 +110,7 @@ public class DefaultBeanDefinition
   /** @since 3.0 */
   private Executable executable;
   /** @since 3.0 */
-  private BeanConstructor<?> constructor;
+  private BeanConstructor constructor;
   /** lazy init flag @since 3.0 */
   private Boolean lazyInit;
   /** @since 3.0 fast invoke init methods */
@@ -360,8 +360,8 @@ public class DefaultBeanDefinition
     return getBeanClass().getDeclaredAnnotations();
   }
 
-  public BeanConstructor<?> getConstructor(BeanFactory factory) {
-    BeanConstructor<?> constructor = this.constructor;
+  public BeanConstructor getConstructor(BeanFactory factory) {
+    BeanConstructor constructor = this.constructor;
     if (constructor == null) {
       constructor = createConstructor(factory);
       this.constructor = constructor;
@@ -369,7 +369,7 @@ public class DefaultBeanDefinition
     return constructor;
   }
 
-  protected BeanConstructor<?> createConstructor(BeanFactory factory) {
+  protected BeanConstructor createConstructor(BeanFactory factory) {
     return BeanConstructor.fromClass(getBeanClass());
   }
 
@@ -389,7 +389,7 @@ public class DefaultBeanDefinition
     if (instanceSupplier != null) {
       return instanceSupplier.get();
     }
-    final BeanConstructor<?> target = getConstructor(factory);
+    final BeanConstructor target = getConstructor(factory);
     final Object[] args = ArgumentsResolver.sharedInstance.resolve(getExecutable(), factory);
     return target.newInstance(args);
   }
@@ -404,7 +404,7 @@ public class DefaultBeanDefinition
    */
   @Override
   public Object newInstance(BeanFactory factory, Object... args) {
-    final BeanConstructor<?> target = getConstructor(factory);
+    final BeanConstructor target = getConstructor(factory);
     return target.newInstance(args);
   }
 

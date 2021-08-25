@@ -41,7 +41,6 @@ import cn.taketoday.core.Constant;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.reflect.ConstructorAccessor;
-import cn.taketoday.core.reflect.NullConstructor;
 import cn.taketoday.core.reflect.PropertyAccessor;
 import cn.taketoday.util.AbstractAnnotatedElement;
 import cn.taketoday.util.ClassUtils;
@@ -61,7 +60,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
 
   private final Field field;
   private final Class<?> fieldType;
-  private ConstructorAccessor constructor;
+  private BeanConstructor constructor;
   private PropertyAccessor propertyAccessor;
 
   private Type[] genericClass;
@@ -69,7 +68,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
   private Type componentType;
   private boolean componentResolved;
   /** if this property is array or */
-  private ConstructorAccessor componentConstructor;
+  private BeanConstructor componentConstructor;
 
   private ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
@@ -102,13 +101,13 @@ public class BeanProperty extends AbstractAnnotatedElement {
    * @return new object
    */
   public Object newInstance(final Object[] args) {
-    ConstructorAccessor constructor = this.constructor;
+    BeanConstructor constructor = this.constructor;
     if (constructor == null) {
       final Class<?> fieldType = this.fieldType;
       if (ClassUtils.primitiveTypes.contains(fieldType)) {
         throw new BeanInstantiationException(fieldType, "Cannot be instantiated a simple type");
       }
-      constructor = ConstructorAccessor.fromClass(fieldType);
+      constructor = BeanConstructor.fromDefaultConstructor(fieldType);
       this.constructor = constructor;
     }
     return constructor.newInstance(args);
@@ -218,7 +217,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
       final Class<?> componentClass = getComponentClass();
       componentConstructor = componentClass == null
                              ? NullConstructor.INSTANCE
-                             : ConstructorAccessor.fromClass(componentClass);
+                             : ConstructorAccessor.fromDefaultConstructor(componentClass);
     }
     return componentConstructor.newInstance(args);
   }
@@ -287,7 +286,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
     return fieldType.isInstance(value);
   }
 
-  public ConstructorAccessor getConstructor() {
+  public BeanConstructor getConstructor() {
     return constructor;
   }
 

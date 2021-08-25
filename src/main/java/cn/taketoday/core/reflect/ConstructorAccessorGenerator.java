@@ -25,6 +25,7 @@ import java.lang.reflect.Modifier;
 
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Type;
+import cn.taketoday.beans.support.BeanConstructor;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.ClassGenerator;
 import cn.taketoday.cglib.core.CodeEmitter;
@@ -105,7 +106,7 @@ public class ConstructorAccessorGenerator
 
   @Override
   protected ConstructorAccessor fallbackInstance() {
-    return ConstructorAccessor.fromReflective(targetConstructor);
+    return BeanConstructor.fromReflective(targetConstructor);
   }
 
   @Override
