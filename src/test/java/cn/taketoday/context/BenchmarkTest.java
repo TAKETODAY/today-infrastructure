@@ -37,7 +37,7 @@ public class BenchmarkTest {
   public void testSingleton() {
     long start = System.currentTimeMillis();
     ApplicationContext applicationContext = new StandardApplicationContext();
-    applicationContext.load();
+    applicationContext.load("cn.taketoday.context");
     System.out.println("start context used: " + (System.currentTimeMillis() - start) + "ms");
     start = System.currentTimeMillis();
     for (int i = 0; i < times; i++) {
@@ -121,7 +121,7 @@ public class BenchmarkTest {
     final ITest testBean = new MethodTestBean();
 
     long start = System.currentTimeMillis();
-    int times = 1_0000_0000_0;
+    int times = 1_0000_000;
     for (int i = 0; i < times; i++) {
       String name = (String) test.invoke(testBean, "TODAY");
     }

@@ -23,8 +23,8 @@ package cn.taketoday.web.resolver;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.beans.factory.PropertyValue;
+import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.util.ClassUtils;

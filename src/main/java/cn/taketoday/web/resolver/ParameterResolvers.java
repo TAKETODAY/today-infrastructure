@@ -24,8 +24,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import cn.taketoday.beans.support.DataBinder;
 import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.beans.support.DataBinder;
 import cn.taketoday.context.Env;
 import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.context.Props;
