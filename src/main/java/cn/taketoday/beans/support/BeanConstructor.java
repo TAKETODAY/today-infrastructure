@@ -75,7 +75,7 @@ public abstract class BeanConstructor<T> {
    */
   public static <T> BeanConstructor<T> fromConstructor(Constructor<T> constructor) {
     ConstructorAccessor accessor = ConstructorAccessor.fromConstructor(constructor);
-    return new ConstructorAccessorBeanConstructor<>(accessor);
+    return fromAccessor(accessor);
   }
 
   /**
@@ -200,7 +200,7 @@ public abstract class BeanConstructor<T> {
    */
   public static <T> BeanConstructor<T> fromClass(final Class<T> targetClass) {
     Constructor<T> suitableConstructor = BeanUtils.obtainConstructor(targetClass);
-    return BeanConstructor.fromConstructor(suitableConstructor);
+    return fromConstructor(suitableConstructor);
   }
 
   public static <T> BeanConstructor<T> fromFunction(Function<Object[], T> function) {
