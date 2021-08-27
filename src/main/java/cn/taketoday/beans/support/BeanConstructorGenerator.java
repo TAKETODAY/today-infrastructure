@@ -18,53 +18,45 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.core.reflect;
+package cn.taketoday.beans.support;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Type;
-import cn.taketoday.beans.support.BeanConstructor;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.ClassGenerator;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.Signature;
-import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.reflect.GeneratorSupport;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.asm.Opcodes.ACC_FINAL;
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.cglib.core.CglibReflectUtils.getMethodInfo;
 
 /**
- * @author TODAY
- * 2020/9/11 16:51
+ * @author TODAY 2020/9/11 16:51
  */
-public class ConstructorAccessorGenerator
+public class BeanConstructorGenerator
         extends GeneratorSupport<ConstructorAccessor> implements ClassGenerator {
 
+  private static final String superType = "Lcn/taketoday/beans/support/ConstructorAccessor;";
+  private static final MethodInfo newInstanceInfo = getMethodInfo(
+          ReflectionUtils.findMethod(ConstructorAccessor.class, "newInstance", Object[].class));
+
   private final Constructor<?> targetConstructor;
-  private static final MethodInfo newInstanceInfo;
-  private static final String superType = "Lcn/taketoday/core/reflect/ConstructorAccessor;";
 
-  static {
-    try {
-      newInstanceInfo = getMethodInfo(ConstructorAccessor.class.getDeclaredMethod("newInstance", Object[].class));
-    }
-    catch (NoSuchMethodException | SecurityException e) {
-      throw new ApplicationContextException(e);
-    }
-  }
-
-  public ConstructorAccessorGenerator(Constructor<?> constructor) {
+  public BeanConstructorGenerator(Constructor<?> constructor) {
     this(constructor, constructor.getDeclaringClass());
   }
 
-  public ConstructorAccessorGenerator(Constructor<?> constructor, Class<?> targetClass) {
+  public BeanConstructorGenerator(Constructor<?> constructor, Class<?> targetClass) {
     super(targetClass);
     Assert.notNull(constructor, "constructor must not be null");
     this.targetConstructor = constructor;
@@ -99,7 +91,7 @@ public class ConstructorAccessorGenerator
 
   @Override
   protected ConstructorAccessor fallback(Exception exception) {
-    LoggerFactory.getLogger(ConstructorAccessorGenerator.class)
+    LoggerFactory.getLogger(BeanConstructorGenerator.class)
             .warn("Cannot access a Constructor: [{}], using fallback instance", targetConstructor, exception);
     return super.fallback(exception);
   }

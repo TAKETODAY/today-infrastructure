@@ -40,7 +40,6 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
-import cn.taketoday.core.reflect.ConstructorAccessor;
 import cn.taketoday.core.reflect.PropertyAccessor;
 import cn.taketoday.util.AbstractAnnotatedElement;
 import cn.taketoday.util.ClassUtils;
@@ -107,7 +106,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
       if (ClassUtils.primitiveTypes.contains(fieldType)) {
         throw new BeanInstantiationException(fieldType, "Cannot be instantiated a simple type");
       }
-      constructor = BeanConstructor.fromDefaultConstructor(fieldType);
+      constructor = BeanConstructor.fromConstructor(fieldType);
       this.constructor = constructor;
     }
     return constructor.newInstance(args);
@@ -217,7 +216,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
       final Class<?> componentClass = getComponentClass();
       componentConstructor = componentClass == null
                              ? NullConstructor.INSTANCE
-                             : ConstructorAccessor.fromDefaultConstructor(componentClass);
+                             : BeanConstructor.fromConstructor(componentClass);
     }
     return componentConstructor.newInstance(args);
   }
@@ -301,7 +300,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
     }
   }
 
-  public void setConstructor(ConstructorAccessor constructor) {
+  public void setConstructor(BeanConstructor constructor) {
     this.constructor = constructor;
   }
 

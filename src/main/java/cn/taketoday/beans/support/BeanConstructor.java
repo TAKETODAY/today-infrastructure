@@ -29,7 +29,6 @@ import java.util.function.Supplier;
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Nullable;
-import cn.taketoday.core.reflect.ConstructorAccessor;
 import cn.taketoday.core.reflect.MethodAccessor;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.core.reflect.ReflectionException;
@@ -76,7 +75,7 @@ public abstract class BeanConstructor {
    * @return BeanConstructor to construct target T
    */
   public static BeanConstructor fromConstructor(Constructor<?> constructor) {
-    return ConstructorAccessor.fromConstructor(constructor);
+    return new BeanConstructorGenerator(constructor).create();
   }
 
   /**
@@ -188,9 +187,12 @@ public abstract class BeanConstructor {
   }
 
   /**
+   * use default constructor
+   *
    * @param target
+   *         target class
    */
-  public static <T> BeanConstructor fromDefaultConstructor(final Class<T> target) {
+  public static <T> BeanConstructor fromConstructor(final Class<T> target) {
     Assert.notNull(target, "target class must not be null");
     if (target.isArray()) {
       Class<?> componentType = target.getComponentType();
@@ -215,7 +217,7 @@ public abstract class BeanConstructor {
   public static ConstructorAccessor fromReflective(Constructor<?> constructor) {
     Assert.notNull(constructor, "constructor must not be null");
     ReflectionUtils.makeAccessible(constructor);
-    return new ReflectiveConstructorAccessor(constructor);
+    return new ReflectiveConstructor(constructor);
   }
 
 }

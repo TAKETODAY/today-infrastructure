@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,33 +17,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.core.reflect;
+
+package cn.taketoday.beans.support;
 
 import java.lang.reflect.Constructor;
 
-import cn.taketoday.beans.support.BeanConstructor;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
- * Constructor accessor
+ * based on java reflect
  *
- * @author TODAY 2020.08.26
+ * @author TODAY 2020/9/20 21:55
+ * @see Constructor#newInstance(Object...)
  */
-public abstract class ConstructorAccessor extends BeanConstructor implements Accessor {
+final class ReflectiveConstructor extends ConstructorAccessor {
+  private final Constructor<?> constructor;
 
-  /**
-   * Invoke {@link java.lang.reflect.Constructor} with given args
-   *
-   * @return returns Object
-   */
-  public abstract Object newInstance(Object[] args);
-
-  // static factory
-
-  /**
-   * Fast call bean's {@link java.lang.reflect.Constructor Constructor}
-   */
-  public static ConstructorAccessor fromConstructor(final Constructor<?> constructor) {
-    return new ConstructorAccessorGenerator(constructor).create();
+  ReflectiveConstructor(Constructor<?> constructor) {
+    this.constructor = constructor;
   }
 
+  @Override
+  public Object newInstance(final Object[] args) {
+    return ReflectionUtils.invokeConstructor(constructor, args);
+  }
 }

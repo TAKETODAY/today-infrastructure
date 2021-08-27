@@ -75,7 +75,7 @@ public class BeanMetadata {
   }
 
   protected BeanConstructor createAccessor() {
-    return BeanConstructor.fromDefaultConstructor(beanClass);
+    return BeanConstructor.fromConstructor(beanClass);
   }
 
   /**

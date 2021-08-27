@@ -20,26 +20,20 @@
 
 package cn.taketoday.beans.support;
 
-import java.lang.reflect.Constructor;
-
-import cn.taketoday.core.reflect.ConstructorAccessor;
-import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.core.Nullable;
+import cn.taketoday.core.reflect.Accessor;
 
 /**
- * based on java reflect
- *
- * @author TODAY 2020/9/20 21:55
- * @see Constructor#newInstance(Object...)
+ * @author TODAY 2021/8/27 21:41
  */
-final class ReflectiveConstructorAccessor extends ConstructorAccessor {
-  private final Constructor<?> constructor;
+public abstract class ConstructorAccessor
+        extends BeanConstructor implements Accessor {
 
-  ReflectiveConstructorAccessor(Constructor<?> constructor) {
-    this.constructor = constructor;
-  }
-
+  /**
+   * Invoke {@link java.lang.reflect.Constructor} with given args
+   *
+   * @return returns Object
+   */
   @Override
-  public Object newInstance(final Object[] args) {
-    return ReflectionUtils.invokeConstructor(constructor, args);
-  }
+  public abstract Object newInstance(@Nullable Object[] args);
 }

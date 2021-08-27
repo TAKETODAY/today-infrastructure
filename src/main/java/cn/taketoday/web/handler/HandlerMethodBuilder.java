@@ -24,9 +24,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import cn.taketoday.beans.support.BeanConstructor;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.reflect.ConstructorAccessor;
 import cn.taketoday.core.reflect.ReflectionException;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
@@ -45,7 +45,7 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
   private ParameterResolvers parameterResolvers;
   private MethodParametersBuilder parametersBuilder;
 
-  private ConstructorAccessor constructor;
+  private BeanConstructor constructor;
 
   public HandlerMethodBuilder() { }
 
@@ -80,14 +80,14 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
   public void setHandlerMethodClass(Class<?> handlerMethodClass) {
     try {
       final Constructor<?> declared = handlerMethodClass.getDeclaredConstructor(Object.class, Method.class);
-      this.constructor = ConstructorAccessor.fromConstructor(declared);
+      this.constructor = BeanConstructor.fromConstructor(declared);
     }
     catch (NoSuchMethodException e) {
       throw new ReflectionException("Target class: '" + handlerMethodClass + "‘ don't exist a suitable constructor");
     }
   }
 
-  public ConstructorAccessor getConstructor() {
+  public BeanConstructor getConstructor() {
     if (constructor == null) {
       setHandlerMethodClass(HandlerMethod.class);
     }
@@ -132,7 +132,7 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
     this.resultHandlers = resultHandlers;
   }
 
-  public void setConstructor(ConstructorAccessor constructor) {
+  public void setConstructor(BeanConstructor constructor) {
     this.constructor = constructor;
   }
 
