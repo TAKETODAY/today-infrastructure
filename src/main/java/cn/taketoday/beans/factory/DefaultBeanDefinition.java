@@ -39,7 +39,7 @@ import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.Scope;
-import cn.taketoday.context.loader.NoSuchPropertyException;
+import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.Constant;

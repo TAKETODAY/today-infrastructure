@@ -23,7 +23,7 @@ package cn.taketoday.beans.support;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.InvalidPropertyValueException;
-import cn.taketoday.context.loader.NoSuchPropertyException;
+import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.core.Assert;
 import cn.taketoday.util.ObjectUtils;
 

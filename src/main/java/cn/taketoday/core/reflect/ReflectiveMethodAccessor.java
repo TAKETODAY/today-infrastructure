@@ -1,4 +1,4 @@
-/*
+/**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -19,31 +19,24 @@
  */
 package cn.taketoday.core.reflect;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import cn.taketoday.util.ReflectionUtils;
 
 /**
- * @author TODAY
- * 2020/9/18 22:03
+ * java reflect {@link Method} implementation
+ *
+ * @author TODAY  2020/9/20 21:49
  */
-public class ReadOnlyFieldPropertyAccessor extends ReadOnlyPropertyAccessor {
-  private final Field field;
-  private final Method readMethod;
+final class ReflectiveMethodAccessor extends MethodInvoker implements MethodAccessor {
 
-  public ReadOnlyFieldPropertyAccessor(Field field, Method readMethod) {
-    this.readMethod = readMethod;
-    this.field = ReflectionUtils.makeAccessible(field);
+  ReflectiveMethodAccessor(final Method method) {
+    super(method);
   }
 
   @Override
-  public Object get(final Object obj) {
-    return ReflectionUtils.getField(field, obj);
+  public Object invoke(final Object obj, final Object[] args) {
+    return ReflectionUtils.invokeMethod(getMethod(), obj, args);
   }
 
-  @Override
-  public Method getReadMethod() {
-    return readMethod;
-  }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,26 +17,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.core.reflect;
-
-import java.lang.reflect.Method;
-
-import cn.taketoday.util.ReflectionUtils;
+package cn.taketoday.beans;
 
 /**
- * java reflect {@link Method} implementation
- *
- * @author TODAY  2020/9/20 21:49
+ * @author TODAY <br>
+ * 2018-08-05 10:08
  */
-public class MethodMethodAccessor extends MethodInvoker implements MethodAccessor {
+public class NoSuchPropertyException extends PropertyValueException {
+  private static final long serialVersionUID = 1L;
 
-  public MethodMethodAccessor(final Method method) {
-    super(ReflectionUtils.makeAccessible(method));
+  public NoSuchPropertyException() {}
+
+  public NoSuchPropertyException(Throwable cause) {
+    super(cause);
   }
 
-  @Override
-  public Object invoke(final Object obj, final Object[] args) {
-    return ReflectionUtils.invokeMethod(getMethod(), obj, args);
+  public NoSuchPropertyException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
+  public NoSuchPropertyException(String message) {
+    super(message);
+  }
+
+  public NoSuchPropertyException(Class<?> target, String name) {
+    super("No such property: '" + name + "' in class: " + target);
   }
 
 }

@@ -160,7 +160,7 @@ public class BenchmarkTest {
   @Test
   public void testProperty() throws IllegalAccessException {
     Field field = ReflectionUtils.findField(PropertyTestBean.class, "value");
-    PropertyAccessor propertyAccessor = ReflectionUtils.newPropertyAccessor(field);
+    PropertyAccessor propertyAccessor = PropertyAccessor.fromField(field);
 
     PropertyTestBean propertyTestBean = new PropertyTestBean();
     propertyAccessor.set(propertyTestBean, "TODAY");

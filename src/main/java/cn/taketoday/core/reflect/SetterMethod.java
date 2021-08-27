@@ -20,9 +20,12 @@
 
 package cn.taketoday.core.reflect;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
+import cn.taketoday.core.Nullable;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Fast call bean's setter Method {@link java.lang.reflect.Method Method}
@@ -53,8 +56,72 @@ public interface SetterMethod {
    *         If this property is read only
    * @since 3.0
    */
+  @Nullable
   default Method getWriteMethod() {
     return null;
+  }
+
+  // static factory
+
+  /**
+   * new SetterMethod from java reflect property
+   *
+   * @param field
+   *         given java reflect property
+   *
+   * @return SetterMethod
+   */
+  static SetterMethod fromField(final Field field) {
+    final Method writeMethod = ReflectionUtils.getWriteMethod(field);
+    if (writeMethod == null) {
+      return fromReflective(field); // fallback to Reflective
+    }
+    return fromMethod(writeMethod);
+  }
+
+  /**
+   * use fast invoke tech {@link MethodInvoker}
+   *
+   * @param method
+   *         java reflect {@link Method}
+   *
+   * @return SetterMethod
+   *
+   * @see MethodInvoker#fromMethod(Method)
+   */
+  static SetterMethod fromMethod(final Method method) {
+    final MethodInvoker accessor = MethodInvoker.fromMethod(method);
+    return fromMethod(accessor);
+  }
+
+  /**
+   * use fast invoke tech {@link MethodInvoker}
+   *
+   * @param invoker
+   *         fast MethodInvoker
+   *
+   * @return SetterMethod
+   *
+   * @see MethodInvoker#fromMethod(Method)
+   */
+  static SetterMethod fromMethod(final MethodInvoker invoker) {
+    return new MethodAccessorSetterMethod(invoker);
+  }
+
+  /**
+   * use java reflect {@link Field} tech
+   *
+   * @param field
+   *         Field
+   *
+   * @return Reflective SetterMethod
+   *
+   * @see Field#set(Object, Object)
+   * @see ReflectionUtils#setField(Field, Object, Object)
+   */
+  static SetterMethod fromReflective(final Field field) {
+    ReflectionUtils.makeAccessible(field);
+    return new ReflectiveSetterMethod(field);
   }
 
 }

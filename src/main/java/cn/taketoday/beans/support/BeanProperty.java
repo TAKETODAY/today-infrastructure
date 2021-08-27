@@ -35,7 +35,7 @@ import java.util.Objects;
 
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
-import cn.taketoday.context.loader.NoSuchPropertyException;
+import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.conversion.ConversionService;
@@ -194,7 +194,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
    * @since 3.0.2
    */
   protected PropertyAccessor createAccessor() {
-    return ReflectionUtils.newPropertyAccessor(field);
+    return PropertyAccessor.fromField(field);
   }
 
   /**

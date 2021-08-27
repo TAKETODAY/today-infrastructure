@@ -1,4 +1,4 @@
-/*
+/**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,31 +17,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.loader;
+package cn.taketoday.core.reflect;
 
-import cn.taketoday.core.NestedRuntimeException;
+import java.lang.reflect.Field;
+
+import cn.taketoday.util.ReflectionUtils;
 
 /**
- * for java property
- *
- * @author TODAY <br>
- * 2020-02-18 19:03
+ * @author TODAY 2020/9/19 22:39
+ * @see ReflectionUtils#getField(Field, Object)
  */
-public class PropertyValueException extends NestedRuntimeException {
-  private static final long serialVersionUID = 1L;
+final class ReflectiveGetterMethod implements GetterMethod {
+  private final Field field;
 
-  public PropertyValueException() {}
-
-  public PropertyValueException(Throwable cause) {
-    super(cause);
+  ReflectiveGetterMethod(final Field field) {
+    this.field = field;
   }
 
-  public PropertyValueException(String message) {
-    super(message);
+  @Override
+  public Object get(final Object obj) {
+    return ReflectionUtils.getField(field, obj);
   }
-
-  public PropertyValueException(String message, Throwable cause) {
-    super(message, cause);
-  }
-
 }

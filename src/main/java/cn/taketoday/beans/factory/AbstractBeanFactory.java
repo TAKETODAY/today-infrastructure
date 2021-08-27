@@ -55,7 +55,7 @@ import cn.taketoday.context.aware.BeanClassLoaderAware;
 import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
-import cn.taketoday.context.loader.PropertyValueException;
+import cn.taketoday.beans.PropertyValueException;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.logger.Logger;

@@ -39,6 +39,7 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.cglib.core.CglibReflectUtils.getMethodInfo;
 
@@ -114,6 +115,12 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
     catch (NoSuchMethodException e) {
       throw new ReflectionException("No such method: '" + name + "' in " + beanClass, e);
     }
+  }
+
+  public static MethodInvoker formReflective(Method method) {
+    Assert.notNull(method, "method must not be null");
+    ReflectionUtils.makeAccessible(method);
+    return new ReflectiveMethodAccessor(method);
   }
 
   // MethodInvoker object generator
@@ -217,7 +224,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
 
     @Override
     protected MethodInvoker fallbackInstance() {
-      return new MethodMethodAccessor(targetMethod);
+      return formReflective(targetMethod);
     }
 
     @Override

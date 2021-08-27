@@ -29,7 +29,7 @@ import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.Prototype;
 import cn.taketoday.beans.Singleton;
 import cn.taketoday.context.Scope;
-import cn.taketoday.context.loader.NoSuchPropertyException;
+import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.Constant;
 

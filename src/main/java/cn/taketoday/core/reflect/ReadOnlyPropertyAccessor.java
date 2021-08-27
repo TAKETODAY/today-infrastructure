@@ -30,7 +30,7 @@ import cn.taketoday.beans.factory.PropertyReadOnlyException;
  * @author TODAY 2020/9/12 15:22
  * @see PropertyReadOnlyException
  */
-public abstract class ReadOnlyPropertyAccessor implements PropertyAccessor {
+abstract class ReadOnlyPropertyAccessor extends PropertyAccessor {
 
   @Override
   public final void set(final Object obj, final Object value) {

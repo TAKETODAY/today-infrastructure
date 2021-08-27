@@ -19,7 +19,11 @@
  */
 package cn.taketoday.core.reflect;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+
+import cn.taketoday.core.Nullable;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Fast call bean's getter Method {@link java.lang.reflect.Method Method}
@@ -42,8 +46,71 @@ public interface GetterMethod {
   /**
    * @since 3.0
    */
+  @Nullable
   default Method getReadMethod() {
     return null;
+  }
+
+  /**
+   * new GetterMethod from java reflect property
+   * if the setter method not exist use Reflective tech
+   *
+   * @param field
+   *         given java reflect property
+   *
+   * @return GetterMethod
+   */
+  static GetterMethod fromField(final Field field) {
+    final Method readMethod = ReflectionUtils.getReadMethod(field);
+    if (readMethod == null) {
+      return fromReflective(field); // fallback to Reflective
+    }
+    return fromMethod(readMethod);
+  }
+
+  /**
+   * use fast invoke tech {@link MethodInvoker}
+   *
+   * @param method
+   *         java reflect {@link Method}
+   *
+   * @return GetterMethod
+   *
+   * @see MethodInvoker#fromMethod(Method)
+   */
+  static GetterMethod fromMethod(final Method method) {
+    final MethodInvoker accessor = MethodInvoker.fromMethod(method);
+    return fromMethod(accessor);
+  }
+
+  /**
+   * use fast invoke tech {@link MethodInvoker}
+   *
+   * @param invoker
+   *         fast MethodInvoker
+   *
+   * @return GetterMethod
+   *
+   * @see MethodInvoker#fromMethod(Method)
+   */
+  static GetterMethod fromMethod(final MethodInvoker invoker) {
+    return new MethodAccessorGetterMethod(invoker);
+  }
+
+  /**
+   * use java reflect {@link Field} tech
+   *
+   * @param field
+   *         Field
+   *
+   * @return Reflective GetterMethod
+   *
+   * @see Field#get(Object)
+   * @see ReflectionUtils#getField(Field, Object)
+   */
+  static GetterMethod fromReflective(final Field field) {
+    ReflectionUtils.makeAccessible(field);
+    return new ReflectiveGetterMethod(field);
   }
 
 }

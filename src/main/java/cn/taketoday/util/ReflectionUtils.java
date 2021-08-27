@@ -34,19 +34,7 @@ import java.util.List;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Nullable;
-import cn.taketoday.core.reflect.FieldGetterMethod;
-import cn.taketoday.core.reflect.FieldPropertyAccessor;
-import cn.taketoday.core.reflect.FieldSetterMethod;
-import cn.taketoday.core.reflect.GetterMethod;
-import cn.taketoday.core.reflect.MethodAccessorGetterMethod;
-import cn.taketoday.core.reflect.MethodAccessorPropertyAccessor;
-import cn.taketoday.core.reflect.MethodAccessorSetterMethod;
-import cn.taketoday.core.reflect.MethodInvoker;
-import cn.taketoday.core.reflect.PropertyAccessor;
-import cn.taketoday.core.reflect.ReadOnlyFieldPropertyAccessor;
-import cn.taketoday.core.reflect.ReadOnlyMethodAccessorPropertyAccessor;
 import cn.taketoday.core.reflect.ReflectionException;
-import cn.taketoday.core.reflect.SetterMethod;
 
 /**
  * Fast reflection operation
@@ -646,6 +634,7 @@ public abstract class ReflectionUtils {
    */
   @SuppressWarnings("deprecation") // on JDK 9
   public static Method makeAccessible(Method method) {
+    Assert.notNull(method, "method must not be null");
     if ((!Modifier.isPublic(method.getModifiers()) ||
             !Modifier.isPublic(method.getDeclaringClass().getModifiers())) && !method.isAccessible()) {
       method.setAccessible(true);
@@ -913,6 +902,8 @@ public abstract class ReflectionUtils {
    */
   @SuppressWarnings("deprecation") // on JDK 9
   public static Field makeAccessible(Field field) {
+    Assert.notNull(field, "field must not be null");
+
     if ((!Modifier.isPublic(field.getModifiers()) ||
             !Modifier.isPublic(field.getDeclaringClass().getModifiers()) ||
             Modifier.isFinal(field.getModifiers())) && !field.isAccessible()) {
@@ -1037,6 +1028,7 @@ public abstract class ReflectionUtils {
    * @since 3.0.2
    */
   public static Method getReadMethod(Field field) {
+    Assert.notNull(field, "field must not be null");
     final Class<?> type = field.getType();
     final String propertyName = field.getName();
     return getReadMethod(field.getDeclaringClass(), type, propertyName);
@@ -1048,7 +1040,7 @@ public abstract class ReflectionUtils {
    * @since 3.0.2
    */
   public static Method getReadMethod(Class<?> declaredClass, Class<?> type, String name) {
-    final String getterName = getterPropertyName(StringUtils.capitalize(name), type);
+    final String getterName = getterPropertyName(name, type);
     for (final Method declaredMethod : declaredClass.getDeclaredMethods()) {
       if (declaredMethod.getName().equals(getterName)
               && declaredMethod.getParameterCount() == 0 && declaredMethod.getReturnType() == type) {
@@ -1064,6 +1056,7 @@ public abstract class ReflectionUtils {
    * @since 3.0.2
    */
   public static Method getWriteMethod(Field field) {
+    Assert.notNull(field, "field must not be null");
     final Class<?> type = field.getType();
     final String propertyName = field.getName();
     return getWriteMethod(field.getDeclaringClass(), type, propertyName);
@@ -1075,7 +1068,7 @@ public abstract class ReflectionUtils {
    * @since 3.0.2
    */
   public static Method getWriteMethod(Class<?> declaredClass, Class<?> type, String name) {
-    final String setterName = "set".concat(StringUtils.capitalize(name));
+    final String setterName = setterPropertyName(name, type);
     for (final Method declaredMethod : declaredClass.getDeclaredMethods()) {
       if (declaredMethod.getName().equals(setterName)) {
         final Class<?>[] parameterTypes = declaredMethod.getParameterTypes();
@@ -1087,99 +1080,33 @@ public abstract class ReflectionUtils {
     return null;
   }
 
-  public static PropertyAccessor newPropertyAccessor(final Field field) {
-    Assert.notNull(field, "field must not be null");
-    final Method readMethod = getReadMethod(field);
-    final boolean isReadOnly = Modifier.isFinal(field.getModifiers());
-    if (isReadOnly && readMethod != null) {
-      return new ReadOnlyMethodAccessorPropertyAccessor(MethodInvoker.fromMethod(readMethod));
+  /**
+   * <pre>
+   *   setterPropertyName("isName", boolean.class); -> setName
+   *   setterPropertyName("isName", String.class); -> setIsName
+   * </pre>
+   */
+  static String setterPropertyName(String name, final Class<?> type) {
+    if (type == boolean.class && name.startsWith("is")) {
+      name = name.substring(2);
     }
-    final Method writeMethod = getWriteMethod(field);
-    if (writeMethod != null && readMethod != null) {
-      return new MethodAccessorPropertyAccessor(writeMethod, readMethod);
-    }
-    if (writeMethod != null) {
-      final MethodInvoker accessor = MethodInvoker.fromMethod(writeMethod);
-      makeAccessible(field);
-      return new PropertyAccessor() {
-        @Override
-        public Object get(Object obj) {
-          return ReflectionUtils.getField(field, obj);
-        }
-
-        @Override
-        public void set(Object obj, Object value) {
-          accessor.invoke(obj, new Object[] { value });
-        }
-
-        @Override
-        public Method getWriteMethod() {
-          return writeMethod;
-        }
-      };
-    }
-
-    if (readMethod != null) {
-      makeAccessible(field);
-      final MethodInvoker accessor = MethodInvoker.fromMethod(readMethod);
-      return new PropertyAccessor() {
-        @Override
-        public Object get(Object obj) {
-          return accessor.invoke(obj, null);
-        }
-
-        @Override
-        public void set(Object obj, Object value) {
-          ReflectionUtils.setField(field, obj, value);
-        }
-
-        @Override
-        public Method getReadMethod() {
-          return readMethod;
-        }
-      };
-    }
-
-    // readMethod == null && setMethod == null
-    return isReadOnly
-           ? new ReadOnlyFieldPropertyAccessor(field, null)
-           : new FieldPropertyAccessor(field, null, null);
+    return "set".concat(StringUtils.capitalize(name));
   }
 
-  // GetterMethod
-  // ---------------------
-
-  public static GetterMethod newGetterMethod(final Field field) {
-    Assert.notNull(field, "field must not be null");
-    final Method readMethod = getReadMethod(field);
-    if (readMethod == null) {
-      return new FieldGetterMethod(field);
+  /**
+   * <pre>
+   * getterPropertyName("isName", boolean.class); -> isName
+   * getterPropertyName("isName", String.class); -> getIsName
+   * </pre>
+   */
+  static String getterPropertyName(final String name, final Class<?> type) {
+    if (type == boolean.class) {
+      if (name.startsWith("is")) {
+        return name;
+      }
+      return "is".concat(StringUtils.capitalize(name));
     }
-    return newGetterMethod(readMethod);
-  }
-
-  private static String getterPropertyName(final String name, final Class<?> type) {
-    return (type == boolean.class ? "is" : "get").concat(name);
-  }
-
-  public static GetterMethod newGetterMethod(final Method method) {
-    return new MethodAccessorGetterMethod(MethodInvoker.fromMethod(method));
-  }
-
-  // SetterMethod
-  // ----------------------
-
-  public static SetterMethod newSetterMethod(final Field field) {
-    final Method writeMethod = getWriteMethod(field);
-    if (writeMethod == null) {
-      return new FieldSetterMethod(field);
-    }
-    return newSetterMethod(writeMethod);
-  }
-
-  public static SetterMethod newSetterMethod(final Method method) {
-    final MethodInvoker accessor = MethodInvoker.fromMethod(method);
-    return new MethodAccessorSetterMethod(accessor);
+    return "get".concat(StringUtils.capitalize(name));
   }
 
   /**

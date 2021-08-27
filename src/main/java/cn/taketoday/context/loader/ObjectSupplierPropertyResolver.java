@@ -24,6 +24,7 @@ import java.lang.reflect.Field;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.PropertyValueException;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.AbstractPropertySetter;
 import cn.taketoday.beans.factory.ObjectSupplier;

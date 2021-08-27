@@ -22,6 +22,8 @@ package cn.taketoday.util;
 
 import junit.framework.TestCase;
 
+import org.junit.Test;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -208,7 +210,7 @@ public class ReflectionUtilsTest extends TestCase {
       for (Field field : declaredFields) {
         final String name = field.getName();
         if (name.charAt(0) == '_') {
-          final SetterMethod setter = ReflectionUtils.newSetterMethod(field);
+          final SetterMethod setter = SetterMethod.fromField(field);
 
           Object val1 = field.get(pojo1);
           Object val2 = field.get(pojo2);
@@ -237,7 +239,7 @@ public class ReflectionUtilsTest extends TestCase {
         Field field = pojo1.getClass()
                 .getDeclaredField(method.getName().substring(3));
 
-        SetterMethod setter = ReflectionUtils.newSetterMethod(method);
+        SetterMethod setter = SetterMethod.fromMethod(method);
         Object val1 = field.get(pojo1);
         Object val2 = field.get(pojo2);
 
@@ -256,7 +258,7 @@ public class ReflectionUtilsTest extends TestCase {
           continue;
 
         Field field = pojo1.getClass().getDeclaredField(method.getName().substring(3));
-        SetterMethod setter = ReflectionUtils.newSetterMethod(method);
+        SetterMethod setter = SetterMethod.fromMethod(method);
         Object val1 = field.get(pojo1);
         assertNotNull(val1);
 
@@ -400,7 +402,7 @@ public class ReflectionUtilsTest extends TestCase {
       for (Field field : declaredFields) {
         final String name = field.getName();
         if (name.charAt(0) == '_') {
-          final GetterMethod getter = ReflectionUtils.newGetterMethod(field);
+          final GetterMethod getter = GetterMethod.fromField(field);
 
           Object val1 = field.get(pojo);
           assertEquals(val1, getter.get(pojo));
@@ -414,7 +416,7 @@ public class ReflectionUtilsTest extends TestCase {
 
         Field field = pojo.getClass().getDeclaredField(method.getName().substring(3));
 
-        GetterMethod getter = ReflectionUtils.newGetterMethod(method);
+        GetterMethod getter = GetterMethod.fromMethod(method);
 
         Object val1 = field.get(pojo);
         assertEquals(val1, getter.get(pojo));
@@ -438,21 +440,21 @@ public class ReflectionUtilsTest extends TestCase {
     final PropertyBean propertyBean = new PropertyBean();
 
     final Field declaredField = PropertyBean.class.getDeclaredField("static_pro");
-    final PropertyAccessor staticProAccessor = ReflectionUtils.newPropertyAccessor(declaredField);
+    final PropertyAccessor staticProAccessor = PropertyAccessor.fromField(declaredField);
 
     assertEquals(staticProAccessor.get(null), 0);
     staticProAccessor.set(null, 2);
     assertEquals(staticProAccessor.get(null), 2);
 
     final Field boolField = PropertyBean.class.getDeclaredField("bool");
-    final PropertyAccessor boolAccessor = ReflectionUtils.newPropertyAccessor(boolField);
+    final PropertyAccessor boolAccessor = PropertyAccessor.fromField(boolField);
 
     assertEquals(boolAccessor.get(propertyBean), false);
     boolAccessor.set(propertyBean, true);
     assertEquals(boolAccessor.get(propertyBean), true);
 
     final Field finalProField = PropertyBean.class.getDeclaredField("finalPro");
-    final PropertyAccessor finalProAccessor = ReflectionUtils.newPropertyAccessor(finalProField);
+    final PropertyAccessor finalProAccessor = PropertyAccessor.fromField(finalProField);
     assertEquals(finalProAccessor.get(propertyBean), 10L);
 
     try {
@@ -462,7 +464,7 @@ public class ReflectionUtilsTest extends TestCase {
       assertEquals(finalProAccessor.get(propertyBean), 10L);
     }
     final Field staticFinalProField = PropertyBean.class.getDeclaredField("staticFinalPro");
-    final PropertyAccessor staticFinalProAccessor = ReflectionUtils.newPropertyAccessor(staticFinalProField);
+    final PropertyAccessor staticFinalProAccessor = PropertyAccessor.fromField(staticFinalProField);
     assertEquals(staticFinalProAccessor.get(propertyBean), (short) 100);
 
     try {
@@ -806,6 +808,29 @@ public class ReflectionUtilsTest extends TestCase {
 
     final Field[] fieldArray = ReflectionUtils.getFieldArray(StandardApplicationContext.class);
     assert fields.size() == fieldArray.length;
+
+  }
+
+  @Test
+  public void getterPropertyName() {
+
+    assertThat(ReflectionUtils.getterPropertyName("isName", boolean.class))
+            .isEqualTo("isName");
+    assertThat(ReflectionUtils.getterPropertyName("isName", Boolean.class))
+            .isEqualTo("getIsName");
+    assertThat(ReflectionUtils.getterPropertyName("isName", String.class))
+            .isEqualTo("getIsName");
+
+  }
+
+  @Test
+  public void setterPropertyName() {
+    assertThat(ReflectionUtils.setterPropertyName("isName", boolean.class))
+            .isEqualTo("setName");
+    assertThat(ReflectionUtils.setterPropertyName("isName", Boolean.class))
+            .isEqualTo("setIsName");
+    assertThat(ReflectionUtils.setterPropertyName("isName", String.class))
+            .isEqualTo("setIsName");
 
   }
 

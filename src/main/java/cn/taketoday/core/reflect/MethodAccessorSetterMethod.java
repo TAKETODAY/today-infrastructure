@@ -24,10 +24,10 @@ package cn.taketoday.core.reflect;
  * @author TODAY 2021/1/7 17:43
  * @since 3.0
  */
-public final class MethodAccessorSetterMethod implements SetterMethod {
+final class MethodAccessorSetterMethod implements SetterMethod {
   private final MethodInvoker accessor;
 
-  public MethodAccessorSetterMethod(MethodInvoker accessor) {
+  MethodAccessorSetterMethod(MethodInvoker accessor) {
     this.accessor = accessor;
   }
 

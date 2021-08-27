@@ -17,31 +17,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.loader;
+package cn.taketoday.beans;
+
+import cn.taketoday.core.NestedRuntimeException;
 
 /**
+ * for java property
+ *
  * @author TODAY <br>
- * 2018-08-05 10:08
+ * 2020-02-18 19:03
  */
-public class NoSuchPropertyException extends PropertyValueException {
+public class PropertyValueException extends NestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
-  public NoSuchPropertyException() {}
+  public PropertyValueException() {}
 
-  public NoSuchPropertyException(Throwable cause) {
+  public PropertyValueException(Throwable cause) {
     super(cause);
   }
 
-  public NoSuchPropertyException(String message, Throwable cause) {
-    super(message, cause);
-  }
-
-  public NoSuchPropertyException(String message) {
+  public PropertyValueException(String message) {
     super(message);
   }
 
-  public NoSuchPropertyException(Class<?> target, String name) {
-    super("No such property: '" + name + "' in class: " + target);
+  public PropertyValueException(String message, Throwable cause) {
+    super(message, cause);
   }
 
 }

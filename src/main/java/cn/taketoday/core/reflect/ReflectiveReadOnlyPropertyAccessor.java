@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -20,21 +20,29 @@
 package cn.taketoday.core.reflect;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import cn.taketoday.util.ReflectionUtils;
 
 /**
- * @author TODAY 2020/9/19 22:38
+ * @author TODAY 2020/9/18 22:03
  */
-public final class FieldSetterMethod implements SetterMethod {
+final class ReflectiveReadOnlyPropertyAccessor extends ReadOnlyPropertyAccessor {
   private final Field field;
+  private final Method readMethod;
 
-  public FieldSetterMethod(final Field field) {
+  ReflectiveReadOnlyPropertyAccessor(Field field, Method readMethod) {
     this.field = field;
+    this.readMethod = readMethod;
   }
 
   @Override
-  public void set(Object obj, Object value) {
-    ReflectionUtils.setField(field, obj, value);
+  public Object get(final Object obj) {
+    return ReflectionUtils.getField(field, obj);
+  }
+
+  @Override
+  public Method getReadMethod() {
+    return readMethod;
   }
 }

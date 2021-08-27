@@ -22,22 +22,18 @@ package cn.taketoday.core.reflect;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.core.Assert;
-
 /**
  * MethodInvoker PropertyAccessor implementation
  *
  * @author TODAY 2020/9/11 15:54
  */
-public final class MethodAccessorPropertyAccessor implements PropertyAccessor {
+final class MethodAccessorPropertyAccessor extends PropertyAccessor {
   private final MethodInvoker readAccessor;
   private final MethodInvoker writeAccessor;
 
-  public MethodAccessorPropertyAccessor(Method setMethod, Method getMethod) {
-    Assert.notNull(setMethod, "setMethod must not be null");
-    Assert.notNull(getMethod, "getMethod must not be null");
-    this.readAccessor = MethodInvoker.fromMethod(getMethod);
-    this.writeAccessor = MethodInvoker.fromMethod(setMethod);
+  MethodAccessorPropertyAccessor(MethodInvoker writeAccessor, MethodInvoker readAccessor) {
+    this.readAccessor = readAccessor;
+    this.writeAccessor = writeAccessor;
   }
 
   @Override
