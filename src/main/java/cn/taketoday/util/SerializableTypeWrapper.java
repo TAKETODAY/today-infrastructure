@@ -255,7 +255,7 @@ final class SerializableTypeWrapper {
     private transient Parameter methodParameter;
 
     public ParameterTypeProvider(Parameter parameter) {
-      this(parameter, ClassUtils.getParameterIndex(parameter));
+      this(parameter, ReflectionUtils.getParameterIndex(parameter));
     }
 
     public ParameterTypeProvider(Parameter parameter, int parameterIndex) {

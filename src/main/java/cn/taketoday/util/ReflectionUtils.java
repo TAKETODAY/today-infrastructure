@@ -20,10 +20,12 @@
 package cn.taketoday.util;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1172,5 +1174,52 @@ public abstract class ReflectionUtils {
   }
 
   //
+
+  /**
+   * Get {@link Parameter} index
+   *
+   * @param parameter
+   *         {@link Parameter}
+   *
+   * @since 3.0
+   */
+  public static int getParameterIndex(final Parameter parameter) {
+    Executable executable = parameter.getDeclaringExecutable();
+    Parameter[] allParams = executable.getParameters();
+    // Try first with identity checks for greater performance.
+    for (int i = 0; i < allParams.length; i++) {
+      if (parameter == allParams[i]) {
+        return i;
+      }
+    }
+    // Potentially try again with object equality checks in order to avoid race
+    // conditions while invoking java.lang.reflect.Executable.getParameters().
+    for (int i = 0; i < allParams.length; i++) {
+      if (parameter.equals(allParams[i])) {
+        return i;
+      }
+    }
+    throw new IllegalArgumentException(
+            "Given parameter [" + parameter + "] does not match any parameter in the declaring executable");
+  }
+
+  /**
+   * Get {@link Parameter} with given {@code parameterIndex}
+   *
+   * @param executable
+   *         {@link Method} or {@link Constructor}
+   *
+   * @throws IllegalArgumentException
+   *         parameter index is illegal
+   * @since 3.0
+   */
+  public static Parameter getParameter(final Executable executable, final int parameterIndex) {
+    Assert.notNull(executable, "Executable must not be null");
+    final Parameter[] parameters = executable.getParameters();
+    if (parameterIndex < 0 || parameterIndex >= parameters.length) {
+      throw new IllegalArgumentException("parameter index is illegal");
+    }
+    return parameters[parameterIndex];
+  }
 
 }

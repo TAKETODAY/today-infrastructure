@@ -706,7 +706,7 @@ public class GenericDescriptor implements Serializable {
   }
 
   public static GenericDescriptor ofParameter(final Executable executable, int parameterIndex) {
-    final Parameter parameter = ClassUtils.getParameter(executable, parameterIndex);
+    final Parameter parameter = ReflectionUtils.getParameter(executable, parameterIndex);
     return ofParameter(parameter);
   }
 
@@ -722,8 +722,8 @@ public class GenericDescriptor implements Serializable {
    * Adapter class for exposing a {@code GenericDescriptor}'s annotations as an
    * {@link AnnotatedElement}, in particular to {@link ClassUtils}.
    *
-   * @see ClassUtils#isAnnotationPresent(AnnotatedElement, Class)
-   * @see ClassUtils#getAnnotation(AnnotatedElement, Class)
+   * @see AnnotationUtils#isPresent(AnnotatedElement, Class)
+   * @see AnnotationUtils#getAnnotation(AnnotatedElement, Class)
    */
   class AnnotatedElementAdapter extends cn.taketoday.util.AnnotatedElementAdapter {
 

@@ -82,7 +82,6 @@ import cn.taketoday.core.TypeReference;
  * @see ResolvableTypeProvider
  * @since 3.0
  */
-@SuppressWarnings("serial")
 public class ResolvableType implements Serializable {
 
   /**
@@ -1096,7 +1095,7 @@ public class ResolvableType implements Serializable {
    */
   public static ResolvableType forParameter(
           final Executable executable, final int parameterIndex, Class<?> implementationClass) {
-    final Parameter parameter =  ClassUtils.getParameter(executable, parameterIndex);
+    final Parameter parameter = ReflectionUtils.getParameter(executable, parameterIndex);
     final Class<?> declaringClass = executable.getDeclaringClass();
     final ResolvableType owner = implementationClass == null
                                  ? forType(declaringClass)

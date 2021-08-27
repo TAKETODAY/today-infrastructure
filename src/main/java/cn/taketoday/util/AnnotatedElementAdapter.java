@@ -31,8 +31,8 @@ import cn.taketoday.core.Constant;
  * {@link AnnotatedElement}, in particular to {@link ClassUtils}.
  *
  * @author TODAY 2021/3/26 13:42
- * @see ClassUtils#isAnnotationPresent(AnnotatedElement, Class)
- * @see ClassUtils#getAnnotation(AnnotatedElement, Class)
+ * @see AnnotationUtils#isPresent(AnnotatedElement, Class)
+ * @see AnnotationUtils#getAnnotation(AnnotatedElement, Class)
  */
 public class AnnotatedElementAdapter
         extends AbstractAnnotatedElement implements AnnotatedElement {
@@ -50,8 +50,10 @@ public class AnnotatedElementAdapter
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof AnnotatedElementAdapter)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof AnnotatedElementAdapter))
+      return false;
     final AnnotatedElementAdapter that = (AnnotatedElementAdapter) o;
     return Arrays.equals(annotations, that.annotations);
   }

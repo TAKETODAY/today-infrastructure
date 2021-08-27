@@ -35,10 +35,10 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.GenericDescriptor;
 import cn.taketoday.util.NumberUtils;
+import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestParam;
-
 
 /**
  * @author TODAY
@@ -105,7 +105,7 @@ public class MethodParameter
    * @since 3.0
    */
   public MethodParameter(int index, Method method, String parameterName) {
-    this(index, ClassUtils.getParameter(method, index), parameterName);
+    this(index, ReflectionUtils.getParameter(method, index), parameterName);
   }
 
   public boolean isArray() {
