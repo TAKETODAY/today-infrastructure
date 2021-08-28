@@ -129,7 +129,7 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
     @Override
     public void onApplicationEvent(final Object event) { // any event type
       final Object[] parameter
-              = ArgumentsResolver.sharedInstance.resolve(targetMethod, beanFactory, new Object[] { event });
+              = ArgumentsResolver.getSharedInstance().resolve(targetMethod, beanFactory, new Object[] { event });
       // native invoke public,protected,default method
       methodInvoker.invoke(bean, parameter);
     }

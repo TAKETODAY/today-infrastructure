@@ -49,6 +49,7 @@ public abstract class BeanUtils {
    *
    * @throws BeanInstantiationException
    *         if any reflective operation exception occurred
+   * @see ContextUtils#getLastStartupContext()
    * @since 2.1.2
    */
   public static <T> T newInstance(Class<T> beanClass) {
@@ -65,6 +66,7 @@ public abstract class BeanUtils {
    *
    * @throws ClassNotFoundException
    *         If the class was not found
+   * @see #obtainConstructor(Class)
    * @since 2.1.2
    */
   @SuppressWarnings("unchecked")
@@ -92,8 +94,7 @@ public abstract class BeanUtils {
   }
 
   /**
-   * Use default {@link Constructor} or Annotated {@link Autowired}
-   * {@link Constructor} to create bean instance.
+   * use obtainConstructor to get {@link Constructor} to create bean instance.
    *
    * @param beanClass
    *         target bean class
@@ -104,19 +105,17 @@ public abstract class BeanUtils {
    *
    * @throws BeanInstantiationException
    *         if any reflective operation exception occurred
+   * @see #obtainConstructor(Class)
    */
   public static <T> T newInstance(final Class<T> beanClass, final BeanFactory beanFactory) {
     return newInstance(beanClass, beanFactory, null);
   }
 
   /**
-   * Use default {@link Constructor} or Annotated {@link Autowired}
-   * {@link Constructor} to create bean instance.
+   * use obtainConstructor to get {@link Constructor} to create bean instance.
    *
    * @param beanClass
    *         target bean class
-   * @param beanFactory
-   *         bean factory
    * @param providedArgs
    *         User provided arguments
    *
@@ -124,22 +123,55 @@ public abstract class BeanUtils {
    *
    * @throws BeanInstantiationException
    *         if any reflective operation exception occurred
+   * @see #obtainConstructor(Class)
    */
   public static <T> T newInstance(
           Class<T> beanClass, @Nullable BeanFactory beanFactory, @Nullable Object[] providedArgs) {
-    final Constructor<T> constructor = obtainConstructor(beanClass);
-    ArgumentsResolver argumentsResolver = new ArgumentsResolver(); // TODO shared ArgumentsResolver
-    final Object[] parameter = argumentsResolver.resolve(constructor, beanFactory, providedArgs);
-    return newInstance(constructor, parameter);
+    return newInstance(beanClass, ArgumentsResolver.getSharedInstance(), beanFactory, providedArgs);
   }
 
+  /**
+   * use obtainConstructor to get {@link Constructor} to create bean instance.
+   *
+   * @param beanClass
+   *         target bean class
+   * @param providedArgs
+   *         User provided arguments
+   *
+   * @return bean class 's instance
+   *
+   * @throws BeanInstantiationException
+   *         if any reflective operation exception occurred
+   * @see #obtainConstructor(Class)
+   */
   public static <T> T newInstance(
-          final Class<T> beanClass, ArgumentsResolver argumentsResolver, @Nullable Object[] providedArgs) {
-    final Constructor<T> constructor = obtainConstructor(beanClass);
-    final Object[] parameter = argumentsResolver.resolve(constructor, providedArgs);
+          Class<T> beanClass, ArgumentsResolver argumentsResolver,
+          @Nullable BeanFactory beanFactory, @Nullable Object[] providedArgs) {
+    Constructor<T> constructor = obtainConstructor(beanClass);
+    Assert.notNull(argumentsResolver, "ArgumentsResolver must not be null");
+    Object[] parameter = argumentsResolver.resolve(constructor, beanFactory, providedArgs);
     return newInstance(constructor, parameter);
   }
 
+  @SuppressWarnings("unchecked")
+  public static <T> T newInstance(BeanConstructor constructor, @Nullable Object[] parameter) {
+    return (T) constructor.doNewInstance(parameter);
+  }
+
+  /**
+   * use Constructor to create bean instance
+   *
+   * @param constructor
+   *         java reflect Constructor
+   * @param parameter
+   *         initargs
+   * @param <T>
+   *         target bean type
+   *
+   * @return instance create from constructor
+   *
+   * @see Constructor#newInstance(Object...)
+   */
   public static <T> T newInstance(Constructor<T> constructor, @Nullable Object[] parameter) {
     try {
       return constructor.newInstance(parameter);

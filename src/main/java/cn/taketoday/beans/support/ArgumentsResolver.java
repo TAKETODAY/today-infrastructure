@@ -51,7 +51,7 @@ import cn.taketoday.util.OrderUtils;
  * @since 4.0
  */
 public class ArgumentsResolver {
-  public static ArgumentsResolver sharedInstance = new ArgumentsResolver();
+  private static ArgumentsResolver sharedInstance = new ArgumentsResolver();
 
   @Nullable
   private BeanFactory beanFactory;
@@ -64,9 +64,9 @@ public class ArgumentsResolver {
   }
 
   public ArgumentsResolver(StrategiesDetector strategiesDetector) {
-    final List<ArgumentsResolvingStrategy> strategies
+    Assert.notNull(strategiesDetector, "StrategiesDetector must not be null");
+    List<ArgumentsResolvingStrategy> strategies
             = strategiesDetector.getStrategies(ArgumentsResolvingStrategy.class);
-
     Collections.addAll(strategies,
                        new MapArgumentsResolver(),
                        new ArrayArgumentsResolver(),
@@ -77,6 +77,16 @@ public class ArgumentsResolver {
                        new AutowiredArgumentsResolver()
     );
     setResolvingStrategies(strategies);
+  }
+
+  public ArgumentsResolver(@Nullable BeanFactory beanFactory) {
+    this(StrategiesDetector.getSharedInstance());
+    this.beanFactory = beanFactory;
+  }
+
+  public ArgumentsResolver(StrategiesDetector strategiesDetector, @Nullable BeanFactory beanFactory) {
+    this(strategiesDetector);
+    this.beanFactory = beanFactory;
   }
 
   /**
@@ -234,6 +244,14 @@ public class ArgumentsResolver {
   @Nullable
   public BeanFactory getBeanFactory() {
     return beanFactory;
+  }
+
+  public static void setSharedInstance(ArgumentsResolver sharedInstance) {
+    ArgumentsResolver.sharedInstance = sharedInstance;
+  }
+
+  public static ArgumentsResolver getSharedInstance() {
+    return sharedInstance;
   }
 
   // ArgumentsResolvingStrategy

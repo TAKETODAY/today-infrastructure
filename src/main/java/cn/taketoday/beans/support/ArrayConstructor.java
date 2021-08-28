@@ -41,7 +41,7 @@ public class ArrayConstructor extends BeanConstructor {
   }
 
   @Override
-  public Object newInstance(final Object[] args) {
+  public Object doNewInstance(final Object[] args) {
     // TODO - only handles 2-dimensional arrays
     final Class<?> componentType = this.componentType;
     if (componentType.isArray()) {

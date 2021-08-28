@@ -39,24 +39,30 @@ class BeanConstructorTests {
 
   @Test
   void fromFunction() {
-    FunctionConstructor<BeanConstructorTestsBean> constructor
+    FunctionConstructor constructor
             = BeanConstructor.fromFunction(objects -> new BeanConstructorTestsBean(1000));
 
-    BeanConstructorTestsBean testsBean = constructor.newInstance();
+    Object bean = constructor.newInstance();
+    assertThat(bean).isInstanceOf(BeanConstructorTestsBean.class);
+
+    BeanConstructorTestsBean testsBean = (BeanConstructorTestsBean) bean;
 
     assertThat(testsBean).isNotNull();
     assertThat(testsBean.code).isEqualTo(1000);
     assertThat(testsBean).isNotEqualTo(constructor.newInstance());
-
   }
 
   @Test
   void fromSupplier() {
 
-    SupplierConstructor<BeanConstructorTestsBean> constructor =
+    SupplierConstructor constructor =
             BeanConstructor.fromSupplier(() -> new BeanConstructorTestsBean(1000));
 
-    BeanConstructorTestsBean testsBean = constructor.newInstance();
+    Object bean = constructor.newInstance();
+    assertThat(bean).isInstanceOf(BeanConstructorTestsBean.class);
+
+    BeanConstructorTestsBean testsBean = (BeanConstructorTestsBean) bean;
+
     assertThat(testsBean).isNotNull();
     assertThat(testsBean.code).isEqualTo(1000);
     assertThat(testsBean).isNotEqualTo(constructor.newInstance());

@@ -452,7 +452,7 @@ public abstract class AbstractBeanFactory
       ((DefaultBeanDefinition) def).fastInvokeInitMethods(bean, this);
     }
     else {
-      ArgumentsResolver resolver = ArgumentsResolver.sharedInstance;
+      ArgumentsResolver resolver = ArgumentsResolver.getSharedInstance();
       for (final Method method : def.getInitMethods()) { /*never be null*/
         try {
           //method.setAccessible(true); // fix: can not access a member

@@ -28,20 +28,15 @@ import java.util.function.Function;
  * @author TODAY 2021/5/28 22:19
  * @since 3.0.2
  */
-final class FunctionConstructor<T> extends BeanConstructor {
-  private final Function<Object[], T> function;
+final class FunctionConstructor extends BeanConstructor {
+  private final Function<Object[], ?> function;
 
-  FunctionConstructor(Function<Object[], T> function) {
+  FunctionConstructor(Function<Object[], ?> function) {
     this.function = function;
   }
 
   @Override
-  public T newInstance() {
-    return function.apply(null);
-  }
-
-  @Override
-  public T newInstance(Object[] args) {
+  public Object doNewInstance(Object[] args) {
     return function.apply(args);
   }
 }

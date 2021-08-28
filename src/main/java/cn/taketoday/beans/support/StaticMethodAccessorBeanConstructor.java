@@ -32,7 +32,7 @@ class StaticMethodAccessorBeanConstructor extends BeanConstructor {
   }
 
   @Override
-  public final Object newInstance(final Object[] args) {
+  public final Object doNewInstance(final Object[] args) {
     return accessor.invoke(getObject(), args);
   }
 

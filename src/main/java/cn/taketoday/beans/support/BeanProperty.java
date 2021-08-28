@@ -112,7 +112,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
       constructor = BeanConstructor.fromConstructor(fieldType);
       this.constructor = constructor;
     }
-    return constructor.newInstance(args);
+    return constructor.doNewInstance(args);
   }
 
   /**
@@ -221,7 +221,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
                              ? NullConstructor.INSTANCE
                              : BeanConstructor.fromConstructor(componentClass);
     }
-    return componentConstructor.newInstance(args);
+    return componentConstructor.doNewInstance(args);
   }
 
   //

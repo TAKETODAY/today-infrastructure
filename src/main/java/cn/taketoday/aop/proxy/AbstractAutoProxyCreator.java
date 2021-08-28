@@ -250,7 +250,7 @@ public abstract class AbstractAutoProxyCreator
 
       @Override
       public Object[] apply(Constructor<?> constructor) {
-        return ArgumentsResolver.sharedInstance.resolve(constructor, beanFactory);
+        return  ArgumentsResolver.getSharedInstance().resolve(constructor, beanFactory);
       }
     }
 

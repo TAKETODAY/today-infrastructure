@@ -48,7 +48,7 @@ public class BeanConstructorGenerator
 
   private static final String superType = "Lcn/taketoday/beans/support/ConstructorAccessor;";
   private static final MethodInfo newInstanceInfo = getMethodInfo(
-          ReflectionUtils.findMethod(ConstructorAccessor.class, "newInstance", Object[].class));
+          ReflectionUtils.findMethod(ConstructorAccessor.class, "doNewInstance", Object[].class));
 
   private final Constructor<?> targetConstructor;
 

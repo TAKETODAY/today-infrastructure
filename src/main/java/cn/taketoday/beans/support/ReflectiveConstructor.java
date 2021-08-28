@@ -38,7 +38,7 @@ final class ReflectiveConstructor extends ConstructorAccessor {
   }
 
   @Override
-  public Object newInstance(final Object[] args) {
+  public Object doNewInstance(final Object[] args) {
     return ReflectionUtils.invokeConstructor(constructor, args);
   }
 }

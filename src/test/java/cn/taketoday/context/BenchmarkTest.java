@@ -79,7 +79,7 @@ public class BenchmarkTest {
             = BeanConstructor.fromClass(ConstructorTestBean.class);
 
     long start = System.currentTimeMillis();
-    int times = 1_0000_0000;
+    int times = 1_0000_00000;
     for (int i = 0; i < times; i++) {
       ConstructorTestBean constructorTestBean = constructor.newInstance();
     }

@@ -23,14 +23,14 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.core.Nullable;
 
 /**
  * Exception thrown when instantiation of a bean failed. Carries the offending
  * bean class.
  *
  * @author Juergen Hoeller
- * @author TODAY <br>
- * 2020-02-19 21:36
+ * @author TODAY 2020-02-19 21:36
  * @since 2.17
  */
 public class BeanInstantiationException extends BeansException {
@@ -40,6 +40,13 @@ public class BeanInstantiationException extends BeansException {
   private final Class<?> beanClass;
   private final Method constructingMethod;
   private final Constructor<?> constructor;
+
+  public BeanInstantiationException(String msg, Throwable cause) {
+    super(msg, cause);
+    this.beanClass = null;
+    this.constructor = null;
+    this.constructingMethod = null;
+  }
 
   public BeanInstantiationException(BeanDefinition def, String msg) {
     this(def.getBeanClass(), msg, null);
@@ -75,6 +82,7 @@ public class BeanInstantiationException extends BeansException {
    *
    * @return the class that was to be instantiated
    */
+  @Nullable
   public Class<?> getBeanClass() {
     return this.beanClass;
   }
@@ -85,6 +93,7 @@ public class BeanInstantiationException extends BeansException {
    * @return the constructor in use, or {@code null} in case of a factory method
    * or in case of default instantiation
    */
+  @Nullable
   public Constructor<?> getConstructor() {
     return this.constructor;
   }
@@ -95,6 +104,7 @@ public class BeanInstantiationException extends BeansException {
    * @return the method in use (typically a static factory method), or
    * {@code null} in case of constructor-based instantiation
    */
+  @Nullable
   public Method getConstructingMethod() {
     return this.constructingMethod;
   }

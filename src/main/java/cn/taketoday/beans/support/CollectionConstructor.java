@@ -46,7 +46,7 @@ public class CollectionConstructor extends BeanConstructor {
   }
 
   @Override
-  public Object newInstance(final Object[] args) {
+  public Object doNewInstance(final Object[] args) {
     return CollectionUtils.createCollection(collectionType, elementType, capacity);
   }
 

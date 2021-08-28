@@ -63,8 +63,7 @@ class ParameterHandlerTests {
     try (StandardApplicationContext context = new StandardApplicationContext()) {
       context.importBeans(ParameterHandlerBean.class);
 
-      ArgumentsResolver argumentsResolver = new ArgumentsResolver();
-      argumentsResolver.setBeanFactory(context);
+      ArgumentsResolver argumentsResolver = new ArgumentsResolver(context);
       Method test = ParameterHandlerTests.class.getDeclaredMethod("test", ParameterHandlerBean.class);
 
       Object[] args = argumentsResolver.resolve(test);
@@ -73,7 +72,4 @@ class ParameterHandlerTests {
     }
   }
 
-  @Test
-  void testResolveParameter() {
-  }
 }

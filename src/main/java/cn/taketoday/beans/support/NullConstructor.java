@@ -28,7 +28,7 @@ public final class NullConstructor extends BeanConstructor {
   public static final NullConstructor INSTANCE = new NullConstructor();
 
   @Override
-  public Object newInstance(final Object[] args) {
+  public Object doNewInstance(final Object[] args) {
     return null;
   }
 

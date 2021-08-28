@@ -35,5 +35,5 @@ public abstract class ConstructorAccessor
    * @return returns Object
    */
   @Override
-  public abstract Object newInstance(@Nullable Object[] args);
+  public abstract Object doNewInstance(@Nullable Object[] args);
 }

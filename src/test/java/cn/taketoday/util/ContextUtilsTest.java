@@ -177,7 +177,7 @@ public class ContextUtilsTest {
 //      System.err.println(properties.get("placeHolder"));
       ContextUtils.setLastStartupContext(applicationContext);
 
-      Object[] parameters = ArgumentsResolver.sharedInstance.resolve(constructor, beanFactory);
+      Object[] parameters = ArgumentsResolver.getSharedInstance().resolve(constructor, beanFactory);
 
       Config newInstance = constructor.newInstance(parameters);
 

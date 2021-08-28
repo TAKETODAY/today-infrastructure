@@ -62,17 +62,30 @@ public abstract class BeanConstructor {
    * @throws BeanInstantiationException
    *         cannot instantiate a bean
    */
-  public abstract Object newInstance(@Nullable Object[] args);
+  public final Object newInstance(@Nullable Object[] args) {
+    try {
+      return doNewInstance(args);
+    }
+    catch (Throwable e) {
+      throw new BeanInstantiationException("cannot instantiate a bean", e);
+    }
+  }
+
+  // internal new-instance impl
+  public abstract Object doNewInstance(@Nullable Object[] args);
 
   // static
 
   /**
-   * use ConstructorAccessor
+   * use BeanConstructorGenerator to create bytecode Constructor access
+   * or fallback to java reflect Constructor cause private access
    *
    * @param constructor
    *         java reflect Constructor
    *
    * @return BeanConstructor to construct target T
+   *
+   * @see BeanConstructorGenerator#create()
    */
   public static BeanConstructor fromConstructor(Constructor<?> constructor) {
     return new BeanConstructorGenerator(constructor).create();
@@ -170,20 +183,29 @@ public abstract class BeanConstructor {
    *
    * @throws ConstructorNotFoundException
    *         No suitable constructor
+   * @see BeanUtils#obtainConstructor(Class)
    */
   public static BeanConstructor fromClass(final Class<?> targetClass) {
     Constructor<?> suitableConstructor = BeanUtils.obtainConstructor(targetClass);
     return fromConstructor(suitableConstructor);
   }
 
-  public static <T> FunctionConstructor<T> fromFunction(Function<Object[], T> function) {
+  /**
+   * @param function
+   *         function
+   */
+  public static FunctionConstructor fromFunction(Function<Object[], ?> function) {
     Assert.notNull(function, "instance function must not be null");
-    return new FunctionConstructor<>(function);
+    return new FunctionConstructor(function);
   }
 
-  public static <T> SupplierConstructor<T> fromSupplier(Supplier<T> supplier) {
+  /**
+   * @param supplier
+   *         bean instance supplier
+   */
+  public static SupplierConstructor fromSupplier(Supplier<?> supplier) {
     Assert.notNull(supplier, "instance supplier must not be null");
-    return new SupplierConstructor<>(supplier);
+    return new SupplierConstructor(supplier);
   }
 
   /**
@@ -214,6 +236,14 @@ public abstract class BeanConstructor {
     }
   }
 
+  /**
+   * @param constructor
+   *         java reflect Constructor
+   *
+   * @return ReflectiveConstructor
+   *
+   * @see ReflectiveConstructor
+   */
   public static ConstructorAccessor fromReflective(Constructor<?> constructor) {
     Assert.notNull(constructor, "constructor must not be null");
     ReflectionUtils.makeAccessible(constructor);

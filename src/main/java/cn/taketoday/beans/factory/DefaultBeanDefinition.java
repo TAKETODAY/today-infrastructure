@@ -33,13 +33,13 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.support.ArgumentsResolver;
 import cn.taketoday.beans.support.BeanConstructor;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.Scope;
-import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.Constant;
@@ -390,8 +390,8 @@ public class DefaultBeanDefinition
       return instanceSupplier.get();
     }
     final BeanConstructor target = getConstructor(factory);
-    final Object[] args = ArgumentsResolver.sharedInstance.resolve(getExecutable(), factory);
-    return target.newInstance(args);
+    final Object[] args = ArgumentsResolver.getSharedInstance().resolve(getExecutable(), factory);
+    return target.doNewInstance(args);
   }
 
   /**
@@ -405,7 +405,7 @@ public class DefaultBeanDefinition
   @Override
   public Object newInstance(BeanFactory factory, Object... args) {
     final BeanConstructor target = getConstructor(factory);
-    return target.newInstance(args);
+    return target.doNewInstance(args);
   }
 
   /**
@@ -419,9 +419,9 @@ public class DefaultBeanDefinition
   public final void fastInvokeInitMethods(Object bean, BeanFactory beanFactory) {
     final MethodInvoker[] methodInvokers = this.methodInvokers;
     if (ObjectUtils.isNotEmpty(methodInvokers)) {
+      ArgumentsResolver resolver = ArgumentsResolver.getSharedInstance();
       for (final MethodInvoker methodInvoker : methodInvokers) {
-        final Object[] args = ArgumentsResolver.sharedInstance.resolve(
-                methodInvoker.getMethod(), beanFactory);
+        final Object[] args = resolver.resolve(methodInvoker.getMethod(), beanFactory);
         methodInvoker.invoke(bean, args);
       }
     }

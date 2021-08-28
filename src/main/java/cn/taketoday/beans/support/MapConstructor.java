@@ -46,7 +46,7 @@ public class MapConstructor extends BeanConstructor {
   }
 
   @Override
-  public Object newInstance(final Object[] args) {
+  public Object doNewInstance(final Object[] args) {
     return CollectionUtils.createMap(mapType, keyType, capacity);
   }
 
