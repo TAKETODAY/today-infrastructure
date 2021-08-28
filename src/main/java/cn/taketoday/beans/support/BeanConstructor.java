@@ -168,7 +168,7 @@ public abstract class BeanConstructor {
    *
    * @return {@link BeanConstructor}
    *
-   * @throws NoConstructorFoundException
+   * @throws ConstructorNotFoundException
    *         No suitable constructor
    */
   public static BeanConstructor fromClass(final Class<?> targetClass) {

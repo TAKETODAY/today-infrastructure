@@ -142,7 +142,7 @@ public class ArgumentsResolver {
     return null;
   }
 
-  public static Object findProvidedArgument(Parameter parameter, Object[] providedArgs) {
+  public static Object findProvidedArgument(Parameter parameter, @Nullable Object[] providedArgs) {
     if (ObjectUtils.isNotEmpty(providedArgs)) {
       final Class<?> parameterType = parameter.getType();
       for (final Object providedArg : providedArgs) {

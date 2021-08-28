@@ -33,11 +33,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
-import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.reflect.PropertyAccessor;
@@ -62,8 +63,10 @@ public class BeanProperty extends AbstractAnnotatedElement {
   private BeanConstructor constructor;
   private PropertyAccessor propertyAccessor;
 
+  @Nullable
   private Type[] genericClass;
 
+  @Nullable
   private Type componentType;
   private boolean componentResolved;
   /** if this property is array or */
@@ -99,7 +102,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
    *
    * @return new object
    */
-  public Object newInstance(final Object[] args) {
+  public Object newInstance(@Nullable final Object[] args) {
     BeanConstructor constructor = this.constructor;
     if (constructor == null) {
       final Class<?> fieldType = this.fieldType;
@@ -222,7 +225,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
   }
 
   //
-
+  @Nullable
   public Type[] getGenerics() {
     Type[] genericClass = this.genericClass;
     if (genericClass == null) {
@@ -267,6 +270,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
    *
    * @return {@link Class}
    */
+  @Nullable
   public Class<?> getComponentClass() {
     final Type componentType = getComponentType();
     if (componentType instanceof Class) {

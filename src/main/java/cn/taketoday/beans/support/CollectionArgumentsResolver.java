@@ -31,8 +31,7 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ResolvableType;
 
 /**
- * @author TODAY
- * 2020/10/11 21:54
+ * @author TODAY 2020/10/11 21:54
  * @since 3.0
  */
 public class CollectionArgumentsResolver

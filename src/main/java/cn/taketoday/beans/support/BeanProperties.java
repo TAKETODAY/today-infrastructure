@@ -22,9 +22,10 @@ package cn.taketoday.beans.support;
 
 import java.util.Map;
 
-import cn.taketoday.beans.factory.InvalidPropertyValueException;
 import cn.taketoday.beans.NoSuchPropertyException;
+import cn.taketoday.beans.factory.InvalidPropertyValueException;
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -65,7 +66,7 @@ public class BeanProperties {
    * @param ignoreProperties
    *         array of property names to ignore
    */
-  public static void copy(Object source, Object destination, String... ignoreProperties) {
+  public static void copy(Object source, Object destination, @Nullable String... ignoreProperties) {
     Assert.notNull(source, "source object must not be null");
     Assert.notNull(destination, "destination object must not be null");
 
@@ -119,7 +120,8 @@ public class BeanProperties {
    */
   @SuppressWarnings("unchecked")
   private static void copy(
-          Object source, BeanMetadata destinationMetadata, Object destinationInstance, String[] ignoreProperties) {
+          Object source, BeanMetadata destinationMetadata,
+          Object destinationInstance, @Nullable String[] ignoreProperties) {
     if (source instanceof Map) {
       for (final Map.Entry<String, Object> entry : ((Map<String, Object>) source).entrySet()) {
         final String propertyName = entry.getKey();
@@ -147,7 +149,7 @@ public class BeanProperties {
     }
   }
 
-  private static boolean allowCopy(String[] ignoreProperties, String propertyName) {
+  private static boolean allowCopy(@Nullable String[] ignoreProperties, String propertyName) {
     if (ObjectUtils.isNotEmpty(ignoreProperties)) {
       for (final String ignoreProperty : ignoreProperties) {
         if (propertyName.equals(ignoreProperty)) {

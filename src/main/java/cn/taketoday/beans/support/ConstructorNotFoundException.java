@@ -27,15 +27,15 @@ import cn.taketoday.beans.BeansException;
  *
  * @author TODAY 2021/8/23 23:28
  */
-public class NoConstructorFoundException extends BeansException {
+public class ConstructorNotFoundException extends BeansException {
   private static final long serialVersionUID = 1L;
   private final Class<?> beanClass;
 
-  public NoConstructorFoundException(Class<?> beanClass) {
+  public ConstructorNotFoundException(Class<?> beanClass) {
     this(beanClass, "No suitable constructor in class: " + beanClass);
   }
 
-  public NoConstructorFoundException(Class<?> beanClass, String msg) {
+  public ConstructorNotFoundException(Class<?> beanClass, String msg) {
     super(msg);
     this.beanClass = beanClass;
   }

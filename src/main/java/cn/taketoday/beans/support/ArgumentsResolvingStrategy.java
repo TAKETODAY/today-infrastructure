@@ -27,8 +27,7 @@ import cn.taketoday.core.Nullable;
 /**
  * 构造器出入，方法注入，参数解析器
  *
- * @author TODAY <br>
- * 2019-10-14 14:11
+ * @author TODAY 2019-10-14 14:11
  */
 @FunctionalInterface
 public interface ArgumentsResolvingStrategy {

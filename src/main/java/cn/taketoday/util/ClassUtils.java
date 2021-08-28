@@ -58,6 +58,7 @@ import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.io.Resource;
 
@@ -429,14 +430,17 @@ public abstract class ClassUtils {
     return null;
   }
 
+  @Nullable
   public static java.lang.reflect.Type[] getGenericTypes(final Field property) {
     return property != null ? getActualTypeArguments(property.getGenericType()) : null;
   }
 
+  @Nullable
   public static java.lang.reflect.Type[] getGenericTypes(final Parameter parameter) {
     return parameter != null ? getActualTypeArguments(parameter.getParameterizedType()) : null;
   }
 
+  @Nullable
   static java.lang.reflect.Type[] getActualTypeArguments(final java.lang.reflect.Type pType) {
     if (pType instanceof ParameterizedType) {
       return ((ParameterizedType) pType).getActualTypeArguments();

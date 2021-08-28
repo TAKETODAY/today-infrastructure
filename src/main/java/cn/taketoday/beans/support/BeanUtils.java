@@ -29,6 +29,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.context.ContextUtils;
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -124,7 +125,8 @@ public abstract class BeanUtils {
    * @throws BeanInstantiationException
    *         if any reflective operation exception occurred
    */
-  public static <T> T newInstance(final Class<T> beanClass, final BeanFactory beanFactory, Object[] providedArgs) {
+  public static <T> T newInstance(
+          Class<T> beanClass, @Nullable BeanFactory beanFactory, @Nullable Object[] providedArgs) {
     final Constructor<T> constructor = obtainConstructor(beanClass);
     ArgumentsResolver argumentsResolver = new ArgumentsResolver(); // TODO shared ArgumentsResolver
     final Object[] parameter = argumentsResolver.resolve(constructor, beanFactory, providedArgs);
@@ -138,7 +140,7 @@ public abstract class BeanUtils {
     return newInstance(constructor, parameter);
   }
 
-  public static <T> T newInstance(Constructor<T> constructor, Object[] parameter) {
+  public static <T> T newInstance(Constructor<T> constructor, @Nullable Object[] parameter) {
     try {
       return constructor.newInstance(parameter);
     }
@@ -172,14 +174,14 @@ public abstract class BeanUtils {
    *
    * @return Suitable constructor
    *
-   * @throws NoConstructorFoundException
+   * @throws ConstructorNotFoundException
    *         If there is no suitable constructor
    * @since 2.1.7
    */
   public static <T> Constructor<T> obtainConstructor(Class<T> beanClass) {
     final Constructor<T> ret = getConstructor(beanClass);
     if (ret == null) {
-      throw new NoConstructorFoundException(beanClass);
+      throw new ConstructorNotFoundException(beanClass);
     }
     return ret;
   }
@@ -203,6 +205,7 @@ public abstract class BeanUtils {
    *
    * @since 2.1.7
    */
+  @Nullable
   @SuppressWarnings("unchecked")
   public static <T> Constructor<T> getConstructor(Class<T> beanClass) {
     Assert.notNull(beanClass, "bean-class must not be null");
