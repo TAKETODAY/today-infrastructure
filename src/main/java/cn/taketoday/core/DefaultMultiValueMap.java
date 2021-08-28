@@ -174,7 +174,9 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
   }
 
   /**
-   * trimToSize
+   * Trims the capacity of this map internal value <tt>ArrayList</tt> instance to be the
+   * list's current size.  An application can use this operation to minimize
+   * the storage of an <tt>ArrayList</tt> instance.
    *
    * @see ArrayList#trimToSize()
    * @since 4.0
