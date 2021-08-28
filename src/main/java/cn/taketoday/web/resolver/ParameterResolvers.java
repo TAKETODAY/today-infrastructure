@@ -31,6 +31,9 @@ import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.context.Props;
 import cn.taketoday.context.Value;
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.Nullable;
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.ConversionServiceAware;
 import cn.taketoday.util.OrderUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
@@ -72,6 +75,11 @@ public class ParameterResolvers extends WebApplicationContextSupport {
    * @since 3.0.1
    */
   private ExpressionEvaluator expressionEvaluator;
+
+  /**
+   * @since 4.0
+   */
+  private ConversionService conversionService;
 
   public void addResolver(ParameterResolver... resolver) {
     Collections.addAll(resolvers, resolver);
@@ -221,6 +229,9 @@ public class ParameterResolvers extends WebApplicationContextSupport {
     resolvers.add(new LocalTimeParameterResolver());
     resolvers.add(new LocalDateTimeParameterResolver());
 
+    // apply conversionService @since 4.0
+    applyConversionService(conversionService, resolvers);
+
     // ordering
     sort();
   }
@@ -256,7 +267,8 @@ public class ParameterResolvers extends WebApplicationContextSupport {
     // resolve bean
     if (!contains(DataBinderParameterResolver.class, resolvers)
             && !context.containsBeanDefinition(DataBinderParameterResolver.class)) {
-      resolvers.add(new DataBinderParameterResolver());
+      DataBinderParameterResolver resolver = new DataBinderParameterResolver(this);
+      resolvers.add(resolver);
     }
   }
 
@@ -305,6 +317,42 @@ public class ParameterResolvers extends WebApplicationContextSupport {
 
   public ExpressionEvaluator getExpressionEvaluator() {
     return expressionEvaluator;
+  }
+
+  /**
+   * @since 4.0
+   */
+  public void setConversionService(ConversionService conversionService) {
+    Assert.notNull(conversionService, "conversionService must not be null");
+    this.conversionService = conversionService;
+  }
+
+  /**
+   * apply conversionService to resolvers
+   *
+   * @since 4.0
+   */
+  public void applyConversionService(ConversionService conversionService) {
+    setConversionService(conversionService);
+    applyConversionService(conversionService, resolvers);
+  }
+
+  private void applyConversionService(
+          @Nullable ConversionService conversionService, List<ParameterResolver> resolvers) {
+    if (conversionService != null) {
+      for (final ParameterResolver resolver : resolvers) {
+        if (resolver instanceof ConversionServiceAware) {
+          ((ConversionServiceAware) resolver).setConversionService(conversionService);
+        }
+      }
+    }
+  }
+
+  /**
+   * @since 4.0
+   */
+  public ConversionService getConversionService() {
+    return conversionService;
   }
 
   // ParameterResolver

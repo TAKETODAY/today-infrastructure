@@ -64,7 +64,7 @@ public class CookieParameterResolver
     resolvers.add(new CookieCollectionParameterResolver());
   }
 
-  private static class CookieAnnotationParameterResolver extends ConvertibleParameterResolver {
+  private static class CookieAnnotationParameterResolver extends ConversionServiceParameterResolver {
 
     @Override
     public boolean supports(MethodParameter parameter) {

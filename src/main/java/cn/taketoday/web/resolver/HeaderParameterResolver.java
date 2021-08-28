@@ -30,7 +30,7 @@ import cn.taketoday.web.http.HttpHeaders;
  * @author TODAY <br>
  * 2019-07-13 11:11
  */
-public class HeaderParameterResolver extends ConvertibleParameterResolver {
+public class HeaderParameterResolver extends ConversionServiceParameterResolver {
 
   @Override
   public boolean supports(MethodParameter parameter) {
