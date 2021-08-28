@@ -82,6 +82,16 @@ import cn.taketoday.web.multipart.MultipartFile;
  *   session.setAttribute("session", params.toString());
  *   return params;
  * }
+ *
+ * // result:
+ * {
+ *     "header": "test",
+ *     "acceptEncoding": "gzip, deflate, br",
+ *     "name": "TODAY",
+ *     "session": "TestController.RequestParams(header=test, acceptEncoding=gzip, deflate, br, name=TODAY, session=null, cookie=TODAY, authorization=bb79c2b9-3b18-4947-af58-257d0ff89c3d)",
+ *     "cookie": "TODAY",
+ *     "authorization": "2549afee-f385-4f6e-876b-e99facc8e4ce"
+ * }
  * </pre>
  * </p>
  *
