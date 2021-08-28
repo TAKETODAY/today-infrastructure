@@ -57,7 +57,7 @@ public class DataBinderParameterResolver
   }
 
   public DataBinderParameterResolver(ConversionService conversionService) {
-    this.conversionService = conversionService;
+    setConversionService(conversionService);
   }
 
   @Override
