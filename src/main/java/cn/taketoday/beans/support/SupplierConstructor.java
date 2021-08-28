@@ -36,6 +36,11 @@ final class SupplierConstructor<T> extends BeanConstructor {
   }
 
   @Override
+  public T newInstance() {
+    return supplier.get();
+  }
+
+  @Override
   public T newInstance(Object[] args) {
     return supplier.get();
   }

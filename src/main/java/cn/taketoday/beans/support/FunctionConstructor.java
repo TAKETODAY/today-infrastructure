@@ -36,6 +36,11 @@ final class FunctionConstructor<T> extends BeanConstructor {
   }
 
   @Override
+  public T newInstance() {
+    return function.apply(null);
+  }
+
+  @Override
   public T newInstance(Object[] args) {
     return function.apply(args);
   }

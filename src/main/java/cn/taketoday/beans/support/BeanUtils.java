@@ -134,7 +134,7 @@ public abstract class BeanUtils {
   }
 
   public static <T> T newInstance(
-          final Class<T> beanClass, ArgumentsResolver argumentsResolver, Object[] providedArgs) {
+          final Class<T> beanClass, ArgumentsResolver argumentsResolver, @Nullable Object[] providedArgs) {
     final Constructor<T> constructor = obtainConstructor(beanClass);
     final Object[] parameter = argumentsResolver.resolve(constructor, providedArgs);
     return newInstance(constructor, parameter);
