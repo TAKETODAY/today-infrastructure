@@ -173,6 +173,21 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
     }
   }
 
+  /**
+   * trimToSize
+   *
+   * @see ArrayList#trimToSize()
+   * @since 4.0
+   */
+  public void trimToSize() {
+    for (final Entry<K, List<V>> entry : map.entrySet()) {
+      final List<V> values = entry.getValue();
+      if (values instanceof ArrayList) {
+        ((ArrayList<V>) values).trimToSize();
+      }
+    }
+  }
+
   // Map
   // ----------------------------------
 
