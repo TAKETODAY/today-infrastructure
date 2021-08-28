@@ -143,27 +143,27 @@ public class MethodParameter
   }
 
   public boolean isArray() {
-    return parameterClass.isArray();
+    return getParameterClass().isArray();
   }
 
   public boolean isCollection() {
-    return CollectionUtils.isCollection(parameterClass);
+    return CollectionUtils.isCollection(getParameterClass());
   }
 
   public boolean isInterface() {
-    return parameterClass.isInterface();
+    return getParameterClass().isInterface();
   }
 
   public boolean is(final Class<?> type) {
-    return type == this.parameterClass;
+    return type == getParameterClass();
   }
 
   public boolean isAssignableTo(final Class<?> superClass) {
-    return superClass.isAssignableFrom(parameterClass);
+    return superClass.isAssignableFrom(getParameterClass());
   }
 
   public boolean isInstance(final Object obj) {
-    return parameterClass.isInstance(obj);
+    return getParameterClass().isInstance(obj);
   }
 
   public Type getGeneric(final int index) {
@@ -222,7 +222,7 @@ public class MethodParameter
 
   @Override
   public String toString() {
-    return parameter.getType().getSimpleName() + " " + getName();
+    return getParameterClass().getSimpleName() + " " + getName();
   }
 
   @Override
@@ -255,7 +255,7 @@ public class MethodParameter
   }
 
   public Class<?> getComponentType() {
-    return parameterClass.getComponentType();
+    return getParameterClass().getComponentType();
   }
 
   public void setDefaultValue(@Nullable String defaultValue) {
@@ -305,10 +305,17 @@ public class MethodParameter
   public GenericDescriptor getGenericDescriptor() {
     GenericDescriptor genericDescriptor = this.genericDescriptor;
     if (genericDescriptor == null) {
-      genericDescriptor = GenericDescriptor.ofParameter(parameter);
+      genericDescriptor = createGenericDescriptor();
       this.genericDescriptor = genericDescriptor;
     }
     return genericDescriptor;
+  }
+
+  /**
+   * @since 4.0
+   */
+  protected GenericDescriptor createGenericDescriptor() {
+    return GenericDescriptor.ofParameter(parameter);
   }
 
 }

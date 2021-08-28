@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.resolver;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,7 @@ import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.GenericDescriptor;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
@@ -54,19 +56,32 @@ import cn.taketoday.web.multipart.MultipartFile;
  * just like this:
  * <pre>
  *
- *   class RequestParams {
- *     &#64RequestHeader("Token")
- *     private String token;
- *     &#64Multipart
- *     private MultipartFile file;
+ * &#64Data
+ * static class RequestParams {
+ *   &#64RequestHeader("X-Header")
+ *   private String header;
  *
- *     private String name;
- *   }
+ *   &#64RequestHeader("Accept-Encoding")
+ *   private String acceptEncoding;
  *
- *   &#64POST("/binder")
- *   public void binder(RequestParams params) {
+ *   private String name;
  *
- *   }
+ *   &#64SessionAttribute("session")
+ *   private String session;
+ *
+ *   &#64CookieValue
+ *   private String cookie;
+ *
+ *   &#64CookieValue("Authorization")
+ *   private String authorization;
+ *
+ * }
+ *
+ * &#64GET("/binder")
+ * public RequestParams binder(RequestParams params, WebSession session) {
+ *   session.setAttribute("session", params.toString());
+ *   return params;
+ * }
  * </pre>
  * </p>
  *
@@ -214,11 +229,13 @@ public class DataBinderParameterResolver
   }
 
   static final class AnnotationBinderParameter extends MethodParameter {
+    private final Field field;
     private final Class<?> parameterClass;
 
     public AnnotationBinderParameter(MethodParameter other, Field field) {
       super(other);
       this.parameterClass = field.getType();
+      this.field = field;
       initRequestParam(field);
       if (StringUtils.isEmpty(getName())) {
         setName(field.getName());
@@ -228,6 +245,16 @@ public class DataBinderParameterResolver
     @Override
     public Class<?> getParameterClass() {
       return parameterClass;
+    }
+
+    @Override
+    public AnnotatedElement getAnnotationSource() {
+      return field;
+    }
+
+    @Override
+    protected GenericDescriptor createGenericDescriptor() {
+      return GenericDescriptor.ofProperty(field);
     }
 
   }
