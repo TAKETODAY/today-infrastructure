@@ -289,6 +289,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
     // replace
     final String[] activeProfiles = getActiveProfiles();
     for (final String profile : activeProfiles) {
+      log.info("Replace properties by profile: [{}]", profile);
 
       for (final String location : locations) {
         final StringBuilder builder = new StringBuilder(location);
@@ -310,6 +311,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
     if (StringUtils.isNotEmpty(profiles)) {
       activeProfiles.addAll(StringUtils.splitAsList(profiles));
+      log.info("Refresh active profiles: {}", activeProfiles);
     }
   }
 
