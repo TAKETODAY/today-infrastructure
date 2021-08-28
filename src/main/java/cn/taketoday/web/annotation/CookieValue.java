@@ -31,11 +31,11 @@ import cn.taketoday.core.Constant;
  * cookie.
  *
  * @author TODAY <br>
- *         2018-07-01 14:10:04 <br>
- *         2018-08-21 19:16 <b>change</b> add defaultValue()
+ * 2018-07-01 14:10:04 <br>
+ * 2018-08-21 19:16 <b>change</b> add defaultValue()
  */
 @RequestParam
-@Target(ElementType.PARAMETER)
+@Target({ ElementType.PARAMETER, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CookieValue {
 

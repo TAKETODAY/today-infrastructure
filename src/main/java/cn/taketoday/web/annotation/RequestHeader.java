@@ -31,10 +31,10 @@ import cn.taketoday.core.Constant;
  * request header.
  *
  * @author TODAY<br>
- *         2018-08-21 19:19 change
+ * 2018-08-21 19:19 change
  */
 @RequestParam
-@Target(ElementType.PARAMETER)
+@Target({ ElementType.PARAMETER, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequestHeader {
 

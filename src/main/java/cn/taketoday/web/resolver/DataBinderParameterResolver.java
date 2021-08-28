@@ -19,58 +19,112 @@
  */
 package cn.taketoday.web.resolver;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.beans.factory.PropertyValue;
 import cn.taketoday.beans.support.DataBinder;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.ConversionServiceAware;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
+import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.annotation.RequestBody;
+import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.multipart.MultipartFile;
 
 /**
  * Resolve Bean
  *
- * @author TODAY <br>
- * 2019-07-13 01:11
+ * <p>
+ * supports annotated-property-resolvers if set the ParameterResolvers,
+ * this feature is that request-params Bean property is annotated with meta-annotation RequestParam
+ * just like this:
+ * <pre>
+ *
+ *   class RequestParams {
+ *     &#64RequestHeader("Token")
+ *     private String token;
+ *     &#64Multipart
+ *     private MultipartFile file;
+ *
+ *     private String name;
+ *   }
+ *
+ *   &#64POST("/binder")
+ *   public void binder(RequestParams params) {
+ *
+ *   }
+ * </pre>
+ * </p>
+ *
+ * @author TODAY 2019-07-13 01:11
  */
 public class DataBinderParameterResolver
-        extends OrderedSupport implements ParameterResolver {
+        extends OrderedSupport implements ParameterResolver, ConversionServiceAware {
+  public static final String ANNOTATED_RESOLVERS_KEY = AnnotatedPropertyResolver.class.getName() + "-annotated-property-resolvers";
 
   private ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
+  private ParameterResolvers resolvers;
+
   public DataBinderParameterResolver() {
-    this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 200);
+    setOrder(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 200);
   }
 
-  public DataBinderParameterResolver(final int order) {
-    super(order);
+  public DataBinderParameterResolver(ParameterResolvers resolvers) {
+    this();
+    this.resolvers = resolvers;
   }
 
   public DataBinderParameterResolver(ConversionService conversionService) {
+    this();
     setConversionService(conversionService);
   }
 
   @Override
   public boolean supports(MethodParameter parameter) {
-    return !parameter.isAnnotationPresent(RequestBody.class) // @since 3.0.3 #17
-            && !ClassUtils.isSimpleType(parameter.getParameterClass());
+    if (!parameter.isAnnotationPresent(RequestBody.class) // @since 3.0.3 #17
+            && !ClassUtils.isSimpleType(parameter.getParameterClass())) {
+      setAttribute(parameter, resolvers);
+      return true;
+    }
+    return false;
+  }
+
+  static void setAttribute(MethodParameter parameter, ParameterResolvers resolvers) {
+    if (resolvers != null) {
+      // supports annotated-property-resolvers
+      ArrayList<AnnotatedPropertyResolver> resolverList = new ArrayList<>();
+      Class<?> parameterClass = parameter.getParameterClass();
+
+      ReflectionUtils.doWithFields(parameterClass, field -> {
+        if (AnnotationUtils.isPresent(field, RequestParam.class)) {
+          AnnotatedPropertyResolver resolver = new AnnotatedPropertyResolver(parameter, field, resolvers);
+          resolverList.add(resolver);
+        }
+      });
+      parameter.setAttribute(ANNOTATED_RESOLVERS_KEY, resolverList);
+    }
   }
 
   /**
    * @return Pojo parameter
    */
   @Override
-  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) {
+  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
     final Class<?> parameterClass = parameter.getParameterClass();
     final DataBinder dataBinder = new DataBinder(parameterClass, conversionService);
 
@@ -102,10 +156,31 @@ public class DataBinderParameterResolver
         }
       }
     }
+    // #30 Support annotation-supported in the form of DataBinder
+    resolveAnnotatedProperty(context, parameter, dataBinder);
 
     return dataBinder.bind();
   }
 
+  static void resolveAnnotatedProperty(
+          RequestContext context, MethodParameter parameter, DataBinder dataBinder) throws Throwable {
+    Object attribute = parameter.getAttribute(ANNOTATED_RESOLVERS_KEY);
+
+    if (attribute instanceof List) {
+      @SuppressWarnings("unchecked")
+      List<AnnotatedPropertyResolver> resolvers = (List<AnnotatedPropertyResolver>) attribute;
+      for (final AnnotatedPropertyResolver resolver : resolvers) {
+        PropertyValue propertyValue = resolver.resolve(context);
+        dataBinder.addPropertyValue(propertyValue);
+      }
+    }
+  }
+
+  public void setResolvers(ParameterResolvers resolvers) {
+    this.resolvers = resolvers;
+  }
+
+  @Override
   public void setConversionService(ConversionService conversionService) {
     Assert.notNull(conversionService, "conversionService must not be null");
     this.conversionService = conversionService;
@@ -113,5 +188,47 @@ public class DataBinderParameterResolver
 
   public ConversionService getConversionService() {
     return conversionService;
+  }
+
+  static final class AnnotatedPropertyResolver {
+
+    final String propertyName;
+    final ParameterResolver resolver;
+    final AnnotationBinderParameter parameter;
+
+    /**
+     * @throws IllegalStateException
+     *         If there isn't a suitable resolver
+     */
+    AnnotatedPropertyResolver(MethodParameter other, Field field, ParameterResolvers resolvers) {
+      this.propertyName = field.getName();// TODO BeanMetadata#getPropertyName
+      this.parameter = new AnnotationBinderParameter(other, field);
+      this.resolver = resolvers.obtainResolver(this.parameter);
+    }
+
+    public PropertyValue resolve(RequestContext context) throws Throwable {
+      Object value = resolver.resolveParameter(context, parameter);
+      return new PropertyValue(propertyName, value);
+    }
+
+  }
+
+  static final class AnnotationBinderParameter extends MethodParameter {
+    private final Class<?> parameterClass;
+
+    public AnnotationBinderParameter(MethodParameter other, Field field) {
+      super(other);
+      this.parameterClass = field.getType();
+      initRequestParam(field);
+      if (StringUtils.isEmpty(getName())) {
+        setName(field.getName());
+      }
+    }
+
+    @Override
+    public Class<?> getParameterClass() {
+      return parameterClass;
+    }
+
   }
 }

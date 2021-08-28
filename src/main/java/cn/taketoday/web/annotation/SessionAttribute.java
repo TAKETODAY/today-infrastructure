@@ -28,11 +28,11 @@ import cn.taketoday.core.Constant;
 
 /**
  * @author TODAY<br>
- *         2018-08-21 20:19 <br>
- *         <b>change:</b> add defaultValue()
+ * 2018-08-21 20:19 <br>
+ * <b>change:</b> add defaultValue()
  */
 @RequestParam
-@Target(ElementType.PARAMETER)
+@Target({ ElementType.PARAMETER, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SessionAttribute {
 

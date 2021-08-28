@@ -28,10 +28,10 @@ import cn.taketoday.core.Constant;
 
 /**
  * @author TODAY <br>
- *         2019-02-16 11:34
+ * 2019-02-16 11:34
  */
 @RequestParam
-@Target(ElementType.PARAMETER)
+@Target({ ElementType.PARAMETER, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequestAttribute {
 

@@ -81,23 +81,28 @@ public class MethodParameter
     this.genericDescriptor = other.genericDescriptor; // @since 3.0.1
   }
 
+  /**
+   * @since 4.0
+   */
+  public MethodParameter(MethodParameter other) {
+    this.name = other.name;
+    this.generics = other.generics;
+    this.required = other.required;
+    this.parameter = other.parameter;
+    this.defaultValue = other.defaultValue;
+    this.parameterIndex = other.parameterIndex;
+    this.parameterClass = other.parameterClass;
+
+    this.handlerMethod = other.handlerMethod;
+    this.genericDescriptor = other.genericDescriptor; // @since 3.0.1
+  }
+
   public MethodParameter(int index, Parameter parameter) {
     this.parameter = parameter;
     this.parameterIndex = index;
     this.parameterClass = parameter.getType();
 
-    AnnotationAttributes attributes = AnnotationUtils.getAttributes(RequestParam.class, parameter);
-    if (attributes != null) {
-      this.name = attributes.getString(Constant.VALUE);
-      this.required = attributes.getBoolean("required");
-      this.defaultValue = attributes.getString("defaultValue");
-    }
-    if (!this.required) { // @since 3.0 Required
-      this.required = AnnotationUtils.isPresent(parameter, Required.class);
-    }
-    if (StringUtils.isEmpty(defaultValue) && NumberUtils.isNumber(parameterClass)) {
-      this.defaultValue = "0"; // fix default value
-    }
+    initRequestParam(parameter);
   }
 
   public MethodParameter(int index, Parameter parameter, String parameterName) {
@@ -112,6 +117,29 @@ public class MethodParameter
    */
   public MethodParameter(int index, Method method, String parameterName) {
     this(index, ReflectionUtils.getParameter(method, index), parameterName);
+  }
+
+  /**
+   * init name, required, defaultValue
+   *
+   * @param element
+   *         AnnotatedElement may annotated RequestParam
+   *
+   * @since 4.0
+   */
+  protected void initRequestParam(AnnotatedElement element) {
+    AnnotationAttributes attributes = AnnotationUtils.getAttributes(RequestParam.class, element);
+    if (attributes != null) {
+      this.name = attributes.getString(Constant.VALUE);
+      this.required = attributes.getBoolean("required");
+      this.defaultValue = attributes.getString("defaultValue");
+    }
+    if (!this.required) { // @since 3.0 Required
+      this.required = AnnotationUtils.isPresent(element, Required.class);
+    }
+    if (StringUtils.isEmpty(defaultValue) && NumberUtils.isNumber(parameterClass)) {
+      this.defaultValue = "0"; // fix default value
+    }
   }
 
   public boolean isArray() {
