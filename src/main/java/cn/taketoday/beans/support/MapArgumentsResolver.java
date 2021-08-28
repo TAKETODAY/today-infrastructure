@@ -37,6 +37,7 @@ import cn.taketoday.util.ResolvableType;
  *
  * @author TODAY 2019-10-28 20:27
  */
+@SuppressWarnings("rawtypes")
 public class MapArgumentsResolver
         extends NonNullBeanFactoryStrategy implements ArgumentsResolvingStrategy, Ordered {
 
@@ -79,6 +80,7 @@ public class MapArgumentsResolver
     return beanFactory.getBeansOfType(beanClass);
   }
 
+  @SuppressWarnings("unchecked")
   protected Map convert(Map map, final Class<?> type) {
     if (type != Map.class) {
       Map newMap = CollectionUtils.createMap(type, map.size());
