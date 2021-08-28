@@ -39,8 +39,7 @@ import cn.taketoday.web.view.template.AbstractTemplateViewResolver;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
- * @author TODAY <br>
- * 2019-05-17 17:46
+ * @author TODAY 2019-05-17 17:46
  */
 public interface WebMvcConfiguration {
 
@@ -109,7 +108,7 @@ public interface WebMvcConfiguration {
    *
    * @since 2.3.7
    */
-  default <T extends Object> void configureTemplateLoader(List<T> loaders) {}
+  default <T> void configureTemplateLoader(List<T> loaders) {}
 
   /**
    * Configure {@link ViewController} s

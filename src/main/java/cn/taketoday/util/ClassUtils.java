@@ -203,7 +203,7 @@ public abstract class ClassUtils {
    *         When class could not be found
    * @since 2.1.7
    */
-  public static Class<?> forName(String name, ClassLoader classLoader) throws ClassNotFoundException {
+  public static Class<?> forName(String name, @Nullable ClassLoader classLoader) throws ClassNotFoundException {
     Class<?> clazz = resolvePrimitiveClassName(name);
     if (clazz != null) {
       return clazz;
@@ -460,6 +460,7 @@ public abstract class ClassUtils {
    *
    * @since 3.0
    */
+  @Nullable
   public static Class<?>[] getGenerics(final Class<?> type, Class<?> superClass) {
     return GenericTypeResolver.resolveTypeArguments(type, superClass);
   }
@@ -668,7 +669,7 @@ public abstract class ClassUtils {
    *
    * @return the qualified name of the method
    */
-  public static String getQualifiedMethodName(Method method, Class<?> clazz) {
+  public static String getQualifiedMethodName(Method method, @Nullable Class<?> clazz) {
     Assert.notNull(method, "Method must not be null");
     return (clazz != null ? clazz : method.getDeclaringClass()).getName() + '.' + method.getName();
   }
@@ -968,7 +969,8 @@ public abstract class ClassUtils {
    * @see #isCandidateClass(Class, String)
    * @since 3.0
    */
-  public static boolean isCandidateClass(Class<?> clazz, Collection<Class<? extends Annotation>> annotationTypes) {
+  public static boolean isCandidateClass(
+          Class<?> clazz, Collection<Class<? extends Annotation>> annotationTypes) {
     for (Class<? extends Annotation> annotationType : annotationTypes) {
       if (isCandidateClass(clazz, annotationType)) {
         return true;
@@ -1042,7 +1044,7 @@ public abstract class ClassUtils {
    *
    * @since 3.0
    */
-  public static Method getMostSpecificMethod(Method method, Class<?> targetClass) {
+  public static Method getMostSpecificMethod(Method method, @Nullable Class<?> targetClass) {
     if (targetClass != null && targetClass != method.getDeclaringClass() && isOverridable(method, targetClass)) {
       try {
         if (Modifier.isPublic(method.getModifiers())) {
@@ -1074,7 +1076,7 @@ public abstract class ClassUtils {
    * @param targetClass
    *         the target class to check against
    */
-  private static boolean isOverridable(Method method, Class<?> targetClass) {
+  private static boolean isOverridable(Method method, @Nullable Class<?> targetClass) {
     if (Modifier.isPrivate(method.getModifiers())) {
       return false;
     }
@@ -1132,7 +1134,7 @@ public abstract class ClassUtils {
    *
    * @return a cloned argument array, or the original if no adaptation is needed
    */
-  public static Object[] adaptArgumentsIfNecessary(Method method, Object[] arguments) {
+  public static Object[] adaptArgumentsIfNecessary(Method method, @Nullable Object[] arguments) {
     if (ObjectUtils.isEmpty(arguments)) {
       return Constant.EMPTY_OBJECT_ARRAY;
     }
@@ -1231,7 +1233,7 @@ public abstract class ClassUtils {
    * @see Class#getResource
    * @since 3.0
    */
-  public static String classPackageAsResourcePath(Class<?> clazz) {
+  public static String classPackageAsResourcePath(@Nullable Class<?> clazz) {
     if (clazz == null) {
       return Constant.BLANK;
     }

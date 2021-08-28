@@ -29,6 +29,7 @@ import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.AnnotationSupport;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.Required;
 import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ClassUtils;
@@ -54,15 +55,20 @@ public class MethodParameter
   private String name;
   private boolean required;
   /** the default value */
+  @Nullable
   private String defaultValue;
+
+  @Nullable
   private Type[] generics;
+
+  @Nullable
   private HandlerMethod handlerMethod;
   /**
    * @since 3.0.1
    */
   protected GenericDescriptor genericDescriptor;
 
-  public MethodParameter(HandlerMethod handlerMethod, MethodParameter other) {
+  public MethodParameter(@Nullable HandlerMethod handlerMethod, MethodParameter other) {
     this.name = other.name;
     this.generics = other.generics;
     this.required = other.required;
@@ -224,18 +230,20 @@ public class MethodParameter
     return parameterClass.getComponentType();
   }
 
-  public void setDefaultValue(String defaultValue) {
+  public void setDefaultValue(@Nullable String defaultValue) {
     this.defaultValue = defaultValue;
   }
 
+  @Nullable
   public String getDefaultValue() {
     return defaultValue;
   }
 
-  public void setGenerics(Type[] generics) {
+  public void setGenerics(@Nullable Type[] generics) {
     this.generics = generics;
   }
 
+  @Nullable
   public Type[] getGenerics() {
     Type[] generics = this.generics;
     if (generics == null) {
@@ -252,11 +260,12 @@ public class MethodParameter
     return parameter;
   }
 
+  @Nullable
   public HandlerMethod getHandlerMethod() {
     return handlerMethod;
   }
 
-  public void setHandlerMethod(HandlerMethod handlerMethod) {
+  public void setHandlerMethod(@Nullable HandlerMethod handlerMethod) {
     this.handlerMethod = handlerMethod;
   }
 

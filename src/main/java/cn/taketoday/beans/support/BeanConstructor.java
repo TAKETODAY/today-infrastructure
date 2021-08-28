@@ -72,7 +72,7 @@ public abstract class BeanConstructor {
   }
 
   // internal new-instance impl
-  public abstract Object doNewInstance(@Nullable Object[] args);
+  protected abstract Object doNewInstance(@Nullable Object[] args);
 
   // static
 
@@ -232,7 +232,8 @@ public abstract class BeanConstructor {
       return fromConstructor(constructor);
     }
     catch (NoSuchMethodException e) {
-      throw new ReflectionException("Target class: '" + target + "‘ has no default constructor");
+      throw new ReflectionException(
+              "Target class: '" + target + "' has no default constructor", e);
     }
   }
 

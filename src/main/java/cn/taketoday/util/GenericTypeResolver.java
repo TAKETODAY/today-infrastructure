@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.Nullable;
 
 /**
  * Helper class for resolving generic types against type variables.
@@ -105,6 +106,7 @@ public abstract class GenericTypeResolver {
    *
    * @return the resolved type of the argument, or {@code null} if not resolvable
    */
+  @Nullable
   public static <T> Class<T> resolveTypeArgument(Class<?> clazz, Class<?> genericIfc) {
     ResolvableType resolvableType = ResolvableType.forClass(clazz).as(genericIfc);
     if (!resolvableType.hasGenerics()) {
@@ -134,6 +136,7 @@ public abstract class GenericTypeResolver {
    * @return the resolved type of each argument, with the array size matching the
    * number of actual type arguments, or {@code null} if not resolvable
    */
+  @Nullable
   public static Class<?>[] resolveTypeArguments(Class<?> clazz, Class<?> genericIfc) {
     ResolvableType type = ResolvableType.forClass(clazz).as(genericIfc);
     if (!type.hasGenerics() || type.isEntirelyUnresolvable()) {

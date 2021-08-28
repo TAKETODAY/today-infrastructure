@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.resolver;
 
+import cn.taketoday.core.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 
@@ -49,6 +50,7 @@ public interface ParameterResolver {
    * @throws Throwable
    *         if any {@link Exception} occurred
    */
+  @Nullable
   Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable;
 
   @FunctionalInterface

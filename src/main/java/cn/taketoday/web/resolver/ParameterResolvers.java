@@ -75,17 +75,20 @@ public class ParameterResolvers extends WebApplicationContextSupport {
 
   public void addResolver(ParameterResolver... resolver) {
     Collections.addAll(resolvers, resolver);
+    resolvers.trimToSize();
     sort();
   }
 
   public void addResolver(List<ParameterResolver> resolvers) {
     this.resolvers.addAll(resolvers);
+    this.resolvers.trimToSize();
     sort();
   }
 
   public void setResolver(List<ParameterResolver> resolver) {
     resolvers.clear();
     resolvers.addAll(resolver);
+    resolvers.trimToSize();
     sort();
   }
 
@@ -146,12 +149,12 @@ public class ParameterResolvers extends WebApplicationContextSupport {
     final List<ParameterResolver> resolvers = getResolvers();
 
     resolvers.add(convert(String.class, s -> s));
-    resolvers.add(convert(new SupportsFunction0(Long.class, long.class), Long::parseLong));
-    resolvers.add(convert(new SupportsFunction0(Integer.class, int.class), Integer::parseInt));
-    resolvers.add(convert(new SupportsFunction0(Short.class, short.class), Short::parseShort));
-    resolvers.add(convert(new SupportsFunction0(Float.class, float.class), Float::parseFloat));
-    resolvers.add(convert(new SupportsFunction0(Double.class, double.class), Double::parseDouble));
-    resolvers.add(convert(new SupportsFunction0(Boolean.class, boolean.class), Boolean::parseBoolean));
+    resolvers.add(convert(new OR(Long.class, long.class), Long::parseLong));
+    resolvers.add(convert(new OR(Integer.class, int.class), Integer::parseInt));
+    resolvers.add(convert(new OR(Short.class, short.class), Short::parseShort));
+    resolvers.add(convert(new OR(Float.class, float.class), Float::parseFloat));
+    resolvers.add(convert(new OR(Double.class, double.class), Double::parseDouble));
+    resolvers.add(convert(new OR(Boolean.class, boolean.class), Boolean::parseBoolean));
 
     // For some useful context annotations
     // --------------------------------------------
@@ -173,7 +176,7 @@ public class ParameterResolvers extends WebApplicationContextSupport {
 
     // For cookies
     // ------------------------------------------
-    CookieParameterResolver.registerParameterResolver(resolvers);
+    CookieParameterResolver.register(resolvers);
 
     // For multipart
     // -------------------------------------------
@@ -187,7 +190,7 @@ public class ParameterResolvers extends WebApplicationContextSupport {
     }
     Assert.state(multipartConfig != null, "MultipartConfiguration Can't be null");
 
-    DefaultMultipartResolver.registerParameterResolver(resolvers, multipartConfig);
+    DefaultMultipartResolver.register(resolvers, multipartConfig);
 
     // Header
     resolvers.add(new HeaderParameterResolver());
@@ -306,11 +309,11 @@ public class ParameterResolvers extends WebApplicationContextSupport {
 
   // ParameterResolver
 
-  static final class SupportsFunction0 implements ParameterResolver.SupportsFunction {
+  static final class OR implements ParameterResolver.SupportsFunction {
     final Class<?> one;
     final Class<?> two;
 
-    SupportsFunction0(Class<?> one, Class<?> two) {
+    OR(Class<?> one, Class<?> two) {
       this.one = one;
       this.two = two;
     }

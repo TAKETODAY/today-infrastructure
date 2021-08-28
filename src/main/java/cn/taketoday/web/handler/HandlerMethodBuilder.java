@@ -83,7 +83,8 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
       this.constructor = BeanConstructor.fromConstructor(declared);
     }
     catch (NoSuchMethodException e) {
-      throw new ReflectionException("Target class: '" + handlerMethodClass + "‘ don't exist a suitable constructor");
+      throw new ReflectionException(
+              "Target class: '" + handlerMethodClass + "' don't exist a suitable constructor", e);
     }
   }
 
@@ -102,7 +103,7 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
     Assert.state(resultHandlers != null, "No ResultHandlers");
     Assert.state(parametersBuilder != null, "No MethodParameterBuilder");
 
-    final T handlerMethod = (T) getConstructor().doNewInstance(new Object[] { handlerBean, method });
+    final T handlerMethod = (T) getConstructor().newInstance(new Object[] { handlerBean, method });
     final MethodParameter[] parameters = parametersBuilder.build(method);
     handlerMethod.setParameters(parameters);
     handlerMethod.setResultHandlers(resultHandlers);

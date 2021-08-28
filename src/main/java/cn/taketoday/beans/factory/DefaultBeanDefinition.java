@@ -391,7 +391,7 @@ public class DefaultBeanDefinition
     }
     final BeanConstructor target = getConstructor(factory);
     final Object[] args = ArgumentsResolver.getSharedInstance().resolve(getExecutable(), factory);
-    return target.doNewInstance(args);
+    return target.newInstance(args);
   }
 
   /**
@@ -405,7 +405,7 @@ public class DefaultBeanDefinition
   @Override
   public Object newInstance(BeanFactory factory, Object... args) {
     final BeanConstructor target = getConstructor(factory);
-    return target.doNewInstance(args);
+    return target.newInstance(args);
   }
 
   /**

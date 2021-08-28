@@ -94,7 +94,7 @@ public class BeanMetadata {
    * @return a new instance object
    */
   public Object newInstance(@Nullable Object[] args) {
-    return getConstructor().doNewInstance(args);
+    return getConstructor().newInstance(args);
   }
 
   /**

@@ -63,7 +63,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
     return files.get(0);
   }
 
-  public static void registerParameterResolver(
+  public static void register(
           List<ParameterResolver> resolvers, MultipartConfiguration multipartConfig) {
     resolvers.add(new DefaultMultipartResolver(multipartConfig));
     resolvers.add(new ArrayMultipartResolver(multipartConfig));

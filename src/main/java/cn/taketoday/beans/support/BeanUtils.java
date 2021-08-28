@@ -53,6 +53,7 @@ public abstract class BeanUtils {
    * @since 2.1.2
    */
   public static <T> T newInstance(Class<T> beanClass) {
+    // maybe there has already a bean-factory ContextUtils#getLastStartupContext
     return newInstance(beanClass, ContextUtils.getLastStartupContext());
   }
 
@@ -143,6 +144,7 @@ public abstract class BeanUtils {
    * @throws BeanInstantiationException
    *         if any reflective operation exception occurred
    * @see #obtainConstructor(Class)
+   * @since 4.0
    */
   public static <T> T newInstance(
           Class<T> beanClass, ArgumentsResolver argumentsResolver,
@@ -153,9 +155,14 @@ public abstract class BeanUtils {
     return newInstance(constructor, parameter);
   }
 
+  /**
+   * @throws BeanInstantiationException
+   *         cannot instantiate a bean
+   * @since 4.0
+   */
   @SuppressWarnings("unchecked")
   public static <T> T newInstance(BeanConstructor constructor, @Nullable Object[] parameter) {
-    return (T) constructor.doNewInstance(parameter);
+    return (T) constructor.newInstance(parameter);
   }
 
   /**

@@ -23,6 +23,8 @@ package cn.taketoday.web.resolver;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**
+ * Parameter format error like number-format error
+ *
  * @author TODAY 2021/4/8 17:45
  * @since 3.0
  */

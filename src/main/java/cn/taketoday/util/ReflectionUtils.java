@@ -1006,7 +1006,8 @@ public abstract class ReflectionUtils {
   public static Field obtainField(Class<?> clazz, String name) {
     final Field field = findField(clazz, name);
     if (field == null) {
-      throw new ReflectionException("No such field named: " + name + " in class: " + clazz.getName());
+      throw new ReflectionException(
+              "No such field named: " + name + " in class: " + clazz.getName());
     }
     return field;
   }
@@ -1016,7 +1017,8 @@ public abstract class ReflectionUtils {
                                     final Class<?>... parameterTypes) {
     final Method declaredMethod = findMethod(targetClass, methodName, parameterTypes);
     if (declaredMethod == null) {
-      throw new ReflectionException("No such method named: " + methodName + " in class: " + targetClass.getName());
+      throw new ReflectionException(
+              "No such method named: " + methodName + " in class: " + targetClass.getName());
     }
     return declaredMethod;
   }
