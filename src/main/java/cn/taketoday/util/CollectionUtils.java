@@ -21,7 +21,6 @@ package cn.taketoday.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -667,6 +666,7 @@ public abstract class CollectionUtils {
    * convenient way to add a few elements to an existing collection:
    * <pre>
    *     CollectionUtils.addAll(flavors, "Peaches 'n Plutonium", "Rocky Racoon");
+   *     CollectionUtils.addAll(flavors, null); // add nothing element can be null
    * </pre>
    *
    * @param <T>
