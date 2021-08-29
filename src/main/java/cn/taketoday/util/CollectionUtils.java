@@ -633,8 +633,6 @@ public abstract class CollectionUtils {
    *         new element's index
    * @param element
    *         element object
-   * @param <E>
-   *         Element type
    *
    * @throws IndexOutOfBoundsException
    *         if the index is out of range (index < 0 || index >= size())
@@ -643,7 +641,8 @@ public abstract class CollectionUtils {
    *         elements
    * @since 3.0
    */
-  public static <E> void setValue(final List<E> list, final int index, final E element) {
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public static void setValue(final List list, final int index, final Object element) {
     final int size = list.size();
     if (index >= size && index < Integer.MAX_VALUE) {
       for (int i = size; i < index; i++) {
@@ -692,9 +691,25 @@ public abstract class CollectionUtils {
    * @since 4.0
    */
   @SuppressWarnings("all")
-  public static void addAll(Collection c, Object[] elements) {
-    for (Object element : elements) {
-      c.add(element);
+  public static void addAll(Collection c, @Nullable Object[] elements) {
+    if (elements != null) {
+      for (Object element : elements) {
+        c.add(element);
+      }
+    }
+  }
+
+  /**
+   * Trims the capacity of <tt>ArrayList</tt> instance to be the
+   * list's current size.  An application can use this operation to minimize
+   * the storage of an <tt>ArrayList</tt> instance.
+   *
+   * @see ArrayList#trimToSize()
+   * @since 4.0
+   */
+  public static void trimToSize(@Nullable List<?> list) {
+    if (list instanceof ArrayList) {
+      ((ArrayList<?>) list).trimToSize();
     }
   }
 
