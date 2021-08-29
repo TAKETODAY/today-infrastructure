@@ -128,7 +128,7 @@ public abstract class CollectionUtils {
   @SafeVarargs
   public static <E> Set<E> newHashSet(E... elements) {
     final HashSet<E> ret = new HashSet<>();
-    Collections.addAll(ret, elements);
+    addAll(ret, elements);
     return ret;
   }
 
@@ -142,11 +142,12 @@ public abstract class CollectionUtils {
    *
    * @since 4.0
    */
+  @NonNull
   @SafeVarargs
   public static <E> ArrayList<E> newArrayList(@Nullable E... elements) {
     if (ObjectUtils.isNotEmpty(elements)) {
       final ArrayList<E> ret = new ArrayList<>(elements.length);
-      Collections.addAll(ret, elements);
+      addAll(ret, elements);
       return ret;
     }
     else {
