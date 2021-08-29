@@ -31,7 +31,6 @@ import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
@@ -239,10 +238,6 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
       }
     }
     return existMappingInfo;
-  }
-
-  private void sort(List<AnnotationMappingInfo> handlers) {
-    OrderUtils.reversedSort(handlers);
   }
 
   @Override
