@@ -262,7 +262,7 @@ public class WebApplicationLoader
   protected void configureConversionService(
           List<TypeConverter> typeConverters, WebMvcConfiguration mvcConfiguration) {
     mvcConfiguration.configureConversionService(typeConverters);
-    ConvertUtils.addConverter(typeConverters);
+    ConvertUtils.addConverter(typeConverters);// FIXME ConversionService
   }
 
   private void configureResultHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {

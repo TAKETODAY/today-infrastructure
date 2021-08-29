@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.factory.InvalidPropertyValueException;
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
-import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
@@ -501,7 +501,7 @@ public class BeanPropertyAccessor {
         convertedValue = convertIfNecessary(convertedValue, (Class<?>) valueType);
       }
 
-      final List<Object> list = (List<Object>) propValue;
+      final List<?> list = (List<?>) propValue;
       final int index = Integer.parseInt(key);
       try {
         CollectionUtils.setValue(list, index, convertedValue);

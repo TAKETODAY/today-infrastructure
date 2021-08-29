@@ -20,7 +20,6 @@
 package cn.taketoday.web.registry;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +30,8 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.EmptyObject;
+import cn.taketoday.core.NonNull;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.OrderUtils;
@@ -53,10 +54,14 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
   static final String CACHE_NAME = MappedHandlerRegistry.class.getName() + "-pattern-matching";
 
   private final HashMap<String, Object> handlers = new HashMap<>();
+
+  @Nullable
   private List<PatternHandler> patternHandlers;
 
   private PathMatcher pathMatcher = new AntPathMatcher();
-  private CompositeHandlerCustomizer handlerCustomizer;
+
+  @Nullable
+  private HandlerCustomizer handlerCustomizer;
 
   /** @since 3.0 */
   private Cache patternMatchingCache;
@@ -114,11 +119,11 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
   protected Object lookupHandler(final String handlerKey, final RequestContext context) {
     Object handler = handlers.get(handlerKey);
     if (handler == null) {
-      final Cache patternMatchingCache = getPatternMatchingCache();
-      handler = patternMatchingCache.get(handlerKey, false);
+      final Cache matchingCache = getPatternMatchingCache();
+      handler = matchingCache.get(handlerKey, false);
       if (handler == null) {
         handler = lookupPatternHandler(handlerKey, context);
-        patternMatchingCache.put(handlerKey, handler);
+        matchingCache.put(handlerKey, handler);
       }
       else if (handler == EmptyObject.INSTANCE) {
         return null;
@@ -149,14 +154,16 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
 
   /** @since 3.0 */
   public final Cache getPatternMatchingCache() {
-    Cache patternMatchingCache = this.patternMatchingCache;
-    if (patternMatchingCache == null) {
-      this.patternMatchingCache = patternMatchingCache = createPatternMatchingCache();
+    Cache matchingCache = this.patternMatchingCache;
+    if (matchingCache == null) {
+      matchingCache = createPatternMatchingCache();
+      this.patternMatchingCache = matchingCache;
     }
-    return patternMatchingCache;
+    return matchingCache;
   }
 
   /** @since 3.0 */
+  @NonNull
   protected ConcurrentMapCache createPatternMatchingCache() {
     return new ConcurrentMapCache(CACHE_NAME, 128);
   }
@@ -187,7 +194,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
     }
 
     if (matchedPatterns.isEmpty()) { // none matched
-      // match in map of handlers
+      // match pattern in map of handlers
       for (final Map.Entry<String, Object> entry : handlers.entrySet()) {
         final String pattern = entry.getKey();
         if (matchingPattern(pathMatcher, pattern, handlerKey)) {
@@ -202,7 +209,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
     final ArrayList<String> patterns = new ArrayList<>(matchedPatterns.keySet());
     patterns.sort(pathMatcher.getPatternComparator(handlerKey));
 
-    if (log.isTraceEnabled() && matchedPatterns.size() > 1) {
+    if (matchedPatterns.size() > 1 && log.isTraceEnabled()) {
       log.trace("Matching patterns {}", patterns);
     }
     return matchedPatterns.get(patterns.get(0));
@@ -291,26 +298,36 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
    */
   protected Object transformHandler(final String handlerKey, Object handler) {
     if (handlerCustomizer != null) {
-      handler = handlerCustomizer.customize(handler);
+      handler = handlerCustomizer.customize(handlerKey, handler);
     }
     return handler;
   }
 
   public void addPatternHandlers(final PatternHandler... handlers) {
     Assert.notNull(handlers, "Handlers must not be null");
-
+    List<PatternHandler> patternHandlers = getPatternHandlers();
     if (patternHandlers == null) {
       patternHandlers = new ArrayList<>(handlers.length);
+      this.patternHandlers = patternHandlers;
     }
-    Collections.addAll(patternHandlers, handlers);
-    OrderUtils.reversedSort(patternHandlers);
+    CollectionUtils.addAll(patternHandlers, handlers);
+    sort(patternHandlers);
   }
 
+  /**
+   * @since 4.0
+   */
+  @SuppressWarnings("all")
+  protected void sort(List list) {
+    OrderUtils.reversedSort(list);
+  }
+
+  @Nullable
   public List<PatternHandler> getPatternHandlers() {
     return patternHandlers;
   }
 
-  public void setPatternHandlers(List<PatternHandler> patternMappings) {
+  public void setPatternHandlers(@Nullable List<PatternHandler> patternMappings) {
     this.patternHandlers = patternMappings;
   }
 
@@ -341,8 +358,22 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
     return handlers;
   }
 
-  public void setHandlers(Map<String, Object> handlers) {
-    this.handlers.putAll(handlers);
+  public void setHandlers(@Nullable Map<String, Object> handlers) {
+    CollectionUtils.putAll(this.handlers, handlers);
   }
 
+  /**
+   * @since 4.0
+   */
+  public void setHandlerCustomizer(@Nullable HandlerCustomizer handlerCustomizer) {
+    this.handlerCustomizer = handlerCustomizer;
+  }
+
+  /**
+   * @since 4.0
+   */
+  @Nullable
+  public HandlerCustomizer getHandlerCustomizer() {
+    return handlerCustomizer;
+  }
 }

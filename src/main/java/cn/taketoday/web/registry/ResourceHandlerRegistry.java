@@ -24,6 +24,7 @@ import java.util.List;
 
 import cn.taketoday.beans.Autowired;
 import cn.taketoday.cache.ConcurrentMapCache;
+import cn.taketoday.core.NonNull;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.StringUtils;
@@ -122,6 +123,7 @@ public class ResourceHandlerRegistry
     return null;
   }
 
+  @NonNull
   @Override
   protected ConcurrentMapCache createPatternMatchingCache() {
     return new ConcurrentMapCache(CACHE_NAME, 64);

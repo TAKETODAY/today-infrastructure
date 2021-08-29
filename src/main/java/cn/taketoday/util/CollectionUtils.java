@@ -97,7 +97,7 @@ public abstract class CollectionUtils {
    *
    * @return whether the given Collection is empty
    */
-  public static boolean isEmpty(Collection<?> collection) {
+  public static boolean isEmpty(@Nullable Collection<?> collection) {
     return (collection == null || collection.isEmpty());
   }
 
@@ -110,7 +110,7 @@ public abstract class CollectionUtils {
    *
    * @return whether the given Map is empty
    */
-  public static boolean isEmpty(Map<?, ?> map) {
+  public static boolean isEmpty(@Nullable Map<?, ?> map) {
     return (map == null || map.isEmpty());
   }
 
@@ -125,7 +125,7 @@ public abstract class CollectionUtils {
    *         Elements instance
    */
   @SafeVarargs
-  public static <E> Set<E> newHashSet(E... elements) {
+  public static <E> Set<E> newHashSet(@Nullable E... elements) {
     final HashSet<E> ret = new HashSet<>();
     addAll(ret, elements);
     return ret;
@@ -688,7 +688,7 @@ public abstract class CollectionUtils {
    * @throws IllegalArgumentException
    *         if some property of a value in
    *         <tt>elements</tt> prevents it from being added to <tt>c</tt>
-   * @see Collection#addAll(Collection)
+   * @see Collection#add(Object)
    * @since 4.0
    */
   @SuppressWarnings("all")
@@ -697,6 +697,81 @@ public abstract class CollectionUtils {
       for (Object element : elements) {
         c.add(element);
       }
+    }
+  }
+
+  /**
+   * Adds all of the specified elements to the specified collection.
+   * Elements to be added may be specified individually or as an array.
+   * The behavior of this convenience method is identical to that of
+   * <tt>c.addAll(Arrays.asList(elements))</tt>, but this method is likely
+   * to run significantly faster under most implementations.
+   *
+   * <p>When elements are specified individually, this method provides a
+   * convenient way to add a few elements to an existing collection:
+   * <pre>
+   *     CollectionUtils.addAll(flavors, list);
+   *     CollectionUtils.addAll(flavors, null); // add nothing element can be null
+   * </pre>
+   *
+   * @param <T>
+   *         the class of the elements to add and of the collection
+   * @param c
+   *         the collection into which <tt>elements</tt> are to be inserted
+   * @param elements
+   *         the elements to insert into <tt>c</tt>
+   *
+   * @return <tt>true</tt> if the collection changed as a result of the call
+   *
+   * @throws UnsupportedOperationException
+   *         if <tt>c</tt> does not support
+   *         the <tt>add</tt> operation
+   * @throws NullPointerException
+   *         if <tt>elements</tt> contains one or more
+   *         null values and <tt>c</tt> does not permit null elements, or
+   *         if <tt>c</tt> or <tt>elements</tt> are <tt>null</tt>
+   * @throws IllegalArgumentException
+   *         if some property of a value in
+   *         <tt>elements</tt> prevents it from being added to <tt>c</tt>
+   * @see Collection#addAll(Collection)
+   * @since 4.0
+   */
+  @SuppressWarnings("all")
+  public static void addAll(Collection c, @Nullable Collection elements) {
+    if (elements != null) {
+      c.addAll(elements);
+    }
+  }
+
+  /**
+   * Copies all of the mappings from the specified map to target map
+   * (optional operation).  The effect of this call is equivalent to that
+   * of calling {@link Map#put(Object, Object) put(k, v)} on this map once
+   * for each mapping from key <tt>k</tt> to value <tt>v</tt> in the
+   * specified map.  The behavior of this operation is undefined if the
+   * specified map is modified while the operation is in progress.
+   *
+   * @param mappings
+   *         mappings to be stored in target map
+   *
+   * @throws UnsupportedOperationException
+   *         if the <tt>putAll</tt> operation
+   *         is not supported by this map
+   * @throws ClassCastException
+   *         if the class of a key or value in the
+   *         specified map prevents it from being stored in this map
+   * @throws NullPointerException
+   *         if the specified map is null, or if
+   *         this map does not permit null keys or values, and the
+   *         specified map contains null keys or values
+   * @throws IllegalArgumentException
+   *         if some property of a key or value in
+   *         the specified map prevents it from being stored in this map
+   */
+  @SuppressWarnings("all")
+  public static void putAll(Map target, @Nullable Map mappings) {
+    if (mappings != null) {
+      target.putAll(mappings);
     }
   }
 

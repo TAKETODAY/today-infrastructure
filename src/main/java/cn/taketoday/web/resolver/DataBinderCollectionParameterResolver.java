@@ -81,7 +81,7 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
    * @see #createCollection(MultiValueMap, MethodParameter)
    */
   @Override
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({ "rawtypes" })
   protected Object doBind(MultiValueMap<String, PropertyValue> propertyValues, MethodParameter parameter) {
     final Collection<Object> collection = createCollection(propertyValues, parameter);
     final boolean isList = collection instanceof List;
