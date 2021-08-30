@@ -225,7 +225,8 @@ public class HandlerMethod
   }
 
   @Override
-  public void handleResult(final RequestContext context, final Object handler, final Object result) throws Throwable {
+  public void handleResult(
+          final RequestContext context, final Object handler, final Object result) throws Throwable {
     applyResponseStatus(context);
     ResultHandler resultHandler = this.resultHandler;
     if (resultHandler == null) {

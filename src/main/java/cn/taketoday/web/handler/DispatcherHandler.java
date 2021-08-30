@@ -26,6 +26,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContext.State;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
@@ -52,7 +53,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   /** exception handler */
   private HandlerExceptionHandler exceptionHandler;
 
-  public DispatcherHandler() {}
+  public DispatcherHandler() { }
 
   public DispatcherHandler(WebApplicationContext context) {
     setApplicationContext(context);
@@ -70,6 +71,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * @return Target handler, if returns {@code null} indicates that there isn't a
    * handler to handle this request
    */
+  @Nullable
   public Object lookupHandler(final RequestContext context) {
     return handlerRegistry.lookup(context);
   }
@@ -114,7 +116,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    *         If there isn't a {@link ResultHandler} for target handler and
    *         handler execution result
    */
-  public ResultHandler lookupResultHandler(final Object handler, final Object result) {
+  public ResultHandler lookupResultHandler(@Nullable Object handler, final Object result) {
     if (handler instanceof ResultHandler) {
       return (ResultHandler) handler;
     }
@@ -153,7 +155,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * @throws Throwable
    *         If {@link Throwable} cannot handled
    */
-  public void handle(final Object handler, final RequestContext context) throws Throwable {
+  public void handle(@Nullable final Object handler, final RequestContext context) throws Throwable {
     try {
       final Object result = lookupHandlerAdapter(handler).handle(context, handler);
       if (result != HandlerAdapter.NONE_RETURN_VALUE) {

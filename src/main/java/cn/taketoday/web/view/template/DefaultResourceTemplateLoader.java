@@ -48,7 +48,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
   public final ConcurrentCache<String, TemplateSource> cache;
 
   public DefaultResourceTemplateLoader() {
-    this(TemplateViewResolver.DEFAULT_TEMPLATE_PATH, Constant.BLANK, 128);
+    this(TemplateRenderer.DEFAULT_TEMPLATE_PATH, Constant.BLANK, 128);
   }
 
   public DefaultResourceTemplateLoader(String prefix, String suffix) {

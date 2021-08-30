@@ -49,19 +49,19 @@ class FreeMarkerConfig {
 
   @Props(prefix = "web.mvc.view.")
   @Order(Ordered.LOWEST_PRECEDENCE - 100)
-  @MissingBean(type = AbstractFreeMarkerTemplateViewResolver.class)
+  @MissingBean(type = AbstractFreeMarkerTemplateRenderer.class)
   @ConditionalOnClass({ Constant.ENV_SERVLET, "freemarker.template.Configuration" })
-  FreeMarkerTemplateViewResolver freeMarkerTemplateViewResolver() {
-    return new FreeMarkerTemplateViewResolver();
+  FreeMarkerTemplateRenderer freeMarkerTemplateViewResolver() {
+    return new FreeMarkerTemplateRenderer();
   }
 
   @Props(prefix = "web.mvc.view.")
   @Order(Ordered.LOWEST_PRECEDENCE - 100)
   @ConditionalOnMissingClass(Constant.ENV_SERVLET)
   @ConditionalOnClass("io.netty.channel.ChannelInboundHandler")
-  @MissingBean(type = AbstractFreeMarkerTemplateViewResolver.class)
-  ReactiveFreeMarkerTemplateViewResolver reactiveFreeMarkerTemplateViewResolver() {
-    return new ReactiveFreeMarkerTemplateViewResolver();
+  @MissingBean(type = AbstractFreeMarkerTemplateRenderer.class)
+  ReactiveFreeMarkerTemplateRenderer reactiveFreeMarkerTemplateViewResolver() {
+    return new ReactiveFreeMarkerTemplateRenderer();
   }
 
 }

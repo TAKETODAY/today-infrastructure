@@ -60,8 +60,8 @@ import cn.taketoday.web.servlet.initializer.DispatcherServletInitializer;
 import cn.taketoday.web.servlet.initializer.WebFilterInitializer;
 import cn.taketoday.web.servlet.initializer.WebListenerInitializer;
 import cn.taketoday.web.servlet.initializer.WebServletInitializer;
-import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
-import cn.taketoday.web.view.template.TemplateViewResolver;
+import cn.taketoday.web.view.template.DefaultTemplateRenderer;
+import cn.taketoday.web.view.template.TemplateRenderer;
 
 /**
  * Initialize Web application in a server like tomcat, jetty, undertow
@@ -213,10 +213,10 @@ public class WebServletApplicationLoader
 
   @Override
   protected void checkFrameWorkComponents(WebApplicationContext context) {
-    if (!context.containsBeanDefinition(TemplateViewResolver.class)) {
+    if (!context.containsBeanDefinition(TemplateRenderer.class)) {
       // use default view resolver
-      context.registerBean(DefaultTemplateViewResolver.class);
-      log.info("Use default view resolver: [{}].", context.getBean(DefaultTemplateViewResolver.class));
+      context.registerBean(DefaultTemplateRenderer.class);
+      log.info("Use default view resolver: [{}].", context.getBean(DefaultTemplateRenderer.class));
     }
     super.checkFrameWorkComponents(context);
   }

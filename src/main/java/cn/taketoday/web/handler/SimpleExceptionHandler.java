@@ -51,8 +51,8 @@ public class SimpleExceptionHandler
   private static final Logger log = LoggerFactory.getLogger(SimpleExceptionHandler.class);
 
   @Override
-  public Object handleException(final RequestContext context,
-                                final Throwable target, final Object handler) throws Throwable {
+  public Object handleException(
+          final RequestContext context, final Throwable target, final Object handler) throws Throwable {
     logCatchThrowable(target);
     try {
       if (handler instanceof HandlerMethod) {
@@ -62,7 +62,7 @@ public class SimpleExceptionHandler
         return handleViewControllerInternal(target, context, (ViewController) handler);
       }
       if (handler instanceof ResourceRequestHandler) {
-        return handleResourceMappingInternal(target, context, (ResourceRequestHandler) handler);
+        return handleResourceHandlerInternal(target, context, (ResourceRequestHandler) handler);
       }
       return handleExceptionInternal(target, context);
     }
@@ -85,7 +85,7 @@ public class SimpleExceptionHandler
   }
 
   /**
-   * record log when a exception occurred in this exception handler
+   * record log when an exception occurred in this exception handler
    *
    * @param target
    *         Throwable that occurred in request handler
@@ -111,9 +111,8 @@ public class SimpleExceptionHandler
    * @throws Throwable
    *         If any {@link Exception} occurred
    */
-  protected Object handleResourceMappingInternal(final Throwable ex,
-                                                 final RequestContext context,
-                                                 final ResourceRequestHandler handler) throws Throwable {
+  protected Object handleResourceHandlerInternal(
+          Throwable ex, RequestContext context, ResourceRequestHandler handler) throws Throwable {
     return handleExceptionInternal(ex, context);
   }
 
@@ -130,9 +129,8 @@ public class SimpleExceptionHandler
    * @throws Throwable
    *         If any {@link Exception} occurred
    */
-  protected Object handleViewControllerInternal(final Throwable ex,
-                                                final RequestContext context,
-                                                final ViewController viewController) throws Throwable {
+  protected Object handleViewControllerInternal(
+          Throwable ex, RequestContext context, ViewController viewController) throws Throwable {
     return handleExceptionInternal(ex, context);
   }
 
@@ -149,9 +147,8 @@ public class SimpleExceptionHandler
    * @throws Throwable
    *         If any {@link Exception} occurred
    */
-  protected Object handleHandlerMethodInternal(final Throwable ex,
-                                               final RequestContext context,
-                                               final HandlerMethod handlerMethod) throws Throwable//
+  protected Object handleHandlerMethodInternal(
+          Throwable ex, RequestContext context, HandlerMethod handlerMethod) throws Throwable//
   {
     context.setStatus(getErrorStatusValue(ex));
 

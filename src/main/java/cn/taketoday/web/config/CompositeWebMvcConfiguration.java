@@ -33,7 +33,7 @@ import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.validation.WebValidator;
 import cn.taketoday.web.view.ResultHandler;
-import cn.taketoday.web.view.template.AbstractTemplateViewResolver;
+import cn.taketoday.web.view.template.AbstractTemplateRenderer;
 
 /**
  * @author TODAY <br>
@@ -49,7 +49,7 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   }
 
   @Override
-  public void configureTemplateViewResolver(AbstractTemplateViewResolver viewResolver) {
+  public void configureTemplateViewResolver(AbstractTemplateRenderer viewResolver) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
       webMvcConfiguration.configureTemplateViewResolver(viewResolver);
     }

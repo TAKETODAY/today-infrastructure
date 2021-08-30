@@ -32,9 +32,9 @@ import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.config.CompositeWebMvcConfiguration;
 import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.handler.JacksonObjectNotationProcessor;
-import cn.taketoday.web.view.template.AbstractTemplateViewResolver;
-import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
-import cn.taketoday.web.view.template.TemplateViewResolver;
+import cn.taketoday.web.view.template.AbstractTemplateRenderer;
+import cn.taketoday.web.view.template.DefaultTemplateRenderer;
+import cn.taketoday.web.view.template.TemplateRenderer;
 
 /**
  * @author TODAY 2019-12-28 13:47
@@ -58,7 +58,7 @@ public class ResultHandlers extends WebApplicationContextSupport {
   /**
    * @since 3.0.1
    */
-  private TemplateViewResolver templateViewResolver;
+  private TemplateRenderer templateRenderer;
 
   public void addHandlers(ResultHandler... handlers) {
     Assert.notNull(handlers, "handler must not be null");
@@ -139,22 +139,22 @@ public class ResultHandlers extends WebApplicationContextSupport {
     if (redirectModelManager == null) {
       setRedirectModelManager(context.getBean(RedirectModelManager.class));
     }
-    if (templateViewResolver == null) {
+    if (templateRenderer == null) {
       WebMvcConfiguration mvcConfiguration
               = new CompositeWebMvcConfiguration(context.getBeans(WebMvcConfiguration.class));
       setTemplateViewResolver(getTemplateResolver(context, mvcConfiguration));
     }
   }
 
-  protected TemplateViewResolver getTemplateResolver(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    TemplateViewResolver templateResolver = context.getBean(TemplateViewResolver.class);
+  protected TemplateRenderer getTemplateResolver(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
+    TemplateRenderer templateResolver = context.getBean(TemplateRenderer.class);
     if (templateResolver == null) {
-      context.registerBean(DefaultTemplateViewResolver.class);
-      templateResolver = context.getBean(TemplateViewResolver.class);
+      context.registerBean(DefaultTemplateRenderer.class);
+      templateResolver = context.getBean(TemplateRenderer.class);
     }
 
-    if (templateResolver instanceof AbstractTemplateViewResolver) {
-      mvcConfiguration.configureTemplateViewResolver((AbstractTemplateViewResolver) templateResolver);
+    if (templateResolver instanceof AbstractTemplateRenderer) {
+      mvcConfiguration.configureTemplateViewResolver((AbstractTemplateRenderer) templateResolver);
     }
     return templateResolver;
   }
@@ -163,7 +163,7 @@ public class ResultHandlers extends WebApplicationContextSupport {
    * register default result-handlers
    */
   public void registerDefaultResultHandlers() {
-    registerDefaultResultHandlers(this.templateViewResolver);
+    registerDefaultResultHandlers(this.templateRenderer);
   }
 
   /**
@@ -171,7 +171,7 @@ public class ResultHandlers extends WebApplicationContextSupport {
    *
    * @since 3.0
    */
-  public void registerDefaultResultHandlers(TemplateViewResolver templateViewResolver) {
+  public void registerDefaultResultHandlers(TemplateRenderer templateRenderer) {
     log.info("Registering default result-handlers");
 
     final List<ResultHandler> handlers = getHandlers();
@@ -182,14 +182,14 @@ public class ResultHandlers extends WebApplicationContextSupport {
     final RedirectModelManager modelManager = getRedirectModelManager();
 
     VoidResultHandler voidResultHandler
-            = new VoidResultHandler(templateViewResolver, messageConverter, bufferSize);
+            = new VoidResultHandler(templateRenderer, messageConverter, bufferSize);
     ObjectResultHandler objectResultHandler
-            = new ObjectResultHandler(templateViewResolver, messageConverter, bufferSize);
+            = new ObjectResultHandler(templateRenderer, messageConverter, bufferSize);
     ModelAndViewResultHandler modelAndViewResultHandler
-            = new ModelAndViewResultHandler(templateViewResolver, messageConverter, bufferSize);
+            = new ModelAndViewResultHandler(templateRenderer, messageConverter, bufferSize);
     ResponseEntityResultHandler responseEntityResultHandler
-            = new ResponseEntityResultHandler(templateViewResolver, messageConverter, bufferSize);
-    TemplateResultHandler templateResultHandler = new TemplateResultHandler(templateViewResolver);
+            = new ResponseEntityResultHandler(templateRenderer, messageConverter, bufferSize);
+    TemplateResultHandler templateResultHandler = new TemplateResultHandler(templateRenderer);
 
     voidResultHandler.setModelManager(modelManager);
     objectResultHandler.setModelManager(modelManager);
@@ -258,12 +258,12 @@ public class ResultHandlers extends WebApplicationContextSupport {
     return downloadFileBufferSize;
   }
 
-  public void setTemplateViewResolver(TemplateViewResolver templateViewResolver) {
-    this.templateViewResolver = templateViewResolver;
+  public void setTemplateViewResolver(TemplateRenderer templateRenderer) {
+    this.templateRenderer = templateRenderer;
   }
 
-  public TemplateViewResolver getTemplateResolver() {
-    return templateViewResolver;
+  public TemplateRenderer getTemplateResolver() {
+    return templateRenderer;
   }
 
 }

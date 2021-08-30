@@ -22,7 +22,7 @@ package cn.taketoday.web.view;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.view.template.TemplateViewResolver;
+import cn.taketoday.web.view.template.TemplateRenderer;
 
 /**
  * @author TODAY <br>
@@ -31,7 +31,7 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
 public class ObjectResultHandler extends HandlerMethodResultHandler {
 
   public ObjectResultHandler(
-          TemplateViewResolver viewResolver,
+          TemplateRenderer viewResolver,
           MessageConverter messageConverter, int downloadFileBuf) {
 
     setMessageConverter(messageConverter);

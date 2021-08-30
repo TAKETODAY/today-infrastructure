@@ -33,7 +33,7 @@ import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebUtils;
-import cn.taketoday.web.view.template.TemplateViewResolver;
+import cn.taketoday.web.view.template.TemplateRenderer;
 
 /**
  * @author TODAY <br>
@@ -47,13 +47,13 @@ public abstract class AbstractResultHandler
   /** view resolver **/
   private MessageConverter messageConverter;
   /** Template view resolver */
-  private TemplateViewResolver templateViewResolver;
+  private TemplateRenderer templateRenderer;
   /** @since 3.0 */
   private RedirectModelManager modelManager;
 
   protected AbstractResultHandler() { }
 
-  protected AbstractResultHandler(TemplateViewResolver viewResolver,
+  protected AbstractResultHandler(TemplateRenderer viewResolver,
                                   MessageConverter messageConverter,
                                   int downloadFileBuf) {
     setTemplateViewResolver(viewResolver);
@@ -65,6 +65,10 @@ public abstract class AbstractResultHandler
   public boolean supportsResult(Object result) {
     return false;
   }
+
+  @Override
+  public abstract void handleResult(RequestContext context, Object handler, Object result)
+          throws Throwable;
 
   public void handleObject(final RequestContext request, final Object view) throws Throwable {
     if (view != null) {
@@ -138,12 +142,15 @@ public abstract class AbstractResultHandler
    */
   public void handleString(final String resource, final RequestContext context) throws Throwable {
     if (resource.startsWith(REDIRECT_URL_PREFIX)) {
+      // redirect
       handleRedirect(resource.substring(9), context);
     }
     else if (resource.startsWith(RESPONSE_BODY_PREFIX)) {
+      // body
       handleResponseBody(context, resource.substring(5));
     }
     else {
+      // template view
       final RedirectModelManager modelManager = getModelManager();
       if (modelManager != null) { // @since 3.0.3 checking model manager
         final RedirectModel redirectModel = modelManager.getModel(context);
@@ -152,7 +159,7 @@ public abstract class AbstractResultHandler
           modelManager.applyModel(context, null);
         }
       }
-      getTemplateViewResolver().resolveView(resource, context);
+      getTemplateViewResolver().render(resource, context);
     }
   }
 
@@ -195,12 +202,12 @@ public abstract class AbstractResultHandler
     this.messageConverter = messageConverter;
   }
 
-  public TemplateViewResolver getTemplateViewResolver() {
-    return templateViewResolver;
+  public TemplateRenderer getTemplateViewResolver() {
+    return templateRenderer;
   }
 
-  public void setTemplateViewResolver(TemplateViewResolver templateViewResolver) {
-    this.templateViewResolver = templateViewResolver;
+  public void setTemplateViewResolver(TemplateRenderer templateRenderer) {
+    this.templateRenderer = templateRenderer;
   }
 
   public void setModelManager(RedirectModelManager modelManager) {

@@ -92,7 +92,7 @@ public class DefaultExceptionHandler
    * @return handler return value
    *
    * @throws Throwable
-   *         Throwable occurred in exHandler
+   *         occurred in exHandler
    */
   protected Object handleException(RequestContext context, ThrowableHandlerMethod exHandler)
           throws Throwable {

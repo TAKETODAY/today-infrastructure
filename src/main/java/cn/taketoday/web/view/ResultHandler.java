@@ -23,15 +23,14 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 
 /**
- * ResultHandler
+ * handler Result Handler
  *
  * <p>
- * Handle handler execution result
+ * Handle request-handler execution result
  *
- * @author TODAY <br>
- * 2019-07-10 19:22
+ * @author TODAY 2019-07-10 19:22
+ * @see HandlerExceptionHandler
  */
-@FunctionalInterface
 public interface ResultHandler {
   String RESPONSE_BODY_PREFIX = "body:";
   String REDIRECT_URL_PREFIX = "redirect:";
@@ -40,7 +39,7 @@ public interface ResultHandler {
    * If this {@link ResultHandler} supports the target handler
    * <p>
    * This method can test this {@link ResultHandler} supports the target handler
-   * in application startup time
+   * in application startup time , static match
    *
    * @param handler
    *         Target HTTP handler

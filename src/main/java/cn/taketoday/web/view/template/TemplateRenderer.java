@@ -1,4 +1,4 @@
-/*
+/**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -15,33 +15,29 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+package cn.taketoday.web.view.template;
 
-package cn.taketoday.web.demo.config;
-
-import java.util.List;
-
-import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.web.config.WebMvcConfiguration;
-import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.interceptor.InterceptorRegistry;
+import cn.taketoday.web.RequestContext;
 
 /**
- * @author TODAY 2021/8/29 22:20
+ * @author TODAY 2018-06-23 11:59:50
  */
-public class AppConfig implements WebMvcConfiguration {
+public interface TemplateRenderer {
+  String DEFAULT_TEMPLATE_PATH = "classpath:templates/";
 
-  HandlerInterceptor interceptor;
-
-  @Override
-  public void configureConversionService(List<TypeConverter> typeConverters) {
-    
-  }
-
-  public void configureInterceptors(InterceptorRegistry registry) {
-    registry.addInterceptor(interceptor)
-            .addPathPatterns("/app/*", "/api/**");
-  }
+  /**
+   * Resolve template view.
+   *
+   * @param templateName
+   *         template name
+   * @param context
+   *         current request context
+   *
+   * @throws Throwable
+   *         If any {@link Exception} occurred
+   */
+  void render(String templateName, RequestContext context) throws Throwable;
 
 }

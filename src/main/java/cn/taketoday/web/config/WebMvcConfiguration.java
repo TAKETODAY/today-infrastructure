@@ -35,8 +35,8 @@ import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.validation.WebValidator;
 import cn.taketoday.web.view.ResultHandler;
-import cn.taketoday.web.view.template.AbstractTemplateViewResolver;
-import cn.taketoday.web.view.template.TemplateViewResolver;
+import cn.taketoday.web.view.template.AbstractTemplateRenderer;
+import cn.taketoday.web.view.template.TemplateRenderer;
 
 /**
  * @author TODAY 2019-05-17 17:46
@@ -60,12 +60,12 @@ public interface WebMvcConfiguration {
   default void configureResultHandler(List<ResultHandler> resultHandlers) {}
 
   /**
-   * Configure {@link TemplateViewResolver}
+   * Configure {@link TemplateRenderer}
    *
    * @param viewResolver
-   *         {@link TemplateViewResolver} instance
+   *         {@link TemplateRenderer} instance
    */
-  default void configureTemplateViewResolver(AbstractTemplateViewResolver viewResolver) {}
+  default void configureTemplateViewResolver(AbstractTemplateRenderer viewResolver) {}
 
   /**
    * Configure static {@link Resource}

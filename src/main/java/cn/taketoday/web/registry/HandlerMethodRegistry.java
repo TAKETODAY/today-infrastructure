@@ -151,22 +151,6 @@ public class HandlerMethodRegistry
             || def.isAnnotationPresent(ActionMapping.class);
   }
 
-  /**
-   * Build {@link HandlerMethod}
-   *
-   * @param beanClass
-   *         Bean class
-   *
-   * @since 2.3.7
-   */
-  @Deprecated
-  public void buildHandlerMethod(final Class<?> beanClass) {
-    // find mapping on class
-    final AnnotationAttributes controllerMapping
-            = AnnotationUtils.getAttributes(ActionMapping.class, beanClass);
-    buildHandlerMethod(beanClass, controllerMapping);
-  }
-
   private void buildHandlerMethod(Class<?> beanClass, AnnotationAttributes controllerMapping) {
     for (final Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
       buildHandlerMethod(method, beanClass, controllerMapping);

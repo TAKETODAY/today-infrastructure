@@ -22,7 +22,7 @@ package cn.taketoday.web.view;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.http.ResponseEntity;
-import cn.taketoday.web.view.template.TemplateViewResolver;
+import cn.taketoday.web.view.template.TemplateRenderer;
 
 /**
  * Handle {@link ResponseEntity}
@@ -36,7 +36,7 @@ public class ResponseEntityResultHandler
 
   public ResponseEntityResultHandler() {}
 
-  public ResponseEntityResultHandler(TemplateViewResolver viewResolver,
+  public ResponseEntityResultHandler(TemplateRenderer viewResolver,
                                      MessageConverter messageConverter,
                                      int downloadFileBuf) {
 

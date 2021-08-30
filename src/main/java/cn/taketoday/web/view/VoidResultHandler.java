@@ -21,7 +21,7 @@ package cn.taketoday.web.view;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.view.template.TemplateViewResolver;
+import cn.taketoday.web.view.template.TemplateRenderer;
 
 /**
  * @author TODAY <br>
@@ -29,7 +29,7 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
  */
 public class VoidResultHandler extends ModelAndViewResultHandler {
 
-  public VoidResultHandler(TemplateViewResolver viewResolver, MessageConverter messageConverter, int downloadFileBuf) {
+  public VoidResultHandler(TemplateRenderer viewResolver, MessageConverter messageConverter, int downloadFileBuf) {
     super(viewResolver, messageConverter, downloadFileBuf);
   }
 

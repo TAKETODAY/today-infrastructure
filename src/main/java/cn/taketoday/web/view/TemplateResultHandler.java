@@ -27,8 +27,8 @@ import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
-import cn.taketoday.web.view.template.TemplateViewResolver;
+import cn.taketoday.web.view.template.DefaultTemplateRenderer;
+import cn.taketoday.web.view.template.TemplateRenderer;
 
 /**
  * @author TODAY <br>
@@ -39,14 +39,14 @@ public class TemplateResultHandler extends AbstractResultHandler implements Runt
   private boolean allowLambdaDetect;
 
   public TemplateResultHandler() {
-    this(false, new DefaultTemplateViewResolver());
+    this(false, new DefaultTemplateRenderer());
   }
 
-  public TemplateResultHandler(TemplateViewResolver viewResolver) {
+  public TemplateResultHandler(TemplateRenderer viewResolver) {
     this(false, viewResolver);
   }
 
-  public TemplateResultHandler(boolean lambdaDetect, TemplateViewResolver viewResolver) {
+  public TemplateResultHandler(boolean lambdaDetect, TemplateRenderer viewResolver) {
     setAllowLambdaDetect(lambdaDetect);
     setTemplateViewResolver(viewResolver);
   }

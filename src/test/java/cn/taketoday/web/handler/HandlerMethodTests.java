@@ -39,7 +39,7 @@ import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resolver.ParameterResolvers;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import cn.taketoday.web.view.ResultHandlers;
-import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
+import cn.taketoday.web.view.template.DefaultTemplateRenderer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -166,7 +166,7 @@ public class HandlerMethodTests {
 
   private void setResultHandlers(HandlerMethod produceMethod, StandardApplicationContext applicationContext) {
     final ResultHandlers resultHandlers = new ResultHandlers();
-    final DefaultTemplateViewResolver viewResolver = new DefaultTemplateViewResolver();
+    final DefaultTemplateRenderer viewResolver = new DefaultTemplateRenderer();
     resultHandlers.setApplicationContext(applicationContext);
     resultHandlers.registerDefaultResultHandlers(viewResolver);
     produceMethod.setResultHandlers(resultHandlers);

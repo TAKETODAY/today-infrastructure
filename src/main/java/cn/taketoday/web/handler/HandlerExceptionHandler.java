@@ -27,7 +27,6 @@ import cn.taketoday.web.RequestContext;
  * @author TODAY <br>
  * 2020-03-29 20:52
  */
-@FunctionalInterface
 public interface HandlerExceptionHandler {
   String KEY_THROWABLE = HandlerExceptionHandler.class.getName() + "-context-throwable";
 
