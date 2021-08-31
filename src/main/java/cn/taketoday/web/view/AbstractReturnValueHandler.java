@@ -39,8 +39,8 @@ import cn.taketoday.web.view.template.TemplateRenderer;
  * @author TODAY <br>
  * 2019-07-14 10:47
  */
-public abstract class AbstractResultHandler
-        extends OrderedSupport implements ResultHandler, RuntimeResultHandler {
+public abstract class AbstractReturnValueHandler
+        extends OrderedSupport implements ReturnValueHandler, RuntimeReturnValueHandler {
   public static final String IMAGE_PNG = "png";
 
   private int downloadFileBuf;
@@ -51,23 +51,13 @@ public abstract class AbstractResultHandler
   /** @since 3.0 */
   private RedirectModelManager modelManager;
 
-  protected AbstractResultHandler() { }
-
-  protected AbstractResultHandler(TemplateRenderer viewResolver,
-                                  MessageConverter messageConverter,
-                                  int downloadFileBuf) {
-    setTemplateViewResolver(viewResolver);
-    setMessageConverter(messageConverter);
-    setDownloadFileBufferSize(downloadFileBuf);
-  }
-
   @Override
-  public boolean supportsResult(Object result) {
+  public boolean supportsReturnValue(Object result) {
     return false;
   }
 
   @Override
-  public abstract void handleResult(RequestContext context, Object handler, Object result)
+  public abstract void handleReturnValue(RequestContext context, Object handler, Object result)
           throws Throwable;
 
   public void handleObject(final RequestContext request, final Object view) throws Throwable {

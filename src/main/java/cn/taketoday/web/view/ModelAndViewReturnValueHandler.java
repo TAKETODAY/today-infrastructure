@@ -20,19 +20,17 @@
 package cn.taketoday.web.view;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.view.template.TemplateRenderer;
 
 /**
  * @author TODAY <br>
- * 2019-07-14 17:41
+ * 2019-07-14 01:14
  */
-public class ObjectResultHandler extends HandlerMethodResultHandler {
+public class ModelAndViewReturnValueHandler extends HandlerMethodReturnValueHandler {
 
-  public ObjectResultHandler(
-          TemplateRenderer viewResolver,
-          MessageConverter messageConverter, int downloadFileBuf) {
+  public ModelAndViewReturnValueHandler(TemplateRenderer viewResolver,
+                                        MessageConverter messageConverter, int downloadFileBuf) {
 
     setMessageConverter(messageConverter);
     setTemplateViewResolver(viewResolver);
@@ -41,40 +39,18 @@ public class ObjectResultHandler extends HandlerMethodResultHandler {
 
   @Override
   public boolean supports(HandlerMethod handlerMethod) {
-    return handlerMethod.is(Object.class);
+    return handlerMethod.isAssignableTo(ModelAndView.class);
   }
 
   @Override
-  protected void handleInternal(RequestContext context, HandlerMethod handler, Object result) throws Throwable {
-    if (isResponseBody(handler)) {// @since 3.0.5 fix response body error (github #16)
-      handleResponseBody(context, result);
-    }
-    else {
-      handleObject(context, result);
-    }
-  }
-
-  /**
-   * determine this handler is write message to response body?
-   *
-   * @param handlerMethod
-   *         target handler
-   *
-   * @since 3.0.3
-   */
-  private boolean isResponseBody(HandlerMethod handlerMethod) {
-    if (handlerMethod.isMethodPresent(ResponseBody.class)) {
-      return !handlerMethod.getMethodAnnotation(ResponseBody.class).value();
-    }
-    else if (handlerMethod.isDeclaringClassPresent(ResponseBody.class)) {
-      return !handlerMethod.getDeclaringClassAnnotation(ResponseBody.class).value();
-    }
-    return true;
+  public boolean supportsReturnValue(Object result) {
+    return result instanceof ModelAndView;
   }
 
   @Override
-  public boolean supportsResult(Object result) {
-    return true;
+  public void handleReturnValue(final RequestContext context,
+                                final Object handler, final Object result) throws Throwable {
+    resolveModelAndView(context, (ModelAndView) result);
   }
 
 }

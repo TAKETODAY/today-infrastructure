@@ -32,16 +32,16 @@ import cn.taketoday.web.handler.HandlerMethod;
  * @author TODAY <br>
  * 2019-07-14 11:18
  */
-public class ResourceResultHandler extends OrderedSupport implements RuntimeResultHandler {
+public class ResourceReturnValueHandler extends OrderedSupport implements RuntimeReturnValueHandler {
   private final int downloadFileBuf;
 
-  public ResourceResultHandler(int downloadFileBuf) {
+  public ResourceReturnValueHandler(int downloadFileBuf) {
     this.downloadFileBuf = downloadFileBuf;
   }
 
   @Override
   public boolean supportsHandler(Object handler) {
-    return HandlerMethodResultHandler.supportHandlerMethod(handler)
+    return HandlerMethodReturnValueHandler.supportHandlerMethod(handler)
             && supports((HandlerMethod) handler);
   }
 
@@ -51,14 +51,14 @@ public class ResourceResultHandler extends OrderedSupport implements RuntimeResu
   }
 
   @Override
-  public boolean supportsResult(Object result) {
+  public boolean supportsReturnValue(Object result) {
     return result instanceof Resource
             || result instanceof File;
   }
 
   @Override
-  public void handleResult(final RequestContext context,
-                           final Object handler, final Object result) throws Throwable {
+  public void handleReturnValue(final RequestContext context,
+                                final Object handler, final Object result) throws Throwable {
     if (result != null) {
       if (result instanceof Resource) {
         WebUtils.downloadFile(context, (Resource) result, downloadFileBuf);

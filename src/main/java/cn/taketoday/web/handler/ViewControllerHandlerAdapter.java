@@ -60,7 +60,7 @@ public class ViewControllerHandlerAdapter extends AbstractHandlerAdapter {
     if (result == null || handlerMethod.is(void.class)) {
       return view.getResource();
     }
-    handlerMethod.handleResult(context, handlerMethod, result);
+    handlerMethod.handleReturnValue(context, handlerMethod, result);
     return NONE_RETURN_VALUE;
   }
 

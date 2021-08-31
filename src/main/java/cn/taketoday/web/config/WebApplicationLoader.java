@@ -51,9 +51,9 @@ import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolvers;
 import cn.taketoday.web.validation.Validator;
 import cn.taketoday.web.validation.WebValidator;
-import cn.taketoday.web.view.ResultHandler;
-import cn.taketoday.web.view.ResultHandlers;
-import cn.taketoday.web.view.RuntimeResultHandler;
+import cn.taketoday.web.view.ReturnValueHandler;
+import cn.taketoday.web.view.ReturnValueHandlers;
+import cn.taketoday.web.view.RuntimeReturnValueHandler;
 
 /**
  * @author TODAY 2019-07-10 23:12
@@ -266,33 +266,33 @@ public class WebApplicationLoader
   }
 
   private void configureResultHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    configureResultHandler(context.getBeans(ResultHandler.class), mvcConfiguration);
+    configureResultHandler(context.getBeans(ReturnValueHandler.class), mvcConfiguration);
   }
 
   /**
-   * Configure {@link ResultHandler} to resolve handler method result
+   * Configure {@link ReturnValueHandler} to resolve handler method result
    *
    * @param handlers
-   *         {@link ResultHandler} registry
+   *         {@link ReturnValueHandler} registry
    * @param mvcConfiguration
    *         All {@link WebMvcConfiguration} object
    */
-  protected void configureResultHandler(List<ResultHandler> handlers, WebMvcConfiguration mvcConfiguration) {
+  protected void configureResultHandler(List<ReturnValueHandler> handlers, WebMvcConfiguration mvcConfiguration) {
     final DispatcherHandler obtainDispatcher = obtainDispatcher();
-    final RuntimeResultHandler[] existingHandlers = obtainDispatcher.getResultHandlers();
+    final RuntimeReturnValueHandler[] existingHandlers = obtainDispatcher.getResultHandlers();
     if (ObjectUtils.isNotEmpty(existingHandlers)) {
       Collections.addAll(handlers, existingHandlers);
     }
     final WebApplicationContext context = obtainApplicationContext();
     // @since 3.0
-    final ResultHandlers resultHandlers = context.getBean(ResultHandlers.class);
-    Assert.state(resultHandlers != null, "No ResultHandlers");
+    final ReturnValueHandlers returnValueHandlers = context.getBean(ReturnValueHandlers.class);
+    Assert.state(returnValueHandlers != null, "No ResultHandlers");
     // user config
     mvcConfiguration.configureResultHandler(handlers);
 
-    resultHandlers.addHandlers(handlers);
+    returnValueHandlers.addHandlers(handlers);
     // apply result handler
-    obtainDispatcher.setResultHandlers(resultHandlers.getRuntimeHandlers());
+    obtainDispatcher.setResultHandlers(returnValueHandlers.getRuntimeHandlers());
   }
 
   private void configureParameterResolver(

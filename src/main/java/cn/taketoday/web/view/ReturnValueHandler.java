@@ -23,7 +23,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 
 /**
- * handler Result Handler
+ * handler return-value Handler
  *
  * <p>
  * Handle request-handler execution result
@@ -31,24 +31,22 @@ import cn.taketoday.web.handler.HandlerExceptionHandler;
  * @author TODAY 2019-07-10 19:22
  * @see HandlerExceptionHandler
  */
-public interface ResultHandler {
+public interface ReturnValueHandler {
   String RESPONSE_BODY_PREFIX = "body:";
   String REDIRECT_URL_PREFIX = "redirect:";
 
   /**
-   * If this {@link ResultHandler} supports the target handler
+   * If this {@link ReturnValueHandler} supports the target handler
    * <p>
-   * This method can test this {@link ResultHandler} supports the target handler
+   * This method can test this {@link ReturnValueHandler} supports the target handler
    * in application startup time , static match
    *
    * @param handler
    *         Target HTTP handler
    *
-   * @return If this {@link ResultHandler} supports the target handler
+   * @return If this {@link ReturnValueHandler} supports the target handler
    */
-  default boolean supportsHandler(Object handler) {
-    return true;
-  }
+  boolean supportsHandler(Object handler);
 
   /**
    * Handle result of the handler
@@ -61,6 +59,7 @@ public interface ResultHandler {
    *         Handler execution result
    *         Or {@link HandlerExceptionHandler} return value
    */
-  void handleResult(RequestContext context, Object handler, Object result) throws Throwable;
+  void handleReturnValue(RequestContext context, Object handler, Object result)
+          throws Throwable;
 
 }

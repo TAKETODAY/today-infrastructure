@@ -21,16 +21,24 @@ package cn.taketoday.web.view;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.http.ResponseEntity;
 import cn.taketoday.web.view.template.TemplateRenderer;
 
 /**
- * @author TODAY <br>
- * 2019-07-14 01:14
+ * Handle {@link ResponseEntity}
+ *
+ * @author TODAY 2020/12/7 22:46
+ * @see ResponseEntity
+ * @since 3.0
  */
-public class ModelAndViewResultHandler extends HandlerMethodResultHandler {
+public class ResponseEntityReturnValueHandler
+        extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
 
-  public ModelAndViewResultHandler(TemplateRenderer viewResolver,
-                                   MessageConverter messageConverter, int downloadFileBuf) {
+  public ResponseEntityReturnValueHandler() {}
+
+  public ResponseEntityReturnValueHandler(TemplateRenderer viewResolver,
+                                          MessageConverter messageConverter,
+                                          int downloadFileBuf) {
 
     setMessageConverter(messageConverter);
     setTemplateViewResolver(viewResolver);
@@ -38,19 +46,17 @@ public class ModelAndViewResultHandler extends HandlerMethodResultHandler {
   }
 
   @Override
-  public boolean supports(HandlerMethod handlerMethod) {
-    return handlerMethod.isAssignableTo(ModelAndView.class);
+  protected boolean supports(final HandlerMethod handler) {
+    return handler.is(ResponseEntity.class);
   }
 
   @Override
-  public boolean supportsResult(Object result) {
-    return result instanceof ModelAndView;
+  protected void handleInternal(
+          RequestContext context, HandlerMethod handler, Object result) throws Throwable {
+    final ResponseEntity<?> response = (ResponseEntity<?>) result;
+    context.setStatus(response.getStatusCode());
+    // apply headers
+    context.responseHeaders().addAll(response.getHeaders());
+    handleObject(context, response.getBody());
   }
-
-  @Override
-  public void handleResult(final RequestContext context,
-                           final Object handler, final Object result) throws Throwable {
-    resolveModelAndView(context, (ModelAndView) result);
-  }
-
 }

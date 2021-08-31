@@ -38,7 +38,7 @@ import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resolver.ParameterResolvers;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
-import cn.taketoday.web.view.ResultHandlers;
+import cn.taketoday.web.view.ReturnValueHandlers;
 import cn.taketoday.web.view.template.DefaultTemplateRenderer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -85,7 +85,7 @@ public class HandlerMethodTests {
     final StandardApplicationContext applicationContext = getApplicationContext();
     setResultHandlers(handlerMethod, applicationContext);
 
-    handlerMethod.handleResult(context, handlerMethod, null);
+    handlerMethod.handleReturnValue(context, handlerMethod, null);
     final int status = context.getStatus();
     assertThat(status).isEqualTo(HttpStatus.CREATED.value());
   }
@@ -136,7 +136,7 @@ public class HandlerMethodTests {
 
     setResultHandlers(produceMethod, applicationContext);
 
-    produceMethod.handleResult(context, null, retValue); // apply content-type
+    produceMethod.handleReturnValue(context, null, retValue); // apply content-type
     assertThat(retValue).isNull();
 
     final String contentType = context.getContentType();
@@ -165,7 +165,7 @@ public class HandlerMethodTests {
   }
 
   private void setResultHandlers(HandlerMethod produceMethod, StandardApplicationContext applicationContext) {
-    final ResultHandlers resultHandlers = new ResultHandlers();
+    final ReturnValueHandlers resultHandlers = new ReturnValueHandlers();
     final DefaultTemplateRenderer viewResolver = new DefaultTemplateRenderer();
     resultHandlers.setApplicationContext(applicationContext);
     resultHandlers.registerDefaultResultHandlers(viewResolver);

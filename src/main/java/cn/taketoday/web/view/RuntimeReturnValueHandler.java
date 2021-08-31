@@ -19,17 +19,27 @@
  */
 package cn.taketoday.web.view;
 
-import cn.taketoday.core.Ordered;
-
 /**
+ * RuntimeResultHandler
+ * <p>
+ *
+ * Handle runtime
+ *
  * @author TODAY <br>
- * 2019-07-14 19:39
+ * 2019-12-25 23:09
  */
-public interface OrderedResultHandler extends ResultHandler, Ordered {
+public interface RuntimeReturnValueHandler extends ReturnValueHandler {
 
-  @Override
-  default int getOrder() {
-    return LOWEST_PRECEDENCE;
-  }
-
+  /**
+   * If this {@link ReturnValueHandler} supports the target handler's result
+   * <p>
+   * This method can test this {@link ReturnValueHandler} supports the target handler
+   * in application runtime
+   *
+   * @param result
+   *         Target handler's result
+   *
+   * @return If this {@link ReturnValueHandler} supports the target handler's result
+   */
+  boolean supportsReturnValue(Object result);
 }

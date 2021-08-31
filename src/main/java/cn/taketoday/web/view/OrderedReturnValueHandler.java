@@ -19,36 +19,17 @@
  */
 package cn.taketoday.web.view;
 
-import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.web.RequestContext;
+import cn.taketoday.core.Ordered;
 
 /**
  * @author TODAY <br>
- * 2019-07-14 01:19
+ * 2019-07-14 19:39
  */
-public class ResponseBodyResultHandler extends OrderedSupport implements RuntimeResultHandler {
-
-  private final MessageConverter messageConverter;
-
-  public ResponseBodyResultHandler(MessageConverter messageConverter) {
-    this.messageConverter = messageConverter;
-    setOrder(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 100);
-  }
+public interface OrderedReturnValueHandler extends ReturnValueHandler, Ordered {
 
   @Override
-  public boolean supportsHandler(Object handler) {
-    return true;
-  }
-
-  @Override
-  public boolean supportsResult(Object result) {
-    return true;
-  }
-
-  @Override
-  public void handleResult(final RequestContext context,
-                           final Object handler, final Object result) throws Throwable {
-    messageConverter.write(context, result);
+  default int getOrder() {
+    return LOWEST_PRECEDENCE;
   }
 
 }

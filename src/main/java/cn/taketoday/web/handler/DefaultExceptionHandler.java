@@ -96,7 +96,7 @@ public class DefaultExceptionHandler
    */
   protected Object handleException(RequestContext context, ThrowableHandlerMethod exHandler)
           throws Throwable {
-    exHandler.handleResult(context, exHandler, exHandler.invokeHandler(context));
+    exHandler.handleReturnValue(context, exHandler, exHandler.invokeHandler(context));
     return NONE_RETURN_VALUE;
   }
 

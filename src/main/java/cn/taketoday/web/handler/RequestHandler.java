@@ -20,7 +20,7 @@
 package cn.taketoday.web.handler;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.view.RuntimeResultHandler;
+import cn.taketoday.web.view.RuntimeReturnValueHandler;
 
 /**
  * @author TODAY <br>
@@ -34,7 +34,7 @@ public interface RequestHandler {
    *
    * @param context
    *            Current request context
-   * @return Result to be handled with {@link RuntimeResultHandler}
+   * @return Result to be handled with {@link RuntimeReturnValueHandler}
    * @throws Throwable
    *             If any exception occurred
    */

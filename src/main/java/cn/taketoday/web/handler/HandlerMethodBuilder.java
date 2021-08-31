@@ -31,7 +31,7 @@ import cn.taketoday.core.reflect.ReflectionException;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resolver.ParameterResolvers;
-import cn.taketoday.web.view.ResultHandlers;
+import cn.taketoday.web.view.ReturnValueHandlers;
 
 /**
  * build {@link HandlerMethod}
@@ -41,8 +41,8 @@ import cn.taketoday.web.view.ResultHandlers;
  */
 public class HandlerMethodBuilder<T extends HandlerMethod> {
 
-  private ResultHandlers resultHandlers;
   private ParameterResolvers parameterResolvers;
+  private ReturnValueHandlers returnValueHandlers;
   private MethodParametersBuilder parametersBuilder;
 
   private BeanConstructor constructor;
@@ -60,21 +60,21 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
     ParameterResolvers parameterResolvers = context.getBean(ParameterResolvers.class);
     Assert.state(parameterResolvers != null, "No ParameterResolvers");
     setParameterResolvers(parameterResolvers);
-    setResultHandlers(context.getBean(ResultHandlers.class));
+    setReturnValueHandlers(context.getBean(ReturnValueHandlers.class));
     setParametersBuilder(new ParameterResolversMethodParameterBuilder(parameterResolvers));
   }
 
   public HandlerMethodBuilder(ParameterResolvers resolvers,
-                              ResultHandlers resultHandlers) {
-    this(resolvers, resultHandlers, new ParameterResolversMethodParameterBuilder(resolvers));
+                              ReturnValueHandlers returnValueHandlers) {
+    this(resolvers, returnValueHandlers, new ParameterResolversMethodParameterBuilder(resolvers));
   }
 
   public HandlerMethodBuilder(ParameterResolvers resolvers,
-                              ResultHandlers resultHandlers,
+                              ReturnValueHandlers returnValueHandlers,
                               MethodParametersBuilder builder) {
     setParametersBuilder(builder);
     setParameterResolvers(resolvers);
-    setResultHandlers(resultHandlers);
+    setReturnValueHandlers(returnValueHandlers);
   }
 
   public void setHandlerMethodClass(Class<?> handlerMethodClass) {
@@ -100,13 +100,13 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
    */
   @SuppressWarnings("unchecked")
   public T build(Object handlerBean, Method method) {
-    Assert.state(resultHandlers != null, "No ResultHandlers");
+    Assert.state(returnValueHandlers != null, "No ResultHandlers");
     Assert.state(parametersBuilder != null, "No MethodParameterBuilder");
 
     final T handlerMethod = (T) getConstructor().newInstance(new Object[] { handlerBean, method });
     final MethodParameter[] parameters = parametersBuilder.build(method);
     handlerMethod.setParameters(parameters);
-    handlerMethod.setResultHandlers(resultHandlers);
+    handlerMethod.setResultHandlers(returnValueHandlers);
 
     if (ObjectUtils.isNotEmpty(parameters)) {
       for (MethodParameter parameter : parameters) {
@@ -129,8 +129,8 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
     this.parameterResolvers = parameterResolvers;
   }
 
-  public void setResultHandlers(ResultHandlers resultHandlers) {
-    this.resultHandlers = resultHandlers;
+  public void setReturnValueHandlers(ReturnValueHandlers returnValueHandlers) {
+    this.returnValueHandlers = returnValueHandlers;
   }
 
   public void setConstructor(BeanConstructor constructor) {
@@ -149,7 +149,7 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
     return parameterResolvers;
   }
 
-  public ResultHandlers getResultHandlers() {
-    return resultHandlers;
+  public ReturnValueHandlers getReturnValueHandlers() {
+    return returnValueHandlers;
   }
 }

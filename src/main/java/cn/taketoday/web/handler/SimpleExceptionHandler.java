@@ -38,7 +38,7 @@ import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.http.HttpStatusCapable;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.view.TemplateResultHandler;
+import cn.taketoday.web.view.TemplateReturnValueHandler;
 
 /**
  * Simple {@link HandlerExceptionHandler}
@@ -158,7 +158,7 @@ public class SimpleExceptionHandler
     if (!handlerMethod.is(void.class)
             && !handlerMethod.is(Object.class)
             && !handlerMethod.is(ModelAndView.class)
-            && TemplateResultHandler.supportsHandlerMethod(handlerMethod)) {
+            && TemplateReturnValueHandler.supportsHandlerMethod(handlerMethod)) {
 
       return handleExceptionInternal(ex, context);
     }

@@ -19,37 +19,39 @@
  */
 package cn.taketoday.web.view;
 
-import java.awt.image.RenderedImage;
-
-import javax.imageio.ImageIO;
-
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.HandlerMethod;
 
 /**
- * @author TODAY <br>
- * 2019-07-14 15:15
+ * Response
+ *
+ * @author TODAY 2019-07-14 01:19
  */
-public class ImageResultHandler
-        extends HandlerMethodResultHandler implements RuntimeResultHandler {
+public class ResponseBodyReturnValueHandler extends OrderedSupport implements RuntimeReturnValueHandler {
 
-  @Override
-  public boolean supports(HandlerMethod handlerMethod) {
-    return handlerMethod.isAssignableTo(RenderedImage.class);
+  private final MessageConverter messageConverter;
+
+  public ResponseBodyReturnValueHandler(MessageConverter messageConverter) {
+    Assert.notNull(messageConverter, "MessageConverter must not be null");
+    this.messageConverter = messageConverter;
+    setOrder(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 100);
   }
 
   @Override
-  public boolean supportsResult(Object result) {
-    return result instanceof RenderedImage;
+  public boolean supportsHandler(Object handler) {
+    return true;
   }
 
   @Override
-  public void handleResult(final RequestContext context, final Object handler, final Object result) throws Throwable {
-    if (result != null) {
-      context.setContentType("image/png");
-      // sub classes can override this method to apply content type
-      ImageIO.write((RenderedImage) result, IMAGE_PNG, context.getOutputStream());
-    }
+  public boolean supportsReturnValue(Object result) {
+    return true;
+  }
+
+  @Override
+  public void handleReturnValue(final RequestContext context,
+                                final Object handler, final Object result) throws Throwable {
+    messageConverter.write(context, result);
   }
 
 }

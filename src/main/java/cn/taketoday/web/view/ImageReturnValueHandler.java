@@ -19,35 +19,36 @@
  */
 package cn.taketoday.web.view;
 
+import java.awt.image.RenderedImage;
+
+import javax.imageio.ImageIO;
+
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.view.template.TemplateRenderer;
 
 /**
  * @author TODAY <br>
- * 2019-07-14 00:53
+ * 2019-07-14 15:15
  */
-public class VoidResultHandler extends ModelAndViewResultHandler {
-
-  public VoidResultHandler(TemplateRenderer viewResolver, MessageConverter messageConverter, int downloadFileBuf) {
-    super(viewResolver, messageConverter, downloadFileBuf);
-  }
+public class ImageReturnValueHandler
+        extends HandlerMethodReturnValueHandler implements RuntimeReturnValueHandler {
 
   @Override
   public boolean supports(HandlerMethod handlerMethod) {
-    return handlerMethod.is(void.class);
+    return handlerMethod.isAssignableTo(RenderedImage.class);
   }
 
   @Override
-  public boolean supportsResult(Object result) {
-    return result == null;
+  public boolean supportsReturnValue(Object result) {
+    return result instanceof RenderedImage;
   }
 
   @Override
-  public void handleResult(final RequestContext context,
-                           final Object handler, final Object result) throws Throwable {
-    if (context.hasModelAndView()) {
-      resolveModelAndView(context, context.modelAndView());
+  public void handleReturnValue(final RequestContext context, final Object handler, final Object result) throws Throwable {
+    if (result != null) {
+      context.setContentType("image/png");
+      // sub classes can override this method to apply content type
+      ImageIO.write((RenderedImage) result, IMAGE_PNG, context.getOutputStream());
     }
   }
 

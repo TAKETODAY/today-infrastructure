@@ -100,11 +100,12 @@ public interface HandlerAdapter {
    *         the {@code supports} method of this interface, which must have
    *         returned {@code true}.
    *
-   * @return a object with the name of the view and the required model data, or
+   * @return an object with the name of the view and the required model data, or
    * {@code null} if the request has been handled directly
    *
    * @throws Throwable
    *         in case of errors
+   * @see #NONE_RETURN_VALUE
    */
   Object handle(RequestContext context, Object handler) throws Throwable;
 

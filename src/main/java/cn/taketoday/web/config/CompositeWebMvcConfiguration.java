@@ -32,7 +32,7 @@ import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.validation.WebValidator;
-import cn.taketoday.web.view.ResultHandler;
+import cn.taketoday.web.view.ReturnValueHandler;
 import cn.taketoday.web.view.template.AbstractTemplateRenderer;
 
 /**
@@ -70,7 +70,7 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   }
 
   @Override
-  public void configureResultHandler(List<ResultHandler> resultResolvers) {
+  public void configureResultHandler(List<ReturnValueHandler> resultResolvers) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
       webMvcConfiguration.configureResultHandler(resultResolvers);
     }

@@ -39,8 +39,8 @@ import cn.taketoday.web.annotation.Produce;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.view.ResultHandler;
-import cn.taketoday.web.view.ResultHandlers;
+import cn.taketoday.web.view.ReturnValueHandler;
+import cn.taketoday.web.view.ReturnValueHandlers;
 
 /**
  * Annotation handler
@@ -50,14 +50,14 @@ import cn.taketoday.web.view.ResultHandlers;
  * @see cn.taketoday.web.registry.HandlerMethodRegistry#isController(BeanDefinition)
  */
 public class HandlerMethod
-        extends InterceptableRequestHandler implements HandlerAdapter, ResultHandler {
+        extends InterceptableRequestHandler implements HandlerAdapter, ReturnValueHandler {
 
   private final Object bean; // controller bean
   /** action **/
   private final Method method;
   /** @since 2.3.7 */
   private final Class<?> returnType;
-  private ResultHandler resultHandler;
+  private ReturnValueHandler returnValueHandler;
   private final MethodInvoker handlerInvoker;
   /** parameter list **/
   private MethodParameter[] parameters;
@@ -69,7 +69,7 @@ public class HandlerMethod
   private String contentType;
 
   /** @since 3.0 */
-  private ResultHandlers resultHandlers;
+  private ReturnValueHandlers resultHandlers;
 
   public HandlerMethod() {
     this(null, null, null);
@@ -107,7 +107,7 @@ public class HandlerMethod
     this.method = other.method;
     this.returnType = other.returnType;
     this.contentType = other.contentType; // @since 3.0
-    this.resultHandler = other.resultHandler;
+    this.returnValueHandler = other.returnValueHandler;
     this.resultHandlers = other.resultHandlers; // @since 3.0
     this.handlerInvoker = other.handlerInvoker;
     this.responseStatus = other.responseStatus;
@@ -212,7 +212,7 @@ public class HandlerMethod
   // handleRequest
   // -----------------------------------------
 
-  public void setResultHandlers(ResultHandlers resultHandlers) {
+  public void setResultHandlers(ReturnValueHandlers resultHandlers) {
     this.resultHandlers = resultHandlers;
   }
 
@@ -225,15 +225,15 @@ public class HandlerMethod
   }
 
   @Override
-  public void handleResult(
+  public void handleReturnValue(
           final RequestContext context, final Object handler, final Object result) throws Throwable {
     applyResponseStatus(context);
-    ResultHandler resultHandler = this.resultHandler;
-    if (resultHandler == null) {
-      resultHandler = resultHandlers.obtainHandler(this);
-      this.resultHandler = resultHandler;
+    ReturnValueHandler returnValueHandler = this.returnValueHandler;
+    if (returnValueHandler == null) {
+      returnValueHandler = resultHandlers.obtainHandler(this);
+      this.returnValueHandler = returnValueHandler;
     }
-    resultHandler.handleResult(context, handler, result);
+    returnValueHandler.handleReturnValue(context, handler, result);
     // @since 3.0
     final String contentType = getContentType();
     if (contentType != null) {
@@ -288,13 +288,13 @@ public class HandlerMethod
     return Objects.equals(bean, that.bean)
             && Objects.equals(method, that.method)
             && Objects.equals(contentType, that.contentType)
-            && Objects.equals(resultHandler, that.resultHandler)
+            && Objects.equals(returnValueHandler, that.returnValueHandler)
             && Objects.equals(responseStatus, that.responseStatus);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(bean, method, resultHandler, responseStatus, contentType);
+    return Objects.hash(bean, method, returnValueHandler, responseStatus, contentType);
   }
 
   @Override
