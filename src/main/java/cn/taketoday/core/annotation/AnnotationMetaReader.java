@@ -414,7 +414,7 @@ public abstract class AnnotationMetaReader {
   /**
    * Get attributes the 'key-value' of annotations
    *
-   * @return a set of {@link AnnotationAttributes} never be null
+   * @return an array of {@link AnnotationAttributes} never be null
    *
    * @since 2.1.7
    */

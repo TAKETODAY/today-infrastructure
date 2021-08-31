@@ -43,7 +43,8 @@ public class ClassReadingAnnotationMetaReader extends AnnotationMetaReader {
     if (ObjectUtils.isEmpty(annotations)) {
       return EMPTY_ANNOTATION_ATTRIBUTES;
     }
-    else {//scan target annotation on annotationClass
+    else {
+      // scan target annotation on annotationClass
       final Class<T> annotationClass = key.annotationClass;
       final ArrayList<AnnotationAttributes> result = new ArrayList<>(); // for the order
       for (final AnnotationAttributes annotation : annotations) {

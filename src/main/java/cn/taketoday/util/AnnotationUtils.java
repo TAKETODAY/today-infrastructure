@@ -38,7 +38,25 @@ import cn.taketoday.core.reflect.ReflectionException;
  * @since 4.0
  */
 public abstract class AnnotationUtils {
-  private static final AnnotationMetaReader annotationMetaReader = new ReflectiveAnnotationMetaReader();
+  public static final String ANNOTATION_META_READER_KEY = "cn.taketoday.core.annotation.AnnotationMetaReader.impl";
+  private static final AnnotationMetaReader annotationMetaReader;
+
+  static {
+    String impl = System.getProperty(ANNOTATION_META_READER_KEY, null);
+    if (impl == null) {
+      annotationMetaReader = new ReflectiveAnnotationMetaReader();
+    }
+    else {
+      AnnotationMetaReader metaReader;
+      try {
+        metaReader = (AnnotationMetaReader) Class.forName(impl).newInstance();
+      }
+      catch (Exception e) {
+        metaReader = new ReflectiveAnnotationMetaReader();
+      }
+      annotationMetaReader = metaReader;
+    }
+  }
 
   /**
    * Get the array of {@link Annotation} instance
