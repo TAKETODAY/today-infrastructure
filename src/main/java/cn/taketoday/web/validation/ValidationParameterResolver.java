@@ -93,7 +93,7 @@ public class ValidationParameterResolver
 
     if (errors.hasErrors()) {
       HandlerMethod method = parameter.getHandlerMethod();
-      Assert.state(method != null, "");
+      Assert.state(method != null, "No HandlerMethod");
       final MethodParameter[] parameters = method.getParameters();
       final int length = parameters.length;
       if (length == 1) {
