@@ -21,7 +21,7 @@ package cn.taketoday.web.validation;
 
 import java.util.Set;
 
-import cn.taketoday.web.WebNestedRuntimeException;
+import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.http.HttpStatus;
 
@@ -30,7 +30,7 @@ import cn.taketoday.web.http.HttpStatus;
  * 2019-07-21 14:35
  */
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class ValidationException extends WebNestedRuntimeException implements Errors {
+public class ValidationException extends NestedRuntimeException implements Errors {
   private static final long serialVersionUID = 1L;
 
   private final Errors errors;
