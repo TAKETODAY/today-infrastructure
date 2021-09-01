@@ -199,7 +199,7 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
     modelAndViewResultHandler.setModelManager(modelManager);
     responseEntityResultHandler.setModelManager(modelManager);
 
-    handlers.add(new ImageReturnValueHandler());
+    handlers.add(new RenderedImageReturnValueHandler());
     handlers.add(new ResourceReturnValueHandler(bufferSize));
     handlers.add(templateResultHandler);
 

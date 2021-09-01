@@ -152,8 +152,7 @@ public abstract class AbstractFreeMarkerTemplateRenderer
   protected abstract TemplateHashModel createModel(RequestContext context);
 
   @Override
-  public void render(final String name, final RequestContext context) throws Throwable {
-
+  public void render(final String name, final RequestContext context) throws IOException {
     final Template template = getConfiguration().getTemplate(name, locale, encoding);
     final TemplateHashModel model = createModel(context);
 
@@ -164,6 +163,9 @@ public abstract class AbstractFreeMarkerTemplateRenderer
         final Environment env = template.createProcessingEnvironment(model, context.getWriter());
         env.setOutputEncoding(encoding);
         processEnvironment(env, context);
+      }
+      catch (TemplateException e) {
+        throw new TemplateRenderingException("Freemarker template rendering failed", e);
       }
       finally {
         // Give subclasses a chance to hook into postprocessing
@@ -200,8 +202,11 @@ public abstract class AbstractFreeMarkerTemplateRenderer
    *
    * @return true to process the template, false to suppress template processing.
    */
-  protected boolean preTemplateProcess(final Template template, final TemplateModel model, final RequestContext context)
-          throws IOException {
+  protected boolean preTemplateProcess(
+          final Template template,
+          final TemplateModel model,
+          final RequestContext context
+  ) throws IOException {
     return true;
   }
 
@@ -241,8 +246,13 @@ public abstract class AbstractFreeMarkerTemplateRenderer
    *
    * @since 2.3.7
    */
-  protected void postTemplateProcess(final Template template, final TemplateModel data, final RequestContext context)
-          throws IOException {}
+  protected void postTemplateProcess(
+          final Template template,
+          final TemplateModel data,
+          final RequestContext context
+  ) throws IOException {
+
+  }
 
   public int getCacheSize() {
     return cacheSize;

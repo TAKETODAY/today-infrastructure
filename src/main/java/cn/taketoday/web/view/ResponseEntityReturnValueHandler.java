@@ -46,14 +46,14 @@ public class ResponseEntityReturnValueHandler
   }
 
   @Override
-  protected boolean supports(final HandlerMethod handler) {
-    return handler.is(ResponseEntity.class);
+  protected boolean supportsHandlerMethod(final HandlerMethod handler) {
+    return handler.isReturn(ResponseEntity.class);
   }
 
   @Override
   protected void handleInternal(
-          RequestContext context, HandlerMethod handler, Object result) throws Throwable {
-    final ResponseEntity<?> response = (ResponseEntity<?>) result;
+          RequestContext context, HandlerMethod handler, Object returnValue) throws Throwable {
+    final ResponseEntity<?> response = (ResponseEntity<?>) returnValue;
     context.setStatus(response.getStatusCode());
     // apply headers
     context.responseHeaders().addAll(response.getHeaders());

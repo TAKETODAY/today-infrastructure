@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.view.template;
 
+import java.io.IOException;
+
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -35,9 +37,9 @@ public interface TemplateRenderer {
    * @param context
    *         current request context
    *
-   * @throws Throwable
-   *         If any {@link Exception} occurred
+   * @throws IOException
+   *         If any {@link IOException} occurred
    */
-  void render(String templateName, RequestContext context) throws Throwable;
+  void render(String templateName, RequestContext context) throws IOException;
 
 }

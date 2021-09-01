@@ -29,8 +29,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**
- * @author TODAY <br>
- * 2019-07-17 13:31
+ * @author TODAY 2019-07-17 13:31
  * @see JsonSequence
  */
 public abstract class MessageConverter {
@@ -82,15 +81,7 @@ public abstract class MessageConverter {
   /**
    * Write none null message
    */
-  abstract void writeInternal(RequestContext context, Object noneNullMessage) throws IOException;
-
-  public void setCharset(Charset charset) {
-    this.charset = charset;
-  }
-
-  public Charset getCharset() {
-    return charset;
-  }
+  protected abstract void writeInternal(RequestContext context, Object noneNullMessage) throws IOException;
 
   /**
    * Read The request body and convert it to Target object
@@ -107,4 +98,16 @@ public abstract class MessageConverter {
    */
   public abstract Object read(RequestContext context, MethodParameter parameter) throws IOException;
 
+  /**
+   * for write string
+   *
+   * @see #writeStringInternal(RequestContext, String)
+   */
+  public void setCharset(Charset charset) {
+    this.charset = charset;
+  }
+
+  public Charset getCharset() {
+    return charset;
+  }
 }

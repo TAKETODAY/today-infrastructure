@@ -19,17 +19,18 @@
  */
 package cn.taketoday.web.view;
 
+import java.io.IOException;
+
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.web.RequestContext;
 
 /**
- * Response
+ * serialize return-value to HTTP response-body
  *
  * @author TODAY 2019-07-14 01:19
  */
 public class ResponseBodyReturnValueHandler extends OrderedSupport implements RuntimeReturnValueHandler {
-
   private final MessageConverter messageConverter;
 
   public ResponseBodyReturnValueHandler(MessageConverter messageConverter) {
@@ -44,14 +45,14 @@ public class ResponseBodyReturnValueHandler extends OrderedSupport implements Ru
   }
 
   @Override
-  public boolean supportsReturnValue(Object result) {
+  public boolean supportsReturnValue(Object returnValue) {
     return true;
   }
 
   @Override
-  public void handleReturnValue(final RequestContext context,
-                                final Object handler, final Object result) throws Throwable {
-    messageConverter.write(context, result);
+  public void handleReturnValue(
+          RequestContext context, Object handler, Object returnValue) throws IOException {
+    messageConverter.write(context, returnValue);
   }
 
 }

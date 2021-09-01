@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.view.template;
 
+import java.io.IOException;
 import java.util.Locale;
 
 import cn.taketoday.core.Constant;
@@ -46,7 +47,7 @@ public abstract class AbstractTemplateRenderer
 
   @Override
   public abstract void render(String templateName, RequestContext context)
-          throws Throwable;
+          throws IOException;
 
   /**
    * Prepare a template

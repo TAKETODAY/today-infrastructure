@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.http;
 
-import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.web.WebNestedRuntimeException;
 import cn.taketoday.web.annotation.ResponseStatus;
 
@@ -42,7 +41,6 @@ public class InternalServerException extends WebNestedRuntimeException {
 
   public InternalServerException(String message) {
     super(message);
-    LoggerFactory.getLogger(InternalServerException.class).error(message);
   }
 
   public InternalServerException() {

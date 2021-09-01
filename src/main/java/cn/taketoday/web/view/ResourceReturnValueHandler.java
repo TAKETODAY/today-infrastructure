@@ -20,6 +20,7 @@
 package cn.taketoday.web.view;
 
 import java.io.File;
+import java.io.IOException;
 
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.io.Resource;
@@ -29,8 +30,11 @@ import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.handler.HandlerMethod;
 
 /**
- * @author TODAY <br>
- * 2019-07-14 11:18
+ * download file, serialize {@link Resource} or {@link File} to client
+ *
+ * @author TODAY 2019-07-14 11:18
+ * @see Resource
+ * @see File
  */
 public class ResourceReturnValueHandler extends OrderedSupport implements RuntimeReturnValueHandler {
   private final int downloadFileBuf;
@@ -41,29 +45,28 @@ public class ResourceReturnValueHandler extends OrderedSupport implements Runtim
 
   @Override
   public boolean supportsHandler(Object handler) {
-    return HandlerMethodReturnValueHandler.supportHandlerMethod(handler)
-            && supports((HandlerMethod) handler);
+    return handler instanceof HandlerMethod && supportsHandlerMethod((HandlerMethod) handler);
   }
 
-  private boolean supports(HandlerMethod handlerMethod) {
+  private boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
     return handlerMethod.isAssignableTo(Resource.class)
             || handlerMethod.isAssignableTo(File.class);
   }
 
   @Override
-  public boolean supportsReturnValue(Object result) {
-    return result instanceof Resource
-            || result instanceof File;
+  public boolean supportsReturnValue(Object returnValue) {
+    return returnValue instanceof Resource
+            || returnValue instanceof File;
   }
 
   @Override
-  public void handleReturnValue(final RequestContext context,
-                                final Object handler, final Object result) throws Throwable {
-    if (result != null) {
-      if (result instanceof Resource) {
-        WebUtils.downloadFile(context, (Resource) result, downloadFileBuf);
+  public void handleReturnValue(
+          RequestContext context, Object handler, Object returnValue) throws IOException {
+    if (returnValue != null) {
+      if (returnValue instanceof Resource) {
+        WebUtils.downloadFile(context, (Resource) returnValue, downloadFileBuf);
       }
-      WebUtils.downloadFile(context, ResourceUtils.getResource((File) result), downloadFileBuf);
+      WebUtils.downloadFile(context, ResourceUtils.getResource((File) returnValue), downloadFileBuf);
     }
   }
 

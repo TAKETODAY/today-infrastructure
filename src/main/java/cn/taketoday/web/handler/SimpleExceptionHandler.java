@@ -155,9 +155,9 @@ public class SimpleExceptionHandler
     if (handlerMethod.isAssignableTo(RenderedImage.class)) {
       return resolveImageException(ex, context);
     }
-    if (!handlerMethod.is(void.class)
-            && !handlerMethod.is(Object.class)
-            && !handlerMethod.is(ModelAndView.class)
+    if (!handlerMethod.isReturn(void.class)
+            && !handlerMethod.isReturn(Object.class)
+            && !handlerMethod.isReturn(ModelAndView.class)
             && TemplateReturnValueHandler.supportsHandlerMethod(handlerMethod)) {
 
       return handleExceptionInternal(ex, context);

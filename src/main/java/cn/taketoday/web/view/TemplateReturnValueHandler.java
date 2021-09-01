@@ -86,7 +86,7 @@ public class TemplateReturnValueHandler extends AbstractReturnValueHandler imple
 
   public static boolean supportsHandlerMethod(final HandlerMethod handlerMethod) {
 
-    if (handlerMethod.is(String.class)) {
+    if (handlerMethod.isReturn(String.class)) {
       if (handlerMethod.isMethodPresent(ResponseBody.class)) {
         return !handlerMethod.getMethodAnnotation(ResponseBody.class).value();
       }
@@ -100,8 +100,8 @@ public class TemplateReturnValueHandler extends AbstractReturnValueHandler imple
 
   @Override
   public void handleReturnValue(final RequestContext context,
-                                final Object handler, final Object result) throws Throwable {
-    handleString((String) result, context);
+                                final Object handler, final Object returnValue) throws Throwable {
+    handleString((String) returnValue, context);
   }
 
   public boolean isAllowLambdaDetect() {

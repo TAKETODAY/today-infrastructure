@@ -27,6 +27,9 @@ import cn.taketoday.web.handler.HandlerExceptionHandler;
  *
  * <p>
  * Handle request-handler execution result
+ * <p>
+ * ReturnValueHandler is HTTP response writer
+ * </p>
  *
  * @author TODAY 2019-07-10 19:22
  * @see HandlerExceptionHandler
@@ -55,11 +58,11 @@ public interface ReturnValueHandler {
    *         Current HTTP request context
    * @param handler
    *         Target HTTP handler
-   * @param result
+   * @param returnValue
    *         Handler execution result
    *         Or {@link HandlerExceptionHandler} return value
    */
-  void handleReturnValue(RequestContext context, Object handler, Object result)
+  void handleReturnValue(RequestContext context, Object handler, Object returnValue)
           throws Throwable;
 
 }

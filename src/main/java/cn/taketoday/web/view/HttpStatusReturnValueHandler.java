@@ -31,20 +31,20 @@ public class HttpStatusReturnValueHandler
         extends HandlerMethodReturnValueHandler implements RuntimeReturnValueHandler {
 
   @Override
-  protected boolean supports(final HandlerMethod handler) {
-    return handler.is(HttpStatus.class);
+  protected boolean supportsHandlerMethod(final HandlerMethod handler) {
+    return handler.isReturn(HttpStatus.class);
   }
 
   @Override
-  public boolean supportsReturnValue(final Object result) {
-    return result instanceof HttpStatus;
+  public boolean supportsReturnValue(final Object returnValue) {
+    return returnValue instanceof HttpStatus;
   }
 
   @Override
-  public void handleReturnValue(final RequestContext context,
-                                final Object handler, final Object result) throws Throwable {
-    if (result instanceof HttpStatus) {
-      context.setStatus((HttpStatus) result);
+  public void handleReturnValue(
+          RequestContext context, Object handler, final Object returnValue) throws Throwable {
+    if (returnValue instanceof HttpStatus) {
+      context.setStatus((HttpStatus) returnValue);
     }
   }
 

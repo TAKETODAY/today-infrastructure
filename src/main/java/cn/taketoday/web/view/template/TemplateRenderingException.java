@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,29 +17,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.view;
+
+package cn.taketoday.web.view.template;
+
+import cn.taketoday.web.http.InternalServerException;
 
 /**
- * RuntimeResultHandler
- * <p>
- *
- * Handle runtime
- *
- * @author TODAY <br>
- * 2019-12-25 23:09
+ * @author TODAY 2021/9/1 23:29
+ * @since 4.0
  */
-public interface RuntimeReturnValueHandler extends ReturnValueHandler {
+public class TemplateRenderingException extends InternalServerException {
+  private static final long serialVersionUID = 1L;
+  public static final String TemplateRenderingFailed = "Template rendering failed";
 
-  /**
-   * If this {@link ReturnValueHandler} supports the target handler's result
-   * <p>
-   * This method can test this {@link ReturnValueHandler} supports the target handler
-   * in application runtime
-   *
-   * @param returnValue
-   *         Target handler's return-value or result
-   *
-   * @return If this {@link ReturnValueHandler} supports the target handler's result
-   */
-  boolean supportsReturnValue(Object returnValue);
+  public TemplateRenderingException(Throwable cause) {
+    super(TemplateRenderingFailed, cause);
+  }
+
+  public TemplateRenderingException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
+  public TemplateRenderingException(String message) {
+    super(message);
+  }
+
+  public TemplateRenderingException() {
+    super(TemplateRenderingFailed, null);
+  }
+
 }

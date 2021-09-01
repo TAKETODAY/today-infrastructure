@@ -40,17 +40,17 @@ public class ObjectReturnValueHandler extends HandlerMethodReturnValueHandler {
   }
 
   @Override
-  public boolean supports(HandlerMethod handlerMethod) {
-    return handlerMethod.is(Object.class);
+  public boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
+    return handlerMethod.isReturn(Object.class);
   }
 
   @Override
-  protected void handleInternal(RequestContext context, HandlerMethod handler, Object result) throws Throwable {
+  protected void handleInternal(RequestContext context, HandlerMethod handler, Object returnValue) throws Throwable {
     if (isResponseBody(handler)) {// @since 3.0.5 fix response body error (github #16)
-      handleResponseBody(context, result);
+      handleResponseBody(context, returnValue);
     }
     else {
-      handleObject(context, result);
+      handleObject(context, returnValue);
     }
   }
 
@@ -73,7 +73,7 @@ public class ObjectReturnValueHandler extends HandlerMethodReturnValueHandler {
   }
 
   @Override
-  public boolean supportsReturnValue(Object result) {
+  public boolean supportsReturnValue(Object returnValue) {
     return true;
   }
 

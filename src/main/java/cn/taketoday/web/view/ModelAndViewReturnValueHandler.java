@@ -38,19 +38,19 @@ public class ModelAndViewReturnValueHandler extends HandlerMethodReturnValueHand
   }
 
   @Override
-  public boolean supports(HandlerMethod handlerMethod) {
+  public boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
     return handlerMethod.isAssignableTo(ModelAndView.class);
   }
 
   @Override
-  public boolean supportsReturnValue(Object result) {
-    return result instanceof ModelAndView;
+  public boolean supportsReturnValue(Object returnValue) {
+    return returnValue instanceof ModelAndView;
   }
 
   @Override
   public void handleReturnValue(final RequestContext context,
-                                final Object handler, final Object result) throws Throwable {
-    resolveModelAndView(context, (ModelAndView) result);
+                                final Object handler, final Object returnValue) throws Throwable {
+    resolveModelAndView(context, (ModelAndView) returnValue);
   }
 
 }

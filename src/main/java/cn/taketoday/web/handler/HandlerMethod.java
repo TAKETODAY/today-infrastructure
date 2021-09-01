@@ -128,7 +128,7 @@ public class HandlerMethod
     return superClass.isAssignableFrom(returnType);
   }
 
-  public boolean is(final Class<?> returnType) {
+  public boolean isReturn(final Class<?> returnType) {
     return returnType == this.returnType;
   }
 
@@ -226,14 +226,14 @@ public class HandlerMethod
 
   @Override
   public void handleReturnValue(
-          final RequestContext context, final Object handler, final Object result) throws Throwable {
+          final RequestContext context, final Object handler, final Object returnValue) throws Throwable {
     applyResponseStatus(context);
     ReturnValueHandler returnValueHandler = this.returnValueHandler;
     if (returnValueHandler == null) {
       returnValueHandler = resultHandlers.obtainHandler(this);
       this.returnValueHandler = returnValueHandler;
     }
-    returnValueHandler.handleReturnValue(context, handler, result);
+    returnValueHandler.handleReturnValue(context, handler, returnValue);
     // @since 3.0
     final String contentType = getContentType();
     if (contentType != null) {

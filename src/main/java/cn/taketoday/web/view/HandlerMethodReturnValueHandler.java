@@ -19,35 +19,45 @@
  */
 package cn.taketoday.web.view;
 
+import java.io.IOException;
+
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
 
 /**
- * @author TODAY <br>
- * 2019-12-13 13:52
+ * for HandlerMethod return-value
+ *
+ * @author TODAY 2019-12-13 13:52
+ * @see HandlerMethod#handle(RequestContext, Object)
+ * @see HandlerMethod#handleRequest(RequestContext)
  */
 public abstract class HandlerMethodReturnValueHandler extends AbstractReturnValueHandler {
 
   @Override
   public boolean supportsHandler(final Object handler) {
-    return supportHandlerMethod(handler) && supports((HandlerMethod) handler);
+    return handler instanceof HandlerMethod && supportsHandlerMethod((HandlerMethod) handler);
   }
 
-  public static boolean supportHandlerMethod(final Object handler) {
-    return handler instanceof HandlerMethod;
-  }
-
-  protected abstract boolean supports(HandlerMethod handler);
+  /**
+   * match function for {@link HandlerMethod}
+   *
+   * @see HandlerMethod
+   */
+  protected abstract boolean supportsHandlerMethod(HandlerMethod handler);
 
   @Override
-  public void handleReturnValue(RequestContext context,
-                                Object handler, Object result) throws Throwable {
-    if (result != null) {
-      handleInternal(context, (HandlerMethod) handler, result);
+  public void handleReturnValue(
+          RequestContext context, Object handler, Object returnValue) throws Throwable {
+    if (returnValue != null) {
+      handleInternal(context, (HandlerMethod) handler, returnValue);
+    }
+    else {
+      handleNullValue(context, handler);
     }
   }
 
-  protected void handleInternal(RequestContext context,
-                                HandlerMethod handler,
-                                Object result) throws Throwable { }
+  protected void handleNullValue(RequestContext context, Object handler) throws IOException { }
+
+  protected void handleInternal(
+          RequestContext context, HandlerMethod handler, Object returnValue) throws Throwable { }
 }

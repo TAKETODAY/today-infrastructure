@@ -57,7 +57,7 @@ public class ViewControllerHandlerAdapter extends AbstractHandlerAdapter {
     final Object result = handlerMethod.invokeHandler(context);
 
     // If return type is void or result is null use xml configuration's resource
-    if (result == null || handlerMethod.is(void.class)) {
+    if (result == null || handlerMethod.isReturn(void.class)) {
       return view.getResource();
     }
     handlerMethod.handleReturnValue(context, handlerMethod, result);

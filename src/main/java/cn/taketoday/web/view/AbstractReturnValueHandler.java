@@ -36,12 +36,10 @@ import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.view.template.TemplateRenderer;
 
 /**
- * @author TODAY <br>
- * 2019-07-14 10:47
+ * @author TODAY 2019-07-14 10:47
  */
 public abstract class AbstractReturnValueHandler
         extends OrderedSupport implements ReturnValueHandler, RuntimeReturnValueHandler {
-  public static final String IMAGE_PNG = "png";
 
   private int downloadFileBuf;
   /** view resolver **/
@@ -52,15 +50,15 @@ public abstract class AbstractReturnValueHandler
   private RedirectModelManager modelManager;
 
   @Override
-  public boolean supportsReturnValue(Object result) {
+  public boolean supportsReturnValue(Object returnValue) {
     return false;
   }
 
   @Override
-  public abstract void handleReturnValue(RequestContext context, Object handler, Object result)
+  public abstract void handleReturnValue(RequestContext context, Object handler, Object returnValue)
           throws Throwable;
 
-  public void handleObject(final RequestContext request, final Object view) throws Throwable {
+  public void handleObject(final RequestContext request, final Object view) throws IOException {
     if (view != null) {
       if (view instanceof String) {
         handleString((String) view, request);
@@ -99,7 +97,8 @@ public abstract class AbstractReturnValueHandler
    *
    * @since 2.3.3
    */
-  public void resolveModelAndView(final RequestContext context, final ModelAndView modelAndView) throws Throwable {
+  public void resolveModelAndView(
+          final RequestContext context, final ModelAndView modelAndView) throws IOException {
     if (modelAndView != null && modelAndView.hasView()) {
       handleObject(context, modelAndView.getView());
     }
@@ -130,7 +129,7 @@ public abstract class AbstractReturnValueHandler
    * @see #REDIRECT_URL_PREFIX
    * @see #RESPONSE_BODY_PREFIX
    */
-  public void handleString(final String resource, final RequestContext context) throws Throwable {
+  public void handleString(final String resource, final RequestContext context) throws IOException {
     if (resource.startsWith(REDIRECT_URL_PREFIX)) {
       // redirect
       handleRedirect(resource.substring(9), context);
@@ -167,7 +166,7 @@ public abstract class AbstractReturnValueHandler
    */
   public void handleImageView(final RenderedImage image, final RequestContext context) throws IOException {
     // need set content type
-    ImageIO.write(image, IMAGE_PNG, context.getOutputStream());
+    ImageIO.write(image, RenderedImageReturnValueHandler.IMAGE_PNG, context.getOutputStream());
   }
 
   public int getDownloadFileBufferSize() {
