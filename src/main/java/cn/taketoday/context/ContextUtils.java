@@ -42,9 +42,6 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import cn.taketoday.beans.Component;
 import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.factory.BeanDefinition;
@@ -87,6 +84,13 @@ import cn.taketoday.util.StringUtils;
  * 2019-01-16 20:04
  */
 public abstract class ContextUtils {
+
+  public static final Class<? extends Annotation>
+          PreDestroy = ClassUtils.loadClass("javax.annotation.PreDestroy");
+
+  public static final Class<? extends Annotation>
+          PostConstruct = ClassUtils.loadClass("javax.annotation.PostConstruct");
+
   private static final Logger log = LoggerFactory.getLogger(ContextUtils.class);
 
   // @since 2.1.6 shared applicationContext
@@ -310,7 +314,7 @@ public abstract class ContextUtils {
   }
 
   /**
-   * Add a method which annotated with {@link PostConstruct}
+   * Add a method which annotated with {@link javax.annotation.PostConstruct}
    * or {@link cn.taketoday.beans.Autowired}
    *
    * @param beanClass
@@ -326,7 +330,7 @@ public abstract class ContextUtils {
     final boolean initMethodsNotEmpty = ObjectUtils.isNotEmpty(initMethods);
     do {
       for (final Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
-        if (AnnotationUtils.isPresent(method, PostConstruct.class)
+        if (AnnotationUtils.isPresent(method, PostConstruct)
                 || AutowiredPropertyResolver.isInjectable(method)) { // method Injection
           methods.add(method);
           continue;
@@ -727,7 +731,7 @@ public abstract class ContextUtils {
 
     for (final Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
       if (((destroyMethods != null && destroyMethods.contains(method.getName()))
-              || method.isAnnotationPresent(PreDestroy.class)) // PreDestroy
+              || AnnotationUtils.isPresent(method, PreDestroy)) // PreDestroy
               && method.getParameterCount() == 0) { // 0参数
         // fix: can not access a member @since 2.1.6
         ReflectionUtils.makeAccessible(method).invoke(obj);

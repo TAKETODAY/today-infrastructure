@@ -371,7 +371,8 @@ public abstract class AnnotationUtils {
    *
    * @return Whether it's present
    */
-  public static <A extends Annotation> boolean isPresent(final AnnotatedElement element, final Class<A> annType) {
+  public static <A extends Annotation> boolean isPresent(
+          @Nullable final AnnotatedElement element, @Nullable final Class<A> annType) {
     return annType != null && element != null
             && (element.isAnnotationPresent(annType)
             || ObjectUtils.isNotEmpty(getAttributesArray(element, annType)));
