@@ -19,18 +19,22 @@
  */
 package cn.taketoday.web.view.template;
 
+import java.io.IOException;
 import java.util.Map.Entry;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.http.HttpServletRequest;
 
+import cn.taketoday.beans.Autowired;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.http.InternalServerException;
+import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 
 /**
@@ -42,17 +46,22 @@ import cn.taketoday.web.servlet.WebServletApplicationContext;
 public class JstlTemplateRenderer extends AbstractTemplateRenderer {
 
   @Override
-  public void render(final String template, final RequestContext requestContext) throws Throwable {
+  public void render(final String template, final RequestContext context) throws IOException {
 
-    final HttpServletRequest request = requestContext.nativeRequest();
-    request.getRequestDispatcher(prepareTemplate(template))
-            .forward(request, requestContext.nativeResponse());
+    HttpServletRequest request = ServletUtils.getServletRequest(context);
+    try {
+      request.getRequestDispatcher(prepareTemplate(template))
+              .forward(request, context.nativeResponse());
+    }
+    catch (ServletException e) {
+      throw new InternalServerException(e);
+    }
   }
 
   /**
    * @since 2.3.3
    */
-  @PostConstruct
+  @Autowired
   public void afterPropertiesSet(WebServletApplicationContext context) {
     final String jspServlet = "org.apache.jasper.servlet.JspServlet";
 

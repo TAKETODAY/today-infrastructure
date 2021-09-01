@@ -30,8 +30,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-import javax.annotation.PostConstruct;
-
+import cn.taketoday.beans.Autowired;
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheExpressionContext;
 import cn.taketoday.cache.CacheManager;
@@ -63,7 +62,7 @@ public abstract class AbstractCacheInterceptor
   private CacheManager cacheManager;
   private final OrderedSupport ordered = new OrderedSupport();
 
-  public AbstractCacheInterceptor() {}
+  public AbstractCacheInterceptor() { }
 
   public AbstractCacheInterceptor(CacheManager cacheManager) {
     setCacheManager(cacheManager);
@@ -133,7 +132,7 @@ public abstract class AbstractCacheInterceptor
   /**
    * @see cn.taketoday.cache.annotation.ProxyCachingConfiguration
    */
-  @PostConstruct
+  @Autowired
   public void initCacheInterceptor(ApplicationContext context) {
     if (getCacheManager() == null) {
       setCacheManager(context.getBean(CacheManager.class));
@@ -185,10 +184,10 @@ public abstract class AbstractCacheInterceptor
       final ApplicationContext lastStartupContext = ContextUtils.getLastStartupContext();
       if (lastStartupContext != null) {
         SHARED_EL_CONTEXT = lastStartupContext
-                        .getEnvironment()
-                        .getExpressionProcessor()
-                        .getManager()
-                        .getContext();
+                .getEnvironment()
+                .getExpressionProcessor()
+                .getManager()
+                .getContext();
       }
       else {
         SHARED_EL_CONTEXT = new StandardExpressionContext(EXPRESSION_FACTORY);
@@ -309,8 +308,10 @@ public abstract class AbstractCacheInterceptor
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof MethodKey)) return false;
+      if (this == o)
+        return true;
+      if (!(o instanceof MethodKey))
+        return false;
       final MethodKey methodKey = (MethodKey) o;
       return hash == methodKey.hash
               && Objects.equals(targetMethod, methodKey.targetMethod)

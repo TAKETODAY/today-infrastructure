@@ -20,12 +20,15 @@
 
 package cn.taketoday.web.view.template;
 
+import cn.taketoday.web.annotation.ResponseStatus;
+import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.http.InternalServerException;
 
 /**
  * @author TODAY 2021/9/1 23:29
  * @since 4.0
  */
+@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 public class TemplateRenderingException extends InternalServerException {
   private static final long serialVersionUID = 1L;
   public static final String TemplateRenderingFailed = "Template rendering failed";

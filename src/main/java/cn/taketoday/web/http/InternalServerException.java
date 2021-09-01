@@ -32,7 +32,7 @@ public class InternalServerException extends WebNestedRuntimeException {
   public static final String INTERNAL_SERVER_ERROR = "Internal Server Error";
 
   public InternalServerException(Throwable cause) {
-    super(cause);
+    super(INTERNAL_SERVER_ERROR, cause);
   }
 
   public InternalServerException(String message, Throwable cause) {
