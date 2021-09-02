@@ -52,6 +52,10 @@ public class ResponseBodyReturnValueHandler extends OrderedSupport implements Ru
   @Override
   public void handleReturnValue(
           RequestContext context, Object handler, Object returnValue) throws IOException {
+    write(context, returnValue);
+  }
+
+  public void write(RequestContext context, Object returnValue) throws IOException {
     messageConverter.write(context, returnValue);
   }
 

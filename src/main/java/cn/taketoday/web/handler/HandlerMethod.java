@@ -27,6 +27,7 @@ import java.util.Objects;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.NonNull;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ObjectUtils;
@@ -45,13 +46,11 @@ import cn.taketoday.web.view.ReturnValueHandlers;
 /**
  * Annotation handler
  *
- * @author TODAY <br>
- * 2018-06-25 20:03:11
+ * @author TODAY 2018-06-25 20:03:11
  * @see cn.taketoday.web.registry.HandlerMethodRegistry#isController(BeanDefinition)
  */
 public class HandlerMethod
         extends InterceptableRequestHandler implements HandlerAdapter, ReturnValueHandler {
-
   private final Object bean; // controller bean
   /** action **/
   private final Method method;
@@ -71,17 +70,13 @@ public class HandlerMethod
   /** @since 3.0 */
   private ReturnValueHandlers resultHandlers;
 
-  public HandlerMethod() {
-    this(null, null, null);
-  }
-
   public HandlerMethod(Object bean, Method method) {
     this(bean, method, null);
   }
 
   public HandlerMethod(Object bean, Method method, List<HandlerInterceptor> interceptors) {
-    Assert.notNull(bean);
-    Assert.notNull(method);
+    Assert.notNull(bean, "No bean");
+    Assert.notNull(method, "No method");
     this.bean = bean;
     this.method = method;
     setInterceptors(interceptors);
@@ -116,15 +111,25 @@ public class HandlerMethod
   }
 
   // ---- useful methods
-  public boolean isInterface() {
+
+  public boolean returnTypeIsInterface() {
     return returnType.isInterface();
   }
 
-  public boolean isArray() {
+  public boolean returnTypeIsArray() {
     return returnType.isArray();
   }
 
-  public boolean isAssignableTo(final Class<?> superClass) {
+  /**
+   * isAssignableFrom
+   *
+   * @since 4.0
+   */
+  public boolean isReturnTypeAssignableFrom(final Class<?> childClass) {
+    return returnType.isAssignableFrom(childClass);
+  }
+
+  public boolean isReturnTypeAssignableTo(final Class<?> superClass) {
     return superClass.isAssignableFrom(returnType);
   }
 
@@ -174,6 +179,7 @@ public class HandlerMethod
 
   //Getter Setter
 
+  @NonNull
   public Method getMethod() {
     return method;
   }
@@ -276,6 +282,15 @@ public class HandlerMethod
     return handleRequest(context);
   }
 
+  // helper
+
+  /**
+   * ResponseBody present?
+   */
+  public boolean isResponseBody() {
+    return WebUtils.isResponseBody(method);
+  }
+
   // Object
 
   @Override
@@ -318,11 +333,11 @@ public class HandlerMethod
 
   // static
 
-  public static HandlerMethod create(Object bean, Method method) {
+  public static HandlerMethod from(Object bean, Method method) {
     return new HandlerMethod(bean, method);
   }
 
-  public static HandlerMethod create(Object bean, Method method, List<HandlerInterceptor> interceptors) {
+  public static HandlerMethod from(Object bean, Method method, List<HandlerInterceptor> interceptors) {
     return new HandlerMethod(bean, method, interceptors);
   }
 

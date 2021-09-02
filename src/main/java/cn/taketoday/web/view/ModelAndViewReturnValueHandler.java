@@ -21,25 +21,21 @@ package cn.taketoday.web.view;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.view.template.TemplateRenderer;
 
 /**
- * @author TODAY <br>
- * 2019-07-14 01:14
+ * @author TODAY 2019-07-14 01:14
  */
-public class ModelAndViewReturnValueHandler extends HandlerMethodReturnValueHandler {
+public class ModelAndViewReturnValueHandler
+        extends HandlerMethodReturnValueHandler implements RuntimeReturnValueHandler {
+  private final ObjectReturnValueHandler objectReturnValueHandler;
 
-  public ModelAndViewReturnValueHandler(TemplateRenderer viewResolver,
-                                        MessageConverter messageConverter, int downloadFileBuf) {
-
-    setMessageConverter(messageConverter);
-    setTemplateViewResolver(viewResolver);
-    setDownloadFileBufferSize(downloadFileBuf);
+  public ModelAndViewReturnValueHandler(ObjectReturnValueHandler objectReturnValueHandler) {
+    this.objectReturnValueHandler = objectReturnValueHandler;
   }
 
   @Override
   public boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
-    return handlerMethod.isAssignableTo(ModelAndView.class);
+    return handlerMethod.isReturnTypeAssignableTo(ModelAndView.class);
   }
 
   @Override
@@ -48,9 +44,9 @@ public class ModelAndViewReturnValueHandler extends HandlerMethodReturnValueHand
   }
 
   @Override
-  public void handleReturnValue(final RequestContext context,
-                                final Object handler, final Object returnValue) throws Throwable {
-    resolveModelAndView(context, (ModelAndView) returnValue);
+  public void handleReturnValue(
+          RequestContext context, Object handler, Object returnValue) throws Throwable {
+    objectReturnValueHandler.handleModelAndView(context, (ModelAndView) returnValue);
   }
 
 }

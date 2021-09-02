@@ -194,6 +194,7 @@ public abstract class ReflectionUtils {
    *
    * @return the Method object, or {@code null} if none found
    */
+  @Nullable
   public static Method findMethod(Class<?> clazz, String name) {
     return findMethod(clazz, name, (Class<?>[]) null);
   }
@@ -214,6 +215,7 @@ public abstract class ReflectionUtils {
    *
    * @return the Method object, or {@code null} if none found
    */
+  @Nullable
   public static Method findMethod(Class<?> clazz, String name, Class<?>... paramTypes) {
     Assert.notNull(clazz, "Class must not be null");
     Assert.notNull(name, "Method name must not be null");
@@ -657,6 +659,7 @@ public abstract class ReflectionUtils {
    *
    * @return the corresponding Field object, or {@code null} if not found
    */
+  @Nullable
   public static Field findField(Class<?> clazz, String name) {
     return findField(clazz, name, null);
   }
@@ -675,6 +678,7 @@ public abstract class ReflectionUtils {
    *
    * @return the corresponding Field object, or {@code null} if not found
    */
+  @Nullable
   public static Field findField(Class<?> clazz, String name, Class<?> type) {
     Assert.notNull(clazz, "Class must not be null");
     Assert.isTrue(name != null || type != null, "Either name or type of the field must be specified");

@@ -38,7 +38,7 @@ import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.http.HttpStatusCapable;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.view.TemplateReturnValueHandler;
+import cn.taketoday.web.view.TemplateRendererReturnValueHandler;
 
 /**
  * Simple {@link HandlerExceptionHandler}
@@ -152,13 +152,13 @@ public class SimpleExceptionHandler
   {
     context.setStatus(getErrorStatusValue(ex));
 
-    if (handlerMethod.isAssignableTo(RenderedImage.class)) {
+    if (handlerMethod.isReturnTypeAssignableTo(RenderedImage.class)) {
       return resolveImageException(ex, context);
     }
     if (!handlerMethod.isReturn(void.class)
             && !handlerMethod.isReturn(Object.class)
             && !handlerMethod.isReturn(ModelAndView.class)
-            && TemplateReturnValueHandler.supportsHandlerMethod(handlerMethod)) {
+            && !TemplateRendererReturnValueHandler.supportsHandlerMethod(handlerMethod)) {
 
       return handleExceptionInternal(ex, context);
     }

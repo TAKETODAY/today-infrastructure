@@ -48,7 +48,7 @@ public class RenderedImageReturnValueHandler
 
   @Override
   public boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
-    return handlerMethod.isAssignableTo(RenderedImage.class);
+    return handlerMethod.isReturnTypeAssignableTo(RenderedImage.class);
   }
 
   @Override
@@ -59,11 +59,14 @@ public class RenderedImageReturnValueHandler
   @Override
   public void handleReturnValue(
           final RequestContext context, final Object handler, final Object returnValue) throws IOException {
-    if (returnValue != null) {
-      context.setContentType(contentType);
-      // sub-classes can override this method to apply content type
-      ImageIO.write((RenderedImage) returnValue, formatName, context.getOutputStream());
+    if (returnValue instanceof RenderedImage) {
+      write((RenderedImage) returnValue, context);
     }
+  }
+
+  public void write(RenderedImage returnValue, RequestContext context) throws IOException {
+    context.setContentType(contentType);
+    ImageIO.write(returnValue, formatName, context.getOutputStream());
   }
 
   public void setFormatName(String formatName) {

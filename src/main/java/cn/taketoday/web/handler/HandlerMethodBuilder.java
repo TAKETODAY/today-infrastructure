@@ -100,8 +100,8 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
    */
   @SuppressWarnings("unchecked")
   public T build(Object handlerBean, Method method) {
-    Assert.state(returnValueHandlers != null, "No ResultHandlers");
-    Assert.state(parametersBuilder != null, "No MethodParameterBuilder");
+    Assert.state(returnValueHandlers != null, "No ResultHandlers set");
+    Assert.state(parametersBuilder != null, "No MethodParametersBuilder set");
 
     final T handlerMethod = (T) getConstructor().newInstance(new Object[] { handlerBean, method });
     final MethodParameter[] parameters = parametersBuilder.build(method);

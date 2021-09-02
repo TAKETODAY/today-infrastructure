@@ -49,8 +49,8 @@ public class ResourceReturnValueHandler extends OrderedSupport implements Runtim
   }
 
   private boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
-    return handlerMethod.isAssignableTo(Resource.class)
-            || handlerMethod.isAssignableTo(File.class);
+    return handlerMethod.isReturnTypeAssignableTo(Resource.class)
+            || handlerMethod.isReturnTypeAssignableTo(File.class);
   }
 
   @Override
@@ -62,12 +62,36 @@ public class ResourceReturnValueHandler extends OrderedSupport implements Runtim
   @Override
   public void handleReturnValue(
           RequestContext context, Object handler, Object returnValue) throws IOException {
-    if (returnValue != null) {
-      if (returnValue instanceof Resource) {
-        WebUtils.downloadFile(context, (Resource) returnValue, downloadFileBuf);
-      }
-      WebUtils.downloadFile(context, ResourceUtils.getResource((File) returnValue), downloadFileBuf);
+    if (returnValue instanceof File) {
+      downloadFile(ResourceUtils.getResource((File) returnValue), context);
     }
+    else if (returnValue instanceof Resource) {
+      downloadFile((Resource) returnValue, context);
+    }
+  }
+
+  /**
+   * Download file to client.
+   *
+   * @param resource
+   *         {@link Resource} to download
+   *
+   * @since 2.1.x
+   */
+  public void downloadFile(Resource resource, RequestContext context) throws IOException {
+    WebUtils.downloadFile(context, resource, downloadFileBuf);
+  }
+
+  /**
+   * Download file to client.
+   *
+   * @param file
+   *         {@link Resource} to download
+   *
+   * @since 2.1.x
+   */
+  public void downloadFile(File file, RequestContext context) throws IOException {
+    WebUtils.downloadFile(context, ResourceUtils.getResource(file), downloadFileBuf);
   }
 
 }

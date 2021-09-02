@@ -19,10 +19,10 @@
  */
 package cn.taketoday.web.view;
 
+import cn.taketoday.core.NonNull;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.http.ResponseEntity;
-import cn.taketoday.web.view.template.TemplateRenderer;
 
 /**
  * Handle {@link ResponseEntity}
@@ -34,15 +34,10 @@ import cn.taketoday.web.view.template.TemplateRenderer;
 public class ResponseEntityReturnValueHandler
         extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
 
-  public ResponseEntityReturnValueHandler() {}
+  private final ObjectReturnValueHandler returnValueHandler;
 
-  public ResponseEntityReturnValueHandler(TemplateRenderer viewResolver,
-                                          MessageConverter messageConverter,
-                                          int downloadFileBuf) {
-
-    setMessageConverter(messageConverter);
-    setTemplateViewResolver(viewResolver);
-    setDownloadFileBufferSize(downloadFileBuf);
+  public ResponseEntityReturnValueHandler(ObjectReturnValueHandler returnValueHandler) {
+    this.returnValueHandler = returnValueHandler;
   }
 
   @Override
@@ -52,11 +47,12 @@ public class ResponseEntityReturnValueHandler
 
   @Override
   protected void handleInternal(
-          RequestContext context, HandlerMethod handler, Object returnValue) throws Throwable {
+          RequestContext context, HandlerMethod handler, @NonNull Object returnValue) throws Throwable {
     final ResponseEntity<?> response = (ResponseEntity<?>) returnValue;
     context.setStatus(response.getStatusCode());
     // apply headers
     context.responseHeaders().addAll(response.getHeaders());
-    handleObject(context, response.getBody());
+
+    returnValueHandler.handleObjectValue(context, response.getBody());
   }
 }

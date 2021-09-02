@@ -25,6 +25,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.StringTokenizer;
 
+import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.DefaultMultiValueMap;
@@ -36,6 +37,7 @@ import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.DefaultResponseStatus;
 import cn.taketoday.web.handler.HandlerMethod;
@@ -383,5 +385,21 @@ public abstract class WebUtils {
       }
     }
     return result;
+  }
+
+  /**
+   * @since 4.0
+   */
+  public static boolean isResponseBody(Method method) {
+    AnnotationAttributes attributes = AnnotationUtils.getAttributes(ResponseBody.class, method);
+    if (attributes != null) {
+      return attributes.getBoolean(Constant.VALUE);
+    }
+    Class<?> declaringClass = method.getDeclaringClass();
+    attributes = AnnotationUtils.getAttributes(ResponseBody.class, declaringClass);
+    if (attributes != null) {
+      return attributes.getBoolean(Constant.VALUE);
+    }
+    return false;
   }
 }

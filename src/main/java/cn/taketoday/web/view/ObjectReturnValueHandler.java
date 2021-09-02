@@ -19,61 +19,147 @@
  */
 package cn.taketoday.web.view;
 
+import java.awt.image.RenderedImage;
+import java.io.File;
+import java.io.IOException;
+
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.view.template.TemplateRenderer;
 
 /**
- * @author TODAY <br>
- * 2019-07-14 17:41
+ * @author TODAY 2019-07-14 17:41
  */
-public class ObjectReturnValueHandler extends HandlerMethodReturnValueHandler {
+public class ObjectReturnValueHandler implements RuntimeReturnValueHandler, ReturnValueHandler {
+  private final ResourceReturnValueHandler resourceHandler;
+  private final ResponseBodyReturnValueHandler responseBodyHandler;
+  private final RenderedImageReturnValueHandler renderedImageHandler;
+  private final TemplateRendererReturnValueHandler templateRendererHandler;
 
   public ObjectReturnValueHandler(
-          TemplateRenderer viewResolver,
-          MessageConverter messageConverter, int downloadFileBuf) {
-
-    setMessageConverter(messageConverter);
-    setTemplateViewResolver(viewResolver);
-    setDownloadFileBufferSize(downloadFileBuf);
+          ResourceReturnValueHandler resourceHandler,
+          ResponseBodyReturnValueHandler responseBodyHandler,
+          RenderedImageReturnValueHandler renderedImageHandler,
+          TemplateRendererReturnValueHandler templateRendererHandler) {
+    this.resourceHandler = resourceHandler;
+    this.responseBodyHandler = responseBodyHandler;
+    this.renderedImageHandler = renderedImageHandler;
+    this.templateRendererHandler = templateRendererHandler;
   }
 
   @Override
-  public boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
-    return handlerMethod.isReturn(Object.class);
-  }
-
-  @Override
-  protected void handleInternal(RequestContext context, HandlerMethod handler, Object returnValue) throws Throwable {
-    if (isResponseBody(handler)) {// @since 3.0.5 fix response body error (github #16)
-      handleResponseBody(context, returnValue);
+  public void handleReturnValue(
+          RequestContext context, Object handler, Object returnValue) throws IOException {
+    if (writeResponseBody(handler)) {// @since 3.0.5 fix response body error (github #16)
+      writeResponseBody(context, returnValue);
     }
     else {
-      handleObject(context, returnValue);
+      handleObjectValue(context, returnValue);
     }
+  }
+
+  private void writeResponseBody(RequestContext context, Object returnValue) throws IOException {
+    responseBodyHandler.write(context, returnValue);
+  }
+
+  public void handleObjectValue(final RequestContext request, final Object returnValue) throws IOException {
+    if (returnValue instanceof String) {
+      handleStringValue((String) returnValue, request);
+    }
+    else if (returnValue instanceof File) {
+      resourceHandler.downloadFile((File) returnValue, request);
+    }
+    else if (returnValue instanceof Resource) {
+      resourceHandler.downloadFile((Resource) returnValue, request);
+    }
+    else if (returnValue instanceof ModelAndView) {
+      handleModelAndView(request, (ModelAndView) returnValue);
+    }
+    else if (returnValue instanceof RenderedImage) {
+      handleImageValue((RenderedImage) returnValue, request);
+    }
+    else {
+      writeResponseBody(request, returnValue);
+    }
+  }
+
+  public void handleRedirect(final String redirect, final RequestContext context) throws IOException {
+    if (StringUtils.isEmpty(redirect) || redirect.startsWith(Constant.HTTP)) {
+      context.sendRedirect(redirect);
+    }
+    else {
+      context.sendRedirect(context.getContextPath().concat(redirect));
+    }
+  }
+
+  public void handleStringValue(final String resource, final RequestContext context) throws IOException {
+    if (resource.startsWith(REDIRECT_URL_PREFIX)) {
+      // redirect
+      handleRedirect(resource.substring(9), context);
+    }
+    else if (resource.startsWith(RESPONSE_BODY_PREFIX)) {
+      // body
+      writeResponseBody(context, resource.substring(5));
+    }
+    else {
+      // template view
+      templateRendererHandler.render(resource, context);
+    }
+  }
+
+  /**
+   * Resolve {@link ModelAndView} return type
+   *
+   * @since 2.3.3
+   */
+  public void handleModelAndView(
+          final RequestContext context, final @Nullable ModelAndView modelAndView) throws IOException {
+    if (modelAndView != null && modelAndView.hasView()) {
+      handleObjectValue(context, modelAndView.getView());
+    }
+  }
+
+  /**
+   * Resolve image
+   *
+   * @param context
+   *         Current request context
+   * @param image
+   *         Image instance
+   *
+   * @throws IOException
+   *         if an error occurs during writing.
+   * @since 2.3.3
+   */
+  public void handleImageValue(final RenderedImage image, final RequestContext context) throws IOException {
+    renderedImageHandler.write(image, context);
   }
 
   /**
    * determine this handler is write message to response body?
    *
-   * @param handlerMethod
+   * @param handler
    *         target handler
    *
    * @since 3.0.3
    */
-  private boolean isResponseBody(HandlerMethod handlerMethod) {
-    if (handlerMethod.isMethodPresent(ResponseBody.class)) {
-      return !handlerMethod.getMethodAnnotation(ResponseBody.class).value();
+  protected boolean writeResponseBody(Object handler) {
+    if (handler instanceof HandlerMethod) {
+      return ((HandlerMethod) handler).isResponseBody();
     }
-    else if (handlerMethod.isDeclaringClassPresent(ResponseBody.class)) {
-      return !handlerMethod.getDeclaringClassAnnotation(ResponseBody.class).value();
-    }
-    return true;
+    return false;
   }
 
   @Override
   public boolean supportsReturnValue(Object returnValue) {
+    return true;
+  }
+
+  @Override
+  public boolean supportsHandler(Object handler) {
     return true;
   }
 

@@ -19,21 +19,20 @@
  */
 package cn.taketoday.web.view;
 
-import java.io.IOException;
-
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.view.template.TemplateRenderer;
 
 /**
  * for {@link Void} or void type
  *
  * @author TODAY 2019-07-14 00:53
  */
-public class VoidReturnValueHandler extends ModelAndViewReturnValueHandler {
+public class VoidReturnValueHandler
+        extends HandlerMethodReturnValueHandler implements RuntimeReturnValueHandler {
+  private final ObjectReturnValueHandler objectReturnValueHandler;
 
-  public VoidReturnValueHandler(TemplateRenderer viewResolver, MessageConverter messageConverter, int downloadFileBuf) {
-    super(viewResolver, messageConverter, downloadFileBuf);
+  public VoidReturnValueHandler(ObjectReturnValueHandler objectReturnValueHandler) {
+    this.objectReturnValueHandler = objectReturnValueHandler;
   }
 
   @Override
@@ -48,17 +47,10 @@ public class VoidReturnValueHandler extends ModelAndViewReturnValueHandler {
   }
 
   @Override
-  protected void handleNullValue(RequestContext context, Object handler) throws IOException {
-    if (context.hasModelAndView()) {
-      resolveModelAndView(context, context.modelAndView());
-    }
-  }
-
-  @Override
   public void handleReturnValue(
           RequestContext context, Object handler, Object returnValue) throws Throwable {
     if (context.hasModelAndView()) {
-      resolveModelAndView(context, context.modelAndView());
+      objectReturnValueHandler.handleModelAndView(context, context.modelAndView());
     }
   }
 
