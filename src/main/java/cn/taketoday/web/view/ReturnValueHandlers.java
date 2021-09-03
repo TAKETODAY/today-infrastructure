@@ -74,6 +74,9 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
   @Nullable
   private RenderedImageReturnValueHandler renderedImageHandler;
 
+  @Nullable
+  private ObjectReturnValueHandler objectHandler;
+
   private String imageFormatName = RenderedImageReturnValueHandler.IMAGE_PNG;
 
   public void addHandlers(ReturnValueHandler... handlers) {
@@ -96,21 +99,15 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
   }
 
   public void sort() {
+    sort(handlers);
+  }
+
+  public void sort(List<ReturnValueHandler> handlers) {
     OrderUtils.reversedSort(handlers);
   }
 
   public List<ReturnValueHandler> getHandlers() {
     return handlers;
-  }
-
-  public RuntimeReturnValueHandler[] getRuntimeHandlers() {
-    final ArrayList<RuntimeReturnValueHandler> ret = new ArrayList<>();
-    for (final ReturnValueHandler handler : handlers) {
-      if (handler instanceof RuntimeReturnValueHandler) {
-        ret.add((RuntimeReturnValueHandler) handler);
-      }
-    }
-    return ret.toArray(new RuntimeReturnValueHandler[0]);
   }
 
   public ReturnValueHandler getHandler(final Object handler) {
@@ -193,21 +190,38 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
     final List<ReturnValueHandler> handlers = getHandlers();
     applyDefaults(templateRenderer);
 
+    ArrayList<ReturnValueHandler> returnValueHandlers = new ArrayList<>();
+
     ResourceReturnValueHandler resourceHandler = new ResourceReturnValueHandler(getDownloadFileBufferSize());
-    ObjectReturnValueHandler objectResultHandler
-            = new ObjectReturnValueHandler(resourceHandler, responseBodyHandler, renderedImageHandler, templateRendererHandler);
+    ModelAndViewReturnValueHandler modelAndViewHandler = new ModelAndViewReturnValueHandler(returnValueHandlers);
+
+    returnValueHandlers.add(renderedImageHandler);
+    returnValueHandlers.add(resourceHandler);
+    returnValueHandlers.add(templateRendererHandler);
+    returnValueHandlers.add(new VoidReturnValueHandler(modelAndViewHandler));
+    returnValueHandlers.add(modelAndViewHandler);
+    returnValueHandlers.add(new CharSequenceReturnValueHandler(templateRendererHandler));
+    returnValueHandlers.add(new HttpStatusReturnValueHandler());
+
+    sort(returnValueHandlers);
+
+    CompositeReturnValueHandler compositeHandler = new CompositeReturnValueHandler(returnValueHandlers);
+
+    //
+    ObjectReturnValueHandler objectHandler = new ObjectReturnValueHandler(compositeHandler);
 
     handlers.add(renderedImageHandler);
     handlers.add(resourceHandler);
     handlers.add(templateRendererHandler);
 
-    handlers.add(new VoidReturnValueHandler(objectResultHandler));
-    handlers.add(objectResultHandler);
-    handlers.add(new ModelAndViewReturnValueHandler(objectResultHandler));
-    handlers.add(new ResponseEntityReturnValueHandler(objectResultHandler));
+    handlers.add(new VoidReturnValueHandler(modelAndViewHandler));
+    handlers.add(objectHandler);
+    handlers.add(modelAndViewHandler);
+    handlers.add(new ResponseEntityReturnValueHandler(compositeHandler));
+    handlers.add(new CharSequenceReturnValueHandler(templateRendererHandler));
+    handlers.add(new HttpStatusReturnValueHandler());
 
     handlers.add(responseBodyHandler);
-    handlers.add(new HttpStatusReturnValueHandler());
 
     // ordering
     sort();
@@ -235,6 +249,13 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
       handler.setModelManager(getRedirectModelManager());
       this.templateRendererHandler = handler;
     }
+  }
+
+  /**
+   * @since 4.0
+   */
+  public void trimToSize() {
+    handlers.trimToSize();
   }
 
   public void setRenderedImageHandler(@Nullable RenderedImageReturnValueHandler renderedImageHandler) {
@@ -316,6 +337,15 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
   @Nullable
   public TemplateRendererReturnValueHandler getTemplateRendererHandler() {
     return templateRendererHandler;
+  }
+
+  public void setObjectHandler(@Nullable ObjectReturnValueHandler objectHandler) {
+    this.objectHandler = objectHandler;
+  }
+
+  @Nullable
+  public ObjectReturnValueHandler getObjectHandler() {
+    return objectHandler;
   }
 
   public void setImageFormatName(String imageFormatName) {

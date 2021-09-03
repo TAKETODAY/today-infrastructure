@@ -106,11 +106,25 @@ public class TemplateRendererReturnValueHandler
 
   @Override
   public void handleReturnValue(
-          RequestContext context, final Object handler, final Object returnValue) throws Throwable {
-    render((String) returnValue, context);
+          RequestContext context, final Object handler, final Object returnValue) throws IOException {
+    if (returnValue instanceof String) {
+      renderTemplate((String) returnValue, context);
+    }
   }
 
-  public void render(String templateName, RequestContext context) throws IOException {
+  /**
+   * use template-renderer render template to response
+   *
+   * @param templateName
+   *         template name
+   * @param context
+   *         request context
+   *
+   * @throws IOException
+   *         If any {@link IOException} occurred when render template
+   * @see TemplateRenderer#render(String, RequestContext)
+   */
+  public void renderTemplate(String templateName, RequestContext context) throws IOException {
     final RedirectModelManager modelManager = getModelManager();
     if (modelManager != null) { // @since 3.0.3 checking model manager
       final RedirectModel redirectModel = modelManager.getModel(context);

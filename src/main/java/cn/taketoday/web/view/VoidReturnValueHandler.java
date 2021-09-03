@@ -19,6 +19,9 @@
  */
 package cn.taketoday.web.view;
 
+import java.io.IOException;
+
+import cn.taketoday.core.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
 
@@ -29,10 +32,11 @@ import cn.taketoday.web.handler.HandlerMethod;
  */
 public class VoidReturnValueHandler
         extends HandlerMethodReturnValueHandler implements RuntimeReturnValueHandler {
-  private final ObjectReturnValueHandler objectReturnValueHandler;
+  private final ModelAndViewReturnValueHandler returnValueHandler;
 
-  public VoidReturnValueHandler(ObjectReturnValueHandler objectReturnValueHandler) {
-    this.objectReturnValueHandler = objectReturnValueHandler;
+  public VoidReturnValueHandler(ModelAndViewReturnValueHandler returnValueHandler) {
+    Assert.notNull(returnValueHandler, "ModelAndViewReturnValueHandler must not be null");
+    this.returnValueHandler = returnValueHandler;
   }
 
   @Override
@@ -48,9 +52,9 @@ public class VoidReturnValueHandler
 
   @Override
   public void handleReturnValue(
-          RequestContext context, Object handler, Object returnValue) throws Throwable {
+          RequestContext context, Object handler, Object returnValue) throws IOException {
     if (context.hasModelAndView()) {
-      objectReturnValueHandler.handleModelAndView(context, context.modelAndView());
+      returnValueHandler.handleModelAndView(context, null, context.modelAndView());
     }
   }
 

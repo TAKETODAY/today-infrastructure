@@ -116,7 +116,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    *         If there isn't a {@link ReturnValueHandler} for target handler and
    *         handler execution result
    */
-  public ReturnValueHandler lookupReturnValueHandler(@Nullable Object handler, @Nullable Object returnValue) {
+  public ReturnValueHandler lookupReturnValueHandler(Object handler, @Nullable Object returnValue) {
     if (handler instanceof ReturnValueHandler) {
       return (ReturnValueHandler) handler;
     }

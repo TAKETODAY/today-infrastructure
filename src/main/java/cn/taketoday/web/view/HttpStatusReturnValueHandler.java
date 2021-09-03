@@ -42,7 +42,7 @@ public class HttpStatusReturnValueHandler
 
   @Override
   public void handleReturnValue(
-          RequestContext context, Object handler, final Object returnValue) throws Throwable {
+          RequestContext context, Object handler, final Object returnValue) {
     if (returnValue instanceof HttpStatus) {
       context.setStatus((HttpStatus) returnValue);
     }

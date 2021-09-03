@@ -19,6 +19,10 @@
  */
 package cn.taketoday.web.view;
 
+import java.io.IOException;
+import java.util.List;
+
+import cn.taketoday.core.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
 
@@ -27,10 +31,15 @@ import cn.taketoday.web.handler.HandlerMethod;
  */
 public class ModelAndViewReturnValueHandler
         extends HandlerMethodReturnValueHandler implements RuntimeReturnValueHandler {
-  private final ObjectReturnValueHandler objectReturnValueHandler;
 
-  public ModelAndViewReturnValueHandler(ObjectReturnValueHandler objectReturnValueHandler) {
-    this.objectReturnValueHandler = objectReturnValueHandler;
+  private final CompositeReturnValueHandler returnValueHandlers;
+
+  public ModelAndViewReturnValueHandler(List<ReturnValueHandler> returnValueHandlers) {
+    this.returnValueHandlers = new CompositeReturnValueHandler(returnValueHandlers);
+  }
+
+  public ModelAndViewReturnValueHandler(CompositeReturnValueHandler returnValueHandlers) {
+    this.returnValueHandlers = returnValueHandlers;
   }
 
   @Override
@@ -45,8 +54,22 @@ public class ModelAndViewReturnValueHandler
 
   @Override
   public void handleReturnValue(
-          RequestContext context, Object handler, Object returnValue) throws Throwable {
-    objectReturnValueHandler.handleModelAndView(context, (ModelAndView) returnValue);
+          RequestContext context, Object handler, Object returnValue) throws IOException {
+    if (returnValue instanceof ModelAndView) {
+      handleModelAndView(context, handler, (ModelAndView) returnValue);
+    }
+  }
+
+  /**
+   * Resolve {@link ModelAndView} return type
+   *
+   * @since 2.3.3
+   */
+  public void handleModelAndView(
+          RequestContext context, @Nullable Object handler, @Nullable ModelAndView modelAndView) throws IOException {
+    if (modelAndView != null && modelAndView.hasView()) {
+      returnValueHandlers.handleSelected(context, handler, modelAndView.getView());
+    }
   }
 
 }

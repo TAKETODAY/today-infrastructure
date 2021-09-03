@@ -75,7 +75,7 @@ public class PojoPerformanceTest {
   private final static String DB_PASSWORD = "";
   private final static String HIBERNATE_DIALECT = "org.hibernate.dialect.H2Dialect";
   private final static SQLDialect JOOQ_DIALECT = SQLDialect.H2;
-  private final int ITERATIONS = 5000;
+  private final int ITERATIONS = 1000;
 
   private JdbcOperations operations;
 

@@ -292,7 +292,8 @@ public class WebApplicationLoader
 
     returnValueHandlers.addHandlers(handlers);
     // apply result handler
-    obtainDispatcher.setResultHandlers(returnValueHandlers.getRuntimeHandlers());
+
+    obtainDispatcher.setResultHandlers(RuntimeReturnValueHandler.filterArray(returnValueHandlers.getHandlers()));
   }
 
   private void configureParameterResolver(

@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.handler;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -69,6 +70,8 @@ public class HandlerMethod
 
   /** @since 3.0 */
   private ReturnValueHandlers resultHandlers;
+  /** @since 4.0 */
+  private Boolean responseBody;
 
   public HandlerMethod(Object bean, Method method) {
     this(bean, method, null);
@@ -232,7 +235,7 @@ public class HandlerMethod
 
   @Override
   public void handleReturnValue(
-          final RequestContext context, final Object handler, final Object returnValue) throws Throwable {
+          final RequestContext context, final Object handler, final Object returnValue) throws IOException {
     applyResponseStatus(context);
     ReturnValueHandler returnValueHandler = this.returnValueHandler;
     if (returnValueHandler == null) {
@@ -288,7 +291,12 @@ public class HandlerMethod
    * ResponseBody present?
    */
   public boolean isResponseBody() {
-    return WebUtils.isResponseBody(method);
+    Boolean responseBody = this.responseBody;
+    if (responseBody == null) {
+      responseBody = WebUtils.isResponseBody(method);
+      this.responseBody = responseBody;
+    }
+    return responseBody;
   }
 
   // Object

@@ -64,9 +64,9 @@ public class RenderedImageReturnValueHandler
     }
   }
 
-  public void write(RenderedImage returnValue, RequestContext context) throws IOException {
+  public void write(RenderedImage image, RequestContext context) throws IOException {
     context.setContentType(contentType);
-    ImageIO.write(returnValue, formatName, context.getOutputStream());
+    ImageIO.write(image, formatName, context.getOutputStream());
   }
 
   public void setFormatName(String formatName) {

@@ -19,148 +19,61 @@
  */
 package cn.taketoday.web.view;
 
-import java.awt.image.RenderedImage;
-import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.Nullable;
-import cn.taketoday.core.io.Resource;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
 
 /**
+ * HandlerMethod return Object
+ * <pre>
+ * &#64GET("/object")
+ * public Object object(boolean key1, boolean key2, boolean key3, RequestContext context) throws IOException {
+ *   if (key1) {
+ *     return new Body("key1", 1);
+ *   }
+ *   if (key2) {
+ *     Resource resource = new ClassPathResource("error/404.png");
+ *     context.setContentType(MediaType.IMAGE_JPEG_VALUE);
+ *     return ImageIO.read(resource.getInputStream());
+ *   }
+ *   if (key3) {
+ *     return ResourceUtils.getResource("classpath:application.yaml");
+ *   }
+ *   return "body:Hello";
+ * }
+ * </pre>
+ *
  * @author TODAY 2019-07-14 17:41
  */
-public class ObjectReturnValueHandler implements RuntimeReturnValueHandler, ReturnValueHandler {
-  private final ResourceReturnValueHandler resourceHandler;
-  private final ResponseBodyReturnValueHandler responseBodyHandler;
-  private final RenderedImageReturnValueHandler renderedImageHandler;
-  private final TemplateRendererReturnValueHandler templateRendererHandler;
+public class ObjectReturnValueHandler
+        extends HandlerMethodReturnValueHandler implements RuntimeReturnValueHandler, ReturnValueHandler {
 
-  public ObjectReturnValueHandler(
-          ResourceReturnValueHandler resourceHandler,
-          ResponseBodyReturnValueHandler responseBodyHandler,
-          RenderedImageReturnValueHandler renderedImageHandler,
-          TemplateRendererReturnValueHandler templateRendererHandler) {
-    this.resourceHandler = resourceHandler;
-    this.responseBodyHandler = responseBodyHandler;
-    this.renderedImageHandler = renderedImageHandler;
-    this.templateRendererHandler = templateRendererHandler;
+  private final CompositeReturnValueHandler returnValueHandlers;
+
+  public ObjectReturnValueHandler(List<ReturnValueHandler> returnValueHandlers) {
+    this.returnValueHandlers = new CompositeReturnValueHandler(returnValueHandlers);
+  }
+
+  public ObjectReturnValueHandler(CompositeReturnValueHandler returnValueHandlers) {
+    this.returnValueHandlers = returnValueHandlers;
   }
 
   @Override
   public void handleReturnValue(
           RequestContext context, Object handler, Object returnValue) throws IOException {
-    if (writeResponseBody(handler)) {// @since 3.0.5 fix response body error (github #16)
-      writeResponseBody(context, returnValue);
-    }
-    else {
-      handleObjectValue(context, returnValue);
-    }
-  }
-
-  private void writeResponseBody(RequestContext context, Object returnValue) throws IOException {
-    responseBodyHandler.write(context, returnValue);
-  }
-
-  public void handleObjectValue(final RequestContext request, final Object returnValue) throws IOException {
-    if (returnValue instanceof String) {
-      handleStringValue((String) returnValue, request);
-    }
-    else if (returnValue instanceof File) {
-      resourceHandler.downloadFile((File) returnValue, request);
-    }
-    else if (returnValue instanceof Resource) {
-      resourceHandler.downloadFile((Resource) returnValue, request);
-    }
-    else if (returnValue instanceof ModelAndView) {
-      handleModelAndView(request, (ModelAndView) returnValue);
-    }
-    else if (returnValue instanceof RenderedImage) {
-      handleImageValue((RenderedImage) returnValue, request);
-    }
-    else {
-      writeResponseBody(request, returnValue);
-    }
-  }
-
-  public void handleRedirect(final String redirect, final RequestContext context) throws IOException {
-    if (StringUtils.isEmpty(redirect) || redirect.startsWith(Constant.HTTP)) {
-      context.sendRedirect(redirect);
-    }
-    else {
-      context.sendRedirect(context.getContextPath().concat(redirect));
-    }
-  }
-
-  public void handleStringValue(final String resource, final RequestContext context) throws IOException {
-    if (resource.startsWith(REDIRECT_URL_PREFIX)) {
-      // redirect
-      handleRedirect(resource.substring(9), context);
-    }
-    else if (resource.startsWith(RESPONSE_BODY_PREFIX)) {
-      // body
-      writeResponseBody(context, resource.substring(5));
-    }
-    else {
-      // template view
-      templateRendererHandler.render(resource, context);
-    }
-  }
-
-  /**
-   * Resolve {@link ModelAndView} return type
-   *
-   * @since 2.3.3
-   */
-  public void handleModelAndView(
-          final RequestContext context, final @Nullable ModelAndView modelAndView) throws IOException {
-    if (modelAndView != null && modelAndView.hasView()) {
-      handleObjectValue(context, modelAndView.getView());
-    }
-  }
-
-  /**
-   * Resolve image
-   *
-   * @param context
-   *         Current request context
-   * @param image
-   *         Image instance
-   *
-   * @throws IOException
-   *         if an error occurs during writing.
-   * @since 2.3.3
-   */
-  public void handleImageValue(final RenderedImage image, final RequestContext context) throws IOException {
-    renderedImageHandler.write(image, context);
-  }
-
-  /**
-   * determine this handler is write message to response body?
-   *
-   * @param handler
-   *         target handler
-   *
-   * @since 3.0.3
-   */
-  protected boolean writeResponseBody(Object handler) {
-    if (handler instanceof HandlerMethod) {
-      return ((HandlerMethod) handler).isResponseBody();
-    }
-    return false;
+    returnValueHandlers.handleSelected(context, handler, returnValue);
   }
 
   @Override
   public boolean supportsReturnValue(Object returnValue) {
-    return true;
+    return returnValueHandlers.supportsReturnValue(returnValue);
   }
 
   @Override
-  public boolean supportsHandler(Object handler) {
-    return true;
+  protected boolean supportsHandlerMethod(HandlerMethod handler) {
+    return handler.isReturn(Object.class);
   }
 
 }

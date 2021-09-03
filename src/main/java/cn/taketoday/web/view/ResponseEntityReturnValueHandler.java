@@ -19,7 +19,9 @@
  */
 package cn.taketoday.web.view;
 
-import cn.taketoday.core.NonNull;
+import java.io.IOException;
+import java.util.List;
+
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.http.ResponseEntity;
@@ -32,12 +34,16 @@ import cn.taketoday.web.http.ResponseEntity;
  * @since 3.0
  */
 public class ResponseEntityReturnValueHandler
-        extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
+        extends HandlerMethodReturnValueHandler implements RuntimeReturnValueHandler {
 
-  private final ObjectReturnValueHandler returnValueHandler;
+  private final CompositeReturnValueHandler returnValueHandlers;
 
-  public ResponseEntityReturnValueHandler(ObjectReturnValueHandler returnValueHandler) {
-    this.returnValueHandler = returnValueHandler;
+  public ResponseEntityReturnValueHandler(List<ReturnValueHandler> returnValueHandlers) {
+    this.returnValueHandlers = new CompositeReturnValueHandler(returnValueHandlers);
+  }
+
+  public ResponseEntityReturnValueHandler(CompositeReturnValueHandler returnValueHandlers) {
+    this.returnValueHandlers = returnValueHandlers;
   }
 
   @Override
@@ -46,13 +52,20 @@ public class ResponseEntityReturnValueHandler
   }
 
   @Override
-  protected void handleInternal(
-          RequestContext context, HandlerMethod handler, @NonNull Object returnValue) throws Throwable {
-    final ResponseEntity<?> response = (ResponseEntity<?>) returnValue;
-    context.setStatus(response.getStatusCode());
-    // apply headers
-    context.responseHeaders().addAll(response.getHeaders());
+  public boolean supportsReturnValue(Object returnValue) {
+    return returnValue instanceof ResponseEntity;
+  }
 
-    returnValueHandler.handleObjectValue(context, response.getBody());
+  @Override
+  public void handleReturnValue(RequestContext context, Object handler, Object returnValue) throws IOException {
+    if (returnValue instanceof ResponseEntity) {
+      ResponseEntity<?> response = (ResponseEntity<?>) returnValue;
+
+      context.setStatus(response.getStatusCode());
+      // apply headers
+      context.responseHeaders().addAll(response.getHeaders());
+
+      returnValueHandlers.handleSelected(context, handler, response.getBody());
+    }
   }
 }

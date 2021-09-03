@@ -1,18 +1,27 @@
 package test.framework;
 
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 import cn.taketoday.beans.Autowired;
 import cn.taketoday.beans.Configuration;
 import cn.taketoday.beans.Import;
 import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.event.EnableMethodEventDriven;
 import cn.taketoday.context.event.EventListener;
+import cn.taketoday.core.io.ClassPathResource;
+import cn.taketoday.core.io.Resource;
 import cn.taketoday.framework.WebApplication;
 import cn.taketoday.framework.reactive.EnableNettyHandling;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.annotation.RestControllerAdvice;
+import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.registry.EnableRequestPathMapping;
 import cn.taketoday.web.socket.BinaryMessage;
@@ -32,6 +41,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author TODAY 2021/3/30 22:41
  */
 @Slf4j
+@EnableWebMvc
 @RestController
 @RestControllerAdvice
 @EnableRequestPathMapping
@@ -51,6 +61,22 @@ public class NettyApplication {
   @GET("/")
   public String hello() {
     return "Hello";
+  }
+
+  @GET("/object")
+  public Object object(boolean key1, boolean key2, boolean key3, RequestContext context) throws IOException {
+    if (key1) {
+      return new Body("key1", 1);
+    }
+    if (key2) {
+      Resource resource = new ClassPathResource("error/404.png");
+      context.setContentType(MediaType.IMAGE_JPEG_VALUE);
+      return ImageIO.read(resource.getInputStream());
+    }
+    if (key3) {
+      return ResourceUtils.getResource("classpath:application.yaml");
+    }
+    return "body:Hello";
   }
 
   @GET("/header")

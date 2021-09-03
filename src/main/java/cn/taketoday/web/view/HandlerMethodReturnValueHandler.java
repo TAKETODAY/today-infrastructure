@@ -19,9 +19,7 @@
  */
 package cn.taketoday.web.view;
 
-import java.io.IOException;
-
-import cn.taketoday.core.NonNull;
+import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
 
@@ -32,7 +30,8 @@ import cn.taketoday.web.handler.HandlerMethod;
  * @see HandlerMethod#handle(RequestContext, Object)
  * @see HandlerMethod#handleRequest(RequestContext)
  */
-public abstract class HandlerMethodReturnValueHandler implements ReturnValueHandler {
+public abstract class HandlerMethodReturnValueHandler
+        extends OrderedSupport implements ReturnValueHandler {
 
   @Override
   public final boolean supportsHandler(final Object handler) {
@@ -46,19 +45,4 @@ public abstract class HandlerMethodReturnValueHandler implements ReturnValueHand
    */
   protected abstract boolean supportsHandlerMethod(HandlerMethod handler);
 
-  @Override
-  public void handleReturnValue(
-          RequestContext context, Object handler, Object returnValue) throws Throwable {
-    if (returnValue != null) {
-      handleInternal(context, (HandlerMethod) handler, returnValue);
-    }
-    else {
-      handleNullValue(context, handler);
-    }
-  }
-
-  protected void handleNullValue(RequestContext context, Object handler) throws IOException { }
-
-  protected void handleInternal(
-          RequestContext context, HandlerMethod handler, @NonNull Object returnValue) throws Throwable { }
 }

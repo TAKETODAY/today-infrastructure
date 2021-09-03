@@ -19,6 +19,11 @@
  */
 package cn.taketoday.web.view;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import cn.taketoday.core.Nullable;
+
 /**
  * RuntimeResultHandler
  * <p>
@@ -41,5 +46,21 @@ public interface RuntimeReturnValueHandler extends ReturnValueHandler {
    *
    * @return If this {@link ReturnValueHandler} supports the target handler's result
    */
-  boolean supportsReturnValue(Object returnValue);
+  boolean supportsReturnValue(@Nullable Object returnValue);
+
+  static List<RuntimeReturnValueHandler> filter(List<ReturnValueHandler> handlers) {
+    final ArrayList<RuntimeReturnValueHandler> ret = new ArrayList<>(handlers.size());
+    for (final ReturnValueHandler handler : handlers) {
+      if (handler instanceof RuntimeReturnValueHandler) {
+        ret.add((RuntimeReturnValueHandler) handler);
+      }
+    }
+    ret.trimToSize();
+    return ret;
+  }
+
+  static RuntimeReturnValueHandler[] filterArray(List<ReturnValueHandler> handlers) {
+    return filter(handlers).toArray(new RuntimeReturnValueHandler[0]);
+  }
+
 }
