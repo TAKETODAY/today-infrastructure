@@ -26,6 +26,7 @@ package cn.taketoday.beans;
  */
 @FunctionalInterface
 public interface BeanNameCreator {
+  String KEY_USE_SIMPLE_NAME = "context.name.simple";
 
   /**
    * Create a bean name for the given bean definition.

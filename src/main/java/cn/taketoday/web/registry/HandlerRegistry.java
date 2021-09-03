@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.registry;
 
+import cn.taketoday.core.Nullable;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -40,5 +41,6 @@ public interface HandlerRegistry {
    *
    * @return Target handler. If returns {@code null} indicates no handler
    */
+  @Nullable
   Object lookup(RequestContext context);
 }

@@ -34,13 +34,12 @@ import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.validation.WebValidator;
-import cn.taketoday.web.view.ResultHandler;
-import cn.taketoday.web.view.template.AbstractTemplateViewResolver;
-import cn.taketoday.web.view.template.TemplateViewResolver;
+import cn.taketoday.web.view.ReturnValueHandler;
+import cn.taketoday.web.view.template.AbstractTemplateRenderer;
+import cn.taketoday.web.view.template.TemplateRenderer;
 
 /**
- * @author TODAY <br>
- * 2019-05-17 17:46
+ * @author TODAY 2019-05-17 17:46
  */
 public interface WebMvcConfiguration {
 
@@ -53,20 +52,20 @@ public interface WebMvcConfiguration {
   default void configureParameterResolver(List<ParameterResolver> parameterResolvers) {}
 
   /**
-   * Configure {@link ResultHandler}
+   * Configure {@link ReturnValueHandler}
    *
-   * @param resultHandlers
-   *         {@link ResultHandler} registry
+   * @param returnValueHandlers
+   *         {@link ReturnValueHandler} registry
    */
-  default void configureResultHandler(List<ResultHandler> resultHandlers) {}
+  default void configureResultHandler(List<ReturnValueHandler> returnValueHandlers) {}
 
   /**
-   * Configure {@link TemplateViewResolver}
+   * Configure {@link TemplateRenderer}
    *
    * @param viewResolver
-   *         {@link TemplateViewResolver} instance
+   *         {@link TemplateRenderer} instance
    */
-  default void configureTemplateViewResolver(AbstractTemplateViewResolver viewResolver) {}
+  default void configureTemplateViewResolver(AbstractTemplateRenderer viewResolver) {}
 
   /**
    * Configure static {@link Resource}
@@ -109,7 +108,7 @@ public interface WebMvcConfiguration {
    *
    * @since 2.3.7
    */
-  default <T extends Object> void configureTemplateLoader(List<T> loaders) {}
+  default <T> void configureTemplateLoader(List<T> loaders) {}
 
   /**
    * Configure {@link ViewController} s

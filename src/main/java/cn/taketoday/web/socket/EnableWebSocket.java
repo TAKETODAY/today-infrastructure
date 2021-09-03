@@ -28,7 +28,7 @@ import java.util.List;
 
 import cn.taketoday.beans.Import;
 import cn.taketoday.beans.MissingBean;
-import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.ObjectNotationProcessor;

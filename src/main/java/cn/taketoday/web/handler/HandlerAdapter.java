@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.handler;
 
-import cn.taketoday.core.EmptyObject;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -69,10 +68,10 @@ public interface HandlerAdapter {
    * This value indicates that the handler did not return a value, or the result
    * has been processed
    */
-  Object NONE_RETURN_VALUE = EmptyObject.INSTANCE;
+  Object NONE_RETURN_VALUE = new Object();
 
   /**
-   * Given a handler instance, return whether or not this
+   * Given a handler instance, return whether support or not this
    * {@code RequestHandlerAdapter} can support it. Typical RequestHandlerAdapters
    * will base the decision on the handler type. RequestHandlerAdapters will
    * usually only support one handler type each.
@@ -86,7 +85,7 @@ public interface HandlerAdapter {
    * @param handler
    *         handler object to check
    *
-   * @return whether or not this object can use the given handler
+   * @return whether support or not this object can use the given handler
    */
   boolean supports(Object handler);
 
@@ -101,11 +100,12 @@ public interface HandlerAdapter {
    *         the {@code supports} method of this interface, which must have
    *         returned {@code true}.
    *
-   * @return a object with the name of the view and the required model data, or
+   * @return an object with the name of the view and the required model data, or
    * {@code null} if the request has been handled directly
    *
    * @throws Throwable
    *         in case of errors
+   * @see #NONE_RETURN_VALUE
    */
   Object handle(RequestContext context, Object handler) throws Throwable;
 

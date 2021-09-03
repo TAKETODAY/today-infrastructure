@@ -21,7 +21,7 @@
 package cn.taketoday.core.conversion.support;
 
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.core.utils.GenericDescriptor;
+import cn.taketoday.util.GenericDescriptor;
 
 /**
  * @author TODAY 2021/3/22 16:45

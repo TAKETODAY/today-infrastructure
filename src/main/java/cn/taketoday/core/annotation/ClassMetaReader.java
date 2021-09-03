@@ -57,11 +57,11 @@ import cn.taketoday.asm.tree.MethodNode;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.NonNull;
-import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.CollectionUtils;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.ReflectionUtils;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * @author TODAY 2021/8/1 18:00
@@ -110,7 +110,7 @@ public class ClassMetaReader {
   public static String getClassFile(String classNameToRead) {
     return classNameToRead
             .replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR)
-            .concat(Constant.CLASS_FILE_SUFFIX);
+            .concat(ClassUtils.CLASS_FILE_SUFFIX);
   }
 
   public static AnnotationAttributes readAnnotation(AnnotationNode annotationNode) {
@@ -282,7 +282,7 @@ public class ClassMetaReader {
       MethodNode methodNode = getMethodNode(parameter.getDeclaringExecutable());
       List<AnnotationNode>[] annotations = methodNode.visibleParameterAnnotations;
       if (ObjectUtils.isNotEmpty(annotations)) {
-        return warpEmpty(annotations[ClassUtils.getParameterIndex(parameter)]);
+        return warpEmpty(annotations[ReflectionUtils.getParameterIndex(parameter)]);
       }
     }
     return null;

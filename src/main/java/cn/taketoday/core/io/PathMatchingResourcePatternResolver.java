@@ -39,12 +39,12 @@ import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.PathMatcher;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.ResourceUtils;
-import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.util.StringUtils;
 
 import static cn.taketoday.core.Constant.BLANK;
 
@@ -285,7 +285,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
     }
     final Set<Resource> result = doFindAllClassPathResources(path);
     if (ObjectUtils.isEmpty(result)) {
-      return Constant.EMPTY_RESOURCE_ARRAY;
+      return Resource.EMPTY_ARRAY;
     }
     if (log.isTraceEnabled()) {
       log.trace("Resolved classpath location [{}] to resources {}", location, result);
@@ -348,7 +348,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
   protected void addAllClassLoaderJarRoots(ClassLoader classLoader, Set<Resource> result) {
     if (classLoader instanceof URLClassLoader) {
       try {
-        final String jar = Constant.JAR_FILE_EXTENSION;
+        final String jar = ResourceUtils.JAR_FILE_EXTENSION;
         for (final URL url : ((URLClassLoader) classLoader).getURLs()) {
           try { // jar file
             final String path = url.getPath();
@@ -404,7 +404,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
       for (final String path : StringUtils.delimitedListToStringArray(javaClassPath, separator)) {
         try {
 
-          if (!path.endsWith(Constant.JAR_FILE_EXTENSION)) {
+          if (!path.endsWith(ResourceUtils.JAR_FILE_EXTENSION)) {
             continue;
           }
 
@@ -416,9 +416,9 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
             filePath = StringUtils.capitalize(filePath);
           }
           final String url = new StringBuilder(filePath.length() + 11)//JAR_ENTRY_URL_PREFIX+JAR_URL_SEPARATOR=11
-                  .append(Constant.JAR_ENTRY_URL_PREFIX)
+                  .append(ResourceUtils.JAR_ENTRY_URL_PREFIX)
                   .append(filePath)
-                  .append(Constant.JAR_URL_SEPARATOR).toString();
+                  .append(ResourceUtils.JAR_URL_SEPARATOR).toString();
 
           JarEntryResource jarResource = new JarEntryResource(new URL(url), jarFile, BLANK);
           // Potentially overlapping with URLClassLoader.getURLs() result above!
@@ -458,9 +458,9 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
     try {
       return result.contains(new JarEntryResource(
               new StringBuilder(duplicatePath.length() + 11)
-                      .append(Constant.JAR_ENTRY_URL_PREFIX)
+                      .append(ResourceUtils.JAR_ENTRY_URL_PREFIX)
                       .append(duplicatePath)
-                      .append(Constant.JAR_URL_SEPARATOR).toString())
+                      .append(ResourceUtils.JAR_URL_SEPARATOR).toString())
       );
     }
     catch (IOException ex) {

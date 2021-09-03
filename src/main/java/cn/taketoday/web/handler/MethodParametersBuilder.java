@@ -23,7 +23,8 @@ package cn.taketoday.web.handler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.core.Nullable;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * Build {@link MethodParameter} array
@@ -33,6 +34,7 @@ import cn.taketoday.core.utils.ClassUtils;
  */
 public class MethodParametersBuilder {
 
+  @Nullable
   public MethodParameter[] build(Method method) {
     final int length = method.getParameterCount();
     if (length == 0) {

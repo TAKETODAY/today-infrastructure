@@ -40,16 +40,16 @@ import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.InstantiationAwareBeanPostProcessor;
+import cn.taketoday.beans.support.ArgumentsResolver;
 import cn.taketoday.context.aware.Aware;
 import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.ContextUtils;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.OrderUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.OrderUtils;
 
 /**
  * Abstract Auto Proxy Creator use {@link cn.taketoday.beans.factory.BeanPostProcessor}
@@ -250,7 +250,7 @@ public abstract class AbstractAutoProxyCreator
 
       @Override
       public Object[] apply(Constructor<?> constructor) {
-        return ContextUtils.resolveParameter(constructor, beanFactory);
+        return  ArgumentsResolver.getSharedInstance().resolve(constructor, beanFactory);
       }
     }
 

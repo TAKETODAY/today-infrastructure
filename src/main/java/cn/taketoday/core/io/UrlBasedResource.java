@@ -30,8 +30,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Objects;
 
-import cn.taketoday.core.utils.ResourceUtils;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY <br>

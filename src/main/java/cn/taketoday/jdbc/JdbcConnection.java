@@ -10,13 +10,14 @@ import java.util.HashSet;
 import java.util.List;
 
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.utils.CollectionUtils;
 import cn.taketoday.jdbc.support.ConnectionSource;
 import cn.taketoday.jdbc.utils.JdbcUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Represents a connection to the database with a transaction.
@@ -28,30 +29,38 @@ public final class JdbcConnection implements Closeable {
   private final ConnectionSource connectionSource;
 
   private Connection root;
+
+  @Nullable
   private Integer result = null;
+
   private int[] batchResult = null;
+
+  @Nullable
   private List<Object> keys;
+
   private boolean canGetKeys;
 
   final boolean autoClose;
+
+  @Nullable
   private Boolean originalAutoCommit;
   private boolean rollbackOnClose = true;
   private boolean rollbackOnException = true;
 
   private final HashSet<Statement> statements = new HashSet<>();
 
-  JdbcConnection(JdbcOperations operations, boolean autoClose) {
+  public JdbcConnection(JdbcOperations operations, boolean autoClose) {
     this(operations, operations.getConnectionSource(), autoClose);
   }
 
-  JdbcConnection(JdbcOperations operations, ConnectionSource connectionSource, boolean autoClose) {
+  public JdbcConnection(JdbcOperations operations, ConnectionSource connectionSource, boolean autoClose) {
     this.autoClose = autoClose;
     this.operations = operations;
     this.connectionSource = connectionSource;
     createConnection();
   }
 
-  JdbcConnection(JdbcOperations operations, Connection connection, boolean autoClose) {
+  public JdbcConnection(JdbcOperations operations, Connection connection, boolean autoClose) {
     this.root = connection;
     this.autoClose = autoClose;
     this.operations = operations;
@@ -64,21 +73,41 @@ public final class JdbcConnection implements Closeable {
     }
   }
 
+  /**
+   * @throws PersistenceException
+   *         Could not acquire a connection from connection-source
+   * @see ConnectionSource#getConnection()
+   */
   public Query createQuery(String queryText) {
     boolean returnGeneratedKeys = operations.isGeneratedKeys();
     return createQuery(queryText, returnGeneratedKeys);
   }
 
+  /**
+   * @throws PersistenceException
+   *         Could not acquire a connection from connection-source
+   * @see ConnectionSource#getConnection()
+   */
   public Query createQuery(String queryText, boolean returnGeneratedKeys) {
     createConnectionIfNecessary();
     return new Query(this, queryText, returnGeneratedKeys);
   }
 
+  /**
+   * @throws PersistenceException
+   *         Could not acquire a connection from connection-source
+   * @see ConnectionSource#getConnection()
+   */
   public Query createQuery(String queryText, String... columnNames) {
     createConnectionIfNecessary();
     return new Query(this, queryText, columnNames);
   }
 
+  /**
+   * @throws CannotGetJdbcConnectionException
+   *         Could not acquire a connection from connection-source
+   * @see ConnectionSource#getConnection()
+   */
   private void createConnectionIfNecessary() {
     try {
       if (root.isClosed()) {
@@ -101,11 +130,35 @@ public final class JdbcConnection implements Closeable {
             .withParams(paramValues);
   }
 
+  /**
+   * Undoes all changes made in the current transaction
+   * and releases any database locks currently held
+   * by this <code>Connection</code> object. This method should be
+   * used only when auto-commit mode has been disabled.
+   *
+   * @throws PersistenceException
+   *         if a database access error occurs,
+   *         this method is called while participating in a distributed transaction,
+   *         this method is called on a closed connection or this
+   *         <code>Connection</code> object is in auto-commit mode
+   */
   public JdbcOperations rollback() {
     rollback(true);
     return operations;
   }
 
+  /**
+   * Undoes all changes made in the current transaction
+   * and releases any database locks currently held
+   * by this <code>Connection</code> object. This method should be
+   * used only when auto-commit mode has been disabled.
+   *
+   * @throws PersistenceException
+   *         if a database access error occurs,
+   *         this method is called while participating in a distributed transaction,
+   *         this method is called on a closed connection or this
+   *         <code>Connection</code> object is in auto-commit mode
+   */
   public JdbcConnection rollback(boolean closeConnection) {
     try {
       root.rollback();
@@ -121,11 +174,40 @@ public final class JdbcConnection implements Closeable {
     return this;
   }
 
+  /**
+   * Makes all changes made since the previous
+   * commit/rollback permanent and releases any database locks
+   * currently held by this <code>Connection</code> object.
+   * This method should be
+   * used only when auto-commit mode has been disabled.
+   *
+   * @throws PersistenceException
+   *         if a database access error occurs,
+   *         this method is called while participating in a distributed transaction,
+   *         if this method is called on a closed connection or this
+   *         <code>Connection</code> object is in auto-commit mode
+   */
   public JdbcOperations commit() {
     commit(true);
     return operations;
   }
 
+  /**
+   * Makes all changes made since the previous
+   * commit/rollback permanent and releases any database locks
+   * currently held by this <code>Connection</code> object.
+   * This method should be
+   * used only when auto-commit mode has been disabled.
+   *
+   * @param closeConnection
+   *         close connection
+   *
+   * @throws PersistenceException
+   *         if a database access error occurs,
+   *         this method is called while participating in a distributed transaction,
+   *         if this method is called on a closed connection or this
+   *         <code>Connection</code> object is in auto-commit mode
+   */
   public JdbcConnection commit(boolean closeConnection) {
     try {
       root.commit();
@@ -143,7 +225,8 @@ public final class JdbcConnection implements Closeable {
 
   public int getResult() {
     if (result == null) {
-      throw new PersistenceException("It is required to call executeUpdate() method before calling getResult().");
+      throw new PersistenceException(
+              "It is required to call executeUpdate() method before calling getResult().");
     }
     return result;
   }
@@ -154,7 +237,8 @@ public final class JdbcConnection implements Closeable {
 
   public int[] getBatchResult() {
     if (batchResult == null) {
-      throw new PersistenceException("It is required to call executeBatch() method before calling getBatchResult().");
+      throw new PersistenceException(
+              "It is required to call executeBatch() method before calling getBatchResult().");
     }
     return batchResult;
   }
@@ -167,20 +251,29 @@ public final class JdbcConnection implements Closeable {
   // -------------------- Keys ----------------------
   // ------------------------------------------------
 
-  protected void setKeys(ResultSet rs) throws SQLException {
+  protected void setKeys(@Nullable ResultSet rs) {
     if (rs == null) {
       this.keys = null;
-      return;
     }
-    final ArrayList<Object> keys = new ArrayList<>();
-    while (rs.next()) {
-      keys.add(rs.getObject(1));
+    else {
+      try {
+        final ArrayList<Object> keys = new ArrayList<>();
+        while (rs.next()) {
+          keys.add(rs.getObject(1));
+        }
+        this.keys = keys;
+      }
+      catch (SQLException e) {
+        throw new GeneratedKeysException("Cannot get generated keys", e);
+      }
     }
-    this.keys = keys;
+
   }
 
+  @Nullable
   public Object getKey() {
     assertCanGetKeys();
+    List<Object> keys = this.keys;
     if (!CollectionUtils.isEmpty(keys)) {
       return keys.get(0);
     }
@@ -188,6 +281,8 @@ public final class JdbcConnection implements Closeable {
   }
 
   /**
+   * @throws GeneratedKeysConversionException
+   *         Generated Keys conversion failed
    * @throws IllegalArgumentException
    *         If conversionService is null
    */
@@ -196,6 +291,8 @@ public final class JdbcConnection implements Closeable {
   }
 
   /**
+   * @throws GeneratedKeysConversionException
+   *         Generated Keys conversion failed
    * @throws IllegalArgumentException
    *         If conversionService is null
    */
@@ -206,7 +303,7 @@ public final class JdbcConnection implements Closeable {
       return conversionService.convert(key, returnType);
     }
     catch (ConversionException e) {
-      throw new PersistenceException(
+      throw new GeneratedKeysConversionException(
               "Exception occurred while converting value from database to type " + returnType.toString(), e);
     }
   }
@@ -221,17 +318,23 @@ public final class JdbcConnection implements Closeable {
   }
 
   /**
+   * @throws GeneratedKeysConversionException
+   *         cannot converting value from database
    * @throws IllegalArgumentException
    *         If conversionService is null
    */
+  @Nullable
   public <V> List<V> getKeys(Class<V> returnType) {
     return getKeys(returnType, operations.getConversionService());
   }
 
   /**
+   * @throws GeneratedKeysConversionException
+   *         cannot converting value from database
    * @throws IllegalArgumentException
    *         If conversionService is null
    */
+  @Nullable
   public <V> List<V> getKeys(Class<V> returnType, ConversionService conversionService) {
     assertCanGetKeys();
     final List<Object> keys = this.keys;
@@ -245,7 +348,7 @@ public final class JdbcConnection implements Closeable {
         return convertedKeys;
       }
       catch (ConversionException e) {
-        throw new PersistenceException(
+        throw new GeneratedKeysConversionException(
                 "Exception occurred while converting value from database to type " + returnType, e);
       }
     }
@@ -254,7 +357,7 @@ public final class JdbcConnection implements Closeable {
 
   private void assertCanGetKeys() {
     if (!canGetKeys) {
-      throw new PersistenceException(
+      throw new GeneratedKeysException(
               "Keys where not fetched from database." +
                       " Please set the returnGeneratedKeys parameter " +
                       "in the createQuery() method to enable fetching of generated keys.");
@@ -319,14 +422,19 @@ public final class JdbcConnection implements Closeable {
     }
   }
 
+  /**
+   * @throws CannotGetJdbcConnectionException
+   *         Could not acquire a connection from connection-source
+   */
   private void createConnection() {
     try {
       this.root = connectionSource.getConnection();
+      // if a database access error occurs or this method is called on a closed connection
       this.originalAutoCommit = root.getAutoCommit();
     }
     catch (SQLException ex) {
-      throw new PersistenceException(
-              "Could not acquire a connection from DataSource - " + ex.getMessage(), ex);
+      throw new CannotGetJdbcConnectionException(
+              "Could not acquire a connection from connection-source: " + connectionSource, ex);
     }
   }
 
@@ -342,12 +450,8 @@ public final class JdbcConnection implements Closeable {
         log.warn("Could not reset autocommit state for connection to {}.", originalAutoCommit, e);
       }
     }
-    try {
-      root.close();
-    }
-    catch (SQLException e) {
-      log.warn("Could not close connection. message: {}", e);
-    }
+
+    JdbcUtils.closeQuietly(root);
   }
 
   //

@@ -39,8 +39,8 @@ import javax.servlet.http.Part;
 
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.utils.EnumerationIterator;
-import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.util.EnumerationIterator;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.http.DefaultHttpHeaders;
 import cn.taketoday.web.http.HttpHeaders;
@@ -48,7 +48,6 @@ import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.ServletPartMultipartFile;
 import cn.taketoday.web.resolver.MultipartParsingException;
 import cn.taketoday.web.resolver.NotMultipartRequestException;
-import cn.taketoday.web.utils.ServletUtils;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelAttributes;
 

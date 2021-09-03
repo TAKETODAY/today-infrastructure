@@ -54,9 +54,9 @@ import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.core.conversion.ConverterNotFoundException;
 import cn.taketoday.core.conversion.ConverterRegistry;
-import cn.taketoday.core.utils.GenericDescriptor;
-import cn.taketoday.core.utils.ReflectionUtils;
-import cn.taketoday.core.utils.StopWatch;
+import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StopWatch;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

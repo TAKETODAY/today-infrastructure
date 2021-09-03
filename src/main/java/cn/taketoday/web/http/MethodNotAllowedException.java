@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.http;
 
-import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebNestedRuntimeException;
 import cn.taketoday.web.annotation.ResponseStatus;
 
@@ -32,9 +31,9 @@ public class MethodNotAllowedException extends WebNestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
   private final String requestMethod;
-  private final RequestMethod[] supportedMethods;
+  private final HttpMethod[] supportedMethods;
 
-  public MethodNotAllowedException(String requestMethod, RequestMethod[] supportedMethods) {
+  public MethodNotAllowedException(String requestMethod, HttpMethod[] supportedMethods) {
     super("Method '" + requestMethod + "' Not Allowed");
     this.requestMethod = requestMethod;
     this.supportedMethods = supportedMethods;
@@ -44,11 +43,11 @@ public class MethodNotAllowedException extends WebNestedRuntimeException {
     return requestMethod;
   }
 
-  public RequestMethod getRequestMethod() {
-    return RequestMethod.valueOf(requestMethod);
+  public HttpMethod getRequestMethod() {
+    return HttpMethod.valueOf(requestMethod);
   }
 
-  public RequestMethod[] getSupportedMethods() {
+  public HttpMethod[] getSupportedMethods() {
     return supportedMethods;
   }
 }

@@ -34,7 +34,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Application;
 import cn.taketoday.web.annotation.SessionAttribute;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.utils.ServletUtils;
+import cn.taketoday.web.servlet.ServletUtils;
 
 /**
  * @author TODAY <br>

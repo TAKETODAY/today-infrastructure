@@ -24,7 +24,7 @@ import java.util.Objects;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.resolver.MissingPathVariableParameterException;
 import cn.taketoday.web.resolver.ParameterConversionException;

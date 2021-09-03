@@ -33,7 +33,7 @@ import cn.taketoday.beans.DisposableBean;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.util.ObjectUtils;
 import test.demo.config.Config;
 import test.demo.config.ConfigFactoryBean;
 import test.demo.config.ConfigurationBean;

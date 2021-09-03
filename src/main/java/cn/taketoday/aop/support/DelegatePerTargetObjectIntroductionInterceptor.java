@@ -27,7 +27,7 @@ import java.util.WeakHashMap;
 
 import cn.taketoday.aop.DynamicIntroductionAdvice;
 import cn.taketoday.aop.IntroductionInterceptor;
-import cn.taketoday.core.utils.ReflectionUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Convenient implementation of the {@link IntroductionInterceptor} interface.
@@ -121,7 +121,7 @@ public class DelegatePerTargetObjectIntroductionInterceptor
     return mi.proceed();
   }
 
-  Object getIntroductionDelegateFor(Object targetObject) {
+  private Object getIntroductionDelegateFor(Object targetObject) {
     synchronized (this.delegateMap) {
       if (this.delegateMap.containsKey(targetObject)) {
         return this.delegateMap.get(targetObject);
@@ -134,7 +134,7 @@ public class DelegatePerTargetObjectIntroductionInterceptor
     }
   }
 
-  Object createNewDelegate() {
+  private Object createNewDelegate() {
     try {
       return ReflectionUtils.accessibleConstructor(this.defaultImplType).newInstance();
     }

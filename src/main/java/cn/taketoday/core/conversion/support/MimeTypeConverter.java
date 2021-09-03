@@ -20,7 +20,7 @@
 
 package cn.taketoday.core.conversion.support;
 
-import cn.taketoday.core.utils.MimeType;
+import cn.taketoday.util.MimeType;
 
 /**
  * @author TODAY 2021/3/21 11:02

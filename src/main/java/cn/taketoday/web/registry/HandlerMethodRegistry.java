@@ -39,15 +39,14 @@ import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.PathMatcher;
-import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.ReflectionUtils;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.Interceptor;
 import cn.taketoday.web.annotation.PathVariable;
@@ -57,10 +56,11 @@ import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.HandlerMethodBuilder;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.handler.PathVariableMethodParameter;
+import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
-import static cn.taketoday.core.utils.CollectionUtils.newHashSet;
-import static cn.taketoday.core.utils.StringUtils.checkUrl;
+import static cn.taketoday.util.CollectionUtils.newHashSet;
+import static cn.taketoday.util.StringUtils.checkUrl;
 
 /**
  * Store {@link HandlerMethod}
@@ -151,22 +151,6 @@ public class HandlerMethodRegistry
             || def.isAnnotationPresent(ActionMapping.class);
   }
 
-  /**
-   * Build {@link HandlerMethod}
-   *
-   * @param beanClass
-   *         Bean class
-   *
-   * @since 2.3.7
-   */
-  @Deprecated
-  public void buildHandlerMethod(final Class<?> beanClass) {
-    // find mapping on class
-    final AnnotationAttributes controllerMapping
-            = AnnotationUtils.getAttributes(ActionMapping.class, beanClass);
-    buildHandlerMethod(beanClass, controllerMapping);
-  }
-
   private void buildHandlerMethod(Class<?> beanClass, AnnotationAttributes controllerMapping) {
     for (final Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
       buildHandlerMethod(method, beanClass, controllerMapping);
@@ -226,22 +210,22 @@ public class HandlerMethodRegistry
     boolean emptyNamespaces = true;
     boolean addClassRequestMethods = false;
     Set<String> namespaces = Collections.emptySet();
-    Set<RequestMethod> classRequestMethods = Collections.emptySet();
+    Set<HttpMethod> classRequestMethods = Collections.emptySet();
     if (ObjectUtils.isNotEmpty(controllerMapping)) {
       namespaces = new LinkedHashSet<>(4, 1.0f); // name space
       classRequestMethods = new LinkedHashSet<>(8, 1.0f); // method
-      for (final String value : controllerMapping.getStringArray(WebConstant.VALUE)) {
+      for (final String value : controllerMapping.getStringArray(Constant.VALUE)) {
         namespaces.add(checkUrl(value));
       }
-      Collections.addAll(classRequestMethods, controllerMapping.getAttribute("method", RequestMethod[].class));
+      Collections.addAll(classRequestMethods, controllerMapping.getAttribute("method", HttpMethod[].class));
       emptyNamespaces = namespaces.isEmpty();
       addClassRequestMethods = !classRequestMethods.isEmpty();
     }
 
     for (final AnnotationAttributes handlerMethodMapping : annotationAttributes) {
       final boolean exclude = handlerMethodMapping.getBoolean("exclude"); // exclude name space on class ?
-      final Set<RequestMethod> requestMethods = // http request method on method(action/handler)
-              newHashSet(handlerMethodMapping.getAttribute("method", RequestMethod[].class));
+      final Set<HttpMethod> requestMethods = // http request method on method(action/handler)
+              newHashSet(handlerMethodMapping.getAttribute("method", HttpMethod[].class));
 
       if (addClassRequestMethods)
         requestMethods.addAll(classRequestMethods);
@@ -250,7 +234,7 @@ public class HandlerMethodRegistry
         final String checkedUrl = checkUrl(urlOnMethod);
         // splice urls and request methods
         // ---------------------------------
-        for (final RequestMethod requestMethod : requestMethods) {
+        for (final HttpMethod requestMethod : requestMethods) {
           if (exclude || emptyNamespaces) {
             mappingHandlerMethod(checkedUrl, requestMethod, handler);
           }
@@ -275,9 +259,9 @@ public class HandlerMethodRegistry
    * @param requestMethod
    *         HTTP request method
    *
-   * @see RequestMethod
+   * @see HttpMethod
    */
-  private void mappingHandlerMethod(String path, RequestMethod requestMethod, HandlerMethod handlerMethod) {
+  private void mappingHandlerMethod(String path, HttpMethod requestMethod, HandlerMethod handlerMethod) {
     // GET/blog/users/1 GET/blog/#{key}/1
     final String pathPattern = getRequestPathPattern(path);
     super.registerHandler(requestMethod.name().concat(pathPattern),
@@ -448,7 +432,7 @@ public class HandlerMethodRegistry
    */
   public HandlerInterceptor[] getInterceptors(Class<? extends HandlerInterceptor>[] interceptors) {
     if (ObjectUtils.isEmpty(interceptors)) {
-      return WebConstant.EMPTY_HANDLER_INTERCEPTOR;
+      return HandlerInterceptor.EMPTY_ARRAY;
     }
     final ApplicationContext beanFactory = obtainApplicationContext();
 

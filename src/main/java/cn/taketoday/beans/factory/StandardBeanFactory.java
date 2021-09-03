@@ -48,6 +48,7 @@ import cn.taketoday.beans.Prototype;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.ConfigurableEnvironment;
+import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.aware.ImportAware;
@@ -67,23 +68,23 @@ import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.ContextUtils;
-import cn.taketoday.core.utils.ExceptionUtils;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.OrderUtils;
-import cn.taketoday.core.utils.ReflectionUtils;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ExceptionUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.OrderUtils;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
 
+import static cn.taketoday.context.ContextUtils.findNames;
+import static cn.taketoday.context.ContextUtils.resolveInitMethod;
+import static cn.taketoday.context.ContextUtils.resolveProps;
 import static cn.taketoday.core.Constant.VALUE;
-import static cn.taketoday.core.utils.AnnotationUtils.getAttributesArray;
-import static cn.taketoday.core.utils.ContextUtils.findNames;
-import static cn.taketoday.core.utils.ContextUtils.resolveInitMethod;
-import static cn.taketoday.core.utils.ContextUtils.resolveProps;
-import static cn.taketoday.core.utils.ReflectionUtils.makeAccessible;
+import static cn.taketoday.util.AnnotationUtils.getAttributesArray;
+import static cn.taketoday.util.ReflectionUtils.makeAccessible;
 
 /**
  * Standard {@link BeanFactory} implementation
@@ -236,9 +237,9 @@ public class StandardBeanFactory
     final String declaringBeanName = declaringDef.getName(); // @since v2.1.7
 
     for (final AnnotationAttributes component : components) {
-      final String scope = component.getString(Constant.SCOPE);
-      final String[] initMethods = component.getStringArray(Constant.INIT_METHODS);
-      final String[] destroyMethods = component.getStringArray(Constant.DESTROY_METHODS);
+      final String scope = component.getString(BeanDefinition.SCOPE);
+      final String[] initMethods = component.getStringArray(BeanDefinition.INIT_METHODS);
+      final String[] destroyMethods = component.getStringArray(BeanDefinition.DESTROY_METHODS);
 
       for (final String name : findNames(defaultBeanName, component.getStringArray(VALUE))) {
 
@@ -510,27 +511,6 @@ public class StandardBeanFactory
   // ---------------------------------------------
 
   @Override
-  public void loadBeanDefinition(final Class<?> candidate) {
-    // don't load abstract class
-    load(candidate);
-  }
-
-  @Override
-  public void loadBeanDefinitions(final Collection<Class<?>> candidates) {
-    load(candidates);
-  }
-
-  @Override
-  public void loadBeanDefinition(final String name, final Class<?> beanClass) {
-    load(name, beanClass);
-  }
-
-  @Override
-  public void loadBeanDefinition(final String... locations) {
-    load(locations);
-  }
-
-  @Override
   public List<BeanDefinition> load(final Class<?> candidate) {
     // don't load abstract class
     if (canRegister(candidate, getApplicationContext())) {
@@ -581,7 +561,9 @@ public class StandardBeanFactory
     return definitions;
   }
 
-  private BeanDefinition getRegistered(String name, Class<?> beanClass, AnnotationAttributes attributes) {
+  @Nullable
+  private BeanDefinition getRegistered(
+          String name, Class<?> beanClass, @Nullable AnnotationAttributes attributes) {
     final BeanDefinition newDef = createBeanDefinition(name, beanClass, attributes);
     return register(name, newDef);
   }
@@ -625,6 +607,7 @@ public class StandardBeanFactory
    *         If can't store bean
    */
   @Override
+  @Nullable
   public BeanDefinition register(final String name, BeanDefinition def) {
     def = transformBeanDefinition(name, def);
     if (def == null) {
@@ -780,7 +763,8 @@ public class StandardBeanFactory
 
   @Override
   public BeanDefinition createBeanDefinition(
-          final String beanName, final Class<?> beanClass, final AnnotationAttributes attributes
+          final String beanName, final Class<?> beanClass,
+          @Nullable final AnnotationAttributes attributes
   ) {
     final DefaultBeanDefinition ret = new DefaultBeanDefinition(beanName, beanClass);
     if (attributes == null) {
@@ -788,9 +772,9 @@ public class StandardBeanFactory
               .setInitMethods(resolveInitMethod(null, beanClass));
     }
     else {
-      ret.setScope(attributes.getString(Constant.SCOPE))
-              .setDestroyMethods(attributes.getStringArray(Constant.DESTROY_METHODS))
-              .setInitMethods(resolveInitMethod(attributes.getStringArray(Constant.INIT_METHODS), beanClass));
+      ret.setScope(attributes.getString(BeanDefinition.SCOPE))
+              .setDestroyMethods(attributes.getStringArray(BeanDefinition.DESTROY_METHODS))
+              .setInitMethods(resolveInitMethod(attributes.getStringArray(BeanDefinition.INIT_METHODS), beanClass));
     }
 
     ret.setPropertyValues(resolvePropertyValue(beanClass));
@@ -827,7 +811,7 @@ public class StandardBeanFactory
     }
 
     return propertySetters.isEmpty()
-           ? BeanDefinition.EMPTY_PROPERTY_VALUE
+           ? BeanDefinition.EMPTY_PROPERTY_SETTER
            : propertySetters.toArray(new PropertySetter[propertySetters.size()]);
   }
 

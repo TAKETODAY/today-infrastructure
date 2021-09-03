@@ -42,8 +42,8 @@ import cn.taketoday.asm.Attribute;
 import cn.taketoday.asm.Type;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.reflect.ReflectionException;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.ReflectionUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 import static java.lang.reflect.Modifier.FINAL;
 import static java.lang.reflect.Modifier.STATIC;

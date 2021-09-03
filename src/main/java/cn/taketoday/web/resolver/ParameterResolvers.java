@@ -24,14 +24,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import cn.taketoday.beans.DataBinder;
+import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.beans.support.DataBinder;
 import cn.taketoday.context.Env;
 import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.context.Props;
 import cn.taketoday.context.Value;
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.OrderUtils;
+import cn.taketoday.core.Nullable;
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.ConversionServiceAware;
+import cn.taketoday.util.OrderUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
@@ -46,7 +49,7 @@ import cn.taketoday.web.resolver.date.LocalTimeParameterResolver;
 import cn.taketoday.web.view.MessageConverter;
 import cn.taketoday.web.view.RedirectModelManager;
 
-import static cn.taketoday.core.utils.ContextUtils.resolveProps;
+import static cn.taketoday.context.ContextUtils.resolveProps;
 import static cn.taketoday.web.resolver.ConverterParameterResolver.convert;
 
 /**
@@ -73,19 +76,27 @@ public class ParameterResolvers extends WebApplicationContextSupport {
    */
   private ExpressionEvaluator expressionEvaluator;
 
+  /**
+   * @since 4.0
+   */
+  private ConversionService conversionService;
+
   public void addResolver(ParameterResolver... resolver) {
     Collections.addAll(resolvers, resolver);
+    resolvers.trimToSize();
     sort();
   }
 
   public void addResolver(List<ParameterResolver> resolvers) {
     this.resolvers.addAll(resolvers);
+    this.resolvers.trimToSize();
     sort();
   }
 
   public void setResolver(List<ParameterResolver> resolver) {
     resolvers.clear();
     resolvers.addAll(resolver);
+    resolvers.trimToSize();
     sort();
   }
 
@@ -146,12 +157,12 @@ public class ParameterResolvers extends WebApplicationContextSupport {
     final List<ParameterResolver> resolvers = getResolvers();
 
     resolvers.add(convert(String.class, s -> s));
-    resolvers.add(convert(new SupportsFunction0(Long.class, long.class), Long::parseLong));
-    resolvers.add(convert(new SupportsFunction0(Integer.class, int.class), Integer::parseInt));
-    resolvers.add(convert(new SupportsFunction0(Short.class, short.class), Short::parseShort));
-    resolvers.add(convert(new SupportsFunction0(Float.class, float.class), Float::parseFloat));
-    resolvers.add(convert(new SupportsFunction0(Double.class, double.class), Double::parseDouble));
-    resolvers.add(convert(new SupportsFunction0(Boolean.class, boolean.class), Boolean::parseBoolean));
+    resolvers.add(convert(new OR(Long.class, long.class), Long::parseLong));
+    resolvers.add(convert(new OR(Integer.class, int.class), Integer::parseInt));
+    resolvers.add(convert(new OR(Short.class, short.class), Short::parseShort));
+    resolvers.add(convert(new OR(Float.class, float.class), Float::parseFloat));
+    resolvers.add(convert(new OR(Double.class, double.class), Double::parseDouble));
+    resolvers.add(convert(new OR(Boolean.class, boolean.class), Boolean::parseBoolean));
 
     // For some useful context annotations
     // --------------------------------------------
@@ -173,7 +184,7 @@ public class ParameterResolvers extends WebApplicationContextSupport {
 
     // For cookies
     // ------------------------------------------
-    CookieParameterResolver.registerParameterResolver(resolvers);
+    CookieParameterResolver.register(resolvers);
 
     // For multipart
     // -------------------------------------------
@@ -187,7 +198,7 @@ public class ParameterResolvers extends WebApplicationContextSupport {
     }
     Assert.state(multipartConfig != null, "MultipartConfiguration Can't be null");
 
-    DefaultMultipartResolver.registerParameterResolver(resolvers, multipartConfig);
+    DefaultMultipartResolver.register(resolvers, multipartConfig);
 
     // Header
     resolvers.add(new HeaderParameterResolver());
@@ -217,6 +228,9 @@ public class ParameterResolvers extends WebApplicationContextSupport {
     resolvers.add(new LocalDateParameterResolver());
     resolvers.add(new LocalTimeParameterResolver());
     resolvers.add(new LocalDateTimeParameterResolver());
+
+    // apply conversionService @since 4.0
+    applyConversionService(conversionService, resolvers);
 
     // ordering
     sort();
@@ -253,7 +267,8 @@ public class ParameterResolvers extends WebApplicationContextSupport {
     // resolve bean
     if (!contains(DataBinderParameterResolver.class, resolvers)
             && !context.containsBeanDefinition(DataBinderParameterResolver.class)) {
-      resolvers.add(new DataBinderParameterResolver());
+      DataBinderParameterResolver resolver = new DataBinderParameterResolver(this);
+      resolvers.add(resolver);
     }
   }
 
@@ -304,13 +319,49 @@ public class ParameterResolvers extends WebApplicationContextSupport {
     return expressionEvaluator;
   }
 
+  /**
+   * @since 4.0
+   */
+  public void setConversionService(ConversionService conversionService) {
+    Assert.notNull(conversionService, "conversionService must not be null");
+    this.conversionService = conversionService;
+  }
+
+  /**
+   * apply conversionService to resolvers
+   *
+   * @since 4.0
+   */
+  public void applyConversionService(ConversionService conversionService) {
+    setConversionService(conversionService);
+    applyConversionService(conversionService, resolvers);
+  }
+
+  private void applyConversionService(
+          @Nullable ConversionService conversionService, List<ParameterResolver> resolvers) {
+    if (conversionService != null) {
+      for (final ParameterResolver resolver : resolvers) {
+        if (resolver instanceof ConversionServiceAware) {
+          ((ConversionServiceAware) resolver).setConversionService(conversionService);
+        }
+      }
+    }
+  }
+
+  /**
+   * @since 4.0
+   */
+  public ConversionService getConversionService() {
+    return conversionService;
+  }
+
   // ParameterResolver
 
-  static final class SupportsFunction0 implements ParameterResolver.SupportsFunction {
+  static final class OR implements ParameterResolver.SupportsFunction {
     final Class<?> one;
     final Class<?> two;
 
-    SupportsFunction0(Class<?> one, Class<?> two) {
+    OR(Class<?> one, Class<?> two) {
       this.one = one;
       this.two = two;
     }
@@ -335,7 +386,7 @@ public class ParameterResolvers extends WebApplicationContextSupport {
 
     @Override
     protected Object resolveInternal(Props target, RequestContext ctx, MethodParameter parameter) {
-      final Object bean = ClassUtils.newInstance(parameter.getParameterClass(), context);
+      final Object bean = BeanUtils.newInstance(parameter.getParameterClass(), context);
       return resolveProps(target, bean, properties);
     }
   }

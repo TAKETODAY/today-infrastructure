@@ -29,15 +29,16 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanReferencePropertySetter;
 import cn.taketoday.beans.factory.PropertySetter;
+import cn.taketoday.beans.support.AutowiredArgumentsResolver;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.OrderedApplicationContextSupport;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.StringUtils;
 
-import static cn.taketoday.core.utils.AnnotationUtils.isPresent;
+import static cn.taketoday.util.AnnotationUtils.isPresent;
 
 /**
  * This {@link PropertyValueResolver} supports field that annotated
@@ -95,7 +96,7 @@ public class AutowiredPropertyResolver
       name = byType(propertyClass);
     }
     // @since 3.0
-    final boolean required = AutowiredParameterResolver.isRequired(field, autowired);
+    final boolean required = AutowiredArgumentsResolver.isRequired(field, autowired);
     return new BeanReferencePropertySetter(name, required, field);
   }
 

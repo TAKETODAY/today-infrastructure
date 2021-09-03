@@ -20,12 +20,13 @@
 package cn.taketoday.web.handler;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.OrderUtils;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.OrderUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.interceptor.HandlerInterceptorsCapable;
@@ -97,13 +98,14 @@ public abstract class InterceptableRequestHandler
    *
    * @param interceptors
    *         interceptors to add
+   *
+   * @throws NullPointerException
+   *         interceptors is null
    */
   public void addInterceptors(HandlerInterceptor... interceptors) {
-    final ArrayList<HandlerInterceptor> objects = new ArrayList<>();
-    if (this.interceptors != null) {
-      Collections.addAll(objects, this.interceptors);
-    }
-    Collections.addAll(objects, interceptors);
+    final ArrayList<HandlerInterceptor> objects = new ArrayList<>(interceptors.length);
+    CollectionUtils.addAll(objects, this.interceptors);
+    CollectionUtils.addAll(objects, interceptors);
     setInterceptors(objects);
   }
 
@@ -113,24 +115,28 @@ public abstract class InterceptableRequestHandler
    * @param interceptors
    *         interceptors to add
    *
+   * @throws NullPointerException
+   *         interceptors is null
    * @since 3.0.1
    */
   public void addInterceptors(List<HandlerInterceptor> interceptors) {
-    final ArrayList<HandlerInterceptor> objects = new ArrayList<>();
-    if (this.interceptors != null) {
-      Collections.addAll(objects, this.interceptors);
-    }
-    objects.addAll(interceptors);
+    ArrayList<HandlerInterceptor> objects = new ArrayList<>(interceptors.size());
+    CollectionUtils.addAll(objects, this.interceptors);
+    CollectionUtils.addAll(objects, interceptors);
     setInterceptors(objects);
   }
 
-  public void setInterceptors(List<HandlerInterceptor> interceptors) {
-    setInterceptors(ObjectUtils.isEmpty(interceptors)
-                    ? null
-                    : interceptors.toArray(new HandlerInterceptor[interceptors.size()]));
+  public void setInterceptors(@Nullable List<HandlerInterceptor> interceptors) {
+    if (CollectionUtils.isEmpty(interceptors)) {
+      this.interceptors = null;
+    }
+    else {
+      setInterceptors(interceptors.toArray(new HandlerInterceptor[interceptors.size()]));
+    }
   }
 
   @Override
+  @Nullable
   public HandlerInterceptor[] getInterceptors() {
     return interceptors;
   }

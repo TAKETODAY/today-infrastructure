@@ -16,7 +16,7 @@
 package cn.taketoday.cglib.core;
 
 import cn.taketoday.core.NestedRuntimeException;
-import cn.taketoday.core.utils.ExceptionUtils;
+import cn.taketoday.util.ExceptionUtils;
 
 /**
  * @version $Id: CodeGenerationException.java,v 1.3 2004/06/24 21:15:21

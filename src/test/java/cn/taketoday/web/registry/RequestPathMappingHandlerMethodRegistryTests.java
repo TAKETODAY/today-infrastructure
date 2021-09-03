@@ -25,9 +25,9 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 
 import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.MediaType;
-import cn.taketoday.web.RequestMethod;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.annotation.ActionMapping;
 
 /**
@@ -36,7 +36,7 @@ import cn.taketoday.web.annotation.ActionMapping;
 public class RequestPathMappingHandlerMethodRegistryTests {
 
   @ActionMapping(value = "/users",
-                 method = RequestMethod.GET,
+                 method = HttpMethod.GET,
                  params = { "class-name=TODAY", "class-q" },
                  consumes = MediaType.APPLICATION_JSON_VALUE
   )

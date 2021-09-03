@@ -29,16 +29,16 @@ import javax.imageio.ImageIO;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.MediaType;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebConstant;
+import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.http.HttpStatusCapable;
-import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.view.TemplateResultHandler;
+import cn.taketoday.web.view.TemplateRendererReturnValueHandler;
 
 /**
  * Simple {@link HandlerExceptionHandler}
@@ -51,8 +51,8 @@ public class SimpleExceptionHandler
   private static final Logger log = LoggerFactory.getLogger(SimpleExceptionHandler.class);
 
   @Override
-  public Object handleException(final RequestContext context,
-                                final Throwable target, final Object handler) throws Throwable {
+  public Object handleException(
+          final RequestContext context, final Throwable target, final Object handler) throws Throwable {
     logCatchThrowable(target);
     try {
       if (handler instanceof HandlerMethod) {
@@ -62,7 +62,7 @@ public class SimpleExceptionHandler
         return handleViewControllerInternal(target, context, (ViewController) handler);
       }
       if (handler instanceof ResourceRequestHandler) {
-        return handleResourceMappingInternal(target, context, (ResourceRequestHandler) handler);
+        return handleResourceHandlerInternal(target, context, (ResourceRequestHandler) handler);
       }
       return handleExceptionInternal(target, context);
     }
@@ -85,7 +85,7 @@ public class SimpleExceptionHandler
   }
 
   /**
-   * record log when a exception occurred in this exception handler
+   * record log when an exception occurred in this exception handler
    *
    * @param target
    *         Throwable that occurred in request handler
@@ -111,9 +111,8 @@ public class SimpleExceptionHandler
    * @throws Throwable
    *         If any {@link Exception} occurred
    */
-  protected Object handleResourceMappingInternal(final Throwable ex,
-                                                 final RequestContext context,
-                                                 final ResourceRequestHandler handler) throws Throwable {
+  protected Object handleResourceHandlerInternal(
+          Throwable ex, RequestContext context, ResourceRequestHandler handler) throws Throwable {
     return handleExceptionInternal(ex, context);
   }
 
@@ -130,9 +129,8 @@ public class SimpleExceptionHandler
    * @throws Throwable
    *         If any {@link Exception} occurred
    */
-  protected Object handleViewControllerInternal(final Throwable ex,
-                                                final RequestContext context,
-                                                final ViewController viewController) throws Throwable {
+  protected Object handleViewControllerInternal(
+          Throwable ex, RequestContext context, ViewController viewController) throws Throwable {
     return handleExceptionInternal(ex, context);
   }
 
@@ -149,19 +147,18 @@ public class SimpleExceptionHandler
    * @throws Throwable
    *         If any {@link Exception} occurred
    */
-  protected Object handleHandlerMethodInternal(final Throwable ex,
-                                               final RequestContext context,
-                                               final HandlerMethod handlerMethod) throws Throwable//
+  protected Object handleHandlerMethodInternal(
+          Throwable ex, RequestContext context, HandlerMethod handlerMethod) throws Throwable//
   {
     context.setStatus(getErrorStatusValue(ex));
 
-    if (handlerMethod.isAssignableTo(RenderedImage.class)) {
+    if (handlerMethod.isReturnTypeAssignableTo(RenderedImage.class)) {
       return resolveImageException(ex, context);
     }
-    if (!handlerMethod.is(void.class)
-            && !handlerMethod.is(Object.class)
-            && !handlerMethod.is(ModelAndView.class)
-            && TemplateResultHandler.supportsHandlerMethod(handlerMethod)) {
+    if (!handlerMethod.isReturn(void.class)
+            && !handlerMethod.isReturn(Object.class)
+            && !handlerMethod.isReturn(ModelAndView.class)
+            && !TemplateRendererReturnValueHandler.supportsHandlerMethod(handlerMethod)) {
 
       return handleExceptionInternal(ex, context);
     }
@@ -179,7 +176,7 @@ public class SimpleExceptionHandler
    *         current request context
    */
   protected void writeErrorMessage(Throwable ex, RequestContext context) throws IOException {
-    context.setContentType(WebConstant.CONTENT_TYPE_JSON);
+    context.setContentType(MediaType.APPLICATION_JSON_VALUE);
     final PrintWriter writer = context.getWriter();
     writer.write(buildDefaultErrorMessage(ex));
     writer.flush();
@@ -237,7 +234,7 @@ public class SimpleExceptionHandler
 
     Assert.state(resource != null, "System Error");
 
-    context.setContentType(WebConstant.CONTENT_TYPE_IMAGE);
+    context.setContentType(MediaType.IMAGE_JPEG_VALUE);
     return ImageIO.read(resource);
   }
 

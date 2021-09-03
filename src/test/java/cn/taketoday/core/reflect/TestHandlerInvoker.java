@@ -39,23 +39,23 @@ public class TestHandlerInvoker {
 //    System.setProperty("cglib.debugLocation", "D:/dev/temp/debug");
     {
       final Method main = Bean.class.getDeclaredMethod("main");
-      final MethodInvoker mainInvoker = MethodInvoker.create(main);
+      final MethodInvoker mainInvoker = MethodInvoker.fromMethod(main);
       mainInvoker.invoke(null, null);
     }
     {
       final Method test = Bean.class.getDeclaredMethod("test", short.class);
-      final MethodInvoker mainInvoker = MethodInvoker.create(test);
+      final MethodInvoker mainInvoker = MethodInvoker.fromMethod(test);
       mainInvoker.invoke(null, new Object[] { (short) 1 });
       mainInvoker.invoke(null, new Object[] { null });
     }
 
-    final MethodInvoker create = MethodInvoker.create(Bean.class, "test");
+    final MethodInvoker create = MethodInvoker.fromMethod(Bean.class, "test");
     create.invoke(new Bean(), null);
 
-    final MethodInvoker itself = MethodInvoker.create(Bean.class, "test", Bean.class);
+    final MethodInvoker itself = MethodInvoker.fromMethod(Bean.class, "test", Bean.class);
     itself.invoke(new Bean(), new Object[] { new Bean() });
 
-    final MethodInvoker returnString = MethodInvoker.create(Bean.class, "returnString", String.class);
+    final MethodInvoker returnString = MethodInvoker.fromMethod(Bean.class, "returnString", String.class);
     final Object invoke1 = returnString.invoke(new Bean(), new Object[] { "TODAY" });
     System.out.println(invoke1);
   }

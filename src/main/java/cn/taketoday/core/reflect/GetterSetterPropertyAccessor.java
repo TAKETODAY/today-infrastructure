@@ -22,20 +22,16 @@ package cn.taketoday.core.reflect;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.core.Assert;
-
 /**
  * @author TODAY
  * 2020/9/11 17:27
  */
-public class GetterSetterPropertyAccessor implements PropertyAccessor {
+final class GetterSetterPropertyAccessor extends PropertyAccessor {
 
   private final GetterMethod readMethod;
   private final SetterMethod writeMethod;
 
-  public GetterSetterPropertyAccessor(GetterMethod readMethod, SetterMethod writeMethod) {
-    Assert.notNull(readMethod, "readMethod must not be null");
-    Assert.notNull(writeMethod, "writeMethod must not be null");
+  GetterSetterPropertyAccessor(GetterMethod readMethod, SetterMethod writeMethod) {
     this.readMethod = readMethod;
     this.writeMethod = writeMethod;
   }

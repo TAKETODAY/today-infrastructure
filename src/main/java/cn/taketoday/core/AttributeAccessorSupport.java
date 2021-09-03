@@ -25,8 +25,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-import cn.taketoday.core.utils.CollectionUtils;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Support class for {@link AttributeAccessor AttributeAccessors}, providing a

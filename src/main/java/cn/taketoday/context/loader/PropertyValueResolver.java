@@ -21,6 +21,7 @@ package cn.taketoday.context.loader;
 
 import java.lang.reflect.Field;
 
+import cn.taketoday.beans.PropertyValueException;
 import cn.taketoday.beans.factory.PropertySetter;
 
 /**

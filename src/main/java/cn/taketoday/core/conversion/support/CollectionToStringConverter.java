@@ -24,7 +24,7 @@ import java.util.StringJoiner;
 
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.utils.GenericDescriptor;
+import cn.taketoday.util.GenericDescriptor;
 
 /**
  * Converts a Collection to a comma-delimited String.

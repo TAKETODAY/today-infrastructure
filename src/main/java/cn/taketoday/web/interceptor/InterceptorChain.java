@@ -26,7 +26,7 @@ import cn.taketoday.web.RequestContext;
  * @author TODAY 2021/8/8 14:57
  * @since 4.0
  */
-public abstract class InterceptorChain implements HandlerInterceptorsCapable {
+public abstract class InterceptorChain {
 
   private final HandlerInterceptor[] interceptors;
   private int currentIndex = 0;
@@ -44,10 +44,22 @@ public abstract class InterceptorChain implements HandlerInterceptorsCapable {
     return proceedTarget(context, handler);
   }
 
+  /**
+   * process target handler
+   *
+   * @param context
+   *         current context
+   * @param handler
+   *         this context request handler
+   *
+   * @return handle result
+   *
+   * @throws Throwable
+   */
   protected abstract Object proceedTarget(RequestContext context, Object handler) throws Throwable;
 
-  @Override
   public HandlerInterceptor[] getInterceptors() {
     return interceptors;
   }
+
 }

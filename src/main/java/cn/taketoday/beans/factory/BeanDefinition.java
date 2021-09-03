@@ -29,7 +29,7 @@ import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.Prototype;
 import cn.taketoday.beans.Singleton;
 import cn.taketoday.context.Scope;
-import cn.taketoday.context.loader.NoSuchPropertyException;
+import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.Constant;
 
@@ -40,10 +40,13 @@ import cn.taketoday.core.Constant;
  * 2018-06-23 11:23:45
  */
 public interface BeanDefinition extends AnnotatedElement, AttributeAccessor {
+  String SCOPE = "scope";
+  String INIT_METHODS = "initMethods";
+  String DESTROY_METHODS = "destroyMethods";
 
   Method[] EMPTY_METHOD = Constant.EMPTY_METHOD_ARRAY;
 
-  PropertySetter[] EMPTY_PROPERTY_VALUE = Constant.EMPTY_PROPERTY_VALUE;
+  PropertySetter[] EMPTY_PROPERTY_SETTER = PropertySetter.EMPTY_ARRAY;
 
   /**
    * Get a property

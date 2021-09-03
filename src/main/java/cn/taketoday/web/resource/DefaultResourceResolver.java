@@ -30,14 +30,14 @@ import cn.taketoday.core.io.PathMatchingResourcePatternResolver;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceFilter;
 import cn.taketoday.core.io.ResourceResolver;
-import cn.taketoday.core.utils.MediaType;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.ResourceUtils;
-import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.handler.ResourceMatchResult;
-import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
@@ -166,7 +166,7 @@ public class DefaultResourceResolver implements WebResourceResolver {
     @Override
     public String getContentType() {
       if (contentType == null) {
-        final MediaType mediaType = MediaType.of(name);
+        final MediaType mediaType = MediaType.ofFileName(name);
         if (mediaType != null) {
           return this.contentType = mediaType.toString();
         }

@@ -25,17 +25,18 @@ import java.text.SimpleDateFormat;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContext.State;
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.utils.ExceptionUtils;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.view.HandlerAdapterNotFoundException;
-import cn.taketoday.web.view.ResultHandler;
 import cn.taketoday.web.view.ResultHandlerCapable;
-import cn.taketoday.web.view.ResultHandlerNotFoundException;
-import cn.taketoday.web.view.RuntimeResultHandler;
+import cn.taketoday.web.view.ReturnValueHandler;
+import cn.taketoday.web.view.ReturnValueHandlerNotFoundException;
+import cn.taketoday.web.view.RuntimeReturnValueHandler;
 
 /**
  * Central dispatcher for HTTP request handlers/controllers
@@ -48,11 +49,11 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   /** Action mapping registry */
   private HandlerRegistry handlerRegistry;
   private HandlerAdapter[] handlerAdapters;
-  private RuntimeResultHandler[] resultHandlers;
+  private RuntimeReturnValueHandler[] resultHandlers;
   /** exception handler */
   private HandlerExceptionHandler exceptionHandler;
 
-  public DispatcherHandler() {}
+  public DispatcherHandler() { }
 
   public DispatcherHandler(WebApplicationContext context) {
     setApplicationContext(context);
@@ -70,6 +71,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * @return Target handler, if returns {@code null} indicates that there isn't a
    * handler to handle this request
    */
+  @Nullable
   public Object lookupHandler(final RequestContext context) {
     return handlerRegistry.lookup(context);
   }
@@ -101,32 +103,32 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   }
 
   /**
-   * Find {@link ResultHandler} for handler and handler execution result
+   * Find {@link ReturnValueHandler} for handler and handler execution result
    *
    * @param handler
    *         HTTP handler
-   * @param result
+   * @param returnValue
    *         Handler execution result
    *
-   * @return {@link ResultHandler}
+   * @return {@link ReturnValueHandler}
    *
-   * @throws ResultHandlerNotFoundException
-   *         If there isn't a {@link ResultHandler} for target handler and
+   * @throws ReturnValueHandlerNotFoundException
+   *         If there isn't a {@link ReturnValueHandler} for target handler and
    *         handler execution result
    */
-  public ResultHandler lookupResultHandler(final Object handler, final Object result) {
-    if (handler instanceof ResultHandler) {
-      return (ResultHandler) handler;
+  public ReturnValueHandler lookupReturnValueHandler(@Nullable Object handler, @Nullable Object returnValue) {
+    if (handler instanceof ReturnValueHandler) {
+      return (ReturnValueHandler) handler;
     }
     if (handler instanceof ResultHandlerCapable) {
       return ((ResultHandlerCapable) handler).getResultHandler();
     }
-    for (final RuntimeResultHandler resultHandler : resultHandlers) {
-      if (resultHandler.supportsResult(result) || resultHandler.supportsHandler(handler)) {
+    for (final RuntimeReturnValueHandler resultHandler : resultHandlers) {
+      if (resultHandler.supportsReturnValue(returnValue) || resultHandler.supportsHandler(handler)) {
         return resultHandler;
       }
     }
-    throw new ResultHandlerNotFoundException(result, handler);
+    throw new ReturnValueHandlerNotFoundException(returnValue, handler);
   }
 
   /**
@@ -136,7 +138,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    *         Current HTTP request context
    *
    * @throws Throwable
-   *         If {@link Throwable} cannot handled
+   *         If {@link Throwable} cannot handle
    */
   public void handle(final RequestContext context) throws Throwable {
     handle(lookupHandler(context), context);
@@ -151,14 +153,14 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    *         Current HTTP request context
    *
    * @throws Throwable
-   *         If {@link Throwable} cannot handled
+   *         If {@link Throwable} cannot handle
    */
-  public void handle(final Object handler, final RequestContext context) throws Throwable {
+  public void handle(@Nullable final Object handler, final RequestContext context) throws Throwable {
     try {
       final Object result = lookupHandlerAdapter(handler).handle(context, handler);
       if (result != HandlerAdapter.NONE_RETURN_VALUE) {
-        lookupResultHandler(handler, result)
-                .handleResult(context, handler, result);
+        lookupReturnValueHandler(handler, result)
+                .handleReturnValue(context, handler, result);
       }
     }
     catch (Throwable e) {
@@ -193,9 +195,9 @@ public class DispatcherHandler extends WebApplicationContextSupport {
     final Object result = getExceptionHandler()
             .handleException(context, ExceptionUtils.unwrapThrowable(exception), handler);
     if (result != HandlerAdapter.NONE_RETURN_VALUE) {
-      for (final RuntimeResultHandler resultHandler : resultHandlers) {
-        if (resultHandler.supportsResult(result)) {
-          resultHandler.handleResult(context, handler, result);
+      for (final RuntimeReturnValueHandler resultHandler : resultHandlers) {
+        if (resultHandler.supportsReturnValue(result)) {
+          resultHandler.handleReturnValue(context, handler, result);
           break;
         }
       }
@@ -212,7 +214,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
       if (state != State.CLOSING && state != State.CLOSED) {
         context.close();
 
-        final DateFormat dateFormat = new SimpleDateFormat(WebConstant.DEFAULT_DATE_FORMAT);
+        final DateFormat dateFormat = new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT);
         final String msg = new StringBuilder("Your application destroyed at: [")
                 .append(dateFormat.format(System.currentTimeMillis()))
                 .append("] on startup date: [")
@@ -239,7 +241,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
     return handlerAdapters;
   }
 
-  public RuntimeResultHandler[] getResultHandlers() {
+  public RuntimeReturnValueHandler[] getResultHandlers() {
     return resultHandlers;
   }
 
@@ -266,7 +268,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
     this.exceptionHandler = exceptionHandler;
   }
 
-  public void setResultHandlers(RuntimeResultHandler... resultHandlers) {
+  public void setResultHandlers(RuntimeReturnValueHandler... resultHandlers) {
     Assert.notNull(resultHandlers, "resultHandlers must not be null");
     this.resultHandlers = resultHandlers;
   }

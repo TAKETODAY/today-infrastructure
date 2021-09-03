@@ -28,17 +28,18 @@ import java.util.Objects;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.AnnotationSupport;
 import cn.taketoday.core.AttributeAccessorSupport;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.Required;
-import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.CollectionUtils;
-import cn.taketoday.core.utils.GenericDescriptor;
-import cn.taketoday.core.utils.NumberUtils;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.NumberUtils;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.annotation.RequestParam;
-
 
 /**
  * @author TODAY
@@ -54,15 +55,20 @@ public class MethodParameter
   private String name;
   private boolean required;
   /** the default value */
+  @Nullable
   private String defaultValue;
+
+  @Nullable
   private Type[] generics;
+
+  @Nullable
   private HandlerMethod handlerMethod;
   /**
    * @since 3.0.1
    */
   protected GenericDescriptor genericDescriptor;
 
-  public MethodParameter(HandlerMethod handlerMethod, MethodParameter other) {
+  public MethodParameter(@Nullable HandlerMethod handlerMethod, MethodParameter other) {
     this.name = other.name;
     this.generics = other.generics;
     this.required = other.required;
@@ -75,23 +81,28 @@ public class MethodParameter
     this.genericDescriptor = other.genericDescriptor; // @since 3.0.1
   }
 
+  /**
+   * @since 4.0
+   */
+  public MethodParameter(MethodParameter other) {
+    this.name = other.name;
+    this.generics = other.generics;
+    this.required = other.required;
+    this.parameter = other.parameter;
+    this.defaultValue = other.defaultValue;
+    this.parameterIndex = other.parameterIndex;
+    this.parameterClass = other.parameterClass;
+
+    this.handlerMethod = other.handlerMethod;
+    this.genericDescriptor = other.genericDescriptor; // @since 3.0.1
+  }
+
   public MethodParameter(int index, Parameter parameter) {
     this.parameter = parameter;
     this.parameterIndex = index;
     this.parameterClass = parameter.getType();
 
-    AnnotationAttributes attributes = AnnotationUtils.getAttributes(RequestParam.class, parameter);
-    if (attributes != null) {
-      this.name = attributes.getString(WebConstant.VALUE);
-      this.required = attributes.getBoolean("required");
-      this.defaultValue = attributes.getString("defaultValue");
-    }
-    if (!this.required) { // @since 3.0 Required
-      this.required = AnnotationUtils.isPresent(parameter, Required.class);
-    }
-    if (StringUtils.isEmpty(defaultValue) && NumberUtils.isNumber(parameterClass)) {
-      this.defaultValue = "0"; // fix default value
-    }
+    initRequestParam(parameter);
   }
 
   public MethodParameter(int index, Parameter parameter, String parameterName) {
@@ -105,31 +116,54 @@ public class MethodParameter
    * @since 3.0
    */
   public MethodParameter(int index, Method method, String parameterName) {
-    this(index, ClassUtils.getParameter(method, index), parameterName);
+    this(index, ReflectionUtils.getParameter(method, index), parameterName);
+  }
+
+  /**
+   * init name, required, defaultValue
+   *
+   * @param element
+   *         AnnotatedElement may annotated RequestParam
+   *
+   * @since 4.0
+   */
+  protected void initRequestParam(AnnotatedElement element) {
+    AnnotationAttributes attributes = AnnotationUtils.getAttributes(RequestParam.class, element);
+    if (attributes != null) {
+      this.name = attributes.getString(Constant.VALUE);
+      this.required = attributes.getBoolean("required");
+      this.defaultValue = attributes.getString("defaultValue");
+    }
+    if (!this.required) { // @since 3.0 Required
+      this.required = AnnotationUtils.isPresent(element, Required.class);
+    }
+    if (StringUtils.isEmpty(defaultValue) && NumberUtils.isNumber(parameterClass)) {
+      this.defaultValue = "0"; // fix default value
+    }
   }
 
   public boolean isArray() {
-    return parameterClass.isArray();
+    return getParameterClass().isArray();
   }
 
   public boolean isCollection() {
-    return CollectionUtils.isCollection(parameterClass);
+    return CollectionUtils.isCollection(getParameterClass());
   }
 
   public boolean isInterface() {
-    return parameterClass.isInterface();
+    return getParameterClass().isInterface();
   }
 
   public boolean is(final Class<?> type) {
-    return type == this.parameterClass;
+    return type == getParameterClass();
   }
 
   public boolean isAssignableTo(final Class<?> superClass) {
-    return superClass.isAssignableFrom(parameterClass);
+    return superClass.isAssignableFrom(getParameterClass());
   }
 
   public boolean isInstance(final Object obj) {
-    return parameterClass.isInstance(obj);
+    return getParameterClass().isInstance(obj);
   }
 
   public Type getGeneric(final int index) {
@@ -188,7 +222,7 @@ public class MethodParameter
 
   @Override
   public String toString() {
-    return parameter.getType().getSimpleName() + " " + getName();
+    return getParameterClass().getSimpleName() + " " + getName();
   }
 
   @Override
@@ -221,27 +255,29 @@ public class MethodParameter
   }
 
   public Class<?> getComponentType() {
-    return parameterClass.getComponentType();
+    return getParameterClass().getComponentType();
   }
 
-  public void setDefaultValue(String defaultValue) {
+  public void setDefaultValue(@Nullable String defaultValue) {
     this.defaultValue = defaultValue;
   }
 
+  @Nullable
   public String getDefaultValue() {
     return defaultValue;
   }
 
-  public void setGenerics(Type[] generics) {
+  public void setGenerics(@Nullable Type[] generics) {
     this.generics = generics;
   }
 
+  @Nullable
   public Type[] getGenerics() {
     Type[] generics = this.generics;
     if (generics == null) {
       generics = ClassUtils.getGenericTypes(parameter);
       if (generics == null) {
-        generics = WebConstant.EMPTY_CLASS_ARRAY;
+        generics = Constant.EMPTY_CLASS_ARRAY;
       }
       this.generics = generics;
     }
@@ -252,11 +288,12 @@ public class MethodParameter
     return parameter;
   }
 
+  @Nullable
   public HandlerMethod getHandlerMethod() {
     return handlerMethod;
   }
 
-  public void setHandlerMethod(HandlerMethod handlerMethod) {
+  public void setHandlerMethod(@Nullable HandlerMethod handlerMethod) {
     this.handlerMethod = handlerMethod;
   }
 
@@ -268,10 +305,17 @@ public class MethodParameter
   public GenericDescriptor getGenericDescriptor() {
     GenericDescriptor genericDescriptor = this.genericDescriptor;
     if (genericDescriptor == null) {
-      genericDescriptor = GenericDescriptor.ofParameter(parameter);
+      genericDescriptor = createGenericDescriptor();
       this.genericDescriptor = genericDescriptor;
     }
     return genericDescriptor;
+  }
+
+  /**
+   * @since 4.0
+   */
+  protected GenericDescriptor createGenericDescriptor() {
+    return GenericDescriptor.ofParameter(parameter);
   }
 
 }

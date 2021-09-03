@@ -34,16 +34,17 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.ReflectionUtils;
-import cn.taketoday.core.utils.ResourceUtils;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.handler.ViewController;
+import cn.taketoday.web.view.ReturnValueHandler;
 
 import static cn.taketoday.core.ConfigurationException.nonNull;
 
@@ -52,6 +53,31 @@ import static cn.taketoday.core.ConfigurationException.nonNull;
  * 2019-12-23 22:10
  */
 public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
+  // the dtd
+  public static final String DTD_NAME = "web-configuration";
+
+  // config
+  public static final String ATTR_CLASS = "class";
+  public static final String ATTR_RESOURCE = "resource";
+  public static final String ATTR_NAME = "name";
+  public static final String ATTR_ORDER = "order";
+  public static final String ATTR_METHOD = "method";
+  /** resource location @since 2.3.7 */
+  public static final String ATTR_PREFIX = "prefix";
+  public static final String ATTR_SUFFIX = "suffix";
+
+  /**
+   * The resoure's content type
+   *
+   * @since 2.3.3
+   */
+  public static final String ATTR_CONTENT_TYPE = "content-type";
+  /** The response status @since 2.3.7 */
+  public static final String ATTR_STATUS = "status";
+
+  public static final String ELEMENT_ACTION = "action";
+  public static final String ELEMENT_CONTROLLER = "controller";
+  public static final String ROOT_ELEMENT = "Web-Configuration";
 
   public final ViewController getViewController(String key) {
     return getViewController(key, RequestContextHolder.currentContext());
@@ -123,7 +149,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
    */
   public ViewController addRedirectViewController(String pathPattern, String redirectUrl) {
     return addViewController(pathPattern)
-            .setResource(WebConstant.REDIRECT_URL_PREFIX.concat(redirectUrl));
+            .setResource(ReturnValueHandler.REDIRECT_URL_PREFIX.concat(redirectUrl));
   }
 
   /**
@@ -151,7 +177,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
     factory.setIgnoringComments(true);
     final DocumentBuilder builder = factory.newDocumentBuilder();
     builder.setEntityResolver((publicId, systemId) -> {
-      if (systemId.contains(WebConstant.DTD_NAME) || publicId.contains(WebConstant.DTD_NAME)) {
+      if (systemId.contains(DTD_NAME) || publicId.contains(DTD_NAME)) {
         return new InputSource(new ByteArrayInputStream("<?xml version=\"1.0\" encoding=\"UTF-8\"?>".getBytes()));
       }
       return null;
@@ -164,7 +190,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
       }
       try (final InputStream inputStream = resource.getInputStream()) {
         final Element root = builder.parse(inputStream).getDocumentElement();
-        if (WebConstant.ROOT_ELEMENT.equals(root.getNodeName())) { // root element
+        if (ROOT_ELEMENT.equals(root.getNodeName())) { // root element
 
           log.info("Found Configuration File: [{}].", resource);
           registerFromXml(root);
@@ -188,11 +214,11 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
 
         log.debug("Found Element: [{}]", nodeName);
 
-        if (WebConstant.ELEMENT_CONTROLLER.equals(nodeName)) {
+        if (ELEMENT_CONTROLLER.equals(nodeName)) {
           configController(ele);
         } // ELEMENT_RESOURCES // TODO
         else {
-          log.warn("This This element: [{}] is not supported in this version: [{}].", nodeName, WebConstant.VERSION);
+          log.warn("This This element: [{}] is not supported in this version: [{}].", nodeName, Constant.VERSION);
         }
       }
     }
@@ -210,10 +236,10 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
     Assert.notNull(controller, "'controller' element can't be null");
 
     // <controller/> element
-    final String name = controller.getAttribute(WebConstant.ATTR_NAME); // controller name
-    final String prefix = controller.getAttribute(WebConstant.ATTR_PREFIX); // prefix
-    final String suffix = controller.getAttribute(WebConstant.ATTR_SUFFIX); // suffix
-    final String className = controller.getAttribute(WebConstant.ATTR_CLASS); // class
+    final String name = controller.getAttribute(ATTR_NAME); // controller name
+    final String prefix = controller.getAttribute(ATTR_PREFIX); // prefix
+    final String suffix = controller.getAttribute(ATTR_SUFFIX); // suffix
+    final String className = controller.getAttribute(ATTR_CLASS); // class
 
     // @since 2.3.3
     final Object controllerBean = getControllerBean(name, className);
@@ -225,7 +251,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
       if (node instanceof Element) {
         String nodeName = node.getNodeName();
         // @since 2.3.3
-        if (nodeName.equals(WebConstant.ELEMENT_ACTION)) {// <action/>
+        if (nodeName.equals(ELEMENT_ACTION)) {// <action/>
           processAction(prefix, suffix, (Element) node, controllerBean);
         }
         else {
@@ -268,12 +294,12 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
                                final Object controller) //
   {
 
-    String name = action.getAttribute(WebConstant.ATTR_NAME); // action name
-    String order = action.getAttribute(WebConstant.ATTR_ORDER); // order
-    String method = action.getAttribute(WebConstant.ATTR_METHOD); // handler method
-    String resource = action.getAttribute(WebConstant.ATTR_RESOURCE); // resource
-    String contentType = action.getAttribute(WebConstant.ATTR_CONTENT_TYPE); // content type
-    final String status = action.getAttribute(WebConstant.ATTR_STATUS); // status
+    String name = action.getAttribute(ATTR_NAME); // action name
+    String order = action.getAttribute(ATTR_ORDER); // order
+    String method = action.getAttribute(ATTR_METHOD); // handler method
+    String resource = action.getAttribute(ATTR_RESOURCE); // resource
+    String contentType = action.getAttribute(ATTR_CONTENT_TYPE); // content type
+    final String status = action.getAttribute(ATTR_STATUS); // status
 
     if (StringUtils.isEmpty(name)) {
       throw new ConfigurationException(

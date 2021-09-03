@@ -21,8 +21,8 @@ package cn.taketoday.web.multipart;
 
 import java.util.Objects;
 
-import cn.taketoday.core.utils.DataSize;
-import cn.taketoday.web.WebConstant;
+import cn.taketoday.core.Constant;
+import cn.taketoday.util.DataSize;
 
 /**
  * @author TODAY 2019-07-11 22:47
@@ -32,7 +32,7 @@ public class MultipartConfiguration {
   /*** temp file upload location */
   private String location = System.getProperty("java.io.tmpdir");
 
-  private String encoding = WebConstant.DEFAULT_ENCODING;
+  private String encoding = Constant.DEFAULT_ENCODING;
 
   /**
    * Maximum size of a single uploaded file.

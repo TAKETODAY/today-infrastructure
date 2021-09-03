@@ -23,8 +23,8 @@ package cn.taketoday.core.conversion.support;
 import java.util.Collection;
 
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.core.utils.CollectionUtils;
-import cn.taketoday.core.utils.GenericDescriptor;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.GenericDescriptor;
 
 /**
  * @author TODAY 2021/3/22 13:04

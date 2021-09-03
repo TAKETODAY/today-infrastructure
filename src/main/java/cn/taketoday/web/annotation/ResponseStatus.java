@@ -24,7 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.web.WebConstant;
+import cn.taketoday.core.Constant;
 import cn.taketoday.web.http.HttpStatus;
 
 /**
@@ -76,6 +76,6 @@ public @interface ResponseStatus {
    * @see javax.servlet.http.HttpServletResponse#sendError(int, String)
    * @since 3.0
    */
-  String reason() default WebConstant.BLANK;
+  String reason() default Constant.BLANK;
 
 }

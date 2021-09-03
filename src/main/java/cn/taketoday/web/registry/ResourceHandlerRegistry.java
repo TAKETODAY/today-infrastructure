@@ -24,12 +24,12 @@ import java.util.List;
 
 import cn.taketoday.beans.Autowired;
 import cn.taketoday.cache.ConcurrentMapCache;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.OrderUtils;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.core.NonNull;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.OrderUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.PatternHandler;
 import cn.taketoday.web.handler.ResourceMapping;
@@ -94,12 +94,12 @@ public class ResourceHandlerRegistry
   protected Object lookupHandler(final String handlerKey, final RequestContext context) {
     final Object handler = super.lookupHandler(handlerKey, context);
     if (handler instanceof ResourceMatchResult) {
-      context.setAttribute(WebConstant.RESOURCE_MATCH_RESULT, handler);
+      context.setAttribute(ResourceMatchResult.RESOURCE_MATCH_RESULT, handler);
       return ((ResourceMatchResult) handler).getHandler();
     }
     else if (handler instanceof ResourceRequestHandler) {
       context.setAttribute(
-              WebConstant.RESOURCE_MATCH_RESULT,
+              ResourceMatchResult.RESOURCE_MATCH_RESULT,
               new ResourceMatchResult(handlerKey,
                                       handlerKey,
                                       getPathMatcher(),
@@ -123,6 +123,7 @@ public class ResourceHandlerRegistry
     return null;
   }
 
+  @NonNull
   @Override
   protected ConcurrentMapCache createPatternMatchingCache() {
     return new ConcurrentMapCache(CACHE_NAME, 64);

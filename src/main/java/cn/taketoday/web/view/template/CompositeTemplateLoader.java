@@ -28,8 +28,8 @@ import java.util.List;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.utils.ConcurrentCache;
-import cn.taketoday.core.utils.OrderUtils;
+import cn.taketoday.util.ConcurrentCache;
+import cn.taketoday.util.OrderUtils;
 import freemarker.cache.StatefulTemplateLoader;
 import freemarker.cache.TemplateLoader;
 

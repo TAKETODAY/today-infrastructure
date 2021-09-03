@@ -22,8 +22,8 @@ package cn.taketoday.core.conversion.support;
 import java.util.Arrays;
 
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.utils.GenericDescriptor;
-import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * Converts an array to a comma-delimited String.

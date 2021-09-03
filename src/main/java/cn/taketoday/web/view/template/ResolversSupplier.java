@@ -24,11 +24,11 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import cn.taketoday.core.Constant;
 import cn.taketoday.expression.CompositeExpressionResolver;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionResolver;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.servlet.HttpSessionModelAdapter;
 import cn.taketoday.web.servlet.ServletContextModelAdapter;
 import cn.taketoday.web.servlet.ServletRequestContext;
@@ -55,7 +55,7 @@ public class ResolversSupplier {
     private static final ResolversSupplier instance;
 
     static {
-      if (WebConstant.RUN_IN_SERVLET) {
+      if (Constant.RUN_IN_SERVLET) {
         instance = new ServletResolversSupplier();
       }
       else {

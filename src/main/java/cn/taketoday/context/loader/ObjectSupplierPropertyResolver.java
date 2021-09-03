@@ -24,13 +24,14 @@ import java.lang.reflect.Field;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.PropertyValueException;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.AbstractPropertySetter;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.core.utils.ResolvableType;
+import cn.taketoday.util.ResolvableType;
 
 /**
  * for {@link ObjectSupplier} PropertyValueResolver

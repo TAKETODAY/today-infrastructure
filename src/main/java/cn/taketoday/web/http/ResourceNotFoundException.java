@@ -20,11 +20,10 @@
 
 package cn.taketoday.web.http;
 
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.ResourceMatchResult;
-
-import static cn.taketoday.web.WebConstant.RESOURCE_MATCH_RESULT;
 
 /**
  * @author TODAY 2021/2/5 10:30
@@ -60,7 +59,8 @@ public class ResourceNotFoundException extends NotFoundException {
   }
 
   public static ResourceNotFoundException notFound() {
-    return notFound((ResourceMatchResult) RequestContextHolder.currentContext().getAttribute(RESOURCE_MATCH_RESULT));
+    RequestContext context = RequestContextHolder.currentContext();
+    return notFound((ResourceMatchResult) context.getAttribute(ResourceMatchResult.RESOURCE_MATCH_RESULT));
   }
 
   public static ResourceNotFoundException notFound(ResourceMatchResult matchResult) {

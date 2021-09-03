@@ -24,14 +24,14 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-import cn.taketoday.beans.BeanProperty;
-import cn.taketoday.beans.BeanPropertyAccessor;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.Mappings;
+import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.JdbcUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.Mappings;
 
 public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactory<T> {
 

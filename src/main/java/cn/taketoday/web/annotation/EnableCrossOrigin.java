@@ -26,8 +26,8 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.beans.Import;
 import cn.taketoday.beans.MissingBean;
-import cn.taketoday.web.cors.CorsProcessor;
-import cn.taketoday.web.cors.DefaultCorsProcessor;
+import cn.taketoday.web.http.CorsProcessor;
+import cn.taketoday.web.http.DefaultCorsProcessor;
 import cn.taketoday.web.registry.HandlerCorsCustomizer;
 
 /**

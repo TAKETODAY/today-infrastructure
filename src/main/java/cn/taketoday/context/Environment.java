@@ -25,9 +25,9 @@ import cn.taketoday.beans.BeanNameCreator;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.core.conversion.Converter;
-import cn.taketoday.core.utils.ConvertUtils;
-import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.expression.ExpressionProcessor;
+import cn.taketoday.util.ConvertUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY <br>
@@ -35,6 +35,11 @@ import cn.taketoday.expression.ExpressionProcessor;
  * @since 2.0.1
  */
 public interface Environment {
+  String PROPERTIES_SUFFIX = ".properties";
+  String KEY_ACTIVE_PROFILES = "context.active.profiles";
+  String DEFAULT_YML_FILE = "classpath:application.yml"; // @since 1.0.2
+  String DEFAULT_YAML_FILE = "classpath:application.yaml";
+  String DEFAULT_PROPERTIES_FILE = "classpath:application.properties";
 
   /**
    * Get properties

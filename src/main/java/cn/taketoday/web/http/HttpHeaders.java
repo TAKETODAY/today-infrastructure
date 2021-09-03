@@ -49,11 +49,8 @@ import java.util.stream.Collectors;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.utils.MediaType;
-import cn.taketoday.core.utils.StringUtils;
-import cn.taketoday.web.RequestMethod;
-import cn.taketoday.web.WebConstant;
-import cn.taketoday.web.resource.CacheControl;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.util.StringUtils;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Locale.US;
@@ -82,7 +79,438 @@ import static java.util.Locale.US;
  * @since 3.0
  */
 public abstract class HttpHeaders
-        implements WebConstant, /*Iterable<String>,*/ MultiValueMap<String, String> {
+        implements  /*Iterable<String>,*/ MultiValueMap<String, String>, cn.taketoday.core.Constant {
+
+  /**
+   * The HTTP {@code Accept} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-5.3.2">Section 5.3.2 of RFC 7231</a>
+   */
+  public static final String ACCEPT = "Accept";
+  /**
+   * The HTTP {@code Accept-Charset} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-5.3.3">Section 5.3.3 of RFC 7231</a>
+   */
+  public static final String ACCEPT_CHARSET = "Accept-Charset";
+  /**
+   * The HTTP {@code Accept-Encoding} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-5.3.4">Section 5.3.4 of RFC 7231</a>
+   */
+  public static final String ACCEPT_ENCODING = "Accept-Encoding";
+  /**
+   * The HTTP {@code Accept-Language} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-5.3.5">Section 5.3.5 of RFC 7231</a>
+   */
+  public static final String ACCEPT_LANGUAGE = "Accept-Language";
+  /**
+   * The HTTP {@code Accept-Patch} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc5789#section-3.1">Section 3.1 of RFC 5789</a>
+   * @since 5.3.6
+   */
+  public static final String ACCEPT_PATCH = "Accept-Patch";
+  /**
+   * The HTTP {@code Accept-Ranges} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7233#section-2.3">Section 5.3.5 of RFC 7233</a>
+   */
+  public static final String ACCEPT_RANGES = "Accept-Ranges";
+  /**
+   * The CORS {@code Access-Control-Allow-Credentials} response header field name.
+   *
+   * @see <a href="https://www.w3.org/TR/cors/">CORS W3C recommendation</a>
+   */
+  public static final String ACCESS_CONTROL_ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials";
+  /**
+   * The CORS {@code Access-Control-Allow-Headers} response header field name.
+   *
+   * @see <a href="https://www.w3.org/TR/cors/">CORS W3C recommendation</a>
+   */
+  public static final String ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers";
+  /**
+   * The CORS {@code Access-Control-Allow-Methods} response header field name.
+   *
+   * @see <a href="https://www.w3.org/TR/cors/">CORS W3C recommendation</a>
+   */
+  public static final String ACCESS_CONTROL_ALLOW_METHODS = "Access-Control-Allow-Methods";
+  /**
+   * The CORS {@code Access-Control-Allow-Origin} response header field name.
+   *
+   * @see <a href="https://www.w3.org/TR/cors/">CORS W3C recommendation</a>
+   */
+  public static final String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
+  /**
+   * The CORS {@code Access-Control-Expose-Headers} response header field name.
+   *
+   * @see <a href="https://www.w3.org/TR/cors/">CORS W3C recommendation</a>
+   */
+  public static final String ACCESS_CONTROL_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
+  /**
+   * The CORS {@code Access-Control-Max-Age} response header field name.
+   *
+   * @see <a href="https://www.w3.org/TR/cors/">CORS W3C recommendation</a>
+   */
+  public static final String ACCESS_CONTROL_MAX_AGE = "Access-Control-Max-Age";
+  /**
+   * The CORS {@code Access-Control-Request-Headers} request header field name.
+   *
+   * @see <a href="https://www.w3.org/TR/cors/">CORS W3C recommendation</a>
+   */
+  public static final String ACCESS_CONTROL_REQUEST_HEADERS = "Access-Control-Request-Headers";
+  /**
+   * The CORS {@code Access-Control-Request-Method} request header field name.
+   *
+   * @see <a href="https://www.w3.org/TR/cors/">CORS W3C recommendation</a>
+   */
+  public static final String ACCESS_CONTROL_REQUEST_METHOD = "Access-Control-Request-Method";
+  /**
+   * The HTTP {@code Age} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7234#section-5.1">Section 5.1 of RFC 7234</a>
+   */
+  public static final String AGE = "Age";
+  /**
+   * The HTTP {@code Allow} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-7.4.1">Section 7.4.1 of RFC 7231</a>
+   */
+  public static final String ALLOW = "Allow";
+  /**
+   * The HTTP {@code Authorization} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7235#section-4.2">Section 4.2 of RFC 7235</a>
+   */
+  public static final String AUTHORIZATION = "Authorization";
+  /**
+   * The HTTP {@code Cache-Control} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7234#section-5.2">Section 5.2 of RFC 7234</a>
+   */
+  public static final String CACHE_CONTROL = "Cache-Control";
+  /**
+   * The HTTP {@code Connection} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7230#section-6.1">Section 6.1 of RFC 7230</a>
+   */
+  public static final String CONNECTION = "Connection";
+  /**
+   * The HTTP {@code Content-Encoding} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-3.1.2.2">Section 3.1.2.2 of RFC 7231</a>
+   */
+  public static final String CONTENT_ENCODING = "Content-Encoding";
+  /**
+   * The HTTP {@code Content-Disposition} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc6266">RFC 6266</a>
+   */
+  public static final String CONTENT_DISPOSITION = "Content-Disposition";
+  /**
+   * The HTTP {@code Content-Language} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-3.1.3.2">Section 3.1.3.2 of RFC 7231</a>
+   */
+  public static final String CONTENT_LANGUAGE = "Content-Language";
+  /**
+   * The HTTP {@code Content-Length} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7230#section-3.3.2">Section 3.3.2 of RFC 7230</a>
+   */
+  public static final String CONTENT_LENGTH = "Content-Length";
+  /**
+   * The HTTP {@code Content-Location} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-3.1.4.2">Section 3.1.4.2 of RFC 7231</a>
+   */
+  public static final String CONTENT_LOCATION = "Content-Location";
+  /**
+   * The HTTP {@code Content-Range} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7233#section-4.2">Section 4.2 of RFC 7233</a>
+   */
+  public static final String CONTENT_RANGE = "Content-Range";
+  /**
+   * The HTTP {@code Content-Type} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Section 3.1.1.5 of RFC 7231</a>
+   */
+  public static final String CONTENT_TYPE = "Content-Type";
+  /**
+   * The HTTP {@code Cookie} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc2109#section-4.3.4">Section 4.3.4 of RFC 2109</a>
+   */
+  public static final String COOKIE = "Cookie";
+  /**
+   * The HTTP {@code Date} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.2">Section 7.1.1.2 of RFC 7231</a>
+   */
+  public static final String DATE = "Date";
+  /**
+   * The HTTP {@code ETag} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7232#section-2.3">Section 2.3 of RFC 7232</a>
+   */
+  public static final String ETAG = "ETag";
+  /**
+   * The HTTP {@code Expect} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-5.1.1">Section 5.1.1 of RFC 7231</a>
+   */
+  public static final String EXPECT = "Expect";
+  /**
+   * The HTTP {@code Expires} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7234#section-5.3">Section 5.3 of RFC 7234</a>
+   */
+  public static final String EXPIRES = "Expires";
+  /**
+   * The HTTP {@code From} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-5.5.1">Section 5.5.1 of RFC 7231</a>
+   */
+  public static final String FROM = "From";
+  /**
+   * The HTTP {@code Host} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7230#section-5.4">Section 5.4 of RFC 7230</a>
+   */
+  public static final String HOST = "Host";
+  /**
+   * The HTTP {@code If-Match} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7232#section-3.1">Section 3.1 of RFC 7232</a>
+   */
+  public static final String IF_MATCH = "If-Match";
+  /**
+   * The HTTP {@code If-Modified-Since} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7232#section-3.3">Section 3.3 of RFC 7232</a>
+   */
+  public static final String IF_MODIFIED_SINCE = "If-Modified-Since";
+  /**
+   * The HTTP {@code If-None-Match} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7232#section-3.2">Section 3.2 of RFC 7232</a>
+   */
+  public static final String IF_NONE_MATCH = "If-None-Match";
+  /**
+   * The HTTP {@code If-Range} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7233#section-3.2">Section 3.2 of RFC 7233</a>
+   */
+  public static final String IF_RANGE = "If-Range";
+  /**
+   * The HTTP {@code If-Unmodified-Since} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7232#section-3.4">Section 3.4 of RFC 7232</a>
+   */
+  public static final String IF_UNMODIFIED_SINCE = "If-Unmodified-Since";
+  /**
+   * The HTTP {@code Last-Modified} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7232#section-2.2">Section 2.2 of RFC 7232</a>
+   */
+  public static final String LAST_MODIFIED = "Last-Modified";
+  /**
+   * The HTTP {@code Link} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc5988">RFC 5988</a>
+   */
+  public static final String LINK = "Link";
+  /**
+   * The HTTP {@code Location} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-7.1.2">Section 7.1.2 of RFC 7231</a>
+   */
+  public static final String LOCATION = "Location";
+  /**
+   * The HTTP {@code Max-Forwards} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-5.1.2">Section 5.1.2 of RFC 7231</a>
+   */
+  public static final String MAX_FORWARDS = "Max-Forwards";
+  /**
+   * The HTTP {@code Origin} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc6454">RFC 6454</a>
+   */
+  public static final String ORIGIN = "Origin";
+  /**
+   * The HTTP {@code Pragma} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7234#section-5.4">Section 5.4 of RFC 7234</a>
+   */
+  public static final String PRAGMA = "Pragma";
+  /**
+   * The HTTP {@code Proxy-Authenticate} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7235#section-4.3">Section 4.3 of RFC 7235</a>
+   */
+  public static final String PROXY_AUTHENTICATE = "Proxy-Authenticate";
+  /**
+   * The HTTP {@code Proxy-Authorization} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7235#section-4.4">Section 4.4 of RFC 7235</a>
+   */
+  public static final String PROXY_AUTHORIZATION = "Proxy-Authorization";
+  /**
+   * The HTTP {@code Range} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7233#section-3.1">Section 3.1 of RFC 7233</a>
+   */
+  public static final String RANGE = "Range";
+  /**
+   * The HTTP {@code Referer} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-5.5.2">Section 5.5.2 of RFC 7231</a>
+   */
+  public static final String REFERER = "Referer";
+  /**
+   * The HTTP {@code Retry-After} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-7.1.3">Section 7.1.3 of RFC 7231</a>
+   */
+  public static final String RETRY_AFTER = "Retry-After";
+  /**
+   * The HTTP {@code Server} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-7.4.2">Section 7.4.2 of RFC 7231</a>
+   */
+  public static final String SERVER = "Server";
+  /**
+   * The HTTP {@code Set-Cookie} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc2109#section-4.2.2">Section 4.2.2 of RFC 2109</a>
+   */
+  public static final String SET_COOKIE = "Set-Cookie";
+  /**
+   * The HTTP {@code Set-Cookie2} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc2965">RFC 2965</a>
+   */
+  public static final String SET_COOKIE2 = "Set-Cookie2";
+  /**
+   * The HTTP {@code TE} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7230#section-4.3">Section 4.3 of RFC 7230</a>
+   */
+  public static final String TE = "TE";
+  /**
+   * The HTTP {@code Trailer} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7230#section-4.4">Section 4.4 of RFC 7230</a>
+   */
+  public static final String TRAILER = "Trailer";
+  /**
+   * The HTTP {@code Transfer-Encoding} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7230#section-3.3.1">Section 3.3.1 of RFC 7230</a>
+   */
+  public static final String TRANSFER_ENCODING = "Transfer-Encoding";
+  /**
+   * The HTTP {@code Upgrade} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7230#section-6.7">Section 6.7 of RFC 7230</a>
+   */
+  public static final String UPGRADE = "Upgrade";
+  /**
+   * The HTTP {@code User-Agent} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-5.5.3">Section 5.5.3 of RFC 7231</a>
+   */
+  public static final String USER_AGENT = "User-Agent";
+  /**
+   * The HTTP {@code Vary} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-7.1.4">Section 7.1.4 of RFC 7231</a>
+   */
+  public static final String VARY = "Vary";
+  /**
+   * The HTTP {@code Via} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7230#section-5.7.1">Section 5.7.1 of RFC 7230</a>
+   */
+  public static final String VIA = "Via";
+  /**
+   * The HTTP {@code Warning} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7234#section-5.5">Section 5.5 of RFC 7234</a>
+   */
+  public static final String WARNING = "Warning";
+  /**
+   * The HTTP {@code WWW-Authenticate} header field name.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7235#section-4.1">Section 4.1 of RFC 7235</a>
+   */
+  public static final String WWW_AUTHENTICATE = "WWW-Authenticate";
+
+  public static final String CONTENT_TRANSFER_ENCODING = "Content-Transfer-Encoding";
+
+  // X-Requested-With
+
+  public static final String X_REQUESTED_WITH = "X-Requested-With";
+
+  // WebSocket
+
+  public static final String SEC_WEBSOCKET_ORIGIN = "Sec-WebSocket-Origin";
+  public static final String SEC_WEBSOCKET_ACCEPT = "Sec-WebSocket-Accept";
+  public static final String SEC_WEBSOCKET_VERSION = "Sec-WebSocket-Version";
+  public static final String SEC_WEBSOCKET_PROTOCOL = "Sec-WebSocket-Protocol";
+  public static final String SEC_WEBSOCKET_EXTENSIONS = "Sec-WebSocket-Extensions";
+
+  public static final String SEC_WEBSOCKET_LOCATION = "Sec-WebSocket-Location";
+
+  public static final String SEC_WEBSOCKET_KEY = "Sec-WebSocket-Key";
+  public static final String WEBSOCKET_LOCATION = "WebSocket-Location";
+  public static final String WEBSOCKET_PROTOCOL = "WebSocket-Protocol";
+  public static final String SEC_WEBSOCKET_KEY1 = "Sec-WebSocket-Key1";
+  public static final String SEC_WEBSOCKET_KEY2 = "Sec-WebSocket-Key2";
+
+  //  ====================
+  // Header values
+
+  public static final String NONE = "none";
+  public static final String GZIP = "gzip";
+  public static final String BYTES = "bytes";
+  public static final String CLOSE = "close";
+  public static final String PUBLIC = "public";
+  public static final String BASE64 = "base64";
+  public static final String BINARY = "binary";
+  public static final String CHUNKED = "chunked";
+  public static final String CHARSET = "charset";
+  public static final String MAX_AGE = "max-age";
+  public static final String DEFLATE = "deflate";
+  public static final String PRIVATE = "private";
+  public static final String BOUNDARY = "boundary";
+  public static final String IDENTITY = "identity";
+  public static final String NO_CACHE = "no-cache";
+  public static final String NO_STORE = "no-store";
+  public static final String S_MAXAGE = "s-maxage";
+  public static final String TRAILERS = "trailers";
+  public static final String COMPRESS = "compress";
+  public static final String MAX_STALE = "max-stale";
+  public static final String MIN_FRESH = "min-fresh";
+  public static final String WEBSOCKET = "WebSocket";
+  public static final String KEEP_ALIVE = "keep-alive";
+  public static final String GZIP_DEFLATE = "gzip,deflate";
+  public static final String CONTINUE = "100-continue";
+  public static final String NO_TRANSFORM = "no-transform";
+  public static final String ONLY_IF_CACHED = "only-if-cached";
+  public static final String XML_HTTP_REQUEST = "XMLHttpRequest";
+  public static final String MUST_REVALIDATE = "must-revalidate";
+  public static final String PROXY_REVALIDATE = "proxy-revalidate";
+  public static final String QUOTED_PRINTABLE = "quoted-printable";
+  public static final String MULTIPART_FORM_DATA = "multipart/form-data";
+  public static final String INLINE_FILE_NAME = "inline;filename=\"";
+  public static final String ATTACHMENT_FILE_NAME = "attachment;filename=\"";
+  public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
+  public static final String APPLICATION_FORCE_DOWNLOAD = "application/force-download;";
+  public static final String APPLICATION_X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
 
   /**
    * Pattern matching ETag multiple field values in headers such as "If-Match",
@@ -255,13 +683,13 @@ public abstract class HttpHeaders
   /**
    * Return the value of the {@code Access-Control-Allow-Methods} response header.
    */
-  public List<RequestMethod> getAccessControlAllowMethods() {
-    List<RequestMethod> result = new ArrayList<>();
+  public List<HttpMethod> getAccessControlAllowMethods() {
+    List<HttpMethod> result = new ArrayList<>();
     String value = getFirst(ACCESS_CONTROL_ALLOW_METHODS);
     if (value != null) {
       String[] tokens = StringUtils.tokenizeToStringArray(value, ",");
       for (String token : tokens) {
-        result.add(RequestMethod.valueOf(token));
+        result.add(HttpMethod.valueOf(token));
       }
     }
     return result;
@@ -342,19 +770,19 @@ public abstract class HttpHeaders
    * Set the (new) value of the {@code Access-Control-Request-Method} request
    * header.
    */
-  public void setAccessControlRequestMethod(RequestMethod requestMethod) {
+  public void setAccessControlRequestMethod(HttpMethod requestMethod) {
     setOrRemove(ACCESS_CONTROL_REQUEST_METHOD, (requestMethod != null ? requestMethod.name() : null));
   }
 
   /**
    * Return the value of the {@code Access-Control-Request-Method} request header.
    */
-  public RequestMethod getAccessControlRequestMethod() {
+  public HttpMethod getAccessControlRequestMethod() {
     final String first = getFirst(ACCESS_CONTROL_REQUEST_METHOD);
     if (StringUtils.isEmpty(first)) {
       return null;
     }
-    return RequestMethod.valueOf(first);
+    return HttpMethod.valueOf(first);
   }
 
   /**
@@ -399,31 +827,31 @@ public abstract class HttpHeaders
   }
 
   /**
-   * Set the set of allowed {@link RequestMethod HTTP methods}, as specified by
+   * Set the set of allowed {@link HttpMethod HTTP methods}, as specified by
    * the {@code Allow} header.
    */
-  public void setAllow(Set<RequestMethod> allowedMethods) {
+  public void setAllow(Set<HttpMethod> allowedMethods) {
     set(ALLOW, StringUtils.collectionToString(allowedMethods)); // special case
   }
 
   /**
-   * Return the set of allowed {@link RequestMethod HTTP methods}, as specified by
+   * Return the set of allowed {@link HttpMethod HTTP methods}, as specified by
    * the {@code Allow} header.
    * <p>
    * Returns an empty set when the allowed methods are unspecified.
    */
-  public Set<RequestMethod> getAllow() {
+  public Set<HttpMethod> getAllow() {
     String value = getFirst(ALLOW);
     if (StringUtils.isNotEmpty(value)) {
       String[] tokens = StringUtils.tokenizeToStringArray(value, ",");
-      List<RequestMethod> result = new ArrayList<>(tokens.length);
+      List<HttpMethod> result = new ArrayList<>(tokens.length);
       for (String token : tokens) {
-        result.add(RequestMethod.valueOf(token));
+        result.add(HttpMethod.valueOf(token));
       }
       return EnumSet.copyOf(result);
     }
     else {
-      return EnumSet.noneOf(RequestMethod.class);
+      return EnumSet.noneOf(HttpMethod.class);
     }
   }
 
@@ -442,7 +870,7 @@ public abstract class HttpHeaders
     if (StringUtils.isEmpty(encodedCredentials)) {
       throw new IllegalArgumentException("'encodedCredentials' must not be null or blank");
     }
-    set(AUTHORIZATION, "Basic " .concat(encodedCredentials));
+    set(AUTHORIZATION, "Basic ".concat(encodedCredentials));
   }
 
   /**
@@ -503,7 +931,7 @@ public abstract class HttpHeaders
    */
   public void setBearerAuth(String token) {
     Assert.notNull(token, "The base64 encoded token must not be null");
-    set(AUTHORIZATION, "Bearer " .concat(token));
+    set(AUTHORIZATION, "Bearer ".concat(token));
   }
 
   /**
@@ -1258,7 +1686,7 @@ public abstract class HttpHeaders
         if (value != null) {
           Matcher matcher = ETAG_HEADER_VALUE_PATTERN.matcher(value);
           while (matcher.find()) {
-            if ("*" .equals(matcher.group())) {
+            if ("*".equals(matcher.group())) {
               result.add(matcher.group());
             }
             else {

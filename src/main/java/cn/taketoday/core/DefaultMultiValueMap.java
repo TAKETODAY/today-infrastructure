@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
-import cn.taketoday.core.utils.CollectionUtils;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Simple implementation of {@link MultiValueMap} that wraps a {@link Map},
@@ -170,6 +170,20 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
         final V[] toArray = values.toArray(mappingFunction.apply(values.size()));
         newMap.put(entry.getKey(), toArray);
       }
+    }
+  }
+
+  /**
+   * Trims the capacity of this map internal value <tt>ArrayList</tt> instance to be the
+   * list's current size.  An application can use this operation to minimize
+   * the storage of an <tt>ArrayList</tt> instance.
+   *
+   * @see ArrayList#trimToSize()
+   * @since 4.0
+   */
+  public void trimToSize() {
+    for (final Entry<K, List<V>> entry : map.entrySet()) {
+      CollectionUtils.trimToSize(entry.getValue());
     }
   }
 

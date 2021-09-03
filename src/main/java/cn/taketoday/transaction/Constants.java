@@ -27,7 +27,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.jdbc.Constant;
+import cn.taketoday.core.Constant;
 
 /**
  * This class can be used to parse other classes containing constant definitions

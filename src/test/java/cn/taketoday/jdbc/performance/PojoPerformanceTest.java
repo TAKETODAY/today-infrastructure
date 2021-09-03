@@ -29,8 +29,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.sql2o.Sql2o;
 import org.sql2o.quirks.NoQuirks;
 import org.teasoft.bee.osql.BeeSql;
@@ -46,7 +44,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -158,7 +155,7 @@ public class PojoPerformanceTest {
 
     PerformanceTestList tests = new PerformanceTestList();
 
-    tests.add(new HibernateTypicalSelect());
+//    tests.add(new HibernateTypicalSelect());
 
     tests.add(new BeeSelect());
     tests.add(new TODAYTypicalSelect());
@@ -171,7 +168,7 @@ public class PojoPerformanceTest {
     tests.add(new JOOQSelect());
     tests.add(new ApacheDbUtilsTypicalSelect());
     tests.add(new MyBatisSelect());
-    tests.add(new SpringJdbcTemplateSelect());
+//    tests.add(new SpringJdbcTemplateSelect());
 
     System.out.println("Warming up...");
     tests.run(ITERATIONS);
@@ -608,25 +605,25 @@ public class PojoPerformanceTest {
     Post selectPost(int id);
   }
 
-  class SpringJdbcTemplateSelect extends PerformanceTestBase {
-    private NamedParameterJdbcTemplate jdbcTemplate;
-
-    @Override
-    public void init() {
-      final DataSource dataSource = new DataSourceConfig().h2DataSource();
-      jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-    }
-
-    @Override
-    public void run(int input) {
-      jdbcTemplate.queryForObject(SELECT_TYPICAL + " WHERE id = :id",
-                                  Collections.singletonMap("id", input),
-                                  new BeanPropertyRowMapper<Post>(Post.class));
-    }
-
-    @Override
-    public void close() {}
-  }
+//  static class SpringJdbcTemplateSelect extends PerformanceTestBase {
+//    private NamedParameterJdbcTemplate jdbcTemplate;
+//
+//    @Override
+//    public void init() {
+//      final DataSource dataSource = new DataSourceConfig().h2DataSource();
+//      jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+//    }
+//
+//    @Override
+//    public void run(int input) {
+//      jdbcTemplate.queryForObject(SELECT_TYPICAL + " WHERE id = :id",
+//                                  Collections.singletonMap("id", input),
+//                                  new BeanPropertyRowMapper<Post>(Post.class));
+//    }
+//
+//    @Override
+//    public void close() {}
+//  }
 
   // --
 }

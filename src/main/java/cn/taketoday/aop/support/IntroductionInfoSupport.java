@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.aop.IntroductionInfo;
-import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * Support for implementations of {@link IntroductionInfo}.

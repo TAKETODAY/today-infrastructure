@@ -22,7 +22,7 @@ package cn.taketoday.core.conversion.support;
 import java.lang.reflect.Array;
 
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.utils.GenericDescriptor;
+import cn.taketoday.util.GenericDescriptor;
 
 /**
  * Converts an array to an Object by returning the first array element

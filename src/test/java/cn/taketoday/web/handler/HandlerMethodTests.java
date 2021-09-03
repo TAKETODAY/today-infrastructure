@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.handler;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -29,17 +29,18 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.core.utils.MediaType;
+import cn.taketoday.util.MediaType;
 import cn.taketoday.web.MockRequestContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Produce;
+import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resolver.ParameterResolvers;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
-import cn.taketoday.web.view.ResultHandlers;
-import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
+import cn.taketoday.web.view.ReturnValueHandlers;
+import cn.taketoday.web.view.template.DefaultTemplateRenderer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -79,13 +80,13 @@ public class HandlerMethodTests {
   @Test
   public void testResponseStatus() throws Throwable {
     final Method method = HandlerMethodTests.class.getDeclaredMethod("responseStatus");
-    final HandlerMethod handlerMethod = HandlerMethod.create(new HandlerMethodTests(), method);
+    final HandlerMethod handlerMethod = HandlerMethod.from(new HandlerMethodTests(), method);
     final HandlerMethodRequestContext context = new HandlerMethodRequestContext(null);
 
     final StandardApplicationContext applicationContext = getApplicationContext();
     setResultHandlers(handlerMethod, applicationContext);
 
-    handlerMethod.handleResult(context, handlerMethod, null);
+    handlerMethod.handleReturnValue(context, handlerMethod, null);
     final int status = context.getStatus();
     assertThat(status).isEqualTo(HttpStatus.CREATED.value());
   }
@@ -93,7 +94,7 @@ public class HandlerMethodTests {
   @Test
   public void testSimple() throws Throwable {
     final Method method = HandlerMethodTests.class.getDeclaredMethod("method", String.class);
-    final HandlerMethod handlerMethod = HandlerMethod.create(new HandlerMethodTests(), method);
+    final HandlerMethod handlerMethod = HandlerMethod.from(new HandlerMethodTests(), method);
 
     assertThat(handlerMethod.getMethod()).isEqualTo(method);
     assertThat(handlerMethod.getParameters()).isNull();
@@ -105,7 +106,7 @@ public class HandlerMethodTests {
     // produce
     final Method produce = HandlerMethodTests.class.getDeclaredMethod("produce", String.class);
     final HandlerMethodTests bean = new HandlerMethodTests();
-    final HandlerMethod produceMethod = HandlerMethod.create(bean, produce);
+    final HandlerMethod produceMethod = HandlerMethod.from(bean, produce);
     assertThat(produceMethod.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
 
     final Map<String, String[]> params = new HashMap<String, String[]>() {
@@ -136,7 +137,7 @@ public class HandlerMethodTests {
 
     setResultHandlers(produceMethod, applicationContext);
 
-    produceMethod.handleResult(context, null, retValue); // apply content-type
+    produceMethod.handleReturnValue(context, null, retValue); // apply content-type
     assertThat(retValue).isNull();
 
     final String contentType = context.getContentType();
@@ -165,8 +166,8 @@ public class HandlerMethodTests {
   }
 
   private void setResultHandlers(HandlerMethod produceMethod, StandardApplicationContext applicationContext) {
-    final ResultHandlers resultHandlers = new ResultHandlers();
-    final DefaultTemplateViewResolver viewResolver = new DefaultTemplateViewResolver();
+    final ReturnValueHandlers resultHandlers = new ReturnValueHandlers();
+    final DefaultTemplateRenderer viewResolver = new DefaultTemplateRenderer();
     resultHandlers.setApplicationContext(applicationContext);
     resultHandlers.registerDefaultResultHandlers(viewResolver);
     produceMethod.setResultHandlers(resultHandlers);
@@ -190,6 +191,37 @@ public class HandlerMethodTests {
     public void afterProcess(RequestContext context, Object handler, Object result) throws Throwable {
 
     }
+  }
+
+  //
+  @ResponseBody
+  static class TestController {
+
+    @ResponseBody
+    public void method(String name) { }
+
+    @ResponseBody(value = false)
+    public void responseBodyFalse(String name) { }
+
+    public void classLevelResponseBodyTrue(String name) { }
+
+  }
+
+  @Test
+  void isResponseBody() throws Exception {
+    Method method = TestController.class.getDeclaredMethod("method", String.class);
+    HandlerMethod handlerMethod = HandlerMethod.from(new TestController(), method);
+
+    assertThat(handlerMethod.isResponseBody()).isTrue();
+
+    Method responseBodyFalseMethod = TestController.class.getDeclaredMethod("responseBodyFalse", String.class);
+    HandlerMethod responseBodyFalse = HandlerMethod.from(new TestController(), responseBodyFalseMethod);
+    assertThat(responseBodyFalse.isResponseBody()).isFalse();
+
+    Method classLevelResponseBodyTrueMethod = TestController.class.getDeclaredMethod("classLevelResponseBodyTrue", String.class);
+    HandlerMethod classLevelResponseBodyTrue = HandlerMethod.from(new TestController(), classLevelResponseBodyTrueMethod);
+    assertThat(classLevelResponseBodyTrue.isResponseBody()).isTrue();
+
   }
 
 }

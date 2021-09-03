@@ -27,15 +27,14 @@ import cn.taketoday.context.Environment;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.ConvertUtils;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.OrderUtils;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ConvertUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.OrderUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
-import cn.taketoday.web.WebConstant;
-import cn.taketoday.web.event.WebApplicationStartedEvent;
+import cn.taketoday.web.WebApplicationStartedEvent;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.HandlerAdapter;
@@ -52,15 +51,18 @@ import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolvers;
 import cn.taketoday.web.validation.Validator;
 import cn.taketoday.web.validation.WebValidator;
-import cn.taketoday.web.view.ResultHandler;
-import cn.taketoday.web.view.ResultHandlers;
-import cn.taketoday.web.view.RuntimeResultHandler;
+import cn.taketoday.web.view.ReturnValueHandler;
+import cn.taketoday.web.view.ReturnValueHandlers;
+import cn.taketoday.web.view.RuntimeReturnValueHandler;
 
 /**
  * @author TODAY 2019-07-10 23:12
  */
 public class WebApplicationLoader
         extends WebApplicationContextSupport implements WebApplicationInitializer {
+  public static final String ENABLE_WEB_MVC_XML = "enable.webmvc.xml";
+  public static final String ENABLE_WEB_STARTED_LOG = "enable.started.log";
+  public static final String WEB_MVC_CONFIG_LOCATION = "WebMvcConfigLocation";
 
   private DispatcherHandler dispatcher;
 
@@ -99,7 +101,7 @@ public class WebApplicationLoader
   }
 
   protected void logStartup(WebApplicationContext context) {
-    if (context.getEnvironment().getFlag(WebConstant.ENABLE_WEB_STARTED_LOG, true)) {
+    if (context.getEnvironment().getFlag(ENABLE_WEB_STARTED_LOG, true)) {
       log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
                System.currentTimeMillis() - context.getStartupDate()//
       );
@@ -182,7 +184,7 @@ public class WebApplicationLoader
           WebApplicationContext context, WebMvcConfiguration mvcConfiguration) throws Throwable {
     ViewControllerHandlerRegistry registry = context.getBean(ViewControllerHandlerRegistry.class);
     final Environment environment = context.getEnvironment();
-    if (environment.getFlag(WebConstant.ENABLE_WEB_MVC_XML, true)) {
+    if (environment.getFlag(ENABLE_WEB_MVC_XML, true)) {
       registry = configViewControllerHandlerRegistry(registry);
     }
     if (registry != null) {
@@ -260,37 +262,37 @@ public class WebApplicationLoader
   protected void configureConversionService(
           List<TypeConverter> typeConverters, WebMvcConfiguration mvcConfiguration) {
     mvcConfiguration.configureConversionService(typeConverters);
-    ConvertUtils.addConverter(typeConverters);
+    ConvertUtils.addConverter(typeConverters);// FIXME ConversionService
   }
 
   private void configureResultHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    configureResultHandler(context.getBeans(ResultHandler.class), mvcConfiguration);
+    configureResultHandler(context.getBeans(ReturnValueHandler.class), mvcConfiguration);
   }
 
   /**
-   * Configure {@link ResultHandler} to resolve handler method result
+   * Configure {@link ReturnValueHandler} to resolve handler method result
    *
    * @param handlers
-   *         {@link ResultHandler} registry
+   *         {@link ReturnValueHandler} registry
    * @param mvcConfiguration
    *         All {@link WebMvcConfiguration} object
    */
-  protected void configureResultHandler(List<ResultHandler> handlers, WebMvcConfiguration mvcConfiguration) {
+  protected void configureResultHandler(List<ReturnValueHandler> handlers, WebMvcConfiguration mvcConfiguration) {
     final DispatcherHandler obtainDispatcher = obtainDispatcher();
-    final RuntimeResultHandler[] existingHandlers = obtainDispatcher.getResultHandlers();
+    final RuntimeReturnValueHandler[] existingHandlers = obtainDispatcher.getResultHandlers();
     if (ObjectUtils.isNotEmpty(existingHandlers)) {
       Collections.addAll(handlers, existingHandlers);
     }
     final WebApplicationContext context = obtainApplicationContext();
     // @since 3.0
-    final ResultHandlers resultHandlers = context.getBean(ResultHandlers.class);
-    Assert.state(resultHandlers != null, "No ResultHandlers");
+    final ReturnValueHandlers returnValueHandlers = context.getBean(ReturnValueHandlers.class);
+    Assert.state(returnValueHandlers != null, "No ResultHandlers");
     // user config
     mvcConfiguration.configureResultHandler(handlers);
 
-    resultHandlers.addHandlers(handlers);
+    returnValueHandlers.addHandlers(handlers);
     // apply result handler
-    obtainDispatcher.setResultHandlers(resultHandlers.getRuntimeHandlers());
+    obtainDispatcher.setResultHandlers(returnValueHandlers.getRuntimeHandlers());
   }
 
   private void configureParameterResolver(
@@ -422,7 +424,9 @@ public class WebApplicationLoader
    * @see ViewControllerHandlerRegistry#configure(String)
    */
   protected String getWebMvcConfigLocation() {
-    return obtainApplicationContext().getEnvironment().getProperty(WebConstant.WEB_MVC_CONFIG_LOCATION);
+    return obtainApplicationContext()
+            .getEnvironment()
+            .getProperty(WEB_MVC_CONFIG_LOCATION);
   }
 
   /**

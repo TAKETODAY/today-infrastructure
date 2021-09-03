@@ -29,15 +29,16 @@ import java.util.function.Consumer;
 
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.conversion.Converter;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.CollectionUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Strategies Detector
@@ -64,6 +65,8 @@ public class StrategiesDetector {
   private ClassLoader classLoader = ClassUtils.getClassLoader();
   private BeanFactory beanFactory;
   private boolean throwWhenClassNotFound = false;
+  // do log when class not found
+  private boolean logWhenClassNotFound = false;
 
   private final DefaultMultiValueMap<String, String> strategies = new DefaultMultiValueMap<>();
 
@@ -79,7 +82,7 @@ public class StrategiesDetector {
     }
     else {
       try {
-        strategiesReader = ClassUtils.newInstance(strategiesFileType);
+        strategiesReader = BeanUtils.newInstance(strategiesFileType);
       }
       catch (ClassNotFoundException e) {
         throw new UnsupportedOperationException("Unsupported strategies file type");
@@ -157,7 +160,7 @@ public class StrategiesDetector {
   }
 
   private static Object createInstance(Class<?> strategy, BeanFactory factory) {
-    final Object instance = ClassUtils.newInstance(strategy, factory);
+    final Object instance = BeanUtils.newInstance(strategy, factory);
     if (factory instanceof AutowireCapableBeanFactory) {
       // autowire, dont apply bean post processor
       ((AutowireCapableBeanFactory) factory).autowireBean(strategy);
@@ -204,7 +207,7 @@ public class StrategiesDetector {
       if (throwWhenClassNotFound) {
         throw new IllegalStateException("class '" + className + "' not found", e);
       }
-      else {
+      else if (logWhenClassNotFound) {
         log.warn("class '{}' not found", className, e);
       }
     }
@@ -369,6 +372,14 @@ public class StrategiesDetector {
 
   public BeanFactory getBeanFactory() {
     return beanFactory;
+  }
+
+  public void setLogWhenClassNotFound(boolean logWhenClassNotFound) {
+    this.logWhenClassNotFound = logWhenClassNotFound;
+  }
+
+  public boolean isLogWhenClassNotFound() {
+    return logWhenClassNotFound;
   }
 
   // static

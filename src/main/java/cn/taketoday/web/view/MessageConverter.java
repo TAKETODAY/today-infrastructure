@@ -23,19 +23,19 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
+import cn.taketoday.core.Constant;
+import cn.taketoday.util.MediaType;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**
- * @author TODAY <br>
- * 2019-07-17 13:31
+ * @author TODAY 2019-07-17 13:31
  * @see JsonSequence
  */
 public abstract class MessageConverter {
 
   /** for write string */
-  private Charset charset = WebConstant.DEFAULT_CHARSET;
+  private Charset charset = Constant.DEFAULT_CHARSET;
 
   /**
    * Write message to client
@@ -67,7 +67,7 @@ public abstract class MessageConverter {
   }
 
   protected void applyContentType(RequestContext context) {
-    context.setContentType(WebConstant.CONTENT_TYPE_JSON);
+    context.setContentType(MediaType.APPLICATION_JSON_VALUE);
   }
 
   protected void writeStringInternal(RequestContext context, String message) throws IOException {
@@ -81,15 +81,7 @@ public abstract class MessageConverter {
   /**
    * Write none null message
    */
-  abstract void writeInternal(RequestContext context, Object noneNullMessage) throws IOException;
-
-  public void setCharset(Charset charset) {
-    this.charset = charset;
-  }
-
-  public Charset getCharset() {
-    return charset;
-  }
+  protected abstract void writeInternal(RequestContext context, Object noneNullMessage) throws IOException;
 
   /**
    * Read The request body and convert it to Target object
@@ -106,4 +98,16 @@ public abstract class MessageConverter {
    */
   public abstract Object read(RequestContext context, MethodParameter parameter) throws IOException;
 
+  /**
+   * for write string
+   *
+   * @see #writeStringInternal(RequestContext, String)
+   */
+  public void setCharset(Charset charset) {
+    this.charset = charset;
+  }
+
+  public Charset getCharset() {
+    return charset;
+  }
 }

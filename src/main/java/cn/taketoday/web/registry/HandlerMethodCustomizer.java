@@ -27,7 +27,7 @@ import cn.taketoday.web.handler.HandlerMethod;
 public interface HandlerMethodCustomizer extends HandlerCustomizer {
 
   @Override
-  default Object customize(Object handler) {
+  default Object customize(String handlerKey, Object handler) {
     return handler instanceof HandlerMethod
            ? customize((HandlerMethod) handler)
            : handler;

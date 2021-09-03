@@ -27,22 +27,24 @@ import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.ServletSecurityElement;
 
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.web.WebConstant;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY <br>
  * 2019-02-03 12:28
  */
-public class WebServletInitializer<T extends Servlet> extends WebComponentInitializer<ServletRegistration.Dynamic> {
+public class WebServletInitializer<T extends Servlet>
+        extends WebComponentInitializer<ServletRegistration.Dynamic> {
+  private static final Logger log = LoggerFactory.getLogger(WebServletInitializer.class);
 
   private T servlet;
   private int loadOnStartup = -1;
   private MultipartConfigElement multipartConfig;
   private ServletSecurityElement servletSecurity;
 
-  public WebServletInitializer() {}
+  public WebServletInitializer() { }
 
   public WebServletInitializer(T servlet) {
     this.servlet = servlet;
@@ -64,7 +66,7 @@ public class WebServletInitializer<T extends Servlet> extends WebComponentInitia
    */
   @Override
   protected void configureRegistration(Dynamic registration) {
-    LoggerFactory.getLogger(WebServletInitializer.class).debug("Configure servlet registration: [{}]", this);
+    log.debug("Configure servlet registration: [{}]", this);
     registration.setLoadOnStartup(this.loadOnStartup);
 
     super.configureRegistration(registration);
@@ -76,7 +78,7 @@ public class WebServletInitializer<T extends Servlet> extends WebComponentInitia
   protected void configureUrlMappings(Dynamic registration) {
 
     final String[] urlMappings = getUrlMappings().isEmpty()
-                                 ? WebConstant.DEFAULT_MAPPINGS
+                                 ? DEFAULT_MAPPINGS
                                  : StringUtils.toStringArray(getUrlMappings());
 
     registration.addMapping(urlMappings);

@@ -23,7 +23,7 @@ package cn.taketoday.web.registry;
 import java.util.Objects;
 
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY 2021/4/22 0:33

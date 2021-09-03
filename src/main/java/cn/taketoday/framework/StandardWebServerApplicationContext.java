@@ -23,8 +23,9 @@ import cn.taketoday.beans.BeanNameCreator;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.ConfigurableEnvironment;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.core.Constant;
 import cn.taketoday.framework.server.WebServer;
-import cn.taketoday.framework.utils.ApplicationUtils;
+import cn.taketoday.framework.utils.WebApplicationUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.web.StandardWebBeanFactory;
@@ -80,7 +81,7 @@ public class StandardWebServerApplicationContext
   protected void preRefresh() {
     log.info("Looking For: [{}] Bean.", WebServer.class.getName());
 
-    this.webServer = ApplicationUtils.obtainWebServer(this);
+    this.webServer = WebApplicationUtils.obtainWebServer(this);
     super.preRefresh();
   }
 

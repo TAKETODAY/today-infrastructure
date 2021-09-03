@@ -19,22 +19,23 @@
  */
 package cn.taketoday.jdbc.utils;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
 import cn.taketoday.core.Assert;
+import cn.taketoday.jdbc.CannotGetJdbcConnectionException;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.jdbc.CannotGetJdbcConnectionException;
 import cn.taketoday.transaction.ConnectionHolder;
 import cn.taketoday.transaction.SynchronizationManager;
 import cn.taketoday.transaction.SynchronizationManager.SynchronizationMetaData;
 import cn.taketoday.transaction.TransactionDefinition;
 import cn.taketoday.transaction.TransactionSynchronization;
-
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * @author TODAY <br>

@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -34,21 +34,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.EmptyObject;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.Readable;
 import cn.taketoday.core.io.Writable;
-import cn.taketoday.core.utils.CollectionUtils;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContextHolder.ApplicationNotStartedContext;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.http.DefaultHttpHeaders;
 import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.ModelAttributes;
@@ -132,7 +132,7 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
   }
 
   protected String doGetContextPath() {
-    return WebConstant.BLANK;
+    return Constant.BLANK;
   }
 
   /**
@@ -570,7 +570,7 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    * Clears any data that exists in the buffer as well as the status code,
    * headers. The state of calling {@link #getWriter} or {@link #getOutputStream}
    * is also cleared. It is legal, for instance, to call {@link #getWriter},
-   * {@link #reset} and then {@link #getOutputStream}. If {@link #getWriter} or
+   * reset() and then {@link #getOutputStream}. If {@link #getWriter} or
    * {@link #getOutputStream} have been called before this method, then the
    * corresponding returned Writer or OutputStream will be staled and the
    * behavior of using the stale object is undefined. If the response has been
@@ -808,7 +808,7 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    *         a <code>String</code> specifying the MIME type of the content
    */
   public void setContentType(String contentType) {
-    responseHeaders().set(WebConstant.CONTENT_TYPE, contentType);
+    responseHeaders().set(HttpHeaders.CONTENT_TYPE, contentType);
   }
 
   /**

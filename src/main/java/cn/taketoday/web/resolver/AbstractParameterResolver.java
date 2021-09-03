@@ -75,6 +75,9 @@ public abstract class AbstractParameterResolver implements ParameterResolver {
     return null;
   }
 
+  /**
+   * handle missed parameter value
+   */
   protected Object missingParameter(final MethodParameter parameter) {
     throw new MissingParameterException(parameter);
   }

@@ -23,7 +23,7 @@ package cn.taketoday.core.conversion.support;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import cn.taketoday.core.utils.GenericDescriptor;
+import cn.taketoday.util.GenericDescriptor;
 
 /**
  * convert String to byte array

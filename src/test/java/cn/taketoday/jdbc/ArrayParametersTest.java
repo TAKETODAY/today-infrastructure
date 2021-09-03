@@ -7,8 +7,10 @@ import com.google.common.collect.Maps;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Map;
 
-import cn.taketoday.jdbc.parsing.ParameterApplier;
+import cn.taketoday.jdbc.parsing.ParameterIndexHolder;
+import cn.taketoday.jdbc.parsing.QueryParameter;
 
 import static junit.framework.TestCase.assertEquals;
 
@@ -17,18 +19,26 @@ public class ArrayParametersTest {
   @Test
   public void testUpdateParameterNamesToIndexes() {
     final ImmutableList<Integer> of = ImmutableList.of(3, 5);
-    assertEquals(
-            ImmutableMap.of("paramName", ParameterApplier.valueOf(ImmutableList.of(3, 5))),
-            ArrayParameters.updateMap(
-                    Maps.newHashMap(ImmutableMap.of("paramName", ParameterApplier.valueOf(of))),
-                    ImmutableList.of(
-                            new ArrayParameters.ArrayParameter(6, 3))));
+    ImmutableList<ArrayParameters.ArrayParameter> arrayParametersSortedAsc =
+            ImmutableList.of(new ArrayParameters.ArrayParameter(6, 3));
+
+    QueryParameter parameter = new QueryParameter("paramName", ParameterIndexHolder.valueOf(of));
+
+    ImmutableMap<String, QueryParameter> paramName2 = ImmutableMap.of("paramName", parameter);
+    Map<String, QueryParameter> paramName =
+            ArrayParameters.updateMap(Maps.newHashMap(paramName2), arrayParametersSortedAsc);
+
+    assertEquals(ImmutableMap.of("paramName", new QueryParameter("paramName", ParameterIndexHolder.valueOf(ImmutableList.of(3, 5)))),
+                 paramName);
+
+    parameter = new QueryParameter("paramName", ParameterIndexHolder.valueOf(ImmutableList.of(3, 7)));
+
+    ImmutableMap<String, QueryParameter> paramName1 = ImmutableMap.of("paramName", parameter);
 
     assertEquals(
-            ImmutableMap.of("paramName", ParameterApplier.valueOf(ImmutableList.of(3, 9))),
+            ImmutableMap.of("paramName", new QueryParameter("paramName", ParameterIndexHolder.valueOf(ImmutableList.of(3, 9)))),
             ArrayParameters.updateMap(
-                    Maps.newHashMap(ImmutableMap.of("paramName",
-                                                    ParameterApplier.valueOf(ImmutableList.of(3, 7)))),
+                    Maps.newHashMap(paramName1),
                     ImmutableList.of(
                             new ArrayParameters.ArrayParameter(6, 3))));
   }

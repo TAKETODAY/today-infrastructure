@@ -19,7 +19,7 @@
  */
 package cn.taketoday.beans.factory;
 
-import static cn.taketoday.core.utils.ContextUtils.createBeanDefinition;
+import static cn.taketoday.context.ContextUtils.createBeanDefinition;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;

@@ -28,11 +28,11 @@ import java.lang.annotation.Target;
 import cn.taketoday.beans.Import;
 import cn.taketoday.beans.MissingBean;
 import cn.taketoday.context.Props;
-import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.framework.server.AbstractServletWebServer;
 import cn.taketoday.framework.server.JettyServer;
 import cn.taketoday.framework.server.TomcatServer;
 import cn.taketoday.framework.server.UndertowServer;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * @author TODAY 2021/8/14 12:34

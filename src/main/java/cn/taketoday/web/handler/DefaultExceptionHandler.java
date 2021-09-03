@@ -25,20 +25,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.ReflectionUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.WebConstant;
+import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.http.HttpStatusCapable;
-import cn.taketoday.web.utils.WebUtils;
 
 /**
  * Handle {@link ExceptionHandler} annotated method
@@ -65,7 +64,7 @@ public class DefaultExceptionHandler
   @Override
   public Object handleException(RequestContext context, Throwable target, Object handler) throws Throwable {
     // prepare context throwable
-    context.setAttribute(WebConstant.KEY_THROWABLE, target);
+    context.setAttribute(KEY_THROWABLE, target);
     // catch all handlers
     final ThrowableHandlerMethod exHandler = lookupExceptionHandler(target);
     if (exHandler == null) {
@@ -93,11 +92,11 @@ public class DefaultExceptionHandler
    * @return handler return value
    *
    * @throws Throwable
-   *         Throwable occurred in exHandler
+   *         occurred in exHandler
    */
   protected Object handleException(RequestContext context, ThrowableHandlerMethod exHandler)
           throws Throwable {
-    exHandler.handleResult(context, exHandler, exHandler.invokeHandler(context));
+    exHandler.handleReturnValue(context, exHandler, exHandler.invokeHandler(context));
     return NONE_RETURN_VALUE;
   }
 
@@ -214,7 +213,7 @@ public class DefaultExceptionHandler
     protected void applyResponseStatus(final RequestContext context) {
       final ResponseStatus status = getResponseStatus();
       if (status == null) {
-        final Object attribute = context.getAttribute(WebConstant.KEY_THROWABLE);
+        final Object attribute = context.getAttribute(KEY_THROWABLE);
         if (attribute instanceof HttpStatusCapable) { // @since 3.0.1
           final HttpStatus httpStatus = ((HttpStatusCapable) attribute).getHttpStatus();
           context.setStatus(httpStatus);

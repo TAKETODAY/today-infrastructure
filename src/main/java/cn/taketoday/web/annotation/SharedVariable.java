@@ -24,19 +24,19 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.web.WebConstant;
+import cn.taketoday.core.Constant;
 
 /**
  * @author TODAY <br>
- *         2019-07-24 02:19
+ * 2019-07-24 02:19
  */
 @RequestParam
-@Target(ElementType.PARAMETER)
+@Target({ ElementType.PARAMETER, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SharedVariable {
 
   /** Freemarker Configuration shared variable name */
-  String value() default WebConstant.BLANK;
+  String value() default Constant.BLANK;
 
   /**
    * If required == true when request parameter is null, will be return bad
@@ -45,5 +45,5 @@ public @interface SharedVariable {
   boolean required() default false;
 
   /** When required == false, and parameter == null. use default value. */
-  String defaultValue() default WebConstant.BLANK;
+  String defaultValue() default Constant.BLANK;
 }

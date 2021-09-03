@@ -20,7 +20,7 @@
 
 package cn.taketoday.core.conversion;
 
-import cn.taketoday.core.utils.GenericDescriptor;
+import cn.taketoday.util.GenericDescriptor;
 
 /**
  * Exception to be thrown when an actual type conversion attempt fails.

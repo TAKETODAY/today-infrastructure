@@ -22,7 +22,7 @@ package cn.taketoday.core.conversion.support;
 
 import java.time.Duration;
 
-import cn.taketoday.core.utils.ConvertUtils;
+import cn.taketoday.util.ConvertUtils;
 
 /**
  * @author TODAY 2021/3/21 11:18

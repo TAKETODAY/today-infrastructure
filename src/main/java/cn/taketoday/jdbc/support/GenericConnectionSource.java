@@ -98,4 +98,9 @@ final class GenericConnectionSource implements ConnectionSource {
     return DriverManager.getConnection(url, properties);
   }
 
+  @Override
+  public String toString() {
+    return String.format("Connections from url: %s, and properties: %s", url, properties);
+  }
+
 }

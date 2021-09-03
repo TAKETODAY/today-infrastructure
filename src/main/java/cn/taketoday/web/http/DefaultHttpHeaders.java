@@ -28,7 +28,7 @@ import java.util.function.IntFunction;
 
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.utils.LinkedCaseInsensitiveMap;
+import cn.taketoday.util.LinkedCaseInsensitiveMap;
 
 /**
  * @author TODAY 2020-01-30 18:31

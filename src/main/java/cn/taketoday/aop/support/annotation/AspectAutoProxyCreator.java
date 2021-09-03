@@ -39,16 +39,16 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.ObjectSupplier;
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.ContextCloseEvent;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.OrderUtils;
-import cn.taketoday.core.utils.ReflectionUtils;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.OrderUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * @author TODAY 2021/2/19 23:55
@@ -194,7 +194,7 @@ public class AspectAutoProxyCreator
     }
 
     // dynamic parameters -> aspectMethod, def, beanFactory
-    final MethodInterceptor ret = ClassUtils.newInstance(
+    final MethodInterceptor ret = BeanUtils.newInstance(
             interceptor, beanFactory, new Object[] { aspectMethod, aspectDef, beanFactory });
 
     if (beanFactory instanceof AutowireCapableBeanFactory) {

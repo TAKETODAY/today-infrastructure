@@ -28,9 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.core.utils.MediaType;
-import cn.taketoday.web.RequestMethod;
-import cn.taketoday.web.resource.CacheControl;
+import cn.taketoday.util.MediaType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -176,7 +174,7 @@ public class ResponseEntityTests {
     MediaType contentType = MediaType.TEXT_PLAIN;
 
     ResponseEntity<Void> responseEntity = ResponseEntity.ok().
-            allow(RequestMethod.GET).
+            allow(HttpMethod.GET).
             lastModified(12345L).
             location(location).
             contentLength(contentLength).
@@ -188,7 +186,7 @@ public class ResponseEntityTests {
     assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     HttpHeaders responseHeaders = responseEntity.getHeaders();
 
-    assertThat(responseHeaders.getFirst(HttpHeaders.ALLOW)).isEqualTo(RequestMethod.GET.name());
+    assertThat(responseHeaders.getFirst(HttpHeaders.ALLOW)).isEqualTo(HttpMethod.GET.name());
     assertThat(responseHeaders.getFirst(HttpHeaders.LAST_MODIFIED)).isEqualTo("Thu, 01 Jan 1970 00:00:12 GMT");
     assertThat(responseHeaders.getFirst(HttpHeaders.LOCATION)).isEqualTo(location.toASCIIString());
     assertThat(responseHeaders.getFirst(HttpHeaders.CONTENT_LENGTH)).isEqualTo(String.valueOf(contentLength));

@@ -21,8 +21,6 @@ package cn.taketoday.core.io;
 
 import java.io.IOException;
 
-import cn.taketoday.core.Constant;
-
 /**
  * Strategy interface for resolving a location pattern (for example, an
  * Ant-style path pattern) into Resource objects.
@@ -47,7 +45,7 @@ import cn.taketoday.core.Constant;
 public interface ResourceResolver {
 
   /** Pseudo URL prefix for loading from the class path: "classpath:". */
-  String CLASSPATH_URL_PREFIX = Constant.CLASS_PATH_PREFIX;
+  String CLASSPATH_URL_PREFIX = "classpath:";
 
   /**
    * Pseudo URL prefix for all matching resources from the class path:

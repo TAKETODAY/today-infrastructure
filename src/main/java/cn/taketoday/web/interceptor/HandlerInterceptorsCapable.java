@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.interceptor;
 
+import cn.taketoday.core.Nullable;
+
 /**
  * @author TODAY <br>
  *         2019-12-13 13:12
@@ -31,6 +33,7 @@ public interface HandlerInterceptorsCapable {
    *
    * @return {@link HandlerInterceptor}s
    */
+  @Nullable
   HandlerInterceptor[] getInterceptors();
 
   default boolean hasInterceptor() {

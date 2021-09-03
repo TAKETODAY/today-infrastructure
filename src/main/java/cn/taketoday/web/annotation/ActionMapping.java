@@ -25,8 +25,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.MediaType;
-import cn.taketoday.web.RequestMethod;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.web.http.HttpMethod;
 
 /**
  * Handler Or Action Mapping
@@ -44,7 +44,7 @@ public @interface ActionMapping {
   /** Exclude url on class */
   boolean exclude() default false;
 
-  RequestMethod[] method() default {};
+  HttpMethod[] method() default {};
 
   /**
    * Narrows the primary mapping by media types that can be

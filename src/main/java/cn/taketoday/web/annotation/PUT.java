@@ -25,8 +25,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.MediaType;
-import cn.taketoday.web.RequestMethod;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.web.http.HttpMethod;
 
 /**
  * @author TODAY <br>
@@ -34,7 +34,7 @@ import cn.taketoday.web.RequestMethod;
  * <b>@ActionMapping(method = RequestMethod.PUT)
  */
 @Retention(RetentionPolicy.RUNTIME)
-@ActionMapping(method = RequestMethod.PUT)
+@ActionMapping(method = HttpMethod.PUT)
 @Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface PUT {
 

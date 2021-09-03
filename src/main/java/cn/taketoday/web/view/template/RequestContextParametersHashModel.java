@@ -22,7 +22,7 @@ package cn.taketoday.web.view.template;
 import java.util.Iterator;
 import java.util.Set;
 
-import cn.taketoday.core.utils.CollectionUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import freemarker.template.ObjectWrapper;
 import freemarker.template.SimpleCollection;

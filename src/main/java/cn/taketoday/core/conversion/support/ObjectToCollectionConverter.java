@@ -23,8 +23,8 @@ import java.util.Collection;
 
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.core.utils.CollectionUtils;
-import cn.taketoday.core.utils.GenericDescriptor;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.GenericDescriptor;
 
 /**
  * Converts an Object to a single-element Collection containing the Object.

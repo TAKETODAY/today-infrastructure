@@ -25,9 +25,9 @@ import java.util.HashMap;
 import cn.taketoday.beans.Autowired;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebConstant;
+import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolvers;
@@ -70,7 +70,8 @@ public class ValidationParameterResolver
   @Override
   public boolean supports(MethodParameter parameter) {
 
-    if (parameter.isAnnotationPresent(VALID_CLASS)) {
+    if (parameter.isAnnotationPresent(Validated.class)
+            || parameter.isAnnotationPresent(VALID_CLASS)) {
       for (final ParameterResolver resolver : obtainResolvers().getResolvers()) {
         if (resolver != this && resolver.supports(parameter)) {
           resolverMap.put(parameter, resolver);
@@ -86,12 +87,14 @@ public class ValidationParameterResolver
     final Object value = resolveValue(context, parameter);
 
     final DefaultErrors errors = new DefaultErrors();
-    context.setAttribute(WebConstant.VALIDATION_ERRORS, errors);
+    context.setAttribute(Validator.KEY_VALIDATION_ERRORS, errors);
 
     doValidate(getValidator(), value, errors);
 
     if (errors.hasErrors()) {
-      final MethodParameter[] parameters = parameter.getHandlerMethod().getParameters();
+      HandlerMethod method = parameter.getHandlerMethod();
+      Assert.state(method != null, "No HandlerMethod");
+      final MethodParameter[] parameters = method.getParameters();
       final int length = parameters.length;
       if (length == 1) {
         // use  @ExceptionHandler(ValidationException.class) to handle validation exception

@@ -28,7 +28,7 @@ import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.ConfigurableEnvironment;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.StandardEnvironment;
-import cn.taketoday.web.utils.WebUtils;
+import cn.taketoday.web.WebUtils;
 
 /**
  * @author TODAY <br>

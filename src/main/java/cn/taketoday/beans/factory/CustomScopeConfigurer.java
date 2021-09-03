@@ -22,12 +22,13 @@ package cn.taketoday.beans.factory;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.aware.BeanClassLoaderAware;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * Simple {@link BeanFactoryPostProcessor} implementation that registers custom
@@ -99,12 +100,12 @@ public class CustomScopeConfigurer
           @SuppressWarnings("unchecked")
           Class<Scope> scopeClass = (Class<Scope>) scope;
           Assert.isAssignable(Scope.class, scopeClass, "Invalid scope class");
-          beanFactory.registerScope(name, ClassUtils.newInstance(scopeClass));
+          beanFactory.registerScope(name, BeanUtils.newInstance(scopeClass));
         }
         else if (scope instanceof String) {
           Class<Scope> scopeClass = ClassUtils.loadClass((String) scope, this.beanClassLoader);
           Assert.isAssignable(Scope.class, scopeClass, "Invalid scope class");
-          beanFactory.registerScope(name, ClassUtils.newInstance(scopeClass));
+          beanFactory.registerScope(name, BeanUtils.newInstance(scopeClass));
         }
         else {
           throw new IllegalArgumentException(

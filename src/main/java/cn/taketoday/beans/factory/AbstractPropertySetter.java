@@ -23,9 +23,7 @@ package cn.taketoday.beans.factory;
 import java.lang.reflect.Field;
 import java.util.Objects;
 
-import cn.taketoday.core.Assert;
 import cn.taketoday.core.reflect.SetterMethod;
-import cn.taketoday.core.utils.ReflectionUtils;
 
 /**
  * <p>
@@ -44,9 +42,8 @@ public abstract class AbstractPropertySetter implements PropertySetter {
   protected final SetterMethod accessor;
 
   public AbstractPropertySetter(Field field) {
-    Assert.notNull(field, "field must not be null");
     this.field = field;
-    this.accessor = ReflectionUtils.newSetterMethod(field);
+    this.accessor = SetterMethod.fromField(field);
   }
 
   @Override
@@ -83,8 +80,10 @@ public abstract class AbstractPropertySetter implements PropertySetter {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof AbstractPropertySetter)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof AbstractPropertySetter))
+      return false;
     return Objects.equals(field, ((AbstractPropertySetter) o).field);
   }
 

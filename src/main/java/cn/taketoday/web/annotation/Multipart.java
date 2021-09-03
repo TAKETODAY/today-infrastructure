@@ -24,18 +24,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.web.WebConstant;
+import cn.taketoday.core.Constant;
 
 /**
  * @author TODAY <br>
- *         2018-11-17 21:24
+ * 2018-11-17 21:24
  */
 @RequestParam
-@Target(ElementType.PARAMETER)
+@Target({ ElementType.PARAMETER, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Multipart {
 
   /** multi part name */
-  String value() default WebConstant.BLANK;
+  String value() default Constant.BLANK;
 
 }

@@ -30,7 +30,7 @@ import cn.taketoday.context.Condition;
 import cn.taketoday.context.Conditional;
 import cn.taketoday.context.Environment;
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * {@link Conditional} that checks if the specified properties have a specific

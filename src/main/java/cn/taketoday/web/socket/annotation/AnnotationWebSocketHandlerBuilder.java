@@ -28,7 +28,7 @@ import java.util.List;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.conversion.support.StringToBytesConverter;
-import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.socket.WebSocketHandler;
 

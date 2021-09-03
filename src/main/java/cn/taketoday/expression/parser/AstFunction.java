@@ -44,13 +44,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.FunctionMapper;
 import cn.taketoday.expression.LambdaExpression;
 import cn.taketoday.expression.ValueExpression;
 import cn.taketoday.expression.VariableMapper;
 import cn.taketoday.expression.lang.EvaluationContext;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]

@@ -25,15 +25,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.MediaType;
-import cn.taketoday.web.RequestMethod;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.web.http.HttpMethod;
 
 /**
  * @author TODAY <br>
  *         2018-07-01 14:05:15
  */
 @Retention(RetentionPolicy.RUNTIME)
-@ActionMapping(method = RequestMethod.DELETE)
+@ActionMapping(method = HttpMethod.DELETE)
 @Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface DELETE {
 

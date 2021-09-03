@@ -9,7 +9,7 @@ import cn.taketoday.core.Assert;
 
 /**
  * The default implementation of {@link ConnectionSource}, Simply delegates all
- * calls to specified {@link DataSource }
+ * calls to specified {@link DataSource}
  */
 public final class DataSourceConnectionSource implements ConnectionSource {
   private final DataSource dataSource;
@@ -47,6 +47,11 @@ public final class DataSourceConnectionSource implements ConnectionSource {
 
   public DataSource getDataSource() {
     return dataSource;
+  }
+
+  @Override
+  public String toString() {
+    return "Connections from dataSource: " + dataSource;
   }
 
 }

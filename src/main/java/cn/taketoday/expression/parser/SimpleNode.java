@@ -42,12 +42,12 @@ package cn.taketoday.expression.parser;
 
 import java.util.Objects;
 
-import cn.taketoday.core.utils.ObjectUtils;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.MethodInfo;
 import cn.taketoday.expression.PropertyNotWritableException;
 import cn.taketoday.expression.ValueReference;
 import cn.taketoday.expression.lang.EvaluationContext;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]

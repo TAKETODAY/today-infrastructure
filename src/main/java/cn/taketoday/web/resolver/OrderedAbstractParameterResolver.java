@@ -27,7 +27,8 @@ import cn.taketoday.core.OrderedSupport;
  * @author TODAY 2021/3/10 20:30
  * @since 3.0
  */
-public abstract class OrderedAbstractParameterResolver extends AbstractParameterResolver implements Ordered {
+public abstract class OrderedAbstractParameterResolver
+        extends AbstractParameterResolver implements Ordered {
   final OrderedSupport ordered = new OrderedSupport();
 
   @Override

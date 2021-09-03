@@ -27,9 +27,9 @@ package cn.taketoday.web.view;
 public interface ResultHandlerCapable {
 
   /**
-   * Get {@link ResultHandler}
+   * Get {@link ReturnValueHandler}
    *
    * @return must not be null
    */
-  ResultHandler getResultHandler();
+  ReturnValueHandler getResultHandler();
 }

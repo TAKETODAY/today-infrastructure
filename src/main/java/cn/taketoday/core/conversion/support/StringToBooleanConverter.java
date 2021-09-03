@@ -22,7 +22,7 @@ package cn.taketoday.core.conversion.support;
 import java.util.HashSet;
 
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.core.utils.GenericDescriptor;
+import cn.taketoday.util.GenericDescriptor;
 
 /**
  * Converts String to a Boolean.

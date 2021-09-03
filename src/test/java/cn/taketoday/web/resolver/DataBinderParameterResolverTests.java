@@ -200,7 +200,7 @@ public class DataBinderParameterResolverTests extends TestCase {
     }
   };
 
-  public void testResolveParameter() {
+  public void testResolveParameter() throws Throwable {
     final UserForm today = new UserForm().setAge(20).setName("TODAY");
     final DataBinderParameterResolver resolver = new DataBinderParameterResolver();
 
@@ -271,7 +271,7 @@ public class DataBinderParameterResolverTests extends TestCase {
     }
   }
 
-  public void testBindMultipartFile() {
+  public void testBindMultipartFile() throws Throwable {
 
     final MultipartFileUserForm today = new MultipartFileUserForm().setAge(20).setName("TODAY");
     final DataBinderParameterResolver resolver = new DataBinderParameterResolver();

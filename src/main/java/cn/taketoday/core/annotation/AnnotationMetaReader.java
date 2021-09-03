@@ -36,18 +36,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.WeakHashMap;
 
-import cn.taketoday.beans.BeanMetadata;
-import cn.taketoday.beans.BeanProperty;
+import cn.taketoday.beans.support.BeanMetadata;
+import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.EmptyObject;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.reflect.ReflectionException;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.CollectionUtils;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.ReflectionUtils;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * @author TODAY 2021/8/15 22:36
@@ -110,7 +110,7 @@ public abstract class AnnotationMetaReader {
         Assert.notNull(implClass, "Implementation class can't be null");
         ret = Array.newInstance(annotationClass, annAttributes.length);
         for (final AnnotationAttributes attributes : annAttributes) {
-          Array.set(ret, i++, injectAttributes(attributes, annotationClass, ClassUtils.newInstance(implClass)));
+          Array.set(ret, i++, injectAttributes(attributes, annotationClass, BeanUtils.newInstance(implClass)));
         }
       }
       ANNOTATIONS.put(key, ret);
@@ -131,9 +131,10 @@ public abstract class AnnotationMetaReader {
    *
    * @since 2.1.1
    */
+  @Nullable
   @SuppressWarnings("unchecked")
   public <T extends Annotation> T[] getAnnotationArray(
-          final AnnotatedElement element, final Class<T> targetClass
+          final AnnotatedElement element, @Nullable final Class<T> targetClass
   ) {
     if (targetClass == null) {
       return null;
@@ -363,7 +364,7 @@ public abstract class AnnotationMetaReader {
    */
   @NonNull
   public <T extends Annotation> List<AnnotationAttributes> getAttributes(
-          final AnnotatedElement element, final Class<T> annotationClass
+          final AnnotatedElement element, @Nullable final Class<T> annotationClass
   ) {
     return CollectionUtils.newArrayList(getAttributesArray(element, annotationClass));
   }
@@ -382,7 +383,7 @@ public abstract class AnnotationMetaReader {
    */
   @Nullable
   public <T extends Annotation> AnnotationAttributes getAttributes(
-          final Class<T> annotationClass, final AnnotatedElement element
+          @Nullable final Class<T> annotationClass, final AnnotatedElement element
   ) {
     final AnnotationAttributes[] array = getAttributesArray(element, annotationClass);
     return ObjectUtils.isEmpty(array) ? null : array[0];
@@ -402,7 +403,7 @@ public abstract class AnnotationMetaReader {
    */
   @NonNull
   public <T extends Annotation> AnnotationAttributes[] getAttributesArray(
-          final AnnotatedElement element, final Class<T> targetClass
+          final AnnotatedElement element, @Nullable final Class<T> targetClass
   ) {
     if (targetClass == null) {
       return EMPTY_ANNOTATION_ATTRIBUTES;
@@ -413,12 +414,12 @@ public abstract class AnnotationMetaReader {
   /**
    * Get attributes the 'key-value' of annotations
    *
-   * @return a set of {@link AnnotationAttributes} never be null
+   * @return an array of {@link AnnotationAttributes} never be null
    *
    * @since 2.1.7
    */
   public <T extends Annotation> AnnotationAttributes[] getAttributesArray(
-          final AnnotationKey<T> key
+          @NonNull final AnnotationKey<T> key
   ) {
     AnnotationAttributes[] ret = ANNOTATION_ATTRIBUTES.get(key);
     if (ret == null) {
@@ -429,7 +430,7 @@ public abstract class AnnotationMetaReader {
   }
 
   protected abstract <T extends Annotation> AnnotationAttributes[] createAttributesArray(
-          AnnotationKey<T> key);
+          @NonNull AnnotationKey<T> key);
 
   public <T extends Annotation> List<AnnotationAttributes> searchAttributes(
           final AnnotationAttributes annotation, final Class<T> target
@@ -453,8 +454,8 @@ public abstract class AnnotationMetaReader {
     return doSearch(annotation, target, nameToFind);
   }
 
-  protected abstract <T extends Annotation>
-  List<AnnotationAttributes> doSearch(AnnotationAttributes annotation, Class<T> target, String nameToFind);
+  protected abstract <T extends Annotation> List<AnnotationAttributes> doSearch(
+          AnnotationAttributes annotation, Class<T> target, String nameToFind);
 
   public <T extends Annotation> List<AnnotationAttributes> searchAttributes(
           final Annotation annotation, final Class<T> target) {

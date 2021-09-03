@@ -23,8 +23,8 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Objects;
 
-import cn.taketoday.beans.BeanMetadata;
-import cn.taketoday.beans.BeanProperty;
+import cn.taketoday.beans.support.BeanMetadata;
+import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.jdbc.utils.UnderscoreToCamelCase;
 
 /**

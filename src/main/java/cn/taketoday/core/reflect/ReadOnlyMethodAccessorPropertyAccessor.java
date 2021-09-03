@@ -26,11 +26,10 @@ import java.lang.reflect.Method;
  * @author TODAY
  * 2020/9/12 13:56
  */
-public class ReadOnlyMethodAccessorPropertyAccessor
-        extends ReadOnlyPropertyAccessor implements PropertyAccessor {
-  private final MethodAccessor readAccessor;
+final class ReadOnlyMethodAccessorPropertyAccessor extends ReadOnlyPropertyAccessor {
+  private final MethodInvoker readAccessor;
 
-  public ReadOnlyMethodAccessorPropertyAccessor(MethodAccessor readAccessor) {
+  ReadOnlyMethodAccessorPropertyAccessor(MethodInvoker readAccessor) {
     this.readAccessor = readAccessor;
   }
 
@@ -43,4 +42,5 @@ public class ReadOnlyMethodAccessorPropertyAccessor
   public Method getReadMethod() {
     return readAccessor.getMethod();
   }
+
 }

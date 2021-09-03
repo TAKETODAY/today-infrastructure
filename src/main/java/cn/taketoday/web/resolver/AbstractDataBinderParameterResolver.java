@@ -23,12 +23,12 @@ package cn.taketoday.web.resolver;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import cn.taketoday.beans.BeanPropertyAccessor;
 import cn.taketoday.beans.factory.PropertyValue;
+import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.handler.MethodParameter;

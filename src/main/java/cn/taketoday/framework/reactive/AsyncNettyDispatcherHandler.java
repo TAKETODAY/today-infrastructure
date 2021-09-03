@@ -51,7 +51,7 @@ public final class AsyncNettyDispatcherHandler extends NettyDispatcher {
       }
     }
 
-    final class HandlerFinder implements Function<NettyRequestContext, Object> {
+    final class HandlerDetector implements Function<NettyRequestContext, Object> {
       @Override
       public Object apply(NettyRequestContext path) {
         return dispatcherHandler.lookupHandler(path);
@@ -60,7 +60,7 @@ public final class AsyncNettyDispatcherHandler extends NettyDispatcher {
 
     final Executor executor = ctx.executor();
     completedFuture(nettyContext)
-            .thenApplyAsync(new HandlerFinder(), executor)
+            .thenApplyAsync(new HandlerDetector(), executor)
             .thenApplyAsync(new AsyncHandler(), executor)
             .thenAcceptAsync(new AsyncSender(), executor);
   }

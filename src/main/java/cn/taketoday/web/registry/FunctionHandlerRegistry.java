@@ -20,18 +20,18 @@
 package cn.taketoday.web.registry;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.handler.FunctionHandler;
 import cn.taketoday.web.handler.RequestHandler;
+import cn.taketoday.web.http.HttpMethod;
 
-import static cn.taketoday.web.RequestMethod.DELETE;
-import static cn.taketoday.web.RequestMethod.GET;
-import static cn.taketoday.web.RequestMethod.HEAD;
-import static cn.taketoday.web.RequestMethod.OPTIONS;
-import static cn.taketoday.web.RequestMethod.PATCH;
-import static cn.taketoday.web.RequestMethod.POST;
-import static cn.taketoday.web.RequestMethod.PUT;
-import static cn.taketoday.web.RequestMethod.TRACE;
+import static cn.taketoday.web.http.HttpMethod.DELETE;
+import static cn.taketoday.web.http.HttpMethod.GET;
+import static cn.taketoday.web.http.HttpMethod.HEAD;
+import static cn.taketoday.web.http.HttpMethod.OPTIONS;
+import static cn.taketoday.web.http.HttpMethod.PATCH;
+import static cn.taketoday.web.http.HttpMethod.POST;
+import static cn.taketoday.web.http.HttpMethod.PUT;
+import static cn.taketoday.web.http.HttpMethod.TRACE;
 
 /**
  * @author TODAY <br>
@@ -174,7 +174,7 @@ public class FunctionHandlerRegistry extends MappedHandlerRegistry {
    *            Handler object
    * @return This {@link FunctionHandlerRegistry}
    */
-  public FunctionHandlerRegistry register(RequestMethod method, String pathPattern, Object handler) {
+  public FunctionHandlerRegistry register(HttpMethod method, String pathPattern, Object handler) {
     registerHandler(method.name().concat(pathPattern), handler);
     return this;
   }

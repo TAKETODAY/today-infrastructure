@@ -35,7 +35,7 @@ import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.ResourceUtils;
+import cn.taketoday.util.ResourceUtils;
 
 /**
  * @author TODAY <br>
@@ -62,19 +62,19 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
   }
 
   protected static String getJarUrl(String path) {
-    if (path.startsWith(Constant.JAR_ENTRY_URL_PREFIX)) {
+    if (path.startsWith(ResourceUtils.JAR_ENTRY_URL_PREFIX)) {
       return path;
     }
-    final String concat = Constant.JAR_ENTRY_URL_PREFIX.concat(path);
-    if (concat.endsWith(Constant.JAR_URL_SEPARATOR)) {
+    final String concat = ResourceUtils.JAR_ENTRY_URL_PREFIX.concat(path);
+    if (concat.endsWith(ResourceUtils.JAR_URL_SEPARATOR)) {
       return concat;
     }
-    return concat.concat(Constant.JAR_URL_SEPARATOR);
+    return concat.concat(ResourceUtils.JAR_URL_SEPARATOR);
   }
 
   protected static String getJarFilePath(String path) {
 
-    final int indexOf = path.indexOf(Constant.JAR_SEPARATOR);
+    final int indexOf = path.indexOf(ResourceUtils.JAR_SEPARATOR);
     if (path.startsWith("file:")) { // fix #11 jar file not found
       return indexOf == -1 ? path.substring(5) : path.substring(5, indexOf);
     }
@@ -84,7 +84,7 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
 
   private static String getJarEntryName(String path) {
 
-    final int indexOf = path.indexOf(Constant.JAR_SEPARATOR);
+    final int indexOf = path.indexOf(ResourceUtils.JAR_SEPARATOR);
     if (indexOf == -1) {
       return Constant.BLANK;
     }

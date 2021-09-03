@@ -21,7 +21,7 @@ package cn.taketoday.web.session;
 
 import cn.taketoday.beans.Autowired;
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 
 /**

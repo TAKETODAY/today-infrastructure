@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.handler;
 
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -57,10 +57,10 @@ public class ViewControllerHandlerAdapter extends AbstractHandlerAdapter {
     final Object result = handlerMethod.invokeHandler(context);
 
     // If return type is void or result is null use xml configuration's resource
-    if (result == null || handlerMethod.is(void.class)) {
+    if (result == null || handlerMethod.isReturn(void.class)) {
       return view.getResource();
     }
-    handlerMethod.handleResult(context, handlerMethod, result);
+    handlerMethod.handleReturnValue(context, handlerMethod, result);
     return NONE_RETURN_VALUE;
   }
 

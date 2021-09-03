@@ -29,11 +29,8 @@ import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.ValueExpressionContext;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.Constant;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
-import cn.taketoday.core.utils.ContextUtils;
-import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.ExpressionFactory;
@@ -42,6 +39,7 @@ import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Expression Evaluator
@@ -50,6 +48,11 @@ import cn.taketoday.logger.LoggerFactory;
  * @since 3.0
  */
 public class ExpressionEvaluator {
+  public static final String ENV = "env";
+  public static final String EL_PREFIX = "${";
+  public static final String PLACE_HOLDER_PREFIX = "#{";
+  public static final char PLACE_HOLDER_SUFFIX = '}';
+
   private static final Logger log = LoggerFactory.getLogger(ExpressionEvaluator.class);
 
   private ConversionService conversionService = DefaultConversionService.getSharedInstance();
@@ -99,11 +102,11 @@ public class ExpressionEvaluator {
   }
 
   public <T> T evaluate(final String expression, final Class<T> expectedType, final Map<Object, Object> variables) {
-    if (expression.contains(Constant.PLACE_HOLDER_PREFIX)) {
+    if (expression.contains(PLACE_HOLDER_PREFIX)) {
       final String replaced = resolvePlaceholder(variables, expression);
       return conversionService.convert(replaced, expectedType);
     }
-    if (expression.contains(Constant.EL_PREFIX)) {
+    if (expression.contains(EL_PREFIX)) {
       try {
         return obtainProcessor().getValue(expression, expectedType);
       }
@@ -117,11 +120,11 @@ public class ExpressionEvaluator {
   public <T> T evaluate(
           final String expression, final ExpressionContext context, final Class<T> expectedType) {
 
-    if (expression.contains(Constant.PLACE_HOLDER_PREFIX)) {
+    if (expression.contains(PLACE_HOLDER_PREFIX)) {
       final String replaced = resolvePlaceholder(variables, expression);
       return conversionService.convert(replaced, expectedType);
     }
-    if (expression.contains(Constant.EL_PREFIX)) {
+    if (expression.contains(EL_PREFIX)) {
       try {
         return obtainProcessor().getValue(expression, context, expectedType);
       }
@@ -148,7 +151,7 @@ public class ExpressionEvaluator {
    */
   public <T> T evaluate(final Env value, final Class<T> expectedType) {
     final T resolveValue = evaluate(
-            Constant.PLACE_HOLDER_PREFIX + value.value() + Constant.PLACE_HOLDER_SUFFIX, expectedType
+            PLACE_HOLDER_PREFIX + value.value() + PLACE_HOLDER_SUFFIX, expectedType
     );
     if (resolveValue != null) {
       return resolveValue;
@@ -221,8 +224,8 @@ public class ExpressionEvaluator {
     int suffixIndex;
 
     final StringBuilder builder = new StringBuilder();
-    while ((prefixIndex = input.indexOf(Constant.PLACE_HOLDER_PREFIX)) > -1 //
-            && (suffixIndex = input.indexOf(Constant.PLACE_HOLDER_SUFFIX)) > -1) {
+    while ((prefixIndex = input.indexOf(PLACE_HOLDER_PREFIX)) > -1 //
+            && (suffixIndex = input.indexOf(PLACE_HOLDER_SUFFIX)) > -1) {
 
       builder.append(input, 0, prefixIndex);
 
@@ -305,7 +308,7 @@ public class ExpressionEvaluator {
         globalContext = new ValueExpressionContext(exprFactory, (ConfigurableBeanFactory) beanFactory);
       }
 
-      globalContext.defineBean(Constant.ENV, variables);
+      globalContext.defineBean(ENV, variables);
       expressionProcessor = new ExpressionProcessor(new ExpressionManager(globalContext, exprFactory));
     }
     return expressionProcessor;

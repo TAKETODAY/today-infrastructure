@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.beans.DataBinder;
+import cn.taketoday.beans.support.DataBinder;
 import lombok.Getter;
 import lombok.Setter;
 

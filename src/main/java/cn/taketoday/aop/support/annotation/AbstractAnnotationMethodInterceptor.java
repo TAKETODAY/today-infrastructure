@@ -36,17 +36,28 @@ import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.Constant;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.reflect.MethodInvoker;
-import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.ExceptionUtils;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.ExceptionUtils;
 
 /**
  * @author TODAY 2018-11-10 11:26
  * @see Aspect
  */
 public abstract class AbstractAnnotationMethodInterceptor implements Advice, MethodInterceptor, Ordered {
+  /*************************************************
+   * Parameter Types
+   */
+
+  public static final byte TYPE_NULL = 0x00;
+  public static final byte TYPE_THROWING = 0x01;
+  public static final byte TYPE_ARGUMENT = 0x02;
+  public static final byte TYPE_ARGUMENTS = 0x03;
+  public static final byte TYPE_RETURNING = 0x04;
+  public static final byte TYPE_ANNOTATED = 0x05;
+  public static final byte TYPE_JOIN_POINT = 0x06;
+  public static final byte TYPE_ATTRIBUTE = 0x07;
 
   //private final Method adviceMethod;
   private final MethodInvoker invoker;
@@ -54,7 +65,7 @@ public abstract class AbstractAnnotationMethodInterceptor implements Advice, Met
   private final int adviceParameterLength;
   private final Class<?>[] adviceParameterTypes;
 
-//  final BeanFactory beanFactory;
+  //  final BeanFactory beanFactory;
 //  final BeanDefinition aspectDef;
   final ObjectSupplier<Object> aspectSupplier;
 
@@ -66,7 +77,7 @@ public abstract class AbstractAnnotationMethodInterceptor implements Advice, Met
 
     this.aspectSupplier = beanFactory.getBeanSupplier(aspectDef);
 
-    this.invoker = MethodInvoker.create(adviceMethod, aspectDef.getBeanClass());
+    this.invoker = MethodInvoker.fromMethod(adviceMethod, aspectDef.getBeanClass());
     this.adviceParameterLength = adviceMethod.getParameterCount();
     this.adviceParameters = new byte[adviceParameterLength];
     this.adviceParameterTypes = adviceMethod.getParameterTypes();
@@ -74,27 +85,27 @@ public abstract class AbstractAnnotationMethodInterceptor implements Advice, Met
     Parameter[] parameters = adviceMethod.getParameters();
     for (int i = 0; i < parameters.length; i++) {
       Parameter parameter = parameters[i];
-      adviceParameters[i] = Constant.TYPE_NULL;
+      adviceParameters[i] = TYPE_NULL;
       if (parameter.isAnnotationPresent(JoinPoint.class)) {
-        adviceParameters[i] = Constant.TYPE_JOIN_POINT;
+        adviceParameters[i] = TYPE_JOIN_POINT;
       }
       if (parameter.isAnnotationPresent(Argument.class)) {
-        adviceParameters[i] = Constant.TYPE_ARGUMENT;
+        adviceParameters[i] = TYPE_ARGUMENT;
       }
       if (parameter.isAnnotationPresent(Arguments.class)) {
-        adviceParameters[i] = Constant.TYPE_ARGUMENTS;
+        adviceParameters[i] = TYPE_ARGUMENTS;
       }
       if (parameter.isAnnotationPresent(Returning.class)) {
-        adviceParameters[i] = Constant.TYPE_RETURNING;
+        adviceParameters[i] = TYPE_RETURNING;
       }
       if (parameter.isAnnotationPresent(Throwing.class)) {
-        adviceParameters[i] = Constant.TYPE_THROWING;
+        adviceParameters[i] = TYPE_THROWING;
       }
       if (parameter.isAnnotationPresent(Annotated.class)) {
-        adviceParameters[i] = Constant.TYPE_ANNOTATED;
+        adviceParameters[i] = TYPE_ANNOTATED;
       }
       if (parameter.isAnnotationPresent(Attribute.class)) {
-        adviceParameters[i] = Constant.TYPE_ATTRIBUTE;
+        adviceParameters[i] = TYPE_ATTRIBUTE;
       }
     }
   }
@@ -123,7 +134,7 @@ public abstract class AbstractAnnotationMethodInterceptor implements Advice, Met
     final Class<?>[] adviceParameterTypes = this.adviceParameterTypes;
     for (final byte adviceParameter : this.adviceParameters) {
       switch (adviceParameter) {
-        case Constant.TYPE_THROWING: {
+        case TYPE_THROWING: {
           if (throwable != null) {
             final Class<?> parameterType = adviceParameterTypes[idx];
             throwable = ExceptionUtils.unwrapThrowable(throwable);
@@ -135,7 +146,7 @@ public abstract class AbstractAnnotationMethodInterceptor implements Advice, Met
           }
           break;
         }
-        case Constant.TYPE_ARGUMENT: {
+        case TYPE_ARGUMENT: {
           // fix: NullPointerException
           Object[] arguments = inv.getArguments();
           if (arguments.length == 1) {
@@ -151,7 +162,7 @@ public abstract class AbstractAnnotationMethodInterceptor implements Advice, Met
           }
           break;
         }
-        case Constant.TYPE_ATTRIBUTE:
+        case TYPE_ATTRIBUTE:
           if (inv instanceof AttributeAccessor) {
             final Class<?> parameterType = adviceParameterTypes[idx];
             if (AttributeAccessor.class == parameterType
@@ -169,16 +180,16 @@ public abstract class AbstractAnnotationMethodInterceptor implements Advice, Met
             }
           }
           throw new ConfigurationException("Not supported " + inv);
-        case Constant.TYPE_ARGUMENTS:
+        case TYPE_ARGUMENTS:
           args[idx] = inv.getArguments();
           break;
-        case Constant.TYPE_RETURNING:
+        case TYPE_RETURNING:
           args[idx] = returnValue;
           break;
-        case Constant.TYPE_ANNOTATED:
+        case TYPE_ANNOTATED:
           args[idx] = resolveAnnotation(inv, adviceParameterTypes[idx]);
           break;
-        case Constant.TYPE_JOIN_POINT:
+        case TYPE_JOIN_POINT:
           args[idx] = inv;
           break;
         default: {

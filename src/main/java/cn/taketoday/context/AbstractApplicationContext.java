@@ -43,6 +43,7 @@ import cn.taketoday.beans.factory.BeanReferencePropertySetter;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.ValueExpressionContext;
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.event.ApplicationEventCapable;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.BeanDefinitionLoadedEvent;
@@ -60,20 +61,19 @@ import cn.taketoday.context.loader.StrategiesDetector;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.CollectionUtils;
-import cn.taketoday.core.utils.ContextUtils;
-import cn.taketoday.core.utils.ExceptionUtils;
-import cn.taketoday.core.utils.GenericTypeResolver;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.OrderUtils;
-import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ExceptionUtils;
+import cn.taketoday.util.GenericTypeResolver;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.OrderUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY <br>
@@ -185,10 +185,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     postProcessLoadProperties(env);
 
     {// @since 2.1.6
-      if (env.getFlag(Constant.ENABLE_FULL_PROTOTYPE)) {
+      if (env.getFlag(ENABLE_FULL_PROTOTYPE)) {
         enableFullPrototype();
       }
-      if (env.getFlag(Constant.ENABLE_FULL_LIFECYCLE)) {
+      if (env.getFlag(ENABLE_FULL_LIFECYCLE)) {
         enableFullLifecycle();
       }
     }
@@ -288,7 +288,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     if (env.getExpressionProcessor() == null) {
       final ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
       final ValueExpressionContext elContext = new ValueExpressionContext(exprFactory, getBeanFactory());
-      elContext.defineBean(Constant.ENV, env.getProperties()); // @since 2.1.6
+      elContext.defineBean(ExpressionEvaluator.ENV, env.getProperties()); // @since 2.1.6
       env.setExpressionProcessor(new ExpressionProcessor(new ExpressionManager(elContext, exprFactory)));
     }
   }
@@ -417,7 +417,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
       Object applicationListener = getSingleton(listenerClass);
       if (applicationListener == null) {
         // create bean instance
-        applicationListener = ClassUtils.newInstance(listenerClass, this);
+        applicationListener = BeanUtils.newInstance(listenerClass, this);
         registerSingleton(applicationListener);
       }
       addApplicationListener((ApplicationListener<?>) applicationListener);

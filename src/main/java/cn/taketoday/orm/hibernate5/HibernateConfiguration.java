@@ -32,6 +32,7 @@ import javax.sql.DataSource;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.event.ApplicationContextEvent;
 import cn.taketoday.context.event.ApplicationEventCapable;
@@ -42,8 +43,7 @@ import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.ContextUtils;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * @author TODAY <br>

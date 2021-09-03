@@ -37,9 +37,9 @@ import java.util.Map;
 
 import cn.taketoday.beans.Autowired;
 import cn.taketoday.beans.DisposableBean;
-import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.transaction.SynchronizationManager;
 import cn.taketoday.transaction.SynchronizationManager.SynchronizationMetaData;
+import cn.taketoday.util.ClassUtils;
 import lombok.Getter;
 
 /**

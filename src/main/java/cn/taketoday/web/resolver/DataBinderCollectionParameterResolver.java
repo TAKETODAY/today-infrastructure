@@ -25,11 +25,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.beans.BeanMetadata;
-import cn.taketoday.beans.DataBinder;
 import cn.taketoday.beans.factory.PropertyValue;
+import cn.taketoday.beans.support.BeanMetadata;
+import cn.taketoday.beans.support.DataBinder;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.utils.CollectionUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**
@@ -81,7 +81,7 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
    * @see #createCollection(MultiValueMap, MethodParameter)
    */
   @Override
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({ "rawtypes" })
   protected Object doBind(MultiValueMap<String, PropertyValue> propertyValues, MethodParameter parameter) {
     final Collection<Object> collection = createCollection(propertyValues, parameter);
     final boolean isList = collection instanceof List;

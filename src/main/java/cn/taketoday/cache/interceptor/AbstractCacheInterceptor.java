@@ -30,8 +30,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-import javax.annotation.PostConstruct;
-
+import cn.taketoday.beans.Autowired;
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheExpressionContext;
 import cn.taketoday.cache.CacheManager;
@@ -40,18 +39,18 @@ import cn.taketoday.cache.NoSuchCacheException;
 import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ContextUtils;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.ConcurrentCache;
-import cn.taketoday.core.utils.ContextUtils;
-import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.StandardExpressionContext;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ConcurrentCache;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY <br>
@@ -63,7 +62,7 @@ public abstract class AbstractCacheInterceptor
   private CacheManager cacheManager;
   private final OrderedSupport ordered = new OrderedSupport();
 
-  public AbstractCacheInterceptor() {}
+  public AbstractCacheInterceptor() { }
 
   public AbstractCacheInterceptor(CacheManager cacheManager) {
     setCacheManager(cacheManager);
@@ -133,7 +132,7 @@ public abstract class AbstractCacheInterceptor
   /**
    * @see cn.taketoday.cache.annotation.ProxyCachingConfiguration
    */
-  @PostConstruct
+  @Autowired
   public void initCacheInterceptor(ApplicationContext context) {
     if (getCacheManager() == null) {
       setCacheManager(context.getBean(CacheManager.class));
@@ -185,10 +184,10 @@ public abstract class AbstractCacheInterceptor
       final ApplicationContext lastStartupContext = ContextUtils.getLastStartupContext();
       if (lastStartupContext != null) {
         SHARED_EL_CONTEXT = lastStartupContext
-                        .getEnvironment()
-                        .getExpressionProcessor()
-                        .getManager()
-                        .getContext();
+                .getEnvironment()
+                .getExpressionProcessor()
+                .getManager()
+                .getContext();
       }
       else {
         SHARED_EL_CONTEXT = new StandardExpressionContext(EXPRESSION_FACTORY);
@@ -309,8 +308,10 @@ public abstract class AbstractCacheInterceptor
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof MethodKey)) return false;
+      if (this == o)
+        return true;
+      if (!(o instanceof MethodKey))
+        return false;
       final MethodKey methodKey = (MethodKey) o;
       return hash == methodKey.hash
               && Objects.equals(targetMethod, methodKey.targetMethod)

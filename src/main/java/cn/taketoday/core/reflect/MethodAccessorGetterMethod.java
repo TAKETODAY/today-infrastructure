@@ -21,13 +21,12 @@
 package cn.taketoday.core.reflect;
 
 /**
- * @author TODAY
- * 2021/1/7 17:39
+ * @author TODAY 2021/1/7 17:39
  */
-public final class MethodAccessorGetterMethod implements GetterMethod {
+final class MethodAccessorGetterMethod implements GetterMethod {
   private final MethodInvoker accessor;
 
-  public MethodAccessorGetterMethod(MethodInvoker accessor) {
+  MethodAccessorGetterMethod(MethodInvoker accessor) {
     this.accessor = accessor;
   }
 

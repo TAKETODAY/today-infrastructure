@@ -47,24 +47,25 @@ import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.ObjectFactory;
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.SmartFactoryBean;
+import cn.taketoday.beans.support.ArgumentsResolver;
+import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.aware.Aware;
 import cn.taketoday.context.aware.BeanClassLoaderAware;
 import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
-import cn.taketoday.context.loader.PropertyValueException;
+import cn.taketoday.beans.PropertyValueException;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.CollectionUtils;
-import cn.taketoday.core.utils.ContextUtils;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.OrderUtils;
-import cn.taketoday.core.utils.ReflectionUtils;
-import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.OrderUtils;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY <br>
@@ -451,11 +452,12 @@ public abstract class AbstractBeanFactory
       ((DefaultBeanDefinition) def).fastInvokeInitMethods(bean, this);
     }
     else {
+      ArgumentsResolver resolver = ArgumentsResolver.getSharedInstance();
       for (final Method method : def.getInitMethods()) { /*never be null*/
         try {
           //method.setAccessible(true); // fix: can not access a member
           ReflectionUtils.makeAccessible(method);
-          final Object[] args = ContextUtils.resolveParameter(method, this);
+          final Object[] args = resolver.resolve(method, this);
           method.invoke(bean, args);
         }
         catch (Exception e) {

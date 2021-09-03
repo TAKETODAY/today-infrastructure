@@ -34,7 +34,7 @@ import cn.taketoday.cglib.core.CodeGenerationException;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.Signature;
-import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.util.ObjectUtils;
 
 import static cn.taketoday.aop.proxy.std.DefaultProxyMethodGenerator.excludeAbstractModifiers;
 

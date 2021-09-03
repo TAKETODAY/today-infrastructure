@@ -28,17 +28,16 @@ import java.util.Map;
 import java.util.Objects;
 
 import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.core.utils.MediaType;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.OrderUtils;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.core.Constant;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.PatternHandler;
+import cn.taketoday.web.http.HttpMethod;
 
 /**
  * @author TODAY 2021/3/10 11:33
@@ -120,11 +119,11 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
       return;
     }
 
-    doMergeMapping(mapping, actionMapping, controllerMapping, WebConstant.VALUE, true);
+    doMergeMapping(mapping, actionMapping, controllerMapping, Constant.VALUE, true);
     doMergeMapping(mapping, actionMapping, controllerMapping, "params");
     doMergeMapping(mapping, actionMapping, controllerMapping, "produces");
     doMergeMapping(mapping, actionMapping, controllerMapping, "consumes");
-    doMergeMapping(mapping, actionMapping, controllerMapping, "method", RequestMethod[].class, false);
+    doMergeMapping(mapping, actionMapping, controllerMapping, "method", HttpMethod[].class, false);
   }
 
   private void doMergeMapping(AnnotationAttributes mapping,
@@ -241,10 +240,6 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
     return existMappingInfo;
   }
 
-  private void sort(List<AnnotationMappingInfo> handlers) {
-    OrderUtils.reversedSort(handlers);
-  }
-
   @Override
   @SuppressWarnings("unchecked")
   protected Object lookupHandler(String requestPath, RequestContext context) {
@@ -273,11 +268,11 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
 
   protected boolean testMapping(final AnnotationMappingInfo mappingInfo, final RequestContext context) {
     // test request method
-    final RequestMethod[] supportedMethods = mappingInfo.method();
+    final HttpMethod[] supportedMethods = mappingInfo.method();
     if (supportedMethods != null) {
       final String requestMethod = context.getMethod();
       boolean matched = false;
-      for (final RequestMethod testMethod : supportedMethods) {
+      for (final HttpMethod testMethod : supportedMethods) {
         if (requestMethod.equals(testMethod.name())) {
           matched = true;
           break;

@@ -1,0 +1,371 @@
+/*
+ * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ */
+package cn.taketoday.util;
+
+import java.lang.reflect.Array;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.NonNull;
+import cn.taketoday.core.Nullable;
+import cn.taketoday.core.conversion.ConversionException;
+
+/**
+ * @author TODAY <br>
+ * 2019-08-23 00:16
+ */
+public abstract class ObjectUtils {
+
+  /**
+   * Determine whether the given object is an array:
+   * either an Object array or a primitive array.
+   *
+   * @param obj
+   *         the object to check
+   *
+   * @since 3.0
+   */
+  public static boolean isArray(@Nullable Object obj) {
+    return (obj != null && obj.getClass().isArray());
+  }
+
+  /**
+   * Test if a array is a null or empty object
+   *
+   * @param array
+   *         An array to test if its a null or empty object
+   *
+   * @return If a object is a null or empty object
+   */
+  public static boolean isEmpty(@Nullable Object[] array) {
+    return array == null || array.length == 0;
+  }
+
+  /**
+   * Test if a object is a null or empty object
+   *
+   * @param obj
+   *         A instance to test if its a null or empty object
+   *
+   * @return If a object is a null or empty object
+   */
+  public static boolean isEmpty(@Nullable Object obj) {
+    if (obj == null) {
+      return true;
+    }
+    if (obj instanceof Optional) {
+      return !((Optional<?>) obj).isPresent();
+    }
+    if (obj instanceof String) {
+      return ((String) obj).isEmpty();
+    }
+    if (obj instanceof Collection) {
+      return ((Collection<?>) obj).isEmpty();
+    }
+    if (obj instanceof Map) {
+      return ((Map<?, ?>) obj).isEmpty();
+    }
+    return obj.getClass().isArray() && Array.getLength(obj) == 0;
+  }
+
+  public static boolean isNotEmpty(@Nullable Object[] array) {
+    return !isEmpty(array);
+  }
+
+  public static boolean isNotEmpty(@Nullable Object obj) {
+    return !isEmpty(obj);
+  }
+
+  /**
+   * Unwrap the given object which is potentially a {@link java.util.Optional}.
+   *
+   * @param obj
+   *         the candidate object
+   *
+   * @return either the value held within the {@code Optional}, {@code null}
+   * if the {@code Optional} is empty, or simply the given object as-is
+   *
+   * @since 3.0
+   */
+  public static Object unwrapOptional(@Nullable Object obj) {
+    if (obj instanceof Optional) {
+      Optional<?> optional = (Optional<?>) obj;
+      if (!optional.isPresent()) {
+        return null;
+      }
+      Object result = optional.get();
+      Assert.isTrue(!(result instanceof Optional), "Multi-level Optional usage not supported");
+      return result;
+    }
+    return obj;
+  }
+  //
+
+  /**
+   * To array object
+   *
+   * @param source
+   *         String array
+   * @param targetClass
+   *         Target class
+   *
+   * @return An array object
+   *
+   * @throws ConversionException
+   *         If can't convert source to target type object
+   */
+  public static Object toArrayObject(String[] source, Class<?> targetClass) {
+
+    // @since 2.1.6 fix: String[].class can't be resolve
+    if (String[].class == targetClass) {
+      return source;
+    }
+    final int length = source.length;
+    if (int[].class == targetClass) {
+      final int[] newInstance = new int[length];
+      for (short j = 0; j < length; j++)
+        newInstance[j] = Integer.parseInt(source[j]);
+      return newInstance;
+    }
+    else if (Integer[].class == targetClass) {
+      final Integer[] newInstance = new Integer[length];
+      for (short j = 0; j < length; j++)
+        newInstance[j] = Integer.valueOf(source[j]);
+      return newInstance;
+    }
+    else if (long[].class == targetClass) {
+      final long[] newInstance = new long[length];
+      for (short j = 0; j < length; j++)
+        newInstance[j] = Long.parseLong(source[j]);
+      return newInstance;
+    }
+    else if (Long[].class == targetClass) {
+      final Long[] newInstance = new Long[length];
+      for (short j = 0; j < length; j++)
+        newInstance[j] = Long.valueOf(source[j]);
+      return newInstance;
+    }
+    else if (short[].class == targetClass) {
+      final short[] newInstance = new short[length];
+      for (short j = 0; j < length; j++)
+        newInstance[j] = Short.parseShort(source[j]);
+      return newInstance;
+    }
+    else if (Short[].class == targetClass) {
+      final Short[] newInstance = new Short[length];
+      for (short j = 0; j < length; j++)
+        newInstance[j] = Short.valueOf(source[j]);
+      return newInstance;
+    }
+    else if (byte[].class == targetClass) {
+      final byte[] newInstance = new byte[length];
+      for (short j = 0; j < length; j++)
+        newInstance[j] = Byte.parseByte(source[j]);
+      return newInstance;
+    }
+    else if (Byte[].class == targetClass) {
+      final Byte[] newInstance = new Byte[length];
+      for (short j = 0; j < length; j++)
+        newInstance[j] = Byte.valueOf(source[j]);
+      return newInstance;
+    }
+    else if (float[].class == targetClass) {
+      final float[] newInstance = new float[length];
+      for (short j = 0; j < length; j++)
+        newInstance[j] = Float.parseFloat(source[j]);
+      return newInstance;
+    }
+    else if (Float[].class == targetClass) {
+      final Float[] newInstance = new Float[length];
+      for (short j = 0; j < length; j++)
+        newInstance[j] = Float.valueOf(source[j]);
+      return newInstance;
+    }
+    else if (double[].class == targetClass) {
+      final double[] newInstance = new double[length];
+      for (short j = 0; j < length; j++)
+        newInstance[j] = Double.parseDouble(source[j]);
+      return newInstance;
+    }
+    else if (Double[].class == targetClass) {
+      final Double[] newInstance = new Double[length];
+      for (short j = 0; j < length; j++)
+        newInstance[j] = Double.valueOf(source[j]);
+      return newInstance;
+    }
+    { // fix @since 2.1.6
+      if (targetClass.isArray()) {
+        targetClass = targetClass.getComponentType();
+      }
+      final Object newInstance = Array.newInstance(targetClass, length);
+      for (short i = 0; i < length; i++) {
+        Array.set(newInstance, i, ConvertUtils.convert(source[i], targetClass));
+      }
+      return newInstance;
+    }
+  }
+
+  public static <T> T parseArray(String[] source, Class<T> targetClass) {
+    return targetClass.cast(toArrayObject(source, targetClass));
+  }
+
+  //---------------------------------------------------------------------
+  // Convenience methods for toString output
+  //---------------------------------------------------------------------
+
+  public static String toHexString(@Nullable final Object obj) {
+    //        return getClass().getName() + "@" + Integer.toHexString(hashCode());
+    return obj == null
+           ? "null"
+           : new StringBuilder()
+                   .append(obj.getClass().getName())
+                   .append('@')
+                   .append(Integer.toHexString(obj.hashCode())).toString();
+  }
+
+  /**
+   * Return a String representation of an object's overall identity.
+   *
+   * @param obj
+   *         the object (may be {@code null})
+   *
+   * @return the object's identity as String representation,
+   * or an empty String if the object was {@code null}
+   */
+  public static String identityToString(@Nullable Object obj) {
+    if (obj == null) {
+      return Constant.BLANK;
+    }
+    String className = obj.getClass().getName();
+    String identityHexString = getIdentityHexString(obj);
+    return className + '@' + identityHexString;
+  }
+
+  /**
+   * Return a hex String form of an object's identity hash code.
+   *
+   * @param obj
+   *         the object
+   *
+   * @return the object's identity code in hex notation
+   */
+  public static String getIdentityHexString(@Nullable Object obj) {
+    return Integer.toHexString(System.identityHashCode(obj));
+  }
+
+  /**
+   * Check whether the given array contains the given element.
+   *
+   * @param array
+   *         the array to check (may be {@code null},
+   *         in which case the return value will always be {@code false})
+   * @param element
+   *         the element to check for
+   *
+   * @return whether the element has been found in the given array
+   *
+   * @since 3.0
+   */
+  public static boolean containsElement(@Nullable Object[] array, Object element) {
+    if (array == null) {
+      return false;
+    }
+    for (Object arrayEle : array) {
+      if (Objects.equals(arrayEle, element)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Append the given object to the given array, returning a new array
+   * consisting of the input array contents plus the given object.
+   *
+   * @param array
+   *         the array to append to (can be {@code null})
+   * @param obj
+   *         the object to append
+   *
+   * @return the new array (of the same component type; never {@code null})
+   *
+   * @since 3.0
+   */
+  @NonNull
+  public static <A, O extends A> A[] addObjectToArray(@Nullable A[] array, O obj) {
+    Class<?> compType = Object.class;
+    if (array != null) {
+      compType = array.getClass().getComponentType();
+    }
+    else if (obj != null) {
+      compType = obj.getClass();
+    }
+    int newArrLength = (array != null ? array.length + 1 : 1);
+    @SuppressWarnings("unchecked")
+    A[] newArr = (A[]) Array.newInstance(compType, newArrLength);
+    if (array != null) {
+      System.arraycopy(array, 0, newArr, 0, array.length);
+    }
+    newArr[newArr.length - 1] = obj;
+    return newArr;
+  }
+
+  /**
+   * Convert the given array (which may be a primitive array) to an
+   * object array (if necessary of primitive wrapper objects).
+   * <p>A {@code null} source value will be converted to an
+   * empty Object array.
+   *
+   * @param source
+   *         the (potentially primitive) array
+   *
+   * @return the corresponding object array (never {@code null})
+   *
+   * @throws IllegalArgumentException
+   *         if the parameter is not an array
+   * @since 3.0
+   */
+  public static Object[] toObjectArray(@Nullable Object source) {
+    if (source instanceof Object[]) {
+      return (Object[]) source;
+    }
+    if (source == null) {
+      return Constant.EMPTY_OBJECT_ARRAY;
+    }
+    if (!source.getClass().isArray()) {
+      throw new IllegalArgumentException("Source is not an array: " + source);
+    }
+    int length = Array.getLength(source);
+    if (length == 0) {
+      return Constant.EMPTY_OBJECT_ARRAY;
+    }
+    Class<?> wrapperType = Array.get(source, 0).getClass();
+    Object[] newArray = (Object[]) Array.newInstance(wrapperType, length);
+    for (int i = 0; i < length; i++) {
+      newArray[i] = Array.get(source, i);
+    }
+    return newArray;
+  }
+
+}

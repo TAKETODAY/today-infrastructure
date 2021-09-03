@@ -31,14 +31,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import cn.taketoday.beans.support.BeanConstructor;
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.reflect.BeanConstructor;
-import cn.taketoday.core.reflect.MethodAccessorBeanConstructor;
 import cn.taketoday.core.reflect.MethodInvoker;
-import cn.taketoday.core.reflect.StaticMethodAccessorBeanConstructor;
-import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.OrderUtils;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.OrderUtils;
 
 /**
  * Standard implementation of {@link BeanDefinition}
@@ -97,15 +95,15 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
   }
 
   @Override
-  protected BeanConstructor<?> createConstructor(BeanFactory factory) {
+  protected BeanConstructor createConstructor(BeanFactory factory) {
     final Method factoryMethod = obtainFactoryMethod();
 
-    final MethodInvoker methodInvoker = MethodInvoker.create(factoryMethod);
+    final MethodInvoker methodInvoker = MethodInvoker.fromMethod(factoryMethod);
     if (Modifier.isStatic(factoryMethod.getModifiers())) {
-      return new StaticMethodAccessorBeanConstructor<>(methodInvoker);
+      return BeanConstructor.fromStaticMethod(methodInvoker);
     }
     final Object bean = factory.getBean(getDeclaringName());
-    return new MethodAccessorBeanConstructor<>(methodInvoker, bean);
+    return BeanConstructor.fromMethod(methodInvoker, bean);
   }
 
   private Method obtainFactoryMethod() {

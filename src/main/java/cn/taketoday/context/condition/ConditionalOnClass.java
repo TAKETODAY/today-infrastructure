@@ -28,7 +28,7 @@ import java.lang.reflect.AnnotatedElement;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.Conditional;
-import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * {@link Conditional} that only matches when the specified classes are on the

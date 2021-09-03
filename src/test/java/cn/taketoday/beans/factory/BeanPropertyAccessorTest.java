@@ -29,9 +29,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.beans.BeanProperty;
-import cn.taketoday.beans.BeanPropertyAccessor;
-import cn.taketoday.context.loader.NoSuchPropertyException;
+import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.beans.support.BeanPropertyAccessor;
+import cn.taketoday.beans.NoSuchPropertyException;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -284,7 +284,7 @@ public class BeanPropertyAccessorTest {
     try {
       nestedBean.getProperty("ints[0][xxx");
     }
-    catch (IllegalArgumentException e) {}
+    catch (IllegalArgumentException e) { }
 
     System.out.println(object);
   }
@@ -307,8 +307,8 @@ public class BeanPropertyAccessorTest {
 
   @Test
   public void testBeanProperty() throws NoSuchFieldException {
-    final BeanProperty beanProperty = new BeanProperty(BeanPropertyTest.class.getDeclaredField("listList"));
-    final BeanProperty listBeanProperty = new BeanProperty(BeanPropertyTest.class.getDeclaredField("list"));
+    final BeanProperty beanProperty = BeanProperty.of(BeanPropertyTest.class, "listList");
+    final BeanProperty listBeanProperty = BeanProperty.of(BeanPropertyTest.class, "list");
 
     assertThat(beanProperty.getGeneric(0)).isInstanceOf(ParameterizedType.class);
     final ParameterizedType generic = (ParameterizedType) beanProperty.getGeneric(0);
@@ -394,11 +394,11 @@ public class BeanPropertyAccessorTest {
     try {
       nestedBean.setProperty("nested[1].map[new].name[m]", "set2"); // type error
     }
-    catch (InvalidPropertyValueException ignored) {}
+    catch (InvalidPropertyValueException ignored) { }
     try {
       nestedBean.setProperty("nested[1].list[-1].name", "set2"); // -1
     }
-    catch (InvalidPropertyValueException ignored) {}
+    catch (InvalidPropertyValueException ignored) { }
 
     System.out.println(object);
   }

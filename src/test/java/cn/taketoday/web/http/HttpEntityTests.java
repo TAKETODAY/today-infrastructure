@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.utils.MediaType;
+import cn.taketoday.util.MediaType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

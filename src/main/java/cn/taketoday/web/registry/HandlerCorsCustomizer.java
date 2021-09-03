@@ -21,12 +21,12 @@ package cn.taketoday.web.registry;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.annotation.CrossOrigin;
-import cn.taketoday.web.cors.CorsConfiguration;
-import cn.taketoday.web.cors.CorsProcessor;
-import cn.taketoday.web.cors.DefaultCorsProcessor;
 import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.http.CorsConfiguration;
+import cn.taketoday.web.http.CorsProcessor;
+import cn.taketoday.web.http.DefaultCorsProcessor;
 import cn.taketoday.web.interceptor.CorsHandlerInterceptor;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
@@ -37,10 +37,12 @@ import cn.taketoday.web.interceptor.HandlerInterceptor;
 public class HandlerCorsCustomizer implements HandlerMethodCustomizer {
   private CorsProcessor processor;
 
-  public HandlerCorsCustomizer() { }
+  public HandlerCorsCustomizer() {
+    this(new DefaultCorsProcessor());
+  }
 
   public HandlerCorsCustomizer(CorsProcessor processor) {
-    this.processor = processor;
+    setCorsProcessor(processor);
   }
 
   @Override

@@ -22,7 +22,7 @@ package cn.taketoday.core.conversion.support;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.conversion.ConversionException;
-import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * @author TODAY 2021/3/21 11:09

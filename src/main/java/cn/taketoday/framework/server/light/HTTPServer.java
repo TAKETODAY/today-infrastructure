@@ -40,7 +40,7 @@ import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 
 import cn.taketoday.core.Assert;
-import cn.taketoday.framework.Constant;
+import cn.taketoday.core.NonNull;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.web.handler.DispatcherHandler;
@@ -346,7 +346,7 @@ public class HTTPServer {
       if (serv != null)
         serv.close();
     }
-    catch (IOException ignore) {}
+    catch (IOException ignore) { }
     serv = null;
   }
 
@@ -373,7 +373,7 @@ public class HTTPServer {
       }
 
       @Override
-      public synchronized int read(byte[] b, int off, int len) throws IOException {
+      public synchronized int read(@NonNull byte[] b, int off, int len) throws IOException {
         final int read = super.read(b, off, len);
         inString.write(b, off, len);
         return read;
@@ -463,15 +463,15 @@ public class HTTPServer {
     // validate request
     String version = req.getVersion();
     if (version.equals("HTTP/1.1")) {
-      if (!reqHeaders.containsKey(Constant.HOST)) {
+      if (!reqHeaders.containsKey(HttpHeaders.HOST)) {
         // RFC2616#14.23: missing Host header gets 400
         resp.sendError(HttpStatus.BAD_REQUEST, "Missing required Host header");
         return false;
       }
       // return a continue response before reading body
-      String expect = reqHeaders.getFirst(Constant.EXPECT);
+      String expect = reqHeaders.getFirst(HttpHeaders.EXPECT);
       if (expect != null) {
-        if (expect.equalsIgnoreCase(Constant.CONTINUE)) {
+        if (expect.equalsIgnoreCase(HttpHeaders.CONTINUE)) {
           HttpResponse tempResp = new HttpResponse(resp.getOutputStream());
           tempResp.send(HttpStatus.CONTINUE);
           resp.getOutputStream().flush();
@@ -485,7 +485,7 @@ public class HTTPServer {
     }
     else if (version.equals("HTTP/1.0") || version.equals("HTTP/0.9")) {
       // RFC2616#14.10 - remove connection headers from older versions
-      for (String token : splitElements(reqHeaders.getFirst(Constant.CONNECTION), false))
+      for (String token : splitElements(reqHeaders.getFirst(HttpHeaders.CONNECTION), false))
         reqHeaders.remove(token);
     }
     else {

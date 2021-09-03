@@ -20,7 +20,7 @@
 
 package cn.taketoday.core.conversion.support;
 
-import cn.taketoday.core.utils.DataSize;
+import cn.taketoday.util.DataSize;
 
 /**
  * @author TODAY 2021/3/21 11:14

@@ -35,9 +35,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.ResourceUtils;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY <br>
@@ -171,7 +170,7 @@ public class FileBasedResource extends AbstractResource implements WritableResou
     final String[] names = list();
 
     if (StringUtils.isArrayEmpty(names)) {
-      return Constant.EMPTY_RESOURCE_ARRAY;
+      return EMPTY_ARRAY;
     }
 
     final String path = this.path;
@@ -183,7 +182,7 @@ public class FileBasedResource extends AbstractResource implements WritableResou
       }
     }
     if (resources.isEmpty()) {
-      return Constant.EMPTY_RESOURCE_ARRAY;
+      return EMPTY_ARRAY;
     }
     return resources.toArray(new Resource[resources.size()]);
   }

@@ -19,17 +19,16 @@
  */
 package cn.taketoday.web.http;
 
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.WebNestedRuntimeException;
 import cn.taketoday.web.annotation.ResponseStatus;
 
 /**
- * @author TODAY <br>
- *         2018-11-26 20:06
+ * @author TODAY 2018-11-26 20:06
  */
 @ResponseStatus(HttpStatus.FORBIDDEN)
 public class AccessForbiddenException extends WebNestedRuntimeException {
   private static final long serialVersionUID = 1L;
+  public static final String ACCESS_FORBIDDEN = "Access Forbidden";
 
   public AccessForbiddenException(Throwable cause) {
     super(cause);
@@ -44,22 +43,7 @@ public class AccessForbiddenException extends WebNestedRuntimeException {
   }
 
   public AccessForbiddenException() {
-    super(WebConstant.ACCESS_FORBIDDEN);
+    super(ACCESS_FORBIDDEN);
   }
 
-  public static NotFoundException failed() {
-    return new NotFoundException();
-  }
-
-  public static NotFoundException failed(String msg) {
-    return new NotFoundException(msg);
-  }
-
-  public static NotFoundException failed(Throwable cause) {
-    return new NotFoundException(cause);
-  }
-
-  public static NotFoundException failed(String msg, Throwable cause) {
-    return new NotFoundException(msg, cause);
-  }
 }

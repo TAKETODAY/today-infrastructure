@@ -27,11 +27,12 @@ import java.lang.reflect.Parameter;
 import java.util.HashSet;
 import java.util.function.Supplier;
 
-import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.beans.Autowired;
 import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.beans.support.ObjectSupplierArgumentsResolver;
+import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.StandardApplicationContext;
 import lombok.ToString;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -73,18 +74,18 @@ public class ObjectSupplierTests {
   }
 
   @Test
-  public void testParameter() throws Throwable {
-    final Constructor<TEST> constructor = ClassUtils.getSuitableConstructor(TEST.class);
+  public void testParameter() {
+    final Constructor<TEST> constructor = BeanUtils.getConstructor(TEST.class);
     final Parameter[] parameters = constructor.getParameters();
 
-    ObjectSupplierParameterResolver parameterResolver = new ObjectSupplierParameterResolver();
+    ObjectSupplierArgumentsResolver parameterResolver = new ObjectSupplierArgumentsResolver();
 
     try (ConfigurableApplicationContext context = new StandardApplicationContext(new HashSet<>())) {
       context.importBeans(Bean.class);
 
-      final ObjectSupplier<?> supplier = parameterResolver.resolve(parameters[0], context);
+      final ObjectSupplier<?> supplier = (ObjectSupplier<?>) parameterResolver.resolve(parameters[0], context);
 
-      final ObjectSupplier<?> supplier1 = parameterResolver.resolve(parameters[1], context);
+      final ObjectSupplier<?> supplier1 = (ObjectSupplier<?>) parameterResolver.resolve(parameters[1], context);
       final Bean bean = context.getBean(Bean.class);
 
       assertThat(bean)

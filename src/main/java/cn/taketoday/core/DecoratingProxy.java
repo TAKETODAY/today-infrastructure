@@ -20,6 +20,8 @@
 
 package cn.taketoday.core;
 
+import cn.taketoday.util.OrderUtils;
+
 /**
  * Interface to be implemented by decorating proxies, in particular AOP
  * proxies but potentially also custom proxies with decorator semantics.
@@ -31,7 +33,7 @@ package cn.taketoday.core;
  * class there anyway.
  *
  * <p>Defined in the core module in order to allow
- * {@link cn.taketoday.core.utils.OrderUtils}
+ * {@link OrderUtils}
  * (and potential other candidates without spring-aop dependencies) to use it
  * for introspection purposes, in particular annotation lookups.
  *

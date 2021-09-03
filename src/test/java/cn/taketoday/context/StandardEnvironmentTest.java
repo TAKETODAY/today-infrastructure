@@ -30,7 +30,7 @@ import cn.taketoday.beans.BeanNameCreator;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.util.ClassUtils;
 
 import static org.junit.Assert.assertEquals;
 

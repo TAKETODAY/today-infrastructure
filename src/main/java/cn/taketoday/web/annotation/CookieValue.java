@@ -24,18 +24,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.web.WebConstant;
+import cn.taketoday.core.Constant;
 
 /**
  * Annotation which indicates that a method parameter should be bound to an HTTP
  * cookie.
  *
  * @author TODAY <br>
- *         2018-07-01 14:10:04 <br>
- *         2018-08-21 19:16 <b>change</b> add defaultValue()
+ * 2018-07-01 14:10:04 <br>
+ * 2018-08-21 19:16 <b>change</b> add defaultValue()
  */
 @RequestParam
-@Target(ElementType.PARAMETER)
+@Target({ ElementType.PARAMETER, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CookieValue {
 
@@ -44,11 +44,11 @@ public @interface CookieValue {
   /**
    * The name of cookie.
    */
-  String value() default WebConstant.BLANK;
+  String value() default Constant.BLANK;
 
   /**
    * When required == false, and parameter == null. use default value.
    */
-  String defaultValue() default WebConstant.BLANK;
+  String defaultValue() default Constant.BLANK;
 
 }

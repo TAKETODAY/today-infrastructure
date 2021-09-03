@@ -30,9 +30,9 @@ import cn.taketoday.beans.MissingBean;
 import cn.taketoday.context.Props;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingClass;
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.web.WebConstant;
 
 /**
  * @author TODAY 2021/3/24 21:50
@@ -49,19 +49,19 @@ class FreeMarkerConfig {
 
   @Props(prefix = "web.mvc.view.")
   @Order(Ordered.LOWEST_PRECEDENCE - 100)
-  @MissingBean(type = AbstractFreeMarkerTemplateViewResolver.class)
-  @ConditionalOnClass({ WebConstant.ENV_SERVLET, "freemarker.template.Configuration" })
-  FreeMarkerTemplateViewResolver freeMarkerTemplateViewResolver() {
-    return new FreeMarkerTemplateViewResolver();
+  @MissingBean(type = AbstractFreeMarkerTemplateRenderer.class)
+  @ConditionalOnClass({ Constant.ENV_SERVLET, "freemarker.template.Configuration" })
+  FreeMarkerTemplateRenderer freeMarkerTemplateViewResolver() {
+    return new FreeMarkerTemplateRenderer();
   }
 
   @Props(prefix = "web.mvc.view.")
   @Order(Ordered.LOWEST_PRECEDENCE - 100)
-  @ConditionalOnMissingClass(WebConstant.ENV_SERVLET)
+  @ConditionalOnMissingClass(Constant.ENV_SERVLET)
   @ConditionalOnClass("io.netty.channel.ChannelInboundHandler")
-  @MissingBean(type = AbstractFreeMarkerTemplateViewResolver.class)
-  ReactiveFreeMarkerTemplateViewResolver reactiveFreeMarkerTemplateViewResolver() {
-    return new ReactiveFreeMarkerTemplateViewResolver();
+  @MissingBean(type = AbstractFreeMarkerTemplateRenderer.class)
+  ReactiveFreeMarkerTemplateRenderer reactiveFreeMarkerTemplateViewResolver() {
+    return new ReactiveFreeMarkerTemplateRenderer();
   }
 
 }

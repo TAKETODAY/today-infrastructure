@@ -28,10 +28,10 @@ import java.util.Map;
  */
 public class ParameterParser extends CharParser {
 
-  private final Map<String, ParameterApplier> parameterMap;
+  private final Map<String, QueryParameter> parameterMap;
   int paramIdx = 1;
 
-  public ParameterParser(Map<String, ParameterApplier> parameterMap) {
+  public ParameterParser(Map<String, QueryParameter> parameterMap) {
     this.parameterMap = parameterMap;
   }
 
@@ -53,21 +53,29 @@ public class ParameterParser extends CharParser {
     }
 
     String name = sql.substring(startIdx + 1, idx + 1);
-    ParameterApplier parameterApplier = parameterMap.get(name);
+    QueryParameter queryParameter = parameterMap.get(name);
 
-    if (parameterApplier == null) {
-      parameterApplier = ParameterApplier.valueOf(paramIdx);
-      parameterMap.put(name, parameterApplier);
+    if (queryParameter == null) {
+      queryParameter = new QueryParameter(name, ParameterIndexHolder.valueOf(paramIdx));
+      parameterMap.put(name, queryParameter);
     }
-    else if (parameterApplier instanceof ListIndexParameterApplier) {
-      ((ListIndexParameterApplier) parameterApplier).addIndex(paramIdx);
-    }
-    else if (parameterApplier instanceof IndexParameterApplier) {
-      ArrayList<Integer> indices = new ArrayList<>();
-      final int index = ((IndexParameterApplier) parameterApplier).getIndex();
-      indices.add(index);
-      indices.add(paramIdx);
-      parameterMap.put(name, ParameterApplier.valueOf(indices));
+    else {
+      // set ParameterApplier
+      ParameterIndexHolder indexHolder = queryParameter.getHolder();
+      if (indexHolder == null) {
+        indexHolder = ParameterIndexHolder.valueOf(paramIdx);
+        queryParameter.setHolder(indexHolder);
+      }
+      else if (indexHolder instanceof ListParameterIndexApplier) {
+        ((ListParameterIndexApplier) indexHolder).addIndex(paramIdx);
+      }
+      else if (indexHolder instanceof DefaultParameterIndexHolder) {
+        ArrayList<Integer> indices = new ArrayList<>();
+        final int index = ((DefaultParameterIndexHolder) indexHolder).getIndex();
+        indices.add(index);
+        indices.add(paramIdx);
+        queryParameter.setHolder(ParameterIndexHolder.valueOf(indices));
+      }
     }
 
     paramIdx++;

@@ -24,7 +24,7 @@ import javax.servlet.Servlet;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableEnvironment;
 import cn.taketoday.framework.server.WebServer;
-import cn.taketoday.framework.utils.ApplicationUtils;
+import cn.taketoday.framework.utils.WebApplicationUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
@@ -71,7 +71,7 @@ public class ServletWebServerApplicationContext
   protected void preRefresh() {
     log.info("Looking For: [{}] Bean.", WebServer.class.getName());
 
-    this.webServer = ApplicationUtils.obtainWebServer(this);
+    this.webServer = WebApplicationUtils.obtainWebServer(this);
     super.preRefresh();
   }
 

@@ -26,8 +26,8 @@ import java.net.URL;
 
 import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.utils.GenericDescriptor;
-import cn.taketoday.core.utils.ResourceUtils;
+import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.ResourceUtils;
 
 /**
  * @author TODAY 2021/3/22 17:43

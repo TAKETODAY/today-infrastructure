@@ -27,6 +27,8 @@ import cn.taketoday.core.PathMatcher;
  * @author TODAY 2019-12-05 00:46
  */
 public class ResourceMatchResult implements Serializable {
+  public static final String RESOURCE_MATCH_RESULT = ResourceMatchResult.class.getName() + "-match-result";
+
   private static final long serialVersionUID = 1L;
 
   private final String requestPath;

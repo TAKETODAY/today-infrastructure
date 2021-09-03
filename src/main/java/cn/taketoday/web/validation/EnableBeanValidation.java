@@ -34,7 +34,7 @@ import cn.taketoday.beans.Import;
 import cn.taketoday.beans.MissingBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.condition.ConditionalOnClass;
-import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.resolver.ParameterResolvers;
 
 /**

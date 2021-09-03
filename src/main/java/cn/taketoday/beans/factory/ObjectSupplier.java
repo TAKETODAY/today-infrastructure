@@ -28,7 +28,8 @@ import java.util.stream.Stream;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.utils.GenericTypeResolver;
+import cn.taketoday.util.GenericTypeResolver;
+import cn.taketoday.util.OrderUtils;
 
 /**
  * @author TODAY 2021/3/6 11:18
@@ -146,7 +147,7 @@ public interface ObjectSupplier<T> extends Supplier<T>, Iterable<T> {
    * analogous to multi-element injection points of list/array type.
    *
    * @see #stream()
-   * @see cn.taketoday.core.utils.OrderUtils
+   * @see OrderUtils
    */
   default Stream<T> orderedStream() {
     throw new UnsupportedOperationException("Ordered element access not supported");

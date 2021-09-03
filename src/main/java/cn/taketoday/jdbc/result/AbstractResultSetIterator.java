@@ -20,12 +20,12 @@
 
 package cn.taketoday.jdbc.result;
 
-import cn.taketoday.jdbc.PersistenceException;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+
+import cn.taketoday.jdbc.PersistenceException;
 
 /**
  * Iterator for a {@link ResultSet}. Tricky part here is getting
@@ -88,7 +88,7 @@ public abstract class AbstractResultSetIterator<T> implements Iterator<T> {
 
   protected abstract T readNext() throws SQLException;
 
-  static final class ResultSetValue<T> {
+  static final class ResultSetValue<T> { // TODO
     public final T value;
 
     public ResultSetValue(T value) {

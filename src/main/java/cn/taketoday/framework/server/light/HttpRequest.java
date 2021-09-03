@@ -32,9 +32,8 @@ import java.util.Arrays;
 import java.util.Locale;
 
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.framework.Constant;
+import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.http.HttpHeaders;
-import cn.taketoday.web.utils.WebUtils;
 
 import static cn.taketoday.framework.server.light.Utils.detectLocalHostName;
 import static cn.taketoday.framework.server.light.Utils.parseRange;
@@ -95,15 +94,15 @@ public final class HttpRequest {
     // the body, and in any case ignore Content-Length.
     // if there is no such Transfer-Encoding, use Content-Length
     // if neither header exists, there is no body
-    String header = requestHeaders.getFirst(Constant.TRANSFER_ENCODING);
-    if (header != null && !header.toLowerCase(Locale.US).equals(Constant.IDENTITY)) {
-      if (Arrays.asList(splitElements(header, true)).contains(Constant.CHUNKED))
+    String header = requestHeaders.getFirst(HttpHeaders.TRANSFER_ENCODING);
+    if (header != null && !header.toLowerCase(Locale.US).equals(HttpHeaders.IDENTITY)) {
+      if (Arrays.asList(splitElements(header, true)).contains(HttpHeaders.CHUNKED))
         body = new ChunkedInputStream(in, requestHeaders, config);
       else
         body = in; // body ends when connection closes
     }
     else {
-      header = requestHeaders.getFirst(Constant.CONTENT_LENGTH);
+      header = requestHeaders.getFirst(HttpHeaders.CONTENT_LENGTH);
       long len = header == null ? 0 : parseULong(header, 10);
       body = new LimitedInputStream(in, len, false);
     }
@@ -198,7 +197,7 @@ public final class HttpRequest {
     // normalize host header
     String host = uri.getHost();
     if (host == null) {
-      host = requestHeaders.getFirst(Constant.HOST);
+      host = requestHeaders.getFirst(HttpHeaders.HOST);
       if (host == null) // missing in HTTP/1.0
         host = detectLocalHostName();
     }
@@ -233,8 +232,8 @@ public final class HttpRequest {
    */
   public MultiValueMap<String, String> parseParameters() throws IOException {
     final MultiValueMap<String, String> parameters = WebUtils.parseParameters(uri.getRawQuery());
-    final String ct = requestHeaders.getFirst(Constant.CONTENT_TYPE);
-    if (ct != null && ct.toLowerCase(Locale.US).startsWith(Constant.APPLICATION_X_WWW_FORM_URLENCODED)) {
+    final String ct = requestHeaders.getFirst(HttpHeaders.CONTENT_TYPE);
+    if (ct != null && ct.toLowerCase(Locale.US).startsWith(HttpHeaders.APPLICATION_X_WWW_FORM_URLENCODED)) {
       final String bodyString = readToken(body, -1, StandardCharsets.UTF_8, 2097152); // 2MB limit
       WebUtils.parseParameters(parameters, bodyString);
     }
@@ -279,7 +278,7 @@ public final class HttpRequest {
    * is missing or invalid
    */
   public long[] getRange(long length) {
-    String header = requestHeaders.getFirst(Constant.RANGE);
+    String header = requestHeaders.getFirst(HttpHeaders.RANGE);
     return header == null || !header.startsWith("bytes=")
            ? null : parseRange(header.substring(6), length);
   }

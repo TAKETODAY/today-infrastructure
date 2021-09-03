@@ -25,16 +25,16 @@ import javax.servlet.ServletSecurityElement;
 
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.web.WebConstant;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 
 /**
  * @author TODAY <br>
- *         2019-02-03 14:08
+ * 2019-02-03 14:08
  */
 public class DispatcherServletInitializer extends WebServletInitializer<DispatcherServlet> {
+  static final String DISPATCHER_SERVLET = "dispatcherServlet";
 
   private static final Logger log = LoggerFactory.getLogger(DispatcherServletInitializer.class);
 
@@ -49,8 +49,8 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
     super(dispatcherServlet);
     this.applicationContext = context;
     setOrder(HIGHEST_PRECEDENCE - 100);
-    setName(WebConstant.DISPATCHER_SERVLET);
-    addUrlMappings(WebConstant.DISPATCHER_SERVLET_MAPPING);
+    setName(DISPATCHER_SERVLET);
+    addUrlMappings(DEFAULT_MAPPING);
   }
 
   @Override
@@ -59,7 +59,7 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
     if (dispatcherServlet == null && isAutoCreateDispatcher()) {
       final WebServletApplicationContext context = getApplicationContext();
       if (!context.containsBeanDefinition(DispatcherServlet.class)) {
-        context.registerBean(WebConstant.DISPATCHER_SERVLET, DispatcherServlet.class);
+        context.registerBean(DISPATCHER_SERVLET, DispatcherServlet.class);
       }
       dispatcherServlet = context.getBean(DispatcherServlet.class);
       setServlet(dispatcherServlet);

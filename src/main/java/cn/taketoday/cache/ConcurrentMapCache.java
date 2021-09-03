@@ -22,7 +22,7 @@ package cn.taketoday.cache;
 import java.util.function.UnaryOperator;
 
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.ConcurrentCache;
+import cn.taketoday.util.ConcurrentCache;
 
 /**
  * @author TODAY <br>

@@ -27,7 +27,7 @@ import java.util.List;
 import cn.taketoday.beans.Autowired;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.utils.CollectionUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
@@ -63,7 +63,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
     return files.get(0);
   }
 
-  public static void registerParameterResolver(
+  public static void register(
           List<ParameterResolver> resolvers, MultipartConfiguration multipartConfig) {
     resolvers.add(new DefaultMultipartResolver(multipartConfig));
     resolvers.add(new ArrayMultipartResolver(multipartConfig));

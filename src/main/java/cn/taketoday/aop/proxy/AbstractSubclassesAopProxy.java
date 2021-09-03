@@ -28,11 +28,12 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.function.Function;
 
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.cglib.core.CodeGenerationException;
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * @author TODAY 2021/3/7 11:45
@@ -147,7 +148,7 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
    */
   protected void computeConstructorArguments(Function<Constructor<?>, Object[]> argsFunction, Class<?> proxySuperClass) {
     if (argsFunction != null && argsFunction != defaultArgsFunction) {
-      final Constructor<?> superConstructor = ClassUtils.obtainConstructor(proxySuperClass);
+      final Constructor<?> superConstructor = BeanUtils.obtainConstructor(proxySuperClass);
       final Object[] args = argsFunction.apply(superConstructor);
 
       setConstructorArguments(args, superConstructor.getParameterTypes());

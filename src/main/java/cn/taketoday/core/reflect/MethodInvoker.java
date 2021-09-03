@@ -27,6 +27,7 @@ import java.util.Objects;
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.ClassGenerator;
 import cn.taketoday.cglib.core.CodeEmitter;
@@ -36,8 +37,9 @@ import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.ClassUtils;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.cglib.core.CglibReflectUtils.getMethodInfo;
 
@@ -69,7 +71,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    *
    * @return {@link MethodInvoker} sub object
    */
-  public static MethodInvoker create(Method executable) {
+  public static MethodInvoker fromMethod(Method executable) {
     return new MethodInvokerGenerator(executable).create();
   }
 
@@ -85,7 +87,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    *
    * @since 3.0
    */
-  public static MethodInvoker create(Method executable, Class<?> targetClass) {
+  public static MethodInvoker fromMethod(Method executable, Class<?> targetClass) {
     return new MethodInvokerGenerator(executable, targetClass).create();
   }
 
@@ -104,8 +106,8 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    * @throws ReflectionException
    *         Thrown when a particular method cannot be found.
    */
-  public static MethodInvoker create(final Class<?> beanClass,
-                                     final String name, final Class<?>... parameters) {
+  public static MethodInvoker fromMethod(final Class<?> beanClass,
+                                         final String name, final Class<?>... parameters) {
     try {
       Method targetMethod = beanClass.getDeclaredMethod(name, parameters);
       return new MethodInvokerGenerator(targetMethod, beanClass).create();
@@ -113,6 +115,12 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
     catch (NoSuchMethodException e) {
       throw new ReflectionException("No such method: '" + name + "' in " + beanClass, e);
     }
+  }
+
+  public static MethodInvoker formReflective(Method method) {
+    Assert.notNull(method, "method must not be null");
+    ReflectionUtils.makeAccessible(method);
+    return new ReflectiveMethodAccessor(method);
   }
 
   // MethodInvoker object generator
@@ -196,7 +204,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
     @Override
     protected MethodInvoker newInstance(Class<MethodInvoker> accessorClass) throws NoSuchMethodException {
       final Constructor<MethodInvoker> constructor = accessorClass.getDeclaredConstructor(Method.class);
-      return ClassUtils.newInstance(constructor, new Object[] { targetMethod });
+      return BeanUtils.newInstance(constructor, new Object[] { targetMethod });
     }
 
     @Override
@@ -216,7 +224,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
 
     @Override
     protected MethodInvoker fallbackInstance() {
-      return new MethodMethodAccessor(targetMethod);
+      return formReflective(targetMethod);
     }
 
     @Override

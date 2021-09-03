@@ -33,8 +33,8 @@ import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.HandlerMethodRegistry;
 import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolvers;
-import cn.taketoday.web.view.ResultHandler;
-import cn.taketoday.web.view.ResultHandlers;
+import cn.taketoday.web.view.ReturnValueHandler;
+import cn.taketoday.web.view.ReturnValueHandlers;
 
 /**
  * Web MVC auto configuration
@@ -90,11 +90,11 @@ public class WebMvcAutoConfiguration {
   }
 
   /**
-   * default {@link ResultHandler} registry
+   * default {@link ReturnValueHandler} registry
    */
   @MissingBean
-  ResultHandlers resultHandlers(WebApplicationContext context) {
-    ResultHandlers resultHandlers = new ResultHandlers();
+  ReturnValueHandlers resultHandlers(WebApplicationContext context) {
+    ReturnValueHandlers resultHandlers = new ReturnValueHandlers();
     resultHandlers.initHandlers(context);
     resultHandlers.registerDefaultResultHandlers();
     return resultHandlers;

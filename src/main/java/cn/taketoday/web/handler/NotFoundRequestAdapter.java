@@ -26,22 +26,21 @@ import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 
 /**
- * Process Handler not found
+ * Process Handler not found ,handler is null
  *
- * @author TODAY <br>
- * 2019-12-20 19:15
+ * @author TODAY 2019-12-20 19:15
  */
 public class NotFoundRequestAdapter extends AbstractHandlerAdapter {
   private static final Logger log = LoggerFactory.getLogger(NotFoundRequestAdapter.class);
 
-  public NotFoundRequestAdapter() {}
+  public NotFoundRequestAdapter() { }
 
   public NotFoundRequestAdapter(int order) {
     setOrder(order);
   }
 
   @Override
-  public boolean supports(Object handler) {
+  public final boolean supports(Object handler) {
     return handler == null;
   }
 

@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * Internal helper class that serves as a value holder for request headers.

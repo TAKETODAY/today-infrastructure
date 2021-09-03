@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import cn.taketoday.core.DateTimeFormat;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.resolver.ParameterResolver;
 

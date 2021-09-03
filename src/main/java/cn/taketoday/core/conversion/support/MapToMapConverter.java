@@ -24,8 +24,8 @@ import java.util.Map;
 
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.core.utils.CollectionUtils;
-import cn.taketoday.core.utils.GenericDescriptor;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.GenericDescriptor;
 
 /**
  * Converts a Map to another Map.

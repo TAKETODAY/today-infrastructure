@@ -29,8 +29,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.core.utils.GenericDescriptor;
-import cn.taketoday.core.utils.ReflectionUtils;
+import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Generic converter that uses conventions to convert a source object to a

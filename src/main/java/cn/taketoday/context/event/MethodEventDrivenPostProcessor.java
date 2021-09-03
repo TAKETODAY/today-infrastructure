@@ -27,16 +27,16 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.beans.support.ArgumentsResolver;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.reflect.MethodInvoker;
-import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.ContextUtils;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.ReflectionUtils;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Process @EventListener annotated on a method
@@ -123,13 +123,13 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
       this.eventTypes = eventTypes;
       this.beanFactory = beanFactory;
       this.targetMethod = targetMethod;
-      this.methodInvoker = MethodInvoker.create(targetMethod);
+      this.methodInvoker = MethodInvoker.fromMethod(targetMethod);
     }
 
     @Override
     public void onApplicationEvent(final Object event) { // any event type
       final Object[] parameter
-              = ContextUtils.resolveParameter(targetMethod, beanFactory, new Object[] { event });
+              = ArgumentsResolver.getSharedInstance().resolve(targetMethod, beanFactory, new Object[] { event });
       // native invoke public,protected,default method
       methodInvoker.invoke(bean, parameter);
     }

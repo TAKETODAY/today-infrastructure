@@ -23,7 +23,7 @@ import java.lang.annotation.Annotation;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY <br>

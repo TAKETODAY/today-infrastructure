@@ -26,7 +26,7 @@ import javax.servlet.Servlet;
 
 import cn.taketoday.context.Props;
 import cn.taketoday.context.condition.ConditionalOnClass;
-import cn.taketoday.framework.Constant;
+import cn.taketoday.core.Constant;
 import lombok.Getter;
 import lombok.Setter;
 

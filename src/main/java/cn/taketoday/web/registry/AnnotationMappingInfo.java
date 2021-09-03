@@ -26,15 +26,15 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 
 import cn.taketoday.core.AnnotationAttributes;
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.utils.InvalidMediaTypeException;
-import cn.taketoday.core.utils.MediaType;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.OrderUtils;
-import cn.taketoday.web.RequestMethod;
-import cn.taketoday.web.WebConstant;
+import cn.taketoday.util.InvalidMediaTypeException;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.OrderUtils;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.http.HttpMethod;
 
 /**
  * @author TODAY 2021/4/21 23:57
@@ -47,7 +47,7 @@ final class AnnotationMappingInfo implements Ordered {
 
   private final MediaType[] produces;
   private final MediaType[] consumes;
-  private final RequestMethod[] method;
+  private final HttpMethod[] method;
   private final RequestParameter[] params;
 
   private final HandlerMethod handler;
@@ -57,7 +57,7 @@ final class AnnotationMappingInfo implements Ordered {
    *         if the media type (consumes) value cannot be parsed
    */
   AnnotationMappingInfo(String[] value, String[] produces, String[] consumes,
-                        String[] params, RequestMethod[] method, HandlerMethod handler) {
+                        String[] params, HttpMethod[] method, HandlerMethod handler) {
     this.value = value;
     this.handler = handler;
     this.method = compute(method);
@@ -99,9 +99,9 @@ final class AnnotationMappingInfo implements Ordered {
    *         if the media type (consumes) value cannot be parsed
    */
   AnnotationMappingInfo(AnnotationAttributes attributes, HandlerMethod handler) {
-    this(attributes.getStringArray(WebConstant.VALUE), attributes.getStringArray("produces"),
+    this(attributes.getStringArray(Constant.VALUE), attributes.getStringArray("produces"),
          attributes.getStringArray("consumes"), attributes.getStringArray("params"),
-         attributes.getAttribute("method", RequestMethod[].class), handler);
+         attributes.getAttribute("method", HttpMethod[].class), handler);
   }
 
   public AnnotationMappingInfo(AnnotationMappingInfo mapping, HandlerMethod handler) {
@@ -121,7 +121,7 @@ final class AnnotationMappingInfo implements Ordered {
     return value;
   }
 
-  public RequestMethod[] method() {
+  public HttpMethod[] method() {
     return method;
   }
 
@@ -141,7 +141,7 @@ final class AnnotationMappingInfo implements Ordered {
   public String toString() {
     final StringBuilder builder = new StringBuilder();
 
-    appendString(builder, WebConstant.BLANK, method);
+    appendString(builder, Constant.BLANK, method);
     appendString(builder, "consumes: ", consumes);
     appendString(builder, "produces: ", produces);
     appendString(builder, "params: ", params);

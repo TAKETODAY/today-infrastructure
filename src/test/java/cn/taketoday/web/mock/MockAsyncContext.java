@@ -34,9 +34,10 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.web.utils.ServletUtils;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.web.servlet.ServletUtils;
 
 /**
  * Mock implementation of the {@link AsyncContext} interface.
@@ -150,7 +151,7 @@ public class MockAsyncContext implements AsyncContext {
 
   @Override
   public <T extends AsyncListener> T createListener(Class<T> clazz) throws ServletException {
-    return ClassUtils.newInstance(clazz);
+    return BeanUtils.newInstance(clazz);
   }
 
   /**

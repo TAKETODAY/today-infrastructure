@@ -22,7 +22,7 @@ package cn.taketoday.core.conversion.support;
 import java.util.TimeZone;
 
 import cn.taketoday.core.conversion.Converter;
-import cn.taketoday.core.utils.StringUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Convert a String to a {@link TimeZone}.

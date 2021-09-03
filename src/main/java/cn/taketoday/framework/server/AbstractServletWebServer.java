@@ -36,10 +36,10 @@ import javax.servlet.SessionTrackingMode;
 import javax.servlet.annotation.ServletSecurity;
 
 import cn.taketoday.beans.Autowired;
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.framework.Constant;
 import cn.taketoday.framework.WebServerApplicationContext;
 import cn.taketoday.framework.config.DefaultServletConfiguration;
 import cn.taketoday.framework.config.JspServletConfiguration;
@@ -83,7 +83,7 @@ public abstract class AbstractServletWebServer
       getWebApplicationConfiguration().configureJspServlet(jspServletConfiguration);
       if (jspServletConfiguration.isEnable()) {
         try {
-          Servlet jspServlet = ClassUtils.newInstance(jspServletConfiguration.getClassName());
+          Servlet jspServlet = BeanUtils.newInstance(jspServletConfiguration.getClassName());
           if (jspServlet != null) {
             log.info("Jsp is enabled, use jsp servlet: [{}]", jspServlet.getServletInfo());
 

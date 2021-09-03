@@ -26,6 +26,7 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
 
+import cn.taketoday.beans.PropertyValueException;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.core.MultiValueMap;
 

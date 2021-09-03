@@ -27,7 +27,7 @@ import java.util.Set;
 
 import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.utils.ObjectUtils;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * @author TODAY <br>

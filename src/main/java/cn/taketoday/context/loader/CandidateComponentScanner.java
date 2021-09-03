@@ -44,11 +44,11 @@ import cn.taketoday.core.io.FileBasedResource;
 import cn.taketoday.core.io.JarEntryResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceFilter;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.ResourceUtils;
-import cn.taketoday.core.utils.StringUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.util.StringUtils;
 
 import static cn.taketoday.core.Constant.PACKAGE_SEPARATOR;
 import static cn.taketoday.core.Constant.PATH_SEPARATOR;
@@ -80,7 +80,7 @@ public class CandidateComponentScanner {
   /** Class resource filter */
   private static final ResourceFilter CLASS_RESOURCE_FILTER = resource ->
           resource.isDirectory()
-                  || (resource.getName().endsWith(Constant.CLASS_FILE_SUFFIX)
+                  || (resource.getName().endsWith(ClassUtils.CLASS_FILE_SUFFIX)
                   && !resource.getName().startsWith("package-info"));
 
   public static String[] getDefaultIgnoreJarPrefix() {
@@ -356,7 +356,7 @@ public class CandidateComponentScanner {
       return;
     }
     final String jarEntryName = jarEntry.getName(); // cn/taketoday/xxx/yyy.class
-    if (jarEntryName.endsWith(Constant.CLASS_FILE_SUFFIX)) {
+    if (jarEntryName.endsWith(ClassUtils.CLASS_FILE_SUFFIX)) {
 
       // fix #10 classes loading from a jar can't be load
       final String nameToUse = jarEntryName.replace(PATH_SEPARATOR, PACKAGE_SEPARATOR);

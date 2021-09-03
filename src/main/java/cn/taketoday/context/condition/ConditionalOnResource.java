@@ -28,7 +28,7 @@ import java.lang.reflect.AnnotatedElement;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.Conditional;
-import cn.taketoday.core.utils.ResourceUtils;
+import cn.taketoday.util.ResourceUtils;
 
 /**
  * {@link Conditional} that only matches when the specified resources are exits

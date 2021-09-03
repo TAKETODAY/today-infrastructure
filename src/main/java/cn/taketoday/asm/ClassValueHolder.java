@@ -20,7 +20,7 @@
 
 package cn.taketoday.asm;
 
-import cn.taketoday.core.utils.ClassUtils;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * @author TODAY 2021/7/28 23:06

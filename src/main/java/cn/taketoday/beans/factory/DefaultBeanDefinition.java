@@ -33,25 +33,24 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.beans.NoSuchPropertyException;
+import cn.taketoday.beans.support.ArgumentsResolver;
+import cn.taketoday.beans.support.BeanConstructor;
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.Scope;
-import cn.taketoday.context.loader.NoSuchPropertyException;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.reflect.BeanConstructor;
 import cn.taketoday.core.reflect.MethodInvoker;
-import cn.taketoday.core.utils.AnnotationUtils;
-import cn.taketoday.core.utils.ClassUtils;
-import cn.taketoday.core.utils.CollectionUtils;
-import cn.taketoday.core.utils.ContextUtils;
-import cn.taketoday.core.utils.ObjectUtils;
-import cn.taketoday.core.utils.OrderUtils;
-import cn.taketoday.core.utils.ReflectionUtils;
-import cn.taketoday.core.utils.StringUtils;
-
-import static cn.taketoday.core.utils.ContextUtils.resolveParameter;
+import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.OrderUtils;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Default implementation of {@link BeanDefinition}
@@ -85,7 +84,7 @@ public class DefaultBeanDefinition
   private String[] destroyMethods = Constant.EMPTY_STRING_ARRAY;
 
   /** property values */
-  private PropertySetter[] propertySetters = EMPTY_PROPERTY_VALUE;
+  private PropertySetter[] propertySetters = EMPTY_PROPERTY_SETTER;
 
   /**
    * <p>
@@ -111,7 +110,7 @@ public class DefaultBeanDefinition
   /** @since 3.0 */
   private Executable executable;
   /** @since 3.0 */
-  private BeanConstructor<?> constructor;
+  private BeanConstructor constructor;
   /** lazy init flag @since 3.0 */
   private Boolean lazyInit;
   /** @since 3.0 fast invoke init methods */
@@ -241,7 +240,7 @@ public class DefaultBeanDefinition
       this.methodInvokers = new MethodInvoker[initMethods.length];
       int i = 0;
       for (final Method initMethod : initMethods) {
-        methodInvokers[i++] = MethodInvoker.create(initMethod);
+        methodInvokers[i++] = MethodInvoker.fromMethod(initMethod);
       }
     }
     else {
@@ -361,8 +360,8 @@ public class DefaultBeanDefinition
     return getBeanClass().getDeclaredAnnotations();
   }
 
-  public BeanConstructor<?> getConstructor(BeanFactory factory) {
-    BeanConstructor<?> constructor = this.constructor;
+  public BeanConstructor getConstructor(BeanFactory factory) {
+    BeanConstructor constructor = this.constructor;
     if (constructor == null) {
       constructor = createConstructor(factory);
       this.constructor = constructor;
@@ -370,14 +369,14 @@ public class DefaultBeanDefinition
     return constructor;
   }
 
-  protected BeanConstructor<?> createConstructor(BeanFactory factory) {
-    return ReflectionUtils.newConstructor(getBeanClass());
+  protected BeanConstructor createConstructor(BeanFactory factory) {
+    return BeanConstructor.fromClass(getBeanClass());
   }
 
   public Executable getExecutable() {
     Executable executable = this.executable;
     if (executable == null) {
-      executable = ClassUtils.getSuitableConstructor(getBeanClass());
+      executable = BeanUtils.getConstructor(getBeanClass());
       this.executable = executable;
     }
     return executable;
@@ -390,8 +389,8 @@ public class DefaultBeanDefinition
     if (instanceSupplier != null) {
       return instanceSupplier.get();
     }
-    final BeanConstructor<?> target = getConstructor(factory);
-    final Object[] args = resolveParameter(getExecutable(), factory);
+    final BeanConstructor target = getConstructor(factory);
+    final Object[] args = ArgumentsResolver.getSharedInstance().resolve(getExecutable(), factory);
     return target.newInstance(args);
   }
 
@@ -405,7 +404,7 @@ public class DefaultBeanDefinition
    */
   @Override
   public Object newInstance(BeanFactory factory, Object... args) {
-    final BeanConstructor<?> target = getConstructor(factory);
+    final BeanConstructor target = getConstructor(factory);
     return target.newInstance(args);
   }
 
@@ -420,8 +419,9 @@ public class DefaultBeanDefinition
   public final void fastInvokeInitMethods(Object bean, BeanFactory beanFactory) {
     final MethodInvoker[] methodInvokers = this.methodInvokers;
     if (ObjectUtils.isNotEmpty(methodInvokers)) {
+      ArgumentsResolver resolver = ArgumentsResolver.getSharedInstance();
       for (final MethodInvoker methodInvoker : methodInvokers) {
-        final Object[] args = resolveParameter(methodInvoker.getMethod(), beanFactory);
+        final Object[] args = resolver.resolve(methodInvoker.getMethod(), beanFactory);
         methodInvoker.invoke(bean, args);
       }
     }

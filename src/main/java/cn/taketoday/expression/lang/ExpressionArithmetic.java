@@ -44,7 +44,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 
-import cn.taketoday.core.utils.NumberUtils;
+import cn.taketoday.util.NumberUtils;
 
 import static cn.taketoday.core.Constant.BLANK;
 

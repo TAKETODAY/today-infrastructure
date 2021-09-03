@@ -28,7 +28,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import cn.taketoday.web.WebConstant;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.web.http.HttpHeaders;
 
 import static cn.taketoday.core.Constant.DEFAULT_CHARSET;
 
@@ -49,7 +50,7 @@ public abstract class HttpUtils {
    *         request body
    */
   public static HttpURLConnection getConnection(String method, String urlStr, byte[] body) throws IOException {
-    return getConnection(method, urlStr, WebConstant.CONTENT_TYPE_JSON, body);
+    return getConnection(method, urlStr, MediaType.APPLICATION_JSON_VALUE, body);
   }
 
   /**
@@ -65,7 +66,7 @@ public abstract class HttpUtils {
   public static HttpURLConnection getConnection(String method, String urlStr, String contentType, byte[] body) throws IOException {
     HttpURLConnection connection = getConnection(method, urlStr);
     if (contentType != null) {
-      connection.setRequestProperty(WebConstant.CONTENT_TYPE, contentType);
+      connection.setRequestProperty(HttpHeaders.CONTENT_TYPE, contentType);
     }
     if (body != null) {
       OutputStream outputStream = connection.getOutputStream();
