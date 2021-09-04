@@ -304,7 +304,7 @@ public abstract class AbstractFreeMarkerTemplateRenderer
         throw new ConfigurationException("There is no shared variable named: ".concat(parameter.getName()));
       }
       return DefaultConversionService.getSharedInstance()
-              .convert(parameter.getDefaultValue(), parameter.getGenericDescriptor());
+              .convert(parameter.getDefaultValue(), parameter.getTypeDescriptor());
     }
   }
 

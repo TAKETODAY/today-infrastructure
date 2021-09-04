@@ -46,7 +46,7 @@ public class PathVariableEndpointParameterResolver implements EndpointParameterR
     if (attribute instanceof Map) {
       final String value = ((Map<String, String>) attribute).get(resolveName(parameter));
       return DefaultConversionService.getSharedInstance()
-              .convert(value, parameter.getGenericDescriptor());
+              .convert(value, parameter.getTypeDescriptor());
     }
     throw new MissingPathVariableParameterException(parameter);
   }

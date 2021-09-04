@@ -27,6 +27,9 @@ import cn.taketoday.web.handler.HandlerMethod;
 
 /**
  * HandlerMethod return Object
+ * <p>
+ * Iterate handlers in runtime
+ * </p>
  * <pre>
  * &#64GET("/object")
  * public Object object(boolean key1, boolean key2, boolean key3, RequestContext context) throws IOException {
@@ -47,16 +50,16 @@ import cn.taketoday.web.handler.HandlerMethod;
  *
  * @author TODAY 2019-07-14 17:41
  */
-public class ObjectReturnValueHandler
+public class IterableReturnValueHandler
         extends HandlerMethodReturnValueHandler implements RuntimeReturnValueHandler, ReturnValueHandler {
 
   private final CompositeReturnValueHandler returnValueHandlers;
 
-  public ObjectReturnValueHandler(List<ReturnValueHandler> returnValueHandlers) {
+  public IterableReturnValueHandler(List<ReturnValueHandler> returnValueHandlers) {
     this.returnValueHandlers = new CompositeReturnValueHandler(returnValueHandlers);
   }
 
-  public ObjectReturnValueHandler(CompositeReturnValueHandler returnValueHandlers) {
+  public IterableReturnValueHandler(CompositeReturnValueHandler returnValueHandlers) {
     this.returnValueHandlers = returnValueHandlers;
   }
 

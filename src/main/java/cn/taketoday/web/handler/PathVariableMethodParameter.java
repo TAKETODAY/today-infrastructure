@@ -62,7 +62,7 @@ public class PathVariableMethodParameter extends MethodParameter {
     }
     try {
       return DefaultConversionService.getSharedInstance()
-              .convert(pathVariables[variableIndex], getGenericDescriptor());
+              .convert(pathVariables[variableIndex], getTypeDescriptor());
     }
     catch (ConversionException e) {
       throw new ParameterConversionException(this, pathVariables[variableIndex], e);

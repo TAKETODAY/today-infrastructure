@@ -96,7 +96,7 @@ public class WebMvcAutoConfiguration {
   ReturnValueHandlers resultHandlers(WebApplicationContext context) {
     ReturnValueHandlers resultHandlers = new ReturnValueHandlers();
     resultHandlers.initHandlers(context);
-    resultHandlers.registerDefaultResultHandlers();
+    resultHandlers.registerDefaultHandlers();
     return resultHandlers;
   }
 

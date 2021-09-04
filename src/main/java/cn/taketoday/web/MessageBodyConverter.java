@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.view;
+package cn.taketoday.web;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -25,17 +25,24 @@ import java.nio.charset.Charset;
 
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.MediaType;
-import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.view.JsonSequence;
 
 /**
+ * Http message body (request-body, response-body) read/write strategy
+ *
  * @author TODAY 2019-07-17 13:31
  * @see JsonSequence
+ * @see RequestContext
+ * @since 4.0
  */
-public abstract class MessageConverter {
+public abstract class MessageBodyConverter {
 
   /** for write string */
   private Charset charset = Constant.DEFAULT_CHARSET;
+
+  /** @since 4.0 */
+  private String contentType = MediaType.APPLICATION_JSON_VALUE;
 
   /**
    * Write message to client
@@ -67,7 +74,7 @@ public abstract class MessageConverter {
   }
 
   protected void applyContentType(RequestContext context) {
-    context.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    context.setContentType(getContentType());
   }
 
   protected void writeStringInternal(RequestContext context, String message) throws IOException {
@@ -99,6 +106,17 @@ public abstract class MessageConverter {
   public abstract Object read(RequestContext context, MethodParameter parameter) throws IOException;
 
   /**
+   * read a object from given string message
+   *
+   * @param message
+   *         string message
+   *
+   * @throws IOException
+   *         if underlying input contains invalid content
+   */
+  public abstract Object read(String message, MethodParameter parameter) throws IOException;
+
+  /**
    * for write string
    *
    * @see #writeStringInternal(RequestContext, String)
@@ -109,5 +127,13 @@ public abstract class MessageConverter {
 
   public Charset getCharset() {
     return charset;
+  }
+
+  public void setContentType(String contentType) {
+    this.contentType = contentType;
+  }
+
+  public String getContentType() {
+    return contentType;
   }
 }

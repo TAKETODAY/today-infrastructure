@@ -23,19 +23,20 @@ import java.io.IOException;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.RequestContext;
 
 /**
- * serialize return-value to HTTP response-body
+ * serialize return-value(any Object) to HTTP response-body
  *
  * @author TODAY 2019-07-14 01:19
  */
 public class ResponseBodyReturnValueHandler extends OrderedSupport implements RuntimeReturnValueHandler {
-  private final MessageConverter messageConverter;
+  private final MessageBodyConverter messageBodyConverter;
 
-  public ResponseBodyReturnValueHandler(MessageConverter messageConverter) {
-    Assert.notNull(messageConverter, "MessageConverter must not be null");
-    this.messageConverter = messageConverter;
+  public ResponseBodyReturnValueHandler(MessageBodyConverter messageBodyConverter) {
+    Assert.notNull(messageBodyConverter, "MessageBodyConverter must not be null");
+    this.messageBodyConverter = messageBodyConverter;
     setOrder(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 100);
   }
 
@@ -56,7 +57,7 @@ public class ResponseBodyReturnValueHandler extends OrderedSupport implements Ru
   }
 
   public void write(RequestContext context, Object returnValue) throws IOException {
-    messageConverter.write(context, returnValue);
+    messageBodyConverter.write(context, returnValue);
   }
 
 }

@@ -61,7 +61,7 @@ public abstract class ConversionServiceParameterResolver
   @Override
   protected Object transformValue(
           final RequestContext context, final MethodParameter parameter, final Object original) {
-    GenericDescriptor targetType = parameter.getGenericDescriptor();
+    GenericDescriptor targetType = parameter.getTypeDescriptor();
     return conversionService.convert(original, targetType);
   }
 

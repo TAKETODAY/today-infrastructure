@@ -169,7 +169,7 @@ public class HandlerMethodTests {
     final ReturnValueHandlers resultHandlers = new ReturnValueHandlers();
     final DefaultTemplateRenderer viewResolver = new DefaultTemplateRenderer();
     resultHandlers.setApplicationContext(applicationContext);
-    resultHandlers.registerDefaultResultHandlers(viewResolver);
+    resultHandlers.registerDefaultHandlers(viewResolver);
     produceMethod.setResultHandlers(resultHandlers);
   }
 

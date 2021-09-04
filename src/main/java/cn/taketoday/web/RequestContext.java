@@ -37,8 +37,8 @@ import java.util.Objects;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.EmptyObject;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.io.Readable;
-import cn.taketoday.core.io.Writable;
+import cn.taketoday.core.io.InputStreamSource;
+import cn.taketoday.core.io.OutputStreamSource;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
@@ -62,7 +62,7 @@ import static cn.taketoday.core.Constant.DEFAULT_CHARSET;
  * 2019-06-22 15:48
  * @since 2.3.7
  */
-public abstract class RequestContext implements Readable, Writable, Model, Flushable {
+public abstract class RequestContext implements InputStreamSource, OutputStreamSource, Model, Flushable {
 
   public static final HttpCookie[] EMPTY_COOKIES = {};
 
@@ -564,7 +564,7 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
    *
    * @see #reset
    */
-  public abstract boolean committed();
+  public abstract boolean isCommitted();
 
   /**
    * Clears any data that exists in the buffer as well as the status code,
@@ -946,6 +946,16 @@ public abstract class RequestContext implements Readable, Writable, Model, Flush
     }
   }
 
+  /**
+   * Forces any content in the buffer to be written to the client.  A call
+   * to this method automatically commits the response, meaning the status
+   * code and headers will be written.
+   *
+   * @throws IOException
+   *         if the act of flushing the buffer cannot be completed.
+   * @see #isCommitted
+   * @see #reset
+   */
   @Override
   public void flush() throws IOException {
     final PrintWriter writer = this.writer;

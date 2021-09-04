@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.function.IntFunction;
 
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.NonNull;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.http.HttpHeaders;
 
@@ -117,6 +118,7 @@ final class NettyHttpHeaders extends HttpHeaders {
     return headers.names();
   }
 
+  @NonNull
   @Override
   public Collection<List<String>> values() {
     final ArrayList<List<String>> ret = new ArrayList<>();
@@ -127,10 +129,11 @@ final class NettyHttpHeaders extends HttpHeaders {
     return ret;
   }
 
+  @NonNull
   @Override
   public Set<Entry<String, List<String>>> entrySet() {
     final HashSet<Entry<String, List<String>>> ret = new HashSet<>();
-    final io.netty.handler.codec.http.HttpHeaders headers = this.headers;
+    final io.netty.handler.codec.http.HttpHeaders headers = getOriginal();
     for (final String name : headers.names()) {
       ret.add(new AbstractMap.SimpleEntry<>(name, headers.getAll(name)));
     }
@@ -148,7 +151,7 @@ final class NettyHttpHeaders extends HttpHeaders {
   public void copyToArrayMap(final Map<String, String[]> newMap, final IntFunction<String[]> mappingFunction) {
     Assert.notNull(newMap, "newMap must not be null");
     Assert.notNull(mappingFunction, "mappingFunction must not be null");
-    final io.netty.handler.codec.http.HttpHeaders headers = this.headers;
+    final io.netty.handler.codec.http.HttpHeaders headers = getOriginal();
     final Set<String> names = headers.names();
     for (final String name : names) {
       final List<String> values = headers.getAll(name);

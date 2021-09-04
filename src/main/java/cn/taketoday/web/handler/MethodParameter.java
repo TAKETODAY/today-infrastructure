@@ -302,7 +302,7 @@ public class MethodParameter
   /**
    * @since 3.0.1
    */
-  public GenericDescriptor getGenericDescriptor() {
+  public GenericDescriptor getTypeDescriptor() {
     GenericDescriptor genericDescriptor = this.genericDescriptor;
     if (genericDescriptor == null) {
       genericDescriptor = createGenericDescriptor();

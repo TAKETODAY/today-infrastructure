@@ -23,11 +23,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 
+import cn.taketoday.core.io.InputStreamSource;
+
 /**
  * @author TODAY <br>
  * 2018-07-11 13:02:52
  */
-public interface MultipartFile extends Serializable, cn.taketoday.core.io.Readable {
+public interface MultipartFile extends Serializable, InputStreamSource {
 
   /**
    * Get upload file content type.

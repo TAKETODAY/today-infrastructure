@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.Predicate;
 
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.beans.support.DataBinder;
@@ -46,7 +47,7 @@ import cn.taketoday.web.resolver.date.DateParameterResolver;
 import cn.taketoday.web.resolver.date.LocalDateParameterResolver;
 import cn.taketoday.web.resolver.date.LocalDateTimeParameterResolver;
 import cn.taketoday.web.resolver.date.LocalTimeParameterResolver;
-import cn.taketoday.web.view.MessageConverter;
+import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.view.RedirectModelManager;
 
 import static cn.taketoday.context.ContextUtils.resolveProps;
@@ -62,7 +63,7 @@ public class ParameterResolvers extends WebApplicationContextSupport {
   /**
    * @since 3.0.1
    */
-  private MessageConverter messageConverter;
+  private MessageBodyConverter messageBodyConverter;
   /**
    * @since 3.0.1
    */
@@ -216,11 +217,11 @@ public class ParameterResolvers extends WebApplicationContextSupport {
     resolvers.add(new ModelParameterResolver(modelManager));
     resolvers.add(new SimpleArrayParameterResolver());
     resolvers.add(new StreamParameterResolver());
-    MessageConverter messageConverter = getMessageConverter();
-    if (messageConverter == null) {
-      messageConverter = context.getBean(MessageConverter.class);
+    MessageBodyConverter messageBodyConverter = getMessageConverter();
+    if (messageBodyConverter == null) {
+      messageBodyConverter = context.getBean(MessageBodyConverter.class);
     }
-    resolvers.add(new RequestBodyParameterResolver(messageConverter));
+    resolvers.add(new RequestBodyParameterResolver(messageBodyConverter));
     resolvers.add(new ThrowableHandlerParameterResolver());
 
     // Date API support @since 3.0
@@ -272,6 +273,13 @@ public class ParameterResolvers extends WebApplicationContextSupport {
     }
   }
 
+  /**
+   * @since 4.0
+   */
+  public boolean removeIf(Predicate<ParameterResolver> filter) {
+    return resolvers.removeIf(filter);
+  }
+
   public boolean contains(Class<?> resolverClass) {
     return contains(resolverClass, resolvers);
   }
@@ -287,12 +295,12 @@ public class ParameterResolvers extends WebApplicationContextSupport {
 
   //
 
-  public void setMessageConverter(MessageConverter messageConverter) {
-    this.messageConverter = messageConverter;
+  public void setMessageConverter(MessageBodyConverter messageBodyConverter) {
+    this.messageBodyConverter = messageBodyConverter;
   }
 
-  public MessageConverter getMessageConverter() {
-    return messageConverter;
+  public MessageBodyConverter getMessageConverter() {
+    return messageBodyConverter;
   }
 
   public void setRedirectModelManager(RedirectModelManager redirectModelManager) {

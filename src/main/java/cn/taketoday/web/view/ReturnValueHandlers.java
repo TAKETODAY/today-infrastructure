@@ -22,17 +22,21 @@ package cn.taketoday.web.view;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
 import cn.taketoday.context.Environment;
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.OrderUtils;
+import cn.taketoday.web.FastJSONMessageConverter;
+import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.config.CompositeWebMvcConfiguration;
 import cn.taketoday.web.config.WebMvcConfiguration;
-import cn.taketoday.web.handler.JacksonObjectNotationProcessor;
+import cn.taketoday.web.support.JacksonMessageBodyConverter;
 import cn.taketoday.web.view.template.AbstractTemplateRenderer;
 import cn.taketoday.web.view.template.DefaultTemplateRenderer;
 import cn.taketoday.web.view.template.TemplateRenderer;
@@ -53,7 +57,7 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
   /**
    * @since 3.0.1
    */
-  private MessageConverter messageConverter;
+  private MessageBodyConverter messageBodyConverter;
   /**
    * @since 3.0.1
    */
@@ -72,10 +76,7 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
   private TemplateRendererReturnValueHandler templateRendererHandler;
 
   @Nullable
-  private RenderedImageReturnValueHandler renderedImageHandler;
-
-  @Nullable
-  private ObjectReturnValueHandler objectHandler;
+  private IterableReturnValueHandler iterableHandler;
 
   private String imageFormatName = RenderedImageReturnValueHandler.IMAGE_PNG;
 
@@ -146,8 +147,8 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
       setDownloadFileBufferSize(bufferSize);
     }
     // @since 3.0.3
-    if (messageConverter == null) {
-      setMessageConverter(context.getBean(MessageConverter.class));
+    if (messageBodyConverter == null) {
+      setMessageConverter(context.getBean(MessageBodyConverter.class));
     }
     if (redirectModelManager == null) {
       setRedirectModelManager(context.getBean(RedirectModelManager.class));
@@ -175,8 +176,8 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
   /**
    * register default return-value handlers
    */
-  public void registerDefaultResultHandlers() {
-    registerDefaultResultHandlers(this.templateRenderer);
+  public void registerDefaultHandlers() {
+    registerDefaultHandlers(this.templateRenderer);
   }
 
   /**
@@ -184,33 +185,35 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
    *
    * @since 3.0
    */
-  public void registerDefaultResultHandlers(TemplateRenderer templateRenderer) {
+  public void registerDefaultHandlers(TemplateRenderer templateRenderer) {
     log.info("Registering default return-value handlers");
 
-    final List<ReturnValueHandler> handlers = getHandlers();
     applyDefaults(templateRenderer);
 
-    ArrayList<ReturnValueHandler> returnValueHandlers = new ArrayList<>();
+    ArrayList<ReturnValueHandler> internalHandlers = new ArrayList<>();
+    RenderedImageReturnValueHandler imageHandler = getRenderedImageHandler();
 
     ResourceReturnValueHandler resourceHandler = new ResourceReturnValueHandler(getDownloadFileBufferSize());
-    ModelAndViewReturnValueHandler modelAndViewHandler = new ModelAndViewReturnValueHandler(returnValueHandlers);
+    ModelAndViewReturnValueHandler modelAndViewHandler = new ModelAndViewReturnValueHandler(internalHandlers);
 
-    returnValueHandlers.add(renderedImageHandler);
-    returnValueHandlers.add(resourceHandler);
-    returnValueHandlers.add(templateRendererHandler);
-    returnValueHandlers.add(new VoidReturnValueHandler(modelAndViewHandler));
-    returnValueHandlers.add(modelAndViewHandler);
-    returnValueHandlers.add(new CharSequenceReturnValueHandler(templateRendererHandler));
-    returnValueHandlers.add(new HttpStatusReturnValueHandler());
+    internalHandlers.add(imageHandler);
+    internalHandlers.add(resourceHandler);
+    internalHandlers.add(templateRendererHandler);
+    internalHandlers.add(new VoidReturnValueHandler(modelAndViewHandler));
+    internalHandlers.add(modelAndViewHandler);
+    internalHandlers.add(new CharSequenceReturnValueHandler(templateRendererHandler));
+    internalHandlers.add(new HttpStatusReturnValueHandler());
 
-    sort(returnValueHandlers);
+    sort(internalHandlers);
 
-    CompositeReturnValueHandler compositeHandler = new CompositeReturnValueHandler(returnValueHandlers);
+    // Iterate ReturnValueHandler in runtime
+    CompositeReturnValueHandler compositeHandler = new CompositeReturnValueHandler(internalHandlers);
+
+    IterableReturnValueHandler objectHandler = getObjectHandler(compositeHandler);
 
     //
-    ObjectReturnValueHandler objectHandler = new ObjectReturnValueHandler(compositeHandler);
-
-    handlers.add(renderedImageHandler);
+    List<ReturnValueHandler> handlers = getHandlers();
+    handlers.add(imageHandler);
     handlers.add(resourceHandler);
     handlers.add(templateRendererHandler);
 
@@ -227,28 +230,89 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
     sort();
   }
 
-  private void applyDefaults(TemplateRenderer templateRenderer) {
-    final MessageConverter messageConverter = obtainMessageConverter();
-    Assert.state(messageConverter != null, "No MessageConverter in this web application");
-
-    // renderedImageHandler
-    if (renderedImageHandler == null) {
-      RenderedImageReturnValueHandler handler = new RenderedImageReturnValueHandler();
-      handler.setFormatName(imageFormatName);
-      this.renderedImageHandler = handler;
+  @NonNull
+  private IterableReturnValueHandler getObjectHandler(CompositeReturnValueHandler compositeHandler) {
+    IterableReturnValueHandler objectHandler = get(IterableReturnValueHandler.class);
+    // image handler
+    if (objectHandler == null) {
+      objectHandler = new IterableReturnValueHandler(compositeHandler);
     }
+    return objectHandler;
+  }
+
+  @NonNull
+  private RenderedImageReturnValueHandler getRenderedImageHandler() {
+    RenderedImageReturnValueHandler imageHandler = get(RenderedImageReturnValueHandler.class);
+    // image handler
+    if (imageHandler == null) {
+      imageHandler = new RenderedImageReturnValueHandler();
+      imageHandler.setFormatName(imageFormatName);
+    }
+    return imageHandler;
+  }
+
+  private void applyDefaults(TemplateRenderer templateRenderer) {
+    final MessageBodyConverter messageBodyConverter = obtainMessageConverter();
+    Assert.state(messageBodyConverter != null, "No MessageConverter in this web application");
 
     // responseBodyHandler
     if (responseBodyHandler == null) {
-      responseBodyHandler = new ResponseBodyReturnValueHandler(messageConverter);
+      responseBodyHandler = new ResponseBodyReturnValueHandler(messageBodyConverter);
     }
 
     // templateRendererHandler
     if (templateRendererHandler == null) {
-      TemplateRendererReturnValueHandler handler = new TemplateRendererReturnValueHandler(templateRenderer);
+      TemplateRendererReturnValueHandler handler
+              = new TemplateRendererReturnValueHandler(templateRenderer);
       handler.setModelManager(getRedirectModelManager());
       this.templateRendererHandler = handler;
     }
+  }
+
+  /**
+   * @since 4.0
+   */
+  public boolean removeIf(Predicate<ReturnValueHandler> filter) {
+    return handlers.removeIf(filter);
+  }
+
+  /**
+   * @since 4.0
+   */
+  public boolean contains(@Nullable Class<?> handlerClass) {
+    return handlerClass != null && contains(handlerClass, handlers);
+  }
+
+  /**
+   * @since 4.0
+   */
+  boolean contains(Class<?> handlerClass, List<ReturnValueHandler> handlers) {
+    return get(handlerClass, handlers) != null;
+  }
+
+  /**
+   * @since 4.0
+   */
+  @Nullable
+  public <T> T get(@Nullable Class<T> handlerClass) {
+    if (handlerClass == null) {
+      return null;
+    }
+    return get(handlerClass, handlers);
+  }
+
+  /**
+   * @since 4.0
+   */
+  @Nullable
+  @SuppressWarnings("unchecked") //
+  final <T> T get(Class<T> handlerClass, List<ReturnValueHandler> handlers) {
+    for (final ReturnValueHandler handler : handlers) {
+      if (handlerClass.isInstance(handler)) {
+        return (T) handler;
+      }
+    }
+    return null;
   }
 
   /**
@@ -258,14 +322,6 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
     handlers.trimToSize();
   }
 
-  public void setRenderedImageHandler(@Nullable RenderedImageReturnValueHandler renderedImageHandler) {
-    this.renderedImageHandler = renderedImageHandler;
-  }
-
-  @Nullable
-  public RenderedImageReturnValueHandler getRenderedImageHandler() {
-    return renderedImageHandler;
-  }
   //
 
   public void setRedirectModelManager(@Nullable RedirectModelManager redirectModelManager) {
@@ -277,31 +333,31 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
     return redirectModelManager;
   }
 
-  public void setMessageConverter(MessageConverter messageConverter) {
-    this.messageConverter = messageConverter;
+  public void setMessageConverter(MessageBodyConverter messageBodyConverter) {
+    this.messageBodyConverter = messageBodyConverter;
   }
 
-  public MessageConverter getMessageConverter() {
-    return messageConverter;
+  public MessageBodyConverter getMessageConverter() {
+    return messageBodyConverter;
   }
 
   /**
    * get MessageConverter or auto detect jackson and fast-json
    */
-  private MessageConverter obtainMessageConverter() {
-    MessageConverter messageConverter = getMessageConverter();
-    if (messageConverter == null) {
+  private MessageBodyConverter obtainMessageConverter() {
+    MessageBodyConverter messageBodyConverter = getMessageConverter();
+    if (messageBodyConverter == null) {
       if (ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper")) {
-        messageConverter = new ObjectNotationProcessorMessageConverter(new JacksonObjectNotationProcessor());
+        messageBodyConverter = new JacksonMessageBodyConverter();
       }
       else if (ClassUtils.isPresent("com.alibaba.fastjson.JSON")) {
-        messageConverter = new FastJSONMessageConverter();
+        messageBodyConverter = new FastJSONMessageConverter();
       }
-      if (messageConverter != null) {
-        log.info("auto detect MessageConverter: [{}]", messageConverter);
+      if (messageBodyConverter != null) {
+        log.info("auto detect MessageConverter: [{}]", messageBodyConverter);
       }
     }
-    return messageConverter;
+    return messageBodyConverter;
   }
 
   public void setDownloadFileBufferSize(int downloadFileBufferSize) {
@@ -339,13 +395,13 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
     return templateRendererHandler;
   }
 
-  public void setObjectHandler(@Nullable ObjectReturnValueHandler objectHandler) {
-    this.objectHandler = objectHandler;
+  public void setObjectHandler(@Nullable IterableReturnValueHandler objectHandler) {
+    this.iterableHandler = objectHandler;
   }
 
   @Nullable
-  public ObjectReturnValueHandler getObjectHandler() {
-    return objectHandler;
+  public IterableReturnValueHandler getObjectHandler() {
+    return iterableHandler;
   }
 
   public void setImageFormatName(String imageFormatName) {

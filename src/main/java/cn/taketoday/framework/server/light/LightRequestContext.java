@@ -202,12 +202,12 @@ public class LightRequestContext extends RequestContext {
   }
 
   @Override
-  public boolean committed() {
+  public boolean isCommitted() {
     return response.committed();
   }
 
   private void assertNotCommitted() {
-    if (committed()) {
+    if (isCommitted()) {
       throw new IllegalStateException("The response has been committed");
     }
   }
@@ -298,7 +298,7 @@ public class LightRequestContext extends RequestContext {
    * Send HTTP message to the client
    */
   public void sendIfNotCommitted() throws IOException {
-    if (!committed()) {
+    if (!isCommitted()) {
       send();
     }
   }

@@ -21,8 +21,8 @@
 package cn.taketoday.web.socket.annotation;
 
 import cn.taketoday.core.Assert;
+import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.handler.ObjectNotationProcessor;
 import cn.taketoday.web.resolver.ParameterReadFailedException;
 import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.TextMessage;
@@ -35,11 +35,11 @@ import cn.taketoday.web.socket.WebSocketSession;
  * @since 3.0.1
  */
 public class MessageBodyEndpointParameterResolver implements EndpointParameterResolver {
-  private final ObjectNotationProcessor notationProcessor;
+  private final MessageBodyConverter messageBodyConverter;
 
-  public MessageBodyEndpointParameterResolver(ObjectNotationProcessor notationProcessor) {
-    Assert.notNull(notationProcessor, "ObjectNotationProcessor must not be null");
-    this.notationProcessor = notationProcessor;
+  public MessageBodyEndpointParameterResolver(MessageBodyConverter messageBodyConverter) {
+    Assert.notNull(messageBodyConverter, "MessageBodyConverter must not be null");
+    this.messageBodyConverter = messageBodyConverter;
   }
 
   @Override
@@ -53,7 +53,7 @@ public class MessageBodyEndpointParameterResolver implements EndpointParameterRe
     if (message instanceof TextMessage) {
       final String payload = (String) message.getPayload();
       try {
-        return notationProcessor.read(payload, parameter.getGenericDescriptor());
+        return messageBodyConverter.read(payload, parameter);
       }
       catch (Exception e) {
         throw new ParameterReadFailedException(e);

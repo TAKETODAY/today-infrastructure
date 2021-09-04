@@ -24,7 +24,7 @@ import java.io.IOException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.view.MessageConverter;
+import cn.taketoday.web.MessageBodyConverter;
 
 /**
  * @author TODAY <br>
@@ -33,14 +33,14 @@ import cn.taketoday.web.view.MessageConverter;
 public class RequestBodyParameterResolver
         extends OrderedAbstractParameterResolver implements ParameterResolver {
 
-  private MessageConverter messageConverter;
+  private MessageBodyConverter messageBodyConverter;
 
   public RequestBodyParameterResolver() {
     setOrder(HIGHEST_PRECEDENCE);
   }
 
-  public RequestBodyParameterResolver(MessageConverter messageConverter) {
-    setMessageConverter(messageConverter);
+  public RequestBodyParameterResolver(MessageBodyConverter messageBodyConverter) {
+    setMessageConverter(messageBodyConverter);
   }
 
   @Override
@@ -51,19 +51,19 @@ public class RequestBodyParameterResolver
   @Override
   protected Object resolveInternal(final RequestContext context, final MethodParameter parameter) throws Throwable {
     try {
-      return messageConverter.read(context, parameter);
+      return messageBodyConverter.read(context, parameter);
     }
     catch (IOException e) {
       throw new RequestBodyParsingException("Request body read failed", e);
     }
   }
 
-  public MessageConverter getMessageConverter() {
-    return messageConverter;
+  public MessageBodyConverter getMessageConverter() {
+    return messageBodyConverter;
   }
 
-  public void setMessageConverter(MessageConverter messageConverter) {
-    this.messageConverter = messageConverter;
+  public void setMessageConverter(MessageBodyConverter messageBodyConverter) {
+    this.messageBodyConverter = messageBodyConverter;
   }
 
 }

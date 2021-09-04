@@ -381,7 +381,7 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  public boolean committed() {
+  public boolean isCommitted() {
     return committed;
   }
 

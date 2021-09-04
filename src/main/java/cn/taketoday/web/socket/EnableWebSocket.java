@@ -29,9 +29,10 @@ import java.util.List;
 import cn.taketoday.beans.Import;
 import cn.taketoday.beans.MissingBean;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.WebApplicationInitializer;
-import cn.taketoday.web.handler.ObjectNotationProcessor;
+import cn.taketoday.web.ObjectNotationProcessor;
 import cn.taketoday.web.socket.annotation.AnnotationWebSocketHandlerBuilder;
 import cn.taketoday.web.socket.annotation.EndpointParameterResolver;
 import cn.taketoday.web.socket.annotation.MessageBodyEndpointParameterResolver;
@@ -99,8 +100,8 @@ final class WebSocketConfig implements WebApplicationInitializer {
 
   @MissingBean
   MessageBodyEndpointParameterResolver messageBodyEndpointParameterResolver(
-          ObjectNotationProcessor notationProcessor) {
-    return new MessageBodyEndpointParameterResolver(notationProcessor);
+          MessageBodyConverter messageBodyConverter) {
+    return new MessageBodyEndpointParameterResolver(messageBodyConverter);
   }
 
   @Override

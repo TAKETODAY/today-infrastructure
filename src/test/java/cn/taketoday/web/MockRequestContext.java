@@ -108,7 +108,7 @@ public class MockRequestContext extends RequestContext {
 
   }
 
-  @Override public boolean committed() {
+  @Override public boolean isCommitted() {
     return false;
   }
 

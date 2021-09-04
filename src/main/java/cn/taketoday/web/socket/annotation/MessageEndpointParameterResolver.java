@@ -70,7 +70,7 @@ public class MessageEndpointParameterResolver implements EndpointParameterResolv
     }
 
     final TypeConverter converter = getConverter();
-    final GenericDescriptor targetType = parameter.getGenericDescriptor();
+    final GenericDescriptor targetType = parameter.getTypeDescriptor();
     if (converter != null && converter.supports(targetType, payload.getClass())) {
       return converter.convert(targetType, payload);
     }

@@ -30,10 +30,10 @@ import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.MissingBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextSupport;
+import cn.taketoday.web.MessageBodyConverter;
+import cn.taketoday.web.ObjectNotationProcessor;
 import cn.taketoday.web.handler.JacksonObjectNotationProcessor;
-import cn.taketoday.web.handler.ObjectNotationProcessor;
-import cn.taketoday.web.view.MessageConverter;
-import cn.taketoday.web.view.ObjectNotationProcessorMessageConverter;
+import cn.taketoday.web.support.JacksonMessageBodyConverter;
 
 /**
  * @author TODAY 2021/3/26 20:16
@@ -42,15 +42,6 @@ import cn.taketoday.web.view.ObjectNotationProcessorMessageConverter;
 @Configuration
 public class JacksonConfiguration
         extends ApplicationContextSupport implements InitializingBean {
-
-  @MissingBean(type = MessageConverter.class)
-  ObjectNotationProcessorMessageConverter jacksonMessageConverter(ObjectNotationProcessor processor) {
-    return new ObjectNotationProcessorMessageConverter(processor);
-  }
-
-  protected ObjectMapper createObjectMapper() {
-    return new ObjectMapper();
-  }
 
   /**
    * construct a default ObjectMapper
@@ -66,9 +57,18 @@ public class JacksonConfiguration
     return objectMapper;
   }
 
+  protected ObjectMapper createObjectMapper() {
+    return new ObjectMapper();
+  }
+
   @MissingBean(type = ObjectNotationProcessor.class)
   JacksonObjectNotationProcessor jacksonObjectNotationProcessor(ObjectMapper mapper) {
     return new JacksonObjectNotationProcessor(mapper);
+  }
+
+  @MissingBean(type = MessageBodyConverter.class)
+  JacksonMessageBodyConverter jacksonMessageBodyConverter(ObjectMapper mapper) {
+    return new JacksonMessageBodyConverter(mapper);
   }
 
   @Override

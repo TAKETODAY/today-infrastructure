@@ -24,7 +24,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 
-import cn.taketoday.core.io.Writable;
+import cn.taketoday.core.io.OutputStreamSource;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.view.Model;
@@ -40,7 +40,7 @@ public class StreamParameterResolver implements ParameterResolver {
 
     final Class<?> parameterClass = parameter.getParameterClass();
     return parameterClass == Readable.class//
-            || parameterClass == Writable.class//
+            || parameterClass == OutputStreamSource.class//
             || parameterClass == Reader.class//
             || parameterClass == Writer.class//
             || parameterClass == InputStream.class//
@@ -55,7 +55,7 @@ public class StreamParameterResolver implements ParameterResolver {
 
     final Class<?> parameterClass = parameter.getParameterClass();
 
-    if (parameterClass == Readable.class || parameterClass == Writable.class) {
+    if (parameterClass == Readable.class || parameterClass == OutputStreamSource.class) {
       return context;
     }
 

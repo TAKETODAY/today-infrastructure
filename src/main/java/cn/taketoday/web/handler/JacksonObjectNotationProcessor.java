@@ -28,7 +28,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -39,6 +38,7 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.web.ObjectNotationProcessor;
 
 /**
  * jackson {@link ObjectNotationProcessor} implementation
@@ -82,13 +82,6 @@ public class JacksonObjectNotationProcessor extends ObjectNotationProcessor {
    */
   @Override
   public Object read(InputStream source, GenericDescriptor descriptor) throws IOException {
-    final ObjectMapper mapper = obtainMapper();
-    final JsonNode body = mapper.readTree(source);
-    return readInternal(mapper, body, descriptor);
-  }
-
-  @Override
-  public Object read(Reader source, GenericDescriptor descriptor) throws IOException {
     final ObjectMapper mapper = obtainMapper();
     final JsonNode body = mapper.readTree(source);
     return readInternal(mapper, body, descriptor);

@@ -157,7 +157,7 @@ public abstract class RequestContextHolder {
 
     }
 
-    @Override public boolean committed() {
+    @Override public boolean isCommitted() {
       return false;
     }
 

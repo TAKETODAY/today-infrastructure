@@ -218,7 +218,7 @@ public final class ServletRequestContext extends RequestContext {
   }
 
   @Override
-  public boolean committed() {
+  public boolean isCommitted() {
     return response.isCommitted();
   }
 
