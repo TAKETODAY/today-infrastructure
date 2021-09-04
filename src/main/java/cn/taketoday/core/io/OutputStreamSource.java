@@ -20,62 +20,48 @@
 package cn.taketoday.core.io;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 import cn.taketoday.core.Constant;
 
 /**
  * @author TODAY <br>
- * 2019-07-08 00:12
+ * 2019-07-08 00:11
  * @since 2.1.6
  */
 @FunctionalInterface
-public interface Readable {
+public interface OutputStreamSource {
 
   /**
-   * Get the content of the resource as input stream.
-   *
-   * @return input stream of {@link Resource} content
+   * Return an {@link OutputStream} for the underlying resource, allowing to
+   * (over-)write its content.
    *
    * @throws IOException
-   *         If an input exception occurs
+   *         if the stream could not be opened
    */
-  InputStream getInputStream() throws IOException;
+  OutputStream getOutputStream() throws IOException;
 
   /**
-   * Get {@link Reader}
+   * Get {@link Writer}
    *
    * @throws IOException
-   *         If an input exception occurs
+   *         if the stream could not be opened
    */
-  default Reader getReader() throws IOException {
-    return getReader(Constant.DEFAULT_ENCODING);
+  default Writer getWriter() throws IOException {
+    return new OutputStreamWriter(getOutputStream(), Constant.DEFAULT_CHARSET);
   }
 
   /**
-   * Get {@link Reader}
-   *
-   * @param encoding
-   *         Charset string
-   *
-   * @throws IOException
-   *         If an input exception occurs
-   */
-  default Reader getReader(String encoding) throws IOException {
-    return new InputStreamReader(getInputStream(), encoding);
-  }
-
-  /**
-   * Return a {@link ReadableByteChannel}.
+   * Return a {@link WritableByteChannel}.
    * <p>
    * It is expected that each call creates a <i>fresh</i> channel.
    * <p>
-   * The default implementation returns {@link Channels#newChannel(InputStream)}
-   * with the result of {@link #getInputStream()}.
+   * The default implementation returns {@link Channels#newChannel(OutputStream)}
+   * with the result of {@link #getOutputStream()}.
    *
    * @return the byte channel for the underlying resource (must not be
    * {@code null})
@@ -84,10 +70,10 @@ public interface Readable {
    *         if the underlying resource doesn't exist
    * @throws IOException
    *         if the content channel could not be opened
-   * @see #getInputStream()
+   * @see #getOutputStream()
    */
-  default ReadableByteChannel readableChannel() throws IOException {
-    return Channels.newChannel(getInputStream());
+  default WritableByteChannel writableChannel() throws IOException {
+    return Channels.newChannel(getOutputStream());
   }
 
 }

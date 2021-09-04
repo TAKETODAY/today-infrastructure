@@ -43,7 +43,7 @@ import java.util.Objects;
  * @see java.nio.charset.Charset
  * @since 1.2.6
  */
-public class EncodedResource implements Readable {
+public class EncodedResource implements InputStreamSource {
 
   private final String encoding;
   private final Charset charset;

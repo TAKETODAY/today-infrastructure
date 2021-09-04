@@ -37,7 +37,7 @@ import java.net.URL;
  * 2019-05-14 19:55
  * @since 2.1.6
  */
-public interface Resource extends Readable {
+public interface Resource extends InputStreamSource {
   Resource[] EMPTY_ARRAY = {};
 
   /**

@@ -26,6 +26,6 @@ package cn.taketoday.core.io;
  * 2019-05-14 20:56
  * @since 2.1.6
  */
-public interface WritableResource extends Resource, Writable {
+public interface WritableResource extends Resource, OutputStreamSource {
 
 }

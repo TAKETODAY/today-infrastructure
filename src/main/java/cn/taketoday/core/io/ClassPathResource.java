@@ -182,8 +182,8 @@ public class ClassPathResource implements Resource, WritableResource {
   @Override
   public OutputStream getOutputStream() throws IOException {
     final Resource resource = this.getResource();
-    if (resource instanceof Writable) {
-      return ((Writable) resource).getOutputStream();
+    if (resource instanceof OutputStreamSource) {
+      return ((OutputStreamSource) resource).getOutputStream();
     }
     throw new IOException("Writable operation is not supported");
   }
@@ -196,8 +196,8 @@ public class ClassPathResource implements Resource, WritableResource {
   @Override
   public WritableByteChannel writableChannel() throws IOException {
     final Resource resource = this.getResource();
-    if (resource instanceof Writable) {
-      return ((Writable) resource).writableChannel();
+    if (resource instanceof OutputStreamSource) {
+      return ((OutputStreamSource) resource).writableChannel();
     }
     throw new ConfigurationException("Writable operation is not supported");
   }
