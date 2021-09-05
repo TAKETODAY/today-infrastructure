@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -54,6 +55,7 @@ import cn.taketoday.asm.Label;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.core.Assert;
@@ -943,15 +945,6 @@ public abstract class ClassUtils {
     return getMethodOrNull(clazz, methodName, paramTypes) != null;
   }
 
-  private static Method getMethodOrNull(Class<?> clazz, String methodName, Class<?>[] paramTypes) {
-    try {
-      return clazz.getMethod(methodName, paramTypes);
-    }
-    catch (NoSuchMethodException ex) {
-      return null;
-    }
-  }
-
   /**
    * Determine whether the given class is a candidate for carrying one of the specified
    * annotations (at type, method or field level).
@@ -1120,6 +1113,225 @@ public abstract class ClassUtils {
     Assert.notNull(fqClassName, "Class name must not be null");
     int lastDotIndex = fqClassName.lastIndexOf(Constant.PACKAGE_SEPARATOR);
     return (lastDotIndex != -1 ? fqClassName.substring(0, lastDotIndex) : Constant.BLANK);
+  }
+
+  /**
+   * Determine whether the given class has a public constructor with the given signature.
+   * <p>Essentially translates {@code NoSuchMethodException} to "false".
+   *
+   * @param clazz
+   *         the clazz to analyze
+   * @param paramTypes
+   *         the parameter types of the method
+   *
+   * @return whether the class has a corresponding constructor
+   *
+   * @see Class#getConstructor
+   * @since 4.0
+   */
+  public static boolean hasConstructor(Class<?> clazz, Class<?>... paramTypes) {
+    return (getConstructorIfAvailable(clazz, paramTypes) != null);
+  }
+
+  /**
+   * Determine whether the given class has a public constructor with the given signature,
+   * and return it if available (else return {@code null}).
+   * <p>Essentially translates {@code NoSuchMethodException} to {@code null}.
+   *
+   * @param clazz
+   *         the clazz to analyze
+   * @param paramTypes
+   *         the parameter types of the method
+   *
+   * @return the constructor, or {@code null} if not found
+   *
+   * @see Class#getConstructor
+   * @since 4.0
+   */
+  @Nullable
+  public static <T> Constructor<T> getConstructorIfAvailable(Class<T> clazz, Class<?>... paramTypes) {
+    Assert.notNull(clazz, "Class must not be null");
+    try {
+      return clazz.getConstructor(paramTypes);
+    }
+    catch (NoSuchMethodException ex) {
+      return null;
+    }
+  }
+
+  /**
+   * @throws ConstructorNotFoundException
+   *         not found
+   */
+  public static <T> Constructor<T> getConstructor(Class<T> type, Class<?>... parameterTypes) {
+    Assert.notNull(type, "Class must not be null");
+    try {
+      return type.getConstructor(parameterTypes);
+    }
+    catch (NoSuchMethodException e) {
+      throw new ConstructorNotFoundException(type);
+    }
+  }
+
+  /**
+   * Determine whether the given class has a public method with the given signature.
+   * <p>Essentially translates {@code NoSuchMethodException} to "false".
+   *
+   * @param clazz
+   *         the clazz to analyze
+   * @param methodName
+   *         the name of the method
+   * @param paramTypes
+   *         the parameter types of the method
+   *
+   * @return whether the class has a corresponding method
+   *
+   * @see Class#getMethod
+   * @since 4.0
+   */
+  public static boolean hasMethod(Class<?> clazz, String methodName, Class<?>... paramTypes) {
+    return (getMethodIfAvailable(clazz, methodName, paramTypes) != null);
+  }
+
+  /**
+   * Determine whether the given class has a public method with the given signature,
+   * and return it if available (else throws an {@code IllegalStateException}).
+   * <p>In case of any signature specified, only returns the method if there is a
+   * unique candidate, i.e. a single public method with the specified name.
+   * <p>Essentially translates {@code NoSuchMethodException} to {@code IllegalStateException}.
+   *
+   * @param clazz
+   *         the clazz to analyze
+   * @param methodName
+   *         the name of the method
+   * @param paramTypes
+   *         the parameter types of the method
+   *         (may be {@code null} to indicate any signature)
+   *
+   * @return the method (never {@code null})
+   *
+   * @throws IllegalStateException
+   *         if the method has not been found
+   * @see Class#getMethod
+   * @since 4.0
+   */
+  public static Method getMethod(Class<?> clazz, String methodName, @Nullable Class<?>... paramTypes) {
+    Assert.notNull(clazz, "Class must not be null");
+    Assert.notNull(methodName, "Method name must not be null");
+    if (paramTypes != null) {
+      try {
+        return clazz.getMethod(methodName, paramTypes);
+      }
+      catch (NoSuchMethodException ex) {
+        throw new IllegalStateException("Expected method not found: " + ex);
+      }
+    }
+    else {
+      Set<Method> candidates = findMethodCandidatesByName(clazz, methodName);
+      if (candidates.size() == 1) {
+        return candidates.iterator().next();
+      }
+      else if (candidates.isEmpty()) {
+        throw new IllegalStateException("Expected method not found: " + clazz.getName() + '.' + methodName);
+      }
+      else {
+        throw new IllegalStateException("No unique method found: " + clazz.getName() + '.' + methodName);
+      }
+    }
+  }
+
+  /**
+   * Determine whether the given class has a public method with the given signature,
+   * and return it if available (else return {@code null}).
+   * <p>In case of any signature specified, only returns the method if there is a
+   * unique candidate, i.e. a single public method with the specified name.
+   * <p>Essentially translates {@code NoSuchMethodException} to {@code null}.
+   *
+   * @param clazz
+   *         the clazz to analyze
+   * @param methodName
+   *         the name of the method
+   * @param paramTypes
+   *         the parameter types of the method
+   *         (may be {@code null} to indicate any signature)
+   *
+   * @return the method, or {@code null} if not found
+   *
+   * @see Class#getMethod
+   * @since 4.0
+   */
+  @Nullable
+  public static Method getMethodIfAvailable(
+          Class<?> clazz, String methodName, @Nullable Class<?>... paramTypes) {
+    Assert.notNull(clazz, "Class must not be null");
+    Assert.notNull(methodName, "Method name must not be null");
+    if (paramTypes != null) {
+      return getMethodOrNull(clazz, methodName, paramTypes);
+    }
+    else {
+      Set<Method> candidates = findMethodCandidatesByName(clazz, methodName);
+      if (candidates.size() == 1) {
+        return candidates.iterator().next();
+      }
+      return null;
+    }
+  }
+
+  /**
+   * Return the number of methods with a given name (with any argument types),
+   * for the given class and/or its superclasses. Includes non-public methods.
+   *
+   * @param clazz
+   *         the clazz to check
+   * @param methodName
+   *         the name of the method
+   *
+   * @return the number of methods with the given name
+   *
+   * @since 4.0
+   */
+  public static int getMethodCountForName(Class<?> clazz, String methodName) {
+    Assert.notNull(clazz, "Class must not be null");
+    Assert.notNull(methodName, "Method name must not be null");
+    int count = 0;
+    Method[] declaredMethods = clazz.getDeclaredMethods();
+    for (Method method : declaredMethods) {
+      if (methodName.equals(method.getName())) {
+        count++;
+      }
+    }
+    Class<?>[] ifcs = clazz.getInterfaces();
+    for (Class<?> ifc : ifcs) {
+      count += getMethodCountForName(ifc, methodName);
+    }
+    if (clazz.getSuperclass() != null) {
+      count += getMethodCountForName(clazz.getSuperclass(), methodName);
+    }
+    return count;
+  }
+
+  @Nullable
+  private static Method getMethodOrNull(Class<?> clazz, String methodName, Class<?>[] paramTypes) {
+    try {
+      return clazz.getMethod(methodName, paramTypes);
+    }
+    catch (NoSuchMethodException ex) {
+      return null;
+    }
+  }
+
+  /**
+   * @since 4.0
+   */
+  private static Set<Method> findMethodCandidatesByName(Class<?> clazz, String methodName) {
+    Set<Method> candidates = new HashSet<>(1);
+    Method[] methods = clazz.getMethods();
+    for (Method method : methods) {
+      if (methodName.equals(method.getName())) {
+        candidates.add(method);
+      }
+    }
+    return candidates;
   }
 
   /**
