@@ -24,15 +24,15 @@ import cn.taketoday.core.reflect.MethodAccessor;
 /**
  * @author TODAY 2020/9/20 20:35
  */
-class StaticMethodAccessorBeanConstructor extends BeanConstructor {
+class StaticMethodAccessorBeanInstantiator extends BeanInstantiator {
   private final MethodAccessor accessor;
 
-  StaticMethodAccessorBeanConstructor(final MethodAccessor accessor) {
+  StaticMethodAccessorBeanInstantiator(final MethodAccessor accessor) {
     this.accessor = accessor;
   }
 
   @Override
-  public final Object doNewInstance(final Object[] args) {
+  public final Object doInstantiate(final Object[] args) {
     return accessor.invoke(getObject(), args);
   }
 

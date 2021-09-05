@@ -10,7 +10,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import cn.taketoday.beans.support.BeanConstructor;
+import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.reflect.MethodAccessor;
 import cn.taketoday.core.reflect.MethodInvoker;
@@ -75,8 +75,8 @@ public class BenchmarkTest {
 
     Constructor<ConstructorTestBean> constructor = BeanUtils.obtainConstructor(ConstructorTestBean.class);
 
-    BeanConstructor beanConstructor
-            = BeanConstructor.fromClass(ConstructorTestBean.class);
+    BeanInstantiator beanInstantiator
+            = BeanInstantiator.fromClass(ConstructorTestBean.class);
 
     long start = System.currentTimeMillis();
     int times = 1_0000_00000;
@@ -88,7 +88,7 @@ public class BenchmarkTest {
 
     start = System.currentTimeMillis();
     for (int i = 0; i < times; i++) {
-      ConstructorTestBean constructorTestBean1 = (ConstructorTestBean) beanConstructor.newInstance();
+      ConstructorTestBean constructorTestBean1 = (ConstructorTestBean) beanInstantiator.instantiate();
     }
     System.out.println("beanConstructor used: " + (System.currentTimeMillis() - start) + "ms");
 

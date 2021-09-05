@@ -35,7 +35,7 @@ import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.support.ArgumentsResolver;
-import cn.taketoday.beans.support.BeanConstructor;
+import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ContextUtils;
@@ -110,7 +110,7 @@ public class DefaultBeanDefinition
   /** @since 3.0 */
   private Executable executable;
   /** @since 3.0 */
-  private BeanConstructor constructor;
+  private BeanInstantiator constructor;
   /** lazy init flag @since 3.0 */
   private Boolean lazyInit;
   /** @since 3.0 fast invoke init methods */
@@ -360,8 +360,8 @@ public class DefaultBeanDefinition
     return getBeanClass().getDeclaredAnnotations();
   }
 
-  public BeanConstructor getConstructor(BeanFactory factory) {
-    BeanConstructor constructor = this.constructor;
+  public BeanInstantiator getConstructor(BeanFactory factory) {
+    BeanInstantiator constructor = this.constructor;
     if (constructor == null) {
       constructor = createConstructor(factory);
       this.constructor = constructor;
@@ -369,8 +369,8 @@ public class DefaultBeanDefinition
     return constructor;
   }
 
-  protected BeanConstructor createConstructor(BeanFactory factory) {
-    return BeanConstructor.fromClass(getBeanClass());
+  protected BeanInstantiator createConstructor(BeanFactory factory) {
+    return BeanInstantiator.fromClass(getBeanClass());
   }
 
   public Executable getExecutable() {
@@ -389,9 +389,9 @@ public class DefaultBeanDefinition
     if (instanceSupplier != null) {
       return instanceSupplier.get();
     }
-    final BeanConstructor target = getConstructor(factory);
+    final BeanInstantiator target = getConstructor(factory);
     final Object[] args = ArgumentsResolver.getSharedInstance().resolve(getExecutable(), factory);
-    return target.newInstance(args);
+    return target.instantiate(args);
   }
 
   /**
@@ -404,8 +404,8 @@ public class DefaultBeanDefinition
    */
   @Override
   public Object newInstance(BeanFactory factory, Object... args) {
-    final BeanConstructor target = getConstructor(factory);
-    return target.newInstance(args);
+    final BeanInstantiator target = getConstructor(factory);
+    return target.instantiate(args);
   }
 
   /**

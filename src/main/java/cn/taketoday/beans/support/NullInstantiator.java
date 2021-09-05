@@ -17,32 +17,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.beans.support;
 
-import java.util.function.Supplier;
-
-import cn.taketoday.core.reflect.MethodAccessor;
-import cn.taketoday.util.SingletonSupplier;
-
 /**
- * @author TODAY 2020/9/20 20:41
+ * @author TODAY 2021/1/29 15:56
+ * @since 3.0
  */
-final class MethodAccessorBeanConstructor
-        extends StaticMethodAccessorBeanConstructor {
-
-  private final Supplier<Object> obj;
-
-  MethodAccessorBeanConstructor(MethodAccessor accessor, Object obj) {
-    this(accessor, SingletonSupplier.of(obj));
-  }
-
-  MethodAccessorBeanConstructor(MethodAccessor accessor, Supplier<Object> obj) {
-    super(accessor);
-    this.obj = obj;
-  }
+public final class NullInstantiator extends BeanInstantiator {
+  public static final NullInstantiator INSTANCE = new NullInstantiator();
 
   @Override
-  protected Object getObject() {
-    return obj.get();
+  public Object doInstantiate(final Object[] args) {
+    return null;
   }
+
 }

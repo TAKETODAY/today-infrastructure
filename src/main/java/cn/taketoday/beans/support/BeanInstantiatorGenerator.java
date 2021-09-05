@@ -43,20 +43,20 @@ import static cn.taketoday.cglib.core.CglibReflectUtils.getMethodInfo;
 /**
  * @author TODAY 2020/9/11 16:51
  */
-public class BeanConstructorGenerator
+public class BeanInstantiatorGenerator
         extends GeneratorSupport<ConstructorAccessor> implements ClassGenerator {
 
   private static final String superType = "Lcn/taketoday/beans/support/ConstructorAccessor;";
   private static final MethodInfo newInstanceInfo = getMethodInfo(
-          ReflectionUtils.findMethod(ConstructorAccessor.class, "doNewInstance", Object[].class));
+          ReflectionUtils.findMethod(ConstructorAccessor.class, "doInstantiate", Object[].class));
 
   private final Constructor<?> targetConstructor;
 
-  public BeanConstructorGenerator(Constructor<?> constructor) {
+  public BeanInstantiatorGenerator(Constructor<?> constructor) {
     this(constructor, constructor.getDeclaringClass());
   }
 
-  public BeanConstructorGenerator(Constructor<?> constructor, Class<?> targetClass) {
+  public BeanInstantiatorGenerator(Constructor<?> constructor, Class<?> targetClass) {
     super(targetClass);
     Assert.notNull(constructor, "constructor must not be null");
     this.targetConstructor = constructor;
@@ -91,14 +91,14 @@ public class BeanConstructorGenerator
 
   @Override
   protected ConstructorAccessor fallback(Exception exception) {
-    LoggerFactory.getLogger(BeanConstructorGenerator.class)
+    LoggerFactory.getLogger(BeanInstantiatorGenerator.class)
             .warn("Cannot access a Constructor: [{}], using fallback instance", targetConstructor, exception);
     return super.fallback(exception);
   }
 
   @Override
   protected ConstructorAccessor fallbackInstance() {
-    return BeanConstructor.fromReflective(targetConstructor);
+    return BeanInstantiator.fromReflective(targetConstructor);
   }
 
   @Override

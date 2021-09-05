@@ -31,7 +31,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import cn.taketoday.beans.support.BeanConstructor;
+import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.util.AnnotationUtils;
@@ -95,15 +95,15 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
   }
 
   @Override
-  protected BeanConstructor createConstructor(BeanFactory factory) {
+  protected BeanInstantiator createConstructor(BeanFactory factory) {
     final Method factoryMethod = obtainFactoryMethod();
 
     final MethodInvoker methodInvoker = MethodInvoker.fromMethod(factoryMethod);
     if (Modifier.isStatic(factoryMethod.getModifiers())) {
-      return BeanConstructor.fromStaticMethod(methodInvoker);
+      return BeanInstantiator.fromStaticMethod(methodInvoker);
     }
     final Object bean = factory.getBean(getDeclaringName());
-    return BeanConstructor.fromMethod(methodInvoker, bean);
+    return BeanInstantiator.fromMethod(methodInvoker, bean);
   }
 
   private Method obtainFactoryMethod() {

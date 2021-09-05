@@ -20,16 +20,23 @@
 
 package cn.taketoday.beans.support;
 
-/**
- * @author TODAY 2021/1/29 15:56
- * @since 3.0
- */
-public final class NullConstructor extends BeanConstructor {
-  public static final NullConstructor INSTANCE = new NullConstructor();
+import java.util.function.Function;
 
-  @Override
-  public Object doNewInstance(final Object[] args) {
-    return null;
+/**
+ * use Function
+ *
+ * @author TODAY 2021/5/28 22:19
+ * @since 3.0.2
+ */
+final class FunctionInstantiator extends BeanInstantiator {
+  private final Function<Object[], ?> function;
+
+  FunctionInstantiator(Function<Object[], ?> function) {
+    this.function = function;
   }
 
+  @Override
+  public Object doInstantiate(Object[] args) {
+    return function.apply(args);
+  }
 }

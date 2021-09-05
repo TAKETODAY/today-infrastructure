@@ -30,18 +30,18 @@ import cn.taketoday.core.Constant;
  * @see Array#newInstance(Class, int)
  * @since 3.0
  */
-public class ArrayConstructor extends BeanConstructor {
+public class ArrayInstantiator extends BeanInstantiator {
 
   private int capacity = Constant.DEFAULT_CAPACITY;
   private final Class<?> componentType;
 
-  public ArrayConstructor(Class<?> componentType) {
+  public ArrayInstantiator(Class<?> componentType) {
     Assert.notNull(componentType, "component type must not be null");
     this.componentType = componentType;
   }
 
   @Override
-  public Object doNewInstance(final Object[] args) {
+  public Object doInstantiate(final Object[] args) {
     // TODO - only handles 2-dimensional arrays
     final Class<?> componentType = this.componentType;
     if (componentType.isArray()) {

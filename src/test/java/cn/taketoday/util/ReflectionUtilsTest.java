@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Objects;
 
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
-import cn.taketoday.beans.support.BeanConstructor;
+import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.objects.TestObject;
 import cn.taketoday.core.reflect.GetterMethod;
@@ -59,7 +59,7 @@ public class ReflectionUtilsTest extends TestCase {
   }
 
   public void testCreate() {
-    Object o = BeanConstructor.fromClass(POJO1.class).newInstance();
+    Object o = BeanInstantiator.fromClass(POJO1.class).instantiate();
     assertNotNull(o);
     assertSame(POJO1.class, o.getClass());
   }
@@ -73,13 +73,13 @@ public class ReflectionUtilsTest extends TestCase {
   }
 
   public void testCallConstructor() {
-    POJO3 pojo3 = (POJO3) BeanConstructor.fromClass(POJO3.class).newInstance();
+    POJO3 pojo3 = (POJO3) BeanInstantiator.fromClass(POJO3.class).instantiate();
     assertNotNull(pojo3);
     assertTrue(pojo3.constructorInvoked);
   }
 
   public void testCallParentConstructor() {
-    POJO4 pojo = (POJO4) BeanConstructor.fromClass(POJO4.class).newInstance();
+    POJO4 pojo = (POJO4) BeanInstantiator.fromClass(POJO4.class).instantiate();
     assertNotNull(pojo);
     assertTrue(pojo.constructorInvoked);
     assertTrue(pojo.pojo4_constructorInvoked);

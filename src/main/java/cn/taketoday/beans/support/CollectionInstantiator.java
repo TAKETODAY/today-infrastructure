@@ -29,24 +29,24 @@ import cn.taketoday.util.CollectionUtils;
  * @see CollectionUtils#createCollection(Class, Class, int)
  * @since 3.0
  */
-public class CollectionConstructor extends BeanConstructor {
+public class CollectionInstantiator extends BeanInstantiator {
 
   private int capacity = Constant.DEFAULT_CAPACITY;
   private Class<?> elementType;
   private final Class<?> collectionType;
 
-  public CollectionConstructor(Class<?> collectionType) {
+  public CollectionInstantiator(Class<?> collectionType) {
     this(collectionType, null);
   }
 
-  public CollectionConstructor(Class<?> collectionType, Class<?> elementType) {
+  public CollectionInstantiator(Class<?> collectionType, Class<?> elementType) {
     Assert.notNull(collectionType, "collection type must not be null");
     this.elementType = elementType;
     this.collectionType = collectionType;
   }
 
   @Override
-  public Object doNewInstance(final Object[] args) {
+  public Object doInstantiate(final Object[] args) {
     return CollectionUtils.createCollection(collectionType, elementType, capacity);
   }
 

@@ -20,25 +20,41 @@
 
 package cn.taketoday.beans.support;
 
-import java.lang.reflect.Constructor;
-
-import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.Constant;
+import cn.taketoday.util.CollectionUtils;
 
 /**
- * based on java reflect
- *
- * @author TODAY 2020/9/20 21:55
- * @see Constructor#newInstance(Object...)
+ * @author TODAY 2021/1/29 15:56
+ * @see CollectionUtils#createMap(Class, Class, int)
+ * @since 3.0
  */
-final class ReflectiveConstructor extends ConstructorAccessor {
-  private final Constructor<?> constructor;
+public class MapInstantiator extends BeanInstantiator {
 
-  ReflectiveConstructor(Constructor<?> constructor) {
-    this.constructor = constructor;
+  private int capacity = Constant.DEFAULT_CAPACITY;
+  private Class<?> keyType;
+  private final Class<?> mapType;
+
+  public MapInstantiator(Class<?> mapType) {
+    this(mapType, null);
+  }
+
+  public MapInstantiator(Class<?> mapType, Class<?> keyType) {
+    Assert.notNull(mapType, "map type must not be null");
+    this.keyType = keyType;
+    this.mapType = mapType;
   }
 
   @Override
-  public Object doNewInstance(final Object[] args) {
-    return ReflectionUtils.invokeConstructor(constructor, args);
+  public Object doInstantiate(final Object[] args) {
+    return CollectionUtils.createMap(mapType, keyType, capacity);
+  }
+
+  public void setCapacity(int capacity) {
+    this.capacity = capacity;
+  }
+
+  public void setKeyType(Class<?> keyType) {
+    this.keyType = keyType;
   }
 }

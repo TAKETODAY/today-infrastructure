@@ -27,7 +27,7 @@ import cn.taketoday.core.reflect.Accessor;
  * @author TODAY 2021/8/27 21:41
  */
 public abstract class ConstructorAccessor
-        extends BeanConstructor implements Accessor {
+        extends BeanInstantiator implements Accessor {
 
   /**
    * Invoke {@link java.lang.reflect.Constructor} with given args
@@ -35,5 +35,5 @@ public abstract class ConstructorAccessor
    * @return returns Object
    */
   @Override
-  public abstract Object doNewInstance(@Nullable Object[] args);
+  public abstract Object doInstantiate(@Nullable Object[] args);
 }

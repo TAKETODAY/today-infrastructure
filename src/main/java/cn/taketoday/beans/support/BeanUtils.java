@@ -161,8 +161,8 @@ public abstract class BeanUtils {
    * @since 4.0
    */
   @SuppressWarnings("unchecked")
-  public static <T> T newInstance(BeanConstructor constructor, @Nullable Object[] parameter) {
-    return (T) constructor.newInstance(parameter);
+  public static <T> T newInstance(BeanInstantiator constructor, @Nullable Object[] parameter) {
+    return (T) constructor.instantiate(parameter);
   }
 
   /**

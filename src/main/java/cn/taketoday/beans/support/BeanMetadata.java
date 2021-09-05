@@ -50,7 +50,7 @@ public class BeanMetadata {
 
   private final Class<?> beanClass;
 
-  private BeanConstructor constructor;
+  private BeanInstantiator constructor;
   private final Map<String, BeanProperty> beanProperties;
 
   private BeanMetadata(Object key) {
@@ -66,8 +66,8 @@ public class BeanMetadata {
     return this.beanClass;
   }
 
-  public BeanConstructor getConstructor() {
-    BeanConstructor constructor = this.constructor;
+  public BeanInstantiator getConstructor() {
+    BeanInstantiator constructor = this.constructor;
     if (constructor == null) {
       constructor = createAccessor();
       this.constructor = constructor;
@@ -75,8 +75,8 @@ public class BeanMetadata {
     return constructor;
   }
 
-  protected BeanConstructor createAccessor() {
-    return BeanConstructor.fromConstructor(beanClass);
+  protected BeanInstantiator createAccessor() {
+    return BeanInstantiator.fromConstructor(beanClass);
   }
 
   /**
@@ -94,7 +94,7 @@ public class BeanMetadata {
    * @return a new instance object
    */
   public Object newInstance(@Nullable Object[] args) {
-    return getConstructor().newInstance(args);
+    return getConstructor().instantiate(args);
   }
 
   /**

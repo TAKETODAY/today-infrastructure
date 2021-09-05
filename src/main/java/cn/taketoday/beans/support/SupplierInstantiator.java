@@ -20,23 +20,25 @@
 
 package cn.taketoday.beans.support;
 
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
- * use Function
+ * Supplier
  *
- * @author TODAY 2021/5/28 22:19
+ * @author TODAY 2021/5/28 22:16
  * @since 3.0.2
  */
-final class FunctionConstructor extends BeanConstructor {
-  private final Function<Object[], ?> function;
+@SuppressWarnings("rawtypes")
+final class SupplierInstantiator extends BeanInstantiator {
+  private final Supplier supplier;
 
-  FunctionConstructor(Function<Object[], ?> function) {
-    this.function = function;
+  SupplierInstantiator(Supplier supplier) {
+    this.supplier = supplier;
   }
 
   @Override
-  public Object doNewInstance(Object[] args) {
-    return function.apply(args);
+  public Object doInstantiate(Object[] args) {
+    return supplier.get();
   }
+
 }

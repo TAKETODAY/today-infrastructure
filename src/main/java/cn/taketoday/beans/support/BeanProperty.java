@@ -60,7 +60,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
 
   private final Field field;
   private final Class<?> fieldType;
-  private BeanConstructor constructor;
+  private BeanInstantiator constructor;
   private PropertyAccessor propertyAccessor;
 
   @Nullable
@@ -70,7 +70,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
   private Type componentType;
   private boolean componentResolved;
   /** if this property is array or */
-  private BeanConstructor componentConstructor;
+  private BeanInstantiator componentConstructor;
 
   private ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
@@ -103,16 +103,16 @@ public class BeanProperty extends AbstractAnnotatedElement {
    * @return new object
    */
   public Object newInstance(@Nullable final Object[] args) {
-    BeanConstructor constructor = this.constructor;
+    BeanInstantiator constructor = this.constructor;
     if (constructor == null) {
       final Class<?> fieldType = this.fieldType;
       if (ClassUtils.primitiveTypes.contains(fieldType)) {
         throw new BeanInstantiationException(fieldType, "Cannot be instantiated a simple type");
       }
-      constructor = BeanConstructor.fromConstructor(fieldType);
+      constructor = BeanInstantiator.fromConstructor(fieldType);
       this.constructor = constructor;
     }
-    return constructor.newInstance(args);
+    return constructor.instantiate(args);
   }
 
   /**
@@ -218,10 +218,10 @@ public class BeanProperty extends AbstractAnnotatedElement {
     if (componentConstructor == null) {
       final Class<?> componentClass = getComponentClass();
       componentConstructor = componentClass == null
-                             ? NullConstructor.INSTANCE
-                             : BeanConstructor.fromConstructor(componentClass);
+                             ? NullInstantiator.INSTANCE
+                             : BeanInstantiator.fromConstructor(componentClass);
     }
-    return componentConstructor.newInstance(args);
+    return componentConstructor.instantiate(args);
   }
 
   //
@@ -289,7 +289,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
     return fieldType.isInstance(value);
   }
 
-  public BeanConstructor getConstructor() {
+  public BeanInstantiator getConstructor() {
     return constructor;
   }
 
@@ -304,7 +304,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
     }
   }
 
-  public void setConstructor(BeanConstructor constructor) {
+  public void setConstructor(BeanInstantiator constructor) {
     this.constructor = constructor;
   }
 

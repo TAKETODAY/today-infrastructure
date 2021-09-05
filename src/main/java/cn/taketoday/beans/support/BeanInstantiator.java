@@ -35,12 +35,12 @@ import cn.taketoday.core.reflect.ReflectionException;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
- * bean-constructor bean construct strategy
+ * bean-instantiator: bean instantiate strategy
  *
  * @author TODAY 2020-08-13 19:31
  * @see java.lang.reflect.Constructor
  */
-public abstract class BeanConstructor {
+public abstract class BeanInstantiator {
 
   /**
    * Invoke default {@link java.lang.reflect.Constructor}
@@ -50,8 +50,8 @@ public abstract class BeanConstructor {
    * @throws BeanInstantiationException
    *         cannot instantiate a bean
    */
-  public Object newInstance() {
-    return newInstance(null);
+  public Object instantiate() {
+    return instantiate(null);
   }
 
   /**
@@ -62,9 +62,9 @@ public abstract class BeanConstructor {
    * @throws BeanInstantiationException
    *         cannot instantiate a bean
    */
-  public final Object newInstance(@Nullable Object[] args) {
+  public final Object instantiate(@Nullable Object[] args) {
     try {
-      return doNewInstance(args);
+      return doInstantiate(args);
     }
     catch (Throwable e) {
       throw new BeanInstantiationException("cannot instantiate a bean", e);
@@ -72,7 +72,7 @@ public abstract class BeanConstructor {
   }
 
   // internal new-instance impl
-  protected abstract Object doNewInstance(@Nullable Object[] args);
+  protected abstract Object doInstantiate(@Nullable Object[] args);
 
   // static
 
@@ -85,10 +85,10 @@ public abstract class BeanConstructor {
    *
    * @return BeanConstructor to construct target T
    *
-   * @see BeanConstructorGenerator#create()
+   * @see BeanInstantiatorGenerator#create()
    */
-  public static BeanConstructor fromConstructor(Constructor<?> constructor) {
-    return new BeanConstructorGenerator(constructor).create();
+  public static BeanInstantiator fromConstructor(Constructor<?> constructor) {
+    return new BeanInstantiatorGenerator(constructor).create();
   }
 
   /**
@@ -101,8 +101,8 @@ public abstract class BeanConstructor {
    *
    * @return BeanConstructor to construct target T
    */
-  public static BeanConstructor fromMethod(MethodAccessor accessor, Object obj) {
-    return new MethodAccessorBeanConstructor(accessor, obj);
+  public static BeanInstantiator fromMethod(MethodAccessor accessor, Object obj) {
+    return new MethodAccessorBeanInstantiator(accessor, obj);
   }
 
   /**
@@ -115,7 +115,7 @@ public abstract class BeanConstructor {
    *
    * @return BeanConstructor to construct target T
    */
-  public static BeanConstructor fromMethod(Method method, Object obj) {
+  public static BeanInstantiator fromMethod(Method method, Object obj) {
     return fromMethod(MethodInvoker.fromMethod(method), obj);
   }
 
@@ -129,8 +129,8 @@ public abstract class BeanConstructor {
    *
    * @return BeanConstructor to construct target T
    */
-  public static BeanConstructor fromMethod(MethodAccessor accessor, Supplier<Object> obj) {
-    return new MethodAccessorBeanConstructor(accessor, obj);
+  public static BeanInstantiator fromMethod(MethodAccessor accessor, Supplier<Object> obj) {
+    return new MethodAccessorBeanInstantiator(accessor, obj);
   }
 
   /**
@@ -141,7 +141,7 @@ public abstract class BeanConstructor {
    *
    * @return BeanConstructor to construct target T
    */
-  public static BeanConstructor fromMethod(Method method, Supplier<Object> obj) {
+  public static BeanInstantiator fromMethod(Method method, Supplier<Object> obj) {
     return fromMethod(MethodInvoker.fromMethod(method), obj);
   }
 
@@ -153,9 +153,9 @@ public abstract class BeanConstructor {
    *
    * @return BeanConstructor to construct target T
    */
-  public static BeanConstructor fromStaticMethod(MethodAccessor accessor) {
+  public static BeanInstantiator fromStaticMethod(MethodAccessor accessor) {
     Assert.notNull(accessor, "MethodAccessor must not be null");
-    return new StaticMethodAccessorBeanConstructor(accessor);
+    return new StaticMethodAccessorBeanInstantiator(accessor);
   }
 
   /**
@@ -166,12 +166,12 @@ public abstract class BeanConstructor {
    *
    * @return BeanConstructor to construct target T
    */
-  public static BeanConstructor fromStaticMethod(Method method) {
+  public static BeanInstantiator fromStaticMethod(Method method) {
     return fromStaticMethod(MethodInvoker.fromMethod(method));
   }
 
   /**
-   * Get target class's {@link BeanConstructor}
+   * Get target class's {@link BeanInstantiator}
    *
    * <p>
    * just invoke Constructor, fast invoke or use java reflect
@@ -179,13 +179,13 @@ public abstract class BeanConstructor {
    * @param targetClass
    *         Target class
    *
-   * @return {@link BeanConstructor}
+   * @return {@link BeanInstantiator}
    *
    * @throws ConstructorNotFoundException
    *         No suitable constructor
    * @see BeanUtils#obtainConstructor(Class)
    */
-  public static BeanConstructor fromClass(final Class<?> targetClass) {
+  public static BeanInstantiator fromClass(final Class<?> targetClass) {
     Constructor<?> suitableConstructor = BeanUtils.obtainConstructor(targetClass);
     return fromConstructor(suitableConstructor);
   }
@@ -194,18 +194,18 @@ public abstract class BeanConstructor {
    * @param function
    *         function
    */
-  public static FunctionConstructor fromFunction(Function<Object[], ?> function) {
+  public static FunctionInstantiator fromFunction(Function<Object[], ?> function) {
     Assert.notNull(function, "instance function must not be null");
-    return new FunctionConstructor(function);
+    return new FunctionInstantiator(function);
   }
 
   /**
    * @param supplier
    *         bean instance supplier
    */
-  public static SupplierConstructor fromSupplier(Supplier<?> supplier) {
+  public static SupplierInstantiator fromSupplier(Supplier<?> supplier) {
     Assert.notNull(supplier, "instance supplier must not be null");
-    return new SupplierConstructor(supplier);
+    return new SupplierInstantiator(supplier);
   }
 
   /**
@@ -214,17 +214,17 @@ public abstract class BeanConstructor {
    * @param target
    *         target class
    */
-  public static <T> BeanConstructor fromConstructor(final Class<T> target) {
+  public static <T> BeanInstantiator fromConstructor(final Class<T> target) {
     Assert.notNull(target, "target class must not be null");
     if (target.isArray()) {
       Class<?> componentType = target.getComponentType();
-      return new ArrayConstructor(componentType);
+      return new ArrayInstantiator(componentType);
     }
     else if (Collection.class.isAssignableFrom(target)) {
-      return new CollectionConstructor(target);
+      return new CollectionInstantiator(target);
     }
     else if (Map.class.isAssignableFrom(target)) {
-      return new MapConstructor(target);
+      return new MapInstantiator(target);
     }
 
     try {
@@ -243,12 +243,12 @@ public abstract class BeanConstructor {
    *
    * @return ReflectiveConstructor
    *
-   * @see ReflectiveConstructor
+   * @see ReflectiveInstantiator
    */
   public static ConstructorAccessor fromReflective(Constructor<?> constructor) {
     Assert.notNull(constructor, "constructor must not be null");
     ReflectionUtils.makeAccessible(constructor);
-    return new ReflectiveConstructor(constructor);
+    return new ReflectiveInstantiator(constructor);
   }
 
 }
