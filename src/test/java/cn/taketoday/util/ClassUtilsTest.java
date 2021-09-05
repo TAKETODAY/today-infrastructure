@@ -31,10 +31,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -451,31 +453,87 @@ public class ClassUtilsTest {
 
   }
 
-  static class TestNewInstanceBean { }
-
-  @ToString
-  static class TestNewInstanceBeanProvidedArgs {
-    Integer integer;
-
-    TestNewInstanceBeanProvidedArgs(Integer integer) {
-      this.integer = integer;
-    }
-  }
-
   //
+
   @Test
-  public void testNewInstance() {
-    final TestNewInstanceBean testNewInstanceBean = BeanUtils.newInstance(TestNewInstanceBean.class);
+  public void getMethodIfAvailable() {
+    Method method = ClassUtils.getMethodIfAvailable(Collection.class, "size");
+    assertThat(method).isNotNull();
+    assertThat(method.getName()).isEqualTo("size");
 
-    System.out.println(testNewInstanceBean);
+    method = ClassUtils.getMethodIfAvailable(Collection.class, "remove", Object.class);
+    assertThat(method).isNotNull();
+    assertThat(method.getName()).isEqualTo("remove");
 
-    try (StandardApplicationContext context = new StandardApplicationContext()) {
+    assertThat(ClassUtils.getMethodIfAvailable(Collection.class, "remove")).isNull();
+    assertThat(ClassUtils.getMethodIfAvailable(Collection.class, "someOtherMethod")).isNull();
+  }
 
-      final TestNewInstanceBeanProvidedArgs providedArgs = BeanUtils
-              .newInstance(TestNewInstanceBeanProvidedArgs.class, context, new Object[] { 1, "TODAY" });
+  @Test
+  public void hasMethod() {
+    assertThat(ClassUtils.hasMethod(Collection.class, "size")).isTrue();
+    assertThat(ClassUtils.hasMethod(Collection.class, "remove", Object.class)).isTrue();
+    assertThat(ClassUtils.hasMethod(Collection.class, "remove")).isFalse();
+    assertThat(ClassUtils.hasMethod(Collection.class, "someOtherMethod")).isFalse();
+  }
 
-      System.out.println(providedArgs);
+  @Test
+  public void getMethodCountForName() {
+    assertThat(ClassUtils.getMethodCountForName(OverloadedMethodsClass.class, "print"))
+            .as("Verifying number of overloaded 'print' methods for OverloadedMethodsClass.")
+            .isEqualTo(2);
+    assertThat(ClassUtils.getMethodCountForName(SubOverloadedMethodsClass.class, "print"))
+            .as("Verifying number of overloaded 'print' methods for SubgetPackageNameOverloadedMethodsClass.")
+            .isEqualTo(4);
+  }
+
+  @Test
+  public void argsStaticMethod() throws IllegalAccessException, InvocationTargetException {
+    Method method = ClassUtils.getStaticMethod(NestedClass.class, "argStaticMethod", String.class);
+    method.invoke(null, "test");
+    assertThat(NestedClass.argCalled).as("argument method was not invoked.").isTrue();
+  }
+
+  public static class NestedClass {
+
+    static boolean noArgCalled;
+    static boolean argCalled;
+    static boolean overloadedCalled;
+
+    public static void staticMethod() {
+      noArgCalled = true;
+    }
+
+    public static void staticMethod(String anArg) {
+      overloadedCalled = true;
+    }
+
+    public static void argStaticMethod(String anArg) {
+      argCalled = true;
     }
   }
 
+  @SuppressWarnings("unused")
+  private static class OverloadedMethodsClass {
+
+    public void print(String messages) {
+      /* no-op */
+    }
+
+    public void print(String[] messages) {
+      /* no-op */
+    }
+  }
+
+  @SuppressWarnings("unused")
+  private static class SubOverloadedMethodsClass extends OverloadedMethodsClass {
+
+    public void print(String header, String[] messages) {
+      /* no-op */
+    }
+
+    void print(String header, String[] messages, String footer) {
+      /* no-op */
+    }
+  }
 }

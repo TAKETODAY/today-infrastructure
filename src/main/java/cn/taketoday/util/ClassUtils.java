@@ -55,11 +55,11 @@ import cn.taketoday.asm.Label;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
-import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.io.Resource;
@@ -1169,7 +1169,9 @@ public abstract class ClassUtils {
       return type.getConstructor(parameterTypes);
     }
     catch (NoSuchMethodException e) {
-      throw new ConstructorNotFoundException(type);
+      ConstructorNotFoundException exception = new ConstructorNotFoundException(type);
+      exception.initCause(e);
+      throw exception;
     }
   }
 
@@ -1308,6 +1310,34 @@ public abstract class ClassUtils {
       count += getMethodCountForName(clazz.getSuperclass(), methodName);
     }
     return count;
+  }
+
+  /**
+   * Return a public static method of a class.
+   *
+   * @param clazz
+   *         the class which defines the method
+   * @param methodName
+   *         the static method name
+   * @param args
+   *         the parameter types to the method
+   *
+   * @return the static method, or {@code null} if no static method was found
+   *
+   * @throws IllegalArgumentException
+   *         if the method name is blank or the clazz is null
+   */
+  @Nullable
+  public static Method getStaticMethod(Class<?> clazz, String methodName, Class<?>... args) {
+    Assert.notNull(clazz, "Class must not be null");
+    Assert.notNull(methodName, "Method name must not be null");
+    try {
+      Method method = clazz.getMethod(methodName, args);
+      return Modifier.isStatic(method.getModifiers()) ? method : null;
+    }
+    catch (NoSuchMethodException ex) {
+      return null;
+    }
   }
 
   @Nullable
