@@ -65,9 +65,9 @@ import static org.junit.Assert.assertNotEquals;
 @Slf4j
 public class AopTest {
 
-  static {
-    DebuggingClassWriter.setDebugLocation("~/temp/debug");
-  }
+//  static {
+//    DebuggingClassWriter.setDebugLocation("~/temp/debug");
+//  }
 
   @Import({ //
           DefaultUserService.class, //
@@ -320,7 +320,8 @@ public class AopTest {
 
       beanFactory.importBeans(LoggingConfig.class, PrinterBean.class);
 //      DebuggingClassWriter.setDebugLocation("~/temp/debug");
-      DebuggingClassWriter.setDebugLocation("/Users/today/temp/debug");
+      // TODO 调试 构造器问题
+//      DebuggingClassWriter.setDebugLocation("/Users/today/temp/debug");
 
       final PrinterBean bean = beanFactory.getBean(PrinterBean.class);
 
