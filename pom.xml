@@ -340,11 +340,18 @@
       <scope>provided</scope>
     </dependency>
 
-<!--
-    ======================================================
-         test
-    ======================================================
--->
+    <dependency>
+      <groupId>org.mybatis</groupId>
+      <artifactId>mybatis</artifactId>
+      <version>3.5.6</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!--
+        ======================================================
+             test
+        ======================================================
+    -->
 
     <dependency>
       <groupId>ch.qos.logback</groupId>
@@ -406,9 +413,8 @@
       <groupId>org.codehaus.janino</groupId>
       <artifactId>janino</artifactId>
       <version>3.0.11</version>
+      <scope>test</scope>
     </dependency>
-
-
 
     <dependency>
       <groupId>mysql</groupId>
@@ -424,13 +430,6 @@
       <artifactId>jaxb-api</artifactId>
       <version>2.3.1</version>
       <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.mybatis</groupId>
-      <artifactId>mybatis</artifactId>
-      <version>3.5.6</version>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
