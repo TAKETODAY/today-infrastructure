@@ -23,11 +23,9 @@ package cn.taketoday.aop.proxy;
 import org.aopalliance.intercept.MethodInterceptor;
 
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.function.Function;
 
 import cn.taketoday.aop.AopInvocationException;
 import cn.taketoday.aop.TargetSource;
@@ -124,7 +122,7 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
   }
 
   @Override
-  public Object getProxy(ClassLoader classLoader, Function<Constructor<?>, Object[]> argsFunction) {
+  public Object getProxy(ClassLoader classLoader) {
     if (logger.isTraceEnabled()) {
       logger.trace("Creating JDK dynamic proxy: {}", this.advised.getTargetSource());
     }

@@ -20,6 +20,7 @@
 package cn.taketoday.beans.factory;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -237,6 +238,7 @@ public class DefaultBeanDefinition
   public BeanDefinition setInitMethods(Method... initMethods) {
     if (ObjectUtils.isNotEmpty(initMethods)) {
       this.initMethods = initMethods;
+      AccessibleObject.setAccessible(initMethods, true);
       this.methodInvokers = new MethodInvoker[initMethods.length];
       int i = 0;
       for (final Method initMethod : initMethods) {

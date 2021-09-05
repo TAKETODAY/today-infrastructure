@@ -51,7 +51,7 @@ public final class RuntimeMethodInterceptor implements MethodInterceptor {
   }
 
   @Override
-  public final Object invoke(MethodInvocation invocation) throws Throwable {
+  public Object invoke(MethodInvocation invocation) throws Throwable {
     if (methodMatcher.matches(invocation)) {
       return interceptor.invoke(invocation);
     }

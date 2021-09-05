@@ -44,13 +44,14 @@ import cn.taketoday.aop.support.annotation.JoinPoint;
 import cn.taketoday.aop.support.annotation.Throwing;
 import cn.taketoday.aop.target.PrototypeTargetSource;
 import cn.taketoday.aop.target.TargetSourceCreator;
-import cn.taketoday.core.AttributeAccessor;
-import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.beans.Import;
 import cn.taketoday.beans.Singleton;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.cglib.core.DebuggingClassWriter;
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.core.AttributeAccessor;
 import lombok.extern.slf4j.Slf4j;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,6 +64,10 @@ import static org.junit.Assert.assertNotEquals;
  */
 @Slf4j
 public class AopTest {
+
+  static {
+    DebuggingClassWriter.setDebugLocation("~/temp/debug");
+  }
 
   @Import({ //
           DefaultUserService.class, //
@@ -314,7 +319,8 @@ public class AopTest {
       autoProxyCreator.setTargetSourceCreators(targetSourceCreator);
 
       beanFactory.importBeans(LoggingConfig.class, PrinterBean.class);
-//      DebuggingClassWriter.setDebugLocation("D:\\dev\\temp\\debug");
+//      DebuggingClassWriter.setDebugLocation("~/temp/debug");
+      DebuggingClassWriter.setDebugLocation("/Users/today/temp/debug");
 
       final PrinterBean bean = beanFactory.getBean(PrinterBean.class);
 

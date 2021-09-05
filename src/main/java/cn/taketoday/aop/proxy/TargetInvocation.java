@@ -47,6 +47,13 @@ public class TargetInvocation implements TargetClassAware {
   private int adviceLength;
   private MethodInterceptor[] interceptors;
 
+  /**
+   * @since 4.0
+   */
+  public TargetInvocation(Method method, AdvisedSupport config) {
+    this(method, method.getDeclaringClass(), config);
+  }
+
   public TargetInvocation(Method method, Class<?> targetClass, AdvisedSupport config) {
     this.method = method;
     this.config = config;
@@ -98,8 +105,10 @@ public class TargetInvocation implements TargetClassAware {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof TargetInvocation)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof TargetInvocation))
+      return false;
     final TargetInvocation target = (TargetInvocation) o;
     return adviceLength == target.adviceLength
             && Objects.equals(method, target.method)

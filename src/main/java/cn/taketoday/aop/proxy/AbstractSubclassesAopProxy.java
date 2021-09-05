@@ -20,15 +20,12 @@
 
 package cn.taketoday.aop.proxy;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.function.Function;
 
-import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.cglib.core.CodeGenerationException;
 import cn.taketoday.core.Assert;
 import cn.taketoday.logger.Logger;
@@ -44,8 +41,6 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
 
   /** Keeps track of the Classes that we have validated for final methods. */
   private static final Map<Class<?>, Boolean> validatedClasses = new WeakHashMap<>();
-
-  static final Function<Constructor<?>, Object[]> defaultArgsFunction = constructor -> null;
 
   /** The configuration used to configure this proxy. */
   final AdvisedSupport config;
@@ -95,11 +90,6 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
 
   @Override
   public Object getProxy(ClassLoader classLoader) {
-    return getProxy(classLoader, defaultArgsFunction);
-  }
-
-  @Override
-  public Object getProxy(ClassLoader classLoader, Function<Constructor<?>, Object[]> argsFunction) {
     try {
       Class<?> rootClass = config.getTargetClass();
       Assert.state(rootClass != null, "Target class must be available for creating a CGLIB proxy");
@@ -109,7 +99,7 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
       // Validate the class, writing log messages as necessary.
       validateClassIfNecessary(proxySuperClass, classLoader);
 
-      return getProxyInternal(proxySuperClass, classLoader, argsFunction);
+      return getProxyInternal(proxySuperClass, classLoader);
     }
     catch (CodeGenerationException | IllegalArgumentException ex) {
       throw new AopConfigException(
@@ -135,25 +125,8 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
     return proxySuperClass;
   }
 
-  abstract Object getProxyInternal(Class<?> proxySuperClass, ClassLoader loader,
-                                   Function<Constructor<?>, Object[]> argsFunction) throws Exception;
-
-  /**
-   * Compute constructor arguments use {@code argsFunction}
-   *
-   * @param argsFunction
-   *         constructor args getter
-   * @param proxySuperClass
-   *         super class (target class)
-   */
-  protected void computeConstructorArguments(Function<Constructor<?>, Object[]> argsFunction, Class<?> proxySuperClass) {
-    if (argsFunction != null && argsFunction != defaultArgsFunction) {
-      final Constructor<?> superConstructor = BeanUtils.obtainConstructor(proxySuperClass);
-      final Object[] args = argsFunction.apply(superConstructor);
-
-      setConstructorArguments(args, superConstructor.getParameterTypes());
-    }
-  }
+  protected abstract Object getProxyInternal(
+          Class<?> proxySuperClass, ClassLoader loader) throws Exception;
 
   /**
    * Checks to see whether the supplied {@code Class} has already been validated
@@ -161,7 +134,7 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
    */
   void validateClassIfNecessary(Class<?> proxySuperClass, ClassLoader proxyClassLoader) {
     if (log.isWarnEnabled()) {
-      synchronized (validatedClasses) {
+      synchronized(validatedClasses) {
         if (!validatedClasses.containsKey(proxySuperClass)) {
           doValidateClass(proxySuperClass,
                           proxyClassLoader,

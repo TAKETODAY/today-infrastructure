@@ -275,6 +275,8 @@ public class CglibAopProxyTests extends AbstractAopProxyTests implements Seriali
 
     NoArgCtorTestBean proxy = (NoArgCtorTestBean) aop.getProxy();
     assertThat(proxy).isNotNull();
+    boolean called = proxy.called;
+    assertThat(called).isTrue();
   }
 
   @Test

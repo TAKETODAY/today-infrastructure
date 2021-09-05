@@ -31,13 +31,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 
 import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.AopInvocationException;
 import cn.taketoday.aop.PointcutAdvisor;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
+import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.cglib.proxy.Callback;
 import cn.taketoday.cglib.proxy.CallbackFilter;
 import cn.taketoday.cglib.proxy.Dispatcher;
@@ -114,18 +114,11 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
   }
 
   @Override
-  public Object getProxy(ClassLoader classLoader, Function<Constructor<?>, Object[]> argsFunction) {
+  protected Object getProxyInternal(
+          Class<?> proxySuperClass, ClassLoader classLoader) throws Exception {
     if (log.isTraceEnabled()) {
       log.trace("Creating CGLIB proxy: {}", config.getTargetSource());
     }
-    return super.getProxy(classLoader, argsFunction);
-  }
-
-  @Override
-  protected Object getProxyInternal(
-          Class<?> proxySuperClass, ClassLoader classLoader,
-          Function<Constructor<?>, Object[]> argsFunction) throws Exception {
-
     final Class<?> rootClass = config.getTargetClass();
 
     // Configure CGLIB Enhancer...
@@ -151,18 +144,25 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
     );
     enhancer.setCallbackTypes(types);
 
-    computeConstructorArguments(argsFunction, proxySuperClass);
-
     // Generate the proxy class and create a proxy instance.
     return createProxyClassAndInstance(enhancer, callbacks);
   }
 
-  protected Object createProxyClassAndInstance(Enhancer enhancer, Callback[] callbacks) {
+  protected Object createProxyClassAndInstance(Enhancer enhancer, Callback[] callbacks) throws Exception {
     enhancer.setInterceptDuringConstruction(false);
     enhancer.setCallbacks(callbacks);
-    return constructorArgs != null && constructorArgTypes != null
-           ? enhancer.create(constructorArgTypes, constructorArgs)
-           : enhancer.create();
+    if (constructorArgs != null && constructorArgTypes != null) {
+      // use constructor
+      return enhancer.create(constructorArgTypes, constructorArgs);
+    }
+    // use default constructor
+    Class<?> proxyClass = enhancer.createClass();
+    Constructor<?> constructor = ClassUtils.getConstructorIfAvailable(proxyClass);
+    if (constructor != null) {
+      return constructor.newInstance();
+    }
+    // use SunReflectionFactoryInstantiator
+    return BeanInstantiator.forSerialization(proxyClass).instantiate();
   }
 
   /**
@@ -256,7 +256,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
    * elsewhere in the framework.
    */
   public static class SerializableNoOp implements NoOp, Serializable {
-    private static final long serialVersionUID = 1L; 
+    private static final long serialVersionUID = 1L;
   }
 
   /**

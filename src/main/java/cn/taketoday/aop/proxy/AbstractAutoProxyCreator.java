@@ -23,10 +23,8 @@ package cn.taketoday.aop.proxy;
 import org.aopalliance.aop.Advice;
 
 import java.io.Closeable;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.AopInfrastructureBean;
@@ -40,7 +38,6 @@ import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.InstantiationAwareBeanPostProcessor;
-import cn.taketoday.beans.support.ArgumentsResolver;
 import cn.taketoday.context.aware.Aware;
 import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.core.Order;
@@ -246,15 +243,7 @@ public abstract class AbstractAutoProxyCreator
       proxyFactory.setPreFiltered(true);
     }
 
-    final class ParametersFunction implements Function<Constructor<?>, Object[]> {
-
-      @Override
-      public Object[] apply(Constructor<?> constructor) {
-        return  ArgumentsResolver.getSharedInstance().resolve(constructor, beanFactory);
-      }
-    }
-
-    return proxyFactory.getProxy(getProxyClassLoader(), new ParametersFunction());
+    return proxyFactory.getProxy(getProxyClassLoader());
   }
 
   protected Object[] getAdvicesAndAdvisorsForBean(BeanDefinition def, TargetSource targetSource) {

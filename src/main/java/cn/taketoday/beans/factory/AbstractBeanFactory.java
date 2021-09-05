@@ -46,6 +46,7 @@ import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.ObjectFactory;
 import cn.taketoday.beans.Primary;
+import cn.taketoday.beans.PropertyValueException;
 import cn.taketoday.beans.SmartFactoryBean;
 import cn.taketoday.beans.support.ArgumentsResolver;
 import cn.taketoday.context.ContextUtils;
@@ -55,7 +56,6 @@ import cn.taketoday.context.aware.BeanClassLoaderAware;
 import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
-import cn.taketoday.beans.PropertyValueException;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.logger.Logger;
@@ -64,7 +64,6 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.OrderUtils;
-import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -455,8 +454,6 @@ public abstract class AbstractBeanFactory
       ArgumentsResolver resolver = ArgumentsResolver.getSharedInstance();
       for (final Method method : def.getInitMethods()) { /*never be null*/
         try {
-          //method.setAccessible(true); // fix: can not access a member
-          ReflectionUtils.makeAccessible(method);
           final Object[] args = resolver.resolve(method, this);
           method.invoke(bean, args);
         }

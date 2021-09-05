@@ -72,19 +72,12 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
   }
 
   @Override
-  public Object getProxy(ClassLoader classLoader, Function<Constructor<?>, Object[]> argsFunction) {
+  protected Object getProxyInternal(
+          Class<?> proxySuperClass, ClassLoader classLoader) {
     if (log.isDebugEnabled()) {
       log.debug("Creating standard proxy: {}", config.getTargetSource());
     }
-    return super.getProxy(classLoader, argsFunction);
-  }
-
-  @Override
-  protected Object getProxyInternal(Class<?> proxySuperClass,
-                                    ClassLoader classLoader,
-                                    Function<Constructor<?>, Object[]> argsFunction) {
-
-    final StandardProxyGenerator proxyGenerator = new StandardProxyGenerator(config, proxySuperClass, argsFunction);
+    final StandardProxyGenerator proxyGenerator = new StandardProxyGenerator(config, proxySuperClass);
 
     proxyGenerator.setClassLoader(classLoader);
 
@@ -128,16 +121,12 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
     /** super class's constructor */
     private Constructor<?> constructor;
 
-    final Function<Constructor<?>, Object[]> constructorArgsFunction;
-
     public StandardProxyGenerator(AdvisedSupport config,
-                                  Class<?> proxySuperClass,
-                                  Function<Constructor<?>, Object[]> constructorArgsFunction) {
+                                  Class<?> proxySuperClass) {
       super("Aop");
       this.config = config;
       this.targetClass = proxySuperClass;
       this.targetSource = config.getTargetSource();
-      this.constructorArgsFunction = constructorArgsFunction;
     }
 
     public TargetSource getTargetSource() {
@@ -207,12 +196,12 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
 
     Object[] createArgs(Class<?>[] proxyConstructorArgTypes) {
       final Object[] ret = new Object[proxyConstructorArgTypes.length];
-      if (constructorArgsFunction != null) {
-        final Object[] args = constructorArgsFunction.apply(constructor);
-        if (args != null) {
-          System.arraycopy(args, 0, ret, 0, args.length);
-        }
-      }
+//      if (constructorArgsFunction != null) {
+//        final Object[] args = constructorArgsFunction.apply(constructor);
+//        if (args != null) {
+//          System.arraycopy(args, 0, ret, 0, args.length);
+//        }
+//      }
       return ret;
     }
 
