@@ -58,7 +58,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
   public DefaultResourceTemplateLoader(String prefix, String suffix, int size) {
     this.prefix = prefix;
     this.suffix = suffix;
-    this.cache = ConcurrentCache.create(size);
+    this.cache = ConcurrentCache.fromSize(size);
   }
 
   protected String getTemplate(final String name) {

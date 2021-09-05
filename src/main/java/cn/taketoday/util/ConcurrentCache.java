@@ -40,11 +40,11 @@ public final class ConcurrentCache<K, V> {
     this.eden = new ConcurrentHashMap<>(size);
   }
 
-  public static <K, V> ConcurrentCache<K, V> create() {
-    return create(512);
+  public static <K, V> ConcurrentCache<K, V> of() {
+    return fromSize(512);
   }
 
-  public static <K, V> ConcurrentCache<K, V> create(int size) {
+  public static <K, V> ConcurrentCache<K, V> fromSize(int size) {
     return new ConcurrentCache<>(size);
   }
 

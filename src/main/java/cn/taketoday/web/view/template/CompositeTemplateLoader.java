@@ -55,7 +55,7 @@ public class CompositeTemplateLoader implements TemplateLoader {
 
   public CompositeTemplateLoader(int cacheSize, TemplateLoader... loaders) {
     setTemplateLoaders(loaders);
-    this.cache = ConcurrentCache.create(cacheSize);
+    this.cache = ConcurrentCache.fromSize(cacheSize);
   }
 
   public CompositeTemplateLoader(Collection<TemplateLoader> loaders) {
@@ -64,7 +64,7 @@ public class CompositeTemplateLoader implements TemplateLoader {
 
   public CompositeTemplateLoader(Collection<TemplateLoader> loaders, int cacheSize) {
     addTemplateLoaders(loaders);
-    this.cache = ConcurrentCache.create(cacheSize);
+    this.cache = ConcurrentCache.fromSize(cacheSize);
   }
 
   /**

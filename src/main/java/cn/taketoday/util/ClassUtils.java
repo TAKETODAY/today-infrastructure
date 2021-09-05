@@ -86,7 +86,7 @@ public abstract class ClassUtils {
   static final HashMap<String, Class<?>> PRIMITIVE_CACHE = new HashMap<>(32);
 
   static final ParameterFunction PARAMETER_NAMES_FUNCTION = new ParameterFunction();
-  static final ConcurrentCache<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = ConcurrentCache.create(64);
+  static final ConcurrentCache<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = ConcurrentCache.fromSize(64);
 
   /** @since 3.0 */
   public static HashSet<Class<?>> primitiveTypes;
