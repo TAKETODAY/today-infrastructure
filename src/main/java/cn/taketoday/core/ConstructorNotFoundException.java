@@ -18,16 +18,15 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.support;
-
-import cn.taketoday.beans.BeansException;
+package cn.taketoday.core;
 
 /**
  * not a suitable Constructor found
  *
  * @author TODAY 2021/8/23 23:28
+ * @since 4.0
  */
-public class ConstructorNotFoundException extends BeansException {
+public class ConstructorNotFoundException extends NestedRuntimeException {
   private static final long serialVersionUID = 1L;
   private final Class<?> beanClass;
 
@@ -43,5 +42,5 @@ public class ConstructorNotFoundException extends BeansException {
   public Class<?> getBeanClass() {
     return beanClass;
   }
-  
+
 }

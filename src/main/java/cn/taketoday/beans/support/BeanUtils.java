@@ -29,6 +29,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.context.ContextUtils;
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;

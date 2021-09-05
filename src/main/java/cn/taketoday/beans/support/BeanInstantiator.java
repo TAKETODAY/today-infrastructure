@@ -28,6 +28,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.reflect.MethodAccessor;
 import cn.taketoday.core.reflect.MethodInvoker;
@@ -66,24 +67,28 @@ public abstract class BeanInstantiator {
     try {
       return doInstantiate(args);
     }
+    catch (BeanInstantiationException e) {
+      throw e;
+    }
     catch (Throwable e) {
       throw new BeanInstantiationException("cannot instantiate a bean", e);
     }
   }
 
-  // internal new-instance impl
-  protected abstract Object doInstantiate(@Nullable Object[] args);
+  // internal new-instance impl @since 4.0
+  protected abstract Object doInstantiate(@Nullable Object[] args)
+          throws Throwable;
 
   // static
 
   /**
-   * use BeanConstructorGenerator to create bytecode Constructor access
+   * use BeanInstantiatorGenerator to create bytecode Constructor access
    * or fallback to java reflect Constructor cause private access
    *
    * @param constructor
    *         java reflect Constructor
    *
-   * @return BeanConstructor to construct target T
+   * @return BeanInstantiator to construct target T
    *
    * @see BeanInstantiatorGenerator#create()
    */
@@ -99,7 +104,7 @@ public abstract class BeanInstantiator {
    * @param obj
    *         accessor object
    *
-   * @return BeanConstructor to construct target T
+   * @return MethodAccessorBeanInstantiator to construct target T
    */
   public static BeanInstantiator fromMethod(MethodAccessor accessor, Object obj) {
     return new MethodAccessorBeanInstantiator(accessor, obj);
@@ -113,7 +118,7 @@ public abstract class BeanInstantiator {
    * @param obj
    *         accessor object
    *
-   * @return BeanConstructor to construct target T
+   * @return MethodAccessorBeanInstantiator to construct target T
    */
   public static BeanInstantiator fromMethod(Method method, Object obj) {
     return fromMethod(MethodInvoker.fromMethod(method), obj);
@@ -127,7 +132,7 @@ public abstract class BeanInstantiator {
    * @param obj
    *         accessor object Supplier
    *
-   * @return BeanConstructor to construct target T
+   * @return MethodAccessorBeanInstantiator to construct target T
    */
   public static BeanInstantiator fromMethod(MethodAccessor accessor, Supplier<Object> obj) {
     return new MethodAccessorBeanInstantiator(accessor, obj);
@@ -139,7 +144,7 @@ public abstract class BeanInstantiator {
    * @param method
    *         factory-method
    *
-   * @return BeanConstructor to construct target T
+   * @return MethodAccessorBeanInstantiator to construct target T
    */
   public static BeanInstantiator fromMethod(Method method, Supplier<Object> obj) {
     return fromMethod(MethodInvoker.fromMethod(method), obj);
@@ -151,7 +156,7 @@ public abstract class BeanInstantiator {
    * @param accessor
    *         static factory-method accessor
    *
-   * @return BeanConstructor to construct target T
+   * @return StaticMethodAccessorBeanInstantiator to construct target T
    */
   public static BeanInstantiator fromStaticMethod(MethodAccessor accessor) {
     Assert.notNull(accessor, "MethodAccessor must not be null");
@@ -164,7 +169,7 @@ public abstract class BeanInstantiator {
    * @param method
    *         static factory-method
    *
-   * @return BeanConstructor to construct target T
+   * @return StaticMethodAccessorBeanInstantiator to construct target T
    */
   public static BeanInstantiator fromStaticMethod(Method method) {
     return fromStaticMethod(MethodInvoker.fromMethod(method));
@@ -249,6 +254,24 @@ public abstract class BeanInstantiator {
     Assert.notNull(constructor, "constructor must not be null");
     ReflectionUtils.makeAccessible(constructor);
     return new ReflectiveInstantiator(constructor);
+  }
+
+  /**
+   * Instantiates an object, WITHOUT calling it's constructor, using internal
+   * sun.reflect.ReflectionFactory - a class only available on JDK's that use Sun's 1.4 (or later)
+   * Java implementation. This is the best way to instantiate an object without any side effects
+   * caused by the constructor - however it is not available on every platform.
+   *
+   * @param target
+   *         target class
+   *
+   * @return SunReflectionFactoryInstantiator
+   *
+   * @see SunReflectionFactoryInstantiator
+   * @since 4.0
+   */
+  public static BeanInstantiator forSerialization(final Class<?> target) {
+    return new SunReflectionFactoryInstantiator(target);
   }
 
 }

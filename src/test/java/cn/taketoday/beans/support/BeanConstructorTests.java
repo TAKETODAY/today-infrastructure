@@ -68,4 +68,19 @@ class BeanConstructorTests {
     assertThat(testsBean).isNotEqualTo(constructor.instantiate());
 
   }
+
+  @Test
+  void forSerialization() {
+    BeanInstantiator constructor = BeanInstantiator.forSerialization(BeanConstructorTestsBean.class);
+
+    Object bean = constructor.instantiate(new Object[] { 1 });
+    assertThat(bean).isInstanceOf(BeanConstructorTestsBean.class);
+
+    BeanConstructorTestsBean testsBean = (BeanConstructorTestsBean) bean;
+
+    assertThat(testsBean).isNotNull();
+    assertThat(testsBean.code).isEqualTo(0);
+    assertThat(testsBean).isNotEqualTo(constructor.instantiate());
+  }
+
 }

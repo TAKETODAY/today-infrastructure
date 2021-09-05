@@ -33,6 +33,8 @@ public abstract class ConstructorAccessor
    * Invoke {@link java.lang.reflect.Constructor} with given args
    *
    * @return returns Object
+   *
+   * @since 4.0
    */
   @Override
   public abstract Object doInstantiate(@Nullable Object[] args);
