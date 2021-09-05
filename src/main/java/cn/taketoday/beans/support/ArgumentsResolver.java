@@ -32,8 +32,9 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.Env;
 import cn.taketoday.context.ExpressionEvaluator;
+import cn.taketoday.core.TodayStrategies;
 import cn.taketoday.context.Value;
-import cn.taketoday.context.loader.StrategiesDetector;
+import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Nullable;
@@ -48,6 +49,7 @@ import cn.taketoday.util.OrderUtils;
  * @see BeanFactory
  * @see Value
  * @see Env
+ * @see ArgumentsResolvingStrategy
  * @since 4.0
  */
 public class ArgumentsResolver {
@@ -60,7 +62,7 @@ public class ArgumentsResolver {
   private ExpressionEvaluator expressionEvaluator = ContextUtils.getExpressionEvaluator();
 
   public ArgumentsResolver() {
-    this(StrategiesDetector.getSharedInstance());
+    this(TodayStrategies.getDetector());
   }
 
   public ArgumentsResolver(StrategiesDetector strategiesDetector) {
@@ -80,7 +82,7 @@ public class ArgumentsResolver {
   }
 
   public ArgumentsResolver(@Nullable BeanFactory beanFactory) {
-    this(StrategiesDetector.getSharedInstance());
+    this(TodayStrategies.getDetector());
     this.beanFactory = beanFactory;
   }
 

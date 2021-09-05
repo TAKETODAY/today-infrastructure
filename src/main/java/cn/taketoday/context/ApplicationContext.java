@@ -28,7 +28,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.loader.CandidateComponentScannerCapable;
-import cn.taketoday.context.loader.StrategiesDetector;
+import cn.taketoday.core.StrategiesDetector;
 
 /**
  * @author TODAY <br>

@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.loader;
+package cn.taketoday.core;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 
 /**

@@ -62,7 +62,7 @@ import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.context.loader.ObjectSupplierPropertyResolver;
 import cn.taketoday.context.loader.PropertyValueResolver;
 import cn.taketoday.context.loader.PropsPropertyResolver;
-import cn.taketoday.context.loader.StrategiesDetector;
+import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.context.loader.ValuePropertyResolver;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;

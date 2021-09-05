@@ -24,7 +24,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import cn.taketoday.beans.support.BeanConstructor;
+import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.reflect.ReflectionException;
@@ -45,7 +45,7 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
   private ReturnValueHandlers returnValueHandlers;
   private MethodParametersBuilder parametersBuilder;
 
-  private BeanConstructor constructor;
+  private BeanInstantiator constructor;
 
   public HandlerMethodBuilder() { }
 
@@ -80,7 +80,7 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
   public void setHandlerMethodClass(Class<?> handlerMethodClass) {
     try {
       final Constructor<?> declared = handlerMethodClass.getDeclaredConstructor(Object.class, Method.class);
-      this.constructor = BeanConstructor.fromConstructor(declared);
+      this.constructor = BeanInstantiator.fromConstructor(declared);
     }
     catch (NoSuchMethodException e) {
       throw new ReflectionException(
@@ -88,7 +88,7 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
     }
   }
 
-  public BeanConstructor getConstructor() {
+  public BeanInstantiator getConstructor() {
     if (constructor == null) {
       setHandlerMethodClass(HandlerMethod.class);
     }
@@ -103,7 +103,7 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
     Assert.state(returnValueHandlers != null, "No ResultHandlers set");
     Assert.state(parametersBuilder != null, "No MethodParametersBuilder set");
 
-    final T handlerMethod = (T) getConstructor().newInstance(new Object[] { handlerBean, method });
+    final T handlerMethod = (T) getConstructor().instantiate(new Object[] { handlerBean, method });
     final MethodParameter[] parameters = parametersBuilder.build(method);
     handlerMethod.setParameters(parameters);
     handlerMethod.setResultHandlers(returnValueHandlers);
@@ -133,7 +133,7 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
     this.returnValueHandlers = returnValueHandlers;
   }
 
-  public void setConstructor(BeanConstructor constructor) {
+  public void setConstructor(BeanInstantiator constructor) {
     this.constructor = constructor;
   }
 

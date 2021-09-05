@@ -40,6 +40,7 @@ import java.util.UUID;
 import cn.taketoday.context.Environment;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
 
 /**
  * @author TODAY 2018-06-26 21:19:09
@@ -527,7 +528,11 @@ public abstract class StringUtils {
    *
    * @return String array
    */
-  public static String[] toStringArray(Collection<String> collection) {
+  @Nullable
+  public static String[] toStringArray(@Nullable Collection<String> collection) {
+    if (collection == null) {
+      return null;
+    }
     return collection.toArray(new String[collection.size()]);
   }
 

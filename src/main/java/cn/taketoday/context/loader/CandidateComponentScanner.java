@@ -37,8 +37,10 @@ import java.util.stream.Collectors;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
+import cn.taketoday.core.TodayStrategies;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.ThrowableSupplier;
 import cn.taketoday.core.io.FileBasedResource;
 import cn.taketoday.core.io.JarEntryResource;
@@ -95,11 +97,11 @@ public class CandidateComponentScanner {
 
     readFromMetaInfoIgnore(ignoreScanJars);
     // @since 4.0 read from strategies file
-    final StrategiesDetector strategiesDetector = StrategiesDetector.getSharedInstance();
+    final StrategiesDetector strategiesDetector = TodayStrategies.getDetector();
     final Collection<String> strategies = strategiesDetector.getStrategies(KEY_STRATEGIES_IGNORE_JAR_PREFIX);
     ignoreScanJars.addAll(strategies);
 
-    return defaultIgnoreScanJarPrefixs = ignoreScanJars.toArray(new String[ignoreScanJars.size()]);
+    return defaultIgnoreScanJarPrefixs = StringUtils.toStringArray(ignoreScanJars);
   }
 
   @Deprecated
@@ -126,7 +128,7 @@ public class CandidateComponentScanner {
     }
   }
 
-  public CandidateComponentScanner() {}
+  public CandidateComponentScanner() { }
 
   public CandidateComponentScanner(int initialCapacity) {
     this.initialCandidatesCapacity = initialCapacity;

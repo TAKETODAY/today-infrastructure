@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.loader;
+package cn.taketoday.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,10 +30,6 @@ import java.util.function.Consumer;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
@@ -49,17 +45,12 @@ import cn.taketoday.util.CollectionUtils;
  * @author TODAY 2021/7/17 21:59
  * @since 4.0
  */
+@SuppressWarnings("rawtypes")
 public class StrategiesDetector {
   private static final Logger log = LoggerFactory.getLogger(StrategiesDetector.class);
 
-  public static final String DEFAULT_STRATEGIES_LOCATION = "classpath*:META-INF/today.strategies";
-  public static final String KEY_STRATEGIES_LOCATION = "strategies.file.location";
-  public static final String KEY_STRATEGIES_FILE_TYPE = "strategies.file.type";
-
-  private static final StrategiesDetector sharedInstance;
-
   /** strategies file location */
-  private String strategiesLocation = DEFAULT_STRATEGIES_LOCATION;
+  private String strategiesLocation;
   private StrategiesReader strategiesReader;
 
   private ClassLoader classLoader = ClassUtils.getClassLoader();
@@ -69,27 +60,6 @@ public class StrategiesDetector {
   private boolean logWhenClassNotFound = false;
 
   private final DefaultMultiValueMap<String, String> strategies = new DefaultMultiValueMap<>();
-
-  static {
-    final String strategiesFileType = System.getProperty(KEY_STRATEGIES_FILE_TYPE, Constant.DEFAULT);// default yaml
-    final String strategiesLocation = System.getProperty(KEY_STRATEGIES_LOCATION, DEFAULT_STRATEGIES_LOCATION);
-    StrategiesReader strategiesReader;
-    if (Constant.DEFAULT.equals(strategiesFileType)) {
-      strategiesReader = new DefaultStrategiesReader();
-    }
-    else if ("yaml".equals(strategiesFileType) || "yml".equals(strategiesFileType)) {
-      strategiesReader = new YamlStrategiesReader();// org.yaml.snakeyaml.Yaml must present
-    }
-    else {
-      try {
-        strategiesReader = BeanUtils.newInstance(strategiesFileType);
-      }
-      catch (ClassNotFoundException e) {
-        throw new UnsupportedOperationException("Unsupported strategies file type");
-      }
-    }
-    sharedInstance = new StrategiesDetector(strategiesReader, strategiesLocation);
-  }
 
   public StrategiesDetector() {
     this(new DefaultStrategiesReader());
@@ -380,12 +350,6 @@ public class StrategiesDetector {
 
   public boolean isLogWhenClassNotFound() {
     return logWhenClassNotFound;
-  }
-
-  // static
-
-  public static StrategiesDetector getSharedInstance() {
-    return sharedInstance;
   }
 
 }

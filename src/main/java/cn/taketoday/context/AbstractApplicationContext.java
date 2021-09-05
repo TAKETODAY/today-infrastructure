@@ -57,10 +57,11 @@ import cn.taketoday.context.event.DependenciesHandledEvent;
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.context.event.ObjectRefreshedEvent;
 import cn.taketoday.context.loader.CandidateComponentScanner;
-import cn.taketoday.context.loader.StrategiesDetector;
+import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.TodayStrategies;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
@@ -1031,7 +1032,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   protected StrategiesDetector createStrategiesLoader(ConfigurableApplicationContext context) {
-    final StrategiesDetector detector = StrategiesDetector.getSharedInstance();
+    final StrategiesDetector detector = TodayStrategies.getDetector();
     detector.setBeanFactory(context);
     return detector;
   }

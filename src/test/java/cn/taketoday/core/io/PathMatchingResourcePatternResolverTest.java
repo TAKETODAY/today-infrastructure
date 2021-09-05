@@ -49,12 +49,12 @@ public class PathMatchingResourcePatternResolverTest {
         "JarEntryResource.class", //
         "JarResource.class", //
         "PathMatchingResourcePatternResolver.class", // 
-        "Readable.class", //
+        "InputStreamSource.class", //
         "Resource.class", //
         "ResourceFilter.class", //
         "ResourceResolver.class", //
         "UrlBasedResource.class", //
-        "Writable.class", //
+        "OutputStreamSource.class", //
         "WritableResource.class", //
         "PathMatchingResourcePatternResolverTest.class", //
         "ResourceTests.class", //

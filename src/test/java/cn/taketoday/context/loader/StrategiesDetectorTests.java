@@ -29,6 +29,9 @@ import java.util.List;
 import cn.taketoday.beans.PropertyValueException;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.StrategiesDetector;
+import cn.taketoday.core.TodayStrategies;
+import cn.taketoday.core.YamlStrategiesReader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,6 +44,7 @@ public class StrategiesDetectorTests {
   public void load() {
 
     final StrategiesDetector loader = new StrategiesDetector();
+    loader.setStrategiesLocation(TodayStrategies.STRATEGIES_LOCATION);
     final List<PropertyValueResolver> strategy = loader.getStrategies(PropertyValueResolver.class);
 
     assertThat(strategy)
