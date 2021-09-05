@@ -63,6 +63,7 @@ import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.cglib.core.VisibilityPredicate;
 import cn.taketoday.cglib.core.WeakCacheKey;
 import cn.taketoday.core.Constant;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -576,7 +577,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         }
         else {
           this.primaryConstructorArgTypes = primaryConstructorArgTypes;
-          this.primaryConstructor = ReflectionUtils.getConstructor(generatedClass, primaryConstructorArgTypes);
+          this.primaryConstructor = ClassUtils.getConstructor(generatedClass, primaryConstructorArgTypes);
         }
       }
       catch (NoSuchMethodException e) {

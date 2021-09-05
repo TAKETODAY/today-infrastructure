@@ -35,7 +35,6 @@ import java.util.List;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
-import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.reflect.ReflectionException;
 
@@ -983,7 +982,7 @@ public abstract class ReflectionUtils {
 
   public static <T> Constructor<T> accessibleConstructor(
           final Class<T> targetClass, final Class<?>... parameterTypes) {
-    return (Constructor<T>) makeAccessible(getConstructor(targetClass, parameterTypes));
+    return makeAccessible(ClassUtils.getConstructor(targetClass, parameterTypes));
   }
 
   public static <T> Constructor<T> makeAccessible(Constructor<T> constructor) {
@@ -1235,21 +1234,7 @@ public abstract class ReflectionUtils {
   }
 
   public static Object newInstance(Class<?> type, Class[] parameterTypes, Object[] args) {
-    return invokeConstructor(getConstructor(type, parameterTypes), args);
-  }
-
-  /**
-   * @throws ConstructorNotFoundException
-   *         Constructor not found
-   */
-  public static Constructor<?> getConstructor(Class<?> type, Class... parameterTypes) {
-    Assert.notNull(type, "type must not be null");
-    try {
-      return type.getDeclaredConstructor(parameterTypes);
-    }
-    catch (NoSuchMethodException e) {
-      throw new ConstructorNotFoundException(type, parameterTypes, e);
-    }
+    return invokeConstructor(ClassUtils.getConstructor(type, parameterTypes), args);
   }
 
 }
