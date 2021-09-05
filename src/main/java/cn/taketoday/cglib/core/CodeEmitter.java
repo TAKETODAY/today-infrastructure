@@ -23,6 +23,7 @@ import cn.taketoday.asm.Label;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 
 /**
@@ -695,7 +696,7 @@ public class CodeEmitter extends LocalVariablesSorter {
   }
 
   public void process_switch(int[] keys, ProcessSwitchCallback callback, boolean useTable) {
-    if (!isSorted(keys)) throw new IllegalArgumentException("keys to switch must be sorted ascending");
+    Assert.isTrue(isSorted(keys), "keys to switch must be sorted ascending");
     Label def = make_label();
     Label end = make_label();
 
@@ -752,7 +753,8 @@ public class CodeEmitter extends LocalVariablesSorter {
 
   private static boolean isSorted(int[] keys) {
     for (int i = 1; i < keys.length; i++) {
-      if (keys[i] < keys[i - 1]) return false;
+      if (keys[i] < keys[i - 1])
+        return false;
     }
     return true;
   }

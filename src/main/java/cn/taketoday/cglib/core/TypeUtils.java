@@ -24,6 +24,7 @@ import java.util.Map;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.core.Constant;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 
 import static cn.taketoday.core.Constant.BLANK;
@@ -56,7 +57,7 @@ public abstract class TypeUtils {
     transforms.put("short", "S");
     transforms.put("boolean", "Z");
 
-    CglibCollectionUtils.reverse(transforms, rtransforms);
+    CollectionUtils.reverse(transforms, rtransforms);
   }
 
   public static Type getType(String className) {

@@ -150,19 +150,30 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
 
   protected Object createProxyClassAndInstance(Enhancer enhancer, Callback[] callbacks) throws Exception {
     enhancer.setInterceptDuringConstruction(false);
-    enhancer.setCallbacks(callbacks);
+
+    Object proxy;
     if (constructorArgs != null && constructorArgTypes != null) {
       // use constructor
-      return enhancer.create(constructorArgTypes, constructorArgs);
+      enhancer.setCallbacks(callbacks);
+      proxy = enhancer.create(constructorArgTypes, constructorArgs);
     }
-    // use default constructor
-    Class<?> proxyClass = enhancer.createClass();
-    Constructor<?> constructor = ClassUtils.getConstructorIfAvailable(proxyClass);
-    if (constructor != null) {
-      return constructor.newInstance();
+    else {
+      // use default constructor
+      Class<?> proxyClass = enhancer.createClass();
+      Constructor<?> constructor = ClassUtils.getConstructorIfAvailable(proxyClass);
+      if (constructor != null) {
+        proxy = constructor.newInstance();
+      }
+      else {
+        // use SunReflectionFactoryInstantiator
+        proxy = BeanInstantiator.forSerialization(proxyClass).instantiate();
+      }
+      if (proxy instanceof Factory) {
+        ((Factory) proxy).setCallbacks(callbacks);
+      }
     }
-    // use SunReflectionFactoryInstantiator
-    return BeanInstantiator.forSerialization(proxyClass).instantiate();
+
+    return proxy;
   }
 
   /**

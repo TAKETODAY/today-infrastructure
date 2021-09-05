@@ -34,6 +34,7 @@ import cn.taketoday.cglib.core.Local;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.asm.Opcodes.JAVA_VERSION;
@@ -173,7 +174,7 @@ abstract public class BeanCopier {
 
     @Override
     protected Object firstInstance(Class type) {
-      return CglibReflectUtils.newInstance(type);
+      return ReflectionUtils.newInstance(type);
     }
 
     @Override

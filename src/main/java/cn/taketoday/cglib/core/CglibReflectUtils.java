@@ -123,17 +123,6 @@ public abstract class CglibReflectUtils {
     throw new IllegalArgumentException("Cannot get exception types of a field");
   }
 
-  public static Signature getSignature(Member member) {
-    if (member instanceof Method) {
-      return new Signature(member.getName(), Type.getMethodDescriptor((Method) member));
-    }
-    if (member instanceof Constructor) {
-      Type[] types = TypeUtils.getTypes(((Constructor) member).getParameterTypes());
-      return new Signature(Constant.CONSTRUCTOR_NAME, Type.getMethodDescriptor(Type.VOID_TYPE, types));
-    }
-    throw new IllegalArgumentException("Cannot get signature of a field");
-  }
-
   public static Constructor findConstructor(String desc) {
     return findConstructor(desc, ClassUtils.getClassLoader());
   }
@@ -244,36 +233,6 @@ public abstract class CglibReflectUtils {
       }
     }
     throw new ClassNotFoundException(save);
-  }
-
-  public static <T> T newInstance(Class<T> type) {
-    return newInstance(type, Constant.EMPTY_CLASS_ARRAY, null);
-  }
-
-  public static <T> T newInstance(Class<T> type, Class[] parameterTypes, Object[] args) {
-    return newInstance(getConstructor(type, parameterTypes), args);
-  }
-
-  public static <T> T newInstance(final Constructor<T> cstruct, final Object[] args) {
-
-    try {
-      return cstruct.newInstance(args);
-    }
-    catch (InstantiationException | IllegalAccessException e) {
-      throw new CodeGenerationException(e);
-    }
-    catch (InvocationTargetException e) {
-      throw new CodeGenerationException(e.getTargetException());
-    }
-  }
-
-  public static <T> Constructor<T> getConstructor(Class<T> type, Class[] parameterTypes) {
-    try {
-      return ReflectionUtils.accessibleConstructor(type, parameterTypes);
-    }
-    catch (NoSuchMethodException e) {
-      throw new CodeGenerationException(e);
-    }
   }
 
   public static String[] getNames(final Class[] classes) {
@@ -414,7 +373,7 @@ public abstract class CglibReflectUtils {
 
   public static MethodInfo getMethodInfo(final Member member, final int modifiers) {
 
-    final Signature sig = getSignature(member);
+    final Signature sig = Signature.fromMember(member);
     return new MethodInfo() {
       private ClassInfo ci;
 

@@ -27,9 +27,9 @@ import cn.taketoday.asm.Type;
  */
 public class VisibilityPredicate implements Predicate<Executable> {
 
-  private String pkg;
-  private boolean protectedOk;
-  private boolean samePackageOk;
+  private final String pkg;
+  private final boolean protectedOk;
+  private final boolean samePackageOk;
 
   public VisibilityPredicate(Class<?> source, boolean protectedOk) {
     this.protectedOk = protectedOk;
@@ -37,9 +37,10 @@ public class VisibilityPredicate implements Predicate<Executable> {
     // we are
     // generating classes in the same classloader
     this.samePackageOk = source.getClassLoader() != null;
-    pkg = TypeUtils.getPackageName(Type.fromClass(source));
+    this.pkg = TypeUtils.getPackageName(Type.fromClass(source));
   }
 
+  @Override
   public boolean test(Executable member) {
     int mod = member.getModifiers();
     if (Modifier.isPrivate(mod)) {

@@ -44,6 +44,7 @@ import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.NamingPolicy;
 import cn.taketoday.cglib.reflect.FastClass;
+import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.ResourceUtils;
 
 import static org.junit.Assert.assertTrue;
@@ -589,10 +590,10 @@ public class TestEnhancer extends CodeGenTestCase {
     e.setSuperclass(ArgInit.class);
     e.setCallbackType(MethodInterceptor.class);
     Class<?> f = e.createClass();
-    ArgInit a = (ArgInit) CglibReflectUtils.newInstance(f,
-                                                        new Class[]
+    ArgInit a = (ArgInit) ReflectionUtils.newInstance(f,
+                                                      new Class[]
                                                                 { String.class },
-                                                        new Object[]
+                                                      new Object[]
                                                                 { "test" });
     assertEquals("test", a.toString());
     ((Factory) a).setCallback(0, TEST_INTERCEPTOR);
@@ -996,7 +997,7 @@ public class TestEnhancer extends CodeGenTestCase {
   }
 
   private static ArgInit newArgInit(Class<?> clazz, String value) {
-    return (ArgInit) CglibReflectUtils.newInstance(clazz,
+    return (ArgInit) ReflectionUtils.newInstance(clazz,
                                                    new Class[]
                                                            { String.class },
                                                    new Object[]

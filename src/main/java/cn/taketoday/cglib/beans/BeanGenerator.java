@@ -29,6 +29,7 @@ import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.KeyFactory;
+import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.asm.Opcodes.JAVA_VERSION;
@@ -136,7 +137,7 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
     if (classOnly) {
       return type;
     }
-    return CglibReflectUtils.newInstance(type);
+    return ReflectionUtils.newInstance(type);
   }
 
   @Override
@@ -145,7 +146,7 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
     if (classOnly) {
       return protoclass;
     }
-    return CglibReflectUtils.newInstance(protoclass);
+    return ReflectionUtils.newInstance(protoclass);
   }
 
   public static void addProperties(BeanGenerator gen, Map<String, Class<?>> props) {

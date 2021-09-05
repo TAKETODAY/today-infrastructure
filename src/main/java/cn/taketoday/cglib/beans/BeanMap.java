@@ -30,6 +30,7 @@ import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.KeyFactory;
 import cn.taketoday.core.Assert;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * A <code>Map</code>-based view of a JavaBean. The default set of keys is the
@@ -41,6 +42,7 @@ import cn.taketoday.core.Assert;
  * @author Chris Nokleberg
  */
 @SuppressWarnings("all")
+@Deprecated
 public abstract class BeanMap extends AbstractMap implements Map {
   /**
    * Limit the properties reflected in the key set of the map to readable
@@ -101,7 +103,8 @@ public abstract class BeanMap extends AbstractMap implements Map {
      */
     public void setBean(Object bean) {
       this.bean = bean;
-      if (bean != null) beanClass = bean.getClass();
+      if (bean != null)
+        beanClass = bean.getClass();
     }
 
     /**
@@ -149,7 +152,7 @@ public abstract class BeanMap extends AbstractMap implements Map {
     }
 
     protected Object firstInstance(Class type) {
-      return ((BeanMap) CglibReflectUtils.newInstance(type)).newInstance(bean);
+      return ((BeanMap) ReflectionUtils.newInstance(type)).newInstance(bean);
     }
 
     protected Object nextInstance(Object instance) {
@@ -180,7 +183,7 @@ public abstract class BeanMap extends AbstractMap implements Map {
 
   protected Object bean;
 
-  protected BeanMap() {}
+  protected BeanMap() { }
 
   protected BeanMap(Object bean) {
     setBean(bean);

@@ -26,6 +26,7 @@ import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassesKey;
 import cn.taketoday.cglib.core.KeyFactory;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * <code>Mixin</code> allows multiple objects to be combined into a single
@@ -185,7 +186,7 @@ public abstract class Mixin {
     }
 
     protected Object firstInstance(Class type) {
-      return ((Mixin) CglibReflectUtils.newInstance(type)).newInstance(delegates);
+      return ((Mixin) ReflectionUtils.newInstance(type)).newInstance(delegates);
     }
 
     protected Object nextInstance(Object instance) {

@@ -21,6 +21,7 @@ import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.KeyFactory;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * @author Juozas Baliuka
@@ -119,7 +120,7 @@ abstract public class BulkBean {
     }
 
     protected Object firstInstance(Class type) {
-      BulkBean instance = (BulkBean) CglibReflectUtils.newInstance(type);
+      BulkBean instance = (BulkBean) ReflectionUtils.newInstance(type);
       instance.target = target;
 
       int length = getters.length;

@@ -38,6 +38,8 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
@@ -788,5 +790,60 @@ public abstract class CollectionUtils {
       ((ArrayList<?>) list).trimToSize();
     }
   }
+
+  /**
+   * reverse source map key-value to target map value-key
+   *
+   * @since 4.0
+   */
+  public static <K, V> void reverse(Map<K, V> source, Map<V, K> target) {
+    for (Map.Entry<K, V> entry : source.entrySet()) {
+      target.put(entry.getValue(), entry.getKey());
+    }
+  }
+
+  /**
+   * removeIf Predicate#negate()
+   *
+   * @see Predicate#negate()
+   * @see Collection#removeIf(Predicate)
+   * @since 4.0
+   */
+  public static <T> void filter(Collection<T> c, Predicate<? super T> p) {
+    c.removeIf(p.negate());
+  }
+
+  /**
+   * transform T to R
+   *
+   * @param c
+   *         collection
+   * @param transformer
+   *         transformer
+   * @param <T>
+   *         value type
+   * @param <R>
+   *         transformed value type
+   *
+   * @since 4.0
+   */
+  public static <T, R> List<R> transform(
+          final Collection<? extends T> c, final Function<T, R> transformer) {
+    final ArrayList<R> result = new ArrayList<>(c.size());
+    for (final T obj : c) {
+      result.add(transformer.apply(obj));
+    }
+    return result;
+  }
+
+  public static <K, V> MultiValueMap<K, V> buckets(Collection<V> c, Function<V, K> transformer) {
+    DefaultMultiValueMap<K, V> buckets = new DefaultMultiValueMap<>(new LinkedHashMap<>());
+    for (final V value : c) {
+      final K key = transformer.apply(value);
+      buckets.add(key, value);
+    }
+    return buckets;
+  }
+
 
 }

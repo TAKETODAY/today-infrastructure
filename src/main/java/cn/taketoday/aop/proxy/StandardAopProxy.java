@@ -26,7 +26,6 @@ import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.std.DefaultProxyMethodGenerator;
@@ -49,6 +48,7 @@ import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.asm.Opcodes.ACC_FINAL;
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
@@ -191,7 +191,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
       args[superLength + offset] = targetSource;
       args[superLength + offset + 1] = config;
 
-      return CglibReflectUtils.newInstance(type, argTypes, args);
+      return ReflectionUtils.newInstance(type, argTypes, args);
     }
 
     Object[] createArgs(Class<?>[] proxyConstructorArgTypes) {

@@ -25,7 +25,6 @@ import java.util.Map.Entry;
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
-import cn.taketoday.cglib.core.CglibCollectionUtils;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.ClassInfo;
@@ -35,9 +34,9 @@ import cn.taketoday.cglib.core.Local;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.ObjectSwitchCallback;
 import cn.taketoday.cglib.core.Signature;
-import cn.taketoday.cglib.core.Transformer;
 import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.core.Constant;
+import cn.taketoday.util.CollectionUtils;
 
 import static cn.taketoday.asm.Type.array;
 import static cn.taketoday.core.Constant.PRIVATE_FINAL_STATIC;
@@ -87,8 +86,6 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
 
   private static final Signature FIND_PROXY = new Signature(FIND_PROXY_NAME, METHOD_PROXY, array(Constant.TYPE_SIGNATURE));
   private static final Signature TO_STRING = TypeUtils.parseSignature("String toString()");
-
-  private static final Transformer<MethodInfo, ClassInfo> METHOD_TO_CLASS = MethodInfo::getClassInfo;
 
   private String getMethodField(Signature impl) {
     return impl.getName() + "$Method";
@@ -180,8 +177,8 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
     EmitUtils.loadClassThis(e);
     e.store_local(thisClass);
 
-    final Map<ClassInfo, List<MethodInfo>> methodsByClass
-            = CglibCollectionUtils.bucket(methods, METHOD_TO_CLASS);
+    Map<ClassInfo, List<MethodInfo>> methodsByClass
+            = CollectionUtils.buckets(methods, MethodInfo::getClassInfo);
 
     for (final Entry<ClassInfo, List<MethodInfo>> entry : methodsByClass.entrySet()) {
 

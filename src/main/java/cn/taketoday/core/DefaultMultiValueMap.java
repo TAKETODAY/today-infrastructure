@@ -53,6 +53,7 @@ import cn.taketoday.util.CollectionUtils;
  * 2020-01-27 13:15
  * @since 2.1.7
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializable, Cloneable {
   private static final long serialVersionUID = 1L;
 

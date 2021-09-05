@@ -1116,7 +1116,7 @@ public abstract class ClassUtils {
   }
 
   /**
-   * Determine whether the given class has a public constructor with the given signature.
+   * Determine whether the given class has a declared constructor with the given signature.
    * <p>Essentially translates {@code NoSuchMethodException} to "false".
    *
    * @param clazz
@@ -1126,7 +1126,7 @@ public abstract class ClassUtils {
    *
    * @return whether the class has a corresponding constructor
    *
-   * @see Class#getConstructor
+   * @see Class#getDeclaredConstructor
    * @since 4.0
    */
   public static boolean hasConstructor(Class<?> clazz, Class<?>... paramTypes) {
@@ -1134,7 +1134,7 @@ public abstract class ClassUtils {
   }
 
   /**
-   * Determine whether the given class has a public constructor with the given signature,
+   * Determine whether the given class has a declared constructor with the given signature,
    * and return it if available (else return {@code null}).
    * <p>Essentially translates {@code NoSuchMethodException} to {@code null}.
    *
@@ -1145,14 +1145,14 @@ public abstract class ClassUtils {
    *
    * @return the constructor, or {@code null} if not found
    *
-   * @see Class#getConstructor
+   * @see Class#getDeclaredConstructor
    * @since 4.0
    */
   @Nullable
   public static <T> Constructor<T> getConstructorIfAvailable(Class<T> clazz, Class<?>... paramTypes) {
     Assert.notNull(clazz, "Class must not be null");
     try {
-      return clazz.getConstructor(paramTypes);
+      return clazz.getDeclaredConstructor(paramTypes);
     }
     catch (NoSuchMethodException ex) {
       return null;
@@ -1160,18 +1160,19 @@ public abstract class ClassUtils {
   }
 
   /**
+   * getDeclaredConstructor
+   *
    * @throws ConstructorNotFoundException
    *         not found
+   * @see Class#getDeclaredConstructor
    */
   public static <T> Constructor<T> getConstructor(Class<T> type, Class<?>... parameterTypes) {
     Assert.notNull(type, "Class must not be null");
     try {
-      return type.getConstructor(parameterTypes);
+      return type.getDeclaredConstructor(parameterTypes);
     }
     catch (NoSuchMethodException e) {
-      ConstructorNotFoundException exception = new ConstructorNotFoundException(type);
-      exception.initCause(e);
-      throw exception;
+      throw new ConstructorNotFoundException(type, parameterTypes, e);
     }
   }
 

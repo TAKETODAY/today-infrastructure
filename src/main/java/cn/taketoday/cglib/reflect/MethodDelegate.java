@@ -33,6 +33,7 @@ import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.core.Constant;
+import cn.taketoday.util.ReflectionUtils;
 
 // TODO: don't require exact match for return type
 
@@ -214,7 +215,7 @@ abstract public class MethodDelegate {
 
     @Override
     protected Object firstInstance(Class type) {
-      return ((MethodDelegate) CglibReflectUtils.newInstance(type)).newInstance(target);
+      return ((MethodDelegate) ReflectionUtils.newInstance(type)).newInstance(target);
     }
 
     @Override

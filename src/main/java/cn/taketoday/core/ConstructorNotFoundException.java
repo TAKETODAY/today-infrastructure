@@ -28,19 +28,36 @@ package cn.taketoday.core;
  */
 public class ConstructorNotFoundException extends NestedRuntimeException {
   private static final long serialVersionUID = 1L;
-  private final Class<?> beanClass;
+  private final Class<?> type;
+  @Nullable
+  private final Class<?>[] parameterTypes;
 
-  public ConstructorNotFoundException(Class<?> beanClass) {
-    this(beanClass, "No suitable constructor in class: " + beanClass);
+  public ConstructorNotFoundException(Class<?> type) {
+    this(type, "No suitable constructor in class: " + type);
   }
 
-  public ConstructorNotFoundException(Class<?> beanClass, String msg) {
-    super(msg);
-    this.beanClass = beanClass;
+  public ConstructorNotFoundException(Class<?> type, String msg) {
+    this(type, msg, null, null);
   }
 
-  public Class<?> getBeanClass() {
-    return beanClass;
+  public ConstructorNotFoundException(Class<?> type, Class<?>[] parameterTypes, Throwable e) {
+    this(type, "No suitable constructor in class: " + type, parameterTypes, e);
+  }
+
+  public ConstructorNotFoundException(
+          Class<?> type, String msg, @Nullable Class<?>[] parameterTypes, Throwable e) {
+    super(msg, e);
+    this.type = type;
+    this.parameterTypes = parameterTypes;
+  }
+
+  public Class<?> getType() {
+    return type;
+  }
+
+  @Nullable
+  public Class<?>[] getParameterTypes() {
+    return parameterTypes;
   }
 
 }

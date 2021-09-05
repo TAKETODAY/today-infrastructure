@@ -35,6 +35,7 @@ import java.util.List;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.reflect.ReflectionException;
 
@@ -44,6 +45,7 @@ import cn.taketoday.core.reflect.ReflectionException;
  * @author TODAY 2020-08-13 18:45
  * @since 2.1.7
  */
+@SuppressWarnings("rawtypes")
 public abstract class ReflectionUtils {
 
   /**
@@ -979,11 +981,9 @@ public abstract class ReflectionUtils {
     return fields.toArray(new Field[fields.size()]);
   }
 
-  public static <T> Constructor<T> accessibleConstructor(final Class<T> targetClass, final Class<?>... parameterTypes)
-          throws NoSuchMethodException //
-  {
-    Assert.notNull(targetClass, "targetClass must not be null");
-    return makeAccessible(targetClass.getDeclaredConstructor(parameterTypes));
+  public static <T> Constructor<T> accessibleConstructor(
+          final Class<T> targetClass, final Class<?>... parameterTypes) {
+    return (Constructor<T>) makeAccessible(getConstructor(targetClass, parameterTypes));
   }
 
   public static <T> Constructor<T> makeAccessible(Constructor<T> constructor) {
@@ -1226,6 +1226,30 @@ public abstract class ReflectionUtils {
       throw new IllegalArgumentException("parameter index is illegal");
     }
     return parameters[parameterIndex];
+  }
+
+  // newInstance
+
+  public static Object newInstance(Class<?> type) {
+    return newInstance(type, Constant.EMPTY_CLASS_ARRAY, null);
+  }
+
+  public static Object newInstance(Class<?> type, Class[] parameterTypes, Object[] args) {
+    return invokeConstructor(getConstructor(type, parameterTypes), args);
+  }
+
+  /**
+   * @throws ConstructorNotFoundException
+   *         Constructor not found
+   */
+  public static Constructor<?> getConstructor(Class<?> type, Class... parameterTypes) {
+    Assert.notNull(type, "type must not be null");
+    try {
+      return type.getDeclaredConstructor(parameterTypes);
+    }
+    catch (NoSuchMethodException e) {
+      throw new ConstructorNotFoundException(type, parameterTypes, e);
+    }
   }
 
 }

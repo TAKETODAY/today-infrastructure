@@ -16,9 +16,11 @@
 package cn.taketoday.cglib.core;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 
 import cn.taketoday.asm.Type;
+import cn.taketoday.core.Constant;
 
 /**
  * A representation of a method signature, containing the method name, return
@@ -87,4 +89,19 @@ public class Signature {
   public int hashCode() {
     return name.hashCode() ^ desc.hashCode();
   }
+
+  // static
+
+  @SuppressWarnings("rawtypes")
+  public static Signature fromMember(Member member) {
+    if (member instanceof Method) {
+      return new Signature(member.getName(), Type.getMethodDescriptor((Method) member));
+    }
+    if (member instanceof Constructor) {
+      Type[] types = TypeUtils.getTypes(((Constructor) member).getParameterTypes());
+      return new Signature(Constant.CONSTRUCTOR_NAME, Type.getMethodDescriptor(Type.VOID_TYPE, types));
+    }
+    throw new IllegalArgumentException("Cannot get signature of a field");
+  }
+
 }

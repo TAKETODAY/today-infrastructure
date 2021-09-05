@@ -31,6 +31,7 @@ import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.core.Constant;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * @author Chris Nokleberg
@@ -118,7 +119,7 @@ public abstract class ImmutableBean {
     }
 
     protected Object firstInstance(Class type) {
-      return CglibReflectUtils.newInstance(type, OBJECT_CLASSES, new Object[] { bean });
+      return ReflectionUtils.newInstance(type, OBJECT_CLASSES, new Object[] { bean });
     }
 
     // TODO: optimize

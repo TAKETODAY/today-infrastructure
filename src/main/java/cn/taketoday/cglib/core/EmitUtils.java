@@ -26,14 +26,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.cglib.core.internal.CustomizerRegistry;
 import cn.taketoday.core.Constant;
+import cn.taketoday.util.CollectionUtils;
 
-import static cn.taketoday.cglib.core.CglibCollectionUtils.bucket;
 import static cn.taketoday.cglib.core.TypeUtils.parseConstructor;
 import static cn.taketoday.cglib.core.TypeUtils.parseSignature;
 import static cn.taketoday.core.Constant.SWITCH_STYLE_HASH;
@@ -196,11 +197,12 @@ public abstract class EmitUtils {
   {
     final Label def = e.make_label();
     final Label end = e.make_label();
-    final Map buckets = bucket(Arrays.asList(strings), new Transformer() {
-      public Object transform(Object value) {
-        return Integer.valueOf(((String) value).length());
+    final Map<Integer, List<String>> buckets = CollectionUtils.buckets(Arrays.asList(strings), new Function<String, Integer>() {
+      public Integer apply(String value) {
+        return Integer.valueOf(value.length());
       }
     });
+
     e.dup();
     e.invoke_virtual(Constant.TYPE_STRING, STRING_LENGTH);
     e.process_switch(getSwitchKeys(buckets), new ProcessSwitchCallback() {
@@ -222,8 +224,8 @@ public abstract class EmitUtils {
   private static void stringSwitchHelper(final CodeEmitter e, List strings, final ObjectSwitchCallback callback,
                                          final Label def, final Label end, final int index) throws Exception {
     final int len = ((String) strings.get(0)).length();
-    final Map buckets = bucket(strings, new Transformer() {
-      public Object transform(Object value) {
+    final Map buckets = CollectionUtils.buckets(strings, new Function() {
+      public Object apply(Object value) {
         return Integer.valueOf(((String) value).charAt(index));
       }
     });
@@ -260,13 +262,11 @@ public abstract class EmitUtils {
     return keys;
   }
 
-  private static void stringSwitchHash(final CodeEmitter e, final String[] strings,
-                                       final ObjectSwitchCallback callback, final boolean skipEquals) throws Exception {
-    final Map<Integer, List<String>> buckets = bucket(Arrays.asList(strings), new Transformer() {
-      public Object transform(Object value) {
-        return value.hashCode(); // TODO
-      }
-    });
+  private static void stringSwitchHash(
+          final CodeEmitter e, final String[] strings,
+          final ObjectSwitchCallback callback, final boolean skipEquals) throws Exception {
+
+    final Map<Integer, List<String>> buckets = CollectionUtils.buckets(Arrays.asList(strings), Object::hashCode);
 
     final Label def = e.make_label();
     final Label end = e.make_label();
@@ -723,10 +723,10 @@ public abstract class EmitUtils {
     e.invoke_virtual(TYPE_STRING_BUFFER, SET_LENGTH);
   }
 
-  public static class ArrayDelimiters {
-    private String before;
-    private String inside;
-    private String after;
+  static class ArrayDelimiters {
+    public final String before;
+    public final String inside;
+    public final String after;
 
     public ArrayDelimiters(String before, String inside, String after) {
       this.before = before;
@@ -775,7 +775,7 @@ public abstract class EmitUtils {
       if (useName) {
         e.swap();
         final Map<String, List<MethodInfo>> buckets = //
-                bucket(members, (MethodInfo value) -> value.getSignature().getName());
+                CollectionUtils.buckets(members, (MethodInfo value) -> value.getSignature().getName());
 
         String[] names = buckets.keySet().toArray(new String[buckets.size()]);
 
@@ -815,7 +815,7 @@ public abstract class EmitUtils {
                                        final Label def, final Label end) throws Exception //
   {
 
-    final Map<Integer, List<MethodInfo>> buckets = bucket(members, (MethodInfo value) -> {
+    final Map<Integer, List<MethodInfo>> buckets = CollectionUtils.buckets(members, (MethodInfo value) -> {
       return Integer.valueOf(typer.getParameterTypes(value).length);
     });
 
@@ -867,7 +867,7 @@ public abstract class EmitUtils {
       for (int i = 0; i < example.length; i++) {
         final int j = i;
 
-        final Map<String, List<MethodInfo>> test = bucket(members, (MethodInfo value) -> {
+        final Map<String, List<MethodInfo>> test = CollectionUtils.buckets(members, (MethodInfo value) -> {
           return TypeUtils.emulateClassGetName(typer.getParameterTypes(value)[j]);
         });
 
@@ -948,7 +948,8 @@ public abstract class EmitUtils {
   public static void wrapUndeclaredThrowable(CodeEmitter e, Block handler, Type[] exceptions, Type wrapper) {
     Set set = (exceptions == null) ? Collections.EMPTY_SET : new HashSet(Arrays.asList(exceptions));
 
-    if (set.contains(Constant.TYPE_THROWABLE)) return;
+    if (set.contains(Constant.TYPE_THROWABLE))
+      return;
 
     boolean needThrow = exceptions != null;
     if (!set.contains(Constant.TYPE_RUNTIME_EXCEPTION)) {

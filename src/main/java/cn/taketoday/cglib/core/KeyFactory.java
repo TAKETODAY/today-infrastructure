@@ -27,6 +27,7 @@ import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.cglib.core.internal.CustomizerRegistry;
 import cn.taketoday.core.Constant;
+import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.asm.Type.array;
 
@@ -227,7 +228,7 @@ abstract public class KeyFactory {
     }
 
     protected Object firstInstance(Class type) {
-      return CglibReflectUtils.newInstance(type);
+      return ReflectionUtils.newInstance(type);
     }
 
     protected Object nextInstance(Object instance) {
@@ -252,7 +253,7 @@ abstract public class KeyFactory {
       );
 
       EmitUtils.nullConstructor(ce);
-      EmitUtils.factoryMethod(ce, CglibReflectUtils.getSignature(newInstance));
+      EmitUtils.factoryMethod(ce, Signature.fromMember(newInstance));
 
       int seed = 0;
       CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, TypeUtils.parseConstructor(parameterTypes));

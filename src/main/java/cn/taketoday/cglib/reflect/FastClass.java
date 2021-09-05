@@ -26,6 +26,7 @@ import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.core.Constant;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * @author TODAY <br>
@@ -77,7 +78,7 @@ public abstract class FastClass {
     }
 
     protected Object firstInstance(Class type) {
-      return CglibReflectUtils.newInstance(type, new Class[] { Class.class }, new Object[] { this.type });
+      return ReflectionUtils.newInstance(type, new Class[] { Class.class }, new Object[] { this.type });
     }
 
     protected Object nextInstance(Object instance) {

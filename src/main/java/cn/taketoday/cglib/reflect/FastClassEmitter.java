@@ -15,19 +15,19 @@
  */
 package cn.taketoday.cglib.reflect;
 
-import java.lang.reflect.Member;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Function;
 
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.cglib.core.Block;
-import cn.taketoday.cglib.core.CglibCollectionUtils;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
@@ -38,10 +38,11 @@ import cn.taketoday.cglib.core.MethodInfoTransformer;
 import cn.taketoday.cglib.core.ObjectSwitchCallback;
 import cn.taketoday.cglib.core.ProcessSwitchCallback;
 import cn.taketoday.cglib.core.Signature;
-import cn.taketoday.cglib.core.Transformer;
 import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.cglib.core.VisibilityPredicate;
 import cn.taketoday.core.Constant;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.StringUtils;
 
 import static cn.taketoday.core.Constant.SWITCH_STYLE_HASH;
 
@@ -88,12 +89,12 @@ class FastClassEmitter extends ClassEmitter {
 
     VisibilityPredicate vp = new VisibilityPredicate(type, false);
     List<Method> methods = CglibReflectUtils.addAllMethods(type, new ArrayList<>());
-    CglibCollectionUtils.filter(methods, vp);
-    CglibCollectionUtils.filter(methods, new DuplicatesPredicate());
+    CollectionUtils.filter(methods, vp);
+    CollectionUtils.filter(methods, new DuplicatesPredicate());
 
-    ArrayList<Member> constructors = new ArrayList<>();
+    ArrayList<Constructor> constructors = new ArrayList<>();
     Collections.addAll(constructors, type.getDeclaredConstructors());
-    CglibCollectionUtils.filter(constructors, vp);
+    CollectionUtils.filter(constructors, vp);
 
     // getIndex(String)
     emitIndexBySignature(methods);
@@ -104,7 +105,7 @@ class FastClassEmitter extends ClassEmitter {
     // getIndex(Class[])
     e = beginMethod(Opcodes.ACC_PUBLIC, CONSTRUCTOR_GET_INDEX);
     e.load_args();
-    List<MethodInfo> info = CglibCollectionUtils.transform(constructors, MethodInfoTransformer.getInstance());
+    List<MethodInfo> info = CollectionUtils.transform(constructors, MethodInfoTransformer.getInstance());
     EmitUtils.constructorSwitch(e, info, new GetIndexCallback(e, info));
     e.end_method();
 
@@ -136,9 +137,9 @@ class FastClassEmitter extends ClassEmitter {
   // TODO: support constructor indices ("<init>")
   private void emitIndexBySignature(List<Method> methods) {
     CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, SIGNATURE_GET_INDEX);
-    List<String> signatures = CglibCollectionUtils.transform(methods, new Transformer<Method, String>() {
-      public String transform(Method obj) {
-        return CglibReflectUtils.getSignature(obj).toString();
+    List<String> signatures = CollectionUtils.transform(methods, new Function<Method, String>() {
+      public String apply(Method obj) {
+        return Signature.fromMember(obj).toString();
       }
     });
     e.load_arg(0);
@@ -153,9 +154,9 @@ class FastClassEmitter extends ClassEmitter {
     CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, METHOD_GET_INDEX);
     if (methods.size() > TOO_MANY_METHODS) {
       // hack for big classes
-      List<String> signatures = CglibCollectionUtils.transform(methods, new Transformer<Method, String>() {
-        public String transform(Method obj) {
-          final String s = CglibReflectUtils.getSignature(obj).toString();
+      List<String> signatures = CollectionUtils.transform(methods, new Function<Method, String>() {
+        public String apply(Method obj) {
+          final String s = Signature.fromMember(obj).toString();
           return s.substring(0, s.lastIndexOf(')') + 1);
         }
       });
@@ -165,7 +166,7 @@ class FastClassEmitter extends ClassEmitter {
     }
     else {
       e.load_args();
-      List<MethodInfo> info = CglibCollectionUtils.transform(methods, MethodInfoTransformer.getInstance());
+      List<MethodInfo> info = CollectionUtils.transform(methods, MethodInfoTransformer.getInstance());
       EmitUtils.methodSwitch(e, info, new GetIndexCallback(e, info));
     }
     e.end_method();
@@ -184,11 +185,13 @@ class FastClassEmitter extends ClassEmitter {
         e.return_value();
       }
     };
-    EmitUtils.stringSwitch(e, signatures.toArray(new String[signatures.size()]), SWITCH_STYLE_HASH, callback);
+
+    String[] strings = StringUtils.toStringArray(signatures);
+    EmitUtils.stringSwitch(e, strings, SWITCH_STYLE_HASH, callback);
   }
 
   private static void invokeSwitchHelper(final CodeEmitter e, List members, final int arg, final Type base) {
-    final List<MethodInfo> info = CglibCollectionUtils.transform(members, MethodInfoTransformer.getInstance());
+    final List<MethodInfo> info = CollectionUtils.transform(members, MethodInfoTransformer.getInstance());
     final Label illegalArg = e.make_label();
     final Block block = e.begin_block();
     e.process_switch(getIntRange(info.size()), new ProcessSwitchCallback() {

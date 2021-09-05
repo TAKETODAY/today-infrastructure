@@ -123,7 +123,7 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
       throw new CodeGenerationException(e);
     }
 
-    final Signature sig = CglibReflectUtils.getSignature(m);
+    final Signature sig = Signature.fromMember(m);
     Type[] exceptions = TypeUtils.getTypes(m.getExceptionTypes());
     CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, sig, exceptions);
     e.load_this();

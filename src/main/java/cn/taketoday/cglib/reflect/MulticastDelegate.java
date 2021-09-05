@@ -33,6 +33,7 @@ import cn.taketoday.cglib.core.ProcessArrayCallback;
 import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.core.Constant;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * @author TODAY <br>
@@ -183,7 +184,7 @@ abstract public class MulticastDelegate implements Cloneable {
     @Override
     protected Object firstInstance(Class<Object> type) {
       // make a new instance in case first object is used with a long list of targets
-      return ((MulticastDelegate) CglibReflectUtils.newInstance(type)).newInstance();
+      return ((MulticastDelegate) ReflectionUtils.newInstance(type)).newInstance();
     }
 
     @Override

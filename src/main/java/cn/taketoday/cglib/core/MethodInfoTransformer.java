@@ -16,8 +16,9 @@
 package cn.taketoday.cglib.core;
 
 import java.lang.reflect.Member;
+import java.util.function.Function;
 
-public class MethodInfoTransformer implements Transformer<Member, MethodInfo> {
+public class MethodInfoTransformer implements Function<Member, MethodInfo> {
 
   private static final MethodInfoTransformer INSTANCE = new MethodInfoTransformer();
 
@@ -25,7 +26,9 @@ public class MethodInfoTransformer implements Transformer<Member, MethodInfo> {
     return INSTANCE;
   }
 
-  public MethodInfo transform(Member value) {
+  @Override
+  public MethodInfo apply(Member value) {
     return CglibReflectUtils.getMethodInfo(value);
   }
+
 }

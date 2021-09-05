@@ -122,7 +122,7 @@ public class DuplicatesPredicate implements Predicate<Method> {
     }
 
     void addSuspectMethod(Method m) {
-      methods.put(CglibReflectUtils.getSignature(m), m);
+      methods.put(Signature.fromMember(m), m);
     }
 
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {}

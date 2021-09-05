@@ -42,7 +42,6 @@ import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
-import cn.taketoday.cglib.core.CglibCollectionUtils;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
@@ -64,7 +63,9 @@ import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.cglib.core.VisibilityPredicate;
 import cn.taketoday.cglib.core.WeakCacheKey;
 import cn.taketoday.core.Constant;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.asm.ClassReader.SKIP_DEBUG;
 import static cn.taketoday.asm.ClassReader.SKIP_FRAMES;
@@ -517,7 +518,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   /**
    * The idea of the class is to cache relevant java.lang.reflect instances so
    * proxy-class can be instantiated faster that when using
-   * {@link CglibReflectUtils#newInstance(Class, Class[], Object[])} and
+   * {@link ReflectionUtils#newInstance(Class, Class[], Object[])} and
    * {@link Enhancer#setThreadCallbacks(Class, Callback[])}
    */
   static class EnhancerFactoryData {
@@ -553,10 +554,10 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         if (primaryConstructorArgTypes == argumentTypes || Arrays.equals(primaryConstructorArgTypes, argumentTypes)) {
           // If we have relevant Constructor instance at hand, just call it
           // This skips "get constructors" machinery
-          return CglibReflectUtils.newInstance(primaryConstructor, arguments);
+          return ReflectionUtils.invokeConstructor(primaryConstructor, arguments);
         }
         // Take a slow path if observing unexpected argument types
-        return CglibReflectUtils.newInstance(generatedClass, argumentTypes, arguments);
+        return ReflectionUtils.newInstance(generatedClass, argumentTypes, arguments);
       }
       finally {
         // clear thread callbacks to allow them to be gc'd
@@ -575,7 +576,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         }
         else {
           this.primaryConstructorArgTypes = primaryConstructorArgTypes;
-          this.primaryConstructor = CglibReflectUtils.getConstructor(generatedClass, primaryConstructorArgTypes);
+          this.primaryConstructor = ReflectionUtils.getConstructor(generatedClass, primaryConstructorArgTypes);
         }
       }
       catch (NoSuchMethodException e) {
@@ -693,10 +694,10 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       }
       methods.addAll(interfaceMethods);
     }
-    CglibCollectionUtils.filter(methods, new RejectModifierPredicate(ACC_STATIC));
-    CglibCollectionUtils.filter(methods, new VisibilityPredicate(superclass, true));
-    CglibCollectionUtils.filter(methods, new DuplicatesPredicate(methods));
-    CglibCollectionUtils.filter(methods, new RejectModifierPredicate(Opcodes.ACC_FINAL));
+    CollectionUtils.filter(methods, new RejectModifierPredicate(ACC_STATIC));
+    CollectionUtils.filter(methods, new VisibilityPredicate(superclass, true));
+    CollectionUtils.filter(methods, new DuplicatesPredicate(methods));
+    CollectionUtils.filter(methods, new RejectModifierPredicate(Opcodes.ACC_FINAL));
   }
 
   @Override
@@ -720,7 +721,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     final Set forcePublic = new HashSet();
     getMethods(sc, interfaces, actualMethods, interfaceMethods, forcePublic);
 
-    final List<MethodInfo> methods = CglibCollectionUtils.transform(actualMethods, (Method method) -> {
+    final List<MethodInfo> methods = CollectionUtils.transform(actualMethods, (Method method) -> {
 
       int modifiers = Opcodes.ACC_FINAL | (method.getModifiers() //
               & ~Opcodes.ACC_ABSTRACT //
@@ -753,7 +754,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
                    Constant.SOURCE_FILE//
       );
     }
-    List constructorInfo = CglibCollectionUtils.transform(constructors, MethodInfoTransformer.getInstance());
+    List constructorInfo = CollectionUtils.transform(constructors, MethodInfoTransformer.getInstance());
 
     e.declare_field(ACC_PRIVATE, BOUND_FIELD, BOOLEAN_TYPE, null);
     e.declare_field(ACC_PUBLIC | ACC_STATIC, FACTORY_DATA_FIELD, OBJECT_TYPE, null);
@@ -812,7 +813,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    *         if there are no non-private constructors
    */
   protected void filterConstructors(Class sc, List constructors) {
-    CglibCollectionUtils.filter(constructors, new VisibilityPredicate(sc, true));
+    CollectionUtils.filter(constructors, new VisibilityPredicate(sc, true));
     if (constructors.size() == 0)
       throw new IllegalArgumentException("No visible constructors in " + sc);
   }
@@ -994,9 +995,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     try {
 
       if (argumentTypes != null) {
-        return CglibReflectUtils.newInstance(type, argumentTypes, arguments);
+        return ReflectionUtils.newInstance(type, argumentTypes, arguments);
       }
-      return CglibReflectUtils.newInstance(type);
+      return ReflectionUtils.newInstance(type);
     }
     finally {
       // clear thread callbacks to allow them to be gc'd
@@ -1072,7 +1073,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     catch (NoSuchMethodException e) {
       throw new IllegalStateException("Object should have default constructor ", e);
     }
-    MethodInfo constructor = MethodInfoTransformer.getInstance().transform(declaredConstructor);
+    MethodInfo constructor = MethodInfoTransformer.getInstance().apply(declaredConstructor);
     CodeEmitter e = EmitUtils.beginMethod(ce, constructor, ACC_PUBLIC);
     e.load_this();
     e.dup();
@@ -1086,7 +1087,6 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     boolean seenNull = false;
 
     for (MethodInfo constructor : constructors) {
-
       if (currentData != null && !"()V".equals(constructor.getSignature().getDescriptor())) {
         continue;
       }
@@ -1108,14 +1108,15 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       e.return_value();
       e.end_method();
     }
-    if (!classOnly && !seenNull && arguments
-            == null)
+    if (!classOnly && !seenNull && arguments == null) {
       throw new IllegalArgumentException("Superclass has no null constructors but no arguments were given");
+    }
   }
 
   private int[] getCallbackKeys() {
-    int[] keys = new int[callbackTypes.length];
-    for (int i = 0; i < callbackTypes.length; i++) {
+    Type[] types = this.callbackTypes;
+    int[] keys = new int[types.length];
+    for (int i = 0; i < types.length; i++) {
       keys[i] = i;
     }
     return keys;
