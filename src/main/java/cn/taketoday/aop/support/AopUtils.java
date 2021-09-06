@@ -81,7 +81,7 @@ public abstract class AopUtils {
 
   public static final MethodInterceptor[] EMPTY_INTERCEPTOR = new MethodInterceptor[0];
 
-  private static final List<AdvisorAdapter> advisorAdapters = new ArrayList<>();
+  private static final ArrayList<AdvisorAdapter> advisorAdapters = new ArrayList<>();
 
   static {
     addAdvisorAdapters(new BeforeAdvisorAdapter(),
@@ -338,7 +338,7 @@ public abstract class AopUtils {
     if (candidateAdvisors.isEmpty()) {
       return candidateAdvisors;
     }
-    List<Advisor> eligibleAdvisors = new ArrayList<>();
+    ArrayList<Advisor> eligibleAdvisors = new ArrayList<>();
     for (Advisor candidate : candidateAdvisors) {
       if (candidate instanceof IntroductionAdvisor && canApply(candidate, clazz)) {
         eligibleAdvisors.add(candidate);
@@ -490,7 +490,7 @@ public abstract class AopUtils {
   }
 
   public static MethodInterceptor[] getInterceptors(Advisor advisor) throws UnknownAdviceTypeException {
-    List<MethodInterceptor> interceptors = new ArrayList<>(3);
+    ArrayList<MethodInterceptor> interceptors = new ArrayList<>(3);
     Advice advice = advisor.getAdvice();
     if (advice instanceof MethodInterceptor) {
       interceptors.add((MethodInterceptor) advice);
