@@ -157,7 +157,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
       }
       TypeDescriptor typeDescriptor = getTypeDescriptor();
       if (typeDescriptor == null) {
-        typeDescriptor = TypeDescriptor.ofProperty(this);
+        typeDescriptor = TypeDescriptor.fromProperty(this);
         this.typeDescriptor = typeDescriptor;
       }
       value = conversionService.convert(value, typeDescriptor);

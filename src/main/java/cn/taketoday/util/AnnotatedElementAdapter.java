@@ -27,7 +27,7 @@ import java.util.Arrays;
 import cn.taketoday.core.Constant;
 
 /**
- * Adapter class for exposing a {@code GenericDescriptor}'s annotations as an
+ * Adapter class for exposing a {@code TypeDescriptor}'s annotations as an
  * {@link AnnotatedElement}, in particular to {@link ClassUtils}.
  *
  * @author TODAY 2021/3/26 13:42

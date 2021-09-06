@@ -263,8 +263,8 @@ public class DataBinderParameterResolver
     }
 
     @Override
-    protected TypeDescriptor createGenericDescriptor() {
-      return TypeDescriptor.ofProperty(field);
+    protected TypeDescriptor createTypeDescriptor() {
+      return TypeDescriptor.fromProperty(field);
     }
 
   }

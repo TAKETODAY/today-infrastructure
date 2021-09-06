@@ -202,20 +202,20 @@ public class TypeDescriptor implements Serializable {
   /**
    * Narrows this {@link TypeDescriptor} by setting its type to the class of the
    * provided value.
-   * <p>If the value is {@code null}, no narrowing is performed and this GenericDescriptor
+   * <p>If the value is {@code null}, no narrowing is performed and this TypeDescriptor
    * is returned unchanged.
    * <p>Designed to be called by binding frameworks when they read property, field,
-   * or method return values. Allows such frameworks to narrow a GenericDescriptor built
+   * or method return values. Allows such frameworks to narrow a TypeDescriptor built
    * from a declared property, field, or method return value type. For example, a field
    * declared as {@code java.lang.Object} would be narrowed to {@code java.util.HashMap}
-   * if it was set to a {@code java.util.HashMap} value. The narrowed GenericDescriptor
+   * if it was set to a {@code java.util.HashMap} value. The narrowed TypeDescriptor
    * can then be used to convert the HashMap to some other type. Annotation and nested
    * type context is preserved by the narrowed copy.
    *
    * @param value
    *         the value to use for narrowing this type descriptor
    *
-   * @return this GenericDescriptor narrowed (returns a copy with its type updated to the
+   * @return this TypeDescriptor narrowed (returns a copy with its type updated to the
    * class of the provided value)
    */
   public TypeDescriptor narrow(Object value) {
@@ -233,7 +233,7 @@ public class TypeDescriptor implements Serializable {
    * @param superType
    *         the super type to cast to (can be {@code null})
    *
-   * @return a new GenericDescriptor for the up-cast type
+   * @return a new TypeDescriptor for the up-cast type
    *
    * @throws IllegalArgumentException
    *         if this type is not assignable to the super-type
@@ -316,8 +316,8 @@ public class TypeDescriptor implements Serializable {
       return isNestedAssignable(getElementDescriptor(), typeDescriptor.getElementDescriptor());
     }
     else if (isMap() && typeDescriptor.isMap()) {
-      return isNestedAssignable(getMapKeyGenericDescriptor(), typeDescriptor.getMapKeyGenericDescriptor()) &&
-              isNestedAssignable(getMapValueGenericDescriptor(), typeDescriptor.getMapValueGenericDescriptor());
+      return isNestedAssignable(getMapKeyDescriptor(), typeDescriptor.getMapKeyDescriptor()) &&
+              isNestedAssignable(getMapValueDescriptor(), typeDescriptor.getMapValueDescriptor());
     }
     else {
       return true;
@@ -340,7 +340,7 @@ public class TypeDescriptor implements Serializable {
    * @return the array component type or Collection element type, or {@code null} if this type is not
    * an array type or a {@code java.util.Collection} or if its element type is not parameterized
    *
-   * @see #elementGenericDescriptor(Object)
+   * @see #elementDescriptor(Object)
    */
   public TypeDescriptor getElementDescriptor() {
     if (getResolvableType().isArray()) {
@@ -353,17 +353,17 @@ public class TypeDescriptor implements Serializable {
   }
 
   /**
-   * If this type is a {@link Collection} or an array, creates a element GenericDescriptor
+   * If this type is a {@link Collection} or an array, creates a element TypeDescriptor
    * from the provided collection or array element.
    * <p>Narrows the {@link #getElementDescriptor() elementType} property to the class
    * of the provided collection or array element. For example, if this describes a
    * {@code java.util.List&lt;java.lang.Number&lt;} and the element argument is an
-   * {@code java.lang.Integer}, the returned GenericDescriptor will be {@code java.lang.Integer}.
+   * {@code java.lang.Integer}, the returned TypeDescriptor will be {@code java.lang.Integer}.
    * If this describes a {@code java.util.List&lt;?&gt;} and the element argument is an
-   * {@code java.lang.Integer}, the returned GenericDescriptor will be {@code java.lang.Integer}
+   * {@code java.lang.Integer}, the returned TypeDescriptor will be {@code java.lang.Integer}
    * as well.
    * <p>Annotation and nested type context will be preserved in the narrowed
-   * GenericDescriptor that is returned.
+   * TypeDescriptor that is returned.
    *
    * @param element
    *         the collection or array element
@@ -373,7 +373,7 @@ public class TypeDescriptor implements Serializable {
    * @see #getElementDescriptor()
    * @see #narrow(Object)
    */
-  public TypeDescriptor elementGenericDescriptor(Object element) {
+  public TypeDescriptor elementDescriptor(Object element) {
     return narrow(element, getElementDescriptor());
   }
 
@@ -395,7 +395,7 @@ public class TypeDescriptor implements Serializable {
    * @throws IllegalStateException
    *         if this type is not a {@code java.util.Map}
    */
-  public TypeDescriptor getMapKeyGenericDescriptor() {
+  public TypeDescriptor getMapKeyDescriptor() {
     Assert.state(isMap(), "Not a [java.util.Map]");
     return getRelatedIfResolvable(this, getResolvableType().asMap().getGeneric(0));
   }
@@ -403,15 +403,15 @@ public class TypeDescriptor implements Serializable {
   /**
    * If this type is a {@link Map}, creates a mapKey {@link TypeDescriptor}
    * from the provided map key.
-   * <p>Narrows the {@link #getMapKeyGenericDescriptor() mapKeyType} property
+   * <p>Narrows the {@link #getMapKeyDescriptor() mapKeyType} property
    * to the class of the provided map key. For example, if this describes a
    * {@code java.util.Map&lt;java.lang.Number, java.lang.String&lt;} and the key
-   * argument is a {@code java.lang.Integer}, the returned GenericDescriptor will be
+   * argument is a {@code java.lang.Integer}, the returned TypeDescriptor will be
    * {@code java.lang.Integer}. If this describes a {@code java.util.Map&lt;?, ?&gt;}
    * and the key argument is a {@code java.lang.Integer}, the returned
-   * GenericDescriptor will be {@code java.lang.Integer} as well.
+   * TypeDescriptor will be {@code java.lang.Integer} as well.
    * <p>Annotation and nested type context will be preserved in the narrowed
-   * GenericDescriptor that is returned.
+   * TypeDescriptor that is returned.
    *
    * @param mapKey
    *         the map key
@@ -422,8 +422,8 @@ public class TypeDescriptor implements Serializable {
    *         if this type is not a {@code java.util.Map}
    * @see #narrow(Object)
    */
-  public TypeDescriptor getMapKeyGenericDescriptor(Object mapKey) {
-    return narrow(mapKey, getMapKeyGenericDescriptor());
+  public TypeDescriptor getMapKeyDescriptor(Object mapKey) {
+    return narrow(mapKey, getMapKeyDescriptor());
   }
 
   /**
@@ -438,7 +438,7 @@ public class TypeDescriptor implements Serializable {
    * @throws IllegalStateException
    *         if this type is not a {@code java.util.Map}
    */
-  public TypeDescriptor getMapValueGenericDescriptor() {
+  public TypeDescriptor getMapValueDescriptor() {
     Assert.state(isMap(), "Not a [java.util.Map]");
     return getRelatedIfResolvable(this, getResolvableType().asMap().getGeneric(1));
   }
@@ -446,15 +446,15 @@ public class TypeDescriptor implements Serializable {
   /**
    * If this type is a {@link Map}, creates a mapValue {@link TypeDescriptor}
    * from the provided map value.
-   * <p>Narrows the {@link #getMapValueGenericDescriptor() mapValueType} property
+   * <p>Narrows the {@link #getMapValueDescriptor() mapValueType} property
    * to the class of the provided map value. For example, if this describes a
    * {@code java.util.Map&lt;java.lang.String, java.lang.Number&lt;} and the value
-   * argument is a {@code java.lang.Integer}, the returned GenericDescriptor will be
+   * argument is a {@code java.lang.Integer}, the returned TypeDescriptor will be
    * {@code java.lang.Integer}. If this describes a {@code java.util.Map&lt;?, ?&gt;}
    * and the value argument is a {@code java.lang.Integer}, the returned
-   * GenericDescriptor will be {@code java.lang.Integer} as well.
+   * TypeDescriptor will be {@code java.lang.Integer} as well.
    * <p>Annotation and nested type context will be preserved in the narrowed
-   * GenericDescriptor that is returned.
+   * TypeDescriptor that is returned.
    *
    * @param mapValue
    *         the map value
@@ -465,8 +465,8 @@ public class TypeDescriptor implements Serializable {
    *         if this type is not a {@code java.util.Map}
    * @see #narrow(Object)
    */
-  public TypeDescriptor getMapValueGenericDescriptor(Object mapValue) {
-    return narrow(mapValue, getMapValueGenericDescriptor());
+  public TypeDescriptor getMapValueDescriptor(Object mapValue) {
+    return narrow(mapValue, getMapValueDescriptor());
   }
 
   private TypeDescriptor narrow(Object value, TypeDescriptor typeDescriptor) {
@@ -498,8 +498,8 @@ public class TypeDescriptor implements Serializable {
       return Objects.equals(getElementDescriptor(), otherDesc.getElementDescriptor());
     }
     else if (isMap()) {
-      return (Objects.equals(getMapKeyGenericDescriptor(), otherDesc.getMapKeyGenericDescriptor()) &&
-              Objects.equals(getMapValueGenericDescriptor(), otherDesc.getMapValueGenericDescriptor()));
+      return (Objects.equals(getMapKeyDescriptor(), otherDesc.getMapKeyDescriptor()) &&
+              Objects.equals(getMapValueDescriptor(), otherDesc.getMapValueDescriptor()));
     }
     else {
       return true;
@@ -552,7 +552,7 @@ public class TypeDescriptor implements Serializable {
    * <p>Use this factory method to introspect a source object before asking the
    * conversion system to convert it to some another type.
    * <p>If the provided object is {@code null}, returns {@code null}, else calls
-   * {@link #valueOf(Class)} to build a GenericDescriptor from the object's class.
+   * {@link #valueOf(Class)} to build a TypeDescriptor from the object's class.
    *
    * @param source
    *         the source object
@@ -593,8 +593,8 @@ public class TypeDescriptor implements Serializable {
    * <p>Useful for converting to typed Collections.
    * <p>For example, a {@code List<String>} could be converted to a
    * {@code List<EmailAddress>} by converting to a targetType built with this method.
-   * The method call to construct such a {@code GenericDescriptor} would look something
-   * like: {@code collection(List.class, GenericDescriptor.valueOf(EmailAddress.class));}
+   * The method call to construct such a {@code TypeDescriptor} would look something
+   * like: {@code collection(List.class, TypeDescriptor.valueOf(EmailAddress.class));}
    *
    * @param collectionType
    *         the collection type, which must implement {@link Collection}.
@@ -622,9 +622,9 @@ public class TypeDescriptor implements Serializable {
    * <p>Useful for converting to typed Maps.
    * <p>For example, a Map&lt;String, String&gt; could be converted to a Map&lt;Id, EmailAddress&gt;
    * by converting to a targetType built with this method:
-   * The method call to construct such a GenericDescriptor would look something like:
+   * The method call to construct such a TypeDescriptor would look something like:
    * <pre class="code">
-   * map(Map.class, GenericDescriptor.valueOf(Id.class), GenericDescriptor.valueOf(EmailAddress.class));
+   * map(Map.class, TypeDescriptor.valueOf(Id.class), TypeDescriptor.valueOf(EmailAddress.class));
    * </pre>
    *
    * @param mapType
@@ -651,13 +651,13 @@ public class TypeDescriptor implements Serializable {
    * Create a new type descriptor as an array of the specified type.
    * <p>For example to create a {@code Map<String,String>[]} use:
    * <pre class="code">
-   * GenericDescriptor.array(GenericDescriptor.map(Map.class, GenericDescriptor.value(String.class), GenericDescriptor.value(String.class)));
+   * TypeDescriptor.array(TypeDescriptor.map(Map.class, TypeDescriptor.value(String.class), TypeDescriptor.value(String.class)));
    * </pre>
    *
    * @param elementDescriptor
    *         the {@link TypeDescriptor} of the array element or {@code null}
    *
-   * @return an array {@link TypeDescriptor} or {@code null} if {@code elementGenericDescriptor} is {@code null}
+   * @return an array {@link TypeDescriptor} or {@code null} if {@code elementTypeDescriptor} is {@code null}
    */
   public static TypeDescriptor array(TypeDescriptor elementDescriptor) {
     if (elementDescriptor == null) {
@@ -723,29 +723,29 @@ public class TypeDescriptor implements Serializable {
     return new TypeDescriptor(type, null, source.getAnnotations());
   }
 
-  public static TypeDescriptor ofProperty(Field beanProperty) {
+  public static TypeDescriptor fromProperty(Field beanProperty) {
     return new TypeDescriptor(beanProperty);
   }
 
-  public static TypeDescriptor ofProperty(BeanProperty beanProperty) {
+  public static TypeDescriptor fromProperty(BeanProperty beanProperty) {
     return new TypeDescriptor(beanProperty);
   }
 
-  public static TypeDescriptor ofParameter(final Executable executable, int parameterIndex) {
+  public static TypeDescriptor forParameter(final Executable executable, int parameterIndex) {
     final Parameter parameter = ReflectionUtils.getParameter(executable, parameterIndex);
-    return ofParameter(parameter);
+    return fromParameter(parameter);
   }
 
   /**
    * @since 3.0.2
    */
-  public static TypeDescriptor ofParameter(Parameter parameter) {
+  public static TypeDescriptor fromParameter(Parameter parameter) {
     final ResolvableType resolvableType = ResolvableType.forParameter(parameter);
     return new TypeDescriptor(resolvableType, parameter.getType(), parameter);
   }
 
   /**
-   * Adapter class for exposing a {@code GenericDescriptor}'s annotations as an
+   * Adapter class for exposing a {@code TypeDescriptor}'s annotations as an
    * {@link AnnotatedElement}, in particular to {@link ClassUtils}.
    *
    * @see AnnotationUtils#isPresent(AnnotatedElement, Class)

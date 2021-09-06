@@ -65,8 +65,8 @@ final class MapToMapConverter implements TypeConverter {
       return sourceMap;
     }
 
-    final TypeDescriptor targetKeyType = targetType.getMapKeyGenericDescriptor();
-    final TypeDescriptor targetValueType = targetType.getMapValueGenericDescriptor();
+    final TypeDescriptor targetKeyType = targetType.getMapKeyDescriptor();
+    final TypeDescriptor targetValueType = targetType.getMapValueDescriptor();
 
     final ConversionService conversionService = this.conversionService;
     final ArrayList<MapEntry> targetEntries = new ArrayList<>(sourceMap.size());

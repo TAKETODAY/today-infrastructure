@@ -305,7 +305,7 @@ public class MethodParameter
   public TypeDescriptor getTypeDescriptor() {
     TypeDescriptor typeDescriptor = this.typeDescriptor;
     if (typeDescriptor == null) {
-      typeDescriptor = createGenericDescriptor();
+      typeDescriptor = createTypeDescriptor();
       this.typeDescriptor = typeDescriptor;
     }
     return typeDescriptor;
@@ -314,8 +314,8 @@ public class MethodParameter
   /**
    * @since 4.0
    */
-  protected TypeDescriptor createGenericDescriptor() {
-    return TypeDescriptor.ofParameter(parameter);
+  protected TypeDescriptor createTypeDescriptor() {
+    return TypeDescriptor.fromParameter(parameter);
   }
 
 }
