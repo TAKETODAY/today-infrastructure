@@ -122,14 +122,9 @@ public abstract class AopUtils {
 
   /**
    * Check whether the given object is a CGLIB proxy.
-   * <p>This method goes beyond the implementation of
-   * {@link ClassUtils#isCglibProxy(Object)} by additionally checking if
-   * the given object is an instance of {@link StandardProxy}.
    *
    * @param object
    *         the object to check
-   *
-   * @see ClassUtils#isCglibProxy(Object)
    */
   public static boolean isCglibProxy(Object object) {
     return (object instanceof StandardProxy &&
@@ -508,7 +503,7 @@ public abstract class AopUtils {
     if (interceptors.isEmpty()) {
       throw new UnknownAdviceTypeException(advisor.getAdvice());
     }
-    return interceptors.toArray(new MethodInterceptor[0]);
+    return interceptors.toArray(EMPTY_INTERCEPTOR);
   }
 
   /**
