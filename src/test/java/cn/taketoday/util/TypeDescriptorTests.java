@@ -55,7 +55,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author TODAY 2021/3/23 11:50
  * @since 3.0
  */
-public class GenericDescriptorTests {
+public class TypeDescriptorTests {
 
   @Test
   public void parameterPrimitive() throws Exception {
@@ -287,7 +287,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void fieldList() throws Exception {
-    TypeDescriptor typeDescriptor = new TypeDescriptor(GenericDescriptorTests.class.getDeclaredField("listOfString"));
+    TypeDescriptor typeDescriptor = new TypeDescriptor(TypeDescriptorTests.class.getDeclaredField("listOfString"));
     assertThat(typeDescriptor.isArray()).isFalse();
     assertThat(typeDescriptor.getType()).isEqualTo(List.class);
     assertThat(typeDescriptor.getElementDescriptor().getType()).isEqualTo(String.class);
@@ -296,7 +296,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void fieldListOfListOfString() throws Exception {
-    TypeDescriptor typeDescriptor = new TypeDescriptor(GenericDescriptorTests.class.getDeclaredField("listOfListOfString"));
+    TypeDescriptor typeDescriptor = new TypeDescriptor(TypeDescriptorTests.class.getDeclaredField("listOfListOfString"));
     assertThat(typeDescriptor.isArray()).isFalse();
     assertThat(typeDescriptor.getType()).isEqualTo(List.class);
     assertThat(typeDescriptor.getElementDescriptor().getType()).isEqualTo(List.class);
@@ -306,7 +306,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void fieldListOfListUnknown() throws Exception {
-    TypeDescriptor typeDescriptor = new TypeDescriptor(GenericDescriptorTests.class.getDeclaredField("listOfListOfUnknown"));
+    TypeDescriptor typeDescriptor = new TypeDescriptor(TypeDescriptorTests.class.getDeclaredField("listOfListOfUnknown"));
     assertThat(typeDescriptor.isArray()).isFalse();
     assertThat(typeDescriptor.getType()).isEqualTo(List.class);
     assertThat(typeDescriptor.getElementDescriptor().getType()).isEqualTo(List.class);
@@ -316,7 +316,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void fieldArray() throws Exception {
-    TypeDescriptor typeDescriptor = new TypeDescriptor(GenericDescriptorTests.class.getDeclaredField("intArray"));
+    TypeDescriptor typeDescriptor = new TypeDescriptor(TypeDescriptorTests.class.getDeclaredField("intArray"));
     assertThat(typeDescriptor.isArray()).isTrue();
     assertThat(typeDescriptor.getElementDescriptor().getType()).isEqualTo(Integer.TYPE);
     assertThat(typeDescriptor.toString()).isEqualTo("int[]");
@@ -324,7 +324,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void fieldComplexGenericDescriptor() throws Exception {
-    TypeDescriptor typeDescriptor = new TypeDescriptor(GenericDescriptorTests.class.getDeclaredField("arrayOfListOfString"));
+    TypeDescriptor typeDescriptor = new TypeDescriptor(TypeDescriptorTests.class.getDeclaredField("arrayOfListOfString"));
     assertThat(typeDescriptor.isArray()).isTrue();
     assertThat(typeDescriptor.getElementDescriptor().getType()).isEqualTo(List.class);
     assertThat(typeDescriptor.getElementDescriptor().getElementDescriptor().getType()).isEqualTo(String.class);
@@ -333,7 +333,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void fieldComplexGenericDescriptor2() throws Exception {
-    TypeDescriptor typeDescriptor = new TypeDescriptor(GenericDescriptorTests.class.getDeclaredField("nestedMapField"));
+    TypeDescriptor typeDescriptor = new TypeDescriptor(TypeDescriptorTests.class.getDeclaredField("nestedMapField"));
     assertThat(typeDescriptor.isMap()).isTrue();
     assertThat(typeDescriptor.getMapKeyGenericDescriptor().getType()).isEqualTo(String.class);
     assertThat(typeDescriptor.getMapValueGenericDescriptor().getType()).isEqualTo(List.class);
@@ -343,7 +343,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void fieldMap() throws Exception {
-    TypeDescriptor desc = new TypeDescriptor(GenericDescriptorTests.class.getField("fieldMap"));
+    TypeDescriptor desc = new TypeDescriptor(TypeDescriptorTests.class.getField("fieldMap"));
     assertThat(desc.isMap()).isTrue();
     assertThat(desc.getMapKeyGenericDescriptor().getElementDescriptor().getType()).isEqualTo(Integer.class);
     assertThat(desc.getMapValueGenericDescriptor().getElementDescriptor().getType()).isEqualTo(Long.class);
