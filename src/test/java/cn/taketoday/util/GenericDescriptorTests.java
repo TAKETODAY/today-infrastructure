@@ -60,7 +60,7 @@ public class GenericDescriptorTests {
   @Test
   public void parameterPrimitive() throws Exception {
     final Method testParameterPrimitive = getClass().getMethod("testParameterPrimitive", int.class);
-    final GenericDescriptor desc = GenericDescriptor.ofParameter(testParameterPrimitive, 0);
+    final TypeDescriptor desc = TypeDescriptor.ofParameter(testParameterPrimitive, 0);
 
     assertThat(desc.getType()).isEqualTo(int.class);
     assertThat(desc.getObjectType()).isEqualTo(Integer.class);
@@ -75,7 +75,7 @@ public class GenericDescriptorTests {
   @Test
   public void parameterScalar() throws Exception {
     final Method testParameterScalar = getClass().getMethod("testParameterScalar", String.class);
-    final GenericDescriptor desc = GenericDescriptor.ofParameter(testParameterScalar, 0);
+    final TypeDescriptor desc = TypeDescriptor.ofParameter(testParameterScalar, 0);
 
     assertThat(desc.getType()).isEqualTo(String.class);
     assertThat(desc.getObjectType()).isEqualTo(String.class);
@@ -91,7 +91,7 @@ public class GenericDescriptorTests {
   @Test
   public void parameterList() throws Exception {
     final Method testParameterList = getClass().getMethod("testParameterList", List.class);
-    final GenericDescriptor desc = GenericDescriptor.ofParameter(testParameterList, 0);
+    final TypeDescriptor desc = TypeDescriptor.ofParameter(testParameterList, 0);
 
     assertThat(desc.getType()).isEqualTo(List.class);
     assertThat(desc.getObjectType()).isEqualTo(List.class);
@@ -102,9 +102,9 @@ public class GenericDescriptorTests {
     assertThat(desc.isCollection()).isTrue();
     assertThat(desc.isArray()).isFalse();
     assertThat(desc.getElementDescriptor().getType()).isEqualTo(List.class);
-    assertThat(desc.getElementDescriptor()).isEqualTo(GenericDescriptor.nested(desc, 1));
-    assertThat(desc.getElementDescriptor().getElementDescriptor()).isEqualTo(GenericDescriptor.nested(desc, 2));
-    assertThat(desc.getElementDescriptor().getElementDescriptor().getMapValueGenericDescriptor()).isEqualTo(GenericDescriptor.nested(desc, 3));
+    assertThat(desc.getElementDescriptor()).isEqualTo(TypeDescriptor.nested(desc, 1));
+    assertThat(desc.getElementDescriptor().getElementDescriptor()).isEqualTo(TypeDescriptor.nested(desc, 2));
+    assertThat(desc.getElementDescriptor().getElementDescriptor().getMapValueGenericDescriptor()).isEqualTo(TypeDescriptor.nested(desc, 3));
     assertThat(desc.getElementDescriptor().getElementDescriptor().getMapKeyGenericDescriptor().getType()).isEqualTo(Integer.class);
     assertThat(desc.getElementDescriptor().getElementDescriptor().getMapValueGenericDescriptor().getType()).isEqualTo(Enum.class);
     assertThat(desc.isMap()).isFalse();
@@ -113,7 +113,7 @@ public class GenericDescriptorTests {
   @Test
   public void parameterListNoParamTypes() throws Exception {
     final Method testParameterListNoParamTypes = getClass().getMethod("testParameterListNoParamTypes", List.class);
-    GenericDescriptor desc = GenericDescriptor.ofParameter(testParameterListNoParamTypes, 0);
+    TypeDescriptor desc = TypeDescriptor.ofParameter(testParameterListNoParamTypes, 0);
 
     assertThat(desc.getType()).isEqualTo(List.class);
     assertThat(desc.getObjectType()).isEqualTo(List.class);
@@ -130,7 +130,7 @@ public class GenericDescriptorTests {
   @Test
   public void parameterArray() throws Exception {
     final Method testParameterArray = getClass().getMethod("testParameterArray", Integer[].class);
-    GenericDescriptor desc = GenericDescriptor.ofParameter(testParameterArray, 0);
+    TypeDescriptor desc = TypeDescriptor.ofParameter(testParameterArray, 0);
 
     assertThat(desc.getType()).isEqualTo(Integer[].class);
     assertThat(desc.getObjectType()).isEqualTo(Integer[].class);
@@ -141,7 +141,7 @@ public class GenericDescriptorTests {
     assertThat(desc.isCollection()).isFalse();
     assertThat(desc.isArray()).isTrue();
     assertThat(desc.getElementDescriptor().getType()).isEqualTo(Integer.class);
-    assertThat(desc.getElementDescriptor()).isEqualTo(GenericDescriptor.valueOf(Integer.class));
+    assertThat(desc.getElementDescriptor()).isEqualTo(TypeDescriptor.valueOf(Integer.class));
     assertThat(desc.isMap()).isFalse();
   }
 
@@ -149,7 +149,7 @@ public class GenericDescriptorTests {
   public void parameterMap() throws Exception {
     final Method testParameterMap = getClass().getMethod("testParameterMap", Map.class);
 
-    GenericDescriptor desc = GenericDescriptor.ofParameter(testParameterMap, 0);
+    TypeDescriptor desc = TypeDescriptor.ofParameter(testParameterMap, 0);
 
     assertThat(desc.getType()).isEqualTo(Map.class);
     assertThat(desc.getObjectType()).isEqualTo(Map.class);
@@ -160,8 +160,8 @@ public class GenericDescriptorTests {
     assertThat(desc.isCollection()).isFalse();
     assertThat(desc.isArray()).isFalse();
     assertThat(desc.isMap()).isTrue();
-    assertThat(desc.getMapValueGenericDescriptor()).isEqualTo(GenericDescriptor.nested(desc, 1));
-    assertThat(desc.getMapValueGenericDescriptor().getElementDescriptor()).isEqualTo(GenericDescriptor.nested(desc, 2));
+    assertThat(desc.getMapValueGenericDescriptor()).isEqualTo(TypeDescriptor.nested(desc, 1));
+    assertThat(desc.getMapValueGenericDescriptor().getElementDescriptor()).isEqualTo(TypeDescriptor.nested(desc, 2));
     assertThat(desc.getMapKeyGenericDescriptor().getType()).isEqualTo(Integer.class);
     assertThat(desc.getMapValueGenericDescriptor().getType()).isEqualTo(List.class);
     assertThat(desc.getMapValueGenericDescriptor().getElementDescriptor().getType()).isEqualTo(String.class);
@@ -170,7 +170,7 @@ public class GenericDescriptorTests {
   @Test
   public void parameterAnnotated() throws Exception {
     final Method testAnnotatedMethod = getClass().getMethod("testAnnotatedMethod", String.class);
-    final GenericDescriptor t1 = GenericDescriptor.ofParameter(testAnnotatedMethod, 0);
+    final TypeDescriptor t1 = TypeDescriptor.ofParameter(testAnnotatedMethod, 0);
 
     assertThat(t1.getType()).isEqualTo(String.class);
     assertThat(t1.getAnnotations().length).isEqualTo(1);
@@ -182,7 +182,7 @@ public class GenericDescriptorTests {
   @Test
   public void getAnnotationsReturnsClonedArray() throws Exception {
     final Method testAnnotatedMethod = getClass().getMethod("testAnnotatedMethod", String.class);
-    final GenericDescriptor t = GenericDescriptor.ofParameter(testAnnotatedMethod, 0);
+    final TypeDescriptor t = TypeDescriptor.ofParameter(testAnnotatedMethod, 0);
     t.getAnnotations()[0] = null;
     assertThat(t.getAnnotations()[0]).isNotNull();
   }
@@ -238,7 +238,7 @@ public class GenericDescriptorTests {
   public void property() throws Exception {
     final BeanProperty property = BeanProperty.valueOf(getClass(), "property");
 
-    GenericDescriptor desc = new GenericDescriptor(property);
+    TypeDescriptor desc = new TypeDescriptor(property);
 
     assertThat(desc.getType()).isEqualTo(Map.class);
 
@@ -268,7 +268,7 @@ public class GenericDescriptorTests {
   private void assertAnnotationFoundOnMethod(Class<? extends Annotation> annotationType, String methodName) throws Exception {
     final Method method = getClass().getMethod(methodName);
     final ResolvableType resolvableType = ResolvableType.forReturnType(method);
-    final GenericDescriptor descriptor = new GenericDescriptor(resolvableType, null, method.getAnnotations());
+    final TypeDescriptor descriptor = new TypeDescriptor(resolvableType, null, method.getAnnotations());
     assertThat(descriptor.getAnnotation(annotationType))
             .as("Should have found @" + annotationType.getSimpleName() + " on " + methodName + ".")
             .isNotNull();
@@ -276,7 +276,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void fieldScalar() throws Exception {
-    GenericDescriptor descriptor = new GenericDescriptor(getClass().getField("fieldScalar"));
+    TypeDescriptor descriptor = new TypeDescriptor(getClass().getField("fieldScalar"));
     assertThat(descriptor.isPrimitive()).isFalse();
     assertThat(descriptor.isArray()).isFalse();
     assertThat(descriptor.isCollection()).isFalse();
@@ -287,63 +287,63 @@ public class GenericDescriptorTests {
 
   @Test
   public void fieldList() throws Exception {
-    GenericDescriptor GenericDescriptor = new GenericDescriptor(GenericDescriptorTests.class.getDeclaredField("listOfString"));
-    assertThat(GenericDescriptor.isArray()).isFalse();
-    assertThat(GenericDescriptor.getType()).isEqualTo(List.class);
-    assertThat(GenericDescriptor.getElementDescriptor().getType()).isEqualTo(String.class);
-    assertThat(GenericDescriptor.toString()).isEqualTo("java.util.List<java.lang.String>");
+    TypeDescriptor typeDescriptor = new TypeDescriptor(GenericDescriptorTests.class.getDeclaredField("listOfString"));
+    assertThat(typeDescriptor.isArray()).isFalse();
+    assertThat(typeDescriptor.getType()).isEqualTo(List.class);
+    assertThat(typeDescriptor.getElementDescriptor().getType()).isEqualTo(String.class);
+    assertThat(typeDescriptor.toString()).isEqualTo("java.util.List<java.lang.String>");
   }
 
   @Test
   public void fieldListOfListOfString() throws Exception {
-    GenericDescriptor GenericDescriptor = new GenericDescriptor(GenericDescriptorTests.class.getDeclaredField("listOfListOfString"));
-    assertThat(GenericDescriptor.isArray()).isFalse();
-    assertThat(GenericDescriptor.getType()).isEqualTo(List.class);
-    assertThat(GenericDescriptor.getElementDescriptor().getType()).isEqualTo(List.class);
-    assertThat(GenericDescriptor.getElementDescriptor().getElementDescriptor().getType()).isEqualTo(String.class);
-    assertThat(GenericDescriptor.toString()).isEqualTo("java.util.List<java.util.List<java.lang.String>>");
+    TypeDescriptor typeDescriptor = new TypeDescriptor(GenericDescriptorTests.class.getDeclaredField("listOfListOfString"));
+    assertThat(typeDescriptor.isArray()).isFalse();
+    assertThat(typeDescriptor.getType()).isEqualTo(List.class);
+    assertThat(typeDescriptor.getElementDescriptor().getType()).isEqualTo(List.class);
+    assertThat(typeDescriptor.getElementDescriptor().getElementDescriptor().getType()).isEqualTo(String.class);
+    assertThat(typeDescriptor.toString()).isEqualTo("java.util.List<java.util.List<java.lang.String>>");
   }
 
   @Test
   public void fieldListOfListUnknown() throws Exception {
-    GenericDescriptor GenericDescriptor = new GenericDescriptor(GenericDescriptorTests.class.getDeclaredField("listOfListOfUnknown"));
-    assertThat(GenericDescriptor.isArray()).isFalse();
-    assertThat(GenericDescriptor.getType()).isEqualTo(List.class);
-    assertThat(GenericDescriptor.getElementDescriptor().getType()).isEqualTo(List.class);
-    assertThat(GenericDescriptor.getElementDescriptor().getElementDescriptor()).isNull();
-    assertThat(GenericDescriptor.toString()).isEqualTo("java.util.List<java.util.List<?>>");
+    TypeDescriptor typeDescriptor = new TypeDescriptor(GenericDescriptorTests.class.getDeclaredField("listOfListOfUnknown"));
+    assertThat(typeDescriptor.isArray()).isFalse();
+    assertThat(typeDescriptor.getType()).isEqualTo(List.class);
+    assertThat(typeDescriptor.getElementDescriptor().getType()).isEqualTo(List.class);
+    assertThat(typeDescriptor.getElementDescriptor().getElementDescriptor()).isNull();
+    assertThat(typeDescriptor.toString()).isEqualTo("java.util.List<java.util.List<?>>");
   }
 
   @Test
   public void fieldArray() throws Exception {
-    GenericDescriptor GenericDescriptor = new GenericDescriptor(GenericDescriptorTests.class.getDeclaredField("intArray"));
-    assertThat(GenericDescriptor.isArray()).isTrue();
-    assertThat(GenericDescriptor.getElementDescriptor().getType()).isEqualTo(Integer.TYPE);
-    assertThat(GenericDescriptor.toString()).isEqualTo("int[]");
+    TypeDescriptor typeDescriptor = new TypeDescriptor(GenericDescriptorTests.class.getDeclaredField("intArray"));
+    assertThat(typeDescriptor.isArray()).isTrue();
+    assertThat(typeDescriptor.getElementDescriptor().getType()).isEqualTo(Integer.TYPE);
+    assertThat(typeDescriptor.toString()).isEqualTo("int[]");
   }
 
   @Test
   public void fieldComplexGenericDescriptor() throws Exception {
-    GenericDescriptor GenericDescriptor = new GenericDescriptor(GenericDescriptorTests.class.getDeclaredField("arrayOfListOfString"));
-    assertThat(GenericDescriptor.isArray()).isTrue();
-    assertThat(GenericDescriptor.getElementDescriptor().getType()).isEqualTo(List.class);
-    assertThat(GenericDescriptor.getElementDescriptor().getElementDescriptor().getType()).isEqualTo(String.class);
-    assertThat(GenericDescriptor.toString()).isEqualTo("java.util.List<java.lang.String>[]");
+    TypeDescriptor typeDescriptor = new TypeDescriptor(GenericDescriptorTests.class.getDeclaredField("arrayOfListOfString"));
+    assertThat(typeDescriptor.isArray()).isTrue();
+    assertThat(typeDescriptor.getElementDescriptor().getType()).isEqualTo(List.class);
+    assertThat(typeDescriptor.getElementDescriptor().getElementDescriptor().getType()).isEqualTo(String.class);
+    assertThat(typeDescriptor.toString()).isEqualTo("java.util.List<java.lang.String>[]");
   }
 
   @Test
   public void fieldComplexGenericDescriptor2() throws Exception {
-    GenericDescriptor GenericDescriptor = new GenericDescriptor(GenericDescriptorTests.class.getDeclaredField("nestedMapField"));
-    assertThat(GenericDescriptor.isMap()).isTrue();
-    assertThat(GenericDescriptor.getMapKeyGenericDescriptor().getType()).isEqualTo(String.class);
-    assertThat(GenericDescriptor.getMapValueGenericDescriptor().getType()).isEqualTo(List.class);
-    assertThat(GenericDescriptor.getMapValueGenericDescriptor().getElementDescriptor().getType()).isEqualTo(Integer.class);
-    assertThat(GenericDescriptor.toString()).isEqualTo("java.util.Map<java.lang.String, java.util.List<java.lang.Integer>>");
+    TypeDescriptor typeDescriptor = new TypeDescriptor(GenericDescriptorTests.class.getDeclaredField("nestedMapField"));
+    assertThat(typeDescriptor.isMap()).isTrue();
+    assertThat(typeDescriptor.getMapKeyGenericDescriptor().getType()).isEqualTo(String.class);
+    assertThat(typeDescriptor.getMapValueGenericDescriptor().getType()).isEqualTo(List.class);
+    assertThat(typeDescriptor.getMapValueGenericDescriptor().getElementDescriptor().getType()).isEqualTo(Integer.class);
+    assertThat(typeDescriptor.toString()).isEqualTo("java.util.Map<java.lang.String, java.util.List<java.lang.Integer>>");
   }
 
   @Test
   public void fieldMap() throws Exception {
-    GenericDescriptor desc = new GenericDescriptor(GenericDescriptorTests.class.getField("fieldMap"));
+    TypeDescriptor desc = new TypeDescriptor(GenericDescriptorTests.class.getField("fieldMap"));
     assertThat(desc.isMap()).isTrue();
     assertThat(desc.getMapKeyGenericDescriptor().getElementDescriptor().getType()).isEqualTo(Integer.class);
     assertThat(desc.getMapValueGenericDescriptor().getElementDescriptor().getType()).isEqualTo(Long.class);
@@ -351,14 +351,14 @@ public class GenericDescriptorTests {
 
   @Test
   public void fieldAnnotated() throws Exception {
-    GenericDescriptor GenericDescriptor = new GenericDescriptor(getClass().getField("fieldAnnotated"));
-    assertThat(GenericDescriptor.getAnnotations().length).isEqualTo(1);
-    assertThat(GenericDescriptor.getAnnotation(FieldAnnotation.class)).isNotNull();
+    TypeDescriptor typeDescriptor = new TypeDescriptor(getClass().getField("fieldAnnotated"));
+    assertThat(typeDescriptor.getAnnotations().length).isEqualTo(1);
+    assertThat(typeDescriptor.getAnnotation(FieldAnnotation.class)).isNotNull();
   }
 
   @Test
   public void valueOfScalar() {
-    GenericDescriptor desc = GenericDescriptor.valueOf(Integer.class);
+    TypeDescriptor desc = TypeDescriptor.valueOf(Integer.class);
     assertThat(desc.isPrimitive()).isFalse();
     assertThat(desc.isArray()).isFalse();
     assertThat(desc.isCollection()).isFalse();
@@ -369,7 +369,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void valueOfPrimitive() {
-    GenericDescriptor descriptor = GenericDescriptor.valueOf(int.class);
+    TypeDescriptor descriptor = TypeDescriptor.valueOf(int.class);
     assertThat(descriptor.isPrimitive()).isTrue();
     assertThat(descriptor.isArray()).isFalse();
     assertThat(descriptor.isCollection()).isFalse();
@@ -380,7 +380,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void valueOfArray() throws Exception {
-    GenericDescriptor descriptor = GenericDescriptor.valueOf(int[].class);
+    TypeDescriptor descriptor = TypeDescriptor.valueOf(int[].class);
     assertThat(descriptor.isArray()).isTrue();
     assertThat(descriptor.isCollection()).isFalse();
     assertThat(descriptor.isMap()).isFalse();
@@ -389,7 +389,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void valueOfCollection() throws Exception {
-    GenericDescriptor descriptor = GenericDescriptor.valueOf(Collection.class);
+    TypeDescriptor descriptor = TypeDescriptor.valueOf(Collection.class);
     assertThat(descriptor.isCollection()).isTrue();
     assertThat(descriptor.isArray()).isFalse();
     assertThat(descriptor.isMap()).isFalse();
@@ -398,54 +398,54 @@ public class GenericDescriptorTests {
 
   @Test
   public void forObject() {
-    GenericDescriptor desc = GenericDescriptor.forObject("3");
+    TypeDescriptor desc = TypeDescriptor.forObject("3");
     assertThat(desc.getType()).isEqualTo(String.class);
   }
 
   @Test
   public void forObjectNullGenericDescriptor() {
-    GenericDescriptor desc = GenericDescriptor.forObject(null);
+    TypeDescriptor desc = TypeDescriptor.forObject(null);
     assertThat((Object) desc).isNull();
   }
 
   @Test
   public void nestedMethodParameterType2Levels() throws Exception {
     final Method test2 = getClass().getMethod("test2", List.class);
-    final GenericDescriptor descriptor = GenericDescriptor.ofParameter(test2, 0);
-    GenericDescriptor t1 = GenericDescriptor.nested(descriptor, 2);
+    final TypeDescriptor descriptor = TypeDescriptor.ofParameter(test2, 0);
+    TypeDescriptor t1 = TypeDescriptor.nested(descriptor, 2);
     assertThat(t1.getType()).isEqualTo(String.class);
   }
 
   @Test
   public void nestedMethodParameterTypeMap() throws Exception {
     final Method test3 = getClass().getMethod("test3", Map.class);
-    final GenericDescriptor descriptor = GenericDescriptor.ofParameter(test3, 0);
-    GenericDescriptor t1 = GenericDescriptor.nested(descriptor, 1);
+    final TypeDescriptor descriptor = TypeDescriptor.ofParameter(test3, 0);
+    TypeDescriptor t1 = TypeDescriptor.nested(descriptor, 1);
     assertThat(t1.getType()).isEqualTo(String.class);
   }
 
   @Test
   public void nestedMethodParameterTypeMapTwoLevels() throws Exception {
     final Method test4 = getClass().getMethod("test4", List.class);
-    final GenericDescriptor descriptor = GenericDescriptor.ofParameter(test4, 0);
-    GenericDescriptor t1 = GenericDescriptor.nested(descriptor, 2);
+    final TypeDescriptor descriptor = TypeDescriptor.ofParameter(test4, 0);
+    TypeDescriptor t1 = TypeDescriptor.nested(descriptor, 2);
     assertThat(t1.getType()).isEqualTo(String.class);
   }
 
   @Test
   public void nestedTooManyLevels() throws Exception {
     final Method test4 = getClass().getMethod("test4", List.class);
-    final GenericDescriptor descriptor = GenericDescriptor.ofParameter(test4, 0);
-    GenericDescriptor t1 = GenericDescriptor.nested(descriptor, 3);
+    final TypeDescriptor descriptor = TypeDescriptor.ofParameter(test4, 0);
+    TypeDescriptor t1 = TypeDescriptor.nested(descriptor, 3);
     assertThat((Object) t1).isNull();
   }
 
   @Test
   public void nestedMethodParameterTypeNotNestable() throws Exception {
     final Method test5 = getClass().getMethod("test5", String.class);
-    final GenericDescriptor descriptor = GenericDescriptor.ofParameter(test5, 0);
+    final TypeDescriptor descriptor = TypeDescriptor.ofParameter(test5, 0);
 
-    GenericDescriptor t1 = GenericDescriptor.nested(descriptor, 2);
+    TypeDescriptor t1 = TypeDescriptor.nested(descriptor, 2);
     assertThat((Object) t1).isNull();
   }
 
@@ -453,20 +453,20 @@ public class GenericDescriptorTests {
   public void nestedNotParameterized() throws Exception {
     final Method test6 = getClass().getMethod("test6", List.class);
 
-    final GenericDescriptor descriptor = GenericDescriptor.ofParameter(test6, 0);
+    final TypeDescriptor descriptor = TypeDescriptor.ofParameter(test6, 0);
 
-    GenericDescriptor t1 = GenericDescriptor.nested(descriptor, 1);
+    TypeDescriptor t1 = TypeDescriptor.nested(descriptor, 1);
     assertThat(t1.getType()).isEqualTo(List.class);
     assertThat(t1.toString()).isEqualTo("java.util.List<?>");
 
-    GenericDescriptor t2 = GenericDescriptor.nested(descriptor, 2);
+    TypeDescriptor t2 = TypeDescriptor.nested(descriptor, 2);
 
     assertThat((Object) t2).isNull();
   }
 
   @Test
   public void nestedFieldTypeMapTwoLevels() throws Exception {
-    GenericDescriptor t1 = GenericDescriptor.nested(getClass().getField("test4"), 2);
+    TypeDescriptor t1 = TypeDescriptor.nested(getClass().getField("test4"), 2);
     assertThat(t1.getType()).isEqualTo(String.class);
   }
 
@@ -474,14 +474,14 @@ public class GenericDescriptorTests {
   public void nestedPropertyTypeMapTwoLevels() throws Exception {
 
     final BeanProperty property = BeanProperty.valueOf(getClass(), "test4");
-    GenericDescriptor t1 = GenericDescriptor.nested(property.getField(), 2);
+    TypeDescriptor t1 = TypeDescriptor.nested(property.getField(), 2);
 
     assertThat(t1.getType()).isEqualTo(String.class);
   }
 
   @Test
   public void collection() {
-    GenericDescriptor desc = GenericDescriptor.collection(List.class, GenericDescriptor.valueOf(Integer.class));
+    TypeDescriptor desc = TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(Integer.class));
     assertThat(desc.getType()).isEqualTo(List.class);
     assertThat(desc.getObjectType()).isEqualTo(List.class);
     assertThat(desc.getName()).isEqualTo("java.util.List");
@@ -491,13 +491,13 @@ public class GenericDescriptorTests {
     assertThat(desc.isCollection()).isTrue();
     assertThat(desc.isArray()).isFalse();
     assertThat(desc.getElementDescriptor().getType()).isEqualTo(Integer.class);
-    assertThat(desc.getElementDescriptor()).isEqualTo(GenericDescriptor.valueOf(Integer.class));
+    assertThat(desc.getElementDescriptor()).isEqualTo(TypeDescriptor.valueOf(Integer.class));
     assertThat(desc.isMap()).isFalse();
   }
 
   @Test
   public void collectionNested() {
-    GenericDescriptor desc = GenericDescriptor.collection(List.class, GenericDescriptor.collection(List.class, GenericDescriptor.valueOf(Integer.class)));
+    TypeDescriptor desc = TypeDescriptor.collection(List.class, TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(Integer.class)));
     assertThat(desc.getType()).isEqualTo(List.class);
     assertThat(desc.getObjectType()).isEqualTo(List.class);
     assertThat(desc.getName()).isEqualTo("java.util.List");
@@ -507,13 +507,13 @@ public class GenericDescriptorTests {
     assertThat(desc.isCollection()).isTrue();
     assertThat(desc.isArray()).isFalse();
     assertThat(desc.getElementDescriptor().getType()).isEqualTo(List.class);
-    assertThat(desc.getElementDescriptor().getElementDescriptor()).isEqualTo(GenericDescriptor.valueOf(Integer.class));
+    assertThat(desc.getElementDescriptor().getElementDescriptor()).isEqualTo(TypeDescriptor.valueOf(Integer.class));
     assertThat(desc.isMap()).isFalse();
   }
 
   @Test
   public void map() {
-    GenericDescriptor desc = GenericDescriptor.map(Map.class, GenericDescriptor.valueOf(String.class), GenericDescriptor.valueOf(Integer.class));
+    TypeDescriptor desc = TypeDescriptor.map(Map.class, TypeDescriptor.valueOf(String.class), TypeDescriptor.valueOf(Integer.class));
     assertThat(desc.getType()).isEqualTo(Map.class);
     assertThat(desc.getObjectType()).isEqualTo(Map.class);
     assertThat(desc.getName()).isEqualTo("java.util.Map");
@@ -529,8 +529,8 @@ public class GenericDescriptorTests {
 
   @Test
   public void mapNested() {
-    GenericDescriptor desc = GenericDescriptor.map(Map.class, GenericDescriptor.valueOf(String.class),
-                                             GenericDescriptor.map(Map.class, GenericDescriptor.valueOf(String.class), GenericDescriptor.valueOf(Integer.class)));
+    TypeDescriptor desc = TypeDescriptor.map(Map.class, TypeDescriptor.valueOf(String.class),
+                                             TypeDescriptor.map(Map.class, TypeDescriptor.valueOf(String.class), TypeDescriptor.valueOf(Integer.class)));
     assertThat(desc.getType()).isEqualTo(Map.class);
     assertThat(desc.getObjectType()).isEqualTo(Map.class);
     assertThat(desc.getName()).isEqualTo("java.util.Map");
@@ -547,7 +547,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void narrow() {
-    GenericDescriptor desc = GenericDescriptor.valueOf(Number.class);
+    TypeDescriptor desc = TypeDescriptor.valueOf(Number.class);
     Integer value = Integer.valueOf(3);
     desc = desc.narrow(value);
     assertThat(desc.getType()).isEqualTo(Integer.class);
@@ -555,7 +555,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void elementType() {
-    GenericDescriptor desc = GenericDescriptor.valueOf(List.class);
+    TypeDescriptor desc = TypeDescriptor.valueOf(List.class);
     Integer value = Integer.valueOf(3);
     desc = desc.elementGenericDescriptor(value);
     assertThat(desc.getType()).isEqualTo(Integer.class);
@@ -563,7 +563,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void elementTypePreserveContext() throws Exception {
-    GenericDescriptor desc = new GenericDescriptor(getClass().getField("listPreserveContext"));
+    TypeDescriptor desc = new TypeDescriptor(getClass().getField("listPreserveContext"));
     assertThat(desc.getElementDescriptor().getElementDescriptor().getType()).isEqualTo(Integer.class);
     List<Integer> value = new ArrayList<>(3);
     desc = desc.elementGenericDescriptor(value);
@@ -573,7 +573,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void mapKeyType() {
-    GenericDescriptor desc = GenericDescriptor.valueOf(Map.class);
+    TypeDescriptor desc = TypeDescriptor.valueOf(Map.class);
     Integer value = Integer.valueOf(3);
     desc = desc.getMapKeyGenericDescriptor(value);
     assertThat(desc.getType()).isEqualTo(Integer.class);
@@ -581,7 +581,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void mapKeyTypePreserveContext() throws Exception {
-    GenericDescriptor desc = new GenericDescriptor(getClass().getField("mapPreserveContext"));
+    TypeDescriptor desc = new TypeDescriptor(getClass().getField("mapPreserveContext"));
     assertThat(desc.getMapKeyGenericDescriptor().getElementDescriptor().getType()).isEqualTo(Integer.class);
     List<Integer> value = new ArrayList<>(3);
     desc = desc.getMapKeyGenericDescriptor(value);
@@ -591,7 +591,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void mapValueType() {
-    GenericDescriptor desc = GenericDescriptor.valueOf(Map.class);
+    TypeDescriptor desc = TypeDescriptor.valueOf(Map.class);
     Integer value = Integer.valueOf(3);
     desc = desc.getMapValueGenericDescriptor(value);
     assertThat(desc.getType()).isEqualTo(Integer.class);
@@ -599,7 +599,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void mapValueTypePreserveContext() throws Exception {
-    GenericDescriptor desc = new GenericDescriptor(getClass().getField("mapPreserveContext"));
+    TypeDescriptor desc = new TypeDescriptor(getClass().getField("mapPreserveContext"));
     assertThat(desc.getMapValueGenericDescriptor().getElementDescriptor().getType()).isEqualTo(Integer.class);
     List<Integer> value = new ArrayList<>(3);
     desc = desc.getMapValueGenericDescriptor(value);
@@ -609,76 +609,76 @@ public class GenericDescriptorTests {
 
   @Test
   public void equality() throws Exception {
-    GenericDescriptor t1 = GenericDescriptor.valueOf(String.class);
-    GenericDescriptor t2 = GenericDescriptor.valueOf(String.class);
-    GenericDescriptor t3 = GenericDescriptor.valueOf(Date.class);
-    GenericDescriptor t4 = GenericDescriptor.valueOf(Date.class);
-    GenericDescriptor t5 = GenericDescriptor.valueOf(List.class);
-    GenericDescriptor t6 = GenericDescriptor.valueOf(List.class);
-    GenericDescriptor t7 = GenericDescriptor.valueOf(Map.class);
-    GenericDescriptor t8 = GenericDescriptor.valueOf(Map.class);
+    TypeDescriptor t1 = TypeDescriptor.valueOf(String.class);
+    TypeDescriptor t2 = TypeDescriptor.valueOf(String.class);
+    TypeDescriptor t3 = TypeDescriptor.valueOf(Date.class);
+    TypeDescriptor t4 = TypeDescriptor.valueOf(Date.class);
+    TypeDescriptor t5 = TypeDescriptor.valueOf(List.class);
+    TypeDescriptor t6 = TypeDescriptor.valueOf(List.class);
+    TypeDescriptor t7 = TypeDescriptor.valueOf(Map.class);
+    TypeDescriptor t8 = TypeDescriptor.valueOf(Map.class);
     assertThat(t2).isEqualTo(t1);
     assertThat(t4).isEqualTo(t3);
     assertThat(t6).isEqualTo(t5);
     assertThat(t8).isEqualTo(t7);
 
-    GenericDescriptor t9 = new GenericDescriptor(getClass().getField("listField"));
-    GenericDescriptor t10 = new GenericDescriptor(getClass().getField("listField"));
+    TypeDescriptor t9 = new TypeDescriptor(getClass().getField("listField"));
+    TypeDescriptor t10 = new TypeDescriptor(getClass().getField("listField"));
     assertThat(t10).isEqualTo(t9);
 
-    GenericDescriptor t11 = new GenericDescriptor(getClass().getField("mapField"));
-    GenericDescriptor t12 = new GenericDescriptor(getClass().getField("mapField"));
+    TypeDescriptor t11 = new TypeDescriptor(getClass().getField("mapField"));
+    TypeDescriptor t12 = new TypeDescriptor(getClass().getField("mapField"));
     assertThat(t12).isEqualTo(t11);
 
     final Method testAnnotatedMethod1 = getClass().getMethod("testAnnotatedMethod", String.class);
 
-    final GenericDescriptor t13 = GenericDescriptor.ofParameter(testAnnotatedMethod1, 0);
-    final GenericDescriptor t14 = GenericDescriptor.ofParameter(testAnnotatedMethod1, 0);
+    final TypeDescriptor t13 = TypeDescriptor.ofParameter(testAnnotatedMethod1, 0);
+    final TypeDescriptor t14 = TypeDescriptor.ofParameter(testAnnotatedMethod1, 0);
     assertThat(t14).isEqualTo(t13);
 
-    final GenericDescriptor t15 = GenericDescriptor.ofParameter(testAnnotatedMethod1, 0);
+    final TypeDescriptor t15 = TypeDescriptor.ofParameter(testAnnotatedMethod1, 0);
 
     final Method testAnnotatedMethodDifferentAnnotationValue = getClass()
             .getMethod("testAnnotatedMethodDifferentAnnotationValue", String.class);
-    final GenericDescriptor t16 = GenericDescriptor.ofParameter(testAnnotatedMethodDifferentAnnotationValue, 0);
+    final TypeDescriptor t16 = TypeDescriptor.ofParameter(testAnnotatedMethodDifferentAnnotationValue, 0);
 
     assertThat(t16).isNotEqualTo(t15);
 
-    final GenericDescriptor t17 = GenericDescriptor.ofParameter(testAnnotatedMethod1, 0);
+    final TypeDescriptor t17 = TypeDescriptor.ofParameter(testAnnotatedMethod1, 0);
     final Method test5 = getClass().getMethod("test5", String.class);
 
-    final GenericDescriptor t18 = GenericDescriptor.ofParameter(test5, 0);
+    final TypeDescriptor t18 = TypeDescriptor.ofParameter(test5, 0);
     assertThat(t18).isNotEqualTo(t17);
   }
 
   @Test
   public void isAssignableTypes() {
-    assertThat(GenericDescriptor.valueOf(Integer.class).isAssignableTo(GenericDescriptor.valueOf(Number.class))).isTrue();
-    assertThat(GenericDescriptor.valueOf(Number.class).isAssignableTo(GenericDescriptor.valueOf(Integer.class))).isFalse();
-    assertThat(GenericDescriptor.valueOf(String.class).isAssignableTo(GenericDescriptor.valueOf(String[].class))).isFalse();
+    assertThat(TypeDescriptor.valueOf(Integer.class).isAssignableTo(TypeDescriptor.valueOf(Number.class))).isTrue();
+    assertThat(TypeDescriptor.valueOf(Number.class).isAssignableTo(TypeDescriptor.valueOf(Integer.class))).isFalse();
+    assertThat(TypeDescriptor.valueOf(String.class).isAssignableTo(TypeDescriptor.valueOf(String[].class))).isFalse();
   }
 
   @Test
   public void isAssignableElementTypes() throws Exception {
-    assertThat(new GenericDescriptor(getClass().getField("listField")).isAssignableTo(new GenericDescriptor(getClass().getField("listField")))).isTrue();
-    assertThat(new GenericDescriptor(getClass().getField("notGenericList")).isAssignableTo(new GenericDescriptor(getClass().getField("listField")))).isTrue();
-    assertThat(new GenericDescriptor(getClass().getField("listField")).isAssignableTo(new GenericDescriptor(getClass().getField("notGenericList")))).isTrue();
-    assertThat(new GenericDescriptor(getClass().getField("isAssignableElementTypes")).isAssignableTo(new GenericDescriptor(getClass().getField("listField")))).isFalse();
-    assertThat(GenericDescriptor.valueOf(List.class).isAssignableTo(new GenericDescriptor(getClass().getField("listField")))).isTrue();
+    assertThat(new TypeDescriptor(getClass().getField("listField")).isAssignableTo(new TypeDescriptor(getClass().getField("listField")))).isTrue();
+    assertThat(new TypeDescriptor(getClass().getField("notGenericList")).isAssignableTo(new TypeDescriptor(getClass().getField("listField")))).isTrue();
+    assertThat(new TypeDescriptor(getClass().getField("listField")).isAssignableTo(new TypeDescriptor(getClass().getField("notGenericList")))).isTrue();
+    assertThat(new TypeDescriptor(getClass().getField("isAssignableElementTypes")).isAssignableTo(new TypeDescriptor(getClass().getField("listField")))).isFalse();
+    assertThat(TypeDescriptor.valueOf(List.class).isAssignableTo(new TypeDescriptor(getClass().getField("listField")))).isTrue();
   }
 
   @Test
   public void isAssignableMapKeyValueTypes() throws Exception {
-    assertThat(new GenericDescriptor(getClass().getField("mapField")).isAssignableTo(new GenericDescriptor(getClass().getField("mapField")))).isTrue();
-    assertThat(new GenericDescriptor(getClass().getField("notGenericMap")).isAssignableTo(new GenericDescriptor(getClass().getField("mapField")))).isTrue();
-    assertThat(new GenericDescriptor(getClass().getField("mapField")).isAssignableTo(new GenericDescriptor(getClass().getField("notGenericMap")))).isTrue();
-    assertThat(new GenericDescriptor(getClass().getField("isAssignableMapKeyValueTypes")).isAssignableTo(new GenericDescriptor(getClass().getField("mapField")))).isFalse();
-    assertThat(GenericDescriptor.valueOf(Map.class).isAssignableTo(new GenericDescriptor(getClass().getField("mapField")))).isTrue();
+    assertThat(new TypeDescriptor(getClass().getField("mapField")).isAssignableTo(new TypeDescriptor(getClass().getField("mapField")))).isTrue();
+    assertThat(new TypeDescriptor(getClass().getField("notGenericMap")).isAssignableTo(new TypeDescriptor(getClass().getField("mapField")))).isTrue();
+    assertThat(new TypeDescriptor(getClass().getField("mapField")).isAssignableTo(new TypeDescriptor(getClass().getField("notGenericMap")))).isTrue();
+    assertThat(new TypeDescriptor(getClass().getField("isAssignableMapKeyValueTypes")).isAssignableTo(new TypeDescriptor(getClass().getField("mapField")))).isFalse();
+    assertThat(TypeDescriptor.valueOf(Map.class).isAssignableTo(new TypeDescriptor(getClass().getField("mapField")))).isTrue();
   }
 
   @Test
   public void multiValueMap() throws Exception {
-    GenericDescriptor td = new GenericDescriptor(getClass().getField("multiValueMap"));
+    TypeDescriptor td = new TypeDescriptor(getClass().getField("multiValueMap"));
     assertThat(td.isMap()).isTrue();
     assertThat(td.getMapKeyGenericDescriptor().getType()).isEqualTo(String.class);
     assertThat(td.getMapValueGenericDescriptor().getType()).isEqualTo(List.class);
@@ -687,7 +687,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void passDownGeneric() throws Exception {
-    GenericDescriptor td = new GenericDescriptor(getClass().getField("passDownGeneric"));
+    TypeDescriptor td = new TypeDescriptor(getClass().getField("passDownGeneric"));
     assertThat(td.getElementDescriptor().getType()).isEqualTo(List.class);
     assertThat(td.getElementDescriptor().getElementDescriptor().getType()).isEqualTo(Set.class);
     assertThat(td.getElementDescriptor().getElementDescriptor().getElementDescriptor().getType()).isEqualTo(Integer.class);
@@ -697,8 +697,8 @@ public class GenericDescriptorTests {
   public void upCast() throws Exception {
     final BeanProperty property = BeanProperty.valueOf(getClass(), "property");
 
-    GenericDescriptor GenericDescriptor = new GenericDescriptor(property);
-    GenericDescriptor upCast = GenericDescriptor.upcast(Object.class);
+    TypeDescriptor typeDescriptor = new TypeDescriptor(property);
+    TypeDescriptor upCast = typeDescriptor.upcast(Object.class);
     assertThat(upCast.getAnnotation(MethodAnnotation1.class) != null).isTrue();
   }
 
@@ -706,7 +706,7 @@ public class GenericDescriptorTests {
   public void upCastNotSuper() throws Exception {
     final BeanProperty property = BeanProperty.valueOf(getClass(), "property");
 
-    GenericDescriptor descriptor = new GenericDescriptor(property);
+    TypeDescriptor descriptor = new TypeDescriptor(property);
     assertThatIllegalArgumentException()
             .isThrownBy(() -> descriptor.upcast(Collection.class))
             .withMessage("interface java.util.Map is not assignable to interface java.util.Collection");
@@ -718,8 +718,8 @@ public class GenericDescriptorTests {
     class CustomSet extends HashSet<String> {
     }
 
-    assertThat(GenericDescriptor.valueOf(String.class)).isEqualTo(GenericDescriptor.valueOf(CustomSet.class).getElementDescriptor());
-    assertThat(GenericDescriptor.valueOf(String.class)).isEqualTo(GenericDescriptor.forObject(new CustomSet()).getElementDescriptor());
+    assertThat(TypeDescriptor.valueOf(String.class)).isEqualTo(TypeDescriptor.valueOf(CustomSet.class).getElementDescriptor());
+    assertThat(TypeDescriptor.valueOf(String.class)).isEqualTo(TypeDescriptor.forObject(new CustomSet()).getElementDescriptor());
   }
 
   @Test
@@ -728,53 +728,53 @@ public class GenericDescriptorTests {
     class CustomMap extends HashMap<String, Integer> {
     }
 
-    assertThat(GenericDescriptor.valueOf(String.class)).isEqualTo(GenericDescriptor.valueOf(CustomMap.class).getMapKeyGenericDescriptor());
-    assertThat(GenericDescriptor.valueOf(Integer.class)).isEqualTo(GenericDescriptor.valueOf(CustomMap.class).getMapValueGenericDescriptor());
-    assertThat(GenericDescriptor.valueOf(String.class)).isEqualTo(GenericDescriptor.forObject(new CustomMap()).getMapKeyGenericDescriptor());
-    assertThat(GenericDescriptor.valueOf(Integer.class)).isEqualTo(GenericDescriptor.forObject(new CustomMap()).getMapValueGenericDescriptor());
+    assertThat(TypeDescriptor.valueOf(String.class)).isEqualTo(TypeDescriptor.valueOf(CustomMap.class).getMapKeyGenericDescriptor());
+    assertThat(TypeDescriptor.valueOf(Integer.class)).isEqualTo(TypeDescriptor.valueOf(CustomMap.class).getMapValueGenericDescriptor());
+    assertThat(TypeDescriptor.valueOf(String.class)).isEqualTo(TypeDescriptor.forObject(new CustomMap()).getMapKeyGenericDescriptor());
+    assertThat(TypeDescriptor.valueOf(Integer.class)).isEqualTo(TypeDescriptor.forObject(new CustomMap()).getMapValueGenericDescriptor());
   }
 
   @Test
   public void createMapArray() throws Exception {
-    GenericDescriptor mapType = GenericDescriptor.map(
-            LinkedHashMap.class, GenericDescriptor.valueOf(String.class), GenericDescriptor.valueOf(Integer.class));
-    GenericDescriptor arrayType = GenericDescriptor.array(mapType);
+    TypeDescriptor mapType = TypeDescriptor.map(
+            LinkedHashMap.class, TypeDescriptor.valueOf(String.class), TypeDescriptor.valueOf(Integer.class));
+    TypeDescriptor arrayType = TypeDescriptor.array(mapType);
     assertThat(LinkedHashMap[].class).isEqualTo(arrayType.getType());
     assertThat(mapType).isEqualTo(arrayType.getElementDescriptor());
   }
 
   @Test
   public void createStringArray() throws Exception {
-    GenericDescriptor arrayType = GenericDescriptor.array(GenericDescriptor.valueOf(String.class));
-    assertThat(GenericDescriptor.valueOf(String[].class)).isEqualTo(arrayType);
+    TypeDescriptor arrayType = TypeDescriptor.array(TypeDescriptor.valueOf(String.class));
+    assertThat(TypeDescriptor.valueOf(String[].class)).isEqualTo(arrayType);
   }
 
   @Test
   public void createNullArray() throws Exception {
-    assertThat((Object) GenericDescriptor.array(null)).isNull();
+    assertThat((Object) TypeDescriptor.array(null)).isNull();
   }
 
   @Test
   public void serializable() throws Exception {
-    GenericDescriptor descriptor = GenericDescriptor.forObject("");
+    TypeDescriptor descriptor = TypeDescriptor.forObject("");
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     ObjectOutputStream outputStream = new ObjectOutputStream(out);
     outputStream.writeObject(descriptor);
     ObjectInputStream inputStream = new ObjectInputStream(new ByteArrayInputStream(
             out.toByteArray()));
-    GenericDescriptor readObject = (GenericDescriptor) inputStream.readObject();
+    TypeDescriptor readObject = (TypeDescriptor) inputStream.readObject();
     assertThat(readObject).isEqualTo(descriptor);
   }
 
   @Test
   public void createCollectionWithNullElement() throws Exception {
-    GenericDescriptor descriptor = GenericDescriptor.collection(List.class, (GenericDescriptor) null);
+    TypeDescriptor descriptor = TypeDescriptor.collection(List.class, (TypeDescriptor) null);
     assertThat(descriptor.getElementDescriptor()).isNull();
   }
 
   @Test
   public void createMapWithNullElements() throws Exception {
-    GenericDescriptor descriptor = GenericDescriptor.map(LinkedHashMap.class, (GenericDescriptor) null, null);
+    TypeDescriptor descriptor = TypeDescriptor.map(LinkedHashMap.class, (TypeDescriptor) null, null);
     assertThat(descriptor.getMapKeyGenericDescriptor()).isNull();
     assertThat(descriptor.getMapValueGenericDescriptor()).isNull();
   }
@@ -787,13 +787,13 @@ public class GenericDescriptorTests {
     final Parameter[] parameters = testParameterPrimitive.getParameters();
     final Parameter parameter = parameters[0];
 
-    final GenericDescriptor descriptor = GenericDescriptor.ofParameter(testParameterPrimitive, 0);
+    final TypeDescriptor descriptor = TypeDescriptor.ofParameter(testParameterPrimitive, 0);
 
-    assertThat(new GenericDescriptor(field).getSource()).isEqualTo(field);
+    assertThat(new TypeDescriptor(field).getSource()).isEqualTo(field);
 
     assertThat(descriptor.getSource()).isEqualTo(parameter);
 
-    assertThat(GenericDescriptor.valueOf(Integer.class).getSource()).isEqualTo(Integer.class);
+    assertThat(TypeDescriptor.valueOf(Integer.class).getSource()).isEqualTo(Integer.class);
   }
 
 

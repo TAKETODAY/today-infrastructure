@@ -37,7 +37,7 @@ import java.util.List;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 import cn.taketoday.web.ObjectNotationProcessor;
 
 /**
@@ -69,7 +69,7 @@ public class JacksonObjectNotationProcessor extends ObjectNotationProcessor {
    *         of type {@link JsonParser} supports (JSON for default case)
    */
   @Override
-  public Object read(String message, GenericDescriptor descriptor) throws IOException {
+  public Object read(String message, TypeDescriptor descriptor) throws IOException {
     final ObjectMapper mapper = obtainMapper();
     final JsonNode body = mapper.readTree(message);
     return readInternal(mapper, body, descriptor);
@@ -81,14 +81,14 @@ public class JacksonObjectNotationProcessor extends ObjectNotationProcessor {
    *         of type {@link JsonParser} supports (JSON for default case)
    */
   @Override
-  public Object read(InputStream source, GenericDescriptor descriptor) throws IOException {
+  public Object read(InputStream source, TypeDescriptor descriptor) throws IOException {
     final ObjectMapper mapper = obtainMapper();
     final JsonNode body = mapper.readTree(source);
     return readInternal(mapper, body, descriptor);
   }
 
   private Object readInternal(
-          ObjectMapper mapper, JsonNode body, GenericDescriptor descriptor) throws JsonProcessingException {
+          ObjectMapper mapper, JsonNode body, TypeDescriptor descriptor) throws JsonProcessingException {
     if (body != null) {
       // Json node
       if (descriptor.is(JsonNode.class)) {
@@ -134,8 +134,8 @@ public class JacksonObjectNotationProcessor extends ObjectNotationProcessor {
     return null;
   }
 
-  protected Class<?> getCollectionValueType(GenericDescriptor parameter) {
-    GenericDescriptor valueType = parameter.getGeneric(Collection.class);
+  protected Class<?> getCollectionValueType(TypeDescriptor parameter) {
+    TypeDescriptor valueType = parameter.getGeneric(Collection.class);
     if (valueType.is(Object.class)) {
       throw new ConfigurationException("Not support " + parameter);
     }

@@ -26,7 +26,7 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -49,14 +49,14 @@ final class IdToEntityConverter implements TypeConverter {
   }
 
   @Override
-  public boolean supports(GenericDescriptor targetType, final Class<?> sourceType) {
+  public boolean supports(TypeDescriptor targetType, final Class<?> sourceType) {
     Method finder = getFinder(targetType.getType());
     return finder != null
             && this.conversionService.canConvert(sourceType, finder.getParameterTypes()[0]);
   }
 
   @Override
-  public Object convert(GenericDescriptor targetType, Object source) {
+  public Object convert(TypeDescriptor targetType, Object source) {
     Method finder = getFinder(targetType.getType());
     Assert.state(finder != null, "No finder method");
 

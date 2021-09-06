@@ -23,7 +23,7 @@ package cn.taketoday.core.conversion.support;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * convert String to byte array
@@ -43,13 +43,13 @@ public final class StringToBytesConverter extends ToArrayConverter {
   }
 
   @Override
-  public Object convert(GenericDescriptor targetType, Object source) {
+  public Object convert(TypeDescriptor targetType, Object source) {
     // convert String to byte array
     return ((String) source).getBytes(charset);
   }
 
   @Override
-  protected boolean supportsInternal(GenericDescriptor targetType, Class<?> sourceType) {
+  protected boolean supportsInternal(TypeDescriptor targetType, Class<?> sourceType) {
     return sourceType == String.class && targetType.is(byte[].class);
   }
 }

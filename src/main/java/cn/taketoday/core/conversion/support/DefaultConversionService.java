@@ -43,7 +43,7 @@ import cn.taketoday.core.conversion.ConverterNotFoundException;
 import cn.taketoday.core.conversion.ConverterRegistry;
 import cn.taketoday.core.conversion.TypeCapable;
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 import cn.taketoday.util.GenericTypeResolver;
 import cn.taketoday.util.Mappings;
 import cn.taketoday.util.ObjectUtils;
@@ -86,13 +86,13 @@ public class DefaultConversionService implements ConfigurableConversionService {
   }
 
   @Override
-  public boolean canConvert(Class<?> sourceType, GenericDescriptor targetType) {
+  public boolean canConvert(Class<?> sourceType, TypeDescriptor targetType) {
     return getConverter(sourceType, targetType) != null;
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T convert(final Object source, final GenericDescriptor targetType) {
+  public <T> T convert(final Object source, final TypeDescriptor targetType) {
     if (source == null) {
       return convertNull(targetType);
     }
@@ -114,7 +114,7 @@ public class DefaultConversionService implements ConfigurableConversionService {
 
   @SuppressWarnings("unchecked")
   protected <T> T handleConverterNotFound(
-          Object source, GenericDescriptor targetType) throws ConverterNotFoundException {
+          Object source, TypeDescriptor targetType) throws ConverterNotFoundException {
     if (targetType.isInstance(source)) {
       return (T) source;
     }
@@ -122,14 +122,14 @@ public class DefaultConversionService implements ConfigurableConversionService {
   }
 
   @SuppressWarnings("unchecked")
-  protected <T> T convertNull(final GenericDescriptor targetType) {
+  protected <T> T convertNull(final TypeDescriptor targetType) {
     return (T) nullMappings.get(targetType.getType());
   }
 
   /**
    * add null value mapping
    *
-   * @see #convertNull(GenericDescriptor)
+   * @see #convertNull(TypeDescriptor)
    * @since 3.0.4
    */
   public <T> void addNullValue(Class<T> type, T value) {
@@ -154,7 +154,7 @@ public class DefaultConversionService implements ConfigurableConversionService {
    * @return TypeConverter
    */
   @Override
-  public TypeConverter getConverter(final Class<?> sourceType, final GenericDescriptor targetType) {
+  public TypeConverter getConverter(final Class<?> sourceType, final TypeDescriptor targetType) {
     final ConverterKey key = new ConverterKey(targetType, sourceType);
     final TypeConverter typeConverter = converterMappings.get(key, targetType);
     if (typeConverter != NO_MATCH) {
@@ -163,10 +163,10 @@ public class DefaultConversionService implements ConfigurableConversionService {
     return null;
   }
 
-  class ConverterMappings extends Mappings<TypeConverter, GenericDescriptor> {
+  class ConverterMappings extends Mappings<TypeConverter, TypeDescriptor> {
 
     @Override
-    protected TypeConverter createValue(final Object key, final GenericDescriptor targetType) {
+    protected TypeConverter createValue(final Object key, final TypeDescriptor targetType) {
       final Class<?> sourceType = ((ConverterKey) key).sourceType;
 
       for (final TypeConverter converter : converters) {
@@ -182,9 +182,9 @@ public class DefaultConversionService implements ConfigurableConversionService {
   static final class ConverterKey {
     private final int hash;
     final Class<?> sourceType;
-    final GenericDescriptor targetType;
+    final TypeDescriptor targetType;
 
-    ConverterKey(GenericDescriptor targetType, Class<?> sourceType) {
+    ConverterKey(TypeDescriptor targetType, Class<?> sourceType) {
       this.targetType = targetType;
       this.sourceType = sourceType;
       this.hash = this.sourceType.hashCode() * 31 + this.targetType.hashCode();
@@ -471,7 +471,7 @@ public class DefaultConversionService implements ConfigurableConversionService {
   static class PrimitiveClassConverter implements TypeConverter {
 
     @Override
-    public boolean supports(GenericDescriptor targetType, Class<?> source) {
+    public boolean supports(TypeDescriptor targetType, Class<?> source) {
 
       final Class<?> targetClass;
       if (targetType.isArray()) {
@@ -492,7 +492,7 @@ public class DefaultConversionService implements ConfigurableConversionService {
     }
 
     @Override
-    public Object convert(GenericDescriptor targetClass, Object source) {
+    public Object convert(TypeDescriptor targetClass, Object source) {
       return source; // auto convert
     }
   }
@@ -500,12 +500,12 @@ public class DefaultConversionService implements ConfigurableConversionService {
   static class NopTypeConverter implements TypeConverter {
 
     @Override
-    public boolean supports(GenericDescriptor targetType, Class<?> sourceType) {
+    public boolean supports(TypeDescriptor targetType, Class<?> sourceType) {
       return false;
     }
 
     @Override
-    public Object convert(GenericDescriptor targetType, Object source) {
+    public Object convert(TypeDescriptor targetType, Object source) {
       return source;
     }
   }
@@ -522,14 +522,14 @@ public class DefaultConversionService implements ConfigurableConversionService {
     }
 
     @Override
-    public boolean supports(final GenericDescriptor targetType, final Class<?> sourceType) {
+    public boolean supports(final TypeDescriptor targetType, final Class<?> sourceType) {
       return targetType.is(this.targetType) && (
               this.sourceType == sourceType || this.sourceType.isAssignableFrom(sourceType)
       );
     }
 
     @Override
-    public Object convert(GenericDescriptor targetType, Object source) {
+    public Object convert(TypeDescriptor targetType, Object source) {
       return converter.convert(source);
     }
 

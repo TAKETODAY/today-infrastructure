@@ -33,7 +33,7 @@ import java.util.List;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
@@ -118,8 +118,8 @@ public class JacksonMessageBodyConverter extends MessageBodyConverter {
     return null;
   }
 
-  protected Class<?> getCollectionValueType(GenericDescriptor parameter) {
-    GenericDescriptor valueType = parameter.getGeneric(Collection.class);
+  protected Class<?> getCollectionValueType(TypeDescriptor parameter) {
+    TypeDescriptor valueType = parameter.getGeneric(Collection.class);
     if (valueType.is(Object.class)) {
       throw new ConfigurationException("Not support " + parameter);
     }

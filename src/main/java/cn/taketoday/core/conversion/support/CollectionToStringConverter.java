@@ -24,7 +24,7 @@ import java.util.StringJoiner;
 
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * Converts a Collection to a comma-delimited String.
@@ -42,13 +42,13 @@ final class CollectionToStringConverter extends CollectionSourceConverter {
   }
 
   @Override
-  protected boolean supportsInternal(GenericDescriptor targetType, Class<?> sourceType) {
+  protected boolean supportsInternal(TypeDescriptor targetType, Class<?> sourceType) {
     // Collection.class -> String.class
     return targetType.is(String.class);
   }
 
   @Override
-  protected Object convertInternal(final GenericDescriptor targetType, final Collection<?> sourceCollection) {
+  protected Object convertInternal(final TypeDescriptor targetType, final Collection<?> sourceCollection) {
     if (sourceCollection.isEmpty()) {
       return Constant.BLANK;
     }

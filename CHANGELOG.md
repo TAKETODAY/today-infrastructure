@@ -36,7 +36,7 @@
 - :bug: 修复 Configuration 遗漏配置问题
 
 ## v3.0.4
-:zap: 优化 `BeanProperty` 添加 `GenericDescriptor`
+:zap: 优化 `BeanProperty` 添加 `TypeDescriptor`
 :bug: 修复 `NumberConverter` stringSource 为空时 null 转换问题
 :zap: 优化 布尔 转换问题 `StringToBooleanConverter`
 :zap: 优化 `DefaultConversionService` 添加 对 null 值的处理
@@ -50,7 +50,7 @@
 ## v3.0.2
 - :sparkles: 新增 `BeanProperties` 工具类
 - :sparkles: 新增 `StringToBytesConverter`
-- :sparkles: 新增  `GenericDescriptor#ofParameter`
+- :sparkles: 新增  `TypeDescriptor#ofParameter`
 - :zap: 解决 原型Bean 依赖循环 initializeBean
 - :zap: 解决 其他scope Bean 依赖循环 initializeBean
 - :sparkles: 新增 IgnoreDuplicates 忽略重复注册 bean

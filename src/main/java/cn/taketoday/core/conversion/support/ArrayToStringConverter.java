@@ -22,7 +22,7 @@ package cn.taketoday.core.conversion.support;
 import java.util.Arrays;
 
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -40,13 +40,13 @@ final class ArrayToStringConverter extends ArraySourceConverter {
   }
 
   @Override
-  protected boolean supportsInternal(final GenericDescriptor targetType, Class<?> sourceType) {
+  protected boolean supportsInternal(final TypeDescriptor targetType, Class<?> sourceType) {
     // Object[].class -> String.class
     return targetType.is(String.class);
   }
 
   @Override
-  public Object convert(GenericDescriptor targetType, Object source) {
+  public Object convert(TypeDescriptor targetType, Object source) {
     return this.helperConverter.convertInternal(targetType,
                                                 Arrays.asList(ObjectUtils.toObjectArray(source)));
   }

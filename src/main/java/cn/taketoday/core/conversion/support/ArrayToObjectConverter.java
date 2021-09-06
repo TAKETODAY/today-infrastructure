@@ -22,7 +22,7 @@ package cn.taketoday.core.conversion.support;
 import java.lang.reflect.Array;
 
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * Converts an array to an Object by returning the first array element
@@ -41,14 +41,14 @@ final class ArrayToObjectConverter extends ArraySourceConverter {
   }
 
   @Override
-  protected boolean supportsInternal(final GenericDescriptor targetType, Class<?> sourceType) {
+  protected boolean supportsInternal(final TypeDescriptor targetType, Class<?> sourceType) {
     // Object[].class -> Object.class
     final Class<?> componentType = sourceType.getComponentType();
     return conversionService.canConvert(componentType, targetType.getType());
   }
 
   @Override
-  public Object convert(final GenericDescriptor targetType, final Object source) {
+  public Object convert(final TypeDescriptor targetType, final Object source) {
     if (targetType.isInstance(source)) {
       return source;
     }

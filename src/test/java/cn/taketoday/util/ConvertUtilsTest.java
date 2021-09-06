@@ -66,12 +66,12 @@ public class ConvertUtilsTest {
     ConvertUtils.addConverter(new TypeConverter() {
 
       @Override
-      public boolean supports(GenericDescriptor targetType, Class<?> sourceType) {
+      public boolean supports(TypeDescriptor targetType, Class<?> sourceType) {
         return false;
       }
 
       @Override
-      public Object convert(GenericDescriptor targetType, Object source) {
+      public Object convert(TypeDescriptor targetType, Object source) {
         return null;
       }
 

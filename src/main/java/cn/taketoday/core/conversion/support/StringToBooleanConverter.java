@@ -22,7 +22,7 @@ package cn.taketoday.core.conversion.support;
 import java.util.HashSet;
 
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * Converts String to a Boolean.
@@ -49,12 +49,12 @@ public final class StringToBooleanConverter extends StringSourceTypeConverter im
   }
 
   @Override
-  public boolean supportsInternal(GenericDescriptor targetType, Class<?> sourceType) {
+  public boolean supportsInternal(TypeDescriptor targetType, Class<?> sourceType) {
     return targetType.is(boolean.class) || targetType.is(Boolean.class);
   }
 
   @Override
-  protected Object convertInternal(final GenericDescriptor targetType, final String source) {
+  protected Object convertInternal(final TypeDescriptor targetType, final String source) {
     String value = source.trim();
     if (value.isEmpty()) {
       if (targetType.is(Boolean.class)) {

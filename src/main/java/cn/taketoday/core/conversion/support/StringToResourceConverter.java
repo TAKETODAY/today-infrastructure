@@ -26,7 +26,7 @@ import java.net.URL;
 
 import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 import cn.taketoday.util.ResourceUtils;
 
 /**
@@ -36,7 +36,7 @@ import cn.taketoday.util.ResourceUtils;
 final class StringToResourceConverter extends StringSourceTypeConverter {
 
   @Override
-  public boolean supportsInternal(final GenericDescriptor targetType, final Class<?> source) {
+  public boolean supportsInternal(final TypeDescriptor targetType, final Class<?> source) {
     final Class<?> targetClass = targetType.getType();
     return targetClass == Resource.class
             || targetClass == URI.class
@@ -46,7 +46,7 @@ final class StringToResourceConverter extends StringSourceTypeConverter {
   }
 
   @Override
-  protected Object convertInternal(GenericDescriptor targetType, String source) {
+  protected Object convertInternal(TypeDescriptor targetType, String source) {
     final Class<?> targetClass = targetType.getType();
     try {
       if (targetClass == Resource[].class) {

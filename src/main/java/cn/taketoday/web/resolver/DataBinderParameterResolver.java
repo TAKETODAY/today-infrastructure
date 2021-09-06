@@ -36,7 +36,7 @@ import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
@@ -263,8 +263,8 @@ public class DataBinderParameterResolver
     }
 
     @Override
-    protected GenericDescriptor createGenericDescriptor() {
-      return GenericDescriptor.ofProperty(field);
+    protected TypeDescriptor createGenericDescriptor() {
+      return TypeDescriptor.ofProperty(field);
     }
 
   }

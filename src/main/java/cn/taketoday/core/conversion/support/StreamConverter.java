@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * Converts a {@link Stream} to and from a collection or array,
@@ -48,7 +48,7 @@ final class StreamConverter implements TypeConverter {
   }
 
   @Override
-  public boolean supports(final GenericDescriptor targetType, final Class<?> sourceType) {
+  public boolean supports(final TypeDescriptor targetType, final Class<?> sourceType) {
     // Stream.class, Collection.class
     // Stream.class, Object[].class
     // Collection.class, Stream.class
@@ -64,11 +64,11 @@ final class StreamConverter implements TypeConverter {
   }
 
   @Override
-  public Object convert(final GenericDescriptor targetType, final Object source) {
+  public Object convert(final TypeDescriptor targetType, final Object source) {
     if (source instanceof Stream) {
       return convertFromStream((Stream<?>) source, targetType);
     }
-    final GenericDescriptor elementDescriptor = targetType.getElementDescriptor();
+    final TypeDescriptor elementDescriptor = targetType.getElementDescriptor();
     if (elementDescriptor == null) {
       // convert to Stream
       if (source instanceof Collection) {
@@ -104,11 +104,11 @@ final class StreamConverter implements TypeConverter {
     throw new IllegalStateException("Unexpected source/target types");
   }
 
-  protected Object convertFromStream(Stream<?> source, GenericDescriptor targetType) {
+  protected Object convertFromStream(Stream<?> source, TypeDescriptor targetType) {
     final class MapFunction implements UnaryOperator<Object> {
-      final GenericDescriptor elementType;
+      final TypeDescriptor elementType;
 
-      MapFunction(GenericDescriptor elementType) {
+      MapFunction(TypeDescriptor elementType) {
         this.elementType = elementType;
       }
 
@@ -118,7 +118,7 @@ final class StreamConverter implements TypeConverter {
       }
     }
 
-    final GenericDescriptor elementType = targetType.getElementDescriptor();
+    final TypeDescriptor elementType = targetType.getElementDescriptor();
     if (elementType != null) {
       if (targetType.isCollection()) {
         return source.map(new MapFunction(elementType))

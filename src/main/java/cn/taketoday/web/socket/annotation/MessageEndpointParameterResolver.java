@@ -24,7 +24,7 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.socket.WebSocketSession;
 
@@ -70,7 +70,7 @@ public class MessageEndpointParameterResolver implements EndpointParameterResolv
     }
 
     final TypeConverter converter = getConverter();
-    final GenericDescriptor targetType = parameter.getTypeDescriptor();
+    final TypeDescriptor targetType = parameter.getTypeDescriptor();
     if (converter != null && converter.supports(targetType, payload.getClass())) {
       return converter.convert(targetType, payload);
     }

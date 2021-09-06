@@ -44,7 +44,7 @@ import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.reflect.PropertyAccessor;
 import cn.taketoday.util.AbstractAnnotatedElement;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 import cn.taketoday.util.Mappings;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -77,7 +77,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
   private Annotation[] annotations;
 
   /** @since 3.0.4 */
-  private GenericDescriptor typeDescriptor;
+  private TypeDescriptor typeDescriptor;
 
   public BeanProperty(Field field) {
     Assert.notNull(field, "field must not be null");
@@ -155,9 +155,9 @@ public class BeanProperty extends AbstractAnnotatedElement {
         conversionService = DefaultConversionService.getSharedInstance();
         setConversionService(conversionService);
       }
-      GenericDescriptor typeDescriptor = getTypeDescriptor();
+      TypeDescriptor typeDescriptor = getTypeDescriptor();
       if (typeDescriptor == null) {
-        typeDescriptor = GenericDescriptor.ofProperty(this);
+        typeDescriptor = TypeDescriptor.ofProperty(this);
         this.typeDescriptor = typeDescriptor;
       }
       value = conversionService.convert(value, typeDescriptor);
@@ -178,7 +178,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
   /**
    * @since 3.0.4
    */
-  public GenericDescriptor getTypeDescriptor() {
+  public TypeDescriptor getTypeDescriptor() {
     return typeDescriptor;
   }
 

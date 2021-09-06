@@ -22,7 +22,7 @@ package cn.taketoday.core.conversion.support;
 import java.lang.reflect.Array;
 
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * Converts an Object to a single-element array containing the Object.
@@ -41,15 +41,15 @@ final class ObjectToArrayConverter extends ToArrayConverter {
   }
 
 	@Override
-	protected boolean supportsInternal(GenericDescriptor targetType, final Class<?> sourceType) {
+	protected boolean supportsInternal(TypeDescriptor targetType, final Class<?> sourceType) {
 		// Object.class, Object[].class
     final Class<?> componentType = targetType.getComponentType();
     return conversionService.canConvert(sourceType, componentType);
 	}
 
 	@Override
-	public Object convert(GenericDescriptor targetType, Object source) {
-    final GenericDescriptor targetElementType = targetType.getElementDescriptor();
+	public Object convert(TypeDescriptor targetType, Object source) {
+    final TypeDescriptor targetElementType = targetType.getElementDescriptor();
 
     Object target = Array.newInstance(targetElementType.getType(), 1);
     Object targetElement = this.conversionService.convert(source, targetElementType);

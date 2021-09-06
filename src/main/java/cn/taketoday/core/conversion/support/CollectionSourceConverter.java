@@ -24,7 +24,7 @@ import java.util.Collection;
 
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * @author TODAY 2021/3/22 13:04
@@ -33,16 +33,16 @@ import cn.taketoday.util.GenericDescriptor;
 public abstract class CollectionSourceConverter implements TypeConverter {
 
   @Override
-  public boolean supports(GenericDescriptor targetType, Class<?> sourceType) {
+  public boolean supports(TypeDescriptor targetType, Class<?> sourceType) {
     return CollectionUtils.isCollection(sourceType) && supportsInternal(targetType, sourceType);
   }
 
-  protected abstract boolean supportsInternal(GenericDescriptor targetType, Class<?> sourceType);
+  protected abstract boolean supportsInternal(TypeDescriptor targetType, Class<?> sourceType);
 
   @Override
-  public Object convert(GenericDescriptor targetType, Object source) {
+  public Object convert(TypeDescriptor targetType, Object source) {
     return convertInternal(targetType, (Collection<?>) source);
   }
 
-  protected abstract Object convertInternal(GenericDescriptor targetType, Collection<?> sourceCollection);
+  protected abstract Object convertInternal(TypeDescriptor targetType, Collection<?> sourceCollection);
 }

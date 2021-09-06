@@ -19,7 +19,7 @@
  */
 package cn.taketoday.core.conversion;
 
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * Type converter
@@ -43,7 +43,7 @@ public interface TypeConverter {
    */
 //  boolean supports(Class<?> targetType, Class<?> sourceType);
 
-  boolean supports(GenericDescriptor targetType, Class<?> sourceType);
+  boolean supports(TypeDescriptor targetType, Class<?> sourceType);
 
   /**
    * Convert source object to target object
@@ -60,6 +60,6 @@ public interface TypeConverter {
    */
 //  Object convert(Class<?> targetType, Object source);
 
-  Object convert(GenericDescriptor targetType, Object source);
+  Object convert(TypeDescriptor targetType, Object source);
 
 }

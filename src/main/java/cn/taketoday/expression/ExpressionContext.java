@@ -26,7 +26,7 @@ import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.expression.lang.EvaluationContext;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * Context information for expression parsing and evaluation.
@@ -416,7 +416,7 @@ public abstract class ExpressionContext {
         return obj;
       }
       // @since 3.0.4
-      final GenericDescriptor targetDescriptor = GenericDescriptor.valueOf(targetType);
+      final TypeDescriptor targetDescriptor = TypeDescriptor.valueOf(targetType);
       final TypeConverter typeConverter = conversionService.getConverter(obj.getClass(), targetDescriptor);
       if (typeConverter != null) {
         return typeConverter.convert(targetDescriptor, obj);

@@ -23,7 +23,7 @@ import java.nio.ByteBuffer;
 
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * Converts a {@link ByteBuffer} directly to and from {@code byte[] ByteBuffer}
@@ -43,7 +43,7 @@ final class ByteBufferConverter implements TypeConverter {
   }
 
   @Override
-  public boolean supports(GenericDescriptor targetType, Class<?> sourceType) {
+  public boolean supports(TypeDescriptor targetType, Class<?> sourceType) {
     // ByteBuffer.class -> byte[].class
     // ByteBuffer.class -> Object.class
     // byte[].class -> ByteBuffer.class
@@ -64,7 +64,7 @@ final class ByteBufferConverter implements TypeConverter {
   }
 
   @Override
-  public Object convert(GenericDescriptor targetType, Object source) {
+  public Object convert(TypeDescriptor targetType, Object source) {
     boolean byteBufferTarget = targetType.isAssignableTo(ByteBuffer.class);
     if (source instanceof ByteBuffer) {
       ByteBuffer buffer = (ByteBuffer) source;
@@ -77,7 +77,7 @@ final class ByteBufferConverter implements TypeConverter {
     throw new IllegalStateException("Unexpected source/target types");
   }
 
-  private Object convertFromByteBuffer(ByteBuffer source, GenericDescriptor targetType) {
+  private Object convertFromByteBuffer(ByteBuffer source, TypeDescriptor targetType) {
     byte[] bytes = new byte[source.remaining()];
     source.get(bytes);
     if (targetType.is(byte[].class)) {

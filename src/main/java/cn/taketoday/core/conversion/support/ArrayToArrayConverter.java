@@ -23,7 +23,7 @@ import java.lang.reflect.Array;
 
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * Converts an array to another array.
@@ -42,12 +42,12 @@ final class ArrayToArrayConverter extends ArraySourceConverter implements TypeCo
   }
 
   @Override
-  protected boolean supportsInternal(final GenericDescriptor targetType, Class<?> sourceType) {
+  protected boolean supportsInternal(final TypeDescriptor targetType, Class<?> sourceType) {
     return targetType.isArray();
   }
 
   @Override
-  public Object convert(final GenericDescriptor targetType, final Object source) {
+  public Object convert(final TypeDescriptor targetType, final Object source) {
     final Class<?> elementType = targetType.getComponentType();
     final int length = Array.getLength(source);
     final Object array = Array.newInstance(elementType, length);

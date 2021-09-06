@@ -20,7 +20,7 @@
 package cn.taketoday.core.conversion;
 
 import cn.taketoday.core.NestedRuntimeException;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * Base class for exceptions thrown by the conversion system.
@@ -33,7 +33,7 @@ public class ConversionException extends NestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
   final Object source;
-  final GenericDescriptor targetType;
+  final TypeDescriptor targetType;
 
   public ConversionException() {
     this(null, null, null, null);
@@ -51,7 +51,7 @@ public class ConversionException extends NestedRuntimeException {
     this(message, null, null, null);
   }
 
-  public ConversionException(String message, Throwable cause, Object source, GenericDescriptor targetType) {
+  public ConversionException(String message, Throwable cause, Object source, TypeDescriptor targetType) {
     super(message, cause);
     this.source = source;
     this.targetType = targetType;
@@ -61,7 +61,7 @@ public class ConversionException extends NestedRuntimeException {
     return source;
   }
 
-  public GenericDescriptor getTargetType() {
+  public TypeDescriptor getTargetType() {
     return targetType;
   }
 

@@ -23,7 +23,7 @@ import java.io.StringWriter;
 
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * Simply calls {@link Object#toString()} to convert any supported object
@@ -48,7 +48,7 @@ final class FallbackConverter implements TypeConverter, Ordered {
   // Object.class -> String.class
 
   @Override
-  public boolean supports(GenericDescriptor targetType, Class<?> sourceType) {
+  public boolean supports(TypeDescriptor targetType, Class<?> sourceType) {
     if (targetType.isAssignableFrom(sourceType)) {
       return true;
     }
@@ -62,7 +62,7 @@ final class FallbackConverter implements TypeConverter, Ordered {
   }
 
   @Override
-  public Object convert(final GenericDescriptor targetType, final Object source) {
+  public Object convert(final TypeDescriptor targetType, final Object source) {
     if (targetType.isInstance(source)) {
       return source;
     }

@@ -25,7 +25,7 @@ import java.util.Optional;
 
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * Convert an Object to {@code java.util.Optional<T>} if necessary using the
@@ -45,13 +45,13 @@ final class ObjectToOptionalConverter implements TypeConverter {
   }
 
   @Override
-  public boolean supports(final GenericDescriptor targetType, final Class<?> sourceType) {
+  public boolean supports(final TypeDescriptor targetType, final Class<?> sourceType) {
     // Collection.class -> Optional.class
     // Object[].class -> Optional.class
     // Object.class -> Optional.class
 
     if (targetType.is(Optional.class)) {
-      final GenericDescriptor valueType = targetType.getGeneric(Optional.class);
+      final TypeDescriptor valueType = targetType.getGeneric(Optional.class);
       if (valueType != null) {
         return this.conversionService.canConvert(sourceType, valueType);
       }
@@ -61,10 +61,10 @@ final class ObjectToOptionalConverter implements TypeConverter {
 
   @Override
   @SuppressWarnings("unchecked")
-  public Object convert(final GenericDescriptor targetType, final Object source) {
+  public Object convert(final TypeDescriptor targetType, final Object source) {
     // Optional<E> -> E
 
-    final GenericDescriptor elementType = targetType.getGeneric(Optional.class);
+    final TypeDescriptor elementType = targetType.getGeneric(Optional.class);
     if (source instanceof Optional) {
       final Optional<Object> optional = (Optional<Object>) source;
       if (optional.isPresent()) {

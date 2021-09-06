@@ -23,7 +23,7 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.ConversionServiceAware;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 
@@ -61,7 +61,7 @@ public abstract class ConversionServiceParameterResolver
   @Override
   protected Object transformValue(
           final RequestContext context, final MethodParameter parameter, final Object original) {
-    GenericDescriptor targetType = parameter.getTypeDescriptor();
+    TypeDescriptor targetType = parameter.getTypeDescriptor();
     return conversionService.convert(original, targetType);
   }
 

@@ -24,7 +24,7 @@ import java.util.Collection;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * Converts an Object to a single-element Collection containing the Object.
@@ -42,18 +42,18 @@ final class ObjectToCollectionConverter implements TypeConverter {
   }
 
   @Override
-  public boolean supports(final GenericDescriptor targetType, final Class<?> sourceType) {
+  public boolean supports(final TypeDescriptor targetType, final Class<?> sourceType) {
     // Object.class, Collection.class
     if (targetType.isCollection()) {
-      final GenericDescriptor elementType = targetType.getGeneric(Collection.class);
+      final TypeDescriptor elementType = targetType.getGeneric(Collection.class);
       return elementType == null || conversionService.canConvert(sourceType, elementType);
     }
     return false;
   }
 
   @Override
-  public Object convert(final GenericDescriptor targetType, final Object source) {
-    final GenericDescriptor elementType = targetType.getElementDescriptor();
+  public Object convert(final TypeDescriptor targetType, final Object source) {
+    final TypeDescriptor elementType = targetType.getElementDescriptor();
     Collection<Object> target = CollectionUtils.createCollection(
             targetType.getType(), (elementType != null ? elementType.getType() : null), 1);
     if (elementType == null || elementType.isCollection()) {

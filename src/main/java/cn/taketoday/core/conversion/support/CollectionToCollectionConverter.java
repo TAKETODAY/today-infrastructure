@@ -23,7 +23,7 @@ import java.util.Collection;
 
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * Converts from a Collection to another Collection.
@@ -46,20 +46,20 @@ final class CollectionToCollectionConverter extends CollectionSourceConverter {
   }
 
   @Override
-  protected boolean supportsInternal(GenericDescriptor targetType, Class<?> sourceType) {
+  protected boolean supportsInternal(TypeDescriptor targetType, Class<?> sourceType) {
     // Collection.class, Collection.class
     return targetType.isCollection();
   }
 
   @Override
-  protected Object convertInternal(GenericDescriptor targetType, Collection<?> sourceCollection) {
+  protected Object convertInternal(TypeDescriptor targetType, Collection<?> sourceCollection) {
     // Shortcut if possible...
     boolean copyRequired = !targetType.isInstance(sourceCollection);
     if (!copyRequired && sourceCollection.isEmpty()) {
       return sourceCollection;
     }
 
-    final GenericDescriptor elementType = targetType.getGeneric(Collection.class);
+    final TypeDescriptor elementType = targetType.getGeneric(Collection.class);
     if (elementType == null && !copyRequired) {
       return sourceCollection;
     }

@@ -20,7 +20,7 @@
 package cn.taketoday.core.conversion.support;
 
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * @author TODAY <br>
@@ -30,19 +30,19 @@ import cn.taketoday.util.GenericDescriptor;
 public abstract class StringSourceTypeConverter implements TypeConverter {
 
   @Override
-  public final boolean supports(final GenericDescriptor targetType, final Class<?> sourceType) {
+  public final boolean supports(final TypeDescriptor targetType, final Class<?> sourceType) {
     return sourceType == String.class
             && supportsInternal(targetType, sourceType);
   }
 
-  public boolean supportsInternal(GenericDescriptor targetType, Class<?> sourceType) {
+  public boolean supportsInternal(TypeDescriptor targetType, Class<?> sourceType) {
     return true;
   }
 
   @Override
-  public final Object convert(GenericDescriptor targetType, Object source) {
+  public final Object convert(TypeDescriptor targetType, Object source) {
     return convertInternal(targetType, (String) source);
   }
 
-  protected abstract Object convertInternal(GenericDescriptor targetClass, String source);
+  protected abstract Object convertInternal(TypeDescriptor targetClass, String source);
 }

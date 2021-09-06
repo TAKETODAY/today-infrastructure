@@ -54,7 +54,7 @@ import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.core.conversion.ConverterNotFoundException;
 import cn.taketoday.core.conversion.ConverterRegistry;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StopWatch;
 
@@ -273,7 +273,7 @@ public class DefaultConversionServiceTests {
   @Test
   public void stringToEnumSet() throws Exception {
     final Field enumSet = getClass().getField("enumSet");
-    final GenericDescriptor descriptor = GenericDescriptor.ofProperty(enumSet);
+    final TypeDescriptor descriptor = TypeDescriptor.ofProperty(enumSet);
     final Object actual = conversionService.convert("BAR", descriptor);
     assertThat(actual).isEqualTo(EnumSet.of(Foo.BAR));
   }
@@ -366,7 +366,7 @@ public class DefaultConversionServiceTests {
   @Test
   public void convertArrayToCollectionGenericTypeConversion() throws Exception {
     final String[] source = { "1", "2", "3" };
-    final GenericDescriptor targetType = GenericDescriptor.ofProperty(getClass().getDeclaredField("genericList"));
+    final TypeDescriptor targetType = TypeDescriptor.ofProperty(getClass().getDeclaredField("genericList"));
     List<Integer> result = conversionService.convert(source,targetType);
 
     assertThat((int) result.get(0)).isEqualTo((int) Integer.valueOf(1));
@@ -377,7 +377,7 @@ public class DefaultConversionServiceTests {
   @Test
   public void convertArrayToStream() throws Exception {
     String[] source = { "1", "3", "4" };
-    final GenericDescriptor targetType = GenericDescriptor.ofProperty(getClass().getDeclaredField("genericStream"));
+    final TypeDescriptor targetType = TypeDescriptor.ofProperty(getClass().getDeclaredField("genericStream"));
     Stream<Integer> result = this.conversionService.convert(source, targetType);
     assertThat(result.mapToInt(x -> x).sum()).isEqualTo(8);
   }
@@ -389,7 +389,7 @@ public class DefaultConversionServiceTests {
     ConverterRegistry registry = conversionService;
     registry.addConverter(new ColorConverter());
     final Method handlerMethod = getClass().getMethod("handlerMethod", List.class);
-    final GenericDescriptor descriptor = GenericDescriptor.ofParameter(handlerMethod, 0);
+    final TypeDescriptor descriptor = TypeDescriptor.ofParameter(handlerMethod, 0);
 
     List<Color> colors = conversionService.convert(new String[] { "ffffff", "#000000" }, descriptor);
 
@@ -548,7 +548,7 @@ public class DefaultConversionServiceTests {
   @Test
   public void convertStringToCollectionWithElementConversion() throws Exception {
     final Field genericList = getClass().getField("genericList");
-    final GenericDescriptor descriptor = GenericDescriptor.ofProperty(genericList);
+    final TypeDescriptor descriptor = TypeDescriptor.ofProperty(genericList);
     List<?> result = conversionService.convert("1,2,3", descriptor);
     assertThat(result.size()).isEqualTo(3);
     assertThat(result.get(0)).isEqualTo(1);
@@ -583,7 +583,7 @@ public class DefaultConversionServiceTests {
     Collection<String> source = new ArrayList<>();
     source.add("foo");
     final Field assignableTarget = getClass().getField("assignableTarget");
-    final GenericDescriptor descriptor = GenericDescriptor.ofProperty(assignableTarget);
+    final TypeDescriptor descriptor = TypeDescriptor.ofProperty(assignableTarget);
 
     Object result = conversionService.convert(source, descriptor);
     assertThat(result).isEqualTo(source);
@@ -611,7 +611,7 @@ public class DefaultConversionServiceTests {
   @Test
   public void convertObjectToCollectionWithElementConversion() throws Exception {
     final Field genericList = getClass().getField("genericList");
-    final GenericDescriptor descriptor = GenericDescriptor.ofProperty(genericList);
+    final TypeDescriptor descriptor = TypeDescriptor.ofProperty(genericList);
 
     List<Integer> result = conversionService.convert(3L, descriptor);
     assertThat(result.size()).isEqualTo(1);
@@ -720,7 +720,7 @@ public class DefaultConversionServiceTests {
     foo.add("2");
     foo.add("3");
     final Field genericList = getClass().getField("genericList");
-    final GenericDescriptor descriptor = GenericDescriptor.ofProperty(genericList);
+    final TypeDescriptor descriptor = TypeDescriptor.ofProperty(genericList);
 
     List<Integer> bar = conversionService.convert(foo, descriptor);
     assertThat((int) bar.get(0)).isEqualTo(1);
@@ -731,7 +731,7 @@ public class DefaultConversionServiceTests {
   @Test
   public void convertCollectionToCollectionNull() throws Exception {
     final Field genericList = getClass().getField("genericList");
-    final GenericDescriptor descriptor = GenericDescriptor.ofProperty(genericList);
+    final TypeDescriptor descriptor = TypeDescriptor.ofProperty(genericList);
     List<Integer> bar = conversionService.convert(null, descriptor);
     assertThat((Object) bar).isNull();
   }
@@ -757,7 +757,7 @@ public class DefaultConversionServiceTests {
     map.put("2", "2");
     map.put("3", "3");
     Collection values = map.values();
-    final GenericDescriptor targetType = GenericDescriptor.ofProperty(getClass().getField("genericList"));
+    final TypeDescriptor targetType = TypeDescriptor.ofProperty(getClass().getField("genericList"));
     List<Integer> bar = conversionService.convert(values, targetType);
     assertThat(bar.size()).isEqualTo(3);
     assertThat((int) bar.get(0)).isEqualTo((int) Integer.valueOf(1));
@@ -771,7 +771,7 @@ public class DefaultConversionServiceTests {
     strings.add("3");
     strings.add("9");
 
-    final GenericDescriptor targetType = GenericDescriptor.collection(List.class, Integer.class);
+    final TypeDescriptor targetType = TypeDescriptor.collection(List.class, Integer.class);
     List<Integer> integers = conversionService.convert(strings, targetType);
 
     assertThat((int) integers.get(0)).isEqualTo((int) Integer.valueOf(3));
@@ -784,7 +784,7 @@ public class DefaultConversionServiceTests {
     foo.put("1", "BAR");
     foo.put("2", "BAZ");
 
-    final GenericDescriptor descriptor = GenericDescriptor.ofProperty(getClass().getField("genericMap"));
+    final TypeDescriptor descriptor = TypeDescriptor.ofProperty(getClass().getField("genericMap"));
     Map<Integer, Foo> map = conversionService.convert(foo, descriptor);
 
     assertThat(map.get(1)).isEqualTo(Foo.BAR);
@@ -807,7 +807,7 @@ public class DefaultConversionServiceTests {
     strings.put("6", "31");
     Map<Integer, Integer> integers = //
 //            conversionService.convert(strings, new TypeReference<Map<Integer, Integer>>(){}.getTypeParameter());
-            conversionService.convert(strings, GenericDescriptor.map(Map.class,Integer.class, Integer.class ));
+            conversionService.convert(strings, TypeDescriptor.map(Map.class, Integer.class, Integer.class ));
 
     assertThat((int) integers.get(3)).isEqualTo((int) Integer.valueOf(9));
     assertThat((int) integers.get(6)).isEqualTo((int) Integer.valueOf(31));
@@ -970,7 +970,7 @@ public class DefaultConversionServiceTests {
   @SuppressWarnings("unchecked")
   public void convertObjectToOptional() {
     Method method = ReflectionUtils.findMethod(TestEntity.class, "handleOptionalValue", Optional.class);
-    final GenericDescriptor targetType = GenericDescriptor.ofParameter(method, 0);
+    final TypeDescriptor targetType = TypeDescriptor.ofParameter(method, 0);
     Object actual = conversionService.convert("1,2,3", targetType);
 
     assertThat(actual.getClass()).isEqualTo(Optional.class);

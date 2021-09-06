@@ -34,7 +34,7 @@ import cn.taketoday.core.Required;
 import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 import cn.taketoday.util.NumberUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
@@ -66,7 +66,7 @@ public class MethodParameter
   /**
    * @since 3.0.1
    */
-  protected GenericDescriptor genericDescriptor;
+  protected TypeDescriptor typeDescriptor;
 
   public MethodParameter(@Nullable HandlerMethod handlerMethod, MethodParameter other) {
     this.name = other.name;
@@ -78,7 +78,7 @@ public class MethodParameter
     this.parameterClass = other.parameterClass;
 
     this.handlerMethod = handlerMethod;
-    this.genericDescriptor = other.genericDescriptor; // @since 3.0.1
+    this.typeDescriptor = other.typeDescriptor; // @since 3.0.1
   }
 
   /**
@@ -94,7 +94,7 @@ public class MethodParameter
     this.parameterClass = other.parameterClass;
 
     this.handlerMethod = other.handlerMethod;
-    this.genericDescriptor = other.genericDescriptor; // @since 3.0.1
+    this.typeDescriptor = other.typeDescriptor; // @since 3.0.1
   }
 
   public MethodParameter(int index, Parameter parameter) {
@@ -302,20 +302,20 @@ public class MethodParameter
   /**
    * @since 3.0.1
    */
-  public GenericDescriptor getTypeDescriptor() {
-    GenericDescriptor genericDescriptor = this.genericDescriptor;
-    if (genericDescriptor == null) {
-      genericDescriptor = createGenericDescriptor();
-      this.genericDescriptor = genericDescriptor;
+  public TypeDescriptor getTypeDescriptor() {
+    TypeDescriptor typeDescriptor = this.typeDescriptor;
+    if (typeDescriptor == null) {
+      typeDescriptor = createGenericDescriptor();
+      this.typeDescriptor = typeDescriptor;
     }
-    return genericDescriptor;
+    return typeDescriptor;
   }
 
   /**
    * @since 4.0
    */
-  protected GenericDescriptor createGenericDescriptor() {
-    return GenericDescriptor.ofParameter(parameter);
+  protected TypeDescriptor createGenericDescriptor() {
+    return TypeDescriptor.ofParameter(parameter);
   }
 
 }

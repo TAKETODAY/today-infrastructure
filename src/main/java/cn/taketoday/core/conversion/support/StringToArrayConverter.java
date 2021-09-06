@@ -23,7 +23,7 @@ import java.lang.reflect.Array;
 import java.util.List;
 
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -44,13 +44,13 @@ final class StringToArrayConverter extends ToArrayConverter {
   }
 
   @Override
-  protected boolean supportsInternal(GenericDescriptor targetType, final Class<?> sourceType) {
+  protected boolean supportsInternal(TypeDescriptor targetType, final Class<?> sourceType) {
     // String.class, Object[].class
     return sourceType == String.class;
   }
 
   @Override
-  public Object convert(final GenericDescriptor targetType, final Object source) {
+  public Object convert(final TypeDescriptor targetType, final Object source) {
     final String string = (String) source;
     final List<String> fields = StringUtils.splitAsList(string);
 

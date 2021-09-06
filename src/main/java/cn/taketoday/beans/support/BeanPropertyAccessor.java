@@ -35,7 +35,7 @@ import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * @author TODAY 2021/1/27 22:35
@@ -570,7 +570,7 @@ public class BeanPropertyAccessor {
   }
 
   protected Object doConvertInternal(Object value, final BeanProperty beanProperty) {
-    return doConvertInternal(value, GenericDescriptor.ofProperty(beanProperty));
+    return doConvertInternal(value, TypeDescriptor.ofProperty(beanProperty));
   }
 
   /**
@@ -581,10 +581,10 @@ public class BeanPropertyAccessor {
     if (value == null || requiredType.isInstance(value)) {
       return value;
     }
-    return doConvertInternal(value, GenericDescriptor.valueOf(requiredType));
+    return doConvertInternal(value, TypeDescriptor.valueOf(requiredType));
   }
 
-  protected Object doConvertInternal(final Object value, final GenericDescriptor requiredType) {
+  protected Object doConvertInternal(final Object value, final TypeDescriptor requiredType) {
     final TypeConverter typeConverter = getConversionService().getConverter(value, requiredType);
     if (typeConverter == null) {
       return converterNotFound(value, requiredType);
@@ -592,7 +592,7 @@ public class BeanPropertyAccessor {
     return typeConverter.convert(requiredType, value);
   }
 
-  protected Object converterNotFound(final Object value, final GenericDescriptor requiredType) {
+  protected Object converterNotFound(final Object value, final TypeDescriptor requiredType) {
     throw new InvalidPropertyValueException(
             "Invalid property value [" + value + "] cannot convert '"
                     + value.getClass() + "' to target class: [" + requiredType + "]");

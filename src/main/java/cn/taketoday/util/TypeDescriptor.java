@@ -44,9 +44,9 @@ import cn.taketoday.core.Nullable;
  * @author TODAY 2021/3/22 20:37
  * @since 3.0
  */
-public class GenericDescriptor implements Serializable {
+public class TypeDescriptor implements Serializable {
   private static final long serialVersionUID = 1L;
-  private static final HashMap<Class<?>, GenericDescriptor> commonTypesCache = new HashMap<>(32);
+  private static final HashMap<Class<?>, TypeDescriptor> commonTypesCache = new HashMap<>(32);
   private static final Class<?>[] CACHED_COMMON_TYPES = {
           boolean.class, Boolean.class, byte.class, Byte.class, char.class, Character.class,
           double.class, Double.class, float.class, Float.class, int.class, Integer.class,
@@ -70,13 +70,13 @@ public class GenericDescriptor implements Serializable {
    * @param field
    *         the field
    */
-  public GenericDescriptor(Field field) {
+  public TypeDescriptor(Field field) {
     this.annotatedElement = field;
     this.resolvableType = ResolvableType.forField(field);
     this.type = this.resolvableType.resolve(field.getType());
   }
 
-  public GenericDescriptor(BeanProperty property) {
+  public TypeDescriptor(BeanProperty property) {
     this.type = property.getType();
     this.annotatedElement = property;
     this.resolvableType = ResolvableType.forField(property.getField());
@@ -94,7 +94,7 @@ public class GenericDescriptor implements Serializable {
    * @param annotations
    *         the type annotations
    */
-  public GenericDescriptor(ResolvableType resolvableType, @Nullable Class<?> type, @Nullable Annotation[] annotations) {
+  public TypeDescriptor(ResolvableType resolvableType, @Nullable Class<?> type, @Nullable Annotation[] annotations) {
     this.resolvableType = resolvableType;
     this.type = (type != null ? type : resolvableType.toClass());
     this.annotatedElement = new AnnotatedElementAdapter(annotations);
@@ -114,7 +114,7 @@ public class GenericDescriptor implements Serializable {
    *
    * @since 4.0
    */
-  public GenericDescriptor(ResolvableType resolvableType, @Nullable Class<?> type, AnnotatedElement annotated) {
+  public TypeDescriptor(ResolvableType resolvableType, @Nullable Class<?> type, AnnotatedElement annotated) {
     this.annotatedElement = annotated;
     this.resolvableType = resolvableType;
     this.type = (type != null ? type : resolvableType.toClass());
@@ -177,7 +177,7 @@ public class GenericDescriptor implements Serializable {
     return type.getSimpleName();
   }
 
-  public GenericDescriptor getGeneric(Class<?> genericIfc) {
+  public TypeDescriptor getGeneric(Class<?> genericIfc) {
     final ResolvableType generic = resolvableType.as(genericIfc).getGeneric(0);
     return getRelatedIfResolvable(this, generic);
   }
@@ -191,7 +191,7 @@ public class GenericDescriptor implements Serializable {
 
   /**
    * Return the underlying source of the descriptor. Will return a {@link Field},
-   * {@link java.lang.reflect.Parameter} or {@link Type} depending on how the {@link GenericDescriptor}
+   * {@link java.lang.reflect.Parameter} or {@link Type} depending on how the {@link TypeDescriptor}
    * was constructed. This method is primarily to provide access to additional
    * type information or meta-data that alternative JVM languages may provide.
    */
@@ -200,7 +200,7 @@ public class GenericDescriptor implements Serializable {
   }
 
   /**
-   * Narrows this {@link GenericDescriptor} by setting its type to the class of the
+   * Narrows this {@link TypeDescriptor} by setting its type to the class of the
    * provided value.
    * <p>If the value is {@code null}, no narrowing is performed and this GenericDescriptor
    * is returned unchanged.
@@ -218,16 +218,16 @@ public class GenericDescriptor implements Serializable {
    * @return this GenericDescriptor narrowed (returns a copy with its type updated to the
    * class of the provided value)
    */
-  public GenericDescriptor narrow(Object value) {
+  public TypeDescriptor narrow(Object value) {
     if (value == null) {
       return this;
     }
     ResolvableType narrowed = ResolvableType.forType(value.getClass(), getResolvableType());
-    return new GenericDescriptor(narrowed, value.getClass(), getAnnotations());
+    return new TypeDescriptor(narrowed, value.getClass(), getAnnotations());
   }
 
   /**
-   * Cast this {@link GenericDescriptor} to a superclass or implemented interface
+   * Cast this {@link TypeDescriptor} to a superclass or implemented interface
    * preserving annotations and nested type context.
    *
    * @param superType
@@ -239,12 +239,12 @@ public class GenericDescriptor implements Serializable {
    *         if this type is not assignable to the super-type
    */
 
-  public GenericDescriptor upcast(Class<?> superType) {
+  public TypeDescriptor upcast(Class<?> superType) {
     if (superType == null) {
       return null;
     }
     Assert.isAssignable(superType, getType());
-    return new GenericDescriptor(getResolvableType().as(superType), superType, getAnnotations());
+    return new TypeDescriptor(getResolvableType().as(superType), superType, getAnnotations());
   }
 
   /**
@@ -304,31 +304,31 @@ public class GenericDescriptor implements Serializable {
    * @return {@code true} if this type is assignable to the type represented by the provided
    * type descriptor
    */
-  public boolean isAssignableTo(GenericDescriptor genericDescriptor) {
-    boolean typesAssignable = genericDescriptor.getType().isAssignableFrom(getType());
+  public boolean isAssignableTo(TypeDescriptor typeDescriptor) {
+    boolean typesAssignable = typeDescriptor.getType().isAssignableFrom(getType());
     if (!typesAssignable) {
       return false;
     }
-    if (isArray() && genericDescriptor.isArray()) {
-      return isNestedAssignable(getElementDescriptor(), genericDescriptor.getElementDescriptor());
+    if (isArray() && typeDescriptor.isArray()) {
+      return isNestedAssignable(getElementDescriptor(), typeDescriptor.getElementDescriptor());
     }
-    else if (isCollection() && genericDescriptor.isCollection()) {
-      return isNestedAssignable(getElementDescriptor(), genericDescriptor.getElementDescriptor());
+    else if (isCollection() && typeDescriptor.isCollection()) {
+      return isNestedAssignable(getElementDescriptor(), typeDescriptor.getElementDescriptor());
     }
-    else if (isMap() && genericDescriptor.isMap()) {
-      return isNestedAssignable(getMapKeyGenericDescriptor(), genericDescriptor.getMapKeyGenericDescriptor()) &&
-              isNestedAssignable(getMapValueGenericDescriptor(), genericDescriptor.getMapValueGenericDescriptor());
+    else if (isMap() && typeDescriptor.isMap()) {
+      return isNestedAssignable(getMapKeyGenericDescriptor(), typeDescriptor.getMapKeyGenericDescriptor()) &&
+              isNestedAssignable(getMapValueGenericDescriptor(), typeDescriptor.getMapValueGenericDescriptor());
     }
     else {
       return true;
     }
   }
 
-  private boolean isNestedAssignable(GenericDescriptor nestedGenericDescriptor,
-                                     GenericDescriptor otherNestedGenericDescriptor) {
+  private boolean isNestedAssignable(TypeDescriptor nestedTypeDescriptor,
+                                     TypeDescriptor otherNestedTypeDescriptor) {
 
-    return (nestedGenericDescriptor == null || otherNestedGenericDescriptor == null ||
-            nestedGenericDescriptor.isAssignableTo(otherNestedGenericDescriptor));
+    return (nestedTypeDescriptor == null || otherNestedTypeDescriptor == null ||
+            nestedTypeDescriptor.isAssignableTo(otherNestedTypeDescriptor));
   }
 
   /**
@@ -342,9 +342,9 @@ public class GenericDescriptor implements Serializable {
    *
    * @see #elementGenericDescriptor(Object)
    */
-  public GenericDescriptor getElementDescriptor() {
+  public TypeDescriptor getElementDescriptor() {
     if (getResolvableType().isArray()) {
-      return new GenericDescriptor(getResolvableType().getComponentType(), null, getAnnotations());
+      return new TypeDescriptor(getResolvableType().getComponentType(), null, getAnnotations());
     }
     if (Stream.class.isAssignableFrom(getType())) {
       return getRelatedIfResolvable(this, getResolvableType().as(Stream.class).getGeneric(0));
@@ -373,7 +373,7 @@ public class GenericDescriptor implements Serializable {
    * @see #getElementDescriptor()
    * @see #narrow(Object)
    */
-  public GenericDescriptor elementGenericDescriptor(Object element) {
+  public TypeDescriptor elementGenericDescriptor(Object element) {
     return narrow(element, getElementDescriptor());
   }
 
@@ -395,13 +395,13 @@ public class GenericDescriptor implements Serializable {
    * @throws IllegalStateException
    *         if this type is not a {@code java.util.Map}
    */
-  public GenericDescriptor getMapKeyGenericDescriptor() {
+  public TypeDescriptor getMapKeyGenericDescriptor() {
     Assert.state(isMap(), "Not a [java.util.Map]");
     return getRelatedIfResolvable(this, getResolvableType().asMap().getGeneric(0));
   }
 
   /**
-   * If this type is a {@link Map}, creates a mapKey {@link GenericDescriptor}
+   * If this type is a {@link Map}, creates a mapKey {@link TypeDescriptor}
    * from the provided map key.
    * <p>Narrows the {@link #getMapKeyGenericDescriptor() mapKeyType} property
    * to the class of the provided map key. For example, if this describes a
@@ -422,7 +422,7 @@ public class GenericDescriptor implements Serializable {
    *         if this type is not a {@code java.util.Map}
    * @see #narrow(Object)
    */
-  public GenericDescriptor getMapKeyGenericDescriptor(Object mapKey) {
+  public TypeDescriptor getMapKeyGenericDescriptor(Object mapKey) {
     return narrow(mapKey, getMapKeyGenericDescriptor());
   }
 
@@ -438,13 +438,13 @@ public class GenericDescriptor implements Serializable {
    * @throws IllegalStateException
    *         if this type is not a {@code java.util.Map}
    */
-  public GenericDescriptor getMapValueGenericDescriptor() {
+  public TypeDescriptor getMapValueGenericDescriptor() {
     Assert.state(isMap(), "Not a [java.util.Map]");
     return getRelatedIfResolvable(this, getResolvableType().asMap().getGeneric(1));
   }
 
   /**
-   * If this type is a {@link Map}, creates a mapValue {@link GenericDescriptor}
+   * If this type is a {@link Map}, creates a mapValue {@link TypeDescriptor}
    * from the provided map value.
    * <p>Narrows the {@link #getMapValueGenericDescriptor() mapValueType} property
    * to the class of the provided map value. For example, if this describes a
@@ -465,13 +465,13 @@ public class GenericDescriptor implements Serializable {
    *         if this type is not a {@code java.util.Map}
    * @see #narrow(Object)
    */
-  public GenericDescriptor getMapValueGenericDescriptor(Object mapValue) {
+  public TypeDescriptor getMapValueGenericDescriptor(Object mapValue) {
     return narrow(mapValue, getMapValueGenericDescriptor());
   }
 
-  private GenericDescriptor narrow(Object value, GenericDescriptor genericDescriptor) {
-    if (genericDescriptor != null) {
-      return genericDescriptor.narrow(value);
+  private TypeDescriptor narrow(Object value, TypeDescriptor typeDescriptor) {
+    if (typeDescriptor != null) {
+      return typeDescriptor.narrow(value);
     }
     if (value != null) {
       return narrow(value);
@@ -484,10 +484,10 @@ public class GenericDescriptor implements Serializable {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof GenericDescriptor)) {
+    if (!(other instanceof TypeDescriptor)) {
       return false;
     }
-    GenericDescriptor otherDesc = (GenericDescriptor) other;
+    TypeDescriptor otherDesc = (TypeDescriptor) other;
     if (getType() != otherDesc.getType()) {
       return false;
     }
@@ -506,7 +506,7 @@ public class GenericDescriptor implements Serializable {
     }
   }
 
-  private boolean annotationsMatch(GenericDescriptor otherDesc) {
+  private boolean annotationsMatch(TypeDescriptor otherDesc) {
     Annotation[] anns = getAnnotations();
     Annotation[] otherAnns = otherDesc.getAnnotations();
     if (anns == otherAnns) {
@@ -559,7 +559,7 @@ public class GenericDescriptor implements Serializable {
    *
    * @return the type descriptor
    */
-  public static GenericDescriptor forObject(Object source) {
+  public static TypeDescriptor forObject(Object source) {
     return (source != null ? valueOf(source.getClass()) : null);
   }
 
@@ -576,15 +576,15 @@ public class GenericDescriptor implements Serializable {
    *
    * @return the corresponding type descriptor
    */
-  public static GenericDescriptor valueOf(Class<?> type) {
+  public static TypeDescriptor valueOf(Class<?> type) {
     if (type == null) {
       type = Object.class;
     }
-    GenericDescriptor desc = commonTypesCache.get(type);
-    return (desc != null ? desc : new GenericDescriptor(ResolvableType.forClass(type), null, (Annotation[]) null));
+    TypeDescriptor desc = commonTypesCache.get(type);
+    return (desc != null ? desc : new TypeDescriptor(ResolvableType.forClass(type), null, (Annotation[]) null));
   }
 
-  public static GenericDescriptor collection(Class<?> collectionType, Class<?> element) {
+  public static TypeDescriptor collection(Class<?> collectionType, Class<?> element) {
     return collection(collectionType, valueOf(element));
   }
 
@@ -604,16 +604,16 @@ public class GenericDescriptor implements Serializable {
    *
    * @return the collection type descriptor
    */
-  public static GenericDescriptor collection(Class<?> collectionType, GenericDescriptor elementDescriptor) {
+  public static TypeDescriptor collection(Class<?> collectionType, TypeDescriptor elementDescriptor) {
     Assert.notNull(collectionType, "Collection type must not be null");
     if (!Collection.class.isAssignableFrom(collectionType)) {
       throw new IllegalArgumentException("Collection type must be a [java.util.Collection]");
     }
     ResolvableType element = (elementDescriptor != null ? elementDescriptor.resolvableType : null);
-    return new GenericDescriptor(ResolvableType.forClassWithGenerics(collectionType, element), null, (Annotation[]) null);
+    return new TypeDescriptor(ResolvableType.forClassWithGenerics(collectionType, element), null, (Annotation[]) null);
   }
 
-  public static GenericDescriptor map(Class<?> mapType, Class<?> key, Class<?> value) {
+  public static TypeDescriptor map(Class<?> mapType, Class<?> key, Class<?> value) {
     return map(mapType, valueOf(key), valueOf(value));
   }
 
@@ -636,15 +636,15 @@ public class GenericDescriptor implements Serializable {
    *
    * @return the map type descriptor
    */
-  public static GenericDescriptor map(
-          Class<?> mapType, GenericDescriptor keyDescriptor, GenericDescriptor valueDescriptor) {
+  public static TypeDescriptor map(
+          Class<?> mapType, TypeDescriptor keyDescriptor, TypeDescriptor valueDescriptor) {
     Assert.notNull(mapType, "Map type must not be null");
     if (!Map.class.isAssignableFrom(mapType)) {
       throw new IllegalArgumentException("Map type must be a [java.util.Map]");
     }
     ResolvableType key = (keyDescriptor != null ? keyDescriptor.resolvableType : null);
     ResolvableType value = (valueDescriptor != null ? valueDescriptor.resolvableType : null);
-    return new GenericDescriptor(ResolvableType.forClassWithGenerics(mapType, key, value), null, (Annotation[]) null);
+    return new TypeDescriptor(ResolvableType.forClassWithGenerics(mapType, key, value), null, (Annotation[]) null);
   }
 
   /**
@@ -655,15 +655,15 @@ public class GenericDescriptor implements Serializable {
    * </pre>
    *
    * @param elementDescriptor
-   *         the {@link GenericDescriptor} of the array element or {@code null}
+   *         the {@link TypeDescriptor} of the array element or {@code null}
    *
-   * @return an array {@link GenericDescriptor} or {@code null} if {@code elementGenericDescriptor} is {@code null}
+   * @return an array {@link TypeDescriptor} or {@code null} if {@code elementGenericDescriptor} is {@code null}
    */
-  public static GenericDescriptor array(GenericDescriptor elementDescriptor) {
+  public static TypeDescriptor array(TypeDescriptor elementDescriptor) {
     if (elementDescriptor == null) {
       return null;
     }
-    return new GenericDescriptor(
+    return new TypeDescriptor(
             ResolvableType.forArrayComponent(elementDescriptor.resolvableType),
             null, elementDescriptor.getAnnotations());
   }
@@ -695,12 +695,12 @@ public class GenericDescriptor implements Serializable {
    *         if the types up to the specified nesting
    *         level are not of collection, array, or map types
    */
-  public static GenericDescriptor nested(Field field, int nestingLevel) {
-    return nested(new GenericDescriptor(field), nestingLevel);
+  public static TypeDescriptor nested(Field field, int nestingLevel) {
+    return nested(new TypeDescriptor(field), nestingLevel);
   }
 
-  public static GenericDescriptor nested(GenericDescriptor genericDescriptor, int nestingLevel) {
-    ResolvableType nested = genericDescriptor.resolvableType;
+  public static TypeDescriptor nested(TypeDescriptor typeDescriptor, int nestingLevel) {
+    ResolvableType nested = typeDescriptor.resolvableType;
     for (int i = 0; i < nestingLevel; i++) {
       if (Object.class != nested.getType()) {
         nested = nested.getNested(2);
@@ -713,25 +713,25 @@ public class GenericDescriptor implements Serializable {
     if (nested == ResolvableType.NONE) {
       return null;
     }
-    return getRelatedIfResolvable(genericDescriptor, nested);
+    return getRelatedIfResolvable(typeDescriptor, nested);
   }
 
-  private static GenericDescriptor getRelatedIfResolvable(GenericDescriptor source, ResolvableType type) {
+  private static TypeDescriptor getRelatedIfResolvable(TypeDescriptor source, ResolvableType type) {
     if (type.resolve() == null) {
       return null;
     }
-    return new GenericDescriptor(type, null, source.getAnnotations());
+    return new TypeDescriptor(type, null, source.getAnnotations());
   }
 
-  public static GenericDescriptor ofProperty(Field beanProperty) {
-    return new GenericDescriptor(beanProperty);
+  public static TypeDescriptor ofProperty(Field beanProperty) {
+    return new TypeDescriptor(beanProperty);
   }
 
-  public static GenericDescriptor ofProperty(BeanProperty beanProperty) {
-    return new GenericDescriptor(beanProperty);
+  public static TypeDescriptor ofProperty(BeanProperty beanProperty) {
+    return new TypeDescriptor(beanProperty);
   }
 
-  public static GenericDescriptor ofParameter(final Executable executable, int parameterIndex) {
+  public static TypeDescriptor ofParameter(final Executable executable, int parameterIndex) {
     final Parameter parameter = ReflectionUtils.getParameter(executable, parameterIndex);
     return ofParameter(parameter);
   }
@@ -739,9 +739,9 @@ public class GenericDescriptor implements Serializable {
   /**
    * @since 3.0.2
    */
-  public static GenericDescriptor ofParameter(Parameter parameter) {
+  public static TypeDescriptor ofParameter(Parameter parameter) {
     final ResolvableType resolvableType = ResolvableType.forParameter(parameter);
-    return new GenericDescriptor(resolvableType, parameter.getType(), parameter);
+    return new TypeDescriptor(resolvableType, parameter.getType(), parameter);
   }
 
   /**
@@ -759,7 +759,7 @@ public class GenericDescriptor implements Serializable {
 
     @Override
     public String toString() {
-      return GenericDescriptor.this.toString();
+      return TypeDescriptor.this.toString();
     }
   }
 

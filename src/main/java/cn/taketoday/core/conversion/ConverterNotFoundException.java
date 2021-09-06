@@ -20,7 +20,7 @@
 
 package cn.taketoday.core.conversion;
 
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * Exception to be thrown when a suitable converter could not be found
@@ -34,11 +34,11 @@ import cn.taketoday.util.GenericDescriptor;
 public class ConverterNotFoundException extends ConversionException {
   private static final long serialVersionUID = 1L;
 
-  public ConverterNotFoundException(String message, Object source, GenericDescriptor targetType) {
+  public ConverterNotFoundException(String message, Object source, TypeDescriptor targetType) {
     super(message, null, source, targetType);
   }
 
-  public ConverterNotFoundException(Object source, GenericDescriptor targetType) {
+  public ConverterNotFoundException(Object source, TypeDescriptor targetType) {
     this("No converter found capable of converting from type [" +
                  source.getClass() + "] to type [" + targetType + "]", source, targetType);
 

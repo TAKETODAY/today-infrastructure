@@ -28,7 +28,7 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * @author TODAY 2021/5/17 13:07
@@ -80,7 +80,7 @@ public abstract class ObjectNotationProcessor {
    * @throws IOException
    *         if underlying input contains invalid content
    */
-  public abstract Object read(String message, GenericDescriptor descriptor) throws IOException;
+  public abstract Object read(String message, TypeDescriptor descriptor) throws IOException;
 
   /**
    * read an object from given InputStream
@@ -95,7 +95,7 @@ public abstract class ObjectNotationProcessor {
    *         a {@link IOException} will be thrown.
    *         If a parsing problem occurs (invalid JSON)
    */
-  public abstract Object read(InputStream source, GenericDescriptor descriptor) throws IOException;
+  public abstract Object read(InputStream source, TypeDescriptor descriptor) throws IOException;
 
   public void setCharset(Charset charset) {
     this.charset = charset;

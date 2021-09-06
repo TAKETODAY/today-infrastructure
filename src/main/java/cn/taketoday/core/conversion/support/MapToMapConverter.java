@@ -25,7 +25,7 @@ import java.util.Map;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * Converts a Map to another Map.
@@ -48,7 +48,7 @@ final class MapToMapConverter implements TypeConverter {
   }
 
   @Override
-  public boolean supports(final GenericDescriptor targetType, final Class<?> sourceType) {
+  public boolean supports(final TypeDescriptor targetType, final Class<?> sourceType) {
     // Map.class, Map.class
     return targetType.isAssignableTo(Map.class)
             && Map.class.isAssignableFrom(sourceType);
@@ -56,7 +56,7 @@ final class MapToMapConverter implements TypeConverter {
 
   @Override
   @SuppressWarnings("unchecked")
-  public Object convert(final GenericDescriptor targetType, final Object source) {
+  public Object convert(final TypeDescriptor targetType, final Object source) {
     final Map<Object, Object> sourceMap = (Map<Object, Object>) source;
 
     // Shortcut if possible...
@@ -65,8 +65,8 @@ final class MapToMapConverter implements TypeConverter {
       return sourceMap;
     }
 
-    final GenericDescriptor targetKeyType = targetType.getMapKeyGenericDescriptor();
-    final GenericDescriptor targetValueType = targetType.getMapValueGenericDescriptor();
+    final TypeDescriptor targetKeyType = targetType.getMapKeyGenericDescriptor();
+    final TypeDescriptor targetValueType = targetType.getMapValueGenericDescriptor();
 
     final ConversionService conversionService = this.conversionService;
     final ArrayList<MapEntry> targetEntries = new ArrayList<>(sourceMap.size());
@@ -97,14 +97,14 @@ final class MapToMapConverter implements TypeConverter {
 
   // internal helpers
 
-  private static Object convertKey(Object sourceKey, GenericDescriptor targetType, ConversionService conversionService) {
+  private static Object convertKey(Object sourceKey, TypeDescriptor targetType, ConversionService conversionService) {
     if (targetType == null) {
       return sourceKey;
     }
     return conversionService.convert(sourceKey, targetType);
   }
 
-  private static Object convertValue(Object sourceValue, GenericDescriptor targetType, ConversionService conversionService) {
+  private static Object convertValue(Object sourceValue, TypeDescriptor targetType, ConversionService conversionService) {
     if (targetType == null) {
       return sourceValue;
     }

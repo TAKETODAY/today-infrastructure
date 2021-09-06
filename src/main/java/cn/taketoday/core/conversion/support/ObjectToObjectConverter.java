@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -69,13 +69,13 @@ final class ObjectToObjectConverter implements TypeConverter {
   // Object.class, Object.class
 
   @Override
-  public boolean supports(final GenericDescriptor targetType, final Class<?> sourceType) {
+  public boolean supports(final TypeDescriptor targetType, final Class<?> sourceType) {
     return !targetType.is(sourceType)
             && hasConversionMethodOrConstructor(targetType.getType(), sourceType);
   }
 
   @Override
-  public Object convert(GenericDescriptor targetType, Object source) {
+  public Object convert(TypeDescriptor targetType, Object source) {
     Class<?> sourceClass = source.getClass();
     Member member = getValidatedMember(targetType.getType(), sourceClass);
 

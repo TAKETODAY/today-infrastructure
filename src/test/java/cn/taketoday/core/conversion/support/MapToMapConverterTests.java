@@ -34,7 +34,7 @@ import java.util.Map;
 import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.core.conversion.ConverterNotFoundException;
 import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 import cn.taketoday.core.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +60,7 @@ public class MapToMapConverterTests {
     Map<String, String> map = new HashMap<>();
     map.put("1", "9");
     map.put("2", "37");
-    GenericDescriptor targetType = new GenericDescriptor(getClass().getField("scalarMapTarget"));
+    TypeDescriptor targetType = new TypeDescriptor(getClass().getField("scalarMapTarget"));
 
     assertThat(conversionService.canConvert(HashMap.class, targetType)).isTrue();
     try {
@@ -95,8 +95,8 @@ public class MapToMapConverterTests {
     Map<String, String> map = new HashMap<>();
     map.put("1", "9");
     map.put("2", "37");
-    GenericDescriptor sourceType = new GenericDescriptor(getClass().getField("notGenericMapSource"));
-    GenericDescriptor targetType = new GenericDescriptor(getClass().getField("scalarMapTarget"));
+    TypeDescriptor sourceType = new TypeDescriptor(getClass().getField("notGenericMapSource"));
+    TypeDescriptor targetType = new TypeDescriptor(getClass().getField("scalarMapTarget"));
 
     assertThat(conversionService.canConvert(Map.class, targetType)).isTrue();
     try {
@@ -122,8 +122,8 @@ public class MapToMapConverterTests {
     Map<String, List<String>> map = new HashMap<>();
     map.put("1", Arrays.asList("9", "12"));
     map.put("2", Arrays.asList("37", "23"));
-    GenericDescriptor sourceType = GenericDescriptor.forObject(map);
-    GenericDescriptor targetType = new GenericDescriptor(getClass().getField("collectionMapTarget"));
+    TypeDescriptor sourceType = TypeDescriptor.forObject(map);
+    TypeDescriptor targetType = new TypeDescriptor(getClass().getField("collectionMapTarget"));
 
     assertThat(conversionService.canConvert(sourceType.getType(), targetType)).isTrue();
     try {
@@ -150,8 +150,8 @@ public class MapToMapConverterTests {
     Map<String, List<String>> map = new HashMap<>();
     map.put("1", Arrays.asList("9", "12"));
     map.put("2", Arrays.asList("37", "23"));
-    GenericDescriptor sourceType = new GenericDescriptor(getClass().getField("sourceCollectionMapTarget"));
-    GenericDescriptor targetType = new GenericDescriptor(getClass().getField("collectionMapTarget"));
+    TypeDescriptor sourceType = new TypeDescriptor(getClass().getField("sourceCollectionMapTarget"));
+    TypeDescriptor targetType = new TypeDescriptor(getClass().getField("collectionMapTarget"));
 
 //    assertThat(conversionService.canConvert(sourceType.getType(), targetType)).isFalse();
 //    assertThatExceptionOfType(ConverterNotFoundException.class)
@@ -194,8 +194,8 @@ public class MapToMapConverterTests {
   @Test
   public void emptyMap() throws Exception {
     Map<String, String> map = new HashMap<>();
-    GenericDescriptor sourceType = GenericDescriptor.forObject(map);
-    GenericDescriptor targetType = new GenericDescriptor(getClass().getField("emptyMapTarget"));
+    TypeDescriptor sourceType = TypeDescriptor.forObject(map);
+    TypeDescriptor targetType = new TypeDescriptor(getClass().getField("emptyMapTarget"));
 
     assertThat(conversionService.canConvert(sourceType.getType(), targetType)).isTrue();
     final Map<String, String> convert = conversionService.convert(map, targetType);
@@ -213,8 +213,8 @@ public class MapToMapConverterTests {
   @Test
   public void emptyMapDifferentTargetImplType() throws Exception {
     Map<String, String> map = new HashMap<>();
-    GenericDescriptor sourceType = GenericDescriptor.forObject(map);
-    GenericDescriptor targetType = new GenericDescriptor(getClass().getField("emptyMapDifferentTarget"));
+    TypeDescriptor sourceType = TypeDescriptor.forObject(map);
+    TypeDescriptor targetType = new TypeDescriptor(getClass().getField("emptyMapDifferentTarget"));
 
     assertThat(conversionService.canConvert(sourceType.getType(), targetType)).isTrue();
 
@@ -229,12 +229,12 @@ public class MapToMapConverterTests {
     NoDefaultConstructorMap<String, Integer> map = new NoDefaultConstructorMap<>(
             Collections.singletonMap("1", 1));
 
-    GenericDescriptor sourceType = GenericDescriptor.map(NoDefaultConstructorMap.class,
-                                                         GenericDescriptor.valueOf(String.class),
-                                                         GenericDescriptor.valueOf(Integer.class));
-    GenericDescriptor targetType = GenericDescriptor.map(NoDefaultConstructorMap.class,
-                                                         GenericDescriptor.valueOf(String.class),
-                                                         GenericDescriptor.valueOf(Integer.class));
+    TypeDescriptor sourceType = TypeDescriptor.map(NoDefaultConstructorMap.class,
+                                                   TypeDescriptor.valueOf(String.class),
+                                                   TypeDescriptor.valueOf(Integer.class));
+    TypeDescriptor targetType = TypeDescriptor.map(NoDefaultConstructorMap.class,
+                                                   TypeDescriptor.valueOf(String.class),
+                                                   TypeDescriptor.valueOf(Integer.class));
 
     assertThat(conversionService.canConvert(sourceType.getType(), targetType)).isTrue();
 
@@ -250,7 +250,7 @@ public class MapToMapConverterTests {
     MultiValueMap<String, Integer> source = new DefaultMultiValueMap<>();
     source.put("a", Arrays.asList(1, 2, 3));
     source.put("b", Arrays.asList(4, 5, 6));
-    GenericDescriptor targetType = new GenericDescriptor(getClass().getField("multiValueMapTarget"));
+    TypeDescriptor targetType = new TypeDescriptor(getClass().getField("multiValueMapTarget"));
 
     MultiValueMap<String, String> converted = conversionService.convert(source, targetType);
     assertThat(converted.size()).isEqualTo(2);
@@ -265,7 +265,7 @@ public class MapToMapConverterTests {
     Map<String, Integer> source = new HashMap<>();
     source.put("a", 1);
     source.put("b", 2);
-    GenericDescriptor targetType = new GenericDescriptor(getClass().getField("multiValueMapTarget"));
+    TypeDescriptor targetType = new TypeDescriptor(getClass().getField("multiValueMapTarget"));
 
     MultiValueMap<String, String> converted = conversionService.convert(source, targetType);
     assertThat(converted.size()).isEqualTo(2);
@@ -289,7 +289,7 @@ public class MapToMapConverterTests {
     result.put(MyEnum.C, 2);
 
     final EnumMap<MyEnum, Integer> enumMap = conversionService.convert(source,
-                                                                       new GenericDescriptor(getClass().getField("enumMap")));
+                                                                       new TypeDescriptor(getClass().getField("enumMap")));
     assertThat(enumMap)
             .isEqualTo(result);
   }

@@ -24,7 +24,7 @@ import java.util.List;
 
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -46,15 +46,15 @@ final class StringToCollectionConverter extends StringSourceTypeConverter {
   }
 
   @Override
-  public boolean supportsInternal(final GenericDescriptor targetType, final Class<?> sourceType) {
+  public boolean supportsInternal(final TypeDescriptor targetType, final Class<?> sourceType) {
     // String.class, Collection.class
     return targetType.isCollection();
   }
 
   @Override
-  protected Object convertInternal(GenericDescriptor targetType, String string) {
+  protected Object convertInternal(TypeDescriptor targetType, String string) {
     final List<String> fields = StringUtils.splitAsList(string);
-    final GenericDescriptor elementType = targetType.getGeneric(Collection.class);
+    final TypeDescriptor elementType = targetType.getGeneric(Collection.class);
     final Collection<Object> target = CollectionUtils.createCollection(
             targetType.getType(), elementType != null ? elementType.getType() : null, fields.size());
     if (elementType == null) {

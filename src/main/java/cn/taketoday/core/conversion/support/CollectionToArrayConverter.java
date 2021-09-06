@@ -25,7 +25,7 @@ import java.util.Collection;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * Converts a Collection to an array.
@@ -48,13 +48,13 @@ final class CollectionToArrayConverter extends ToArrayConverter implements TypeC
   }
 
   @Override
-  protected boolean supportsInternal(GenericDescriptor targetType, Class<?> sourceType) {
+  protected boolean supportsInternal(TypeDescriptor targetType, Class<?> sourceType) {
     //Collection.class, Object[].class
     return CollectionUtils.isCollection(sourceType);
   }
 
   @Override
-  public Object convert(GenericDescriptor targetType, Object source) {
+  public Object convert(TypeDescriptor targetType, Object source) {
     final Class<?> elementType = targetType.getComponentType();
     Collection<?> sourceCollection = (Collection<?>) source;
     Object array = Array.newInstance(elementType, sourceCollection.size());

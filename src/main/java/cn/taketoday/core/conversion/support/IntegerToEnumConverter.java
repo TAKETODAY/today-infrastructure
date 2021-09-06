@@ -22,7 +22,7 @@ package cn.taketoday.core.conversion.support;
 
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * @author TODAY 2021/3/22 16:43
@@ -31,13 +31,13 @@ import cn.taketoday.util.GenericDescriptor;
 final class IntegerToEnumConverter implements TypeConverter {
 
   @Override
-  public boolean supports(final GenericDescriptor targetType, final Class<?> sourceType) {
+  public boolean supports(final TypeDescriptor targetType, final Class<?> sourceType) {
     return sourceType == Integer.class
             && Enum.class.isAssignableFrom(targetType.getType());
   }
 
   @Override
-  public Object convert(final GenericDescriptor targetType, final Object source) {
+  public Object convert(final TypeDescriptor targetType, final Object source) {
     return ClassUtils.getEnumType(targetType.getType()).getEnumConstants()[(int) source];
   }
 }

@@ -22,7 +22,7 @@ package cn.taketoday.core.conversion.support;
 import java.util.Collection;
 
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 import cn.taketoday.util.ResolvableType;
 
 /**
@@ -41,7 +41,7 @@ final class CollectionToObjectConverter extends CollectionSourceConverter {
   }
 
   @Override
-  protected boolean supportsInternal(GenericDescriptor targetType, Class<?> sourceType) {
+  protected boolean supportsInternal(TypeDescriptor targetType, Class<?> sourceType) {
     // Collection.class, Object.class
     final ResolvableType resolvableType = ResolvableType.forClass(sourceType).asCollection();
     if (resolvableType.hasGenerics()) {
@@ -52,7 +52,7 @@ final class CollectionToObjectConverter extends CollectionSourceConverter {
   }
 
   @Override
-  protected Object convertInternal(GenericDescriptor targetType, Collection<?> sourceCollection) {
+  protected Object convertInternal(TypeDescriptor targetType, Collection<?> sourceCollection) {
     if (targetType.isInstance(sourceCollection)) {
       return sourceCollection;
     }

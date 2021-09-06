@@ -21,7 +21,7 @@
 package cn.taketoday.core.conversion.support;
 
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.util.GenericDescriptor;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * @author TODAY 2021/3/22 16:45
@@ -30,13 +30,13 @@ import cn.taketoday.util.GenericDescriptor;
 public class StringToEnumConverter extends StringSourceTypeConverter implements TypeConverter {
 
   @Override
-  public boolean supportsInternal(GenericDescriptor targetClass, Class<?> sourceType) {
+  public boolean supportsInternal(TypeDescriptor targetClass, Class<?> sourceType) {
     return targetClass.isEnum();
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  protected Object convertInternal(GenericDescriptor targetClass, String source) {
+  protected Object convertInternal(TypeDescriptor targetClass, String source) {
     if (source.isEmpty()) {
       // It's an empty enum identifier: reset the enum value to null.
       return null;
