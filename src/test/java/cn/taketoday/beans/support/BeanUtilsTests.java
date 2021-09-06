@@ -25,6 +25,8 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.context.StandardApplicationContext;
 import lombok.ToString;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author TODAY 2021/9/5 18:22
  */
@@ -43,16 +45,16 @@ class BeanUtilsTests {
 
   @Test
   void newInstance() {
-    final TestNewInstanceBean testNewInstanceBean = BeanUtils.newInstance(TestNewInstanceBean.class);
-
-    System.out.println(testNewInstanceBean);
+    TestNewInstanceBean testNewInstanceBean = BeanUtils.newInstance(TestNewInstanceBean.class);
+    assertThat(testNewInstanceBean).isNotNull();
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
 
-      final TestNewInstanceBeanProvidedArgs providedArgs = BeanUtils
-              .newInstance(TestNewInstanceBeanProvidedArgs.class, context, new Object[] { 1, "TODAY" });
+      TestNewInstanceBeanProvidedArgs providedArgs =
+              BeanUtils.newInstance(TestNewInstanceBeanProvidedArgs.class, context, new Object[] { 1, "TODAY" });
 
-      System.out.println(providedArgs);
+      assertThat(providedArgs).isNotNull();
+      assertThat(providedArgs.integer).isNotNull().isEqualTo(1);
     }
   }
 }

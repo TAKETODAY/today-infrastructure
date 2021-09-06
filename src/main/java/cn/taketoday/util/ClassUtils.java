@@ -19,8 +19,11 @@
  */
 package cn.taketoday.util;
 
+import java.io.Closeable;
+import java.io.Externalizable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -39,12 +42,17 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Function;
@@ -85,13 +93,34 @@ public abstract class ClassUtils {
   /** class loader **/
   private static ClassLoader classLoader;
 
-  static final HashMap<String, Class<?>> PRIMITIVE_CACHE = new HashMap<>(32);
-
   static final ParameterFunction PARAMETER_NAMES_FUNCTION = new ParameterFunction();
   static final ConcurrentCache<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = ConcurrentCache.fromSize(64);
 
   /** @since 3.0 */
   public static HashSet<Class<?>> primitiveTypes;
+
+  /**
+   * Map with primitive wrapper type as key and corresponding primitive
+   * type as value, for example: Integer.class -> int.class.
+   */
+  private static final IdentityHashMap<Class<?>, Class<?>> primitiveWrapperTypeMap = new IdentityHashMap<>(9);
+
+  /**
+   * Map with primitive type as key and corresponding wrapper
+   * type as value, for example: int.class -> Integer.class.
+   */
+  private static final IdentityHashMap<Class<?>, Class<?>> primitiveTypeToWrapperMap = new IdentityHashMap<>(9);
+  /**
+   * Map with primitive type name as key and corresponding primitive
+   * type as value, for example: "int" -> "int.class".
+   */
+  private static final HashMap<String, Class<?>> primitiveTypeNameMap = new HashMap<>(32);
+
+  /**
+   * Map with common Java language class name as key and corresponding Class as value.
+   * Primarily for efficient deserialization of remote invocations.
+   */
+  private static final HashMap<String, Class<?>> commonClassCache = new HashMap<>(64);
 
   static {
     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -103,20 +132,49 @@ public abstract class ClassUtils {
     }
     setClassLoader(classLoader);
 
-    // Map primitive types
-    // -------------------------------------------
-    final HashSet<Class<?>> primitiveTypes = new HashSet<>();
-    Collections.addAll(primitiveTypes,
-                       boolean.class, byte.class, char.class, int.class,
-                       long.class, double.class, float.class, short.class,
-                       boolean[].class, byte[].class, char[].class, double[].class,
-                       float[].class, int[].class, long[].class, short[].class
-    );
-    primitiveTypes.add(void.class);
-    for (Class<?> primitiveType : primitiveTypes) {
-      PRIMITIVE_CACHE.put(primitiveType.getName(), primitiveType);
+    primitiveWrapperTypeMap.put(Boolean.class, boolean.class);
+    primitiveWrapperTypeMap.put(Byte.class, byte.class);
+    primitiveWrapperTypeMap.put(Character.class, char.class);
+    primitiveWrapperTypeMap.put(Double.class, double.class);
+    primitiveWrapperTypeMap.put(Float.class, float.class);
+    primitiveWrapperTypeMap.put(Integer.class, int.class);
+    primitiveWrapperTypeMap.put(Long.class, long.class);
+    primitiveWrapperTypeMap.put(Short.class, short.class);
+    primitiveWrapperTypeMap.put(Void.class, void.class);
+
+    // Map entry iteration is less expensive to initialize than forEach with lambdas
+    for (Map.Entry<Class<?>, Class<?>> entry : primitiveWrapperTypeMap.entrySet()) {
+      primitiveTypeToWrapperMap.put(entry.getValue(), entry.getKey());
+      registerCommonClasses(entry.getKey());
     }
 
+    Set<Class<?>> primitiveTypes = new HashSet<>(32);
+    primitiveTypes.addAll(primitiveWrapperTypeMap.values());
+    Collections.addAll(primitiveTypes, boolean[].class, byte[].class, char[].class,
+                       double[].class, float[].class, int[].class, long[].class, short[].class);
+    for (Class<?> primitiveType : primitiveTypes) {
+      primitiveTypeNameMap.put(primitiveType.getName(), primitiveType);
+    }
+
+    registerCommonClasses(Boolean[].class, Byte[].class, Character[].class, Double[].class,
+                          Float[].class, Integer[].class, Long[].class, Short[].class);
+    registerCommonClasses(Number.class, Number[].class, String.class, String[].class,
+                          Class.class, Class[].class, Object.class, Object[].class);
+    registerCommonClasses(Throwable.class, Exception.class, RuntimeException.class,
+                          Error.class, StackTraceElement.class, StackTraceElement[].class);
+    registerCommonClasses(Enum.class, Iterable.class, Iterator.class, Enumeration.class,
+                          Collection.class, List.class, Set.class, Map.class, Map.Entry.class, Optional.class);
+
+    Class<?>[] javaLanguageInterfaceArray = {
+            Serializable.class, Externalizable.class, Closeable.class,
+            AutoCloseable.class, Cloneable.class, Comparable.class
+    };
+    registerCommonClasses(javaLanguageInterfaceArray);
+
+    // Map primitive types
+    // -------------------------------------------
+
+    primitiveTypes.add(void.class);
     primitiveTypes.add(String.class);
     primitiveTypes.add(Byte.class);
     primitiveTypes.add(Short.class);
@@ -140,6 +198,15 @@ public abstract class ClassUtils {
     primitiveTypes.add(CharSequence.class);
 
     ClassUtils.primitiveTypes = new HashSet<>(primitiveTypes);
+  }
+
+  /**
+   * Register the given common classes with the ClassUtils cache.
+   */
+  private static void registerCommonClasses(Class<?>... commonClasses) {
+    for (Class<?> clazz : commonClasses) {
+      commonClassCache.put(clazz.getName(), clazz);
+    }
   }
 
   /**
@@ -186,7 +253,7 @@ public abstract class ClassUtils {
     // SHOULD sit in a package, so a length check is worthwhile.
     if (name != null && name.length() <= 8) {
       // Could be a primitive - likely.
-      return PRIMITIVE_CACHE.get(name);
+      return primitiveTypeNameMap.get(name);
     }
     return null;
   }
@@ -206,7 +273,13 @@ public abstract class ClassUtils {
    * @since 2.1.7
    */
   public static Class<?> forName(String name, @Nullable ClassLoader classLoader) throws ClassNotFoundException {
+    Assert.notNull(name, "Name must not be null");
+
     Class<?> clazz = resolvePrimitiveClassName(name);
+    if (clazz == null) {
+      clazz = commonClassCache.get(name);
+    }
+
     if (clazz != null) {
       return clazz;
     }
@@ -1025,6 +1098,11 @@ public abstract class ClassUtils {
    * if there is one. E.g. the method may be {@code IFoo.bar()} and the
    * target class may be {@code DefaultFoo}. In this case, the method may be
    * {@code DefaultFoo.bar()}. This enables attributes on that method to be found.
+   * <p><b>NOTE:</b> In contrast to {@link cn.taketoday.aop.support.AopUtils#getMostSpecificMethod},
+   * this method does <i>not</i> resolve Java 5 bridge methods automatically.
+   * Call {@link cn.taketoday.core.BridgeMethodResolver#findBridgedMethod}
+   * if bridge method resolution is desirable (e.g. for obtaining metadata from
+   * the original method definition).
    *
    * @param method
    *         the method to be invoked, which may come from an interface
@@ -1501,6 +1579,140 @@ public abstract class ClassUtils {
     }
     Assert.notNull(enumType, () -> "The target type " + targetType.getName() + " does not refer to an enum");
     return enumType;
+  }
+
+  /**
+   * Check if the given class represents a primitive wrapper,
+   * i.e. Boolean, Byte, Character, Short, Integer, Long, Float, Double, or
+   * Void.
+   *
+   * @param clazz
+   *         the class to check
+   *
+   * @return whether the given class is a primitive wrapper class
+   *
+   * @since 4.0
+   */
+  public static boolean isPrimitiveWrapper(Class<?> clazz) {
+    Assert.notNull(clazz, "Class must not be null");
+    return primitiveWrapperTypeMap.containsKey(clazz);
+  }
+
+  /**
+   * Check if the given class represents a primitive (i.e. boolean, byte,
+   * char, short, int, long, float, or double), {@code void}, or a wrapper for
+   * those types (i.e. Boolean, Byte, Character, Short, Integer, Long, Float,
+   * Double, or Void).
+   *
+   * @param clazz
+   *         the class to check
+   *
+   * @return {@code true} if the given class represents a primitive, void, or
+   * a wrapper class
+   *
+   * @since 4.0
+   */
+  public static boolean isPrimitiveOrWrapper(Class<?> clazz) {
+    Assert.notNull(clazz, "Class must not be null");
+    return (clazz.isPrimitive() || isPrimitiveWrapper(clazz));
+  }
+
+  /**
+   * Check if the given class represents an array of primitives,
+   * i.e. boolean, byte, char, short, int, long, float, or double.
+   *
+   * @param clazz
+   *         the class to check
+   *
+   * @return whether the given class is a primitive array class
+   *
+   * @since 4.0
+   */
+  public static boolean isPrimitiveArray(Class<?> clazz) {
+    Assert.notNull(clazz, "Class must not be null");
+    return (clazz.isArray() && clazz.getComponentType().isPrimitive());
+  }
+
+  /**
+   * Check if the given class represents an array of primitive wrappers,
+   * i.e. Boolean, Byte, Character, Short, Integer, Long, Float, or Double.
+   *
+   * @param clazz
+   *         the class to check
+   *
+   * @return whether the given class is a primitive wrapper array class
+   *
+   * @since 4.0
+   */
+  public static boolean isPrimitiveWrapperArray(Class<?> clazz) {
+    Assert.notNull(clazz, "Class must not be null");
+    return (clazz.isArray() && isPrimitiveWrapper(clazz.getComponentType()));
+  }
+
+  /**
+   * Resolve the given class if it is a primitive class,
+   * returning the corresponding primitive wrapper type instead.
+   *
+   * @param clazz
+   *         the class to check
+   *
+   * @return the original class, or a primitive wrapper for the original primitive type
+   *
+   * @since 4.0
+   */
+  public static Class<?> resolvePrimitiveIfNecessary(Class<?> clazz) {
+    Assert.notNull(clazz, "Class must not be null");
+    return (clazz.isPrimitive() && clazz != void.class ? primitiveTypeToWrapperMap.get(clazz) : clazz);
+  }
+
+  /**
+   * Check if the right-hand side type may be assigned to the left-hand side
+   * type, assuming setting by reflection. Considers primitive wrapper
+   * classes as assignable to the corresponding primitive types.
+   *
+   * @param lhsType
+   *         the target type
+   * @param rhsType
+   *         the value type that should be assigned to the target type
+   *
+   * @return if the target type is assignable from the value type
+   *
+   * @see TypeUtils#isAssignable(java.lang.reflect.Type, java.lang.reflect.Type)
+   * @since 4.0
+   */
+  public static boolean isAssignable(Class<?> lhsType, Class<?> rhsType) {
+    Assert.notNull(lhsType, "Left-hand side type must not be null");
+    Assert.notNull(rhsType, "Right-hand side type must not be null");
+    if (lhsType.isAssignableFrom(rhsType)) {
+      return true;
+    }
+    if (lhsType.isPrimitive()) {
+      Class<?> resolvedPrimitive = primitiveWrapperTypeMap.get(rhsType);
+      return (lhsType == resolvedPrimitive);
+    }
+    else {
+      Class<?> resolvedWrapper = primitiveTypeToWrapperMap.get(rhsType);
+      return (resolvedWrapper != null && lhsType.isAssignableFrom(resolvedWrapper));
+    }
+  }
+
+  /**
+   * Determine if the given type is assignable from the given value,
+   * assuming setting by reflection. Considers primitive wrapper classes
+   * as assignable to the corresponding primitive types.
+   *
+   * @param type
+   *         the target type
+   * @param value
+   *         the value that should be assigned to the type
+   *
+   * @return if the type is assignable from the value
+   *
+   * @since 4.0
+   */
+  public static boolean isAssignableValue(Class<?> type, @Nullable Object value) {
+    Assert.notNull(type, "Type must not be null");
+    return (value != null ? isAssignable(type, value.getClass()) : !type.isPrimitive());
   }
 
 }

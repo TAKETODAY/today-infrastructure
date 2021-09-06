@@ -21,6 +21,7 @@
 package cn.taketoday.core;
 
 import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * today-framework Strategies
@@ -48,7 +49,7 @@ public final class TodayStrategies extends StrategiesDetector {
     }
     else {
       try {
-        strategiesReader = BeanUtils.newInstance(strategiesFileType);
+        strategiesReader = ReflectionUtils.newInstance(strategiesFileType);
       }
       catch (ClassNotFoundException e) {
         throw new UnsupportedOperationException("Unsupported strategies file type", e);

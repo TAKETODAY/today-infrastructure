@@ -63,6 +63,7 @@ public class GenericDescriptorTests {
     final GenericDescriptor desc = GenericDescriptor.ofParameter(testParameterPrimitive, 0);
 
     assertThat(desc.getType()).isEqualTo(int.class);
+    assertThat(desc.getObjectType()).isEqualTo(Integer.class);
     assertThat(desc.getName()).isEqualTo("int");
     assertThat(desc.toString()).isEqualTo("int");
     assertThat(desc.isPrimitive()).isTrue();
@@ -77,6 +78,7 @@ public class GenericDescriptorTests {
     final GenericDescriptor desc = GenericDescriptor.ofParameter(testParameterScalar, 0);
 
     assertThat(desc.getType()).isEqualTo(String.class);
+    assertThat(desc.getObjectType()).isEqualTo(String.class);
     assertThat(desc.getName()).isEqualTo("java.lang.String");
     assertThat(desc.toString()).isEqualTo("java.lang.String");
     assertThat(!desc.isPrimitive()).isTrue();
@@ -92,6 +94,7 @@ public class GenericDescriptorTests {
     final GenericDescriptor desc = GenericDescriptor.ofParameter(testParameterList, 0);
 
     assertThat(desc.getType()).isEqualTo(List.class);
+    assertThat(desc.getObjectType()).isEqualTo(List.class);
     assertThat(desc.getName()).isEqualTo("java.util.List");
     assertThat(desc.toString()).isEqualTo("java.util.List<java.util.List<java.util.Map<java.lang.Integer, java.lang.Enum<?>>>>");
     assertThat(!desc.isPrimitive()).isTrue();
@@ -113,6 +116,7 @@ public class GenericDescriptorTests {
     GenericDescriptor desc = GenericDescriptor.ofParameter(testParameterListNoParamTypes, 0);
 
     assertThat(desc.getType()).isEqualTo(List.class);
+    assertThat(desc.getObjectType()).isEqualTo(List.class);
     assertThat(desc.getName()).isEqualTo("java.util.List");
     assertThat(desc.toString()).isEqualTo("java.util.List<?>");
     assertThat(!desc.isPrimitive()).isTrue();
@@ -129,6 +133,7 @@ public class GenericDescriptorTests {
     GenericDescriptor desc = GenericDescriptor.ofParameter(testParameterArray, 0);
 
     assertThat(desc.getType()).isEqualTo(Integer[].class);
+    assertThat(desc.getObjectType()).isEqualTo(Integer[].class);
     assertThat(desc.getName()).isEqualTo("java.lang.Integer[]");
     assertThat(desc.toString()).isEqualTo("java.lang.Integer[]");
     assertThat(!desc.isPrimitive()).isTrue();
@@ -147,6 +152,7 @@ public class GenericDescriptorTests {
     GenericDescriptor desc = GenericDescriptor.ofParameter(testParameterMap, 0);
 
     assertThat(desc.getType()).isEqualTo(Map.class);
+    assertThat(desc.getObjectType()).isEqualTo(Map.class);
     assertThat(desc.getName()).isEqualTo("java.util.Map");
     assertThat(desc.toString()).isEqualTo("java.util.Map<java.lang.Integer, java.util.List<java.lang.String>>");
     assertThat(!desc.isPrimitive()).isTrue();
@@ -230,7 +236,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void property() throws Exception {
-    final BeanProperty property = BeanProperty.of(getClass(), "property");
+    final BeanProperty property = BeanProperty.valueOf(getClass(), "property");
 
     GenericDescriptor desc = new GenericDescriptor(property);
 
@@ -270,12 +276,13 @@ public class GenericDescriptorTests {
 
   @Test
   public void fieldScalar() throws Exception {
-    GenericDescriptor GenericDescriptor = new GenericDescriptor(getClass().getField("fieldScalar"));
-    assertThat(GenericDescriptor.isPrimitive()).isFalse();
-    assertThat(GenericDescriptor.isArray()).isFalse();
-    assertThat(GenericDescriptor.isCollection()).isFalse();
-    assertThat(GenericDescriptor.isMap()).isFalse();
-    assertThat(GenericDescriptor.getType()).isEqualTo(Integer.class);
+    GenericDescriptor descriptor = new GenericDescriptor(getClass().getField("fieldScalar"));
+    assertThat(descriptor.isPrimitive()).isFalse();
+    assertThat(descriptor.isArray()).isFalse();
+    assertThat(descriptor.isCollection()).isFalse();
+    assertThat(descriptor.isMap()).isFalse();
+    assertThat(descriptor.getType()).isEqualTo(Integer.class);
+    assertThat(descriptor.getObjectType()).isEqualTo(Integer.class);
   }
 
   @Test
@@ -357,6 +364,7 @@ public class GenericDescriptorTests {
     assertThat(desc.isCollection()).isFalse();
     assertThat(desc.isMap()).isFalse();
     assertThat(desc.getType()).isEqualTo(Integer.class);
+    assertThat(desc.getObjectType()).isEqualTo(Integer.class);
   }
 
   @Test
@@ -367,6 +375,7 @@ public class GenericDescriptorTests {
     assertThat(descriptor.isCollection()).isFalse();
     assertThat(descriptor.isMap()).isFalse();
     assertThat(descriptor.getType()).isEqualTo(Integer.TYPE);
+    assertThat(descriptor.getObjectType()).isEqualTo(Integer.class);
   }
 
   @Test
@@ -464,7 +473,7 @@ public class GenericDescriptorTests {
   @Test
   public void nestedPropertyTypeMapTwoLevels() throws Exception {
 
-    final BeanProperty property = BeanProperty.of(getClass(), "test4");
+    final BeanProperty property = BeanProperty.valueOf(getClass(), "test4");
     GenericDescriptor t1 = GenericDescriptor.nested(property.getField(), 2);
 
     assertThat(t1.getType()).isEqualTo(String.class);
@@ -474,6 +483,7 @@ public class GenericDescriptorTests {
   public void collection() {
     GenericDescriptor desc = GenericDescriptor.collection(List.class, GenericDescriptor.valueOf(Integer.class));
     assertThat(desc.getType()).isEqualTo(List.class);
+    assertThat(desc.getObjectType()).isEqualTo(List.class);
     assertThat(desc.getName()).isEqualTo("java.util.List");
     assertThat(desc.toString()).isEqualTo("java.util.List<java.lang.Integer>");
     assertThat(!desc.isPrimitive()).isTrue();
@@ -489,6 +499,7 @@ public class GenericDescriptorTests {
   public void collectionNested() {
     GenericDescriptor desc = GenericDescriptor.collection(List.class, GenericDescriptor.collection(List.class, GenericDescriptor.valueOf(Integer.class)));
     assertThat(desc.getType()).isEqualTo(List.class);
+    assertThat(desc.getObjectType()).isEqualTo(List.class);
     assertThat(desc.getName()).isEqualTo("java.util.List");
     assertThat(desc.toString()).isEqualTo("java.util.List<java.util.List<java.lang.Integer>>");
     assertThat(!desc.isPrimitive()).isTrue();
@@ -504,6 +515,7 @@ public class GenericDescriptorTests {
   public void map() {
     GenericDescriptor desc = GenericDescriptor.map(Map.class, GenericDescriptor.valueOf(String.class), GenericDescriptor.valueOf(Integer.class));
     assertThat(desc.getType()).isEqualTo(Map.class);
+    assertThat(desc.getObjectType()).isEqualTo(Map.class);
     assertThat(desc.getName()).isEqualTo("java.util.Map");
     assertThat(desc.toString()).isEqualTo("java.util.Map<java.lang.String, java.lang.Integer>");
     assertThat(!desc.isPrimitive()).isTrue();
@@ -520,6 +532,7 @@ public class GenericDescriptorTests {
     GenericDescriptor desc = GenericDescriptor.map(Map.class, GenericDescriptor.valueOf(String.class),
                                              GenericDescriptor.map(Map.class, GenericDescriptor.valueOf(String.class), GenericDescriptor.valueOf(Integer.class)));
     assertThat(desc.getType()).isEqualTo(Map.class);
+    assertThat(desc.getObjectType()).isEqualTo(Map.class);
     assertThat(desc.getName()).isEqualTo("java.util.Map");
     assertThat(desc.toString()).isEqualTo("java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.Integer>>");
     assertThat(!desc.isPrimitive()).isTrue();
@@ -682,7 +695,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void upCast() throws Exception {
-    final BeanProperty property = BeanProperty.of(getClass(), "property");
+    final BeanProperty property = BeanProperty.valueOf(getClass(), "property");
 
     GenericDescriptor GenericDescriptor = new GenericDescriptor(property);
     GenericDescriptor upCast = GenericDescriptor.upcast(Object.class);
@@ -691,7 +704,7 @@ public class GenericDescriptorTests {
 
   @Test
   public void upCastNotSuper() throws Exception {
-    final BeanProperty property = BeanProperty.of(getClass(), "property");
+    final BeanProperty property = BeanProperty.valueOf(getClass(), "property");
 
     GenericDescriptor descriptor = new GenericDescriptor(property);
     assertThatIllegalArgumentException()

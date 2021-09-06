@@ -58,6 +58,8 @@ import cn.taketoday.aop.support.annotation.AfterReturning;
 import cn.taketoday.aop.support.annotation.AfterThrowing;
 import cn.taketoday.aop.support.annotation.Before;
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.BridgeMethodResolver;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.OrderUtils;
@@ -181,6 +183,35 @@ public abstract class AopUtils {
       result = getTargetClass(invocation.getThis());
     }
     return result;
+  }
+
+  /**
+   * Given a method, which may come from an interface, and a target class used
+   * in the current AOP invocation, find the corresponding target method if there
+   * is one. E.g. the method may be {@code IFoo.bar()} and the target class
+   * may be {@code DefaultFoo}. In this case, the method may be
+   * {@code DefaultFoo.bar()}. This enables attributes on that method to be found.
+   * <p><b>NOTE:</b> In contrast to {@link cn.taketoday.util.ClassUtils#getMostSpecificMethod},
+   * this method resolves Java 5 bridge methods in order to retrieve attributes
+   * from the <i>original</i> method definition.
+   *
+   * @param method
+   *         the method to be invoked, which may come from an interface
+   * @param targetClass
+   *         the target class for the current invocation.
+   *         May be {@code null} or may not even implement the method.
+   *
+   * @return the specific target method, or the original method if the
+   * {@code targetClass} doesn't implement it or is {@code null}
+   *
+   * @see cn.taketoday.util.ClassUtils#getMostSpecificMethod
+   * @since 4.0
+   */
+  public static Method getMostSpecificMethod(Method method, @Nullable Class<?> targetClass) {
+    Class<?> specificTargetClass = (targetClass != null ? ClassUtils.getUserClass(targetClass) : null);
+    Method resolvedMethod = ClassUtils.getMostSpecificMethod(method, specificTargetClass);
+    // If we are dealing with method with generic parameters, find the original method.
+    return BridgeMethodResolver.findBridgedMethod(resolvedMethod);
   }
 
   /**

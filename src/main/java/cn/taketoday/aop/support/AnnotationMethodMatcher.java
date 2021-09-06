@@ -64,7 +64,7 @@ public class AnnotationMethodMatcher extends StaticMethodMatcher {
    * @param checkInherited
    *         whether to also check the superclasses and
    *         interfaces as well as meta-annotations for the annotation type
-   *         (i.e. whether to use {@link ClassUtils#isAnnotationPresent(AnnotatedElement, Class)}
+   *         (i.e. whether to use {@link AnnotationUtils#isPresent(AnnotatedElement, Class)}
    *         semantics instead of standard Java {@link Method#isAnnotationPresent})
    */
   public AnnotationMethodMatcher(Class<? extends Annotation> annotationType, boolean checkInherited) {
@@ -83,7 +83,7 @@ public class AnnotationMethodMatcher extends StaticMethodMatcher {
       return false;
     }
     // The method may be on an interface, so let's check on the target class as well.
-    Method specificMethod = ClassUtils.getMostSpecificMethod(method, targetClass); // TODO
+    Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
     return (specificMethod != method && matchesMethod(specificMethod));
   }
 

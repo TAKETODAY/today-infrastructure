@@ -1229,10 +1229,33 @@ public abstract class ReflectionUtils {
 
   // newInstance
 
+  /**
+   * Get instance with bean class
+   *
+   * @param beanClassName
+   *         bean class name string
+   *
+   * @return the instance of target class
+   *
+   * @throws ClassNotFoundException
+   *         If the class was not found
+   * @since 4.0
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> T newInstance(String beanClassName) throws ClassNotFoundException {
+    return (T) newInstance(ClassUtils.getClassLoader().loadClass(beanClassName));
+  }
+
+  /**
+   * @since 4.0
+   */
   public static Object newInstance(Class<?> type) {
     return newInstance(type, Constant.EMPTY_CLASS_ARRAY, null);
   }
 
+  /**
+   * @since 4.0
+   */
   public static Object newInstance(Class<?> type, Class[] parameterTypes, Object[] args) {
     return invokeConstructor(ClassUtils.getConstructor(type, parameterTypes), args);
   }

@@ -408,7 +408,7 @@ public class BeanProperty extends AbstractAnnotatedElement {
    * @throws NoSuchPropertyException
    *         No property in target class
    */
-  public static BeanProperty of(Class<?> targetClass, String name) {
+  public static BeanProperty valueOf(Class<?> targetClass, String name) {
     final Field field = ReflectionUtils.findField(targetClass, name);
     if (field == null) {
       throw new NoSuchPropertyException(targetClass, name);

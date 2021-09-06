@@ -307,8 +307,8 @@ public class BeanPropertyAccessorTest {
 
   @Test
   public void testBeanProperty() throws NoSuchFieldException {
-    final BeanProperty beanProperty = BeanProperty.of(BeanPropertyTest.class, "listList");
-    final BeanProperty listBeanProperty = BeanProperty.of(BeanPropertyTest.class, "list");
+    final BeanProperty beanProperty = BeanProperty.valueOf(BeanPropertyTest.class, "listList");
+    final BeanProperty listBeanProperty = BeanProperty.valueOf(BeanPropertyTest.class, "list");
 
     assertThat(beanProperty.getGeneric(0)).isInstanceOf(ParameterizedType.class);
     final ParameterizedType generic = (ParameterizedType) beanProperty.getGeneric(0);

@@ -35,9 +35,11 @@ import java.util.stream.Stream;
 
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.Nullable;
 
 /**
- * Generic Descriptor
+ * Contextual descriptor about a type to convert from or to.
+ * Capable of representing arrays and generic collection types.
  *
  * @author TODAY 2021/3/22 20:37
  * @since 3.0
@@ -92,16 +94,40 @@ public class GenericDescriptor implements Serializable {
    * @param annotations
    *         the type annotations
    */
-  public GenericDescriptor(ResolvableType resolvableType, Class<?> type, Annotation[] annotations) {
+  public GenericDescriptor(ResolvableType resolvableType, @Nullable Class<?> type, @Nullable Annotation[] annotations) {
     this.resolvableType = resolvableType;
     this.type = (type != null ? type : resolvableType.toClass());
     this.annotatedElement = new AnnotatedElementAdapter(annotations);
   }
 
-  public GenericDescriptor(ResolvableType resolvableType, Class<?> type, AnnotatedElement annotated) {
+  /**
+   * Create a new type descriptor from a {@link ResolvableType}.
+   * <p>This constructor is used internally and may also be used by subclasses
+   * that support non-Java languages with extended type systems.
+   *
+   * @param resolvableType
+   *         the resolvable type
+   * @param type
+   *         the backing type (or {@code null} if it should get resolved)
+   * @param annotated
+   *         annotated-element
+   *
+   * @since 4.0
+   */
+  public GenericDescriptor(ResolvableType resolvableType, @Nullable Class<?> type, AnnotatedElement annotated) {
     this.annotatedElement = annotated;
     this.resolvableType = resolvableType;
     this.type = (type != null ? type : resolvableType.toClass());
+  }
+
+  /**
+   * Variation of {@link #getType()} that accounts for a primitive type by
+   * returning its object wrapper type.
+   * <p>This is useful for conversion service implementations that wish to
+   * normalize to object-based types and not work with primitive types directly.
+   */
+  public Class<?> getObjectType() {
+    return ClassUtils.resolvePrimitiveIfNecessary(getType());
   }
 
   public Class<?> getType() {
