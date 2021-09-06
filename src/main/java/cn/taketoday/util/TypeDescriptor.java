@@ -177,6 +177,7 @@ public class TypeDescriptor implements Serializable {
     return type.getSimpleName();
   }
 
+  @Nullable
   public TypeDescriptor getGeneric(Class<?> genericIfc) {
     final ResolvableType generic = resolvableType.as(genericIfc).getGeneric(0);
     return getRelatedIfResolvable(this, generic);
@@ -716,6 +717,7 @@ public class TypeDescriptor implements Serializable {
     return getRelatedIfResolvable(typeDescriptor, nested);
   }
 
+  @Nullable
   private static TypeDescriptor getRelatedIfResolvable(TypeDescriptor source, ResolvableType type) {
     if (type.resolve() == null) {
       return null;

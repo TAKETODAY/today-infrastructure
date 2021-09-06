@@ -64,10 +64,10 @@ final class ObjectToOptionalConverter implements TypeConverter {
   public Object convert(final TypeDescriptor targetType, final Object source) {
     // Optional<E> -> E
 
-    final TypeDescriptor elementType = targetType.getGeneric(Optional.class);
     if (source instanceof Optional) {
       final Optional<Object> optional = (Optional<Object>) source;
       if (optional.isPresent()) {
+        final TypeDescriptor elementType = targetType.getGeneric(Optional.class);
         final Object original = optional.get();
         if (elementType != null && !elementType.isInstance(original)) {
           final Object converted = conversionService.convert(optional, elementType);
@@ -77,10 +77,12 @@ final class ObjectToOptionalConverter implements TypeConverter {
       }
       return source;
     }
-    else if (elementType != null) {
+    final TypeDescriptor elementType = targetType.getGeneric(Optional.class);
+    if (elementType != null) {
       final Object target = this.conversionService.convert(source, elementType);
-      if (target == null || (target.getClass().isArray() && Array.getLength(target) == 0) ||
-              (target instanceof Collection && ((Collection<?>) target).isEmpty())) {
+      if (target == null
+              || (target.getClass().isArray() && Array.getLength(target) == 0)
+              || (target instanceof Collection && ((Collection<?>) target).isEmpty())) {
         return Optional.empty();
       }
       return Optional.of(target);
