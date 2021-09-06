@@ -100,9 +100,10 @@ public abstract class BridgeMethodResolver {
    * checks and can be used quickly filter for a set of possible matches.
    */
   private static boolean isBridgedCandidateFor(Method candidateMethod, Method bridgeMethod) {
-    return (!candidateMethod.isBridge() && !candidateMethod.equals(bridgeMethod) &&
-            candidateMethod.getName().equals(bridgeMethod.getName()) &&
-            candidateMethod.getParameterCount() == bridgeMethod.getParameterCount());
+    return (!candidateMethod.isBridge()
+            && !candidateMethod.equals(bridgeMethod)
+            && candidateMethod.getName().equals(bridgeMethod.getName())
+            && candidateMethod.getParameterCount() == bridgeMethod.getParameterCount());
   }
 
   /**
@@ -127,8 +128,8 @@ public abstract class BridgeMethodResolver {
         return candidateMethod;
       }
       else if (previousMethod != null) {
-        sameSig = sameSig &&
-                Arrays.equals(candidateMethod.getGenericParameterTypes(), previousMethod.getGenericParameterTypes());
+        sameSig = sameSig && Arrays.equals(
+                candidateMethod.getGenericParameterTypes(), previousMethod.getGenericParameterTypes());
       }
       previousMethod = candidateMethod;
     }
