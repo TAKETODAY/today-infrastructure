@@ -7,9 +7,9 @@
   <artifactId>today-framework</artifactId>
 
   <!--
-  latest  4.0.0-Beta.1
+  latest  4.0.0-Beta.1 SNAPSHOT
  -->
-  <version>latest</version>
+  <version>1.0-SNAPSHOT</version>
   <name>TODAY Framework</name>
 
   <description>
@@ -18,7 +18,7 @@
   </description>
 
   <properties>
-    <!--<skipTests>true</skipTests>-->
+    <skipTests>true</skipTests>
     <netty.version>4.1.63.Final</netty.version>
     <jetty.version>9.4.34.v20201102</jetty.version>
     <undertow.version>2.2.8.Final</undertow.version>
@@ -465,14 +465,14 @@
       <scope>test</scope>
     </dependency>
 
-<!--
-    <dependency>
-      <scope>test</scope>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-jdbc</artifactId>
-      <version>${spring-jdbc.version}</version>
-    </dependency>
--->
+    <!--
+        <dependency>
+          <scope>test</scope>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-jdbc</artifactId>
+          <version>${spring-jdbc.version}</version>
+        </dependency>
+    -->
 
     <dependency>
       <groupId>org.mockito</groupId>
@@ -539,35 +539,6 @@
   <build>
     <defaultGoal>compile</defaultGoal>
     <plugins>
-      <plugin>
-        <groupId>org.eluder.coveralls</groupId>
-        <artifactId>coveralls-maven-plugin</artifactId>
-        <version>4.3.0</version>
-        <configuration>
-          <repoToken>QnCQitLt7wun8tpjDfVy7ZuAfEb8tDnlC</repoToken>
-        </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.3.1</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-
-      <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.2</version>
-        <executions>
-          <execution>
-            <id>prepare-agent</id>
-            <goals>
-              <goal>prepare-agent</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -658,6 +629,42 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       </properties>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.eluder.coveralls</groupId>
+            <artifactId>coveralls-maven-plugin</artifactId>
+            <version>4.3.0</version>
+            <configuration>
+              <repoToken>QnCQitLt7wun8tpjDfVy7ZuAfEb8tDnlC</repoToken>
+            </configuration>
+            <dependencies>
+              <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>2.3.1</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.8.2</version>
+            <executions>
+              <execution>
+                <id>prepare-agent</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+
+
     </profile>
 
     <profile>
