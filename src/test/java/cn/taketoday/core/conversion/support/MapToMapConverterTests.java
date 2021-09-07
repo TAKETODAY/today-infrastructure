@@ -122,7 +122,7 @@ public class MapToMapConverterTests {
     Map<String, List<String>> map = new HashMap<>();
     map.put("1", Arrays.asList("9", "12"));
     map.put("2", Arrays.asList("37", "23"));
-    TypeDescriptor sourceType = TypeDescriptor.forObject(map);
+    TypeDescriptor sourceType = TypeDescriptor.fromObject(map);
     TypeDescriptor targetType = new TypeDescriptor(getClass().getField("collectionMapTarget"));
 
     assertThat(conversionService.canConvert(sourceType.getType(), targetType)).isTrue();
@@ -194,7 +194,7 @@ public class MapToMapConverterTests {
   @Test
   public void emptyMap() throws Exception {
     Map<String, String> map = new HashMap<>();
-    TypeDescriptor sourceType = TypeDescriptor.forObject(map);
+    TypeDescriptor sourceType = TypeDescriptor.fromObject(map);
     TypeDescriptor targetType = new TypeDescriptor(getClass().getField("emptyMapTarget"));
 
     assertThat(conversionService.canConvert(sourceType.getType(), targetType)).isTrue();
@@ -213,7 +213,7 @@ public class MapToMapConverterTests {
   @Test
   public void emptyMapDifferentTargetImplType() throws Exception {
     Map<String, String> map = new HashMap<>();
-    TypeDescriptor sourceType = TypeDescriptor.forObject(map);
+    TypeDescriptor sourceType = TypeDescriptor.fromObject(map);
     TypeDescriptor targetType = new TypeDescriptor(getClass().getField("emptyMapDifferentTarget"));
 
     assertThat(conversionService.canConvert(sourceType.getType(), targetType)).isTrue();

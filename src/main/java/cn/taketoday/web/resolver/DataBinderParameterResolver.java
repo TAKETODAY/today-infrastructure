@@ -264,7 +264,7 @@ public class DataBinderParameterResolver
 
     @Override
     protected TypeDescriptor createTypeDescriptor() {
-      return TypeDescriptor.fromProperty(field);
+      return TypeDescriptor.fromField(field);
     }
 
   }

@@ -560,7 +560,7 @@ public class TypeDescriptor implements Serializable {
    *
    * @return the type descriptor
    */
-  public static TypeDescriptor forObject(Object source) {
+  public static TypeDescriptor fromObject(Object source) {
     return (source != null ? valueOf(source.getClass()) : null);
   }
 
@@ -569,7 +569,7 @@ public class TypeDescriptor implements Serializable {
    * <p>Use this to instruct the conversion system to convert an object to a
    * specific target type, when no type location such as a method parameter or
    * field is available to provide additional conversion context.
-   * <p>Generally prefer use of {@link #forObject(Object)} for constructing type
+   * <p>Generally prefer use of {@link #fromObject(Object)} for constructing type
    * descriptors from source objects, as it handles the {@code null} object case.
    *
    * @param type
@@ -725,7 +725,7 @@ public class TypeDescriptor implements Serializable {
     return new TypeDescriptor(type, null, source.getAnnotations());
   }
 
-  public static TypeDescriptor fromProperty(Field beanProperty) {
+  public static TypeDescriptor fromField(Field beanProperty) {
     return new TypeDescriptor(beanProperty);
   }
 

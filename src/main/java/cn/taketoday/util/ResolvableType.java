@@ -294,8 +294,8 @@ public class ResolvableType implements Serializable {
 
     // In the form X is assignable to <? extends Number>
     if (typeBounds != null) {
-      return (ourBounds != null && ourBounds.isSameKind(typeBounds) &&
-              ourBounds.isAssignableFrom(typeBounds.getBounds()));
+      return (ourBounds != null && ourBounds.isSameKind(typeBounds)
+              && ourBounds.isAssignableFrom(typeBounds.getBounds()));
     }
 
     // In the form <? extends Number> is assignable to X...
@@ -372,8 +372,9 @@ public class ResolvableType implements Serializable {
     if (this == NONE) {
       return false;
     }
-    return ((this.type instanceof Class && ((Class<?>) this.type).isArray()) ||
-            this.type instanceof GenericArrayType || resolveType().isArray());
+    Type type = this.type;
+    return ((type instanceof Class && ((Class<?>) type).isArray()) ||
+            type instanceof GenericArrayType || resolveType(type).isArray());
   }
 
   /**
@@ -389,14 +390,15 @@ public class ResolvableType implements Serializable {
     if (this.componentType != null) {
       return this.componentType;
     }
-    if (this.type instanceof Class) {
-      Class<?> componentType = ((Class<?>) this.type).getComponentType();
+    Type type = this.type;
+    if (type instanceof Class) {
+      Class<?> componentType = ((Class<?>) type).getComponentType();
       return valueOf(componentType, this.variableResolver);
     }
-    if (this.type instanceof GenericArrayType) {
-      return valueOf(((GenericArrayType) this.type).getGenericComponentType(), this.variableResolver);
+    if (type instanceof GenericArrayType) {
+      return valueOf(((GenericArrayType) type).getGenericComponentType(), this.variableResolver);
     }
-    return resolveType().getComponentType();
+    return resolveType(type).getComponentType();
   }
 
   /**
@@ -719,22 +721,23 @@ public class ResolvableType implements Serializable {
     }
     ResolvableType[] generics = this.generics;
     if (generics == null) {
-      if (this.type instanceof Class) {
+      Type type = this.type;
+      if (type instanceof Class) {
         Type[] typeParams = ((Class<?>) this.type).getTypeParameters();
         generics = new ResolvableType[typeParams.length];
         for (int i = 0; i < generics.length; i++) {
           generics[i] = ResolvableType.fromType(typeParams[i], this);
         }
       }
-      else if (this.type instanceof ParameterizedType) {
-        Type[] actualTypeArguments = ((ParameterizedType) this.type).getActualTypeArguments();
+      else if (type instanceof ParameterizedType) {
+        Type[] actualTypeArguments = ((ParameterizedType) type).getActualTypeArguments();
         generics = new ResolvableType[actualTypeArguments.length];
         for (int i = 0; i < actualTypeArguments.length; i++) {
           generics[i] = valueOf(actualTypeArguments[i], this.variableResolver);
         }
       }
       else {
-        generics = resolveType().getGenerics();
+        generics = resolveType(type).getGenerics();
       }
       this.generics = generics;
     }
@@ -840,17 +843,18 @@ public class ResolvableType implements Serializable {
   }
 
   private Class<?> resolveClass() {
-    if (this.type == EmptyType.INSTANCE) {
+    Type type = this.type;
+    if (type == EmptyType.INSTANCE) {
       return null;
     }
-    if (this.type instanceof Class) {
-      return (Class<?>) this.type;
+    if (type instanceof Class) {
+      return (Class<?>) type;
     }
-    if (this.type instanceof GenericArrayType) {
+    if (type instanceof GenericArrayType) {
       Class<?> resolvedComponent = getComponentType().resolve();
       return (resolvedComponent != null ? Array.newInstance(resolvedComponent, 0).getClass() : null);
     }
-    return resolveType().resolve();
+    return resolveType(type).resolve();
   }
 
   /**
@@ -859,27 +863,37 @@ public class ResolvableType implements Serializable {
    * as it cannot be serialized.
    */
   ResolvableType resolveType() {
-    if (this.type instanceof ParameterizedType) {
-      return valueOf(((ParameterizedType) this.type).getRawType(), this.variableResolver);
+    return resolveType(type);
+  }
+
+  /**
+   * Resolve this type by a single level, returning the resolved value or {@link #NONE}.
+   * <p>Note: The returned {@link ResolvableType} should only be used as an intermediary
+   * as it cannot be serialized.
+   */
+  private ResolvableType resolveType(final Type type) {
+    if (type instanceof ParameterizedType) {
+      return valueOf(((ParameterizedType) type).getRawType(), variableResolver);
     }
-    if (this.type instanceof WildcardType) {
-      Type resolved = resolveBounds(((WildcardType) this.type).getUpperBounds());
+    if (type instanceof WildcardType) {
+      Type resolved = resolveBounds(((WildcardType) type).getUpperBounds());
       if (resolved == null) {
-        resolved = resolveBounds(((WildcardType) this.type).getLowerBounds());
+        resolved = resolveBounds(((WildcardType) type).getLowerBounds());
       }
-      return valueOf(resolved, this.variableResolver);
+      return valueOf(resolved, variableResolver);
     }
-    if (this.type instanceof TypeVariable) {
-      TypeVariable<?> variable = (TypeVariable<?>) this.type;
+    if (type instanceof TypeVariable) {
+      VariableResolver variableResolver = this.variableResolver;
+      TypeVariable<?> variable = (TypeVariable<?>) type;
       // Try default variable resolution
-      if (this.variableResolver != null) {
-        ResolvableType resolved = this.variableResolver.resolveVariable(variable);
+      if (variableResolver != null) {
+        ResolvableType resolved = variableResolver.resolveVariable(variable);
         if (resolved != null) {
           return resolved;
         }
       }
       // Fallback to bounds
-      return valueOf(resolveBounds(variable.getBounds()), this.variableResolver);
+      return valueOf(resolveBounds(variable.getBounds()), variableResolver);
     }
     return NONE;
   }
@@ -892,11 +906,12 @@ public class ResolvableType implements Serializable {
   }
 
   private ResolvableType resolveVariable(TypeVariable<?> variable) {
-    if (this.type instanceof TypeVariable) {
-      return resolveType().resolveVariable(variable);
+    Type type = this.type;
+    if (type instanceof TypeVariable) {
+      return resolveType(type).resolveVariable(variable);
     }
-    if (this.type instanceof ParameterizedType) {
-      ParameterizedType parameterizedType = (ParameterizedType) this.type;
+    if (type instanceof ParameterizedType) {
+      ParameterizedType parameterizedType = (ParameterizedType) type;
       Class<?> resolved = resolve();
       if (resolved == null) {
         return null;
@@ -913,8 +928,8 @@ public class ResolvableType implements Serializable {
         return valueOf(ownerType, this.variableResolver).resolveVariable(variable);
       }
     }
-    if (this.type instanceof WildcardType) {
-      ResolvableType resolved = resolveType().resolveVariable(variable);
+    if (type instanceof WildcardType) {
+      ResolvableType resolved = resolveType(type).resolveVariable(variable);
       if (resolved != null) {
         return resolved;
       }
@@ -1749,7 +1764,6 @@ public class ResolvableType implements Serializable {
      *
      * @return a {@link WildcardBounds} instance or {@code null}
      */
-
     public static WildcardBounds get(ResolvableType type) {
       ResolvableType resolveToWildcard = type;
       while (!(resolveToWildcard.getType() instanceof WildcardType)) {
