@@ -20,11 +20,10 @@
 package cn.taketoday.beans.support;
 
 /**
- * @author TODAY <br>
- * 2020-08-13 20:23
+ * @author TODAY 2020-08-13 20:23
  */
 @FunctionalInterface
-public interface BeanConstructorFactory {
+public interface BeanInstantiatorFactory {
 
-  BeanInstantiator newConstructor(Class<?> cls);
+  BeanInstantiator newInstantiator(Class<?> cls);
 }
