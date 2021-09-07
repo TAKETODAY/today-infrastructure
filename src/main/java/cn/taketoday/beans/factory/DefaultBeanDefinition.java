@@ -32,10 +32,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.beans.support.ArgumentsResolver;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
@@ -392,7 +392,7 @@ public class DefaultBeanDefinition
       return instanceSupplier.get();
     }
     final BeanInstantiator target = getConstructor(factory);
-    final Object[] args = ArgumentsResolver.getSharedInstance().resolve(getExecutable(), factory);
+    final Object[] args = factory.getArgumentsResolver().resolve(getExecutable(), factory);
     return target.instantiate(args);
   }
 
@@ -421,7 +421,7 @@ public class DefaultBeanDefinition
   public final void fastInvokeInitMethods(Object bean, BeanFactory beanFactory) {
     final MethodInvoker[] methodInvokers = this.methodInvokers;
     if (ObjectUtils.isNotEmpty(methodInvokers)) {
-      ArgumentsResolver resolver = ArgumentsResolver.getSharedInstance();
+      ArgumentsResolver resolver = beanFactory.getArgumentsResolver();
       for (final MethodInvoker methodInvoker : methodInvokers) {
         final Object[] args = resolver.resolve(methodInvoker.getMethod(), beanFactory);
         methodInvoker.invoke(bean, args);

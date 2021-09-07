@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
+import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.core.ConfigurationException;
 import lombok.Data;

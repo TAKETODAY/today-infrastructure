@@ -54,6 +54,8 @@ public class StrategiesDetector {
   private StrategiesReader strategiesReader;
 
   private ClassLoader classLoader = ClassUtils.getClassLoader();
+
+  @Nullable
   private BeanFactory beanFactory;
   private boolean throwWhenClassNotFound = false;
   // do log when class not found
@@ -65,7 +67,7 @@ public class StrategiesDetector {
     this(new DefaultStrategiesReader());
   }
 
-  public StrategiesDetector(BeanFactory beanFactory) {
+  public StrategiesDetector(@Nullable BeanFactory beanFactory) {
     this(new DefaultStrategiesReader());
     this.beanFactory = beanFactory;
   }
@@ -223,7 +225,7 @@ public class StrategiesDetector {
    *
    * @return list of objects
    */
-  public List getObjects(String strategyKey, BeanFactory beanFactory) {
+  public List getObjects(String strategyKey, @Nullable BeanFactory beanFactory) {
     return getStrategies(strategyKey, strategy -> {
       final Class<?> aClass = loadClass(classLoader, strategy);
       if (aClass != null) {
@@ -336,10 +338,11 @@ public class StrategiesDetector {
     return throwWhenClassNotFound;
   }
 
-  public void setBeanFactory(BeanFactory beanFactory) {
+  public void setBeanFactory(@Nullable BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
   }
 
+  @Nullable
   public BeanFactory getBeanFactory() {
     return beanFactory;
   }

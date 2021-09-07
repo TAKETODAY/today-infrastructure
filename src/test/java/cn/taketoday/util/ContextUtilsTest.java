@@ -39,19 +39,19 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import cn.taketoday.beans.support.ArgumentsResolver;
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ContextUtils;
-import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.Env;
-import cn.taketoday.context.Props;
+import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.Singleton;
-import cn.taketoday.context.Value;
-import cn.taketoday.context.Environment;
-import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.StandardBeanDefinition;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ContextUtils;
+import cn.taketoday.context.Env;
+import cn.taketoday.context.Environment;
+import cn.taketoday.context.Props;
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.Value;
+import cn.taketoday.core.ConfigurationException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -177,7 +177,7 @@ public class ContextUtilsTest {
 //      System.err.println(properties.get("placeHolder"));
       ContextUtils.setLastStartupContext(applicationContext);
 
-      Object[] parameters = ArgumentsResolver.getSharedInstance().resolve(constructor, beanFactory);
+      Object[] parameters = new ArgumentsResolver().resolve(constructor, beanFactory);
 
       Config newInstance = constructor.newInstance(parameters);
 
@@ -257,7 +257,7 @@ public class ContextUtilsTest {
       System.err.println(properties.getClass());
     }
 
-    public Config() {}
+    public Config() { }
 
     @Props UserModel admin;
 

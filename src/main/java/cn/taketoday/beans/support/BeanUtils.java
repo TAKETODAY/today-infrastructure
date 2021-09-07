@@ -23,6 +23,7 @@ package cn.taketoday.beans.support;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
+import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.Autowired;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
@@ -39,6 +40,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @since 4.0
  */
 public abstract class BeanUtils {
+  private static final ArgumentsResolver argumentsResolver = new ArgumentsResolver();
 
   /**
    * Get instance with bean class use default {@link Constructor}
@@ -129,7 +131,15 @@ public abstract class BeanUtils {
    */
   public static <T> T newInstance(
           Class<T> beanClass, @Nullable BeanFactory beanFactory, @Nullable Object[] providedArgs) {
-    return newInstance(beanClass, ArgumentsResolver.getSharedInstance(), beanFactory, providedArgs);
+    ArgumentsResolver argumentsResolver = getArgumentsResolver(beanFactory);
+    return newInstance(beanClass, argumentsResolver, beanFactory, providedArgs);
+  }
+
+  private static ArgumentsResolver getArgumentsResolver(@Nullable BeanFactory beanFactory) {
+    if (beanFactory != null) {
+      return beanFactory.getArgumentsResolver();
+    }
+    return argumentsResolver;
   }
 
   /**

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.beans.ArgumentsResolverProvider;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.context.ApplicationContext;
@@ -36,7 +37,7 @@ import cn.taketoday.context.Scope;
  * @author TODAY <br>
  * 2018-06-23 11:22:26
  */
-public interface BeanFactory {
+public interface BeanFactory extends ArgumentsResolverProvider {
 
   String ENABLE_FULL_PROTOTYPE = "enable.full.prototype";
   String ENABLE_FULL_LIFECYCLE = "enable.full.lifecycle";

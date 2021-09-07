@@ -17,10 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.beans.support;
+package cn.taketoday.beans.autowire;
 
 import java.lang.reflect.Parameter;
 
+import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;

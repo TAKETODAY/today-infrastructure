@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.support;
+package cn.taketoday.beans;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -28,6 +28,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import cn.taketoday.beans.autowire.ArrayArgumentsResolver;
+import cn.taketoday.beans.autowire.AutowiredArgumentsResolver;
+import cn.taketoday.beans.autowire.CollectionArgumentsResolver;
+import cn.taketoday.beans.autowire.MapArgumentsResolver;
+import cn.taketoday.beans.autowire.ObjectSupplierArgumentsResolver;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.Env;
@@ -44,6 +49,9 @@ import cn.taketoday.util.OrderUtils;
 
 /**
  * BeanFactory supported Executable Arguments-Resolver
+ * <p>
+ * Not Thread Safe
+ * </p>
  *
  * @author TODAY 2021/8/22 21:59
  * @see BeanFactory
@@ -53,7 +61,6 @@ import cn.taketoday.util.OrderUtils;
  * @since 4.0
  */
 public class ArgumentsResolver {
-  private static ArgumentsResolver sharedInstance = new ArgumentsResolver();
 
   @Nullable
   private BeanFactory beanFactory;
@@ -210,10 +217,10 @@ public class ArgumentsResolver {
   public void addResolvingStrategies(ArgumentsResolvingStrategy... strategies) {
     if (ObjectUtils.isNotEmpty(strategies)) {
       if (resolvingStrategies != null) {
-        List<ArgumentsResolvingStrategy> newResolvers = new ArrayList<>();
-        Collections.addAll(newResolvers, resolvingStrategies);
-        Collections.addAll(newResolvers, strategies);
-        setResolvingStrategies(newResolvers);
+        List<ArgumentsResolvingStrategy> strategyList = new ArrayList<>();
+        Collections.addAll(strategyList, resolvingStrategies);
+        Collections.addAll(strategyList, strategies);
+        setResolvingStrategies(strategyList);
       }
       else {
         setResolvingStrategies(strategies);
@@ -245,14 +252,6 @@ public class ArgumentsResolver {
   @Nullable
   public BeanFactory getBeanFactory() {
     return beanFactory;
-  }
-
-  public static void setSharedInstance(ArgumentsResolver sharedInstance) {
-    ArgumentsResolver.sharedInstance = sharedInstance;
-  }
-
-  public static ArgumentsResolver getSharedInstance() {
-    return sharedInstance;
   }
 
   // ArgumentsResolvingStrategy

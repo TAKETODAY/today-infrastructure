@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -17,20 +17,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.event;
+
+package cn.taketoday.beans;
+
+import cn.taketoday.core.NonNull;
 
 /**
- * ApplicationEvent Provider
- *
- * @author TODAY 2019-11-05 23:03
- * @since 2.1.7
+ * @author TODAY 2021/9/7 23:08
+ * @since 4.0
  */
-@FunctionalInterface
-public interface ApplicationEventCapable {
+public interface ArgumentsResolverProvider {
 
-  Class<?>[] getApplicationEvent();
+  @NonNull
+  ArgumentsResolver getArgumentsResolver();
 
-  default Class<?>[] factory(Class<?>... array) {
-    return array;
-  }
 }
+

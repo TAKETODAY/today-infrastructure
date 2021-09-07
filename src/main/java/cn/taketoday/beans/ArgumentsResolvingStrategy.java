@@ -17,40 +17,51 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-
-package cn.taketoday.beans.support;
+package cn.taketoday.beans;
 
 import java.lang.reflect.Parameter;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
-import cn.taketoday.core.OrderedSupport;
 
 /**
- * @author TODAY 2021/8/22 22:47
- * @since 4.0
+ * 构造器出入，方法注入，参数解析器
+ *
+ * @author TODAY 2019-10-14 14:11
  */
-public abstract class NonNullBeanFactoryStrategy
-        extends OrderedSupport implements ArgumentsResolvingStrategy {
+@FunctionalInterface
+public interface ArgumentsResolvingStrategy {
 
-  @Override
-  public final boolean supports(Parameter parameter, @Nullable BeanFactory beanFactory) {
-    return beanFactory != null && supportsInternal(parameter, beanFactory);
+  /**
+   * If this {@link ArgumentsResolvingStrategy} supports target {@link Parameter}
+   *
+   * @param parameter
+   *         Target method {@link Parameter}
+   * @param beanFactory
+   *         BeanFactory
+   *
+   * @return If supports target {@link Parameter}
+   */
+  default boolean supports(Parameter parameter, @Nullable BeanFactory beanFactory) {
+    return true;
   }
 
-  protected abstract boolean supportsInternal(
-          Parameter parameter, @NonNull BeanFactory beanFactory);
+  /**
+   * Resolve method parameter object
+   *
+   * @param parameter
+   *         Target method {@link Parameter}
+   * @param beanFactory
+   *         {@link BeanFactory}
+   *
+   * @return parameter object
+   */
+  Object resolve(Parameter parameter, @Nullable BeanFactory beanFactory);
 
-  @Override
-  public final Object resolve(Parameter parameter, @Nullable BeanFactory beanFactory) {
-    if (beanFactory != null) {
-      return resolveInternal(parameter, beanFactory);
-    }
-    throw new IllegalStateException("should never happen");
+  @FunctionalInterface
+  interface SupportsFunction {
+
+    boolean supports(Parameter parameter);
   }
-
-  protected abstract Object resolveInternal(
-          Parameter parameter, @NonNull BeanFactory beanFactory);
 
 }

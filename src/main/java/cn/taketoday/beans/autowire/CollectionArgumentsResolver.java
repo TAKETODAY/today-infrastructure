@@ -18,42 +18,46 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.support;
+package cn.taketoday.beans.autowire;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Parameter;
+import java.util.Collection;
 import java.util.Map;
 
+import cn.taketoday.beans.ArgumentsResolvingStrategy;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.NonNull;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ResolvableType;
 
 /**
- * @author TODAY 2021/2/19 23:16
+ * @author TODAY 2020/10/11 21:54
+ * @since 3.0
  */
-public class ArrayArgumentsResolver
+public class CollectionArgumentsResolver
         extends NonNullBeanFactoryStrategy implements ArgumentsResolvingStrategy {
 
-  public ArrayArgumentsResolver() {
+  public CollectionArgumentsResolver() {
     setOrder(Integer.MAX_VALUE);
   }
 
   @Override
   protected boolean supportsInternal(Parameter parameter, @NonNull BeanFactory beanFactory) {
-    final Class<?> type = parameter.getType();
-    return type.isArray() && !ClassUtils.isSimpleType(type.getComponentType());
+    return Collection.class.isAssignableFrom(parameter.getType());
   }
 
   @Override
-  protected Object resolveInternal(Parameter parameter, @NonNull BeanFactory beanFactory) {
-    final Class<?> parameterType = parameter.getType().getComponentType();
-    final Map<String, ?> beans = beanFactory.getBeansOfType(parameterType);
-    if (CollectionUtils.isEmpty(beans)) {
-      return Array.newInstance(parameterType, 0);
+  public Object resolveInternal(
+          final Parameter parameter, @NonNull BeanFactory beanFactory) {
+    final ResolvableType parameterType = ResolvableType.fromParameter(parameter);
+    if (parameterType.hasGenerics()) {
+      final ResolvableType type = parameterType.asCollection().getGeneric(0);
+      final Map<String, ?> beans = beanFactory.getBeansOfType(type.toClass());
+      final Collection<Object> objects = CollectionUtils.createCollection(parameter.getType(), beans.size());
+      objects.addAll(beans.values());
+      return objects;
     }
-    return beans.values().toArray();
+    throw new ConfigurationException("Not Support " + parameter);
   }
-
 }
-

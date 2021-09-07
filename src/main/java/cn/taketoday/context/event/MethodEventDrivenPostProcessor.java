@@ -23,16 +23,18 @@ package cn.taketoday.context.event;
 import java.lang.reflect.Method;
 import java.util.EventObject;
 
+import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
-import cn.taketoday.beans.support.ArgumentsResolver;
+import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ObjectUtils;
@@ -63,7 +65,7 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
         for (final AnnotationAttributes attribute : attributes) {
           final Class<?>[] eventTypes = getEventTypes(attribute, declaredMethod);
           // use ContextUtils#resolveParameter to resolve method arguments
-          addListener(bean, beanFactory, declaredMethod, eventTypes);
+          addListener(def, beanFactory, declaredMethod, eventTypes);
         }
       }
     }
@@ -102,36 +104,48 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
   }
 
   protected void addListener(
-          Object bean, ConfigurableBeanFactory beanFactory, Method declaredMethod, Class<?>... eventTypes) {
-    final MethodApplicationListener listener
-            = new MethodApplicationListener(bean, declaredMethod, eventTypes, beanFactory);
-
+          BeanDefinition def, ConfigurableBeanFactory beanFactory, Method declaredMethod, Class<?>... eventTypes) {
+    ObjectSupplier<Object> beanSupplier = beanFactory.getBeanSupplier(def);
+    MethodApplicationListener listener = new MethodApplicationListener(
+            beanSupplier, declaredMethod, eventTypes, beanFactory);
     context.addApplicationListener(listener);
   }
 
   static final class MethodApplicationListener
           implements ApplicationListener<Object>, ApplicationEventCapable {
-    final Object bean;
     final Method targetMethod;
     final Class<?>[] eventTypes;
     final BeanFactory beanFactory;
     final MethodInvoker methodInvoker;
+    final ObjectSupplier<Object> beanSupplier;
+    final ArgumentsResolver argumentsResolver;
 
     MethodApplicationListener(
-            Object bean, Method targetMethod, Class<?>[] eventTypes, BeanFactory beanFactory) {
-      this.bean = bean;
+            ObjectSupplier<Object> beanSupplier,
+            Method targetMethod, Class<?>[] eventTypes, BeanFactory beanFactory) {
+      this.beanSupplier = beanSupplier;
       this.eventTypes = eventTypes;
       this.beanFactory = beanFactory;
       this.targetMethod = targetMethod;
       this.methodInvoker = MethodInvoker.fromMethod(targetMethod);
+      this.argumentsResolver = targetMethod.getParameterCount() == 0
+                               ? null
+                               : beanFactory.getArgumentsResolver();
     }
 
     @Override
     public void onApplicationEvent(final Object event) { // any event type
-      final Object[] parameter
-              = ArgumentsResolver.getSharedInstance().resolve(targetMethod, beanFactory, new Object[] { event });
+      final Object[] parameter = resolveArguments(argumentsResolver, event);
       // native invoke public,protected,default method
-      methodInvoker.invoke(bean, parameter);
+      methodInvoker.invoke(beanSupplier.get(), parameter);
+    }
+
+    @Nullable
+    private Object[] resolveArguments(ArgumentsResolver resolver, Object event) {
+      if (resolver != null) {
+        return resolver.resolve(targetMethod, beanFactory, new Object[] { event });
+      }
+      return null;
     }
 
     @Override

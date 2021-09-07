@@ -38,6 +38,7 @@ import java.util.stream.Stream;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.asm.Type;
+import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.BeanNameCreator;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.Component;
@@ -48,7 +49,6 @@ import cn.taketoday.beans.ObjectFactory;
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.PropertyValueException;
 import cn.taketoday.beans.SmartFactoryBean;
-import cn.taketoday.beans.support.ArgumentsResolver;
 import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.aware.Aware;
@@ -58,6 +58,7 @@ import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.NonNull;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -98,6 +99,16 @@ public abstract class AbstractBeanFactory
   private boolean hasInstantiationAwareBeanPostProcessors;
   /** @since 4.0 */
   private final ConcurrentHashMap<String, Supplier<?>> beanSupplier = new ConcurrentHashMap<>();
+
+  /** @since 4.0 */
+  private final ArgumentsResolver argumentsResolver = new ArgumentsResolver(this);
+
+  /** @since 4.0 */
+  @NonNull
+  @Override
+  public ArgumentsResolver getArgumentsResolver() {
+    return argumentsResolver;
+  }
 
   @Override
   public Object getBean(final String name) {
@@ -451,7 +462,7 @@ public abstract class AbstractBeanFactory
       ((DefaultBeanDefinition) def).fastInvokeInitMethods(bean, this);
     }
     else {
-      ArgumentsResolver resolver = ArgumentsResolver.getSharedInstance();
+      ArgumentsResolver resolver = getArgumentsResolver();
       for (final Method method : def.getInitMethods()) { /*never be null*/
         try {
           final Object[] args = resolver.resolve(method, this);
