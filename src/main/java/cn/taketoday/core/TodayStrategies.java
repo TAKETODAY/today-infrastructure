@@ -20,7 +20,6 @@
 
 package cn.taketoday.core;
 
-import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 /**

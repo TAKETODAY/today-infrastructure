@@ -320,10 +320,12 @@ class BridgeMethodResolverTests {
   }
 
   private void doTestHierarchyResolution(Class<?> clazz) throws Exception {
+    Method expected = clazz.getMethod("test", FooEntity.class);
     for (Method method : clazz.getDeclaredMethods()) {
-      Method bridged = BridgeMethodResolver.findBridgedMethod(method);
-      Method expected = clazz.getMethod("test", FooEntity.class);
-      assertThat(bridged).isEqualTo(expected);
+      if (method.getName().equals("test")) {
+        Method bridged = BridgeMethodResolver.findBridgedMethod(method);
+        assertThat(bridged).isEqualTo(expected);
+      }
     }
   }
 
@@ -1237,7 +1239,7 @@ class BridgeMethodResolverTests {
   public static class FooClass extends EntityClass<FooEntity> {
 
     @Override
-    public <S extends FooEntity> S test(S T) {
+    public <S extends FooEntity> S test(S s) {
       return null;
     }
   }
