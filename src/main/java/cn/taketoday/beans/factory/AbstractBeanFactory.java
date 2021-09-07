@@ -103,14 +103,6 @@ public abstract class AbstractBeanFactory
   /** @since 4.0 */
   private final ArgumentsResolver argumentsResolver = new ArgumentsResolver(this);
 
-  /** @since 4.0 */
-  @NonNull
-  @Override
-  public ArgumentsResolver getArgumentsResolver() {
-    return argumentsResolver;
-  }
-
-  @Override
   public Object getBean(final String name) {
     final BeanDefinition def = getBeanDefinition(name);
     if (def != null) {
@@ -1617,6 +1609,15 @@ public abstract class AbstractBeanFactory
 
   private BeanDefinition getPrototypeBeanDefinition(final Object existingBean, final String beanName) {
     return getPrototypeBeanDefinition(ClassUtils.getUserClass(existingBean)).setName(beanName);
+  }
+
+  // ArgumentsResolverProvider
+
+  /** @since 4.0 */
+  @NonNull
+  @Override
+  public ArgumentsResolver getArgumentsResolver() {
+    return argumentsResolver;
   }
 
   @Override

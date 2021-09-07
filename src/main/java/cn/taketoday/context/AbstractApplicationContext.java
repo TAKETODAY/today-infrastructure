@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.BeanNameCreator;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinition;
@@ -57,10 +58,11 @@ import cn.taketoday.context.event.DependenciesHandledEvent;
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.context.event.ObjectRefreshedEvent;
 import cn.taketoday.context.loader.CandidateComponentScanner;
-import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.NonNull;
+import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.TodayStrategies;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
@@ -977,6 +979,14 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   @Override
   public void importBeans(final Set<BeanDefinition> defs) {
     getBeanFactory().importBeans(defs);
+  }
+
+  // ArgumentsResolverProvider
+
+  @NonNull
+  @Override
+  public ArgumentsResolver getArgumentsResolver() {
+    return getBeanFactory().getArgumentsResolver();
   }
 
   // ----------------------------
