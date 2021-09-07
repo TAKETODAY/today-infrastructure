@@ -62,13 +62,13 @@ import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.context.loader.ObjectSupplierPropertyResolver;
 import cn.taketoday.context.loader.PropertyValueResolver;
 import cn.taketoday.context.loader.PropsPropertyResolver;
-import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.context.loader.ValuePropertyResolver;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Nullable;
+import cn.taketoday.core.TodayStrategies;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.AnnotationUtils;
@@ -367,7 +367,7 @@ public class StandardBeanFactory
     // ---------------------------------------------------
     final Set<Class<?>> beans = ContextUtils.loadFromMetaInfo(Constant.META_INFO_beans);
     // @since 4.0 load from StrategiesLoader strategy file
-    beans.addAll(getStrategiesDetector().getTypes(MissingBean.class));
+    beans.addAll(TodayStrategies.getDetector().getTypes(MissingBean.class));
 
     final BeanNameCreator beanNameCreator = getBeanNameCreator();
     for (final Class<?> beanClass : beans) {
@@ -501,10 +501,6 @@ public class StandardBeanFactory
   @Override
   public final BeanDefinitionLoader getBeanDefinitionLoader() {
     return this;
-  }
-
-  public StrategiesDetector getStrategiesDetector() {
-    return context.getStrategiesDetector();
   }
 
   // BeanDefinitionLoader @since 2.1.7
@@ -845,8 +841,8 @@ public class StandardBeanFactory
                                 new ObjectSupplierPropertyResolver(),
                                 new AutowiredPropertyResolver(context));
 
-      final List<PropertyValueResolver> strategies =
-              getStrategiesDetector().getStrategies(PropertyValueResolver.class);
+      List<PropertyValueResolver> strategies =
+              TodayStrategies.getDetector().getStrategies(PropertyValueResolver.class, this);
       // un-ordered
       propertyResolvers.addAll(strategies); // @since 4.0
       OrderUtils.reversedSort(propertyResolvers);

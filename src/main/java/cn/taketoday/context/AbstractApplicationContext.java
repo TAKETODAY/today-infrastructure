@@ -62,7 +62,6 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.NonNull;
-import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.TodayStrategies;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
@@ -97,10 +96,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   private CandidateComponentScanner candidateComponentScanner;
 
   private ArrayList<BeanFactoryPostProcessor> factoryPostProcessors;
-  /**
-   * @since 3.1
-   */
-  private StrategiesDetector strategiesDetector;
 
   /**
    * Construct with a {@link ConfigurableEnvironment}
@@ -332,8 +327,9 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     registerSingleton(nameCreator.create(ApplicationContext.class), this);
     // register BeanFactory @since 2.1.7
     registerSingleton(nameCreator.create(BeanFactory.class), getBeanFactory());
-    // @since 4.0 StrategiesLoader
-    registerSingleton(nameCreator.create(StrategiesDetector.class), getStrategiesDetector());
+    // @since 4.0 ArgumentsResolver
+    registerSingleton(nameCreator.create(ArgumentsResolver.class), getArgumentsResolver());
+
   }
 
   /**
@@ -483,14 +479,15 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    * @param applicationListeners
    *         {@link ApplicationListener} cache
    */
-  protected void postProcessRegisterListener(Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners) {
+  protected void postProcessRegisterListener(
+          Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners) {
     addApplicationListener(new ContextCloseListener());
 
     final Set<Class<?>> listeners = loadMetaInfoListeners();
     // load from strategy files
     log.info("Loading listeners from strategies files");
-    final StrategiesDetector strategiesDetector = getStrategiesDetector();
-    listeners.addAll(strategiesDetector.getTypes(ApplicationListener.class));
+    TodayStrategies todayStrategies = TodayStrategies.getDetector();
+    listeners.addAll(todayStrategies.getTypes(ApplicationListener.class));
 
     for (final Class<?> listener : listeners) {
       registerListener(listener);
@@ -1029,22 +1026,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   @Override
   public void registerScope(String name, Scope scope) {
     getBeanFactory().registerScope(name, scope);
-  }
-
-  @Override
-  public StrategiesDetector getStrategiesDetector() {
-    StrategiesDetector strategiesDetector = this.strategiesDetector;
-    if (strategiesDetector == null) {
-      strategiesDetector = createStrategiesLoader(this);
-      this.strategiesDetector = strategiesDetector;
-    }
-    return strategiesDetector;
-  }
-
-  protected StrategiesDetector createStrategiesLoader(ConfigurableApplicationContext context) {
-    final StrategiesDetector detector = TodayStrategies.getDetector();
-    detector.setBeanFactory(context);
-    return detector;
   }
 
   @Override

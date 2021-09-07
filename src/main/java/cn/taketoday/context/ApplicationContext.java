@@ -28,7 +28,6 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.loader.CandidateComponentScannerCapable;
-import cn.taketoday.core.StrategiesDetector;
 
 /**
  * @author TODAY <br>
@@ -142,14 +141,5 @@ public interface ApplicationContext
     /** context is closed */
     CLOSED;
   }
-
-  /**
-   * get {@link StrategiesDetector} for framework internal component
-   *
-   * @return StrategiesDetector
-   *
-   * @see StrategiesDetector
-   */
-  StrategiesDetector getStrategiesDetector();
 
 }
