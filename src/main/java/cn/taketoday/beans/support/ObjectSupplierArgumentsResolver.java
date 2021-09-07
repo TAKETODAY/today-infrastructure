@@ -50,7 +50,7 @@ public class ObjectSupplierArgumentsResolver
   @Override
   public ObjectSupplier<?> resolveInternal(
           final Parameter parameter, @NonNull BeanFactory beanFactory) {
-    final ResolvableType parameterType = ResolvableType.forParameter(parameter);
+    final ResolvableType parameterType = ResolvableType.fromParameter(parameter);
     if (parameterType.hasGenerics()) {
       final ResolvableType generic = parameterType.as(Supplier.class).getGeneric(0);
       return beanFactory.getBeanSupplier(generic.toClass());

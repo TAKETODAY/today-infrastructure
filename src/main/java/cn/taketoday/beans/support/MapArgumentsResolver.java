@@ -74,7 +74,7 @@ public class MapArgumentsResolver
       return ContextUtils.loadProps(props, System.getProperties());
     }
 
-    final ResolvableType parameterType = ResolvableType.forParameter(parameter);
+    final ResolvableType parameterType = ResolvableType.fromParameter(parameter);
     final ResolvableType generic = parameterType.asMap().getGeneric(1);
     Class<?> beanClass = generic.toClass();
     return beanFactory.getBeansOfType(beanClass);

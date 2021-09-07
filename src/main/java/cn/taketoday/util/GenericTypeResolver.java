@@ -108,7 +108,7 @@ public abstract class GenericTypeResolver {
    */
   @Nullable
   public static <T> Class<T> resolveTypeArgument(Class<?> clazz, Class<?> genericIfc) {
-    ResolvableType resolvableType = ResolvableType.forClass(clazz).as(genericIfc);
+    ResolvableType resolvableType = ResolvableType.fromClass(clazz).as(genericIfc);
     if (!resolvableType.hasGenerics()) {
       return null;
     }
@@ -138,7 +138,7 @@ public abstract class GenericTypeResolver {
    */
   @Nullable
   public static Class<?>[] resolveTypeArguments(Class<?> clazz, Class<?> genericIfc) {
-    ResolvableType type = ResolvableType.forClass(clazz).as(genericIfc);
+    ResolvableType type = ResolvableType.fromClass(clazz).as(genericIfc);
     if (!type.hasGenerics() || type.isEntirelyUnresolvable()) {
       return null;
     }
@@ -161,7 +161,7 @@ public abstract class GenericTypeResolver {
     if (contextClass != null) {
       if (genericType instanceof TypeVariable) {
         ResolvableType resolvedTypeVariable = resolveVariable(
-                (TypeVariable<?>) genericType, ResolvableType.forClass(contextClass));
+                (TypeVariable<?>) genericType, ResolvableType.fromClass(contextClass));
         if (resolvedTypeVariable != ResolvableType.NONE) {
           Class<?> resolved = resolvedTypeVariable.resolve();
           if (resolved != null) {
@@ -170,12 +170,12 @@ public abstract class GenericTypeResolver {
         }
       }
       else if (genericType instanceof ParameterizedType) {
-        ResolvableType resolvedType = ResolvableType.forType(genericType);
+        ResolvableType resolvedType = ResolvableType.fromType(genericType);
         if (resolvedType.hasUnresolvableGenerics()) {
           ParameterizedType parameterizedType = (ParameterizedType) genericType;
           Class<?>[] generics = new Class<?>[parameterizedType.getActualTypeArguments().length];
           Type[] typeArguments = parameterizedType.getActualTypeArguments();
-          ResolvableType contextType = ResolvableType.forClass(contextClass);
+          ResolvableType contextType = ResolvableType.fromClass(contextClass);
           for (int i = 0; i < typeArguments.length; i++) {
             Type typeArgument = typeArguments[i];
             if (typeArgument instanceof TypeVariable) {
@@ -185,16 +185,16 @@ public abstract class GenericTypeResolver {
                 generics[i] = resolvedTypeArgument.resolve();
               }
               else {
-                generics[i] = ResolvableType.forType(typeArgument).resolve();
+                generics[i] = ResolvableType.fromType(typeArgument).resolve();
               }
             }
             else {
-              generics[i] = ResolvableType.forType(typeArgument).resolve();
+              generics[i] = ResolvableType.fromType(typeArgument).resolve();
             }
           }
           Class<?> rawClass = resolvedType.getRawClass();
           if (rawClass != null) {
-            return ResolvableType.forClassWithGenerics(rawClass, generics).getType();
+            return ResolvableType.fromClassWithGenerics(rawClass, generics).getType();
           }
         }
       }
@@ -205,7 +205,7 @@ public abstract class GenericTypeResolver {
   private static ResolvableType resolveVariable(TypeVariable<?> typeVariable, ResolvableType contextType) {
     ResolvableType resolvedType;
     if (contextType.hasGenerics()) {
-      resolvedType = ResolvableType.forType(typeVariable, contextType);
+      resolvedType = ResolvableType.fromType(typeVariable, contextType);
       if (resolvedType.resolve() != null) {
         return resolvedType;
       }
@@ -240,7 +240,7 @@ public abstract class GenericTypeResolver {
    */
   @SuppressWarnings("rawtypes")
   public static Class<?> resolveType(Type genericType, Map<TypeVariable, Type> map) {
-    return ResolvableType.forType(genericType, new TypeVariableMapVariableResolver(map)).toClass();
+    return ResolvableType.valueOf(genericType, new TypeVariableMapVariableResolver(map)).toClass();
   }
 
   /**
@@ -255,7 +255,7 @@ public abstract class GenericTypeResolver {
     Map<TypeVariable, Type> typeVariableMap = typeVariableCache.get(clazz);
     if (typeVariableMap == null) {
       typeVariableMap = new HashMap<>();
-      buildTypeVariableMap(ResolvableType.forClass(clazz), typeVariableMap);
+      buildTypeVariableMap(ResolvableType.fromClass(clazz), typeVariableMap);
       typeVariableCache.put(clazz, Collections.unmodifiableMap(typeVariableMap));
     }
     return typeVariableMap;
@@ -282,7 +282,7 @@ public abstract class GenericTypeResolver {
         buildTypeVariableMap(interfaceType, typeVariableMap);
       }
       if (resolved != null && resolved.isMemberClass()) {
-        buildTypeVariableMap(ResolvableType.forClass(resolved.getEnclosingClass()), typeVariableMap);
+        buildTypeVariableMap(ResolvableType.fromClass(resolved.getEnclosingClass()), typeVariableMap);
       }
     }
   }
@@ -299,7 +299,7 @@ public abstract class GenericTypeResolver {
     @Override
     public ResolvableType resolveVariable(TypeVariable<?> variable) {
       Type type = this.typeVariableMap.get(variable);
-      return (type != null ? ResolvableType.forType(type) : null);
+      return (type != null ? ResolvableType.fromType(type) : null);
     }
 
     @Override

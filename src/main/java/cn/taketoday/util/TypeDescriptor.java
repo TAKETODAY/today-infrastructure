@@ -72,14 +72,14 @@ public class TypeDescriptor implements Serializable {
    */
   public TypeDescriptor(Field field) {
     this.annotatedElement = field;
-    this.resolvableType = ResolvableType.forField(field);
+    this.resolvableType = ResolvableType.fromField(field);
     this.type = this.resolvableType.resolve(field.getType());
   }
 
   public TypeDescriptor(BeanProperty property) {
     this.type = property.getType();
     this.annotatedElement = property;
-    this.resolvableType = ResolvableType.forField(property.getField());
+    this.resolvableType = ResolvableType.fromField(property.getField());
   }
 
   /**
@@ -223,7 +223,7 @@ public class TypeDescriptor implements Serializable {
     if (value == null) {
       return this;
     }
-    ResolvableType narrowed = ResolvableType.forType(value.getClass(), getResolvableType());
+    ResolvableType narrowed = ResolvableType.fromType(value.getClass(), getResolvableType());
     return new TypeDescriptor(narrowed, value.getClass(), getAnnotations());
   }
 
@@ -582,7 +582,7 @@ public class TypeDescriptor implements Serializable {
       type = Object.class;
     }
     TypeDescriptor desc = commonTypesCache.get(type);
-    return (desc != null ? desc : new TypeDescriptor(ResolvableType.forClass(type), null, (Annotation[]) null));
+    return (desc != null ? desc : new TypeDescriptor(ResolvableType.fromClass(type), null, (Annotation[]) null));
   }
 
   public static TypeDescriptor collection(Class<?> collectionType, Class<?> element) {
@@ -611,7 +611,7 @@ public class TypeDescriptor implements Serializable {
       throw new IllegalArgumentException("Collection type must be a [java.util.Collection]");
     }
     ResolvableType element = (elementDescriptor != null ? elementDescriptor.resolvableType : null);
-    return new TypeDescriptor(ResolvableType.forClassWithGenerics(collectionType, element), null, (Annotation[]) null);
+    return new TypeDescriptor(ResolvableType.fromClassWithGenerics(collectionType, element), null, (Annotation[]) null);
   }
 
   public static TypeDescriptor map(Class<?> mapType, Class<?> key, Class<?> value) {
@@ -645,7 +645,7 @@ public class TypeDescriptor implements Serializable {
     }
     ResolvableType key = (keyDescriptor != null ? keyDescriptor.resolvableType : null);
     ResolvableType value = (valueDescriptor != null ? valueDescriptor.resolvableType : null);
-    return new TypeDescriptor(ResolvableType.forClassWithGenerics(mapType, key, value), null, (Annotation[]) null);
+    return new TypeDescriptor(ResolvableType.fromClassWithGenerics(mapType, key, value), null, (Annotation[]) null);
   }
 
   /**
@@ -665,7 +665,7 @@ public class TypeDescriptor implements Serializable {
       return null;
     }
     return new TypeDescriptor(
-            ResolvableType.forArrayComponent(elementDescriptor.resolvableType),
+            ResolvableType.fromArrayComponent(elementDescriptor.resolvableType),
             null, elementDescriptor.getAnnotations());
   }
 
@@ -742,7 +742,7 @@ public class TypeDescriptor implements Serializable {
    * @since 3.0.2
    */
   public static TypeDescriptor fromParameter(Parameter parameter) {
-    final ResolvableType resolvableType = ResolvableType.forParameter(parameter);
+    final ResolvableType resolvableType = ResolvableType.fromParameter(parameter);
     return new TypeDescriptor(resolvableType, parameter.getType(), parameter);
   }
 

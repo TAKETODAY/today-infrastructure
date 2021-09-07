@@ -43,7 +43,7 @@ final class CollectionToObjectConverter extends CollectionSourceConverter {
   @Override
   protected boolean supportsInternal(TypeDescriptor targetType, Class<?> sourceType) {
     // Collection.class, Object.class
-    final ResolvableType resolvableType = ResolvableType.forClass(sourceType).asCollection();
+    final ResolvableType resolvableType = ResolvableType.fromClass(sourceType).asCollection();
     if (resolvableType.hasGenerics()) {
       final ResolvableType generic = resolvableType.getGeneric(0);
       return generic != ResolvableType.NONE && this.conversionService.canConvert(generic.toClass(), targetType);

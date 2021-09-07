@@ -44,7 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Internal utility class that can be used to obtain wrapped {@link Serializable}
  * variants of {@link Type java.lang.reflect.Types}.
  *
- * <p>{@link #forField(Field) Fields can be used as the root source for a serializable type.
+ * <p>{@link #fromField(Field) Fields can be used as the root source for a serializable type.
  * Alternatively, a regular {@link Class} can also be used as source.
  *
  * <p>The returned type will either be a {@link Class} or a serializable proxy of
@@ -71,8 +71,8 @@ final class SerializableTypeWrapper {
   /**
    * Return a {@link Serializable} variant of {@link Field#getGenericType()}.
    */
-  public static Type forField(Field field) {
-    return forTypeProvider(new FieldTypeProvider(field));
+  public static Type fromField(Field field) {
+    return fromTypeProvider(new FieldTypeProvider(field));
   }
 
   /**
@@ -97,7 +97,7 @@ final class SerializableTypeWrapper {
    * <p>If type artifacts are generally not serializable in the current runtime
    * environment, this delegate will simply return the original {@code Type} as-is.
    */
-  static Type forTypeProvider(TypeProvider provider) {
+  static Type fromTypeProvider(TypeProvider provider) {
     Type providedType = provider.getType();
     if (providedType == null || providedType instanceof Serializable) {
       // No serializable type wrapping necessary (e.g. for java.lang.Class)
@@ -186,19 +186,22 @@ final class SerializableTypeWrapper {
           break;
       }
 
-      if (Type.class == method.getReturnType() && ObjectUtils.isEmpty(args)) {
-        return forTypeProvider(new MethodInvokeTypeProvider(this.provider, method, -1));
-      }
-      else if (Type[].class == method.getReturnType() && ObjectUtils.isEmpty(args)) {
-        Type[] result = new Type[((Type[]) method.invoke(this.provider.getType())).length];
-        for (int i = 0; i < result.length; i++) {
-          result[i] = forTypeProvider(new MethodInvokeTypeProvider(this.provider, method, i));
+      TypeProvider provider = this.provider;
+      Class<?> returnType = method.getReturnType();
+      if (ObjectUtils.isEmpty(args)) {
+        if (Type.class == returnType) {
+          return fromTypeProvider(new MethodInvokeTypeProvider(provider, method, -1));
         }
-        return result;
+        else if (Type[].class == returnType) {
+          Type[] result = new Type[((Type[]) method.invoke(provider.getType())).length];
+          for (int i = 0; i < result.length; i++) {
+            result[i] = fromTypeProvider(new MethodInvokeTypeProvider(provider, method, i));
+          }
+          return result;
+        }
       }
-
       try {
-        return method.invoke(this.provider.getType(), args);
+        return method.invoke(provider.getType(), args);
       }
       catch (InvocationTargetException ex) {
         throw ex.getTargetException();

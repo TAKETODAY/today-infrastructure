@@ -59,7 +59,7 @@ public class ObjectSupplierPropertyResolver
 
   @Override
   public PropertySetter resolveProperty(final Field field) {
-    final ResolvableType resolvableType = ResolvableType.forField(field);
+    final ResolvableType resolvableType = ResolvableType.fromField(field);
     if (resolvableType.hasGenerics()) {
       final ResolvableType generic = resolvableType.getGeneric(0);
       final Class<?> aClass = generic.toClass();

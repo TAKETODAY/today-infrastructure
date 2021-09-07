@@ -58,9 +58,8 @@ public abstract class TypeReference<T> {
   }
 
   public final ResolvableType getResolvableType() {
-    return ResolvableType.forType(getType());
+    return ResolvableType.fromType(getType());
   }
-
 
   public final Type getType() {
     return this.type;
@@ -92,7 +91,7 @@ public abstract class TypeReference<T> {
    * @return a corresponding reference which may be passed into
    * {@code TypeReference}-accepting methods
    */
-  public static <T> TypeReference<T> forType(Type type) {
+  public static <T> TypeReference<T> fromType(Type type) {
     return new TypeReference<T>(type) { };
   }
 

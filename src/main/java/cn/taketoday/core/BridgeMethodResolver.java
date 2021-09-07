@@ -75,7 +75,7 @@ public abstract class BridgeMethodResolver {
     Method bridgedMethod = cache.get(bridgeMethod);
     if (bridgedMethod == null) {
       // Gather all methods with matching name and parameter size.
-      List<Method> candidateMethods = new ArrayList<>();
+      ArrayList<Method> candidateMethods = new ArrayList<>();
       MethodFilter filter = candidateMethod -> isBridgedCandidateFor(candidateMethod, bridgeMethod);
       ReflectionUtils.doWithMethods(bridgeMethod.getDeclaringClass(), candidateMethods::add, filter);
       if (!candidateMethods.isEmpty()) {
@@ -117,7 +117,7 @@ public abstract class BridgeMethodResolver {
    * @return the bridged method, or {@code null} if none found
    */
   @Nullable
-  private static Method searchCandidates(List<Method> candidateMethods, Method bridgeMethod) {
+  private static Method searchCandidates(ArrayList<Method> candidateMethods, Method bridgeMethod) {
     if (candidateMethods.isEmpty()) {
       return null;
     }

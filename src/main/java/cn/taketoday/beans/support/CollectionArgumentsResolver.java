@@ -49,7 +49,7 @@ public class CollectionArgumentsResolver
   @Override
   public Object resolveInternal(
           final Parameter parameter, @NonNull BeanFactory beanFactory) {
-    final ResolvableType parameterType = ResolvableType.forParameter(parameter);
+    final ResolvableType parameterType = ResolvableType.fromParameter(parameter);
     if (parameterType.hasGenerics()) {
       final ResolvableType type = parameterType.asCollection().getGeneric(0);
       final Map<String, ?> beans = beanFactory.getBeansOfType(type.toClass());

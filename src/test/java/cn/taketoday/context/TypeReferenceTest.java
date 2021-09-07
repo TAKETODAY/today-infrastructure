@@ -46,7 +46,7 @@ public class TypeReferenceTest {
     Assertions.assertThat(generics)
             .hasSize(1);
 
-    Assertions.assertThat(ResolvableType.forClass(Integer.class))
+    Assertions.assertThat(ResolvableType.fromClass(Integer.class))
             .isEqualTo(new IntegerTypeReference().getResolvableType())
             .isEqualTo(new IntegerTypeReference1().getResolvableType())
             .isEqualTo(new IntegerTypeReference2().getResolvableType())

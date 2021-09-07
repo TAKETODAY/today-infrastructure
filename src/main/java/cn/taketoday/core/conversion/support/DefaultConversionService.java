@@ -295,7 +295,7 @@ public class DefaultConversionService implements ConfigurableConversionService {
   @SuppressWarnings("unchecked")
   public <S, T> void addConverter(Class<T> targetType, Converter<? super S, ? extends T> converter) {
     Assert.notNull(converter, "converter must not be null");
-    ResolvableType type = ResolvableType.forClass(converter.getClass()).as(Converter.class);
+    ResolvableType type = ResolvableType.fromClass(converter.getClass()).as(Converter.class);
     if (type.hasGenerics()) {
       final ResolvableType generic = type.getGeneric(0);
       addConverter(targetType, (Class<S>) generic.toClass(), converter);
