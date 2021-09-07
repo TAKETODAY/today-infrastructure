@@ -73,9 +73,16 @@ public class ArgumentsResolver {
   }
 
   public ArgumentsResolver(StrategiesDetector strategiesDetector) {
+    this(strategiesDetector, null);
+  }
+
+  public ArgumentsResolver(@Nullable BeanFactory beanFactory) {
+    this(TodayStrategies.getDetector(), beanFactory);
+  }
+
+  public ArgumentsResolver(StrategiesDetector strategiesDetector, @Nullable BeanFactory beanFactory) {
     Assert.notNull(strategiesDetector, "StrategiesDetector must not be null");
-    List<ArgumentsResolvingStrategy> strategies
-            = strategiesDetector.getStrategies(ArgumentsResolvingStrategy.class);
+    List<ArgumentsResolvingStrategy> strategies = getStrategies(strategiesDetector, beanFactory);
     Collections.addAll(strategies,
                        new MapArgumentsResolver(),
                        new ArrayArgumentsResolver(),
@@ -86,15 +93,15 @@ public class ArgumentsResolver {
                        new AutowiredArgumentsResolver()
     );
     setResolvingStrategies(strategies);
-  }
-
-  public ArgumentsResolver(@Nullable BeanFactory beanFactory) {
-    this(TodayStrategies.getDetector(), beanFactory);
-  }
-
-  public ArgumentsResolver(StrategiesDetector strategiesDetector, @Nullable BeanFactory beanFactory) {
-    this(strategiesDetector);
     this.beanFactory = beanFactory;
+  }
+
+  private static List<ArgumentsResolvingStrategy> getStrategies(
+          StrategiesDetector strategiesDetector, @Nullable BeanFactory beanFactory) {
+    if (beanFactory == null) {
+      return strategiesDetector.getStrategies(ArgumentsResolvingStrategy.class);
+    }
+    return strategiesDetector.getStrategies(ArgumentsResolvingStrategy.class, beanFactory);
   }
 
   /**
