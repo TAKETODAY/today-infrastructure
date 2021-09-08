@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.handler;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -32,11 +33,11 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.registry.HandlerRegistry;
-import cn.taketoday.web.view.SelectableReturnValueHandler;
 import cn.taketoday.web.view.HandlerAdapterNotFoundException;
 import cn.taketoday.web.view.ReturnValueHandler;
 import cn.taketoday.web.view.ReturnValueHandlerNotFoundException;
 import cn.taketoday.web.view.ReturnValueHandlerProvider;
+import cn.taketoday.web.view.SelectableReturnValueHandler;
 
 /**
  * Central dispatcher for HTTP request handlers/controllers
@@ -157,10 +158,10 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    */
   public void handle(@Nullable final Object handler, final RequestContext context) throws Throwable {
     try {
-      final Object result = lookupHandlerAdapter(handler).handle(context, handler);
-      if (result != HandlerAdapter.NONE_RETURN_VALUE) {
-        lookupReturnValueHandler(handler, result)
-                .handleReturnValue(context, handler, result);
+      final Object returnValue = lookupHandlerAdapter(handler).handle(context, handler);
+      if (returnValue != HandlerAdapter.NONE_RETURN_VALUE) {
+        lookupReturnValueHandler(handler, returnValue)
+                .handleReturnValue(context, handler, returnValue);
       }
     }
     catch (Throwable e) {
@@ -185,6 +186,10 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * @throws Throwable
    *         If {@link Throwable} occurred in
    *         {@link HandlerExceptionHandler} cannot handled
+   * @throws ReturnValueHandlerNotFoundException
+   *         not found ReturnValueHandler
+   * @throws IOException
+   *         throws when write data to response
    */
   public void handleException(final Object handler,
                               final Throwable exception,
@@ -192,10 +197,10 @@ public class DispatcherHandler extends WebApplicationContextSupport {
     // clear context
     context.reset();
     // handle exception
-    final Object result = getExceptionHandler()
-            .handleException(context, ExceptionUtils.unwrapThrowable(exception), handler);
-    if (result != HandlerAdapter.NONE_RETURN_VALUE) {
-      returnValueHandler.handleSelectively(context, handler, result);
+    final Throwable realException = ExceptionUtils.unwrapThrowable(exception);
+    final Object returnValue = exceptionHandler.handleException(context, realException, handler);
+    if (returnValue != HandlerAdapter.NONE_RETURN_VALUE) {
+      returnValueHandler.handleReturnValue(context, null, returnValue);
     }
   }
 

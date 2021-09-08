@@ -225,6 +225,7 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
     handlers.add(new HttpStatusReturnValueHandler());
 
     handlers.add(responseBodyHandler);
+    compositeHandler.trimToSize();
 
     // ordering
     sort();

@@ -50,9 +50,9 @@ import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolvers;
 import cn.taketoday.web.validation.Validator;
 import cn.taketoday.web.validation.WebValidator;
-import cn.taketoday.web.view.SelectableReturnValueHandler;
 import cn.taketoday.web.view.ReturnValueHandler;
 import cn.taketoday.web.view.ReturnValueHandlers;
+import cn.taketoday.web.view.SelectableReturnValueHandler;
 
 /**
  * @author TODAY 2019-07-10 23:12
@@ -280,7 +280,7 @@ public class WebApplicationLoader
     final DispatcherHandler obtainDispatcher = obtainDispatcher();
     final SelectableReturnValueHandler existingHandlers = obtainDispatcher.getReturnValueHandler();
     if (existingHandlers != null) {
-      handlers.addAll(existingHandlers.getReturnValueHandlers());
+      handlers.addAll(existingHandlers.getInternalHandlers());
     }
     final WebApplicationContext context = obtainApplicationContext();
     // @since 3.0
@@ -291,9 +291,10 @@ public class WebApplicationLoader
 
     returnValueHandlers.addHandlers(handlers);
     // apply result handler
-    SelectableReturnValueHandler returnValueHandler
-            = new SelectableReturnValueHandler(returnValueHandlers.getHandlers());
-    obtainDispatcher.setReturnValueHandler(returnValueHandler);
+    SelectableReturnValueHandler selectable =
+            new SelectableReturnValueHandler(returnValueHandlers.getHandlers());
+    selectable.trimToSize();
+    obtainDispatcher.setReturnValueHandler(selectable);
   }
 
   private void configureParameterResolver(

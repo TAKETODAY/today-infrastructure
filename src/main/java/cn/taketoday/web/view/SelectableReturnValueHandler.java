@@ -35,12 +35,11 @@ import cn.taketoday.web.RequestContext;
  * @since 4.0
  */
 public class SelectableReturnValueHandler implements ReturnValueHandler {
-  private final List<ReturnValueHandler> returnValueHandlers;
+  private final List<ReturnValueHandler> internalHandlers;
 
-  public SelectableReturnValueHandler(List<ReturnValueHandler> returnValueHandlers) {
-    Assert.notNull(returnValueHandlers, "returnValueHandlers must not be null");
-    CollectionUtils.trimToSize(returnValueHandlers);
-    this.returnValueHandlers = returnValueHandlers;
+  public SelectableReturnValueHandler(List<ReturnValueHandler> internalHandlers) {
+    Assert.notNull(internalHandlers, "internalHandlers must not be null");
+    this.internalHandlers = internalHandlers;
   }
 
   @Override
@@ -63,7 +62,7 @@ public class SelectableReturnValueHandler implements ReturnValueHandler {
     if (returnValue != NONE_RETURN_VALUE) {
       if (handler != null) {
         // match handler and return-value
-        for (final ReturnValueHandler returnValueHandler : returnValueHandlers) {
+        for (final ReturnValueHandler returnValueHandler : internalHandlers) {
           if (returnValueHandler.supportsHandler(handler)
                   || returnValueHandler.supportsReturnValue(returnValue)) {
             return returnValueHandler;
@@ -72,7 +71,7 @@ public class SelectableReturnValueHandler implements ReturnValueHandler {
       }
       else {
         // match return-value only
-        for (final ReturnValueHandler returnValueHandler : returnValueHandlers) {
+        for (final ReturnValueHandler returnValueHandler : internalHandlers) {
           if (returnValueHandler.supportsReturnValue(returnValue)) {
             return returnValueHandler;
           }
@@ -81,7 +80,7 @@ public class SelectableReturnValueHandler implements ReturnValueHandler {
     }
     else if (handler != null) {
       // match handler only
-      for (final ReturnValueHandler returnValueHandler : returnValueHandlers) {
+      for (final ReturnValueHandler returnValueHandler : internalHandlers) {
         if (returnValueHandler.supportsHandler(handler)) {
           return returnValueHandler;
         }
@@ -136,8 +135,12 @@ public class SelectableReturnValueHandler implements ReturnValueHandler {
     return null;
   }
 
-  public List<ReturnValueHandler> getReturnValueHandlers() {
-    return returnValueHandlers;
+  public List<ReturnValueHandler> getInternalHandlers() {
+    return internalHandlers;
+  }
+
+  public void trimToSize() {
+    CollectionUtils.trimToSize(internalHandlers);
   }
 
 }
