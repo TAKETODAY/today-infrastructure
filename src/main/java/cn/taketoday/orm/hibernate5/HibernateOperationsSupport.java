@@ -48,6 +48,7 @@ import cn.taketoday.util.GenericTypeResolver;
  * @author TODAY <br>
  * 2018-09-15 15:31
  */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class HibernateOperationsSupport<T> implements HibernateOperations<T>, InitializingBean {
   private static final Logger log = LoggerFactory.getLogger(HibernateOperationsSupport.class);
 
@@ -64,7 +65,6 @@ public class HibernateOperationsSupport<T> implements HibernateOperations<T>, In
   /** Bean class simple name */
   private String beanClassName;
 
-  @SuppressWarnings("unchecked")
   public HibernateOperationsSupport() {
     final Class<?> type = GenericTypeResolver.resolveTypeArgument(getClass(), HibernateOperationsSupport.class);
     setBeanClass((Class<T>) type);
@@ -160,7 +160,7 @@ public class HibernateOperationsSupport<T> implements HibernateOperations<T>, In
   @SuppressWarnings({ "unchecked", "deprecation" })
   public List<T> findAll() {
     return execute(session -> prepareCriteria(
-            session.createCriteria(beanClass).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+                           session.createCriteria(beanClass).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
                    ).list()
     );
   }
@@ -276,7 +276,7 @@ public class HibernateOperationsSupport<T> implements HibernateOperations<T>, In
     try {
       Hibernate.close(it);
     }
-    catch (HibernateException ignored) {}
+    catch (HibernateException ignored) { }
   }
 
   protected <Q> Query<Q> prepareQuery(Query<Q> query) {
@@ -326,15 +326,15 @@ public class HibernateOperationsSupport<T> implements HibernateOperations<T>, In
   @Override
   public Integer updateOne(String columnName, String primaryKey, Object columnValue, Object keyValue) {
     return execute(session -> session.createQuery(
-            new StringBuilder()//
-                    .append("update ")
-                    .append(beanClassName)
-                    .append(" set ")
-                    .append(columnName)
-                    .append("=:columnName where ")
-                    .append(primaryKey)
-                    .append("=:keyValue")
-                    .toString())
+                    new StringBuilder()//
+                            .append("update ")
+                            .append(beanClassName)
+                            .append(" set ")
+                            .append(columnName)
+                            .append("=:columnName where ")
+                            .append(primaryKey)
+                            .append("=:keyValue")
+                            .toString())
             .setParameter("columnName", columnValue)
             .setParameter("keyValue", keyValue)
             .executeUpdate()//

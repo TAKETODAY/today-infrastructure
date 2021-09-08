@@ -44,9 +44,9 @@ import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.reflect.PropertyAccessor;
 import cn.taketoday.util.AbstractAnnotatedElement;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.TypeDescriptor;
 import cn.taketoday.util.Mappings;
 import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
  * @author TODAY

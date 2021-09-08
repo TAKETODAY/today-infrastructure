@@ -28,9 +28,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.Property;
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
-import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.reflect.PropertyAccessor;
 import cn.taketoday.util.AnnotationUtils;
