@@ -35,8 +35,14 @@ import cn.taketoday.web.handler.HandlerExceptionHandler;
  * ReturnValueHandler is HTTP response writer
  * </p>
  *
+ * <p>
+ * <b>Note:</b> This framework allows
+ * request-handler implement this interface to handle its execution result
+ *
  * @author TODAY 2019-07-10 19:22
  * @see HandlerExceptionHandler
+ * @see cn.taketoday.web.handler.HandlerMethod
+ * @see ReturnValueHandlerProvider
  */
 public interface ReturnValueHandler {
   String RESPONSE_BODY_PREFIX = "body:";

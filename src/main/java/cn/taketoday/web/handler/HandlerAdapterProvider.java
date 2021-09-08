@@ -17,21 +17,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.view;
+package cn.taketoday.web.handler;
 
 /**
- * request-handler can implement this interface to provide
- * a ReturnValueHandler to handle its execution result
+ * <p>
+ * <b>Note:</b> This framework allows hander use
+ * {@link HandlerAdapterProvider HandlerAdapterCapable}
+ * to specific a HandlerAdapter at startup time
  *
- * @author TODAY 2019-12-28 14:15
+ * @author TODAY <br>
+ *         2019-12-28 14:12
  */
 @FunctionalInterface
-public interface ReturnValueHandlerProvider {
+public interface HandlerAdapterProvider {
 
   /**
-   * Get {@link ReturnValueHandler}
+   * Get {@link HandlerAdapter}
    *
-   * @return must not be null
+   * @return Never be null
    */
-  ReturnValueHandler getReturnValueHandler();
+  HandlerAdapter getHandlerAdapter();
 }

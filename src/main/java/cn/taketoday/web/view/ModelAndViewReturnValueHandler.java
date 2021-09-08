@@ -65,7 +65,7 @@ public class ModelAndViewReturnValueHandler
    *
    * @since 2.3.3
    */
-  public void handleModelAndView(
+  public final void handleModelAndView(
           RequestContext context, @Nullable Object handler, @Nullable ModelAndView modelAndView) throws IOException {
     if (modelAndView != null && modelAndView.hasView()) {
       returnValueHandlers.handleSelectively(context, handler, modelAndView.getView());

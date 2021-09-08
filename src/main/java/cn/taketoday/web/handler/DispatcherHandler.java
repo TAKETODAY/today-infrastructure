@@ -92,8 +92,8 @@ public class DispatcherHandler extends WebApplicationContextSupport {
     if (handler instanceof HandlerAdapter) {
       return (HandlerAdapter) handler;
     }
-    if (handler instanceof HandlerAdapterCapable) {
-      return ((HandlerAdapterCapable) handler).getHandlerAdapter();
+    if (handler instanceof HandlerAdapterProvider) {
+      return ((HandlerAdapterProvider) handler).getHandlerAdapter();
     }
     for (final HandlerAdapter requestHandler : handlerAdapters) {
       if (requestHandler.supports(handler)) {
