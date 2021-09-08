@@ -36,7 +36,7 @@ import cn.taketoday.web.handler.HandlerMethod;
  * @see Resource
  * @see File
  */
-public class ResourceReturnValueHandler extends OrderedSupport implements RuntimeReturnValueHandler {
+public class ResourceReturnValueHandler extends OrderedSupport implements ReturnValueHandler {
   private final int downloadFileBuf;
 
   public ResourceReturnValueHandler(int downloadFileBuf) {

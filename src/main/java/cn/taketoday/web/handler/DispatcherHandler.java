@@ -32,11 +32,11 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.registry.HandlerRegistry;
+import cn.taketoday.web.view.SelectableReturnValueHandler;
 import cn.taketoday.web.view.HandlerAdapterNotFoundException;
-import cn.taketoday.web.view.ResultHandlerCapable;
 import cn.taketoday.web.view.ReturnValueHandler;
 import cn.taketoday.web.view.ReturnValueHandlerNotFoundException;
-import cn.taketoday.web.view.RuntimeReturnValueHandler;
+import cn.taketoday.web.view.ReturnValueHandlerProvider;
 
 /**
  * Central dispatcher for HTTP request handlers/controllers
@@ -49,9 +49,10 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   /** Action mapping registry */
   private HandlerRegistry handlerRegistry;
   private HandlerAdapter[] handlerAdapters;
-  private RuntimeReturnValueHandler[] resultHandlers;
   /** exception handler */
   private HandlerExceptionHandler exceptionHandler;
+  /** @since 4.0 */
+  private SelectableReturnValueHandler returnValueHandler;
 
   public DispatcherHandler() { }
 
@@ -120,15 +121,14 @@ public class DispatcherHandler extends WebApplicationContextSupport {
     if (handler instanceof ReturnValueHandler) {
       return (ReturnValueHandler) handler;
     }
-    if (handler instanceof ResultHandlerCapable) {
-      return ((ResultHandlerCapable) handler).getResultHandler();
+    if (handler instanceof ReturnValueHandlerProvider) {
+      return ((ReturnValueHandlerProvider) handler).getReturnValueHandler();
     }
-    for (final RuntimeReturnValueHandler resultHandler : resultHandlers) {
-      if (resultHandler.supportsReturnValue(returnValue) || resultHandler.supportsHandler(handler)) {
-        return resultHandler;
-      }
+    ReturnValueHandler selected = this.returnValueHandler.selectHandler(handler, returnValue);
+    if (selected == null) {
+      throw new ReturnValueHandlerNotFoundException(returnValue, handler);
     }
-    throw new ReturnValueHandlerNotFoundException(returnValue, handler);
+    return selected;
   }
 
   /**
@@ -195,12 +195,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
     final Object result = getExceptionHandler()
             .handleException(context, ExceptionUtils.unwrapThrowable(exception), handler);
     if (result != HandlerAdapter.NONE_RETURN_VALUE) {
-      for (final RuntimeReturnValueHandler resultHandler : resultHandlers) {
-        if (resultHandler.supportsReturnValue(result)) {
-          resultHandler.handleReturnValue(context, handler, result);
-          break;
-        }
-      }
+      returnValueHandler.handleSelectively(context, handler, result);
     }
   }
 
@@ -241,10 +236,6 @@ public class DispatcherHandler extends WebApplicationContextSupport {
     return handlerAdapters;
   }
 
-  public RuntimeReturnValueHandler[] getResultHandlers() {
-    return resultHandlers;
-  }
-
   public HandlerRegistry getHandlerRegistry() {
     return handlerRegistry;
   }
@@ -268,9 +259,13 @@ public class DispatcherHandler extends WebApplicationContextSupport {
     this.exceptionHandler = exceptionHandler;
   }
 
-  public void setResultHandlers(RuntimeReturnValueHandler... resultHandlers) {
-    Assert.notNull(resultHandlers, "resultHandlers must not be null");
-    this.resultHandlers = resultHandlers;
+  public SelectableReturnValueHandler getReturnValueHandler() {
+    return returnValueHandler;
+  }
+
+  public void setReturnValueHandler(SelectableReturnValueHandler returnValueHandler) {
+    Assert.notNull(returnValueHandler, "returnValueHandler must not be null");
+    this.returnValueHandler = returnValueHandler;
   }
 
 }

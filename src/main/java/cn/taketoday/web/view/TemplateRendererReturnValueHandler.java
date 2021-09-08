@@ -38,7 +38,7 @@ import cn.taketoday.web.view.template.TemplateRenderer;
  * @author TODAY 2019-07-14 11:32
  */
 public class TemplateRendererReturnValueHandler
-        extends OrderedSupport implements RuntimeReturnValueHandler {
+        extends OrderedSupport implements ReturnValueHandler {
 
   private boolean allowLambdaDetect;
   /** Template renderer */

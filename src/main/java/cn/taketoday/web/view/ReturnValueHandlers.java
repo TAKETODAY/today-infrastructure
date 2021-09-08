@@ -30,7 +30,7 @@ import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.OrderUtils;
-import cn.taketoday.web.FastJSONMessageConverter;
+import cn.taketoday.web.support.FastJSONMessageConverter;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
@@ -76,7 +76,7 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
   private TemplateRendererReturnValueHandler templateRendererHandler;
 
   @Nullable
-  private IterableReturnValueHandler iterableHandler;
+  private ObjectHandlerMethodReturnValueHandler iterableHandler;
 
   private String imageFormatName = RenderedImageReturnValueHandler.IMAGE_PNG;
 
@@ -207,9 +207,9 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
     sort(internalHandlers);
 
     // Iterate ReturnValueHandler in runtime
-    CompositeReturnValueHandler compositeHandler = new CompositeReturnValueHandler(internalHandlers);
+    SelectableReturnValueHandler compositeHandler = new SelectableReturnValueHandler(internalHandlers);
 
-    IterableReturnValueHandler objectHandler = getObjectHandler(compositeHandler);
+    ObjectHandlerMethodReturnValueHandler objectHandler = getObjectHandler(compositeHandler);
 
     //
     List<ReturnValueHandler> handlers = getHandlers();
@@ -231,11 +231,11 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
   }
 
   @NonNull
-  private IterableReturnValueHandler getObjectHandler(CompositeReturnValueHandler compositeHandler) {
-    IterableReturnValueHandler objectHandler = get(IterableReturnValueHandler.class);
+  private ObjectHandlerMethodReturnValueHandler getObjectHandler(SelectableReturnValueHandler compositeHandler) {
+    ObjectHandlerMethodReturnValueHandler objectHandler = get(ObjectHandlerMethodReturnValueHandler.class);
     // image handler
     if (objectHandler == null) {
-      objectHandler = new IterableReturnValueHandler(compositeHandler);
+      objectHandler = new ObjectHandlerMethodReturnValueHandler(compositeHandler);
     }
     return objectHandler;
   }
@@ -395,12 +395,12 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
     return templateRendererHandler;
   }
 
-  public void setObjectHandler(@Nullable IterableReturnValueHandler objectHandler) {
+  public void setObjectHandler(@Nullable ObjectHandlerMethodReturnValueHandler objectHandler) {
     this.iterableHandler = objectHandler;
   }
 
   @Nullable
-  public IterableReturnValueHandler getObjectHandler() {
+  public ObjectHandlerMethodReturnValueHandler getObjectHandler() {
     return iterableHandler;
   }
 

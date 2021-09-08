@@ -19,33 +19,16 @@
  */
 package cn.taketoday.web.view;
 
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.http.HttpStatus;
-
 /**
- * @author TODAY 2020/12/23 20:12
- * @since 3.0
+ * @author TODAY 2019-12-28 14:15
  */
-public class HttpStatusReturnValueHandler
-        extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
+@FunctionalInterface
+public interface ReturnValueHandlerProvider {
 
-  @Override
-  protected boolean supportsHandlerMethod(final HandlerMethod handler) {
-    return handler.isReturn(HttpStatus.class);
-  }
-
-  @Override
-  public boolean supportsReturnValue(final Object returnValue) {
-    return returnValue instanceof HttpStatus;
-  }
-
-  @Override
-  public void handleReturnValue(
-          RequestContext context, Object handler, final Object returnValue) {
-    if (returnValue instanceof HttpStatus) {
-      context.setStatus((HttpStatus) returnValue);
-    }
-  }
-
+  /**
+   * Get {@link ReturnValueHandler}
+   *
+   * @return must not be null
+   */
+  ReturnValueHandler getReturnValueHandler();
 }

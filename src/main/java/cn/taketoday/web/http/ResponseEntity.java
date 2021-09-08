@@ -31,6 +31,7 @@ import java.util.function.Consumer;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.util.MediaType;
 
 /**
@@ -117,7 +118,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
    * @param status
    *         the status code
    */
-  public ResponseEntity(T body, MultiValueMap<String, String> headers, HttpStatus status) {
+  public ResponseEntity(@Nullable T body, MultiValueMap<String, String> headers, HttpStatus status) {
     super(body, headers);
     Assert.notNull(status, "HttpStatus must not be null");
     this.status = status;

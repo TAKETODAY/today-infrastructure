@@ -31,7 +31,7 @@ import cn.taketoday.web.RequestContext;
  *
  * @author TODAY 2019-07-14 01:19
  */
-public class ResponseBodyReturnValueHandler extends OrderedSupport implements RuntimeReturnValueHandler {
+public class ResponseBodyReturnValueHandler extends OrderedSupport implements ReturnValueHandler {
   private final MessageBodyConverter messageBodyConverter;
 
   public ResponseBodyReturnValueHandler(MessageBodyConverter messageBodyConverter) {

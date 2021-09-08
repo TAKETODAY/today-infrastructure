@@ -29,7 +29,6 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConvertUtils;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
@@ -51,9 +50,9 @@ import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolvers;
 import cn.taketoday.web.validation.Validator;
 import cn.taketoday.web.validation.WebValidator;
+import cn.taketoday.web.view.SelectableReturnValueHandler;
 import cn.taketoday.web.view.ReturnValueHandler;
 import cn.taketoday.web.view.ReturnValueHandlers;
-import cn.taketoday.web.view.RuntimeReturnValueHandler;
 
 /**
  * @author TODAY 2019-07-10 23:12
@@ -279,9 +278,9 @@ public class WebApplicationLoader
    */
   protected void configureResultHandler(List<ReturnValueHandler> handlers, WebMvcConfiguration mvcConfiguration) {
     final DispatcherHandler obtainDispatcher = obtainDispatcher();
-    final RuntimeReturnValueHandler[] existingHandlers = obtainDispatcher.getResultHandlers();
-    if (ObjectUtils.isNotEmpty(existingHandlers)) {
-      Collections.addAll(handlers, existingHandlers);
+    final SelectableReturnValueHandler existingHandlers = obtainDispatcher.getReturnValueHandler();
+    if (existingHandlers != null) {
+      handlers.addAll(existingHandlers.getReturnValueHandlers());
     }
     final WebApplicationContext context = obtainApplicationContext();
     // @since 3.0
@@ -292,8 +291,9 @@ public class WebApplicationLoader
 
     returnValueHandlers.addHandlers(handlers);
     // apply result handler
-
-    obtainDispatcher.setResultHandlers(RuntimeReturnValueHandler.filterArray(returnValueHandlers.getHandlers()));
+    SelectableReturnValueHandler returnValueHandler
+            = new SelectableReturnValueHandler(returnValueHandlers.getHandlers());
+    obtainDispatcher.setReturnValueHandler(returnValueHandler);
   }
 
   private void configureParameterResolver(

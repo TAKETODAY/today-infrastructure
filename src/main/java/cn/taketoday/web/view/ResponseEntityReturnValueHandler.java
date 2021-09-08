@@ -24,6 +24,7 @@ import java.util.List;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.http.HttpHeaders;
 import cn.taketoday.web.http.ResponseEntity;
 
 /**
@@ -34,15 +35,15 @@ import cn.taketoday.web.http.ResponseEntity;
  * @since 3.0
  */
 public class ResponseEntityReturnValueHandler
-        extends HandlerMethodReturnValueHandler implements RuntimeReturnValueHandler {
+        extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
 
-  private final CompositeReturnValueHandler returnValueHandlers;
+  private final SelectableReturnValueHandler returnValueHandlers;
 
   public ResponseEntityReturnValueHandler(List<ReturnValueHandler> returnValueHandlers) {
-    this.returnValueHandlers = new CompositeReturnValueHandler(returnValueHandlers);
+    this.returnValueHandlers = new SelectableReturnValueHandler(returnValueHandlers);
   }
 
-  public ResponseEntityReturnValueHandler(CompositeReturnValueHandler returnValueHandlers) {
+  public ResponseEntityReturnValueHandler(SelectableReturnValueHandler returnValueHandlers) {
     this.returnValueHandlers = returnValueHandlers;
   }
 
@@ -56,6 +57,21 @@ public class ResponseEntityReturnValueHandler
     return returnValue instanceof ResponseEntity;
   }
 
+  /**
+   * write ResponseEntity meta-data to response
+   *
+   * @param context
+   *         Current HTTP request context
+   * @param handler
+   *         Target HTTP handler
+   * @param returnValue
+   *         Handler execution result
+   *
+   * @throws ReturnValueHandlerNotFoundException
+   *         not found ReturnValueHandler
+   * @throws IOException
+   *         throws when write data to response
+   */
   @Override
   public void handleReturnValue(RequestContext context, Object handler, Object returnValue) throws IOException {
     if (returnValue instanceof ResponseEntity) {
@@ -63,9 +79,15 @@ public class ResponseEntityReturnValueHandler
 
       context.setStatus(response.getStatusCode());
       // apply headers
-      context.responseHeaders().addAll(response.getHeaders());
+      HttpHeaders responseHeaders = response.getHeaders();
+      if (!responseHeaders.isEmpty()) {
+        context.responseHeaders().addAll(responseHeaders);
+      }
 
-      returnValueHandlers.handleSelected(context, handler, response.getBody());
+      Object responseBody = response.getBody();
+      if (responseBody != null) {
+        returnValueHandlers.handleReturnValue(context, handler, responseBody);
+      }
     }
   }
 }

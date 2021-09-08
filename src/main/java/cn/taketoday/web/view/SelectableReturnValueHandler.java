@@ -25,20 +25,22 @@ import java.util.List;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 
 /**
+ * select {@link ReturnValueHandler} handler in list
+ *
  * @author TODAY 2021/9/3 23:09
+ * @since 4.0
  */
-public class CompositeReturnValueHandler implements RuntimeReturnValueHandler {
+public class SelectableReturnValueHandler implements ReturnValueHandler {
+  private final List<ReturnValueHandler> returnValueHandlers;
 
-  private final ReturnValueHandler[] returnValueHandlers;
-  private final RuntimeReturnValueHandler[] runtimeHandlers;
-
-  public CompositeReturnValueHandler(List<ReturnValueHandler> returnValueHandlers) {
-    Assert.notNull(returnValueHandlers, "returnValueHandlers");
-    this.returnValueHandlers = returnValueHandlers.toArray(new ReturnValueHandler[0]);
-    this.runtimeHandlers = RuntimeReturnValueHandler.filterArray(returnValueHandlers);
+  public SelectableReturnValueHandler(List<ReturnValueHandler> returnValueHandlers) {
+    Assert.notNull(returnValueHandlers, "returnValueHandlers must not be null");
+    CollectionUtils.trimToSize(returnValueHandlers);
+    this.returnValueHandlers = returnValueHandlers;
   }
 
   @Override
@@ -51,19 +53,36 @@ public class CompositeReturnValueHandler implements RuntimeReturnValueHandler {
     return selectHandler(null, returnValue) != null;
   }
 
+  /**
+   * {@link #NONE_RETURN_VALUE}
+   *
+   * @return null if returnValue is {@link #NONE_RETURN_VALUE} or no one matched
+   */
   @Nullable
   public final ReturnValueHandler selectHandler(@Nullable Object handler, @Nullable Object returnValue) {
-    if (handler != null) {
-      for (final ReturnValueHandler returnValueHandler : returnValueHandlers) {
-        if (returnValueHandler.supportsHandler(handler)) {
-          return returnValueHandler;
+    if (returnValue != NONE_RETURN_VALUE) {
+      if (handler != null) {
+        // match handler and return-value
+        for (final ReturnValueHandler returnValueHandler : returnValueHandlers) {
+          if (returnValueHandler.supportsHandler(handler)
+                  || returnValueHandler.supportsReturnValue(returnValue)) {
+            return returnValueHandler;
+          }
+        }
+      }
+      else {
+        // match return-value only
+        for (final ReturnValueHandler returnValueHandler : returnValueHandlers) {
+          if (returnValueHandler.supportsReturnValue(returnValue)) {
+            return returnValueHandler;
+          }
         }
       }
     }
-    // test return-value
-    if (returnValue != NONE_RETURN_VALUE) {
-      for (final RuntimeReturnValueHandler returnValueHandler : runtimeHandlers) {
-        if (returnValueHandler.supportsReturnValue(returnValue)) {
+    else if (handler != null) {
+      // match handler only
+      for (final ReturnValueHandler returnValueHandler : returnValueHandlers) {
+        if (returnValueHandler.supportsHandler(handler)) {
           return returnValueHandler;
         }
       }
@@ -81,24 +100,43 @@ public class CompositeReturnValueHandler implements RuntimeReturnValueHandler {
    *
    * @throws ReturnValueHandlerNotFoundException
    *         not found ReturnValueHandler
+   * @throws IOException
+   *         throws when write data to response
    */
   @Override
   public void handleReturnValue(RequestContext context, Object handler, Object returnValue) throws IOException {
-    ReturnValueHandler selected = selectHandler(handler, returnValue);
-    if (selected != null && selected != this) {
-      selected.handleReturnValue(context, handler, returnValue);
-    }
-    else {
+    if (handleSelectively(context, handler, returnValue) == null) {
       throw new ReturnValueHandlerNotFoundException(returnValue, handler);
     }
   }
 
-  public final void handleSelected(
+  /**
+   * select a handler and handle return-value with selected handler
+   *
+   * @param context
+   *         current request context
+   * @param handler
+   *         web request handler
+   * @param returnValue
+   *         handler execution result
+   *
+   * @return selected handler or which handler handled this result(return-value)
+   *
+   * @throws IOException
+   *         throws when write data to response
+   */
+  public final ReturnValueHandler handleSelectively(
           RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws IOException {
     ReturnValueHandler selected = selectHandler(handler, returnValue);
     if (selected != null && selected != this) {
       selected.handleReturnValue(context, handler, returnValue);
+      return selected;
     }
+    return null;
+  }
+
+  public List<ReturnValueHandler> getReturnValueHandlers() {
+    return returnValueHandlers;
   }
 
 }

@@ -39,7 +39,7 @@ import cn.taketoday.web.handler.HandlerMethod;
  * @see RenderedImage
  */
 public class RenderedImageReturnValueHandler
-        extends HandlerMethodReturnValueHandler implements RuntimeReturnValueHandler {
+        extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
   public static final String IMAGE_PNG = "png";
 
   private String formatName = IMAGE_PNG;

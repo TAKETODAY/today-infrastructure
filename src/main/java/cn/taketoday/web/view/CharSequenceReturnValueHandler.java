@@ -35,7 +35,7 @@ import cn.taketoday.web.handler.HandlerMethod;
  * @author TODAY 2021/9/3 23:51
  */
 public class CharSequenceReturnValueHandler
-        extends HandlerMethodReturnValueHandler implements RuntimeReturnValueHandler {
+        extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
 
   private final TemplateRendererReturnValueHandler templateRendererHandler;
 

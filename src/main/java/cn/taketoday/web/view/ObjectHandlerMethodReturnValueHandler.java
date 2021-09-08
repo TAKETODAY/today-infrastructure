@@ -50,23 +50,23 @@ import cn.taketoday.web.handler.HandlerMethod;
  *
  * @author TODAY 2019-07-14 17:41
  */
-public class IterableReturnValueHandler
-        extends HandlerMethodReturnValueHandler implements RuntimeReturnValueHandler, ReturnValueHandler {
+public class ObjectHandlerMethodReturnValueHandler
+        extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
 
-  private final CompositeReturnValueHandler returnValueHandlers;
+  private final SelectableReturnValueHandler returnValueHandlers;
 
-  public IterableReturnValueHandler(List<ReturnValueHandler> returnValueHandlers) {
-    this.returnValueHandlers = new CompositeReturnValueHandler(returnValueHandlers);
+  public ObjectHandlerMethodReturnValueHandler(List<ReturnValueHandler> returnValueHandlers) {
+    this.returnValueHandlers = new SelectableReturnValueHandler(returnValueHandlers);
   }
 
-  public IterableReturnValueHandler(CompositeReturnValueHandler returnValueHandlers) {
+  public ObjectHandlerMethodReturnValueHandler(SelectableReturnValueHandler returnValueHandlers) {
     this.returnValueHandlers = returnValueHandlers;
   }
 
   @Override
   public void handleReturnValue(
           RequestContext context, Object handler, Object returnValue) throws IOException {
-    returnValueHandlers.handleSelected(context, handler, returnValue);
+    returnValueHandlers.handleReturnValue(context, handler, returnValue);
   }
 
   @Override

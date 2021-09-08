@@ -31,7 +31,7 @@ import cn.taketoday.web.handler.HandlerMethod;
  * @author TODAY 2019-07-14 00:53
  */
 public class VoidReturnValueHandler
-        extends HandlerMethodReturnValueHandler implements RuntimeReturnValueHandler {
+        extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
   private final ModelAndViewReturnValueHandler returnValueHandler;
 
   public VoidReturnValueHandler(ModelAndViewReturnValueHandler returnValueHandler) {

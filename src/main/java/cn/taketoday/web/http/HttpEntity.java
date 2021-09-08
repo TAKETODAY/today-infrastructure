@@ -22,6 +22,7 @@ package cn.taketoday.web.http;
 import java.util.Objects;
 
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.Nullable;
 
 /**
  * Represents an HTTP request or response entity, consisting of headers and body.
@@ -68,7 +69,7 @@ public class HttpEntity<T> {
 
   private final HttpHeaders headers;
 
-  // Nullable
+  @Nullable
   private final T body;
 
   /**
@@ -106,12 +107,12 @@ public class HttpEntity<T> {
    * @param headers
    *         the entity headers
    */
-  public HttpEntity(T body, MultiValueMap<String, String> headers) {
-    this.body = body;
-    HttpHeaders tempHeaders = new DefaultHttpHeaders();
+  public HttpEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers) {
+    DefaultHttpHeaders tempHeaders = new DefaultHttpHeaders();
     if (headers != null) {
       tempHeaders.addAll(headers);
     }
+    this.body = body;
     this.headers = tempHeaders;
   }
 
@@ -125,6 +126,7 @@ public class HttpEntity<T> {
   /**
    * Returns the body of this entity.
    */
+  @Nullable
   public T getBody() {
     return this.body;
   }

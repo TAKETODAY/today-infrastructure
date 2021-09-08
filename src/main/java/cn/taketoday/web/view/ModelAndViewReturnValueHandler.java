@@ -30,15 +30,15 @@ import cn.taketoday.web.handler.HandlerMethod;
  * @author TODAY 2019-07-14 01:14
  */
 public class ModelAndViewReturnValueHandler
-        extends HandlerMethodReturnValueHandler implements RuntimeReturnValueHandler {
+        extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
 
-  private final CompositeReturnValueHandler returnValueHandlers;
+  private final SelectableReturnValueHandler returnValueHandlers;
 
   public ModelAndViewReturnValueHandler(List<ReturnValueHandler> returnValueHandlers) {
-    this.returnValueHandlers = new CompositeReturnValueHandler(returnValueHandlers);
+    this.returnValueHandlers = new SelectableReturnValueHandler(returnValueHandlers);
   }
 
-  public ModelAndViewReturnValueHandler(CompositeReturnValueHandler returnValueHandlers) {
+  public ModelAndViewReturnValueHandler(SelectableReturnValueHandler returnValueHandlers) {
     this.returnValueHandlers = returnValueHandlers;
   }
 
@@ -68,7 +68,7 @@ public class ModelAndViewReturnValueHandler
   public void handleModelAndView(
           RequestContext context, @Nullable Object handler, @Nullable ModelAndView modelAndView) throws IOException {
     if (modelAndView != null && modelAndView.hasView()) {
-      returnValueHandlers.handleSelected(context, handler, modelAndView.getView());
+      returnValueHandlers.handleSelectively(context, handler, modelAndView.getView());
     }
   }
 

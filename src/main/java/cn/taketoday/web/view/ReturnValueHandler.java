@@ -58,6 +58,23 @@ public interface ReturnValueHandler {
   boolean supportsHandler(Object handler);
 
   /**
+   * If this {@link ReturnValueHandler} supports the target handler's result
+   * <p>
+   * This method can test this {@link ReturnValueHandler} supports the target handler
+   * in application runtime
+   *
+   * @param returnValue
+   *         Target handler's return-value or result
+   *
+   * @return If this {@link ReturnValueHandler} supports the target handler's result
+   *
+   * @since 4.0
+   */
+  default boolean supportsReturnValue(@Nullable Object returnValue) {
+    return false;
+  }
+
+  /**
    * Handle result of the handler
    *
    * @param context
