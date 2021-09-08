@@ -32,7 +32,6 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.WebApplicationInitializer;
-import cn.taketoday.web.ObjectNotationProcessor;
 import cn.taketoday.web.socket.annotation.AnnotationWebSocketHandlerBuilder;
 import cn.taketoday.web.socket.annotation.EndpointParameterResolver;
 import cn.taketoday.web.socket.annotation.MessageBodyEndpointParameterResolver;

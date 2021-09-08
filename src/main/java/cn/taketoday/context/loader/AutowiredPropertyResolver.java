@@ -25,11 +25,11 @@ import java.lang.reflect.Field;
 import java.util.Map.Entry;
 
 import cn.taketoday.beans.Autowired;
+import cn.taketoday.beans.autowire.AutowiredArgumentsResolver;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanReferencePropertySetter;
 import cn.taketoday.beans.factory.PropertySetter;
-import cn.taketoday.beans.autowire.AutowiredArgumentsResolver;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.OrderedApplicationContextSupport;
 import cn.taketoday.core.Constant;

@@ -27,7 +27,6 @@ import java.lang.reflect.Proxy;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.util.AnnotationUtils;
-import cn.taketoday.util.ClassUtils;
 
 /**
  * Simple MethodMatcher that looks for a specific Java 5 annotation

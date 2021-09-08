@@ -37,11 +37,11 @@ import java.util.stream.Collectors;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.core.TodayStrategies;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.ThrowableSupplier;
+import cn.taketoday.core.TodayStrategies;
 import cn.taketoday.core.io.FileBasedResource;
 import cn.taketoday.core.io.JarEntryResource;
 import cn.taketoday.core.io.Resource;
