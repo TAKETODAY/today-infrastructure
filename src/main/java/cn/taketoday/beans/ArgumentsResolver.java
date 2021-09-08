@@ -39,7 +39,6 @@ import cn.taketoday.context.Env;
 import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.context.Value;
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.TodayStrategies;
@@ -180,7 +179,7 @@ public class ArgumentsResolver {
   }
 
   /**
-   * @throws ConfigurationException
+   * @throws ArgumentsNotSupportedException
    *         target parameter resolving not supports in this context
    */
   public ArgumentsResolvingStrategy getResolver(
@@ -190,7 +189,7 @@ public class ArgumentsResolver {
         return resolver;
       }
     }
-    throw new ConfigurationException(
+    throw new ArgumentsNotSupportedException(
             "Target parameter:[" + parameter + "] not supports in this context.");
   }
 

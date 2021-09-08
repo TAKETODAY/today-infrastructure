@@ -25,9 +25,11 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.core.Nullable;
 
 /**
- * 构造器出入，方法注入，参数解析器
+ * Arguments Resolving Strategy for {@link java.lang.reflect.Executable}
  *
  * @author TODAY 2019-10-14 14:11
+ * @see Parameter
+ * @see java.lang.reflect.Executable
  */
 @FunctionalInterface
 public interface ArgumentsResolvingStrategy {

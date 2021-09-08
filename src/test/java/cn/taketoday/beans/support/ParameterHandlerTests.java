@@ -24,9 +24,9 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
+import cn.taketoday.beans.ArgumentsNotSupportedException;
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.core.ConfigurationException;
 import lombok.Data;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,14 +48,14 @@ class ParameterHandlerTests {
   }
 
   @Test
-  void configurationException() throws NoSuchMethodException {
+  void argumentsNotSupportedException() throws NoSuchMethodException {
     ArgumentsResolver argumentsResolver = new ArgumentsResolver();
     Method test = ParameterHandlerTests.class.getDeclaredMethod("test", ParameterHandlerBean.class);
     try {
       argumentsResolver.resolve(test);
       fail("ArgumentsResolvingStrategy");
     }
-    catch (ConfigurationException ignored) { }
+    catch (ArgumentsNotSupportedException ignored) { }
   }
 
   @Test
