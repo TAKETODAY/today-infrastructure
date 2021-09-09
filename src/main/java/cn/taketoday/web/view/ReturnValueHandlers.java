@@ -76,7 +76,7 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
   private TemplateRendererReturnValueHandler templateRendererHandler;
 
   @Nullable
-  private ObjectHandlerMethodReturnValueHandler iterableHandler;
+  private ObjectHandlerMethodReturnValueHandler objectHandler;
 
   private String imageFormatName = RenderedImageReturnValueHandler.IMAGE_PNG;
 
@@ -397,12 +397,12 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
   }
 
   public void setObjectHandler(@Nullable ObjectHandlerMethodReturnValueHandler objectHandler) {
-    this.iterableHandler = objectHandler;
+    this.objectHandler = objectHandler;
   }
 
   @Nullable
   public ObjectHandlerMethodReturnValueHandler getObjectHandler() {
-    return iterableHandler;
+    return objectHandler;
   }
 
   public void setImageFormatName(String imageFormatName) {
