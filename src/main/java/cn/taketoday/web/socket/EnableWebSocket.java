@@ -94,6 +94,7 @@ final class WebSocketConfig implements WebApplicationInitializer {
     }
     handlerBuilder.registerDefaultResolvers();
     handlerBuilder.addResolvers(resolvers);
+    handlerBuilder.trimToSize(); // @since 4.0 trimToSize
     return handlerBuilder;
   }
 

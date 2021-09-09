@@ -42,6 +42,7 @@ import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
@@ -96,6 +97,7 @@ public class HandlerMethodRegistry
   public void onStartup(WebApplicationContext context) {
     log.info("Initializing Annotation Controllers");
     startConfiguration();
+    CollectionUtils.trimToSize(patternHandlers); // @since 4.0 trimToSize
   }
 
   @Override
@@ -458,7 +460,7 @@ public class HandlerMethodRegistry
   /**
    * Rebuild Controllers
    */
-  public void rebuiltControllers() {
+  public void rebuildControllers() {
     log.info("Rebuilding Controllers");
     clearHandlers();
     startConfiguration();

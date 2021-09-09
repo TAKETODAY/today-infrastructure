@@ -25,6 +25,7 @@ import java.util.List;
 import cn.taketoday.beans.Autowired;
 import cn.taketoday.cache.ConcurrentMapCache;
 import cn.taketoday.core.NonNull;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.StringUtils;
@@ -51,7 +52,7 @@ public class ResourceHandlerRegistry
 
   private int contextPathLength;
   private WebResourceResolver resourceResolver;
-  private final List<ResourceMapping> resourceMappings = new ArrayList<>();
+  private final ArrayList<ResourceMapping> resourceMappings = new ArrayList<>();
 
   public ResourceHandlerRegistry() {
     this(new DefaultResourceResolver());
@@ -160,6 +161,9 @@ public class ResourceHandlerRegistry
       final String[] pathPatterns = resourceMapping.getPathPatterns();
       registerHandler(new ResourceRequestHandler(resourceMapping, resourceResolver), pathPatterns);
     }
+    // @since 4.0 trimToSize
+    CollectionUtils.trimToSize(patternHandlers);
+    CollectionUtils.trimToSize(resourceMappings);
   }
 
 }

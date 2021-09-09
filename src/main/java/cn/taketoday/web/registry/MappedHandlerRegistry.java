@@ -56,7 +56,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
   private final HashMap<String, Object> handlers = new HashMap<>();
 
   @Nullable
-  private List<PatternHandler> patternHandlers;
+  protected List<PatternHandler> patternHandlers;
 
   private PathMatcher pathMatcher = new AntPathMatcher();
 

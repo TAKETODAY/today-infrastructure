@@ -27,9 +27,12 @@ import java.util.List;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.conversion.support.StringToBytesConverter;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.WebSocketHandler;
 
 /**
@@ -66,16 +69,21 @@ public class AnnotationWebSocketHandlerBuilder {
     this.resolvers.addAll(resolvers);
   }
 
-  public void setResolvers(EndpointParameterResolver... resolvers) {
-    Assert.notNull(resolvers, "EndpointParameterResolvers must not be null");
+  public void setResolvers(@Nullable EndpointParameterResolver... resolvers) {
     this.resolvers.clear();
-    Collections.addAll(this.resolvers, resolvers);
+    CollectionUtils.addAll(this.resolvers, resolvers);
   }
 
-  public void setResolvers(List<EndpointParameterResolver> resolvers) {
-    Assert.notNull(resolvers, "EndpointParameterResolvers must not be null");
+  public void setResolvers(@Nullable List<EndpointParameterResolver> resolvers) {
     this.resolvers.clear();
-    this.resolvers.addAll(resolvers);
+    CollectionUtils.addAll(this.resolvers, resolvers);
+  }
+
+  /**
+   * @since 4.0
+   */
+  public void trimToSize() {
+    CollectionUtils.trimToSize(resolvers);
   }
 
   public WebSocketHandler build(
@@ -83,6 +91,15 @@ public class AnnotationWebSocketHandlerBuilder {
     return new AnnotationWebSocketDispatcher(annotationHandler, resolvers, supportPartialMessage);
   }
 
+  /**
+   * set support Partial Message
+   *
+   * @param supportPartialMessage
+   *         supportPartialMessage?
+   *
+   * @see Message#isLast()
+   * @see WebSocketHandler#supportPartialMessage()
+   */
   public void setSupportPartialMessage(boolean supportPartialMessage) {
     this.supportPartialMessage = supportPartialMessage;
   }
@@ -90,4 +107,5 @@ public class AnnotationWebSocketHandlerBuilder {
   public boolean isSupportPartialMessage() {
     return supportPartialMessage;
   }
+
 }
