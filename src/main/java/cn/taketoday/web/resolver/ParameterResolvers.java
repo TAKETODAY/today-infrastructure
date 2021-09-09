@@ -129,17 +129,18 @@ public class ParameterResolvers extends WebApplicationContextSupport {
 
   /**
    * Get correspond parameter resolver, If there isn't a suitable resolver will be
-   * throw {@link IllegalStateException}
+   * throws {@link ParameterResolverNotFoundException}
    *
    * @return A suitable {@link ParameterResolver}
    *
-   * @throws IllegalStateException
+   * @throws ParameterResolverNotFoundException
    *         If there isn't a suitable resolver
    */
   public ParameterResolver obtainResolver(final MethodParameter parameter) {
     final ParameterResolver resolver = getResolver(parameter);
     if (resolver == null) {
-      throw new IllegalStateException(
+      throw new ParameterResolverNotFoundException(
+              parameter,
               "There isn't have a parameter resolver to resolve parameter: ["
                       + parameter.getParameterClass() + "] called: ["
                       + parameter.getName() + "] on " + parameter.getHandlerMethod());
@@ -361,6 +362,13 @@ public class ParameterResolvers extends WebApplicationContextSupport {
    */
   public ConversionService getConversionService() {
     return conversionService;
+  }
+
+  /**
+   * @since 4.0
+   */
+  public void trimToSize() {
+    resolvers.trimToSize();
   }
 
   // ParameterResolver

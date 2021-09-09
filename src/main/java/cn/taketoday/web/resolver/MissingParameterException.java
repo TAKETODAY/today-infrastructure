@@ -27,7 +27,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * @author TODAY 2021/1/17 10:03
  * @since 3.0
  */
-public class MissingParameterException extends MethodParameterException {
+public class MissingParameterException extends MethodParameterResolvingException {
 
   private final String type;
 

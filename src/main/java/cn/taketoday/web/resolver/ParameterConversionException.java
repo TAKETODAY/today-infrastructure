@@ -27,7 +27,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * @author TODAY 2021/1/17 9:43
  * @since 3.0
  */
-public class ParameterConversionException extends MethodParameterException {
+public class ParameterConversionException extends MethodParameterResolvingException {
   private static final long serialVersionUID = 1L;
 
   private final String value;

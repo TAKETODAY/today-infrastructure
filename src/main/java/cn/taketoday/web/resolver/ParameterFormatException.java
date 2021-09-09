@@ -28,7 +28,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * @author TODAY 2021/4/8 17:45
  * @since 3.0
  */
-public class ParameterFormatException extends MethodParameterException {
+public class ParameterFormatException extends MethodParameterResolvingException {
 
   public ParameterFormatException(MethodParameter parameter) {
     super(parameter);
