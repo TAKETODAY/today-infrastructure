@@ -46,14 +46,10 @@ import cn.taketoday.cglib.core.KeyFactory;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
+import cn.taketoday.core.Constant;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ReflectionUtils;
-
-import static cn.taketoday.asm.Opcodes.ACC_FINAL;
-import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
-import static cn.taketoday.asm.Opcodes.JAVA_VERSION;
-import static cn.taketoday.core.Constant.AOP_SOURCE_FILE;
 
 /**
  * Bytecode-based {@link AopProxy} implementation for the AOP framework.
@@ -226,7 +222,9 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
       final Class<?>[] proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(config);
       final Type[] interfaces = TypeUtils.getTypes(proxiedInterfaces);
 
-      ce.beginClass(JAVA_VERSION, ACC_PUBLIC | ACC_FINAL, getClassName(), targetType, interfaces, AOP_SOURCE_FILE);
+      ce.beginClass(Opcodes.JAVA_VERSION,
+                    Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL,
+                    getClassName(), targetType, interfaces, Constant.AOP_SOURCE_FILE);
 
       final boolean targetSourceStatic = targetSource.isStatic();
       if (targetSourceStatic) {
@@ -311,7 +309,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
 
       final Signature parseConstructor = TypeUtils.parseConstructor(types);
 
-      final CodeEmitter code = ce.beginMethod(ACC_PUBLIC, parseConstructor);
+      final CodeEmitter code = ce.beginMethod(Opcodes.ACC_PUBLIC, parseConstructor);
 
       code.load_this();
       code.dup();
@@ -352,8 +350,8 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
      * </pre>
      */
     public void generateAdvisedMethod(final ClassEmitter ce, final Method method) {
-      MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method, ACC_PUBLIC | ACC_FINAL);
-      final CodeEmitter codeEmitter = EmitUtils.beginMethod(ce, methodInfo, ACC_PUBLIC | ACC_FINAL);
+      MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
+      final CodeEmitter codeEmitter = EmitUtils.beginMethod(ce, methodInfo, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
 
       codeEmitter.load_this();
 
