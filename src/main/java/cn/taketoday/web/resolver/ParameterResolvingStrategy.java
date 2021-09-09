@@ -24,13 +24,21 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**
- * @author TODAY <br>
- * 2019-07-07 23:24
+ * Strategy interface for method parameter resolving.
+ * <p>
+ * run in RequestContext
+ * </p>
+ *
+ * @author TODAY 2019-07-07 23:24
+ * @see MethodParameter
  */
-public interface ParameterResolver {
+public interface ParameterResolvingStrategy {
 
   /**
    * Whether the given parameter is supported by this resolver.
+   * <p>
+   * static match
+   * </p>
    */
   boolean supports(MethodParameter parameter);
 

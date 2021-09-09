@@ -35,7 +35,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * 2019-07-07 23:24
  */
 public class SimpleArrayParameterResolver
-        extends OrderedSupport implements ParameterResolver {
+        extends OrderedSupport implements ParameterResolvingStrategy {
 
   public SimpleArrayParameterResolver() {
     this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 70);

@@ -30,7 +30,7 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.reflect.ReflectionException;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.resolver.ParameterResolvers;
+import cn.taketoday.web.resolver.ParameterResolverRegistry;
 import cn.taketoday.web.view.ReturnValueHandlers;
 
 /**
@@ -41,7 +41,7 @@ import cn.taketoday.web.view.ReturnValueHandlers;
  */
 public class HandlerMethodBuilder<T extends HandlerMethod> {
 
-  private ParameterResolvers parameterResolvers;
+  private ParameterResolverRegistry resolversRegistry;
   private ReturnValueHandlers returnValueHandlers;
   private MethodParametersBuilder parametersBuilder;
 
@@ -57,19 +57,19 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
    */
   public HandlerMethodBuilder(ApplicationContext context) {
     Assert.notNull(context, "ApplicationContext must not be null");
-    ParameterResolvers parameterResolvers = context.getBean(ParameterResolvers.class);
-    Assert.state(parameterResolvers != null, "No ParameterResolvers");
-    setParameterResolvers(parameterResolvers);
+    ParameterResolverRegistry resolversRegistry = context.getBean(ParameterResolverRegistry.class);
+    Assert.state(resolversRegistry != null, "No ParameterResolvers");
+    setParameterResolvers(resolversRegistry);
     setReturnValueHandlers(context.getBean(ReturnValueHandlers.class));
-    setParametersBuilder(new ParameterResolversMethodParameterBuilder(parameterResolvers));
+    setParametersBuilder(new ParameterResolversMethodParameterBuilder(resolversRegistry));
   }
 
-  public HandlerMethodBuilder(ParameterResolvers resolvers,
+  public HandlerMethodBuilder(ParameterResolverRegistry resolvers,
                               ReturnValueHandlers returnValueHandlers) {
     this(resolvers, returnValueHandlers, new ParameterResolversMethodParameterBuilder(resolvers));
   }
 
-  public HandlerMethodBuilder(ParameterResolvers resolvers,
+  public HandlerMethodBuilder(ParameterResolverRegistry resolvers,
                               ReturnValueHandlers returnValueHandlers,
                               MethodParametersBuilder builder) {
     setParametersBuilder(builder);
@@ -125,8 +125,8 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
     return handlerMethod;
   }
 
-  public void setParameterResolvers(ParameterResolvers parameterResolvers) {
-    this.parameterResolvers = parameterResolvers;
+  public void setParameterResolvers(ParameterResolverRegistry resolversRegistry) {
+    this.resolversRegistry = resolversRegistry;
   }
 
   public void setReturnValueHandlers(ReturnValueHandlers returnValueHandlers) {
@@ -145,8 +145,8 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
     return parametersBuilder;
   }
 
-  public ParameterResolvers getParameterResolvers() {
-    return parameterResolvers;
+  public ParameterResolverRegistry getParameterResolvers() {
+    return resolversRegistry;
   }
 
   public ReturnValueHandlers getReturnValueHandlers() {

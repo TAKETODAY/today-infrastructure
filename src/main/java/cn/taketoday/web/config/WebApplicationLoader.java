@@ -46,8 +46,8 @@ import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
-import cn.taketoday.web.resolver.ParameterResolver;
-import cn.taketoday.web.resolver.ParameterResolvers;
+import cn.taketoday.web.resolver.ParameterResolvingStrategy;
+import cn.taketoday.web.resolver.ParameterResolverRegistry;
 import cn.taketoday.web.validation.Validator;
 import cn.taketoday.web.validation.WebValidator;
 import cn.taketoday.web.view.ReturnValueHandler;
@@ -81,7 +81,7 @@ public class WebApplicationLoader
     configureResultHandler(context, mvcConfiguration);
     configureConversionService(context, mvcConfiguration);
     configureHandlerAdapter(context, mvcConfiguration);
-    configureParameterResolver(context, mvcConfiguration);
+    configureParameterResolving(context, mvcConfiguration);
     configureHandlerRegistry(context, mvcConfiguration);
 
     // @since 3.0
@@ -297,24 +297,24 @@ public class WebApplicationLoader
     obtainDispatcher.setReturnValueHandler(selectable);
   }
 
-  private void configureParameterResolver(
+  private void configureParameterResolving(
           WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    configureParameterResolver(context.getBeans(ParameterResolver.class), mvcConfiguration);
+    configureParameterResolving(context.getBeans(ParameterResolvingStrategy.class), mvcConfiguration);
   }
 
   /**
-   * Configure {@link ParameterResolver}s to resolve handler method arguments
+   * Configure {@link ParameterResolvingStrategy}s to resolve handler method arguments
    *
-   * @param resolvers
+   * @param resolvingStrategies
    *         Resolvers registry
    * @param mvcConfiguration
    *         All {@link WebMvcConfiguration} object
    */
-  protected void configureParameterResolver(
-          List<ParameterResolver> resolvers, WebMvcConfiguration mvcConfiguration) {
+  protected void configureParameterResolving(
+          List<ParameterResolvingStrategy> resolvingStrategies, WebMvcConfiguration mvcConfiguration) {
     final WebApplicationContext context = obtainApplicationContext();
-    final ParameterResolvers parameterResolvers = context.getBean(ParameterResolvers.class);
-    Assert.state(parameterResolvers != null, "No ParameterResolvers");
+    final ParameterResolverRegistry registry = context.getBean(ParameterResolverRegistry.class);
+    Assert.state(registry != null, "No ParameterResolvers");
 
     // user customize multipartConfig
     final MultipartConfiguration multipartConfig = context.getBean(MultipartConfiguration.class);
@@ -322,9 +322,9 @@ public class WebApplicationLoader
 
     // User customize parameter resolver
     // ------------------------------------------
-    mvcConfiguration.configureParameterResolver(resolvers); // user configure
+    mvcConfiguration.configureParameterResolving(registry, resolvingStrategies); // user configure
 
-    parameterResolvers.addResolvers(resolvers);
+    registry.addResolvingStrategies(resolvingStrategies);
   }
 
   /**

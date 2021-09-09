@@ -26,10 +26,10 @@ import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.view.FrameworkConfigurationException;
 
 /**
- * For {@link ParameterResolver} NotFound Exception
+ * For {@link ParameterResolvingStrategy} NotFound Exception
  *
  * @author TODAY 2021/9/9 22:36
- * @see ParameterResolver
+ * @see ParameterResolvingStrategy
  * @since 4.0
  */
 @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

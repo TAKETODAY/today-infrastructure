@@ -35,7 +35,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * @see #transformValue(RequestContext, MethodParameter, Object)
  */
 public abstract class ConversionServiceParameterResolver
-        extends OrderedAbstractParameterResolver implements ParameterResolver, ConversionServiceAware {
+        extends OrderedAbstractParameterResolver implements ParameterResolvingStrategy, ConversionServiceAware {
 
   protected ConversionService conversionService = DefaultConversionService.getSharedInstance();
 

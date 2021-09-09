@@ -25,7 +25,7 @@ import cn.taketoday.core.Ordered;
  * @author TODAY <br>
  *         2019-07-14 19:36
  */
-public interface OrderedParameterResolver extends ParameterResolver, Ordered {
+public interface OrderedParameterResolver extends ParameterResolvingStrategy, Ordered {
 
   @Override
   default int getOrder() {

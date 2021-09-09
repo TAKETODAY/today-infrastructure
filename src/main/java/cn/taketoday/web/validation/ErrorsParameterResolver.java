@@ -25,14 +25,14 @@ import java.util.Set;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.ParameterResolver;
+import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 
 /**
  * @author TODAY <br>
  * 2019-07-20 17:00
  */
 public class ErrorsParameterResolver
-        extends OrderedSupport implements ParameterResolver {
+        extends OrderedSupport implements ParameterResolvingStrategy {
 
   public ErrorsParameterResolver() {
     this(HIGHEST_PRECEDENCE);

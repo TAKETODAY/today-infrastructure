@@ -36,7 +36,7 @@ import cn.taketoday.web.multipart.MultipartFile;
  * @author TODAY 2019-07-11 23:14
  */
 public abstract class AbstractMultipartResolver
-        extends AbstractParameterResolver implements ParameterResolver {
+        extends AbstractParameterResolver implements ParameterResolvingStrategy {
 
   protected final MultipartConfiguration multipartConfiguration;
 

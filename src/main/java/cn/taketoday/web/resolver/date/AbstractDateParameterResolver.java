@@ -28,14 +28,14 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.ParameterResolver;
+import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 
 /**
  * @author TODAY 2021/3/2 12:30
  * @since 3.0
  */
 public abstract class AbstractDateParameterResolver
-        extends OrderedSupport implements ParameterResolver {
+        extends OrderedSupport implements ParameterResolvingStrategy {
   static final String FORMAT_ANNOTATION_KEY = AbstractDateParameterResolver.class.getName() + "-DateTimeFormat";
 
   @Override

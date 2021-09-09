@@ -35,7 +35,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * @see <a href='https://taketoday.cn/articles/1616819014712'>TODAY Context 之 BeanPropertyAccessor</a>
  */
 public class DataBinderMapParameterResolver
-        extends AbstractDataBinderParameterResolver implements ParameterResolver {
+        extends AbstractDataBinderParameterResolver implements ParameterResolvingStrategy {
 
   public DataBinderMapParameterResolver() {
     this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 90);

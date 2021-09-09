@@ -27,7 +27,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * @author TODAY 2021/3/10 19:59
  * @since 3.0
  */
-public abstract class AbstractParameterResolver implements ParameterResolver {
+public abstract class AbstractParameterResolver implements ParameterResolvingStrategy {
 
   /**
    * @param context

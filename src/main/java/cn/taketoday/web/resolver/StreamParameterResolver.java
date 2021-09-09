@@ -33,7 +33,7 @@ import cn.taketoday.web.view.Model;
  * @author TODAY <br>
  *         2019-07-09 22:49
  */
-public class StreamParameterResolver implements ParameterResolver {
+public class StreamParameterResolver implements ParameterResolvingStrategy {
 
   @Override
   public boolean supports(final MethodParameter parameter) {

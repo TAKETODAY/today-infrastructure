@@ -30,7 +30,8 @@ import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
-import cn.taketoday.web.resolver.ParameterResolver;
+import cn.taketoday.web.resolver.ParameterResolverRegistry;
+import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.validation.WebValidator;
 import cn.taketoday.web.view.ReturnValueHandler;
 import cn.taketoday.web.view.template.AbstractTemplateRenderer;
@@ -63,9 +64,17 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   }
 
   @Override
-  public void configureParameterResolver(List<ParameterResolver> parameterResolvers) {
+  public void configureParameterResolving(List<ParameterResolvingStrategy> resolvingStrategies) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureParameterResolver(parameterResolvers);
+      webMvcConfiguration.configureParameterResolving(resolvingStrategies);
+    }
+  }
+
+  @Override
+  public void configureParameterResolving(
+          ParameterResolverRegistry resolversRegistry, List<ParameterResolvingStrategy> resolvingStrategies) {
+    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+      webMvcConfiguration.configureParameterResolving(resolversRegistry, resolvingStrategies);
     }
   }
 

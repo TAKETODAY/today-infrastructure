@@ -23,14 +23,14 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.ParameterResolver;
+import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 
 /**
  * @author TODAY <br>
  * 2019-09-27 22:36
  */
 public class WebSessionParameterResolver
-        extends WebSessionManagerSupport implements ParameterResolver, Ordered {
+        extends WebSessionManagerSupport implements ParameterResolvingStrategy, Ordered {
 
   private final OrderedSupport ordered = new OrderedSupport();
 

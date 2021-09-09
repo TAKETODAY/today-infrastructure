@@ -38,7 +38,7 @@ import cn.taketoday.web.view.RedirectModelManager;
  * @see Model
  * @see RedirectModel
  */
-public class ModelParameterResolver implements ParameterResolver {
+public class ModelParameterResolver implements ParameterResolvingStrategy {
   private final RedirectModelManager modelManager;
 
   public ModelParameterResolver(RedirectModelManager modelManager) {

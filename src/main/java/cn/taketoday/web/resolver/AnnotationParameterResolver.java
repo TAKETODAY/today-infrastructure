@@ -32,7 +32,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * @since 3.0
  */
 public abstract class AnnotationParameterResolver<A extends Annotation>
-        extends OrderedSupport implements ParameterResolver {
+        extends OrderedSupport implements ParameterResolvingStrategy {
   private final Class<A> annotationClass;
 
   public AnnotationParameterResolver(Class<A> annotationClass) {

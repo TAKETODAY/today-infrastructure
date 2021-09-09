@@ -29,29 +29,29 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.ParameterResolver;
-import cn.taketoday.web.resolver.ParameterResolvers;
+import cn.taketoday.web.resolver.ParameterResolvingStrategy;
+import cn.taketoday.web.resolver.ParameterResolverRegistry;
 
 /**
  * @author TODAY 2019-07-20 17:00
  * @see javax.validation.Valid
  */
 public class ValidationParameterResolver
-        extends OrderedSupport implements ParameterResolver {
+        extends OrderedSupport implements ParameterResolvingStrategy {
 
   /** list of validators @since 3.0 */
   private final WebValidator validator;
-  private final HashMap<MethodParameter, ParameterResolver> resolverMap = new HashMap<>();
+  private final HashMap<MethodParameter, ParameterResolvingStrategy> resolverMap = new HashMap<>();
   private static final Class<? extends Annotation> VALID_CLASS = ClassUtils.loadClass("javax.validation.Valid");
 
-  private ParameterResolvers resolvers;
+  private ParameterResolverRegistry resolvers;
 
   public ValidationParameterResolver(WebValidator validator) {
     this(HIGHEST_PRECEDENCE + 100, validator);
   }
 
   @Autowired
-  public ValidationParameterResolver(WebValidator validator, ParameterResolvers resolvers) {
+  public ValidationParameterResolver(WebValidator validator, ParameterResolverRegistry resolvers) {
     this(HIGHEST_PRECEDENCE + 100, validator, resolvers);
   }
 
@@ -60,7 +60,7 @@ public class ValidationParameterResolver
   }
 
   public ValidationParameterResolver(
-          final int order, final WebValidator validator, ParameterResolvers resolvers) {
+          final int order, final WebValidator validator, ParameterResolverRegistry resolvers) {
     super(order);
     Assert.notNull(validator, "WebValidator must not be null");
     this.validator = validator;
@@ -72,7 +72,7 @@ public class ValidationParameterResolver
 
     if (parameter.isAnnotationPresent(Validated.class)
             || parameter.isAnnotationPresent(VALID_CLASS)) {
-      for (final ParameterResolver resolver : obtainResolvers().getResolvers()) {
+      for (final ParameterResolvingStrategy resolver : obtainResolvers().getResolvingStrategies()) {
         if (resolver != this && resolver.supports(parameter)) {
           resolverMap.put(parameter, resolver);
           return true;
@@ -111,7 +111,7 @@ public class ValidationParameterResolver
   }
 
   /**
-   * Use {@link ParameterResolver#resolveParameter(RequestContext, MethodParameter)}
+   * Use {@link ParameterResolvingStrategy#resolveParameter(RequestContext, MethodParameter)}
    *
    * @return Has not been validate parameter value
    */
@@ -137,26 +137,26 @@ public class ValidationParameterResolver
     return validator;
   }
 
-  protected ParameterResolver getResolver(final MethodParameter parameter) {
+  protected ParameterResolvingStrategy getResolver(final MethodParameter parameter) {
     return resolverMap.get(parameter);
   }
 
-  public void setResolvers(ParameterResolvers resolvers) {
+  public void setResolvers(ParameterResolverRegistry resolvers) {
     this.resolvers = resolvers;
   }
 
-  public ParameterResolvers getResolvers() {
+  public ParameterResolverRegistry getResolvers() {
     return resolvers;
   }
 
-  private ParameterResolvers obtainResolvers() {
-    final ParameterResolvers ret = getResolvers();
+  private ParameterResolverRegistry obtainResolvers() {
+    final ParameterResolverRegistry ret = getResolvers();
     Assert.state(ret != null, "No ParameterResolvers.");
     return ret;
   }
 
-  private ParameterResolver obtainResolver(final MethodParameter parameter) {
-    final ParameterResolver resolver = getResolver(parameter);
+  private ParameterResolvingStrategy obtainResolver(final MethodParameter parameter) {
+    final ParameterResolvingStrategy resolver = getResolver(parameter);
     if (resolver == null) {
       throw new IllegalStateException(
               "There is not a parameter resolver in [" + resolvers + "] to resolve " + parameter);

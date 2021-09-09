@@ -32,7 +32,8 @@ import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
-import cn.taketoday.web.resolver.ParameterResolver;
+import cn.taketoday.web.resolver.ParameterResolverRegistry;
+import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.validation.WebValidator;
 import cn.taketoday.web.view.ReturnValueHandler;
 import cn.taketoday.web.view.template.AbstractTemplateRenderer;
@@ -44,12 +45,33 @@ import cn.taketoday.web.view.template.TemplateRenderer;
 public interface WebMvcConfiguration {
 
   /**
-   * Configure {@link ParameterResolver}
+   * Configure {@link ParameterResolvingStrategy}
    *
-   * @param parameterResolvers
-   *         {@link ParameterResolver} registry
+   * @param resolvingStrategies
+   *         {@link ParameterResolvingStrategy} registry
    */
-  default void configureParameterResolver(List<ParameterResolver> parameterResolvers) {}
+  default void configureParameterResolving(List<ParameterResolvingStrategy> resolvingStrategies) { }
+
+  /**
+   * Configure {@link ParameterResolvingStrategy}
+   * <p>
+   * user can add {@link ParameterResolvingStrategy} to {@code resolvingStrategies} or
+   * use {@link ParameterResolverRegistry#addResolvingStrategies(ParameterResolvingStrategy...)} or
+   * use {@link ParameterResolverRegistry#addResolvingStrategies(List)} to add ParameterResolvingStrategy
+   * </p>
+   *
+   * @param resolvingStrategies
+   *         {@link ParameterResolvingStrategy} registry
+   *
+   * @see WebApplicationLoader#configureParameterResolving(List, WebMvcConfiguration)
+   * @see ParameterResolverRegistry#addResolvingStrategies(List)
+   * @see ParameterResolverRegistry#addResolvingStrategies(ParameterResolvingStrategy...)
+   * @since 4.0
+   */
+  default void configureParameterResolving(
+          ParameterResolverRegistry registry, List<ParameterResolvingStrategy> resolvingStrategies) {
+    configureParameterResolving(resolvingStrategies);
+  }
 
   /**
    * Configure {@link ReturnValueHandler}
@@ -57,7 +79,7 @@ public interface WebMvcConfiguration {
    * @param returnValueHandlers
    *         {@link ReturnValueHandler} registry
    */
-  default void configureResultHandler(List<ReturnValueHandler> returnValueHandlers) {}
+  default void configureResultHandler(List<ReturnValueHandler> returnValueHandlers) { }
 
   /**
    * Configure {@link TemplateRenderer}
@@ -65,7 +87,7 @@ public interface WebMvcConfiguration {
    * @param viewResolver
    *         {@link TemplateRenderer} instance
    */
-  default void configureTemplateViewResolver(AbstractTemplateRenderer viewResolver) {}
+  default void configureTemplateViewResolver(AbstractTemplateRenderer viewResolver) { }
 
   /**
    * Configure static {@link Resource}
@@ -73,7 +95,7 @@ public interface WebMvcConfiguration {
    * @param registry
    *         {@link ResourceHandlerRegistry}
    */
-  default void configureResourceHandler(ResourceHandlerRegistry registry) {}
+  default void configureResourceHandler(ResourceHandlerRegistry registry) { }
 
   /**
    * Configure {@link Multipart}
@@ -81,7 +103,7 @@ public interface WebMvcConfiguration {
    * @param multipartConfiguration
    *         {@link MultipartConfiguration}
    */
-  default void configureMultipart(MultipartConfiguration multipartConfiguration) {}
+  default void configureMultipart(MultipartConfiguration multipartConfiguration) { }
 
   /**
    * Use {@link TypeConverter}s to convert request parameters
@@ -89,7 +111,7 @@ public interface WebMvcConfiguration {
    * @param typeConverters
    *         {@link TypeConverter} registry
    */
-  default void configureConversionService(List<TypeConverter> typeConverters) {}
+  default void configureConversionService(List<TypeConverter> typeConverters) { }
 
   /**
    * Configure WebApplicationInitializer
@@ -97,7 +119,7 @@ public interface WebMvcConfiguration {
    * @param initializers
    *         WebApplicationInitializer register
    */
-  default void configureInitializer(List<WebApplicationInitializer> initializers) {}
+  default void configureInitializer(List<WebApplicationInitializer> initializers) { }
 
   /**
    * Configure Freemarker's {@link freemarker.cache.TemplateLoader} s
@@ -108,7 +130,7 @@ public interface WebMvcConfiguration {
    *
    * @since 2.3.7
    */
-  default <T> void configureTemplateLoader(List<T> loaders) {}
+  default <T> void configureTemplateLoader(List<T> loaders) { }
 
   /**
    * Configure {@link ViewController} s
@@ -118,7 +140,7 @@ public interface WebMvcConfiguration {
    *
    * @since 2.3.7
    */
-  default void configureViewController(ViewControllerHandlerRegistry registry) {}
+  default void configureViewController(ViewControllerHandlerRegistry registry) { }
 
   /**
    * Configure Function Handler
@@ -128,7 +150,7 @@ public interface WebMvcConfiguration {
    *
    * @since 2.3.7
    */
-  default void configureFunctionHandler(FunctionHandlerRegistry registry) {}
+  default void configureFunctionHandler(FunctionHandlerRegistry registry) { }
 
   /**
    * Configure {@link HandlerAdapter}
@@ -138,7 +160,7 @@ public interface WebMvcConfiguration {
    *
    * @since 2.3.7
    */
-  default void configureHandlerAdapter(List<HandlerAdapter> adapters) {}
+  default void configureHandlerAdapter(List<HandlerAdapter> adapters) { }
 
   /**
    * Configure {@link HandlerRegistry}
@@ -148,7 +170,7 @@ public interface WebMvcConfiguration {
    *
    * @since 2.3.7
    */
-  default void configureHandlerRegistry(List<HandlerRegistry> handlerRegistries) {}
+  default void configureHandlerRegistry(List<HandlerRegistry> handlerRegistries) { }
 
   /**
    * Configure {@link HandlerExceptionHandler}
@@ -158,7 +180,7 @@ public interface WebMvcConfiguration {
    *
    * @since 3.0
    */
-  default void configureExceptionHandlers(List<HandlerExceptionHandler> handlers) {}
+  default void configureExceptionHandlers(List<HandlerExceptionHandler> handlers) { }
 
   /**
    * Configure {@link WebValidator}
@@ -168,6 +190,6 @@ public interface WebMvcConfiguration {
    *
    * @since 3.0
    */
-  default void configureValidators(WebValidator validator) {}
+  default void configureValidators(WebValidator validator) { }
 
 }

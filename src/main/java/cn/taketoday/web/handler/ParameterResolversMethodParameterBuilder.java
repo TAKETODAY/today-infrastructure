@@ -22,7 +22,7 @@ package cn.taketoday.web.handler;
 
 import java.lang.reflect.Parameter;
 
-import cn.taketoday.web.resolver.ParameterResolvers;
+import cn.taketoday.web.resolver.ParameterResolverRegistry;
 
 /**
  * ParameterResolvers MethodParametersBuilder
@@ -31,26 +31,26 @@ import cn.taketoday.web.resolver.ParameterResolvers;
  * @since 3.0.1
  */
 public class ParameterResolversMethodParameterBuilder extends MethodParametersBuilder {
-  private ParameterResolvers parameterResolvers;
+  private ParameterResolverRegistry resolversRegistry;
 
   public ParameterResolversMethodParameterBuilder() {
-    this(new ParameterResolvers());
+    this(new ParameterResolverRegistry());
   }
 
-  public ParameterResolversMethodParameterBuilder(ParameterResolvers parameterResolvers) {
-    this.parameterResolvers = parameterResolvers;
+  public ParameterResolversMethodParameterBuilder(ParameterResolverRegistry resolversRegistry) {
+    this.resolversRegistry = resolversRegistry;
   }
 
   @Override
   protected MethodParameter createParameter(String methodArgsName, Parameter parameter, int index) {
-    return new ParameterResolverMethodParameter(index, parameter, methodArgsName, parameterResolvers);
+    return new ParameterResolverMethodParameter(index, parameter, methodArgsName, resolversRegistry);
   }
 
-  public void setParameterResolvers(ParameterResolvers parameterResolvers) {
-    this.parameterResolvers = parameterResolvers;
+  public void setParameterResolvers(ParameterResolverRegistry resolversRegistry) {
+    this.resolversRegistry = resolversRegistry;
   }
 
-  public ParameterResolvers getParameterResolvers() {
-    return parameterResolvers;
+  public ParameterResolverRegistry getParameterResolvers() {
+    return resolversRegistry;
   }
 }

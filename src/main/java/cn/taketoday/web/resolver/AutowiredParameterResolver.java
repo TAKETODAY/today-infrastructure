@@ -32,7 +32,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * @since 3.0
  */
 public class AutowiredParameterResolver
-        extends AbstractParameterResolver implements ParameterResolver {
+        extends AbstractParameterResolver implements ParameterResolvingStrategy {
   private final WebApplicationContext context;
 
   public AutowiredParameterResolver(WebApplicationContext context) {

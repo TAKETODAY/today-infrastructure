@@ -31,7 +31,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * 2019-07-12 22:23
  */
 public class RequestBodyParameterResolver
-        extends OrderedAbstractParameterResolver implements ParameterResolver {
+        extends OrderedAbstractParameterResolver implements ParameterResolvingStrategy {
 
   private MessageBodyConverter messageBodyConverter;
 

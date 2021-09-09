@@ -33,7 +33,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * 2019-07-12 23:39
  */
 public class CookieParameterResolver
-        extends AbstractParameterResolver implements ParameterResolver {
+        extends AbstractParameterResolver implements ParameterResolvingStrategy {
 
   @Override
   public boolean supports(final MethodParameter parameter) {
@@ -57,7 +57,7 @@ public class CookieParameterResolver
     return null;
   }
 
-  public static void register(List<ParameterResolver> resolvers) {
+  public static void register(List<ParameterResolvingStrategy> resolvers) {
     resolvers.add(new CookieParameterResolver());
     resolvers.add(new CookieArrayParameterResolver());
     resolvers.add(new CookieAnnotationParameterResolver());
@@ -86,7 +86,7 @@ public class CookieParameterResolver
     }
   }
 
-  private static class CookieArrayParameterResolver implements ParameterResolver {
+  private static class CookieArrayParameterResolver implements ParameterResolvingStrategy {
 
     @Override
     public boolean supports(MethodParameter parameter) {
@@ -100,7 +100,7 @@ public class CookieParameterResolver
   }
 
   private static class CookieCollectionParameterResolver
-          extends CollectionParameterResolver implements ParameterResolver {
+          extends CollectionParameterResolver implements ParameterResolvingStrategy {
 
     @Override
     protected boolean supportsInternal(MethodParameter parameter) {

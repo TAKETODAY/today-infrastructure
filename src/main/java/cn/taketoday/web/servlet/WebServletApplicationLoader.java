@@ -54,7 +54,7 @@ import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.config.WebApplicationLoader;
 import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.handler.DispatcherHandler;
-import cn.taketoday.web.resolver.ParameterResolver;
+import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.resolver.ServletParameterResolvers;
 import cn.taketoday.web.servlet.initializer.DispatcherServletInitializer;
 import cn.taketoday.web.servlet.initializer.WebFilterInitializer;
@@ -205,10 +205,10 @@ public class WebServletApplicationLoader
   }
 
   @Override
-  protected void configureParameterResolver(List<ParameterResolver> resolvers, WebMvcConfiguration mvcConfiguration) {
+  protected void configureParameterResolving(List<ParameterResolvingStrategy> resolvingStrategies, WebMvcConfiguration mvcConfiguration) {
     // register servlet env resolvers
-    ServletParameterResolvers.register(resolvers, getServletContext());
-    super.configureParameterResolver(resolvers, mvcConfiguration);
+    ServletParameterResolvers.register(resolvingStrategies, getServletContext());
+    super.configureParameterResolving(resolvingStrategies, mvcConfiguration);
   }
 
   @Override

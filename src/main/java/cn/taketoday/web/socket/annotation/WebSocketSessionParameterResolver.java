@@ -23,7 +23,7 @@ package cn.taketoday.web.socket.annotation;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.http.BadRequestException;
-import cn.taketoday.web.resolver.ParameterResolver;
+import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.socket.WebSocketSession;
 
 /**
@@ -32,7 +32,7 @@ import cn.taketoday.web.socket.WebSocketSession;
  * @author TODAY 2021/5/12 21:58
  * @since 3.0.1
  */
-public class WebSocketSessionParameterResolver implements ParameterResolver {
+public class WebSocketSessionParameterResolver implements ParameterResolvingStrategy {
 
   @Override
   public boolean supports(MethodParameter parameter) {

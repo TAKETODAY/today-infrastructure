@@ -29,7 +29,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * 2019-07-17 22:41
  */
 public class ThrowableHandlerParameterResolver
-        extends OrderedSupport implements ParameterResolver {
+        extends OrderedSupport implements ParameterResolvingStrategy {
 
   public ThrowableHandlerParameterResolver() {
     this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 60);

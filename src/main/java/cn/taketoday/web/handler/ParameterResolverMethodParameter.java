@@ -22,25 +22,25 @@ package cn.taketoday.web.handler;
 import java.lang.reflect.Parameter;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.resolver.ParameterResolver;
-import cn.taketoday.web.resolver.ParameterResolvers;
+import cn.taketoday.web.resolver.ParameterResolvingStrategy;
+import cn.taketoday.web.resolver.ParameterResolverRegistry;
 
 /**
  * @author TODAY 2020/9/26 20:06
  * @since 3.0
  */
 public class ParameterResolverMethodParameter extends MethodParameter {
-  private final ParameterResolvers resolvers;
-  private ParameterResolver resolver;
+  private final ParameterResolverRegistry resolvers;
+  private ParameterResolvingStrategy resolver;
 
   public ParameterResolverMethodParameter(
-          HandlerMethod handler, MethodParameter other, ParameterResolvers resolvers) {
+          HandlerMethod handler, MethodParameter other, ParameterResolverRegistry resolvers) {
     super(handler, other);
     this.resolvers = resolvers;
   }
 
   public ParameterResolverMethodParameter(
-          int index, Parameter parameter, String parameterName, ParameterResolvers resolvers) {
+          int index, Parameter parameter, String parameterName, ParameterResolverRegistry resolvers) {
     super(index, parameter, parameterName);
     this.resolvers = resolvers;
   }
@@ -50,10 +50,10 @@ public class ParameterResolverMethodParameter extends MethodParameter {
     return obtainResolver().resolveParameter(request, this);
   }
 
-  public final ParameterResolver obtainResolver() {
-    ParameterResolver resolver = this.resolver;
+  public final ParameterResolvingStrategy obtainResolver() {
+    ParameterResolvingStrategy resolver = this.resolver;
     if (resolver == null) {
-      resolver = resolvers.obtainResolver(this);
+      resolver = resolvers.obtainResolvingStrategy(this);
       this.resolver = resolver;
     }
     return resolver;

@@ -30,7 +30,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * 2019-07-09 22:49
  */
 public abstract class CollectionParameterResolver
-        extends AbstractParameterResolver implements ParameterResolver {
+        extends AbstractParameterResolver implements ParameterResolvingStrategy {
 
   @Override
   public final boolean supports(final MethodParameter parameter) {

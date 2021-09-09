@@ -42,7 +42,7 @@ import cn.taketoday.web.servlet.ServletUtils;
  */
 public class ServletParameterResolvers {
 
-  public static void register(List<ParameterResolver> resolvers, ServletContext context) {
+  public static void register(List<ParameterResolvingStrategy> resolvers, ServletContext context) {
     // Servlet cookies parameter
     // ----------------------------
     resolvers.add(new ServletCookieParameterResolver());
@@ -60,7 +60,7 @@ public class ServletParameterResolvers {
     resolvers.add(new ServletContextAttributeParameterResolver(context));
   }
 
-  static class ServletRequestParameterResolver implements ParameterResolver {
+  static class ServletRequestParameterResolver implements ParameterResolvingStrategy {
 
     @Override
     public boolean supports(final MethodParameter parameter) {
@@ -73,7 +73,7 @@ public class ServletParameterResolvers {
     }
   }
 
-  static class ServletResponseParameterResolver implements ParameterResolver {
+  static class ServletResponseParameterResolver implements ParameterResolvingStrategy {
 
     @Override
     public boolean supports(final MethodParameter parameter) {
@@ -86,7 +86,7 @@ public class ServletParameterResolvers {
     }
   }
 
-  static class HttpSessionParameterResolver implements ParameterResolver {
+  static class HttpSessionParameterResolver implements ParameterResolvingStrategy {
 
     @Override
     public boolean supports(final MethodParameter parameter) {
@@ -100,7 +100,7 @@ public class ServletParameterResolvers {
     }
   }
 
-  static class HttpSessionAttributeParameterResolver implements ParameterResolver {
+  static class HttpSessionAttributeParameterResolver implements ParameterResolvingStrategy {
 
     @Override
     public boolean supports(MethodParameter parameter) {
@@ -117,7 +117,7 @@ public class ServletParameterResolvers {
     }
   }
 
-  static class ServletContextParameterResolver implements ParameterResolver {
+  static class ServletContextParameterResolver implements ParameterResolvingStrategy {
 
     private final ServletContext servletContext;
 
@@ -138,7 +138,7 @@ public class ServletParameterResolvers {
 
   // ------------- cookie
 
-  static class ServletCookieParameterResolver implements ParameterResolver {
+  static class ServletCookieParameterResolver implements ParameterResolvingStrategy {
 
     @Override
     public boolean supports(final MethodParameter parameter) {
@@ -163,7 +163,7 @@ public class ServletParameterResolvers {
   }
 
   static class ServletCookieCollectionParameterResolver
-          extends CollectionParameterResolver implements ParameterResolver {
+          extends CollectionParameterResolver implements ParameterResolvingStrategy {
 
     @Override
     protected boolean supportsInternal(MethodParameter parameter) {
@@ -180,7 +180,7 @@ public class ServletParameterResolvers {
     }
   }
 
-  static class ServletCookieArrayParameterResolver implements ParameterResolver {
+  static class ServletCookieArrayParameterResolver implements ParameterResolvingStrategy {
 
     @Override
     public boolean supports(MethodParameter parameter) {
@@ -193,7 +193,7 @@ public class ServletParameterResolvers {
     }
   }
 
-  static class ServletContextAttributeParameterResolver implements ParameterResolver {
+  static class ServletContextAttributeParameterResolver implements ParameterResolvingStrategy {
     private final ServletContext servletContext;
 
     public ServletContextAttributeParameterResolver(ServletContext servletContext) {

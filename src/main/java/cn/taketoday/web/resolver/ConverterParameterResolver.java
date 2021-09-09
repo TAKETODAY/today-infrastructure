@@ -30,7 +30,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * 2019-07-13 12:58
  */
 public class ConverterParameterResolver
-        extends AbstractParameterResolver implements ParameterResolver, Ordered {
+        extends AbstractParameterResolver implements ParameterResolvingStrategy, Ordered {
   private final OrderedSupport order = new OrderedSupport();
   private final SupportsFunction supports;
   private final Converter<String, Object> converter;

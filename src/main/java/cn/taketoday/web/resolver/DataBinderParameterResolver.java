@@ -98,18 +98,18 @@ import cn.taketoday.web.multipart.MultipartFile;
  * @author TODAY 2019-07-13 01:11
  */
 public class DataBinderParameterResolver
-        extends OrderedSupport implements ParameterResolver, ConversionServiceAware {
+        extends OrderedSupport implements ParameterResolvingStrategy, ConversionServiceAware {
   public static final String ANNOTATED_RESOLVERS_KEY = AnnotatedPropertyResolver.class.getName() + "-annotated-property-resolvers";
 
   private ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
-  private ParameterResolvers resolvers;
+  private ParameterResolverRegistry resolvers;
 
   public DataBinderParameterResolver() {
     setOrder(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 200);
   }
 
-  public DataBinderParameterResolver(ParameterResolvers resolvers) {
+  public DataBinderParameterResolver(ParameterResolverRegistry resolvers) {
     this();
     this.resolvers = resolvers;
   }
@@ -129,7 +129,7 @@ public class DataBinderParameterResolver
     return false;
   }
 
-  static void setAttribute(MethodParameter parameter, ParameterResolvers resolvers) {
+  static void setAttribute(MethodParameter parameter, ParameterResolverRegistry resolvers) {
     if (resolvers != null) {
       // supports annotated-property-resolvers
       ArrayList<AnnotatedPropertyResolver> resolverList = new ArrayList<>();
@@ -201,7 +201,7 @@ public class DataBinderParameterResolver
     }
   }
 
-  public void setResolvers(ParameterResolvers resolvers) {
+  public void setResolvers(ParameterResolverRegistry resolvers) {
     this.resolvers = resolvers;
   }
 
@@ -218,17 +218,17 @@ public class DataBinderParameterResolver
   static final class AnnotatedPropertyResolver {
 
     final String propertyName;
-    final ParameterResolver resolver;
+    final ParameterResolvingStrategy resolver;
     final AnnotationBinderParameter parameter;
 
     /**
      * @throws IllegalStateException
      *         If there isn't a suitable resolver
      */
-    AnnotatedPropertyResolver(MethodParameter other, Field field, ParameterResolvers resolvers) {
+    AnnotatedPropertyResolver(MethodParameter other, Field field, ParameterResolverRegistry resolvers) {
       this.propertyName = field.getName();// TODO BeanMetadata#getPropertyName
       this.parameter = new AnnotationBinderParameter(other, field);
-      this.resolver = resolvers.obtainResolver(this.parameter);
+      this.resolver = resolvers.obtainResolvingStrategy(this.parameter);
     }
 
     public PropertyValue resolve(RequestContext context) throws Throwable {

@@ -25,7 +25,7 @@ import java.time.temporal.TemporalAccessor;
 
 import cn.taketoday.util.DateUtils;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.ParameterResolver;
+import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 
 /**
  * for {@link LocalDate}
@@ -34,7 +34,7 @@ import cn.taketoday.web.resolver.ParameterResolver;
  * @since 3.0
  */
 public class LocalDateParameterResolver
-        extends AbstractJavaTimeParameterResolver implements ParameterResolver {
+        extends AbstractJavaTimeParameterResolver implements ParameterResolvingStrategy {
 
   @Override
   public boolean supports(MethodParameter parameter) {

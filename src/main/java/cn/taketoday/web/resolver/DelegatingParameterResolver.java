@@ -28,18 +28,18 @@ import cn.taketoday.web.handler.MethodParameter;
  * 2019-07-15 13:01
  */
 public final class DelegatingParameterResolver
-        extends OrderedSupport implements ParameterResolver {
+        extends OrderedSupport implements ParameterResolvingStrategy {
 
   private final SupportsFunction function;
-  private final ParameterResolver resolver;
+  private final ParameterResolvingStrategy resolver;
 
   public DelegatingParameterResolver(SupportsFunction function,
-                                     ParameterResolver resolver) {
+                                     ParameterResolvingStrategy resolver) {
     this(function, resolver, LOWEST_PRECEDENCE);
   }
 
   public DelegatingParameterResolver(SupportsFunction function,
-                                     ParameterResolver resolver, int order) {
+                                     ParameterResolvingStrategy resolver, int order) {
     this.function = function;
     this.resolver = resolver;
     setOrder(order);
@@ -56,12 +56,12 @@ public final class DelegatingParameterResolver
   }
 
   public static DelegatingParameterResolver delegate(SupportsFunction supports,
-                                                     ParameterResolver resolver) {
+                                                     ParameterResolvingStrategy resolver) {
     return new DelegatingParameterResolver(supports, resolver);
   }
 
   public static DelegatingParameterResolver delegate(SupportsFunction supports,
-                                                     ParameterResolver resolver, int order) {
+                                                     ParameterResolvingStrategy resolver, int order) {
     return new DelegatingParameterResolver(supports, resolver, order);
   }
 }

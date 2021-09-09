@@ -27,7 +27,7 @@ import java.util.Date;
 import cn.taketoday.core.DateTimeFormat;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.ParameterResolver;
+import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 
 /**
  * for {@link Date}
@@ -36,7 +36,7 @@ import cn.taketoday.web.resolver.ParameterResolver;
  * @since 3.0
  */
 public class DateParameterResolver
-        extends AbstractDateParameterResolver implements ParameterResolver {
+        extends AbstractDateParameterResolver implements ParameterResolvingStrategy {
 
   private String defaultPattern = "yyyy-MM-dd HH:mm:ss";
 

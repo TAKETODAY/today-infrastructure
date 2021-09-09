@@ -42,8 +42,11 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestParam;
 
 /**
+ * Abstraction for Parameter
+ *
  * @author TODAY
- * @version 2.3.7 <br>
+ * @see Parameter
+ * @since 2.3.7
  */
 public class MethodParameter
         extends AttributeAccessorSupport implements AnnotationSupport {

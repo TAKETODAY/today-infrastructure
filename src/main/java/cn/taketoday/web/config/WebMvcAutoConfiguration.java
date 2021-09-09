@@ -31,8 +31,8 @@ import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.NotFoundRequestAdapter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.HandlerMethodRegistry;
-import cn.taketoday.web.resolver.ParameterResolver;
-import cn.taketoday.web.resolver.ParameterResolvers;
+import cn.taketoday.web.resolver.ParameterResolvingStrategy;
+import cn.taketoday.web.resolver.ParameterResolverRegistry;
 import cn.taketoday.web.view.ReturnValueHandler;
 import cn.taketoday.web.view.ReturnValueHandlers;
 
@@ -72,15 +72,15 @@ public class WebMvcAutoConfiguration {
   }
 
   /**
-   * default {@link ParameterResolver} registry
+   * default {@link ParameterResolvingStrategy} registry
    */
   @MissingBean
-  ParameterResolvers parameterResolvers(WebApplicationContext context) {
-    final ParameterResolvers parameterResolvers = new ParameterResolvers();
-    parameterResolvers.setApplicationContext(context);
+  ParameterResolverRegistry parameterResolvers(WebApplicationContext context) {
+    final ParameterResolverRegistry resolversRegistry = new ParameterResolverRegistry();
+    resolversRegistry.setApplicationContext(context);
     // @since 3.0
-    parameterResolvers.registerDefaultParameterResolvers();
-    return parameterResolvers;
+    resolversRegistry.registerDefaultParameterResolvers();
+    return resolversRegistry;
   }
 
   @MissingBean
