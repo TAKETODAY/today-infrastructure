@@ -35,6 +35,7 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.ConversionServiceAware;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.OrderUtils;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.RequestContext;
@@ -82,23 +83,31 @@ public class ParameterResolvers extends WebApplicationContextSupport {
    */
   private ConversionService conversionService;
 
-  public void addResolver(ParameterResolver... resolver) {
+  public void addResolvers(ParameterResolver... resolver) {
     Collections.addAll(resolvers, resolver);
-    resolvers.trimToSize();
+    trimToSize();
     sort();
   }
 
-  public void addResolver(List<ParameterResolver> resolvers) {
+  public void addResolvers(List<ParameterResolver> resolvers) {
     this.resolvers.addAll(resolvers);
-    this.resolvers.trimToSize();
+    trimToSize();
     sort();
   }
 
-  public void setResolver(List<ParameterResolver> resolver) {
+  /**
+   * set or clear resolvers
+   *
+   * @param resolver
+   *         can be null
+   */
+  public void setResolvers(@Nullable List<ParameterResolver> resolver) {
     resolvers.clear();
-    resolvers.addAll(resolver);
-    resolvers.trimToSize();
-    sort();
+    if (!CollectionUtils.isEmpty(resolver)) {
+      resolvers.addAll(resolver);
+      trimToSize();
+      sort();
+    }
   }
 
   public List<ParameterResolver> getResolvers() {
@@ -341,7 +350,7 @@ public class ParameterResolvers extends WebApplicationContextSupport {
    *
    * @since 4.0
    */
-  public void applyConversionService(ConversionService conversionService) {
+  public void applyConversionService(@Nullable ConversionService conversionService) {
     setConversionService(conversionService);
     applyConversionService(conversionService, resolvers);
   }

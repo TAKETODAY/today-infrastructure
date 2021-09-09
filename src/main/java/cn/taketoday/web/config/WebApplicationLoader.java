@@ -324,7 +324,7 @@ public class WebApplicationLoader
     // ------------------------------------------
     mvcConfiguration.configureParameterResolver(resolvers); // user configure
 
-    parameterResolvers.addResolver(resolvers);
+    parameterResolvers.addResolvers(resolvers);
   }
 
   /**
