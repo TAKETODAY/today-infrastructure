@@ -7,8 +7,7 @@
 [![Author](https://img.shields.io/badge/Author-TODAY-blue.svg)](https://github.com/TAKETODAY)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3ad5eed64065496fba9244d149820f67)](https://www.codacy.com/app/TAKETODAY/today-context?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TAKETODAY/today-context&amp;utm_campaign=Badge_Grade)
 [![GitHub CI](https://github.com/TAKETODAY/today-framework/workflows/GitHub%20CI/badge.svg)](https://github.com/TAKETODAY/today-framework/actions)
-[![Travis CI](https://travis-ci.org/TAKETODAY/today-context.svg?branch=master)](https://travis-ci.org/TAKETODAY/today-context)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/3ad5eed64065496fba9244d149820f67)](https://www.codacy.com/gh/TAKETODAY/today-framework/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TAKETODAY/today-framework&amp;utm_campaign=Badge_Grade)
+[![Build Status](https://app.travis-ci.com/TAKETODAY/today-framework.svg?branch=master)](https://app.travis-ci.com/TAKETODAY/today-framework)[![Codacy Badge](https://app.codacy.com/project/badge/Grade/3ad5eed64065496fba9244d149820f67)](https://www.codacy.com/gh/TAKETODAY/today-framework/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TAKETODAY/today-framework&amp;utm_campaign=Badge_Grade)
 
 **You ask me what the elegant code looks like? Then I have to show it!**
 
