@@ -97,7 +97,7 @@ public class TypeDescriptor implements Serializable {
   public TypeDescriptor(ResolvableType resolvableType, @Nullable Class<?> type, @Nullable Annotation[] annotations) {
     this.resolvableType = resolvableType;
     this.type = (type != null ? type : resolvableType.toClass());
-    this.annotatedElement = new AnnotatedElementAdapter(annotations);
+    this.annotatedElement = new TypeDescriptorAnnotatedElementAdapter(annotations);
   }
 
   /**
@@ -753,9 +753,9 @@ public class TypeDescriptor implements Serializable {
    * @see AnnotationUtils#isPresent(AnnotatedElement, Class)
    * @see AnnotationUtils#getAnnotation(AnnotatedElement, Class)
    */
-  class AnnotatedElementAdapter extends cn.taketoday.util.AnnotatedElementAdapter {
+  class TypeDescriptorAnnotatedElementAdapter extends AnnotatedElementAdapter {
 
-    public AnnotatedElementAdapter(Annotation[] annotations) {
+    public TypeDescriptorAnnotatedElementAdapter(Annotation[] annotations) {
       super(annotations);
     }
 

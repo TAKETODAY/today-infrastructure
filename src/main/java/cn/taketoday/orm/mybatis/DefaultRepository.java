@@ -26,17 +26,15 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * @author TODAY <br>
- *         2018-10-10 19:40
+ * @author TODAY 2018-10-10 19:40
  */
-public interface DefaultRepository<M, ID extends Serializable> {
+public interface DefaultRepository<M, Id extends Serializable> {
 
   /**
    * Save entity to database
    *
    * @param model
-   *            entity bean
-   * @return
+   *         entity bean
    */
   void save(M model);
 
@@ -44,7 +42,7 @@ public interface DefaultRepository<M, ID extends Serializable> {
    * Save entities to database
    *
    * @param models
-   *            entity beans
+   *         entity beans
    */
   void saveAll(@Param("models") Collection<M> models);
 
@@ -61,8 +59,7 @@ public interface DefaultRepository<M, ID extends Serializable> {
   void delete(M model);
 
   /**
-   *
-   * @param model
+   * @param models
    */
   void deleteAll(@Param("models") Collection<M> models);
 
@@ -71,7 +68,7 @@ public interface DefaultRepository<M, ID extends Serializable> {
   /**
    * @param id
    */
-  void deleteById(ID id);
+  void deleteById(Id id);
 
   /**
    * @param model
@@ -85,7 +82,7 @@ public interface DefaultRepository<M, ID extends Serializable> {
 
   int getTotalRecord();
 
-  M findById(ID id);
+  M findById(Id id);
 
   List<M> findAll();
 

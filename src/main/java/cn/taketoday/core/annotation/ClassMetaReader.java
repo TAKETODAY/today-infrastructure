@@ -316,13 +316,13 @@ public class ClassMetaReader {
     }
   }
 
-  public static <T extends Annotation>
-  AnnotationAttributes selectAttributes(AnnotatedElement element, Class<T> targetClass) {
+  public static <T extends Annotation> AnnotationAttributes selectAttributes(
+          AnnotatedElement element, Class<T> targetClass) {
     return selectAttributes(readAnnotations(element), targetClass);
   }
 
-  public static <T extends Annotation>
-  AnnotationAttributes selectAttributes(AnnotationAttributes[] attributes, Class<T> targetClass) {
+  public static <T extends Annotation> AnnotationAttributes selectAttributes(
+          AnnotationAttributes[] attributes, Class<T> targetClass) {
     for (final AnnotationAttributes attribute : attributes) {
       if (attribute.annotationType() == targetClass) {
         return attribute;
@@ -464,11 +464,12 @@ public class ClassMetaReader {
       result.append('(');
       boolean firstMember = true;
       for (Map.Entry<String, Object> e : attributes.entrySet()) {
-        if (firstMember)
+        if (firstMember) {
           firstMember = false;
-        else
+        }
+        else {
           result.append(", ");
-
+        }
         result.append(e.getKey());
         result.append('=');
         result.append(memberValueToString(e.getValue()));
@@ -482,10 +483,10 @@ public class ClassMetaReader {
      */
     private static String memberValueToString(Object value) {
       Class<?> type = value.getClass();
-      if (!type.isArray())    // primitive, string, class, enum const,
+      if (!type.isArray()) {// primitive, string, class, enum const,
         // or annotation
         return value.toString();
-
+      }
       if (type == byte[].class)
         return Arrays.toString((byte[]) value);
       if (type == char[].class)
@@ -509,11 +510,14 @@ public class ClassMetaReader {
      * Implementation of dynamicProxy.equals(Object o)
      */
     private Boolean equalsImpl(Object o) {
-      if (o == this)
+      if (o == this) {
         return true;
+      }
 
-      if (!type.isInstance(o))
+      if (!type.isInstance(o)) {
         return false;
+      }
+      AnnotationAttributes attributes = this.attributes;
       for (Method memberMethod : getMemberMethods()) {
         String member = memberMethod.getName();
         Object ourValue = attributes.get(member);
@@ -533,8 +537,9 @@ public class ClassMetaReader {
             throw new AssertionError(e);
           }
         }
-        if (!memberValueEquals(ourValue, hisValue))
+        if (!memberValueEquals(ourValue, hisValue)) {
           return false;
+        }
       }
       return true;
     }
@@ -547,8 +552,9 @@ public class ClassMetaReader {
     private AnnotationInvocationHandler asOneOfUs(Object o) {
       if (Proxy.isProxyClass(o.getClass())) {
         InvocationHandler handler = Proxy.getInvocationHandler(o);
-        if (handler instanceof AnnotationInvocationHandler)
+        if (handler instanceof AnnotationInvocationHandler) {
           return (AnnotationInvocationHandler) handler;
+        }
       }
       return null;
     }
@@ -566,18 +572,20 @@ public class ClassMetaReader {
 
       // Check for primitive, string, class, enum const, annotation,
       // or ExceptionProxy
-      if (!type.isArray())
+      if (!type.isArray()) {
         return v1.equals(v2);
-
+      }
       // Check for array of string, class, enum const, annotation,
       // or ExceptionProxy
-      if (v1 instanceof Object[] && v2 instanceof Object[])
+      if (v1 instanceof Object[] && v2 instanceof Object[]) {
         return Arrays.equals((Object[]) v1, (Object[]) v2);
+      }
 
       // Check for ill formed annotation(s)
 
-      if (v2 == null || v2.getClass() != type)
+      if (v2 == null || v2.getClass() != type) {
         return false;
+      }
 
       // Deal with array of primitives
       if (type == byte[].class)
@@ -605,6 +613,7 @@ public class ClassMetaReader {
      * be rare).
      */
     private Method[] getMemberMethods() {
+      Method[] memberMethods = this.memberMethods;
       if (memberMethods == null) {
         memberMethods = AccessController.doPrivileged(
                 new PrivilegedAction<Method[]>() {
@@ -615,6 +624,7 @@ public class ClassMetaReader {
                     return mm;
                   }
                 });
+        this.memberMethods = memberMethods;
       }
       return memberMethods;
     }
@@ -645,10 +655,10 @@ public class ClassMetaReader {
          * production, a method declaration in an annotation type
          * declaration cannot be default or static."
          */
-        if (method.getModifiers() != (Modifier.PUBLIC | Modifier.ABSTRACT) ||
-                method.isDefault() ||
-                method.getParameterCount() != 0 ||
-                method.getExceptionTypes().length != 0) {
+        if (method.getModifiers() != (Modifier.PUBLIC | Modifier.ABSTRACT)
+                || method.isDefault()
+                || method.getParameterCount() != 0
+                || method.getExceptionTypes().length != 0) {
           valid = false;
           break;
         }
@@ -671,11 +681,11 @@ public class ClassMetaReader {
           }
         }
 
-        if (!((returnType.isPrimitive() && returnType != void.class) ||
-                returnType == java.lang.String.class ||
-                returnType == java.lang.Class.class ||
-                returnType.isEnum() ||
-                returnType.isAnnotation())) {
+        if (!((returnType.isPrimitive() && returnType != void.class)
+                || returnType == String.class
+                || returnType == Class.class
+                || returnType.isEnum()
+                || returnType.isAnnotation())) {
           valid = false;
           break;
         }
@@ -685,7 +695,7 @@ public class ClassMetaReader {
          * annotation type has a signature that is
          * override-equivalent to that of any public or protected
          * method declared in class Object or in the interface
-         * java.lang.annotation.Annotation."
+         * annotation.Annotation."
          *
          * The methods in Object or Annotation meeting the other
          * criteria (no arguments, contrained return type, etc.)
@@ -696,9 +706,9 @@ public class ClassMetaReader {
          * Class<? extends Annotation> annotationType()
          */
         String methodName = method.getName();
-        if ((methodName.equals("toString") && returnType == java.lang.String.class) ||
+        if ((methodName.equals("toString") && returnType == String.class) ||
                 (methodName.equals("hashCode") && returnType == int.class) ||
-                (methodName.equals("annotationType") && returnType == java.lang.Class.class)) {
+                (methodName.equals("annotationType") && returnType == Class.class)) {
           valid = false;
           break;
         }
@@ -723,10 +733,10 @@ public class ClassMetaReader {
      */
     private static int memberValueHashCode(Object value) {
       Class<?> type = value.getClass();
-      if (!type.isArray())    // primitive, string, class, enum const,
+      if (!type.isArray()) {// primitive, string, class, enum const,
         // or annotation
         return value.hashCode();
-
+      }
       if (type == byte[].class)
         return Arrays.hashCode((byte[]) value);
       if (type == char[].class)
