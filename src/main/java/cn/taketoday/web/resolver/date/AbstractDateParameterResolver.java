@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.resolver.date;
 
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.DateTimeFormat;
 import cn.taketoday.core.EmptyObject;
 import cn.taketoday.core.OrderedSupport;
@@ -33,9 +34,12 @@ import cn.taketoday.web.resolver.ParameterResolver;
  * @author TODAY 2021/3/2 12:30
  * @since 3.0
  */
-public class AbstractDateParameterResolver
+public abstract class AbstractDateParameterResolver
         extends OrderedSupport implements ParameterResolver {
   static final String FORMAT_ANNOTATION_KEY = AbstractDateParameterResolver.class.getName() + "-DateTimeFormat";
+
+  @Override
+  public abstract boolean supports(MethodParameter parameter);
 
   @Override
   public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
@@ -60,6 +64,7 @@ public class AbstractDateParameterResolver
       DateTimeFormat ret = parameter.getAnnotation(DateTimeFormat.class);
       if (ret == null) {
         final HandlerMethod handlerMethod = parameter.getHandlerMethod();
+        Assert.state(handlerMethod != null, "No HandlerMethod.");
         ret = handlerMethod.getMethodAnnotation(DateTimeFormat.class);
         if (ret == null) {
           ret = handlerMethod.getDeclaringClassAnnotation(DateTimeFormat.class);

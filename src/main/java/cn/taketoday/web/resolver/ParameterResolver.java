@@ -27,15 +27,12 @@ import cn.taketoday.web.handler.MethodParameter;
  * @author TODAY <br>
  * 2019-07-07 23:24
  */
-@FunctionalInterface
 public interface ParameterResolver {
 
   /**
    * Whether the given parameter is supported by this resolver.
    */
-  default boolean supports(MethodParameter parameter) {
-    return true;
-  }
+  boolean supports(MethodParameter parameter);
 
   /**
    * Resolve parameter
