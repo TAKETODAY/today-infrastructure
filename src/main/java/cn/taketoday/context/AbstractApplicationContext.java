@@ -69,7 +69,6 @@ import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.AnnotationUtils;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.GenericTypeResolver;
@@ -199,10 +198,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    *         {@link ConfigurableEnvironment}
    */
   protected void postProcessLoadProperties(ConfigurableEnvironment environment) {
-    // @since 3.0 enable check params types
-    ClassUtils.setEnableParamNameTypeChecking(
-            environment.getFlag("ClassUtils.enableParamNameTypeChecking", false)
-    );
+    // @since 3.0 enable check params types  TODO classutils
+//    ClassUtils.setEnableParamNameTypeChecking(
+//            environment.getFlag("ClassUtils.enableParamNameTypeChecking", false)
+//    );
   }
 
   /**

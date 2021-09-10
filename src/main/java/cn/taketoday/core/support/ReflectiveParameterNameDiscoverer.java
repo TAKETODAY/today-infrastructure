@@ -17,13 +17,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.core;
 
-import java.io.Serializable;
+package cn.taketoday.core.support;
+
+import java.lang.reflect.Executable;
+import java.lang.reflect.Parameter;
+
+import cn.taketoday.core.ParameterNameDiscoverer;
 
 /**
- * @author TODAY 2020-04-15 16:52
+ * @author TODAY 2021/9/10 22:44
+ * @since 4.0
  */
-public enum EmptyObject implements Serializable {
-  INSTANCE
+public class ReflectiveParameterNameDiscoverer extends ParameterNameDiscoverer {
+
+  @Override
+  public String[] getInternal(Executable executable) {
+    final Parameter[] parameters = executable.getParameters();
+    int i = 0;
+    String[] ret = new String[parameters.length];
+    for (final Parameter parameter : parameters) {
+      if (parameter.isNamePresent()) {
+        ret[i++] = parameter.getName();
+      }
+      else {
+        return null;
+      }
+    }
+    return ret;
+  }
+
 }

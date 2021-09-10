@@ -45,10 +45,11 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.core.ParameterNameDiscoverer;
+import cn.taketoday.core.support.DefaultParameterNameDiscoverer;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.util.AnnotationUtils;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentCache;
 import cn.taketoday.util.StringUtils;
 
@@ -149,11 +150,14 @@ public abstract class AbstractCacheInterceptor
   //-----------------------------------------------------
 
   abstract static class Operations {
+    // @since 4.0
+    static final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
     static final StandardExpressionContext SHARED_EL_CONTEXT;
     static final ExpressionFactory EXPRESSION_FACTORY = ExpressionFactory.getSharedInstance();
     static final ConcurrentCache<MethodKey, String[]> ARGS_NAMES_CACHE = new ConcurrentCache<>(512);
     static final ConcurrentCache<MethodKey, CacheConfiguration> CACHE_OPERATION = new ConcurrentCache<>(512);
-    static final Function<MethodKey, String[]> ARGS_NAMES_FUNCTION = target -> ClassUtils.getMethodArgsNames(target.targetMethod);
+    static final Function<MethodKey, String[]> ARGS_NAMES_FUNCTION =
+            target -> parameterNameDiscoverer.getParameterNames(target.targetMethod);
 
     static final Function<MethodKey, CacheConfiguration> CACHE_OPERATION_FUNCTION = target -> {
 

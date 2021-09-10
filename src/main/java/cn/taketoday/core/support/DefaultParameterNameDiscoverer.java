@@ -17,13 +17,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.core;
 
-import java.io.Serializable;
+package cn.taketoday.core.support;
 
 /**
- * @author TODAY 2020-04-15 16:52
+ * @author TODAY 2021/9/10 23:08
+ * @since 4.0
  */
-public enum EmptyObject implements Serializable {
-  INSTANCE
+public class DefaultParameterNameDiscoverer extends CompositeParameterNameDiscoverer {
+
+  public DefaultParameterNameDiscoverer() {
+    addDiscoverer(new ReflectiveParameterNameDiscoverer());
+    addDiscoverer(new LocalVariableTableParameterNameDiscoverer());
+  }
+
 }
