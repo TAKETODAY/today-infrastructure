@@ -25,7 +25,7 @@ import java.util.Objects;
 
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
-import cn.taketoday.jdbc.utils.UnderscoreToCamelCase;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Stores metadata for a POJO.2
@@ -76,7 +76,7 @@ public class JdbcBeanMetadata extends BeanMetadata {
     }
 
     if (autoDeriveColumnNames) {
-      name = UnderscoreToCamelCase.convert(name);
+      name = StringUtils.underscoreToCamelCase(name);
       if (!this.caseSensitive) {
         name = name.toLowerCase();
       }

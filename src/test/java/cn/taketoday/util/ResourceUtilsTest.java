@@ -74,7 +74,7 @@ public class ResourceUtilsTest {
 
         resource = ResourceUtils.getResource("file://" + userDir + "/src/main/resources/META-INF/today.strategies");
         assertThat(resource.exists()).isTrue();
-        assertThat(StringUtils.readAsText(resource.getInputStream())).isNotEmpty();
+        assertThat(StreamUtils.copyToString(resource.getInputStream())).isNotEmpty();
 
 
         resource = ResourceUtils.getResource("jar:file://" + userDir + "/src/test/resources/test.jar!/META-INF/");
@@ -83,7 +83,7 @@ public class ResourceUtilsTest {
         if (resource instanceof JarEntryResource) {
             JarEntryResource jarEntryResource = (JarEntryResource) resource.createRelative("/maven/cn.taketoday/today-expression/pom.properties");
             if (jarEntryResource.exists()) {
-                System.out.println(StringUtils.readAsText(jarEntryResource.getInputStream()));
+                System.out.println(StreamUtils.copyToString(jarEntryResource.getInputStream()));
             }
             System.err.println(jarEntryResource);
         }
@@ -108,8 +108,8 @@ public class ResourceUtilsTest {
 //        final Resource taketoday = ResourceUtils.getResource(new URL("https://taketoday.cn"));
 //
 //        assert taketoday.exists();
-//        assert StringUtils.readAsText(taketoday.getInputStream()) != null;
-//        System.err.println(StringUtils.readAsText(taketoday.getInputStream()));
+//        assert StreamUtils.copyToString(taketoday.getInputStream()) != null;
+//        System.err.println(StreamUtils.copyToString(taketoday.getInputStream()));
 
     }
 
@@ -186,7 +186,7 @@ public class ResourceUtilsTest {
     public void testBlankDir() throws IOException {
         final Resource blankDirTestResource = ResourceUtils.getResource("classpath:blank+dir%2Ftest.txt");
         try (InputStream inputStream = blankDirTestResource.getInputStream()) {
-            final String text = StringUtils.readAsText(inputStream);
+            final String text = StreamUtils.copyToString(inputStream);
 
             assertThat(text).isEqualTo("test");
             assertThat(blankDirTestResource.exists()).isTrue();

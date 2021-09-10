@@ -134,18 +134,18 @@ public class ConvertUtilsTest {
 
     final InputStream openStream = ((URL) url).openStream();
 
-    final String readAsText = StringUtils.readAsText(openStream);
+    final String readAsText = StreamUtils.copyToString(openStream);
     assert readAsText != null;
 //    System.err.println(readAsText);
     // uri
     final Object uri = convert("info.properties", URI.class);
     assert uri instanceof URI;
-    assert StringUtils.readAsText(((URI) uri).toURL().openStream()) != null;
+    assert StreamUtils.copyToString(((URI) uri).toURL().openStream()) != null;
     // file
     final Object file = convert("info.properties", File.class);
     assert file instanceof File;
     assert ((File) file).getName().equals("info.properties");
-    assert StringUtils.readAsText(Files.newInputStream(((File) file).toPath())) != null;
+    assert StreamUtils.copyToString(Files.newInputStream(((File) file).toPath())) != null;
 
     // enum
     final Object scope = convert("SINGLETON", Scope.class);

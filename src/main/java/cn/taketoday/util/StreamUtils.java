@@ -32,6 +32,7 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
@@ -99,6 +100,22 @@ public abstract class StreamUtils {
     ByteArrayOutputStream out = new ByteArrayOutputStream(bufferSize);
     copy(in, out);
     return out.toByteArray();
+  }
+
+  /**
+   * Copy the contents of the given InputStream into a String.
+   * <p>Leaves the stream open when done.
+   *
+   * @param in
+   *         the InputStream to copy from (may be {@code null} or empty)
+   *
+   * @return the String that has been copied to (possibly empty)
+   *
+   * @throws IOException
+   *         in case of I/O errors
+   */
+  public static String copyToString(@Nullable InputStream in) throws IOException {
+    return copyToString(in, StandardCharsets.UTF_8);
   }
 
   /**

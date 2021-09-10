@@ -38,6 +38,7 @@ import cn.taketoday.expression.ValueExpression;
 import cn.taketoday.expression.VariableMapper;
 import cn.taketoday.expression.lang.EvaluationContext;
 import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 
@@ -129,7 +130,7 @@ public class DefaultTemplateRenderer extends AbstractTemplateRenderer {
    */
   protected String readTemplate(final String template) throws IOException {
     final Resource resource = ResourceUtils.getResource(template);
-    return StringUtils.readAsText(resource.getInputStream());
+    return StreamUtils.copyToString(resource.getInputStream());
   }
 
   public void setResolversSupplier(ResolversSupplier resolversSupplier) {
