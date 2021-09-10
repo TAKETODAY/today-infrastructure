@@ -291,6 +291,7 @@
       <groupId>com.jamonapi</groupId>
       <artifactId>jamon</artifactId>
       <version>2.81</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
