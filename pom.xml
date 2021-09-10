@@ -393,6 +393,7 @@
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <version>5.7.2</version>
+      <scope>test</scope>
     </dependency>
 
     <!--JUnit Jupiter Engine to depend on the JUnit5 engine and JUnit 5 API -->
