@@ -20,10 +20,8 @@
 package cn.taketoday.util;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -637,45 +635,6 @@ public abstract class StringUtils {
    */
   public static String getUUIDString() {
     return UUID.randomUUID().toString();
-  }
-
-  /**
-   * Read the {@link InputStream} to text string
-   *
-   * @param inputStream
-   *         Input stream
-   *
-   * @return String {@link InputStream} read as text
-   *
-   * @throws IOException
-   *         If can't read the string
-   */
-  public static String readAsText(final InputStream inputStream) throws IOException {
-    return readAsText(inputStream, 8192);
-  }
-
-  /**
-   * Read the {@link InputStream} to text string
-   *
-   * @param inputStream
-   *         Input stream
-   * @param bufferSize
-   *         Buffer size
-   *
-   * @return String {@link InputStream} read as text
-   *
-   * @throws IOException
-   *         If can't read the string
-   */
-  public static String readAsText(final InputStream inputStream, final int bufferSize) throws IOException {
-    final ByteArrayOutputStream result = new ByteArrayOutputStream(bufferSize);
-    byte[] buffer = new byte[bufferSize];
-    int length;
-    while ((length = inputStream.read(buffer)) != -1) {
-      result.write(buffer, 0, length);
-    }
-    buffer = null;
-    return result.toString();
   }
 
   /**
@@ -1528,6 +1487,71 @@ else */
       throw new IllegalArgumentException("Invalid time zone specification '" + timeZoneString + "'");
     }
     return timeZone;
+  }
+
+  /**
+   * Convert a name in camelCase to an underscored name in lower case. Any upper
+   * case letters are converted to lower case with a preceding underscore.
+   *
+   * @param name
+   *         the original name
+   *
+   * @return the converted name
+   *
+   * @since 4.0
+   */
+  public static String camelCaseToUnderscore(String name) {
+    if (StringUtils.isEmpty(name)) {
+      return Constant.BLANK;
+    }
+    final int length = name.length();
+    final StringBuilder ret = new StringBuilder();
+    for (int i = 0; i < length; i++) {
+      final char c = name.charAt(i);
+      if (c > 0x40 && c < 0x5b) {
+        ret.append('_').append((char) (c | 0x20));
+      }
+      else {
+        ret.append(c);
+      }
+    }
+    return ret.toString();
+  }
+
+  /**
+   * Takes a string formatted like: 'my_string_variable' and returns it as:
+   * 'myStringVariable'
+   *
+   * @param underscore
+   *         a string formatted like: 'my_string_variable'
+   *
+   * @return Takes a string formatted like: 'my_string_variable' and returns it as:
+   * 'myStringVariable'
+   *
+   * @since 4.0
+   */
+  public static String underscoreToCamelCase(String underscore) {
+    if (StringUtils.isEmpty(underscore)) {
+      return underscore;
+    }
+
+    final char[] chars = underscore.toCharArray();
+    int write = -1;
+    boolean upper = false;
+    for (final char c : chars) {
+      if ('_' == c) {
+        upper = true;
+        continue;
+      }
+      if (upper) {
+        upper = false;
+        chars[++write] = Character.toUpperCase(c);
+      }
+      else {
+        chars[++write] = Character.toLowerCase(c);
+      }
+    }
+    return new String(chars, 0, ++write);
   }
 
 }
