@@ -79,7 +79,7 @@ public abstract class WebUtils {
    */
   @Nullable
   public static String resolveFileContentType(String filename) {
-    MediaType mediaType = MediaType.ofFileName(filename);
+    MediaType mediaType = MediaType.fromFileName(filename);
     if (mediaType == null) {
       return null;
     }

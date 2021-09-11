@@ -453,12 +453,12 @@ public class MediaTypeTest {
 
     @Test
     public void of() {
-        assertThat(MediaType.ofFileName("file.xml")).isEqualTo(MediaType.APPLICATION_XML);
-        assertThat(MediaType.ofFileName("file.js")).isEqualTo(MediaType.parseMediaType("application/javascript"));
-        assertThat(MediaType.ofFileName("file.css")).isEqualTo(MediaType.parseMediaType("text/css"));
-        assertThat(MediaType.ofFileName("file.foobar")).isNull();
-        assertThat(MediaType.ofFileName(null)).isNull();
-        assertThat(MediaType.ofResource(null)).isNull();
+        assertThat(MediaType.fromFileName("file.xml")).isEqualTo(MediaType.APPLICATION_XML);
+        assertThat(MediaType.fromFileName("file.js")).isEqualTo(MediaType.parseMediaType("application/javascript"));
+        assertThat(MediaType.fromFileName("file.css")).isEqualTo(MediaType.parseMediaType("text/css"));
+        assertThat(MediaType.fromFileName("file.foobar")).isNull();
+        assertThat(MediaType.fromFileName(null)).isNull();
+        assertThat(MediaType.fromResource(null)).isNull();
     }
 
 }

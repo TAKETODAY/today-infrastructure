@@ -765,25 +765,24 @@ public class MediaType extends MimeType implements Serializable {
    */
   private static HashMap<String, MediaType> parseMimeTypes() {
 
-    try (final InputStream is = new ClassPathResource(MIME_TYPES_FILE_NAME).getInputStream()) {
-      try (final BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.US_ASCII))) {
+    try (InputStream is = new ClassPathResource(MIME_TYPES_FILE_NAME).getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.US_ASCII))) {
 
-        final HashMap<String, MediaType> result = new HashMap<>();
-        String line;
+      final HashMap<String, MediaType> result = new HashMap<>();
+      String line;
 
-        while ((line = reader.readLine()) != null) {
-          if (line.isEmpty() || line.charAt(0) == '#') {
-            continue;
-          }
-          String[] tokens = StringUtils.tokenizeToStringArray(line, " \t\n\r\f");
-          MediaType mediaType = MediaType.parseMediaType(tokens[0]);
-          for (int i = 1; i < tokens.length; i++) {
-            String fileExtension = tokens[i].toLowerCase(Locale.ENGLISH);
-            result.put(fileExtension, mediaType);
-          }
+      while ((line = reader.readLine()) != null) {
+        if (line.isEmpty() || line.charAt(0) == '#') {
+          continue;
         }
-        return result;
+        String[] tokens = StringUtils.tokenizeToStringArray(line, " \t\n\r\f");
+        MediaType mediaType = MediaType.parseMediaType(tokens[0]);
+        for (int i = 1; i < tokens.length; i++) {
+          String fileExtension = tokens[i].toLowerCase(Locale.ENGLISH);
+          result.put(fileExtension, mediaType);
+        }
       }
+      return result;
     }
     catch (IOException ex) {
       throw new IllegalStateException("Could not load '" + MIME_TYPES_FILE_NAME + "'", ex);
@@ -798,8 +797,8 @@ public class MediaType extends MimeType implements Serializable {
    *
    * @return the corresponding media type, or {@code null} if none found
    */
-  public static MediaType ofResource(Resource resource) {
-    return resource == null ? null : ofFileName(resource.getName());
+  public static MediaType fromResource(Resource resource) {
+    return resource == null ? null : fromFileName(resource.getName());
   }
 
   /**
@@ -810,13 +809,19 @@ public class MediaType extends MimeType implements Serializable {
    *
    * @return the corresponding media type, or {@code null} if none found
    */
-  public static MediaType ofFileName(String filename) {
+  public static MediaType fromFileName(String filename) {
     final String ext = StringUtils.getFilenameExtension(filename);
-    return ext == null ? null : getFileExtensionMediaTypes().get(ext.toLowerCase(Locale.ENGLISH));
+    if (ext == null) {
+      return null;
+    }
+    return getFileExtensionMediaTypes().get(ext.toLowerCase(Locale.ENGLISH));
   }
 
   public static Map<String, MediaType> getFileExtensionMediaTypes() {
-    return fileExtensionToMediaTypes == null ? fileExtensionToMediaTypes = parseMimeTypes() : fileExtensionToMediaTypes;
+    if (fileExtensionToMediaTypes == null) {
+      fileExtensionToMediaTypes = parseMimeTypes();
+    }
+    return fileExtensionToMediaTypes;
   }
 
 }
