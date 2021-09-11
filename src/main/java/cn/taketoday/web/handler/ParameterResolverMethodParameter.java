@@ -22,8 +22,8 @@ package cn.taketoday.web.handler;
 import java.lang.reflect.Parameter;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.resolver.ParameterResolverRegistry;
+import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 
 /**
  * @author TODAY 2020/9/26 20:06

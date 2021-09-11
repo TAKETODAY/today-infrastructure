@@ -18,9 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.core.support;
-
-import cn.taketoday.core.ParameterNameDiscoverer;
+package cn.taketoday.core;
 
 /**
  * Default implementation of the {@link ParameterNameDiscoverer} strategy interface,

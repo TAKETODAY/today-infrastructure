@@ -21,7 +21,6 @@
 package cn.taketoday.util.concurrent;
 
 import java.util.ArrayDeque;
-import java.util.Queue;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Nullable;

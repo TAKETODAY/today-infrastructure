@@ -18,13 +18,11 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.core.support;
+package cn.taketoday.core;
 
 import java.lang.reflect.Executable;
 import java.util.LinkedList;
 
-import cn.taketoday.core.Nullable;
-import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -53,7 +51,7 @@ public class CompositeParameterNameDiscoverer extends ParameterNameDiscoverer {
 
   @Nullable
   @Override
-  public String[] getInternal(Executable executable) {
+  public String[] getParameterNames(Executable executable) {
     for (final ParameterNameDiscoverer discoverer : discoverers) {
       final String[] parameterNames = discoverer.getParameterNames(executable);
       if (parameterNames != null) {

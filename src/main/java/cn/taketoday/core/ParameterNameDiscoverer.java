@@ -55,6 +55,9 @@ public abstract class ParameterNameDiscoverer {
    */
   @Nullable
   public String[] getParameterNames(Executable executable) {
+    if (executable == null) {
+      return null;
+    }
     if (executable.getParameterCount() == 0) {
       return Constant.EMPTY_STRING_ARRAY;
     }

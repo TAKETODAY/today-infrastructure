@@ -24,9 +24,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.ParameterNameDiscoverer;
-import cn.taketoday.core.support.DefaultParameterNameDiscoverer;
 
 /**
  * Build {@link MethodParameter} array

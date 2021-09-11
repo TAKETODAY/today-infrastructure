@@ -18,12 +18,10 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.core.support;
+package cn.taketoday.core;
 
 import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
-
-import cn.taketoday.core.ParameterNameDiscoverer;
 
 /**
  * {@link ParameterNameDiscoverer} implementation which uses JDK 8's reflection facilities

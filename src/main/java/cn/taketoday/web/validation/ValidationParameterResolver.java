@@ -29,8 +29,8 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.resolver.ParameterResolverRegistry;
+import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 
 /**
  * @author TODAY 2019-07-20 17:00
