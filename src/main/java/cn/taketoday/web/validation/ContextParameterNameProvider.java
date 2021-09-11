@@ -30,13 +30,14 @@ import java.util.List;
 
 import javax.validation.ParameterNameProvider;
 
-import cn.taketoday.util.ClassUtils;
+import cn.taketoday.core.support.DefaultParameterNameDiscoverer;
 
 /**
  * @author TODAY 2019-07-21 20:26
  * @since 3.0
  */
 public class ContextParameterNameProvider implements ParameterNameProvider {
+  DefaultParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
   @Override
   public List<String> getParameterNames(Constructor<?> constructor) {
@@ -50,7 +51,15 @@ public class ContextParameterNameProvider implements ParameterNameProvider {
 
   @Override
   public List<String> getParameterNames(Method method) {
-    return Arrays.asList(ClassUtils.getMethodArgsNames(method));
+    return Arrays.asList(parameterNameDiscoverer.getParameterNames(method));
+  }
+
+  public void setParameterNameDiscoverer(DefaultParameterNameDiscoverer parameterNameDiscoverer) {
+    this.parameterNameDiscoverer = parameterNameDiscoverer;
+  }
+
+  public DefaultParameterNameDiscoverer getParameterNameDiscoverer() {
+    return parameterNameDiscoverer;
   }
 
 }

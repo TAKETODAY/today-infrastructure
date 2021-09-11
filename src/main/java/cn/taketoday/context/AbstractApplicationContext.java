@@ -74,6 +74,8 @@ import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.GenericTypeResolver;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.OrderUtils;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.ResolvableType;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -159,6 +161,24 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
       ex = ExceptionUtils.unwrapThrowable(ex);
       throw new ApplicationContextException("An Exception Occurred When Loading Context", ex);
     }
+    finally {
+      resetCommonCaches();
+    }
+  }
+
+  /**
+   * Reset reflection metadata caches, in particular the
+   * {@link ReflectionUtils}, {@link AnnotationUtils}, {@link ResolvableType}
+   *
+   * @see ReflectionUtils#clearCache()
+   * @see AnnotationUtils#clearCache()
+   * @see ResolvableType#clearCache()
+   * @since 4.0
+   */
+  protected void resetCommonCaches() {
+    ReflectionUtils.clearCache();
+    AnnotationUtils.clearCache();
+    ResolvableType.clearCache();
   }
 
   /**

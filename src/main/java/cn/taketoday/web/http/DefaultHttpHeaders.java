@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.IntFunction;
 
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
@@ -53,7 +54,16 @@ public class DefaultHttpHeaders extends HttpHeaders {
     this(new DefaultMultiValueMap<>(headers));
   }
 
+  /**
+   * Construct a new {@code HttpHeaders} instance backed by an existing map.
+   * <p>This constructor is available as an optimization for adapting to existing
+   * headers map structures, primarily for internal use within the framework.
+   *
+   * @param headers
+   *         the headers map (expected to operate with case-insensitive keys)
+   */
   public DefaultHttpHeaders(MultiValueMap<String, String> headers) {
+    Assert.notNull(headers, "MultiValueMap must not be null");
     this.headers = headers;
   }
 

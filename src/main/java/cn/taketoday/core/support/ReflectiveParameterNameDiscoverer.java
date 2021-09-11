@@ -26,7 +26,11 @@ import java.lang.reflect.Parameter;
 import cn.taketoday.core.ParameterNameDiscoverer;
 
 /**
+ * {@link ParameterNameDiscoverer} implementation which uses JDK 8's reflection facilities
+ * for introspecting parameter names (based on the "-parameters" compiler flag).
+ *
  * @author TODAY 2021/9/10 22:44
+ * @see Parameter#getName()
  * @since 4.0
  */
 public class ReflectiveParameterNameDiscoverer extends ParameterNameDiscoverer {

@@ -56,7 +56,6 @@ import java.util.Set;
 import java.util.StringJoiner;
 
 import cn.taketoday.asm.ClassReader;
-import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
@@ -332,6 +331,51 @@ public abstract class ClassUtils {
   }
 
   /**
+   * Resolve the given class name into a Class instance. Supports
+   * primitives (like "int") and array class names (like "String[]").
+   * <p>This is effectively equivalent to the {@code forName}
+   * method with the same arguments, with the only difference being
+   * the exceptions thrown in case of class loading failure.
+   *
+   * @param className
+   *         the name of the Class
+   * @param classLoader
+   *         the class loader to use
+   *         (may be {@code null}, which indicates the default class loader)
+   *
+   * @return a class instance for the supplied name
+   *
+   * @throws IllegalArgumentException
+   *         if the class name was not resolvable
+   *         (that is, the class could not be found or the class file could not be loaded)
+   * @throws IllegalStateException
+   *         if the corresponding class is resolvable but
+   *         there was a readability mismatch in the inheritance hierarchy of the class
+   *         (typically a missing dependency declaration in a Jigsaw module definition
+   *         for a superclass or interface implemented by the class to be loaded here)
+   * @see #forName(String, ClassLoader)
+   * @since 4.0
+   */
+  public static Class<?> resolveClassName(
+          String className, @Nullable ClassLoader classLoader) throws IllegalArgumentException {
+    try {
+      return forName(className, classLoader);
+    }
+    catch (IllegalAccessError err) {
+      throw new IllegalStateException(
+              "Readability mismatch in inheritance hierarchy of class ["
+                      + className + "]: " + err.getMessage(), err);
+    }
+    catch (LinkageError err) {
+      throw new IllegalArgumentException(
+              "Unresolvable class definition for class [" + className + "]", err);
+    }
+    catch (ClassNotFoundException ex) {
+      throw new IllegalArgumentException("Could not find class [" + className + "]", ex);
+    }
+  }
+
+  /**
    * Load class
    *
    * @param <T>
@@ -408,6 +452,24 @@ public abstract class ClassUtils {
 
   public static String getClassName(final InputStream inputStream) throws IOException {
     return getClassName(new ClassReader(inputStream));
+  }
+
+  /**
+   * Determine the name of the class file, relative to the containing
+   * package: e.g. "String.class"
+   *
+   * @param clazz
+   *         the class
+   *
+   * @return the file name of the ".class" file
+   *
+   * @since 4.0
+   */
+  public static String getClassFileName(Class<?> clazz) {
+    Assert.notNull(clazz, "Class must not be null");
+    String className = clazz.getName();
+    int lastDotIndex = className.lastIndexOf(Constant.PACKAGE_SEPARATOR);
+    return className.substring(lastDotIndex + 1) + CLASS_FILE_SUFFIX;
   }
 
   /**
@@ -526,25 +588,6 @@ public abstract class ClassUtils {
   @Nullable
   public static Class<?>[] getGenerics(final Class<?> type, Class<?> superClass) {
     return GenericTypeResolver.resolveTypeArguments(type, superClass);
-  }
-
-  // --------------------------- parameter names discovering
-
-  /**
-   * Find method parameter list. Uses ObjectWeb's ASM library for analyzing class
-   * files.
-   *
-   * @param method
-   *         target method
-   *
-   * @return method parameter list
-   *
-   * @throws ApplicationContextException
-   *         when could not access to the class file
-   * @since 2.1.6
-   */
-  public static String[] getMethodArgsNames(Method method) {
-    return null;
   }
 
   //

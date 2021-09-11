@@ -24,9 +24,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.ReflectionUtils.MethodFilter;
 import cn.taketoday.util.ResolvableType;
@@ -53,7 +53,7 @@ import cn.taketoday.util.ResolvableType;
  */
 public abstract class BridgeMethodResolver {
 
-  private static final ConcurrentHashMap<Method, Method> cache = new ConcurrentHashMap<>();
+  private static final ConcurrentReferenceHashMap<Method, Method> cache = new ConcurrentReferenceHashMap<>();
 
   /**
    * Find the original method for the supplied {@link Method bridge Method}.

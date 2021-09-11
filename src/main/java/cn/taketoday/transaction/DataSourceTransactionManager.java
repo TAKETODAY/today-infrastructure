@@ -95,7 +95,7 @@ public class DataSourceTransactionManager
    * can be customized through through {@link #prepareTransactionalConnection}.
    * <p>
    * This mode of read-only handling goes beyond the
-   * {@link Connection#setReadOnly} hint that Spring applies by default. In
+   * {@link Connection#setReadOnly} hint that applies by default. In
    * contrast to that standard JDBC hint, "SET TRANSACTION READ ONLY" enforces an
    * isolation-level-like connection mode where data manipulation statements are
    * strictly disallowed. Also, on Oracle, this read-only mode provides read

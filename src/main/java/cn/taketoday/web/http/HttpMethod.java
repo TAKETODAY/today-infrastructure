@@ -22,8 +22,7 @@ package cn.taketoday.web.http;
 /**
  * HTTP Request Methods
  *
- * @author TODAY <br>
- *         2018-06-27 19:01:04
+ * @author TODAY 2018-06-27 19:01:04
  * @version 2.0.0
  */
 public enum HttpMethod {
@@ -34,10 +33,12 @@ public enum HttpMethod {
    * Determine whether this {@code RequestMethod} matches the given method value.
    *
    * @param method
-   *            the method value as a String. <b>Must Upper Case</b>
+   *         the method value as a String. <b>Must Upper Case</b>
+   *
    * @return {@code true} if it matches, {@code false} otherwise
    */
   public boolean matches(String method) {
-    return this == valueOf(method);
+    return name().equals(method);
   }
+
 }

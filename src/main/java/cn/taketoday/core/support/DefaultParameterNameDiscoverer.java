@@ -20,8 +20,18 @@
 
 package cn.taketoday.core.support;
 
+import cn.taketoday.core.ParameterNameDiscoverer;
+
 /**
+ * Default implementation of the {@link ParameterNameDiscoverer} strategy interface,
+ * using the Java 8 standard reflection mechanism (if available), and falling back
+ * to the ASM-based {@link LocalVariableTableParameterNameDiscoverer} for checking
+ * debug information in the class file.
+ *
+ * <p>Further discoverers may be added through {@link #addDiscoverer(ParameterNameDiscoverer...)}.
+ *
  * @author TODAY 2021/9/10 23:08
+ * @see LocalVariableTableParameterNameDiscoverer
  * @since 4.0
  */
 public class DefaultParameterNameDiscoverer extends CompositeParameterNameDiscoverer {

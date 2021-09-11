@@ -95,7 +95,8 @@ public class ResolvableType implements Serializable {
 
   private static final ResolvableType[] EMPTY_TYPES_ARRAY = new ResolvableType[0];
 
-  private static final Map<ResolvableType, ResolvableType> cache = new ConcurrentHashMap<>(256);
+  private static final ConcurrentReferenceHashMap<ResolvableType, ResolvableType> cache =
+          new ConcurrentReferenceHashMap<>(256);
 
   /**
    * The underlying Java type being managed.

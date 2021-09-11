@@ -28,6 +28,12 @@ import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.util.CollectionUtils;
 
 /**
+ * {@link ParameterNameDiscoverer} implementation that tries several discoverer
+ * delegates in succession. Those added first in the {@code addDiscoverer} method
+ * have high-est priority. If one returns {@code null}, the next will be tried.
+ *
+ * <p>The default behavior is to return {@code null} if no discoverer matches.
+ *
  * @author TODAY 2021/9/10 23:02
  * @since 4.0
  */

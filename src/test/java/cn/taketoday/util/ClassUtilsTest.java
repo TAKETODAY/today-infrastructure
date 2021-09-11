@@ -69,22 +69,6 @@ public class ClassUtilsTest {
   private static final Logger log = LoggerFactory.getLogger(ClassUtilsTest.class);
   final ClassLoader classLoader = getClass().getClassLoader();
 
-  public void test(String name, Integer i) {
-
-  }
-
-  @Test
-  public void test_GetMethodArgsNames() throws NoSuchMethodException, SecurityException, IOException {
-    String[] methodArgsNames = ClassUtils.getMethodArgsNames(ClassUtilsTest.class.getMethod("test", String.class, Integer.class));
-
-    assert methodArgsNames.length > 0 : "Can't get Method Args Names";
-
-    assert "name".equals(methodArgsNames[0]) : "Can't get Method Args Names";
-    assert "i".equals(methodArgsNames[1]) : "Can't get Method Args Names";
-
-    log.info("names: {}", Arrays.toString(methodArgsNames));
-  }
-
 //    public static void main(String[] args) {
 //        long start = System.currentTimeMillis();
 //        for (int i = 0; i < 10; i++) {

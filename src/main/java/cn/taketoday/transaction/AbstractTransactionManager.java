@@ -935,7 +935,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
       }
       else if (!synchronizations.isEmpty()) {
         // Existing transaction that we participate in, controlled outside
-        // of the scope of this Spring transaction manager -> try to register
+        // of the scope of this transaction manager -> try to register
         // an afterCompletion callback with the existing (JTA) transaction.
         registerAfterCompletionWithExistingTransaction(metaData, status.getTransaction(), synchronizations);
       }
@@ -943,7 +943,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
   }
 
   /**
-   * Actually invoke the {@code afterCompletion} methods of the given Spring
+   * Actually invoke the {@code afterCompletion} methods of the given
    * TransactionSynchronization objects.
    * <p>
    * To be called by this abstract manager itself, or by special implementations
@@ -1250,8 +1250,8 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    * Register the given list of transaction synchronizations with the existing
    * transaction.
    * <p>
-   * Invoked when the control of the Spring transaction manager and thus all
-   * Spring transaction synchronizations end, without the transaction being
+   * Invoked when the control of the transaction manager and thus all
+   * transaction synchronizations end, without the transaction being
    * completed yet. This is for example the case when participating in an existing
    * JTA or EJB CMT transaction.
    * <p>

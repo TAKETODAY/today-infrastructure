@@ -21,6 +21,7 @@
 package cn.taketoday.core;
 
 import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
 
 /**
  * abstract class to discover parameter names for methods and constructors.
@@ -38,7 +39,7 @@ import java.lang.reflect.Executable;
 public abstract class ParameterNameDiscoverer {
 
   /**
-   * Return parameter names for a Executable(method or constructor), or {@code null}
+   * Return parameter names for an Executable(method or constructor), or {@code null}
    * if they cannot be determined.
    * <p>Individual entries in the array may be {@code null} if parameter names are only
    * available for some parameters of the given method but not for others. However,
@@ -56,6 +57,9 @@ public abstract class ParameterNameDiscoverer {
   public String[] getParameterNames(Executable executable) {
     if (executable.getParameterCount() == 0) {
       return Constant.EMPTY_STRING_ARRAY;
+    }
+    if (executable instanceof Method) {
+      executable = BridgeMethodResolver.findBridgedMethod((Method) executable);
     }
     return getInternal(executable);
   }

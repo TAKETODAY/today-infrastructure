@@ -402,8 +402,7 @@ public abstract class SynchronizationManager {
     }
 
     /**
-     * Actually invoke the {@code afterCompletion} methods of the given Spring
-     * TransactionSynchronization objects.
+     * Actually invoke the {@code afterCompletion} methods of the given  TransactionSynchronization objects.
      *
      * @param completionStatus
      *         the completion status according to the constants in the

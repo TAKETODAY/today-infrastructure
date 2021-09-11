@@ -266,8 +266,6 @@ public class TypeDescriptor implements Serializable {
 
   /**
    * Determine if this type descriptor has the specified annotation.
-   * <p>As of Spring Framework 4.2, this method supports arbitrary levels
-   * of meta-annotations.
    *
    * @param annotationType
    *         the annotation type

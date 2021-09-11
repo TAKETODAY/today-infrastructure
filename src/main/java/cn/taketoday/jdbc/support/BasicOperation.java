@@ -49,9 +49,9 @@ public interface BasicOperation {
   /**
    * Execute a JDBC data access operation, implemented as callback action working
    * on a JDBC Statement. This allows for implementing arbitrary data access
-   * operations on a single Statement, within Spring's managed JDBC environment:
-   * that is, participating in Spring-managed transactions and converting JDBC
-   * SQLExceptions into Spring's DataAccessException hierarchy.
+   * operations on a single Statement, within managed JDBC environment:
+   * that is, participating in managed transactions and converting JDBC
+   * SQLExceptions into DataAccessException hierarchy.
    * <p>
    * The callback action can return a result object, for example a domain object
    * or a collection of domain objects.
@@ -75,9 +75,9 @@ public interface BasicOperation {
   /**
    * Execute a JDBC data access operation, implemented as callback action working
    * on a JDBC PreparedStatement. This allows for implementing arbitrary data
-   * access operations on a single Statement, within Spring's managed JDBC
-   * environment: that is, participating in Spring-managed transactions and
-   * converting JDBC SQLExceptions into Spring's DataAccessException hierarchy.
+   * access operations on a single Statement, within managed JDBC
+   * environment: that is, participating in managed transactions and
+   * converting JDBC SQLExceptions into DataAccessException hierarchy.
    * <p>
    * The callback action can return a result object, for example a domain object
    * or a collection of domain objects.
@@ -95,9 +95,9 @@ public interface BasicOperation {
   /**
    * Execute a JDBC data access operation, implemented as callback action working
    * on a JDBC CallableStatement. This allows for implementing arbitrary data
-   * access operations on a single Statement, within Spring's managed JDBC
-   * environment: that is, participating in Spring-managed transactions and
-   * converting JDBC SQLExceptions into Spring's DataAccessException hierarchy.
+   * access operations on a single Statement, within managed JDBC
+   * environment: that is, participating in managed transactions and
+   * converting JDBC SQLExceptions into DataAccessException hierarchy.
    * <p>
    * The callback action can return a result object, for example a domain object
    * or a collection of domain objects.

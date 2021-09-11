@@ -23,14 +23,9 @@ package cn.taketoday.core.support;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.asm.ClassReader;
 import cn.taketoday.asm.ClassVisitor;
@@ -38,179 +33,216 @@ import cn.taketoday.asm.Label;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
-import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.ParameterNameDiscoverer;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ConcurrentCache;
-import cn.taketoday.util.ReflectionUtils;
 
 /**
+ * Implementation of {@link ParameterNameDiscoverer} that uses the LocalVariableTable
+ * information in the method attributes to discover parameter names. Returns
+ * {@code null} if the class file was compiled without debug information.
+ *
+ * <p>Uses ObjectWeb's ASM library for analyzing class files. Each discoverer instance
+ * caches the ASM discovered information for each introspected Class, in a thread-safe
+ * manner. It is recommended to reuse ParameterNameDiscoverer instances as far as possible.
+ *
  * @author TODAY 2021/9/10 22:34
  * @since 4.0
  */
 public class LocalVariableTableParameterNameDiscoverer extends ParameterNameDiscoverer {
-  static final boolean defaultEnableParamNameTypeChecking = Boolean.parseBoolean(
-          System.getProperty("ClassUtils.enableParamNameTypeChecking", "true"));
-  private boolean enableParamNameTypeChecking = defaultEnableParamNameTypeChecking;
+  private static final Logger log = LoggerFactory.getLogger(LocalVariableTableParameterNameDiscoverer.class);
 
-  final ParameterFunction PARAMETER_NAMES_FUNCTION = new ParameterFunction();
-  static final ConcurrentCache<Class<?>, Map<Executable, String[]>>
-          PARAMETER_NAMES_CACHE = ConcurrentCache.fromSize(64);
+  // marker object for classes that do not have any debug info
+  private static final Map<Executable, String[]> NO_DEBUG_INFO_MAP = Collections.emptyMap();
+
+  // the cache uses a nested index (value is a map) to keep the top level cache relatively small in size
+  private final ConcurrentHashMap<Class<?>, Map<Executable, String[]>>
+          parameterNamesCache = new ConcurrentHashMap<>(32);
 
   @Override
   public String[] getInternal(Executable executable) {
-    return PARAMETER_NAMES_CACHE.get(executable.getDeclaringClass(), PARAMETER_NAMES_FUNCTION).get(executable);
+    Class<?> declaringClass = executable.getDeclaringClass();
+    Map<Executable, String[]> map = this.parameterNamesCache.computeIfAbsent(declaringClass, this::inspectClass);
+    return (map != NO_DEBUG_INFO_MAP ? map.get(executable) : null);
   }
 
-  public void setEnableParamNameTypeChecking(final boolean enableParamNameTypeChecking) {
-    this.enableParamNameTypeChecking = enableParamNameTypeChecking;
-  }
-
-  final class ParameterFunction implements Function<Class<?>, Map<Executable, String[]>> {
-
-    @Override
-    public Map<Executable, String[]> apply(final Class<?> declaringClass) {
-      final String classFile = declaringClass.getName()
-              .replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR)
-              .concat(ClassUtils.CLASS_FILE_SUFFIX);
-      final ClassLoader classLoader = ClassUtils.getClassLoader();
-      try (InputStream resourceAsStream = classLoader.getResourceAsStream(classFile)) {
-        final ClassNode classVisitor = new ClassNode();
-        new ClassReader(resourceAsStream).accept(classVisitor, 0);
-
-        final ArrayList<MethodNode> methodNodes = classVisitor.methodNodes;
-        final HashMap<Executable, String[]> map = new HashMap<>(methodNodes.size());
-        for (final MethodNode methodNode : methodNodes) {
-          final Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
-          final Class<?>[] argTypes;
-          if (argumentTypes.length == 0) {
-            argTypes = Constant.EMPTY_CLASS_ARRAY; // fixed @since 3.0.1
-          }
-          else {
-            argTypes = new Class<?>[argumentTypes.length];
-            int idx = 0;
-            for (final Type argumentType : argumentTypes) {
-              argTypes[idx++] = ClassUtils.forName(argumentType.getClassName());
-            }
-          }
-          final Method method = ReflectionUtils.findMethod(declaringClass, methodNode.name, argTypes);
-          if (method == null) {
-            throw new NoSuchMethodException(
-                    "No such method named: '" + methodNode.name + "' argTypes: '"
-                            + Arrays.toString(argTypes) + "' in: " + declaringClass);
-          }
-
-          final int parameterCount = method.getParameterCount();
-          if (parameterCount == 0) {
-            map.put(method, Constant.EMPTY_STRING_ARRAY);
-            continue;
-          }
-          final String[] paramNames = new String[parameterCount];
-          if (Modifier.isAbstract(method.getModifiers()) || method.isBridge() || method.isSynthetic()) {
-            int idx = 0;
-            for (final Parameter parameter : method.getParameters()) {
-              paramNames[idx++] = parameter.getName();
-            }
-            map.put(method, paramNames);
-            continue;
-          }
-
-          final ArrayList<LocalVariable> localVariables = methodNode.localVariables;
-          if (localVariables.size() >= parameterCount) {
-            int offset = Modifier.isStatic(method.getModifiers()) ? 0 : 1;
-            if (enableParamNameTypeChecking) { // enable check params types
-              // check params types
-              int idx = offset; // localVariable index
-              int start = 0; // loop control
-              while (start < parameterCount) {
-                final Type argument = argumentTypes[start];
-                if (!argument.equals(Type.fromDescriptor(localVariables.get(idx++).descriptor))) {
-                  idx = ++offset;
-                  start = 0; //reset
-                }
-                else {
-                  paramNames[start] = localVariables.get(start + offset).name;
-                  start++;
-                }
-              }
-            }
-            else {
-              for (int idx = 0; idx < parameterCount; idx++) {
-                paramNames[idx] = localVariables.get(idx + offset).name;
-              }
-            }
-          }
-          // @since 3.0.4 for gc
-          localVariables.clear();
-          methodNode.localVariables = null;
-
-          map.put(method, paramNames);
-        }
-        // @since 3.0.4 for gc
-        methodNodes.clear();
-        classVisitor.methodNodes = null;
-        return map;
+  /**
+   * Inspects the target class.
+   * <p>Exceptions will be logged, and a marker map returned to indicate the
+   * lack of debug information.
+   */
+  private Map<Executable, String[]> inspectClass(Class<?> clazz) {
+    InputStream is = clazz.getResourceAsStream(ClassUtils.getClassFileName(clazz));
+    if (is == null) {
+      // We couldn't load the class file, which is not fatal as it
+      // simply means this method of discovering parameter names won't work.
+      if (log.isDebugEnabled()) {
+        log.debug("Cannot find '.class' file for class [{}] " +
+                          "- unable to determine constructor/method parameter names", clazz);
       }
-      catch (IOException | ClassNotFoundException | NoSuchMethodException | IndexOutOfBoundsException e) {
-        throw new ApplicationContextException("When visit declaring class: [" + declaringClass.getName() + ']', e);
+      return NO_DEBUG_INFO_MAP;
+    }
+    try {
+      ClassReader classReader = new ClassReader(is);
+      Map<Executable, String[]> map = new ConcurrentHashMap<>(32);
+      classReader.accept(new ParameterNameDiscoveringVisitor(clazz, map), 0);
+      return map;
+    }
+    catch (IOException ex) {
+      if (log.isDebugEnabled()) {
+        log.debug("Exception thrown while reading '.class' file for class " +
+                          "[{}] - unable to determine constructor/method parameter names", clazz, ex);
       }
     }
-
+    catch (IllegalArgumentException ex) {
+      if (log.isDebugEnabled()) {
+        log.debug("ASM ClassReader failed to parse class file [{}]," +
+                          " probably due to a new Java class file version that isn't supported yet " +
+                          "- unable to determine constructor/method parameter names", clazz, ex);
+      }
+    }
+    finally {
+      try {
+        is.close();
+      }
+      catch (IOException ex) {
+        // ignore
+      }
+    }
+    return NO_DEBUG_INFO_MAP;
   }
 
-  static final class ClassNode extends ClassVisitor {
-    private ArrayList<MethodNode> methodNodes = new ArrayList<>();
+  /**
+   * Helper class that inspects all methods and constructors and then
+   * attempts to find the parameter names for the given {@link Executable}.
+   */
+  private static class ParameterNameDiscoveringVisitor extends ClassVisitor {
+    private static final String STATIC_CLASS_INIT = Constant.STATIC_CLASS_INIT;
+
+    private final Class<?> clazz;
+    private final Map<Executable, String[]> executableMap;
+
+    public ParameterNameDiscoveringVisitor(Class<?> clazz, Map<Executable, String[]> executableMap) {
+      this.clazz = clazz;
+      this.executableMap = executableMap;
+    }
 
     @Override
-    public MethodVisitor visitMethod(int access,
-                                     String name,
-                                     String descriptor,
-                                     String signature,
-                                     String[] exceptions) {
-
-      if (isSyntheticOrBridged(access)
-              || Constant.CONSTRUCTOR_NAME.equals(name)
-              || Constant.STATIC_CLASS_INIT.equals(name)) {
-        return null;
+    @Nullable
+    public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+      // exclude synthetic + bridged && static class initialization
+      if (!isSyntheticOrBridged(access) && !STATIC_CLASS_INIT.equals(name)) {
+        return new LocalVariableTableVisitor(this.clazz, this.executableMap, name, desc, isStatic(access));
       }
-      final MethodNode methodNode = new MethodNode(name, descriptor);
-      methodNodes.add(methodNode);
-      return methodNode;
+      return null;
     }
 
     private static boolean isSyntheticOrBridged(int access) {
       return (((access & Opcodes.ACC_SYNTHETIC) | (access & Opcodes.ACC_BRIDGE)) > 0);
     }
+
+    private static boolean isStatic(int access) {
+      return ((access & Opcodes.ACC_STATIC) > 0);
+    }
   }
 
-  static final class MethodNode extends MethodVisitor {
-    private final String name;
-    private final String desc;
-    private ArrayList<LocalVariable> localVariables = new ArrayList<>();
+  private static class LocalVariableTableVisitor extends MethodVisitor {
 
-    MethodNode(final String name, final String desc) {
+    private static final String CONSTRUCTOR = Constant.CONSTRUCTOR_NAME;
+
+    private final Class<?> clazz;
+
+    private final Map<Executable, String[]> executableMap;
+
+    private final String name;
+
+    private final Type[] args;
+
+    private final String[] parameterNames;
+
+    private final boolean isStatic;
+
+    private boolean hasLvtInfo = false;
+
+    /*
+     * The nth entry contains the slot index of the LVT table entry holding the
+     * argument name for the nth parameter.
+     */
+    private final int[] lvtSlotIndex;
+
+    public LocalVariableTableVisitor(
+            Class<?> clazz, Map<Executable, String[]> map, String name, String desc, boolean isStatic) {
+      this.clazz = clazz;
+      this.executableMap = map;
       this.name = name;
-      this.desc = desc;
+      this.args = Type.getArgumentTypes(desc);
+      this.parameterNames = new String[this.args.length];
+      this.isStatic = isStatic;
+      this.lvtSlotIndex = computeLvtSlotIndices(isStatic, this.args);
     }
 
     @Override
-    public void visitLocalVariable(String name,
-                                   String descriptor,
-                                   String signature,
-                                   Label start, Label end, int index) {
-
-      localVariables.add(new LocalVariable(name, descriptor));
+    public void visitLocalVariable(
+            String name, String description, String signature, Label start, Label end, int index) {
+      this.hasLvtInfo = true;
+      for (int i = 0; i < this.lvtSlotIndex.length; i++) {
+        if (this.lvtSlotIndex[i] == index) {
+          this.parameterNames[i] = name;
+        }
+      }
     }
-  }
 
-  static class LocalVariable {
-    String name;
-    String descriptor;
+    @Override
+    public void visitEnd() {
+      if (this.hasLvtInfo || (this.isStatic && this.parameterNames.length == 0)) {
+        // visitLocalVariable will never be called for static no args methods
+        // which doesn't use any local variables.
+        // This means that hasLvtInfo could be false for that kind of methods
+        // even if the class has local variable info.
+        this.executableMap.put(resolveExecutable(), this.parameterNames);
+      }
+    }
 
-    LocalVariable(String name, String descriptor) {
-      this.name = name;
-      this.descriptor = descriptor;
+    private Executable resolveExecutable() {
+      final Type[] args = this.args;
+      ClassLoader loader = this.clazz.getClassLoader();
+      Class<?>[] argTypes = new Class<?>[args.length];
+      for (int i = 0; i < args.length; i++) {
+        argTypes[i] = ClassUtils.resolveClassName(args[i].getClassName(), loader);
+      }
+      try {
+        if (CONSTRUCTOR.equals(this.name)) {
+          return this.clazz.getDeclaredConstructor(argTypes);
+        }
+        return this.clazz.getDeclaredMethod(this.name, argTypes);
+      }
+      catch (NoSuchMethodException ex) {
+        throw new IllegalStateException(
+                "Method [" + this.name + "] was discovered in the .class file but cannot be resolved in the class object", ex);
+      }
+    }
+
+    private static int[] computeLvtSlotIndices(boolean isStatic, Type[] paramTypes) {
+      int[] lvtIndex = new int[paramTypes.length];
+      int nextIndex = (isStatic ? 0 : 1);
+      for (int i = 0; i < paramTypes.length; i++) {
+        lvtIndex[i] = nextIndex;
+        if (isWideType(paramTypes[i])) {
+          nextIndex += 2;
+        }
+        else {
+          nextIndex++;
+        }
+      }
+      return lvtIndex;
+    }
+
+    private static boolean isWideType(Type aType) {
+      // float is not a wide type
+      return (aType == Type.LONG_TYPE || aType == Type.DOUBLE_TYPE);
     }
   }
 

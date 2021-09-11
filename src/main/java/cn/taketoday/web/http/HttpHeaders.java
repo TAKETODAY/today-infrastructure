@@ -109,7 +109,6 @@ public abstract class HttpHeaders
    * The HTTP {@code Accept-Patch} header field name.
    *
    * @see <a href="https://tools.ietf.org/html/rfc5789#section-3.1">Section 3.1 of RFC 5789</a>
-   * @since 5.3.6
    */
   public static final String ACCEPT_PATCH = "Accept-Patch";
   /**
@@ -639,6 +638,27 @@ public abstract class HttpHeaders
             .map(range -> Locale.forLanguageTag(range.getRange()))
             .filter(locale -> StringUtils.isNotEmpty(locale.getDisplayName()))
             .collect(Collectors.toList());
+  }
+
+  /**
+   * Set the list of acceptable {@linkplain MediaType media types} for
+   * {@code PATCH} methods, as specified by the {@code Accept-Patch} header.
+   *
+   * @since 4.0
+   */
+  public void setAcceptPatch(List<MediaType> mediaTypes) {
+    set(ACCEPT_PATCH, MediaType.toString(mediaTypes));
+  }
+
+  /**
+   * Return the list of acceptable {@linkplain MediaType media types} for
+   * {@code PATCH} methods, as specified by the {@code Accept-Patch} header.
+   * <p>Returns an empty list when the acceptable media types are unspecified.
+   *
+   * @since 4.0
+   */
+  public List<MediaType> getAcceptPatch() {
+    return MediaType.parseMediaTypes(get(ACCEPT_PATCH));
   }
 
   /**

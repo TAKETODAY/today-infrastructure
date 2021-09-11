@@ -140,7 +140,7 @@ public interface ObjectSupplier<T> extends Supplier<T>, Iterable<T> {
   /**
    * Return a sequential {@link Stream} over all matching object instances,
    * pre-ordered according to the factory's common order comparator.
-   * <p>In a standard Spring application context, this will be ordered
+   * <p>In a standard application context, this will be ordered
    * according to {@link Ordered} conventions,
    * and in case of annotation-based configuration also considering the
    * {@link Order} annotation,
