@@ -79,10 +79,8 @@ public class LocalVariableTableParameterNameDiscoverer extends ParameterNameDisc
     if (is == null) {
       // We couldn't load the class file, which is not fatal as it
       // simply means this method of discovering parameter names won't work.
-      if (log.isDebugEnabled()) {
-        log.debug("Cannot find '.class' file for class [{}] " +
-                          "- unable to determine constructor/method parameter names", clazz);
-      }
+      log.debug("Cannot find '.class' file for class [{}] " +
+                        "- unable to determine constructor/method parameter names", clazz);
       return NO_DEBUG_INFO_MAP;
     }
     try {
@@ -92,17 +90,13 @@ public class LocalVariableTableParameterNameDiscoverer extends ParameterNameDisc
       return map;
     }
     catch (IOException ex) {
-      if (log.isDebugEnabled()) {
-        log.debug("Exception thrown while reading '.class' file for class " +
-                          "[{}] - unable to determine constructor/method parameter names", clazz, ex);
-      }
+      log.debug("Exception thrown while reading '.class' file for class " +
+                        "[{}] - unable to determine constructor/method parameter names", clazz, ex);
     }
     catch (IllegalArgumentException ex) {
-      if (log.isDebugEnabled()) {
-        log.debug("ASM ClassReader failed to parse class file [{}]," +
-                          " probably due to a new Java class file version that isn't supported yet " +
-                          "- unable to determine constructor/method parameter names", clazz, ex);
-      }
+      log.debug("ASM ClassReader failed to parse class file [{}]," +
+                        " probably due to a new Java class file version that isn't supported yet " +
+                        "- unable to determine constructor/method parameter names", clazz, ex);
     }
     finally {
       try {
