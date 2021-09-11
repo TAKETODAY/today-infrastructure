@@ -160,7 +160,7 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
 
   @Override
   public Map<K, V> toSingleValueMap() {
-    final HashMap<K, V> singleValueMap = new HashMap<>(map.size());
+    final HashMap<K, V> singleValueMap = CollectionUtils.newHashMap(map.size());
     for (final Entry<K, List<V>> entry : map.entrySet()) {
       final List<V> values = entry.getValue();
       if (!CollectionUtils.isEmpty(values)) {
@@ -243,7 +243,7 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
   }
 
   @Override
-  public void putAll(Map<? extends K, ? extends List<V>> map) {
+  public void putAll(@NonNull Map<? extends K, ? extends List<V>> map) {
     this.map.putAll(map);
   }
 
