@@ -53,7 +53,7 @@ public class CompositeParameterNameDiscoverer extends ParameterNameDiscoverer {
 
   @Nullable
   @Override
-  public String[] getParameterNames(Executable executable) {
+  public String[] getInternal(Executable executable) {
     for (final ParameterNameDiscoverer discoverer : discoverers) {
       final String[] parameterNames = discoverer.getParameterNames(executable);
       if (parameterNames != null) {
