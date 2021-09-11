@@ -66,7 +66,7 @@ import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ConvertUtils;
+import cn.taketoday.core.conversion.ConversionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -474,7 +474,7 @@ public abstract class ContextUtils {
         return resolveValue((String) value, fieldType, properties);
       }
       if (value != null) {
-        return ConvertUtils.convert(value, fieldType);
+        return ConversionUtils.convert(value, fieldType);
       }
     }
     return null;

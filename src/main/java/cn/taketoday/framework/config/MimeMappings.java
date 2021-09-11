@@ -23,7 +23,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
+
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.NonNull;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Simple server-independent abstraction for mime mappings. Roughly equivalent
@@ -31,7 +34,7 @@ import java.util.Objects;
  *
  * @author Phillip Webb
  * @author TODAY <br>
- *         2019-01-25 19:06
+ * 2019-01-25 19:06
  */
 public final class MimeMappings implements Iterable<MimeMappings.Mapping> {
 
@@ -233,22 +236,24 @@ public final class MimeMappings implements Iterable<MimeMappings.Mapping> {
    * Create a new {@link MimeMappings} from the specified mappings.
    *
    * @param mappings
-   *            the source mappings with extension as the key and mime-type as the
-   *            value
+   *         the source mappings with extension as the key and mime-type as the
+   *         value
    */
   public MimeMappings(Map<String, String> mappings) {
-    Objects.requireNonNull(mappings, "Mappings must not be null");
+    Assert.notNull(mappings, "Mappings must not be null");
 
-    this.map = new LinkedHashMap<>();
-    mappings.forEach(this::add);
+    this.map = CollectionUtils.newLinkedHashMap(mappings.size());
+    for (Map.Entry<String, String> entry : mappings.entrySet()) {
+      add(entry.getKey(), entry.getValue());
+    }
   }
 
   public MimeMappings(MimeMappings mappings) {
-    Objects.requireNonNull(mappings, "Mappings must not be null");
-
+    Assert.notNull(mappings, "Mappings must not be null");
     this.map = new LinkedHashMap<>(mappings.map);
   }
 
+  @NonNull
   @Override
   public Iterator<Mapping> iterator() {
     return getAll().iterator();
@@ -267,9 +272,10 @@ public final class MimeMappings implements Iterable<MimeMappings.Mapping> {
    * Add a new mime mapping.
    *
    * @param extension
-   *            the file extension (excluding '.')
+   *         the file extension (excluding '.')
    * @param mimeType
-   *            the mime type to map
+   *         the mime type to map
+   *
    * @return any previous mapping or {@code null}
    */
   public String add(String extension, String mimeType) {
@@ -281,7 +287,8 @@ public final class MimeMappings implements Iterable<MimeMappings.Mapping> {
    * Get a mime mapping for the given extension.
    *
    * @param extension
-   *            the file extension (excluding '.')
+   *         the file extension (excluding '.')
+   *
    * @return a mime mapping or {@code null}
    */
   public String get(String extension) {
@@ -293,7 +300,8 @@ public final class MimeMappings implements Iterable<MimeMappings.Mapping> {
    * Remove an existing mapping.
    *
    * @param extension
-   *            the file extension (excluding '.')
+   *         the file extension (excluding '.')
+   *
    * @return the removed mime mapping or {@code null} if no item was removed
    */
   public String remove(String extension) {
@@ -327,9 +335,8 @@ public final class MimeMappings implements Iterable<MimeMappings.Mapping> {
     private final String mimeType;
 
     public Mapping(String extension, String mimeType) {
-
-      Objects.requireNonNull(extension, "Extension must not be null");
-      Objects.requireNonNull(mimeType, "MimeType must not be null");
+      Assert.notNull(extension, "Extension must not be null");
+      Assert.notNull(mimeType, "MimeType must not be null");
 
       this.extension = extension;
       this.mimeType = mimeType;

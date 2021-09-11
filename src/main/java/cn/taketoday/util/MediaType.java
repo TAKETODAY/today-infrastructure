@@ -36,11 +36,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 
 import static java.util.Collections.singletonMap;
-import static java.util.Objects.requireNonNull;
 
 /**
  * A subclass of {@link MimeType} that adds support for quality parameters as
@@ -635,7 +635,8 @@ public class MediaType extends MimeType implements Serializable {
    * Semantics and Content, section 5.3.2</a>
    */
   public static void sortBySpecificity(List<MediaType> mediaTypes) {
-    if (requireNonNull(mediaTypes, "'mediaTypes' must not be null").size() > 1) {
+    Assert.notNull(mediaTypes, "'mediaTypes' must not be null");
+    if (mediaTypes.size() > 1) {
       mediaTypes.sort(SPECIFICITY_COMPARATOR);
     }
   }
@@ -669,7 +670,8 @@ public class MediaType extends MimeType implements Serializable {
    * @see #getQualityValue()
    */
   public static void sortByQualityValue(List<MediaType> mediaTypes) {
-    if (requireNonNull(mediaTypes, "'mediaTypes' must not be null").size() > 1) {
+    Assert.notNull(mediaTypes, "'mediaTypes' must not be null");
+    if (mediaTypes.size() > 1) {
       mediaTypes.sort(QUALITY_VALUE_COMPARATOR);
     }
   }
@@ -682,7 +684,8 @@ public class MediaType extends MimeType implements Serializable {
    * @see MediaType#sortByQualityValue(List)
    */
   public static void sortBySpecificityAndQuality(List<MediaType> mediaTypes) {
-    if (requireNonNull(mediaTypes, "'mediaTypes' must not be null").size() > 1) {
+    Assert.notNull(mediaTypes, "'mediaTypes' must not be null");
+    if (mediaTypes.size() > 1) {
       mediaTypes.sort(MediaType.SPECIFICITY_COMPARATOR.thenComparing(MediaType.QUALITY_VALUE_COMPARATOR));
     }
   }

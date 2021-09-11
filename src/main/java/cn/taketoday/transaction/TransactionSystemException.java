@@ -19,7 +19,7 @@
  */
 package cn.taketoday.transaction;
 
-import java.util.Objects;
+import cn.taketoday.core.Assert;
 
 /**
  * Exception thrown when a general transaction system error is encountered, like
@@ -47,13 +47,14 @@ public class TransactionSystemException extends TransactionException {
    * TransactionSystemException.
    *
    * @param ex
-   *            the application exception
+   *         the application exception
+   *
    * @throws IllegalStateException
-   *             if this TransactionSystemException already holds an application
-   *             exception
+   *         if this TransactionSystemException already holds an application
+   *         exception
    */
   public void initApplicationException(Throwable ex) {
-    Objects.requireNonNull(ex, "Application exception must not be null");
+    Assert.notNull(ex, "Application exception must not be null");
     if (this.applicationException != null) {
       throw new IllegalStateException("Already holding an application exception: " + this.applicationException);
     }

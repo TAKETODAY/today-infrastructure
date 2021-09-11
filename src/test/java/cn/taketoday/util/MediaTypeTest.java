@@ -28,6 +28,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
+import cn.taketoday.core.conversion.ConversionUtils;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -434,10 +436,10 @@ public class MediaTypeTest {
     @Test
     public void withTypeConverter() {
 
-        assertThat(ConvertUtils.supports("application/xml", MediaType.class)).isTrue();
+        assertThat(ConversionUtils.supports("application/xml", MediaType.class)).isTrue();
 
         MediaType mediaType = MediaType.valueOf("application/xml");
-        assertThat(ConvertUtils.convert("application/xml", MediaType.class)).isEqualTo(mediaType);
+        assertThat(ConversionUtils.convert("application/xml", MediaType.class)).isEqualTo(mediaType);
     }
 
     @Test

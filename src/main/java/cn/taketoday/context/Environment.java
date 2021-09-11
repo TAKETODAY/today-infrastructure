@@ -26,7 +26,7 @@ import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.expression.ExpressionProcessor;
-import cn.taketoday.util.ConvertUtils;
+import cn.taketoday.core.conversion.ConversionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -114,7 +114,7 @@ public interface Environment {
    * @since 2.1.6
    */
   default <T> T getProperty(String key, Class<T> targetType, T defaultValue) {
-    return getProperty(key, s -> ConvertUtils.convert(targetType, s), defaultValue);
+    return getProperty(key, s -> ConversionUtils.convert(targetType, s), defaultValue);
   }
 
   /**

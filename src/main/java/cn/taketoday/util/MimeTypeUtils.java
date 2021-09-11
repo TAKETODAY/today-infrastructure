@@ -30,9 +30,10 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Collectors;
+
+import cn.taketoday.core.Assert;
 
 /**
  * Miscellaneous {@link MimeType} utility methods.
@@ -344,7 +345,7 @@ public abstract class MimeTypeUtils {
    * Semantics and Content, section 5.3.2</a>
    */
   public static void sortBySpecificity(List<MimeType> mimeTypes) {
-    Objects.requireNonNull(mimeTypes, "'mimeTypes' must not be null");
+    Assert.notNull(mimeTypes, "'mimeTypes' must not be null");
     if (mimeTypes.size() > 1) {
       mimeTypes.sort(SPECIFICITY_COMPARATOR);
     }

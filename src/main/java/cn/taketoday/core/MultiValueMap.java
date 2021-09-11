@@ -19,6 +19,7 @@
  */
 package cn.taketoday.core;
 
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.function.IntFunction;
@@ -71,6 +72,19 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    *         the values to be added
    */
   void addAll(K key, List<? extends V> values);
+
+  /**
+   * Add all the values of the given enumeration to the current enumeration of values for the
+   * given key.
+   *
+   * @param key
+   *         they key
+   * @param values
+   *         the values to be added
+   *
+   * @since 4.0
+   */
+  void addAll(K key, Enumeration<? extends V> values);
 
   /**
    * Add all the values of the given {@code MultiValueMap} to the current values.

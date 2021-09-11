@@ -667,7 +667,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   public void refresh(String name) {
     getBeanFactory().refresh(name);
     // object refreshed
-    publishEvent(new ObjectRefreshedEvent(getBeanDefinition(name), this));
+    publishEvent(new ObjectRefreshedEvent(name, this));
   }
 
   @Override

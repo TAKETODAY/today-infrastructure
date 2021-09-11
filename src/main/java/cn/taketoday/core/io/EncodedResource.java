@@ -26,6 +26,8 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.Objects;
 
+import cn.taketoday.core.Assert;
+
 /**
  * Holder that combines a {@link Resource} descriptor with a specific encoding
  * or {@code Charset} to be used for reading from the resource.
@@ -87,7 +89,7 @@ public class EncodedResource implements InputStreamSource {
   }
 
   private EncodedResource(Resource resource, String encoding, Charset charset) {
-    Objects.requireNonNull(resource, "Resource must not be null");
+    Assert.notNull(resource, "Resource must not be null");
     this.resource = resource;
     this.encoding = encoding;
     this.charset = charset;

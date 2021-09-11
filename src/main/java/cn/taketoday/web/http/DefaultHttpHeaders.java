@@ -20,6 +20,7 @@
 package cn.taketoday.web.http;
 
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -84,6 +85,11 @@ public class DefaultHttpHeaders extends HttpHeaders {
 
   @Override
   public void addAll(String key, List<? extends String> values) {
+    headers.addAll(key, values);
+  }
+
+  @Override
+  public void addAll(String key, Enumeration<? extends String> values) {
     headers.addAll(key, values);
   }
 

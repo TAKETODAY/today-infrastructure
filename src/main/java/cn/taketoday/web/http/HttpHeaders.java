@@ -37,6 +37,7 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -1790,6 +1791,13 @@ public abstract class HttpHeaders
   public void addAll(String key, List<? extends String> values) {
     for (final String value : values) {
       add(key, value);
+    }
+  }
+
+  @Override
+  public void addAll(String key, Enumeration<? extends String> values) {
+    if (values.hasMoreElements()) {
+      add(key, values.nextElement());
     }
   }
 

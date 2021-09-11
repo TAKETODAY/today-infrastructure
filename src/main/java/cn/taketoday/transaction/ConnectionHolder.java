@@ -22,11 +22,12 @@ package cn.taketoday.transaction;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Savepoint;
-import java.util.Objects;
+
+import cn.taketoday.core.Assert;
 
 /**
  * @author TODAY <br>
- *         2018-10-09 11:29
+ * 2018-10-09 11:29
  */
 public class ConnectionHolder extends AbstractResourceHolder {
 
@@ -64,7 +65,7 @@ public class ConnectionHolder extends AbstractResourceHolder {
    * lifetime of this ConnectionHolder.
    *
    * @throws SQLException
-   *             if thrown by the JDBC driver
+   *         if thrown by the JDBC driver
    */
   public boolean supportsSavepoints() throws SQLException {
     if (this.savepointsSupported == null) {
@@ -78,8 +79,9 @@ public class ConnectionHolder extends AbstractResourceHolder {
    * savepoint names that are unique for the Connection.
    *
    * @return the new Savepoint
+   *
    * @throws SQLException
-   *             if thrown by the JDBC driver
+   *         if thrown by the JDBC driver
    */
   public Savepoint createSavepoint() throws SQLException {
     this.savepointCounter++;
@@ -98,7 +100,7 @@ public class ConnectionHolder extends AbstractResourceHolder {
     }
   }
 
-  protected void releaseInternal(Connection connection) {}
+  protected void releaseInternal(Connection connection) { }
 
   @Override
   public void clear() {
@@ -118,7 +120,8 @@ public class ConnectionHolder extends AbstractResourceHolder {
    * @see #released()
    */
   public Connection getConnection() {
-    return Objects.requireNonNull(connection, "Active Connection is required");
+    Assert.state(connection != null, "Active Connection is required");
+    return connection;
   }
 
   public void setConnection(Connection connection) {

@@ -46,6 +46,8 @@ import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.core.Constant;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.http.DefaultHttpHeaders;
 import cn.taketoday.web.http.HttpHeaders;
 
@@ -478,7 +480,7 @@ public abstract class Utils {
         elements.add(element);
       start = end + 1;
     }
-    return elements.toArray(new String[elements.size()]);
+    return StringUtils.toStringArray(elements);
   }
 
   /**

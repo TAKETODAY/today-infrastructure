@@ -21,7 +21,7 @@ package cn.taketoday.web.view;
 
 import java.util.Map;
 
-import cn.taketoday.util.ConvertUtils;
+import cn.taketoday.core.conversion.ConversionUtils;
 
 /**
  * Model that defines a holder for model attributes.
@@ -74,13 +74,13 @@ public interface Model {
    * @param name
    *         a <code>String</code> specifying the name of the attribute
    * @param targetClass
-   *         attribute will be use {@link ConvertUtils} convert to target class
+   *         attribute will be use {@link ConversionUtils} convert to target class
    *
    * @return an converted <code>Object</code> containing the value of the
    * attribute, or <code>null</code> if the attribute does not exist
    */
   default <T> T getAttribute(String name, Class<T> targetClass) {
-    return ConvertUtils.convert(targetClass, getAttribute(name));
+    return ConversionUtils.convert(targetClass, getAttribute(name));
   }
 
   /**

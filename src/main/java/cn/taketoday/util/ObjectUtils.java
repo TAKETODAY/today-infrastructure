@@ -32,6 +32,7 @@ import cn.taketoday.core.Constant;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.conversion.ConversionException;
+import cn.taketoday.core.conversion.ConversionUtils;
 
 /**
  * Miscellaneous object utility methods.
@@ -245,7 +246,7 @@ public abstract class ObjectUtils {
       }
       final Object newInstance = Array.newInstance(targetClass, length);
       for (short i = 0; i < length; i++) {
-        Array.set(newInstance, i, ConvertUtils.convert(source[i], targetClass));
+        Array.set(newInstance, i, ConversionUtils.convert(source[i], targetClass));
       }
       return newInstance;
     }

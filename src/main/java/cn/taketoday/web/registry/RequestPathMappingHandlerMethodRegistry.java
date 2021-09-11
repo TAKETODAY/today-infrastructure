@@ -29,6 +29,7 @@ import java.util.Objects;
 
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Constant;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -56,8 +57,11 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
       super.logMapping(entry.getKey(), entry.getValue());
     }
 
-    for (final PatternHandler patternHandler : getPatternHandlers()) {
-      super.logMapping(patternHandler.getPattern(), patternHandler.getHandler());
+    final List<PatternHandler> patternHandlers = getPatternHandlers();
+    if (!CollectionUtils.isEmpty(patternHandlers)) {
+      for (final PatternHandler patternHandler : patternHandlers) {
+        super.logMapping(patternHandler.getPattern(), patternHandler.getHandler());
+      }
     }
   }
 
@@ -273,7 +277,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
       final String requestMethod = context.getMethod();
       boolean matched = false;
       for (final HttpMethod testMethod : supportedMethods) {
-        if (requestMethod.equals(testMethod.name())) {
+        if (testMethod.matches(requestMethod)) {
           matched = true;
           break;
         }
@@ -286,7 +290,8 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
     // test contentType
     final MediaType[] consumes = mappingInfo.consumes();
     if (consumes != null) {
-      final MediaType contentType = context.requestHeaders().getContentType();
+      final String contentTypeString = context.getContentType();
+      final MediaType contentType = MediaType.parseMediaType(contentTypeString);
       for (final MediaType consume : consumes) {
         if (!consume.includes(contentType)) {
           return false;
