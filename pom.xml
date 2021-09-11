@@ -38,7 +38,7 @@
     <joda-time.version>2.0</joda-time.version>
     <jooq.version>3.3.0</jooq.version>
     <junit.version>4.12</junit.version>
-    <mockito.version>1.9.5</mockito.version>
+    <mockito.version>3.12.4</mockito.version>
     <persistence-api.version>1.0.2</persistence-api.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>1.7.25</slf4j.version>
@@ -371,7 +371,7 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>3.14.0</version>
+      <version>3.20.2</version>
       <scope>test</scope>
     </dependency>
 
@@ -379,13 +379,6 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.13.1</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>2.23.4</version>
       <scope>test</scope>
     </dependency>
 
@@ -470,7 +463,7 @@
     <!--
         <dependency>
           <scope>test</scope>
-          <groupId>org.springframework</groupId>
+          <groupId>cn.taketoday</groupId>
           <artifactId>spring-jdbc</artifactId>
           <version>${spring-jdbc.version}</version>
         </dependency>
@@ -478,7 +471,14 @@
 
     <dependency>
       <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
+      <artifactId>mockito-core</artifactId>
+      <version>${mockito.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
       <version>${mockito.version}</version>
       <scope>test</scope>
     </dependency>
