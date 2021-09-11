@@ -29,9 +29,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import cn.taketoday.core.Assert;
 
@@ -185,7 +183,7 @@ public abstract class MimeTypeUtils {
       throw new InvalidMimeTypeException(mimeType, "wildcard type is legal only in '*/*' (all mime types)");
     }
 
-    Map<String, String> parameters = null;
+    LinkedHashMap<String, String> parameters = null;
     do {
       int nextIndex = index + 1;
       boolean quoted = false;
@@ -243,10 +241,16 @@ public abstract class MimeTypeUtils {
     if (StringUtils.isEmpty(mimeTypes)) {
       return Collections.emptyList();
     }
-    return tokenize(mimeTypes).stream()
-            .filter(StringUtils::isNotEmpty)
-            .map(MimeTypeUtils::parseMimeType)
-            .collect(Collectors.toList());
+
+    // Avoid using java.util.stream.Stream in hot paths
+    List<String> tokenizedTypes = MimeTypeUtils.tokenize(mimeTypes);
+    ArrayList<MimeType> result = new ArrayList<>(tokenizedTypes.size());
+    for (String type : tokenizedTypes) {
+      if (StringUtils.isNotEmpty(type)) {
+        result.add(parseMimeType(type));
+      }
+    }
+    return result;
   }
 
   /**
@@ -263,7 +267,7 @@ public abstract class MimeTypeUtils {
     if (StringUtils.isEmpty(mimeTypes)) {
       return Collections.emptyList();
     }
-    List<String> tokens = new ArrayList<>();
+    ArrayList<String> tokens = new ArrayList<>();
     boolean inQuotes = false;
     int startIndex = 0;
     int i = 0;

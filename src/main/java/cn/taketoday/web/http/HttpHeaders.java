@@ -826,7 +826,7 @@ public abstract class HttpHeaders
     String value = getFirst(ACCEPT_CHARSET);
     if (value != null) {
       String[] tokens = StringUtils.tokenizeToStringArray(value, ",");
-      List<Charset> result = new ArrayList<>(tokens.length);
+      ArrayList<Charset> result = new ArrayList<>(tokens.length);
       for (String token : tokens) {
         int paramIdx = token.indexOf(';');
         String charsetName;
@@ -865,7 +865,7 @@ public abstract class HttpHeaders
     String value = getFirst(ALLOW);
     if (StringUtils.isNotEmpty(value)) {
       String[] tokens = StringUtils.tokenizeToStringArray(value, ",");
-      List<HttpMethod> result = new ArrayList<>(tokens.length);
+      ArrayList<HttpMethod> result = new ArrayList<>(tokens.length);
       for (String token : tokens) {
         result.add(HttpMethod.valueOf(token));
       }

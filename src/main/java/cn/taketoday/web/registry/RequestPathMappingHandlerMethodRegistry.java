@@ -31,6 +31,7 @@ import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MediaType;
+import cn.taketoday.util.MimeType;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
@@ -290,8 +291,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
     // test contentType
     final MediaType[] consumes = mappingInfo.consumes();
     if (consumes != null) {
-      final String contentTypeString = context.getContentType();
-      final MediaType contentType = MediaType.parseMediaType(contentTypeString);
+      final MimeType contentType = MimeType.valueOf(context.getContentType());
       for (final MediaType consume : consumes) {
         if (!consume.includes(contentType)) {
           return false;
@@ -302,16 +302,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
     final RequestParameter[] params = mappingInfo.params();
     if (params != null) {
       for (final RequestParameter param : params) {
-        final String name = param.getName();
-        final String parameter = context.getParameter(name);
-        if (parameter != null) {
-          // test parameter value
-          final String value = param.getValue();
-          if (value != null && !Objects.equals(value, parameter)) {
-            return false;
-          }
-        }
-        else {
+        if (!param.matches(context)) {
           return false;
         }
       }
@@ -341,9 +332,9 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
   }
 
   private boolean matchParameters(MediaType accept, MediaType acceptedMediaType) {
-    for (String name : accept.getParameters().keySet()) {
-      String s1 = accept.getParameter(name);
-      String s2 = acceptedMediaType.getParameter(name);
+    for (final Map.Entry<String, String> entry : accept.getParameters().entrySet()) {
+      String s1 = entry.getValue();
+      String s2 = acceptedMediaType.getParameter(entry.getKey());
       if (StringUtils.hasText(s1) && StringUtils.hasText(s2) && !s1.equalsIgnoreCase(s2)) {
         return false;
       }

@@ -33,6 +33,8 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import cn.taketoday.core.NonNull;
+
 /**
  * {@link LinkedHashMap} variant that stores String keys in a case-insensitive
  * manner, for example for key-based access in a results table.
@@ -170,7 +172,6 @@ public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable
   }
 
   @Override
-
   public V get(Object key) {
     if (key instanceof String) {
       String caseInsensitiveKey = this.caseInsensitiveKeys.get(convertKey((String) key));
@@ -221,7 +222,7 @@ public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable
   }
 
   @Override
-  public V computeIfAbsent(String key, Function<? super String, ? extends V> mappingFunction) {
+  public V computeIfAbsent(String key, @NonNull Function<? super String, ? extends V> mappingFunction) {
     String oldKey = this.caseInsensitiveKeys.putIfAbsent(convertKey(key), key);
     if (oldKey != null) {
       return this.targetMap.get(oldKey);

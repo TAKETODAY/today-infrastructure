@@ -24,6 +24,7 @@ import java.util.Objects;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.RequestContext;
 
 /**
  * @author TODAY 2021/4/22 0:33
@@ -49,10 +50,13 @@ final class RequestParameter {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof RequestParameter)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof RequestParameter))
+      return false;
     final RequestParameter that = (RequestParameter) o;
-    return Objects.equals(name, that.name) && Objects.equals(value, that.value);
+    return Objects.equals(name, that.name)
+            && Objects.equals(value, that.value);
   }
 
   @Override
@@ -95,4 +99,20 @@ final class RequestParameter {
       return new RequestParameter(param, null);
     }
   }
+
+  /**
+   * test parameter value
+   *
+   * @since 4.0
+   */
+  public boolean matches(RequestContext context) {
+    final String parameter = context.getParameter(name);
+    if (parameter != null) {
+      // test parameter value
+      final String value = getValue();
+      return value == null || Objects.equals(value, parameter);
+    }
+    return false;
+  }
+
 }

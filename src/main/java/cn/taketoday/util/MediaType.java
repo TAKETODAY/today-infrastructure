@@ -444,7 +444,7 @@ public class MediaType extends MimeType implements Serializable {
     if (!mediaType.getParameters().containsKey(PARAM_QUALITY_FACTOR)) {
       return this;
     }
-    Map<String, String> params = new LinkedHashMap<>(getParameters());
+    LinkedHashMap<String, String> params = new LinkedHashMap<>(getParameters());
     params.put(PARAM_QUALITY_FACTOR, mediaType.getParameters().get(PARAM_QUALITY_FACTOR));
     return new MediaType(this, params);
   }
@@ -459,7 +459,7 @@ public class MediaType extends MimeType implements Serializable {
     if (!getParameters().containsKey(PARAM_QUALITY_FACTOR)) {
       return this;
     }
-    Map<String, String> params = new LinkedHashMap<>(getParameters());
+    LinkedHashMap<String, String> params = new LinkedHashMap<>(getParameters());
     params.remove(PARAM_QUALITY_FACTOR);
     return new MediaType(this, params);
   }
@@ -524,7 +524,7 @@ public class MediaType extends MimeType implements Serializable {
     }
     // Avoid using java.util.stream.Stream in hot paths
     List<String> tokenizedTypes = MimeTypeUtils.tokenize(mediaTypes);
-    List<MediaType> result = new ArrayList<>(tokenizedTypes.size());
+    ArrayList<MediaType> result = new ArrayList<>(tokenizedTypes.size());
     for (String type : tokenizedTypes) {
       if (StringUtils.isNotEmpty(type)) {
         result.add(parseMediaType(type));
@@ -555,7 +555,7 @@ public class MediaType extends MimeType implements Serializable {
       return parseMediaTypes(mediaTypes.get(0));
     }
     else {
-      List<MediaType> result = new ArrayList<>(8);
+      ArrayList<MediaType> result = new ArrayList<>(8);
       for (String mediaType : mediaTypes) {
         result.addAll(parseMediaTypes(mediaType));
       }
@@ -567,7 +567,7 @@ public class MediaType extends MimeType implements Serializable {
    * Re-create the given mime types as media types.
    */
   public static List<MediaType> asMediaTypes(List<MimeType> mimeTypes) {
-    List<MediaType> mediaTypes = new ArrayList<>(mimeTypes.size());
+    ArrayList<MediaType> mediaTypes = new ArrayList<>(mimeTypes.size());
     for (MimeType mimeType : mimeTypes) {
       mediaTypes.add(MediaType.asMediaType(mimeType));
     }
