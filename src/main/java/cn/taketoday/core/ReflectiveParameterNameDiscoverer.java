@@ -37,16 +37,19 @@ public class ReflectiveParameterNameDiscoverer extends ParameterNameDiscoverer {
   public String[] getInternal(Executable executable) {
     final Parameter[] parameters = executable.getParameters();
     int i = 0;
-    String[] ret = new String[parameters.length];
+    String[] parameterNames = null;
     for (final Parameter parameter : parameters) {
       if (parameter.isNamePresent()) {
-        ret[i++] = parameter.getName();
+        if (parameterNames == null) {
+          parameterNames = new String[parameters.length];
+        }
+        parameterNames[i++] = parameter.getName();
       }
       else {
         return null;
       }
     }
-    return ret;
+    return parameterNames;
   }
 
 }
