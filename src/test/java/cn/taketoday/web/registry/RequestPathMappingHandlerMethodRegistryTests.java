@@ -25,7 +25,7 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 
 import cn.taketoday.core.AnnotationAttributes;
-import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.annotation.ActionMapping;

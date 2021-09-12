@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -21,7 +21,7 @@ package cn.taketoday.web.registry;
 
 import java.util.Collection;
 
-import cn.taketoday.util.OrderUtils;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 
 import static java.util.Objects.requireNonNull;
 
@@ -29,11 +29,11 @@ import static java.util.Objects.requireNonNull;
  * @author TODAY 2020/12/10 23:31
  */
 public class CompositeHandlerCustomizer implements HandlerCustomizer {
-
   private final HandlerCustomizer[] customizers;
 
   public CompositeHandlerCustomizer(HandlerCustomizer... customizers) {
-    this.customizers = OrderUtils.reversedSort(customizers);
+    AnnotationAwareOrderComparator.sort(customizers);
+    this.customizers = customizers;
   }
 
   public CompositeHandlerCustomizer(final Collection<HandlerCustomizer> customizers) {

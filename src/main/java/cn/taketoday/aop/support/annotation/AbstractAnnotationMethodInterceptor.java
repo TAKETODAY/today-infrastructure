@@ -37,8 +37,8 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.reflect.MethodInvoker;
-import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ExceptionUtils;
 
 /**

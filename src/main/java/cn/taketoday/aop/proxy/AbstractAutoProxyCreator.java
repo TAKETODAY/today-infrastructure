@@ -42,11 +42,12 @@ import cn.taketoday.context.aware.Aware;
 import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.OrderUtils;
 
 /**
  * Abstract Auto Proxy Creator use {@link cn.taketoday.beans.factory.BeanPostProcessor}
@@ -251,7 +252,9 @@ public abstract class AbstractAutoProxyCreator
     List<Advisor> eligibleAdvisors = filterAdvisors(candidateAdvisors, def, targetSource);
     postEligibleAdvisors(eligibleAdvisors);
 
-    eligibleAdvisors = sortAdvisors(eligibleAdvisors);
+    // sort advisers
+    sortAdvisors(eligibleAdvisors);
+
     if (eligibleAdvisors.isEmpty()) {
       return DO_NOT_PROXY;
     }
@@ -296,14 +299,12 @@ public abstract class AbstractAutoProxyCreator
    * @param advisors
    *         the source List of Advisors
    *
-   * @return the sorted List of Advisors
-   *
    * @see Ordered
    * @see Order
    * @see OrderUtils
    */
-  protected List<Advisor> sortAdvisors(List<Advisor> advisors) {
-    return OrderUtils.reversedSort(advisors);
+  protected void sortAdvisors(List<Advisor> advisors) {
+    AnnotationAwareOrderComparator.sort(advisors);
   }
 
   protected boolean shouldSkip(Object bean, BeanDefinition def) {

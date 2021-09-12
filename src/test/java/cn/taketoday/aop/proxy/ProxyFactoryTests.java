@@ -43,7 +43,7 @@ import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.interceptor.DebugInterceptor;
 import cn.taketoday.core.Order;
-import cn.taketoday.util.OrderUtils;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -350,7 +350,9 @@ public class ProxyFactoryTests {
     List<Object> list = new ArrayList<>(2);
     list.add(proxy1);
     list.add(proxy2);
-    OrderUtils.sort(list);
+
+    AnnotationAwareOrderComparator.sort(list);
+
     assertThat(list.get(0)).isSameAs(proxy2);
     assertThat(list.get(1)).isSameAs(proxy1);
   }
@@ -366,7 +368,9 @@ public class ProxyFactoryTests {
     List<Object> list = new ArrayList<>(2);
     list.add(proxy1);
     list.add(proxy2);
-    OrderUtils.sort(list);
+
+    AnnotationAwareOrderComparator.sort(list);
+
     assertThat(list.get(0)).isSameAs(proxy2);
     assertThat(list.get(1)).isSameAs(proxy1);
   }

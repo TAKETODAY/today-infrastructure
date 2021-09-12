@@ -35,7 +35,7 @@ import cn.taketoday.core.Ordered;
  * (e.g. an AspectJ expression pointcut) needs to know the full invocation context.
  *
  * <p>Don't use this interceptor unless this is really necessary. Target objects should
- * not normally know about Spring AOP, as this creates a dependency on Spring API.
+ * not normally know about AOP, as this creates a dependency on API.
  * Target objects should be plain POJOs as far as possible.
  *
  * <p>If used, this interceptor will normally be the first in the interceptor chain.

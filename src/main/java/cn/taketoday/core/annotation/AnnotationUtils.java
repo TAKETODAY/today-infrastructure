@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.util;
+package cn.taketoday.core.annotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -28,10 +28,8 @@ import java.util.List;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
-import cn.taketoday.core.annotation.AnnotationKey;
-import cn.taketoday.core.annotation.AnnotationMetaReader;
-import cn.taketoday.core.annotation.ReflectiveAnnotationMetaReader;
 import cn.taketoday.core.reflect.ReflectionException;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * @author TODAY 2021/7/28 21:15

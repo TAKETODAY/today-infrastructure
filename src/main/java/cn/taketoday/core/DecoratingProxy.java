@@ -20,7 +20,7 @@
 
 package cn.taketoday.core;
 
-import cn.taketoday.util.OrderUtils;
+import cn.taketoday.core.annotation.OrderUtils;
 
 /**
  * Interface to be implemented by decorating proxies, in particular AOP
@@ -28,13 +28,13 @@ import cn.taketoday.util.OrderUtils;
  *
  * <p>Note that this interface should just be implemented if the decorated class
  * is not within the hierarchy of the proxy class to begin with. In particular,
- * a "target-class" proxy such as a AOP CGLIB proxy should not implement
+ * a "target-class" proxy such as an AOP CGLIB proxy should not implement
  * it since any lookup on the target class can simply be performed on the proxy
  * class there anyway.
  *
  * <p>Defined in the core module in order to allow
  * {@link OrderUtils}
- * (and potential other candidates without spring-aop dependencies) to use it
+ * (and potential other candidates without aop dependencies) to use it
  * for introspection purposes, in particular annotation lookups.
  *
  * @author Juergen Hoeller

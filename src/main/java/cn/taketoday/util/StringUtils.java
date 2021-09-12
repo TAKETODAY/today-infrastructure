@@ -1409,7 +1409,7 @@ else */
    * <p>For many parsing scenarios, this is an inverse operation of
    * {@link Locale#toString Locale's toString}, in a lenient sense.
    * This method does not aim for strict {@code Locale} design compliance;
-   * it is rather specifically tailored for typical Spring parsing needs.
+   * it is rather specifically tailored for typical parsing needs.
    * <p><b>Note: This delegate does not accept the BCP 47 language tag format.
    * Please use {@link #parseLocale} for lenient parsing of both formats.</b>
    *

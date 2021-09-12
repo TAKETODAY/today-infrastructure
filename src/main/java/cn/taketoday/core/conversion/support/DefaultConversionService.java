@@ -34,7 +34,9 @@ import java.util.UUID;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.conversion.ConfigurableConversionService;
 import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.core.conversion.ConversionService;
@@ -43,10 +45,10 @@ import cn.taketoday.core.conversion.ConverterNotFoundException;
 import cn.taketoday.core.conversion.ConverterRegistry;
 import cn.taketoday.core.conversion.TypeCapable;
 import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.GenericTypeResolver;
 import cn.taketoday.util.Mappings;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.ResolvableType;
 import cn.taketoday.util.TypeDescriptor;
 
@@ -66,6 +68,7 @@ public class DefaultConversionService implements ConfigurableConversionService {
 
   static {
     addDefaultConverters(sharedInstance);
+    CollectionUtils.trimToSize(sharedInstance.getConverters());
   }
 
   private final ArrayList<TypeConverter> converters = new ArrayList<>();
@@ -216,20 +219,21 @@ public class DefaultConversionService implements ConfigurableConversionService {
    * @since 2.1.6
    */
   @Override
-  public void addConverters(final TypeConverter... converters) {
+  public void addConverters(@Nullable final TypeConverter... converters) {
     if (ObjectUtils.isNotEmpty(converters)) {
       Collections.addAll(this.converters, converters);
-      OrderUtils.reversedSort(this.converters);
+      sort();
       invalidateCache();
     }
   }
 
   @Override
-  public void addConverter(TypeConverter converter) {
-    this.converters.add(converter);
-
-    OrderUtils.reversedSort(this.converters);
-    invalidateCache();
+  public void addConverter(@Nullable TypeConverter converter) {
+    if (converter != null) {
+      this.converters.add(converter);
+      sort();
+      invalidateCache();
+    }
   }
 
   /**
@@ -241,11 +245,11 @@ public class DefaultConversionService implements ConfigurableConversionService {
    * @since 2.1.6
    */
   @Override
-  public void addConverters(final List<TypeConverter> converters) {
+  public void addConverters(@Nullable final List<TypeConverter> converters) {
     if (ObjectUtils.isNotEmpty(converters)) {
       this.converters.addAll(converters);
-      OrderUtils.reversedSort(this.converters);
       invalidateCache();
+      sort();
     }
   }
 
@@ -254,11 +258,21 @@ public class DefaultConversionService implements ConfigurableConversionService {
   }
 
   @Override
-  public void setConverters(final TypeConverter... converters) {
-    Assert.notNull(converters, "TypeConverter must not be null");
+  public void setConverters(@Nullable final TypeConverter... converters) {
     this.converters.clear();
     invalidateCache();
-    Collections.addAll(this.converters, OrderUtils.reversedSort(converters));
+
+    if (ObjectUtils.isNotEmpty(converters)) {
+      CollectionUtils.addAll(this.converters, converters);
+    }
+    sort();
+  }
+
+  /**
+   * @since 4.0
+   */
+  private void sort() {
+    AnnotationAwareOrderComparator.sort(converters);
   }
 
   @Override
@@ -314,9 +328,8 @@ public class DefaultConversionService implements ConfigurableConversionService {
     final GenericConverter genericConverter = new GenericConverter(targetType, sourceType, converter);
     this.converters.add(genericConverter);
 
+    sort();
     invalidateCache();
-    // order support
-    OrderUtils.reversedSort(this.converters);
   }
 
   void invalidateCache() {

@@ -21,8 +21,8 @@ package cn.taketoday.web.config;
 
 import java.util.List;
 
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.util.OrderUtils;
 import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.multipart.MultipartConfiguration;
@@ -45,7 +45,7 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   private final List<WebMvcConfiguration> webMvcConfigurations;
 
   public CompositeWebMvcConfiguration(List<WebMvcConfiguration> webMvcConfigurations) {
-    OrderUtils.reversedSort(webMvcConfigurations);
+    AnnotationAwareOrderComparator.sort(webMvcConfigurations);
     this.webMvcConfigurations = webMvcConfigurations;
   }
 

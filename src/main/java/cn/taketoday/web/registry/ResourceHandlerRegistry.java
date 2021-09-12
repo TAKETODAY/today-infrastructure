@@ -25,9 +25,9 @@ import java.util.List;
 import cn.taketoday.beans.Autowired;
 import cn.taketoday.cache.ConcurrentMapCache;
 import cn.taketoday.core.NonNull;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
@@ -156,14 +156,17 @@ public class ResourceHandlerRegistry
   public void onStartup(WebApplicationContext context) throws Throwable {
     this.contextPathLength = context.getContextPath().length();
     final WebResourceResolver resourceResolver = getResourceResolver();
+    final List<ResourceMapping> resourceMappings = getResourceMappings();
 
-    for (final ResourceMapping resourceMapping : OrderUtils.reversedSort(getResourceMappings())) {
+    AnnotationAwareOrderComparator.sort(resourceMappings);
+
+    for (final ResourceMapping resourceMapping : resourceMappings) {
       final String[] pathPatterns = resourceMapping.getPathPatterns();
       registerHandler(new ResourceRequestHandler(resourceMapping, resourceResolver), pathPatterns);
     }
     // @since 4.0 trimToSize
     CollectionUtils.trimToSize(patternHandlers);
-    CollectionUtils.trimToSize(resourceMappings);
+    CollectionUtils.trimToSize(this.resourceMappings);
   }
 
 }

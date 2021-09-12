@@ -45,11 +45,11 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.core.reflect.MethodInvoker;
-import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -318,7 +318,7 @@ public class DefaultBeanDefinition
    */
   @Override
   public int getOrder() {
-    return OrderUtils.getOrder(getBeanClass());
+    return OrderUtils.getOrderOrLowest(getBeanClass());
   }
 
   @Override

@@ -28,8 +28,8 @@ import cn.taketoday.context.Environment;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.OrderUtils;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
@@ -104,7 +104,7 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
   }
 
   public void sort(List<ReturnValueHandler> handlers) {
-    OrderUtils.reversedSort(handlers);
+    AnnotationAwareOrderComparator.sort(handlers);
   }
 
   public List<ReturnValueHandler> getHandlers() {

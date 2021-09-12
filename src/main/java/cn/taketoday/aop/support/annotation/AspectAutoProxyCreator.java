@@ -45,9 +45,10 @@ import cn.taketoday.context.event.ContextCloseEvent;
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
-import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.core.Nullable;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -63,7 +64,7 @@ public class AspectAutoProxyCreator
   private final List<BeanDefinition> aspectDefs = new ArrayList<>();
 
   public void sortAspects() {
-    OrderUtils.reversedSort(aspectDefs);
+    AnnotationAwareOrderComparator.sort(aspectDefs);
   }
 
   public boolean isAspectsLoaded() {
@@ -127,8 +128,9 @@ public class AspectAutoProxyCreator
     }
   }
 
-  private void addCandidateAdvisors(List<Advisor> candidateAdvisors, BeanDefinition aspectDef,
-                                    Method aspectMethod /*Nullable*/, AnnotationAttributes[] adviceAttributes) {
+  private void addCandidateAdvisors(
+          List<Advisor> candidateAdvisors, BeanDefinition aspectDef,
+          @Nullable Method aspectMethod, AnnotationAttributes[] adviceAttributes) {
     // fix Standard Bean def
     if (ObjectUtils.isNotEmpty(adviceAttributes)) {
       for (final AnnotationAttributes advice : adviceAttributes) {
@@ -152,7 +154,8 @@ public class AspectAutoProxyCreator
     }
   }
 
-  private MethodInterceptor getInterceptor(BeanDefinition aspectDef, Method aspectMethod, AnnotationAttributes advice) {
+  private MethodInterceptor getInterceptor(
+          BeanDefinition aspectDef, @Nullable Method aspectMethod, AnnotationAttributes advice) {
     final BeanFactory beanFactory = getBeanFactory();
 
     if (aspectMethod == null) { // method interceptor

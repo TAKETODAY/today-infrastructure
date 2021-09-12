@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -22,22 +22,22 @@ package cn.taketoday.web.registry;
 import java.util.List;
 
 import cn.taketoday.core.Assert;
-import cn.taketoday.util.OrderUtils;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.web.RequestContext;
 
 import static java.util.Objects.requireNonNull;
 
 /**
- * @author TODAY <br>
- *         2019-12-08 23:15
+ * @author TODAY 2019-12-08 23:15
  */
 public class CompositeHandlerRegistry implements HandlerRegistry {
 
   private final HandlerRegistry[] handlerRegistries;
 
   public CompositeHandlerRegistry(HandlerRegistry... registries) {
-    Assert.notNull(registries);
-    this.handlerRegistries = OrderUtils.reversedSort(registries);
+    Assert.notNull(registries, "handler-registries must not be null");
+    AnnotationAwareOrderComparator.sort(registries);
+    this.handlerRegistries = registries;
   }
 
   public CompositeHandlerRegistry(List<HandlerRegistry> registries) {

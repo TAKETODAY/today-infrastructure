@@ -35,6 +35,8 @@ import cn.taketoday.context.ConfigurableEnvironment;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.framework.WebServerApplicationContext;
 import cn.taketoday.framework.config.CompositeWebApplicationConfiguration;
@@ -46,9 +48,7 @@ import cn.taketoday.framework.config.WebApplicationConfiguration;
 import cn.taketoday.framework.config.WebDocumentConfiguration;
 import cn.taketoday.framework.utils.WebApplicationUtils;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.config.WebApplicationInitializer;
@@ -122,7 +122,8 @@ public abstract class AbstractWebServer
    * Before {@link WebApplicationLoader} Startup
    */
   protected List<WebApplicationInitializer> getMergedInitializers() {
-    return OrderUtils.reversedSort(contextInitializers);
+    AnnotationAwareOrderComparator.sort(contextInitializers);
+    return contextInitializers;
   }
 
   protected void prepareInitialize() {
@@ -165,7 +166,7 @@ public abstract class AbstractWebServer
       final List<WebApplicationConfiguration> configurations =
               obtainApplicationContext().getBeans(WebApplicationConfiguration.class);
 
-      OrderUtils.reversedSort(configurations);
+      AnnotationAwareOrderComparator.sort(configurations);
       webApplicationConfiguration = new CompositeWebApplicationConfiguration(configurations);
       this.webApplicationConfiguration = webApplicationConfiguration;
     }

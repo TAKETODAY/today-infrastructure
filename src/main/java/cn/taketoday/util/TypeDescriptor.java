@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Nullable;
+import cn.taketoday.core.annotation.AnnotationUtils;
 
 /**
  * Contextual descriptor about a type to convert from or to.

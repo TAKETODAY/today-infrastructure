@@ -38,6 +38,7 @@ import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.transaction.DefaultTransactionDefinition;
@@ -47,7 +48,6 @@ import cn.taketoday.transaction.TransactionManager;
 import cn.taketoday.transaction.TransactionStatus;
 import cn.taketoday.transaction.TransactionSystemException;
 import cn.taketoday.transaction.Transactional;
-import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 

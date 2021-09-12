@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import cn.taketoday.core.TypeReference;
-import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.util.ResolvableType;
 
 /**

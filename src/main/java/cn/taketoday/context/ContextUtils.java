@@ -60,15 +60,15 @@ import cn.taketoday.core.ConcurrentProperties;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Nullable;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.conversion.ConversionUtils;
 import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.core.conversion.ConversionUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
@@ -350,7 +350,7 @@ public abstract class ContextUtils {
     if (methods.isEmpty()) {
       return BeanDefinition.EMPTY_METHOD;
     }
-    OrderUtils.reversedSort(methods);
+    AnnotationAwareOrderComparator.sort(methods);
     return methods.toArray(new Method[methods.size()]);
   }
 
@@ -614,15 +614,15 @@ public abstract class ContextUtils {
   public static boolean passCondition(final AnnotatedElement annotated, final ApplicationContext context) {
     final AnnotationAttributes[] attributes =
             AnnotationUtils.getAttributesArray(annotated, Conditional.class);
-    if (ObjectUtils.isEmpty(attributes)) {
-      return true;
-    }
-    if (attributes.length == 1) {
-      return passCondition(annotated, context, attributes[0].getClassArray(Constant.VALUE));
-    }
-    for (final AnnotationAttributes conditional : OrderUtils.reversedSort(attributes)) {
-      if (!passCondition(annotated, context, conditional.getClassArray(Constant.VALUE))) {
-        return false; // can't match
+    if (ObjectUtils.isNotEmpty(attributes)) {
+      if (attributes.length == 1) {
+        return passCondition(annotated, context, attributes[0].getClassArray(Constant.VALUE));
+      }
+      AnnotationAwareOrderComparator.sort(attributes);
+      for (final AnnotationAttributes conditional : attributes) {
+        if (!passCondition(annotated, context, conditional.getClassArray(Constant.VALUE))) {
+          return false; // can't match
+        }
       }
     }
     return true;

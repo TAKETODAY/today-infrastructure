@@ -69,13 +69,13 @@ import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.TodayStrategies;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -83,7 +83,7 @@ import static cn.taketoday.context.ContextUtils.findNames;
 import static cn.taketoday.context.ContextUtils.resolveInitMethod;
 import static cn.taketoday.context.ContextUtils.resolveProps;
 import static cn.taketoday.core.Constant.VALUE;
-import static cn.taketoday.util.AnnotationUtils.getAttributesArray;
+import static cn.taketoday.core.annotation.AnnotationUtils.getAttributesArray;
 import static cn.taketoday.util.ReflectionUtils.makeAccessible;
 
 /**
@@ -845,7 +845,7 @@ public class StandardBeanFactory
               TodayStrategies.getDetector().getStrategies(PropertyValueResolver.class, this);
       // un-ordered
       propertyResolvers.addAll(strategies); // @since 4.0
-      OrderUtils.reversedSort(propertyResolvers);
+      AnnotationAwareOrderComparator.sort(propertyResolvers);
     }
     return propertyResolvers;
   }
@@ -857,7 +857,8 @@ public class StandardBeanFactory
     Assert.notNull(resolvers, "PropertyValueResolver must not be null");
 
     propertyResolvers.clear();
-    Collections.addAll(propertyResolvers, OrderUtils.reversedSort(resolvers));
+    AnnotationAwareOrderComparator.sort(resolvers);
+    Collections.addAll(propertyResolvers, resolvers);
   }
 
   /**
@@ -871,7 +872,7 @@ public class StandardBeanFactory
   public void addPropertyValueResolvers(final PropertyValueResolver... resolvers) {
     if (ObjectUtils.isNotEmpty(resolvers)) {
       Collections.addAll(propertyResolvers, resolvers);
-      OrderUtils.reversedSort(propertyResolvers);
+      AnnotationAwareOrderComparator.sort(propertyResolvers);
     }
   }
 

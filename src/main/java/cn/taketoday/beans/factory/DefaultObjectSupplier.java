@@ -25,7 +25,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.util.OrderUtils;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 
 /**
  * @author TODAY 2021/3/6 14:10
@@ -59,14 +59,17 @@ public class DefaultObjectSupplier<T> implements ObjectSupplier<T> {
 
   @Override
   public Stream<T> orderedStream() {
-    final List<T> beans = OrderUtils.reversedSort(beanFactory.getBeans(requiredType));
+    List<T> beans = beanFactory.getBeans(requiredType);
+    AnnotationAwareOrderComparator.sort(beans);
     return beans.stream();
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof DefaultObjectSupplier)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof DefaultObjectSupplier))
+      return false;
     final DefaultObjectSupplier<?> that = (DefaultObjectSupplier<?>) o;
     return Objects.equals(requiredType, that.requiredType)
             && Objects.equals(beanFactory, that.beanFactory);

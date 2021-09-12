@@ -26,10 +26,10 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Environment;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.conversion.ConversionUtils;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.core.conversion.ConversionUtils;
-import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
@@ -176,7 +176,7 @@ public class WebApplicationLoader
 
   /** @since sort objects 3.0.3 */
   protected void sort(List<?> adapters) {
-    OrderUtils.reversedSort(adapters);
+    AnnotationAwareOrderComparator.sort(adapters);
   }
 
   protected void configureViewControllerHandler(

@@ -236,7 +236,6 @@ public class CorsConfiguration {
    * if present, in order to reflect the client-originated address.
    * Consider using the {@code ForwardedHeaderFilter} in order to choose from a
    * central place whether to extract and use, or to discard such headers.
-   * See the Spring Framework reference for more on this filter.
    */
   public void setAllowedMethods(@Nullable List<String> allowedMethods) {
     this.allowedMethods = (allowedMethods != null ? new ArrayList<>(allowedMethods) : null);
