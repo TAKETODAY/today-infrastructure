@@ -28,14 +28,13 @@ package cn.taketoday.core;
  * with the first object (with the highest order value) having the highest
  * priority.
  *
- * @author TODAY <br>
- * 2018-11-07 13:08
+ * @author TODAY 2018-11-07 13:08
  */
 public interface Ordered {
 
-  int HIGHEST_PRECEDENCE = Integer.MAX_VALUE / 2;
+  int HIGHEST_PRECEDENCE = Integer.MIN_VALUE;
 
-  int LOWEST_PRECEDENCE = 0;
+  int LOWEST_PRECEDENCE = Integer.MAX_VALUE;
 
   /**
    * Get the order value of this object.
