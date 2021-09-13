@@ -40,6 +40,8 @@ import java.util.Map;
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.NonNull;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.jdbc.parsing.QueryParameter;
 import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;
@@ -558,6 +560,7 @@ public final class Query implements AutoCloseable {
    */
   public <T> ResultSetIterable<T> fetchIterable(final ResultSetHandler<T> handler) {
     final class HandlerResultSetIterable extends AbstractResultSetIterable<T> {
+      @NonNull
       @Override
       public Iterator<T> iterator() {
         return new ResultSetHandlerIterator<>(rs, handler);
@@ -566,6 +569,14 @@ public final class Query implements AutoCloseable {
     return new HandlerResultSetIterable();
   }
 
+  /**
+   * Read a collection of T.
+   *
+   * @param returnType
+   *         returnType
+   *
+   * @return iterable results
+   */
   public <T> List<T> fetch(Class<T> returnType) {
     return fetch(createHandlerFactory(returnType));
   }
@@ -583,7 +594,7 @@ public final class Query implements AutoCloseable {
   }
 
   public <T> List<T> fetch(ResultSetIterable<T> iterable) {
-    List<T> list = new ArrayList<>();
+    ArrayList<T> list = new ArrayList<>();
     for (T item : iterable) {
       list.add(item);
     }
@@ -615,9 +626,10 @@ public final class Query implements AutoCloseable {
     return fetchLazyTable(connection.getOperations().getConversionService());
   }
 
-  public LazyTable fetchLazyTable(ConversionService conversionService) {
+  public LazyTable fetchLazyTable(@Nullable ConversionService conversionService) {
     final LazyTable lt = new LazyTable();
     final class RowResultSetIterable extends AbstractResultSetIterable<Row> {
+      @NonNull
       @Override
       public Iterator<Row> iterator() {
         return new TableResultSetIterator(rs, isCaseSensitive(), lt, conversionService);

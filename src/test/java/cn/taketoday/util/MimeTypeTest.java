@@ -28,6 +28,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import cn.taketoday.core.conversion.ConversionUtils;
+
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -104,10 +106,10 @@ public class MimeTypeTest {
     @Test
     public void withTypeConverter() {
 
-        assertThat(ConvertUtils.supports("application/xml", MimeType.class)).isTrue();
+        assertThat(ConversionUtils.supports("application/xml", MimeType.class)).isTrue();
 
         MimeType mimeType = MimeType.valueOf("application/xml");
-        assertThat(ConvertUtils.convert("application/xml", MimeType.class)).isEqualTo(mimeType);
+        assertThat(ConversionUtils.convert("application/xml", MimeType.class)).isEqualTo(mimeType);
     }
 
     @Test

@@ -20,9 +20,9 @@
 
 package cn.taketoday.aop;
 
+import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.context.aware.BeanNameAware;
-import cn.taketoday.beans.factory.BeanFactory;
 
 public class TestBean implements ITestBean, BeanNameAware, BeanFactoryAware, IOther, Comparable<Object> {
   private int age;
@@ -113,5 +113,15 @@ public class TestBean implements ITestBean, BeanNameAware, BeanFactoryAware, IOt
   @Override
   public String toString() {
     return name;
+  }
+
+  private boolean destroyed;
+
+  public void destroy() {
+    this.destroyed = true;
+  }
+
+  public boolean wasDestroyed() {
+    return destroyed;
   }
 }

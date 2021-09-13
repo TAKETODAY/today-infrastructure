@@ -42,9 +42,9 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.TodayStrategies;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.OrderUtils;
 
 /**
  * BeanFactory supported Executable Arguments-Resolver
@@ -208,7 +208,8 @@ public class ArgumentsResolver {
 
   public void setResolvingStrategies(ArgumentsResolvingStrategy... strategies) {
     Assert.notNull(strategies, "ArgumentsResolvingStrategies must not null");
-    resolvingStrategies = OrderUtils.reversedSort(strategies);
+    AnnotationAwareOrderComparator.sort(strategies);
+    resolvingStrategies = strategies;
   }
 
   /**
@@ -217,7 +218,8 @@ public class ArgumentsResolver {
   public void setResolvingStrategies(List<ArgumentsResolvingStrategy> resolvers) {
     Assert.notNull(resolvers, "ExecutableParameterResolvers must not null");
     ArgumentsResolvingStrategy[] array = resolvers.toArray(new ArgumentsResolvingStrategy[0]);
-    resolvingStrategies = OrderUtils.reversedSort(array);
+    AnnotationAwareOrderComparator.sort(array);
+    resolvingStrategies = array;
   }
 
   public void addResolvingStrategies(ArgumentsResolvingStrategy... strategies) {

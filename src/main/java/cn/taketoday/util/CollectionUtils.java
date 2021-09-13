@@ -20,11 +20,15 @@
 package cn.taketoday.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -49,7 +53,7 @@ import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
 
 /**
- * Factory for collections that is aware of common Java and Spring collection
+ * Factory for collections that is aware of common Java and collection
  * types.
  *
  * <p>
@@ -62,6 +66,13 @@ import cn.taketoday.core.Nullable;
  * @author TODAY 2019-12-29 23:39
  */
 public abstract class CollectionUtils {
+  /**
+   * Default load factor for {@link HashMap}/{@link LinkedHashMap} variants.
+   *
+   * @see #newHashMap(int)
+   * @see #newLinkedHashMap(int)
+   */
+  static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
   private static final HashSet<Class<?>> approximableMapTypes = new HashSet<>();
   private static final HashSet<Class<?>> approximableCollectionTypes = new HashSet<>();
@@ -845,5 +856,340 @@ public abstract class CollectionUtils {
     return buckets;
   }
 
+  /**
+   * Retrieve the last element of the given List, accessing the highest index.
+   *
+   * @param list
+   *         the List to check (may be {@code null} or empty)
+   *
+   * @return the last element, or {@code null} if none
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public static <T> T lastElement(@Nullable List<T> list) {
+    if (isEmpty(list)) {
+      return null;
+    }
+    return list.get(list.size() - 1);
+  }
+
+  /**
+   * Marshal the elements from the given enumeration into an array of the given type.
+   * Enumeration elements must be assignable to the type of the given array. The array
+   * returned will be a different instance than the array given.
+   *
+   * @since 4.0
+   */
+  public static <A, E extends A> A[] toArray(Enumeration<E> enumeration, A[] array) {
+    ArrayList<A> elements = new ArrayList<>();
+    while (enumeration.hasMoreElements()) {
+      elements.add(enumeration.nextElement());
+    }
+    return elements.toArray(array);
+  }
+
+  /**
+   * Adapt an {@link Enumeration} to an {@link Iterator}.
+   *
+   * @param enumeration
+   *         the original {@code Enumeration}
+   *
+   * @return the adapted {@code Iterator}
+   *
+   * @since 4.0
+   */
+  public static <E> Iterator<E> toIterator(@Nullable Enumeration<E> enumeration) {
+    return (enumeration != null ? new EnumerationIterator<>(enumeration) : Collections.emptyIterator());
+  }
+
+  /**
+   * Adapt a {@code Map<K, List<V>>} to an {@code MultiValueMap<K, V>}.
+   *
+   * @param targetMap
+   *         the original map
+   *
+   * @return the adapted multi-value map (wrapping the original map)
+   *
+   * @since 4.0
+   */
+  public static <K, V> MultiValueMap<K, V> toMultiValueMap(Map<K, List<V>> targetMap) {
+    return new DefaultMultiValueMap<>(targetMap);
+  }
+
+  /**
+   * Return an unmodifiable view of the specified multi-value map.
+   *
+   * @param targetMap
+   *         the map for which an unmodifiable view is to be returned.
+   *
+   * @return an unmodifiable view of the specified multi-value map
+   *
+   * @since 4.0
+   */
+  @SuppressWarnings("unchecked")
+  public static <K, V> MultiValueMap<K, V> unmodifiableMultiValueMap(
+          MultiValueMap<? extends K, ? extends V> targetMap) {
+
+    Assert.notNull(targetMap, "'targetMap' must not be null");
+    Map<K, List<V>> result = newLinkedHashMap(targetMap.size());
+    targetMap.forEach((key, value) -> {
+      List<? extends V> values = Collections.unmodifiableList(value);
+      result.put(key, (List<V>) values);
+    });
+    Map<K, List<V>> unmodifiableMap = Collections.unmodifiableMap(result);
+    return toMultiValueMap(unmodifiableMap);
+  }
+
+  /**
+   * Instantiate a new {@link HashMap} with an initial capacity
+   * that can accommodate the specified number of elements without
+   * any immediate resize/rehash operations to be expected.
+   * <p>This differs from the regular {@link HashMap} constructor
+   * which takes an initial capacity relative to a load factor
+   * but is effectively aligned with the JDK's
+   * {@link java.util.concurrent.ConcurrentHashMap#ConcurrentHashMap(int)}.
+   *
+   * @param expectedSize
+   *         the expected number of elements (with a corresponding
+   *         capacity to be derived so that no resize/rehash operations are needed)
+   *
+   * @see #newLinkedHashMap(int)
+   * @since 4.0
+   */
+  public static <K, V> HashMap<K, V> newHashMap(int expectedSize) {
+    return new HashMap<>((int) (expectedSize / DEFAULT_LOAD_FACTOR), DEFAULT_LOAD_FACTOR);
+  }
+
+  /**
+   * Instantiate a new {@link LinkedHashMap} with an initial capacity
+   * that can accommodate the specified number of elements without
+   * any immediate resize/rehash operations to be expected.
+   *
+   * @param expectedSize
+   *         the expected number of elements (with a corresponding
+   *         capacity to be derived so that no resize/rehash operations are needed)
+   *
+   * @see #newHashMap(int)
+   * @since 4.0
+   */
+  public static <K, V> LinkedHashMap<K, V> newLinkedHashMap(int expectedSize) {
+    return new LinkedHashMap<>((int) (expectedSize / DEFAULT_LOAD_FACTOR), DEFAULT_LOAD_FACTOR);
+  }
+
+  /**
+   * Convert the supplied array into a List. A primitive array gets converted
+   * into a List of the appropriate wrapper type.
+   * <p><b>NOTE:</b> Generally prefer the standard {@link Arrays#asList} method.
+   * This {@code arrayToList} method is just meant to deal with an incoming Object
+   * value that might be an {@code Object[]} or a primitive array at runtime.
+   * <p>A {@code null} source value will be converted to an empty List.
+   *
+   * @param source
+   *         the (potentially primitive) array
+   *
+   * @return the converted List result
+   *
+   * @see ObjectUtils#toObjectArray(Object)
+   * @see Arrays#asList(Object[])
+   * @since 4.0
+   */
+  public static List<?> arrayToList(@Nullable Object source) {
+    return Arrays.asList(ObjectUtils.toObjectArray(source));
+  }
+
+  /**
+   * Merge the given array into the given Collection.
+   *
+   * @param array
+   *         the array to merge (may be {@code null})
+   * @param collection
+   *         the target Collection to merge the array into
+   *
+   * @since 4.0
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> void mergeArrayIntoCollection(@Nullable Object array, Collection<E> collection) {
+    Object[] arr = ObjectUtils.toObjectArray(array);
+    for (Object elem : arr) {
+      collection.add((E) elem);
+    }
+  }
+
+  /**
+   * Merge the given Properties instance into the given Map,
+   * copying all properties (key-value pairs) over.
+   * <p>Uses {@code Properties.propertyNames()} to even catch
+   * default properties linked into the original Properties instance.
+   *
+   * @param props
+   *         the Properties instance to merge (may be {@code null})
+   * @param map
+   *         the target Map to merge the properties into
+   *
+   * @since 4.0
+   */
+  @SuppressWarnings("unchecked")
+  public static <K, V> void mergePropertiesIntoMap(@Nullable Properties props, Map<K, V> map) {
+    if (props != null) {
+      for (Enumeration<?> en = props.propertyNames(); en.hasMoreElements(); ) {
+        String key = (String) en.nextElement();
+        Object value = props.get(key);
+        if (value == null) {
+          // Allow for defaults fallback or potentially overridden accessor...
+          value = props.getProperty(key);
+        }
+        map.put((K) key, (V) value);
+      }
+    }
+  }
+
+  /**
+   * Check whether the given Iterator contains the given element.
+   *
+   * @param iterator
+   *         the Iterator to check
+   * @param element
+   *         the element to look for
+   *
+   * @return {@code true} if found, {@code false} otherwise
+   *
+   * @since 4.0
+   */
+  public static boolean contains(@Nullable Iterator<?> iterator, Object element) {
+    if (iterator != null) {
+      while (iterator.hasNext()) {
+        Object candidate = iterator.next();
+        if (ObjectUtils.nullSafeEquals(candidate, element)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Check whether the given Enumeration contains the given element.
+   *
+   * @param enumeration
+   *         the Enumeration to check
+   * @param element
+   *         the element to look for
+   *
+   * @return {@code true} if found, {@code false} otherwise
+   *
+   * @since 4.0
+   */
+  public static boolean contains(@Nullable Enumeration<?> enumeration, Object element) {
+    if (enumeration != null) {
+      while (enumeration.hasMoreElements()) {
+        Object candidate = enumeration.nextElement();
+        if (ObjectUtils.nullSafeEquals(candidate, element)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Check whether the given Collection contains the given element instance.
+   * <p>Enforces the given instance to be present, rather than returning
+   * {@code true} for an equal element as well.
+   *
+   * @param collection
+   *         the Collection to check
+   * @param element
+   *         the element to look for
+   *
+   * @return {@code true} if found, {@code false} otherwise
+   *
+   * @since 4.0
+   */
+  public static boolean containsInstance(@Nullable Collection<?> collection, Object element) {
+    if (collection != null) {
+      for (Object candidate : collection) {
+        if (candidate == element) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Return {@code true} if any element in '{@code candidates}' is
+   * contained in '{@code source}'; otherwise returns {@code false}.
+   *
+   * @param source
+   *         the source Collection
+   * @param candidates
+   *         the candidates to search for
+   *
+   * @return whether any of the candidates has been found
+   *
+   * @since 4.0
+   */
+  public static boolean containsAny(Collection<?> source, Collection<?> candidates) {
+    return findFirstMatch(source, candidates) != null;
+  }
+
+  /**
+   * Return the first element in '{@code candidates}' that is contained in
+   * '{@code source}'. If no element in '{@code candidates}' is present in
+   * '{@code source}' returns {@code null}. Iteration order is
+   * {@link Collection} implementation specific.
+   *
+   * @param source
+   *         the source Collection
+   * @param candidates
+   *         the candidates to search for
+   *
+   * @return the first present object, or {@code null} if not found
+   *
+   * @since 4.0
+   */
+  @SuppressWarnings("unchecked")
+  @Nullable
+  public static <E> E findFirstMatch(Collection<?> source, Collection<E> candidates) {
+    if (isEmpty(source) || isEmpty(candidates)) {
+      return null;
+    }
+    for (Object candidate : candidates) {
+      if (source.contains(candidate)) {
+        return (E) candidate;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Determine whether the given Collection only contains a single unique object.
+   *
+   * @param collection
+   *         the Collection to check
+   *
+   * @return {@code true} if the collection contains a single reference or
+   * multiple references to the same instance, {@code false} otherwise
+   *
+   * @since 4.0
+   */
+  public static boolean hasUniqueObject(Collection<?> collection) {
+    if (isEmpty(collection)) {
+      return false;
+    }
+    boolean hasCandidate = false;
+    Object candidate = null;
+    for (Object elem : collection) {
+      if (!hasCandidate) {
+        hasCandidate = true;
+        candidate = elem;
+      }
+      else if (candidate != elem) {
+        return false;
+      }
+    }
+    return true;
+  }
 
 }

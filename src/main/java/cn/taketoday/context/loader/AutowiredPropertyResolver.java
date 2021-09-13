@@ -34,11 +34,11 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.OrderedApplicationContextSupport;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 
-import static cn.taketoday.util.AnnotationUtils.isPresent;
+import static cn.taketoday.core.annotation.AnnotationUtils.isPresent;
 
 /**
  * This {@link PropertyValueResolver} supports field that annotated

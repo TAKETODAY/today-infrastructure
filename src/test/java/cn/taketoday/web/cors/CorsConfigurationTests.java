@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-import cn.taketoday.web.http.HttpMethod;
 import cn.taketoday.web.http.CorsConfiguration;
+import cn.taketoday.web.http.HttpMethod;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -288,15 +288,24 @@ public class CorsConfigurationTests {
 
   @Test
   public void checkOriginAllowed() {
+    // "*" matches
     CorsConfiguration config = new CorsConfiguration();
     config.addAllowedOrigin("*");
     assertThat(config.checkOrigin("https://domain.com")).isEqualTo("*");
 
+    // "*" does not match together with allowCredentials
     config.setAllowCredentials(true);
     assertThatIllegalArgumentException().isThrownBy(() -> config.checkOrigin("https://domain.com"));
 
+    // specific origin matches Origin header with or without trailing "/"
     config.setAllowedOrigins(Collections.singletonList("https://domain.com"));
     assertThat(config.checkOrigin("https://domain.com")).isEqualTo("https://domain.com");
+    assertThat(config.checkOrigin("https://domain.com/")).isEqualTo("https://domain.com/");
+
+    // specific origin with trailing "/" matches Origin header with or without trailing "/"
+    config.setAllowedOrigins(Collections.singletonList("https://domain.com/"));
+    assertThat(config.checkOrigin("https://domain.com")).isEqualTo("https://domain.com");
+    assertThat(config.checkOrigin("https://domain.com/")).isEqualTo("https://domain.com/");
 
     config.setAllowCredentials(false);
     assertThat(config.checkOrigin("https://domain.com")).isEqualTo("https://domain.com");

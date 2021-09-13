@@ -25,11 +25,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.OrderUtils;
 
 /**
  * @author TODAY <br>
@@ -245,9 +246,7 @@ public abstract class SynchronizationManager {
       if (isActive()) {
         final List<TransactionSynchronization> list = getSynchronizations();
         list.add(synchronization);
-        if (list.size() > 1) {
-          OrderUtils.reversedSort(list);
-        }
+        AnnotationAwareOrderComparator.sort(list);
       }
       else {
         throw new IllegalStateException("Transaction synchronization is not active");
@@ -270,9 +269,7 @@ public abstract class SynchronizationManager {
 
     public List<TransactionSynchronization> getSynchronizations() {
       final List<TransactionSynchronization> synchs = synchronizations;
-      if (synchs == null) {
-        throw new IllegalStateException("Transaction synchronization is not active");
-      }
+      Assert.state(synchs != null, "Transaction synchronization is not active");
       return synchs;
     }
 
@@ -402,8 +399,7 @@ public abstract class SynchronizationManager {
     }
 
     /**
-     * Actually invoke the {@code afterCompletion} methods of the given Spring
-     * TransactionSynchronization objects.
+     * Actually invoke the {@code afterCompletion} methods of the given  TransactionSynchronization objects.
      *
      * @param completionStatus
      *         the completion status according to the constants in the

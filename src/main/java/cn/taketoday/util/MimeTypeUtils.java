@@ -29,16 +29,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import cn.taketoday.core.Assert;
 
@@ -192,7 +183,7 @@ public abstract class MimeTypeUtils {
       throw new InvalidMimeTypeException(mimeType, "wildcard type is legal only in '*/*' (all mime types)");
     }
 
-    Map<String, String> parameters = null;
+    LinkedHashMap<String, String> parameters = null;
     do {
       int nextIndex = index + 1;
       boolean quoted = false;
@@ -250,10 +241,16 @@ public abstract class MimeTypeUtils {
     if (StringUtils.isEmpty(mimeTypes)) {
       return Collections.emptyList();
     }
-    return tokenize(mimeTypes).stream()
-            .filter(StringUtils::isNotEmpty)
-            .map(MimeTypeUtils::parseMimeType)
-            .collect(Collectors.toList());
+
+    // Avoid using java.util.stream.Stream in hot paths
+    List<String> tokenizedTypes = MimeTypeUtils.tokenize(mimeTypes);
+    ArrayList<MimeType> result = new ArrayList<>(tokenizedTypes.size());
+    for (String type : tokenizedTypes) {
+      if (StringUtils.isNotEmpty(type)) {
+        result.add(parseMimeType(type));
+      }
+    }
+    return result;
   }
 
   /**
@@ -270,7 +267,7 @@ public abstract class MimeTypeUtils {
     if (StringUtils.isEmpty(mimeTypes)) {
       return Collections.emptyList();
     }
-    List<String> tokens = new ArrayList<>();
+    ArrayList<String> tokens = new ArrayList<>();
     boolean inQuotes = false;
     int startIndex = 0;
     int i = 0;
@@ -352,7 +349,7 @@ public abstract class MimeTypeUtils {
    * Semantics and Content, section 5.3.2</a>
    */
   public static void sortBySpecificity(List<MimeType> mimeTypes) {
-    Objects.requireNonNull(mimeTypes, "'mimeTypes' must not be null");
+    Assert.notNull(mimeTypes, "'mimeTypes' must not be null");
     if (mimeTypes.size() > 1) {
       mimeTypes.sort(SPECIFICITY_COMPARATOR);
     }
@@ -365,7 +362,7 @@ public abstract class MimeTypeUtils {
   private static Random initRandom() {
     Random randomToUse = random;
     if (randomToUse == null) {
-      synchronized (MimeTypeUtils.class) {
+      synchronized(MimeTypeUtils.class) {
         randomToUse = random;
         if (randomToUse == null) {
           randomToUse = new SecureRandom();
@@ -396,92 +393,6 @@ public abstract class MimeTypeUtils {
    */
   public static String generateMultipartBoundaryString() {
     return new String(generateMultipartBoundary(), StandardCharsets.US_ASCII);
-  }
-
-  /**
-   * Simple Least Recently Used cache, bounded by the maximum size given to the
-   * class constructor.
-   * <p>
-   * This implementation is backed by a {@code ConcurrentHashMap} for storing the
-   * cached values and a {@code ConcurrentLinkedQueue} for ordering the keys and
-   * choosing the least recently used key when the cache is at full capacity.
-   *
-   * @param <K>
-   *         the type of the key used for caching
-   * @param <V>
-   *         the type of the cached values
-   */
-  private static class ConcurrentLruCache<K, V> {
-
-    private final int maxSize;
-    private final Lock readLock;
-    private final Lock writeLock;
-    private volatile int size = 0;
-    private final Function<K, V> generator;
-    private final ConcurrentHashMap<K, V> cache = new ConcurrentHashMap<>();
-    private final ConcurrentLinkedQueue<K> queue = new ConcurrentLinkedQueue<>();
-
-    public ConcurrentLruCache(int maxSize, Function<K, V> generator) {
-      Assert.isTrue(maxSize > 0, "LRU max size should be positive");
-      Assert.notNull(generator, "Generator function should not be null");
-      this.maxSize = maxSize;
-      this.generator = generator;
-
-      ReadWriteLock lock = new ReentrantReadWriteLock();
-      this.readLock = lock.readLock();
-      this.writeLock = lock.writeLock();
-    }
-
-    public V get(K key) {
-      V cached;
-
-      if ((cached = this.cache.get(key)) != null) {
-        if (this.size < this.maxSize / 2) {
-          return cached;
-        }
-
-        try {
-          this.readLock.lock();
-          this.queue.add(key);
-          this.queue.remove(key);
-          return cached;
-        }
-        finally {
-          this.readLock.unlock();
-        }
-      }
-
-      this.writeLock.lock();
-      try {
-        // retrying in case of concurrent reads on the same key
-        if ((cached = this.cache.get(key)) != null) {
-          this.queue.add(key);
-          this.queue.remove(key);
-          return cached;
-        }
-
-        // Generate value first, to prevent size inconsistency
-        V value = this.generator.apply(key);
-
-        int cacheSize = this.size;
-        if (cacheSize == this.maxSize) {
-          K leastUsed = this.queue.poll();
-          if (leastUsed != null) {
-            this.cache.remove(leastUsed);
-            cacheSize--;
-          }
-        }
-
-        this.queue.add(key);
-        this.cache.put(key, value);
-        this.size = cacheSize + 1;
-
-        return value;
-      }
-      finally {
-        this.writeLock.unlock();
-      }
-    }
   }
 
 }

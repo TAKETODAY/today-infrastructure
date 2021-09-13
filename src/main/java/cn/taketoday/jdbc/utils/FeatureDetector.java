@@ -10,8 +10,6 @@ import cn.taketoday.util.ClassUtils;
 @SuppressWarnings("UnusedDeclaration")
 public final class FeatureDetector {
 
-  private FeatureDetector() {}
-
   static {
     setCacheUnderscoreToCamelcaseEnabled(true); // enabled by default
   }

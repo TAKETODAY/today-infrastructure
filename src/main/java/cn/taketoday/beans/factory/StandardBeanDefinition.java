@@ -33,10 +33,10 @@ import java.util.stream.Stream;
 
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.core.reflect.MethodInvoker;
-import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.OrderUtils;
 
 /**
  * Standard implementation of {@link BeanDefinition}
@@ -75,9 +75,9 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
   public int getOrder() {
     final int order = super.getOrder();
     if (LOWEST_PRECEDENCE == order) {
-      return OrderUtils.getOrder(getFactoryMethod());
+      return OrderUtils.getOrderOrLowest(getFactoryMethod());
     }
-    return order + OrderUtils.getOrder(getFactoryMethod());
+    return order + OrderUtils.getOrderOrLowest(getFactoryMethod());
   }
 
   public Method getFactoryMethod() {

@@ -60,7 +60,7 @@ import static org.assertj.core.api.Assertions.entry;
  */
 public class HttpHeadersTests {
 
-  private final HttpHeaders headers = new DefaultHttpHeaders();
+  private final DefaultHttpHeaders headers = new DefaultHttpHeaders();
 
   @Test
   public void getOrEmpty() {
@@ -644,7 +644,7 @@ public class HttpHeadersTests {
     // --- Given ---
     headers.add("Alpha", "apple");
     headers.add("Bravo", "banana");
-    assertThat(headers).containsOnlyKeys("Alpha", "Bravo");
+    assertThat(headers).containsKey("Alpha").containsKey("Bravo");
 
     // --- When ---
     boolean removed = headers.keySet().remove("Alpha");

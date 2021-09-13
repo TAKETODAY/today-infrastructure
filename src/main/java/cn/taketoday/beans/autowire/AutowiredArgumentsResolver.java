@@ -31,8 +31,8 @@ import cn.taketoday.context.Props;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.Required;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.StringUtils;
 
 /**

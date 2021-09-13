@@ -54,7 +54,7 @@ import static cn.taketoday.core.Constant.BLANK;
  * may be a simple path which has a one-to-one mapping to a target
  * {@link Resource}, or alternatively may contain the special
  * "{@code classpath*:}" prefix and/or internal Ant-style regular expressions
- * (matched using Spring's {@link AntPathMatcher} utility). Both of the latter
+ * (matched using {@link AntPathMatcher} utility). Both of the latter
  * are effectively wildcards.
  *
  * <p>

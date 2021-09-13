@@ -34,6 +34,19 @@ public class TestHandlerInvoker {
     main();
   }
 
+//  public class MethodInvoker0 extends MethodInvoker {
+//
+//    public MethodInvoker0(Method method) {
+//      super(method);
+//    }
+//
+//    @Override
+//    public Object invoke(Object obj, Object[] args) {
+//      return ((Bean) obj).returnString((String) args[0]);
+//    }
+//
+//  }
+
   public static void main(String... args) throws Exception {
 
 //    System.setProperty("cglib.debugLocation", "D:/dev/temp/debug");

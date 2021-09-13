@@ -59,12 +59,12 @@ import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.NonNull;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -770,7 +770,7 @@ public abstract class AbstractBeanFactory
   public void registerBeanPostProcessors() {
     log.info("Loading BeanPostProcessor.");
     postProcessors.addAll(getBeans(BeanPostProcessor.class));
-    OrderUtils.reversedSort(postProcessors);
+    AnnotationAwareOrderComparator.sort(postProcessors);
   }
 
   // handleDependency
@@ -827,20 +827,23 @@ public abstract class AbstractBeanFactory
    * @return A {@link Primary} {@link BeanDefinition}
    */
   protected BeanDefinition getPrimaryBeanDefinition(final List<BeanDefinition> defs) {
-    BeanDefinition target = null;
     if (defs.size() > 1) {
-      OrderUtils.reversedSort(defs); // size > 1 sort
+      log.info("Finding primary bean which annotated @Primary in {}", defs);
+      ArrayList<BeanDefinition> primaries = new ArrayList<>(defs.size());
       for (final BeanDefinition def : defs) {
         if (def.isAnnotationPresent(Primary.class)) {
-          target = def;
-          break;
+          primaries.add(def);
         }
       }
+      if (!primaries.isEmpty()) {
+        AnnotationAwareOrderComparator.sort(primaries); // size > 1 sort
+        log.info("Found primary beans {} use first one", primaries);
+        return primaries.get(0);
+      }
+      // not found sort bean-defs
+      AnnotationAwareOrderComparator.sort(defs);
     }
-    if (target == null) {
-      target = defs.get(0); // first one
-    }
-    return target;
+    return defs.get(0);
   }
 
   /**
@@ -854,7 +857,6 @@ public abstract class AbstractBeanFactory
    * @return A list of {@link BeanDefinition}s, Never be null
    */
   protected List<BeanDefinition> doGetChildDefinition(final String beanName, final Class<?> beanClass) {
-
     final HashSet<BeanDefinition> ret = new HashSet<>();
 
     for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
@@ -1094,7 +1096,7 @@ public abstract class AbstractBeanFactory
     postProcessors.remove(beanPostProcessor);
     postProcessors.add(beanPostProcessor);
 
-    OrderUtils.reversedSort(postProcessors);
+    AnnotationAwareOrderComparator.sort(postProcessors);
 
     // Track whether it is instantiation/destruction aware
     if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {

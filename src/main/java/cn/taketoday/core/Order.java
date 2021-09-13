@@ -24,20 +24,39 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.OrderUtils;
+
 /**
  * {@code @Order} defines the sort order for an annotated component.
  *
- * <p>
- * The {@link #value} is optional and represents an order value as defined in
- * the {@link Ordered} interface. Higher values have higher priority. The
- * default value is {@code Ordered.LOWEST_PRECEDENCE}, indicating lowest
- * priority (losing to any other specified order value).
+ * <p>The {@link #value} is optional and represents an order value as defined in the
+ * {@link Ordered} interface. Lower values have higher priority. The default value is
+ * {@code Ordered.LOWEST_PRECEDENCE}, indicating low-est priority (losing to any other
+ * specified order value).
  *
- * @author TODAY<br>
- * 2018-11-07 13:15
+ * <p>The standard {@link javax.annotation.Priority} annotation
+ * can be used as a drop-in replacement for this annotation in ordering scenarios.
+ * Note that {@code @Priority} may have additional semantics when a single element
+ * has to be picked (see {@link AnnotationAwareOrderComparator#getPriority}).
+ *
+ * <p>Alternatively, order values may also be determined on a per-instance basis
+ * through the {@link Ordered} interface, allowing for configuration-determined
+ * instance values instead of hard-coded values attached to a particular class.
+ *
+ * <p>Consult the javadoc for {@link cn.taketoday.core.OrderComparator
+ * OrderComparator} for details on the sort semantics for non-ordered objects.
+ *
+ * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @author TODAY 2018-11-07 13:15
+ * @see AnnotationAwareOrderComparator
+ * @see OrderUtils
+ * @see Ordered
+ * @see javax.annotation.Priority
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER })
+@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
 public @interface Order {
 
   /**

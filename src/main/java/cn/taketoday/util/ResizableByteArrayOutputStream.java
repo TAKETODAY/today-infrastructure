@@ -34,7 +34,7 @@ import cn.taketoday.core.Assert;
  * </ul>
  *
  * <p>this class has been superseded by {@link FastByteArrayOutputStream}
- * for Spring's internal use where no assignability to {@link ByteArrayOutputStream}
+ * for internal use where no assignability to {@link ByteArrayOutputStream}
  * is needed (since {@link FastByteArrayOutputStream} is more efficient with buffer
  * resize management but doesn't extend the standard {@link ByteArrayOutputStream}).
  *

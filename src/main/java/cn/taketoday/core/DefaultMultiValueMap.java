@@ -22,8 +22,8 @@ package cn.taketoday.core;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +35,7 @@ import cn.taketoday.util.CollectionUtils;
 /**
  * Simple implementation of {@link MultiValueMap} that wraps a {@link Map},
  * storing multiple values in a {@link List}. Can Specify a {@link #mappingFunction}
- * to determine which List you use , default is {@link LinkedList}
+ * to determine which List you use , default is {@link ArrayList}
  *
  * <p>
  * This Map implementation is generally not thread-safe. It is primarily
@@ -57,7 +57,7 @@ import cn.taketoday.util.CollectionUtils;
 public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializable, Cloneable {
   private static final long serialVersionUID = 1L;
 
-  static final Function default_mapping_function = new Function() {
+  static final Function defaultMappingFunction = new Function() {
     @Override
     public Object apply(Object k) {
       return new ArrayList<>();
@@ -81,7 +81,7 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
   }
 
   public DefaultMultiValueMap(int initialCapacity, float loadFactor) {
-    this(initialCapacity, loadFactor, default_mapping_function);
+    this(initialCapacity, loadFactor, defaultMappingFunction);
   }
 
   public DefaultMultiValueMap(int initialCapacity, float loadFactor, Function<K, List<V>> mappingFunction) {
@@ -94,7 +94,7 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
   }
 
   public DefaultMultiValueMap(Map<K, List<V>> map, boolean copy) {
-    this(map, copy, default_mapping_function);
+    this(map, copy, defaultMappingFunction);
   }
 
   public DefaultMultiValueMap(Map<K, List<V>> map, boolean copy, Function<K, List<V>> mappingFunction) {
@@ -123,6 +123,22 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
     currentValues.addAll(values);
   }
 
+  /**
+   * @param key
+   *         they key
+   * @param values
+   *         the values to be added
+   *
+   * @since 4.0
+   */
+  @Override
+  public void addAll(K key, Enumeration<? extends V> values) {
+    List<V> currentValues = this.map.computeIfAbsent(key, mappingFunction);
+    if (values.hasMoreElements()) {
+      currentValues.add(values.nextElement());
+    }
+  }
+
   @Override
   public void addAll(MultiValueMap<K, V> values) {
     for (Entry<K, List<V>> entry : values.entrySet()) {
@@ -144,7 +160,7 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
 
   @Override
   public Map<K, V> toSingleValueMap() {
-    final HashMap<K, V> singleValueMap = new HashMap<>(map.size());
+    final HashMap<K, V> singleValueMap = CollectionUtils.newHashMap(map.size());
     for (final Entry<K, List<V>> entry : map.entrySet()) {
       final List<V> values = entry.getValue();
       if (!CollectionUtils.isEmpty(values)) {
@@ -156,7 +172,7 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
 
   @Override
   public Map<K, V[]> toArrayMap(IntFunction<V[]> function) {
-    final HashMap<K, V[]> singleValueMap = new HashMap<>(map.size());
+    final HashMap<K, V[]> singleValueMap = CollectionUtils.newHashMap(map.size());
     copyToArrayMap(singleValueMap, function);
     return singleValueMap;
   }
@@ -227,7 +243,7 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
   }
 
   @Override
-  public void putAll(Map<? extends K, ? extends List<V>> map) {
+  public void putAll(@NonNull Map<? extends K, ? extends List<V>> map) {
     this.map.putAll(map);
   }
 

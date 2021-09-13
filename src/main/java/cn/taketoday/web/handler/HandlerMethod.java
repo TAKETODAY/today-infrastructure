@@ -29,10 +29,10 @@ import java.util.Objects;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.NonNull;
+import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.core.reflect.MethodInvoker;
-import cn.taketoday.util.AnnotationUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.OrderUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebUtils;
@@ -86,7 +86,7 @@ public class HandlerMethod
 
     this.returnType = method.getReturnType();
     this.handlerInvoker = MethodInvoker.fromMethod(method);
-    setOrder(OrderUtils.getOrder(method) + OrderUtils.getOrder(bean));
+    setOrder(OrderUtils.getOrderOrLowest(method) + OrderUtils.getOrderOrLowest(bean));
     // @since 3.0
     final Produce produce = getMethodAnnotation(Produce.class);
     if (produce != null) {
@@ -109,6 +109,7 @@ public class HandlerMethod
     this.resultHandlers = other.resultHandlers; // @since 3.0
     this.handlerInvoker = other.handlerInvoker;
     this.responseStatus = other.responseStatus;
+    this.responseBody = other.responseBody; // since 4.0
     setInterceptors(other.getInterceptors());
     this.parameters = other.parameters != null ? other.parameters.clone() : null;
   }

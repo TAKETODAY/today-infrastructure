@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
+import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.jdbc.pojos.BigDecimalPojo;
 import cn.taketoday.jdbc.pojos.ComplexEntity;
@@ -982,7 +983,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     final InputStream inputStream = pojo2.data;
 
-    final String pojo2DataString = StringUtils.readAsText(inputStream);
+    final String pojo2DataString = StreamUtils.copyToString(inputStream);
 //    byte[] pojo2Data = IOUtils.toByteArray(pojo2.data);
 //    String pojo2DataString = new String(pojo2Data);
     assertThat(dataString, is(equalTo(pojo2DataString)));

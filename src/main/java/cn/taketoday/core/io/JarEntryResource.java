@@ -34,8 +34,10 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY <br>
@@ -57,8 +59,10 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
 
   public JarEntryResource(URL url, File jarFile, String name) {
     super(url);
-    this.name = Objects.requireNonNull(name, "name");
-    this.jarFile = Objects.requireNonNull(jarFile, "jarFile");
+    Assert.notNull(name, "name must not be null");
+    Assert.notNull(jarFile, "name must not be null");
+    this.name = name;
+    this.jarFile = jarFile;
   }
 
   protected static String getJarUrl(String path) {
@@ -168,7 +172,7 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
       if (result.isEmpty()) {
         return Constant.EMPTY_STRING_ARRAY;
       }
-      return result.toArray(new String[result.size()]);
+      return StringUtils.toStringArray(result);
     }
   }
 

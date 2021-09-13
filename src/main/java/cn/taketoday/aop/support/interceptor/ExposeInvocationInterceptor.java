@@ -35,7 +35,7 @@ import cn.taketoday.core.Ordered;
  * (e.g. an AspectJ expression pointcut) needs to know the full invocation context.
  *
  * <p>Don't use this interceptor unless this is really necessary. Target objects should
- * not normally know about Spring AOP, as this creates a dependency on Spring API.
+ * not normally know about AOP, as this creates a dependency on API.
  * Target objects should be plain POJOs as far as possible.
  *
  * <p>If used, this interceptor will normally be the first in the interceptor chain.
@@ -53,7 +53,7 @@ public final class ExposeInvocationInterceptor implements MethodInterceptor, Ord
 
   /**
    * Singleton advisor for this class. Use in preference to INSTANCE when using
-   * Spring AOP, as it prevents the need to create a new Advisor to wrap the instance.
+   * AOP, as it prevents the need to create a new Advisor to wrap the instance.
    */
   public static final Advisor ADVISOR = new DefaultPointcutAdvisor(INSTANCE) {
     @Override

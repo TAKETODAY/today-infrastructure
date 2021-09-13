@@ -41,7 +41,7 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.PathMatcher;
-import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;

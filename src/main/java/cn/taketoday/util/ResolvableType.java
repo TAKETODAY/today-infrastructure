@@ -37,7 +37,6 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
-import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.NonNull;
@@ -95,7 +94,8 @@ public class ResolvableType implements Serializable {
 
   private static final ResolvableType[] EMPTY_TYPES_ARRAY = new ResolvableType[0];
 
-  private static final Map<ResolvableType, ResolvableType> cache = new ConcurrentHashMap<>(256);
+  private static final ConcurrentReferenceHashMap<ResolvableType, ResolvableType> cache =
+          new ConcurrentReferenceHashMap<>(256);
 
   /**
    * The underlying Java type being managed.

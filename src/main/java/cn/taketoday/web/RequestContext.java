@@ -384,8 +384,10 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * this request was made
    */
   public final String getMethod() {
+    String method = this.method;
     if (method == null) {
       method = doGetMethod();
+      this.method = method;
     }
     return method;
   }

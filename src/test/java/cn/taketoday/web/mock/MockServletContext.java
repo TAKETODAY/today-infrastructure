@@ -60,8 +60,6 @@ import cn.taketoday.util.StringUtils;
 /**
  * Mock implementation of the {@link javax.servlet.ServletContext} interface.
  *
- * <p>As of Spring 5.0, this set of mocks is designed on a Servlet 4.0 baseline.
- *
  * <p>Compatible with Servlet 3.1 but can be configured to expose a specific version
  * through {@link #setMajorVersion}/{@link #setMinorVersion}; default is 3.1.
  * Note that Servlet 3.1 support is limited: servlet, filter and listener
@@ -231,7 +229,7 @@ public class MockServletContext implements ServletContext {
       return this.mimeTypes.get(extension).toString();
     }
     else {
-      final MediaType of = MediaType.ofFileName(filePath);
+      final MediaType of = MediaType.fromFileName(filePath);
       if (of == null) {
         return null;
       }

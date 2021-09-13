@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -27,9 +27,9 @@ import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.util.ConcurrentCache;
-import cn.taketoday.util.OrderUtils;
 import freemarker.cache.StatefulTemplateLoader;
 import freemarker.cache.TemplateLoader;
 
@@ -81,13 +81,9 @@ public class CompositeTemplateLoader implements TemplateLoader {
    *
    * @param values
    *         Input {@link TemplateLoader}s
-   *
-   * @return This object
    */
-  public final CompositeTemplateLoader setTemplateLoaders(final TemplateLoader... values) {
-    this.loaders = null;
+  public final void setTemplateLoaders(final TemplateLoader... values) {
     this.loaders = values;
-    return this;
   }
 
   /**
@@ -95,23 +91,20 @@ public class CompositeTemplateLoader implements TemplateLoader {
    *
    * @param values
    *         Input {@link TemplateLoader}s
-   *
-   * @return This object
    */
-  public CompositeTemplateLoader addTemplateLoaders(final TemplateLoader... values) {
+  public void addTemplateLoaders(final TemplateLoader... values) {
     Assert.notNull(values, "TemplateLoaders must not be null");
     if (loaders == null) {
-      return setTemplateLoaders(values);
+      setTemplateLoaders(values);
     }
+    else {
+      final List<TemplateLoader> list = new ArrayList<>(loaders.length + values.length);
+      Collections.addAll(list, values);
+      Collections.addAll(list, loaders);
 
-    final List<TemplateLoader> list = new ArrayList<>(loaders.length + values.length);
-
-    Collections.addAll(list, values);
-    Collections.addAll(list, loaders);
-
-    sort(list);
-
-    return setTemplateLoaders(list.toArray(new TemplateLoader[list.size()]));
+      sort(list);
+      setTemplateLoaders(list.toArray(new TemplateLoader[list.size()]));
+    }
   }
 
   /**
@@ -119,12 +112,9 @@ public class CompositeTemplateLoader implements TemplateLoader {
    *
    * @param loaders
    *         {@link Collection} of {@link TemplateLoader}
-   *
-   * @return This object
    */
-  public CompositeTemplateLoader addTemplateLoaders(final Collection<TemplateLoader> loaders) {
+  public void addTemplateLoaders(final Collection<TemplateLoader> loaders) {
     Assert.notNull(loaders, "TemplateLoaders must not be null");
-
     final List<TemplateLoader> list;
     if (this.loaders == null) {
       if (loaders instanceof List) {
@@ -146,11 +136,11 @@ public class CompositeTemplateLoader implements TemplateLoader {
     }
 
     sort(list);
-    return setTemplateLoaders(list.toArray(new TemplateLoader[list.size()]));
+    setTemplateLoaders(list.toArray(new TemplateLoader[list.size()]));
   }
 
   protected void sort(List<TemplateLoader> list) {
-    OrderUtils.reversedSort(list);
+    AnnotationAwareOrderComparator.sort(list);
   }
 
   /**
@@ -196,7 +186,8 @@ public class CompositeTemplateLoader implements TemplateLoader {
   public long getLastModified(Object source) {
     for (final TemplateLoader loader : loaders) {
       final long last = loader.getLastModified(source);
-      if (last != -1) return last;
+      if (last != -1)
+        return last;
     }
     return -1;
   }
@@ -215,9 +206,10 @@ public class CompositeTemplateLoader implements TemplateLoader {
   @Override
   public void closeTemplateSource(Object source) throws IOException {
 
-    if (!(source instanceof Resource)) for (final TemplateLoader loader : loaders) {
-      loader.closeTemplateSource(source);
-    }
+    if (!(source instanceof Resource))
+      for (final TemplateLoader loader : loaders) {
+        loader.closeTemplateSource(source);
+      }
   }
 
   public void resetState() {

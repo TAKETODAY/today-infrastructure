@@ -34,12 +34,13 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
 import cn.taketoday.core.conversion.ConversionFailedException;
+import cn.taketoday.core.conversion.ConversionUtils;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.io.Resource;
 
-import static cn.taketoday.util.ConvertUtils.convert;
+import static cn.taketoday.core.conversion.ConversionUtils.convert;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -63,7 +64,7 @@ public class ConvertUtilsTest {
 
   @Test
   public void addConverter() {
-    ConvertUtils.addConverter(new TypeConverter() {
+    ConversionUtils.addConverter(new TypeConverter() {
 
       @Override
       public boolean supports(TypeDescriptor targetType, Class<?> sourceType) {
@@ -134,18 +135,18 @@ public class ConvertUtilsTest {
 
     final InputStream openStream = ((URL) url).openStream();
 
-    final String readAsText = StringUtils.readAsText(openStream);
+    final String readAsText = StreamUtils.copyToString(openStream);
     assert readAsText != null;
 //    System.err.println(readAsText);
     // uri
     final Object uri = convert("info.properties", URI.class);
     assert uri instanceof URI;
-    assert StringUtils.readAsText(((URI) uri).toURL().openStream()) != null;
+    assert StreamUtils.copyToString(((URI) uri).toURL().openStream()) != null;
     // file
     final Object file = convert("info.properties", File.class);
     assert file instanceof File;
     assert ((File) file).getName().equals("info.properties");
-    assert StringUtils.readAsText(Files.newInputStream(((File) file).toPath())) != null;
+    assert StreamUtils.copyToString(Files.newInputStream(((File) file).toPath())) != null;
 
     // enum
     final Object scope = convert("SINGLETON", Scope.class);
@@ -212,14 +213,14 @@ public class ConvertUtilsTest {
   @Test
   public void testParseDuration() {
 
-    Duration s = ConvertUtils.parseDuration("123s");
-    Duration h = ConvertUtils.parseDuration("123h");
-    Duration ns = ConvertUtils.parseDuration("123ns");
-    Duration ms = ConvertUtils.parseDuration("123ms");
-    Duration min = ConvertUtils.parseDuration("123min");
-    Duration d = ConvertUtils.parseDuration("123d");
+    Duration s = ConversionUtils.parseDuration("123s");
+    Duration h = ConversionUtils.parseDuration("123h");
+    Duration ns = ConversionUtils.parseDuration("123ns");
+    Duration ms = ConversionUtils.parseDuration("123ms");
+    Duration min = ConversionUtils.parseDuration("123min");
+    Duration d = ConversionUtils.parseDuration("123d");
 
-    Duration convert = ConvertUtils.parseDuration("PT20S");
+    Duration convert = ConversionUtils.parseDuration("PT20S");
 
     assert s.equals(Duration.of(123, ChronoUnit.SECONDS));
     assert h.equals(Duration.of(123, ChronoUnit.HOURS));

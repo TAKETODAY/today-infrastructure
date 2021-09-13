@@ -93,8 +93,6 @@ import cn.taketoday.web.http.HttpHeaders;
  * is {@link Locale#ENGLISH}. This value can be changed via {@link #addPreferredLocale}
  * or {@link #setPreferredLocales}.
  *
- * <p>As of Spring Framework 5.0, this set of mocks is designed on a Servlet 4.0 baseline.
- *
  * @author Juergen Hoeller
  * @author Rod Johnson
  * @author Rick Evans

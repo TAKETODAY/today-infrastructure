@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -24,9 +24,9 @@ import java.util.List;
 
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.OrderUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.interceptor.HandlerInterceptorsCapable;
@@ -90,7 +90,7 @@ public abstract class InterceptableRequestHandler
   }
 
   protected void sort(HandlerInterceptor[] interceptors) {
-    OrderUtils.reversedSort(interceptors);
+    AnnotationAwareOrderComparator.sort(interceptors);
   }
 
   /**

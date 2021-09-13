@@ -40,7 +40,6 @@ import cn.taketoday.util.StringUtils;
 /**
  * Mock implementation of the {@link javax.servlet.http.HttpSession} interface.
  *
- * <p>As of Spring 5.0, this set of mocks is designed on a Servlet 4.0 baseline.
  *
  * @author Juergen Hoeller
  * @author Rod Johnson

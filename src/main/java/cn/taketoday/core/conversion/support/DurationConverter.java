@@ -22,7 +22,7 @@ package cn.taketoday.core.conversion.support;
 
 import java.time.Duration;
 
-import cn.taketoday.util.ConvertUtils;
+import cn.taketoday.core.conversion.ConversionUtils;
 
 /**
  * @author TODAY 2021/3/21 11:18
@@ -32,7 +32,7 @@ public class DurationConverter extends StringSourceConverter<Duration> {
 
   @Override
   public Duration convert(String source) {
-    return ConvertUtils.parseDuration(source);
+    return ConversionUtils.parseDuration(source);
   }
 
 }

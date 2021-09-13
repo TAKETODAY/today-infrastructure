@@ -34,13 +34,6 @@ import cn.taketoday.web.http.HttpMethod;
  * configured.
  *
  * <p>
- * Both Spring Web MVC and Spring WebFlux support this annotation through the
- * {@code RequestMappingHandlerMapping} in their respective modules. The values
- * from each type and method level pair of annotations are added to a
- * {@link CorsConfiguration} and then default values are applied via
- * {@link CorsConfiguration#applyPermitDefaultValues()}.
- *
- * <p>
  * The rules for combining global and local configuration are generally additive
  * -- e.g. all global and all local origins. For those attributes where only a
  * single value can be accepted such as {@code allowCredentials} and
@@ -71,8 +64,7 @@ public @interface CrossOrigin {
    * "X-Forwarded-Host", "X-Forwarded-Port", and "X-Forwarded-Proto" headers, if
    * present, in order to reflect the client-originated address. Consider using
    * the {@code ForwardedHeaderFilter} in order to choose from a central place
-   * whether to extract and use, or to discard such headers. See the Spring
-   * Framework reference for more on this filter.
+   * whether to extract and use, or to discard such headers.
    *
    * @see #value
    */

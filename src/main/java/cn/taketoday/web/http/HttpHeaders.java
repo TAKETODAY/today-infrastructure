@@ -37,6 +37,7 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -109,7 +110,6 @@ public abstract class HttpHeaders
    * The HTTP {@code Accept-Patch} header field name.
    *
    * @see <a href="https://tools.ietf.org/html/rfc5789#section-3.1">Section 3.1 of RFC 5789</a>
-   * @since 5.3.6
    */
   public static final String ACCEPT_PATCH = "Accept-Patch";
   /**
@@ -642,6 +642,27 @@ public abstract class HttpHeaders
   }
 
   /**
+   * Set the list of acceptable {@linkplain MediaType media types} for
+   * {@code PATCH} methods, as specified by the {@code Accept-Patch} header.
+   *
+   * @since 4.0
+   */
+  public void setAcceptPatch(List<MediaType> mediaTypes) {
+    set(ACCEPT_PATCH, MediaType.toString(mediaTypes));
+  }
+
+  /**
+   * Return the list of acceptable {@linkplain MediaType media types} for
+   * {@code PATCH} methods, as specified by the {@code Accept-Patch} header.
+   * <p>Returns an empty list when the acceptable media types are unspecified.
+   *
+   * @since 4.0
+   */
+  public List<MediaType> getAcceptPatch() {
+    return MediaType.parseMediaTypes(get(ACCEPT_PATCH));
+  }
+
+  /**
    * Set the (new) value of the {@code Access-Control-Allow-Credentials} response
    * header.
    */
@@ -805,7 +826,7 @@ public abstract class HttpHeaders
     String value = getFirst(ACCEPT_CHARSET);
     if (value != null) {
       String[] tokens = StringUtils.tokenizeToStringArray(value, ",");
-      List<Charset> result = new ArrayList<>(tokens.length);
+      ArrayList<Charset> result = new ArrayList<>(tokens.length);
       for (String token : tokens) {
         int paramIdx = token.indexOf(';');
         String charsetName;
@@ -844,7 +865,7 @@ public abstract class HttpHeaders
     String value = getFirst(ALLOW);
     if (StringUtils.isNotEmpty(value)) {
       String[] tokens = StringUtils.tokenizeToStringArray(value, ",");
-      List<HttpMethod> result = new ArrayList<>(tokens.length);
+      ArrayList<HttpMethod> result = new ArrayList<>(tokens.length);
       for (String token : tokens) {
         result.add(HttpMethod.valueOf(token));
       }
@@ -1770,6 +1791,13 @@ public abstract class HttpHeaders
   public void addAll(String key, List<? extends String> values) {
     for (final String value : values) {
       add(key, value);
+    }
+  }
+
+  @Override
+  public void addAll(String key, Enumeration<? extends String> values) {
+    if (values.hasMoreElements()) {
+      add(key, values.nextElement());
     }
   }
 

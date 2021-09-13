@@ -61,8 +61,10 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.OrderUtils;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -81,7 +83,7 @@ public abstract class AopUtils {
 
   public static final MethodInterceptor[] EMPTY_INTERCEPTOR = new MethodInterceptor[0];
 
-  private static final ArrayList<AdvisorAdapter> advisorAdapters = new ArrayList<>();
+  private static final ArrayList<AdvisorAdapter> advisorAdapters = new ArrayList<>(3);
 
   static {
     addAdvisorAdapters(new BeforeAdvisorAdapter(),
@@ -575,9 +577,13 @@ public abstract class AopUtils {
    * @param adapters
    *         new AdvisorAdapters
    */
-  public static void addAdvisorAdapters(AdvisorAdapter... adapters) {
-    Collections.addAll(advisorAdapters, adapters);
-    OrderUtils.reversedSort(advisorAdapters);
+  public static void addAdvisorAdapters(@Nullable AdvisorAdapter... adapters) {
+    if (ObjectUtils.isNotEmpty(adapters)) {
+      CollectionUtils.addAll(advisorAdapters, adapters);
+      CollectionUtils.trimToSize(advisorAdapters);
+
+      AnnotationAwareOrderComparator.sort(advisorAdapters);
+    }
   }
 
   static final class BeforeAdvisorAdapter implements AdvisorAdapter {

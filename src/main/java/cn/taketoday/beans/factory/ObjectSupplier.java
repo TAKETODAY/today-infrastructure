@@ -29,7 +29,6 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.util.GenericTypeResolver;
-import cn.taketoday.util.OrderUtils;
 
 /**
  * @author TODAY 2021/3/6 11:18
@@ -140,14 +139,13 @@ public interface ObjectSupplier<T> extends Supplier<T>, Iterable<T> {
   /**
    * Return a sequential {@link Stream} over all matching object instances,
    * pre-ordered according to the factory's common order comparator.
-   * <p>In a standard Spring application context, this will be ordered
+   * <p>In a standard application context, this will be ordered
    * according to {@link Ordered} conventions,
    * and in case of annotation-based configuration also considering the
    * {@link Order} annotation,
    * analogous to multi-element injection points of list/array type.
    *
    * @see #stream()
-   * @see OrderUtils
    */
   default Stream<T> orderedStream() {
     throw new UnsupportedOperationException("Ordered element access not supported");

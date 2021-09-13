@@ -22,11 +22,11 @@ package cn.taketoday.transaction;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Objects;
 
 import javax.sql.DataSource;
 
 import cn.taketoday.beans.InitializingBean;
+import cn.taketoday.core.Assert;
 import cn.taketoday.jdbc.utils.DataSourceUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
@@ -71,7 +71,9 @@ public class DataSourceTransactionManager
    *         in case of no DataSource set
    */
   protected DataSource obtainDataSource() {
-    return Objects.requireNonNull(getDataSource(), "No DataSource set");
+    final DataSource dataSource = getDataSource();
+    Assert.state(dataSource != null, "No DataSource set");
+    return dataSource;
   }
 
   /**
@@ -95,7 +97,7 @@ public class DataSourceTransactionManager
    * can be customized through through {@link #prepareTransactionalConnection}.
    * <p>
    * This mode of read-only handling goes beyond the
-   * {@link Connection#setReadOnly} hint that Spring applies by default. In
+   * {@link Connection#setReadOnly} hint that applies by default. In
    * contrast to that standard JDBC hint, "SET TRANSACTION READ ONLY" enforces an
    * isolation-level-like connection mode where data manipulation statements are
    * strictly disallowed. Also, on Oracle, this read-only mode provides read
@@ -124,9 +126,7 @@ public class DataSourceTransactionManager
 
   @Override
   public void afterPropertiesSet() {
-    if (getDataSource() == null) {
-      throw new IllegalArgumentException("dataSource is required");
-    }
+    Assert.state(getDataSource() != null, "dataSource is required");
   }
 
   @Override
@@ -169,7 +169,8 @@ public class DataSourceTransactionManager
 
       if (connectionHolder == null || connectionHolder.isSynchronizedWithTransaction()) {
         Connection newCon = obtainDataSource().getConnection();
-        if (debugEnabled) log.debug("Acquired Connection [{}] for JDBC transaction", newCon);
+        if (debugEnabled)
+          log.debug("Acquired Connection [{}] for JDBC transaction", newCon);
         txObject.setConnectionHolder(connectionHolder = new ConnectionHolder(newCon), true);
       }
 
@@ -183,7 +184,8 @@ public class DataSourceTransactionManager
       // so we don't want to do it unnecessarily (for example if we've explicitly configured the connection pool to set it already).
       if (con.getAutoCommit()) {
         txObject.setMustRestoreAutoCommit(true);
-        if (debugEnabled) log.debug("Switching JDBC Connection [{}] to manual commit", con);
+        if (debugEnabled)
+          log.debug("Switching JDBC Connection [{}] to manual commit", con);
         con.setAutoCommit(false);
       }
 

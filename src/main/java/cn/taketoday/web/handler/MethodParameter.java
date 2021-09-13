@@ -31,7 +31,7 @@ import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.Required;
-import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.NumberUtils;

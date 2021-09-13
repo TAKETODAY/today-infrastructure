@@ -445,7 +445,7 @@ public abstract class AbstractAopProxyTests {
   /**
    * An interceptor throws a checked exception not on the method signature.
    * For efficiency, we don't bother unifying java.lang.reflect and
-   * org.springframework.cglib UndeclaredThrowableException
+   * cn.taketoday.cglib UndeclaredThrowableException
    */
   @Test
   public void testUndeclaredCheckedException() throws Throwable {

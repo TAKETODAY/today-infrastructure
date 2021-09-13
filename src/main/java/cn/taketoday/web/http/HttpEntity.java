@@ -40,7 +40,7 @@ import cn.taketoday.core.Nullable;
  * String body = entity.getBody();
  * MediaType contentType = entity.getHeaders().getContentType();
  * </pre>
- * Can also be used in Spring MVC, as a return value from a @Controller method:
+ * Can also be used in Web MVC, as a return value from a @Controller method:
  * <pre class="code">
  * &#64;RequestMapping("/handle")
  * public HttpEntity&lt;String&gt; handle() {

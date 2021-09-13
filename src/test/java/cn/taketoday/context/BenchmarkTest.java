@@ -77,7 +77,7 @@ public class BenchmarkTest {
 
     BeanInstantiator beanInstantiator
             = BeanInstantiator.fromClass(ConstructorTestBean.class);
-
+    constructor.setAccessible(true);
     long start = System.currentTimeMillis();
     int times = 1_0000_00000;
     for (int i = 0; i < times; i++) {
@@ -117,11 +117,11 @@ public class BenchmarkTest {
 
     Method test = ReflectionUtils.findMethod(ITest.class, "test", String.class);
     MethodAccessor methodAccessor = MethodInvoker.fromMethod(test);
-
+    test.setAccessible(true);
     final ITest testBean = new MethodTestBean();
 
     long start = System.currentTimeMillis();
-    int times = 1_0000_000;
+    int times = 1_0000_000_00;
     for (int i = 0; i < times; i++) {
       String name = (String) test.invoke(testBean, "TODAY");
     }
@@ -170,7 +170,7 @@ public class BenchmarkTest {
 
     // set
     long start = System.currentTimeMillis();
-    int times = 1_0000_0000_0;
+    int times = 1_0000_000;
     for (int i = 0; i < times; i++) {
       field.set(propertyTestBean, "reflect");
     }

@@ -27,6 +27,7 @@ import java.nio.ByteBuffer;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.PathMatcher;
+import cn.taketoday.util.AlternativeJdkIdGenerator;
 
 /**
  * @author TODAY 2021/4/5 14:16
@@ -35,17 +36,16 @@ import cn.taketoday.core.PathMatcher;
 public abstract class WebSocketSession
         extends AttributeAccessorSupport implements Serializable, AttributeAccessor {
   private static final long serialVersionUID = 1L;
+
+  public static final AlternativeJdkIdGenerator idGenerator = new AlternativeJdkIdGenerator();
+
   public static final String WEBSOCKET_SESSION_KEY = WebSocketSession.class.getName() + "-WebSocketSession";
   public static final String JAVAX_ENDPOINT_CONFIG_KEY = "javax.websocket.EndpointConfig";
 
   public static final String PATH_MATCHER = PathMatcher.class + "-PathMatcher";
   public static final String URI_TEMPLATE_VARIABLES = "UriTemplateVariables";
 
-  private String id;
-
-  public void setId(String id) {
-    this.id = id;
-  }
+  private final String id = idGenerator.generateId().toString();
 
   /**
    * Session Id

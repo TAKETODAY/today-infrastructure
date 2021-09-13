@@ -34,7 +34,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 import cn.taketoday.asm.AnnotationValueHolder;
-import cn.taketoday.util.OrderUtils;
+import cn.taketoday.core.annotation.OrderUtils;
 
 /**
  * single or multi - value map
@@ -665,7 +665,7 @@ public class AnnotationAttributes
 
   @Override
   public int getOrder() {
-    return OrderUtils.getOrder(annotationType);
+    return OrderUtils.getOrderOrLowest(annotationType);
   }
 
   // package

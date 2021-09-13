@@ -36,7 +36,7 @@ import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.AnnotationImportAware;
 import cn.taketoday.context.loader.CandidateComponentScanner;
-import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.servlet.initializer.ServletContextInitializer;

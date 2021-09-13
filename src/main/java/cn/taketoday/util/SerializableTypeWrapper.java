@@ -36,9 +36,7 @@ import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Internal utility class that can be used to obtain wrapped {@link Serializable}
@@ -64,7 +62,7 @@ final class SerializableTypeWrapper {
   private static final Class<?>[] SUPPORTED_SERIALIZABLE_TYPES = {
           GenericArrayType.class, ParameterizedType.class, TypeVariable.class, WildcardType.class };
 
-  static final Map<Type, Type> cache = new ConcurrentHashMap<>(256);
+  static final ConcurrentReferenceHashMap<Type, Type> cache = new ConcurrentReferenceHashMap<>(256);
 
   private SerializableTypeWrapper() { }
 

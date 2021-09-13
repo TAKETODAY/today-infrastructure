@@ -43,6 +43,7 @@ import cn.taketoday.context.Scope;
 import cn.taketoday.beans.Service;
 import cn.taketoday.beans.Singleton;
 import cn.taketoday.core.annotation.AliasFor;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.core.annotation.ClassMetaReader;

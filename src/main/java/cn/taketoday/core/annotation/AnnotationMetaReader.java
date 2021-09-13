@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.WeakHashMap;
 
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
@@ -46,6 +45,7 @@ import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.reflect.ReflectionException;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -59,8 +59,11 @@ public abstract class AnnotationMetaReader {
   /** @since 2.1.1 */
   static final HashSet<Class<? extends Annotation>> IGNORE_ANNOTATION_CLASS = new HashSet<>();
 
-  static final WeakHashMap<AnnotationKey<?>, Object> ANNOTATIONS = new WeakHashMap<>(128);
-  static final WeakHashMap<AnnotationKey<?>, AnnotationAttributes[]> ANNOTATION_ATTRIBUTES = new WeakHashMap<>(128);
+  static final ConcurrentReferenceHashMap<AnnotationKey<?>, Object>
+          ANNOTATIONS = new ConcurrentReferenceHashMap<>(128);
+
+  static final ConcurrentReferenceHashMap<AnnotationKey<?>, AnnotationAttributes[]>
+          ANNOTATION_ATTRIBUTES = new ConcurrentReferenceHashMap<>(128);
 
   static {
     // Add ignore annotation

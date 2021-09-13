@@ -33,10 +33,10 @@ import cn.taketoday.context.Props;
 import cn.taketoday.context.Value;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Nullable;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.ConversionServiceAware;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.OrderUtils;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
@@ -154,7 +154,7 @@ public class ParameterResolverRegistry extends WebApplicationContextSupport {
    * sort resolvers or resolving-strategies
    */
   public void sort() {
-    OrderUtils.reversedSort(resolvers);
+    AnnotationAwareOrderComparator.sort(resolvers);
   }
 
   /**

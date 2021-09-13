@@ -33,8 +33,8 @@ import cn.taketoday.core.EmptyObject;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.PathMatcher;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.OrderUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.PatternHandler;
@@ -319,7 +319,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
    */
   @SuppressWarnings("all")
   protected void sort(List list) {
-    OrderUtils.reversedSort(list);
+    AnnotationAwareOrderComparator.sort(list);
   }
 
   @Nullable

@@ -28,6 +28,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
+import cn.taketoday.core.conversion.ConversionUtils;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -434,10 +436,10 @@ public class MediaTypeTest {
     @Test
     public void withTypeConverter() {
 
-        assertThat(ConvertUtils.supports("application/xml", MediaType.class)).isTrue();
+        assertThat(ConversionUtils.supports("application/xml", MediaType.class)).isTrue();
 
         MediaType mediaType = MediaType.valueOf("application/xml");
-        assertThat(ConvertUtils.convert("application/xml", MediaType.class)).isEqualTo(mediaType);
+        assertThat(ConversionUtils.convert("application/xml", MediaType.class)).isEqualTo(mediaType);
     }
 
     @Test
@@ -451,12 +453,12 @@ public class MediaTypeTest {
 
     @Test
     public void of() {
-        assertThat(MediaType.ofFileName("file.xml")).isEqualTo(MediaType.APPLICATION_XML);
-        assertThat(MediaType.ofFileName("file.js")).isEqualTo(MediaType.parseMediaType("application/javascript"));
-        assertThat(MediaType.ofFileName("file.css")).isEqualTo(MediaType.parseMediaType("text/css"));
-        assertThat(MediaType.ofFileName("file.foobar")).isNull();
-        assertThat(MediaType.ofFileName(null)).isNull();
-        assertThat(MediaType.ofResource(null)).isNull();
+        assertThat(MediaType.fromFileName("file.xml")).isEqualTo(MediaType.APPLICATION_XML);
+        assertThat(MediaType.fromFileName("file.js")).isEqualTo(MediaType.parseMediaType("application/javascript"));
+        assertThat(MediaType.fromFileName("file.css")).isEqualTo(MediaType.parseMediaType("text/css"));
+        assertThat(MediaType.fromFileName("file.foobar")).isNull();
+        assertThat(MediaType.fromFileName(null)).isNull();
+        assertThat(MediaType.fromResource(null)).isNull();
     }
 
 }

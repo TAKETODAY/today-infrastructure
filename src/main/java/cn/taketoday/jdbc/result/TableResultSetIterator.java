@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.jdbc.PersistenceException;
@@ -43,7 +44,7 @@ public final class TableResultSetIterator extends AbstractResultSetIterator<Row>
   private final Map<String, Integer> columnNameToIdxMap;
 
   public TableResultSetIterator(
-          ResultSet rs, boolean isCaseSensitive, LazyTable lt, ConversionService conversionService) {
+          ResultSet rs, boolean isCaseSensitive, LazyTable lt, @Nullable ConversionService conversionService) {
     super(rs);
     this.isCaseSensitive = isCaseSensitive;
     this.conversionService =

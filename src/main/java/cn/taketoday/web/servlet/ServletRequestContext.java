@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpCookie;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -273,13 +272,13 @@ public final class ServletRequestContext extends RequestContext {
    */
   @Override
   protected HttpHeaders createRequestHeaders() {
-    final HttpServletRequest request = this.request;
+    final HttpServletRequest servletRequest = this.request;
     final DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
-    final Enumeration<String> headerNames = request.getHeaderNames();
+    final Enumeration<String> headerNames = servletRequest.getHeaderNames();
     while (headerNames.hasMoreElements()) {
       final String name = headerNames.nextElement();
-      final Enumeration<String> headers = request.getHeaders(name);
-      httpHeaders.addAll(name, Collections.list(headers));
+      final Enumeration<String> headers = servletRequest.getHeaders(name);
+      httpHeaders.addAll(name, headers);
     }
     return httpHeaders;
   }

@@ -21,8 +21,8 @@ package cn.taketoday.context.event;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
-
-import static java.util.Objects.requireNonNull;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.Nullable;
 
 /**
  * Bean Initialized event
@@ -35,17 +35,21 @@ public class ObjectRefreshedEvent extends ApplicationContextEvent {
 
   /** which bean definition refreshed **/
   private final String name;
+
+  @Nullable
   private BeanDefinition def;
 
   public ObjectRefreshedEvent(String name, ApplicationContext context) {
     super(context);
-    this.name = requireNonNull(name);
+    Assert.notNull(name, "name must not be null");
+    this.name = name;
   }
 
   public ObjectRefreshedEvent(BeanDefinition def, ApplicationContext context) {
     super(context);
-    this.name = null;
-    this.def = requireNonNull(def);
+    Assert.notNull(def, "BeanDefinition must not be null");
+    this.name = def.getName();
+    this.def = def;
   }
 
   public final BeanDefinition getBeanDefinition() {

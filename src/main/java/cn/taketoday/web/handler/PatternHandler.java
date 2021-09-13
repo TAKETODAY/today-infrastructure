@@ -24,7 +24,7 @@ import java.util.Objects;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.util.OrderUtils;
+import cn.taketoday.core.annotation.OrderUtils;
 
 /**
  * Pattern handler match in runtime
@@ -54,7 +54,7 @@ public final class PatternHandler implements Serializable, Ordered {
 
   @Override
   public int getOrder() {
-    return OrderUtils.getOrder(handler);
+    return OrderUtils.getOrderOrLowest(handler);
   }
 
   @Override

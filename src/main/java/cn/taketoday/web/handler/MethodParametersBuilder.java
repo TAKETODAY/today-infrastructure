@@ -23,8 +23,10 @@ package cn.taketoday.web.handler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.Nullable;
-import cn.taketoday.util.ClassUtils;
+import cn.taketoday.core.ParameterNameDiscoverer;
 
 /**
  * Build {@link MethodParameter} array
@@ -33,6 +35,7 @@ import cn.taketoday.util.ClassUtils;
  * @since 3.0
  */
 public class MethodParametersBuilder {
+  private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
   @Nullable
   public MethodParameter[] build(Method method) {
@@ -40,12 +43,15 @@ public class MethodParametersBuilder {
     if (length == 0) {
       return null;
     }
-
     final MethodParameter[] ret = new MethodParameter[length];
-    final String[] methodArgsNames = ClassUtils.getMethodArgsNames(method);
-    final Parameter[] parameters = method.getParameters();
-    for (int i = 0; i < length; i++) {
-      ret[i] = createParameter(methodArgsNames[i], parameters[i], i);
+    final String[] methodArgsNames = parameterNameDiscoverer.getParameterNames(method);
+    if (methodArgsNames != null) {
+      final Parameter[] parameters = method.getParameters();
+      for (int i = 0; i < length; i++) {
+        ret[i] = createParameter(methodArgsNames[i], parameters[i], i);
+      }
+    }else{
+    // TODO
     }
     return ret;
   }
@@ -54,4 +60,12 @@ public class MethodParametersBuilder {
     return new MethodParameter(index, parameter, methodArgsName);
   }
 
+  public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {
+    Assert.notNull(parameterNameDiscoverer, "parameterNameDiscoverer must not be null");
+    this.parameterNameDiscoverer = parameterNameDiscoverer;
+  }
+
+  public ParameterNameDiscoverer getParameterNameDiscoverer() {
+    return parameterNameDiscoverer;
+  }
 }

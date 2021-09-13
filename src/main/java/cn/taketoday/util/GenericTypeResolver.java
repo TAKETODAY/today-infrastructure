@@ -229,7 +229,6 @@ public abstract class GenericTypeResolver {
 
   /**
    * Resolve the specified generic type against the given TypeVariable map.
-   * <p>Used by Spring Data.
    *
    * @param genericType
    *         the generic type to resolve

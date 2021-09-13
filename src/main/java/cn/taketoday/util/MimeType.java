@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeSet;
 
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 
 /**
@@ -142,7 +143,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    *         if any of the parameters contains illegal characters
    */
   public MimeType(String type, String subtype) {
-    this(type, subtype, Collections.emptyMap());
+    this(type, subtype, (Map<String, String>) null);
   }
 
   /**
@@ -204,25 +205,28 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * @param subtype
    *         the subtype
    * @param parameters
-   *         the parameters (may be {@code null})
+   *         the parameters (maybe {@code null})
    *
    * @throws IllegalArgumentException
    *         if any of the parameters contains illegal characters
    */
   public MimeType(String type, String subtype, Map<String, String> parameters) {
-    hasLength(type, "'type' must not be empty");
-    hasLength(subtype, "'subtype' must not be empty");
-
+    Assert.hasLength(type, "'type' must not be empty");
+    Assert.hasLength(subtype, "'subtype' must not be empty");
     checkToken(type);
     checkToken(subtype);
+
     this.type = type.toLowerCase(Locale.ENGLISH);
     this.subtype = subtype.toLowerCase(Locale.ENGLISH);
+
     if (ObjectUtils.isNotEmpty(parameters)) {
-      Map<String, String> map = new LinkedCaseInsensitiveMap<>(parameters.size(), Locale.ENGLISH);
-      parameters.forEach((attribute, value) -> {
+      LinkedCaseInsensitiveMap<String> map = new LinkedCaseInsensitiveMap<>(parameters.size(), Locale.ENGLISH);
+      for (final Map.Entry<String, String> entry : parameters.entrySet()) {
+        final String value = entry.getValue();
+        final String attribute = entry.getKey();
         checkParameters(attribute, value);
         map.put(attribute, value);
-      });
+      }
       this.parameters = Collections.unmodifiableMap(map);
     }
     else {
@@ -257,7 +261,8 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * section 2.2</a>
    */
   private static void checkToken(String token) {
-    for (int i = 0; i < token.length(); i++) {
+    final int length = token.length();
+    for (int i = 0; i < length; i++) {
       char ch = token.charAt(i);
       if (!TOKEN.get(ch)) {
         throw new IllegalArgumentException("Invalid token character '" + ch + "' in token \"" + token + "\"");
@@ -265,16 +270,9 @@ public class MimeType implements Comparable<MimeType>, Serializable {
     }
   }
 
-  public static void hasLength(String text, String message) {
-    if (StringUtils.isEmpty(text)) {
-      throw new IllegalArgumentException(message);
-    }
-  }
-
   protected void checkParameters(String attribute, String value) {
-
-    hasLength(attribute, "'attribute' must not be empty");
-    hasLength(value, "'value' must not be empty");
+    Assert.hasLength(value, "'value' must not be empty");
+    Assert.hasLength(attribute, "'attribute' must not be empty");
 
     checkToken(attribute);
     if (PARAM_CHARSET.equals(attribute)) {
@@ -401,24 +399,27 @@ public class MimeType implements Comparable<MimeType>, Serializable {
       return true;
     }
     else if (getType().equals(other.getType())) {
-      if (getSubtype().equals(other.getSubtype())) {
+      final String subtype = getSubtype();
+      final String otherSubtype = other.getSubtype();
+      if (subtype.equals(otherSubtype)) {
         return true;
       }
       if (isWildcardSubtype()) {
         // Wildcard with suffix, e.g. application/*+xml
-        int thisPlusIdx = getSubtype().lastIndexOf('+');
+        int thisPlusIdx = subtype.lastIndexOf('+');
         if (thisPlusIdx == -1) {
           return true;
         }
         else {
           // application/*+xml includes application/soap+xml
-          int otherPlusIdx = other.getSubtype().lastIndexOf('+');
+          int otherPlusIdx = otherSubtype.lastIndexOf('+');
           if (otherPlusIdx != -1) {
-            String thisSubtypeNoSuffix = getSubtype().substring(0, thisPlusIdx);
-            String thisSubtypeSuffix = getSubtype().substring(thisPlusIdx + 1);
-            String otherSubtypeSuffix = other.getSubtype().substring(otherPlusIdx + 1);
-            if (thisSubtypeSuffix.equals(otherSubtypeSuffix) && WILDCARD_TYPE.equals(thisSubtypeNoSuffix)) {
-              return true;
+            String thisSubtypeSuffix = subtype.substring(thisPlusIdx + 1);
+            String otherSubtypeSuffix = otherSubtype.substring(otherPlusIdx + 1);
+
+            if (thisSubtypeSuffix.equals(otherSubtypeSuffix)) {
+              String thisSubtypeNoSuffix = subtype.substring(0, thisPlusIdx);
+              return WILDCARD_TYPE.equals(thisSubtypeNoSuffix);
             }
           }
         }
@@ -448,24 +449,28 @@ public class MimeType implements Comparable<MimeType>, Serializable {
       return true;
     }
     else if (getType().equals(other.getType())) {
-      if (getSubtype().equals(other.getSubtype())) {
+      final String subtype = getSubtype();
+      final String otherSubtype = other.getSubtype();
+      if (subtype.equals(otherSubtype)) {
         return true;
       }
       // Wildcard with suffix? e.g. application/*+xml
       if (isWildcardSubtype() || other.isWildcardSubtype()) {
-        int thisPlusIdx = getSubtype().lastIndexOf('+');
-        int otherPlusIdx = other.getSubtype().lastIndexOf('+');
+        int thisPlusIdx = subtype.lastIndexOf('+');
+        int otherPlusIdx = otherSubtype.lastIndexOf('+');
         if (thisPlusIdx == -1 && otherPlusIdx == -1) {
           return true;
         }
         else if (thisPlusIdx != -1 && otherPlusIdx != -1) {
-          String thisSubtypeNoSuffix = getSubtype().substring(0, thisPlusIdx);
-          String otherSubtypeNoSuffix = other.getSubtype().substring(0, otherPlusIdx);
-          String thisSubtypeSuffix = getSubtype().substring(thisPlusIdx + 1);
-          String otherSubtypeSuffix = other.getSubtype().substring(otherPlusIdx + 1);
-          if (thisSubtypeSuffix.equals(otherSubtypeSuffix) &&
-                  (WILDCARD_TYPE.equals(thisSubtypeNoSuffix) || WILDCARD_TYPE.equals(otherSubtypeNoSuffix))) {
-            return true;
+          String thisSubtypeSuffix = subtype.substring(thisPlusIdx + 1);
+          String otherSubtypeSuffix = otherSubtype.substring(otherPlusIdx + 1);
+          if (thisSubtypeSuffix.equals(otherSubtypeSuffix)) {
+            String thisSubtypeNoSuffix = subtype.substring(0, thisPlusIdx);
+            if (WILDCARD_TYPE.equals(thisSubtypeNoSuffix)) {
+              return true;
+            }
+            String otherSubtypeNoSuffix = otherSubtype.substring(0, otherPlusIdx);
+            return WILDCARD_TYPE.equals(otherSubtypeNoSuffix);
           }
         }
       }
@@ -517,9 +522,9 @@ public class MimeType implements Comparable<MimeType>, Serializable {
       return false;
     }
     MimeType otherType = (MimeType) other;
-    return (this.type.equalsIgnoreCase(otherType.type) &&
-            this.subtype.equalsIgnoreCase(otherType.subtype) &&
-            parametersAreEqual(otherType));
+    return (this.type.equalsIgnoreCase(otherType.type)
+            && this.subtype.equalsIgnoreCase(otherType.subtype)
+            && parametersAreEqual(otherType));
   }
 
   /**
@@ -528,13 +533,15 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * {@link Charset Charsets}.
    */
   private boolean parametersAreEqual(MimeType other) {
-    if (this.parameters.size() != other.parameters.size()) {
+    final Map<String, String> parameters = this.parameters;
+    final Map<String, String> otherParameters = other.parameters;
+    if (parameters.size() != otherParameters.size()) {
       return false;
     }
 
-    for (Map.Entry<String, String> entry : this.parameters.entrySet()) {
-      String key = entry.getKey();
-      if (!other.parameters.containsKey(key)) {
+    for (Map.Entry<String, String> entry : parameters.entrySet()) {
+      final String key = entry.getKey();
+      if (!otherParameters.containsKey(key)) {
         return false;
       }
       if (PARAM_CHARSET.equals(key)) {
@@ -542,7 +549,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
           return false;
         }
       }
-      else if (!Objects.equals(entry.getValue(), other.parameters.get(key))) {
+      else if (!Objects.equals(entry.getValue(), otherParameters.get(key))) {
         return false;
       }
     }
@@ -662,7 +669,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
   }
 
   private static Map<String, String> addCharsetParameter(Charset charset, Map<String, String> parameters) {
-    Map<String, String> map = new LinkedHashMap<>(parameters);
+    LinkedHashMap<String, String> map = new LinkedHashMap<>(parameters);
     map.put(PARAM_CHARSET, charset.name());
     return map;
   }

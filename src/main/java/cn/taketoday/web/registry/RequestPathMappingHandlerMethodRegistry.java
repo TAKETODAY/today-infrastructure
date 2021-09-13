@@ -29,7 +29,9 @@ import java.util.Objects;
 
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Constant;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MediaType;
+import cn.taketoday.util.MimeType;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
@@ -56,8 +58,11 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
       super.logMapping(entry.getKey(), entry.getValue());
     }
 
-    for (final PatternHandler patternHandler : getPatternHandlers()) {
-      super.logMapping(patternHandler.getPattern(), patternHandler.getHandler());
+    final List<PatternHandler> patternHandlers = getPatternHandlers();
+    if (!CollectionUtils.isEmpty(patternHandlers)) {
+      for (final PatternHandler patternHandler : patternHandlers) {
+        super.logMapping(patternHandler.getPattern(), patternHandler.getHandler());
+      }
     }
   }
 
@@ -273,7 +278,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
       final String requestMethod = context.getMethod();
       boolean matched = false;
       for (final HttpMethod testMethod : supportedMethods) {
-        if (requestMethod.equals(testMethod.name())) {
+        if (testMethod.matches(requestMethod)) {
           matched = true;
           break;
         }
@@ -286,7 +291,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
     // test contentType
     final MediaType[] consumes = mappingInfo.consumes();
     if (consumes != null) {
-      final MediaType contentType = context.requestHeaders().getContentType();
+      final MimeType contentType = MimeType.valueOf(context.getContentType());
       for (final MediaType consume : consumes) {
         if (!consume.includes(contentType)) {
           return false;
@@ -297,16 +302,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
     final RequestParameter[] params = mappingInfo.params();
     if (params != null) {
       for (final RequestParameter param : params) {
-        final String name = param.getName();
-        final String parameter = context.getParameter(name);
-        if (parameter != null) {
-          // test parameter value
-          final String value = param.getValue();
-          if (value != null && !Objects.equals(value, parameter)) {
-            return false;
-          }
-        }
-        else {
+        if (!param.matches(context)) {
           return false;
         }
       }
@@ -336,9 +332,9 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
   }
 
   private boolean matchParameters(MediaType accept, MediaType acceptedMediaType) {
-    for (String name : accept.getParameters().keySet()) {
-      String s1 = accept.getParameter(name);
-      String s2 = acceptedMediaType.getParameter(name);
+    for (final Map.Entry<String, String> entry : accept.getParameters().entrySet()) {
+      String s1 = entry.getValue();
+      String s2 = acceptedMediaType.getParameter(entry.getKey());
       if (StringUtils.hasText(s1) && StringUtils.hasText(s2) && !s1.equalsIgnoreCase(s2)) {
         return false;
       }

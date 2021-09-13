@@ -23,7 +23,7 @@ import java.lang.reflect.AnnotatedElement;
 
 import cn.taketoday.core.AnnotationAttributes;
 import cn.taketoday.core.Constant;
-import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.core.annotation.AnnotationUtils;
 
 /**
  * Resolve {@link Profile} {@link Condition}

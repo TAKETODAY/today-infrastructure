@@ -166,7 +166,7 @@ public class DefaultResourceResolver implements WebResourceResolver {
     @Override
     public String getContentType() {
       if (contentType == null) {
-        final MediaType mediaType = MediaType.ofFileName(name);
+        final MediaType mediaType = MediaType.fromFileName(name);
         if (mediaType != null) {
           return this.contentType = mediaType.toString();
         }

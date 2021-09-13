@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Nullable;
+import cn.taketoday.core.annotation.AnnotationUtils;
 
 /**
  * Contextual descriptor about a type to convert from or to.
@@ -266,8 +267,6 @@ public class TypeDescriptor implements Serializable {
 
   /**
    * Determine if this type descriptor has the specified annotation.
-   * <p>As of Spring Framework 4.2, this method supports arbitrary levels
-   * of meta-annotations.
    *
    * @param annotationType
    *         the annotation type

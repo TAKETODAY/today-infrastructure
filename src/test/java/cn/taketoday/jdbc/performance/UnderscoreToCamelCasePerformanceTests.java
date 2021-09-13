@@ -8,7 +8,7 @@ import org.junit.Test;
 import java.sql.SQLException;
 import java.util.List;
 
-import cn.taketoday.jdbc.utils.UnderscoreToCamelCase;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author aldenquimby@gmail.com
@@ -45,7 +45,7 @@ public class UnderscoreToCamelCasePerformanceTests {
     @Override
     public void run(int input) {
       for (String s : toConvert) {
-        UnderscoreToCamelCase.convert(s);
+        StringUtils.underscoreToCamelCase(s);
       }
     }
   }

@@ -30,10 +30,10 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 
+import cn.taketoday.core.conversion.ConversionUtils;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.util.ConvertUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -127,7 +127,7 @@ public abstract class JdbcUtils {
         return obj;
       }
       else if (obj instanceof Number) {
-        return ConvertUtils.convert(obj, requiredType);
+        return ConversionUtils.convert(obj, requiredType);
       }
       else {
         // e.g. on Postgres: getObject returns a PGObject but we need a String

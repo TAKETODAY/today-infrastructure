@@ -23,7 +23,7 @@ package cn.taketoday.core;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 
-import cn.taketoday.util.AnnotationUtils;
+import cn.taketoday.core.annotation.AnnotationUtils;
 
 /**
  * @author TODAY 2021/3/20 22:59

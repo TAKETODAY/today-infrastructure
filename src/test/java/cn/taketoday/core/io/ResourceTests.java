@@ -31,10 +31,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 
+import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +54,7 @@ public class ResourceTests {
     assertThat(resource.exists()).isTrue();
     assertThat(resource.isOpen()).isFalse();
 
-    String content = StringUtils.readAsText(resource.getInputStream());
+    String content = StreamUtils.copyToString(resource.getInputStream(), StandardCharsets.UTF_8);
     assertThat(content).isEqualTo("testString");
     assertThat(new ByteArrayResource("testString".getBytes())).isEqualTo(resource);
   }
@@ -62,7 +64,7 @@ public class ResourceTests {
     Resource resource = new ByteArrayResource("testString".getBytes(), "my description");
     assertThat(resource.exists()).isTrue();
     assertThat(resource.isOpen()).isFalse();
-    String content = StringUtils.readAsText(resource.getInputStream());
+    String content = StreamUtils.copyToString(resource.getInputStream());
     assertThat(content).isEqualTo("testString");
     assertThat(resource.toString().contains("my description")).isTrue();
     assertThat(new ByteArrayResource("testString".getBytes())).isEqualTo(resource);
@@ -74,7 +76,7 @@ public class ResourceTests {
     Resource resource = new InputStreamResource(is);
     assertThat(resource.exists()).isTrue();
     assertThat(resource.isOpen()).isTrue();
-    String content = StringUtils.readAsText(resource.getInputStream());
+    String content = StreamUtils.copyToString(resource.getInputStream());
     assertThat(content).isEqualTo("testString");
     assertThat(new InputStreamResource(is)).isEqualTo(resource);
   }
@@ -86,7 +88,7 @@ public class ResourceTests {
     assertThat(resource.exists()).isTrue();
     assertThat(resource.isOpen()).isTrue();
 
-    String content = StringUtils.readAsText(resource.getInputStream());
+    String content = StreamUtils.copyToString(resource.getInputStream());
 
     assertThat(content).isEqualTo("testString");
     assertThat(resource.toString().contains("my description")).isTrue();

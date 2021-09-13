@@ -24,7 +24,6 @@ import java.lang.annotation.Annotation;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -61,26 +60,29 @@ import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.DefaultMultiValueMap;
+import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.TodayStrategies;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.util.AnnotationUtils;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.GenericTypeResolver;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.OrderUtils;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.ResolvableType;
 import cn.taketoday.util.StringUtils;
 
 /**
- * @author TODAY <br>
- * 2018-09-09 22:02
+ * @author TODAY 2018-09-09 22:02
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class AbstractApplicationContext implements ConfigurableApplicationContext {
   private static final Logger log = LoggerFactory.getLogger(AbstractApplicationContext.class);
 
@@ -90,7 +92,9 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   // @since 2.1.5
   private State state;
   /** application listeners **/
-  private final HashMap<Class<?>, List<ApplicationListener<Object>>> applicationListeners = new HashMap<>(32);
+  private final DefaultMultiValueMap<Class<?>, ApplicationListener>
+          applicationListeners = new DefaultMultiValueMap<>(32);
+
   private String[] locations;
   /** @since 2.1.7 Scan candidates */
   private CandidateComponentScanner candidateComponentScanner;
@@ -160,6 +164,24 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
       ex = ExceptionUtils.unwrapThrowable(ex);
       throw new ApplicationContextException("An Exception Occurred When Loading Context", ex);
     }
+    finally {
+      resetCommonCaches();
+    }
+  }
+
+  /**
+   * Reset reflection metadata caches, in particular the
+   * {@link ReflectionUtils}, {@link AnnotationUtils}, {@link ResolvableType}
+   *
+   * @see ReflectionUtils#clearCache()
+   * @see AnnotationUtils#clearCache()
+   * @see ResolvableType#clearCache()
+   * @since 4.0
+   */
+  protected void resetCommonCaches() {
+    ReflectionUtils.clearCache();
+    AnnotationUtils.clearCache();
+    ResolvableType.clearCache();
   }
 
   /**
@@ -199,10 +221,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    *         {@link ConfigurableEnvironment}
    */
   protected void postProcessLoadProperties(ConfigurableEnvironment environment) {
-    // @since 3.0 enable check params types
-    ClassUtils.setEnableParamNameTypeChecking(
-            environment.getFlag("ClassUtils.enableParamNameTypeChecking", false)
-    );
+    // no-op
   }
 
   /**
@@ -370,7 +389,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     final List<BeanFactoryPostProcessor> postProcessors = getBeans(BeanFactoryPostProcessor.class);
     if (!postProcessors.isEmpty()) {
       getFactoryPostProcessors().addAll(postProcessors);
-      OrderUtils.reversedSort(factoryPostProcessors);
+      AnnotationAwareOrderComparator.sort(factoryPostProcessors);
     }
   }
 
@@ -381,7 +400,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    *         {@link ApplicationListener} cache
    */
   void registerListener(final Collection<Class<?>> candidates,
-                        final Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners) //
+                        final MultiValueMap<Class<?>, ApplicationListener> applicationListeners) //
   {
     log.info("Loading Application Listeners.");
 
@@ -434,7 +453,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   public void addApplicationListener(final ApplicationListener<?> listener) {
     Assert.notNull(listener, "listener can't be null");
 
-    final HashMap<Class<?>, List<ApplicationListener<Object>>> listeners = this.applicationListeners;
+    final MultiValueMap<Class<?>, ApplicationListener> listeners = this.applicationListeners;
     if (listener instanceof ApplicationEventCapable) { // @since 2.1.7
       for (final Class<?> type : ((ApplicationEventCapable) listener).getApplicationEvent()) {
         addApplicationListener(listener, type, listeners);
@@ -456,31 +475,28 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    * @param eventType
    *         The event type
    */
-  @SuppressWarnings({ "unchecked" })
-  void addApplicationListener(ApplicationListener<?> applicationListener, Class<?> eventType,
-                              Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners) //
-  {
-    List<ApplicationListener<Object>> listeners = applicationListeners.get(eventType);
+  void addApplicationListener(
+          ApplicationListener applicationListener, Class<?> eventType,
+          MultiValueMap<Class<?>, ApplicationListener> applicationListeners
+  ) {
+    List<ApplicationListener> listeners = applicationListeners.get(eventType);
     if (listeners == null) {
-      applicationListeners.put(eventType, listeners = new ArrayList<>(2));
-      listeners.add((ApplicationListener<Object>) applicationListener);
+      applicationListeners.add(eventType, applicationListener);
     }
     else if (!listeners.contains(applicationListener)) {
-      listeners.add((ApplicationListener<Object>) applicationListener);
-      if (!listeners.isEmpty()) {
-        OrderUtils.reversedSort(listeners);
-      }
+      listeners.add(applicationListener);
+      AnnotationAwareOrderComparator.sort(listeners);
     }
   }
 
   /**
-   * Process after {@link #registerListener(Collection, Map)}
+   * Process after {@link #registerListener(Collection, MultiValueMap)}
    *
    * @param applicationListeners
    *         {@link ApplicationListener} cache
    */
   protected void postProcessRegisterListener(
-          Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners) {
+          MultiValueMap<Class<?>, ApplicationListener> applicationListeners) {
     addApplicationListener(new ContextCloseListener());
 
     final Set<Class<?>> listeners = loadMetaInfoListeners();
@@ -534,12 +550,12 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     if (log.isDebugEnabled()) {
       log.debug("Publish event: [{}]", event);
     }
-    final List<ApplicationListener<Object>> listeners = applicationListeners.get(event.getClass());
-    if (CollectionUtils.isEmpty(listeners)) {
-      return;
-    }
-    for (final ApplicationListener<Object> applicationListener : listeners) {
-      applicationListener.onApplicationEvent(event);
+
+    final List<ApplicationListener> listeners = applicationListeners.get(event.getClass());
+    if (!CollectionUtils.isEmpty(listeners)) {
+      for (final ApplicationListener applicationListener : listeners) {
+        applicationListener.onApplicationEvent(event);
+      }
     }
   }
 
@@ -648,7 +664,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   public void refresh(String name) {
     getBeanFactory().refresh(name);
     // object refreshed
-    publishEvent(new ObjectRefreshedEvent(getBeanDefinition(name), this));
+    publishEvent(new ObjectRefreshedEvent(name, this));
   }
 
   @Override

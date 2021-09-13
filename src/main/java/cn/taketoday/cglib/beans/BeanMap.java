@@ -42,7 +42,6 @@ import cn.taketoday.util.ReflectionUtils;
  * @author Chris Nokleberg
  */
 @SuppressWarnings("all")
-@Deprecated
 public abstract class BeanMap extends AbstractMap implements Map {
   /**
    * Limit the properties reflected in the key set of the map to readable

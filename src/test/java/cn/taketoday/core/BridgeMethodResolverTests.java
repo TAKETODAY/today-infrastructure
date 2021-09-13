@@ -874,7 +874,7 @@ class BridgeMethodResolverTests {
     // parameter (!), we resort to requiring the caller to provide the
     // actual type as parameter, too.
     // Not set in a constructor to enable easy CGLIB-proxying (passing
-    // constructor arguments to Spring AOP proxies is quite cumbersome).
+    // constructor arguments to AOP proxies is quite cumbersome).
     public void setPersistentClass(Class<T> c) {
     }
 

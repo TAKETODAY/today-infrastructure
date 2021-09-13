@@ -17,22 +17,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.util;
+package cn.taketoday.core.conversion;
 
 import java.time.Duration;
 import java.util.List;
 
-import cn.taketoday.core.conversion.Converter;
-import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * @author TODAY <br>
  * 2018-07-12 20:43:53
  */
-public abstract class ConvertUtils {
+public abstract class ConversionUtils {
 
   public static boolean supports(Object source, Class<?> targetClass) {
     return DefaultConversionService.getSharedInstance().canConvert(source, targetClass);
@@ -98,27 +95,31 @@ public abstract class ConvertUtils {
    *         Input string
    */
   public static Duration parseDuration(String value) {
-
-    if (requireNonNull(value, "Input string must not be null").endsWith("ns")) {
-      return Duration.ofNanos(Long.parseLong(value.substring(0, value.length() - 2)));
+    Assert.notNull(value, "Input string must not be null");
+    if (value.endsWith("ns")) {
+      return Duration.ofNanos(getDuration(value, 2));
     }
     if (value.endsWith("ms")) {
-      return Duration.ofMillis(Long.parseLong(value.substring(0, value.length() - 2)));
+      return Duration.ofMillis(getDuration(value, 2));
     }
     if (value.endsWith("min")) {
-      return Duration.ofMinutes(Long.parseLong(value.substring(0, value.length() - 3)));
+      return Duration.ofMinutes(getDuration(value, 3));
     }
     if (value.endsWith("s")) {
-      return Duration.ofSeconds(Long.parseLong(value.substring(0, value.length() - 1)));
+      return Duration.ofSeconds(getDuration(value, 1));
     }
     if (value.endsWith("h")) {
-      return Duration.ofHours(Long.parseLong(value.substring(0, value.length() - 1)));
+      return Duration.ofHours(getDuration(value, 1));
     }
     if (value.endsWith("d")) {
-      return Duration.ofDays(Long.parseLong(value.substring(0, value.length() - 1)));
+      return Duration.ofDays(getDuration(value, 1));
     }
 
     return Duration.parse(value);
+  }
+
+  private static long getDuration(String value, int i) {
+    return Long.parseLong(value.substring(0, value.length() - i));
   }
 
   /**
