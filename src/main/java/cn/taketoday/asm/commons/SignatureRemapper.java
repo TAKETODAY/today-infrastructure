@@ -43,7 +43,7 @@ public class SignatureRemapper extends SignatureVisitor {
 
   private final Remapper remapper;
 
-  private ArrayList<String> classNames = new ArrayList<>();
+  private final ArrayList<String> classNames = new ArrayList<>();
 
   /**
    * Constructs a new {@link SignatureRemapper}.
@@ -66,15 +66,15 @@ public class SignatureRemapper extends SignatureVisitor {
 
   @Override
   public void visitInnerClassType(final String name) {
+    final ArrayList<String> classNames = this.classNames;
     String outerClassName = classNames.remove(classNames.size() - 1);
     String className = outerClassName + '$' + name;
     classNames.add(className);
     String remappedOuter = remapper.mapType(outerClassName) + '$';
     String remappedName = remapper.mapType(className);
-    int index =
-            remappedName.startsWith(remappedOuter)
-            ? remappedOuter.length()
-            : remappedName.lastIndexOf('$') + 1;
+    int index = remappedName.startsWith(remappedOuter)
+                ? remappedOuter.length()
+                : remappedName.lastIndexOf('$') + 1;
     signatureVisitor.visitInnerClassType(remappedName.substring(index));
   }
 

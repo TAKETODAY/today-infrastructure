@@ -124,17 +124,19 @@ public final class ModuleHashesAttribute extends Attribute {
           final int maxLocals) {
     ByteVector byteVector = new ByteVector();
     byteVector.putShort(classWriter.newUTF8(algorithm));
+    List<String> modules = this.modules;
     if (modules == null) {
       byteVector.putShort(0);
     }
     else {
+      final List<byte[]> hashes = this.hashes;
+
       int numModules = modules.size();
       byteVector.putShort(numModules);
       for (int i = 0; i < numModules; ++i) {
         String module = modules.get(i);
         byte[] hash = hashes.get(i);
-        byteVector
-                .putShort(classWriter.newModule(module))
+        byteVector.putShort(classWriter.newModule(module))
                 .putShort(hash.length)
                 .putByteArray(hash, 0, hash.length);
       }

@@ -91,8 +91,10 @@ public class StaticInitMerger extends ClassVisitor {
       String newName = renamedClinitMethodPrefix + numClinitMethods++;
       methodVisitor = super.visitMethod(newAccess, newName, descriptor, signature, exceptions);
 
+      MethodVisitor mergedClinitVisitor = this.mergedClinitVisitor;
       if (mergedClinitVisitor == null) {
         mergedClinitVisitor = super.visitMethod(newAccess, name, descriptor, null, null);
+        this.mergedClinitVisitor = mergedClinitVisitor;
       }
       mergedClinitVisitor.visitMethodInsn(Opcodes.INVOKESTATIC, owner, newName, descriptor, false);
     }
@@ -104,6 +106,7 @@ public class StaticInitMerger extends ClassVisitor {
 
   @Override
   public void visitEnd() {
+    MethodVisitor mergedClinitVisitor = this.mergedClinitVisitor;
     if (mergedClinitVisitor != null) {
       mergedClinitVisitor.visitInsn(Opcodes.RETURN);
       mergedClinitVisitor.visitMaxs(0, 0);

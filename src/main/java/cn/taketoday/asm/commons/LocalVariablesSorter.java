@@ -85,11 +85,12 @@ public class LocalVariablesSorter extends MethodVisitor {
   public LocalVariablesSorter(
           final int access, final String descriptor, final MethodVisitor methodVisitor) {
     super(methodVisitor);
-    nextLocal = (Opcodes.ACC_STATIC & access) == 0 ? 1 : 0;
+    int nextLocal = (Opcodes.ACC_STATIC & access) == 0 ? 1 : 0;
     for (Type argumentType : Type.getArgumentTypes(descriptor)) {
       nextLocal += argumentType.getSize();
     }
-    firstLocal = nextLocal;
+    this.nextLocal = nextLocal;
+    this.firstLocal = nextLocal;
   }
 
   @Override
@@ -174,8 +175,8 @@ public class LocalVariablesSorter extends MethodVisitor {
       throw new IllegalArgumentException(
               "LocalVariablesSorter only accepts expanded frames (see ClassReader.EXPAND_FRAMES)");
     }
-
     // Create a copy of remappedLocals.
+    Object[] remappedLocalTypes = this.remappedLocalTypes;
     Object[] oldRemappedLocals = new Object[remappedLocalTypes.length];
     System.arraycopy(remappedLocalTypes, 0, oldRemappedLocals, 0, oldRemappedLocals.length);
 
@@ -203,7 +204,7 @@ public class LocalVariablesSorter extends MethodVisitor {
         else if (localType instanceof String) {
           varType = Type.fromInternalName((String) localType);
         }
-        setFrameLocal(remap(oldVar, varType), localType);
+        remappedLocalTypes = setFrameLocal(remappedLocalTypes, remap(oldVar, varType), localType);
       }
       oldVar += localType == Opcodes.LONG || localType == Opcodes.DOUBLE ? 2 : 1;
     }
@@ -226,9 +227,8 @@ public class LocalVariablesSorter extends MethodVisitor {
 
     // Visit the remapped frame.
     super.visitFrame(type, remappedNumLocal, remappedLocalTypes, numStack, stack);
-
     // Restore the original value of 'remappedLocals'.
-    remappedLocalTypes = oldRemappedLocals;
+    this.remappedLocalTypes = oldRemappedLocals;
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -308,13 +308,25 @@ public class LocalVariablesSorter extends MethodVisitor {
   }
 
   private void setFrameLocal(final int local, final Object type) {
+    setFrameLocal(remappedLocalTypes, local, type);
+  }
+
+  /**
+   * @return returns newRemappedLocalTypes
+   */
+  private Object[] setFrameLocal(Object[] remappedLocalTypes, final int local, final Object type) {
     int numLocals = remappedLocalTypes.length;
     if (local >= numLocals) {
       Object[] newRemappedLocalTypes = new Object[Math.max(2 * numLocals, local + 1)];
       System.arraycopy(remappedLocalTypes, 0, newRemappedLocalTypes, 0, numLocals);
-      remappedLocalTypes = newRemappedLocalTypes;
+      newRemappedLocalTypes[local] = type;
+      this.remappedLocalTypes = newRemappedLocalTypes; // updated
+      return newRemappedLocalTypes;
     }
-    remappedLocalTypes[local] = type;
+    else {
+      remappedLocalTypes[local] = type;
+      return remappedLocalTypes;
+    }
   }
 
   private int remap(final int var, final Type type) {
@@ -322,10 +334,12 @@ public class LocalVariablesSorter extends MethodVisitor {
       return var;
     }
     int key = 2 * var + type.getSize() - 1;
+    int[] remappedVariableIndices = this.remappedVariableIndices;
     int size = remappedVariableIndices.length;
     if (key >= size) {
       int[] newRemappedVariableIndices = new int[Math.max(2 * size, key + 1)];
       System.arraycopy(remappedVariableIndices, 0, newRemappedVariableIndices, 0, size);
+      this.remappedVariableIndices = newRemappedVariableIndices;
       remappedVariableIndices = newRemappedVariableIndices;
     }
     int value = remappedVariableIndices[key];

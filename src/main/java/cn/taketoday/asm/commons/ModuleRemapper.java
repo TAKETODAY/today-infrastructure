@@ -71,6 +71,7 @@ public class ModuleRemapper extends ModuleVisitor {
   @Override
   public void visitExport(final String packaze, final int access, final String... modules) {
     String[] remappedModules = null;
+    final Remapper remapper = this.remapper;
     if (modules != null) {
       remappedModules = new String[modules.length];
       for (int i = 0; i < modules.length; ++i) {
@@ -83,6 +84,7 @@ public class ModuleRemapper extends ModuleVisitor {
   @Override
   public void visitOpen(final String packaze, final int access, final String... modules) {
     String[] remappedModules = null;
+    final Remapper remapper = this.remapper;
     if (modules != null) {
       remappedModules = new String[modules.length];
       for (int i = 0; i < modules.length; ++i) {
@@ -99,6 +101,8 @@ public class ModuleRemapper extends ModuleVisitor {
 
   @Override
   public void visitProvide(final String service, final String... providers) {
+    final Remapper remapper = this.remapper;
+
     String[] remappedProviders = new String[providers.length];
     for (int i = 0; i < providers.length; ++i) {
       remappedProviders[i] = remapper.mapType(providers[i]);

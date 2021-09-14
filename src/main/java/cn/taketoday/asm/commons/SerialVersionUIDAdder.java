@@ -199,9 +199,8 @@ public class SerialVersionUIDAdder extends ClassVisitor {
       // Collect the non private constructors and methods. Only the ACC_PUBLIC, ACC_PRIVATE,
       // ACC_PROTECTED, ACC_STATIC, ACC_FINAL, ACC_SYNCHRONIZED, ACC_NATIVE, ACC_ABSTRACT and
       // ACC_STRICT flags are used.
-      int mods =
-              access
-                      & (Opcodes.ACC_PUBLIC
+      int mods = access & (
+              Opcodes.ACC_PUBLIC
                       | Opcodes.ACC_PRIVATE
                       | Opcodes.ACC_PROTECTED
                       | Opcodes.ACC_STATIC
@@ -209,7 +208,8 @@ public class SerialVersionUIDAdder extends ClassVisitor {
                       | Opcodes.ACC_SYNCHRONIZED
                       | Opcodes.ACC_NATIVE
                       | Opcodes.ACC_ABSTRACT
-                      | Opcodes.ACC_STRICT);
+                      | Opcodes.ACC_STRICT
+      );
 
       if ((access & Opcodes.ACC_PRIVATE) == 0) {
         if ("<init>".equals(name)) {
@@ -244,15 +244,15 @@ public class SerialVersionUIDAdder extends ClassVisitor {
       // serialVersionUID values.
       if ((access & Opcodes.ACC_PRIVATE) == 0
               || (access & (Opcodes.ACC_STATIC | Opcodes.ACC_TRANSIENT)) == 0) {
-        int mods =
-                access
-                        & (Opcodes.ACC_PUBLIC
+        int mods = access & (
+                Opcodes.ACC_PUBLIC
                         | Opcodes.ACC_PRIVATE
                         | Opcodes.ACC_PROTECTED
                         | Opcodes.ACC_STATIC
                         | Opcodes.ACC_FINAL
                         | Opcodes.ACC_VOLATILE
-                        | Opcodes.ACC_TRANSIENT);
+                        | Opcodes.ACC_TRANSIENT
+        );
         svuidFields.add(new Item(name, mods, desc));
       }
     }
@@ -343,15 +343,16 @@ public class SerialVersionUIDAdder extends ClassVisitor {
       // 2. The class modifiers written as a 32-bit integer.
       int mods = access;
       if ((mods & Opcodes.ACC_INTERFACE) != 0) {
-        mods =
-                svuidMethods.isEmpty() ? (mods & ~Opcodes.ACC_ABSTRACT) : (mods | Opcodes.ACC_ABSTRACT);
+        mods = svuidMethods.isEmpty() ? (mods & ~Opcodes.ACC_ABSTRACT) : (mods | Opcodes.ACC_ABSTRACT);
       }
       dataOutputStream.writeInt(
-              mods
-                      & (Opcodes.ACC_PUBLIC
-                      | Opcodes.ACC_FINAL
-                      | Opcodes.ACC_INTERFACE
-                      | Opcodes.ACC_ABSTRACT));
+              mods & (
+                      Opcodes.ACC_PUBLIC
+                              | Opcodes.ACC_FINAL
+                              | Opcodes.ACC_INTERFACE
+                              | Opcodes.ACC_ABSTRACT
+              )
+      );
 
       // 3. The name of each interface sorted by name written using UTF encoding.
       Arrays.sort(interfaces);
@@ -394,7 +395,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
 
       // 8. The SHA-1 algorithm is executed on the stream of bytes produced by DataOutputStream and
       // produces five 32-bit values sha[0..4].
-      byte[] hashBytes = computeSHAdigest(byteArrayOutputStream.toByteArray());
+      byte[] hashBytes = computeSHADigest(byteArrayOutputStream.toByteArray());
 
       // 9. The hash value is assembled from the first and second 32-bit values of the SHA-1 message
       // digest. If the result of the message digest, the five 32-bit words H0 H1 H2 H3 H4, is in an
@@ -416,7 +417,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
    * @return the SHA-1 message digest of the given value.
    */
   // DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
-  protected byte[] computeSHAdigest(final byte[] value) {
+  protected byte[] computeSHADigest(final byte[] value) {
     try {
       return MessageDigest.getInstance("SHA").digest(value);
     }
@@ -458,9 +459,9 @@ public class SerialVersionUIDAdder extends ClassVisitor {
 
   private static final class Item implements Comparable<Item> {
 
-    final String name;
-    final int access;
-    final String descriptor;
+    public final int access;
+    public final String name;
+    public final String descriptor;
 
     Item(final String name, final int access, final String descriptor) {
       this.name = name;

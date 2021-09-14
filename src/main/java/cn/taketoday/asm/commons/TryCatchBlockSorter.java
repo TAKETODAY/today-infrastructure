@@ -95,8 +95,8 @@ public class TryCatchBlockSorter extends MethodNode {
         }
 
         private int blockLength(final TryCatchBlockNode tryCatchBlockNode) {
-          int startIndex = instructions.indexOf(tryCatchBlockNode.start);
           int endIndex = instructions.indexOf(tryCatchBlockNode.end);
+          int startIndex = instructions.indexOf(tryCatchBlockNode.start);
           return endIndex - startIndex;
         }
       });

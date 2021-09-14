@@ -113,6 +113,7 @@ public class MethodRemapper extends MethodVisitor {
     if (frameTypes == null) {
       return frameTypes;
     }
+    final Remapper remapper = this.remapper;
     Object[] remappedFrameTypes = null;
     for (int i = 0; i < numTypes; ++i) {
       if (frameTypes[i] instanceof String) {
@@ -129,6 +130,7 @@ public class MethodRemapper extends MethodVisitor {
   @Override
   public void visitFieldInsn(
           final int opcode, final String owner, final String name, final String descriptor) {
+    final Remapper remapper = this.remapper;
     super.visitFieldInsn(
             opcode,
             remapper.mapType(owner),
@@ -143,6 +145,7 @@ public class MethodRemapper extends MethodVisitor {
           final String name,
           final String descriptor,
           final boolean isInterface) {
+    final Remapper remapper = this.remapper;
     super.visitMethodInsn(
             opcodeAndSource,
             remapper.mapType(owner),
@@ -158,6 +161,8 @@ public class MethodRemapper extends MethodVisitor {
           final Handle bootstrapMethodHandle,
           final Object... bootstrapMethodArguments) {
     Object[] remappedBootstrapMethodArguments = new Object[bootstrapMethodArguments.length];
+
+    final Remapper remapper = this.remapper;
     for (int i = 0; i < bootstrapMethodArguments.length; ++i) {
       remappedBootstrapMethodArguments[i] = remapper.mapValue(bootstrapMethodArguments[i]);
     }
@@ -217,6 +222,8 @@ public class MethodRemapper extends MethodVisitor {
           final Label start,
           final Label end,
           final int index) {
+
+    final Remapper remapper = this.remapper;
     super.visitLocalVariable(
             name,
             remapper.mapDesc(descriptor),
