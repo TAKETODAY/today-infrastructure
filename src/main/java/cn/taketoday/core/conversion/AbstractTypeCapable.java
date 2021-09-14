@@ -29,16 +29,16 @@ import cn.taketoday.core.Assert;
  * @since 3.0
  */
 public abstract class AbstractTypeCapable implements TypeCapable {
-  protected final Class<?> type;
+  protected final Class<?> targetType;
 
   protected AbstractTypeCapable(Class<?> type) {
     Assert.notNull(type, "type must not be null");
-    this.type = type;
+    this.targetType = type;
   }
 
   @Override
-  public Class<?> getType() {
-    return type;
+  public Class<?> getTargetType() {
+    return targetType;
   }
 
 }

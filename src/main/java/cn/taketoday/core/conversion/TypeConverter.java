@@ -41,8 +41,6 @@ public interface TypeConverter {
    * @return whether this {@link TypeConverter} supports to convert source object
    * to target class object
    */
-//  boolean supports(Class<?> targetType, Class<?> sourceType);
-
   boolean supports(TypeDescriptor targetType, Class<?> sourceType);
 
   /**
@@ -58,8 +56,6 @@ public interface TypeConverter {
    * @throws ConversionException
    *         if can't convert to target object
    */
-//  Object convert(Class<?> targetType, Object source);
-
   Object convert(TypeDescriptor targetType, Object source);
 
 }

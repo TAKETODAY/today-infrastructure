@@ -32,6 +32,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Nullable;
@@ -45,6 +46,7 @@ import cn.taketoday.core.conversion.ConverterNotFoundException;
 import cn.taketoday.core.conversion.ConverterRegistry;
 import cn.taketoday.core.conversion.TypeCapable;
 import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.GenericTypeResolver;
 import cn.taketoday.util.Mappings;
@@ -60,11 +62,12 @@ import cn.taketoday.util.TypeDescriptor;
  * @author TODAY 2021/3/20 22:42
  * @since 3.0
  */
-public class DefaultConversionService implements ConfigurableConversionService {
+@SuppressWarnings("unchecked")
+public class DefaultConversionService implements ConfigurableConversionService, ArraySizeTrimmer {
 
   private static final NopTypeConverter NO_MATCH = new NopTypeConverter();
 
-  private static DefaultConversionService sharedInstance = new DefaultConversionService();
+  private static final DefaultConversionService sharedInstance = new DefaultConversionService();
 
   static {
     addDefaultConverters(sharedInstance);
@@ -94,7 +97,6 @@ public class DefaultConversionService implements ConfigurableConversionService {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public <T> T convert(final Object source, final TypeDescriptor targetType) {
     if (source == null) {
       return convertNull(targetType);
@@ -285,11 +287,9 @@ public class DefaultConversionService implements ConfigurableConversionService {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public <S, T> void addConverter(final Converter<S, T> converter) {
     if (converter instanceof TypeCapable) {
-      final Class<T> targetType = (Class<T>) ((TypeCapable) converter).getType();
-      addConverter(targetType, converter);
+      addConverter((TypeCapable) converter, converter);
     }
     else {
       Assert.notNull(converter, "converter must not be null");
@@ -305,11 +305,25 @@ public class DefaultConversionService implements ConfigurableConversionService {
     }
   }
 
+  @SuppressWarnings({ "rawtypes" })
+  public void addConverter(final TypeCapable typeCapable, final Converter converter) {
+    Assert.notNull(converter, "converter must not be null");
+    final Class<?> targetType = typeCapable.getTargetType();
+    Assert.state(targetType != null, "targetType must not be null");
+
+    final Class<?>[] sourceTypes = typeCapable.getSourceTypes();
+    if (sourceTypes == null) {
+      addConverter(targetType, converter);
+    }
+    else {
+      addConverter(new TypeConverterAdapter(targetType, converter, sourceTypes));
+    }
+  }
+
   @Override
   @SuppressWarnings("unchecked")
   public <S, T> void addConverter(Class<T> targetType, Converter<? super S, ? extends T> converter) {
-    Assert.notNull(converter, "converter must not be null");
-    ResolvableType type = ResolvableType.fromClass(converter.getClass()).as(Converter.class);
+    ResolvableType type = ResolvableType.fromInstance(converter).as(Converter.class);
     if (type.hasGenerics()) {
       final ResolvableType generic = type.getGeneric(0);
       addConverter(targetType, (Class<S>) generic.toClass(), converter);
@@ -325,8 +339,7 @@ public class DefaultConversionService implements ConfigurableConversionService {
     Assert.notNull(targetType, "targetType must not be null");
     Assert.notNull(sourceType, "sourceType must not be null");
 
-    final GenericConverter genericConverter = new GenericConverter(targetType, sourceType, converter);
-    this.converters.add(genericConverter);
+    this.converters.add(new GenericConverter(targetType, sourceType, converter));
 
     sort();
     invalidateCache();
@@ -337,10 +350,6 @@ public class DefaultConversionService implements ConfigurableConversionService {
   }
 
   // static
-
-  public static void setSharedInstance(DefaultConversionService sharedInstance) {
-    DefaultConversionService.sharedInstance = sharedInstance;
-  }
 
   public static DefaultConversionService getSharedInstance() {
     return sharedInstance;
@@ -387,7 +396,6 @@ public class DefaultConversionService implements ConfigurableConversionService {
    *
    * @throws ClassCastException
    *         if the given ConverterRegistry could not be cast to a ConversionService
-   * @since 4.2.3
    */
   public static void addCollectionConverters(ConverterRegistry registry) {
     ConversionService conversionService = (ConversionService) registry;
@@ -431,8 +439,10 @@ public class DefaultConversionService implements ConfigurableConversionService {
             new ShortConverter(short.class),
             new ShortConverter(Short.class),
             new BigDecimalConverter(BigDecimal.class),
-            new BigDecimalConverter(Number.class),
+            new BigDecimalConverter(Number.class)
+    );
 
+    registry.addConverters(
             new StringToCharacterConverter(char.class),
             new StringToCharacterConverter(Character.class),
 
@@ -523,6 +533,38 @@ public class DefaultConversionService implements ConfigurableConversionService {
     }
   }
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  static final class TypeConverterAdapter implements TypeConverter {
+    final Class<?> targetType;
+    final Converter converter;
+    final Class<?>[] sourceTypes;
+
+    TypeConverterAdapter(Class<?> targetType, Converter converter, Class<?>[] sourceTypes) {
+      this.targetType = targetType;
+      this.converter = converter;
+      this.sourceTypes = sourceTypes;
+    }
+
+    @Override
+    public boolean supports(TypeDescriptor targetType, Class<?> sourceType) {
+      if (targetType.is(this.targetType)) {
+        for (final Class<?> type : this.sourceTypes) {
+          if (type == sourceType || ClassUtils.isAssignable(type, sourceType)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    @Override
+    public Object convert(TypeDescriptor targetType, Object source) {
+      return converter.convert(source);
+    }
+
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   static final class GenericConverter implements TypeConverter, Ordered {
     final Class<?> targetType;
     final Class<?> sourceType;
@@ -550,6 +592,14 @@ public class DefaultConversionService implements ConfigurableConversionService {
     public int getOrder() {
       return HIGHEST_PRECEDENCE;
     }
+  }
+
+  /**
+   * @since 4.0
+   */
+  @Override
+  public void trimToSize() {
+    converters.trimToSize();
   }
 
 }

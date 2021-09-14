@@ -58,7 +58,7 @@ final class FallbackConverter implements TypeConverter, Ordered {
     }
     return CharSequence.class.isAssignableFrom(sourceType)
             || StringWriter.class.isAssignableFrom(sourceType)
-             || ObjectToObjectConverter.hasConversionMethodOrConstructor(sourceType, String.class);
+            || ObjectToObjectConverter.hasConversionMethodOrConstructor(sourceType, String.class);
   }
 
   @Override
@@ -71,6 +71,6 @@ final class FallbackConverter implements TypeConverter, Ordered {
 
   @Override
   public int getOrder() {
-    return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - HIGHEST_PRECEDENCE - 1;
+    return LOWEST_PRECEDENCE;
   }
 }

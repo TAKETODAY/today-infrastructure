@@ -19,22 +19,25 @@
  */
 package cn.taketoday.beans.factory;
 
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.beans.FactoryBean;
-import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.BeanNameCreator;
 import cn.taketoday.beans.Component;
+import cn.taketoday.beans.FactoryBean;
+import cn.taketoday.beans.InitializingBean;
 import cn.taketoday.beans.Prototype;
 import cn.taketoday.beans.Singleton;
+import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.Value;
-import cn.taketoday.util.DataSize;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.DataSize;
 import lombok.ToString;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,15 +47,33 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * 2019-01-22 18:55
  */
-public class BeanFactoryTest extends BaseTest {
+public class BeanFactoryTest {
 
   private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
+  private final ConfigurableApplicationContext context = //
+          new StandardApplicationContext("", "cn.taketoday.beans.factory", "test.demo.config");
+
+  private final ConfigurableBeanFactory beanFactory = context.getBeanFactory();
+
+  public ConfigurableBeanFactory getBeanFactory() {
+    return beanFactory;
+  }
+
+  public ConfigurableApplicationContext getContext() {
+    return context;
+  }
+
+  @AfterEach
+  public void end() {
+    ConfigurableApplicationContext context = getContext();
+    if (context != null) {
+      context.close();
+    }
+  }
+
   @Test
   public void test_GetBeanWithType() throws NoSuchBeanDefinitionException {
-
-    setProcess("Get bean by given type");
-
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
     Object bean = beanFactory.getBean(Interface.class);
@@ -69,12 +90,9 @@ public class BeanFactoryTest extends BaseTest {
 
   @Test
   public void test_GetBeanWithName() throws NoSuchBeanDefinitionException {
-
-    setProcess("Get bean by given bean name");
-
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
-    BeanNameCreator beanNameCreator = getApplicationContext().getEnvironment().getBeanNameCreator();
+    BeanNameCreator beanNameCreator = getContext().getEnvironment().getBeanNameCreator();
     Object bean = beanFactory.getBean(beanNameCreator.create(Interface.class));
 
     Object implements1 = beanFactory.getBean(beanNameCreator.create(Implements1.class));
@@ -90,8 +108,6 @@ public class BeanFactoryTest extends BaseTest {
 
   @Test
   public void test_GetBeans() throws NoSuchBeanDefinitionException {
-
-    setProcess("Get beans by given type");
 
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
@@ -109,8 +125,6 @@ public class BeanFactoryTest extends BaseTest {
   @Test
   public void test_GetAnnotatedBeans() throws NoSuchBeanDefinitionException {
 
-    setProcess("Get Annotated Beans");
-
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
     List<Object> annotatedBeans = beanFactory.getAnnotatedBeans(Singleton.class);
@@ -120,9 +134,8 @@ public class BeanFactoryTest extends BaseTest {
 
   @Test
   public void test_GetType() throws NoSuchBeanDefinitionException {
-    setProcess("Get bean's type");
     ConfigurableBeanFactory beanFactory = getBeanFactory();
-    BeanNameCreator beanNameCreator = getApplicationContext().getEnvironment().getBeanNameCreator();
+    BeanNameCreator beanNameCreator = getContext().getEnvironment().getBeanNameCreator();
     Class<?> type = beanFactory.getType(beanNameCreator.create(Implements1.class));
     log.debug("type: {}", type);
     assert Implements1.class == type;
@@ -130,9 +143,6 @@ public class BeanFactoryTest extends BaseTest {
 
   @Test
   public void test_GetAliases() throws NoSuchBeanDefinitionException {
-
-    setProcess("Get bean's aliases by given type");
-
     ConfigurableBeanFactory beanFactory = getBeanFactory();
     Set<String> aliases = beanFactory.getAliases(Interface.class);
 
@@ -142,12 +152,9 @@ public class BeanFactoryTest extends BaseTest {
 
   @Test
   public void test_GetBeanName() throws NoSuchBeanDefinitionException {
-
-    setProcess("Get bean name by given type");
-
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
-    BeanNameCreator beanNameCreator = getApplicationContext().getEnvironment().getBeanNameCreator();
+    BeanNameCreator beanNameCreator = getContext().getEnvironment().getBeanNameCreator();
 
     String name = beanFactory.getBeanName(Implements1.class);
     try {
@@ -163,9 +170,6 @@ public class BeanFactoryTest extends BaseTest {
 
   @Test
   public void test_IsPrototype() throws NoSuchBeanDefinitionException {
-
-    setProcess("Whether bean is a prototype");
-
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
     assert beanFactory.isPrototype("FactoryBean-Config");
@@ -179,13 +183,10 @@ public class BeanFactoryTest extends BaseTest {
 
   @Test
   public void test_IsSingleton() throws NoSuchBeanDefinitionException {
-
-    setProcess("Whether bean is a singleton");
-
     ConfigurableBeanFactory beanFactory = getBeanFactory();
 
     BeanNameCreator beanNameCreator = //
-            getApplicationContext()//
+            getContext()//
                     .getEnvironment()//
                     .getBeanNameCreator();
 
@@ -197,7 +198,6 @@ public class BeanFactoryTest extends BaseTest {
 
   @Test
   public void testAddBeanPostProcessor() {
-    setProcess("Add Bean Post Processor");
 
     AbstractBeanFactory beanFactory = (AbstractBeanFactory) getBeanFactory();
 
@@ -220,7 +220,7 @@ public class BeanFactoryTest extends BaseTest {
 
   @ToString
   public static class TEST {
-//    public int test;
+    //    public int test;
     private DataSize test;
 
   }
@@ -254,7 +254,6 @@ public class BeanFactoryTest extends BaseTest {
 
   @Test
   public void testFactoryBean() {
-    setProcess("Factory Bean");
     final ConfigurableBeanFactory beanFactory = getBeanFactory();
     final TEST bean = beanFactory.getBean("testBean", TEST.class);
 
@@ -267,7 +266,6 @@ public class BeanFactoryTest extends BaseTest {
 
   @Test
   public void testGetBeansOfType() {
-    setProcess("Get Beans Of Type");
     final ConfigurableBeanFactory beanFactory = getBeanFactory();
     final Map<String, Interface> beansOfType = beanFactory.getBeansOfType(Interface.class);
     assert beansOfType.size() == 3;

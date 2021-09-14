@@ -20,12 +20,22 @@
 
 package cn.taketoday.core.conversion;
 
+import cn.taketoday.core.Nullable;
+
 /**
  * @author TODAY 2021/1/6 23:23
  * @since 3.0
  */
 public interface TypeCapable {
 
-  Class<?> getType();
+  Class<?> getTargetType();
+
+  /**
+   * @since 4.0
+   */
+  @Nullable
+  default Class<?>[] getSourceTypes() {
+    return null;
+  }
 
 }

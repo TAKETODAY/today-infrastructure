@@ -54,9 +54,9 @@ import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.core.conversion.ConverterNotFoundException;
 import cn.taketoday.core.conversion.ConverterRegistry;
-import cn.taketoday.util.TypeDescriptor;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StopWatch;
+import cn.taketoday.util.TypeDescriptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -68,9 +68,11 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 public class DefaultConversionServiceTests {
 
   private final DefaultConversionService conversionService = new DefaultConversionService();
+
   {
     DefaultConversionService.addDefaultConverters(conversionService);
   }
+
   @Test
   public void stringToCharacter() {
     assertThat(conversionService.convert("1", Character.class)).isEqualTo(Character.valueOf('1'));
@@ -265,9 +267,8 @@ public class DefaultConversionServiceTests {
 
   @Test
   public void enumToInteger() {
-
     assertThat(conversionService.convert(Foo.BAR, Integer.class))
-            .isEqualTo((int) 0);
+            .isEqualTo(0);
   }
 
   @Test
@@ -367,7 +368,7 @@ public class DefaultConversionServiceTests {
   public void convertArrayToCollectionGenericTypeConversion() throws Exception {
     final String[] source = { "1", "2", "3" };
     final TypeDescriptor targetType = TypeDescriptor.fromField(getClass().getDeclaredField("genericList"));
-    List<Integer> result = conversionService.convert(source,targetType);
+    List<Integer> result = conversionService.convert(source, targetType);
 
     assertThat((int) result.get(0)).isEqualTo((int) Integer.valueOf(1));
     assertThat((int) result.get(1)).isEqualTo((int) Integer.valueOf(2));
@@ -807,7 +808,7 @@ public class DefaultConversionServiceTests {
     strings.put("6", "31");
     Map<Integer, Integer> integers = //
 //            conversionService.convert(strings, new TypeReference<Map<Integer, Integer>>(){}.getTypeParameter());
-            conversionService.convert(strings, TypeDescriptor.map(Map.class, Integer.class, Integer.class ));
+            conversionService.convert(strings, TypeDescriptor.map(Map.class, Integer.class, Integer.class));
 
     assertThat((int) integers.get(3)).isEqualTo((int) Integer.valueOf(9));
     assertThat((int) integers.get(6)).isEqualTo((int) Integer.valueOf(31));
@@ -957,7 +958,7 @@ public class DefaultConversionServiceTests {
     assertThat(convertedBack).isEqualTo(grid);
   }
 
-//  @Test
+  //  @Test
   public void convertCannotOptimizeArray() {
     conversionService.addConverter(Byte.class, Byte.class, source -> (byte) (source + 1));
     byte[] byteArray = new byte[] { 1, 2, 3 };

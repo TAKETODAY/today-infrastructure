@@ -25,15 +25,18 @@ import java.util.Collection;
 
 import cn.taketoday.core.conversion.AbstractTypeCapable;
 import cn.taketoday.core.conversion.ConversionException;
-import cn.taketoday.core.conversion.Converter;
-import cn.taketoday.core.conversion.TypeCapable;
+import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.util.TypeDescriptor;
 
 /**
+ * Support source is String, Number, Character, Enum, Collection, Array to
+ * target number type
+ *
  * @author TODAY 2021/1/6 23:18
  * @since 3.0
  */
 public class NumberConverter
-        extends AbstractTypeCapable implements Converter<Object, Number>, TypeCapable {
+        extends AbstractTypeCapable implements TypeConverter {
 
   private final boolean primitive;
 
@@ -42,7 +45,32 @@ public class NumberConverter
     this.primitive = targetClass.isPrimitive();
   }
 
+  /**
+   * @param targetType
+   *         target class
+   * @param sourceType
+   *         source object never be null
+   *
+   * @since 4.0
+   */
   @Override
+  public boolean supports(
+          TypeDescriptor targetType, Class<?> sourceType) {
+    return targetType.is(this.targetType) && (
+            sourceType == String.class
+                    || Number.class.isAssignableFrom(sourceType)
+                    || Character.class == sourceType
+                    || Enum.class.isAssignableFrom(sourceType)
+                    || sourceType.isArray()
+                    || Collection.class.isAssignableFrom(sourceType)
+    );
+  }
+
+  @Override
+  public final Object convert(TypeDescriptor targetType, Object source) {
+    return convert(source);
+  }
+
   public final Number convert(Object source) {
     if (source == null) {
       return convertNull();
@@ -97,7 +125,8 @@ public class NumberConverter
     if (source instanceof Enum) {
       return convertNumber(((Enum<?>) source).ordinal());
     }
-    throw new ConversionException("Not support source: '" + source + "' convert to target class: " + type);
+    throw new ConversionException(
+            "Not support source: '" + source + "' convert to target class: " + targetType);
   }
 
   public boolean isPrimitive() {

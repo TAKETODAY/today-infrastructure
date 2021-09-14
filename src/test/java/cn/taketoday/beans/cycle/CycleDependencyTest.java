@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.beans.factory.cycle;
+package cn.taketoday.beans.cycle;
 
 import org.aopalliance.intercept.Joinpoint;
 import org.junit.Test;
@@ -31,13 +31,13 @@ import cn.taketoday.aop.Logger;
 import cn.taketoday.aop.support.annotation.Around;
 import cn.taketoday.aop.support.annotation.Aspect;
 import cn.taketoday.aop.support.annotation.JoinPoint;
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.beans.Autowired;
 import cn.taketoday.beans.Lazy;
-import cn.taketoday.core.Order;
 import cn.taketoday.beans.Singleton;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.loader.CandidateComponentScanner;
+import cn.taketoday.core.Order;
 
 import static org.junit.Assert.assertEquals;
 
@@ -53,7 +53,7 @@ public class CycleDependencyTest {
     CandidateComponentScanner.getSharedInstance().clear();
 
     try (ApplicationContext applicationContext = new StandardApplicationContext()) {
-      applicationContext.load("cn.taketoday.beans.factory.cycle");
+      applicationContext.load("cn.taketoday.beans.cycle");
       assertEquals(8, applicationContext.getBeanDefinitionCount());
 
       final BeanA beanA = applicationContext.getBean(BeanA.class);
@@ -97,7 +97,7 @@ public class CycleDependencyTest {
     BeanA beanA;
     BeanB beanB;
 
-    @Order(3)
+    @Order(1)
     @PostConstruct
     public void init(BeanA beanA, BeanB beanB) {
       this.beanA = beanA;
@@ -113,7 +113,7 @@ public class CycleDependencyTest {
       order = 3;
     }
 
-    @Order(1)
+    @Order(3)
     @PostConstruct
     public void init3(BeanC beanC) {
       assertEquals(this, beanC);
@@ -148,7 +148,7 @@ public class CycleDependencyTest {
     try (ApplicationContext applicationContext = new StandardApplicationContext()) {
 
       applicationContext.importBeans(LoggingAspect.class);
-      applicationContext.load("cn.taketoday.beans.factory.cycle");
+      applicationContext.load("cn.taketoday.beans.cycle");
 
       final LoggingBeanA beanA = applicationContext.getBean(LoggingBeanA.class);
       final LoggingBeanB beanB = applicationContext.getBean(LoggingBeanB.class);
@@ -186,6 +186,7 @@ public class CycleDependencyTest {
     LoggingBeanA beanA;
     @Autowired
     LoggingBeanB beanB;
+
     void doSomething() {
 
     }
@@ -199,7 +200,7 @@ public class CycleDependencyTest {
     LoggingBeanA beanA;
     LoggingBeanB beanB;
 
-    @Order(3)
+    @Order(1)
     @PostConstruct
     public void init(LoggingBeanA beanA, LoggingBeanB beanB) {
       this.beanA = beanA;
@@ -216,7 +217,7 @@ public class CycleDependencyTest {
       order = 3;
     }
 
-    @Order(1)
+    @Order(3)
     @PostConstruct
     public void init3(LoggingBeanC beanC) {
       assertEquals(this, beanC);

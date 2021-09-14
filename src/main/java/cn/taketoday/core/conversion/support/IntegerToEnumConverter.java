@@ -33,7 +33,7 @@ final class IntegerToEnumConverter implements TypeConverter {
   @Override
   public boolean supports(final TypeDescriptor targetType, final Class<?> sourceType) {
     return sourceType == Integer.class
-            && Enum.class.isAssignableFrom(targetType.getType());
+            && targetType.isAssignableTo(Enum.class);
   }
 
   @Override
