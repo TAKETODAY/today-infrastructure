@@ -69,7 +69,7 @@ public class MethodTest {
 
   @Test
   public void testGetMethod_fromMethodObject() throws ReflectiveOperationException {
-    Method method = Method.getMethod(Object.class.getMethod("equals", Object.class));
+    Method method = Method.fromMethod(Object.class.getMethod("equals", Object.class));
 
     assertEquals("equals", method.getName());
     assertEquals("(Ljava/lang/Object;)Z", method.getDescriptor());
@@ -77,7 +77,7 @@ public class MethodTest {
 
   @Test
   public void testGetMethod_fromConstructorObject() throws ReflectiveOperationException {
-    Method method = Method.getMethod(Object.class.getConstructor());
+    Method method = Method.fromConstructor(Object.class.getConstructor());
 
     assertEquals("<init>", method.getName());
     assertEquals("()V", method.getDescriptor());
@@ -86,7 +86,7 @@ public class MethodTest {
   @Test
   public void testGetMethod_fromDescriptor() {
     Method method =
-            Method.getMethod(
+            Method.fromDeclaration(
                     "boolean name(byte, char, short, int, float, long, double, pkg.Class, pkg.Class[])");
 
     assertEquals("name", method.getName());
@@ -95,16 +95,16 @@ public class MethodTest {
 
   @Test
   public void testGetMethod_fromInvalidDescriptor() {
-    assertThrows(IllegalArgumentException.class, () -> Method.getMethod("name()"));
-    assertThrows(IllegalArgumentException.class, () -> Method.getMethod("void name"));
-    assertThrows(IllegalArgumentException.class, () -> Method.getMethod("void name(]"));
+    assertThrows(IllegalArgumentException.class, () -> Method.fromDeclaration("name()"));
+    assertThrows(IllegalArgumentException.class, () -> Method.fromDeclaration("void name"));
+    assertThrows(IllegalArgumentException.class, () -> Method.fromDeclaration("void name(]"));
   }
 
   @Test
   public void testGetMethod_withDefaultPackage() {
     Method withoutDefaultPackage =
-            Method.getMethod("void name(Object)", /* defaultPackage= */ false);
-    Method withDefaultPackage = Method.getMethod("void name(Object)", /* defaultPackage= */ true);
+            Method.fromDeclaration("void name(Object)", /* defaultPackage= */ false);
+    Method withDefaultPackage = Method.fromDeclaration("void name(Object)", /* defaultPackage= */ true);
 
     assertEquals("(Ljava/lang/Object;)V", withoutDefaultPackage.getDescriptor());
     assertEquals("(LObject;)V", withDefaultPackage.getDescriptor());
@@ -119,7 +119,7 @@ public class MethodTest {
             new Method("name", "()V").equals(new Method("other", "()V"));
     boolean equalsMethodWithDifferentDescriptor =
             new Method("name", "()V").equals(new Method("name", "(I)J"));
-    boolean equalsSame = new Method("name", "()V").equals(Method.getMethod("void name()"));
+    boolean equalsSame = new Method("name", "()V").equals(Method.fromDeclaration("void name()"));
 
     assertFalse(equalsNull);
     assertFalse(equalsMethodWithDifferentName);

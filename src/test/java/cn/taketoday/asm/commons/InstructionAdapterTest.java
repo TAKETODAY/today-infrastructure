@@ -195,7 +195,7 @@ public class InstructionAdapterTest extends AsmTest {
     MethodNode methodNode = new MethodNode();
     InstructionAdapter instructionAdapter = new InstructionAdapter(methodNode);
 
-    instructionAdapter.invokespecial("pkg/Class", "name", "()V");
+    instructionAdapter.invokeSpecial("pkg/Class", "name", "()V");
 
     assertTrue(toText(methodNode).trim().startsWith("INVOKESPECIAL pkg/Class.name ()V"));
   }
@@ -206,7 +206,7 @@ public class InstructionAdapterTest extends AsmTest {
     MethodNode methodNode = new MethodNode();
     InstructionAdapter instructionAdapter = new InstructionAdapter(methodNode);
 
-    instructionAdapter.invokevirtual("pkg/Class", "name", "()V");
+    instructionAdapter.invokeVirtual("pkg/Class", "name", "()V");
 
     assertTrue(toText(methodNode).trim().startsWith("INVOKEVIRTUAL pkg/Class.name ()V"));
   }
@@ -217,7 +217,7 @@ public class InstructionAdapterTest extends AsmTest {
     MethodNode methodNode = new MethodNode();
     InstructionAdapter instructionAdapter = new InstructionAdapter(methodNode);
 
-    instructionAdapter.invokestatic("pkg/Class", "name", "()V");
+    instructionAdapter.invokeStatic("pkg/Class", "name", "()V");
 
     assertTrue(toText(methodNode).trim().startsWith("INVOKESTATIC pkg/Class.name ()V"));
   }

@@ -99,7 +99,7 @@ public class Method {
    *
    * @return a {@link Method} corresponding to the given Java method declaration.
    */
-  public static Method getMethod(final java.lang.reflect.Method method) {
+  public static Method fromMethod(final java.lang.reflect.Method method) {
     return new Method(method.getName(), Type.getMethodDescriptor(method));
   }
 
@@ -111,7 +111,7 @@ public class Method {
    *
    * @return a {@link Method} corresponding to the given Java constructor declaration.
    */
-  public static Method getMethod(final java.lang.reflect.Constructor<?> constructor) {
+  public static Method fromConstructor(final java.lang.reflect.Constructor<?> constructor) {
     return new Method("<init>", Type.getConstructorDescriptor(constructor));
   }
 
@@ -129,8 +129,8 @@ public class Method {
    * @throws IllegalArgumentException
    *         if <code>method</code> could not get parsed.
    */
-  public static Method getMethod(final String method) {
-    return getMethod(method, false);
+  public static Method fromDeclaration(final String method) {
+    return fromDeclaration(method, false);
   }
 
   /**
@@ -152,7 +152,7 @@ public class Method {
    * @throws IllegalArgumentException
    *         if <code>method</code> could not get parsed.
    */
-  public static Method getMethod(final String method, final boolean defaultPackage) {
+  public static Method fromDeclaration(final String method, final boolean defaultPackage) {
     final int spaceIndex = method.indexOf(' ');
     int currentArgumentStartIndex = method.indexOf('(', spaceIndex) + 1;
     final int endIndex = method.indexOf(')', currentArgumentStartIndex);

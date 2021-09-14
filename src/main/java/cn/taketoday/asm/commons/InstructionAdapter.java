@@ -379,28 +379,28 @@ public class InstructionAdapter extends MethodVisitor {
       case Opcodes.NEWARRAY:
         switch (operand) {
           case Opcodes.T_BOOLEAN:
-            newarray(Type.BOOLEAN_TYPE);
+            newArray(Type.BOOLEAN_TYPE);
             break;
           case Opcodes.T_CHAR:
-            newarray(Type.CHAR_TYPE);
+            newArray(Type.CHAR_TYPE);
             break;
           case Opcodes.T_BYTE:
-            newarray(Type.BYTE_TYPE);
+            newArray(Type.BYTE_TYPE);
             break;
           case Opcodes.T_SHORT:
-            newarray(Type.SHORT_TYPE);
+            newArray(Type.SHORT_TYPE);
             break;
           case Opcodes.T_INT:
-            newarray(Type.INT_TYPE);
+            newArray(Type.INT_TYPE);
             break;
           case Opcodes.T_FLOAT:
-            newarray(Type.FLOAT_TYPE);
+            newArray(Type.FLOAT_TYPE);
             break;
           case Opcodes.T_LONG:
-            newarray(Type.LONG_TYPE);
+            newArray(Type.LONG_TYPE);
             break;
           case Opcodes.T_DOUBLE:
-            newarray(Type.DOUBLE_TYPE);
+            newArray(Type.DOUBLE_TYPE);
             break;
           default:
             throw new IllegalArgumentException();
@@ -460,7 +460,7 @@ public class InstructionAdapter extends MethodVisitor {
         anew(objectType);
         break;
       case Opcodes.ANEWARRAY:
-        newarray(objectType);
+        newArray(objectType);
         break;
       case Opcodes.CHECKCAST:
         checkcast(objectType);
@@ -478,16 +478,16 @@ public class InstructionAdapter extends MethodVisitor {
           final int opcode, final String owner, final String name, final String descriptor) {
     switch (opcode) {
       case Opcodes.GETSTATIC:
-        getstatic(owner, name, descriptor);
+        getStatic(owner, name, descriptor);
         break;
       case Opcodes.PUTSTATIC:
-        putstatic(owner, name, descriptor);
+        putStatic(owner, name, descriptor);
         break;
       case Opcodes.GETFIELD:
-        getfield(owner, name, descriptor);
+        getField(owner, name, descriptor);
         break;
       case Opcodes.PUTFIELD:
-        putfield(owner, name, descriptor);
+        putField(owner, name, descriptor);
         break;
       default:
         throw new IllegalArgumentException();
@@ -505,16 +505,16 @@ public class InstructionAdapter extends MethodVisitor {
 
     switch (opcode) {
       case Opcodes.INVOKESPECIAL:
-        invokespecial(owner, name, descriptor, isInterface);
+        invokeSpecial(owner, name, descriptor, isInterface);
         break;
       case Opcodes.INVOKEVIRTUAL:
-        invokevirtual(owner, name, descriptor, isInterface);
+        invokeVirtual(owner, name, descriptor, isInterface);
         break;
       case Opcodes.INVOKESTATIC:
-        invokestatic(owner, name, descriptor, isInterface);
+        invokeStatic(owner, name, descriptor, isInterface);
         break;
       case Opcodes.INVOKEINTERFACE:
-        invokeinterface(owner, name, descriptor);
+        invokeInterface(owner, name, descriptor);
         break;
       default:
         throw new IllegalArgumentException();
@@ -527,7 +527,7 @@ public class InstructionAdapter extends MethodVisitor {
           final String descriptor,
           final Handle bootstrapMethodHandle,
           final Object... bootstrapMethodArguments) {
-    invokedynamic(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
+    invokeDynamic(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
   }
 
   @Override
@@ -648,12 +648,12 @@ public class InstructionAdapter extends MethodVisitor {
   @Override
   public void visitTableSwitchInsn(
           final int min, final int max, final Label dflt, final Label... labels) {
-    tableswitch(min, max, dflt, labels);
+    tableSwitch(min, max, dflt, labels);
   }
 
   @Override
   public void visitLookupSwitchInsn(final Label dflt, final int[] keys, final Label[] labels) {
-    lookupswitch(dflt, keys, labels);
+    lookupSwitch(dflt, keys, labels);
   }
 
   @Override
@@ -695,17 +695,21 @@ public class InstructionAdapter extends MethodVisitor {
    *         the constant to be pushed on the stack.
    */
   public void iconst(final int intValue) {
-    if (intValue >= -1 && intValue <= 5) {
-      mv.visitInsn(Opcodes.ICONST_0 + intValue);
+    push(mv, intValue);
+  }
+
+  static void push(MethodVisitor mv, int value) {
+    if (value >= -1 && value <= 5) {
+      mv.visitInsn(Opcodes.ICONST_0 + value);
     }
-    else if (intValue >= Byte.MIN_VALUE && intValue <= Byte.MAX_VALUE) {
-      mv.visitIntInsn(Opcodes.BIPUSH, intValue);
+    else if (value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE) {
+      mv.visitIntInsn(Opcodes.BIPUSH, value);
     }
-    else if (intValue >= Short.MIN_VALUE && intValue <= Short.MAX_VALUE) {
-      mv.visitIntInsn(Opcodes.SIPUSH, intValue);
+    else if (value >= Short.MIN_VALUE && value <= Short.MAX_VALUE) {
+      mv.visitIntInsn(Opcodes.SIPUSH, value);
     }
     else {
-      mv.visitLdcInsn(intValue);
+      mv.visitLdcInsn(value);
     }
   }
 
@@ -1053,11 +1057,11 @@ public class InstructionAdapter extends MethodVisitor {
     mv.visitVarInsn(Opcodes.RET, var);
   }
 
-  public void tableswitch(final int min, final int max, final Label dflt, final Label... labels) {
+  public void tableSwitch(final int min, final int max, final Label dflt, final Label... labels) {
     mv.visitTableSwitchInsn(min, max, dflt, labels);
   }
 
-  public void lookupswitch(final Label dflt, final int[] keys, final Label[] labels) {
+  public void lookupSwitch(final Label dflt, final int[] keys, final Label[] labels) {
     mv.visitLookupSwitchInsn(dflt, keys, labels);
   }
 
@@ -1065,19 +1069,19 @@ public class InstructionAdapter extends MethodVisitor {
     mv.visitInsn(type.getOpcode(Opcodes.IRETURN));
   }
 
-  public void getstatic(final String owner, final String name, final String descriptor) {
+  public void getStatic(final String owner, final String name, final String descriptor) {
     mv.visitFieldInsn(Opcodes.GETSTATIC, owner, name, descriptor);
   }
 
-  public void putstatic(final String owner, final String name, final String descriptor) {
+  public void putStatic(final String owner, final String name, final String descriptor) {
     mv.visitFieldInsn(Opcodes.PUTSTATIC, owner, name, descriptor);
   }
 
-  public void getfield(final String owner, final String name, final String descriptor) {
+  public void getField(final String owner, final String name, final String descriptor) {
     mv.visitFieldInsn(Opcodes.GETFIELD, owner, name, descriptor);
   }
 
-  public void putfield(final String owner, final String name, final String descriptor) {
+  public void putField(final String owner, final String name, final String descriptor) {
     mv.visitFieldInsn(Opcodes.PUTFIELD, owner, name, descriptor);
   }
 
@@ -1090,12 +1094,9 @@ public class InstructionAdapter extends MethodVisitor {
    *         the method's name.
    * @param descriptor
    *         the method's descriptor (see {@link Type}).
-   *
-   * @deprecated use {@link #invokevirtual(String, String, String, boolean)} instead.
    */
-  @Deprecated
-  public void invokevirtual(final String owner, final String name, final String descriptor) {
-    invokevirtual(owner, name, descriptor, false);
+  public void invokeVirtual(final String owner, final String name, final String descriptor) {
+    invokeVirtual(owner, name, descriptor, false);
   }
 
   /**
@@ -1111,7 +1112,7 @@ public class InstructionAdapter extends MethodVisitor {
    * @param isInterface
    *         if the method's owner class is an interface.
    */
-  public void invokevirtual(
+  public void invokeVirtual(
           final String owner, final String name, final String descriptor, final boolean isInterface) {
     mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, owner, name, descriptor, isInterface);
   }
@@ -1125,12 +1126,9 @@ public class InstructionAdapter extends MethodVisitor {
    *         the method's name.
    * @param descriptor
    *         the method's descriptor (see {@link Type}).
-   *
-   * @deprecated use {@link #invokespecial(String, String, String, boolean)} instead.
    */
-  @Deprecated
-  public void invokespecial(final String owner, final String name, final String descriptor) {
-    invokespecial(owner, name, descriptor, false);
+  public void invokeSpecial(final String owner, final String name, final String descriptor) {
+    invokeSpecial(owner, name, descriptor, false);
   }
 
   /**
@@ -1146,7 +1144,7 @@ public class InstructionAdapter extends MethodVisitor {
    * @param isInterface
    *         if the method's owner class is an interface.
    */
-  public void invokespecial(
+  public void invokeSpecial(
           final String owner, final String name, final String descriptor, final boolean isInterface) {
     mv.visitMethodInsn(Opcodes.INVOKESPECIAL, owner, name, descriptor, isInterface);
   }
@@ -1160,12 +1158,9 @@ public class InstructionAdapter extends MethodVisitor {
    *         the method's name.
    * @param descriptor
    *         the method's descriptor (see {@link Type}).
-   *
-   * @deprecated use {@link #invokestatic(String, String, String, boolean)} instead.
    */
-  @Deprecated
-  public void invokestatic(final String owner, final String name, final String descriptor) {
-    invokestatic(owner, name, descriptor, false);
+  public void invokeStatic(final String owner, final String name, final String descriptor) {
+    invokeStatic(owner, name, descriptor, false);
   }
 
   /**
@@ -1181,7 +1176,7 @@ public class InstructionAdapter extends MethodVisitor {
    * @param isInterface
    *         if the method's owner class is an interface.
    */
-  public void invokestatic(
+  public void invokeStatic(
           final String owner, final String name, final String descriptor, final boolean isInterface) {
     mv.visitMethodInsn(Opcodes.INVOKESTATIC, owner, name, descriptor, isInterface);
   }
@@ -1197,7 +1192,7 @@ public class InstructionAdapter extends MethodVisitor {
    * @param descriptor
    *         the method's descriptor (see {@link Type}).
    */
-  public void invokeinterface(final String owner, final String name, final String descriptor) {
+  public void invokeInterface(final String owner, final String name, final String descriptor) {
     mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, owner, name, descriptor, true);
   }
 
@@ -1216,7 +1211,7 @@ public class InstructionAdapter extends MethodVisitor {
    *         Type}, {@link Handle} or {@link ConstantDynamic} value. This method is allowed to modify
    *         the content of the array so a caller should expect that this array may change.
    */
-  public void invokedynamic(
+  public void invokeDynamic(
           final String name,
           final String descriptor,
           final Handle bootstrapMethodHandle,
@@ -1234,8 +1229,8 @@ public class InstructionAdapter extends MethodVisitor {
    * @param type
    *         an array Type.
    */
-  public void newarray(final Type type) {
-    newarray(mv, type);
+  public void newArray(final Type type) {
+    newArray(mv, type);
   }
 
   /**
@@ -1246,7 +1241,7 @@ public class InstructionAdapter extends MethodVisitor {
    * @param type
    *         an array Type.
    */
-  static void newarray(final MethodVisitor methodVisitor, final Type type) {
+  static void newArray(final MethodVisitor methodVisitor, final Type type) {
     int arrayType;
     switch (type.getSort()) {
       case Type.BOOLEAN:

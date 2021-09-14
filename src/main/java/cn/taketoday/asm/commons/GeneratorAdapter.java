@@ -105,17 +105,17 @@ public class GeneratorAdapter extends LocalVariablesSorter {
 
   private static final Type OBJECT_TYPE = Type.fromInternalName("java/lang/Object");
 
-  private static final Method BOOLEAN_VALUE = Method.getMethod("boolean booleanValue()");
+  private static final Method BOOLEAN_VALUE = Method.fromDeclaration("boolean booleanValue()");
 
-  private static final Method CHAR_VALUE = Method.getMethod("char charValue()");
+  private static final Method CHAR_VALUE = Method.fromDeclaration("char charValue()");
 
-  private static final Method INT_VALUE = Method.getMethod("int intValue()");
+  private static final Method INT_VALUE = Method.fromDeclaration("int intValue()");
 
-  private static final Method FLOAT_VALUE = Method.getMethod("float floatValue()");
+  private static final Method FLOAT_VALUE = Method.fromDeclaration("float floatValue()");
 
-  private static final Method LONG_VALUE = Method.getMethod("long longValue()");
+  private static final Method LONG_VALUE = Method.fromDeclaration("long longValue()");
 
-  private static final Method DOUBLE_VALUE = Method.getMethod("double doubleValue()");
+  private static final Method DOUBLE_VALUE = Method.fromDeclaration("double doubleValue()");
 
   /** Constant for the {@link #math} method. */
   public static final int ADD = Opcodes.IADD;
@@ -248,15 +248,14 @@ public class GeneratorAdapter extends LocalVariablesSorter {
           final String signature,
           final Type[] exceptions,
           final ClassVisitor classVisitor) {
-    this(
-            access,
-            method,
-            classVisitor.visitMethod(
-                    access,
-                    method.getName(),
-                    method.getDescriptor(),
-                    signature,
-                    exceptions == null ? null : getInternalNames(exceptions)));
+    this(access,
+         method,
+         classVisitor.visitMethod(
+                 access,
+                 method.getName(),
+                 method.getDescriptor(),
+                 signature,
+                 exceptions == null ? null : getInternalNames(exceptions)));
   }
 
   /**
@@ -312,18 +311,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    *         the value to be pushed on the stack.
    */
   public void push(final int value) {
-    if (value >= -1 && value <= 5) {
-      mv.visitInsn(Opcodes.ICONST_0 + value);
-    }
-    else if (value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE) {
-      mv.visitIntInsn(Opcodes.BIPUSH, value);
-    }
-    else if (value >= Short.MIN_VALUE && value <= Short.MAX_VALUE) {
-      mv.visitIntInsn(Opcodes.SIPUSH, value);
-    }
-    else {
-      mv.visitLdcInsn(value);
-    }
+    InstructionAdapter.push(mv, value);
   }
 
   /**
@@ -474,6 +462,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @return the index of the given method argument in the frame's local variables array.
    */
   private int getArgIndex(final int arg) {
+    final Type[] argumentTypes = this.argumentTypes;
     int index = (access & Opcodes.ACC_STATIC) == 0 ? 1 : 0;
     for (int i = 0; i < arg; i++) {
       index += argumentTypes[i].getSize();
@@ -533,6 +522,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    */
   public void loadArgs(final int arg, final int count) {
     int index = getArgIndex(arg);
+    final Type[] argumentTypes = this.argumentTypes;
     for (int i = 0; i < count; ++i) {
       Type argumentType = argumentTypes[arg + i];
       loadInsn(argumentType, index);
@@ -550,6 +540,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * array.
    */
   public void loadArgArray() {
+    final Type[] argumentTypes = this.argumentTypes;
     push(argumentTypes.length);
     newArray(OBJECT_TYPE);
     for (int i = 0; i < argumentTypes.length; i++) {
@@ -591,6 +582,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
   @Override
   protected void setLocalType(final int local, final Type type) {
     int index = local - firstLocal;
+    final List<Type> localTypes = this.localTypes;
     while (localTypes.size() < index + 1) {
       localTypes.add(null);
     }
@@ -1141,8 +1133,8 @@ public class GeneratorAdapter extends LocalVariablesSorter {
         int range = max - min + 1;
         Label[] labels = new Label[range];
         Arrays.fill(labels, defaultLabel);
-        for (int i = 0; i < numKeys; ++i) {
-          labels[keys[i] - min] = newLabel();
+        for (final int key : keys) {
+          labels[key - min] = newLabel();
         }
         mv.visitTableSwitchInsn(min, max, defaultLabel, labels);
         for (int i = 0; i < range; ++i) {
@@ -1378,7 +1370,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    *         the type of the array elements.
    */
   public void newArray(final Type type) {
-    InstructionAdapter.newarray(mv, type);
+    InstructionAdapter.newArray(mv, type);
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -1408,7 +1400,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     newInstance(type);
     dup();
     push(message);
-    invokeConstructor(type, Method.getMethod("void <init> (String)"));
+    invokeConstructor(type, Method.fromDeclaration("void <init> (String)"));
     throwException();
   }
 

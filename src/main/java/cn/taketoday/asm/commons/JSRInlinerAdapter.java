@@ -70,7 +70,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
    * instruction, bit i of the corresponding BitSet in this map is set iff instruction at index i
    * belongs to this subroutine.
    */
-  private final Map<LabelNode, BitSet> subroutinesInsns = new HashMap<>();
+  private final HashMap<LabelNode, BitSet> subroutinesInsns = new HashMap<>();
 
   /**
    * The instructions that belong to more that one subroutine. Bit i is set iff instruction at index
@@ -136,6 +136,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
     BitSet visitedInsns = new BitSet();
     findSubroutineInsns(0, mainSubroutineInsns, visitedInsns);
     // For each subroutine, find the instructions that belong to this subroutine.
+    final InsnList instructions = this.instructions;
     for (Map.Entry<LabelNode, BitSet> entry : subroutinesInsns.entrySet()) {
       LabelNode jsrLabelNode = entry.getKey();
       BitSet subroutineInsns = entry.getValue();
@@ -217,6 +218,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
     // unreachable and can be anything. In particular, it can seem to fall off the end of the
     // method, so we must handle this case here (we could instead detect whether execution can
     // return or not from a JSR, but this is more complicated).
+    final InsnList instructions = this.instructions;
     while (currentInsnIndex < instructions.size()) {
       // Visit each instruction at most once.
       if (subroutineInsns.get(currentInsnIndex)) {
@@ -439,7 +441,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
      * target label of a GOTO to the label used by the oldest instantiation (parent instantiations
      * are older than their children). This avoids code duplication during inlining in most cases.
      */
-    final Map<LabelNode, LabelNode> clonedLabels;
+    final HashMap<LabelNode, LabelNode> clonedLabels;
 
     /** The return label for this instantiation, to which all original returns will be mapped. */
     final LabelNode returnLabel;
@@ -461,15 +463,19 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
       // Create a clone of each label in the original code of the subroutine. Note that we collapse
       // labels which point at the same instruction into one.
       LabelNode clonedLabelNode = null;
-      for (int insnIndex = 0; insnIndex < instructions.size(); insnIndex++) {
+
+      final InsnList instructions = JSRInlinerAdapter.this.instructions;
+      final int size = instructions.size();
+      final HashMap<LabelNode, LabelNode> clonedLabels = this.clonedLabels;
+
+      for (int insnIndex = 0; insnIndex < size; insnIndex++) {
         AbstractInsnNode insnNode = instructions.get(insnIndex);
         if (insnNode.getType() == AbstractInsnNode.LABEL) {
-          LabelNode labelNode = (LabelNode) insnNode;
           // If we already have a label pointing at this spot, don't recreate it.
           if (clonedLabelNode == null) {
             clonedLabelNode = new LabelNode();
           }
-          clonedLabels.put(labelNode, clonedLabelNode);
+          clonedLabels.put((LabelNode) insnNode, clonedLabelNode);
         }
         else if (findOwner(insnIndex) == this) {
           // We will emit this instruction, so clear the duplicateLabelNode flag since the next
@@ -507,12 +513,13 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
         return this;
       }
       Instantiation owner = this;
-      for (Instantiation instantiation = parent;
-           instantiation != null;
-           instantiation = instantiation.parent) {
+
+      Instantiation instantiation = parent;
+      while (instantiation != null) {
         if (instantiation.subroutineInsns.get(insnIndex)) {
           owner = instantiation;
         }
+        instantiation = instantiation.parent;
       }
       return owner;
     }
