@@ -31,6 +31,7 @@ import cn.taketoday.context.Env;
 import cn.taketoday.context.ExpressionEvaluator;
 import cn.taketoday.context.Props;
 import cn.taketoday.context.Value;
+import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -61,7 +62,8 @@ import static cn.taketoday.web.resolver.ConverterParameterResolver.convert;
  * @see ParameterResolvingStrategy
  * @since 3.0
  */
-public class ParameterResolverRegistry extends WebApplicationContextSupport {
+public class ParameterResolverRegistry
+        extends WebApplicationContextSupport implements ArraySizeTrimmer {
   private final ArrayList<ParameterResolvingStrategy> resolvers = new ArrayList<>(36);
 
   /**
@@ -397,6 +399,7 @@ public class ParameterResolverRegistry extends WebApplicationContextSupport {
   /**
    * @since 4.0
    */
+  @Override
   public void trimToSize() {
     resolvers.trimToSize();
   }

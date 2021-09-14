@@ -23,6 +23,7 @@ package cn.taketoday.web.view;
 import java.io.IOException;
 import java.util.List;
 
+import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.util.CollectionUtils;
@@ -34,7 +35,7 @@ import cn.taketoday.web.RequestContext;
  * @author TODAY 2021/9/3 23:09
  * @since 4.0
  */
-public class SelectableReturnValueHandler implements ReturnValueHandler {
+public class SelectableReturnValueHandler implements ReturnValueHandler, ArraySizeTrimmer {
   private final List<ReturnValueHandler> internalHandlers;
 
   public SelectableReturnValueHandler(List<ReturnValueHandler> internalHandlers) {
@@ -139,6 +140,7 @@ public class SelectableReturnValueHandler implements ReturnValueHandler {
     return internalHandlers;
   }
 
+  @Override
   public void trimToSize() {
     CollectionUtils.trimToSize(internalHandlers);
   }

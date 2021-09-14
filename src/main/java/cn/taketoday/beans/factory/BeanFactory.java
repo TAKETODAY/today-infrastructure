@@ -85,7 +85,9 @@ public interface BeanFactory extends ArgumentsResolverProvider {
   <T> T getBean(String name, Class<T> requiredType);
 
   /**
-   * Is Singleton ?
+   * Determine if it is Singleton
+   * <p>
+   * Find it in the singleton pool when it is not found in the bean definition map
    *
    * @param name
    *         Bean name

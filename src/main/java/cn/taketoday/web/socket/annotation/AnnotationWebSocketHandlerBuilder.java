@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.conversion.support.StringToBytesConverter;
@@ -39,7 +40,7 @@ import cn.taketoday.web.socket.WebSocketHandler;
  * @author TODAY 2021/5/12 23:30
  * @since 3.0.1
  */
-public class AnnotationWebSocketHandlerBuilder {
+public class AnnotationWebSocketHandlerBuilder implements ArraySizeTrimmer {
   protected static boolean isJettyPresent = ClassUtils.isPresent("org.eclipse.jetty.websocket.api.Session");
   protected final ArrayList<EndpointParameterResolver> resolvers = new ArrayList<>(16);
   protected boolean supportPartialMessage;
@@ -82,6 +83,7 @@ public class AnnotationWebSocketHandlerBuilder {
   /**
    * @since 4.0
    */
+  @Override
   public void trimToSize() {
     CollectionUtils.trimToSize(resolvers);
   }

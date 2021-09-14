@@ -990,9 +990,20 @@ public abstract class AbstractBeanFactory
 
   @Override
   public boolean isSingleton(String name) {
-    return obtainBeanDefinition(name).isSingleton();
+    final BeanDefinition def = getBeanDefinition(name);
+    if (def == null) {
+      if (getSingleton(name) == null) {
+        throw new NoSuchBeanDefinitionException(name);
+      }
+      return true;
+    }
+    return def.isSingleton();
   }
 
+  /**
+   * @throws NoSuchBeanDefinitionException
+   *         bean-definition not found
+   */
   public BeanDefinition obtainBeanDefinition(String name) {
     final BeanDefinition def = getBeanDefinition(name);
     if (def == null) {

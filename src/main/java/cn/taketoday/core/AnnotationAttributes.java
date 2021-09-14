@@ -48,7 +48,8 @@ import cn.taketoday.core.annotation.OrderUtils;
  */
 @SuppressWarnings("rawtypes")
 public class AnnotationAttributes
-        /*extends LinkedHashMap<String, Object>*/ implements Ordered, Serializable, Map<String, Object> {
+        /*extends LinkedHashMap<String, Object>*/
+        implements Ordered, Serializable, Map<String, Object>, ArraySizeTrimmer {
   private static final long serialVersionUID = 1L;
 
   private static final String UNKNOWN = "unknown";
@@ -533,6 +534,7 @@ public class AnnotationAttributes
    *
    * @since 4.0
    */
+  @Override
   public void trimToSize() {
     values.trimToSize();
   }

@@ -54,7 +54,8 @@ import cn.taketoday.util.CollectionUtils;
  * @since 2.1.7
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializable, Cloneable {
+public class DefaultMultiValueMap<K, V>
+        implements MultiValueMap<K, V>, Serializable, Cloneable, ArraySizeTrimmer {
   private static final long serialVersionUID = 1L;
 
   static final Function defaultMappingFunction = new Function() {
@@ -198,6 +199,7 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
    * @see ArrayList#trimToSize()
    * @since 4.0
    */
+  @Override
   public void trimToSize() {
     for (final Entry<K, List<V>> entry : map.entrySet()) {
       CollectionUtils.trimToSize(entry.getValue());

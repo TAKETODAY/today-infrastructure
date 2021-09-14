@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import cn.taketoday.context.Environment;
+import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
@@ -46,7 +47,8 @@ import cn.taketoday.web.view.template.TemplateRenderer;
  *
  * @author TODAY 2019-12-28 13:47
  */
-public class ReturnValueHandlers extends WebApplicationContextSupport {
+public class ReturnValueHandlers
+        extends WebApplicationContextSupport implements ArraySizeTrimmer {
   public static final String DOWNLOAD_BUFF_SIZE = "download.buff.size";
 
   private final ArrayList<ReturnValueHandler> handlers = new ArrayList<>(8);
@@ -319,6 +321,7 @@ public class ReturnValueHandlers extends WebApplicationContextSupport {
   /**
    * @since 4.0
    */
+  @Override
   public void trimToSize() {
     handlers.trimToSize();
   }
