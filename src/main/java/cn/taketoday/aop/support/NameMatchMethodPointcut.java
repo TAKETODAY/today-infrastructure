@@ -23,9 +23,10 @@ package cn.taketoday.aop.support;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
+import cn.taketoday.core.ArraySizeTrimmer;
+import cn.taketoday.core.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -41,9 +42,10 @@ import cn.taketoday.util.StringUtils;
  * @since 3.0
  */
 @SuppressWarnings("serial")
-public class NameMatchMethodPointcut extends StaticMethodMatcherPointcut implements Serializable {
+public class NameMatchMethodPointcut
+        extends StaticMethodMatcherPointcut implements Serializable, ArraySizeTrimmer {
 
-  private List<String> mappedNames = new ArrayList<>();
+  private final ArrayList<String> mappedNames = new ArrayList<>();
 
   /**
    * Convenience method when we have only a single method name to match.
@@ -51,7 +53,7 @@ public class NameMatchMethodPointcut extends StaticMethodMatcherPointcut impleme
    *
    * @see #setMappedNames
    */
-  public void setMappedName(String mappedName) {
+  public void setMappedName(@Nullable String mappedName) {
     setMappedNames(mappedName);
   }
 
@@ -59,9 +61,13 @@ public class NameMatchMethodPointcut extends StaticMethodMatcherPointcut impleme
    * Set the method names defining methods to match.
    * Matching will be the union of all these; if any match,
    * the pointcut matches.
+   *
+   * @see ArrayList#clear()
    */
-  public void setMappedNames(String... mappedNames) {
-    this.mappedNames = new ArrayList<>(Arrays.asList(mappedNames));
+  public void setMappedNames(@Nullable String... mappedNames) {
+    this.mappedNames.clear();
+    CollectionUtils.addAll(this.mappedNames, mappedNames);
+    trimToSize();
   }
 
   /**
@@ -126,4 +132,8 @@ public class NameMatchMethodPointcut extends StaticMethodMatcherPointcut impleme
     return getClass().getName() + ": " + this.mappedNames;
   }
 
+  @Override
+  public void trimToSize() {
+    mappedNames.trimToSize();
+  }
 }
