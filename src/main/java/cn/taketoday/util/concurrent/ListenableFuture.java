@@ -48,14 +48,12 @@ public interface ListenableFuture<T> extends Future<T> {
 	 * Java 8 lambda-friendly alternative with success and failure callbacks.
 	 * @param successCallback the success callback
 	 * @param failureCallback the failure callback
-	 * @since 4.1
 	 */
 	void addCallback(SuccessCallback<? super T> successCallback, FailureCallback failureCallback);
 
 
 	/**
 	 * Expose this {@link ListenableFuture} as a JDK {@link CompletableFuture}.
-	 * @since 5.0
 	 */
 	default CompletableFuture<T> completable() {
 		CompletableFuture<T> completable = new DelegatingCompletableFuture<>(this);
