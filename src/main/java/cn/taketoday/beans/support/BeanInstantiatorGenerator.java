@@ -118,11 +118,9 @@ public class BeanInstantiatorGenerator
   }
 
   @Override
-  protected String createClassName() {
-    StringBuilder builder = new StringBuilder(targetClass.getName());
+  protected void appendClassName(StringBuilder builder) {
     builder.append('$').append("class"); // 使用 'class' 代替<init>
     buildClassNameSuffix(builder, targetConstructor);
-    return builder.toString();
   }
 
   @Override

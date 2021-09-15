@@ -154,12 +154,19 @@ public abstract class GeneratorSupport<T extends Accessor> {
 
   protected String getClassName() {
     if (className == null) {
-      this.className = createClassName();
+      String name = targetClass.getName();
+      StringBuilder builder = new StringBuilder(name.length() + 16);
+      if (name.startsWith("java.")) {
+        builder.append("system.");
+      }
+      builder.append(name);
+      appendClassName(builder);
+      this.className = builder.toString();
     }
     return className;
   }
 
-  protected abstract String createClassName();
+  protected abstract void appendClassName(StringBuilder builder);
 
   protected void buildClassNameSuffix(final StringBuilder builder, final Executable target) {
     if (target.getParameterCount() != 0) {

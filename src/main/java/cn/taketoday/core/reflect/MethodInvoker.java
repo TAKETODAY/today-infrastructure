@@ -218,11 +218,10 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
     }
 
     @Override
-    protected String createClassName() {
-      StringBuilder builder = new StringBuilder(targetClass.getName());
-      builder.append('$').append(targetMethod.getName());
+    protected void appendClassName(StringBuilder builder) {
+      builder.append('$')
+              .append(targetMethod.getName());
       buildClassNameSuffix(builder, targetMethod);
-      return builder.toString();
     }
 
     @Override
