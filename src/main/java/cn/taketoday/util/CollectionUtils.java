@@ -1192,4 +1192,27 @@ public abstract class CollectionUtils {
     return true;
   }
 
+  /**
+   * Check whether the given array contains the given element.
+   *
+   * @param array
+   *         the array to check
+   * @param element
+   *         the element to look for
+   *
+   * @return {@code true} if found, {@code false} otherwise
+   *
+   * @since 4.0
+   */
+  public static boolean contains(@Nullable Object[] array, Object element) {
+    if (array != null) {
+      for (final Object candidate : array) {
+        if (ObjectUtils.nullSafeEquals(candidate, element)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
 }
