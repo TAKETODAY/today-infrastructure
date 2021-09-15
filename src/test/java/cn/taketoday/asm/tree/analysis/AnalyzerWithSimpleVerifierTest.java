@@ -27,20 +27,20 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package cn.taketoday.asm.tree.analysis;
 
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import cn.taketoday.asm.AsmTest;
 import cn.taketoday.asm.ClassReader;
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
-import cn.taketoday.asm.AsmTest;
 import cn.taketoday.asm.tree.ClassNode;
 import cn.taketoday.asm.tree.MethodNode;
 
-import static org.junit.Assume.assumeFalse;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -153,7 +153,7 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
           final PrecompiledClass classParameter) {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);
-    assumeFalse(classNode.methods.isEmpty());
+    Assumptions.assumeFalse(classNode.methods.isEmpty());
     Analyzer<BasicValue> analyzer =
             new Analyzer<BasicValue>(
                     new SimpleVerifier(

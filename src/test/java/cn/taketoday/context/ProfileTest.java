@@ -84,6 +84,7 @@ public class ProfileTest {
     try (ApplicationContext context = new StandardApplicationContext("info.properties", "test.demo.config")) {
       User yhj = context.getBean("yhj", User.class);
       Assert.assertNull(yhj);
+      context.importBeans(ProfileTestConfig.class);
 
       String system = context.getEnvironment().getProperty("os.name");
       if (system != null && system.contains("Windows")) {
