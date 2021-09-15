@@ -148,6 +148,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   public void visitInsn(final int opcode) {
     if (isConstructor && !superClassConstructorCalled) {
       int stackSize;
+      final List<Object> stackFrame = this.stackFrame;
       switch (opcode) {
         case IRETURN:
         case FRETURN:
@@ -576,7 +577,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
     // initialized twice), so this is not issue (in the sense that there is no risk to emit a wrong
     // 'onMethodEnter').
     if (isConstructor && !forwardJumpStackFrames.containsKey(handler)) {
-      List<Object> handlerStackFrame = new ArrayList<>();
+      ArrayList<Object> handlerStackFrame = new ArrayList<>();
       handlerStackFrame.add(OTHER);
       forwardJumpStackFrames.put(handler, handlerStackFrame);
     }
