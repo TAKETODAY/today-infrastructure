@@ -15,88 +15,98 @@
  */
 package cn.taketoday.cglib.reflect;
 
+import cn.taketoday.core.reflect.MethodInvoker;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import java.lang.reflect.Method;
 
 public class TestReflectPerf extends cn.taketoday.cglib.CodeGenTestCase {
-    public interface IndexOf {
-        int indexOf(String s, int start);
-    }
+	public interface IndexOf {
+		int indexOf(String s, int start);
+	}
 
-    public void testReflectPerf() throws Throwable {
-        int iterations = 1000000;
-        System.out.println();
-        System.out.println("iteration count: " + iterations);
+	public void testReflectPerf() throws Throwable {
+		int iterations = 1000000/*_0*/;
+		System.out.println();
+		System.out.println("iteration count: " + iterations);
 
-        String test = "abcabcabc";
+		String test = "abcabcabc";
 
-        Class<?>[] types = new Class[] { String.class, Integer.TYPE };
-        Method indexOf = String.class.getDeclaredMethod("indexOf", types);
-        FastClass fc = FastClass.create(String.class);
-        FastMethod fm = fc.getMethod("indexOf", types);
-        int fidx = fm.getIndex();
-        Object[] args = new Object[] { "ab", new Integer(1) };
+		Class<?>[] types = new Class[] { String.class, Integer.TYPE };
+		Method indexOf = String.class.getDeclaredMethod("indexOf", types);
+		FastClass fc = FastClass.create(String.class);
+		FastMethod fm = fc.getMethod("indexOf", types);
+		int fidx = fm.getIndex();
+		Object[] args = new Object[] { "ab", new Integer(1) };
 
-        IndexOf fast = MethodDelegate.create(test, "indexOf", IndexOf.class);
+		IndexOf fast = MethodDelegate.create(test, "indexOf", IndexOf.class);
 
-        int result;
-        long t1 = System.currentTimeMillis();
-        for (int i = 0; i < iterations; i++) {
-            result = ((Integer) fc.invoke("indexOf", types, test, args)).intValue();
-        }
-        long t2 = System.currentTimeMillis();
-        for (int i = 0; i < iterations; i++) {
-            args = new Object[] { "ab", new Integer(1) };
-            result = ((Integer) indexOf.invoke(test, args)).intValue();
-        }
-        long t3 = System.currentTimeMillis();
-        for (int i = 0; i < iterations; i++) {
-            result = ((Integer) indexOf.invoke(test, args)).intValue();
-        }
-        long t4 = System.currentTimeMillis();
-        for (int i = 0; i < iterations; i++) {
-            args = new Object[] { "ab", new Integer(1) };
-            result = ((Integer) fm.invoke(test, args)).intValue();
-        }
-        long t5 = System.currentTimeMillis();
-        for (int i = 0; i < iterations; i++) {
-            result = ((Integer) fm.invoke(test, args)).intValue();
-        }
-        long t6 = System.currentTimeMillis();
-        for (int i = 0; i < iterations; i++) {
-            result = ((Integer) fc.invoke(fidx, test, args)).intValue();
-        }
-        long t7 = System.currentTimeMillis();
-        for (int i = 0; i < iterations; i++) {
-            result = fast.indexOf("ab", 1);
-        }
-        long t8 = System.currentTimeMillis();
-        for (int i = 0; i < iterations; i++) {
-            result = test.indexOf("ab", 1);
-        }
-        long t9 = System.currentTimeMillis();
+		MethodInvoker methodInvoker = MethodInvoker.fromMethod(indexOf);
 
-        System.out.println("fc           = " + (t2 - t1) + "\n" + "reflect+args = " + (t3 - t2) + "\n" + "reflect      = " + (t4 - t3)
-                                   + "\n" + "fm+args      = " + (t5 - t4) + "\n" + "fm           = " + (t6 - t5) + "\n" + "fc w/idx     = "
-                                   + (t7 - t6) + "\n" + "delegate     = " + (t8 - t7) + "\n" + "raw          = " + (t9 - t8));
-    }
+		int result;
+		long t0 = System.currentTimeMillis();
 
-    public TestReflectPerf(String testName) {
-        super(testName);
-    }
+		for (int i = 0; i < iterations; i++) {
+			result = ((Integer) methodInvoker.invoke("ab", args)).intValue();
+		}
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+		long t1 = System.currentTimeMillis();
+		for (int i = 0; i < iterations; i++) {
+			result = ((Integer) fc.invoke("indexOf", types, test, args)).intValue();
+		}
+		long t2 = System.currentTimeMillis();
+		for (int i = 0; i < iterations; i++) {
+			args = new Object[] { "ab", new Integer(1) };
+			result = ((Integer) indexOf.invoke(test, args)).intValue();
+		}
+		long t3 = System.currentTimeMillis();
+		for (int i = 0; i < iterations; i++) {
+			result = ((Integer) indexOf.invoke(test, args)).intValue();
+		}
+		long t4 = System.currentTimeMillis();
+		for (int i = 0; i < iterations; i++) {
+			args = new Object[] { "ab", new Integer(1) };
+			result = ((Integer) fm.invoke(test, args)).intValue();
+		}
+		long t5 = System.currentTimeMillis();
+		for (int i = 0; i < iterations; i++) {
+			result = ((Integer) fm.invoke(test, args)).intValue();
+		}
+		long t6 = System.currentTimeMillis();
+		for (int i = 0; i < iterations; i++) {
+			result = ((Integer) fc.invoke(fidx, test, args)).intValue();
+		}
+		long t7 = System.currentTimeMillis();
+		for (int i = 0; i < iterations; i++) {
+			result = fast.indexOf("ab", 1);
+		}
+		long t8 = System.currentTimeMillis();
+		for (int i = 0; i < iterations; i++) {
+			result = test.indexOf("ab", 1);
+		}
+		long t9 = System.currentTimeMillis();
 
-    public static Test suite() {
-        return new TestSuite(TestReflectPerf.class);
-    }
+		System.out.println("fc           = " + (t2 - t1) + "\n" + "reflect+args = " + (t3 - t2) + "\n" + "reflect      = " + (t4 - t3)
+						+ "\n" + "fm+args      = " + (t5 - t4) + "\n" + "fm           = " + (t6 - t5) + "\n" + "fc w/idx     = "
+						+ (t7 - t6) + "\n" + "delegate     = " + (t8 - t7) + "\n" + "raw          = " + (t9 - t8)
+						+ "  \n methodInvoker    = " + (t1 - t0));
+	}
 
-    public void perform(ClassLoader loader) throws Throwable {}
+	public TestReflectPerf(String testName) {
+		super(testName);
+	}
 
-    public void testFailOnMemoryLeak() throws Throwable {}
+	public static void main(String[] args) {
+		junit.textui.TestRunner.run(suite());
+	}
+
+	public static Test suite() {
+		return new TestSuite(TestReflectPerf.class);
+	}
+
+	public void perform(ClassLoader loader) throws Throwable { }
+
+	public void testFailOnMemoryLeak() throws Throwable { }
 
 }
