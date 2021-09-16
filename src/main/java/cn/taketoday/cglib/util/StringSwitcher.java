@@ -42,7 +42,7 @@ import static cn.taketoday.core.Constant.SOURCE_FILE;
 @SuppressWarnings("all")
 abstract public class StringSwitcher {
 
-  private static final Type STRING_SWITCHER = TypeUtils.parseType(StringSwitcher.class);
+  private static final Type STRING_SWITCHER = Type.fromClass(StringSwitcher.class);
   private static final Signature INT_VALUE = TypeUtils.parseSignature("int intValue(String)");
   private static final StringSwitcherKey KEY_FACTORY = (StringSwitcherKey) KeyFactory.create(StringSwitcherKey.class);
 

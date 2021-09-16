@@ -71,16 +71,20 @@ public class BeanInstantiatorGenerator
    * Fast call bean's {@link java.lang.reflect.Constructor Constructor}
    */
   @Override
-  public void generateClass(ClassVisitor v) {
-    final ClassEmitter classEmitter = beginClass(v);
+  public void generateClass(ClassVisitor visitor) {
+    final ClassEmitter classEmitter = beginClass(visitor);
+//    final Method constructor = Method.fromConstructor(targetConstructor);
+//    GeneratorAdapter generator = new GeneratorAdapter(ACC_PUBLIC | ACC_FINAL, constructor, null, null, visitor);
+//    generator.loadThis();
 
     final CodeEmitter codeEmitter = EmitUtils.beginMethod(classEmitter, newInstanceInfo, ACC_PUBLIC | ACC_FINAL);
-    codeEmitter.new_instance(Type.fromClass(targetClass));
+
+    final Type type = Type.fromClass(targetClass);
+    codeEmitter.new_instance(type);
     codeEmitter.dup();
 
     prepareParameters(codeEmitter, this.targetConstructor);
 
-    final Type type = Type.fromClass(targetClass);
     Signature signature = new Signature(this.targetConstructor);
     codeEmitter.invoke_constructor(type, signature);
 

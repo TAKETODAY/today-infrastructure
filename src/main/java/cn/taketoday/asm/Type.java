@@ -30,6 +30,8 @@ package cn.taketoday.asm;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
+import static cn.taketoday.core.Constant.BLANK;
+
 /**
  * A Java field or method type. This class can be used to make it easier to manipulate type and
  * method descriptors.
@@ -170,6 +172,37 @@ public final class Type {
   // -----------------------------------------------------------------------------------------------
   // Methods to get Type(s) from a descriptor, a reflected Method or Constructor, other types, etc.
   // -----------------------------------------------------------------------------------------------
+
+  /**
+   * @since 4.0
+   */
+//  public static Type parse(String s) {
+//    return fromDescriptor(map(s));
+//  }
+
+
+//  private static String map(String type) {
+//    if (BLANK.equals(type)) {
+//      return type;
+//    }
+//    String t = transforms.get(type);
+//    if (t != null) {
+//      return t;
+//    }
+//    else if (type.indexOf('.') < 0) {
+//      return map("java.lang." + type);
+//    }
+//    else {
+//      StringBuilder sb = new StringBuilder();
+//      int index = 0;
+//      while ((index = type.indexOf("[]", index) + 1) > 0) {
+//        sb.append('[');
+//      }
+//      type = type.substring(0, type.length() - sb.length() * 2);
+//      sb.append('L').append(type.replace('.', '/')).append(';');
+//      return sb.toString();
+//    }
+//  }
 
   /**
    * Returns the {@link Type} corresponding to the given type descriptor.
@@ -961,6 +994,19 @@ public final class Type {
       ret[i++] = fromDescriptor(item);
     }
     return ret;
+  }
+
+  // isArray
+
+  // @since 4.0
+  public boolean isArray() {
+    return sort == ARRAY;
+  }
+
+  // @since 4.0
+  public boolean isPrimitive() {
+    final int sort = getSort();
+    return sort != ARRAY && sort != OBJECT;
   }
 
   // -----------------------------------------------------------------------------------------------

@@ -57,19 +57,19 @@ import cn.taketoday.asm.Type;
  * ClassWriter cw = new ClassWriter(0);
  * cw.visit(V1_1, ACC_PUBLIC, &quot;Example&quot;, null, &quot;java/lang/Object&quot;, null);
  *
- * Method m = Method.getMethod(&quot;void &lt;init&gt; ()&quot;);
+ * Method m = Method.fromDeclaration(&quot;void &lt;init&gt; ()&quot;);
  * GeneratorAdapter mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
  * mg.loadThis();
  * mg.invokeConstructor(Type.getType(Object.class), m);
  * mg.returnValue();
  * mg.endMethod();
  *
- * m = Method.getMethod(&quot;void main (String[])&quot;);
+ * m = Method.fromDeclaration(&quot;void main (String[])&quot;);
  * mg = new GeneratorAdapter(ACC_PUBLIC + ACC_STATIC, m, null, null, cw);
  * mg.getStatic(Type.getType(System.class), &quot;out&quot;, Type.getType(PrintStream.class));
  * mg.push(&quot;Hello world!&quot;);
  * mg.invokeVirtual(Type.getType(PrintStream.class),
- *         Method.getMethod(&quot;void println (String)&quot;));
+ *         Method.fromDeclaration(&quot;void println (String)&quot;));
  * mg.returnValue();
  * mg.endMethod();
  *

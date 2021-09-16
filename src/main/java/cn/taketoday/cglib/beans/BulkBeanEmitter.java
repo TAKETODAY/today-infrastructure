@@ -40,8 +40,8 @@ class BulkBeanEmitter extends ClassEmitter {
   private static final Signature SET_PROPERTY_VALUES = TypeUtils.parseSignature("void setPropertyValues(Object, Object[])");
   private static final Signature CSTRUCT_EXCEPTION = TypeUtils.parseConstructor("Throwable, int");
 
-  private static final Type BULK_BEAN = TypeUtils.parseType(BulkBean.class);
-  private static final Type BULK_BEAN_EXCEPTION = TypeUtils.parseType(BulkBeanException.class);
+  private static final Type BULK_BEAN = Type.fromClass(BulkBean.class);
+  private static final Type BULK_BEAN_EXCEPTION = Type.fromClass(BulkBeanException.class);
 
   public BulkBeanEmitter(ClassVisitor v,
                          String className,

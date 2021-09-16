@@ -31,6 +31,7 @@ import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.factory.InvalidPropertyValueException;
 import cn.taketoday.beans.factory.PropertyReadOnlyException;
 import cn.taketoday.core.Assert;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
@@ -445,6 +446,7 @@ public class BeanPropertyAccessor {
     }
   }
 
+  @Nullable
   private BeanProperty getBeanProperty(BeanMetadata metadata, String propertyPath, int index) {
     final String property = propertyPath.substring(0, index);
     return getBeanProperty(metadata, property);
@@ -453,6 +455,7 @@ public class BeanPropertyAccessor {
   /**
    * @since 3.0.2
    */
+  @Nullable
   private BeanProperty getBeanProperty(final BeanMetadata metadata, final String propertyPath) {
     final BeanProperty beanProperty = metadata.getBeanProperty(propertyPath);
     if (beanProperty == null && !ignoreUnknownProperty) {

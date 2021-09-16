@@ -426,7 +426,7 @@ public class CodeEmitter extends LocalVariablesSorter {
   }
 
   public void newArray(Type type) {
-    if (TypeUtils.isPrimitive(type)) {
+    if (type.isPrimitive()) {
       mv.visitIntInsn(Opcodes.NEWARRAY, TypeUtils.newArray(type));
     }
     else {
@@ -634,7 +634,7 @@ public class CodeEmitter extends LocalVariablesSorter {
   }
 
   private void emit_type(int opcode, Type type) {
-    mv.visitTypeInsn(opcode, TypeUtils.isArray(type) ? type.getDescriptor() : type.getInternalName());
+    mv.visitTypeInsn(opcode, type.isArray() ? type.getDescriptor() : type.getInternalName());
   }
 
   public void aaload(int index) {
@@ -798,7 +798,7 @@ public class CodeEmitter extends LocalVariablesSorter {
    *         the class indicating the current type of the top stack value
    */
   public void box(Type type) {
-    if (TypeUtils.isPrimitive(type)) {
+    if (type.isPrimitive()) {
       if (type == Type.VOID_TYPE) {
         aconst_null();
       }
@@ -910,7 +910,7 @@ public class CodeEmitter extends LocalVariablesSorter {
    * otherwise.
    */
   public void zero_or_null(Type type) {
-    if (TypeUtils.isPrimitive(type)) {
+    if (type.isPrimitive()) {
       switch (type.getSort()) {
         case Type.DOUBLE:
           push(0d);
@@ -937,7 +937,7 @@ public class CodeEmitter extends LocalVariablesSorter {
    * unboxed primitive value becomes zero.
    */
   public void unbox_or_zero(Type type) {
-    if (TypeUtils.isPrimitive(type)) {
+    if (type.isPrimitive()) {
       if (type != Type.VOID_TYPE) {
         Label nonNull = make_label();
         Label end = make_label();

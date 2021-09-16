@@ -102,7 +102,7 @@ public interface Constant extends Serializable {
   Type TYPE_BIG_INTEGER = parseType("java.math.BigInteger");
   Type TYPE_BIG_DECIMAL = parseType("java.math.BigDecimal");
   Type TYPE_RUNTIME_EXCEPTION = parseType("RuntimeException");
-  Type TYPE_SIGNATURE = parseType(Signature.class);
+  Type TYPE_SIGNATURE = Type.fromClass(Signature.class);
 
   String STATIC_NAME = "<clinit>";
   String SOURCE_FILE = "<cglibGenerated>";

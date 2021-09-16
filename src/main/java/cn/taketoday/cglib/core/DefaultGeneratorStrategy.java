@@ -27,7 +27,7 @@ public class DefaultGeneratorStrategy implements GeneratorStrategy {
     return transform(cw.toByteArray());
   }
 
-  protected DebuggingClassWriter getClassVisitor() throws Exception {
+  protected DebuggingClassWriter getClassVisitor() {
     return new DebuggingClassWriter(ClassWriter.COMPUTE_FRAMES);
   }
 

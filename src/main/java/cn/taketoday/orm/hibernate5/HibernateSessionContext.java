@@ -49,7 +49,7 @@ import cn.taketoday.logger.LoggerFactory;
 
 /**
  * @author TODAY <br>
- *         2018-09-18 13:17
+ * 2018-09-18 13:17
  */
 @SuppressWarnings("all")
 public final class HibernateSessionContext extends AbstractCurrentSessionContext {
@@ -66,7 +66,7 @@ public final class HibernateSessionContext extends AbstractCurrentSessionContext
    * Constructs a ThreadLocal
    *
    * @param factory
-   *            The factory this context will service
+   *         The factory this context will service
    */
   public HibernateSessionContext(SessionFactoryImplementor factory) {
     super(factory);
@@ -125,7 +125,7 @@ public final class HibernateSessionContext extends AbstractCurrentSessionContext
    * Mainly for subclass usage. This impl always returns true.
    *
    * @return Whether or not the the session should be closed by transaction
-   *         completion.
+   * completion.
    */
   protected boolean isAutoCloseEnabled() {
     return true;
@@ -135,7 +135,7 @@ public final class HibernateSessionContext extends AbstractCurrentSessionContext
    * Mainly for subclass usage. This impl always returns true.
    *
    * @return Whether or not the the session should be flushed prior transaction
-   *         completion.
+   * completion.
    */
   protected boolean isAutoFlushEnabled() {
     return true;
@@ -152,8 +152,8 @@ public final class HibernateSessionContext extends AbstractCurrentSessionContext
 
   protected Session wrap(Session session) {
     final TransactionProtectionWrapper wrapper = new TransactionProtectionWrapper(session);
-    final Session wrapped = (Session) Proxy.newProxyInstance(Session.class.getClassLoader(),
-                                                             SESSION_PROXY_INTERFACES, wrapper);
+    final Session wrapped = (Session) Proxy.newProxyInstance(
+            Session.class.getClassLoader(), SESSION_PROXY_INTERFACES, wrapper);
     // yick! need this for proper serialization/deserialization handling...
     wrapper.setWrapped(wrapped);
     return wrapped;
@@ -163,7 +163,7 @@ public final class HibernateSessionContext extends AbstractCurrentSessionContext
    * Associates the given session with the current thread of execution.
    *
    * @param session
-   *            The session to bind.
+   *         The session to bind.
    */
   public static void bind(Session session) {
     final SessionFactory factory = session.getSessionFactory();
@@ -197,7 +197,8 @@ public final class HibernateSessionContext extends AbstractCurrentSessionContext
    * execution.
    *
    * @param factory
-   *            The factory for which the session should be unbound.
+   *         The factory for which the session should be unbound.
+   *
    * @return The session which was unbound.
    */
   public static Session unbind(SessionFactory factory) {
@@ -339,7 +340,7 @@ public final class HibernateSessionContext extends AbstractCurrentSessionContext
      * Setter for property 'wrapped'.
      *
      * @param wrapped
-     *            Value to set for property 'wrapped'.
+     *         Value to set for property 'wrapped'.
      */
     public void setWrapped(Session wrapped) {
       this.wrappedSession = wrapped;

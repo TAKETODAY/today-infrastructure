@@ -34,8 +34,8 @@ class DispatcherGenerator implements CallbackGenerator {
   public static final DispatcherGenerator INSTANCE = new DispatcherGenerator(false);
   public static final DispatcherGenerator PROXY_REF_INSTANCE = new DispatcherGenerator(true);
 
-  private static final Type DISPATCHER = TypeUtils.parseType(Dispatcher.class);
-  private static final Type PROXY_REF_DISPATCHER = TypeUtils.parseType(ProxyRefDispatcher.class);
+  private static final Type DISPATCHER = Type.fromClass(Dispatcher.class);
+  private static final Type PROXY_REF_DISPATCHER = Type.fromClass(ProxyRefDispatcher.class);
   private static final Signature LOAD_OBJECT = TypeUtils.parseSignature("Object loadObject()");
   private static final Signature PROXY_REF_LOAD_OBJECT = TypeUtils.parseSignature("Object loadObject(Object)");
 

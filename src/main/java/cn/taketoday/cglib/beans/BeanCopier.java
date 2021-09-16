@@ -47,8 +47,8 @@ import static cn.taketoday.core.Constant.TYPE_OBJECT;
 @SuppressWarnings("all")
 abstract public class BeanCopier {
 
-  private static final Type CONVERTER = TypeUtils.parseType(Converter.class);
-  private static final Type BEAN_COPIER = TypeUtils.parseType(BeanCopier.class);
+  private static final Type CONVERTER = Type.fromClass(Converter.class);
+  private static final Type BEAN_COPIER = Type.fromClass(BeanCopier.class);
 
   private static final BeanCopierKey KEY_FACTORY = (BeanCopierKey) KeyFactory.create(BeanCopierKey.class);
 

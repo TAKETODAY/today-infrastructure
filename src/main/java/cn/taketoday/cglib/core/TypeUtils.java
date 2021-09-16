@@ -16,7 +16,6 @@
 package cn.taketoday.cglib.core;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,10 +89,10 @@ public abstract class TypeUtils {
   }
 
   public static String getClassName(Type type) {
-    if (isPrimitive(type)) {
+    if (type.isPrimitive()) {
       return rtransforms.get(type.getDescriptor());
     }
-    if (isArray(type)) {
+    if (type.isArray()) {
       return getClassName(getComponentType(type)) + "[]";
     }
     return type.getClassName();
@@ -109,7 +108,7 @@ public abstract class TypeUtils {
       return new Type[] { extra };
     }
 
-    if (!justAdd && Arrays.asList(types).contains(extra)) {
+    if (!justAdd && CollectionUtils.contains(types, extra)) {
       return types;
     }
     final Type[] copy = new Type[types.length + 1];
@@ -181,9 +180,9 @@ public abstract class TypeUtils {
     return new Signature(methodName, sb.toString());
   }
 
-  public static Type parseType(Class<?> type) {
-    return Type.fromDescriptor(map(type.getName()));
-  }
+//  public static Type parseType(Class<?> type) {
+//    return Type.fromClass(type);
+//  }
 
   public static Type parseType(String s) {
     return Type.fromDescriptor(map(s));
@@ -296,29 +295,15 @@ public abstract class TypeUtils {
     }
   }
 
-  public static boolean isArray(Type type) {
-    return type.getSort() == Type.ARRAY;
-  }
-
   public static Type getComponentType(Type type) {
-    if (isArray(type)) {
+    if (type.isArray()) {
       return Type.fromDescriptor(type.getDescriptor().substring(1));
     }
     throw new IllegalArgumentException("Type " + type + " is not an array");
   }
 
-  public static boolean isPrimitive(Type type) {
-    switch (type.getSort()) {
-      case Type.ARRAY:
-      case Type.OBJECT:
-        return false;
-      default:
-        return true;
-    }
-  }
-
   public static String emulateClassGetName(Type type) {
-    if (isArray(type)) {
+    if (type.isArray()) {
       return type.getDescriptor().replace('/', '.');
     }
     return getClassName(type);

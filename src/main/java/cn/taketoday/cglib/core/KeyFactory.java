@@ -69,7 +69,7 @@ import static cn.taketoday.asm.Type.array;
 @SuppressWarnings("all")
 abstract public class KeyFactory {
 
-  private static final Type KEY_FACTORY = TypeUtils.parseType(KeyFactory.class);
+  private static final Type KEY_FACTORY = Type.fromClass(KeyFactory.class);
   private static final Signature GET_SORT = TypeUtils.parseSignature("int getSort()");
   private static final Signature HASH_CODE = TypeUtils.parseSignature("int hashCode()");
   private static final Signature GET_NAME = TypeUtils.parseSignature("String getName()");

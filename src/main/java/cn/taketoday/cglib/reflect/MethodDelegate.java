@@ -168,7 +168,7 @@ abstract public class MethodDelegate {
 
   public static class Generator extends AbstractClassGenerator {
 
-    private static final Type METHOD_DELEGATE = TypeUtils.parseType(MethodDelegate.class);
+    private static final Type METHOD_DELEGATE = Type.fromClass(MethodDelegate.class);
     private static final Signature NEW_INSTANCE = new Signature("newInstance", METHOD_DELEGATE, new Type[] { Constant.TYPE_OBJECT });
 
     private Object target;

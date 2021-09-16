@@ -288,8 +288,8 @@ public final class AstValue extends SimpleNode {
   }
 
   static class Target {
-    public Object base;
-    public Node suffixNode;
+    public final Object base;
+    public final Node suffixNode;
 
     Target(Object base, Node suffixNode) {
       this.base = base;

@@ -22,8 +22,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 
 import cn.taketoday.asm.ClassReader;
 import cn.taketoday.asm.ClassVisitor;
@@ -48,7 +46,7 @@ public class DebuggingClassWriter extends ClassVisitor {
         Class clazz = Class.forName("cn.taketoday.asm.util.TraceClassVisitor");
         traceCtor = clazz.getConstructor(new Class[] { ClassVisitor.class, PrintWriter.class });
       }
-      catch (Throwable ignore) {}
+      catch (Throwable ignore) { }
     }
   }
 
@@ -71,17 +69,11 @@ public class DebuggingClassWriter extends ClassVisitor {
   }
 
   public byte[] toByteArray() {
-
-    return AccessController.doPrivileged(new PrivilegedAction<byte[]>() {
-      public byte[] run() {
-        byte[] b = ((ClassWriter) DebuggingClassWriter.super.cv).toByteArray();
-        if (debugLocation != null) {
-          debug(b);
-        }
-        return b;
-      }
-
-    });
+    byte[] b = ((ClassWriter) DebuggingClassWriter.super.cv).toByteArray();
+    if (debugLocation != null) {
+      debug(b);
+    }
+    return b;
   }
 
   public static void setDebugLocation(final String debugLocation) {

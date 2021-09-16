@@ -152,11 +152,11 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   private static final String CALLBACK_FILTER_FIELD = "today$CallbackFilter";
 
   private static final Type OBJECT_TYPE = TYPE_OBJECT;
-  private static final Type FACTORY = parseType(Factory.class);
+  private static final Type FACTORY = Type.fromClass(Factory.class);
   private static final Type ILLEGAL_STATE_EXCEPTION = parseType("IllegalStateException");
   private static final Type ILLEGAL_ARGUMENT_EXCEPTION = parseType("IllegalArgumentException");
   private static final Type THREAD_LOCAL = parseType("ThreadLocal");
-  private static final Type CALLBACK = parseType(Callback.class);
+  private static final Type CALLBACK = Type.fromClass(Callback.class);
   private static final Type CALLBACK_ARRAY = Type.fromClass(Callback[].class);
 
   private static final Signature CSTRUCT_NULL = TypeUtils.parseConstructor(Constant.BLANK);

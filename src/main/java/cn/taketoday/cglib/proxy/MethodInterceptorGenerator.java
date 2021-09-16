@@ -54,12 +54,12 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
 
   static final Class<?>[] FIND_PROXY_TYPES = { Signature.class };
 
-  private static final Type METHOD = TypeUtils.parseType(Method.class);
-  private static final Type ABSTRACT_METHOD_ERROR = TypeUtils.parseType(AbstractMethodError.class);
+  private static final Type METHOD = Type.fromClass(Method.class);
+  private static final Type ABSTRACT_METHOD_ERROR = Type.fromClass(AbstractMethodError.class);
 
-  private static final Type REFLECT_UTILS = TypeUtils.parseType(CglibReflectUtils.class);
-  private static final Type METHOD_PROXY = TypeUtils.parseType(MethodProxy.class);
-  private static final Type METHOD_INTERCEPTOR = TypeUtils.parseType(MethodInterceptor.class);
+  private static final Type REFLECT_UTILS = Type.fromClass(CglibReflectUtils.class);
+  private static final Type METHOD_PROXY = Type.fromClass(MethodProxy.class);
+  private static final Type METHOD_INTERCEPTOR = Type.fromClass(MethodInterceptor.class);
 
   private static final Signature GET_DECLARED_METHODS = //
           TypeUtils.parseSignature("java.lang.reflect.Method[] getDeclaredMethods()");

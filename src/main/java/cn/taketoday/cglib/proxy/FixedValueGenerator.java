@@ -32,7 +32,7 @@ class FixedValueGenerator implements CallbackGenerator {
 
   public static final FixedValueGenerator INSTANCE = new FixedValueGenerator();
 
-  private static final Type FIXED_VALUE = TypeUtils.parseType(FixedValue.class);
+  private static final Type FIXED_VALUE = Type.fromClass(FixedValue.class);
   private static final Signature LOAD_OBJECT = TypeUtils.parseSignature("Object loadObject()");
 
   public void generate(final ClassEmitter ce, final Context context, final List<MethodInfo> methods) {

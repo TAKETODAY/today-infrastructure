@@ -218,7 +218,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
     public void generateClass(ClassVisitor v) {
 
       final ClassEmitter ce = new ClassEmitter(v);
-      final Type targetType = TypeUtils.parseType(targetClass);
+      final Type targetType = Type.fromClass(targetClass);
       final Class<?>[] proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(config);
       final Type[] interfaces = TypeUtils.getTypes(proxiedInterfaces);
 

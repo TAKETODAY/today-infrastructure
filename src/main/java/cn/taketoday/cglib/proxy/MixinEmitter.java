@@ -43,7 +43,7 @@ import static cn.taketoday.core.Constant.TYPE_OBJECT_ARRAY;
 class MixinEmitter extends ClassEmitter {
 
   private static final String FIELD_NAME = "today$Delegates";
-  private static final Type MIXIN = TypeUtils.parseType(Mixin.class);
+  private static final Type MIXIN = Type.fromClass(Mixin.class);
   private static final Signature CSTRUCT_OBJECT_ARRAY = TypeUtils.parseConstructor("Object[]");
 
   private static final Signature NEW_INSTANCE = new Signature("newInstance", MIXIN, array(TYPE_OBJECT_ARRAY));

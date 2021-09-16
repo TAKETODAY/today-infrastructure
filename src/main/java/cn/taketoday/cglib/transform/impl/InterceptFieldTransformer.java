@@ -37,8 +37,8 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
 
   private static final String CALLBACK_FIELD = "$TODAY_READ_WRITE_CALLBACK";
 
-  private static final Type ENABLED = TypeUtils.parseType(InterceptFieldEnabled.class);
-  private static final Type CALLBACK = TypeUtils.parseType(InterceptFieldCallback.class);
+  private static final Type ENABLED = Type.fromClass(InterceptFieldEnabled.class);
+  private static final Type CALLBACK = Type.fromClass(InterceptFieldCallback.class);
 
   private static final Signature ENABLED_SET = new Signature("setInterceptFieldCallback", Type.VOID_TYPE, array(CALLBACK));
   private static final Signature ENABLED_GET = new Signature("getInterceptFieldCallback", CALLBACK, new Type[0]);
@@ -106,7 +106,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
     e.push(name);
     e.load_local(result);
     e.invoke_interface(CALLBACK, readCallbackSig(type));
-    if (!TypeUtils.isPrimitive(type)) {
+    if (!type.isPrimitive()) {
       e.checkcast(type);
     }
     e.return_value();
@@ -129,7 +129,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
     e.getfield(name);
     e.load_arg(0);
     e.invoke_interface(CALLBACK, writeCallbackSig(type));
-    if (!TypeUtils.isPrimitive(type)) {
+    if (!type.isPrimitive()) {
       e.checkcast(type);
     }
     Label go = e.make_label();

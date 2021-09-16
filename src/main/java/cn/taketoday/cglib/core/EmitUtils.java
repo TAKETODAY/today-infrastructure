@@ -319,7 +319,7 @@ public abstract class EmitUtils {
   }
 
   public static void loadClass(CodeEmitter e, Type type) {
-    if (TypeUtils.isPrimitive(type)) {
+    if (type.isPrimitive()) {
       if (type == Type.VOID_TYPE) {
         throw new IllegalArgumentException("cannot load void type");
       }
@@ -416,7 +416,7 @@ public abstract class EmitUtils {
   }
 
   public static void hashCode(CodeEmitter e, Type type, int multiplier, final CustomizerRegistry registry) {
-    if (TypeUtils.isArray(type)) {
+    if (type.isArray()) {
       hashArray(e, type, multiplier, registry);
     }
     else {
@@ -424,7 +424,7 @@ public abstract class EmitUtils {
       e.push(multiplier);
       e.math(CodeEmitter.MUL, Type.INT_TYPE);
       e.swap(type, Type.INT_TYPE);
-      if (TypeUtils.isPrimitive(type)) {
+      if (type.isPrimitive()) {
         hashPrimitive(e, type);
       }
       else {
@@ -546,13 +546,13 @@ public abstract class EmitUtils {
                                       final CustomizerRegistry registry,
                                       final ProcessArrayCallback callback)//
   {
-    if (TypeUtils.isPrimitive(type)) {
+    if (type.isPrimitive()) {
       e.if_cmp(type, CodeEmitter.NE, notEquals);
     }
     else {
       Label end = e.make_label();
       nullcmp(e, notEquals, end);
-      if (TypeUtils.isArray(type)) {
+      if (type.isArray()) {
         Label checkContents = e.make_label();
         e.dup2();
         e.arraylength();
@@ -657,7 +657,7 @@ public abstract class EmitUtils {
   {
     Label skip = e.make_label();
     Label end = e.make_label();
-    if (TypeUtils.isPrimitive(type)) {
+    if (type.isPrimitive()) {
       switch (type.getSort()) {
         case Type.INT:
         case Type.SHORT:
@@ -681,7 +681,7 @@ public abstract class EmitUtils {
           break;
       }
     }
-    else if (TypeUtils.isArray(type)) {
+    else if (type.isArray()) {
       e.dup();
       e.ifnull(skip);
       e.swap();

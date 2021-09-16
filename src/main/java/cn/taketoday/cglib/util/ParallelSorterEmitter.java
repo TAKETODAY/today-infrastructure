@@ -32,7 +32,7 @@ import static cn.taketoday.core.Constant.TYPE_OBJECT_ARRAY;
 
 class ParallelSorterEmitter extends ClassEmitter {
 
-  private static final Type PARALLEL_SORTER = TypeUtils.parseType(ParallelSorter.class);
+  private static final Type PARALLEL_SORTER = Type.fromClass(ParallelSorter.class);
   private static final Signature CSTRUCT_OBJECT_ARRAY = TypeUtils.parseConstructor("Object[]");
   private static final Signature NEW_INSTANCE = new Signature("newInstance", PARALLEL_SORTER, new Type[] { TYPE_OBJECT_ARRAY });
   private static final Signature SWAP = TypeUtils.parseSignature("void swap(int, int)");
