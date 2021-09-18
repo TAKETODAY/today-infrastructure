@@ -39,7 +39,6 @@ import cn.taketoday.util.ReflectionUtils;
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.asm.Opcodes.JAVA_VERSION;
 import static cn.taketoday.core.Constant.SOURCE_FILE;
-import static cn.taketoday.core.Constant.TYPE_OBJECT;
 
 /**
  * @author Chris Nokleberg
@@ -52,8 +51,8 @@ abstract public class BeanCopier {
 
   private static final BeanCopierKey KEY_FACTORY = (BeanCopierKey) KeyFactory.create(BeanCopierKey.class);
 
-  private static final Signature COPY = new Signature("copy", Type.VOID_TYPE, //
-                                                      Type.array(TYPE_OBJECT, TYPE_OBJECT, CONVERTER));
+  private static final Signature COPY = new Signature(
+          "copy", Type.VOID_TYPE, Type.array(Type.TYPE_OBJECT, Type.TYPE_OBJECT, CONVERTER));
 
   private static final Signature CONVERT = TypeUtils.parseSignature("Object convert(Object, Class, Object)");
 

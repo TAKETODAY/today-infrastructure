@@ -33,7 +33,6 @@ import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.asm.Opcodes.JAVA_VERSION;
-import static cn.taketoday.core.Constant.TYPE_OBJECT;
 
 /**
  * @author Juozas Baliuka, Chris Nokleberg
@@ -48,7 +47,7 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
 
   private boolean classOnly;
   private Class<?> superclass;
-  private Map<String, Type> props = new HashMap<>();
+  private final HashMap<String, Type> props = new HashMap<>();
 
   public BeanGenerator() {
     super(BeanGenerator.class);
@@ -122,7 +121,7 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
     ClassEmitter ce = new ClassEmitter(v);
 
     ce.beginClass(JAVA_VERSION, ACC_PUBLIC, getClassName(),
-                  superclass != null ? Type.fromClass(superclass) : TYPE_OBJECT, null);
+                  superclass != null ? Type.fromClass(superclass) : Type.TYPE_OBJECT, null);
 
     EmitUtils.nullConstructor(ce);
 

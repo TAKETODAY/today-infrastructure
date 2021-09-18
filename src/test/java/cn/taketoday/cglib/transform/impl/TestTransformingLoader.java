@@ -47,7 +47,7 @@ public class TestTransformingLoader extends cn.taketoday.cglib.CodeGenTestCase {
     }
 
     public void testExample() throws Exception {
-        ClassTransformer t1 = getExampleTransformer("herby", Constant.TYPE_STRING);
+        ClassTransformer t1 = getExampleTransformer("herby", Type.TYPE_STRING);
         ClassTransformer t2 = getExampleTransformer("derby", Type.DOUBLE_TYPE);
         ClassTransformer chain = new ClassTransformerChain(new ClassTransformer[] { t1, t2 });
         Class loaded = loadHelper(chain, Example.class);

@@ -44,8 +44,6 @@ import cn.taketoday.core.Constant;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
-import static cn.taketoday.core.Constant.SWITCH_STYLE_HASH;
-
 /**
  * @author TODAY <br>
  * 2018-11-08 15:08
@@ -55,7 +53,7 @@ class FastClassEmitter extends ClassEmitter {
 
   private static final Signature CSTRUCT_CLASS = TypeUtils.parseConstructor("Class");
   private static final Signature METHOD_GET_INDEX = TypeUtils.parseSignature("int getIndex(String, Class[])");
-  private static final Signature SIGNATURE_GET_INDEX = new Signature("getIndex", Type.INT_TYPE, new Type[] { Constant.TYPE_SIGNATURE });
+  private static final Signature SIGNATURE_GET_INDEX = new Signature("getIndex", Type.INT_TYPE, new Type[] { Type.TYPE_SIGNATURE });
   private static final Signature TO_STRING = TypeUtils.parseSignature("String toString()");
   private static final Signature CONSTRUCTOR_GET_INDEX = TypeUtils.parseSignature("int getIndex(Class[])");
   private static final Signature INVOKE = TypeUtils.parseSignature("Object invoke(int, Object, Object[])");
@@ -143,7 +141,7 @@ class FastClassEmitter extends ClassEmitter {
       }
     });
     e.load_arg(0);
-    e.invoke_virtual(Constant.TYPE_OBJECT, TO_STRING);
+    e.invoke_virtual(Type.TYPE_OBJECT, TO_STRING);
     signatureSwitchHelper(e, signatures);
     e.end_method();
   }
@@ -187,7 +185,7 @@ class FastClassEmitter extends ClassEmitter {
     };
 
     String[] strings = StringUtils.toStringArray(signatures);
-    EmitUtils.stringSwitch(e, strings, SWITCH_STYLE_HASH, callback);
+    EmitUtils.stringSwitch(e, strings, Opcodes.SWITCH_STYLE_HASH, callback);
   }
 
   private static void invokeSwitchHelper(final CodeEmitter e, List members, final int arg, final Type base) {

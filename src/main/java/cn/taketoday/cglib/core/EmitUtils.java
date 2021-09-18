@@ -37,11 +37,6 @@ import cn.taketoday.util.CollectionUtils;
 
 import static cn.taketoday.cglib.core.TypeUtils.parseConstructor;
 import static cn.taketoday.cglib.core.TypeUtils.parseSignature;
-import static cn.taketoday.core.Constant.SWITCH_STYLE_HASH;
-import static cn.taketoday.core.Constant.SWITCH_STYLE_HASHONLY;
-import static cn.taketoday.core.Constant.SWITCH_STYLE_TRIE;
-import static cn.taketoday.core.Constant.TYPE_CLASS;
-import static cn.taketoday.core.Constant.TYPE_STRING_BUFFER;
 
 @SuppressWarnings("all")
 public abstract class EmitUtils {
@@ -171,13 +166,13 @@ public abstract class EmitUtils {
   public static void stringSwitch(CodeEmitter e, String[] strings, int switchStyle, ObjectSwitchCallback callback) {
     try {
       switch (switchStyle) {
-        case SWITCH_STYLE_TRIE:
+        case Opcodes.SWITCH_STYLE_TRIE:
           stringSwitchTrie(e, strings, callback);
           break;
-        case SWITCH_STYLE_HASH:
+        case Opcodes.SWITCH_STYLE_HASH:
           stringSwitchHash(e, strings, callback, false);
           break;
-        case SWITCH_STYLE_HASHONLY:
+        case Opcodes.SWITCH_STYLE_HASHONLY:
           stringSwitchHash(e, strings, callback, true);
           break;
         default:
@@ -204,7 +199,7 @@ public abstract class EmitUtils {
     });
 
     e.dup();
-    e.invoke_virtual(Constant.TYPE_STRING, STRING_LENGTH);
+    e.invoke_virtual(Type.TYPE_STRING, STRING_LENGTH);
     e.process_switch(getSwitchKeys(buckets), new ProcessSwitchCallback() {
       public void processCase(int key, Label ignore_end) throws Exception {
         List bucket = (List) buckets.get(key);
@@ -231,7 +226,7 @@ public abstract class EmitUtils {
     });
     e.dup();
     e.push(index);
-    e.invoke_virtual(Constant.TYPE_STRING, STRING_CHAR_AT);
+    e.invoke_virtual(Type.TYPE_STRING, STRING_CHAR_AT);
     e.process_switch(getSwitchKeys(buckets), new ProcessSwitchCallback() {
       public void processCase(int key, Label ignore_end) throws Exception {
         List bucket = (List) buckets.get(key);
@@ -271,7 +266,7 @@ public abstract class EmitUtils {
     final Label def = e.make_label();
     final Label end = e.make_label();
     e.dup();
-    e.invoke_virtual(Constant.TYPE_OBJECT, HASH_CODE);
+    e.invoke_virtual(Type.TYPE_OBJECT, HASH_CODE);
     e.process_switch(getSwitchKeys(buckets), new ProcessSwitchCallback() {
       public void processCase(int key, Label ignore_end) throws Exception {
         List<String> bucket = buckets.get(key);
@@ -292,7 +287,7 @@ public abstract class EmitUtils {
               e.dup();
             }
             e.push(string);
-            e.invoke_virtual(Constant.TYPE_OBJECT, EQUALS);
+            e.invoke_virtual(Type.TYPE_OBJECT, EQUALS);
             if (it.hasNext()) {
               e.if_jump(CodeEmitter.EQ, next = e.make_label());
               e.pop();
@@ -323,7 +318,7 @@ public abstract class EmitUtils {
       if (type == Type.VOID_TYPE) {
         throw new IllegalArgumentException("cannot load void type");
       }
-      e.getstatic(TypeUtils.getBoxedType(type), "TYPE", TYPE_CLASS);
+      e.getstatic(TypeUtils.getBoxedType(type), "TYPE", Type.TYPE_CLASS);
     }
     else {
       loadClassHelper(e, type);
@@ -334,7 +329,7 @@ public abstract class EmitUtils {
     if (e.isStaticHook()) {
       // have to fall back on non-optimized load
       e.push(TypeUtils.emulateClassGetName(type));
-      e.invoke_static(TYPE_CLASS, FOR_NAME);
+      e.invoke_static(Type.TYPE_CLASS, FOR_NAME);
     }
     else {
       ClassEmitter ce = e.getClassEmitter();
@@ -344,11 +339,11 @@ public abstract class EmitUtils {
       // incorporate static hook # somehow
       String fieldName = "TODAY$LoadClass$".concat(TypeUtils.escapeType(typeName));
       if (!ce.isFieldDeclared(fieldName)) {
-        ce.declare_field(Constant.PRIVATE_FINAL_STATIC, fieldName, TYPE_CLASS, null);
+        ce.declare_field(Opcodes.PRIVATE_FINAL_STATIC, fieldName, Type.TYPE_CLASS, null);
         CodeEmitter hook = ce.getStaticHook();
         hook.push(typeName);
-        hook.invoke_static(TYPE_CLASS, FOR_NAME);
-        hook.putstatic(ce.getClassType(), fieldName, TYPE_CLASS);
+        hook.invoke_static(Type.TYPE_CLASS, FOR_NAME);
+        hook.putstatic(ce.getClassType(), fieldName, Type.TYPE_CLASS);
       }
       e.getfield(fieldName);
     }
@@ -389,16 +384,16 @@ public abstract class EmitUtils {
         loadClass(e, Type.fromClass((Class) obj));
       }
       else if (obj instanceof BigInteger) {
-        e.new_instance(Constant.TYPE_BIG_INTEGER);
+        e.new_instance(Type.TYPE_BIG_INTEGER);
         e.dup();
         e.push(obj.toString());
-        e.invoke_constructor(Constant.TYPE_BIG_INTEGER);
+        e.invoke_constructor(Type.TYPE_BIG_INTEGER);
       }
       else if (obj instanceof BigDecimal) {
-        e.new_instance(Constant.TYPE_BIG_DECIMAL);
+        e.new_instance(Type.TYPE_BIG_DECIMAL);
         e.dup();
         e.push(obj.toString());
-        e.invoke_constructor(Constant.TYPE_BIG_DECIMAL);
+        e.invoke_constructor(Type.TYPE_BIG_DECIMAL);
       }
       else {
         throw new IllegalArgumentException("unknown type: " + obj.getClass());
@@ -469,7 +464,7 @@ public abstract class EmitUtils {
       for (Customizer customizer : registry.get(Customizer.class)) {
         customizer.customize(e, type);
       }
-      e.invoke_virtual(Constant.TYPE_OBJECT, HASH_CODE);
+      e.invoke_virtual(Type.TYPE_OBJECT, HASH_CODE);
     }
     e.goTo(end);
     e.mark(skip);
@@ -487,11 +482,11 @@ public abstract class EmitUtils {
         break;
       case Type.FLOAT:
         // Float.floatToIntBits(f)
-        e.invoke_static(Constant.TYPE_FLOAT, FLOAT_TO_INT_BITS);
+        e.invoke_static(Type.TYPE_FLOAT, FLOAT_TO_INT_BITS);
         break;
       case Type.DOUBLE:
         // Double.doubleToLongBits(f), hash_code(Long.TYPE)
-        e.invoke_static(Constant.TYPE_DOUBLE, DOUBLE_TO_LONG_BITS);
+        e.invoke_static(Type.TYPE_DOUBLE, DOUBLE_TO_LONG_BITS);
         // fall through
       case Type.LONG:
         hashLong(e);
@@ -575,7 +570,7 @@ public abstract class EmitUtils {
             customizer.customize(e, type);
           }
         }
-        e.invoke_virtual(Constant.TYPE_OBJECT, EQUALS);
+        e.invoke_virtual(Type.TYPE_OBJECT, EQUALS);
         e.if_jump(CodeEmitter.EQ, notEquals);
       }
       e.mark(end);
@@ -643,7 +638,7 @@ public abstract class EmitUtils {
       public void processElement(Type type) {
         appendStringHelper(e, type, d, registry, this);
         e.push(d.inside);
-        e.invoke_virtual(TYPE_STRING_BUFFER, APPEND_STRING);
+        e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
       }
     };
     appendStringHelper(e, type, d, registry, callback);
@@ -662,22 +657,22 @@ public abstract class EmitUtils {
         case Type.INT:
         case Type.SHORT:
         case Type.BYTE:
-          e.invoke_virtual(TYPE_STRING_BUFFER, APPEND_INT);
+          e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_INT);
           break;
         case Type.DOUBLE:
-          e.invoke_virtual(TYPE_STRING_BUFFER, APPEND_DOUBLE);
+          e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_DOUBLE);
           break;
         case Type.FLOAT:
-          e.invoke_virtual(TYPE_STRING_BUFFER, APPEND_FLOAT);
+          e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_FLOAT);
           break;
         case Type.LONG:
-          e.invoke_virtual(TYPE_STRING_BUFFER, APPEND_LONG);
+          e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_LONG);
           break;
         case Type.BOOLEAN:
-          e.invoke_virtual(TYPE_STRING_BUFFER, APPEND_BOOLEAN);
+          e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_BOOLEAN);
           break;
         case Type.CHAR:
-          e.invoke_virtual(TYPE_STRING_BUFFER, APPEND_CHAR);
+          e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_CHAR);
           break;
       }
     }
@@ -687,14 +682,14 @@ public abstract class EmitUtils {
       e.swap();
       if (delims != null && delims.before != null && !Constant.BLANK.equals(delims.before)) {
         e.push(delims.before);
-        e.invoke_virtual(TYPE_STRING_BUFFER, APPEND_STRING);
+        e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
         e.swap();
       }
       EmitUtils.processArray(e, type, callback);
       shrinkStringBuffer(e, 2);
       if (delims != null && delims.after != null && !"".equals(delims.after)) {
         e.push(delims.after);
-        e.invoke_virtual(TYPE_STRING_BUFFER, APPEND_STRING);
+        e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
       }
     }
     else {
@@ -703,24 +698,24 @@ public abstract class EmitUtils {
       for (Customizer customizer : registry.get(Customizer.class)) {
         customizer.customize(e, type);
       }
-      e.invoke_virtual(Constant.TYPE_OBJECT, TO_STRING);
-      e.invoke_virtual(TYPE_STRING_BUFFER, APPEND_STRING);
+      e.invoke_virtual(Type.TYPE_OBJECT, TO_STRING);
+      e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
     }
     e.goTo(end);
     e.mark(skip);
     e.pop();
     e.push("null");
-    e.invoke_virtual(TYPE_STRING_BUFFER, APPEND_STRING);
+    e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
     e.mark(end);
   }
 
   private static void shrinkStringBuffer(final CodeEmitter e, final int amt) {
     e.dup();
     e.dup();
-    e.invoke_virtual(TYPE_STRING_BUFFER, LENGTH);
+    e.invoke_virtual(Type.TYPE_STRING_BUFFER, LENGTH);
     e.push(amt);
     e.math(CodeEmitter.SUB, Type.INT_TYPE);
-    e.invoke_virtual(TYPE_STRING_BUFFER, SET_LENGTH);
+    e.invoke_virtual(Type.TYPE_STRING_BUFFER, SET_LENGTH);
   }
 
   static class ArrayDelimiters {
@@ -739,7 +734,7 @@ public abstract class EmitUtils {
     loadClass(e, method.getClassInfo().getType());
     e.push(method.getSignature().getName());
     pushObject(e, method.getSignature().getArgumentTypes());
-    e.invoke_virtual(TYPE_CLASS, GET_DECLARED_METHOD);
+    e.invoke_virtual(Type.TYPE_CLASS, GET_DECLARED_METHOD);
   }
 
   private interface ParameterTyper {
@@ -779,7 +774,7 @@ public abstract class EmitUtils {
 
         String[] names = buckets.keySet().toArray(new String[buckets.size()]);
 
-        stringSwitch(e, names, SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
+        stringSwitch(e, names, Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
 
           @Override
           public void processCase(Object key, Label dontUseEnd) throws Exception {
@@ -850,9 +845,9 @@ public abstract class EmitUtils {
         if (checked == null || !checked.get(i)) {
           e.dup();
           e.aaload(i);
-          e.invoke_virtual(TYPE_CLASS, GET_NAME);
+          e.invoke_virtual(Type.TYPE_CLASS, GET_NAME);
           e.push(TypeUtils.emulateClassGetName(types[i]));
-          e.invoke_virtual(Constant.TYPE_OBJECT, EQUALS);
+          e.invoke_virtual(Type.TYPE_OBJECT, EQUALS);
           e.if_jump(CodeEmitter.EQ, def);
         }
       }
@@ -886,12 +881,12 @@ public abstract class EmitUtils {
 
         e.dup();
         e.aaload(index);
-        e.invoke_virtual(TYPE_CLASS, GET_NAME);
+        e.invoke_virtual(Type.TYPE_CLASS, GET_NAME);
 
         final Map<String, List<MethodInfo>> fbuckets = buckets;
         String[] names = buckets.keySet().toArray(new String[buckets.size()]);
 
-        EmitUtils.stringSwitch(e, names, SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
+        EmitUtils.stringSwitch(e, names,  Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
 
           @Override
           public void processCase(Object key, Label dontUseEnd) throws Exception {
@@ -909,7 +904,7 @@ public abstract class EmitUtils {
 
   public static void wrapThrowable(Block block, Type wrapper) {
     CodeEmitter e = block.getCodeEmitter();
-    e.catch_exception(block, Constant.TYPE_THROWABLE);
+    e.catch_exception(block, Type.TYPE_THROWABLE);
     e.new_instance(wrapper);
     e.dup_x1();
     e.swap();
@@ -948,16 +943,16 @@ public abstract class EmitUtils {
   public static void wrapUndeclaredThrowable(CodeEmitter e, Block handler, Type[] exceptions, Type wrapper) {
     Set set = (exceptions == null) ? Collections.EMPTY_SET : new HashSet(Arrays.asList(exceptions));
 
-    if (set.contains(Constant.TYPE_THROWABLE))
+    if (set.contains(Type.TYPE_THROWABLE))
       return;
 
     boolean needThrow = exceptions != null;
-    if (!set.contains(Constant.TYPE_RUNTIME_EXCEPTION)) {
-      e.catch_exception(handler, Constant.TYPE_RUNTIME_EXCEPTION);
+    if (!set.contains(Type.TYPE_RUNTIME_EXCEPTION)) {
+      e.catch_exception(handler, Type.TYPE_RUNTIME_EXCEPTION);
       needThrow = true;
     }
-    if (!set.contains(Constant.TYPE_ERROR)) {
-      e.catch_exception(handler, Constant.TYPE_ERROR);
+    if (!set.contains(Type.TYPE_ERROR)) {
+      e.catch_exception(handler, Type.TYPE_ERROR);
       needThrow = true;
     }
     if (exceptions != null) {
@@ -969,7 +964,7 @@ public abstract class EmitUtils {
       e.athrow();
     }
     // e -> eo -> oeo -> ooe -> o
-    e.catch_exception(handler, Constant.TYPE_THROWABLE);
+    e.catch_exception(handler, Type.TYPE_THROWABLE);
     e.new_instance(wrapper);
     e.dup_x1();
     e.swap();
@@ -986,7 +981,7 @@ public abstract class EmitUtils {
   }
 
   public static void loadEmptyArguments(CodeEmitter codeEmitter) {
-    codeEmitter.getstatic(Constant.TYPE_CONSTANT, "EMPTY_OBJECT_ARRAY", Constant.TYPE_OBJECT_ARRAY);
+    codeEmitter.getstatic(Type.TYPE_CONSTANT, "EMPTY_OBJECT_ARRAY", Type.TYPE_OBJECT_ARRAY);
   }
 
 }

@@ -20,6 +20,7 @@ import java.util.List;
 
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Label;
+import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.ClassEmitter;
@@ -29,7 +30,6 @@ import cn.taketoday.cglib.core.KeyFactory;
 import cn.taketoday.cglib.core.ObjectSwitchCallback;
 import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
-import cn.taketoday.core.Constant;
 import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
@@ -74,7 +74,7 @@ abstract public class StringSwitcher {
     return gen.create();
   }
 
-  protected StringSwitcher() {}
+  protected StringSwitcher() { }
 
   /**
    * Return the integer associated with the given key.
@@ -159,7 +159,7 @@ abstract public class StringSwitcher {
       final CodeEmitter e = ce.beginMethod(ACC_PUBLIC, INT_VALUE);
       e.load_arg(0);
       final List<String> stringList = Arrays.asList(strings);
-      int style = fixedInput ? Constant.SWITCH_STYLE_HASHONLY : Constant.SWITCH_STYLE_HASH;
+      int style = fixedInput ? Opcodes.SWITCH_STYLE_HASHONLY : Opcodes.SWITCH_STYLE_HASH;
       EmitUtils.stringSwitch(e, strings, style, new ObjectSwitchCallback() {
 
         @Override

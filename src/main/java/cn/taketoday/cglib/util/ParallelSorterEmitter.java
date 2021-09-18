@@ -28,13 +28,12 @@ import cn.taketoday.cglib.core.TypeUtils;
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.asm.Opcodes.JAVA_VERSION;
 import static cn.taketoday.core.Constant.SOURCE_FILE;
-import static cn.taketoday.core.Constant.TYPE_OBJECT_ARRAY;
 
 class ParallelSorterEmitter extends ClassEmitter {
 
   private static final Type PARALLEL_SORTER = Type.fromClass(ParallelSorter.class);
   private static final Signature CSTRUCT_OBJECT_ARRAY = TypeUtils.parseConstructor("Object[]");
-  private static final Signature NEW_INSTANCE = new Signature("newInstance", PARALLEL_SORTER, new Type[] { TYPE_OBJECT_ARRAY });
+  private static final Signature NEW_INSTANCE = new Signature("newInstance", PARALLEL_SORTER, new Type[] { Type.TYPE_OBJECT_ARRAY });
   private static final Signature SWAP = TypeUtils.parseSignature("void swap(int, int)");
 
   public ParallelSorterEmitter(ClassVisitor v, String className, Object[] arrays) {
@@ -57,7 +56,7 @@ class ParallelSorterEmitter extends ClassEmitter {
     e.super_invoke_constructor();
     e.load_this();
     e.load_arg(0);
-    e.super_putfield("a", TYPE_OBJECT_ARRAY);
+    e.super_putfield("a", Type.TYPE_OBJECT_ARRAY);
     for (int i = 0; i < arrays.length; i++) {
       Type type = Type.fromClass(arrays[i].getClass());
       declare_field(Opcodes.ACC_PRIVATE, getFieldName(i), type, null);

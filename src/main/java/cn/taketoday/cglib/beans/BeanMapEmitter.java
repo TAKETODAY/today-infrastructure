@@ -48,7 +48,7 @@ class BeanMapEmitter extends ClassEmitter {
   private static final Signature BEAN_MAP_GET = TypeUtils.parseSignature("Object get(Object, Object)");
   private static final Signature BEAN_MAP_PUT = TypeUtils.parseSignature("Object put(Object, Object, Object)");
   private static final Signature KEY_SET = TypeUtils.parseSignature("java.util.Set keySet()");
-  private static final Signature NEW_INSTANCE = new Signature("newInstance", BEAN_MAP, new Type[] { Constant.TYPE_OBJECT });
+  private static final Signature NEW_INSTANCE = new Signature("newInstance", BEAN_MAP, new Type[] { Type.TYPE_OBJECT });
   private static final Signature GET_PROPERTY_TYPE = TypeUtils.parseSignature("Class getPropertyType(String)");
 
   public BeanMapEmitter(final ClassVisitor v, final String className, final Class type, final int require) {
@@ -112,8 +112,8 @@ class BeanMapEmitter extends ClassEmitter {
     e.load_arg(0);
     e.checkcast(Type.fromClass(type));
     e.load_arg(1);
-    e.checkcast(Constant.TYPE_STRING);
-    EmitUtils.stringSwitch(e, getNames(getters), Constant.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
+    e.checkcast(Type.TYPE_STRING);
+    EmitUtils.stringSwitch(e, getNames(getters), Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
       public void processCase(Object key, Label end) {
         PropertyDescriptor pd = (PropertyDescriptor) getters.get(key);
         MethodInfo method = CglibReflectUtils.getMethodInfo(pd.getReadMethod());
@@ -135,8 +135,8 @@ class BeanMapEmitter extends ClassEmitter {
     e.load_arg(0);
     e.checkcast(Type.fromClass(type));
     e.load_arg(1);
-    e.checkcast(Constant.TYPE_STRING);
-    EmitUtils.stringSwitch(e, getNames(setters), Constant.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
+    e.checkcast(Type.TYPE_STRING);
+    EmitUtils.stringSwitch(e, getNames(setters), Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
       public void processCase(Object key, Label end) {
         PropertyDescriptor pd = (PropertyDescriptor) setters.get(key);
         if (pd.getReadMethod() == null) {
@@ -189,7 +189,7 @@ class BeanMapEmitter extends ClassEmitter {
   private void generateGetPropertyType(final Map allProps, String[] allNames) {
     final CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, GET_PROPERTY_TYPE);
     e.load_arg(0);
-    EmitUtils.stringSwitch(e, allNames, Constant.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
+    EmitUtils.stringSwitch(e, allNames, Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
       public void processCase(Object key, Label end) {
         PropertyDescriptor pd = (PropertyDescriptor) allProps.get(key);
         EmitUtils.loadClass(e, Type.fromClass(pd.getPropertyType()));

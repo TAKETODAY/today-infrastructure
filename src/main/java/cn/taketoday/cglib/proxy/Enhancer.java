@@ -81,9 +81,7 @@ import static cn.taketoday.asm.Type.LONG_TYPE;
 import static cn.taketoday.asm.Type.VOID_TYPE;
 import static cn.taketoday.asm.Type.array;
 import static cn.taketoday.cglib.core.TypeUtils.parseSignature;
-import static cn.taketoday.core.Constant.PRIVATE_FINAL_STATIC;
 import static cn.taketoday.core.Constant.SUID_FIELD_NAME;
-import static cn.taketoday.core.Constant.TYPE_OBJECT;
 
 /**
  * Generates dynamic subclasses to enable method interception. This class
@@ -150,7 +148,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    */
   private static final String CALLBACK_FILTER_FIELD = "today$CallbackFilter";
 
-  private static final Type OBJECT_TYPE = TYPE_OBJECT;
+  private static final Type OBJECT_TYPE = Type.TYPE_OBJECT;
   private static final Type FACTORY = Type.fromClass(Factory.class);
   private static final Type ILLEGAL_STATE_EXCEPTION = Type.parse("IllegalStateException");
   private static final Type ILLEGAL_ARGUMENT_EXCEPTION = Type.parse("IllegalArgumentException");
@@ -162,14 +160,14 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
   private static final Signature SET_THREAD_CALLBACKS = new Signature(SET_THREAD_CALLBACKS_NAME, VOID_TYPE, array(CALLBACK_ARRAY));
   private static final Signature SET_STATIC_CALLBACKS = new Signature(SET_STATIC_CALLBACKS_NAME, VOID_TYPE, array(CALLBACK_ARRAY));
-  private static final Signature NEW_INSTANCE = new Signature("newInstance", TYPE_OBJECT, array(CALLBACK_ARRAY));
+  private static final Signature NEW_INSTANCE = new Signature("newInstance", Type.TYPE_OBJECT, array(CALLBACK_ARRAY));
   private static final Signature MULTIARG_NEW_INSTANCE = new Signature("newInstance",
-                                                                       TYPE_OBJECT,
-                                                                       array(Constant.TYPE_CLASS_ARRAY,
-                                                                             Constant.TYPE_OBJECT_ARRAY,
+                                                                       Type.TYPE_OBJECT,
+                                                                       array(Type.TYPE_CLASS_ARRAY,
+                                                                             Type.TYPE_OBJECT_ARRAY,
                                                                              CALLBACK_ARRAY));
 
-  private static final Signature SINGLE_NEW_INSTANCE = new Signature("newInstance", TYPE_OBJECT, array(CALLBACK));
+  private static final Signature SINGLE_NEW_INSTANCE = new Signature("newInstance", Type.TYPE_OBJECT, array(CALLBACK));
   private static final Signature SET_CALLBACK = new Signature("setCallback", VOID_TYPE, array(INT_TYPE, CALLBACK));
   private static final Signature GET_CALLBACK = new Signature("getCallback", CALLBACK, array(INT_TYPE));
   private static final Signature SET_CALLBACKS = new Signature("setCallbacks", VOID_TYPE, array(CALLBACK_ARRAY));
@@ -761,10 +759,10 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     if (!interceptDuringConstruction) {
       e.declare_field(ACC_PRIVATE, CONSTRUCTED_FIELD, BOOLEAN_TYPE, null);
     }
-    e.declare_field(PRIVATE_FINAL_STATIC, THREAD_CALLBACKS_FIELD, THREAD_LOCAL, null);
-    e.declare_field(PRIVATE_FINAL_STATIC, STATIC_CALLBACKS_FIELD, CALLBACK_ARRAY, null);
+    e.declare_field(Opcodes.PRIVATE_FINAL_STATIC, THREAD_CALLBACKS_FIELD, THREAD_LOCAL, null);
+    e.declare_field(Opcodes.PRIVATE_FINAL_STATIC, STATIC_CALLBACKS_FIELD, CALLBACK_ARRAY, null);
     if (serialVersionUID != null) {
-      e.declare_field(PRIVATE_FINAL_STATIC, SUID_FIELD_NAME, LONG_TYPE, serialVersionUID);
+      e.declare_field(Opcodes.PRIVATE_FINAL_STATIC, SUID_FIELD_NAME, LONG_TYPE, serialVersionUID);
     }
 
     for (int i = 0; i < callbackTypes.length; i++) {
@@ -1479,7 +1477,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   }
 
   private void emitBindCallbacks(ClassEmitter ce) {
-    CodeEmitter e = ce.beginMethod(PRIVATE_FINAL_STATIC, BIND_CALLBACKS);
+    CodeEmitter e = ce.beginMethod(Opcodes.PRIVATE_FINAL_STATIC, BIND_CALLBACKS);
     Local me = e.make_local();
     e.load_arg(0);
     e.checkcast_this();

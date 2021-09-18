@@ -17,6 +17,7 @@ package cn.taketoday.cglib.proxy;
 
 import java.util.List;
 
+import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.cglib.core.Block;
 import cn.taketoday.cglib.core.ClassEmitter;
@@ -25,7 +26,6 @@ import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
-import cn.taketoday.core.Constant;
 
 /**
  * @author TODAY <br>
@@ -46,7 +46,7 @@ class InvocationHandlerGenerator implements CallbackGenerator {
 
     for (final MethodInfo method : methods) {
       final Signature impl = context.getImplSignature(method);
-      ce.declare_field(Constant.PRIVATE_FINAL_STATIC, impl.getName(), METHOD, null);
+      ce.declare_field(Opcodes.PRIVATE_FINAL_STATIC, impl.getName(), METHOD, null);
 
       final CodeEmitter e = context.beginMethod(ce, method);
       final Block handler = e.begin_block();

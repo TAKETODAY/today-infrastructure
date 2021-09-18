@@ -30,8 +30,8 @@ package cn.taketoday.asm;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.Map;
 
+import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.CollectionUtils;
 
@@ -115,6 +115,33 @@ public final class Type {
   public static final Type DOUBLE_TYPE =
           new Type(DOUBLE, PRIMITIVE_DESCRIPTORS, DOUBLE, DOUBLE + 1);
 
+  public static final Type TYPE_CONSTANT = Type.fromClass(Constant.class);
+  public static final Type TYPE_OBJECT_ARRAY = Type.parse("Object[]");
+  public static final Type TYPE_CLASS_ARRAY = Type.parse("Class[]");
+  public static final Type TYPE_STRING_ARRAY = Type.parse("String[]");
+  public static final Type TYPE_TYPE = Type.fromClass(Type.class);
+  public static final Type TYPE_ERROR = Type.parse("Error");
+  public static final Type TYPE_SYSTEM = Type.parse("System");
+  public static final Type TYPE_LONG = Type.parse("Long");
+  public static final Type TYPE_BYTE = Type.parse("Byte");
+  public static final Type TYPE_CLASS = Type.parse("Class");
+  public static final Type TYPE_FLOAT = Type.parse("Float");
+  public static final Type TYPE_SHORT = Type.parse("Short");
+  public static final Type TYPE_OBJECT = Type.parse("Object");
+  public static final Type TYPE_DOUBLE = Type.parse("Double");
+  public static final Type TYPE_STRING = Type.parse("String");
+  public static final Type TYPE_NUMBER = Type.parse("Number");
+  public static final Type TYPE_BOOLEAN = Type.parse("Boolean");
+  public static final Type TYPE_INTEGER = Type.parse("Integer");
+  public static final Type TYPE_CHARACTER = Type.parse("Character");
+  public static final Type TYPE_THROWABLE = Type.parse("Throwable");
+  public static final Type TYPE_CLASS_LOADER = Type.parse("ClassLoader");
+  public static final Type TYPE_STRING_BUFFER = Type.parse("StringBuffer");
+  public static final Type TYPE_BIG_INTEGER = Type.parse("java.math.BigInteger");
+  public static final Type TYPE_BIG_DECIMAL = Type.parse("java.math.BigDecimal");
+  public static final Type TYPE_RUNTIME_EXCEPTION = Type.parse("RuntimeException");
+  public static final Type TYPE_SIGNATURE = Type.fromClass(Signature.class);
+
   // -----------------------------------------------------------------------------------------------
   // Fields
   // -----------------------------------------------------------------------------------------------
@@ -175,7 +202,6 @@ public final class Type {
   // -----------------------------------------------------------------------------------------------
   // Methods to get Type(s) from a descriptor, a reflected Method or Constructor, other types, etc.
   // -----------------------------------------------------------------------------------------------
-
 
   private static final HashMap<String, String> transforms = new HashMap<>();
   private static final HashMap<String, String> rtransforms = new HashMap<>();

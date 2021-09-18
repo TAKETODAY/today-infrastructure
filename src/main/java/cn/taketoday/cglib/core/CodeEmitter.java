@@ -422,7 +422,7 @@ public class CodeEmitter extends LocalVariablesSorter {
   }
 
   public void newArray() {
-    newArray(Constant.TYPE_OBJECT);
+    newArray(Type.TYPE_OBJECT);
   }
 
   public void newArray(Type type) {
@@ -659,7 +659,7 @@ public class CodeEmitter extends LocalVariablesSorter {
   }
 
   public Local make_local() {
-    return make_local(Constant.TYPE_OBJECT);
+    return make_local(Type.TYPE_OBJECT);
   }
 
   public Local make_local(Type type) {
@@ -671,7 +671,7 @@ public class CodeEmitter extends LocalVariablesSorter {
   }
 
   public void checkcast(Type type) {
-    if (!type.equals(Constant.TYPE_OBJECT)) {
+    if (!type.equals(Type.TYPE_OBJECT)) {
       emit_type(Opcodes.CHECKCAST, type);
     }
   }
@@ -849,17 +849,17 @@ public class CodeEmitter extends LocalVariablesSorter {
    * @return true if the value was unboxed
    */
   public void unbox(Type type) {
-    Type t = Constant.TYPE_NUMBER;
+    Type t = Type.TYPE_NUMBER;
     Signature sig = null;
     switch (type.getSort()) {
       case Type.VOID:
         return;
       case Type.CHAR:
-        t = Constant.TYPE_CHARACTER;
+        t = Type.TYPE_CHARACTER;
         sig = CHAR_VALUE;
         break;
       case Type.BOOLEAN:
-        t = Constant.TYPE_BOOLEAN;
+        t = Type.TYPE_BOOLEAN;
         sig = BOOLEAN_VALUE;
         break;
       case Type.DOUBLE:

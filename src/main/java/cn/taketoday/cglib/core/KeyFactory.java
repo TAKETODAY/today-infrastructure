@@ -92,21 +92,21 @@ abstract public class KeyFactory {
   };
 
   public static final Customizer CLASS_BY_NAME = (CodeEmitter e, Type type) -> {
-    if (type.equals(Constant.TYPE_CLASS)) {
-      e.invoke_virtual(Constant.TYPE_CLASS, GET_NAME);
+    if (type.equals(Type.TYPE_CLASS)) {
+      e.invoke_virtual(Type.TYPE_CLASS, GET_NAME);
     }
   };
 
   public static final FieldTypeCustomizer STORE_CLASS_AS_STRING = new FieldTypeCustomizer() {
     public void customize(CodeEmitter e, int index, Type type) {
-      if (type.equals(Constant.TYPE_CLASS)) {
-        e.invoke_virtual(Constant.TYPE_CLASS, GET_NAME);
+      if (type.equals(Type.TYPE_CLASS)) {
+        e.invoke_virtual(Type.TYPE_CLASS, GET_NAME);
       }
     }
 
     public Type getOutType(int index, Type type) {
-      if (type.equals(Constant.TYPE_CLASS)) {
-        return Constant.TYPE_STRING;
+      if (type.equals(Type.TYPE_CLASS)) {
+        return Type.TYPE_STRING;
       }
       return type;
     }
@@ -118,7 +118,7 @@ abstract public class KeyFactory {
    * code.
    */
   public static final HashCodeCustomizer HASH_ASM_TYPE = (CodeEmitter e, Type type) -> {
-    if (Constant.TYPE_TYPE.equals(type)) {
+    if (Type.TYPE_TYPE.equals(type)) {
       e.invoke_virtual(type, GET_SORT);
       return true;
     }
@@ -133,7 +133,7 @@ abstract public class KeyFactory {
    */
   @Deprecated
   public static final Customizer OBJECT_BY_CLASS = (CodeEmitter e, Type type) -> {
-    e.invoke_virtual(Constant.TYPE_OBJECT, GET_CLASS);
+    e.invoke_virtual(Type.TYPE_OBJECT, GET_CLASS);
   };
 
   protected KeyFactory() {}
@@ -315,19 +315,19 @@ abstract public class KeyFactory {
 
       // toString
       e = ce.beginMethod(Opcodes.ACC_PUBLIC, TO_STRING);
-      e.new_instance(Constant.TYPE_STRING_BUFFER);
+      e.new_instance(Type.TYPE_STRING_BUFFER);
       e.dup();
-      e.invoke_constructor(Constant.TYPE_STRING_BUFFER);
+      e.invoke_constructor(Type.TYPE_STRING_BUFFER);
       for (int i = 0; i < parameterTypes.length; i++) {
         if (i > 0) {
           e.push(", ");
-          e.invoke_virtual(Constant.TYPE_STRING_BUFFER, APPEND_STRING);
+          e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
         }
         e.load_this();
         e.getfield(getFieldName(i));
         EmitUtils.appendString(e, parameterTypes[i], EmitUtils.DEFAULT_DELIMITERS, customizers);
       }
-      e.invoke_virtual(Constant.TYPE_STRING_BUFFER, TO_STRING);
+      e.invoke_virtual(Type.TYPE_STRING_BUFFER, TO_STRING);
       e.return_value();
       e.end_method();
 

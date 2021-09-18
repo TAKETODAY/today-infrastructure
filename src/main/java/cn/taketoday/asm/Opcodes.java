@@ -280,6 +280,12 @@ public interface Opcodes {
    */
   int V_PREVIEW = 0xFFFF0000;
 
+  int SWITCH_STYLE_TRIE = 0;
+  int SWITCH_STYLE_HASH = 1;
+  int SWITCH_STYLE_HASHONLY = 2;
+
+  int PRIVATE_FINAL_STATIC = Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL | Opcodes.ACC_STATIC;
+
   // Access flags values, defined in
   // - https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.1-200-E.1
   // - https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.5-200-A.1

@@ -39,7 +39,7 @@ public class AddStaticInitTransformer extends ClassEmitterTransformer {
       throw new IllegalArgumentException(classInit + " is not static");
     }
     Type[] types = info.getSignature().getArgumentTypes();
-    if (types.length != 1 || !types[0].equals(Constant.TYPE_CLASS) || !info.getSignature().getReturnType().equals(Type.VOID_TYPE)) {
+    if (types.length != 1 || !types[0].equals(Type.TYPE_CLASS) || !info.getSignature().getReturnType().equals(Type.VOID_TYPE)) {
       throw new IllegalArgumentException(classInit + " illegal signature");
     }
   }

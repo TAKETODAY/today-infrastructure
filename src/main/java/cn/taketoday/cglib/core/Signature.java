@@ -18,6 +18,8 @@ package cn.taketoday.cglib.core;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import cn.taketoday.asm.Type;
 import cn.taketoday.core.Constant;
@@ -91,6 +93,37 @@ public class Signature {
   }
 
   // static
+
+  public static Signature parse(String s) {
+    int space = s.indexOf(' ');
+    int lparen = s.indexOf('(', space);
+    int rparen = s.indexOf(')', lparen);
+    String returnType = s.substring(0, space);
+    String methodName = s.substring(space + 1, lparen);
+    StringBuilder sb = new StringBuilder();
+    sb.append('(');
+
+    for (String type : parseTypes(s, lparen + 1, rparen)) {
+      sb.append(type);
+    }
+    sb.append(')');
+    sb.append(Type.map(returnType));
+    return new Signature(methodName, sb.toString());
+  }
+
+  private static List<String> parseTypes(String s, int mark, int end) {
+    ArrayList<String> types = new ArrayList<>(5);
+    for (; ; ) {
+      int next = s.indexOf(',', mark);
+      if (next < 0) {
+        break;
+      }
+      types.add(Type.map(s.substring(mark, next).trim()));
+      mark = next + 1;
+    }
+    types.add(Type.map(s.substring(mark, end).trim()));
+    return types;
+  }
 
   @SuppressWarnings("rawtypes")
   public static Signature fromMember(Member member) {

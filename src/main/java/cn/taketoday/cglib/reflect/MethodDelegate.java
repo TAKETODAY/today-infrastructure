@@ -169,7 +169,7 @@ abstract public class MethodDelegate {
   public static class Generator extends AbstractClassGenerator {
 
     private static final Type METHOD_DELEGATE = Type.fromClass(MethodDelegate.class);
-    private static final Signature NEW_INSTANCE = new Signature("newInstance", METHOD_DELEGATE, new Type[] { Constant.TYPE_OBJECT });
+    private static final Signature NEW_INSTANCE = new Signature("newInstance", METHOD_DELEGATE, new Type[] { Type.TYPE_OBJECT });
 
     private Object target;
     private Class targetClass;
@@ -246,7 +246,7 @@ abstract public class MethodDelegate {
       ce.beginClass(Opcodes.JAVA_VERSION, Opcodes.ACC_PUBLIC, getClassName(), METHOD_DELEGATE,
                     Type.array(Type.fromClass(iface)), Constant.SOURCE_FILE);
 
-      ce.declare_field(Constant.PRIVATE_FINAL_STATIC, "eqMethod", Constant.TYPE_STRING, null);
+      ce.declare_field(Opcodes.PRIVATE_FINAL_STATIC, "eqMethod", Type.TYPE_STRING, null);
       EmitUtils.nullConstructor(ce);
 
       // generate proxied method
@@ -257,7 +257,7 @@ abstract public class MethodDelegate {
       }
       e = EmitUtils.beginMethod(ce, proxied, modifiers);
       e.load_this();
-      e.super_getfield("target", Constant.TYPE_OBJECT);
+      e.super_getfield("target", Type.TYPE_OBJECT);
       e.checkcast(methodInfo.getClassInfo().getType());
       e.load_args();
       e.invoke(methodInfo);
@@ -271,9 +271,9 @@ abstract public class MethodDelegate {
       e.dup2();
       e.invoke_constructor_this();
       e.getfield("eqMethod");
-      e.super_putfield("eqMethod", Constant.TYPE_STRING);
+      e.super_putfield("eqMethod", Type.TYPE_STRING);
       e.load_arg(0);
-      e.super_putfield("target", Constant.TYPE_OBJECT);
+      e.super_putfield("target", Type.TYPE_OBJECT);
       e.return_value();
       e.end_method();
 

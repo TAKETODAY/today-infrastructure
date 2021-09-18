@@ -114,7 +114,7 @@ public class ClassEmitter extends ClassTransformer {
       }
 
       public Type getSuperType() {
-        return (superType != null) ? superType : Constant.TYPE_OBJECT;
+        return (superType != null) ? superType : Type.TYPE_OBJECT;
       }
 
       public Type[] getInterfaces() {

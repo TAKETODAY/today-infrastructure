@@ -27,8 +27,6 @@ import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
 
 import static cn.taketoday.asm.Type.array;
-import static cn.taketoday.core.Constant.TYPE_OBJECT;
-import static cn.taketoday.core.Constant.TYPE_STRING;
 
 /**
  * @author Juozas Baliuka, Chris Nokleberg
@@ -182,25 +180,25 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
 
   private static Signature readCallbackSig(Type type) {
     Type remap = remap(type);
-    return new Signature("read" + callbackName(remap), remap, array(TYPE_OBJECT, TYPE_STRING, remap));
+    return new Signature("read" + callbackName(remap), remap, array(Type.TYPE_OBJECT, Type.TYPE_STRING, remap));
   }
 
   private static Signature writeCallbackSig(Type type) {
     Type remap = remap(type);
-    return new Signature("write" + callbackName(remap), remap, array(TYPE_OBJECT, TYPE_STRING, remap, remap));
+    return new Signature("write" + callbackName(remap), remap, array(Type.TYPE_OBJECT, Type.TYPE_STRING, remap, remap));
   }
 
   private static Type remap(Type type) {
     switch (type.getSort()) {
       case Type.OBJECT:
       case Type.ARRAY:
-        return TYPE_OBJECT;
+        return Type.TYPE_OBJECT;
       default:
         return type;
     }
   }
 
   private static String callbackName(Type type) {
-    return (type == TYPE_OBJECT) ? "Object" : TypeUtils.upperFirst(TypeUtils.getClassName(type));
+    return (type == Type.TYPE_OBJECT) ? "Object" : TypeUtils.upperFirst(TypeUtils.getClassName(type));
   }
 }

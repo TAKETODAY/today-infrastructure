@@ -84,8 +84,8 @@ abstract public class MulticastDelegate implements Cloneable {
 
     private static final Type MULTICAST_DELEGATE = Type.fromClass(MulticastDelegate.class);
     private static final Signature NEW_INSTANCE = new Signature("newInstance", MULTICAST_DELEGATE, Constant.TYPES_EMPTY_ARRAY);
-    private static final Signature ADD_DELEGATE = new Signature("add", MULTICAST_DELEGATE, new Type[] { Constant.TYPE_OBJECT });
-    private static final Signature ADD_HELPER = new Signature("addHelper", MULTICAST_DELEGATE, new Type[] { Constant.TYPE_OBJECT });
+    private static final Signature ADD_DELEGATE = new Signature("add", MULTICAST_DELEGATE, new Type[] { Type.TYPE_OBJECT });
+    private static final Signature ADD_HELPER = new Signature("addHelper", MULTICAST_DELEGATE, new Type[] { Type.TYPE_OBJECT });
 
     private Class<?> iface;
 
@@ -162,9 +162,9 @@ abstract public class MulticastDelegate implements Cloneable {
         e.store_local(result);
       }
       e.load_this();
-      e.super_getfield("targets", Constant.TYPE_OBJECT_ARRAY);
+      e.super_getfield("targets", Type.TYPE_OBJECT_ARRAY);
       final Local result2 = result;
-      EmitUtils.processArray(e, Constant.TYPE_OBJECT_ARRAY, new ProcessArrayCallback() {
+      EmitUtils.processArray(e, Type.TYPE_OBJECT_ARRAY, new ProcessArrayCallback() {
         public void processElement(Type type) {
           e.checkcast(Type.fromClass(iface));
           e.load_args();

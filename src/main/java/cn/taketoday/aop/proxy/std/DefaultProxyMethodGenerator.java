@@ -28,6 +28,7 @@ import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.AdvisedSupport;
 import cn.taketoday.aop.proxy.StandardProxyInvoker;
 import cn.taketoday.aop.proxy.TargetInvocation;
+import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
@@ -37,7 +38,6 @@ import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.Local;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.Signature;
-import cn.taketoday.core.Constant;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -201,7 +201,7 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
   }
 
   protected int getStaticAccess() {
-    return Constant.PRIVATE_FINAL_STATIC;
+    return Opcodes.PRIVATE_FINAL_STATIC;
   }
 
   protected TargetInvocation getTarget(final Method method, GeneratorContext context) {

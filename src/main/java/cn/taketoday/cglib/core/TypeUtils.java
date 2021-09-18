@@ -27,14 +27,6 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 
 import static cn.taketoday.core.Constant.BLANK;
-import static cn.taketoday.core.Constant.TYPE_BOOLEAN;
-import static cn.taketoday.core.Constant.TYPE_BYTE;
-import static cn.taketoday.core.Constant.TYPE_CHARACTER;
-import static cn.taketoday.core.Constant.TYPE_DOUBLE;
-import static cn.taketoday.core.Constant.TYPE_FLOAT;
-import static cn.taketoday.core.Constant.TYPE_INTEGER;
-import static cn.taketoday.core.Constant.TYPE_LONG;
-import static cn.taketoday.core.Constant.TYPE_SHORT;
 
 /**
  * @author TODAY <br>
@@ -244,42 +236,42 @@ public abstract class TypeUtils {
   public static Type getBoxedType(Type type) {
     switch (type.getSort()) //@off
         {
-            case Type.CHAR :    return TYPE_CHARACTER;
-            case Type.BOOLEAN : return TYPE_BOOLEAN;
-            case Type.DOUBLE :  return TYPE_DOUBLE;
-            case Type.FLOAT :   return TYPE_FLOAT;
-            case Type.LONG :    return TYPE_LONG;
-            case Type.INT :     return TYPE_INTEGER;
-            case Type.SHORT :   return TYPE_SHORT;
-            case Type.BYTE :    return TYPE_BYTE;
+            case Type.CHAR :    return Type.TYPE_CHARACTER;
+            case Type.BOOLEAN : return Type.TYPE_BOOLEAN;
+            case Type.DOUBLE :  return Type.TYPE_DOUBLE;
+            case Type.FLOAT :   return Type.TYPE_FLOAT;
+            case Type.LONG :    return Type.TYPE_LONG;
+            case Type.INT :     return Type.TYPE_INTEGER;
+            case Type.SHORT :   return Type.TYPE_SHORT;
+            case Type.BYTE :    return Type.TYPE_BYTE;
             default:
               return type; //@on
         }
   }
 
   public static Type getUnboxedType(Type type) {
-    if (TYPE_INTEGER.equals(type)) {
+    if (Type.TYPE_INTEGER.equals(type)) {
       return Type.INT_TYPE;
     }
-    else if (TYPE_BOOLEAN.equals(type)) {
+    else if (Type.TYPE_BOOLEAN.equals(type)) {
       return Type.BOOLEAN_TYPE;
     }
-    else if (TYPE_DOUBLE.equals(type)) {
+    else if (Type.TYPE_DOUBLE.equals(type)) {
       return Type.DOUBLE_TYPE;
     }
-    else if (TYPE_LONG.equals(type)) {
+    else if (Type.TYPE_LONG.equals(type)) {
       return Type.LONG_TYPE;
     }
-    else if (TYPE_CHARACTER.equals(type)) {
+    else if (Type.TYPE_CHARACTER.equals(type)) {
       return Type.CHAR_TYPE;
     }
-    else if (TYPE_BYTE.equals(type)) {
+    else if (Type.TYPE_BYTE.equals(type)) {
       return Type.BYTE_TYPE;
     }
-    else if (TYPE_FLOAT.equals(type)) {
+    else if (Type.TYPE_FLOAT.equals(type)) {
       return Type.FLOAT_TYPE;
     }
-    else if (TYPE_SHORT.equals(type)) {
+    else if (Type.TYPE_SHORT.equals(type)) {
       return Type.SHORT_TYPE;
     }
     else {

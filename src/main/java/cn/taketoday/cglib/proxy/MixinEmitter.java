@@ -34,7 +34,6 @@ import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.asm.Opcodes.JAVA_VERSION;
 import static cn.taketoday.asm.Type.array;
 import static cn.taketoday.core.Constant.SOURCE_FILE;
-import static cn.taketoday.core.Constant.TYPE_OBJECT_ARRAY;
 
 /**
  * @author Chris Nokleberg
@@ -46,7 +45,7 @@ class MixinEmitter extends ClassEmitter {
   private static final Type MIXIN = Type.fromClass(Mixin.class);
   private static final Signature CSTRUCT_OBJECT_ARRAY = TypeUtils.parseConstructor("Object[]");
 
-  private static final Signature NEW_INSTANCE = new Signature("newInstance", MIXIN, array(TYPE_OBJECT_ARRAY));
+  private static final Signature NEW_INSTANCE = new Signature("newInstance", MIXIN, array(Type.TYPE_OBJECT_ARRAY));
 
   public MixinEmitter(ClassVisitor v, String className, Class<?>[] classes, int[] route) {
     super(v);
@@ -55,7 +54,7 @@ class MixinEmitter extends ClassEmitter {
     EmitUtils.nullConstructor(this);
     EmitUtils.factoryMethod(this, NEW_INSTANCE);
 
-    declare_field(Opcodes.ACC_PRIVATE, FIELD_NAME, TYPE_OBJECT_ARRAY, null);
+    declare_field(Opcodes.ACC_PRIVATE, FIELD_NAME, Type.TYPE_OBJECT_ARRAY, null);
 
     CodeEmitter e = beginMethod(ACC_PUBLIC, CSTRUCT_OBJECT_ARRAY);
     e.load_this();

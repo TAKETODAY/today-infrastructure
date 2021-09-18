@@ -30,7 +30,6 @@ import cn.taketoday.cglib.core.ProcessSwitchCallback;
 import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
-import cn.taketoday.core.Constant;
 
 @SuppressWarnings("all")
 public class FieldProviderTransformer extends ClassEmitterTransformer {
@@ -91,8 +90,8 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
       indexes[i] = i;
     }
 
-    super.declare_field(Constant.PRIVATE_FINAL_STATIC, FIELD_NAMES, Constant.TYPE_STRING_ARRAY, null);
-    super.declare_field(Constant.PRIVATE_FINAL_STATIC, FIELD_TYPES, Constant.TYPE_CLASS_ARRAY, null);
+    super.declare_field(Opcodes.PRIVATE_FINAL_STATIC, FIELD_NAMES, Type.TYPE_STRING_ARRAY, null);
+    super.declare_field(Opcodes.PRIVATE_FINAL_STATIC, FIELD_TYPES, Type.TYPE_CLASS_ARRAY, null);
 
     // use separate methods here because each process switch inner class needs a
     // final CodeEmitter
@@ -108,10 +107,10 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
   private void initFieldProvider(String[] names) {
     CodeEmitter e = getStaticHook();
     EmitUtils.pushObject(e, names);
-    e.putstatic(getClassType(), FIELD_NAMES, Constant.TYPE_STRING_ARRAY);
+    e.putstatic(getClassType(), FIELD_NAMES, Type.TYPE_STRING_ARRAY);
 
     e.push(names.length);
-    e.newArray(Constant.TYPE_CLASS);
+    e.newArray(Type.TYPE_CLASS);
     e.dup();
     for (int i = 0; i < names.length; i++) {
       e.dup();
@@ -120,19 +119,19 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
       EmitUtils.loadClass(e, type);
       e.aastore();
     }
-    e.putstatic(getClassType(), FIELD_TYPES, Constant.TYPE_CLASS_ARRAY);
+    e.putstatic(getClassType(), FIELD_TYPES, Type.TYPE_CLASS_ARRAY);
   }
 
   private void getNames() {
     CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, PROVIDER_GET_NAMES);
-    e.getstatic(getClassType(), FIELD_NAMES, Constant.TYPE_STRING_ARRAY);
+    e.getstatic(getClassType(), FIELD_NAMES, Type.TYPE_STRING_ARRAY);
     e.return_value();
     e.end_method();
   }
 
   private void getTypes() {
     CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, PROVIDER_GET_TYPES);
-    e.getstatic(getClassType(), FIELD_TYPES, Constant.TYPE_CLASS_ARRAY);
+    e.getstatic(getClassType(), FIELD_TYPES, Type.TYPE_CLASS_ARRAY);
     e.return_value();
     e.end_method();
   }
@@ -183,7 +182,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
     final CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, PROVIDER_GET);
     e.load_this();
     e.load_arg(0);
-    EmitUtils.stringSwitch(e, names, Constant.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
+    EmitUtils.stringSwitch(e, names, Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
       public void processCase(Object key, Label end) {
         Type type = (Type) fields.get(key);
         e.getfield((String) key);
@@ -203,7 +202,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
     e.load_this();
     e.load_arg(1);
     e.load_arg(0);
-    EmitUtils.stringSwitch(e, names, Constant.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
+    EmitUtils.stringSwitch(e, names, Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
       public void processCase(Object key, Label end) {
         Type type = (Type) fields.get(key);
         e.unbox(type);

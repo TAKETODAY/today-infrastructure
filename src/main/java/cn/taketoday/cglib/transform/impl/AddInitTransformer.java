@@ -37,7 +37,7 @@ public class AddInitTransformer extends ClassEmitterTransformer {
     info = CglibReflectUtils.getMethodInfo(method);
 
     Type[] types = info.getSignature().getArgumentTypes();
-    if (types.length != 1 || !types[0].equals(Constant.TYPE_OBJECT) || !info.getSignature().getReturnType().equals(Type.VOID_TYPE)) {
+    if (types.length != 1 || !types[0].equals(Type.TYPE_OBJECT) || !info.getSignature().getReturnType().equals(Type.VOID_TYPE)) {
       throw new IllegalArgumentException(method + " illegal signature");
     }
   }

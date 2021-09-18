@@ -35,12 +35,10 @@ import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.ObjectSwitchCallback;
 import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
-import cn.taketoday.core.Constant;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.StringUtils;
 
 import static cn.taketoday.asm.Type.array;
-import static cn.taketoday.core.Constant.PRIVATE_FINAL_STATIC;
-import static cn.taketoday.core.Constant.SWITCH_STYLE_HASH;
 
 /**
  * @author TODAY <br>
@@ -69,22 +67,22 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
 
   private static final Signature MAKE_PROXY = new Signature("create",
                                                             METHOD_PROXY, //
-                                                            array(Constant.TYPE_CLASS,
-                                                                  Constant.TYPE_CLASS,
-                                                                  Constant.TYPE_STRING,
-                                                                  Constant.TYPE_STRING,
-                                                                  Constant.TYPE_STRING)//
+                                                            array(Type.TYPE_CLASS,
+                                                                  Type.TYPE_CLASS,
+                                                                  Type.TYPE_STRING,
+                                                                  Type.TYPE_STRING,
+                                                                  Type.TYPE_STRING)//
   );
 
   private static final Signature INTERCEPT = new Signature("intercept",
-                                                           Constant.TYPE_OBJECT,
-                                                           array(Constant.TYPE_OBJECT,
+                                                           Type.TYPE_OBJECT,
+                                                           array(Type.TYPE_OBJECT,
                                                                  METHOD,
-                                                                 Constant.TYPE_OBJECT_ARRAY,
+                                                                 Type.TYPE_OBJECT_ARRAY,
                                                                  METHOD_PROXY)//
   );
 
-  private static final Signature FIND_PROXY = new Signature(FIND_PROXY_NAME, METHOD_PROXY, array(Constant.TYPE_SIGNATURE));
+  private static final Signature FIND_PROXY = new Signature(FIND_PROXY_NAME, METHOD_PROXY, array(Type.TYPE_SIGNATURE));
   private static final Signature TO_STRING = TypeUtils.parseSignature("String toString()");
 
   private String getMethodField(Signature impl) {
@@ -107,8 +105,8 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
       final String methodProxyField = getMethodProxyField(impl);
 
       sigMap.put(sig.toString(), methodProxyField);
-      ce.declare_field(PRIVATE_FINAL_STATIC, methodField, METHOD, null);
-      ce.declare_field(PRIVATE_FINAL_STATIC, methodProxyField, METHOD_PROXY, null);
+      ce.declare_field(Opcodes.PRIVATE_FINAL_STATIC, methodField, METHOD, null);
+      ce.declare_field(Opcodes.PRIVATE_FINAL_STATIC, methodProxyField, METHOD_PROXY, null);
 
       // access method
       CodeEmitter codeEmitter = ce.beginMethod(Opcodes.ACC_FINAL, impl, method.getExceptionTypes());
@@ -187,7 +185,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
 
       final int size = classMethods.size();
       e.push(2 * size);
-      e.newArray(Constant.TYPE_STRING);
+      e.newArray(Type.TYPE_STRING);
       for (int index = 0; index < size; index++) {
         Signature sig = classMethods.get(index).getSignature();
         e.dup();
@@ -203,7 +201,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
       EmitUtils.loadClass(e, classInfo.getType());
       e.dup();
       e.store_local(declaringClass);
-      e.invoke_virtual(Constant.TYPE_CLASS, GET_DECLARED_METHODS);
+      e.invoke_virtual(Type.TYPE_CLASS, GET_DECLARED_METHODS);
       e.invoke_static(REFLECT_UTILS, FIND_METHODS);
 
       for (int index = 0; index < size; index++) {
@@ -231,7 +229,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
 
     final CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, FIND_PROXY);
     e.load_arg(0);
-    e.invoke_virtual(Constant.TYPE_OBJECT, TO_STRING);
+    e.invoke_virtual(Type.TYPE_OBJECT, TO_STRING);
 
     final ObjectSwitchCallback callback = new ObjectSwitchCallback() {
 
@@ -248,7 +246,8 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
       }
     };
 
-    EmitUtils.stringSwitch(e, sigMap.keySet().toArray(new String[sigMap.size()]), SWITCH_STYLE_HASH, callback);
+    EmitUtils.stringSwitch(
+            e, StringUtils.toStringArray(sigMap.keySet()), Opcodes.SWITCH_STYLE_HASH, callback);
     e.end_method();
   }
 }
