@@ -35,7 +35,7 @@ import static cn.taketoday.core.Constant.TYPE_STRING;
  */
 public class InterceptFieldTransformer extends ClassEmitterTransformer {
 
-  private static final String CALLBACK_FIELD = "$TODAY_READ_WRITE_CALLBACK";
+  private static final String CALLBACK_FIELD = "$todayReadWriteCallback";
 
   private static final Type ENABLED = Type.fromClass(InterceptFieldEnabled.class);
   private static final Type CALLBACK = Type.fromClass(InterceptFieldCallback.class);
@@ -43,32 +43,31 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
   private static final Signature ENABLED_SET = new Signature("setInterceptFieldCallback", Type.VOID_TYPE, array(CALLBACK));
   private static final Signature ENABLED_GET = new Signature("getInterceptFieldCallback", CALLBACK, new Type[0]);
 
-  private InterceptFieldFilter filter;
+  private final InterceptFieldFilter filter;
 
   public InterceptFieldTransformer(InterceptFieldFilter filter) {
     this.filter = filter;
   }
 
-  public void beginClass(int version, int access, String className, Type superType, Type[] interfaces,
-                         String sourceFile) {
+  public void beginClass(
+          int version, int access, String className, Type superType, Type[] interfaces, String sourceFile) {
     if (!Modifier.isInterface(access)) {
       super.beginClass(version, access, className, superType, TypeUtils.add(interfaces, ENABLED), sourceFile);
 
       super.declare_field(Opcodes.ACC_PRIVATE | Opcodes.ACC_TRANSIENT, CALLBACK_FIELD, CALLBACK, null);
 
-      CodeEmitter e;
-      e = super.beginMethod(Opcodes.ACC_PUBLIC, ENABLED_GET);
-      e.load_this();
-      e.getfield(CALLBACK_FIELD);
-      e.return_value();
-      e.end_method();
+      CodeEmitter emitter = super.beginMethod(Opcodes.ACC_PUBLIC, ENABLED_GET);
+      emitter.load_this();
+      emitter.getfield(CALLBACK_FIELD);
+      emitter.return_value();
+      emitter.end_method();
 
-      e = super.beginMethod(Opcodes.ACC_PUBLIC, ENABLED_SET);
-      e.load_this();
-      e.load_arg(0);
-      e.putfield(CALLBACK_FIELD);
-      e.return_value();
-      e.end_method();
+      emitter = super.beginMethod(Opcodes.ACC_PUBLIC, ENABLED_SET);
+      emitter.load_this();
+      emitter.load_arg(0);
+      emitter.putfield(CALLBACK_FIELD);
+      emitter.return_value();
+      emitter.end_method();
     }
     else {
       super.beginClass(version, access, className, superType, interfaces, sourceFile);

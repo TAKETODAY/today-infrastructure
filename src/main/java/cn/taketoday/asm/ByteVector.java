@@ -332,27 +332,29 @@ public class ByteVector {
     }
     // Compute where 'byteLength' must be stored in 'data', and store it at this location.
     int byteLengthOffset = length - offset - 2;
+    byte[] currentData = this.data;
     if (byteLengthOffset >= 0) {
-      data[byteLengthOffset] = (byte) (byteLength >>> 8);
-      data[byteLengthOffset + 1] = (byte) byteLength;
+      currentData[byteLengthOffset] = (byte) (byteLength >>> 8);
+      currentData[byteLengthOffset + 1] = (byte) byteLength;
     }
-    if (length + byteLength - offset > data.length) {
-      enlarge(byteLength - offset);
+    if (length + byteLength - offset > currentData.length) {
+      enlarge(currentData, byteLength - offset);
+      currentData = this.data;
     }
     int currentLength = length;
     for (int i = offset; i < charLength; ++i) {
       char charValue = stringValue.charAt(i);
       if (charValue >= 0x0001 && charValue <= 0x007F) {
-        data[currentLength++] = (byte) charValue;
+        currentData[currentLength++] = (byte) charValue;
       }
       else if (charValue <= 0x07FF) {
-        data[currentLength++] = (byte) (0xC0 | charValue >> 6 & 0x1F);
-        data[currentLength++] = (byte) (0x80 | charValue & 0x3F);
+        currentData[currentLength++] = (byte) (0xC0 | charValue >> 6 & 0x1F);
+        currentData[currentLength++] = (byte) (0x80 | charValue & 0x3F);
       }
       else {
-        data[currentLength++] = (byte) (0xE0 | charValue >> 12 & 0xF);
-        data[currentLength++] = (byte) (0x80 | charValue >> 6 & 0x3F);
-        data[currentLength++] = (byte) (0x80 | charValue & 0x3F);
+        currentData[currentLength++] = (byte) (0xE0 | charValue >> 12 & 0xF);
+        currentData[currentLength++] = (byte) (0x80 | charValue >> 6 & 0x3F);
+        currentData[currentLength++] = (byte) (0x80 | charValue & 0x3F);
       }
     }
     length = currentLength;
@@ -392,10 +394,14 @@ public class ByteVector {
    *         number of additional bytes that this byte vector should be able to receive.
    */
   private void enlarge(final int size) {
+    enlarge(data, size);
+  }
+
+  private void enlarge(byte[] data, final int size) {
     int doubleCapacity = 2 * data.length;
     int minimalCapacity = length + size;
-    byte[] newData = new byte[doubleCapacity > minimalCapacity ? doubleCapacity : minimalCapacity];
+    byte[] newData = new byte[Math.max(doubleCapacity, minimalCapacity)];
     System.arraycopy(data, 0, newData, 0, length);
-    data = newData;
+    this.data = newData;
   }
 }
