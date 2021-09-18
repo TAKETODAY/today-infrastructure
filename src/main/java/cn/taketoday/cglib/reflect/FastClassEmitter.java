@@ -66,10 +66,10 @@ class FastClassEmitter extends ClassEmitter {
           TypeUtils.parseSignature("String getSignatureWithoutReturnType(String, Class[])");
 
   private static final Type FAST_CLASS = Type.fromClass(FastClass.class);
-  private static final Type ILLEGAL_ARGUMENT_EXCEPTION = TypeUtils.parseType("IllegalArgumentException");
+  private static final Type ILLEGAL_ARGUMENT_EXCEPTION = Type.parse("IllegalArgumentException");
 
   private static final Type INVOCATION_TARGET_EXCEPTION = //
-          TypeUtils.parseType("java.lang.reflect.InvocationTargetException");
+          Type.parse("java.lang.reflect.InvocationTargetException");
 
   private static final Type[] INVOCATION_TARGET_EXCEPTION_ARRAY = { INVOCATION_TARGET_EXCEPTION };
 

@@ -81,7 +81,6 @@ import static cn.taketoday.asm.Type.LONG_TYPE;
 import static cn.taketoday.asm.Type.VOID_TYPE;
 import static cn.taketoday.asm.Type.array;
 import static cn.taketoday.cglib.core.TypeUtils.parseSignature;
-import static cn.taketoday.cglib.core.TypeUtils.parseType;
 import static cn.taketoday.core.Constant.PRIVATE_FINAL_STATIC;
 import static cn.taketoday.core.Constant.SUID_FIELD_NAME;
 import static cn.taketoday.core.Constant.TYPE_OBJECT;
@@ -153,9 +152,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
   private static final Type OBJECT_TYPE = TYPE_OBJECT;
   private static final Type FACTORY = Type.fromClass(Factory.class);
-  private static final Type ILLEGAL_STATE_EXCEPTION = parseType("IllegalStateException");
-  private static final Type ILLEGAL_ARGUMENT_EXCEPTION = parseType("IllegalArgumentException");
-  private static final Type THREAD_LOCAL = parseType("ThreadLocal");
+  private static final Type ILLEGAL_STATE_EXCEPTION = Type.parse("IllegalStateException");
+  private static final Type ILLEGAL_ARGUMENT_EXCEPTION = Type.parse("IllegalArgumentException");
+  private static final Type THREAD_LOCAL = Type.parse("ThreadLocal");
   private static final Type CALLBACK = Type.fromClass(Callback.class);
   private static final Type CALLBACK_ARRAY = Type.fromClass(Callback[].class);
 

@@ -33,8 +33,6 @@ import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.util.ClassUtils;
 
-import static cn.taketoday.cglib.core.TypeUtils.parseType;
-
 /**
  * @author TODAY <br>
  * 2018-01-16 10:56
@@ -77,31 +75,31 @@ public interface Constant extends Serializable {
   Signature SIG_STATIC = TypeUtils.parseSignature("void <clinit>()");
 
   Type TYPE_CONSTANT = Type.fromClass(Constant.class);
-  Type TYPE_OBJECT_ARRAY = parseType("Object[]");
-  Type TYPE_CLASS_ARRAY = parseType("Class[]");
-  Type TYPE_STRING_ARRAY = parseType("String[]");
+  Type TYPE_OBJECT_ARRAY = Type.parse("Object[]");
+  Type TYPE_CLASS_ARRAY = Type.parse("Class[]");
+  Type TYPE_STRING_ARRAY = Type.parse("String[]");
 
   Type TYPE_TYPE = Type.fromClass(Type.class);
-  Type TYPE_ERROR = parseType("Error");
-  //  Type TYPE_SYSTEM = parseType("System");
-  Type TYPE_LONG = parseType("Long");
-  Type TYPE_BYTE = parseType("Byte");
-  Type TYPE_CLASS = parseType("Class");
-  Type TYPE_FLOAT = parseType("Float");
-  Type TYPE_SHORT = parseType("Short");
-  Type TYPE_OBJECT = parseType("Object");
-  Type TYPE_DOUBLE = parseType("Double");
-  Type TYPE_STRING = parseType("String");
-  Type TYPE_NUMBER = parseType("Number");
-  Type TYPE_BOOLEAN = parseType("Boolean");
-  Type TYPE_INTEGER = parseType("Integer");
-  Type TYPE_CHARACTER = parseType("Character");
-  Type TYPE_THROWABLE = parseType("Throwable");
-  //  Type TYPE_CLASS_LOADER = parseType("ClassLoader");
-  Type TYPE_STRING_BUFFER = parseType("StringBuffer");
-  Type TYPE_BIG_INTEGER = parseType("java.math.BigInteger");
-  Type TYPE_BIG_DECIMAL = parseType("java.math.BigDecimal");
-  Type TYPE_RUNTIME_EXCEPTION = parseType("RuntimeException");
+  Type TYPE_ERROR = Type.parse("Error");
+  //  Type TYPE_SYSTEM = Type.parse("System");
+  Type TYPE_LONG = Type.parse("Long");
+  Type TYPE_BYTE = Type.parse("Byte");
+  Type TYPE_CLASS = Type.parse("Class");
+  Type TYPE_FLOAT = Type.parse("Float");
+  Type TYPE_SHORT = Type.parse("Short");
+  Type TYPE_OBJECT = Type.parse("Object");
+  Type TYPE_DOUBLE = Type.parse("Double");
+  Type TYPE_STRING = Type.parse("String");
+  Type TYPE_NUMBER = Type.parse("Number");
+  Type TYPE_BOOLEAN = Type.parse("Boolean");
+  Type TYPE_INTEGER = Type.parse("Integer");
+  Type TYPE_CHARACTER = Type.parse("Character");
+  Type TYPE_THROWABLE = Type.parse("Throwable");
+  //  Type TYPE_CLASS_LOADER = Type.parse("ClassLoader");
+  Type TYPE_STRING_BUFFER = Type.parse("StringBuffer");
+  Type TYPE_BIG_INTEGER = Type.parse("java.math.BigInteger");
+  Type TYPE_BIG_DECIMAL = Type.parse("java.math.BigDecimal");
+  Type TYPE_RUNTIME_EXCEPTION = Type.parse("RuntimeException");
   Type TYPE_SIGNATURE = Type.fromClass(Signature.class);
 
   String STATIC_NAME = "<clinit>";

@@ -180,14 +180,6 @@ public abstract class TypeUtils {
     return new Signature(methodName, sb.toString());
   }
 
-//  public static Type parseType(Class<?> type) {
-//    return Type.fromClass(type);
-//  }
-
-  public static Type parseType(String s) {
-    return Type.fromDescriptor(map(s));
-  }
-
   public static Type[] parseTypes(String s) {
     List<String> names = parseTypes(s, 0, s.length());
     Type[] types = new Type[names.size()];

@@ -39,7 +39,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
   private static final String FIELD_TYPES = "today$FieldTypes";
 
   private static final Type FIELD_PROVIDER = Type.fromClass(FieldProvider.class);
-  private static final Type ILLEGAL_ARGUMENT_EXCEPTION = TypeUtils.parseType("IllegalArgumentException");
+  private static final Type ILLEGAL_ARGUMENT_EXCEPTION = Type.parse("IllegalArgumentException");
   private static final Signature PROVIDER_GET = TypeUtils.parseSignature("Object getField(String)");
   private static final Signature PROVIDER_SET = TypeUtils.parseSignature("void setField(String, Object)");
   private static final Signature PROVIDER_SET_BY_INDEX = TypeUtils.parseSignature("void setField(int, Object)");

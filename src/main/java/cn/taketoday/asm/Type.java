@@ -29,8 +29,11 @@ package cn.taketoday.asm;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
-import static cn.taketoday.core.Constant.BLANK;
+import cn.taketoday.core.Constant;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * A Java field or method type. This class can be used to make it easier to manipulate type and
@@ -173,36 +176,53 @@ public final class Type {
   // Methods to get Type(s) from a descriptor, a reflected Method or Constructor, other types, etc.
   // -----------------------------------------------------------------------------------------------
 
+
+  private static final HashMap<String, String> transforms = new HashMap<>();
+  private static final HashMap<String, String> rtransforms = new HashMap<>();
+
+  static {
+    transforms.put("void", "V");
+    transforms.put("byte", "B");
+    transforms.put("char", "C");
+    transforms.put("double", "D");
+    transforms.put("float", "F");
+    transforms.put("int", "I");
+    transforms.put("long", "J");
+    transforms.put("short", "S");
+    transforms.put("boolean", "Z");
+
+    CollectionUtils.reverse(transforms, rtransforms);
+  }
+
   /**
    * @since 4.0
    */
-//  public static Type parse(String s) {
-//    return fromDescriptor(map(s));
-//  }
+  public static Type parse(String s) {
+    return fromDescriptor(map(s));
+  }
 
-
-//  private static String map(String type) {
-//    if (BLANK.equals(type)) {
-//      return type;
-//    }
-//    String t = transforms.get(type);
-//    if (t != null) {
-//      return t;
-//    }
-//    else if (type.indexOf('.') < 0) {
-//      return map("java.lang." + type);
-//    }
-//    else {
-//      StringBuilder sb = new StringBuilder();
-//      int index = 0;
-//      while ((index = type.indexOf("[]", index) + 1) > 0) {
-//        sb.append('[');
-//      }
-//      type = type.substring(0, type.length() - sb.length() * 2);
-//      sb.append('L').append(type.replace('.', '/')).append(';');
-//      return sb.toString();
-//    }
-//  }
+  private static String map(String type) {
+    if (Constant.BLANK.equals(type)) {
+      return type;
+    }
+    String t = transforms.get(type);
+    if (t != null) {
+      return t;
+    }
+    else if (type.indexOf('.') < 0) {
+      return map("java.lang." + type);
+    }
+    else {
+      StringBuilder sb = new StringBuilder();
+      int index = 0;
+      while ((index = type.indexOf("[]", index) + 1) > 0) {
+        sb.append('[');
+      }
+      type = type.substring(0, type.length() - sb.length() * 2);
+      sb.append('L').append(type.replace('.', '/')).append(';');
+      return sb.toString();
+    }
+  }
 
   /**
    * Returns the {@link Type} corresponding to the given type descriptor.
@@ -1036,13 +1056,14 @@ public final class Type {
     int begin = valueBegin;
     int end = valueEnd;
     int otherBegin = other.valueBegin;
-    int otherEnd = other.valueEnd;
     // Compare the values.
-    if (end - begin != otherEnd - otherBegin) {
+    if (end - begin != other.valueEnd - otherBegin) {
       return false;
     }
+    final String thisValueBuffer = this.valueBuffer;
+    final String otherValueBuffer = other.valueBuffer;
     for (int i = begin, j = otherBegin; i < end; i++, j++) {
-      if (valueBuffer.charAt(i) != other.valueBuffer.charAt(j)) {
+      if (thisValueBuffer.charAt(i) != otherValueBuffer.charAt(j)) {
         return false;
       }
     }
@@ -1058,6 +1079,7 @@ public final class Type {
   public int hashCode() {
     int hashCode = 13 * (sort == INTERNAL ? OBJECT : sort);
     if (sort >= ARRAY) {
+      final String valueBuffer = this.valueBuffer;
       for (int i = valueBegin, end = valueEnd; i < end; i++) {
         hashCode = 17 * (hashCode + valueBuffer.charAt(i));
       }

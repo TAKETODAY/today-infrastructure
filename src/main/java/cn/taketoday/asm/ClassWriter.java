@@ -316,6 +316,7 @@ public class ClassWriter extends ClassVisitor {
   @Override
   public final ModuleVisitor visitModule(
           final String name, final int access, final String version) {
+    final SymbolTable symbolTable = this.symbolTable;
     return moduleWriter =
             new ModuleWriter(
                     symbolTable,

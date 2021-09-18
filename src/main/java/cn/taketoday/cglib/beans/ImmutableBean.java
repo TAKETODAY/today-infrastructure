@@ -39,7 +39,7 @@ import cn.taketoday.util.ReflectionUtils;
 @SuppressWarnings("all")
 public abstract class ImmutableBean {
 
-  private static final Type ILLEGAL_STATE_EXCEPTION = TypeUtils.parseType("IllegalStateException");
+  private static final Type ILLEGAL_STATE_EXCEPTION = Type.parse("IllegalStateException");
   private static final Signature CSTRUCT_OBJECT = TypeUtils.parseConstructor("Object");
   private static final Class[] OBJECT_CLASSES = { Object.class };
   private static final String FIELD_NAME = "today$RWbean";
