@@ -142,9 +142,11 @@ public class MethodSignatureTest {
 
     assertEquals("(Ljava/lang/Object;)V", withoutDefaultPackage.getDescriptor());
 
-    assertThat(cstruct_object.getDescriptor()).isEqualTo(withoutDefaultPackage.getDescriptor());
+    assertThat(cstruct_object.getDescriptor())
+            .isEqualTo(withoutDefaultPackage.getDescriptor());
+    
     // <init>(Object,Object,Class)
-    MethodSignature cstruct_objects = MethodSignature.forConstructor("Object,Object,Class");
+    MethodSignature cstruct_objects = MethodSignature.forConstructor("Object, Object ,Class ");
     MethodSignature signature =
             MethodSignature.from("void <init>(Object,Object,Class)");
 

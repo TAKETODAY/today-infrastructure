@@ -29,7 +29,6 @@ import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.Local;
 import cn.taketoday.cglib.core.MethodInfo;
-import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.ReflectionUtils;
 

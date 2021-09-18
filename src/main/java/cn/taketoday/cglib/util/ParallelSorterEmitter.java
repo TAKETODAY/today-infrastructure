@@ -23,7 +23,6 @@ import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.Local;
-import cn.taketoday.cglib.core.TypeUtils;
 
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.asm.Opcodes.JAVA_VERSION;
@@ -75,7 +74,7 @@ class ParallelSorterEmitter extends ClassEmitter {
     CodeEmitter e = beginMethod(ACC_PUBLIC, SWAP);
     for (int i = 0; i < arrays.length; i++) {
       Type type = Type.fromClass(arrays[i].getClass());
-      Type component = TypeUtils.getComponentType(type);
+      Type component = type.getComponentType();
       Local T = e.make_local(type);
 
       e.load_this();

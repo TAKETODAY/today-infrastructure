@@ -29,10 +29,13 @@ package cn.taketoday.asm;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.NonNull;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -115,21 +118,24 @@ public final class Type {
   public static final Type DOUBLE_TYPE =
           new Type(DOUBLE, PRIMITIVE_DESCRIPTORS, DOUBLE, DOUBLE + 1);
 
-  private static final HashMap<String, String> transforms = new HashMap<>();
-  private static final HashMap<String, String> rtransforms = new HashMap<>();
+  /** The descriptors of the primitive Java types (plus void). */
+  private static final HashMap<String, String> PRIMITIVE_TYPE_DESCRIPTORS;
+  private static final HashMap<String, String> DESCRIPTOR_PRIMITIVE_TYPES = new HashMap<>();
 
   static {
-    transforms.put("void", "V");
-    transforms.put("byte", "B");
-    transforms.put("char", "C");
-    transforms.put("double", "D");
-    transforms.put("float", "F");
-    transforms.put("int", "I");
-    transforms.put("long", "J");
-    transforms.put("short", "S");
-    transforms.put("boolean", "Z");
+    HashMap<String, String> descriptors = new HashMap<>();
+    descriptors.put("void", "V");
+    descriptors.put("byte", "B");
+    descriptors.put("char", "C");
+    descriptors.put("double", "D");
+    descriptors.put("float", "F");
+    descriptors.put("int", "I");
+    descriptors.put("long", "J");
+    descriptors.put("short", "S");
+    descriptors.put("boolean", "Z");
+    PRIMITIVE_TYPE_DESCRIPTORS = descriptors;
 
-    CollectionUtils.reverse(transforms, rtransforms);
+    CollectionUtils.reverse(PRIMITIVE_TYPE_DESCRIPTORS, DESCRIPTOR_PRIMITIVE_TYPES);
   }
 
   public static final Type TYPE_CONSTANT = Type.fromClass(Constant.class);
@@ -224,14 +230,14 @@ public final class Type {
    * @since 4.0
    */
   public static Type parse(String s) {
-    return fromDescriptor(map(s));
+    return fromDescriptor(getDescriptor(s));
   }
 
   public static String map(String type) {
     if (Constant.BLANK.equals(type)) {
       return type;
     }
-    String t = transforms.get(type);
+    String t = PRIMITIVE_TYPE_DESCRIPTORS.get(type);
     if (t != null) {
       return t;
     }
@@ -654,6 +660,10 @@ public final class Type {
     return clazz.getName().replace('.', '/');
   }
 
+  // -----------------------------------------------------------------------------------------------
+  // Methods to get the descriptor
+  // -----------------------------------------------------------------------------------------------
+
   /**
    * Returns the descriptor corresponding to this type.
    *
@@ -745,6 +755,88 @@ public final class Type {
   }
 
   /**
+   * <pre>
+   *  Object -> Ljava/lang/Object;
+   *  Object, Object ,Class -> Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Class;
+   * </pre>
+   *
+   * @since 4.0
+   */
+  public static String getDescriptor(String parameterTypes) {
+    return getDescriptor(parameterTypes, 0, parameterTypes.length(), false);
+  }
+
+  /**
+   * <pre>
+   *  Object -> Ljava/lang/Object;
+   *  Object, Object ,Class -> Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Class;
+   * </pre>
+   */
+  @NonNull
+  public static String getDescriptor(
+          String parameterTypes, int startIdx, int endIdx, boolean defaultPackage) {
+    StringBuilder argDescriptor = new StringBuilder(parameterTypes.length() + 16);
+    int splitIndex = parameterTypes.indexOf(',');// ,'s index
+    while (splitIndex != -1) {
+      // array -> Object, Object, Class
+      argDescriptor.append(
+              getDescriptor(parameterTypes.substring(startIdx, splitIndex).trim(), defaultPackage)
+      );
+      startIdx = splitIndex + 1;
+      splitIndex = parameterTypes.indexOf(',', startIdx);
+    }
+
+    argDescriptor.append(
+            getDescriptor(parameterTypes.substring(startIdx, endIdx).trim(), defaultPackage)
+    );
+    return argDescriptor.toString();
+  }
+
+  /**
+   * Returns the descriptor corresponding to the given type name.
+   *
+   * @param type
+   *         a Java type name.
+   * @param defaultPackage
+   *         true if unqualified class names belong to the default package, or false
+   *         if they correspond to java.lang classes. For instance "Object" means "Object" if this
+   *         option is true, or "java.lang.Object" otherwise.
+   *
+   * @return the descriptor corresponding to the given type name.
+   */
+  public static String getDescriptor(final String type, final boolean defaultPackage) {
+    if (Constant.BLANK.equals(type)) {
+      return type;
+    }
+
+    StringBuilder stringBuilder = new StringBuilder();
+    int arrayBracketsIndex = 0;
+    while ((arrayBracketsIndex = type.indexOf("[]", arrayBracketsIndex) + 1) > 0) {
+      stringBuilder.append('[');
+    }
+
+    String elementType = type.substring(0, type.length() - stringBuilder.length() * 2);
+    String descriptor = PRIMITIVE_TYPE_DESCRIPTORS.get(elementType);
+    if (descriptor != null) {
+      stringBuilder.append(descriptor);
+    }
+    else {
+      stringBuilder.append('L');
+      if (elementType.indexOf('.') < 0) {
+        if (!defaultPackage) {
+          stringBuilder.append("java/lang/");
+        }
+        stringBuilder.append(elementType);
+      }
+      else {
+        stringBuilder.append(elementType.replace('.', '/'));
+      }
+      stringBuilder.append(';');
+    }
+    return stringBuilder.toString();
+  }
+
+  /**
    * Appends the descriptor corresponding to this type to the given string buffer.
    *
    * @param stringBuilder
@@ -812,6 +904,87 @@ public final class Type {
     }
     else {
       stringBuilder.append('L').append(getInternalName(currentClass)).append(';');
+    }
+  }
+
+  /**
+   * @since 4.0
+   */
+  public Type getComponentType() {
+    if (isArray()) {
+      return fromDescriptor(getDescriptor().substring(1));
+    }
+    throw new IllegalArgumentException("Type " + this + " is not an array");
+  }
+
+  public String emulateClassGetName() {
+    if (isArray()) {
+      return getDescriptor().replace('/', '.');
+    }
+    return getClassName();
+  }
+
+  public static String[] toInternalNames(Type... types) {
+    if (types == null) {
+      return null;
+    }
+    String[] names = new String[types.length];
+    for (int i = 0; i < types.length; i++) {
+      names[i] = types[i].getInternalName();
+    }
+    return names;
+  }
+
+  /**
+   * get Boxed Type
+   *
+   * @return Boxed Type
+   *
+   * @since 4.0
+   */
+  public Type getBoxedType() {
+    switch (getSort()) // @off
+    {
+      case Type.CHAR :    return Type.TYPE_CHARACTER;
+      case Type.BOOLEAN : return Type.TYPE_BOOLEAN;
+      case Type.DOUBLE :  return Type.TYPE_DOUBLE;
+      case Type.FLOAT :   return Type.TYPE_FLOAT;
+      case Type.LONG :    return Type.TYPE_LONG;
+      case Type.INT :     return Type.TYPE_INTEGER;
+      case Type.SHORT :   return Type.TYPE_SHORT;
+      case Type.BYTE :    return Type.TYPE_BYTE;
+      default:
+        return this; // @on
+    }
+  }
+
+  public Type getUnboxedType() {
+    if (Type.TYPE_INTEGER.equals(this)) {
+      return Type.INT_TYPE;
+    }
+    else if (Type.TYPE_BOOLEAN == this) {
+      return Type.BOOLEAN_TYPE;
+    }
+    else if (Type.TYPE_DOUBLE.equals(this)) {
+      return Type.DOUBLE_TYPE;
+    }
+    else if (Type.TYPE_LONG.equals(this)) {
+      return Type.LONG_TYPE;
+    }
+    else if (Type.TYPE_CHARACTER.equals(this)) {
+      return Type.CHAR_TYPE;
+    }
+    else if (Type.TYPE_BYTE.equals(this)) {
+      return Type.BYTE_TYPE;
+    }
+    else if (Type.TYPE_FLOAT.equals(this)) {
+      return Type.FLOAT_TYPE;
+    }
+    else if (Type.TYPE_SHORT.equals(this)) {
+      return Type.SHORT_TYPE;
+    }
+    else {
+      return this;
     }
   }
 
@@ -1042,6 +1215,36 @@ public final class Type {
     return ret;
   }
 
+  public static Type[] parseTypes(String s) {
+    List<String> names = parseTypes(s, 0, s.length());
+    Type[] types = new Type[names.size()];
+    for (int i = 0; i < types.length; i++) {
+      types[i] = Type.fromDescriptor(names.get(i));
+    }
+    return types;
+  }
+
+  private static List<String> parseTypes(String s, int mark, int end) {
+    ArrayList<String> types = new ArrayList<>(5);
+    for (; ; ) {
+      int next = s.indexOf(',', mark);
+      if (next < 0) {
+        break;
+      }
+      types.add(map(s.substring(mark, next).trim()));
+      mark = next + 1;
+    }
+    types.add(map(s.substring(mark, end).trim()));
+    return types;
+  }
+
+  public static int getStackSize(Type[] types) {
+    int size = 0;
+    for (final Type type : types) {
+      size += type.getSize();
+    }
+    return size;
+  }
   // isArray
 
   // @since 4.0

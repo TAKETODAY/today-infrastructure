@@ -50,6 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.asm.ClassReader;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.asm.tree.AnnotationNode;
 import cn.taketoday.asm.tree.ClassNode;
 import cn.taketoday.asm.tree.FieldNode;
@@ -294,7 +295,7 @@ public class ClassMetaReader {
   private static MethodNode getMethodNode(Executable executable) {
     ClassNode classNode = read(executable.getDeclaringClass());
     boolean isConstructor = executable instanceof Constructor;
-    String name = isConstructor ? "<init>" : executable.getName();
+    String name = isConstructor ? MethodSignature.CONSTRUCTOR_NAME : executable.getName();
     for (final MethodNode method : classNode.methods) {
       if (Objects.equals(name, method.name)) {
         String descriptor = getDescriptor(executable, isConstructor);

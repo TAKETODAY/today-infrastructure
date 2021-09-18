@@ -45,6 +45,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.expression.util.ReflectionUtil.findConstructor;
@@ -221,7 +222,7 @@ public class StaticFieldExpressionResolver extends ExpressionResolver {
     String name = (String) method;
 
     Object ret;
-    if ("<init>".equals(name)) {
+    if (MethodSignature.CONSTRUCTOR_NAME.equals(name)) {
       Constructor<?> constructor = findConstructor(klass, paramTypes, params);
       ret = invokeConstructor(context, constructor, params);
     }

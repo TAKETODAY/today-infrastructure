@@ -116,7 +116,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
     super(methodVisitor, access, name, descriptor);
     methodAccess = access;
     methodDesc = descriptor;
-    isConstructor = "<init>".equals(name);
+    isConstructor = MethodSignature.CONSTRUCTOR_NAME.equals(name);
   }
 
   @Override
@@ -475,7 +475,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
           Object value = popValue();
           if (value == UNINITIALIZED_THIS
                   && !superClassConstructorCalled
-                  && name.equals("<init>")) {
+                  && name.equals(MethodSignature.CONSTRUCTOR_NAME)) {
             superClassConstructorCalled = true;
             onMethodEnter();
           }

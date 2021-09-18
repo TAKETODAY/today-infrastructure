@@ -22,6 +22,7 @@ import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
 import cn.taketoday.core.Constant;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY <br>
@@ -42,7 +43,7 @@ public class AccessFieldTransformer extends ClassEmitterTransformer {
   public void declare_field(int access, final String name, Type type, Object value) {
     super.declare_field(access, name, type, value);
 
-    String property = TypeUtils.upperFirst(callback.getPropertyName(getClassType(), name));
+    String property = StringUtils.capitalize(callback.getPropertyName(getClassType(), name));
     if (property != null) {
       CodeEmitter e;
       e = beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature("get" + property, type, Constant.TYPES_EMPTY_ARRAY));

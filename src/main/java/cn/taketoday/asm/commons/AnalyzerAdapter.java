@@ -129,7 +129,7 @@ public class AnalyzerAdapter extends MethodVisitor {
     uninitializedTypes = new HashMap<>();
 
     if ((access & Opcodes.ACC_STATIC) == 0) {
-      if ("<init>".equals(name)) {
+      if (MethodSignature.CONSTRUCTOR_NAME.equals(name)) {
         locals.add(Opcodes.UNINITIALIZED_THIS);
       }
       else {
@@ -280,7 +280,7 @@ public class AnalyzerAdapter extends MethodVisitor {
     pop(descriptor);
     if (opcode != Opcodes.INVOKESTATIC) {
       Object value = pop();
-      if (opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {
+      if (opcode == Opcodes.INVOKESPECIAL && name.equals(MethodSignature.CONSTRUCTOR_NAME)) {
         Object initializedValue;
         if (value == Opcodes.UNINITIALIZED_THIS) {
           initializedValue = this.owner;

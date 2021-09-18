@@ -18,11 +18,11 @@ package cn.taketoday.cglib.proxy;
 import java.lang.reflect.Modifier;
 import java.util.List;
 
+import cn.taketoday.asm.Opcodes;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.MethodInfo;
-import cn.taketoday.cglib.core.TypeUtils;
 
 /**
  * @author TODAY <br>
@@ -33,11 +33,15 @@ class NoOpGenerator implements CallbackGenerator {
 
   public static final NoOpGenerator INSTANCE = new NoOpGenerator();
 
+  public static boolean isBridge(int access) {
+    return (Opcodes.ACC_BRIDGE & access) != 0;
+  }
+
   public void generate(ClassEmitter ce, Context context, List methods) {
 
     for (Object object : methods) {
       MethodInfo method = (MethodInfo) object;
-      if (TypeUtils.isBridge(method.getModifiers()) //
+      if (isBridge(method.getModifiers()) //
               || (Modifier.isProtected(context.getOriginalModifiers(method)) && Modifier.isPublic(method.getModifiers()))) {
 
         CodeEmitter e = EmitUtils.beginMethod(ce, method);
@@ -50,5 +54,5 @@ class NoOpGenerator implements CallbackGenerator {
 
   }
 
-  public void generateStatic(CodeEmitter e, Context context, List methods) {}
+  public void generateStatic(CodeEmitter e, Context context, List methods) { }
 }

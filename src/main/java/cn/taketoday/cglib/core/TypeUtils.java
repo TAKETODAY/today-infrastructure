@@ -15,80 +15,17 @@
  */
 package cn.taketoday.cglib.core;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 
-import static cn.taketoday.core.Constant.BLANK;
-
 /**
  * @author TODAY <br>
  * 2019-09-03 14:19
  */
 public abstract class TypeUtils {
-
-  private static final Map<String, String> transforms = new HashMap<>();
-  private static final Map<String, String> rtransforms = new HashMap<>();
-
-  static {
-    transforms.put("void", "V");
-    transforms.put("byte", "B");
-    transforms.put("char", "C");
-    transforms.put("double", "D");
-    transforms.put("float", "F");
-    transforms.put("int", "I");
-    transforms.put("long", "J");
-    transforms.put("short", "S");
-    transforms.put("boolean", "Z");
-
-    CollectionUtils.reverse(transforms, rtransforms);
-  }
-
-  public static Type getType(String className) {
-    return Type.fromDescriptor('L' + className.replace('.', '/') + ';');
-  }
-
-  public static boolean isSynthetic(int access) {
-    return (Opcodes.ACC_SYNTHETIC & access) != 0;
-  }
-
-  public static boolean isBridge(int access) {
-    return (Opcodes.ACC_BRIDGE & access) != 0;
-  }
-
-  // getPackage returns null on JDK 1.2
-  public static String getPackageName(Type type) {
-    return getPackageName(getClassName(type));
-  }
-
-  public static String getPackageName(String className) {
-    int idx = className.lastIndexOf('.');
-    return (idx < 0) ? BLANK : className.substring(0, idx);
-  }
-
-  public static String upperFirst(String s) {
-    if (s == null || s.length() == 0) {
-      return s;
-    }
-    return Character.toUpperCase(s.charAt(0)) + s.substring(1);
-  }
-
-  public static String getClassName(Type type) {
-    if (type.isPrimitive()) {
-      return rtransforms.get(type.getDescriptor());
-    }
-    if (type.isArray()) {
-      return getClassName(getComponentType(type)) + "[]";
-    }
-    return type.getClassName();
-  }
 
   public static Type[] add(Type[] types, Type extra) {
     return add(types, extra, false);
@@ -134,131 +71,6 @@ public abstract class TypeUtils {
       types[i] = fromInternalName(names[i]);
     }
     return types;
-  }
-
-  public static int getStackSize(Type[] types) {
-    int size = 0;
-    for (final Type type : types) {
-      size += type.getSize();
-    }
-    return size;
-  }
-
-  public static String[] toInternalNames(Type... types) {
-    if (types == null) {
-      return null;
-    }
-    String[] names = new String[types.length];
-    for (int i = 0; i < types.length; i++) {
-      names[i] = types[i].getInternalName();
-    }
-    return names;
-  }
-
-  public static Type[] parseTypes(String s) {
-    List<String> names = parseTypes(s, 0, s.length());
-    Type[] types = new Type[names.size()];
-    for (int i = 0; i < types.length; i++) {
-      types[i] = Type.fromDescriptor(names.get(i));
-    }
-    return types;
-  }
-
-  private static List<String> parseTypes(String s, int mark, int end) {
-    ArrayList<String> types = new ArrayList<>(5);
-    for (; ; ) {
-      int next = s.indexOf(',', mark);
-      if (next < 0) {
-        break;
-      }
-      types.add(map(s.substring(mark, next).trim()));
-      mark = next + 1;
-    }
-    types.add(map(s.substring(mark, end).trim()));
-    return types;
-  }
-
-  private static String map(String type) {
-    if (BLANK.equals(type)) {
-      return type;
-    }
-    String t = transforms.get(type);
-    if (t != null) {
-      return t;
-    }
-    else if (type.indexOf('.') < 0) {
-      return map("java.lang." + type);
-    }
-    else {
-      StringBuilder sb = new StringBuilder();
-      int index = 0;
-      while ((index = type.indexOf("[]", index) + 1) > 0) {
-        sb.append('[');
-      }
-      type = type.substring(0, type.length() - sb.length() * 2);
-      sb.append('L').append(type.replace('.', '/')).append(';');
-      return sb.toString();
-    }
-  }
-
-  public static Type getBoxedType(Type type) {
-    switch (type.getSort()) //@off
-        {
-            case Type.CHAR :    return Type.TYPE_CHARACTER;
-            case Type.BOOLEAN : return Type.TYPE_BOOLEAN;
-            case Type.DOUBLE :  return Type.TYPE_DOUBLE;
-            case Type.FLOAT :   return Type.TYPE_FLOAT;
-            case Type.LONG :    return Type.TYPE_LONG;
-            case Type.INT :     return Type.TYPE_INTEGER;
-            case Type.SHORT :   return Type.TYPE_SHORT;
-            case Type.BYTE :    return Type.TYPE_BYTE;
-            default:
-              return type; //@on
-        }
-  }
-
-  public static Type getUnboxedType(Type type) {
-    if (Type.TYPE_INTEGER.equals(type)) {
-      return Type.INT_TYPE;
-    }
-    else if (Type.TYPE_BOOLEAN.equals(type)) {
-      return Type.BOOLEAN_TYPE;
-    }
-    else if (Type.TYPE_DOUBLE.equals(type)) {
-      return Type.DOUBLE_TYPE;
-    }
-    else if (Type.TYPE_LONG.equals(type)) {
-      return Type.LONG_TYPE;
-    }
-    else if (Type.TYPE_CHARACTER.equals(type)) {
-      return Type.CHAR_TYPE;
-    }
-    else if (Type.TYPE_BYTE.equals(type)) {
-      return Type.BYTE_TYPE;
-    }
-    else if (Type.TYPE_FLOAT.equals(type)) {
-      return Type.FLOAT_TYPE;
-    }
-    else if (Type.TYPE_SHORT.equals(type)) {
-      return Type.SHORT_TYPE;
-    }
-    else {
-      return type;
-    }
-  }
-
-  public static Type getComponentType(Type type) {
-    if (type.isArray()) {
-      return Type.fromDescriptor(type.getDescriptor().substring(1));
-    }
-    throw new IllegalArgumentException("Type " + type + " is not an array");
-  }
-
-  public static String emulateClassGetName(Type type) {
-    if (type.isArray()) {
-      return type.getDescriptor().replace('/', '.');
-    }
-    return getClassName(type);
   }
 
   public static boolean isConstructor(MethodInfo method) {

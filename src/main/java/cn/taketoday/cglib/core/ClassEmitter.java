@@ -127,7 +127,7 @@ public class ClassEmitter extends ClassTransformer {
       }
     };
     cv.visit(version, access, classInfo.getType().getInternalName(), null,
-             classInfo.getSuperType().getInternalName(), TypeUtils.toInternalNames(interfaces));
+             classInfo.getSuperType().getInternalName(), Type.toInternalNames(interfaces));
 
     if (source != null)
       cv.visitSource(source, null);
@@ -184,7 +184,7 @@ public class ClassEmitter extends ClassTransformer {
         return access;
       }
     };
-    cv.visit(version, access, name, null, superType.getInternalName(), TypeUtils.toInternalNames(array));
+    cv.visit(version, access, name, null, superType.getInternalName(), Type.toInternalNames(array));
 
     if (source != null) {
       cv.visitSource(source, null);
@@ -243,8 +243,8 @@ public class ClassEmitter extends ClassTransformer {
       throw new IllegalStateException("classInfo is null! " + this);
     }
 
-    final MethodVisitor visitor = cv.visitMethod(access, sig.getName(), sig.getDescriptor(),
-                                                 null, TypeUtils.toInternalNames(exceptions));
+    final MethodVisitor visitor = cv.visitMethod(
+            access, sig.getName(), sig.getDescriptor(), null, Type.toInternalNames(exceptions));
 
     if (sig.equals(MethodSignature.SIG_STATIC) && !Modifier.isInterface(getAccess())) {
       return begin_static(true, visitor);
@@ -267,9 +267,8 @@ public class ClassEmitter extends ClassTransformer {
 
   public CodeEmitter begin_static(boolean hook) {
     final MethodSignature sigStatic = MethodSignature.SIG_STATIC;
-    return begin_static(hook, cv.visitMethod(Opcodes.ACC_STATIC,
-                                             sigStatic.getName(),
-                                             sigStatic.getDescriptor(), null, null));
+    return begin_static(hook, cv.visitMethod(
+            Opcodes.ACC_STATIC, sigStatic.getName(), sigStatic.getDescriptor(), null, null));
   }
 
   public CodeEmitter begin_static(boolean hook, MethodVisitor visitor) {

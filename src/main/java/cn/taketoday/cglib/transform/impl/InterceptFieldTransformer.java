@@ -25,6 +25,7 @@ import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.Local;
 import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
+import cn.taketoday.util.StringUtils;
 
 import static cn.taketoday.asm.Type.array;
 
@@ -199,6 +200,6 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
   }
 
   private static String callbackName(Type type) {
-    return (type == Type.TYPE_OBJECT) ? "Object" : TypeUtils.upperFirst(TypeUtils.getClassName(type));
+    return (type == Type.TYPE_OBJECT) ? "Object" : StringUtils.capitalize(type.getClassName());
   }
 }

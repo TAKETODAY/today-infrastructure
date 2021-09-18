@@ -25,7 +25,6 @@ import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.Constant;
 
 /**
  * @author Juozas Baliuka, Chris Nokleberg
@@ -803,8 +802,7 @@ public class CodeEmitter extends LocalVariablesSorter {
         aconst_null();
       }
       else {
-        Type boxed = TypeUtils.getBoxedType(type);
-
+        Type boxed = type.getBoxedType();
         visitMethodInsn(Opcodes.INVOKESTATIC,
                         boxed.getInternalName(),
                         "valueOf",
@@ -821,7 +819,7 @@ public class CodeEmitter extends LocalVariablesSorter {
    */
   @Deprecated
   private void newInstanceBox(Type type) {
-    Type boxed = TypeUtils.getBoxedType(type);
+    Type boxed = type.getBoxedType();
 
     new_instance(boxed);
     if (type.getSize() == 2) {

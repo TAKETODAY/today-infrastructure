@@ -30,11 +30,8 @@ package cn.taketoday.asm.commons;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
 import cn.taketoday.asm.Type;
-import cn.taketoday.core.Constant;
 
 /**
  * A named method descriptor.
@@ -58,23 +55,6 @@ public class MethodSignature {
 
   /** The method descriptor. */
   private final String descriptor;
-
-  /** The descriptors of the primitive Java types (plus void). */
-  private static final Map<String, String> PRIMITIVE_TYPE_DESCRIPTORS;
-
-  static {
-    HashMap<String, String> descriptors = new HashMap<>();
-    descriptors.put("void", "V");
-    descriptors.put("byte", "B");
-    descriptors.put("char", "C");
-    descriptors.put("double", "D");
-    descriptors.put("float", "F");
-    descriptors.put("int", "I");
-    descriptors.put("long", "J");
-    descriptors.put("short", "S");
-    descriptors.put("boolean", "Z");
-    PRIMITIVE_TYPE_DESCRIPTORS = descriptors;
-  }
 
   /**
    * Constructs a new {@link MethodSignature}.
@@ -148,24 +128,8 @@ public class MethodSignature {
    * @return MethodSignature
    */
   public static MethodSignature forConstructor(final String parameterTypes) {
-    StringBuilder descriptor = new StringBuilder(parameterTypes.length() + 16);
-
-    int startIdx = 0;
-    int splitIndex = parameterTypes.indexOf(',', startIdx);// ,'s index
-    while (splitIndex != -1) {
-      // array -> Object, Object, Class
-      descriptor.append(
-              getDescriptor(parameterTypes.substring(startIdx, splitIndex).trim(), false)
-      );
-      startIdx = splitIndex + 1;
-      splitIndex = parameterTypes.indexOf(',', startIdx);
-    }
-
-    descriptor.append(
-            getDescriptor(parameterTypes.substring(startIdx).trim(), false)
-    );
-
-    return new MethodSignature(CONSTRUCTOR_NAME, '(' + descriptor.toString() + ")V");
+    String descriptor = Type.getDescriptor(parameterTypes);
+    return new MethodSignature(CONSTRUCTOR_NAME, '(' + descriptor + ")V");
   }
 
   public static MethodSignature forConstructor(Type... parameterTypes) {
@@ -215,81 +179,22 @@ public class MethodSignature {
    */
   public static MethodSignature from(final String method, final boolean defaultPackage) {
     final int spaceIndex = method.indexOf(' ');
-    int currentArgumentStartIndex = method.indexOf('(', spaceIndex) + 1;
-    final int endIndex = method.indexOf(')', currentArgumentStartIndex);
-    if (spaceIndex == -1 || currentArgumentStartIndex == 0 || endIndex == -1) {
+    int argumentStartIndex = method.indexOf('(', spaceIndex) + 1;
+    final int endIndex = method.indexOf(')', argumentStartIndex);
+    if (spaceIndex == -1 || argumentStartIndex == 0 || endIndex == -1) {
       throw new IllegalArgumentException();
     }
+
     final String returnType = method.substring(0, spaceIndex);
     final String methodName =
-            method.substring(spaceIndex + 1, currentArgumentStartIndex - 1).trim();
+            method.substring(spaceIndex + 1, argumentStartIndex - 1).trim();
     StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.append('(');
-    int currentArgumentEndIndex;
-    do {
-      String argumentDescriptor;
-      currentArgumentEndIndex = method.indexOf(',', currentArgumentStartIndex);
-      if (currentArgumentEndIndex == -1) {
-        argumentDescriptor =
-                getDescriptor(
-                        method.substring(currentArgumentStartIndex, endIndex).trim(), defaultPackage);
-      }
-      else {
-        argumentDescriptor =
-                getDescriptor(
-                        method.substring(currentArgumentStartIndex, currentArgumentEndIndex).trim(),
-                        defaultPackage);
-        currentArgumentStartIndex = currentArgumentEndIndex + 1;
-      }
-      stringBuilder.append(argumentDescriptor);
-    }
-    while (currentArgumentEndIndex != -1);
-    stringBuilder.append(')').append(getDescriptor(returnType, defaultPackage));
+
+    final String descriptor = Type.getDescriptor(method, argumentStartIndex, endIndex, defaultPackage);
+    stringBuilder.append(descriptor);
+    stringBuilder.append(')').append(Type.getDescriptor(returnType, defaultPackage));
     return new MethodSignature(methodName, stringBuilder.toString());
-  }
-
-  /**
-   * Returns the descriptor corresponding to the given type name.
-   *
-   * @param type
-   *         a Java type name.
-   * @param defaultPackage
-   *         true if unqualified class names belong to the default package, or false
-   *         if they correspond to java.lang classes. For instance "Object" means "Object" if this
-   *         option is true, or "java.lang.Object" otherwise.
-   *
-   * @return the descriptor corresponding to the given type name.
-   */
-  private static String getDescriptor(final String type, final boolean defaultPackage) {
-    if (Constant.BLANK.equals(type)) {
-      return type;
-    }
-
-    StringBuilder stringBuilder = new StringBuilder();
-    int arrayBracketsIndex = 0;
-    while ((arrayBracketsIndex = type.indexOf("[]", arrayBracketsIndex) + 1) > 0) {
-      stringBuilder.append('[');
-    }
-
-    String elementType = type.substring(0, type.length() - stringBuilder.length() * 2);
-    String descriptor = PRIMITIVE_TYPE_DESCRIPTORS.get(elementType);
-    if (descriptor != null) {
-      stringBuilder.append(descriptor);
-    }
-    else {
-      stringBuilder.append('L');
-      if (elementType.indexOf('.') < 0) {
-        if (!defaultPackage) {
-          stringBuilder.append("java/lang/");
-        }
-        stringBuilder.append(elementType);
-      }
-      else {
-        stringBuilder.append(elementType.replace('.', '/'));
-      }
-      stringBuilder.append(';');
-    }
-    return stringBuilder.toString();
   }
 
   /**

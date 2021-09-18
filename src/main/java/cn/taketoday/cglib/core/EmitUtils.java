@@ -35,6 +35,7 @@ import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.internal.CustomizerRegistry;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.StringUtils;
 
 @SuppressWarnings("all")
 public abstract class EmitUtils {
@@ -95,7 +96,7 @@ public abstract class EmitUtils {
    *         the callback triggered for each element
    */
   public static void processArray(CodeEmitter e, Type type, ProcessArrayCallback callback) {
-    Type componentType = TypeUtils.getComponentType(type);
+    Type componentType = type.getComponentType();
     Local array = e.make_local();
     Local loopvar = e.make_local(Type.INT_TYPE);
     Label loopbody = e.make_label();
@@ -131,7 +132,7 @@ public abstract class EmitUtils {
    *         the callback triggered for each pair of elements
    */
   public static void processArrays(CodeEmitter e, Type type, ProcessArrayCallback callback) {
-    Type componentType = TypeUtils.getComponentType(type);
+    Type componentType = type.getComponentType();
     Local array1 = e.make_local();
     Local array2 = e.make_local();
     Local loopvar = e.make_local(Type.INT_TYPE);
@@ -315,7 +316,7 @@ public abstract class EmitUtils {
       if (type == Type.VOID_TYPE) {
         throw new IllegalArgumentException("cannot load void type");
       }
-      e.getstatic(TypeUtils.getBoxedType(type), "TYPE", Type.TYPE_CLASS);
+      e.getstatic(type.getBoxedType(), "TYPE", Type.TYPE_CLASS);
     }
     else {
       loadClassHelper(e, type);
@@ -325,12 +326,12 @@ public abstract class EmitUtils {
   private static void loadClassHelper(CodeEmitter e, final Type type) {
     if (e.isStaticHook()) {
       // have to fall back on non-optimized load
-      e.push(TypeUtils.emulateClassGetName(type));
+      e.push(type.emulateClassGetName());
       e.invoke_static(Type.TYPE_CLASS, FOR_NAME);
     }
     else {
       ClassEmitter ce = e.getClassEmitter();
-      String typeName = TypeUtils.emulateClassGetName(type);
+      String typeName = type.emulateClassGetName();
 
       // TODO: can end up with duplicated field names when using chained transformers;
       // incorporate static hook # somehow
@@ -843,7 +844,7 @@ public abstract class EmitUtils {
           e.dup();
           e.aaload(i);
           e.invoke_virtual(Type.TYPE_CLASS, GET_NAME);
-          e.push(TypeUtils.emulateClassGetName(types[i]));
+          e.push(types[i].emulateClassGetName());
           e.invoke_virtual(Type.TYPE_OBJECT, EQUALS);
           e.if_jump(CodeEmitter.EQ, def);
         }
@@ -860,7 +861,8 @@ public abstract class EmitUtils {
         final int j = i;
 
         final Map<String, List<MethodInfo>> test = CollectionUtils.buckets(members, (MethodInfo value) -> {
-          return TypeUtils.emulateClassGetName(typer.getParameterTypes(value)[j]);
+          final Type[] parameterTypes = typer.getParameterTypes(value);
+          return parameterTypes[j].emulateClassGetName();
         });
 
         if (buckets == null || test.size() > buckets.size()) {
@@ -918,7 +920,7 @@ public abstract class EmitUtils {
   }
 
   public static void addProperty(ClassEmitter ce, String name, Type type, String fieldName) {
-    String property = TypeUtils.upperFirst(name);
+    final String property = StringUtils.capitalize(name);
     CodeEmitter e;
     e = ce.beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature("get" + property, type, Constant.TYPES_EMPTY_ARRAY));
     e.load_this();

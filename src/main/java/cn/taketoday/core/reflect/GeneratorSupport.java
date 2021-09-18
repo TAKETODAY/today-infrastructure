@@ -34,7 +34,6 @@ import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.CodeGenerationException;
 import cn.taketoday.cglib.core.DefaultGeneratorStrategy;
 import cn.taketoday.cglib.core.EmitUtils;
-import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.util.ClassUtils;
@@ -210,14 +209,14 @@ public abstract class GeneratorSupport<T extends Accessor> {
       Class<?> parameterClass = parameterTypes[i];
       final Type parameterType = Type.fromClass(parameterClass);
       if (parameterClass.isPrimitive()) {
-        final Type boxedType = TypeUtils.getBoxedType(parameterType); // java.lang.Long ...
+        final Type boxedType = parameterType.getBoxedType(); // java.lang.Long ...
         codeEmitter.checkcast(boxedType);
 
         // use "convert" method
         final String descriptor = boxedType.getDescriptor();
-        codeEmitter.visitMethodInsn(INVOKESTATIC,
-                                    GENERATOR_SUPPORT_TYPE_INTERNAL_NAME,
-                                    "convert", '(' + descriptor + ')' + parameterType.getDescriptor(), false);
+        codeEmitter.visitMethodInsn(
+                INVOKESTATIC, GENERATOR_SUPPORT_TYPE_INTERNAL_NAME,
+                "convert", '(' + descriptor + ')' + parameterType.getDescriptor(), false);
       }
       else {
         codeEmitter.checkcast(parameterType);
