@@ -18,8 +18,8 @@ package cn.taketoday.cglib.proxy;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.CodeGenerationException;
-import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.reflect.FastClass;
 
 /**
@@ -38,10 +38,10 @@ public class MethodProxy {
   private final FastClass f1;
   private final FastClass f2;
 
-  private final Signature sig1;
-  private final Signature sig2;
+  private final MethodSignature sig1;
+  private final MethodSignature sig2;
 
-  private MethodProxy(Signature sig1, Signature sig2, int i1, int i2, FastClass f1, FastClass f2) {
+  private MethodProxy(MethodSignature sig1, MethodSignature sig2, int i1, int i2, FastClass f1, FastClass f2) {
     this.sig1 = sig1;
     this.sig2 = sig2;
     this.f1 = f1;
@@ -56,8 +56,8 @@ public class MethodProxy {
    * functionality.
    */
   public static MethodProxy create(Class<?> c1, Class<?> c2, String desc, String name1, String name2) {
-    final Signature sig1 = new Signature(name1, desc);
-    final Signature sig2 = new Signature(name2, desc);
+    final MethodSignature sig1 = new MethodSignature(name1, desc);
+    final MethodSignature sig2 = new MethodSignature(name2, desc);
     final FastClass f1 = FastClass.create(c1);
     final FastClass f2 = FastClass.create(c2);
 
@@ -67,7 +67,7 @@ public class MethodProxy {
   /**
    * Return the signature of the proxied method.
    */
-  public Signature getSignature() {
+  public MethodSignature getSignature() {
     return sig1;
   }
 
@@ -118,7 +118,7 @@ public class MethodProxy {
    *         if the Class was not created by Enhancer or does not use a
    *         MethodInterceptor
    */
-  public static MethodProxy find(Class<?> type, Signature sig) {
+  public static MethodProxy find(Class<?> type, MethodSignature sig) {
     try {
       Method m = type.getDeclaredMethod(MethodInterceptorGenerator.FIND_PROXY_NAME,
                                         MethodInterceptorGenerator.FIND_PROXY_TYPES);

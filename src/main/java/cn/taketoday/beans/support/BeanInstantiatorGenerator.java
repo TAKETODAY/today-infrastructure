@@ -25,12 +25,12 @@ import java.lang.reflect.Modifier;
 
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.ClassGenerator;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.MethodInfo;
-import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.reflect.GeneratorSupport;
 import cn.taketoday.logger.LoggerFactory;
@@ -85,7 +85,7 @@ public class BeanInstantiatorGenerator
 
     prepareParameters(codeEmitter, this.targetConstructor);
 
-    Signature signature = new Signature(this.targetConstructor);
+    MethodSignature signature = MethodSignature.from(this.targetConstructor);
     codeEmitter.invoke_constructor(type, signature);
 
     codeEmitter.return_value();

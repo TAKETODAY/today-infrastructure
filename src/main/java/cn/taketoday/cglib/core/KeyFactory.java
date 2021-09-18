@@ -25,6 +25,7 @@ import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.internal.CustomizerRegistry;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.ReflectionUtils;
@@ -70,13 +71,13 @@ import static cn.taketoday.asm.Type.array;
 abstract public class KeyFactory {
 
   private static final Type KEY_FACTORY = Type.fromClass(KeyFactory.class);
-  private static final Signature GET_SORT = TypeUtils.parseSignature("int getSort()");
-  private static final Signature HASH_CODE = TypeUtils.parseSignature("int hashCode()");
-  private static final Signature GET_NAME = TypeUtils.parseSignature("String getName()");
-  private static final Signature GET_CLASS = TypeUtils.parseSignature("Class getClass()");
-  private static final Signature TO_STRING = TypeUtils.parseSignature("String toString()");
-  private static final Signature EQUALS = TypeUtils.parseSignature("boolean equals(Object)");
-  private static final Signature APPEND_STRING = TypeUtils.parseSignature("StringBuffer append(String)");
+  private static final MethodSignature GET_SORT = MethodSignature.from("int getSort()");
+  private static final MethodSignature HASH_CODE = MethodSignature.from("int hashCode()");
+  private static final MethodSignature GET_NAME = MethodSignature.from("String getName()");
+  private static final MethodSignature GET_CLASS = MethodSignature.from("Class getClass()");
+  private static final MethodSignature TO_STRING = MethodSignature.from("String toString()");
+  private static final MethodSignature EQUALS = MethodSignature.from("boolean equals(Object)");
+  private static final MethodSignature APPEND_STRING = MethodSignature.from("StringBuffer append(String)");
 
   // generated numbers:
   private final static int PRIMES[] = { //
@@ -136,7 +137,7 @@ abstract public class KeyFactory {
     e.invoke_virtual(Type.TYPE_OBJECT, GET_CLASS);
   };
 
-  protected KeyFactory() {}
+  protected KeyFactory() { }
 
   public static <T> T create(Class<T> keyInterface) {
     return create(keyInterface, null);
@@ -253,10 +254,10 @@ abstract public class KeyFactory {
       );
 
       EmitUtils.nullConstructor(ce);
-      EmitUtils.factoryMethod(ce, Signature.fromMember(newInstance));
+      EmitUtils.factoryMethod(ce, MethodSignature.from(newInstance));
 
       int seed = 0;
-      CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, TypeUtils.parseConstructor(parameterTypes));
+      CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, MethodSignature.forConstructor(parameterTypes));
       e.load_this();
       e.super_invoke_constructor();
       e.load_this();

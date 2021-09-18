@@ -20,9 +20,9 @@ import java.lang.reflect.Modifier;
 
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.CodeGenerationException;
-import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
 import cn.taketoday.core.Constant;
@@ -34,7 +34,7 @@ import cn.taketoday.core.Constant;
 public class AddDelegateTransformer extends ClassEmitterTransformer {
 
   private static final String DELEGATE = "$TODAY_DELEGATE";
-  private static final Signature CSTRUCT_OBJECT = TypeUtils.parseSignature("void <init>(Object)");
+  private static final MethodSignature CSTRUCT_OBJECT = MethodSignature.from("void <init>(Object)");
 
   private Class[] delegateIf;
   private Class delegateImpl;
@@ -84,10 +84,10 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
   }
 
   @Override
-  public CodeEmitter beginMethod(int access, Signature sig, Type... exceptions) {
+  public CodeEmitter beginMethod(int access, MethodSignature sig, Type... exceptions) {
 
     final CodeEmitter e = super.beginMethod(access, sig, exceptions);
-    if (sig.getName().equals(Constant.CONSTRUCTOR_NAME)) {
+    if (sig.getName().equals(MethodSignature.CONSTRUCTOR_NAME)) {
 
       return new CodeEmitter(e) {
         private boolean transformInit = true;
@@ -122,7 +122,7 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
       throw new CodeGenerationException(e);
     }
 
-    final Signature sig = Signature.fromMember(m);
+    final MethodSignature sig = MethodSignature.from(m);
     Type[] exceptions = TypeUtils.getTypes(m.getExceptionTypes());
     CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, sig, exceptions);
     e.load_this();

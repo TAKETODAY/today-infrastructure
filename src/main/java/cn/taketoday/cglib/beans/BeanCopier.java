@@ -23,6 +23,7 @@ import java.util.Map;
 
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
@@ -32,8 +33,6 @@ import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.KeyFactory;
 import cn.taketoday.cglib.core.Local;
 import cn.taketoday.cglib.core.MethodInfo;
-import cn.taketoday.cglib.core.Signature;
-import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
@@ -51,10 +50,10 @@ abstract public class BeanCopier {
 
   private static final BeanCopierKey KEY_FACTORY = (BeanCopierKey) KeyFactory.create(BeanCopierKey.class);
 
-  private static final Signature COPY = new Signature(
+  private static final MethodSignature COPY = new MethodSignature(
           "copy", Type.VOID_TYPE, Type.array(Type.TYPE_OBJECT, Type.TYPE_OBJECT, CONVERTER));
 
-  private static final Signature CONVERT = TypeUtils.parseSignature("Object convert(Object, Class, Object)");
+  private static final MethodSignature CONVERT = MethodSignature.from("Object convert(Object, Class, Object)");
 
   interface BeanCopierKey {
     public Object newInstance(String source, String target, boolean useConverter);

@@ -43,6 +43,7 @@ package cn.taketoday.expression.parser;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.core.Constant;
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.FunctionMapper;
@@ -156,7 +157,7 @@ public final class AstFunction extends SimpleNode {
         Class<?> c = ctx.getImportHandler().resolveClass(localName);
         String methodName = null;
         if (c != null) {
-          methodName = Constant.CONSTRUCTOR_NAME;
+          methodName = MethodSignature.CONSTRUCTOR_NAME;
         }
         else {
           // Check if this is a imported static method

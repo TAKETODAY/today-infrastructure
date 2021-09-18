@@ -30,6 +30,7 @@ import cn.taketoday.aop.proxy.StandardProxyInvoker;
 import cn.taketoday.aop.proxy.TargetInvocation;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
@@ -37,7 +38,6 @@ import cn.taketoday.cglib.core.CodeGenerationException;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.Local;
 import cn.taketoday.cglib.core.MethodInfo;
-import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -46,42 +46,42 @@ import cn.taketoday.util.StringUtils;
  */
 public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
 
-  private static final Signature proceed;
-  private static final Signature dynamicProceed;
-  private static final Signature staticExposeProceed;
-  private static final Signature dynamicExposeProceed;
-  private static final Signature dynamicAdvisedProceed;
+  private static final MethodSignature proceed;
+  private static final MethodSignature dynamicProceed;
+  private static final MethodSignature staticExposeProceed;
+  private static final MethodSignature dynamicExposeProceed;
+  private static final MethodSignature dynamicAdvisedProceed;
 
   private static final Type stdProxyInvoker = Type.fromClass(StandardProxyInvoker.class);
   private static final Type targetInvocationType = Type.fromClass(TargetInvocation.class);
 
   static {
     try {
-      proceed = new Signature(StandardProxyInvoker.class.getMethod("proceed",
+      final Class<StandardProxyInvoker> aClass = StandardProxyInvoker.class;
+      proceed = MethodSignature.from(aClass.getMethod("proceed",
+                                                      Object.class,
+                                                      TargetInvocation.class,
+                                                      Object[].class));
+      dynamicProceed = MethodSignature.from(aClass.getMethod("dynamicProceed",
+                                                             TargetSource.class,
+                                                             TargetInvocation.class,
+                                                             Object[].class));
+      dynamicExposeProceed = MethodSignature.from(aClass.getMethod("dynamicExposeProceed",
                                                                    Object.class,
+                                                                   TargetSource.class,
                                                                    TargetInvocation.class,
                                                                    Object[].class));
-      dynamicProceed = new Signature(StandardProxyInvoker.class
-                                             .getMethod("dynamicProceed",
-                                                        TargetSource.class,
-                                                        TargetInvocation.class,
-                                                        Object[].class));
-      dynamicExposeProceed = new Signature(StandardProxyInvoker.class.getMethod("dynamicExposeProceed",
-                                                                                Object.class,
-                                                                                TargetSource.class,
-                                                                                TargetInvocation.class,
-                                                                                Object[].class));
-      staticExposeProceed = new Signature(StandardProxyInvoker.class.getMethod("staticExposeProceed",
-                                                                               Object.class,
-                                                                               Object.class,
-                                                                               TargetInvocation.class,
-                                                                               Object[].class));
+      staticExposeProceed = MethodSignature.from(aClass.getMethod("staticExposeProceed",
+                                                                  Object.class,
+                                                                  Object.class,
+                                                                  TargetInvocation.class,
+                                                                  Object[].class));
 
-      dynamicAdvisedProceed = new Signature(StandardProxyInvoker.class.getMethod("dynamicAdvisedProceed",
-                                                                                 Object.class,
-                                                                                 AdvisedSupport.class,
-                                                                                 TargetInvocation.class,
-                                                                                 Object[].class));
+      dynamicAdvisedProceed = MethodSignature.from(aClass.getMethod("dynamicAdvisedProceed",
+                                                                    Object.class,
+                                                                    AdvisedSupport.class,
+                                                                    TargetInvocation.class,
+                                                                    Object[].class));
     }
     catch (NoSuchMethodException e) {
       throw new CodeGenerationException(e);

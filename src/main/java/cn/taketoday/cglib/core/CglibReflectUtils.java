@@ -40,6 +40,7 @@ import java.util.Set;
 
 import cn.taketoday.asm.Attribute;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.reflect.ReflectionException;
 import cn.taketoday.util.ClassUtils;
@@ -372,8 +373,7 @@ public abstract class CglibReflectUtils {
   }
 
   public static MethodInfo getMethodInfo(final Member member, final int modifiers) {
-
-    final Signature sig = Signature.fromMember(member);
+    final MethodSignature sig = MethodSignature.from(member);
     return new MethodInfo() {
       private ClassInfo ci;
 
@@ -387,7 +387,7 @@ public abstract class CglibReflectUtils {
         return modifiers;
       }
 
-      public Signature getSignature() {
+      public MethodSignature getSignature() {
         return sig;
       }
 

@@ -39,7 +39,6 @@ import cn.taketoday.asm.tree.MethodNode;
 import cn.taketoday.asm.util.Textifier;
 import cn.taketoday.asm.util.TraceMethodVisitor;
 
-import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -98,7 +97,7 @@ public class GeneratorAdapterTest {
     GeneratorAdapter generatorAdapter =
             new GeneratorAdapter(
                     Opcodes.ACC_PUBLIC,
-                    new Method("name", "()V"),
+                    new MethodSignature("name", "()V"),
                     "()V",
                     new Type[] { Type.fromInternalName("java/lang/Exception") },
                     classNode);
@@ -123,7 +122,7 @@ public class GeneratorAdapterTest {
     ClassNode classNode = new ClassNode();
 
     GeneratorAdapter generatorAdapter =
-            new GeneratorAdapter(Opcodes.ACC_PUBLIC, new Method("name", "()V"), "()V", null, classNode);
+            new GeneratorAdapter(Opcodes.ACC_PUBLIC, new MethodSignature("name", "()V"), "()V", null, classNode);
 
     assertEquals(Opcodes.ACC_PUBLIC, generatorAdapter.getAccess());
     assertEquals("name", generatorAdapter.getName());
@@ -725,7 +724,7 @@ public class GeneratorAdapterTest {
   public void testInvokeVirtual() {
     assertEquals(
             "INVOKEVIRTUAL pkg/Class.m (I)J",
-            new Generator().invokeVirtual(Type.fromInternalName("pkg/Class"), new Method("m", "(I)J")));
+            new Generator().invokeVirtual(Type.fromInternalName("pkg/Class"), new MethodSignature("m", "(I)J")));
   }
 
   @Test
@@ -733,21 +732,21 @@ public class GeneratorAdapterTest {
     assertEquals(
             "INVOKESPECIAL pkg/Class.<init> (I)J",
             new Generator()
-                    .invokeConstructor(Type.fromInternalName("pkg/Class"), new Method("<init>", "(I)J")));
+                    .invokeConstructor(Type.fromInternalName("pkg/Class"), new MethodSignature("<init>", "(I)J")));
   }
 
   @Test
   public void testInvokeStatic() {
     assertEquals(
             "INVOKESTATIC pkg/Class.m (I)J",
-            new Generator().invokeStatic(Type.fromInternalName("pkg/Class"), new Method("m", "(I)J")));
+            new Generator().invokeStatic(Type.fromInternalName("pkg/Class"), new MethodSignature("m", "(I)J")));
   }
 
   @Test
   public void testInvokeInterface() {
     assertEquals(
             "INVOKEINTERFACE pkg/Class.m (I)J (itf)",
-            new Generator().invokeInterface(Type.fromInternalName("pkg/Class"), new Method("m", "(I)J")));
+            new Generator().invokeInterface(Type.fromInternalName("pkg/Class"), new MethodSignature("m", "(I)J")));
   }
 
   @Test
@@ -1144,22 +1143,22 @@ public class GeneratorAdapterTest {
       return toString();
     }
 
-    public String invokeVirtual(final Type owner, final Method method) {
+    public String invokeVirtual(final Type owner, final MethodSignature method) {
       generatorAdapter.invokeVirtual(owner, method);
       return toString();
     }
 
-    public String invokeConstructor(final Type type, final Method method) {
+    public String invokeConstructor(final Type type, final MethodSignature method) {
       generatorAdapter.invokeConstructor(type, method);
       return toString();
     }
 
-    public String invokeStatic(final Type owner, final Method method) {
+    public String invokeStatic(final Type owner, final MethodSignature method) {
       generatorAdapter.invokeStatic(owner, method);
       return toString();
     }
 
-    public String invokeInterface(final Type owner, final Method method) {
+    public String invokeInterface(final Type owner, final MethodSignature method) {
       generatorAdapter.invokeInterface(owner, method);
       return toString();
     }

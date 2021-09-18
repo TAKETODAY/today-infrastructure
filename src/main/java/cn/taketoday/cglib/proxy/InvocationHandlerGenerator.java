@@ -19,13 +19,12 @@ import java.util.List;
 
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.Block;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.MethodInfo;
-import cn.taketoday.cglib.core.Signature;
-import cn.taketoday.cglib.core.TypeUtils;
 
 /**
  * @author TODAY <br>
@@ -39,13 +38,13 @@ class InvocationHandlerGenerator implements CallbackGenerator {
 
   private static final Type UNDECLARED_THROWABLE_EXCEPTION = Type.fromClass(UndeclaredThrowableException.class);
   private static final Type METHOD = Type.parse("java.lang.reflect.Method");
-  private static final Signature INVOKE = TypeUtils.parseSignature("Object invoke(Object, java.lang.reflect.Method, Object[])");
+  private static final MethodSignature INVOKE = MethodSignature.from("Object invoke(Object, java.lang.reflect.Method, Object[])");
 
   @Override
   public void generate(final ClassEmitter ce, final Context context, final List<MethodInfo> methods) {
 
     for (final MethodInfo method : methods) {
-      final Signature impl = context.getImplSignature(method);
+      final MethodSignature impl = context.getImplSignature(method);
       ce.declare_field(Opcodes.PRIVATE_FINAL_STATIC, impl.getName(), METHOD, null);
 
       final CodeEmitter e = context.beginMethod(ce, method);

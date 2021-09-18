@@ -18,11 +18,11 @@ package cn.taketoday.cglib.util;
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.Local;
-import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
 
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
@@ -32,9 +32,9 @@ import static cn.taketoday.core.Constant.SOURCE_FILE;
 class ParallelSorterEmitter extends ClassEmitter {
 
   private static final Type PARALLEL_SORTER = Type.fromClass(ParallelSorter.class);
-  private static final Signature CSTRUCT_OBJECT_ARRAY = TypeUtils.parseConstructor("Object[]");
-  private static final Signature NEW_INSTANCE = new Signature("newInstance", PARALLEL_SORTER, new Type[] { Type.TYPE_OBJECT_ARRAY });
-  private static final Signature SWAP = TypeUtils.parseSignature("void swap(int, int)");
+  private static final MethodSignature CSTRUCT_OBJECT_ARRAY = MethodSignature.forConstructor("Object[]");
+  private static final MethodSignature NEW_INSTANCE = new MethodSignature("newInstance", PARALLEL_SORTER, new Type[] { Type.TYPE_OBJECT_ARRAY });
+  private static final MethodSignature SWAP = MethodSignature.from("void swap(int, int)");
 
   public ParallelSorterEmitter(ClassVisitor v, String className, Object[] arrays) {
     super(v);

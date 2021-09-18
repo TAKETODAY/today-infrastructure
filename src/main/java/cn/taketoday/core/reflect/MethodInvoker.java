@@ -33,7 +33,7 @@ import cn.taketoday.cglib.core.ClassGenerator;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.MethodInfo;
-import cn.taketoday.cglib.core.Signature;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
@@ -139,8 +139,8 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
     private static final MethodInfo invokeInfo;
 
     /** @since 3.0.2 */
-    private static final Signature SIG_CONSTRUCTOR
-            = new Signature(Constant.CONSTRUCTOR_NAME, "(Ljava/lang/reflect/Method;)V");
+    private static final MethodSignature SIG_CONSTRUCTOR
+            = new MethodSignature(MethodSignature.CONSTRUCTOR_NAME, "(Ljava/lang/reflect/Method;)V");
 
     static {
       try {

@@ -19,11 +19,10 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.MethodInfo;
-import cn.taketoday.cglib.core.Signature;
-import cn.taketoday.cglib.core.TypeUtils;
 
 /**
  * @author TODAY <br>
@@ -36,8 +35,8 @@ class DispatcherGenerator implements CallbackGenerator {
 
   private static final Type DISPATCHER = Type.fromClass(Dispatcher.class);
   private static final Type PROXY_REF_DISPATCHER = Type.fromClass(ProxyRefDispatcher.class);
-  private static final Signature LOAD_OBJECT = TypeUtils.parseSignature("Object loadObject()");
-  private static final Signature PROXY_REF_LOAD_OBJECT = TypeUtils.parseSignature("Object loadObject(Object)");
+  private static final MethodSignature LOAD_OBJECT = MethodSignature.from("Object loadObject()");
+  private static final MethodSignature PROXY_REF_LOAD_OBJECT = MethodSignature.from("Object loadObject(Object)");
 
   private final boolean proxyRef;
 

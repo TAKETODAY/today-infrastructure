@@ -29,6 +29,7 @@ import cn.taketoday.asm.ClassReader;
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
+import cn.taketoday.asm.commons.MethodSignature;
 
 @SuppressWarnings("all")
 public class DuplicatesPredicate implements Predicate<Method> {
@@ -88,7 +89,7 @@ public class DuplicatesPredicate implements Predicate<Method> {
               new ClassReader(is).accept(finder, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
             }
           }
-          catch (IOException ignored) {}
+          catch (IOException ignored) { }
         }
       }
     }
@@ -114,28 +115,28 @@ public class DuplicatesPredicate implements Predicate<Method> {
   private static class UnnecessaryBridgeFinder extends ClassVisitor {
     private final Set<Method> rejected;
 
-    private Signature currentMethodSig = null;
-    private HashMap<Signature, Method> methods = new HashMap<>();
+    private MethodSignature currentMethodSig = null;
+    private HashMap<MethodSignature, Method> methods = new HashMap<>();
 
     UnnecessaryBridgeFinder(Set<Method> rejected) {
       this.rejected = rejected;
     }
 
     void addSuspectMethod(Method m) {
-      methods.put(Signature.fromMember(m), m);
+      methods.put(MethodSignature.from(m), m);
     }
 
-    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {}
+    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) { }
 
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-      Signature sig = new Signature(name, desc);
+      MethodSignature sig = new MethodSignature(name, desc);
       final Method currentMethod = methods.remove(sig);
       if (currentMethod != null) {
         currentMethodSig = sig;
         return new MethodVisitor() {
           public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
             if (opcode == Opcodes.INVOKESPECIAL && currentMethodSig != null) {
-              Signature target = new Signature(name, desc);
+              MethodSignature target = new MethodSignature(name, desc);
               if (target.equals(currentMethodSig)) {
                 rejected.add(currentMethod);
               }

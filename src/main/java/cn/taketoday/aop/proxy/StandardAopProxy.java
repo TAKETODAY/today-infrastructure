@@ -35,6 +35,7 @@ import cn.taketoday.aop.proxy.std.ProxyMethodGenerator;
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
@@ -44,7 +45,6 @@ import cn.taketoday.cglib.core.CodeGenerationException;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.KeyFactory;
 import cn.taketoday.cglib.core.MethodInfo;
-import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.core.Constant;
 import cn.taketoday.logger.Logger;
@@ -93,7 +93,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
 
     static final int field_access = Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL;
 
-    private static final Signature getTarget;
+    private static final MethodSignature getTarget;
 
     private static final Type targetSourceType = Type.fromClass(TargetSource.class);
     private static final Type advisedSupportType = Type.fromClass(AdvisedSupport.class);
@@ -101,7 +101,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
 
     static {
       try {
-        getTarget = new Signature(TargetInvocation.class.getDeclaredMethod("getTarget", String.class));
+        getTarget = MethodSignature.from(TargetInvocation.class.getDeclaredMethod("getTarget", String.class));
       }
       catch (NoSuchMethodException e) {
         throw new CodeGenerationException(e);
@@ -307,7 +307,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
       }
       types = TypeUtils.add(types, targetSourceType, advisedSupportType);
 
-      final Signature parseConstructor = TypeUtils.parseConstructor(types);
+      final MethodSignature parseConstructor = MethodSignature.forConstructor(types);
 
       final CodeEmitter code = ce.beginMethod(Opcodes.ACC_PUBLIC, parseConstructor);
 
@@ -318,7 +318,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
       if (typesLength > 0) {
         code.load_args(0, typesLength);
       }
-      code.super_invoke_constructor(TypeUtils.parseConstructor(superTypes));
+      code.super_invoke_constructor(MethodSignature.forConstructor(superTypes));
       // 赋值
 
       int offset = 0;

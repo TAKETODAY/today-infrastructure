@@ -105,17 +105,17 @@ public class GeneratorAdapter extends LocalVariablesSorter {
 
   private static final Type OBJECT_TYPE = Type.fromInternalName("java/lang/Object");
 
-  private static final Method BOOLEAN_VALUE = Method.fromDeclaration("boolean booleanValue()");
+  private static final MethodSignature BOOLEAN_VALUE = MethodSignature.from("boolean booleanValue()");
 
-  private static final Method CHAR_VALUE = Method.fromDeclaration("char charValue()");
+  private static final MethodSignature CHAR_VALUE = MethodSignature.from("char charValue()");
 
-  private static final Method INT_VALUE = Method.fromDeclaration("int intValue()");
+  private static final MethodSignature INT_VALUE = MethodSignature.from("int intValue()");
 
-  private static final Method FLOAT_VALUE = Method.fromDeclaration("float floatValue()");
+  private static final MethodSignature FLOAT_VALUE = MethodSignature.from("float floatValue()");
 
-  private static final Method LONG_VALUE = Method.fromDeclaration("long longValue()");
+  private static final MethodSignature LONG_VALUE = MethodSignature.from("long longValue()");
 
-  private static final Method DOUBLE_VALUE = Method.fromDeclaration("double doubleValue()");
+  private static final MethodSignature DOUBLE_VALUE = MethodSignature.from("double doubleValue()");
 
   /** Constant for the {@link #math} method. */
   public static final int ADD = Opcodes.IADD;
@@ -224,7 +224,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    *         the method visitor to which this adapter delegates calls.
    */
   public GeneratorAdapter(
-          final int access, final Method method, final MethodVisitor methodVisitor) {
+          final int access, final MethodSignature method, final MethodVisitor methodVisitor) {
     this(methodVisitor, access, method.getName(), method.getDescriptor());
   }
 
@@ -244,7 +244,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    */
   public GeneratorAdapter(
           final int access,
-          final Method method,
+          final MethodSignature method,
           final String signature,
           final Type[] exceptions,
           final ClassVisitor classVisitor) {
@@ -848,7 +848,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
         dupX1();
         swap();
       }
-      invokeConstructor(boxedType, new Method("<init>", Type.VOID_TYPE, new Type[] { type }));
+      invokeConstructor(boxedType, new MethodSignature("<init>", Type.VOID_TYPE, new Type[] { type }));
     }
   }
 
@@ -868,7 +868,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     }
     else {
       Type boxedType = getBoxedType(type);
-      invokeStatic(boxedType, new Method("valueOf", boxedType, new Type[] { type }));
+      invokeStatic(boxedType, new MethodSignature("valueOf", boxedType, new Type[] { type }));
     }
   }
 
@@ -881,7 +881,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    */
   public void unbox(final Type type) {
     Type boxedType = NUMBER_TYPE;
-    Method unboxMethod;
+    MethodSignature unboxMethod;
     switch (type.getSort()) {
       case Type.VOID:
         return;
@@ -1261,7 +1261,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    *         whether the 'type' class is an interface or not.
    */
   private void invokeInsn(
-          final int opcode, final Type type, final Method method, final boolean isInterface) {
+          final int opcode, final Type type, final MethodSignature method, final boolean isInterface) {
     String owner = type.getSort() == Type.ARRAY ? type.getDescriptor() : type.getInternalName();
     mv.visitMethodInsn(opcode, owner, method.getName(), method.getDescriptor(), isInterface);
   }
@@ -1274,7 +1274,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @param method
    *         the method to be invoked.
    */
-  public void invokeVirtual(final Type owner, final Method method) {
+  public void invokeVirtual(final Type owner, final MethodSignature method) {
     invokeInsn(Opcodes.INVOKEVIRTUAL, owner, method, false);
   }
 
@@ -1286,7 +1286,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @param method
    *         the constructor to be invoked.
    */
-  public void invokeConstructor(final Type type, final Method method) {
+  public void invokeConstructor(final Type type, final MethodSignature method) {
     invokeInsn(Opcodes.INVOKESPECIAL, type, method, false);
   }
 
@@ -1298,7 +1298,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @param method
    *         the method to be invoked.
    */
-  public void invokeStatic(final Type owner, final Method method) {
+  public void invokeStatic(final Type owner, final MethodSignature method) {
     invokeInsn(Opcodes.INVOKESTATIC, owner, method, false);
   }
 
@@ -1310,7 +1310,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @param method
    *         the method to be invoked.
    */
-  public void invokeInterface(final Type owner, final Method method) {
+  public void invokeInterface(final Type owner, final MethodSignature method) {
     invokeInsn(Opcodes.INVOKEINTERFACE, owner, method, true);
   }
 
@@ -1400,7 +1400,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     newInstance(type);
     dup();
     push(message);
-    invokeConstructor(type, Method.fromDeclaration("void <init> (String)"));
+    invokeConstructor(type, MethodSignature.from("void <init> (String)"));
     throwException();
   }
 

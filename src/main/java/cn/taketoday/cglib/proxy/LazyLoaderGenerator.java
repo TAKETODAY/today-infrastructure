@@ -22,11 +22,10 @@ import java.util.Set;
 
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.MethodInfo;
-import cn.taketoday.cglib.core.Signature;
-import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.core.Constant;
 
 import static cn.taketoday.asm.Opcodes.ACC_FINAL;
@@ -41,7 +40,7 @@ class LazyLoaderGenerator implements CallbackGenerator {
 
   public static final LazyLoaderGenerator INSTANCE = new LazyLoaderGenerator();
 
-  private static final Signature LOAD_OBJECT = TypeUtils.parseSignature("Object loadObject()");
+  private static final MethodSignature LOAD_OBJECT = MethodSignature.from("Object loadObject()");
   private static final Type LAZY_LOADER = Type.fromClass(LazyLoader.class);
 
   public void generate(ClassEmitter ce, Context context, List<MethodInfo> methods) {
@@ -90,8 +89,8 @@ class LazyLoaderGenerator implements CallbackGenerator {
     }
   }
 
-  private Signature loadMethod(int index) {
-    return new Signature("today$LoadPrivate" + index, Type.TYPE_OBJECT, Constant.TYPES_EMPTY_ARRAY);
+  private MethodSignature loadMethod(int index) {
+    return new MethodSignature("today$LoadPrivate" + index, Type.TYPE_OBJECT, Constant.TYPES_EMPTY_ARRAY);
   }
 
   public void generateStatic(CodeEmitter e, Context context, List<MethodInfo> methods) {}

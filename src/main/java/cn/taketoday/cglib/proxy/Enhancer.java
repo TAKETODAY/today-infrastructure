@@ -41,6 +41,7 @@ import cn.taketoday.asm.Label;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
@@ -58,7 +59,6 @@ import cn.taketoday.cglib.core.NamingPolicy;
 import cn.taketoday.cglib.core.ObjectSwitchCallback;
 import cn.taketoday.cglib.core.ProcessSwitchCallback;
 import cn.taketoday.cglib.core.RejectModifierPredicate;
-import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.cglib.core.VisibilityPredicate;
 import cn.taketoday.cglib.core.WeakCacheKey;
@@ -80,7 +80,6 @@ import static cn.taketoday.asm.Type.INT_TYPE;
 import static cn.taketoday.asm.Type.LONG_TYPE;
 import static cn.taketoday.asm.Type.VOID_TYPE;
 import static cn.taketoday.asm.Type.array;
-import static cn.taketoday.cglib.core.TypeUtils.parseSignature;
 import static cn.taketoday.core.Constant.SUID_FIELD_NAME;
 
 /**
@@ -156,25 +155,23 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   private static final Type CALLBACK = Type.fromClass(Callback.class);
   private static final Type CALLBACK_ARRAY = Type.fromClass(Callback[].class);
 
-  private static final Signature CSTRUCT_NULL = TypeUtils.parseConstructor(Constant.BLANK);
+  private static final MethodSignature SET_THREAD_CALLBACKS = new MethodSignature(SET_THREAD_CALLBACKS_NAME, VOID_TYPE, array(CALLBACK_ARRAY));
+  private static final MethodSignature SET_STATIC_CALLBACKS = new MethodSignature(SET_STATIC_CALLBACKS_NAME, VOID_TYPE, array(CALLBACK_ARRAY));
+  private static final MethodSignature NEW_INSTANCE = new MethodSignature("newInstance", Type.TYPE_OBJECT, array(CALLBACK_ARRAY));
+  private static final MethodSignature MULTIARG_NEW_INSTANCE = new MethodSignature("newInstance",
+                                                                                   Type.TYPE_OBJECT,
+                                                                                   array(Type.TYPE_CLASS_ARRAY,
+                                                                                         Type.TYPE_OBJECT_ARRAY,
+                                                                                         CALLBACK_ARRAY));
 
-  private static final Signature SET_THREAD_CALLBACKS = new Signature(SET_THREAD_CALLBACKS_NAME, VOID_TYPE, array(CALLBACK_ARRAY));
-  private static final Signature SET_STATIC_CALLBACKS = new Signature(SET_STATIC_CALLBACKS_NAME, VOID_TYPE, array(CALLBACK_ARRAY));
-  private static final Signature NEW_INSTANCE = new Signature("newInstance", Type.TYPE_OBJECT, array(CALLBACK_ARRAY));
-  private static final Signature MULTIARG_NEW_INSTANCE = new Signature("newInstance",
-                                                                       Type.TYPE_OBJECT,
-                                                                       array(Type.TYPE_CLASS_ARRAY,
-                                                                             Type.TYPE_OBJECT_ARRAY,
-                                                                             CALLBACK_ARRAY));
-
-  private static final Signature SINGLE_NEW_INSTANCE = new Signature("newInstance", Type.TYPE_OBJECT, array(CALLBACK));
-  private static final Signature SET_CALLBACK = new Signature("setCallback", VOID_TYPE, array(INT_TYPE, CALLBACK));
-  private static final Signature GET_CALLBACK = new Signature("getCallback", CALLBACK, array(INT_TYPE));
-  private static final Signature SET_CALLBACKS = new Signature("setCallbacks", VOID_TYPE, array(CALLBACK_ARRAY));
-  private static final Signature GET_CALLBACKS = new Signature("getCallbacks", CALLBACK_ARRAY, new Type[0]);
-  private static final Signature THREAD_LOCAL_GET = parseSignature("Object get()");
-  private static final Signature THREAD_LOCAL_SET = parseSignature("void set(Object)");
-  private static final Signature BIND_CALLBACKS = parseSignature("void today$BindCallbacks(Object)");
+  private static final MethodSignature SINGLE_NEW_INSTANCE = new MethodSignature("newInstance", Type.TYPE_OBJECT, array(CALLBACK));
+  private static final MethodSignature SET_CALLBACK = new MethodSignature("setCallback", VOID_TYPE, array(INT_TYPE, CALLBACK));
+  private static final MethodSignature GET_CALLBACK = new MethodSignature("getCallback", CALLBACK, array(INT_TYPE));
+  private static final MethodSignature SET_CALLBACKS = new MethodSignature("setCallbacks", VOID_TYPE, array(CALLBACK_ARRAY));
+  private static final MethodSignature GET_CALLBACKS = new MethodSignature("getCallbacks", CALLBACK_ARRAY, new Type[0]);
+  private static final MethodSignature THREAD_LOCAL_GET = MethodSignature.from("Object get()");
+  private static final MethodSignature THREAD_LOCAL_SET = MethodSignature.from("void set(Object)");
+  private static final MethodSignature BIND_CALLBACKS = MethodSignature.from("void today$BindCallbacks(Object)");
 
   private EnhancerFactoryData currentData;
   private Object currentKey;
@@ -645,8 +642,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     return null;
   }
 
-  private Signature rename(Signature sig, int index) {
-    return new Signature("today$" + sig.getName() + '$' + index, sig.getDescriptor());
+  private MethodSignature rename(MethodSignature sig, int index) {
+    return new MethodSignature("today$" + sig.getName() + '$' + index, sig.getDescriptor());
   }
 
   /**
@@ -1075,7 +1072,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     CodeEmitter e = EmitUtils.beginMethod(ce, constructor, ACC_PUBLIC);
     e.load_this();
     e.dup();
-    Signature sig = constructor.getSignature();
+    MethodSignature sig = constructor.getSignature();
     e.super_invoke_constructor(sig);
     e.return_value();
     e.end_method();
@@ -1092,7 +1089,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       e.load_this();
       e.dup();
       e.load_args();
-      Signature sig = constructor.getSignature();
+      MethodSignature sig = constructor.getSignature();
       seenNull = seenNull || sig.getDescriptor().equals("()V");
       e.super_invoke_constructor(sig);
       if (currentData == null) {
@@ -1285,7 +1282,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     final HashMap<MethodInfo, Integer> indexes = new HashMap<>();
     final HashMap<MethodInfo, Integer> originalModifiers = new HashMap<>();
     final HashMap<MethodInfo, Integer> positions = getIndexMap(methods);
-    final HashMap<Class<?>, Set<Signature>> declToBridge = new HashMap<>();
+    final HashMap<Class<?>, Set<MethodSignature>> declToBridge = new HashMap<>();
     final HashMap<CallbackGenerator, List<MethodInfo>> groups = new HashMap<>();
 
     final Iterator<Method> it2 = (actualMethods != null) ? actualMethods.iterator() : null;
@@ -1308,7 +1305,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
       if (actualMethod.isBridge()) {
 
-        Set<Signature> bridges = declToBridge.get(actualMethod.getDeclaringClass());
+        Set<MethodSignature> bridges = declToBridge.get(actualMethod.getDeclaringClass());
         if (bridges == null) {
           declToBridge.put(actualMethod.getDeclaringClass(), bridges = new HashSet<>());
         }
@@ -1321,11 +1318,11 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
     se.new_instance(THREAD_LOCAL);
     se.dup();
-    se.invoke_constructor(THREAD_LOCAL, CSTRUCT_NULL);
+    se.invoke_constructor(THREAD_LOCAL, MethodSignature.EMPTY_CONSTRUCTOR);
     se.putfield(THREAD_CALLBACKS_FIELD);
 
     final CallbackGenerator.Context context = new CallbackGenerator.Context() {
-      Map<Signature, Signature> bridgeToTarget = null;
+      Map<MethodSignature, MethodSignature> bridgeToTarget = null;
 
       @Override
       public ClassLoader getClassLoader() {
@@ -1348,7 +1345,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       }
 
       @Override
-      public Signature getImplSignature(MethodInfo method) {
+      public MethodSignature getImplSignature(MethodInfo method) {
         return rename(method.getSignature(), positions.get(method).intValue());
       }
 
@@ -1361,7 +1358,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         if (bridgeToTarget == null) {
           bridgeToTarget = BridgeMethodResolver.resolve(getClassLoader(), declToBridge);
         }
-        final Signature bridgeTarget = bridgeToTarget.get(method.getSignature());
+        final MethodSignature bridgeTarget = bridgeToTarget.get(method.getSignature());
         if (bridgeTarget != null) {
           // checkcast each argument against the target's argument types
           final Type[] argumentTypes = bridgeTarget.getArgumentTypes();
@@ -1545,13 +1542,13 @@ public class Enhancer extends AbstractClassGenerator<Object> {
      * Finds all bridge methods that are being called with invokespecial & returns
      * them.
      */
-    public static Map<Signature, Signature> resolve(
-            ClassLoader classLoader, Map<Class<?>, Set<Signature>> declToBridge) //
+    public static Map<MethodSignature, MethodSignature> resolve(
+            ClassLoader classLoader, Map<Class<?>, Set<MethodSignature>> declToBridge) //
     {
 
-      final Map<Signature, Signature> resolved = new HashMap<>();
+      final Map<MethodSignature, MethodSignature> resolved = new HashMap<>();
 
-      for (final Entry<Class<?>, Set<Signature>> entry : declToBridge.entrySet()) {
+      for (final Entry<Class<?>, Set<MethodSignature>> entry : declToBridge.entrySet()) {
         try {
 
           final InputStream is = //
@@ -1575,12 +1572,12 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
     private static class BridgedFinder extends ClassVisitor {
 
-      private Signature currentMethod = null;
+      private MethodSignature currentMethod = null;
 
-      private final Set<Signature> eligibleMethods;
-      private final Map<Signature, Signature> resolved;
+      private final Set<MethodSignature> eligibleMethods;
+      private final Map<MethodSignature, MethodSignature> resolved;
 
-      BridgedFinder(Set<Signature> eligibleMethods, Map<Signature, Signature> resolved) {
+      BridgedFinder(Set<MethodSignature> eligibleMethods, Map<MethodSignature, MethodSignature> resolved) {
         this.resolved = resolved;
         this.eligibleMethods = eligibleMethods;
       }
@@ -1591,7 +1588,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
       @Override
       public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-        final Signature sig = new Signature(name, desc);
+        final MethodSignature sig = new MethodSignature(name, desc);
         if (!eligibleMethods.remove(sig)) {
           return null;
         }
@@ -1601,7 +1598,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
           @Override
           public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
             if ((opcode == INVOKESPECIAL || (itf && opcode == INVOKEINTERFACE)) && currentMethod != null) {
-              final Signature target = new Signature(name, desc);
+              final MethodSignature target = new MethodSignature(name, desc);
               // If the target signature is the same as the current,
               // we shouldn't change our bridge becaues invokespecial
               // is the only way to make progress (otherwise we'll

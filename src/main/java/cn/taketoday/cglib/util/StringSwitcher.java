@@ -22,14 +22,13 @@ import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.KeyFactory;
 import cn.taketoday.cglib.core.ObjectSwitchCallback;
-import cn.taketoday.cglib.core.Signature;
-import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
@@ -43,7 +42,7 @@ import static cn.taketoday.core.Constant.SOURCE_FILE;
 abstract public class StringSwitcher {
 
   private static final Type STRING_SWITCHER = Type.fromClass(StringSwitcher.class);
-  private static final Signature INT_VALUE = TypeUtils.parseSignature("int intValue(String)");
+  private static final MethodSignature INT_VALUE = MethodSignature.from("int intValue(String)");
   private static final StringSwitcherKey KEY_FACTORY = (StringSwitcherKey) KeyFactory.create(StringSwitcherKey.class);
 
   interface StringSwitcherKey {

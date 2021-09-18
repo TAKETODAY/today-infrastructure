@@ -22,9 +22,9 @@ import java.security.ProtectionDomain;
 
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
-import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -209,10 +209,10 @@ public abstract class FastClass {
    */
   abstract public Object newInstance(int index, Object[] args) throws InvocationTargetException;
 
-  abstract public int getIndex(Signature sig);
+  abstract public int getIndex(MethodSignature sig);
 
   public int getIndex(Method method) {
-    return getIndex(new Signature(method.getName(), Type.getMethodDescriptor(method)));
+    return getIndex(new MethodSignature(method.getName(), Type.getMethodDescriptor(method)));
   }
 
   /**

@@ -33,6 +33,7 @@ import cn.taketoday.asm.Label;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -111,7 +112,7 @@ public class LocalVariableTableParameterNameDiscoverer extends ParameterNameDisc
    * attempts to find the parameter names for the given {@link Executable}.
    */
   private static class ParameterNameDiscoveringVisitor extends ClassVisitor {
-    private static final String STATIC_CLASS_INIT = Constant.STATIC_CLASS_INIT;
+    private static final String STATIC_CLASS_INIT = MethodSignature.STATIC_CLASS_INIT;
 
     private final Class<?> clazz;
     private final Map<Executable, String[]> executableMap;
@@ -141,20 +142,14 @@ public class LocalVariableTableParameterNameDiscoverer extends ParameterNameDisc
   }
 
   private static class LocalVariableTableVisitor extends MethodVisitor {
-
-    private static final String CONSTRUCTOR = Constant.CONSTRUCTOR_NAME;
-
-    private final Class<?> clazz;
-
-    private final Map<Executable, String[]> executableMap;
+    private static final String CONSTRUCTOR = MethodSignature.CONSTRUCTOR_NAME;
 
     private final String name;
-
     private final Type[] args;
-
-    private final String[] parameterNames;
-
+    private final Class<?> clazz;
     private final boolean isStatic;
+    private final String[] parameterNames;
+    private final Map<Executable, String[]> executableMap;
 
     private boolean hasLvtInfo = false;
 

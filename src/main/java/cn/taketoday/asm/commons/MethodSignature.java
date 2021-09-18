@@ -27,19 +27,31 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package cn.taketoday.asm.commons;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.asm.Type;
+import cn.taketoday.core.Constant;
 
 /**
  * A named method descriptor.
+ * <p>
+ * A representation of a method signature, containing the method name, return
+ * type, and parameter types.
  *
  * @author Juozas Baliuka
  * @author Chris Nokleberg
  * @author Eric Bruneton
+ * @author TODAY
  */
-public class Method {
+public class MethodSignature {
+  public static final String CONSTRUCTOR_NAME = "<init>";
+  public static final String STATIC_CLASS_INIT = "<clinit>";
+  public static final MethodSignature SIG_STATIC = new MethodSignature(STATIC_CLASS_INIT, "()V");
+  public static final MethodSignature EMPTY_CONSTRUCTOR = new MethodSignature(CONSTRUCTOR_NAME, "()V");
 
   /** The method name. */
   private final String name;
@@ -65,20 +77,20 @@ public class Method {
   }
 
   /**
-   * Constructs a new {@link Method}.
+   * Constructs a new {@link MethodSignature}.
    *
    * @param name
    *         the method's name.
    * @param descriptor
    *         the method's descriptor.
    */
-  public Method(final String name, final String descriptor) {
+  public MethodSignature(final String name, final String descriptor) {
     this.name = name;
     this.descriptor = descriptor;
   }
 
   /**
-   * Constructs a new {@link Method}.
+   * Constructs a new {@link MethodSignature}.
    *
    * @param name
    *         the method's name.
@@ -87,36 +99,85 @@ public class Method {
    * @param argumentTypes
    *         the method's argument types.
    */
-  public Method(final String name, final Type returnType, final Type[] argumentTypes) {
+  public MethodSignature(final String name, final Type returnType, final Type[] argumentTypes) {
     this(name, Type.getMethodDescriptor(returnType, argumentTypes));
   }
 
   /**
-   * Creates a new {@link Method}.
+   * Creates a new {@link MethodSignature}.
    *
    * @param method
    *         a java.lang.reflect method descriptor
    *
-   * @return a {@link Method} corresponding to the given Java method declaration.
+   * @return a {@link MethodSignature} corresponding to the given Java method declaration.
    */
-  public static Method fromMethod(final java.lang.reflect.Method method) {
-    return new Method(method.getName(), Type.getMethodDescriptor(method));
+  public static MethodSignature from(final Method method) {
+    return new MethodSignature(method.getName(), Type.getMethodDescriptor(method));
   }
 
   /**
-   * Creates a new {@link Method}.
+   * Creates a new {@link MethodSignature}.
    *
    * @param constructor
    *         a java.lang.reflect constructor descriptor
    *
-   * @return a {@link Method} corresponding to the given Java constructor declaration.
+   * @return a {@link MethodSignature} corresponding to the given Java constructor declaration.
    */
-  public static Method fromConstructor(final java.lang.reflect.Constructor<?> constructor) {
-    return new Method("<init>", Type.getConstructorDescriptor(constructor));
+  public static MethodSignature from(final Constructor<?> constructor) {
+    return new MethodSignature(CONSTRUCTOR_NAME, Type.getConstructorDescriptor(constructor));
   }
 
   /**
-   * Returns a {@link Method} corresponding to the given Java method declaration.
+   * @since 4.0
+   */
+  @SuppressWarnings("rawtypes")
+  public static MethodSignature from(Member member) {
+    if (member instanceof Method) {
+      return from((Method) member);
+    }
+    if (member instanceof Constructor) {
+      return from((Constructor) member);
+    }
+    throw new IllegalArgumentException("Cannot get signature of " + member);
+  }
+
+  /**
+   * @param parameterTypes
+   *         a Java parameterTypes name.
+   *
+   * @return MethodSignature
+   */
+  public static MethodSignature forConstructor(final String parameterTypes) {
+    StringBuilder descriptor = new StringBuilder(parameterTypes.length() + 16);
+
+    int startIdx = 0;
+    int splitIndex = parameterTypes.indexOf(',', startIdx);// ,'s index
+    while (splitIndex != -1) {
+      // array -> Object, Object, Class
+      descriptor.append(
+              getDescriptor(parameterTypes.substring(startIdx, splitIndex).trim(), false)
+      );
+      startIdx = splitIndex + 1;
+      splitIndex = parameterTypes.indexOf(',', startIdx);
+    }
+
+    descriptor.append(
+            getDescriptor(parameterTypes.substring(startIdx).trim(), false)
+    );
+
+    return new MethodSignature(CONSTRUCTOR_NAME, '(' + descriptor.toString() + ")V");
+  }
+
+  public static MethodSignature forConstructor(Type... parameterTypes) {
+    StringBuilder descriptor = new StringBuilder(parameterTypes.length * 8);
+    for (final Type type : parameterTypes) {
+      descriptor.append(type.getDescriptor());
+    }
+    return new MethodSignature(CONSTRUCTOR_NAME, '(' + descriptor.toString() + ")V");
+  }
+
+  /**
+   * Returns a {@link MethodSignature} corresponding to the given Java method declaration.
    *
    * @param method
    *         a Java method declaration, without argument names, of the form "returnType name
@@ -124,17 +185,17 @@ public class Method {
    *         "float", "java.util.List", ...). Classes of the java.lang package can be specified by their
    *         unqualified name; all other classes names must be fully qualified.
    *
-   * @return a {@link Method} corresponding to the given Java method declaration.
+   * @return a {@link MethodSignature} corresponding to the given Java method declaration.
    *
    * @throws IllegalArgumentException
    *         if <code>method</code> could not get parsed.
    */
-  public static Method fromDeclaration(final String method) {
-    return fromDeclaration(method, false);
+  public static MethodSignature from(final String method) {
+    return from(method, false);
   }
 
   /**
-   * Returns a {@link Method} corresponding to the given Java method declaration.
+   * Returns a {@link MethodSignature} corresponding to the given Java method declaration.
    *
    * @param method
    *         a Java method declaration, without argument names, of the form "returnType name
@@ -147,12 +208,12 @@ public class Method {
    *         if they correspond to java.lang classes. For instance "Object" means "Object" if this
    *         option is true, or "java.lang.Object" otherwise.
    *
-   * @return a {@link Method} corresponding to the given Java method declaration.
+   * @return a {@link MethodSignature} corresponding to the given Java method declaration.
    *
    * @throws IllegalArgumentException
    *         if <code>method</code> could not get parsed.
    */
-  public static Method fromDeclaration(final String method, final boolean defaultPackage) {
+  public static MethodSignature from(final String method, final boolean defaultPackage) {
     final int spaceIndex = method.indexOf(' ');
     int currentArgumentStartIndex = method.indexOf('(', spaceIndex) + 1;
     final int endIndex = method.indexOf(')', currentArgumentStartIndex);
@@ -170,12 +231,12 @@ public class Method {
       currentArgumentEndIndex = method.indexOf(',', currentArgumentStartIndex);
       if (currentArgumentEndIndex == -1) {
         argumentDescriptor =
-                getDescriptorInternal(
+                getDescriptor(
                         method.substring(currentArgumentStartIndex, endIndex).trim(), defaultPackage);
       }
       else {
         argumentDescriptor =
-                getDescriptorInternal(
+                getDescriptor(
                         method.substring(currentArgumentStartIndex, currentArgumentEndIndex).trim(),
                         defaultPackage);
         currentArgumentStartIndex = currentArgumentEndIndex + 1;
@@ -183,8 +244,8 @@ public class Method {
       stringBuilder.append(argumentDescriptor);
     }
     while (currentArgumentEndIndex != -1);
-    stringBuilder.append(')').append(getDescriptorInternal(returnType, defaultPackage));
-    return new Method(methodName, stringBuilder.toString());
+    stringBuilder.append(')').append(getDescriptor(returnType, defaultPackage));
+    return new MethodSignature(methodName, stringBuilder.toString());
   }
 
   /**
@@ -199,8 +260,8 @@ public class Method {
    *
    * @return the descriptor corresponding to the given type name.
    */
-  private static String getDescriptorInternal(final String type, final boolean defaultPackage) {
-    if ("".equals(type)) {
+  private static String getDescriptor(final String type, final boolean defaultPackage) {
+    if (Constant.BLANK.equals(type)) {
       return type;
     }
 
@@ -274,11 +335,12 @@ public class Method {
 
   @Override
   public boolean equals(final Object other) {
-    if (!(other instanceof Method)) {
+    if (!(other instanceof MethodSignature)) {
       return false;
     }
-    Method otherMethod = (Method) other;
-    return name.equals(otherMethod.name) && descriptor.equals(otherMethod.descriptor);
+    MethodSignature otherMethod = (MethodSignature) other;
+    return name.equals(otherMethod.name)
+            && descriptor.equals(otherMethod.descriptor);
   }
 
   @Override

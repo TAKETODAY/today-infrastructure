@@ -22,10 +22,10 @@ import java.util.Map;
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
-import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.core.Constant;
 
 /**
@@ -38,7 +38,7 @@ import cn.taketoday.core.Constant;
  */
 public class InterfaceMaker extends AbstractClassGenerator<Object> {
 
-  private final Map<Signature, Type[]> signatures = new HashMap<>();
+  private final Map<MethodSignature, Type[]> signatures = new HashMap<>();
 
   /**
    * Create a new <code>InterfaceMaker</code>. A new <code>InterfaceMaker</code>
@@ -57,7 +57,7 @@ public class InterfaceMaker extends AbstractClassGenerator<Object> {
    * @param exceptions
    *         an array of exception types to declare for the method
    */
-  public void add(Signature sig, Type[] exceptions) {
+  public void add(MethodSignature sig, Type[] exceptions) {
     signatures.put(sig, exceptions);
   }
 
@@ -69,7 +69,7 @@ public class InterfaceMaker extends AbstractClassGenerator<Object> {
    *         the method to add to the interface
    */
   public void add(Method method) {
-    add(Signature.fromMember(method), CglibReflectUtils.getExceptionTypes(method));
+    add(MethodSignature.from(method), CglibReflectUtils.getExceptionTypes(method));
   }
 
   /**
@@ -125,7 +125,7 @@ public class InterfaceMaker extends AbstractClassGenerator<Object> {
     );
 
     final int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT;
-    for (final Map.Entry<Signature, Type[]> entry : signatures.entrySet()) {
+    for (final Map.Entry<MethodSignature, Type[]> entry : signatures.entrySet()) {
       ce.beginMethod(access, entry.getKey(), entry.getValue()).end_method();
     }
 

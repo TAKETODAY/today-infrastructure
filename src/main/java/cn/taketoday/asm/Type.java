@@ -31,7 +31,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
-import cn.taketoday.cglib.core.Signature;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.CollectionUtils;
 
@@ -115,6 +115,23 @@ public final class Type {
   public static final Type DOUBLE_TYPE =
           new Type(DOUBLE, PRIMITIVE_DESCRIPTORS, DOUBLE, DOUBLE + 1);
 
+  private static final HashMap<String, String> transforms = new HashMap<>();
+  private static final HashMap<String, String> rtransforms = new HashMap<>();
+
+  static {
+    transforms.put("void", "V");
+    transforms.put("byte", "B");
+    transforms.put("char", "C");
+    transforms.put("double", "D");
+    transforms.put("float", "F");
+    transforms.put("int", "I");
+    transforms.put("long", "J");
+    transforms.put("short", "S");
+    transforms.put("boolean", "Z");
+
+    CollectionUtils.reverse(transforms, rtransforms);
+  }
+
   public static final Type TYPE_CONSTANT = Type.fromClass(Constant.class);
   public static final Type TYPE_OBJECT_ARRAY = Type.parse("Object[]");
   public static final Type TYPE_CLASS_ARRAY = Type.parse("Class[]");
@@ -140,7 +157,7 @@ public final class Type {
   public static final Type TYPE_BIG_INTEGER = Type.parse("java.math.BigInteger");
   public static final Type TYPE_BIG_DECIMAL = Type.parse("java.math.BigDecimal");
   public static final Type TYPE_RUNTIME_EXCEPTION = Type.parse("RuntimeException");
-  public static final Type TYPE_SIGNATURE = Type.fromClass(Signature.class);
+  public static final Type TYPE_SIGNATURE = Type.fromClass(MethodSignature.class);
 
   // -----------------------------------------------------------------------------------------------
   // Fields
@@ -203,23 +220,6 @@ public final class Type {
   // Methods to get Type(s) from a descriptor, a reflected Method or Constructor, other types, etc.
   // -----------------------------------------------------------------------------------------------
 
-  private static final HashMap<String, String> transforms = new HashMap<>();
-  private static final HashMap<String, String> rtransforms = new HashMap<>();
-
-  static {
-    transforms.put("void", "V");
-    transforms.put("byte", "B");
-    transforms.put("char", "C");
-    transforms.put("double", "D");
-    transforms.put("float", "F");
-    transforms.put("int", "I");
-    transforms.put("long", "J");
-    transforms.put("short", "S");
-    transforms.put("boolean", "Z");
-
-    CollectionUtils.reverse(transforms, rtransforms);
-  }
-
   /**
    * @since 4.0
    */
@@ -227,7 +227,7 @@ public final class Type {
     return fromDescriptor(map(s));
   }
 
-  private static String map(String type) {
+  public static String map(String type) {
     if (Constant.BLANK.equals(type)) {
       return type;
     }

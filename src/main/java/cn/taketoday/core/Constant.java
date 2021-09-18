@@ -28,13 +28,10 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.asm.Type;
-import cn.taketoday.cglib.core.Signature;
-import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.util.ClassUtils;
 
 /**
- * @author TODAY <br>
- * 2018-01-16 10:56
+ * @author TODAY 2018-01-16 10:56
  */
 public interface Constant extends Serializable {
   String VERSION = "4.0";
@@ -71,17 +68,11 @@ public interface Constant extends Serializable {
   //
   // ----------------------------------------------------------------
 
-  Signature SIG_STATIC = TypeUtils.parseSignature("void <clinit>()");
-
-  String STATIC_NAME = "<clinit>";
   String SOURCE_FILE = "<cglibGenerated>";
   String AOP_SOURCE_FILE = "<aopGenerated>";
   String SUID_FIELD_NAME = "serialVersionUID";
 
   //@since 2.1.6
-
-  String CONSTRUCTOR_NAME = "<init>";
-  String STATIC_CLASS_INIT = STATIC_NAME;
 
   /** The package separator character: {@code '.'}. */
   char PACKAGE_SEPARATOR = '.';

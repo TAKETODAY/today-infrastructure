@@ -24,13 +24,13 @@ import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.ObjectSwitchCallback;
-import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.core.Constant;
 
@@ -43,13 +43,13 @@ class BeanMapEmitter extends ClassEmitter {
 
   private static final Type BEAN_MAP = Type.fromClass(BeanMap.class);
   private static final Type FIXED_KEY_SET = Type.fromClass(FixedKeySet.class);
-  private static final Signature CSTRUCT_OBJECT = TypeUtils.parseConstructor("Object");
-  private static final Signature CSTRUCT_STRING_ARRAY = TypeUtils.parseConstructor("String[]");
-  private static final Signature BEAN_MAP_GET = TypeUtils.parseSignature("Object get(Object, Object)");
-  private static final Signature BEAN_MAP_PUT = TypeUtils.parseSignature("Object put(Object, Object, Object)");
-  private static final Signature KEY_SET = TypeUtils.parseSignature("java.util.Set keySet()");
-  private static final Signature NEW_INSTANCE = new Signature("newInstance", BEAN_MAP, new Type[] { Type.TYPE_OBJECT });
-  private static final Signature GET_PROPERTY_TYPE = TypeUtils.parseSignature("Class getPropertyType(String)");
+  private static final MethodSignature CSTRUCT_OBJECT = MethodSignature.forConstructor("Object");
+  private static final MethodSignature CSTRUCT_STRING_ARRAY = MethodSignature.forConstructor("String[]");
+  private static final MethodSignature BEAN_MAP_GET = MethodSignature.from("Object get(Object, Object)");
+  private static final MethodSignature BEAN_MAP_PUT = MethodSignature.from("Object put(Object, Object, Object)");
+  private static final MethodSignature KEY_SET = MethodSignature.from("java.util.Set keySet()");
+  private static final MethodSignature NEW_INSTANCE = new MethodSignature("newInstance", BEAN_MAP, new Type[] { Type.TYPE_OBJECT });
+  private static final MethodSignature GET_PROPERTY_TYPE = MethodSignature.from("Class getPropertyType(String)");
 
   public BeanMapEmitter(final ClassVisitor v, final String className, final Class type, final int require) {
     super(v);

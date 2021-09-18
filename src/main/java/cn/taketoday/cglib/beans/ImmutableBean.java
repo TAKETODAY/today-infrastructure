@@ -22,14 +22,13 @@ import java.security.ProtectionDomain;
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.MethodInfo;
-import cn.taketoday.cglib.core.Signature;
-import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -40,7 +39,7 @@ import cn.taketoday.util.ReflectionUtils;
 public abstract class ImmutableBean {
 
   private static final Type ILLEGAL_STATE_EXCEPTION = Type.parse("IllegalStateException");
-  private static final Signature CSTRUCT_OBJECT = TypeUtils.parseConstructor("Object");
+  private static final MethodSignature CSTRUCT_OBJECT = MethodSignature.forConstructor("Object");
   private static final Class[] OBJECT_CLASSES = { Object.class };
   private static final String FIELD_NAME = "today$RWbean";
 

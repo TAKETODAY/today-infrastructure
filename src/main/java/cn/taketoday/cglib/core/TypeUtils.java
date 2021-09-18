@@ -22,7 +22,7 @@ import java.util.Map;
 
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
-import cn.taketoday.core.Constant;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 
@@ -155,23 +155,6 @@ public abstract class TypeUtils {
     return names;
   }
 
-  public static Signature parseSignature(String s) {
-    int space = s.indexOf(' ');
-    int lparen = s.indexOf('(', space);
-    int rparen = s.indexOf(')', lparen);
-    String returnType = s.substring(0, space);
-    String methodName = s.substring(space + 1, lparen);
-    StringBuilder sb = new StringBuilder();
-    sb.append('(');
-
-    for (String type : parseTypes(s, lparen + 1, rparen)) {
-      sb.append(type);
-    }
-    sb.append(')');
-    sb.append(map(returnType));
-    return new Signature(methodName, sb.toString());
-  }
-
   public static Type[] parseTypes(String s) {
     List<String> names = parseTypes(s, 0, s.length());
     Type[] types = new Type[names.size()];
@@ -179,21 +162,6 @@ public abstract class TypeUtils {
       types[i] = Type.fromDescriptor(names.get(i));
     }
     return types;
-  }
-
-  public static Signature parseConstructor(Type... types) {
-    final StringBuilder sb = new StringBuilder();
-    sb.append('(');
-    for (final Type type : types) {
-      sb.append(type.getDescriptor());
-    }
-    sb.append(')');
-    sb.append('V');
-    return new Signature(Constant.CONSTRUCTOR_NAME, sb.toString());
-  }
-
-  public static Signature parseConstructor(String sig) {
-    return parseSignature("void <init>(" + sig + ')'); // TODO
   }
 
   private static List<String> parseTypes(String s, int mark, int end) {
@@ -294,7 +262,7 @@ public abstract class TypeUtils {
   }
 
   public static boolean isConstructor(MethodInfo method) {
-    return method.getSignature().getName().equals(Constant.CONSTRUCTOR_NAME);
+    return method.getSignature().getName().equals(MethodSignature.CONSTRUCTOR_NAME);
   }
 
   public static Type[] getTypes(Class<?>[] classes) {

@@ -50,7 +50,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 
-import cn.taketoday.core.Constant;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionException;
@@ -114,7 +114,7 @@ public abstract class ReflectionUtil {
 
     Constructor<?>[] constructors = klass.getConstructors();
     List<Wrapper> wrappers = Wrapper.wrap(constructors);
-    final String methodName = Constant.CONSTRUCTOR_NAME;
+    final String methodName = MethodSignature.CONSTRUCTOR_NAME;
     Wrapper result = findWrapper(klass, wrappers, methodName, paramTypes, params);
     return result == null ? null : getConstructor(klass, result.unwrap());
   }

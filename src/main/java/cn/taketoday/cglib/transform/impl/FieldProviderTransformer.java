@@ -22,12 +22,12 @@ import java.util.Map;
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.CodeGenerationException;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.ObjectSwitchCallback;
 import cn.taketoday.cglib.core.ProcessSwitchCallback;
-import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
 
@@ -39,12 +39,12 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
 
   private static final Type FIELD_PROVIDER = Type.fromClass(FieldProvider.class);
   private static final Type ILLEGAL_ARGUMENT_EXCEPTION = Type.parse("IllegalArgumentException");
-  private static final Signature PROVIDER_GET = TypeUtils.parseSignature("Object getField(String)");
-  private static final Signature PROVIDER_SET = TypeUtils.parseSignature("void setField(String, Object)");
-  private static final Signature PROVIDER_SET_BY_INDEX = TypeUtils.parseSignature("void setField(int, Object)");
-  private static final Signature PROVIDER_GET_BY_INDEX = TypeUtils.parseSignature("Object getField(int)");
-  private static final Signature PROVIDER_GET_TYPES = TypeUtils.parseSignature("Class[] getFieldTypes()");
-  private static final Signature PROVIDER_GET_NAMES = TypeUtils.parseSignature("String[] getFieldNames()");
+  private static final MethodSignature PROVIDER_GET = MethodSignature.from("Object getField(String)");
+  private static final MethodSignature PROVIDER_SET = MethodSignature.from("void setField(String, Object)");
+  private static final MethodSignature PROVIDER_SET_BY_INDEX = MethodSignature.from("void setField(int, Object)");
+  private static final MethodSignature PROVIDER_GET_BY_INDEX = MethodSignature.from("Object getField(int)");
+  private static final MethodSignature PROVIDER_GET_TYPES = MethodSignature.from("Class[] getFieldTypes()");
+  private static final MethodSignature PROVIDER_GET_NAMES = MethodSignature.from("String[] getFieldNames()");
 
   private int access;
   private Map fields;

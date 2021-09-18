@@ -16,6 +16,7 @@
 package cn.taketoday.cglib.core;
 
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 
 /**
  * @author TODAY <br>
@@ -23,13 +24,13 @@ import cn.taketoday.asm.Type;
  */
 public abstract class MethodInfo {
 
-  protected MethodInfo() {}
+  protected MethodInfo() { }
 
   abstract public ClassInfo getClassInfo();
 
   abstract public int getModifiers();
 
-  abstract public Signature getSignature();
+  abstract public MethodSignature getSignature();
 
   abstract public Type[] getExceptionTypes();
 

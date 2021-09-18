@@ -31,56 +31,53 @@ import java.util.function.Function;
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.internal.CustomizerRegistry;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.CollectionUtils;
 
-import static cn.taketoday.cglib.core.TypeUtils.parseConstructor;
-import static cn.taketoday.cglib.core.TypeUtils.parseSignature;
-
 @SuppressWarnings("all")
 public abstract class EmitUtils {
 
-  private static final Signature CSTRUCT_NULL = parseConstructor(Constant.BLANK);
-  private static final Signature CSTRUCT_THROWABLE = parseConstructor("Throwable");
+  private static final MethodSignature CSTRUCT_THROWABLE = MethodSignature.forConstructor("Throwable");
 
-  private static final Signature LENGTH = parseSignature("int length()");
-  private static final Signature HASH_CODE = parseSignature("int hashCode()");
-  private static final Signature GET_NAME = parseSignature("String getName()");
-  private static final Signature STRING_LENGTH = parseSignature("int length()");
-  private static final Signature TO_STRING = parseSignature("String toString()");
-  private static final Signature EQUALS = parseSignature("boolean equals(Object)");
-  private static final Signature SET_LENGTH = parseSignature("void setLength(int)");
-  private static final Signature FOR_NAME = parseSignature("Class forName(String)");
-  private static final Signature STRING_CHAR_AT = parseSignature("char charAt(int)");
-  private static final Signature APPEND_INT = parseSignature("StringBuffer append(int)");
-  private static final Signature APPEND_LONG = parseSignature("StringBuffer append(long)");
-  private static final Signature APPEND_CHAR = parseSignature("StringBuffer append(char)");
-  private static final Signature APPEND_FLOAT = parseSignature("StringBuffer append(float)");
-  private static final Signature APPEND_DOUBLE = parseSignature("StringBuffer append(double)");
-  private static final Signature APPEND_STRING = parseSignature("StringBuffer append(String)");
-  private static final Signature APPEND_BOOLEAN = parseSignature("StringBuffer append(boolean)");
-  private static final Signature FLOAT_TO_INT_BITS = parseSignature("int floatToIntBits(float)");
-  private static final Signature DOUBLE_TO_LONG_BITS = parseSignature("long doubleToLongBits(double)");
+  private static final MethodSignature LENGTH = MethodSignature.from("int length()");
+  private static final MethodSignature HASH_CODE = MethodSignature.from("int hashCode()");
+  private static final MethodSignature GET_NAME = MethodSignature.from("String getName()");
+  private static final MethodSignature STRING_LENGTH = MethodSignature.from("int length()");
+  private static final MethodSignature TO_STRING = MethodSignature.from("String toString()");
+  private static final MethodSignature EQUALS = MethodSignature.from("boolean equals(Object)");
+  private static final MethodSignature SET_LENGTH = MethodSignature.from("void setLength(int)");
+  private static final MethodSignature FOR_NAME = MethodSignature.from("Class forName(String)");
+  private static final MethodSignature STRING_CHAR_AT = MethodSignature.from("char charAt(int)");
+  private static final MethodSignature APPEND_INT = MethodSignature.from("StringBuffer append(int)");
+  private static final MethodSignature APPEND_LONG = MethodSignature.from("StringBuffer append(long)");
+  private static final MethodSignature APPEND_CHAR = MethodSignature.from("StringBuffer append(char)");
+  private static final MethodSignature APPEND_FLOAT = MethodSignature.from("StringBuffer append(float)");
+  private static final MethodSignature APPEND_DOUBLE = MethodSignature.from("StringBuffer append(double)");
+  private static final MethodSignature APPEND_STRING = MethodSignature.from("StringBuffer append(String)");
+  private static final MethodSignature APPEND_BOOLEAN = MethodSignature.from("StringBuffer append(boolean)");
+  private static final MethodSignature FLOAT_TO_INT_BITS = MethodSignature.from("int floatToIntBits(float)");
+  private static final MethodSignature DOUBLE_TO_LONG_BITS = MethodSignature.from("long doubleToLongBits(double)");
 
-  private static final Signature GET_DECLARED_METHOD = //
-          parseSignature("java.lang.reflect.Method getDeclaredMethod(String, Class[])");
+  private static final MethodSignature GET_DECLARED_METHOD = //
+          MethodSignature.from("java.lang.reflect.Method getDeclaredMethod(String, Class[])");
 
   public static final ArrayDelimiters DEFAULT_DELIMITERS = new ArrayDelimiters("{", ", ", "}");
 
-  public static void factoryMethod(ClassEmitter ce, Signature sig) {
+  public static void factoryMethod(ClassEmitter ce, MethodSignature sig) {
 
     CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, sig);
     e.new_instance_this();
     e.dup();
     e.load_args();
-    e.invoke_constructor_this(parseConstructor(sig.getArgumentTypes()));
+    e.invoke_constructor_this(MethodSignature.forConstructor(sig.getArgumentTypes()));
     e.return_value();
     e.end_method();
   }
 
   public static void nullConstructor(ClassEmitter ce) {
-    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, CSTRUCT_NULL);
+    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, MethodSignature.EMPTY_CONSTRUCTOR);
     e.load_this();
     e.super_invoke_constructor();
     e.return_value();
@@ -886,7 +883,7 @@ public abstract class EmitUtils {
         final Map<String, List<MethodInfo>> fbuckets = buckets;
         String[] names = buckets.keySet().toArray(new String[buckets.size()]);
 
-        EmitUtils.stringSwitch(e, names,  Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
+        EmitUtils.stringSwitch(e, names, Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
 
           @Override
           public void processCase(Object key, Label dontUseEnd) throws Exception {
@@ -923,13 +920,13 @@ public abstract class EmitUtils {
   public static void addProperty(ClassEmitter ce, String name, Type type, String fieldName) {
     String property = TypeUtils.upperFirst(name);
     CodeEmitter e;
-    e = ce.beginMethod(Opcodes.ACC_PUBLIC, new Signature("get" + property, type, Constant.TYPES_EMPTY_ARRAY));
+    e = ce.beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature("get" + property, type, Constant.TYPES_EMPTY_ARRAY));
     e.load_this();
     e.getfield(fieldName);
     e.return_value();
     e.end_method();
 
-    e = ce.beginMethod(Opcodes.ACC_PUBLIC, new Signature("set" + property, Type.VOID_TYPE, new Type[] { type }));
+    e = ce.beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature("set" + property, Type.VOID_TYPE, new Type[] { type }));
     e.load_this();
     e.load_arg(0);
     e.putfield(fieldName);

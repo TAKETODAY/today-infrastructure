@@ -19,10 +19,10 @@ import java.lang.reflect.Method;
 
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.MethodInfo;
-import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
 import cn.taketoday.core.Constant;
 
@@ -43,10 +43,10 @@ public class AddInitTransformer extends ClassEmitterTransformer {
   }
 
   @Override
-  public CodeEmitter beginMethod(int access, Signature sig, Type... exceptions) {
+  public CodeEmitter beginMethod(int access, MethodSignature sig, Type... exceptions) {
 
     final CodeEmitter emitter = super.beginMethod(access, sig, exceptions);
-    if (sig.getName().equals(Constant.CONSTRUCTOR_NAME)) {
+    if (sig.getName().equals(MethodSignature.CONSTRUCTOR_NAME)) {
       return new CodeEmitter(emitter) {
         @Override
         public void visitInsn(int opcode) {

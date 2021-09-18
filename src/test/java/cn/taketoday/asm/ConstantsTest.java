@@ -500,6 +500,10 @@ public class ConstantsTest {
       case "SOURCE_DEPRECATED":
       case "SOURCE_MASK":
       case "__$lineHits$__s":
+      case "PRIVATE_FINAL_STATIC":
+      case "SWITCH_STYLE_HASHONLY":
+      case "SWITCH_STYLE_HASH":
+      case "SWITCH_STYLE_TRIE":
         return ConstantType.OTHER;
       default:
         throw new IllegalArgumentException("Unknown constant " + field.getName());

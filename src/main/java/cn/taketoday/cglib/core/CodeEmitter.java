@@ -23,6 +23,7 @@ import cn.taketoday.asm.Label;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 
@@ -32,14 +33,13 @@ import cn.taketoday.core.Constant;
 @SuppressWarnings("all")
 public class CodeEmitter extends LocalVariablesSorter {
 
-  private static final Signature CSTRUCT_STRING = TypeUtils.parseConstructor("String");
-  private static final Signature INT_VALUE = TypeUtils.parseSignature("int intValue()");
-  private static final Signature CSTRUCT_NULL = TypeUtils.parseConstructor(Constant.BLANK);
-  private static final Signature CHAR_VALUE = TypeUtils.parseSignature("char charValue()");
-  private static final Signature LONG_VALUE = TypeUtils.parseSignature("long longValue()");
-  private static final Signature FLOAT_VALUE = TypeUtils.parseSignature("float floatValue()");
-  private static final Signature DOUBLE_VALUE = TypeUtils.parseSignature("double doubleValue()");
-  private static final Signature BOOLEAN_VALUE = TypeUtils.parseSignature("boolean booleanValue()");
+  private static final MethodSignature CSTRUCT_STRING = MethodSignature.forConstructor("String");
+  private static final MethodSignature INT_VALUE = MethodSignature.from("int intValue()");
+  private static final MethodSignature CHAR_VALUE = MethodSignature.from("char charValue()");
+  private static final MethodSignature LONG_VALUE = MethodSignature.from("long longValue()");
+  private static final MethodSignature FLOAT_VALUE = MethodSignature.from("float floatValue()");
+  private static final MethodSignature DOUBLE_VALUE = MethodSignature.from("double doubleValue()");
+  private static final MethodSignature BOOLEAN_VALUE = MethodSignature.from("boolean booleanValue()");
 
   public static final int ADD = Opcodes.IADD;
   public static final int MUL = Opcodes.IMUL;
@@ -66,12 +66,12 @@ public class CodeEmitter extends LocalVariablesSorter {
 
     private ClassInfo classInfo;
     private int access;
-    private Signature sig;
+    private MethodSignature sig;
     private Type[] argumentTypes;
     private int localOffset;
     private Type[] exceptionTypes;
 
-    State(ClassInfo classInfo, int access, Signature sig, Type[] exceptionTypes) {
+    State(ClassInfo classInfo, int access, MethodSignature sig, Type[] exceptionTypes) {
       this.classInfo = classInfo;
       this.access = access;
       this.sig = sig;
@@ -88,7 +88,7 @@ public class CodeEmitter extends LocalVariablesSorter {
       return access;
     }
 
-    public Signature getSignature() {
+    public MethodSignature getSignature() {
       return sig;
     }
 
@@ -102,7 +102,7 @@ public class CodeEmitter extends LocalVariablesSorter {
     }
   }
 
-  CodeEmitter(ClassEmitter ce, MethodVisitor mv, int access, Signature sig, Type[] exceptionTypes) {
+  CodeEmitter(ClassEmitter ce, MethodVisitor mv, int access, MethodSignature sig, Type[] exceptionTypes) {
     super(access, sig.getDescriptor(), mv);
     this.ce = ce;
     state = new State(ce.getClassInfo(), access, sig, exceptionTypes);
@@ -118,7 +118,7 @@ public class CodeEmitter extends LocalVariablesSorter {
     return false;
   }
 
-  public Signature getSignature() {
+  public MethodSignature getSignature() {
     return state.sig;
   }
 
@@ -559,12 +559,12 @@ public class CodeEmitter extends LocalVariablesSorter {
     super_invoke(state.sig);
   }
 
-  public void super_invoke(Signature sig) {
+  public void super_invoke(MethodSignature sig) {
     emit_invoke(Opcodes.INVOKESPECIAL, ce.getSuperType(), sig, false);
   }
 
   public void invoke_constructor(Type type) {
-    invoke_constructor(type, CSTRUCT_NULL);
+    invoke_constructor(type, MethodSignature.EMPTY_CONSTRUCTOR);
   }
 
   public void super_invoke_constructor() {
@@ -575,7 +575,7 @@ public class CodeEmitter extends LocalVariablesSorter {
     invoke_constructor(ce.getClassType());
   }
 
-  private void emit_invoke(int opcode, Type type, Signature sig, boolean isInterface) {
+  private void emit_invoke(int opcode, Type type, MethodSignature sig, boolean isInterface) {
 
 //      if (sig.getName().equals(Opcodes.CONSTRUCTOR_NAME)
 //            && ((opcode == Opcodes.INVOKEVIRTUAL) || (opcode == Opcodes.INVOKESTATIC))) {
@@ -589,39 +589,39 @@ public class CodeEmitter extends LocalVariablesSorter {
     );
   }
 
-  public void invoke_interface(Type owner, Signature sig) {
+  public void invoke_interface(Type owner, MethodSignature sig) {
     emit_invoke(Opcodes.INVOKEINTERFACE, owner, sig, true);
   }
 
-  public void invoke_virtual(Type owner, Signature sig) {
+  public void invoke_virtual(Type owner, MethodSignature sig) {
     emit_invoke(Opcodes.INVOKEVIRTUAL, owner, sig, false);
   }
 
-  public void invoke_static(Type owner, Signature sig) {
+  public void invoke_static(Type owner, MethodSignature sig) {
     emit_invoke(Opcodes.INVOKESTATIC, owner, sig, false);
   }
 
-  public void invoke_static(Type owner, Signature sig, boolean isInterface) {
+  public void invoke_static(Type owner, MethodSignature sig, boolean isInterface) {
     emit_invoke(Opcodes.INVOKESTATIC, owner, sig, isInterface);
   }
 
-  public void invoke_virtual_this(Signature sig) {
+  public void invoke_virtual_this(MethodSignature sig) {
     invoke_virtual(ce.getClassType(), sig);
   }
 
-  public void invoke_static_this(Signature sig) {
+  public void invoke_static_this(MethodSignature sig) {
     invoke_static(ce.getClassType(), sig);
   }
 
-  public void invoke_constructor(Type type, Signature sig) {
+  public void invoke_constructor(Type type, MethodSignature sig) {
     emit_invoke(Opcodes.INVOKESPECIAL, type, sig, false);
   }
 
-  public void invoke_constructor_this(Signature sig) {
+  public void invoke_constructor_this(MethodSignature sig) {
     invoke_constructor(ce.getClassType(), sig);
   }
 
-  public void super_invoke_constructor(Signature sig) {
+  public void super_invoke_constructor(MethodSignature sig) {
     invoke_constructor(ce.getSuperType(), sig);
   }
 
@@ -835,7 +835,7 @@ public class CodeEmitter extends LocalVariablesSorter {
       dup_x1();
       swap();
     }
-    invoke_constructor(boxed, new Signature(Constant.CONSTRUCTOR_NAME, Type.VOID_TYPE, Type.array(type)));
+    invoke_constructor(boxed, new MethodSignature(MethodSignature.CONSTRUCTOR_NAME, Type.VOID_TYPE, Type.array(type)));
   }
 
   /**
@@ -850,7 +850,7 @@ public class CodeEmitter extends LocalVariablesSorter {
    */
   public void unbox(Type type) {
     Type t = Type.TYPE_NUMBER;
-    Signature sig = null;
+    MethodSignature sig = null;
     switch (type.getSort()) {
       case Type.VOID:
         return;
@@ -965,8 +965,8 @@ public class CodeEmitter extends LocalVariablesSorter {
   public void invoke(MethodInfo method, Type virtualType) {
     ClassInfo classInfo = method.getClassInfo();
     Type type = classInfo.getType();
-    Signature sig = method.getSignature();
-    if (sig.getName().equals(Constant.CONSTRUCTOR_NAME)) {
+    MethodSignature sig = method.getSignature();
+    if (sig.getName().equals(MethodSignature.CONSTRUCTOR_NAME)) {
       invoke_constructor(type, sig);
     }
     else if (Modifier.isStatic(method.getModifiers())) {

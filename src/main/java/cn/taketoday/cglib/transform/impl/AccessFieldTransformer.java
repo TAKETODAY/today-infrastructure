@@ -17,8 +17,8 @@ package cn.taketoday.cglib.transform.impl;
 
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.CodeEmitter;
-import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
 import cn.taketoday.core.Constant;
@@ -45,13 +45,13 @@ public class AccessFieldTransformer extends ClassEmitterTransformer {
     String property = TypeUtils.upperFirst(callback.getPropertyName(getClassType(), name));
     if (property != null) {
       CodeEmitter e;
-      e = beginMethod(Opcodes.ACC_PUBLIC, new Signature("get" + property, type, Constant.TYPES_EMPTY_ARRAY));
+      e = beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature("get" + property, type, Constant.TYPES_EMPTY_ARRAY));
       e.load_this();
       e.getfield(name);
       e.return_value();
       e.end_method();
 
-      e = beginMethod(Opcodes.ACC_PUBLIC, new Signature("set" + property, Type.VOID_TYPE, Type.array(type)));
+      e = beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature("set" + property, Type.VOID_TYPE, Type.array(type)));
       e.load_this();
       e.load_arg(0);
       e.putfield(name);

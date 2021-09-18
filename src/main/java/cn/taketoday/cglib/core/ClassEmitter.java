@@ -24,6 +24,7 @@ import cn.taketoday.asm.FieldVisitor;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.transform.ClassTransformer;
 import cn.taketoday.core.Constant;
 
@@ -42,7 +43,7 @@ public class ClassEmitter extends ClassTransformer {
   private MethodVisitor rawStaticInit;
   private CodeEmitter staticInit;
   private CodeEmitter staticHook;
-  private Signature staticHookSig;
+  private MethodSignature staticHookSig;
 
   public ClassEmitter(ClassVisitor cv) {
     setTarget(cv);
@@ -128,7 +129,8 @@ public class ClassEmitter extends ClassTransformer {
     cv.visit(version, access, classInfo.getType().getInternalName(), null,
              classInfo.getSuperType().getInternalName(), TypeUtils.toInternalNames(interfaces));
 
-    if (source != null) cv.visitSource(source, null);
+    if (source != null)
+      cv.visitSource(source, null);
     init();
   }
 
@@ -195,7 +197,7 @@ public class ClassEmitter extends ClassTransformer {
       throw new IllegalStateException("static hook is invalid for this class");
     }
     if (staticHook == null) {
-      staticHookSig = new Signature("today$StaticHook" + getNextHook(), "()V");
+      staticHookSig = new MethodSignature("today$StaticHook" + getNextHook(), "()V");
       staticHook = beginMethod(Opcodes.ACC_STATIC, staticHookSig);
       if (staticInit != null) {
         staticInit.invoke_static_this(staticHookSig);
@@ -204,7 +206,7 @@ public class ClassEmitter extends ClassTransformer {
     return staticHook;
   }
 
-  protected void init() {}
+  protected void init() { }
 
   public int getAccess() {
     return classInfo.getModifiers();
@@ -236,7 +238,7 @@ public class ClassEmitter extends ClassTransformer {
     cv.visitEnd();
   }
 
-  public CodeEmitter beginMethod(int access, Signature sig, Type... exceptions) {
+  public CodeEmitter beginMethod(int access, MethodSignature sig, Type... exceptions) {
     if (classInfo == null) {
       throw new IllegalStateException("classInfo is null! " + this);
     }
@@ -244,7 +246,7 @@ public class ClassEmitter extends ClassTransformer {
     final MethodVisitor visitor = cv.visitMethod(access, sig.getName(), sig.getDescriptor(),
                                                  null, TypeUtils.toInternalNames(exceptions));
 
-    if (sig.equals(Constant.SIG_STATIC) && !Modifier.isInterface(getAccess())) {
+    if (sig.equals(MethodSignature.SIG_STATIC) && !Modifier.isInterface(getAccess())) {
       return begin_static(true, visitor);
     }
     else if (sig.equals(staticHookSig)) {
@@ -264,7 +266,7 @@ public class ClassEmitter extends ClassTransformer {
   }
 
   public CodeEmitter begin_static(boolean hook) {
-    final Signature sigStatic = Constant.SIG_STATIC;
+    final MethodSignature sigStatic = MethodSignature.SIG_STATIC;
     return begin_static(hook, cv.visitMethod(Opcodes.ACC_STATIC,
                                              sigStatic.getName(),
                                              sigStatic.getDescriptor(), null, null));
@@ -273,7 +275,7 @@ public class ClassEmitter extends ClassTransformer {
   public CodeEmitter begin_static(boolean hook, MethodVisitor visitor) {
     rawStaticInit = visitor;
     final MethodVisitor wrapped = new MethodVisitor(visitor) {
-      public void visitMaxs(int maxStack, int maxLocals) {}
+      public void visitMaxs(int maxStack, int maxLocals) { }
 
       public void visitInsn(int insn) {
         if (insn != Opcodes.RETURN) {
@@ -281,7 +283,7 @@ public class ClassEmitter extends ClassTransformer {
         }
       }
     };
-    staticInit = new CodeEmitter(this, wrapped, Opcodes.ACC_STATIC, Constant.SIG_STATIC, null);
+    staticInit = new CodeEmitter(this, wrapped, Opcodes.ACC_STATIC, MethodSignature.SIG_STATIC, null);
     if (hook) {
       if (staticHook == null) {
         getStaticHook(); // force static hook creation
@@ -375,6 +377,6 @@ public class ClassEmitter extends ClassTransformer {
 
   @Override
   public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-    return beginMethod(access, new Signature(name, desc), TypeUtils.fromInternalNames(exceptions));
+    return beginMethod(access, new MethodSignature(name, desc), TypeUtils.fromInternalNames(exceptions));
   }
 }

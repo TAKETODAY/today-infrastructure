@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.ClassInfo;
@@ -33,8 +34,6 @@ import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.Local;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.ObjectSwitchCallback;
-import cn.taketoday.cglib.core.Signature;
-import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -50,7 +49,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
 
   static final String FIND_PROXY_NAME = "today$FindMethodProxy";
 
-  static final Class<?>[] FIND_PROXY_TYPES = { Signature.class };
+  static final Class<?>[] FIND_PROXY_TYPES = { MethodSignature.class };
 
   private static final Type METHOD = Type.fromClass(Method.class);
   private static final Type ABSTRACT_METHOD_ERROR = Type.fromClass(AbstractMethodError.class);
@@ -59,37 +58,37 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
   private static final Type METHOD_PROXY = Type.fromClass(MethodProxy.class);
   private static final Type METHOD_INTERCEPTOR = Type.fromClass(MethodInterceptor.class);
 
-  private static final Signature GET_DECLARED_METHODS = //
-          TypeUtils.parseSignature("java.lang.reflect.Method[] getDeclaredMethods()");
+  private static final MethodSignature GET_DECLARED_METHODS = //
+          MethodSignature.from("java.lang.reflect.Method[] getDeclaredMethods()");
 
-  private static final Signature FIND_METHODS = //
-          TypeUtils.parseSignature("java.lang.reflect.Method[] findMethods(String[], java.lang.reflect.Method[])");
+  private static final MethodSignature FIND_METHODS = //
+          MethodSignature.from("java.lang.reflect.Method[] findMethods(String[], java.lang.reflect.Method[])");
 
-  private static final Signature MAKE_PROXY = new Signature("create",
-                                                            METHOD_PROXY, //
-                                                            array(Type.TYPE_CLASS,
+  private static final MethodSignature MAKE_PROXY = new MethodSignature("create",
+                                                              METHOD_PROXY, //
+                                                              array(Type.TYPE_CLASS,
                                                                   Type.TYPE_CLASS,
                                                                   Type.TYPE_STRING,
                                                                   Type.TYPE_STRING,
                                                                   Type.TYPE_STRING)//
   );
 
-  private static final Signature INTERCEPT = new Signature("intercept",
-                                                           Type.TYPE_OBJECT,
-                                                           array(Type.TYPE_OBJECT,
+  private static final MethodSignature INTERCEPT = new MethodSignature("intercept",
+                                                             Type.TYPE_OBJECT,
+                                                             array(Type.TYPE_OBJECT,
                                                                  METHOD,
                                                                  Type.TYPE_OBJECT_ARRAY,
                                                                  METHOD_PROXY)//
   );
 
-  private static final Signature FIND_PROXY = new Signature(FIND_PROXY_NAME, METHOD_PROXY, array(Type.TYPE_SIGNATURE));
-  private static final Signature TO_STRING = TypeUtils.parseSignature("String toString()");
+  private static final MethodSignature FIND_PROXY = new MethodSignature(FIND_PROXY_NAME, METHOD_PROXY, array(Type.TYPE_SIGNATURE));
+  private static final MethodSignature TO_STRING = MethodSignature.from("String toString()");
 
-  private String getMethodField(Signature impl) {
+  private String getMethodField(MethodSignature impl) {
     return impl.getName() + "$Method";
   }
 
-  private String getMethodProxyField(Signature impl) {
+  private String getMethodProxyField(MethodSignature impl) {
     return impl.getName() + "$Proxy";
   }
 
@@ -98,8 +97,8 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
     final HashMap<String, String> sigMap = new HashMap<>();
 
     for (final MethodInfo method : methods) {
-      final Signature sig = method.getSignature();
-      final Signature impl = context.getImplSignature(method);
+      final MethodSignature sig = method.getSignature();
+      final MethodSignature impl = context.getImplSignature(method);
 
       final String methodField = getMethodField(impl);
       final String methodProxyField = getMethodProxyField(impl);
@@ -187,7 +186,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
       e.push(2 * size);
       e.newArray(Type.TYPE_STRING);
       for (int index = 0; index < size; index++) {
-        Signature sig = classMethods.get(index).getSignature();
+        MethodSignature sig = classMethods.get(index).getSignature();
         e.dup();
         e.push(2 * index);
         e.push(sig.getName());
@@ -206,8 +205,8 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
 
       for (int index = 0; index < size; index++) {
         MethodInfo method = classMethods.get(index);
-        Signature sig = method.getSignature();
-        Signature impl = context.getImplSignature(method);
+        MethodSignature sig = method.getSignature();
+        MethodSignature impl = context.getImplSignature(method);
         e.dup();
         e.push(index);
         e.array_load(METHOD);

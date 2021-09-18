@@ -21,14 +21,13 @@ import java.security.ProtectionDomain;
 
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.KeyFactory;
-import cn.taketoday.cglib.core.Signature;
-import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
@@ -111,12 +110,12 @@ abstract public class ConstructorDelegate {
 
       Type declaring = Type.fromClass(constructor.getDeclaringClass());
       EmitUtils.nullConstructor(ce);
-      CodeEmitter e = ce.beginMethod(ACC_PUBLIC, Signature.fromMember(newInstance),
+      CodeEmitter e = ce.beginMethod(ACC_PUBLIC, MethodSignature.from(newInstance),
                                      CglibReflectUtils.getExceptionTypes(newInstance));
       e.new_instance(declaring);
       e.dup();
       e.load_args();
-      e.invoke_constructor(declaring, Signature.fromMember(constructor));
+      e.invoke_constructor(declaring, MethodSignature.from(constructor));
       e.return_value();
       e.end_method();
       ce.endClass();

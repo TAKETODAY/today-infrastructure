@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.asm.Type;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -39,15 +40,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Unit tests for {@link Method}.
+ * Unit tests for {@link MethodSignature}.
  *
  * @author Eric Bruneton
  */
-public class MethodTest {
+public class MethodSignatureTest {
 
   @Test
   public void testConstructor_fromDescriptor() {
-    Method method = new Method("name", "(I)J");
+    MethodSignature method = new MethodSignature("name", "(I)J");
 
     assertEquals("name", method.getName());
     assertEquals("(I)J", method.getDescriptor());
@@ -58,7 +59,7 @@ public class MethodTest {
 
   @Test
   public void testConstructor_fromTypes() {
-    Method method = new Method("name", Type.LONG_TYPE, new Type[] { Type.INT_TYPE });
+    MethodSignature method = new MethodSignature("name", Type.LONG_TYPE, new Type[] { Type.INT_TYPE });
 
     assertEquals("name", method.getName());
     assertEquals("(I)J", method.getDescriptor());
@@ -69,7 +70,7 @@ public class MethodTest {
 
   @Test
   public void testGetMethod_fromMethodObject() throws ReflectiveOperationException {
-    Method method = Method.fromMethod(Object.class.getMethod("equals", Object.class));
+    MethodSignature method = MethodSignature.from(Object.class.getMethod("equals", Object.class));
 
     assertEquals("equals", method.getName());
     assertEquals("(Ljava/lang/Object;)Z", method.getDescriptor());
@@ -77,7 +78,7 @@ public class MethodTest {
 
   @Test
   public void testGetMethod_fromConstructorObject() throws ReflectiveOperationException {
-    Method method = Method.fromConstructor(Object.class.getConstructor());
+    MethodSignature method = MethodSignature.from(Object.class.getConstructor());
 
     assertEquals("<init>", method.getName());
     assertEquals("()V", method.getDescriptor());
@@ -85,8 +86,8 @@ public class MethodTest {
 
   @Test
   public void testGetMethod_fromDescriptor() {
-    Method method =
-            Method.fromDeclaration(
+    MethodSignature method =
+            MethodSignature.from(
                     "boolean name(byte, char, short, int, float, long, double, pkg.Class, pkg.Class[])");
 
     assertEquals("name", method.getName());
@@ -95,16 +96,16 @@ public class MethodTest {
 
   @Test
   public void testGetMethod_fromInvalidDescriptor() {
-    assertThrows(IllegalArgumentException.class, () -> Method.fromDeclaration("name()"));
-    assertThrows(IllegalArgumentException.class, () -> Method.fromDeclaration("void name"));
-    assertThrows(IllegalArgumentException.class, () -> Method.fromDeclaration("void name(]"));
+    assertThrows(IllegalArgumentException.class, () -> MethodSignature.from("name()"));
+    assertThrows(IllegalArgumentException.class, () -> MethodSignature.from("void name"));
+    assertThrows(IllegalArgumentException.class, () -> MethodSignature.from("void name(]"));
   }
 
   @Test
   public void testGetMethod_withDefaultPackage() {
-    Method withoutDefaultPackage =
-            Method.fromDeclaration("void name(Object)", /* defaultPackage= */ false);
-    Method withDefaultPackage = Method.fromDeclaration("void name(Object)", /* defaultPackage= */ true);
+    MethodSignature withoutDefaultPackage =
+            MethodSignature.from("void name(Object)", /* defaultPackage= */ false);
+    MethodSignature withDefaultPackage = MethodSignature.from("void name(Object)", /* defaultPackage= */ true);
 
     assertEquals("(Ljava/lang/Object;)V", withoutDefaultPackage.getDescriptor());
     assertEquals("(LObject;)V", withDefaultPackage.getDescriptor());
@@ -112,14 +113,14 @@ public class MethodTest {
 
   @Test
   public void testEquals() {
-    Method nullMethod = null;
+    MethodSignature nullMethod = null;
 
-    boolean equalsNull = new Method("name", "()V").equals(nullMethod);
+    boolean equalsNull = new MethodSignature("name", "()V").equals(nullMethod);
     boolean equalsMethodWithDifferentName =
-            new Method("name", "()V").equals(new Method("other", "()V"));
+            new MethodSignature("name", "()V").equals(new MethodSignature("other", "()V"));
     boolean equalsMethodWithDifferentDescriptor =
-            new Method("name", "()V").equals(new Method("name", "(I)J"));
-    boolean equalsSame = new Method("name", "()V").equals(Method.fromDeclaration("void name()"));
+            new MethodSignature("name", "()V").equals(new MethodSignature("name", "(I)J"));
+    boolean equalsSame = new MethodSignature("name", "()V").equals(MethodSignature.from("void name()"));
 
     assertFalse(equalsNull);
     assertFalse(equalsMethodWithDifferentName);
@@ -129,6 +130,25 @@ public class MethodTest {
 
   @Test
   public void testHashCode() {
-    assertNotEquals(0, new Method("name", "()V").hashCode());
+    assertNotEquals(0, new MethodSignature("name", "()V").hashCode());
   }
+
+  @Test
+  public void forConstructor() {
+    MethodSignature cstruct_object = MethodSignature.forConstructor("Object");
+
+    MethodSignature withoutDefaultPackage =
+            MethodSignature.from("void <init>(Object)", /* defaultPackage= */ false);
+
+    assertEquals("(Ljava/lang/Object;)V", withoutDefaultPackage.getDescriptor());
+
+    assertThat(cstruct_object.getDescriptor()).isEqualTo(withoutDefaultPackage.getDescriptor());
+    // <init>(Object,Object,Class)
+    MethodSignature cstruct_objects = MethodSignature.forConstructor("Object,Object,Class");
+    MethodSignature signature =
+            MethodSignature.from("void <init>(Object,Object,Class)");
+
+    assertThat(cstruct_objects).isEqualTo(signature);
+  }
+
 }

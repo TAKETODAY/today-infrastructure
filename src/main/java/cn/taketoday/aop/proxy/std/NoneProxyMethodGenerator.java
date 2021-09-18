@@ -27,13 +27,13 @@ import java.lang.reflect.Method;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.AdvisedSupport;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.CodeGenerationException;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.MethodInfo;
-import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.util.ObjectUtils;
 
 import static cn.taketoday.aop.proxy.std.DefaultProxyMethodGenerator.excludeAbstractModifiers;
@@ -44,12 +44,12 @@ import static cn.taketoday.aop.proxy.std.DefaultProxyMethodGenerator.excludeAbst
  */
 public class NoneProxyMethodGenerator implements ProxyMethodGenerator {
 
-  static final Signature targetSourceGetTarget;
+  static final MethodSignature targetSourceGetTarget;
   static final Type targetSourceType = Type.fromClass(TargetSource.class);
 
   static {
     try {
-      targetSourceGetTarget = new Signature(TargetSource.class.getDeclaredMethod("getTarget"));
+      targetSourceGetTarget = MethodSignature.from(TargetSource.class.getDeclaredMethod("getTarget"));
     }
     catch (NoSuchMethodException e) {
       throw new CodeGenerationException(e);

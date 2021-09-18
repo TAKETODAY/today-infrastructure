@@ -18,11 +18,10 @@ package cn.taketoday.cglib.proxy;
 import java.util.List;
 
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.MethodInfo;
-import cn.taketoday.cglib.core.Signature;
-import cn.taketoday.cglib.core.TypeUtils;
 
 /**
  * @author TODAY <br>
@@ -33,7 +32,7 @@ class FixedValueGenerator implements CallbackGenerator {
   public static final FixedValueGenerator INSTANCE = new FixedValueGenerator();
 
   private static final Type FIXED_VALUE = Type.fromClass(FixedValue.class);
-  private static final Signature LOAD_OBJECT = TypeUtils.parseSignature("Object loadObject()");
+  private static final MethodSignature LOAD_OBJECT = MethodSignature.from("Object loadObject()");
 
   public void generate(final ClassEmitter ce, final Context context, final List<MethodInfo> methods) {
 

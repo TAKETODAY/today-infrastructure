@@ -23,6 +23,7 @@ import java.util.Objects;
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
@@ -30,8 +31,6 @@ import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.KeyFactory;
 import cn.taketoday.cglib.core.MethodInfo;
-import cn.taketoday.cglib.core.Signature;
-import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -169,7 +168,7 @@ abstract public class MethodDelegate {
   public static class Generator extends AbstractClassGenerator {
 
     private static final Type METHOD_DELEGATE = Type.fromClass(MethodDelegate.class);
-    private static final Signature NEW_INSTANCE = new Signature("newInstance", METHOD_DELEGATE, new Type[] { Type.TYPE_OBJECT });
+    private static final MethodSignature NEW_INSTANCE = new MethodSignature("newInstance", METHOD_DELEGATE, new Type[] { Type.TYPE_OBJECT });
 
     private Object target;
     private Class targetClass;

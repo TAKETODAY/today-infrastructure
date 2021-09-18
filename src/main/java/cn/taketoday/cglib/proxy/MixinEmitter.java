@@ -21,13 +21,13 @@ import java.util.HashSet;
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.MethodWrapper;
-import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
 
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
@@ -43,9 +43,9 @@ class MixinEmitter extends ClassEmitter {
 
   private static final String FIELD_NAME = "today$Delegates";
   private static final Type MIXIN = Type.fromClass(Mixin.class);
-  private static final Signature CSTRUCT_OBJECT_ARRAY = TypeUtils.parseConstructor("Object[]");
+  private static final MethodSignature CSTRUCT_OBJECT_ARRAY = MethodSignature.forConstructor("Object[]");
 
-  private static final Signature NEW_INSTANCE = new Signature("newInstance", MIXIN, array(Type.TYPE_OBJECT_ARRAY));
+  private static final MethodSignature NEW_INSTANCE = new MethodSignature("newInstance", MIXIN, array(Type.TYPE_OBJECT_ARRAY));
 
   public MixinEmitter(ClassVisitor v, String className, Class<?>[] classes, int[] route) {
     super(v);

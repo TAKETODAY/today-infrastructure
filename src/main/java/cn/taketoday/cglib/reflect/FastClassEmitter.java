@@ -27,6 +27,7 @@ import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.Block;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
@@ -37,7 +38,6 @@ import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.MethodInfoTransformer;
 import cn.taketoday.cglib.core.ObjectSwitchCallback;
 import cn.taketoday.cglib.core.ProcessSwitchCallback;
-import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.cglib.core.VisibilityPredicate;
 import cn.taketoday.core.Constant;
@@ -51,17 +51,17 @@ import cn.taketoday.util.StringUtils;
 @SuppressWarnings("all")
 class FastClassEmitter extends ClassEmitter {
 
-  private static final Signature CSTRUCT_CLASS = TypeUtils.parseConstructor("Class");
-  private static final Signature METHOD_GET_INDEX = TypeUtils.parseSignature("int getIndex(String, Class[])");
-  private static final Signature SIGNATURE_GET_INDEX = new Signature("getIndex", Type.INT_TYPE, new Type[] { Type.TYPE_SIGNATURE });
-  private static final Signature TO_STRING = TypeUtils.parseSignature("String toString()");
-  private static final Signature CONSTRUCTOR_GET_INDEX = TypeUtils.parseSignature("int getIndex(Class[])");
-  private static final Signature INVOKE = TypeUtils.parseSignature("Object invoke(int, Object, Object[])");
-  private static final Signature NEW_INSTANCE = TypeUtils.parseSignature("Object newInstance(int, Object[])");
-  private static final Signature GET_MAX_INDEX = TypeUtils.parseSignature("int getMaxIndex()");
+  private static final MethodSignature CSTRUCT_CLASS = MethodSignature.forConstructor("Class");
+  private static final MethodSignature METHOD_GET_INDEX = MethodSignature.from("int getIndex(String, Class[])");
+  private static final MethodSignature SIGNATURE_GET_INDEX = new MethodSignature("getIndex", Type.INT_TYPE, new Type[] { Type.TYPE_SIGNATURE });
+  private static final MethodSignature TO_STRING = MethodSignature.from("String toString()");
+  private static final MethodSignature CONSTRUCTOR_GET_INDEX = MethodSignature.from("int getIndex(Class[])");
+  private static final MethodSignature INVOKE = MethodSignature.from("Object invoke(int, Object, Object[])");
+  private static final MethodSignature NEW_INSTANCE = MethodSignature.from("Object newInstance(int, Object[])");
+  private static final MethodSignature GET_MAX_INDEX = MethodSignature.from("int getMaxIndex()");
 
-  private static final Signature GET_SIGNATURE_WITHOUT_RETURN_TYPE = //
-          TypeUtils.parseSignature("String getSignatureWithoutReturnType(String, Class[])");
+  private static final MethodSignature GET_SIGNATURE_WITHOUT_RETURN_TYPE = //
+          MethodSignature.from("String getSignatureWithoutReturnType(String, Class[])");
 
   private static final Type FAST_CLASS = Type.fromClass(FastClass.class);
   private static final Type ILLEGAL_ARGUMENT_EXCEPTION = Type.parse("IllegalArgumentException");
@@ -137,7 +137,7 @@ class FastClassEmitter extends ClassEmitter {
     CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, SIGNATURE_GET_INDEX);
     List<String> signatures = CollectionUtils.transform(methods, new Function<Method, String>() {
       public String apply(Method obj) {
-        return Signature.fromMember(obj).toString();
+        return MethodSignature.from(obj).toString();
       }
     });
     e.load_arg(0);
@@ -154,7 +154,7 @@ class FastClassEmitter extends ClassEmitter {
       // hack for big classes
       List<String> signatures = CollectionUtils.transform(methods, new Function<Method, String>() {
         public String apply(Method obj) {
-          final String s = Signature.fromMember(obj).toString();
+          final String s = MethodSignature.from(obj).toString();
           return s.substring(0, s.lastIndexOf(')') + 1);
         }
       });

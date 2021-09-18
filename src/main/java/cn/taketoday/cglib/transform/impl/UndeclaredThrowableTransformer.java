@@ -19,13 +19,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.Block;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
-import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.Constant;
 
 /**
  * @author Today <br>
@@ -51,10 +50,10 @@ public class UndeclaredThrowableTransformer extends ClassEmitterTransformer {
   }
 
   @Override
-  public CodeEmitter beginMethod(int access, final Signature sig, final Type... exceptions) {
+  public CodeEmitter beginMethod(int access, final MethodSignature sig, final Type... exceptions) {
 
     final CodeEmitter e = super.beginMethod(access, sig, exceptions);
-    if (Modifier.isAbstract(access) || sig.equals(Constant.SIG_STATIC)) {
+    if (Modifier.isAbstract(access) || sig.equals(MethodSignature.SIG_STATIC)) {
       return e;
     }
     return new CodeEmitter(e) {

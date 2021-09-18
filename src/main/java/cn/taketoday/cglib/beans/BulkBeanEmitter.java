@@ -21,6 +21,7 @@ import java.lang.reflect.Modifier;
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.Block;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
@@ -28,7 +29,6 @@ import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.Local;
 import cn.taketoday.cglib.core.MethodInfo;
-import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.ReflectionUtils;
@@ -36,9 +36,9 @@ import cn.taketoday.util.ReflectionUtils;
 @SuppressWarnings("all")
 class BulkBeanEmitter extends ClassEmitter {
 
-  private static final Signature GET_PROPERTY_VALUES = TypeUtils.parseSignature("void getPropertyValues(Object, Object[])");
-  private static final Signature SET_PROPERTY_VALUES = TypeUtils.parseSignature("void setPropertyValues(Object, Object[])");
-  private static final Signature CSTRUCT_EXCEPTION = TypeUtils.parseConstructor("Throwable, int");
+  private static final MethodSignature GET_PROPERTY_VALUES = MethodSignature.from("void getPropertyValues(Object, Object[])");
+  private static final MethodSignature SET_PROPERTY_VALUES = MethodSignature.from("void setPropertyValues(Object, Object[])");
+  private static final MethodSignature CSTRUCT_EXCEPTION = MethodSignature.forConstructor("Throwable, int");
 
   private static final Type BULK_BEAN = Type.fromClass(BulkBean.class);
   private static final Type BULK_BEAN_EXCEPTION = Type.fromClass(BulkBeanException.class);

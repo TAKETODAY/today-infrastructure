@@ -22,6 +22,7 @@ import java.util.List;
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
@@ -30,8 +31,6 @@ import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.Local;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.ProcessArrayCallback;
-import cn.taketoday.cglib.core.Signature;
-import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -83,9 +82,9 @@ abstract public class MulticastDelegate implements Cloneable {
   public static class Generator extends AbstractClassGenerator<Object> {
 
     private static final Type MULTICAST_DELEGATE = Type.fromClass(MulticastDelegate.class);
-    private static final Signature NEW_INSTANCE = new Signature("newInstance", MULTICAST_DELEGATE, Constant.TYPES_EMPTY_ARRAY);
-    private static final Signature ADD_DELEGATE = new Signature("add", MULTICAST_DELEGATE, new Type[] { Type.TYPE_OBJECT });
-    private static final Signature ADD_HELPER = new Signature("addHelper", MULTICAST_DELEGATE, new Type[] { Type.TYPE_OBJECT });
+    private static final MethodSignature NEW_INSTANCE = new MethodSignature("newInstance", MULTICAST_DELEGATE, Constant.TYPES_EMPTY_ARRAY);
+    private static final MethodSignature ADD_DELEGATE = new MethodSignature("add", MULTICAST_DELEGATE, new Type[] { Type.TYPE_OBJECT });
+    private static final MethodSignature ADD_HELPER = new MethodSignature("addHelper", MULTICAST_DELEGATE, new Type[] { Type.TYPE_OBJECT });
 
     private Class<?> iface;
 

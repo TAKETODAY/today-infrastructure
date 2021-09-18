@@ -20,9 +20,9 @@ import java.lang.reflect.Modifier;
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.Local;
-import cn.taketoday.cglib.core.Signature;
 import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
 
@@ -38,8 +38,8 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
   private static final Type ENABLED = Type.fromClass(InterceptFieldEnabled.class);
   private static final Type CALLBACK = Type.fromClass(InterceptFieldCallback.class);
 
-  private static final Signature ENABLED_SET = new Signature("setInterceptFieldCallback", Type.VOID_TYPE, array(CALLBACK));
-  private static final Signature ENABLED_GET = new Signature("getInterceptFieldCallback", CALLBACK, new Type[0]);
+  private static final MethodSignature ENABLED_SET = new MethodSignature("setInterceptFieldCallback", Type.VOID_TYPE, array(CALLBACK));
+  private static final MethodSignature ENABLED_GET = new MethodSignature("getInterceptFieldCallback", CALLBACK, new Type[0]);
 
   private final InterceptFieldFilter filter;
 
@@ -140,7 +140,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
   }
 
   @Override
-  public CodeEmitter beginMethod(int access, Signature sig, Type... exceptions) {
+  public CodeEmitter beginMethod(int access, MethodSignature sig, Type... exceptions) {
 
     return new CodeEmitter(super.beginMethod(access, sig, exceptions)) {
 
@@ -164,28 +164,28 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
         super.visitFieldInsn(opcode, owner, name, desc);
       }
 
-      private void helper(Type owner, Signature sig) {
+      private void helper(Type owner, MethodSignature sig) {
         invoke_virtual(owner, sig);
       }
     };
   }
 
-  private static Signature readMethodSig(String name, String desc) {
-    return new Signature("$cglib_read_" + name, "()" + desc);
+  private static MethodSignature readMethodSig(String name, String desc) {
+    return new MethodSignature("$cglib_read_" + name, "()" + desc);
   }
 
-  private static Signature writeMethodSig(String name, String desc) {
-    return new Signature("$cglib_write_" + name, "(" + desc + ")V");
+  private static MethodSignature writeMethodSig(String name, String desc) {
+    return new MethodSignature("$cglib_write_" + name, "(" + desc + ")V");
   }
 
-  private static Signature readCallbackSig(Type type) {
+  private static MethodSignature readCallbackSig(Type type) {
     Type remap = remap(type);
-    return new Signature("read" + callbackName(remap), remap, array(Type.TYPE_OBJECT, Type.TYPE_STRING, remap));
+    return new MethodSignature("read" + callbackName(remap), remap, array(Type.TYPE_OBJECT, Type.TYPE_STRING, remap));
   }
 
-  private static Signature writeCallbackSig(Type type) {
+  private static MethodSignature writeCallbackSig(Type type) {
     Type remap = remap(type);
-    return new Signature("write" + callbackName(remap), remap, array(Type.TYPE_OBJECT, Type.TYPE_STRING, remap, remap));
+    return new MethodSignature("write" + callbackName(remap), remap, array(Type.TYPE_OBJECT, Type.TYPE_STRING, remap, remap));
   }
 
   private static Type remap(Type type) {
