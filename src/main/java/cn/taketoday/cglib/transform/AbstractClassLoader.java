@@ -108,7 +108,7 @@ abstract public class AbstractClassLoader extends ClassLoader {
   }
 
   protected int getFlags() {
-    return 0;
+    return ClassReader.EXPAND_FRAMES;
   }
 
   protected Attribute[] attributes() {

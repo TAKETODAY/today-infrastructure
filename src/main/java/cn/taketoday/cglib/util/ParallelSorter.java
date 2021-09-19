@@ -20,6 +20,7 @@ import java.util.Comparator;
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.ClassesKey;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -353,12 +354,13 @@ abstract public class ParallelSorter extends SorterTemplate {
 
     @Override
     public void generateClass(ClassVisitor v) throws Exception {
+      final Object[] arrays = this.arrays;
       if (arrays.length == 0) {
         throw new IllegalArgumentException("No arrays specified to sort");
       }
-      for (int i = 0; i < arrays.length; i++) {
-        if (!arrays[i].getClass().isArray()) {
-          throw new IllegalArgumentException(arrays[i].getClass() + " is not an array");
+      for (final Object array : arrays) {
+        if (!ObjectUtils.isArray(array)) {
+          throw new IllegalArgumentException(array.getClass() + " is not an array");
         }
       }
       new ParallelSorterEmitter(v, getClassName(), arrays);

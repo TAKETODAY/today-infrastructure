@@ -23,6 +23,7 @@ import cn.taketoday.asm.Label;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.GeneratorAdapter;
 import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.asm.commons.TableSwitchGenerator;
 import cn.taketoday.core.Assert;
@@ -31,7 +32,7 @@ import cn.taketoday.core.Assert;
  * @author Juozas Baliuka, Chris Nokleberg
  */
 @SuppressWarnings("all")
-public class CodeEmitter extends LocalVariablesSorter {
+public class CodeEmitter extends GeneratorAdapter {
 
   private static final MethodSignature CSTRUCT_STRING = MethodSignature.forConstructor("String");
   private static final MethodSignature INT_VALUE = MethodSignature.from("int intValue()");
@@ -103,7 +104,7 @@ public class CodeEmitter extends LocalVariablesSorter {
   }
 
   CodeEmitter(ClassEmitter ce, MethodVisitor mv, int access, MethodSignature sig, Type[] exceptionTypes) {
-    super(access, sig.getDescriptor(), mv);
+    super(access, sig, mv);
     this.ce = ce;
     state = new State(ce.getClassInfo(), access, sig, exceptionTypes);
   }
@@ -663,7 +664,7 @@ public class CodeEmitter extends LocalVariablesSorter {
   }
 
   public Local make_local(Type type) {
-    return new Local(newLocal(type.getSize()), type);
+    return new Local(newLocal(type), type);
   }
 
   public void checkcast_this() {
@@ -761,12 +762,6 @@ public class CodeEmitter extends LocalVariablesSorter {
 
   public void mark(Label label) {
     mv.visitLabel(label);
-  }
-
-  Label mark() {
-    Label label = make_label();
-    mv.visitLabel(label);
-    return label;
   }
 
   public void push(boolean value) {

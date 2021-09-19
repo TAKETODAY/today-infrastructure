@@ -398,6 +398,9 @@ public class ByteVector {
   }
 
   private void enlarge(byte[] data, final int size) {
+    if (length > data.length) {
+      throw new AssertionError("Internal error");
+    }
     int doubleCapacity = 2 * data.length;
     int minimalCapacity = length + size;
     byte[] newData = new byte[Math.max(doubleCapacity, minimalCapacity)];

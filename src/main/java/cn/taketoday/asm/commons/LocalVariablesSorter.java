@@ -66,6 +66,9 @@ public class LocalVariablesSorter extends MethodVisitor {
   /** The index of the next local variable to be created by {@link #newLocal}. */
   protected int nextLocal;
 
+  /** The argument types of the visited method. */
+  protected final Type[] argumentTypes;
+
   /**
    * Constructs a new {@link LocalVariablesSorter}.
    *
@@ -81,13 +84,28 @@ public class LocalVariablesSorter extends MethodVisitor {
    */
   public LocalVariablesSorter(
           final int access, final String descriptor, final MethodVisitor methodVisitor) {
+    this(access, Type.getArgumentTypes(descriptor), methodVisitor);
+  }
+
+  public LocalVariablesSorter(
+          final int access, final Type[] argumentTypes, final MethodVisitor methodVisitor) {
     super(methodVisitor);
     int nextLocal = (Opcodes.ACC_STATIC & access) == 0 ? 1 : 0;
-    for (Type argumentType : Type.getArgumentTypes(descriptor)) {
+    for (Type argumentType : argumentTypes) {
       nextLocal += argumentType.getSize();
     }
     this.nextLocal = nextLocal;
     this.firstLocal = nextLocal;
+    this.argumentTypes = argumentTypes;
+  }
+
+  public LocalVariablesSorter(LocalVariablesSorter lvs) {
+    super(lvs.mv);
+    this.nextLocal = lvs.nextLocal;
+    this.firstLocal = lvs.firstLocal;
+    this.argumentTypes = lvs.argumentTypes;
+    this.remappedLocalTypes = lvs.remappedLocalTypes;
+    this.remappedVariableIndices = lvs.remappedVariableIndices;
   }
 
   @Override
@@ -359,4 +377,19 @@ public class LocalVariablesSorter extends MethodVisitor {
     nextLocal += type.getSize();
     return local;
   }
+
+  /**
+   * @since 4.0
+   */
+  public Type[] getArgumentTypes() {
+    return argumentTypes;
+  }
+
+  /**
+   * @since 4.0
+   */
+  public Type[] cloneArgumentTypes() {
+    return argumentTypes.clone();
+  }
+
 }

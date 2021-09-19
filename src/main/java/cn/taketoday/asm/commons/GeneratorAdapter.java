@@ -180,11 +180,8 @@ public class GeneratorAdapter extends LocalVariablesSorter {
   /** The return type of the visited method. */
   private final Type returnType;
 
-  /** The argument types of the visited method. */
-  private final Type[] argumentTypes;
-
   /** The types of the local variables of the visited method. */
-  private final List<Type> localTypes = new ArrayList<>();
+  private final ArrayList<Type> localTypes;
 
   /**
    * Constructs a new {@link GeneratorAdapter}.
@@ -207,10 +204,18 @@ public class GeneratorAdapter extends LocalVariablesSorter {
           final String name,
           final String descriptor) {
     super(access, descriptor, methodVisitor);
-    this.access = access;
     this.name = name;
+    this.access = access;
+    this.localTypes = new ArrayList<>();
     this.returnType = Type.forReturnType(descriptor);
-    this.argumentTypes = Type.getArgumentTypes(descriptor);
+  }
+
+  public GeneratorAdapter(GeneratorAdapter other) {
+    super(other);
+    this.name = other.name;
+    this.access = other.access;
+    this.returnType = other.returnType;
+    this.localTypes = other.localTypes;
   }
 
   /**
@@ -284,10 +289,6 @@ public class GeneratorAdapter extends LocalVariablesSorter {
 
   public Type getReturnType() {
     return returnType;
-  }
-
-  public Type[] getArgumentTypes() {
-    return argumentTypes.clone();
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -462,7 +463,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @return the index of the given method argument in the frame's local variables array.
    */
   private int getArgIndex(final int arg) {
-    final Type[] argumentTypes = this.argumentTypes;
+    final Type[] argumentTypes = getArgumentTypes();
     int index = (access & Opcodes.ACC_STATIC) == 0 ? 1 : 0;
     for (int i = 0; i < arg; i++) {
       index += argumentTypes[i].getSize();

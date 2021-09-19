@@ -30,6 +30,8 @@ package cn.taketoday.asm.commons;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
+import java.util.stream.Collectors;
+
 import cn.taketoday.asm.Handle;
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
@@ -39,18 +41,16 @@ import cn.taketoday.asm.tree.MethodNode;
 import cn.taketoday.asm.util.Textifier;
 import cn.taketoday.asm.util.TraceMethodVisitor;
 
-import java.util.stream.Collectors;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static cn.taketoday.asm.commons.GeneratorAdapter.EQ;
 import static cn.taketoday.asm.commons.GeneratorAdapter.GE;
 import static cn.taketoday.asm.commons.GeneratorAdapter.GT;
 import static cn.taketoday.asm.commons.GeneratorAdapter.LE;
 import static cn.taketoday.asm.commons.GeneratorAdapter.LT;
 import static cn.taketoday.asm.commons.GeneratorAdapter.NE;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Unit tests for {@link GeneratorAdapter}.
@@ -76,7 +76,7 @@ public class GeneratorAdapterTest {
     assertEquals(Opcodes.ACC_PUBLIC, generatorAdapter.getAccess());
     assertEquals("name", generatorAdapter.getName());
     assertEquals(Type.VOID_TYPE, generatorAdapter.getReturnType());
-    assertArrayEquals(new Type[0], generatorAdapter.getArgumentTypes());
+    assertArrayEquals(new Type[0], generatorAdapter.cloneArgumentTypes());
   }
 
   @Test
@@ -105,7 +105,7 @@ public class GeneratorAdapterTest {
     assertEquals(Opcodes.ACC_PUBLIC, generatorAdapter.getAccess());
     assertEquals("name", generatorAdapter.getName());
     assertEquals(Type.VOID_TYPE, generatorAdapter.getReturnType());
-    assertArrayEquals(new Type[0], generatorAdapter.getArgumentTypes());
+    assertArrayEquals(new Type[0], generatorAdapter.cloneArgumentTypes());
     MethodNode methodNode = classNode.methods.get(0);
     assertEquals(Opcodes.ACC_PUBLIC, methodNode.access);
     assertEquals("name", methodNode.name);
@@ -127,7 +127,7 @@ public class GeneratorAdapterTest {
     assertEquals(Opcodes.ACC_PUBLIC, generatorAdapter.getAccess());
     assertEquals("name", generatorAdapter.getName());
     assertEquals(Type.VOID_TYPE, generatorAdapter.getReturnType());
-    assertArrayEquals(new Type[0], generatorAdapter.getArgumentTypes());
+    assertArrayEquals(new Type[0], generatorAdapter.cloneArgumentTypes());
     MethodNode methodNode = classNode.methods.get(0);
     assertEquals(Opcodes.ACC_PUBLIC, methodNode.access);
     assertEquals("name", methodNode.name);
