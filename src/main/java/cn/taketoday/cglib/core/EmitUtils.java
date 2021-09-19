@@ -252,7 +252,7 @@ public abstract class EmitUtils {
           final CodeEmitter e, final String[] strings,
           final ObjectSwitchCallback callback, final boolean skipEquals) {
 
-    final Map<Integer, List<String>> buckets = CollectionUtils.buckets(Arrays.asList(strings), Object::hashCode);
+    final Map<Integer, List<String>> buckets = CollectionUtils.buckets(strings, Object::hashCode);
 
     final Label def = e.make_label();
     final Label end = e.make_label();
