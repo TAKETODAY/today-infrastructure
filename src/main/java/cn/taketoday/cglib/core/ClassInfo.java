@@ -52,7 +52,7 @@ public abstract class ClassInfo {
   public static ClassInfo from(final Class clazz) {
     final Type type = Type.fromClass(clazz);
     final Type sc = (clazz.getSuperclass() == null) ? null : Type.fromClass(clazz.getSuperclass());
-    return new ClassInfo() {
+    final class DefaultClassInfo extends ClassInfo {
       public Type getType() {
         return type;
       }
@@ -68,6 +68,8 @@ public abstract class ClassInfo {
       public int getModifiers() {
         return clazz.getModifiers();
       }
-    };
+    }
+
+    return new DefaultClassInfo();
   }
 }

@@ -42,7 +42,7 @@ import cn.taketoday.asm.Opcodes;
 import cn.taketoday.cglib.CodeGenTestCase;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.NamingPolicy;
-import cn.taketoday.cglib.reflect.FastClass;
+import cn.taketoday.core.reflect.MethodAccess;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.ResourceUtils;
 
@@ -1119,7 +1119,7 @@ public class TestEnhancer extends CodeGenTestCase {
     Object obj = e.create();
     assertEquals(42, ((ReturnTypeA) obj).foo("foo"));
     assertEquals("hello", ((ReturnTypeB) obj).foo("foo"));
-    assertEquals(-1, FastClass.create(obj.getClass()).getIndex("foo", new Class[] { String.class }));
+    assertEquals(-1, MethodAccess.from(obj.getClass()).getIndex("foo", new Class[] { String.class }));
   }
 
   public static class ConstructorCall {

@@ -1,19 +1,23 @@
 /*
- * Copyright 2003,2004 The Apache Software Foundation
+ * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.cglib.reflect;
+package cn.taketoday.core.reflect;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -48,7 +52,7 @@ import cn.taketoday.util.StringUtils;
  * 2018-11-08 15:08
  */
 @SuppressWarnings("all")
-class FastClassEmitter extends ClassEmitter {
+class MethodAccessEmitter extends ClassEmitter {
 
   private static final MethodSignature CSTRUCT_CLASS = MethodSignature.forConstructor("Class");
   private static final MethodSignature METHOD_GET_INDEX = MethodSignature.from("int getIndex(String, Class[])");
@@ -62,7 +66,7 @@ class FastClassEmitter extends ClassEmitter {
   private static final MethodSignature GET_SIGNATURE_WITHOUT_RETURN_TYPE = //
           MethodSignature.from("String getSignatureWithoutReturnType(String, Class[])");
 
-  private static final Type FAST_CLASS = Type.fromClass(FastClass.class);
+  private static final Type FAST_CLASS = Type.fromClass(MethodAccess.class);
   private static final Type ILLEGAL_ARGUMENT_EXCEPTION = Type.parse("IllegalArgumentException");
 
   private static final Type INVOCATION_TARGET_EXCEPTION = //
@@ -70,7 +74,7 @@ class FastClassEmitter extends ClassEmitter {
 
   private static final Type[] INVOCATION_TARGET_EXCEPTION_ARRAY = { INVOCATION_TARGET_EXCEPTION };
 
-  public FastClassEmitter(ClassVisitor v, String className, Class type) {
+  public MethodAccessEmitter(ClassVisitor v, String className, Class type) {
     super(v);
 
     Type base = Type.fromClass(type);

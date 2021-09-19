@@ -24,7 +24,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-public class TestFastClass extends cn.taketoday.cglib.CodeGenTestCase {
+import cn.taketoday.core.reflect.FastConstructorAccessor;
+import cn.taketoday.core.reflect.FastMethodAccessor;
+import cn.taketoday.core.reflect.MethodAccess;
+
+public class TestMethodAccess extends cn.taketoday.cglib.CodeGenTestCase {
     public static class Simple {}
 
     public static class ThrowsSomething {
@@ -34,12 +38,12 @@ public class TestFastClass extends cn.taketoday.cglib.CodeGenTestCase {
     }
 
     public void testSimple() throws Throwable {
-        FastClass.create(Simple.class).newInstance();
-        FastClass.create(Simple.class).newInstance();
+        MethodAccess.from(Simple.class).newInstance();
+        MethodAccess.from(Simple.class).newInstance();
     }
 
     public void testException() throws Throwable {
-        FastClass fc = FastClass.create(ThrowsSomething.class);
+        MethodAccess fc = MethodAccess.from(ThrowsSomething.class);
         ThrowsSomething ts = new ThrowsSomething();
         try {
             fc.invoke("foo", new Class[0], ts, new Object[0]);
@@ -53,13 +57,13 @@ public class TestFastClass extends cn.taketoday.cglib.CodeGenTestCase {
     public static class Child extends cn.taketoday.cglib.reflect.sub.Parent {}
 
     public void testSuperclass() throws Throwable {
-        FastClass fc = FastClass.create(Child.class);
+        MethodAccess fc = MethodAccess.from(Child.class);
         assertEquals("dill", new Child().getHerb());
         assertEquals("dill", fc.invoke("getHerb", new Class[0], new Child(), new Object[0]));
     }
 
     public void testTypeMismatch() throws Throwable {
-        FastClass fc = FastClass.create(ThrowsSomething.class);
+        MethodAccess fc = MethodAccess.from(ThrowsSomething.class);
         ThrowsSomething ts = new ThrowsSomething();
         try {
             fc.invoke("foo", new Class[] { Integer.TYPE }, ts, new Object[0]);
@@ -69,15 +73,15 @@ public class TestFastClass extends cn.taketoday.cglib.CodeGenTestCase {
     }
 
     public void testComplex() throws Throwable {
-        FastClass fc = FastClass.create(MemberSwitchBean.class);
+        MethodAccess fc = MethodAccess.from(MemberSwitchBean.class);
         MemberSwitchBean bean = (MemberSwitchBean) fc.newInstance();
         assertEquals("bean.init", 0, bean.init);
         assertEquals("fc.getName()", "cn.taketoday.cglib.reflect.MemberSwitchBean", fc.getName());
-        assertEquals("fc.getJavaClass()", MemberSwitchBean.class, fc.getJavaClass());
+        assertEquals("fc.getDeclaringClass()", MemberSwitchBean.class, fc.getDeclaringClass());
         assertEquals("fc.getMaxIndex()", 13, fc.getMaxIndex());
 
         Constructor c1 = MemberSwitchBean.class.getConstructor();
-        FastConstructor fc1 = fc.getConstructor(c1);
+        FastConstructorAccessor fc1 = fc.getConstructor(c1);
         assertEquals("((MemberSwitchBean)fc1.newInstance()).init", 0, ((MemberSwitchBean) fc1.newInstance()).init);
         assertEquals("fc1.toString()", "public cn.taketoday.cglib.reflect.MemberSwitchBean()", fc1.toString());
 
@@ -92,7 +96,7 @@ public class TestFastClass extends cn.taketoday.cglib.CodeGenTestCase {
     }
 
     public void testStatic() throws Throwable {
-        FastClass fc = FastClass.create(MemberSwitchBean.class);
+        MethodAccess fc = MethodAccess.from(MemberSwitchBean.class);
         // MemberSwitchBean bean = (MemberSwitchBean)fc.newInstance();
         assertTrue(fc.invoke("staticMethod", new Class[0], null, null).equals(new Integer(10)));
     }
@@ -1062,13 +1066,13 @@ public class TestFastClass extends cn.taketoday.cglib.CodeGenTestCase {
     }
 
     public void testReallyBigClass() throws IOException {
-        FastClass.Generator gen = new FastClass.Generator(ReallyBigClass.class);
-        FastClass fc = gen.create();
+        MethodAccess.Generator gen = new MethodAccess.Generator(ReallyBigClass.class);
+        MethodAccess fc = gen.create();
     }
 
     public void testGetMethod() throws Exception {
-        FastClass fc = FastClass.create(Base.class);
-        FastMethod method = fc.getMethod(
+        MethodAccess fc = MethodAccess.from(Base.class);
+        FastMethodAccessor method = fc.getMethod(
                                          Base.class.getDeclaredMethod("foo", new Class[]
                                          { String.class }));
         assertEquals("hello world", method.invoke(new Base(), new Object[] { "hello world" }));
@@ -1081,8 +1085,8 @@ public class TestFastClass extends cn.taketoday.cglib.CodeGenTestCase {
     }
 
     public void testGetMethod_covarientOverride() throws Exception {
-        FastClass fc = FastClass.create(Sub.class);
-        FastMethod method = fc.getMethod(
+        MethodAccess fc = MethodAccess.from(Sub.class);
+        FastMethodAccessor method = fc.getMethod(
                                          Sub.class.getDeclaredMethod("foo", new Class[]
                                          { String.class }));
         assertEquals("foofoo", method.invoke(new Sub(), new Object[] { "foo" }));
@@ -1094,7 +1098,7 @@ public class TestFastClass extends cn.taketoday.cglib.CodeGenTestCase {
         }
     }
 
-    public TestFastClass(String testName) {
+    public TestMethodAccess(String testName) {
         super(testName);
     }
 
@@ -1103,11 +1107,11 @@ public class TestFastClass extends cn.taketoday.cglib.CodeGenTestCase {
     }
 
     public static Test suite() {
-        return new TestSuite(TestFastClass.class);
+        return new TestSuite(TestMethodAccess.class);
     }
 
     public void perform(ClassLoader loader) throws Throwable {
-        FastClass.create(loader, Simple.class).newInstance();
+        MethodAccess.from(loader, Simple.class).newInstance();
     }
 
     class HasProtectedMethod {
@@ -1119,14 +1123,14 @@ public class TestFastClass extends cn.taketoday.cglib.CodeGenTestCase {
     // Previously fastclass would refuse to generate accessors for protected
     // methods.
     public void testProtectedMethod() throws Exception {
-        FastClass fc = FastClass.create(HasProtectedMethod.class);
+        MethodAccess fc = MethodAccess.from(HasProtectedMethod.class);
         Method fooMethod = HasProtectedMethod.class.getDeclaredMethod("foo");
         assertEquals(2, fc.getMethod(fooMethod).invoke(new HasProtectedMethod(), new Object[0]));
     }
 
     public void testProtectedMethod_bootstrapClassLoader() throws Exception {
         // Can't access protected methods on the bootstrap loader
-        FastClass fc = FastClass.create(ArrayList.class);
+        MethodAccess fc = MethodAccess.from(ArrayList.class);
         Method removeRangeMethod = ArrayList.class.getDeclaredMethod("removeRange", int.class, int.class);
         try {
             // TODO(lukes): getMethod throws IAE if it can't be found (seems reasonable)
@@ -1141,7 +1145,7 @@ public class TestFastClass extends cn.taketoday.cglib.CodeGenTestCase {
         // Executable getRoot()
         // versions of fastclass would try to call it and it would result in an
         // IllegalAccessException at runtime.
-        FastClass fc = FastClass.create(Method.class);
+        MethodAccess fc = MethodAccess.from(Method.class);
         Method method = Method.class.getDeclaredMethod("getRoot");
         try {
             fc.getMethod(method);

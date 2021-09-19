@@ -15,6 +15,8 @@
  */
 package cn.taketoday.cglib.reflect;
 
+import cn.taketoday.core.reflect.FastMethodAccessor;
+import cn.taketoday.core.reflect.MethodAccess;
 import cn.taketoday.core.reflect.MethodInvoker;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -35,8 +37,8 @@ public class TestReflectPerf extends cn.taketoday.cglib.CodeGenTestCase {
 
 		Class<?>[] types = new Class[] { String.class, Integer.TYPE };
 		Method indexOf = String.class.getDeclaredMethod("indexOf", types);
-		FastClass fc = FastClass.create(String.class);
-		FastMethod fm = fc.getMethod("indexOf", types);
+		MethodAccess fc = MethodAccess.from(String.class);
+		FastMethodAccessor fm = fc.getMethod("indexOf", types);
 		int fidx = fm.getIndex();
 		Object[] args = new Object[] { "ab", new Integer(1) };
 
