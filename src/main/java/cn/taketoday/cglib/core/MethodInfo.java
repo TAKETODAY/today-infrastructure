@@ -49,4 +49,12 @@ public abstract class MethodInfo {
     // TODO: include modifiers, exceptions
     return getSignature().toString();
   }
+
+  /**
+   * @since 4.0
+   */
+  public boolean isConstructor() {
+    return MethodSignature.CONSTRUCTOR_NAME.equals(getSignature().getName());
+  }
+
 }

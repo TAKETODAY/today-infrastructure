@@ -335,7 +335,7 @@ public abstract class EmitUtils {
 
       // TODO: can end up with duplicated field names when using chained transformers;
       // incorporate static hook # somehow
-      String fieldName = "TODAY$LoadClass$".concat(TypeUtils.escapeType(typeName));
+      String fieldName = "TODAY$LoadClass$".concat(escapeType(typeName));
       if (!ce.isFieldDeclared(fieldName)) {
         ce.declare_field(Opcodes.PRIVATE_FINAL_STATIC, fieldName, Type.TYPE_CLASS, null);
         CodeEmitter hook = ce.getStaticHook();
@@ -981,6 +981,42 @@ public abstract class EmitUtils {
 
   public static void loadEmptyArguments(CodeEmitter codeEmitter) {
     codeEmitter.getstatic(Type.TYPE_CONSTANT, "EMPTY_OBJECT_ARRAY", Type.TYPE_OBJECT_ARRAY);
+  }
+
+  // static
+
+  public static String escapeType(String s) {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0, len = s.length(); i < len; i++) {
+      char c = s.charAt(i);
+      switch (c) {
+        case '$':
+          sb.append("$24");
+          break;
+        case '.':
+          sb.append("$2E");
+          break;
+        case '[':
+          sb.append("$5B");
+          break;
+        case ';':
+          sb.append("$3B");
+          break;
+        case '(':
+          sb.append("$28");
+          break;
+        case ')':
+          sb.append("$29");
+          break;
+        case '/':
+          sb.append("$2F");
+          break;
+        default:
+          sb.append(c);
+          break;
+      }
+    }
+    return sb.toString();
   }
 
 }

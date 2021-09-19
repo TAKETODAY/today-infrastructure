@@ -147,7 +147,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
 
       @Override
       public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-        Type towner = TypeUtils.fromInternalName(owner);
+        Type towner = Type.fromInternalName(owner);
         switch (opcode) {
           case Opcodes.GETFIELD:
             if (filter.acceptRead(towner, name)) {

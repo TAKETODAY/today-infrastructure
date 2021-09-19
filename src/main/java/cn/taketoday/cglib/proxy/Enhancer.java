@@ -736,7 +736,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
                    ACC_PUBLIC, //
                    getClassName(), //
                    Type.fromClass(sc), //
-                   (useFactory ? TypeUtils.add(TypeUtils.getTypes(interfaces), FACTORY) : TypeUtils.getTypes(interfaces)), //
+                   (useFactory ? TypeUtils.add(Type.getTypes(interfaces), FACTORY) : Type.getTypes(interfaces)), //
                    Constant.SOURCE_FILE//
       );
     }

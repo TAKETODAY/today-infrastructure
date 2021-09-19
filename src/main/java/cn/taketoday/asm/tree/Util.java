@@ -49,12 +49,7 @@ final class Util {
   }
 
   static <T> List<T> asArrayList(final T[] array) {
-    if (array == null) {
-      return new ArrayList<>();
-    }
-    ArrayList<T> list = new ArrayList<>(array.length);
-    CollectionUtils.addAll(list, array);
-    return list;
+    return CollectionUtils.newArrayList(array);
   }
 
   static List<Byte> asArrayList(final byte[] byteArray) {

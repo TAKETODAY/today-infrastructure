@@ -18,7 +18,7 @@ package cn.taketoday.jdbc.type;
 /**
  * @author Clinton Begin
  */
-class ByteArrayUtils {
+final class ByteArrayUtils {
 
   private ByteArrayUtils() {
     // Prevent Instantiation

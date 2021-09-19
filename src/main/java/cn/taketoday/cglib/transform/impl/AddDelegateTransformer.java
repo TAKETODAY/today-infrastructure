@@ -66,7 +66,7 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
     }
     else {
       final Class[] delegateIf = this.delegateIf;
-      Type[] all = TypeUtils.add(interfaces, TypeUtils.getTypes(delegateIf));
+      Type[] all = TypeUtils.add(interfaces, Type.getTypes(delegateIf));
       super.beginClass(version, access, className, superType, all, sourceFile);
 
       declare_field(Opcodes.ACC_PRIVATE | Opcodes.ACC_TRANSIENT, DELEGATE, delegateType, null);
@@ -122,7 +122,7 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
     }
 
     final MethodSignature sig = MethodSignature.from(m);
-    Type[] exceptions = TypeUtils.getTypes(m.getExceptionTypes());
+    Type[] exceptions = Type.getTypes(m.getExceptionTypes());
     CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, sig, exceptions);
     e.load_this();
     e.getfield(DELEGATE);

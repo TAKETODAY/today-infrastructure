@@ -28,8 +28,6 @@ import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.transform.ClassTransformer;
 import cn.taketoday.core.Constant;
 
-import static cn.taketoday.asm.Type.array;
-
 /**
  * @author Juozas Baliuka, Chris Nokleberg
  */
@@ -73,7 +71,7 @@ public class ClassEmitter extends ClassTransformer {
   public void beginClass(final int access,
                          final String className,
                          final Class<?> superType, final Class<?>... interfaces) {
-    beginClass(Opcodes.JAVA_VERSION, access, className, Type.fromClass(superType), array(interfaces), Constant.SOURCE_FILE);
+    beginClass(Opcodes.JAVA_VERSION, access, className, Type.fromClass(superType), Type.getTypes(interfaces), Constant.SOURCE_FILE);
   }
 
   public void beginClass(final int access,
@@ -81,7 +79,7 @@ public class ClassEmitter extends ClassTransformer {
                          final Class<?> superType,
                          final String source, final Class<?>... interfaces) {
 
-    beginClass(Opcodes.JAVA_VERSION, access, className, Type.fromClass(superType), array(interfaces), source);
+    beginClass(Opcodes.JAVA_VERSION, access, className, Type.fromClass(superType), Type.getTypes(interfaces), source);
   }
 
   public void beginClass(final int version,
@@ -90,7 +88,7 @@ public class ClassEmitter extends ClassTransformer {
                          final Class<?> superType,
                          final String source, final Class<?>... interfaces) {
 
-    beginClass(version, access, className, Type.fromClass(superType), array(interfaces), source);
+    beginClass(version, access, className, Type.fromClass(superType), Type.getTypes(interfaces), source);
   }
 
   public void beginClass(final int version,
@@ -163,7 +161,7 @@ public class ClassEmitter extends ClassTransformer {
                          final String... interfaces) //typeDescriptor
   {
     Type superType = Type.fromDescriptor(superName);
-    final Type[] array = Type.array(interfaces);
+    final Type[] array = Type.getTypes(interfaces);
     Type type = Type.fromDescriptor('L' + name.replace('.', '/') + ';');
 
     classInfo = new ClassInfo() {
@@ -358,9 +356,11 @@ public class ClassEmitter extends ClassTransformer {
   }
 
   @Override
-  public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-    beginClass(version, access, name.replace('/', '.'), TypeUtils.fromInternalName(superName),
-               TypeUtils.fromInternalNames(interfaces), null); // TODO
+  public void visit(
+          int version, int access, String name, String signature, String superName, String[] interfaces) {
+    beginClass(version, access, name.replace('/', '.'),
+               Type.fromInternalName(superName),
+               Type.fromInternalNames(interfaces), null); // TODO
   }
 
   @Override
@@ -375,7 +375,8 @@ public class ClassEmitter extends ClassTransformer {
   }
 
   @Override
-  public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-    return beginMethod(access, new MethodSignature(name, desc), TypeUtils.fromInternalNames(exceptions));
+  public MethodVisitor visitMethod(
+          int access, String name, String desc, String signature, String[] exceptions) {
+    return beginMethod(access, new MethodSignature(name, desc), Type.fromInternalNames(exceptions));
   }
 }

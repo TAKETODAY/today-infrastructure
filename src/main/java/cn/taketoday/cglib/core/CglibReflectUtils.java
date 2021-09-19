@@ -119,7 +119,7 @@ public abstract class CglibReflectUtils {
 
   public static Type[] getExceptionTypes(Member member) {
     if (member instanceof Executable) {
-      return TypeUtils.getTypes(((Executable) member).getExceptionTypes());
+      return Type.getTypes(((Executable) member).getExceptionTypes());
     }
     throw new IllegalArgumentException("Cannot get exception types of a field");
   }
@@ -418,7 +418,7 @@ public abstract class CglibReflectUtils {
       }
 
       public Type[] getInterfaces() {
-        return TypeUtils.getTypes(clazz.getInterfaces());
+        return Type.getTypes(clazz.getInterfaces());
       }
 
       public int getModifiers() {

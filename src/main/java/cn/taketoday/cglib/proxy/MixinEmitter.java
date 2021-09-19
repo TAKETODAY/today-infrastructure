@@ -50,7 +50,7 @@ class MixinEmitter extends ClassEmitter {
   public MixinEmitter(ClassVisitor v, String className, Class<?>[] classes, int[] route) {
     super(v);
 
-    beginClass(JAVA_VERSION, ACC_PUBLIC, className, MIXIN, TypeUtils.getTypes(getInterfaces(classes)), SOURCE_FILE);
+    beginClass(JAVA_VERSION, ACC_PUBLIC, className, MIXIN, Type.getTypes(getInterfaces(classes)), SOURCE_FILE);
     EmitUtils.nullConstructor(this);
     EmitUtils.factoryMethod(this, NEW_INSTANCE);
 

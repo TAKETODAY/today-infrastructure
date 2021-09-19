@@ -376,7 +376,7 @@ public class CodeEmitter extends LocalVariablesSorter {
       mv.visitLdcInsn(Integer.valueOf(i));
     }
     else if (i <= 5) {
-      mv.visitInsn(TypeUtils.iconst(i));
+      mv.visitInsn(iconst(i));
     }
     else if (i <= Byte.MAX_VALUE) {
       mv.visitIntInsn(Opcodes.BIPUSH, i);
@@ -391,7 +391,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 
   public void push(long value) {
     if (value == 0L || value == 1L) {
-      mv.visitInsn(TypeUtils.lconst(value));
+      mv.visitInsn(lconst(value));
     }
     else {
       mv.visitLdcInsn(Long.valueOf(value));
@@ -400,19 +400,19 @@ public class CodeEmitter extends LocalVariablesSorter {
 
   public void push(float value) {
     if (value == 0f || value == 1f || value == 2f) {
-      mv.visitInsn(TypeUtils.fconst(value));
+      mv.visitInsn(fconst(value));
     }
     else {
-      mv.visitLdcInsn(new Float(value));
+      mv.visitLdcInsn(value);
     }
   }
 
   public void push(double value) {
     if (value == 0d || value == 1d) {
-      mv.visitInsn(TypeUtils.dconst(value));
+      mv.visitInsn(dconst(value));
     }
     else {
-      mv.visitLdcInsn(new Double(value));
+      mv.visitLdcInsn(value);
     }
   }
 
@@ -426,7 +426,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 
   public void newArray(Type type) {
     if (type.isPrimitive()) {
-      mv.visitIntInsn(Opcodes.NEWARRAY, TypeUtils.newArray(type));
+      mv.visitIntInsn(Opcodes.NEWARRAY, newArrayFromType(type));
     }
     else {
       emit_type(Opcodes.ANEWARRAY, type);
@@ -981,4 +981,69 @@ public class CodeEmitter extends LocalVariablesSorter {
   public void invoke(MethodInfo method) {
     invoke(method, method.getClassInfo().getType());
   }
+
+  // static
+  public static int iconst(int value) {
+    switch (value) //@off
+    {
+      case -1 :   return Opcodes.ICONST_M1;
+      case 0 :    return Opcodes.ICONST_0;
+      case 1 :    return Opcodes.ICONST_1;
+      case 2 :    return Opcodes.ICONST_2;
+      case 3 :    return Opcodes.ICONST_3;
+      case 4 :    return Opcodes.ICONST_4;
+      case 5 :    return Opcodes.ICONST_5;
+      default:
+        return -1; // error @on
+    }
+  }
+
+  public static int lconst(long value) {
+    if (value == 0L) {
+      return Opcodes.LCONST_0;
+    }
+    if (value == 1L) {
+      return Opcodes.LCONST_1;
+    }
+    return -1; // error
+  }
+
+  public static int fconst(float value) {
+    if (value == 0f) {
+      return Opcodes.FCONST_0;
+    }
+    if (value == 1f) {
+      return Opcodes.FCONST_1;
+    }
+    if (value == 2f) {
+      return Opcodes.FCONST_2;
+    }
+    return -1; // error
+  }
+
+  public static int dconst(double value) {
+    if (value == 0d) {
+      return Opcodes.DCONST_0;
+    }
+    if (value == 1d) {
+      return Opcodes.DCONST_1;
+    }
+    return -1; // error
+  }
+
+  public static int newArrayFromType(Type type) {
+    switch (type.getSort()) { //@off
+      case Type.BYTE :    return Opcodes.T_BYTE;
+      case Type.CHAR :    return Opcodes.T_CHAR;
+      case Type.DOUBLE :  return Opcodes.T_DOUBLE;
+      case Type.FLOAT :   return Opcodes.T_FLOAT;
+      case Type.INT :     return Opcodes.T_INT;
+      case Type.LONG :    return Opcodes.T_LONG;
+      case Type.SHORT :   return Opcodes.T_SHORT;
+      case Type.BOOLEAN : return Opcodes.T_BOOLEAN;
+      default:
+        return -1; // error @on
+    }
+  }
+
 }

@@ -363,6 +363,20 @@ public final class Type {
   }
 
   /**
+   * @since 4.0
+   */
+  public static Type[] fromInternalNames(String[] names) {
+    if (names == null) {
+      return null;
+    }
+    Type[] types = new Type[names.length];
+    for (int i = 0; i < names.length; i++) {
+      types[i] = fromInternalName(names[i]);
+    }
+    return types;
+  }
+
+  /**
    * Returns the {@link Type}s corresponding to the given internal name.
    *
    * @param internalNames
@@ -1200,7 +1214,7 @@ public final class Type {
     return items;
   }
 
-  public static Type[] array(final Class<?>... items) {
+  public static Type[] getTypes(final Class<?>... items) {
     if (items == null) {
       return null;
     }
@@ -1212,7 +1226,7 @@ public final class Type {
     return ret;
   }
 
-  public static Type[] array(String... items) {
+  public static Type[] getTypes(String... items) {
     if (items == null) {
       return null;
     }

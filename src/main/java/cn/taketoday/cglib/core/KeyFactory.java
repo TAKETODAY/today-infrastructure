@@ -244,7 +244,7 @@ abstract public class KeyFactory {
         throw new IllegalArgumentException("newInstance method must return Object");
       }
 
-      Type[] parameterTypes = TypeUtils.getTypes(newInstance.getParameterTypes());
+      Type[] parameterTypes = Type.getTypes(newInstance.getParameterTypes());
       ce.beginClass(Opcodes.JAVA_VERSION, //
                     Opcodes.ACC_PUBLIC, //
                     getClassName(), //

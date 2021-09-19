@@ -204,7 +204,7 @@ class FastClassEmitter extends ClassEmitter {
         // TODO: change method lookup process so MethodInfo will already reference base
         // instead of superclass when superclass method is inaccessible
         e.invoke(method, base);
-        if (!TypeUtils.isConstructor(method)) {
+        if (!method.isConstructor()) {
           e.box(method.getSignature().getReturnType());
         }
         e.return_value();
