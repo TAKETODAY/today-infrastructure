@@ -60,18 +60,14 @@ public class MethodRemapper extends MethodVisitor {
   @Override
   public AnnotationVisitor visitAnnotationDefault() {
     AnnotationVisitor annotationVisitor = super.visitAnnotationDefault();
-    return annotationVisitor == null
-           ? annotationVisitor
-           : createAnnotationRemapper(/* descriptor = */ null, annotationVisitor);
+    return createAnnotationRemapper(/* descriptor = */ null, annotationVisitor);
   }
 
   @Override
   public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
     AnnotationVisitor annotationVisitor =
             super.visitAnnotation(remapper.mapDesc(descriptor), visible);
-    return annotationVisitor == null
-           ? annotationVisitor
-           : createAnnotationRemapper(descriptor, annotationVisitor);
+    return createAnnotationRemapper(descriptor, annotationVisitor);
   }
 
   @Override
@@ -79,9 +75,7 @@ public class MethodRemapper extends MethodVisitor {
           final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     AnnotationVisitor annotationVisitor =
             super.visitTypeAnnotation(typeRef, typePath, remapper.mapDesc(descriptor), visible);
-    return annotationVisitor == null
-           ? annotationVisitor
-           : createAnnotationRemapper(descriptor, annotationVisitor);
+    return createAnnotationRemapper(descriptor, annotationVisitor);
   }
 
   @Override
@@ -89,9 +83,7 @@ public class MethodRemapper extends MethodVisitor {
           final int parameter, final String descriptor, final boolean visible) {
     AnnotationVisitor annotationVisitor =
             super.visitParameterAnnotation(parameter, remapper.mapDesc(descriptor), visible);
-    return annotationVisitor == null
-           ? annotationVisitor
-           : createAnnotationRemapper(descriptor, annotationVisitor);
+    return createAnnotationRemapper(descriptor, annotationVisitor);
   }
 
   @Override
@@ -111,7 +103,7 @@ public class MethodRemapper extends MethodVisitor {
 
   private Object[] remapFrameTypes(final int numTypes, final Object[] frameTypes) {
     if (frameTypes == null) {
-      return frameTypes;
+      return null;
     }
     final Remapper remapper = this.remapper;
     Object[] remappedFrameTypes = null;
@@ -193,9 +185,7 @@ public class MethodRemapper extends MethodVisitor {
           final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     AnnotationVisitor annotationVisitor =
             super.visitInsnAnnotation(typeRef, typePath, remapper.mapDesc(descriptor), visible);
-    return annotationVisitor == null
-           ? annotationVisitor
-           : createAnnotationRemapper(descriptor, annotationVisitor);
+    return createAnnotationRemapper(descriptor, annotationVisitor);
   }
 
   @Override
@@ -209,9 +199,7 @@ public class MethodRemapper extends MethodVisitor {
           final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     AnnotationVisitor annotationVisitor =
             super.visitTryCatchAnnotation(typeRef, typePath, remapper.mapDesc(descriptor), visible);
-    return annotationVisitor == null
-           ? annotationVisitor
-           : createAnnotationRemapper(descriptor, annotationVisitor);
+    return createAnnotationRemapper(descriptor, annotationVisitor);
   }
 
   @Override
@@ -245,25 +233,7 @@ public class MethodRemapper extends MethodVisitor {
     AnnotationVisitor annotationVisitor =
             super.visitLocalVariableAnnotation(
                     typeRef, typePath, start, end, index, remapper.mapDesc(descriptor), visible);
-    return annotationVisitor == null
-           ? annotationVisitor
-           : createAnnotationRemapper(descriptor, annotationVisitor);
-  }
-
-  /**
-   * Constructs a new remapper for annotations. The default implementation of this method returns a
-   * new {@link AnnotationRemapper}.
-   *
-   * @param annotationVisitor
-   *         the AnnotationVisitor the remapper must delegate to.
-   *
-   * @return the newly created remapper.
-   *
-   * @deprecated use {@link #createAnnotationRemapper(String, AnnotationVisitor)} instead.
-   */
-  @Deprecated
-  protected AnnotationVisitor createAnnotationRemapper(final AnnotationVisitor annotationVisitor) {
-    return new AnnotationRemapper( /* descriptor = */ null, annotationVisitor, remapper);
+    return createAnnotationRemapper(descriptor, annotationVisitor);
   }
 
   /**
@@ -279,7 +249,9 @@ public class MethodRemapper extends MethodVisitor {
    */
   protected AnnotationVisitor createAnnotationRemapper(
           final String descriptor, final AnnotationVisitor annotationVisitor) {
-    return new AnnotationRemapper(descriptor, annotationVisitor, remapper)
-            .orDeprecatedValue(createAnnotationRemapper(annotationVisitor));
+    if (annotationVisitor == null) {
+      return null;
+    }
+    return new AnnotationRemapper(descriptor, annotationVisitor, remapper);
   }
 }
