@@ -28,7 +28,6 @@ import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.MethodWrapper;
-import cn.taketoday.cglib.core.TypeUtils;
 
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.asm.Opcodes.JAVA_VERSION;

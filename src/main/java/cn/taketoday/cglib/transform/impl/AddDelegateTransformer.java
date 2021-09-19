@@ -23,7 +23,6 @@ import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.CodeGenerationException;
-import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
 
 /**
@@ -66,7 +65,7 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
     }
     else {
       final Class[] delegateIf = this.delegateIf;
-      Type[] all = TypeUtils.add(interfaces, Type.getTypes(delegateIf));
+      Type[] all = Type.add(interfaces, Type.getTypes(delegateIf));
       super.beginClass(version, access, className, superType, all, sourceFile);
 
       declare_field(Opcodes.ACC_PRIVATE | Opcodes.ACC_TRANSIENT, DELEGATE, delegateType, null);

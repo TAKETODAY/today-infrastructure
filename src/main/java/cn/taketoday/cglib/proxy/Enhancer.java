@@ -59,7 +59,6 @@ import cn.taketoday.cglib.core.NamingPolicy;
 import cn.taketoday.cglib.core.ObjectSwitchCallback;
 import cn.taketoday.cglib.core.ProcessSwitchCallback;
 import cn.taketoday.cglib.core.RejectModifierPredicate;
-import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.cglib.core.VisibilityPredicate;
 import cn.taketoday.cglib.core.WeakCacheKey;
 import cn.taketoday.core.Constant;
@@ -736,7 +735,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
                    ACC_PUBLIC, //
                    getClassName(), //
                    Type.fromClass(sc), //
-                   (useFactory ? TypeUtils.add(Type.getTypes(interfaces), FACTORY) : Type.getTypes(interfaces)), //
+                   (useFactory ? Type.add(Type.getTypes(interfaces), FACTORY) : Type.getTypes(interfaces)), //
                    Constant.SOURCE_FILE//
       );
     }

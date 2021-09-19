@@ -45,7 +45,6 @@ import cn.taketoday.cglib.core.CodeGenerationException;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.KeyFactory;
 import cn.taketoday.cglib.core.MethodInfo;
-import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.core.Constant;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
@@ -303,9 +302,9 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
       // 构建参数,额外的参数添加在最后
       if (targetSourceStatic) {
         // 直接添加对象
-        types = TypeUtils.add(types, targetType, true); // 子类构造器参数
+        types = Type.add(types, targetType, true); // 子类构造器参数
       }
-      types = TypeUtils.add(types, targetSourceType, advisedSupportType);
+      types = Type.add(types, targetSourceType, advisedSupportType);
 
       final MethodSignature parseConstructor = MethodSignature.forConstructor(types);
 

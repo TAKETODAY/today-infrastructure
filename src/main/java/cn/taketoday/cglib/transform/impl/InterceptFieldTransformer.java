@@ -23,7 +23,6 @@ import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.Local;
-import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
 import cn.taketoday.util.StringUtils;
 
@@ -51,7 +50,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
   public void beginClass(
           int version, int access, String className, Type superType, Type[] interfaces, String sourceFile) {
     if (!Modifier.isInterface(access)) {
-      super.beginClass(version, access, className, superType, TypeUtils.add(interfaces, ENABLED), sourceFile);
+      super.beginClass(version, access, className, superType, Type.add(interfaces, ENABLED), sourceFile);
 
       super.declare_field(Opcodes.ACC_PRIVATE | Opcodes.ACC_TRANSIENT, CALLBACK_FIELD, CALLBACK, null);
 

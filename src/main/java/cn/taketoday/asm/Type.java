@@ -37,6 +37,7 @@ import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * A Java field or method type. This class can be used to make it easier to manipulate type and
@@ -1351,4 +1352,35 @@ public final class Type {
   public String toString() {
     return getDescriptor();
   }
+
+  // static
+
+  public static Type[] add(Type[] types, Type extra) {
+    return add(types, extra, false);
+  }
+
+  public static Type[] add(Type[] types, Type extra, boolean justAdd) {
+    if (ObjectUtils.isEmpty(types)) {
+      return new Type[] { extra };
+    }
+
+    if (!justAdd && CollectionUtils.contains(types, extra)) {
+      return types;
+    }
+    final Type[] copy = new Type[types.length + 1];
+    System.arraycopy(types, 0, copy, 0, types.length);
+    copy[types.length] = extra;
+    return copy;
+  }
+
+  public static Type[] add(Type[] t1, Type... t2) {
+    if (ObjectUtils.isEmpty(t2)) {
+      return t1;
+    }
+    Type[] all = new Type[t1.length + t2.length];
+    System.arraycopy(t1, 0, all, 0, t1.length);
+    System.arraycopy(t2, 0, all, t1.length, t2.length);
+    return all;
+  }
+
 }

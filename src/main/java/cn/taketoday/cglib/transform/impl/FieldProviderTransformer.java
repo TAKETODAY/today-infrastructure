@@ -28,7 +28,6 @@ import cn.taketoday.cglib.core.CodeGenerationException;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.ObjectSwitchCallback;
 import cn.taketoday.cglib.core.ProcessSwitchCallback;
-import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
 
 @SuppressWarnings("all")
@@ -52,7 +51,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
   public void beginClass(int version, int access, String className, Type superType, Type[] interfaces,
                          String sourceFile) {
     if (!Modifier.isAbstract(access)) {
-      interfaces = TypeUtils.add(interfaces, FIELD_PROVIDER);
+      interfaces = Type.add(interfaces, FIELD_PROVIDER);
     }
     this.access = access;
     fields = new HashMap();

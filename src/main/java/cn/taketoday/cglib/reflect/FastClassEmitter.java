@@ -38,7 +38,6 @@ import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.MethodInfoTransformer;
 import cn.taketoday.cglib.core.ObjectSwitchCallback;
 import cn.taketoday.cglib.core.ProcessSwitchCallback;
-import cn.taketoday.cglib.core.TypeUtils;
 import cn.taketoday.cglib.core.VisibilityPredicate;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.CollectionUtils;
