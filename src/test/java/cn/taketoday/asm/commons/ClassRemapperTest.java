@@ -35,6 +35,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.Arrays;
 import java.util.Locale;
 
+import cn.taketoday.asm.AnnotationValueHolder;
 import cn.taketoday.asm.AnnotationVisitor;
 import cn.taketoday.asm.AsmTest;
 import cn.taketoday.asm.ClassFile;
@@ -46,8 +47,8 @@ import cn.taketoday.asm.Handle;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
-import cn.taketoday.asm.AnnotationValueHolder;
 import cn.taketoday.asm.tree.ClassNode;
+import cn.taketoday.asm.tree.InvokeDynamicInsnNode;
 import cn.taketoday.asm.tree.LdcInsnNode;
 import cn.taketoday.asm.util.CheckMethodAdapter;
 
@@ -208,6 +209,37 @@ public class ClassRemapperTest extends AsmTest {
     assertEquals("new.foo", constantDynamic.getName());
     assertEquals("Ljava/lang/Integer;", constantDynamic.getDescriptor());
     assertEquals("()Ljava/lang/Integer;", constantDynamic.getBootstrapMethod().getDesc());
+  }
+
+  @Test
+  public void testInvokeDynamicInsn_field() {
+    ClassNode classNode = new ClassNode();
+    ClassRemapper classRemapper =
+            new ClassRemapper(
+                    classNode,
+                    new Remapper() {
+                      @Override
+                      public String mapFieldName(
+                              final String owner, final String name, final String descriptor) {
+                        if ("a".equals(name)) {
+                          return "demo";
+                        }
+                        return name;
+                      }
+                    });
+    classRemapper.visit(Opcodes.V11, Opcodes.ACC_PUBLIC, "C", null, "java/lang/Object", null);
+    MethodVisitor methodVisitor =
+            classRemapper.visitMethod(Opcodes.ACC_PUBLIC, "hello", "()V", null, null);
+    methodVisitor.visitCode();
+
+    methodVisitor.visitInvokeDynamicInsn(
+            "foo",
+            "()Ljava/lang/String;",
+            new Handle(Opcodes.H_GETFIELD, "pkg/B", "a", "Ljava/lang/String;", false));
+
+    InvokeDynamicInsnNode invokeDynamic =
+            (InvokeDynamicInsnNode) classNode.methods.get(0).instructions.get(0);
+    assertEquals("demo", invokeDynamic.bsm.getName());
   }
 
   /** Tests that classes transformed with a ClassRemapper can be loaded and instantiated. */
