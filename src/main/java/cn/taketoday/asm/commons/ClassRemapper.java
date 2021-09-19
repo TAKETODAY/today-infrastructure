@@ -38,6 +38,7 @@ import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.ModuleVisitor;
 import cn.taketoday.asm.RecordComponentVisitor;
 import cn.taketoday.asm.TypePath;
+import cn.taketoday.core.Nullable;
 
 /**
  * A {@link ClassVisitor} that remaps types with a {@link Remapper}.
@@ -148,9 +149,7 @@ public class ClassRemapper extends ClassVisitor {
                     remapper.mapRecordComponentName(className, name, descriptor),
                     remapper.mapDesc(descriptor),
                     remapper.mapSignature(signature, true));
-    return recordComponentVisitor == null
-           ? null
-           : createRecordComponentRemapper(recordComponentVisitor);
+    return createRecordComponentRemapper(recordComponentVisitor);
   }
 
   @Override
@@ -258,22 +257,6 @@ public class ClassRemapper extends ClassVisitor {
    * Constructs a new remapper for annotations. The default implementation of this method returns a
    * new {@link AnnotationRemapper}.
    *
-   * @param annotationVisitor
-   *         the AnnotationVisitor the remapper must delegate to.
-   *
-   * @return the newly created remapper.
-   *
-   * @deprecated use {@link #createAnnotationRemapper(String, AnnotationVisitor)} instead.
-   */
-  @Deprecated
-  protected AnnotationVisitor createAnnotationRemapper(final AnnotationVisitor annotationVisitor) {
-    return new AnnotationRemapper( /* descriptor = */ null, annotationVisitor, remapper);
-  }
-
-  /**
-   * Constructs a new remapper for annotations. The default implementation of this method returns a
-   * new {@link AnnotationRemapper}.
-   *
    * @param descriptor
    *         the descriptor of the visited annotation.
    * @param annotationVisitor
@@ -283,8 +266,7 @@ public class ClassRemapper extends ClassVisitor {
    */
   protected AnnotationVisitor createAnnotationRemapper(
           final String descriptor, final AnnotationVisitor annotationVisitor) {
-    return new AnnotationRemapper(descriptor, annotationVisitor, remapper)
-            .orDeprecatedValue(createAnnotationRemapper(annotationVisitor));
+    return new AnnotationRemapper(descriptor, annotationVisitor, remapper);
   }
 
   /**
@@ -309,8 +291,12 @@ public class ClassRemapper extends ClassVisitor {
    *
    * @return the newly created remapper.
    */
+  @Nullable
   protected RecordComponentVisitor createRecordComponentRemapper(
-          final RecordComponentVisitor recordComponentVisitor) {
+          @Nullable final RecordComponentVisitor recordComponentVisitor) {
+    if (recordComponentVisitor == null) {
+      return null;
+    }
     return new RecordComponentRemapper(recordComponentVisitor, remapper);
   }
 }

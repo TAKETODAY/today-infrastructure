@@ -33,6 +33,7 @@ import cn.taketoday.asm.Handle;
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.TypePath;
+import cn.taketoday.core.Nullable;
 
 /**
  * A {@link MethodVisitor} that remaps types with a {@link Remapper}.
@@ -247,8 +248,9 @@ public class MethodRemapper extends MethodVisitor {
    *
    * @return the newly created remapper.
    */
+  @Nullable
   protected AnnotationVisitor createAnnotationRemapper(
-          final String descriptor, final AnnotationVisitor annotationVisitor) {
+          final String descriptor, @Nullable final AnnotationVisitor annotationVisitor) {
     if (annotationVisitor == null) {
       return null;
     }

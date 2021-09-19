@@ -31,6 +31,7 @@ package cn.taketoday.asm.commons;
 import cn.taketoday.asm.AnnotationVisitor;
 import cn.taketoday.asm.FieldVisitor;
 import cn.taketoday.asm.TypePath;
+import cn.taketoday.core.Nullable;
 
 /**
  * A {@link FieldVisitor} that remaps types with a {@link Remapper}.
@@ -59,9 +60,7 @@ public class FieldRemapper extends FieldVisitor {
   public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
     AnnotationVisitor annotationVisitor =
             super.visitAnnotation(remapper.mapDesc(descriptor), visible);
-    return annotationVisitor == null
-           ? null
-           : createAnnotationRemapper(descriptor, annotationVisitor);
+    return createAnnotationRemapper(descriptor, annotationVisitor);
   }
 
   @Override
@@ -69,25 +68,7 @@ public class FieldRemapper extends FieldVisitor {
           final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     AnnotationVisitor annotationVisitor =
             super.visitTypeAnnotation(typeRef, typePath, remapper.mapDesc(descriptor), visible);
-    return annotationVisitor == null
-           ? null
-           : createAnnotationRemapper(descriptor, annotationVisitor);
-  }
-
-  /**
-   * Constructs a new remapper for annotations. The default implementation of this method returns a
-   * new {@link AnnotationRemapper}.
-   *
-   * @param annotationVisitor
-   *         the AnnotationVisitor the remapper must delegate to.
-   *
-   * @return the newly created remapper.
-   *
-   * @deprecated use {@link #createAnnotationRemapper(String, AnnotationVisitor)} instead.
-   */
-  @Deprecated
-  protected AnnotationVisitor createAnnotationRemapper(final AnnotationVisitor annotationVisitor) {
-    return new AnnotationRemapper(/* descriptor = */ null, annotationVisitor, remapper);
+    return createAnnotationRemapper(descriptor, annotationVisitor);
   }
 
   /**
@@ -101,9 +82,12 @@ public class FieldRemapper extends FieldVisitor {
    *
    * @return the newly created remapper.
    */
+  @Nullable
   protected AnnotationVisitor createAnnotationRemapper(
-          final String descriptor, final AnnotationVisitor annotationVisitor) {
-    return new AnnotationRemapper(descriptor, annotationVisitor, remapper)
-            .orDeprecatedValue(createAnnotationRemapper(annotationVisitor));
+          final String descriptor, @Nullable final AnnotationVisitor annotationVisitor) {
+    if (annotationVisitor == null) {
+      return null;
+    }
+    return new AnnotationRemapper(descriptor, annotationVisitor, remapper);
   }
 }
