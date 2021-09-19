@@ -28,7 +28,6 @@ import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.AdvisedSupport;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
-import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.CodeGenerationException;
@@ -84,7 +83,7 @@ public class NoneProxyMethodGenerator implements ProxyMethodGenerator {
   protected void invokeStaticTarget(Method method, GeneratorContext context) {
     final ClassEmitter emitter = context.getClassEmitter();
     final int modifiers = excludeAbstractModifiers(method); // fixed @since 3.0.2
-    final MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method, modifiers);
+    final MethodInfo methodInfo = MethodInfo.from(method, modifiers);
     final CodeEmitter codeEmitter = EmitUtils.beginMethod(emitter, methodInfo, modifiers);
 
     codeEmitter.load_this();
@@ -109,7 +108,7 @@ public class NoneProxyMethodGenerator implements ProxyMethodGenerator {
   protected void invokeTargetFromTargetSource(Method method, GeneratorContext context) {
     final ClassEmitter emitter = context.getClassEmitter();
     final int modifiers = excludeAbstractModifiers(method); // fixed @since 3.0.2
-    final MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method, modifiers);
+    final MethodInfo methodInfo = MethodInfo.from(method, modifiers);
     final CodeEmitter codeEmitter = EmitUtils.beginMethod(emitter, methodInfo, modifiers);
 
     // this.targetSource.getTarget()

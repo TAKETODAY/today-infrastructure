@@ -20,7 +20,6 @@ import java.lang.reflect.Method;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
-import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
@@ -33,7 +32,7 @@ public class AddInitTransformer extends ClassEmitterTransformer {
   private final MethodInfo info;
 
   public AddInitTransformer(Method method) {
-    info = CglibReflectUtils.getMethodInfo(method);
+    info = MethodInfo.from(method);
 
     Type[] types = info.getSignature().getArgumentTypes();
     if (types.length != 1 || !types[0].equals(Type.TYPE_OBJECT) || !info.getSignature().getReturnType().equals(Type.VOID_TYPE)) {

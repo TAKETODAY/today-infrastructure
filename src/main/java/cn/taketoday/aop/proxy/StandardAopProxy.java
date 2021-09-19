@@ -349,7 +349,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
      * </pre>
      */
     public void generateAdvisedMethod(final ClassEmitter ce, final Method method) {
-      MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
+      MethodInfo methodInfo = MethodInfo.from(method, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
       final CodeEmitter codeEmitter = EmitUtils.beginMethod(ce, methodInfo, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
 
       codeEmitter.load_this();

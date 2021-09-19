@@ -19,7 +19,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import cn.taketoday.asm.Type;
-import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.MethodInfo;
@@ -33,7 +32,7 @@ public class AddStaticInitTransformer extends ClassEmitterTransformer {
   private final MethodInfo info;
 
   public AddStaticInitTransformer(Method classInit) {
-    info = CglibReflectUtils.getMethodInfo(classInit);
+    info = MethodInfo.from(classInit);
     if (!Modifier.isStatic(info.getModifiers())) {
       throw new IllegalArgumentException(classInit + " is not static");
     }

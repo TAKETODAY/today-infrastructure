@@ -22,7 +22,6 @@ import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
-import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
@@ -71,7 +70,7 @@ class MixinEmitter extends ClassEmitter {
       Method[] methods = getMethods(classes[i]);
       for (final Method method : methods) {
         if (unique.add(MethodWrapper.create(method))) {
-          MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method);
+          MethodInfo methodInfo = MethodInfo.from(method);
           int modifiers = ACC_PUBLIC;
           if ((methodInfo.getModifiers() & accVarargs) == accVarargs) {
             modifiers |= accVarargs;

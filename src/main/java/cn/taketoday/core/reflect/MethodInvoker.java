@@ -40,8 +40,6 @@ import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 
-import static cn.taketoday.cglib.core.CglibReflectUtils.getMethodInfo;
-
 /**
  * @author TODAY <br>
  * 2019-10-18 22:35
@@ -143,7 +141,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
 
     static {
       try {
-        invokeInfo = getMethodInfo(MethodInvoker.class.getDeclaredMethod("invoke", Object.class, Object[].class));
+        invokeInfo = MethodInfo.from(MethodInvoker.class.getDeclaredMethod("invoke", Object.class, Object[].class));
       }
       catch (NoSuchMethodException | SecurityException e) {
         throw new ApplicationContextException(e);
@@ -182,7 +180,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
 
       prepareParameters(codeEmitter, target);
 
-      final MethodInfo methodInfo = getMethodInfo(target);
+      final MethodInfo methodInfo = MethodInfo.from(target);
       codeEmitter.invoke(methodInfo);
       codeEmitter.box(Type.fromClass(target.getReturnType()));
 

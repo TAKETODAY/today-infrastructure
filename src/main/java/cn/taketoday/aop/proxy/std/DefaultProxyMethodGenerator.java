@@ -31,7 +31,6 @@ import cn.taketoday.aop.proxy.TargetInvocation;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
-import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.CodeGenerationException;
@@ -98,7 +97,7 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
     classEmitter.declare_field(getStaticAccess(), targetInvField, targetInvocationType, null);
 
     final int modifiers = excludeAbstractModifiers(method); // fixed @since 3.0.1
-    final MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method, modifiers);
+    final MethodInfo methodInfo = MethodInfo.from(method, modifiers);
     // current method start
     final CodeEmitter codeEmitter = EmitUtils.beginMethod(classEmitter, methodInfo, modifiers);
 

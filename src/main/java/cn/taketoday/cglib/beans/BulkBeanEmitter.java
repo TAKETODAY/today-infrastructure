@@ -23,7 +23,6 @@ import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.Block;
-import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
@@ -71,7 +70,7 @@ class BulkBeanEmitter extends ClassEmitter {
       e.store_local(bean);
       for (int i = 0; i < getters.length; i++) {
         if (getters[i] != null) {
-          MethodInfo getter = CglibReflectUtils.getMethodInfo(getters[i]);
+          MethodInfo getter = MethodInfo.from(getters[i]);
           e.load_arg(1);
           e.push(i);
           e.load_local(bean);
@@ -99,7 +98,7 @@ class BulkBeanEmitter extends ClassEmitter {
       int lastIndex = 0;
       for (int i = 0; i < setters.length; i++) {
         if (setters[i] != null) {
-          MethodInfo setter = CglibReflectUtils.getMethodInfo(setters[i]);
+          MethodInfo setter = MethodInfo.from(setters[i]);
           int diff = i - lastIndex;
           if (diff > 0) {
             e.iinc(index, diff);

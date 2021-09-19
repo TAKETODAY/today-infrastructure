@@ -138,8 +138,8 @@ abstract public class BeanCopier {
         PropertyDescriptor setter = setters[i];
         PropertyDescriptor getter = (PropertyDescriptor) names.get(setter.getName());
         if (getter != null) {
-          MethodInfo read = CglibReflectUtils.getMethodInfo(getter.getReadMethod());
-          MethodInfo write = CglibReflectUtils.getMethodInfo(setter.getWriteMethod());
+          MethodInfo read = MethodInfo.from(getter.getReadMethod());
+          MethodInfo write = MethodInfo.from(setter.getWriteMethod());
           if (useConverter) {
             Type setterType = write.getSignature().getArgumentTypes()[0];
             e.load_local(targetLocal);

@@ -115,7 +115,7 @@ class BeanMapEmitter extends ClassEmitter {
     EmitUtils.stringSwitch(e, getNames(getters), Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
       public void processCase(Object key, Label end) {
         PropertyDescriptor pd = (PropertyDescriptor) getters.get(key);
-        MethodInfo method = CglibReflectUtils.getMethodInfo(pd.getReadMethod());
+        MethodInfo method = MethodInfo.from(pd.getReadMethod());
         e.invoke(method);
         e.box(method.getSignature().getReturnType());
         e.return_value();
@@ -142,14 +142,14 @@ class BeanMapEmitter extends ClassEmitter {
           e.aconst_null();
         }
         else {
-          MethodInfo read = CglibReflectUtils.getMethodInfo(pd.getReadMethod());
+          MethodInfo read = MethodInfo.from(pd.getReadMethod());
           e.dup();
           e.invoke(read);
           e.box(read.getSignature().getReturnType());
         }
         e.swap(); // move old value behind bean
         e.load_arg(2); // new value
-        MethodInfo write = CglibReflectUtils.getMethodInfo(pd.getWriteMethod());
+        MethodInfo write = MethodInfo.from(pd.getWriteMethod());
         e.unbox(write.getSignature().getArgumentTypes()[0]);
         e.invoke(write);
         e.return_value();

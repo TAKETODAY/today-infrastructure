@@ -726,7 +726,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       if (forcePublic.contains(MethodWrapper.create(method))) {
         modifiers = (modifiers & ~Opcodes.ACC_PROTECTED) | ACC_PUBLIC;
       }
-      return CglibReflectUtils.getMethodInfo(method, modifiers);
+      return MethodInfo.from(method, modifiers);
     });
 
     final ClassEmitter e = new ClassEmitter(v);

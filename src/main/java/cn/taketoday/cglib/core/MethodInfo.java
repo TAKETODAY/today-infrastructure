@@ -15,6 +15,9 @@
  */
 package cn.taketoday.cglib.core;
 
+import java.lang.reflect.Member;
+
+import cn.taketoday.asm.Attribute;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
 
@@ -57,4 +60,38 @@ public abstract class MethodInfo {
     return MethodSignature.CONSTRUCTOR_NAME.equals(getSignature().getName());
   }
 
+  // static
+
+  public static MethodInfo from(final Member member) {
+    return from(member, member.getModifiers());
+  }
+
+  public static MethodInfo from(final Member member, final int modifiers) {
+    final MethodSignature sig = MethodSignature.from(member);
+    return new MethodInfo() {
+      private ClassInfo ci;
+
+      public ClassInfo getClassInfo() {
+        if (ci == null)
+          ci = ClassInfo.from(member.getDeclaringClass());
+        return ci;
+      }
+
+      public int getModifiers() {
+        return modifiers;
+      }
+
+      public MethodSignature getSignature() {
+        return sig;
+      }
+
+      public Type[] getExceptionTypes() {
+        return Type.getExceptionTypes(member);
+      }
+
+      public Attribute getAttribute() {
+        return null;
+      }
+    };
+  }
 }

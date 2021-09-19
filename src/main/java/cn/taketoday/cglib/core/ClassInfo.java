@@ -21,9 +21,10 @@ import cn.taketoday.asm.Type;
  * @author TODAY <br>
  * 2019-09-03 19:33
  */
+@SuppressWarnings("rawtypes")
 public abstract class ClassInfo {
 
-  protected ClassInfo() {}
+  protected ClassInfo() { }
 
   public abstract Type getType();
 
@@ -44,5 +45,29 @@ public abstract class ClassInfo {
   public String toString() {
     // TODO: include modifiers, superType, interfaces
     return getType().getClassName();
+  }
+
+  // static
+
+  public static ClassInfo from(final Class clazz) {
+    final Type type = Type.fromClass(clazz);
+    final Type sc = (clazz.getSuperclass() == null) ? null : Type.fromClass(clazz.getSuperclass());
+    return new ClassInfo() {
+      public Type getType() {
+        return type;
+      }
+
+      public Type getSuperType() {
+        return sc;
+      }
+
+      public Type[] getInterfaces() {
+        return Type.getTypes(clazz.getInterfaces());
+      }
+
+      public int getModifiers() {
+        return clazz.getModifiers();
+      }
+    };
   }
 }

@@ -28,7 +28,7 @@ public class MethodInfoTransformer implements Function<Member, MethodInfo> {
 
   @Override
   public MethodInfo apply(Member value) {
-    return CglibReflectUtils.getMethodInfo(value);
+    return MethodInfo.from(value);
   }
 
 }

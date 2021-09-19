@@ -114,7 +114,7 @@ abstract public class MulticastDelegate implements Cloneable {
 
     @Override
     public void generateClass(ClassVisitor cv) {
-      final MethodInfo method = CglibReflectUtils.getMethodInfo(ReflectionUtils.findFunctionalInterfaceMethod(iface));
+      final MethodInfo method = MethodInfo.from(ReflectionUtils.findFunctionalInterfaceMethod(iface));
 
       ClassEmitter ce = new ClassEmitter(cv);
 

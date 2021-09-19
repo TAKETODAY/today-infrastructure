@@ -38,7 +38,6 @@ import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.asm.Opcodes.ACC_FINAL;
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
-import static cn.taketoday.cglib.core.CglibReflectUtils.getMethodInfo;
 
 /**
  * @author TODAY 2020/9/11 16:51
@@ -47,7 +46,7 @@ public class BeanInstantiatorGenerator
         extends GeneratorSupport<ConstructorAccessor> implements ClassGenerator {
 
   private static final String superType = "Lcn/taketoday/beans/support/ConstructorAccessor;";
-  private static final MethodInfo newInstanceInfo = getMethodInfo(
+  private static final MethodInfo newInstanceInfo = MethodInfo.from(
           ReflectionUtils.findMethod(ConstructorAccessor.class, "doInstantiate", Object[].class));
 
   private final Constructor<?> targetConstructor;

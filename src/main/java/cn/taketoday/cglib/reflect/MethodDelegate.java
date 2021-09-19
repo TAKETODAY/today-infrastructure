@@ -234,7 +234,7 @@ public abstract class MethodDelegate {
         throw new IllegalArgumentException("incompatible return types");
       }
 
-      final MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method);
+      final MethodInfo methodInfo = MethodInfo.from(method);
 
       boolean isStatic = Modifier.isStatic(methodInfo.getModifiers());
       if ((target == null) ^ isStatic) {
@@ -251,7 +251,7 @@ public abstract class MethodDelegate {
       EmitUtils.nullConstructor(ce);
 
       // generate proxied method
-      MethodInfo proxied = CglibReflectUtils.getMethodInfo(iface.getDeclaredMethods()[0]);
+      MethodInfo proxied = MethodInfo.from(iface.getDeclaredMethods()[0]);
       int modifiers = Opcodes.ACC_PUBLIC;
       if ((proxied.getModifiers() & Opcodes.ACC_VARARGS) == Opcodes.ACC_VARARGS) {
         modifiers |= Opcodes.ACC_VARARGS;

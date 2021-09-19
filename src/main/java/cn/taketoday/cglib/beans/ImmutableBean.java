@@ -98,7 +98,7 @@ public abstract class ImmutableBean {
       Method[] setters = CglibReflectUtils.getPropertyMethods(descriptors, false, true);
 
       for (int i = 0; i < getters.length; i++) {
-        MethodInfo getter = CglibReflectUtils.getMethodInfo(getters[i]);
+        MethodInfo getter = MethodInfo.from(getters[i]);
         e = EmitUtils.beginMethod(ce, getter, Opcodes.ACC_PUBLIC);
         e.load_this();
         e.getfield(FIELD_NAME);
@@ -108,7 +108,7 @@ public abstract class ImmutableBean {
       }
 
       for (int i = 0; i < setters.length; i++) {
-        MethodInfo setter = CglibReflectUtils.getMethodInfo(setters[i]);
+        MethodInfo setter = MethodInfo.from(setters[i]);
         e = EmitUtils.beginMethod(ce, setter, Opcodes.ACC_PUBLIC);
         e.throw_exception(ILLEGAL_STATE_EXCEPTION, "Bean is immutable");
         e.end_method();

@@ -214,14 +214,14 @@ public abstract class CglibReflectUtils {
     return 0;
   }
 
-  public static MethodInfo getMethodInfo(final Member member, final int modifiers) {
+  public static MethodInfo fromMember(final Member member, final int modifiers) {
     final MethodSignature sig = MethodSignature.from(member);
     return new MethodInfo() {
       private ClassInfo ci;
 
       public ClassInfo getClassInfo() {
         if (ci == null)
-          ci = CglibReflectUtils.getClassInfo(member.getDeclaringClass());
+          ci = ClassInfo.from(member.getDeclaringClass());
         return ci;
       }
 
@@ -239,32 +239,6 @@ public abstract class CglibReflectUtils {
 
       public Attribute getAttribute() {
         return null;
-      }
-    };
-  }
-
-  public static MethodInfo getMethodInfo(Member member) {
-    return getMethodInfo(member, member.getModifiers());
-  }
-
-  public static ClassInfo getClassInfo(final Class clazz) {
-    final Type type = Type.fromClass(clazz);
-    final Type sc = (clazz.getSuperclass() == null) ? null : Type.fromClass(clazz.getSuperclass());
-    return new ClassInfo() {
-      public Type getType() {
-        return type;
-      }
-
-      public Type getSuperType() {
-        return sc;
-      }
-
-      public Type[] getInterfaces() {
-        return Type.getTypes(clazz.getInterfaces());
-      }
-
-      public int getModifiers() {
-        return clazz.getModifiers();
       }
     };
   }
