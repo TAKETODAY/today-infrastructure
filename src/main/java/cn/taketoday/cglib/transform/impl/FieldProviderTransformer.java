@@ -140,7 +140,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
     e.load_this();
     e.load_arg(1);
     e.load_arg(0);
-    e.process_switch(indexes, new TableSwitchGenerator() {
+    e.tableSwitch(indexes, new TableSwitchGenerator() {
       public void generateCase(int key, Label end) {
         Type type = (Type) fields.get(names[key]);
         e.unbox(type);
@@ -160,7 +160,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
     final CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, PROVIDER_GET_BY_INDEX);
     e.load_this();
     e.load_arg(0);
-    e.process_switch(indexes, new TableSwitchGenerator() {
+    e.tableSwitch(indexes, new TableSwitchGenerator() {
       public void generateCase(int key, Label end) {
         Type type = (Type) fields.get(names[key]);
         e.getfield(names[key]);

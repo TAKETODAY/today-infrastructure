@@ -195,7 +195,7 @@ class MethodAccessEmitter extends ClassEmitter {
     final List<MethodInfo> info = CollectionUtils.transform(members, MethodInfoTransformer.getInstance());
     final Label illegalArg = e.make_label();
     final Block block = e.begin_block();
-    e.process_switch(getIntRange(info.size()), new TableSwitchGenerator() {
+    e.tableSwitch(getIntRange(info.size()), new TableSwitchGenerator() {
       public void generateCase(int key, Label end) {
         MethodInfo method = info.get(key);
         Type[] types = method.getSignature().getArgumentTypes();

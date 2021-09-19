@@ -1122,7 +1122,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     e.invoke_static_this(BIND_CALLBACKS);
     e.load_this();
     e.load_arg(0);
-    e.process_switch(keys, new TableSwitchGenerator() {
+    e.tableSwitch(keys, new TableSwitchGenerator() {
       public void generateCase(int key, Label end) {
         e.getfield(getCallbackField(key));
         e.goTo(end);
@@ -1140,7 +1140,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   private void emitSetCallback(ClassEmitter ce, int[] keys) {
     final CodeEmitter e = ce.beginMethod(ACC_PUBLIC, SET_CALLBACK);
     e.load_arg(0);
-    e.process_switch(keys, new TableSwitchGenerator() {
+    e.tableSwitch(keys, new TableSwitchGenerator() {
       public void generateCase(int key, Label end) {
         e.load_this();
         e.load_arg(1);

@@ -16,7 +16,6 @@
 package cn.taketoday.cglib.core;
 
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 
 import cn.taketoday.asm.Attribute;
 import cn.taketoday.asm.Label;
@@ -25,8 +24,6 @@ import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.GeneratorAdapter;
 import cn.taketoday.asm.commons.MethodSignature;
-import cn.taketoday.asm.commons.TableSwitchGenerator;
-import cn.taketoday.core.Assert;
 
 /**
  * @author Juozas Baliuka, Chris Nokleberg
@@ -683,89 +680,6 @@ public class CodeEmitter extends GeneratorAdapter {
 
   public void instance_of_this() {
     instance_of(ce.getClassType());
-  }
-
-  public void process_switch(int[] keys, TableSwitchGenerator callback) {
-    float density;
-    if (keys.length == 0) {
-      density = 0;
-    }
-    else {
-      density = (float) keys.length / (keys[keys.length - 1] - keys[0] + 1);
-    }
-    process_switch(keys, callback, density >= 0.5f);
-  }
-
-  public void process_switch(int[] keys, TableSwitchGenerator callback, boolean useTable) {
-    Assert.isTrue(isSorted(keys), "keys to switch must be sorted ascending");
-    Label def = make_label();
-    Label end = make_label();
-
-    try {
-      if (keys.length > 0) {
-        int len = keys.length;
-        int min = keys[0];
-        int max = keys[len - 1];
-        int range = max - min + 1;
-
-        if (useTable) {
-          Label[] labels = new Label[range];
-          Arrays.fill(labels, def);
-          for (int i = 0; i < len; i++) {
-            labels[keys[i] - min] = make_label();
-          }
-          mv.visitTableSwitchInsn(min, max, def, labels);
-          for (int i = 0; i < range; i++) {
-            Label label = labels[i];
-            if (label != def) {
-              mark(label);
-              callback.generateCase(i + min, end);
-            }
-          }
-        }
-        else {
-          Label[] labels = new Label[len];
-          for (int i = 0; i < len; i++) {
-            labels[i] = make_label();
-          }
-          mv.visitLookupSwitchInsn(def, keys, labels);
-          for (int i = 0; i < len; i++) {
-            mark(labels[i]);
-            callback.generateCase(keys[i], end);
-          }
-        }
-      }
-
-      mark(def);
-      callback.generateDefault();
-      mark(end);
-
-    }
-    catch (RuntimeException e) {
-      throw e;
-    }
-    catch (Error e) {
-      throw e;
-    }
-    catch (Exception e) {
-      throw new CodeGenerationException(e);
-    }
-  }
-
-  private static boolean isSorted(int[] keys) {
-    for (int i = 1; i < keys.length; i++) {
-      if (keys[i] < keys[i - 1])
-        return false;
-    }
-    return true;
-  }
-
-  public void mark(Label label) {
-    mv.visitLabel(label);
-  }
-
-  public void push(boolean value) {
-    push(value ? 1 : 0);
   }
 
   /**

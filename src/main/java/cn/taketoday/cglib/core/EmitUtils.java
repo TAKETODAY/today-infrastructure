@@ -191,7 +191,7 @@ public abstract class EmitUtils {
 
     e.dup();
     e.invoke_virtual(Type.TYPE_STRING, STRING_LENGTH);
-    e.process_switch(getSwitchKeys(buckets), new TableSwitchGenerator() {
+    e.tableSwitch(getSwitchKeys(buckets), new TableSwitchGenerator() {
       public void generateCase(int key, Label ignore_end) {
         List bucket = (List) buckets.get(key);
         stringSwitchHelper(e, bucket, callback, def, end, 0);
@@ -218,7 +218,7 @@ public abstract class EmitUtils {
     e.dup();
     e.push(index);
     e.invoke_virtual(Type.TYPE_STRING, STRING_CHAR_AT);
-    e.process_switch(getSwitchKeys(buckets), new TableSwitchGenerator() {
+    e.tableSwitch(getSwitchKeys(buckets), new TableSwitchGenerator() {
       public void generateCase(int key, Label ignore_end) {
         List bucket = (List) buckets.get(key);
         if (index + 1 == len) {
@@ -258,7 +258,7 @@ public abstract class EmitUtils {
     final Label end = e.make_label();
     e.dup();
     e.invoke_virtual(Type.TYPE_OBJECT, HASH_CODE);
-    e.process_switch(getSwitchKeys(buckets), new TableSwitchGenerator() {
+    e.tableSwitch(getSwitchKeys(buckets), new TableSwitchGenerator() {
       public void generateCase(int key, Label ignore_end) {
         List<String> bucket = buckets.get(key);
         Label next = null;
@@ -807,7 +807,7 @@ public abstract class EmitUtils {
 
     e.dup();
     e.arraylength();
-    e.process_switch(getSwitchKeys(buckets), new TableSwitchGenerator() {
+    e.tableSwitch(getSwitchKeys(buckets), new TableSwitchGenerator() {
 
       @Override
       public void generateCase(int key, Label dontUseEnd) {
