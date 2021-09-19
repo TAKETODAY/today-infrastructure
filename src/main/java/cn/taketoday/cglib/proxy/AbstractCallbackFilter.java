@@ -29,13 +29,12 @@ import cn.taketoday.util.ObjectUtils;
  * @author TODAY <br>
  * 2018-11-08 15:09
  */
-public abstract class CallbackHelper implements CallbackFilter {
+public abstract class AbstractCallbackFilter implements CallbackFilter {
 
-  private ArrayList<Object> callbacks = new ArrayList<>();
+  private final ArrayList<Object> callbacks = new ArrayList<>();
+  private final HashMap<Method, Integer> methodMap = new HashMap<>();
 
-  private Map<Method, Integer> methodMap = new HashMap<>();
-
-  public CallbackHelper(Class<?> superclass, Class<?>[] interfaces) {
+  public AbstractCallbackFilter(Class<?> superclass, Class<?>[] interfaces) {
 
     List<Method> methods = new ArrayList<>();
     Enhancer.getMethods(superclass, interfaces, methods);
@@ -100,6 +99,6 @@ public abstract class CallbackHelper implements CallbackFilter {
   }
 
   public boolean equals(Object o) {
-    return o == this || o instanceof CallbackHelper && methodMap.equals(((CallbackHelper) o).methodMap);
+    return o == this || (o instanceof AbstractCallbackFilter && methodMap.equals(((AbstractCallbackFilter) o).methodMap));
   }
 }

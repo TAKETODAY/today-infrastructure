@@ -22,8 +22,6 @@ package cn.taketoday.cglib.core;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -41,9 +39,7 @@ import java.util.Set;
 import cn.taketoday.asm.Attribute;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
-import cn.taketoday.core.Constant;
 import cn.taketoday.core.reflect.ReflectionException;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 import static java.lang.reflect.Modifier.FINAL;
@@ -92,125 +88,6 @@ public abstract class CglibReflectUtils {
 
   public static ProtectionDomain getProtectionDomain(final Class<?> source) {
     return source == null ? null : AccessController.doPrivileged((PrivilegedAction<ProtectionDomain>) source::getProtectionDomain);
-  }
-
-  public static Type[] getExceptionTypes(Member member) {
-    if (member instanceof Executable) {
-      return Type.getTypes(((Executable) member).getExceptionTypes());
-    }
-    throw new IllegalArgumentException("Cannot get exception types of a field");
-  }
-
-  public static Constructor findConstructor(String desc) {
-    return findConstructor(desc, ClassUtils.getClassLoader());
-  }
-
-  public static Constructor findConstructor(String desc, ClassLoader loader) {
-    try {
-      String className = desc.substring(0, desc.indexOf('(')).trim();
-      return getClass(className, loader).getConstructor(parseTypes(desc, loader));
-    }
-    catch (ClassNotFoundException | NoSuchMethodException e) {
-      throw new CodeGenerationException(e);
-    }
-  }
-
-  public static Method findMethod(String desc) {
-    return findMethod(desc, ClassUtils.getClassLoader());
-  }
-
-  public static Method findMethod(String desc, ClassLoader loader) {
-    try {
-      int lparen = desc.indexOf('(');
-      int dot = desc.lastIndexOf('.', lparen);
-      String className = desc.substring(0, dot).trim();
-      String methodName = desc.substring(dot + 1, lparen).trim();
-      return getClass(className, loader).getDeclaredMethod(methodName, parseTypes(desc, loader));
-    }
-    catch (ClassNotFoundException | NoSuchMethodException e) {
-      throw new CodeGenerationException(e);
-    }
-  }
-
-  private static Class[] parseTypes(String desc, ClassLoader loader) throws ClassNotFoundException {
-    int lparen = desc.indexOf('(');
-    int rparen = desc.indexOf(')', lparen);
-    ArrayList<String> params = new ArrayList<>();
-    int start = lparen + 1;
-    for (; ; ) {
-      int comma = desc.indexOf(',', start);
-      if (comma < 0) {
-        break;
-      }
-      params.add(desc.substring(start, comma).trim());
-      start = comma + 1;
-    }
-    if (start < rparen) {
-      params.add(desc.substring(start, rparen).trim());
-    }
-    int i = 0;
-    Class<?>[] types = new Class[params.size()];
-    for (final String name : params) {
-      types[i++] = getClass(name, loader);
-    }
-
-    return types;
-  }
-
-  private static Class getClass(String className, ClassLoader loader) throws ClassNotFoundException {
-    return getClass(className, loader, CGLIB_PACKAGES);
-  }
-
-  private static Class getClass(String className, ClassLoader loader, String[] packages)
-          throws ClassNotFoundException //
-  {
-    String save = className;
-    int dimensions = 0;
-    int index = 0;
-    while ((index = className.indexOf("[]", index) + 1) > 0) {
-      dimensions++;
-    }
-    StringBuilder brackets = new StringBuilder(className.length() - dimensions);
-    for (int i = 0; i < dimensions; i++) {
-      brackets.append('[');
-    }
-    className = className.substring(0, className.length() - 2 * dimensions);
-
-    final String prefix = (dimensions > 0) ? brackets + "L" : Constant.BLANK;
-    final String suffix = (dimensions > 0) ? ";" : Constant.BLANK;
-    try {
-      return Class.forName(new StringBuilder(prefix)
-                                   .append(className)
-                                   .append(suffix)
-                                   .toString(), false, loader);
-    }
-    catch (ClassNotFoundException ignore) { }
-    for (int i = 0; i < packages.length; i++) {
-      try {
-        return Class.forName(new StringBuilder(prefix)
-                                     .append(packages[i])
-                                     .append('.')
-                                     .append(className)
-                                     .append(suffix).toString(), false, loader);
-      }
-      catch (ClassNotFoundException ignore) { }
-    }
-    if (dimensions == 0) {
-      Class c = ClassUtils.resolvePrimitiveClassName(className);
-      if (c != null) {
-        return c;
-      }
-    }
-    else {
-      String transform = Type.resolvePrimitiveTypeDescriptor(className);
-      if (transform != null) {
-        try {
-          return Class.forName(brackets.append(transform).toString(), false, loader);
-        }
-        catch (ClassNotFoundException ignore) { }
-      }
-    }
-    throw new ClassNotFoundException(save);
   }
 
   public static String[] getNames(final Class[] classes) {
@@ -317,13 +194,17 @@ public abstract class CglibReflectUtils {
   }
 
   public static Method findInterfaceMethod(Class iface) {
-
     if (iface.isInterface()) {
-      final Method[] methods = iface.getDeclaredMethods();
-      if (methods.length != 1) {
-        throw new IllegalArgumentException("expecting exactly 1 method in " + iface);
+      Method found = null;
+      for (final Method method : iface.getDeclaredMethods()) {
+        if (!method.isDefault()) {
+          if (found != null) {
+            throw new IllegalArgumentException("expecting exactly 1 method in " + iface);
+          }
+          found = method;
+        }
       }
-      return methods[0];
+      return found;
     }
     throw new IllegalArgumentException(iface + " is not an interface");
   }
@@ -369,7 +250,7 @@ public abstract class CglibReflectUtils {
       }
 
       public Type[] getExceptionTypes() {
-        return CglibReflectUtils.getExceptionTypes(member);
+        return Type.getExceptionTypes(member);
       }
 
       public Attribute getAttribute() {

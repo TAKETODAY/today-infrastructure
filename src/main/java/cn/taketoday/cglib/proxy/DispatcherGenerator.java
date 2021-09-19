@@ -28,7 +28,7 @@ import cn.taketoday.cglib.core.MethodInfo;
  * @author TODAY <br>
  * 2018-11-08 15:09
  */
-class DispatcherGenerator implements CallbackGenerator {
+final class DispatcherGenerator implements CallbackGenerator {
 
   public static final DispatcherGenerator INSTANCE = new DispatcherGenerator(false);
   public static final DispatcherGenerator PROXY_REF_INSTANCE = new DispatcherGenerator(true);

@@ -49,13 +49,13 @@ abstract public class ConstructorDelegate {
     public Object newInstance(String declaring, String iface);
   }
 
-  protected ConstructorDelegate() {}
+  protected ConstructorDelegate() { }
 
-  public static ConstructorDelegate create(Class targetClass, Class iface) {
+  public static <T> T create(Class targetClass, Class<T> iface) {
     Generator gen = new Generator();
     gen.setTargetClass(targetClass);
     gen.setInterface(iface);
-    return gen.create();
+    return (T) gen.create();
   }
 
   public static class Generator extends AbstractClassGenerator {
@@ -110,8 +110,8 @@ abstract public class ConstructorDelegate {
 
       Type declaring = Type.fromClass(constructor.getDeclaringClass());
       EmitUtils.nullConstructor(ce);
-      CodeEmitter e = ce.beginMethod(ACC_PUBLIC, MethodSignature.from(newInstance),
-                                     CglibReflectUtils.getExceptionTypes(newInstance));
+      CodeEmitter e = ce.beginMethod(
+              ACC_PUBLIC, MethodSignature.from(newInstance), Type.getExceptionTypes(newInstance));
       e.new_instance(declaring);
       e.dup();
       e.load_args();

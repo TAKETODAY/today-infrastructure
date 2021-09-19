@@ -119,7 +119,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @version $Id: MethodDelegate.java,v 1.25 2006/03/05 02:43:19 herbyderby Exp $
  */
 @SuppressWarnings("all")
-abstract public class MethodDelegate {
+public abstract class MethodDelegate {
 
   private static final MethodDelegateKey KEY_FACTORY = KeyFactory.create(MethodDelegateKey.class, KeyFactory.CLASS_BY_NAME);
 
@@ -148,8 +148,10 @@ abstract public class MethodDelegate {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof MethodDelegate)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof MethodDelegate))
+      return false;
     final MethodDelegate that = (MethodDelegate) o;
     return Objects.equals(target, that.target) && Objects.equals(eqMethod, that.eqMethod);
   }

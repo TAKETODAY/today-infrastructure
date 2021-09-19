@@ -41,13 +41,10 @@ import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.cglib.CodeGenTestCase;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
-import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.NamingPolicy;
 import cn.taketoday.cglib.reflect.FastClass;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.ResourceUtils;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Juozas Baliuka <a href="mailto:baliuka@mwm.lt"> baliuka@mwm.lt</a>
@@ -325,7 +322,7 @@ public class TestEnhancer extends CodeGenTestCase {
 
           try {
             InputStream classStream = ResourceUtils.getResource(
-                    "classpath:cn/taketoday/cglib/proxy/EA.class")
+                            "classpath:cn/taketoday/cglib/proxy/EA.class")
                     .getInputStream();
             byte[] classBytes = toByteArray(classStream);
             return this.defineClass("cn.taketoday.cglib.proxy.EA", classBytes, 0, classBytes.length);
@@ -472,7 +469,7 @@ public class TestEnhancer extends CodeGenTestCase {
   }
 
   static abstract class CastTest {
-    CastTest() {}
+    CastTest() { }
 
     abstract int getInt();
   }
@@ -562,7 +559,7 @@ public class TestEnhancer extends CodeGenTestCase {
   }
 
   public static class FinalB implements FinalA {
-    final public void foo() {}
+    final public void foo() { }
   }
 
   public void testFinal() throws Throwable {
@@ -592,9 +589,9 @@ public class TestEnhancer extends CodeGenTestCase {
     Class<?> f = e.createClass();
     ArgInit a = (ArgInit) ReflectionUtils.newInstance(f,
                                                       new Class[]
-                                                                { String.class },
+                                                              { String.class },
                                                       new Object[]
-                                                                { "test" });
+                                                              { "test" });
     assertEquals("test", a.toString());
     ((Factory) a).setCallback(0, TEST_INTERCEPTOR);
     assertEquals("test", a.toString());
@@ -844,7 +841,8 @@ public class TestEnhancer extends CodeGenTestCase {
   }
 
   public static class EqualsInterceptor implements MethodInterceptor {
-    final static Method EQUALS_METHOD = CglibReflectUtils.findMethod("Object.equals(Object)");
+    final static Method EQUALS_METHOD =
+            ReflectionUtils.findMethod(Object.class, "equals", Object.class);
     boolean called;
 
     public Object intercept(Object obj,
@@ -912,21 +910,21 @@ public class TestEnhancer extends CodeGenTestCase {
     try {
       et.throwsThrowable(1);
     }
-    catch (MyThrowable t) {}
+    catch (MyThrowable t) { }
     catch (Throwable t) {
       fail();
     }
     try {
       et.throwsThrowable(2);
     }
-    catch (MyException t) {}
+    catch (MyException t) { }
     catch (Throwable t) {
       fail();
     }
     try {
       et.throwsThrowable(3);
     }
-    catch (MyRuntimeException t) {}
+    catch (MyRuntimeException t) { }
     catch (Throwable t) {
       fail();
     }
@@ -940,14 +938,14 @@ public class TestEnhancer extends CodeGenTestCase {
     try {
       et.throwsException(2);
     }
-    catch (MyException t) {}
+    catch (MyException t) { }
     catch (Throwable t) {
       fail();
     }
     try {
       et.throwsException(3);
     }
-    catch (MyRuntimeException t) {}
+    catch (MyRuntimeException t) { }
     catch (Throwable t) {
       fail();
     }
@@ -973,7 +971,7 @@ public class TestEnhancer extends CodeGenTestCase {
     try {
       et.throwsNothing(3);
     }
-    catch (MyRuntimeException t) {}
+    catch (MyRuntimeException t) { }
     catch (Throwable t) {
       fail();
     }
@@ -998,10 +996,10 @@ public class TestEnhancer extends CodeGenTestCase {
 
   private static ArgInit newArgInit(Class<?> clazz, String value) {
     return (ArgInit) ReflectionUtils.newInstance(clazz,
-                                                   new Class[]
-                                                           { String.class },
-                                                   new Object[]
-                                                           { value });
+                                                 new Class[]
+                                                         { String.class },
+                                                 new Object[]
+                                                         { value });
   }
 
   private static class StringValue
@@ -1065,7 +1063,7 @@ public class TestEnhancer extends CodeGenTestCase {
     Class<?> sc = ArgInit.class;
     Class<?>[] interfaces = new Class[] { DI1.class, DI2.class };
 
-    CallbackHelper helper = new CallbackHelper(sc, interfaces) {
+    AbstractCallbackFilter helper = new AbstractCallbackFilter(sc, interfaces) {
       protected Object getCallback(final Method method) {
         return new FixedValue() {
           public Object loadObject() {
@@ -1113,7 +1111,8 @@ public class TestEnhancer extends CodeGenTestCase {
     e.setInterfaces(new Class[] { ReturnTypeA.class, ReturnTypeB.class });
     e.setCallback(new MethodInterceptor() {
       public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-        if (method.getReturnType().equals(String.class)) return "hello";
+        if (method.getReturnType().equals(String.class))
+          return "hello";
         return new Integer(42);
       }
     });
@@ -1215,7 +1214,7 @@ public class TestEnhancer extends CodeGenTestCase {
   }
 
   static class Foo {
-    Foo() {}
+    Foo() { }
   }
 
   public void testBridgeForcesInvokeVirtual() {
@@ -1668,7 +1667,7 @@ public class TestEnhancer extends CodeGenTestCase {
     }
 
     // Check void return value
-    public void voidReturn(T t) {}
+    public void voidReturn(T t) { }
 
     // Check primitive return value
     public int intReturn(T t) {
@@ -1729,7 +1728,7 @@ public class TestEnhancer extends CodeGenTestCase {
   }
 
   static abstract class PackageViz implements VizIntf {
-    public void aMethod(Concrete e) {}
+    public void aMethod(Concrete e) { }
   }
 
   // inherits aMethod from PackageViz, but bridges to make it

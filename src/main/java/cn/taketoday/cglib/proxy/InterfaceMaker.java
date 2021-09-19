@@ -69,7 +69,7 @@ public class InterfaceMaker extends AbstractClassGenerator<Object> {
    *         the method to add to the interface
    */
   public void add(Method method) {
-    add(MethodSignature.from(method), CglibReflectUtils.getExceptionTypes(method));
+    add(MethodSignature.from(method), Type.getExceptionTypes(method));
   }
 
   /**

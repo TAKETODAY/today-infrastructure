@@ -27,7 +27,7 @@ import cn.taketoday.cglib.core.MethodInfo;
  * @author TODAY <br>
  * 2019-09-03 19:15
  */
-class FixedValueGenerator implements CallbackGenerator {
+final class FixedValueGenerator implements CallbackGenerator {
 
   public static final FixedValueGenerator INSTANCE = new FixedValueGenerator();
 

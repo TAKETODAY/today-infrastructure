@@ -15,6 +15,7 @@
  */
 package cn.taketoday.cglib.core;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
@@ -234,6 +235,10 @@ public class ClassEmitter extends ClassTransformer {
       staticHookSig = null;
     }
     cv.visitEnd();
+  }
+
+  public CodeEmitter beginMethod(int access, Method method) {
+    return beginMethod(access, MethodSignature.from(method), Type.getExceptionTypes(method));
   }
 
   public CodeEmitter beginMethod(int access, MethodSignature sig, Type... exceptions) {

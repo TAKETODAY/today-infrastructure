@@ -15,40 +15,12 @@
  */
 package cn.taketoday.cglib;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
-import cn.taketoday.cglib.beans.TestBeanCopier;
-import cn.taketoday.cglib.beans.TestBeanGenerator;
-import cn.taketoday.cglib.beans.TestBeanMap;
-import cn.taketoday.cglib.beans.TestBulkBean;
-import cn.taketoday.cglib.beans.TestImmutableBean;
-import cn.taketoday.cglib.core.DebuggingClassWriter;
-import cn.taketoday.cglib.core.TestKeyFactory;
-import cn.taketoday.cglib.proxy.TestDispatcher;
-import cn.taketoday.cglib.proxy.TestEnhancer;
-import cn.taketoday.cglib.proxy.TestInterfaceMaker;
-import cn.taketoday.cglib.proxy.TestLazyLoader;
-import cn.taketoday.cglib.proxy.TestMixin;
-import cn.taketoday.cglib.proxy.TestNoOp;
-import cn.taketoday.cglib.proxy.TestProxy;
-import cn.taketoday.cglib.proxy.TestProxyRefDispatcher;
-import cn.taketoday.cglib.reflect.TestDelegates;
-import cn.taketoday.cglib.reflect.TestFastClass;
-import cn.taketoday.cglib.transform.impl.TestAddClassInit;
-import cn.taketoday.cglib.transform.impl.TestAddDelegate;
-import cn.taketoday.cglib.transform.impl.TestDemo;
-import cn.taketoday.cglib.transform.impl.TestInterceptFields;
-import cn.taketoday.cglib.transform.impl.TestProvideFields;
-import cn.taketoday.cglib.transform.impl.TestTransformingLoader;
-import cn.taketoday.cglib.util.TestParallelSorter;
-
 /**
  * @author Gerhard Froehlich <a href="mailto:g-froehlich@gmx.de">
  * g-froehlich@gmx.de</a>
  * @version $Id: TestAll.java,v 1.66 2004/12/23 03:46:25 herbyderby Exp $
  */
+/*
 public class TestAll extends TestCase {
 
 //  static {
@@ -130,3 +102,4 @@ public class TestAll extends TestCase {
 
   }
 }
+*/

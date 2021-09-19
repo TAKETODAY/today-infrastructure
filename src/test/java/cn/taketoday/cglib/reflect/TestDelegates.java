@@ -18,165 +18,171 @@ package cn.taketoday.cglib.reflect;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
 /**
  * @version $Id: TestDelegates.java,v 1.4 2004/06/24 21:15:16 herbyderby Exp $
  */
 public class TestDelegates extends cn.taketoday.cglib.CodeGenTestCase {
 
-    public interface StringMaker {
-        Object newInstance(char[] buf, int offset, int count);
+  public interface StringMaker {
+    Object newInstance(char[] buf, int offset, int count);
+  }
+
+  public void testConstructor() throws Throwable {
+    StringMaker maker = ConstructorDelegate.create(String.class, StringMaker.class);
+    assertEquals("nil", maker.newInstance("vanilla".toCharArray(), 2, 3));
+  }
+
+  public interface Substring {
+    String substring(int start, int end);
+  }
+
+  public interface Substring2 {
+    Object anyNameAllowed(int start, int end);
+  }
+
+  public interface IndexOf {
+    int indexOf(String str, int fromIndex);
+
+    default int indexOf(String str) {
+      return indexOf(str, 0);
+    }
+  }
+
+  public interface Format {
+    String format(String format, Object... args);
+  }
+
+  public void testFancy() throws Throwable {
+    Substring delegate = MethodDelegate.create("CGLIB", "substring", Substring.class);
+    assertEquals("LI", delegate.substring(2, 4));
+  }
+
+  public void testFancyNames() throws Throwable {
+    Substring2 delegate = MethodDelegate.create("CGLIB", "substring", Substring2.class);
+    assertEquals("LI", delegate.anyNameAllowed(2, 4));
+  }
+
+  public void testFancyTypes() throws Throwable {
+    String test = "abcabcabc";
+    IndexOf delegate = MethodDelegate.create(test, "indexOf", IndexOf.class);
+    assertEquals(delegate.indexOf("ab", 1), test.indexOf("ab", 1));
+    assertEquals(delegate.indexOf("ab"), test.indexOf("ab"));
+  }
+
+  public void testVarArgs() throws Throwable {
+    String formatStr = "Time: %d";
+    long time = System.currentTimeMillis();
+    Format delegate = MethodDelegate.createStatic(String.class, "format", Format.class);
+    assertEquals(delegate.format(formatStr, time), String.format(formatStr, time));
+  }
+
+  @SuppressWarnings("unlikely-arg-type")
+  public void testEquals() throws Throwable {
+    String test = "abc";
+    IndexOf mc1 = MethodDelegate.create(test, "indexOf", IndexOf.class);
+    IndexOf mc2 = MethodDelegate.create(test, "indexOf", IndexOf.class);
+    IndexOf mc3 = MethodDelegate.create("other", "indexOf", IndexOf.class);
+    Substring mc4 = MethodDelegate.create(test, "substring", Substring.class);
+    Substring2 mc5 = MethodDelegate.create(test, "substring", Substring2.class);
+    assertEquals(mc1, mc2);
+    assertNotEquals(mc1, mc3);
+    assertNotEquals(mc1, mc4);
+    assertEquals(mc4, mc5);
+  }
+
+  public static interface MainDelegate {
+    int main(String[] args);
+  }
+
+  public static class MainTest {
+    public static int alternateMain(String[] args) {
+      return 7;
+    }
+  }
+
+  public void testStaticDelegate() throws Throwable {
+    MainDelegate start = MethodDelegate.createStatic(
+            MainTest.class, "alternateMain", MainDelegate.class);
+    assertEquals(7, start.main(null));
+  }
+
+  public static interface Listener {
+    public void onEvent();
+  }
+
+  public static class Publisher {
+    public int test = 0;
+    private MulticastDelegate event = MulticastDelegate.create(Listener.class);
+
+    public void addListener(Listener listener) {
+      event = event.add(listener);
     }
 
-    public void testConstructor() throws Throwable {
-        StringMaker maker = (StringMaker) ConstructorDelegate.create(String.class, StringMaker.class);
-        assertTrue("nil".equals(maker.newInstance("vanilla".toCharArray(), 2, 3)));
+    public void removeListener(Listener listener) {
+      event = event.remove(listener);
     }
 
-    public interface Substring {
-        String substring(int start, int end);
+    public void fireEvent() {
+      ((Listener) event).onEvent();
     }
+  }
 
-    public interface Substring2 {
-        Object anyNameAllowed(int start, int end);
-    }
+  public void testPublisher() throws Throwable {
+    final Publisher p = new Publisher();
+    Listener l1 = new Listener() {
+      public void onEvent() {
+        p.test++;
+      }
+    };
+    p.addListener(l1);
+    p.addListener(l1);
+    p.fireEvent();
+    assertEquals(2, p.test);
+    p.removeListener(l1);
+    p.fireEvent();
+    assertEquals(3, p.test);
+  }
 
-    public interface IndexOf {
-        int indexOf(String str, int fromIndex);
-    }
+  public static interface SuperSimple {
+    public int execute();
+  }
 
-    public interface Format {
-        String format(String format, Object... args);
-    }
+  public void testMulticastReturnValue() {
+    SuperSimple ss1 = new SuperSimple() {
+      public int execute() {
+        return 1;
+      }
+    };
+    SuperSimple ss2 = new SuperSimple() {
+      public int execute() {
+        return 2;
+      }
+    };
+    MulticastDelegate multi = MulticastDelegate.create(SuperSimple.class);
+    multi = multi.add(ss1);
+    multi = multi.add(ss2);
+    assertEquals(2, ((SuperSimple) multi).execute());
+    multi = multi.remove(ss1);
+    multi = multi.add(ss1);
+    assertEquals(1, ((SuperSimple) multi).execute());
+  }
 
-    public void testFancy() throws Throwable {
-        Substring delegate = (Substring) MethodDelegate.create("CGLIB", "substring", Substring.class);
-        assertTrue("LI".equals(delegate.substring(2, 4)));
-    }
+  public TestDelegates(String testName) {
+    super(testName);
+  }
 
-    public void testFancyNames() throws Throwable {
-        Substring2 delegate = (Substring2) MethodDelegate.create("CGLIB", "substring", Substring2.class);
-        assertTrue("LI".equals(delegate.anyNameAllowed(2, 4)));
-    }
+  public static void main(String[] args) {
+    junit.textui.TestRunner.run(suite());
+  }
 
-    public void testFancyTypes() throws Throwable {
-        String test = "abcabcabc";
-        IndexOf delegate = (IndexOf) MethodDelegate.create(test, "indexOf", IndexOf.class);
-        assertTrue(delegate.indexOf("ab", 1) == test.indexOf("ab", 1));
-    }
+  public static Test suite() {
+    return new TestSuite(TestDelegates.class);
+  }
 
-    public void testVarArgs() throws Throwable {
-        String formatStr = "Time: %d";
-        long time = System.currentTimeMillis();
-        Format delegate = (Format) MethodDelegate.createStatic(String.class, "format", Format.class);
-        assertEquals(delegate.format(formatStr, time), String.format(formatStr, time));
-    }
+  public void perform(ClassLoader loader) throws Throwable { }
 
-    @SuppressWarnings("unlikely-arg-type")
-    public void testEquals() throws Throwable {
-        String test = "abc";
-        IndexOf mc1 = MethodDelegate.create(test, "indexOf", IndexOf.class);
-        IndexOf mc2 = MethodDelegate.create(test, "indexOf", IndexOf.class);
-        IndexOf mc3 = MethodDelegate.create("other", "indexOf", IndexOf.class);
-        Substring mc4 = MethodDelegate.create(test, "substring", Substring.class);
-        Substring2 mc5 = MethodDelegate.create(test, "substring", Substring2.class);
-        assertTrue(mc1.equals(mc2));
-        assertTrue(!mc1.equals(mc3));
-        assertTrue(!mc1.equals(mc4));
-        assertTrue(mc4.equals(mc5));
-    }
-
-    public static interface MainDelegate {
-        int main(String[] args);
-    }
-
-    public static class MainTest {
-        public static int alternateMain(String[] args) {
-            return 7;
-        }
-    }
-
-    public void testStaticDelegate() throws Throwable {
-        MainDelegate start = (MainDelegate) MethodDelegate.createStatic(MainTest.class,
-                                                                        "alternateMain",
-                                                                        MainDelegate.class);
-        assertTrue(start.main(null) == 7);
-    }
-
-    public static interface Listener {
-        public void onEvent();
-    }
-
-    public static class Publisher {
-        public int test = 0;
-        private MulticastDelegate event = MulticastDelegate.create(Listener.class);
-
-        public void addListener(Listener listener) {
-            event = event.add(listener);
-        }
-
-        public void removeListener(Listener listener) {
-            event = event.remove(listener);
-        }
-
-        public void fireEvent() {
-            ((Listener) event).onEvent();
-        }
-    }
-
-    public void testPublisher() throws Throwable {
-        final Publisher p = new Publisher();
-        Listener l1 = new Listener() {
-            public void onEvent() {
-                p.test++;
-            }
-        };
-        p.addListener(l1);
-        p.addListener(l1);
-        p.fireEvent();
-        assertTrue(p.test == 2);
-        p.removeListener(l1);
-        p.fireEvent();
-        assertTrue(p.test == 3);
-    }
-
-    public static interface SuperSimple {
-        public int execute();
-    }
-
-    public void testMulticastReturnValue() throws Throwable {
-        SuperSimple ss1 = new SuperSimple() {
-            public int execute() {
-                return 1;
-            }
-        };
-        SuperSimple ss2 = new SuperSimple() {
-            public int execute() {
-                return 2;
-            }
-        };
-        MulticastDelegate multi = MulticastDelegate.create(SuperSimple.class);
-        multi = multi.add(ss1);
-        multi = multi.add(ss2);
-        assertTrue(((SuperSimple) multi).execute() == 2);
-        multi = multi.remove(ss1);
-        multi = multi.add(ss1);
-        assertTrue(((SuperSimple) multi).execute() == 1);
-    }
-
-    public TestDelegates(String testName) {
-        super(testName);
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestDelegates.class);
-    }
-
-    public void perform(ClassLoader loader) throws Throwable {}
-
-    public void testFailOnMemoryLeak() throws Throwable {}
+  public void testFailOnMemoryLeak() throws Throwable { }
 
 }

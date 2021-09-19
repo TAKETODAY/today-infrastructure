@@ -28,6 +28,8 @@
 package cn.taketoday.asm;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
@@ -376,6 +378,24 @@ public final class Type {
       ret[i++] = fromInternalName(internalName);
     }
     return ret;
+  }
+
+  /**
+   * @param member
+   *         Member
+   *
+   * @return the {@link Type}s corresponding to the given Executable's ExceptionTypes.
+   *
+   * @throws IllegalArgumentException
+   *         not a Executable
+   * @see Executable#getExceptionTypes()
+   * @since 4.0
+   */
+  public static Type[] getExceptionTypes(Member member) {
+    if (member instanceof Executable) {
+      return Type.getTypes(((Executable) member).getExceptionTypes());
+    }
+    throw new IllegalArgumentException(member + " is not a Executable");
   }
 
   /**
@@ -1196,7 +1216,11 @@ public final class Type {
     return items;
   }
 
-  public static Type[] getTypes(final Class<?>... items) {
+  /**
+   * @since 4.0
+   */
+  @Nullable
+  public static Type[] getTypes(@Nullable final Class<?>... items) {
     if (items == null) {
       return null;
     }
@@ -1208,6 +1232,9 @@ public final class Type {
     return ret;
   }
 
+  /**
+   * @since 4.0
+   */
   public static Type[] getTypes(String... items) {
     if (items == null) {
       return null;

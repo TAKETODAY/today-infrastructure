@@ -28,9 +28,7 @@ import cn.taketoday.cglib.core.MethodInfo;
  * @author TODAY <br>
  * 2019-09-03 18:57
  */
-@SuppressWarnings("all")
-class NoOpGenerator implements CallbackGenerator {
-
+@SuppressWarnings("all") final class NoOpGenerator implements CallbackGenerator {
   public static final NoOpGenerator INSTANCE = new NoOpGenerator();
 
   public static boolean isBridge(int access) {
@@ -42,7 +40,9 @@ class NoOpGenerator implements CallbackGenerator {
     for (Object object : methods) {
       MethodInfo method = (MethodInfo) object;
       if (isBridge(method.getModifiers()) //
-              || (Modifier.isProtected(context.getOriginalModifiers(method)) && Modifier.isPublic(method.getModifiers()))) {
+              || (
+              Modifier.isProtected(context.getOriginalModifiers(method))
+                      && Modifier.isPublic(method.getModifiers()))) {
 
         CodeEmitter e = EmitUtils.beginMethod(ce, method);
         e.load_this();

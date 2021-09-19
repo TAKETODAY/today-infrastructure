@@ -1286,14 +1286,16 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
     final Iterator<Method> it2 = (actualMethods != null) ? actualMethods.iterator() : null;
 
+    final CallbackFilter filter = this.filter;
     for (final MethodInfo method : methods) {
       final Method actualMethod = (it2 != null) ? it2.next() : null;
       int index = filter.accept(actualMethod);
 
       if (index >= callbackTypes.length) {
-        throw new IllegalArgumentException("Callback filter returned an index that is too large: " + index);
+        throw new IllegalArgumentException(
+                "Callback filter returned an index that is too large: " + index);
       }
-      originalModifiers.put(method, Integer.valueOf((actualMethod != null) ? actualMethod.getModifiers() : method.getModifiers()));
+      originalModifiers.put(method, (actualMethod != null) ? actualMethod.getModifiers() : method.getModifiers());
 
       indexes.put(method, index);
       List<MethodInfo> group = groups.get(generators[index]);
@@ -1312,7 +1314,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       }
     }
 
-    final Set seenGen = new HashSet<>();
+    final HashSet seenGen = new HashSet<>();
     final CodeEmitter se = ce.getStaticHook();
 
     se.new_instance(THREAD_LOCAL);

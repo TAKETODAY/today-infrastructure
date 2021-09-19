@@ -36,7 +36,7 @@ import static cn.taketoday.asm.Opcodes.ACC_SYNCHRONIZED;
  * @author TODAY <br>
  * 2019-09-03 19:17
  */
-class LazyLoaderGenerator implements CallbackGenerator {
+final class LazyLoaderGenerator implements CallbackGenerator {
 
   public static final LazyLoaderGenerator INSTANCE = new LazyLoaderGenerator();
 

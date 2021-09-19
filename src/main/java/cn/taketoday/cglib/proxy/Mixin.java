@@ -36,7 +36,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @author Chris Nokleberg
  * @version $Id: Mixin.java,v 1.7 2005/09/27 11:42:27 baliuka Exp $
  */
-//@SuppressWarnings("all")
+@SuppressWarnings("rawtypes")
 public abstract class Mixin {
 
   private static final MixinKey KEY_FACTORY = KeyFactory.create(MixinKey.class, KeyFactory.CLASS_BY_NAME);
@@ -137,19 +137,23 @@ public abstract class Mixin {
       if (classes == null && delegates == null) {
         throw new IllegalStateException("Either classes or delegates must be set");
       }
+      Class[] classes = this.classes;
       switch (style) {
         case STYLE_INTERFACES:
           if (classes == null) {
             Route r = route(delegates);
             classes = r.classes;
+            this.classes = classes;
             route = r.route;
           }
           break;
         case STYLE_BEANS:
           // fall-through
         case STYLE_EVERYTHING:
+        default:
           if (classes == null) {
             classes = CglibReflectUtils.getClasses(delegates);
+            this.classes = classes;
           }
           else {
             if (delegates != null) {
@@ -159,8 +163,9 @@ public abstract class Mixin {
               }
               for (int i = 0; i < classes.length; i++) {
                 if (!classes[i].isAssignableFrom(temp[i])) {
-                  throw new IllegalStateException("Specified class " + classes[i]
-                                                          + " is incompatible with delegate class " + temp[i] + " (index " + i + ")");
+                  throw new IllegalStateException(
+                          "Specified class " + classes[i] +
+                                  " is incompatible with delegate class " + temp[i] + " (index " + i + ")");
                 }
               }
             }

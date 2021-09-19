@@ -30,7 +30,7 @@ import cn.taketoday.cglib.core.MethodInfo;
  * @author TODAY <br>
  * 2019-09-03 18:53
  */
-class InvocationHandlerGenerator implements CallbackGenerator {
+final class InvocationHandlerGenerator implements CallbackGenerator {
 
   public static final InvocationHandlerGenerator INSTANCE = new InvocationHandlerGenerator();
 
