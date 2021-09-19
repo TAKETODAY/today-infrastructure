@@ -149,7 +149,6 @@ public final class Type {
   public static final Type TYPE_CLASS = Type.parse("Class");
   public static final Type TYPE_FLOAT = Type.parse("Float");
   public static final Type TYPE_SHORT = Type.parse("Short");
-  public static final Type TYPE_OBJECT = Type.parse("Object");
   public static final Type TYPE_DOUBLE = Type.parse("Double");
   public static final Type TYPE_STRING = Type.parse("String");
   public static final Type TYPE_NUMBER = Type.parse("Number");
@@ -163,6 +162,10 @@ public final class Type {
   public static final Type TYPE_BIG_DECIMAL = Type.parse("java.math.BigDecimal");
   public static final Type TYPE_RUNTIME_EXCEPTION = Type.parse("RuntimeException");
   public static final Type TYPE_SIGNATURE = Type.fromClass(MethodSignature.class);
+
+  /** The type of the java.lang.Object class. */
+  public static final Type TYPE_OBJECT = Type.fromInternalName("java/lang/Object");
+
 
   // -----------------------------------------------------------------------------------------------
   // Fields

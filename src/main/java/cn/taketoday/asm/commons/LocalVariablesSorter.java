@@ -47,9 +47,6 @@ import cn.taketoday.asm.TypePath;
  */
 public class LocalVariablesSorter extends MethodVisitor {
 
-  /** The type of the java.lang.Object class. */
-  private static final Type OBJECT_TYPE = Type.fromInternalName("java/lang/Object");
-
   /**
    * The mapping from old to new local variable indices. A local variable at index i of size 1 is
    * remapped to 'mapping[2*i]', while a local variable at index i of size 2 is remapped to
@@ -116,7 +113,7 @@ public class LocalVariablesSorter extends MethodVisitor {
       case Opcodes.ALOAD:
       case Opcodes.ASTORE:
       case Opcodes.RET:
-        varType = OBJECT_TYPE;
+        varType = Type.TYPE_OBJECT;
         break;
       default:
         throw new IllegalArgumentException("Invalid opcode " + opcode);
@@ -188,7 +185,7 @@ public class LocalVariablesSorter extends MethodVisitor {
     for (int i = 0; i < numLocal; ++i) {
       Object localType = local[i];
       if (localType != Opcodes.TOP) {
-        Type varType = OBJECT_TYPE;
+        Type varType;
         if (localType == Opcodes.INTEGER) {
           varType = Type.INT_TYPE;
         }
@@ -203,6 +200,9 @@ public class LocalVariablesSorter extends MethodVisitor {
         }
         else if (localType instanceof String) {
           varType = Type.fromInternalName((String) localType);
+        }
+        else {
+          varType = Type.TYPE_OBJECT;
         }
         remappedLocalTypes = setFrameLocal(remappedLocalTypes, remap(oldVar, varType), localType);
       }

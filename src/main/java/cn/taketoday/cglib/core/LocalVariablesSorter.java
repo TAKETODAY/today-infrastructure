@@ -63,8 +63,8 @@ public class LocalVariablesSorter extends MethodVisitor {
     state = new State();
     Type[] args = Type.getArgumentTypes(desc);
     state.nextLocal = ((Opcodes.ACC_STATIC & access) != 0) ? 0 : 1;
-    for (int i = 0; i < args.length; i++) {
-      state.nextLocal += args[i].getSize();
+    for (final Type arg : args) {
+      state.nextLocal += arg.getSize();
     }
     firstLocal = state.nextLocal;
   }
