@@ -29,13 +29,12 @@ package cn.taketoday.asm;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.NonNull;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 
@@ -121,7 +120,6 @@ public final class Type {
 
   /** The descriptors of the primitive Java types (plus void). */
   private static final HashMap<String, String> PRIMITIVE_TYPE_DESCRIPTORS;
-  private static final HashMap<String, String> DESCRIPTOR_PRIMITIVE_TYPES = new HashMap<>();
 
   static {
     HashMap<String, String> descriptors = new HashMap<>();
@@ -135,8 +133,6 @@ public final class Type {
     descriptors.put("short", "S");
     descriptors.put("boolean", "Z");
     PRIMITIVE_TYPE_DESCRIPTORS = descriptors;
-
-    CollectionUtils.reverse(PRIMITIVE_TYPE_DESCRIPTORS, DESCRIPTOR_PRIMITIVE_TYPES);
   }
 
   public static final Type TYPE_CONSTANT = Type.fromClass(Constant.class);
@@ -234,27 +230,12 @@ public final class Type {
     return fromDescriptor(getDescriptor(s));
   }
 
-  public static String map(String type) {
-    if (Constant.BLANK.equals(type)) {
-      return type;
-    }
-    String t = PRIMITIVE_TYPE_DESCRIPTORS.get(type);
-    if (t != null) {
-      return t;
-    }
-    else if (type.indexOf('.') < 0) {
-      return map("java.lang." + type);
-    }
-    else {
-      StringBuilder sb = new StringBuilder();
-      int index = 0;
-      while ((index = type.indexOf("[]", index) + 1) > 0) {
-        sb.append('[');
-      }
-      type = type.substring(0, type.length() - sb.length() * 2);
-      sb.append('L').append(type.replace('.', '/')).append(';');
-      return sb.toString();
-    }
+  /**
+   * @since 4.0
+   */
+  @Nullable
+  public static String resolvePrimitiveTypeDescriptor(String type) {
+    return PRIMITIVE_TYPE_DESCRIPTORS.get(type);
   }
 
   /**
@@ -1242,29 +1223,6 @@ public final class Type {
   /**
    * @since 4.0
    */
-  public static Type[] parseTypes(String s) {
-    List<String> names = parseTypes(s, 0, s.length());
-    Type[] types = new Type[names.size()];
-    for (int i = 0; i < types.length; i++) {
-      types[i] = Type.fromDescriptor(names.get(i));
-    }
-    return types;
-  }
-
-  private static List<String> parseTypes(String s, int mark, int end) {
-    ArrayList<String> types = new ArrayList<>(5);
-    for (; ; ) {
-      int next = s.indexOf(',', mark);
-      if (next < 0) {
-        break;
-      }
-      types.add(map(s.substring(mark, next).trim()));
-      mark = next + 1;
-    }
-    types.add(map(s.substring(mark, end).trim()));
-    return types;
-  }
-
   public static int getStackSize(Type[] types) {
     int size = 0;
     for (final Type type : types) {

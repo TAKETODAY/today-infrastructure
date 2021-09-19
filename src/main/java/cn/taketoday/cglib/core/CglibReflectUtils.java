@@ -55,9 +55,6 @@ import static java.lang.reflect.Modifier.STATIC;
 @SuppressWarnings("all")
 public abstract class CglibReflectUtils {
 
-  private static final HashMap<String, Class> primitives = new HashMap<>();
-  private static final HashMap<String, String> transforms = new HashMap<>();
-
   private static final Method defineClass;
 
   private static final ArrayList<Method> OBJECT_METHODS;
@@ -91,26 +88,6 @@ public abstract class CglibReflectUtils {
     // @since 4.0
     objectMethods.trimToSize();
     OBJECT_METHODS = objectMethods;
-  }
-
-  static {
-    primitives.put("byte", Byte.TYPE);
-    primitives.put("char", Character.TYPE);
-    primitives.put("double", Double.TYPE);
-    primitives.put("float", Float.TYPE);
-    primitives.put("int", Integer.TYPE);
-    primitives.put("long", Long.TYPE);
-    primitives.put("short", Short.TYPE);
-    primitives.put("boolean", Boolean.TYPE);
-
-    transforms.put("byte", "B");
-    transforms.put("char", "C");
-    transforms.put("double", "D");
-    transforms.put("float", "F");
-    transforms.put("int", "I");
-    transforms.put("long", "J");
-    transforms.put("short", "S");
-    transforms.put("boolean", "Z");
   }
 
   public static ProtectionDomain getProtectionDomain(final Class<?> source) {
@@ -219,13 +196,13 @@ public abstract class CglibReflectUtils {
       catch (ClassNotFoundException ignore) { }
     }
     if (dimensions == 0) {
-      Class c = primitives.get(className);
+      Class c = ClassUtils.resolvePrimitiveClassName(className);
       if (c != null) {
         return c;
       }
     }
     else {
-      String transform = transforms.get(className);
+      String transform = Type.resolvePrimitiveTypeDescriptor(className);
       if (transform != null) {
         try {
           return Class.forName(brackets.append(transform).toString(), false, loader);
