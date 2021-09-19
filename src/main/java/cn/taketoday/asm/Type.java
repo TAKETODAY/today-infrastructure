@@ -917,6 +917,9 @@ public final class Type {
     throw new IllegalArgumentException("Type " + this + " is not an array");
   }
 
+  /**
+   * @since 4.0
+   */
   public String emulateClassGetName() {
     if (isArray()) {
       return getDescriptor().replace('/', '.');
@@ -924,6 +927,9 @@ public final class Type {
     return getClassName();
   }
 
+  /**
+   * @since 4.0
+   */
   public static String[] toInternalNames(Type... types) {
     if (types == null) {
       return null;
@@ -958,6 +964,9 @@ public final class Type {
     }
   }
 
+  /**
+   * @since 4.0
+   */
   public Type getUnboxedType() {
     if (Type.TYPE_INTEGER.equals(this)) {
       return Type.INT_TYPE;
@@ -1215,6 +1224,9 @@ public final class Type {
     return ret;
   }
 
+  /**
+   * @since 4.0
+   */
   public static Type[] parseTypes(String s) {
     List<String> names = parseTypes(s, 0, s.length());
     Type[] types = new Type[names.size()];
