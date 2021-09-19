@@ -115,33 +115,7 @@ public class AnnotationRemapper extends AnnotationVisitor {
    */
   protected AnnotationVisitor createAnnotationRemapper(
           final String descriptor, final AnnotationVisitor annotationVisitor) {
-    return new AnnotationRemapper(descriptor, annotationVisitor, remapper)
-            .orDeprecatedValue(annotationVisitor);
-  }
-
-  /**
-   * Returns either this object, or the given one. If the given object is equal to the object
-   * returned by the default implementation of the deprecated createAnnotationRemapper method,
-   * meaning that this method has not been overridden (or only in minor ways, for instance to add
-   * logging), then we can return this object instead, supposed to have been created by the new
-   * createAnnotationRemapper method. Otherwise we must return the given object.
-   *
-   * @param deprecatedAnnotationVisitor
-   *         the result of a call to the deprecated
-   *         createAnnotationRemapper method.
-   *
-   * @return either this object, or the given one.
-   */
-  final AnnotationVisitor orDeprecatedValue(final AnnotationVisitor deprecatedAnnotationVisitor) {
-    if (deprecatedAnnotationVisitor.getClass() == getClass()) {
-      AnnotationRemapper deprecatedAnnotationRemapper =
-              (AnnotationRemapper) deprecatedAnnotationVisitor;
-      if (deprecatedAnnotationRemapper.av == av
-              && deprecatedAnnotationRemapper.remapper == remapper) {
-        return this;
-      }
-    }
-    return deprecatedAnnotationVisitor;
+    return new AnnotationRemapper(descriptor, annotationVisitor, remapper);
   }
 
   /**
