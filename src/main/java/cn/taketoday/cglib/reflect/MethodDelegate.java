@@ -227,7 +227,7 @@ public abstract class MethodDelegate {
     @Override
     public void generateClass(ClassVisitor v) throws NoSuchMethodException {
 
-      final Method proxy = CglibReflectUtils.findInterfaceMethod(iface);
+      final Method proxy = ReflectionUtils.findFunctionalInterfaceMethod(iface);
       final Method method = targetClass.getMethod(methodName, proxy.getParameterTypes());
 
       if (!proxy.getReturnType().isAssignableFrom(method.getReturnType())) {

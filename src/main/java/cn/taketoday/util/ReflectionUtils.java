@@ -240,6 +240,30 @@ public abstract class ReflectionUtils {
   }
 
   /**
+   * Find the method from FunctionalInterface
+   *
+   * @throws IllegalArgumentException
+   *         if given class is not a FunctionalInterface
+   * @see FunctionalInterface
+   * @since 4.0
+   */
+  public static Method findFunctionalInterfaceMethod(Class clazz) {
+    if (clazz.isInterface()) {
+      Method found = null;
+      for (final Method method : clazz.getDeclaredMethods()) {
+        if (!method.isDefault()) {
+          if (found != null) {
+            throw new IllegalArgumentException("expecting exactly 1 method in " + clazz);
+          }
+          found = method;
+        }
+      }
+      return found;
+    }
+    throw new IllegalArgumentException(clazz + " is not an interface");
+  }
+
+  /**
    * Invoke the specified {@link Method} against the supplied target object with
    * no arguments. The target object can be {@code null} when invoking a static
    * {@link Method}.

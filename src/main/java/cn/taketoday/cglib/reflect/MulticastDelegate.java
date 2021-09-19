@@ -42,7 +42,7 @@ abstract public class MulticastDelegate implements Cloneable {
 
   protected Object[] targets = Constant.EMPTY_OBJECT_ARRAY;
 
-  protected MulticastDelegate() {}
+  protected MulticastDelegate() { }
 
   public List<Object> getTargets() {
     return Arrays.asList(targets);
@@ -114,7 +114,7 @@ abstract public class MulticastDelegate implements Cloneable {
 
     @Override
     public void generateClass(ClassVisitor cv) {
-      final MethodInfo method = CglibReflectUtils.getMethodInfo(CglibReflectUtils.findInterfaceMethod(iface));
+      final MethodInfo method = CglibReflectUtils.getMethodInfo(ReflectionUtils.findFunctionalInterfaceMethod(iface));
 
       ClassEmitter ce = new ClassEmitter(cv);
 

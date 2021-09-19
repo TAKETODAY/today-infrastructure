@@ -112,7 +112,7 @@ public abstract class CglibReflectUtils {
   }
 
   public static Method findNewInstance(Class<?> iface) {
-    final Method m = findInterfaceMethod(iface);
+    final Method m = ReflectionUtils.findFunctionalInterfaceMethod(iface);
     if (m.getName().equals("newInstance")) {
       return m;
     }
@@ -191,22 +191,6 @@ public abstract class CglibReflectUtils {
       addAllInterfaces(superclass, list);
     }
     return list;
-  }
-
-  public static Method findInterfaceMethod(Class iface) {
-    if (iface.isInterface()) {
-      Method found = null;
-      for (final Method method : iface.getDeclaredMethods()) {
-        if (!method.isDefault()) {
-          if (found != null) {
-            throw new IllegalArgumentException("expecting exactly 1 method in " + iface);
-          }
-          found = method;
-        }
-      }
-      return found;
-    }
-    throw new IllegalArgumentException(iface + " is not an interface");
   }
 
   @SuppressWarnings("unchecked")
