@@ -23,7 +23,7 @@ import cn.taketoday.asm.Label;
  */
 public interface ObjectSwitchCallback {
 
-  void processCase(Object key, Label end) throws Exception;
+  void processCase(Object key, Label end);
 
-  void processDefault() throws Exception;
+  void processDefault();
 }

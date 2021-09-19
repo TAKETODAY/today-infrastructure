@@ -32,6 +32,7 @@ import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
+import cn.taketoday.asm.commons.TableSwitchGenerator;
 import cn.taketoday.cglib.core.internal.CustomizerRegistry;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.CollectionUtils;
@@ -162,35 +163,27 @@ public abstract class EmitUtils {
   }
 
   public static void stringSwitch(CodeEmitter e, String[] strings, int switchStyle, ObjectSwitchCallback callback) {
-    try {
-      switch (switchStyle) {
-        case Opcodes.SWITCH_STYLE_TRIE:
-          stringSwitchTrie(e, strings, callback);
-          break;
-        case Opcodes.SWITCH_STYLE_HASH:
-          stringSwitchHash(e, strings, callback, false);
-          break;
-        case Opcodes.SWITCH_STYLE_HASHONLY:
-          stringSwitchHash(e, strings, callback, true);
-          break;
-        default:
-          throw new IllegalArgumentException("unknown switch style " + switchStyle);
-      }
-    }
-    catch (RuntimeException | Error ex) {
-      throw ex;
-    }
-    catch (Exception ex) {
-      throw new CodeGenerationException(ex);
+    switch (switchStyle) {
+      case Opcodes.SWITCH_STYLE_TRIE:
+        stringSwitchTrie(e, strings, callback);
+        break;
+      case Opcodes.SWITCH_STYLE_HASH:
+        stringSwitchHash(e, strings, callback, false);
+        break;
+      case Opcodes.SWITCH_STYLE_HASHONLY:
+        stringSwitchHash(e, strings, callback, true);
+        break;
+      default:
+        throw new IllegalArgumentException("unknown switch style " + switchStyle);
     }
   }
 
-  private static void stringSwitchTrie(final CodeEmitter e, String[] strings, final ObjectSwitchCallback callback)
-          throws Exception //
-  {
+  private static void stringSwitchTrie(
+          final CodeEmitter e, String[] strings, final ObjectSwitchCallback callback) {
     final Label def = e.make_label();
     final Label end = e.make_label();
-    final Map<Integer, List<String>> buckets = CollectionUtils.buckets(Arrays.asList(strings), new Function<String, Integer>() {
+    final Map<Integer, List<String>> buckets =
+            CollectionUtils.buckets(strings, new Function<String, Integer>() {
       public Integer apply(String value) {
         return Integer.valueOf(value.length());
       }
@@ -198,13 +191,13 @@ public abstract class EmitUtils {
 
     e.dup();
     e.invoke_virtual(Type.TYPE_STRING, STRING_LENGTH);
-    e.process_switch(getSwitchKeys(buckets), new ProcessSwitchCallback() {
-      public void processCase(int key, Label ignore_end) throws Exception {
+    e.process_switch(getSwitchKeys(buckets), new TableSwitchGenerator() {
+      public void generateCase(int key, Label ignore_end) {
         List bucket = (List) buckets.get(key);
         stringSwitchHelper(e, bucket, callback, def, end, 0);
       }
 
-      public void processDefault() {
+      public void generateDefault() {
         e.goTo(def);
       }
     });
@@ -215,7 +208,7 @@ public abstract class EmitUtils {
   }
 
   private static void stringSwitchHelper(final CodeEmitter e, List strings, final ObjectSwitchCallback callback,
-                                         final Label def, final Label end, final int index) throws Exception {
+                                         final Label def, final Label end, final int index) {
     final int len = ((String) strings.get(0)).length();
     final Map buckets = CollectionUtils.buckets(strings, new Function() {
       public Object apply(Object value) {
@@ -225,8 +218,8 @@ public abstract class EmitUtils {
     e.dup();
     e.push(index);
     e.invoke_virtual(Type.TYPE_STRING, STRING_CHAR_AT);
-    e.process_switch(getSwitchKeys(buckets), new ProcessSwitchCallback() {
-      public void processCase(int key, Label ignore_end) throws Exception {
+    e.process_switch(getSwitchKeys(buckets), new TableSwitchGenerator() {
+      public void generateCase(int key, Label ignore_end) {
         List bucket = (List) buckets.get(key);
         if (index + 1 == len) {
           e.pop();
@@ -237,7 +230,7 @@ public abstract class EmitUtils {
         }
       }
 
-      public void processDefault() {
+      public void generateDefault() {
         e.goTo(def);
       }
     });
@@ -257,7 +250,7 @@ public abstract class EmitUtils {
 
   private static void stringSwitchHash(
           final CodeEmitter e, final String[] strings,
-          final ObjectSwitchCallback callback, final boolean skipEquals) throws Exception {
+          final ObjectSwitchCallback callback, final boolean skipEquals) {
 
     final Map<Integer, List<String>> buckets = CollectionUtils.buckets(Arrays.asList(strings), Object::hashCode);
 
@@ -265,8 +258,8 @@ public abstract class EmitUtils {
     final Label end = e.make_label();
     e.dup();
     e.invoke_virtual(Type.TYPE_OBJECT, HASH_CODE);
-    e.process_switch(getSwitchKeys(buckets), new ProcessSwitchCallback() {
-      public void processCase(int key, Label ignore_end) throws Exception {
+    e.process_switch(getSwitchKeys(buckets), new TableSwitchGenerator() {
+      public void generateCase(int key, Label ignore_end) {
         List<String> bucket = buckets.get(key);
         Label next = null;
         if (skipEquals && bucket.size() == 1) {
@@ -298,7 +291,7 @@ public abstract class EmitUtils {
         }
       }
 
-      public void processDefault() {
+      public void generateDefault() {
         e.pop();
       }
     });
@@ -775,12 +768,12 @@ public abstract class EmitUtils {
         stringSwitch(e, names, Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
 
           @Override
-          public void processCase(Object key, Label dontUseEnd) throws Exception {
+          public void processCase(Object key, Label dontUseEnd) {
             memberHelperSize(e, buckets.get(key), callback, cached, def, end);
           }
 
           @Override
-          public void processDefault() throws Exception {
+          public void processDefault() {
             e.goTo(def);
           }
         });
@@ -805,7 +798,7 @@ public abstract class EmitUtils {
                                        final List members,
                                        final ObjectSwitchCallback callback,
                                        final ParameterTyper typer,
-                                       final Label def, final Label end) throws Exception //
+                                       final Label def, final Label end) //
   {
 
     final Map<Integer, List<MethodInfo>> buckets = CollectionUtils.buckets(members, (MethodInfo value) -> {
@@ -814,15 +807,15 @@ public abstract class EmitUtils {
 
     e.dup();
     e.arraylength();
-    e.process_switch(getSwitchKeys(buckets), new ProcessSwitchCallback() {
+    e.process_switch(getSwitchKeys(buckets), new TableSwitchGenerator() {
 
       @Override
-      public void processCase(int key, Label dontUseEnd) throws Exception {
+      public void generateCase(int key, Label dontUseEnd) {
         memberHelperType(e, buckets.get(Integer.valueOf(key)), callback, typer, def, end, new BitSet());
       }
 
       @Override
-      public void processDefault() throws Exception {
+      public void generateDefault() {
         e.goTo(def);
       }
     });
@@ -832,7 +825,7 @@ public abstract class EmitUtils {
                                        final List<MethodInfo> members,
                                        final ObjectSwitchCallback callback,
                                        final ParameterTyper typer, final Label def,
-                                       final Label end, final BitSet checked) throws Exception //
+                                       final Label end, final BitSet checked)  //
   {
 
     if (members.size() == 1) {
@@ -888,12 +881,12 @@ public abstract class EmitUtils {
         EmitUtils.stringSwitch(e, names, Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
 
           @Override
-          public void processCase(Object key, Label dontUseEnd) throws Exception {
+          public void processCase(Object key, Label dontUseEnd) {
             memberHelperType(e, fbuckets.get(key), callback, typer, def, end, checked);
           }
 
           @Override
-          public void processDefault() throws Exception {
+          public void processDefault() {
             e.goTo(def);
           }
         });

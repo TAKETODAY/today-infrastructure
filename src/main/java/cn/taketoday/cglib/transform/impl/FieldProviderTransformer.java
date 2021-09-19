@@ -23,11 +23,11 @@ import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
+import cn.taketoday.asm.commons.TableSwitchGenerator;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.CodeGenerationException;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.ObjectSwitchCallback;
-import cn.taketoday.cglib.core.ProcessSwitchCallback;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
 
 @SuppressWarnings("all")
@@ -140,15 +140,15 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
     e.load_this();
     e.load_arg(1);
     e.load_arg(0);
-    e.process_switch(indexes, new ProcessSwitchCallback() {
-      public void processCase(int key, Label end) throws Exception {
+    e.process_switch(indexes, new TableSwitchGenerator() {
+      public void generateCase(int key, Label end) {
         Type type = (Type) fields.get(names[key]);
         e.unbox(type);
         e.putfield(names[key]);
         e.return_value();
       }
 
-      public void processDefault() throws Exception {
+      public void generateDefault() {
         e.throw_exception(ILLEGAL_ARGUMENT_EXCEPTION, "Unknown field index");
       }
     });
@@ -160,15 +160,15 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
     final CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, PROVIDER_GET_BY_INDEX);
     e.load_this();
     e.load_arg(0);
-    e.process_switch(indexes, new ProcessSwitchCallback() {
-      public void processCase(int key, Label end) throws Exception {
+    e.process_switch(indexes, new TableSwitchGenerator() {
+      public void generateCase(int key, Label end) {
         Type type = (Type) fields.get(names[key]);
         e.getfield(names[key]);
         e.box(type);
         e.return_value();
       }
 
-      public void processDefault() throws Exception {
+      public void generateDefault() {
         e.throw_exception(ILLEGAL_ARGUMENT_EXCEPTION, "Unknown field index");
       }
     });

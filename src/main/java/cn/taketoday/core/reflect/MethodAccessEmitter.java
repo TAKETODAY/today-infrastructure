@@ -32,6 +32,7 @@ import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
+import cn.taketoday.asm.commons.TableSwitchGenerator;
 import cn.taketoday.cglib.core.Block;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
@@ -41,7 +42,6 @@ import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.MethodInfoTransformer;
 import cn.taketoday.cglib.core.ObjectSwitchCallback;
-import cn.taketoday.cglib.core.ProcessSwitchCallback;
 import cn.taketoday.cglib.core.VisibilityPredicate;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.CollectionUtils;
@@ -195,8 +195,8 @@ class MethodAccessEmitter extends ClassEmitter {
     final List<MethodInfo> info = CollectionUtils.transform(members, MethodInfoTransformer.getInstance());
     final Label illegalArg = e.make_label();
     final Block block = e.begin_block();
-    e.process_switch(getIntRange(info.size()), new ProcessSwitchCallback() {
-      public void processCase(int key, Label end) {
+    e.process_switch(getIntRange(info.size()), new TableSwitchGenerator() {
+      public void generateCase(int key, Label end) {
         MethodInfo method = info.get(key);
         Type[] types = method.getSignature().getArgumentTypes();
         for (int i = 0; i < types.length; i++) {
@@ -213,7 +213,7 @@ class MethodAccessEmitter extends ClassEmitter {
         e.return_value();
       }
 
-      public void processDefault() {
+      public void generateDefault() {
         e.goTo(illegalArg);
       }
     });

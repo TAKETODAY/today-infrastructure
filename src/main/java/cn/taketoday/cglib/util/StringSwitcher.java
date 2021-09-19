@@ -43,7 +43,7 @@ abstract public class StringSwitcher {
 
   private static final Type STRING_SWITCHER = Type.fromClass(StringSwitcher.class);
   private static final MethodSignature INT_VALUE = MethodSignature.from("int intValue(String)");
-  private static final StringSwitcherKey KEY_FACTORY = (StringSwitcherKey) KeyFactory.create(StringSwitcherKey.class);
+  private static final StringSwitcherKey KEY_FACTORY = KeyFactory.create(StringSwitcherKey.class);
 
   interface StringSwitcherKey {
     public Object newInstance(String[] strings, int[] ints, boolean fixedInput);

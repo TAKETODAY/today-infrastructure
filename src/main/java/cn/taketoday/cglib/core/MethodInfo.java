@@ -67,7 +67,6 @@ public abstract class MethodInfo {
   }
 
   public static MethodInfo from(final Member member, final int modifiers) {
-    final MethodSignature sig = MethodSignature.from(member);
     return new MethodInfo() {
       private ClassInfo ci;
 
@@ -81,7 +80,12 @@ public abstract class MethodInfo {
         return modifiers;
       }
 
+      MethodSignature sig;
+
       public MethodSignature getSignature() {
+        if (sig == null) {
+          sig = MethodSignature.from(member);
+        }
         return sig;
       }
 

@@ -24,6 +24,7 @@ import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
+import cn.taketoday.asm.commons.TableSwitchGenerator;
 import cn.taketoday.core.Assert;
 
 /**
@@ -683,7 +684,7 @@ public class CodeEmitter extends LocalVariablesSorter {
     instance_of(ce.getClassType());
   }
 
-  public void process_switch(int[] keys, ProcessSwitchCallback callback) {
+  public void process_switch(int[] keys, TableSwitchGenerator callback) {
     float density;
     if (keys.length == 0) {
       density = 0;
@@ -694,7 +695,7 @@ public class CodeEmitter extends LocalVariablesSorter {
     process_switch(keys, callback, density >= 0.5f);
   }
 
-  public void process_switch(int[] keys, ProcessSwitchCallback callback, boolean useTable) {
+  public void process_switch(int[] keys, TableSwitchGenerator callback, boolean useTable) {
     Assert.isTrue(isSorted(keys), "keys to switch must be sorted ascending");
     Label def = make_label();
     Label end = make_label();
@@ -717,7 +718,7 @@ public class CodeEmitter extends LocalVariablesSorter {
             Label label = labels[i];
             if (label != def) {
               mark(label);
-              callback.processCase(i + min, end);
+              callback.generateCase(i + min, end);
             }
           }
         }
@@ -729,13 +730,13 @@ public class CodeEmitter extends LocalVariablesSorter {
           mv.visitLookupSwitchInsn(def, keys, labels);
           for (int i = 0; i < len; i++) {
             mark(labels[i]);
-            callback.processCase(keys[i], end);
+            callback.generateCase(keys[i], end);
           }
         }
       }
 
       mark(def);
-      callback.processDefault();
+      callback.generateDefault();
       mark(end);
 
     }

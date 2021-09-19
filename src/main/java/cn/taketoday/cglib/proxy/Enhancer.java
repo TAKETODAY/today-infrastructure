@@ -42,6 +42,7 @@ import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
+import cn.taketoday.asm.commons.TableSwitchGenerator;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
@@ -57,7 +58,6 @@ import cn.taketoday.cglib.core.MethodInfoTransformer;
 import cn.taketoday.cglib.core.MethodWrapper;
 import cn.taketoday.cglib.core.NamingPolicy;
 import cn.taketoday.cglib.core.ObjectSwitchCallback;
-import cn.taketoday.cglib.core.ProcessSwitchCallback;
 import cn.taketoday.cglib.core.RejectModifierPredicate;
 import cn.taketoday.cglib.core.VisibilityPredicate;
 import cn.taketoday.cglib.core.WeakCacheKey;
@@ -1122,13 +1122,13 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     e.invoke_static_this(BIND_CALLBACKS);
     e.load_this();
     e.load_arg(0);
-    e.process_switch(keys, new ProcessSwitchCallback() {
-      public void processCase(int key, Label end) {
+    e.process_switch(keys, new TableSwitchGenerator() {
+      public void generateCase(int key, Label end) {
         e.getfield(getCallbackField(key));
         e.goTo(end);
       }
 
-      public void processDefault() {
+      public void generateDefault() {
         e.pop(); // stack height
         e.aconst_null();
       }
@@ -1140,8 +1140,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   private void emitSetCallback(ClassEmitter ce, int[] keys) {
     final CodeEmitter e = ce.beginMethod(ACC_PUBLIC, SET_CALLBACK);
     e.load_arg(0);
-    e.process_switch(keys, new ProcessSwitchCallback() {
-      public void processCase(int key, Label end) {
+    e.process_switch(keys, new TableSwitchGenerator() {
+      public void generateCase(int key, Label end) {
         e.load_this();
         e.load_arg(1);
         e.checkcast(callbackTypes[key]);
@@ -1149,7 +1149,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         e.goTo(end);
       }
 
-      public void processDefault() {
+      public void generateDefault() {
         // TODO: error?
       }
     });
