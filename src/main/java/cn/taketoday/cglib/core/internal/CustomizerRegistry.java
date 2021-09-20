@@ -17,7 +17,7 @@ import cn.taketoday.cglib.core.KeyFactoryCustomizer;
 public class CustomizerRegistry {
 
   private final Class<?>[] customizerTypes;
-  private Map<Class<?>, List<KeyFactoryCustomizer>> customizers = new HashMap<>();
+  private final HashMap<Class<?>, List<KeyFactoryCustomizer>> customizers = new HashMap<>();
 
   public CustomizerRegistry(Class... customizerTypes) {
     this.customizerTypes = customizerTypes;
