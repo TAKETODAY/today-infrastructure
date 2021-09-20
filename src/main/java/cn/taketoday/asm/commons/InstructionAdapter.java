@@ -42,9 +42,6 @@ import cn.taketoday.asm.Type;
  */
 public class InstructionAdapter extends MethodVisitor {
 
-  /** The type of the java.lang.Object class. */
-  public static final Type OBJECT_TYPE = Type.fromDescriptor("Ljava/lang/Object;");
-
   /**
    * Constructs a new {@link InstructionAdapter}.
    *
@@ -102,7 +99,7 @@ public class InstructionAdapter extends MethodVisitor {
         aload(Type.DOUBLE_TYPE);
         break;
       case Opcodes.AALOAD:
-        aload(OBJECT_TYPE);
+        aload(Type.TYPE_OBJECT);
         break;
       case Opcodes.BALOAD:
         aload(Type.BYTE_TYPE);
@@ -126,7 +123,7 @@ public class InstructionAdapter extends MethodVisitor {
         astore(Type.DOUBLE_TYPE);
         break;
       case Opcodes.AASTORE:
-        astore(OBJECT_TYPE);
+        astore(Type.TYPE_OBJECT);
         break;
       case Opcodes.BASTORE:
         astore(Type.BYTE_TYPE);
@@ -345,7 +342,7 @@ public class InstructionAdapter extends MethodVisitor {
         areturn(Type.DOUBLE_TYPE);
         break;
       case Opcodes.ARETURN:
-        areturn(OBJECT_TYPE);
+        areturn(Type.TYPE_OBJECT);
         break;
       case Opcodes.RETURN:
         areturn(Type.VOID_TYPE);
@@ -371,8 +368,6 @@ public class InstructionAdapter extends MethodVisitor {
   public void visitIntInsn(final int opcode, final int operand) {
     switch (opcode) {
       case Opcodes.BIPUSH:
-        iconst(operand);
-        break;
       case Opcodes.SIPUSH:
         iconst(operand);
         break;
@@ -427,7 +422,7 @@ public class InstructionAdapter extends MethodVisitor {
         load(var, Type.DOUBLE_TYPE);
         break;
       case Opcodes.ALOAD:
-        load(var, OBJECT_TYPE);
+        load(var, Type.TYPE_OBJECT);
         break;
       case Opcodes.ISTORE:
         store(var, Type.INT_TYPE);
@@ -442,7 +437,7 @@ public class InstructionAdapter extends MethodVisitor {
         store(var, Type.DOUBLE_TYPE);
         break;
       case Opcodes.ASTORE:
-        store(var, OBJECT_TYPE);
+        store(var, Type.TYPE_OBJECT);
         break;
       case Opcodes.RET:
         ret(var);
@@ -698,7 +693,7 @@ public class InstructionAdapter extends MethodVisitor {
     push(mv, intValue);
   }
 
-  static void push(MethodVisitor mv, int value) {
+  public static void push(MethodVisitor mv, int value) {
     if (value >= -1 && value <= 5) {
       mv.visitInsn(Opcodes.ICONST_0 + value);
     }
@@ -916,7 +911,7 @@ public class InstructionAdapter extends MethodVisitor {
    * @param to
    *         a Type.
    */
-  static void cast(final MethodVisitor methodVisitor, final Type from, final Type to) {
+  public static void cast(final MethodVisitor methodVisitor, final Type from, final Type to) {
     if (from != to) {
       if (from == Type.DOUBLE_TYPE) {
         if (to == Type.FLOAT_TYPE) {
@@ -1241,7 +1236,7 @@ public class InstructionAdapter extends MethodVisitor {
    * @param type
    *         an array Type.
    */
-  static void newArray(final MethodVisitor methodVisitor, final Type type) {
+  public static void newArray(final MethodVisitor methodVisitor, final Type type) {
     int arrayType;
     switch (type.getSort()) {
       case Type.BOOLEAN:

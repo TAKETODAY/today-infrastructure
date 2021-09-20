@@ -96,7 +96,7 @@ public class AnalyzerAdapter extends MethodVisitor {
   private int maxLocals;
 
   /** The owner's class name. */
-  private String owner;
+  private final String owner;
 
   /**
    * Constructs a new {@link AnalyzerAdapter}.

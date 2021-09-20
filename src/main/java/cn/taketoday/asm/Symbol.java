@@ -217,13 +217,12 @@ abstract class Symbol {
    * @param data
    *         The numeric value of this symbol.
    */
-  Symbol(
-          final int index,
-          final int tag,
-          final String owner,
-          final String name,
-          final String value,
-          final long data) {
+  Symbol(final int index,
+         final int tag,
+         final String owner,
+         final String name,
+         final String value,
+         final long data) {
     this.index = index;
     this.tag = tag;
     this.owner = owner;

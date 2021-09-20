@@ -145,14 +145,17 @@ final class SymbolTable {
     byte[] inputBytes = classReader.classFileBuffer;
     int constantPoolOffset = classReader.getItem(1) - 1;
     int constantPoolLength = classReader.header - constantPoolOffset;
-    constantPoolCount = classReader.getItemCount();
-    constantPool = new ByteVector(constantPoolLength);
+    int constantPoolCount = classReader.getItemCount();
+    ByteVector constantPool = new ByteVector(constantPoolLength);
     constantPool.putByteArray(inputBytes, constantPoolOffset, constantPoolLength);
+
+    this.constantPool = constantPool;
+    this.constantPoolCount = constantPoolCount;
 
     // Add the constant pool items in the symbol table entries. Reserve enough space in 'entries' to
     // avoid too many hash set collisions (entries is not dynamically resized by the addConstant*
     // method calls below), and to account for bootstrap method entries.
-    entries = new Entry[constantPoolCount * 2];
+    this.entries = new Entry[constantPoolCount * 2];
     char[] charBuffer = new char[classReader.getMaxStringLength()];
     boolean hasBootstrapMethods = false;
     int itemIndex = 1;
@@ -225,8 +228,7 @@ final class SymbolTable {
         default:
           throw new IllegalArgumentException();
       }
-      itemIndex +=
-              (itemTag == Symbol.CONSTANT_LONG_TAG || itemTag == Symbol.CONSTANT_DOUBLE_TAG) ? 2 : 1;
+      itemIndex += (itemTag == Symbol.CONSTANT_LONG_TAG || itemTag == Symbol.CONSTANT_DOUBLE_TAG) ? 2 : 1;
     }
 
     // Copy the BootstrapMethods, if any.
@@ -257,6 +259,7 @@ final class SymbolTable {
       }
       currentAttributeOffset += 6 + classReader.readInt(currentAttributeOffset + 2);
     }
+    final int bootstrapMethodCount = this.bootstrapMethodCount;
     if (bootstrapMethodCount > 0) {
       // Compute the offset and the length of the BootstrapMethods 'bootstrap_methods' array.
       int bootstrapMethodsOffset = currentAttributeOffset + 8;
@@ -354,7 +357,8 @@ final class SymbolTable {
    *         where the JVMS ClassFile's constant_pool array must be put.
    */
   void putConstantPool(final ByteVector output) {
-    output.putShort(constantPoolCount).putByteArray(constantPool.data, 0, constantPool.length);
+    output.putShort(constantPoolCount)
+            .putByteArray(constantPool.data, 0, constantPool.length);
   }
 
   /**
@@ -381,9 +385,9 @@ final class SymbolTable {
    *         where the JVMS BootstrapMethods attribute must be put.
    */
   void putBootstrapMethods(final ByteVector output) {
+    final ByteVector bootstrapMethods = this.bootstrapMethods;
     if (bootstrapMethods != null) {
-      output
-              .putShort(addConstantUtf8(Constants.BOOTSTRAP_METHODS))
+      output.putShort(addConstantUtf8(Constants.BOOTSTRAP_METHODS))
               .putInt(bootstrapMethods.length + 2)
               .putShort(bootstrapMethodCount)
               .putByteArray(bootstrapMethods.data, 0, bootstrapMethods.length);
@@ -404,6 +408,7 @@ final class SymbolTable {
    * via the {@link Entry#next} field.
    */
   private Entry get(final int hashCode) {
+    final Entry[] entries = this.entries;
     return entries[hashCode % entries.length];
   }
 
@@ -419,6 +424,7 @@ final class SymbolTable {
    * @return the given entry
    */
   private Entry put(final Entry entry) {
+    Entry[] entries = this.entries;
     if (entryCount > (entries.length * 3) / 4) {
       int currentCapacity = entries.length;
       int newCapacity = currentCapacity * 2 + 1;
@@ -434,6 +440,7 @@ final class SymbolTable {
         }
       }
       entries = newEntries;
+      this.entries = entries;
     }
     entryCount++;
     int index = entry.hashCode % entries.length;
@@ -451,6 +458,7 @@ final class SymbolTable {
    */
   private void add(final Entry entry) {
     entryCount++;
+    final Entry[] entries = this.entries;
     int index = entry.hashCode % entries.length;
     entry.next = entries[index];
     entries[index] = entry;
@@ -919,8 +927,7 @@ final class SymbolTable {
       constantPool.put112(
               tag, referenceKind, addConstantMethodref(owner, name, descriptor, isInterface).index);
     }
-    return put(
-            new Entry(constantPoolCount++, tag, owner, name, descriptor, referenceKind, hashCode));
+    return put(new Entry(constantPoolCount++, tag, owner, name, descriptor, referenceKind, hashCode));
   }
 
   /**
@@ -1048,9 +1055,7 @@ final class SymbolTable {
       entry = entry.next;
     }
     constantPool.put122(tag, bootstrapMethodIndex, addConstantNameAndType(name, descriptor));
-    return put(
-            new Entry(
-                    constantPoolCount++, tag, null, name, descriptor, bootstrapMethodIndex, hashCode));
+    return put(new Entry(constantPoolCount++, tag, null, name, descriptor, bootstrapMethodIndex, hashCode));
   }
 
   /**
@@ -1194,8 +1199,7 @@ final class SymbolTable {
                     bootstrapMethodHandle.getOwner(),
                     bootstrapMethodHandle.getName(),
                     bootstrapMethodHandle.getDesc(),
-                    bootstrapMethodHandle.isInterface())
-                    .index);
+                    bootstrapMethodHandle.isInterface()).index);
 
     bootstrapMethodsAttribute.putShort(numBootstrapArguments);
     for (int i = 0; i < numBootstrapArguments; i++) {
@@ -1331,10 +1335,9 @@ final class SymbolTable {
    * corresponding to the common super class of the given types.
    */
   int addMergedType(final int typeTableIndex1, final int typeTableIndex2) {
-    long data =
-            typeTableIndex1 < typeTableIndex2
-            ? typeTableIndex1 | (((long) typeTableIndex2) << 32)
-            : typeTableIndex2 | (((long) typeTableIndex1) << 32);
+    long data = typeTableIndex1 < typeTableIndex2
+                ? typeTableIndex1 | (((long) typeTableIndex2) << 32)
+                : typeTableIndex2 | (((long) typeTableIndex1) << 32);
     int hashCode = hash(Symbol.MERGED_TYPE_TAG, typeTableIndex1 + typeTableIndex2);
     Entry entry = get(hashCode);
     while (entry != null) {
