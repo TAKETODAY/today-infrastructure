@@ -20,7 +20,6 @@ import java.security.ProtectionDomain;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Type;
@@ -30,6 +29,7 @@ import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.KeyFactory;
 import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
 
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.asm.Opcodes.JAVA_VERSION;
@@ -125,9 +125,7 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
 
     EmitUtils.nullConstructor(ce);
 
-    final Set<String> keySet = props.keySet();
-    EmitUtils.addProperties(ce, keySet.toArray(new String[keySet.size()]), types);
-
+    EmitUtils.addProperties(ce, StringUtils.toStringArray(props.keySet()), types);
     ce.endClass();
   }
 

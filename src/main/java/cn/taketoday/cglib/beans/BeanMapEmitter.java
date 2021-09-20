@@ -32,12 +32,13 @@ import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.ObjectSwitchCallback;
 import cn.taketoday.core.Constant;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY <br>
  * 2019-09-04 19:47
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({ "rawtypes" })
 class BeanMapEmitter extends ClassEmitter {
 
   private static final Type BEAN_MAP = Type.fromClass(BeanMap.class);
@@ -58,15 +59,15 @@ class BeanMapEmitter extends ClassEmitter {
     EmitUtils.factoryMethod(this, NEW_INSTANCE);
     generateConstructor();
 
-    final Map getters = makePropertyMap(CglibReflectUtils.getBeanGetters(type));
-    final Map setters = makePropertyMap(CglibReflectUtils.getBeanSetters(type));
-    final Map allProps = new HashMap();
+    final Map<String, PropertyDescriptor> getters = toMap(CglibReflectUtils.getBeanGetters(type));
+    final Map<String, PropertyDescriptor> setters = toMap(CglibReflectUtils.getBeanSetters(type));
+    final HashMap<String, PropertyDescriptor> allProps = new HashMap<>();
     allProps.putAll(getters);
     allProps.putAll(setters);
 
     if (require != 0) {
-      for (final Iterator it = allProps.keySet().iterator(); it.hasNext(); ) {
-        final Object name = it.next();
+      for (final Iterator<String> it = allProps.keySet().iterator(); it.hasNext(); ) {
+        final String name = it.next();
         if ((((require & BeanMap.REQUIRE_GETTER) != 0) && !getters.containsKey(name))
                 || (((require & BeanMap.REQUIRE_SETTER) != 0) && !setters.containsKey(name))) {
 
@@ -85,16 +86,16 @@ class BeanMapEmitter extends ClassEmitter {
     endClass();
   }
 
-  private Map makePropertyMap(PropertyDescriptor[] props) {
-    Map names = new HashMap();
-    for (int i = 0; i < props.length; i++) {
-      names.put(((PropertyDescriptor) props[i]).getName(), props[i]);
+  private Map<String, PropertyDescriptor> toMap(PropertyDescriptor[] props) {
+    HashMap<String, PropertyDescriptor> names = new HashMap<>();
+    for (final PropertyDescriptor prop : props) {
+      names.put(prop.getName(), prop);
     }
     return names;
   }
 
-  private String[] getNames(Map propertyMap) {
-    return (String[]) propertyMap.keySet().toArray(new String[propertyMap.size()]);
+  private String[] getNames(Map<String, PropertyDescriptor> propertyMap) {
+    return StringUtils.toStringArray(propertyMap.keySet());
   }
 
   private void generateConstructor() {
@@ -106,7 +107,7 @@ class BeanMapEmitter extends ClassEmitter {
     e.end_method();
   }
 
-  private void generateGet(Class type, final Map getters) {
+  private void generateGet(Class type, final Map<String, PropertyDescriptor> getters) {
     final CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, BEAN_MAP_GET);
     e.load_arg(0);
     e.checkcast(Type.fromClass(type));
@@ -114,7 +115,7 @@ class BeanMapEmitter extends ClassEmitter {
     e.checkcast(Type.TYPE_STRING);
     EmitUtils.stringSwitch(e, getNames(getters), Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
       public void processCase(Object key, Label end) {
-        PropertyDescriptor pd = (PropertyDescriptor) getters.get(key);
+        PropertyDescriptor pd = getters.get(key);
         MethodInfo method = MethodInfo.from(pd.getReadMethod());
         e.invoke(method);
         e.box(method.getSignature().getReturnType());
@@ -129,7 +130,7 @@ class BeanMapEmitter extends ClassEmitter {
     e.end_method();
   }
 
-  private void generatePut(Class type, final Map setters) {
+  private void generatePut(Class type, final Map<String, PropertyDescriptor> setters) {
     final CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, BEAN_MAP_PUT);
     e.load_arg(0);
     e.checkcast(Type.fromClass(type));
@@ -137,7 +138,7 @@ class BeanMapEmitter extends ClassEmitter {
     e.checkcast(Type.TYPE_STRING);
     EmitUtils.stringSwitch(e, getNames(setters), Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
       public void processCase(Object key, Label end) {
-        PropertyDescriptor pd = (PropertyDescriptor) setters.get(key);
+        PropertyDescriptor pd = setters.get(key);
         if (pd.getReadMethod() == null) {
           e.aconst_null();
         }
@@ -185,12 +186,12 @@ class BeanMapEmitter extends ClassEmitter {
     e.end_method();
   }
 
-  private void generateGetPropertyType(final Map allProps, String[] allNames) {
+  private void generateGetPropertyType(Map<String, PropertyDescriptor> allProps, String[] allNames) {
     final CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, GET_PROPERTY_TYPE);
     e.load_arg(0);
     EmitUtils.stringSwitch(e, allNames, Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
       public void processCase(Object key, Label end) {
-        PropertyDescriptor pd = (PropertyDescriptor) allProps.get(key);
+        PropertyDescriptor pd = allProps.get(key);
         EmitUtils.loadClass(e, Type.fromClass(pd.getPropertyType()));
         e.return_value();
       }

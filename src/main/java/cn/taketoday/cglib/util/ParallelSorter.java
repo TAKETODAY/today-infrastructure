@@ -64,8 +64,6 @@ abstract public class ParallelSorter extends SorterTemplate {
    * @param arrays
    *         An array of arrays to sort. The arrays may be a mix of primitive
    *         and non-primitive types, but should all be the same length.
-   * @param loader
-   *         ClassLoader for generated class, uses "current" if null
    */
   public static ParallelSorter create(Object[] arrays) {
     Generator gen = new Generator();
@@ -157,10 +155,6 @@ abstract public class ParallelSorter extends SorterTemplate {
    *
    * @param index
    *         array (column) to sort by
-   * @param lo
-   *         starting array index (row), inclusive
-   * @param hi
-   *         ending array index (row), exclusive
    */
   public void mergeSort(int index, Comparator cmp) {
     mergeSort(index, 0, len(), cmp);
@@ -273,7 +267,7 @@ abstract public class ParallelSorter extends SorterTemplate {
     public int compare(int i, int j) {
       long vi = a[i];
       long vj = a[j];
-      return (vi == vj) ? 0 : (vi > vj) ? 1 : -1;
+      return Long.compare(vi, vj);
     }
   }
 
@@ -288,7 +282,7 @@ abstract public class ParallelSorter extends SorterTemplate {
     public int compare(int i, int j) {
       float vi = a[i];
       float vj = a[j];
-      return (vi == vj) ? 0 : (vi > vj) ? 1 : -1;
+      return Float.compare(vi, vj);
     }
   }
 
@@ -303,7 +297,7 @@ abstract public class ParallelSorter extends SorterTemplate {
     public int compare(int i, int j) {
       double vi = a[i];
       double vj = a[j];
-      return (vi == vj) ? 0 : (vi > vj) ? 1 : -1;
+      return Double.compare(vi, vj);
     }
   }
 

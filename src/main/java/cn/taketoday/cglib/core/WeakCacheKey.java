@@ -13,7 +13,7 @@ import java.lang.ref.WeakReference;
  * @param <T>
  *         type of the reference
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({ "rawtypes" })
 public class WeakCacheKey<T> extends WeakReference<T> {
   private final int hash;
 
@@ -29,7 +29,7 @@ public class WeakCacheKey<T> extends WeakReference<T> {
     }
     Object ours = get();
     Object theirs = ((WeakCacheKey) obj).get();
-    return ours != null && theirs != null && ours.equals(theirs);
+    return ours != null && ours.equals(theirs);
   }
 
   @Override

@@ -34,7 +34,7 @@ import cn.taketoday.asm.commons.MethodSignature;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class DuplicatesPredicate implements Predicate<Method> {
 
-  private final Set<Object> unique = new HashSet<>();
+  private final HashSet<Object> unique = new HashSet<>();
   private final Set<Method> rejected;
 
   /**
@@ -116,7 +116,7 @@ public class DuplicatesPredicate implements Predicate<Method> {
     private final Set<Method> rejected;
 
     private MethodSignature currentMethodSig = null;
-    private HashMap<MethodSignature, Method> methods = new HashMap<>();
+    private final HashMap<MethodSignature, Method> methods = new HashMap<>();
 
     UnnecessaryBridgeFinder(Set<Method> rejected) {
       this.rejected = rejected;
