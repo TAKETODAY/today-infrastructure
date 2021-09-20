@@ -23,6 +23,7 @@ import java.util.function.Predicate;
  */
 @FunctionalInterface
 public interface NamingPolicy {
+
   /**
    * Choose a name for a generated class.
    *

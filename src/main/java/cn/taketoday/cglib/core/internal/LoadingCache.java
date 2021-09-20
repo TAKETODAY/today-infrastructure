@@ -1,7 +1,6 @@
 package cn.taketoday.cglib.core.internal;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.function.Function;
@@ -10,17 +9,16 @@ import java.util.function.Function;
  * @author TODAY <br>
  * 2019-09-01 22:04
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({ "unchecked" })
 public class LoadingCache<K, KK, V> {
 
   protected final Function<K, V> loader;
   protected final Function<K, KK> keyMapper;
-  protected final ConcurrentMap<KK, Object> map;
+  protected final ConcurrentHashMap<KK, Object> map = new ConcurrentHashMap<>();
 
   public LoadingCache(Function<K, KK> keyMapper, Function<K, V> loader) {
-    this.keyMapper = keyMapper;
     this.loader = loader;
-    this.map = new ConcurrentHashMap<KK, Object>();
+    this.keyMapper = keyMapper;
   }
 
   public V get(K key) {
@@ -48,18 +46,18 @@ public class LoadingCache<K, KK, V> {
    */
   protected V createEntry(final K key, KK cacheKey, Object v) {
     FutureTask<V> task;
-    boolean creator = false;
+    boolean created = false;
     if (v != null) {
       // Another thread is already loading an instance
       task = (FutureTask<V>) v;
     }
     else {
-      task = new FutureTask<V>(() -> loader.apply(key));
+      task = new FutureTask<>(() -> loader.apply(key));
 
       Object prevTask = map.putIfAbsent(cacheKey, task);
       if (prevTask == null) {
         // creator does the load
-        creator = true;
+        created = true;
         task.run();
       }
       else if (prevTask instanceof FutureTask) {
@@ -70,9 +68,12 @@ public class LoadingCache<K, KK, V> {
       }
     }
 
-    V result;
     try {
-      result = task.get();
+      V result = task.get();
+      if (created) {
+        map.put(cacheKey, result);
+      }
+      return result;
     }
     catch (InterruptedException e) {
       throw new IllegalStateException("Interrupted while loading cache item", e);
@@ -84,9 +85,5 @@ public class LoadingCache<K, KK, V> {
       }
       throw new IllegalStateException("Unable to load cache item", cause);
     }
-    if (creator) {
-      map.put(cacheKey, result);
-    }
-    return result;
   }
 }

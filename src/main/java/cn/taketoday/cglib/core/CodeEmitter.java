@@ -28,7 +28,6 @@ import cn.taketoday.asm.commons.MethodSignature;
 /**
  * @author Juozas Baliuka, Chris Nokleberg
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class CodeEmitter extends GeneratorAdapter {
 
   public static final int ADD = Opcodes.IADD;
@@ -49,8 +48,8 @@ public class CodeEmitter extends GeneratorAdapter {
   public static final int NE = Opcodes.IFNE;
   public static final int EQ = Opcodes.IFEQ;
 
-  private ClassEmitter ce;
-  private State state;
+  private final ClassEmitter ce;
+  private final State state;
 
   private static class State extends MethodInfo {
 

@@ -19,7 +19,6 @@ import java.lang.ref.WeakReference;
 import java.security.ProtectionDomain;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -58,7 +57,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
 
   protected static class ClassLoaderData {
 
-    private final Set<String> reservedClassNames = new HashSet<>();
+    private final HashSet<String> reservedClassNames = new HashSet<>();
 
     /**
      * {@link AbstractClassGenerator} here holds "cache key" (e.g.
@@ -87,7 +86,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
     private final WeakReference<ClassLoader> classLoader;
 
     private static final Function<AbstractClassGenerator, Object> GET_KEY = gen -> gen.key;
-    private final Predicate<Object> uniqueNamePredicate = reservedClassNames::contains;
+    private final Predicate<String> uniqueNamePredicate = reservedClassNames::contains;
 
     public ClassLoaderData(ClassLoader classLoader) {
       Assert.notNull(classLoader, "classLoader == null is not yet supported");
@@ -103,12 +102,12 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
       reservedClassNames.add(name);
     }
 
-    public Predicate getUniqueNamePredicate() {
+    public Predicate<String> getUniqueNamePredicate() {
       return uniqueNamePredicate;
     }
 
     public Object get(AbstractClassGenerator gen, boolean useCache) {
-      if(useCache) {
+      if (useCache) {
         final Object cached = generatedClasses.get(gen);
         return gen.unwrapCachedValue(cached);
       }
@@ -147,7 +146,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
     return this;
   }
 
-  private String generateClassName(Predicate nameTestPredicate) {
+  private String generateClassName(Predicate<String> nameTestPredicate) {
     return namingPolicy.getClassName(namePrefix, source, key, nameTestPredicate);
   }
 
@@ -278,7 +277,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
       final ClassLoader loader = getClassLoader();
       ClassLoaderData data = CACHE.get(loader);
       if (data == null) {
-        synchronized (AbstractClassGenerator.class) {
+        synchronized(AbstractClassGenerator.class) {
           data = CACHE.get(loader);
           if (data == null) {
             Map<ClassLoader, ClassLoaderData> newCache = new WeakHashMap<>(CACHE);
@@ -314,7 +313,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
     }
 
     try {
-      synchronized (classLoader) {
+      synchronized(classLoader) {
         String name = generateClassName(data.getUniqueNamePredicate());
         data.reserveName(name);
         this.setClassName(name);
@@ -327,7 +326,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
       }
       final byte[] bytes = getStrategy().generate(this);
       final String className = getClassName();
-      synchronized (classLoader) { // just in case
+      synchronized(classLoader) { // just in case
         return defineClass(className, bytes, classLoader, getProtectionDomain());
       }
     }
