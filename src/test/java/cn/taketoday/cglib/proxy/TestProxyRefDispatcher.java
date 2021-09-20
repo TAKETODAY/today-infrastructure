@@ -63,7 +63,7 @@ public class TestProxyRefDispatcher extends CodeGenTestCase {
         };
 
         Enhancer e = new Enhancer();
-        e.setInterfaces(new Class[] { Foo.class, Bar.class });
+        e.setInterfaces(Foo.class, Bar.class);
         e.setCallbacks(callbacks);
         e.setCallbackFilter(new CallbackFilter() {
             public int accept(Method method) {

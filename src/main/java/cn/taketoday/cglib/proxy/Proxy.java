@@ -117,7 +117,8 @@ public class Proxy implements Serializable {
    *         are {@code null}, or if the invocation handler, {@code h}, is
    *         {@code null}
    */
-  public static Object newProxyInstance(final ClassLoader loader, final Class<?>[] interfaces, final InvocationHandler h) {
+  public static Object newProxyInstance(
+          final ClassLoader loader, final Class<?>[] interfaces, final InvocationHandler h) {
     try {
       return getProxyClass(loader, interfaces)//
               .getConstructor(InvocationHandler.class)//
