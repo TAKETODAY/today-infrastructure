@@ -37,7 +37,7 @@ import cn.taketoday.core.Constant;
  * @author TODAY <br>
  * 2019-09-04 19:47
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 class BeanMapEmitter extends ClassEmitter {
 
   private static final Type BEAN_MAP = Type.fromClass(BeanMap.class);
@@ -47,7 +47,7 @@ class BeanMapEmitter extends ClassEmitter {
   private static final MethodSignature BEAN_MAP_GET = MethodSignature.from("Object get(Object, Object)");
   private static final MethodSignature BEAN_MAP_PUT = MethodSignature.from("Object put(Object, Object, Object)");
   private static final MethodSignature KEY_SET = MethodSignature.from("java.util.Set keySet()");
-  private static final MethodSignature NEW_INSTANCE = new MethodSignature("newInstance", BEAN_MAP, new Type[] { Type.TYPE_OBJECT });
+  private static final MethodSignature NEW_INSTANCE = new MethodSignature(BEAN_MAP, "newInstance", Type.TYPE_OBJECT);
   private static final MethodSignature GET_PROPERTY_TYPE = MethodSignature.from("Class getPropertyType(String)");
 
   public BeanMapEmitter(final ClassVisitor v, final String className, final Class type, final int require) {

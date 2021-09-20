@@ -32,7 +32,7 @@ class ParallelSorterEmitter extends ClassEmitter {
 
   private static final Type PARALLEL_SORTER = Type.fromClass(ParallelSorter.class);
   private static final MethodSignature CSTRUCT_OBJECT_ARRAY = MethodSignature.forConstructor("Object[]");
-  private static final MethodSignature NEW_INSTANCE = new MethodSignature("newInstance", PARALLEL_SORTER, new Type[] { Type.TYPE_OBJECT_ARRAY });
+  private static final MethodSignature NEW_INSTANCE = new MethodSignature(PARALLEL_SORTER, "newInstance", Type.TYPE_OBJECT_ARRAY);
   private static final MethodSignature SWAP = MethodSignature.from("void swap(int, int)");
 
   public ParallelSorterEmitter(ClassVisitor v, String className, Object[] arrays) {

@@ -51,28 +51,24 @@ import cn.taketoday.util.StringUtils;
  * @author TODAY <br>
  * 2018-11-08 15:08
  */
-@SuppressWarnings("all")
-class MethodAccessEmitter extends ClassEmitter {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+final class MethodAccessEmitter extends ClassEmitter {
 
-  private static final MethodSignature CSTRUCT_CLASS = MethodSignature.forConstructor("Class");
-  private static final MethodSignature METHOD_GET_INDEX = MethodSignature.from("int getIndex(String, Class[])");
-  private static final MethodSignature SIGNATURE_GET_INDEX = new MethodSignature("getIndex", Type.INT_TYPE, new Type[] { Type.TYPE_SIGNATURE });
-  private static final MethodSignature TO_STRING = MethodSignature.from("String toString()");
-  private static final MethodSignature CONSTRUCTOR_GET_INDEX = MethodSignature.from("int getIndex(Class[])");
-  private static final MethodSignature INVOKE = MethodSignature.from("Object invoke(int, Object, Object[])");
-  private static final MethodSignature NEW_INSTANCE = MethodSignature.from("Object newInstance(int, Object[])");
-  private static final MethodSignature GET_MAX_INDEX = MethodSignature.from("int getMaxIndex()");
+  static final MethodSignature CSTRUCT_CLASS = MethodSignature.forConstructor("Class");
+  static final MethodSignature METHOD_GET_INDEX = MethodSignature.from("int getIndex(String, Class[])");
+  static final MethodSignature SIGNATURE_GET_INDEX = new MethodSignature(Type.INT_TYPE, "getIndex", Type.TYPE_SIGNATURE);
+  static final MethodSignature CONSTRUCTOR_GET_INDEX = MethodSignature.from("int getIndex(Class[])");
+  static final MethodSignature INVOKE = MethodSignature.from("Object invoke(int, Object, Object[])");
+  static final MethodSignature NEW_INSTANCE = MethodSignature.from("Object newInstance(int, Object[])");
+  static final MethodSignature GET_MAX_INDEX = MethodSignature.from("int getMaxIndex()");
 
-  private static final MethodSignature GET_SIGNATURE_WITHOUT_RETURN_TYPE = //
+  static final MethodSignature GET_SIGNATURE_WITHOUT_RETURN_TYPE = //
           MethodSignature.from("String getSignatureWithoutReturnType(String, Class[])");
 
   private static final Type FAST_CLASS = Type.fromClass(MethodAccess.class);
-  private static final Type ILLEGAL_ARGUMENT_EXCEPTION = Type.parse("IllegalArgumentException");
-
-  private static final Type INVOCATION_TARGET_EXCEPTION = //
-          Type.parse("java.lang.reflect.InvocationTargetException");
-
-  private static final Type[] INVOCATION_TARGET_EXCEPTION_ARRAY = { INVOCATION_TARGET_EXCEPTION };
+  private static final Type ILLEGAL_ARGUMENT_EXCEPTION = Type.fromInternalName("java/lang/IllegalArgumentException");
+  private static final Type INVOCATION_TARGET_EXCEPTION =
+          Type.fromInternalName("java/lang/reflect/InvocationTargetException");
 
   public MethodAccessEmitter(ClassVisitor v, String className, Class type) {
     super(v);
@@ -93,8 +89,9 @@ class MethodAccessEmitter extends ClassEmitter {
     CollectionUtils.filter(methods, vp);
     CollectionUtils.filter(methods, new DuplicatesPredicate());
 
-    ArrayList<Constructor> constructors = new ArrayList<>();
-    Collections.addAll(constructors, type.getDeclaredConstructors());
+    final Constructor[] declaredConstructors = type.getDeclaredConstructors();
+    ArrayList<Constructor> constructors = new ArrayList<>(declaredConstructors.length);
+    Collections.addAll(constructors, declaredConstructors);
     CollectionUtils.filter(constructors, vp);
 
     // getIndex(String)
@@ -111,7 +108,7 @@ class MethodAccessEmitter extends ClassEmitter {
     e.end_method();
 
     // invoke(int, Object, Object[])
-    e = beginMethod(Opcodes.ACC_PUBLIC, INVOKE, INVOCATION_TARGET_EXCEPTION_ARRAY);
+    e = beginMethod(Opcodes.ACC_PUBLIC, INVOKE, INVOCATION_TARGET_EXCEPTION);
     e.load_arg(1);
     e.checkcast(base);
     e.load_arg(0);
@@ -119,7 +116,7 @@ class MethodAccessEmitter extends ClassEmitter {
     e.end_method();
 
     // newInstance(int, Object[])
-    e = beginMethod(Opcodes.ACC_PUBLIC, NEW_INSTANCE, INVOCATION_TARGET_EXCEPTION_ARRAY);
+    e = beginMethod(Opcodes.ACC_PUBLIC, NEW_INSTANCE, INVOCATION_TARGET_EXCEPTION);
     e.new_instance(base);
     e.dup();
     e.load_arg(0);
@@ -144,7 +141,7 @@ class MethodAccessEmitter extends ClassEmitter {
       }
     });
     e.load_arg(0);
-    e.invoke_virtual(Type.TYPE_OBJECT, TO_STRING);
+    e.invoke_virtual(Type.TYPE_OBJECT, MethodSignature.TO_STRING);
     signatureSwitchHelper(e, signatures);
     e.end_method();
   }
@@ -223,26 +220,28 @@ class MethodAccessEmitter extends ClassEmitter {
     e.throw_exception(ILLEGAL_ARGUMENT_EXCEPTION, "Cannot find matching method/constructor");
   }
 
-  private static class GetIndexCallback implements ObjectSwitchCallback {
-    private CodeEmitter e;
-    private HashMap<Object, Integer> indexes = new HashMap<>();
+  private static final class GetIndexCallback implements ObjectSwitchCallback {
+    private final CodeEmitter codeEmitter;
+    private final HashMap<Object, Integer> indexes = new HashMap<>();
 
     public GetIndexCallback(CodeEmitter e, List methods) {
-      this.e = e;
+      this.codeEmitter = e;
       int index = 0;
       for (Object object : methods) {
-        indexes.put(object, Integer.valueOf(index++));
+        indexes.put(object, index++);
       }
     }
 
+    @Override
     public void processCase(Object key, Label end) {
-      e.push(indexes.get(key).intValue());
-      e.return_value();
+      codeEmitter.push(indexes.get(key));
+      codeEmitter.return_value();
     }
 
+    @Override
     public void processDefault() {
-      e.push(-1);
-      e.return_value();
+      codeEmitter.push(-1);
+      codeEmitter.return_value();
     }
   }
 

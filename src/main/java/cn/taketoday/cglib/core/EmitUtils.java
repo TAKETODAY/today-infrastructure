@@ -38,17 +38,16 @@ import cn.taketoday.core.Constant;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class EmitUtils {
+
+  public static final Type TYPE_BIG_INTEGER = Type.fromInternalName("java/math/BigInteger");
+  public static final Type TYPE_BIG_DECIMAL = Type.fromInternalName("java/math/BigDecimal");
 
   private static final MethodSignature CSTRUCT_THROWABLE = MethodSignature.forConstructor("Throwable");
 
   private static final MethodSignature LENGTH = MethodSignature.from("int length()");
-  private static final MethodSignature HASH_CODE = MethodSignature.from("int hashCode()");
   private static final MethodSignature GET_NAME = MethodSignature.from("String getName()");
-  private static final MethodSignature STRING_LENGTH = MethodSignature.from("int length()");
-  private static final MethodSignature TO_STRING = MethodSignature.from("String toString()");
-  private static final MethodSignature EQUALS = MethodSignature.from("boolean equals(Object)");
   private static final MethodSignature SET_LENGTH = MethodSignature.from("void setLength(int)");
   private static final MethodSignature FOR_NAME = MethodSignature.from("Class forName(String)");
   private static final MethodSignature STRING_CHAR_AT = MethodSignature.from("char charAt(int)");
@@ -184,13 +183,13 @@ public abstract class EmitUtils {
     final Label end = e.make_label();
     final Map<Integer, List<String>> buckets =
             CollectionUtils.buckets(strings, new Function<String, Integer>() {
-      public Integer apply(String value) {
-        return Integer.valueOf(value.length());
-      }
-    });
+              public Integer apply(String value) {
+                return Integer.valueOf(value.length());
+              }
+            });
 
     e.dup();
-    e.invoke_virtual(Type.TYPE_STRING, STRING_LENGTH);
+    e.invoke_virtual(Type.TYPE_STRING, LENGTH);
     e.tableSwitch(getSwitchKeys(buckets), new TableSwitchGenerator() {
       public void generateCase(int key, Label ignore_end) {
         List bucket = (List) buckets.get(key);
@@ -257,7 +256,7 @@ public abstract class EmitUtils {
     final Label def = e.make_label();
     final Label end = e.make_label();
     e.dup();
-    e.invoke_virtual(Type.TYPE_OBJECT, HASH_CODE);
+    e.invoke_virtual(Type.TYPE_OBJECT, MethodSignature.HASH_CODE);
     e.tableSwitch(getSwitchKeys(buckets), new TableSwitchGenerator() {
       public void generateCase(int key, Label ignore_end) {
         List<String> bucket = buckets.get(key);
@@ -278,7 +277,7 @@ public abstract class EmitUtils {
               e.dup();
             }
             e.push(string);
-            e.invoke_virtual(Type.TYPE_OBJECT, EQUALS);
+            e.invoke_virtual(Type.TYPE_OBJECT, MethodSignature.EQUALS);
             if (it.hasNext()) {
               e.if_jump(CodeEmitter.EQ, next = e.make_label());
               e.pop();
@@ -375,16 +374,16 @@ public abstract class EmitUtils {
         loadClass(e, Type.fromClass((Class) obj));
       }
       else if (obj instanceof BigInteger) {
-        e.new_instance(Type.TYPE_BIG_INTEGER);
+        e.new_instance(TYPE_BIG_INTEGER);
         e.dup();
         e.push(obj.toString());
-        e.invoke_constructor(Type.TYPE_BIG_INTEGER);
+        e.invoke_constructor(TYPE_BIG_INTEGER);
       }
       else if (obj instanceof BigDecimal) {
-        e.new_instance(Type.TYPE_BIG_DECIMAL);
+        e.new_instance(TYPE_BIG_DECIMAL);
         e.dup();
         e.push(obj.toString());
-        e.invoke_constructor(Type.TYPE_BIG_DECIMAL);
+        e.invoke_constructor(TYPE_BIG_DECIMAL);
       }
       else {
         throw new IllegalArgumentException("unknown type: " + obj.getClass());
@@ -455,7 +454,7 @@ public abstract class EmitUtils {
       for (Customizer customizer : registry.get(Customizer.class)) {
         customizer.customize(e, type);
       }
-      e.invoke_virtual(Type.TYPE_OBJECT, HASH_CODE);
+      e.invoke_virtual(Type.TYPE_OBJECT, MethodSignature.HASH_CODE);
     }
     e.goTo(end);
     e.mark(skip);
@@ -518,12 +517,12 @@ public abstract class EmitUtils {
                                final Type type,
                                final Label notEquals,
                                final CustomizerRegistry registry) {
-
-    (new ProcessArrayCallback() {
+    final ProcessArrayCallback processArrayCallback = new ProcessArrayCallback() {
       public void processElement(Type type) {
         notEqualsHelper(e, type, notEquals, registry, this);
       }
-    }).processElement(type);
+    };
+    processArrayCallback.processElement(type);
   }
 
   private static void notEqualsHelper(final CodeEmitter e,
@@ -561,7 +560,7 @@ public abstract class EmitUtils {
             customizer.customize(e, type);
           }
         }
-        e.invoke_virtual(Type.TYPE_OBJECT, EQUALS);
+        e.invoke_virtual(Type.TYPE_OBJECT, MethodSignature.EQUALS);
         e.if_jump(CodeEmitter.EQ, notEquals);
       }
       e.mark(end);
@@ -689,7 +688,7 @@ public abstract class EmitUtils {
       for (Customizer customizer : registry.get(Customizer.class)) {
         customizer.customize(e, type);
       }
-      e.invoke_virtual(Type.TYPE_OBJECT, TO_STRING);
+      e.invoke_virtual(Type.TYPE_OBJECT, MethodSignature.TO_STRING);
       e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
     }
     e.goTo(end);
@@ -838,7 +837,7 @@ public abstract class EmitUtils {
           e.aaload(i);
           e.invoke_virtual(Type.TYPE_CLASS, GET_NAME);
           e.push(types[i].emulateClassGetName());
-          e.invoke_virtual(Type.TYPE_OBJECT, EQUALS);
+          e.invoke_virtual(Type.TYPE_OBJECT, MethodSignature.EQUALS);
           e.if_jump(CodeEmitter.EQ, def);
         }
       }
@@ -915,13 +914,13 @@ public abstract class EmitUtils {
   public static void addProperty(ClassEmitter ce, String name, Type type, String fieldName) {
     final String property = StringUtils.capitalize(name);
     CodeEmitter e;
-    e = ce.beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature("get" + property, type, Constant.TYPES_EMPTY_ARRAY));
+    e = ce.beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature(type, "get" + property, Constant.TYPES_EMPTY_ARRAY));
     e.load_this();
     e.getfield(fieldName);
     e.return_value();
     e.end_method();
 
-    e = ce.beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature("set" + property, Type.VOID_TYPE, new Type[] { type }));
+    e = ce.beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature(Type.VOID_TYPE, "set" + property, type));
     e.load_this();
     e.load_arg(0);
     e.putfield(fieldName);

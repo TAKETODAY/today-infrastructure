@@ -26,8 +26,6 @@ import cn.taketoday.cglib.core.Local;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
 import cn.taketoday.util.StringUtils;
 
-import static cn.taketoday.asm.Type.array;
-
 /**
  * @author Juozas Baliuka, Chris Nokleberg
  */
@@ -38,8 +36,8 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
   private static final Type ENABLED = Type.fromClass(InterceptFieldEnabled.class);
   private static final Type CALLBACK = Type.fromClass(InterceptFieldCallback.class);
 
-  private static final MethodSignature ENABLED_SET = new MethodSignature("setInterceptFieldCallback", Type.VOID_TYPE, array(CALLBACK));
-  private static final MethodSignature ENABLED_GET = new MethodSignature("getInterceptFieldCallback", CALLBACK, new Type[0]);
+  private static final MethodSignature ENABLED_SET = new MethodSignature(Type.VOID_TYPE, "setInterceptFieldCallback", CALLBACK);
+  private static final MethodSignature ENABLED_GET = new MethodSignature(CALLBACK, "getInterceptFieldCallback");
 
   private final InterceptFieldFilter filter;
 
@@ -180,12 +178,18 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
 
   private static MethodSignature readCallbackSig(Type type) {
     Type remap = remap(type);
-    return new MethodSignature("read" + callbackName(remap), remap, array(Type.TYPE_OBJECT, Type.TYPE_STRING, remap));
+    return new MethodSignature(
+            remap, "read" + callbackName(remap),
+            Type.TYPE_OBJECT, Type.TYPE_STRING, remap
+    );
   }
 
   private static MethodSignature writeCallbackSig(Type type) {
     Type remap = remap(type);
-    return new MethodSignature("write" + callbackName(remap), remap, array(Type.TYPE_OBJECT, Type.TYPE_STRING, remap, remap));
+    return new MethodSignature(
+            remap, "write" + callbackName(remap),
+            Type.TYPE_OBJECT, Type.TYPE_STRING, remap, remap
+    );
   }
 
   private static Type remap(Type type) {

@@ -39,7 +39,7 @@ import static cn.taketoday.cglib.core.CglibReflectUtils.defineClass;
  * @author TODAY <br>
  * 2019-09-04 20:12
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class AbstractClassGenerator<T> implements ClassGenerator {
 
   private static volatile Map<ClassLoader, ClassLoaderData> CACHE = new WeakHashMap<>();

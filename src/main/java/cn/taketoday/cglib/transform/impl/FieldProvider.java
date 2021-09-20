@@ -19,7 +19,7 @@ package cn.taketoday.cglib.transform.impl;
  * @author TODAY <br>
  * 2019-09-01 21:59
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public interface FieldProvider {
 
   String[] getFieldNames();

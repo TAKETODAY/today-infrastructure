@@ -121,8 +121,8 @@ public class MethodProxy {
    */
   public static MethodProxy find(Class<?> type, MethodSignature sig) {
     try {
-      Method m = type.getDeclaredMethod(MethodInterceptorGenerator.FIND_PROXY_NAME,
-                                        MethodInterceptorGenerator.FIND_PROXY_TYPES);
+      Method m = type.getDeclaredMethod(
+              MethodInterceptorGenerator.FIND_PROXY_NAME, MethodSignature.class);
       return (MethodProxy) m.invoke(null, new Object[] { sig });
     }
     catch (NoSuchMethodException e) {

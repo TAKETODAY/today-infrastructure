@@ -26,7 +26,7 @@ import java.lang.reflect.InvocationTargetException;
  * @author TODAY <br>
  * 2018-11-08 15:08
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class FastConstructorAccessor<T> extends FastMemberAccessor {
 
   FastConstructorAccessor(MethodAccess fc, Constructor<T> constructor) {

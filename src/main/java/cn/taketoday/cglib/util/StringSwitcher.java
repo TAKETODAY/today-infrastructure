@@ -38,7 +38,7 @@ import static cn.taketoday.core.Constant.SOURCE_FILE;
 /**
  * This class implements a simple String->int mapping for a fixed set of keys.
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 abstract public class StringSwitcher {
 
   private static final Type STRING_SWITCHER = Type.fromClass(StringSwitcher.class);

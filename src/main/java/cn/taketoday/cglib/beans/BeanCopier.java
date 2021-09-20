@@ -19,7 +19,6 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
 import java.util.HashMap;
-import java.util.Map;
 
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Type;
@@ -42,21 +41,21 @@ import static cn.taketoday.core.Constant.SOURCE_FILE;
 /**
  * @author Chris Nokleberg
  */
-@SuppressWarnings("all")
-abstract public class BeanCopier {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public abstract class BeanCopier {
 
   private static final Type CONVERTER = Type.fromClass(Converter.class);
   private static final Type BEAN_COPIER = Type.fromClass(BeanCopier.class);
 
-  private static final BeanCopierKey KEY_FACTORY = (BeanCopierKey) KeyFactory.create(BeanCopierKey.class);
+  private static final BeanCopierKey KEY_FACTORY = KeyFactory.create(BeanCopierKey.class);
 
   private static final MethodSignature COPY = new MethodSignature(
-          "copy", Type.VOID_TYPE, Type.array(Type.TYPE_OBJECT, Type.TYPE_OBJECT, CONVERTER));
+          Type.VOID_TYPE, "copy", Type.TYPE_OBJECT, Type.TYPE_OBJECT, CONVERTER);
 
   private static final MethodSignature CONVERT = MethodSignature.from("Object convert(Object, Class, Object)");
 
   interface BeanCopierKey {
-    public Object newInstance(String source, String target, boolean useConverter);
+    Object newInstance(String source, String target, boolean useConverter);
   }
 
   public static BeanCopier create(Class source, Class target, boolean useConverter) {
@@ -114,9 +113,9 @@ abstract public class BeanCopier {
       PropertyDescriptor[] getters = CglibReflectUtils.getBeanGetters(source);
       PropertyDescriptor[] setters = CglibReflectUtils.getBeanSetters(target);
 
-      Map names = new HashMap();
-      for (int i = 0; i < getters.length; i++) {
-        names.put(getters[i].getName(), getters[i]);
+      HashMap<String, PropertyDescriptor> names = new HashMap();
+      for (final PropertyDescriptor propertyDescriptor : getters) {
+        names.put(propertyDescriptor.getName(), propertyDescriptor);
       }
       Local targetLocal = e.make_local();
       Local sourceLocal = e.make_local();
@@ -134,9 +133,9 @@ abstract public class BeanCopier {
         e.load_arg(0);
         e.checkcast(sourceType);
       }
-      for (int i = 0; i < setters.length; i++) {
-        PropertyDescriptor setter = setters[i];
-        PropertyDescriptor getter = (PropertyDescriptor) names.get(setter.getName());
+
+      for (PropertyDescriptor setter : setters) {
+        PropertyDescriptor getter = names.get(setter.getName());
         if (getter != null) {
           MethodInfo read = MethodInfo.from(getter.getReadMethod());
           MethodInfo write = MethodInfo.from(setter.getWriteMethod());

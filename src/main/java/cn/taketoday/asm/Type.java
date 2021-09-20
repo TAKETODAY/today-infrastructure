@@ -137,35 +137,32 @@ public final class Type {
     PRIMITIVE_TYPE_DESCRIPTORS = descriptors;
   }
 
-  public static final Type TYPE_CONSTANT = Type.fromClass(Constant.class);
-  public static final Type TYPE_OBJECT_ARRAY = Type.parse("Object[]");
-  public static final Type TYPE_CLASS_ARRAY = Type.parse("Class[]");
-  public static final Type TYPE_STRING_ARRAY = Type.parse("String[]");
   public static final Type TYPE_TYPE = Type.fromClass(Type.class);
-  public static final Type TYPE_ERROR = Type.parse("Error");
-  public static final Type TYPE_SYSTEM = Type.parse("System");
-  public static final Type TYPE_LONG = Type.parse("Long");
-  public static final Type TYPE_BYTE = Type.parse("Byte");
-  public static final Type TYPE_CLASS = Type.parse("Class");
-  public static final Type TYPE_FLOAT = Type.parse("Float");
-  public static final Type TYPE_SHORT = Type.parse("Short");
-  public static final Type TYPE_DOUBLE = Type.parse("Double");
-  public static final Type TYPE_STRING = Type.parse("String");
-  public static final Type TYPE_NUMBER = Type.parse("Number");
-  public static final Type TYPE_BOOLEAN = Type.parse("Boolean");
-  public static final Type TYPE_INTEGER = Type.parse("Integer");
-  public static final Type TYPE_CHARACTER = Type.parse("Character");
-  public static final Type TYPE_THROWABLE = Type.parse("Throwable");
-  public static final Type TYPE_CLASS_LOADER = Type.parse("ClassLoader");
-  public static final Type TYPE_STRING_BUFFER = Type.parse("StringBuffer");
-  public static final Type TYPE_BIG_INTEGER = Type.parse("java.math.BigInteger");
-  public static final Type TYPE_BIG_DECIMAL = Type.parse("java.math.BigDecimal");
-  public static final Type TYPE_RUNTIME_EXCEPTION = Type.parse("RuntimeException");
+  public static final Type TYPE_CONSTANT = Type.fromClass(Constant.class);
+  public static final Type TYPE_OBJECT_ARRAY = Type.fromInternalName("[Ljava/lang/Object;");
+  public static final Type TYPE_CLASS_ARRAY = Type.fromInternalName("[Ljava/lang/Class;");
+  public static final Type TYPE_STRING_ARRAY = Type.fromInternalName("[Ljava/lang/String;");
+  public static final Type TYPE_ERROR = Type.fromInternalName("java/lang/Error");
+  public static final Type TYPE_SYSTEM = Type.fromInternalName("java/lang/System");
+  public static final Type TYPE_LONG = Type.fromInternalName("java/lang/Long");
+  public static final Type TYPE_BYTE = Type.fromInternalName("java/lang/Byte");
+  public static final Type TYPE_CLASS = Type.fromInternalName("java/lang/Class");
+  public static final Type TYPE_FLOAT = Type.fromInternalName("java/lang/Float");
+  public static final Type TYPE_SHORT = Type.fromInternalName("java/lang/Short");
+  public static final Type TYPE_DOUBLE = Type.fromInternalName("java/lang/Double");
+  public static final Type TYPE_STRING = Type.fromInternalName("java/lang/String");
+  public static final Type TYPE_NUMBER = Type.fromInternalName("java/lang/Number");
+  public static final Type TYPE_BOOLEAN = Type.fromInternalName("java/lang/Boolean");
+  public static final Type TYPE_INTEGER = Type.fromInternalName("java/lang/Integer");
+  public static final Type TYPE_CHARACTER = Type.fromInternalName("java/lang/Character");
+  public static final Type TYPE_THROWABLE = Type.fromInternalName("java/lang/Throwable");
+  public static final Type TYPE_CLASS_LOADER = Type.fromInternalName("java/lang/ClassLoader");
+  public static final Type TYPE_STRING_BUFFER = Type.fromInternalName("java/lang/StringBuffer");
+  public static final Type TYPE_RUNTIME_EXCEPTION = Type.fromInternalName("java/lang/RuntimeException");
   public static final Type TYPE_SIGNATURE = Type.fromClass(MethodSignature.class);
 
   /** The type of the java.lang.Object class. */
   public static final Type TYPE_OBJECT = Type.fromInternalName("java/lang/Object");
-
 
   // -----------------------------------------------------------------------------------------------
   // Fields

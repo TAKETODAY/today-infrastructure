@@ -35,10 +35,10 @@ import cn.taketoday.util.ReflectionUtils;
 /**
  * @author Chris Nokleberg
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class ImmutableBean {
 
-  private static final Type ILLEGAL_STATE_EXCEPTION = Type.parse("IllegalStateException");
+  private static final Type ILLEGAL_STATE_EXCEPTION = Type.fromInternalName("java/lang/IllegalStateException");
   private static final MethodSignature CSTRUCT_OBJECT = MethodSignature.forConstructor("Object");
   private static final Class[] OBJECT_CLASSES = { Object.class };
   private static final String FIELD_NAME = "today$RWbean";

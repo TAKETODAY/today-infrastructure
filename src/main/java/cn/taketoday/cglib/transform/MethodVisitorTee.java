@@ -26,7 +26,7 @@ import cn.taketoday.asm.TypePath;
  * @author Today <br>
  * 2018-11-08 15:07
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class MethodVisitorTee extends MethodVisitor {
   private final MethodVisitor mv1;
   private final MethodVisitor mv2;

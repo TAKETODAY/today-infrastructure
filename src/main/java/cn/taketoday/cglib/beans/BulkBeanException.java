@@ -15,7 +15,7 @@
  */
 package cn.taketoday.cglib.beans;
 
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class BulkBeanException extends RuntimeException {
   private int index;
   private Throwable cause;

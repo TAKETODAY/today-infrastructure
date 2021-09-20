@@ -28,16 +28,8 @@ import cn.taketoday.asm.commons.MethodSignature;
 /**
  * @author Juozas Baliuka, Chris Nokleberg
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class CodeEmitter extends GeneratorAdapter {
-
-  private static final MethodSignature CSTRUCT_STRING = MethodSignature.forConstructor("String");
-  private static final MethodSignature INT_VALUE = MethodSignature.from("int intValue()");
-  private static final MethodSignature CHAR_VALUE = MethodSignature.from("char charValue()");
-  private static final MethodSignature LONG_VALUE = MethodSignature.from("long longValue()");
-  private static final MethodSignature FLOAT_VALUE = MethodSignature.from("float floatValue()");
-  private static final MethodSignature DOUBLE_VALUE = MethodSignature.from("double doubleValue()");
-  private static final MethodSignature BOOLEAN_VALUE = MethodSignature.from("boolean booleanValue()");
 
   public static final int ADD = Opcodes.IADD;
   public static final int MUL = Opcodes.IMUL;
@@ -552,7 +544,7 @@ public class CodeEmitter extends GeneratorAdapter {
     new_instance(type);
     dup();
     push(msg);
-    invoke_constructor(type, CSTRUCT_STRING);
+    invoke_constructor(type, MethodSignature.constructWithString);
     athrow();
   }
 

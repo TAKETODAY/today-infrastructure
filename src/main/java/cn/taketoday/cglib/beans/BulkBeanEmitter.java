@@ -31,7 +31,7 @@ import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.ReflectionUtils;
 
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 class BulkBeanEmitter extends ClassEmitter {
 
   private static final MethodSignature GET_PROPERTY_VALUES = MethodSignature.from("void getPropertyValues(Object, Object[])");

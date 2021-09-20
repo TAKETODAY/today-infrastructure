@@ -22,7 +22,7 @@ import cn.taketoday.asm.Type;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
 
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class AddPropertyTransformer extends ClassEmitterTransformer {
   private final String[] names;
   private final Type[] types;

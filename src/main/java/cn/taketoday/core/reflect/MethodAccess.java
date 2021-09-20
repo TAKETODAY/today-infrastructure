@@ -35,7 +35,7 @@ import cn.taketoday.util.ReflectionUtils;
 /**
  * @author TODAY 2018-11-08 15:08
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class MethodAccess {
 
   private final Class type;

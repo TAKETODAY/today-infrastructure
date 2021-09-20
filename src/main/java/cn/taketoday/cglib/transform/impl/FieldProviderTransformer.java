@@ -30,7 +30,7 @@ import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.ObjectSwitchCallback;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
 
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class FieldProviderTransformer extends ClassEmitterTransformer {
 
   private static final String FIELD_NAMES = "today$FieldNames";

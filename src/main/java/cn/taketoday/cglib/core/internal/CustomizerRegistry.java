@@ -13,7 +13,7 @@ import cn.taketoday.cglib.core.KeyFactoryCustomizer;
  * @author TODAY <br>
  * 2019-10-17 20:45
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class CustomizerRegistry {
 
   private final Class<?>[] customizerTypes;

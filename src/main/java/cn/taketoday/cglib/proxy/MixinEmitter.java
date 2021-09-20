@@ -30,7 +30,6 @@ import cn.taketoday.cglib.core.MethodWrapper;
 
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.asm.Opcodes.JAVA_VERSION;
-import static cn.taketoday.asm.Type.array;
 import static cn.taketoday.core.Constant.SOURCE_FILE;
 
 /**
@@ -43,7 +42,7 @@ class MixinEmitter extends ClassEmitter {
   private static final Type MIXIN = Type.fromClass(Mixin.class);
   private static final MethodSignature CSTRUCT_OBJECT_ARRAY = MethodSignature.forConstructor("Object[]");
 
-  private static final MethodSignature NEW_INSTANCE = new MethodSignature("newInstance", MIXIN, array(Type.TYPE_OBJECT_ARRAY));
+  private static final MethodSignature NEW_INSTANCE = new MethodSignature(MIXIN, "newInstance", Type.TYPE_OBJECT_ARRAY);
 
   public MixinEmitter(ClassVisitor v, String className, Class<?>[] classes, int[] route) {
     super(v);

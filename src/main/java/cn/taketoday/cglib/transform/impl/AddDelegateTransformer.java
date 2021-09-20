@@ -28,7 +28,7 @@ import cn.taketoday.cglib.transform.ClassEmitterTransformer;
 /**
  * @author Juozas Baliuka
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class AddDelegateTransformer extends ClassEmitterTransformer {
 
   private static final String DELEGATE = "$TODAY_DELEGATE";

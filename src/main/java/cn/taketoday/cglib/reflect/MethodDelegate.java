@@ -118,7 +118,7 @@ import cn.taketoday.util.ReflectionUtils;
  *
  * @version $Id: MethodDelegate.java,v 1.25 2006/03/05 02:43:19 herbyderby Exp $
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class MethodDelegate {
 
   private static final MethodDelegateKey KEY_FACTORY = KeyFactory.create(MethodDelegateKey.class, KeyFactory.CLASS_BY_NAME);
@@ -170,7 +170,7 @@ public abstract class MethodDelegate {
   public static class Generator extends AbstractClassGenerator {
 
     private static final Type METHOD_DELEGATE = Type.fromClass(MethodDelegate.class);
-    private static final MethodSignature NEW_INSTANCE = new MethodSignature("newInstance", METHOD_DELEGATE, new Type[] { Type.TYPE_OBJECT });
+    private static final MethodSignature NEW_INSTANCE = new MethodSignature(METHOD_DELEGATE, "newInstance", new Type[] { Type.TYPE_OBJECT });
 
     private Object target;
     private Class targetClass;

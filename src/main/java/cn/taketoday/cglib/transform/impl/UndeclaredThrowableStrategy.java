@@ -31,7 +31,7 @@ import cn.taketoday.cglib.transform.TransformingClassGenerator;
  * exceptions thrown from within a proxied method to be wrapped in an
  * alternative exception of your choice.
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class UndeclaredThrowableStrategy extends DefaultGeneratorStrategy {
 
   private final Class wrapper;

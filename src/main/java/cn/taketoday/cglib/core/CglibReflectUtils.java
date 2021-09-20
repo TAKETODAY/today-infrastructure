@@ -23,7 +23,6 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.AccessController;
@@ -36,9 +35,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import cn.taketoday.asm.Attribute;
 import cn.taketoday.asm.Type;
-import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.core.reflect.ReflectionException;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -48,7 +45,7 @@ import static java.lang.reflect.Modifier.STATIC;
 /**
  * @version $Id: ReflectUtils.java,v 1.30 2009/01/11 19:47:49 herbyderby Exp $
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class CglibReflectUtils {
 
   private static final Method defineClass;
@@ -212,35 +209,6 @@ public abstract class CglibReflectUtils {
       }
     }
     return 0;
-  }
-
-  public static MethodInfo fromMember(final Member member, final int modifiers) {
-    final MethodSignature sig = MethodSignature.from(member);
-    return new MethodInfo() {
-      private ClassInfo ci;
-
-      public ClassInfo getClassInfo() {
-        if (ci == null)
-          ci = ClassInfo.from(member.getDeclaringClass());
-        return ci;
-      }
-
-      public int getModifiers() {
-        return modifiers;
-      }
-
-      public MethodSignature getSignature() {
-        return sig;
-      }
-
-      public Type[] getExceptionTypes() {
-        return Type.getExceptionTypes(member);
-      }
-
-      public Attribute getAttribute() {
-        return null;
-      }
-    };
   }
 
   // used by MethodInterceptorGenerated generated code

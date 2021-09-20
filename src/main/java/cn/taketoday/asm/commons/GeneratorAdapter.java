@@ -85,38 +85,6 @@ public class GeneratorAdapter extends LocalVariablesSorter {
 
   private static final String CLASS_DESCRIPTOR = "Ljava/lang/Class;";
 
-  private static final Type BYTE_TYPE = Type.fromInternalName("java/lang/Byte");
-
-  private static final Type BOOLEAN_TYPE = Type.fromInternalName("java/lang/Boolean");
-
-  private static final Type SHORT_TYPE = Type.fromInternalName("java/lang/Short");
-
-  private static final Type CHARACTER_TYPE = Type.fromInternalName("java/lang/Character");
-
-  private static final Type INTEGER_TYPE = Type.fromInternalName("java/lang/Integer");
-
-  private static final Type FLOAT_TYPE = Type.fromInternalName("java/lang/Float");
-
-  private static final Type LONG_TYPE = Type.fromInternalName("java/lang/Long");
-
-  private static final Type DOUBLE_TYPE = Type.fromInternalName("java/lang/Double");
-
-  private static final Type NUMBER_TYPE = Type.fromInternalName("java/lang/Number");
-
-  private static final Type OBJECT_TYPE = Type.fromInternalName("java/lang/Object");
-
-  private static final MethodSignature BOOLEAN_VALUE = MethodSignature.from("boolean booleanValue()");
-
-  private static final MethodSignature CHAR_VALUE = MethodSignature.from("char charValue()");
-
-  private static final MethodSignature INT_VALUE = MethodSignature.from("int intValue()");
-
-  private static final MethodSignature FLOAT_VALUE = MethodSignature.from("float floatValue()");
-
-  private static final MethodSignature LONG_VALUE = MethodSignature.from("long longValue()");
-
-  private static final MethodSignature DOUBLE_VALUE = MethodSignature.from("double doubleValue()");
-
   /** Constant for the {@link #math} method. */
   public static final int ADD = Opcodes.IADD;
 
@@ -539,17 +507,20 @@ public class GeneratorAdapter extends LocalVariablesSorter {
   /**
    * Generates the instructions to load all the method arguments on the stack, as a single object
    * array.
+   * <p>
+   * load all arguments as array
+   * </p>
    */
   public void loadArgArray() {
     final Type[] argumentTypes = this.argumentTypes;
     push(argumentTypes.length);
-    newArray(OBJECT_TYPE);
+    newArray(Type.TYPE_OBJECT);
     for (int i = 0; i < argumentTypes.length; i++) {
       dup();
       push(i);
       loadArg(i);
       box(argumentTypes[i]);
-      arrayStore(OBJECT_TYPE);
+      arrayStore(Type.TYPE_OBJECT);
     }
   }
 
@@ -846,7 +817,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     }
     else {
       Type boxedType = type.getBoxedType();
-      invokeStatic(boxedType, new MethodSignature("valueOf", boxedType, new Type[] { type }));
+      invokeStatic(boxedType, new MethodSignature(boxedType, "valueOf", type));
     }
   }
 
@@ -863,32 +834,32 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    *         the class indicating the desired type of the top stack value
    */
   public void unbox(final Type type) {
-    Type boxedType = NUMBER_TYPE;
+    Type boxedType = Type.TYPE_NUMBER;
     MethodSignature unboxMethod;
     switch (type.getSort()) {
       case Type.VOID:
         return;
       case Type.CHAR:
-        boxedType = CHARACTER_TYPE;
-        unboxMethod = CHAR_VALUE;
+        boxedType = Type.TYPE_CHARACTER;
+        unboxMethod = MethodSignature.CHAR_VALUE;
         break;
       case Type.BOOLEAN:
-        boxedType = BOOLEAN_TYPE;
-        unboxMethod = BOOLEAN_VALUE;
+        boxedType = Type.TYPE_BOOLEAN;
+        unboxMethod = MethodSignature.BOOLEAN_VALUE;
         break;
       case Type.DOUBLE:
-        unboxMethod = DOUBLE_VALUE;
+        unboxMethod = MethodSignature.DOUBLE_VALUE;
         break;
       case Type.FLOAT:
-        unboxMethod = FLOAT_VALUE;
+        unboxMethod = MethodSignature.FLOAT_VALUE;
         break;
       case Type.LONG:
-        unboxMethod = LONG_VALUE;
+        unboxMethod = MethodSignature.LONG_VALUE;
         break;
       case Type.INT:
       case Type.SHORT:
       case Type.BYTE:
-        unboxMethod = INT_VALUE;
+        unboxMethod = MethodSignature.INT_VALUE;
         break;
       default:
         unboxMethod = null;
@@ -1398,7 +1369,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    *         a class or interface type.
    */
   public void checkCast(final Type type) {
-    if (!type.equals(OBJECT_TYPE)) {
+    if (!type.equals(Type.TYPE_OBJECT)) {
       typeInsn(Opcodes.CHECKCAST, type);
     }
   }

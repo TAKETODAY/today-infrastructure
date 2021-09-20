@@ -32,7 +32,6 @@ import cn.taketoday.core.Constant;
 /**
  * @author Juozas Baliuka, Chris Nokleberg
  */
-@SuppressWarnings("all")
 public class ClassEmitter extends ClassTransformer {
 
   private ClassInfo classInfo;
@@ -163,7 +162,7 @@ public class ClassEmitter extends ClassTransformer {
   {
     Type superType = Type.fromDescriptor(superName);
     final Type[] array = Type.getTypes(interfaces);
-    Type type = Type.fromDescriptor('L' + name.replace('.', '/') + ';');
+    Type type = Type.fromInternalName(name.replace('.', '/'));
 
     classInfo = new ClassInfo() {
 
@@ -349,10 +348,7 @@ public class ClassEmitter extends ClassTransformer {
       if ((value == null) ^ (other.value == null)) {
         return false;
       }
-      if (value != null && !value.equals(other.value)) {
-        return false;
-      }
-      return true;
+      return value == null || value.equals(other.value);
     }
 
     public int hashCode() {

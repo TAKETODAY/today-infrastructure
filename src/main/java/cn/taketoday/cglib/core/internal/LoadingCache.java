@@ -10,7 +10,7 @@ import java.util.function.Function;
  * @author TODAY <br>
  * 2019-09-01 22:04
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class LoadingCache<K, KK, V> {
 
   protected final Function<K, V> loader;

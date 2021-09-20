@@ -37,19 +37,14 @@ import cn.taketoday.cglib.core.ObjectSwitchCallback;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
-import static cn.taketoday.asm.Type.array;
-
 /**
  * @author TODAY <br>
  * 2019-09-03 19:29
  */
 final class MethodInterceptorGenerator implements CallbackGenerator {
-
   public static final MethodInterceptorGenerator INSTANCE = new MethodInterceptorGenerator();
 
   static final String FIND_PROXY_NAME = "today$FindMethodProxy";
-
-  static final Class<?>[] FIND_PROXY_TYPES = { MethodSignature.class };
 
   private static final Type METHOD = Type.fromClass(Method.class);
   private static final Type ABSTRACT_METHOD_ERROR = Type.fromClass(AbstractMethodError.class);
@@ -64,25 +59,20 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
   private static final MethodSignature FIND_METHODS = //
           MethodSignature.from("java.lang.reflect.Method[] findMethods(String[], java.lang.reflect.Method[])");
 
-  private static final MethodSignature MAKE_PROXY = new MethodSignature("create",
-                                                              METHOD_PROXY, //
-                                                              array(Type.TYPE_CLASS,
-                                                                  Type.TYPE_CLASS,
-                                                                  Type.TYPE_STRING,
-                                                                  Type.TYPE_STRING,
-                                                                  Type.TYPE_STRING)//
+  private static final MethodSignature MAKE_PROXY = new MethodSignature(
+          METHOD_PROXY,
+          "create",
+          Type.TYPE_CLASS, Type.TYPE_CLASS, Type.TYPE_STRING, Type.TYPE_STRING, Type.TYPE_STRING
   );
 
-  private static final MethodSignature INTERCEPT = new MethodSignature("intercept",
-                                                             Type.TYPE_OBJECT,
-                                                             array(Type.TYPE_OBJECT,
-                                                                 METHOD,
-                                                                 Type.TYPE_OBJECT_ARRAY,
-                                                                 METHOD_PROXY)//
+  private static final MethodSignature INTERCEPT = new MethodSignature(
+          Type.TYPE_OBJECT,
+          "intercept",
+          Type.TYPE_OBJECT, METHOD, Type.TYPE_OBJECT_ARRAY, METHOD_PROXY
   );
 
-  private static final MethodSignature FIND_PROXY = new MethodSignature(FIND_PROXY_NAME, METHOD_PROXY, array(Type.TYPE_SIGNATURE));
-  private static final MethodSignature TO_STRING = MethodSignature.from("String toString()");
+  private static final MethodSignature FIND_PROXY = new MethodSignature(
+          METHOD_PROXY, FIND_PROXY_NAME, Type.TYPE_SIGNATURE);
 
   private String getMethodField(MethodSignature impl) {
     return impl.getName() + "$Method";
@@ -228,7 +218,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
 
     final CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, FIND_PROXY);
     e.load_arg(0);
-    e.invoke_virtual(Type.TYPE_OBJECT, TO_STRING);
+    e.invoke_virtual(Type.TYPE_OBJECT, MethodSignature.TO_STRING);
 
     final ObjectSwitchCallback callback = new ObjectSwitchCallback() {
 

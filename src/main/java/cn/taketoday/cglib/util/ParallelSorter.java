@@ -47,7 +47,7 @@ import cn.taketoday.util.ReflectionUtils;
  *
  * @author Chris Nokleberg
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 abstract public class ParallelSorter extends SorterTemplate {
 
   protected Object[] a;

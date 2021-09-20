@@ -40,7 +40,7 @@ import static cn.taketoday.core.Constant.SOURCE_FILE;
  * @version $Id: ConstructorDelegate.java,v 1.20 2006/03/05 02:43:19 herbyderby
  * Exp $
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 abstract public class ConstructorDelegate {
 
   private static final ConstructorKey KEY_FACTORY = KeyFactory.create(ConstructorKey.class, KeyFactory.CLASS_BY_NAME);

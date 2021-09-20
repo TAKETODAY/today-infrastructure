@@ -29,7 +29,7 @@ import cn.taketoday.cglib.transform.ClassEmitterTransformer;
  * @author Today <br>
  * 2018-11-08 15:07
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class UndeclaredThrowableTransformer extends ClassEmitterTransformer {
 
   private final Type wrapper;

@@ -28,6 +28,7 @@ import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.internal.CustomizerRegistry;
 import cn.taketoday.core.Constant;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.asm.Type.array;
@@ -67,20 +68,16 @@ import static cn.taketoday.asm.Type.array;
  *
  * @version $Id: KeyFactory.java,v 1.26 2006/03/05 02:43:19 herbyderby Exp $
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 abstract public class KeyFactory {
 
   private static final Type KEY_FACTORY = Type.fromClass(KeyFactory.class);
   private static final MethodSignature GET_SORT = MethodSignature.from("int getSort()");
-  private static final MethodSignature HASH_CODE = MethodSignature.from("int hashCode()");
   private static final MethodSignature GET_NAME = MethodSignature.from("String getName()");
-  private static final MethodSignature GET_CLASS = MethodSignature.from("Class getClass()");
-  private static final MethodSignature TO_STRING = MethodSignature.from("String toString()");
-  private static final MethodSignature EQUALS = MethodSignature.from("boolean equals(Object)");
   private static final MethodSignature APPEND_STRING = MethodSignature.from("StringBuffer append(String)");
 
   // generated numbers:
-  private final static int PRIMES[] = { //
+  private final static int[] PRIMES = { //
           11, 73, 179, 331, 521, 787, 1213, 1823, //
           2609, 3691, 5189, 7247, 10037, 13931, 19289, //
           26627, 36683, 50441, 69403, 95401, 131129, //
@@ -95,21 +92,6 @@ abstract public class KeyFactory {
   public static final Customizer CLASS_BY_NAME = (CodeEmitter e, Type type) -> {
     if (type.equals(Type.TYPE_CLASS)) {
       e.invoke_virtual(Type.TYPE_CLASS, GET_NAME);
-    }
-  };
-
-  public static final FieldTypeCustomizer STORE_CLASS_AS_STRING = new FieldTypeCustomizer() {
-    public void customize(CodeEmitter e, int index, Type type) {
-      if (type.equals(Type.TYPE_CLASS)) {
-        e.invoke_virtual(Type.TYPE_CLASS, GET_NAME);
-      }
-    }
-
-    public Type getOutType(int index, Type type) {
-      if (type.equals(Type.TYPE_CLASS)) {
-        return Type.TYPE_STRING;
-      }
-      return type;
     }
   };
 
@@ -134,7 +116,7 @@ abstract public class KeyFactory {
    */
   @Deprecated
   public static final Customizer OBJECT_BY_CLASS = (CodeEmitter e, Type type) -> {
-    e.invoke_virtual(Type.TYPE_OBJECT, GET_CLASS);
+    e.invoke_virtual(Type.TYPE_OBJECT, MethodSignature.GET_CLASS);
   };
 
   protected KeyFactory() { }
@@ -164,7 +146,8 @@ abstract public class KeyFactory {
     if (customizer != null) {
       gen.addCustomizer(customizer);
     }
-    if (next != null && !next.isEmpty()) {
+
+    if (!CollectionUtils.isEmpty(next)) {
       for (KeyFactoryCustomizer keyFactoryCustomizer : next) {
         gen.addCustomizer(keyFactoryCustomizer);
       }
@@ -281,9 +264,9 @@ abstract public class KeyFactory {
       e.end_method();
 
       // hash code
-      e = ce.beginMethod(Opcodes.ACC_PUBLIC, HASH_CODE);
-      int hc = (constant != 0) ? constant : PRIMES[(int) (Math.abs(seed) % PRIMES.length)];
-      int hm = (multiplier != 0) ? multiplier : PRIMES[(int) (Math.abs(seed * 13) % PRIMES.length)];
+      e = ce.beginMethod(Opcodes.ACC_PUBLIC, MethodSignature.HASH_CODE);
+      int hc = (constant != 0) ? constant : PRIMES[Math.abs(seed) % PRIMES.length];
+      int hm = (multiplier != 0) ? multiplier : PRIMES[Math.abs(seed * 13) % PRIMES.length];
       e.push(hc);
       for (int i = 0; i < parameterTypes.length; i++) {
         e.load_this();
@@ -294,11 +277,11 @@ abstract public class KeyFactory {
       e.end_method();
 
       // equals
-      e = ce.beginMethod(Opcodes.ACC_PUBLIC, EQUALS);
+      e = ce.beginMethod(Opcodes.ACC_PUBLIC, MethodSignature.EQUALS);
       Label fail = e.make_label();
       e.load_arg(0);
       e.instance_of_this();
-      e.if_jump(e.EQ, fail);
+      e.if_jump(CodeEmitter.EQ, fail);
       for (int i = 0; i < parameterTypes.length; i++) {
         e.load_this();
         e.getfield(getFieldName(i));
@@ -315,7 +298,7 @@ abstract public class KeyFactory {
       e.end_method();
 
       // toString
-      e = ce.beginMethod(Opcodes.ACC_PUBLIC, TO_STRING);
+      e = ce.beginMethod(Opcodes.ACC_PUBLIC, MethodSignature.TO_STRING);
       e.new_instance(Type.TYPE_STRING_BUFFER);
       e.dup();
       e.invoke_constructor(Type.TYPE_STRING_BUFFER);
@@ -328,7 +311,7 @@ abstract public class KeyFactory {
         e.getfield(getFieldName(i));
         EmitUtils.appendString(e, parameterTypes[i], EmitUtils.DEFAULT_DELIMITERS, customizers);
       }
-      e.invoke_virtual(Type.TYPE_STRING_BUFFER, TO_STRING);
+      e.invoke_virtual(Type.TYPE_STRING_BUFFER, MethodSignature.TO_STRING);
       e.return_value();
       e.end_method();
 

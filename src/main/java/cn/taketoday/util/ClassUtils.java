@@ -1117,6 +1117,7 @@ public abstract class ClassUtils {
    * @throws ConstructorNotFoundException
    *         not found
    * @see Class#getDeclaredConstructor
+   * @since 4.0
    */
   public static <T> Constructor<T> getConstructor(Class<T> type, Class<?>... parameterTypes) {
     Assert.notNull(type, "Class must not be null");
@@ -1307,7 +1308,7 @@ public abstract class ClassUtils {
    * @since 4.0
    */
   private static Set<Method> findMethodCandidatesByName(Class<?> clazz, String methodName) {
-    Set<Method> candidates = new HashSet<>(1);
+    HashSet<Method> candidates = new HashSet<>(1);
     Method[] methods = clazz.getMethods();
     for (Method method : methods) {
       if (methodName.equals(method.getName())) {

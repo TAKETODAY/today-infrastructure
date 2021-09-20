@@ -31,7 +31,7 @@ import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.commons.MethodSignature;
 
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class DuplicatesPredicate implements Predicate<Method> {
 
   private final Set<Object> unique = new HashSet<>();

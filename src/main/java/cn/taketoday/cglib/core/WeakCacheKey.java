@@ -13,7 +13,7 @@ import java.lang.ref.WeakReference;
  * @param <T>
  *         type of the reference
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class WeakCacheKey<T> extends WeakReference<T> {
   private final int hash;
 

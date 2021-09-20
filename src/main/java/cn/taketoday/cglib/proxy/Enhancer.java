@@ -78,7 +78,6 @@ import static cn.taketoday.asm.Type.BOOLEAN_TYPE;
 import static cn.taketoday.asm.Type.INT_TYPE;
 import static cn.taketoday.asm.Type.LONG_TYPE;
 import static cn.taketoday.asm.Type.VOID_TYPE;
-import static cn.taketoday.asm.Type.array;
 import static cn.taketoday.core.Constant.SUID_FIELD_NAME;
 
 /**
@@ -116,7 +115,7 @@ import static cn.taketoday.core.Constant.SUID_FIELD_NAME;
  * For an almost drop-in replacement for <code>java.lang.reflect.Proxy</code>,
  * see the {@link Proxy} class.
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class Enhancer extends AbstractClassGenerator<Object> {
 
   private static final CallbackFilter ALL_ZERO = (m) -> 0;
@@ -148,29 +147,29 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
   private static final Type OBJECT_TYPE = Type.TYPE_OBJECT;
   private static final Type FACTORY = Type.fromClass(Factory.class);
-  private static final Type ILLEGAL_STATE_EXCEPTION = Type.parse("IllegalStateException");
-  private static final Type ILLEGAL_ARGUMENT_EXCEPTION = Type.parse("IllegalArgumentException");
-  private static final Type THREAD_LOCAL = Type.parse("ThreadLocal");
   private static final Type CALLBACK = Type.fromClass(Callback.class);
   private static final Type CALLBACK_ARRAY = Type.fromClass(Callback[].class);
+  private static final Type THREAD_LOCAL = Type.fromInternalName("java/lang/ThreadLocal");
+  private static final Type ILLEGAL_STATE_EXCEPTION = Type.fromInternalName("java/lang/IllegalStateException");
+  private static final Type ILLEGAL_ARGUMENT_EXCEPTION = Type.fromInternalName("java/lang/IllegalArgumentException");
 
-  private static final MethodSignature SET_THREAD_CALLBACKS = new MethodSignature(SET_THREAD_CALLBACKS_NAME, VOID_TYPE, array(CALLBACK_ARRAY));
-  private static final MethodSignature SET_STATIC_CALLBACKS = new MethodSignature(SET_STATIC_CALLBACKS_NAME, VOID_TYPE, array(CALLBACK_ARRAY));
-  private static final MethodSignature NEW_INSTANCE = new MethodSignature("newInstance", Type.TYPE_OBJECT, array(CALLBACK_ARRAY));
-  private static final MethodSignature MULTIARG_NEW_INSTANCE = new MethodSignature("newInstance",
-                                                                                   Type.TYPE_OBJECT,
-                                                                                   array(Type.TYPE_CLASS_ARRAY,
-                                                                                         Type.TYPE_OBJECT_ARRAY,
-                                                                                         CALLBACK_ARRAY));
+  static final MethodSignature NEW_INSTANCE = new MethodSignature(Type.TYPE_OBJECT, "newInstance", CALLBACK_ARRAY);
+  static final MethodSignature SET_THREAD_CALLBACKS = new MethodSignature(VOID_TYPE, SET_THREAD_CALLBACKS_NAME, CALLBACK_ARRAY);
+  static final MethodSignature SET_STATIC_CALLBACKS = new MethodSignature(VOID_TYPE, SET_STATIC_CALLBACKS_NAME, CALLBACK_ARRAY);
+  static final MethodSignature MULTIARG_NEW_INSTANCE = new MethodSignature(
+          Type.TYPE_OBJECT,
+          "newInstance",
+          Type.TYPE_CLASS_ARRAY, Type.TYPE_OBJECT_ARRAY, CALLBACK_ARRAY
+  );
+  static final MethodSignature GET_CALLBACKS = new MethodSignature(CALLBACK_ARRAY, "getCallbacks");
+  static final MethodSignature GET_CALLBACK = new MethodSignature(CALLBACK, "getCallback", INT_TYPE);
+  static final MethodSignature SET_CALLBACKS = new MethodSignature(VOID_TYPE, "setCallbacks", CALLBACK_ARRAY);
+  static final MethodSignature SET_CALLBACK = new MethodSignature(VOID_TYPE, "setCallback", INT_TYPE, CALLBACK);
+  static final MethodSignature SINGLE_NEW_INSTANCE = new MethodSignature(Type.TYPE_OBJECT, "newInstance", CALLBACK);
 
-  private static final MethodSignature SINGLE_NEW_INSTANCE = new MethodSignature("newInstance", Type.TYPE_OBJECT, array(CALLBACK));
-  private static final MethodSignature SET_CALLBACK = new MethodSignature("setCallback", VOID_TYPE, array(INT_TYPE, CALLBACK));
-  private static final MethodSignature GET_CALLBACK = new MethodSignature("getCallback", CALLBACK, array(INT_TYPE));
-  private static final MethodSignature SET_CALLBACKS = new MethodSignature("setCallbacks", VOID_TYPE, array(CALLBACK_ARRAY));
-  private static final MethodSignature GET_CALLBACKS = new MethodSignature("getCallbacks", CALLBACK_ARRAY, new Type[0]);
-  private static final MethodSignature THREAD_LOCAL_GET = MethodSignature.from("Object get()");
-  private static final MethodSignature THREAD_LOCAL_SET = MethodSignature.from("void set(Object)");
-  private static final MethodSignature BIND_CALLBACKS = MethodSignature.from("void today$BindCallbacks(Object)");
+  static final MethodSignature THREAD_LOCAL_GET = MethodSignature.from("Object get()");
+  static final MethodSignature THREAD_LOCAL_SET = MethodSignature.from("void set(Object)");
+  static final MethodSignature BIND_CALLBACKS = MethodSignature.from("void today$BindCallbacks(Object)");
 
   private EnhancerFactoryData currentData;
   private Object currentKey;
@@ -859,11 +858,10 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       argumentTypes = Constant.EMPTY_CLASS_ARRAY;
     }
     EnhancerFactoryData factoryData = new EnhancerFactoryData(klass, argumentTypes, classOnly);
-    Field factoryDataField = null;
     try {
       // The subsequent dance is performed just once for each class,
       // so it does not matter much how fast it goes
-      factoryDataField = klass.getField(FACTORY_DATA_FIELD);
+      Field factoryDataField = klass.getField(FACTORY_DATA_FIELD);
       factoryDataField.set(null, factoryData);
       Field callbackFilterField = klass.getDeclaredField(CALLBACK_FILTER_FIELD);
       callbackFilterField.setAccessible(true);
@@ -872,14 +870,13 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     catch (NoSuchFieldException | IllegalAccessException e) {
       throw new CodeGenerationException(e);
     }
-    return new WeakReference<EnhancerFactoryData>(factoryData);
+    return new WeakReference<>(factoryData);
   }
 
   @Override
   protected Object unwrapCachedValue(Object cached) {
     if (currentKey instanceof EnhancerKey) {
-      EnhancerFactoryData data = ((WeakReference<EnhancerFactoryData>) cached).get();
-      return data;
+      return ((WeakReference<EnhancerFactoryData>) cached).get();
     }
     return super.unwrapCachedValue(cached);
   }
@@ -1081,6 +1078,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     boolean seenNull = false;
 
     for (MethodInfo constructor : constructors) {
+
       if (currentData != null && !"()V".equals(constructor.getSignature().getDescriptor())) {
         continue;
       }

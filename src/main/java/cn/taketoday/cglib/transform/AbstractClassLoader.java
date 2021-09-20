@@ -32,7 +32,7 @@ import cn.taketoday.cglib.core.DebuggingClassWriter;
  * @author Today <br>
  * 2018-11-08 15:07
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 abstract public class AbstractClassLoader extends ClassLoader {
 
   private ClassFilter filter;

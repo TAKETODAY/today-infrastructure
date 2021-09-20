@@ -59,7 +59,7 @@ public class MethodSignatureTest {
 
   @Test
   public void testConstructor_fromTypes() {
-    MethodSignature method = new MethodSignature("name", Type.LONG_TYPE, new Type[] { Type.INT_TYPE });
+    MethodSignature method = new MethodSignature(Type.LONG_TYPE, "name", Type.INT_TYPE);
 
     assertEquals("name", method.getName());
     assertEquals("(I)J", method.getDescriptor());
@@ -144,7 +144,7 @@ public class MethodSignatureTest {
 
     assertThat(cstruct_object.getDescriptor())
             .isEqualTo(withoutDefaultPackage.getDescriptor());
-    
+
     // <init>(Object,Object,Class)
     MethodSignature cstruct_objects = MethodSignature.forConstructor("Object, Object ,Class ");
     MethodSignature signature =
