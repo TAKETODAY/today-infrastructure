@@ -290,8 +290,8 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
 
     // Emit instantiations of each subroutine we encounter, including the main subroutine.
     InsnList newInstructions = new InsnList();
-    List<TryCatchBlockNode> newTryCatchBlocks = new ArrayList<>();
-    List<LocalVariableNode> newLocalVariables = new ArrayList<>();
+    ArrayList<TryCatchBlockNode> newTryCatchBlocks = new ArrayList<>();
+    ArrayList<LocalVariableNode> newLocalVariables = new ArrayList<>();
     while (!worklist.isEmpty()) {
       Instantiation instantiation = worklist.removeFirst();
       emitInstantiation(

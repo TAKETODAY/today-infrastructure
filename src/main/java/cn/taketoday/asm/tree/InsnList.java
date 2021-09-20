@@ -284,7 +284,6 @@ public class InsnList implements Iterable<AbstractInsnNode> {
   public void insert(final AbstractInsnNode insnNode) {
     ++size;
     if (firstInsn == null) {
-      firstInsn = insnNode;
       lastInsn = insnNode;
     }
     else {
