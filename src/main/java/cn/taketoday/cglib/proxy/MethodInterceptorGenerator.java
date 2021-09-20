@@ -209,7 +209,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
         MethodSignature impl = context.getImplSignature(method);
         e.dup();
         e.push(index);
-        e.array_load(METHOD);
+        e.arrayLoad(METHOD);
         e.putfield(getMethodField(impl));
 
         e.load_local(declaringClass);

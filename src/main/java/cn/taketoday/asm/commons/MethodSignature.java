@@ -125,13 +125,25 @@ public class MethodSignature {
    * @param parameterTypes
    *         a Java parameterTypes name.
    *
-   * @return MethodSignature
+   * @return Constructor Signature
+   *
+   * @see #CONSTRUCTOR_NAME
+   * @since 4.0
    */
   public static MethodSignature forConstructor(final String parameterTypes) {
     String descriptor = Type.getDescriptor(parameterTypes);
     return new MethodSignature(CONSTRUCTOR_NAME, '(' + descriptor + ")V");
   }
 
+  /**
+   * @param parameterTypes
+   *         a Java parameterTypes.
+   *
+   * @return Constructor Signature
+   *
+   * @see #CONSTRUCTOR_NAME
+   * @since 4.0
+   */
   public static MethodSignature forConstructor(Type... parameterTypes) {
     StringBuilder descriptor = new StringBuilder(parameterTypes.length * 8);
     for (final Type type : parameterTypes) {

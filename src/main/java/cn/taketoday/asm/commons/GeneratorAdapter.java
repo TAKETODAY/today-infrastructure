@@ -798,29 +798,6 @@ public class GeneratorAdapter extends LocalVariablesSorter {
   // Instructions to do boxing and unboxing operations
   // -----------------------------------------------------------------------------------------------
 
-  private static Type getBoxedType(final Type type) {
-    switch (type.getSort()) {
-      case Type.BYTE:
-        return BYTE_TYPE;
-      case Type.BOOLEAN:
-        return BOOLEAN_TYPE;
-      case Type.SHORT:
-        return SHORT_TYPE;
-      case Type.CHAR:
-        return CHARACTER_TYPE;
-      case Type.INT:
-        return INTEGER_TYPE;
-      case Type.FLOAT:
-        return FLOAT_TYPE;
-      case Type.LONG:
-        return LONG_TYPE;
-      case Type.DOUBLE:
-        return DOUBLE_TYPE;
-      default:
-        return type;
-    }
-  }
-
   /**
    * Generates the instructions to box the top stack value. This value is replaced by its boxed
    * equivalent on top of the stack.
@@ -836,7 +813,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
       push((String) null);
     }
     else {
-      Type boxedType = getBoxedType(type);
+      Type boxedType = type.getBoxedType();
       newInstance(boxedType);
       if (type.getSize() == 2) {
         // Pp -> Ppo -> oPpo -> ooPpo -> ooPp -> o
@@ -849,7 +826,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
         dupX1();
         swap();
       }
-      invokeConstructor(boxedType, new MethodSignature("<init>", Type.VOID_TYPE, new Type[] { type }));
+      invokeConstructor(boxedType, MethodSignature.forConstructor(type));
     }
   }
 
@@ -868,7 +845,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
       push((String) null);
     }
     else {
-      Type boxedType = getBoxedType(type);
+      Type boxedType = type.getBoxedType();
       invokeStatic(boxedType, new MethodSignature("valueOf", boxedType, new Type[] { type }));
     }
   }
@@ -876,9 +853,14 @@ public class GeneratorAdapter extends LocalVariablesSorter {
   /**
    * Generates the instructions to unbox the top stack value. This value is replaced by its unboxed
    * equivalent on top of the stack.
+   * <p>
+   * If the argument is a primitive class, replaces the object on the top of the
+   * stack with the unwrapped (primitive) equivalent. For example, Character ->
+   * char.
+   * </p>
    *
    * @param type
-   *         the type of the top stack value.
+   *         the class indicating the desired type of the top stack value
    */
   public void unbox(final Type type) {
     Type boxedType = NUMBER_TYPE;
@@ -1362,6 +1344,10 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    */
   public void newInstance(final Type type) {
     typeInsn(Opcodes.NEW, type);
+  }
+
+  public void newArray() {
+    newArray(Type.TYPE_OBJECT);
   }
 
   /**

@@ -110,14 +110,14 @@ public abstract class EmitUtils {
     e.mark(loopbody);
     e.load_local(array);
     e.load_local(loopvar);
-    e.array_load(componentType);
+    e.arrayLoad(componentType);
     callback.processElement(componentType);
     e.iinc(loopvar, 1);
 
     e.mark(checkloop);
     e.load_local(loopvar);
     e.load_local(array);
-    e.arraylength();
+    e.arrayLength();
     e.if_icmp(CodeEmitter.LT, loopbody);
   }
 
@@ -148,17 +148,17 @@ public abstract class EmitUtils {
     e.mark(loopbody);
     e.load_local(array1);
     e.load_local(loopvar);
-    e.array_load(componentType);
+    e.arrayLoad(componentType);
     e.load_local(array2);
     e.load_local(loopvar);
-    e.array_load(componentType);
+    e.arrayLoad(componentType);
     callback.processElement(componentType);
     e.iinc(loopvar, 1);
 
     e.mark(checkloop);
     e.load_local(loopvar);
     e.load_local(array1);
-    e.arraylength();
+    e.arrayLength();
     e.if_icmp(CodeEmitter.LT, loopbody);
   }
 
@@ -490,7 +490,7 @@ public abstract class EmitUtils {
     e.push(32);
     e.math(CodeEmitter.USHR, Type.LONG_TYPE);
     e.math(CodeEmitter.XOR, Type.LONG_TYPE);
-    e.cast_numeric(Type.LONG_TYPE, Type.INT_TYPE);
+    e.cast(Type.LONG_TYPE, Type.INT_TYPE);
   }
 
   //     public static void not_equals(CodeEmitter e, Type type, Label notEquals) {
@@ -541,9 +541,9 @@ public abstract class EmitUtils {
       if (type.isArray()) {
         Label checkContents = e.make_label();
         e.dup2();
-        e.arraylength();
+        e.arrayLength();
         e.swap();
-        e.arraylength();
+        e.arrayLength();
         e.if_icmp(CodeEmitter.EQ, checkContents);
         e.pop2();
         e.goTo(notEquals);
@@ -806,7 +806,7 @@ public abstract class EmitUtils {
     });
 
     e.dup();
-    e.arraylength();
+    e.arrayLength();
     e.tableSwitch(getSwitchKeys(buckets), new TableSwitchGenerator() {
 
       @Override

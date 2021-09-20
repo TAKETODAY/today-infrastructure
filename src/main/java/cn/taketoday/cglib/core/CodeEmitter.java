@@ -294,148 +294,6 @@ public class CodeEmitter extends GeneratorAdapter {
     mv.visitInsn(Opcodes.MONITOREXIT);
   }
 
-  public void math(int op, Type type) {
-    mv.visitInsn(type.getOpcode(op));
-  }
-
-  public void array_load(Type type) {
-    mv.visitInsn(type.getOpcode(Opcodes.IALOAD));
-  }
-
-  public void array_store(Type type) {
-    mv.visitInsn(type.getOpcode(Opcodes.IASTORE));
-  }
-
-  /**
-   * Casts from one primitive numeric type to another
-   */
-  public void cast_numeric(Type from, Type to) {
-    if (from != to) {
-      if (from == Type.DOUBLE_TYPE) {
-        if (to == Type.FLOAT_TYPE) {
-          mv.visitInsn(Opcodes.D2F);
-        }
-        else if (to == Type.LONG_TYPE) {
-          mv.visitInsn(Opcodes.D2L);
-        }
-        else {
-          mv.visitInsn(Opcodes.D2I);
-          cast_numeric(Type.INT_TYPE, to);
-        }
-      }
-      else if (from == Type.FLOAT_TYPE) {
-        if (to == Type.DOUBLE_TYPE) {
-          mv.visitInsn(Opcodes.F2D);
-        }
-        else if (to == Type.LONG_TYPE) {
-          mv.visitInsn(Opcodes.F2L);
-        }
-        else {
-          mv.visitInsn(Opcodes.F2I);
-          cast_numeric(Type.INT_TYPE, to);
-        }
-      }
-      else if (from == Type.LONG_TYPE) {
-        if (to == Type.DOUBLE_TYPE) {
-          mv.visitInsn(Opcodes.L2D);
-        }
-        else if (to == Type.FLOAT_TYPE) {
-          mv.visitInsn(Opcodes.L2F);
-        }
-        else {
-          mv.visitInsn(Opcodes.L2I);
-          cast_numeric(Type.INT_TYPE, to);
-        }
-      }
-      else {
-        if (to == Type.BYTE_TYPE) {
-          mv.visitInsn(Opcodes.I2B);
-        }
-        else if (to == Type.CHAR_TYPE) {
-          mv.visitInsn(Opcodes.I2C);
-        }
-        else if (to == Type.DOUBLE_TYPE) {
-          mv.visitInsn(Opcodes.I2D);
-        }
-        else if (to == Type.FLOAT_TYPE) {
-          mv.visitInsn(Opcodes.I2F);
-        }
-        else if (to == Type.LONG_TYPE) {
-          mv.visitInsn(Opcodes.I2L);
-        }
-        else if (to == Type.SHORT_TYPE) {
-          mv.visitInsn(Opcodes.I2S);
-        }
-      }
-    }
-  }
-
-  public void push(int i) {
-    if (i < -1) {
-      mv.visitLdcInsn(Integer.valueOf(i));
-    }
-    else if (i <= 5) {
-      mv.visitInsn(iconst(i));
-    }
-    else if (i <= Byte.MAX_VALUE) {
-      mv.visitIntInsn(Opcodes.BIPUSH, i);
-    }
-    else if (i <= Short.MAX_VALUE) {
-      mv.visitIntInsn(Opcodes.SIPUSH, i);
-    }
-    else {
-      mv.visitLdcInsn(Integer.valueOf(i));
-    }
-  }
-
-  public void push(long value) {
-    if (value == 0L || value == 1L) {
-      mv.visitInsn(lconst(value));
-    }
-    else {
-      mv.visitLdcInsn(Long.valueOf(value));
-    }
-  }
-
-  public void push(float value) {
-    if (value == 0f || value == 1f || value == 2f) {
-      mv.visitInsn(fconst(value));
-    }
-    else {
-      mv.visitLdcInsn(value);
-    }
-  }
-
-  public void push(double value) {
-    if (value == 0d || value == 1d) {
-      mv.visitInsn(dconst(value));
-    }
-    else {
-      mv.visitLdcInsn(value);
-    }
-  }
-
-  public void push(String value) {
-    mv.visitLdcInsn(value);
-  }
-
-  public void newArray() {
-    newArray(Type.TYPE_OBJECT);
-  }
-
-  public void newArray(Type type) {
-    if (type.isPrimitive()) {
-      mv.visitIntInsn(Opcodes.NEWARRAY, newArrayFromType(type));
-    }
-    else {
-      emit_type(Opcodes.ANEWARRAY, type);
-    }
-  }
-
-  public void arraylength() {
-    mv.visitInsn(Opcodes.ARRAYLENGTH);
-  }
-
   public void load_this() {
     if (Modifier.isStatic(state.access)) {
       throw new IllegalStateException("no 'this' pointer within static method");
@@ -682,13 +540,13 @@ public class CodeEmitter extends GeneratorAdapter {
     instance_of(ce.getClassType());
   }
 
-  /**
-   * Toggles the integer on the top of the stack from 1 to 0 or vice versa
-   */
-  public void not() {
-    push(1);
-    math(XOR, Type.INT_TYPE);
-  }
+//  /**
+//   * Toggles the integer on the top of the stack from 1 to 0 or vice versa
+//   */
+//  public void not() {
+//    push(1);
+//    math(XOR, Type.INT_TYPE);
+//  }
 
   public void throw_exception(Type type, String msg) {
     new_instance(type);
@@ -743,55 +601,7 @@ public class CodeEmitter extends GeneratorAdapter {
       dup_x1();
       swap();
     }
-    invoke_constructor(boxed, new MethodSignature(MethodSignature.CONSTRUCTOR_NAME, Type.VOID_TYPE, Type.array(type)));
-  }
-
-  /**
-   * If the argument is a primitive class, replaces the object on the top of the
-   * stack with the unwrapped (primitive) equivalent. For example, Character ->
-   * char.
-   *
-   * @param type
-   *         the class indicating the desired type of the top stack value
-   *
-   * @return true if the value was unboxed
-   */
-  public void unbox(Type type) {
-    Type t = Type.TYPE_NUMBER;
-    MethodSignature sig = null;
-    switch (type.getSort()) {
-      case Type.VOID:
-        return;
-      case Type.CHAR:
-        t = Type.TYPE_CHARACTER;
-        sig = CHAR_VALUE;
-        break;
-      case Type.BOOLEAN:
-        t = Type.TYPE_BOOLEAN;
-        sig = BOOLEAN_VALUE;
-        break;
-      case Type.DOUBLE:
-        sig = DOUBLE_VALUE;
-        break;
-      case Type.FLOAT:
-        sig = FLOAT_VALUE;
-        break;
-      case Type.LONG:
-        sig = LONG_VALUE;
-        break;
-      case Type.INT:
-      case Type.SHORT:
-      case Type.BYTE:
-        sig = INT_VALUE;
-    }
-
-    if (sig == null) {
-      checkcast(type);
-    }
-    else {
-      checkcast(t);
-      invoke_virtual(t, sig);
-    }
+    invoke_constructor(boxed, MethodSignature.forConstructor(type));
   }
 
   /**
