@@ -238,7 +238,6 @@ public class InsnList implements Iterable<AbstractInsnNode> {
     ++size;
     if (lastInsn == null) {
       firstInsn = insnNode;
-      lastInsn = insnNode;
     }
     else {
       lastInsn.nextInsn = insnNode;
@@ -263,14 +262,13 @@ public class InsnList implements Iterable<AbstractInsnNode> {
     size += insnList.size;
     if (lastInsn == null) {
       firstInsn = insnList.firstInsn;
-      lastInsn = insnList.lastInsn;
     }
     else {
       AbstractInsnNode firstInsnListElement = insnList.firstInsn;
       lastInsn.nextInsn = firstInsnListElement;
       firstInsnListElement.previousInsn = lastInsn;
-      lastInsn = insnList.lastInsn;
     }
+    lastInsn = insnList.lastInsn;
     cache = null;
     insnList.removeAll(false);
   }

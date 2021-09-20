@@ -327,8 +327,9 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
           final List<TryCatchBlockNode> newTryCatchBlocks,
           final List<LocalVariableNode> newLocalVariables) {
     LabelNode previousLabelNode = null;
-    InsnList instructions = this.instructions;
-    for (int i = 0; i < instructions.size(); ++i) {
+    final InsnList instructions = this.instructions;
+    final int size = instructions.size();
+    for (int i = 0; i < size; ++i) {
       AbstractInsnNode insnNode = instructions.get(i);
       if (insnNode.getType() == AbstractInsnNode.LABEL) {
         // Always clone all labels, while avoiding to add the same label more than once.
