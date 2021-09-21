@@ -19,12 +19,14 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import cn.taketoday.asm.ClassVisitor;
-import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.RejectModifierPredicate;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * @author Chris Nokleberg
@@ -39,20 +41,21 @@ class MixinEverythingEmitter extends MixinEmitter {
 
   @Override
   protected Class<?>[] getInterfaces(Class<?>[] classes) {
-    List<Class<?>> list = new ArrayList<>();
+    HashSet<Class<?>> list = new HashSet<>();
     for (Class<?> class1 : classes) {
-      CglibReflectUtils.addAllInterfaces(class1, list);
+      final Set<Class<?>> allInterfacesForClass = ClassUtils.getAllInterfacesForClassAsSet(class1);
+      CollectionUtils.addAll(list, allInterfacesForClass);
     }
-    return list.toArray(new Class[list.size()]);
+    return ClassUtils.toClassArray(list);
   }
 
   @Override
   protected Method[] getMethods(Class<?> type) {
-    List<Method> methods = new ArrayList<>();
+    ArrayList<Method> methods = new ArrayList<>();
 
     Collections.addAll(methods, type.getMethods());
 
     CollectionUtils.filter(methods, new RejectModifierPredicate(Modifier.FINAL | Modifier.STATIC));
-    return methods.toArray(new Method[methods.size()]);
+    return ReflectionUtils.toMethodArray(methods);
   }
 }

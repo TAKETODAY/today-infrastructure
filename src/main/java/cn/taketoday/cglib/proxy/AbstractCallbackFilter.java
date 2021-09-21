@@ -23,6 +23,7 @@ import java.util.Map;
 
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.core.Constant;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -80,14 +81,14 @@ public abstract class AbstractCallbackFilter implements CallbackFilter {
   }
 
   public Class<?>[] getCallbackTypes() {
-    final List<Object> callbacks = this.callbacks;
+    final List callbacks = this.callbacks;
     if (ObjectUtils.isEmpty(callbacks)) {
       return Constant.EMPTY_CLASS_ARRAY;
     }
     if (callbacks.get(0) instanceof Callback) {
       return CglibReflectUtils.getClasses(getCallbacks());
     }
-    return callbacks.toArray(new Class[callbacks.size()]);
+    return ClassUtils.toClassArray(callbacks);
   }
 
   public int accept(Method method) {

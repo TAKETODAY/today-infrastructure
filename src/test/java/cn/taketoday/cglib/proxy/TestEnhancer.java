@@ -20,7 +20,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -45,6 +44,7 @@ import cn.taketoday.cglib.core.NamingPolicy;
 import cn.taketoday.core.reflect.MethodAccess;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.util.StreamUtils;
 
 /**
  * @author Juozas Baliuka <a href="mailto:baliuka@mwm.lt"> baliuka@mwm.lt</a>
@@ -324,7 +324,8 @@ public class TestEnhancer extends CodeGenTestCase {
             InputStream classStream = ResourceUtils.getResource(
                             "classpath:cn/taketoday/cglib/proxy/EA.class")
                     .getInputStream();
-            byte[] classBytes = toByteArray(classStream);
+
+            byte[] classBytes = StreamUtils.copyToByteArray(classStream);
             return this.defineClass("cn.taketoday.cglib.proxy.EA", classBytes, 0, classBytes.length);
           }
           catch (IOException e) {
@@ -397,19 +398,6 @@ public class TestEnhancer extends CodeGenTestCase {
                   source.getClass(), source3.getClass());
 
     return source;
-  }
-
-  private static byte[] toByteArray(InputStream input) throws IOException {
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    byte[] buffer = new byte[4096];
-    int n = 0;
-
-    while (-1 != (n = input.read(buffer))) {
-      output.write(buffer, 0, n);
-    }
-
-    return output.toByteArray();
-
   }
 
   private static class TestFilter implements CallbackFilter {

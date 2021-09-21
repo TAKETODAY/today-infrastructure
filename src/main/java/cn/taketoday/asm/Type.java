@@ -1219,7 +1219,6 @@ public final class Type {
   /**
    * @since 4.0
    */
-  @Nullable
   public static Type[] getTypes(@Nullable final Class<?>... items) {
     if (items == null) {
       return null;

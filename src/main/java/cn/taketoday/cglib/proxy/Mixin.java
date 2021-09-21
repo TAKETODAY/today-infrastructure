@@ -16,16 +16,17 @@
 package cn.taketoday.cglib.proxy;
 
 import java.security.ProtectionDomain;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassesKey;
 import cn.taketoday.cglib.core.KeyFactory;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -55,7 +56,7 @@ public abstract class Mixin {
   /**
    * Helper method to create an interface mixin. For finer control over the
    * generated instance, use a new instance of <code>Mixin</code> instead of this
-   * static method. TODO
+   * static method.
    */
   public static Mixin create(Object[] delegates) {
     Generator gen = new Generator();
@@ -66,7 +67,7 @@ public abstract class Mixin {
   /**
    * Helper method to create an interface mixin. For finer control over the
    * generated instance, use a new instance of <code>Mixin</code> instead of this
-   * static method. TODO
+   * static method.
    */
   public static Mixin create(Class[] interfaces, Object[] delegates) {
     Generator gen = new Generator();
@@ -76,14 +77,13 @@ public abstract class Mixin {
   }
 
   public static Mixin createBean(Object[] beans) {
-
     return createBean(null, beans);
   }
 
   /**
    * Helper method to create a bean mixin. For finer control over the generated
    * instance, use a new instance of <code>Mixin</code> instead of this static
-   * method. TODO
+   * method.
    */
   public static Mixin createBean(ClassLoader loader, Object[] beans) {
     Generator gen = new Generator();
@@ -134,10 +134,11 @@ public abstract class Mixin {
     }
 
     public Mixin create() {
+      Class[] classes = this.classes;
+      final Object[] delegates = this.delegates;
       if (classes == null && delegates == null) {
         throw new IllegalStateException("Either classes or delegates must be set");
       }
-      Class[] classes = this.classes;
       switch (style) {
         case STYLE_INTERFACES:
           if (classes == null) {
@@ -157,15 +158,15 @@ public abstract class Mixin {
           }
           else {
             if (delegates != null) {
-              Class[] temp = CglibReflectUtils.getClasses(delegates);
-              if (classes.length != temp.length) {
+              if (classes.length != delegates.length) {
                 throw new IllegalStateException("Specified classes are incompatible with delegates");
               }
               for (int i = 0; i < classes.length; i++) {
-                if (!classes[i].isAssignableFrom(temp[i])) {
+                if (!classes[i].isInstance(delegates[i])) {
                   throw new IllegalStateException(
-                          "Specified class " + classes[i] +
-                                  " is incompatible with delegate class " + temp[i] + " (index " + i + ")");
+                          "Specified class " + classes[i]
+                                  + " is incompatible with delegate class "
+                                  + delegates[i].getClass() + " (index " + i + ")");
                 }
               }
             }
@@ -203,10 +204,6 @@ public abstract class Mixin {
     return route(delegates).classes.clone();
   }
 
-//     public static int[] getRoute(Object[] delegates) {
-//         return (int[])route(delegates).route.clone();
-//     }
-
   private static Route route(Object[] delegates) {
     Object key = ClassesKey.create(delegates);
     Route route = ROUTE_CACHE.get(key);
@@ -216,31 +213,33 @@ public abstract class Mixin {
     return route;
   }
 
-  private static class Route {
+  private static final class Route {
     private final int[] route;
     private final Class<?>[] classes;
 
     Route(Object[] delegates) {
       HashMap<Class<?>, Integer> map = new HashMap<>();
-      ArrayList<Class<?>> collect = new ArrayList<>();
       for (int i = 0; i < delegates.length; i++) {
         Class<?> delegate = delegates[i].getClass();
-        collect.clear();
-        CglibReflectUtils.addAllInterfaces(delegate, collect);
-        for (final Class<?> iface : collect) {
+        final Set<Class<?>> allInterfacesForClass = ClassUtils.getAllInterfacesForClassAsSet(delegate);
+        for (final Class<?> iface : allInterfacesForClass) {
           if (!map.containsKey(iface)) {
             map.put(iface, i);
           }
         }
       }
-      classes = new Class[map.size()];
-      route = new int[map.size()];
+
       int index = 0;
+      int[] route = new int[map.size()];
+      Class[] classes = new Class[map.size()];
       for (final Map.Entry<Class<?>, Integer> entry : map.entrySet()) {
         final Class<?> key = entry.getKey();
         classes[index] = key;
         route[index++] = entry.getValue();
       }
+
+      this.route = route;
+      this.classes = classes;
     }
   }
 }

@@ -81,7 +81,7 @@ public abstract class CglibReflectUtils {
       }
     }
     methods.remove(null);
-    return methods.toArray(new Method[methods.size()]);
+    return ReflectionUtils.toMethodArray(methods);
   }
 
   public static PropertyDescriptor[] getBeanProperties(Class<?> type) {
@@ -129,15 +129,6 @@ public abstract class CglibReflectUtils {
     }
     for (final Class<?> interface_ : type.getInterfaces()) {
       addAllMethods(interface_, list);
-    }
-    return list;
-  }
-
-  public static List<Class<?>> addAllInterfaces(Class<?> type, List<Class<?>> list) {
-    final Class<?> superclass = type.getSuperclass();
-    if (superclass != null) {
-      Collections.addAll(list, type.getInterfaces());
-      addAllInterfaces(superclass, list);
     }
     return list;
   }

@@ -120,7 +120,7 @@ public abstract class ReflectionUtils {
       objectMethods.add(method);
     }
     // @since 4.0
-    OBJECT_METHODS = objectMethods.toArray(new Method[0]);
+    OBJECT_METHODS = toMethodArray(objectMethods);
   }
 
   // Exception handling
@@ -996,6 +996,25 @@ public abstract class ReflectionUtils {
   @NonNull
   public static Method[] getObjectMethods() {
     return OBJECT_METHODS.clone();
+  }
+
+  /**
+   * Copy the given {@code Collection} into a {@code Method} array.
+   * <p>The {@code Collection} must contain {@code Method} elements only.
+   *
+   * @param collection
+   *         the {@code Collection} to copy
+   *
+   * @return the {@code Method} array
+   *
+   * @see StringUtils#toStringArray(Collection)
+   * @see ClassUtils#toClassArray(Collection)
+   * @since 4.0
+   */
+  public static Method[] toMethodArray(Collection<Method> collection) {
+    return CollectionUtils.isEmpty(collection)
+           ? Constant.EMPTY_METHOD_ARRAY
+           : collection.toArray(new Method[collection.size()]);
   }
 
   // Field handling
