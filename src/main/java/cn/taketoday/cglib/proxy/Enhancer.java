@@ -496,12 +496,12 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       callbackTypes = CallbackInfo.determineTypes(callbacks);
     }
     if (interfaces != null) {
-      for (int i = 0; i < interfaces.length; i++) {
-        if (interfaces[i] == null) {
+      for (final Class<?> anInterface : interfaces) {
+        if (anInterface == null) {
           throw new IllegalStateException("Interfaces cannot be null");
         }
-        if (!interfaces[i].isInterface()) {
-          throw new IllegalStateException(interfaces[i] + " is not an interface");
+        if (!anInterface.isInterface()) {
+          throw new IllegalStateException(anInterface + " is not an interface");
         }
       }
     }
@@ -560,19 +560,19 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
     public EnhancerFactoryData(Class<?> generatedClass, Class<?>[] primaryConstructorArgTypes, boolean classOnly) {
       this.generatedClass = generatedClass;
-      try {
-        setThreadCallbacks = getCallbacksSetter(generatedClass, SET_THREAD_CALLBACKS_NAME);
-        if (classOnly) {
-          this.primaryConstructorArgTypes = null;
-          this.primaryConstructor = null;
-        }
-        else {
-          this.primaryConstructorArgTypes = primaryConstructorArgTypes;
-          this.primaryConstructor = ReflectionUtils.getConstructor(generatedClass, primaryConstructorArgTypes);
-        }
+      final Method callbacksSetter = getCallbacksSetter(generatedClass, SET_THREAD_CALLBACKS_NAME);
+      if (callbacksSetter == null) {
+        throw new CodeGenerationException(
+                SET_THREAD_CALLBACKS_NAME + " Not found in class: " + generatedClass);
       }
-      catch (NoSuchMethodException e) {
-        throw new CodeGenerationException(e);
+      this.setThreadCallbacks = callbacksSetter;
+      if (classOnly) {
+        this.primaryConstructorArgTypes = null;
+        this.primaryConstructor = null;
+      }
+      else {
+        this.primaryConstructorArgTypes = primaryConstructorArgTypes;
+        this.primaryConstructor = ReflectionUtils.getConstructor(generatedClass, primaryConstructorArgTypes);
       }
     }
 
@@ -674,9 +674,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
     List<Method> target = (interfaceMethods != null) ? interfaceMethods : methods;
     if (interfaces != null) {
-      for (int i = 0; i < interfaces.length; i++) {
-        if (interfaces[i] != Factory.class) {
-          CglibReflectUtils.addAllMethods(interfaces[i], target);
+      for (final Class<?> anInterface : interfaces) {
+        if (anInterface != Factory.class) {
+          CglibReflectUtils.addAllMethods(anInterface, target);
         }
       }
     }
@@ -936,13 +936,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * @return whether the class was generated using <code>Enhancer</code>
    */
   public static boolean isEnhanced(Class type) {
-    try {
-      getCallbacksSetter(type, SET_THREAD_CALLBACKS_NAME);
-      return true;
-    }
-    catch (NoSuchMethodException e) {
-      return false;
-    }
+    return getCallbacksSetter(type, SET_THREAD_CALLBACKS_NAME) != null;
   }
 
   private static void setThreadCallbacks(Class type, Callback[] callbacks) {
@@ -950,12 +944,12 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   }
 
   private static void setCallbacksHelper(Class type, Callback[] callbacks, String methodName) {
-    // TODO: optimize
     try {
-      getCallbacksSetter(type, methodName).invoke(null, new Object[] { callbacks });
-    }
-    catch (NoSuchMethodException e) {
-      throw new IllegalArgumentException(type + " is not an enhanced class");
+      final Method callbacksSetter = getCallbacksSetter(type, methodName);
+      if (callbacksSetter == null) {
+        throw new IllegalArgumentException(type + " is not an enhanced class");
+      }
+      callbacksSetter.invoke(null, new Object[] { callbacks });
     }
     catch (IllegalAccessException e) {
       throw new CodeGenerationException(e);
@@ -965,8 +959,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     }
   }
 
-  private static Method getCallbacksSetter(Class type, String methodName) throws NoSuchMethodException {
-    return type.getDeclaredMethod(methodName, new Class[] { Callback[].class });
+  private static Method getCallbacksSetter(Class type, String methodName) {
+    return ReflectionUtils.findMethod(type, methodName, Callback[].class);
   }
 
   /**
@@ -983,7 +977,6 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   private Object createUsingReflection(Class type) {
     setThreadCallbacks(type, callbacks);
     try {
-
       if (argumentTypes != null) {
         return ReflectionUtils.newInstance(type, argumentTypes, arguments);
       }
@@ -1248,7 +1241,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       @Override
       public void processCase(Object key, Label end) {
         MethodInfo constructor = (MethodInfo) key;
-        Type types[] = constructor.getSignature().getArgumentTypes();
+        Type[] types = constructor.getSignature().getArgumentTypes();
         for (int i = 0; i < types.length; i++) {
           e.load_arg(1);
           e.push(i);
@@ -1329,12 +1322,12 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
       @Override
       public int getOriginalModifiers(MethodInfo method) {
-        return originalModifiers.get(method).intValue();
+        return originalModifiers.get(method);
       }
 
       @Override
       public int getIndex(MethodInfo method) {
-        return indexes.get(method).intValue();
+        return indexes.get(method);
       }
 
       @Override
@@ -1344,7 +1337,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
       @Override
       public MethodSignature getImplSignature(MethodInfo method) {
-        return rename(method.getSignature(), positions.get(method).intValue());
+        return rename(method.getSignature(), positions.get(method));
       }
 
       @Override
