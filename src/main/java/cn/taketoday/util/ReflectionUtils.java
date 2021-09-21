@@ -34,10 +34,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.ConstructorNotFoundException;
+import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.reflect.ReflectionException;
 
@@ -220,6 +224,284 @@ public abstract class ReflectionUtils {
   // Method handling
 
   /**
+   * Determine whether the given class has a public method with the given signature.
+   * <p>Essentially translates {@code NoSuchMethodException} to "false".
+   *
+   * @param clazz
+   *         the clazz to analyze
+   * @param methodName
+   *         the name of the method
+   * @param paramTypes
+   *         the parameter types of the method
+   *
+   * @return whether the class has a corresponding method
+   *
+   * @see Class#getMethod
+   * @since 4.0
+   */
+  public static boolean hasMethod(Class<?> clazz, String methodName, Class<?>... paramTypes) {
+    return (getMethodIfAvailable(clazz, methodName, paramTypes) != null);
+  }
+
+  /**
+   * Determine whether the given class has a public method with the given signature,
+   * and return it if available (else throws an {@code IllegalStateException}).
+   * <p>In case of any signature specified, only returns the method if there is a
+   * unique candidate, i.e. a single public method with the specified name.
+   * <p>Essentially translates {@code NoSuchMethodException} to {@code IllegalStateException}.
+   *
+   * @param clazz
+   *         the clazz to analyze
+   * @param methodName
+   *         the name of the method
+   * @param paramTypes
+   *         the parameter types of the method
+   *         (may be {@code null} to indicate any signature)
+   *
+   * @return the method (never {@code null})
+   *
+   * @throws IllegalStateException
+   *         if the method has not been found
+   * @see Class#getMethod
+   * @since 4.0
+   */
+  public static Method getMethod(Class<?> clazz, String methodName, @Nullable Class<?>... paramTypes) {
+    Assert.notNull(clazz, "Class must not be null");
+    Assert.notNull(methodName, "Method name must not be null");
+    if (paramTypes != null) {
+      try {
+        return clazz.getMethod(methodName, paramTypes);
+      }
+      catch (NoSuchMethodException ex) {
+        throw new IllegalStateException("Expected method not found: " + ex);
+      }
+    }
+    else {
+      Set<Method> candidates = findMethodCandidatesByName(clazz, methodName);
+      if (candidates.size() == 1) {
+        return candidates.iterator().next();
+      }
+      else if (candidates.isEmpty()) {
+        throw new IllegalStateException("Expected method not found: " + clazz.getName() + '.' + methodName);
+      }
+      else {
+        throw new IllegalStateException("No unique method found: " + clazz.getName() + '.' + methodName);
+      }
+    }
+  }
+
+  /**
+   * Determine whether the given class has a public method with the given signature,
+   * and return it if available (else return {@code null}).
+   * <p>In case of any signature specified, only returns the method if there is a
+   * unique candidate, i.e. a single public method with the specified name.
+   * <p>Essentially translates {@code NoSuchMethodException} to {@code null}.
+   *
+   * @param clazz
+   *         the clazz to analyze
+   * @param methodName
+   *         the name of the method
+   * @param paramTypes
+   *         the parameter types of the method
+   *         (may be {@code null} to indicate any signature)
+   *
+   * @return the method, or {@code null} if not found
+   *
+   * @see Class#getMethod
+   * @since 4.0
+   */
+  @Nullable
+  public static Method getMethodIfAvailable(
+          Class<?> clazz, String methodName, @Nullable Class<?>... paramTypes) {
+    Assert.notNull(clazz, "Class must not be null");
+    Assert.notNull(methodName, "Method name must not be null");
+    if (paramTypes != null) {
+      return getMethodOrNull(clazz, methodName, paramTypes);
+    }
+    else {
+      Set<Method> candidates = findMethodCandidatesByName(clazz, methodName);
+      if (candidates.size() == 1) {
+        return candidates.iterator().next();
+      }
+      return null;
+    }
+  }
+
+  /**
+   * Return the number of methods with a given name (with any argument types),
+   * for the given class and/or its superclasses. Includes non-public methods.
+   *
+   * @param clazz
+   *         the clazz to check
+   * @param methodName
+   *         the name of the method
+   *
+   * @return the number of methods with the given name
+   *
+   * @since 4.0
+   */
+  public static int getMethodCountForName(Class<?> clazz, String methodName) {
+    Assert.notNull(clazz, "Class must not be null");
+    Assert.notNull(methodName, "Method name must not be null");
+    int count = 0;
+    Method[] declaredMethods = clazz.getDeclaredMethods();
+    for (Method method : declaredMethods) {
+      if (methodName.equals(method.getName())) {
+        count++;
+      }
+    }
+    Class<?>[] ifcs = clazz.getInterfaces();
+    for (Class<?> ifc : ifcs) {
+      count += getMethodCountForName(ifc, methodName);
+    }
+    if (clazz.getSuperclass() != null) {
+      count += getMethodCountForName(clazz.getSuperclass(), methodName);
+    }
+    return count;
+  }
+
+  /**
+   * Return a public static method of a class.
+   *
+   * @param clazz
+   *         the class which defines the method
+   * @param methodName
+   *         the static method name
+   * @param args
+   *         the parameter types to the method
+   *
+   * @return the static method, or {@code null} if no static method was found
+   *
+   * @throws IllegalArgumentException
+   *         if the method name is blank or the clazz is null
+   */
+  @Nullable
+  public static Method getStaticMethod(Class<?> clazz, String methodName, Class<?>... args) {
+    Assert.notNull(clazz, "Class must not be null");
+    Assert.notNull(methodName, "Method name must not be null");
+    try {
+      Method method = clazz.getMethod(methodName, args);
+      return Modifier.isStatic(method.getModifiers()) ? method : null;
+    }
+    catch (NoSuchMethodException ex) {
+      return null;
+    }
+  }
+
+  @Nullable
+  static Method getMethodOrNull(Class<?> clazz, String methodName, Class<?>[] paramTypes) {
+    try {
+      return clazz.getMethod(methodName, paramTypes);
+    }
+    catch (NoSuchMethodException ex) {
+      return null;
+    }
+  }
+
+  /**
+   * @since 4.0
+   */
+  private static Set<Method> findMethodCandidatesByName(Class<?> clazz, String methodName) {
+    HashSet<Method> candidates = new HashSet<>(1);
+    Method[] methods = clazz.getMethods();
+    for (Method method : methods) {
+      if (methodName.equals(method.getName())) {
+        candidates.add(method);
+      }
+    }
+    return candidates;
+  }
+
+  /**
+   * Determine whether the given class has a public method with the given signature.
+   *
+   * @param clazz
+   *         the clazz to analyze
+   * @param method
+   *         the method to look for
+   *
+   * @return whether the class has a corresponding method
+   *
+   * @since 3.0
+   */
+  public static boolean hasMethod(Class<?> clazz, Method method) {
+    Assert.notNull(clazz, "Class must not be null");
+    Assert.notNull(method, "Method must not be null");
+    if (clazz == method.getDeclaringClass()) {
+      return true;
+    }
+    String methodName = method.getName();
+    Class<?>[] paramTypes = method.getParameterTypes();
+    return getMethodOrNull(clazz, methodName, paramTypes) != null;
+  }
+
+  /**
+   * Given a method, which may come from an interface, and a target class used
+   * in the current reflective invocation, find the corresponding target method
+   * if there is one. E.g. the method may be {@code IFoo.bar()} and the
+   * target class may be {@code DefaultFoo}. In this case, the method may be
+   * {@code DefaultFoo.bar()}. This enables attributes on that method to be found.
+   * <p><b>NOTE:</b> In contrast to {@link cn.taketoday.aop.support.AopUtils#getMostSpecificMethod},
+   * this method does <i>not</i> resolve Java 5 bridge methods automatically.
+   * Call {@link cn.taketoday.core.BridgeMethodResolver#findBridgedMethod}
+   * if bridge method resolution is desirable (e.g. for obtaining metadata from
+   * the original method definition).
+   *
+   * @param method
+   *         the method to be invoked, which may come from an interface
+   * @param targetClass
+   *         the target class for the current invocation
+   *         (may be {@code null} or may not even implement the method)
+   *
+   * @return the specific target method, or the original method if the
+   * {@code targetClass} does not implement it
+   *
+   * @since 3.0
+   */
+  public static Method getMostSpecificMethod(Method method, @Nullable Class<?> targetClass) {
+    if (targetClass != null && targetClass != method.getDeclaringClass() && isOverridable(method, targetClass)) {
+      try {
+        if (Modifier.isPublic(method.getModifiers())) {
+          try {
+            return targetClass.getMethod(method.getName(), method.getParameterTypes());
+          }
+          catch (NoSuchMethodException ex) {
+            return method;
+          }
+        }
+        else {
+          Method specificMethod =
+                  ReflectionUtils.findMethod(targetClass, method.getName(), method.getParameterTypes());
+          return (specificMethod != null ? specificMethod : method);
+        }
+      }
+      catch (SecurityException ex) {
+        // Security settings are disallowing reflective access; fall back to 'method' below.
+      }
+    }
+    return method;
+  }
+
+  /**
+   * Determine whether the given method is overridable in the given target class.
+   *
+   * @param method
+   *         the method to check
+   * @param targetClass
+   *         the target class to check against
+   */
+  private static boolean isOverridable(Method method, @Nullable Class<?> targetClass) {
+    if (Modifier.isPrivate(method.getModifiers())) {
+      return false;
+    }
+    if (Modifier.isPublic(method.getModifiers()) || Modifier.isProtected(method.getModifiers())) {
+      return true;
+    }
+    return targetClass == null
+            || ClassUtils.getPackageName(method.getDeclaringClass()).equals(ClassUtils.getPackageName(targetClass));
+  }
+
+  /**
    * Attempt to find a {@link Method} on the supplied class with the supplied name
    * and no parameters. Searches all superclasses up to {@code Object}.
    * <p>
@@ -350,16 +632,6 @@ public abstract class ReflectionUtils {
 
   public static Object accessInvokeMethod(Method method, Object target, Object... args) {
     return invokeMethod(makeAccessible(method), target, args);
-  }
-
-  public static Object invokeConstructor(Constructor<?> constructor, Object[] args) {
-    try {
-      return constructor.newInstance(args);
-    }
-    catch (Exception ex) {
-      handleReflectionException(ex);
-    }
-    throw new IllegalStateException("Should never get here");
   }
 
   /**
@@ -654,8 +926,13 @@ public abstract class ReflectionUtils {
    * {@link java.lang.Object}.
    */
   public static boolean isObjectMethod(Method method) {
-    return (method != null && (method.getDeclaringClass() == Object.class ||
-            isEqualsMethod(method) || isHashCodeMethod(method) || isToStringMethod(method)));
+    return (method != null
+            && (
+            method.getDeclaringClass() == Object.class
+                    || isEqualsMethod(method)
+                    || isHashCodeMethod(method)
+                    || isToStringMethod(method))
+    );
   }
 
   /**
@@ -664,8 +941,9 @@ public abstract class ReflectionUtils {
    * @see java.lang.Object#finalize()
    */
   public static boolean isFinalizeMethod(Method method) {
-    return (method != null && method.getName().equals("finalize") &&
-            method.getParameterCount() == 0);
+    return method != null
+            && method.getName().equals("finalize")
+            && method.getParameterCount() == 0;
   }
 
   /**
@@ -715,6 +993,7 @@ public abstract class ReflectionUtils {
    *
    * @since 4.0
    */
+  @NonNull
   public static Method[] getObjectMethods() {
     return OBJECT_METHODS.clone();
   }
@@ -946,7 +1225,7 @@ public abstract class ReflectionUtils {
                       "] must be same or subclass as source class [" + src.getClass().getName() + "]");
     }
 
-    final class FieldCallback0 implements FieldCallback {
+    final class CopyFieldCallback implements FieldCallback {
 
       @Override
       public void doWith(final Field field) {
@@ -954,7 +1233,7 @@ public abstract class ReflectionUtils {
       }
     }
 
-    doWithFields(src.getClass(), new FieldCallback0(), COPYABLE_FIELDS);
+    doWithFields(src.getClass(), new CopyFieldCallback(), COPYABLE_FIELDS);
   }
 
   /**
@@ -1052,20 +1331,95 @@ public abstract class ReflectionUtils {
     return fields.toArray(new Field[fields.size()]);
   }
 
+  // Constructor handling
+
   public static <T> Constructor<T> accessibleConstructor(
           final Class<T> targetClass, final Class<?>... parameterTypes) {
-    return makeAccessible(ClassUtils.getConstructor(targetClass, parameterTypes));
+    return makeAccessible(getConstructor(targetClass, parameterTypes));
   }
 
   public static <T> Constructor<T> makeAccessible(Constructor<T> constructor) {
     Assert.notNull(constructor, "constructor must not be null");
 
-    if ((!Modifier.isPublic(constructor.getModifiers()) //
-            || !Modifier.isPublic(constructor.getDeclaringClass().getModifiers())) && !constructor.isAccessible()) {
+    if ((!Modifier.isPublic(constructor.getModifiers())
+            || !Modifier.isPublic(constructor.getDeclaringClass().getModifiers()))
+            && !constructor.isAccessible()) {
 
       constructor.setAccessible(true);
     }
     return constructor;
+  }
+
+  /**
+   * Determine whether the given class has a declared constructor with the given signature.
+   * <p>Essentially translates {@code NoSuchMethodException} to "false".
+   *
+   * @param clazz
+   *         the clazz to analyze
+   * @param paramTypes
+   *         the parameter types of the method
+   *
+   * @return whether the class has a corresponding constructor
+   *
+   * @see Class#getDeclaredConstructor
+   * @since 4.0
+   */
+  public static boolean hasConstructor(Class<?> clazz, Class<?>... paramTypes) {
+    return getConstructorIfAvailable(clazz, paramTypes) != null;
+  }
+
+  /**
+   * Determine whether the given class has a declared constructor with the given signature,
+   * and return it if available (else return {@code null}).
+   * <p>Essentially translates {@code NoSuchMethodException} to {@code null}.
+   *
+   * @param clazz
+   *         the clazz to analyze
+   * @param paramTypes
+   *         the parameter types of the method
+   *
+   * @return the constructor, or {@code null} if not found
+   *
+   * @see Class#getDeclaredConstructor
+   * @since 4.0
+   */
+  @Nullable
+  public static <T> Constructor<T> getConstructorIfAvailable(Class<T> clazz, Class<?>... paramTypes) {
+    Assert.notNull(clazz, "Class must not be null");
+    try {
+      return clazz.getDeclaredConstructor(paramTypes);
+    }
+    catch (NoSuchMethodException ex) {
+      return null;
+    }
+  }
+
+  /**
+   * getDeclaredConstructor
+   *
+   * @throws ConstructorNotFoundException
+   *         not found
+   * @see Class#getDeclaredConstructor
+   * @since 4.0
+   */
+  public static <T> Constructor<T> getConstructor(Class<T> type, Class<?>... parameterTypes) {
+    Assert.notNull(type, "Class must not be null");
+    try {
+      return type.getDeclaredConstructor(parameterTypes);
+    }
+    catch (NoSuchMethodException e) {
+      throw new ConstructorNotFoundException(type, parameterTypes, e);
+    }
+  }
+
+  public static Object invokeConstructor(Constructor<?> constructor, Object[] args) {
+    try {
+      return constructor.newInstance(args);
+    }
+    catch (Exception ex) {
+      handleReflectionException(ex);
+    }
+    throw new IllegalStateException("Should never get here");
   }
 
   // Cache handling
@@ -1329,7 +1683,7 @@ public abstract class ReflectionUtils {
    * @since 4.0
    */
   public static Object newInstance(Class<?> type, Class[] parameterTypes, Object[] args) {
-    return invokeConstructor(ClassUtils.getConstructor(type, parameterTypes), args);
+    return invokeConstructor(getConstructor(type, parameterTypes), args);
   }
 
   /**

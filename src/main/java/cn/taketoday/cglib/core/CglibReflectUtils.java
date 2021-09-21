@@ -72,8 +72,7 @@ public abstract class CglibReflectUtils {
 
   public static Method[] getPropertyMethods(PropertyDescriptor[] properties, boolean read, boolean write) {
     final Set<Method> methods = new HashSet<>();
-    for (int i = 0; i < properties.length; i++) {
-      PropertyDescriptor pd = properties[i];
+    for (PropertyDescriptor pd : properties) {
       if (read) {
         methods.add(pd.getReadMethod());
       }

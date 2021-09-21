@@ -160,7 +160,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
     else {
       // use default constructor
       Class<?> proxyClass = enhancer.createClass();
-      Constructor<?> constructor = ClassUtils.getConstructorIfAvailable(proxyClass);
+      Constructor<?> constructor = ReflectionUtils.getConstructorIfAvailable(proxyClass);
       if (constructor != null) {
         proxy = constructor.newInstance();
       }

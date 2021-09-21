@@ -37,7 +37,6 @@ import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.core.Assert;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -163,7 +162,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
      */
     public MethodInvokerGenerator(Method method, Class<?> targetClass) {
       super(targetClass);
-      this.targetMethod = ClassUtils.getMostSpecificMethod(method, targetClass);
+      this.targetMethod = ReflectionUtils.getMostSpecificMethod(method, targetClass);
     }
 
     @Override

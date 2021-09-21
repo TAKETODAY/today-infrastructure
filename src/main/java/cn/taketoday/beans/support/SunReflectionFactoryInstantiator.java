@@ -26,7 +26,6 @@ import java.lang.reflect.Method;
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Nullable;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -58,11 +57,11 @@ public final class SunReflectionFactoryInstantiator extends BeanInstantiator {
       throw new BeanInstantiationException("ReflectionFactory not found", e);
     }
 
-    javaLangObjectConstructor = ClassUtils.getConstructor(Object.class, (Class<?>[]) null);
-    newConstructorForSerialization = ClassUtils.getMethod(
+    javaLangObjectConstructor = ReflectionUtils.getConstructor(Object.class, (Class<?>[]) null);
+    newConstructorForSerialization = ReflectionUtils.getMethod(
             ReflectionFactoryClass, "newConstructorForSerialization", Class.class, Constructor.class);
 
-    Method getReflectionFactory = ClassUtils.getMethod(ReflectionFactoryClass, "getReflectionFactory");
+    Method getReflectionFactory = ReflectionUtils.getMethod(ReflectionFactoryClass, "getReflectionFactory");
     reflectionFactory = ReflectionUtils.invokeMethod(getReflectionFactory, null);
   }
 

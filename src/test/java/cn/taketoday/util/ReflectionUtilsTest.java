@@ -25,6 +25,7 @@ import junit.framework.TestCase;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.rmi.ConnectException;
@@ -832,6 +833,88 @@ public class ReflectionUtilsTest extends TestCase {
     assertThat(ReflectionUtils.setterPropertyName("isName", String.class))
             .isEqualTo("setIsName");
 
+  }
+
+  @Test
+  public void getMethodIfAvailable() {
+    Method method = ReflectionUtils.getMethodIfAvailable(Collection.class, "size");
+    assertThat(method).isNotNull();
+    assertThat(method.getName()).isEqualTo("size");
+
+    method = ReflectionUtils.getMethodIfAvailable(Collection.class, "remove", Object.class);
+    assertThat(method).isNotNull();
+    assertThat(method.getName()).isEqualTo("remove");
+
+    assertThat(ReflectionUtils.getMethodIfAvailable(Collection.class, "remove")).isNull();
+    assertThat(ReflectionUtils.getMethodIfAvailable(Collection.class, "someOtherMethod")).isNull();
+  }
+
+  @Test
+  public void hasMethod() {
+    assertThat(ReflectionUtils.hasMethod(Collection.class, "size")).isTrue();
+    assertThat(ReflectionUtils.hasMethod(Collection.class, "remove", Object.class)).isTrue();
+    assertThat(ReflectionUtils.hasMethod(Collection.class, "remove")).isFalse();
+    assertThat(ReflectionUtils.hasMethod(Collection.class, "someOtherMethod")).isFalse();
+  }
+
+  @Test
+  public void getMethodCountForName() {
+    assertThat(ReflectionUtils.getMethodCountForName(OverloadedMethodsClass.class, "print"))
+            .as("Verifying number of overloaded 'print' methods for OverloadedMethodsClass.")
+            .isEqualTo(2);
+    assertThat(ReflectionUtils.getMethodCountForName(SubOverloadedMethodsClass.class, "print"))
+            .as("Verifying number of overloaded 'print' methods for SubgetPackageNameOverloadedMethodsClass.")
+            .isEqualTo(4);
+  }
+
+  @Test
+  public void argsStaticMethod() throws IllegalAccessException, InvocationTargetException {
+    Method method = ReflectionUtils.getStaticMethod(NestedClass.class, "argStaticMethod", String.class);
+    method.invoke(null, "test");
+    assertThat(NestedClass.argCalled).as("argument method was not invoked.").isTrue();
+  }
+
+  @SuppressWarnings("unused")
+  private static class OverloadedMethodsClass {
+
+    public void print(String messages) {
+      /* no-op */
+    }
+
+    public void print(String[] messages) {
+      /* no-op */
+    }
+  }
+
+  @SuppressWarnings("unused")
+  private static class SubOverloadedMethodsClass extends OverloadedMethodsClass {
+
+    public void print(String header, String[] messages) {
+      /* no-op */
+    }
+
+    void print(String header, String[] messages, String footer) {
+      /* no-op */
+    }
+  }
+
+  public static class NestedClass {
+
+    static boolean noArgCalled;
+    static boolean argCalled;
+    static boolean overloadedCalled;
+
+    public static void staticMethod() {
+      noArgCalled = true;
+    }
+
+    public static void staticMethod(String anArg) {
+      overloadedCalled = true;
+    }
+
+    public static void argStaticMethod(String anArg) {
+      argCalled = true;
+    }
   }
 
 }

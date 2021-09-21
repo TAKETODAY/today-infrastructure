@@ -28,7 +28,6 @@ import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
-import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.ReflectionUtils;
 

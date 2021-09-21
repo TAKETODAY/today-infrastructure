@@ -31,6 +31,7 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * @author TODAY 2021/3/7 11:45
@@ -184,7 +185,7 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
    */
   static boolean implementsInterface(Method method, Set<Class<?>> ifcs) {
     for (Class<?> ifc : ifcs) {
-      if (ClassUtils.hasMethod(ifc, method)) {
+      if (ReflectionUtils.hasMethod(ifc, method)) {
         return true;
       }
     }

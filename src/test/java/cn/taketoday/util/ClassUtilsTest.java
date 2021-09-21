@@ -25,19 +25,16 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -117,6 +114,25 @@ public class ClassUtilsTest {
     assertThat(ClassUtils.forName(TestObject[][].class.getName(), classLoader)).isEqualTo(TestObject[][].class);
     assertThat(ClassUtils.forName("[[[S", classLoader)).isEqualTo(short[][][].class);
 
+  }
+
+  public static class NestedClass {
+
+    static boolean noArgCalled;
+    static boolean argCalled;
+    static boolean overloadedCalled;
+
+    public static void staticMethod() {
+      noArgCalled = true;
+    }
+
+    public static void staticMethod(String anArg) {
+      overloadedCalled = true;
+    }
+
+    public static void argStaticMethod(String anArg) {
+      argCalled = true;
+    }
   }
 
   @Test
@@ -462,45 +478,6 @@ public class ClassUtilsTest {
   //
 
   @Test
-  public void getMethodIfAvailable() {
-    Method method = ClassUtils.getMethodIfAvailable(Collection.class, "size");
-    assertThat(method).isNotNull();
-    assertThat(method.getName()).isEqualTo("size");
-
-    method = ClassUtils.getMethodIfAvailable(Collection.class, "remove", Object.class);
-    assertThat(method).isNotNull();
-    assertThat(method.getName()).isEqualTo("remove");
-
-    assertThat(ClassUtils.getMethodIfAvailable(Collection.class, "remove")).isNull();
-    assertThat(ClassUtils.getMethodIfAvailable(Collection.class, "someOtherMethod")).isNull();
-  }
-
-  @Test
-  public void hasMethod() {
-    assertThat(ClassUtils.hasMethod(Collection.class, "size")).isTrue();
-    assertThat(ClassUtils.hasMethod(Collection.class, "remove", Object.class)).isTrue();
-    assertThat(ClassUtils.hasMethod(Collection.class, "remove")).isFalse();
-    assertThat(ClassUtils.hasMethod(Collection.class, "someOtherMethod")).isFalse();
-  }
-
-  @Test
-  public void getMethodCountForName() {
-    assertThat(ClassUtils.getMethodCountForName(OverloadedMethodsClass.class, "print"))
-            .as("Verifying number of overloaded 'print' methods for OverloadedMethodsClass.")
-            .isEqualTo(2);
-    assertThat(ClassUtils.getMethodCountForName(SubOverloadedMethodsClass.class, "print"))
-            .as("Verifying number of overloaded 'print' methods for SubgetPackageNameOverloadedMethodsClass.")
-            .isEqualTo(4);
-  }
-
-  @Test
-  public void argsStaticMethod() throws IllegalAccessException, InvocationTargetException {
-    Method method = ClassUtils.getStaticMethod(NestedClass.class, "argStaticMethod", String.class);
-    method.invoke(null, "test");
-    assertThat(NestedClass.argCalled).as("argument method was not invoked.").isTrue();
-  }
-
-  @Test
   public void isAssignable() {
     assertThat(ClassUtils.isAssignable(Object.class, Object.class)).isTrue();
     assertThat(ClassUtils.isAssignable(String.class, String.class)).isTrue();
@@ -569,46 +546,4 @@ public class ClassUtilsTest {
           int.class, long.class, float.class, double.class, void.class }) @interface PrimitiveTypes {
   }
 
-  public static class NestedClass {
-
-    static boolean noArgCalled;
-    static boolean argCalled;
-    static boolean overloadedCalled;
-
-    public static void staticMethod() {
-      noArgCalled = true;
-    }
-
-    public static void staticMethod(String anArg) {
-      overloadedCalled = true;
-    }
-
-    public static void argStaticMethod(String anArg) {
-      argCalled = true;
-    }
-  }
-
-  @SuppressWarnings("unused")
-  private static class OverloadedMethodsClass {
-
-    public void print(String messages) {
-      /* no-op */
-    }
-
-    public void print(String[] messages) {
-      /* no-op */
-    }
-  }
-
-  @SuppressWarnings("unused")
-  private static class SubOverloadedMethodsClass extends OverloadedMethodsClass {
-
-    public void print(String header, String[] messages) {
-      /* no-op */
-    }
-
-    void print(String header, String[] messages, String footer) {
-      /* no-op */
-    }
-  }
 }

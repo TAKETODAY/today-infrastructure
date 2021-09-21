@@ -27,7 +27,6 @@ import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Type;
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.ClassGenerator;
 import cn.taketoday.cglib.core.CodeEmitter;
