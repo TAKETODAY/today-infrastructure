@@ -32,7 +32,7 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.SharedVariable;
@@ -103,7 +103,7 @@ public abstract class AbstractFreeMarkerTemplateRenderer
     configObjectWrapper();
 
     try {
-      if (ObjectUtils.isNotEmpty(settings)) {
+      if (CollectionUtils.isNotEmpty(settings)) {
         getConfiguration().setSettings(settings);
       }
     }
@@ -134,8 +134,7 @@ public abstract class AbstractFreeMarkerTemplateRenderer
 
   @SuppressWarnings("unchecked")
   protected <T> TemplateLoader createTemplateLoader(List<T> loaders) {
-
-    return ObjectUtils.isEmpty(loaders)
+    return CollectionUtils.isEmpty(loaders)
            ? new DefaultResourceTemplateLoader(prefix, suffix, cacheSize)
            : new CompositeTemplateLoader((Collection<TemplateLoader>) loaders, cacheSize);
   }

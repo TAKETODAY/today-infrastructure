@@ -219,7 +219,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
     this.type = type.toLowerCase(Locale.ENGLISH);
     this.subtype = subtype.toLowerCase(Locale.ENGLISH);
 
-    if (ObjectUtils.isNotEmpty(parameters)) {
+    if (CollectionUtils.isNotEmpty(parameters)) {
       LinkedCaseInsensitiveMap<String> map = new LinkedCaseInsensitiveMap<>(parameters.size(), Locale.ENGLISH);
       for (final Map.Entry<String, String> entry : parameters.entrySet()) {
         final String value = entry.getValue();

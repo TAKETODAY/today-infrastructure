@@ -164,7 +164,7 @@ public class DefaultMultiValueMap<K, V>
     final HashMap<K, V> singleValueMap = CollectionUtils.newHashMap(map.size());
     for (final Entry<K, List<V>> entry : map.entrySet()) {
       final List<V> values = entry.getValue();
-      if (!CollectionUtils.isEmpty(values)) {
+      if (CollectionUtils.isNotEmpty(values)) {
         singleValueMap.put(entry.getKey(), values.get(0));
       }
     }
@@ -184,7 +184,7 @@ public class DefaultMultiValueMap<K, V>
     Assert.notNull(mappingFunction, "mappingFunction must not be null");
     for (final Entry<K, List<V>> entry : map.entrySet()) {
       final List<V> values = entry.getValue();
-      if (!CollectionUtils.isEmpty(values)) {
+      if (CollectionUtils.isNotEmpty(values)) {
         final V[] toArray = values.toArray(mappingFunction.apply(values.size()));
         newMap.put(entry.getKey(), toArray);
       }

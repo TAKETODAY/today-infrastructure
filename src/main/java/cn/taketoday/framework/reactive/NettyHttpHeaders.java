@@ -155,7 +155,7 @@ final class NettyHttpHeaders extends HttpHeaders {
     final Set<String> names = headers.names();
     for (final String name : names) {
       final List<String> values = headers.getAll(name);
-      if (!CollectionUtils.isEmpty(values)) {
+      if (CollectionUtils.isNotEmpty(values)) {
         final String[] toArray = values.toArray(mappingFunction.apply(values.size()));
         newMap.put(name, toArray);
       }

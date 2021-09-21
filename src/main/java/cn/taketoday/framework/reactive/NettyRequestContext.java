@@ -37,7 +37,6 @@ import cn.taketoday.core.Constant;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.http.DefaultHttpHeaders;
 import cn.taketoday.web.multipart.MultipartFile;
@@ -210,7 +209,7 @@ public class NettyRequestContext extends RequestContext {
         decoded.addAll(cookieDecoder.decode(header));
       }
     }
-    if (ObjectUtils.isEmpty(decoded)) {
+    if (CollectionUtils.isEmpty(decoded)) {
       return EMPTY_COOKIES;
     }
     else {

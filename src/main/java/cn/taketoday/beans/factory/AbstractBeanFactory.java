@@ -802,7 +802,7 @@ public abstract class AbstractBeanFactory
       final Class<?> propertyType = reference.getReferenceClass();
       // find child beans
       final List<BeanDefinition> childDefs = doGetChildDefinition(beanName, propertyType);
-      if (!CollectionUtils.isEmpty(childDefs)) {
+      if (CollectionUtils.isNotEmpty(childDefs)) {
         final BeanDefinition childDef = getPrimaryBeanDefinition(childDefs);
         if (log.isDebugEnabled()) {
           log.debug("Found The Implementation Of [{}] Bean: [{}].", beanName, childDef.getName());
@@ -885,7 +885,7 @@ public abstract class AbstractBeanFactory
   protected BeanDefinition handleDependency(final BeanReferencePropertySetter ref) {
     // from objectFactories
     final Map<Class<?>, Object> objectFactories = getObjectFactories();
-    if (!CollectionUtils.isEmpty(objectFactories)) {
+    if (CollectionUtils.isNotEmpty(objectFactories)) {
       final Object objectFactory = objectFactories.get(ref.getReferenceClass());
       if (objectFactory != null) {
         final class DependencyBeanDefinition extends DefaultBeanDefinition {
@@ -1082,7 +1082,7 @@ public abstract class AbstractBeanFactory
     final BeanDefinitionLoader definitionLoader = getBeanDefinitionLoader();
     final List<BeanDefinition> loaded = definitionLoader.load(defaultName, clazz, ignoreAnnotation);
 
-    if (!CollectionUtils.isEmpty(loaded)) {
+    if (CollectionUtils.isNotEmpty(loaded)) {
       for (final BeanDefinition def : loaded) {
         def.setSupplier(supplier);
         if (prototype) {

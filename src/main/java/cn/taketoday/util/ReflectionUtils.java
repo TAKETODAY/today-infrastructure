@@ -759,7 +759,7 @@ public abstract class ReflectionUtils {
   public static Method[] getAllDeclaredMethods(Class<?> leafClass) {
     final ArrayList<Method> methods = new ArrayList<>(32);
     doWithMethods(leafClass, methods::add);
-    return methods.toArray(new Method[methods.size()]);
+    return toMethodArray(methods);
   }
 
   /**
@@ -885,7 +885,7 @@ public abstract class ReflectionUtils {
         methods.add(method);
       }
     }, mf);
-    return methods.toArray(EMPTY_METHOD_ARRAY);
+    return toMethodArray(methods);
   }
 
   /**
@@ -1013,7 +1013,7 @@ public abstract class ReflectionUtils {
    */
   public static Method[] toMethodArray(Collection<Method> collection) {
     return CollectionUtils.isEmpty(collection)
-           ? Constant.EMPTY_METHOD_ARRAY
+           ? EMPTY_METHOD_ARRAY
            : collection.toArray(new Method[collection.size()]);
   }
 
@@ -1210,7 +1210,7 @@ public abstract class ReflectionUtils {
    *         if introspection fails
    * @see Class#getDeclaredFields()
    */
-  private static Field[] getDeclaredFields(Class<?> clazz) {
+  public static Field[] getDeclaredFields(Class<?> clazz) {
     Assert.notNull(clazz, "Class must not be null");
     Field[] result = DECLARED_FIELDS_CACHE.get(clazz);
     if (result == null) {
@@ -1325,7 +1325,6 @@ public abstract class ReflectionUtils {
    * @since 2.1.2
    */
   public static Collection<Field> getFields(Class<?> targetClass) {
-
     final ArrayList<Field> list = new ArrayList<>(64);
     do {
       Collections.addAll(list, getDeclaredFields(targetClass));
@@ -1347,7 +1346,16 @@ public abstract class ReflectionUtils {
    */
   public static Field[] getFieldArray(Class<?> targetClass) {
     final Collection<Field> fields = getFields(targetClass);
-    return fields.toArray(new Field[fields.size()]);
+    return toFieldArray(fields);
+  }
+
+  /**
+   * @since 4.0
+   */
+  public static Field[] toFieldArray(Collection<Field> fields) {
+    return CollectionUtils.isEmpty(fields)
+           ? EMPTY_FIELD_ARRAY
+           : fields.toArray(new Field[fields.size()]);
   }
 
   // Constructor handling

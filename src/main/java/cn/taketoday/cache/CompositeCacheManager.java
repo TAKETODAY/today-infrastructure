@@ -27,6 +27,7 @@ import java.util.Set;
 
 import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.core.Assert;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -68,7 +69,7 @@ public class CompositeCacheManager implements CacheManager {
 
   @Override
   public Collection<String> getCacheNames() {
-    if (ObjectUtils.isEmpty(cacheManagers)) {
+    if (CollectionUtils.isEmpty(cacheManagers)) {
       return Collections.emptySet();
     }
     final Set<String> names = new LinkedHashSet<>();

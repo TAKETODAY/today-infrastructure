@@ -115,6 +115,13 @@ public abstract class CollectionUtils {
   }
 
   /**
+   * @since 4.0
+   */
+  public static boolean isNotEmpty(@Nullable Collection<?> collection) {
+    return !isEmpty(collection);
+  }
+
+  /**
    * Return {@code true} if the supplied Map is {@code null} or empty. Otherwise,
    * return {@code false}.
    *
@@ -125,6 +132,13 @@ public abstract class CollectionUtils {
    */
   public static boolean isEmpty(@Nullable Map<?, ?> map) {
     return (map == null || map.isEmpty());
+  }
+
+  /**
+   * @since 4.0
+   */
+  public static boolean isNotEmpty(@Nullable Map<?, ?> map) {
+    return !isEmpty(map);
   }
 
   public static boolean isCollection(Class<?> cls) {

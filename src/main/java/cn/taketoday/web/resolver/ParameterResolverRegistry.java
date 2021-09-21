@@ -120,7 +120,7 @@ public class ParameterResolverRegistry
    */
   public void setResolvingStrategies(@Nullable List<ParameterResolvingStrategy> resolver) {
     resolvers.clear();
-    if (!CollectionUtils.isEmpty(resolver)) {
+    if (CollectionUtils.isNotEmpty(resolver)) {
       resolvers.addAll(resolver);
       trimToSize();
       sort();

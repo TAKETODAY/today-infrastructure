@@ -977,7 +977,7 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    */
   public void cleanupMultipartFiles() {
     final MultiValueMap<String, MultipartFile> multipartFiles = this.multipartFiles;
-    if (!CollectionUtils.isEmpty(multipartFiles)) {
+    if (CollectionUtils.isNotEmpty(multipartFiles)) {
       for (final Map.Entry<String, List<MultipartFile>> entry : multipartFiles.entrySet()) {
         final List<MultipartFile> value = entry.getValue();
         for (final MultipartFile multipartFile : value) {

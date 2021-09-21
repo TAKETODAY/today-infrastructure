@@ -73,7 +73,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
   protected void initApplicationContext(ApplicationContext context) {
     super.initApplicationContext(context);
     List<HandlerCustomizer> customizers = context.getBeans(HandlerCustomizer.class);
-    if (!CollectionUtils.isEmpty(customizers)) {
+    if (CollectionUtils.isNotEmpty(customizers)) {
       this.handlerCustomizer = new CompositeHandlerCustomizer(customizers);
     }
   }
@@ -184,7 +184,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
     // pattern
     final HashMap<String, PatternHandler> matchedPatterns = new HashMap<>();
     final PathMatcher pathMatcher = getPathMatcher();
-    if (!CollectionUtils.isEmpty(patternHandlers)) {
+    if (CollectionUtils.isNotEmpty(patternHandlers)) {
       for (final PatternHandler mapping : patternHandlers) {
         final String pattern = mapping.getPattern();
         if (matchingPattern(pathMatcher, pattern, handlerKey)) {

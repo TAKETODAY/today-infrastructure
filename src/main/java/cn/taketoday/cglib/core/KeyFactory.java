@@ -147,7 +147,7 @@ abstract public class KeyFactory {
       gen.addCustomizer(customizer);
     }
 
-    if (!CollectionUtils.isEmpty(next)) {
+    if (CollectionUtils.isNotEmpty(next)) {
       for (KeyFactoryCustomizer keyFactoryCustomizer : next) {
         gen.addCustomizer(keyFactoryCustomizer);
       }

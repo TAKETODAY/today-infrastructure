@@ -30,7 +30,7 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * @author TODAY <br>
@@ -203,7 +203,7 @@ public abstract class SynchronizationManager {
     private Object doUnbindResource(final Object key) {
       final Map<Object, Object> map = resources;
 
-      if (ObjectUtils.isEmpty(map)) {
+      if (CollectionUtils.isEmpty(map)) {
         return null;
       }
       Object value = map.remove(key);

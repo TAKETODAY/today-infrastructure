@@ -360,7 +360,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   protected void postProcessBeanFactory(AbstractBeanFactory beanFactory) {
     registerBeanFactoryPostProcessor();
 
-    if (!CollectionUtils.isEmpty(factoryPostProcessors)) {
+    if (CollectionUtils.isNotEmpty(factoryPostProcessors)) {
       for (final BeanFactoryPostProcessor postProcessor : factoryPostProcessors) {
         postProcessor.postProcessBeanFactory(beanFactory);
       }
@@ -552,7 +552,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
 
     final List<ApplicationListener> listeners = applicationListeners.get(event.getClass());
-    if (!CollectionUtils.isEmpty(listeners)) {
+    if (CollectionUtils.isNotEmpty(listeners)) {
       for (final ApplicationListener applicationListener : listeners) {
         applicationListener.onApplicationEvent(event);
       }

@@ -877,7 +877,7 @@ public final class Query implements AutoCloseable {
   }
 
   public void setColumnMappings(Map<String, String> mappings) {
-    if (!CollectionUtils.isEmpty(mappings)) {
+    if (CollectionUtils.isNotEmpty(mappings)) {
       final HashMap<String, String> columnMappings = new HashMap<>();
       final HashMap<String, String> caseSensitiveColumnMappings = new HashMap<>();
       for (Map.Entry<String, String> entry : mappings.entrySet()) {

@@ -213,7 +213,7 @@ public class HandlerMethodRegistry
     boolean addClassRequestMethods = false;
     Set<String> namespaces = Collections.emptySet();
     Set<HttpMethod> classRequestMethods = Collections.emptySet();
-    if (ObjectUtils.isNotEmpty(controllerMapping)) {
+    if (CollectionUtils.isNotEmpty(controllerMapping)) {
       namespaces = new LinkedHashSet<>(4, 1.0f); // name space
       classRequestMethods = new LinkedHashSet<>(8, 1.0f); // method
       for (final String value : controllerMapping.getStringArray(Constant.VALUE)) {

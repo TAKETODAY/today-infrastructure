@@ -714,7 +714,7 @@ public abstract class ContextUtils {
 
     Assert.notNull(obj, "bean instance must not be null");
 
-    if (!CollectionUtils.isEmpty(postProcessors)) {
+    if (CollectionUtils.isNotEmpty(postProcessors)) {
       for (final BeanPostProcessor postProcessor : postProcessors) {
         if (postProcessor instanceof DestructionBeanPostProcessor) {
           final DestructionBeanPostProcessor destruction = (DestructionBeanPostProcessor) postProcessor;

@@ -27,7 +27,7 @@ import java.util.List;
 import cn.taketoday.core.Constant;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
-import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebUtils;
 
@@ -132,7 +132,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
       responseHeaders.setAccessControlAllowHeaders(allowHeaders);
     }
 
-    if (!ObjectUtils.isEmpty(config.getExposedHeaders())) {
+    if (CollectionUtils.isNotEmpty(config.getExposedHeaders())) {
       responseHeaders.setAccessControlExposeHeaders(config.getExposedHeaders());
     }
 

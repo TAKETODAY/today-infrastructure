@@ -548,7 +548,7 @@ public class MediaType extends MimeType implements Serializable {
    *         if the media type value cannot be parsed
    */
   public static List<MediaType> parseMediaTypes(List<String> mediaTypes) {
-    if (ObjectUtils.isEmpty(mediaTypes)) {
+    if (CollectionUtils.isEmpty(mediaTypes)) {
       return Collections.emptyList();
     }
     else if (mediaTypes.size() == 1) {

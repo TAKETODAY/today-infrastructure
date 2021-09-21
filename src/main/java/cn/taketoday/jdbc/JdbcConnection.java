@@ -274,7 +274,7 @@ public final class JdbcConnection implements Closeable {
   public Object getKey() {
     assertCanGetKeys();
     List<Object> keys = this.keys;
-    if (!CollectionUtils.isEmpty(keys)) {
+    if (CollectionUtils.isNotEmpty(keys)) {
       return keys.get(0);
     }
     return null;

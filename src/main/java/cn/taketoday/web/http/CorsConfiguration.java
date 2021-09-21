@@ -239,7 +239,7 @@ public class CorsConfiguration {
    */
   public void setAllowedMethods(@Nullable List<String> allowedMethods) {
     this.allowedMethods = (allowedMethods != null ? new ArrayList<>(allowedMethods) : null);
-    if (!CollectionUtils.isEmpty(allowedMethods)) {
+    if (CollectionUtils.isNotEmpty(allowedMethods)) {
       this.resolvedMethods = new ArrayList<>(allowedMethods.size());
       for (String method : allowedMethods) {
         if (ALL.equals(method)) {
@@ -480,7 +480,7 @@ public class CorsConfiguration {
 
     List<String> origins = combine(getAllowedOrigins(), other.getAllowedOrigins());
     List<OriginPattern> patterns = combinePatterns(this.allowedOriginPatterns, other.allowedOriginPatterns);
-    config.allowedOrigins = (origins == DEFAULT_PERMIT_ALL && !CollectionUtils.isEmpty(patterns) ? null : origins);
+    config.allowedOrigins = (origins == DEFAULT_PERMIT_ALL && CollectionUtils.isNotEmpty(patterns) ? null : origins);
     config.allowedOriginPatterns = patterns;
 
     config.setAllowedMethods(combine(getAllowedMethods(), other.getAllowedMethods()));
@@ -554,7 +554,7 @@ public class CorsConfiguration {
     final List<String> allowedOrigins = this.allowedOrigins;
     final String originToCheck = trimTrailingSlash(requestOrigin);
 
-    if (ObjectUtils.isNotEmpty(allowedOrigins)) {
+    if (CollectionUtils.isNotEmpty(allowedOrigins)) {
       if (allowedOrigins.contains(ALL)) {
         validateAllowCredentials();
         return ALL;
@@ -566,7 +566,7 @@ public class CorsConfiguration {
       }
     }
 
-    if (ObjectUtils.isNotEmpty(this.allowedOriginPatterns)) {
+    if (CollectionUtils.isNotEmpty(this.allowedOriginPatterns)) {
       for (OriginPattern p : this.allowedOriginPatterns) {
         if (p.getDeclaredPattern().equals(ALL) || p.getPattern().matcher(originToCheck).matches()) {
           return requestOrigin;
@@ -620,7 +620,7 @@ public class CorsConfiguration {
       return Collections.emptyList();
     }
     final List<String> allowedHeaders = this.allowedHeaders;
-    if (ObjectUtils.isEmpty(allowedHeaders)) {
+    if (CollectionUtils.isEmpty(allowedHeaders)) {
       return null;
     }
     boolean allowAnyHeader = allowedHeaders.contains(ALL);

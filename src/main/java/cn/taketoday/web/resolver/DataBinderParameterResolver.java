@@ -169,7 +169,7 @@ public class DataBinderParameterResolver
     if (WebUtils.isMultipart(context)) {
       // Multipart
       final MultiValueMap<String, MultipartFile> multipartFiles = context.multipartFiles();
-      if (!CollectionUtils.isEmpty(multipartFiles)) {
+      if (CollectionUtils.isNotEmpty(multipartFiles)) {
         for (final Map.Entry<String, List<MultipartFile>> entry : multipartFiles.entrySet()) {
           final List<MultipartFile> files = entry.getValue();
           if (files.size() == 1) {

@@ -153,7 +153,7 @@ public abstract class AbstractWebSocketHandlerAdapter extends AbstractHandlerAda
    */
   public String getNegotiatedSubProtocol(
           final List<String> supported, final List<String> requested) {
-    if (!CollectionUtils.isEmpty(supported)) {
+    if (CollectionUtils.isNotEmpty(supported)) {
       for (final String request : requested) {
         if (supported.contains(request)) {
           return request;

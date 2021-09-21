@@ -32,7 +32,6 @@ import cn.taketoday.core.Constant;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.MimeType;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
@@ -59,7 +58,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
     }
 
     final List<PatternHandler> patternHandlers = getPatternHandlers();
-    if (!CollectionUtils.isEmpty(patternHandlers)) {
+    if (CollectionUtils.isNotEmpty(patternHandlers)) {
       for (final PatternHandler patternHandler : patternHandlers) {
         super.logMapping(patternHandler.getPattern(), patternHandler.getHandler());
       }
@@ -119,7 +118,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
   void mergeMappingAttributes(AnnotationAttributes mapping,
                               AnnotationAttributes actionMapping,
                               AnnotationAttributes controllerMapping) {
-    if (ObjectUtils.isEmpty(controllerMapping) || actionMapping.getBoolean("exclude")) {
+    if (CollectionUtils.isEmpty(controllerMapping) || actionMapping.getBoolean("exclude")) {
       mapping.putAll(actionMapping);
       return;
     }
@@ -234,7 +233,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
     Object existMappingInfo = getHandlers().get(requestPath);
     if (existMappingInfo == null && getPathMatcher().isPattern(requestPath)) {
       final List<PatternHandler> patternHandlers = getPatternHandlers();
-      if (ObjectUtils.isNotEmpty(patternHandlers)) {
+      if (CollectionUtils.isNotEmpty(patternHandlers)) {
         for (final PatternHandler patternHandler : patternHandlers) {
           if (Objects.equals(patternHandler.getPattern(), requestPath)) {
             return patternHandler.getHandler();

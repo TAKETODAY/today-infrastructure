@@ -248,7 +248,7 @@ public class DefaultConversionService implements ConfigurableConversionService, 
    */
   @Override
   public void addConverters(@Nullable final List<TypeConverter> converters) {
-    if (ObjectUtils.isNotEmpty(converters)) {
+    if (CollectionUtils.isNotEmpty(converters)) {
       this.converters.addAll(converters);
       invalidateCache();
       sort();

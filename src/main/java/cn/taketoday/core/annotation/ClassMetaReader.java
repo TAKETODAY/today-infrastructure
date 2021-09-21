@@ -199,7 +199,7 @@ public class ClassMetaReader {
   }
 
   private static AnnotationAttributes[] getAttributes(List<AnnotationNode> visibleAnnotations) {
-    if (!CollectionUtils.isEmpty(visibleAnnotations)) {
+    if (CollectionUtils.isNotEmpty(visibleAnnotations)) {
       AnnotationAttributes[] annotationAttributes = new AnnotationAttributes[visibleAnnotations.size()];
       int i = 0;
       for (final AnnotationNode visibleAnnotation : visibleAnnotations) {

@@ -669,8 +669,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
           List<Method> interfaceMethods,
           Set<Object> forcePublic
   ) {
-
+    final Method[] allDeclaredMethods = ReflectionUtils.getAllDeclaredMethods(superclass);
     CglibReflectUtils.addAllMethods(superclass, methods);
+    CollectionUtils.addAll(methods, allDeclaredMethods);
 
     List<Method> target = (interfaceMethods != null) ? interfaceMethods : methods;
     if (interfaces != null) {

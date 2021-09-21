@@ -111,7 +111,7 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
     Assert.notNull(source, "Source must not be null");
 
     final Map<String, Object> attributes = source.getAttributes();
-    if (!CollectionUtils.isEmpty(attributes)) {
+    if (CollectionUtils.isNotEmpty(attributes)) {
       for (final Map.Entry<String, Object> entry : attributes.entrySet()) {
         setAttribute(entry.getKey(), entry.getValue());
       }

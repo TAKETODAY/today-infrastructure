@@ -240,7 +240,7 @@ public class ArgumentsResolver {
    * @since 4.0
    */
   public void addResolvingStrategies(List<ArgumentsResolvingStrategy> strategies) {
-    if (!CollectionUtils.isEmpty(strategies)) {
+    if (CollectionUtils.isNotEmpty(strategies)) {
       if (resolvingStrategies != null) {
         List<ArgumentsResolvingStrategy> newStrategies = new ArrayList<>();
         Collections.addAll(newStrategies, resolvingStrategies);

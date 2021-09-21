@@ -137,7 +137,7 @@ public class FastJSONMessageConverter extends MessageBodyConverter {
     }
 
     final List<?> list = requestBody.toJavaList(parameter.getParameterClass());
-    if (!CollectionUtils.isEmpty(list)) {
+    if (CollectionUtils.isNotEmpty(list)) {
       return list.get(0);
     }
     return null;

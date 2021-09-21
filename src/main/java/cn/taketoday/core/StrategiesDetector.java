@@ -164,7 +164,7 @@ public class StrategiesDetector {
    */
   public void consumeStrategies(String strategyKey, Consumer<String> consumer) {
     final Collection<String> strategies = getStrategies(strategyKey);
-    if (!CollectionUtils.isEmpty(strategies)) {
+    if (CollectionUtils.isNotEmpty(strategies)) {
       for (final String strategy : strategies) {
         consumer.accept(strategy);
       }
