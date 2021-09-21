@@ -27,6 +27,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,6 +40,9 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.reflect.ReflectionException;
+
+import static java.lang.reflect.Modifier.FINAL;
+import static java.lang.reflect.Modifier.STATIC;
 
 /**
  * Fast reflection operation
@@ -81,6 +87,37 @@ public abstract class ReflectionUtils {
    */
   private static final ConcurrentReferenceHashMap<Class<?>, Method[]>
           DECLARED_METHODS_CACHE = new ConcurrentReferenceHashMap<>(256);
+
+  private static final Method defineClass;
+  private static final Method[] OBJECT_METHODS;
+
+  static {
+    try {
+      defineClass = ClassLoader.class.getDeclaredMethod(
+              "defineClass",
+              String.class,
+              byte[].class,
+              int.class,
+              int.class,
+              ProtectionDomain.class
+      );
+      ReflectionUtils.makeAccessible(defineClass);
+    }
+    catch (NoSuchMethodException e) {
+      throw new ReflectionException(e);
+    }
+
+    Method[] declaredMethods = Object.class.getDeclaredMethods();
+    ArrayList<Method> objectMethods = new ArrayList<>(declaredMethods.length);
+    for (Method method : declaredMethods) {
+      if ("finalize".equals(method.getName()) || (method.getModifiers() & (FINAL | STATIC)) > 0) {
+        continue;
+      }
+      objectMethods.add(method);
+    }
+    // @since 4.0
+    OBJECT_METHODS = objectMethods.toArray(new Method[0]);
+  }
 
   // Exception handling
 
@@ -669,6 +706,17 @@ public abstract class ReflectionUtils {
       method.setAccessible(true);
     }
     return method;
+  }
+
+  /**
+   * Get all object method expect {@link Object#finalize()}
+   *
+   * @return Object all methods
+   *
+   * @since 4.0
+   */
+  public static Method[] getObjectMethods() {
+    return OBJECT_METHODS.clone();
   }
 
   // Field handling
@@ -1282,6 +1330,144 @@ public abstract class ReflectionUtils {
    */
   public static Object newInstance(Class<?> type, Class[] parameterTypes, Object[] args) {
     return invokeConstructor(ClassUtils.getConstructor(type, parameterTypes), args);
+  }
+
+  /**
+   * @since 4.0
+   */
+  public static ProtectionDomain getProtectionDomain(final Class<?> source) {
+    if (source == null) {
+      return null;
+    }
+    final class GetProtectionDomainAction implements PrivilegedAction<ProtectionDomain> {
+      @Override
+      public ProtectionDomain run() {
+        return source.getProtectionDomain();
+      }
+    }
+    return AccessController.doPrivileged(new GetProtectionDomainAction());
+  }
+
+  /**
+   * @since 4.0
+   */
+  public static <T> Class<T> defineClass(String className, byte[] bytes) {
+    return defineClass(className, bytes, ClassUtils.getClassLoader(), null);
+  }
+
+  /**
+   * Converts an array of bytes into an instance of class <tt>Class</tt>.
+   * Before the <tt>Class</tt> can be used it must be resolved.
+   *
+   * <p> This method assigns a default {@link java.security.ProtectionDomain
+   * <tt>ProtectionDomain</tt>} to the newly defined class.  The
+   * <tt>ProtectionDomain</tt> is effectively granted the same set of
+   * permissions returned when {@link
+   * java.security.Policy#getPermissions(java.security.CodeSource)
+   * <tt>Policy.getPolicy().getPermissions(new CodeSource(null, null))</tt>}
+   * is invoked.  The default domain is created on the first invocation of
+   * {@link #defineClass(String, byte[]) <tt>defineClass</tt>},
+   * and re-used on subsequent invocations.
+   *
+   * <p> To assign a specific <tt>ProtectionDomain</tt> to the class, use
+   * the {@link #defineClass(String, byte[], ClassLoader,
+   * java.security.ProtectionDomain) <tt>defineClass</tt>} method that takes a
+   * <tt>ProtectionDomain</tt> as one of its arguments.  </p>
+   *
+   * @param className
+   *         The expected <a href="#name">binary name</a> of the class, or
+   *         <tt>null</tt> if not known
+   * @param bytes
+   *         The bytes that make up the class data.  The bytes in positions
+   *         <tt>off</tt> through <tt>off+len-1</tt> should have the format
+   *         of a valid class file as defined by
+   *         <cite>The Java&trade; Virtual Machine Specification</cite>.
+   *
+   * @return The <tt>Class</tt> object that was created from the specified
+   * class data.
+   *
+   * @throws ClassFormatError
+   *         If the data did not contain a valid class
+   * @throws IndexOutOfBoundsException
+   *         If either <tt>off</tt> or <tt>len</tt> is negative, or if
+   *         <tt>off+len</tt> is greater than <tt>b.length</tt>.
+   * @throws SecurityException
+   *         If an attempt is made to add this class to a package that
+   *         contains classes that were signed by a different set of
+   *         certificates than this class (which is unsigned), or if
+   *         <tt>name</tt> begins with "<tt>java.</tt>".
+   * @see java.security.CodeSource
+   * @see java.security.SecureClassLoader
+   * @since 4.0
+   */
+  public static <T> Class<T> defineClass(String className, byte[] bytes, ClassLoader loader) {
+    return defineClass(className, bytes, loader, null);
+  }
+
+  /**
+   * Converts an array of bytes into an instance of class <tt>Class</tt>,
+   * with an optional <tt>ProtectionDomain</tt>.  If the domain is
+   * <tt>null</tt>, then a default domain will be assigned to the class as
+   * specified in the documentation for {@link #defineClass(String, byte[])}.
+   * Before the class can be used it must be resolved.
+   *
+   * <p> The first class defined in a package determines the exact set of
+   * certificates that all subsequent classes defined in that package must
+   * contain.  The set of certificates for a class is obtained from the
+   * {@link java.security.CodeSource <tt>CodeSource</tt>} within the
+   * <tt>ProtectionDomain</tt> of the class.  Any classes added to that
+   * package must contain the same set of certificates or a
+   * <tt>SecurityException</tt> will be thrown.  Note that if
+   * <tt>name</tt> is <tt>null</tt>, this check is not performed.
+   * You should always pass in the <a href="#name">binary name</a> of the
+   * class you are defining as well as the bytes.  This ensures that the
+   * class you are defining is indeed the class you think it is.
+   *
+   * <p> The specified <tt>name</tt> cannot begin with "<tt>java.</tt>", since
+   * all classes in the "<tt>java.*</tt> packages can only be defined by the
+   * bootstrap class loader.  If <tt>name</tt> is not <tt>null</tt>, it
+   * must be equal to the <a href="#name">binary name</a> of the class
+   * specified by the byte array "<tt>b</tt>", otherwise a {@link
+   * NoClassDefFoundError <tt>NoClassDefFoundError</tt>} will be thrown. </p>
+   *
+   * @param className
+   *         The expected <a href="#name">binary name</a> of the class, or
+   *         <tt>null</tt> if not known
+   * @param bytes
+   *         The bytes that make up the class data. The bytes in positions
+   *         <tt>off</tt> through <tt>off+len-1</tt> should have the format
+   *         of a valid class file as defined by
+   *         <cite>The Java&trade; Virtual Machine Specification</cite>.
+   * @param protection
+   *         The ProtectionDomain of the class
+   *
+   * @return The <tt>Class</tt> object created from the data,
+   * and optional <tt>ProtectionDomain</tt>.
+   *
+   * @throws ClassFormatError
+   *         If the data did not contain a valid class
+   * @throws NoClassDefFoundError
+   *         If <tt>name</tt> is not equal to the <a href="#name">binary
+   *         name</a> of the class specified by <tt>b</tt>
+   * @throws IndexOutOfBoundsException
+   *         If either <tt>off</tt> or <tt>len</tt> is negative, or if
+   *         <tt>off+len</tt> is greater than <tt>b.length</tt>.
+   * @throws SecurityException
+   *         If an attempt is made to add this class to a package that
+   *         contains classes that were signed by a different set of
+   *         certificates than this class, or if <tt>name</tt> begins with
+   *         "<tt>java.</tt>".
+   * @since 4.0
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> Class<T> defineClass(
+          String className, byte[] bytes, ClassLoader loader, @Nullable ProtectionDomain protection) {
+    try {
+      return (Class<T>) defineClass.invoke(loader, className, bytes, 0, bytes.length, protection);
+    }
+    catch (IllegalAccessException | InvocationTargetException e) {
+      throw new ReflectionException("defineClass '" + className + "' failed", e);
+    }
   }
 
 }

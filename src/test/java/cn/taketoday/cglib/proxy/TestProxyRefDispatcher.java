@@ -73,10 +73,10 @@ public class TestProxyRefDispatcher extends CodeGenTestCase {
         Object obj = e.create();
 
         assertNull(proxyReference[0]);
-        assertTrue(((Foo) obj).foo().equals("foo1"));
+        assertEquals("foo1", ((Foo) obj).foo());
         assertSame(obj, proxyReference[0]);
         proxyReference[0] = null;
-        assertTrue(((Bar) obj).bar().equals("bar1"));
+        assertEquals("bar1", ((Bar) obj).bar());
         assertSame(obj, proxyReference[0]);
         proxyReference[0] = null;
 
@@ -85,7 +85,7 @@ public class TestProxyRefDispatcher extends CodeGenTestCase {
                 return "foo2";
             }
         };
-        assertTrue(((Foo) obj).foo().equals("foo2"));
+        assertEquals("foo2", ((Foo) obj).foo());
         assertSame(obj, proxyReference[0]);
     }
 

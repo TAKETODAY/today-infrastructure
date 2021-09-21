@@ -175,7 +175,7 @@ abstract public class KeyFactory {
     }
 
     protected ProtectionDomain getProtectionDomain() {
-      return CglibReflectUtils.getProtectionDomain(keyInterface);
+      return ReflectionUtils.getProtectionDomain(keyInterface);
     }
 
     /**

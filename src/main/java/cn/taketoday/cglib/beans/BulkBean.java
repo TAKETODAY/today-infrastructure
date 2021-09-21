@@ -103,7 +103,7 @@ abstract public class BulkBean {
     }
 
     protected ProtectionDomain getProtectionDomain() {
-      return CglibReflectUtils.getProtectionDomain(target);
+      return ReflectionUtils.getProtectionDomain(target);
     }
 
     public BulkBean create() {

@@ -26,8 +26,7 @@ import java.util.function.Predicate;
 import cn.taketoday.cglib.core.internal.LoadingCache;
 import cn.taketoday.core.Assert;
 import cn.taketoday.util.ClassUtils;
-
-import static cn.taketoday.cglib.core.CglibReflectUtils.defineClass;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Abstract class for all code-generating CGLIB utilities. In addition to
@@ -327,7 +326,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
       final byte[] bytes = getStrategy().generate(this);
       final String className = getClassName();
       synchronized(classLoader) { // just in case
-        return defineClass(className, bytes, classLoader, getProtectionDomain());
+        return ReflectionUtils.defineClass(className, bytes, classLoader, getProtectionDomain());
       }
     }
     catch (RuntimeException | Error e) {

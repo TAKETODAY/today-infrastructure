@@ -84,7 +84,7 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
 
   @Override
   protected ProtectionDomain getProtectionDomain() {
-    return CglibReflectUtils.getProtectionDomain(superclass);
+    return ReflectionUtils.getProtectionDomain(superclass);
   }
 
   public Object create() {

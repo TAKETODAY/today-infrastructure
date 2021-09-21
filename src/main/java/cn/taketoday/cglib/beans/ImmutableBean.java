@@ -67,7 +67,7 @@ public abstract class ImmutableBean {
     }
 
     protected ProtectionDomain getProtectionDomain() {
-      return CglibReflectUtils.getProtectionDomain(target);
+      return ReflectionUtils.getProtectionDomain(target);
     }
 
     public Object create() {

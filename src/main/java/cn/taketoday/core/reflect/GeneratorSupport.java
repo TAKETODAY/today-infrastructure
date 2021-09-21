@@ -38,6 +38,7 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.Mappings;
+import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.asm.Opcodes.ACC_FINAL;
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
@@ -129,8 +130,8 @@ public abstract class GeneratorSupport<T extends Accessor> {
     catch (ClassNotFoundException ignored) {
     }
     final byte[] bytes = DefaultGeneratorStrategy.INSTANCE.generate(getClassGenerator());
-    return CglibReflectUtils.defineClass(
-            getClassName(), bytes, classLoader, CglibReflectUtils.getProtectionDomain(targetClass));
+    return ReflectionUtils.defineClass(
+            getClassName(), bytes, classLoader, ReflectionUtils.getProtectionDomain(targetClass));
   }
 
   protected abstract Object cacheKey();

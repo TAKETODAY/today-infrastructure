@@ -110,7 +110,7 @@ public abstract class Mixin {
     }
 
     protected ProtectionDomain getProtectionDomain() {
-      return CglibReflectUtils.getProtectionDomain(classes[0]);
+      return ReflectionUtils.getProtectionDomain(classes[0]);
     }
 
     public void setStyle(int style) {

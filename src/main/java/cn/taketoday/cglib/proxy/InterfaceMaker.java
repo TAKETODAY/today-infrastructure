@@ -37,7 +37,7 @@ import cn.taketoday.core.Constant;
  */
 public class InterfaceMaker extends AbstractClassGenerator<Object> {
 
-  private final Map<MethodSignature, Type[]> signatures = new HashMap<>();
+  private final HashMap<MethodSignature, Type[]> signatures = new HashMap<>();
 
   /**
    * Create a new <code>InterfaceMaker</code>. A new <code>InterfaceMaker</code>

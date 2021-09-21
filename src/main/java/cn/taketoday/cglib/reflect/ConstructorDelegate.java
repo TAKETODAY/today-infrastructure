@@ -46,7 +46,7 @@ abstract public class ConstructorDelegate {
   private static final ConstructorKey KEY_FACTORY = KeyFactory.create(ConstructorKey.class, KeyFactory.CLASS_BY_NAME);
 
   interface ConstructorKey {
-    public Object newInstance(String declaring, String iface);
+    Object newInstance(String declaring, String iface);
   }
 
   protected ConstructorDelegate() { }
@@ -87,7 +87,7 @@ abstract public class ConstructorDelegate {
     }
 
     protected ProtectionDomain getProtectionDomain() {
-      return CglibReflectUtils.getProtectionDomain(targetClass);
+      return ReflectionUtils.getProtectionDomain(targetClass);
     }
 
     public void generateClass(ClassVisitor v) {

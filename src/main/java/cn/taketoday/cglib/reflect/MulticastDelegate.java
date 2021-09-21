@@ -24,7 +24,6 @@ import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
-import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
@@ -99,7 +98,7 @@ abstract public class MulticastDelegate implements Cloneable {
 
     @Override
     protected ProtectionDomain getProtectionDomain() {
-      return CglibReflectUtils.getProtectionDomain(iface);
+      return ReflectionUtils.getProtectionDomain(iface);
     }
 
     public Generator setInterface(Class<?> iface) {

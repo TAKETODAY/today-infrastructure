@@ -25,7 +25,6 @@ import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
-import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
@@ -170,7 +169,7 @@ public abstract class MethodDelegate {
   public static class Generator extends AbstractClassGenerator {
 
     private static final Type METHOD_DELEGATE = Type.fromClass(MethodDelegate.class);
-    private static final MethodSignature NEW_INSTANCE = new MethodSignature(METHOD_DELEGATE, "newInstance", new Type[] { Type.TYPE_OBJECT });
+    private static final MethodSignature NEW_INSTANCE = new MethodSignature(METHOD_DELEGATE, "newInstance", Type.TYPE_OBJECT);
 
     private Object target;
     private Class targetClass;
@@ -205,7 +204,7 @@ public abstract class MethodDelegate {
 
     @Override
     protected ProtectionDomain getProtectionDomain() {
-      return CglibReflectUtils.getProtectionDomain(targetClass);
+      return ReflectionUtils.getProtectionDomain(targetClass);
     }
 
     public MethodDelegate create() {

@@ -135,7 +135,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
 
     @Override
     protected ProtectionDomain getProtectionDomain() {
-      return CglibReflectUtils.getProtectionDomain(targetClass);
+      return ReflectionUtils.getProtectionDomain(targetClass);
     }
 
     public Object create() {

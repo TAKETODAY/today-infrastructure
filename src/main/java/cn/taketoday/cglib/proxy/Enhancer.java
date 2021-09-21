@@ -632,10 +632,10 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   @Override
   protected ProtectionDomain getProtectionDomain() {
     if (superclass != null) {
-      return CglibReflectUtils.getProtectionDomain(superclass);
+      return ReflectionUtils.getProtectionDomain(superclass);
     }
     if (ObjectUtils.isNotEmpty(interfaces)) {
-      return CglibReflectUtils.getProtectionDomain(interfaces[0]);
+      return ReflectionUtils.getProtectionDomain(interfaces[0]);
     }
     return null;
   }

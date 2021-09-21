@@ -133,7 +133,7 @@ public abstract class MethodAccess {
     }
 
     protected ProtectionDomain getProtectionDomain() {
-      return CglibReflectUtils.getProtectionDomain(type);
+      return ReflectionUtils.getProtectionDomain(type);
     }
 
     public void generateClass(ClassVisitor v) throws Exception {

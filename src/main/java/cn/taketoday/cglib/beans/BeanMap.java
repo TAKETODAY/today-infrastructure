@@ -27,7 +27,6 @@ import java.util.Set;
 
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
-import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.KeyFactory;
 import cn.taketoday.core.Assert;
 import cn.taketoday.util.ReflectionUtils;
@@ -133,7 +132,7 @@ public abstract class BeanMap extends AbstractMap implements Map {
     }
 
     protected ProtectionDomain getProtectionDomain() {
-      return CglibReflectUtils.getProtectionDomain(beanClass);
+      return ReflectionUtils.getProtectionDomain(beanClass);
     }
 
     /**

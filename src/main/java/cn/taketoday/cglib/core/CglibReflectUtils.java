@@ -22,12 +22,8 @@ package cn.taketoday.cglib.core;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,56 +32,14 @@ import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.asm.Type;
-import cn.taketoday.core.reflect.ReflectionException;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ReflectionUtils;
-
-import static java.lang.reflect.Modifier.FINAL;
-import static java.lang.reflect.Modifier.STATIC;
 
 /**
  * @version $Id: ReflectUtils.java,v 1.30 2009/01/11 19:47:49 herbyderby Exp $
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({ "rawtypes" })
 public abstract class CglibReflectUtils {
-
-  private static final Method defineClass;
-
-  private static final ArrayList<Method> OBJECT_METHODS;
-
-  private static final String[] CGLIB_PACKAGES = { "java.lang" };
-
-  static {
-    try {
-      defineClass = ClassLoader.class.getDeclaredMethod(
-              "defineClass",
-              String.class,
-              byte[].class,
-              Integer.TYPE,
-              Integer.TYPE,
-              ProtectionDomain.class
-      );
-      ReflectionUtils.makeAccessible(defineClass);
-    }
-    catch (NoSuchMethodException e) {
-      throw new CodeGenerationException(e);
-    }
-
-    Method[] declaredMethods = Object.class.getDeclaredMethods();
-    ArrayList<Method> objectMethods = new ArrayList<>(declaredMethods.length);
-    for (Method method : declaredMethods) {
-      if ("finalize".equals(method.getName()) || (method.getModifiers() & (FINAL | STATIC)) > 0) {
-        continue;
-      }
-      objectMethods.add(method);
-    }
-    // @since 4.0
-    objectMethods.trimToSize();
-    OBJECT_METHODS = objectMethods;
-  }
-
-  public static ProtectionDomain getProtectionDomain(final Class<?> source) {
-    return source == null ? null : AccessController.doPrivileged((PrivilegedAction<ProtectionDomain>) source::getProtectionDomain);
-  }
 
   public static String[] getNames(final Class[] classes) {
     if (classes == null) {
@@ -163,9 +117,8 @@ public abstract class CglibReflectUtils {
   }
 
   public static List<Method> addAllMethods(final Class<?> type, final List<Method> list) {
-
     if (type == Object.class) {
-      list.addAll(OBJECT_METHODS);
+      CollectionUtils.addAll(list, ReflectionUtils.getObjectMethods());
     }
     else {
       Collections.addAll(list, type.getDeclaredMethods());
@@ -188,18 +141,6 @@ public abstract class CglibReflectUtils {
       addAllInterfaces(superclass, list);
     }
     return list;
-  }
-
-  @SuppressWarnings("unchecked")
-  public static <T> Class<T> defineClass(
-          String className, byte[] bytes, ClassLoader loader, ProtectionDomain protection) throws Exception //
-  {
-    try {
-      return (Class<T>) defineClass.invoke(loader, className, bytes, 0, bytes.length, protection);
-    }
-    catch (IllegalAccessException | InvocationTargetException e) {
-      throw new ReflectionException("defineClass failed", e);
-    }
   }
 
   public static int findPackageProtected(Class[] classes) {

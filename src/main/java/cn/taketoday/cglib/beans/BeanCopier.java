@@ -93,7 +93,7 @@ public abstract class BeanCopier {
 
     @Override
     protected ProtectionDomain getProtectionDomain() {
-      return CglibReflectUtils.getProtectionDomain(source);
+      return ReflectionUtils.getProtectionDomain(source);
     }
 
     public BeanCopier create() {
