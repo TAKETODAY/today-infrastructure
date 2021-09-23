@@ -53,6 +53,10 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
   private String className;
   private boolean attemptLoad;
 
+  protected AbstractClassGenerator(String source) {
+    this.source = source;
+  }
+
   protected static class ClassLoaderData {
 
     private final HashSet<String> reservedClassNames = new HashSet<>();
@@ -120,10 +124,6 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
 
   protected Object unwrapCachedValue(T cached) {
     return ((WeakReference) cached).get();
-  }
-
-  protected AbstractClassGenerator(String source) {
-    this.source = source;
   }
 
   protected AbstractClassGenerator(Class<?> source) {

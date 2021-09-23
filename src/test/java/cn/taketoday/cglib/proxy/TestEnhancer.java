@@ -333,6 +333,7 @@ public class TestEnhancer extends CodeGenTestCase {
       }
     };
 
+//    PhantomReference<ClassLoader> clRef = new PhantomReference<>(custom, null);
     PhantomReference<ClassLoader> clRef = new PhantomReference<>(custom, new ReferenceQueue<>());
 
     buildAdvised(custom);
