@@ -43,7 +43,7 @@ public class MethodWrapper {
                                    method.getReturnType().getName());
   }
 
-  public static Set<Object> createSet(Collection<Method> methods) {
+  public static HashSet<Object> createSet(Collection<Method> methods) {
     final HashSet<Object> ret = new HashSet<>();
 
     for (final Method method : methods) {

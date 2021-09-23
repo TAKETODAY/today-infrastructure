@@ -33,6 +33,7 @@ import cn.taketoday.jdbc.utils.JdbcUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.Mappings;
 
+@SuppressWarnings("rawtypes")
 public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactory<T> {
 
   private final JdbcBeanMetadata metadata;
@@ -60,7 +61,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
     // cache key is ResultSetMetadata + Bean type
     final int columnCount = meta.getColumnCount();
 
-    /**
+    /*
      * Fallback to executeScalar if converter exists, we're selecting 1 column, and
      * no property setter exists for the column.
      */
@@ -163,7 +164,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
         return ((Key) key).factory.newResultSetHandler0(param);
       }
       catch (SQLException e) {
-        throw new RuntimeException(e);
+        throw new PersistenceException(e);
       }
     }
   };

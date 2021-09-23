@@ -85,7 +85,7 @@ final class MethodAccessEmitter extends ClassEmitter {
     e.end_method();
 
     VisibilityPredicate vp = new VisibilityPredicate(type, false);
-    List<Method> methods = CglibReflectUtils.addAllMethods(type, new ArrayList<>());
+    List<Method> methods = MethodInfo.addAllMethods(type, new ArrayList<>());
     CollectionUtils.filter(methods, vp);
     CollectionUtils.filter(methods, new DuplicatesPredicate());
 
@@ -148,7 +148,7 @@ final class MethodAccessEmitter extends ClassEmitter {
 
   private static final int TOO_MANY_METHODS = 100; // TODO
 
-  private void emitIndexByClassArray(List methods) {
+  private void emitIndexByClassArray(List<Method> methods) {
     CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, METHOD_GET_INDEX);
     if (methods.size() > TOO_MANY_METHODS) {
       // hack for big classes

@@ -41,12 +41,8 @@ import java.util.Set;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.ConstructorNotFoundException;
-import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.reflect.ReflectionException;
-
-import static java.lang.reflect.Modifier.FINAL;
-import static java.lang.reflect.Modifier.STATIC;
 
 /**
  * Fast reflection operation
@@ -93,7 +89,6 @@ public abstract class ReflectionUtils {
           DECLARED_METHODS_CACHE = new ConcurrentReferenceHashMap<>(256);
 
   private static final Method defineClass;
-  private static final Method[] OBJECT_METHODS;
 
   static {
     try {
@@ -108,19 +103,8 @@ public abstract class ReflectionUtils {
       ReflectionUtils.makeAccessible(defineClass);
     }
     catch (NoSuchMethodException e) {
-      throw new ReflectionException(e);
+      throw new ReflectionException("'defineClass()' Not Found in ClassLoader", e);
     }
-
-    Method[] declaredMethods = Object.class.getDeclaredMethods();
-    ArrayList<Method> objectMethods = new ArrayList<>(declaredMethods.length);
-    for (Method method : declaredMethods) {
-      if ("finalize".equals(method.getName()) || (method.getModifiers() & (FINAL | STATIC)) > 0) {
-        continue;
-      }
-      objectMethods.add(method);
-    }
-    // @since 4.0
-    OBJECT_METHODS = toMethodArray(objectMethods);
   }
 
   // Exception handling
@@ -984,18 +968,6 @@ public abstract class ReflectionUtils {
       method.setAccessible(true);
     }
     return method;
-  }
-
-  /**
-   * Get all object method expect {@link Object#finalize()}
-   *
-   * @return Object all methods
-   *
-   * @since 4.0
-   */
-  @NonNull
-  public static Method[] getObjectMethods() {
-    return OBJECT_METHODS.clone();
   }
 
   /**

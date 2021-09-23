@@ -16,16 +16,39 @@
 package cn.taketoday.cglib.core;
 
 import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-import cn.taketoday.asm.Attribute;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ReflectionUtils;
+
+import static java.lang.reflect.Modifier.FINAL;
+import static java.lang.reflect.Modifier.STATIC;
 
 /**
  * @author TODAY <br>
  * 2019-09-03 19:01
  */
 public abstract class MethodInfo {
+
+  private static final Method[] OBJECT_METHODS;
+
+  static {
+    Method[] declaredMethods = Object.class.getDeclaredMethods();
+    ArrayList<Method> objectMethods = new ArrayList<>(declaredMethods.length);
+    for (Method method : declaredMethods) {
+      if ("finalize".equals(method.getName()) || (method.getModifiers() & (FINAL | STATIC)) > 0) {
+        continue;
+      }
+      objectMethods.add(method);
+    }
+    // @since 4.0
+    OBJECT_METHODS = ReflectionUtils.toMethodArray(objectMethods);
+  }
 
   protected MethodInfo() { }
 
@@ -60,7 +83,7 @@ public abstract class MethodInfo {
     return MethodSignature.CONSTRUCTOR_NAME.equals(getSignature().getName());
   }
 
-  // static
+  // static factory
 
   public static MethodInfo from(final Member member) {
     return from(member, member.getModifiers());
@@ -93,9 +116,27 @@ public abstract class MethodInfo {
         return Type.getExceptionTypes(member);
       }
 
-      public Attribute getAttribute() {
-        return null;
-      }
     };
   }
+
+  //
+
+  public static List<Method> addAllMethods(final Class<?> type, final List<Method> list) {
+    if (type == Object.class) {
+      CollectionUtils.addAll(list, OBJECT_METHODS);
+    }
+    else {
+      Collections.addAll(list, type.getDeclaredMethods());
+    }
+
+    final Class<?> superclass = type.getSuperclass();
+    if (superclass != null) {
+      addAllMethods(superclass, list);
+    }
+    for (final Class<?> interface_ : type.getInterfaces()) {
+      addAllMethods(interface_, list);
+    }
+    return list;
+  }
+
 }

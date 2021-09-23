@@ -18,7 +18,6 @@ package cn.taketoday.cglib.core;
 import java.lang.ref.WeakReference;
 import java.security.ProtectionDomain;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -40,7 +39,7 @@ import cn.taketoday.util.ReflectionUtils;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class AbstractClassGenerator<T> implements ClassGenerator {
 
-  private static volatile Map<ClassLoader, ClassLoaderData> CACHE = new WeakHashMap<>();
+  private static volatile WeakHashMap<ClassLoader, ClassLoaderData> CACHE = new WeakHashMap<>();
   private static final ThreadLocal<AbstractClassGenerator> CURRENT = new ThreadLocal<>();
 
   private GeneratorStrategy strategy = DefaultGeneratorStrategy.INSTANCE;
@@ -253,7 +252,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
     return t;
   }
 
-  abstract protected ClassLoader getDefaultClassLoader();
+  protected abstract ClassLoader getDefaultClassLoader();
 
   /**
    * Returns the protection domain to use when defining the class.
@@ -279,7 +278,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
         synchronized(AbstractClassGenerator.class) {
           data = CACHE.get(loader);
           if (data == null) {
-            Map<ClassLoader, ClassLoaderData> newCache = new WeakHashMap<>(CACHE);
+            WeakHashMap<ClassLoader, ClassLoaderData> newCache = new WeakHashMap<>(CACHE);
             newCache.put(loader, data = new ClassLoaderData(loader));
             CACHE = newCache;
           }

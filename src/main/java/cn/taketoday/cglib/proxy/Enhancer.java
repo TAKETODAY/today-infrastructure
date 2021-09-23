@@ -62,6 +62,7 @@ import cn.taketoday.cglib.core.RejectModifierPredicate;
 import cn.taketoday.cglib.core.VisibilityPredicate;
 import cn.taketoday.cglib.core.WeakCacheKey;
 import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -659,61 +660,63 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    *         the list into which to copy the applicable methods
    */
   public static void getMethods(Class<?> superclass, Class<?>[] interfaces, List<Method> methods) {
-    getMethods(superclass, interfaces, methods, null, null);
+    getMethods(superclass, interfaces, methods, null);
   }
 
   private static void getMethods(
           Class<?> superclass,
-          Class<?>[] interfaces,
+          @Nullable Class<?>[] interfaces,
           List<Method> methods,
-          List<Method> interfaceMethods,
-          Set<Object> forcePublic
+          @Nullable List<Method> interfaceMethods
   ) {
-    final Method[] allDeclaredMethods = ReflectionUtils.getAllDeclaredMethods(superclass);
-    CglibReflectUtils.addAllMethods(superclass, methods);
-    CollectionUtils.addAll(methods, allDeclaredMethods);
+    MethodInfo.addAllMethods(superclass, methods);
 
-    List<Method> target = (interfaceMethods != null) ? interfaceMethods : methods;
+    List<Method> target = methods;
+    if (interfaceMethods != null) {
+      target = interfaceMethods;
+    }
+
     if (interfaces != null) {
       for (final Class<?> anInterface : interfaces) {
         if (anInterface != Factory.class) {
-          CglibReflectUtils.addAllMethods(anInterface, target);
+          CollectionUtils.addAll(target, anInterface.getMethods());
         }
       }
     }
     if (interfaceMethods != null) {
-      if (forcePublic != null) {
-        forcePublic.addAll(MethodWrapper.createSet(interfaceMethods));
-      }
       methods.addAll(interfaceMethods);
     }
-    CollectionUtils.filter(methods, new RejectModifierPredicate(ACC_STATIC));
-    CollectionUtils.filter(methods, new VisibilityPredicate(superclass, true));
-    CollectionUtils.filter(methods, new DuplicatesPredicate(methods));
-    CollectionUtils.filter(methods, new RejectModifierPredicate(Opcodes.ACC_FINAL));
+
+    CollectionUtils.filter(
+            methods,
+            new RejectModifierPredicate(Opcodes.ACC_STATIC)
+                    .and(new VisibilityPredicate(superclass, true))
+                    .and(new DuplicatesPredicate(methods))
+                    .and(new RejectModifierPredicate(Opcodes.ACC_FINAL)));
   }
 
   @Override
   public void generateClass(ClassVisitor v) throws Exception {
-
-    Class sc = (superclass == null) ? Object.class : superclass;
-
-    if (Modifier.isFinal(sc.getModifiers())) {
-      throw new IllegalArgumentException("Cannot subclass final class " + sc.getName());
+    Class superclass = this.superclass;
+    if (superclass == null) {
+      superclass = Object.class;
+    }
+    else if (Modifier.isFinal(superclass.getModifiers())) {
+      throw new IllegalArgumentException("Cannot subclass final class " + superclass.getName());
     }
 
-    List constructors = new ArrayList(8);
-    Collections.addAll(constructors, sc.getDeclaredConstructors());
-    filterConstructors(sc, constructors);
+    ArrayList<Constructor> constructors = new ArrayList<>(4);
+    Collections.addAll(constructors, superclass.getDeclaredConstructors());
+    filterConstructors(superclass, constructors);
 
     // Order is very important: must add superclass, then its superclass chain, then
     // each interface and its superinterfaces.
 
-    List actualMethods = new ArrayList();
-    List interfaceMethods = new ArrayList();
-    final Set forcePublic = new HashSet();
-    getMethods(sc, interfaces, actualMethods, interfaceMethods, forcePublic);
+    ArrayList<Method> actualMethods = new ArrayList<>();
+    ArrayList<Method> interfaceMethods = new ArrayList<>();
+    getMethods(superclass, interfaces, actualMethods, interfaceMethods);
 
+    final HashSet<Object> forcePublic = MethodWrapper.createSet(interfaceMethods);
     final List<MethodInfo> methods = CollectionUtils.transform(actualMethods, (Method method) -> {
 
       int modifiers = Opcodes.ACC_FINAL | (method.getModifiers() //
@@ -733,7 +736,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       e.beginClass(Opcodes.JAVA_VERSION, //
                    ACC_PUBLIC, //
                    getClassName(), //
-                   Type.fromClass(sc), //
+                   Type.fromClass(superclass), //
                    (useFactory ? Type.add(Type.getTypes(interfaces), FACTORY) : Type.getTypes(interfaces)), //
                    Constant.SOURCE_FILE//
       );
@@ -797,7 +800,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * to filter out all private constructors, but subclasses may extend Enhancer to
    * override this behavior.
    *
-   * @param sc
+   * @param superclass
    *         the superclass
    * @param constructors
    *         the list of all declared constructors from the superclass
@@ -805,10 +808,11 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * @throws IllegalArgumentException
    *         if there are no non-private constructors
    */
-  protected void filterConstructors(Class sc, List constructors) {
-    CollectionUtils.filter(constructors, new VisibilityPredicate(sc, true));
-    if (constructors.size() == 0)
-      throw new IllegalArgumentException("No visible constructors in " + sc);
+  protected void filterConstructors(Class<?> superclass, List<Constructor> constructors) {
+    CollectionUtils.filter(constructors, new VisibilityPredicate(superclass, true));
+    if (constructors.isEmpty()) {
+      throw new IllegalArgumentException("No visible constructors in " + superclass);
+    }
   }
 
   /**
@@ -1040,7 +1044,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * @param callbacks
    *         callback implementations to use for the enhanced object
    */
-  public static Object create(Class superclass, Class[] interfaces, CallbackFilter filter, Callback[] callbacks) {
+  public static Object create(
+          Class superclass, Class[] interfaces, CallbackFilter filter, Callback[] callbacks) {
     Enhancer e = new Enhancer();
     e.setSuperclass(superclass);
     e.setInterfaces(interfaces);
@@ -1057,7 +1062,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     catch (NoSuchMethodException e) {
       throw new IllegalStateException("Object should have default constructor ", e);
     }
-    MethodInfo constructor = MethodInfoTransformer.getInstance().apply(declaredConstructor);
+    MethodInfo constructor = MethodInfo.from(declaredConstructor);
     CodeEmitter e = EmitUtils.beginMethod(ce, constructor, ACC_PUBLIC);
     e.load_this();
     e.dup();
@@ -1070,9 +1075,11 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   private void emitConstructors(ClassEmitter ce, List<MethodInfo> constructors) {
     boolean seenNull = false;
 
+    final MethodSignature emptyConstructor = MethodSignature.EMPTY_CONSTRUCTOR;
+    final String descriptor = emptyConstructor.getDescriptor();
     for (MethodInfo constructor : constructors) {
 
-      if (currentData != null && !"()V".equals(constructor.getSignature().getDescriptor())) {
+      if (currentData != null && !descriptor.equals(constructor.getSignature().getDescriptor())) {
         continue;
       }
       CodeEmitter e = EmitUtils.beginMethod(ce, constructor, ACC_PUBLIC);
@@ -1080,7 +1087,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       e.dup();
       e.load_args();
       MethodSignature sig = constructor.getSignature();
-      seenNull = seenNull || sig.getDescriptor().equals("()V");
+      seenNull = seenNull || sig.getDescriptor().equals(descriptor);
       e.super_invoke_constructor(sig);
       if (currentData == null) {
         e.invoke_static_this(BIND_CALLBACKS);

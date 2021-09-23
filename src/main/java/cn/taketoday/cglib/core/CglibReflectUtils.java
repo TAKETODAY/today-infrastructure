@@ -25,14 +25,11 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.asm.Type;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -113,24 +110,6 @@ public abstract class CglibReflectUtils {
     catch (IntrospectionException e) {
       throw new CodeGenerationException(e);
     }
-  }
-
-  public static List<Method> addAllMethods(final Class<?> type, final List<Method> list) {
-    if (type == Object.class) {
-      CollectionUtils.addAll(list, ReflectionUtils.getObjectMethods());
-    }
-    else {
-      Collections.addAll(list, type.getDeclaredMethods());
-    }
-
-    final Class<?> superclass = type.getSuperclass();
-    if (superclass != null) {
-      addAllMethods(superclass, list);
-    }
-    for (final Class<?> interface_ : type.getInterfaces()) {
-      addAllMethods(interface_, list);
-    }
-    return list;
   }
 
   public static int findPackageProtected(Class[] classes) {

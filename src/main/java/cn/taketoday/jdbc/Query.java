@@ -799,10 +799,9 @@ public final class Query implements AutoCloseable {
   public Query addToBatch() {
     try {
       buildPreparedStatement(false).addBatch();
-      if (this.maxBatchRecords > 0) {
-        if (++this.currentBatchRecords % this.maxBatchRecords == 0) {
-          executeBatch();
-        }
+      if (this.maxBatchRecords > 0
+              && ++this.currentBatchRecords % this.maxBatchRecords == 0) {
+        executeBatch();
       }
     }
     catch (SQLException e) {
