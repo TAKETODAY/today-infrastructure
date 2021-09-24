@@ -9,6 +9,7 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.function.IntSupplier;
 
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanUtils;
@@ -329,6 +330,165 @@ public class BenchmarkTest {
       }
     }
   }
+
+  // ---------------------
+
+  static class VariableAccess {
+    static final int DEFAULT_VALUE = 100;
+
+    final long iteration;
+
+    int field = DEFAULT_VALUE;
+    final int finalField = DEFAULT_VALUE;
+    static int staticField = DEFAULT_VALUE;
+    static final int staticFinalField = DEFAULT_VALUE;
+    volatile int volatileField = DEFAULT_VALUE;
+
+//    int field = DEFAULT_VALUE;
+//    final int finalField = DEFAULT_VALUE;
+//    static int staticField = DEFAULT_VALUE;
+//    static final int staticFinalField = DEFAULT_VALUE;
+//    volatile int volatileField = DEFAULT_VALUE;
+
+    VariableAccess() {
+      this(900_000_000L);
+    }
+
+    VariableAccess(long iteration) {
+      this.iteration = iteration;
+    }
+
+    public int localVariable() {
+      int var = 100;
+      int local = 0;
+      for (int i = 0; i < iteration; i++) {
+        local += var + 1;
+      }
+      return local;
+    }
+
+    public int finalLocalVariable() {
+      int local = 0;
+      final int var = this.field;
+      for (int i = 0; i < iteration; i++) {
+        local += var + 1;
+      }
+      return local;
+    }
+
+    public int field() {
+      int local = 0;
+      for (int i = 0; i < iteration; i++) {
+        local += field + 1;
+      }
+      return local;
+    }
+
+    public int staticField() {
+      int local = 0;
+      for (int i = 0; i < iteration; i++) {
+        local += staticField + 1;
+      }
+      return local;
+    }
+
+    public int finalField() {
+      int local = 0;
+      for (int i = 0; i < iteration; i++) {
+        local += finalField + 1;
+      }
+      return local;
+    }
+
+    public int staticFinalField() {
+      int local = 0;
+      for (int i = 0; i < iteration; i++) {
+        local += staticFinalField + 1;
+      }
+      return local;
+    }
+
+    public int volatileField() {
+      int local = 0;
+      for (int i = 0; i < iteration; i++) {
+        local += volatileField + 1;
+      }
+      return local;
+    }
+
+    // ref
+
+    Ref ref = new Ref();
+    final Ref finalRef = new Ref();
+
+    public int ref() {
+      int local = 0;
+      Ref ref;
+      for (int i = 0; i < iteration; i++) {
+        ref = this.ref;
+        local++;
+      }
+      return local;
+    }
+
+    public int finalRef() {
+      int local = 0;
+      Ref ref;
+      for (int i = 0; i < iteration; i++) {
+        local++;
+        ref = this.finalRef;
+      }
+      return local;
+    }
+
+    public int localRef() {
+      int local = 0;
+      Ref ref_;
+      Ref ref = this.finalRef;
+      for (int i = 0; i < iteration; i++) {
+        local++;
+        ref_ = ref;
+      }
+      return local;
+    }
+  }
+
+  static class Ref {
+
+  }
+
+  @Test
+  public void testVariableAccess() {
+    final VariableAccess variableAccess = new VariableAccess();
+    benchmark(variableAccess::field, "field");
+    benchmark(variableAccess::localVariable, "localVariable");
+    benchmark(variableAccess::finalLocalVariable, "finalLocalVariable");
+    benchmark(variableAccess::staticFinalField, "staticFinalField");
+    benchmark(variableAccess::finalField, "finalField");
+    benchmark(variableAccess::staticField, "staticField");
+    benchmark(variableAccess::volatileField, "volatileField");
+
+    // ref
+    benchmark(variableAccess::ref, "ref");
+    benchmark(variableAccess::localRef, "localRef");
+    benchmark(variableAccess::finalRef, "finalRef");
+
+  }
+
+  private void benchmark(IntSupplier benchmark, String desc) {
+//    final StopWatch stopWatch = new StopWatch();
+//    stopWatch.start(desc);
+//    int asInt = benchmark.getAsInt();
+//    stopWatch.stop();
+//
+//    System.out.format("%d : %s\n", asInt, stopWatch);
+
+    long t = System.nanoTime();
+    int asInt = benchmark.getAsInt();
+    t = (System.nanoTime() - t) / 1_000_000;
+    System.out.format("%s          : %d   %dms\n", desc, asInt, t);
+  }
+
 }
 
 

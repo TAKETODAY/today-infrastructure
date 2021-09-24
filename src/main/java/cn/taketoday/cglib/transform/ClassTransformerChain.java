@@ -20,13 +20,14 @@ import cn.taketoday.asm.MethodVisitor;
 
 public class ClassTransformerChain extends AbstractClassTransformer {
 
-  private ClassTransformer[] chain;
+  private final ClassTransformer[] chain;
 
   public ClassTransformerChain(ClassTransformer[] chain) {
     this.chain = chain.clone();
   }
 
   public void setTarget(ClassVisitor v) {
+    final ClassTransformer[] chain = this.chain;
     super.setTarget(chain[0]);
     ClassVisitor next = v;
     for (int i = chain.length - 1; i >= 0; i--) {
@@ -42,6 +43,7 @@ public class ClassTransformerChain extends AbstractClassTransformer {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("ClassTransformerChain{");
+    final ClassTransformer[] chain = this.chain;
     for (int i = 0; i < chain.length; i++) {
       if (i > 0) {
         sb.append(", ");

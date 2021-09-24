@@ -494,9 +494,8 @@ public abstract class ObjectUtils {
       return 0;
     }
     int hash = INITIAL_HASH;
-    final int multiplier = MULTIPLIER;
     for (Object element : array) {
-      hash = multiplier * hash + nullSafeHashCode(element);
+      hash = MULTIPLIER * hash + nullSafeHashCode(element);
     }
     return hash;
   }
@@ -510,9 +509,8 @@ public abstract class ObjectUtils {
       return 0;
     }
     int hash = INITIAL_HASH;
-    final int multiplier = MULTIPLIER;
     for (boolean element : array) {
-      hash = multiplier * hash + Boolean.hashCode(element);
+      hash = MULTIPLIER * hash + Boolean.hashCode(element);
     }
     return hash;
   }
@@ -526,9 +524,8 @@ public abstract class ObjectUtils {
       return 0;
     }
     int hash = INITIAL_HASH;
-    final int multiplier = MULTIPLIER;
     for (byte element : array) {
-      hash = multiplier * hash + element;
+      hash = MULTIPLIER * hash + element;
     }
     return hash;
   }
@@ -542,9 +539,8 @@ public abstract class ObjectUtils {
       return 0;
     }
     int hash = INITIAL_HASH;
-    final int multiplier = MULTIPLIER;
     for (char element : array) {
-      hash = multiplier * hash + element;
+      hash = MULTIPLIER * hash + element;
     }
     return hash;
   }
@@ -558,9 +554,8 @@ public abstract class ObjectUtils {
       return 0;
     }
     int hash = INITIAL_HASH;
-    final int multiplier = MULTIPLIER;
     for (double element : array) {
-      hash = multiplier * hash + Double.hashCode(element);
+      hash = MULTIPLIER * hash + Double.hashCode(element);
     }
     return hash;
   }
@@ -574,9 +569,8 @@ public abstract class ObjectUtils {
       return 0;
     }
     int hash = INITIAL_HASH;
-    final int multiplier = MULTIPLIER;
     for (float element : array) {
-      hash = multiplier * hash + Float.hashCode(element);
+      hash = MULTIPLIER * hash + Float.hashCode(element);
     }
     return hash;
   }
@@ -590,9 +584,8 @@ public abstract class ObjectUtils {
       return 0;
     }
     int hash = INITIAL_HASH;
-    final int multiplier = MULTIPLIER;
     for (int element : array) {
-      hash = multiplier * hash + element;
+      hash = MULTIPLIER * hash + element;
     }
     return hash;
   }
@@ -606,9 +599,8 @@ public abstract class ObjectUtils {
       return 0;
     }
     int hash = INITIAL_HASH;
-    final int multiplier = MULTIPLIER;
     for (long element : array) {
-      hash = multiplier * hash + Long.hashCode(element);
+      hash = MULTIPLIER * hash + Long.hashCode(element);
     }
     return hash;
   }
@@ -622,9 +614,8 @@ public abstract class ObjectUtils {
       return 0;
     }
     int hash = INITIAL_HASH;
-    final int multiplier = MULTIPLIER;
     for (short element : array) {
-      hash = multiplier * hash + element;
+      hash = MULTIPLIER * hash + element;
     }
     return hash;
   }
