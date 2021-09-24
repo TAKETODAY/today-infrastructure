@@ -20,12 +20,12 @@
 
 package cn.taketoday.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 
 /**
  * Support class for throttling concurrent access to a specific resource.
@@ -62,7 +62,7 @@ public abstract class ConcurrencyThrottleSupport implements Serializable {
   public static final int NO_CONCURRENCY = 0;
 
   /** Transient to optimize serialization. */
-  protected transient Log logger = LogFactory.getLog(getClass());
+  protected transient Logger logger = LoggerFactory.getLogger(getClass());
 
   private transient Object monitor = new Object();
 
@@ -118,12 +118,13 @@ public abstract class ConcurrencyThrottleSupport implements Serializable {
         boolean interrupted = false;
         while (this.concurrencyCount >= this.concurrencyLimit) {
           if (interrupted) {
-            throw new IllegalStateException("Thread was interrupted while waiting for invocation access, " +
-                                                    "but concurrency limit still does not allow for entering");
+            throw new IllegalStateException(
+                    "Thread was interrupted while waiting for invocation access, " +
+                            "but concurrency limit still does not allow for entering");
           }
           if (debug) {
-            logger.debug("Concurrency count " + this.concurrencyCount +
-                                 " has reached limit " + this.concurrencyLimit + " - blocking");
+            logger.debug("Concurrency count {} has reached limit {} - blocking",
+                         this.concurrencyCount, this.concurrencyLimit);
           }
           try {
             this.monitor.wait();
@@ -135,7 +136,7 @@ public abstract class ConcurrencyThrottleSupport implements Serializable {
           }
         }
         if (debug) {
-          logger.debug("Entering throttle at concurrency count " + this.concurrencyCount);
+          logger.debug("Entering throttle at concurrency count {}", this.concurrencyCount);
         }
         this.concurrencyCount++;
       }
@@ -152,7 +153,7 @@ public abstract class ConcurrencyThrottleSupport implements Serializable {
       synchronized(this.monitor) {
         this.concurrencyCount--;
         if (logger.isDebugEnabled()) {
-          logger.debug("Returning from throttle at concurrency count " + this.concurrencyCount);
+          logger.debug("Returning from throttle at concurrency count {}", this.concurrencyCount);
         }
         this.monitor.notify();
       }
@@ -168,7 +169,7 @@ public abstract class ConcurrencyThrottleSupport implements Serializable {
     ois.defaultReadObject();
 
     // Initialize transient fields.
-    this.logger = LogFactory.getLog(getClass());
+    this.logger = LoggerFactory.getLogger(getClass());
     this.monitor = new Object();
   }
 

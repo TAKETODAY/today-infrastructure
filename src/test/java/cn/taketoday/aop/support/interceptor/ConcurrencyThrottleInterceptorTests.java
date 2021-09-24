@@ -20,8 +20,6 @@
 
 package cn.taketoday.aop.support.interceptor;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.DerivedTestBean;
@@ -30,6 +28,8 @@ import cn.taketoday.aop.SerializationTestUtils;
 import cn.taketoday.aop.TestBean;
 import cn.taketoday.aop.proxy.Advised;
 import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,8 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author TODAY 2021/9/11 17:21
  */
 class ConcurrencyThrottleInterceptorTests {
-
-  protected static final Log logger = LogFactory.getLog(ConcurrencyThrottleInterceptorTests.class);
+  static final Logger logger = LoggerFactory.getLogger(ConcurrencyThrottleInterceptorTests.class);
 
   public static final int NR_OF_THREADS = 100;
 

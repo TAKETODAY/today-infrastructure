@@ -20,10 +20,9 @@
 
 package cn.taketoday.aop.target;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cn.taketoday.aop.TargetSource;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
 
 /**
  * {@link TargetSource} implementation that will
@@ -47,7 +46,7 @@ import cn.taketoday.aop.TargetSource;
 public abstract class AbstractLazyCreationTargetSource implements TargetSource {
 
   /** Logger available to subclasses. */
-  protected final Log logger = LogFactory.getLog(getClass());
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   /** The lazily initialized target object. */
   private Object lazyTarget;
