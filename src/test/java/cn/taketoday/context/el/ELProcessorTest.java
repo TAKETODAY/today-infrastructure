@@ -56,6 +56,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ELProcessorTest {
+  public static void printlnError(String x) {
+//    System.err.println(x);
+  }
+
+  public static void println(String x) {
+    //    System.out.println(x);
+  }
 
   static ExpressionProcessor elp;
   static ExpressionManager elm;

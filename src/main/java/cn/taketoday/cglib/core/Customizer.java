@@ -16,6 +16,7 @@
 package cn.taketoday.cglib.core;
 
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.GeneratorAdapter;
 
 /**
  * Customizes key types for {@link KeyFactory} when building equals, hashCode,
@@ -29,5 +30,5 @@ import cn.taketoday.asm.Type;
 @FunctionalInterface
 public interface Customizer extends KeyFactoryCustomizer {
 
-  void customize(CodeEmitter e, Type type);
+  void customize(GeneratorAdapter e, Type type);
 }

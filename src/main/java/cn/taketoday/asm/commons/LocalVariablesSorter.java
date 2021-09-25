@@ -38,7 +38,7 @@ import cn.taketoday.asm.TypePath;
  * A {@link MethodVisitor} that renumbers local variables in their order of appearance. This adapter
  * allows one to easily add new local variables to a method. It may be used by inheriting from this
  * class, but the preferred way of using it is via delegation: the next visitor in the chain can
- * indeed add new locals when needed by calling {@link #newLocal} on this adapter (this requires a
+ * indeed add new locals when needed by calling {@link #newLocalIndex} on this adapter (this requires a
  * reference back to this {@link LocalVariablesSorter}).
  *
  * @author Chris Nokleberg
@@ -63,7 +63,7 @@ public class LocalVariablesSorter extends MethodVisitor {
   /** The index of the first local variable, after formal parameters. */
   protected final int firstLocal;
 
-  /** The index of the next local variable to be created by {@link #newLocal}. */
+  /** The index of the next local variable to be created by {@link #newLocalIndex}. */
   protected int nextLocal;
 
   /** The argument types of the visited method. */
@@ -157,7 +157,7 @@ public class LocalVariablesSorter extends MethodVisitor {
           final Label start,
           final Label end,
           final int index) {
-    int remappedIndex = remap(index, Type.fromDescriptor(descriptor));
+    int remappedIndex = remap(index);
     super.visitLocalVariable(name, descriptor, signature, start, end, remappedIndex);
   }
 
@@ -191,14 +191,13 @@ public class LocalVariablesSorter extends MethodVisitor {
               "LocalVariablesSorter only accepts expanded frames (see ClassReader.EXPAND_FRAMES)");
     }
     // Create a copy of remappedLocals.
-    Object[] remappedLocalTypes = this.remappedLocalTypes;
     Object[] oldRemappedLocals = new Object[remappedLocalTypes.length];
     System.arraycopy(remappedLocalTypes, 0, oldRemappedLocals, 0, oldRemappedLocals.length);
 
     updateNewLocals(remappedLocalTypes);
 
     // Copy the types from 'local' to 'remappedLocals'. 'remappedLocals' already contains the
-    // variables added with 'newLocal'.
+    // variables added with 'newLabel'.
     int oldVar = 0; // Old local variable index.
     for (int i = 0; i < numLocal; ++i) {
       Object localType = local[i];
@@ -222,7 +221,7 @@ public class LocalVariablesSorter extends MethodVisitor {
         else {
           varType = Type.TYPE_OBJECT;
         }
-        remappedLocalTypes = setFrameLocal(remappedLocalTypes, remap(oldVar, varType), localType);
+        setFrameLocal(remap(oldVar, varType), localType);
       }
       oldVar += localType == Opcodes.LONG || localType == Opcodes.DOUBLE ? 2 : 1;
     }
@@ -251,6 +250,14 @@ public class LocalVariablesSorter extends MethodVisitor {
 
   // -----------------------------------------------------------------------------------------------
 
+  public Local newLocal() {
+    return newLocal(Type.TYPE_OBJECT);
+  }
+
+  public Local newLocal(final Type type) {
+    return new Local(newLocalIndex(type), type);
+  }
+
   /**
    * Constructs a new local variable of the given type.
    *
@@ -259,7 +266,7 @@ public class LocalVariablesSorter extends MethodVisitor {
    *
    * @return the identifier of the newly created local variable.
    */
-  public int newLocal(final Type type) {
+  public int newLocalIndex(final Type type) {
     Object localType;
     switch (type.getSort()) {
       case Type.BOOLEAN:
@@ -295,16 +302,16 @@ public class LocalVariablesSorter extends MethodVisitor {
 
   /**
    * Notifies subclasses that a new stack map frame is being visited. The array argument contains
-   * the stack map frame types corresponding to the local variables added with {@link #newLocal}.
+   * the stack map frame types corresponding to the local variables added with {@link #newLocalIndex}.
    * This method can update these types in place for the stack map frame being visited. The default
-   * implementation of this method does nothing, i.e. a local variable added with {@link #newLocal}
+   * implementation of this method does nothing, i.e. a local variable added with {@link #newLocalIndex}
    * will have the same type in all stack map frames. But this behavior is not always the desired
    * one, for instance if a local variable is added in the middle of a try/catch block: the frame
    * for the exception handler should have a TOP type for this new local.
    *
    * @param newLocals
    *         the stack map frame types corresponding to the local variables added with
-   *         {@link #newLocal} (and null for the others). The format of this array is the same as in
+   *         {@link #newLocalIndex} (and null for the others). The format of this array is the same as in
    *         {@link MethodVisitor#visitFrame}, except that long and double types use two slots. The
    *         types for the current stack map frame must be updated in place in this array.
    */
@@ -317,7 +324,7 @@ public class LocalVariablesSorter extends MethodVisitor {
    * implementation of this method does nothing.
    *
    * @param local
-   *         a local variable identifier, as returned by {@link #newLocal}.
+   *         a local variable identifier, as returned by {@link #newLocalIndex}.
    * @param type
    *         the type of the value being stored in the local variable.
    */
@@ -326,24 +333,15 @@ public class LocalVariablesSorter extends MethodVisitor {
   }
 
   private void setFrameLocal(final int local, final Object type) {
-    setFrameLocal(remappedLocalTypes, local, type);
-  }
-
-  /**
-   * @return returns newRemappedLocalTypes
-   */
-  private Object[] setFrameLocal(Object[] remappedLocalTypes, final int local, final Object type) {
     int numLocals = remappedLocalTypes.length;
     if (local >= numLocals) {
       Object[] newRemappedLocalTypes = new Object[Math.max(2 * numLocals, local + 1)];
       System.arraycopy(remappedLocalTypes, 0, newRemappedLocalTypes, 0, numLocals);
       newRemappedLocalTypes[local] = type;
       this.remappedLocalTypes = newRemappedLocalTypes; // updated
-      return newRemappedLocalTypes;
     }
     else {
       remappedLocalTypes[local] = type;
-      return remappedLocalTypes;
     }
   }
 
@@ -352,13 +350,11 @@ public class LocalVariablesSorter extends MethodVisitor {
       return var;
     }
     int key = 2 * var + type.getSize() - 1;
-    int[] remappedVariableIndices = this.remappedVariableIndices;
     int size = remappedVariableIndices.length;
     if (key >= size) {
       int[] newRemappedVariableIndices = new int[Math.max(2 * size, key + 1)];
       System.arraycopy(remappedVariableIndices, 0, newRemappedVariableIndices, 0, size);
       this.remappedVariableIndices = newRemappedVariableIndices;
-      remappedVariableIndices = newRemappedVariableIndices;
     }
     int value = remappedVariableIndices[key];
     if (value == 0) {
@@ -370,6 +366,21 @@ public class LocalVariablesSorter extends MethodVisitor {
       value--;
     }
     return value;
+  }
+
+  private int remap(final int var) {
+    if (var < firstLocal) {
+      return var;
+    }
+    int key = 2 * var;
+    int value = key < remappedVariableIndices.length ? remappedVariableIndices[key] : 0;
+    if (value == 0) {
+      value = key + 1 < remappedVariableIndices.length ? remappedVariableIndices[key + 1] : 0;
+    }
+    if (value == 0) {
+      throw new IllegalStateException("Unknown local variable " + var);
+    }
+    return value - 1;
   }
 
   protected int newLocalMapping(final Type type) {

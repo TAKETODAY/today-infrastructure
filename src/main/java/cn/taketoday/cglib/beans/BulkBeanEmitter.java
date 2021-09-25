@@ -26,7 +26,7 @@ import cn.taketoday.cglib.core.Block;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
-import cn.taketoday.cglib.core.Local;
+import cn.taketoday.asm.commons.Local;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.ReflectionUtils;
@@ -66,7 +66,7 @@ class BulkBeanEmitter extends ClassEmitter {
     if (getters.length > 0) {
       e.load_arg(0);
       e.checkcast(Type.fromClass(target));
-      Local bean = e.make_local();
+      Local bean = e.newLocal();
       e.store_local(bean);
       for (int i = 0; i < getters.length; i++) {
         if (getters[i] != null) {
@@ -88,7 +88,7 @@ class BulkBeanEmitter extends ClassEmitter {
     // setPropertyValues
     CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, SET_PROPERTY_VALUES);
     if (setters.length > 0) {
-      Local index = e.make_local(Type.INT_TYPE);
+      Local index = e.newLocal(Type.INT_TYPE);
       e.push(0);
       e.store_local(index);
       e.load_arg(0);
@@ -125,13 +125,13 @@ class BulkBeanEmitter extends ClassEmitter {
       }
       handler.end();
       e.return_value();
-      e.catch_exception(handler, Type.TYPE_THROWABLE);
-      e.new_instance(BULK_BEAN_EXCEPTION);
-      e.dup_x1();
+      e.catchException(handler, Type.TYPE_THROWABLE);
+      e.newInstance(BULK_BEAN_EXCEPTION);
+      e.dupX1();
       e.swap();
       e.load_local(index);
       e.invoke_constructor(BULK_BEAN_EXCEPTION, CSTRUCT_EXCEPTION);
-      e.athrow();
+      e.throwException();
     }
     else {
       e.return_value();

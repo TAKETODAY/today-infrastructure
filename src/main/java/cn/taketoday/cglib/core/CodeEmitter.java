@@ -17,29 +17,18 @@ package cn.taketoday.cglib.core;
 
 import java.lang.reflect.Modifier;
 
-import cn.taketoday.asm.Attribute;
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.GeneratorAdapter;
+import cn.taketoday.asm.commons.Local;
 import cn.taketoday.asm.commons.MethodSignature;
 
 /**
  * @author Juozas Baliuka, Chris Nokleberg
  */
 public class CodeEmitter extends GeneratorAdapter {
-
-  public static final int ADD = Opcodes.IADD;
-  public static final int MUL = Opcodes.IMUL;
-  public static final int XOR = Opcodes.IXOR;
-  public static final int USHR = Opcodes.IUSHR;
-  public static final int SUB = Opcodes.ISUB;
-  public static final int DIV = Opcodes.IDIV;
-  public static final int NEG = Opcodes.INEG;
-  public static final int REM = Opcodes.IREM;
-  public static final int AND = Opcodes.IAND;
-  public static final int OR = Opcodes.IOR;
 
   public static final int GT = Opcodes.IFGT;
   public static final int LT = Opcodes.IFLT;
@@ -53,12 +42,12 @@ public class CodeEmitter extends GeneratorAdapter {
 
   private static class State extends MethodInfo {
 
-    private ClassInfo classInfo;
-    private int access;
-    private MethodSignature sig;
-    private Type[] argumentTypes;
-    private int localOffset;
-    private Type[] exceptionTypes;
+    private final int access;
+    private final int localOffset;
+    private final ClassInfo classInfo;
+    private final MethodSignature sig;
+    private final Type[] argumentTypes;
+    private final Type[] exceptionTypes;
 
     State(ClassInfo classInfo, int access, MethodSignature sig, Type[] exceptionTypes) {
       this.classInfo = classInfo;
@@ -69,26 +58,26 @@ public class CodeEmitter extends GeneratorAdapter {
       argumentTypes = sig.getArgumentTypes();
     }
 
+    @Override
     public ClassInfo getClassInfo() {
       return classInfo;
     }
 
+    @Override
     public int getModifiers() {
       return access;
     }
 
+    @Override
     public MethodSignature getSignature() {
       return sig;
     }
 
+    @Override
     public Type[] getExceptionTypes() {
       return exceptionTypes;
     }
 
-    public Attribute getAttribute() {
-      // TODO
-      return null;
-    }
   }
 
   CodeEmitter(ClassEmitter ce, MethodVisitor mv, int access, MethodSignature sig, Type[] exceptionTypes) {
@@ -131,150 +120,11 @@ public class CodeEmitter extends GeneratorAdapter {
     return new Block(this);
   }
 
-  public void catch_exception(Block block, Type exception) {
+  public void catchException(Block block, Type exception) {
     if (block.getEnd() == null) {
       throw new IllegalStateException("end of block is unset");
     }
     mv.visitTryCatchBlock(block.getStart(), block.getEnd(), mark(), exception.getInternalName());
-  }
-
-  public void goTo(Label label) {
-    mv.visitJumpInsn(Opcodes.GOTO, label);
-  }
-
-  public void ifnull(Label label) {
-    mv.visitJumpInsn(Opcodes.IFNULL, label);
-  }
-
-  public void ifnonnull(Label label) {
-    mv.visitJumpInsn(Opcodes.IFNONNULL, label);
-  }
-
-  public void if_jump(int mode, Label label) {
-    mv.visitJumpInsn(mode, label);
-  }
-
-  public void if_icmp(int mode, Label label) {
-    if_cmp(Type.INT_TYPE, mode, label);
-  }
-
-  public void if_cmp(Type type, int mode, Label label) {
-    int intOp = -1;
-    int jumpmode = mode;
-    switch (mode) {
-      case GE:
-        jumpmode = LT;
-        break;
-      case LE:
-        jumpmode = GT;
-        break;
-    }
-    switch (type.getSort()) {
-      case Type.LONG:
-        mv.visitInsn(Opcodes.LCMP);
-        break;
-      case Type.DOUBLE:
-        mv.visitInsn(Opcodes.DCMPG);
-        break;
-      case Type.FLOAT:
-        mv.visitInsn(Opcodes.FCMPG);
-        break;
-      case Type.ARRAY:
-      case Type.OBJECT:
-        switch (mode) {
-          case EQ:
-            mv.visitJumpInsn(Opcodes.IF_ACMPEQ, label);
-            return;
-          case NE:
-            mv.visitJumpInsn(Opcodes.IF_ACMPNE, label);
-            return;
-        }
-        throw new IllegalArgumentException("Bad comparison for type " + type);
-      default:
-        switch (mode) {
-          case EQ:
-            intOp = Opcodes.IF_ICMPEQ;
-            break;
-          case NE:
-            intOp = Opcodes.IF_ICMPNE;
-            break;
-          case GE:
-            swap(); /* fall through */
-          case LT:
-            intOp = Opcodes.IF_ICMPLT;
-            break;
-          case LE:
-            swap(); /* fall through */
-          case GT:
-            intOp = Opcodes.IF_ICMPGT;
-            break;
-        }
-        mv.visitJumpInsn(intOp, label);
-        return;
-    }
-    if_jump(jumpmode, label);
-  }
-
-  public void pop() {
-    mv.visitInsn(Opcodes.POP);
-  }
-
-  public void pop2() {
-    mv.visitInsn(Opcodes.POP2);
-  }
-
-  public void dup() {
-    mv.visitInsn(Opcodes.DUP);
-  }
-
-  public void dup2() {
-    mv.visitInsn(Opcodes.DUP2);
-  }
-
-  public void dup_x1() {
-    mv.visitInsn(Opcodes.DUP_X1);
-  }
-
-  public void dup_x2() {
-    mv.visitInsn(Opcodes.DUP_X2);
-  }
-
-  public void dup2_x1() {
-    mv.visitInsn(Opcodes.DUP2_X1);
-  }
-
-  public void dup2_x2() {
-    mv.visitInsn(Opcodes.DUP2_X2);
-  }
-
-  public void swap() {
-    mv.visitInsn(Opcodes.SWAP);
-  }
-
-  public void aconst_null() {
-    mv.visitInsn(Opcodes.ACONST_NULL);
-  }
-
-  public void swap(Type prev, Type type) {
-    if (type.getSize() == 1) {
-      if (prev.getSize() == 1) {
-        swap(); // same as dup_x1(), pop();
-      }
-      else {
-        dup_x2();
-        pop();
-      }
-    }
-    else {
-      if (prev.getSize() == 1) {
-        dup2_x1();
-        pop2();
-      }
-      else {
-        dup2_x2();
-        pop2();
-      }
-    }
   }
 
   public void monitorenter() {
@@ -337,16 +187,12 @@ public class CodeEmitter extends GeneratorAdapter {
     mv.visitVarInsn(t.getOpcode(Opcodes.ISTORE), pos);
   }
 
-  public void iinc(Local local, int amount) {
-    mv.visitIincInsn(local.getIndex(), amount);
-  }
-
   public void store_local(Local local) {
-    store_local(local.getType(), local.getIndex());
+    store_local(local.type, local.index);
   }
 
   public void load_local(Local local) {
-    load_local(local.getType(), local.getIndex());
+    load_local(local.type, local.index);
   }
 
   public void return_value() {
@@ -410,16 +256,12 @@ public class CodeEmitter extends GeneratorAdapter {
     emit_invoke(Opcodes.INVOKESPECIAL, ce.getSuperType(), sig, false);
   }
 
-  public void invoke_constructor(Type type) {
-    invoke_constructor(type, MethodSignature.EMPTY_CONSTRUCTOR);
-  }
-
   public void super_invoke_constructor() {
-    invoke_constructor(ce.getSuperType());
+    invokeConstructor(ce.getSuperType());
   }
 
   public void invoke_constructor_this() {
-    invoke_constructor(ce.getClassType());
+    invokeConstructor(ce.getClassType());
   }
 
   private void emit_invoke(int opcode, Type type, MethodSignature sig, boolean isInterface) {
@@ -473,44 +315,11 @@ public class CodeEmitter extends GeneratorAdapter {
   }
 
   public void new_instance_this() {
-    new_instance(ce.getClassType());
-  }
-
-  public void new_instance(Type type) {
-    emit_type(Opcodes.NEW, type);
+    newInstance(ce.getClassType());
   }
 
   private void emit_type(int opcode, Type type) {
     mv.visitTypeInsn(opcode, type.isArray() ? type.getDescriptor() : type.getInternalName());
-  }
-
-  public void aaload(int index) {
-    push(index);
-    aaload();
-  }
-
-  public void aaload() {
-    mv.visitInsn(Opcodes.AALOAD);
-  }
-
-  public void aastore() {
-    mv.visitInsn(Opcodes.AASTORE);
-  }
-
-  public void athrow() {
-    mv.visitInsn(Opcodes.ATHROW);
-  }
-
-  public Label make_label() {
-    return new Label();
-  }
-
-  public Local make_local() {
-    return make_local(Type.TYPE_OBJECT);
-  }
-
-  public Local make_local(Type type) {
-    return new Local(newLocal(type), type);
   }
 
   public void checkcast_this() {
@@ -539,14 +348,6 @@ public class CodeEmitter extends GeneratorAdapter {
 //    math(XOR, Type.INT_TYPE);
 //  }
 
-  public void throw_exception(Type type, String msg) {
-    new_instance(type);
-    dup();
-    push(msg);
-    invoke_constructor(type, MethodSignature.constructWithString);
-    athrow();
-  }
-
   /**
    * If the argument is a primitive class, replaces the primitive value on the top
    * of the stack with the wrapped (Object) equivalent. For example, char ->
@@ -571,28 +372,6 @@ public class CodeEmitter extends GeneratorAdapter {
         //newInstanceBox(type);
       }
     }
-  }
-
-  /**
-   *
-   */
-  @Deprecated
-  private void newInstanceBox(Type type) {
-    Type boxed = type.getBoxedType();
-
-    new_instance(boxed);
-    if (type.getSize() == 2) {
-      // Pp -> Ppo -> oPpo -> ooPpo -> ooPp -> o
-      dup_x2();
-      dup_x2();
-      pop();
-    }
-    else {
-      // p -> po -> opo -> oop -> o
-      dup_x1();
-      swap();
-    }
-    invoke_constructor(boxed, MethodSignature.forConstructor(type));
   }
 
   /**
@@ -648,10 +427,10 @@ public class CodeEmitter extends GeneratorAdapter {
   public void unbox_or_zero(Type type) {
     if (type.isPrimitive()) {
       if (type != Type.VOID_TYPE) {
-        Label nonNull = make_label();
-        Label end = make_label();
+        Label nonNull = newLabel();
+        Label end = newLabel();
         dup();
-        ifnonnull(nonNull);
+        ifNonNull(nonNull);
         pop();
         zero_or_null(type);
         goTo(end);
@@ -665,6 +444,7 @@ public class CodeEmitter extends GeneratorAdapter {
     }
   }
 
+  // TODO
   public void visitMaxs(int maxStack, int maxLocals) {
     if (!Modifier.isAbstract(state.access)) {
       mv.visitMaxs(0, 0);

@@ -110,7 +110,7 @@ public abstract class ImmutableBean {
       for (final Method method : setters) {
         MethodInfo setter = MethodInfo.from(method);
         e = EmitUtils.beginMethod(ce, setter, Opcodes.ACC_PUBLIC);
-        e.throw_exception(ILLEGAL_STATE_EXCEPTION, "Bean is immutable");
+        e.throwException(ILLEGAL_STATE_EXCEPTION, "Bean is immutable");
         e.end_method();
       }
 

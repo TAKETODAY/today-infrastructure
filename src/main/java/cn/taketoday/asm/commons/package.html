@@ -45,7 +45,7 @@ LocalVariablesSorter, so this is not possible. On the contrary, by using
 delegation, you can make LocalVariablesSorter delegate to AnalyzerAdapter,
 itself delegating to MyAdapter. In this case AnalyzerAdapter computes
 intermediate frames based on the output of LocalVariablesSorter, and MyAdapter
-can add new locals by calling the newLocal method on LocalVariablesSorter, and
+can add new locals by calling the newLabel method on LocalVariablesSorter, and
 can get the stack map frame state before each instruction by reading the locals
 and stack fields in AnalyzerAdapter (this requires references from MyAdapter
 back to LocalVariablesSorter and AnalyzerAdapter).

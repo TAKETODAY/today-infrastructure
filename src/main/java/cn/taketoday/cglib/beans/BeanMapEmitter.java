@@ -170,7 +170,7 @@ class BeanMapEmitter extends ClassEmitter {
     declare_field(Opcodes.ACC_STATIC | Opcodes.ACC_PRIVATE, "keys", FIXED_KEY_SET, null);
 
     CodeEmitter e = begin_static();
-    e.new_instance(FIXED_KEY_SET);
+    e.newInstance(FIXED_KEY_SET);
     e.dup();
     EmitUtils.pushArray(e, allNames);
     e.invoke_constructor(FIXED_KEY_SET, CSTRUCT_STRING_ARRAY);

@@ -149,7 +149,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
       }
 
       public void generateDefault() {
-        e.throw_exception(ILLEGAL_ARGUMENT_EXCEPTION, "Unknown field index");
+        e.throwException(ILLEGAL_ARGUMENT_EXCEPTION, "Unknown field index");
       }
     });
     e.end_method();
@@ -169,7 +169,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
       }
 
       public void generateDefault() {
-        e.throw_exception(ILLEGAL_ARGUMENT_EXCEPTION, "Unknown field index");
+        e.throwException(ILLEGAL_ARGUMENT_EXCEPTION, "Unknown field index");
       }
     });
     e.end_method();
@@ -190,7 +190,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
       }
 
       public void processDefault() {
-        e.throw_exception(ILLEGAL_ARGUMENT_EXCEPTION, "Unknown field name");
+        e.throwException(ILLEGAL_ARGUMENT_EXCEPTION, "Unknown field name");
       }
     });
     e.end_method();
@@ -210,7 +210,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
       }
 
       public void processDefault() {
-        e.throw_exception(ILLEGAL_ARGUMENT_EXCEPTION, "Unknown field name");
+        e.throwException(ILLEGAL_ARGUMENT_EXCEPTION, "Unknown field name");
       }
     });
     e.end_method();

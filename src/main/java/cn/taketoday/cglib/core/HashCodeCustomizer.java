@@ -1,6 +1,7 @@
 package cn.taketoday.cglib.core;
 
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.GeneratorAdapter;
 
 /**
  * @author TODAY <br>
@@ -16,5 +17,5 @@ public interface HashCodeCustomizer extends KeyFactoryCustomizer {
    * @param type
    *         parameter type
    */
-  boolean customize(CodeEmitter e, Type type);
+  boolean customize(GeneratorAdapter e, Type type);
 }

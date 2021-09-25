@@ -31,7 +31,7 @@ import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.ClassInfo;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
-import cn.taketoday.cglib.core.Local;
+import cn.taketoday.asm.commons.Local;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.ObjectSwitchCallback;
 import cn.taketoday.util.CollectionUtils;
@@ -105,10 +105,10 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
 
       // around method
       codeEmitter = context.beginMethod(ce, method);
-      Label nullInterceptor = codeEmitter.make_label();
+      Label nullInterceptor = codeEmitter.newLabel();
       context.emitCallback(codeEmitter, context.getIndex(method));
       codeEmitter.dup();
-      codeEmitter.ifnull(nullInterceptor);
+      codeEmitter.ifNull(nullInterceptor);
 
       codeEmitter.load_this(); // obj
       codeEmitter.getfield(methodField); // method
@@ -136,7 +136,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
 
   private static void superHelper(CodeEmitter e, MethodInfo method, Context context) {
     if (Modifier.isAbstract(method.getModifiers())) {
-      e.throw_exception(ABSTRACT_METHOD_ERROR, method + " is abstract");
+      e.throwException(ABSTRACT_METHOD_ERROR, method + " is abstract");
     }
     else {
       e.load_this();
@@ -159,8 +159,8 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
   @Override
   public void generateStatic(final CodeEmitter e, final Context context, final List<MethodInfo> methods) throws Exception {
 
-    Local thisClass = e.make_local();
-    Local declaringClass = e.make_local();
+    Local thisClass = e.newLocal();
+    Local declaringClass = e.newLocal();
     EmitUtils.loadClassThis(e);
     e.store_local(thisClass);
 

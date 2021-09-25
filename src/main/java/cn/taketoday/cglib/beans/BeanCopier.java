@@ -30,7 +30,7 @@ import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.Converter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.KeyFactory;
-import cn.taketoday.cglib.core.Local;
+import cn.taketoday.asm.commons.Local;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -117,8 +117,8 @@ public abstract class BeanCopier {
       for (final PropertyDescriptor propertyDescriptor : getters) {
         names.put(propertyDescriptor.getName(), propertyDescriptor);
       }
-      Local targetLocal = e.make_local();
-      Local sourceLocal = e.make_local();
+      Local targetLocal = e.newLocal();
+      Local sourceLocal = e.newLocal();
       if (useConverter) {
         e.load_arg(1);
         e.checkcast(targetType);

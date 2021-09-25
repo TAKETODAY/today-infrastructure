@@ -75,13 +75,13 @@ final class LazyLoaderGenerator implements CallbackGenerator {
       e.load_this();
       e.getfield(delegate);
       e.dup();
-      Label end = e.make_label();
-      e.ifnonnull(end);
+      Label end = e.newLabel();
+      e.ifNonNull(end);
       e.pop();
       e.load_this();
       context.emitCallback(e, index);
       e.invoke_interface(LAZY_LOADER, LOAD_OBJECT);
-      e.dup_x1();
+      e.dupX1();
       e.putfield(delegate);
       e.mark(end);
       e.return_value();

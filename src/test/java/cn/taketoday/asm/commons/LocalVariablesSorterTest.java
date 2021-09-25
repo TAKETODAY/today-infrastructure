@@ -92,7 +92,7 @@ public class LocalVariablesSorterTest extends AsmTest {
     LocalVariablesSorter localVariablesSorter =
             new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
 
-    localVariablesSorter.newLocal(Type.BOOLEAN_TYPE);
+    localVariablesSorter.newLocalIndex(Type.BOOLEAN_TYPE);
 
     assertEquals(1, localVariablesSorter.nextLocal);
   }
@@ -102,7 +102,7 @@ public class LocalVariablesSorterTest extends AsmTest {
     LocalVariablesSorter localVariablesSorter =
             new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
 
-    localVariablesSorter.newLocal(Type.BYTE_TYPE);
+    localVariablesSorter.newLocalIndex(Type.BYTE_TYPE);
 
     assertEquals(1, localVariablesSorter.nextLocal);
   }
@@ -112,7 +112,7 @@ public class LocalVariablesSorterTest extends AsmTest {
     LocalVariablesSorter localVariablesSorter =
             new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
 
-    localVariablesSorter.newLocal(Type.CHAR_TYPE);
+    localVariablesSorter.newLocalIndex(Type.CHAR_TYPE);
 
     assertEquals(1, localVariablesSorter.nextLocal);
   }
@@ -122,7 +122,7 @@ public class LocalVariablesSorterTest extends AsmTest {
     LocalVariablesSorter localVariablesSorter =
             new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
 
-    localVariablesSorter.newLocal(Type.SHORT_TYPE);
+    localVariablesSorter.newLocalIndex(Type.SHORT_TYPE);
 
     assertEquals(1, localVariablesSorter.nextLocal);
   }
@@ -132,7 +132,7 @@ public class LocalVariablesSorterTest extends AsmTest {
     LocalVariablesSorter localVariablesSorter =
             new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
 
-    localVariablesSorter.newLocal(Type.INT_TYPE);
+    localVariablesSorter.newLocalIndex(Type.INT_TYPE);
 
     assertEquals(1, localVariablesSorter.nextLocal);
   }
@@ -142,7 +142,7 @@ public class LocalVariablesSorterTest extends AsmTest {
     LocalVariablesSorter localVariablesSorter =
             new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
 
-    localVariablesSorter.newLocal(Type.FLOAT_TYPE);
+    localVariablesSorter.newLocalIndex(Type.FLOAT_TYPE);
 
     assertEquals(1, localVariablesSorter.nextLocal);
   }
@@ -152,7 +152,7 @@ public class LocalVariablesSorterTest extends AsmTest {
     LocalVariablesSorter localVariablesSorter =
             new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
 
-    localVariablesSorter.newLocal(Type.LONG_TYPE);
+    localVariablesSorter.newLocalIndex(Type.LONG_TYPE);
     assertEquals(2, localVariablesSorter.nextLocal);
   }
 
@@ -161,7 +161,7 @@ public class LocalVariablesSorterTest extends AsmTest {
     LocalVariablesSorter localVariablesSorter =
             new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
 
-    localVariablesSorter.newLocal(Type.DOUBLE_TYPE);
+    localVariablesSorter.newLocalIndex(Type.DOUBLE_TYPE);
 
     assertEquals(2, localVariablesSorter.nextLocal);
   }
@@ -171,7 +171,7 @@ public class LocalVariablesSorterTest extends AsmTest {
     LocalVariablesSorter localVariablesSorter =
             new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
 
-    localVariablesSorter.newLocal(Type.fromInternalName("pkg/Class"));
+    localVariablesSorter.newLocalIndex(Type.fromInternalName("pkg/Class"));
 
     assertEquals(1, localVariablesSorter.nextLocal);
   }
@@ -181,7 +181,7 @@ public class LocalVariablesSorterTest extends AsmTest {
     LocalVariablesSorter localVariablesSorter =
             new LocalVariablesSorter(Opcodes.ACC_STATIC, "()V", new MethodNode());
 
-    localVariablesSorter.newLocal(Type.fromDescriptor("[I"));
+    localVariablesSorter.newLocalIndex(Type.fromDescriptor("[I"));
 
     assertEquals(1, localVariablesSorter.nextLocal);
   }

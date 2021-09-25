@@ -112,7 +112,7 @@ abstract public class ConstructorDelegate {
       EmitUtils.nullConstructor(ce);
       CodeEmitter e = ce.beginMethod(
               ACC_PUBLIC, MethodSignature.from(newInstance), Type.getExceptionTypes(newInstance));
-      e.new_instance(declaring);
+      e.newInstance(declaring);
       e.dup();
       e.load_args();
       e.invoke_constructor(declaring, MethodSignature.from(constructor));

@@ -95,7 +95,7 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
           super.visitMethodInsn(opcode, owner, name, desc, itf);
           if (transformInit && opcode == Opcodes.INVOKESPECIAL) {
             load_this();
-            new_instance(delegateType);
+            newInstance(delegateType);
             dup();
             load_this();
             invoke_constructor(delegateType, CSTRUCT_OBJECT);

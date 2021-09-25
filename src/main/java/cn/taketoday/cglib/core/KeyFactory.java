@@ -25,6 +25,7 @@ import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.GeneratorAdapter;
 import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.internal.CustomizerRegistry;
 import cn.taketoday.core.Constant;
@@ -89,9 +90,9 @@ abstract public class KeyFactory {
           497900099, 683510293, 938313161, 1288102441, 1768288259 //
   };
 
-  public static final Customizer CLASS_BY_NAME = (CodeEmitter e, Type type) -> {
+  public static final Customizer CLASS_BY_NAME = (GeneratorAdapter e, Type type) -> {
     if (type.equals(Type.TYPE_CLASS)) {
-      e.invoke_virtual(Type.TYPE_CLASS, GET_NAME);
+      e.invokeVirtual(Type.TYPE_CLASS, GET_NAME);
     }
   };
 
@@ -100,9 +101,9 @@ abstract public class KeyFactory {
    * calculate hash code. This customizer uses {@link Type#getSort()} as a hash
    * code.
    */
-  public static final HashCodeCustomizer HASH_ASM_TYPE = (CodeEmitter e, Type type) -> {
+  public static final HashCodeCustomizer HASH_ASM_TYPE = (GeneratorAdapter e, Type type) -> {
     if (Type.TYPE_TYPE.equals(type)) {
-      e.invoke_virtual(type, GET_SORT);
+      e.invokeVirtual(type, GET_SORT);
       return true;
     }
     return false;
@@ -115,8 +116,8 @@ abstract public class KeyFactory {
    * Objects and represent Classes as Strings
    */
   @Deprecated
-  public static final Customizer OBJECT_BY_CLASS = (CodeEmitter e, Type type) -> {
-    e.invoke_virtual(Type.TYPE_OBJECT, MethodSignature.GET_CLASS);
+  public static final Customizer OBJECT_BY_CLASS = (GeneratorAdapter e, Type type) -> {
+    e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.GET_CLASS);
   };
 
   protected KeyFactory() { }
@@ -278,10 +279,10 @@ abstract public class KeyFactory {
 
       // equals
       e = ce.beginMethod(Opcodes.ACC_PUBLIC, MethodSignature.EQUALS);
-      Label fail = e.make_label();
+      Label fail = e.newLabel();
       e.load_arg(0);
       e.instance_of_this();
-      e.if_jump(CodeEmitter.EQ, fail);
+      e.ifJump(CodeEmitter.EQ, fail);
       for (int i = 0; i < parameterTypes.length; i++) {
         e.load_this();
         e.getfield(getFieldName(i));
@@ -299,9 +300,9 @@ abstract public class KeyFactory {
 
       // toString
       e = ce.beginMethod(Opcodes.ACC_PUBLIC, MethodSignature.TO_STRING);
-      e.new_instance(Type.TYPE_STRING_BUFFER);
+      e.newInstance(Type.TYPE_STRING_BUFFER);
       e.dup();
-      e.invoke_constructor(Type.TYPE_STRING_BUFFER);
+      e.invokeConstructor(Type.TYPE_STRING_BUFFER);
       for (int i = 0; i < parameterTypes.length; i++) {
         if (i > 0) {
           e.push(", ");

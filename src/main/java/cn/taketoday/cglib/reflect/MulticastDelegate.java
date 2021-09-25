@@ -27,7 +27,7 @@ import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
-import cn.taketoday.cglib.core.Local;
+import cn.taketoday.asm.commons.Local;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.ProcessArrayCallback;
 import cn.taketoday.core.Constant;
@@ -155,7 +155,7 @@ abstract public class MulticastDelegate implements Cloneable {
       final boolean returns = returnType != Type.VOID_TYPE;
       Local result = null;
       if (returns) {
-        result = e.make_local(returnType);
+        result = e.newLocal(returnType);
         e.zero_or_null(returnType);
         e.store_local(result);
       }

@@ -29,6 +29,8 @@ import java.util.function.Function;
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.GeneratorAdapter;
+import cn.taketoday.asm.commons.Local;
 import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.asm.commons.TableSwitchGenerator;
 import cn.taketoday.cglib.core.internal.CustomizerRegistry;
@@ -93,29 +95,28 @@ public abstract class EmitUtils {
    * @param callback
    *         the callback triggered for each element
    */
-  public static void processArray(CodeEmitter e, Type type, ProcessArrayCallback callback) {
+  public static void processArray(GeneratorAdapter e, Type type, ProcessArrayCallback callback) {
     Type componentType = type.getComponentType();
-    Local array = e.make_local();
-    Local loopvar = e.make_local(Type.INT_TYPE);
-    Label loopbody = e.make_label();
-    Label checkloop = e.make_label();
-    e.store_local(array);
+    Local array = e.newLocal();
+    Local loopvar = e.newLocal(Type.INT_TYPE);
+    Label loopbody = e.newLabel();
+    Label checkloop = e.newLabel();
+    e.storeLocal(array);
     e.push(0);
-    e.store_local(loopvar);
+    e.storeLocal(loopvar);
     e.goTo(checkloop);
-
     e.mark(loopbody);
-    e.load_local(array);
-    e.load_local(loopvar);
+    e.loadLocal(array);
+    e.loadLocal(loopvar);
     e.arrayLoad(componentType);
     callback.processElement(componentType);
     e.iinc(loopvar, 1);
 
     e.mark(checkloop);
-    e.load_local(loopvar);
-    e.load_local(array);
+    e.loadLocal(loopvar);
+    e.loadLocal(array);
     e.arrayLength();
-    e.if_icmp(CodeEmitter.LT, loopbody);
+    e.ifICmp(CodeEmitter.LT, loopbody);
   }
 
   /**
@@ -131,11 +132,11 @@ public abstract class EmitUtils {
    */
   public static void processArrays(CodeEmitter e, Type type, ProcessArrayCallback callback) {
     Type componentType = type.getComponentType();
-    Local array1 = e.make_local();
-    Local array2 = e.make_local();
-    Local loopvar = e.make_local(Type.INT_TYPE);
-    Label loopbody = e.make_label();
-    Label checkloop = e.make_label();
+    Local array1 = e.newLocal();
+    Local array2 = e.newLocal();
+    Local loopvar = e.newLocal(Type.INT_TYPE);
+    Label loopbody = e.newLabel();
+    Label checkloop = e.newLabel();
     e.store_local(array1);
     e.store_local(array2);
     e.push(0);
@@ -156,7 +157,7 @@ public abstract class EmitUtils {
     e.load_local(loopvar);
     e.load_local(array1);
     e.arrayLength();
-    e.if_icmp(CodeEmitter.LT, loopbody);
+    e.ifIcmp(CodeEmitter.LT, loopbody);
   }
 
   public static void stringSwitch(CodeEmitter e, String[] strings, int switchStyle, ObjectSwitchCallback callback) {
@@ -177,8 +178,8 @@ public abstract class EmitUtils {
 
   private static void stringSwitchTrie(
           final CodeEmitter e, String[] strings, final ObjectSwitchCallback callback) {
-    final Label def = e.make_label();
-    final Label end = e.make_label();
+    final Label def = e.newLabel();
+    final Label end = e.newLabel();
     final Map<Integer, List<String>> buckets = CollectionUtils.buckets(strings, String::length);
 
     e.dup();
@@ -244,8 +245,8 @@ public abstract class EmitUtils {
 
     final Map<Integer, List<String>> buckets = CollectionUtils.buckets(strings, Object::hashCode);
 
-    final Label def = e.make_label();
-    final Label end = e.make_label();
+    final Label def = e.newLabel();
+    final Label end = e.newLabel();
     e.dup();
     e.invoke_virtual(Type.TYPE_OBJECT, MethodSignature.HASH_CODE);
     e.tableSwitch(getSwitchKeys(buckets), new TableSwitchGenerator() {
@@ -268,11 +269,11 @@ public abstract class EmitUtils {
             e.push(string);
             e.invoke_virtual(Type.TYPE_OBJECT, MethodSignature.EQUALS);
             if (it.hasNext()) {
-              e.if_jump(CodeEmitter.EQ, next = e.make_label());
+              e.ifJump(CodeEmitter.EQ, next = e.newLabel());
               e.pop();
             }
             else {
-              e.if_jump(CodeEmitter.EQ, def);
+              e.ifJump(CodeEmitter.EQ, def);
             }
             callback.processCase(string, end);
           }
@@ -292,15 +293,15 @@ public abstract class EmitUtils {
     loadClassHelper(e, e.getClassEmitter().getClassType());
   }
 
-  public static void loadClass(CodeEmitter e, Type type) {
+  public static void loadClass(GeneratorAdapter e, Type type) {
     if (type.isPrimitive()) {
       if (type == Type.VOID_TYPE) {
         throw new IllegalArgumentException("cannot load void type");
       }
-      e.getstatic(type.getBoxedType(), "TYPE", Type.TYPE_CLASS);
+      e.getStatic(type.getBoxedType(), "TYPE", Type.TYPE_CLASS);
     }
     else {
-      loadClassHelper(e, type);
+      loadClassHelper((CodeEmitter) e, type);
     }
   }
 
@@ -328,7 +329,7 @@ public abstract class EmitUtils {
     }
   }
 
-  public static void pushArray(CodeEmitter e, Object[] array) {
+  public static void pushArray(GeneratorAdapter e, Object[] array) {
     e.push(array.length);
     e.newArray(Type.fromClass(remapComponentType(array.getClass().getComponentType())));
 
@@ -344,9 +345,9 @@ public abstract class EmitUtils {
     return componentType.equals(Type.class) ? Class.class : componentType;
   }
 
-  public static void pushObject(CodeEmitter e, Object obj) {
+  public static void pushObject(GeneratorAdapter e, Object obj) {
     if (obj == null) {
-      e.aconst_null();
+      e.visitInsn(Opcodes.ACONST_NULL);
     }
     else {
       Class type = obj.getClass();
@@ -363,16 +364,16 @@ public abstract class EmitUtils {
         loadClass(e, Type.fromClass((Class) obj));
       }
       else if (obj instanceof BigInteger) {
-        e.new_instance(TYPE_BIG_INTEGER);
+        e.newInstance(TYPE_BIG_INTEGER);
         e.dup();
         e.push(obj.toString());
-        e.invoke_constructor(TYPE_BIG_INTEGER);
+        e.invokeConstructor(TYPE_BIG_INTEGER);
       }
       else if (obj instanceof BigDecimal) {
-        e.new_instance(TYPE_BIG_DECIMAL);
+        e.newInstance(TYPE_BIG_DECIMAL);
         e.dup();
         e.push(obj.toString());
-        e.invoke_constructor(TYPE_BIG_DECIMAL);
+        e.invokeConstructor(TYPE_BIG_DECIMAL);
       }
       else {
         throw new IllegalArgumentException("unknown type: " + obj.getClass());
@@ -381,22 +382,22 @@ public abstract class EmitUtils {
   }
 
   /**
-   * @deprecated use {@link #hashCode(CodeEmitter, Type, int, CustomizerRegistry)}
+   * @deprecated use {@link #hashCode(GeneratorAdapter, Type, int, CustomizerRegistry)}
    * instead
    */
   @Deprecated
-  public static void hashCode(CodeEmitter e, Type type, int multiplier, final Customizer customizer) {
+  public static void hashCode(GeneratorAdapter e, Type type, int multiplier, final Customizer customizer) {
     hashCode(e, type, multiplier, CustomizerRegistry.singleton(customizer));
   }
 
-  public static void hashCode(CodeEmitter e, Type type, int multiplier, final CustomizerRegistry registry) {
+  public static void hashCode(GeneratorAdapter e, Type type, int multiplier, final CustomizerRegistry registry) {
     if (type.isArray()) {
       hashArray(e, type, multiplier, registry);
     }
     else {
       e.swap(Type.INT_TYPE, type);
       e.push(multiplier);
-      e.math(CodeEmitter.MUL, Type.INT_TYPE);
+      e.math(GeneratorAdapter.MUL, Type.INT_TYPE);
       e.swap(type, Type.INT_TYPE);
       if (type.isPrimitive()) {
         hashPrimitive(e, type);
@@ -404,19 +405,19 @@ public abstract class EmitUtils {
       else {
         hashObject(e, type, registry);
       }
-      e.math(CodeEmitter.ADD, Type.INT_TYPE);
+      e.math(GeneratorAdapter.ADD, Type.INT_TYPE);
     }
   }
 
-  private static void hashArray(final CodeEmitter e,
+  private static void hashArray(final GeneratorAdapter e,
                                 final Type type,
                                 final int multiplier,
                                 final CustomizerRegistry registry) //
   {
-    Label skip = e.make_label();
-    Label end = e.make_label();
+    Label skip = e.newLabel();
+    Label end = e.newLabel();
     e.dup();
-    e.ifnull(skip);
+    e.ifNull(skip);
 
     processArray(e, type, (t) -> hashCode(e, t, multiplier, registry));
 
@@ -426,12 +427,12 @@ public abstract class EmitUtils {
     e.mark(end);
   }
 
-  private static void hashObject(CodeEmitter e, Type type, CustomizerRegistry registry) {
+  private static void hashObject(GeneratorAdapter e, Type type, CustomizerRegistry registry) {
     // (f == null) ? 0 : f.hashCode();
-    Label skip = e.make_label();
-    Label end = e.make_label();
+    Label skip = e.newLabel();
+    Label end = e.newLabel();
     e.dup();
-    e.ifnull(skip);
+    e.ifNull(skip);
     boolean customHashCode = false;
     for (HashCodeCustomizer customizer : registry.get(HashCodeCustomizer.class)) {
       if (customizer.customize(e, type)) {
@@ -443,7 +444,7 @@ public abstract class EmitUtils {
       for (Customizer customizer : registry.get(Customizer.class)) {
         customizer.customize(e, type);
       }
-      e.invoke_virtual(Type.TYPE_OBJECT, MethodSignature.HASH_CODE);
+      e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.HASH_CODE);
     }
     e.goTo(end);
     e.mark(skip);
@@ -452,7 +453,7 @@ public abstract class EmitUtils {
     e.mark(end);
   }
 
-  private static void hashPrimitive(CodeEmitter e, Type type) {
+  private static void hashPrimitive(GeneratorAdapter e, Type type) {
     switch (type.getSort()) {
       case Type.BOOLEAN:
         // f ? 0 : 1
@@ -461,23 +462,23 @@ public abstract class EmitUtils {
         break;
       case Type.FLOAT:
         // Float.floatToIntBits(f)
-        e.invoke_static(Type.TYPE_FLOAT, FLOAT_TO_INT_BITS);
+        e.invokeStatic(Type.TYPE_FLOAT, FLOAT_TO_INT_BITS);
         break;
       case Type.DOUBLE:
         // Double.doubleToLongBits(f), hash_code(Long.TYPE)
-        e.invoke_static(Type.TYPE_DOUBLE, DOUBLE_TO_LONG_BITS);
+        e.invokeStatic(Type.TYPE_DOUBLE, DOUBLE_TO_LONG_BITS);
         // fall through
       case Type.LONG:
         hashLong(e);
     }
   }
 
-  private static void hashLong(CodeEmitter e) {
+  private static void hashLong(GeneratorAdapter e) {
     // (int)(f ^ (f >>> 32))
     e.dup2();
     e.push(32);
-    e.math(CodeEmitter.USHR, Type.LONG_TYPE);
-    e.math(CodeEmitter.XOR, Type.LONG_TYPE);
+    e.math(GeneratorAdapter.USHR, Type.LONG_TYPE);
+    e.math(GeneratorAdapter.XOR, Type.LONG_TYPE);
     e.cast(Type.LONG_TYPE, Type.INT_TYPE);
   }
 
@@ -521,18 +522,18 @@ public abstract class EmitUtils {
                                       final ProcessArrayCallback callback)//
   {
     if (type.isPrimitive()) {
-      e.if_cmp(type, CodeEmitter.NE, notEquals);
+      e.ifCmp(type, CodeEmitter.NE, notEquals);
     }
     else {
-      Label end = e.make_label();
+      Label end = e.newLabel();
       nullcmp(e, notEquals, end);
       if (type.isArray()) {
-        Label checkContents = e.make_label();
+        Label checkContents = e.newLabel();
         e.dup2();
         e.arrayLength();
         e.swap();
         e.arrayLength();
-        e.if_icmp(CodeEmitter.EQ, checkContents);
+        e.ifIcmp(CodeEmitter.EQ, checkContents);
         e.pop2();
         e.goTo(notEquals);
         e.mark(checkContents);
@@ -550,7 +551,7 @@ public abstract class EmitUtils {
           }
         }
         e.invoke_virtual(Type.TYPE_OBJECT, MethodSignature.EQUALS);
-        e.if_jump(CodeEmitter.EQ, notEquals);
+        e.ifJump(CodeEmitter.EQ, notEquals);
       }
       e.mark(end);
     }
@@ -568,16 +569,16 @@ public abstract class EmitUtils {
    */
   private static void nullcmp(CodeEmitter e, Label oneNull, Label bothNull) {
     e.dup2();
-    Label nonNull = e.make_label();
-    Label oneNullHelper = e.make_label();
-    Label end = e.make_label();
-    e.ifnonnull(nonNull);
-    e.ifnonnull(oneNullHelper);
+    Label nonNull = e.newLabel();
+    Label oneNullHelper = e.newLabel();
+    Label end = e.newLabel();
+    e.ifNonNull(nonNull);
+    e.ifNonNull(oneNullHelper);
     e.pop2();
     e.goTo(bothNull);
 
     e.mark(nonNull);
-    e.ifnull(oneNullHelper);
+    e.ifNull(oneNullHelper);
     e.goTo(end);
 
     e.mark(oneNullHelper);
@@ -629,8 +630,8 @@ public abstract class EmitUtils {
                                          final CustomizerRegistry registry,
                                          final ProcessArrayCallback callback)//
   {
-    Label skip = e.make_label();
-    Label end = e.make_label();
+    Label skip = e.newLabel();
+    Label end = e.newLabel();
     if (type.isPrimitive()) {
       switch (type.getSort()) {
         case Type.INT:
@@ -657,7 +658,7 @@ public abstract class EmitUtils {
     }
     else if (type.isArray()) {
       e.dup();
-      e.ifnull(skip);
+      e.ifNull(skip);
       e.swap();
       if (delims != null && delims.before != null && !Constant.BLANK.equals(delims.before)) {
         e.push(delims.before);
@@ -673,7 +674,7 @@ public abstract class EmitUtils {
     }
     else {
       e.dup();
-      e.ifnull(skip);
+      e.ifNull(skip);
       for (Customizer customizer : registry.get(Customizer.class)) {
         customizer.customize(e, type);
       }
@@ -744,8 +745,8 @@ public abstract class EmitUtils {
         return types;
       };
 
-      final Label def = e.make_label();
-      final Label end = e.make_label();
+      final Label def = e.newLabel();
+      final Label end = e.newLabel();
       if (useName) {
         e.swap();
         final Map<String, List<MethodInfo>> buckets = //
@@ -826,7 +827,7 @@ public abstract class EmitUtils {
           e.invoke_virtual(Type.TYPE_CLASS, GET_NAME);
           e.push(types[i].emulateClassGetName());
           e.invoke_virtual(Type.TYPE_OBJECT, MethodSignature.EQUALS);
-          e.if_jump(CodeEmitter.EQ, def);
+          e.ifJump(CodeEmitter.EQ, def);
         }
       }
       e.pop();
@@ -882,12 +883,12 @@ public abstract class EmitUtils {
 
   public static void wrapThrowable(Block block, Type wrapper) {
     CodeEmitter e = block.getCodeEmitter();
-    e.catch_exception(block, Type.TYPE_THROWABLE);
-    e.new_instance(wrapper);
-    e.dup_x1();
+    e.catchException(block, Type.TYPE_THROWABLE);
+    e.newInstance(wrapper);
+    e.dupX1();
     e.swap();
     e.invoke_constructor(wrapper, CSTRUCT_THROWABLE);
-    e.athrow();
+    e.throwException();
   }
 
   public static void addProperties(ClassEmitter ce, String[] names, Type[] types) {
@@ -926,28 +927,28 @@ public abstract class EmitUtils {
     }
     boolean needThrow = exceptions != null;
     if (!set.contains(Type.TYPE_RUNTIME_EXCEPTION)) {
-      e.catch_exception(handler, Type.TYPE_RUNTIME_EXCEPTION);
+      e.catchException(handler, Type.TYPE_RUNTIME_EXCEPTION);
       needThrow = true;
     }
     if (!set.contains(Type.TYPE_ERROR)) {
-      e.catch_exception(handler, Type.TYPE_ERROR);
+      e.catchException(handler, Type.TYPE_ERROR);
       needThrow = true;
     }
     if (exceptions != null) {
       for (final Type exception : exceptions) {
-        e.catch_exception(handler, exception);
+        e.catchException(handler, exception);
       }
     }
     if (needThrow) {
-      e.athrow();
+      e.throwException();
     }
     // e -> eo -> oeo -> ooe -> o
-    e.catch_exception(handler, Type.TYPE_THROWABLE);
-    e.new_instance(wrapper);
-    e.dup_x1();
+    e.catchException(handler, Type.TYPE_THROWABLE);
+    e.newInstance(wrapper);
+    e.dupX1();
     e.swap();
     e.invoke_constructor(wrapper, CSTRUCT_THROWABLE);
-    e.athrow();
+    e.throwException();
   }
 
   public static CodeEmitter beginMethod(ClassEmitter e, MethodInfo method) {

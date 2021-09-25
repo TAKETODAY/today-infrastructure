@@ -35,7 +35,7 @@ import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.CodeGenerationException;
 import cn.taketoday.cglib.core.EmitUtils;
-import cn.taketoday.cglib.core.Local;
+import cn.taketoday.asm.commons.Local;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.util.StringUtils;
 
@@ -107,7 +107,7 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
     // return
     Local returnLocal = null;
     if (method.getReturnType() != void.class) {
-      returnLocal = codeEmitter.make_local();
+      returnLocal = codeEmitter.newLocal();
       codeEmitter.store_local(returnLocal);
     }
 

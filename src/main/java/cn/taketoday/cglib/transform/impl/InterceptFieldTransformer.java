@@ -22,7 +22,7 @@ import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.CodeEmitter;
-import cn.taketoday.cglib.core.Local;
+import cn.taketoday.asm.commons.Local;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
 import cn.taketoday.util.StringUtils;
 
@@ -88,12 +88,12 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
     e.getfield(name);
     e.load_this();
     e.invoke_interface(ENABLED, ENABLED_GET);
-    Label intercept = e.make_label();
-    e.ifnonnull(intercept);
+    Label intercept = e.newLabel();
+    e.ifNonNull(intercept);
     e.return_value();
 
     e.mark(intercept);
-    Local result = e.make_local(type);
+    Local result = e.newLocal(type);
     e.store_local(result);
     e.load_this();
     e.invoke_interface(ENABLED, ENABLED_GET);
@@ -113,8 +113,8 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
     e.load_this();
     e.dup();
     e.invoke_interface(ENABLED, ENABLED_GET);
-    Label skip = e.make_label();
-    e.ifnull(skip);
+    Label skip = e.newLabel();
+    e.ifNull(skip);
 
     e.load_this();
     e.invoke_interface(ENABLED, ENABLED_GET);
@@ -127,7 +127,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
     if (!type.isPrimitive()) {
       e.checkcast(type);
     }
-    Label go = e.make_label();
+    Label go = e.newLabel();
     e.goTo(go);
     e.mark(skip);
     e.load_arg(0);

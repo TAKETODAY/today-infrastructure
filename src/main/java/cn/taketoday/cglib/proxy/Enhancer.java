@@ -52,7 +52,7 @@ import cn.taketoday.cglib.core.DuplicatesPredicate;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.GeneratorStrategy;
 import cn.taketoday.cglib.core.KeyFactory;
-import cn.taketoday.cglib.core.Local;
+import cn.taketoday.asm.commons.Local;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.cglib.core.MethodInfoTransformer;
 import cn.taketoday.cglib.core.MethodWrapper;
@@ -1211,9 +1211,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
   private void emitCommonNewInstance(CodeEmitter e) {
     Type thisType = getThisType(e);
-    e.new_instance(thisType);
+    e.newInstance(thisType);
     e.dup();
-    e.invoke_constructor(thisType);
+    e.invokeConstructor(thisType);
     e.aconst_null();
     e.invoke_static(thisType, SET_THREAD_CALLBACKS);
     e.return_value();
@@ -1237,7 +1237,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         e.invoke_static(getThisType(e), SET_THREAD_CALLBACKS);
         break;
       default:
-        e.throw_exception(ILLEGAL_STATE_EXCEPTION, "More than one callback object required");
+        e.throwException(ILLEGAL_STATE_EXCEPTION, "More than one callback object required");
     }
     emitCommonNewInstance(e);
   }
@@ -1247,7 +1247,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     final Type thisType = getThisType(e);
     e.load_arg(2);
     e.invoke_static(thisType, SET_THREAD_CALLBACKS);
-    e.new_instance(thisType);
+    e.newInstance(thisType);
     e.dup();
     e.load_arg(0);
     EmitUtils.constructorSwitch(e, constructors, new ObjectSwitchCallback() {
@@ -1267,7 +1267,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
       @Override
       public void processDefault() {
-        e.throw_exception(ILLEGAL_ARGUMENT_EXCEPTION, "Constructor not found");
+        e.throwException(ILLEGAL_ARGUMENT_EXCEPTION, "Constructor not found");
       }
     });
     e.aconst_null();
@@ -1320,7 +1320,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     final HashSet seenGen = new HashSet<>();
     final CodeEmitter se = ce.getStaticHook();
 
-    se.new_instance(THREAD_LOCAL);
+    se.newInstance(THREAD_LOCAL);
     se.dup();
     se.invoke_constructor(THREAD_LOCAL, MethodSignature.EMPTY_CONSTRUCTOR);
     se.putfield(THREAD_CALLBACKS_FIELD);
@@ -1401,10 +1401,10 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       public CodeEmitter beginMethod(ClassEmitter ce, MethodInfo method) {
         CodeEmitter e = EmitUtils.beginMethod(ce, method);
         if (!interceptDuringConstruction && !Modifier.isAbstract(method.getModifiers())) {
-          Label constructed = e.make_label();
+          Label constructed = e.newLabel();
           e.load_this();
           e.getfield(CONSTRUCTED_FIELD);
-          e.if_jump(CodeEmitter.NE, constructed);
+          e.ifJump(CodeEmitter.NE, constructed);
           e.load_this();
           e.load_args();
           e.super_invoke();
@@ -1467,8 +1467,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     e.load_this();
     e.getfield(getCallbackField(index));
     e.dup();
-    Label end = e.make_label();
-    e.ifnonnull(end);
+    Label end = e.newLabel();
+    e.ifNonNull(end);
     e.pop(); // stack height
     e.load_this();
     e.invoke_static_this(BIND_CALLBACKS);
@@ -1479,15 +1479,15 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
   private void emitBindCallbacks(ClassEmitter ce) {
     CodeEmitter e = ce.beginMethod(Opcodes.PRIVATE_FINAL_STATIC, BIND_CALLBACKS);
-    Local me = e.make_local();
+    Local me = e.newLocal();
     e.load_arg(0);
     e.checkcast_this();
     e.store_local(me);
 
-    Label end = e.make_label();
+    Label end = e.newLabel();
     e.load_local(me);
     e.getfield(BOUND_FIELD);
-    e.if_jump(CodeEmitter.NE, end);
+    e.ifJump(CodeEmitter.NE, end);
     e.load_local(me);
     e.push(1);
     e.putfield(BOUND_FIELD);
@@ -1495,13 +1495,13 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     e.getfield(THREAD_CALLBACKS_FIELD);
     e.invoke_virtual(THREAD_LOCAL, THREAD_LOCAL_GET);
     e.dup();
-    Label found_callback = e.make_label();
-    e.ifnonnull(found_callback);
+    Label found_callback = e.newLabel();
+    e.ifNonNull(found_callback);
     e.pop();
 
     e.getfield(STATIC_CALLBACKS_FIELD);
     e.dup();
-    e.ifnonnull(found_callback);
+    e.ifNonNull(found_callback);
     e.pop();
     e.goTo(end);
 

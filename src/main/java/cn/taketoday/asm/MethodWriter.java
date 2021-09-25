@@ -80,7 +80,7 @@ final class MethodWriter extends MethodVisitor {
    */
   private static final int[] STACK_SIZE_DELTA = {
           0, // nop = 0 (0x0)
-          1, // aconst_null = 1 (0x1)
+          1, // pushNull = 1 (0x1)
           1, // iconst_m1 = 2 (0x2)
           1, // iconst_0 = 3 (0x3)
           1, // iconst_1 = 4 (0x4)

@@ -34,7 +34,6 @@ import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.asm.commons.TableSwitchGenerator;
 import cn.taketoday.cglib.core.Block;
-import cn.taketoday.cglib.core.CglibReflectUtils;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.DuplicatesPredicate;
@@ -117,7 +116,7 @@ final class MethodAccessEmitter extends ClassEmitter {
 
     // newInstance(int, Object[])
     e = beginMethod(Opcodes.ACC_PUBLIC, NEW_INSTANCE, INVOCATION_TARGET_EXCEPTION);
-    e.new_instance(base);
+    e.newInstance(base);
     e.dup();
     e.load_arg(0);
     invokeSwitchHelper(e, constructors, 1, base);
@@ -190,7 +189,7 @@ final class MethodAccessEmitter extends ClassEmitter {
 
   private static void invokeSwitchHelper(final CodeEmitter e, List members, final int arg, final Type base) {
     final List<MethodInfo> info = CollectionUtils.transform(members, MethodInfoTransformer.getInstance());
-    final Label illegalArg = e.make_label();
+    final Label illegalArg = e.newLabel();
     final Block block = e.begin_block();
     e.tableSwitch(getIntRange(info.size()), new TableSwitchGenerator() {
       public void generateCase(int key, Label end) {
@@ -217,7 +216,7 @@ final class MethodAccessEmitter extends ClassEmitter {
     block.end();
     EmitUtils.wrapThrowable(block, INVOCATION_TARGET_EXCEPTION);
     e.mark(illegalArg);
-    e.throw_exception(ILLEGAL_ARGUMENT_EXCEPTION, "Cannot find matching method/constructor");
+    e.throwException(ILLEGAL_ARGUMENT_EXCEPTION, "Cannot find matching method/constructor");
   }
 
   private static final class GetIndexCallback implements ObjectSwitchCallback {

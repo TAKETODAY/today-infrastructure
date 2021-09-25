@@ -797,6 +797,10 @@ public class InstructionAdapter extends MethodVisitor {
     mv.visitVarInsn(type.getOpcode(Opcodes.ISTORE), var);
   }
 
+  public void aastore() {
+    mv.visitInsn(Opcodes.AASTORE);
+  }
+
   public void astore(final Type type) {
     mv.visitInsn(type.getOpcode(Opcodes.IASTORE));
   }

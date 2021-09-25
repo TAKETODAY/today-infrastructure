@@ -79,7 +79,7 @@ public class BeanInstantiatorGenerator
     final CodeEmitter codeEmitter = EmitUtils.beginMethod(classEmitter, newInstanceInfo, ACC_PUBLIC | ACC_FINAL);
 
     final Type type = Type.fromClass(targetClass);
-    codeEmitter.new_instance(type);
+    codeEmitter.newInstance(type);
     codeEmitter.dup();
 
     prepareParameters(codeEmitter, this.targetConstructor);
