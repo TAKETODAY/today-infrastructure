@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -238,10 +238,8 @@ public class HandlerMethod
   public void handleReturnValue(
           final RequestContext context, final Object handler, final Object returnValue) throws IOException {
     applyResponseStatus(context);
-    ReturnValueHandler returnValueHandler = this.returnValueHandler;
     if (returnValueHandler == null) {
       returnValueHandler = resultHandlers.obtainHandler(this);
-      this.returnValueHandler = returnValueHandler;
     }
     returnValueHandler.handleReturnValue(context, handler, returnValue);
     // @since 3.0
@@ -257,7 +255,6 @@ public class HandlerMethod
 
   @Override
   protected Object handleInternal(final RequestContext context) throws Throwable {
-    final MethodParameter[] parameters = this.parameters;
     if (ObjectUtils.isEmpty(parameters)) {
       return handlerInvoker.invoke(bean, null);
     }
@@ -292,10 +289,8 @@ public class HandlerMethod
    * ResponseBody present?
    */
   public boolean isResponseBody() {
-    Boolean responseBody = this.responseBody;
     if (responseBody == null) {
       responseBody = WebUtils.isResponseBody(method);
-      this.responseBody = responseBody;
     }
     return responseBody;
   }

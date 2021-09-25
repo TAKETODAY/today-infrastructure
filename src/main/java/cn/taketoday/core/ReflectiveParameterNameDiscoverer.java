@@ -34,7 +34,7 @@ import java.lang.reflect.Parameter;
 public class ReflectiveParameterNameDiscoverer extends ParameterNameDiscoverer {
 
   @Override
-  public String[] getInternal(Executable executable) {
+  public String[] doGet(Executable executable) {
     final Parameter[] parameters = executable.getParameters();
     int i = 0;
     String[] parameterNames = null;

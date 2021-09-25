@@ -53,7 +53,6 @@ public abstract class ParameterNameDiscoverer {
    *
    * @see Executable#getParameterCount()
    */
-  @Nullable
   public String[] getParameterNames(Executable executable) {
     if (executable == null) {
       return null;
@@ -64,11 +63,11 @@ public abstract class ParameterNameDiscoverer {
     if (executable instanceof Method) {
       executable = BridgeMethodResolver.findBridgedMethod((Method) executable);
     }
-    return getInternal(executable);
+    return doGet(executable);
   }
 
   @Nullable
-  protected String[] getInternal(Executable executable) {
+  protected String[] doGet(Executable executable) {
     return null;
   }
 

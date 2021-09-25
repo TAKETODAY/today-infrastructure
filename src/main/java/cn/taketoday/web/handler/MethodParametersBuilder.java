@@ -45,13 +45,9 @@ public class MethodParametersBuilder {
     }
     final MethodParameter[] ret = new MethodParameter[length];
     final String[] methodArgsNames = parameterNameDiscoverer.getParameterNames(method);
-    if (methodArgsNames != null) {
-      final Parameter[] parameters = method.getParameters();
-      for (int i = 0; i < length; i++) {
-        ret[i] = createParameter(methodArgsNames[i], parameters[i], i);
-      }
-    }else{
-    // TODO
+    final Parameter[] parameters = method.getParameters();
+    for (int i = 0; i < length; i++) {
+      ret[i] = createParameter(methodArgsNames[i], parameters[i], i);
     }
     return ret;
   }

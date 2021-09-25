@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -51,10 +51,8 @@ public class ParameterResolverMethodParameter extends MethodParameter {
   }
 
   public final ParameterResolvingStrategy obtainResolver() {
-    ParameterResolvingStrategy resolver = this.resolver;
     if (resolver == null) {
       resolver = resolvers.obtainResolvingStrategy(this);
-      this.resolver = resolver;
     }
     return resolver;
   }
