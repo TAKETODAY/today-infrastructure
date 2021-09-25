@@ -965,7 +965,12 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   }
 
   private static Method getCallbacksSetter(Class type, String methodName) {
-    return ReflectionUtils.findMethod(type, methodName, Callback[].class);
+    try {
+      return type.getDeclaredMethod(methodName, Callback[].class);
+    }
+    catch (NoSuchMethodException e) {
+      return null;
+    }
   }
 
   /**

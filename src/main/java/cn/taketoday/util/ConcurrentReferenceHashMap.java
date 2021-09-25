@@ -207,12 +207,11 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     this.referenceType = referenceType;
     int roundedUpSegmentCapacity = (int) ((initialCapacity + size - 1L) / size);
     int initialSize = 1 << calculateShift(roundedUpSegmentCapacity, MAXIMUM_SEGMENT_SIZE);
-    Segment[] segments = (Segment[]) Array.newInstance(Segment.class, size);
+    this.segments = (Segment[]) Array.newInstance(Segment.class, size);
     int resizeThreshold = (int) (initialSize * getLoadFactor());
     for (int i = 0; i < segments.length; i++) {
       segments[i] = new Segment(initialSize, resizeThreshold);
     }
-    this.segments = segments;
   }
 
   protected final float getLoadFactor() {
