@@ -140,7 +140,7 @@ final class MethodAccessEmitter extends ClassEmitter {
       }
     });
     e.load_arg(0);
-    e.invoke_virtual(Type.TYPE_OBJECT, MethodSignature.TO_STRING);
+    e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.TO_STRING);
     signatureSwitchHelper(e, signatures);
     e.end_method();
   }
@@ -158,7 +158,7 @@ final class MethodAccessEmitter extends ClassEmitter {
         }
       });
       e.load_args();
-      e.invoke_static(FAST_CLASS, GET_SIGNATURE_WITHOUT_RETURN_TYPE);
+      e.invokeStatic(FAST_CLASS, GET_SIGNATURE_WITHOUT_RETURN_TYPE);
       signatureSwitchHelper(e, signatures);
     }
     else {

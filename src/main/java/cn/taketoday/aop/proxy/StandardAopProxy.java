@@ -266,7 +266,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
         final CodeEmitter staticBlock = ce.begin_static(false); // 静态代码块
         for (final String target : fields) {
           staticBlock.visitLdcInsn(target);
-          staticBlock.invoke_static(targetInvocationType, getTarget);
+          staticBlock.invokeStatic(targetInvocationType, getTarget);
           staticBlock.putfield(target);
         }
       }

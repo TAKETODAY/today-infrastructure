@@ -41,7 +41,7 @@ final class FixedValueGenerator implements CallbackGenerator {
       final CodeEmitter e = context.beginMethod(ce, method);
       context.emitCallback(e, context.getIndex(method));
 
-      e.invoke_interface(FIXED_VALUE, LOAD_OBJECT);
+      e.invokeInterface(FIXED_VALUE, LOAD_OBJECT);
       e.unbox_or_zero(e.getReturnType());
       e.return_value();
       e.end_method();

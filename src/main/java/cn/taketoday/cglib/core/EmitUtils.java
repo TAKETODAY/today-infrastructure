@@ -183,7 +183,7 @@ public abstract class EmitUtils {
     final Map<Integer, List<String>> buckets = CollectionUtils.buckets(strings, String::length);
 
     e.dup();
-    e.invoke_virtual(Type.TYPE_STRING, LENGTH);
+    e.invokeVirtual(Type.TYPE_STRING, LENGTH);
     e.tableSwitch(getSwitchKeys(buckets), new TableSwitchGenerator() {
       public void generateCase(int key, Label ignore_end) {
         List bucket = buckets.get(key);
@@ -210,7 +210,7 @@ public abstract class EmitUtils {
     });
     e.dup();
     e.push(index);
-    e.invoke_virtual(Type.TYPE_STRING, STRING_CHAR_AT);
+    e.invokeVirtual(Type.TYPE_STRING, STRING_CHAR_AT);
     e.tableSwitch(getSwitchKeys(buckets), new TableSwitchGenerator() {
       public void generateCase(int key, Label ignore_end) {
         List bucket = (List) buckets.get(key);
@@ -248,7 +248,7 @@ public abstract class EmitUtils {
     final Label def = e.newLabel();
     final Label end = e.newLabel();
     e.dup();
-    e.invoke_virtual(Type.TYPE_OBJECT, MethodSignature.HASH_CODE);
+    e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.HASH_CODE);
     e.tableSwitch(getSwitchKeys(buckets), new TableSwitchGenerator() {
       public void generateCase(int key, Label ignore_end) {
         List<String> bucket = buckets.get(key);
@@ -267,7 +267,7 @@ public abstract class EmitUtils {
               e.dup();
             }
             e.push(string);
-            e.invoke_virtual(Type.TYPE_OBJECT, MethodSignature.EQUALS);
+            e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.EQUALS);
             if (it.hasNext()) {
               e.ifJump(CodeEmitter.EQ, next = e.newLabel());
               e.pop();
@@ -309,7 +309,7 @@ public abstract class EmitUtils {
     if (e.isStaticHook()) {
       // have to fall back on non-optimized load
       e.push(type.emulateClassGetName());
-      e.invoke_static(Type.TYPE_CLASS, FOR_NAME);
+      e.invokeStatic(Type.TYPE_CLASS, FOR_NAME);
     }
     else {
       ClassEmitter ce = e.getClassEmitter();
@@ -322,7 +322,7 @@ public abstract class EmitUtils {
         ce.declare_field(Opcodes.PRIVATE_FINAL_STATIC, fieldName, Type.TYPE_CLASS, null);
         CodeEmitter hook = ce.getStaticHook();
         hook.push(typeName);
-        hook.invoke_static(Type.TYPE_CLASS, FOR_NAME);
+        hook.invokeStatic(Type.TYPE_CLASS, FOR_NAME);
         hook.putstatic(ce.getClassType(), fieldName, Type.TYPE_CLASS);
       }
       e.getfield(fieldName);
@@ -550,7 +550,7 @@ public abstract class EmitUtils {
             customizer.customize(e, type);
           }
         }
-        e.invoke_virtual(Type.TYPE_OBJECT, MethodSignature.EQUALS);
+        e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.EQUALS);
         e.ifJump(CodeEmitter.EQ, notEquals);
       }
       e.mark(end);
@@ -618,7 +618,7 @@ public abstract class EmitUtils {
       public void processElement(Type type) {
         appendStringHelper(e, type, d, registry, this);
         e.push(d.inside);
-        e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
+        e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
       }
     };
     appendStringHelper(e, type, d, registry, callback);
@@ -637,22 +637,22 @@ public abstract class EmitUtils {
         case Type.INT:
         case Type.SHORT:
         case Type.BYTE:
-          e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_INT);
+          e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_INT);
           break;
         case Type.DOUBLE:
-          e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_DOUBLE);
+          e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_DOUBLE);
           break;
         case Type.FLOAT:
-          e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_FLOAT);
+          e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_FLOAT);
           break;
         case Type.LONG:
-          e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_LONG);
+          e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_LONG);
           break;
         case Type.BOOLEAN:
-          e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_BOOLEAN);
+          e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_BOOLEAN);
           break;
         case Type.CHAR:
-          e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_CHAR);
+          e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_CHAR);
           break;
       }
     }
@@ -662,14 +662,14 @@ public abstract class EmitUtils {
       e.swap();
       if (delims != null && delims.before != null && !Constant.BLANK.equals(delims.before)) {
         e.push(delims.before);
-        e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
+        e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
         e.swap();
       }
       EmitUtils.processArray(e, type, callback);
       shrinkStringBuffer(e, 2);
       if (delims != null && delims.after != null && !"".equals(delims.after)) {
         e.push(delims.after);
-        e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
+        e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
       }
     }
     else {
@@ -678,24 +678,24 @@ public abstract class EmitUtils {
       for (Customizer customizer : registry.get(Customizer.class)) {
         customizer.customize(e, type);
       }
-      e.invoke_virtual(Type.TYPE_OBJECT, MethodSignature.TO_STRING);
-      e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
+      e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.TO_STRING);
+      e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
     }
     e.goTo(end);
     e.mark(skip);
     e.pop();
     e.push("null");
-    e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
+    e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
     e.mark(end);
   }
 
   private static void shrinkStringBuffer(final CodeEmitter e, final int amt) {
     e.dup();
     e.dup();
-    e.invoke_virtual(Type.TYPE_STRING_BUFFER, LENGTH);
+    e.invokeVirtual(Type.TYPE_STRING_BUFFER, LENGTH);
     e.push(amt);
     e.math(CodeEmitter.SUB, Type.INT_TYPE);
-    e.invoke_virtual(Type.TYPE_STRING_BUFFER, SET_LENGTH);
+    e.invokeVirtual(Type.TYPE_STRING_BUFFER, SET_LENGTH);
   }
 
   static class ArrayDelimiters {
@@ -714,7 +714,7 @@ public abstract class EmitUtils {
     loadClass(e, method.getClassInfo().getType());
     e.push(method.getSignature().getName());
     pushObject(e, method.getSignature().getArgumentTypes());
-    e.invoke_virtual(Type.TYPE_CLASS, GET_DECLARED_METHOD);
+    e.invokeVirtual(Type.TYPE_CLASS, GET_DECLARED_METHOD);
   }
 
   private interface ParameterTyper {
@@ -824,9 +824,9 @@ public abstract class EmitUtils {
         if (checked == null || !checked.get(i)) {
           e.dup();
           e.aaload(i);
-          e.invoke_virtual(Type.TYPE_CLASS, GET_NAME);
+          e.invokeVirtual(Type.TYPE_CLASS, GET_NAME);
           e.push(types[i].emulateClassGetName());
-          e.invoke_virtual(Type.TYPE_OBJECT, MethodSignature.EQUALS);
+          e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.EQUALS);
           e.ifJump(CodeEmitter.EQ, def);
         }
       }
@@ -861,7 +861,7 @@ public abstract class EmitUtils {
 
         e.dup();
         e.aaload(index);
-        e.invoke_virtual(Type.TYPE_CLASS, GET_NAME);
+        e.invokeVirtual(Type.TYPE_CLASS, GET_NAME);
 
         final Map<String, List<MethodInfo>> fbuckets = buckets;
         String[] names = StringUtils.toStringArray(buckets.keySet());

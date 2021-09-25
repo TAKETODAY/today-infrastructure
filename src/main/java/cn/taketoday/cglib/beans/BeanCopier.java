@@ -148,7 +148,7 @@ public abstract class BeanCopier {
             e.box(read.getSignature().getReturnType());
             EmitUtils.loadClass(e, setterType);
             e.push(write.getSignature().getName());
-            e.invoke_interface(CONVERTER, CONVERT);
+            e.invokeInterface(CONVERTER, CONVERT);
             e.unbox_or_zero(setterType);
             e.invoke(write);
           }

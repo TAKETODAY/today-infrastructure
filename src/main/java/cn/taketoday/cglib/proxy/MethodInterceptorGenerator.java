@@ -122,7 +122,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
       }
 
       codeEmitter.getfield(methodProxyField);  // methodProxy
-      codeEmitter.invoke_interface(METHOD_INTERCEPTOR, INTERCEPT);
+      codeEmitter.invokeInterface(METHOD_INTERCEPTOR, INTERCEPT);
       codeEmitter.unbox_or_zero(sig.getReturnType());
       codeEmitter.return_value();
 
@@ -190,8 +190,8 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
       EmitUtils.loadClass(e, classInfo.getType());
       e.dup();
       e.store_local(declaringClass);
-      e.invoke_virtual(Type.TYPE_CLASS, GET_DECLARED_METHODS);
-      e.invoke_static(REFLECT_UTILS, FIND_METHODS);
+      e.invokeVirtual(Type.TYPE_CLASS, GET_DECLARED_METHODS);
+      e.invokeStatic(REFLECT_UTILS, FIND_METHODS);
 
       for (int index = 0; index < size; index++) {
         MethodInfo method = classMethods.get(index);
@@ -207,7 +207,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
         e.push(sig.getDescriptor());
         e.push(sig.getName());
         e.push(impl.getName());
-        e.invoke_static(METHOD_PROXY, MAKE_PROXY);
+        e.invokeStatic(METHOD_PROXY, MAKE_PROXY);
         e.putfield(getMethodProxyField(impl));
       }
       e.pop();
@@ -218,7 +218,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
 
     final CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, FIND_PROXY);
     e.load_arg(0);
-    e.invoke_virtual(Type.TYPE_OBJECT, MethodSignature.TO_STRING);
+    e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.TO_STRING);
 
     final ObjectSwitchCallback callback = new ObjectSwitchCallback() {
 

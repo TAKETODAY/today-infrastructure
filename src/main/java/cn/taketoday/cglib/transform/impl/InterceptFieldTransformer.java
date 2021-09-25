@@ -87,7 +87,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
     e.load_this();
     e.getfield(name);
     e.load_this();
-    e.invoke_interface(ENABLED, ENABLED_GET);
+    e.invokeInterface(ENABLED, ENABLED_GET);
     Label intercept = e.newLabel();
     e.ifNonNull(intercept);
     e.return_value();
@@ -96,11 +96,11 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
     Local result = e.newLocal(type);
     e.store_local(result);
     e.load_this();
-    e.invoke_interface(ENABLED, ENABLED_GET);
+    e.invokeInterface(ENABLED, ENABLED_GET);
     e.load_this();
     e.push(name);
     e.load_local(result);
-    e.invoke_interface(CALLBACK, readCallbackSig(type));
+    e.invokeInterface(CALLBACK, readCallbackSig(type));
     if (!type.isPrimitive()) {
       e.checkcast(type);
     }
@@ -112,18 +112,18 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
     CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, writeMethodSig(name, type.getDescriptor()));
     e.load_this();
     e.dup();
-    e.invoke_interface(ENABLED, ENABLED_GET);
+    e.invokeInterface(ENABLED, ENABLED_GET);
     Label skip = e.newLabel();
     e.ifNull(skip);
 
     e.load_this();
-    e.invoke_interface(ENABLED, ENABLED_GET);
+    e.invokeInterface(ENABLED, ENABLED_GET);
     e.load_this();
     e.push(name);
     e.load_this();
     e.getfield(name);
     e.load_arg(0);
-    e.invoke_interface(CALLBACK, writeCallbackSig(type));
+    e.invokeInterface(CALLBACK, writeCallbackSig(type));
     if (!type.isPrimitive()) {
       e.checkcast(type);
     }
@@ -163,7 +163,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
       }
 
       private void helper(Type owner, MethodSignature sig) {
-        invoke_virtual(owner, sig);
+        invokeVirtual(owner, sig);
       }
     };
   }

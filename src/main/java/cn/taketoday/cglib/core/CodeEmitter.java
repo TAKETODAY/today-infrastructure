@@ -278,28 +278,16 @@ public class CodeEmitter extends GeneratorAdapter {
     );
   }
 
-  public void invoke_interface(Type owner, MethodSignature sig) {
-    emit_invoke(Opcodes.INVOKEINTERFACE, owner, sig, true);
-  }
-
-  public void invoke_virtual(Type owner, MethodSignature sig) {
-    emit_invoke(Opcodes.INVOKEVIRTUAL, owner, sig, false);
-  }
-
-  public void invoke_static(Type owner, MethodSignature sig) {
-    emit_invoke(Opcodes.INVOKESTATIC, owner, sig, false);
-  }
-
-  public void invoke_static(Type owner, MethodSignature sig, boolean isInterface) {
+  public void invokeStatic(Type owner, MethodSignature sig, boolean isInterface) {
     emit_invoke(Opcodes.INVOKESTATIC, owner, sig, isInterface);
   }
 
   public void invoke_virtual_this(MethodSignature sig) {
-    invoke_virtual(ce.getClassType(), sig);
+    invokeVirtual(ce.getClassType(), sig);
   }
 
   public void invoke_static_this(MethodSignature sig) {
-    invoke_static(ce.getClassType(), sig);
+    invokeStatic(ce.getClassType(), sig);
   }
 
   public void invoke_constructor(Type type, MethodSignature sig) {
@@ -459,13 +447,13 @@ public class CodeEmitter extends GeneratorAdapter {
       invoke_constructor(type, sig);
     }
     else if (Modifier.isStatic(method.getModifiers())) {
-      invoke_static(type, sig, Modifier.isInterface(classInfo.getModifiers()));
+      invokeStatic(type, sig, Modifier.isInterface(classInfo.getModifiers()));
     }
     else if (Modifier.isInterface(classInfo.getModifiers())) {
-      invoke_interface(type, sig);
+      invokeInterface(type, sig);
     }
     else {
-      invoke_virtual(virtualType, sig);
+      invokeVirtual(virtualType, sig);
     }
   }
 

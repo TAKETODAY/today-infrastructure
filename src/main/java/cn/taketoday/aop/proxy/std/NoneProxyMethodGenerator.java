@@ -115,7 +115,7 @@ public class NoneProxyMethodGenerator implements ProxyMethodGenerator {
 
     codeEmitter.load_this();
     codeEmitter.getfield(FIELD_TARGET_SOURCE);
-    codeEmitter.invoke_interface(targetSourceType, targetSourceGetTarget);
+    codeEmitter.invokeInterface(targetSourceType, targetSourceGetTarget);
 
     // cast
 

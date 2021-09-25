@@ -1196,7 +1196,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     CodeEmitter e = ce.beginMethod(ACC_PUBLIC, NEW_INSTANCE);
     Type thisType = getThisType(e);
     e.load_arg(0);
-    e.invoke_static(thisType, SET_THREAD_CALLBACKS);
+    e.invokeStatic(thisType, SET_THREAD_CALLBACKS);
     emitCommonNewInstance(e);
   }
 
@@ -1215,7 +1215,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     e.dup();
     e.invokeConstructor(thisType);
     e.aconst_null();
-    e.invoke_static(thisType, SET_THREAD_CALLBACKS);
+    e.invokeStatic(thisType, SET_THREAD_CALLBACKS);
     e.return_value();
     e.end_method();
   }
@@ -1234,7 +1234,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         e.push(0);
         e.load_arg(0);
         e.aastore();
-        e.invoke_static(getThisType(e), SET_THREAD_CALLBACKS);
+        e.invokeStatic(getThisType(e), SET_THREAD_CALLBACKS);
         break;
       default:
         e.throwException(ILLEGAL_STATE_EXCEPTION, "More than one callback object required");
@@ -1246,7 +1246,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     final CodeEmitter e = ce.beginMethod(ACC_PUBLIC, MULTIARG_NEW_INSTANCE);
     final Type thisType = getThisType(e);
     e.load_arg(2);
-    e.invoke_static(thisType, SET_THREAD_CALLBACKS);
+    e.invokeStatic(thisType, SET_THREAD_CALLBACKS);
     e.newInstance(thisType);
     e.dup();
     e.load_arg(0);
@@ -1271,7 +1271,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       }
     });
     e.aconst_null();
-    e.invoke_static(thisType, SET_THREAD_CALLBACKS);
+    e.invokeStatic(thisType, SET_THREAD_CALLBACKS);
     e.return_value();
     e.end_method();
   }
@@ -1450,7 +1450,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     CodeEmitter e = ce.beginMethod(ACC_PUBLIC | ACC_STATIC, SET_THREAD_CALLBACKS);
     e.getfield(THREAD_CALLBACKS_FIELD);
     e.load_arg(0);
-    e.invoke_virtual(THREAD_LOCAL, THREAD_LOCAL_SET);
+    e.invokeVirtual(THREAD_LOCAL, THREAD_LOCAL_SET);
     e.return_value();
     e.end_method();
   }
@@ -1493,7 +1493,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     e.putfield(BOUND_FIELD);
 
     e.getfield(THREAD_CALLBACKS_FIELD);
-    e.invoke_virtual(THREAD_LOCAL, THREAD_LOCAL_GET);
+    e.invokeVirtual(THREAD_LOCAL, THREAD_LOCAL_GET);
     e.dup();
     Label found_callback = e.newLabel();
     e.ifNonNull(found_callback);

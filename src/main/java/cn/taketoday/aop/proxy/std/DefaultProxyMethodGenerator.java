@@ -142,10 +142,10 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
         prepareArgs(method, codeEmitter);
 
         if (exposeProxy) {
-          codeEmitter.invoke_static(stdProxyInvoker, staticExposeProceed);
+          codeEmitter.invokeStatic(stdProxyInvoker, staticExposeProceed);
         }
         else {
-          codeEmitter.invoke_static(stdProxyInvoker, proceed);
+          codeEmitter.invokeStatic(stdProxyInvoker, proceed);
         }
       }
       else {
@@ -155,10 +155,10 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
         prepareArgs(method, codeEmitter);
 
         if (exposeProxy) {
-          codeEmitter.invoke_static(stdProxyInvoker, dynamicExposeProceed);
+          codeEmitter.invokeStatic(stdProxyInvoker, dynamicExposeProceed);
         }
         else {
-          codeEmitter.invoke_static(stdProxyInvoker, dynamicProceed);
+          codeEmitter.invokeStatic(stdProxyInvoker, dynamicProceed);
         }
       }
     }
@@ -173,7 +173,7 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
       codeEmitter.getfield(targetInvField);
       prepareArgs(method, codeEmitter);
 
-      codeEmitter.invoke_static(stdProxyInvoker, dynamicAdvisedProceed);
+      codeEmitter.invokeStatic(stdProxyInvoker, dynamicAdvisedProceed);
     }
 
   }

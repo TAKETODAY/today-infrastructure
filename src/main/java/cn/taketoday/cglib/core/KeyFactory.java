@@ -306,13 +306,13 @@ abstract public class KeyFactory {
       for (int i = 0; i < parameterTypes.length; i++) {
         if (i > 0) {
           e.push(", ");
-          e.invoke_virtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
+          e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
         }
         e.load_this();
         e.getfield(getFieldName(i));
         EmitUtils.appendString(e, parameterTypes[i], EmitUtils.DEFAULT_DELIMITERS, customizers);
       }
-      e.invoke_virtual(Type.TYPE_STRING_BUFFER, MethodSignature.TO_STRING);
+      e.invokeVirtual(Type.TYPE_STRING_BUFFER, MethodSignature.TO_STRING);
       e.return_value();
       e.end_method();
 

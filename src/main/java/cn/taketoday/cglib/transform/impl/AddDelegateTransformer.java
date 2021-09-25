@@ -126,7 +126,7 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
     e.load_this();
     e.getfield(DELEGATE);
     e.load_args();
-    e.invoke_virtual(delegateType, sig);
+    e.invokeVirtual(delegateType, sig);
     e.return_value();
     e.end_method();
   }
