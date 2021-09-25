@@ -116,7 +116,7 @@ public abstract class EmitUtils {
     e.loadLocal(loopvar);
     e.loadLocal(array);
     e.arrayLength();
-    e.ifICmp(CodeEmitter.LT, loopbody);
+    e.ifICmp(GeneratorAdapter.LT, loopbody);
   }
 
   /**
