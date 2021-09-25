@@ -293,7 +293,7 @@ public abstract class EmitUtils {
     loadClassHelper(e, e.getClassEmitter().getClassType());
   }
 
-  public static void loadClass(GeneratorAdapter e, Type type) {
+  public static void loadClass(CodeEmitter e, Type type) {
     if (type.isPrimitive()) {
       if (type == Type.VOID_TYPE) {
         throw new IllegalArgumentException("cannot load void type");
@@ -301,7 +301,7 @@ public abstract class EmitUtils {
       e.getStatic(type.getBoxedType(), "TYPE", Type.TYPE_CLASS);
     }
     else {
-      loadClassHelper((CodeEmitter) e, type);
+      loadClassHelper(e, type);
     }
   }
 
@@ -329,7 +329,7 @@ public abstract class EmitUtils {
     }
   }
 
-  public static void pushArray(GeneratorAdapter e, Object[] array) {
+  public static void pushArray(CodeEmitter e, Object[] array) {
     e.push(array.length);
     e.newArray(Type.fromClass(remapComponentType(array.getClass().getComponentType())));
 
@@ -345,7 +345,7 @@ public abstract class EmitUtils {
     return componentType.equals(Type.class) ? Class.class : componentType;
   }
 
-  public static void pushObject(GeneratorAdapter e, Object obj) {
+  public static void pushObject(CodeEmitter e, Object obj) {
     if (obj == null) {
       e.visitInsn(Opcodes.ACONST_NULL);
     }
