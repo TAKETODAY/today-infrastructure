@@ -18,11 +18,11 @@ package cn.taketoday.cglib.util;
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.Local;
 import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.ClassEmitter;
 import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.EmitUtils;
-import cn.taketoday.asm.commons.Local;
 
 import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.asm.Opcodes.JAVA_VERSION;

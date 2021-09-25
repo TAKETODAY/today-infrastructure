@@ -470,6 +470,8 @@ public abstract class EmitUtils {
         // fall through
       case Type.LONG:
         hashLong(e);
+      default:
+        break;
     }
   }
 
@@ -653,6 +655,8 @@ public abstract class EmitUtils {
           break;
         case Type.CHAR:
           e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_CHAR);
+          break;
+        default:
           break;
       }
     }

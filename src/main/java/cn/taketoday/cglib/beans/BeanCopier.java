@@ -22,6 +22,7 @@ import java.util.HashMap;
 
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.Local;
 import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.AbstractClassGenerator;
 import cn.taketoday.cglib.core.CglibReflectUtils;
@@ -30,7 +31,6 @@ import cn.taketoday.cglib.core.CodeEmitter;
 import cn.taketoday.cglib.core.Converter;
 import cn.taketoday.cglib.core.EmitUtils;
 import cn.taketoday.cglib.core.KeyFactory;
-import cn.taketoday.asm.commons.Local;
 import cn.taketoday.cglib.core.MethodInfo;
 import cn.taketoday.util.ReflectionUtils;
 

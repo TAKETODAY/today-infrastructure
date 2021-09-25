@@ -20,9 +20,9 @@ import java.lang.reflect.Modifier;
 import cn.taketoday.asm.Label;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
+import cn.taketoday.asm.commons.Local;
 import cn.taketoday.asm.commons.MethodSignature;
 import cn.taketoday.cglib.core.CodeEmitter;
-import cn.taketoday.asm.commons.Local;
 import cn.taketoday.cglib.transform.ClassEmitterTransformer;
 import cn.taketoday.util.StringUtils;
 
