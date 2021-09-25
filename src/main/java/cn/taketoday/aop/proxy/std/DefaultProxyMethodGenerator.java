@@ -108,11 +108,11 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
     Local returnLocal = null;
     if (method.getReturnType() != void.class) {
       returnLocal = codeEmitter.newLocal();
-      codeEmitter.store_local(returnLocal);
+      codeEmitter.storeLocal(returnLocal);
     }
 
     if (returnLocal != null) {
-      codeEmitter.load_local(returnLocal);
+      codeEmitter.loadLocal(returnLocal);
       codeEmitter.unbox_or_zero(Type.fromClass(method.getReturnType()));
     }
 

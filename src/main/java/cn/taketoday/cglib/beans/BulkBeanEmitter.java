@@ -67,13 +67,13 @@ class BulkBeanEmitter extends ClassEmitter {
       e.load_arg(0);
       e.checkCast(Type.fromClass(target));
       Local bean = e.newLocal();
-      e.store_local(bean);
+      e.storeLocal(bean);
       for (int i = 0; i < getters.length; i++) {
         if (getters[i] != null) {
           MethodInfo getter = MethodInfo.from(getters[i]);
           e.load_arg(1);
           e.push(i);
-          e.load_local(bean);
+          e.loadLocal(bean);
           e.invoke(getter);
           e.box(getter.getSignature().getReturnType());
           e.aastore();
@@ -90,7 +90,7 @@ class BulkBeanEmitter extends ClassEmitter {
     if (setters.length > 0) {
       Local index = e.newLocal(Type.INT_TYPE);
       e.push(0);
-      e.store_local(index);
+      e.storeLocal(index);
       e.load_arg(0);
       e.checkCast(Type.fromClass(target));
       e.load_arg(1);
@@ -129,7 +129,7 @@ class BulkBeanEmitter extends ClassEmitter {
       e.newInstance(BULK_BEAN_EXCEPTION);
       e.dupX1();
       e.swap();
-      e.load_local(index);
+      e.loadLocal(index);
       e.invokeConstructor(BULK_BEAN_EXCEPTION, CSTRUCT_EXCEPTION);
       e.throwException();
     }

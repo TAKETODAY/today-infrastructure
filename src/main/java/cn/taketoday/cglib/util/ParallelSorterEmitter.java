@@ -79,19 +79,19 @@ class ParallelSorterEmitter extends ClassEmitter {
 
       e.load_this();
       e.getField(getFieldName(i));
-      e.store_local(T);
+      e.storeLocal(T);
 
-      e.load_local(T);
+      e.loadLocal(T);
       e.load_arg(0);
 
-      e.load_local(T);
+      e.loadLocal(T);
       e.load_arg(1);
       e.arrayLoad(component);
 
-      e.load_local(T);
+      e.loadLocal(T);
       e.load_arg(1);
 
-      e.load_local(T);
+      e.loadLocal(T);
       e.load_arg(0);
       e.arrayLoad(component);
 

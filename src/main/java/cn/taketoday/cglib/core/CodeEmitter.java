@@ -22,7 +22,6 @@ import cn.taketoday.asm.MethodVisitor;
 import cn.taketoday.asm.Opcodes;
 import cn.taketoday.asm.Type;
 import cn.taketoday.asm.commons.GeneratorAdapter;
-import cn.taketoday.asm.commons.Local;
 import cn.taketoday.asm.commons.MethodSignature;
 
 /**
@@ -156,7 +155,7 @@ public class CodeEmitter extends GeneratorAdapter {
    *         the zero-based index into the argument list
    */
   public void load_arg(int index) {
-    load_local(state.argumentTypes[index], state.localOffset + skipArgs(index));
+    loadInsn(state.argumentTypes[index], state.localOffset + skipArgs(index));
   }
 
   // zero-based (see load_this)
@@ -164,7 +163,7 @@ public class CodeEmitter extends GeneratorAdapter {
     int pos = state.localOffset + skipArgs(fromArg);
     for (int i = 0; i < count; i++) {
       Type t = state.argumentTypes[fromArg + i];
-      load_local(t, pos);
+      loadInsn(t, pos);
       pos += t.getSize();
     }
   }
@@ -175,24 +174,6 @@ public class CodeEmitter extends GeneratorAdapter {
       amount += state.argumentTypes[i].getSize();
     }
     return amount;
-  }
-
-  private void load_local(Type t, int pos) {
-    // TODO: make t == null ok?
-    mv.visitVarInsn(t.getOpcode(Opcodes.ILOAD), pos);
-  }
-
-  private void store_local(Type t, int pos) {
-    // TODO: make t == null ok?
-    mv.visitVarInsn(t.getOpcode(Opcodes.ISTORE), pos);
-  }
-
-  public void store_local(Local local) {
-    store_local(local.type, local.index);
-  }
-
-  public void load_local(Local local) {
-    load_local(local.type, local.index);
   }
 
   public void return_value() {

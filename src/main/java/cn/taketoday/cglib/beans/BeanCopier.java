@@ -122,10 +122,10 @@ public abstract class BeanCopier {
       if (useConverter) {
         e.load_arg(1);
         e.checkCast(targetType);
-        e.store_local(targetLocal);
+        e.storeLocal(targetLocal);
         e.load_arg(0);
         e.checkCast(sourceType);
-        e.store_local(sourceLocal);
+        e.storeLocal(sourceLocal);
       }
       else {
         e.load_arg(1);
@@ -141,9 +141,9 @@ public abstract class BeanCopier {
           MethodInfo write = MethodInfo.from(setter.getWriteMethod());
           if (useConverter) {
             Type setterType = write.getSignature().getArgumentTypes()[0];
-            e.load_local(targetLocal);
+            e.loadLocal(targetLocal);
             e.load_arg(2);
-            e.load_local(sourceLocal);
+            e.loadLocal(sourceLocal);
             e.invoke(read);
             e.box(read.getSignature().getReturnType());
             EmitUtils.loadClass(e, setterType);

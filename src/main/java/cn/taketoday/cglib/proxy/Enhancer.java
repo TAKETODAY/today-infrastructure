@@ -1482,13 +1482,13 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     Local me = e.newLocal();
     e.load_arg(0);
     e.checkcast_this();
-    e.store_local(me);
+    e.storeLocal(me);
 
     Label end = e.newLabel();
-    e.load_local(me);
+    e.loadLocal(me);
     e.getField(BOUND_FIELD);
     e.ifJump(CodeEmitter.NE, end);
-    e.load_local(me);
+    e.loadLocal(me);
     e.push(1);
     e.putField(BOUND_FIELD);
 
@@ -1507,7 +1507,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
     e.mark(found_callback);
     e.checkCast(CALLBACK_ARRAY);
-    e.load_local(me);
+    e.loadLocal(me);
     e.swap();
     for (int i = callbackTypes.length - 1; i >= 0; i--) {
       if (i != 0) {

@@ -435,7 +435,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    *
    * @return the index of the given method argument in the frame's local variables array.
    */
-  private int getArgIndex(final int arg) {
+  public int getArgIndex(final int arg) {
     final Type[] argumentTypes = getArgumentTypes();
     int index = (access & Opcodes.ACC_STATIC) == 0 ? 1 : 0;
     for (int i = 0; i < arg; i++) {
@@ -452,7 +452,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @param index
    *         an index in the frame's local variables array.
    */
-  private void loadInsn(final Type type, final int index) {
+  public void loadInsn(final Type type, final int index) {
     mv.visitVarInsn(type.getOpcode(Opcodes.ILOAD), index);
   }
 
@@ -464,7 +464,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @param index
    *         an index in the frame's local variables array.
    */
-  private void storeInsn(final Type type, final int index) {
+  public void storeInsn(final Type type, final int index) {
     mv.visitVarInsn(type.getOpcode(Opcodes.ISTORE), index);
   }
 

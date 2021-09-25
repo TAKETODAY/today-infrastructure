@@ -137,25 +137,25 @@ public abstract class EmitUtils {
     Local loopvar = e.newLocal(Type.INT_TYPE);
     Label loopbody = e.newLabel();
     Label checkloop = e.newLabel();
-    e.store_local(array1);
-    e.store_local(array2);
+    e.storeLocal(array1);
+    e.storeLocal(array2);
     e.push(0);
-    e.store_local(loopvar);
+    e.storeLocal(loopvar);
     e.goTo(checkloop);
 
     e.mark(loopbody);
-    e.load_local(array1);
-    e.load_local(loopvar);
+    e.loadLocal(array1);
+    e.loadLocal(loopvar);
     e.arrayLoad(componentType);
-    e.load_local(array2);
-    e.load_local(loopvar);
+    e.loadLocal(array2);
+    e.loadLocal(loopvar);
     e.arrayLoad(componentType);
     callback.processElement(componentType);
     e.iinc(loopvar, 1);
 
     e.mark(checkloop);
-    e.load_local(loopvar);
-    e.load_local(array1);
+    e.loadLocal(loopvar);
+    e.loadLocal(array1);
     e.arrayLength();
     e.ifIcmp(CodeEmitter.LT, loopbody);
   }

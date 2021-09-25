@@ -94,12 +94,12 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
 
     e.mark(intercept);
     Local result = e.newLocal(type);
-    e.store_local(result);
+    e.storeLocal(result);
     e.load_this();
     e.invokeInterface(ENABLED, ENABLED_GET);
     e.load_this();
     e.push(name);
-    e.load_local(result);
+    e.loadLocal(result);
     e.invokeInterface(CALLBACK, readCallbackSig(type));
     if (!type.isPrimitive()) {
       e.checkCast(type);

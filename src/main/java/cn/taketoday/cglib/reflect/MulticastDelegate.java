@@ -157,7 +157,7 @@ abstract public class MulticastDelegate implements Cloneable {
       if (returns) {
         result = e.newLocal(returnType);
         e.zero_or_null(returnType);
-        e.store_local(result);
+        e.storeLocal(result);
       }
       e.load_this();
       e.super_getfield("targets", Type.TYPE_OBJECT_ARRAY);
@@ -168,12 +168,12 @@ abstract public class MulticastDelegate implements Cloneable {
           e.load_args();
           e.invoke(method);
           if (returns) {
-            e.store_local(result2);
+            e.storeLocal(result2);
           }
         }
       });
       if (returns) {
-        e.load_local(result);
+        e.loadLocal(result);
       }
       e.return_value();
       e.end_method();

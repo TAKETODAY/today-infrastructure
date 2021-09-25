@@ -162,7 +162,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
     Local thisClass = e.newLocal();
     Local declaringClass = e.newLocal();
     EmitUtils.loadClassThis(e);
-    e.store_local(thisClass);
+    e.storeLocal(thisClass);
 
     Map<ClassInfo, List<MethodInfo>> methodsByClass
             = CollectionUtils.buckets(methods, MethodInfo::getClassInfo);
@@ -189,7 +189,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
 
       EmitUtils.loadClass(e, classInfo.getType());
       e.dup();
-      e.store_local(declaringClass);
+      e.storeLocal(declaringClass);
       e.invokeVirtual(Type.TYPE_CLASS, GET_DECLARED_METHODS);
       e.invokeStatic(REFLECT_UTILS, FIND_METHODS);
 
@@ -202,8 +202,8 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
         e.arrayLoad(METHOD);
         e.putField(getMethodField(impl));
 
-        e.load_local(declaringClass);
-        e.load_local(thisClass);
+        e.loadLocal(declaringClass);
+        e.loadLocal(thisClass);
         e.push(sig.getDescriptor());
         e.push(sig.getName());
         e.push(impl.getName());
