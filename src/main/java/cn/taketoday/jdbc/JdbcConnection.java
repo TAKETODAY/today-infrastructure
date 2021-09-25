@@ -337,7 +337,6 @@ public final class JdbcConnection implements Closeable {
   @Nullable
   public <V> List<V> getKeys(Class<V> returnType, ConversionService conversionService) {
     assertCanGetKeys();
-    final List<Object> keys = this.keys;
     if (keys != null) {
       Assert.notNull(conversionService, "conversionService must not be null");
       try {
@@ -391,7 +390,6 @@ public final class JdbcConnection implements Closeable {
     }
 
     if (!connectionIsClosed) {
-      final HashSet<Statement> statements = this.statements;
       for (Statement statement : statements) {
         try {
           JdbcUtils.close(statement);
@@ -441,7 +439,6 @@ public final class JdbcConnection implements Closeable {
   private void closeConnection() {
     // resets the AutoCommit state to make sure that the connection
     // has been reset before reuse (if a connection pool is used)
-    final Boolean originalAutoCommit = this.originalAutoCommit;
     if (originalAutoCommit != null) {
       try {
         this.root.setAutoCommit(originalAutoCommit);

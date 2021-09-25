@@ -75,6 +75,7 @@ public class PojoPerformanceTest {
   private final static String DB_PASSWORD = "";
   private final static String HIBERNATE_DIALECT = "org.hibernate.dialect.H2Dialect";
   private final static SQLDialect JOOQ_DIALECT = SQLDialect.H2;
+//  private final int ITERATIONS = 50000;
   private final int ITERATIONS = 1000;
 
   private JdbcOperations operations;
@@ -92,8 +93,9 @@ public class PojoPerformanceTest {
   }
 
   private void createPostTable() {
+    // language=MySQL
     operations.createQuery("DROP TABLE IF EXISTS post").executeUpdate();
-
+    // language=MySQL
     operations.createQuery("\n CREATE TABLE post" +
                                    "\n (" +
                                    "\n     id INT NOT NULL IDENTITY PRIMARY KEY" +
@@ -114,7 +116,7 @@ public class PojoPerformanceTest {
 
     Random r = new Random();
 
-    Query insQuery = operations.createQuery(
+    Query insQuery = operations.createQuery( // language=MySQL
             "insert into post (text, creation_date, last_change_date, counter1, counter2, counter3, counter4, counter5, counter6, counter7, counter8, counter9) values (:text, :creation_date, :last_change_date, :counter1, :counter2, :counter3, :counter4, :counter5, :counter6, :counter7, :counter8, :counter9)");
     for (int idx = 0; idx < ITERATIONS; idx++) {
       insQuery.addParameter("text", "a name " + idx)
@@ -203,6 +205,7 @@ public class PojoPerformanceTest {
     @Override
     public void init() {
       conn = operations.open();
+      // language=MySQL
       query = conn.createQuery(SELECT_OPTIMAL + " WHERE id = :id");
       query.setAutoDerivingColumns(true);
     }
@@ -226,6 +229,7 @@ public class PojoPerformanceTest {
     @Override
     public void init() {
       conn = operations.open();
+      // language=MySQL
       query = conn.createQuery(SELECT_TYPICAL + " WHERE id = :id")
               .setAutoDerivingColumns(true);
     }
@@ -257,7 +261,7 @@ public class PojoPerformanceTest {
 //      final Post post = new Post();
 //      post.id = input;
 //      List<Post> list1 = suid.select(post);
-
+    // language=MySQL
       beeSql.select(SELECT_TYPICAL + " WHERE id = " + input);
 
     }
@@ -601,7 +605,7 @@ public class PojoPerformanceTest {
     @Select(SELECT_TYPICAL + " WHERE id = #{id}")
     @Results({ @Result(property = "creationDate", column = "creation_date"), @Result(property = "lastChangeDate",
                                                                                      column = "last_change_date")
-             })
+    })
     Post selectPost(int id);
   }
 

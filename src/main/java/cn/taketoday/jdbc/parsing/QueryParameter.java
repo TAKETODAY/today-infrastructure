@@ -53,12 +53,10 @@ public final class QueryParameter {
    *         any parameter setting error
    */
   public void setTo(final PreparedStatement statement) throws SQLException {
-    final ParameterBinder binder = setter;
-    if (binder != null) {
-      applier.bind(binder, statement);
+    if (setter != null) {
+      applier.bind(setter, statement);
     }
   }
-
 
   public void setHolder(ParameterIndexHolder applier) {
     this.applier = applier;

@@ -108,10 +108,9 @@ final class ArrayParameters {
   ) {
 
     for (final QueryParameter parameter : queryParameters.values()) {
-      final ParameterIndexHolder indexHolder = parameter.getHolder();
       final ArrayList<Integer> newParameterIndex = new ArrayList<>();
 
-      indexHolder.forEach(parameterIndex -> {
+      parameter.getHolder().forEach(parameterIndex -> {
         final int newIdx = computeNewIndex(parameterIndex, arrayParametersSortedAsc);
         newParameterIndex.add(newIdx);
       });
