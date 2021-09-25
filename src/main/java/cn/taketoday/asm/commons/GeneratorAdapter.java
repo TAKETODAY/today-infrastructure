@@ -802,32 +802,35 @@ public class GeneratorAdapter extends LocalVariablesSorter {
   /**
    * Generates the instructions to box the top stack value. This value is replaced by its boxed
    * equivalent on top of the stack.
+   * <p>
+   * If the argument is a primitive class, replaces the primitive value on the top
+   * of the stack with the wrapped (Object) equivalent. For example, char ->
+   * Character. If the class is Void, a null is pushed onto the stack instead.
    *
    * @param type
    *         the type of the top stack value.
    */
   public void box(final Type type) {
-    if (type.getSort() == Type.OBJECT || type.getSort() == Type.ARRAY) {
-      return;
-    }
-    if (type == Type.VOID_TYPE) {
-      push((String) null);
-    }
-    else {
-      Type boxedType = type.getBoxedType();
-      newInstance(boxedType);
-      if (type.getSize() == 2) {
-        // Pp -> Ppo -> oPpo -> ooPpo -> ooPp -> o
-        dupX2();
-        dupX2();
-        pop();
+    if (type.isPrimitive()) {
+      if (type == Type.VOID_TYPE) {
+        aconst_null();
       }
       else {
-        // p -> po -> opo -> oop -> o
-        dupX1();
-        swap();
+        Type boxedType = type.getBoxedType();
+        newInstance(boxedType);
+        if (type.getSize() == 2) {
+          // Pp -> Ppo -> oPpo -> ooPpo -> ooPp -> o
+          dupX2();
+          dupX2();
+          pop();
+        }
+        else {
+          // p -> po -> opo -> oop -> o
+          dupX1();
+          swap();
+        }
+        invokeConstructor(boxedType, MethodSignature.forConstructor(type));
       }
-      invokeConstructor(boxedType, MethodSignature.forConstructor(type));
     }
   }
 
@@ -839,15 +842,14 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    *         the type of the top stack value.
    */
   public void valueOf(final Type type) {
-    if (type.getSort() == Type.OBJECT || type.getSort() == Type.ARRAY) {
-      return;
-    }
-    if (type == Type.VOID_TYPE) {
-      push((String) null);
-    }
-    else {
-      Type boxedType = type.getBoxedType();
-      invokeStatic(boxedType, new MethodSignature(boxedType, "valueOf", type));
+    if (type.isPrimitive()) {
+      if (type == Type.VOID_TYPE) {
+        aconst_null();
+      }
+      else {
+        Type boxedType = type.getBoxedType();
+        invokeStatic(boxedType, new MethodSignature(boxedType, "valueOf", type));
+      }
     }
   }
 

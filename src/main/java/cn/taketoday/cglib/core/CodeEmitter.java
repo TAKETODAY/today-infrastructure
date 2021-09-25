@@ -246,32 +246,6 @@ public class CodeEmitter extends GeneratorAdapter {
 //  }
 
   /**
-   * If the argument is a primitive class, replaces the primitive value on the top
-   * of the stack with the wrapped (Object) equivalent. For example, char ->
-   * Character. If the class is Void, a null is pushed onto the stack instead.
-   *
-   * @param type
-   *         the class indicating the current type of the top stack value
-   */
-  public void box(Type type) {
-    if (type.isPrimitive()) {
-      if (type == Type.VOID_TYPE) {
-        aconst_null();
-      }
-      else {
-        Type boxed = type.getBoxedType();
-        visitMethodInsn(Opcodes.INVOKESTATIC,
-                        boxed.getInternalName(),
-                        "valueOf",
-                        Type.getMethodDescriptor(boxed, Type.array(type)),
-                        false);
-
-        //newInstanceBox(type);
-      }
-    }
-  }
-
-  /**
    * Allocates and fills an Object[] array with the arguments to the current
    * method. Primitive values are inserted as their boxed (Object) equivalents.
    */
