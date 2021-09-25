@@ -1073,7 +1073,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     e.dup();
     MethodSignature sig = constructor.getSignature();
     e.super_invoke_constructor(sig);
-    e.return_value();
+    e.returnValue();
     e.end_method();
   }
 
@@ -1102,7 +1102,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
           e.putField(CONSTRUCTED_FIELD);
         }
       }
-      e.return_value();
+      e.returnValue();
       e.end_method();
     }
     if (!classOnly && !seenNull && arguments == null) {
@@ -1136,7 +1136,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         e.aconst_null();
       }
     });
-    e.return_value();
+    e.returnValue();
     e.end_method();
   }
 
@@ -1156,7 +1156,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         // TODO: error?
       }
     });
-    e.return_value();
+    e.returnValue();
     e.end_method();
   }
 
@@ -1170,7 +1170,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       e.checkCast(callbackTypes[i]);
       e.putField(getCallbackField(i));
     }
-    e.return_value();
+    e.returnValue();
     e.end_method();
   }
 
@@ -1188,7 +1188,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       e.getField(getCallbackField(i));
       e.aastore();
     }
-    e.return_value();
+    e.returnValue();
     e.end_method();
   }
 
@@ -1216,7 +1216,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     e.invokeConstructor(thisType);
     e.aconst_null();
     e.invokeStatic(thisType, SET_THREAD_CALLBACKS);
-    e.return_value();
+    e.returnValue();
     e.end_method();
   }
 
@@ -1272,7 +1272,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     });
     e.aconst_null();
     e.invokeStatic(thisType, SET_THREAD_CALLBACKS);
-    e.return_value();
+    e.returnValue();
     e.end_method();
   }
 
@@ -1408,7 +1408,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
           e.load_this();
           e.load_args();
           e.super_invoke();
-          e.return_value();
+          e.returnValue();
           e.mark(constructed);
         }
         return e;
@@ -1433,7 +1433,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         }
       }
     }
-    se.return_value();
+    se.returnValue();
     se.end_method();
   }
 
@@ -1451,7 +1451,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     e.getField(THREAD_CALLBACKS_FIELD);
     e.load_arg(0);
     e.invokeVirtual(THREAD_LOCAL, THREAD_LOCAL_SET);
-    e.return_value();
+    e.returnValue();
     e.end_method();
   }
 
@@ -1459,7 +1459,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     CodeEmitter e = ce.beginMethod(ACC_PUBLIC | ACC_STATIC, SET_STATIC_CALLBACKS);
     e.load_arg(0);
     e.putField(STATIC_CALLBACKS_FIELD);
-    e.return_value();
+    e.returnValue();
     e.end_method();
   }
 
@@ -1519,7 +1519,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     }
 
     e.mark(end);
-    e.return_value();
+    e.returnValue();
     e.end_method();
   }
 

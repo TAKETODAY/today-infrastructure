@@ -63,7 +63,7 @@ final class DispatcherGenerator implements CallbackGenerator {
         e.checkCast(method.getClassInfo().getType());
         e.load_args();
         e.invoke(method);
-        e.return_value();
+        e.returnValue();
         e.end_method();
       }
     }

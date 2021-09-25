@@ -100,7 +100,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
       // access method
       CodeEmitter codeEmitter = ce.beginMethod(Opcodes.ACC_FINAL, impl, method.getExceptionTypes());
       superHelper(codeEmitter, method, context);
-      codeEmitter.return_value();
+      codeEmitter.returnValue();
       codeEmitter.end_method();
 
       // around method
@@ -124,11 +124,11 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
       codeEmitter.getField(methodProxyField);  // methodProxy
       codeEmitter.invokeInterface(METHOD_INTERCEPTOR, INTERCEPT);
       codeEmitter.unbox_or_zero(sig.getReturnType());
-      codeEmitter.return_value();
+      codeEmitter.returnValue();
 
       codeEmitter.mark(nullInterceptor);
       superHelper(codeEmitter, method, context);
-      codeEmitter.return_value();
+      codeEmitter.returnValue();
       codeEmitter.end_method();
     }
     generateFindProxy(ce, sigMap);
@@ -225,13 +225,13 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
       @Override
       public void processCase(final Object key, final Label end) {
         e.getField(sigMap.get(key));
-        e.return_value();
+        e.returnValue();
       }
 
       @Override
       public void processDefault() {
         e.aconst_null();
-        e.return_value();
+        e.returnValue();
       }
     };
 

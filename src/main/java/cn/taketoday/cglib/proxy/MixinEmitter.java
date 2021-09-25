@@ -59,7 +59,7 @@ class MixinEmitter extends ClassEmitter {
     e.load_this();
     e.load_arg(0);
     e.putField(FIELD_NAME);
-    e.return_value();
+    e.returnValue();
     e.end_method();
 
     final HashSet<Object> unique = new HashSet<>();
@@ -81,7 +81,7 @@ class MixinEmitter extends ClassEmitter {
           e.checkCast(methodInfo.getClassInfo().getType());
           e.load_args();
           e.invoke(methodInfo);
-          e.return_value();
+          e.returnValue();
           e.end_method();
         }
       }

@@ -55,14 +55,14 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
       CodeEmitter emitter = super.beginMethod(Opcodes.ACC_PUBLIC, ENABLED_GET);
       emitter.load_this();
       emitter.getField(CALLBACK_FIELD);
-      emitter.return_value();
+      emitter.returnValue();
       emitter.end_method();
 
       emitter = super.beginMethod(Opcodes.ACC_PUBLIC, ENABLED_SET);
       emitter.load_this();
       emitter.load_arg(0);
       emitter.putField(CALLBACK_FIELD);
-      emitter.return_value();
+      emitter.returnValue();
       emitter.end_method();
     }
     else {
@@ -90,7 +90,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
     e.invokeInterface(ENABLED, ENABLED_GET);
     Label intercept = e.newLabel();
     e.ifNonNull(intercept);
-    e.return_value();
+    e.returnValue();
 
     e.mark(intercept);
     Local result = e.newLocal(type);
@@ -104,7 +104,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
     if (!type.isPrimitive()) {
       e.checkCast(type);
     }
-    e.return_value();
+    e.returnValue();
     e.end_method();
   }
 
@@ -133,7 +133,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
     e.load_arg(0);
     e.mark(go);
     e.putField(name);
-    e.return_value();
+    e.returnValue();
     e.end_method();
   }
 

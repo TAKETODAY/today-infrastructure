@@ -66,7 +66,7 @@ class ParallelSorterEmitter extends ClassEmitter {
       e.checkCast(type);
       e.putField(getFieldName(i));
     }
-    e.return_value();
+    e.returnValue();
     e.end_method();
   }
 
@@ -98,7 +98,7 @@ class ParallelSorterEmitter extends ClassEmitter {
       e.arrayStore(component);
       e.arrayStore(component);
     }
-    e.return_value();
+    e.returnValue();
     e.end_method();
   }
 }

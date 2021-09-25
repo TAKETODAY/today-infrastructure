@@ -43,7 +43,7 @@ final class FixedValueGenerator implements CallbackGenerator {
 
       e.invokeInterface(FIXED_VALUE, LOAD_OBJECT);
       e.unbox_or_zero(e.getReturnType());
-      e.return_value();
+      e.returnValue();
       e.end_method();
     }
   }

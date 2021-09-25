@@ -47,7 +47,7 @@ import cn.taketoday.cglib.core.MethodInfo;
         CodeEmitter e = EmitUtils.beginMethod(ce, method);
         e.load_this();
         context.emitLoadArgsAndInvoke(e, method);
-        e.return_value();
+        e.returnValue();
         e.end_method();
       }
     }

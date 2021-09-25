@@ -183,7 +183,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
       codeEmitter.invoke(methodInfo);
       codeEmitter.box(Type.fromClass(target.getReturnType()));
 
-      codeEmitter.return_value();
+      codeEmitter.returnValue();
       codeEmitter.end_method();
 
       classEmitter.endClass();
@@ -198,7 +198,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
       e.load_this();
       e.load_arg(0);
       e.super_invoke_constructor(SIG_CONSTRUCTOR);
-      e.return_value();
+      e.returnValue();
       e.end_method();
     }
 

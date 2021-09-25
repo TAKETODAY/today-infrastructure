@@ -164,13 +164,13 @@ abstract public class StringSwitcher {
         @Override
         public void processCase(Object key, Label end) {
           e.push(ints[stringList.indexOf(key)]);
-          e.return_value();
+          e.returnValue();
         }
 
         @Override
         public void processDefault() {
           e.push(-1);
-          e.return_value();
+          e.returnValue();
         }
       });
       e.end_method();

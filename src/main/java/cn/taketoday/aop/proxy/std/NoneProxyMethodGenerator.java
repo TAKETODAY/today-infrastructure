@@ -92,7 +92,7 @@ public class NoneProxyMethodGenerator implements ProxyMethodGenerator {
 
     codeEmitter.load_args();
     codeEmitter.invoke(methodInfo);
-    codeEmitter.return_value();
+    codeEmitter.returnValue();
 
     codeEmitter.unbox_or_zero(Type.fromClass(method.getReturnType()));
     codeEmitter.end_method();
@@ -122,7 +122,7 @@ public class NoneProxyMethodGenerator implements ProxyMethodGenerator {
     codeEmitter.checkCast(context.getTargetType());
     codeEmitter.load_args();
     codeEmitter.invoke(methodInfo);
-    codeEmitter.return_value();
+    codeEmitter.returnValue();
 
     codeEmitter.unbox_or_zero(Type.fromClass(method.getReturnType()));
     codeEmitter.end_method();

@@ -56,7 +56,7 @@ final class InvocationHandlerGenerator implements CallbackGenerator {
       e.create_arg_array();
       e.invokeInterface(INVOCATION_HANDLER, INVOKE);
       e.unbox(method.getSignature().getReturnType());
-      e.return_value();
+      e.returnValue();
       handler.end();
       EmitUtils.wrapUndeclaredThrowable(e, handler, method.getExceptionTypes(), UNDECLARED_THROWABLE_EXCEPTION);
       e.end_method();

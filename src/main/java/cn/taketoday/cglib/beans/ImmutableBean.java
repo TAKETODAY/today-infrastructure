@@ -90,7 +90,7 @@ public abstract class ImmutableBean {
       e.load_arg(0);
       e.checkCast(targetType);
       e.putField(FIELD_NAME);
-      e.return_value();
+      e.returnValue();
       e.end_method();
 
       PropertyDescriptor[] descriptors = CglibReflectUtils.getBeanProperties(target);
@@ -103,7 +103,7 @@ public abstract class ImmutableBean {
         e.load_this();
         e.getField(FIELD_NAME);
         e.invoke(getter);
-        e.return_value();
+        e.returnValue();
         e.end_method();
       }
 

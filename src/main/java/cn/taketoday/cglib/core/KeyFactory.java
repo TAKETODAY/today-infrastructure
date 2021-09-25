@@ -261,7 +261,7 @@ abstract public class KeyFactory {
         }
         e.putField(getFieldName(i));
       }
-      e.return_value();
+      e.returnValue();
       e.end_method();
 
       // hash code
@@ -274,7 +274,7 @@ abstract public class KeyFactory {
         e.getField(getFieldName(i));
         EmitUtils.hashCode(e, parameterTypes[i], hm, customizers);
       }
-      e.return_value();
+      e.returnValue();
       e.end_method();
 
       // equals
@@ -292,10 +292,10 @@ abstract public class KeyFactory {
         EmitUtils.notEquals(e, parameterTypes[i], fail, customizers);
       }
       e.push(1);
-      e.return_value();
+      e.returnValue();
       e.mark(fail);
       e.push(0);
-      e.return_value();
+      e.returnValue();
       e.end_method();
 
       // toString
@@ -313,7 +313,7 @@ abstract public class KeyFactory {
         EmitUtils.appendString(e, parameterTypes[i], EmitUtils.DEFAULT_DELIMITERS, customizers);
       }
       e.invokeVirtual(Type.TYPE_STRING_BUFFER, MethodSignature.TO_STRING);
-      e.return_value();
+      e.returnValue();
       e.end_method();
 
       ce.endClass();

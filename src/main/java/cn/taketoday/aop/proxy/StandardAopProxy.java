@@ -336,7 +336,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
       code.load_arg(typesLength + offset + 1);
       code.putField(ProxyMethodGenerator.FIELD_CONFIG);
 
-      code.return_value();
+      code.returnValue();
       code.end_method();
     }
 
@@ -357,7 +357,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
 
       codeEmitter.load_args();
       codeEmitter.invoke(methodInfo);
-      codeEmitter.return_value();
+      codeEmitter.returnValue();
 
       codeEmitter.unbox_or_zero(Type.fromClass(method.getReturnType()));
       codeEmitter.end_method();

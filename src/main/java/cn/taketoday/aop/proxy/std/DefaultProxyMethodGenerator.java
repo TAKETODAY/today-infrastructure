@@ -116,7 +116,7 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
       codeEmitter.unbox_or_zero(Type.fromClass(method.getReturnType()));
     }
 
-    codeEmitter.return_value();
+    codeEmitter.returnValue();
     codeEmitter.end_method();
 
     return true;

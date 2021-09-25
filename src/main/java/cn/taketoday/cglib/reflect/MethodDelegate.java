@@ -261,7 +261,7 @@ public abstract class MethodDelegate {
       e.checkCast(methodInfo.getClassInfo().getType());
       e.load_args();
       e.invoke(methodInfo);
-      e.return_value();
+      e.returnValue();
       e.end_method();
 
       // newInstance
@@ -274,14 +274,14 @@ public abstract class MethodDelegate {
       e.super_putfield("eqMethod", Type.TYPE_STRING);
       e.load_arg(0);
       e.super_putfield("target", Type.TYPE_OBJECT);
-      e.return_value();
+      e.returnValue();
       e.end_method();
 
       // static initializer
       e = ce.begin_static();
       e.push(methodInfo.getSignature().toString());
       e.putField("eqMethod");
-      e.return_value();
+      e.returnValue();
       e.end_method();
 
       ce.endClass();

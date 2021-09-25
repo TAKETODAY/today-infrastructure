@@ -119,14 +119,6 @@ public class CodeEmitter extends GeneratorAdapter {
     mv.visitTryCatchBlock(block.getStart(), block.getEnd(), mark(), exception.getInternalName());
   }
 
-  public void monitorenter() {
-    mv.visitInsn(Opcodes.MONITORENTER);
-  }
-
-  public void monitorexit() {
-    mv.visitInsn(Opcodes.MONITOREXIT);
-  }
-
   public void load_this() {
     if (Modifier.isStatic(state.access)) {
       throw new IllegalStateException("no 'this' pointer within static method");
@@ -167,10 +159,6 @@ public class CodeEmitter extends GeneratorAdapter {
       amount += state.argumentTypes[i].getSize();
     }
     return amount;
-  }
-
-  public void return_value() {
-    mv.visitInsn(state.sig.getReturnType().getOpcode(Opcodes.IRETURN));
   }
 
   public void getField(String name) {

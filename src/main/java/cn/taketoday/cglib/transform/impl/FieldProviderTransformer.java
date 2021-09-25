@@ -124,14 +124,14 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
   private void getNames() {
     CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, PROVIDER_GET_NAMES);
     e.getStatic(getClassType(), FIELD_NAMES, Type.TYPE_STRING_ARRAY);
-    e.return_value();
+    e.returnValue();
     e.end_method();
   }
 
   private void getTypes() {
     CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, PROVIDER_GET_TYPES);
     e.getStatic(getClassType(), FIELD_TYPES, Type.TYPE_CLASS_ARRAY);
-    e.return_value();
+    e.returnValue();
     e.end_method();
   }
 
@@ -145,7 +145,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
         Type type = (Type) fields.get(names[key]);
         e.unbox(type);
         e.putField(names[key]);
-        e.return_value();
+        e.returnValue();
       }
 
       public void generateDefault() {
@@ -165,7 +165,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
         Type type = (Type) fields.get(names[key]);
         e.getField(names[key]);
         e.box(type);
-        e.return_value();
+        e.returnValue();
       }
 
       public void generateDefault() {
@@ -186,7 +186,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
         Type type = (Type) fields.get(key);
         e.getField((String) key);
         e.box(type);
-        e.return_value();
+        e.returnValue();
       }
 
       public void processDefault() {
@@ -206,7 +206,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
         Type type = (Type) fields.get(key);
         e.unbox(type);
         e.putField((String) key);
-        e.return_value();
+        e.returnValue();
       }
 
       public void processDefault() {

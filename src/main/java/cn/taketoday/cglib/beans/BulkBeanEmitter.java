@@ -80,7 +80,7 @@ class BulkBeanEmitter extends ClassEmitter {
         }
       }
     }
-    e.return_value();
+    e.returnValue();
     e.end_method();
   }
 
@@ -124,7 +124,7 @@ class BulkBeanEmitter extends ClassEmitter {
         }
       }
       handler.end();
-      e.return_value();
+      e.returnValue();
       e.catchException(handler, Type.TYPE_THROWABLE);
       e.newInstance(BULK_BEAN_EXCEPTION);
       e.dupX1();
@@ -134,7 +134,7 @@ class BulkBeanEmitter extends ClassEmitter {
       e.throwException();
     }
     else {
-      e.return_value();
+      e.returnValue();
     }
     e.end_method();
   }

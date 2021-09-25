@@ -130,7 +130,7 @@ abstract public class MulticastDelegate implements Cloneable {
       e.new_instance_this();
       e.dup();
       e.invoke_constructor_this();
-      e.return_value();
+      e.returnValue();
       e.end_method();
 
       // add
@@ -139,7 +139,7 @@ abstract public class MulticastDelegate implements Cloneable {
       e.load_arg(0);
       e.checkCast(Type.fromClass(iface));
       e.invoke_virtual_this(ADD_HELPER);
-      e.return_value();
+      e.returnValue();
       e.end_method();
 
       ce.endClass();
@@ -175,7 +175,7 @@ abstract public class MulticastDelegate implements Cloneable {
       if (returns) {
         e.loadLocal(result);
       }
-      e.return_value();
+      e.returnValue();
       e.end_method();
     }
 

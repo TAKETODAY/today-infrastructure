@@ -225,7 +225,7 @@ public class ClassEmitter extends ClassTransformer {
     }
     if (staticInit != null) {
       if (staticHook != null) {
-        staticHook.return_value();
+        staticHook.returnValue();
         staticHook.end_method();
       }
       rawStaticInit.visitInsn(Opcodes.RETURN);

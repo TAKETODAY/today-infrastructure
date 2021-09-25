@@ -59,7 +59,7 @@ final class LazyLoaderGenerator implements CallbackGenerator {
         e.checkCast(method.getClassInfo().getType());
         e.load_args();
         e.invoke(method);
-        e.return_value();
+        e.returnValue();
         e.end_method();
       }
     }
@@ -84,7 +84,7 @@ final class LazyLoaderGenerator implements CallbackGenerator {
       e.dupX1();
       e.putField(delegate);
       e.mark(end);
-      e.return_value();
+      e.returnValue();
       e.end_method();
     }
   }

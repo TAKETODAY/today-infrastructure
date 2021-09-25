@@ -159,7 +159,7 @@ public abstract class BeanCopier {
           }
         }
       }
-      e.return_value();
+      e.returnValue();
       e.end_method();
       ce.endClass();
     }

@@ -103,7 +103,7 @@ class BeanMapEmitter extends ClassEmitter {
     e.load_this();
     e.load_arg(0);
     e.super_invoke_constructor(CSTRUCT_OBJECT);
-    e.return_value();
+    e.returnValue();
     e.end_method();
   }
 
@@ -119,12 +119,12 @@ class BeanMapEmitter extends ClassEmitter {
         MethodInfo method = MethodInfo.from(pd.getReadMethod());
         e.invoke(method);
         e.box(method.getSignature().getReturnType());
-        e.return_value();
+        e.returnValue();
       }
 
       public void processDefault() {
         e.aconst_null();
-        e.return_value();
+        e.returnValue();
       }
     });
     e.end_method();
@@ -153,7 +153,7 @@ class BeanMapEmitter extends ClassEmitter {
         MethodInfo write = MethodInfo.from(pd.getWriteMethod());
         e.unbox(write.getSignature().getArgumentTypes()[0]);
         e.invoke(write);
-        e.return_value();
+        e.returnValue();
       }
 
       public void processDefault() {
@@ -161,7 +161,7 @@ class BeanMapEmitter extends ClassEmitter {
       }
     });
     e.aconst_null();
-    e.return_value();
+    e.returnValue();
     e.end_method();
   }
 
@@ -175,14 +175,14 @@ class BeanMapEmitter extends ClassEmitter {
     EmitUtils.pushArray(e, allNames);
     e.invokeConstructor(FIXED_KEY_SET, CSTRUCT_STRING_ARRAY);
     e.putField("keys");
-    e.return_value();
+    e.returnValue();
     e.end_method();
 
     // keySet
     e = beginMethod(Opcodes.ACC_PUBLIC, KEY_SET);
     e.load_this();
     e.getField("keys");
-    e.return_value();
+    e.returnValue();
     e.end_method();
   }
 
@@ -193,12 +193,12 @@ class BeanMapEmitter extends ClassEmitter {
       public void processCase(Object key, Label end) {
         PropertyDescriptor pd = allProps.get(key);
         EmitUtils.loadClass(e, Type.fromClass(pd.getPropertyType()));
-        e.return_value();
+        e.returnValue();
       }
 
       public void processDefault() {
         e.aconst_null();
-        e.return_value();
+        e.returnValue();
       }
     });
     e.end_method();

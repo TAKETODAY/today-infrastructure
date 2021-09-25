@@ -80,7 +80,7 @@ final class MethodAccessEmitter extends ClassEmitter {
     e.load_this();
     e.load_args();
     e.super_invoke_constructor(CSTRUCT_CLASS);
-    e.return_value();
+    e.returnValue();
     e.end_method();
 
     VisibilityPredicate vp = new VisibilityPredicate(type, false);
@@ -125,7 +125,7 @@ final class MethodAccessEmitter extends ClassEmitter {
     // getMaxIndex()
     e = beginMethod(Opcodes.ACC_PUBLIC, GET_MAX_INDEX);
     e.push(methods.size() - 1);
-    e.return_value();
+    e.returnValue();
     e.end_method();
 
     endClass();
@@ -174,12 +174,12 @@ final class MethodAccessEmitter extends ClassEmitter {
       public void processCase(Object key, Label end) {
         // TODO: remove linear indexOf
         e.push(signatures.indexOf(key));
-        e.return_value();
+        e.returnValue();
       }
 
       public void processDefault() {
         e.push(-1);
-        e.return_value();
+        e.returnValue();
       }
     };
 
@@ -206,7 +206,7 @@ final class MethodAccessEmitter extends ClassEmitter {
         if (!method.isConstructor()) {
           e.box(method.getSignature().getReturnType());
         }
-        e.return_value();
+        e.returnValue();
       }
 
       public void generateDefault() {
@@ -234,13 +234,13 @@ final class MethodAccessEmitter extends ClassEmitter {
     @Override
     public void processCase(Object key, Label end) {
       codeEmitter.push(indexes.get(key));
-      codeEmitter.return_value();
+      codeEmitter.returnValue();
     }
 
     @Override
     public void processDefault() {
       codeEmitter.push(-1);
-      codeEmitter.return_value();
+      codeEmitter.returnValue();
     }
   }
 
