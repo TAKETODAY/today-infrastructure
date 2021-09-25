@@ -49,7 +49,7 @@ public class AddInitTransformer extends ClassEmitterTransformer {
         @Override
         public void visitInsn(int opcode) {
           if (opcode == Opcodes.RETURN) {
-            load_this();
+            loadThis();
             invoke(info);
           }
           super.visitInsn(opcode);

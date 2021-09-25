@@ -242,9 +242,9 @@ abstract public class KeyFactory {
 
       int seed = 0;
       CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, MethodSignature.forConstructor(parameterTypes));
-      e.load_this();
+      e.loadThis();
       e.super_invoke_constructor();
-      e.load_this();
+      e.loadThis();
       List<FieldTypeCustomizer> fieldTypeCustomizers = getCustomizers(FieldTypeCustomizer.class);
       for (int i = 0; i < parameterTypes.length; i++) {
         Type parameterType = parameterTypes[i];
@@ -255,7 +255,7 @@ abstract public class KeyFactory {
         seed += fieldType.hashCode();
         ce.declare_field(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL, getFieldName(i), fieldType, null);
         e.dup();
-        e.load_arg(i);
+        e.loadArg(i);
         for (FieldTypeCustomizer customizer : fieldTypeCustomizers) {
           customizer.customize(e, i, parameterType);
         }
@@ -270,7 +270,7 @@ abstract public class KeyFactory {
       int hm = (multiplier != 0) ? multiplier : PRIMES[Math.abs(seed * 13) % PRIMES.length];
       e.push(hc);
       for (int i = 0; i < parameterTypes.length; i++) {
-        e.load_this();
+        e.loadThis();
         e.getField(getFieldName(i));
         EmitUtils.hashCode(e, parameterTypes[i], hm, customizers);
       }
@@ -280,13 +280,13 @@ abstract public class KeyFactory {
       // equals
       e = ce.beginMethod(Opcodes.ACC_PUBLIC, MethodSignature.EQUALS);
       Label fail = e.newLabel();
-      e.load_arg(0);
+      e.loadArg(0);
       e.instance_of_this();
       e.ifJump(CodeEmitter.EQ, fail);
       for (int i = 0; i < parameterTypes.length; i++) {
-        e.load_this();
+        e.loadThis();
         e.getField(getFieldName(i));
-        e.load_arg(0);
+        e.loadArg(0);
         e.checkcast_this();
         e.getField(getFieldName(i));
         EmitUtils.notEquals(e, parameterTypes[i], fail, customizers);
@@ -308,7 +308,7 @@ abstract public class KeyFactory {
           e.push(", ");
           e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
         }
-        e.load_this();
+        e.loadThis();
         e.getField(getFieldName(i));
         EmitUtils.appendString(e, parameterTypes[i], EmitUtils.DEFAULT_DELIMITERS, customizers);
       }

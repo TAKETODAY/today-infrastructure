@@ -156,7 +156,7 @@ abstract public class StringSwitcher {
       ce.beginClass(JAVA_VERSION, ACC_PUBLIC, getClassName(), STRING_SWITCHER, null, SOURCE_FILE);
       EmitUtils.nullConstructor(ce);
       final CodeEmitter e = ce.beginMethod(ACC_PUBLIC, INT_VALUE);
-      e.load_arg(0);
+      e.loadArg(0);
       final List<String> stringList = Arrays.asList(strings);
       int style = fixedInput ? Opcodes.SWITCH_STYLE_HASHONLY : Opcodes.SWITCH_STYLE_HASH;
       EmitUtils.stringSwitch(e, strings, style, new ObjectSwitchCallback() {

@@ -54,10 +54,10 @@ class MixinEmitter extends ClassEmitter {
     declare_field(Opcodes.ACC_PRIVATE, FIELD_NAME, Type.TYPE_OBJECT_ARRAY, null);
 
     CodeEmitter e = beginMethod(ACC_PUBLIC, CSTRUCT_OBJECT_ARRAY);
-    e.load_this();
+    e.loadThis();
     e.super_invoke_constructor();
-    e.load_this();
-    e.load_arg(0);
+    e.loadThis();
+    e.loadArg(0);
     e.putField(FIELD_NAME);
     e.returnValue();
     e.end_method();
@@ -75,11 +75,11 @@ class MixinEmitter extends ClassEmitter {
             modifiers |= accVarargs;
           }
           e = EmitUtils.beginMethod(this, methodInfo, modifiers);
-          e.load_this();
+          e.loadThis();
           e.getField(FIELD_NAME);
           e.aaload((route != null) ? route[i] : i);
           e.checkCast(methodInfo.getClassInfo().getType());
-          e.load_args();
+          e.loadArgs();
           e.invoke(methodInfo);
           e.returnValue();
           e.end_method();

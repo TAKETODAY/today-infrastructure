@@ -137,9 +137,9 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
 
   private void setByIndex(final String[] names, final int[] indexes) throws Exception {
     final CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, PROVIDER_SET_BY_INDEX);
-    e.load_this();
-    e.load_arg(1);
-    e.load_arg(0);
+    e.loadThis();
+    e.loadArg(1);
+    e.loadArg(0);
     e.tableSwitch(indexes, new TableSwitchGenerator() {
       public void generateCase(int key, Label end) {
         Type type = (Type) fields.get(names[key]);
@@ -158,8 +158,8 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
   private void getByIndex(final String[] names, final int[] indexes) throws Exception {
 
     final CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, PROVIDER_GET_BY_INDEX);
-    e.load_this();
-    e.load_arg(0);
+    e.loadThis();
+    e.loadArg(0);
     e.tableSwitch(indexes, new TableSwitchGenerator() {
       public void generateCase(int key, Label end) {
         Type type = (Type) fields.get(names[key]);
@@ -179,8 +179,8 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
   // to avoid JVM hashcode implementation incompatibilities
   private void getField(String[] names) throws Exception {
     final CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, PROVIDER_GET);
-    e.load_this();
-    e.load_arg(0);
+    e.loadThis();
+    e.loadArg(0);
     EmitUtils.stringSwitch(e, names, Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
       public void processCase(Object key, Label end) {
         Type type = (Type) fields.get(key);
@@ -198,9 +198,9 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
 
   private void setField(String[] names) throws Exception {
     final CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, PROVIDER_SET);
-    e.load_this();
-    e.load_arg(1);
-    e.load_arg(0);
+    e.loadThis();
+    e.loadArg(1);
+    e.loadArg(0);
     EmitUtils.stringSwitch(e, names, Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
       public void processCase(Object key, Label end) {
         Type type = (Type) fields.get(key);

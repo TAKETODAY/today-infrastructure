@@ -77,8 +77,8 @@ final class MethodAccessEmitter extends ClassEmitter {
 
     // constructor
     CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, CSTRUCT_CLASS);
-    e.load_this();
-    e.load_args();
+    e.loadThis();
+    e.loadArgs();
     e.super_invoke_constructor(CSTRUCT_CLASS);
     e.returnValue();
     e.end_method();
@@ -101,16 +101,16 @@ final class MethodAccessEmitter extends ClassEmitter {
 
     // getIndex(Class[])
     e = beginMethod(Opcodes.ACC_PUBLIC, CONSTRUCTOR_GET_INDEX);
-    e.load_args();
+    e.loadArgs();
     List<MethodInfo> info = CollectionUtils.transform(constructors, MethodInfoTransformer.getInstance());
     EmitUtils.constructorSwitch(e, info, new GetIndexCallback(e, info));
     e.end_method();
 
     // invoke(int, Object, Object[])
     e = beginMethod(Opcodes.ACC_PUBLIC, INVOKE, INVOCATION_TARGET_EXCEPTION);
-    e.load_arg(1);
+    e.loadArg(1);
     e.checkCast(base);
-    e.load_arg(0);
+    e.loadArg(0);
     invokeSwitchHelper(e, methods, 2, base);
     e.end_method();
 
@@ -118,7 +118,7 @@ final class MethodAccessEmitter extends ClassEmitter {
     e = beginMethod(Opcodes.ACC_PUBLIC, NEW_INSTANCE, INVOCATION_TARGET_EXCEPTION);
     e.newInstance(base);
     e.dup();
-    e.load_arg(0);
+    e.loadArg(0);
     invokeSwitchHelper(e, constructors, 1, base);
     e.end_method();
 
@@ -139,7 +139,7 @@ final class MethodAccessEmitter extends ClassEmitter {
         return MethodSignature.from(obj).toString();
       }
     });
-    e.load_arg(0);
+    e.loadArg(0);
     e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.TO_STRING);
     signatureSwitchHelper(e, signatures);
     e.end_method();
@@ -157,12 +157,12 @@ final class MethodAccessEmitter extends ClassEmitter {
           return s.substring(0, s.lastIndexOf(')') + 1);
         }
       });
-      e.load_args();
+      e.loadArgs();
       e.invokeStatic(FAST_CLASS, GET_SIGNATURE_WITHOUT_RETURN_TYPE);
       signatureSwitchHelper(e, signatures);
     }
     else {
-      e.load_args();
+      e.loadArgs();
       List<MethodInfo> info = CollectionUtils.transform(methods, MethodInfoTransformer.getInstance());
       EmitUtils.methodSwitch(e, info, new GetIndexCallback(e, info));
     }
@@ -196,7 +196,7 @@ final class MethodAccessEmitter extends ClassEmitter {
         MethodInfo method = info.get(key);
         Type[] types = method.getSignature().getArgumentTypes();
         for (int i = 0; i < types.length; i++) {
-          e.load_arg(arg);
+          e.loadArg(arg);
           e.aaload(i);
           e.unbox(types[i]);
         }

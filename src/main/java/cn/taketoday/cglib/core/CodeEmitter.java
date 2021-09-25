@@ -119,48 +119,6 @@ public class CodeEmitter extends GeneratorAdapter {
     mv.visitTryCatchBlock(block.getStart(), block.getEnd(), mark(), exception.getInternalName());
   }
 
-  public void load_this() {
-    if (Modifier.isStatic(state.access)) {
-      throw new IllegalStateException("no 'this' pointer within static method");
-    }
-    mv.visitVarInsn(Opcodes.ALOAD, 0);
-  }
-
-  /**
-   * Pushes all of the arguments of the current method onto the stack.
-   */
-  public void load_args() {
-    load_args(0, state.argumentTypes.length);
-  }
-
-  /**
-   * Pushes the specified argument of the current method onto the stack.
-   *
-   * @param index
-   *         the zero-based index into the argument list
-   */
-  public void load_arg(int index) {
-    loadInsn(state.argumentTypes[index], state.localOffset + skipArgs(index));
-  }
-
-  // zero-based (see load_this)
-  public void load_args(int fromArg, int count) {
-    int pos = state.localOffset + skipArgs(fromArg);
-    for (int i = 0; i < count; i++) {
-      Type t = state.argumentTypes[fromArg + i];
-      loadInsn(t, pos);
-      pos += t.getSize();
-    }
-  }
-
-  private int skipArgs(int numArgs) {
-    int amount = 0;
-    for (int i = 0; i < numArgs; i++) {
-      amount += state.argumentTypes[i].getSize();
-    }
-    return amount;
-  }
-
   public void getField(String name) {
     ClassEmitter.FieldInfo info = ce.getFieldInfo(name);
     int opcode = Modifier.isStatic(info.access) ? Opcodes.GETSTATIC : Opcodes.GETFIELD;
@@ -244,25 +202,6 @@ public class CodeEmitter extends GeneratorAdapter {
 //    push(1);
 //    math(XOR, Type.INT_TYPE);
 //  }
-
-  /**
-   * Allocates and fills an Object[] array with the arguments to the current
-   * method. Primitive values are inserted as their boxed (Object) equivalents.
-   */
-  public void create_arg_array() {
-    /* generates: Object[] args = new Object[]{ arg1, new Integer(arg2) }; */
-
-    final Type[] argumentTypes = state.argumentTypes;
-    push(argumentTypes.length);
-    newArray();
-    for (int i = 0; i < argumentTypes.length; i++) {
-      dup();
-      push(i);
-      load_arg(i);
-      box(argumentTypes[i]);
-      aastore();
-    }
-  }
 
   /**
    * Pushes a zero onto the stack if the argument is a primitive class, or a null

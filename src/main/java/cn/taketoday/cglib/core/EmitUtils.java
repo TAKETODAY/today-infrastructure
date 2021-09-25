@@ -71,7 +71,7 @@ public abstract class EmitUtils {
     CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, sig);
     e.new_instance_this();
     e.dup();
-    e.load_args();
+    e.loadArgs();
     e.invoke_constructor_this(MethodSignature.forConstructor(sig.getArgumentTypes()));
     e.returnValue();
     e.end_method();
@@ -79,7 +79,7 @@ public abstract class EmitUtils {
 
   public static void nullConstructor(ClassEmitter ce) {
     CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, MethodSignature.EMPTY_CONSTRUCTOR);
-    e.load_this();
+    e.loadThis();
     e.super_invoke_constructor();
     e.returnValue();
     e.end_method();
@@ -907,14 +907,14 @@ public abstract class EmitUtils {
     final String property = StringUtils.capitalize(name);
     CodeEmitter e;
     e = ce.beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature(type, "get" + property, Constant.TYPES_EMPTY_ARRAY));
-    e.load_this();
+    e.loadThis();
     e.getField(fieldName);
     e.returnValue();
     e.end_method();
 
     e = ce.beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature(Type.VOID_TYPE, "set" + property, type));
-    e.load_this();
-    e.load_arg(0);
+    e.loadThis();
+    e.loadArg(0);
     e.putField(fieldName);
     e.returnValue();
     e.end_method();

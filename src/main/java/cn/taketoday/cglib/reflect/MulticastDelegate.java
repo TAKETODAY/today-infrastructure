@@ -135,8 +135,8 @@ abstract public class MulticastDelegate implements Cloneable {
 
       // add
       e = ce.beginMethod(Opcodes.ACC_PUBLIC, ADD_DELEGATE);
-      e.load_this();
-      e.load_arg(0);
+      e.loadThis();
+      e.loadArg(0);
       e.checkCast(Type.fromClass(iface));
       e.invoke_virtual_this(ADD_HELPER);
       e.returnValue();
@@ -159,13 +159,13 @@ abstract public class MulticastDelegate implements Cloneable {
         e.zero_or_null(returnType);
         e.storeLocal(result);
       }
-      e.load_this();
+      e.loadThis();
       e.super_getfield("targets", Type.TYPE_OBJECT_ARRAY);
       final Local result2 = result;
       EmitUtils.processArray(e, Type.TYPE_OBJECT_ARRAY, new ProcessArrayCallback() {
         public void processElement(Type type) {
           e.checkCast(Type.fromClass(iface));
-          e.load_args();
+          e.loadArgs();
           e.invoke(method);
           if (returns) {
             e.storeLocal(result2);

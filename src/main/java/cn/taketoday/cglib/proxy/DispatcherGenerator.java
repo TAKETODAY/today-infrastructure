@@ -54,14 +54,14 @@ final class DispatcherGenerator implements CallbackGenerator {
         final CodeEmitter e = context.beginMethod(ce, method);
         context.emitCallback(e, context.getIndex(method));
         if (proxyRef) {
-          e.load_this();
+          e.loadThis();
           e.invokeInterface(PROXY_REF_DISPATCHER, PROXY_REF_LOAD_OBJECT);
         }
         else {
           e.invokeInterface(DISPATCHER, LOAD_OBJECT);
         }
         e.checkCast(method.getClassInfo().getType());
-        e.load_args();
+        e.loadArgs();
         e.invoke(method);
         e.returnValue();
         e.end_method();

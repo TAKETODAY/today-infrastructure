@@ -478,9 +478,10 @@ public class GeneratorAdapter extends LocalVariablesSorter {
 
   /**
    * Generates the instruction to load the given method argument on the stack.
+   * <p>Pushes the specified argument of the current method onto the stack.
    *
    * @param arg
-   *         the index of a method argument.
+   *         the index of a method argument. the zero-based index into the argument list
    */
   public void loadArg(final int arg) {
     loadInsn(argumentTypes[arg], getArgIndex(arg));
@@ -504,7 +505,10 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     }
   }
 
-  /** Generates the instructions to load all the method arguments on the stack. */
+  /**
+   * Generates the instructions to load all the method arguments on the stack.
+   * <p>Pushes all of the arguments of the current method onto the stack.
+   */
   public void loadArgs() {
     loadArgs(0, argumentTypes.length);
   }
@@ -513,10 +517,11 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * Generates the instructions to load all the method arguments on the stack, as a single object
    * array.
    * <p>
-   * load all arguments as array
-   * </p>
+   * Allocates and fills an Object[] array with the arguments to the current
+   * method. Primitive values are inserted as their boxed (Object) equivalents.
    */
   public void loadArgArray() {
+    /* generates: Object[] args = new Object[]{ arg1, new Integer(arg2) }; */
     final Type[] argumentTypes = this.argumentTypes;
     push(argumentTypes.length);
     newArray(Type.TYPE_OBJECT);

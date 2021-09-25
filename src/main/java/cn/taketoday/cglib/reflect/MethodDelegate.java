@@ -256,10 +256,10 @@ public abstract class MethodDelegate {
         modifiers |= Opcodes.ACC_VARARGS;
       }
       e = EmitUtils.beginMethod(ce, proxied, modifiers);
-      e.load_this();
+      e.loadThis();
       e.super_getfield("target", Type.TYPE_OBJECT);
       e.checkCast(methodInfo.getClassInfo().getType());
-      e.load_args();
+      e.loadArgs();
       e.invoke(methodInfo);
       e.returnValue();
       e.end_method();
@@ -272,7 +272,7 @@ public abstract class MethodDelegate {
       e.invoke_constructor_this();
       e.getField("eqMethod");
       e.super_putfield("eqMethod", Type.TYPE_STRING);
-      e.load_arg(0);
+      e.loadArg(0);
       e.super_putfield("target", Type.TYPE_OBJECT);
       e.returnValue();
       e.end_method();

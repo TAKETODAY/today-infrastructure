@@ -94,10 +94,10 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
         public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
           super.visitMethodInsn(opcode, owner, name, desc, itf);
           if (transformInit && opcode == Opcodes.INVOKESPECIAL) {
-            load_this();
+            loadThis();
             newInstance(delegateType);
             dup();
-            load_this();
+            loadThis();
             invokeConstructor(delegateType, CSTRUCT_OBJECT);
             putField(DELEGATE);
             transformInit = false;
@@ -123,9 +123,9 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
     final MethodSignature sig = MethodSignature.from(m);
     Type[] exceptions = Type.getTypes(m.getExceptionTypes());
     CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, sig, exceptions);
-    e.load_this();
+    e.loadThis();
     e.getField(DELEGATE);
-    e.load_args();
+    e.loadArgs();
     e.invokeVirtual(delegateType, sig);
     e.returnValue();
     e.end_method();

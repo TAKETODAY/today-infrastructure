@@ -64,14 +64,14 @@ class BulkBeanEmitter extends ClassEmitter {
   private void generateGet(final Class target, final Method[] getters) {
     CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, GET_PROPERTY_VALUES);
     if (getters.length > 0) {
-      e.load_arg(0);
+      e.loadArg(0);
       e.checkCast(Type.fromClass(target));
       Local bean = e.newLocal();
       e.storeLocal(bean);
       for (int i = 0; i < getters.length; i++) {
         if (getters[i] != null) {
           MethodInfo getter = MethodInfo.from(getters[i]);
-          e.load_arg(1);
+          e.loadArg(1);
           e.push(i);
           e.loadLocal(bean);
           e.invoke(getter);
@@ -91,9 +91,9 @@ class BulkBeanEmitter extends ClassEmitter {
       Local index = e.newLocal(Type.INT_TYPE);
       e.push(0);
       e.storeLocal(index);
-      e.load_arg(0);
+      e.loadArg(0);
       e.checkCast(Type.fromClass(target));
-      e.load_arg(1);
+      e.loadArg(1);
       Block handler = e.begin_block();
       int lastIndex = 0;
       for (int i = 0; i < setters.length; i++) {

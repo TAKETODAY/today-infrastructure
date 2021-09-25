@@ -132,9 +132,9 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
       // cannot change interceptor chain
       if (exposeProxy) {
         // load proxy object: this
-        codeEmitter.load_this();
+        codeEmitter.loadThis();
       }
-      codeEmitter.load_this();
+      codeEmitter.loadThis();
       if (isStatic) {
         // Object target, Target targetInv, Object[] args
         codeEmitter.getField(FIELD_TARGET);
@@ -167,8 +167,8 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
       // dynamic Advised
       // Object proxy, AdvisedSupport advised, TargetInvocation targetInv, Object[] args
 
-      codeEmitter.load_this();
-      codeEmitter.load_this();
+      codeEmitter.loadThis();
+      codeEmitter.loadThis();
       codeEmitter.getField(FIELD_CONFIG);
       codeEmitter.getField(targetInvField);
       prepareArgs(method, codeEmitter);
@@ -212,7 +212,7 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
       EmitUtils.loadEmptyArguments(codeEmitter);
     }
     else {
-      codeEmitter.create_arg_array(); // args
+      codeEmitter.loadArgArray(); // args
     }
   }
 

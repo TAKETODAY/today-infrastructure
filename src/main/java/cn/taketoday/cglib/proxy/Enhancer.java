@@ -1069,7 +1069,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     }
     MethodInfo constructor = MethodInfo.from(declaredConstructor);
     CodeEmitter e = EmitUtils.beginMethod(ce, constructor, ACC_PUBLIC);
-    e.load_this();
+    e.loadThis();
     e.dup();
     MethodSignature sig = constructor.getSignature();
     e.super_invoke_constructor(sig);
@@ -1088,16 +1088,16 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         continue;
       }
       CodeEmitter e = EmitUtils.beginMethod(ce, constructor, ACC_PUBLIC);
-      e.load_this();
+      e.loadThis();
       e.dup();
-      e.load_args();
+      e.loadArgs();
       MethodSignature sig = constructor.getSignature();
       seenNull = seenNull || sig.getDescriptor().equals(descriptor);
       e.super_invoke_constructor(sig);
       if (currentData == null) {
         e.invoke_static_this(BIND_CALLBACKS);
         if (!interceptDuringConstruction) {
-          e.load_this();
+          e.loadThis();
           e.push(1);
           e.putField(CONSTRUCTED_FIELD);
         }
@@ -1121,10 +1121,10 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
   private void emitGetCallback(ClassEmitter ce, int[] keys) {
     final CodeEmitter e = ce.beginMethod(ACC_PUBLIC, GET_CALLBACK);
-    e.load_this();
+    e.loadThis();
     e.invoke_static_this(BIND_CALLBACKS);
-    e.load_this();
-    e.load_arg(0);
+    e.loadThis();
+    e.loadArg(0);
     e.tableSwitch(keys, new TableSwitchGenerator() {
       public void generateCase(int key, Label end) {
         e.getField(getCallbackField(key));
@@ -1142,11 +1142,11 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
   private void emitSetCallback(ClassEmitter ce, int[] keys) {
     final CodeEmitter e = ce.beginMethod(ACC_PUBLIC, SET_CALLBACK);
-    e.load_arg(0);
+    e.loadArg(0);
     e.tableSwitch(keys, new TableSwitchGenerator() {
       public void generateCase(int key, Label end) {
-        e.load_this();
-        e.load_arg(1);
+        e.loadThis();
+        e.loadArg(1);
         e.checkCast(callbackTypes[key]);
         e.putField(getCallbackField(key));
         e.goTo(end);
@@ -1162,8 +1162,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
   private void emitSetCallbacks(ClassEmitter ce) {
     CodeEmitter e = ce.beginMethod(ACC_PUBLIC, SET_CALLBACKS);
-    e.load_this();
-    e.load_arg(0);
+    e.loadThis();
+    e.loadArg(0);
     for (int i = 0; i < callbackTypes.length; i++) {
       e.dup2();
       e.aaload(i);
@@ -1176,15 +1176,15 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
   private void emitGetCallbacks(ClassEmitter ce) {
     CodeEmitter e = ce.beginMethod(ACC_PUBLIC, GET_CALLBACKS);
-    e.load_this();
+    e.loadThis();
     e.invoke_static_this(BIND_CALLBACKS);
-    e.load_this();
+    e.loadThis();
     e.push(callbackTypes.length);
     e.newArray(CALLBACK);
     for (int i = 0; i < callbackTypes.length; i++) {
       e.dup();
       e.push(i);
-      e.load_this();
+      e.loadThis();
       e.getField(getCallbackField(i));
       e.aastore();
     }
@@ -1195,7 +1195,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   private void emitNewInstanceCallbacks(ClassEmitter ce) {
     CodeEmitter e = ce.beginMethod(ACC_PUBLIC, NEW_INSTANCE);
     Type thisType = getThisType(e);
-    e.load_arg(0);
+    e.loadArg(0);
     e.invokeStatic(thisType, SET_THREAD_CALLBACKS);
     emitCommonNewInstance(e);
   }
@@ -1232,7 +1232,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         e.newArray(CALLBACK);
         e.dup();
         e.push(0);
-        e.load_arg(0);
+        e.loadArg(0);
         e.aastore();
         e.invokeStatic(getThisType(e), SET_THREAD_CALLBACKS);
         break;
@@ -1245,18 +1245,18 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   private void emitNewInstanceMultiarg(ClassEmitter ce, List constructors) {
     final CodeEmitter e = ce.beginMethod(ACC_PUBLIC, MULTIARG_NEW_INSTANCE);
     final Type thisType = getThisType(e);
-    e.load_arg(2);
+    e.loadArg(2);
     e.invokeStatic(thisType, SET_THREAD_CALLBACKS);
     e.newInstance(thisType);
     e.dup();
-    e.load_arg(0);
+    e.loadArg(0);
     EmitUtils.constructorSwitch(e, constructors, new ObjectSwitchCallback() {
       @Override
       public void processCase(Object key, Label end) {
         MethodInfo constructor = (MethodInfo) key;
         Type[] types = constructor.getSignature().getArgumentTypes();
         for (int i = 0; i < types.length; i++) {
-          e.load_arg(1);
+          e.loadArg(1);
           e.push(i);
           e.aaload();
           e.unbox(types[i]);
@@ -1367,7 +1367,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
           // checkcast each argument against the target's argument types
           final Type[] argumentTypes = bridgeTarget.getArgumentTypes();
           for (int i = 0; i < argumentTypes.length; i++) {
-            e.load_arg(i);
+            e.loadArg(i);
             Type target = argumentTypes[i];
             if (!target.equals(method.getSignature().getArgumentTypes()[i])) {
               e.checkCast(target);
@@ -1392,7 +1392,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
           }
         }
         else {
-          e.load_args();
+          e.loadArgs();
           e.super_invoke(method.getSignature());
         }
       }
@@ -1402,11 +1402,11 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         CodeEmitter e = EmitUtils.beginMethod(ce, method);
         if (!interceptDuringConstruction && !Modifier.isAbstract(method.getModifiers())) {
           Label constructed = e.newLabel();
-          e.load_this();
+          e.loadThis();
           e.getField(CONSTRUCTED_FIELD);
           e.ifJump(CodeEmitter.NE, constructed);
-          e.load_this();
-          e.load_args();
+          e.loadThis();
+          e.loadArgs();
           e.super_invoke();
           e.returnValue();
           e.mark(constructed);
@@ -1449,7 +1449,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   private void emitSetThreadCallbacks(ClassEmitter ce) {
     CodeEmitter e = ce.beginMethod(ACC_PUBLIC | ACC_STATIC, SET_THREAD_CALLBACKS);
     e.getField(THREAD_CALLBACKS_FIELD);
-    e.load_arg(0);
+    e.loadArg(0);
     e.invokeVirtual(THREAD_LOCAL, THREAD_LOCAL_SET);
     e.returnValue();
     e.end_method();
@@ -1457,22 +1457,22 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
   private void emitSetStaticCallbacks(ClassEmitter ce) {
     CodeEmitter e = ce.beginMethod(ACC_PUBLIC | ACC_STATIC, SET_STATIC_CALLBACKS);
-    e.load_arg(0);
+    e.loadArg(0);
     e.putField(STATIC_CALLBACKS_FIELD);
     e.returnValue();
     e.end_method();
   }
 
   private void emitCurrentCallback(CodeEmitter e, int index) {
-    e.load_this();
+    e.loadThis();
     e.getField(getCallbackField(index));
     e.dup();
     Label end = e.newLabel();
     e.ifNonNull(end);
     e.pop(); // stack height
-    e.load_this();
+    e.loadThis();
     e.invoke_static_this(BIND_CALLBACKS);
-    e.load_this();
+    e.loadThis();
     e.getField(getCallbackField(index));
     e.mark(end);
   }
@@ -1480,7 +1480,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   private void emitBindCallbacks(ClassEmitter ce) {
     CodeEmitter e = ce.beginMethod(Opcodes.PRIVATE_FINAL_STATIC, BIND_CALLBACKS);
     Local me = e.newLocal();
-    e.load_arg(0);
+    e.loadArg(0);
     e.checkcast_this();
     e.storeLocal(me);
 

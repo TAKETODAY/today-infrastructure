@@ -53,14 +53,14 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
       super.declare_field(Opcodes.ACC_PRIVATE | Opcodes.ACC_TRANSIENT, CALLBACK_FIELD, CALLBACK, null);
 
       CodeEmitter emitter = super.beginMethod(Opcodes.ACC_PUBLIC, ENABLED_GET);
-      emitter.load_this();
+      emitter.loadThis();
       emitter.getField(CALLBACK_FIELD);
       emitter.returnValue();
       emitter.end_method();
 
       emitter = super.beginMethod(Opcodes.ACC_PUBLIC, ENABLED_SET);
-      emitter.load_this();
-      emitter.load_arg(0);
+      emitter.loadThis();
+      emitter.loadArg(0);
       emitter.putField(CALLBACK_FIELD);
       emitter.returnValue();
       emitter.end_method();
@@ -84,9 +84,9 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
 
   private void addReadMethod(String name, Type type) {
     CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, readMethodSig(name, type.getDescriptor()));
-    e.load_this();
+    e.loadThis();
     e.getField(name);
-    e.load_this();
+    e.loadThis();
     e.invokeInterface(ENABLED, ENABLED_GET);
     Label intercept = e.newLabel();
     e.ifNonNull(intercept);
@@ -95,9 +95,9 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
     e.mark(intercept);
     Local result = e.newLocal(type);
     e.storeLocal(result);
-    e.load_this();
+    e.loadThis();
     e.invokeInterface(ENABLED, ENABLED_GET);
-    e.load_this();
+    e.loadThis();
     e.push(name);
     e.loadLocal(result);
     e.invokeInterface(CALLBACK, readCallbackSig(type));
@@ -110,19 +110,19 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
 
   private void addWriteMethod(String name, Type type) {
     CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, writeMethodSig(name, type.getDescriptor()));
-    e.load_this();
+    e.loadThis();
     e.dup();
     e.invokeInterface(ENABLED, ENABLED_GET);
     Label skip = e.newLabel();
     e.ifNull(skip);
 
-    e.load_this();
+    e.loadThis();
     e.invokeInterface(ENABLED, ENABLED_GET);
-    e.load_this();
+    e.loadThis();
     e.push(name);
-    e.load_this();
+    e.loadThis();
     e.getField(name);
-    e.load_arg(0);
+    e.loadArg(0);
     e.invokeInterface(CALLBACK, writeCallbackSig(type));
     if (!type.isPrimitive()) {
       e.checkCast(type);
@@ -130,7 +130,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
     Label go = e.newLabel();
     e.goTo(go);
     e.mark(skip);
-    e.load_arg(0);
+    e.loadArg(0);
     e.mark(go);
     e.putField(name);
     e.returnValue();

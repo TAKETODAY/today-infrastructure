@@ -46,14 +46,14 @@ public class AccessFieldTransformer extends ClassEmitterTransformer {
     if (property != null) {
       CodeEmitter e;
       e = beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature(type, "get" + property, Constant.TYPES_EMPTY_ARRAY));
-      e.load_this();
+      e.loadThis();
       e.getField(name);
       e.returnValue();
       e.end_method();
 
       e = beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature(Type.VOID_TYPE, "set" + property, type));
-      e.load_this();
-      e.load_arg(0);
+      e.loadThis();
+      e.loadArg(0);
       e.putField(name);
       e.returnValue();
       e.end_method();

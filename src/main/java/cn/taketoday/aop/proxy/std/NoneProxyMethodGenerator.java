@@ -86,11 +86,11 @@ public class NoneProxyMethodGenerator implements ProxyMethodGenerator {
     final MethodInfo methodInfo = MethodInfo.from(method, modifiers);
     final CodeEmitter codeEmitter = EmitUtils.beginMethod(emitter, methodInfo, modifiers);
 
-    codeEmitter.load_this();
+    codeEmitter.loadThis();
 
     codeEmitter.getField(FIELD_TARGET);
 
-    codeEmitter.load_args();
+    codeEmitter.loadArgs();
     codeEmitter.invoke(methodInfo);
     codeEmitter.returnValue();
 
@@ -113,14 +113,14 @@ public class NoneProxyMethodGenerator implements ProxyMethodGenerator {
 
     // this.targetSource.getTarget()
 
-    codeEmitter.load_this();
+    codeEmitter.loadThis();
     codeEmitter.getField(FIELD_TARGET_SOURCE);
     codeEmitter.invokeInterface(targetSourceType, targetSourceGetTarget);
 
     // cast
 
     codeEmitter.checkCast(context.getTargetType());
-    codeEmitter.load_args();
+    codeEmitter.loadArgs();
     codeEmitter.invoke(methodInfo);
     codeEmitter.returnValue();
 

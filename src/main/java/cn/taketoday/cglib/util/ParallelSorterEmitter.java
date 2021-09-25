@@ -51,16 +51,16 @@ class ParallelSorterEmitter extends ClassEmitter {
 
   private void generateConstructor(Object[] arrays) {
     CodeEmitter e = beginMethod(ACC_PUBLIC, CSTRUCT_OBJECT_ARRAY);
-    e.load_this();
+    e.loadThis();
     e.super_invoke_constructor();
-    e.load_this();
-    e.load_arg(0);
+    e.loadThis();
+    e.loadArg(0);
     e.super_putfield("a", Type.TYPE_OBJECT_ARRAY);
     for (int i = 0; i < arrays.length; i++) {
       Type type = Type.fromClass(arrays[i].getClass());
       declare_field(Opcodes.ACC_PRIVATE, getFieldName(i), type, null);
-      e.load_this();
-      e.load_arg(0);
+      e.loadThis();
+      e.loadArg(0);
       e.push(i);
       e.aaload();
       e.checkCast(type);
@@ -77,22 +77,22 @@ class ParallelSorterEmitter extends ClassEmitter {
       Type component = type.getComponentType();
       Local T = e.newLocal(type);
 
-      e.load_this();
+      e.loadThis();
       e.getField(getFieldName(i));
       e.storeLocal(T);
 
       e.loadLocal(T);
-      e.load_arg(0);
+      e.loadArg(0);
 
       e.loadLocal(T);
-      e.load_arg(1);
+      e.loadArg(1);
       e.arrayLoad(component);
 
       e.loadLocal(T);
-      e.load_arg(1);
+      e.loadArg(1);
 
       e.loadLocal(T);
-      e.load_arg(0);
+      e.loadArg(0);
       e.arrayLoad(component);
 
       e.arrayStore(component);

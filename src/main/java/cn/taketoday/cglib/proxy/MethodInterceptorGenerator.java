@@ -110,7 +110,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
       codeEmitter.dup();
       codeEmitter.ifNull(nullInterceptor);
 
-      codeEmitter.load_this(); // obj
+      codeEmitter.loadThis(); // obj
       codeEmitter.getField(methodField); // method
 
       if (sig.getArgumentTypes().length == 0) {
@@ -118,7 +118,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
         EmitUtils.loadEmptyArguments(codeEmitter);
       }
       else {
-        codeEmitter.create_arg_array(); // args
+        codeEmitter.loadArgArray(); // args
       }
 
       codeEmitter.getField(methodProxyField);  // methodProxy
@@ -139,7 +139,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
       e.throwException(ABSTRACT_METHOD_ERROR, method + " is abstract");
     }
     else {
-      e.load_this();
+      e.loadThis();
       context.emitLoadArgsAndInvoke(e, method);
     }
   }
@@ -217,7 +217,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
   public void generateFindProxy(final ClassEmitter ce, final Map<String, String> sigMap) {
 
     final CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, FIND_PROXY);
-    e.load_arg(0);
+    e.loadArg(0);
     e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.TO_STRING);
 
     final ObjectSwitchCallback callback = new ObjectSwitchCallback() {

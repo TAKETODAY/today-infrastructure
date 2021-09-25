@@ -114,7 +114,7 @@ abstract public class ConstructorDelegate {
               ACC_PUBLIC, MethodSignature.from(newInstance), Type.getExceptionTypes(newInstance));
       e.newInstance(declaring);
       e.dup();
-      e.load_args();
+      e.loadArgs();
       e.invokeConstructor(declaring, MethodSignature.from(constructor));
       e.returnValue();
       e.end_method();

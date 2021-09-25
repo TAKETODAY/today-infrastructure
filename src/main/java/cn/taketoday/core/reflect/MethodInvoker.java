@@ -195,8 +195,8 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
     @Override
     protected void generateConstructor(ClassEmitter ce) {
       CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, SIG_CONSTRUCTOR);
-      e.load_this();
-      e.load_arg(0);
+      e.loadThis();
+      e.loadArg(0);
       e.super_invoke_constructor(SIG_CONSTRUCTOR);
       e.returnValue();
       e.end_method();

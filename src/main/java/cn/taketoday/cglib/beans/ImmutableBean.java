@@ -84,10 +84,10 @@ public abstract class ImmutableBean {
       ce.declare_field(Opcodes.ACC_FINAL | Opcodes.ACC_PRIVATE, FIELD_NAME, targetType, null);
 
       CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, CSTRUCT_OBJECT);
-      e.load_this();
+      e.loadThis();
       e.super_invoke_constructor();
-      e.load_this();
-      e.load_arg(0);
+      e.loadThis();
+      e.loadArg(0);
       e.checkCast(targetType);
       e.putField(FIELD_NAME);
       e.returnValue();
@@ -100,7 +100,7 @@ public abstract class ImmutableBean {
       for (final Method value : getters) {
         MethodInfo getter = MethodInfo.from(value);
         e = EmitUtils.beginMethod(ce, getter, Opcodes.ACC_PUBLIC);
-        e.load_this();
+        e.loadThis();
         e.getField(FIELD_NAME);
         e.invoke(getter);
         e.returnValue();

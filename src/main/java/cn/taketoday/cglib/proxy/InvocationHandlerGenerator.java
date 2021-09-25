@@ -51,9 +51,9 @@ final class InvocationHandlerGenerator implements CallbackGenerator {
       final Block handler = e.begin_block();
 
       context.emitCallback(e, context.getIndex(method));
-      e.load_this();
+      e.loadThis();
       e.getField(impl.getName());
-      e.create_arg_array();
+      e.loadArgArray();
       e.invokeInterface(INVOCATION_HANDLER, INVOKE);
       e.unbox(method.getSignature().getReturnType());
       e.returnValue();

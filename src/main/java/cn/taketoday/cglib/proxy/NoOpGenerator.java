@@ -45,7 +45,7 @@ import cn.taketoday.cglib.core.MethodInfo;
                       && Modifier.isPublic(method.getModifiers()))) {
 
         CodeEmitter e = EmitUtils.beginMethod(ce, method);
-        e.load_this();
+        e.loadThis();
         context.emitLoadArgsAndInvoke(e, method);
         e.returnValue();
         e.end_method();

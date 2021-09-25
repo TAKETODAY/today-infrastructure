@@ -309,31 +309,31 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
 
       final CodeEmitter code = ce.beginMethod(Opcodes.ACC_PUBLIC, parseConstructor);
 
-      code.load_this();
+      code.loadThis();
       code.dup();
 
       // 调用父类构造器
       if (typesLength > 0) {
-        code.load_args(0, typesLength);
+        code.loadArgs(0, typesLength);
       }
       code.super_invoke_constructor(MethodSignature.forConstructor(superTypes));
       // 赋值
 
       int offset = 0;
       if (targetSourceStatic) {
-        code.load_this();
-        code.load_arg(typesLength);
+        code.loadThis();
+        code.loadArg(typesLength);
         code.putField(ProxyMethodGenerator.FIELD_TARGET);
 
         offset = 1;
       }
 
-      code.load_this();
-      code.load_arg(typesLength + offset);
+      code.loadThis();
+      code.loadArg(typesLength + offset);
       code.putField(ProxyMethodGenerator.FIELD_TARGET_SOURCE);
 
-      code.load_this();
-      code.load_arg(typesLength + offset + 1);
+      code.loadThis();
+      code.loadArg(typesLength + offset + 1);
       code.putField(ProxyMethodGenerator.FIELD_CONFIG);
 
       code.returnValue();
@@ -351,11 +351,11 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
       MethodInfo methodInfo = MethodInfo.from(method, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
       final CodeEmitter codeEmitter = EmitUtils.beginMethod(ce, methodInfo, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
 
-      codeEmitter.load_this();
+      codeEmitter.loadThis();
 
       codeEmitter.getField(ProxyMethodGenerator.FIELD_CONFIG);
 
-      codeEmitter.load_args();
+      codeEmitter.loadArgs();
       codeEmitter.invoke(methodInfo);
       codeEmitter.returnValue();
 
