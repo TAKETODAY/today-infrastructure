@@ -111,7 +111,8 @@ public class WebApplicationLoader
     configureHandlerRegistry(context.getBeans(HandlerRegistry.class), mvcConfiguration); //fix
   }
 
-  protected void configureHandlerRegistry(List<HandlerRegistry> registries, WebMvcConfiguration mvcConfiguration) {
+  protected void configureHandlerRegistry(
+          List<HandlerRegistry> registries, WebMvcConfiguration mvcConfiguration) {
     final DispatcherHandler obtainDispatcher = obtainDispatcher();
     final HandlerRegistry handlerRegistry = obtainDispatcher.getHandlerRegistry();
     if (handlerRegistry != null) {

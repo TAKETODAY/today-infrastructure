@@ -137,8 +137,7 @@ public class DataBinderParameterResolver
 
       ReflectionUtils.doWithFields(parameterClass, field -> {
         if (AnnotationUtils.isPresent(field, RequestParam.class)) {
-          AnnotatedPropertyResolver resolver = new AnnotatedPropertyResolver(parameter, field, registry);
-          resolverList.add(resolver);
+          resolverList.add(new AnnotatedPropertyResolver(parameter, field, registry));
         }
       });
       parameter.setAttribute(ANNOTATED_RESOLVERS_KEY, resolverList);
