@@ -115,7 +115,7 @@ abstract public class ConstructorDelegate {
       e.newInstance(declaring);
       e.dup();
       e.load_args();
-      e.invoke_constructor(declaring, MethodSignature.from(constructor));
+      e.invokeConstructor(declaring, MethodSignature.from(constructor));
       e.return_value();
       e.end_method();
       ce.endClass();

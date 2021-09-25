@@ -110,9 +110,9 @@ class BeanMapEmitter extends ClassEmitter {
   private void generateGet(Class type, final Map<String, PropertyDescriptor> getters) {
     final CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, BEAN_MAP_GET);
     e.load_arg(0);
-    e.checkcast(Type.fromClass(type));
+    e.checkCast(Type.fromClass(type));
     e.load_arg(1);
-    e.checkcast(Type.TYPE_STRING);
+    e.checkCast(Type.TYPE_STRING);
     EmitUtils.stringSwitch(e, getNames(getters), Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
       public void processCase(Object key, Label end) {
         PropertyDescriptor pd = getters.get(key);
@@ -133,9 +133,9 @@ class BeanMapEmitter extends ClassEmitter {
   private void generatePut(Class type, final Map<String, PropertyDescriptor> setters) {
     final CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, BEAN_MAP_PUT);
     e.load_arg(0);
-    e.checkcast(Type.fromClass(type));
+    e.checkCast(Type.fromClass(type));
     e.load_arg(1);
-    e.checkcast(Type.TYPE_STRING);
+    e.checkCast(Type.TYPE_STRING);
     EmitUtils.stringSwitch(e, getNames(setters), Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
       public void processCase(Object key, Label end) {
         PropertyDescriptor pd = setters.get(key);
@@ -173,7 +173,7 @@ class BeanMapEmitter extends ClassEmitter {
     e.newInstance(FIXED_KEY_SET);
     e.dup();
     EmitUtils.pushArray(e, allNames);
-    e.invoke_constructor(FIXED_KEY_SET, CSTRUCT_STRING_ARRAY);
+    e.invokeConstructor(FIXED_KEY_SET, CSTRUCT_STRING_ARRAY);
     e.putfield("keys");
     e.return_value();
     e.end_method();

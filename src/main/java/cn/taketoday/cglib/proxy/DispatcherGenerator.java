@@ -60,7 +60,7 @@ final class DispatcherGenerator implements CallbackGenerator {
         else {
           e.invokeInterface(DISPATCHER, LOAD_OBJECT);
         }
-        e.checkcast(method.getClassInfo().getType());
+        e.checkCast(method.getClassInfo().getType());
         e.load_args();
         e.invoke(method);
         e.return_value();

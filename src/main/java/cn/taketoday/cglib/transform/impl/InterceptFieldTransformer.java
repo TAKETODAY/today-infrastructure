@@ -102,7 +102,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
     e.load_local(result);
     e.invokeInterface(CALLBACK, readCallbackSig(type));
     if (!type.isPrimitive()) {
-      e.checkcast(type);
+      e.checkCast(type);
     }
     e.return_value();
     e.end_method();
@@ -125,7 +125,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
     e.load_arg(0);
     e.invokeInterface(CALLBACK, writeCallbackSig(type));
     if (!type.isPrimitive()) {
-      e.checkcast(type);
+      e.checkCast(type);
     }
     Label go = e.newLabel();
     e.goTo(go);

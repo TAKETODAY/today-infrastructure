@@ -887,7 +887,7 @@ public abstract class EmitUtils {
     e.newInstance(wrapper);
     e.dupX1();
     e.swap();
-    e.invoke_constructor(wrapper, CSTRUCT_THROWABLE);
+    e.invokeConstructor(wrapper, CSTRUCT_THROWABLE);
     e.throwException();
   }
 
@@ -947,7 +947,7 @@ public abstract class EmitUtils {
     e.newInstance(wrapper);
     e.dupX1();
     e.swap();
-    e.invoke_constructor(wrapper, CSTRUCT_THROWABLE);
+    e.invokeConstructor(wrapper, CSTRUCT_THROWABLE);
     e.throwException();
   }
 

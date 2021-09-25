@@ -88,7 +88,7 @@ public abstract class ImmutableBean {
       e.super_invoke_constructor();
       e.load_this();
       e.load_arg(0);
-      e.checkcast(targetType);
+      e.checkCast(targetType);
       e.putfield(FIELD_NAME);
       e.return_value();
       e.end_method();

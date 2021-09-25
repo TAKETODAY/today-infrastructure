@@ -56,7 +56,7 @@ final class LazyLoaderGenerator implements CallbackGenerator {
         e.load_this();
         e.dup();
         e.invoke_virtual_this(loadMethod(index));
-        e.checkcast(method.getClassInfo().getType());
+        e.checkCast(method.getClassInfo().getType());
         e.load_args();
         e.invoke(method);
         e.return_value();

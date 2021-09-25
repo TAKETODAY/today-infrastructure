@@ -121,17 +121,17 @@ public abstract class BeanCopier {
       Local sourceLocal = e.newLocal();
       if (useConverter) {
         e.load_arg(1);
-        e.checkcast(targetType);
+        e.checkCast(targetType);
         e.store_local(targetLocal);
         e.load_arg(0);
-        e.checkcast(sourceType);
+        e.checkCast(sourceType);
         e.store_local(sourceLocal);
       }
       else {
         e.load_arg(1);
-        e.checkcast(targetType);
+        e.checkCast(targetType);
         e.load_arg(0);
-        e.checkcast(sourceType);
+        e.checkCast(sourceType);
       }
 
       for (PropertyDescriptor setter : setters) {

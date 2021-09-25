@@ -253,7 +253,7 @@ public class CodeEmitter extends GeneratorAdapter {
   }
 
   public void super_invoke(MethodSignature sig) {
-    emit_invoke(Opcodes.INVOKESPECIAL, ce.getSuperType(), sig, false);
+    invokeInsn(Opcodes.INVOKESPECIAL, ce.getSuperType(), sig, false);
   }
 
   public void super_invoke_constructor() {
@@ -264,22 +264,8 @@ public class CodeEmitter extends GeneratorAdapter {
     invokeConstructor(ce.getClassType());
   }
 
-  private void emit_invoke(int opcode, Type type, MethodSignature sig, boolean isInterface) {
-
-//      if (sig.getName().equals(Opcodes.CONSTRUCTOR_NAME)
-//            && ((opcode == Opcodes.INVOKEVIRTUAL) || (opcode == Opcodes.INVOKESTATIC))) {
-//          TODO: error
-//      }
-    mv.visitMethodInsn(opcode,
-                       type.getInternalName(),
-                       sig.getName(),
-                       sig.getDescriptor(),
-                       isInterface//
-    );
-  }
-
   public void invokeStatic(Type owner, MethodSignature sig, boolean isInterface) {
-    emit_invoke(Opcodes.INVOKESTATIC, owner, sig, isInterface);
+    invokeInsn(Opcodes.INVOKESTATIC, owner, sig, isInterface);
   }
 
   public void invoke_virtual_this(MethodSignature sig) {
@@ -290,42 +276,24 @@ public class CodeEmitter extends GeneratorAdapter {
     invokeStatic(ce.getClassType(), sig);
   }
 
-  public void invoke_constructor(Type type, MethodSignature sig) {
-    emit_invoke(Opcodes.INVOKESPECIAL, type, sig, false);
-  }
-
   public void invoke_constructor_this(MethodSignature sig) {
-    invoke_constructor(ce.getClassType(), sig);
+    invokeConstructor(ce.getClassType(), sig);
   }
 
   public void super_invoke_constructor(MethodSignature sig) {
-    invoke_constructor(ce.getSuperType(), sig);
+    invokeConstructor(ce.getSuperType(), sig);
   }
 
   public void new_instance_this() {
     newInstance(ce.getClassType());
   }
 
-  private void emit_type(int opcode, Type type) {
-    mv.visitTypeInsn(opcode, type.isArray() ? type.getDescriptor() : type.getInternalName());
-  }
-
   public void checkcast_this() {
-    checkcast(ce.getClassType());
-  }
-
-  public void checkcast(Type type) {
-    if (!type.equals(Type.TYPE_OBJECT)) {
-      emit_type(Opcodes.CHECKCAST, type);
-    }
-  }
-
-  public void instance_of(Type type) {
-    emit_type(Opcodes.INSTANCEOF, type);
+    checkCast(ce.getClassType());
   }
 
   public void instance_of_this() {
-    instance_of(ce.getClassType());
+    instanceOf(ce.getClassType());
   }
 
 //  /**
@@ -428,7 +396,7 @@ public class CodeEmitter extends GeneratorAdapter {
       }
     }
     else {
-      checkcast(type);
+      checkCast(type);
     }
   }
 
@@ -444,7 +412,7 @@ public class CodeEmitter extends GeneratorAdapter {
     Type type = classInfo.getType();
     MethodSignature sig = method.getSignature();
     if (sig.getName().equals(MethodSignature.CONSTRUCTOR_NAME)) {
-      invoke_constructor(type, sig);
+      invokeConstructor(type, sig);
     }
     else if (Modifier.isStatic(method.getModifiers())) {
       invokeStatic(type, sig, Modifier.isInterface(classInfo.getModifiers()));

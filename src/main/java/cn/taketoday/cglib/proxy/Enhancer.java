@@ -1147,7 +1147,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       public void generateCase(int key, Label end) {
         e.load_this();
         e.load_arg(1);
-        e.checkcast(callbackTypes[key]);
+        e.checkCast(callbackTypes[key]);
         e.putfield(getCallbackField(key));
         e.goTo(end);
       }
@@ -1167,7 +1167,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     for (int i = 0; i < callbackTypes.length; i++) {
       e.dup2();
       e.aaload(i);
-      e.checkcast(callbackTypes[i]);
+      e.checkCast(callbackTypes[i]);
       e.putfield(getCallbackField(i));
     }
     e.return_value();
@@ -1261,7 +1261,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
           e.aaload();
           e.unbox(types[i]);
         }
-        e.invoke_constructor(thisType, constructor.getSignature());
+        e.invokeConstructor(thisType, constructor.getSignature());
         e.goTo(end);
       }
 
@@ -1322,7 +1322,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
     se.newInstance(THREAD_LOCAL);
     se.dup();
-    se.invoke_constructor(THREAD_LOCAL, MethodSignature.EMPTY_CONSTRUCTOR);
+    se.invokeConstructor(THREAD_LOCAL, MethodSignature.EMPTY_CONSTRUCTOR);
     se.putfield(THREAD_CALLBACKS_FIELD);
 
     final CallbackGenerator.Context context = new CallbackGenerator.Context() {
@@ -1370,7 +1370,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
             e.load_arg(i);
             Type target = argumentTypes[i];
             if (!target.equals(method.getSignature().getArgumentTypes()[i])) {
-              e.checkcast(target);
+              e.checkCast(target);
             }
           }
 
@@ -1388,7 +1388,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
           // used covariant returns to narrow the return type within a bridge
           // method.)
           if (!retType.equals(bridgeTarget.getReturnType())) {
-            e.checkcast(retType);
+            e.checkCast(retType);
           }
         }
         else {
@@ -1506,7 +1506,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     e.goTo(end);
 
     e.mark(found_callback);
-    e.checkcast(CALLBACK_ARRAY);
+    e.checkCast(CALLBACK_ARRAY);
     e.load_local(me);
     e.swap();
     for (int i = callbackTypes.length - 1; i >= 0; i--) {
@@ -1514,7 +1514,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         e.dup2();
       }
       e.aaload(i);
-      e.checkcast(callbackTypes[i]);
+      e.checkCast(callbackTypes[i]);
       e.putfield(getCallbackField(i));
     }
 

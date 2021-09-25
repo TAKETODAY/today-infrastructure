@@ -98,7 +98,7 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
             newInstance(delegateType);
             dup();
             load_this();
-            invoke_constructor(delegateType, CSTRUCT_OBJECT);
+            invokeConstructor(delegateType, CSTRUCT_OBJECT);
             putfield(DELEGATE);
             transformInit = false;
           }

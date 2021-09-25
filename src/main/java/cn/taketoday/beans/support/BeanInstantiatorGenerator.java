@@ -85,7 +85,7 @@ public class BeanInstantiatorGenerator
     prepareParameters(codeEmitter, this.targetConstructor);
 
     MethodSignature signature = MethodSignature.from(this.targetConstructor);
-    codeEmitter.invoke_constructor(type, signature);
+    codeEmitter.invokeConstructor(type, signature);
 
     codeEmitter.return_value();
     codeEmitter.end_method();

@@ -1252,7 +1252,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @param isInterface
    *         whether the 'type' class is an interface or not.
    */
-  private void invokeInsn(
+  protected void invokeInsn(
           final int opcode, final Type type, final MethodSignature method, final boolean isInterface) {
     String owner = type.getSort() == Type.ARRAY ? type.getDescriptor() : type.getInternalName();
     mv.visitMethodInsn(opcode, owner, method.getName(), method.getDescriptor(), isInterface);
@@ -1351,7 +1351,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @param type
    *         the instruction's operand.
    */
-  private void typeInsn(final int opcode, final Type type) {
+  protected void typeInsn(final int opcode, final Type type) {
     mv.visitTypeInsn(opcode, type.getInternalName());
   }
 

@@ -119,7 +119,7 @@ public class NoneProxyMethodGenerator implements ProxyMethodGenerator {
 
     // cast
 
-    codeEmitter.checkcast(context.getTargetType());
+    codeEmitter.checkCast(context.getTargetType());
     codeEmitter.load_args();
     codeEmitter.invoke(methodInfo);
     codeEmitter.return_value();

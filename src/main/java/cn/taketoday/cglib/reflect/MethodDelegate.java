@@ -258,7 +258,7 @@ public abstract class MethodDelegate {
       e = EmitUtils.beginMethod(ce, proxied, modifiers);
       e.load_this();
       e.super_getfield("target", Type.TYPE_OBJECT);
-      e.checkcast(methodInfo.getClassInfo().getType());
+      e.checkCast(methodInfo.getClassInfo().getType());
       e.load_args();
       e.invoke(methodInfo);
       e.return_value();

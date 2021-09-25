@@ -109,7 +109,7 @@ final class MethodAccessEmitter extends ClassEmitter {
     // invoke(int, Object, Object[])
     e = beginMethod(Opcodes.ACC_PUBLIC, INVOKE, INVOCATION_TARGET_EXCEPTION);
     e.load_arg(1);
-    e.checkcast(base);
+    e.checkCast(base);
     e.load_arg(0);
     invokeSwitchHelper(e, methods, 2, base);
     e.end_method();

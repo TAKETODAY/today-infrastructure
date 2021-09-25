@@ -210,7 +210,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
       final Type parameterType = Type.fromClass(parameterClass);
       if (parameterClass.isPrimitive()) {
         final Type boxedType = parameterType.getBoxedType(); // java.lang.Long ...
-        codeEmitter.checkcast(boxedType);
+        codeEmitter.checkCast(boxedType);
 
         // use "convert" method
         final String descriptor = boxedType.getDescriptor();
@@ -219,7 +219,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
                 "convert", '(' + descriptor + ')' + parameterType.getDescriptor(), false);
       }
       else {
-        codeEmitter.checkcast(parameterType);
+        codeEmitter.checkCast(parameterType);
       }
     }
   }

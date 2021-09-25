@@ -63,7 +63,7 @@ class ParallelSorterEmitter extends ClassEmitter {
       e.load_arg(0);
       e.push(i);
       e.aaload();
-      e.checkcast(type);
+      e.checkCast(type);
       e.putfield(getFieldName(i));
     }
     e.return_value();
