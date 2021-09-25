@@ -174,14 +174,14 @@ class BeanMapEmitter extends ClassEmitter {
     e.dup();
     EmitUtils.pushArray(e, allNames);
     e.invokeConstructor(FIXED_KEY_SET, CSTRUCT_STRING_ARRAY);
-    e.putfield("keys");
+    e.putField("keys");
     e.return_value();
     e.end_method();
 
     // keySet
     e = beginMethod(Opcodes.ACC_PUBLIC, KEY_SET);
     e.load_this();
-    e.getfield("keys");
+    e.getField("keys");
     e.return_value();
     e.end_method();
   }

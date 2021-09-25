@@ -1099,7 +1099,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         if (!interceptDuringConstruction) {
           e.load_this();
           e.push(1);
-          e.putfield(CONSTRUCTED_FIELD);
+          e.putField(CONSTRUCTED_FIELD);
         }
       }
       e.return_value();
@@ -1127,7 +1127,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     e.load_arg(0);
     e.tableSwitch(keys, new TableSwitchGenerator() {
       public void generateCase(int key, Label end) {
-        e.getfield(getCallbackField(key));
+        e.getField(getCallbackField(key));
         e.goTo(end);
       }
 
@@ -1148,7 +1148,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         e.load_this();
         e.load_arg(1);
         e.checkCast(callbackTypes[key]);
-        e.putfield(getCallbackField(key));
+        e.putField(getCallbackField(key));
         e.goTo(end);
       }
 
@@ -1168,7 +1168,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       e.dup2();
       e.aaload(i);
       e.checkCast(callbackTypes[i]);
-      e.putfield(getCallbackField(i));
+      e.putField(getCallbackField(i));
     }
     e.return_value();
     e.end_method();
@@ -1185,7 +1185,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       e.dup();
       e.push(i);
       e.load_this();
-      e.getfield(getCallbackField(i));
+      e.getField(getCallbackField(i));
       e.aastore();
     }
     e.return_value();
@@ -1323,7 +1323,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     se.newInstance(THREAD_LOCAL);
     se.dup();
     se.invokeConstructor(THREAD_LOCAL, MethodSignature.EMPTY_CONSTRUCTOR);
-    se.putfield(THREAD_CALLBACKS_FIELD);
+    se.putField(THREAD_CALLBACKS_FIELD);
 
     final CallbackGenerator.Context context = new CallbackGenerator.Context() {
       Map<MethodSignature, MethodSignature> bridgeToTarget = null;
@@ -1403,7 +1403,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         if (!interceptDuringConstruction && !Modifier.isAbstract(method.getModifiers())) {
           Label constructed = e.newLabel();
           e.load_this();
-          e.getfield(CONSTRUCTED_FIELD);
+          e.getField(CONSTRUCTED_FIELD);
           e.ifJump(CodeEmitter.NE, constructed);
           e.load_this();
           e.load_args();
@@ -1448,7 +1448,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
   private void emitSetThreadCallbacks(ClassEmitter ce) {
     CodeEmitter e = ce.beginMethod(ACC_PUBLIC | ACC_STATIC, SET_THREAD_CALLBACKS);
-    e.getfield(THREAD_CALLBACKS_FIELD);
+    e.getField(THREAD_CALLBACKS_FIELD);
     e.load_arg(0);
     e.invokeVirtual(THREAD_LOCAL, THREAD_LOCAL_SET);
     e.return_value();
@@ -1458,14 +1458,14 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   private void emitSetStaticCallbacks(ClassEmitter ce) {
     CodeEmitter e = ce.beginMethod(ACC_PUBLIC | ACC_STATIC, SET_STATIC_CALLBACKS);
     e.load_arg(0);
-    e.putfield(STATIC_CALLBACKS_FIELD);
+    e.putField(STATIC_CALLBACKS_FIELD);
     e.return_value();
     e.end_method();
   }
 
   private void emitCurrentCallback(CodeEmitter e, int index) {
     e.load_this();
-    e.getfield(getCallbackField(index));
+    e.getField(getCallbackField(index));
     e.dup();
     Label end = e.newLabel();
     e.ifNonNull(end);
@@ -1473,7 +1473,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     e.load_this();
     e.invoke_static_this(BIND_CALLBACKS);
     e.load_this();
-    e.getfield(getCallbackField(index));
+    e.getField(getCallbackField(index));
     e.mark(end);
   }
 
@@ -1486,20 +1486,20 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
     Label end = e.newLabel();
     e.load_local(me);
-    e.getfield(BOUND_FIELD);
+    e.getField(BOUND_FIELD);
     e.ifJump(CodeEmitter.NE, end);
     e.load_local(me);
     e.push(1);
-    e.putfield(BOUND_FIELD);
+    e.putField(BOUND_FIELD);
 
-    e.getfield(THREAD_CALLBACKS_FIELD);
+    e.getField(THREAD_CALLBACKS_FIELD);
     e.invokeVirtual(THREAD_LOCAL, THREAD_LOCAL_GET);
     e.dup();
     Label found_callback = e.newLabel();
     e.ifNonNull(found_callback);
     e.pop();
 
-    e.getfield(STATIC_CALLBACKS_FIELD);
+    e.getField(STATIC_CALLBACKS_FIELD);
     e.dup();
     e.ifNonNull(found_callback);
     e.pop();
@@ -1515,7 +1515,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       }
       e.aaload(i);
       e.checkCast(callbackTypes[i]);
-      e.putfield(getCallbackField(i));
+      e.putField(getCallbackField(i));
     }
 
     e.mark(end);

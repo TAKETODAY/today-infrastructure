@@ -323,9 +323,9 @@ public abstract class EmitUtils {
         CodeEmitter hook = ce.getStaticHook();
         hook.push(typeName);
         hook.invokeStatic(Type.TYPE_CLASS, FOR_NAME);
-        hook.putstatic(ce.getClassType(), fieldName, Type.TYPE_CLASS);
+        hook.putStatic(ce.getClassType(), fieldName, Type.TYPE_CLASS);
       }
-      e.getfield(fieldName);
+      e.getField(fieldName);
     }
   }
 
@@ -904,14 +904,14 @@ public abstract class EmitUtils {
     CodeEmitter e;
     e = ce.beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature(type, "get" + property, Constant.TYPES_EMPTY_ARRAY));
     e.load_this();
-    e.getfield(fieldName);
+    e.getField(fieldName);
     e.return_value();
     e.end_method();
 
     e = ce.beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature(Type.VOID_TYPE, "set" + property, type));
     e.load_this();
     e.load_arg(0);
-    e.putfield(fieldName);
+    e.putField(fieldName);
     e.return_value();
     e.end_method();
   }
@@ -960,7 +960,7 @@ public abstract class EmitUtils {
   }
 
   public static void loadEmptyArguments(CodeEmitter codeEmitter) {
-    codeEmitter.getstatic(Type.TYPE_CONSTANT, "EMPTY_OBJECT_ARRAY", Type.TYPE_OBJECT_ARRAY);
+    codeEmitter.getStatic(Type.TYPE_CONSTANT, "EMPTY_OBJECT_ARRAY", Type.TYPE_OBJECT_ARRAY);
   }
 
   // static

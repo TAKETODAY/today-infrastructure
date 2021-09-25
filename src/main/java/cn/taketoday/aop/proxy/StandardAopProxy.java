@@ -267,7 +267,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
         for (final String target : fields) {
           staticBlock.visitLdcInsn(target);
           staticBlock.invokeStatic(targetInvocationType, getTarget);
-          staticBlock.putfield(target);
+          staticBlock.putField(target);
         }
       }
     }
@@ -323,18 +323,18 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
       if (targetSourceStatic) {
         code.load_this();
         code.load_arg(typesLength);
-        code.putfield(ProxyMethodGenerator.FIELD_TARGET);
+        code.putField(ProxyMethodGenerator.FIELD_TARGET);
 
         offset = 1;
       }
 
       code.load_this();
       code.load_arg(typesLength + offset);
-      code.putfield(ProxyMethodGenerator.FIELD_TARGET_SOURCE);
+      code.putField(ProxyMethodGenerator.FIELD_TARGET_SOURCE);
 
       code.load_this();
       code.load_arg(typesLength + offset + 1);
-      code.putfield(ProxyMethodGenerator.FIELD_CONFIG);
+      code.putField(ProxyMethodGenerator.FIELD_CONFIG);
 
       code.return_value();
       code.end_method();
@@ -353,7 +353,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
 
       codeEmitter.load_this();
 
-      codeEmitter.getfield(ProxyMethodGenerator.FIELD_CONFIG);
+      codeEmitter.getField(ProxyMethodGenerator.FIELD_CONFIG);
 
       codeEmitter.load_args();
       codeEmitter.invoke(methodInfo);

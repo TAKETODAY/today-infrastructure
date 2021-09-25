@@ -270,7 +270,7 @@ public abstract class MethodDelegate {
       e.dup();
       e.dup2();
       e.invoke_constructor_this();
-      e.getfield("eqMethod");
+      e.getField("eqMethod");
       e.super_putfield("eqMethod", Type.TYPE_STRING);
       e.load_arg(0);
       e.super_putfield("target", Type.TYPE_OBJECT);
@@ -280,7 +280,7 @@ public abstract class MethodDelegate {
       // static initializer
       e = ce.begin_static();
       e.push(methodInfo.getSignature().toString());
-      e.putfield("eqMethod");
+      e.putField("eqMethod");
       e.return_value();
       e.end_method();
 

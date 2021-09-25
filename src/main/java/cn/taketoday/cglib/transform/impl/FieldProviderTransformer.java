@@ -106,7 +106,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
   private void initFieldProvider(String[] names) {
     CodeEmitter e = getStaticHook();
     EmitUtils.pushObject(e, names);
-    e.putstatic(getClassType(), FIELD_NAMES, Type.TYPE_STRING_ARRAY);
+    e.putStatic(getClassType(), FIELD_NAMES, Type.TYPE_STRING_ARRAY);
 
     e.push(names.length);
     e.newArray(Type.TYPE_CLASS);
@@ -118,19 +118,19 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
       EmitUtils.loadClass(e, type);
       e.aastore();
     }
-    e.putstatic(getClassType(), FIELD_TYPES, Type.TYPE_CLASS_ARRAY);
+    e.putStatic(getClassType(), FIELD_TYPES, Type.TYPE_CLASS_ARRAY);
   }
 
   private void getNames() {
     CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, PROVIDER_GET_NAMES);
-    e.getstatic(getClassType(), FIELD_NAMES, Type.TYPE_STRING_ARRAY);
+    e.getStatic(getClassType(), FIELD_NAMES, Type.TYPE_STRING_ARRAY);
     e.return_value();
     e.end_method();
   }
 
   private void getTypes() {
     CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, PROVIDER_GET_TYPES);
-    e.getstatic(getClassType(), FIELD_TYPES, Type.TYPE_CLASS_ARRAY);
+    e.getStatic(getClassType(), FIELD_TYPES, Type.TYPE_CLASS_ARRAY);
     e.return_value();
     e.end_method();
   }
@@ -144,7 +144,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
       public void generateCase(int key, Label end) {
         Type type = (Type) fields.get(names[key]);
         e.unbox(type);
-        e.putfield(names[key]);
+        e.putField(names[key]);
         e.return_value();
       }
 
@@ -163,7 +163,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
     e.tableSwitch(indexes, new TableSwitchGenerator() {
       public void generateCase(int key, Label end) {
         Type type = (Type) fields.get(names[key]);
-        e.getfield(names[key]);
+        e.getField(names[key]);
         e.box(type);
         e.return_value();
       }
@@ -184,7 +184,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
     EmitUtils.stringSwitch(e, names, Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
       public void processCase(Object key, Label end) {
         Type type = (Type) fields.get(key);
-        e.getfield((String) key);
+        e.getField((String) key);
         e.box(type);
         e.return_value();
       }
@@ -205,7 +205,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
       public void processCase(Object key, Label end) {
         Type type = (Type) fields.get(key);
         e.unbox(type);
-        e.putfield((String) key);
+        e.putField((String) key);
         e.return_value();
       }
 

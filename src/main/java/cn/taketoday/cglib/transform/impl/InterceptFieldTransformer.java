@@ -54,14 +54,14 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
 
       CodeEmitter emitter = super.beginMethod(Opcodes.ACC_PUBLIC, ENABLED_GET);
       emitter.load_this();
-      emitter.getfield(CALLBACK_FIELD);
+      emitter.getField(CALLBACK_FIELD);
       emitter.return_value();
       emitter.end_method();
 
       emitter = super.beginMethod(Opcodes.ACC_PUBLIC, ENABLED_SET);
       emitter.load_this();
       emitter.load_arg(0);
-      emitter.putfield(CALLBACK_FIELD);
+      emitter.putField(CALLBACK_FIELD);
       emitter.return_value();
       emitter.end_method();
     }
@@ -85,7 +85,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
   private void addReadMethod(String name, Type type) {
     CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, readMethodSig(name, type.getDescriptor()));
     e.load_this();
-    e.getfield(name);
+    e.getField(name);
     e.load_this();
     e.invokeInterface(ENABLED, ENABLED_GET);
     Label intercept = e.newLabel();
@@ -121,7 +121,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
     e.load_this();
     e.push(name);
     e.load_this();
-    e.getfield(name);
+    e.getField(name);
     e.load_arg(0);
     e.invokeInterface(CALLBACK, writeCallbackSig(type));
     if (!type.isPrimitive()) {
@@ -132,7 +132,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
     e.mark(skip);
     e.load_arg(0);
     e.mark(go);
-    e.putfield(name);
+    e.putField(name);
     e.return_value();
     e.end_method();
   }

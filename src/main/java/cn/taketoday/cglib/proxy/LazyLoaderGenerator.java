@@ -73,7 +73,7 @@ final class LazyLoaderGenerator implements CallbackGenerator {
       CodeEmitter e = ce.beginMethod(ACC_PRIVATE | ACC_SYNCHRONIZED | ACC_FINAL, loadMethod(index));
 
       e.load_this();
-      e.getfield(delegate);
+      e.getField(delegate);
       e.dup();
       Label end = e.newLabel();
       e.ifNonNull(end);
@@ -82,7 +82,7 @@ final class LazyLoaderGenerator implements CallbackGenerator {
       context.emitCallback(e, index);
       e.invokeInterface(LAZY_LOADER, LOAD_OBJECT);
       e.dupX1();
-      e.putfield(delegate);
+      e.putField(delegate);
       e.mark(end);
       e.return_value();
       e.end_method();

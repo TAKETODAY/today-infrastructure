@@ -64,7 +64,7 @@ class ParallelSorterEmitter extends ClassEmitter {
       e.push(i);
       e.aaload();
       e.checkCast(type);
-      e.putfield(getFieldName(i));
+      e.putField(getFieldName(i));
     }
     e.return_value();
     e.end_method();
@@ -78,7 +78,7 @@ class ParallelSorterEmitter extends ClassEmitter {
       Local T = e.newLocal(type);
 
       e.load_this();
-      e.getfield(getFieldName(i));
+      e.getField(getFieldName(i));
       e.store_local(T);
 
       e.load_local(T);

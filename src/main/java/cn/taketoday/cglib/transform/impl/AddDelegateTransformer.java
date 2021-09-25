@@ -99,7 +99,7 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
             dup();
             load_this();
             invokeConstructor(delegateType, CSTRUCT_OBJECT);
-            putfield(DELEGATE);
+            putField(DELEGATE);
             transformInit = false;
           }
         }
@@ -124,7 +124,7 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
     Type[] exceptions = Type.getTypes(m.getExceptionTypes());
     CodeEmitter e = super.beginMethod(Opcodes.ACC_PUBLIC, sig, exceptions);
     e.load_this();
-    e.getfield(DELEGATE);
+    e.getField(DELEGATE);
     e.load_args();
     e.invokeVirtual(delegateType, sig);
     e.return_value();

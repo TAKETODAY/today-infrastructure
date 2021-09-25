@@ -52,7 +52,7 @@ final class InvocationHandlerGenerator implements CallbackGenerator {
 
       context.emitCallback(e, context.getIndex(method));
       e.load_this();
-      e.getfield(impl.getName());
+      e.getField(impl.getName());
       e.create_arg_array();
       e.invokeInterface(INVOCATION_HANDLER, INVOKE);
       e.unbox(method.getSignature().getReturnType());
@@ -69,7 +69,7 @@ final class InvocationHandlerGenerator implements CallbackGenerator {
     for (final MethodInfo method : methods) {
 
       EmitUtils.loadMethod(e, method);
-      e.putfield(context.getImplSignature(method).getName());
+      e.putField(context.getImplSignature(method).getName());
     }
   }
 }

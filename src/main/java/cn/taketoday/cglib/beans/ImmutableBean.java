@@ -89,7 +89,7 @@ public abstract class ImmutableBean {
       e.load_this();
       e.load_arg(0);
       e.checkCast(targetType);
-      e.putfield(FIELD_NAME);
+      e.putField(FIELD_NAME);
       e.return_value();
       e.end_method();
 
@@ -101,7 +101,7 @@ public abstract class ImmutableBean {
         MethodInfo getter = MethodInfo.from(value);
         e = EmitUtils.beginMethod(ce, getter, Opcodes.ACC_PUBLIC);
         e.load_this();
-        e.getfield(FIELD_NAME);
+        e.getField(FIELD_NAME);
         e.invoke(getter);
         e.return_value();
         e.end_method();

@@ -137,8 +137,8 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
       codeEmitter.load_this();
       if (isStatic) {
         // Object target, Target targetInv, Object[] args
-        codeEmitter.getfield(FIELD_TARGET);
-        codeEmitter.getfield(targetInvField);
+        codeEmitter.getField(FIELD_TARGET);
+        codeEmitter.getField(targetInvField);
         prepareArgs(method, codeEmitter);
 
         if (exposeProxy) {
@@ -150,8 +150,8 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
       }
       else {
         //TargetSource targetSource, Target targetInv, Object[] args
-        codeEmitter.getfield(FIELD_TARGET_SOURCE);
-        codeEmitter.getfield(targetInvField);
+        codeEmitter.getField(FIELD_TARGET_SOURCE);
+        codeEmitter.getField(targetInvField);
         prepareArgs(method, codeEmitter);
 
         if (exposeProxy) {
@@ -169,8 +169,8 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
 
       codeEmitter.load_this();
       codeEmitter.load_this();
-      codeEmitter.getfield(FIELD_CONFIG);
-      codeEmitter.getfield(targetInvField);
+      codeEmitter.getField(FIELD_CONFIG);
+      codeEmitter.getField(targetInvField);
       prepareArgs(method, codeEmitter);
 
       codeEmitter.invokeStatic(stdProxyInvoker, dynamicAdvisedProceed);

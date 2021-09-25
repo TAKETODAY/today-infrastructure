@@ -259,7 +259,7 @@ abstract public class KeyFactory {
         for (FieldTypeCustomizer customizer : fieldTypeCustomizers) {
           customizer.customize(e, i, parameterType);
         }
-        e.putfield(getFieldName(i));
+        e.putField(getFieldName(i));
       }
       e.return_value();
       e.end_method();
@@ -271,7 +271,7 @@ abstract public class KeyFactory {
       e.push(hc);
       for (int i = 0; i < parameterTypes.length; i++) {
         e.load_this();
-        e.getfield(getFieldName(i));
+        e.getField(getFieldName(i));
         EmitUtils.hashCode(e, parameterTypes[i], hm, customizers);
       }
       e.return_value();
@@ -285,10 +285,10 @@ abstract public class KeyFactory {
       e.ifJump(CodeEmitter.EQ, fail);
       for (int i = 0; i < parameterTypes.length; i++) {
         e.load_this();
-        e.getfield(getFieldName(i));
+        e.getField(getFieldName(i));
         e.load_arg(0);
         e.checkcast_this();
-        e.getfield(getFieldName(i));
+        e.getField(getFieldName(i));
         EmitUtils.notEquals(e, parameterTypes[i], fail, customizers);
       }
       e.push(1);
@@ -309,7 +309,7 @@ abstract public class KeyFactory {
           e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
         }
         e.load_this();
-        e.getfield(getFieldName(i));
+        e.getField(getFieldName(i));
         EmitUtils.appendString(e, parameterTypes[i], EmitUtils.DEFAULT_DELIMITERS, customizers);
       }
       e.invokeVirtual(Type.TYPE_STRING_BUFFER, MethodSignature.TO_STRING);

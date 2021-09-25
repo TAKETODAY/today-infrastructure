@@ -1175,7 +1175,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @param fieldType
    *         the type of the field.
    */
-  private void fieldInsn(
+  public void fieldInsn(
           final int opcode, final Type ownerType, final String name, final Type fieldType) {
     mv.visitFieldInsn(opcode, ownerType.getInternalName(), name, fieldType.getDescriptor());
   }
@@ -1252,7 +1252,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @param isInterface
    *         whether the 'type' class is an interface or not.
    */
-  protected void invokeInsn(
+  public void invokeInsn(
           final int opcode, final Type type, final MethodSignature method, final boolean isInterface) {
     String owner = type.getSort() == Type.ARRAY ? type.getDescriptor() : type.getInternalName();
     mv.visitMethodInsn(opcode, owner, method.getName(), method.getDescriptor(), isInterface);

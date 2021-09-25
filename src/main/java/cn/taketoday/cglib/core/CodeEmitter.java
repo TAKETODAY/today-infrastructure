@@ -199,53 +199,32 @@ public class CodeEmitter extends GeneratorAdapter {
     mv.visitInsn(state.sig.getReturnType().getOpcode(Opcodes.IRETURN));
   }
 
-  public void getfield(String name) {
+  public void getField(String name) {
     ClassEmitter.FieldInfo info = ce.getFieldInfo(name);
     int opcode = Modifier.isStatic(info.access) ? Opcodes.GETSTATIC : Opcodes.GETFIELD;
-    emit_field(opcode, ce.getClassType(), name, info.type);
+    fieldInsn(opcode, ce.getClassType(), name, info.type);
   }
 
-  public void putfield(String name) {
+  public void putField(String name) {
     ClassEmitter.FieldInfo info = ce.getFieldInfo(name);
     int opcode = Modifier.isStatic(info.access) ? Opcodes.PUTSTATIC : Opcodes.PUTFIELD;
-    emit_field(opcode, ce.getClassType(), name, info.type);
+    fieldInsn(opcode, ce.getClassType(), name, info.type);
   }
 
   public void super_getfield(String name, Type type) {
-    emit_field(Opcodes.GETFIELD, ce.getSuperType(), name, type);
+    fieldInsn(Opcodes.GETFIELD, ce.getSuperType(), name, type);
   }
 
   public void super_putfield(String name, Type type) {
-    emit_field(Opcodes.PUTFIELD, ce.getSuperType(), name, type);
+    fieldInsn(Opcodes.PUTFIELD, ce.getSuperType(), name, type);
   }
 
   public void super_getstatic(String name, Type type) {
-    emit_field(Opcodes.GETSTATIC, ce.getSuperType(), name, type);
+    fieldInsn(Opcodes.GETSTATIC, ce.getSuperType(), name, type);
   }
 
   public void super_putstatic(String name, Type type) {
-    emit_field(Opcodes.PUTSTATIC, ce.getSuperType(), name, type);
-  }
-
-  public void getfield(Type owner, String name, Type type) {
-    emit_field(Opcodes.GETFIELD, owner, name, type);
-  }
-
-  public void putfield(Type owner, String name, Type type) {
-    emit_field(Opcodes.PUTFIELD, owner, name, type);
-  }
-
-  public void getstatic(Type owner, String name, Type type) {
-    emit_field(Opcodes.GETSTATIC, owner, name, type);
-  }
-
-  public void putstatic(Type owner, String name, Type type) {
-    emit_field(Opcodes.PUTSTATIC, owner, name, type);
-  }
-
-  // package-protected for EmitUtils, try to fix
-  void emit_field(int opcode, Type ctype, String name, Type ftype) {
-    mv.visitFieldInsn(opcode, ctype.getInternalName(), name, ftype.getDescriptor());
+    fieldInsn(Opcodes.PUTSTATIC, ce.getSuperType(), name, type);
   }
 
   public void super_invoke() {
@@ -411,7 +390,7 @@ public class CodeEmitter extends GeneratorAdapter {
     ClassInfo classInfo = method.getClassInfo();
     Type type = classInfo.getType();
     MethodSignature sig = method.getSignature();
-    if (sig.getName().equals(MethodSignature.CONSTRUCTOR_NAME)) {
+    if (MethodSignature.CONSTRUCTOR_NAME.equals(sig.getName())) {
       invokeConstructor(type, sig);
     }
     else if (Modifier.isStatic(method.getModifiers())) {

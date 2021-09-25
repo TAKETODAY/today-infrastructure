@@ -111,7 +111,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
       codeEmitter.ifNull(nullInterceptor);
 
       codeEmitter.load_this(); // obj
-      codeEmitter.getfield(methodField); // method
+      codeEmitter.getField(methodField); // method
 
       if (sig.getArgumentTypes().length == 0) {
         // empty args
@@ -121,7 +121,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
         codeEmitter.create_arg_array(); // args
       }
 
-      codeEmitter.getfield(methodProxyField);  // methodProxy
+      codeEmitter.getField(methodProxyField);  // methodProxy
       codeEmitter.invokeInterface(METHOD_INTERCEPTOR, INTERCEPT);
       codeEmitter.unbox_or_zero(sig.getReturnType());
       codeEmitter.return_value();
@@ -200,7 +200,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
         e.dup();
         e.push(index);
         e.arrayLoad(METHOD);
-        e.putfield(getMethodField(impl));
+        e.putField(getMethodField(impl));
 
         e.load_local(declaringClass);
         e.load_local(thisClass);
@@ -208,7 +208,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
         e.push(sig.getName());
         e.push(impl.getName());
         e.invokeStatic(METHOD_PROXY, MAKE_PROXY);
-        e.putfield(getMethodProxyField(impl));
+        e.putField(getMethodProxyField(impl));
       }
       e.pop();
     }
@@ -224,7 +224,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
 
       @Override
       public void processCase(final Object key, final Label end) {
-        e.getfield(sigMap.get(key));
+        e.getField(sigMap.get(key));
         e.return_value();
       }
 
