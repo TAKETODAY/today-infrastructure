@@ -34,7 +34,6 @@ import cn.taketoday.context.Value;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Nullable;
-import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.ConversionServiceAware;
 import cn.taketoday.util.CollectionUtils;
@@ -64,7 +63,8 @@ import static cn.taketoday.web.resolver.ConverterParameterResolver.convert;
  */
 public class ParameterResolverRegistry
         extends WebApplicationContextSupport implements ArraySizeTrimmer {
-  private final ArrayList<ParameterResolvingStrategy> resolvers = new ArrayList<>(36);
+  private final ArrayList<ParameterResolvingStrategy> defaultResolvers = new ArrayList<>(36);
+  private final ArrayList<ParameterResolvingStrategy> customizedResolvers = new ArrayList<>();
 
   /**
    * @since 3.0.1
@@ -94,10 +94,9 @@ public class ParameterResolverRegistry
    * @param resolver
    *         resolvers or resolving-strategies
    */
-  public void addResolvingStrategies(ParameterResolvingStrategy... resolver) {
-    Collections.addAll(resolvers, resolver);
+  public void addDefaultStrategies(ParameterResolvingStrategy... resolver) {
+    Collections.addAll(defaultResolvers, resolver);
     trimToSize();
-    sort();
   }
 
   /**
@@ -106,10 +105,9 @@ public class ParameterResolverRegistry
    * @param resolvers
    *         resolvers or resolving-strategies
    */
-  public void addResolvingStrategies(List<ParameterResolvingStrategy> resolvers) {
-    this.resolvers.addAll(resolvers);
+  public void addDefaultStrategies(List<ParameterResolvingStrategy> resolvers) {
+    this.defaultResolvers.addAll(resolvers);
     trimToSize();
-    sort();
   }
 
   /**
@@ -118,20 +116,64 @@ public class ParameterResolverRegistry
    * @param resolver
    *         can be null
    */
-  public void setResolvingStrategies(@Nullable List<ParameterResolvingStrategy> resolver) {
-    resolvers.clear();
+  public void setDefaultStrategies(@Nullable List<ParameterResolvingStrategy> resolver) {
+    defaultResolvers.clear();
     if (CollectionUtils.isNotEmpty(resolver)) {
-      resolvers.addAll(resolver);
+      defaultResolvers.addAll(resolver);
       trimToSize();
-      sort();
     }
   }
 
   /**
-   * get resolving-strategies
+   * add customized resolvers or resolving-strategies
+   *
+   * @param resolver
+   *         resolvers or resolving-strategies
    */
-  public List<ParameterResolvingStrategy> getResolvingStrategies() {
-    return resolvers;
+  public void addCustomizedStrategies(ParameterResolvingStrategy... resolver) {
+    Collections.addAll(customizedResolvers, resolver);
+    trimToSize();
+  }
+
+  /**
+   * add customized resolvers or resolving-strategies
+   *
+   * @param resolvers
+   *         resolvers or resolving-strategies
+   */
+  public void addCustomizedStrategies(List<ParameterResolvingStrategy> resolvers) {
+    this.customizedResolvers.addAll(resolvers);
+    trimToSize();
+  }
+
+  /**
+   * set or clear customized resolvers
+   *
+   * @param resolver
+   *         can be null
+   */
+  public void setCustomizedStrategies(@Nullable List<ParameterResolvingStrategy> resolver) {
+    customizedResolvers.clear();
+    if (CollectionUtils.isNotEmpty(resolver)) {
+      customizedResolvers.addAll(resolver);
+      trimToSize();
+    }
+  }
+
+  /**
+   * get default resolving-strategies
+   */
+  public List<ParameterResolvingStrategy> getDefaultStrategies() {
+    return defaultResolvers;
+  }
+
+  /**
+   * get customized resolving-strategies
+   *
+   * @since 4.0
+   */
+  public List<ParameterResolvingStrategy> getCustomizedStrategies() {
+    return customizedResolvers;
   }
 
   /**
@@ -143,9 +185,11 @@ public class ParameterResolverRegistry
    * @return a suitable {@link ParameterResolvingStrategy},
    * if returns {@code null} no suitable  {@link ParameterResolvingStrategy}
    */
-  public ParameterResolvingStrategy getResolvingStrategy(final MethodParameter parameter) {
-    for (final ParameterResolvingStrategy resolver : getResolvingStrategies()) {
-      if (resolver.supports(parameter)) {
+  @Nullable
+  protected ParameterResolvingStrategy lookupStrategy(
+          MethodParameter parameter, List<ParameterResolvingStrategy> strategies) {
+    for (final ParameterResolvingStrategy resolver : strategies) {
+      if (resolver.supportsParameter(parameter)) {
         return resolver;
       }
     }
@@ -153,10 +197,20 @@ public class ParameterResolverRegistry
   }
 
   /**
-   * sort resolvers or resolving-strategies
+   * find parameter resolving strategy
+   *
+   * @param parameter
+   *         parameter value to be resolve
+   *
+   * @return A suitable {@link ParameterResolvingStrategy}
    */
-  public void sort() {
-    AnnotationAwareOrderComparator.sort(resolvers);
+  @Nullable
+  public ParameterResolvingStrategy findStrategy(final MethodParameter parameter) {
+    ParameterResolvingStrategy resolvingStrategy = lookupStrategy(parameter, customizedResolvers);
+    if (resolvingStrategy == null) {
+      resolvingStrategy = lookupStrategy(parameter, defaultResolvers);
+    }
+    return resolvingStrategy;
   }
 
   /**
@@ -169,7 +223,7 @@ public class ParameterResolverRegistry
    *         If there isn't a suitable resolver
    */
   public ParameterResolvingStrategy obtainResolvingStrategy(final MethodParameter parameter) {
-    final ParameterResolvingStrategy resolver = getResolvingStrategy(parameter);
+    final ParameterResolvingStrategy resolver = findStrategy(parameter);
     if (resolver == null) {
       throw new ParameterResolverNotFoundException(
               parameter,
@@ -188,7 +242,7 @@ public class ParameterResolverRegistry
 
     // Use ConverterParameterResolver to resolve primitive types
     // --------------------------------------------------------------------------
-    final List<ParameterResolvingStrategy> resolvers = getResolvingStrategies();
+    final List<ParameterResolvingStrategy> resolvers = getDefaultStrategies();
 
     resolvers.add(convert(String.class, s -> s));
     resolvers.add(convert(new OR(Long.class, long.class), Long::parseLong));
@@ -235,7 +289,7 @@ public class ParameterResolverRegistry
     DefaultMultipartResolver.register(resolvers, multipartConfig);
 
     // Header
-    resolvers.add(new HeaderParameterResolver());
+    resolvers.add(new RequestHeaderParameterResolver());
     RedirectModelManager modelManager = getRedirectModelManager();
     if (modelManager == null) {
       modelManager = context.getBean(RedirectModelManager.class);
@@ -248,7 +302,6 @@ public class ParameterResolverRegistry
     configureDataBinder(resolvers);
 
     resolvers.add(new ModelParameterResolver(modelManager));
-    resolvers.add(new SimpleArrayParameterResolver());
     resolvers.add(new StreamParameterResolver());
     MessageBodyConverter messageBodyConverter = getMessageConverter();
     if (messageBodyConverter == null) {
@@ -263,11 +316,10 @@ public class ParameterResolverRegistry
     resolvers.add(new LocalTimeParameterResolver());
     resolvers.add(new LocalDateTimeParameterResolver());
 
+    resolvers.add(new SimpleArrayParameterResolver());
+
     // apply conversionService @since 4.0
     applyConversionService(conversionService, resolvers);
-
-    // ordering
-    sort();
   }
 
   /**
@@ -310,11 +362,11 @@ public class ParameterResolverRegistry
    * @since 4.0
    */
   public boolean removeIf(Predicate<ParameterResolvingStrategy> filter) {
-    return resolvers.removeIf(filter);
+    return defaultResolvers.removeIf(filter);
   }
 
   public boolean contains(Class<?> resolverClass) {
-    return contains(resolverClass, resolvers);
+    return contains(resolverClass, defaultResolvers);
   }
 
   private boolean contains(Class<?> resolverClass, List<ParameterResolvingStrategy> resolvers) {
@@ -375,7 +427,7 @@ public class ParameterResolverRegistry
    */
   public void applyConversionService(@Nullable ConversionService conversionService) {
     setConversionService(conversionService);
-    applyConversionService(conversionService, resolvers);
+    applyConversionService(conversionService, defaultResolvers);
   }
 
   private void applyConversionService(
@@ -401,7 +453,7 @@ public class ParameterResolverRegistry
    */
   @Override
   public void trimToSize() {
-    resolvers.trimToSize();
+    defaultResolvers.trimToSize();
   }
 
   // ParameterResolver
@@ -481,7 +533,7 @@ public class ParameterResolverRegistry
 
   static final class HandlerMethodParameterResolver implements ParameterResolvingStrategy {
     @Override
-    public boolean supports(MethodParameter parameter) {
+    public boolean supportsParameter(MethodParameter parameter) {
       return parameter.is(HandlerMethod.class);
     }
 

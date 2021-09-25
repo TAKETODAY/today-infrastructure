@@ -33,7 +33,7 @@ public abstract class CollectionParameterResolver
         extends AbstractParameterResolver implements ParameterResolvingStrategy {
 
   @Override
-  public final boolean supports(final MethodParameter parameter) {
+  public final boolean supportsParameter(final MethodParameter parameter) {
     return parameter.isCollection() && supportsInternal(parameter);
   }
 

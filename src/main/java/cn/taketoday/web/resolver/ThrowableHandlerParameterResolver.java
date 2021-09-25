@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.MethodParameter;
@@ -28,19 +27,10 @@ import cn.taketoday.web.handler.MethodParameter;
  * @author TODAY <br>
  * 2019-07-17 22:41
  */
-public class ThrowableHandlerParameterResolver
-        extends OrderedSupport implements ParameterResolvingStrategy {
-
-  public ThrowableHandlerParameterResolver() {
-    this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 60);
-  }
-
-  public ThrowableHandlerParameterResolver(int order) {
-    super(order);
-  }
+public class ThrowableHandlerParameterResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supports(MethodParameter parameter) {
+  public boolean supportsParameter(MethodParameter parameter) {
     return parameter.isAssignableTo(Throwable.class);
   }
 

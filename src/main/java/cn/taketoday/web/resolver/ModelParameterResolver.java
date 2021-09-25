@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -21,6 +21,7 @@ package cn.taketoday.web.resolver;
 
 import java.util.Map;
 
+import cn.taketoday.core.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.http.HttpHeaders;
@@ -39,14 +40,16 @@ import cn.taketoday.web.view.RedirectModelManager;
  * @see RedirectModel
  */
 public class ModelParameterResolver implements ParameterResolvingStrategy {
+
+  @Nullable
   private final RedirectModelManager modelManager;
 
-  public ModelParameterResolver(RedirectModelManager modelManager) {
+  public ModelParameterResolver(@Nullable RedirectModelManager modelManager) {
     this.modelManager = modelManager;
   }
 
   @Override
-  public boolean supports(final MethodParameter parameter) {
+  public boolean supportsParameter(final MethodParameter parameter) {
     return parameter.isAssignableTo(Model.class) // Model
             || parameter.is(HttpHeaders.class) // HTTP request headers @since 3.0
             || (
@@ -86,6 +89,7 @@ public class ModelParameterResolver implements ParameterResolvingStrategy {
     return context;
   }
 
+  @Nullable
   public RedirectModelManager getModelManager() {
     return modelManager;
   }

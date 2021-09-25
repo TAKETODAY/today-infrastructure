@@ -41,7 +41,7 @@ public class DateParameterResolver
   private String defaultPattern = "yyyy-MM-dd HH:mm:ss";
 
   @Override
-  public boolean supports(MethodParameter parameter) {
+  public boolean supportsParameter(MethodParameter parameter) {
     return parameter.is(Date.class);
   }
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -29,7 +29,6 @@ import cn.taketoday.beans.factory.PropertyValue;
 import cn.taketoday.beans.support.DataBinder;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.ConversionServiceAware;
@@ -98,20 +97,18 @@ import cn.taketoday.web.multipart.MultipartFile;
  * @author TODAY 2019-07-13 01:11
  */
 public class DataBinderParameterResolver
-        extends OrderedSupport implements ParameterResolvingStrategy, ConversionServiceAware {
+        implements ParameterResolvingStrategy, ConversionServiceAware {
   public static final String ANNOTATED_RESOLVERS_KEY = AnnotatedPropertyResolver.class.getName() + "-annotated-property-resolvers";
 
   private ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
-  private ParameterResolverRegistry resolvers;
+  private ParameterResolverRegistry registry;
 
-  public DataBinderParameterResolver() {
-    setOrder(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 200);
-  }
+  public DataBinderParameterResolver() { }
 
   public DataBinderParameterResolver(ParameterResolverRegistry resolvers) {
     this();
-    this.resolvers = resolvers;
+    this.registry = resolvers;
   }
 
   public DataBinderParameterResolver(ConversionService conversionService) {
@@ -120,24 +117,27 @@ public class DataBinderParameterResolver
   }
 
   @Override
-  public boolean supports(MethodParameter parameter) {
+  public boolean supportsParameter(MethodParameter parameter) {
     if (!parameter.isAnnotationPresent(RequestBody.class) // @since 3.0.3 #17
             && !ClassUtils.isSimpleType(parameter.getParameterClass())) {
-      setAttribute(parameter, resolvers);
+      setAttribute(parameter, registry);
       return true;
     }
     return false;
   }
 
-  static void setAttribute(MethodParameter parameter, ParameterResolverRegistry resolvers) {
-    if (resolvers != null) {
+  /**
+   * @since 4.0
+   */
+  static void setAttribute(MethodParameter parameter, ParameterResolverRegistry registry) {
+    if (registry != null) {
       // supports annotated-property-resolvers
       ArrayList<AnnotatedPropertyResolver> resolverList = new ArrayList<>();
       Class<?> parameterClass = parameter.getParameterClass();
 
       ReflectionUtils.doWithFields(parameterClass, field -> {
         if (AnnotationUtils.isPresent(field, RequestParam.class)) {
-          AnnotatedPropertyResolver resolver = new AnnotatedPropertyResolver(parameter, field, resolvers);
+          AnnotatedPropertyResolver resolver = new AnnotatedPropertyResolver(parameter, field, registry);
           resolverList.add(resolver);
         }
       });
@@ -187,10 +187,12 @@ public class DataBinderParameterResolver
     return dataBinder.bind();
   }
 
+  /**
+   * @since 4.0
+   */
   static void resolveAnnotatedProperty(
           RequestContext context, MethodParameter parameter, DataBinder dataBinder) throws Throwable {
     Object attribute = parameter.getAttribute(ANNOTATED_RESOLVERS_KEY);
-
     if (attribute instanceof List) {
       @SuppressWarnings("unchecked")
       List<AnnotatedPropertyResolver> resolvers = (List<AnnotatedPropertyResolver>) attribute;
@@ -201,8 +203,11 @@ public class DataBinderParameterResolver
     }
   }
 
-  public void setResolvers(ParameterResolverRegistry resolvers) {
-    this.resolvers = resolvers;
+  /**
+   * @since 4.0
+   */
+  public void setRegistry(ParameterResolverRegistry registry) {
+    this.registry = registry;
   }
 
   @Override
@@ -215,6 +220,9 @@ public class DataBinderParameterResolver
     return conversionService;
   }
 
+  /**
+   * @since 4.0
+   */
   static final class AnnotatedPropertyResolver {
 
     final String propertyName;
@@ -225,10 +233,10 @@ public class DataBinderParameterResolver
      * @throws IllegalStateException
      *         If there isn't a suitable resolver
      */
-    AnnotatedPropertyResolver(MethodParameter other, Field field, ParameterResolverRegistry resolvers) {
+    AnnotatedPropertyResolver(MethodParameter other, Field field, ParameterResolverRegistry registry) {
       this.propertyName = field.getName();// TODO BeanMetadata#getPropertyName
       this.parameter = new AnnotationBinderParameter(other, field);
-      this.resolver = resolvers.obtainResolvingStrategy(this.parameter);
+      this.resolver = registry.obtainResolvingStrategy(this.parameter);
     }
 
     public PropertyValue resolve(RequestContext context) throws Throwable {
@@ -238,6 +246,9 @@ public class DataBinderParameterResolver
 
   }
 
+  /**
+   * @since 4.0
+   */
   static final class AnnotationBinderParameter extends MethodParameter {
     private final Field field;
     private final Class<?> parameterClass;

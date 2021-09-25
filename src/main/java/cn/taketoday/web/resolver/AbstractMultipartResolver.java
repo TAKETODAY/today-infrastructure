@@ -90,7 +90,7 @@ public abstract class AbstractMultipartResolver
   }
 
   @Override
-  public abstract boolean supports(final MethodParameter parameter);
+  public abstract boolean supportsParameter(final MethodParameter parameter);
 
   public MultipartConfiguration getMultipartConfiguration() {
     return multipartConfiguration;

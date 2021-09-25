@@ -23,7 +23,6 @@ package cn.taketoday.web.resolver.date;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.DateTimeFormat;
 import cn.taketoday.core.EmptyObject;
-import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
@@ -34,12 +33,11 @@ import cn.taketoday.web.resolver.ParameterResolvingStrategy;
  * @author TODAY 2021/3/2 12:30
  * @since 3.0
  */
-public abstract class AbstractDateParameterResolver
-        extends OrderedSupport implements ParameterResolvingStrategy {
-  static final String FORMAT_ANNOTATION_KEY = AbstractDateParameterResolver.class.getName() + "-DateTimeFormat";
+public abstract class AbstractDateParameterResolver implements ParameterResolvingStrategy {
+  protected static final String FORMAT_ANNOTATION_KEY = AbstractDateParameterResolver.class.getName() + "-DateTimeFormat";
 
   @Override
-  public abstract boolean supports(MethodParameter parameter);
+  public abstract boolean supportsParameter(MethodParameter parameter);
 
   @Override
   public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {

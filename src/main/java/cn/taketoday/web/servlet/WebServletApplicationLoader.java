@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright ©  TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -205,20 +205,21 @@ public class WebServletApplicationLoader
   }
 
   @Override
-  protected void configureParameterResolving(List<ParameterResolvingStrategy> resolvingStrategies, WebMvcConfiguration mvcConfiguration) {
+  protected void configureParameterResolving(
+          List<ParameterResolvingStrategy> customizedStrategies, WebMvcConfiguration mvcConfiguration) {
     // register servlet env resolvers
-    ServletParameterResolvers.register(resolvingStrategies, getServletContext());
-    super.configureParameterResolving(resolvingStrategies, mvcConfiguration);
+    ServletParameterResolvers.register(customizedStrategies, getServletContext());
+    super.configureParameterResolving(customizedStrategies, mvcConfiguration);
   }
 
   @Override
-  protected void checkFrameWorkComponents(WebApplicationContext context) {
+  protected void checkFrameworkComponents(WebApplicationContext context) {
     if (!context.containsBeanDefinition(TemplateRenderer.class)) {
       // use default view resolver
       context.registerBean(DefaultTemplateRenderer.class);
       log.info("Use default view resolver: [{}].", context.getBean(DefaultTemplateRenderer.class));
     }
-    super.checkFrameWorkComponents(context);
+    super.checkFrameworkComponents(context);
   }
 
   @Override
@@ -364,14 +365,14 @@ public class WebServletApplicationLoader
   /**
    * Configure listeners
    *
-   * @param applicationContext
+   * @param context
    *         {@link ApplicationContext}
    * @param contextInitializers
    *         {@link WebApplicationInitializer}s
    */
   protected void configureListenerInitializers(
-          final WebApplicationContext applicationContext, final List<WebApplicationInitializer> contextInitializers) {
-    Collection<EventListener> eventListeners = applicationContext.getAnnotatedBeans(WebListener.class);
+          final WebApplicationContext context, final List<WebApplicationInitializer> contextInitializers) {
+    Collection<EventListener> eventListeners = context.getAnnotatedBeans(WebListener.class);
     for (EventListener eventListener : eventListeners) {
       contextInitializers.add(new WebListenerInitializer<>(eventListener));
     }

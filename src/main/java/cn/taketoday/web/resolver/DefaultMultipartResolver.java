@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -26,7 +26,6 @@ import java.util.List;
 
 import cn.taketoday.beans.Autowired;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.Ordered;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
@@ -48,7 +47,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
   }
 
   @Override
-  public boolean supports(final MethodParameter parameter) {
+  public boolean supportsParameter(final MethodParameter parameter) {
     return supportsMultipart(parameter.getParameterClass());
   }
 
@@ -83,7 +82,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
     }
 
     @Override
-    public boolean supports(final MethodParameter parameter) {
+    public boolean supportsParameter(final MethodParameter parameter) {
       final Class<?> parameterClass = parameter.getParameterClass();
       return CollectionUtils.isCollection(parameterClass) && (
               parameter.isGenericPresent(MultipartFile.class, 0)
@@ -119,7 +118,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
     }
 
     @Override
-    public boolean supports(final MethodParameter parameter) {
+    public boolean supportsParameter(final MethodParameter parameter) {
       if (parameter.isArray()) {
         final Class<?> componentType = parameter.getComponentType();
         return DefaultMultipartResolver.supportsMultipart(componentType);
@@ -141,7 +140,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
    * 2019-07-11 23:35
    */
   static class MapMultipartParameterResolver
-          extends AbstractMultipartResolver implements ParameterResolvingStrategy, Ordered {
+          extends AbstractMultipartResolver implements ParameterResolvingStrategy {
 
     @Autowired
     public MapMultipartParameterResolver(MultipartConfiguration multipartConfig) {
@@ -149,14 +148,14 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
     }
 
     @Override
-    public boolean supports(MethodParameter parameter) {
+    public boolean supportsParameter(final MethodParameter parameter) {
       if (isMap(parameter) || parameter.is(MultiValueMap.class)) {
         if (parameter.isGenericPresent(String.class, 0)) { // Map<String, >
           Class<?> target = null;
           if (parameter.isGenericPresent(List.class, 1)) { // Map<String, List<>>
-            final Type type = parameter.getGenerics()[1];
-            if (type instanceof ParameterizedType) {
-              Type t = ((ParameterizedType) type).getActualTypeArguments()[0];
+            final Type generic = parameter.getGeneric(1);
+            if (generic instanceof ParameterizedType) {
+              Type t = ((ParameterizedType) generic).getActualTypeArguments()[0];
               target = (Class<?>) t;
             }
           }
@@ -180,11 +179,6 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
       // Map<String, MultipartFile>
       return multipartFiles.toSingleValueMap();
-    }
-
-    @Override
-    public int getOrder() {
-      return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 80;
     }
 
   }

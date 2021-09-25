@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -36,14 +36,6 @@ import cn.taketoday.web.handler.MethodParameter;
  */
 public class DataBinderMapParameterResolver
         extends AbstractDataBinderParameterResolver implements ParameterResolvingStrategy {
-
-  public DataBinderMapParameterResolver() {
-    this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 90);
-  }
-
-  public DataBinderMapParameterResolver(final int order) {
-    setOrder(order);
-  }
 
   @Override
   public boolean supportsInternal(final MethodParameter parameter) {

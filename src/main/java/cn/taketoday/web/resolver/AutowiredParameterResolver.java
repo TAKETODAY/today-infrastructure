@@ -40,7 +40,7 @@ public class AutowiredParameterResolver
   }
 
   @Override
-  public boolean supports(MethodParameter parameter) {
+  public boolean supportsParameter(MethodParameter parameter) {
     return parameter.isAnnotationPresent(Autowired.class);
   }
 

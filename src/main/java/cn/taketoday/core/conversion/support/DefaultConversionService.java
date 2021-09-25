@@ -71,7 +71,7 @@ public class DefaultConversionService implements ConfigurableConversionService, 
 
   static {
     addDefaultConverters(sharedInstance);
-    CollectionUtils.trimToSize(sharedInstance.getConverters());
+    sharedInstance.trimToSize();
   }
 
   private final ArrayList<TypeConverter> converters = new ArrayList<>();

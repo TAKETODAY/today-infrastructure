@@ -36,7 +36,7 @@ import cn.taketoday.web.view.Model;
 public class StreamParameterResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supports(final MethodParameter parameter) {
+  public boolean supportsParameter(final MethodParameter parameter) {
 
     final Class<?> parameterClass = parameter.getParameterClass();
     return parameterClass == Readable.class//

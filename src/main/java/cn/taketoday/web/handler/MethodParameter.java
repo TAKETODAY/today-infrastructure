@@ -169,6 +169,7 @@ public class MethodParameter
     return getParameterClass().isInstance(obj);
   }
 
+  @Nullable
   public Type getGeneric(final int index) {
     final Type[] generics = getGenerics();
     if (generics != null && generics.length > index) {

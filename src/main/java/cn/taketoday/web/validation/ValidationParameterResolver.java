@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -68,12 +68,11 @@ public class ValidationParameterResolver
   }
 
   @Override
-  public boolean supports(MethodParameter parameter) {
-
+  public boolean supportsParameter(MethodParameter parameter) {
     if (parameter.isAnnotationPresent(Validated.class)
             || parameter.isAnnotationPresent(VALID_CLASS)) {
-      for (final ParameterResolvingStrategy resolver : obtainResolvers().getResolvingStrategies()) {
-        if (resolver != this && resolver.supports(parameter)) {
+      for (final ParameterResolvingStrategy resolver : obtainResolvers().getDefaultStrategies()) {
+        if (resolver != this && resolver.supportsParameter(parameter)) {
           resolverMap.put(parameter, resolver);
           return true;
         }

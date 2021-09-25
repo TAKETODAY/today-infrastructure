@@ -35,7 +35,7 @@ import cn.taketoday.web.socket.WebSocketSession;
 public class WebSocketSessionParameterResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supports(MethodParameter parameter) {
+  public boolean supportsParameter(MethodParameter parameter) {
     return parameter.is(WebSocketSession.class);
   }
 

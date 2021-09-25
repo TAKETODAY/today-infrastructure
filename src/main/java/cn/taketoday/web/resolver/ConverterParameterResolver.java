@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -19,8 +19,6 @@
  */
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.core.Ordered;
-import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
@@ -30,36 +28,21 @@ import cn.taketoday.web.handler.MethodParameter;
  * 2019-07-13 12:58
  */
 public class ConverterParameterResolver
-        extends AbstractParameterResolver implements ParameterResolvingStrategy, Ordered {
-  private final OrderedSupport order = new OrderedSupport();
+        extends AbstractParameterResolver implements ParameterResolvingStrategy {
   private final SupportsFunction supports;
   private final Converter<String, Object> converter;
 
   public ConverterParameterResolver(Class<?> targetType, Converter<String, Object> converter) {
-    this(new TargetSupportsFunction(targetType), converter, LOWEST_PRECEDENCE);
+    this(new TargetSupportsFunction(targetType), converter);
   }
 
   public ConverterParameterResolver(SupportsFunction supports, Converter<String, Object> converter) {
-    this(supports, converter, LOWEST_PRECEDENCE);
-  }
-
-  public ConverterParameterResolver(SupportsFunction supports, Converter<String, Object> converter, int order) {
     this.supports = supports;
     this.converter = converter;
-    setOrder(order);
-  }
-
-  public void setOrder(int order) {
-    this.order.setOrder(order);
   }
 
   @Override
-  public int getOrder() {
-    return order.getOrder();
-  }
-
-  @Override
-  public boolean supports(MethodParameter parameter) {
+  public boolean supportsParameter(MethodParameter parameter) {
     return supports.supports(parameter);
   }
 
@@ -78,19 +61,14 @@ public class ConverterParameterResolver
     return converter.convert(defaultValue);
   }
 
-  public static ConverterParameterResolver convert(Class<?> targetType,
-                                                   Converter<String, Object> converter) {
+  public static ConverterParameterResolver convert(
+          Class<?> targetType, Converter<String, Object> converter) {
     return new ConverterParameterResolver(targetType, converter);
   }
 
-  public static ConverterParameterResolver convert(SupportsFunction supports,
-                                                   Converter<String, Object> converter) {
+  public static ConverterParameterResolver convert(
+          SupportsFunction supports, Converter<String, Object> converter) {
     return new ConverterParameterResolver(supports, converter);
-  }
-
-  public static ConverterParameterResolver convert(SupportsFunction supports,
-                                                   Converter<String, Object> converter, int order) {
-    return new ConverterParameterResolver(supports, converter, order);
   }
 
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -24,14 +24,12 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.SessionAttribute;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.resolver.AbstractParameterResolver;
-import cn.taketoday.web.resolver.OrderedParameterResolver;
 
 /**
  * @author TODAY <br>
  * 2019-09-27 22:42
  */
-public final class WebSessionAttributeParameterResolver
-        extends AbstractParameterResolver implements OrderedParameterResolver {
+public final class WebSessionAttributeParameterResolver extends AbstractParameterResolver {
 
   private final WebSessionManager sessionManager;
 
@@ -41,7 +39,7 @@ public final class WebSessionAttributeParameterResolver
   }
 
   @Override
-  public boolean supports(final MethodParameter parameter) {
+  public boolean supportsParameter(final MethodParameter parameter) {
     return parameter.isAnnotationPresent(SessionAttribute.class);
   }
 
@@ -55,8 +53,4 @@ public final class WebSessionAttributeParameterResolver
     return session.getAttribute(parameter.getName());
   }
 
-  @Override
-  public int getOrder() {
-    return HIGHEST_PRECEDENCE;
-  }
 }

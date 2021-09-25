@@ -267,7 +267,10 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
     if (StringUtils.isNotEmpty(name)) {
       if (StringUtils.isEmpty(className)) {
         final Object bean = context.getBean(name);
-        Assert.state(bean != null, () -> "You must provide a bean named: [" + name + "] or a 'class' attribute");
+        if (bean == null) {
+          throw new IllegalStateException(
+                  "You must provide a bean named: [" + name + "] or a 'class' attribute");
+        }
         return bean;
       }
       else {
@@ -320,7 +323,8 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
         }
       }
       if (handlerMethod == null) {
-        throw new ConfigurationException("You must specify a method: [" + method + "] in class :[" + controller.getClass() + "]");
+        throw new ConfigurationException(
+                "You must specify a method: [" + method + "] in class :[" + controller.getClass() + "]");
       }
     }
 
@@ -335,12 +339,8 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
     }
 
     if (StringUtils.isNotEmpty(resource)) {
-      final StringBuilder resourceAppender = //
-              new StringBuilder(prefix.length() + resource.length() + suffix.length())
-                      .append(prefix)
-                      .append(resource)
-                      .append(suffix);
-      resource = resolveVariables(resourceAppender.toString());
+      String resourceAppender = prefix + resource + suffix;
+      resource = resolveVariables(resourceAppender);
     }
     mapping.setResource(resource);
     // @since 2.3.3
@@ -349,7 +349,6 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
     }
 
     name = resolveVariables(getContextPath().concat(StringUtils.checkUrl(name)));
-
     register(name, mapping);
   }
 

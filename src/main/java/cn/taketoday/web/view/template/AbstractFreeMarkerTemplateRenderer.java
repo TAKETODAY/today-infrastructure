@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -28,7 +28,6 @@ import java.util.Properties;
 import cn.taketoday.beans.Autowired;
 import cn.taketoday.context.Props;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.Ordered;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
@@ -53,8 +52,14 @@ import freemarker.template.TemplateModel;
 import freemarker.template.Version;
 
 /**
- * @author TODAY <br>
- * 2019-11-22 13:25
+ * Abstract FreeMarker template-renderer
+ * <p>
+ * this class registered FreemarkerConfigParameterResolver, SharedVariableParameterResolver
+ * to supports freemarker SharedVariable and Configuration instance parameter resolving
+ * </p>
+ *
+ * @author TODAY 2019-11-22 13:25
+ * @see WebMvcConfiguration#configureParameterResolving(List)
  */
 public abstract class AbstractFreeMarkerTemplateRenderer
         extends AbstractTemplateRenderer implements WebMvcConfiguration {
@@ -115,11 +120,8 @@ public abstract class AbstractFreeMarkerTemplateRenderer
 
   @Override
   public void configureParameterResolving(final List<ParameterResolvingStrategy> resolvers) {
-
     resolvers.add(new FreemarkerConfigParameterResolver());
-    SharedVariableParameterResolver resolver = new SharedVariableParameterResolver();
-    resolver.setOrder(Ordered.LOWEST_PRECEDENCE + 10);
-    resolvers.add(resolver);
+    resolvers.add(new SharedVariableParameterResolver());
   }
 
   @Override
@@ -201,10 +203,7 @@ public abstract class AbstractFreeMarkerTemplateRenderer
    * @return true to process the template, false to suppress template processing.
    */
   protected boolean preTemplateProcess(
-          final Template template,
-          final TemplateModel model,
-          final RequestContext context
-  ) throws IOException {
+          final Template template, final TemplateModel model, final RequestContext context) throws IOException {
     return true;
   }
 
@@ -223,8 +222,8 @@ public abstract class AbstractFreeMarkerTemplateRenderer
    *
    * @since 2.3.7
    */
-  protected void processEnvironment(final Environment env, final RequestContext context)
-          throws TemplateException, IOException {
+  protected void processEnvironment(
+          final Environment env, final RequestContext context) throws TemplateException, IOException {
     env.process();
   }
 
@@ -245,10 +244,7 @@ public abstract class AbstractFreeMarkerTemplateRenderer
    * @since 2.3.7
    */
   protected void postTemplateProcess(
-          final Template template,
-          final TemplateModel data,
-          final RequestContext context
-  ) throws IOException {
+          final Template template, final TemplateModel data, final RequestContext context) throws IOException {
 
   }
 
@@ -309,7 +305,7 @@ public abstract class AbstractFreeMarkerTemplateRenderer
 
   private final class FreemarkerConfigParameterResolver implements ParameterResolvingStrategy {
     @Override
-    public boolean supports(MethodParameter parameter) {
+    public boolean supportsParameter(MethodParameter parameter) {
       return parameter.is(Configuration.class);
     }
 

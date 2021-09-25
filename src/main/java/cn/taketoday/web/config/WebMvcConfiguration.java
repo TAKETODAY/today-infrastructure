@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -47,30 +47,34 @@ public interface WebMvcConfiguration {
   /**
    * Configure {@link ParameterResolvingStrategy}
    *
-   * @param resolvingStrategies
+   * @param customizedStrategies
    *         {@link ParameterResolvingStrategy} registry
    */
-  default void configureParameterResolving(List<ParameterResolvingStrategy> resolvingStrategies) { }
+  default void configureParameterResolving(List<ParameterResolvingStrategy> customizedStrategies) { }
 
   /**
    * Configure {@link ParameterResolvingStrategy}
    * <p>
    * user can add {@link ParameterResolvingStrategy} to {@code resolvingStrategies} or
-   * use {@link ParameterResolverRegistry#addResolvingStrategies(ParameterResolvingStrategy...)} or
-   * use {@link ParameterResolverRegistry#addResolvingStrategies(List)} to add ParameterResolvingStrategy
+   * use {@link ParameterResolverRegistry#addDefaultStrategies(ParameterResolvingStrategy...)}
+   * use {@link ParameterResolverRegistry#addDefaultStrategies(List)} or
+   * use {@link ParameterResolverRegistry#addCustomizedStrategies(ParameterResolvingStrategy...)} or
+   * use {@link ParameterResolverRegistry#addCustomizedStrategies(List)} to add ParameterResolvingStrategy
    * </p>
    *
-   * @param resolvingStrategies
+   * @param customizedStrategies
    *         {@link ParameterResolvingStrategy} registry
    *
    * @see WebApplicationLoader#configureParameterResolving(List, WebMvcConfiguration)
-   * @see ParameterResolverRegistry#addResolvingStrategies(List)
-   * @see ParameterResolverRegistry#addResolvingStrategies(ParameterResolvingStrategy...)
+   * @see ParameterResolverRegistry#addCustomizedStrategies(ParameterResolvingStrategy...)
+   * @see ParameterResolverRegistry#addCustomizedStrategies(List)
+   * @see ParameterResolverRegistry#addDefaultStrategies(List)
+   * @see ParameterResolverRegistry#addDefaultStrategies(ParameterResolvingStrategy...)
    * @since 4.0
    */
   default void configureParameterResolving(
-          ParameterResolverRegistry registry, List<ParameterResolvingStrategy> resolvingStrategies) {
-    configureParameterResolving(resolvingStrategies);
+          ParameterResolverRegistry registry, List<ParameterResolvingStrategy> customizedStrategies) {
+    configureParameterResolving(customizedStrategies);
   }
 
   /**

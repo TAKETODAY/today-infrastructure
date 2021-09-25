@@ -36,7 +36,7 @@ public class CookieParameterResolver
         extends AbstractParameterResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supports(final MethodParameter parameter) {
+  public boolean supportsParameter(final MethodParameter parameter) {
     return parameter.is(HttpCookie.class);
   }
 
@@ -67,7 +67,7 @@ public class CookieParameterResolver
   private static class CookieAnnotationParameterResolver extends ConversionServiceParameterResolver {
 
     @Override
-    public boolean supports(MethodParameter parameter) {
+    public boolean supportsParameter(MethodParameter parameter) {
       return parameter.isAnnotationPresent(CookieValue.class);
     }
 
@@ -89,7 +89,7 @@ public class CookieParameterResolver
   private static class CookieArrayParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supports(MethodParameter parameter) {
+    public boolean supportsParameter(MethodParameter parameter) {
       return parameter.isArray() && parameter.getParameterClass().getComponentType() == HttpCookie.class;
     }
 

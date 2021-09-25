@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -19,17 +19,33 @@
  */
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.core.Ordered;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.annotation.RequestHeader;
+import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.http.HttpHeaders;
 
 /**
+ * for {@link RequestHeader}
+ *
  * @author TODAY <br>
- *         2019-07-14 19:36
+ * 2019-07-13 11:11
  */
-public interface OrderedParameterResolver extends ParameterResolvingStrategy, Ordered {
+public class RequestHeaderParameterResolver extends ConversionServiceParameterResolver {
 
   @Override
-  default int getOrder() {
-    return LOWEST_PRECEDENCE;
+  public boolean supportsParameter(MethodParameter parameter) {
+    return parameter.isAnnotationPresent(RequestHeader.class);
   }
 
+  @Override
+  protected Object missingParameter(MethodParameter parameter) {
+    throw new MissingRequestHeaderException(parameter);
+  }
+
+  @Override
+  protected Object resolveInternal(final RequestContext context, final MethodParameter parameter) {
+    final String headerName = parameter.getName();
+    final HttpHeaders httpHeaders = context.requestHeaders();
+    return httpHeaders.get(headerName);
+  }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -35,20 +35,12 @@ import cn.taketoday.web.handler.MethodParameter;
  * @see #transformValue(RequestContext, MethodParameter, Object)
  */
 public abstract class ConversionServiceParameterResolver
-        extends OrderedAbstractParameterResolver implements ParameterResolvingStrategy, ConversionServiceAware {
+        extends AbstractParameterResolver implements ParameterResolvingStrategy, ConversionServiceAware {
 
   protected ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
-  protected ConversionServiceParameterResolver() {
-    this(HIGHEST_PRECEDENCE);
-  }
-
-  protected ConversionServiceParameterResolver(int order) {
-    setOrder(order);
-  }
-
   @Override
-  public abstract boolean supports(MethodParameter parameter);
+  public abstract boolean supportsParameter(MethodParameter parameter);
 
   @Override
   protected Object resolveInternal(final RequestContext context, final MethodParameter parameter) {

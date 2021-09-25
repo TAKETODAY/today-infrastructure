@@ -31,6 +31,8 @@ import freemarker.template.TemplateHashModel;
 import freemarker.template.utility.ObjectWrapperWithAPISupport;
 
 /**
+ * None Servlet env
+ *
  * @author TODAY 2021/5/26 21:53
  * @since 3.0.1
  */
@@ -38,7 +40,7 @@ public class ReactiveFreeMarkerTemplateRenderer extends AbstractFreeMarkerTempla
 
   public static final String KEY_REQUEST_PARAMETERS = "RequestParameters";
 
-  public ReactiveFreeMarkerTemplateRenderer() {}
+  public ReactiveFreeMarkerTemplateRenderer() { }
 
   public ReactiveFreeMarkerTemplateRenderer(Configuration configuration) {
     this(new DefaultObjectWrapper(configuration.getIncompatibleImprovements()), configuration);

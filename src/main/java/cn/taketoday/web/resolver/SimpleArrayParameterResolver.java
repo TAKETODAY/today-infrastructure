@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
@@ -34,20 +33,11 @@ import cn.taketoday.web.handler.MethodParameter;
  * @author TODAY <br>
  * 2019-07-07 23:24
  */
-public class SimpleArrayParameterResolver
-        extends OrderedSupport implements ParameterResolvingStrategy {
-
-  public SimpleArrayParameterResolver() {
-    this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 70);
-  }
-
-  public SimpleArrayParameterResolver(int order) {
-    super(order);
-  }
+public class SimpleArrayParameterResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supports(final MethodParameter parameter) {
-    return parameter.isArray();
+  public boolean supportsParameter(final MethodParameter parameter) {
+    return parameter.isArray(); // TODO
   }
 
   @Override

@@ -37,7 +37,7 @@ public class LocalDateTimeParameterResolver
         extends AbstractJavaTimeParameterResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supports(MethodParameter parameter) {
+  public boolean supportsParameter(MethodParameter parameter) {
     return parameter.is(LocalDateTime.class);
   }
 

@@ -24,6 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.DateTimeFormat;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.handler.MethodParameter;
@@ -38,7 +39,6 @@ public abstract class AbstractJavaTimeParameterResolver extends AbstractDatePara
 
   @Override
   protected Object resolveInternal(String parameterValue, MethodParameter parameter) {
-
     DateTimeFormatter formatter = getFormatter(parameter);
     try {
       return fromTemporalAccessor(formatter.parse(parameterValue));
@@ -67,6 +67,7 @@ public abstract class AbstractJavaTimeParameterResolver extends AbstractDatePara
   }
 
   public void setDefaultFormatter(DateTimeFormatter defaultFormatter) {
+    Assert.notNull(defaultFormatter, "defaultFormatter must not be null");
     this.defaultFormatter = defaultFormatter;
   }
 

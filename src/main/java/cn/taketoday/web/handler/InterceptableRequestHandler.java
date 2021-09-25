@@ -60,7 +60,6 @@ public abstract class InterceptableRequestHandler
    */
   @Override
   public Object handleRequest(final RequestContext context) throws Throwable {
-    HandlerInterceptor[] interceptors = getInterceptors();
     if (interceptors == null) {
       return handleInternal(context);
     }

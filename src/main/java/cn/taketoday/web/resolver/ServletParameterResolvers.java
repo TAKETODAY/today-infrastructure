@@ -63,7 +63,7 @@ public class ServletParameterResolvers {
   static class ServletRequestParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supports(final MethodParameter parameter) {
+    public boolean supportsParameter(final MethodParameter parameter) {
       return parameter.isInterface() && parameter.isAssignableTo(ServletRequest.class);
     }
 
@@ -76,7 +76,7 @@ public class ServletParameterResolvers {
   static class ServletResponseParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supports(final MethodParameter parameter) {
+    public boolean supportsParameter(final MethodParameter parameter) {
       return parameter.isInterface() && parameter.isAssignableTo(ServletResponse.class);
     }
 
@@ -89,7 +89,7 @@ public class ServletParameterResolvers {
   static class HttpSessionParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supports(final MethodParameter parameter) {
+    public boolean supportsParameter(final MethodParameter parameter) {
       return parameter.isAssignableTo(HttpSession.class);
     }
 
@@ -103,7 +103,7 @@ public class ServletParameterResolvers {
   static class HttpSessionAttributeParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supports(MethodParameter parameter) {
+    public boolean supportsParameter(MethodParameter parameter) {
       return parameter.isAnnotationPresent(SessionAttribute.class);
     }
 
@@ -126,7 +126,7 @@ public class ServletParameterResolvers {
     }
 
     @Override
-    public boolean supports(final MethodParameter parameter) {
+    public boolean supportsParameter(final MethodParameter parameter) {
       return parameter.is(ServletContext.class);
     }
 
@@ -141,7 +141,7 @@ public class ServletParameterResolvers {
   static class ServletCookieParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supports(final MethodParameter parameter) {
+    public boolean supportsParameter(final MethodParameter parameter) {
       return parameter.is(Cookie.class);
     }
 
@@ -183,7 +183,7 @@ public class ServletParameterResolvers {
   static class ServletCookieArrayParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supports(MethodParameter parameter) {
+    public boolean supportsParameter(MethodParameter parameter) {
       return parameter.isArray() && parameter.getParameterClass().getComponentType() == Cookie.class;
     }
 
@@ -201,7 +201,7 @@ public class ServletParameterResolvers {
     }
 
     @Override
-    public boolean supports(MethodParameter parameter) {
+    public boolean supportsParameter(MethodParameter parameter) {
       return parameter.isAnnotationPresent(Application.class);
     }
 

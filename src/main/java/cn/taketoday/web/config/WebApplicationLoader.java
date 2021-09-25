@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -88,7 +88,7 @@ public class WebApplicationLoader
     configureValidators(context, mvcConfiguration);
 
     // check all Components
-    checkFrameWorkComponents(context);
+    checkFrameworkComponents(context);
     initializerStartup(context, mvcConfiguration);
 
     context.publishEvent(new WebApplicationStartedEvent(context));
@@ -147,7 +147,7 @@ public class WebApplicationLoader
       Collections.addAll(adapters, handlerAdapters);
     }
     // 添加默认的
-    adapters.add(new RequestHandlerAdapter(Ordered.HIGHEST_PRECEDENCE << 1));
+    adapters.add(new RequestHandlerAdapter(Ordered.HIGHEST_PRECEDENCE));
     final WebApplicationContext context = obtainApplicationContext();
     // ViewControllerHandlerRegistry must configured
     final ViewControllerHandlerRegistry viewControllerRegistry = context.getBean(ViewControllerHandlerRegistry.class);
@@ -305,13 +305,13 @@ public class WebApplicationLoader
   /**
    * Configure {@link ParameterResolvingStrategy}s to resolve handler method arguments
    *
-   * @param resolvingStrategies
+   * @param customizedStrategies
    *         Resolvers registry
    * @param mvcConfiguration
    *         All {@link WebMvcConfiguration} object
    */
   protected void configureParameterResolving(
-          List<ParameterResolvingStrategy> resolvingStrategies, WebMvcConfiguration mvcConfiguration) {
+          List<ParameterResolvingStrategy> customizedStrategies, WebMvcConfiguration mvcConfiguration) {
     final WebApplicationContext context = obtainApplicationContext();
     final ParameterResolverRegistry registry = context.getBean(ParameterResolverRegistry.class);
     Assert.state(registry != null, "No ParameterResolvers");
@@ -322,9 +322,9 @@ public class WebApplicationLoader
 
     // User customize parameter resolver
     // ------------------------------------------
-    mvcConfiguration.configureParameterResolving(registry, resolvingStrategies); // user configure
+    mvcConfiguration.configureParameterResolving(registry, customizedStrategies); // user configure
 
-    registry.addResolvingStrategies(resolvingStrategies);
+    registry.addCustomizedStrategies(customizedStrategies);
   }
 
   /**
@@ -434,7 +434,7 @@ public class WebApplicationLoader
   /**
    * Check Components
    */
-  protected void checkFrameWorkComponents(WebApplicationContext applicationContext) {
+  protected void checkFrameworkComponents(WebApplicationContext applicationContext) {
     // no-op
   }
 

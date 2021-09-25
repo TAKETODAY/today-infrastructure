@@ -31,20 +31,16 @@ import cn.taketoday.web.handler.MethodParameter;
  * 2019-07-12 22:23
  */
 public class RequestBodyParameterResolver
-        extends OrderedAbstractParameterResolver implements ParameterResolvingStrategy {
+        extends AbstractParameterResolver implements ParameterResolvingStrategy {
 
   private MessageBodyConverter messageBodyConverter;
-
-  public RequestBodyParameterResolver() {
-    setOrder(HIGHEST_PRECEDENCE);
-  }
 
   public RequestBodyParameterResolver(MessageBodyConverter messageBodyConverter) {
     setMessageConverter(messageBodyConverter);
   }
 
   @Override
-  public boolean supports(final MethodParameter parameter) {
+  public boolean supportsParameter(final MethodParameter parameter) {
     return parameter.isAnnotationPresent(RequestBody.class);
   }
 

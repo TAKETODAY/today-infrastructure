@@ -72,9 +72,9 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
 
   @Override
   public void configureParameterResolving(
-          ParameterResolverRegistry resolversRegistry, List<ParameterResolvingStrategy> resolvingStrategies) {
+          ParameterResolverRegistry resolversRegistry, List<ParameterResolvingStrategy> customizedStrategies) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureParameterResolving(resolversRegistry, resolvingStrategies);
+      webMvcConfiguration.configureParameterResolving(resolversRegistry, customizedStrategies);
     }
   }
 

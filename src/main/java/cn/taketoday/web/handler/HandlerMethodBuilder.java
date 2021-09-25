@@ -27,7 +27,7 @@ import java.util.List;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.reflect.ReflectionException;
+import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resolver.ParameterResolverRegistry;
@@ -41,7 +41,7 @@ import cn.taketoday.web.view.ReturnValueHandlers;
  */
 public class HandlerMethodBuilder<T extends HandlerMethod> {
 
-  private ParameterResolverRegistry resolversRegistry;
+  private ParameterResolverRegistry resolverRegistry;
   private ReturnValueHandlers returnValueHandlers;
   private MethodParametersBuilder parametersBuilder;
 
@@ -59,21 +59,21 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
     Assert.notNull(context, "ApplicationContext must not be null");
     ParameterResolverRegistry resolversRegistry = context.getBean(ParameterResolverRegistry.class);
     Assert.state(resolversRegistry != null, "No ParameterResolvers");
-    setParameterResolvers(resolversRegistry);
+    setResolverRegistry(resolversRegistry);
     setReturnValueHandlers(context.getBean(ReturnValueHandlers.class));
     setParametersBuilder(new ParameterResolversMethodParameterBuilder(resolversRegistry));
   }
 
-  public HandlerMethodBuilder(ParameterResolverRegistry resolvers,
-                              ReturnValueHandlers returnValueHandlers) {
+  public HandlerMethodBuilder(
+          ParameterResolverRegistry resolvers, ReturnValueHandlers returnValueHandlers) {
     this(resolvers, returnValueHandlers, new ParameterResolversMethodParameterBuilder(resolvers));
   }
 
-  public HandlerMethodBuilder(ParameterResolverRegistry resolvers,
-                              ReturnValueHandlers returnValueHandlers,
-                              MethodParametersBuilder builder) {
+  public HandlerMethodBuilder(
+          ParameterResolverRegistry resolvers,
+          ReturnValueHandlers returnValueHandlers, MethodParametersBuilder builder) {
     setParametersBuilder(builder);
-    setParameterResolvers(resolvers);
+    setResolverRegistry(resolvers);
     setReturnValueHandlers(returnValueHandlers);
   }
 
@@ -83,7 +83,7 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
       this.constructor = BeanInstantiator.fromConstructor(declared);
     }
     catch (NoSuchMethodException e) {
-      throw new ReflectionException(
+      throw new ConfigurationException(
               "Target class: '" + handlerMethodClass + "' don't exist a suitable constructor", e);
     }
   }
@@ -125,8 +125,8 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
     return handlerMethod;
   }
 
-  public void setParameterResolvers(ParameterResolverRegistry resolversRegistry) {
-    this.resolversRegistry = resolversRegistry;
+  public void setResolverRegistry(ParameterResolverRegistry resolverRegistry) {
+    this.resolverRegistry = resolverRegistry;
   }
 
   public void setReturnValueHandlers(ReturnValueHandlers returnValueHandlers) {
@@ -145,8 +145,8 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
     return parametersBuilder;
   }
 
-  public ParameterResolverRegistry getParameterResolvers() {
-    return resolversRegistry;
+  public ParameterResolverRegistry getResolverRegistry() {
+    return resolverRegistry;
   }
 
   public ReturnValueHandlers getReturnValueHandlers() {
