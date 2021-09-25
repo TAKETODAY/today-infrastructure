@@ -61,12 +61,12 @@ public class CaffeineCache extends AbstractMappingFunctionCache {
   }
 
   @Override
-  protected Object getInternal(Object key, UnaryOperator<Object> mappingFunction) {
+  protected Object computeIfAbsent(Object key, UnaryOperator<Object> mappingFunction) {
     return this.caffeine.get(key, mappingFunction);
   }
 
   @Override
-  protected Object lookupValue(Object key) {
+  protected Object doGet(Object key) {
     if (this.caffeine instanceof LoadingCache) {
       return ((LoadingCache<Object, Object>) this.caffeine).get(key);
     }
@@ -74,7 +74,7 @@ public class CaffeineCache extends AbstractMappingFunctionCache {
   }
 
   @Override
-  protected void putInternal(Object key, Object value) {
+  protected void doPut(Object key, Object value) {
     this.caffeine.put(key, value);
   }
 

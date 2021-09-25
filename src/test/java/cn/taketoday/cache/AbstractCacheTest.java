@@ -29,18 +29,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class AbstractCacheTest extends TestCase {
 
-  protected AbstractCache cache;
+  protected Cache cache;
 
-  public AbstractCacheTest(final AbstractCache cache) {
+  public AbstractCacheTest(final Cache cache) {
     this.cache = cache;
     cache.setName("test");
   }
 
-  public void setCache(final AbstractCache cache) {
+  public void setCache(final Cache cache) {
     this.cache = cache;
   }
 
-  protected AbstractCache getCache() {
+  protected Cache getCache() {
     return this.cache;
   }
 
@@ -62,7 +62,7 @@ public abstract class AbstractCacheTest extends TestCase {
   }
 
   public void testGet() {
-    final AbstractCache cache = getCache();
+    final Cache cache = getCache();
     assertThat(cache.get("key")).isNull();
     assertThat(cache.get("key1")).isEqualTo("value1");
     assertThat(cache.get("key2")).isEqualTo("value2");
@@ -91,7 +91,7 @@ public abstract class AbstractCacheTest extends TestCase {
       assertThat(cache.get("key1", int.class)).isEqualTo("value1");
       fail("Type assert error");
     }
-    catch (IllegalStateException e) {}
+    catch (IllegalStateException e) { }
 
     // --------------------------Object key, CacheCallback<T> valueLoader
 
@@ -102,26 +102,26 @@ public abstract class AbstractCacheTest extends TestCase {
   }
 
   public void testLookupValue() {
-    final AbstractCache cache = getCache();
+    final Cache cache = getCache();
     cache.put("null", null);
 
-    final Object value = cache.lookupValue("key");
+    final Object value = cache.doGet("key");
     assertNull(value);
 
-    final Object nullValue = cache.lookupValue("null");
+    final Object nullValue = cache.doGet("null");
     assertNotNull(nullValue);
-    assertEquals(nullValue, EmptyObject.INSTANCE);
+    assertEquals(nullValue, NullCacheValue.INSTANCE);
   }
 
   public void testToStoreValue() {
-    assertEquals(AbstractCache.toStoreValue(null), EmptyObject.INSTANCE);
-    assertEquals(AbstractCache.toStoreValue("null"), "null");
+    assertEquals(Cache.toStoreValue(null), NullCacheValue.INSTANCE);
+    assertEquals(Cache.toStoreValue("null"), "null");
   }
 
   public void testToRealValue() {
-    assertNull(AbstractCache.toRealValue(null));
-    assertNull(AbstractCache.toRealValue(EmptyObject.INSTANCE));
-    assertEquals(AbstractCache.toRealValue("null"), "null");
+    assertNull(Cache.toRealValue(null));
+    assertNull(Cache.toRealValue(NullCacheValue.INSTANCE));
+    assertEquals(Cache.toRealValue("null"), "null");
   }
 
   public void testEvict() {

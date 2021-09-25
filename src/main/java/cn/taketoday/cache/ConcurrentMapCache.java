@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -50,7 +50,7 @@ public class ConcurrentMapCache extends AbstractMappingFunctionCache {
   }
 
   @Override
-  protected Object getInternal(Object key, UnaryOperator<Object> mappingFunction) {
+  protected Object computeIfAbsent(Object key, UnaryOperator<Object> mappingFunction) {
     return store.get(key, mappingFunction);
   }
 
@@ -65,12 +65,12 @@ public class ConcurrentMapCache extends AbstractMappingFunctionCache {
   }
 
   @Override
-  protected Object lookupValue(Object key) {
+  protected Object doGet(Object key) {
     return store.get(key);
   }
 
   @Override
-  protected void putInternal(Object key, Object value) {
+  protected void doPut(Object key, Object value) {
     store.put(key, value);
   }
 

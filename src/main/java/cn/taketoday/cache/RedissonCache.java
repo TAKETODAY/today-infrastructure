@@ -33,7 +33,7 @@ import cn.taketoday.core.Constant;
  * @author TODAY <br>
  * 2019-02-28 18:30
  */
-public class RedissonCache extends AbstractCache implements Cache {
+public class RedissonCache extends Cache {
 
   private final CacheConfig cacheConfig;
   private final RMap<Object, Object> cache;
@@ -58,25 +58,6 @@ public class RedissonCache extends AbstractCache implements Cache {
     setName(name);
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  protected static void doPut(final RMap<Object, Object> cache,
-                              final CacheConfig cacheConfig,
-                              final Object key, final Object value)//
-  {
-    if (cacheConfig != null && cache instanceof RMapCache) {
-      final TimeUnit timeUnit = cacheConfig.timeUnit();
-      ((RMapCache) cache).fastPut(key,
-                                  value,
-                                  cacheConfig.expire(),
-                                  timeUnit,
-                                  cacheConfig.maxIdleTime(),
-                                  timeUnit);
-    }
-    else {
-      cache.fastPut(key, value);
-    }
-  }
-
   @Override
   public void evict(final Object key) {
     cache.fastRemove(key);
@@ -88,7 +69,7 @@ public class RedissonCache extends AbstractCache implements Cache {
   }
 
   @Override
-  protected <T> Object lookupValue(Object key, CacheCallback<T> valueLoader) {
+  protected <T> Object compute(Object key, CacheCallback<T> valueLoader) throws Throwable {
     final RLock lock = cache.getLock(key);
     try {
       lock.lock();
@@ -102,22 +83,33 @@ public class RedissonCache extends AbstractCache implements Cache {
         return value;
       }
     }
-    catch (Throwable ex) {
-      throw new CacheValueRetrievalException(key, valueLoader, ex);
-    }
     finally {
       lock.unlock();
     }
   }
 
   @Override
-  protected Object lookupValue(Object key) {
+  protected Object doGet(Object key) {
     return cache.get(key);
   }
 
   @Override
-  protected void putInternal(Object key, Object value) {
-    doPut(cache, cacheConfig, key, value);
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  protected void doPut(Object key, Object value) {
+    if (cacheConfig != null && cache instanceof RMapCache) {
+      final TimeUnit timeUnit = cacheConfig.timeUnit();
+      ((RMapCache) cache).fastPut(
+              key,
+              value,
+              cacheConfig.expire(),
+              timeUnit,
+              cacheConfig.maxIdleTime(),
+              timeUnit
+      );
+    }
+    else {
+      cache.fastPut(key, value);
+    }
   }
 
 }

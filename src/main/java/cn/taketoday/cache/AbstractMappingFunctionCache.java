@@ -22,23 +22,30 @@ package cn.taketoday.cache;
 
 import java.util.function.UnaryOperator;
 
+import cn.taketoday.util.ExceptionUtils;
+
 /**
  * @author TODAY 2021/3/8 21:22
  * @since 3.0
  */
-abstract class AbstractMappingFunctionCache extends AbstractCache {
+public abstract class AbstractMappingFunctionCache extends Cache {
 
   @Override
-  protected <T> Object getInternal(Object key, CacheCallback<T> valueLoader) {
+  protected final <T> Object computeIfAbsent(Object key, CacheCallback<T> valueLoader) {
     final class MappingFunction implements UnaryOperator<Object> {
       @Override
       public Object apply(Object k) {
-        return lookupValue(k, valueLoader);
+        try {
+          return compute(k, valueLoader);
+        }
+        catch (Throwable e) {
+          throw ExceptionUtils.sneakyThrow(e);
+        }
       }
     }
-    return getInternal(key, new MappingFunction());
+    return computeIfAbsent(key, new MappingFunction());
   }
 
-  protected abstract Object getInternal(Object key, UnaryOperator<Object> mappingFunction);
+  protected abstract Object computeIfAbsent(Object key, UnaryOperator<Object> mappingFunction);
 
 }

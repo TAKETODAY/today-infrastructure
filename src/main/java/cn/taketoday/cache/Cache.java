@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -20,15 +20,21 @@
 package cn.taketoday.cache;
 
 /**
- * @author TODAY <br>
- * 2019-02-27 17:11
+ * @author TODAY 2019-02-27 17:11
  */
-public interface Cache {
+public abstract class Cache {
+  private String name;
+
+  public void setName(String name) {
+    this.name = name;
+  }
 
   /**
    * Return the cache name.
    */
-  String getName();
+  public String getName() {
+    return name;
+  }
 
   /**
    * Return the value to which this cache maps the specified key.
@@ -40,12 +46,15 @@ public interface Cache {
    *
    * @return the value to which this cache maps the specified key, A straight
    * {@code null} being returned means that the cache contains no mapping
-   * for this key.
+   * for this key or the key is map to a {@code null} value.
    *
    * @see #get(Object, Class)
    * @see #get(Object, boolean)
+   * @see #toRealValue(Object)
    */
-  Object get(Object key);
+  public Object get(final Object key) {
+    return get(key, true);
+  }
 
   /**
    * Return the value to which this cache maps the specified key.
@@ -55,15 +64,32 @@ public interface Cache {
    * @param key
    *         the key whose associated value is to be returned
    * @param unWarp
-   *         unWarp value
+   *         unWarp value, if its {@code true} un-warp store value to real value
    *
    * @return the value to which this cache maps the specified key, A straight
    * {@code null} being returned means that the cache contains no mapping
-   * for this key.
+   * for this key. if returns {@link NullCacheValue#INSTANCE} indicates that
+   * the key maps to a {@code null} value
    *
    * @see #get(Object, Class)
+   * @see NullCacheValue#INSTANCE
+   * @see NullCacheValue
+   * @see #toRealValue(Object)
    */
-  Object get(Object key, boolean unWarp);
+  public Object get(final Object key, final boolean unWarp) {
+    final Object userValue = doGet(key);
+    return unWarp ? toRealValue(userValue) : userValue;
+  }
+
+  /**
+   * look up value in mappings with given key
+   *
+   * @param key
+   *         given key
+   *
+   * @return cached value maybe a warped value
+   */
+  protected abstract Object doGet(Object key);
 
   /**
    * Return the value to which this cache maps the specified key, generically
@@ -75,7 +101,7 @@ public interface Cache {
    *
    * @param key
    *         the key whose associated value is to be returned
-   * @param targetType
+   * @param requiredType
    *         the required type of the returned value (may be {@code null} to
    *         bypass a type check; in case of a {@code null} value found in the
    *         cache, the specified type is irrelevant)
@@ -89,7 +115,15 @@ public interface Cache {
    *         type
    * @see #get(Object)
    */
-  <T> T get(Object key, Class<T> targetType);
+  @SuppressWarnings("unchecked")
+  public <T> T get(final Object key, final Class<T> requiredType) {
+    final Object value = get(key, true);
+    if (value != null && requiredType != null && !requiredType.isInstance(value)) {
+      throw new IllegalStateException(
+              "Cached value is not of required type [" + requiredType.getName() + "]: " + value);
+    }
+    return (T) value;
+  }
 
   /**
    * Return the value to which this cache maps the specified key, obtaining that
@@ -111,8 +145,54 @@ public interface Cache {
    *
    * @throws CacheValueRetrievalException
    *         If cache value failed to load
+   * @see #get(Object, boolean)
    */
-  <T> T get(Object key, CacheCallback<T> valueLoader) throws CacheValueRetrievalException;
+  @SuppressWarnings("unchecked")
+  public final <T> T get(Object key, CacheCallback<T> valueLoader) {
+    return (T) toRealValue(computeIfAbsent(key, valueLoader));
+  }
+
+  /**
+   * Get value If there isn't a key, use valueLoader create one
+   *
+   * @param <T>
+   *         Cache value type
+   * @param key
+   *         Cache key
+   * @param valueLoader
+   *         Value Loader
+   *
+   * @return cached value maybe a warped value
+   *
+   * @throws CacheValueRetrievalException
+   *         If CacheCallback#call() throws Exception
+   */
+  protected <T> Object computeIfAbsent(Object key, CacheCallback<T> valueLoader) {
+    Object ret = doGet(key);
+    if (ret == null) {
+      try {
+        ret = compute(key, valueLoader);
+      }
+      catch (Throwable e) {
+        throw new CacheValueRetrievalException(key, valueLoader, e);
+      }
+    }
+    return ret;
+  }
+
+  /**
+   * compute cache value with {@code valueLoader}
+   *
+   * @param key
+   *         Cache key
+   * @param valueLoader
+   *         Cache value loader
+   * @param <T>
+   *         Value type
+   */
+  protected <T> Object compute(final Object key, final CacheCallback<T> valueLoader) throws Throwable {
+    return valueLoader.call();
+  }
 
   /**
    * Associate the specified value with the specified key in this cache.
@@ -125,7 +205,19 @@ public interface Cache {
    * @param value
    *         the value to be associated with the specified key
    */
-  void put(Object key, Object value);
+  public void put(final Object key, final Object value) {
+    doPut(key, toStoreValue(value));
+  }
+
+  /**
+   * Put to this cache internal
+   *
+   * @param key
+   *         Target key
+   * @param value
+   *         Target value
+   */
+  protected abstract void doPut(Object key, Object value);
 
   /**
    * Evict the mapping for this key from this cache if it is present.
@@ -133,11 +225,38 @@ public interface Cache {
    * @param key
    *         the key whose mapping is to be removed from the cache
    */
-  void evict(Object key);
+  public abstract void evict(Object key);
 
   /**
    * Remove all mappings from the cache.
    */
-  void clear();
+  public abstract void clear();
+
+  // static
+
+  /**
+   * real value to store value
+   *
+   * @param userValue
+   *         real value
+   *
+   * @return Store value maybe a serializable object
+   */
+  public static Object toStoreValue(final Object userValue) {
+    return userValue == null ? NullCacheValue.INSTANCE : userValue;
+  }
+
+  /**
+   * convert store value to real value
+   *
+   * @param cachedValue
+   *         cached value in mappings
+   *
+   * @return if {@code cachedValue} is {@link NullCacheValue#INSTANCE}
+   * indicates that real value is {@code null}
+   */
+  public static Object toRealValue(final Object cachedValue) {
+    return cachedValue == NullCacheValue.INSTANCE ? null : cachedValue;
+  }
 
 }

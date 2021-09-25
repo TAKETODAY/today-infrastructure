@@ -51,7 +51,7 @@ public class DefaultMapCache extends AbstractMappingFunctionCache {
   }
 
   @Override
-  protected Object lookupValue(Object key) {
+  protected Object doGet(Object key) {
     return this.store.get(key);
   }
 
@@ -66,12 +66,12 @@ public class DefaultMapCache extends AbstractMappingFunctionCache {
   }
 
   @Override
-  protected void putInternal(Object key, Object value) {
+  protected void doPut(Object key, Object value) {
     this.store.put(key, value);
   }
 
   @Override
-  protected Object getInternal(Object key, UnaryOperator<Object> mappingFunction) {
+  protected Object computeIfAbsent(Object key, UnaryOperator<Object> mappingFunction) {
     return this.store.computeIfAbsent(key, mappingFunction);
   }
 

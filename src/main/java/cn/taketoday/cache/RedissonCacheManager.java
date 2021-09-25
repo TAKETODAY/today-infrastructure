@@ -43,8 +43,8 @@ public class RedissonCacheManager extends AbstractCacheManager implements CacheM
   }
 
   @Autowired
-  public RedissonCacheManager(@Autowired(required = false) Codec codec,
-                              @Autowired RedissonClient redisson) {
+  public RedissonCacheManager(
+          @Autowired(required = false) Codec codec, @Autowired RedissonClient redisson) {
     this.codec = codec;
     this.redisson = redisson;
   }
@@ -63,7 +63,6 @@ public class RedissonCacheManager extends AbstractCacheManager implements CacheM
   public void setCodec(Codec codec) {
     this.codec = codec;
   }
-
 
   protected Cache createMap(String name) {
     return new RedissonCache(getMap(name), name);
