@@ -27,6 +27,8 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package cn.taketoday.asm;
 
+import cn.taketoday.core.Constant;
+
 /**
  * The input and output stack map frames of a basic block.
  *
@@ -284,7 +286,7 @@ class Frame {
    */
   static int getAbstractTypeFromApiFormat(final SymbolTable symbolTable, final Object type) {
     if (type instanceof Integer) {
-      return CONSTANT_KIND | ((Integer) type).intValue();
+      return CONSTANT_KIND | (Integer) type;
     }
     else if (type instanceof String) {
       String descriptor = Type.fromInternalName((String) type).getDescriptor();
@@ -292,7 +294,7 @@ class Frame {
     }
     else {
       return UNINITIALIZED_KIND
-              | symbolTable.addUninitializedType("", ((Label) type).bytecodeOffset);
+              | symbolTable.addUninitializedType(Constant.BLANK, ((Label) type).bytecodeOffset);
     }
   }
 
@@ -1547,8 +1549,7 @@ class Frame {
             throw new AssertionError();
         }
       }
-      output
-              .putByte(ITEM_OBJECT)
+      output.putByte(ITEM_OBJECT)
               .putShort(symbolTable.addConstantClass(typeDescriptor.toString()).index);
     }
   }

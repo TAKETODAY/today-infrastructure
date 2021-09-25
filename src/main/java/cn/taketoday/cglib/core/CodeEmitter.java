@@ -30,58 +30,19 @@ import cn.taketoday.asm.commons.MethodSignature;
 public class CodeEmitter extends GeneratorAdapter {
 
   private final ClassEmitter ce;
-  private final State state;
-
-  private static class State extends MethodInfo {
-
-    private final int access;
-    private final int localOffset;
-    private final ClassInfo classInfo;
-    private final MethodSignature sig;
-    private final Type[] argumentTypes;
-    private final Type[] exceptionTypes;
-
-    State(ClassInfo classInfo, int access, MethodSignature sig, Type[] exceptionTypes) {
-      this.classInfo = classInfo;
-      this.access = access;
-      this.sig = sig;
-      this.exceptionTypes = exceptionTypes;
-      localOffset = Modifier.isStatic(access) ? 0 : 1;
-      argumentTypes = sig.getArgumentTypes();
-    }
-
-    @Override
-    public ClassInfo getClassInfo() {
-      return classInfo;
-    }
-
-    @Override
-    public int getModifiers() {
-      return access;
-    }
-
-    @Override
-    public MethodSignature getSignature() {
-      return sig;
-    }
-
-    @Override
-    public Type[] getExceptionTypes() {
-      return exceptionTypes;
-    }
-
-  }
+  private final SimpleMethodInfo methodInfo;
 
   CodeEmitter(ClassEmitter ce, MethodVisitor mv, int access, MethodSignature sig, Type[] exceptionTypes) {
     super(access, sig, mv);
     this.ce = ce;
-    state = new State(ce.getClassInfo(), access, sig, exceptionTypes);
+    this.methodInfo = new SimpleMethodInfo(
+            ce.getClassInfo(), access, sig, exceptionTypes);
   }
 
   public CodeEmitter(CodeEmitter wrap) {
     super(wrap);
     this.ce = wrap.ce;
-    this.state = wrap.state;
+    this.methodInfo = wrap.methodInfo;
   }
 
   public boolean isStaticHook() {
@@ -89,15 +50,11 @@ public class CodeEmitter extends GeneratorAdapter {
   }
 
   public MethodSignature getSignature() {
-    return state.sig;
-  }
-
-  public Type getReturnType() {
-    return state.sig.getReturnType();
+    return methodInfo.getSignature();
   }
 
   public MethodInfo getMethodInfo() {
-    return state;
+    return methodInfo;
   }
 
   public ClassEmitter getClassEmitter() {
@@ -148,7 +105,7 @@ public class CodeEmitter extends GeneratorAdapter {
   }
 
   public void super_invoke() {
-    super_invoke(state.sig);
+    super_invoke(methodInfo.getSignature());
   }
 
   public void super_invoke(MethodSignature sig) {
@@ -254,10 +211,10 @@ public class CodeEmitter extends GeneratorAdapter {
     }
   }
 
-  // TODO
+  @Override
   public void visitMaxs(int maxStack, int maxLocals) {
-    if (!Modifier.isAbstract(state.access)) {
-      mv.visitMaxs(0, 0);
+    if (!Modifier.isAbstract(methodInfo.getModifiers())) {
+      super.visitMaxs(maxStack, maxLocals);
     }
   }
 
