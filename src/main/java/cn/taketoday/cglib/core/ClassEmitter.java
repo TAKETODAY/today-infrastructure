@@ -310,8 +310,7 @@ public class ClassEmitter extends ClassTransformer {
     }
   }
 
-  // TODO: make public?
-  boolean isFieldDeclared(String name) {
+  public boolean isFieldDeclared(String name) {
     return fieldInfo.get(name) != null;
   }
 

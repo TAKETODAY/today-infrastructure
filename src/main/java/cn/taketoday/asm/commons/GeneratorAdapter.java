@@ -29,7 +29,6 @@ package cn.taketoday.asm.commons;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import cn.taketoday.asm.ClassVisitor;
 import cn.taketoday.asm.ConstantDynamic;
@@ -564,7 +563,6 @@ public class GeneratorAdapter extends LocalVariablesSorter {
   @Override
   protected void setLocalType(final int local, final Type type) {
     int index = local - firstLocal;
-    final List<Type> localTypes = this.localTypes;
     while (localTypes.size() < index + 1) {
       localTypes.add(null);
     }
@@ -981,7 +979,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
           throw new IllegalArgumentException("Bad comparison for type " + type);
         }
       default:
-        int intOp = -1;
+        int intOp;
         switch (mode) {
           case EQ:
             intOp = Opcodes.IF_ICMPEQ;

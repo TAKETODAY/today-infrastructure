@@ -70,7 +70,7 @@ import static cn.taketoday.asm.Type.array;
  * @version $Id: KeyFactory.java,v 1.26 2006/03/05 02:43:19 herbyderby Exp $
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
-abstract public class KeyFactory {
+public abstract class KeyFactory {
 
   private static final Type KEY_FACTORY = Type.fromClass(KeyFactory.class);
   private static final MethodSignature GET_SORT = MethodSignature.from("int getSort()");
@@ -138,8 +138,8 @@ abstract public class KeyFactory {
     return create(loader, keyInterface, customizer, Collections.emptyList());
   }
 
-  public static <T> T create(ClassLoader loader, Class<T> keyInterface, //
-                             KeyFactoryCustomizer customizer, List<KeyFactoryCustomizer> next) //
+  public static <T> T create(
+          ClassLoader loader, Class<T> keyInterface, KeyFactoryCustomizer customizer, List<KeyFactoryCustomizer> next) //
   {
     Generator gen = new Generator();
     gen.setInterface(keyInterface);
@@ -162,8 +162,7 @@ abstract public class KeyFactory {
     private static final Class[] KNOWN_CUSTOMIZER_TYPES = new Class[] { Customizer.class, FieldTypeCustomizer.class };
 
     private Class keyInterface;
-    // TODO: Make me final when deprecated methods are removed
-    private CustomizerRegistry customizers = new CustomizerRegistry(KNOWN_CUSTOMIZER_TYPES);
+    private final CustomizerRegistry customizers = new CustomizerRegistry(KNOWN_CUSTOMIZER_TYPES);
     private int constant;
     private int multiplier;
 
@@ -177,14 +176,6 @@ abstract public class KeyFactory {
 
     protected ProtectionDomain getProtectionDomain() {
       return ReflectionUtils.getProtectionDomain(keyInterface);
-    }
-
-    /**
-     * @deprecated Use {@link #addCustomizer(KeyFactoryCustomizer)} instead.
-     */
-    @Deprecated
-    public void setCustomizer(Customizer customizer) {
-      customizers = CustomizerRegistry.singleton(customizer);
     }
 
     public void addCustomizer(KeyFactoryCustomizer customizer) {
@@ -320,7 +311,7 @@ abstract public class KeyFactory {
     }
 
     private String getFieldName(int arg) {
-      return "FIELD_" + arg;
+      return "today$field_" + arg;
     }
   }
 }

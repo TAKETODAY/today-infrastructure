@@ -39,14 +39,14 @@ import static cn.taketoday.core.Constant.SOURCE_FILE;
  * This class implements a simple String->int mapping for a fixed set of keys.
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
-abstract public class StringSwitcher {
+public abstract class StringSwitcher {
 
   private static final Type STRING_SWITCHER = Type.fromClass(StringSwitcher.class);
   private static final MethodSignature INT_VALUE = MethodSignature.from("int intValue(String)");
   private static final StringSwitcherKey KEY_FACTORY = KeyFactory.create(StringSwitcherKey.class);
 
   interface StringSwitcherKey {
-    public Object newInstance(String[] strings, int[] ints, boolean fixedInput);
+    Object newInstance(String[] strings, int[] ints, boolean fixedInput);
   }
 
   /**

@@ -289,16 +289,14 @@ public class GeneratorAdapterTest {
   @Test
   public void testNewLocal() {
     Generator generator = new Generator();
-
-    int local = generator.newLabel(Type.FLOAT_TYPE);
-
-    assertEquals(Type.FLOAT_TYPE, generator.getLocalType(local));
+    final Local local = generator.newLocal(Type.FLOAT_TYPE);
+    assertEquals(Type.FLOAT_TYPE, generator.getLocalType(local.index));
   }
 
   @Test
   public void testLoadLocal() {
     Generator generator = new Generator();
-    int local = generator.newLabel(Type.FLOAT_TYPE);
+    final Local local = generator.newLocal(Type.FLOAT_TYPE);
 
     String loadLocal = generator.loadLocal(local);
 
@@ -308,18 +306,19 @@ public class GeneratorAdapterTest {
   @Test
   public void testLoadLocal_withType() {
     Generator generator = new Generator();
-    int local = generator.newLabel(Type.FLOAT_TYPE);
+    final Local local = generator.newLocal(Type.FLOAT_TYPE);
 
-    String loadLocal = generator.loadLocal(local, Type.INT_TYPE);
+    String loadLocal = generator.loadLocal(local.index, Type.INT_TYPE);
 
     assertEquals("ILOAD 1", loadLocal);
-    assertEquals(Type.INT_TYPE, generator.getLocalType(local));
+    assertEquals(Type.INT_TYPE, generator.getLocalType(local.index));
   }
 
   @Test
   public void testStoreLocal() {
     Generator generator = new Generator();
-    int local = generator.newLabel(Type.FLOAT_TYPE);
+//    int local = generator.newLabel(Type.FLOAT_TYPE);
+    final Local local = generator.newLocal(Type.FLOAT_TYPE);
 
     String storeLocal = generator.storeLocal(local);
 
@@ -329,12 +328,12 @@ public class GeneratorAdapterTest {
   @Test
   public void testStoreLocal_withType() {
     Generator generator = new Generator();
-    int local = generator.newLabel(Type.FLOAT_TYPE);
+    final Local local = generator.newLocal(Type.FLOAT_TYPE);
 
     String storeLocal = generator.storeLocal(local, Type.INT_TYPE);
 
     assertEquals("ISTORE 1", storeLocal);
-    assertEquals(Type.INT_TYPE, generator.getLocalType(local));
+    assertEquals(Type.INT_TYPE, generator.getLocalType(local.index));
   }
 
   @Test
@@ -931,12 +930,21 @@ public class GeneratorAdapterTest {
       return toString();
     }
 
-    public int newLabel(final Type type) {
-      return generatorAdapter.newLocalIndex(type);
+    public Local newLocal() {
+      return newLocal(Type.TYPE_OBJECT);
+    }
+
+    public Local newLocal(final Type type) {
+      return generatorAdapter.newLocal(type);
     }
 
     public Type getLocalType(final int local) {
       return generatorAdapter.getLocalType(local);
+    }
+
+    public String loadLocal(final Local local) {
+      generatorAdapter.loadLocal(local);
+      return toString();
     }
 
     public String loadLocal(final int local) {
@@ -949,8 +957,18 @@ public class GeneratorAdapterTest {
       return toString();
     }
 
+    public String storeLocal(final Local local) {
+      generatorAdapter.storeLocal(local);
+      return toString();
+    }
+
     public String storeLocal(final int local) {
       generatorAdapter.storeLocal(local);
+      return toString();
+    }
+
+    public String storeLocal(final Local local, final Type type) {
+      generatorAdapter.storeLocal(local.index, type);
       return toString();
     }
 
@@ -1230,10 +1248,9 @@ public class GeneratorAdapterTest {
 
     @Override
     public String toString() {
-      String result =
-              textifier.text.stream()
-                      .map(text -> text.toString().trim())
-                      .collect(Collectors.joining(" "));
+      String result = textifier.text.stream()
+              .map(text -> text.toString().trim())
+              .collect(Collectors.joining(" "));
       textifier.text.clear();
       return result;
     }
