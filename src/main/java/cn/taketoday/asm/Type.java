@@ -1265,7 +1265,6 @@ public final class Type {
 
   // @since 4.0
   public boolean isPrimitive() {
-    final int sort = getSort();
     return sort != ARRAY && sort != OBJECT;
   }
 
@@ -1300,10 +1299,8 @@ public final class Type {
     if (end - begin != other.valueEnd - otherBegin) {
       return false;
     }
-    final String thisValueBuffer = this.valueBuffer;
-    final String otherValueBuffer = other.valueBuffer;
     for (int i = begin, j = otherBegin; i < end; i++, j++) {
-      if (thisValueBuffer.charAt(i) != otherValueBuffer.charAt(j)) {
+      if (this.valueBuffer.charAt(i) != other.valueBuffer.charAt(j)) {
         return false;
       }
     }
@@ -1319,8 +1316,7 @@ public final class Type {
   public int hashCode() {
     int hashCode = 13 * (sort == INTERNAL ? OBJECT : sort);
     if (sort >= ARRAY) {
-      final String valueBuffer = this.valueBuffer;
-      for (int i = valueBegin, end = valueEnd; i < end; i++) {
+      for (int i = valueBegin; i < valueEnd; i++) {
         hashCode = 17 * (hashCode + valueBuffer.charAt(i));
       }
     }
