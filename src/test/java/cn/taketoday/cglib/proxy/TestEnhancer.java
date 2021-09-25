@@ -98,8 +98,9 @@ public class TestEnhancer extends CodeGenTestCase {
 
       public Object afterReturn(Object obj, Method method,
                                 Object[] args,
-                                boolean invokedSuper, Object retValFromSuper,
-                                java.lang.Throwable e) throws java.lang.Throwable {
+                                boolean invokedSuper,
+                                Object retValFromSuper,
+                                Throwable e) {
 
         int mod = method.getModifiers();
 

@@ -27,192 +27,194 @@ import cn.taketoday.cglib.transform.ClassTransformerFactory;
 import cn.taketoday.cglib.transform.TransformingClassLoader;
 
 /**
- *
  * @author baliuka
  */
 public class TransformDemo {
+  public static void println(String x) {
+//    System.out.println(x);
+  }
 
-    public static void register(Class cls) {
-        System.out.println("register " + cls);
-    }
+  public static void register(Class cls) {
+    println("register " + cls);
+  }
 
-    public static void start() {
+  public static void start() {
 
-        MA ma = new MA();
-        makePersistent(ma);
-        ma.setCharP('A');
-        ma.getCharP();
-        ma.setDoubleP(554);
-        ma.setDoubleP(1.2);
-        ma.getFloatP();
-        ma.setName("testName");
-        ma.publicField = "set value";
-        ma.publicField = ma.publicField + " append value";
-        ma.setBaseTest("base test field");
-        ma.getBaseTest();
+    MA ma = new MA();
+    makePersistent(ma);
+    ma.setCharP('A');
+    ma.getCharP();
+    ma.setDoubleP(554);
+    ma.setDoubleP(1.2);
+    ma.getFloatP();
+    ma.setName("testName");
+    ma.publicField = "set value";
+    ma.publicField = ma.publicField + " append value";
+    ma.setBaseTest("base test field");
+    ma.getBaseTest();
 
-    }
+  }
 
-    public static void makePersistent(Object obj) {
-        System.out.println("makePersistent " + obj.getClass() + " " + Arrays.asList(obj.getClass().getInterfaces()));
-        InterceptFieldEnabled t = (InterceptFieldEnabled) obj;
-        t.setInterceptFieldCallback(new StateManager());
-        FieldProvider provider = (FieldProvider) obj;
-        System.out.println("Field Names " + Arrays.asList(provider.getFieldNames()));
-        System.out.println("Field Types " + Arrays.asList(provider.getFieldTypes()));
-        PersistenceCapable pc = (PersistenceCapable) obj;
-        pc.setPersistenceManager("Manager");
+  public static void makePersistent(Object obj) {
+    println("makePersistent " + obj.getClass() + " " + Arrays.asList(obj.getClass().getInterfaces()));
+    InterceptFieldEnabled t = (InterceptFieldEnabled) obj;
+    t.setInterceptFieldCallback(new StateManager());
+    FieldProvider provider = (FieldProvider) obj;
+    println("Field Names " + Arrays.asList(provider.getFieldNames()));
+    println("Field Types " + Arrays.asList(provider.getFieldTypes()));
+    PersistenceCapable pc = (PersistenceCapable) obj;
+    pc.setPersistenceManager("Manager");
 
-    }
+  }
 
-    public static void main(String args[]) throws Exception {
+  public static void main(String args[]) throws Exception {
 
-        ClassTransformerFactory transformation =
+    ClassTransformerFactory transformation =
 
-                new ClassTransformerFactory() {
+            new ClassTransformerFactory() {
 
-                    public ClassTransformer newInstance() {
-                        try {
-                            InterceptFieldTransformer t1 = new InterceptFieldTransformer(new Filter());
+              public ClassTransformer newInstance() {
+                try {
+                  InterceptFieldTransformer t1 = new InterceptFieldTransformer(new Filter());
 
-                            AddStaticInitTransformer t2 = new AddStaticInitTransformer(TransformDemo.class.getMethod("register",
-                                                                                                                     new Class[]
-                                                                                                                     { Class.class }));
+                  AddStaticInitTransformer t2 = new AddStaticInitTransformer(
+                          TransformDemo.class.getMethod("register", Class.class));
 
-                            AddDelegateTransformer t3 = new AddDelegateTransformer(new Class[] { PersistenceCapable.class },
-                                                                                   PersistenceCapableImpl.class);
+                  AddDelegateTransformer t3 = new AddDelegateTransformer(
+                          new Class[] { PersistenceCapable.class }, PersistenceCapableImpl.class);
 
-                            FieldProviderTransformer t4 = new FieldProviderTransformer();
-
-                            return new ClassTransformerChain(new ClassTransformer[] { t4, t1, t2, t3 });
-
-                        }
-                        catch (Exception e) {
-                            throw new CodeGenerationException(e);
-                        }
-                    }
-                };
-
-        TransformingClassLoader loader = new TransformingClassLoader(TransformDemo.class.getClassLoader(), new ClassFilter() {
-            public boolean accept(String name) {
-                System.out.println("load : " + name);
-                boolean f = Base.class.getName().equals(name) || MA.class.getName().equals(name) || TransformDemo.class.getName().equals(
-                                                                                                                                         name);
-                if (f) {
-                    System.out.println("transforming " + name);
+                  FieldProviderTransformer t4 = new FieldProviderTransformer();
+                  return new ClassTransformerChain(new ClassTransformer[] { t4, t1, t2, t3 });
                 }
-                return f;
-            }
-        }, transformation);
+                catch (Exception e) {
+                  throw new CodeGenerationException(e);
+                }
+              }
+            };
 
-        loader.loadClass(TransformDemo.class.getName()).getMethod("start", new Class[] {}).invoke(null, (Object[]) null);
+    TransformingClassLoader loader = new TransformingClassLoader(
+            TransformDemo.class.getClassLoader(), new ClassFilter() {
+      public boolean accept(String name) {
+        println("load : " + name);
+        boolean f = Base.class.getName().equals(name)
+                || MA.class.getName().equals(name)
+                || TransformDemo.class.getName().equals(name);
+        if (f) {
+          println("transforming " + name);
+        }
+        return f;
+      }
+    }, transformation);
 
+    loader.loadClass(TransformDemo.class.getName())
+            .getMethod("start", new Class[] {}).invoke(null, (Object[]) null);
+
+  }
+
+  public static class Filter implements InterceptFieldFilter {
+
+    public boolean acceptRead(Type owner, String name) {
+      return true;
     }
 
-    public static class Filter implements InterceptFieldFilter {
-
-        public boolean acceptRead(Type owner, String name) {
-            return true;
-        }
-
-        public boolean acceptWrite(Type owner, String name) {
-            return true;
-        }
-
-    };
-
-    public static class StateManager implements InterceptFieldCallback {
-
-        public boolean readBoolean(Object _this, String name, boolean oldValue) {
-            System.out.println("read " + name + " = " + oldValue);
-            return oldValue;
-        }
-
-        public byte readByte(Object _this, String name, byte oldValue) {
-            System.out.println("read " + name + " = " + oldValue);
-            return oldValue;
-        }
-
-        public char readChar(Object _this, String name, char oldValue) {
-            System.out.println("read " + name + " = " + oldValue);
-            return oldValue;
-        }
-
-        public double readDouble(Object _this, String name, double oldValue) {
-            System.out.println("read " + name + " = " + oldValue);
-            return oldValue;
-        }
-
-        public float readFloat(Object _this, String name, float oldValue) {
-            System.out.println("read " + name + " = " + oldValue);
-            return oldValue;
-        }
-
-        public int readInt(Object _this, String name, int oldValue) {
-            System.out.println("read " + name + " = " + oldValue);
-            return oldValue;
-        }
-
-        public long readLong(Object _this, String name, long oldValue) {
-            System.out.println("read " + name + " = " + oldValue);
-            return oldValue;
-        }
-
-        public Object readObject(Object _this, String name, Object oldValue) {
-            System.out.println("read " + name + " = " + oldValue);
-            return oldValue;
-        }
-
-        public short readShort(Object _this, String name, short oldValue) {
-            System.out.println("read " + name + " = " + oldValue);
-            return oldValue;
-        }
-
-        public boolean writeBoolean(Object _this, String name, boolean oldValue, boolean newValue) {
-            System.out.println("write " + name + " = " + newValue);
-            return newValue;
-        }
-
-        public byte writeByte(Object _this, String name, byte oldValue, byte newValue) {
-            System.out.println("write " + name + " = " + newValue);
-            return newValue;
-        }
-
-        public char writeChar(Object _this, String name, char oldValue, char newValue) {
-            System.out.println("write " + name + " = " + newValue);
-            return newValue;
-        }
-
-        public double writeDouble(Object _this, String name, double oldValue, double newValue) {
-            System.out.println("write " + name + " = " + newValue);
-            return newValue;
-        }
-
-        public float writeFloat(Object _this, String name, float oldValue, float newValue) {
-            System.out.println("write " + name + " = " + newValue);
-            return newValue;
-        }
-
-        public int writeInt(Object _this, String name, int oldValue, int newValue) {
-            System.out.println("write " + name + " = " + newValue);
-            return newValue;
-        }
-
-        public long writeLong(Object _this, String name, long oldValue, long newValue) {
-            System.out.println("write " + name + " = " + newValue);
-            return newValue;
-        }
-
-        public Object writeObject(Object _this, String name, Object oldValue, Object newValue) {
-            System.out.println("write " + name + " = " + newValue);
-            return newValue;
-        }
-
-        public short writeShort(Object _this, String name, short oldValue, short newValue) {
-            System.out.println("write " + name + " = " + newValue);
-            return newValue;
-        }
-
+    public boolean acceptWrite(Type owner, String name) {
+      return true;
     }
+
+  }
+
+  public static class StateManager implements InterceptFieldCallback {
+
+    public boolean readBoolean(Object _this, String name, boolean oldValue) {
+      println("read " + name + " = " + oldValue);
+      return oldValue;
+    }
+
+    public byte readByte(Object _this, String name, byte oldValue) {
+      println("read " + name + " = " + oldValue);
+      return oldValue;
+    }
+
+    public char readChar(Object _this, String name, char oldValue) {
+      println("read " + name + " = " + oldValue);
+      return oldValue;
+    }
+
+    public double readDouble(Object _this, String name, double oldValue) {
+      println("read " + name + " = " + oldValue);
+      return oldValue;
+    }
+
+    public float readFloat(Object _this, String name, float oldValue) {
+      println("read " + name + " = " + oldValue);
+      return oldValue;
+    }
+
+    public int readInt(Object _this, String name, int oldValue) {
+      println("read " + name + " = " + oldValue);
+      return oldValue;
+    }
+
+    public long readLong(Object _this, String name, long oldValue) {
+      println("read " + name + " = " + oldValue);
+      return oldValue;
+    }
+
+    public Object readObject(Object _this, String name, Object oldValue) {
+      println("read " + name + " = " + oldValue);
+      return oldValue;
+    }
+
+    public short readShort(Object _this, String name, short oldValue) {
+      println("read " + name + " = " + oldValue);
+      return oldValue;
+    }
+
+    public boolean writeBoolean(Object _this, String name, boolean oldValue, boolean newValue) {
+      println("write " + name + " = " + newValue);
+      return newValue;
+    }
+
+    public byte writeByte(Object _this, String name, byte oldValue, byte newValue) {
+      println("write " + name + " = " + newValue);
+      return newValue;
+    }
+
+    public char writeChar(Object _this, String name, char oldValue, char newValue) {
+      println("write " + name + " = " + newValue);
+      return newValue;
+    }
+
+    public double writeDouble(Object _this, String name, double oldValue, double newValue) {
+      println("write " + name + " = " + newValue);
+      return newValue;
+    }
+
+    public float writeFloat(Object _this, String name, float oldValue, float newValue) {
+      println("write " + name + " = " + newValue);
+      return newValue;
+    }
+
+    public int writeInt(Object _this, String name, int oldValue, int newValue) {
+      println("write " + name + " = " + newValue);
+      return newValue;
+    }
+
+    public long writeLong(Object _this, String name, long oldValue, long newValue) {
+      println("write " + name + " = " + newValue);
+      return newValue;
+    }
+
+    public Object writeObject(Object _this, String name, Object oldValue, Object newValue) {
+      println("write " + name + " = " + newValue);
+      return newValue;
+    }
+
+    public short writeShort(Object _this, String name, short oldValue, short newValue) {
+      println("write " + name + " = " + newValue);
+      return newValue;
+    }
+
+  }
 
 }

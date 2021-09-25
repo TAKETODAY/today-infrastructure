@@ -36,7 +36,7 @@ public class TestTransformingLoader extends cn.taketoday.cglib.CodeGenTestCase {
 
   private static final ClassFilter TEST_FILTER = new ClassFilter() {
     public boolean accept(String name) {
-      System.err.println("Loading " + name);
+      printlnError("Loading " + name);
       return name.startsWith("cn.taketoday.cglib.");
     }
   };
@@ -52,16 +52,16 @@ public class TestTransformingLoader extends cn.taketoday.cglib.CodeGenTestCase {
     Class loaded = loadHelper(chain, Example.class);
     Object obj = loaded.newInstance();
     String value = "HELLO";
-    loaded.getMethod("setHerby", new Class[] { String.class }).invoke(obj, new Object[] { value });
-    assertTrue(value.equals(loaded.getMethod("getHerby", (Class[]) null).invoke(obj, (Object[]) null)));
+    loaded.getMethod("setHerby", new Class[] { String.class }).invoke(obj, value);
+    assertEquals(value, loaded.getMethod("getHerby", (Class[]) null).invoke(obj, (Object[]) null));
 
-    loaded.getMethod("setDerby", new Class[] { Double.TYPE }).invoke(obj, new Object[] { new Double(1.23456789d) });
+    loaded.getMethod("setDerby", new Class[] { Double.TYPE }).invoke(obj, new Double(1.23456789d));
   }
 
   private static Class inited;
 
   public static void initStatic(Class foo) {
-    System.err.println("INITING: " + foo);
+    printlnError("INITING: " + foo);
   }
 
   public void testAddStatic() throws Exception {
@@ -107,14 +107,15 @@ public class TestTransformingLoader extends cn.taketoday.cglib.CodeGenTestCase {
 
   private static Class loadHelper(final ClassTransformer t, Class target) throws ClassNotFoundException {
     ClassLoader parent = TestTransformingLoader.class.getClassLoader();
-    TransformingClassLoader loader = new TransformingClassLoader(parent,
-                                                                 TEST_FILTER,
+    TransformingClassLoader loader = new TransformingClassLoader(
+            parent,
+            TEST_FILTER,
 
-                                                                 new ClassTransformerFactory() {
-                                                                   public ClassTransformer newInstance() {
-                                                                     return t;
-                                                                   }
-                                                                 }
+            new ClassTransformerFactory() {
+              public ClassTransformer newInstance() {
+                return t;
+              }
+            }
 
     );
     return loader.loadClass(target.getName());

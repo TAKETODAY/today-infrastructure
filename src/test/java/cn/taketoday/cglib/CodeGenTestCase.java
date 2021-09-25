@@ -19,14 +19,22 @@ import junit.framework.TestCase;
 
 /**
  * @author Chris Nokleberg
- *         <a href="mailto:chris@nokleberg.com">chris@nokleberg.com</a>
+ * <a href="mailto:chris@nokleberg.com">chris@nokleberg.com</a>
  * @version $Id: CodeGenTestCase.java,v 1.10 2012/07/27 16:02:49 baliuka Exp $
  */
-abstract public class CodeGenTestCase extends TestCase {
-    public CodeGenTestCase(String testName) {
-        super(testName);
-    }
+public abstract class CodeGenTestCase extends TestCase {
 
-    public abstract void perform(ClassLoader loader) throws Throwable;
+  public CodeGenTestCase(String testName) {
+    super(testName);
+  }
 
+  public abstract void perform(ClassLoader loader) throws Throwable;
+
+  public static void printlnError(String x) {
+//    System.err.println(x);
+  }
+
+  public static void println(String x) {
+    //    System.out.println(x);
+  }
 }
