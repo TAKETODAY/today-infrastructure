@@ -49,7 +49,7 @@ public class TestHandlerInvoker {
 
   public static void main(String... args) throws Exception {
 
-//    System.setProperty("cglib.debugLocation", "D:/dev/temp/debug");
+//    System.setProperty("bytecode.debugLocation", "D:/dev/temp/debug");
     {
       final Method main = Bean.class.getDeclaredMethod("main");
       final MethodInvoker mainInvoker = MethodInvoker.fromMethod(main);

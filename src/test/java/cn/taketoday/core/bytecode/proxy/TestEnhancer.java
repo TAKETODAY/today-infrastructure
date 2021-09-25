@@ -318,7 +318,7 @@ public class TestEnhancer extends CodeGenTestCase {
 
           try {
             InputStream classStream = ResourceUtils.getResource(
-                            "classpath:cn/taketoday/cglib/proxy/EA.class")
+                            "classpath:cn/taketoday/core/bytecode/proxy/EA.class")
                     .getInputStream();
 
             byte[] classBytes = StreamUtils.copyToByteArray(classStream);
@@ -678,7 +678,7 @@ public class TestEnhancer extends CodeGenTestCase {
     e.setClassLoader(new ClassLoader(this.getClass().getClassLoader()) { });
     e.setNamingPolicy(new NamingPolicy() {
       public String getClassName(String prefix, String source, Object key, Predicate<String> names) {
-        return "cn.taketoday.cglib.Object$$ByDerby$$123";
+        return "cn.taketoday.core.bytecode.Object$$ByDerby$$123";
       }
     });
     Class<?> proxied = e.create().getClass();
@@ -706,7 +706,7 @@ public class TestEnhancer extends CodeGenTestCase {
    */
   public void testNamingPolicyThatReturnsConstantNames() throws Throwable {
     Enhancer e = new Enhancer();
-    final String desiredClassName = "cn.taketoday.cglib.Object$$42";
+    final String desiredClassName = "cn.taketoday.core.bytecode.Object$$42";
     e.setCallback(NoOp.INSTANCE);
     e.setClassLoader(new ClassLoader(this.getClass().getClassLoader()) { });
     e.setNamingPolicy(new NamingPolicy() {

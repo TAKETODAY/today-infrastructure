@@ -30,7 +30,7 @@ import cn.taketoday.core.bytecode.ClassWriter;
 @SuppressWarnings("all")
 public class DebuggingClassWriter extends ClassVisitor {
 
-  public static final String DEBUG_LOCATION_PROPERTY = "cglib.debugLocation";
+  public static final String DEBUG_LOCATION_PROPERTY = "bytecode.debugLocation";
 
   private static String debugLocation = "D:/debug";
   private static Constructor traceCtor;

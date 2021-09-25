@@ -63,7 +63,7 @@ public class TestBulkBean extends TestCase {
     return new TestSuite(TestBulkBean.class);
   }
 
-  /** Test of create method, of class cn.taketoday.cglib.BulkBean. */
+  /** Test of create method, of class cn.taketoday.core.bytecode.BulkBean. */
   public void testGetInstance() throws Throwable {
     BulkBean mClass = BulkBean.create(MA.class, getters, setters, types);
 
@@ -217,7 +217,7 @@ public class TestBulkBean extends TestCase {
 
   /**
    * Generated implementation of abstract class
-   * cn.taketoday.cglib.BulkBean. Please fill dummy bodies of generated
+   * cn.taketoday.core.bytecode.BulkBean. Please fill dummy bodies of generated
    * methods.
    */
   private static class BulkBeanReflectImpl extends BulkBean {

@@ -21,7 +21,7 @@ import java.util.function.Predicate;
  * The default policy used by {@link AbstractClassGenerator}. Generates names
  * such as
  * <p>
- * <code>cn.taketoday.cglib.Foo$$ByTODAY$$38272841</code>
+ * <code>cn.taketoday.core.bytecode.Foo$$ByTODAY$$38272841</code>
  * <p>
  * This is composed of a prefix based on the name of the superclass, a fixed
  * string incorporating the CGLIB class responsible for generation, and a
@@ -37,13 +37,13 @@ public class DefaultNamingPolicy implements NamingPolicy {
    * This allows to test collisions of {@code key.hashCode()}.
    */
   private static final boolean STRESS_HASH_CODE =
-          Boolean.getBoolean("cn.taketoday.cglib.test.stressHashCodes");
+          Boolean.getBoolean("cn.taketoday.core.bytecode.stressHashCodes");
 
   @Override
   public String getClassName(String prefix, String source, Object key, Predicate<String> names) {
 
     if (prefix == null) {
-      prefix = "cn.taketoday.cglib.Object";
+      prefix = "cn.taketoday.core.bytecode.Object";
     }
     else if (prefix.startsWith("java")) {
       prefix = '$' + prefix;

@@ -169,11 +169,11 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
   }
 
   private static MethodSignature readMethodSig(String name, String desc) {
-    return new MethodSignature("$cglib_read_" + name, "()" + desc);
+    return new MethodSignature("$today_read_" + name, "()" + desc);
   }
 
   private static MethodSignature writeMethodSig(String name, String desc) {
-    return new MethodSignature("$cglib_write_" + name, "(" + desc + ")V");
+    return new MethodSignature("$today_write_" + name, "(" + desc + ")V");
   }
 
   private static MethodSignature readCallbackSig(Type type) {
