@@ -33,7 +33,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import cn.taketoday.cglib.beans.BeanMap;
+import cn.taketoday.core.bytecode.beans.BeanMap;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.web.MockMultipartFile;

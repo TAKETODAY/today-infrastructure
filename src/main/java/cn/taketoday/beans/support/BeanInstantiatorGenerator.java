@@ -23,21 +23,21 @@ package cn.taketoday.beans.support;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 
-import cn.taketoday.asm.ClassVisitor;
-import cn.taketoday.asm.Type;
-import cn.taketoday.asm.commons.MethodSignature;
-import cn.taketoday.cglib.core.ClassEmitter;
-import cn.taketoday.cglib.core.ClassGenerator;
-import cn.taketoday.cglib.core.CodeEmitter;
-import cn.taketoday.cglib.core.EmitUtils;
-import cn.taketoday.cglib.core.MethodInfo;
+import cn.taketoday.core.bytecode.ClassVisitor;
+import cn.taketoday.core.bytecode.Type;
+import cn.taketoday.core.bytecode.commons.MethodSignature;
+import cn.taketoday.core.bytecode.core.ClassEmitter;
+import cn.taketoday.core.bytecode.core.ClassGenerator;
+import cn.taketoday.core.bytecode.core.CodeEmitter;
+import cn.taketoday.core.bytecode.core.EmitUtils;
+import cn.taketoday.core.bytecode.core.MethodInfo;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.reflect.GeneratorSupport;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ReflectionUtils;
 
-import static cn.taketoday.asm.Opcodes.ACC_FINAL;
-import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
+import static cn.taketoday.core.bytecode.Opcodes.ACC_FINAL;
+import static cn.taketoday.core.bytecode.Opcodes.ACC_PUBLIC;
 
 /**
  * @author TODAY 2020/9/11 16:51

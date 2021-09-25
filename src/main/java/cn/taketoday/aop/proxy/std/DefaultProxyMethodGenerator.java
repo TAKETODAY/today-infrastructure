@@ -28,15 +28,15 @@ import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.AdvisedSupport;
 import cn.taketoday.aop.proxy.StandardProxyInvoker;
 import cn.taketoday.aop.proxy.TargetInvocation;
-import cn.taketoday.asm.Opcodes;
-import cn.taketoday.asm.Type;
-import cn.taketoday.asm.commons.Local;
-import cn.taketoday.asm.commons.MethodSignature;
-import cn.taketoday.cglib.core.ClassEmitter;
-import cn.taketoday.cglib.core.CodeEmitter;
-import cn.taketoday.cglib.core.CodeGenerationException;
-import cn.taketoday.cglib.core.EmitUtils;
-import cn.taketoday.cglib.core.MethodInfo;
+import cn.taketoday.core.bytecode.Opcodes;
+import cn.taketoday.core.bytecode.Type;
+import cn.taketoday.core.bytecode.commons.Local;
+import cn.taketoday.core.bytecode.commons.MethodSignature;
+import cn.taketoday.core.bytecode.core.ClassEmitter;
+import cn.taketoday.core.bytecode.core.CodeEmitter;
+import cn.taketoday.core.bytecode.core.CodeGenerationException;
+import cn.taketoday.core.bytecode.core.EmitUtils;
+import cn.taketoday.core.bytecode.core.MethodInfo;
 import cn.taketoday.util.StringUtils;
 
 /**

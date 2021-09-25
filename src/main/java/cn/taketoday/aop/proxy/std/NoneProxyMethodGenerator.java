@@ -26,13 +26,13 @@ import java.lang.reflect.Method;
 
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.AdvisedSupport;
-import cn.taketoday.asm.Type;
-import cn.taketoday.asm.commons.MethodSignature;
-import cn.taketoday.cglib.core.ClassEmitter;
-import cn.taketoday.cglib.core.CodeEmitter;
-import cn.taketoday.cglib.core.CodeGenerationException;
-import cn.taketoday.cglib.core.EmitUtils;
-import cn.taketoday.cglib.core.MethodInfo;
+import cn.taketoday.core.bytecode.Type;
+import cn.taketoday.core.bytecode.commons.MethodSignature;
+import cn.taketoday.core.bytecode.core.ClassEmitter;
+import cn.taketoday.core.bytecode.core.CodeEmitter;
+import cn.taketoday.core.bytecode.core.CodeGenerationException;
+import cn.taketoday.core.bytecode.core.EmitUtils;
+import cn.taketoday.core.bytecode.core.MethodInfo;
 import cn.taketoday.util.ObjectUtils;
 
 import static cn.taketoday.aop.proxy.std.DefaultProxyMethodGenerator.excludeAbstractModifiers;

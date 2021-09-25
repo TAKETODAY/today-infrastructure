@@ -50,7 +50,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 
-import cn.taketoday.asm.commons.MethodSignature;
+import cn.taketoday.core.bytecode.commons.MethodSignature;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionException;

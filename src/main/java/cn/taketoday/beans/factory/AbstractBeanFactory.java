@@ -37,7 +37,7 @@ import java.util.stream.Stream;
 
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
-import cn.taketoday.asm.Type;
+import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.BeanNameCreator;
 import cn.taketoday.beans.BeansException;

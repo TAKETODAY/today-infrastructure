@@ -23,26 +23,26 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 
-import cn.taketoday.asm.ClassVisitor;
-import cn.taketoday.asm.Type;
+import cn.taketoday.core.bytecode.ClassVisitor;
+import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.cglib.core.ClassEmitter;
-import cn.taketoday.cglib.core.ClassGenerator;
-import cn.taketoday.cglib.core.CodeEmitter;
-import cn.taketoday.cglib.core.CodeGenerationException;
-import cn.taketoday.cglib.core.DefaultGeneratorStrategy;
-import cn.taketoday.cglib.core.EmitUtils;
+import cn.taketoday.core.bytecode.core.ClassEmitter;
+import cn.taketoday.core.bytecode.core.ClassGenerator;
+import cn.taketoday.core.bytecode.core.CodeEmitter;
+import cn.taketoday.core.bytecode.core.CodeGenerationException;
+import cn.taketoday.core.bytecode.core.DefaultGeneratorStrategy;
+import cn.taketoday.core.bytecode.core.EmitUtils;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.Mappings;
 import cn.taketoday.util.ReflectionUtils;
 
-import static cn.taketoday.asm.Opcodes.ACC_FINAL;
-import static cn.taketoday.asm.Opcodes.ACC_PUBLIC;
-import static cn.taketoday.asm.Opcodes.ALOAD;
-import static cn.taketoday.asm.Opcodes.INVOKESTATIC;
+import static cn.taketoday.core.bytecode.Opcodes.ACC_FINAL;
+import static cn.taketoday.core.bytecode.Opcodes.ACC_PUBLIC;
+import static cn.taketoday.core.bytecode.Opcodes.ALOAD;
+import static cn.taketoday.core.bytecode.Opcodes.INVOKESTATIC;
 
 /**
  * @author TODAY

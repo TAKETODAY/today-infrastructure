@@ -53,7 +53,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
-import cn.taketoday.asm.ClassReader;
+import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;

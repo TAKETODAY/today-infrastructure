@@ -35,7 +35,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.asm.tree.ClassNode;
+import cn.taketoday.core.bytecode.tree.ClassNode;
 import cn.taketoday.beans.Component;
 import cn.taketoday.beans.DefaultComponent;
 import cn.taketoday.core.AnnotationAttributes;

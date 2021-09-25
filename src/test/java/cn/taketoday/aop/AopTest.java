@@ -49,7 +49,6 @@ import cn.taketoday.beans.Singleton;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.StandardBeanFactory;
-import cn.taketoday.cglib.core.DebuggingClassWriter;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.core.AttributeAccessor;
 import lombok.extern.slf4j.Slf4j;

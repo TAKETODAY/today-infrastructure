@@ -26,10 +26,10 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import cn.taketoday.beans.support.BeanMapping;
-import cn.taketoday.cglib.beans.BeanMap;
-import cn.taketoday.cglib.proxy.CallbackFilter;
-import cn.taketoday.cglib.proxy.Dispatcher;
-import cn.taketoday.cglib.proxy.Enhancer;
+import cn.taketoday.core.bytecode.beans.BeanMap;
+import cn.taketoday.core.bytecode.proxy.CallbackFilter;
+import cn.taketoday.core.bytecode.proxy.Dispatcher;
+import cn.taketoday.core.bytecode.proxy.Enhancer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;

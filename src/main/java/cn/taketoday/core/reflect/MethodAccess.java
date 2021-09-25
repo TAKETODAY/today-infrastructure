@@ -24,10 +24,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 
-import cn.taketoday.asm.ClassVisitor;
-import cn.taketoday.asm.Type;
-import cn.taketoday.asm.commons.MethodSignature;
-import cn.taketoday.cglib.core.AbstractClassGenerator;
+import cn.taketoday.core.bytecode.ClassVisitor;
+import cn.taketoday.core.bytecode.Type;
+import cn.taketoday.core.bytecode.commons.MethodSignature;
+import cn.taketoday.core.bytecode.core.AbstractClassGenerator;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.ReflectionUtils;
 

@@ -45,7 +45,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import cn.taketoday.asm.commons.MethodSignature;
+import cn.taketoday.core.bytecode.commons.MethodSignature;
 import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.expression.util.ReflectionUtil.findConstructor;
