@@ -35,7 +35,7 @@ import cn.taketoday.beans.MissingBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.web.resolver.ParameterResolverRegistry;
+import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 
 /**
  * @author TODAY 2021/3/21 21:37
@@ -71,7 +71,7 @@ class BeanValidationConfig {
 
   @MissingBean
   @ConditionalOnClass("javax.validation.Valid")
-  ValidationParameterResolver validationParameterResolver(WebValidator validator, ParameterResolverRegistry resolvers) {
+  ValidationParameterResolver validationParameterResolver(WebValidator validator, ParameterResolvingRegistry resolvers) {
     return new ValidationParameterResolver(validator, resolvers);
   }
 

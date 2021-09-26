@@ -693,7 +693,7 @@ public class BeanPropertyAccessor {
     return new BeanPropertyAccessor(beanClass);
   }
 
-  public static BeanPropertyAccessor of(BeanMetadata metadata, Object object) {
+  public static BeanPropertyAccessor from(BeanMetadata metadata, Object object) {
     return new BeanPropertyAccessor(metadata, object);
   }
 }

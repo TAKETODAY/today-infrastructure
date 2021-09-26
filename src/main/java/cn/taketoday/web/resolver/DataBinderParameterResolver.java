@@ -102,11 +102,11 @@ public class DataBinderParameterResolver
 
   private ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
-  private ParameterResolverRegistry registry;
+  private ParameterResolvingRegistry registry;
 
   public DataBinderParameterResolver() { }
 
-  public DataBinderParameterResolver(ParameterResolverRegistry resolvers) {
+  public DataBinderParameterResolver(ParameterResolvingRegistry resolvers) {
     this();
     this.registry = resolvers;
   }
@@ -129,7 +129,7 @@ public class DataBinderParameterResolver
   /**
    * @since 4.0
    */
-  static void setAttribute(MethodParameter parameter, ParameterResolverRegistry registry) {
+  static void setAttribute(MethodParameter parameter, ParameterResolvingRegistry registry) {
     if (registry != null) {
       // supports annotated-property-resolvers
       ArrayList<AnnotatedPropertyResolver> resolverList = new ArrayList<>();
@@ -148,7 +148,8 @@ public class DataBinderParameterResolver
    * @return Pojo parameter
    */
   @Override
-  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+  public Object resolveParameter(
+          final RequestContext context, final MethodParameter parameter) throws Throwable {
     final Class<?> parameterClass = parameter.getParameterClass();
     final DataBinder dataBinder = new DataBinder(parameterClass, conversionService);
 
@@ -205,7 +206,7 @@ public class DataBinderParameterResolver
   /**
    * @since 4.0
    */
-  public void setRegistry(ParameterResolverRegistry registry) {
+  public void setRegistry(ParameterResolvingRegistry registry) {
     this.registry = registry;
   }
 
@@ -232,7 +233,7 @@ public class DataBinderParameterResolver
      * @throws IllegalStateException
      *         If there isn't a suitable resolver
      */
-    AnnotatedPropertyResolver(MethodParameter other, Field field, ParameterResolverRegistry registry) {
+    AnnotatedPropertyResolver(MethodParameter other, Field field, ParameterResolvingRegistry registry) {
       this.propertyName = field.getName();// TODO BeanMetadata#getPropertyName
       this.parameter = new AnnotationBinderParameter(other, field);
       this.resolver = registry.obtainResolvingStrategy(this.parameter);

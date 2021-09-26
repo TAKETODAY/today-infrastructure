@@ -25,7 +25,6 @@ import java.util.Map;
 
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.WebSocketHandler;

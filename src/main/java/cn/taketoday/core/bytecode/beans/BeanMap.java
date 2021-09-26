@@ -25,10 +25,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import cn.taketoday.core.Assert;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.core.AbstractClassGenerator;
 import cn.taketoday.core.bytecode.core.KeyFactory;
-import cn.taketoday.core.Assert;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -39,9 +39,10 @@ import cn.taketoday.util.ReflectionUtils;
  * set is fixed).
  *
  * @author Chris Nokleberg
+ * @see cn.taketoday.beans.support.BeanMapping
  */
-@SuppressWarnings("all")
-public abstract class BeanMap extends AbstractMap implements Map {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public abstract class BeanMap extends AbstractMap<String, Object> implements Map<String, Object> {
   /**
    * Limit the properties reflected in the key set of the map to readable
    * properties.
@@ -75,11 +76,10 @@ public abstract class BeanMap extends AbstractMap implements Map {
   }
 
   public static class Generator extends AbstractClassGenerator {
-
     private static final BeanMapKey KEY_FACTORY = KeyFactory.create(BeanMapKey.class, KeyFactory.CLASS_BY_NAME);
 
     interface BeanMapKey {
-      public Object newInstance(Class type, int require);
+      Object newInstance(Class type, int require);
     }
 
     private Object bean;
@@ -92,7 +92,7 @@ public abstract class BeanMap extends AbstractMap implements Map {
 
     /**
      * Set the bean that the generated map should reflect. The bean may be swapped
-     * out for another bean of the same type using {@link #setBean}. Calling this
+     * out for another bean of the same type using {@link #setBean(Object)}. Calling this
      * method overrides any value previously set using {@link #setBeanClass}. You
      * must call either this method or {@link #setBeanClass} before {@link #create}.
      *
@@ -187,11 +187,13 @@ public abstract class BeanMap extends AbstractMap implements Map {
     setBean(bean);
   }
 
+  @Override
   public Object get(Object key) {
     return get(bean, key);
   }
 
-  public Object put(Object key, Object value) {
+  @Override
+  public Object put(String key, Object value) {
     return put(bean, key, value);
   }
 
@@ -245,14 +247,17 @@ public abstract class BeanMap extends AbstractMap implements Map {
     return bean;
   }
 
+  @Override
   public void clear() {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public boolean containsKey(Object key) {
     return keySet().contains(key);
   }
 
+  @Override
   public boolean containsValue(final Object value) {
     for (final Object key : keySet()) {
       final Object v = get(key);
@@ -263,25 +268,29 @@ public abstract class BeanMap extends AbstractMap implements Map {
     return false;
   }
 
+  @Override
   public int size() {
     return keySet().size();
   }
 
+  @Override
   public boolean isEmpty() {
     return size() == 0;
   }
 
+  @Override
   public Object remove(Object key) {
     throw new UnsupportedOperationException();
   }
 
-  public void putAll(Map t) {
-
-    for (final Object key : t.keySet()) {
+  @Override
+  public void putAll(Map<? extends String, ? extends Object> t) {
+    for (final String key : t.keySet()) {
       put(key, t.get(key));
     }
   }
 
+  @Override
   public boolean equals(Object o) {
     if (o != this) {
       if (!(o instanceof Map)) {
@@ -300,6 +309,7 @@ public abstract class BeanMap extends AbstractMap implements Map {
     return true;
   }
 
+  @Override
   public int hashCode() {
     int code = 0;
     for (final Object key : keySet()) {
@@ -308,7 +318,7 @@ public abstract class BeanMap extends AbstractMap implements Map {
     return code;
   }
 
-  // TODO: optimize
+  @Override
   public Set entrySet() {
     HashMap copy = new HashMap();
     for (final Object key : keySet()) {
@@ -317,9 +327,10 @@ public abstract class BeanMap extends AbstractMap implements Map {
     return Collections.unmodifiableSet(copy.entrySet());
   }
 
-  public Collection values() {
+  @Override
+  public Collection<Object> values() {
     Set keys = keySet();
-    ArrayList values = new ArrayList(keys.size());
+    ArrayList<Object> values = new ArrayList<>(keys.size());
     for (Object key : keys) {
       values.add(get(key));
     }

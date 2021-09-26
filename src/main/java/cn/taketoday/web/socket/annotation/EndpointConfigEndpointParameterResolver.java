@@ -22,7 +22,6 @@ package cn.taketoday.web.socket.annotation;
 
 import javax.websocket.EndpointConfig;
 
-import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.socket.WebSocketSession;
 
 /**

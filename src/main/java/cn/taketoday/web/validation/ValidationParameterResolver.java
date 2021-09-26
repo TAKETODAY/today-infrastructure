@@ -24,47 +24,35 @@ import java.util.HashMap;
 
 import cn.taketoday.beans.Autowired;
 import cn.taketoday.core.Assert;
-import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.ParameterResolverRegistry;
+import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 
 /**
  * @author TODAY 2019-07-20 17:00
  * @see javax.validation.Valid
  */
-public class ValidationParameterResolver
-        extends OrderedSupport implements ParameterResolvingStrategy {
+public class ValidationParameterResolver implements ParameterResolvingStrategy {
 
   /** list of validators @since 3.0 */
   private final WebValidator validator;
   private final HashMap<MethodParameter, ParameterResolvingStrategy> resolverMap = new HashMap<>();
   private static final Class<? extends Annotation> VALID_CLASS = ClassUtils.loadClass("javax.validation.Valid");
 
-  private ParameterResolverRegistry resolvers;
+  private ParameterResolvingRegistry resolvingRegistry;
 
   public ValidationParameterResolver(WebValidator validator) {
-    this(HIGHEST_PRECEDENCE + 100, validator);
+    this(validator, null);
   }
 
   @Autowired
-  public ValidationParameterResolver(WebValidator validator, ParameterResolverRegistry resolvers) {
-    this(HIGHEST_PRECEDENCE + 100, validator, resolvers);
-  }
-
-  public ValidationParameterResolver(final int order, final WebValidator validator) {
-    this(order, validator, null);
-  }
-
   public ValidationParameterResolver(
-          final int order, final WebValidator validator, ParameterResolverRegistry resolvers) {
-    super(order);
+          WebValidator validator, ParameterResolvingRegistry registry) {
     Assert.notNull(validator, "WebValidator must not be null");
     this.validator = validator;
-    this.resolvers = resolvers;
+    this.resolvingRegistry = registry;
   }
 
   @Override
@@ -140,17 +128,17 @@ public class ValidationParameterResolver
     return resolverMap.get(parameter);
   }
 
-  public void setResolvers(ParameterResolverRegistry resolvers) {
-    this.resolvers = resolvers;
+  public void setResolvingRegistry(ParameterResolvingRegistry resolvingRegistry) {
+    this.resolvingRegistry = resolvingRegistry;
   }
 
-  public ParameterResolverRegistry getResolvers() {
-    return resolvers;
+  public ParameterResolvingRegistry getResolvingRegistry() {
+    return resolvingRegistry;
   }
 
-  private ParameterResolverRegistry obtainResolvers() {
-    final ParameterResolverRegistry ret = getResolvers();
-    Assert.state(ret != null, "No ParameterResolvers.");
+  private ParameterResolvingRegistry obtainResolvers() {
+    final ParameterResolvingRegistry ret = getResolvingRegistry();
+    Assert.state(ret != null, "No ParameterResolvingRegistry.");
     return ret;
   }
 
@@ -158,7 +146,7 @@ public class ValidationParameterResolver
     final ParameterResolvingStrategy resolver = getResolver(parameter);
     if (resolver == null) {
       throw new IllegalStateException(
-              "There is not a parameter resolver in [" + resolvers + "] to resolve " + parameter);
+              "There is not a parameter resolver in [" + resolvingRegistry + "] to resolve " + parameter);
     }
     return resolver;
   }

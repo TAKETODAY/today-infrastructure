@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -21,6 +21,7 @@ package cn.taketoday.web.resolver;
 
 import java.io.IOException;
 
+import cn.taketoday.core.Assert;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestBody;
@@ -59,6 +60,7 @@ public class RequestBodyParameterResolver
   }
 
   public void setMessageConverter(MessageBodyConverter messageBodyConverter) {
+    Assert.notNull(messageBodyConverter, "messageBodyConverter must not be null");
     this.messageBodyConverter = messageBodyConverter;
   }
 

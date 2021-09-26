@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.socket.annotation;
 
-import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.WebSocketSession;
 

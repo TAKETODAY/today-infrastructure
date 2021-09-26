@@ -46,7 +46,7 @@ import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
-import cn.taketoday.web.resolver.ParameterResolverRegistry;
+import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.validation.Validator;
 import cn.taketoday.web.validation.WebValidator;
@@ -314,7 +314,7 @@ public class WebApplicationLoader
   protected void configureParameterResolving(
           List<ParameterResolvingStrategy> customizedStrategies, WebMvcConfiguration mvcConfiguration) {
     final WebApplicationContext context = obtainApplicationContext();
-    final ParameterResolverRegistry registry = context.getBean(ParameterResolverRegistry.class);
+    final ParameterResolvingRegistry registry = context.getBean(ParameterResolvingRegistry.class);
     Assert.state(registry != null, "No ParameterResolvers");
 
     // user customize multipartConfig
@@ -325,7 +325,7 @@ public class WebApplicationLoader
     // ------------------------------------------
     mvcConfiguration.configureParameterResolving(registry, customizedStrategies); // user configure
 
-    registry.addCustomizedStrategies(customizedStrategies);
+    registry.getCustomizedStrategies().add(customizedStrategies);
   }
 
   /**

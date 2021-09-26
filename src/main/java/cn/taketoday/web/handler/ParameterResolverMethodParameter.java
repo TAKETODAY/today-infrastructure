@@ -22,7 +22,7 @@ package cn.taketoday.web.handler;
 import java.lang.reflect.Parameter;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.resolver.ParameterResolverRegistry;
+import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 
 /**
@@ -30,17 +30,17 @@ import cn.taketoday.web.resolver.ParameterResolvingStrategy;
  * @since 3.0
  */
 public class ParameterResolverMethodParameter extends MethodParameter {
-  private final ParameterResolverRegistry resolvers;
+  private final ParameterResolvingRegistry resolvers;
   private ParameterResolvingStrategy resolver;
 
   public ParameterResolverMethodParameter(
-          HandlerMethod handler, MethodParameter other, ParameterResolverRegistry resolvers) {
+          HandlerMethod handler, MethodParameter other, ParameterResolvingRegistry resolvers) {
     super(handler, other);
     this.resolvers = resolvers;
   }
 
   public ParameterResolverMethodParameter(
-          int index, Parameter parameter, String parameterName, ParameterResolverRegistry resolvers) {
+          int index, Parameter parameter, String parameterName, ParameterResolvingRegistry resolvers) {
     super(index, parameter, parameterName);
     this.resolvers = resolvers;
   }

@@ -19,11 +19,7 @@
  */
 package cn.taketoday.web.resolver;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Properties;
-import java.util.function.Predicate;
 
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.beans.support.DataBinder;
@@ -36,7 +32,6 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.ConversionServiceAware;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
@@ -52,7 +47,7 @@ import cn.taketoday.web.resolver.date.LocalTimeParameterResolver;
 import cn.taketoday.web.view.RedirectModelManager;
 
 import static cn.taketoday.context.ContextUtils.resolveProps;
-import static cn.taketoday.web.resolver.ConverterParameterResolver.convert;
+import static cn.taketoday.web.resolver.ConverterParameterResolver.from;
 
 /**
  * ParameterResolvingStrategy registry
@@ -61,10 +56,11 @@ import static cn.taketoday.web.resolver.ConverterParameterResolver.convert;
  * @see ParameterResolvingStrategy
  * @since 3.0
  */
-public class ParameterResolverRegistry
+public class ParameterResolvingRegistry
         extends WebApplicationContextSupport implements ArraySizeTrimmer {
-  private final ArrayList<ParameterResolvingStrategy> defaultResolvers = new ArrayList<>(36);
-  private final ArrayList<ParameterResolvingStrategy> customizedResolvers = new ArrayList<>();
+
+  private final ParameterResolvingStrategies defaultStrategies = new ParameterResolvingStrategies(36);
+  private final ParameterResolvingStrategies customizedStrategies = new ParameterResolvingStrategies();
 
   /**
    * @since 3.0.1
@@ -89,82 +85,10 @@ public class ParameterResolverRegistry
   private ConversionService conversionService;
 
   /**
-   * add resolvers or resolving-strategies
-   *
-   * @param resolver
-   *         resolvers or resolving-strategies
-   */
-  public void addDefaultStrategies(ParameterResolvingStrategy... resolver) {
-    Collections.addAll(defaultResolvers, resolver);
-    trimToSize();
-  }
-
-  /**
-   * add resolvers or resolving-strategies
-   *
-   * @param resolvers
-   *         resolvers or resolving-strategies
-   */
-  public void addDefaultStrategies(List<ParameterResolvingStrategy> resolvers) {
-    this.defaultResolvers.addAll(resolvers);
-    trimToSize();
-  }
-
-  /**
-   * set or clear resolvers
-   *
-   * @param resolver
-   *         can be null
-   */
-  public void setDefaultStrategies(@Nullable List<ParameterResolvingStrategy> resolver) {
-    defaultResolvers.clear();
-    if (CollectionUtils.isNotEmpty(resolver)) {
-      defaultResolvers.addAll(resolver);
-      trimToSize();
-    }
-  }
-
-  /**
-   * add customized resolvers or resolving-strategies
-   *
-   * @param resolver
-   *         resolvers or resolving-strategies
-   */
-  public void addCustomizedStrategies(ParameterResolvingStrategy... resolver) {
-    Collections.addAll(customizedResolvers, resolver);
-    trimToSize();
-  }
-
-  /**
-   * add customized resolvers or resolving-strategies
-   *
-   * @param resolvers
-   *         resolvers or resolving-strategies
-   */
-  public void addCustomizedStrategies(List<ParameterResolvingStrategy> resolvers) {
-    this.customizedResolvers.addAll(resolvers);
-    trimToSize();
-  }
-
-  /**
-   * set or clear customized resolvers
-   *
-   * @param resolver
-   *         can be null
-   */
-  public void setCustomizedStrategies(@Nullable List<ParameterResolvingStrategy> resolver) {
-    customizedResolvers.clear();
-    if (CollectionUtils.isNotEmpty(resolver)) {
-      customizedResolvers.addAll(resolver);
-      trimToSize();
-    }
-  }
-
-  /**
    * get default resolving-strategies
    */
-  public List<ParameterResolvingStrategy> getDefaultStrategies() {
-    return defaultResolvers;
+  public ParameterResolvingStrategies getDefaultStrategies() {
+    return defaultStrategies;
   }
 
   /**
@@ -172,8 +96,8 @@ public class ParameterResolverRegistry
    *
    * @since 4.0
    */
-  public List<ParameterResolvingStrategy> getCustomizedStrategies() {
-    return customizedResolvers;
+  public ParameterResolvingStrategies getCustomizedStrategies() {
+    return customizedStrategies;
   }
 
   /**
@@ -187,7 +111,7 @@ public class ParameterResolverRegistry
    */
   @Nullable
   protected ParameterResolvingStrategy lookupStrategy(
-          MethodParameter parameter, List<ParameterResolvingStrategy> strategies) {
+          MethodParameter parameter, Iterable<ParameterResolvingStrategy> strategies) {
     for (final ParameterResolvingStrategy resolver : strategies) {
       if (resolver.supportsParameter(parameter)) {
         return resolver;
@@ -198,6 +122,8 @@ public class ParameterResolverRegistry
 
   /**
    * find parameter resolving strategy
+   * <p>
+   * find in {@code customizedResolvers} and when find in {@code defaultResolvers}
    *
    * @param parameter
    *         parameter value to be resolve
@@ -206,9 +132,9 @@ public class ParameterResolverRegistry
    */
   @Nullable
   public ParameterResolvingStrategy findStrategy(final MethodParameter parameter) {
-    ParameterResolvingStrategy resolvingStrategy = lookupStrategy(parameter, customizedResolvers);
+    ParameterResolvingStrategy resolvingStrategy = lookupStrategy(parameter, customizedStrategies);
     if (resolvingStrategy == null) {
-      resolvingStrategy = lookupStrategy(parameter, defaultResolvers);
+      resolvingStrategy = lookupStrategy(parameter, defaultStrategies);
     }
     return resolvingStrategy;
   }
@@ -234,45 +160,51 @@ public class ParameterResolverRegistry
     return resolver;
   }
 
+  public void registerDefaultParameterResolvers() {
+    registerDefaults(defaultStrategies);
+  }
+
   /**
    * register default {@link ParameterResolvingStrategy}s
    */
-  public void registerDefaultParameterResolvers() {
-    log.info("Registering default parameter-resolvers");
+  public void registerDefaults(ParameterResolvingStrategies strategies) {
+    log.info("Registering default parameter-resolvers to {}", strategies);
 
     // Use ConverterParameterResolver to resolve primitive types
     // --------------------------------------------------------------------------
-    final List<ParameterResolvingStrategy> resolvers = getDefaultStrategies();
 
-    resolvers.add(convert(String.class, s -> s));
-    resolvers.add(convert(new OR(Long.class, long.class), Long::parseLong));
-    resolvers.add(convert(new OR(Integer.class, int.class), Integer::parseInt));
-    resolvers.add(convert(new OR(Short.class, short.class), Short::parseShort));
-    resolvers.add(convert(new OR(Float.class, float.class), Float::parseFloat));
-    resolvers.add(convert(new OR(Double.class, double.class), Double::parseDouble));
-    resolvers.add(convert(new OR(Boolean.class, boolean.class), Boolean::parseBoolean));
+    strategies.add(
+            from(String.class, s -> s),
+            from(new OR(Long.class, long.class), Long::parseLong),
+            from(new OR(Integer.class, int.class), Integer::parseInt),
+            from(new OR(Short.class, short.class), Short::parseShort),
+            from(new OR(Float.class, float.class), Float::parseFloat),
+            from(new OR(Double.class, double.class), Double::parseDouble),
+            from(new OR(Boolean.class, boolean.class), Boolean::parseBoolean)
+    );
 
     // For some useful context annotations
     // --------------------------------------------
 
-    final WebApplicationContext context = obtainApplicationContext();
+    WebApplicationContext context = obtainApplicationContext();
     ExpressionEvaluator expressionEvaluator = getExpressionEvaluator();
     if (expressionEvaluator == null) {
       expressionEvaluator = new ExpressionEvaluator(context);
     }
 
-    resolvers.add(new RequestAttributeParameterResolver());
-    resolvers.add(new EnvParameterResolver(expressionEvaluator));
-    resolvers.add(new ValueParameterResolver(expressionEvaluator));
-    resolvers.add(new PropsParameterResolver(context));
-    resolvers.add(new AutowiredParameterResolver(context));
+    strategies.add(new RequestAttributeParameterResolver(),
+                   new EnvParameterResolver(expressionEvaluator),
+                   new ValueParameterResolver(expressionEvaluator),
+                   new PropsParameterResolver(context),
+                   new AutowiredParameterResolver(context),
 
-    // HandlerMethod
-    resolvers.add(new HandlerMethodParameterResolver());
+                   // HandlerMethod
+                   new HandlerMethodParameterResolver());
 
     // For cookies
     // ------------------------------------------
-    CookieParameterResolver.register(resolvers);
+
+    CookieParameterResolver.register(strategies);
 
     // For multipart
     // -------------------------------------------
@@ -286,10 +218,10 @@ public class ParameterResolverRegistry
     }
     Assert.state(multipartConfig != null, "MultipartConfiguration Can't be null");
 
-    DefaultMultipartResolver.register(resolvers, multipartConfig);
+    DefaultMultipartResolver.register(strategies, multipartConfig);
 
     // Header
-    resolvers.add(new RequestHeaderParameterResolver());
+    strategies.add(new RequestHeaderParameterResolver());
     RedirectModelManager modelManager = getRedirectModelManager();
     if (modelManager == null) {
       modelManager = context.getBean(RedirectModelManager.class);
@@ -299,27 +231,32 @@ public class ParameterResolverRegistry
       log.info("RedirectModel disabled");
     }
     // @since 3.0
-    configureDataBinder(resolvers);
+    configureDataBinder(strategies);
 
-    resolvers.add(new ModelParameterResolver(modelManager));
-    resolvers.add(new StreamParameterResolver());
+    strategies.add(new ModelParameterResolver(modelManager));
+    strategies.add(new StreamParameterResolver());
     MessageBodyConverter messageBodyConverter = getMessageConverter();
     if (messageBodyConverter == null) {
       messageBodyConverter = context.getBean(MessageBodyConverter.class);
     }
-    resolvers.add(new RequestBodyParameterResolver(messageBodyConverter));
-    resolvers.add(new ThrowableHandlerParameterResolver());
+    Assert.state(messageBodyConverter != null, "No MessageBodyConverter.");
+
+    strategies.add(new RequestBodyParameterResolver(messageBodyConverter));
+    strategies.add(new ThrowableHandlerParameterResolver());
 
     // Date API support @since 3.0
-    resolvers.add(new DateParameterResolver());
-    resolvers.add(new LocalDateParameterResolver());
-    resolvers.add(new LocalTimeParameterResolver());
-    resolvers.add(new LocalDateTimeParameterResolver());
+    strategies.add(new DateParameterResolver());
+    strategies.add(new LocalDateParameterResolver());
+    strategies.add(new LocalTimeParameterResolver());
+    strategies.add(new LocalDateTimeParameterResolver());
 
-    resolvers.add(new SimpleArrayParameterResolver());
+    strategies.add(new SimpleArrayParameterResolver());
 
     // apply conversionService @since 4.0
-    applyConversionService(conversionService, resolvers);
+    applyConversionService(conversionService, strategies);
+
+    // trim size
+    strategies.trimToSize();
   }
 
   /**
@@ -334,48 +271,44 @@ public class ParameterResolverRegistry
   /**
    * config ParameterResolver using {@link DataBinder}
    */
-  public void configureDataBinder(List<ParameterResolvingStrategy> resolvers) {
-    final WebApplicationContext context = obtainApplicationContext();
-    if (!contains(DataBinderMapParameterResolver.class, resolvers)
+  public void configureDataBinder(ParameterResolvingStrategies strategies) {
+    WebApplicationContext context = obtainApplicationContext();
+    if (!strategies.contains(DataBinderMapParameterResolver.class)
             && !context.containsBeanDefinition(DataBinderMapParameterResolver.class)) {
-      resolvers.add(new DataBinderMapParameterResolver());
+      strategies.add(new DataBinderMapParameterResolver());
     }
     // resolve array of beans
-    if (!contains(DataBinderArrayParameterResolver.class, resolvers)
+    if (!contains(DataBinderArrayParameterResolver.class)
             && !context.containsBeanDefinition(DataBinderArrayParameterResolver.class)) {
-      resolvers.add(new DataBinderArrayParameterResolver());
+      strategies.add(new DataBinderArrayParameterResolver());
     }
     // resolve a collection of beans
-    if (!contains(DataBinderCollectionParameterResolver.class, resolvers)
+    if (!strategies.contains(DataBinderCollectionParameterResolver.class)
             && !context.containsBeanDefinition(DataBinderCollectionParameterResolver.class)) {
-      resolvers.add(new DataBinderCollectionParameterResolver());
+      strategies.add(new DataBinderCollectionParameterResolver());
     }
     // resolve bean
-    if (!contains(DataBinderParameterResolver.class, resolvers)
+    if (!strategies.contains(DataBinderParameterResolver.class)
             && !context.containsBeanDefinition(DataBinderParameterResolver.class)) {
       DataBinderParameterResolver resolver = new DataBinderParameterResolver(this);
-      resolvers.add(resolver);
+      strategies.add(resolver);
     }
   }
 
   /**
-   * @since 4.0
+   * Returns <tt>true</tt> if resolvers list contains the specified {@code resolverClass}.
+   * More formally, returns <tt>true</tt> if and only if all resolvers contains
+   * at least one element <tt>e</tt> such that
+   * <tt>(resolverClass == resolver.getClass())</tt>.
+   *
+   * @param resolverClass
+   *         element whose presence in this defaultResolvers or customizedResolvers is to be tested
+   *
+   * @return <tt>true</tt> if resolvers contains the specified {@code resolverClass}
    */
-  public boolean removeIf(Predicate<ParameterResolvingStrategy> filter) {
-    return defaultResolvers.removeIf(filter);
-  }
-
   public boolean contains(Class<?> resolverClass) {
-    return contains(resolverClass, defaultResolvers);
-  }
-
-  private boolean contains(Class<?> resolverClass, List<ParameterResolvingStrategy> resolvers) {
-    for (final ParameterResolvingStrategy resolver : resolvers) {
-      if (resolverClass == resolver.getClass()) {
-        return true;
-      }
-    }
-    return false;
+    return defaultStrategies.contains(resolverClass)
+            || customizedStrategies.contains(resolverClass);
   }
 
   //
@@ -425,13 +358,14 @@ public class ParameterResolverRegistry
    *
    * @since 4.0
    */
-  public void applyConversionService(@Nullable ConversionService conversionService) {
+  public void applyConversionService(ConversionService conversionService) {
     setConversionService(conversionService);
-    applyConversionService(conversionService, defaultResolvers);
+    applyConversionService(conversionService, defaultStrategies);
+    applyConversionService(conversionService, customizedStrategies);
   }
 
-  private void applyConversionService(
-          @Nullable ConversionService conversionService, List<ParameterResolvingStrategy> resolvers) {
+  static void applyConversionService(
+          @Nullable ConversionService conversionService, Iterable<ParameterResolvingStrategy> resolvers) {
     if (conversionService != null) {
       for (final ParameterResolvingStrategy resolver : resolvers) {
         if (resolver instanceof ConversionServiceAware) {
@@ -453,7 +387,7 @@ public class ParameterResolverRegistry
    */
   @Override
   public void trimToSize() {
-    defaultResolvers.trimToSize();
+    defaultStrategies.trimToSize();
   }
 
   // ParameterResolver

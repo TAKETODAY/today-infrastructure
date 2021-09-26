@@ -63,11 +63,11 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
   }
 
   public static void register(
-          List<ParameterResolvingStrategy> resolvers, MultipartConfiguration multipartConfig) {
-    resolvers.add(new DefaultMultipartResolver(multipartConfig));
-    resolvers.add(new ArrayMultipartResolver(multipartConfig));
-    resolvers.add(new CollectionMultipartResolver(multipartConfig));
-    resolvers.add(new MapMultipartParameterResolver(multipartConfig));
+          ParameterResolvingStrategies resolvers, MultipartConfiguration multipartConfig) {
+    resolvers.add(new DefaultMultipartResolver(multipartConfig),
+                  new ArrayMultipartResolver(multipartConfig),
+                  new CollectionMultipartResolver(multipartConfig),
+                  new MapMultipartParameterResolver(multipartConfig));
   }
 
   /**

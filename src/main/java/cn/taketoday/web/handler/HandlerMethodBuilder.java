@@ -30,7 +30,7 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.resolver.ParameterResolverRegistry;
+import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.view.ReturnValueHandlers;
 
 /**
@@ -41,7 +41,7 @@ import cn.taketoday.web.view.ReturnValueHandlers;
  */
 public class HandlerMethodBuilder<T extends HandlerMethod> {
 
-  private ParameterResolverRegistry resolverRegistry;
+  private ParameterResolvingRegistry resolverRegistry;
   private ReturnValueHandlers returnValueHandlers;
   private MethodParametersBuilder parametersBuilder;
 
@@ -57,7 +57,7 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
    */
   public HandlerMethodBuilder(ApplicationContext context) {
     Assert.notNull(context, "ApplicationContext must not be null");
-    ParameterResolverRegistry resolversRegistry = context.getBean(ParameterResolverRegistry.class);
+    ParameterResolvingRegistry resolversRegistry = context.getBean(ParameterResolvingRegistry.class);
     Assert.state(resolversRegistry != null, "No ParameterResolvers");
     setResolverRegistry(resolversRegistry);
     setReturnValueHandlers(context.getBean(ReturnValueHandlers.class));
@@ -65,12 +65,12 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
   }
 
   public HandlerMethodBuilder(
-          ParameterResolverRegistry resolvers, ReturnValueHandlers returnValueHandlers) {
+          ParameterResolvingRegistry resolvers, ReturnValueHandlers returnValueHandlers) {
     this(resolvers, returnValueHandlers, new ParameterResolversMethodParameterBuilder(resolvers));
   }
 
   public HandlerMethodBuilder(
-          ParameterResolverRegistry resolvers,
+          ParameterResolvingRegistry resolvers,
           ReturnValueHandlers returnValueHandlers, MethodParametersBuilder builder) {
     setParametersBuilder(builder);
     setResolverRegistry(resolvers);
@@ -125,7 +125,7 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
     return handlerMethod;
   }
 
-  public void setResolverRegistry(ParameterResolverRegistry resolverRegistry) {
+  public void setResolverRegistry(ParameterResolvingRegistry resolverRegistry) {
     this.resolverRegistry = resolverRegistry;
   }
 
@@ -145,7 +145,7 @@ public class HandlerMethodBuilder<T extends HandlerMethod> {
     return parametersBuilder;
   }
 
-  public ParameterResolverRegistry getResolverRegistry() {
+  public ParameterResolvingRegistry getResolverRegistry() {
     return resolverRegistry;
   }
 

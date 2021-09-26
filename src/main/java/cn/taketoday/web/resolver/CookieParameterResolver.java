@@ -57,11 +57,11 @@ public class CookieParameterResolver
     return null;
   }
 
-  public static void register(List<ParameterResolvingStrategy> resolvers) {
-    resolvers.add(new CookieParameterResolver());
-    resolvers.add(new CookieArrayParameterResolver());
-    resolvers.add(new CookieAnnotationParameterResolver());
-    resolvers.add(new CookieCollectionParameterResolver());
+  public static void register(ParameterResolvingStrategies resolvers) {
+    resolvers.add(new CookieParameterResolver(),
+                  new CookieArrayParameterResolver(),
+                  new CookieAnnotationParameterResolver(),
+                  new CookieCollectionParameterResolver());
   }
 
   private static class CookieAnnotationParameterResolver extends ConversionServiceParameterResolver {

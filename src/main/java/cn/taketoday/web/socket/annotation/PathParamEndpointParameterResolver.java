@@ -22,8 +22,6 @@ package cn.taketoday.web.socket.annotation;
 
 import javax.websocket.server.PathParam;
 
-import cn.taketoday.web.handler.MethodParameter;
-
 /**
  * @author TODAY 2021/5/9 22:25
  * @since 3.0.1

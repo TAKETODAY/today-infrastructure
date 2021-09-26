@@ -61,12 +61,12 @@ public class ConverterParameterResolver
     return converter.convert(defaultValue);
   }
 
-  public static ConverterParameterResolver convert(
+  public static ConverterParameterResolver from(
           Class<?> targetType, Converter<String, Object> converter) {
     return new ConverterParameterResolver(targetType, converter);
   }
 
-  public static ConverterParameterResolver convert(
+  public static ConverterParameterResolver from(
           SupportsFunction supports, Converter<String, Object> converter) {
     return new ConverterParameterResolver(supports, converter);
   }

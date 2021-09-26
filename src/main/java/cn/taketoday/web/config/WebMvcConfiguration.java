@@ -32,7 +32,7 @@ import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
-import cn.taketoday.web.resolver.ParameterResolverRegistry;
+import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.validation.WebValidator;
 import cn.taketoday.web.view.ReturnValueHandler;
@@ -56,24 +56,24 @@ public interface WebMvcConfiguration {
    * Configure {@link ParameterResolvingStrategy}
    * <p>
    * user can add {@link ParameterResolvingStrategy} to {@code resolvingStrategies} or
-   * use {@link ParameterResolverRegistry#addDefaultStrategies(ParameterResolvingStrategy...)}
-   * use {@link ParameterResolverRegistry#addDefaultStrategies(List)} or
-   * use {@link ParameterResolverRegistry#addCustomizedStrategies(ParameterResolvingStrategy...)} or
-   * use {@link ParameterResolverRegistry#addCustomizedStrategies(List)} to add ParameterResolvingStrategy
+   * use {@link ParameterResolvingRegistry#addDefaultStrategies(ParameterResolvingStrategy...)}
+   * use {@link ParameterResolvingRegistry#addDefaultStrategies(List)} or
+   * use {@link ParameterResolvingRegistry#addCustomizedStrategies(ParameterResolvingStrategy...)} or
+   * use {@link ParameterResolvingRegistry#addCustomizedStrategies(List)} to add ParameterResolvingStrategy
    * </p>
    *
    * @param customizedStrategies
    *         {@link ParameterResolvingStrategy} registry
    *
    * @see WebApplicationLoader#configureParameterResolving(List, WebMvcConfiguration)
-   * @see ParameterResolverRegistry#addCustomizedStrategies(ParameterResolvingStrategy...)
-   * @see ParameterResolverRegistry#addCustomizedStrategies(List)
-   * @see ParameterResolverRegistry#addDefaultStrategies(List)
-   * @see ParameterResolverRegistry#addDefaultStrategies(ParameterResolvingStrategy...)
+   * @see ParameterResolvingRegistry#addCustomizedStrategies(ParameterResolvingStrategy...)
+   * @see ParameterResolvingRegistry#addCustomizedStrategies(List)
+   * @see ParameterResolvingRegistry#addDefaultStrategies(List)
+   * @see ParameterResolvingRegistry#addDefaultStrategies(ParameterResolvingStrategy...)
    * @since 4.0
    */
   default void configureParameterResolving(
-          ParameterResolverRegistry registry, List<ParameterResolvingStrategy> customizedStrategies) {
+          ParameterResolvingRegistry registry, List<ParameterResolvingStrategy> customizedStrategies) {
     configureParameterResolving(customizedStrategies);
   }
 
