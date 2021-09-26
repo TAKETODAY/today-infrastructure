@@ -1,16 +1,5 @@
 package cn.taketoday.context;
 
-import org.junit.Ignore;
-import org.junit.Test;
-
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.function.IntSupplier;
-
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.reflect.MethodAccessor;
@@ -19,7 +8,18 @@ import cn.taketoday.core.reflect.PropertyAccessor;
 import cn.taketoday.util.ReflectionUtils;
 import lombok.Getter;
 import lombok.Setter;
+import org.junit.Ignore;
+import org.junit.Test;
 import test.demo.config.Config;
+
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.function.IntSupplier;
+import java.util.function.LongFunction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -359,6 +359,10 @@ public class BenchmarkTest {
     }
 
     public int localVariable() {
+      return localVariable(iteration);
+    }
+
+    public int localVariable(long iteration) {
       int var = 100;
       int local = 0;
       for (int i = 0; i < iteration; i++) {
@@ -368,6 +372,10 @@ public class BenchmarkTest {
     }
 
     public int finalLocalVariable() {
+      return finalLocalVariable(iteration);
+    }
+
+    public int finalLocalVariable(long iteration) {
       int local = 0;
       final int var = this.field;
       for (int i = 0; i < iteration; i++) {
@@ -377,6 +385,10 @@ public class BenchmarkTest {
     }
 
     public int field() {
+      return field(iteration);
+    }
+
+    public int field(long iteration) {
       int local = 0;
       for (int i = 0; i < iteration; i++) {
         local += field + 1;
@@ -385,6 +397,10 @@ public class BenchmarkTest {
     }
 
     public int staticField() {
+      return staticField(iteration);
+    }
+
+    public int staticField(long iteration) {
       int local = 0;
       for (int i = 0; i < iteration; i++) {
         local += staticField + 1;
@@ -393,6 +409,10 @@ public class BenchmarkTest {
     }
 
     public int finalField() {
+      return finalField(iteration);
+    }
+
+    public int finalField(long iteration) {
       int local = 0;
       for (int i = 0; i < iteration; i++) {
         local += finalField + 1;
@@ -401,6 +421,10 @@ public class BenchmarkTest {
     }
 
     public int staticFinalField() {
+      return staticFinalField(iteration);
+    }
+
+    public int staticFinalField(long iteration) {
       int local = 0;
       for (int i = 0; i < iteration; i++) {
         local += staticFinalField + 1;
@@ -409,6 +433,10 @@ public class BenchmarkTest {
     }
 
     public int volatileField() {
+      return volatileField(iteration);
+    }
+
+    public int volatileField(long iteration) {
       int local = 0;
       for (int i = 0; i < iteration; i++) {
         local += volatileField + 1;
@@ -422,6 +450,10 @@ public class BenchmarkTest {
     final Ref finalRef = new Ref();
 
     public int ref() {
+      return ref(iteration);
+    }
+
+    public int ref(long iteration) {
       int local = 0;
       Ref ref;
       for (int i = 0; i < iteration; i++) {
@@ -432,6 +464,10 @@ public class BenchmarkTest {
     }
 
     public int finalRef() {
+      return finalRef(iteration);
+    }
+
+    public int finalRef(long iteration) {
       int local = 0;
       Ref ref;
       for (int i = 0; i < iteration; i++) {
@@ -442,6 +478,10 @@ public class BenchmarkTest {
     }
 
     public int localRef() {
+      return localRef(iteration);
+    }
+
+    public int localRef(long iteration) {
       int local = 0;
       Ref ref_;
       Ref ref = this.finalRef;
@@ -473,6 +513,28 @@ public class BenchmarkTest {
     benchmark(variableAccess::localRef, "localRef");
     benchmark(variableAccess::finalRef, "finalRef");
 
+    //
+
+    benchmark(variableAccess::field, "field", variableAccess.iteration);
+    benchmark(variableAccess::localVariable, "localVariable", variableAccess.iteration);
+    benchmark(variableAccess::finalLocalVariable, "finalLocalVariable", variableAccess.iteration);
+    benchmark(variableAccess::staticFinalField, "staticFinalField", variableAccess.iteration);
+    benchmark(variableAccess::finalField, "finalField", variableAccess.iteration);
+    benchmark(variableAccess::staticField, "staticField", variableAccess.iteration);
+    benchmark(variableAccess::volatileField, "volatileField", variableAccess.iteration);
+
+    // ref
+    benchmark(variableAccess::ref, "ref", variableAccess.iteration);
+    benchmark(variableAccess::localRef, "localRef", variableAccess.iteration);
+    benchmark(variableAccess::finalRef, "finalRef", variableAccess.iteration);
+
+  }
+
+  private void benchmark(LongFunction<Integer> benchmark, String desc, long iteration) {
+    long t = System.nanoTime();
+    int asInt = benchmark.apply(iteration);
+    t = (System.nanoTime() - t) / 1_000_000;
+    System.out.format("%s          : %d   %dms\n", desc, asInt, t);
   }
 
   private void benchmark(IntSupplier benchmark, String desc) {
