@@ -231,13 +231,14 @@ public class BeanProperties {
           final Object bean, final Map<String, Object> properties, final boolean ignoreUnknownProperty) {
     Assert.notNull(bean, "target bean must not be null");
     Assert.notNull(properties, "properties must not be null");
-    final BeanPropertyAccessor accessor = BeanPropertyAccessor.ofObject(bean);
+    final BeanMetadata metadata = BeanMetadata.ofObject(bean);
+    final BeanPropertyAccessor accessor = BeanPropertyAccessor.of(metadata, bean);
     accessor.setIgnoreUnknownProperty(ignoreUnknownProperty);
     accessor.setThrowsWhenReadOnly(false);
     for (final Map.Entry<String, Object> entry : properties.entrySet()) {
       final String key = entry.getKey();
       final Object value = entry.getValue();
-      accessor.setProperty(key, value);
+      accessor.setProperty(bean, metadata, key, value);
     }
   }
 
