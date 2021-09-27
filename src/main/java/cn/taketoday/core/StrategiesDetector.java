@@ -20,13 +20,6 @@
 
 package cn.taketoday.core;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.function.Consumer;
-
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.support.BeanUtils;
@@ -35,6 +28,13 @@ import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Strategies Detector
@@ -53,7 +53,7 @@ public class StrategiesDetector {
   private String strategiesLocation;
   private StrategiesReader strategiesReader;
 
-  private ClassLoader classLoader = ClassUtils.getClassLoader();
+  private ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
 
   @Nullable
   private BeanFactory beanFactory;
@@ -96,6 +96,14 @@ public class StrategiesDetector {
    */
   public void loadStrategies(String strategiesLocation) {
     strategiesReader.read(strategiesLocation, strategies);
+  }
+
+  public <T> T getFirst(Class<T> strategyClass) {
+    return getFirst(strategyClass, beanFactory);
+  }
+
+  public <T> T getFirst(Class<T> strategyClass, BeanFactory beanFactory) {
+    return CollectionUtils.firstElement(getStrategies(strategyClass, beanFactory));
   }
 
   public <T> List<T> getStrategies(Class<T> strategyClass) {
