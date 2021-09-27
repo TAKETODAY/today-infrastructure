@@ -243,7 +243,7 @@ public class ParameterResolvingRegistry
         messageBodyConverter = MessageBodyConverter.autoDetect();
       }
     }
-    Assert.state(messageBodyConverter != null, "No MessageBodyConverter.");
+    Assert.state(messageBodyConverter != null, "No MessageConverter in this web application");
 
     strategies.add(new RequestBodyParameterResolver(messageBodyConverter));
     strategies.add(new ThrowableHandlerParameterResolver());
