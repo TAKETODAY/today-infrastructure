@@ -163,7 +163,7 @@ public abstract class ContextUtils {
    * @return Bean names
    */
   public static String[] findNames(final String defaultName, final String... names) {
-    if (StringUtils.isArrayEmpty(names)) {
+    if (ObjectUtils.isEmpty(names)) {
       return new String[] { defaultName }; // default name
     }
     return names;

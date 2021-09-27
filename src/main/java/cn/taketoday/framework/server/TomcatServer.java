@@ -19,6 +19,7 @@
  */
 package cn.taketoday.framework.server;
 
+import cn.taketoday.util.ObjectUtils;
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
@@ -347,7 +348,7 @@ public class TomcatServer extends AbstractServletWebServer {
     protocol.setCompressionMinSize((int) compression.getMinResponseSize().toBytes());
     protocol.setCompressibleMimeType(StringUtils.arrayToString(compression.getMimeTypes()));
 
-    if (StringUtils.isArrayNotEmpty(compression.getExcludeUserAgents())) {
+    if (ObjectUtils.isNotEmpty(compression.getExcludeUserAgents())) {
       protocol.setNoCompressionUserAgents(StringUtils.arrayToString(compression.getExcludeUserAgents()));
     }
   }

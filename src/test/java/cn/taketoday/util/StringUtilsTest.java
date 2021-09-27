@@ -55,7 +55,6 @@ public class StringUtilsTest {
 
     @Test
     public void test_IsNotEmpty() {
-        assert !StringUtils.isArrayNotEmpty((String[]) null);
         assert !StringUtils.isNotEmpty("");
         assert StringUtils.isNotEmpty(" ");
         assert StringUtils.isNotEmpty("1333r");
@@ -76,10 +75,6 @@ public class StringUtilsTest {
 
         assert StringUtils.split(null) == Constant.EMPTY_STRING_ARRAY;
 
-        assert !StringUtils.isArrayEmpty(split_);
-        assert StringUtils.isArrayNotEmpty(split_);
-        assert !StringUtils.isArrayNotEmpty();
-        assert StringUtils.isArrayEmpty();
     }
 
     @Test

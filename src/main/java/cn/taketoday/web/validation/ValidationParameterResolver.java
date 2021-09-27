@@ -27,6 +27,7 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 

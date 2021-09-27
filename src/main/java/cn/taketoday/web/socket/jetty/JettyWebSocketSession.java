@@ -21,17 +21,15 @@
 package cn.taketoday.web.socket.jetty;
 
 
-
-import org.eclipse.jetty.websocket.api.Session;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.NativeWebSocketSession;
 import cn.taketoday.web.socket.PingMessage;
 import cn.taketoday.web.socket.PongMessage;
+import org.eclipse.jetty.websocket.api.Session;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  * Jetty WebSocketSession

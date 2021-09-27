@@ -20,13 +20,12 @@
 
 package cn.taketoday.web.socket.jetty;
 
-import org.eclipse.jetty.websocket.api.WebSocketListener;
-
-import java.nio.ByteBuffer;
-
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.TextMessage;
 import cn.taketoday.web.socket.WebSocketHandler;
+import org.eclipse.jetty.websocket.api.WebSocketListener;
+
+import java.nio.ByteBuffer;
 
 /**
  * @author TODAY 2021/5/6 23:16

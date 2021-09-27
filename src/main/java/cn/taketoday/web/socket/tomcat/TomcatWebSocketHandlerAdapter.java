@@ -20,23 +20,6 @@
 
 package cn.taketoday.web.socket.tomcat;
 
-import org.apache.tomcat.websocket.Transformation;
-import org.apache.tomcat.websocket.TransformationFactory;
-import org.apache.tomcat.websocket.WsHandshakeResponse;
-import org.apache.tomcat.websocket.server.DefaultServerEndpointConfigurator;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.websocket.Extension;
-import javax.websocket.server.ServerEndpointConfig;
-
 import cn.taketoday.core.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletContextAware;
@@ -50,6 +33,21 @@ import cn.taketoday.web.socket.StandardWebSocketSession;
 import cn.taketoday.web.socket.WebSocketExtension;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
+import org.apache.tomcat.websocket.Transformation;
+import org.apache.tomcat.websocket.TransformationFactory;
+import org.apache.tomcat.websocket.WsHandshakeResponse;
+import org.apache.tomcat.websocket.server.DefaultServerEndpointConfigurator;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.websocket.Extension;
+import javax.websocket.server.ServerEndpointConfig;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Tomcat WebSocket HandlerAdapter

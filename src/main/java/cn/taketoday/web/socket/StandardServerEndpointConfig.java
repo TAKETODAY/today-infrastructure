@@ -20,16 +20,15 @@
 
 package cn.taketoday.web.socket;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import cn.taketoday.core.AttributeAccessorSupport;
 
 import javax.websocket.Decoder;
 import javax.websocket.Encoder;
 import javax.websocket.Extension;
 import javax.websocket.server.ServerEndpointConfig;
-
-import cn.taketoday.core.AttributeAccessorSupport;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author TODAY 2021/5/6 17:36

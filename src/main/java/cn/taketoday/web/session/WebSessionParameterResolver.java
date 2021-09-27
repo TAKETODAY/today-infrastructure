@@ -22,6 +22,7 @@ package cn.taketoday.web.session;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 
 /**

@@ -232,7 +232,7 @@ public class BeanProperties {
     Assert.notNull(bean, "target bean must not be null");
     Assert.notNull(properties, "properties must not be null");
     final BeanMetadata metadata = BeanMetadata.ofObject(bean);
-    final BeanPropertyAccessor accessor = BeanPropertyAccessor.of(metadata, bean);
+    final BeanPropertyAccessor accessor = BeanPropertyAccessor.from(metadata, bean);
     accessor.setIgnoreUnknownProperty(ignoreUnknownProperty);
     accessor.setThrowsWhenReadOnly(false);
     for (final Map.Entry<String, Object> entry : properties.entrySet()) {

@@ -19,6 +19,7 @@
  */
 package cn.taketoday.framework.server;
 
+import cn.taketoday.util.ObjectUtils;
 import org.apache.catalina.servlets.DefaultServlet;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.server.ConnectionFactory;
@@ -74,6 +75,7 @@ import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
 import cn.taketoday.web.session.SessionConfiguration;
 import lombok.Getter;
 import lombok.Setter;
+import org.omg.CORBA.Object;
 
 /**
  * Jetty Servlet web server.
@@ -504,18 +506,18 @@ public class JettyServer
     handler.addIncludedMimeTypes(compression.getMimeTypes());
 
     // ---path
-    if (StringUtils.isArrayNotEmpty(compression.getIncludedPaths())) {
+    if (ObjectUtils.isNotEmpty(compression.getIncludedPaths())) {
       handler.addIncludedPaths(compression.getIncludedPaths());
     }
-    if (StringUtils.isArrayNotEmpty(compression.getExcludePaths())) {
+    if (ObjectUtils.isNotEmpty(compression.getExcludePaths())) {
       handler.addExcludedPaths(compression.getExcludePaths());
     }
     // --- method
-    if (StringUtils.isArrayNotEmpty(compression.getIncludeMethods())) {
+    if (ObjectUtils.isNotEmpty(compression.getIncludeMethods())) {
       handler.addIncludedMethods(compression.getIncludeMethods());
     }
 
-    if (StringUtils.isArrayNotEmpty(compression.getExcludeMethods())) {
+    if (ObjectUtils.isNotEmpty(compression.getExcludeMethods())) {
       handler.addExcludedMethods(compression.getExcludeMethods());
     }
     return handler;

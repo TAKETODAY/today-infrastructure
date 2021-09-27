@@ -35,6 +35,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -169,7 +170,7 @@ public class FileBasedResource extends AbstractResource implements WritableResou
 
     final String[] names = list();
 
-    if (StringUtils.isArrayEmpty(names)) {
+    if (ObjectUtils.isEmpty(names)) {
       return EMPTY_ARRAY;
     }
 

@@ -20,10 +20,10 @@
 
 package cn.taketoday.web.socket;
 
-import javax.websocket.server.ServerEndpointConfig;
-
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
+
+import javax.websocket.server.ServerEndpointConfig;
 
 /**
  * javax.websocket

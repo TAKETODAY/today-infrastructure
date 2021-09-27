@@ -451,7 +451,7 @@ public class StandardBeanFactory
     loadConfigurationBeans(importDef); // scan config bean
     if (ImportSelector.class.isAssignableFrom(importClass)) {
       final String[] imports = createImporter(importDef, ImportSelector.class).selectImports(annotated);
-      if (StringUtils.isArrayNotEmpty(imports)) {
+      if (ObjectUtils.isNotEmpty(imports)) {
         for (final String select : imports) {
           final Class<Object> beanClass = ClassUtils.loadClass(select);
           if (beanClass == null) {

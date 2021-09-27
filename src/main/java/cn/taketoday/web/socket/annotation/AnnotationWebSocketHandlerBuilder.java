@@ -20,11 +20,6 @@
 
 package cn.taketoday.web.socket.annotation;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.Assert;
@@ -35,6 +30,11 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.WebSocketHandler;
+
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author TODAY 2021/5/12 23:30

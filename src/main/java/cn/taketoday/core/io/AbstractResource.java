@@ -34,6 +34,7 @@ import java.util.Objects;
 
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -184,7 +185,7 @@ public abstract class AbstractResource implements Resource {
   public Resource[] list(ResourceFilter filter) throws IOException {
     final String[] names = list();
 
-    if (StringUtils.isArrayEmpty(names)) {
+    if (ObjectUtils.isEmpty(names)) {
       return EMPTY_ARRAY;
     }
 

@@ -47,6 +47,7 @@ import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
 import cn.taketoday.util.ExceptionUtils;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationFailedEvent;
@@ -326,7 +327,7 @@ public class WebServletApplicationLoader
       WebServletInitializer<Servlet> webServletInitializer = new WebServletInitializer<>(servlet);
       WebServlet webServlet = beanClass.getAnnotation(WebServlet.class);
       String[] urlPatterns = webServlet.urlPatterns();
-      if (StringUtils.isArrayEmpty(urlPatterns)) {
+      if (ObjectUtils.isEmpty(urlPatterns)) {
         urlPatterns = new String[] { applicationContext.getBeanName(beanClass) };
       }
       webServletInitializer.addUrlMappings(urlPatterns);

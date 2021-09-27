@@ -20,14 +20,13 @@
 
 package cn.taketoday.web.socket.annotation;
 
+import javax.websocket.Decoder;
+import javax.websocket.PongMessage;
+import javax.websocket.Session;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import javax.websocket.Decoder;
-import javax.websocket.PongMessage;
-import javax.websocket.Session;
 
 /**
  * This method level annotation can be used to make a Java method receive incoming web socket messages. Each websocket

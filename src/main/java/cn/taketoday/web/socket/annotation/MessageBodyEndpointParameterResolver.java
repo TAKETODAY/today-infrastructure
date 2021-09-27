@@ -22,6 +22,7 @@ package cn.taketoday.web.socket.annotation;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.web.MessageBodyConverter;
+import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.resolver.ParameterReadFailedException;
 import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.TextMessage;

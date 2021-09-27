@@ -20,12 +20,6 @@
 
 package cn.taketoday.web.socket;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.util.List;
-
 import cn.taketoday.beans.Import;
 import cn.taketoday.beans.MissingBean;
 import cn.taketoday.util.ClassUtils;
@@ -41,6 +35,12 @@ import cn.taketoday.web.socket.annotation.WebSocketSessionParameterResolver;
 import cn.taketoday.web.socket.jetty.JettyWebSocketHandlerAdapter;
 import cn.taketoday.web.socket.tomcat.TomcatWebSocketHandlerAdapter;
 import cn.taketoday.web.socket.undertow.UndertowWebSocketHandlerAdapter;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.util.List;
 
 /**
  * @author TODAY 2021/4/5 12:14

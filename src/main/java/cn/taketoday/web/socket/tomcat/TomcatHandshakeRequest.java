@@ -20,17 +20,16 @@
 
 package cn.taketoday.web.socket.tomcat;
 
+import cn.taketoday.web.http.HttpHeaders;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.websocket.server.HandshakeRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.websocket.server.HandshakeRequest;
-
-import cn.taketoday.web.http.HttpHeaders;
 
 /**
  * @author TODAY 2021/5/5 22:51

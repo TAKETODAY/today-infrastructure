@@ -109,14 +109,6 @@ public abstract class StringUtils {
     return !isEmpty(str);
   }
 
-  public static boolean isArrayNotEmpty(String... strs) {
-    return strs != null && strs.length != 0;
-  }
-
-  public static boolean isArrayEmpty(String... strs) {
-    return strs == null || strs.length == 0;
-  }
-
   /**
    * Split with {@link Constant#SPLIT_REGEXP}
    *

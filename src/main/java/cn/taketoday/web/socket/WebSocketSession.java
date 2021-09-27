@@ -20,14 +20,14 @@
 
 package cn.taketoday.web.socket;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.nio.ByteBuffer;
-
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.util.AlternativeJdkIdGenerator;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.nio.ByteBuffer;
 
 /**
  * @author TODAY 2021/4/5 14:16

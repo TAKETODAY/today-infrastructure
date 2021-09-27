@@ -20,9 +20,9 @@
 
 package cn.taketoday.web.socket;
 
-import java.util.List;
-
 import cn.taketoday.web.socket.annotation.EndpointParameterResolver;
+
+import java.util.List;
 
 /**
  * @author TODAY 2021/4/5 19:44
