@@ -19,28 +19,25 @@
  */
 package cn.taketoday.web.view;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Predicate;
-
 import cn.taketoday.context.Environment;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.config.CompositeWebMvcConfiguration;
 import cn.taketoday.web.config.WebMvcConfiguration;
-import cn.taketoday.web.support.FastJSONMessageConverter;
-import cn.taketoday.web.support.JacksonMessageBodyConverter;
 import cn.taketoday.web.view.template.AbstractTemplateRenderer;
 import cn.taketoday.web.view.template.DefaultTemplateRenderer;
 import cn.taketoday.web.view.template.TemplateRenderer;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * return-value handlers
@@ -351,15 +348,7 @@ public class ReturnValueHandlers
   private MessageBodyConverter obtainMessageConverter() {
     MessageBodyConverter messageBodyConverter = getMessageConverter();
     if (messageBodyConverter == null) {
-      if (ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper")) {
-        messageBodyConverter = new JacksonMessageBodyConverter();
-      }
-      else if (ClassUtils.isPresent("com.alibaba.fastjson.JSON")) {
-        messageBodyConverter = new FastJSONMessageConverter();
-      }
-      if (messageBodyConverter != null) {
-        log.info("auto detect MessageConverter: [{}]", messageBodyConverter);
-      }
+      messageBodyConverter = MessageBodyConverter.autoDetect();
     }
     return messageBodyConverter;
   }

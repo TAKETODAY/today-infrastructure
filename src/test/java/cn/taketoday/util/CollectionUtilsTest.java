@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Enumeration;
@@ -383,6 +384,7 @@ public class CollectionUtilsTest {
 		assertThat(CollectionUtils.contains((Enumeration<String>) null, "myElement")).isFalse();
 		assertThat(CollectionUtils.contains(new ArrayList<String>().iterator(), "myElement")).isFalse();
 		assertThat(CollectionUtils.contains(new Hashtable<String, Object>().keys(), "myElement")).isFalse();
+		assertThat(CollectionUtils.contains(Collections.emptyIterator(), "myElement")).isFalse();
 
 		List<String> list = new ArrayList<>();
 		list.add("myElement");
@@ -391,6 +393,14 @@ public class CollectionUtilsTest {
 		Hashtable<String, String> ht = new Hashtable<>();
 		ht.put("myElement", "myValue");
 		assertThat(CollectionUtils.contains(ht.keys(), "myElement")).isTrue();
+
+		//  contains(@Nullable Object[] array, Object element) {
+
+		Object[] array = list.toArray();
+		assertThat(CollectionUtils.contains(array, "myElement")).isTrue();
+		assertThat(CollectionUtils.contains(array, "myElements")).isFalse();
+		assertThat(CollectionUtils.contains((Object[]) null, "myElements")).isFalse();
+
 	}
 
 	@Test
@@ -454,6 +464,7 @@ public class CollectionUtilsTest {
 		candidates.add("abc");
 
 		assertThat(CollectionUtils.findFirstMatch(source, candidates)).isEqualTo("def");
+		assertThat(CollectionUtils.findFirstMatch(null, candidates)).isNull();
 	}
 
 	@Test
@@ -501,6 +512,31 @@ public class CollectionUtilsTest {
 		assertThat(CollectionUtils.getElement(list, -1)).isNull();
 		assertThat(CollectionUtils.getElement(list, 10)).isNull();
 	}
+
+	@Test
+	void firstElement() {
+		List<String> list = new ArrayList<>();
+		list.add("myElement");
+		list.add("myOtherElement");
+		assertThat(CollectionUtils.firstElement(list)).isNotNull().isNotEmpty().isEqualTo("myElement");
+		assertThat(CollectionUtils.firstElement((Collection<String>) list)).isNotNull().isNotEmpty().isEqualTo("myElement");
+
+		//
+		assertThat(CollectionUtils.firstElement((List<?>) null)).isNull();
+		assertThat(CollectionUtils.firstElement((Collection<?>) null)).isNull();
+
+		TreeSet<String> objects = new TreeSet<>();
+
+		objects.add("myElement");
+		objects.add("myOtherElement");
+		assertThat(CollectionUtils.firstElement(objects)).isNotNull().isNotEmpty().isEqualTo("myElement");
+
+		// lastElement
+
+		assertThat(CollectionUtils.lastElement((List<?>) null)).isNull();
+		assertThat(CollectionUtils.lastElement(list)).isNotNull().isNotEmpty().isEqualTo("myOtherElement");
+	}
+
 
 	private static final class Instance {
 

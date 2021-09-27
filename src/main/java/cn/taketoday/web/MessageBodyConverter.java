@@ -19,14 +19,22 @@
  */
 package cn.taketoday.web;
 
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
+import cn.taketoday.core.TodayStrategies;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.support.FastJSONMessageConverter;
+import cn.taketoday.web.support.JacksonMessageBodyConverter;
+import cn.taketoday.web.view.JsonSequence;
+
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
-
-import cn.taketoday.core.Constant;
-import cn.taketoday.util.MediaType;
-import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.view.JsonSequence;
+import java.util.List;
 
 /**
  * Http message body (request-body, response-body) read/write strategy
@@ -37,6 +45,7 @@ import cn.taketoday.web.view.JsonSequence;
  * @since 4.0
  */
 public abstract class MessageBodyConverter {
+  private static final Logger log = LoggerFactory.getLogger(MessageBodyConverter.class);
 
   /** for write string */
   private Charset charset = Constant.DEFAULT_CHARSET;
@@ -136,4 +145,26 @@ public abstract class MessageBodyConverter {
   public String getContentType() {
     return contentType;
   }
+
+  // static
+
+  @Nullable
+  public static MessageBodyConverter autoDetect() {
+    MessageBodyConverter messageBodyConverter;
+    if (ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper")) {
+      messageBodyConverter = new JacksonMessageBodyConverter();
+    }
+    else if (ClassUtils.isPresent("com.alibaba.fastjson.JSON")) {
+      messageBodyConverter = new FastJSONMessageConverter();
+    }
+    else {
+      messageBodyConverter = TodayStrategies.getDetector().getFirst(MessageBodyConverter.class);
+    }
+    if (messageBodyConverter != null) {
+      log.info("auto detected MessageConverter: [{}]", messageBodyConverter);
+    }
+    return messageBodyConverter;
+  }
+
+
 }

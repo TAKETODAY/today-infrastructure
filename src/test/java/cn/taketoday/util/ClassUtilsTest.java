@@ -20,11 +20,26 @@
 
 package cn.taketoday.util;
 
-import org.junit.Test;
+import cn.taketoday.beans.Autowired;
+import cn.taketoday.beans.Prototype;
+import cn.taketoday.beans.Singleton;
+import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextException;
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.objects.TestObject;
+import cn.taketoday.core.bytecode.proxy.Enhancer;
+import cn.taketoday.core.bytecode.proxy.MethodInterceptor;
+import cn.taketoday.core.bytecode.proxy.MethodProxy;
+import cn.taketoday.logger.Logger;
+import cn.taketoday.logger.LoggerFactory;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.io.Externalizable;
+import java.io.Serializable;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -33,25 +48,12 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
-import cn.taketoday.beans.Autowired;
-import cn.taketoday.beans.Prototype;
-import cn.taketoday.beans.Singleton;
-import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.core.bytecode.proxy.Enhancer;
-import cn.taketoday.core.bytecode.proxy.MethodInterceptor;
-import cn.taketoday.core.bytecode.proxy.MethodProxy;
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.objects.TestObject;
-import cn.taketoday.logger.Logger;
-import cn.taketoday.logger.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -62,288 +64,281 @@ import static org.junit.Assert.assertEquals;
  */
 @Singleton("singleton")
 @Prototype("prototype")
-public class ClassUtilsTest {
-  private static final Logger log = LoggerFactory.getLogger(ClassUtilsTest.class);
-  final ClassLoader classLoader = getClass().getClassLoader();
+class ClassUtilsTest {
+	private static final Logger log = LoggerFactory.getLogger(ClassUtilsTest.class);
+	final ClassLoader classLoader = getClass().getClassLoader();
 
-//    public static void main(String[] args) {
-//        long start = System.currentTimeMillis();
-//        for (int i = 0; i < 10; i++) {
-//            try (ApplicationContext applicationContext = new StandardApplicationContext("", "")) {
-//                System.err.println(applicationContext.getBean(User.class));
-//            }
-//        }
-//        System.err.println(System.currentTimeMillis() - start + "ms");
-//    }
+	@Test
+	void resolvePrimitiveClassName() {
 
-  @Test
-  public void resolvePrimitiveClassName() {
+		assert ClassUtils.resolvePrimitiveClassName("java.lang.Float") == null;
+		assert ClassUtils.resolvePrimitiveClassName("float") == float.class;
+		assert ClassUtils.resolvePrimitiveClassName(null) == null;
+	}
 
-    assert ClassUtils.resolvePrimitiveClassName("java.lang.Float") == null;
-    assert ClassUtils.resolvePrimitiveClassName("float") == float.class;
-    assert ClassUtils.resolvePrimitiveClassName(null) == null;
-  }
+	@Test
+	void forName() throws ClassNotFoundException {
 
-  @Test
-  public void forName() throws ClassNotFoundException {
+		assert ClassUtils.forName("java.lang.Float") == Float.class;
+		assert ClassUtils.forName("float") == float.class;
+		assert ClassUtils.forName("java.lang.String[]") == String[].class;
+		assert ClassUtils.forName("[Ljava.lang.String;") == String[].class;
+		assert ClassUtils.forName("[[Ljava.lang.String;") == String[][].class;
 
-    assert ClassUtils.forName("java.lang.Float") == Float.class;
-    assert ClassUtils.forName("float") == float.class;
-    assert ClassUtils.forName("java.lang.String[]") == String[].class;
-    assert ClassUtils.forName("[Ljava.lang.String;") == String[].class;
-    assert ClassUtils.forName("[[Ljava.lang.String;") == String[][].class;
+		try {
+			ClassUtils.forName("Float");
+		}
+		catch (ClassNotFoundException e) {
+		}
+		assert ClassUtils.forName("cn.taketoday.util.ClassUtilsTest.INNER") == INNER.class;
+		try {
+			ClassUtils.forName("cn.taketoday.util.ClassUtilsTest.INNERs");//
+		}
+		catch (ClassNotFoundException e) {
+		}
+		assertThat(ClassUtils.forName("java.lang.String", classLoader)).isEqualTo(String.class);
+		assertThat(ClassUtils.forName("java.lang.String[]", classLoader)).isEqualTo(String[].class);
+		assertThat(ClassUtils.forName(String[].class.getName(), classLoader)).isEqualTo(String[].class);
+		assertThat(ClassUtils.forName(String[][].class.getName(), classLoader)).isEqualTo(String[][].class);
+		assertThat(ClassUtils.forName(String[][][].class.getName(), classLoader)).isEqualTo(String[][][].class);
+		assertThat(ClassUtils.forName("cn.taketoday.context.objects.TestObject", classLoader)).isEqualTo(TestObject.class);
+		assertThat(ClassUtils.forName("cn.taketoday.context.objects.TestObject[]", classLoader)).isEqualTo(TestObject[].class);
+		assertThat(ClassUtils.forName(TestObject[].class.getName(), classLoader)).isEqualTo(TestObject[].class);
+		assertThat(ClassUtils.forName("cn.taketoday.context.objects.TestObject[][]", classLoader)).isEqualTo(TestObject[][].class);
+		assertThat(ClassUtils.forName(TestObject[][].class.getName(), classLoader)).isEqualTo(TestObject[][].class);
+		assertThat(ClassUtils.forName("[[[S", classLoader)).isEqualTo(short[][][].class);
 
-    try {
-      ClassUtils.forName("Float");
-    }
-    catch (ClassNotFoundException e) { }
-    assert ClassUtils.forName("cn.taketoday.util.ClassUtilsTest.INNER") == INNER.class;
-    try {
-      ClassUtils.forName("cn.taketoday.util.ClassUtilsTest.INNERs");//
-    }
-    catch (ClassNotFoundException e) { }
-    assertThat(ClassUtils.forName("java.lang.String", classLoader)).isEqualTo(String.class);
-    assertThat(ClassUtils.forName("java.lang.String[]", classLoader)).isEqualTo(String[].class);
-    assertThat(ClassUtils.forName(String[].class.getName(), classLoader)).isEqualTo(String[].class);
-    assertThat(ClassUtils.forName(String[][].class.getName(), classLoader)).isEqualTo(String[][].class);
-    assertThat(ClassUtils.forName(String[][][].class.getName(), classLoader)).isEqualTo(String[][][].class);
-    assertThat(ClassUtils.forName("cn.taketoday.context.objects.TestObject", classLoader)).isEqualTo(TestObject.class);
-    assertThat(ClassUtils.forName("cn.taketoday.context.objects.TestObject[]", classLoader)).isEqualTo(TestObject[].class);
-    assertThat(ClassUtils.forName(TestObject[].class.getName(), classLoader)).isEqualTo(TestObject[].class);
-    assertThat(ClassUtils.forName("cn.taketoday.context.objects.TestObject[][]", classLoader)).isEqualTo(TestObject[][].class);
-    assertThat(ClassUtils.forName(TestObject[][].class.getName(), classLoader)).isEqualTo(TestObject[][].class);
-    assertThat(ClassUtils.forName("[[[S", classLoader)).isEqualTo(short[][][].class);
+	}
 
-  }
+	public static class NestedClass {
 
-  public static class NestedClass {
+		static boolean noArgCalled;
+		static boolean argCalled;
+		static boolean overloadedCalled;
 
-    static boolean noArgCalled;
-    static boolean argCalled;
-    static boolean overloadedCalled;
+		public static void staticMethod() {
+			noArgCalled = true;
+		}
 
-    public static void staticMethod() {
-      noArgCalled = true;
-    }
+		public static void staticMethod(String anArg) {
+			overloadedCalled = true;
+		}
 
-    public static void staticMethod(String anArg) {
-      overloadedCalled = true;
-    }
+		public static void argStaticMethod(String anArg) {
+			argCalled = true;
+		}
+	}
 
-    public static void argStaticMethod(String anArg) {
-      argCalled = true;
-    }
-  }
+	@Test
+	void forNameWithNestedType() throws ClassNotFoundException {
+		assertThat(ClassUtils.forName("cn.taketoday.util.ClassUtilsTest$NestedClass", classLoader)).isEqualTo(NestedClass.class);
+		assertThat(ClassUtils.forName("cn.taketoday.util.ClassUtilsTest.NestedClass", classLoader)).isEqualTo(NestedClass.class);
+	}
 
-  @Test
-  public void forNameWithNestedType() throws ClassNotFoundException {
-    assertThat(ClassUtils.forName("cn.taketoday.util.ClassUtilsTest$NestedClass", classLoader)).isEqualTo(NestedClass.class);
-    assertThat(ClassUtils.forName("cn.taketoday.util.ClassUtilsTest.NestedClass", classLoader)).isEqualTo(NestedClass.class);
-  }
+	@Test
+	void forNameWithPrimitiveClasses() throws ClassNotFoundException {
+		assertThat(ClassUtils.forName("boolean", classLoader)).isEqualTo(boolean.class);
+		assertThat(ClassUtils.forName("byte", classLoader)).isEqualTo(byte.class);
+		assertThat(ClassUtils.forName("char", classLoader)).isEqualTo(char.class);
+		assertThat(ClassUtils.forName("short", classLoader)).isEqualTo(short.class);
+		assertThat(ClassUtils.forName("int", classLoader)).isEqualTo(int.class);
+		assertThat(ClassUtils.forName("long", classLoader)).isEqualTo(long.class);
+		assertThat(ClassUtils.forName("float", classLoader)).isEqualTo(float.class);
+		assertThat(ClassUtils.forName("double", classLoader)).isEqualTo(double.class);
+		assertThat(ClassUtils.forName("void", classLoader)).isEqualTo(void.class);
+	}
 
-  @Test
-  public void forNameWithPrimitiveClasses() throws ClassNotFoundException {
-    assertThat(ClassUtils.forName("boolean", classLoader)).isEqualTo(boolean.class);
-    assertThat(ClassUtils.forName("byte", classLoader)).isEqualTo(byte.class);
-    assertThat(ClassUtils.forName("char", classLoader)).isEqualTo(char.class);
-    assertThat(ClassUtils.forName("short", classLoader)).isEqualTo(short.class);
-    assertThat(ClassUtils.forName("int", classLoader)).isEqualTo(int.class);
-    assertThat(ClassUtils.forName("long", classLoader)).isEqualTo(long.class);
-    assertThat(ClassUtils.forName("float", classLoader)).isEqualTo(float.class);
-    assertThat(ClassUtils.forName("double", classLoader)).isEqualTo(double.class);
-    assertThat(ClassUtils.forName("void", classLoader)).isEqualTo(void.class);
-  }
+	@Test
+	void forNameWithPrimitiveArrays() throws ClassNotFoundException {
+		assertThat(ClassUtils.forName("boolean[]", classLoader)).isEqualTo(boolean[].class);
+		assertThat(ClassUtils.forName("byte[]", classLoader)).isEqualTo(byte[].class);
+		assertThat(ClassUtils.forName("char[]", classLoader)).isEqualTo(char[].class);
+		assertThat(ClassUtils.forName("short[]", classLoader)).isEqualTo(short[].class);
+		assertThat(ClassUtils.forName("int[]", classLoader)).isEqualTo(int[].class);
+		assertThat(ClassUtils.forName("long[]", classLoader)).isEqualTo(long[].class);
+		assertThat(ClassUtils.forName("float[]", classLoader)).isEqualTo(float[].class);
+		assertThat(ClassUtils.forName("double[]", classLoader)).isEqualTo(double[].class);
+	}
 
-  @Test
-  public void forNameWithPrimitiveArrays() throws ClassNotFoundException {
-    assertThat(ClassUtils.forName("boolean[]", classLoader)).isEqualTo(boolean[].class);
-    assertThat(ClassUtils.forName("byte[]", classLoader)).isEqualTo(byte[].class);
-    assertThat(ClassUtils.forName("char[]", classLoader)).isEqualTo(char[].class);
-    assertThat(ClassUtils.forName("short[]", classLoader)).isEqualTo(short[].class);
-    assertThat(ClassUtils.forName("int[]", classLoader)).isEqualTo(int[].class);
-    assertThat(ClassUtils.forName("long[]", classLoader)).isEqualTo(long[].class);
-    assertThat(ClassUtils.forName("float[]", classLoader)).isEqualTo(float[].class);
-    assertThat(ClassUtils.forName("double[]", classLoader)).isEqualTo(double[].class);
-  }
+	@Test
+	void forNameWithPrimitiveArraysInternalName() throws ClassNotFoundException {
+		assertThat(ClassUtils.forName(boolean[].class.getName(), classLoader)).isEqualTo(boolean[].class);
+		assertThat(ClassUtils.forName(byte[].class.getName(), classLoader)).isEqualTo(byte[].class);
+		assertThat(ClassUtils.forName(char[].class.getName(), classLoader)).isEqualTo(char[].class);
+		assertThat(ClassUtils.forName(short[].class.getName(), classLoader)).isEqualTo(short[].class);
+		assertThat(ClassUtils.forName(int[].class.getName(), classLoader)).isEqualTo(int[].class);
+		assertThat(ClassUtils.forName(long[].class.getName(), classLoader)).isEqualTo(long[].class);
+		assertThat(ClassUtils.forName(float[].class.getName(), classLoader)).isEqualTo(float[].class);
+		assertThat(ClassUtils.forName(double[].class.getName(), classLoader)).isEqualTo(double[].class);
+	}
 
-  @Test
-  public void forNameWithPrimitiveArraysInternalName() throws ClassNotFoundException {
-    assertThat(ClassUtils.forName(boolean[].class.getName(), classLoader)).isEqualTo(boolean[].class);
-    assertThat(ClassUtils.forName(byte[].class.getName(), classLoader)).isEqualTo(byte[].class);
-    assertThat(ClassUtils.forName(char[].class.getName(), classLoader)).isEqualTo(char[].class);
-    assertThat(ClassUtils.forName(short[].class.getName(), classLoader)).isEqualTo(short[].class);
-    assertThat(ClassUtils.forName(int[].class.getName(), classLoader)).isEqualTo(int[].class);
-    assertThat(ClassUtils.forName(long[].class.getName(), classLoader)).isEqualTo(long[].class);
-    assertThat(ClassUtils.forName(float[].class.getName(), classLoader)).isEqualTo(float[].class);
-    assertThat(ClassUtils.forName(double[].class.getName(), classLoader)).isEqualTo(double[].class);
-  }
+	private static class INNER {
 
-  private static class INNER {
+	}
 
-  }
+	@Test
+	void isPresent() {
+		assertThat(ClassUtils.isPresent("java.lang.String", classLoader)).isTrue();
+		assertThat(ClassUtils.isPresent("java.lang.MySpecialString", classLoader)).isFalse();
+		assert ClassUtils.isPresent("java.lang.Float");
+		assert !ClassUtils.isPresent("Float");
+	}
 
-  @Test
-  public void isPresent() {
+	@Test
+	void testAutowiredOnConstructor() {
+		try (ApplicationContext context = new StandardApplicationContext(new HashSet<>())) {
+			context.importBeans(AutowiredOnConstructor.class, AutowiredOnConstructorThrow.class);
 
-    assert ClassUtils.isPresent("java.lang.Float");
-    assert !ClassUtils.isPresent("Float");
-  }
+			assertThat(context.getBean(AutowiredOnConstructor.class))
+							.isNotNull();
 
-  @Test
-  public void testAutowiredOnConstructor() {
-    try (ApplicationContext context = new StandardApplicationContext(new HashSet<>())) {
-      context.importBeans(AutowiredOnConstructor.class, AutowiredOnConstructorThrow.class);
+			context.registerBean("testAutowiredOnConstructorThrow", AutowiredOnConstructorThrow.class);
+			try {
+				context.getBean(AutowiredOnConstructorThrow.class);
+				assert false;
+			}
+			catch (Exception e) {
+				assert true;
+			}
+		}
+	}
 
-      assertThat(context.getBean(AutowiredOnConstructor.class))
-              .isNotNull();
+	@Test
+	void testOther() throws NoSuchMethodException, SecurityException, ClassNotFoundException {
+		final Method method = AutowiredOnConstructor.class.getDeclaredMethod("test");
+		ReflectionUtils.accessInvokeMethod(method, new AutowiredOnConstructor(null));
 
-      context.registerBean("testAutowiredOnConstructorThrow", AutowiredOnConstructorThrow.class);
-      try {
-        context.getBean(AutowiredOnConstructorThrow.class);
-        assert false;
-      }
-      catch (Exception e) {
-        assert true;
-      }
-    }
-  }
+		assert BeanUtils.newInstance(ClassUtilsTest.class.getName()) != null;
 
-  @Test
-  public void testOther() throws NoSuchMethodException, SecurityException, ClassNotFoundException {
-    final Method method = AutowiredOnConstructor.class.getDeclaredMethod("test");
-    ReflectionUtils.accessInvokeMethod(method, new AutowiredOnConstructor(null));
+		try {
+			BeanUtils.newInstance("not found");
+			assert false;
+		}
+		catch (Exception e) {
+			assert true;
+		}
+		try {
 
-    assert BeanUtils.newInstance(ClassUtilsTest.class.getName()) != null;
+			final Method throwing = AutowiredOnConstructor.class.getDeclaredMethod("throwing");
+			ReflectionUtils.accessInvokeMethod(throwing, new AutowiredOnConstructor(null));
 
-    try {
-      BeanUtils.newInstance("not found");
-      assert false;
-    }
-    catch (Exception e) {
-      assert true;
-    }
-    try {
+			assert false;
+		}
+		catch (Exception e) {
+			assert true;
+		}
+	}
 
-      final Method throwing = AutowiredOnConstructor.class.getDeclaredMethod("throwing");
-      ReflectionUtils.accessInvokeMethod(throwing, new AutowiredOnConstructor(null));
+	@MySingleton
+	@SuppressWarnings("unused")
+	public static class AutowiredOnConstructor {
 
-      assert false;
-    }
-    catch (Exception e) {
-      assert true;
-    }
-  }
+		@Autowired
+		private AutowiredOnConstructor(ApplicationContext context) {
+			System.err.println("init");
+		}
 
-  @MySingleton
-  @SuppressWarnings("unused")
-  public static class AutowiredOnConstructor {
+		private void test() {
+			System.err.println("test");
+		}
 
-    @Autowired
-    private AutowiredOnConstructor(ApplicationContext context) {
-      System.err.println("init");
-    }
+		private void throwing() {
+			throw new ApplicationContextException();
+		}
+	}
 
-    private void test() {
-      System.err.println("test");
-    }
+	@Singleton
+	@Inherited
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.TYPE, ElementType.METHOD })
+	public @interface MySingleton {
 
-    private void throwing() {
-      throw new ApplicationContextException();
-    }
-  }
+	}
 
-  @Singleton
-  @Inherited
-  @Retention(RetentionPolicy.RUNTIME)
-  @Target({ ElementType.TYPE, ElementType.METHOD })
-  public @interface MySingleton {
+	static class AutowiredOnConstructorThrow {
 
-  }
+		public AutowiredOnConstructorThrow(ApplicationContext applicationContext) {
+			System.err.println("init");
+			throw new ApplicationContextException();
+		}
 
-  static class AutowiredOnConstructorThrow {
+	}
 
-    public AutowiredOnConstructorThrow(ApplicationContext applicationContext) {
-      System.err.println("init");
-      throw new ApplicationContextException();
-    }
+	// v2.1.7 test code
+	// ----------------------------------------
 
-  }
+	@Test
+	void testGetUserClass() {
+		assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(getClass()));
+		assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(getClass().getName()));
+		assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(ClassUtilsTest.class.getName()));
 
-  // v2.1.7 test code
-  // ----------------------------------------
+		Enhancer enhancer = new Enhancer();
 
-  @Test
-  public void testGetUserClass() {
-    assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(getClass()));
-    assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(getClass().getName()));
-    assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(ClassUtilsTest.class.getName()));
+		enhancer.setCallback(new MethodInterceptor() {
+			@Override
+			public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+				return null;
+			}
+		});
 
-    Enhancer enhancer = new Enhancer();
+		enhancer.setSuperclass(ClassUtilsTest.class);
 
-    enhancer.setCallback(new MethodInterceptor() {
-      @Override
-      public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-        return null;
-      }
-    });
+		final Object create = enhancer.create();
 
-    enhancer.setSuperclass(ClassUtilsTest.class);
+		assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(create));
+		assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(create.getClass()));
+		assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(create.getClass().getName()));
+	}
 
-    final Object create = enhancer.create();
+	// ------
 
-    assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(create));
-    assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(create.getClass()));
-    assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(create.getClass().getName()));
-  }
+	static class Genericity<T> { }
 
-  // ------
+	static class Generic extends Genericity<Integer> {
+		List<?> list;
+		List<String> stringList;
+		Map<String, Object> stringMap;
 
-  static class Genericity<T> { }
+		Generic(List<String> stringList,
+						Map<String, Object> stringMap) { }
 
-  static class Generic extends Genericity<Integer> {
-    List<?> list;
-    List<String> stringList;
-    Map<String, Object> stringMap;
+		void generic(List<String> stringList,
+								 Map<String, Object> stringMap) { }
+	}
 
-    Generic(List<String> stringList,
-            Map<String, Object> stringMap) { }
+	@Test
+	void testGetGenerics() {
+		assertThat(ClassUtils.getGenerics(Generic.class, Genericity.class))
+						.isNotNull()
+						.hasSize(1)
+						.contains(Integer.class);
 
-    void generic(List<String> stringList,
-                 Map<String, Object> stringMap) { }
-  }
+		// param
+		Constructor<Generic> constructor = BeanUtils.getConstructor(Generic.class);
+		Parameter[] parameters = constructor.getParameters();
 
-  @Test
-  public void testGetGenerics() {
-    assertThat(ClassUtils.getGenerics(Generic.class, Genericity.class))
-            .isNotNull()
-            .hasSize(1)
-            .contains(Integer.class);
+		assertThat(ClassUtils.getGenericTypes(parameters[0]))
+						.isNotNull()
+						.hasSize(1)
+						.contains(String.class);
 
-    // param
-    Constructor<Generic> constructor = BeanUtils.getConstructor(Generic.class);
-    Parameter[] parameters = constructor.getParameters();
+		assertThat(ClassUtils.getGenericTypes(parameters[1]))
+						.isNotNull()
+						.hasSize(2)
+						.contains(String.class, Object.class);
 
-    assertThat(ClassUtils.getGenericTypes(parameters[0]))
-            .isNotNull()
-            .hasSize(1)
-            .contains(String.class);
+		Method method = ReflectionUtils.findMethod(Generic.class, "generic");
 
-    assertThat(ClassUtils.getGenericTypes(parameters[1]))
-            .isNotNull()
-            .hasSize(2)
-            .contains(String.class, Object.class);
+		assertThat(ClassUtils.getGenericTypes(method.getParameters()[0]))
+						.isNotNull()
+						.hasSize(1)
+						.contains(String.class);
 
-    Method method = ReflectionUtils.findMethod(Generic.class, "generic");
-
-    assertThat(ClassUtils.getGenericTypes(method.getParameters()[0]))
-            .isNotNull()
-            .hasSize(1)
-            .contains(String.class);
-
-    assertThat(ClassUtils.getGenericTypes(method.getParameters()[1]))
-            .isNotNull()
-            .hasSize(2)
-            .contains(String.class, Object.class);
+		assertThat(ClassUtils.getGenericTypes(method.getParameters()[1]))
+						.isNotNull()
+						.hasSize(2)
+						.contains(String.class, Object.class);
 //
 //    Field list = ReflectionUtils.findField(Generic.class, "list");
 //    final Type[] genericityClass = ClassUtils.getGenerics(list);
@@ -355,10 +350,10 @@ public class ClassUtilsTest {
 //            .isEqualTo(Object.class)
 //            .isInstanceOf(Class.class);
 
-  }
+	}
 
-  // fix bug
-  // @off
+	// fix bug
+	// @off
   interface Interface<T> {}
   interface Interface1<T> {}
   interface Interface2<T> {}
@@ -379,7 +374,7 @@ public class ClassUtilsTest {
 
 /*
   @Test
-  public void test() {
+  void test() {
     final Class<NoGeneric> noGeneric = NoGeneric.class;
     final Class<AbsGeneric> absGenericClass = AbsGeneric.class;
     final Class<GenericAbsGeneric> genericAbsGeneric = GenericAbsGeneric.class;
@@ -412,138 +407,270 @@ public class ClassUtilsTest {
 
   }*/
 
-  @Test
-  public void testGetGenericsInterface() {
-    final Type[] generics = ClassUtils.getGenerics(AbsGeneric.class, Interface.class);
-    final Type[] generics1 = ClassUtils.getGenerics(GenericAbsGeneric.class, Interface.class);
-    final Type[] generics2 = ClassUtils.getGenerics(NestedGenericInterfaceBean.class, Interface.class);
+	@Test
+	void testGetGenericsInterface() {
+		final Type[] generics = ClassUtils.getGenerics(AbsGeneric.class, Interface.class);
+		final Type[] generics1 = ClassUtils.getGenerics(GenericAbsGeneric.class, Interface.class);
+		final Type[] generics2 = ClassUtils.getGenerics(NestedGenericInterfaceBean.class, Interface.class);
 
-    System.out.println(Arrays.toString(generics));
-    System.out.println(Arrays.toString(generics1));
-    System.out.println(Arrays.toString(generics2));
+		System.out.println(Arrays.toString(generics));
+		System.out.println(Arrays.toString(generics1));
+		System.out.println(Arrays.toString(generics2));
 
-    assertThat(generics1)
-            .hasSize(1)
-            .isEqualTo(generics)
-            .isEqualTo(generics2)
-            .contains(String.class)
-    ;
+		assertThat(generics1)
+						.hasSize(1)
+						.isEqualTo(generics)
+						.isEqualTo(generics2)
+						.contains(String.class)
+		;
 
-    assertThat(ClassUtils.getGenerics(NoGeneric.class))
-            .isNull();
+		assertThat(ClassUtils.getGenerics(NoGeneric.class))
+						.isNull();
 
-  }
+	}
 
-  // super class generic-s
+	// super class generic-s
 
-  static class SuperClass<T> {
+	static class SuperClass<T> {
 
-  }
+	}
 
-  static abstract class AbsSuperClass<T> extends SuperClass<T> {
+	static abstract class AbsSuperClass<T> extends SuperClass<T> {
 
-  }
+	}
 
-  static class Child extends AbsSuperClass<Integer> {
+	static class Child extends AbsSuperClass<Integer> {
 
-  }
+	}
 
-  static class AbsSuperClassMultiple<A, T> extends SuperClass<T> {
+	static class AbsSuperClassMultiple<A, T> extends SuperClass<T> {
 
-  }
+	}
 
-  static class ChildMultiple extends AbsSuperClassMultiple<Integer, String> {
+	static class ChildMultiple extends AbsSuperClassMultiple<Integer, String> {
 
-  }
+	}
 
-  static class ChildMultiple0 extends ChildMultiple {
+	static class ChildMultiple0 extends ChildMultiple {
 
-  }
+	}
 
-  @Test
-  public void testGetGenericsSuperClass() {
+	@Test
+	void testGetGenericsSuperClass() {
 
-    final Class[] generics = ClassUtils.getGenerics(Child.class, SuperClass.class);
-    final Class[] ChildMultiple = ClassUtils.getGenerics(ChildMultiple.class, SuperClass.class);
-    final Class[] ChildMultiple0 = ClassUtils.getGenerics(ChildMultiple0.class, SuperClass.class);
+		final Class[] generics = ClassUtils.getGenerics(Child.class, SuperClass.class);
+		final Class[] ChildMultiple = ClassUtils.getGenerics(ChildMultiple.class, SuperClass.class);
+		final Class[] ChildMultiple0 = ClassUtils.getGenerics(ChildMultiple0.class, SuperClass.class);
 
-    assertThat(generics).hasSize(1);
+		assertThat(generics).hasSize(1);
 
-    assertThat(ChildMultiple)
-            .isEqualTo(ChildMultiple0)
-            .contains(String.class);
+		assertThat(ChildMultiple)
+						.isEqualTo(ChildMultiple0)
+						.contains(String.class);
 
-  }
+	}
 
-  //
+	//
 
-  @Test
-  public void isAssignable() {
-    assertThat(ClassUtils.isAssignable(Object.class, Object.class)).isTrue();
-    assertThat(ClassUtils.isAssignable(String.class, String.class)).isTrue();
-    assertThat(ClassUtils.isAssignable(Object.class, String.class)).isTrue();
-    assertThat(ClassUtils.isAssignable(Object.class, Integer.class)).isTrue();
-    assertThat(ClassUtils.isAssignable(Number.class, Integer.class)).isTrue();
-    assertThat(ClassUtils.isAssignable(Number.class, int.class)).isTrue();
-    assertThat(ClassUtils.isAssignable(Integer.class, int.class)).isTrue();
-    assertThat(ClassUtils.isAssignable(int.class, Integer.class)).isTrue();
-    assertThat(ClassUtils.isAssignable(String.class, Object.class)).isFalse();
-    assertThat(ClassUtils.isAssignable(Integer.class, Number.class)).isFalse();
-    assertThat(ClassUtils.isAssignable(Integer.class, double.class)).isFalse();
-    assertThat(ClassUtils.isAssignable(double.class, Integer.class)).isFalse();
-  }
+	@Test
+	void isAssignable() {
+		assertThat(ClassUtils.isAssignable(Object.class, Object.class)).isTrue();
+		assertThat(ClassUtils.isAssignable(String.class, String.class)).isTrue();
+		assertThat(ClassUtils.isAssignable(Object.class, String.class)).isTrue();
+		assertThat(ClassUtils.isAssignable(Object.class, Integer.class)).isTrue();
+		assertThat(ClassUtils.isAssignable(Number.class, Integer.class)).isTrue();
+		assertThat(ClassUtils.isAssignable(Number.class, int.class)).isTrue();
+		assertThat(ClassUtils.isAssignable(Integer.class, int.class)).isTrue();
+		assertThat(ClassUtils.isAssignable(int.class, Integer.class)).isTrue();
+		assertThat(ClassUtils.isAssignable(String.class, Object.class)).isFalse();
+		assertThat(ClassUtils.isAssignable(Integer.class, Number.class)).isFalse();
+		assertThat(ClassUtils.isAssignable(Integer.class, double.class)).isFalse();
+		assertThat(ClassUtils.isAssignable(double.class, Integer.class)).isFalse();
+	}
 
-  @ParameterizedTest
-  @CsvSource({
-          "boolean, boolean",
-          "byte, byte",
-          "char, char",
-          "short, short",
-          "int, int",
-          "long, long",
-          "float, float",
-          "double, double",
-          "[Z, boolean[]",
-          "[B, byte[]",
-          "[C, char[]",
-          "[S, short[]",
-          "[I, int[]",
-          "[J, long[]",
-          "[F, float[]",
-          "[D, double[]"
-  })
-  void resolvePrimitiveClassName(String input, Class<?> output) {
-    assertThat(ClassUtils.resolvePrimitiveClassName(input)).isEqualTo(output);
-  }
+	@Test
+	void isCacheSafe() {
+		ClassLoader childLoader1 = new ClassLoader(classLoader) { };
+		ClassLoader childLoader2 = new ClassLoader(classLoader) { };
+		ClassLoader childLoader3 = new ClassLoader(classLoader) {
+			@Override
+			public Class<?> loadClass(String name) throws ClassNotFoundException {
+				return childLoader1.loadClass(name);
+			}
+		};
+		Class<?> composite = ClassUtils.createCompositeInterface(
+						new Class<?>[] { Serializable.class, Externalizable.class }, childLoader1);
 
-  @ParameterizedTest
-  @WrapperTypes
-  public void isPrimitiveWrapper(Class<?> type) {
-    assertThat(ClassUtils.isPrimitiveWrapper(type)).isTrue();
-  }
+		assertThat(ClassUtils.isCacheSafe(String.class, null)).isTrue();
+		assertThat(ClassUtils.isCacheSafe(String.class, classLoader)).isTrue();
+		assertThat(ClassUtils.isCacheSafe(String.class, childLoader1)).isTrue();
+		assertThat(ClassUtils.isCacheSafe(String.class, childLoader2)).isTrue();
+		assertThat(ClassUtils.isCacheSafe(String.class, childLoader3)).isTrue();
+		assertThat(ClassUtils.isCacheSafe(NestedClass.class, null)).isFalse();
+		assertThat(ClassUtils.isCacheSafe(NestedClass.class, classLoader)).isTrue();
+		assertThat(ClassUtils.isCacheSafe(NestedClass.class, childLoader1)).isTrue();
+		assertThat(ClassUtils.isCacheSafe(NestedClass.class, childLoader2)).isTrue();
+		assertThat(ClassUtils.isCacheSafe(NestedClass.class, childLoader3)).isTrue();
+		assertThat(ClassUtils.isCacheSafe(composite, null)).isFalse();
+		assertThat(ClassUtils.isCacheSafe(composite, classLoader)).isFalse();
+		assertThat(ClassUtils.isCacheSafe(composite, childLoader1)).isTrue();
+		assertThat(ClassUtils.isCacheSafe(composite, childLoader2)).isFalse();
+		assertThat(ClassUtils.isCacheSafe(composite, childLoader3)).isTrue();
+	}
 
-  @ParameterizedTest
-  @PrimitiveTypes
-  public void isPrimitiveOrWrapperWithPrimitive(Class<?> type) {
-    assertThat(ClassUtils.isPrimitiveOrWrapper(type)).isTrue();
-  }
+	@ParameterizedTest
+	@CsvSource({
+					"boolean, boolean",
+					"byte, byte",
+					"char, char",
+					"short, short",
+					"int, int",
+					"long, long",
+					"float, float",
+					"double, double",
+					"[Z, boolean[]",
+					"[B, byte[]",
+					"[C, char[]",
+					"[S, short[]",
+					"[I, int[]",
+					"[J, long[]",
+					"[F, float[]",
+					"[D, double[]"
+	})
+	void resolvePrimitiveClassName(String input, Class<?> output) {
+		assertThat(ClassUtils.resolvePrimitiveClassName(input)).isEqualTo(output);
+	}
 
-  @ParameterizedTest
-  @WrapperTypes
-  public void isPrimitiveOrWrapperWithWrapper(Class<?> type) {
-    assertThat(ClassUtils.isPrimitiveOrWrapper(type)).isTrue();
-  }
+	@ParameterizedTest
+	@WrapperTypes
+	void isPrimitiveWrapper(Class<?> type) {
+		assertThat(ClassUtils.isPrimitiveWrapper(type)).isTrue();
+	}
 
-  @Target(ElementType.METHOD)
-  @Retention(RetentionPolicy.RUNTIME)
-  @ValueSource(classes = { Boolean.class, Character.class, Byte.class, Short.class,
-          Integer.class, Long.class, Float.class, Double.class, Void.class }) @interface WrapperTypes {
-  }
+	@ParameterizedTest
+	@PrimitiveTypes
+	void isPrimitiveOrWrapperWithPrimitive(Class<?> type) {
+		assertThat(ClassUtils.isPrimitiveOrWrapper(type)).isTrue();
+	}
 
-  @Target(ElementType.METHOD)
-  @Retention(RetentionPolicy.RUNTIME)
-  @ValueSource(classes = { boolean.class, char.class, byte.class, short.class,
-          int.class, long.class, float.class, double.class, void.class }) @interface PrimitiveTypes {
-  }
+	@ParameterizedTest
+	@WrapperTypes
+	void isPrimitiveOrWrapperWithWrapper(Class<?> type) {
+		assertThat(ClassUtils.isPrimitiveOrWrapper(type)).isTrue();
+	}
+
+	@Target(ElementType.METHOD)
+	@Retention(RetentionPolicy.RUNTIME)
+	@ValueSource(classes = { Boolean.class, Character.class, Byte.class, Short.class,
+					Integer.class, Long.class, Float.class, Double.class, Void.class })
+	@interface WrapperTypes {
+	}
+
+	@Target(ElementType.METHOD)
+	@Retention(RetentionPolicy.RUNTIME)
+	@ValueSource(classes = { boolean.class, char.class, byte.class, short.class,
+					int.class, long.class, float.class, double.class, void.class })
+	@interface PrimitiveTypes {
+	}
+
+	@Test
+	void classPackageAsResourcePath() {
+		String result = ClassUtils.classPackageAsResourcePath(Proxy.class);
+		assertThat(result).isEqualTo("java/lang/reflect");
+	}
+
+	@Test
+	void addResourcePathToPackagePath() {
+		String result = "java/lang/reflect/xyzabc.xml";
+		assertThat(ClassUtils.addResourcePathToPackagePath(Proxy.class, "xyzabc.xml")).isEqualTo(result);
+		assertThat(ClassUtils.addResourcePathToPackagePath(Proxy.class, "/xyzabc.xml")).isEqualTo(result);
+
+		assertThat(ClassUtils.addResourcePathToPackagePath(Proxy.class, "a/b/c/d.xml")).isEqualTo("java/lang/reflect/a/b/c/d.xml");
+	}
+
+
+	@Test
+	void getShortName() {
+		String className = ClassUtils.getShortName(getClass());
+		assertThat(className).as("Class name did not match").isEqualTo("ClassUtilsTest");
+	}
+
+	@Test
+	void getShortNameForObjectArrayClass() {
+		String className = ClassUtils.getShortName(Object[].class);
+		assertThat(className).as("Class name did not match").isEqualTo("Object[]");
+	}
+
+	@Test
+	void getShortNameForMultiDimensionalObjectArrayClass() {
+		String className = ClassUtils.getShortName(Object[][].class);
+		assertThat(className).as("Class name did not match").isEqualTo("Object[][]");
+	}
+
+	@Test
+	void getShortNameForPrimitiveArrayClass() {
+		String className = ClassUtils.getShortName(byte[].class);
+		assertThat(className).as("Class name did not match").isEqualTo("byte[]");
+	}
+
+	@Test
+	void getShortNameForMultiDimensionalPrimitiveArrayClass() {
+		String className = ClassUtils.getShortName(byte[][][].class);
+		assertThat(className).as("Class name did not match").isEqualTo("byte[][][]");
+	}
+
+	@Test
+	void getShortNameForNestedClass() {
+		String className = ClassUtils.getShortName(NestedClass.class);
+		assertThat(className).as("Class name did not match").isEqualTo("ClassUtilsTest.NestedClass");
+	}
+
+	@Test
+	void getShortNameAsProperty() {
+		String shortName = ClassUtils.getShortNameAsProperty(this.getClass());
+		assertThat(shortName).as("Class name did not match").isEqualTo("classUtilsTest");
+	}
+
+	@Test
+	void getClassFileName() {
+		assertThat(ClassUtils.getClassFileName(String.class)).isEqualTo("String.class");
+		assertThat(ClassUtils.getClassFileName(getClass())).isEqualTo("ClassUtilsTest.class");
+	}
+
+	@Test
+	void getPackageName() {
+		assertThat(ClassUtils.getPackageName(String.class)).isEqualTo("java.lang");
+		assertThat(ClassUtils.getPackageName(getClass())).isEqualTo(getClass().getPackage().getName());
+	}
+
+	@Test
+	void getQualifiedName() {
+		String className = ClassUtils.getQualifiedName(getClass());
+		assertThat(className).as("Class name did not match").isEqualTo("cn.taketoday.util.ClassUtilsTest");
+	}
+
+	@Test
+	void getQualifiedNameForObjectArrayClass() {
+		String className = ClassUtils.getQualifiedName(Object[].class);
+		assertThat(className).as("Class name did not match").isEqualTo("java.lang.Object[]");
+	}
+
+	@Test
+	void getQualifiedNameForMultiDimensionalObjectArrayClass() {
+		String className = ClassUtils.getQualifiedName(Object[][].class);
+		assertThat(className).as("Class name did not match").isEqualTo("java.lang.Object[][]");
+	}
+
+	@Test
+	void getQualifiedNameForPrimitiveArrayClass() {
+		String className = ClassUtils.getQualifiedName(byte[].class);
+		assertThat(className).as("Class name did not match").isEqualTo("byte[]");
+	}
+
+	@Test
+	void getQualifiedNameForMultiDimensionalPrimitiveArrayClass() {
+		String className = ClassUtils.getQualifiedName(byte[][].class);
+		assertThat(className).as("Class name did not match").isEqualTo("byte[][]");
+	}
 
 }
