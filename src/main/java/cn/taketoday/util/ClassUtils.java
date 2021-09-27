@@ -19,6 +19,14 @@
  */
 package cn.taketoday.util;
 
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.bytecode.ClassReader;
+import cn.taketoday.core.io.Resource;
+
+import java.beans.Introspector;
 import java.io.Closeable;
 import java.io.Externalizable;
 import java.io.IOException;
@@ -30,6 +38,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -52,14 +61,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
-
-import cn.taketoday.core.bytecode.ClassReader;
-import cn.taketoday.context.loader.CandidateComponentScanner;
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.Nullable;
-import cn.taketoday.core.Ordered;
-import cn.taketoday.core.io.Resource;
 
 /**
  * @author TODAY 2018-06-0? ?
@@ -253,26 +254,62 @@ public abstract class ClassUtils {
     return cl;
   }
 
-  // ------------------------------------------ Class Scan
-
   /**
-   * Whether given class name present in class path
+   * Determine whether the {@link Class} identified by the supplied name is present
+   * and can be loaded. Will return {@code false} if either the class or
+   * one of its dependencies is not present or cannot be loaded.
+   * <p> use default class loader
    *
    * @param className
-   *         class name
+   * 				the name of the class to check
    *
-   * @return whether given class name present in class path
+   * @return whether the specified class is present (including all of its
+   * superclasses and interfaces)
+   *
+   * @throws IllegalStateException
+   * 				if the corresponding class is resolvable but
+   * 				there was a readability mismatch in the inheritance hierarchy of the class
+   * 				(typically a missing dependency declaration in a Jigsaw module definition
+   * 				for a superclass or interface implemented by the class to be checked here)
    */
   public static boolean isPresent(String className) {
-    Assert.notNull(className, "class name can't be null");
+    return isPresent(className, null);
+  }
+
+  /**
+   * Determine whether the {@link Class} identified by the supplied name is present
+   * and can be loaded. Will return {@code false} if either the class or
+   * one of its dependencies is not present or cannot be loaded.
+   *
+   * @param className
+   * 				the name of the class to check
+   * @param classLoader
+   * 				the class loader to use
+   * 				(may be {@code null} which indicates the default class loader)
+   *
+   * @return whether the specified class is present (including all of its
+   * superclasses and interfaces)
+   *
+   * @throws IllegalStateException
+   * 				if the corresponding class is resolvable but
+   * 				there was a readability mismatch in the inheritance hierarchy of the class
+   * 				(typically a missing dependency declaration in a Jigsaw module definition
+   * 				for a superclass or interface implemented by the class to be checked here)
+   */
+  public static boolean isPresent(String className, @Nullable ClassLoader classLoader) {
     try {
-      forName(className);
+      forName(className, classLoader);
       return true;
     }
-    catch (ClassNotFoundException ex) {
-      return false;
+    catch (IllegalAccessError err) {
+      throw new IllegalStateException(
+              "Readability mismatch in inheritance hierarchy of class [" + className + "]: " + err.getMessage(), err);
     }
-  }
+		catch (Throwable ex) {
+			// Typically, ClassNotFoundException or NoClassDefFoundError...
+			return false;
+		}
+	}
 
   public static Class<?> resolvePrimitiveClassName(String name) {
     // Most class names will be quite long, considering that they
@@ -285,20 +322,27 @@ public abstract class ClassUtils {
   }
 
   /**
-   * Load class .from spring
+   * Replacement for {@code Class.forName()} that also returns Class instances
+   * for primitives (e.g. "int") and array class names (e.g. "String[]").
+   * Furthermore, it is also capable of resolving nested class names in Java source
+   * style (e.g. "java.lang.Thread.State" instead of "java.lang.Thread$State").
    *
    * @param name
-   *         a class full name
+   * 				the name of the Class
    * @param classLoader
-   *         The Class file loader
+   * 				the class loader to use (may be {@code null},
+   * 				which indicates the default class loader)
    *
-   * @return a class
+   * @return a class instance for the supplied name
    *
    * @throws ClassNotFoundException
-   *         When class could not be found
+   * 				if the class was not found
+   * @throws LinkageError
+   * 				if the class file could not be loaded
+   * @see Class#forName(String, boolean, ClassLoader)
    * @since 2.1.7
    */
-  public static Class<?> forName(String name, @Nullable ClassLoader classLoader) throws ClassNotFoundException {
+  public static Class<?> forName(String name, @Nullable ClassLoader classLoader) throws ClassNotFoundException, LinkageError {
     Assert.notNull(name, "Name must not be null");
 
     Class<?> clazz = resolvePrimitiveClassName(name);
@@ -339,9 +383,7 @@ public abstract class ClassUtils {
     catch (ClassNotFoundException ex) {
       int lastDotIndex = name.lastIndexOf(Constant.PACKAGE_SEPARATOR);
       if (lastDotIndex != -1) {
-        String innerClassName = name.substring(0, lastDotIndex) //
-                + INNER_CLASS_SEPARATOR //
-                + name.substring(lastDotIndex + 1);
+        String innerClassName = name.substring(0, lastDotIndex) + INNER_CLASS_SEPARATOR + name.substring(lastDotIndex + 1);
         try {
           return Class.forName(innerClassName, false, classLoader);
         }
@@ -354,15 +396,20 @@ public abstract class ClassUtils {
   }
 
   /**
-   * Load class .from spring
+   * Replacement for {@code Class.forName()} that also returns Class instances
+   * for primitives (e.g. "int") and array class names (e.g. "String[]").
+   * Furthermore, it is also capable of resolving nested class names in Java source
+   * style (e.g. "java.lang.Thread.State" instead of "java.lang.Thread$State").
+   * <p>
+   * use default class loader, from spring
    *
    * @param name
-   *         a class full name
+   * 				the name of the Class
    *
-   * @return a class
+   * @return a class instance for the supplied name
    *
    * @throws ClassNotFoundException
-   *         when class could not be found
+   * 				when class could not be found
    * @since 2.1.6
    */
   public static Class<?> forName(String name) throws ClassNotFoundException {
@@ -449,32 +496,6 @@ public abstract class ClassUtils {
     }
   }
 
-  /**
-   * Scan class with given package.
-   *
-   * @param locations
-   *         The packages to scan
-   *
-   * @return Class set
-   */
-  public static Set<Class<?>> scan(final String... locations) {
-    return new CandidateComponentScanner().scan(locations);
-  }
-
-  /**
-   * Scan all the classpath classes
-   *
-   * @param scanClasses
-   *         class set
-   *
-   * @since 2.1.6
-   */
-  public static void scan(Set<Class<?>> scanClasses) {
-    new CandidateComponentScanner()
-            .setCandidates(scanClasses)
-            .scan();
-  }
-
   public static String getClassName(ClassReader r) {
     return r.getClassName().replace(Constant.PATH_SEPARATOR, Constant.PACKAGE_SEPARATOR);
   }
@@ -491,24 +512,6 @@ public abstract class ClassUtils {
 
   public static String getClassName(final InputStream inputStream) throws IOException {
     return getClassName(new ClassReader(inputStream));
-  }
-
-  /**
-   * Determine the name of the class file, relative to the containing
-   * package: e.g. "String.class"
-   *
-   * @param clazz
-   *         the class
-   *
-   * @return the file name of the ".class" file
-   *
-   * @since 4.0
-   */
-  public static String getClassFileName(Class<?> clazz) {
-    Assert.notNull(clazz, "Class must not be null");
-    String className = clazz.getName();
-    int lastDotIndex = className.lastIndexOf(Constant.PACKAGE_SEPARATOR);
-    return className.substring(lastDotIndex + 1) + CLASS_FILE_SUFFIX;
   }
 
   /**
@@ -815,17 +818,89 @@ public abstract class ClassUtils {
   }
 
   /**
+   * Create a composite interface Class for the given interfaces,
+   * implementing the given interfaces in one single Class.
+   * <p>This implementation builds a JDK proxy class for the given interfaces.
+   *
+   * @param interfaces
+   * 				the interfaces to merge
+   * @param classLoader
+   * 				the ClassLoader to create the composite Class in
+   *
+   * @return the merged interface as Class
+   *
+   * @throws IllegalArgumentException
+   * 				if the specified interfaces expose
+   * 				conflicting method signatures (or a similar constraint is violated)
+   * @see java.lang.reflect.Proxy#getProxyClass
+   * @since 4.0
+   */
+  public static Class<?> createCompositeInterface(Class<?>[] interfaces, @Nullable ClassLoader classLoader) {
+    Assert.notEmpty(interfaces, "Interface array must not be empty");
+    return Proxy.getProxyClass(classLoader, interfaces);
+  }
+
+  /**
+   * Check whether the given class is cache-safe in the given context,
+   * i.e. whether it is loaded by the given ClassLoader or a parent of it.
+   *
+   * @param clazz
+   * 				the class to analyze
+   * @param classLoader
+   * 				the ClassLoader to potentially cache metadata in
+   * 				(may be {@code null} which indicates the system class loader)
+   *
+   * @since 4.0
+   */
+  public static boolean isCacheSafe(Class<?> clazz, @Nullable ClassLoader classLoader) {
+    Assert.notNull(clazz, "Class must not be null");
+    try {
+      ClassLoader target = clazz.getClassLoader();
+      // Common cases
+      if (target == classLoader || target == null) {
+        return true;
+      }
+      if (classLoader == null) {
+        return false;
+      }
+      // Check for match in ancestors -> positive
+      ClassLoader current = classLoader;
+      while (current != null) {
+        current = current.getParent();
+        if (current == target) {
+          return true;
+        }
+      }
+      // Check for match in children -> negative
+      while (target != null) {
+        target = target.getParent();
+        if (target == classLoader) {
+          return false;
+        }
+      }
+    }
+    catch (SecurityException ex) {
+      // Fall through to loadable check below
+    }
+
+    // Fallback for ClassLoaders without parent/child relationship:
+    // safe if same Class can be loaded from given ClassLoader
+    return (classLoader != null && isLoadable(clazz, classLoader));
+  }
+
+
+  /**
    * Check whether the given class is visible in the given ClassLoader.
    *
    * @param clazz
-   *         the class to check (typically an interface)
+   * 				the class to check (typically an interface)
    * @param classLoader
-   *         the ClassLoader to check against
-   *         (may be {@code null} in which case this method will always return {@code true})
+   * 				the ClassLoader to check against
+   * 				(may be {@code null} in which case this method will always return {@code true})
    *
    * @since 3.0
    */
-  public static boolean isVisible(Class<?> clazz, ClassLoader classLoader) {
+  public static boolean isVisible(Class<?> clazz, @Nullable ClassLoader classLoader) {
     if (classLoader == null) {
       return true;
     }
@@ -1110,6 +1185,44 @@ public abstract class ClassUtils {
   }
 
   /**
+   * Return the short string name of a Java class in uncapitalized JavaBeans
+   * property format. Strips the outer class name in case of a nested class.
+   *
+   * @param clazz
+   * 				the class
+   *
+   * @return the short name rendered in a standard JavaBeans property format
+   *
+   * @see java.beans.Introspector#decapitalize(String)
+   * @since 4.0
+   */
+  public static String getShortNameAsProperty(Class<?> clazz) {
+    String shortName = getShortName(clazz);
+    int dotIndex = shortName.lastIndexOf(Constant.PACKAGE_SEPARATOR);
+    shortName = (dotIndex != -1 ? shortName.substring(dotIndex + 1) : shortName);
+    return Introspector.decapitalize(shortName);
+  }
+
+  /**
+   * Determine the name of the class file, relative to the containing
+   * package: e.g. "String.class"
+   *
+   * @param clazz
+   *         the class
+   *
+   * @return the file name of the ".class" file
+   *
+   * @since 4.0
+   */
+  public static String getClassFileName(Class<?> clazz) {
+    Assert.notNull(clazz, "Class must not be null");
+    String className = clazz.getName();
+    int lastDotIndex = className.lastIndexOf(Constant.PACKAGE_SEPARATOR);
+    return className.substring(lastDotIndex + 1) + CLASS_FILE_SUFFIX;
+  }
+
+
+  /**
    * Given an input class object, return a string which consists of the
    * class's package name as a pathname, i.e., all dots ('.') are replaced by
    * slashes ('/'). Neither a leading nor trailing slash is added. The result
@@ -1139,6 +1252,65 @@ public abstract class ClassUtils {
     }
     String packageName = className.substring(0, packageEndIndex);
     return packageName.replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR);
+  }
+
+
+  /**
+   * Convert a "/"-based resource path to a "."-based fully qualified class name.
+   *
+   * @param resourcePath
+   * 				the resource path pointing to a class
+   *
+   * @return the corresponding fully qualified class name
+   * @since 4.0
+   */
+  public static String convertResourcePathToClassName(String resourcePath) {
+    Assert.notNull(resourcePath, "Resource path must not be null");
+    return resourcePath.replace(Constant.PATH_SEPARATOR, Constant.PACKAGE_SEPARATOR);
+  }
+
+  /**
+   * Convert a "."-based fully qualified class name to a "/"-based resource path.
+   *
+   * @param className
+   * 				the fully qualified class name
+   *
+   * @return the corresponding resource path, pointing to the class
+   * @since 4.0
+   */
+  public static String convertClassNameToResourcePath(String className) {
+    Assert.notNull(className, "Class name must not be null");
+    return className.replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR);
+  }
+
+  /**
+   * Return a path suitable for use with {@code ClassLoader.getResource}
+   * (also suitable for use with {@code Class.getResource} by prepending a
+   * slash ('/') to the return value). Built by taking the package of the specified
+   * class file, converting all dots ('.') to slashes ('/'), adding a trailing slash
+   * if necessary, and concatenating the specified resource name to this.
+   * <br/>As such, this function may be used to build a path suitable for
+   * loading a resource file that is in the same package as a class file,
+   * although {@link cn.taketoday.core.io.ClassPathResource} is usually
+   * even more convenient.
+   *
+   * @param clazz
+   * 				the Class whose package will be used as the base
+   * @param resourceName
+   * 				the resource name to append. A leading slash is optional.
+   *
+   * @return the built-up resource path
+   *
+   * @see ClassLoader#getResource
+   * @see Class#getResource
+   * @since 4.0
+   */
+  public static String addResourcePathToPackagePath(Class<?> clazz, String resourceName) {
+    Assert.notNull(resourceName, "Resource name must not be null");
+    if (!resourceName.startsWith("/")) {
+      return classPackageAsResourcePath(clazz) + '/' + resourceName;
+    }
+    return classPackageAsResourcePath(clazz) + resourceName;
   }
 
   /**
