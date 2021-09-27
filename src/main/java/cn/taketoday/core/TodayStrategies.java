@@ -24,6 +24,8 @@ import cn.taketoday.util.ReflectionUtils;
 
 /**
  * today-framework Strategies
+ * <p>
+ * General purpose factory loading mechanism for internal use within the framework.
  *
  * @author TODAY 2021/9/5 13:57
  * @since 4.0

@@ -30,6 +30,7 @@ import java.util.function.Consumer;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
@@ -98,10 +99,12 @@ public class StrategiesDetector {
     strategiesReader.read(strategiesLocation, strategies);
   }
 
+  @Nullable
   public <T> T getFirst(Class<T> strategyClass) {
     return getFirst(strategyClass, beanFactory);
   }
 
+  @Nullable
   public <T> T getFirst(Class<T> strategyClass, BeanFactory beanFactory) {
     return CollectionUtils.firstElement(getStrategies(strategyClass, beanFactory));
   }
@@ -136,6 +139,8 @@ public class StrategiesDetector {
         strategiesObject.add((T) instance);
       }
     });
+    // sort
+    AnnotationAwareOrderComparator.sort(strategiesObject);
     return strategiesObject;
   }
 
@@ -265,6 +270,7 @@ public class StrategiesDetector {
         ret.add(convert);
       }
     }
+    AnnotationAwareOrderComparator.sort(ret);
     return ret;
   }
 
