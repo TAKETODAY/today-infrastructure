@@ -19,20 +19,19 @@
  */
 package cn.taketoday.util;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.StringJoiner;
-
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Nullable;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionUtils;
+
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
+import java.util.StringJoiner;
 
 /**
  * Miscellaneous object utility methods.
@@ -63,6 +62,42 @@ public abstract class ObjectUtils {
   private static final String EMPTY_ARRAY = ARRAY_START + ARRAY_END;
   private static final String ARRAY_ELEMENT_SEPARATOR = ", ";
 
+	/**
+	 * Return whether the given throwable is a checked exception:
+	 * that is, neither a RuntimeException nor an Error.
+	 * @param ex the throwable to check
+	 * @return whether the throwable is a checked exception
+	 * @see java.lang.Exception
+	 * @see java.lang.RuntimeException
+	 * @see java.lang.Error
+   * @since 4.0
+	 */
+	public static boolean isCheckedException(Throwable ex) {
+		return !(ex instanceof RuntimeException || ex instanceof Error);
+	}
+
+	/**
+	 * Check whether the given exception is compatible with the specified
+	 * exception types, as declared in a throws clause.
+	 * @param ex the exception to check
+	 * @param declaredExceptions the exception types declared in the throws clause
+	 * @return whether the given exception is compatible
+   * @since 4.0
+	 */
+	public static boolean isCompatibleWithThrowsClause(Throwable ex, @Nullable Class<?>... declaredExceptions) {
+		if (!isCheckedException(ex)) {
+			return true;
+		}
+		if (declaredExceptions != null) {
+			for (Class<?> declaredException : declaredExceptions) {
+				if (declaredException.isInstance(ex)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
   /**
    * Determine whether the given object is an array:
    * either an Object array or a primitive array.
@@ -76,26 +111,36 @@ public abstract class ObjectUtils {
     return (obj != null && obj.getClass().isArray());
   }
 
-  /**
-   * Test if a array is a null or empty object
-   *
-   * @param array
-   *         An array to test if its a null or empty object
-   *
-   * @return If a object is a null or empty object
-   */
+	/**
+	 * Determine whether the given array is empty:
+	 * i.e. {@code null} or of zero length.
+	 * @param array the array to check
+	 * @see #isEmpty(Object)
+	 */
   public static boolean isEmpty(@Nullable Object[] array) {
     return array == null || array.length == 0;
   }
 
-  /**
-   * Test if a object is a null or empty object
-   *
-   * @param obj
-   *         A instance to test if its a null or empty object
-   *
-   * @return If a object is a null or empty object
-   */
+	/**
+	 * Determine whether the given object is empty.
+	 * <p>This method supports the following object types.
+	 * <ul>
+	 * <li>{@code Optional}: considered empty if not {@link Optional#isPresent()}</li>
+	 * <li>{@code Array}: considered empty if its length is zero</li>
+	 * <li>{@link CharSequence}: considered empty if its length is zero</li>
+	 * <li>{@link Collection}: delegates to {@link Collection#isEmpty()}</li>
+	 * <li>{@link Map}: delegates to {@link Map#isEmpty()}</li>
+	 * </ul>
+	 * <p>If the given object is non-null and not one of the aforementioned
+	 * supported types, this method returns {@code false}.
+	 * @param obj the object to check
+	 * @return {@code true} if the object is {@code null} or <em>empty</em>
+	 * @see Optional#isPresent()
+	 * @see ObjectUtils#isEmpty(Object[])
+	 * @see StringUtils#isEmpty(CharSequence)
+	 * @see CollectionUtils#isEmpty(java.util.Collection)
+	 * @see CollectionUtils#isEmpty(java.util.Map)
+	 */
   public static boolean isEmpty(@Nullable Object obj) {
     if (obj == null) {
       return true;
@@ -103,9 +148,9 @@ public abstract class ObjectUtils {
     if (obj instanceof Optional) {
       return !((Optional<?>) obj).isPresent();
     }
-    if (obj instanceof String) {
-      return ((String) obj).isEmpty();
-    }
+		if (obj instanceof CharSequence) {
+			return ((CharSequence) obj).length() == 0;
+		}
     if (obj instanceof Collection) {
       return ((Collection<?>) obj).isEmpty();
     }
@@ -274,12 +319,62 @@ public abstract class ObjectUtils {
       return false;
     }
     for (Object arrayEle : array) {
-      if (Objects.equals(arrayEle, element)) {
+      if (nullSafeEquals(arrayEle, element)) {
         return true;
       }
     }
     return false;
   }
+
+	/**
+	 * Check whether the given array of enum constants contains a constant with the given name,
+	 * ignoring case when determining a match.
+	 * @param enumValues the enum values to check, typically obtained via {@code MyEnum.values()}
+	 * @param constant the constant name to find (must not be null or empty string)
+	 * @return whether the constant has been found in the given array
+   * @since 4.0
+	 */
+	public static boolean containsConstant(Enum<?>[] enumValues, String constant) {
+		return containsConstant(enumValues, constant, false);
+	}
+
+	/**
+	 * Check whether the given array of enum constants contains a constant with the given name.
+	 * @param enumValues the enum values to check, typically obtained via {@code MyEnum.values()}
+	 * @param constant the constant name to find (must not be null or empty string)
+	 * @param caseSensitive whether case is significant in determining a match
+	 * @return whether the constant has been found in the given array
+   * @since 4.0
+	 */
+	public static boolean containsConstant(Enum<?>[] enumValues, String constant, boolean caseSensitive) {
+		for (Enum<?> candidate : enumValues) {
+			if (caseSensitive
+              ? candidate.toString().equals(constant)
+              : candidate.toString().equalsIgnoreCase(constant)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Case insensitive alternative to {@link Enum#valueOf(Class, String)}.
+	 * @param <E> the concrete Enum type
+	 * @param enumValues the array of all Enum constants in question, usually per {@code Enum.values()}
+	 * @param constant the constant to get the enum value of
+	 * @throws IllegalArgumentException if the given constant is not found in the given array
+	 * of enum values. Use {@link #containsConstant(Enum[], String)} as a guard to avoid this exception.
+	 */
+	public static <E extends Enum<?>> E caseInsensitiveValueOf(E[] enumValues, String constant) {
+		for (E candidate : enumValues) {
+			if (candidate.toString().equalsIgnoreCase(constant)) {
+				return candidate;
+			}
+		}
+		throw new IllegalArgumentException(
+            "Constant [" + constant + "] does not exist in enum type " +
+                    enumValues.getClass().getComponentType().getName());
+	}
 
   /**
    * Append the given object to the given array, returning a new array
@@ -380,10 +475,9 @@ public abstract class ObjectUtils {
     if (o1.equals(o2)) {
       return true;
     }
-    if (o1.getClass().isArray() && o2.getClass().isArray()) {
-      return arrayEquals(o1, o2);
-    }
-    return false;
+		return o1.getClass().isArray()
+						&& o2.getClass().isArray()
+						&& arrayEquals(o1, o2);
   }
 
   /**
