@@ -37,19 +37,9 @@ import cn.taketoday.util.ObjectUtils;
  * @since 4.0
  */
 public abstract class AnnotationUtils {
-  private static final AnnotationMetaReader reader;
-
-  static {
-    AnnotationMetaReader impl = null;
-    try {
-      impl = TodayStrategies.getDetector().getFirst(AnnotationMetaReader.class);
-    }
-    catch (Throwable ignored) { }
-    if (impl == null) {
-      impl = new ReflectiveAnnotationMetaReader();
-    }
-    reader = impl;
-  }
+  private static final AnnotationMetaReader reader =
+          TodayStrategies.getDetector().getFirst(
+                  AnnotationMetaReader.class, ReflectiveAnnotationMetaReader::new);
 
   /**
    * Get the array of {@link Annotation} instance

@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
@@ -102,6 +103,14 @@ public class StrategiesDetector {
   @Nullable
   public <T> T getFirst(Class<T> strategyClass) {
     return getFirst(strategyClass, beanFactory);
+  }
+
+  public <T> T getFirst(Class<T> strategyClass, Supplier<T> defaultValue) {
+    final T first = getFirst(strategyClass);
+    if (first == null) {
+      return defaultValue.get();
+    }
+    return first;
   }
 
   @Nullable
