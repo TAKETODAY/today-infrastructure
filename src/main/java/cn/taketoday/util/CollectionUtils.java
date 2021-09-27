@@ -683,6 +683,24 @@ public abstract class CollectionUtils {
   }
 
   /**
+   * Returns the element at the specified position in this list.
+   * <p>list can be {@code null}, then returns {@code null}
+   *
+   * @param index
+   * 				index of the element to return
+   *
+   * @return the element at the specified position in this list
+   * @since 4.0
+   */
+  @Nullable
+  public static <T> T getElement(@Nullable final List<T> list, final int index) {
+    if (list != null && index >= 0 && index < list.size()) {
+      return list.get(index);
+    }
+    return null;
+  }
+
+  /**
    * Adds all of the specified elements to the specified collection.
    * Elements to be added may be specified individually or as an array.
    * The behavior of this convenience method is identical to that of
@@ -878,6 +896,45 @@ public abstract class CollectionUtils {
     }
     return buckets;
   }
+
+	/**
+	 * Retrieve the first element of the given Collection, using {@link SortedSet#first()}
+	 * or otherwise using the iterator.
+	 * @param collection the Collection to check (may be {@code null} or empty)
+	 * @return the first element, or {@code null} if none
+	 * @since 4.0
+	 * @see SortedSet
+   * @see java.util.Queue
+	 * @see LinkedHashMap#keySet()
+	 * @see java.util.LinkedHashSet
+	 */
+	@Nullable
+	public static <T> T firstElement(@Nullable Collection<T> collection) {
+		if (isEmpty(collection)) {
+			return null;
+		}
+		if (collection instanceof SortedSet) {
+			return ((SortedSet<T>) collection).first();
+		}
+
+		Iterator<T> it = collection.iterator();
+		T first = null;
+		if (it.hasNext()) {
+			first = it.next();
+		}
+		return first;
+	}
+
+	/**
+	 * Retrieve the first element of the given List, accessing the zero index.
+	 * @param list the List to check (may be {@code null} or empty)
+	 * @return the first element, or {@code null} if none
+	 * @since 4.0
+	 */
+	@Nullable
+	public static <T> T firstElement(@Nullable List<T> list) {
+		return getElement(list, 0);
+	}
 
   /**
    * Retrieve the last element of the given List, accessing the highest index.
