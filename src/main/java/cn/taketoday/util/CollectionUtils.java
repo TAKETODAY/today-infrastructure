@@ -959,6 +959,7 @@ public abstract class CollectionUtils {
    * Enumeration elements must be assignable to the type of the given array. The array
    * returned will be a different instance than the array given.
    *
+   * @throws NullPointerException if the specified array or enumeration is null
    * @since 4.0
    */
   public static <A, E extends A> A[] toArray(Enumeration<E> enumeration, A[] array) {
@@ -1075,7 +1076,8 @@ public abstract class CollectionUtils {
    * @since 4.0
    */
   public static List<?> arrayToList(@Nullable Object source) {
-    return Arrays.asList(ObjectUtils.toObjectArray(source));
+    Object[] objectArray = ObjectUtils.toObjectArray(source);
+    return newArrayList(objectArray);
   }
 
   /**
