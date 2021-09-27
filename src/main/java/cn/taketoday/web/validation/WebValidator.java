@@ -51,7 +51,7 @@ public class WebValidator {
     for (final Validator validator : validators) {
       if (validator.supports(object)) {
         validator.validate(object, errors);
-        if(!iterateAllValidators) {
+        if (!iterateAllValidators) {
           break;
         }
       }

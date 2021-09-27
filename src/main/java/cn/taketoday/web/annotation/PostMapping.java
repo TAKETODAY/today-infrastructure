@@ -42,8 +42,6 @@ public @interface PostMapping {
   /** Exclude url on class */
   boolean exclude() default false;
 
-
-
   /**
    * Narrows the primary mapping by media types that can be
    * consumed by the mapped handler. Consists of one or more

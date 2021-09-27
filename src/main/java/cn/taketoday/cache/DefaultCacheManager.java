@@ -30,7 +30,7 @@ import cn.taketoday.core.Assert;
  */
 public class DefaultCacheManager extends AbstractCacheManager implements CacheManager {
 
-  public DefaultCacheManager() {}
+  public DefaultCacheManager() { }
 
   public DefaultCacheManager(String... cacheNames) {
     Assert.notNull(cacheNames, "cacheNames s can't be null");

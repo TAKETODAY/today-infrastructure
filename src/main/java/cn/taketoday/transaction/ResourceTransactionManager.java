@@ -21,7 +21,7 @@ package cn.taketoday.transaction;
 
 /**
  * @author TODAY <br>
- *         2018-11-13 17:03
+ * 2018-11-13 17:03
  */
 public interface ResourceTransactionManager extends TransactionManager {
 
@@ -33,6 +33,7 @@ public interface ResourceTransactionManager extends TransactionManager {
    * {@link SynchronizationManager}'s resource bindings per thread.
    *
    * @return the target resource factory (never {@code null})
+   *
    * @see SynchronizationManager#bindResource
    * @see SynchronizationManager#getResource
    */

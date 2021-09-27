@@ -24,9 +24,8 @@ import java.util.Objects;
 import lombok.Getter;
 
 /**
- *
  * @author TODAY <br>
- *         2019-02-06 14:49
+ * 2019-02-06 14:49
  */
 @Getter
 public class ErrorPage {
@@ -55,8 +54,10 @@ public class ErrorPage {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof ErrorPage)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof ErrorPage))
+      return false;
     final ErrorPage errorPage = (ErrorPage) o;
     return status == errorPage.status && Objects.equals(path, errorPage.path) && Objects
             .equals(exception, errorPage.exception);

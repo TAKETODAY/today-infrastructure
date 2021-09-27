@@ -91,9 +91,12 @@ public class ObjectSupplierPropertyResolver
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof ObjectSupplierPropertySetter)) return false;
-      if (!super.equals(o)) return false;
+      if (this == o)
+        return true;
+      if (!(o instanceof ObjectSupplierPropertySetter))
+        return false;
+      if (!super.equals(o))
+        return false;
       final ObjectSupplierPropertySetter that = (ObjectSupplierPropertySetter) o;
       return Objects.equals(target, that.target);
     }

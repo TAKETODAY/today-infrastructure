@@ -100,9 +100,12 @@ public class StandardMethodInvocation
 
   @Override
   public boolean equals(final Object o) {
-    if (this == o) return true;
-    if (!(o instanceof StandardMethodInvocation)) return false;
-    if (!super.equals(o)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof StandardMethodInvocation))
+      return false;
+    if (!super.equals(o))
+      return false;
     final StandardMethodInvocation that = (StandardMethodInvocation) o;
     return currentAdviceIndex == that.currentAdviceIndex
             && Objects.equals(target, that.target)

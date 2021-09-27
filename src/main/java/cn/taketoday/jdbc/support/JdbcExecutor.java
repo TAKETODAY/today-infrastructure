@@ -27,7 +27,7 @@ import javax.sql.DataSource;
 
 /**
  * @author TODAY <br>
- *         2019-08-18 19:20
+ * 2019-08-18 19:20
  */
 public class JdbcExecutor implements BasicOperation, QueryOperation, UpdateOperation, QueryOptionalOperation {
 

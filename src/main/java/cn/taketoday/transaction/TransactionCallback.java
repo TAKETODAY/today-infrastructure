@@ -22,7 +22,7 @@ package cn.taketoday.transaction;
 /**
  * @author Today <br>
  *
- *         2018-12-30 20:59
+ * 2018-12-30 20:59
  */
 @FunctionalInterface
 public interface TransactionCallback<T> {
@@ -41,8 +41,10 @@ public interface TransactionCallback<T> {
    * thrown.
    *
    * @param status
-   *            associated transaction status
+   *         associated transaction status
+   *
    * @return a result object, or {@code null}
+   *
    * @see TransactionTemplate#execute
    */
   T doInTransaction(TransactionStatus status);

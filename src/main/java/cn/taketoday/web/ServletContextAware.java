@@ -26,11 +26,12 @@ import cn.taketoday.context.aware.Aware;
 /**
  * @author Today <br>
  *
- *         2018-08-03 15:45
+ * 2018-08-03 15:45
  */
 public interface ServletContextAware extends Aware {
 
   /**
+   *
    */
   void setServletContext(ServletContext servletContext);
 }

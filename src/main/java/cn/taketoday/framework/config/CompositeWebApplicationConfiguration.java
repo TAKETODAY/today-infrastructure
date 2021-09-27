@@ -30,7 +30,7 @@ import cn.taketoday.web.session.SessionConfiguration;
 
 /**
  * @author TODAY <br>
- *         2019-06-18 17:36
+ * 2019-06-18 17:36
  */
 public class CompositeWebApplicationConfiguration implements WebApplicationConfiguration {
 

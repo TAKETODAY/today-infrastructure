@@ -25,7 +25,7 @@ import cn.taketoday.web.ConfigurableWebApplicationContext;
 
 /**
  * @author TODAY <br>
- *         2019-10-14 02:09
+ * 2019-10-14 02:09
  */
 public interface ConfigurableWebServletApplicationContext
         extends ConfigurableWebApplicationContext, WebServletApplicationContext {
@@ -34,7 +34,7 @@ public interface ConfigurableWebServletApplicationContext
    * Set ServletContext
    *
    * @param servletContext
-   *            Target {@link ServletContext} object
+   *         Target {@link ServletContext} object
    */
   void setServletContext(ServletContext servletContext);
 }

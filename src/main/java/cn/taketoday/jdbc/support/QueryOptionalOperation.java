@@ -26,7 +26,7 @@ import java.util.Optional;
 
 /**
  * @author TODAY <br>
- *         2019-08-18 20:08
+ * 2019-08-18 20:08
  */
 public interface QueryOptionalOperation extends QueryOperation {
 

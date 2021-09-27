@@ -8,7 +8,7 @@ package cn.taketoday.jdbc;
 public class PersistenceException extends DataAccessException {
   private static final long serialVersionUID = 1L;
 
-  public PersistenceException() {}
+  public PersistenceException() { }
 
   public PersistenceException(String message) {
     super(message);

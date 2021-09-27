@@ -21,8 +21,8 @@ package cn.taketoday.core.bytecode.tree;
 
 import java.util.List;
 
-import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.ModuleVisitor;
+import cn.taketoday.core.bytecode.Opcodes;
 
 /**
  * A node that represents an exported package with its name and the module that can access to it.

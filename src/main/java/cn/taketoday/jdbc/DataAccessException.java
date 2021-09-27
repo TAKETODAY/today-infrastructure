@@ -28,7 +28,7 @@ import cn.taketoday.core.NestedRuntimeException;
 public class DataAccessException extends NestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
-  public DataAccessException() {}
+  public DataAccessException() { }
 
   public DataAccessException(String message) {
     super(message);

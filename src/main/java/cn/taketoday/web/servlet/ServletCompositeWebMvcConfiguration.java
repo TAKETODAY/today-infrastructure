@@ -26,7 +26,7 @@ import cn.taketoday.web.config.WebMvcConfiguration;
 
 /**
  * @author TODAY <br>
- *         2019-05-17 17:46
+ * 2019-05-17 17:46
  */
 public class ServletCompositeWebMvcConfiguration
         extends CompositeWebMvcConfiguration implements ServletWebMvcConfiguration {

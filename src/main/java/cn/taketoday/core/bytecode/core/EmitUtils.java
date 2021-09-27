@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.bytecode.Label;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
@@ -34,7 +35,6 @@ import cn.taketoday.core.bytecode.commons.Local;
 import cn.taketoday.core.bytecode.commons.MethodSignature;
 import cn.taketoday.core.bytecode.commons.TableSwitchGenerator;
 import cn.taketoday.core.bytecode.core.internal.CustomizerRegistry;
-import cn.taketoday.core.Constant;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 

@@ -23,7 +23,7 @@ import cn.taketoday.context.aware.Aware;
 
 /**
  * @author TODAY <br>
- *         2019-07-10 22:30
+ * 2019-07-10 22:30
  */
 public interface WebServletApplicationContextAware extends Aware {
 

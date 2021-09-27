@@ -183,7 +183,7 @@ public abstract class Utils {
         df.setTimeZone(GMT);
         return df.parse(time);
       }
-      catch (ParseException ignore) {}
+      catch (ParseException ignore) { }
     }
     throw new IllegalArgumentException("invalid date format: " + time);
   }
@@ -340,7 +340,8 @@ public abstract class Utils {
   public static String trimRight(String s, char c) {
     int len = s.length() - 1;
     int end;
-    for (end = len; end >= 0 && s.charAt(end) == c; end--) ;
+    for (end = len; end >= 0 && s.charAt(end) == c; end--)
+      ;
 
     return end == len ? s : s.substring(0, end + 1);
   }
@@ -359,7 +360,8 @@ public abstract class Utils {
   public static String trimLeft(String s, char c) {
     int len = s.length();
     int start;
-    for (start = 0; start < len && s.charAt(start) == c; start++) ;
+    for (start = 0; start < len && s.charAt(start) == c; start++)
+      ;
     return start == 0 ? s : s.substring(start);
   }
 
@@ -379,7 +381,8 @@ public abstract class Utils {
     int start = 0;
     while ((start = s.indexOf(c, start) + 1) > 0) {
       int end;
-      for (end = start; end < s.length() && s.charAt(end) == c; end++) ;
+      for (end = start; end < s.length() && s.charAt(end) == c; end++)
+        ;
       if (end > start)
         s = s.substring(0, start) + s.substring(end);
     }
@@ -399,7 +402,8 @@ public abstract class Utils {
     final char[] units = { ' ', 'K', 'M', 'G', 'T', 'P', 'E' };
     int u;
     double s;
-    for (u = 0, s = size; s >= 1000; u++, s /= 1024) ;
+    for (u = 0, s = size; s >= 1000; u++, s /= 1024)
+      ;
     return String.format(s < 10 ? "%.1f%c" : "%.0f%c", s, units[u]);
   }
 
@@ -536,7 +540,7 @@ public abstract class Utils {
         if (name.length() > 0)
           params.add(new String[] { name, val });
       }
-      catch (UnsupportedEncodingException ignore) {} // never thrown
+      catch (UnsupportedEncodingException ignore) { } // never thrown
     }
     return params;
   }

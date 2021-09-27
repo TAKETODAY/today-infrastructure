@@ -22,7 +22,7 @@ public class ClassesKey {
     Object newInstance(Object[] array);
   }
 
-  private ClassesKey() {}
+  private ClassesKey() { }
 
   public static Object create(Object[] array) {
     return FACTORY.newInstance(classNames(array));

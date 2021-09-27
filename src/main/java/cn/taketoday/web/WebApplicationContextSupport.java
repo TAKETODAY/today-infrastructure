@@ -24,7 +24,7 @@ import cn.taketoday.context.aware.ApplicationContextSupport;
 
 /**
  * @author TODAY <br>
- *         2019-12-27 09:36
+ * 2019-12-27 09:36
  */
 public class WebApplicationContextSupport extends ApplicationContextSupport {
 
@@ -36,7 +36,7 @@ public class WebApplicationContextSupport extends ApplicationContextSupport {
    * Return the current application context as {@link WebApplicationContext}.
    *
    * @throws IllegalStateException
-   *             if not running in a WebApplicationContext
+   *         if not running in a WebApplicationContext
    * @see #getApplicationContext()
    */
   public final WebApplicationContext getWebApplicationContext() {

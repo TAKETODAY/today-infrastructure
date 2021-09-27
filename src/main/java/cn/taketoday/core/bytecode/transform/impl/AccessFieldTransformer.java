@@ -15,12 +15,12 @@
  */
 package cn.taketoday.core.bytecode.transform.impl;
 
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.commons.MethodSignature;
 import cn.taketoday.core.bytecode.core.CodeEmitter;
 import cn.taketoday.core.bytecode.transform.ClassEmitterTransformer;
-import cn.taketoday.core.Constant;
 import cn.taketoday.util.StringUtils;
 
 /**

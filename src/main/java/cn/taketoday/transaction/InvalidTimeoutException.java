@@ -21,7 +21,7 @@ package cn.taketoday.transaction;
 
 /**
  * @author TODAY <br>
- *         2018-10-09 11:09
+ * 2018-10-09 11:09
  */
 public class InvalidTimeoutException extends TransactionException {
 

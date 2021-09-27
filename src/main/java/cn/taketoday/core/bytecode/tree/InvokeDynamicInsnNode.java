@@ -21,10 +21,10 @@ package cn.taketoday.core.bytecode.tree;
 
 import java.util.Map;
 
-import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.Handle;
 import cn.taketoday.core.bytecode.MethodVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
+import cn.taketoday.core.bytecode.Type;
 
 /**
  * A node that represents an invokedynamic instruction.

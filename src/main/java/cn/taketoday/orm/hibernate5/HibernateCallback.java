@@ -24,7 +24,7 @@ import org.hibernate.Session;
 
 /**
  * @author TODAY <br>
- *         2018-09-15 15:27
+ * 2018-09-15 15:27
  */
 public interface HibernateCallback<H> {
 

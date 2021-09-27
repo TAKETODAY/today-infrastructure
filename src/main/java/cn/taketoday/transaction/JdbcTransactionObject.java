@@ -27,7 +27,7 @@ import cn.taketoday.logger.LoggerFactory;
 
 /**
  * @author TODAY <br>
- *         2018-11-13 16:58
+ * 2018-11-13 16:58
  */
 public abstract class JdbcTransactionObject implements TransactionObject, SavepointManager {
 
@@ -42,7 +42,7 @@ public abstract class JdbcTransactionObject implements TransactionObject, Savepo
   }
 
   @Override
-  public void flush() {}
+  public void flush() { }
 
   // ---------------------------------------------------------------------
   // Implementation of SavepointManager

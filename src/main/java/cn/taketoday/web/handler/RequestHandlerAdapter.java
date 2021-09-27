@@ -28,7 +28,7 @@ import cn.taketoday.web.RequestContext;
  */
 public class RequestHandlerAdapter extends AbstractHandlerAdapter {
 
-  public RequestHandlerAdapter() {}
+  public RequestHandlerAdapter() { }
 
   public RequestHandlerAdapter(int order) {
     setOrder(order);

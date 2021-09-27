@@ -37,7 +37,7 @@ public class DefaultProps implements Props, Annotation {
   private String[] prefix = Constant.EMPTY_STRING_ARRAY;
   private Class<?>[] nested = Constant.EMPTY_CLASS_ARRAY;
 
-  public DefaultProps() {}
+  public DefaultProps() { }
 
   public DefaultProps(Props props) {
     this.value = props.value();
@@ -93,8 +93,10 @@ public class DefaultProps implements Props, Annotation {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof Props)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof Props))
+      return false;
     final Props that = (Props) o;
     return replace == that.replace()
             && Arrays.equals(value, that.value())

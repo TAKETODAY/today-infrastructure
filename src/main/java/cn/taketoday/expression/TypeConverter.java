@@ -78,7 +78,7 @@ public abstract class TypeConverter extends ExpressionResolver {
   }
 
   @Override
-  public void setValue(ExpressionContext context, Object base, Object property, Object value) {}
+  public void setValue(ExpressionContext context, Object base, Object property, Object value) { }
 
   @Override
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {

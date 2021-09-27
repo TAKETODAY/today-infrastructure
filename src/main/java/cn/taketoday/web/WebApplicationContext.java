@@ -23,7 +23,7 @@ import cn.taketoday.context.ApplicationContext;
 
 /**
  * @author TODAY <br>
- *         2019-07-10 22:03
+ * 2019-07-10 22:03
  */
 public interface WebApplicationContext extends ApplicationContext {
 
@@ -34,7 +34,7 @@ public interface WebApplicationContext extends ApplicationContext {
    * container does not decode this string.
    *
    * @return a <code>String</code> specifying the portion of the request URI that
-   *         indicates the context of the request
+   * indicates the context of the request
    */
   String getContextPath();
 }

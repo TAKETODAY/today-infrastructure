@@ -23,7 +23,7 @@ package cn.taketoday.jdbc;
  * Fatal exception thrown when we can't connect to an RDBMS using JDBC.
  *
  * @author TODAY <br>
- *         2019-11-09 14:53
+ * 2019-11-09 14:53
  */
 public class CannotGetJdbcConnectionException extends DataAccessException {
   private static final long serialVersionUID = 1L;

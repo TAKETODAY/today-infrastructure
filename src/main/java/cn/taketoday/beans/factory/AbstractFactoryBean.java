@@ -221,7 +221,7 @@ public abstract class AbstractFactoryBean<T>
    *         in case of shutdown errors
    * @see #createBeanInstance()
    */
-  protected void destroyInstance(T instance) throws Exception {}
+  protected void destroyInstance(T instance) throws Exception { }
 
   /**
    * Reflective InvocationHandler for lazy access to the actual singleton object.

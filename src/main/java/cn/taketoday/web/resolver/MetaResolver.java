@@ -23,7 +23,7 @@ package cn.taketoday.web.resolver;
 /**
  * @author TODAY 2021/8/25 10:27
  */
-public interface MetaResolver<M,C> {
+public interface MetaResolver<M, C> {
 
   M resolve(C context);
 }

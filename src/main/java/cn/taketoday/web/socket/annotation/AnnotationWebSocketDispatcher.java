@@ -20,6 +20,9 @@
 
 package cn.taketoday.web.socket.annotation;
 
+import java.util.List;
+import java.util.Map;
+
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
@@ -27,9 +30,6 @@ import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author TODAY 2021/4/5 12:29

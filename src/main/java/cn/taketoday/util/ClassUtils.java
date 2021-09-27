@@ -19,13 +19,6 @@
  */
 package cn.taketoday.util;
 
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.Nullable;
-import cn.taketoday.core.Ordered;
-import cn.taketoday.core.bytecode.ClassReader;
-import cn.taketoday.core.io.Resource;
-
 import java.beans.Introspector;
 import java.io.Closeable;
 import java.io.Externalizable;
@@ -61,6 +54,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
+
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.bytecode.ClassReader;
+import cn.taketoday.core.io.Resource;
 
 /**
  * @author TODAY 2018-06-0? ?
@@ -207,6 +207,7 @@ public abstract class ClassUtils {
 
   /**
    * default class loader
+   *
    * @deprecated use {@link #getDefaultClassLoader()}
    */
   @Deprecated
@@ -214,23 +215,25 @@ public abstract class ClassUtils {
     return classLoader;
   }
 
-	/**
-	 * Return the default ClassLoader to use: typically the thread context
-	 * ClassLoader, if available; the ClassLoader that loaded the ClassUtils
-	 * class will be used as fallback.
-	 * <p>Call this method if you intend to use the thread context ClassLoader
-	 * in a scenario where you clearly prefer a non-null ClassLoader reference:
-	 * for example, for class path resource loading (but not necessarily for
-	 * {@code Class.forName}, which accepts a {@code null} ClassLoader
-	 * reference as well).
-	 * @return the default ClassLoader (only {@code null} if even the system
-	 * ClassLoader isn't accessible)
-	 * @see Thread#getContextClassLoader()
-	 * @see ClassLoader#getSystemClassLoader()
+  /**
+   * Return the default ClassLoader to use: typically the thread context
+   * ClassLoader, if available; the ClassLoader that loaded the ClassUtils
+   * class will be used as fallback.
+   * <p>Call this method if you intend to use the thread context ClassLoader
+   * in a scenario where you clearly prefer a non-null ClassLoader reference:
+   * for example, for class path resource loading (but not necessarily for
+   * {@code Class.forName}, which accepts a {@code null} ClassLoader
+   * reference as well).
+   *
+   * @return the default ClassLoader (only {@code null} if even the system
+   * ClassLoader isn't accessible)
+   *
+   * @see Thread#getContextClassLoader()
+   * @see ClassLoader#getSystemClassLoader()
    * @since 4.0
-	 */
-	@Nullable
-	public static ClassLoader getDefaultClassLoader() {
+   */
+  @Nullable
+  public static ClassLoader getDefaultClassLoader() {
     ClassLoader cl = null;
     try {
       cl = Thread.currentThread().getContextClassLoader();
@@ -261,16 +264,16 @@ public abstract class ClassUtils {
    * <p> use default class loader
    *
    * @param className
-   * 				the name of the class to check
+   *         the name of the class to check
    *
    * @return whether the specified class is present (including all of its
    * superclasses and interfaces)
    *
    * @throws IllegalStateException
-   * 				if the corresponding class is resolvable but
-   * 				there was a readability mismatch in the inheritance hierarchy of the class
-   * 				(typically a missing dependency declaration in a Jigsaw module definition
-   * 				for a superclass or interface implemented by the class to be checked here)
+   *         if the corresponding class is resolvable but
+   *         there was a readability mismatch in the inheritance hierarchy of the class
+   *         (typically a missing dependency declaration in a Jigsaw module definition
+   *         for a superclass or interface implemented by the class to be checked here)
    */
   public static boolean isPresent(String className) {
     return isPresent(className, null);
@@ -282,19 +285,19 @@ public abstract class ClassUtils {
    * one of its dependencies is not present or cannot be loaded.
    *
    * @param className
-   * 				the name of the class to check
+   *         the name of the class to check
    * @param classLoader
-   * 				the class loader to use
-   * 				(may be {@code null} which indicates the default class loader)
+   *         the class loader to use
+   *         (may be {@code null} which indicates the default class loader)
    *
    * @return whether the specified class is present (including all of its
    * superclasses and interfaces)
    *
    * @throws IllegalStateException
-   * 				if the corresponding class is resolvable but
-   * 				there was a readability mismatch in the inheritance hierarchy of the class
-   * 				(typically a missing dependency declaration in a Jigsaw module definition
-   * 				for a superclass or interface implemented by the class to be checked here)
+   *         if the corresponding class is resolvable but
+   *         there was a readability mismatch in the inheritance hierarchy of the class
+   *         (typically a missing dependency declaration in a Jigsaw module definition
+   *         for a superclass or interface implemented by the class to be checked here)
    */
   public static boolean isPresent(String className, @Nullable ClassLoader classLoader) {
     try {
@@ -305,11 +308,11 @@ public abstract class ClassUtils {
       throw new IllegalStateException(
               "Readability mismatch in inheritance hierarchy of class [" + className + "]: " + err.getMessage(), err);
     }
-		catch (Throwable ex) {
-			// Typically, ClassNotFoundException or NoClassDefFoundError...
-			return false;
-		}
-	}
+    catch (Throwable ex) {
+      // Typically, ClassNotFoundException or NoClassDefFoundError...
+      return false;
+    }
+  }
 
   public static Class<?> resolvePrimitiveClassName(String name) {
     // Most class names will be quite long, considering that they
@@ -328,17 +331,17 @@ public abstract class ClassUtils {
    * style (e.g. "java.lang.Thread.State" instead of "java.lang.Thread$State").
    *
    * @param name
-   * 				the name of the Class
+   *         the name of the Class
    * @param classLoader
-   * 				the class loader to use (may be {@code null},
-   * 				which indicates the default class loader)
+   *         the class loader to use (may be {@code null},
+   *         which indicates the default class loader)
    *
    * @return a class instance for the supplied name
    *
    * @throws ClassNotFoundException
-   * 				if the class was not found
+   *         if the class was not found
    * @throws LinkageError
-   * 				if the class file could not be loaded
+   *         if the class file could not be loaded
    * @see Class#forName(String, boolean, ClassLoader)
    * @since 2.1.7
    */
@@ -404,12 +407,12 @@ public abstract class ClassUtils {
    * use default class loader, from spring
    *
    * @param name
-   * 				the name of the Class
+   *         the name of the Class
    *
    * @return a class instance for the supplied name
    *
    * @throws ClassNotFoundException
-   * 				when class could not be found
+   *         when class could not be found
    * @since 2.1.6
    */
   public static Class<?> forName(String name) throws ClassNotFoundException {
@@ -823,15 +826,15 @@ public abstract class ClassUtils {
    * <p>This implementation builds a JDK proxy class for the given interfaces.
    *
    * @param interfaces
-   * 				the interfaces to merge
+   *         the interfaces to merge
    * @param classLoader
-   * 				the ClassLoader to create the composite Class in
+   *         the ClassLoader to create the composite Class in
    *
    * @return the merged interface as Class
    *
    * @throws IllegalArgumentException
-   * 				if the specified interfaces expose
-   * 				conflicting method signatures (or a similar constraint is violated)
+   *         if the specified interfaces expose
+   *         conflicting method signatures (or a similar constraint is violated)
    * @see java.lang.reflect.Proxy#getProxyClass
    * @since 4.0
    */
@@ -845,10 +848,10 @@ public abstract class ClassUtils {
    * i.e. whether it is loaded by the given ClassLoader or a parent of it.
    *
    * @param clazz
-   * 				the class to analyze
+   *         the class to analyze
    * @param classLoader
-   * 				the ClassLoader to potentially cache metadata in
-   * 				(may be {@code null} which indicates the system class loader)
+   *         the ClassLoader to potentially cache metadata in
+   *         (may be {@code null} which indicates the system class loader)
    *
    * @since 4.0
    */
@@ -888,15 +891,14 @@ public abstract class ClassUtils {
     return (classLoader != null && isLoadable(clazz, classLoader));
   }
 
-
   /**
    * Check whether the given class is visible in the given ClassLoader.
    *
    * @param clazz
-   * 				the class to check (typically an interface)
+   *         the class to check (typically an interface)
    * @param classLoader
-   * 				the ClassLoader to check against
-   * 				(may be {@code null} in which case this method will always return {@code true})
+   *         the ClassLoader to check against
+   *         (may be {@code null} in which case this method will always return {@code true})
    *
    * @since 3.0
    */
@@ -1189,7 +1191,7 @@ public abstract class ClassUtils {
    * property format. Strips the outer class name in case of a nested class.
    *
    * @param clazz
-   * 				the class
+   *         the class
    *
    * @return the short name rendered in a standard JavaBeans property format
    *
@@ -1220,7 +1222,6 @@ public abstract class ClassUtils {
     int lastDotIndex = className.lastIndexOf(Constant.PACKAGE_SEPARATOR);
     return className.substring(lastDotIndex + 1) + CLASS_FILE_SUFFIX;
   }
-
 
   /**
    * Given an input class object, return a string which consists of the
@@ -1254,14 +1255,14 @@ public abstract class ClassUtils {
     return packageName.replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR);
   }
 
-
   /**
    * Convert a "/"-based resource path to a "."-based fully qualified class name.
    *
    * @param resourcePath
-   * 				the resource path pointing to a class
+   *         the resource path pointing to a class
    *
    * @return the corresponding fully qualified class name
+   *
    * @since 4.0
    */
   public static String convertResourcePathToClassName(String resourcePath) {
@@ -1273,9 +1274,10 @@ public abstract class ClassUtils {
    * Convert a "."-based fully qualified class name to a "/"-based resource path.
    *
    * @param className
-   * 				the fully qualified class name
+   *         the fully qualified class name
    *
    * @return the corresponding resource path, pointing to the class
+   *
    * @since 4.0
    */
   public static String convertClassNameToResourcePath(String className) {
@@ -1295,9 +1297,9 @@ public abstract class ClassUtils {
    * even more convenient.
    *
    * @param clazz
-   * 				the Class whose package will be used as the base
+   *         the Class whose package will be used as the base
    * @param resourceName
-   * 				the resource name to append. A leading slash is optional.
+   *         the resource name to append. A leading slash is optional.
    *
    * @return the built-up resource path
    *

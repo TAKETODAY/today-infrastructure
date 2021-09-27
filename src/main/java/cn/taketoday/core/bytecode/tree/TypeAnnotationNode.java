@@ -19,8 +19,8 @@
  */
 package cn.taketoday.core.bytecode.tree;
 
-import cn.taketoday.core.bytecode.TypeReference;
 import cn.taketoday.core.bytecode.TypePath;
+import cn.taketoday.core.bytecode.TypeReference;
 
 /**
  * A node that represents a type annotation.

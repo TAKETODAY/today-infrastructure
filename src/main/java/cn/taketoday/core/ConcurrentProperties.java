@@ -45,7 +45,7 @@ public class ConcurrentProperties
 
   private final ConcurrentHashMap<Object, Object> map = new ConcurrentHashMap<>();
 
-  public ConcurrentProperties() {}
+  public ConcurrentProperties() { }
 
   /**
    * Creates an empty property list with the specified defaults.

@@ -24,7 +24,7 @@ import cn.taketoday.web.view.ReturnValueHandler;
 
 /**
  * @author TODAY <br>
- *         2019-12-21 17:37
+ * 2019-12-21 17:37
  */
 @FunctionalInterface
 public interface RequestHandler {
@@ -33,10 +33,12 @@ public interface RequestHandler {
    * Handle request
    *
    * @param context
-   *            Current request context
+   *         Current request context
+   *
    * @return Result to be handled with {@link ReturnValueHandler}
+   *
    * @throws Throwable
-   *             If any exception occurred
+   *         If any exception occurred
    */
   Object handleRequest(RequestContext context) throws Throwable;
 

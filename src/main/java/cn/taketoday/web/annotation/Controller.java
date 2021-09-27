@@ -30,7 +30,7 @@ import cn.taketoday.beans.Component;
  * Controller indicate that its a 'Controller' bean
  *
  * @author TODAY <br>
- *         2018-08-23 11:16
+ * 2018-08-23 11:16
  */
 @Component
 @RootController

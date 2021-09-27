@@ -25,7 +25,7 @@ import cn.taketoday.web.http.HttpHeaders;
 
 /**
  * @author TODAY <br>
- *         2019-10-03 10:56
+ * 2019-10-03 10:56
  */
 public class HeaderTokenResolver implements TokenResolver {
 

@@ -23,7 +23,7 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 
 /**
  * @author TODAY <br>
- *         2019-10-14 02:13
+ * 2019-10-14 02:13
  */
 public interface ConfigurableWebApplicationContext
         extends ConfigurableApplicationContext, WebApplicationContext {

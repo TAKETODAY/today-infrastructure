@@ -24,9 +24,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- *
  * @author TODAY <br>
- *         2019-02-07 16:31
+ * 2019-02-07 16:31
  */
 @Setter
 @Getter

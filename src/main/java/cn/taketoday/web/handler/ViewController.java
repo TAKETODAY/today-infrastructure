@@ -27,7 +27,7 @@ import cn.taketoday.core.OrderedSupport;
  * Views request mapping
  *
  * @author TODAY <br>
- *         2018-06-25 19:58:07
+ * 2018-06-25 19:58:07
  */
 public class ViewController extends OrderedSupport {
 

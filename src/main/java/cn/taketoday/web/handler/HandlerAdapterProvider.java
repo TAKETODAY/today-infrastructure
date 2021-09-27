@@ -26,7 +26,7 @@ package cn.taketoday.web.handler;
  * to specific a HandlerAdapter at startup time
  *
  * @author TODAY <br>
- *         2019-12-28 14:12
+ * 2019-12-28 14:12
  */
 @FunctionalInterface
 public interface HandlerAdapterProvider {

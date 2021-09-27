@@ -24,13 +24,15 @@ import java.sql.SQLException;
 
 /**
  * The {@link TypeHandler} for {@link Clob}/{@link Reader} using method supported at JDBC 4.0.
- * @since 3.4.0
+ *
  * @author Kazuki Shimizu
+ * @since 3.4.0
  */
 public class ClobReaderTypeHandler extends BaseTypeHandler<Reader> {
 
   /**
    * Set a {@link Reader} into {@link PreparedStatement}.
+   *
    * @see PreparedStatement#setClob(int, Reader)
    */
   @Override
@@ -41,6 +43,7 @@ public class ClobReaderTypeHandler extends BaseTypeHandler<Reader> {
 
   /**
    * Get a {@link Reader} that corresponds to a specified column name from {@link ResultSet}.
+   *
    * @see ResultSet#getClob(String)
    */
   @Override
@@ -51,6 +54,7 @@ public class ClobReaderTypeHandler extends BaseTypeHandler<Reader> {
 
   /**
    * Get a {@link Reader} that corresponds to a specified column index from {@link ResultSet}.
+   *
    * @see ResultSet#getClob(int)
    */
   @Override
@@ -61,6 +65,7 @@ public class ClobReaderTypeHandler extends BaseTypeHandler<Reader> {
 
   /**
    * Get a {@link Reader} that corresponds to a specified column index from {@link CallableStatement}.
+   *
    * @see CallableStatement#getClob(int)
    */
   @Override

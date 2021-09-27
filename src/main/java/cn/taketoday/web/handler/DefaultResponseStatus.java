@@ -35,7 +35,7 @@ public class DefaultResponseStatus implements ResponseStatus {
   private String reason;
   private HttpStatus value;
 
-  public DefaultResponseStatus() {}
+  public DefaultResponseStatus() { }
 
   public DefaultResponseStatus(HttpStatus value) {
     this(value, value.getReasonPhrase());
@@ -79,8 +79,10 @@ public class DefaultResponseStatus implements ResponseStatus {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof DefaultResponseStatus)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof DefaultResponseStatus))
+      return false;
     final DefaultResponseStatus that = (DefaultResponseStatus) o;
     return Objects.equals(reason, that.reason) && value == that.value;
   }

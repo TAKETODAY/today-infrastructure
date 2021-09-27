@@ -21,7 +21,7 @@ package cn.taketoday.transaction;
 
 /**
  * @author TODAY<br>
- *         2018-11-16 21:24
+ * 2018-11-16 21:24
  */
 public interface TransactionManager {
 

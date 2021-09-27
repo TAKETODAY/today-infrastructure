@@ -25,7 +25,7 @@ import cn.taketoday.web.RequestContext;
 
 /**
  * @author TODAY <br>
- *         2019-12-26 21:59
+ * 2019-12-26 21:59
  */
 @FunctionalInterface
 public interface FunctionHandler extends Serializable {

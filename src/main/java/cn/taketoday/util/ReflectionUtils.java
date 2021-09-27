@@ -960,7 +960,7 @@ public abstract class ReflectionUtils {
    *
    * @see java.lang.reflect.Method#setAccessible
    */
-  @SuppressWarnings("deprecation") // on JDK 9
+//  @SuppressWarnings("deprecation") // on JDK 9
   public static Method makeAccessible(Method method) {
     Assert.notNull(method, "method must not be null");
     if ((!Modifier.isPublic(method.getModifiers()) ||

@@ -121,7 +121,8 @@ public class MultipartInputStream extends FilterInputStream {
    *         if an error occurs
    */
   public boolean nextPart() throws IOException {
-    while (skip(buf.length) != 0) ; // skip current part (until boundary)
+    while (skip(buf.length) != 0)
+      ; // skip current part (until boundary)
     head = tail += len; // the next part starts right after boundary
     state |= 1; // started data (after first boundary)
     if (state >= 8) { // found last boundary

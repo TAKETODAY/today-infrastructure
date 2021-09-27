@@ -161,7 +161,7 @@ public class TokenMgrError extends Error {
    * Constructors of various flavors follow.
    */
 
-  public TokenMgrError() {}
+  public TokenMgrError() { }
 
   public TokenMgrError(String message, int reason) {
     super(message);

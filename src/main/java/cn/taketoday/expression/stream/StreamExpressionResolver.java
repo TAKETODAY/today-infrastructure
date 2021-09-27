@@ -137,7 +137,7 @@ public class StreamExpressionResolver extends ExpressionResolver {
     return null;
   }
 
-  public void setValue(ExpressionContext context, Object base, Object property, Object value) {}
+  public void setValue(ExpressionContext context, Object base, Object property, Object value) { }
 
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
     return false;

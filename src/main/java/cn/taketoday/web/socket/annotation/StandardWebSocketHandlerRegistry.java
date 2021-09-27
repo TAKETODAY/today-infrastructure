@@ -20,11 +20,12 @@
 
 package cn.taketoday.web.socket.annotation;
 
-import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.web.socket.WebSocketHandlerRegistry;
+import java.lang.reflect.Method;
 
 import javax.websocket.server.ServerEndpoint;
-import java.lang.reflect.Method;
+
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.web.socket.WebSocketHandlerRegistry;
 
 /**
  * javax.websocket.*

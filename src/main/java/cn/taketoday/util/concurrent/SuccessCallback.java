@@ -25,18 +25,22 @@ import cn.taketoday.core.Nullable;
 /**
  * Success callback for a {@link ListenableFuture}.
  *
+ * @param <T>
+ *         the result type
+ *
  * @author Sebastien Deleuze
  * @since 4.0
- * @param <T> the result type
  */
 @FunctionalInterface
 public interface SuccessCallback<T> {
 
-	/**
-	 * Called when the {@link ListenableFuture} completes with success.
-	 * <p>Note that Exceptions raised by this method are ignored.
-	 * @param result the result
-	 */
-	void onSuccess(@Nullable T result);
+  /**
+   * Called when the {@link ListenableFuture} completes with success.
+   * <p>Note that Exceptions raised by this method are ignored.
+   *
+   * @param result
+   *         the result
+   */
+  void onSuccess(@Nullable T result);
 
 }

@@ -21,7 +21,7 @@ package cn.taketoday.transaction;
 
 /**
  * @author TODAY <br>
- *         2018-10-09 11:08
+ * 2018-10-09 11:08
  */
 public abstract class AbstractResourceHolder implements ResourceHolder {
 
@@ -74,7 +74,7 @@ public abstract class AbstractResourceHolder implements ResourceHolder {
    * Set the timeout for this object in seconds.
    *
    * @param seconds
-   *            number of seconds until expiration
+   *         number of seconds until expiration
    */
   public void setTimeoutInSeconds(int seconds) {
     setTimeoutInMillis(seconds * 1000L);
@@ -84,7 +84,7 @@ public abstract class AbstractResourceHolder implements ResourceHolder {
    * Set the timeout for this object in milliseconds.
    *
    * @param millis
-   *            number of milliseconds until expiration
+   *         number of milliseconds until expiration
    */
   public void setTimeoutInMillis(long millis) {
     this.deadline = System.currentTimeMillis() + millis;
@@ -111,8 +111,9 @@ public abstract class AbstractResourceHolder implements ResourceHolder {
    * 9.00001 still to 10.
    *
    * @return number of seconds until expiration
+   *
    * @throws InvalidTimeoutException
-   *             if the deadline has already been reached
+   *         if the deadline has already been reached
    */
   public int getTimeToLiveInSeconds() {
     double diff = ((double) getTimeToLiveInMillis()) / 1000;
@@ -125,8 +126,9 @@ public abstract class AbstractResourceHolder implements ResourceHolder {
    * Return the time to live for this object in milliseconds.
    *
    * @return number of millseconds until expiration
+   *
    * @throws InvalidTimeoutException
-   *             if the deadline has already been reached
+   *         if the deadline has already been reached
    */
   public long getTimeToLiveInMillis() throws InvalidTimeoutException {
     if (this.deadline == 0) {

@@ -21,7 +21,7 @@ package cn.taketoday.web.http;
 
 /**
  * @author TODAY <br>
- *         2019-12-08 17:08
+ * 2019-12-08 17:08
  */
 public interface CorsConfigurationCapable {
 

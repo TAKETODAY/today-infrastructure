@@ -29,7 +29,7 @@ import cn.taketoday.beans.PropertyValueException;
 public class PropertyReadOnlyException extends PropertyValueException {
   private static final long serialVersionUID = 1L;
 
-  public PropertyReadOnlyException() {}
+  public PropertyReadOnlyException() { }
 
   public PropertyReadOnlyException(String message) {
     super(message);

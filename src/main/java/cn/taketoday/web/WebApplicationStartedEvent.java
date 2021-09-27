@@ -23,7 +23,7 @@ import cn.taketoday.context.event.ApplicationEvent;
 
 /**
  * @author TODAY <br>
- *         2018-10-18 14:06
+ * 2018-10-18 14:06
  */
 @SuppressWarnings("serial")
 public class WebApplicationStartedEvent extends ApplicationEvent {

@@ -23,7 +23,7 @@ import cn.taketoday.web.WebApplicationContext;
 
 /**
  * @author TODAY <br>
- *         2019-07-10 22:49
+ * 2019-07-10 22:49
  */
 @FunctionalInterface
 public interface WebApplicationInitializer {
@@ -32,9 +32,10 @@ public interface WebApplicationInitializer {
    * Configure the given {@link WebApplicationContext}
    *
    * @param applicationContext
-   *            the applicationContext to initialize
+   *         the applicationContext to initialize
+   *
    * @throws Throwable
-   *             if any call {@link Throwable} occurred
+   *         if any call {@link Throwable} occurred
    */
   void onStartup(WebApplicationContext applicationContext) throws Throwable;
 

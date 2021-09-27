@@ -131,7 +131,7 @@ final class StreamConverter implements TypeConverter {
 
     if (targetType.isCollection()) {
       return source.collect(Collectors.toCollection(() -> CollectionUtils.createCollection(
-                      targetType.getType(), null, 16)));
+              targetType.getType(), null, 16)));
     }
     return source.toArray(count -> (Object[]) Array.newInstance(elementType.getType(), count));
   }

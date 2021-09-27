@@ -23,7 +23,7 @@ import java.io.Flushable;
 
 /**
  * @author TODAY <br>
- *         2018-11-13 16:58
+ * 2018-11-13 16:58
  */
 public interface TransactionObject extends Flushable {
 

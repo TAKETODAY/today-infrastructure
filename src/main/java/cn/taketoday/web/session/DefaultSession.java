@@ -26,7 +26,7 @@ import cn.taketoday.core.AttributeAccessorSupport;
 
 /**
  * @author TODAY <br>
- *         2019-09-27 19:40
+ * 2019-09-27 19:40
  */
 public class DefaultSession extends AttributeAccessorSupport implements WebSession, Serializable {
   private static final long serialVersionUID = 1L;
@@ -59,9 +59,12 @@ public class DefaultSession extends AttributeAccessorSupport implements WebSessi
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof DefaultSession)) return false;
-    if (!super.equals(o)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof DefaultSession))
+      return false;
+    if (!super.equals(o))
+      return false;
     final DefaultSession that = (DefaultSession) o;
     return creationTime == that.creationTime && Objects.equals(id, that.id) && Objects.equals(storage, that.storage);
   }

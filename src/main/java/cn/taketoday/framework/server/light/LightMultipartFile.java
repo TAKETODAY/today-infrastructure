@@ -45,7 +45,6 @@ public final class LightMultipartFile extends AbstractMultipartFile implements R
   private File tempFile;
   private InputStream inputStream;
 
-
   LightMultipartFile(File tempFile, ContentDisposition contentDisposition, int partSize) {
     this.contentDisposition = contentDisposition;
     this.partSize = partSize;

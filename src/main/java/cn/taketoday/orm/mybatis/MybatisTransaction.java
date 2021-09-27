@@ -35,7 +35,7 @@ import lombok.Setter;
 
 /**
  * @author TODAY <br>
- *         2018-10-09 11:58
+ * 2018-10-09 11:58
  */
 @Setter
 public class MybatisTransaction implements Transaction {

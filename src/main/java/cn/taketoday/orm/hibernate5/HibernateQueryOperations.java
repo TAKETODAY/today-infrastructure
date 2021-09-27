@@ -28,7 +28,7 @@ import javax.persistence.PersistenceException;
 
 /**
  * @author TODAY <br>
- * 		   2019-11-05 21:12
+ * 2019-11-05 21:12
  */
 public interface HibernateQueryOperations<T> {
 

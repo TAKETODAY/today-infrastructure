@@ -27,7 +27,7 @@ import cn.taketoday.web.WebApplicationContextSupport;
 
 /**
  * @author TODAY <br>
- *         2019-12-21 15:56
+ * 2019-12-21 15:56
  */
 public class WebServletApplicationContextSupport
         extends WebApplicationContextSupport implements ServletContextAware {
@@ -50,17 +50,17 @@ public class WebServletApplicationContextSupport
    * {@link #setServletContext(javax.servlet.ServletContext)}.
    *
    * @param servletContext
-   *            the ServletContext that this application object runs in (never
-   *            {@code null})
+   *         the ServletContext that this application object runs in (never
+   *         {@code null})
    */
-  protected void initServletContext(ServletContext servletContext) {}
+  protected void initServletContext(ServletContext servletContext) { }
 
   /**
    * Return the current application context as
    * {@link WebServletApplicationContext}.
    *
    * @throws IllegalStateException
-   *             if not running in a WebApplicationContext
+   *         if not running in a WebApplicationContext
    * @see #getApplicationContext()
    */
   public final WebServletApplicationContext getWebServletApplicationContext() {
@@ -75,7 +75,7 @@ public class WebServletApplicationContextSupport
    * Return the current ServletContext.
    *
    * @throws IllegalStateException
-   *             if not running within a required ServletContext
+   *         if not running within a required ServletContext
    */
   public final ServletContext getServletContext() {
     if (this.servletContext != null) {

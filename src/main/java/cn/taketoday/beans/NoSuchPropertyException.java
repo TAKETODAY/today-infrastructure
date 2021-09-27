@@ -26,7 +26,7 @@ package cn.taketoday.beans;
 public class NoSuchPropertyException extends PropertyValueException {
   private static final long serialVersionUID = 1L;
 
-  public NoSuchPropertyException() {}
+  public NoSuchPropertyException() { }
 
   public NoSuchPropertyException(Throwable cause) {
     super(cause);

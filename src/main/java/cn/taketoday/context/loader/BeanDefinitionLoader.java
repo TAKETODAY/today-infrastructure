@@ -67,7 +67,6 @@ public interface BeanDefinitionLoader {
    */
   BeanDefinitionRegistry getRegistry();
 
-
   /**
    * Register bean definition with given class.
    * <p>

@@ -116,9 +116,12 @@ public class DefaultMethodInvocation extends AbstractMethodInvocation implements
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof DefaultMethodInvocation)) return false;
-    if (!super.equals(o)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof DefaultMethodInvocation))
+      return false;
+    if (!super.equals(o))
+      return false;
     final DefaultMethodInvocation that = (DefaultMethodInvocation) o;
     return currentAdviceIndex == that.currentAdviceIndex
             && adviceLength == that.adviceLength

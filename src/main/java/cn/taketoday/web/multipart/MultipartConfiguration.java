@@ -94,8 +94,10 @@ public class MultipartConfiguration {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof MultipartConfiguration)) return false;
+    if (this == o)
+      return true;
+    if (!(o instanceof MultipartConfiguration))
+      return false;
     final MultipartConfiguration that = (MultipartConfiguration) o;
     return Objects.equals(location, that.location) && Objects.equals(encoding, that.encoding) && Objects
             .equals(maxFileSize, that.maxFileSize) && Objects.equals(maxRequestSize, that.maxRequestSize) && Objects

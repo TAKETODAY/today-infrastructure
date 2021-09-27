@@ -23,7 +23,7 @@ import cn.taketoday.web.config.WebMvcConfiguration;
 
 /**
  * @author TODAY <br>
- *         2019-07-10 23:19
+ * 2019-07-10 23:19
  */
 public interface ServletWebMvcConfiguration extends WebMvcConfiguration {
 

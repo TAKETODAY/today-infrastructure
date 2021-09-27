@@ -28,7 +28,6 @@ public final class FeatureDetector {
     return jodaTimeAvailable;
   }
 
-
   /**
    * @return {@code true} if oracle.sql is available, {@code false} otherwise.
    */

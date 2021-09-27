@@ -28,7 +28,7 @@ import cn.taketoday.beans.BeansException;
 public class BeanInitializingException extends BeansException {
   private static final long serialVersionUID = 1L;
 
-  public BeanInitializingException() {}
+  public BeanInitializingException() { }
 
   public BeanInitializingException(String message) {
     super(message);

@@ -87,7 +87,7 @@ public class ThreadLocalTargetSource
       // Associate target with ThreadLocal.
       target = newPrototypeInstance();
       this.targetInThread.set(target);
-      synchronized (this.targetSet) {
+      synchronized(this.targetSet) {
         this.targetSet.add(target);
       }
     }
@@ -105,7 +105,7 @@ public class ThreadLocalTargetSource
   @Override
   public void destroy() {
     logger.debug("Destroying ThreadLocalTargetSource bindings");
-    synchronized (this.targetSet) {
+    synchronized(this.targetSet) {
       for (Object target : this.targetSet) {
         destroyPrototypeInstance(target);
       }
@@ -127,7 +127,7 @@ public class ThreadLocalTargetSource
 
   @Override
   public int getObjectCount() {
-    synchronized (this.targetSet) {
+    synchronized(this.targetSet) {
       return this.targetSet.size();
     }
   }

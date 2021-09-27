@@ -23,7 +23,7 @@ import java.sql.Connection;
 
 /**
  * @author TODAY <br>
- *         2018-10-09 11:51
+ * 2018-10-09 11:51
  */
 public interface TransactionDefinition {
 
@@ -97,7 +97,8 @@ public interface TransactionDefinition {
    * Should we roll back on the given exception?
    *
    * @param ex
-   *            the exception to evaluate
+   *         the exception to evaluate
+   *
    * @return whether to perform a rollback or not
    */
   boolean rollbackOn(Throwable ex);

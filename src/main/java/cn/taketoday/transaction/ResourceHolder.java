@@ -21,7 +21,7 @@ package cn.taketoday.transaction;
 
 /**
  * @author TODAY <br>
- *         2018-10-09 10:42
+ * 2018-10-09 10:42
  */
 public interface ResourceHolder {
 

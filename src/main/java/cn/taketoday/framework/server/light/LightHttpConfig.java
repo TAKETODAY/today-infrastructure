@@ -41,7 +41,7 @@ public class LightHttpConfig {
   /**
    * Multi-segment request file size exceeds this value to cache the file
    */
-  private int maxMultipartInMemSize  = 4096;
+  private int maxMultipartInMemSize = 4096;
 
   /**
    * The buffer size of the file when buffering to a temporary

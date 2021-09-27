@@ -28,7 +28,7 @@ import cn.taketoday.beans.BeansException;
 public class BeanDefinitionStoreException extends BeansException {
   private static final long serialVersionUID = 1L;
 
-  public BeanDefinitionStoreException() {}
+  public BeanDefinitionStoreException() { }
 
   public BeanDefinitionStoreException(Class<?> beanClass, Throwable cause) {
     super("Can't store: [" + beanClass.getName() + "]", cause);

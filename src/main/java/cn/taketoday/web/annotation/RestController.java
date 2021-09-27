@@ -30,7 +30,7 @@ import cn.taketoday.beans.Component;
  * Controller indicate that its a 'RestController' bean
  *
  * @author TODAY<br>
- *         2018-11-17 21:26
+ * 2018-11-17 21:26
  */
 @Component
 @ResponseBody

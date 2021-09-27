@@ -19,7 +19,6 @@
  */
 package cn.taketoday.core.conversion.support;
 
-
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;

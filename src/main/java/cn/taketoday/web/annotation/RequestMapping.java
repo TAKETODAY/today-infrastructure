@@ -30,7 +30,7 @@ import cn.taketoday.web.http.HttpMethod;
 
 /**
  * @author TODAY <br>
- *         2018-08-23 10:18
+ * 2018-08-23 10:18
  */
 @ActionMapping
 @Target({ ElementType.METHOD, ElementType.TYPE })

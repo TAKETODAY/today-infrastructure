@@ -24,6 +24,7 @@ import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
 import java.util.Objects;
 
+import cn.taketoday.core.Constant;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
@@ -34,7 +35,6 @@ import cn.taketoday.core.bytecode.core.CodeEmitter;
 import cn.taketoday.core.bytecode.core.EmitUtils;
 import cn.taketoday.core.bytecode.core.KeyFactory;
 import cn.taketoday.core.bytecode.core.MethodInfo;
-import cn.taketoday.core.Constant;
 import cn.taketoday.util.ReflectionUtils;
 
 // TODO: don't require exact match for return type

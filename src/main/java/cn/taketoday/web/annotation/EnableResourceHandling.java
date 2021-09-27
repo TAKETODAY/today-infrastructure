@@ -29,7 +29,7 @@ import cn.taketoday.web.registry.ResourceHandlerRegistry;
 
 /**
  * @author TODAY <br>
- *         2020-03-30 21:38
+ * 2020-03-30 21:38
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Import(ResourceHandlerRegistry.class)

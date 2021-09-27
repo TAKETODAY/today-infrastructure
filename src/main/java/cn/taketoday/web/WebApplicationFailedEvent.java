@@ -22,9 +22,8 @@ package cn.taketoday.web;
 import cn.taketoday.context.event.ApplicationEvent;
 
 /**
- *
  * @author TODAY <br>
- *         2019-05-17 10:14
+ * 2019-05-17 10:14
  */
 @SuppressWarnings("serial")
 public class WebApplicationFailedEvent extends ApplicationEvent {

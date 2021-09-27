@@ -32,7 +32,7 @@ public class CompositeHandlerExceptionHandler
 
   private List<HandlerExceptionHandler> handlers;
 
-  public CompositeHandlerExceptionHandler() {}
+  public CompositeHandlerExceptionHandler() { }
 
   public CompositeHandlerExceptionHandler(final List<HandlerExceptionHandler> handlers) {
     this.handlers = handlers;

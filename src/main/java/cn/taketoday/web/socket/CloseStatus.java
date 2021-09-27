@@ -20,9 +20,9 @@
 
 package cn.taketoday.web.socket;
 
-import cn.taketoday.core.Assert;
-
 import java.util.Objects;
+
+import cn.taketoday.core.Assert;
 
 /**
  * Represents a WebSocket close status code and reason. Status codes in the 1xxx range are

@@ -29,7 +29,7 @@ import cn.taketoday.web.http.HttpMethod;
 
 /**
  * @author TODAY <br>
- *         2018-12-11 20:03
+ * 2018-12-11 20:03
  */
 @Retention(RetentionPolicy.RUNTIME)
 @ActionMapping(method = HttpMethod.HEAD)
