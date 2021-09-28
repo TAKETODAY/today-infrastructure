@@ -19,6 +19,13 @@
  */
 package cn.taketoday.util;
 
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.DefaultMultiValueMap;
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.NonNull;
+import cn.taketoday.core.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,24 +52,7 @@ import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.NonNull;
-import cn.taketoday.core.Nullable;
-
 /**
- * Factory for collections that is aware of common Java and collection
- * types.
- *
- * <p>
- * Mainly for internal use within the framework.
- * </p>
- * <p>
- * From Spring
- * </p>
- *
  * @author TODAY 2019-12-29 23:39
  */
 public abstract class CollectionUtils {
@@ -666,6 +656,7 @@ public abstract class CollectionUtils {
    * @throws NullPointerException
    *         if the specified element is null and this list does not permit null
    *         elements
+   * @see List#set(int, Object)
    * @since 3.0
    */
   @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -692,11 +683,32 @@ public abstract class CollectionUtils {
    * @return the element at the specified position in this list
    *
    * @since 4.0
+   * @see List#get(int)
    */
   @Nullable
   public static <T> T getElement(@Nullable final List<T> list, final int index) {
     if (list != null && index >= 0 && index < list.size()) {
       return list.get(index);
+    }
+    return null;
+  }
+
+  /**
+   * Returns the element at the specified position in this list.
+   * <p>list can be {@code null}, then returns {@code null}
+   *
+   * @param index
+   *         index of the element to return
+   *
+   * @return the element at the specified position in this list
+   *
+   * @since 4.0
+   * @see List#get(int)
+   */
+  @Nullable
+  public static <T> T getElement(@Nullable final T[] array, final int index) {
+    if (array != null && index >= 0 && index < array.length) {
+      return array[index];
     }
     return null;
   }
@@ -847,14 +859,18 @@ public abstract class CollectionUtils {
   }
 
   /**
-   * removeIf Predicate#negate()
+   * remove the elements of this collection that match the given predicate.
+   *
+   * @param predicate
+   * 				a predicate to apply to each element to determine if it
+   * 				should be removed
    *
    * @see Predicate#negate()
    * @see Collection#removeIf(Predicate)
    * @since 4.0
    */
-  public static <T> void filter(Collection<T> c, Predicate<? super T> p) {
-    c.removeIf(p.negate());
+  public static <T> void filter(Collection<T> collection, Predicate<? super T> predicate) {
+    collection.removeIf(predicate.negate());
   }
 
   /**
@@ -889,7 +905,7 @@ public abstract class CollectionUtils {
     return buckets;
   }
 
-  public static <K, V> MultiValueMap<K, V> buckets(Collection<V> c, Function<V, K> transformer) {
+  public static <K, V> MultiValueMap<K, V> buckets(Iterable<V> c, Function<V, K> transformer) {
     DefaultMultiValueMap<K, V> buckets = new DefaultMultiValueMap<>(new LinkedHashMap<>());
     for (final V value : c) {
       final K key = transformer.apply(value);
@@ -899,11 +915,11 @@ public abstract class CollectionUtils {
   }
 
   /**
-   * Retrieve the first element of the given Collection, using {@link SortedSet#first()}
+   * Retrieve the first element of the given Iterable, using {@link SortedSet#first()}
    * or otherwise using the iterator.
    *
-   * @param collection
-   *         the Collection to check (may be {@code null} or empty)
+   * @param iterable
+   *         the iterable to check (may be {@code null} or empty)
    *
    * @return the first element, or {@code null} if none
    *
@@ -914,15 +930,16 @@ public abstract class CollectionUtils {
    * @since 4.0
    */
   @Nullable
-  public static <T> T firstElement(@Nullable Collection<T> collection) {
-    if (isEmpty(collection)) {
+  public static <T> T firstElement(@Nullable Iterable<T> iterable) {
+    if (iterable == null
+            || iterable instanceof Collection && ((Collection<T>) iterable).isEmpty()) {
       return null;
     }
-    if (collection instanceof SortedSet) {
-      return ((SortedSet<T>) collection).first();
+    if (iterable instanceof SortedSet) {
+      return ((SortedSet<T>) iterable).first();
     }
 
-    Iterator<T> it = collection.iterator();
+    Iterator<T> it = iterable.iterator();
     T first = null;
     if (it.hasNext()) {
       first = it.next();
@@ -946,6 +963,21 @@ public abstract class CollectionUtils {
   }
 
   /**
+   * Retrieve the first element of the given Array, accessing the zero index.
+   *
+   * @param array
+   *         the array to check (may be {@code null} or empty)
+   *
+   * @return the first element, or {@code null} if none
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public static <T> T firstElement(@Nullable final T[] array) {
+    return getElement(array, 0);
+  }
+
+  /**
    * Retrieve the last element of the given List, accessing the highest index.
    *
    * @param list
@@ -961,6 +993,23 @@ public abstract class CollectionUtils {
       return null;
     }
     return list.get(list.size() - 1);
+  }
+
+  /**
+   * Retrieve the last element of the given array, accessing the highest index.
+   *
+   * @param array
+   *         the array to check (may be {@code null} or empty)
+   *
+   * @return the last element, or {@code null} if none
+   *
+   * @since 4.0
+   */
+  public static <T> T lastElement(@Nullable final T[] array) {
+    if (array == null || array.length == 0) {
+      return null;
+    }
+    return array[array.length - 1];
   }
 
   /**
