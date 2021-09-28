@@ -37,7 +37,7 @@ import java.util.List;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.TypeDescriptor;
+import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.web.ObjectNotationProcessor;
 
 /**

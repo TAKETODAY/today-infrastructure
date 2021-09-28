@@ -20,7 +20,7 @@
 package cn.taketoday.core.conversion;
 
 import cn.taketoday.core.NestedRuntimeException;
-import cn.taketoday.util.TypeDescriptor;
+import cn.taketoday.core.TypeDescriptor;
 
 /**
  * Base class for exceptions thrown by the conversion system.

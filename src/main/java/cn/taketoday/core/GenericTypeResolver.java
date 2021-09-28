@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.util;
+package cn.taketoday.core;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.Nullable;
+import cn.taketoday.core.ResolvableType;
 
 /**
  * Helper class for resolving generic types against type variables.

@@ -24,7 +24,7 @@ import java.util.Collection;
 
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.TypeDescriptor;
+import cn.taketoday.core.TypeDescriptor;
 
 /**
  * @author TODAY 2021/3/22 13:04

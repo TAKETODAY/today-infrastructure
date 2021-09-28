@@ -105,7 +105,7 @@ public class MethodEventDrivenPostProcessor implements BeanPostProcessor {
 
   protected void addListener(
           BeanDefinition def, ConfigurableBeanFactory beanFactory, Method declaredMethod, Class<?>... eventTypes) {
-    ObjectSupplier<Object> beanSupplier = beanFactory.getBeanSupplier(def);
+    ObjectSupplier<Object> beanSupplier = beanFactory.getObjectSupplier(def);
     MethodApplicationListener listener = new MethodApplicationListener(
             beanSupplier, declaredMethod, eventTypes, beanFactory);
     context.addApplicationListener(listener);

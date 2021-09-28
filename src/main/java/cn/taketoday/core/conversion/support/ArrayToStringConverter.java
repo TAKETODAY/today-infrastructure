@@ -23,7 +23,7 @@ import java.util.Arrays;
 
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.TypeDescriptor;
+import cn.taketoday.core.TypeDescriptor;
 
 /**
  * Converts an array to a comma-delimited String.

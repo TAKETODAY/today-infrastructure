@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -24,17 +24,26 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.BeanNameCreator;
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.context.annotation.Component;
 import cn.taketoday.beans.FactoryBean;
-import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.Scope;
+import cn.taketoday.context.annotation.Component;
+import cn.taketoday.context.annotation.Prototype;
 
 /**
- * @author TODAY <br>
- * 2018-11-14 19:40
+ * Configuration interface to be implemented by most bean factories. Provides
+ * facilities to configure a bean factory, in addition to the bean factory
+ * client methods in the {@link BeanFactory} interface.
+ *
+ * <p>This bean factory interface is not meant to be used in normal application
+ * code: Stick to {@link BeanFactory} for typical needs. This extended interface
+ * is just meant to allow for framework-internal plug'n'play and for special
+ * access to bean factory configuration methods.
+ *
+ * @author TODAY 2018-11-14 19:40
+ * @see BeanFactory
  */
 public interface ConfigurableBeanFactory
-        extends BeanFactory, SingletonBeanRegistry, BeanDefinitionRegistry {
+        extends HierarchicalBeanFactory, SingletonBeanRegistry, BeanDefinitionRegistry {
 
   /**
    * Register a bean with the given name and bean definition
@@ -268,19 +277,17 @@ public interface ConfigurableBeanFactory
   void destroyBean(Object beanInstance, BeanDefinition def);
 
   /**
-   * Refresh bean with given name, and publish
-   * {@link cn.taketoday.context.event.ObjectRefreshedEvent ObjectRefreshedEvent}.
+   * initialize bean with given name
    *
    * @param name
    *         bean name
    *
    * @since 1.2.0
    */
-  void refresh(String name);
+  void initialize(String name);
 
   /**
-   * Refresh bean definition, and publish
-   * {@link cn.taketoday.context.event.ObjectRefreshedEvent ObjectRefreshedEvent}.
+   * initialize bean definition
    *
    * @param beanDefinition
    *         bean definition
@@ -289,7 +296,7 @@ public interface ConfigurableBeanFactory
    *
    * @since 2.0.0
    */
-  Object refresh(BeanDefinition beanDefinition);
+  Object initialize(BeanDefinition beanDefinition);
 
   /**
    * Initialize singletons
@@ -327,25 +334,6 @@ public interface ConfigurableBeanFactory
    * @since 2.1.2
    */
   void removeBeanPostProcessor(BeanPostProcessor beanPostProcessor);
-
-  /**
-   * Enable full {@link Prototype Prototype}
-   *
-   * @see #setFullPrototype(boolean)
-   * @since 2.1.6
-   */
-  @Deprecated
-  void enableFullPrototype();
-
-  /**
-   * Enable full {@link Prototype Prototype}'s
-   * life cycle, default is not support
-   *
-   * @see #setFullLifecycle(boolean)
-   * @since 2.1.6
-   */
-  @Deprecated
-  void enableFullLifecycle();
 
   /**
    * Enable full {@link Prototype Prototype}
@@ -388,4 +376,20 @@ public interface ConfigurableBeanFactory
    * @since 2.1.7
    */
   void destroyScopedBean(String beanName);
+
+  /**
+   * Set the parent of this bean factory.
+   * <p>Note that the parent cannot be changed: It should only be set outside
+   * a constructor if it isn't available at the time of factory instantiation.
+   *
+   * @param parentBeanFactory
+   *         the parent BeanFactory
+   *
+   * @throws IllegalStateException
+   *         if this factory is already associated with
+   *         a parent BeanFactory
+   * @see #getParentBeanFactory()
+   */
+  void setParentBeanFactory(BeanFactory parentBeanFactory) throws IllegalStateException;
+
 }

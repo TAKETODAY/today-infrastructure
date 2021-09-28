@@ -19,7 +19,7 @@
  */
 package cn.taketoday.core.conversion;
 
-import cn.taketoday.util.TypeDescriptor;
+import cn.taketoday.core.TypeDescriptor;
 
 /**
  * Type converter

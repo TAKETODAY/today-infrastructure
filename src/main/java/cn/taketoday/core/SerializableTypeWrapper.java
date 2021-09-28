@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.util;
+package cn.taketoday.core;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -37,6 +37,10 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.Objects;
+
+import cn.taketoday.util.ConcurrentReferenceHashMap;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Internal utility class that can be used to obtain wrapped {@link Serializable}

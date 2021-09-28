@@ -67,4 +67,76 @@ public final class TodayStrategies extends StrategiesDetector {
     return todayStrategies;
   }
 
+  /**
+   * Retrieve the flag for the given property key.
+   *
+   * @param key
+   *         the property key
+   *
+   * @return {@code true} if the property is set to "true", {@code} false
+   * otherwise
+   */
+  public static boolean getFlag(String key) {
+    return getDetector().getBoolean(key);
+  }
+
+  /**
+   * Retrieve the flag for the given property key.
+   * <p>
+   * If there isn't a key returns defaultFlag
+   * </p>
+   *
+   * @param key
+   *         the property key
+   *
+   * @return {@code true} if the property is set to "true", {@code} false
+   * otherwise ,If there isn't a key returns defaultFlag
+   */
+  public static boolean getFlag(String key, boolean defaultFlag) {
+    return getDetector().getBoolean(key, defaultFlag);
+  }
+
+  /**
+   * Programmatically set a local flag to "true", overriding an
+   * entry in the {@link #STRATEGIES_LOCATION} file (if any).
+   *
+   * @param key
+   *         the property key
+   */
+  public static void setFlag(String key) {
+    getDetector().getStrategies().set(key, Boolean.TRUE.toString());
+  }
+
+  /**
+   * Programmatically set a local property, overriding an entry in the
+   * {@link #STRATEGIES_LOCATION} file (if any).
+   *
+   * @param key
+   *         the property key
+   * @param value
+   *         the associated property value, or {@code null} to reset it
+   */
+  public static void setProperty(String key, @Nullable String value) {
+    if (value != null) {
+      getDetector().getStrategies().set(key, value);
+    }
+    else {
+      getDetector().getStrategies().remove(key);
+    }
+  }
+
+  /**
+   * Retrieve the property value for the given key, checking local Spring
+   * properties first and falling back to JVM-level system properties.
+   *
+   * @param key
+   *         the property key
+   *
+   * @return the associated property value, or {@code null} if none found
+   */
+  @Nullable
+  public static String getProperty(String key) {
+    return getDetector().getFirst(key);
+  }
+
 }

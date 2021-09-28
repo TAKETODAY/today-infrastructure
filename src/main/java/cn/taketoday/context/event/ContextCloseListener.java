@@ -23,7 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.AbstractBeanFactory;
-import cn.taketoday.context.AbstractApplicationContext;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.Ordered;
@@ -43,7 +43,7 @@ public class ContextCloseListener
         extends OrderedSupport implements ApplicationListener<ContextCloseEvent> {
 
   public ContextCloseListener() {
-    this(Ordered.LOWEST_PRECEDENCE - Ordered.HIGHEST_PRECEDENCE);
+    this(Ordered.LOWEST_PRECEDENCE);
   }
 
   public ContextCloseListener(int order) {
@@ -52,22 +52,24 @@ public class ContextCloseListener
 
   @Override
   public void onApplicationEvent(ContextCloseEvent event) {
-    final ApplicationContext context = event.getApplicationContext();
+    final ApplicationContext context = event.getSource();
     final Logger log = LoggerFactory.getLogger(getClass());
     log.info("Closing: [{}] at [{}]", context,
              new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(event.getTimestamp()));
 
-    for (final String name : context.getBeanDefinitions().keySet()) {
+    ConfigurableBeanFactory beanFactory = event.getBeanFactory(ConfigurableBeanFactory.class);
+
+    for (final String name : beanFactory.getBeanDefinitions().keySet()) {
       try {
-        context.destroyBean(name);
+        beanFactory.destroyBean(name);
         // remove bean in this context
-        context.removeBean(name);
+        beanFactory.removeBean(name);
       }
       catch (final Throwable e) {
         log.error(e.getMessage(), e);
       }
     }
-    final Map<String, Object> singletons = context.getSingletons();
+    final Map<String, Object> singletons = beanFactory.getSingletons();
     for (final Map.Entry<String, Object> entry : singletons.entrySet()) {
       try {
         destroyBean(entry.getValue());
@@ -80,10 +82,9 @@ public class ContextCloseListener
     // remove bean in this context
     singletons.clear();
 
-    if (context instanceof AbstractApplicationContext) {
-      AbstractBeanFactory beanFactory = ((AbstractApplicationContext) context).getBeanFactory();
-      beanFactory.getDependencies().clear();
-      beanFactory.getPostProcessors().clear();
+    if (beanFactory instanceof AbstractBeanFactory) {
+      ((AbstractBeanFactory) beanFactory).getDependencies().clear();
+      ((AbstractBeanFactory) beanFactory).getPostProcessors().clear();
     }
     ClassUtils.clearCache();
   }

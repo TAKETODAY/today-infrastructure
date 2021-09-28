@@ -22,6 +22,7 @@ package cn.taketoday.web.config;
 import java.util.Collections;
 import java.util.List;
 
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Environment;
 import cn.taketoday.core.Assert;
@@ -415,9 +416,10 @@ public class WebApplicationLoader
       return registry;
     }
     if (registry == null) {
-      final WebApplicationContext context = obtainApplicationContext();
-      context.registerBean(ViewControllerHandlerRegistry.class);
-      registry = context.getBean(ViewControllerHandlerRegistry.class);
+      ConfigurableBeanFactory beanFactory = obtainApplicationContext().getBeanFactory(
+              ConfigurableBeanFactory.class);
+      beanFactory.registerBean(ViewControllerHandlerRegistry.class);
+      registry = beanFactory.getBean(ViewControllerHandlerRegistry.class);
     }
     registry.configure(webMvcConfigLocation);
     return registry;
@@ -446,7 +448,9 @@ public class WebApplicationLoader
       if (dispatcherHandler == null) {
         dispatcherHandler = createDispatcher(context);
         Assert.state(dispatcherHandler != null, "DispatcherHandler must not be null, sub class must create its instance");
-        context.registerBean(dispatcherHandler);
+        ConfigurableBeanFactory beanFactory = obtainApplicationContext().getBeanFactory(
+                ConfigurableBeanFactory.class);
+        beanFactory.registerBean(dispatcherHandler);
       }
       this.dispatcher = dispatcherHandler;
     }

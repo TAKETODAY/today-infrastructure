@@ -28,7 +28,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.util.ResolvableType;
+import cn.taketoday.core.ResolvableType;
 
 /**
  * for {@link ObjectSupplier} ArgumentsResolverStrategy
@@ -54,7 +54,7 @@ public class ObjectSupplierArgumentsResolver
     final ResolvableType parameterType = ResolvableType.fromParameter(parameter);
     if (parameterType.hasGenerics()) {
       final ResolvableType generic = parameterType.as(Supplier.class).getGeneric(0);
-      return beanFactory.getBeanSupplier(generic.toClass());
+      return beanFactory.getObjectSupplier(generic.toClass());
     }
     throw new UnsupportedOperationException(
             "Unsupported '" + parameter + "' In -> " + parameter.getDeclaringExecutable());

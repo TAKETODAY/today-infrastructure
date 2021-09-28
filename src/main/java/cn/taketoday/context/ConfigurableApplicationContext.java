@@ -23,6 +23,7 @@ import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.loader.CandidateComponentScanner;
+import cn.taketoday.core.Nullable;
 
 /**
  * @author TODAY <br>
@@ -45,6 +46,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
    *
    * @return A bean factory
    */
+  @Override
   ConfigurableBeanFactory getBeanFactory();
 
   /**
@@ -82,5 +84,36 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
    * @since 2.1.7
    */
   void addBeanFactoryPostProcessor(BeanFactoryPostProcessor postProcessor);
+
+  /**
+   * Set the unique id of this application context.
+   *
+   * @since 4.0
+   */
+  void setId(String id);
+
+  /**
+   * Set the parent of this application context.
+   * <p>Note that the parent shouldn't be changed: It should only be set outside
+   * a constructor if it isn't available when an object of this class is created,
+   * for example in case of WebApplicationContext setup.
+   *
+   * @param parent
+   *         the parent context
+   *
+   * @see cn.taketoday.web.ConfigurableWebApplicationContext
+   * @since 4.0
+   */
+  void setParent(@Nullable ApplicationContext parent);
+
+  /**
+   * Set the {@code Environment} for this application context.
+   *
+   * @param environment
+   *         the new environment
+   *
+   * @since 4.0
+   */
+  void setEnvironment(ConfigurableEnvironment environment);
 
 }

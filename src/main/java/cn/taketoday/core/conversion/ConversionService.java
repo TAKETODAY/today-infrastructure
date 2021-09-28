@@ -21,7 +21,7 @@
 package cn.taketoday.core.conversion;
 
 import cn.taketoday.core.Assert;
-import cn.taketoday.util.TypeDescriptor;
+import cn.taketoday.core.TypeDescriptor;
 
 /**
  * Conversion Service

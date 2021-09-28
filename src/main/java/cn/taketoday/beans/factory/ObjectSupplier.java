@@ -26,9 +26,9 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.util.GenericTypeResolver;
 
 /**
  * @author TODAY 2021/3/6 11:18

@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import cn.taketoday.context.annotation.Profile;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.condition.WindowsCondition;

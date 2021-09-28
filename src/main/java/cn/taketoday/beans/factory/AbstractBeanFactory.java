@@ -40,7 +40,6 @@ import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.BeanNameCreator;
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.context.annotation.Component;
 import cn.taketoday.beans.DefaultBeanNameCreator;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.beans.InitializingBean;
@@ -50,6 +49,7 @@ import cn.taketoday.beans.PropertyValueException;
 import cn.taketoday.beans.SmartFactoryBean;
 import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.Scope;
+import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.aware.Aware;
 import cn.taketoday.context.aware.BeanClassLoaderAware;
 import cn.taketoday.context.aware.BeanFactoryAware;
@@ -58,6 +58,8 @@ import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.NonNull;
+import cn.taketoday.core.Nullable;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.logger.Logger;
@@ -68,8 +70,7 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
- * @author TODAY <br>
- * 2018-06-23 11:20:58
+ * @author TODAY 2018-06-23 11:20:58
  */
 public abstract class AbstractBeanFactory
         implements ConfigurableBeanFactory, AutowireCapableBeanFactory {
@@ -102,6 +103,14 @@ public abstract class AbstractBeanFactory
 
   /** @since 4.0 */
   private final ArgumentsResolver argumentsResolver = new ArgumentsResolver(this);
+
+  /** Parent bean factory, for bean inheritance support. @since 4.0 */
+  @Nullable
+  private BeanFactory parentBeanFactory;
+
+  //---------------------------------------------------------------------
+  // Implementation of BeanFactory interface
+  //---------------------------------------------------------------------
 
   public Object getBean(final String name) {
     final BeanDefinition def = getBeanDefinition(name);
@@ -207,7 +216,7 @@ public abstract class AbstractBeanFactory
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> ObjectSupplier<T> getBeanSupplier(final BeanDefinition def) {
+  public <T> ObjectSupplier<T> getObjectSupplier(final BeanDefinition def) {
     Assert.notNull(def, "BeanDefinition must not be null");
 
     if (def.isSingleton()) {
@@ -241,7 +250,7 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public <T> ObjectSupplier<T> getBeanSupplier(Class<T> requiredType) {
+  public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType) {
     Assert.notNull(requiredType, "requiredType must not be null");
     return new DefaultObjectSupplier<>(requiredType, this);
   }
@@ -349,6 +358,46 @@ public abstract class AbstractBeanFactory
   @Override
   public Map<String, BeanDefinition> getBeanDefinitions() {
     return beanDefinitionMap;
+  }
+
+  @Override
+  public boolean isTypeMatch(String name, Class<?> typeToMatch) throws NoSuchBeanDefinitionException {
+    return isTypeMatch(name, ResolvableType.fromClass(typeToMatch));
+  }
+
+  @Override
+  public boolean isTypeMatch(String name, ResolvableType typeToMatch) throws NoSuchBeanDefinitionException {
+    return isTypeMatch(name, typeToMatch, true);
+  }
+
+  /**
+   * Internal extended variant of {@link #isTypeMatch(String, ResolvableType)}
+   * to check whether the bean with the given name matches the specified type. Allow
+   * additional constraints to be applied to ensure that beans are not created early.
+   *
+   * @param name
+   *         the name of the bean to query
+   * @param typeToMatch
+   *         the type to match against (as a
+   *         {@code ResolvableType})
+   *
+   * @return {@code true} if the bean type matches, {@code false} if it
+   * doesn't match or cannot be determined yet
+   *
+   * @throws NoSuchBeanDefinitionException
+   *         if there is no bean with the given name
+   * @see #getBean
+   * @see #getType
+   * @since 4.0
+   */
+  protected boolean isTypeMatch(String name, ResolvableType typeToMatch, boolean allowFactoryBeanInit)
+          throws NoSuchBeanDefinitionException {
+
+  }
+
+  @Override
+  public <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType) {
+    return null; // TODO
   }
 
   /**
@@ -1033,101 +1082,6 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public void registerBean(Class<?> clazz) {
-    registerBean(getBeanNameCreator().create(clazz), clazz);
-  }
-
-  @Override
-  public void registerBean(Set<Class<?>> candidates) {
-    final BeanNameCreator nameCreator = getBeanNameCreator();
-    for (final Class<?> candidate : candidates) {
-      registerBean(nameCreator.create(candidate), candidate);
-    }
-  }
-
-  @Override
-  public void registerBean(String name, Class<?> clazz) {
-    getBeanDefinitionLoader().load(name, clazz);
-  }
-
-  @Override
-  public void registerBean(String name, BeanDefinition beanDefinition) {
-    getBeanDefinitionLoader().register(name, beanDefinition);
-  }
-
-  @Override
-  public void registerBean(Object obj) {
-    registerBean(getBeanNameCreator().create(obj.getClass()), obj);
-  }
-
-  @Override
-  public void registerBean(final String name, final Object obj) {
-    Assert.notNull(name, "bean-name must not be null");
-    Assert.notNull(obj, "bean-instance must not be null");
-
-    final List<BeanDefinition> loaded = getBeanDefinitionLoader().load(name, obj.getClass());
-    for (final BeanDefinition def : loaded) {
-      if (def.isSingleton()) {
-        registerSingleton(name, obj);
-      }
-    }
-  }
-
-  @Override
-  public <T> void registerBean(Class<T> clazz, Supplier<T> supplier, boolean prototype, boolean ignoreAnnotation)
-          throws BeanDefinitionStoreException {
-    Assert.notNull(clazz, "bean-class must not be null");
-    Assert.notNull(supplier, "bean-instance-supplier must not be null");
-    final String defaultName = getBeanNameCreator().create(clazz);
-    final BeanDefinitionLoader definitionLoader = getBeanDefinitionLoader();
-    final List<BeanDefinition> loaded = definitionLoader.load(defaultName, clazz, ignoreAnnotation);
-
-    if (CollectionUtils.isNotEmpty(loaded)) {
-      for (final BeanDefinition def : loaded) {
-        def.setSupplier(supplier);
-        if (prototype) {
-          def.setScope(Scope.PROTOTYPE);
-        }
-      }
-    }
-  }
-
-  @Override
-  public <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException {
-    Assert.notNull(name, "bean-name must not be null");
-    Assert.notNull(supplier, "bean-instance-supplier must not be null");
-    beanSupplier.put(name, supplier);
-  }
-
-  @Override
-  public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
-    Assert.notNull(beanPostProcessor, "BeanPostProcessor must not be null");
-
-    final List<BeanPostProcessor> postProcessors = getPostProcessors();
-    postProcessors.remove(beanPostProcessor);
-    postProcessors.add(beanPostProcessor);
-
-    AnnotationAwareOrderComparator.sort(postProcessors);
-
-    // Track whether it is instantiation/destruction aware
-    if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
-      this.hasInstantiationAwareBeanPostProcessors = true;
-    }
-  }
-
-  @Override
-  public void removeBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
-    getPostProcessors().remove(beanPostProcessor);
-
-    for (final BeanPostProcessor postProcessor : getPostProcessors()) {
-      if (postProcessor instanceof InstantiationAwareBeanPostProcessor) {
-        this.hasInstantiationAwareBeanPostProcessors = true;
-        break;
-      }
-    }
-  }
-
-  @Override
   public void registerSingleton(final String name, final Object singleton) {
     Assert.notNull(name, "Bean name must not be null");
     Assert.notNull(singleton, "Singleton object must not be null");
@@ -1186,20 +1140,6 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public void removeBean(String name) {
-    removeBeanDefinition(name);
-    removeSingleton(name);
-  }
-
-  @Override
-  public void removeBean(Class<?> beanClass) {
-    final Map<String, ?> beansOfType = getBeansOfType(beanClass, true, true);
-    for (final String name : beansOfType.keySet()) {
-      removeBean(name);
-    }
-  }
-
-  @Override
   public boolean containsSingleton(String name) {
     return singletons.containsKey(name);
   }
@@ -1226,75 +1166,6 @@ public abstract class AbstractBeanFactory
           dependencies.add((BeanReferencePropertySetter) propertySetter);
         }
       }
-    }
-  }
-
-  @Override
-  public void registerScope(String name, Scope scope) {
-    Assert.notNull(name, "scope name must not be null");
-    Assert.notNull(scope, "scope object must not be null");
-    scopes.put(name, scope);
-  }
-
-  /**
-   * Destroy a bean with bean instance and bean definition
-   *
-   * @param beanInstance
-   *         Bean instance
-   * @param def
-   *         Bean definition
-   */
-  @Override
-  public void destroyBean(final Object beanInstance, final BeanDefinition def) {
-    if (beanInstance == null || def == null) {
-      return;
-    }
-    try {
-      ContextUtils.destroyBean(beanInstance, def, getPostProcessors());
-    }
-    catch (Throwable e) {
-      log.warn("An Exception Occurred When Destroy a bean: [{}], With Msg: [{}]",
-               def.getName(), e.toString(), e);
-    }
-  }
-
-  @Override
-  public void destroyBean(String name) {
-    destroyBean(name, getSingleton(name));
-  }
-
-  @Override
-  public void destroyBean(String name, Object beanInstance) {
-    BeanDefinition def = getBeanDefinition(name);
-    if (def == null && name.charAt(0) == FACTORY_BEAN_PREFIX_CHAR) {
-      // if it is a factory bean
-      final String factoryBeanName = name.substring(1);
-      def = getBeanDefinition(factoryBeanName);
-      if (def != null) {
-        destroyBean(getSingleton(factoryBeanName), def);
-      }
-    }
-
-    if (def == null) {
-      def = getPrototypeBeanDefinition(ClassUtils.getUserClass(beanInstance));
-    }
-    destroyBean(beanInstance, def);
-  }
-
-  @Override
-  public void destroyScopedBean(String beanName) {
-    final BeanDefinition def = obtainBeanDefinition(beanName);
-    if (def.isSingleton() || def.isPrototype()) {
-      throw new IllegalArgumentException(
-              "Bean name '" + beanName + "' does not correspond to an object in a mutable scope");
-    }
-    final Scope scope = scopes.get(def.getScope());
-    if (scope == null) {
-      throw new IllegalStateException("No Scope SPI registered for scope name '" + def.getScope() + "'");
-    }
-    final Object bean = scope.remove(beanName);
-    if (bean != null) {
-      destroyBean(bean, def);
     }
   }
 
@@ -1331,6 +1202,16 @@ public abstract class AbstractBeanFactory
       }
     }
     return null;
+  }
+
+  @Override
+  public boolean containsBean(String beanName) {
+    if (containsLocalBean(beanName)) {
+      return true;
+    }
+    // Not found -> check parent.
+    BeanFactory parentBeanFactory = getParentBeanFactory();
+    return parentBeanFactory != null && parentBeanFactory.containsBean(beanName);
   }
 
   @Override
@@ -1380,79 +1261,6 @@ public abstract class AbstractBeanFactory
     return dependencies;
   }
 
-  @Override
-  public void initializeSingletons() {
-    log.debug("Initialization of singleton objects.");
-    for (final BeanDefinition def : getBeanDefinitions().values()) {
-      // Trigger initialization of all non-lazy singleton beans...
-      if (def.isSingleton() && !def.isInitialized() && !def.isLazyInit()) {
-        if (def.isFactoryBean()) {
-          final FactoryBean<?> factoryBean = getFactoryBeanInstance(def);
-          final boolean isEagerInit = factoryBean instanceof SmartFactoryBean
-                  && ((SmartFactoryBean<?>) factoryBean).isEagerInit();
-          if (isEagerInit) {
-            getBean(def);
-          }
-        }
-        else {
-          createSingleton(def);
-        }
-      }
-    }
-
-    // Trigger post-initialization callback for all applicable beans...
-    for (final Object singleton : getSingletons().values()) {
-      postSingletonInitialization(singleton);
-    }
-
-    log.debug("The singleton objects are initialized.");
-  }
-
-  protected void postSingletonInitialization(final Object singleton) {
-    // SmartInitializingSingleton
-    if (singleton instanceof SmartInitializingSingleton) {
-      ((SmartInitializingSingleton) singleton).afterSingletonsInstantiated();
-    }
-  }
-
-  /**
-   * Initialization singletons that has already in context
-   */
-  public void preInitialization() {
-    final boolean debugEnabled = log.isDebugEnabled();
-
-    for (final Entry<String, Object> entry : new HashMap<>(getSingletons()).entrySet()) {
-
-      final String name = entry.getKey();
-      final BeanDefinition def = getBeanDefinition(name);
-      if (def == null || def.isInitialized()) {
-        continue;
-      }
-      initializeSingleton(entry.getValue(), def);
-      if (debugEnabled) {
-        log.debug("Pre initialize singleton bean is being stored in the name of [{}].", name);
-      }
-    }
-  }
-
-  // -----------------------------------------------------
-
-  @Override
-  public void refresh(String name) {
-    final BeanDefinition def = obtainBeanDefinition(name);
-    if (!def.isInitialized()) {
-      createSingleton(def);
-    }
-    else if (log.isWarnEnabled()) {
-      log.warn("A bean named: [{}] has already initialized", name);
-    }
-  }
-
-  @Override
-  public Object refresh(BeanDefinition def) {
-    return getBean(def);
-  }
-
   // -----------------------------
 
   public abstract BeanDefinitionLoader getBeanDefinitionLoader();
@@ -1485,16 +1293,6 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public void enableFullPrototype() {
-    setFullPrototype(true);
-  }
-
-  @Override
-  public void enableFullLifecycle() {
-    setFullLifecycle(true);
-  }
-
-  @Override
   public boolean isFullPrototype() {
     return fullPrototype;
   }
@@ -1502,14 +1300,6 @@ public abstract class AbstractBeanFactory
   @Override
   public boolean isFullLifecycle() {
     return fullLifecycle;
-  }
-
-  public void setFullPrototype(boolean fullPrototype) {
-    this.fullPrototype = fullPrototype;
-  }
-
-  public void setFullLifecycle(boolean fullLifecycle) {
-    this.fullLifecycle = fullLifecycle;
   }
 
   public void setBeanNameCreator(BeanNameCreator beanNameCreator) {
@@ -1624,13 +1414,305 @@ public abstract class AbstractBeanFactory
     return getPrototypeBeanDefinition(ClassUtils.getUserClass(existingBean)).setName(beanName);
   }
 
-  // ArgumentsResolverProvider
+  //---------------------------------------------------------------------
+  // Implementation of ArgumentsResolverProvider interface
+  //---------------------------------------------------------------------
 
   /** @since 4.0 */
   @NonNull
   @Override
   public ArgumentsResolver getArgumentsResolver() {
     return argumentsResolver;
+  }
+
+  //---------------------------------------------------------------------
+  // Implementation of HierarchicalBeanFactory interface
+  //---------------------------------------------------------------------
+
+  @Override
+  @Nullable
+  public BeanFactory getParentBeanFactory() {
+    return this.parentBeanFactory;
+  }
+
+  @Override
+  public boolean containsLocalBean(String beanName) {
+    return containsSingleton(beanName) || containsBeanDefinition(beanName);
+  }
+
+  //---------------------------------------------------------------------
+  // Implementation of ConfigurableBeanFactory interface
+  //---------------------------------------------------------------------
+
+  @Override
+  public void removeBean(String name) {
+    removeBeanDefinition(name);
+    removeSingleton(name);
+  }
+
+  @Override
+  public void removeBean(Class<?> beanClass) {
+    final Map<String, ?> beansOfType = getBeansOfType(beanClass, true, true);
+    for (final String name : beansOfType.keySet()) {
+      removeBean(name);
+    }
+  }
+
+  @Override
+  public void registerBean(Class<?> clazz) {
+    registerBean(getBeanNameCreator().create(clazz), clazz);
+  }
+
+  @Override
+  public void registerBean(Set<Class<?>> candidates) {
+    final BeanNameCreator nameCreator = getBeanNameCreator();
+    for (final Class<?> candidate : candidates) {
+      registerBean(nameCreator.create(candidate), candidate);
+    }
+  }
+
+  @Override
+  public void registerBean(String name, Class<?> clazz) {
+    getBeanDefinitionLoader().load(name, clazz);
+  }
+
+  @Override
+  public void registerBean(String name, BeanDefinition beanDefinition) {
+    getBeanDefinitionLoader().register(name, beanDefinition);
+  }
+
+  @Override
+  public void registerBean(Object obj) {
+    registerBean(getBeanNameCreator().create(obj.getClass()), obj);
+  }
+
+  @Override
+  public void registerBean(final String name, final Object obj) {
+    Assert.notNull(name, "bean-name must not be null");
+    Assert.notNull(obj, "bean-instance must not be null");
+
+    final List<BeanDefinition> loaded = getBeanDefinitionLoader().load(name, obj.getClass());
+    for (final BeanDefinition def : loaded) {
+      if (def.isSingleton()) {
+        registerSingleton(name, obj);
+      }
+    }
+  }
+
+  @Override
+  public <T> void registerBean(Class<T> clazz, Supplier<T> supplier, boolean prototype, boolean ignoreAnnotation)
+          throws BeanDefinitionStoreException {
+    Assert.notNull(clazz, "bean-class must not be null");
+    Assert.notNull(supplier, "bean-instance-supplier must not be null");
+    final String defaultName = getBeanNameCreator().create(clazz);
+    final BeanDefinitionLoader definitionLoader = getBeanDefinitionLoader();
+    final List<BeanDefinition> loaded = definitionLoader.load(defaultName, clazz, ignoreAnnotation);
+
+    if (CollectionUtils.isNotEmpty(loaded)) {
+      for (final BeanDefinition def : loaded) {
+        def.setSupplier(supplier);
+        if (prototype) {
+          def.setScope(Scope.PROTOTYPE);
+        }
+      }
+    }
+  }
+
+  @Override
+  public <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException {
+    Assert.notNull(name, "bean-name must not be null");
+    Assert.notNull(supplier, "bean-instance-supplier must not be null");
+    beanSupplier.put(name, supplier);
+  }
+
+  /**
+   * Destroy a bean with bean instance and bean definition
+   *
+   * @param beanInstance
+   *         Bean instance
+   * @param def
+   *         Bean definition
+   */
+  @Override
+
+  public void destroyBean(final Object beanInstance, final BeanDefinition def) {
+    if (beanInstance == null || def == null) {
+      return;
+    }
+    try {
+      ContextUtils.destroyBean(beanInstance, def, getPostProcessors());
+    }
+    catch (Throwable e) {
+      log.warn("An Exception Occurred When Destroy a bean: [{}], With Msg: [{}]",
+               def.getName(), e.toString(), e);
+    }
+  }
+
+  @Override
+  public void destroyBean(String name) {
+    destroyBean(name, getSingleton(name));
+  }
+
+  @Override
+  public void destroyBean(String name, Object beanInstance) {
+    BeanDefinition def = getBeanDefinition(name);
+    if (def == null && name.charAt(0) == FACTORY_BEAN_PREFIX_CHAR) {
+      // if it is a factory bean
+      final String factoryBeanName = name.substring(1);
+      def = getBeanDefinition(factoryBeanName);
+      if (def != null) {
+        destroyBean(getSingleton(factoryBeanName), def);
+      }
+    }
+
+    if (def == null) {
+      def = getPrototypeBeanDefinition(ClassUtils.getUserClass(beanInstance));
+    }
+    destroyBean(beanInstance, def);
+  }
+
+  @Override
+  public void initialize(String name) {
+    final BeanDefinition def = obtainBeanDefinition(name);
+    if (!def.isInitialized()) {
+      createSingleton(def);
+    }
+    else if (log.isWarnEnabled()) {
+      log.warn("A bean named: [{}] has already initialized", name);
+    }
+  }
+
+  @Override
+  public Object initialize(BeanDefinition def) {
+    return getBean(def);
+  }
+
+  @Override
+  public void initializeSingletons() {
+    log.debug("Initialization of singleton objects.");
+    for (final BeanDefinition def : getBeanDefinitions().values()) {
+      // Trigger initialization of all non-lazy singleton beans...
+      if (def.isSingleton() && !def.isInitialized() && !def.isLazyInit()) {
+        if (def.isFactoryBean()) {
+          final FactoryBean<?> factoryBean = getFactoryBeanInstance(def);
+          final boolean isEagerInit = factoryBean instanceof SmartFactoryBean
+                  && ((SmartFactoryBean<?>) factoryBean).isEagerInit();
+          if (isEagerInit) {
+            getBean(def);
+          }
+        }
+        else {
+          createSingleton(def);
+        }
+      }
+    }
+
+    // Trigger post-initialization callback for all applicable beans...
+    for (final Object singleton : getSingletons().values()) {
+      postSingletonInitialization(singleton);
+    }
+
+    log.debug("The singleton objects are initialized.");
+  }
+
+  protected void postSingletonInitialization(final Object singleton) {
+    // SmartInitializingSingleton
+    if (singleton instanceof SmartInitializingSingleton) {
+      ((SmartInitializingSingleton) singleton).afterSingletonsInstantiated();
+    }
+  }
+
+  /**
+   * Initialization singletons that has already in context
+   */
+  public void preInitialization() {
+    final boolean debugEnabled = log.isDebugEnabled();
+
+    for (final Entry<String, Object> entry : new HashMap<>(getSingletons()).entrySet()) {
+
+      final String name = entry.getKey();
+      final BeanDefinition def = getBeanDefinition(name);
+      if (def == null || def.isInitialized()) {
+        continue;
+      }
+      initializeSingleton(entry.getValue(), def);
+      if (debugEnabled) {
+        log.debug("Pre initialize singleton bean is being stored in the name of [{}].", name);
+      }
+    }
+  }
+
+  @Override
+  public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
+    Assert.notNull(beanPostProcessor, "BeanPostProcessor must not be null");
+
+    final List<BeanPostProcessor> postProcessors = getPostProcessors();
+    postProcessors.remove(beanPostProcessor);
+    postProcessors.add(beanPostProcessor);
+
+    AnnotationAwareOrderComparator.sort(postProcessors);
+
+    // Track whether it is instantiation/destruction aware
+    if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
+      this.hasInstantiationAwareBeanPostProcessors = true;
+    }
+  }
+
+  @Override
+  public void removeBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
+    getPostProcessors().remove(beanPostProcessor);
+
+    for (final BeanPostProcessor postProcessor : getPostProcessors()) {
+      if (postProcessor instanceof InstantiationAwareBeanPostProcessor) {
+        this.hasInstantiationAwareBeanPostProcessors = true;
+        break;
+      }
+    }
+  }
+
+  @Override
+  public void setFullPrototype(boolean fullPrototype) {
+    this.fullPrototype = fullPrototype;
+  }
+
+  @Override
+  public void setFullLifecycle(boolean fullLifecycle) {
+    this.fullLifecycle = fullLifecycle;
+  }
+
+  @Override
+  public void registerScope(String name, Scope scope) {
+    Assert.notNull(name, "scope name must not be null");
+    Assert.notNull(scope, "scope object must not be null");
+    scopes.put(name, scope);
+  }
+
+  @Override
+  public void destroyScopedBean(String beanName) {
+    final BeanDefinition def = obtainBeanDefinition(beanName);
+    if (def.isSingleton() || def.isPrototype()) {
+      throw new IllegalArgumentException(
+              "Bean name '" + beanName + "' does not correspond to an object in a mutable scope");
+    }
+    final Scope scope = scopes.get(def.getScope());
+    if (scope == null) {
+      throw new IllegalStateException("No Scope SPI registered for scope name '" + def.getScope() + "'");
+    }
+    final Object bean = scope.remove(beanName);
+    if (bean != null) {
+      destroyBean(bean, def);
+    }
+  }
+
+  @Override
+  public void setParentBeanFactory(@Nullable BeanFactory parentBeanFactory) {
+    if (this.parentBeanFactory != null && this.parentBeanFactory != parentBeanFactory) {
+      throw new IllegalStateException("Already associated with parent BeanFactory: " + this.parentBeanFactory);
+    }
+    if (this == parentBeanFactory) {
+      throw new IllegalStateException("Cannot set parent bean factory to self");
+    }
+    this.parentBeanFactory = parentBeanFactory;
   }
 
   @Override

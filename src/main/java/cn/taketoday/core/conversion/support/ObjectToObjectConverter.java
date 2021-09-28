@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.TypeDescriptor;
+import cn.taketoday.core.TypeDescriptor;
 
 /**
  * Generic converter that uses conventions to convert a source object to a

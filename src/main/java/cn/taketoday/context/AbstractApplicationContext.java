@@ -28,16 +28,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.BeanNameCreator;
 import cn.taketoday.beans.factory.AbstractBeanFactory;
+import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
-import cn.taketoday.beans.factory.BeanInitializingException;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.BeanReferencePropertySetter;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
@@ -55,17 +53,21 @@ import cn.taketoday.context.event.ContextRefreshEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.context.event.DependenciesHandledEvent;
 import cn.taketoday.context.event.EventListener;
-import cn.taketoday.context.event.ObjectRefreshedEvent;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Constant;
 import cn.taketoday.core.DefaultMultiValueMap;
+import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.NonNull;
+import cn.taketoday.core.Nullable;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TodayStrategies;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.env.PropertySource;
+import cn.taketoday.core.io.PathMatchingResourcePatternResolver;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
@@ -73,13 +75,28 @@ import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
-import cn.taketoday.util.GenericTypeResolver;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.ResolvableType;
 import cn.taketoday.util.StringUtils;
 
 /**
+ * Abstract implementation of the {@link ApplicationContext}
+ * interface. Doesn't mandate the type of storage used for configuration; simply
+ * implements common context functionality. Uses the Template Method design pattern,
+ * requiring concrete subclasses to implement abstract methods.
+ *
+ * <p>In contrast to a plain BeanFactory, an ApplicationContext is supposed
+ * to detect special beans defined in its internal bean factory:
+ * Therefore, this class automatically registers
+ * {@link BeanFactoryPostProcessor BeanFactoryPostProcessors},
+ * {@link BeanPostProcessor BeanPostProcessors}, and
+ * {@link ApplicationListener ApplicationListeners} which are defined as beans in the context.
+ *
+ * <p>Implements resource loading by extending {@link PathMatchingResourcePatternResolver}.
+ * Consequently, treats non-URL resource paths as class path resources
+ * (supporting full class path resource names that include the package path,
+ * e.g. "mypackage/myresource.dat")
+ *
  * @author TODAY 2018-09-09 22:02
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -101,6 +118,16 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
   private ArrayList<BeanFactoryPostProcessor> factoryPostProcessors;
 
+  /** Unique id for this context, if any. @since 4.0 */
+  private String id = ObjectUtils.identityToString(this);
+
+  /** Parent context. @since 4.0 */
+  @Nullable
+  private ApplicationContext parent;
+
+  /** Display name. */
+  private String displayName = ObjectUtils.identityToString(this);
+
   /**
    * Construct with a {@link ConfigurableEnvironment}
    *
@@ -114,6 +141,115 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     this.environment = env;
     ContextUtils.setLastStartupContext(this); // @since 2.1.6
     checkEnvironment(env);
+  }
+
+  //---------------------------------------------------------------------
+  // Implementation of ApplicationContext interface
+  //---------------------------------------------------------------------
+
+  /**
+   * Set the unique id of this application context.
+   * <p>Default is the object id of the context instance, or the name
+   * of the context bean if the context is itself defined as a bean.
+   *
+   * @param id
+   *         the unique id of the context
+   */
+  @Override
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  @Override
+  public String getId() {
+    return this.id;
+  }
+
+  /**
+   * Set a friendly name for this context.
+   * Typically, done during initialization of concrete context implementations.
+   * <p>Default is the object id of the context instance.
+   */
+  public void setDisplayName(String displayName) {
+    Assert.hasLength(displayName, "Display name must not be empty");
+    this.displayName = displayName;
+  }
+
+  /**
+   * Return a friendly name for this context.
+   *
+   * @return a display name for this context (never {@code null})
+   */
+  @Override
+  public String getDisplayName() {
+    return displayName;
+  }
+
+  @Override
+  public String getApplicationName() {
+    return null; // TODO application.name property
+  }
+
+  /**
+   * Return the parent context, or {@code null} if there is no parent
+   * (that is, this context is the root of the context hierarchy).
+   */
+  @Override
+  @Nullable
+  public ApplicationContext getParent() {
+    return this.parent;
+  }
+
+  @Override
+  public AutowireCapableBeanFactory getAutowireCapableBeanFactory() throws IllegalStateException {
+    return getBeanFactory();
+  }
+
+  @Override
+  public boolean containsBean(String name) {
+    return getBeanFactory().containsBean(name);
+  }
+
+  @Override
+  public boolean isTypeMatch(String name, Class<?> typeToMatch) throws NoSuchBeanDefinitionException {
+    return getBeanFactory().isTypeMatch(name, typeToMatch);
+  }
+
+  @Override
+  public boolean isTypeMatch(String name, ResolvableType typeToMatch) throws NoSuchBeanDefinitionException {
+    return getBeanFactory().isTypeMatch(name, typeToMatch);
+  }
+
+  @Override
+  public <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType) {
+    return getBeanFactory().getObjectSupplier(requiredType);
+  }
+
+  //---------------------------------------------------------------------
+  // Implementation of HierarchicalBeanFactory interface
+  //---------------------------------------------------------------------
+
+  @Override
+  @Nullable
+  public BeanFactory getParentBeanFactory() {
+    return getParent();
+  }
+
+  @Override
+  public boolean containsLocalBean(String name) {
+    return getBeanFactory().containsLocalBean(name);
+  }
+
+  /**
+   * Return the internal bean factory of the parent context if it implements
+   * ConfigurableApplicationContext; else, return the parent context itself.
+   *
+   * @see ConfigurableApplicationContext#getBeanFactory
+   */
+  @Nullable
+  protected BeanFactory getInternalParentBeanFactory() {
+    return (getParent() instanceof ConfigurableApplicationContext ?
+            ((ConfigurableApplicationContext) getParent()).getBeanFactory() : getParent());
   }
 
   /**
@@ -194,6 +330,9 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     applyState(State.STARTING);
 
+    // Initialize any placeholder property sources in the context environment.
+    initPropertySources();
+
     // prepare properties
     final ConfigurableEnvironment env = getEnvironment();
     try {
@@ -206,12 +345,21 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     {// @since 2.1.6
       if (env.getFlag(ENABLE_FULL_PROTOTYPE)) {
-        enableFullPrototype();
+        getBeanFactory().setFullPrototype(true);
       }
       if (env.getFlag(ENABLE_FULL_LIFECYCLE)) {
-        enableFullLifecycle();
+        getBeanFactory().setFullLifecycle(true);
       }
     }
+  }
+
+  /**
+   * <p>Replace any stub property sources with actual instances.
+   *
+   * @see PropertySource.StubPropertySource
+   */
+  protected void initPropertySources() {
+    // For subclasses: do nothing by default.
   }
 
   /**
@@ -337,17 +485,18 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     // register ELManager @since 2.1.5
     // fix @since 2.1.6 elManager my be null
-    registerSingleton(nameCreator.create(ExpressionManager.class), elProcessor.getManager());
+    AbstractBeanFactory beanFactory = getBeanFactory();
+    beanFactory.registerSingleton(nameCreator.create(ExpressionManager.class), elProcessor.getManager());
 
-    registerSingleton(nameCreator.create(ExpressionProcessor.class), elProcessor);
+    beanFactory.registerSingleton(nameCreator.create(ExpressionProcessor.class), elProcessor);
     // register Environment
-    registerSingleton(nameCreator.create(Environment.class), env);
+    beanFactory.registerSingleton(nameCreator.create(Environment.class), env);
     // register ApplicationContext
-    registerSingleton(nameCreator.create(ApplicationContext.class), this);
+    beanFactory.registerSingleton(nameCreator.create(ApplicationContext.class), this);
     // register BeanFactory @since 2.1.7
-    registerSingleton(nameCreator.create(BeanFactory.class), getBeanFactory());
+    beanFactory.registerSingleton(nameCreator.create(BeanFactory.class), beanFactory);
     // @since 4.0 ArgumentsResolver
-    registerSingleton(nameCreator.create(ArgumentsResolver.class), getArgumentsResolver());
+    beanFactory.registerSingleton(nameCreator.create(ArgumentsResolver.class), getArgumentsResolver());
 
   }
 
@@ -432,11 +581,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     try {
       // if exist bean
-      Object applicationListener = getSingleton(listenerClass);
+      Object applicationListener = getBeanFactory().getSingleton(listenerClass);
       if (applicationListener == null) {
         // create bean instance
         applicationListener = BeanUtils.newInstance(listenerClass, this);
-        registerSingleton(applicationListener);
+        getBeanFactory().registerSingleton(applicationListener);
       }
       addApplicationListener((ApplicationListener<?>) applicationListener);
     }
@@ -528,11 +677,12 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     try {
       // refresh object instance
       publishEvent(new ContextRefreshEvent(this));
-      initializeSingletons();
+      getBeanFactory().initializeSingletons();
     }
     catch (Throwable ex) {
       ex = ExceptionUtils.unwrapThrowable(ex);
-      throw new ApplicationContextException("An Exception Occurred When Refresh Context: [" + this + "]", ex);
+      throw new ApplicationContextException(
+              "An Exception Occurred When Refresh Context: [" + this + "]", ex);
     }
   }
 
@@ -562,6 +712,17 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   @Override
   public abstract AbstractBeanFactory getBeanFactory();
 
+  @NonNull
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T getBeanFactory(Class<T> requiredType) {
+    AbstractBeanFactory beanFactory = getBeanFactory();
+    if (requiredType.isInstance(beanFactory)) {
+      throw new IllegalArgumentException("bean factory must be a " + requiredType);
+    }
+    return (T) beanFactory;
+  }
+
   @Override
   public ConfigurableEnvironment getEnvironment() {
     return environment;
@@ -586,103 +747,42 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     return startupDate;
   }
 
-  // ---------------------ConfigurableBeanFactory
+  //---------------------------------------------------------------------
+  // Implementation of ConfigurableApplicationContext interface
+  //---------------------------------------------------------------------
 
+  /**
+   * Set the parent of this application context.
+   * <p>The parent {@linkplain ApplicationContext#getEnvironment() environment} is
+   * {@linkplain ConfigurableEnvironment#merge(ConfigurableEnvironment) merged} with
+   * this (child) application context environment if the parent is non-{@code null} and
+   * its environment is an instance of {@link ConfigurableEnvironment}.
+   *
+   * @see ConfigurableEnvironment#merge(ConfigurableEnvironment)
+   */
   @Override
-  public void registerBean(String name, BeanDefinition beanDefinition) {
-    getBeanFactory().registerBean(name, beanDefinition);
+  public void setParent(@Nullable ApplicationContext parent) {
+    this.parent = parent;
+    if (parent != null) {
+      Environment parentEnvironment = parent.getEnvironment();
+      if (parentEnvironment instanceof ConfigurableEnvironment) {
+        getEnvironment().merge((ConfigurableEnvironment) parentEnvironment);
+      }
+    }
+  }
+
+  /**
+   * Create and return a new {@link StandardEnvironment}.
+   * <p>Subclasses may override this method in order to supply
+   * a custom {@link ConfigurableEnvironment} implementation.
+   */
+  protected ConfigurableEnvironment createEnvironment() {
+    return new StandardEnvironment();
   }
 
   @Override
-  public void removeBean(String name) {
-    getBeanFactory().removeBean(name);
-  }
-
-  @Override
-  public void removeBean(Class<?> beanClass) {
-    getBeanFactory().removeBean(beanClass);
-  }
-
-  @Override
-  public void registerBean(String name, Class<?> clazz) {
-    getBeanFactory().registerBean(name, clazz);
-  }
-
-  @Override
-  public void registerBean(Class<?> clazz) {
-    getBeanFactory().registerBean(clazz);
-  }
-
-  @Override
-  public void registerBean(Set<Class<?>> clazz) {
-    getBeanFactory().registerBean(clazz);
-  }
-
-  @Override
-  public void registerBean(Object obj) {
-    getBeanFactory().registerBean(obj);
-  }
-
-  @Override
-  public void registerBean(String name, Object obj) {
-    getBeanFactory().registerBean(name, obj);
-  }
-
-  @Override
-  public <T> void registerBean(Class<T> clazz, Supplier<T> supplier, boolean prototype)
-          throws BeanDefinitionStoreException {
-    getBeanFactory().registerBean(clazz, supplier, prototype);
-  }
-
-  @Override
-  public <T> void registerBean(Class<T> clazz, Supplier<T> supplier, boolean prototype, boolean ignoreAnnotation)
-          throws BeanDefinitionStoreException {
-    getBeanFactory().registerBean(clazz, supplier, prototype, ignoreAnnotation);
-  }
-
-  @Override
-  public <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException {
-    getBeanFactory().registerBean(name, supplier);
-  }
-
-  @Override
-  public void destroyBean(String name) {
-    getBeanFactory().destroyBean(name);
-  }
-
-  @Override
-  public void destroyBean(String beanName, Object beanInstance) {
-    getBeanFactory().destroyBean(beanName, beanInstance);
-  }
-
-  @Override
-  public void destroyScopedBean(String beanName) {
-    getBeanFactory().destroyScopedBean(beanName);
-  }
-
-  @Override
-  public void refresh(String name) {
-    getBeanFactory().refresh(name);
-    // object refreshed
-    publishEvent(new ObjectRefreshedEvent(name, this));
-  }
-
-  @Override
-  public Object refresh(BeanDefinition def) {
-    final Object initializingBean = getBeanFactory().refresh(def);
-    // object refreshed
-    publishEvent(new ObjectRefreshedEvent(def, this));
-    return initializingBean;
-  }
-
-  @Override
-  public void initializeSingletons() {
-    getBeanFactory().initializeSingletons();
-  }
-
-  @Override
-  public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
-    getBeanFactory().addBeanPostProcessor(beanPostProcessor);
+  public void setEnvironment(ConfigurableEnvironment environment) {
+    // TODO
   }
 
   @Override
@@ -690,11 +790,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     Assert.notNull(postProcessor, "BeanFactoryPostProcessor must not be null");
 
     getFactoryPostProcessors().add(postProcessor);
-  }
-
-  @Override
-  public void removeBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
-    getBeanFactory().removeBeanPostProcessor(beanPostProcessor);
   }
 
   // ------------------- BeanFactory
@@ -720,13 +815,13 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   @Override
-  public <T> ObjectSupplier<T> getBeanSupplier(BeanDefinition def) {
-    return getBeanFactory().getBeanSupplier(def);
+  public <T> ObjectSupplier<T> getObjectSupplier(BeanDefinition def) {
+    return getBeanFactory().getObjectSupplier(def);
   }
 
   @Override
-  public <T> ObjectSupplier<T> getBeanSupplier(Class<T> requiredType) {
-    return getBeanFactory().getBeanSupplier(requiredType);
+  public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType) {
+    return getBeanFactory().getObjectSupplier(requiredType);
   }
 
   @Override
@@ -817,96 +912,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   @Override
-  public void registerSingleton(String name, Object bean) {
-    getBeanFactory().registerSingleton(name, bean);
-  }
-
-  @Override
-  public void registerSingleton(Object bean) {
-    getBeanFactory().registerSingleton(bean);
-  }
-
-  @Override
-  public Map<String, Object> getSingletons() {
-    return getBeanFactory().getSingletons();
-  }
-
-  @Override
-  public Object getSingleton(String name) {
-    return getBeanFactory().getSingleton(name);
-  }
-
-  @Override
-  public <T> T getSingleton(Class<T> requiredType) {
-    return getBeanFactory().getSingleton(requiredType);
-  }
-
-  @Override
-  public void removeSingleton(String name) {
-    getBeanFactory().removeSingleton(name);
-  }
-
-  @Override
-  public boolean containsSingleton(String name) {
-    return getBeanFactory().containsSingleton(name);
-  }
-
-  @Override
-  public void registerBeanDefinition(String name, BeanDefinition beanDefinition) {
-    getBeanFactory().registerBeanDefinition(name, beanDefinition);
-  }
-
-  @Override
-  public void removeBeanDefinition(String beanName) {
-    getBeanFactory().removeBeanDefinition(beanName);
-  }
-
-  @Override
-  public BeanDefinition getBeanDefinition(String beanName) {
-    return getBeanFactory().getBeanDefinition(beanName);
-  }
-
-  @Override
-  public BeanDefinition getBeanDefinition(Class<?> beanClass) {
-    return getBeanFactory().getBeanDefinition(beanClass);
-  }
-
-  @Override
-  public boolean containsBeanDefinition(String beanName) {
-    return getBeanFactory().containsBeanDefinition(beanName);
-  }
-
-  @Override
-  public boolean containsBeanDefinition(Class<?> type) {
-    return getBeanFactory().containsBeanDefinition(type);
-  }
-
-  @Override
-  public boolean containsBeanDefinition(Class<?> type, boolean equals) {
-    return getBeanFactory().containsBeanDefinition(type, equals);
-  }
-
-  @Override
-  public Set<String> getBeanDefinitionNames() {
-    return getBeanFactory().getBeanDefinitionNames();
-  }
-
-  @Override
-  public int getBeanDefinitionCount() {
-    return getBeanFactory().getBeanDefinitionCount();
-  }
-
-  @Override
-  public void enableFullPrototype() {
-    getBeanFactory().enableFullPrototype();
-  }
-
-  @Override
-  public void enableFullLifecycle() {
-    getBeanFactory().enableFullLifecycle();
-  }
-
-  @Override
   public boolean isFullLifecycle() {
     return getBeanFactory().isFullLifecycle();
   }
@@ -914,84 +919,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   @Override
   public boolean isFullPrototype() {
     return getBeanFactory().isFullPrototype();
-  }
-
-  @Override
-  public void setFullLifecycle(boolean fullLifecycle) {
-    getBeanFactory().setFullLifecycle(fullLifecycle);
-  }
-
-  @Override
-  public void setFullPrototype(boolean fullPrototype) {
-    getBeanFactory().setFullPrototype(fullPrototype);
-  }
-
-  // AutowireCapableBeanFactory
-  // ----------------------------
-
-  @Override
-  public <T> T createBean(final Class<T> beanClass, final boolean cacheBeanDef) {
-    return getBeanFactory().createBean(beanClass, cacheBeanDef);
-  }
-
-  @Override
-  public void autowireBean(final Object existingBean) {
-    getBeanFactory().autowireBean(existingBean);
-  }
-
-  @Override
-  public void autowireBeanProperties(final Object existingBean) {
-    getBeanFactory().autowireBeanProperties(existingBean);
-  }
-
-  @Override
-  public Object initializeBean(Object existingBean) throws BeanInitializingException {
-    return getBeanFactory().initializeBean(existingBean);
-  }
-
-  @Override
-  public Object initializeBean(final Object existingBean, final String beanName) {
-    return getBeanFactory().initializeBean(existingBean, beanName);
-  }
-
-  @Override
-  public Object initializeBean(final Object existingBean, final BeanDefinition def) {
-    return getBeanFactory().initializeBean(existingBean, def);
-  }
-
-  @Override
-  public Object applyBeanPostProcessorsAfterInitialization(final Object existingBean, final String beanName) {
-    return getBeanFactory().applyBeanPostProcessorsAfterInitialization(existingBean, beanName);
-  }
-
-  @Override
-  public Object applyBeanPostProcessorsBeforeInitialization(final Object existingBean, final String beanName) {
-    return getBeanFactory().applyBeanPostProcessorsBeforeInitialization(existingBean, beanName);
-  }
-
-  @Override
-  public void destroyBean(final Object existingBean) {
-    getBeanFactory().destroyBean(existingBean);
-  }
-
-  @Override
-  public void destroyBean(Object beanInstance, BeanDefinition def) {
-    getBeanFactory().destroyBean(beanInstance, def);
-  }
-
-  @Override
-  public void importBeans(final Class<?>... beans) {
-    getBeanFactory().importBeans(beans);
-  }
-
-  @Override
-  public void importAnnotated(final BeanDefinition annotated) {
-    getBeanFactory().importAnnotated(annotated);
-  }
-
-  @Override
-  public void importBeans(final Set<BeanDefinition> defs) {
-    getBeanFactory().importBeans(defs);
   }
 
   // ArgumentsResolverProvider
@@ -1037,11 +964,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
       return this.factoryPostProcessors = new ArrayList<>();
     }
     return processors;
-  }
-
-  @Override
-  public void registerScope(String name, Scope scope) {
-    getBeanFactory().registerScope(name, scope);
   }
 
   @Override

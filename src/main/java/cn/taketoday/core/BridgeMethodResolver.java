@@ -29,7 +29,6 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.ReflectionUtils.MethodFilter;
-import cn.taketoday.util.ResolvableType;
 
 /**
  * Helper for resolving synthetic {@link Method#isBridge bridge Methods} to the

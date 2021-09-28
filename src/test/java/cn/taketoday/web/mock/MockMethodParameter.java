@@ -34,7 +34,7 @@ import cn.taketoday.core.Required;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.util.NumberUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.util.TypeDescriptor;
+import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.handler.HandlerMethod;

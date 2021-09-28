@@ -37,6 +37,7 @@ import cn.taketoday.logger.Logger;
 import cn.taketoday.logger.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Strategies Detector
@@ -118,6 +119,62 @@ public class StrategiesDetector {
     return CollectionUtils.firstElement(getStrategies(strategyClass, beanFactory));
   }
 
+  @Nullable
+  public String getFirst(String strategyKey) {
+    return CollectionUtils.firstElement(getStrategies(strategyKey));
+  }
+
+  public String getFirst(String strategyKey, Supplier<String> defaultValue) {
+    final String first = getFirst(strategyKey);
+    if (first == null) {
+      return defaultValue.get();
+    }
+    return first;
+  }
+
+  /**
+   * Retrieve the flag for the given property key.
+   *
+   * @param strategyKey
+   *         the property key
+   *
+   * @return {@code true} if the property is set to "true", {@code} false
+   * otherwise
+   */
+  public boolean getBoolean(String strategyKey) {
+    return Boolean.parseBoolean(getFirst(strategyKey));
+  }
+
+  /**
+   * Retrieve the flag for the given property key.
+   * <p>
+   * If there isn't a key returns defaultFlag
+   * </p>
+   *
+   * @param strategyKey
+   *         the property key
+   *
+   * @return {@code true} if the property is set to "true", {@code} false
+   * otherwise ,If there isn't a key returns defaultFlag
+   */
+  public boolean getBoolean(String strategyKey, boolean defaultFlag) {
+    final String property = getFirst(strategyKey);
+    return StringUtils.isEmpty(property) ? defaultFlag : Boolean.parseBoolean(property);
+  }
+
+  /**
+   * get none repeatable strategies by given class
+   * <p>
+   * strategies must be instance-of given strategy class
+   * use default {@link #beanFactory}
+   *
+   * @param strategyClass
+   *         strategy class
+   * @param <T>
+   *         target type
+   *
+   * @return returns none repeatable strategies by given class
+   */
   public <T> List<T> getStrategies(Class<T> strategyClass) {
     return getStrategies(strategyClass, beanFactory);
   }
@@ -125,7 +182,7 @@ public class StrategiesDetector {
   /**
    * get none repeatable strategies by given class
    * <p>
-   * strategies must be instance of given strategy class
+   * strategies must be an instance of given strategy class
    * </p>
    *
    * @param strategyClass

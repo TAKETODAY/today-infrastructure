@@ -23,7 +23,7 @@ import java.lang.reflect.Array;
 
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.util.TypeDescriptor;
+import cn.taketoday.core.TypeDescriptor;
 
 /**
  * Converts an array to another array.

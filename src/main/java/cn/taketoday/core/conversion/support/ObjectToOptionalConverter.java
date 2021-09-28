@@ -25,7 +25,7 @@ import java.util.Optional;
 
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.util.TypeDescriptor;
+import cn.taketoday.core.TypeDescriptor;
 
 /**
  * Convert an Object to {@code java.util.Optional<T>} if necessary using the

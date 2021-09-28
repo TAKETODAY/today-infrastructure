@@ -20,7 +20,7 @@
 package cn.taketoday.core.conversion.support;
 
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.util.TypeDescriptor;
+import cn.taketoday.core.TypeDescriptor;
 
 /**
  * @author TODAY <br>

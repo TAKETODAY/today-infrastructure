@@ -22,7 +22,7 @@ package cn.taketoday.core.conversion.support;
 import java.lang.reflect.Array;
 
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.util.TypeDescriptor;
+import cn.taketoday.core.TypeDescriptor;
 
 /**
  * Converts an Object to a single-element array containing the Object.

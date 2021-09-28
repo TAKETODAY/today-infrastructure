@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.util;
+package cn.taketoday.core;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -38,11 +38,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
 
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.NonNull;
-import cn.taketoday.core.Nullable;
-import cn.taketoday.core.TypeReference;
-import cn.taketoday.util.SerializableTypeWrapper.TypeProvider;
+import cn.taketoday.core.SerializableTypeWrapper.TypeProvider;
+import cn.taketoday.util.ConcurrentReferenceHashMap;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Encapsulates a Java {@link Type}, providing access to

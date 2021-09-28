@@ -211,7 +211,7 @@ public class AspectAutoProxyCreator
       return (MethodInterceptor) beanFactory.getBean(interceptorDef);
     }
     else {
-      ObjectSupplier<MethodInterceptor> supplier = beanFactory.getBeanSupplier(interceptorDef);
+      ObjectSupplier<MethodInterceptor> supplier = beanFactory.getObjectSupplier(interceptorDef);
       return new SuppliedMethodInterceptor(supplier); // lazy load or prototype
     }
   }

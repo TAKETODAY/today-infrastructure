@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.util;
+package cn.taketoday.core;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
@@ -34,9 +34,11 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import cn.taketoday.beans.support.BeanProperty;
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Nullable;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.util.AnnotatedElementAdapter;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Contextual descriptor about a type to convert from or to.

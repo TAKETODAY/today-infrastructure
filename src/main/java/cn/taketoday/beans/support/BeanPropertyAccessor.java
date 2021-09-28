@@ -36,7 +36,7 @@ import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.TypeDescriptor;
+import cn.taketoday.core.TypeDescriptor;
 
 /**
  * @author TODAY 2021/1/27 22:35

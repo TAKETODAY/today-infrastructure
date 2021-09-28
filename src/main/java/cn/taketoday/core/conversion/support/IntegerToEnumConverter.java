@@ -22,7 +22,7 @@ package cn.taketoday.core.conversion.support;
 
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.TypeDescriptor;
+import cn.taketoday.core.TypeDescriptor;
 
 /**
  * @author TODAY 2021/3/22 16:43

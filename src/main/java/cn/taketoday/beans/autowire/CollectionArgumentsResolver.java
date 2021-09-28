@@ -29,7 +29,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ResolvableType;
+import cn.taketoday.core.ResolvableType;
 
 /**
  * @author TODAY 2020/10/11 21:54

@@ -31,7 +31,7 @@ import cn.taketoday.context.Props;
 import cn.taketoday.core.NonNull;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ResolvableType;
+import cn.taketoday.core.ResolvableType;
 
 /**
  * Resolve {@link Map}

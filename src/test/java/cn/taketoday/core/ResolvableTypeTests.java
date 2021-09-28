@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.util;
+package cn.taketoday.core;
 
 import org.assertj.core.api.AbstractAssert;
 import org.junit.Test;
@@ -51,8 +51,10 @@ import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.ResolvableTypeProvider;
 import cn.taketoday.core.TypeReference;
-import cn.taketoday.util.ResolvableType.VariableResolver;
+import cn.taketoday.core.ResolvableType.VariableResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

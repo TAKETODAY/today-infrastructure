@@ -46,7 +46,7 @@ import cn.taketoday.util.AbstractAnnotatedElement;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.Mappings;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.TypeDescriptor;
+import cn.taketoday.core.TypeDescriptor;
 
 /**
  * @author TODAY

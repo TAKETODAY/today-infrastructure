@@ -27,7 +27,7 @@ import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.TypeDescriptor;
+import cn.taketoday.core.TypeDescriptor;
 
 /**
  * Converts an entity identifier to a entity reference by calling a static finder method

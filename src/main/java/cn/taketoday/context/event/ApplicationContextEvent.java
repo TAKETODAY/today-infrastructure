@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
@@ -19,12 +19,11 @@
  */
 package cn.taketoday.context.event;
 
+import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.ApplicationContext;
 
 /**
- * @author TODAY <br>
- *
- * 2018-09-09 23:05
+ * @author TODAY 2018-09-09 23:05
  */
 @SuppressWarnings("serial")
 public abstract class ApplicationContextEvent extends ApplicationEvent {
@@ -33,8 +32,33 @@ public abstract class ApplicationContextEvent extends ApplicationEvent {
     super(source);
   }
 
-  public final ApplicationContext getApplicationContext() {
-    return (ApplicationContext) getSource();
+  public final ApplicationContext getSource() {
+    return (ApplicationContext) super.getSource();
+  }
+
+  /**
+   * @since 4.0
+   */
+  @SuppressWarnings("unchecked")
+  public final <T> T getSource(Class<T> requiredType) {
+    if (requiredType.isInstance(super.getSource())) {
+      throw new IllegalArgumentException("source must be a " + requiredType);
+    }
+    return (T) super.getSource();
+  }
+
+  /**
+   * @since 4.0
+   */
+  public final BeanFactory getBeanFactory() {
+    return getSource().getBeanFactory();
+  }
+
+  /**
+   * @since 4.0
+   */
+  public final <T> T getBeanFactory(Class<T> requiredType) {
+    return getSource().getBeanFactory(requiredType);
   }
 
 }

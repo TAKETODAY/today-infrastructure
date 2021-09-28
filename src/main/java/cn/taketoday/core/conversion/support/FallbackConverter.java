@@ -23,7 +23,7 @@ import java.io.StringWriter;
 
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.conversion.TypeConverter;
-import cn.taketoday.util.TypeDescriptor;
+import cn.taketoday.core.TypeDescriptor;
 
 /**
  * Simply calls {@link Object#toString()} to convert any supported object

@@ -23,7 +23,7 @@ import java.util.Collection;
 
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.TypeDescriptor;
+import cn.taketoday.core.TypeDescriptor;
 
 /**
  * Converts from a Collection to another Collection.

@@ -25,8 +25,8 @@ import java.lang.reflect.AnnotatedElement;
 
 import cn.taketoday.core.Assert;
 import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.util.GenericTypeResolver;
 
 /**
  * @author TODAY 2021/3/8 16:51

@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.util;
+package cn.taketoday.core;
 
 import org.junit.Test;
 
@@ -47,6 +47,8 @@ import java.util.Set;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.TypeDescriptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

@@ -34,7 +34,7 @@ import java.util.Map;
 import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.core.conversion.ConverterNotFoundException;
 import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.util.TypeDescriptor;
+import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;

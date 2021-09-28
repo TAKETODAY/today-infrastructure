@@ -31,7 +31,7 @@ import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.PropertySetter;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.util.ResolvableType;
+import cn.taketoday.core.ResolvableType;
 
 /**
  * for {@link ObjectSupplier} PropertyValueResolver
@@ -86,7 +86,7 @@ public class ObjectSupplierPropertyResolver
 
     @Override
     protected Object resolveValue(AbstractBeanFactory beanFactory) {
-      return beanFactory.getBeanSupplier(target);
+      return beanFactory.getObjectSupplier(target);
     }
 
     @Override

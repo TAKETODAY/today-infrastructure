@@ -71,10 +71,10 @@ public class HibernateConfiguration extends Configuration
 
     if (event instanceof ContextRefreshEvent) {
       // TODO 修复懒加载模式下错误
-      refreshSessionFactory(event.getApplicationContext());
+      refreshSessionFactory(event.getSource());
     }
     else if (event instanceof LoadingMissingBeanEvent) {
-      registerSessionFactoryBean(((LoadingMissingBeanEvent) event).getCandidates(), event.getApplicationContext());
+      registerSessionFactoryBean(((LoadingMissingBeanEvent) event).getCandidates(), event.getSource());
     }
   }
 

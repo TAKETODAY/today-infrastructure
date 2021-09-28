@@ -18,15 +18,13 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.util;
+package cn.taketoday.core;
 
 import org.junit.Test;
 
 import java.util.Collection;
 import java.util.Map;
 
-import static cn.taketoday.util.GenericTypeResolver.resolveReturnTypeArgument;
-import static cn.taketoday.util.GenericTypeResolver.resolveTypeArgument;
 import static cn.taketoday.util.ReflectionUtils.findMethod;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -39,44 +37,44 @@ public class GenericTypeResolverTests {
 
   @Test
   public void simpleInterfaceType() {
-    assertEquals(String.class, resolveTypeArgument(MySimpleInterfaceType.class, MyInterfaceType.class));
+    assertEquals(String.class, GenericTypeResolver.resolveTypeArgument(MySimpleInterfaceType.class, MyInterfaceType.class));
   }
 
   @Test
   public void simpleCollectionInterfaceType() {
-    assertEquals(Collection.class, resolveTypeArgument(MyCollectionInterfaceType.class, MyInterfaceType.class));
+    assertEquals(Collection.class, GenericTypeResolver.resolveTypeArgument(MyCollectionInterfaceType.class, MyInterfaceType.class));
   }
 
   @Test
   public void simpleSuperclassType() {
-    assertEquals(String.class, resolveTypeArgument(MySimpleSuperclassType.class, MySuperclassType.class));
+    assertEquals(String.class, GenericTypeResolver.resolveTypeArgument(MySimpleSuperclassType.class, MySuperclassType.class));
   }
 
   @Test
   public void simpleCollectionSuperclassType() {
-    assertEquals(Collection.class, resolveTypeArgument(MyCollectionSuperclassType.class, MySuperclassType.class));
+    assertEquals(Collection.class, GenericTypeResolver.resolveTypeArgument(MyCollectionSuperclassType.class, MySuperclassType.class));
   }
 
   @Test
   public void nullIfNotResolvable() {
     GenericClass<String> obj = new GenericClass<>();
-    assertNull(resolveTypeArgument(obj.getClass(), GenericClass.class));
+    assertNull(GenericTypeResolver.resolveTypeArgument(obj.getClass(), GenericClass.class));
   }
 
   @Test
   public void methodReturnTypes() {
     assertEquals(Integer.class,
-                 resolveReturnTypeArgument(findMethod(MyTypeWithMethods.class, "integer"), MyInterfaceType.class));
+                 GenericTypeResolver.resolveReturnTypeArgument(findMethod(MyTypeWithMethods.class, "integer"), MyInterfaceType.class));
     assertEquals(String.class,
-                 resolveReturnTypeArgument(findMethod(MyTypeWithMethods.class, "string"), MyInterfaceType.class));
-    assertEquals(null, resolveReturnTypeArgument(findMethod(MyTypeWithMethods.class, "raw"), MyInterfaceType.class));
+                 GenericTypeResolver.resolveReturnTypeArgument(findMethod(MyTypeWithMethods.class, "string"), MyInterfaceType.class));
+    assertEquals(null, GenericTypeResolver.resolveReturnTypeArgument(findMethod(MyTypeWithMethods.class, "raw"), MyInterfaceType.class));
     assertEquals(null,
-                 resolveReturnTypeArgument(findMethod(MyTypeWithMethods.class, "object"), MyInterfaceType.class));
+                 GenericTypeResolver.resolveReturnTypeArgument(findMethod(MyTypeWithMethods.class, "object"), MyInterfaceType.class));
   }
 
   @Test
   public void testBoundParameterizedType() {
-    assertEquals(B.class, resolveTypeArgument(TestImpl.class, ITest.class));
+    assertEquals(B.class, GenericTypeResolver.resolveTypeArgument(TestImpl.class, ITest.class));
   }
 
   public interface MyInterfaceType<T> {

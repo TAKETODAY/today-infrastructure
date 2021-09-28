@@ -25,7 +25,7 @@ import java.util.List;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.util.TypeDescriptor;
+import cn.taketoday.core.TypeDescriptor;
 
 /**
  * Converts a split-able String to a Collection.

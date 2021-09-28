@@ -30,6 +30,7 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.FactoryBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Scope;
+import cn.taketoday.core.ResolvableType;
 
 /**
  * Bean factory
@@ -294,9 +295,10 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    *
    * @return a corresponding provider handle
    *
+   * @see #getObjectSupplier(ResolvableType)
    * @since 3.0
    */
-  <T> ObjectSupplier<T> getBeanSupplier(Class<T> requiredType);
+  <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType);
 
   /**
    * Return a provider for the specified bean, allowing for lazy on-demand retrieval
@@ -305,9 +307,10 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @param def
    *         BeanDefinition
    *
+   * @see #getObjectSupplier(ResolvableType)
    * @since 3.0
    */
-  <T> ObjectSupplier<T> getBeanSupplier(BeanDefinition def);
+  <T> ObjectSupplier<T> getObjectSupplier(BeanDefinition def);
 
   /**
    * Return the names of beans matching the given type (including subclasses),
@@ -487,5 +490,93 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @since 3.0
    */
   boolean isFullLifecycle();
+
+  /**
+   * Does this bean factory contain a bean definition or externally registered singleton
+   * instance with the given name?
+   * <p>If the given name is an alias, it will be translated back to the corresponding
+   * canonical bean name.
+   * <p>If this factory is hierarchical, will ask any parent factory if the bean cannot
+   * be found in this factory instance.
+   * <p>If a bean definition or singleton instance matching the given name is found,
+   * this method will return {@code true} whether the named bean definition is concrete
+   * or abstract, lazy or eager, in scope or not. Therefore, note that a {@code true}
+   * return value from this method does not necessarily indicate that {@link #getBean}
+   * will be able to obtain an instance for the same name.
+   *
+   * @param name
+   *         the name of the bean to query
+   *
+   * @return whether a bean with the given name is present
+   *
+   * @since 4.0
+   */
+  boolean containsBean(String name);
+
+  /**
+   * Check whether the bean with the given name matches the specified type.
+   * More specifically, check whether a {@link #getBean} call for the given name
+   * would return an object that is assignable to the specified target type.
+   * <p>Translates aliases back to the corresponding canonical bean name.
+   * <p>Will ask the parent factory if the bean cannot be found in this factory instance.
+   *
+   * @param name
+   *         the name of the bean to query
+   * @param typeToMatch
+   *         the type to match against (as a {@code ResolvableType})
+   *
+   * @return {@code true} if the bean type matches,
+   * {@code false} if it doesn't match or cannot be determined yet
+   *
+   * @throws NoSuchBeanDefinitionException
+   *         if there is no bean with the given name
+   * @see #getBean
+   * @see #getType
+   * @since 4.0
+   */
+  boolean isTypeMatch(String name, ResolvableType typeToMatch) throws NoSuchBeanDefinitionException;
+
+  /**
+   * Check whether the bean with the given name matches the specified type.
+   * More specifically, check whether a {@link #getBean} call for the given name
+   * would return an object that is assignable to the specified target type.
+   * <p>Translates aliases back to the corresponding canonical bean name.
+   * <p>Will ask the parent factory if the bean cannot be found in this factory instance.
+   *
+   * @param name
+   *         the name of the bean to query
+   * @param typeToMatch
+   *         the type to match against (as a {@code Class})
+   *
+   * @return {@code true} if the bean type matches,
+   * {@code false} if it doesn't match or cannot be determined yet
+   *
+   * @throws NoSuchBeanDefinitionException
+   *         if there is no bean with the given name
+   * @see #getBean
+   * @see #getType
+   * @since 4.0
+   */
+  boolean isTypeMatch(String name, Class<?> typeToMatch) throws NoSuchBeanDefinitionException;
+
+  /**
+   * Return a provider for the specified bean, allowing for lazy on-demand retrieval
+   * of instances, including availability and uniqueness options.
+   *
+   * @param requiredType
+   *         type the bean must match; can be a generic type declaration.
+   *         Note that collection types are not supported here, in contrast to reflective
+   *         injection points. For programmatically retrieving a list of beans matching a
+   *         specific type, specify the actual bean type as an argument here and subsequently
+   *         use {@link ObjectSupplier#orderedStream()} or its lazy streaming/iteration options.
+   *
+   * @return a corresponding provider handle
+   *
+   * @see ObjectSupplier#iterator()
+   * @see ObjectSupplier#stream()
+   * @see ObjectSupplier#orderedStream()
+   * @since 4.0O
+   */
+  <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType);
 
 }

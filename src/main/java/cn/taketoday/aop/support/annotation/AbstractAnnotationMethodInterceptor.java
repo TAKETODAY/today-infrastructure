@@ -75,7 +75,7 @@ public abstract class AbstractAnnotationMethodInterceptor implements Advice, Met
     Assert.notNull(adviceMethod, "adviceMethod must not be null");
     Assert.notNull(aspectDef, "aspect bean definition must not be null");
 
-    this.aspectSupplier = beanFactory.getBeanSupplier(aspectDef);
+    this.aspectSupplier = beanFactory.getObjectSupplier(aspectDef);
 
     this.invoker = MethodInvoker.fromMethod(adviceMethod, aspectDef.getBeanClass());
     this.adviceParameterLength = adviceMethod.getParameterCount();

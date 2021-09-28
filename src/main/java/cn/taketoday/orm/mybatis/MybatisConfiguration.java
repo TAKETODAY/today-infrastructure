@@ -32,16 +32,17 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.beans.BeanNameCreator;
-import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.annotation.Repository;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.DefaultBeanDefinition;
 import cn.taketoday.beans.factory.FactoryBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ContextUtils;
 import cn.taketoday.context.Env;
 import cn.taketoday.context.Props;
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.annotation.Repository;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.LoadingMissingBeanEvent;
 import cn.taketoday.core.Constant;
@@ -67,13 +68,14 @@ public class MybatisConfiguration implements ApplicationListener<LoadingMissingB
 
   @Override
   public void onApplicationEvent(LoadingMissingBeanEvent event) {
-    final Logger log = LoggerFactory.getLogger(getClass());
+    Logger log = LoggerFactory.getLogger(getClass());
     log.info("Loading Mybatis Mapper Bean Definitions");
 
-    final ApplicationContext context = event.getApplicationContext();
-    final BeanNameCreator beanNameCreator = context.getEnvironment().getBeanNameCreator();
+    ApplicationContext context = event.getSource();
+    ConfigurableBeanFactory beanFactory = event.getBeanFactory(ConfigurableBeanFactory.class);
+    BeanNameCreator beanNameCreator = context.getEnvironment().getBeanNameCreator();
 
-    for (final Class<?> beanClass : event.getCandidates()) {
+    for (Class<?> beanClass : event.getCandidates()) {
       if (beanClass.isInterface()) {
         Repository repository = beanClass.getAnnotation(Repository.class);
         if (repository == null) {
@@ -84,8 +86,9 @@ public class MybatisConfiguration implements ApplicationListener<LoadingMissingB
 
         final String[] names = repository.value();
         final String name = ObjectUtils.isNotEmpty(names) ? names[0] : beanNameCreator.create(beanClass);
-        // context.registerSingleton(BeanFactory.FACTORY_BEAN_PREFIX.concat(name), new MapperFactoryBean<>(beanClass));
-        context.registerBeanDefinition(name, createBeanDefinition(beanClass, name));
+
+        beanFactory.registerBeanDefinition(
+                name, createBeanDefinition(beanClass, name));
       }
     }
   }

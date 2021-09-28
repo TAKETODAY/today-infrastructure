@@ -20,7 +20,7 @@
 
 package cn.taketoday.core.conversion;
 
-import cn.taketoday.util.TypeDescriptor;
+import cn.taketoday.core.TypeDescriptor;
 
 /**
  * Exception to be thrown when an actual type conversion attempt fails.

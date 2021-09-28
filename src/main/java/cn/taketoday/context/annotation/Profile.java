@@ -17,13 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context;
+package cn.taketoday.context.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import cn.taketoday.context.Conditional;
+import cn.taketoday.context.ProfileCondition;
 
 /**
  * @author Today <br>

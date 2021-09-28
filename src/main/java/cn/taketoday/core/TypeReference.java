@@ -23,8 +23,6 @@ package cn.taketoday.core;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import cn.taketoday.util.ResolvableType;
-
 /**
  * The purpose of this class is to enable capturing and passing a generic
  * {@link Type}. In order to capture the generic type and retain it at runtime,
