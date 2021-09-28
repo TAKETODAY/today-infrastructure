@@ -19,14 +19,22 @@
  */
 package cn.taketoday.util;
 
+import cn.taketoday.context.Environment;
+import cn.taketoday.core.Assert;
+import cn.taketoday.core.Constant;
+import cn.taketoday.core.Nullable;
+
 import java.io.BufferedReader;
 import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -34,11 +42,6 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.UUID;
-
-import cn.taketoday.context.Environment;
-import cn.taketoday.core.Assert;
-import cn.taketoday.core.Constant;
-import cn.taketoday.core.Nullable;
 
 /**
  * @author TODAY 2018-06-26 21:19:09
@@ -440,6 +443,10 @@ public abstract class StringUtils {
     return (needToChange ? out.toString() : s);
   }
 
+	//---------------------------------------------------------------------
+	// Convenience methods for working with String arrays
+	//---------------------------------------------------------------------
+
   /**
    * Tokenize the given {@code String} into a {@code String} array via a
    * {@link StringTokenizer}.
@@ -511,19 +518,123 @@ public abstract class StringUtils {
   }
 
   /**
-   * {@link Collection} to string array
+   * Copy the given {@link Collection} into a {@code String} array.
+   * <p>The {@code Collection} must contain {@code String} elements only.
    *
    * @param collection
-   *         All element must be a string
+   * 				the {@code Collection} to copy
+   * 				(potentially {@code null} or empty)
    *
-   * @return String array
+   * @return the resulting {@code String} array
+   * @since 4.0
    */
-  @Nullable
   public static String[] toStringArray(@Nullable Collection<String> collection) {
     if (collection == null) {
       return null;
     }
     return collection.toArray(new String[collection.size()]);
+  }
+
+  /**
+   * Copy the given {@link Enumeration} into a {@code String} array.
+   * <p>The {@code Enumeration} must contain {@code String} elements only.
+   *
+   * @param enumeration
+   * 				the {@code Enumeration} to copy
+   * 				(potentially {@code null} or empty)
+   *
+   * @return the resulting {@code String} array
+   * @since 4.0
+   */
+  public static String[] toStringArray(@Nullable Enumeration<String> enumeration) {
+    return (enumeration != null ? toStringArray(Collections.list(enumeration)) : Constant.EMPTY_STRING_ARRAY);
+  }
+
+  /**
+   * Append the given {@code String} to the given {@code String} array,
+   * returning a new array consisting of the input array contents plus
+   * the given {@code String}.
+   *
+   * @param array
+   * 				the array to append to (can be {@code null})
+   * @param str
+   * 				the {@code String} to append
+   *
+   * @return the new array (never {@code null})
+   *
+   * @since 4.0
+   */
+  public static String[] addStringToArray(@Nullable String[] array, String str) {
+    if (ObjectUtils.isEmpty(array)) {
+      return new String[] { str };
+    }
+
+    String[] newArr = new String[array.length + 1];
+    System.arraycopy(array, 0, newArr, 0, array.length);
+    newArr[array.length] = str;
+    return newArr;
+  }
+
+  /**
+   * Sort the given {@code String} array if necessary.
+   *
+   * @param array
+   * 				the original array (potentially empty)
+   *
+   * @return the array in sorted form (never {@code null})
+   *
+   * @since 4.0
+   */
+  public static String[] sortStringArray(String[] array) {
+    if (ObjectUtils.isEmpty(array)) {
+      return array;
+    }
+
+    Arrays.sort(array);
+    return array;
+  }
+
+  /**
+   * Trim the elements of the given {@code String} array, calling
+   * {@code String.trim()} on each non-null element.
+   *
+   * @param array
+   * 				the original {@code String} array (potentially empty)
+   *
+   * @return the resulting array (of the same size) with trimmed elements
+   *
+   * @since 4.0
+   */
+  public static String[] trimArrayElements(String[] array) {
+    if (ObjectUtils.isEmpty(array)) {
+      return array;
+    }
+
+    String[] result = new String[array.length];
+    for (int i = 0; i < array.length; i++) {
+      String element = array[i];
+      result[i] = (element != null ? element.trim() : null);
+    }
+    return result;
+  }
+
+  /**
+   * Remove duplicate strings from the given array.
+   *
+   * @param array
+   * 				the {@code String} array (potentially empty)
+   *
+   * @return an array without duplicates, in natural sort order
+   * @since 4.0
+   */
+  public static String[] removeDuplicateStrings(String[] array) {
+    if (ObjectUtils.isEmpty(array)) {
+      return array;
+    }
+
+    LinkedHashSet<String> set = new LinkedHashSet<>();
+    CollectionUtils.addAll(set,array);
+    return toStringArray(set);
   }
 
   /**
@@ -717,6 +828,16 @@ else */
 
     return prefix.concat(collectionToString(pathElements, FOLDER_SEPARATOR));
   }
+
+  /**
+	 * Compare two paths after normalization of them.
+	 * @param path1 first path for comparison
+	 * @param path2 second path for comparison
+	 * @return whether the two paths are equivalent after normalization
+	 */
+	public static boolean pathEquals(String path1, String path2) {
+		return cleanPath(path1).equals(cleanPath(path2));
+	}
 
   /**
    * Check Url, format url like :
@@ -1053,6 +1174,26 @@ else */
     return path.substring(extIndex + 1);
   }
 
+	/**
+	 * Strip the filename extension from the given Java resource path,
+	 * e.g. "mypath/myfile.txt" -> "mypath/myfile".
+	 * @param path the file path
+	 * @return the path with stripped filename extension
+	 */
+	public static String stripFilenameExtension(String path) {
+		int extIndex = path.lastIndexOf(EXTENSION_SEPARATOR);
+		if (extIndex == -1) {
+			return path;
+		}
+
+		int folderIndex = path.lastIndexOf(FOLDER_SEPARATOR);
+		if (folderIndex > extIndex) {
+			return path;
+		}
+
+		return path.substring(0, extIndex);
+	}
+
   //
 
   /**
@@ -1348,6 +1489,44 @@ else */
       endIdx--;
     }
     return str.substring(0, endIdx + 1);
+  }
+
+  /**
+   * Test if the given {@code String} starts with the specified prefix,
+   * ignoring upper/lower case.
+   *
+   * @param str
+   * 				the {@code String} to check
+   * @param prefix
+   * 				the prefix to look for
+   *
+   * @see java.lang.String#startsWith
+   * @since 4.0
+   */
+  public static boolean startsWithIgnoreCase(@Nullable String str, @Nullable String prefix) {
+    return str != null
+            && prefix != null
+            && str.length() >= prefix.length()
+            && str.regionMatches(true, 0, prefix, 0, prefix.length());
+  }
+
+  /**
+   * Test if the given {@code String} ends with the specified suffix,
+   * ignoring upper/lower case.
+   *
+   * @param str
+   * 				the {@code String} to check
+   * @param suffix
+   * 				the suffix to look for
+   *
+   * @see java.lang.String#endsWith
+   * @since 4.0
+   */
+  public static boolean endsWithIgnoreCase(@Nullable String str, @Nullable String suffix) {
+    return str != null
+            && suffix != null
+            && str.length() >= suffix.length()
+            && str.regionMatches(true, str.length() - suffix.length(), suffix, 0, suffix.length());
   }
 
   /**

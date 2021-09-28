@@ -745,7 +745,7 @@ public abstract class ClassUtils {
    *
    * @return the {@code Class} array
    *
-   * @see StringUtils#toStringArray
+   * @see StringUtils#toStringArray(Collection)
    * @since 3.0
    */
   public static Class<?>[] toClassArray(Collection<Class<?>> collection) {
