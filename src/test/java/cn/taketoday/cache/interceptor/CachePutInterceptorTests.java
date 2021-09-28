@@ -62,7 +62,7 @@ public class CachePutInterceptorTests {
       context.importBeans(CaffeineCacheManager.class);
       context.importBeans(AspectAutoProxyCreator.class);
       context.importBeans(DefaultCacheExceptionResolver.class);
-      context.registerFrameworkBeans();
+      context.registerFrameworkComponents();
 
       final CachePutInterceptor interceptor = context.getBean(CachePutInterceptor.class);
 
@@ -115,7 +115,7 @@ public class CachePutInterceptorTests {
       context.importBeans(CaffeineCacheManager.class);
       context.importBeans(AspectAutoProxyCreator.class);
       context.importBeans(DefaultCacheExceptionResolver.class);
-      context.registerFrameworkBeans();
+      context.registerFrameworkComponents();
 
       final CachePutInterceptor interceptor = context.getBean(CachePutInterceptor.class);
 

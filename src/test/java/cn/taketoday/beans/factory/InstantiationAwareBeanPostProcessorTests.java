@@ -78,12 +78,14 @@ public class InstantiationAwareBeanPostProcessorTests {
   @Test
   public void postProcessBeforeInstantiation() {
     try (StandardApplicationContext context = new StandardApplicationContext()) {
-      context.registerFrameworkBeans();
-      context.importBeans(InstantiationAwareBeanPostProcessorBean.class);
-      context.importBeans(InstantiationAwareBeanPostProcessorConfig.class);
+      context.registerFrameworkComponents();
+      AutowireCapableBeanFactory capableBeanFactory = context.getAutowireCapableBeanFactory();
+      ConfigurableBeanFactory beanFactory = context.getBeanFactory(ConfigurableBeanFactory.class);
+      capableBeanFactory.importBeans(InstantiationAwareBeanPostProcessorBean.class);
+      capableBeanFactory.importBeans(InstantiationAwareBeanPostProcessorConfig.class);
 
       final InstantiationAwareBeanPostProcessor0 postProcessor = new InstantiationAwareBeanPostProcessor0(context);
-      context.addBeanPostProcessor(postProcessor);
+      beanFactory.addBeanPostProcessor(postProcessor);
 
       final InstantiationAwareBeanPostProcessorBean bean = context.getBean(InstantiationAwareBeanPostProcessorBean.class);
 

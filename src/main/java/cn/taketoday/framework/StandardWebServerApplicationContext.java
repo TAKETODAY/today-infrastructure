@@ -19,7 +19,7 @@
  */
 package cn.taketoday.framework;
 
-import cn.taketoday.beans.BeanNameCreator;
+import cn.taketoday.beans.factory.AbstractBeanFactory;
 import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.context.ConfigurableEnvironment;
 import cn.taketoday.context.StandardApplicationContext;
@@ -72,9 +72,9 @@ public class StandardWebServerApplicationContext
   }
 
   @Override
-  protected void registerFrameworkBeans(ConfigurableEnvironment env, BeanNameCreator nameCreator) {
-    super.registerFrameworkBeans(env, nameCreator);
-    registerSingleton(this);
+  protected void registerFrameworkComponents(
+          ConfigurableEnvironment env, AbstractBeanFactory beanFactory) {
+    beanFactory.registerSingleton(this);
   }
 
   @Override

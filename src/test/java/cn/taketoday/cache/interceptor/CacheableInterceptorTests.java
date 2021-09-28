@@ -101,7 +101,7 @@ public class CacheableInterceptorTests {
       context.importBeans(CaffeineCacheManager.class);
       context.importBeans(AspectAutoProxyCreator.class);
       context.importBeans(DefaultCacheExceptionResolver.class);
-      context.registerFrameworkBeans();
+      context.registerFrameworkComponents();
 
       final CacheableInterceptor interceptor = context.getBean(CacheableInterceptor.class);
 

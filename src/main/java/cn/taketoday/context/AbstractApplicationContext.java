@@ -416,7 +416,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     checkEnvironment(env);
     // register framework beans
     log.info("Registering framework beans");
-    registerFrameworkBeans(env, beanFactory.getBeanNameCreator());
+    registerFrameworkComponents(env, beanFactory);
     // Loading candidates components
     log.info("Loading candidates components");
     final Set<Class<?>> candidates = getComponentCandidates();
@@ -473,19 +473,21 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   /**
    * register Framework Beans
    */
-  public void registerFrameworkBeans() {
-    registerFrameworkBeans(getEnvironment(), getBeanFactory().getBeanNameCreator());
+  public void registerFrameworkComponents() {
+    AbstractBeanFactory beanFactory = getBeanFactory();
+    registerFrameworkComponents(getEnvironment(), beanFactory);
   }
 
   /**
    * Register Framework Beans
    */
-  protected void registerFrameworkBeans(ConfigurableEnvironment env, final BeanNameCreator nameCreator) {
+  protected void registerFrameworkComponents(
+          ConfigurableEnvironment env, AbstractBeanFactory beanFactory) {
     final ExpressionProcessor elProcessor = env.getExpressionProcessor();
+    BeanNameCreator nameCreator = getBeanFactory().getBeanNameCreator();
 
     // register ELManager @since 2.1.5
     // fix @since 2.1.6 elManager my be null
-    AbstractBeanFactory beanFactory = getBeanFactory();
     beanFactory.registerSingleton(nameCreator.create(ExpressionManager.class), elProcessor.getManager());
 
     beanFactory.registerSingleton(nameCreator.create(ExpressionProcessor.class), elProcessor);
